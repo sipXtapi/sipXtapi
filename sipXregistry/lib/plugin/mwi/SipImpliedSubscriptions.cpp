@@ -66,7 +66,7 @@ extern "C" RegisterPlugin* getRegisterPlugin(const UtlString& name)
                     "SipImpliedSubscriptions plugin may not be configured twice.\n"
                     "   First configured instance is %s.\n"
                     "   Second instance [%s] not created.",
-                    SipImpliedSubscriptions::mpSingleton->mLogName.data(), name.data()
+                    SIPX_SAFENULL(SipImpliedSubscriptions::mpSingleton->mLogName.data()), SIPX_SAFENULL(name.data())
                     );
 
       thePlugin = NULL;
@@ -103,11 +103,11 @@ public:
      {
         OsSysLog::add( FAC_SIP, PRI_ERR
                       ,"%s: Invalid recognizer expression '%s' for '%s%s': %s"
-                      ,logName.data()
-                      ,recognizer.data()
-                      ,SipImpliedSubscriptions::ConfigPrefix
-                      ,data()
-                      ,compileError
+                      ,SIPX_SAFENULL(logName.data())
+                      ,SIPX_SAFENULL(recognizer.data())
+                      ,SIPX_SAFENULL(SipImpliedSubscriptions::ConfigPrefix)
+                      ,SIPX_SAFENULL(data())
+                      ,SIPX_SAFENULL(compileError)
                       );
      }
   }
@@ -128,7 +128,7 @@ public:
 #      if 1 // :TODO: DEBUG
        OsSysLog::add( FAC_SIP, PRI_DEBUG
                      ,"%s checking %s: %s"
-                     ,logName.data(), data(), rcvdUA.data()
+                     ,SIPX_SAFENULL(logName.data()), SIPX_SAFENULL(data()), SIPX_SAFENULL(rcvdUA.data())
                      );
 #      endif
        matched = mUserAgentRegEx->Search(rcvdUA);
@@ -243,7 +243,7 @@ void SipImpliedSubscriptions::readConfig( OsConfigDb& configDb )
     {
       OsSysLog::add( FAC_SIP, PRI_INFO
                     ,"%s::readConfig name=\"%s\" recognizer=\"%s\""
-                    ,mLogName.data(), name.data(), recognizer.data()
+                    ,SIPX_SAFENULL(mLogName.data()), SIPX_SAFENULL(name.data()), SIPX_SAFENULL(recognizer.data())
                     );
       configuredUserAgents.add( name, recognizer, mLogName );
     }
@@ -272,7 +272,7 @@ void SipImpliedSubscriptions::takeAction(
    {
       OsSysLog::add( FAC_SIP, PRI_DEBUG
                     ,"%s requesting mwi subscription duration=%d"
-                    ,mLogName.data(), registrationDuration
+                    ,SIPX_SAFENULL(mLogName.data()), registrationDuration
                     );
 
       // This phone - accepts message waiting notifies,
@@ -303,7 +303,7 @@ bool SipImpliedSubscriptions::needsImpliedSubscription( const SipMessage& regist
 
    OsSysLog::add( FAC_SIP, PRI_DEBUG
                  ,"%s checking User-Agent \"%s\""
-                 ,mLogName.data(), userAgent.data()
+                 ,SIPX_SAFENULL(mLogName.data()), SIPX_SAFENULL(userAgent.data())
                  );
          
    configured = configuredUserAgents.configurationName( userAgent, mLogName );
@@ -313,10 +313,10 @@ bool SipImpliedSubscriptions::needsImpliedSubscription( const SipMessage& regist
       configuredForSubscription = true;
       OsSysLog::add( FAC_SIP, PRI_INFO
                     ,"%s User-Agent \"%s\" matched rule \"%s%s\""
-                    ,mLogName.data()
-                    ,userAgent.data()
-                    ,ConfigPrefix
-                    ,configured->data()
+                    ,SIPX_SAFENULL(mLogName.data()
+                    ,SIPX_SAFENULL(userAgent.data())
+                    ,SIPX_SAFENULL(ConfigPrefix)
+                    ,SIPX_SAFENULL(configured->data())
                     );
    }
 
@@ -468,7 +468,7 @@ void SipImpliedSubscriptions::authenticate( const SipMessage& registerMessage
          OsSysLog::add( FAC_SIP, PRI_WARNING,
                        "%s implied subscription request not authenticated:\n"
                        "   no credentials found for \"%s\"",
-                       mLogName.data(), user.data());
+                       SIPX_SAFENULL(mLogName.data()), SIPX_SAFENULL(user.data()));
       }
    }
    else
@@ -476,7 +476,7 @@ void SipImpliedSubscriptions::authenticate( const SipMessage& registerMessage
       OsSysLog::add( FAC_SIP, PRI_WARNING,
                     "%s implied subscription request not authenticated:\n"
                     "   no credentials in registration",
-                    mLogName.data()
+                    SIPX_SAFENULL(mLogName.data())
                     );
    }
 }

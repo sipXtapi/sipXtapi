@@ -45,7 +45,7 @@ HuntgroupDB::HuntgroupDB( const UtlString& name ) :
     // get the etc directory
     m_etcDirectory = SIPDBManager::getCfgPath() ;
 
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, "HuntgroupDB::_: %s", m_etcDirectory.data());
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, "HuntgroupDB::_: %s", SIPX_SAFENULL(m_etcDirectory.data()));
     // Access the shared table databse
     SIPDBManager* pSIPDBManager = SIPDBManager::getInstance();
     m_pFastDB = pSIPDBManager->getDatabase(name);
@@ -58,7 +58,7 @@ HuntgroupDB::HuntgroupDB( const UtlString& name ) :
     ghVerboseLoggingEnabled = SIPDBManager::isVerboseLoggingEnabled() ;
     if (ghVerboseLoggingEnabled)
         OsSysLog::add(FAC_DB, PRI_DEBUG, "HuntgroupDB::_  user=%d \"%s\"",
-                    users, name.data());
+                    users, SIPX_SAFENULL(name.data()));
     if ( users == 1 )
     {
         // Load the file implicitly
@@ -114,7 +114,7 @@ HuntgroupDB::load()
                 OsPath::separator + mDatabaseName + ".xml";
 
         OsSysLog::add(FAC_DB, PRI_DEBUG, "HuntgroupDB::load loading \"%s\"",
-                    fileName.data());
+                    SIPX_SAFENULL(fileName.data()));
 
         TiXmlDocument doc ( fileName );
 
@@ -175,7 +175,7 @@ HuntgroupDB::load()
         } else 
         {
             OsSysLog::add(FAC_SIP, PRI_WARNING, "HuntgroupDB::load failed to load \"%s\"",
-                    fileName.data());
+                    SIPX_SAFENULL(fileName.data()));
         }
     } else 
     {
@@ -197,7 +197,7 @@ HuntgroupDB::store()
         UtlString fileName = m_etcDirectory + 
                 OsPath::separator + mDatabaseName + ".xml";
 
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "HuntgroupDB::store: %s", fileName.data());
+        OsSysLog::add(FAC_SIP, PRI_DEBUG, "HuntgroupDB::store: %s", SIPX_SAFENULL(fileName.data()));
         // Thread Local Storage
         m_pFastDB->attach();
 

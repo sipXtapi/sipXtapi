@@ -200,7 +200,7 @@ public:
         const char* sdpCopyBytes = NULL;
         int sdpCopyLen = 0;
         sdpCopy->getBytes(&sdpCopyBytes, &sdpCopyLen);
-        //printf("SDP copy length: %d\n%s\n", sdpCopyLen, sdpCopyBytes);
+        //printf("SDP copy length: %d\n%s\n", sdpCopyLen, SIPX_SAFENULL(sdpCopyBytes));
         CPPUNIT_ASSERT_MESSAGE("Null sdp copy serialized content", sdpCopyBytes != NULL);
         CPPUNIT_ASSERT_MESSAGE("SDP does not match expected content",
             strcmp(referenceSdp, sdpCopyBytes) == 0);

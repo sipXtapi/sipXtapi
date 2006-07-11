@@ -98,7 +98,7 @@ class SipSubscriptionTest : public CppUnit::TestCase
                                   (SIPX_CALLSTATE_MINOR)(int)state->cause, 
                                   szBuffer,
                                   sizeof(szBuffer));
-            printf("%s\n", szBuffer);
+            printf("%s\n", SIPX_SAFENULL(szBuffer));
 #endif
         }
         // Subscribe state event
@@ -109,8 +109,8 @@ class SipSubscriptionTest : public CppUnit::TestCase
             getSubStateString(subInfo->state, stateString);
 #ifdef TEST_PRINT
             printf("inst1Callback EVENT_CATEGORY_SUB_STATUS state: %s user agent: %s\n",
-                stateString.data(),
-                subInfo->szSubServerUserAgent ? subInfo->szSubServerUserAgent : "<null>");
+                SIPX_SAFENULL(stateString.data()),
+                SIPX_SAFENULL(subInfo->szSubServerUserAgent);
 #endif
             testObj->mInst1SubHandle = subInfo->hSub;
             testObj->mInst1GotSubscribe = TRUE;
@@ -384,7 +384,7 @@ class SipSubscriptionTest : public CppUnit::TestCase
 
         if(content.compareTo(mpInst1NotifyContent) != 0) 
             printf("content differs.  got:\n%s\nexpected: \n%s\n",
-            mpInst1NotifyContent->data(), content.data());
+            SIPX_SAFENULL(mpInst1NotifyContent->data()), SIPX_SAFENULL(content.data()));
 
         ASSERT_STR_EQUAL(content.data(), mpInst1NotifyContent->data());
 //#ifdef TEST_PRINT

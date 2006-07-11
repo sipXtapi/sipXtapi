@@ -58,7 +58,7 @@ public:
 
         // dont' know what's right, but know whats wrong
         CPPUNIT_ASSERT_MESSAGE("Resolved relative path", !nativePath.contains(".."));
-        //printf("Native path is %s\n", nativePath.data());
+        //printf("Native path is %s\n", SIPX_SAFENULL(nativePath.data());
 
         file.remove();
     }

@@ -41,7 +41,7 @@ MessageIDGenerator::MessageIDGenerator(const UtlString& mailstoreRoot)
    m_dataFileName = mailstoreRoot + OsPathBase::separator + "messageid.txt";
    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                  "MessageIDGenerator::MessageIDGenerator: setting m_dataFileName = '%s'",
-                 m_dataFileName.data());
+                 SIPX_SAFENULL(m_dataFileName.data()));
 }
 
 MessageIDGenerator::~MessageIDGenerator()
@@ -74,7 +74,7 @@ MessageIDGenerator::getNextMessageID ( UtlString& rMessageName ) const
     {
         OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                       "MessageIDGenerator::getNextMessageID: m_dataFileName = '%s' exists",
-                      m_dataFileName.data());
+                      SIPX_SAFENULL(m_dataFileName.data()));
         // the file exists however it still may be corrupt
         OsFile messageIDFile ( m_dataFileName );
         result = messageIDFile.open( OsFile::READ_WRITE | OsFile::FSLOCK_WRITE );
@@ -91,7 +91,7 @@ MessageIDGenerator::getNextMessageID ( UtlString& rMessageName ) const
             {
                 OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                               "MessageIDGenerator::getNextMessageID successfully read rMessageName = '%s'",
-                              rMessageName.data());
+                              SIPX_SAFENULL(rMessageName.data()));
                 int nextSequenceNum = atoi ( rMessageName.data() ) + 1;
                 char buffer[32];
                 // Write it, zero extended to eight digits.
@@ -119,12 +119,12 @@ MessageIDGenerator::getNextMessageID ( UtlString& rMessageName ) const
     {
         OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                       "MessageIDGenerator::getNextMessageID: m_dataFileName = '%s' does not exist, calling recoverMessageID",
-                      m_dataFileName.data());
+                      SIPX_SAFENULL(m_dataFileName.data()));
         result = recoverMessageID ( rMessageName );
     }
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                   "MessageIDGenerator::getNextMessageID returns %d, rMessageName = '%s'",
-                  result, rMessageName.data());
+                  result, SIPX_SAFENULL(rMessageName.data()));
     return result;
 }
 
@@ -142,7 +142,7 @@ MessageIDGenerator::recoverMessageID ( UtlString& rMessageName ) const
     result = messageIDFile.open( OsFile::CREATE );
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                   "MessageIDGenerator::recoverMessageID: attempt to open file '%s' returns %d",
-                  m_dataFileName.data(), result);
+                  SIPX_SAFENULL(m_dataFileName.data()), result);
 
     if (result == OS_SUCCESS)
     {
@@ -162,11 +162,11 @@ MessageIDGenerator::recoverMessageID ( UtlString& rMessageName ) const
     {
        OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_CRIT,
                      "MessageIDGenerator::recoverMessageID: Attempt to recover the message ID file '%s' failed",
-                     m_dataFileName.data());
+                     SIPX_SAFENULL(m_dataFileName.data()));
     }
 
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                   "MessageIDGenerator::recoverMessageID returns %d, rMessageName = '%s'",
-                  result, rMessageName.data());
+                  result, SIPX_SAFENULL(rMessageName.data()));
     return result;
 }

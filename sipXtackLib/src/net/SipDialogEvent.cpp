@@ -308,7 +308,7 @@ void SipDialogEvent::parseBody(const char* bodyBytes)
    if(bodyBytes)
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogEvent::parseBody incoming package = %s\n", 
-                    bodyBytes);
+                    SIPX_SAFENULL(bodyBytes));
                     
       TiXmlDocument doc("dialogEvent.xml");
       
@@ -508,7 +508,7 @@ Dialog* SipDialogEvent::getDialog(UtlString& callId)
       if (foundValue.compareTo(callId) == 0)
       {
          OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogEvent::getDialog found Dialog = %p for callId %s", 
-                       pDialog, callId.data());                 
+                       pDialog, SIPX_SAFENULL(callId.data()));
             
          mLock.release();
          return pDialog;
@@ -516,7 +516,7 @@ Dialog* SipDialogEvent::getDialog(UtlString& callId)
    }     
           
    OsSysLog::add(FAC_SIP, PRI_WARNING, "SipDialogEvent::getDialog could not found the Dialog for callId = %s", 
-                 callId.data());                 
+                 SIPX_SAFENULL(callId.data()));                 
    mLock.release();
    return NULL;
 }
@@ -541,7 +541,7 @@ Dialog* SipDialogEvent::getDialogByCallId(UtlString& callId)
       {
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
                        "SipDialogEvent::getDialog found Dialog = %p for callId = '%s'", 
-                       pDialog, callId.data());
+                       pDialog, SIPX_SAFENULL(callId.data()));
 
          mLock.release();
          return pDialog;
@@ -550,7 +550,7 @@ Dialog* SipDialogEvent::getDialogByCallId(UtlString& callId)
           
    OsSysLog::add(FAC_SIP, PRI_WARNING,
                  "SipDialogEvent::getDialog could not find the Dialog for callId = '%s'", 
-                 callId.data());
+                 SIPX_SAFENULL(callId.data()));
    mLock.release();
    return NULL;
 }
@@ -768,7 +768,7 @@ void SipDialogEvent::buildBody() const
    ((SipDialogEvent*)this)->bodyLength = dialogEvent.length();
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogEvent::buildBody Dialog content = \n%s", 
-                 dialogEvent.data());
+                 SIPX_SAFENULL(dialogEvent.data()));
   
    // Increment the version number
    ((SipDialogEvent*)this)->mVersion++;

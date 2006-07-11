@@ -40,7 +40,7 @@ HeartBeatMonitor::run( void* runArg )
         // print the db meta process info before locking the IMDB
         UtlString databaseInfo;
         getDatabaseInfo ( databaseInfo );
-        osPrintf ( "%s", databaseInfo.data() );
+        osPrintf ( "%s", SIPX_SAFENULL(databaseInfo.data()) );
         OsSysLog::add(LOG_FACILITY, PRI_DEBUG, databaseInfo.data());
 
         // print out the IMDB stats, this commmand may hang forever
@@ -48,8 +48,8 @@ HeartBeatMonitor::run( void* runArg )
         {
             UtlString processInfo;
             getProcessInfo ( FALSE, processInfo );
-            osPrintf ("%s\n", processInfo.data());
-            OsSysLog::add( LOG_FACILITY, PRI_DEBUG, "%s\n", processInfo.data());
+            osPrintf ("%s\n", SIPX_SAFENULL(processInfo.data()));
+            OsSysLog::add( LOG_FACILITY, PRI_DEBUG, "%s\n", SIPX_SAFENULL(processInfo.data()));
         } else 
         {
             // Access the database using a cursorForUpdate (forcing a lock)

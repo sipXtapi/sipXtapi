@@ -60,7 +60,7 @@ public:
             printf("\n"
                    "Expected: %s"
                    "Actual  : %s",
-                   expected, actual.data()
+                   SIPX_SAFENULL(expected), SIPX_SAFENULL(actual.data())
                    );
          }
          return matches;

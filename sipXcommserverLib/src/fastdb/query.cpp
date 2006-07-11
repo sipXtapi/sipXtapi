@@ -21,7 +21,7 @@ char* dbQueryElement::dump(char* buf)
 {
     switch (type) { 
       case qExpression:
-	buf += sprintf(buf, " %s ", (const char*)ptr);
+	buf += sprintf(buf, " %s ", SIPX_SAFENULL((const char*)ptr));
 	break;
       case qVarBool:
 	buf += sprintf(buf, "{boolean}");
@@ -52,21 +52,21 @@ char* dbQueryElement::dump(char* buf)
 	break;
       case qVarReference:
 	if (ref != NULL) { 
-	    buf += sprintf(buf, "{dbReference<%s>}", ref->getName());
+	    buf += sprintf(buf, "{dbReference<%s>}", SIPX_SAFENULL(ref->getName()));
 	} else { 
 	    buf += sprintf(buf, "{dbAnyReference}");
 	}
 	break;
       case qVarArrayOfRef:
 	if (ref != NULL) { 
-	    buf += sprintf(buf, "{dbArray< dbReference<%s> >}", ref->getName());
+	    buf += sprintf(buf, "{dbArray< dbReference<%s> >}", SIPX_SAFENULL(ref->getName()));
 	} else { 
 	    buf += sprintf(buf, "{dbArray<dbAnyReference>}");
 	}
 	break;
       case qVarArrayOfRefPtr:
 	if (ref != NULL) { 
-	    buf += sprintf(buf, "{dbArray< dbReference<%s> >*}", ref->getName());
+	    buf += sprintf(buf, "{dbArray< dbReference<%s> >*}", SIPX_SAFENULL(ref->getName()));
 	} else { 
 	    buf += sprintf(buf, "{dbArray<dbAnyReference>*}");
 	}
@@ -88,7 +88,7 @@ char* dbQueryElement::dumpValues(char* buf)
 {
     switch (type) { 
       case qExpression:
-	buf += sprintf(buf, " %s ", (char*)ptr);
+	buf += sprintf(buf, " %s ", SIPX_SAFENULL((char*)ptr));
 	break;
       case qVarBool:
 	buf += sprintf(buf, "%s", *(bool*)ptr ? "true" : "false");
@@ -112,28 +112,28 @@ char* dbQueryElement::dumpValues(char* buf)
 	buf += sprintf(buf, "%f", *(real8*)ptr);
 	break;
       case qVarString:
-	buf += sprintf(buf, "'%s'", (char*)ptr);
+	buf += sprintf(buf, "'%s'", SIPX_SAFENULL((char*)ptr));
 	break;
       case qVarStringPtr:
-	buf += sprintf(buf, "'%s'", *(char**)ptr);
+	buf += sprintf(buf, "'%s'", SIPX_SAFENULL(*(char**)ptr));
 	break;
       case qVarReference:
 	if (ref != NULL) { 
-	    buf += sprintf(buf, "@%s:%x", ref->getName(), *(oid_t*)ptr);
+	    buf += sprintf(buf, "@%s:%x", SIPX_SAFENULL(ref->getName()), *(oid_t*)ptr);
 	} else { 
 	    buf += sprintf(buf, "@%x", *(oid_t*)ptr);
 	}
 	break;
       case qVarArrayOfRef:
 	if (ref != NULL) { 
-	    buf += sprintf(buf, "{dbArray< dbReference<%s> >}", ref->getName());
+	    buf += sprintf(buf, "{dbArray< dbReference<%s> >}", SIPX_SAFENULL(ref->getName()));
 	} else { 
 	    buf += sprintf(buf, "{dbArray<dbAnyReference>}");
 	}
 	break;
       case qVarArrayOfRefPtr:
 	if (ref != NULL) { 
-	    buf += sprintf(buf, "{dbArray< dbReference<%s> >*}", ref->getName());
+	    buf += sprintf(buf, "{dbArray< dbReference<%s> >*}", SIPX_SAFENULL(ref->getName()));
 	} else { 
 	    buf += sprintf(buf, "{dbArray<dbAnyReference>*}");
 	}
@@ -143,7 +143,7 @@ char* dbQueryElement::dumpValues(char* buf)
 	break;
 #ifdef USE_STD_STRING
       case qVarStdString:
-	buf += sprintf(buf, "'%s'", ((std::string*)ptr)->c_str());
+	buf += sprintf(buf, "'%s'", SIPX_SAFENULL(((std::string*)ptr)->c_str()));
 	break;
 #endif	
     }

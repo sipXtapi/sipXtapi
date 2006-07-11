@@ -111,7 +111,7 @@ UtlBoolean CpGhostConnection::transferControllerStatus(int connectionState, int 
     UtlString connState;
     getStateString(connectionState, &connState);
     osPrintf("CpGhostConnection::transferControllerStatus state: %s cause: %d\n",
-        connState.data(), cause);
+        SIPX_SAFENULL(connState.data()), cause);
          connState.remove(0);
 #endif
     setState(connectionState, CONNECTION_REMOTE, cause);

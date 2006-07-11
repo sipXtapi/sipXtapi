@@ -15,7 +15,6 @@
 // APPLICATION INCLUDES
 #include <os/OsSysLog.h>
 #include <utl/UtlString.h>
-#include <os/OsSysLog.h>
 #include <net/SipSubscribeServerEventHandler.h>
 #include <net/SipPublishContentMgr.h>
 #include <net/SipMessage.h>
@@ -150,8 +149,8 @@ UtlBoolean SipSubscribeServerEventHandler::getNotifyContent(const UtlString& res
         {
             OsSysLog::add(FAC_SIP, PRI_ERR,
                 "SipSubscribeServerEventHandler::getNotifyContent body published for resourceId: %s eventTypeKey: %s with no content type",
-                resourceId.data() ? resourceId.data() : "<null>", 
-                eventTypeKey.data() ? eventTypeKey.data() : "<null>");
+                SIPX_SAFENULL(resourceId.data()), 
+                SIPX_SAFENULL(eventTypeKey.data()));
 
             contentType = "text/unknown";
         }
@@ -164,7 +163,7 @@ UtlBoolean SipSubscribeServerEventHandler::getNotifyContent(const UtlString& res
         notifyRequest.getBytes(&body, &bodyLength);   
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
                       "SipSubscribeServerEventHandler::getNotifyContent resourceId <%s>, eventTypeKey <%s> contentType <%s>\nNotify message length = %d, messageBody =\n%s\n",
-                      resourceId.data(), eventTypeKey.data(), contentType.data(), bodyLength, body.data());
+                      SIPX_SAFENULL(resourceId.data()), SIPX_SAFENULL(eventTypeKey.data()), SIPX_SAFENULL(contentType.data()), bodyLength, SIPX_SAFENULL(body.data()));
     }
 
     return(gotBody);

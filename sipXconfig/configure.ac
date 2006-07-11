@@ -48,7 +48,7 @@ CHECK_RAKE([0.5.3])
 
 AC_SUBST(RUBY_BINDINGS_ENABLED, [])
 if test x$enable_ruby_binding == xyes ; then
-  RUBY_BINDINGS_ENABLED=ruby-bindings-enabled=
+  RUBY_BINDINGS_ENABLED="ruby-bindings-enabled="
   SFAC_SRCDIR_EXPAND
   AC_PATH_PROG([WSDL2RUBY], wsd2lruby.rb, $abs_srcdir/web/meta/wsdl2ruby.rb)
 fi
@@ -70,4 +70,3 @@ AC_OUTPUT
 # until make time, so here we get a jump start on this mainly for ANT
 # purist that don't do make and got right int ant
 make build.properties
-

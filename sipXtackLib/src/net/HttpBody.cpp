@@ -54,7 +54,7 @@ HttpBody::HttpBody(const char* bytes, int length, const char* contentType) :
         {
                 append(contentType);
         NameValueTokenizer::frontBackTrim(this, " \t");
-        //osPrintf("Content type: \"%s\"\n", mBodyContentType.data());
+        //osPrintf("Content type: \"%s\"\n", SIPX_SAFENULL(mBodyContentType.data()));
         int boundaryIndex = index(MULTIPART_BOUNDARY_PARAMETER,
             0, UtlString::ignoreCase);
 
@@ -64,7 +64,7 @@ HttpBody::HttpBody(const char* bytes, int length, const char* contentType) :
         {
             boundaryIndex += strlen(MULTIPART_BOUNDARY_PARAMETER);
             //osPrintf("Boundary start:=>%s\n",
-            //    (mBodyContentType.data())[boundaryIndex]);
+            //    SIPX_SAFENULL((mBodyContentType.data())[boundaryIndex]));
 
             // Allow white space before =
             int fieldLength = this->length();
@@ -81,7 +81,7 @@ HttpBody::HttpBody(const char* bytes, int length, const char* contentType) :
                 if(whiteSpaceIndex > 0) mMultipartBoundary.remove(whiteSpaceIndex);
                 whiteSpaceIndex = mMultipartBoundary.first('\t');
                 if(whiteSpaceIndex > 0) mMultipartBoundary.remove(whiteSpaceIndex);
-                //osPrintf("HttpBody: boundary=\"%s\"\n", mMultipartBoundary.data());
+                //osPrintf("HttpBody: boundary=\"%s\"\n", SIPX_SAFENULL(mMultipartBoundary.data()));
             }
         }
     }
@@ -109,7 +109,7 @@ HttpBody::HttpBody(const char* bytes, int length, const char* contentType) :
                     getMultipartBytes(partIndex, &partBytes, &partLength);
                     //osPrintf("Body part 1 length: %d\n", firstPart.length());
                     //osPrintf("++++ Multipart Body #1 ++++\n%s\n++++ End Multipart #1 ++++\n",
-                    //    firstPart.data());
+                    //    SIPX_SAFENULL(firstPart.data()));
                     if(partLength <= 0) break;
 
                     // Parse throught the header to the MIME part
@@ -255,7 +255,7 @@ HttpBody* HttpBody::copyBody(const HttpBody& sourceBody)
         body = new HttpBody(sourceBody);
 #ifdef TEST_PRINT
         OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpMessage::HttpMessage HttpBody copy content-type: %s\n",
-            bodyType ? bodyType : "<null>");
+            SIPX_SAFENULL(bodyType));
 #endif
         break;
 

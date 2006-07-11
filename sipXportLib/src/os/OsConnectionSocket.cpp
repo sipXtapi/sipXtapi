@@ -71,7 +71,7 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
    UtlString temp_output_address;
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "OsConnectionSocket::_ attempt %s:%d %s"
-                 ,serverName, serverPort, blockingConnect ? "BLOCKING" : "NON-BLOCKING" );
+                 ,SIPX_SAFENULL(serverName), serverPort, SIPX_SAFENULL(blockingConnect ? "BLOCKING" : "NON-BLOCKING" ));
 
    socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
 
@@ -181,7 +181,7 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
       close();
       OsSysLog::add(FAC_SIP, PRI_ERR,
                     "DNS failed to look up host: '%s'\n",
-                    serverName);
+                    SIPX_SAFENULL(serverName));
       goto EXIT;
    }
 
@@ -190,7 +190,7 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
       inet_ntoa_pt(*((in_addr*) (server->h_addr)),temp_output_address);
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "OsConnectionSocket::_: connecting to host at: %s:%d\n",
-                    temp_output_address.data(), serverPort);
+                    SIPX_SAFENULL(temp_output_address.data()), serverPort);
       serverAddr = (in_addr*) (server->h_addr);
       serverSockAddr.sin_family = server->h_addrtype;
       serverSockAddr.sin_port = htons(serverPort);
@@ -250,7 +250,7 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
       msgBuf = strerror(error);
       OsSysLog::add(FAC_SIP, PRI_INFO, "OsConnectionSocket(%s:%d): call to connect() failed: %s\n"
                     "connect call failed with error: %d %d\n",
-                    serverName, serverPort, msgBuf, error, connectReturn);
+                    SIPX_SAFENULL(serverName), serverPort, SIPX_SAFENULL(msgBuf), error, connectReturn);
 #if 0
       // Report exactly what the arguments to connect() were
       // to diagnose difficult errors.
@@ -265,7 +265,7 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "OsConnectionSocket socketDescriptor = %d, "
                     "serverSockAddr = %s",
-                    socketDescriptor, buffer);
+                    socketDescriptor, SIPX_SAFENULL(buffer));
 #endif
    }
    else

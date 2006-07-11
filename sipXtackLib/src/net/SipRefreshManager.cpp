@@ -13,6 +13,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include <os/OsDefs.h>
 #include <os/OsLock.h>
 #include <os/OsDateTime.h>
 #include <os/OsTimer.h>
@@ -203,7 +204,7 @@ UtlBoolean SipRefreshManager::initiateRefresh(SipMessage& subscribeOrRegisterReq
         existingDialogState = TRUE;
         OsSysLog::add(FAC_SIP, PRI_ERR,
                 "SipRefreshManager::initiateRefresh called with established dialog handle: %s",
-                messageDialogHandle.data());
+                SIPX_SAFENULL(messageDialogHandle.data()));
     }
 
     else
@@ -216,7 +217,7 @@ UtlBoolean SipRefreshManager::initiateRefresh(SipMessage& subscribeOrRegisterReq
             intitialRequestSent = FALSE;
             OsSysLog::add(FAC_SIP, PRI_ERR,
                 "SipRefreshManager::initiateRefresh called with pre-existing refresh state: %s",
-                messageDialogHandle.data());
+                SIPX_SAFENULL(messageDialogHandle.data()));
         }
 
         // The dialog should not exist either
@@ -226,7 +227,7 @@ UtlBoolean SipRefreshManager::initiateRefresh(SipMessage& subscribeOrRegisterReq
             existingDialogState = TRUE;
             OsSysLog::add(FAC_SIP, PRI_ERR,
                 "SipRefreshManager::initiateRefresh called with pre-existing dialog: %s",
-                messageDialogHandle.data());
+                SIPX_SAFENULL(messageDialogHandle.data()));
         }
     }
 
@@ -641,10 +642,10 @@ UtlBoolean SipRefreshManager::handleMessage(OsMsg &eventMessage)
 
 #ifdef TEST_PRINT
             osPrintf("Looking for refresh state with dialog handle: %s\n",
-                   dialogHandle.data());
+                   SIPX_SAFENULL((dialogHandle.data()));
             UtlString refreshStateDump;
             dumpRefreshStates(refreshStateDump);
-            osPrintf("SipRefreshManager::handleMessage state dump:\n%s\n", refreshStateDump.data());
+            osPrintf("SipRefreshManager::handleMessage state dump:\n%s\n", SIP_SAFENULL(refreshStateDump.data()));
 #endif
 
             lock();
@@ -679,9 +680,9 @@ UtlBoolean SipRefreshManager::handleMessage(OsMsg &eventMessage)
                 {
 #ifdef TEST_PRINT
                     osPrintf("Removed refresh state with dialog handle: %s\n",
-                             state->data());
+                             SIP_SAFENULL(state->data()));
                     osPrintf("Inserting refresh state with dialog handle: %s\n",
-                             dialogHandle.data());
+                             SIP_SAFENULL(dialogHandle.data()));
 #endif
                     // Fix the state handle and put it back in the list
                     *((UtlString*) state) = dialogHandle;

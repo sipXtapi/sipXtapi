@@ -17,6 +17,7 @@
 
 #include <utl/UtlHashBagIterator.h>
 
+#include <os/OsDefs.h>
 #include "os/OsStatus.h"
 #include "os/OsConfigDb.h"
 #include "os/OsEventMsg.h"
@@ -278,7 +279,7 @@ SipRefreshMgr::newRegisterMsg(
     if ( !isDuplicateRegister( fromUrl ) )
     {
         syslog(FAC_REFRESH_MGR, PRI_DEBUG, "adding registration:\nurl=%s\nlineid=%s\nperiod=%d",
-                fromUrl.toString().data(), lineId.data(), registryPeriodSeconds) ;
+                SIPX_SAFENULL(fromUrl.toString().data()), SIPX_SAFENULL(lineId.data()), registryPeriodSeconds) ;
         
         Url uri = fromUrl;
         uri.setDisplayName("");
@@ -306,7 +307,7 @@ SipRefreshMgr::newRegisterMsg(
     else
     {
         syslog(FAC_REFRESH_MGR, PRI_ERR, "unable to add new registration (dup):\nurl=%s\nlineid=%s\nperiod=%d",
-                fromUrl.toString().data(), lineId.data(), registryPeriodSeconds) ;
+                SIPX_SAFENULL(fromUrl.toString().data()), SIPX_SAFENULL(lineId.data()), registryPeriodSeconds) ;
     }
 
     return false;
@@ -543,7 +544,7 @@ SipRefreshMgr::sendRequest (
         if ( method2.compareTo(SIP_REGISTER_METHOD) == 0 )
         {
             osPrintf("** sendRequest cseq=%d, method=%s, callId=%s\n",
-                    cseq, method2.data(), callId.data()) ;
+                    cseq, SIP_SAFENULL(method2.data()), SIP_SAFENULL(callId.data())) ;
 
             mRegisterList.printDebugTable() ;
         }
@@ -557,7 +558,7 @@ SipRefreshMgr::sendRequest (
         request.getToField(&toField) ;
 
         syslog(FAC_REFRESH_MGR, PRI_ERR, "unable to send %s message (send failed):\nto: %s",
-                method, toField.data()) ;
+                SIPX_SAFENULL(method), SIPX_SAFENULL(toField.data())) ;
                 
         UtlString tmpMethod;
         Url url;
@@ -659,7 +660,7 @@ SipRefreshMgr::rescheduleRequest(
 
     // Log reschedule attempt
     syslog(FAC_REFRESH_MGR, PRI_DEBUG, "rescheduling %s request:\nsecs=%d\npercent=%d\nsendNow=%d",
-            method, secondsFromNow, percentage, sendImmediate) ;
+            SIPX_SAFENULL(method), secondsFromNow, percentage, sendImmediate) ;
 
     if ( methodStr.compareTo(SIP_REGISTER_METHOD) == 0 )
     {
@@ -785,7 +786,7 @@ SipRefreshMgr::rescheduleRequest(
 
         // Log reschedule attempt
         syslog(FAC_REFRESH_MGR, PRI_DEBUG, "rescheduled %s in %d second(s)",
-                method, secondsFromNow) ;
+                SIPX_SAFENULL(method), secondsFromNow) ;
 
         OsTime timerTime(secondsFromNow, 0);        
         timer->oneshotAfter(timerTime);
@@ -1054,7 +1055,7 @@ SipRefreshMgr::parseContactFields(
                 NameValueTokenizer::getSubField(subfieldText.data(), 1, "=", &subfieldValue);
 #ifdef TEST_PRINT
                 osPrintf("SipUserAgent::processRegisterResponce found contact parameter[%d]: \"%s\" value: \"%s\"\n",
-                         subfieldIndex, subfieldName.data(), subfieldValue.data());
+                         subfieldIndex, SIP_SAFENULL(subfieldName.data()), SIP_SAFENULL(subfieldValue.data()));
 #endif
                 subfieldName.toUpper();
                 if ( subfieldName.compareTo(SIP_EXPIRES_FIELD) == 0 )
@@ -1180,8 +1181,8 @@ SipRefreshMgr::registerUrl(
         regMessage->setContactField("") ; // BA: Why are we clearing the contact field ?!?
 
         syslog(FAC_REFRESH_MGR, PRI_DEBUG, "queueing register until the SIP UA is ready:\nfrom=%s\nto=%s\nuri=%s\ncontact=%s\ncallid=%s",
-                fromField.data(), registerToAddress, registerUri, 
-                contactUrl, registerCallId.data()) ;
+                SIPX_SAFENULL(fromField.data()), SIPX_SAFENULL(registerToAddress), SIPX_SAFENULL(registerUri), 
+                SIPX_SAFENULL(contactUrl), SIPX_SAFENULL(registerCallId.data())) ;
     }
 
     delete regMessage;
@@ -1218,7 +1219,7 @@ SipRefreshMgr::handleMessage( OsMsg& eventMessage )
             
             // Log Failures
             syslog(FAC_REFRESH_MGR, PRI_ERR, "unable to send %s (transport):\ncallid=%s",
-                    method.data(), callid.data()) ;
+                    SIPX_SAFENULL(method.data()), SIPX_SAFENULL(callid.data())) ;
 
             //reschedule only if expires value is not zero otherwise it means we just did an unregister
             if ( !isExpiresZero(sipMsg) )
@@ -1264,7 +1265,7 @@ SipRefreshMgr::handleMessage( OsMsg& eventMessage )
                 if ( messageType == SipMessageEvent::AUTHENTICATION_RETRY )
                 {
                     syslog(FAC_REFRESH_MGR, PRI_INFO, "authentication requested for %s request:\ncallid=%s",
-                            method.data(), callid.data()) ;
+                            SIPX_SAFENULL(method.data()), SIPX_SAFENULL(callid.data())) ;
 
                     if ( strcmp(method.data(), SIP_REGISTER_METHOD) == 0 )
                     {
@@ -1312,7 +1313,7 @@ SipRefreshMgr::handleMessage( OsMsg& eventMessage )
                 sipMsg->getBytes(&response, &respLen) ;                
                 dumpMessageLists(msgContents) ;                
                 syslog(FAC_REFRESH_MGR, PRI_ERR, "unable to find request for %s response:\ncallid=%s\nResponse:\n%s\nLists:\n%s",
-                    method.data(), callid.data(), response.data(), msgContents.data()) ;
+                    SIPX_SAFENULL(method.data()), SIPX_SAFENULL(callid.data()), SIPX_SAFENULL(response.data()), SIPX_SAFENULL(msgContents.data())) ;
 */
 
             }
@@ -1352,14 +1353,14 @@ SipRefreshMgr::handleMessage( OsMsg& eventMessage )
 
             // Log Timeout
             syslog(FAC_REFRESH_MGR, PRI_DEBUG, "timeout for %s:\ncallid=%s",
-                    method.data(), callId.data())  ;
+                    SIPX_SAFENULL(method.data()), SIPX_SAFENULL(callId.data()))  ;
                     
 #ifdef TEST_PRINT
             int len = 0 ;
             UtlString bytes ;
 
             sipMessage->getBytes(&bytes, &len) ;
-            osPrintf("%s\n", bytes.data()) ;
+            osPrintf("%s\n", SIPX_SAFENULL(bytes.data())) ;
 #endif
             
             // check if a duplicate request is in the list, 
@@ -1396,7 +1397,7 @@ SipRefreshMgr::handleMessage( OsMsg& eventMessage )
                     else
                     {
                         syslog(FAC_REFRESH_MGR, PRI_ERR, "unable to refresh %s (not found):\ncallid=%s",
-                            method.data(), callId.data()) ;                  
+                            SIPX_SAFENULL(method.data()), SIPX_SAFENULL(callId.data())) ;                  
                     }
                 } 
                 else
@@ -1418,7 +1419,7 @@ SipRefreshMgr::handleMessage( OsMsg& eventMessage )
                     else
                     {
                         syslog(FAC_REFRESH_MGR, PRI_ERR, "unable to refresh %s (not found):\ncallid=%s",
-                            method.data(), callId.data()) ;                  
+                            SIPX_SAFENULL(method.data()), SIPX_SAFENULL(callId.data())) ;                  
                     }                     
                 }
             }
@@ -1582,7 +1583,7 @@ SipRefreshMgr::newSubscribeMsg( SipMessage& sipMessage )
         if ( !isDuplicateSubscribe( to.data() ) )
         {
             syslog(FAC_REFRESH_MGR, PRI_DEBUG, "adding registration:\nurl=%s\nevent-type=%s",
-                    to.data(), eventType.data()) ;
+                    SIPX_SAFENULL(to.data()), SIPX_SAFENULL(eventType.data())) ;
 
             // lazy create the from tag
             Url fromUrl;
@@ -1634,7 +1635,7 @@ SipRefreshMgr::newSubscribeMsg( SipMessage& sipMessage )
             else
             {
                 syslog(FAC_REFRESH_MGR, PRI_ERR, "unable to add registration (queue):\nurl=%s\nevent-type=%s",
-                        to.data(), eventType.data()) ;
+                        SIPX_SAFENULL(to.data()), SIPX_SAFENULL(eventType.data())) ;
 
             } 
             result = true;
@@ -1642,7 +1643,7 @@ SipRefreshMgr::newSubscribeMsg( SipMessage& sipMessage )
         else
         {
             syslog(FAC_REFRESH_MGR, PRI_ERR, "unable to add new registration (dup):\nurl=%s\nevent-type=%s",
-                    to.data(), eventType.data()) ;
+                    SIPX_SAFENULL(to.data()), SIPX_SAFENULL(eventType.data())) ;
         }
     } 
     else

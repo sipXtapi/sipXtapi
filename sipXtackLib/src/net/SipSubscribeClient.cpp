@@ -16,6 +16,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include <os/OsDefs.h>
 #include <os/OsDateTime.h>
 #include <net/SipSubscribeClient.h>
 #include <net/SipUserAgent.h>
@@ -438,8 +439,8 @@ UtlBoolean SipSubscribeClient::handleMessage(OsMsg &eventMessage)
             {
                 OsSysLog::add(FAC_SIP, PRI_ERR,
                     "SipSubscribeClient::handleMessage unexpected %s %s",
-                    method.data(),
-                    sipMessage->isResponse() ? "response" : "request");
+                    SIPX_SAFENULL(method.data()),
+                    SIPX_SAFENULL(sipMessage->isResponse() ? "response" : "request"));
             }
         }
         else
@@ -572,7 +573,7 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
                     {
                         OsSysLog::add(FAC_SIP, PRI_ERR, 
                             "SipSubscribeClient::refreshCallback failed to find early dialog: %s",
-                            earlyDialogHandle);
+                            SIPX_SAFENULL(earlyDialogHandle));
                     }
                     else
                     {
@@ -717,7 +718,7 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
 
 #ifdef TEST_PRINT
     osPrintf("SipSubscribeClient::handleNotifyRequest looking for NOTIFY dialog: %s\n",
-        notifyDialogHandle.data());
+        SIP_SAFENULL(notifyDialogHandle.data()));
 #endif
 
     if(foundDialog) 

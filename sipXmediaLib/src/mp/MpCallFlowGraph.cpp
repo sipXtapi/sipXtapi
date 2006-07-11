@@ -696,7 +696,7 @@ OsStatus MpCallFlowGraph::Record(int ms,
    
    if (recorderMask & 1)
       sprintf(created_micNamePtr,
-                        "%sm%d_%s_8k.raw", baseName, playIndex, endName);
+                        "%sm%d_%s_8k.raw", SIPX_SAFENULL(baseName), playIndex, SIPX_SAFENULL(endName));
    else {
       delete [] created_micNamePtr;
       created_micNamePtr = NULL;
@@ -704,7 +704,7 @@ OsStatus MpCallFlowGraph::Record(int ms,
 
    if (recorderMask & 2)
       sprintf(created_echoOutNamePtr,
-                        "%so%d_%s_8k.raw", baseName, playIndex, endName);
+                        "%so%d_%s_8k.raw", SIPX_SAFENULL(baseName), playIndex, SIPX_SAFENULL(endName));
    else {
       delete [] created_echoOutNamePtr;
       created_echoOutNamePtr = NULL;
@@ -712,7 +712,7 @@ OsStatus MpCallFlowGraph::Record(int ms,
 
    if (recorderMask & 4)
       sprintf(created_spkrNamePtr,
-                        "%ss%d_%s_8k.raw", baseName, playIndex,  endName);
+                        "%ss%d_%s_8k.raw", SIPX_SAFENULL(baseName), playIndex,  SIPX_SAFENULL(endName));
    else {
       delete [] created_spkrNamePtr;
       created_spkrNamePtr = NULL;
@@ -720,7 +720,7 @@ OsStatus MpCallFlowGraph::Record(int ms,
 
    if (recorderMask & 8)
       sprintf(created_mic32NamePtr,
-                        "%sm%d_%s_32k.raw", baseName, playIndex, endName);
+                        "%sm%d_%s_32k.raw", SIPX_SAFENULL(baseName), playIndex, SIPX_SAFENULL(endName));
    else {
       delete [] created_mic32NamePtr;
       created_mic32NamePtr = NULL;
@@ -728,7 +728,7 @@ OsStatus MpCallFlowGraph::Record(int ms,
 
    if (recorderMask & 16)
       sprintf(created_spkr32NamePtr,
-                        "%ss%d_%s_32k.raw", baseName, playIndex, endName);
+                        "%ss%d_%s_32k.raw", SIPX_SAFENULL(baseName), playIndex, SIPX_SAFENULL(endName));
    else {
       delete [] created_spkr32NamePtr;
       created_spkr32NamePtr = NULL;
@@ -736,7 +736,7 @@ OsStatus MpCallFlowGraph::Record(int ms,
 
    if (recorderMask & 32)
       sprintf(created_echoIn8NamePtr,
-                        "%se%d_%s_8k.raw", baseName, playIndex, endName);
+                        "%se%d_%s_8k.raw", SIPX_SAFENULL(baseName), playIndex, SIPX_SAFENULL(endName));
    else {
       delete [] created_echoIn8NamePtr;
       created_echoIn8NamePtr = NULL;
@@ -744,7 +744,7 @@ OsStatus MpCallFlowGraph::Record(int ms,
 
    if (recorderMask & 64)
       sprintf(created_echoIn32NamePtr,
-                        "%se%d_%s_32k.raw", baseName, playIndex, endName);
+                        "%se%d_%s_32k.raw", SIPX_SAFENULL(baseName), playIndex, SIPX_SAFENULL(endName));
    else {
       delete [] created_echoIn32NamePtr;
       created_echoIn32NamePtr = NULL;

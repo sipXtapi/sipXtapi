@@ -50,8 +50,8 @@ Conference::Conference(ConferenceController* parent,
    // Add a "line" to the user agent.
    char identity[100];
    sprintf(identity, "\"Conference %s\" <sip:%s@%s>",
-           mUserName.data(), mUserName.data(),
-           mConferenceController->mDomainHostPort.data());
+           SIPX_SAFENULL(mUserName.data()), SIPX_SAFENULL(mUserName.data()),
+          SIPX_SAFENULL(mConferenceController->mDomainHostPort.data()));
    SIPX_RESULT result =
       sipxLineAdd(mConferenceController->mSipxInstance, identity, &mSipxLine);
    if (result != SIPX_RESULT_SUCCESS)
@@ -135,7 +135,7 @@ Leg* Conference::handleNewCall(SIPX_CALL hCall,
    sipxCallGetID(hCall, cCallId, sizeof(cCallId)); 	
    OsSysLog::add(FAC_CONFERENCE, PRI_DEBUG,
                  "Conference::handleNewCall call Id: %s",
-                 cCallId);
+                 SIPX_SAFENULL(cCallId));
    
    // Construct the leg object.
    Leg* leg = new Leg(this, hCall, cCallId);

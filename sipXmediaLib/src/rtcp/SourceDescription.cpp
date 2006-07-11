@@ -1297,7 +1297,7 @@ bool CSourceDescription::FormulateCName(void)
     if(m_ulNameLength == 0)
     {
         // Use a default name
-        sprintf((char *)m_uchCName, "UnknownUser@%s", uchHostName);
+        sprintf((char *)m_uchCName, "UnknownUser@%s", SIPX_SAFENULL(uchHostName));
     }
 
     // A valid Name component is present.  Let's use it instead
@@ -1309,7 +1309,7 @@ bool CSourceDescription::FormulateCName(void)
 
     // Let's complete the CName by concatenating the host name to the end
     sprintf((char *)m_uchCName,
-                             "%s@%s", (char *)m_uchName, (char *)uchHostName);
+                             "%s@%s", SIPX_SAFENULL((char *)m_uchName), SIPX_SAFENULL((char *)uchHostName));
 
     // Let's store the length of this CName
     m_ulCNameLength = strlen((char *)m_uchCName);

@@ -78,10 +78,10 @@ UtlString* PromptCache::lookup(Url& url, int flags)
       {
          if (cacheEntry == TRUE)
             OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
-                          "PromptCache::lookup - Did not find key: %s in prompt cache", pathName.data());
+                          "PromptCache::lookup - Did not find key: %s in prompt cache", SIPX_SAFENULL(pathName.data()));
          else
             OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
-                          "PromptCache::lookup - Buffering non-cached prompt: %s", pathName.data());
+                          "PromptCache::lookup - Buffering non-cached prompt: %s", SIPX_SAFENULL(pathName.data()));
 
          mUrl = url;
          mpFile = NULL;
@@ -90,14 +90,14 @@ UtlString* PromptCache::lookup(Url& url, int flags)
          if (status != OS_SUCCESS)
          {
             OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR,
-                          "PromptCache::lookup - Unable to open prompt file: %s", pathName.data());
+                          "PromptCache::lookup - Unable to open prompt file: %s", SIPX_SAFENULL(pathName.data()));
             return pBuffer;
          }
          status = getLength(length);
          if (status != OS_SUCCESS)
          {
             OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR,
-                          "PromptCache::lookup - Unable to determine lenght of prompt file: %s", pathName.data());
+                          "PromptCache::lookup - Unable to determine lenght of prompt file: %s", SIPX_SAFENULL(pathName.data()));
             return pBuffer;
          }
          szSource = new char[length];
@@ -106,7 +106,7 @@ UtlString* PromptCache::lookup(Url& url, int flags)
          {
             delete[] szSource;
             OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR,
-                          "PromptCache::lookup - Failure on read of prompt file: %s", pathName.data());
+                          "PromptCache::lookup - Failure on read of prompt file: %s", SIPX_SAFENULL(pathName.data()));
             return pBuffer;
          }
          close();
@@ -123,7 +123,7 @@ UtlString* PromptCache::lookup(Url& url, int flags)
                delete pCachedKey;
                delete pCachedBuffer;
                OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR,
-                             "PromptCache::lookup - Insertion of key: %s failed!!", pathName.data());
+                             "PromptCache::lookup - Insertion of key: %s failed!!", SIPX_SAFENULL(pathName.data()));
                return pBuffer;
             }
             else
@@ -143,12 +143,12 @@ UtlString* PromptCache::lookup(Url& url, int flags)
          if (pCachedBuffer == NULL)
          {
             OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR,
-                          "PromptCache::lookup - Retrieval of cached buffer for key: %s failed!!", pathName.data());
+                          "PromptCache::lookup - Retrieval of cached buffer for key: %s failed!!", SIPX_SAFENULL(pathName.data()));
          }
          else
          {
             OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
-                          "PromptCache::lookup - Found cached buffer for key: %s", pathName.data());
+                          "PromptCache::lookup - Found cached buffer for key: %s", SIPX_SAFENULL(pathName.data()));
             pBuffer = new UtlString(pCachedBuffer->data(), pCachedBuffer->length());
          }
       }
@@ -207,7 +207,7 @@ OsStatus PromptCache::open()
       if (index != UTL_NOT_FOUND)
       {
          OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR,
-                       "PromptCache::open - Unable to open prompt file: %s, substituting with default.", pathName.data());
+                       "PromptCache::open - Unable to open prompt file: %s, substituting with default.", SIPX_SAFENULL(pathName.data()));
 
          // Strip off old .wav file and replace with fallback .wav file
          pathName.remove(index + strlen(STD_PROMPTS_DIR) + 1);

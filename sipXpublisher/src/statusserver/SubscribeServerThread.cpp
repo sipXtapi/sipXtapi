@@ -402,7 +402,7 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
                         OsSysLog::add(FAC_SIP, PRI_CRIT, 
                                       "SubscribeServerThread::handleMessage()"
                                       " container->getPlugin failed for '%s'",
-                                      eventPackage.data()
+                                      SIPX_SAFENULL(eventPackage.data())
                            );
                         finalResponse.setResponseData(
                            message,
@@ -437,7 +437,7 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
             int finalMessageLen;
             finalResponse.getBytes(&finalMessageStr, &finalMessageLen);
             syslog(FAC_SIP, PRI_DEBUG, "\n----------------------------------\n"
-                "Sending final response\n%s\n",finalMessageStr.data());
+                "Sending final response\n%s\n",SIPX_SAFENULL(finalMessageStr.data()));
             mpSipUserAgent->send( finalResponse );
         } 
         else // Invalid domain
@@ -585,7 +585,7 @@ SubscribeServerThread::isAuthenticated (
         // realm and auth type should be default for server
         // if URI not defined in DB, the user is not authorized to modify bindings -
         syslog( FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated():TRUE realm=\"%s\" \n",
-                mRealm.data());
+                SIPX_SAFENULL(mRealm.data()));
 
         UtlString requestNonce;
         UtlString requestRealm;
@@ -606,7 +606,7 @@ SubscribeServerThread::isAuthenticated (
         {
             syslog(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated() "
                    "- Authorization header set in message, validate it.\n"
-                   "- reqRealm=\"%s\", reqUser=\"%s\"\n", requestRealm.data(), requestUser.data());
+                   "- reqRealm=\"%s\", reqUser=\"%s\"\n", SIPX_SAFENULL(requestRealm.data()), SIPX_SAFENULL(requestUser.data()));
 
             // case sensitive comparison of realm
             if ( mRealm.compareTo( requestRealm ) == 0 )
@@ -670,19 +670,19 @@ SubscribeServerThread::isAuthenticated (
                     {
                         syslog(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated() "
                             "- No Credentials for mailboxUrl=\"%s\", reqRealm=\"%s\", reqUser=\"%s\"\n",
-                            mailboxUrl.toString().data(),
-                            requestRealm.data(),
-                            requestUser.data());
+                            SIPX_SAFENULL(mailboxUrl.toString().data()),
+                            SIPX_SAFENULL(requestRealm.data()),
+                            SIPX_SAFENULL(requestUser.data()));
                     }
                 }
                 else
                 {
                     syslog(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated() "
                            "- Invalid nonce \"%s\" for mailboxUrl=\"%s\", reqRealm=\"%s\", reqUser=\"%s\"\n",
-                           requestNonce.data(),
-                           mailboxUrl.toString().data(),
-                           requestRealm.data(),
-                           requestUser.data());
+                           SIPX_SAFENULL(requestNonce.data()),
+                           SIPX_SAFENULL(mailboxUrl.toString().data()),
+                           SIPX_SAFENULL(requestRealm.data()),
+                           SIPX_SAFENULL(requestUser.data()));
 
                 }
                 // end check credentials
@@ -814,7 +814,7 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
             // remove all bindings  because one contact value is *
             OsSysLog::add(FAC_SIP, PRI_DEBUG,"SubscribeServerThread::addSubscription -"
                 " Removing subscription for url %s and event %s",
-                toUrl.toString().data(), eventType.data());
+                SIPX_SAFENULL(toUrl.toString().data()), SIPX_SAFENULL(eventType.data()));
 
             // note that the subscribe's csequence is used
             // as a remove filter here
@@ -886,7 +886,7 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "SubscribeServerThread::addSubscription -"
                   " Adding Subscription for url %s event %s duration %d to %s",
-                  toUrl.toString().data(), eventType.data(), grantedExpirationTime, contactEntry.data());
+                  SIPX_SAFENULL(toUrl.toString().data()), SIPX_SAFENULL(eventType.data()), grantedExpirationTime, SIPX_SAFENULL(contactEntry.data()));
 
     // trim the contact to just the uri
     Url contactUrl(contactEntry);
@@ -936,7 +936,7 @@ int SubscribeServerThread::removeErrorSubscription (const SipMessage& sipMessage
 
     OsSysLog::add(FAC_SIP, PRI_WARNING,
                   "SubscribeServerThread::removeErrorSubscription %s",
-                  callId.data());
+                  SIPX_SAFENULL(callId.data()));
 
     removeErrorRow(from, to, callId);
     return returnStatus;

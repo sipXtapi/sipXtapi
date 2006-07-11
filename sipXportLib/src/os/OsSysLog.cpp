@@ -246,11 +246,11 @@ OsStatus OsSysLog::add(const char*            taskName,
 
       // Display all of the data
       osPrintf("%s %s %s 0x%08X %s\n", 
-            OsSysLog::sFacilityNames[facility], 
-            OsSysLog::sPriorityNames[priority],
-            (taskName == NULL) ? "" : taskName, 
+            SIPX_SAFENULL(OsSysLog::sFacilityNames[facility]), 
+            SIPX_SAFENULL(OsSysLog::sPriorityNames[priority]),
+            SIPX_SAFENULL(taskName), 
             taskId,
-            data.data()) ;
+            SIPX_SAFENULL(data.data())) ;
 
       rc = OS_SUCCESS ;
    }
@@ -334,15 +334,15 @@ OsStatus OsSysLog::vadd(const char*            taskName,
          logTime.getIsoTimeStringZus(strTime) ;
 
          mysprintf(logEntry, "\"%s\":%d:%s:%s:%s:%s:%08X:%s:\"%s\"",
-               strTime.data(),
+               SIPX_SAFENULL(strTime.data()),
                ++sEventCount,
-               OsSysLog::sFacilityNames[facility], 
-               OsSysLog::sPriorityNames[priority],
-               sHostname.data(),
-               (taskName == NULL) ? "" : taskName,
+               SIPX_SAFENULL(OsSysLog::sFacilityNames[facility]), 
+               SIPX_SAFENULL(OsSysLog::sPriorityNames[priority]),
+               SIPX_SAFENULL(sHostname.data()),
+               SIPX_SAFENULL(taskName),
                taskId,
-               sProcessId.data(),
-               logData.data()) ;         
+               SIPX_SAFENULL(sProcessId.data()),
+               SIPX_SAFENULL(logData.data())) ;         
 
          // If the logger for some reason trys to log a message
          // there is a recursive problem.  Drop the message on the
@@ -437,9 +437,9 @@ OsSysLog::initSysLog(const OsSysLogFacility facility,
       if (logLevel == lkupTable[i].pIdentity)
       {
          priority = lkupTable[i].ePriority;
-         osPrintf("Setting %s syslog level : %s\n", sFacilityNames[facility], lkupTable[i].pIdentity) ;
+         osPrintf("Setting %s syslog level : %s\n", SIPX_SAFENULL(sFacilityNames[facility]), SIPX_SAFENULL(lkupTable[i].pIdentity)) ;
          setLoggingPriority(priority);
-         add(facility, PRI_NOTICE, "Setting %s syslog level : %s", sFacilityNames[facility], lkupTable[i].pIdentity) ;
+         add(facility, PRI_NOTICE, "Setting %s syslog level : %s", SIPX_SAFENULL(sFacilityNames[facility]), SIPX_SAFENULL(lkupTable[i].pIdentity)) ;
          break;
       }
    }

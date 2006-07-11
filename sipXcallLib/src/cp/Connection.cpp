@@ -71,7 +71,7 @@ Connection::Connection(CpCallManager* callMgr,
 
     if (call) {
        call->getCallId(callId);
-       OsSysLog::add(FAC_CP, PRI_DEBUG, "Connection constructed: %s\n", callId.data());
+       OsSysLog::add(FAC_CP, PRI_DEBUG, "Connection constructed: %s\n", SIPX_SAFENULL((callId.data()));
     } else
        OsSysLog::add(FAC_CP, PRI_DEBUG, "Connection constructed: call is Null\n");
 #endif
@@ -123,7 +123,7 @@ Connection::Connection(CpCallManager* callMgr,
 
 #ifdef TEST_PRINT    
     if (!callId.isNull())
-       OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving Connection constructed: %s\n", callId.data());
+       OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving Connection constructed: %s\n", SIPX_SAFENULL(callId.data()));
     else
        OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving Connection constructed: call is Null\n");
 #endif
@@ -145,7 +145,7 @@ Connection::~Connection()
     UtlString callId;
     if (mpCall) {
 	   mpCall->getCallId(callId);
-       OsSysLog::add(FAC_CP, PRI_DEBUG, "Connection destructed: %s\n", callId.data());
+       OsSysLog::add(FAC_CP, PRI_DEBUG, "Connection destructed: %s\n", SIPX_SAFENULL(callId.data()));
     } else
        OsSysLog::add(FAC_CP, PRI_DEBUG, "Connection destructed: call is Null\n");
 #endif
@@ -164,7 +164,7 @@ Connection::~Connection()
 
 #ifdef TEST_PRINT 
     if (!callId.isNull())
-       OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving Connection destructed: %s\n", callId.data());
+       OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving Connection destructed: %s\n", SIPX_SAFENULL(callId.data()));
     else
        OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving Connection destructed: call is Null\n");
 #endif
@@ -239,16 +239,16 @@ void Connection::setState(int newState, int isLocal, int newCause, int termState
             OsSysLog::add(FAC_CP, PRI_DEBUG, "Connection::setState: "
                           "Questionable connection state change - isLocal %d, for call "
                           "'%s' with callid '%s' from %s to %s, cause %d",
-                          isLocal, strCallName.data(), callId.data(),
-                          oldStateString.data(), newStateString.data(), newCause);
+                          isLocal, SIPX_SAFENULL(strCallName.data()), SIPX_SAFENULL(callId.data()),
+                          SIPX_SAFENULL(oldStateString.data()), SIPX_SAFENULL(newStateString.data()), newCause);
          }
          else
          {
             OsSysLog::add(FAC_CP, PRI_ERR, "Connection::setState: "
                           "Invalid connection state change - isLocal %d, for call "
                           "'%s' with callid '%s' from %s to %s, cause %d",
-                          isLocal, strCallName.data(), callId.data(),
-                          oldStateString.data(), newStateString.data(), newCause);
+                          isLocal, SIPX_SAFENULL(strCallName.data()), SIPX_SAFENULL(callId.data()),
+                          SIPX_SAFENULL(oldStateString.data()), SIPX_SAFENULL(newStateString.data()), newCause);
          }
          return;
       }
@@ -274,11 +274,11 @@ void Connection::setState(int newState, int isLocal, int newCause, int termState
 
    OsSysLog::add(FAC_CP, PRI_DEBUG,
                  "Call %s %s state isLocal %d\nchange\nfrom %s to\n\t %s\ncause=%d\npost change to upper layer %d",
-            strCallName.data(),
-            callId.data(),
+            SIPX_SAFENULL(strCallName.data()),
+            SIPX_SAFENULL(callId.data()),
             isLocal,
-            oldStateString.data(),
-            newStateString.data(),
+            SIPX_SAFENULL(oldStateString.data()),
+            SIPX_SAFENULL(newStateString.data()),
             newCause,
             bPostStateChange);
 
@@ -445,7 +445,7 @@ void Connection::setLocalAddress(const char* address)
 
 void Connection::unimplemented(const char* methodName) const
 {
-    osPrintf("%s NO IMPLEMENTED\n",methodName);
+    osPrintf("%s NO IMPLEMENTED\n",SIPX_SAFENULL(methodName));
 }
 
 // Is this connection marked for deletion?

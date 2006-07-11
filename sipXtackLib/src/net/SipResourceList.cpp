@@ -180,7 +180,7 @@ void SipResourceList::parseBody(const char* bodyBytes)
    if(bodyBytes)
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipResourceList::parseBody incoming package = %s\n", 
-                    bodyBytes);
+                    SIPX_SAFENULL(bodyBytes));
                     
       TiXmlDocument doc("ResourceList.xml");
       
@@ -250,7 +250,7 @@ Resource* SipResourceList::getResource(UtlString& resourceUri)
       if (foundValue.compareTo(resourceUri) == 0)
       {
          OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipResourceList::getResource found Resource = %p for resourceUri %s", 
-                       pResource, resourceUri.data());                 
+                       pResource, SIPX_SAFENULL(resourceUri.data()));                 
             
          mLock.release();
          return pResource;
@@ -258,7 +258,7 @@ Resource* SipResourceList::getResource(UtlString& resourceUri)
    }     
           
    OsSysLog::add(FAC_SIP, PRI_WARNING, "SipResourceList::getResource could not found the Resource for resourceUri = %s", 
-                 resourceUri.data());                 
+                 SIPX_SAFENULL(resourceUri.data()));                 
             
    mLock.release();
    return NULL;
@@ -397,7 +397,7 @@ void SipResourceList::buildBody() const
    ((SipResourceList*)this)->bodyLength = resourceList.length();
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipResourceList::getBytes Resource list content = \n%s", 
-                 resourceList.data());                 
+                 SIPX_SAFENULL(resourceList.data()));                 
    ((SipResourceList*)this)->mVersion++;
 }
 

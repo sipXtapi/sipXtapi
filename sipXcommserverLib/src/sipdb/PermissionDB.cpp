@@ -51,7 +51,7 @@ PermissionDB::PermissionDB( const UtlString& name )
     gpVerboseLoggingEnabled = SIPDBManager::isVerboseLoggingEnabled();
     if (gpVerboseLoggingEnabled)
         OsSysLog::add(FAC_DB, PRI_DEBUG, "PermissionDB::_  user=%d \"%s\"",
-                    users, name.data());
+                    users, SIPX_SAFENULL(name.data()));
     if ( users == 1 )
     {
         // Load the file implicitly
@@ -108,7 +108,7 @@ PermissionDB::load()
                 OsPath::separator + mDatabaseName + ".xml";
 
         OsSysLog::add(FAC_DB, PRI_DEBUG, "PermissionDB::load loading \"%s\"",
-                    fileName.data());
+                    SIPX_SAFENULL(fileName.data()));
 
         TiXmlDocument doc ( fileName );
 
@@ -169,7 +169,7 @@ PermissionDB::load()
         } else 
         {
             OsSysLog::add(FAC_SIP, PRI_WARNING, "PermissionDB::load failed to load \"%s\"",
-                    fileName.data());
+                    SIPX_SAFENULL(fileName.data()));
         }
     } else 
     {

@@ -56,7 +56,7 @@ public:
          {
             UtlString usage;
             getUsage(argv[0], &usage);
-            printf("%s", usage.data());
+            printf("%s", SIPX_SAFENULL(usage.data()));
             commandStatus = CommandProcessor::COMMAND_BAD_SYNTAX;
          }
          else
@@ -104,7 +104,7 @@ public:
          {
             UtlString usage;
             getUsage(argv[0], &usage);
-            printf("%s", usage.data());
+            printf("%s", SIPX_SAFENULL(usage.data()));
             commandStatus = CommandProcessor::COMMAND_BAD_SYNTAX;
          }
          else
@@ -144,7 +144,7 @@ int main(int argc, char* argv[])
 
    if(configDb.loadFromFile(configFileName) == OS_SUCCESS)
    {
-      osPrintf("Found config file: %s\n", configFileName);
+      osPrintf("Found config file: %s\n", SIPX_SAFENULL(configFileName));
    }
    else
    {
@@ -154,7 +154,7 @@ int main(int argc, char* argv[])
 
       if(configDb.storeToFile(configFileName) == OS_SUCCESS)
       {
-         osPrintf("Could not write config file: %s\n", configFileName);
+         osPrintf("Could not write config file: %s\n", SIPX_SAFENULL(configFileName));
       }
    }
 
@@ -237,7 +237,7 @@ int main(int argc, char* argv[])
             );
       )
    {
-      //printf("GOT command line:\"%s\"\n", commandLine);
+      //printf("GOT command line:\"%s\"\n", SIPX_SAFENULL(commandLine));
       commandStatus = processor.executeCommand(commandLine);
       //printf("command status: %d exit status: %d\n", commandStatus,
       //CommandProcessor::COMMAND_SUCCESS_EXIT);

@@ -13,6 +13,7 @@
 // APPLICATION INCLUDES
 #include <net/SipConfigServerAgent.h>
 #include <net/SipUserAgent.h>
+#include <os/OsDefs.h>
 #include <os/OsConfigDb.h>
 #include "os/OsFS.h"
 #include <os/OsDateTime.h>
@@ -116,7 +117,7 @@ UtlBoolean SipConfigServerAgent::handleMessage(OsMsg& eventMessage)
                 {
             sipMessage->getRequestMethod(&method);
             osPrintf("SipConfigServerAgent:: Processing message transport error method: %s\n",
-                sipMessage->isResponse() ? method.data() : "response");
+                SIPX_SAFENULL(sipMessage->isResponse() ? method.data() : "response"));
 
             if(sipMessage->isResponse())
             {
@@ -217,7 +218,7 @@ SipConfigServerAgent* SipConfigServerAgent::startAgents(const char* configFileNa
 
     if(configDb.loadFromFile(configFileName) == OS_SUCCESS)
     {
-      osPrintf("Found config file: %s\n", configFileName);
+      osPrintf("Found config file: %s\n", SIPX_SAFENULL(configFileName));
     }
     else
     {
@@ -229,7 +230,7 @@ SipConfigServerAgent* SipConfigServerAgent::startAgents(const char* configFileNa
         configDb.set(CONFIG_SETTING_LOG_CONSOLE, "");
 
         if (configDb.storeToFile(configFileName) != OS_SUCCESS)
-                      osPrintf("Could not store config file: %s\n", configFileName);
+                      osPrintf("Could not store config file: %s\n", SIPX_SAFENULL(configFileName));
     }
     
     sipTcpPort = configDb.getPort("SIP_SDS_UDP_PORT") ;
@@ -387,8 +388,8 @@ void SipConfigServerAgent::initializeLog(OsConfigDb* pConfig)
          OsPath path(fileTarget);
          path.getNativePath(workingDirectory);
 
-         osPrintf("%s : %s\n", CONFIG_SETTING_LOG_DIR, workingDirectory.data()) ;
-         OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s\n", CONFIG_SETTING_LOG_DIR, workingDirectory.data()) ;
+         osPrintf("%s : %s\n", SIPX_SAFENULL(CONFIG_SETTING_LOG_DIR), SIPX_SAFENULL(workingDirectory.data()));
+         OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s\n", SIPX_SAFENULL(CONFIG_SETTING_LOG_DIR), SIPX_SAFENULL(workingDirectory.data())) ;
       }
       else
       {
@@ -396,8 +397,8 @@ void SipConfigServerAgent::initializeLog(OsConfigDb* pConfig)
          OsFileSystem::getWorkingDirectory(path);
          path.getNativePath(workingDirectory);
 
-         osPrintf("%s : %s\n", CONFIG_SETTING_LOG_DIR, workingDirectory.data()) ;
-         OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s\n", CONFIG_SETTING_LOG_DIR, workingDirectory.data()) ;
+         osPrintf("%s : %s\n", SIPX_SAFENULL(CONFIG_SETTING_LOG_DIR), SIPX_SAFENULL(workingDirectory.data())) ;
+         OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s\n", SIPX_SAFENULL(CONFIG_SETTING_LOG_DIR), SIPX_SAFENULL(workingDirectory.data())) ;
       }
 
       fileTarget = workingDirectory +
@@ -407,8 +408,8 @@ void SipConfigServerAgent::initializeLog(OsConfigDb* pConfig)
    else
    {
       bSpecifiedDirError = false ;
-      osPrintf("%s : %s\n", CONFIG_SETTING_LOG_DIR, fileTarget.data()) ;
-      OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s\n", CONFIG_SETTING_LOG_DIR, fileTarget.data()) ;
+      osPrintf("%s : %s\n", SIPX_SAFENULL(CONFIG_SETTING_LOG_DIR), SIPX_SAFENULL(fileTarget.data())) ;
+      OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s\n", SIPX_SAFENULL(CONFIG_SETTING_LOG_DIR), SIPX_SAFENULL(fileTarget.data())) ;
 
       fileTarget = fileTarget +
          OsPathBase::separator +
@@ -433,8 +434,8 @@ void SipConfigServerAgent::initializeLog(OsConfigDb* pConfig)
       if (logLevel == lkupTable[i].pIdentity)
       {
          priority = lkupTable[i].ePriority;
-         osPrintf("%s : %s\n", CONFIG_SETTING_LOG_LEVEL, lkupTable[i].pIdentity) ;
-         OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s\n", CONFIG_SETTING_LOG_LEVEL, lkupTable[i].pIdentity) ;
+         osPrintf("%s : %s\n", SIPX_SAFENULL(CONFIG_SETTING_LOG_LEVEL), SIPX_SAFENULL(lkupTable[i].pIdentity)) ;
+         OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s\n", SIPX_SAFENULL(CONFIG_SETTING_LOG_LEVEL), SIPX_SAFENULL(lkupTable[i].pIdentity)) ;
          break;
       }
    }
@@ -455,12 +456,12 @@ void SipConfigServerAgent::initializeLog(OsConfigDb* pConfig)
       }
    }
 
-   osPrintf("%s : %s\n", CONFIG_SETTING_LOG_CONSOLE, bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
-   OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s\n", CONFIG_SETTING_LOG_CONSOLE, bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
+   osPrintf("%s : %s\n", SIPX_SAFENULL(CONFIG_SETTING_LOG_CONSOLE), SIPX_SAFENULL(bConsoleLoggingEnabled ? "ENABLE" : "DISABLE"));
+   OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s\n", SIPX_SAFENULL(CONFIG_SETTING_LOG_CONSOLE), SIPX_SAFENULL(bConsoleLoggingEnabled ? "ENABLE" : "DISABLE")) ;
 
    if (bSpecifiedDirError)
    {
-      OsSysLog::add(FAC_LOG, PRI_CRIT, "Cannot access %s directory; please check configuration.", CONFIG_SETTING_LOG_DIR);
+      OsSysLog::add(FAC_LOG, PRI_CRIT, "Cannot access %s directory; please check configuration.", SIPX_SAFENULL(CONFIG_SETTING_LOG_DIR));
    }
 }
 

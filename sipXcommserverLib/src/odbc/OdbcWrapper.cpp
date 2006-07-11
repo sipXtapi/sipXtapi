@@ -68,22 +68,22 @@ OdbcHandle odbcConnect(const char* dbname,
             
             if (dbname)
             {
-               sprintf(temp, "DATABASE=%s;", dbname);
+               sprintf(temp, "DATABASE=%s;", SIPX_SAFENULL(dbname));
                connectionString.append(temp);
             }
             if (servername)
             {
-               sprintf(temp, "SERVER=%s;", servername);
+               sprintf(temp, "SERVER=%s;", SIPX_SAFENULL(servername));
                connectionString.append(temp);
             }            
             if (username)
             {
-               sprintf(temp, "UID=%s;", username);
+               sprintf(temp, "UID=%s;", SIPX_SAFENULL(username));
                connectionString.append(temp);
             }            
             if (password)
             {
-               sprintf(temp, "PWD=%s;", password);
+               sprintf(temp, "PWD=%s;", SIPX_SAFENULL(password));
                connectionString.append(temp);
             }
             else
@@ -92,7 +92,7 @@ OdbcHandle odbcConnect(const char* dbname,
             }
             if (driver)
             {
-               sprintf(temp, "DRIVER=%s;", driver);
+               sprintf(temp, "DRIVER=%s;", SIPX_SAFENULL(driver));
                connectionString.append(temp);
             }  
             // Connect in read/write mode
@@ -112,7 +112,7 @@ OdbcHandle odbcConnect(const char* dbname,
             {
                OsSysLog::add(FAC_ODBC, PRI_ERR,
                              "odbcConnect: Failed to connect %s, error code %d",
-                             connectionString.data(), sqlRet);   
+                             SIPX_SAFENULL(connectionString.data()), sqlRet);   
                              
                SQLFreeHandle(SQL_HANDLE_DBC, handle->mConnectionHandle);
                SQLFreeHandle(SQL_HANDLE_ENV, handle->mEnvironmentHandle);
@@ -144,7 +144,7 @@ OdbcHandle odbcConnect(const char* dbname,
                   OsSysLog::add(FAC_ODBC, PRI_DEBUG,
                                 "odbcConnect: Connected to database "
                                 "%s, OdbcHandle %p", 
-                                connectionString.data(), handle);
+                                SIPX_SAFENULL(connectionString.data()), handle);
                 }
             }
          }
@@ -215,13 +215,13 @@ bool odbcExecute(const OdbcHandle handle,
       {
          OsSysLog::add(FAC_ODBC, PRI_ERR,
                        "odbcExecute: statement %s failed, error code %d",
-                       sqlStatement, sqlRet);
+                       SIPX_SAFENULL(sqlStatement), sqlRet);
       }
       else
       {
          OsSysLog::add(FAC_ODBC, PRI_DEBUG,
                        "odbcExecute: statement %s succeeded",
-                       sqlStatement);         
+                       SIPX_SAFENULL(sqlStatement));         
          ret = true;
       }
    }
@@ -325,7 +325,7 @@ bool odbcGetColumnStringData(const OdbcHandle handle,
                        "odbcGetColumnStringData: SQLGetData on column %d "
                        "returned %s",
                        columnIndex,
-                       data);
+                       SIPX_SAFENULL(data));
          ret = true;
       }         
    }

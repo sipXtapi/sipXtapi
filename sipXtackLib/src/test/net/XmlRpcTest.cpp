@@ -60,7 +60,7 @@ public:
             if (paramType.compareTo("UtlString") == 0)
             {
                UtlString* paramValue = (UtlString *)value;
-               printf("value = %s\n", paramValue->data());
+               printf("value = %s\n", SIPX_SAFENULL(paramValue->data()));
             }
    
             if (paramType.compareTo("UtlSList") == 0)
@@ -80,7 +80,7 @@ public:
                   if (elementType.compareTo("UtlString") == 0)
                   {
                      UtlString* paramValue = (UtlString *)pObject;
-                     printf("value = %s\n", paramValue->data());
+                     printf("value = %s\n", SIPX_SAFENULL(paramValue->data()));
                   }
                }
             }
@@ -92,7 +92,7 @@ public:
                UtlString* pName;
                while((pName = (UtlString *)iterator()))
                {
-                  printf("name = %s\n", pName->data());
+                  printf("name = %s\n", SIPX_SAFENULL(pName->data()));
                   
                   UtlContainable* pObject = map->findValue(pName);
                   UtlString elementType(pObject->getContainableType());
@@ -105,7 +105,7 @@ public:
                   if (elementType.compareTo("UtlString") == 0)
                   {
                      UtlString* paramValue = (UtlString *)pObject;
-                     printf("value = %s\n", paramValue->data());
+                     printf("value = %s\n", SIPX_SAFENULL(paramValue->data()));
                   }
                   
                   if (elementType.compareTo("UtlSList") == 0)
@@ -125,7 +125,7 @@ public:
                         if (elementType.compareTo("UtlString") == 0)
                         {
                            UtlString* paramValue = (UtlString *)pList;
-                           printf("value = %s\n", paramValue->data());
+                           printf("value = %s\n", SIPX_SAFENULL(paramValue->data()));
                         }
                      }
                   }
@@ -237,7 +237,7 @@ public:
          int length;
          request.mpRequestBody->getBytes(&requestBody, &length);
 #        ifdef PRINT_OUT
-         printf("body = \n%s\n", requestBody.data()); 
+         printf("body = \n%s\n", SIPX_SAFENULL(requestBody.data())); 
 #        endif
          ASSERT_STR_EQUAL(ref, requestBody.data());
       }
@@ -499,7 +499,7 @@ public:
          UtlString responseBody;
          int length;
          response.getBody()->getBytes(&responseBody, &length);
-         //printf("body = \n%s\n", responseBody.data()); 
+         //printf("body = \n%s\n", SIPX_SAFENULL(responseBody.data())); 
 
          ASSERT_STR_EQUAL(ref, responseBody.data());
       }

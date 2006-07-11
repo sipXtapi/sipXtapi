@@ -152,9 +152,9 @@ class FASTDB_DLL_ENTRY dbDate {
 		ch = *format++;
 		switch (ch) { 
 		  case 'd': dst += sprintf(dst, "%02u", day ); continue;
-		  case 'D': dst += sprintf(dst, "%s",   dayName[jday % 7]); continue;
+		  case 'D': dst += sprintf(dst, "%s",   SIPX_SAFENULL(dayName[jday % 7])); continue;
 		  case 'm': dst += sprintf(dst, "%02u", month); continue;
-		  case 'M': dst += sprintf(dst, "%s",   monthName[month - 1]); continue;
+		  case 'M': dst += sprintf(dst, "%s",   SIPX_SAFENULL(monthName[month - 1])); continue;
 		  case 'y': dst += sprintf(dst, "%02u", year - 1900); continue;
 		  case 'Y': dst += sprintf(dst, "%04u", year); continue;
 		  default: *dst++ = ch;

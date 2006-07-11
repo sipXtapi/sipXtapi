@@ -88,7 +88,7 @@ OsStatus OsProcessMgr::setUserRequestState(UtlString &rAlias, int userRequestedS
 
     OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,
                   "ENTERING setUserRequestState  %s state = %d\n",
-                  rAlias.data(),userRequestedState);
+                  SIPX_SAFENULL(rAlias.data()),userRequestedState);
 
     switch(userRequestedState)
     {
@@ -127,13 +127,13 @@ OsStatus OsProcessMgr::setUserRequestState(UtlString &rAlias, int userRequestedS
             retval = OS_SUCCESS;
             OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,
                           "SUCCESS setUserRequestState  %s state = %d\n",
-                          rAlias.data(),userRequestedState);
+                          SIPX_SAFENULL(rAlias.data()),userRequestedState);
         }
         else
         {
             OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,
                           "setUserRequestState  %s state = %d\n",
-                          rAlias.data(),userRequestedState);
+                          SIPX_SAFENULL(rAlias.data()),userRequestedState);
         }
     }
 
@@ -141,7 +141,7 @@ OsStatus OsProcessMgr::setUserRequestState(UtlString &rAlias, int userRequestedS
 
     OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,
                   "EXITING setUserRequestState  %s state = %d\n",
-                  rAlias.data(),userRequestedState);
+                  SIPX_SAFENULL(rAlias.data()),userRequestedState);
 
     return  retval;
 
@@ -176,19 +176,19 @@ OsStatus OsProcessMgr::startProcess(UtlString &rAlias,
 
     lockAliasFile();
                                          
-    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"Attempting start on  %s\n",rAlias.data());
+    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"Attempting start on  %s\n",SIPX_SAFENULL(rAlias.data()));
     setAliasState(rAlias,PROCESS_STARTING);
     process.setIORedirect(mStdInputFilename,mStdOutputFilename,mStdErrorFilename);
     OsPath startDir = startupDir;
     if (process.launch(rExeName,rParameters,startDir) == OS_SUCCESS)
     {
-        OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"Before addEntry for alias  %s\n",rAlias.data());
+        OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"Before addEntry for alias  %s\n",SIPX_SAFENULL(rAlias.data()));
         retval = addEntry(rAlias,process.getPID());
-        OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"Started OK for alias %s\n",rAlias.data());
+        OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"Started OK for alias %s\n",SIPX_SAFENULL(rAlias.data()));
     }
     else
     {
-       OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,"Start FAILED for %s\n",rAlias.data());
+       OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,"Start FAILED for %s\n",SIPX_SAFENULL(rAlias.data()));
     }
     
     unlockAliasFile();
@@ -211,7 +211,7 @@ OsStatus OsProcessMgr::stopProcess(UtlString &rAlias)
 
         if (state == PROCESS_STARTED)
         {
-            OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"Attempting stop on  %s\n",rAlias.data());
+            OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"Attempting stop on  %s\n",SIPX_SAFENULL(rAlias.data()));
             setAliasState(rAlias,PROCESS_STOPPING);
             retval = process.kill();
 
@@ -221,7 +221,7 @@ OsStatus OsProcessMgr::stopProcess(UtlString &rAlias)
             }
             else
             {
-                OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,"Error stopping %s\n",rAlias.data());
+                OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,"Error stopping %s\n",SIPX_SAFENULL(rAlias.data()));
                 fprintf(stderr,"process.kill() failed in stopProcess(Alias) \n");
             }
 
@@ -253,7 +253,7 @@ OsStatus OsProcessMgr::stopProcess(PID pid)
 
            if (state == PROCESS_STARTED)
            {
-              OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"Attempting stop on  %s\n",aliasName.data());
+              OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"Attempting stop on  %s\n",SIPX_SAFENULL(aliasName.data()));
               setAliasState(aliasName,PROCESS_STOPPING);
               retval = process.kill();
               if (retval == OS_SUCCESS)
@@ -267,7 +267,7 @@ OsStatus OsProcessMgr::stopProcess(PID pid)
               }
               else
               {
-                 OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,"Error stopping %s\n",aliasName.data());
+                 OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,"Error stopping %s\n",SIPX_SAFENULL(aliasName.data()));
               }
            }
         }
@@ -332,14 +332,14 @@ OsStatus OsProcessMgr::getProcessByAlias(UtlString &rAlias, OsProcess &rProcess)
 {
     OsStatus retval = OS_FAILED;
 
-    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"ENTERING getProcessByAlias  %s ",rAlias.data());
+    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"ENTERING getProcessByAlias  %s ",SIPX_SAFENULL(rAlias.data()));
 
     lockAliasFile();
 
     if (loadProcessFile() == OS_SUCCESS)
     {
         OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,
-                      "SUCCESS getProcessByAlias  %s loading process file",rAlias.data());
+                      "SUCCESS getProcessByAlias  %s loading process file",SIPX_SAFENULL(rAlias.data()));
         UtlString value;
         if (pProcessList->get(rAlias,value) == OS_SUCCESS)
         {
@@ -348,7 +348,7 @@ OsStatus OsProcessMgr::getProcessByAlias(UtlString &rAlias, OsProcess &rProcess)
             int pid = atoi(value.data());
             OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,
                           "getProcessByAlias  checking if pid %d for alias %s is valid",
-                          pid, rAlias.data());
+                          pid, SIPX_SAFENULL(rAlias.data()));
 
             if (pid > 0)
             {
@@ -357,13 +357,13 @@ OsStatus OsProcessMgr::getProcessByAlias(UtlString &rAlias, OsProcess &rProcess)
                 {
                    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,
                                  "getProcessByAlias  alias %s pid %d IS VALID",
-                                 rAlias.data(),pid);
+                                 SIPX_SAFENULL(rAlias.data()),pid);
                 }
                 else
                 {
                    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,
                                  "getProcessByAlias  alias %s pid %d is NOT valid",
-                                 rAlias.data(),pid);
+                                 SIPX_SAFENULL(rAlias.data()),pid);
                 }
             }
         }
@@ -372,12 +372,12 @@ OsStatus OsProcessMgr::getProcessByAlias(UtlString &rAlias, OsProcess &rProcess)
     {
         OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,
                       "Error loading process files in getProcessByAlias alias=%s\n",
-                      rAlias.data());
+                      SIPX_SAFENULL(rAlias.data()));
     }
     
     unlockAliasFile();
 
-    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"EXITING getProcessByAlias  %s ",rAlias.data());
+    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"EXITING getProcessByAlias  %s ",SIPX_SAFENULL(rAlias.data()));
 
     return retval;
 }
@@ -387,7 +387,7 @@ int OsProcessMgr::getAliasState(UtlString &rAlias)
 {
     int state = PROCESS_FAILED;
 
-    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"ENTERING getAliasState  %s ",rAlias.data());
+    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"ENTERING getAliasState  %s ",SIPX_SAFENULL(rAlias.data()));
 
     lockAliasFile();
 
@@ -429,32 +429,32 @@ int OsProcessMgr::getAliasState(UtlString &rAlias)
             OsProcess process;
             OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,
                           "getAliasState  checking if alias %s has valid PID",
-                          rAlias.data());
+                          SIPX_SAFENULL(rAlias.data()));
             if (getProcessByAlias(rAlias, process) == OS_FAILED)
             {
                 OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,
                               "getAliasState - alias %s DOES NOT HAVE a valid PID",
-                              rAlias.data());
+                              SIPX_SAFENULL(rAlias.data()));
                 state = PROCESS_STARTING;
                 setAliasState(rAlias,PROCESS_STARTING);
             }
             else
             {
                OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,
-                             "getAliasState - alias %s HAS a valid PID",rAlias.data());
+                             "getAliasState - alias %s HAS a valid PID",SIPX_SAFENULL(rAlias.data()));
             }
         }
         else
         {
            OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,
-                         "getAliasState - alias %s HAS a valid PID",rAlias.data());
+                         "getAliasState - alias %s HAS a valid PID",SIPX_SAFENULL(rAlias.data()));
            setAliasState(rAlias,PROCESS_FAILED);
         }
     }
 
     unlockAliasFile();
 
-    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"EXITING getAliasState %s",rAlias.data());
+    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"EXITING getAliasState %s",SIPX_SAFENULL(rAlias.data()));
     
     return state;
 }
@@ -483,7 +483,7 @@ int OsProcessMgr::getUserRequestState(UtlString &rAlias)
 {
     int state = USER_PROCESS_NONE;
 
-    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"ENTERING getUserRequestState  %s ",rAlias.data());
+    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"ENTERING getUserRequestState  %s ",SIPX_SAFENULL(rAlias.data()));
 
     lockAliasFile();
 
@@ -523,7 +523,7 @@ int OsProcessMgr::getUserRequestState(UtlString &rAlias)
 
     unlockAliasFile();
 
-    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"EXITING getUserRequestState %s",rAlias.data());
+    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"EXITING getUserRequestState %s",SIPX_SAFENULL(rAlias.data()));
 
     return state;
 
@@ -584,7 +584,7 @@ OsStatus OsProcessMgr::setAliasState(UtlString &rAlias,int newstate)
     lockAliasFile();
 
     OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"ENTERING setAliasState  %s state = %d\n",
-                  rAlias.data(),newstate);
+                  SIPX_SAFENULL(rAlias.data()),newstate);
 
     switch(newstate)
     {
@@ -619,19 +619,18 @@ OsStatus OsProcessMgr::setAliasState(UtlString &rAlias,int newstate)
         {
             retval = OS_SUCCESS;
             OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"SUCCESS setAliasState  %s state = %d\n",
-                          rAlias.data(),newstate);
+                          SIPX_SAFENULL(rAlias.data()),newstate);
         }
         else
         {
             OsSysLog::add(FAC_PROCESSMGR, PRI_ERR, "setAliasState: %s state = %d\n",
-                          rAlias.data(),newstate);
+                          SIPX_SAFENULL(rAlias.data()),newstate);
         }
     }
 
     unlockAliasFile();
 
-    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,
-                  "EXITING setAliasState  %s state = %d\n",rAlias.data(),newstate);
+    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG, "EXITING setAliasState  %s state = %d\n",SIPX_SAFENULL(rAlias.data()),newstate);
 
     return  retval;
 }
@@ -657,7 +656,7 @@ OsStatus OsProcessMgr::addEntry(UtlString &rAlias, int pid)
     {
         OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,
                       "addEntry to %s. PID=%d  Flushing processAlias.dat to disk. ",
-                      rAlias.data(),pid);
+                      SIPX_SAFENULL(rAlias.data()),pid);
         retval = OS_SUCCESS;
     }
 
@@ -734,7 +733,7 @@ void OsProcessMgr::lockAliasFile()
                 else
                 {                 
                   OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,
-                                "Error removing %s lock file.\n",lockFullPath.data());
+                                "Error removing %s lock file.\n",SIPX_SAFENULL(lockFullPath.data()));
                 }
             }
         }
@@ -797,7 +796,7 @@ OsStatus OsProcessMgr::loadProcessFile()
         else
         {
             OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,"Error loading %s in loadProcessFile\n",
-                          processFullPath.data());
+                          SIPX_SAFENULL(processFullPath.data()));
         }
     }
 
@@ -817,19 +816,19 @@ OsStatus OsProcessMgr::storeProcessFile()
 
 
     OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"ATTEMPTING save on storeProcessFile %s",
-                  processFullPath.data());
+                  SIPX_SAFENULL(processFullPath.data()));
     OsStatus savedCode = pProcessList->storeToFile(processFullPath.data());
 
     if (savedCode == OS_SUCCESS)
     {
          OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"SUCCESS saving in storeProcessFile %s",
-                       processFullPath.data());
+                       SIPX_SAFENULL(processFullPath.data()));
          retval = OS_SUCCESS;
     }
     else
     {
        OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,"storeProcessFile code %d saving in %s ",
-                     savedCode, processFullPath.data());
+                     savedCode, SIPX_SAFENULL(processFullPath.data()));
     }
     
 

@@ -210,7 +210,7 @@ typedef enum SIPX_RESULT
     SIPX_RESULT_INSUFFICIENT_BUFFER, /**< Buffer too short for this operation */
     SIPX_RESULT_EVAL_TIMEOUT,        /**< The evaluation version of this product has expired */
     SIPX_RESULT_BUSY,                /**< The operation failed because the system was busy */
-    SIPX_RESULT_INVALID_STATE,       /**< The operation failed because the object was in
+    SIPX_RESULT_INVALID_STATE       /**< The operation failed because the object was in
                                           the wrong state.  For example, attempting to split
                                           a call from a conference before that call is 
                                           connected. */
@@ -267,7 +267,7 @@ typedef enum SIPX_LOG_LEVEL
     LOG_LEVEL_CRIT,      /**< critical conditions */
     LOG_LEVEL_ALERT,     /**< action must be taken immediately */
     LOG_LEVEL_EMERG,     /**< system is unusable */
-    LOG_LEVEL_NONE,      /**< disable logging */
+    LOG_LEVEL_NONE      /**< disable logging */
 } SIPX_LOG_LEVEL ;
 
 
@@ -305,7 +305,7 @@ typedef enum
     CONTACT_RELAY,      /**< Relay address (e.g. TURN)                */
     CONTACT_CONFIG,     /**< Manually configured address              */
 
-    CONTACT_AUTO = -1,  /**< Automatic contact selection; used for API 
+    CONTACT_AUTO = -1  /**< Automatic contact selection; used for API 
                              parameters */
 } SIPX_CONTACT_TYPE ;
 

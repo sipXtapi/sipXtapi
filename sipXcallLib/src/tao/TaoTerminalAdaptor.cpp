@@ -467,12 +467,12 @@ void TaoTerminalAdaptor::initConfigFile(const char* configFileName)
 
         if (configDb.loadFromFile((char *)configFileName) == OS_SUCCESS)
         {
-      osPrintf("Found config file %s.\n", configFileName);
+      osPrintf("Found config file %s.\n", SIPX_SAFENULL(configFileName));
           configDb.getSubHash("PINGTEL_ADDRESS.", mAddresses);
     }
         else
         {
-      osPrintf("Config file %s not found.\n", configFileName);
+      osPrintf("Config file %s not found.\n", SIPX_SAFENULL(configFileName));
         }
 }
 

@@ -87,8 +87,8 @@ UtlBoolean MyPlayerListenerHistoryKeeper::matchesHistory(void* userData, int* pP
 
   if (mExpectedHistory != mHistory)
   {
-     osPrintf("Expected History: %s\n", mExpectedHistory.data()) ;
-     osPrintf("  Actual History: %s\n", mHistory.data()) ;
+     osPrintf("Expected History: %s\n", SIPX_SAFENULL(mExpectedHistory.data())) ;
+     osPrintf("  Actual History: %s\n", SIPX_SAFENULL(mHistory.data())) ;
 
      return FALSE ;
   }

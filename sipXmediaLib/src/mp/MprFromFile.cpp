@@ -146,7 +146,7 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
    if (trueFilesize < sizeof(AudioSample))  //we have to have at least one sample to play
    {
       osPrintf("WARNING: %s contains less than one sample to play. Skipping play.\n",
-         audioFileName);
+         SIPX_SAFENULL(audioFileName));
       return res;
    }
 
@@ -154,7 +154,7 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
     {
         osPrintf("playFile('%s') WARNING:\n"
             "    length (%lu) exceeds size limit (%d)\n",
-            audioFileName, trueFilesize, MAXFILESIZE);
+            SIPX_SAFENULL(audioFileName), trueFilesize, MAXFILESIZE);
         filesize = MAXFILESIZE;
     }
 
@@ -162,7 +162,7 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
     {
         osPrintf("playFile('%s') WARNING:\n"
             "    length (%lu) is suspiciously short!\n",
-            audioFileName, trueFilesize);
+            SIPX_SAFENULL(audioFileName), trueFilesize);
     }
 
 

@@ -19,6 +19,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include <os/OsDefs.h>
 #include <net/SipPimClient.h>
 #include <net/HttpBody.h>
 #include <net/SmimeBody.h>
@@ -291,8 +292,8 @@ UtlBoolean SipPimClient::handleMessage(OsMsg& eventMessage)
 
                     OsSysLog::add(FAC_SIP, PRI_WARNING,
                         "Unable to decrypt S/MIME MESSAGE Remote: %s Local: %s",
-                        mFromField.data(),
-                        localUri.data());
+                        SIPX_SAFENULL(mFromField.data()),
+                        SIPX_SAFENULL(localUri.data()));
                 }
                 
             }

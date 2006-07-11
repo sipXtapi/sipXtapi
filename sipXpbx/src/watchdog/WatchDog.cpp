@@ -108,7 +108,7 @@ UtlBoolean WatchDog::handleMessage(OsMsg &rMsg)
              mpProcessList[loop]->ApplyUserRequestedState();
           }
 #ifdef DEBUG
-          osPrintf("Last state change check occurred at:         %s\n",dateString.data());
+          osPrintf("Last state change check occurred at:         %s\n",SIPX_SAFENULL(dateString.data()));
 #endif /* DEBUG */
       }
       else
@@ -129,7 +129,7 @@ UtlBoolean WatchDog::handleMessage(OsMsg &rMsg)
           }
 
 #ifdef DEBUG
-          osPrintf("Last check occurred at:         %s\n",dateString.data());
+          osPrintf("Last check occurred at:         %s\n",SIPX_SAFENULL(dateString.data()));
 #endif /* DEBUG */
       }
    }

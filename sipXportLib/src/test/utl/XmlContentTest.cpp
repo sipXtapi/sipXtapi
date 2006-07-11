@@ -58,7 +58,7 @@ public:
                    "  In:  '%s'\n"
                    "  Good:'%s'\n"
                    "  Out: '%s'\n",
-                   in.data(), correct, out.data()
+                   SIPX_SAFENULL(in.data()), SIPX_SAFENULL(correct), SIPX_SAFENULL(out.data())
                    );
          }
          return result;
@@ -77,7 +77,7 @@ public:
                    "  In:  '%s'\n"
                    "  Good:'%s'\n"
                    "  Out: '%s'\n",
-                   in.data(), correct, out.data()
+                   SIPX_SAFENULL(in.data()), SIPX_SAFENULL(correct), SIPX_SAFENULL(out.data())
                    );
          }
          return result;

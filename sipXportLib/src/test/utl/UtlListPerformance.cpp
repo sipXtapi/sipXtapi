@@ -97,7 +97,7 @@ int main()
    timer.addEvent("Done");
 
    osPrintf("UtlSlist Performance v=%s %s:\n",
-            SipXportlibVersion, SipXportlibBuildStamp
+            SIPX_SAFENULL(SipXportlibVersion), SIPX_SAFENULL(SipXportlibBuildStamp)
             );
    timer.dumpLog();
 

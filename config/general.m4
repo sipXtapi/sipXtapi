@@ -11,13 +11,6 @@ AC_DEFUN([CHECK_AUTOCONF],
     fi
 ])
 
-# =========== Some conditionals since even in the specific packages stuff we have to do some platform checks ===================
-
-AM_CONDITIONAL(ISLINUX, [test `uname -s` = Linux])
-AM_CONDITIONAL(ISMAC, [test `uname -s` = Darwin])
-AM_CONDITIONAL(IS64BITLINUX, [test `uname -m` = x86_64])
-AM_CONDITIONAL(ISSUNOS, [test `uname -s` = SunOS])
-
 # ============ C L O V E R  =======================
 AC_DEFUN([CHECK_CLOVER],
 [
@@ -324,7 +317,7 @@ AC_DEFUN([CHECK_SSL],
         AC_MSG_ERROR(['libssl.so' not found; tried $openssl_path, each with lib, lib/openssl, and lib/ssl])
     else
         AC_MSG_RESULT($ssllibdir)
-       if test x_${ISSUNOS} != _x ; then
+       if test x_"`uname -s`" = x_SunOS ; then
           AC_SUBST(SSL_LDFLAGS,"-L$ssllibdir -R$ssllibdir")
 	else
 	  AC_SUBST(SSL_LDFLAGS,"-L$ssllibdir")
@@ -1430,3 +1423,23 @@ AC_DEFUN([CHECK_ODBC],
         fi
     fi
 ])dnl
+
+# ================== COMPILER VENDOR ====================================
+
+
+
+AC_DEFUN([AX_COMPILER_VENDOR],
+[
+AC_CACHE_CHECK([for _AC_LANG compiler vendor], ax_cv_[]_AC_LANG_ABBREV[]_compiler_vendor,
+ [ax_cv_[]_AC_LANG_ABBREV[]_compiler_vendor=unknown
+  # note: don't check for gcc first since some other compilers define __GNUC__
+  for ventest in intel:__ICC,__ECC,__INTEL_COMPILER ibm:__xlc__,__xlC__,__IBMC__,__IBMCPP__ gnu:__GNUC__ sun:__SUNPRO_C,__SUNPRO_CC hp:__HP_cc,__HP_aCC dec:__DECC,__DECCXX,__DECC_VER,__DECCXX_VER borland:__BORLANDC__,__TURBOC__ comeau:__COMO__ cray:_CRAYC kai:__KCC lcc:__LCC__ metrowerks:__MWERKS__ sgi:__sgi,sgi microsoft:_MSC_VER watcom:__WATCOMC__ portland:__PGI; do
+    vencpp="defined("`echo $ventest | cut -d: -f2 | sed 's/,/) || defined(/g'`")"
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM(,[
+#if !($vencpp)
+      thisisanerror;
+#endif
+])], [ax_cv_]_AC_LANG_ABBREV[_compiler_vendor=`echo $ventest | cut -d: -f1`; break])
+  done
+ ])
+])

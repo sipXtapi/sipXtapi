@@ -61,7 +61,7 @@ typedef std::basic_string<VXIchar> vxistring;
 #define CHANNEL_CHECK_RESULT(_func, _res) \
 if ((VXIint)(_res) != 0) { \
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR, "%s failed, error code %i, file %s, line %i\n",\
-         (_func), (_res), __FILE__, __LINE__); \
+         SIPX_SAFENULL((_func)), (_res), SIPX_SAFENULL(__FILE__), __LINE__); \
    OsSysLog::flush(); \
    return ((VXItrdThreadArg)_res); \
 }
@@ -296,7 +296,7 @@ ChannelThreadArgs* findHandlingChannel(const char* callId)
 {
    LockChannel();
 #ifdef TEST_PRINT
-   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "findHandlingChannel channelStack (0x%08x) for %s\n", (int)&glbChannelStack, callId);
+   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "findHandlingChannel channelStack (0x%08x) for %s\n", (int)&glbChannelStack, SIPX_SAFENULL(callId));
 #endif
    ChannelThreadArgs* handlingChannel = NULL;
    if (!glbChannelStack.isEmpty())
@@ -321,7 +321,7 @@ ChannelThreadArgs* findHandlingChannel(const char* callId)
          channelCollectable = (UtlInt*)iterator();
       }
    }
-   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "findHandlingChannel exiting channelStack (0x%08x) for %s found channel=(0x%08x)\n", (int)&glbChannelStack, callId, (int)handlingChannel);
+   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "findHandlingChannel exiting channelStack (0x%08x) for %s found channel=(0x%08x)\n", (int)&glbChannelStack, SIPX_SAFENULL(callId), (int)handlingChannel);
 
    UnlockChannel();
    return(handlingChannel);
@@ -332,7 +332,7 @@ CallCleanupThreadArgs* findCleanupThread(const char* callId)
    LockThreadStack();
 
 #ifdef TEST_PRINT
-   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "findCleanupThread channelStack (0x%08x) for %s\n", (int)&glbCleanupThreadStack, callId);
+   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "findCleanupThread channelStack (0x%08x) for %s\n", (int)&glbCleanupThreadStack, SIPX_SAFENULL(callId));
 #endif
    CallCleanupThreadArgs* handlingChannel = NULL;
    if (!glbCleanupThreadStack.isEmpty())
@@ -357,7 +357,7 @@ CallCleanupThreadArgs* findCleanupThread(const char* callId)
          channelCollectable = (UtlInt*)iterator();
       }
    }
-   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "findCleanupThread exiting channelStack (0x%08x) for %s found thread=(0x%08x)\n", (int)&glbCleanupThreadStack, callId, (int)handlingChannel);
+   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "findCleanupThread exiting channelStack (0x%08x) for %s found thread=(0x%08x)\n", (int)&glbCleanupThreadStack, SIPX_SAFENULL(callId), (int)handlingChannel);
 
    UnlockThreadStack();
    return(handlingChannel);
@@ -367,7 +367,7 @@ void pushChannel(void* channel)
 {
    LockChannel();
 #ifdef TEST_PRINT
-   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "pushChannel: channel=0x%08x, callId=%s", (int)channel, ((ChannelThreadArgs*)channel)->callId);
+   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "pushChannel: channel=0x%08x, callId=%s", (int)channel, SIPX_SAFENULL(((ChannelThreadArgs*)channel)->callId));
 #endif
 
    glbChannelStack.insertAt(0, new UtlInt((int) channel));
@@ -378,7 +378,7 @@ void pushThread(void* thread)
 {
    LockThreadStack();
 #ifdef TEST_PRINT
-   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "pushThread: thread=0x%08x, callId=%s", (int)thread, ((CallCleanupThreadArgs*)thread)->callId);
+   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "pushThread: thread=0x%08x, callId=%s", (int)thread, SIPX_SAFENULL(((CallCleanupThreadArgs*)thread)->callId));
 #endif
 
    glbCleanupThreadStack.insertAt(0, new UtlInt((int) thread));
@@ -422,7 +422,7 @@ ChannelThreadArgs* removeChannel(const ChannelThreadArgs* channel)
 {
    LockChannel();
    if (channel)
-      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "removeChannel: channel=0x%08x, callId=%s \n", (int)channel, channel->callId);
+      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "removeChannel: channel=0x%08x, callId=%s \n", (int)channel, SIPX_SAFENULL(channel->callId));
 
    UtlInt matchChannel((int)channel);
    UtlInt* channelCollectable = (UtlInt*) glbChannelStack.remove(&matchChannel);
@@ -437,7 +437,7 @@ ChannelThreadArgs* removeChannel(const ChannelThreadArgs* channel)
       channel = NULL;
    }
    if (channel)
-      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "removeChannel exiting: channel=0x%08x, callId=%s \n", (int)channel, channel->callId);
+      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "removeChannel exiting: channel=0x%08x, callId=%s \n", (int)channel, SIPX_SAFENULL(channel->callId));
 
    UnlockChannel();
    return((ChannelThreadArgs*)channel);
@@ -446,7 +446,7 @@ ChannelThreadArgs* removeChannel(const ChannelThreadArgs* channel)
 CallCleanupThreadArgs* removeThread(CallCleanupThreadArgs* thread)
 {
    if (thread)
-      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "removeThread: channel=0x%08x, callId=%s \n", (int)thread, thread->callId);
+      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "removeThread: channel=0x%08x, callId=%s \n", (int)thread, SIPX_SAFENULL(thread->callId));
 
    UtlInt matchThread((int)thread);
    UtlInt* channelCollectable = (UtlInt*) glbCleanupThreadStack.remove(&matchThread);
@@ -461,14 +461,14 @@ CallCleanupThreadArgs* removeThread(CallCleanupThreadArgs* thread)
       thread = NULL;
    }
    if (thread)
-      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "removeThread exiting: channel=0x%08x, callId=%s \n", (int)thread, thread->callId);
+      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "removeThread exiting: channel=0x%08x, callId=%s \n", (int)thread, SIPX_SAFENULL(thread->callId));
 
    return(thread);
 }
 
 void freeChannel(ChannelThreadArgs* channel)
 {
-   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "free channel (%d) thread for %s\n", channel->channelNum, channel->callId);
+   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "free channel (%d) thread for %s\n", channel->channelNum, SIPX_SAFENULL(channel->callId));
    delete[] channel->callId;
    channel->callId = NULL;
 
@@ -501,9 +501,9 @@ void freeThread(CallCleanupThreadArgs* thread, bool cancel)
    }
    else if (cancel)
    {
-      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "main thread: Failed to destroy cleanup thread for %s - returned %d w status %d\n",  thread->callId, (int)trdResult, (int)status);
+      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "main thread: Failed to destroy cleanup thread for %s - returned %d w status %d\n",  SIPX_SAFENULL(thread->callId), (int)trdResult, (int)status);
       VXItrdThreadCancel (thread->threadHandle);
-      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "main thread: Cancel cleanup thread for %s \n",  thread->callId);
+      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "main thread: Cancel cleanup thread for %s \n",  SIPX_SAFENULL(thread->callId));
       freed = TRUE;
    }
 
@@ -518,7 +518,7 @@ void freeThread(CallCleanupThreadArgs* thread, bool cancel)
    }
    else
    {
-      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR, "main thread: Failed to free cleanup thread for %s - returned %d w status %d\n",  thread->callId, (int)trdResult, (int)status);
+      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR, "main thread: Failed to free cleanup thread for %s - returned %d w status %d\n",  SIPX_SAFENULL(thread->callId), (int)trdResult, (int)status);
    }
 }
 
@@ -581,7 +581,7 @@ int main(int argc, char *argv[])
          if ((tempLong < 0) || (*ptr != '\0'))
          {
             fprintf(stderr, "ERROR: Invalid number of channels '%s'\n",
-                    argv[j]);
+                    SIPX_SAFENULL(argv[j]));
             return 1;
          }
          nbChannels = (VXIunsigned) tempLong;
@@ -593,7 +593,7 @@ int main(int argc, char *argv[])
          if ((tempLong < -1) || (*ptr != '\0'))
          {
             fprintf(stderr, "ERROR: Invalid number of calls '%s'\n",
-                    argv[j]);
+                    SIPX_SAFENULL(argv[j]));
             return 1;
          }
          maxCalls = (VXIunsigned) tempLong;
@@ -608,7 +608,7 @@ int main(int argc, char *argv[])
       else
       {
          fprintf(stderr, "ERROR: Invalid command-line option '%s'\n",
-                 argv[i]);
+                 SIPX_SAFENULL(argv[i]));
          return 1;
       }
    }
@@ -624,11 +624,11 @@ int main(int argc, char *argv[])
                                    sizeof(char));
       CLIENT_CHECK_MEMALLOC( configFile, "config filename" );
 
-      sprintf( configFile, "%s%c%s%c%s", swiDir, PATH_SEPARATOR,
-               "config", PATH_SEPARATOR, DEFAULT_CONFIG_FILENAME );
+      sprintf( configFile, "%s%c%s%c%s", SIPX_SAFENULL(swiDir), PATH_SEPARATOR,
+               "config", PATH_SEPARATOR, SIPX_SAFENULL(DEFAULT_CONFIG_FILENAME) );
    }
 
-   osPrintf("Using config file '%s'\n\n", configFile);
+   osPrintf("Using config file '%s'\n\n", SIPX_SAFENULL(configFile));
 
    glbMaxNumListeners = DEFAULT_MAX_LISTENERS;
    glbPlayerListenerTable = (PlayerListenerDB**) malloc(sizeof(PlayerListenerDB *)*glbMaxNumListeners);
@@ -657,14 +657,14 @@ int main(int argc, char *argv[])
       else if (VXIValueGetType((const VXIValue *)urlStr) != VALUE_STRING)
       {
          fprintf(stderr, "ERROR: %S must be set to a VXIString value\n",
-                 BASE_CLIENT_VXML_URL);
+                 SIPX_SAFENULL(BASE_CLIENT_VXML_URL));
          return 1;
       }
 
       gblDefaultVxmlURL = (VXIchar *)VXIStringCStr(urlStr);
    }
 
-   printf("Using VXML document base '%S'\n\n", gblDefaultVxmlURL);
+   printf("Using VXML document base '%S'\n\n", SIPX_SAFENULL(gblDefaultVxmlURL));
 
    /* Initialize the platform */
    platformResult = VXIplatformInit(glbConfigArgs, &maxChannels);
@@ -708,7 +708,7 @@ int main(int argc, char *argv[])
    UtlString fileName =  workingDirectory +     
       OsPathBase::separator +    
       MEDIASERVER_LOG;  
-   osPrintf("Open SIP log file %s\n\n", fileName.data());  
+   osPrintf("Open SIP log file %s\n\n", SIPX_SAFENULL(fileName.data()));  
 
    logStr = (const VXIString *)VXIMapGetProperty(glbConfigArgs, SYS_LOG_LEVEL);
    char *loglevel = (char*)ERR_STR;
@@ -927,7 +927,7 @@ int main(int argc, char *argv[])
          if(thread)
          {
             const char* callId = thread->callId;
-            OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "main loop: freeing cleanup threads for %s (%d remaining) \n", callId, numThreads-loops);
+            OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "main loop: freeing cleanup threads for %s (%d remaining) \n", SIPX_SAFENULL(callId), numThreads-loops);
             if (NULL == findHandlingChannel(callId))
             {
                thread = removeThread(thread);
@@ -1097,7 +1097,7 @@ static VXITRD_DEFINE_THREAD_FUNC(ChannelThread, userData)
 
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                  "Begin ChannelThread to process channel %d\nCallID:%s\nplatform=%p",
-                 channelArgs->channelNum, channelArgs->callId, channelArgs->platform);
+                 channelArgs->channelNum, SIPX_SAFENULL(channelArgs->callId), channelArgs->platform);
 
    // Delay for one second to reduce the chances that the other end 
    // will not hear the first part of the prompts.
@@ -1200,7 +1200,7 @@ static VXITRD_DEFINE_THREAD_FUNC(ChannelThread, userData)
    // We'll wait for the cleanup to finish, do not timeout
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_INFO, 
                  "ChannelThread: check isCleanupInProgress for channel %d\nCallID:%s\nplatform=%p",
-                 channelArgs->channelNum, channelArgs->callId, channelArgs->platform);
+                 channelArgs->channelNum, SIPX_SAFENULL(channelArgs->callId), channelArgs->platform);
    while (gpTelListener->isCleanupInProgress(channelArgs->callId))
    {
       OsTask::delay(10000);
@@ -1208,7 +1208,7 @@ static VXITRD_DEFINE_THREAD_FUNC(ChannelThread, userData)
 
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_INFO, 
                  "ChannelThread: isCleanupInProgress is false, do DestroyResources now, for channel %d\nCallID:%s\nplatform=%p",
-                 channelArgs->channelNum, channelArgs->callId, channelArgs->platform);
+                 channelArgs->channelNum, SIPX_SAFENULL(channelArgs->callId), channelArgs->platform);
  
    OsSysLog::flush();
 
@@ -1236,7 +1236,7 @@ static VXITRD_DEFINE_THREAD_FUNC(ChannelThread, userData)
 
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, 
                  "End ChannelThread for channel %d\nCallID:%s\nplatform=%p",
-                 channelArgs->channelNum, channelArgs->callId, channelArgs->platform);
+                 channelArgs->channelNum, SIPX_SAFENULL(channelArgs->callId), channelArgs->platform);
 
    VXItrdThreadExit(0);
    return 0;
@@ -1277,14 +1277,14 @@ int VXIProcessUrl (void *plistener,
       char* tmp = new char[llen];
       vxmlURL = (VXIchar *) calloc(llen, VXICHAR_SIZE);
       CLIENT_CHECK_MEMALLOC( vxmlURL, "URL buffer" );
-      sprintf(tmp, "%S%s", gblDefaultVxmlURL, url);
+      sprintf(tmp, "%S%s", SIPX_SAFENULL(gblDefaultVxmlURL), SIPX_SAFENULL(url));
       mbstowcs(vxmlURL, (char*)tmp, llen);
       delete[] tmp;
       tmp = NULL;
    }
 
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
-                 "VXIProcessUrl Using VXML document '%S'\n\n", vxmlURL);
+                 "VXIProcessUrl Using VXML document '%S'\n\n", SIPX_SAFENULL(vxmlURL));
 
    VXIMap *sessionArgs = VXIMapCreate();
 
@@ -1321,7 +1321,7 @@ int VXIProcessUrl (void *plistener,
       id[len] = 0;
    }
 
-   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "Channel %ld: Creating VXI thread to handle call %s\n", glbNbCalls, callId);
+   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "Channel %ld: Creating VXI thread to handle call %s\n", glbNbCalls, SIPX_SAFENULL(callId));
    VXIplatform *platform = (VXIplatform *) malloc(sizeof(VXIplatform));
    CLIENT_CHECK_MEMALLOC(platform, "VXIplatform");
    memset(platform, 0, sizeof(VXIplatform));
@@ -1405,7 +1405,7 @@ static VXITRD_DEFINE_THREAD_FUNC(CallCleanupThread, userData)
             SBclientExitingCall(channel->platform);
             OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_INFO, 
                           "CallCleanupThread %s: Channel %d: after Exiting, before removeFromCleanUpInProgress\n", 
-                          callId, channel->channelNum);
+                          SIPX_SAFENULL(callId), channel->channelNum);
             gpTelListener->removeFromCleanupInProgress(callId);
          }
 
@@ -1414,25 +1414,25 @@ static VXITRD_DEFINE_THREAD_FUNC(CallCleanupThread, userData)
          {             
             OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_INFO, 
                           "CallCleanupThread-%s: Channel %d: VXItrdThreadJoin had error %d tries=%d VXISessionEnded=%d\n", 
-                          callId, channel->channelNum, trdResult, tries, VXISessionEnded);
+                          SIPX_SAFENULL(callId), channel->channelNum, trdResult, tries, VXISessionEnded);
          }
 
          int okToFreeChannel = 1;
          if (trdResult != 0)
          {
-            OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR, "CallCleanupThread-%s: Channel %d: didn't exit, do not force thread to exit \n", callId, channel->channelNum);
+            OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR, "CallCleanupThread-%s: Channel %d: didn't exit, do not force thread to exit \n", SIPX_SAFENULL(callId), channel->channelNum);
             // VXItrdThreadCancel (channel->threadHandle);
             okToFreeChannel = 0;
          }
          else
          {
-            OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_INFO, "CallCleanupThread-%s: Channel %d: VXItrdThreadJoin exited normally %d \n", callId, channel->channelNum, trdResult);
+            OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_INFO, "CallCleanupThread-%s: Channel %d: VXItrdThreadJoin exited normally %d \n", SIPX_SAFENULL(callId), channel->channelNum, trdResult);
          }
 
          trdResult = VXItrdThreadDestroyHandle (&(channel->threadHandle));
          if (trdResult)
          {
-            OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR, "CallCleanupThread-%s: Channel %d: VXItrdThreadDestroyHandle had error %d \n", callId, channel->channelNum, trdResult);
+            OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR, "CallCleanupThread-%s: Channel %d: VXItrdThreadDestroyHandle had error %d \n", SIPX_SAFENULL(callId), channel->channelNum, trdResult);
          }
 
          channel = removeChannel(channel); // remove from stack
@@ -1467,7 +1467,7 @@ int VXICleanUpCall (void *plistener,
       ChannelThreadArgs* channel = findHandlingChannel(callId);
       if (NULL == channel)
       {
-         OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "VXICleanUpCall:  VXI session with %s does not exist.\n", callId);
+         OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "VXICleanUpCall:  VXI session with %s does not exist.\n", SIPX_SAFENULL(callId));
          return platformResult;    // session/channel does not exist
       }
 
@@ -1475,7 +1475,7 @@ int VXICleanUpCall (void *plistener,
       if (thread)
       {
          // This is generally bad.  The call should not exist.
-         OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR, "ERROR: VXICleanUpCall: cleanup thread for %s already exists.\n", callId);
+         OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR, "ERROR: VXICleanUpCall: cleanup thread for %s already exists.\n", SIPX_SAFENULL(callId));
          return VXIplatform_RESULT_FAILURE;
       }
 
@@ -1538,7 +1538,7 @@ void initCodecs(SdpCodecFactory* codecFactory)
    }
 
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_INFO, "initCodecs: Using the following codecs: %s",
-                 codecList.data());
+                 SIPX_SAFENULL(codecList.data()));
 
    NameValueTokenizer::getSubField(codecList, codecStringIndex,
                                    ", \n\r\t", &oneCodec);
@@ -1549,7 +1549,7 @@ void initCodecs(SdpCodecFactory* codecFactory)
       if (internalCodecId == SdpCodec::SDP_CODEC_UNKNOWN)
       {
          OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR, "initCodecs: Unknown codec ID: %s",
-                       oneCodec.data());
+                       SIPX_SAFENULL(oneCodec.data()));
       }
       else
       {
@@ -1633,7 +1633,7 @@ int __wrap_open(const char *pathname, int flags)
    getstackframe(btString);
 
    OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                 "::open pathname: %s flag: %d returning fd: %d", pathname, flags, fd);
+                 "::open pathname: %s flag: %d returning fd: %d", SIPX_SAFENULL(pathname), flags, fd);
 
    return(fd);
 }
@@ -1648,7 +1648,7 @@ int __wrap_close(int fd)
    getstackframe(btString);
 
    OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                 "::close  with fd: %d returned: %d from %s", fd, retCode, btString.data());
+                 "::close  with fd: %d returned: %d from %s", fd, retCode, SIPX_SAFENULL(btString.data()));
 
    return(retCode);
 }
@@ -1684,7 +1684,7 @@ int __wrap_fclose(FILE* fp)
    getstackframe(btString);
 
    OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                 "::fclose  with fp: %p, fd: %d returned: %d from %s", fp, fd, retCode, btString.data());
+                 "::fclose  with fp: %p, fd: %d returned: %d from %s", fp, fd, retCode, SIPX_SAFENULL(btString.data()));
 
    return(retCode);
 }

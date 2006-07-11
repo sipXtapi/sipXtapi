@@ -138,14 +138,14 @@ int TaoTransportAgent::run(void* runArg)
                         // The socket has gone sour close down the client
                         mpSocket->getRemoteHostName(&remoteHostName);
                         osPrintf("Shutting down TaoTransportAgent: %s due to failed socket\n",
-                                remoteHostName.data());
+                                SIPX_SAFENULL(remoteHostName.data()));
                         break;
                 }
         }
 
 #ifdef TEST_PRINT
-        osPrintf("TaoTransportAgent: %s/%s exiting\r\n", remoteHostName.data(),
-                viaName.data());
+        osPrintf("TaoTransportAgent: %s/%s exiting\r\n", SIPX_SAFENULL(remoteHostName.data()),
+                SIPX_SAFENULL(viaName.data()));
 #endif
         return(0);
 }

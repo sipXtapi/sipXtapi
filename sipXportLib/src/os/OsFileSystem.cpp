@@ -249,7 +249,7 @@ OsStatus OsFileSystem::removeTree(const OsPath& path,UtlBoolean bForce)
                     OsFile tmpfile(entry);
                     if (tmpfile.remove(bForce) != OS_SUCCESS)
                     {
-                        osPrintf("ERROR: can't removing file %s\n",entry.data());
+                        osPrintf("ERROR: can't removing file %s\n",SIPX_SAFENULL(entry.data()));
                         retval = OS_FAILED;
                         bFailed = TRUE;
                     }
@@ -267,7 +267,7 @@ OsStatus OsFileSystem::removeTree(const OsPath& path,UtlBoolean bForce)
           {
             if (!bFailed && OsFileSystem::remove(path,FALSE,FALSE) != OS_SUCCESS)
             {
-                osPrintf("ERROR: can't remove dir %s\n",path.data());
+                osPrintf("ERROR: can't remove dir %s\n",SIPX_SAFENULL(path.data()));
                 retval = OS_FAILED;
             }
             else

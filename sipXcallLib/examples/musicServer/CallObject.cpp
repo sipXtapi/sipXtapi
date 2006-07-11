@@ -42,7 +42,7 @@ OsStatus CallObject::playAudio()
    OsStatus result = OS_SUCCESS;
    char szUrl[128] ;
 
-   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "CallId %s is requesting for playing the wavefile ...\n", mCallId.data());
+   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "CallId %s is requesting for playing the wavefile ...\n", SIPX_SAFENULL(mCallId.data()));
 
    mpCallManager->createPlayer(mCallId, &mpPlayer) ;
 
@@ -54,7 +54,7 @@ OsStatus CallObject::playAudio()
    // Send a sequence of prompts to the player
    for (int i=0; i<3; i++)
    {
-      sprintf(szUrl, "Playlist +file://%s", mFile.data());
+      sprintf(szUrl, "Playlist +file://%s", SIPX_SAFENULL(mFile.data()));
 
       Url url(szUrl) ;
       mpPlayer->add(url, STREAM_SOUND_REMOTE | STREAM_FORMAT_WAV) ;

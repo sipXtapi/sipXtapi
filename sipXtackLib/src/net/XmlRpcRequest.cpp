@@ -69,7 +69,7 @@ bool XmlRpcRequest::execute(XmlRpcResponse& response)
    int bodyLength;
    mpRequestBody->getBytes(&bodyString, &bodyLength);
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "XmlRpcRequest::execute XML-RPC request message = \n%s\n", bodyString.data());
+                 "XmlRpcRequest::execute XML-RPC request message = \n%s\n", SIPX_SAFENULL(bodyString.data()));
    
    mpHttpRequest->setBody(mpRequestBody);
    mpHttpRequest->setContentType(CONTENT_TYPE_TEXT_XML);
@@ -85,7 +85,7 @@ bool XmlRpcRequest::execute(XmlRpcResponse& response)
       const HttpBody* pResponseBody = pResponse->getBody();
       pResponseBody->getBytes(&bodyString, &bodyLength);
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "XmlRpcRequest::execute XML-RPC message = %s\n", bodyString.data());
+                    "XmlRpcRequest::execute XML-RPC message = %s\n", SIPX_SAFENULL(bodyString.data()));
          
       if (response.parseXmlRpcResponse(bodyString))
       {
@@ -108,7 +108,7 @@ bool XmlRpcRequest::execute(XmlRpcResponse& response)
 
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "XmlRpcRequest::execute failed with status = %d %s\n",
-                    statusCode, statusText.data());
+                    statusCode, SIPX_SAFENULL(statusText.data()));
    }
 
    delete pResponse;

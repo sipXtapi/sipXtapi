@@ -148,9 +148,9 @@ OsStatus initLogfile(TiXmlDocument &doc)
                     {
                        OsSysLog::add(FAC_WATCHDOG, PRI_CRIT,
                                      "initLogfile: Incomprehensible logging level string '%s'!\n",
-                                     pLevelStr);
+                                     SIPX_SAFENULL(pLevelStr));
 #ifdef DEBUG
-                       osPrintf("initLogfile: Incomprehensible logging level string '%s'!\n", pLevelStr);
+                       osPrintf("initLogfile: Incomprehensible logging level string '%s'!\n", SIPX_SAFENULL(pLevelStr));
 #endif /* DEBUG */
                     }
 
@@ -478,7 +478,7 @@ int main(int argc, char* argv[])
         strWatchDogFilename = argv[1];
         // This is OK to print directly, since it happens at startup and is
         // triggered only by special arguments.
-        osPrintf("WatchDog XML configuration set to %s\n",strWatchDogFilename.data());
+        osPrintf("WatchDog XML configuration set to %s\n",SIPX_SAFENULL(strWatchDogFilename.data()));
     }
     else
     {
@@ -505,7 +505,7 @@ int main(int argc, char* argv[])
     }
 
 #ifdef DEBUG
-    osPrintf("Loading WatchDog XML from: %s\n",strWatchDogPath.data());
+    osPrintf("Loading WatchDog XML from: %s\n",SIPX_SAFENULL(strWatchDogPath.data()));
 #endif /* DEBUG */
 
     TiXmlDocument processXMLDoc;
@@ -521,14 +521,14 @@ int main(int argc, char* argv[])
             {
 #ifdef DEBUG
                 osPrintf("Loading ProcessDefinitions XML from: %s\n",
-                         processXMLPath.data());
+                         SIPX_SAFENULL(processXMLPath.data()));
 #endif /* DEBUG */
                 OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
                               "Loading WatchDog XML from: %s\n",
-                              strWatchDogPath.data());
+                              SIPX_SAFENULL(strWatchDogPath.data()));
                 OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
                               "Loading ProcessDefinitions XML from: %s\n",
-                              processXMLPath.data());
+                              SIPX_SAFENULL(processXMLPath.data()));
 
                 if ( initProcessXMLLayer(processXMLPath, processXMLDoc,
                                          gstrErrorMsg) ==
@@ -566,8 +566,8 @@ int main(int argc, char* argv[])
                            // See loadProcessXML in processCommon.cpp.
                            osPrintf("Couldn't load process list: Error in "
                                     "'%s' and/or '%s/ProcessDefinitions.xml'.\n",
-                                    strWatchDogFilename.data(),
-                                    processXMLPath.data());
+                                    SIPX_SAFENULL(strWatchDogFilename.data()),
+                                    SIPX_SAFENULL(processXMLPath.data()));
                         }
                     } else
                     {

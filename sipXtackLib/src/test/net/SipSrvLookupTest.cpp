@@ -79,7 +79,7 @@ public:
 
       // Set up named configuration file.
       char config_file[100];
-      sprintf(config_file, "%s/%d.conf", temp_dir, pid);
+      sprintf(config_file, "%s/%d.conf", SIPX_SAFENULL(temp_dir), pid);
       f = fopen(config_file, "w");
       CPPUNIT_ASSERT(f != NULL);
       fprintf(f, "zone \".\" IN {\n");
@@ -88,8 +88,8 @@ public:
       fprintf(f, "\tallow-update { none; };\n");
       fprintf(f, "};\n");
       fprintf(f, "options {\n");
-      fprintf(f, "\tdirectory \"%s\";\n", TESTDIR);
-      fprintf(f, "\tpid-file \"%s/%d.pid\";\n", temp_dir, pid);
+      fprintf(f, "\tdirectory \"%s\";\n", SIPX_SAFENULL(TESTDIR));
+      fprintf(f, "\tpid-file \"%s/%d.pid\";\n", SIPX_SAFENULL(temp_dir), pid);
       fprintf(f, "};\n");
       fprintf(f, "controls { };\n");
       fclose(f);
@@ -139,7 +139,7 @@ public:
       for (int i = 0; i < _res.nscount; i++)
       {
          printf("_res.nsaddr_list[%d] = %s:%d\n",
-                i, inet_ntoa(_res.nsaddr_list[i].sin_addr),
+                i, SIPX_SAFENULL(inet_ntoa(_res.nsaddr_list[i].sin_addr)),
                 ntohs(_res.nsaddr_list[i].sin_port));
       }
 #     endif /* TEST_PRINT */
@@ -604,12 +604,12 @@ public:
             q->getIpAddressFromServerT(ip_addr);
             sprintf(result_string + strlen(result_string),
                     "%s:%d,%u,%.3f,%u,%s\n",
-                    ip_addr.data(), 
+                    SIPX_SAFENULL(ip_addr.data()), 
                     q->getPortFromServerT(),
                     q->getWeightFromServerT(),
                     q->getScoreFromServerT(),
                     q->getPriorityFromServerT(),
-                    printable_proto(q->getProtocolFromServerT()));
+                    SIPX_SAFENULL(printable_proto(q->getProtocolFromServerT())));
          }
          // Make sure we haven't overflowed result_string.
          CPPUNIT_ASSERT(strlen(result_string) < sizeof (result_string));
@@ -626,8 +626,8 @@ public:
          if (unexpected) {
             printf("\nSipSrvLookup::servers(\"%s\", \"%s\", OsSocket::%s, "
                    "%d) returns:\n",
-                   tests[test_no].name, tests[test_no].service,
-                   printable_proto(tests[test_no].type), tests[test_no].port);
+                   SIPX_SAFENULL(tests[test_no].name), SIPX_SAFENULL(tests[test_no].service),
+                   SIPX_SAFENULL(printable_proto(tests[test_no].type)), tests[test_no].port);
             for (server_t* q = p; q->isValidServerT(); q++)
             {
                UtlString host;
@@ -637,21 +637,21 @@ public:
                printf("\tSipSrvLookupTest::test1 host = '%s', IP addr = '%s', "
                       "port = %d, weight = %u, score = %f, "
                       "priority = %u, proto = %s\n",
-                      host.data(), ip_addr.data(),
+                      SIPX_SAFENULL(host.data()), ip_addr.data(),
                       q->getPortFromServerT(),
                       q->getWeightFromServerT(),
                       q->getScoreFromServerT(),
                       q->getPriorityFromServerT(),
-                      printable_proto(q->getProtocolFromServerT()));
+                      SIPX_SAFENULL(printable_proto(q->getProtocolFromServerT())));
             }
             printf("\t[END]\n");
-            printf("\nFailed %d: %s\n", test_no, tests[test_no].name);
-            printf("Expected results were:\n%s\n", tests[test_no].expected);
+            printf("\nFailed %d: %s\n", test_no, SIPX_SAFENULL(tests[test_no].name));
+            printf("Expected results were:\n%s\n", SIPX_SAFENULL(tests[test_no].expected));
          }
          else
          {
 #           ifdef TEST_PRINT
-            printf("Passed %d: %s\n", test_no, tests[test_no].name);
+            printf("Passed %d: %s\n", test_no, SIPX_SAFENULL(tests[test_no].name));
 #           endif
          }
 

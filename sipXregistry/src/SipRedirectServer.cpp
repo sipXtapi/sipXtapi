@@ -183,7 +183,7 @@ static void logResponse(UtlString& messageStr)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "----------------------------------"
-                 "Sending final response%s", messageStr.data());
+                 "Sending final response%s", SIPX_SAFENULL(messageStr.data()));
 }
 
 /**
@@ -257,7 +257,7 @@ void SipRedirectServer::processRedirect(const SipMessage* message,
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipRedirectServer::processRedirect "
                  "Starting to process request URI '%s'",
-                 stringUri.data());
+                 SIPX_SAFENULL(stringUri.data()));
 
    /*
     * Normalize the port in the Request URI
@@ -345,7 +345,7 @@ void SipRedirectServer::processRedirect(const SipMessage* message,
                        "SipRedirectServer::processRedirect "
                        "LOOKUP_ERROR_REQUEST returned by redirector "
                        "%d while processing method '%s' URI '%s'",
-                       status, method.data(), stringUri.data());
+                       status, SIPX_SAFENULL(method.data()), SIPX_SAFENULL(stringUri.data()));
          willError = TRUE;
          responseCode = 403;
          break;
@@ -357,7 +357,7 @@ void SipRedirectServer::processRedirect(const SipMessage* message,
                        "SipRedirectServer::processRedirect "
                        "LOOKUP_ERROR_SERVER returned by redirector "
                        "%d while processing method '%s' URI '%s'",
-                       status, method.data(), stringUri.data());
+                       status, SIPX_SAFENULL(method.data()), SIPX_SAFENULL(stringUri.data()));
          willError = TRUE;
          responseCode = 500;
          break;
@@ -367,7 +367,7 @@ void SipRedirectServer::processRedirect(const SipMessage* message,
                        "SipRedirectServer::processRedirect "
                        "LOOKUP_SUSPEND returned by redirector "
                        "%d while processing method '%s' URI '%s'",
-                       i, method.data(), stringUri.data());
+                       i, SIPX_SAFENULL(method.data()), SIPX_SAFENULL(stringUri.data()));
          willSuspend = TRUE;
          // Mark that this redirector has requested suspension.
          suspendObject->mRedirectors[i].suspended = TRUE;
@@ -380,7 +380,7 @@ void SipRedirectServer::processRedirect(const SipMessage* message,
                        "SipRedirectServer::processRedirect "
                        "Invalid status value %d returned by redirector "
                        "%d while processing method '%s' URI '%s'",
-                       status, i, method.data(), stringUri.data());
+                       status, i, SIPX_SAFENULL(method.data()), SIPX_SAFENULL(stringUri.data()));
          break;
       }
    }

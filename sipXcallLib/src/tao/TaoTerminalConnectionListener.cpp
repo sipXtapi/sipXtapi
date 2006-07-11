@@ -35,7 +35,7 @@ TaoTerminalConnectionListener::TaoTerminalConnectionListener(int objId,
         mhClientSocket = clientSocket;
         mpSvrTransport = pSvrTransport;
         int len = strlen(terminalName);
-        osPrintf("TaoTerminalConnectionListener: objId %d terminal name: %s\n", objId, terminalName);
+        osPrintf("TaoTerminalConnectionListener: objId %d terminal name: %s\n", objId, SIPX_SAFENULL(terminalName));
         if (len > 0)
         {
                 mTerminalName = new char[len];

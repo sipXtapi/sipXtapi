@@ -10,6 +10,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include <os/OsDefs.h>
 #include <net/SdpCodec.h>
 
 // EXTERNAL FUNCTIONS
@@ -172,9 +173,9 @@ packetLength: %d\n\
 numChannels: %d\n\
 formatData: \'%s\'\n",
             getValue(), mCodecPayloadFormat,
-            mMimeType.data(), mMimeSubtype.data(),
+            SIPX_SAFENULL(mMimeType.data()), SIPX_SAFENULL(mMimeSubtype.data()),
             mSampleRate, mPacketLength, mNumChannels,
-            mFormatSpecificData.data());
+            SIPX_SAFENULL(mFormatSpecificData.data()));
     sdpCodecContents = stringBuffer;
 }
 

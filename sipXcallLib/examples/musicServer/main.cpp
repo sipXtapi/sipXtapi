@@ -116,7 +116,7 @@ void parseArgs(int argc, char* argv[])
             UdpPort = strtoul(optarg, &optend, 10);
             if ( '\0' != *optend )
             {
-               fprintf( stderr, "Invalid UDP port %s\n", optarg );
+               fprintf( stderr, "Invalid UDP port %s\n", SIPX_SAFENULL(optarg) );
                exit(1);
             }
             break;
@@ -125,7 +125,7 @@ void parseArgs(int argc, char* argv[])
             TcpPort = strtoul(optarg, &optend, 10);
             if ( '\0' != *optend )
             {
-               fprintf( stderr, "Invalid TCP port %s\n", optarg );
+               fprintf( stderr, "Invalid TCP port %s\n", SIPX_SAFENULL(optarg) );
                exit(1);
             }
             break;
@@ -149,7 +149,7 @@ void parseArgs(int argc, char* argv[])
             break;
             
          default:
-            fprintf( stderr, "Invalid option %s\n", argv[optind] );
+            fprintf( stderr, "Invalid option %s\n", SIPX_SAFENULL(argv[optind]) );
             showHelp(argv);
             exit(1);
             break;
@@ -161,13 +161,13 @@ void parseArgs(int argc, char* argv[])
       Playfile = argv[optind++];
       if ( Feedback != Quiet )
       {
-         printf("ready to play '%s'\n", Playfile);
+         printf("ready to play '%s'\n", SIPX_SAFENULL(Playfile));
       }
    }
 
    if (optind < argc)
    {
-      fprintf(stderr, "Too many arguments: '%s'\n", argv[optind]);
+      fprintf(stderr, "Too many arguments: '%s'\n", SIPX_SAFENULL(argv[optind]));
       showHelp(argv);
       exit(1);
    }

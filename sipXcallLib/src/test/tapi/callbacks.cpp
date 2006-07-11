@@ -50,7 +50,7 @@ bool UniversalEventValidatorCallback(SIPX_EVENT_CATEGORY category,
 
     // Uncomment for debugging purposes...
     // char cBuffer[1000]; 
-    // printf("%s: %s\n", pValidator->getTitle(), sipxEventToString(category, pInfo, cBuffer, 1000)) ;
+    // printf("%s: %s\n", SIPX_SAFENULL(pValidator->getTitle()), SIPX_SAFENULL(sipxEventToString(category, pInfo, cBuffer, 1000))) ;
 
     return true ;
 }
@@ -370,7 +370,7 @@ bool basicCall_CallBack_Receive(SIPX_EVENT_CATEGORY category,
 
                     // an event can come in with what appears to be the "wrong" user data.
                     // for instance, if a listener is removed and a new listener is added immediately with new user data.
-                    // printf("comparing %s to %s\n", pUserData, szBuffer) ;
+                    // printf("comparing %s to %s\n", SIPX_SAFENULL(pUserData), SIPX_SAFENULL(szBuffer)) ;
                     //CPPUNIT_ASSERT(strcmp((char*) pUserData, szBuffer) == 0) ;
                 }
             }
@@ -421,7 +421,7 @@ bool basicCall_CallBack_Receive3(SIPX_EVENT_CATEGORY category,
             {
                 CPPUNIT_ASSERT_EQUAL(sipxLineGetURI(hLine, szBuffer, sizeof(szBuffer), nBuffer), SIPX_RESULT_SUCCESS) ;
 
-                // printf("comparing %s to %s\n", pUserData, szBuffer) ;
+                // printf("comparing %s to %s\n", SIPX_SAFENULL(pUserData), SIPX_SAFENULL(szBuffer)) ;
                 CPPUNIT_ASSERT(strcmp((char*) pUserData, szBuffer) == 0) ;
             }
             else
@@ -471,7 +471,7 @@ bool basicCall_CallBack_Receive3_hangup(SIPX_EVENT_CATEGORY category,
             {
                 CPPUNIT_ASSERT_EQUAL(sipxLineGetURI(hLine, szBuffer, sizeof(szBuffer), nBuffer), SIPX_RESULT_SUCCESS) ;
 
-                // printf("comparing %s to %s\n", pUserData, szBuffer) ;
+                // printf("comparing %s to %s\n", SIPX_SAFENULL(pUserData), SIPX_SAFENULL(szBuffer)) ;
                 CPPUNIT_ASSERT(strcmp((char*) pUserData, szBuffer) == 0) ;
             }
             else
@@ -522,7 +522,7 @@ bool basicCall_CallBack_Receive3_busy(SIPX_EVENT_CATEGORY category,
             {
                 CPPUNIT_ASSERT_EQUAL(sipxLineGetURI(hLine, szBuffer, sizeof(szBuffer), nBuffer), SIPX_RESULT_SUCCESS) ;
 
-                // printf("comparing %s to %s\n", pUserData, szBuffer) ;
+                // printf("comparing %s to %s\n", SIPX_SAFENULL(pUserData), SIPX_SAFENULL(szBuffer)) ;
                 CPPUNIT_ASSERT(strcmp((char*) pUserData, szBuffer) == 0) ;
             }
             else

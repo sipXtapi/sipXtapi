@@ -72,7 +72,7 @@ SipRedirector::addContact(SipMessage& response,
 
    OsSysLog::add(FAC_SIP, PRI_INFO,
                  "SipRedirector::addContact Redirector '%s' maps '%s' to '%s'",
-                 label, requestString.data(), contactString);
+                 SIPX_SAFENULL(label), SIPX_SAFENULL(requestString.data()), SIPX_SAFENULL(contactString));
 }
 
 void

@@ -115,7 +115,7 @@ PtStatus PtProvider::createProvider(const char* login, const char* password,
                 {
                         host = "127.0.0.1";
                         mbInvalidIP = TRUE;
-                        osPrintf("WARNING - PtProvider::createProvider: using invalid host, replaced with %s\n", host.data());
+                        osPrintf("WARNING - PtProvider::createProvider: using invalid host, replaced with %s\n", SIPX_SAFENULL(host.data()));
                 }
 
                 if (!portIsValid(port))
@@ -146,7 +146,7 @@ PtStatus PtProvider::createProvider(const char* login, const char* password,
                 }
                 else
                 {
-                        osPrintf("Ptprovider::createProvider: NOT a local host %s\n", host.data());
+                        osPrintf("Ptprovider::createProvider: NOT a local host %s\n", SIPX_SAFENULL(host.data()));
                         mpClient = new TaoClientTask(port, host, 0);
                 }
         }
@@ -327,7 +327,7 @@ UtlBoolean PtProvider::isLocal(const char * host)
         UtlString strServer;
         OsSocket::getHostIp(&strServer);
 
-//      osPrintf("%s isLocal %s?\n", host, strServer.data());
+//      osPrintf("%s isLocal %s?\n", SIPX_SAFENULL(host), SIPX_SAFENULL(strServer.data()));
         if (strServer.length() == 0 || 0 == strServer.compareTo("0.0.0.0"))
         {
                 mbInvalidIP = TRUE;

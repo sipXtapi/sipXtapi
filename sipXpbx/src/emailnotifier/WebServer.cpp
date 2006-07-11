@@ -88,7 +88,7 @@ WebServer::ProcessEvent(
     UtlString httpString;
     SubscribeServerPluginBase* plugin = NULL;
     request.getBytes(&httpString , &len);
-    osPrintf("WebServer::ProcessEvent HttpEvent \n%s\n", httpString.data());
+    osPrintf("WebServer::ProcessEvent HttpEvent \n%s\n", SIPX_SAFENULL(httpString.data()));
 
     requestContext.getCgiVariable(EVENTTYPE, event);
     if( !event.isNull())

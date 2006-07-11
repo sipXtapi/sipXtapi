@@ -208,7 +208,7 @@ UtlBoolean OsTaskBase::waitUntilShutDown(int milliSecToWait)
       for (i = 1; (i < 20) && isShuttingDown(); i++)
       {
          OsSysLog::add(FAC_KERNEL, PRI_WARNING, "Task: %s failed to terminate after %f seconds",
-                  taskName.data(), (milliSecToWait * i) / 20000.0);
+                  SIPX_SAFENULL(taskName.data()), (milliSecToWait * i) / 20000.0);
          delay(milliSecToWait/20);
       }
 
@@ -217,7 +217,7 @@ UtlBoolean OsTaskBase::waitUntilShutDown(int milliSecToWait)
       if (isShuttingDown())
       {
          OsSysLog::add(FAC_KERNEL, PRI_ERR, "Task: %s failed to terminate after %f seconds",
-                  taskName.data(), milliSecToWait / 1000.0);
+                  SIPX_SAFENULL(taskName.data()), milliSecToWait / 1000.0);
       }
    }
 
@@ -225,7 +225,7 @@ UtlBoolean OsTaskBase::waitUntilShutDown(int milliSecToWait)
    while (isShuttingDown())
    {
          OsSysLog::add(FAC_KERNEL, PRI_ERR, "Task: %s failed to terminate, waiting...",
-                  taskName.data());
+                  SIPX_SAFENULL(taskName.data()));
          delay(300000);
    }
 

@@ -796,7 +796,7 @@ dbTableDescriptor::dbTableDescriptor(char*              tableName,
     appSize = DOALIGN(appSize, maxAlignment);
     if (appSize < objSize) { 
     fprintf(stderr, "Warning: may be not all fields of the class '%s' "
-        "were described\n", name);
+        "were described\n", SIPX_SAFENULL(name));
     }
 #endif
     *nextFieldLink = NULL;
@@ -827,7 +827,7 @@ int dbTableDescriptor::calculateFieldsAttributes(dbFieldDescriptor* first,
     }
     if (*prefix != '\0') { 
         char* p = new char[strlen(prefix)+strlen(field->name)+1];
-        sprintf(p, "%s%s", prefix, field->name);
+        sprintf(p, "%s%s", SIPX_SAFENULL(prefix), SIPX_SAFENULL(field->name));
         field->longName = p;
     } else { 
         nColumns += 1;
@@ -872,7 +872,7 @@ int dbTableDescriptor::calculateFieldsAttributes(dbFieldDescriptor* first,
       case dbField::tpStructure:
         { 
         char* aggregateName = new char[strlen(field->longName) + 2];
-        sprintf(aggregateName, "%s.", field->longName);
+        sprintf(aggregateName, "%s.", SIPX_SAFENULL(field->longName));
         size_t saveOffs = fixedSize;        
         size_t saveAppSize = appSize;       
         appSize = 0;
@@ -1029,10 +1029,10 @@ void dbTableDescriptor::checkRelationship()
             char msg[256];
             if (fd->inverseRef == NULL) { 
                 sprintf(msg, "Failed to locate inverse reference field %s.%s for field %s.%s", 
-                        refTable->name, fd->inverseRefName, fd->defTable->name, fd->longName);
+                        SIPX_SAFENULL(refTable->name), SIPX_SAFENULL(fd->inverseRefName), SIPX_SAFENULL(fd->defTable->name), SIPX_SAFENULL(fd->longName));
             } else {
                 sprintf(msg, "Inverse references for field %s.%s is %s.%s, but its inverse reference is %s", 
-                        fd->defTable->name, fd->longName, refTable->name, fd->inverseRefName, fd->inverseRef->inverseRefName);
+                        SIPX_SAFENULL(fd->defTable->name), SIPX_SAFENULL(fd->longName), SIPX_SAFENULL(refTable->name), SIPX_SAFENULL(fd->inverseRefName), SIPX_SAFENULL(fd->inverseRef->inverseRefName);
             }
             db->handleError(dbDatabase::InconsistentInverseReference, msg);
         } 

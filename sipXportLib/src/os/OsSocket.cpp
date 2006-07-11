@@ -957,7 +957,7 @@ void OsSocket::getRemoteHostIp(struct in_addr* remoteHostAddress,
     {
         UtlString output_address;
         inet_ntoa_pt(remoteAddr.sin_addr, output_address);
-        osPrintf("Remote name: %s\n", output_address.data());
+        osPrintf("Remote name: %s\n", SIPX_SAFENULL(output_address.data()));
     }
 #endif
 

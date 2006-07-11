@@ -251,7 +251,7 @@ StatusServer::startStatusServer (
     if ( sConfigDb.loadFromFile(configFileName) == OS_SUCCESS )
     {
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                      "Found config file: %s", configFileName);
+                      "Found config file: %s", SIPX_SAFENULL(configFileName));
     } else
     {
         sConfigDb.set("SIP_STATUS_AUTHENTICATE_ALGORITHM", "");
@@ -275,11 +275,11 @@ StatusServer::startStatusServer (
         if ( sConfigDb.storeToFile(configFileName) != OS_SUCCESS )
         {
             OsSysLog::add(FAC_SIP, PRI_INFO,
-                          "Could not write config file: %s", configFileName);
+                          "Could not write config file: %s", SIPX_SAFENULL(configFileName));
         }
     }
 
-    OsSysLog::add(LOG_FACILITY, PRI_INFO, "Starting - version: %s %s\n", SIPX_VERSION, SIPX_BUILD);
+    OsSysLog::add(LOG_FACILITY, PRI_INFO, "Starting - version: %s %s\n", SIPX_SAFENULL(SIPX_VERSION), SIPX_SAFENULL(SIPX_BUILD));
 
     sConfigDb.get("SIP_STATUS_AUTHENTICATE_ALGORITHM", authAlgorithm);
     sConfigDb.get("SIP_STATUS_AUTHENTICATE_QOP", authQop);
@@ -346,7 +346,7 @@ StatusServer::startStatusServer (
     }
     OsSysLog::add(FAC_SIP, PRI_INFO,
                   "SIP_STATUS_AUTHENTICATE_ALGORITHM : %s", 
-                  authAlgorithm.data());
+                  SIPX_SAFENULL(authAlgorithm.data()));
 
     // SIP_STATUS_AUTHENTICATE_QOP
     if ( authQop.isNull() ) /* AUTH/AUTH-INT/NONE */
@@ -355,7 +355,7 @@ StatusServer::startStatusServer (
     }
     OsSysLog::add(FAC_SIP, PRI_INFO,
                   "SIP_STATUS_AUTHENTICATE_QOP : %s", 
-                  authQop.data());
+                  SIPX_SAFENULL(authQop.data()));
     
     // SIP_STATUS_DOMAIN_NAME - need this before the SIP_STATUS_AUTHENTICATE_REALM
     // below since we get the domain name from the socket
@@ -365,7 +365,7 @@ StatusServer::startStatusServer (
     }
     OsSysLog::add(FAC_SIP, PRI_INFO,
                   "SIP_STATUS_DOMAIN_NAME : %s", 
-                  domainName.data());
+                  SIPX_SAFENULL(domainName.data()));
     
     // SIP_STATUS_AUTHENTICATE_REALM
     if(authRealm.isNull())
@@ -374,7 +374,7 @@ StatusServer::startStatusServer (
     }
     OsSysLog::add(FAC_SIP, PRI_INFO,
                   "SIP_STATUS_AUTHENTICATE_REALM : %s", 
-                  authRealm.data());
+                  SIPX_SAFENULL(authRealm.data()));
 
     // SIP_STATUS_AUTHENTICATE_SCHEME (Hidden) NONE/DIGEST
     if ( authScheme.compareTo("NONE" , UtlString::ignoreCase) == 0 ) 
@@ -388,7 +388,7 @@ StatusServer::startStatusServer (
     result = sConfigDb.get("SIP_STATUS_HTTPS_PORT", portStr);
     OsSysLog::add(FAC_SIP, PRI_INFO,
                   "startStatusServer : HTTPS port %s result %d", 
-                  portStr.data(), result);
+                  SIPX_SAFENULL(portStr.data()), result);
     // If the key is missing or not set, set it to the default HTTPS port
     if ( result == OS_NOT_FOUND || portStr.isNull() )
     {   
@@ -405,7 +405,7 @@ StatusServer::startStatusServer (
         result = sConfigDb.get("SIP_STATUS_HTTP_PORT", portStr);
         OsSysLog::add(FAC_SIP, PRI_INFO,
                       "startStatusServer : HTTP port %s result %d", 
-                      portStr.data(), result);
+                      SIPX_SAFENULL(portStr.data()), result);
         // If the key is missing or not set, set it to the default HTTP port
         if ( result == OS_NOT_FOUND || portStr.isNull() )
         {
@@ -449,9 +449,9 @@ StatusServer::startStatusServer (
     }
     OsSysLog::add(FAC_SIP, PRI_INFO,
                   "SIP_STATUS_MAX_EXPIRES : %s", 
-                  defaultMaxExpiresTime.data());
+                  SIPX_SAFENULL(defaultMaxExpiresTime.data());
 
-    int maxExpiresTime = atoi(defaultMaxExpiresTime.data());
+    int maxExpiresTime = atoi(defaultMaxExpiresTime.data()));
 
     // SIP_STATUS_MIN_EXPIRES
     if ( defaultMinExpiresTime.isNull() )
@@ -460,7 +460,7 @@ StatusServer::startStatusServer (
     }
     OsSysLog::add(FAC_SIP, PRI_INFO,
                   "SIP_STATUS_MIN_EXPIRES : %s", 
-                  defaultMinExpiresTime.data());
+                  SIPX_SAFENULL(defaultMinExpiresTime.data()));
 
 
     int webServerPort = portIsValid(httpsPort) ? httpsPort : httpPort;

@@ -15,6 +15,7 @@ AC_PROG_LIBTOOL
 
 # Checks for programs.
 AC_PROG_CXX 	 
+AX_COMPILER_VENDOR
 AC_PATH_PROG([PERL],[perl]) 	 
 AC_PATH_PROG([OPENSSL],[openssl])
 

@@ -629,7 +629,7 @@ bool local_win_socket::open(int)
     int  i;
 
     for (i = RD; i <= RTT; i++) {  
-        sprintf(buf, "%s.%c", Name, i + '0');
+        sprintf(buf, "%s.%c", SIPX_SAFENULL(Name), i + '0');
 	Signal[i] = CreateEvent(FASTDB_SECURITY_ATTRIBUTES, false, false, buf);
 	if (GetLastError() == ERROR_ALREADY_EXISTS) { 
 	    WaitForSingleObject(Signal[i], 0);
@@ -642,7 +642,7 @@ bool local_win_socket::open(int)
 	    return false;
         }	
     }
-    sprintf(buf, "%s.shr", Name);
+    sprintf(buf, "%s.shr", SIPX_SAFENULL(Name));
     BufHnd = CreateFileMapping(INVALID_HANDLE_VALUE, FASTDB_SECURITY_ATTRIBUTES, PAGE_READWRITE,
                                0, sizeof(socket_buf)*2, buf);
     if (!BufHnd) {
@@ -860,7 +860,7 @@ bool local_win_socket::connect(int max_attempts, time_t timeout)
     HANDLE h[2];
 
     for (i = RD; i <= RTT; i++) {  
-        sprintf(buf, "%s.%c", Name, ((i + TD - RD) & RTT) + '0');
+        sprintf(buf, "%s.%c", SIPX_SAFENULL(Name), ((i + TD - RD) & RTT) + '0');
 	Signal[i] = CreateEvent(FASTDB_SECURITY_ATTRIBUTES, false, false, buf);
 	if (!Signal[i]) {
 	    Error = GetLastError();
@@ -870,7 +870,7 @@ bool local_win_socket::connect(int max_attempts, time_t timeout)
 	    return false;
         }	
     }
-    sprintf(buf, "%s.shr", Name);
+    sprintf(buf, "%s.shr", SIPX_SAFENULL(Name));
     BufHnd = CreateFileMapping(INVALID_HANDLE_VALUE, FASTDB_SECURITY_ATTRIBUTES, PAGE_READWRITE,
                                0, sizeof(socket_buf)*2, buf);
     if (!BufHnd) {

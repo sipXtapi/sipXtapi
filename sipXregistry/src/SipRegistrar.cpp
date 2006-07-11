@@ -473,7 +473,7 @@ void SipRegistrar::configurePeers()
          else
          {
             OsSysLog::add(FAC_SIP, PRI_NOTICE,
-                          "SipRegistrar::configurePeers: %s", peersMsg.data()
+                          "SipRegistrar::configurePeers: %s", SIPX_SAFENULL(peersMsg.data())
                           );
             mReplicationConfigured = true;
          }

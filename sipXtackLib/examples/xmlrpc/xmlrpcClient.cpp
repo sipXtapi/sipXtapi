@@ -92,7 +92,7 @@ void parseArgs(int argc, char* argv[])
             HttpPort = strtoul(optarg, &optend, 10);
             if ( '\0' != *optend )
             {
-               fprintf( stderr, "Invalid HTTP port %s\n", optarg );
+               fprintf( stderr, "Invalid HTTP port %s\n", SIPX_SAFENULL(optarg ));
                exit(1);
             }
             break;
@@ -126,7 +126,7 @@ void parseArgs(int argc, char* argv[])
    if (optind < argc)
    {
       xmlrpcServer = argv[optind++];
-      printf("ready to send the request to %s\n", xmlrpcServer);
+      printf("ready to send the request to %s\n", SIPX_SAFENULL(xmlrpcServer));
    }
 
    if (optind < argc)
@@ -170,7 +170,7 @@ int main(int argc, char* argv[])
            UtlString reason;
            int code;
            response.getFault(&code,reason);
-           printf(" failed\n   %d %s\n", code, reason.data() );
+           printf(" failed\n   %d %s\n", code, SIPX_SAFENULL(reason.data()));
         }
         else
         {

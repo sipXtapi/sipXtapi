@@ -315,7 +315,7 @@ int openMicDevice(bool& bRunning, WAVEHDR*& pWH)
         if (strcmp(devcaps.szPname, DmaTask::getMicDevice())==0) 
         {
             gMicDeviceId = ii ;
-            osPrintf("MicThread: Selected mic device: %s\n", devcaps.szPname);
+            osPrintf("MicThread: Selected mic device: %s\n", SIPX_SAFENULL(devcaps.szPname));
         }
     }
 

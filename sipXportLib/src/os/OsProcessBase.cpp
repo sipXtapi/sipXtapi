@@ -124,7 +124,7 @@ OsStatus OsProcessBase::ApplyEnv()
     UtlString nextKey;
     UtlString nextValue;
     UtlBoolean bFailed = FALSE;
-#ifndef __pingtel_on_posix__
+#if !defined __pingtel_on_posix__ || defined (__sun)
     UtlString fullEnv = "";
 #endif
 
@@ -132,7 +132,7 @@ OsStatus OsProcessBase::ApplyEnv()
     while (nextKey != "")
     {
         searchKey = nextKey;
-#ifndef __pingtel_on_posix__
+#if !defined __pingtel_on_posix__ || defined (__sun)
         fullEnv = nextKey;
         fullEnv += "=";
         fullEnv += nextValue;

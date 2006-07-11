@@ -11,6 +11,7 @@
 #include <assert.h>
 
 // APPLICATION INCLUDES
+#include <os/OsDefs.h>
 #include <utl/UtlString.h>
 #include <utl/UtlHashBagIterator.h>
 
@@ -168,7 +169,7 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
                 SipTransaction::getRelationshipString(relationship, relationString);
                 OsSysLog::add(FAC_SIP, PRI_WARNING,
                               "SipTransactionList::findTransactionFor %p not available relation: %s",
-                              transactionFound, relationString.data());
+                              transactionFound, SIPX_SAFENULL(relationString.data()));
             }
             transactionFound = NULL;
         }
@@ -186,11 +187,11 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
                   "\n\tTime Log %s"
 #                 endif
                   ,&message
-                  ,isOutgoing ? "OUTGOING" : "INCOMING"
-                  ,transactionFound ? "FOUND" : "NOT FOUND"
-                  ,relationString.data()
+                  ,SIPX_SAFENULL(isOutgoing ? "OUTGOING" : "INCOMING")
+                  ,SIPX_SAFENULL(transactionFound ? "FOUND" : "NOT FOUND")
+                  ,SIPX_SAFENULL(relationString.data())
 #                 ifdef TIME_LOG
-                  ,findTimeLog.data()
+                  ,SIPX_SAFENULL(findTimeLog.data())
 #                 endif
                   );
     
@@ -296,7 +297,7 @@ void SipTransactionList::removeOldTransactions(long oldTransaction,
     UtlString timeString;
     gcTimes.getLogString(timeString);
     OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransactionList::removeOldTransactions "
-                  "%s", timeString.data()
+                  "%s", SIPX_SAFENULL(timeString.data())
                   );
 #   endif
 }
@@ -482,7 +483,7 @@ UtlBoolean SipTransactionList::waitUntilAvailable(SipTransaction* transaction,
                         if(waitingTask) waitingTaskName = waitingTask->getName();
                         transaction->dumpTransactionTree(transTree, FALSE);
                         OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransactionList::waitUntilAvailable status: %d wait time: %d transaction: %p task: %s transaction tree: %s",
-                            waitStatus, waitTime, transaction, waitingTaskName.data(), transTree.data());
+                            waitStatus, waitTime, transaction, SIPX_SAFENULL(waitingTaskName.data()), SIPX_SAFENULL(transTree.data()));
                     }
                 }
 
@@ -515,7 +516,7 @@ void SipTransactionList::markAvailable(SipTransaction& transaction)
         UtlString transactionString;
         transaction.toString(transactionString, FALSE);
         OsSysLog::add(FAC_SIP, PRI_ERR, "SipTransactionList::markAvailable transaction not locked: %s\n",
-            transactionString.data());
+            SIPX_SAFENULL(transactionString.data()));
     }
     else
     {
@@ -549,7 +550,7 @@ UtlBoolean SipTransactionList::transactionExists(const SipTransaction* transacti
     if(!foundTransaction)
     {
         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransactionList::transactionExists transaction: %p hash: %s not found\n",
-            transaction, hash.data());
+            transaction, SIPX_SAFENULL(hash.data()));
     }
 
     return(foundTransaction);

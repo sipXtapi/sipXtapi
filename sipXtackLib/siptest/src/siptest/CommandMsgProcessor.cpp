@@ -130,7 +130,7 @@ UtlBoolean CommandMsgProcessor::handleMessage(OsMsg& eventMessage)
                                 UtlString msgBytes;
                                 int msgLen;
                                 response.getBytes(&msgBytes, &msgLen);
-                                osPrintf("%s",msgBytes.data());
+                                osPrintf("%s",SIPX_SAFENULL(msgBytes.data()));
 
                 if(mpLastResponseMessage)
                 {

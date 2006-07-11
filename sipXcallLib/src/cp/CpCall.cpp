@@ -37,8 +37,8 @@
 #define UI_TERMINAL_CONNECTION_STATE "TerminalConnectionState"
 #define UI_CONNECTION_STATE "ConnectionState"
 
-//#define debugNew(x)   osPrintf("new 0x%08x: %s/%d\n", (int)x, __FILE__, __LINE__);
-//#define debugDelete(x)        osPrintf("delete 0x%08x: %s/%d\n", (int)x, __FILE__, __LINE__);
+//#define debugNew(x)   osPrintf("new 0x%08x: %s/%d\n", (int)x, SIPX_SAFENULL(__FILE__), __LINE__);
+//#define debugDelete(x)        osPrintf("delete 0x%08x: %s/%d\n", (int)x, SIPX_SAFENULL(__FILE__), __LINE__);
 
 // STATIC VARIABLE INITIALIZATIONS
 OsLockingList *CpCall::spCallTrackingList = NULL;
@@ -119,8 +119,8 @@ mDtmfQMutex(OsMutex::Q_FIFO)
 
     UtlString name = getName();
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "%s Call constructed: %s\n", name.data(), mCallId.data());
-    osPrintf("%s constructed: %s\n", name.data(), mCallId.data());
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "%s Call constructed: %s\n", SIPX_SAFENULL(name.data()), SIPX_SAFENULL(mCallId.data()));
+    osPrintf("%s constructed: %s\n", SIPX_SAFENULL(name.data()), SIPX_SAFENULL(mCallId.data()));
 #endif
 }
 
@@ -187,8 +187,8 @@ CpCall::~CpCall()
 
     UtlString name = getName();
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "%s destructed: %s\n", name.data(), mCallId.data());
-    osPrintf("%s destructed: %s\n", name.data(), mCallId.data());
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "%s destructed: %s\n", SIPX_SAFENULL(name.data()), SIPX_SAFENULL(mCallId.data()));
+    osPrintf("%s destructed: %s\n", SIPX_SAFENULL(name.data()), SIPX_SAFENULL(mCallId.data()));
 #endif
     name.remove(0);
     mCallId.remove(0);
@@ -644,7 +644,7 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
 
                             //#ifdef TEST_PRINT
                             OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - received dtmf event 0x%08x QLen=%d\n",
-                                mCallId.data(), eventData, mDtmfQLen);
+                                SIPX_SAFENULL(mCallId.data()), eventData, mDtmfQLen);
                             //#endif
 
                             for (i = 0; i < mDtmfQLen; i++)
@@ -652,7 +652,7 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
                                 if (mDtmfEvents[i].enabled == FALSE)
                                 {
                                     OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - event %p is disabled\n",
-                                        mCallId.data(), &mDtmfEvents[i]);
+                                        SIPX_SAFENULL(mCallId.data()), &mDtmfEvents[i]);
                                     continue;
                                 }
 
@@ -660,7 +660,7 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
                                 {
                                     //#ifdef TEST_PRINT
                                     OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - ignore KEYUP event 0x%08x\n",
-                                        mCallId.data(), eventData);
+                                        SIPX_SAFENULL(mCallId.data()), eventData);
                                     //#endif
                                     continue; // ignore keyup event
                                 }
@@ -669,7 +669,7 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
                                 {
                                     //#ifdef TEST_PRINT
                                     OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - ignore KEYDOWN event 0x%08x\n",
-                                        mCallId.data(), eventData);
+                                        SIPX_SAFENULL(mCallId.data()), eventData);
                                     //#endif
                                     continue; // previous key still down, ignore long key event
                                 }
@@ -686,12 +686,12 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
                                     {
                                         res = dtmfEvent->signal((eventData & 0xfffffff0));
                                         OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - resend dtmfEvent event 0x%08x to %p, res=%d\n",
-                                            mCallId.data(), eventData, dtmfEvent, res);
+                                            SIPX_SAFENULL(mCallId.data()), eventData, dtmfEvent, res);
                                     }
                                     if (res != OS_SUCCESS && tries >= 10)
                                     {
                                         OsSysLog::add(FAC_CP, PRI_ERR, "CpCall %s - failed to notify DTMF event 0x%08x to %p, res=%d\n",
-                                            mCallId.data(), eventData, dtmfEvent, res);
+                                            SIPX_SAFENULL(mCallId.data()), eventData, dtmfEvent, res);
                                     }
                                 }
                             }
@@ -866,7 +866,7 @@ void CpCall::printCall()
     UtlString callId;
     getCallId(callId);
     osPrintf("call[%d] id: %s state: %d%s\n", mCallIndex,
-        callId.data(), getCallState(), mDropping ? ", Dropping" : "");
+        SIPX_SAFENULL(callId.data()), getCallState(), SIPX_SAFENULL(mDropping ? ", Dropping" : ""));
 
     osPrintf("Call message history:\n");
     for(int historyIndex = 0; historyIndex < CP_CALL_HISTORY_LENGTH; historyIndex++)
@@ -874,7 +874,7 @@ void CpCall::printCall()
         if(mMessageEventCount - historyIndex >= 0)
         {
             osPrintf("%d) %s\n", mMessageEventCount - historyIndex,
-                (mCallHistory[(mMessageEventCount - historyIndex) % CP_CALL_HISTORY_LENGTH]).data());
+                SIPX_SAFENULL((mCallHistory[(mMessageEventCount - historyIndex) % CP_CALL_HISTORY_LENGTH]).data()));
         }
     }
     osPrintf("=====================\n");

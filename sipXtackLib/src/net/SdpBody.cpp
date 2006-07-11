@@ -18,6 +18,7 @@
 #include <stdlib.h>
 
 // APPLICATION INCLUDES
+#include <os/OsDefs.h>
 #include <utl/UtlSListIterator.h>
 #include <utl/UtlTokenizer.h>
 #include <net/SdpBody.h>
@@ -306,7 +307,7 @@ UtlBoolean SdpBody::getMediaRtcpPort(int mediaIndex, int* port) const
         {
             while (nv = findFieldNameBefore(&iterator, "a", "m"))
             {
-                //printf("->%s:%s\n", nv->data(), nv->getValue()) ;
+                //printf("->%s:%s\n", SIPX_SAFENULL(nv->data()), SIPX_SAFENULL(nv->getValue())) ;
 
                 UtlString typeAttribute ;
                 UtlString portAttribute ;
@@ -1597,7 +1598,7 @@ void SdpBody::addRtpmap(int payloadType,
 {
    UtlString fieldValue("rtpmap:");
    char buffer[256];
-   sprintf(buffer, "%d %s/%d", payloadType, mimeSubtype,
+   sprintf(buffer, "%d %s/%d", payloadType, SIPX_SAFENULL(mimeSubtype),
            sampleRate);
 
    fieldValue.append(buffer);

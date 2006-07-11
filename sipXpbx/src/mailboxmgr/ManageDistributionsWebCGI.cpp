@@ -464,7 +464,7 @@ ManageDistributionsWebCGI::saveDistribution() const
                {
                   OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
                                 "ManageDistributionsWebCGI - saveDistribution:: invalide address = %s\n",
-                                address);
+                                SIPX_SAFENULL(address));
 
                   return OS_FAILED;
                }
@@ -486,7 +486,7 @@ ManageDistributionsWebCGI::saveDistribution() const
          {
             OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
                           "ManageDistributionsWebCGI - saveDistribution:: invalide address = %s\n",
-                          address);
+                          SIPX_SAFENULL(address));
             return OS_FAILED;
          }
       }

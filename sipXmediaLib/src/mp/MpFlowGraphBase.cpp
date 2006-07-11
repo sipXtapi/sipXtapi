@@ -387,7 +387,7 @@ OsStatus MpFlowGraphBase::processNextFrame(void)
          boolRes = mExecOrder[i]->processFrame();
          if (!boolRes) {
             osPrintf("MpMedia: called %s, which indicated failure\n",
-               mpResourceInProcess->mName.data());
+               SIPX_SAFENULL(mpResourceInProcess->mName.data()));
          }
       }
    }
@@ -788,7 +788,7 @@ static void complainAdd(const char *n1, int p1, const char *n2,
 {
       Zprintf("MpFlowGraphBase::handleAddLink(%s:%d, %s:%d)\n"
          " %s:%d is already connected!\n",
-         (int) n1, p1, (int) n2, p2, (int) n3, p3);
+         SIPX_SAFENULL((int) n1), p1, SIPX_SAFENULL((int) n2), p2, SIPX_SAFENULL((int) n3), p3);
 }
 
 // Handle the FLOWGRAPH_ADD_LINK message.

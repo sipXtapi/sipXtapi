@@ -279,7 +279,7 @@ server_t* SipSrvLookup::servers(const char* domain,
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipSrvLookup::servers domain = '%s', service = '%s', "
                  "socketType = %s, port = %d",
-                 domain, service, OsSocket::ipProtocolString(socketType), port);
+                 SIPX_SAFENULL(domain), SIPX_SAFENULL(service), SIPX_SAFENULL(OsSocket::ipProtocolString(socketType)), port);
 
    // Initialize the list of servers.
    server_list_initialize(list, list_length_allocated, list_length_used);
@@ -302,7 +302,7 @@ server_t* SipSrvLookup::servers(const char* domain,
       OsSysLog::add(FAC_SIP, PRI_INFO,
                     "SipSrvLookup::servers Incompatible service '%s' and "
                     "socketType %d",
-                    service, socketType);
+                    SIPX_SAFENULL(service), socketType);
       /* Add no elements to the list. */
    }
    else
@@ -402,12 +402,12 @@ server_t* SipSrvLookup::servers(const char* domain,
                           "SipSrvLookup::servers host = '%s', IP addr = '%s', "
                           "port = %d, weight = %u, score = %f, "
                           "priority = %u, proto = %s",
-                          host.data(), ip_addr.data(),
+                          SIPX_SAFENULL(host.data()), SIPX_SAFENULL(ip_addr.data()),
                           list[j].getPortFromServerT(),
                           list[j].getWeightFromServerT(),
                           list[j].getScoreFromServerT(),
                           list[j].getPriorityFromServerT(),
-                          OsSocket::ipProtocolString(list[j].getProtocolFromServerT())
+                          SIPX_SAFENULL(OsSocket::ipProtocolString(list[j].getProtocolFromServerT()))
                           );
          }
       }
@@ -578,7 +578,7 @@ void lookup_SRV(server_t*& list,
                                       strlen(domain) + 5);
 
    // Construct the domain name to search on.
-   sprintf(lookup_name, "_%s._%s.%s", service, proto_string, domain);
+   sprintf(lookup_name, "_%s._%s.%s", SIPX_SAFENULL(service), SIPX_SAFENULL(proto_string), SIPX_SAFENULL(domain));
 
    // Make the query and parse the response.
    res_query_and_parse(lookup_name, T_SRV, NULL, canonical_name, response);
@@ -803,7 +803,7 @@ void res_query_and_parse(const char* in_name,
       if (SipSrvLookup::getOption(SipSrvLookup::OptionCodePrintAnswers))
       {
          printf("res_query(\"%s\", class = %d, type = %d)\n",
-                name, C_IN, type);
+                SIPX_SAFENULL(name), C_IN, type);
       }
       // Use res_query, not res_search, so defaulting rules are not
       // applied to the domain.

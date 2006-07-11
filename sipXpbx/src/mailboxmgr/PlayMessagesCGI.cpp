@@ -60,10 +60,10 @@ PlayMessagesCGI::PlayMessagesCGI(
 {
    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                  "PlayMessagesCGI::PlayMessagesCGI(m_fromWeb = %d, m_mailboxIdentity = '%s', m_from = '%s', m_category = '%s', m_iBlockSize = %d, m_iNextBlockHandle = %d, m_status = '%s', m_unheardMsgIdList = '%s', m_frameSet = '%s') called",
-                 m_fromWeb, m_mailboxIdentity.data(), m_from.toString().data(),
-                 m_category.data(), m_iBlockSize, m_iNextBlockHandle,
-                 m_status.data(), m_unheardMsgIdList.data(),
-                 m_frameSet.data());
+                 m_fromWeb, SIPX_SAFENULL(m_mailboxIdentity.data()), SIPX_SAFENULL(m_from.toString().data()),
+                 SIPX_SAFENULL(m_category.data()), m_iBlockSize, SIPX_SAFENULL(m_iNextBlockHandle)),
+                 SIPX_SAFENULL(m_status.data()), SIPX_SAFENULL(m_unheardMsgIdList.data()),
+                 SIPX_SAFENULL(m_frameSet.data()));
 }
 
 PlayMessagesCGI::~PlayMessagesCGI()
@@ -83,14 +83,14 @@ PlayMessagesCGI::execute(UtlString* out)
       validateMailboxHelper.getMailboxIdentity( m_mailboxIdentity );
       OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                     "PlayMessagesCGI::execute: getMailboxIdentity returns m_mailboxIdentity = '%s'",
-                    m_mailboxIdentity.data());
+                    SIPX_SAFENULL(m_mailboxIdentity.data()));
       if( m_fromWeb )
          result = handleWebRequest( out );
       else
          result = handleOpenVXIRequest( out );
       OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                     "PlayMessagesCGI::execute: m_fromWeb = %d, handle{Web,OpenVXI}Request returns %d, out = '%s'",
-                    m_fromWeb, result, out->data());
+                    m_fromWeb, result, SIPX_SAFENULL(out->data()));
    }
 
    return result;
@@ -268,9 +268,9 @@ PlayMessagesCGI::handleOpenVXIRequest( UtlString* out )
    UtlString promptUrl = ivrPromptUrl + URL_SEPARATOR + PROMPT_ALIAS + URL_SEPARATOR;
    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                  "PlayMessagesCGI::handleOpenVXIRequest: mediaserverUrl = '%s', secureMediaserverUrl = '%s', promptUrl = '%s'",
-                 mediaserverUrl.data(),
-                 secureMediaserverUrl.data(),
-                 promptUrl.data());
+                 SIPX_SAFENULL(mediaserverUrl.data()),
+                 SIPX_SAFENULL(secureMediaserverUrl.data()),
+                 SIPX_SAFENULL(promptUrl.data()));
 
    // Message details to be retrieved
    UtlString url = "url";
@@ -299,7 +299,7 @@ PlayMessagesCGI::handleOpenVXIRequest( UtlString* out )
    {
       OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                     "PlayMessagesCGI::handleOpenVXIRequest: getMessageBlock succeeds, m_mailboxIdentity = '%s', m_category = '%s', m_iBlockSize = %d, m_iNextBlockHandle = %d, endOfMessages = %d",
-                    m_mailboxIdentity.data(), m_category.data(), m_iBlockSize,
+                    SIPX_SAFENULL(m_mailboxIdentity.data()), SIPX_SAFENULL(m_category.data()), m_iBlockSize,
                     m_iNextBlockHandle, endOfMessages);
 
       // iterator for looping through all the messages in the block.
@@ -367,8 +367,8 @@ PlayMessagesCGI::handleOpenVXIRequest( UtlString* out )
 
          OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                        "PlayMessagesCGI::handleOpenVXIRequest: fieldname = '%s', blockname = '%s', nextfield = '%s', nextblock = '%s', callerIsSipxUser = %d, voicemailEnabled = %d",
-                       fieldname.data(), blockname.data(), nextfield.data(),
-                       nextblock.data(), callerIsSipxUser, voicemailEnabled);
+                       SIPX_SAFENULL(fieldname.data()), SIPX_SAFENULL(blockname.data()), SIPX_SAFENULL(nextfield.data()),
+                       SIPX_SAFENULL(nextblock.data()), callerIsSipxUser, voicemailEnabled);
 
          while( gmdHelper.getNextMessage() == OS_SUCCESS )
          {
@@ -379,7 +379,7 @@ PlayMessagesCGI::handleOpenVXIRequest( UtlString* out )
                messageIdList = messageId + ";";
             OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                           "PlayMessagesCGI::handleOpenVXIRequest: messageId = '%s', messageIdList = '%s'",
-                          messageId.data(), messageIdList.data());
+                          SIPX_SAFENULL(messageId.data()), SIPX_SAFENULL(messageIdList.data()));
 
             if( prompts == "" )
             {
@@ -404,9 +404,9 @@ PlayMessagesCGI::handleOpenVXIRequest( UtlString* out )
                                                   fromMailboxIdentity );
                OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                              "PlayMessagesCGI::handleOpenVXIRequest: validateFromUrl(unformattedFrom = '%s') returns callerIsSipxUser = %d, voicemailEnabled = %d, fromExtension = '%s', fromMailboxIdentity = '%s'",
-                             unformattedFrom.data(), callerIsSipxUser,
-                             voicemailEnabled, fromExtension.data(),
-                             fromMailboxIdentity.data());
+                             SIPX_SAFENULL(unformattedFrom.data()), callerIsSipxUser,
+                             voicemailEnabled, SIPX_SAFENULL(fromExtension.data()),
+                             SIPX_SAFENULL(fromMailboxIdentity.data()));
 
                // Generate the message envelope information
                promptMsgEnvelope = getTimestampVxml (gmdHelper.getMessageDetails(timestamp), promptUrl ) +
@@ -418,7 +418,7 @@ PlayMessagesCGI::handleOpenVXIRequest( UtlString* out )
                                         promptUrl);
                OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                              "PlayMessagesCGI::handleOpenVXIRequest: promptMsgEnvelope = '%s'",
-                             promptMsgEnvelope.data());
+                             SIPX_SAFENULL(promptMsgEnvelope.data()));
 
                // check if message envelope should be played before the message
                if( gmdHelper.enableVoicemailInfoPlayback() )
@@ -435,8 +435,8 @@ PlayMessagesCGI::handleOpenVXIRequest( UtlString* out )
                                                           voicemailEnabled);
          OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                        "PlayMessagesCGI::handleOpenVXIRequest: getMessageMenuVxml(promptUrl = '%s', callerIsSipxUser = %d, voicemailEnabled = %d) returns messageMenuPrompt = '%s'",
-                       promptUrl.data(), callerIsSipxUser, voicemailEnabled,
-                       messageMenuPrompt.data());
+                       SIPX_SAFENULL(promptUrl.data()), callerIsSipxUser, voicemailEnabled,
+                       SIPX_SAFENULL(messageMenuPrompt.data()));
 
          // Construct the VXML for playing this message
          dynamicVxml +=
@@ -740,11 +740,11 @@ PlayMessagesCGI::getTimestampVxml(const UtlString& timestamp, const UtlString& p
    memset(zn1, 0, 8*sizeof(char));
 
    // timestamp is in the format "Mon, 26-Sep-2002 07:21:32 PM EST"
-   sscanf(timestamp.data(), "%s %d-%3c-%s %5c %s %s %s", w, &day, m, y, tm, sec, am, zn);
+   sscanf(timestamp.data(), "%s %d-%3c-%s %5c %s %s %s", SIPX_SAFENULL(w), &day, m, SIPX_SAFENULL(y), tm, SIPX_SAFENULL(sec), SIPX_SAFENULL(am), SIPX_SAFENULL(zn));
 
    UtlString   strTime;
    OsDateTime::getLocalTimeString(strTime);
-   sscanf(strTime.data(), "%s %d-%3c-%s %5c %s %s %s", w1, &day1, m1, y1, tm1, sec, am1, zn1);
+   sscanf(strTime.data(), "%s %d-%3c-%s %5c %s %s %s", SIPX_SAFENULL(w1), &day1, m1, SIPX_SAFENULL(y1), tm1, SIPX_SAFENULL(sec), SIPX_SAFENULL(am1), SIPX_SAFENULL(zn1));
 
    w[3] = w1[3] = 0;
    int matched = 0;

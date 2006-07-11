@@ -77,7 +77,7 @@ SipRedirectorMapping::initialize(const UtlHashMap& configParameters,
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipRedirectorMapping::SipRedirectorMapping Loading mapping rules from '%s'",
-                 fileName.data());
+                 SIPX_SAFENULL(fileName.data()));
 
    mMappingRulesLoaded = mMap.loadMappings(fileName,
                                            mediaServer,
@@ -164,7 +164,7 @@ SipRedirectorMapping::lookUp(
          if (urlMappingPermissionStr.compareTo(ignorePermissionStr, UtlString::ignoreCase) == 0) 
          {            
              OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRedirectorMapping::lookUp "
-                       "ignoring permission %s", ignorePermissionStr.data());            
+                       "ignoring permission %s", SIPX_SAFENULL(ignorePermissionStr.data()));            
              continue;
          }
 
@@ -179,7 +179,7 @@ SipRedirectorMapping::lookUp(
 
          OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRedirectorMapping::lookUp"
                        " %d permissions configured for %s", numDBPermissions,
-                       requestUri.toString().data());
+                       SIPX_SAFENULL(requestUri.toString().data()));
                 
          if (numDBPermissions > 0)
          {
@@ -192,7 +192,7 @@ SipRedirectorMapping::lookUp(
                     findValue(&permissionKey));
 
                OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRedirectorMapping::lookUp"
-                             " checking '%s'", dbPermissionStr.data());
+                             " checking '%s'", SIPX_SAFENULL(dbPermissionStr.data()));
                 
                if (dbPermissionStr.compareTo(urlMappingPermissionStr, UtlString::ignoreCase) == 0)
                {
@@ -236,11 +236,11 @@ SipRedirectorMapping::lookUp(
             UtlString contact= *((UtlString*)record.findValue(&contactKey));
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SipRedirectorMapping::lookUp "
-                          "contact = '%s'", contact.data());
+                          "contact = '%s'", SIPX_SAFENULL(contact.data()));
             Url contactUri(contact);
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SipRedirectorMapping::lookUp "
-                          "contactUri = '%s'", contactUri.toString().data());
+                          "contactUri = '%s'", SIPX_SAFENULL(contactUri.toString().data()));
 
             // prevent recursive loops
             if (!contactUri.isUserHostPortEqual(requestUri))

@@ -353,7 +353,7 @@ UtlBoolean HttpServer::isRequestAuthorized(const HttpMessage& request,
         int requestLen;
         request.getBytes(&requestBytes, & requestLen);
         osPrintf("HTTP digest request:\n%s\n_______________________\n",
-            requestBytes.data());
+            SIPX_SAFENULL(requestBytes.data()));
                   requestBytes.remove(0);
 #endif
 
@@ -369,7 +369,7 @@ UtlBoolean HttpServer::isRequestAuthorized(const HttpMessage& request,
         mpUserPasswordDigestDb->get(user.data(), userPasswordDigest);
 #ifdef TEST_PRINT
             osPrintf("HttpServer::isRequestAuthorized got db User \"%s\" db userPasswordDigest: \"%s\"\n",
-                user.data(), userPasswordDigest.data());
+                SIPX_SAFENULL(user.data()), SIPX_SAFENULL(userPasswordDigest.data()));
 #endif
         // Get the nonce for the user/URI pair
         if(!user.isNull())
@@ -377,7 +377,7 @@ UtlBoolean HttpServer::isRequestAuthorized(const HttpMessage& request,
             mpNonceDb->get(nonceKey.data(), nonce);
 #ifdef TEST_PRINT
             osPrintf("HttpServer::isRequestAuthorized got nonceKey \"%s\" nonce: \"%s\"\n",
-                nonceKey.data(), nonce.data());
+                SIPX_SAFENULL(nonceKey.data()), SIPX_SAFENULL(nonce.data()));
 #endif
 
             // Remove the nonce from the database, so that it cannot be re-used
@@ -412,7 +412,7 @@ UtlBoolean HttpServer::isRequestAuthorized(const HttpMessage& request,
             mpNonceDb->set(nonceKey.data(), nonce.data());
 #ifdef TEST_PRINT
             osPrintf("HttpServer::isRequestAuthorized set nonceKey \"%s\" nonce: \"%s\"\n",
-                nonceKey.data(), nonce.data());
+                SIPX_SAFENULL(nonceKey.data()), SIPX_SAFENULL(nonce.data()));
 #endif
             // Create the response
             UtlString hostIp;
@@ -445,7 +445,7 @@ UtlBoolean HttpServer::isRequestAuthorized(const HttpMessage& request,
         int requestLen;
         request.getBytes(&requestBytes, & requestLen);
         osPrintf("HTTP basic request:\n%s\n_______________________\n",
-            requestBytes.data());
+            SIPX_SAFENULL(requestBytes.data()));
                         requestBytes.remove(0);
 #endif
         UtlString user;
@@ -458,11 +458,11 @@ UtlBoolean HttpServer::isRequestAuthorized(const HttpMessage& request,
             dbPassword);
 
 #ifdef TEST_PRINT
-                osPrintf("HttpServer::isRequestAuthorized user: %s, password: %s\n",user.data(), dbPassword.data()) ;
+                osPrintf("HttpServer::isRequestAuthorized user: %s, password: %s\n",SIPX_SAFENULL(user.data()), SIPX_SAFENULL(dbPassword.data())) ;
         if(userFound == OS_NOT_FOUND)
         {
             osPrintf("HttpServer::isRequestAuthorized user: %s not in database\n",
-                user.data());
+                SIPX_SAFENULL(user.data()));
         }
 #endif
 
@@ -484,11 +484,11 @@ UtlBoolean HttpServer::isRequestAuthorized(const HttpMessage& request,
 #ifdef TEST_PRINT
             if(userFound == OS_SUCCESS)
             {
-                osPrintf("HttpServer::isRequestAuthorized user:%s, realm:%s, msgPassword:%s, digestPassword:%s\n", user.data(), realm.data(), msgPassword.data(), digestPassword.data()) ;
+                osPrintf("HttpServer::isRequestAuthorized user:%s, realm:%s, msgPassword:%s, digestPassword:%s\n", SIPX_SAFENULL(user.data()), SIPX_SAFENULL(realm.data()), SIPX_SAFENULL(msgPassword.data()), SIPX_SAFENULL(digestPassword.data())) ;
 
-                osPrintf("HttpServer::isRequestAuthorized password: %s, generated digest: %s\n", dbPassword.data(), digestPassword.data()) ;
+                osPrintf("HttpServer::isRequestAuthorized password: %s, generated digest: %s\n", SIPX_SAFENULL(dbPassword.data()), SIPX_SAFENULL(digestPassword.data())) ;
                                 osPrintf("HttpServer::isRequestAuthorized user: %s password does not match\n",
-                    user.data());
+                    SIPX_SAFENULL(user.data()));
             }
 #endif
             allowRequest = FALSE;
@@ -557,7 +557,7 @@ UtlBoolean HttpServer::processRequestIpAddr(const UtlString& remoteIp,
       HTTP_FORBIDDEN_CODE, HTTP_FORBIDDEN_TEXT);
 
       OsSysLog::add(FAC_SIP, PRI_INFO, "HTTP Request from IP address: %s disallowed",
-                    remoteAddress.data());
+                    SIPX_SAFENULL(remoteAddress.data()));
 
    }
    return  isValidIp ;
@@ -597,7 +597,7 @@ void HttpServer::processRequest(const HttpMessage& request,
         }
         if(badCharsIndex >= 0)
         {
-            OsSysLog::add(FAC_SIP, PRI_ERR, "Disallowing URI: \"%s\"", uriFileName.data());
+            OsSysLog::add(FAC_SIP, PRI_ERR, "Disallowing URI: \"%s\"", SIPX_SAFENULL(uriFileName.data()));
 
             // Disallow relative path names going up for security reasons
             mappedUriFileName.append("/");
@@ -609,7 +609,7 @@ void HttpServer::processRequest(const HttpMessage& request,
         }
 
         OsSysLog::add(FAC_SIP, PRI_DEBUG, "HTTP '%s' '%s' mapped to: '%s'",
-                      method.data(), uriFileName.data(), mappedUriFileName.data());
+                      SIPX_SAFENULL(method.data()), SIPX_SAFENULL(uriFileName.data()), SIPX_SAFENULL(mappedUriFileName.data()));
 
         // Build the request context
         HttpRequestContext requestContext(method.data(),
@@ -694,14 +694,14 @@ void HttpServer::processFileRequest(const HttpRequestContext& requestContext,
 
     if(!uriFileName.isNull())
     {
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer: Trying to open: \"%s\"\n", uriFileName.data());
+        OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer: Trying to open: \"%s\"\n", SIPX_SAFENULL(uriFileName.data()));
 
         int fileDesc = open(uriFileName.data(), O_BINARY | O_RDONLY, 0);
         if(fileDesc < 0)
         {
             OsSysLog::add(FAC_SIP, PRI_ERR, "HttpServer::processFileRequest"
                           " failed to open '%s' Errno: %d",
-                          uriFileName.data(), errno);
+                          SIPX_SAFENULL(uriFileName.data()), errno);
         }
         struct stat fileStatInfo;
         if(fileDesc >= 0 && !fstat(fileDesc, &fileStatInfo))
@@ -722,9 +722,9 @@ void HttpServer::processFileRequest(const HttpRequestContext& requestContext,
                 //    indexFileName);
 #ifdef TEST_PRINT
                 osPrintf("HttpServer: Trying to open: \"%s\"\n",
-                    indexFileName.data());
+                    SIPX_SAFENULL(indexFileName.data()));
                 OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer: Trying to open: \"%s\"",
-                    indexFileName.data());
+                    SIPX_SAFENULL(indexFileName.data()));
 #endif
 
                 fileDescToGet = open(indexFileName.data(), O_RDONLY, 0);
@@ -734,9 +734,9 @@ void HttpServer::processFileRequest(const HttpRequestContext& requestContext,
                     indexFileName.remove(indexFileName.length() - 1);
 #ifdef TEST_PRINT
                     osPrintf("HttpServer: Trying to open: \"%s\"\n",
-                        indexFileName.data());
+                        SIPX_SAFENULL(indexFileName.data()));
                     OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer: Trying to open: \"%s\"",
-                        indexFileName.data());
+                        SIPX_SAFENULL(indexFileName.data()));
 #endif
 
                     fileDescToGet = open(indexFileName.data(), O_RDONLY | O_BINARY, 0);
@@ -853,7 +853,7 @@ void HttpServer::constructFileList(UtlString & indexText, UtlString uri, UtlStri
 
 
 #ifdef TEST_PRINT
-        osPrintf("HttpServer::constructFileList entered, uri = %s, uriFileName = %s", uri.data(), uriFileName.data()) ;
+        osPrintf("HttpServer::constructFileList entered, uri = %s, uriFileName = %s", SIPX_SAFENULL(uri.data()), SIPX_SAFENULL(uriFileName.data())) ;
 #endif
     indexText.append("<BODY>\n");
     indexText.append("<H3>Contents of ");
@@ -1085,7 +1085,7 @@ int HttpServer::doPostFile(const HttpRequestContext& requestContext,
                                                         tokenName.toUpper();
 #ifdef TEST_PRINT
                                                         //osPrintf("Token name: \"%s\" value: \"%s\"\n",
-                                                        //    tokenName.data(), tokenValue.data());
+                                                        //    SIPX_SAFENULL(tokenName.data()), SIPX_SAFENULL(tokenValue.data()));
 #endif
                      if(tokenName.compareTo("NAME") == 0)
                                                         {
@@ -1220,7 +1220,7 @@ If you need further assistance, please contact Pingtel at <a href=mailto:custsup
 
 #ifdef TEST_PRINT
                                                                                 osPrintf("Unable to open file \"%s\" for write\n",
-                                                                                        tokenValue.data());
+                                                                                        SIPX_SAFENULL(tokenValue.data()));
 #endif
                            }
                                                                 }
@@ -1273,7 +1273,7 @@ If you need further assistance, please contact Pingtel at <a href=mailto:custsup
                         htmlMessage.append("First part has NO file body.\n");
                 htmlMessage.append(strMessage.data());
 #ifdef TEST_PRINT
-                osPrintf("%s",strMessage.data());
+                osPrintf("%s",SIPX_SAFENULL(strMessage.data()));
 #endif
             }
         }
@@ -1293,7 +1293,7 @@ If you need further assistance, please contact Pingtel at <a href=mailto:custsup
         htmlMessage.append("NO file body.\n");
         htmlMessage.append(strMessage.data());
 #ifdef TEST_PRINT
-        osPrintf("%s",strMessage.data());
+        osPrintf("%s",SIPX_SAFENULL(strMessage.data()));
 #endif
     }
 
@@ -1438,7 +1438,7 @@ void HttpServer::testCgiRequest(const HttpRequestContext& requestContext,
     while(requestContext.getCgiVariable(index, name, value))
     {
 #ifdef TEST_PRINT
-                osPrintf("getCgiVariable: %s = %s\n", name.data(), value.data());
+                osPrintf("getCgiVariable: %s = %s\n", SIPX_SAFENULL(name.data()), SIPX_SAFENULL(value.data()));
 #endif
       cgiDump.append("<TR>\n<TD  ALIGN=LEFT>");
         cgiDump.append(name);
@@ -1474,8 +1474,7 @@ void HttpServer::createHtmlResponse(int responseCode, const char* responseCodeTe
 void HttpServer::addUriMap(const char* fromUri, const char* toUri)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer::addUriMap '%s' to '%s'",
-                 fromUri, toUri);
-   
+                 SIPX_SAFENULL(fromUri), SIPX_SAFENULL(toUri));
     mUriMaps.set(fromUri, toUri);
 }
 
@@ -1484,7 +1483,7 @@ void HttpServer::addRequestProcessor(const char* fileUrl,
                                      )
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer::addRequestProcessor '%s' to %p",
-                 fileUrl, requestProcessor);
+                 SIPX_SAFENULL(fileUrl), requestProcessor);
 
    addUriMap( fileUrl, fileUrl );
    
@@ -1496,7 +1495,7 @@ void HttpServer::addRequestProcessor(const char* fileUrl,
 void HttpServer::addHttpService(const char* fileUrl, HttpService* service)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer::addHttpService '%s' to %p",
-                 fileUrl, service);
+                 SIPX_SAFENULL(fileUrl), service);
 
    UtlString* name = new UtlString(fileUrl);
     UtlVoidPtr* value = new UtlVoidPtr(service);
@@ -1555,7 +1554,7 @@ void HttpServer::getDigest(const char* user, const char* password,
   HttpMessage::buildMd5UserPasswordDigest(user, mRealm, password,
             userPasswordDigest);
 #ifdef TEST_PRINT
-  osPrintf("HttpServer::getDigest user = %s password = %s realm = %s digestpassword = %s", user, password, mRealm.data(), userPasswordDigest.data()) ;
+  osPrintf("HttpServer::getDigest user = %s password = %s realm = %s digestpassword = %s", SIPX_SAFENULL(user), SIPX_SAFENULL(password), SIPX_SAFENULL(mRealm.data()), SIPX_SAFENULL(userPasswordDigest.data())) ;
 #endif
 }
 
@@ -1624,7 +1623,7 @@ UtlBoolean HttpServer::mapUri(OsConfigDb& uriMaps, const char* uri, UtlString& m
         int dirSeparatorIndex;
 
         OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer::mapUri looking for \"%s\"",
-                      mapFromUri.data());
+                      SIPX_SAFENULL(mapFromUri.data()));
 
         do
         {
@@ -1660,7 +1659,7 @@ UtlBoolean HttpServer::mapUri(OsConfigDb& uriMaps, const char* uri, UtlString& m
         } while(!mapFound && !mapFromUri.isNull() != 0);
     }
 
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, "Map to uri: \"%s\"", mappedUri.data());
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, "Map to uri: \"%s\"", SIPX_SAFENULL(mappedUri.data()));
 
     return(mapFound);
 }

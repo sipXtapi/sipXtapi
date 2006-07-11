@@ -321,13 +321,13 @@ void sipXtapiTestSuite::testCallPAssertedID()
         memset(cBuf, 0, sizeof(cBuf));
         CPPUNIT_ASSERT_EQUAL( sipxCallGetRemoteID(hCall, cBuf, sizeof(cBuf)), SIPX_RESULT_SUCCESS) ;
         CPPUNIT_ASSERT(strlen(cBuf) > 0) ;
-        printf("line: %d cBuf: \"%s\"\n", __LINE__, cBuf);
+        printf("line: %d cBuf: \"%s\"\n", __LINE__, SIPX_SAFENULL(cBuf));
         
         memset(cBuf, ' ', sizeof(cBuf)) ;
         CPPUNIT_ASSERT_EQUAL(sipxCallGetRemoteID(hCall, cBuf, 4), SIPX_RESULT_SUCCESS) ;
         CPPUNIT_ASSERT(strlen(cBuf) == 3) ;
         CPPUNIT_ASSERT(cBuf[5] == ' ') ;
-        printf("line: %d cBuf: \"%s\"\n", __LINE__, cBuf);
+        printf("line: %d cBuf: \"%s\"\n", __LINE__, SIPX_SAFENULL(cBuf));
 
         // Change the caller ID in the PAssertedIdentity for the caller
         // and force a reINVITE now.

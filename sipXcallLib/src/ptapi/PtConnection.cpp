@@ -283,7 +283,7 @@ PtStatus PtConnection::getTerminalConnections(PtTerminalConnection termConnectio
                                                                                                            mCallId.data(),
                                                                                                            isLocal);
 #ifdef TEST
-                osPrintf("~~~ PtConnection::getTerminalConnections connection %s terminal %s is local: %d ~~~\n", mAddress.data(), argList[j+2].data(), isLocal);
+                osPrintf("~~~ PtConnection::getTerminalConnections connection %s terminal %s is local: %d ~~~\n", SIPX_SAFENULL(mAddress.data()), SIPX_SAFENULL(argList[j+2].data()), isLocal);
 #endif
                 termConnections[nItems++] = tc;
                 statusRC = PT_SUCCESS ;

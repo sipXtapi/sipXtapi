@@ -66,7 +66,7 @@ CredentialDB::CredentialDB ( const UtlString& name )
     gcVerboseLoggingEnabled = SIPDBManager::isVerboseLoggingEnabled() ;
     if (gcVerboseLoggingEnabled)
         OsSysLog::add(FAC_DB, PRI_DEBUG, "CredentialDB::_ name=%s, nummber of users = %d",
-                    name.data(), numusers);
+                    SIPX_SAFENULL(name.data()), numusers);
 
     if ( numusers == 1 )
     {
@@ -123,7 +123,7 @@ CredentialDB::load()
                 OsPath::separator + mDatabaseName + ".xml";
 
         OsSysLog::add(FAC_DB, PRI_DEBUG, "CredentialDB::load loading \"%s\"",
-                    fileName.data());
+                    SIPX_SAFENULL(fileName.data()));
 
         TiXmlDocument doc ( fileName );
 
@@ -206,7 +206,7 @@ CredentialDB::load()
         } else 
         {
             OsSysLog::add(FAC_DB, PRI_WARNING, "CredentialDB::load failed to load \"%s\"",
-                    fileName.data());
+                    SIPX_SAFENULL(fileName.data()));
         }
     } else 
     {
@@ -797,7 +797,7 @@ CredentialDB::isUriDefined (
     uri.getIdentity(identity);
 
     OsSysLog::add(FAC_DB, PRI_DEBUG, "CredentialDB::isUriDefined identity %s, m_pFastDB=0x%08x ",
-                    identity.data(), (int)m_pFastDB);
+                    SIPX_SAFENULL(identity.data()), (int)m_pFastDB);
 
     if ( !identity.isNull() && (m_pFastDB != NULL) )
     {

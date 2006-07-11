@@ -66,7 +66,7 @@ UrlMapping::loadMappings(const UtlString configFileName,
     if (mDoc->LoadFile())
     {
        OsSysLog::add(FAC_SIP, PRI_INFO, "UrlMapping::loadMappings - "
-                     "loaded %s", configFileName.data());
+                     "loaded %s", SIPX_SAFENULL(configFileName.data()));
 
        currentStatus = OS_SUCCESS;
 
@@ -88,7 +88,7 @@ UrlMapping::loadMappings(const UtlString configFileName,
     else
     {
        OsSysLog::add( FAC_SIP, PRI_ERR, "UrlMapping::loadMappings - "
-                     "failed to load %s", configFileName.data() );
+                     "failed to load %s", SIPX_SAFENULL(configFileName.data()) );
        currentStatus = OS_NOT_FOUND;
     }
 
@@ -612,7 +612,7 @@ UrlMapping::doTransform(const Url& requestUri,
           }
 
           OsSysLog::add(FAC_SIP, PRI_DEBUG, "UrlMapping::doTransform "
-                        "tempContact = '%s'", tempContact.data());
+                        "tempContact = '%s'", SIPX_SAFENULL(tempContact.data()));
 
           UtlHashMap registrationRow;
           UtlString* uriValue =
@@ -835,7 +835,7 @@ void UrlMapping::replaceSymbols(const UtlString &string,
                                 UtlString& modifiedString)
 {
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                  "UrlMapping::replaceSymbols string = '%s'", string.data());
+                  "UrlMapping::replaceSymbols string = '%s'", SIPX_SAFENULL(string.data()));
 
     UtlString tempString(string);
     //get original uri
@@ -950,5 +950,5 @@ void UrlMapping::replaceSymbols(const UtlString &string,
 
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "UrlMapping::replaceSymbols modifiedString = '%s'",
-                  modifiedString.data());
+                  SIPX_SAFENULL(modifiedString.data()));
 }

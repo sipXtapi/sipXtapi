@@ -247,7 +247,7 @@ EmailNotifier::startEmailNotifier (
     if ( configDb.loadFromFile(configFileName) == OS_SUCCESS )
     {
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                      "Found config file: %s", configFileName);
+                      "Found config file: %s", SIPX_SAFENULL(configFileName));
     } else
     {
         configDb.set("SIP_STATUS_AUTHENTICATE_ALGORITHM", "");
@@ -269,7 +269,7 @@ EmailNotifier::startEmailNotifier (
         if ( configDb.storeToFile(configFileName) != OS_SUCCESS )
         {
             OsSysLog::add(FAC_SIP, PRI_INFO,
-                          "Could not write config file: %s", configFileName);
+                          "Could not write config file: %s", SIPX_SAFENULL(configFileName));
         }
     }
 
@@ -311,7 +311,7 @@ EmailNotifier::startEmailNotifier (
     }
     OsSysLog::add(FAC_SIP, PRI_INFO,
                   "SIP_STATUS_AUTHENTICATE_ALGORITHM : %s", 
-                  authAlgorithm.data());
+                  SIPX_SAFENULL(authAlgorithm.data()));
 
     // SIP_STATUS_AUTHENTICATE_QOP
     if ( authQop.isNull() ) /* AUTH/AUTH-INT/NONE */
@@ -320,7 +320,7 @@ EmailNotifier::startEmailNotifier (
     }
     OsSysLog::add(FAC_SIP, PRI_INFO,
                   "SIP_STATUS_AUTHENTICATE_QOP : %s", 
-                  authQop.data());
+                  SIPX_SAFENULL(authQop.data()));
     
     // SIP_STATUS_DOMAIN_NAME - need this before the SIP_STATUS_AUTHENTICATE_REALM
     // below since we get the domain name from the socket
@@ -330,7 +330,7 @@ EmailNotifier::startEmailNotifier (
     }
     OsSysLog::add(FAC_SIP, PRI_INFO,
                   "SIP_STATUS_DOMAIN_NAME : %s", 
-                  domainName.data());
+                  SIPX_SAFENULL(domainName.data()));
     
     // SIP_STATUS_AUTHENTICATE_REALM
     if(authRealm.isNull())
@@ -339,7 +339,7 @@ EmailNotifier::startEmailNotifier (
     }
     OsSysLog::add(FAC_SIP, PRI_INFO,
                   "SIP_STATUS_AUTHENTICATE_REALM : %s", 
-                  authRealm.data());
+                  SIPX_SAFENULL(authRealm.data()));
 
     // SIP_STATUS_AUTHENTICATE_SCHEME (Hidden) NONE/DIGEST
     if ( authScheme.compareTo("NONE" , UtlString::ignoreCase) == 0 ) 
@@ -370,7 +370,7 @@ EmailNotifier::startEmailNotifier (
         defaultMaxExpiresTime.append("604800"); // default to 1 week
     }
     OsSysLog::add(FAC_SIP, PRI_INFO,
-                  "SIP_STATUS_MAX_EXPIRES : %s", defaultMaxExpiresTime.data());
+                  "SIP_STATUS_MAX_EXPIRES : %s", SIPX_SAFENULL(defaultMaxExpiresTime.data()));
 
     int maxExpiresTime = atoi(defaultMaxExpiresTime.data());
 
@@ -380,7 +380,7 @@ EmailNotifier::startEmailNotifier (
         defaultMinExpiresTime.append("300");  // default to 300 seconds
     }
     OsSysLog::add(FAC_SIP, PRI_INFO,
-                  "SIP_STATUS_MIN_EXPIRES : %s", defaultMinExpiresTime.data());
+                  "SIP_STATUS_MIN_EXPIRES : %s", SIPX_SAFENULL(defaultMinExpiresTime.data()));
 
     // SIP_STATUS_TCP_PORT
     if ( tcpPort <= 0 )

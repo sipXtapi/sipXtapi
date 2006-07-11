@@ -16,7 +16,7 @@ void message(char const* msg)
     printf("Content-type: text/html\r\n\r\n"
 	   "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2//EN\">"
 	   "<HTML><HEAD><TITLE>CGI STUB message</TITLE></HEAD><BODY>"
-	   "<H1><FONT COLOR=\"#FF0000\">%s</FONT></H1></BODY></HTML>", msg);
+	   "<H1><FONT COLOR=\"#FF0000\">%s</FONT></H1></BODY></HTML>", SIPX_SAFENULL(msg));
     exit(0);
 }
 
@@ -52,7 +52,7 @@ int main()
     if (length <= 7 || strncmp(buf, "socket=", 7) != 0) {
 	message("No socket field specified");
     }
-    sprintf(buf+length, "&stub=http://%s%s&peer=%s&", host, script, peer);
+    sprintf(buf+length, "&stub=http://%s%s&peer=%s&", SIPX_SAFENULL(host), SIPX_SAFENULL(script), SIPX_SAFENULL(peer));
     char* addr = buf + 7;
     char *src = addr, *dst = addr;
     while (*src != '&') { 

@@ -160,8 +160,8 @@ int CommandProcessor::findCommand(const char* commandName, Command** command) co
 
         for(commandIndex = 0; commandIndex < numCommands; commandIndex++)
         {
-                //printf("Comparing: command: \'%s\" with Command: \"%s\"\n", commandName,
-                //      (commandNames[commandIndex]).data());
+                //printf("Comparing: command: \'%s\" with Command: \"%s\"\n", SIPX_SAFENULL(commandName),
+                //      SIPX_SAFENULL((commandNames[commandIndex]).data()));
 
                 if(strstr((commandNames[commandIndex]).data(), commandName) ==
                         (commandNames[commandIndex]).data())
@@ -202,7 +202,7 @@ void CommandProcessor::parseCommandLine(const char* commandLine, int* argc, char
                         arg.remove(0);
                         tokenizer.next(arg, " \t\n");
 
-                        //printf("arg[%d]=\"%s\"\n", argIndex, arg.data());
+                        //printf("arg[%d]=\"%s\"\n", SIPX_SAFENULL(argIndex), SIPX_SAFENULL(arg.data()));
                         if(!arg.isNull())
                         {
                                 (*argv)[argIndex] = new char[strlen(arg.data()) + 1];

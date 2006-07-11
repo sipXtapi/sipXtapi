@@ -23,7 +23,8 @@ extern "C" {
 #define MULTI_PTRS_ARE_ALIASES 1 /* fold multiple PTR records into aliases */
 #define CHECK_SRVR_ADDR 1 /* confirm that the server requested sent the reply */
 #define BIND_UPDATE 1   /* update support */
-
+/* Prevent Coredumps on Solaris and other fully POSIX compliant platforms if %s = NULL */
+#define SIPX_SAFENULL(x) ((x) ? (x) : "(null)")
 #ifdef __cplusplus
 }
 #endif

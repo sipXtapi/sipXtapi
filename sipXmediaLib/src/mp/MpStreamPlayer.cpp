@@ -53,7 +53,7 @@ MpStreamPlayer::MpStreamPlayer(OsMsgQ* pMsg, Url url, int flags, const char *pTa
    {
       syslog(FAC_STREAMING, PRI_ERR, 
             "Null MsgQ passed to MpSteamPlayer\nurl=%s\nflags=%08X\ntarget=%s",
-            url.toString().data(), mFlags, mTarget.data()) ;
+            SIPX_SAFENULL(url.toString().data()), mFlags, SIPX_SAFENULL(mTarget.data())) ;
    }
 
 }
@@ -86,7 +86,7 @@ MpStreamPlayer::MpStreamPlayer(OsMsgQ* pMsgQ, UtlString* pBuffer, int flags, con
    {
       syslog(FAC_STREAMING, PRI_ERR, 
             "Null MsgQ passed to MpSteamPlayer\nbuffer=%08X\nflags=%08X\ntarget=%s",
-            mpBuffer, mFlags, mTarget.data()) ;
+            mpBuffer, mFlags, SIPX_SAFENULL(mTarget.data())) ;
    }
 }
 
@@ -579,7 +579,7 @@ UtlBoolean MpStreamPlayer::handleMessage(OsMsg& rMsg)
          {
 #ifdef MP_STREAM_DEBUG /* [ */
             osPrintf("MpStreamPlayer(%08X): received event: %s \n", 
-                  this, getFeederEventString(status)) ;
+                  this, SIPX_SAFENULL(getFeederEventString(status))) ;
 #endif /* MP_STREAM_DEBUG ] */
 
             switch (status)
@@ -653,7 +653,7 @@ void MpStreamPlayer::setState(PlayerState iState)
       bShouldFire = TRUE ;
 #ifdef MP_STREAM_DEBUG /* [ */
       osPrintf("MpStreamPlayer::setState changed from %s to %s.\n\n",
-			getEventString(mState), getEventString(iState)) ;
+			SIPX_SAFENULL(getEventString(mState)), SIPX_SAFENULL(getEventString(iState))) ;
 #endif /* ] */
 
       mState = iState ;                  
@@ -662,7 +662,7 @@ void MpStreamPlayer::setState(PlayerState iState)
    else if (mState != iState)
    {
       osPrintf("** WARNING MpStreamPlayer(%08X): invalid state change (%s to %s)\n", 
-            this, getEventString(mState), getEventString(iState)) ;
+            this, SIPX_SAFENULL(getEventString(mState)), SIPX_SAFENULL(getEventString(iState))) ;
    }
 #endif /* MP_STREAM_DEBUG ] */
 

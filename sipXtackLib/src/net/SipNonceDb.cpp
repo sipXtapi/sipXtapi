@@ -163,7 +163,7 @@ UtlBoolean SipNonceDb::isNonceValid(const UtlString& nonce,
    {
       OsSysLog::add(FAC_SIP,PRI_ERR,
                     "SipNonceDb::isNonceValid invalid nonce format \"%s\"\n",
-                    nonce.data());
+                    SIPX_SAFENULL(nonce.data()));
    }
 
    return(valid);
@@ -188,7 +188,7 @@ UtlString SipNonceDb::nonceSignature(const UtlString& callId,
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "nonceSignature: callId='%s' fromTag='%s' realm='%s' timestamp='%s'",
-                 callId.data(), fromTag.data(), realm.data(), timestamp.data()
+                 SIPX_SAFENULL(callId.data()), SIPX_SAFENULL(fromTag.data()), SIPX_SAFENULL(realm.data()), SIPX_SAFENULL(timestamp.data())
                  );
     
    // create the signature value by hashing the timestamp with

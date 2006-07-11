@@ -19,6 +19,7 @@
 
 
 // APPLICATION INCLUDES
+#include "os/OsDefs.h"
 #include "utl/UtlHashBagIterator.h"
 #include "os/OsDateTime.h"
 #include "os/OsQueuedEvent.h"
@@ -140,7 +141,7 @@ SipLineMgr::handleMessage(OsMsg &eventMessage)
 
                 // Log the failure
                 syslog(FAC_LINE_MGR, PRI_ERR, "failed to register line (cseq=%d, no response): %s",
-                        CSeq, line->getLineId().data()) ;
+                        CSeq, SIPX_SAFENULL(line->getLineId().data())) ;
             }
             else if( sipMsg->isResponse() )
             {
@@ -160,7 +161,7 @@ SipLineMgr::handleMessage(OsMsg &eventMessage)
                     UtlString method;
                     sipMsg->getCSeqField(&CSeq , &method);
                     syslog(FAC_LINE_MGR, PRI_DEBUG, "registered line (cseq=%d): %s",
-                            CSeq, line->getLineId().data()) ;
+                            CSeq, SIPX_SAFENULL(line->getLineId().data())) ;
                 }
                 else if(  responseCode >= SIP_3XX_CLASS_CODE )
                 {
@@ -196,8 +197,8 @@ SipLineMgr::handleMessage(OsMsg &eventMessage)
                     UtlString method;
                     sipMsg->getCSeqField(&CSeq , &method);
                     syslog(FAC_LINE_MGR, PRI_ERR, "failed to register line (cseq=%d, auth): %s\nnonce=%s, opaque=%s,\nrealm=%s,scheme=%s,\nalgorithm=%s, qop=%s",
-                        CSeq, line->getLineId().data(),
-                        nonce.data(), opaque.data(), realm.data(), scheme.data(), algorithm.data(), qop.data()) ;
+                        CSeq, SIPX_SAFENULL(line->getLineId().data()),
+                        SIPX_SAFENULL(nonce.data()), SIPX_SAFENULL(opaque.data()), SIPX_SAFENULL(realm.data()), SIPX_SAFENULL(scheme.data()), SIPX_SAFENULL(algorithm.data()), SIPX_SAFENULL(qop.data())) ;
                 }
             }
             messageProcessed = TRUE;
@@ -229,7 +230,7 @@ SipLineMgr::addLine(SipLine&   line,
         queueMessageToObservers(lineEvent);
 
         syslog(FAC_LINE_MGR, PRI_INFO, "added line: %s",
-                line.getIdentity().toString().data()) ;
+                SIPX_SAFENULL(line.getIdentity().toString().data()) );
     }
 
     return added;
@@ -245,7 +246,7 @@ SipLineMgr::deleteLine(const Url& identity)
     if (line == NULL)
     {
         syslog(FAC_LINE_MGR, PRI_ERR, "unable to delete line (not found): %s",
-                identity.toString().data()) ;
+                SIPX_SAFENULL(identity.toString().data()) );
        return;
     }
 
@@ -266,7 +267,7 @@ SipLineMgr::deleteLine(const Url& identity)
     queueMessageToObservers( lineEvent );
 
     syslog(FAC_LINE_MGR, PRI_INFO, "deleted line: %s",
-            identity.toString().data()) ;
+            SIPX_SAFENULL(identity.toString().data())) ;
     
     if (pDeleteLine)
     {
@@ -282,7 +283,7 @@ void SipLineMgr::lineHasBeenUnregistered(const Url& identity)
     if (line == NULL)
     {
         syslog(FAC_LINE_MGR, PRI_ERR, "unable to delete line (not found): %s",
-                identity.toString().data()) ;
+                SIPX_SAFENULL(identity.toString().data()));
        return;
     }
     removeFromList(line);
@@ -296,7 +297,7 @@ SipLineMgr::enableLine(const Url& identity)
     if ( line == NULL)
     {
         syslog(FAC_LINE_MGR, PRI_ERR, "unable to enable line (not found): %s",
-                identity.toString().data()) ;
+                SIPX_SAFENULL(identity.toString().data())) ;
         return FALSE;
     }
 
@@ -321,7 +322,7 @@ SipLineMgr::enableLine(const Url& identity)
     line = NULL;
 
     syslog(FAC_LINE_MGR, PRI_INFO, "enabled line: %s",
-            identity.toString().data()) ;
+            SIPX_SAFENULL(identity.toString().data())) ;
 
     return TRUE;
 }
@@ -337,7 +338,7 @@ SipLineMgr::disableLine(
     if ( line == NULL)
     {
         syslog(FAC_LINE_MGR, PRI_ERR, "unable to disable line (not found): %s",
-                identity.toString().data()) ;
+                SIPX_SAFENULL(identity.toString().data())) ;
     }
     
     if (line->getState() == SipLine::LINE_STATE_REGISTERED ||
@@ -350,7 +351,7 @@ SipLineMgr::disableLine(
     queueMessageToObservers(lineEvent);
 
     syslog(FAC_LINE_MGR, PRI_INFO, "disabled line: %s",
-            identity.toString().data()) ;
+            SIPX_SAFENULL(identity.toString().data())) ;
 
     line = NULL;
 }
@@ -403,7 +404,7 @@ SipLineMgr::setDefaultOutboundLine(const Url& outboundLine)
    mOutboundLine = outboundLine;
 
    syslog(FAC_LINE_MGR, PRI_INFO, "default line changed: %s",
-         outboundLine.toString().data()) ;
+         SIPX_SAFENULL(outboundLine.toString().data())) ;
 
    notifyChangeInOutboundLine( mOutboundLine );
 }
@@ -559,18 +560,18 @@ SipLineMgr::getLineforAuthentication(
             response->getCallIdField(&callId);
             response->getCSeqField(&sequenceNum, &method);
             OsSysLog::add(FAC_LINE_MGR, PRI_ERR, "unable get auth data for message:\ncallid=%s\ncseq=%d\nmethod=%s",
-                  callId.data(), sequenceNum, method.data()) ;
+                  SIPX_SAFENULL(callId.data()), sequenceNum, SIPX_SAFENULL(method.data())) ;
          }
          else
          {
             OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SERVER auth request:scheme=%s\nrealm=%s\nnounce=%s\nopaque=%s\nalgorithm=%s\nqop=%s",
-                  scheme.data(), realm.data(), nonce.data(), opaque.data(), algorithm.data(), qop.data()) ;
+                  SIPX_SAFENULL(scheme.data()), SIPX_SAFENULL(realm.data()), SIPX_SAFENULL(nonce.data()), SIPX_SAFENULL(opaque.data()), SIPX_SAFENULL(algorithm.data()), SIPX_SAFENULL(qop.data())) ;
          }
       }
       else
       {
          OsSysLog::add(FAC_AUTH, PRI_DEBUG, "PROXY auth request:scheme=%s\nrealm=%s\nnounce=%s\nopaque=%s\nalgorithm=%s\nqop=%s",
-               scheme.data(), realm.data(), nonce.data(), opaque.data(), algorithm.data(), qop.data()) ;
+               SIPX_SAFENULL(scheme.data()), SIPX_SAFENULL(realm.data()), SIPX_SAFENULL(nonce.data()), SIPX_SAFENULL(opaque.data()), SIPX_SAFENULL(algorithm.data()), SIPX_SAFENULL(qop.data())) ;
       }
    }
 
@@ -638,13 +639,13 @@ SipLineMgr::getLineforAuthentication(
    {
       // Log the failure
       OsSysLog::add(FAC_AUTH, PRI_ERR, "line manager is unable to find auth credentials:\nuser=%s\nrealm=%s\nlineid=%s",
-            userId.data(), realm.data(), lineId.data()) ;
+            SIPX_SAFENULL(userId.data()), SIPX_SAFENULL(realm.data()), SIPX_SAFENULL(lineId.data())) ;
    }
    else
    {
       // Log the SUCCESS
       OsSysLog::add(FAC_AUTH, PRI_INFO, "line manager found matching auth credentials:\nuser=%s\nrealm=%s\nlineid=%s",
-            userId.data(), realm.data(), lineId.data()) ;
+            SIPX_SAFENULL(userId.data()), SIPX_SAFENULL(realm.data()), SIPX_SAFENULL(lineId.data())) ;
    }
 
    return line;
@@ -715,7 +716,7 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
 
         // Log error
         OsSysLog::add(FAC_AUTH, PRI_ERR, "line manager is unable to handle basic auth:\ncallid=%s\nmethod=%s\ncseq=%d\nrealm=%s",
-            callId.data(), method.data(), sequenceNum, realm.data()) ;
+            SIPX_SAFENULL(callId.data()), SIPX_SAFENULL(method.data()), sequenceNum, SIPX_SAFENULL(realm.data())) ;
     }
     else
     {
@@ -787,7 +788,7 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
         if ( line->getCredentials(scheme, realm, &userID, &passToken))
         {
             OsSysLog::add(FAC_AUTH, PRI_INFO, "found auth credentials for:\nlineId:%s\ncallid=%s\nscheme=%s\nmethod=%s\ncseq=%d\nrealm=%s",
-               fromUri.data(), callId.data(), scheme.data(), method.data(), sequenceNum, realm.data()) ;
+               SIPX_SAFENULL(fromUri.data()), SIPX_SAFENULL(callId.data()), SIPX_SAFENULL(scheme.data()), SIPX_SAFENULL(method.data()), sequenceNum, SIPX_SAFENULL(realm.data())) ;
 
             // Construct a new request with authorization and send it
             // the Sticky DNS fields will be copied by the copy constructor
@@ -921,7 +922,7 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
         else
         {
             OsSysLog::add(FAC_AUTH, PRI_ERR, "could not find auth credentials for:\nlineId:%s\ncallid=%s\nscheme=%s\nmethod=%s\ncseq=%d\nrealm=%s",
-               fromUri.data(), callId.data(), scheme.data(), method.data(), sequenceNum, realm.data()) ;
+               SIPX_SAFENULL(fromUri.data()), SIPX_SAFENULL(callId.data()), SIPX_SAFENULL(scheme.data()), SIPX_SAFENULL(method.data()), sequenceNum, SIPX_SAFENULL(realm.data())) ;
         }
     }
     line = NULL;
@@ -931,7 +932,7 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
     UtlString authBytes;
     int authBytesLen;
     newAuthRequest->getBytes(&authBytes, &authBytesLen);
-    osPrintf("Auth. message:\n%s", authBytes.data());
+    osPrintf("Auth. message:\n%s", SIPX_SAFENULL(authBytes.data()));
     osPrintf("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n");
 #endif
 
@@ -941,7 +942,7 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
 #ifdef TEST
     else
     {
-        osPrintf("Giving up on entity %d authorization, line: \"%s\"\n", authorizationEntity, fromUri.data());
+        osPrintf("Giving up on entity %d authorization, line: \"%s\"\n", authorizationEntity, SIPX_SAFENULL(fromUri.data()));
         osPrintf("authorization failed previously sent: %d\n", request->getAuthorizationField(&authField, authorizationEntity));
     }
 #endif

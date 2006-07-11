@@ -257,7 +257,7 @@ PtStatus PtTerminalConnection::hold()
         UtlString arg = mTerminalName;
 
         arg += TAOMESSAGE_DELIMITER + mAddress + TAOMESSAGE_DELIMITER + mCallId;
-        osPrintf("\nPtTerminalConnection::hold %s %s %s\n", mAddress.data(), mCallId.data(), mTerminalName.data());
+        osPrintf("\nPtTerminalConnection::hold %s %s %s\n", SIPX_SAFENULL(mAddress.data()), SIPX_SAFENULL(mCallId.data()), SIPX_SAFENULL(mTerminalName.data()));
 
         OsProtectedEvent *pe = mpEventMgr->alloc();
         TaoMessage      msg(TaoMessage::REQUEST_TERMCONNECTION,

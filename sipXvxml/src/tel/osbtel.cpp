@@ -239,7 +239,7 @@ OSBTEL_API VXItelResult OSBtelExiting(VXIlogInterface  *log,
            Diag(impl, DIAG_TAG_SIGNALING, NULL, L"tel Exiting - stopWaitForFinalState");
         if (FALSE == impl->pListener->stopWaitForFinalState((char*)impl->callId))
                 {
-                        OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR, "stopWaitForFinalState failed for %s\n", (char*)impl->callId);
+                        OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR, "stopWaitForFinalState failed for %s\n", SIPX_SAFENULL((char*)impl->callId));
                 Diag(impl, DIAG_TAG_SIGNALING, NULL, L"stopWaitForFinalState failed");
                 }       
          }
@@ -400,7 +400,7 @@ VXItelResult OSBtelTransferBlind(VXItelInterface * vxip,
          {
             UtlString from(str);
             HttpMessage::unescape( from );
-            OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "OSBtelTransferBlind from = '%s'", from.data());
+            OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "OSBtelTransferBlind from = '%s'", SIPX_SAFENULL(from.data()));
             if (impl->live == 1) 
             {
                 if (PT_SUCCESS == impl->pCallMgr->transfer_blind((char*)impl->callId, from.data(), 0, 0))

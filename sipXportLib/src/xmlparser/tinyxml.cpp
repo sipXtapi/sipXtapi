@@ -765,7 +765,7 @@ void TiXmlElement::Print( FILE* cfile, int depth ) const
 		fprintf( cfile, "    " );
 	}
 
-	fprintf( cfile, "<%s", value.c_str() );
+	fprintf( cfile, "<%s", SIPX_SAFENULL(value.c_str()) );
 
 	const TiXmlAttribute* attrib;
 	for ( attrib = attributeSet.First(); attrib; attrib = attrib->Next() )
@@ -787,7 +787,7 @@ void TiXmlElement::Print( FILE* cfile, int depth ) const
 	{
 		fprintf( cfile, ">" );
 		firstChild->Print( cfile, depth + 1 );
-		fprintf( cfile, "</%s>", value.c_str() );
+		fprintf( cfile, "</%s>", SIPX_SAFENULL(value.c_str()) );
 	}
 	else
 	{
@@ -804,7 +804,7 @@ void TiXmlElement::Print( FILE* cfile, int depth ) const
 		fprintf( cfile, "\n" );
 		for( i=0; i<depth; ++i )
 		fprintf( cfile, "    " );
-		fprintf( cfile, "</%s>", value.c_str() );
+		fprintf( cfile, "</%s>", SIPX_SAFENULL(value.c_str()) );
 	}
 }
 
@@ -1122,9 +1122,9 @@ void TiXmlAttribute::Print( FILE* cfile, int /*depth*/ ) const
 	PutString( value, &v );
 
 	if (value.find ('\"') == TIXML_STRING::npos)
-		fprintf (cfile, "%s=\"%s\"", n.c_str(), v.c_str() );
+		fprintf (cfile, "%s=\"%s\"", SIPX_SAFENULL(n.c_str()), SIPX_SAFENULL(v.c_str()) );
 	else
-		fprintf (cfile, "%s='%s'", n.c_str(), v.c_str() );
+		fprintf (cfile, "%s='%s'", SIPX_SAFENULL(n.c_str()), SIPX_SAFENULL(v.c_str()) );
 }
 
 
@@ -1204,7 +1204,7 @@ void TiXmlComment::Print( FILE* cfile, int depth ) const
 	{
 		fputs( "    ", cfile );
 	}
-	fprintf( cfile, "<!--%s-->", value.c_str() );
+	fprintf( cfile, "<!--%s-->", SIPX_SAFENULL(value.c_str()) );
 }
 
 void TiXmlComment::StreamOut( TIXML_OSTREAM * stream ) const
@@ -1238,7 +1238,7 @@ void TiXmlText::Print( FILE* cfile, int /*depth*/ ) const
 {
 	TIXML_STRING buffer;
 	PutString( value, &buffer );
-	fprintf( cfile, "%s", buffer.c_str() );
+	fprintf( cfile, "%s", SIPX_SAFENULL(buffer.c_str()) );
 }
 
 
@@ -1310,11 +1310,11 @@ void TiXmlDeclaration::Print( FILE* cfile, int /*depth*/ ) const
 	fprintf (cfile, "<?xml ");
 
 	if ( !version.empty() )
-		fprintf (cfile, "version=\"%s\" ", version.c_str ());
+		fprintf (cfile, "version=\"%s\" ", SIPX_SAFENULL(version.c_str ()));
 	if ( !encoding.empty() )
-		fprintf (cfile, "encoding=\"%s\" ", encoding.c_str ());
+		fprintf (cfile, "encoding=\"%s\" ", SIPX_SAFENULL(encoding.c_str ()));
 	if ( !standalone.empty() )
-		fprintf (cfile, "standalone=\"%s\" ", standalone.c_str ());
+		fprintf (cfile, "standalone=\"%s\" ", SIPX_SAFENULL(standalone.c_str ()));
 	fprintf (cfile, "?>");
 }
 
@@ -1370,7 +1370,7 @@ void TiXmlUnknown::Print( FILE* cfile, int depth ) const
 {
 	for ( int i=0; i<depth; i++ )
 		fprintf( cfile, "    " );
-	fprintf( cfile, "<%s>", value.c_str() );
+	fprintf( cfile, "<%s>", SIPX_SAFENULL(value.c_str()) );
 }
 
 

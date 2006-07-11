@@ -59,7 +59,7 @@ main(int argc, char* argv[])
         if(bytesRead > 0)
         {
                 recvBuf[bytesRead] = '\0';
-                printf("received %d of %d butes: \"%s\"\n", bytesRead, len, recvBuf);
+                printf("received %d of %d butes: \"%s\"\n", bytesRead, len, SIPX_SAFENULL(recvBuf));
         }
         PT_TEST_ASSERT(len == bytesRead, eMsg, PT_TEST_CONTINUE);
         PT_TEST_ASSERT(strcmp(msg, recvBuf) == 0, "message is not the same as was sent",
@@ -74,7 +74,7 @@ main(int argc, char* argv[])
         if(bytesRead > 0)
         {
                 recvBuf[bytesRead] = '\0';
-                printf("received %d of %d butes: \"%s\"\n", bytesRead, len, recvBuf);
+                printf("received %d of %d butes: \"%s\"\n", bytesRead, len, SIPX_SAFENULL(recvBuf));
         }
         PT_TEST_ASSERT(len == bytesRead, eMsg, PT_TEST_CONTINUE);
         PT_TEST_ASSERT(strcmp(resp, recvBuf) == 0, "response is not the same as was sent",

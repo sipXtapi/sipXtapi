@@ -56,7 +56,7 @@ public:
           pQPlayer = (MpStreamQueuePlayer*) pPlayer ;
           for (int i=3; i>0; i--)
           {
-             sprintf(szUrl, "http://%s/nums/%d.raw", BASE_URL, i) ;
+             sprintf(szUrl, "http://%s/nums/%d.raw", SIPX_SAFENULL(BASE_URL), i) ;
              Url url(szUrl) ;
 
              pQPlayer->add(url, STREAM_SOUND_LOCAL | STREAM_FORMAT_RAW) ;
@@ -72,7 +72,7 @@ public:
     void debug(const char* msg )
     {
        osPrintf("\n******************************\n");
-       osPrintf("%s\n", msg);
+       osPrintf("%s\n", SIPX_SAFENULL(msg));
        osPrintf("******************************\n");
     }
 
@@ -85,7 +85,7 @@ public:
 
        for (int j=0; j<3; j++)
        {
-          sprintf(szUrl, "http://%s/nums/1.raw", BASE_URL) ;
+          sprintf(szUrl, "http://%s/nums/1.raw", SIPX_SAFENULL(BASE_URL)) ;
 
           Url url(szUrl) ;
 
@@ -131,7 +131,7 @@ public:
 
        for (int j=0; j<3; j++)
        {
-          sprintf(szUrl, "http://%s/nums/1.wav", BASE_URL) ;
+          sprintf(szUrl, "http://%s/nums/1.wav", SIPX_SAFENULL(BASE_URL)) ;
 
           Url url(szUrl) ;
 
@@ -187,7 +187,7 @@ public:
           mCfg->getCallManager()->unholdAllTerminalConnections(callId) ;
           mCfg->getCallManager()->createPlayer(MpPlayer::STREAM_QUEUE_PLAYER, callId, NULL, STREAM_SOUND_LOCAL | STREAM_FORMAT_RAW, &pPlayer) ;
           pQPlayer = (MpStreamQueuePlayer*) pPlayer ;
-          sprintf(szUrl, "http://%s/nums/%d.raw", BASE_URL, 1) ;
+          sprintf(szUrl, "http://%s/nums/%d.raw", SIPX_SAFENULL(BASE_URL), 1) ;
           Url url(szUrl) ;
           pQPlayer->add(url, STREAM_SOUND_LOCAL | STREAM_FORMAT_RAW) ;
           pQPlayer->play() ;
@@ -209,7 +209,7 @@ public:
           mCfg->getCallManager()->unholdAllTerminalConnections(callId) ;
           mCfg->getCallManager()->createPlayer(MpPlayer::STREAM_QUEUE_PLAYER, callId, NULL, STREAM_SOUND_LOCAL | STREAM_FORMAT_RAW, &pPlayer) ;
           pQPlayer = (MpStreamQueuePlayer*) pPlayer ;
-          sprintf(szUrl, "http://%s/nums/%d.raw", BASE_URL, 1) ;
+          sprintf(szUrl, "http://%s/nums/%d.raw", SIPX_SAFENULL(BASE_URL), 1) ;
           Url url(szUrl) ;
           pQPlayer->add(url, STREAM_SOUND_LOCAL | STREAM_FORMAT_RAW) ;
           pQPlayer->play() ;
@@ -232,7 +232,7 @@ public:
 
           mCfg->getCallManager()->createPlayer(MpPlayer::STREAM_QUEUE_PLAYER, callId, NULL, STREAM_SOUND_LOCAL | STREAM_FORMAT_RAW, &pPlayer) ;
           pQPlayer = (MpStreamQueuePlayer*) pPlayer ;
-          sprintf(szUrl, "http://%s/nums/%d.raw", BASE_URL, 1) ;
+          sprintf(szUrl, "http://%s/nums/%d.raw", SIPX_SAFENULL(BASE_URL), 1) ;
           Url url(szUrl) ;
           pQPlayer->add(url, STREAM_SOUND_LOCAL | STREAM_FORMAT_RAW) ;
           pQPlayer->play() ;
@@ -261,7 +261,7 @@ public:
 
           mCfg->getCallManager()->createPlayer(MpPlayer::STREAM_QUEUE_PLAYER, callId, NULL, STREAM_SOUND_LOCAL | STREAM_FORMAT_RAW, &pPlayer) ;
           pQPlayer = (MpStreamQueuePlayer*) pPlayer ;
-          sprintf(szUrl, "http://%s/nums/%d.raw", BASE_URL, 1) ;
+          sprintf(szUrl, "http://%s/nums/%d.raw", SIPX_SAFENULL(BASE_URL), 1) ;
           Url url(szUrl) ;
           pQPlayer->add(url, STREAM_SOUND_LOCAL | STREAM_FORMAT_RAW) ;
           pQPlayer->play() ;
@@ -287,7 +287,7 @@ public:
        MpStreamPlayer* pPlayer =  NULL ;
        int j ;
 
-       sprintf(szUrl, "http://%s/nums/%d.raw", BASE_URL, 1) ;
+       sprintf(szUrl, "http://%s/nums/%d.raw", SIPX_SAFENULL(BASE_URL), 1) ;
 
        for (j=0; j<TESTING_ATTEMPTS; j++)
        {
@@ -387,7 +387,7 @@ public:
        MpStreamPlayer* pPlayer =  NULL ;
        int j ;
 
-       sprintf(szUrl, "http://%s/nums/%d.raw", BASE_URL, 1) ;
+       sprintf(szUrl, "http://%s/nums/%d.raw", SIPX_SAFENULL(BASE_URL), 1) ;
 
        for (j=0; j<TESTING_ATTEMPTS; j++)
        {
@@ -435,7 +435,7 @@ public:
           pQPlayer = (MpStreamQueuePlayer*) pPlayer ;
           for (int i=3; i>0; i--)
           {
-             sprintf(szUrl, "http://%s/nums/%d.raw", BASE_URL, i) ;
+             sprintf(szUrl, "http://%s/nums/%d.raw", SIPX_SAFENULL(BASE_URL), i) ;
              Url url(szUrl) ;
 
              pQPlayer->add(url, STREAM_SOUND_LOCAL | STREAM_FORMAT_RAW) ;
@@ -469,7 +469,7 @@ public:
 
           mCfg->getCallManager()->createPlayer(MpPlayer::STREAM_QUEUE_PLAYER, callId, NULL, STREAM_SOUND_LOCAL | STREAM_FORMAT_RAW, &pPlayer) ;
           pQPlayer = (MpStreamQueuePlayer*) pPlayer ;
-          sprintf(szUrl, "http://%s/longstream.raw", BASE_URL) ;
+          sprintf(szUrl, "http://%s/longstream.raw", SIPX_SAFENULL(BASE_URL)) ;
           Url url(szUrl) ;
 
           pQPlayer->add(url, STREAM_SOUND_LOCAL | STREAM_FORMAT_RAW) ;
@@ -504,7 +504,7 @@ public:
           pQPlayer = (MpStreamQueuePlayer*) pPlayer ;
           for (i=10; i>0; i--)
           {
-             sprintf(szUrl, "http://%s/nums/%d.raw", BASE_URL, i) ;
+             sprintf(szUrl, "http://%s/nums/%d.raw", SIPX_SAFENULL(BASE_URL), i) ;
              Url url(szUrl) ;
 
              pQPlayer->add(url, STREAM_SOUND_LOCAL | STREAM_FORMAT_RAW) ;
@@ -542,7 +542,7 @@ public:
                       // format.  Is "i" superfluous, or are we not inserting
                       // the index into the string when we, in fact, need to?
 
-                      sprintf(szUrl, "http://%s/nums/10.raw", BASE_URL, i) ;
+                      sprintf(szUrl, "http://%s/nums/10.raw", SIPX_SAFENULL(BASE_URL), i) ;
 
                       //////////////////////////////////////////////////////
                       Url url(szUrl) ;

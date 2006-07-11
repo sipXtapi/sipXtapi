@@ -199,7 +199,7 @@ void OsTimeLog::dumpLog() const
 
     getLogString(log);
 
-    osPrintf("%s", log.data());
+    osPrintf("%s", SIPX_SAFENULL(log.data()));
         log.remove(0);
 }
 

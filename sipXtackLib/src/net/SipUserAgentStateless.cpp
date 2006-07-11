@@ -13,6 +13,7 @@
 #include <net/SipUserAgentStateless.h>
 #include <net/SipClient.h>
 #include <net/Url.h>
+#include <os/OsDefs.h>
 #include <os/OsDatagramSocket.h>
 
 // EXTERNAL FUNCTIONS
@@ -149,10 +150,10 @@ UtlBoolean SipUserAgentStateless::sendTo(SipMessage& message,
         char messageChars[200];
         if(sendOk)
             sprintf(messageChars, "Sent message %s port:%d:\n",
-                sendAddress, sendPort);
+                SIPX_SAFENULL(sendAddress), sendPort);
         else
             sprintf(messageChars, "Failed to send message %s port:%d:\n",
-                sendAddress, sendPort);
+                SIPX_SAFENULL(sendAddress), sendPort);
         messageStatus = messageChars;
         UtlString msgBytes;
         int msgLen;
@@ -190,7 +191,7 @@ void SipUserAgentStateless::dispatch(SipMessage* message,
 
 void SipUserAgentStateless::logMessage(const char* message, int messageLength)
 {
-    osPrintf("%s", message);
+    osPrintf("%s", SIPX_SAFENULL(message));
 }
 
 /* ============================ INQUIRY =================================== */

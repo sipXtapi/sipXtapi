@@ -614,7 +614,7 @@ void MpStreamPlaylistPlayer::setEntryState(int iEntry, PlayerState newState)
    {
 #ifdef MP_STREAM_DEBUG /* [ */
       osPrintf("MpStreamPlaylistPlayer::setEntryState(%p): Setting mPlayListDb[%d].state = %s\n",
-               this, iEntry, getEventString(newState));
+               this, iEntry, SIPX_SAFENULL(getEventString(newState)));
 #endif /* MP_STREAM_DEBUG ] */
       // Store the new state
       mPlayListDb[iEntry].state = newState;
@@ -921,7 +921,7 @@ UtlBoolean MpStreamPlaylistPlayer::handleMessage(OsMsg& rMsg)
          {
 #ifdef MP_STREAM_DEBUG /* [ */
             osPrintf("MpStreamPlaylistPlayer::handleMessage(%p): Received Feeder event: %s \n", 
-                     this, getFeederEventString(status));
+                     this, SIPX_SAFENULL(getFeederEventString(status)));
 #endif /* MP_STREAM_DEBUG ] */
 
             getSourceState(index, oldState);
@@ -1002,7 +1002,7 @@ void MpStreamPlaylistPlayer::handleRealizedState(int index, PlayerState oldState
       {
 #ifdef MP_STREAM_DEBUG /* [ */
          osPrintf("MpStreamPlaylistPlayer::handleRealizedState(%p): Changed from %s to PlayerRealized.\n",
-                  this, getEventString(mAggregateState));
+                  this, SIPX_SAFENULL(getEventString(mAggregateState)));
 #endif /* ] */
          mAggregateState = PlayerRealized;
          fireEvent(PlayerRealized);
@@ -1036,7 +1036,7 @@ void MpStreamPlaylistPlayer::handlePrefetchedState(int index, PlayerState oldSta
       {
 #ifdef MP_STREAM_DEBUG /* [ */
          osPrintf("MpStreamPlaylistPlayer::handlePrefetchedState(%p): Changed from %s to PlayerPrefetched.\n",
-                  this, getEventString(mAggregateState));
+                  this, SIPX_SAFENULL(getEventString(mAggregateState)));
 #endif /* ] */
          mAggregateState = PlayerPrefetched;
          fireEvent(PlayerPrefetched);
@@ -1052,7 +1052,7 @@ void MpStreamPlaylistPlayer::handlePlayingState(int index, PlayerState oldState,
    {
 #ifdef MP_STREAM_DEBUG /* [ */
          osPrintf("MpStreamPlaylistPlayer::handlePlayingState(%p): Changed from %s to PlayerPlaying.\n",
-                  this, getEventString(mAggregateState));
+                  this, SIPX_SAFENULL(getEventString(mAggregateState)));
 #endif /* ] */
       mAggregateState = PlayerPlaying;
       fireEvent(PlayerPlaying);
@@ -1067,7 +1067,7 @@ void MpStreamPlaylistPlayer::handlePausedState(int index, PlayerState oldState, 
    {
 #ifdef MP_STREAM_DEBUG /* [ */
          osPrintf("MpStreamPlaylistPlayer::handlePausedState(%p): Changed from %s to PlayerPaused.\n",
-                  this, getEventString(mAggregateState));
+                  this, SIPX_SAFENULL(getEventString(mAggregateState)));
 #endif /* ] */
          mAggregateState = PlayerPaused;
          fireEvent(PlayerPaused);
@@ -1090,7 +1090,7 @@ void MpStreamPlaylistPlayer::handleStoppedState(int index, PlayerState oldState,
       {
 #ifdef MP_STREAM_DEBUG /* [ */
          osPrintf("MpStreamPlaylistPlayer::handleStoppedState(%p): Changed from %s to PlayerAborted.\n",
-                  this, getEventString(mAggregateState));
+                  this, SIPX_SAFENULL(getEventString(mAggregateState)));
 #endif /* ] */
          mAggregateState = PlayerAborted;
          fireEvent(PlayerAborted);
@@ -1108,7 +1108,7 @@ void MpStreamPlaylistPlayer::handleStoppedState(int index, PlayerState oldState,
          {
 #ifdef MP_STREAM_DEBUG /* [ */
             osPrintf("MpStreamPlaylistPlayer::handleStoppedState(%p): Changed from %s to PlayerStopped.\n",
-                     this, getEventString(mAggregateState));
+                     this, SIPX_SAFENULL(getEventString(mAggregateState)));
 #endif /* ] */
             mAggregateState = PlayerStopped;
             fireEvent(PlayerStopped);
@@ -1125,7 +1125,7 @@ void MpStreamPlaylistPlayer::handleFailedState(int index, PlayerState oldState, 
 {
 #ifdef MP_STREAM_DEBUG /* [ */
    osPrintf("MpStreamPlaylistPlayer::handleFailedState(%p): Changed from %s to PlayerFailed.\n",
-            this, getEventString(mAggregateState));
+            this, SIPX_SAFENULL(getEventString(mAggregateState)));
 #endif /* ] */
    mAggregateState = PlayerFailed;
    // Wake up anyone waiting on play completion.

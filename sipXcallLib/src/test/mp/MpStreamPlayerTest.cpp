@@ -58,8 +58,8 @@ class MpStreamPlayerTest : public CppUnit::TestCase
             //
             for (i=0; i<4; i++)
             {
-                sprintf(szUrl, "http://%s/nums/%d.raw", BASE_URL, i) ;
-                osPrintf("Playing %s\n", szUrl) ;
+                sprintf(szUrl, "http://%s/nums/%d.raw", SIPX_SAFENULL(BASE_URL), i) ;
+                osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
 
                 Url url(szUrl) ;
 
@@ -101,8 +101,8 @@ class MpStreamPlayerTest : public CppUnit::TestCase
             //
             for (i=0; i<4; i++)
             {
-                sprintf(szUrl, "http://%s/nums/%d.raw", BASE_URL, i) ;
-                osPrintf("Playing %s\n", szUrl) ;
+                sprintf(szUrl, "http://%s/nums/%d.raw", SIPX_SAFENULL(BASE_URL), i) ;
+                osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
 
                 Url url(szUrl) ;
 
@@ -153,8 +153,8 @@ class MpStreamPlayerTest : public CppUnit::TestCase
             //
             for (i=0; i<4; i++)
             {
-                sprintf(szUrl, "http://%s/nums/%d.raw", BASE_URL, i) ;
-                osPrintf("Playing %s\n", szUrl) ;
+                sprintf(szUrl, "http://%s/nums/%d.raw", SIPX_SAFENULL(BASE_URL), i) ;
+                osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
 
                 Url url(szUrl) ;
 
@@ -229,8 +229,8 @@ class MpStreamPlayerTest : public CppUnit::TestCase
             //
             for (i=0; i<4; i++)
             {
-                sprintf(szUrl, "http://%s/nums/%d.raw", BASE_URL, i) ;
-                osPrintf("Playing %s\n", szUrl) ;
+                sprintf(szUrl, "http://%s/nums/%d.raw", SIPX_SAFENULL(BASE_URL), i) ;
+                osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
 
                 Url url(szUrl) ;
 
@@ -307,8 +307,8 @@ class MpStreamPlayerTest : public CppUnit::TestCase
             //
             for (i=0; i<4; i++)
             {
-                sprintf(szUrl, "http://%s/nums/%d.raw", BASE_URL, i) ;
-                osPrintf("Playing %s\n", szUrl) ;
+                sprintf(szUrl, "http://%s/nums/%d.raw", SIPX_SAFENULL(BASE_URL), i) ;
+                osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
 
                 Url url(szUrl) ;
 
@@ -405,8 +405,8 @@ class MpStreamPlayerTest : public CppUnit::TestCase
             //
             for (i=0; i<4; i++)
             {
-                sprintf(szUrl, "http://%s/longstream.raw", BASE_URL) ;
-                osPrintf("Playing %s\n", szUrl) ;
+                sprintf(szUrl, "http://%s/longstream.raw", SIPX_SAFENULL(BASE_URL)) ;
+                osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
 
                 Url url(szUrl) ;
 
@@ -485,8 +485,8 @@ class MpStreamPlayerTest : public CppUnit::TestCase
             //
             for (i=0; i<4; i++)
             {
-                sprintf(szUrl, "http://%s/longstream.raw", BASE_URL) ;
-                osPrintf("Playing %s\n", szUrl) ;
+                sprintf(szUrl, "http://%s/longstream.raw", SIPX_SAFENULL(BASE_URL)) ;
+                osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
 
                 Url url(szUrl) ;
 
@@ -585,8 +585,8 @@ class MpStreamPlayerTest : public CppUnit::TestCase
             //
             for (i=0; i<4; i++)
             {
-                sprintf(szUrl, "http://%s/longstream.raw", BASE_URL) ;
-                osPrintf("Playing %s\n", szUrl) ;
+                sprintf(szUrl, "http://%s/longstream.raw", SIPX_SAFENULL(BASE_URL)) ;
+                osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
 
                 Url url(szUrl) ;
 
@@ -663,8 +663,8 @@ class MpStreamPlayerTest : public CppUnit::TestCase
             //
             for (i=0; i<4; i++)
             {
-                sprintf(szUrl, "http://%s/nums/%d.wav", BASE_URL, i) ;
-                osPrintf("Playing %s\n", szUrl) ;
+                sprintf(szUrl, "http://%s/nums/%d.wav", SIPX_SAFENULL(BASE_URL), i) ;
+                osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
 
                 Url url(szUrl) ;
 
@@ -706,8 +706,8 @@ class MpStreamPlayerTest : public CppUnit::TestCase
             for (i=0; i<TESTING_ATTEMPTS; i++)
             {
                 // Set up to fetch [i].wav.
-                sprintf(szUrl, "http://%s/nums/%d.wav", BASE_URL, i) ;
-                osPrintf("Playing %s\n", szUrl) ;
+                sprintf(szUrl, "http://%s/nums/%d.wav", SIPX_SAFENULL(BASE_URL), i) ;
+                osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
 
                 Url url(szUrl) ;
 

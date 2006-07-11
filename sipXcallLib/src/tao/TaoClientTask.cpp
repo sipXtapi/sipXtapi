@@ -212,7 +212,7 @@ UtlBoolean TaoClientTask::handleMessage(OsMsg& rMsg)
                         UtlString buffer;
                         int bufferLen;
                         ((TaoMessage&) rMsg).getBytes(&buffer, &bufferLen);
-                        osPrintf("%s\n", buffer.data());
+                        osPrintf("%s\n", SIPX_SAFENULL(buffer.data()));
 
                         ///////////  WE DONT KNOW WHY IT WOULDN"T BE HANDLED
                 }
@@ -227,7 +227,7 @@ UtlBoolean TaoClientTask::handleMessage(OsMsg& rMsg)
                 UtlString buffer;
                 int bufferLen;
                 ((TaoMessage&) rMsg).getBytes(&buffer, &bufferLen);
-                osPrintf("%s\n", buffer.data());
+                osPrintf("%s\n", SIPX_SAFENULL(buffer.data()));
                 break;
    }
 
@@ -287,7 +287,7 @@ int TaoClientTask::sendRequest(TaoMessage& rMsg, OsMutex* pMutex, const OsTime& 
                 osPrintf("\n++++++ %d %d +++++\n", rMsg.getMsgSubType(), rMsg.getCmd());
         }
 
-        osPrintf("\n++++++ TaoClientTask::sendRequest %p %s : %d+++++\n", mpConnectionSocket, mRemoteHost.data(), mRemotePort);
+        osPrintf("\n++++++ TaoClientTask::sendRequest %p %s : %d+++++\n", mpConnectionSocket, SIPX_SAFENULL(mRemoteHost.data()), mRemotePort);
         if (!mpConnectionSocket)
         {
                 mMutex.acquireWrite();

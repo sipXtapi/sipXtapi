@@ -77,7 +77,7 @@ ProvisioningAgent::ProvisioningAgent(const char* pServerClass, bool persistentSt
 
          OsSysLog::add(FAC_ACD, PRI_DEBUG,
                        "ProvisioningAgent::ProvisioningAgent - Creating initial configuration file: %s",
-                       mpConfigFile->data());
+                       SIPX_SAFENULL(mpConfigFile->data()));
       }
       else {
          // Now attempt to load the file and build the DOM
@@ -102,7 +102,7 @@ ProvisioningAgent::ProvisioningAgent(const char* pServerClass, bool persistentSt
 
             OsSysLog::add(FAC_ACD, PRI_DEBUG,
                           "ProvisioningAgent::ProvisioningAgent - Configuration file: %s corrupted, corrupted, creating blank file",
-                          mpConfigFile->data());
+                          SIPX_SAFENULL(mpConfigFile->data()));
          }
       }
    }
@@ -401,7 +401,7 @@ ProvisioningClass* ProvisioningAgent::lookupProvisioningClass(ProvisioningAttrLi
       // The class doesn't appear to be registered.
       OsSysLog::add(FAC_ACD, PRI_ERR,
                     "ProvisioningAgent::lookupProvisioningClass - Provisioning Class: '%s' not registered.",
-                    pTargetClass);
+                    SIPX_SAFENULL(pTargetClass));
       return NULL;
    }
 

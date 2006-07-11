@@ -7,6 +7,7 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
+#include <os/OsDefs.h>
 #include <utl/UtlInt.h>
 #include <utl/UtlBool.h>
 #include <utl/UtlString.h>
@@ -662,18 +663,18 @@ void ProvisioningAttrList::dumpAttributes(const UtlContainable* pAttribute)
 
          if (UtlString(pMemberValue->getContainableType()) == "UtlBool") {
             osPrintf("{%s} = (BOOL) %s\n",
-                   pMemberName->data(),
-                   (dynamic_cast<UtlBool*>(pMemberValue)->getValue() ? "TRUE" : "FALSE"));
+                   SIPX_SAFENULL(pMemberName->data()),
+                   SIPX_SAFENULL((dynamic_cast<UtlBool*>(pMemberValue)->getValue() ? "TRUE" : "FALSE")));
          }
          else if (UtlString(pMemberValue->getContainableType()) == "UtlInt") {
             osPrintf("{%s} = (INT) %d\n",
-                   pMemberName->data(),
+                   SIPX_SAFENULL(pMemberName->data()),
                    dynamic_cast<UtlInt*>(pMemberValue)->getValue());
          }
          else if (UtlString(pMemberValue->getContainableType()) == "UtlString") {
             osPrintf("{%s} = (STRING) \"%s\"\n",
-                   pMemberName->data(),
-                   dynamic_cast<UtlString*>(pMemberValue)->data());
+                   SIPX_SAFENULL(pMemberName->data()),
+                   SIPX_SAFENULL(dynamic_cast<UtlString*>(pMemberValue)->data()));
          }
       }
    }
@@ -688,21 +689,21 @@ void ProvisioningAttrList::dumpAttributes(const UtlContainable* pAttribute)
 
          if (UtlString(pMemberValue->getContainableType()) == "UtlBool") {
             osPrintf("{%s}[%d] = (BOOL) %s\n",
-                   pMemberName->data(),
+                   SIPX_SAFENULL(pMemberName->data()),
                    arrayIndex++,
-                   (dynamic_cast<UtlBool*>(pMemberValue)->getValue() ? "TRUE" : "FALSE"));
+                   SIPX_SAFENULL((dynamic_cast<UtlBool*>(pMemberValue)->getValue() ? "TRUE" : "FALSE")));
          }
          else if (UtlString(pMemberValue->getContainableType()) == "UtlInt") {
             osPrintf("{%s}[%d] = (INT) %d\n",
-                   pMemberName->data(),
+                   SIPX_SAFENULL(pMemberName->data()),
                    arrayIndex++,
                    dynamic_cast<UtlInt*>(pMemberValue)->getValue());
          }
          else if (UtlString(pMemberValue->getContainableType()) == "UtlString") {
             osPrintf("{%s}[%d] = (STRING) \"%s\"\n",
-                   pMemberName->data(),
+                   SIPX_SAFENULL(pMemberName->data()),
                    arrayIndex++,
-                   dynamic_cast<UtlString*>(pMemberValue)->data());
+                   SIPX_SAFENULL(dynamic_cast<UtlString*>(pMemberValue)->data()));
          }
       }
    }

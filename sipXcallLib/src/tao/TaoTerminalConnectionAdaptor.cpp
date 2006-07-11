@@ -385,7 +385,7 @@ TaoStatus TaoTerminalConnectionAdaptor::termConnectionHold(TaoMessage& rMsg)
         UtlString callId = arg[2];
 
         mpCallMgrTask->holdTerminalConnection(callId.data(), address.data(), terminal.data());
-        osPrintf("  termConnectionHold: callId = %s, address = %s, terminal = %s", callId.data(), address.data(), terminal.data());
+        osPrintf("  termConnectionHold: callId = %s, address = %s, terminal = %s", SIPX_SAFENULL(callId.data()), SIPX_SAFENULL(address.data()), SIPX_SAFENULL(terminal.data()));
 
         rMsg.setMsgSubType(TaoMessage::RESPONSE_TERMCONNECTION);
 
@@ -407,7 +407,7 @@ TaoStatus TaoTerminalConnectionAdaptor::termConnectionUnhold(TaoMessage& rMsg)
         UtlString callId = arg[2];
 
         mpCallMgrTask->unholdTerminalConnection(callId.data(), address.data(), terminal.data());
-        osPrintf("  termConnectionUnhold: callId = %s, address = %s, terminal = %s", callId.data(), address.data(), terminal.data());
+        osPrintf("  termConnectionUnhold: callId = %s, address = %s, terminal = %s", SIPX_SAFENULL(callId.data()), SIPX_SAFENULL(address.data()), SIPX_SAFENULL(terminal.data()));
 
         rMsg.setMsgSubType(TaoMessage::RESPONSE_TERMCONNECTION);
 

@@ -161,7 +161,7 @@ void SipPresenceEvent::parseBody(const char* bodyBytes)
    if(bodyBytes)
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceEvent::parseBody incoming package = %s\n", 
-                    bodyBytes);
+                    SIPX_SAFENULL(bodyBytes));
                     
       TiXmlDocument doc("PresenceEvent.xml");
       
@@ -281,7 +281,7 @@ Tuple* SipPresenceEvent::getTuple(UtlString& tupleId)
       if (foundValue.compareTo(tupleId) == 0)
       {
          OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceEvent::getTuple found Tuple = %p for tupleId %s", 
-                       pTuple, tupleId.data());                 
+                       pTuple, SIPX_SAFENULL(tupleId.data()));                 
             
          mLock.release();
          return pTuple;
@@ -289,7 +289,7 @@ Tuple* SipPresenceEvent::getTuple(UtlString& tupleId)
    }     
           
    OsSysLog::add(FAC_SIP, PRI_WARNING, "SipPresenceEvent::getTuple could not found the Tuple for tupleId = %s", 
-                 tupleId.data());                 
+                 SIPX_SAFENULL(tupleId.data()));                 
             
    mLock.release();
    return NULL;
@@ -371,7 +371,7 @@ void SipPresenceEvent::buildBody() const
    ((SipPresenceEvent*)this)->bodyLength = PresenceEvent.length();
    
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTupleEvent::getBytes Tuple content = \n%s", 
-                 PresenceEvent.data());                 
+                 SIPX_SAFENULL(PresenceEvent.data()));                 
 }
 
 void SipPresenceEvent::getBytes(const char** bytes, int* length) const

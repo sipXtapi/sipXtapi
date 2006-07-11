@@ -254,7 +254,7 @@ typedef enum SIPX_CALLSTATE_CAUSE
     CALLSTATE_SECURITY_SESSION_NOT_SECURED,                             /**< Fired if a secure session could not be made. */
     CALLSTATE_SECURITY_REMOTE_SMIME_UNSUPPORTED,                        /**< Fired if the remote party's user-agent does not
                                                                              support S/MIME. */
-    CALLSTATE_IDENTITY_CHANGE_UNKNOWN = CALLSTATE_IDENTITY_CHANGE + 1,   /**< The P-Asserted-Identity changed for a unknown reason
+    CALLSTATE_IDENTITY_CHANGE_UNKNOWN = CALLSTATE_IDENTITY_CHANGE + 1   /**< The P-Asserted-Identity changed for a unknown reason
                                                                              The identity may have changed because of a transfer or
                                                                              some other reason, but the signalling did not give any
                                                                              indication as to why it changed. */
@@ -294,7 +294,7 @@ typedef enum SIPX_CALLSTATE_CAUSE
                                              and the client failed to supply valid credentials.
                                              The registrar server did not generate a success response (status code == 200)
                                              within a timeout period.  */
-    LINESTATE_PROVISIONED      = 26000, /**< The PROVISIONED event is fired when a sipXtapi Line is added, and Registration is not 
+    LINESTATE_PROVISIONED      = 26000 /**< The PROVISIONED event is fired when a sipXtapi Line is added, and Registration is not 
                                              requested (i.e. - sipxLineAdd is called with a bRegister parameter of false. */ 
 } SIPX_LINESTATE_EVENT;  
 
@@ -355,7 +355,7 @@ enum SIPX_CONFIG_EVENT
                                  For a SIPX_CONFIG_EVENT type of CONFIG_STUN_SUCCESS, 
                                  the pData pointer of the info structure will point to a
                                  SIPX_CONTACT_ADDRESS structure. */
-    CONFIG_STUN_FAILURE,    /**< Unable to obtain a STUN binding for signaling purposes. */
+    CONFIG_STUN_FAILURE    /**< Unable to obtain a STUN binding for signaling purposes. */
 } ;
 
 
@@ -409,7 +409,7 @@ typedef enum
                                            not process it. */
     SIPX_MESSAGE_SERVER_FAILURE,      /**< The server encountered an error while trying to process
                                            the message. */
-    SIPX_MESSAGE_GLOBAL_FAILURE,      /**< Fatal error encountered. */
+    SIPX_MESSAGE_GLOBAL_FAILURE      /**< Fatal error encountered. */
 } SIPX_MESSAGE_STATUS ;
 
 /**
@@ -456,7 +456,7 @@ typedef enum
     SIPX_SUBSCRIPTION_PENDING,      /**< THe subscription is being set up, but not yet active. */
     SIPX_SUBSCRIPTION_ACTIVE ,      /**< The subscription is currently active. */
     SIPX_SUBSCRIPTION_FAILED ,      /**< The subscription is not active due to a failure.*/
-    SIPX_SUBSCRIPTION_EXPIRED ,     /**< The subscription's lifetime has expired. */
+    SIPX_SUBSCRIPTION_EXPIRED     /**< The subscription's lifetime has expired. */
     // TBD
 } SIPX_SUBSCRIPTION_STATE;
 
@@ -703,7 +703,7 @@ typedef enum SIPX_CALLSTATE_MINOR
     SECURITY_SESSION_NOT_SECURED,                      /**< Fired if a secure session could not be made. */
     SECURITY_REMOTE_SMIME_UNSUPPORTED,                 /**< Fired if the remote party's user-agent does not
                                                                              support S/MIME. */
-    IDENTITY_CHANGE_UNKNOWN = IDENTITY_CHANGE + 1,   /**< The P-Asserted-Identity changed for a unknown reason
+    IDENTITY_CHANGE_UNKNOWN = IDENTITY_CHANGE + 1   /**< The P-Asserted-Identity changed for a unknown reason
                                                                              The identity may have changed because of a transfer or
                                                                              some other reason, but the signalling did not give any
                                                                              indication as to why it changed. */

@@ -86,7 +86,7 @@ bool unix_socket::open(int listen_queue_size)
 	       < MAX_HOST_NAME - offsetof(sockaddr,sa_data)); 
 	
 	len = offsetof(sockaddr,sa_data) + 
-	    sprintf(u.sock.sa_data, "%s%s", unix_socket_dir, address);
+	    sprintf(u.sock.sa_data, "%s%s", SIPX_SAFENULL(unix_socket_dir), SIPX_SAFENULL(address));
 
 	unlink(u.sock.sa_data); // remove file if existed
 	create_file = true; 
@@ -284,7 +284,7 @@ bool unix_socket::connect(int max_attempts, time_t timeout)
 	       < MAX_HOST_NAME - offsetof(sockaddr,sa_data)); 
  
 	int len = offsetof(sockaddr,sa_data) +
-	    sprintf(u.sock.sa_data, "%s%s", unix_socket_dir, address);
+	    sprintf(u.sock.sa_data, "%s%s", SIPX_SAFENULL(unix_socket_dir), SIPX_SAFENULL(address));
 	
 	while (true) {
 	    if ((fd = socket(u.sock.sa_family, SOCK_STREAM, 0)) < 0) { 
@@ -482,7 +482,7 @@ unix_socket::~unix_socket()
     close();
     if (create_file) { 
 	char name[MAX_HOST_NAME];
-	sprintf(name, "%s%s", unix_socket_dir, address);
+	sprintf(name, "%s%s", SIPX_SAFENULL(unix_socket_dir), SIPX_SAFENULL(address));
 	unlink(name);
     }
     delete[] address;

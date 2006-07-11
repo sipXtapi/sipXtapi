@@ -338,7 +338,7 @@ UtlBoolean PsButtonTask::handlePhoneMessage(PsMsg& rMsg)
    {
    case PsMsg::BUTTON_UP:
       // printf("BUTTON_UP: buttonId = %d, buttonName = %s\n",
-      //        buttonId, mpButtonInfo[index].getName());
+      //        SIPX_SAFENULL(buttonId, mpButtonInfo[index].getName()));
       pButtonInfo->setState(PsButtonInfo::UP);   // set the button state
       if (pButtonInfo->getEventMask() & PsButtonInfo::BUTTON_UP)
       {                             // post message to the phone set
@@ -350,7 +350,7 @@ UtlBoolean PsButtonTask::handlePhoneMessage(PsMsg& rMsg)
    case PsMsg::BUTTON_DOWN:
    case PsMsg::BUTTON_REPEAT:
       // printf("BUTTON_DOWN/BUTTON_REPEAT: buttonId = %d, buttonName = %s\n",
-      //        buttonId, mpButtonInfo[index].getName());
+      //        SIPX_SAFENULL(buttonId, mpButtonInfo[index].getName()));
       pButtonInfo->setState(PsButtonInfo::DOWN); // set the button state
       if (pButtonInfo->getEventMask() & PsButtonInfo::BUTTON_DOWN)
       {                             // post message to the phone set

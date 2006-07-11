@@ -128,14 +128,14 @@ PresenceDialInServer::PresenceDialInServer(CallManager* callManager,
    }
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer:: configuration for PresenceDialIn:"); 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer:: signInFeatureCode = %s", mSignInFC.data()); 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer:: signOutFeatureCode = %s", mSignOutFC.data()); 
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer:: signInFeatureCode = %s", SIPX_SAFENULL(mSignInFC.data())); 
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer:: signOutFeatureCode = %s", SIPX_SAFENULL(mSignOutFC.data())); 
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer:: signInConfirmationAudio = %s",
-                 (mSignInConfirmationAudio == NULL ? "confirmation tone" : mSignInConfirmationAudio.data())); 
+                 SIPX_SAFENULL(mSignInConfirmationAudio == NULL ? "confirmation tone" : mSignInConfirmationAudio.data())); 
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer:: signOutConfirmationAudio = %s",
-                 (mSignOutConfirmationAudio == NULL ? "dial tone" : mSignOutConfirmationAudio.data())); 
+                 SIPX_SAFENULL(mSignOutConfirmationAudio == NULL ? "dial tone" : mSignOutConfirmationAudio.data())); 
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer:: errorAudio = %s",
-                 (mErrorAudio == NULL ? "busy tone" : mErrorAudio.data())); 
+                 SIPX_SAFENULL(mErrorAudio == NULL ? "busy tone" : mErrorAudio.data())); 
    
    mpIncomingQ = getMessageQueue();   
 }
@@ -193,17 +193,17 @@ UtlBoolean PresenceDialInServer::handleMessage(OsMsg& rMsg)
 #ifdef DEBUGGING            
             sipDialog.toString(sipDialogContent);
             OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer:: sipDialog = %s", 
-                          sipDialogContent.data());
+                          SIPX_SAFENULL(sipDialogContent.data()));
 #endif            
             sipDialog.getRemoteRequestUri(entity);
             
             OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer:: Call arrived: callId %s address %s requestUrl %s", 
-                          callId.data(), address.data(), entity.data());
+                          SIPX_SAFENULL(callId.data()), SIPX_SAFENULL(address.data()), SIPX_SAFENULL(entity.data()));
 
             if (entity.isNull())
             {
                OsSysLog::add(FAC_SIP, PRI_WARNING, "PresenceDialInServer:: Call arrived: callId %s address %s without requestUrl", 
-                             callId.data(), address.data());
+                             SIPX_SAFENULL(callId.data()), SIPX_SAFENULL(address.data()));
             }
 
             break;
@@ -215,17 +215,17 @@ UtlBoolean PresenceDialInServer::handleMessage(OsMsg& rMsg)
 #ifdef DEBUGGING            
                sipDialog.toString(sipDialogContent);
                OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer:: sipDialog = %s", 
-                             sipDialogContent.data());
+                             SIPX_SAFENULL(sipDialogContent.data()));
 #endif            
                sipDialog.getRemoteRequestUri(entity);
 
                OsSysLog::add(FAC_SIP, PRI_DEBUG, "Call connected: callId %s address %s with request %s",
-                             callId.data(), address.data(), entity.data());
+                             SIPX_SAFENULL(callId.data()), SIPX_SAFENULL(address.data()), SIPX_SAFENULL(entity.data()));
 
                if (entity.isNull())
                {
                   OsSysLog::add(FAC_SIP, PRI_WARNING, "PresenceDialInServer:: Call connected: callId %s address %s without requestUrl", 
-                                callId.data(), address.data());
+                                SIPX_SAFENULL(callId.data()), SIPX_SAFENULL(address.data()));
                }
                else
                {
@@ -239,7 +239,7 @@ UtlBoolean PresenceDialInServer::handleMessage(OsMsg& rMsg)
                   contactUrl = Url(address);
                   contactUrl.getIdentity(contact);
                   OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer:: contact %s request for %s",
-                                contact.data(), featureCode.data());
+                                SIPX_SAFENULL(contact.data()), SIPX_SAFENULL(featureCode.data()));
                   
                   if (featureCode.compareTo(mSignInFC) == 0)
                   {
@@ -281,7 +281,7 @@ UtlBoolean PresenceDialInServer::handleMessage(OsMsg& rMsg)
                                                     FALSE, FALSE, TRUE);
                         }
                         OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer:: contact %s has already signed in",
-                                      contact.data());
+                                      SIPX_SAFENULL(contact.data()));
                      }                        
                   }
                   
@@ -323,7 +323,7 @@ UtlBoolean PresenceDialInServer::handleMessage(OsMsg& rMsg)
                                                     FALSE, FALSE, TRUE);
                         }
                         OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer:: contact %s has already signed out",
-                                      contact.data());
+                                      SIPX_SAFENULL(contact.data()));
                      }
                   }
                   
@@ -341,18 +341,18 @@ UtlBoolean PresenceDialInServer::handleMessage(OsMsg& rMsg)
 #ifdef DEBUGGING            
                sipDialog.toString(sipDialogContent);
                OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer:: sipDialog = %s", 
-                             sipDialogContent.data());
+                             SIPX_SAFENULL(sipDialogContent.data()));
 #endif            
                sipDialog.getLocalContact(requestUrl);
                requestUrl.getIdentity(entity);
 
                OsSysLog::add(FAC_SIP, PRI_DEBUG, "Call dropped: %s address %s with entity %s",
-                             callId.data(), address.data(), entity.data());
+                             SIPX_SAFENULL(callId.data()), SIPX_SAFENULL(address.data()), SIPX_SAFENULL(entity.data()));
 
                if (entity.isNull())
                {
                   OsSysLog::add(FAC_SIP, PRI_WARNING, "PresenceDialInServer:: Call dropped: callId %s address %s without requestUrl", 
-                                callId.data(), address.data());
+                                SIPX_SAFENULL(callId.data()), SIPX_SAFENULL(address.data()));
                }
                
                // Remove the CallContainer object from the call list
@@ -362,7 +362,7 @@ UtlBoolean PresenceDialInServer::handleMessage(OsMsg& rMsg)
             break;
             
          case PtEvent::CONNECTION_FAILED:
-            OsSysLog::add(FAC_SIP, PRI_WARNING, "Connection failed on call: %s", callId.data());
+            OsSysLog::add(FAC_SIP, PRI_WARNING, "Connection failed on call: %s", SIPX_SAFENULL(callId.data()));
 
             break;
       }
@@ -411,7 +411,7 @@ void PresenceDialInServer::dumpTaoMessageArgs(unsigned char eventId, TaoString& 
    int argc = args.getCnt();
    for(int argIndex = 0; argIndex < argc; argIndex++)
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "\targ[%d]=\"%s\"", argIndex, args[argIndex]);
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "\targ[%d]=\"%s\"", argIndex, SIPX_SAFENULL(args[argIndex]));
    }
 }
 

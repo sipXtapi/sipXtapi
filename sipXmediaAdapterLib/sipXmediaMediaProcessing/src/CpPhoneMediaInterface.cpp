@@ -198,7 +198,7 @@ CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFacto
        
        OsSysLog::add(FAC_CP, PRI_DEBUG,
                      "CpPhoneMediaInterface::CpPhoneMediaInterface creating codec factory with %s",
-                     codecList.data());
+                     SIPX_SAFENULL(codecList.data()));
 
        // Assign any unset payload types
        mSupportedCodecs.bindPayloadTypes();
@@ -214,7 +214,7 @@ CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFacto
        
        UtlString codecs = "PCMU PCMA TELEPHONE-EVENT";
        OsSysLog::add(FAC_CP, PRI_WARNING, "CpPhoneMediaInterface::CpPhoneMediaInterface hard-coded codec factory %s ...",
-                     codecs.data());
+                     SIPX_SAFENULL(codecs.data()));
        mSupportedCodecs.buildSdpCodecFactory(codecs);
    }
 
@@ -466,7 +466,7 @@ OsStatus CpPhoneMediaInterface::setConnectionDestination(int connectionId,
 #ifdef TEST_PRINT
           OsSysLog::add(FAC_CP, PRI_DEBUG, "Setting RTP socket destination id: %d address: %s port:"
              " %d socket: %p descriptor: %d\n", 
-             connectionId, remoteRtpHostAddress, remoteAudioRtpPort, 
+             connectionId, SIPX_SAFENULL(remoteRtpHostAddress), remoteAudioRtpPort, 
              mediaConnection->mpRtpSocket, mediaConnection->mpRtpSocket->getSocketDescriptor());
           //assert( strcmp(remoteRtpHostAddress, "0.0.0.0"));
 #endif
@@ -478,7 +478,7 @@ OsStatus CpPhoneMediaInterface::setConnectionDestination(int connectionId,
 #ifdef TEST_PRINT
           OsSysLog::add(FAC_CP, PRI_DEBUG, "Setting RTCP socket destination id: %d address: %s port:"
              " %d socket: %p descriptor: %d\n", 
-             connectionId, remoteRtpHostAddress, remoteAudioRtpPort, 
+             connectionId, SIPX_SAFENULL(remoteRtpHostAddress), remoteAudioRtpPort, 
              mediaConnection->mpRtcpSocket, mediaConnection->mpRtcpSocket->getSocketDescriptor());
           //assert( strcmp(remoteRtpHostAddress, "0.0.0.0"));
 #endif
@@ -561,7 +561,7 @@ OsStatus CpPhoneMediaInterface::startRtpSend(int connectionId,
       }
 /*
       osPrintf("%d%s", sendCodecs[i]->getValue(),
-                     ((numCodecs-1)==i) ? " })\n":", ");
+                     SIPX_SAFENULL(((numCodecs-1)==i) ? " })\n":", "));
 */
    }
    if(mpFlowGraph && mediaConnection)
@@ -604,8 +604,8 @@ OsStatus CpPhoneMediaInterface::startRtpSend(int connectionId,
       UtlString dtmfCodecString;
       if(dtmfCodec) dtmfCodec->toString(dtmfCodecString);
       OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::startRtpSend %s using DTMF codec: %s\n",
-         dtmfCodec ? "" : "NOT ",
-         dtmfCodecString.data());
+         SIPX_SAFENULL(dtmfCodec ? "" : "NOT "),
+         SIPX_SAFENULL(dtmfCodecString.data()));
 #endif
 
       if (!mediaConnection->mRtpSendHostAddress.isNull() && mediaConnection->mRtpSendHostAddress.compareTo("0.0.0.0"))
@@ -641,7 +641,7 @@ OsStatus CpPhoneMediaInterface::startRtpReceive(int connectionId,
       int i;
 
       OsSysLog::add(FAC_CP, PRI_DEBUG, "Start Receiving RTP/RTCP, %d codec%s; sockets: %p/%p descriptors: %d/%d\n",
-           numCodecs, ((1==numCodecs)?"":"s"),
+           numCodecs, SIPX_SAFENULL(((1==numCodecs)?"":"s")),
            (mediaConnection->mpRtpSocket),
            (mediaConnection->mpRtcpSocket),
            mediaConnection->mpRtpSocket->getSocketDescriptor(),
@@ -814,7 +814,7 @@ OsStatus CpPhoneMediaInterface::playAudio(const char* url,
 
     if(returnCode != OS_SUCCESS)
     {
-        osPrintf("Cannot play audio file: %s\n", urlString.data());
+        osPrintf("Cannot play audio file: %s\n", SIPX_SAFENULL(urlString.data()));
     }
 
     return(returnCode);

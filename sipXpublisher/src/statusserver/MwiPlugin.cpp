@@ -106,7 +106,7 @@ MwiPlugin::handleSubscribeRequest (
     }
 
     OsSysLog::add(FAC_SIP, PRI_DEBUG, "MwiPlugin::handleSubscribeRequest() -"
-        " Subscription for %s successfully added", mailboxUrl.toString().data());
+        " Subscription for %s successfully added", SIPX_SAFENULL(mailboxUrl.toString().data()));
 
     Url voicemailCGIUrl ( mVoicemailCGIUrl );
 
@@ -135,7 +135,7 @@ MwiPlugin::handleSubscribeRequest (
             httpResponse.getBytes( &rspMsg, &rspLength );
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "MwiPlugin::handleEvent() - voicemailCGI response:\n%s"
-                          ,rspMsg.data()
+                          ,SIPX_SAFENULL(rspMsg.data())
                           );
           }
 
@@ -204,7 +204,7 @@ MwiPlugin::handleSubscribeRequest (
                   {
                     OsSysLog::add(FAC_SIP, PRI_WARNING,
                                   "MwiPlugin::handleEvent() - voicemailCGI response not valid: %s"
-                                  ,buffer.data()
+                                  ,SIPX_SAFENULL(buffer.data())
                                   );
                   }
               }
@@ -250,7 +250,7 @@ MwiPlugin::handleEvent (
     if( !identityUrlStr.isNull())
     {
        OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                     "MwiPlugin::handleEvent notice for '%s'", identityUrlStr.data());
+                     "MwiPlugin::handleEvent notice for '%s'", SIPX_SAFENULL(identityUrlStr.data()));
 
         // Extract just the identity part from the IDENTITY
         // a user may specify all sorts of displayname and field
@@ -300,7 +300,7 @@ MwiPlugin::handleEvent (
                  OsSysLog::add(FAC_SIP, PRI_ERR,
                                "MwiPlugin::handleEvent request body is not a valid notice\n"
                                "======\n%s\n======",
-                               buffer.data()
+                               SIPX_SAFENULL(buffer.data())
                                );
               }
            }
@@ -310,7 +310,7 @@ MwiPlugin::handleEvent (
                             "MwiPlugin::handleEvent request body is not type '"
                             CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY "'\n"
                             "Content-Type: '%s'",
-                            bodyType.data()
+                            SIPX_SAFENULL(odyType.data())
                             );
            }
         }

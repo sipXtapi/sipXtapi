@@ -398,25 +398,25 @@ res_time(int value)
 #define PLURALIZE(x)    x, (x == 1) ? "" : "s"
         p = retbuf;
         if (days) {
-                (void)sprintf(p, "%d day%s", PLURALIZE(days));
+                (void)sprintf(p, "%d day%s", SIPX_SAFENULL(PLURALIZE(days)));
                 while (*++p);
         }
         if (hours) {
                 if (days)
                         *p++ = ' ';
-                (void)sprintf(p, "%d hour%s", PLURALIZE(hours));
+                (void)sprintf(p, "%d hour%s", SIPX_SAFENULL(PLURALIZE(hours)));
                 while (*++p);
         }
         if (mins) {
                 if (days || hours)
                         *p++ = ' ';
-                (void)sprintf(p, "%d min%s", PLURALIZE(mins));
+                (void)sprintf(p, "%d min%s", SIPX_SAFENULL(PLURALIZE(mins)));
                 while (*++p);
         }
         if (secs || ! (days || hours || mins)) {
                 if (days || hours || mins)
                         *p++ = ' ';
-                (void)sprintf(p, "%d sec%s", PLURALIZE(secs));
+                (void)sprintf(p, "%d sec%s", SIPX_SAFENULL(PLURALIZE(secs)));
         }
         return(retbuf);
 }

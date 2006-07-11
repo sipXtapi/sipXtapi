@@ -72,7 +72,7 @@ OsStatus StreamHttpDataSource::open()
 #ifdef MP_STREAM_DEBUG /* [ */
    UtlString url ;
    m_url.toString(url) ;   
-   osPrintf("StreamHttpDataSource: Open %s\n", url.data()) ;
+   osPrintf("StreamHttpDataSource: Open %s\n", SIPX_SAFENULL(url.data())) ;
 #endif /* MP_STREAM_DEBUG ] */
 
    mSemGuardStartClose.acquire() ;
@@ -120,7 +120,7 @@ OsStatus StreamHttpDataSource::close()
 #ifdef MP_STREAM_DEBUG /* [ */
       UtlString url ;
       m_url.toString(url) ;   
-      osPrintf("StreamHttpDataSource: Close %s\n", url.data()) ;
+      osPrintf("StreamHttpDataSource: Close %s\n", SIPX_SAFENULL(url.data())) ;
 #endif /* MP_STREAM_DEBUG ] */
       interrupt() ;
 

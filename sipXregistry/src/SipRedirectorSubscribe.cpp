@@ -87,7 +87,7 @@ SipRedirectorSubscribe::lookUp(
          OsSysLog::add(FAC_SIP, PRI_NOTICE,
                        "SipRedirectorSubscribe::lookUp Remove q value "
                        "'%s' from '%s'",
-                       qValue.data(), contactUriString.data());
+                       SIPX_SAFENULL(qValue.data()), SIPX_SAFENULL(contactUriString.data()));
       }
    } // for all contacts
 

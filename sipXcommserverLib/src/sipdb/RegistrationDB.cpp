@@ -111,7 +111,7 @@ RegistrationDB::RegistrationDB( const UtlString& name ) :
     grVerboseLoggingEnabled = SIPDBManager::isVerboseLoggingEnabled();
     if (grVerboseLoggingEnabled)
         OsSysLog::add(FAC_DB, PRI_DEBUG, "RegistrationDB::_  user=%d \"%s\"",
-                    users, name.data());
+                    users, SIPX_SAFENULL(name.data()));
     if ( users == 1 )
     {
         // Load the file implicitly
@@ -161,7 +161,7 @@ RegistrationDB::load()
                 OsPath::separator + mDatabaseName + ".xml";
 
         OsSysLog::add(FAC_DB, PRI_DEBUG, "RegistrationDB::load loading \"%s\"",
-                    fileName.data());
+                    SIPX_SAFENULL(fileName.data()));
 
         TiXmlDocument doc ( fileName );
 
@@ -222,7 +222,7 @@ RegistrationDB::load()
         } else
         {
             OsSysLog::add(FAC_DB, PRI_WARNING, "RegistrationDB::load failed to load \"%s\"",
-                    fileName.data());
+                    SIPX_SAFENULL(fileName.data()));
         }
     } else
     {
@@ -451,7 +451,7 @@ RegistrationDB::updateBinding( const Url& uri
                 // Should not happen - there should either be 1 or none
                 OsSysLog::add( FAC_SIP, PRI_ERR,
                               "RegistrationDB::updateBinding %d bindings for %s -> %s"
-                              ,existingBinding, identity.data(), contact.data()
+                              ,existingBinding, SIPX_SAFENULL(identity.data()), SIPX_SAFENULL(contact.data())
                               );
                 // recover by clearing them out
                 cursor.removeAllSelected();
@@ -492,7 +492,7 @@ RegistrationDB::updateBinding( const Url& uri
     {
         OsSysLog::add( FAC_SIP, PRI_ERR,
                       "RegistrationDB::updateBinding bad state %s %p"
-                      ,identity.data(), m_pFastDB
+                      ,SIPX_SAFENULL(identity.data()), m_pFastDB
                       );
     }
 }
@@ -744,7 +744,7 @@ RegistrationDB::getNextUpdateForRegistrar(const UtlString& primaryRegistrar,
             ,"RegistrationDB::getNextUpdateForRegistrar"
             " found %d rows for %s with updateNumber > %0#16llx"
             ,numRows
-            ,primaryRegistrar.data()
+            ,SIPX_SAFENULL(primaryRegistrar.data())
             ,updateNumber);
       }   
    }
@@ -766,7 +766,7 @@ RegistrationDB::getNewUpdatesForRegistrar(const UtlString& primaryRegistrar,
          ,"RegistrationDB::getNewUpdatesForRegistrar"
          " found %d rows for %s with updateNumber > %0#16llx"
          ,numRows
-         ,primaryRegistrar.data()
+         ,SIPX_SAFENULL(primaryRegistrar.data())
          ,updateNumber);
    }   
    return numRows;
@@ -814,7 +814,7 @@ RegistrationDB::getUnexpiredContacts (
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
                       "RegistrationDB::getUnexpiredContacts "
                       "identity = '%s'",
-                      identity.data());
+                      SIPX_SAFENULL(identity.data()));
         if (strncmp(identity.data(), GRUU_PREFIX,
                     sizeof (GRUU_PREFIX) - 1) == 0)
         {
@@ -850,8 +850,8 @@ RegistrationDB::getUnexpiredContacts (
                               "RegistrationDB::getUnexpiredContacts Record found "
                               "uri = '%s', contact = '%s', instance_id = '%s', "
                               "gruu = '%s'",
-                              uriValue->data(), contactValue->data(),
-                              instanceIdValue->data(), gruuValue->data());
+                              SIPX_SAFENULL(uriValue->data()), SIPX_SAFENULL(contactValue->data()),
+                              SIPX_SAFENULL(instanceIdValue->data()), SIPX_SAFENULL(gruuValue->data()));
 
                 // Memory Leak fixes, make shallow copies of static keys
                 UtlString* uriKey = new UtlString(gUriKey);

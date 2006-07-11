@@ -52,7 +52,7 @@ ExtensionDB::ExtensionDB( const UtlString& name ) :
     geVerboseLoggingEnabled = SIPDBManager::isVerboseLoggingEnabled();
     if (geVerboseLoggingEnabled)
         OsSysLog::add(FAC_DB, PRI_DEBUG, "ExtensionDB::_  user=%d \"%s\"",
-                    users, name.data());
+                    users, SIPX_SAFENULL(name.data()));
     if ( users == 1 )
     {
         // Load the file implicitly
@@ -108,7 +108,7 @@ ExtensionDB::load()
                 OsPath::separator + mDatabaseName + ".xml";
 
         OsSysLog::add(FAC_DB, PRI_DEBUG, "ExtensionDB::load loading \"%s\"",
-                    fileName.data());
+                    SIPX_SAFENULL(fileName.data()));
 
         TiXmlDocument doc ( fileName );
 
@@ -173,7 +173,7 @@ ExtensionDB::load()
         } else 
         {
             OsSysLog::add(FAC_SIP, PRI_WARNING, "ExtensionDB::load failed to load \"%s\"",
-                    fileName.data());
+                    SIPX_SAFENULL(fileName.data()));
         }
     } else
     {

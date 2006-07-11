@@ -105,25 +105,25 @@ public:
                 {
                     memset(msg, 0, sizeof(msg));
                     sprintf(msg, "For %s, verify token number %d", 
-                        testSet[i].testDescription, actualCount);
+                        SIPX_SAFENULL(testSet[i].testDescription), actualCount);
                     ASSERT_STR_EQUAL_MESSAGE(msg, "---", tok.data());
                     actualCount++;
                    
                     memset(msg, 0, sizeof(msg));
                     sprintf (msg, "For %s, verify return value for token number %d", 
-                        testSet[i].testDescription, actualCount); 
+                        SIPX_SAFENULL(testSet[i].testDescription), actualCount); 
                     CPPUNIT_ASSERT_MESSAGE(msg, (TRUE == bSuccess)) ; 
                 }
                 else 
                 {
                     memset(msg, 0, sizeof(msg));
                     sprintf (msg, "For %s, verify return value after all tokens", 
-                        testSet[i].testDescription); 
+                        SIPX_SAFENULL(testSet[i].testDescription)); 
                     CPPUNIT_ASSERT_MESSAGE(msg, !((TRUE == bSuccess))) ; 
                 }
             }
             memset(msg, 0, sizeof(msg));
-            sprintf(msg, "For %s, verify number of tokens", testSet[i].testDescription);
+            sprintf(msg, "For %s, verify number of tokens", SIPX_SAFENULL(testSet[i].testDescription));
             CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, testSet[i].expectedCount, actualCount);
         }
     }

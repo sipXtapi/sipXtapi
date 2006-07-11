@@ -151,7 +151,7 @@ UtlBoolean SipPublishContentMgr::publish(const char* resourceId,
 {
 #ifdef TEST_PRINT
     osPrintf("SipPublishContentMgr::publish(%s, %s, %s, %d, [%p], ...)\n",
-        resourceId, eventTypeKey, eventType, numContentTypes, eventContent[0]);
+        SIPX_SAFENULL(resourceId), SIPX_SAFENULL(eventTypeKey), SIPX_SAFENULL(eventType), numContentTypes, eventContent[0]);
 #endif
 
     UtlBoolean contentAdded = FALSE;
@@ -334,7 +334,7 @@ UtlBoolean SipPublishContentMgr::setContentChangeObserver(const char* eventType,
     {
         OsSysLog::add(FAC_SIP, PRI_ERR,
             "SipPublishContentMgr::setContentChangeObserver ignored, callback already exists for event: %s",
-            eventType ? eventType : "<null>");
+            SIPX_SAFENULL(eventType));
     }
 
     else
@@ -388,7 +388,7 @@ UtlBoolean SipPublishContentMgr::removeContentChangeObserver(const char* eventTy
     {
         OsSysLog::add(FAC_SIP, PRI_ERR,
             "SipPublishContentMgr::setContentChangeObserver ignored, no callback exists for event: %s",
-            eventType ? eventType : "<null>");
+            SIPX_SAFENULL(eventType));
     }
 
     unlock();
@@ -407,7 +407,7 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
 {
 #ifdef TEST_PRINT
     osPrintf("SipPublishContentMgr::getContent(%s, %s, %s, ...)\n",
-        resourceId, eventTypeKey, acceptHeaderValue);
+        SIPX_SAFENULL(resourceId), SIPX_SAFENULL(eventTypeKey), SIPX_SAFENULL(acceptHeaderValue));
 #endif
 
     UtlBoolean foundContent = FALSE;

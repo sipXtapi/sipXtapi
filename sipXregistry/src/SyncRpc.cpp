@@ -116,7 +116,7 @@ RegistrarPeer* SyncRpcMethod::validCaller(
             // all is well
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SyncRpc::validCaller '%s' peer authenticated for %s",
-                          peerName.data(), callingMethod
+                          SIPX_SAFENULL(peerName.data()), SIPX_SAFENULL(callingMethod)
                           );
          }
          else
@@ -127,7 +127,7 @@ RegistrarPeer* SyncRpcMethod::validCaller(
              */
             OsSysLog::add(FAC_SIP, PRI_ERR,
                           "%s not accepted from Incompatible peer '%s'",
-                          callingMethod, peerName.data()
+                          SIPX_SAFENULL(callingMethod), SIPX_SAFENULL(peerName.data())
                           );
             UtlString faultMsg;
             faultMsg.append("RegistrarPeer state for '");
@@ -149,7 +149,7 @@ RegistrarPeer* SyncRpcMethod::validCaller(
             
          OsSysLog::add(FAC_SIP, PRI_ERR,
                        "%s failed - '%s' not a configured peer",
-                       callingMethod, peerName.data()
+                       SIPX_SAFENULL(callingMethod), SIPX_SAFENULL(peerName.data())
                        );
       }
    }
@@ -162,7 +162,7 @@ RegistrarPeer* SyncRpcMethod::validCaller(
             
       OsSysLog::add(FAC_SIP, PRI_ERR,
                     "%s failed: '%s' failed SSL authentication",
-                    callingMethod, peerName.data()
+                    SIPX_SAFENULL(callingMethod), SIPX_SAFENULL(peerName.data())
                     );
    }
    
@@ -230,7 +230,7 @@ bool SyncRpcReset::execute(const HttpRequestContext& requestContext, ///< reques
             response.setResponse(&returnedUpdateNumber);
             OsSysLog::add(FAC_SIP, PRI_NOTICE,
                           "registerSync.reset received from '%s'; update numbering synchronized.",
-                          callingRegistrar->data()
+                          SIPX_SAFENULL(callingRegistrar->data())
                           );
             status = XmlRpcMethod::OK;
             result = true;
@@ -302,7 +302,7 @@ SyncRpcReset::invoke(const char*    myName, ///< primary name of the caller
          OsSysLog::add(FAC_SIP, PRI_CRIT,
                        "SyncRpcReset::invoke : no update number returned : "
                        " %s marked incompatible for replication",
-                       peer.name()
+                       SIPX_SAFENULL(peer.name())
                        );
          assert(false); // bad xmlrpc response
          resultState = RegistrarPeer::Incompatible;
@@ -318,7 +318,7 @@ SyncRpcReset::invoke(const char*    myName, ///< primary name of the caller
       OsSysLog::add(FAC_SIP, PRI_ERR,
                     "SyncRpcReset::invoke : fault %d %s"
                     " %s is now marked UnReachable",
-                    faultCode, faultText.data(), peer.name()
+                    faultCode, SIPX_SAFENULL(faultText.data()), SIPX_SAFENULL(peer.name())
                     );
       resultState = RegistrarPeer::UnReachable;
    }
@@ -421,7 +421,7 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
                   {
                      OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                    "SyncRpcPullUpdates::invoke : '%s' returned %d updates",
-                                   source->name(), actualUpdateCount
+                                   SIPX_SAFENULL(source->name()), actualUpdateCount
                                    );
 
                      UtlSListIterator updates(*responseUpdates);
@@ -440,7 +440,7 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
                                    " %s marked incompatible for replication",
                                    numUpdates->getValue(),
                                    responseUpdates->entries(),
-                                   source->name()
+                                   SIPX_SAFENULL(source->name())
                                    );
                      assert(false); // bad xmlrpc response
                      resultState = RegistrarPeer::Incompatible;
@@ -452,7 +452,7 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
                   OsSysLog::add(FAC_SIP, PRI_CRIT,
                                 "SyncRpcPullUpdates::invoke : no updates element found  "
                                 " %s marked incompatible for replication",
-                                source->name()
+                                SIPX_SAFENULL(source->name())
                                 );
                   assert(false); // bad xmlrpc response
                   resultState = RegistrarPeer::Incompatible;
@@ -464,7 +464,7 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
                // no updates - all is well
                OsSysLog::add(FAC_SIP, PRI_DEBUG,
                              "SyncRpcPullUpdates::invoke : no updates returned by '%s'",
-                             source->name()
+                             SIPX_SAFENULL(source->name())
                              );
             }
          }
@@ -473,7 +473,7 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
             OsSysLog::add(FAC_SIP, PRI_CRIT,
                           "SyncRpcPullUpdates::invoke : no numUpdates element found : "
                           " %s marked incompatible for replication",
-                          source->name()
+                          SIPX_SAFENULL(source->name())
                           );
             assert(false); // bad xmlrpc response
             resultState = RegistrarPeer::Incompatible;
@@ -485,7 +485,7 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
          OsSysLog::add(FAC_SIP, PRI_CRIT,
                        "SyncRpcPullUpdates::invoke : no response data returned : "
                        " %s marked incompatible for replication",
-                       source->name()
+                       SIPX_SAFENULL(source->name())
                        );
          assert(false); // bad xmlrpc response
          resultState = RegistrarPeer::Incompatible;
@@ -502,7 +502,7 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
       OsSysLog::add(FAC_SIP, PRI_ERR,
                     "SyncRpcPullUpdates::invoke : fault %d %s"
                     " %s is now marked UnReachable",
-                    faultCode, faultText.data(), source->name()
+                    faultCode, SIPX_SAFENULL(faultText.data()), SIPX_SAFENULL(source->name())
                     );
       source->markUnReachable();
       resultState = RegistrarPeer::UnReachable;
@@ -939,7 +939,7 @@ SyncRpcPushUpdates::invoke(RegistrarPeer* peer,       ///< peer to push to
          OsSysLog::add(FAC_SIP, PRI_CRIT,
                        "SyncRpcPushUpdates::invoke : invalid response "
                        " %s marked incompatible for replication",
-                       peer->name()
+                       SIPX_SAFENULL(peer->name())
                        );
          assert(false);    // bad XML-RPC response
          resultState = RegistrarPeer::Incompatible;

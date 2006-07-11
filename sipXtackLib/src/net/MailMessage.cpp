@@ -30,6 +30,7 @@
 
 #include "net/MailMessage.h"
 #include "os/OsConnectionSocket.h"
+#include "os/OsDefs.h"
 
 UtlString CRLF = "\r\n";
 UtlString CRLFCRLF = "\r\n\r\n";
@@ -262,9 +263,9 @@ UtlString MailMessage::FormatForSending()
                       "Aug","Sep","Oct","Nov","Dec" };
     char buf[128];
     wsprintf(buf, "Date: %s, %u %s %u %02u:%02u:%02u %c%02u%02u",
-        day[now.wDayOfWeek],
+        SIPX_SAFENULL(day[now.wDayOfWeek]),
         now.wDay,
-        month[now.wMonth],
+        SIPX_SAFENULL(month[now.wMonth]),
         now.wYear,
         now.wHour,
         now.wMinute,
@@ -274,7 +275,7 @@ UtlString MailMessage::FormatForSending()
         abs(tzinfo.Bias%60));
 */
     char buf[128];
-    sprintf(buf, "Date: %s",dateString.data());
+    sprintf(buf, "Date: %s",SIPX_SAFENULL(dateString.data()));
 
     data += buf + CRLF;
 

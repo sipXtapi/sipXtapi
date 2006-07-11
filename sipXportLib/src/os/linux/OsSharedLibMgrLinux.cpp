@@ -81,13 +81,13 @@ OsStatus OsSharedLibMgrLinux::loadSharedLib(const char* libName)
         {
             OsSysLog::add(FAC_KERNEL, PRI_ERR,
                 "Failed to load shared library: %s error: %s",
-                libName, dlerror());
+                SIPX_SAFENULL(libName), SIPX_SAFENULL(dlerror()));
             status = OS_NOT_FOUND;
         }
         else
         {
             OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                 "Loaded shared lib \"%s\" handle: %p", libName ? libName : "(null)",
+                 "Loaded shared lib \"%s\" handle: %p", SIPX_SAFENULL(libName),
                   libHandle);
             OsSharedLibHandleLinux* collectableHandle =
                 new OsSharedLibHandleLinux(libName,
@@ -127,7 +127,7 @@ OsStatus OsSharedLibMgrLinux::getSharedLibSymbol(const char* libName,
 
         OsSysLog::add(FAC_KERNEL, PRI_DEBUG, 
              "OsSharedLibMgrLinux::getSharedLibSymbol library: \"%s\" not loaded yet, attempting to load",
-                     collectableName.data());
+                     SIPX_SAFENULL(collectableName.data()));
         sLock.release();
         loadSharedLib(libName);
         sLock.acquire();
@@ -145,7 +145,7 @@ OsStatus OsSharedLibMgrLinux::getSharedLibSymbol(const char* libName,
         {
             OsSysLog::add(FAC_KERNEL, PRI_ERR, 
                 "Failed to find symbol: %s in shared lib: %s error: %s",
-                symbolName, libName ? libName : "(null)", dlerror());
+                SIPX_SAFENULL(symbolName), SIPX_SAFENULL(libName),SIPX_SAFENULL(dlerror()));
 
             status = OS_NOT_FOUND;
         }
@@ -153,7 +153,7 @@ OsStatus OsSharedLibMgrLinux::getSharedLibSymbol(const char* libName,
         {
             OsSysLog::add(FAC_KERNEL, PRI_DEBUG, 
                 "Found symbol: %s in shared lib: %s",
-                symbolName, libName ? libName : "(null)");
+                SIPX_SAFENULL(symbolName),SIPX_SAFENULL(libName));
             status = OS_SUCCESS;
         }
 
@@ -162,7 +162,7 @@ OsStatus OsSharedLibMgrLinux::getSharedLibSymbol(const char* libName,
     {
         OsSysLog::add(FAC_KERNEL, PRI_ERR,
                 "Could not find or create handle for shared library: \'%s\'",
-                libName ? libName : "(null)");
+                SIPX_SAFENULL(libName));
     } 
 
     sLock.release();

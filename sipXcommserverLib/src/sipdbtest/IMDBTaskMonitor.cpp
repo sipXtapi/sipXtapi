@@ -134,8 +134,8 @@ IMDBTaskMonitor::handleMessage ( OsMsg &rMsg )
                 // we'll eventually be killed by the restart script
                 // it is important not to exit here as the watchdog will notice and
                 // restart us
-                osPrintf( "'%s' command [FAILED]\n", mCommandName.data() );
-                OsSysLog::add( LOG_FACILITY, PRI_DEBUG, "'%s' command [FAILED]\n", mCommandName.data() );
+                osPrintf( "'%s' command [FAILED]\n", SIPX_SAFENULL(mCommandName.data()) );
+                OsSysLog::add( LOG_FACILITY, PRI_DEBUG, "'%s' command [FAILED]\n", SIPX_SAFENULL(mCommandName.data()) );
 
                 // timer expired waiting for the Ping command to complete
                 if ( mCommandName.compareTo("heartbeat", UtlString::ignoreCase) == 0 )
@@ -167,16 +167,16 @@ IMDBTaskMonitor::handleMessage ( OsMsg &rMsg )
     {
         // command completed successfully
         mCommandCompleted = TRUE;
-        osPrintf ("%s [OK]\n", mCommandName.data());
-        OsSysLog::add(LOG_FACILITY, PRI_DEBUG, "%s [OK]\n", mCommandName.data());
+        osPrintf ("%s [OK]\n", SIPX_SAFENULL(mCommandName.data()));
+        OsSysLog::add(LOG_FACILITY, PRI_DEBUG, "%s [OK]\n", SIPX_SAFENULL(mCommandName.data()));
         setErrno (0);
     } else if ( (rMsg.getMsgType() == OsMsg::USER_START) && (rMsg.getMsgSubType() == USER_IMPORT_SUCCESS_EVENT) )
     {
         // import command completed
         mCommandCompleted = TRUE;
         mpWatchDogTimer->stop();
-        osPrintf ("%s [OK]\n", mCommandName.data());
-        OsSysLog::add(LOG_FACILITY, PRI_DEBUG, "%s [OK]\n", mCommandName.data());
+        osPrintf ("%s [OK]\n", SIPX_SAFENULL(mCommandName.data()));
+        OsSysLog::add(LOG_FACILITY, PRI_DEBUG, "%s [OK]\n", SIPX_SAFENULL(mCommandName.data()));
         setErrno (0);
         gShutdownFlag = TRUE;
     } else if ( (rMsg.getMsgType() == OsMsg::USER_START) && (rMsg.getMsgSubType() == USER_DISPLAY_SUCCESS_EVENT) )
@@ -184,8 +184,8 @@ IMDBTaskMonitor::handleMessage ( OsMsg &rMsg )
         // display command completed
         mCommandCompleted = TRUE;
         mpWatchDogTimer->stop();
-        osPrintf ("%s [OK]\n", mCommandName.data());
-        OsSysLog::add(LOG_FACILITY, PRI_DEBUG, "%s [OK]\n", mCommandName.data());
+        osPrintf ("%s [OK]\n", SIPX_SAFENULL(mCommandName.data()));
+        OsSysLog::add(LOG_FACILITY, PRI_DEBUG, "%s [OK]\n", SIPX_SAFENULL(mCommandName.data()));
         setErrno (0);
         gShutdownFlag = TRUE;
     }

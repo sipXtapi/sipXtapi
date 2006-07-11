@@ -87,7 +87,7 @@ void RegistrarInitialSync::restorePeerUpdateNumbers()
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "RegistrarInitialSync::restorePeerUpdateNumbers "
                     "for peer '%s' last received update # = %0#16llx",
-                    name, maxUpdateNumber);
+                    SIPX_SAFENULL(name), maxUpdateNumber);
    }
 }
 
@@ -135,14 +135,14 @@ void RegistrarInitialSync::pullLocalUpdatesFromPeers()
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "RegistrarInitialSync::pullLocalUpdatesFromPeers "
                           "received %d local updates from peer '%s'",
-                          bindings.entries(), peer->name());
+                          bindings.entries(), SIPX_SAFENULL(peer->name()));
          }
          else
          {
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "RegistrarInitialSync::pullPeerUpdatesFromPeers "
                           "'%s' is %s",
-                          peer->name(), peer->getStateName());
+                          SIPX_SAFENULL(peer->name()), SIPX_SAFENULL(peer->getStateName()));
          }
 
          bindings.destroyAll();
@@ -179,14 +179,14 @@ void RegistrarInitialSync::pullPeerUpdatesFromPeers()
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "RegistrarInitialSync::pullPeerUpdatesFromPeers "
                           "received %d peer updates from peer '%s'",
-                          bindings.entries(), peer->name());
+                          bindings.entries(), SIPX_SAFENULL(peer->name()));
          }
          else
          {
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "RegistrarInitialSync::pullPeerUpdatesFromPeers "
                           "'%s' is %s",
-                          peer->name(), peer->getStateName());
+                          SIPX_SAFENULL(peer->name()), SIPX_SAFENULL(peer->getStateName()));
          }
       }
    }
@@ -235,15 +235,15 @@ void RegistrarInitialSync::recoverUnReachablePeers()
                                 "RegistrarInitialSync::recoverUnReachablePeers "
                                 "received %d peer updates from peer '%s' for peer '%s'",
                                 bindings.entries(),
-                                reachablePeer->name(),
-                                unreachablePeer->name());
+                                SIPX_SAFENULL(reachablePeer->name()),
+                                SIPX_SAFENULL(unreachablePeer->name()));
                }
                else
                {
                   OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                 "RegistrarInitialSync::recoverUnReachablePeers "
                                 "'%s' is %s",
-                                reachablePeer->name(), reachablePeer->getStateName());
+                                SIPX_SAFENULL(reachablePeer->name()), SIPX_SAFENULL(reachablePeer->getStateName()));
                }
             }
          }

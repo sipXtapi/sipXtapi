@@ -170,7 +170,7 @@ int main(int argc, char* argv[])
 //                           "command=stop process=aliasName (to stop a process)\n<BR>"
 //                           "command=status (to see process status)\n<BR>";
 //            osPrintf("Content-type: text/html\n\n");
-//            osPrintf("%s\n",gstrErrorMsg.data());
+//            osPrintf("%s\n",SIPX_SAFENULL(gstrErrorMsg.data()));
 //            return 0;
 //        }
         } /* end try */
@@ -178,9 +178,9 @@ int main(int argc, char* argv[])
         {
             /* print a mimimalist error message */
             osPrintf("Content-Type: text/plain\n\n");
-            osPrintf("processcgi exception: %s", e.what());
+            osPrintf("processcgi exception: %s", SIPX_SAFENULL(e.what()));
             OsSysLog::add(FAC_PROCESSCGI,PRI_ERR,"ERROR: processcgi exception %s\n",
-                          e.what());
+                          SIPX_SAFENULL(e.what()));
         }
     } 
     else //we must not be under a server
@@ -222,7 +222,7 @@ int main(int argc, char* argv[])
                 for ( int loop = 0;loop < aliasCount;loop++ )
                 {
                     OsSysLog::add(FAC_PROCESSCGI,PRI_WARNING,"User requested to %s process %s\n",
-                          commandStr.data(),processAliasList[loop].data());
+                          SIPX_SAFENULL(commandStr.data()),SIPX_SAFENULL(processAliasList[loop].data()));
 
 
                     int waitingState = -1;
@@ -275,7 +275,7 @@ int main(int argc, char* argv[])
                         outBuffer += commandStr;
                         outBuffer += "<BR>\n";
                         OsSysLog::add(FAC_PROCESSCGI,PRI_WARNING,"SUCCESS for %s on process %s\n",
-                                  commandStr.data(),processAliasList[loop].data());
+                                  SIPX_SAFENULL(commandStr.data()),SIPX_SAFENULL(processAliasList[loop].data()));
                     } else
                     {
                         gstrErrorMsg += processAliasList[loop];
@@ -283,7 +283,7 @@ int main(int argc, char* argv[])
                         gstrErrorMsg += commandStr;
                         gstrErrorMsg += "<BR>\n";
                         OsSysLog::add(FAC_PROCESSCGI,PRI_ERR,"FAILED for %s on process %s\n",
-                                  commandStr.data(),processAliasList[loop].data());
+                                  SIPX_SAFENULL(commandStr.data()),SIPX_SAFENULL(processAliasList[loop].data()));
                     }
 
                     //adjust xml file based on results from execute
@@ -301,7 +301,7 @@ int main(int argc, char* argv[])
                 gstrErrorMsg += commandStr;
                 gstrErrorMsg += "\n";
                 OsSysLog::add(FAC_PROCESSCGI,PRI_ERR,"ERROR: Unknown command: command %s\n",
-                                  commandStr.data());
+                                  SIPX_SAFENULL(commandStr.data()));
             }
         }
         else
@@ -332,9 +332,9 @@ int main(int argc, char* argv[])
     } else
     {
         //we must have an error!
-        osPrintf("ERROR: %s",gstrErrorMsg.data());
+        osPrintf("ERROR: %s",SIPX_SAFENULL(gstrErrorMsg.data()));
         OsSysLog::add(FAC_PROCESSCGI,PRI_ERR,"ERROR: %s\n",
-                              gstrErrorMsg.data());
+                              SIPX_SAFENULL(gstrErrorMsg.data()));
     }
 
     OsSysLog::flush();

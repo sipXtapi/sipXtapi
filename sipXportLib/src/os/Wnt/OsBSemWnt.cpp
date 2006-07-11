@@ -180,7 +180,7 @@ void OsBSemWnt::OsBSemShow(void)
 #endif
 
    osPrintf("OsBSem object 0x%08x, semOptions=%s, state=%s, heldBy=%s\n",
-            (void *) this, pOptionStr, pSemState, pTaskName);
+            (void *) this, SIPX_SAFENULL(pOptionStr), SIPX_SAFENULL(pSemState), SIPX_SAFENULL(pTaskName));
 #ifdef OS_SYNC_DEBUG
         taskName.remove(0);
 #endif

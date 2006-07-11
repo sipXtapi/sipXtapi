@@ -74,7 +74,7 @@ OsStatus MpdPtAVT::initDecode(MpConnection* pConnection)
          (char*) ("audio/telephone-event"), 8000, payloadType);
 
       OsSysLog::add(FAC_MP, PRI_DEBUG, "%sMpdAVT: registered with JB (pt=%d), res=%d\n",
-         ((0==res) ? "" : " ***** "), payloadType, res);
+         SIPX_SAFENULL(((0==res) ? "" : " ***** ")), payloadType, res);
    } else {
       OsSysLog::add(FAC_MP, PRI_DEBUG, "MpdAVT: NOT registering with JB\n");
    }

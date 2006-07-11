@@ -87,7 +87,7 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[],
                localHostAddresses[j] = new HostAdapterAddress(ifreq_array[i].ifr_name, s);
                OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                              "getAllLocalHostIps entry %d, interface '%s', address '%s'",
-                             j, ifreq_array[i].ifr_name, s);
+                             j, SIPX_SAFENULL(ifreq_array[i].ifr_name), SIPX_SAFENULL(s));
                j++;
             }
          }
@@ -114,7 +114,7 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[],
                   localHostAddresses[numAddresses] = new HostAdapterAddress(ifr->ifr_name, s);
                   OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                                 "getAllLocalHostIps entry %d, interface '%s', address '%s'",
-                                numAddresses, ifr->ifr_name, s);
+                                numAddresses, SIPX_SAFENULL(ifr->ifr_name), SIPX_SAFENULL(s));
                   numAddresses++;
                }
             }
@@ -143,7 +143,7 @@ bool getContactAdapterName(char* szAdapter, const char* szIp)
          strcpy(szAdapter, adapterAddresses[i]->mAdapter.data());
          OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                        "getContactAdapterName found name %s for ip %s",
-                       szAdapter, szIp);
+                       SIPX_SAFENULL(szAdapter), SIPX_SAFENULL(szIp));
          found = true;
       }
       delete adapterAddresses[i];

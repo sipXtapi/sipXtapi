@@ -29,12 +29,12 @@
 
 void PrintIt(const char *s)
 {
-    printf("%s",s);
+    printf("%s",SIPX_SAFENULL(s));
     OutputDebugString(s);
 }
 
 #else
-#define PrintIt(x) printf("%s", (char *) (x))
+#define PrintIt(x) printf("%s", SIPX_SAFENULL((char *) (x)))
 #endif
 
 // EXTERNAL VARIABLES

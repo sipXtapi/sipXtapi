@@ -252,7 +252,7 @@ static void initAudioDevices(SIPX_INSTANCE_DATA* pInst)
 
 #endif /* _WIN32 */
 
-
+#define SAFENULL(x) ((x) ? (x) : "(nil)") 
 
 SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST* phInst,
                                         const int tcpPort,
@@ -266,7 +266,7 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST* phInst,
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxInitialize tcpPort=%d udpPort=%d tlsPort=%d rpPortStart=%d maxConnections=%d Identity=%s bindTo=%s bSequentialPorts=%d",
-        tcpPort, udpPort, tlsPort, rtpPortStart, maxConnections, szIdentity, szBindToAddr, bUseSequentialPorts) ;
+        tcpPort, udpPort, tlsPort, rtpPortStart, maxConnections, SAFENULL(szIdentity), SAFENULL(szBindToAddr), bUseSequentialPorts) ;
 
     char szTemp[128];
     char szBindToAddr2[32];
@@ -396,7 +396,7 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST* phInst,
         {
            OsSocket::getHostIp(&localAddress);
            char *szBuf = (char*) calloc(64 + utlIdentity.length(), 1) ;
-           sprintf(szBuf, "sip:%s@%s:%d", szIdentity, localAddress.data(), pInst->pSipUserAgent->getUdpPort()) ;
+           sprintf(szBuf, "sip:%s@%s:%d", SIPX_SAFENULL(szIdentity), SIPX_SAFENULL(localAddress.data()), pInst->pSipUserAgent->getUdpPort()) ;
            localAddress = szBuf ;
            free(szBuf) ;
         }
@@ -707,7 +707,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallRedirect(const SIPX_CALL hCall, const char* szF
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallRedirect hCall=%d forwardURL=%s",
-        hCall, szForwardURL);
+        hCall, SAFENULL(szForwardURL));
         
     SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
     SIPX_INSTANCE_DATA* pInst ;
@@ -897,7 +897,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallConnect hCall=%d szAddress=%s contactId=%d",
-        hCall, szAddress, contactId);
+        hCall, SAFENULL(szAddress), contactId);
 #ifdef VIDEO
     if (pDisplay)
     {
@@ -980,7 +980,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
                         callId.data(), 1, numAddresses, &address) ;
                 OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
                               "sipxCallConnect connected hCall=%d callId=%s, numAddr = %d, addr = %s",
-                              hCall, callId.data(), numAddresses, address.data());
+                              hCall, SAFENULL(callId.data()), numAddresses, SAFENULL(address.data()));
                 assert(rc == OS_SUCCESS) ;
                 assert(numAddresses == 1) ;
 
@@ -1229,7 +1229,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallSetAssertedId(const SIPX_CALL hCall,
     SIPX_RESULT resultCode = SIPX_RESULT_FAILURE;
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallSetAssertedId hCall=%d szPAssertedId=\"%s\" bSignalNow=%s",
-        hCall, szPAssertedId, bSignalNow ? "true" : "false");
+        hCall, SAFENULL(szPAssertedId), SAFENULL(bSignalNow ? "true" : "false"));
 
     SIPX_INSTANCE_DATA* pInst ;
     UtlString callId ;
@@ -1467,7 +1467,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallPlayFileStart(const SIPX_CALL hCall,
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallPlayFileStart hCall=%d File=%s bLocal=%d bRemote=%d bRepeat=%d",
-        hCall, szFile, bLocal, bRemote, bRepeat);
+        hCall, SAFENULL(szFile), bLocal, bRemote, bRepeat);
 
     SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
     SIPX_INSTANCE_DATA *pInst ;
@@ -1582,8 +1582,8 @@ SIPXTAPI_API SIPX_RESULT sipxCallSubscribe(const SIPX_CALL hCall,
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallSubscribe hCall=%d szEventType=\"%s\" szAcceptType=\"%s\"", 
         hCall,
-        szEventType ? szEventType : "<null>",
-        szAcceptType ? szAcceptType : "<null>");
+        SAFENULL(szEventType),
+        SAFENULL(szAcceptType));
 
     SIPX_RESULT sipXresult = SIPX_RESULT_FAILURE;
     SIPX_INSTANCE_DATA *pInst;
@@ -1652,12 +1652,12 @@ SIPXTAPI_API SIPX_RESULT sipxCallSubscribe(const SIPX_CALL hCall,
                 OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
                     "sipxCallSubscribe bad session data: hCall=%d szEventType=\"%s\" szAcceptType=\"%s\" resourceId=\"%s\" From=\"%s\" To=\"%s\" Contact=\"%s\"", 
                     hCall,
-                    szEventType ? szEventType : "<null>",
-                    szAcceptType ? szAcceptType : "<null>",
-                    resourceId.data(),
-                    fromField.data(),
-                    toField.data(),
-                    contactField.data());
+                    SAFENULL(szEventType),
+                    SAFENULL(szAcceptType),
+                    SAFENULL(resourceId.data()),
+                    SAFENULL(fromField.data()),
+                    SAFENULL(toField.data()),
+                    SAFENULL(contactField.data()));
             }
 
             // Session data is big enough
@@ -1666,12 +1666,12 @@ SIPXTAPI_API SIPX_RESULT sipxCallSubscribe(const SIPX_CALL hCall,
                 OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
                     "sipxCallSubscribe subscribing: hCall=%d szEventType=\"%s\" szAcceptType=\"%s\" resourceId=\"%s\" From=\"%s\" To=\"%s\" Contact=\"%s\"", 
                     hCall,
-                    szEventType ? szEventType : "<null>",
-                    szAcceptType ? szAcceptType : "<null>",
-                    resourceId.data(),
-                    fromField.data(),
-                    toField.data(),
-                    contactField.data());
+                    SAFENULL(szEventType),
+                    SAFENULL(szAcceptType),
+                    SAFENULL(resourceId.data()),
+                    SAFENULL(fromField.data()),
+                    SAFENULL(toField.data()),
+                    SAFENULL(contactField.data()));
             }
 
             // Subscribe and keep the subscription refreshed
@@ -1696,7 +1696,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallSubscribe(const SIPX_CALL hCall,
         {
             OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
                 "sipxCallSubscribe: could not get session for call handle: %d callId: %s remote address: %s",
-                hCall, callId.data(), remoteAddress.data());
+                hCall, SAFENULL(callId.data()), SAFENULL(remoteAddress.data()));
             sipXresult = SIPX_RESULT_INVALID_ARGS;
         }
     }
@@ -1732,7 +1732,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallUnsubscribe(const SIPX_SUB hSub)
             OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
                 "sipxCallUnsubscribe endSubscription failed for subscription handle: %d dialog handle: \"%s\"",
                 hSub,
-                subscriptionData->pDialogHandle->data());
+                SAFENULL(subscriptionData->pDialogHandle->data()));
             sipXresult = SIPX_RESULT_INVALID_ARGS;
         }
 
@@ -1768,7 +1768,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallBlindTransfer(const SIPX_CALL hCall,
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallBlindTransfer hCall=%d Address=%s",
-        hCall, pszAddress);
+        hCall, SAFENULL(pszAddress));
 
     SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
     SIPX_INSTANCE_DATA *pInst ;
@@ -1858,7 +1858,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallSendInfo(SIPX_INFO* phInfo,
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxCallSendInfo phInfo=%p hCall=%d contentType=%s content=%p contentLength=%d",
-        phInfo, hCall, szContentType, szContent, nContentLength);
+        phInfo, hCall, SAFENULL(szContentType), szContent, nContentLength);
 
     SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
     SIPX_INSTANCE_DATA *pInst ;
@@ -1931,10 +1931,10 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherCreate(const SIPX_INST hInst,
         "sipxCreatePublisher hInst=%p phPub=%d szResourceId=\"%s\" szEventType=\"%s\" szContentType=\"%s\" pContent=\"%s\" nContentLength=%d", 
         hInst,
         *phPub,
-        szResourceId ? szResourceId : "<null>",
-        szEventType ? szEventType : "<null>",
-        szContentType ? szContentType : "<null>",
-        pContent ? pContent : "<null>",
+        SAFENULL(szResourceId),
+        SAFENULL(szEventType),
+        SAFENULL(szContentType),
+        SAFENULL(pContent),
         nContentLength);
 
     SIPX_RESULT sipXresult = SIPX_RESULT_FAILURE;
@@ -1983,8 +1983,8 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherCreate(const SIPX_INST hInst,
     {
         OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
             "sipxCreatePublisher: content already exists for resourceId: %s and eventType: %s",
-            szResourceId ? szResourceId : "<null>",
-            szEventType ? szEventType : "<null>");
+            SAFENULL(szResourceId),
+            SAFENULL(szEventType));
 
         sipXresult = SIPX_RESULT_INVALID_ARGS;
         delete oldContentPtr;
@@ -2040,8 +2040,8 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherCreate(const SIPX_INST hInst,
                         {
                             OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
                                 "sipxCreatePublisher: content already exists for resourceId: %s and eventType: %s",
-                                szResourceId ? szResourceId : "<null>",
-                                szEventType ? szEventType : "<null>");
+                                SAFENULL(szResourceId),
+                                SAFENULL(szEventType));
 
                             sipXresult = SIPX_RESULT_INVALID_ARGS;
                             gpPubHandleMap->removeHandle(*phPub);
@@ -2094,8 +2094,8 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherUpdate(const SIPX_PUB hPub,
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxUpdatePublisher hPub=%d szContentType=\"%s\" pContent=\"%s\" nContentLength=%d", 
         hPub,
-        szContentType ? szContentType : "<null>",
-        pContent ? pContent : "<null>",
+        SAFENULL(szContentType),
+        SAFENULL(pContent),
         nContentLength);
 
     SIPX_RESULT sipXresult = SIPX_RESULT_FAILURE;
@@ -2132,7 +2132,7 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherUpdate(const SIPX_PUB hPub,
         {
             OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
                 "sipxUpdatePublisher: no publisher for event type: %s",
-                pData->pEventType->data());
+                SAFENULL(pData->pEventType->data()));
             sipXresult = SIPX_RESULT_FAILURE;
         }
 
@@ -2170,8 +2170,8 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherDestroy(const SIPX_PUB hPub,
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxDestroyPublisher hPub=%d szContentType=\"%s\" pFinalContent=\"%s\" nContentLength=%d", 
         hPub,
-        szContentType ? szContentType : "<null>",
-        pFinalContent ? pFinalContent : "<null>",
+        SAFENULL(szContentType),
+        SAFENULL(pFinalContent),
         nContentLength);
 
     SIPX_RESULT sipXresult = SIPX_RESULT_FAILURE;
@@ -2489,7 +2489,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxConferenceAdd hConf=%d hLine=%d szAddress=%s contactId=%d, pDisplay=%p",
-        hConf, hLine, szAddress, contactId, pDisplay);
+        hConf, hLine, SIPX_SAFENULL(szAddress), contactId, pDisplay);
 
     SIPX_RESULT rc = SIPX_RESULT_INVALID_ARGS ;
 
@@ -3410,7 +3410,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetCallInputDevice(const SIPX_INST hInst,
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxAudioSetCallInputDevice hInst=%p device=%s",
-        hInst, szDevice);
+        hInst, SAFENULL(szDevice));
         
     UtlString oldDevice ;
     SIPX_RESULT rc = SIPX_RESULT_INVALID_ARGS ;    
@@ -3475,7 +3475,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetRingerOutputDevice(const SIPX_INST hInst,
 {    
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxAudioSetRingerOutputDevice hInst=%p device=%s",
-        hInst, szDevice);
+        hInst, SAFENULL(szDevice));
         
     SIPX_RESULT rc = SIPX_RESULT_INVALID_ARGS ;
     SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;
@@ -3540,7 +3540,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetCallOutputDevice(const SIPX_INST hInst,
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxAudioSetCallOutputDevice hInst=%p device=%s",
-        hInst, szDevice);
+        hInst, SAFENULL(szDevice));
         
     SIPX_RESULT rc = SIPX_RESULT_INVALID_ARGS ;
     SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;
@@ -3613,7 +3613,7 @@ SIPXTAPI_API SIPX_RESULT sipxLineAdd(const SIPX_INST hInst,
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxLineAdd hInst=%p lineUrl=%s, phLine=%p contactId=%d",
-        hInst, szLineUrl, phLine, contactId);
+        hInst, SAFENULL(szLineUrl), phLine, contactId);
 
     SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
     SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;
@@ -3804,7 +3804,7 @@ SIPXTAPI_API SIPX_RESULT sipxLineAddCredential(const SIPX_LINE hLine,
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxLineAddCredential hLine=%d userId=%s realm=%s",
-        hLine, szUserID, szRealm);
+        hLine, SAFENULL(szUserID), SAFENULL(szRealm));
         
     SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
     SIPX_LINE_DATA* pData = sipxLineLookup(hLine, SIPX_LOCK_READ) ;
@@ -3998,7 +3998,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetOutboundProxy(const SIPX_INST hInst,
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigSetOutboundProxy hInst=%p proxy=%s",
-        hInst, szProxy);
+        hInst, SAFENULL(szProxy));
 
     SIPX_RESULT rc = SIPX_RESULT_INVALID_ARGS ;
 
@@ -4077,7 +4077,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetUserAgentName(const SIPX_INST hInst,
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigSetUserAgentName hInst=%p szName=%s",
-        hInst, szName);
+        hInst, SAFENULL(szName));
 
     SIPX_RESULT rc = SIPX_RESULT_INVALID_ARGS ;
     SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;
@@ -4177,7 +4177,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigEnableStun(const SIPX_INST hInst,
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigEnableStun hInst=%p server=%s keepalive=%d",
-        hInst, szServer, iKeepAliveInSec);
+        hInst, SAFENULL(szServer), iKeepAliveInSec);
 
     SIPX_RESULT rc = SIPX_RESULT_INVALID_ARGS;
 
@@ -4261,7 +4261,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetVersion(char* szVersion,
         }
     }
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxConfigGetVersion=%s", szVersion);
+        "sipxConfigGetVersion=%s", SAFENULL(szVersion));
     return rc;
 }
 
@@ -4402,7 +4402,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetAudioCodecPreferences(const SIPX_INST hIns
                     }
                 }
                 OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
-                        "sipxConfigSetAudioCodecPreferences: %s", pInst->audioCodecSetting.sPreferences.data());
+                        "sipxConfigSetAudioCodecPreferences: %s", SAFENULL(pInst->audioCodecSetting.sPreferences.data()));
 
                 if (pInst->audioCodecSetting.sPreferences.length() != 0)
                 {
@@ -4471,7 +4471,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetAudioCodecByName(const SIPX_INST hInst,
 
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
             "sipxConfigSetAudioCodecByName hInst=%p codec=%s",
-            hInst, szCodecName);
+            hInst, SAFENULL(szCodecName));
 
     if (pInst)
     {
@@ -4524,7 +4524,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetAudioCodecByName(const SIPX_INST hInst,
                     // Fall back to previously set bandwidth Id
                     OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
                             "sipxConfigSetAudioCodecByName: Setting %s failed, falling back to preference %d", 
-                            szCodecName, pInst->audioCodecSetting.fallBack);
+                            SAFENULL(szCodecName), pInst->audioCodecSetting.fallBack);
                     sipxConfigSetAudioCodecPreferences(hInst, pInst->audioCodecSetting.fallBack);
                 }
                 pInst->audioCodecSetting.bInitialized = true;
@@ -4618,7 +4618,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetAudioCodec(const SIPX_INST hInst,
     }
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigGetAudioCodec hInst=%p index=%d, codec-%s",
-        hInst, index, codecName.data());
+        hInst, index, SAFENULL(codecName.data()));
 
     return rc;
 }
@@ -4679,7 +4679,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoCodecPreferences(const SIPX_INST hIns
                     }
                 }
                 OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
-                        "sipxConfigSetVideoCodecPreferences: %s", pInst->videoCodecSetting.sPreferences.data());
+                        "sipxConfigSetVideoCodecPreferences: %s", SAFENULL(pInst->videoCodecSetting.sPreferences.data()));
 
                 if (pInst->videoCodecSetting.sPreferences.length() != 0)
                 {
@@ -4821,7 +4821,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetVideoCodec(const SIPX_INST hInst,
     }
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigGetVideoCodec hInst=%p index=%d, codec-%s",
-        hInst, index, codecName.data());
+        hInst, index, SAFENULL(codecName.data()));
 
     return rc;
 }
@@ -4836,7 +4836,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoCodecByName(const SIPX_INST hInst,
 
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
             "sipxConfigSetVideoCodecByName hInst=%p codec=%s",
-            hInst, szCodecName);
+            hInst, SAFENULL(szCodecName));
 
     if (pInst)
     {
@@ -4888,7 +4888,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoCodecByName(const SIPX_INST hInst,
                     // Fall back to previously set bandwidth Id
                     OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
                             "sipxConfigSetVideoCodecByName: Setting %s failed, falling back to preference %d", 
-                            szCodecName, pInst->videoCodecSetting.fallBack);
+                            SAFENULL(szCodecName), pInst->videoCodecSetting.fallBack);
                     //sipxConfigSetVideoCodecPreferences(hInst, pInst->audioCodecSetting.fallBack);
                 }
                 pInst->videoCodecSetting.bInitialized = true;
@@ -5003,8 +5003,8 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalContacts(const SIPX_INST hInst,
                 addresses[i].id,
                 addresses[i].eContactType,
                 addresses[i].iPort,
-                addresses[i].cIpAddress,
-                addresses[i].cInterface);
+                SAFENULL(addresses[i].cIpAddress),
+                SAFENULL(addresses[i].cInterface));
             nActualAddresses++ ;
         }
         rc = SIPX_RESULT_SUCCESS;
@@ -5041,7 +5041,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetAllLocalNetworkIps(const char* arrAddresse
         
         OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
             "sipxConfigGetAllLocalNetworkIps index=%d address=%s adapter=%s",
-            i, arrAddresses[i], arrAddressAdapter[i]);
+            i, SAFENULL(arrAddresses[i]), SAFENULL(arrAddressAdapter[i]));
         delete utlAddresses[i];
     }
     

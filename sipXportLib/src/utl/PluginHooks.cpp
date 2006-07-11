@@ -65,14 +65,14 @@ public:
 
                OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                              "PluginHooks created '%s' from '%s'",
-                             data(), libName.data()
+                             SIPX_SAFENULL(data()), SIPX_SAFENULL(libName.data())
                              );
             }
             else
             {
                OsSysLog::add(FAC_KERNEL, PRI_ERR,
                              "PluginHooks: factory '%s' not found in library '%s' for '%s'",
-                             hookFactoryName.data(), libName.data(), data()
+                             SIPX_SAFENULL(hookFactoryName.data()), SIPX_SAFENULL(libName.data()), SIPX_SAFENULL(data())
                              );
 
             }
@@ -127,7 +127,7 @@ public:
             {
                OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                              "PluginHooks configuring '%s' from '%s'",
-                             data(), myConfigName.data()
+                             SIPX_SAFENULL(data()), SIPX_SAFENULL(myConfigName.data())
                              );
                hook->readConfig(myConfig);
             }
@@ -135,7 +135,7 @@ public:
             {
                OsSysLog::add(FAC_KERNEL, PRI_CRIT,
                              "PluginHooks no configuration found for '%s'",
-                             data()
+                             SIPX_SAFENULL(data())
                              );
             }
          }
@@ -187,7 +187,7 @@ void PluginHooks::readConfig(OsConfigDb& configDb)
    
    OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                  "PluginHooks::readConfig looking up hooks '%s'",
-                 hookPrefix.data()
+                 SIPX_SAFENULL(hookPrefix.data())
                  );
    if (OS_SUCCESS == configDb.getSubHash(hookPrefix, allHooks)) // any hooks configured for prefix?
    {
@@ -207,7 +207,7 @@ void PluginHooks::readConfig(OsConfigDb& configDb)
          {
             // not an existing hook, so create a new one
             OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                          "PluginHooks: loading '%s'", hookName.data()
+                          "PluginHooks: loading '%s'", SIPX_SAFENULL(hookName.data())
                           );
             thisHook = new ConfiguredHook(hookName, mFactory, hookLibrary);
          }
@@ -222,7 +222,7 @@ void PluginHooks::readConfig(OsConfigDb& configDb)
    else
    {
       OsSysLog::add(FAC_KERNEL, PRI_INFO,
-                    "PluginHooks: no '%s' hooks configured", mPrefix.data()
+                    "PluginHooks: no '%s' hooks configured", SIPX_SAFENULL(mPrefix.data())
                     );
    }
 

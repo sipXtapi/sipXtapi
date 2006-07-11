@@ -80,7 +80,7 @@ int SipLSendCommand::execute(int argc, char* argv[])
         {
                 UtlString usage;
                 getUsage(argv[0], &usage);
-                printf("%s", usage.data());
+                printf("%s", SIPX_SAFENULL(usage.data()));
         }
 
         else
@@ -113,7 +113,7 @@ int SipLSendCommand::execute(int argc, char* argv[])
             else if(protocol.compareTo("UDP") == 0)
                 writeSocket = new OsDatagramSocket(hostPort ,hostAddress);
 
-                        //printf("Read file contents:\n%s\n====END====\n", messageBuffer.data());
+                        //printf("Read file contents:\n%s\n====END====\n", SIPX_SAFENULL(messageBuffer.data()));
                         //SipMessage message(messageBuffer.data());
 
             int bytesSent;

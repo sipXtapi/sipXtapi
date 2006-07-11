@@ -16,7 +16,14 @@ AC_PROG_LIBTOOL
 
 # Checks for programs.
 AC_PROG_CXX
+AX_COMPILER_VENDOR
 AC_PROG_CC
+
+# Set platform variables
+AM_CONDITIONAL(ISLINUX, [test `uname -s` = Linux])
+AM_CONDITIONAL(ISMAC, [test `uname -s` = Darwin])
+AM_CONDITIONAL(IS64BITLINUX, [test `uname -m` = x86_64])
+AM_CONDITIONAL(ISSUNOS, [test `uname -s` = SunOS])
 
 # Checks for libraries.
 

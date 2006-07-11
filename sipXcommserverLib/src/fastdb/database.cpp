@@ -67,7 +67,7 @@ logOutputToUDP ( const int& port, const UtlString& rDebugString )
     int pid = getProcessID();
     char temp[1024];
     OsSocket* udpLoggingSocket = new OsDatagramSocket( port, "127.0.0.1" );
-    sprintf (temp, "(pid=%d)\t%s\n", pid, rDebugString.data() );
+    sprintf (temp, "(pid=%d)\t%s\n", pid, SIPX_SAFENULL(rDebugString.data()) );
     UtlString messageBuffer = temp;
     int bytesSent = udpLoggingSocket->write( messageBuffer.data(), messageBuffer.length());
     delete udpLoggingSocket;
@@ -1341,7 +1341,7 @@ void dbDatabase::handleError(dbErrorClass error, char const* msg, int arg)
     int pid = getProcessID();
     if ( gVerboseLoggingEnabled )
     {
-        OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Entering dbDatabase::handleError - msg=%s, arg=%d", pid, msg, arg);
+        OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Entering dbDatabase::handleError - msg=%s, arg=%d", pid, SIPX_SAFENULL(msg), arg);
     }
     if ( errorHandler != NULL ) { 
         (*errorHandler)(error, msg, arg);
@@ -1353,7 +1353,7 @@ void dbDatabase::handleError(dbErrorClass error, char const* msg, int arg)
 #ifdef THROW_EXCEPTION_ON_ERROR
     if ( error != NoError ) {
         if ( error == DatabaseOpenError ) {
-            fprintf(stderr, "%s\n", msg);
+            fprintf(stderr, "%s\n", SIPX_SAFENULL(msg));
         } else { 
             throw dbException(error, msg, arg);
         }
@@ -1362,20 +1362,20 @@ void dbDatabase::handleError(dbErrorClass error, char const* msg, int arg)
     char buf[256];
     switch ( error ) { 
     case QueryError:
-        fprintf(stderr, "%s in position %d\n", msg, arg);
+        fprintf(stderr, "%s in position %d\n", SIPX_SAFENULL(msg), arg);
         return;
     case ArithmeticError:
-        fprintf(stderr, "%s\n", msg);
+        fprintf(stderr, "%s\n", SIPX_SAFENULL(msg));
         break;
     case IndexOutOfRangeError:
         fprintf(stderr, "Index %d is out of range\n", arg);
         break;
     case DatabaseOpenError:
-        fprintf(stderr, "%s\n", msg);
+        fprintf(stderr, "%s\n", SIPX_SAFENULL(msg));
         return;
     case FileError:
-        fprintf(stderr, "%s: %s\n", msg, 
-                dbFile::errorText(arg, buf, sizeof(buf)));
+        fprintf(stderr, "%s: %s\n", SIPX_SAFENULL(msg), 
+                SIPX_SAFENULL(dbFile::errorText(arg, buf, sizeof(buf))));
         break;
     case OutOfMemoryError:
         fprintf(stderr,"Not enough memory: failed to allocate %d bytes\n",arg);
@@ -1390,7 +1390,7 @@ void dbDatabase::handleError(dbErrorClass error, char const* msg, int arg)
         fprintf(stderr, "Lock is revoked by some other client");
         break;  
     case InconsistentInverseReference:
-        fprintf(stderr, "%s\n", msg);
+        fprintf(stderr, "%s\n", SIPX_SAFENULL(msg));
         return;
     case DatabaseReadOnly:
         fprintf(stderr, "Attempt to modify readonly database");
@@ -1527,11 +1527,11 @@ bool dbDatabase::open(char const* dbName, char const* fiName,
     stopDelayedCommitThread = false;
     databaseNameLen = strlen(dbName);
     char* name = new char[databaseNameLen+16];
-    sprintf(name, "%s.in", dbName);
+    sprintf(name, "%s.in", SIPX_SAFENULL(dbName));
     databaseName = name;
     if ( fiName == NULL ) { 
         fileName = new char[databaseNameLen + 5];
-        sprintf(fileName, "%s.fdb", dbName);
+        sprintf(fileName, "%s.fdb", SIPX_SAFENULL(dbName));
     } else { 
         fileName = new char[strlen(fiName)+1];
         strcpy(fileName, fiName);
@@ -1544,38 +1544,38 @@ bool dbDatabase::open(char const* dbName, char const* fiName,
                     "Failed to start database initialization");
         return false;
     }
-    sprintf(name, "%s.dm", dbName);
+    sprintf(name, "%s.dm", SIPX_SAFENULL(dbName));
     if ( !shm.open(name) ) { 
         handleError(DatabaseOpenError, "Failed to open database monitor");
         return false;
     }
     monitor = shm.get();
-    sprintf(name, "%s.ws", dbName);
+    sprintf(name, "%s.ws", SIPX_SAFENULL(dbName));
     if ( !writeSem.open(name) ) { 
         handleError(DatabaseOpenError, 
                     "Failed to initialize database writers semaphore");
         return false;
     }
-    sprintf(name, "%s.rs", dbName);
+    sprintf(name, "%s.rs", SIPX_SAFENULL(dbName));
     if ( !readSem.open(name) ) { 
         handleError(DatabaseOpenError, 
                     "Failed to initialize database readers semaphore");
         return false;
     }
-    sprintf(name, "%s.us", dbName);
+    sprintf(name, "%s.us", SIPX_SAFENULL(dbName));
     if ( !upgradeSem.open(name) ) { 
         handleError(DatabaseOpenError, 
                     "Failed to initialize database upgrade semaphore");
         return false;
     }
-    sprintf(name, "%s.bce", dbName);
+    sprintf(name, "%s.bce", SIPX_SAFENULL(dbName));
     if ( !backupCompletedEvent.open(name) ) { 
         handleError(DatabaseOpenError, 
                     "Failed to initialize database backup completed event");
         return false;
     }
     if ( commitDelaySec != 0 ) { 
-        sprintf(name, "%s.dce", dbName);
+        sprintf(name, "%s.dce", SIPX_SAFENULL(dbName));
         if ( !delayedCommitStopTimerEvent.open(name) ) { 
             handleError(DatabaseOpenError, 
                         "Failed to initialize delayed commit event");
@@ -1616,14 +1616,14 @@ bool dbDatabase::open(char const* dbName, char const* fiName,
     attach();
 
     if ( status == dbInitializationMutex::NotYetInitialized ) { 
-        sprintf(name, "%s.cs", dbName);
+        sprintf(name, "%s.cs", SIPX_SAFENULL(dbName));
         if ( !cs.create(name, &monitor->sem) ) { 
             handleError(DatabaseOpenError,
                         "Failed to initialize database monitor");
             return false;
         }
         if ( accessType == dbConcurrentUpdate ) { 
-            sprintf(name, "%s.mcs", dbName);
+            sprintf(name, "%s.mcs", SIPX_SAFENULL(dbName));
             if ( !mutatorCS.create(name, &monitor->mutatorSem) ) { 
                 handleError(DatabaseOpenError,
                             "Failed to initialize database monitor");
@@ -1649,14 +1649,14 @@ bool dbDatabase::open(char const* dbName, char const* fiName,
         monitor->uncommittedChanges = false;
         memset(monitor->dirtyPagesMap, 0, dbDirtyPageBitmapSize);
 
-        sprintf(databaseName, "%s.%d", dbName, version);
+        sprintf(databaseName, "%s.%d", SIPX_SAFENULL(dbName), version);
         int rc = file.open(fileName, databaseName, 
                            accessType == dbReadOnly || accessType == dbConcurrentRead, fileSize, false);
         if ( rc != dbFile::ok )
         {
             char msgbuf[64];
             file.errorText(rc, msgbuf, sizeof msgbuf);
-            TRACE_MSG(("File open error: %s\n", msgbuf));
+            TRACE_MSG(("File open error: %s\n", SIPX_SAFENULL(msgbuf)));
             handleError(DatabaseOpenError, "Failed to create database file");
             return false;
         }
@@ -1753,13 +1753,13 @@ bool dbDatabase::open(char const* dbName, char const* fiName,
         }
         initMutex.done();
     } else { 
-        sprintf(name, "%s.cs", dbName);
+        sprintf(name, "%s.cs", SIPX_SAFENULL(dbName));
         if ( !cs.open(name, &monitor->sem) ) { 
             handleError(DatabaseOpenError, "Failed to open shared semaphore");
             return false;
         }
         if ( accessType == dbConcurrentUpdate ) { 
-            sprintf(name, "%s.mcs", dbName);
+            sprintf(name, "%s.mcs", SIPX_SAFENULL(dbName));
             if ( !mutatorCS.open(name, &monitor->mutatorSem) ) { 
                 handleError(DatabaseOpenError, "Failed to open shared semaphore");
                 return false;
@@ -1843,7 +1843,7 @@ void dbDatabase::backupScheduler()
                 delete[] fileName;
             } else { 
                 char* newFileName = new char[strlen(backupFileName) + 5];
-                sprintf(newFileName,"%s.new", backupFileName);
+                sprintf(newFileName,"%s.new", SIPX_SAFENULL(backupFileName));
                 backup(newFileName, false);
                 ::remove(backupFileName);
                 ::rename(newFileName, backupFileName);
@@ -1967,7 +1967,7 @@ bool dbDatabase::loadScheme(bool alter)
                     modified = true;
                     if ( table->nRows == 0 ) { 
                         TRACE_MSG(("Replace definition of table '%s'\n", 
-                                   desc->name));
+                                   SIPX_SAFENULL(desc->name)));
                         updateTableDescriptor(desc, tableId);
                     } else { 
                         reformatTable(tableId, desc);
@@ -1990,7 +1990,7 @@ bool dbDatabase::loadScheme(bool alter)
                             "be added to read only database");
                 return false;
             } else {     
-                TRACE_MSG(("Create new table '%s' in database\n", desc->name));
+                TRACE_MSG(("Create new table '%s' in database\n", SIPX_SAFENULL(desc->name)));
                 addNewTable(desc);
                 modified = true;
             }
@@ -2026,10 +2026,10 @@ void dbDatabase::reformatTable(oid_t tableId, dbTableDescriptor* desc)
 
     if ( desc->match(table, confirmDeleteColumns) ) { 
         TRACE_MSG(("New version of table '%s' is compatible with old one\n", 
-                   desc->name));
+                   SIPX_SAFENULL(desc->name)));
         updateTableDescriptor(desc, tableId);
     } else { 
-        TRACE_MSG(("Reformat table '%s'\n", desc->name));
+        TRACE_MSG(("Reformat table '%s'\n", SIPX_SAFENULL(desc->name)));
         oid_t oid = table->firstRow;
         updateTableDescriptor(desc, tableId);
         while ( oid != 0 ) { 
@@ -2195,11 +2195,11 @@ bool dbDatabase::addIndices(bool alter, dbTableDescriptor* desc)
                 }
                 fd->hashTable = dbHashTable::allocate(this, nRows);
                 nNewIndices += 1;
-                TRACE_MSG(("Create hash table for field '%s'\n", fd->name));
+                TRACE_MSG(("Create hash table for field '%s'\n", SIPX_SAFENULL(fd->name)));
             }
         } else if ( fd->hashTable != 0 ) { 
             if ( alter ) { 
-                TRACE_MSG(("Remove hash table for field '%s'\n", fd->name));
+                TRACE_MSG(("Remove hash table for field '%s'\n", SIPX_SAFENULL(fd->name)));
                 nDelIndices += 1;
                 fd->hashTable = 0;
             } else { 
@@ -2215,12 +2215,12 @@ bool dbDatabase::addIndices(bool alter, dbTableDescriptor* desc)
                 }
                 fd->tTree = dbTtree::allocate(this);
                 nNewIndices += 1;
-                TRACE_MSG(("Create index for field '%s'\n", fd->name));
+                TRACE_MSG(("Create index for field '%s'\n", SIPX_SAFENULL(fd->name)));
             }
         } else if ( fd->tTree != 0 ) { 
             if ( alter ) { 
                 nDelIndices += 1;
-                TRACE_MSG(("Remove index for field '%s'\n", fd->name));
+                TRACE_MSG(("Remove index for field '%s'\n", SIPX_SAFENULL(fd->name)));
                 fd->tTree = 0;
             } else { 
                 return false;
@@ -2699,11 +2699,11 @@ bool dbDatabase::isIndexApplicable(dbAnyCursor* cursor,
                         if ( refField->hashTable != 0 ) { 
                             dbHashTable::find(this, refField->hashTable, sc);
                             TRACE_MSG(("Hash table search for field %s.%s: %d probes\n", 
-                                       refField->defTable->name, refField->longName, sc.probes)); 
+                                       SIPX_SAFENULL(refField->defTable->name), SIPX_SAFENULL(refField->longName), sc.probes)); 
                         } else { 
                             dbTtree::find(this, refField->tTree, sc);
                             TRACE_MSG(("Index search for field %s.%s: %d probes\n", 
-                                       refField->defTable->name, refField->longName, sc.probes)); 
+                                       SIPX_SAFENULL(refField->defTable->name), SIPX_SAFENULL(refField->longName), sc.probes)); 
                         }
                     }
                 }
@@ -2891,11 +2891,11 @@ bool dbDatabase::isIndexApplicable(dbAnyCursor* cursor,
         if ( field->hashTable != 0 ) { 
             dbHashTable::find(this, field->hashTable, sc);
             TRACE_MSG(("Hash table search for field %s.%s: %d probes\n", 
-                       field->defTable->name, field->longName, sc.probes)); 
+                       SIPX_SAFENULL(field->defTable->name), SIPX_SAFENULL(field->longName), sc.probes)); 
         } else { 
             dbTtree::find(this, field->tTree, sc);
             TRACE_MSG(("Index search for field %s.%s: %d probes\n", 
-                       field->defTable->name, field->longName, sc.probes)); 
+                       SIPX_SAFENULL(field->defTable->name), SIPX_SAFENULL(field->longName), sc.probes)); 
         }
         return true;
     case dbvmGtInt:
@@ -2908,7 +2908,7 @@ bool dbDatabase::isIndexApplicable(dbAnyCursor* cursor,
             sc.firstKeyInclusion = false;
             dbTtree::find(this, field->tTree, sc);
             TRACE_MSG(("Index search for field %s.%s: %d probes\n", 
-                       field->defTable->name, field->longName, sc.probes)); 
+                       SIPX_SAFENULL(field->defTable->name), SIPX_SAFENULL(field->longName), sc.probes)); 
             return true;
         }
         return false;
@@ -2922,7 +2922,7 @@ bool dbDatabase::isIndexApplicable(dbAnyCursor* cursor,
             sc.firstKeyInclusion = true;
             dbTtree::find(this, field->tTree, sc);
             TRACE_MSG(("Index search for field %s.%s: %d probes\n", 
-                       field->defTable->name, field->longName, sc.probes)); 
+                       SIPX_SAFENULL(field->defTable->name), SIPX_SAFENULL(field->longName), sc.probes)); 
             return true;
         }
         return false;
@@ -2936,7 +2936,7 @@ bool dbDatabase::isIndexApplicable(dbAnyCursor* cursor,
             sc.lastKeyInclusion = false;
             dbTtree::find(this, field->tTree, sc);
             TRACE_MSG(("Index search for field %s.%s: %d probes\n", 
-                       field->defTable->name, field->longName, sc.probes)); 
+                       SIPX_SAFENULL(field->defTable->name), SIPX_SAFENULL(field->longName), sc.probes)); 
             return true;
         }
         return false;
@@ -2950,7 +2950,7 @@ bool dbDatabase::isIndexApplicable(dbAnyCursor* cursor,
             sc.lastKeyInclusion = true;
             dbTtree::find(this, field->tTree, sc);
             TRACE_MSG(("Index search for field %s.%s: %d probes\n", 
-                       field->defTable->name, field->longName, sc.probes)); 
+                       SIPX_SAFENULL(field->defTable->name), SIPX_SAFENULL(field->longName), sc.probes)); 
             return true;
         }
         return false;
@@ -2966,7 +2966,7 @@ bool dbDatabase::isIndexApplicable(dbAnyCursor* cursor,
             sc.firstKey = strop ? literal[0].s : (char*)&literal[0];
             dbHashTable::find(this, field->hashTable, sc);
             TRACE_MSG(("Hash table search for field %s.%s: %d probes\n", 
-                       field->defTable->name, field->longName, sc.probes)); 
+                       SIPX_SAFENULL(field->defTable->name), SIPX_SAFENULL(field->longName), sc.probes)); 
             return true;
         } else if ( field->tTree != 0 ) {
             sc.firstKey = strop ? literal[0].s : (char*)&literal[0];
@@ -2975,7 +2975,7 @@ bool dbDatabase::isIndexApplicable(dbAnyCursor* cursor,
             sc.lastKeyInclusion = true;
             dbTtree::find(this, field->tTree, sc);
             TRACE_MSG(("Index search for field %s.%s: %d probes\n", 
-                       field->defTable->name, field->longName, sc.probes)); 
+                       SIPX_SAFENULL(field->defTable->name), SIPX_SAFENULL(field->longName), sc.probes)); 
             return true;
         }
         return false;
@@ -2990,12 +2990,12 @@ bool dbDatabase::isIndexApplicable(dbAnyCursor* cursor,
                 if ( field->hashTable != 0 ) { 
                     dbHashTable::find(this, field->hashTable, sc);
                     TRACE_MSG(("Hash table search for field %s.%s: "
-                               "%d probes\n", field->defTable->name, 
-                               field->longName, sc.probes));
+                               "%d probes\n", SIPX_SAFENULL(field->defTable->name), 
+                               SIPX_SAFENULL(field->longName), sc.probes));
                 } else { 
                     dbTtree::find(this, field->tTree, sc);
                     TRACE_MSG(("Index search for field %s.%s: %d probes\n", 
-                               field->defTable->name, field->longName, 
+                               SIPX_SAFENULL(field->defTable->name), SIPX_SAFENULL(field->longName), 
                                sc.probes));
                 }
             } else {        
@@ -3008,8 +3008,8 @@ bool dbDatabase::isIndexApplicable(dbAnyCursor* cursor,
                     sc.lastKey = NULL;
                     dbTtree::find(this, field->tTree, sc);
                     TRACE_MSG(("Use index for ordering records by field "
-                               "%s.%s\n", field->defTable->name, 
-                               field->longName)); 
+                               "%s.%s\n", SIPX_SAFENULL(field->defTable->name), 
+                               SIPX_SAFENULL(field->longName))); 
                 } else {        
                     sc.firstKey = new char[len+1];
                     memcpy(sc.firstKey, literal[0].s, len);
@@ -3055,7 +3055,7 @@ bool dbDatabase::isIndexApplicable(dbAnyCursor* cursor,
                     }
                     TRACE_MSG(("Index search for prefix in LIKE expression "
                                "for field %s.%s: %d probes\n", 
-                               field->defTable->name, field->longName, 
+                               SIPX_SAFENULL(field->defTable->name), SIPX_SAFENULL(field->longName), 
                                sc.probes));
                     delete[] sc.firstKey;
                     delete[] sc.lastKey;
@@ -3204,7 +3204,7 @@ void dbDatabase::select(dbAnyCursor* cursor, dbQuery& query)
     if ( gVerboseLoggingEnabled )
     {
         OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Entering dbDatabase::select cursor(0x%08x) select * from %s where %s", 
-                      (int)pid, (int)cursor,  (query.table)? query.table->name:((char*)"NULL"), query.dump(buf));
+                      (int)pid, (int)cursor,  SIPX_SAFENULL((query.table)? query.table->name:((char*)"NULL")), SIPX_SAFENULL(query.dump(buf)));
     }
 
     assert(opened);
@@ -3224,7 +3224,7 @@ void dbDatabase::select(dbAnyCursor* cursor, dbQuery& query)
     }
 #if FASTDB_DEBUG == DEBUG_TRACE
     char buf[4096];
-    TRACE_MSG(("Query:  select * from %s where %s\n", query.table->name,  query.dump(buf)));
+    TRACE_MSG(("Query:  select * from %s where %s\n", SIPX_SAFENULL(query.table->name),  SIPX_SAFENULL(query.dump(buf))));
 #endif 
     beginTransaction(cursor->type == dbCursorForUpdate 
                      ? dbDatabase::dbExclusiveLock : dbDatabase::dbSharedLock);
@@ -3235,7 +3235,7 @@ void dbDatabase::select(dbAnyCursor* cursor, dbQuery& query)
         if ( gVerboseLoggingEnabled )
         {
             OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Leaving dbDatabase::select:(line=%d) cursor(0x%08x) select * from %s where %s ", 
-                          (int)pid, __LINE__, (int)cursor,  (query.table)? query.table->name:((char*)"NULL"), query.dump(buf));
+                          (int)pid, __LINE__, (int)cursor,  SIPX_SAFENULL((query.table)? query.table->name:((char*)"NULL")), SIPX_SAFENULL(query.dump(buf)));
             OsSysLog::flush();
         }
         return;
@@ -3267,7 +3267,7 @@ void dbDatabase::select(dbAnyCursor* cursor, dbQuery& query)
             if ( gVerboseLoggingEnabled )
             {
                 OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Leaving dbDatabase::select:(line=%d) cursor(0x%08x) select * from %s where %s ", 
-                              (int)pid, __LINE__, (int)cursor,  (query.table)? query.table->name:((char*)"NULL"), query.dump(buf));
+                              (int)pid, __LINE__, (int)cursor,  SIPX_SAFENULL((query.table)? query.table->name:((char*)"NULL")), SIPX_SAFENULL(query.dump(buf)));
                 OsSysLog::flush();
             }
             return;
@@ -3292,7 +3292,7 @@ void dbDatabase::select(dbAnyCursor* cursor, dbQuery& query)
             if ( gVerboseLoggingEnabled )
             {
                 OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Leaving dbDatabase::select:(line=%d) cursor(0x%08x) select * from %s where %s ", 
-                              (int)pid, __LINE__, (int)cursor,  (query.table)? query.table->name:((char*)"NULL"), query.dump(buf));
+                              (int)pid, __LINE__, (int)cursor,  SIPX_SAFENULL((query.table)? query.table->name:((char*)"NULL")), SIPX_SAFENULL(query.dump(buf)));
                 OsSysLog::flush();
             }
             return;
@@ -3325,7 +3325,7 @@ void dbDatabase::select(dbAnyCursor* cursor, dbQuery& query)
             if ( gVerboseLoggingEnabled )
             {
                 OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Leaving dbDatabase::select:(line=%d) cursor(0x%08x) select * from %s where %s ", 
-                              (int)pid, __LINE__, (int)cursor,  (query.table)? query.table->name:((char*)"NULL"), query.dump(buf));
+                              (int)pid, __LINE__, (int)cursor,  SIPX_SAFENULL((query.table)? query.table->name:((char*)"NULL")), SIPX_SAFENULL(query.dump(buf)));
                 OsSysLog::flush();
             }
             return;
@@ -3353,7 +3353,7 @@ void dbDatabase::select(dbAnyCursor* cursor, dbQuery& query)
         if ( gVerboseLoggingEnabled )
         {
             OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Leaving dbDatabase::select:(line=%d) cursor(0x%08x) select * from %s where %s ", 
-                          (int)pid, __LINE__, (int)cursor,  (query.table)? query.table->name:((char*)"NULL"), query.dump(buf));
+                          (int)pid, __LINE__, (int)cursor,  SIPX_SAFENULL((query.table)? query.table->name:((char*)"NULL")), SIPX_SAFENULL(query.dump(buf)));
             OsSysLog::flush();
         }
         return;
@@ -3401,7 +3401,7 @@ void dbDatabase::select(dbAnyCursor* cursor, dbQuery& query)
                     if ( gVerboseLoggingEnabled )
                     {
                         OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Leaving dbDatabase::select:(line=%d) cursor(0x%08x) select * from %s where %s ", 
-                                      (int)pid, __LINE__, (int)cursor,  (query.table)? query.table->name:((char*)"NULL"), query.dump(buf));
+                                      (int)pid, __LINE__, (int)cursor,  SIPX_SAFENULL((query.table)? query.table->name:((char*)"NULL")), SIPX_SAFENULL(query.dump(buf)));
                         OsSysLog::flush();
                     }
                     return;
@@ -3455,7 +3455,7 @@ void dbDatabase::select(dbAnyCursor* cursor, dbQuery& query)
     if ( gVerboseLoggingEnabled )
     {
         OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Leaving dbDatabase::select:(line=%d) cursor(0x%08x) select * from %s where %s ", 
-                      (int)pid, __LINE__, (int)cursor,  (query.table)? query.table->name:((char*)"NULL"), query.dump(buf));
+                      (int)pid, __LINE__, (int)cursor,  SIPX_SAFENULL((query.table)? query.table->name:((char*)"NULL")), SIPX_SAFENULL(query.dump(buf)));
         OsSysLog::flush();
     }
 }
@@ -4313,7 +4313,7 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
             if ( gVerboseLoggingEnabled )
             {
                 OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction after cs.enter ctx access (W=%d, R=%d), accessType=%d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction after cs.enter monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction after cs.enter monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
             }
             if ( ctx->readAccess ) { 
                 assert(monitor->nWriters == 0);
@@ -4405,7 +4405,7 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
                     if ( gVerboseLoggingEnabled )
                     {
                         OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction before cs.leave() ctx access (W=%d, R=%d), accessType=%d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-                        OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction before cs.leave() monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+                        OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction before cs.leave() monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
                         OsSysLog::flush();
                     }
                     cs.leave();
@@ -4416,13 +4416,13 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
             if ( gVerboseLoggingEnabled )
             {
                 OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction setting ownerPid ctx access (W=%d, R=%d), accessType=%d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction setting ownerPid monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction setting ownerPid monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
                 OsSysLog::flush();
             }
         } else { 
             if ( monitor->ownerPid != ctx->currPid ) {
                 OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction before LockRevoked ctx access (W=%d, R=%d), accessType=%d, ctx->currPid=%d, %d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType, (int)ctx->currPid.getTid(), (int)ctx->currPid.getPid());
-                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction before LockRevoked monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction before LockRevoked monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
                 OsSysLog::flush();
                 handleError(LockRevoked);
             }
@@ -4433,7 +4433,7 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
             if ( gVerboseLoggingEnabled )
             {
                 OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction after cs.enter ctx access (W=%d, R=%d), accessType=%d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction after cs.enter monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction after cs.enter monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
             }
             if ( monitor->nWriters + monitor->nWaitWriters != 0 ) {
                 monitor->nWaitReaders += 1;
@@ -4455,13 +4455,13 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
                             if ( gVerboseLoggingEnabled )
                             {
                                 OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction:(line=%d) before checkVersion (W=%d, R=%d), accessType=%d", (int)pid, __LINE__, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-                                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction:(line=%d)  monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, __LINE__, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+                                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction:(line=%d)  monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, __LINE__, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
                             }
                             checkVersion();
                             if ( gVerboseLoggingEnabled )
                             {
                                 OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction:(line=%d) after checkVersion (W=%d, R=%d), accessType=%d", (int)pid, __LINE__, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-                                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction:(line=%d) monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, __LINE__, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+                                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction:(line=%d) monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, __LINE__, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
                             }
                             recovery();
                             monitor->nWriters = 0;
@@ -4483,7 +4483,7 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
                 if ( gVerboseLoggingEnabled )
                 {
                     OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction before cs.leave() ctx access (W=%d, R=%d), accessType=%d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-                    OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction before cs.leave() monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+                    OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction before cs.leave() monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
                     OsSysLog::flush();
                 }
                 cs.leave();
@@ -4500,7 +4500,7 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
         if ( gVerboseLoggingEnabled )
         {
             OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction:(line=%d) before checkVersion (W=%d, R=%d), accessType=%d", (int)pid, __LINE__, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction:(line=%d) monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, __LINE__, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction:(line=%d) monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, __LINE__, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
             OsSysLog::flush();
         }
         if ( !checkVersion() ) { 
@@ -4509,13 +4509,13 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
         if ( gVerboseLoggingEnabled )
         {
             OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction:(line=%d) after checkVersion (W=%d, R=%d), accessType=%d", (int)pid, __LINE__, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction:(line=%d) monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, __LINE__, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction:(line=%d) monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, __LINE__, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
         }
         cs.enter();
         if ( gVerboseLoggingEnabled )
         {
             OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction after cs.enter ctx access (W=%d, R=%d), accessType=%d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction after cs.enter monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction after cs.enter monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
         }
         index[0] = (offs_t*)(baseAddr + header->root[0].index);
         index[1] = (offs_t*)(baseAddr + header->root[1].index);
@@ -4537,7 +4537,7 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
         if ( gVerboseLoggingEnabled )
         {
             OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction before cs.leave() ctx access (W=%d, R=%d), accessType=%d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction before cs.leave() monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction before cs.leave() monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
             OsSysLog::flush();
         }
         cs.leave();
@@ -4628,7 +4628,7 @@ void dbDatabase::commit()
             if ( monitor->ownerPid != ctx->currPid ) {
                 int pid = getProcessID();
                 OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::commit before LockRevoked ctx access (W=%d, R=%d), accessType=%d, ctx->currPid=%d, %d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType, (int)ctx->currPid.getTid(), (int)ctx->currPid.getPid());
-                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::commit before LockRevoked monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::commit before LockRevoked monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
                 OsSysLog::flush();
                 handleError(LockRevoked);
             }
@@ -4687,7 +4687,7 @@ void dbDatabase::commit(dbDatabaseThreadContext* ctx)
     {
         int pid = getProcessID();
         OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::commit after ownerPid.clear() ctx access (W=%d, R=%d), accessType=%d, ctx->currPid=%d, %d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType, (int)ctx->currPid.getTid(), (int)ctx->currPid.getPid());
-        OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::commit after ownerPid.clear() monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+        OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::commit after ownerPid.clear() monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
         OsSysLog::flush();
     }
     if ( accessType == dbConcurrentUpdate ) { 
@@ -4895,14 +4895,14 @@ void dbDatabase::endTransaction(dbDatabaseThreadContext* ctx)
         if ( gVerboseLoggingEnabled )
         {
             OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Entering dbDatabase::endTransaction, after cs.enter ctx access (W=%d, R=%d), accessType=%d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::endTransaction, after cs.enter monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::endTransaction, after cs.enter monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
         }
         monitor->nWriters -= 1;
         monitor->ownerPid.clear();
         if ( gVerboseLoggingEnabled )
         {
             OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::endTransaction after ownerPid.clear() ctx access (W=%d, R=%d), accessType=%d, ctx->currPid=%d, %d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType, (int)ctx->currPid.getTid(), (int)ctx->currPid.getPid());
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::endTransaction after ownerPid.clear() monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::endTransaction after ownerPid.clear() monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
             OsSysLog::flush();
         }
         assert(monitor->nWriters == 0 && !monitor->waitForUpgrade);
@@ -4918,7 +4918,7 @@ void dbDatabase::endTransaction(dbDatabaseThreadContext* ctx)
         if ( gVerboseLoggingEnabled )
         {
             OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::endTransaction, before cs.leave ctx access (W=%d, R=%d), accessType=%d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Leaving dbDatabase::endTransaction, before cs.leave monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Leaving dbDatabase::endTransaction, before cs.leave monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
         }
         cs.leave();
     } else if ( ctx->readAccess ) { 
@@ -4926,7 +4926,7 @@ void dbDatabase::endTransaction(dbDatabaseThreadContext* ctx)
         if ( gVerboseLoggingEnabled )
         {
             OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Entering dbDatabase::endTransaction, after cs.enter  ctx access (W=%d, R=%d), accessType=%d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::endTransaction, after cs.enter monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::endTransaction, after cs.enter monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
         }
         monitor->nReaders -= 1;
         if ( monitor->nReaders == 1 && monitor->waitForUpgrade ) { 
@@ -4947,7 +4947,7 @@ void dbDatabase::endTransaction(dbDatabaseThreadContext* ctx)
         if ( gVerboseLoggingEnabled )
         {
             OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::endTransaction, before cs.leave ctx access (W=%d, R=%d), accessType=%d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Leaving dbDatabase::endTransaction, before cs.leave monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Leaving dbDatabase::endTransaction, before cs.leave monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
         }
         cs.leave();
     }
@@ -5352,11 +5352,11 @@ bool dbReplicatedDatabase::open(char const* dbName, char const* fiName,
     stopDelayedCommitThread = false;
     databaseNameLen = strlen(dbName);
     char* name = new char[databaseNameLen+16];
-    sprintf(name, "%s.in", dbName);
+    sprintf(name, "%s.in", SIPX_SAFENULL(dbName));
     databaseName = name;
     if ( fiName == NULL ) { 
         fileName = new char[databaseNameLen + 5];
-        sprintf(fileName, "%s.fdb", dbName);
+        sprintf(fileName, "%s.fdb", SIPX_SAFENULL(dbName));
     } else { 
         fileName = new char[strlen(fiName)+1];
         strcpy(fileName, fiName);
@@ -5373,31 +5373,31 @@ bool dbReplicatedDatabase::open(char const* dbName, char const* fiName,
         handleError(DatabaseOpenError, "Database is already started");
         return false;
     }
-    sprintf(name, "%s.dm", dbName);
+    sprintf(name, "%s.dm", SIPX_SAFENULL(dbName));
     if ( !shm.open(name) ) { 
         handleError(DatabaseOpenError, "Failed to open database monitor");
         return false;
     }
     monitor = shm.get();
-    sprintf(name, "%s.ws", dbName);
+    sprintf(name, "%s.ws", SIPX_SAFENULL(dbName));
     if ( !writeSem.open(name) ) { 
         handleError(DatabaseOpenError, 
                     "Failed to initialize database writers semaphore");
         return false;
     }
-    sprintf(name, "%s.rs", dbName);
+    sprintf(name, "%s.rs", SIPX_SAFENULL(dbName));
     if ( !readSem.open(name) ) { 
         handleError(DatabaseOpenError, 
                     "Failed to initialize database readers semaphore");
         return false;
     }
-    sprintf(name, "%s.us", dbName);
+    sprintf(name, "%s.us", SIPX_SAFENULL(dbName));
     if ( !upgradeSem.open(name) ) { 
         handleError(DatabaseOpenError, 
                     "Failed to initialize database upgrade semaphore");
         return false;
     }
-    sprintf(name, "%s.bce", dbName);
+    sprintf(name, "%s.bce", SIPX_SAFENULL(dbName));
     if ( !backupCompletedEvent.open(name) ) { 
         handleError(DatabaseOpenError, 
                     "Failed to initialize database backup completed event");
@@ -5430,14 +5430,14 @@ bool dbReplicatedDatabase::open(char const* dbName, char const* fiName,
     modified = false;
     attach();
 
-    sprintf(name, "%s.cs", dbName);
+    sprintf(name, "%s.cs", SIPX_SAFENULL(dbName));
     if ( !cs.create(name, &monitor->sem) ) { 
         handleError(DatabaseOpenError,
                     "Failed to initialize database monitor");
         return false;
     }
     if ( accessType == dbConcurrentUpdate ) { 
-        sprintf(name, "%s.mcs", dbName);
+        sprintf(name, "%s.mcs", SIPX_SAFENULL(dbName));
         if ( !mutatorCS.create(name, &monitor->mutatorSem) ) { 
             handleError(DatabaseOpenError,
                         "Failed to initialize database monitor");
@@ -5464,7 +5464,7 @@ bool dbReplicatedDatabase::open(char const* dbName, char const* fiName,
     memset(monitor->dirtyPagesMap, 0, dbDirtyPageBitmapSize);
 
 
-    sprintf(databaseName, "%s.%d", dbName, version);
+    sprintf(databaseName, "%s.%d", SIPX_SAFENULL(dbName), version);
     if ( file.open(fileName, databaseName, 
                    accessType == dbReadOnly || accessType == dbConcurrentRead, fileSize, true) != dbFile::ok )
     {
@@ -5483,7 +5483,7 @@ bool dbReplicatedDatabase::open(char const* dbName, char const* fiName,
     acceptSock = socket_t::create_global(servers[id]);
     if ( !acceptSock->is_ok() ) { 
         acceptSock->get_error_text(buf, sizeof buf);
-        dbTrace("<<<FATAL>>> Failed to create accept socket: %s\n", buf);
+        dbTrace("<<<FATAL>>> Failed to create accept socket: %s\n", SIPX_SAFENULL(buf));
         return false;
     }
     FD_ZERO(&inputSD);
@@ -5574,18 +5574,18 @@ bool dbReplicatedDatabase::open(char const* dbName, char const* fiName,
             if ( i != id ) { 
                 socket_t* s = con[i].reqSock;
                 if ( s == NULL ) { 
-                    TRACE_MSG(("Try to connect to node %d address '%s'\n", i, servers[i]));
+                    TRACE_MSG(("Try to connect to node %d address '%s'\n", i, SIPX_SAFENULL(servers[i])));
                     s = socket_t::connect(servers[i], 
                                           socket_t::sock_global_domain, 
                                           connectionAttempts);      
                     if ( !s->is_ok() ) { 
                         s->get_error_text(buf, sizeof buf);
                         dbTrace("Failed to establish connection with node %d: %s\n",
-                                i, buf);
+                                i, SIPX_SAFENULL(buf));
                         delete s;
                         continue;
                     }
-                    TRACE_MSG(("Establish connection with node %d address '%s'\n", i, servers[i]));
+                    TRACE_MSG(("Establish connection with node %d address '%s'\n", i, SIPX_SAFENULL(servers[i])));
                 }
                 rr.op = ReplicationRequest::RR_GET_STATUS;
                 rr.nodeId = id;
@@ -5595,7 +5595,7 @@ bool dbReplicatedDatabase::open(char const* dbName, char const* fiName,
                         dbTrace("Failed to get status from node %d\n", i);
                         delete s;
                     } else { 
-                        TRACE_MSG(("Node %d returns status %s\n", i, statusText[rr.status]));
+                        TRACE_MSG(("Node %d returns status %s\n", i, SIPX_SAFENULL(statusText[rr.status])));
                         addConnection(i, s);
                         con[i].status = rr.status;
                         success = true;
@@ -5611,7 +5611,7 @@ bool dbReplicatedDatabase::open(char const* dbName, char const* fiName,
                             dbTrace("Failed to get status from node %d\n", i);
                             deleteConnection(i);
                         } else { 
-                            TRACE_MSG(("Received response from node %d with status %s\n", i, statusText[con[i].status]));
+                            TRACE_MSG(("Received response from node %d with status %s\n", i, SIPX_SAFENULL(statusText[con[i].status])));
                             success = true;
                         }
                         unlockConnection(i);
@@ -5619,7 +5619,7 @@ bool dbReplicatedDatabase::open(char const* dbName, char const* fiName,
                     con[i].waitStatusEventFlag -= 1; 
                 }
                 if ( success ) { 
-                    TRACE_MSG(("Status of node %d is %s\n", i, statusText[con[i].status]));
+                    TRACE_MSG(("Status of node %d is %s\n", i, SIPX_SAFENULL(statusText[con[i].status])));
                     if ( con[i].status == ST_ACTIVE ) { 
                         startup = false;
                         activeNodeId = i;
@@ -5639,7 +5639,7 @@ bool dbReplicatedDatabase::open(char const* dbName, char const* fiName,
         con[id].status = ST_RECOVERED;
     }
     file.configure(this);
-    TRACE_MSG(("My status is %s\n", statusText[con[id].status]));
+    TRACE_MSG(("My status is %s\n", SIPX_SAFENULL(statusText[con[id].status])));
 
     if ( con[id].status == ST_ONLINE ) { 
         for ( activeNodeId = 0; 
@@ -5693,7 +5693,7 @@ bool dbReplicatedDatabase::open(char const* dbName, char const* fiName,
             goto pollNodes;
         }
     }
-    TRACE_MSG(("My new status is %s\n", statusText[con[id].status]));
+    TRACE_MSG(("My new status is %s\n", SIPX_SAFENULL(statusText[con[id].status])));
     if ( con[id].status != ST_ACTIVE ) { 
         dbCriticalSection cs(startCS);
         startEvent.wait(startCS);
@@ -5885,13 +5885,13 @@ void dbReplicatedDatabase::reader()
                         delete s;
                     } else {
                         TRACE_MSG(("Send STATUS response %s for GET_STATUS request from node %d\n", 
-                                   statusText[con[id].status], nodeId));
+                                   SIPX_SAFENULL(statusText[con[id].status]), nodeId));
                         rr.op = ReplicationRequest::RR_STATUS;
                         rr.nodeId = id;
                         rr.status = con[id].status;
                         if ( !s->write(&rr, sizeof rr) ) { 
                             s->get_error_text(buf, sizeof buf);
-                            dbTrace("Failed to write response: %s\n", buf);
+                            dbTrace("Failed to write response: %s\n", SIPX_SAFENULL(buf));
                             delete s;
                         } else { 
                             lockConnection(nodeId);
@@ -5912,10 +5912,10 @@ void dbReplicatedDatabase::reader()
                     }
                 } else if ( s == NULL ) { 
                     acceptSock->get_error_text(buf, sizeof buf);
-                    dbTrace("Accept failed: %s\n", buf);
+                    dbTrace("Accept failed: %s\n", SIPX_SAFENULL(buf));
                 } else { 
                     s->get_error_text(buf, sizeof buf);
-                    dbTrace("Failed to read login request: %s\n", buf);
+                    dbTrace("Failed to read login request: %s\n", SIPX_SAFENULL(buf));
                     delete s;
                 }
             }
@@ -5937,8 +5937,8 @@ void dbReplicatedDatabase::reader()
                         deleteConnection(i);
                     } else {
                         TRACE_MSG(("Receive request %s, status %s, size %d from node %d\n", 
-                                   requestText[rr.op], 
-                                   ((rr.status <= ST_RECOVERED) ? statusText[rr.status] : "?"), 
+                                   SIPX_SAFENULL(requestText[rr.op]), 
+                                   SIPX_SAFENULL(((rr.status <= ST_RECOVERED) ? statusText[rr.status] : "?")), 
                                    rr.size, rr.nodeId));
                         switch ( rr.op ) { 
                         case ReplicationRequest::RR_GET_STATUS:
@@ -5946,7 +5946,7 @@ void dbReplicatedDatabase::reader()
                             rr.nodeId = id;
                             rr.status = con[id].status;
                             TRACE_MSG(("Send RR_STATUS response %s to node %d\n", 
-                                       statusText[con[id].status], rr.nodeId));
+                                       SIPX_SAFENULL(statusText[con[id].status]), rr.nodeId));
                             writeResp(i, rr);
                             break;
                         case ReplicationRequest::RR_STATUS:
@@ -6040,7 +6040,7 @@ bool dbReplicatedDatabase::writeReq(int nodeId, ReplicationRequest const& hdr,
         {
             char buf[64];
             s->get_error_text(buf, sizeof buf);
-            dbTrace("Failed to write request to node %d: %s\n", nodeId, buf);
+            dbTrace("Failed to write request to node %d: %s\n", nodeId, SIPX_SAFENULL(buf));
             deleteConnection(nodeId);
             result = false;
         } else { 
@@ -6062,7 +6062,7 @@ bool dbReplicatedDatabase::writeResp(int nodeId, ReplicationRequest const& hdr)
         if ( !con[nodeId].respSock->write(&hdr, sizeof hdr) ) { 
             char buf[64];
             con[nodeId].respSock->get_error_text(buf, sizeof buf);
-            dbTrace("Failed to write request to node %d: %s\n", nodeId, buf);
+            dbTrace("Failed to write request to node %d: %s\n", nodeId, SIPX_SAFENULL(buf));
             deleteConnection(nodeId);
             result = false;
         } else { 

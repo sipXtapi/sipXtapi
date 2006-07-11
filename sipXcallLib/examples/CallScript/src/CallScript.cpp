@@ -33,7 +33,7 @@ SIPX_CALL g_hCall = 0;
 void usage(const char* szExecutable)
 {
    fprintf(stderr, "\nUsage:\n");
-   fprintf(stderr, "   %s <options> var=value ...\n", szExecutable);
+   fprintf(stderr, "   %s <options> var=value ...\n", SIPX_SAFENULL(szExecutable));
    fprintf(stderr, "\n");
    fprintf(stderr, "Options:\n");
    fprintf(stderr, "   -p SIP port (default = 5060)\n");
@@ -99,7 +99,7 @@ bool parseArgs(int argc, char *argv[], int* pSipPort, int* pRtpPort,
 // Place a call to szSipUrl as szFromIdentity
 bool placeCall(const char* szSipUrl, const char* szFromIdentity)
 {
-    printf("<-> Placing call to \"%s\" as \"%s\"\n", szSipUrl, szFromIdentity);
+    printf("<-> Placing call to \"%s\" as \"%s\"\n", SIPX_SAFENULL(szSipUrl), SIPX_SAFENULL(szFromIdentity));
 
     sipxLineAdd(g_hInst, szFromIdentity, false, &g_hLine);
     sipxCallCreate(g_hInst, g_hLine, &g_hCall);
@@ -231,7 +231,7 @@ int main(int argc, char* argv[])
             {
                fprintf(stderr,
                       "%sUnable to find the end of variable reference '%s'\n",
-                      szLabel, &input_line_raw[i]);
+                      SIPX_SAFENULL(szLabel), SIPX_SAFENULL(&input_line_raw[i]));
                exit(1);
             }
             // Find the last matching argument.
@@ -250,7 +250,7 @@ int main(int argc, char* argv[])
                      input_line[j] = '\0';
                      fprintf(stderr,
                              "%sLine too long after substitutions: %s\n",
-                             input_line);
+                             SIPX_SAFENULL(input_line));
                      exit(1);
                   }
                   break;
@@ -261,7 +261,7 @@ int main(int argc, char* argv[])
             if (k == 0)
             {
                fprintf(stderr, "%sNo value given for variable '%.*s'\n",
-                       var_name_length, &input_line_raw[i+2]);
+                       SIPX_SAFENULL(var_name_length), SIPX_SAFENULL(&input_line_raw[i+2]));
                exit(1);
             }
             strcpy(&input_line[j], &argv[k][var_name_length+1]);
@@ -276,7 +276,7 @@ int main(int argc, char* argv[])
             {
                input_line[j] = '\0';
                fprintf(stderr, "%sLine too long after substitutions: %s\n",
-                       input_line);
+                       SIPX_SAFENULL(input_line));
                exit(1);
             }
             input_line[j++] = input_line_raw[i++];
@@ -287,8 +287,8 @@ int main(int argc, char* argv[])
       input_line[j] = '\0';
 
 #if 0
-      fprintf(stderr, "Raw: %s", input_line_raw);
-      fprintf(stderr, "Ckd: %s", input_line);
+      fprintf(stderr, "Raw: %s", SIPX_SAFENULL(input_line_raw));
+      fprintf(stderr, "Ckd: %s", SIPX_SAFENULL(input_line));
       fprintf(stderr, "\n");
 #endif
 
@@ -319,14 +319,14 @@ int main(int argc, char* argv[])
          // The CALL command.
          if (token2 == NULL)
          {
-            fprintf(stderr, "%sCALL command requires SIP URL.\n", szLabel);
+            fprintf(stderr, "%sCALL command requires SIP URL.\n", SIPX_SAFENULL(szLabel));
             exit(1);
          }
-         fprintf(stderr, "%scall %s\n", szLabel, token2);
+         fprintf(stderr, "%scall %s\n", SIPX_SAFENULL(szLabel), SIPX_SAFENULL(token2));
          if (!placeCall(token2, "\"Demo\" <sip:demo@example.bogus>"))
          {
             // Failed to start the call.
-            fprintf(stderr, "%sUnable to initiate call to '%s'\n", szLabel,
+            fprintf(stderr, "%sUnable to initiate call to '%s'\n", SIPX_SAFENULL(szLabel),
                     token2);
             exit(1);
          }
@@ -336,13 +336,13 @@ int main(int argc, char* argv[])
          // The TONES command.
          if (token2 == NULL)
          {
-            fprintf(stderr, "%sTONES command requires a string.\n", szLabel);
+            fprintf(stderr, "%sTONES command requires a string.\n", SIPX_SAFENULL(szLabel));
             exit(1);
          }
-         fprintf(stderr, "%stones %s\n", szLabel, token2);
+         fprintf(stderr, "%stones %s\n", SIPX_SAFENULL(szLabel), SIPX_SAFENULL(token2));
          if (!playTones(token2))
          {
-            fprintf(stderr, "%sUnable to play tones '%s'\n", szLabel, token2);
+            fprintf(stderr, "%sUnable to play tones '%s'\n", SIPX_SAFENULL(szLabel), SIPX_SAFENULL(token2));
             exit(1);
          }
       }
@@ -351,13 +351,13 @@ int main(int argc, char* argv[])
          // The FILE command.
          if (token2 == NULL)
          {
-            fprintf(stderr, "%sFILE command requires a file name.\n", szLabel);
+            fprintf(stderr, "%sFILE command requires a file name.\n", SIPX_SAFENULL(szLabel));
             exit(1);
          }
-         fprintf(stderr, "%sfile %s\n", szLabel, token2);
+         fprintf(stderr, "%sfile %s\n", SIPX_SAFENULL(szLabel), SIPX_SAFENULL(token2));
          if (!playFile(token2))
          {
-            fprintf(stderr, "%sUnable to play file '%s'\n", szLabel, token2);
+            fprintf(stderr, "%sUnable to play file '%s'\n", SIPX_SAFENULL(szLabel), SIPX_SAFENULL(token2));
             exit(1);
          }
       }
@@ -367,7 +367,7 @@ int main(int argc, char* argv[])
          if (token2 == NULL)
          {
             fprintf(stderr, "%sPAUSE command requires a wait duration.\n",
-                    szLabel);
+                    SIPX_SAFENULL(szLabel));
             exit(1);
          }
          if (strcmp(token2, "random") == 0)
@@ -378,7 +378,7 @@ int main(int argc, char* argv[])
             {
                fprintf(stderr,
                        "%sPAUSE RANDOM command requires a wait duration.\n",
-                       szLabel);
+                       SIPX_SAFENULL(szLabel));
                exit(1);
             }
 
@@ -387,12 +387,12 @@ int main(int argc, char* argv[])
             if (*endptr != '\0' || v < 0 || v > MAX_PAUSE_DURATION_MS)
             {
                fprintf(stderr,
-                       "%sInvalid time in PAUSE RANDOM '%s'\n", szLabel,
-                       token3);
+                       "%sInvalid time in PAUSE RANDOM '%s'\n", SIPX_SAFENULL(szLabel),
+                       SIPX_SAFENULL(token3));
                exit(1);
             }
             long int wait = random() % v;
-            fprintf(stderr, "%spause random %ld (pause %ld)\n", szLabel, v,
+            fprintf(stderr, "%spause random %ld (pause %ld)\n", SIPX_SAFENULL(szLabel), v,
                     wait);
             SLEEP(wait);
          }
@@ -403,27 +403,27 @@ int main(int argc, char* argv[])
             long int v = strtol(token2, &endptr, 10);
             if (*endptr != '\0' || v < 0 || v > MAX_PAUSE_DURATION_MS)
             {
-               fprintf(stderr, "%sInvalid time in PAUSE '%s'\n", szLabel,
-                       token2);
+               fprintf(stderr, "%sInvalid time in PAUSE '%s'\n", SIPX_SAFENULL(szLabel),
+                       SIPX_SAFENULL(token2));
                exit(1);
             }
-            fprintf(stderr, "%spause %ld\n", szLabel, v);
+            fprintf(stderr, "%spause %ld\n", SIPX_SAFENULL(szLabel), v);
             SLEEP(v);
          }
       }
       else if (strcmp(token1, "hangup") == 0)
       {
          // The HANGUP command.
-         fprintf(stderr, "%shangup\n", szLabel);
+         fprintf(stderr, "%shangup\n", SIPX_SAFENULL(szLabel));
          if (!shutdownCall())
          {
-            fprintf(stderr, "%sUnable to shutdown call\n", szLabel);
+            fprintf(stderr, "%sUnable to shutdown call\n", SIPX_SAFENULL(szLabel));
          }
       }
       else
       {
          // Unknown command.
-         fprintf(stderr, "%sUnknown command: '%s'\n", szLabel, token1);
+         fprintf(stderr, "%sUnknown command: '%s'\n", SIPX_SAFENULL(szLabel), SIPX_SAFENULL(token1));
          exit(1);
       }
    }

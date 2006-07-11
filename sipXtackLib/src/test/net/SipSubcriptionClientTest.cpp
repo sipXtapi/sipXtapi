@@ -123,7 +123,7 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
                     UtlString messageBytes;
                     int len;
                     message->getBytes(&messageBytes, &len);
-                    printf("%s", messageBytes.data());
+                    printf("%s", SIPX_SAFENULL(messageBytes.data()));
                 }
                 else
                 {
@@ -273,7 +273,7 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
 
        //UtlString clientStateString;
        //subClient->dumpStates(clientStateString);
-       //printf("client states:\n%s\n", clientStateString.data());
+       //printf("client states:\n%s\n", SIPX_SAFENULL(clientStateString.data()));
 
 
         int waitIterations = 0;
@@ -302,12 +302,12 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
         CPPUNIT_ASSERT(firstNotifyCseq == 0);
 
         //subClient->dumpStates(clientStateString);
-        //printf("client states:\n%s\n", clientStateString.data());
+        //printf("client states:\n%s\n", SIPX_SAFENULL(clientStateString.data()));
 
         //UtlString dialogMgrDumpString;
         //clientDialogMgr.toString(dialogMgrDumpString);
         //printf("Client Dialog manager dump 1:\n%s\n",
-        //       dialogMgrDumpString.data());
+        //       SIPX_SAFENULL(dialogMgrDumpString.data()));
 
         // The refresh manager should re-SUBSCRIBE
         // Wait for the next notify request and subscribe response
@@ -356,11 +356,11 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
         }
 
         //subClient->dumpStates(clientStateString);
-        //printf("client states:\n%s\n", clientStateString.data());
+        //printf("client states:\n%s\n", SIPX_SAFENULL(clientStateString.data()));
 
         //clientDialogMgr.toString(dialogMgrDumpString);
         //printf("Client Dialog manager dump 2:\n%s\n",
-        //       dialogMgrDumpString.data());
+        //       SIPX_SAFENULL(dialogMgrDumpString.data()));
 
        CPPUNIT_ASSERT(removeMessage(incomingServerMsgQueue,
                      5000, // milliseconds
@@ -370,7 +370,7 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
        //int len;
        //serverSideSubRequest->getBytes(&subRequestDump, &len);
        //printf("server side sub request:\n%s\n",
-       //    subRequestDump.data());
+       //    SIPX_SAFENULL(subRequestDump.data()));
 
        CPPUNIT_ASSERT(removeMessage(incomingClientMsgQueue,
                       5000, // milliseconds
@@ -379,7 +379,7 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
        //UtlString subResponseDump;
        //clientSideSubResponse->getBytes(&subResponseDump, &len);
        //printf("client side sub response:\n%s\n",
-       //       subResponseDump.data());
+       //       SIPX_SAFENULL(subResponseDump.data()));
 
         CPPUNIT_ASSERT(secondNotifyRequest);
         CPPUNIT_ASSERT(secondSubResponse);

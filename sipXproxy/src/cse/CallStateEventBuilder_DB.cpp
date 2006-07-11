@@ -105,7 +105,7 @@ void CallStateEventBuilder_DB::observerEvent(int sequenceNumber, ///< for Observ
    
       char buffer[256];
       snprintf(buffer, 256, "%d,\'%s\'", 
-               eventCode, eventMsg);
+               eventCode, SIPX_SAFENULL(eventMsg));
       mCurrentEvent.append(buffer);
 
       mCallInfo.remove(0);
@@ -151,7 +151,7 @@ void CallStateEventBuilder_DB::callRequestEvent(int sequenceNumber,
       assert(false);
       OsSysLog::add(FAC_SIP, PRI_ERR, 
                     "%s::callRequestEvent not allowed.",
-                    ModuleName);
+                    SIPX_SAFENULL(ModuleName));
    }
 }
 
@@ -181,7 +181,7 @@ void CallStateEventBuilder_DB::callSetupEvent(int sequenceNumber,
    {
       assert(false);
       OsSysLog::add(FAC_SIP, PRI_ERR, 
-                    "%s::callSetupEvent not allowed.", ModuleName);
+                    "%s::callSetupEvent not allowed.", SIPX_SAFENULL(ModuleName));
    }
 }
 
@@ -205,14 +205,14 @@ void CallStateEventBuilder_DB::callFailureEvent(int sequenceNumber,
       newEvent(sequenceNumber, timestamp, CallEventTable, CallFailureType);
 
       char buffer[256];
-      snprintf(buffer, 256, "%d,\'%s\',", statusCode, statusMsg.data());
+      snprintf(buffer, 256, "%d,\'%s\',", statusCode, SIPX_SAFENULL(statusMsg.data()));
       mFailureElement = buffer;
    }
    else
    {
       assert(false);
       OsSysLog::add(FAC_SIP, PRI_ERR, 
-                    "%s::callFailureEvent not allowed.", ModuleName);
+                    "%s::callFailureEvent not allowed.", SIPX_SAFENULL(ModuleName));
    }
 }
 
@@ -238,7 +238,7 @@ void CallStateEventBuilder_DB::callEndEvent(const int sequenceNumber,
    {
       assert(false);
       OsSysLog::add(FAC_SIP, PRI_ERR, 
-                    "%s::callEndEvent not allowed.", ModuleName);
+                    "%s::callEndEvent not allowed.", SIPX_SAFENULL(ModuleName));
    }
 }
 
@@ -278,7 +278,7 @@ void CallStateEventBuilder_DB::callTransferEvent(int sequenceNumber,
    {
       assert(false);
       OsSysLog::add(FAC_SIP, PRI_ERR, 
-                    "%s::callEndEvent not allowed.", ModuleName);
+                    "%s::callEndEvent not allowed.", SIPX_SAFENULL(ModuleName));
    }   
 }
 
@@ -319,7 +319,7 @@ void CallStateEventBuilder_DB::addCallData(const int cseqNumber,
    {
       assert(false);
       OsSysLog::add(FAC_SIP, PRI_ERR, 
-                    "%s::callEndEvent not allowed.", ModuleName);
+                    "%s::callEndEvent not allowed.", SIPX_SAFENULL(ModuleName));
    }
 }
 
@@ -337,7 +337,7 @@ void CallStateEventBuilder_DB::addEventVia(const UtlString& via
    {
       assert(false);
       OsSysLog::add(FAC_SIP, PRI_ERR, 
-                    "%s::callEndEvent not allowed.", ModuleName);
+                    "%s::callEndEvent not allowed.", SIPX_SAFENULL(ModuleName));
    }
 }
 
@@ -353,7 +353,7 @@ void CallStateEventBuilder_DB::completeCallEvent()
    {
       assert(false);
       OsSysLog::add(FAC_SIP, PRI_ERR, 
-                    "%s::completeCallEvent not allowed.", ModuleName);
+                    "%s::completeCallEvent not allowed.", SIPX_SAFENULL(ModuleName));
    }
 }
 

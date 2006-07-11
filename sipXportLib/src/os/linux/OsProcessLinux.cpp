@@ -125,7 +125,7 @@ OsStatus OsProcessLinux::kill()
     {
         int trycount = 0;
 
-        OsSysLog::add(FAC_PROCESS, PRI_INFO,"Attempting kill on  %s\n",mProcessName.data());
+        OsSysLog::add(FAC_PROCESS, PRI_INFO,"Attempting kill on  %s\n",SIPX_SAFENULL(mProcessName.data()));
 
         while (isRunning() && trycount++ < 3)
         {
@@ -144,13 +144,13 @@ OsStatus OsProcessLinux::kill()
 
         if (isRunning())
         {
-            OsSysLog::add(FAC_PROCESS, PRI_INFO,"KILL FAILED on  %s\n",mProcessName.data());
+            OsSysLog::add(FAC_PROCESS, PRI_INFO,"KILL FAILED on  %s\n",SIPX_SAFENULL(mProcessName.data()));
             retval = OS_FAILED;  //not good.  the thing just won't go away
         }
         else
         {
             retval = OS_SUCCESS; //hurray! it's gone
-            OsSysLog::add(FAC_PROCESS, PRI_INFO,"SUCCESSFUL KILL on  %s\n",mProcessName.data());
+            OsSysLog::add(FAC_PROCESS, PRI_INFO,"SUCCESSFUL KILL on  %s\n",SIPX_SAFENULL(mProcessName.data()));
         }
     }
 
@@ -242,7 +242,7 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsP
                     execvp(rAppName.data(), (char **) parms);
                     
                     //and it never reaches here hopefully
-                    osPrintf("Failed to execute '%s'!\n", rAppName.data());
+                    osPrintf("Failed to execute '%s'!\n", SIPX_SAFENULL(rAppName.data()));
                     _exit(1);
     default :   // this is the parent process
                     mPID = forkReturnVal;

@@ -306,7 +306,7 @@ PtStatus PtAddress::cancelForwarding(PtAddressForwarding forwards[], int size)
         int i;
         for (i = 0; i < size; i++)
         {
-                osPrintf("%02d: type=%d filter=%d, url=%s, caller=%s\n", i, forwards[i].mForwardingType, forwards[i].mFilterType, forwards[i].mDestinationUrl.data(), forwards[i].mCallerUrl.data()) ;
+                osPrintf("%02d: type=%d filter=%d, url=%s, caller=%s\n", i, forwards[i].mForwardingType, forwards[i].mFilterType, SIPX_SAFENULL(forwards[i].mDestinationUrl.data()), SIPX_SAFENULL(forwards[i].mCallerUrl.data())) ;
 
                 sprintf(buff, "%d", forwards[i].mForwardingType);
                 arg += TAOMESSAGE_DELIMITER + UtlString(buff);
@@ -534,7 +534,7 @@ PtStatus PtAddress::setForwarding(PtAddressForwarding forwards[], int size)
         int i;
         for (i = 0; i < size; i++)
         {
-                osPrintf("%02d: type=%d filter=%d, url=%s, caller=%s\n", i, forwards[i].mForwardingType, forwards[i].mFilterType, forwards[i].mDestinationUrl.data(), forwards[i].mCallerUrl.data()) ;
+                osPrintf("%02d: type=%d filter=%d, url=%s, caller=%s\n", i, forwards[i].mForwardingType, forwards[i].mFilterType, SIPX_SAFENULL(forwards[i].mDestinationUrl.data()), SIPX_SAFENULL(forwards[i].mCallerUrl.data())) ;
 
                 sprintf(buff, "%d", forwards[i].mForwardingType);
                 arg += TAOMESSAGE_DELIMITER + UtlString(buff);

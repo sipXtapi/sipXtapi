@@ -268,7 +268,7 @@ OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory,
             *iRejected = pFactory->buildSdpCodecFactory(references);
             OsSysLog::add(FAC_MP, PRI_DEBUG, 
                           "sipXmediaFactoryImpl::buildCodecFactory: sReferences = %s with NumReject %d",
-                           references.data(), *iRejected);
+                           SIPX_SAFENULL(references.data()), *iRejected);
                            
             // Now pick preferences out of all available codecs
             SdpCodec** codecsArray = NULL;
@@ -288,7 +288,7 @@ OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory,
             *iRejected = pFactory->buildSdpCodecFactory(preferences);
             OsSysLog::add(FAC_MP, PRI_DEBUG, 
                           "sipXmediaFactoryImpl::buildCodecFactory: supported codecs = %s with NumReject %d",
-                          preferences.data(), *iRejected);
+                          SIPX_SAFENULL(preferences.data()), *iRejected);
                           
             // Free up the codecs and the array
             for (i = 0; i < numCodecs; i++)

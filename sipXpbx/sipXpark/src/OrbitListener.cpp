@@ -78,7 +78,7 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
       {
          case PtEvent::CONNECTION_OFFERED:
             OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::handleMessage - Call arrived: callId: '%s', address: '%s'\n", 
-                          callId.data(), address.data());
+                          SIPX_SAFENULL(callId.data()), SIPX_SAFENULL(address.data()));
 
             mpCallManager->acceptConnection(callId, address);
             mpCallManager->answerTerminalConnection(callId, address, "*");
@@ -90,7 +90,7 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
             if (localConnection) 
             {
                OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::handleMessage - Call connected: callId '%s', address: '%s'",
-                             callId.data(), address.data());
+                             SIPX_SAFENULL(callId.data()), SIPX_SAFENULL(address.data()));
                
                ParkedCallObject* pThisCall = NULL;
                // CallId at this point is either the callId of a normal call or the original callId
@@ -134,7 +134,7 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                            // Drop the call
                            mpCallManager->drop(callId);
                            OsSysLog::add(FAC_ACD, PRI_WARNING, "OrbitListener::handleMessage - Drop callId %s due to failure of playing audio",
-                                         callId.data());
+                                         SIPX_SAFENULL(callId.data()));
    
                            delete pThisCall;
                         }
@@ -144,7 +144,7 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                         // Do not accept the call to the requested orbit address.
                         mpCallManager->drop(callId);
                         OsSysLog::add(FAC_ACD, PRI_WARNING, "OrbitListener::handleMessage - Drop callId %s due to invalid orbit address",
-                                      callId.data());
+                                      SIPX_SAFENULL(callId.data()));
                      }
                   }
                   else
@@ -153,12 +153,12 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                      // Additional leg of transfer. This call replaces the previous call.
                      //
                      OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::handleMessage - change the call address from %s to %s",
-                                   pThisCall->getAddress().data(), address.data());
+                                   SIPX_SAFENULL(pThisCall->getAddress().data()), SIPX_SAFENULL(address.data()));
                      OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::handleMessage - dump pThisCall:\n"
                                                        "address '%s', original address '%s',\n"
                                                        "pickup callId '%s'",
-                                                       pThisCall->getAddress().data(), pThisCall->getOriginalAddress().data(),
-                                                       pThisCall->getPickupCallId().data());
+                                                       SIPX_SAFENULL(pThisCall->getAddress().data()), SIPX_SAFENULL(pThisCall->getOriginalAddress().data()),
+                                                       SIPX_SAFENULL(pThisCall->getPickupCallId().data()));
                      // Update the remote address of the dialog
                      pThisCall->setAddress(address);
                      
@@ -182,12 +182,12 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                                                 
                         OsSysLog::add(FAC_SIP, PRI_DEBUG, "OrbitListener::handleMessage insert transfered call object %p "
                                       "with callId '%s', address '%s' into the list",
-                                      pTransferredCall, newCallId.data(), address.data());
+                                      SIPX_SAFENULL(pTransferredCall), SIPX_SAFENULL(newCallId.data()), SIPX_SAFENULL(address.data()));
                      }
                      else
                      {
                         OsSysLog::add(FAC_ACD, PRI_ERR, "OrbitListener::handleMessage Tao message does not contain new callId for call '%s'", 
-                                      callId.data());
+                                      SIPX_SAFENULL(callId.data()));
                      }
                   }
                }
@@ -201,7 +201,7 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                   
                   UtlString originalCallId;
                   UtlString originalAddress;                  
-                  OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::handleMessage retrieving parked call from orbit '%s'", orbit.data()); 
+                  OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::handleMessage retrieving parked call from orbit '%s'", SIPX_SAFENULL(orbit.data())); 
                   
                   // Find oldest call in call list, return that callId and orginal address in parameters.                 
                   pThisCall = getOldestCallInOrbit(orbit, originalCallId, originalAddress);
@@ -213,8 +213,8 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                      pThisCall->setPickupCallId(callId.data());
                      OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::handleMessage - transferring original callId %s, address %s "
                                                        "to callId %s, address %s",
-                                                        originalCallId.data(), originalAddress.data(), 
-                                                      +  callId.data(), address.data());
+                                                        SIPX_SAFENULL(originalCallId.data()), SIPX_SAFENULL(originalAddress.data()), 
+                                                        SIPX_SAFENULL(callId.data()),SIPX_SAFENULL(address.data()));
                                                      
                      mpCallManager->transfer(originalCallId, originalAddress,
                                              callId, address);
@@ -229,7 +229,7 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                      // Drop the call
                      mpCallManager->drop(callId);
                      OsSysLog::add(FAC_ACD, PRI_WARNING, "OrbitListener::handleMessage - Drop callId %s due to not finding a parked call",
-                                   callId.data());
+                                   SIPX_SAFENULL(callId.data()));
                   }
                }
             }
@@ -241,7 +241,7 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
             if (!localConnection)
             {
                OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::handleMessage - Call Dropped: callId %s, address: %s",
-                             callId.data(), address.data());
+                             SIPX_SAFENULL(callId.data()), SIPX_SAFENULL(address.data()));
 
                // See if the callId is in our list and if the address matches.
                UtlVoidPtr* container = dynamic_cast <UtlVoidPtr *> (mCalls.findValue(&callId));
@@ -249,12 +249,12 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                {
                   ParkedCallObject* pDroppedCall = (ParkedCallObject *) container->getValue();
                   OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::handleMessage - found call object %p for %s\n",
-                                pDroppedCall, callId.data());
+                                pDroppedCall, SIPX_SAFENULL(callId.data()));
 
                   if (pDroppedCall == NULL)
                   {
                      OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::handleMessage - No callId %s found in the active call list\n",
-                                   callId.data());
+                                   SIPX_SAFENULL(callId.data()));
                   }
                   else if (address.compareTo(pDroppedCall->getAddress()) == 0)
                   {
@@ -269,7 +269,7 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                        
                         while ((pCallId = dynamic_cast<UtlString*>(iterator())))
                         {
-                           OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::handleMessage - cleaning up new callId '%s'", pCallId->data());
+                           OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::handleMessage - cleaning up new callId '%s'", SIPX_SAFENULL(pCallId->data()));
                            
                            UtlVoidPtr* newContainer = dynamic_cast <UtlVoidPtr *> (mCalls.findValue(pCallId));   
                            
@@ -290,7 +290,7 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                            else
                            {
                               OsSysLog::add(FAC_ACD, PRI_WARNING, "OrbitListener::handleMessage - Could not find call object for new call '%s'",
-                                            pCallId->data());
+                                            SIPX_SAFENULL(pCallId->data()));
                            }
                         }                     
                      }
@@ -309,13 +309,13 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                   else
                   {
                      OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::handleMessage - Address mismatch passed in '%s' / stored '%s'",
-                                   address.data(), pDroppedCall->getAddress().data());
+                                   SIPX_SAFENULL(address.data()), SIPX_SAFENULL(pDroppedCall->getAddress().data()));
                   }
                }
                else
                {
                   OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::handleMessage - No callId %s found in the active call list\n",
-                                callId.data());                  
+                                SIPX_SAFENULL(callId.data()));                  
                }
             }
 
@@ -323,7 +323,7 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
             
 
          case PtEvent::CONNECTION_FAILED:
-            OsSysLog::add(FAC_ACD, PRI_WARNING, "OrbitListener::handleMessage - Failed connection: %s\n", callId.data());
+            OsSysLog::add(FAC_ACD, PRI_WARNING, "OrbitListener::handleMessage - Failed connection: %s\n", SIPX_SAFENULL(callId.data()));
             
             ParkedCallObject* pDroppedCall = NULL;
             UtlVoidPtr* container = dynamic_cast <UtlVoidPtr *> (mCalls.findValue(&callId));
@@ -346,7 +346,7 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                         if (pPickupCall)
                         {
                            OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::handleMessage - Found attached  pickup call %s - cleaning that up too", 
-                                         pickupCallId.data()); 
+                                         SIPX_SAFENULL(pickupCallId.data())); 
                            mCalls.destroy(&pickupCallId);
                            
                            delete pPickupCall;
@@ -357,7 +357,7 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                      else
                      {
                         OsSysLog::add(FAC_ACD, PRI_WARNING, "OrbitListener::handleMessage - Could not find call object for pickup call '%s'",
-                                      pickupCallId.data());
+                                      SIPX_SAFENULL(pickupCallId.data()));
                      }
                      // Are there new CallIds attached to this call? Then clean them up too.
                      if (pDroppedCall->hasNewCallIds())
@@ -370,7 +370,7 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                        
                         while ((pCallId = dynamic_cast<UtlString*>(iterator())))
                         {
-                           OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::handleMessage - cleaning up new callId '%s'", pCallId->data());
+                           OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::handleMessage - cleaning up new callId '%s'", SIPX_SAFENULL(pCallId->data()));
                            
                            UtlVoidPtr* newContainer = dynamic_cast <UtlVoidPtr *> (mCalls.findValue(pCallId));   
                            
@@ -391,7 +391,7 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                            else
                            {
                               OsSysLog::add(FAC_ACD, PRI_WARNING, "OrbitListener::handleMessage - Could not find call object for new call '%s'",
-                                            pCallId->data());
+                                            SIPX_SAFENULL(pCallId->data()));
                            }
                         }                     
                      }
@@ -431,7 +431,7 @@ unsigned int OrbitListener::validateOrbitRequest(UtlString& callId, UtlString& a
    orbitUrl.getUserId(userId);
    
    OsSysLog::add(FAC_ACD, PRI_DEBUG,"OrbitListener::validateOrbitRequest fromField %s, userId %s", 
-                 fromField.data(), userId.data()); 
+                 SIPX_SAFENULL(fromField.data()), SIPX_SAFENULL(userId.data())); 
 
    audio = "";
 
@@ -506,7 +506,7 @@ unsigned int OrbitListener::validateOrbitRequest(UtlString& callId, UtlString& a
    }
    else
    {
-      OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::validateOrbitRequest - Unable to open orbit config file: %s", fileName.data());
+      OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::validateOrbitRequest - Unable to open orbit config file: %s", SIPX_SAFENULL(fileName.data()));
    }
 
    if (audio != "")
@@ -542,7 +542,7 @@ void OrbitListener::getOrbit(UtlString& callId, UtlString& address, UtlString &o
    // Get orbit from request Uri.
    Url requestUri(request, TRUE);
    requestUri.getUserId(orbit);
-   OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::getOrbit - orbit '%s' from '%s'", orbit.data(), request.data());
+   OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::getOrbit - orbit '%s' from '%s'", SIPX_SAFENULL(orbit.data()), SIPX_SAFENULL(request.data()));
 }
 
 
@@ -576,7 +576,7 @@ ParkedCallObject* OrbitListener::getOldestCallInOrbit(UtlString& orbit, UtlStrin
             if (pCall)
             {
                OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::getOldestCallInOrbit - Entry for callId '%s', orbit '%s'",
-                                                  pKey->data(), pCall->getOrbit().data());                   
+                                                  SIPX_SAFENULL(pKey->data()), SIPX_SAFENULL(pCall->getOrbit().data()));                   
                // Found a call, make sure that the orbit matches, that it's older than anything seen so far and 
                // that it is not a retrieval call.
                pCall->getTimeParked(parked);
@@ -601,12 +601,12 @@ ParkedCallObject* OrbitListener::getOldestCallInOrbit(UtlString& orbit, UtlStrin
                      pReturn = pCall;
                   
                      OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::getOldestCallInOrbit - Valid callId '%s', address '%s'",
-                                   oldestKey.data(), oldestAddress.data());
+                                   SIPX_SAFENULL(oldestKey.data()), SIPX_SAFENULL(oldestAddress.data()));
                   }
                   else
                   {
                      OsSysLog::add(FAC_ACD, PRI_ERR, "OrbitListener::getOldestCallInOrbit - Unknown callId '%s', remove from list",
-                                   pKey->data());
+                                   SIPX_SAFENULL(pKey->data()));
                      mCalls.destroy(pKey);
                      delete pCall;
                      bRemovedInvalidObject = true;
@@ -617,18 +617,18 @@ ParkedCallObject* OrbitListener::getOldestCallInOrbit(UtlString& orbit, UtlStrin
             else
             {
                OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::getOldestCallInOrbit - No call object found for callId '%s'", 
-                             pKey->data());                    
+                             SIPX_SAFENULL(pKey->data()));                    
             }
          }
          else
          {
             OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::getOldestCallInOrbit - No container found for callId '%s'", 
-                          pKey->data());                     
+                          SIPX_SAFENULL(pKey->data()));                     
          }
       }
    }
    OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::getOldestCallInOrbit - Returning pCall %p, callId '%s', address '%s'",
-                 pReturn, oldestKey.data(), oldestAddress.data());   
+                 pReturn, SIPX_SAFENULL(oldestKey.data()), SIPX_SAFENULL(oldestAddress.data()));   
    callId = oldestKey;
    address = oldestAddress;
    return pReturn;
@@ -648,7 +648,7 @@ bool OrbitListener::isCallRetrievalInvite(const char* callId,
    UtlString request;   
    dialog.getRemoteRequestUri(request);
                                
-   OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::isCallPickupInvite remote request URI %s", request.data());
+   OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::isCallPickupInvite remote request URI %s", SIPX_SAFENULL(request.data()));
    
    Url requestURI(request, TRUE);
    UtlString urlParam;
@@ -676,7 +676,7 @@ void OrbitListener::dumpTaoMessageArgs(unsigned char eventId, TaoString& args)
    int argc = args.getCnt();
    for(int argIndex = 0; argIndex < argc; argIndex++)
    {
-      OsSysLog::add(FAC_ACD, PRI_DEBUG, "\targ[%d]=\"%s\"\n", argIndex, args[argIndex]);
+      OsSysLog::add(FAC_ACD, PRI_DEBUG, "\targ[%d]=\"%s\"\n", argIndex, SIPX_SAFENULL(args[argIndex]));
    }
 }
 

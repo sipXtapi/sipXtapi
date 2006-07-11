@@ -235,7 +235,7 @@ OsStatus MpMediaTask::signalFrameStart(void)
                           "MpMediaTask::signalFrameStart %-18s %d%s",
                           "mSignalTime",
                           spInstance->mSignalTime.getBinSize(),
-                          print->data());
+                          SIPX_SAFENULL(print->data()));
             delete print;
             spInstance->mSignalTime.clear();
          }
@@ -868,7 +868,7 @@ UtlBoolean MpMediaTask::handleWaitForSignal(MpMediaTaskMsg* pMsg)
                        "MpMediaTask::handleWaitForSignal %-18s %d%s",
                        "mSignalToStartTime",
                        mSignalToStartTime.getBinSize(),
-                       print->data());
+                       SIPX_SAFENULL(print->data()));
          delete print;
          mSignalToStartTime.clear();
          // Print mStartToEndTime.
@@ -877,7 +877,7 @@ UtlBoolean MpMediaTask::handleWaitForSignal(MpMediaTaskMsg* pMsg)
                        "MpMediaTask::handleWaitForSignal %-18s %d%s",
                        "mStartToEndTime",
                        mStartToEndTime.getBinSize(),
-                       print->data());
+                       SIPX_SAFENULL(print->data()));
          delete print;
          mStartToEndTime.clear();
          // Print mStartToStartTime.
@@ -886,7 +886,7 @@ UtlBoolean MpMediaTask::handleWaitForSignal(MpMediaTaskMsg* pMsg)
                        "MpMediaTask::handleWaitForSignal %-18s %d%s",
                        "mStartToStartTime",
                        mStartToStartTime.getBinSize(),
-                       print->data());
+                       SIPX_SAFENULL(print->data()));
          delete print;
          mStartToStartTime.clear();
          // Print mEndToStartTime.
@@ -895,7 +895,7 @@ UtlBoolean MpMediaTask::handleWaitForSignal(MpMediaTaskMsg* pMsg)
                        "MpMediaTask::handleWaitForSignal %-18s %d%s",
                        "mEndToStartTime",
                        mEndToStartTime.getBinSize(),
-                       print->data());
+                       SIPX_SAFENULL(print->data()));
          delete print;
          mEndToStartTime.clear();
          // Print mOtherMessages.
@@ -904,7 +904,7 @@ UtlBoolean MpMediaTask::handleWaitForSignal(MpMediaTaskMsg* pMsg)
                        "MpMediaTask::handleWaitForSignal %-18s %d%s",
                        "mOtherMessages",
                        mOtherMessages.getBinSize(),
-                       print->data());
+                       SIPX_SAFENULL(print->data()));
          delete print;
          mOtherMessages.clear();
       }

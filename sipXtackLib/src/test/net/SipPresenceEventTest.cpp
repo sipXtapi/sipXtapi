@@ -57,7 +57,7 @@ public:
          int bodyLength;
        
          presenceEvent.getBytes(&bodyString, &bodyLength);
-         //printf("body = \n%s\n", bodyString.data());
+         //printf("body = \n%s\n", SIPX_SAFENULL(bodyString.data()));
 
          CPPUNIT_ASSERT(strcmp(bodyString.data(), package) == 0);
 
@@ -86,7 +86,7 @@ public:
          int bodyLength;
        
          body.getBytes(&bodyString, &bodyLength);
-         //printf("body = \n%s\n", bodyString.data());
+         //printf("body = \n%s\n", SIPX_SAFENULL(bodyString.data()));
        
          CPPUNIT_ASSERT(strcmp(bodyString.data(), package) == 0);
 

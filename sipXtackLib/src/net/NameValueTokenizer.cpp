@@ -136,8 +136,8 @@ UtlBoolean NameValueTokenizer::getSubField(const char* textField,
     {
 #if 0
        printf("NameValueTokenizer::getSubField textField = '%s', textFieldLength = %d, subFieldIndex = %d, subFieldSeparators = '%s'\n",
-              textField, textFieldLength, subFieldIndex,
-              subFieldSeparators);
+              SIPX_SAFENULL(textField), textFieldLength, subFieldIndex,
+              SIPX_SAFENULL(subFieldSeparators));
 #endif
     int subFieldI = -1;
     int subFieldBegin = 0;

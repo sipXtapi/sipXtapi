@@ -337,7 +337,7 @@ void EventValidator::report()
     OsLock lock(m_mutLists) ;
 
     printf("\r\n") ;
-    printf("%s EventValidator Error: ", m_title.data()) ;
+    printf("%s EventValidator Error: ", SIPX_SAFENULL(m_title.data())) ;
     switch (m_eErrorType)
     {
         case EVENT_VALIDATOR_ERROR_NONE:
@@ -358,19 +358,19 @@ void EventValidator::report()
     for (i=0; i<nElements; i++)
     {
         UtlString* pString = (UtlString*) m_processedEvents.at(i) ;
-        printf("[OK] %s\r\n", pString->data()) ;
+        printf("[OK] %s\r\n", SIPX_SAFENULL(pString->data())) ;
     }
     
     if (m_pUnfoundEvent) 
     {
-        printf("[!!] %s\r\n", m_pUnfoundEvent->data()) ;
+        printf("[!!] %s\r\n", SIPX_SAFENULL(m_pUnfoundEvent->data())) ;
     }
 
     nElements = m_unprocessedEvents.entries() ;
     for (i=0; i<nElements; i++)
     {
         UtlString* pString = (UtlString*) m_unprocessedEvents.at(i) ;
-        printf("[??] %s\r\n", pString->data()) ;
+        printf("[??] %s\r\n", SIPX_SAFENULL(pString->data())) ;
     }
 
     printf("\r\n") ;
@@ -523,7 +523,7 @@ UtlString* EventValidator::allocLineStateEntry(SIPX_LINE hLine,
             (SIPX_LINE_EVENT_TYPE_MINOR)(int) cause, 
             szBuffer, 
             sizeof(szBuffer)) ;
-    sprintf(szBuffer2, "<LINE> hLine=%d: %s", hLine, szBuffer);
+    sprintf(szBuffer2, "<LINE> hLine=%d: %s", hLine, SIPX_SAFENULL(szBuffer));
 
     return new UtlString(szBuffer2) ;
 
@@ -536,7 +536,7 @@ UtlString* EventValidator::allocMessageEvent(SIPX_LINE hLine, const char* szMess
     
     sprintf(szBuffer, "<MSG> hLine=%d: %s", 
             (int) hLine, 
-            szMessage ? szMessage : "") ;
+            SIPX_SAFENULL(szMessage ? szMessage : "")) ;
 
     return new UtlString(szBuffer) ;
 
@@ -551,7 +551,7 @@ UtlString* EventValidator::allocInfoStatusEvent(SIPX_INFO hInfo, int status, int
             hInfo, 
             status, 
             responseCode, 
-            szResponseText ? szResponseText : "") ;
+            SIPX_SAFENULL(szResponseText ? szResponseText : "")) ;
 
     return new UtlString(szBuffer) ;
 }
@@ -578,10 +578,10 @@ UtlString* EventValidator::allocInfoEvent(SIPX_CALL hCall,
     sprintf(szBuffer, "<INFO> hCall=%d, hLine=%d, from=%s, szUserAgent=%s, type=%s, content=%s, len=%d",
             hCall,
             hLine,
-            from.data(),
-            szUserAgent ? szUserAgent : "",
-            szContentType ? szContentType : "",
-            szContent ? szContent : "",
+            SIPX_SAFENULL(from.data()),
+            SIPX_SAFENULL(szUserAgent)
+            SIPX_SAFENULL(szContentType),
+            SIPX_SAFENULL(szContent),
             nContentLength) ;
 
     return new UtlString(szBuffer) ;
@@ -594,7 +594,7 @@ UtlString* EventValidator::allocConfigEvent(SIPX_CONFIG_EVENT hEvent)
     char szBuffer2[1024] ;                        
 
     sprintf(szBuffer, "<CONFIG> event=%s",
-            sipxConfigEventToString(hEvent, szBuffer2, sizeof(szBuffer2))) ;
+            SIPX_SAFENULL(sipxConfigEventToString(hEvent, szBuffer2, sizeof(szBuffer2)))) ;
 
     return new UtlString(szBuffer) ;
 

@@ -471,7 +471,7 @@ void TaoMessage::deSerialize()
                 &mSocketHandle,
                 &mMessageQueueHandle,
                 &mArgCnt,
-                pArg);
+                SIPX_SAFENULL(pArg));
 
         setMsgSubType(subType);
 

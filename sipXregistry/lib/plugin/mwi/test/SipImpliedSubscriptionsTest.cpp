@@ -84,7 +84,7 @@ public:
                int       len;
                subscribeRequest.getBytes(&msg, &len);
             
-               printf( "Dumb Request:\n%s", msg.data());
+               printf( "Dumb Request:\n%s", SIPX_SAFENULL(msg.data()));
             }
 #           endif
 

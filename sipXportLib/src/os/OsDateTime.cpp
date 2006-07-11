@@ -389,8 +389,8 @@ void OsDateTimeBase::getHttpTimeString(UtlString& dateString)
 
     // Wed, 06 Mar 2002 05:51:44 GMT
     sprintf(dateBuffer, "%s, %.2d %s %d %.2d:%.2d:%.2d GMT", 
-            spDayStrings[dayOfTheWeek],
-            mDay, spMonthStrings[mMonth], mYear,
+            SIPX_SAFENULL(spDayStrings[dayOfTheWeek]),
+            mDay, SIPX_SAFENULL(spMonthStrings[mMonth]), mYear,
             mHour, mMinute, mSecond);
 
     dateString = dateBuffer;
@@ -487,11 +487,11 @@ void OsDateTimeBase::getLocalTimeString(UtlString& dateString)
 
     // Mon, 25-Sep-2002 05:51:44 EST
     sprintf(dateBuffer, "%s, %d-%s-%d %.2d:%.2d:%.2d %s %s", 
-            spDayStrings[today->tm_wday], 
-            today->tm_mday, spMonthStrings[today->tm_mon], (today->tm_year + 1900), 
+            SIPX_SAFENULL(spDayStrings[today->tm_wday]), 
+            today->tm_mday, SIPX_SAFENULL(spMonthStrings[today->tm_mon]), (today->tm_year + 1900), 
             today->tm_hour, today->tm_min, today->tm_sec, 
-            ampm,
-            tz);
+            SIPX_SAFENULL(ampm),
+            SIPX_SAFENULL(tz));
 
     dateString = dateBuffer;
 }

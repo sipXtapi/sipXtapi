@@ -95,7 +95,7 @@ OsSSLConnectionSocket::OsSSLConnectionSocket(int serverPort, const char* serverN
        SSLInitSocket(socketDescriptor, timeoutInSecs);
        OsSysLog::add(FAC_KERNEL, PRI_DEBUG, 
                      "OsSSLConnectionSocket::_(port %d, name '%s', timeout %ld)",
-                     serverPort, serverName, timeoutInSecs
+                     serverPort, SIPX_SAFENULL(serverName), timeoutInSecs
                      );
     }
 }

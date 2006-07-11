@@ -51,7 +51,7 @@ int ClientTask::run(void* runArg)
     fileExecute(InputFile, false);
     
     do {
-        //printf("%s is signaling\n", mName.data());
+        //printf("%s is signaling\n", SIPX_SAFENULL(mName.data()));
         status = pEvent->signal(1);
     } 
     while (status == OS_ALREADY_SIGNALED);
@@ -161,7 +161,7 @@ void parseArgs(int argc, char* argv[])
          HttpPort = strtoul(optarg, &optend, 10);
          if ( '\0' != *optend )
          {
-            fprintf( stderr, "Invalid HTTP port %s\n", optarg );
+            fprintf( stderr, "Invalid HTTP port %s\n", SIPX_SAFENULL(optarg) );
             exit(1);
          }
          break;
@@ -225,7 +225,7 @@ void exitFault(XmlRpcResponse& response)
    UtlString reason;
    int code;
    response.getFault(&code,reason);
-   fprintf(stderr, "XML-RPC Fault %d: %s\n", code, reason.data() );
+   fprintf(stderr, "XML-RPC Fault %d: %s\n", code, SIPX_SAFENULL(reason.data()) );
    //exit(1);
 }
 
@@ -249,7 +249,7 @@ void requestVersion(Url& url)
             UtlString* versionId = dynamic_cast<UtlString*>(value);
             if (versionId)
             {
-                printf("%s\n", versionId->data());
+                printf("%s\n", SIPX_SAFENULL(versionId->data()));
             }
             else
             {
@@ -296,7 +296,7 @@ void requestGet(Url& url, UtlSList& names)
                 while ((name = dynamic_cast<UtlString*>(params())))
                 {
                     UtlString* value = dynamic_cast<UtlString*>(paramList->findValue(name));
-                    printf("%s : %s\n", name->data(), value->data());
+                    printf("%s : %s\n", SIPX_SAFENULL(name->data()), SIPX_SAFENULL(value->data()));
                 }
             }
             else
@@ -567,7 +567,7 @@ void fileExecute(const char* inputFile, bool bSingleStep)
                 ++line;
                 if (szBuffer[0] != 0)
                 {
-                    printf("Executing %s", szBuffer);                
+                    printf("Executing %s", SIPX_SAFENULL(szBuffer));                
                 }
                 token = strtok(szBuffer, " ");
                 if (token == NULL)
@@ -709,7 +709,7 @@ void fileExecute(const char* inputFile, bool bSingleStep)
                 }
                 else
                 {
-                    fprintf(stderr, "Unknown RPC request %s - ignoring line\n", token);
+                    fprintf(stderr, "Unknown RPC request %s - ignoring line\n", SIPX_SAFENULL(token));
                 }
                 if (bSingleStep)
                 {
@@ -722,7 +722,7 @@ void fileExecute(const char* inputFile, bool bSingleStep)
     }
     else
     {
-        fprintf(stderr, "Can't open %s\n", inputFile);
+        fprintf(stderr, "Can't open %s\n", SIPX_SAFENULL(inputFile));
         exit(1);
     }
 }

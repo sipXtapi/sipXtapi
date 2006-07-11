@@ -161,7 +161,7 @@ class RegEx
    *       const char* value = "xyzA1abcA2def";
    *       for (matched = Pattern.Search(value); matched; matched = Pattern.SearchAgain())
    *       {
-   *          printf("%s\n", Pattern.Match());
+   *          printf("%s\n", SIPX_SAFENULL(Pattern.Match()));
    *       }
    *    \endcode
    *    Would print "A1\n" and then "A2\n".

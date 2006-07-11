@@ -74,7 +74,7 @@ OSBpromptTTS::OSBpromptTTS(const VXIchar* text, const VXIchar* baseUrl, const VX
    parseBaseUrl(baseUrl, glbBaseUrl);
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                  "OSBpromptTTS::OSBpromptTTS: mBaseUrl = '%s'",
-                 mBaseUrl.data());
+                 SIPX_SAFENULL(mBaseUrl.data()));
 }
 
 // Copy constructor
@@ -86,7 +86,7 @@ OSBpromptTTS::OSBpromptTTS(const OSBpromptTTS& rOSBpromptTTS)
    mFormat = rOSBpromptTTS.mFormat;
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                  "OSBpromptTTS::OSBpromptTTS(copy): mCount = %d, mBaseUrl = '%s', mText = '%s', mFormat = '%s'",
-                 mCount, mBaseUrl.data(), mText.data(), mFormat.data());
+                 mCount, SIPX_SAFENULL(mBaseUrl.data()), SIPX_SAFENULL(mText.data()), SIPX_SAFENULL(mFormat.data()));
 }
 
 // Destructor
@@ -114,7 +114,7 @@ OSBpromptTTS::operator=(const OSBpromptTTS& rhs)
    mFormat = rhs.mFormat;
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                  "OSBpromptTTS::OSBpromptTTS(assignment): mCount = %d, mBaseUrl = '%s', mText = '%s', mFormat = '%s'",
-                 mCount, mBaseUrl.data(), mText.data(), mFormat.data());
+                 mCount, SIPX_SAFENULL(mBaseUrl.data()), SIPX_SAFENULL(mText.data()),SIPX_SAFENULL(mFormat.data()));
 
    return *this;
 }
@@ -241,7 +241,7 @@ int OSBpromptTTS::getPromptUrls(Url** prompts)
    {
       OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR,
                     "OSBpromptTTS::getPromptUrls: Unknown format:  mFormat = '%s'",
-                    mFormat.data());
+                    SIPX_SAFENULL(mFormat.data()));
    }
 
    return count;
@@ -307,7 +307,7 @@ void OSBpromptTTS::parseBaseUrl(const VXIchar* url, const VXIchar* glbBaseUrl)
 {
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                  "OSBpromptTTS::parseBaseUrl: mBaseUrl(before) = '%s', url = '%ls', glbBaseUrl = '%ls'",
-                 mBaseUrl.data(), url, glbBaseUrl);
+                 SIPX_SAFENULL(mBaseUrl.data()), SIPX_SAFENULL(url), SIPX_SAFENULL(glbBaseUrl));
 
    // If glbBaseUrl is provided, convert it into 1-byte characters and
    // then a UtlString to use as mBaseUrl.
@@ -343,18 +343,18 @@ void OSBpromptTTS::parseBaseUrl(const VXIchar* url, const VXIchar* glbBaseUrl)
    }
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                  "OSBpromptTTS::parseBaseUrl: mBaseUrl(after) = '%s'",
-                 mBaseUrl.data());
+                 SIPX_SAFENULL(mBaseUrl.data()));
 }
 
 int OSBpromptTTS::getDigitUrls(Url** prompts)
 {
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                  "OSBpromptTTS::getDigitUrls: mText = '%s', mBaseUrl = '%s'",
-                 mText.data(), mBaseUrl.data());
+                 SIPX_SAFENULL(mText.data()), SIPX_SAFENULL(mBaseUrl.data()));
    const char* text = mText.data();
    mCount = mText.length();
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
-                 "OSBpromptTTS::getDigitUrls: mText = '%s'", mText.data());
+                 "OSBpromptTTS::getDigitUrls: mText = '%s'", SIPX_SAFENULL(mText.data()));
 
    if (mCount <= 0) return 0;
 
@@ -366,7 +366,7 @@ int OSBpromptTTS::getDigitUrls(Url** prompts)
       mPrompts[i] = Url(urlstr);
       OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                     "OSBpromptTTS::getDigitUrls: mPrompts[%d] = '%s'",
-                    i, mPrompts[i].toString().data());
+                    i, SIPX_SAFENULL(mPrompts[i].toString().data()));
    }
 
    *prompts = mPrompts;
@@ -378,7 +378,7 @@ int OSBpromptTTS::getNumberUrls(Url** prompts)
 {
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                  "OSBpromptTTS::getNumberUrls: mText = '%s', mBaseUrl='%s'",
-                 mText.data(), mBaseUrl.data());
+                 SIPX_SAFENULL(mText.data()), SIPX_SAFENULL(mBaseUrl.data()));
 
    int i;
    int length = mText.length() ;
@@ -386,7 +386,7 @@ int OSBpromptTTS::getNumberUrls(Url** prompts)
    {
       OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_WARNING,
                     "OSBpromptTTS::getNumberUrls: empty input text. mText = '%s'",
-                    mText.data());
+                    SIPX_SAFENULL(mText.data()));
       return 0;
    }
 
@@ -467,7 +467,7 @@ int OSBpromptTTS::getNumberUrls(Url** prompts)
       mPrompts[i] = Url(mBaseUrl + subTexts[i] + ".wav");
       OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                     "OSBpromptTTS::getDigitUrls: mPrompts[%d] = '%s'",
-                    i, mPrompts[i].toString().data());
+                    i, SIPX_SAFENULL(mPrompts[i].toString().data()));
    }
 
    *prompts = mPrompts;
@@ -484,7 +484,7 @@ int OSBpromptTTS::getOrdinalUrls(Url** prompts)
 {
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                  "OSBpromptTTS::getOrdinalUrls: mText = '%s', mBaseUrl='%s'",
-                 mText.data(), mBaseUrl.data());
+                 SIPX_SAFENULL(mText.data()), SIPX_SAFENULL(mBaseUrl.data()));
    mCount = 1;
    // UNUSED VARIABLE const char* text = mText.data();
    mPrompts = new Url[mCount];
@@ -496,7 +496,7 @@ int OSBpromptTTS::getOrdinalUrls(Url** prompts)
       mPrompts[0] = Url( url );
       OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                     "OSBpromptTTS::getOrdinalUrls: mText = '%s', mPrompts[0] = '%s'",
-                    mText.data(), mPrompts[0].toString().data());
+                    SIPX_SAFENULL(mText.data()), SIPX_SAFENULL(mPrompts[0].toString().data()));
    }
 
    *prompts = mPrompts;
@@ -555,7 +555,7 @@ int OSBpromptTTS::getPhoneUrls(Url** prompts)
          mPrompts[j++] = Url(urlstr);
          OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                        "OSBpromptTTS::getPhoneUrls: mPrompts[%d] = '%s'",
-                       j - 1, mPrompts[j - 1].toString().data());
+                       j - 1, SIPX_SAFENULL(mPrompts[j - 1].toString().data()));
          last = i;
       }
    }
@@ -564,7 +564,7 @@ int OSBpromptTTS::getPhoneUrls(Url** prompts)
    mPrompts[j - 1] = Url(urlstr);
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                  "OSBpromptTTS::getPhoneUrls: mPrompts[%d] = '%s'",
-                 j - 1, mPrompts[j - 1].toString().data());
+                 j - 1, SIPX_SAFENULL(mPrompts[j - 1].toString().data()));
    *prompts = mPrompts;
 
    return mCount;
@@ -737,7 +737,7 @@ int OSBpromptTTS::getDateFrom(UtlString& mon, UtlString& day, UtlString& year, U
 {
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                  "OSBpromptTTS::getDateFrom(mon = '%s', day = '%s', year = '%s')",
-                 mon.data(), day.data(), year.data());
+                 SIPX_SAFENULL(mon.data()), SIPX_SAFENULL(day.data()), SIPX_SAFENULL(year.data()));
    mCount = 0;
    mPrompts = new Url[3]; // max 3 prompts for month, day, year
    UtlString urlstr;
@@ -747,7 +747,7 @@ int OSBpromptTTS::getDateFrom(UtlString& mon, UtlString& day, UtlString& year, U
       mPrompts[mCount++] = Url(urlstr);
       OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                     "OSBpromptTTS::getDateFrom: mPrompts[%d] = '%s'",
-                    mCount - 1, mPrompts[mCount - 1].toString().data());
+                    mCount - 1, SIPX_SAFENULL(mPrompts[mCount - 1].toString().data()));
    }
    if (!day.isNull())
    {
@@ -756,7 +756,7 @@ int OSBpromptTTS::getDateFrom(UtlString& mon, UtlString& day, UtlString& year, U
       mPrompts[mCount++] = Url(urlstr);
       OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                     "OSBpromptTTS::getDateFrom: mPrompts[%d] = '%s'",
-                    mCount - 1, mPrompts[mCount - 1].toString().data());
+                    mCount - 1, SIPX_SAFENULL(mPrompts[mCount - 1].toString().data()));
    }
    if (!year.isNull())
    {
@@ -764,7 +764,7 @@ int OSBpromptTTS::getDateFrom(UtlString& mon, UtlString& day, UtlString& year, U
       mPrompts[mCount++] = Url(urlstr);
       OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                     "OSBpromptTTS::getDateFrom: mPrompts[%d] = '%s'",
-                    mCount - 1, mPrompts[mCount - 1].toString().data());
+                    mCount - 1, SIPX_SAFENULL(mPrompts[mCount - 1].toString().data()));
    }
    *prompts = mPrompts;
 
@@ -790,7 +790,7 @@ int OSBpromptTTS::getTimeFrom(UtlString& h,
 {
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                  "OSBpromptTTS::getTimeFrom(h = '%s', m = '%s', s = '%s')",
-                 h.data(), m.data(), s.data());
+                 SIPX_SAFENULL(h.data()), SIPX_SAFENULL(m.data()), SIPX_SAFENULL(s.data()));
    // Array to hold the assembled prompts.
    // We need a maximum of 7 prompts for hour(1), minute(1), "and", second(3)
    // (The minute only requires one prompt because we have combined .wav's
@@ -812,7 +812,7 @@ int OSBpromptTTS::getTimeFrom(UtlString& h,
    mPrompts[mCount++] = Url(urlstr);
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                  "OSBpromptTTS::getTimeFrom: mPrompts[%d] = '%s'",
-                 mCount - 1, mPrompts[mCount - 1].toString().data());
+                 mCount - 1, SIPX_SAFENULL(mPrompts[mCount - 1].toString().data()));
 
    // Add "o'clock" if mm is absent or 00.
    if (m.isNull() || strcmp(mc, "00") == 0)
@@ -821,7 +821,7 @@ int OSBpromptTTS::getTimeFrom(UtlString& h,
       mPrompts[mCount++] = Url(urlstr);
       OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                     "OSBpromptTTS::getTimeFrom: mPrompts[%d] = '%s'",
-                    mCount - 1, mPrompts[mCount - 1].toString().data());
+                    mCount - 1, SIPX_SAFENULL(mPrompts[mCount - 1].toString().data()));
    }
 
    // Process mm.
@@ -836,7 +836,7 @@ int OSBpromptTTS::getTimeFrom(UtlString& h,
          mPrompts[mCount++] = Url(urlstr);
          OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                        "OSBpromptTTS::getTimeFrom: mPrompts[%d] = '%s'",
-                       mCount - 1, mPrompts[mCount - 1].toString().data());
+                       mCount - 1, SIPX_SAFENULL(mPrompts[mCount - 1].toString().data()));
       }
       else
       {
@@ -845,7 +845,7 @@ int OSBpromptTTS::getTimeFrom(UtlString& h,
          mPrompts[mCount++] = Url(urlstr);
          OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                        "OSBpromptTTS::getTimeFrom: mPrompts[%d] = '%s'",
-                       mCount - 1, mPrompts[mCount - 1].toString().data());
+                       mCount - 1, SIPX_SAFENULL(mPrompts[mCount - 1].toString().data()));
       }
    }
 
@@ -857,7 +857,7 @@ int OSBpromptTTS::getTimeFrom(UtlString& h,
       mPrompts[mCount++] = Url(urlstr);
       OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                     "OSBpromptTTS::getTimeFrom: mPrompts[%d] = '%s'",
-                    mCount - 1, mPrompts[mCount - 1].toString().data());
+                    mCount - 1, SIPX_SAFENULL(mPrompts[mCount - 1].toString().data()));
 
       // Break out all the cases.
       if (strcmp(sc, "01") == 0)
@@ -866,12 +866,12 @@ int OSBpromptTTS::getTimeFrom(UtlString& h,
          mPrompts[mCount++] = Url(urlstr);
          OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                        "OSBpromptTTS::getTimeFrom: mPrompts[%d] = '%s'",
-                       mCount - 1, mPrompts[mCount - 1].toString().data());
+                       mCount - 1, SIPX_SAFENULL(mPrompts[mCount - 1].toString().data()));
          urlstr = mBaseUrl + "second.wav";
          mPrompts[mCount++] = Url(urlstr);
          OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                        "OSBpromptTTS::getTimeFrom: mPrompts[%d] = '%s'",
-                       mCount - 1, mPrompts[mCount - 1].toString().data());
+                       mCount - 1, SIPX_SAFENULL(mPrompts[mCount - 1].toString().data()));
       }
       else
       {
@@ -883,7 +883,7 @@ int OSBpromptTTS::getTimeFrom(UtlString& h,
             mPrompts[mCount++] = Url(urlstr);
             OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                           "OSBpromptTTS::getTimeFrom: mPrompts[%d] = '%s'",
-                          mCount - 1, mPrompts[mCount - 1].toString().data());
+                          mCount - 1, SIPX_SAFENULL(mPrompts[mCount - 1].toString().data()));
          }
          else
          {
@@ -895,14 +895,14 @@ int OSBpromptTTS::getTimeFrom(UtlString& h,
             mPrompts[mCount++] = Url(urlstr);
             OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                           "OSBpromptTTS::getTimeFrom: mPrompts[%d] = '%s'",
-                          mCount - 1, mPrompts[mCount - 1].toString().data());
+                          mCount - 1, SIPX_SAFENULL(mPrompts[mCount - 1].toString().data()));
          }
          // Append "seconds".
          urlstr = mBaseUrl + "seconds.wav";
          mPrompts[mCount++] = Url(urlstr);
          OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                        "OSBpromptTTS::getTimeFrom: mPrompts[%d] = '%s'",
-                       mCount - 1, mPrompts[mCount - 1].toString().data());
+                       mCount - 1, SIPX_SAFENULL(mPrompts[mCount - 1].toString().data()));
 
       }
    }
@@ -931,7 +931,7 @@ int OSBpromptTTS::getTimeFrom(UtlString& h,
       mPrompts[mCount++] = Url(urlstr);
       OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                     "OSBpromptTTS::getTimeFrom: mPrompts[%d] = '%s'",
-                    mCount - 1, mPrompts[mCount - 1].toString().data());
+                    mCount - 1, SIPX_SAFENULL(mPrompts[mCount - 1].toString().data()));
    }
    if (!tzone.isNull())
    {
@@ -940,7 +940,7 @@ int OSBpromptTTS::getTimeFrom(UtlString& h,
       mPrompts[mCount++] = Url(urlstr);
       OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                     "OSBpromptTTS::getTimeFrom: mPrompts[%d] = '%s'",
-                    mCount - 1, mPrompts[mCount - 1].toString().data());
+                    mCount - 1, SIPX_SAFENULL(mPrompts[mCount - 1].toString().data()));
    }
 #endif
 
@@ -953,7 +953,7 @@ int OSBpromptTTS::getTimeHMSUrls(Url** prompts)
 {
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                  "OSBpromptTTS::getTimeHMSUrls: mText = '%s', mBaseUrl = '%s'",
-                 mText.data(), mBaseUrl.data());
+                 SIPX_SAFENULL(mText.data()), SIPX_SAFENULL(mBaseUrl.data()));
    UtlString h = "", m = "", s = "";
    unsigned int i, j;
    j = mText.index(":");
@@ -979,7 +979,7 @@ int OSBpromptTTS::getTimeHMUrls(Url** prompts)
 {
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                  "OSBpromptTTS::getTimeHMUrls: mText = '%s', mBaseUrl = '%s'",
-                 mText.data(), mBaseUrl.data());
+                 SIPX_SAFENULL(mText.data()), SIPX_SAFENULL(mBaseUrl.data()));
    UtlString h = "", m = "", s = "";
    unsigned int i, j;
    j = mText.index(":");
@@ -1000,7 +1000,7 @@ int OSBpromptTTS::getTimeHUrls(Url** prompts)
 {
   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                 "OSBpromptTTS::getTimeHUrls: mText = '%s', mBaseUrl = '%s'",
-                mText.data(), mBaseUrl.data());
+                SIPX_SAFENULL(mText.data()), SIPX_SAFENULL(mBaseUrl.data()));
   UtlString h = "", m = "", s = "";
   unsigned int i = mText.index(" ");
   if (i != UTL_NOT_FOUND)
@@ -1082,7 +1082,7 @@ int OSBpromptTTS::getDurationFrom(UtlString& h,
 {
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                  "OSBpromptTTS::getDurationFrom(h = '%s', m = '%s', s = '%s'",
-                 h.data(), m.data(), s.data());
+                 SIPX_SAFENULL(h.data()), SIPX_SAFENULL(m.data()), SIPX_SAFENULL(s.data()));
    mCount = 0;
    mPrompts = new Url[7]; // max 7 prompts for hour, minute, and, second
    UtlString urlstr;
@@ -1092,14 +1092,14 @@ int OSBpromptTTS::getDurationFrom(UtlString& h,
       mPrompts[mCount++] = Url(urlstr);
       OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                     "OSBpromptTTS::getDurationFrom: mPrompts[%d] = '%s'",
-                    mCount - 1, mPrompts[mCount - 1].toString().data());
+                    mCount - 1, SIPX_SAFENULL(mPrompts[mCount - 1].toString().data()));
       if (h.compareTo("1") != 0)
       {
          urlstr = mBaseUrl + UtlString("hour.wav");
          mPrompts[mCount++] = Url(urlstr);
          OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                        "OSBpromptTTS::getDurationFrom: mPrompts[%d] = '%s'",
-                       mCount - 1, mPrompts[mCount - 1].toString().data());
+                       mCount - 1, SIPX_SAFENULL(mPrompts[mCount - 1].toString().data()));
       }
       else
       {
@@ -1107,7 +1107,7 @@ int OSBpromptTTS::getDurationFrom(UtlString& h,
          mPrompts[mCount++] = Url(urlstr);
          OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                        "OSBpromptTTS::getDurationFrom: mPrompts[%d] = '%s'",
-                       mCount - 1, mPrompts[mCount - 1].toString().data());
+                       mCount - 1, SIPX_SAFENULL(mPrompts[mCount - 1].toString().data()));
       }
    }
    if (!m.isNull() && (m.compareTo("00") != 0))
@@ -1120,7 +1120,7 @@ int OSBpromptTTS::getDurationFrom(UtlString& h,
             mPrompts[mCount++] = Url(urlstr);
             OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                           "OSBpromptTTS::getDurationFrom: mPrompts[%d] = '%s'",
-                          mCount - 1, mPrompts[mCount - 1].toString().data());
+                          mCount - 1, SIPX_SAFENULL(mPrompts[mCount - 1].toString().data()));
          }
       }
       else
@@ -1129,7 +1129,7 @@ int OSBpromptTTS::getDurationFrom(UtlString& h,
          mPrompts[mCount++] = Url(urlstr);
          OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                        "OSBpromptTTS::getDurationFrom: mPrompts[%d] = '%s'",
-                       mCount - 1, mPrompts[mCount - 1].toString().data());
+                       mCount - 1, SIPX_SAFENULL(mPrompts[mCount - 1].toString().data()));
       }
       if (m.compareTo("1") != 0)
       {
@@ -1137,7 +1137,7 @@ int OSBpromptTTS::getDurationFrom(UtlString& h,
          mPrompts[mCount++] = Url(urlstr);
          OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                        "OSBpromptTTS::getDurationFrom: mPrompts[%d] = '%s'",
-                       mCount - 1, mPrompts[mCount - 1].toString().data());
+                       mCount - 1, SIPX_SAFENULL(mPrompts[mCount - 1].toString().data()));
       }
       else
       {
@@ -1145,7 +1145,7 @@ int OSBpromptTTS::getDurationFrom(UtlString& h,
          mPrompts[mCount++] = Url(urlstr);
          OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                        "OSBpromptTTS::getDurationFrom: mPrompts[%d] = '%s'",
-                       mCount - 1, mPrompts[mCount - 1].toString().data());
+                       mCount - 1, SIPX_SAFENULL(mPrompts[mCount - 1].toString().data()));
       }
    }
    if (!s.isNull() && (s.compareTo("00") != 0))
@@ -1163,7 +1163,7 @@ int OSBpromptTTS::getDurationFrom(UtlString& h,
             mPrompts[mCount++] = Url(urlstr);
             OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                           "OSBpromptTTS::getDurationFrom: mPrompts[%d] = '%s'",
-                          mCount - 1, mPrompts[mCount - 1].toString().data());
+                          mCount - 1, SIPX_SAFENULL(mPrompts[mCount - 1].toString().data()));
          }
       }
       else
@@ -1172,7 +1172,7 @@ int OSBpromptTTS::getDurationFrom(UtlString& h,
          mPrompts[mCount++] = Url(urlstr);
          OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                        "OSBpromptTTS::getDurationFrom: mPrompts[%d] = '%s'",
-                       mCount - 1, mPrompts[mCount - 1].toString().data());
+                       mCount - 1, SIPX_SAFENULL(mPrompts[mCount - 1].toString().data()));
       }
       if (s.compareTo("1") != 0)
       {
@@ -1180,7 +1180,7 @@ int OSBpromptTTS::getDurationFrom(UtlString& h,
          mPrompts[mCount++] = Url(urlstr);
          OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                        "OSBpromptTTS::getDurationFrom: mPrompts[%d] = '%s'",
-                       mCount - 1, mPrompts[mCount - 1].toString().data());
+                       mCount - 1, SIPX_SAFENULL(mPrompts[mCount - 1].toString().data()));
       }
       else
       {
@@ -1188,7 +1188,7 @@ int OSBpromptTTS::getDurationFrom(UtlString& h,
          mPrompts[mCount++] = Url(urlstr);
          OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                        "OSBpromptTTS::getDurationFrom: mPrompts[%d] = '%s'",
-                       mCount - 1, mPrompts[mCount - 1].toString().data());
+                       mCount - 1, SIPX_SAFENULL(mPrompts[mCount - 1].toString().data()));
       }
    }
 
@@ -1204,7 +1204,7 @@ int OSBpromptTTS::getAcronymUrls(Url** prompts)
    mCount = mText.length();
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                  "OSBpromptTTS::getAcronymUrls: mText = '%s', mBaseUrl = '%s'",
-                 mText.data(), mBaseUrl.data());
+                 SIPX_SAFENULL(mText.data()), SIPX_SAFENULL(mBaseUrl.data()));
 
    if (mCount <= 0) return 0;
 
@@ -1215,16 +1215,16 @@ int OSBpromptTTS::getAcronymUrls(Url** prompts)
 #if 0
       OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                     "OSBpromptTTS::getAcronymUrls: text = '%s', text[%d] = '%c'",
-                    text, i, text[i]);
+                    SIPX_SAFENULL(text), i, text[i]);
       OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                     "OSBpromptTTS::getAcronymUrls: text[%d] = '%c', UtlString(&text[%d], 1) = '%s'",
-                    i, text[i], i, UtlString(&text[i], 1).data());
+                    i, text[i], i, SIPX_SAFENULL(UtlString(&text[i], 1).data()));
 #endif
       urlstr = mBaseUrl + UtlString(&text[i], 1) + ".wav";
       mPrompts[i] = Url(urlstr);
       OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                     "OSBpromptTTS::getAcronymUrls: mPrompts[%d] = '%s'",
-                    i, mPrompts[i].toString().data());
+                    i, SIPX_SAFENULL(mPrompts[i].toString().data()));
    }
 
    *prompts = mPrompts;

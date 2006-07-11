@@ -65,7 +65,7 @@ class SipRefreshManagerTest : public CppUnit::TestCase
                 UtlString responseBytes;
                 int len;
                 response.getBytes(&responseBytes, &len);
-                printf("%s", responseBytes.data());
+                printf("%s", SIPX_SAFENULL(responseBytes.data()));
 #endif
 
             }
@@ -100,7 +100,7 @@ class SipRefreshManagerTest : public CppUnit::TestCase
                     UtlString messageBytes;
                     int len;
                     message->getBytes(&messageBytes, &len);
-                    printf("%s", messageBytes.data());
+                    printf("%s", SIPX_SAFENULL(messageBytes.data()));
                 }
                 else
                 {
@@ -127,13 +127,13 @@ class SipRefreshManagerTest : public CppUnit::TestCase
         smCallbackCount++;
         printf("subStateCallback \n\trequestState: %d\n\tearlyDialogHandle: %s\n\tdialogHandle: %s\n\tapplicationData: %p\n\tresponseCode: %d\n\tresponseText: %s\n\texpiration: %ld\n\tresponse: %p\n\tcallback count: %d\n",
             requestState, 
-            earlyDialogHandle ? earlyDialogHandle : "",
-            dialogHandle ? dialogHandle : "",
+            SIPX_SAFENULL(earlyDialogHandle),
+            SIPX_SAFENULL(dialogHandle),
             applicationData,
             responseCode,
-            responseText ? responseText : "",
+            SIPX_SAFENULL(responseText),
             expiration,
-            response,
+            SIPX_SAFENULL(response),
             smCallbackCount);
     }
 

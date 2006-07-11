@@ -139,7 +139,7 @@ long OsFileBase::openAndRead(const char* filename, UtlString& fileContentsRead)
     {
         OsSysLog::add(FAC_SIP, PRI_WARNING,
             "unable to open file: \"%s\" for read", 
-            filename ? filename : "<null>");
+            SIPX_SAFENULL(filename ? filename : "<null>"));
     }
     return(totalBytesRead);
 }
@@ -159,7 +159,7 @@ long OsFileBase::openAndWrite(const char* filename, const UtlString& fileContent
     {
         OsSysLog::add(FAC_SIP, PRI_WARNING,
             "unable to open file: \"%s\" for write", 
-            filename ? filename : "<null>");
+            SIPX_SAFENULL(filename ? filename : "<null>"));
     }
 
     fileToWrite.close();
@@ -224,7 +224,7 @@ OsStatus OsFileBase::open(const int mode)
    int nTaskId = 0;
    OsTask* pTask = OsTask::getCurrentTask();
    if (pTask) pTask->id(nTaskId);
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::open ENTER threadid=%d, filename=%s\n", nTaskId, mFilename.data());
+   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::open ENTER threadid=%d, filename=%s\n", nTaskId, SIPX_SAFENULL(mFilename.data()));
 #endif
     //get a lock for the open call
          sOpenLock.acquire();
@@ -256,13 +256,13 @@ OsStatus OsFileBase::open(const int mode)
     if (mOsFileHandle)
     {
 #ifdef DEBUG_FS
-        OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::open fopen returned mOsFileHandle=0x%08x, fd=%d, threadid=%d, filename=%s\n", mOsFileHandle, fileno(mOsFileHandle), nTaskId, mFilename.data());
+        OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::open fopen returned mOsFileHandle=0x%08x, fd=%d, threadid=%d, filename=%s\n", mOsFileHandle, fileno(mOsFileHandle), nTaskId, SIPX_SAFENULL(mFilename.data()));
 #endif
         //first test to see if we have a local file lock on that file
         //get the thread id for local locking
         mLocalLockThreadId = OsProcess::getCurrentPID();
         char* pLockName = new char[mFilename.length() + 20];
-        sprintf(pLockName, "%s%d", mFilename.data(), mLocalLockThreadId);
+        sprintf(pLockName, "%s%d", SIPX_SAFENULL(mFilename.data()), mLocalLockThreadId);
 
         UtlString rValue;
         if (getFileLocks()->get(pLockName,rValue) == OS_SUCCESS)
@@ -757,7 +757,7 @@ UtlBoolean OsFileBase::close()
    if (pTask) pTask->id(nTaskId);
    int fd = -1;
    if (mOsFileHandle) fd = fileno(mOsFileHandle);
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::close ENTER mOsFileHandle=0x%08x, fd=%d, threadid=%d, filename=%s\n", mOsFileHandle, fd, nTaskId, mFilename.data());
+   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::close ENTER mOsFileHandle=0x%08x, fd=%d, threadid=%d, filename=%s\n", mOsFileHandle, fd, nTaskId, SIPX_SAFENULL(mFilename.data()));
 #endif
     UtlBoolean retval = TRUE;
 
@@ -766,7 +766,7 @@ UtlBoolean OsFileBase::close()
 #ifndef _VXWORKS     // 6/27/03 - Bob - Disabling locking under vxworks - crashes
         // get the thread ID for local locking
         char* pLockName = new char[mFilename.length() + 20];
-        sprintf(pLockName, "%s%d", mFilename.data(), mLocalLockThreadId);
+        sprintf(pLockName, "%s%d", SIPX_SAFENULL(mFilename.data()), mLocalLockThreadId);
 
         // remove any local process locks
         getFileLocks()->remove(pLockName);

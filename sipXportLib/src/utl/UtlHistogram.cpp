@@ -157,7 +157,7 @@ UtlString* UtlHistogram::show()
          OsSysLog::add(FAC_KERNEL, PRI_CRIT,
                        "UtlHistogram::show output from format '%s' "
                        "had width %d != declared width %d",
-                       mOutputFormat, width, mOutputWidth);
+                       SIPX_SAFENULL(mOutputFormat), width, mOutputWidth);
       }
    }
    // Since there is always at least one bin, sprintf was called at least

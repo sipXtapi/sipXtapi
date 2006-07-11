@@ -177,7 +177,7 @@ void dbFile::doRecovery(int nodeId, int* updateCounters, int nPages)
 	if (!s->is_ok()) { 
 	    s->get_error_text(buf, sizeof buf);
 	    dbTrace("Failed to establish connection with node %d: %s\n",
-		    nodeId, buf);
+		    nodeId, SIPX_SAFENULL(buf));
 	    delete s;
 	    return;
 	} 
@@ -186,7 +186,7 @@ void dbFile::doRecovery(int nodeId, int* updateCounters, int nPages)
 	if (!s->write(&rr, sizeof rr) || !s->read(&rr, sizeof rr)) { 
 	    s->get_error_text(buf, sizeof buf);
 	    dbTrace("Connection with node %d is broken: %s\n",
-		    nodeId, buf);
+		    nodeId, SIPX_SAFENULL(buf));
 	    delete s;
 	    return;
 	}

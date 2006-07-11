@@ -264,7 +264,7 @@ int main(int argc, char * argv[])
          ofd = open(&argv[i][3], O_WRONLY | O_CREAT, 0644);
          if (ofd == -1)
          {
-            fprintf(stderr, "%s: %s\n", &argv[i][3], strerror(errno));
+            fprintf(stderr, "%s: %s\n", &argv[i][3],strerror(errno));
             return 1;
          }
       }

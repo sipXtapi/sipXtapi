@@ -204,7 +204,7 @@ void OsConfigDb::insertEntry(const char* fileLine)
                  }
                  else
                         insertEntry(name, value);
-        // osPrintf("Read Name: \"%s\" Value: \"%s\"\n", name, value);
+        // osPrintf("Read Name: \"%s\" Value: \"%s\"\n", SIPX_SAFENULL(name), SIPX_SAFENULL(value));
      }
 }
 
@@ -237,7 +237,7 @@ OsStatus OsConfigDb::storeToFile(const char *filename)
        FILE *fp = fopen(filename,"wb");
        if (!fp)
        {
-           osPrintf("Could not open %s.  errno = %d\n",filename,errno);
+           osPrintf("Could not open %s.  errno = %d\n",SIPX_SAFENULL(filename),errno);
            return retval;
        }
        retval = storeToFile(fp);
@@ -401,7 +401,7 @@ OsStatus OsConfigDb::getSubHash(const UtlString& rHashSubKey, OsConfigDb& rSubDb
    int keyOffset = strlen(rHashSubKey);
    int keyPrefixIndex;
 #ifdef TEST
-   osPrintf("Key prefix: \"%s\"\n", rHashSubKey.data());
+   osPrintf("Key prefix: \"%s\"\n", SIPX_SAFENULL(rHashSubKey.data()));
 #endif
 
    // Need to have the prefix as a key so that there is a next
@@ -414,7 +414,7 @@ OsStatus OsConfigDb::getSubHash(const UtlString& rHashSubKey, OsConfigDb& rSubDb
    while(getNext(previousKey, key, value) == OS_SUCCESS)
    {
       //osPrintf("key: \"%s\" value: \"%s\"\n",
-      //         key.data(), value.data());
+      //         SIPX_SAFENULL(key.data()), SIPX_SAFENULL(value.data()));
       keyPrefixIndex = key.index(rHashSubKey);
       previousKey = key;
 
@@ -423,7 +423,7 @@ OsStatus OsConfigDb::getSubHash(const UtlString& rHashSubKey, OsConfigDb& rSubDb
       {
 #ifdef TEST
          osPrintf("sub-key: \"%s\" value: \"%s\"\n",
-                  &((key.data())[keyOffset]), value.data());
+                  SIPX_SAFENULL(&((key.data())[keyOffset])), SIPX_SAFENULL(value.data()));
 #endif
          rSubDb.insertEntry(&((key.data())[keyOffset]),
                       value.data());
@@ -433,11 +433,11 @@ OsStatus OsConfigDb::getSubHash(const UtlString& rHashSubKey, OsConfigDb& rSubDb
          break;
       }
 
-      //osPrintf("Previous key: \"%s\"\n", previousKey.data());
+      //osPrintf("Previous key: \"%s\"\n", SIPX_SAFENULL(previousKey.data()));
    }
 #ifdef TEST
    osPrintf("last key found: \"%s\" value: \"%s\"\n",
-            key.data(), value.data());
+            SIPX_SAFENULL(key.data()), SIPX_SAFENULL(value.data()));
 #endif
    if (bAddedSubKey)
       remove(rHashSubKey);
@@ -625,7 +625,7 @@ int OsConfigDb::getPort(const char* szKey)
                  port = PORT_NONE;
                  OsSysLog::add(FAC_KERNEL, PRI_CRIT,
                                "Invalid port number value '%s' for config variable '%s'.",
-                               value.data(), szKey);
+                               SIPX_SAFENULL(value.data()), SIPX_SAFENULL(szKey));
               }
            }
         }
@@ -777,8 +777,8 @@ OsStatus OsConfigDb::storeToFile(FILE* fp)
 
 
       fprintf(fp, "%s : %s\r\n",
-              (char*) pEntry->key.data(),
-              (char*) pEntry->value.data());
+              SIPX_SAFENULL((char*) pEntry->key.data()),
+              SIPX_SAFENULL((char*) pEntry->value.data()));
    }
 
    fflush(fp);
@@ -814,7 +814,7 @@ OsStatus OsConfigDb::loadFromEncryptedFile(const char *file)
         if (bytesRead != buffLen || retval != OS_SUCCESS)
         {
             OsSysLog::add(FAC_KERNEL, PRI_ERR, "Error reading config file or \
-mismatch in expected size  %s\n", getIdentityLabel());
+mismatch in expected size  %s\n", SIPX_SAFENULL(getIdentityLabel()));
             retval = OS_FAILED;
         }
         else

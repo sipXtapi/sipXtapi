@@ -10,6 +10,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include <os/OsDefs.h>
 #include <net/SipUdpServer.h>
 #include <net/SipUserAgent.h>
 #include <net/Url.h>
@@ -54,7 +55,7 @@ SipUdpServer::SipUdpServer(int port,
 {
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "SipUdpServer::_ port = %d, bUseNextAvailablePort = %d, szBoundIp = '%s'",
-                  port, bUseNextAvailablePort, szBoundIp);
+                  port, bUseNextAvailablePort, SIPX_SAFENULL(szBoundIp));
 
     if (szBoundIp && 0 != strcmp(szBoundIp, "0.0.0.0"))
     {
@@ -293,7 +294,7 @@ int SipUdpServer::run(void* runArg)
             {
                 OsSysLog::add(FAC_SIP, PRI_INFO,
                     "SipUdpServer::run DNS lookup failed for ping host: %s in URI: %s",
-                    rawAddress.data(), mNatPingUrl.data());
+                    SIPX_SAFENULL(rawAddress.data()), SIPX_SAFENULL(mNatPingUrl.data()));
             }
             // Else no ping address, this means we are not supposed to
             // do a ping
@@ -344,7 +345,7 @@ int SipUdpServer::run(void* runArg)
             pingMessage.setLastViaTag("", "rport");
 #           ifdef TEST_PRINT            
             osPrintf("Sending ping to %s %d, From: %s\n",
-                address.data(), port, contact.data());
+                SIPX_SAFENULL(address.data()), port, SIPX_SAFENULL(contact.data()));
 #           endif
             
             // Send from the same UDP port that we receive from
@@ -570,7 +571,7 @@ void SipUdpServer::printStatus()
             UtlBoolean clientOk = pServer->isOk();
             pServer->getClientNames(clientNames);
             osPrintf("UDP server %p last used: %ld ok: %d names: \n%s \n",
-                this, clientTouchedTime, clientOk, clientNames.data());
+                this, clientTouchedTime, clientOk, SIPX_SAFENULL(clientNames.data()));
 
             SipProtocolServerBase::printStatus();
         }

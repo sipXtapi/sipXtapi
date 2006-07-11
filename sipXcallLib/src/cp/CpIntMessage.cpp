@@ -24,7 +24,7 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-CpIntMessage::CpIntMessage(unsigned char messageSubtype, int intData) :
+CpIntMessage::CpIntMessage(unsigned char messageSubtype, const int intData) :
 OsMsg(OsMsg::PHONE_APP, messageSubtype)
 {
         mIntData = intData;

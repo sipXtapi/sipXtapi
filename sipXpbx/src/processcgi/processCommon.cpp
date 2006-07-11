@@ -504,13 +504,13 @@ startstopProcess(
 
                         if ( bAskToStart && pProcessMgr->getAliasState(processAlias) == PROCESS_STOPPING )
                         {
-                            OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,"ProcessCommon asked to start but process is in STOPPING STATE  %s\n",processAlias.data());
+                            OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,"ProcessCommon asked to start but process is in STOPPING STATE  %s\n",SIPX_SAFENULL(processAlias.data()));
                             retval = OS_FAILED;
                         }
                         else
                         if ( bAskToStart && pProcessMgr->getAliasState(processAlias) == PROCESS_STARTED )
                         {
-                            OsSysLog::add(FAC_PROCESSMGR, PRI_INFO,"ProcessCommon PROCESS ALREADY STARTED %s\n",processAlias.data());
+                            OsSysLog::add(FAC_PROCESSMGR, PRI_INFO,"ProcessCommon PROCESS ALREADY STARTED %s\n",SIPX_SAFENULL(processAlias.data()));
                             retval = OS_SUCCESS;
                         }
                         else
@@ -518,9 +518,9 @@ startstopProcess(
                         {
                             retval =  pProcessMgr->startProcess(processAlias, processString, args,changeDir);
                             if (retval == OS_SUCCESS)
-                              OsSysLog::add(FAC_PROCESSMGR, PRI_INFO,"ProcessCommon SUCCESS STARTING process %s\n",processAlias.data());
+                              OsSysLog::add(FAC_PROCESSMGR, PRI_INFO,"ProcessCommon SUCCESS STARTING process %s\n",SIPX_SAFENULL(processAlias.data()));
                             else
-                              OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,"ProcessCommon ERROR STARTING process %s\n",processAlias.data());
+                              OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,"ProcessCommon ERROR STARTING process %s\n",SIPX_SAFENULL(processAlias.data()));
                             
                             if ( bOnlyStop )
                                 pProcessMgr->setAliasStopped(processAlias);

@@ -84,6 +84,7 @@ static char rcsid[] = "";
 #include "resparse/types.h" /* added to pick up NFDBITS and fd_mask --GAT */
 #include <errno.h>
 #include <time.h>
+#include "os/OsDefs.h"
 
 /* Reordered includes and separated into win/vx --GAT */
 #if defined(_WIN32)
@@ -186,10 +187,10 @@ static res_send_rhook Rhook = NULL;
 
         if (_res.options & RES_DEBUG) {
                 fprintf(file, "res_send: %s ([%s].%u): %s\n",
-                        string,
-                        inet_ntoa(address.sin_addr),
-                        ntohs(address.sin_port),
-                        strerror(error));
+                        SIPX_SAFENULL(string),
+                        SIPX_SAFENULL(inet_ntoa(address.sin_addr)),
+                        SIPX_SAFENULL(ntohs(address.sin_port)),
+                        SIPX_SAFENULL(strerror(error)));
         }
         errno = save;
     }
@@ -203,7 +204,7 @@ static res_send_rhook Rhook = NULL;
 
         if (_res.options & RES_DEBUG) {
                 fprintf(file, "res_send: %s: %s\n",
-                        string, strerror(error));
+                        SIPX_SAFENULL(string), SIPX_SAFENULL(strerror(error)));
         }
         errno = save;
     }
@@ -468,7 +469,7 @@ res_send(buf, buflen, ans, anssiz)
 
                 Dprint(_res.options & RES_DEBUG,
                        (stdout, ";; Querying server (# %d) address = %s\n",
-                        ns + 1, inet_ntoa(nsap->sin_addr)));
+                        ns + 1, SIPX_SAFENULL(inet_ntoa(nsap->sin_addr))));
 
                 if (v_circuit) {
                         int truncated;

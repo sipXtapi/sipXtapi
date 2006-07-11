@@ -518,7 +518,7 @@ UtlBoolean OsTaskLinux::doLinuxCreateTask(const char* pTaskName)
    }
    else
    {
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsTaskLinux:doLinuxCreateTask pthread_create failed, returned %d in %s (%p)", linuxRes, mName.data(), this);
+      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsTaskLinux:doLinuxCreateTask pthread_create failed, returned %d in %s (%p)", linuxRes, SIPX_SAFENULL(mName.data()), this);
       return FALSE;
    }
 }
@@ -646,13 +646,13 @@ void * OsTaskLinux::taskEntry(void* arg)
       {
          OsSysLog::add(FAC_KERNEL, PRI_INFO, 
                        "OsTaskLinux::taskEntry: starting %s at RT linux priority: %d", 
-                       pTask->mName.data(), linuxPriority);
+                       SIPX_SAFENULL(pTask->mName.data()), linuxPriority);
       }
       else
       {
          OsSysLog::add(FAC_KERNEL, PRI_ERR, 
                        "OsTaskLinux::taskEntry: failed to set RT linux priority: %d for task: %s", 
-                       linuxPriority, pTask->mName.data());
+                       linuxPriority, SIPX_SAFENULL(pTask->mName.data()));
       }
 
       // keep all memory locked into physical mem, to guarantee realtime-behaviour
@@ -663,7 +663,7 @@ void * OsTaskLinux::taskEntry(void* arg)
          {
             OsSysLog::add(FAC_KERNEL, PRI_ERR, 
                           "OsTaskLinux::taskEntry: failed to lock memory for task: %s", 
-                          pTask->mName.data());
+                          SIPX_SAFENULL(pTask->mName.data()));
          }
       }
    }
@@ -710,7 +710,7 @@ void OsTaskLinux::taskUnregister(void)
    {
       OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsTaskLinux::doLinuxTerminateTask, failed to delete"
                     " mTaskId = 0x%08x, key '%s', returns %d",
-                    (int) mTaskId, idString, res);
+                    (int) mTaskId, SIPX_SAFENULL(idString), res);
    }
    mTaskId = 0;
 

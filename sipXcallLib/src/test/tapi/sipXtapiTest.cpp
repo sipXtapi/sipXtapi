@@ -224,7 +224,7 @@ void sipXtapiTestSuite::checkForCallLeaks(SIPX_INST hInst)
             printf("Call leak(s) detected (%d):\n", numCalls) ;
             for (int i=0; i<numCalls; i++)
             {
-                printf("\tCallId=%s\n", callIds[i].data()) ;
+                printf("\tCallId=%s\n", SIPX_SAFENULL(callIds[i].data())) ;
             }
 
             CPPUNIT_ASSERT_EQUAL(numCalls, 0) ;

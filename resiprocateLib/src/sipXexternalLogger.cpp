@@ -32,7 +32,7 @@ bool SipXExternalLogger::operator()(resip::Log::Level level,
                                     const resip::Data& message,
                                     const resip::Data& messageWithHeaders)
 {
-   OsSysLog::add(FAC_CONFERENCE, toPriority(level), "%s", messageWithHeaders.c_str());
+   OsSysLog::add(FAC_CONFERENCE, toPriority(level), "%s", SIPX_SAFENULL(messageWithHeaders.c_str()));
    return false;
 }
       

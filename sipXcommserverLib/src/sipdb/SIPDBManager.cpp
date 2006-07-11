@@ -357,7 +357,7 @@ SIPDBManager::getNumDatabaseProcesses ( const UtlString& tablename ) const
     {
         OsSysLog::add(FAC_DB, PRI_DEBUG, 
             "SIPDBManager::getNumDatabaseProcesses entering tablename=%s", 
-            tablename.data());
+            SIPX_SAFENULL(tablename.data()));
     }
 
     int numUsers = 0;
@@ -466,7 +466,7 @@ SIPDBManager::getDatabase ( const UtlString& tablename ) const
     {
        OsSysLog::add(FAC_DB, PRI_DEBUG, 
            "SIPDBManager::getDatabase entering tablename=%s, pid=%d", 
-           tablename.data(), pid);
+           SIPX_SAFENULL(tablename.data()), pid);
     }
 
     // Only construct one dbDatabase object per process
@@ -489,7 +489,7 @@ SIPDBManager::getDatabase ( const UtlString& tablename ) const
         {
             OsSysLog::add(FAC_DB, PRI_DEBUG, 
                "SIPDBManager::getDatabase opening database %s, pid=%d", 
-               imdbFileName.data(), pid);
+               SIPX_SAFENULL(imdbFileName.data()), pid);
         }
 
 
@@ -502,7 +502,7 @@ SIPDBManager::getDatabase ( const UtlString& tablename ) const
             {
                 OsSysLog::add(FAC_DB, PRI_DEBUG, 
                    "SIPDBManager::getDatabase table=%s opened, pid=%d", 
-                   tablename.data(), pid);
+                   SIPX_SAFENULL(tablename.data()), pid);
             }
 
             // This is the first process to use the fastDB
@@ -538,7 +538,7 @@ SIPDBManager::getDatabase ( const UtlString& tablename ) const
             {
                 OsSysLog::add(FAC_DB, PRI_ERR, 
                    "SIPDBManager::getDatabase table=%s open failed, deleting dbDatabase, pid=%d", 
-                   tablename.data(), pid);
+                   SIPX_SAFENULL(tablename.data()), pid);
             }
         }
     }
@@ -548,7 +548,7 @@ SIPDBManager::getDatabase ( const UtlString& tablename ) const
             {
                 OsSysLog::add(FAC_DB, PRI_DEBUG, 
                    "SIPDBManager::getDatabase table=%s is already opened, pid=%d", 
-                   tablename.data(), pid);
+                   SIPX_SAFENULL(tablename.data()), pid);
             }
     }
 
@@ -612,7 +612,7 @@ SIPDBManager::removeDatabase ( const UtlString& tablename ) const
     {
        OsSysLog::add(FAC_DB, PRI_DEBUG, 
            "SIPDBManager::removeDatabase - entering tablename=%s", 
-           tablename.data());
+           SIPX_SAFENULL(tablename.data()));
     }
 
     // one dbDatabase construction call allowed per process
@@ -658,7 +658,7 @@ SIPDBManager::setDatabaseChangedFlag (
     {
         OsSysLog::add(FAC_DB, PRI_DEBUG, 
            "SIPDBManager::setDatabaseChangedFlag entering  tablename=%s flag=%d", 
-           tablename.data(), (int)changed);
+           SIPX_SAFENULL(tablename.data()), (int)changed);
     }
 
     if ( spFastDB != NULL ) 
@@ -679,7 +679,7 @@ SIPDBManager::setDatabaseChangedFlag (
         {
             OsSysLog::add(FAC_DB, PRI_ERR, 
                 "SIPDBManager::setDatabaseChangedFlag - "
-                "ERROR database %s not in TableInfo table", tablename.data());
+                "ERROR database %s not in TableInfo table", SIPX_SAFENULL(tablename.data()));
         }
         // Commit rows to memory - multiprocess workaround
         spFastDB->detach(0);
@@ -766,7 +766,7 @@ SIPDBManager::getDatabaseChangedFlag (
         OsSysLog::add(
             FAC_DB, PRI_DEBUG, 
             "SIPDBManager::getDatabaseChangedFlag entering tablename=%s", 
-            tablename.data());
+            SIPX_SAFENULL(tablename.data()));
     }
 
     // Ensure that the database is opened first
@@ -797,7 +797,7 @@ SIPDBManager::getDatabaseChangedFlag (
         OsSysLog::add(
             FAC_DB, PRI_DEBUG, 
             "SIPDBManager::getDatabaseChangedFlag leaving tablename=%s, result=%d", 
-            tablename.data(), (int)result );
+            SIPX_SAFENULL(tablename.data()), (int)result );
         OsSysLog::flush();
     }
     return result;
@@ -818,7 +818,7 @@ SIPDBManager::updateDatabaseInfo (
         OsSysLog::add(
             FAC_DB, PRI_DEBUG, 
             "SIPDBManager::updateDatabaseInfo entering tablename=%s, checksum=%d, pid=%d", 
-            tablename.data(), 
+            SIPX_SAFENULL(tablename.data()), 
             (int)checksum, 
             pid);
     }
@@ -846,7 +846,7 @@ SIPDBManager::updateDatabaseInfo (
                 OsSysLog::add(
                     FAC_DB, PRI_DEBUG, 
                     "SIPDBManager::updateDatabaseInfo for table: %s before do loop",
-                    tablename.data() );
+                    SIPX_SAFENULL(tablename.data()) );
             }
             do {
                 if ( cursor->loadchecksum != checksum )
@@ -869,7 +869,7 @@ SIPDBManager::updateDatabaseInfo (
                 OsSysLog::add(
                     FAC_DB, PRI_DEBUG, 
                     "SIPDBManager::updateDatabaseInfo for table: %s after do loop", 
-                    tablename.data());
+                    SIPX_SAFENULL(tablename.data()));
             }
         } else // this block should never be run
         {
@@ -897,7 +897,7 @@ SIPDBManager::updateDatabaseInfo (
         OsSysLog::add(
             FAC_DB, PRI_DEBUG, 
             "SIPDBManager::updateDatabaseInfo leaving tablename=%s, pid=%d", 
-            tablename.data(), pid);
+            SIPX_SAFENULL(tablename.data()), pid);
         OsSysLog::flush();
     }
 }
@@ -1119,7 +1119,7 @@ SIPDBManager::getVarPath()
    if (pPath != NULL && pPath[0] != '\0')
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SIPDBManager::getVarPath env variable %s set to %s"
-                    ,SIPX_DB_VAR_PATH, pPath);
+                    ,SIPX_SAFENULL(SIPX_DB_VAR_PATH), SIPX_SAFENULL(pPath));
       candidate = pPath;
 
       // If the last character is a separator, strip it.
@@ -1135,7 +1135,7 @@ SIPDBManager::getVarPath()
       else
       {
          OsSysLog::add(FAC_SIP, PRI_ERR, "SIPDBManager::getVarPath env variable %s has value %s but is not valid"
-                       ,SIPX_DB_VAR_PATH, pPath);
+                       ,SIPX_SAFENULL(SIPX_DB_VAR_PATH), SIPX_SAFENULL(pPath));
       }
    }
 
@@ -1143,7 +1143,7 @@ SIPDBManager::getVarPath()
    if (!found)
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SIPDBManager::getVarPath trying default %s"
-                    ,DefaultVarPath);
+                    ,SIPX_SAFENULL(DefaultVarPath));
       candidate = DefaultVarPath;
        
       if (OsFileSystem::exists(candidate))
@@ -1154,7 +1154,7 @@ SIPDBManager::getVarPath()
       else
       {
          OsSysLog::add(FAC_SIP, PRI_ERR, "SIPDBManager::getVarPath default %s is not valid"
-                    ,DefaultVarPath);
+                    ,SIPX_SAFENULL(DefaultVarPath));
       }
    }
 
@@ -1168,7 +1168,7 @@ SIPDBManager::getVarPath()
    path.getNativePath(nativePath);
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SIPDBManager::getVarPath returning %s"
-                 ,nativePath.data());
+                 ,SIPX_SAFENULL(nativePath.data()));
 
    return nativePath;
 }
@@ -1188,7 +1188,7 @@ SIPDBManager::getCfgPath()
    if (pPath != NULL && pPath[0] != '\0')
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SIPDBManager::getCfgPath env variable '%s' set to '%s'"
-                    ,SIPX_DB_CFG_PATH, pPath);
+                    ,SIPX_SAFENULL(SIPX_DB_CFG_PATH), SIPX_SAFENULL(pPath));
       candidate = pPath;
 
       // If the last character is a separator, strip it.
@@ -1205,7 +1205,7 @@ SIPDBManager::getCfgPath()
       else
       {
          OsSysLog::add(FAC_SIP, PRI_ERR, "SIPDBManager::getCfgPath env variable %s has value %s but is not valid"
-                       ,SIPX_DB_CFG_PATH, pPath);
+                       ,SIPX_SAFENULL(SIPX_DB_CFG_PATH), SIPX_SAFENULL(pPath));
       }
    }
 
@@ -1213,7 +1213,7 @@ SIPDBManager::getCfgPath()
    if (!found)
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SIPDBManager::getCfgPath trying default %s"
-                    ,DefaultCfgPath);
+                    ,SIPX_SAFENULL(DefaultCfgPath));
       candidate = DefaultCfgPath;
 
       if (OsFileSystem::exists(candidate))
@@ -1224,7 +1224,7 @@ SIPDBManager::getCfgPath()
       else
       {
          OsSysLog::add(FAC_SIP, PRI_ERR, "SIPDBManager::getCfgPath default '%s' is not valid"
-                    ,DefaultCfgPath);
+                    ,SIPX_SAFENULL(DefaultCfgPath));
       }
    }
 
@@ -1238,7 +1238,7 @@ SIPDBManager::getCfgPath()
    path.getNativePath(nativePath);
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SIPDBManager::getCfgPath returning %s"
-                 ,nativePath.data());
+                 ,SIPX_SAFENULL(nativePath.data()));
 
    return nativePath;
 }

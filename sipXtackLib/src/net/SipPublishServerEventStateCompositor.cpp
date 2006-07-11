@@ -14,7 +14,6 @@
 // APPLICATION INCLUDES
 #include <os/OsSysLog.h>
 #include <utl/UtlString.h>
-#include <os/OsSysLog.h>
 #include <net/SipPublishServerEventStateCompositor.h>
 #include <net/SipMessage.h>
 #include <net/Url.h>

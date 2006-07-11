@@ -433,7 +433,7 @@ int main(int argc, char * argv[])
     }
   catch (const char * ErrorMsg)
     {
-      fprintf(stderr, "error in regex '%s': %s\n", argv[1], ErrorMsg);
+      fprintf(stderr, "error in regex '%s': %s\n", SIPX_SAFENULL(argv[1]), SIPX_SAFENULL(ErrorMsg));
       return 2;
     }
 }

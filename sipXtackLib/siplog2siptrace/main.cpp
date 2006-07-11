@@ -450,7 +450,7 @@ int main(int argc, char * argv[])
             {
                 //osPrintf("VVVVV\n   %s\n   host: %s\n   port: %s\n%s\n^^^^^\n",
                   //  isOutgoing ? "OUT" : "IN",
-                    //host.data(), port.data(), message.data());
+                    //SIP_SAFENULL(host.data()), SIP_SAFENULL(port.data()), SIP_SAFENULL(message.data()));
                 writeMessageXml(isOutgoing,
                                 message,
                                 host,

@@ -386,7 +386,7 @@ public:
           UtlString expectedValue(testData[i].expectedValue);
           // Assemble the test description.
           char description[80];
-          sprintf(description, "\"%s\"(%d, %d)", testData[i].string,
+          sprintf(description, "\"%s\"(%d, %d)", SIPX_SAFENULL(testData[i].string),
                   testData[i].start, testData[i].length);
 
           // Execute the (start, length) operator.
@@ -469,7 +469,7 @@ public:
           { "lhs != rhs. The text has special characters", \
                  "T#ter", "T&ter", -1 }, // lhs < rhs
           { "lhs == rhs. The text has special characters", \
-                 "TÜter", "TÜter", 0 } \
+                 "T??ter", "T??ter", 0 } \
         };
        const int testCount = sizeof(testData)/sizeof(testData[0]);
         
@@ -727,20 +727,20 @@ public:
         for (int i = 0; i < n; i++)
         {
             utlstr = data[i].rhs;
-            sprintf(msg, "(UtlString)\"%s\" == (char *)\"%s\"", data[i].rhs, data[i].lhs);
+            sprintf(msg, "(UtlString)\"%s\" == (char *)\"%s\"", SIPX_SAFENULL(data[i].rhs), SIPX_SAFENULL(data[i].lhs));
             CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, (int)data[i].isequal, 
                     (int)(utlstr == data[i].lhs));
 
-            sprintf(msg, "(UtlString)\"%s\" != (char *)\"%s\"", data[i].rhs, data[i].lhs);
+            sprintf(msg, "(UtlString)\"%s\" != (char *)\"%s\"", SIPX_SAFENULL(data[i].rhs), SIPX_SAFENULL(data[i].lhs));
             CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, (int)!data[i].isequal, 
                     (int)(utlstr != data[i].lhs));
 
             utlstr = data[i].lhs;
-            sprintf(msg, "(char *)\"%s\" == (UtlString)\"%s\"", data[i].rhs, data[i].lhs);
+            sprintf(msg, "(char *)\"%s\" == (UtlString)\"%s\"", SIPX_SAFENULL(data[i].rhs), SIPX_SAFENULL(data[i].lhs));
             CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, (int)data[i].isequal, 
                     (int)(data[i].rhs == utlstr));
 
-            sprintf(msg, "(char *)\"%s\" != (UtlString)\"%s\"", data[i].rhs, data[i].lhs);
+            sprintf(msg, "(char *)\"%s\" != (UtlString)\"%s\"", SIPX_SAFENULL(data[i].rhs), SIPX_SAFENULL(data[i].lhs));
             CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, (int)!data[i].isequal, 
                     (int)(data[i].rhs != utlstr));
         }
@@ -1404,7 +1404,7 @@ public:
         TestIsNullStructure testData[] = { \
             { "an empty string", "", true }, \
             { "a space-only string", "    ", false}, \
-            { "a single char string", "þ", false}, \
+            { "a single char string", "??", false}, \
             { "a digit-only string", "239", false } \
         }; 
         const int testCount = sizeof(testData)/sizeof(testData[0]); 

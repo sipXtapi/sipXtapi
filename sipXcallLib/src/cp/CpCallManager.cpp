@@ -487,7 +487,7 @@ void CpCallManager::getNewCallId(const char* callIdPrefix, UtlString* callId)
    {
       OsSysLog::add(FAC_CP, PRI_ERR,
                     "CpCallManager::getNewCallId callIdPrefix='%s' contains '@'",
-                    callIdPrefix);
+                    SIPX_SAFENULL(callIdPrefix));
    }
 
    // If we haven't initialized yet, do so.
@@ -510,7 +510,7 @@ void CpCallManager::getNewCallId(const char* callIdPrefix, UtlString* callId)
       // Compose the static fields.
       // Force usecs. to be 6 digits withleading zeros so that we do not have to do 64 bit integer math
       // just to build a big unique string.
-      sprintf(buffer, "%d/%ld%.6ld/%s", processId, currentTime.seconds(), currentTime.usecs(), thisHost.data());
+      sprintf(buffer, "%d/%ld%.6ld/%s", processId, currentTime.seconds(), currentTime.usecs(), SIPX_SAFENULL(thisHost.data()));
       // Hash them.
       NetMd5Codec encoder;
       encoder.encode(buffer, suffix);
@@ -522,7 +522,7 @@ void CpCallManager::getNewCallId(const char* callIdPrefix, UtlString* callId)
    }
 
    // Compose the new Call-Id.
-   sprintf(buffer, "%s/%lld/%s", callIdPrefix, mCallNum, suffix.data());
+   sprintf(buffer, "%s/%lld/%s", SIPX_SAFENULL(callIdPrefix), mCallNum, SIPX_SAFENULL(suffix.data()));
 
    // Copy it to the destination.
    *callId = buffer;

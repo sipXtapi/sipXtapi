@@ -425,7 +425,7 @@ void CRTCPSession::ReassignSSRC(unsigned long ulSSRC,
         osPrintf("*** SSRC REASSIGNED ****\n");
         osPrintf("\t ON SESSION ==> %d\n", GetSessionID());
         osPrintf("\t NEW SSRC    ==> %u\n", ulSSRC);
-        osPrintf("\t REASON     ==> %s\n", puchReason);
+        osPrintf("\t REASON     ==> %s\n", SIPX_SAFENULL(puchReason));
     }
 #endif /* RTCP_DEBUG ] */
 
@@ -795,7 +795,7 @@ void CRTCPSession::NewSDES(IGetSrcDescription *piGetSrcDescription,
             ulChangeMask = piGetSrcDescription->GetFieldChange(ulChangeMask,
                                                   &ulFieldID, uchFieldBuffer);
             osPrintf("\t\tSDES REPORT ==>  TYPE %s ** CONTENT %s\n",
-                               suchSDESFieldNames[ulFieldID], uchFieldBuffer);
+                               SIPX_SAFENULL(suchSDESFieldNames[ulFieldID]), SIPX_SAFENULL(uchFieldBuffer));
         }
         osPrintf("\t\t******************************************\n\n");
 
@@ -868,7 +868,7 @@ void CRTCPSession::UpdatedSDES(IGetSrcDescription *piGetSrcDescription,
             ulChangeMask = piGetSrcDescription->GetFieldChange(ulChangeMask,
                                                   &ulFieldID, uchFieldBuffer);
             osPrintf("\t\tSDES REPORT ==>  TYPE %s ** CONTENT %s\n",
-                               suchSDESFieldNames[ulFieldID], uchFieldBuffer);
+                               SIPX_SAFENULL(suchSDESFieldNames[ulFieldID]), SIPX_SAFENULL(uchFieldBuffer));
         }
         osPrintf("\t\t******************************************\n\n");
 
@@ -1052,7 +1052,7 @@ void CRTCPSession::ByeReportReceived(IGetByeInfo     *piGetByeInfo,
         osPrintf("\t\t******************************************\n");
         unsigned long aulCSRCs[32];
         piGetByeInfo->GetReason(uchReason);
-        osPrintf("\t\tBYE REPORT ==>  REASON IS %s\n", uchReason);
+        osPrintf("\t\tBYE REPORT ==>  REASON IS %s\n", SIPX_SAFENULL(uchReason));
 
         unsigned long ulCSRCs = piGetByeInfo->GetCSRC(aulCSRCs);
         if(ulCSRCs == 0)
@@ -1123,7 +1123,7 @@ void CRTCPSession::SDESReportSent(IGetSrcDescription *piGetSrcDescription,
             ulChangeMask = piGetSrcDescription->GetFieldChange(ulChangeMask,
                                                   &ulFieldID, uchFieldBuffer);
             osPrintf("\t\tSDES REPORT ==>  TYPE %s ** CONTENT %s\n",
-                               suchSDESFieldNames[ulFieldID], uchFieldBuffer);
+                               SIPX_SAFENULL(suchSDESFieldNames[ulFieldID]), SIPX_SAFENULL(uchFieldBuffer));
         }
         osPrintf("\t\t******************************************\n\n");
 
@@ -1301,7 +1301,7 @@ void CRTCPSession::ByeReportSent(IGetByeInfo     *piGetByeInfo,
         osPrintf("\t\t******************************************\n");
         unsigned long aulCSRCs[32];
         piGetByeInfo->GetReason(uchReason);
-        osPrintf("\t\tBYE REPORT ==>  REASON IS %s\n", uchReason);
+        osPrintf("\t\tBYE REPORT ==>  REASON IS %s\n", SIPX_SAFENULL(uchReason));
 
         unsigned long ulCSRCs = piGetByeInfo->GetCSRC(aulCSRCs);
         if(ulCSRCs == 0)

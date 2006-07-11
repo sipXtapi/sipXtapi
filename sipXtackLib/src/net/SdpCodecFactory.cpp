@@ -24,6 +24,7 @@
 #include <string.h>
 
 // APPLICATION INCLUDES
+#include <os/OsDefs.h>
 #include <utl/UtlDListIterator.h>
 #include <os/OsWriteLock.h>
 #include <os/OsReadLock.h>
@@ -154,7 +155,7 @@ void SdpCodecFactory::bindPayloadTypes()
         getCodecs(count, codecs);
         for (i=0; i<count; i++) {
             codecs[i]->toString(codecData);
-            osPrintf("\n  SDP Codec Factory[%d]:\n %s", i, codecData.data());
+            osPrintf("\n  SDP Codec Factory[%d]:\n %s", i, SIPX_SAFENULL(codecData.data()));
         }
     }
 #endif /* VERBOSE_CODEC_FACTORY ] */
@@ -891,7 +892,7 @@ int SdpCodecFactory::buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecType
 #ifdef VERBOSE_CODEC_FACTORY /* [ */
          osPrintf("Using %d codecs: %d %s/%s\n", mCodecs.entries(),
                          codecTypes[loop],
-                         codecMediaType.data(), codecEncodingName.data());
+                         SIPX_SAFENULL(codecMediaType.data()), SIPX_SAFENULL(codecEncodingName.data()));
 #endif /* ] */
       // } else {
          // osPrintf("Invalid codec selection: %d\n", internalCodecId);
@@ -924,7 +925,7 @@ const SdpCodec* SdpCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
         UtlString codecDump;
         codecFound->toString(codecDump);
         osPrintf("SdpCodecFactory::getCodec found:\n%s",
-            codecDump.data());
+            SIPX_SAFENULL(codecDump.data()));
     }
 #endif
 
@@ -994,7 +995,7 @@ const SdpCodec* SdpCodecFactory::getCodec(const char* mimeType,
         UtlString codecDump;
         codecFound->toString(codecDump);
         osPrintf("SdpCodecFactory::getCodec found:\n%s",
-            codecDump.data());
+            SIPX_SAFENULL(codecDump.data()));
     }
 #endif
 
@@ -1140,7 +1141,7 @@ void SdpCodecFactory::addCodecNoLock(SdpCodec& newCodec)
     UtlString codecDump;
     newCodec.toString(codecDump);
     osPrintf("SdpCodecFactory::addCodec adding:\n%s",
-        codecDump.data());
+        SIPX_SAFENULL(codecDump.data()));
 #endif
 }
 

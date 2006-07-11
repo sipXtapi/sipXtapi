@@ -69,7 +69,7 @@ MpStreamFeeder::MpStreamFeeder(Url resource, int flags)
 
 #ifdef MP_STREAM_DEBUG /* [ */
    osPrintf("MpStreamFeeder(%d): Construction url=%s, flags=0x%08X\n",
-         m_iInstanceId, resource.toString().data(), flags) ;
+         m_iInstanceId, SIPX_SAFENULL(resource.toString().data()), flags) ;
 #endif /* MP_STREAM_DEBUG ] */
 
    // Instantiate appropriate data source
@@ -383,7 +383,7 @@ void MpStreamFeeder::fireEvent(FeederEvent eventType)
    OsLock lock(m_eventGuard) ;
 
 #ifdef MP_STREAM_DEBUG /* [ */
-   osPrintf("MpStreamFeeder(%d): %s\n", m_iInstanceId, getEventString(eventType)) ;
+   osPrintf("MpStreamFeeder(%d): %s\n", m_iInstanceId, SIPX_SAFENULL(getEventString(eventType))) ;
 #endif /* MP_STREAM_DEBUG ] */
 
    if (m_pEventHandler != NULL)
@@ -406,14 +406,14 @@ void MpStreamFeeder::fireEvent(FeederEvent eventType)
       }
       
       osPrintf("MpStreamFeeder(%d-%08X): signaled event: %s\n", 
-         m_iInstanceId, taskId, getEventString(eventType)) ;
+         m_iInstanceId, taskId, SIPX_SAFENULL(getEventString(eventType))) ;
 #endif /* MP_STREAM_DEBUG ] */
 
    } 
 #ifdef MP_STREAM_DEBUG /* [ */
    else
    {
-      osPrintf("** WARNING: Null handler for event: %s\n", getEventString(eventType)) ;
+      osPrintf("** WARNING: Null handler for event: %s\n", SIPX_SAFENULL(getEventString(eventType))) ;
    }
 #endif /* MP_STREAM_DEBUG ] */
 }

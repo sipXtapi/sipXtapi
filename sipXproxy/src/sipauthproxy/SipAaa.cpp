@@ -242,7 +242,7 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                         {
                             OsSysLog::add(FAC_SIP, PRI_WARNING,
                                           "Strict route: %s not to this server",
-                                          requestUri.data());
+                                          SIPX_SAFENULL(requestUri.data()));
                             // Put the route back on as this URI is
                             // not this server.
                             sipRequest->addRouteUri(requestUri);
@@ -261,14 +261,14 @@ SipAaa::handleMessage( OsMsg& eventMessage )
 
 #                       ifdef TEST_PRINT
                         osPrintf("SipAaa::handleMessage setting new URI: %s\n",
-                                 contactUri.data());
+                                 SIPX_SAFENULL(contactUri.data()));
 #                       endif
 
                         sipRequest->removeRouteUri(lastRouteIndex, &contactUri);
 
 #                       ifdef TEST_PRINT
                         osPrintf("SipAaa::handleMessage route removed: %s\n",
-                                 contactUri.data());
+                                 SIPX_SAFENULL(contactUri.data()));
 #                       endif
 
                         // Put the last route in a the URI
@@ -281,7 +281,7 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                         int len;
                         sipRequest->getBytes(&bytes, &len);
                         osPrintf("SipAaa: \nStrict\n%s\nNow Loose\n",
-                                 bytes.data());
+                                 SIPX_SAFENULL(bytes.data()));
 
                         // Where are we going?
                         // These are used for authorization
@@ -311,7 +311,7 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                         {
                             myRouteUri = "";
                             OsSysLog::add(FAC_SIP, PRI_WARNING, "Loose route: %s not to this server",
-                                firstRouteUri.data());
+                                SIPX_SAFENULL(firstRouteUri.data()));
                         }
 
                         // Where are we going?
@@ -396,8 +396,8 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                     {
                         OsSysLog::add(FAC_SIP, PRI_WARNING,
                                       "invalid route call-id: %s signature a: %s t: %s s: %s",
-                                      callId.data(), routePermission.data(),
-                                      routeTag.data(), routeSignature.data()
+                                      SIPX_SAFENULL(callId.data()), SIPX_SAFENULL(routePermission.data()),
+                                      SIPX_SAFENULL(routeTag.data()), SIPX_SAFENULL(routeSignature.data())
                                       );
                     }
                 }
@@ -440,21 +440,21 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                               OsSysLog::add(
                                  FAC_SIP, PRI_INFO,
                                  "upstream request call-id: %s, not authenticating",
-                                 callId.data());
+                                 SIPX_SAFENULL(callId.data()));
                            }
                            else if(routePermission.isNull())
                            {
                               OsSysLog::add(
                                  FAC_SIP, PRI_INFO,
                                  "signed route call-id: %s with no authentication required",
-                                 callId.data());
+                                 SIPX_SAFENULL(callId.data()));
                            }
                            else
                            {
                               OsSysLog::add(
                                  FAC_SIP, PRI_INFO,
                                  "request call-id %s to unrestricted entity with signed route",
-                                 callId.data());
+                                 SIPX_SAFENULL(callId.data()));
                            }
                         }
                     }
@@ -551,7 +551,7 @@ SipAaa::handleMessage( OsMsg& eventMessage )
 
 #                           ifdef TEST_PRINT
                             osPrintf("SipAaa:handleMessage Record-Route address: %s port: %d\n",
-                                     uriString.data(), port);
+                                     SIPX_SAFENULL(uriString.data(), port));
 #                           endif
 
                             routeUrl.setHostAddress(uriString.data());
@@ -561,7 +561,7 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                         else
                         {
                             osPrintf("SipAaa:handleMessage Record-Route mRouteName: %s\n",
-                                mRouteName.data());
+                                SIPX_SAFENULL(mRouteName.data()));
                         }
 #                       endif
 
@@ -710,7 +710,7 @@ UtlBoolean SipAaa::isAuthenticated(
         if ( mRealm.compareTo(requestRealm) == 0 ) // case sensitive
         {
             OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipAaa:isAuthenticated: checking user '%s'",
-                   requestUser.data());
+                   SIPX_SAFENULL(requestUser.data()));
 
             // Ignore this credential if it is not a current valid nonce
             if (mNonceDb.isNonceValid(requestNonce, callId, fromTag,
@@ -735,7 +735,7 @@ UtlBoolean SipAaa::isAuthenticated(
                     OsSysLog::add(FAC_AUTH, PRI_DEBUG,
                                   "SipAaa::isAuthenticated found credential "
                                   "user: \"%s\" passToken: \"%s\"",
-                                  requestUser.data(), passTokenDB.data());
+                                  SIPX_SAFENULL(requestUser.data()), SIPX_SAFENULL(passTokenDB.data()));
 #                   endif
                     authenticated = sipRequest.verifyMd5Authorization(requestUser.data(),
                                                                       passTokenDB.data(),
@@ -749,13 +749,13 @@ UtlBoolean SipAaa::isAuthenticated(
                         userUrl.toString(authUser);
                         OsSysLog::add(FAC_AUTH, PRI_DEBUG,
                                       "SipAaa::isAuthenticated(): authenticated as '%s'",
-                                      authUser.data());
+                                      SIPX_SAFENULL(authUser.data()));
                     }
                     else
                     {
                         OsSysLog::add(FAC_AUTH, PRI_DEBUG,
                                       "SipAaa::isAuthenticated() authentication failed as '%s'",
-                                      requestUser.data());
+                                      SIPX_SAFENULL(requestUser.data()));
                     }
                 }
                 // Did not find credentials in DB
@@ -763,7 +763,7 @@ UtlBoolean SipAaa::isAuthenticated(
                 {
                    OsSysLog::add(FAC_AUTH, PRI_INFO,
                                  "SipAaa::isAuthenticated() No credentials found for user: '%s'",
-                                 requestUser.data());
+                                 SIPX_SAFENULL(requestUser.data()));
                 }
             }
             else // Is not a valid nonce
@@ -772,8 +772,8 @@ UtlBoolean SipAaa::isAuthenticated(
                               "SipAaa::isAuthenticated() "
                               "Invalid NONCE: %s found "
                               "call-id: %s from tag: %s uri: %s realm: %s expiration: %ld",
-                              requestNonce.data(), callId.data(), fromTag.data(),
-                              requestUri.data(), mRealm.data(), nonceExpires);
+                              SIPX_SAFENULL(requestNonce.data()),SIPX_SAFENULL(callId.data()), SIPX_SAFENULL(fromTag.data()),
+                              SIPX_SAFENULL(requestUri.data()), SIPX_SAFENULL(mRealm.data()), nonceExpires);
             }
         }
         else
@@ -786,7 +786,7 @@ UtlBoolean SipAaa::isAuthenticated(
     {
         OsSysLog::add(FAC_AUTH, PRI_INFO,
               "SipAaa::isAuthenticated() Request not authenticated for user: '%s'",
-              requestUser.data());
+              SIPX_SAFENULL(requestUser.data()));
 
         UtlString newNonce;
         UtlString challangeRequestUri;
@@ -831,7 +831,7 @@ SipAaa::isAuthorized(
         UtlString grantedRowPermission = *((UtlString*)grantedRecord.findValue(&permissionKey));
 
         OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipAaa::isAuthorized found uri: %s permission: %s",
-               rowUri.data(), grantedRowPermission.data());
+               SIPX_SAFENULL(rowUri.data()), SIPX_SAFENULL(grantedRowPermission.data()));
 
         // Search through the input permissions set for a match
         int numRequiredPermissions = requiredPermissions.getSize();
@@ -921,7 +921,7 @@ SipAaa::isAuthorized (
     OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipAaa::isAuthorized user: %s %s for %s",
                   authUser && *authUser ? authUser : "none",
                   authorized ? "authorized" : "not authorized",
-                  matchedPermission.data());
+                  SIPX_SAFENULL(matchedPermission.data()));
 
     if (!authorized)
     {

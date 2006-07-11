@@ -59,7 +59,7 @@ OsStatus ForwardRules::loadMappings(const UtlString configFileName,
       UtlString parseError = mDoc->ErrorDesc();
 
       OsSysLog::add( FAC_SIP, PRI_ERR, "ERROR parsing forwardingrules '%s': %s"
-                    ,configFileName.data(), parseError.data());
+                    ,SIPX_SAFENULL(configFileName.data()), SIPX_SAFENULL(parseError.data()));
 
       return OS_NOT_FOUND;
    }
@@ -543,7 +543,7 @@ OsStatus ForwardRules::parseFieldMatchContainer(const SipMessage& request,
                   OsSysLog::add(FAC_SIP, PRI_ERR,
                                 "Illegal regular expression <fieldPattern>%s</fieldPattern>"
                                 " in forwardingrules.xml: %s",
-                                fieldPatternText->Value() ,ErrorMsg
+                                SIPX_SAFENULL(fieldPatternText->Value()) ,SIPX_SAFENULL(ErrorMsg)
                                 );
                }
             }

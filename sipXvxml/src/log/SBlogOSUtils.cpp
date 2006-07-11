@@ -86,9 +86,9 @@ extern "C" int SBlogGetTimeStampStr(time_t          timestamp,
 
   if (timeStr) {
     strncpy(timestampStr, &timeStr[0], 3);
-    sprintf(&timestampStr[3], ", %s", &timeStr[4]);
+    sprintf(&timestampStr[3], ", %s", SIPX_SAFENULL(&timeStr[4]));
     strncpy(&timestampStr[12], &timeStr[20], 5);
-    sprintf(&timestampStr[16], " %s", &timeStr[11]);
+    sprintf(&timestampStr[16], " %s", SIPX_SAFENULL(&timeStr[11]));
     sprintf(&timestampStr[25], ".%02u GMT", timestampMsec / 10);
   } else {
     timestampStr[0] = '\0';

@@ -152,7 +152,8 @@ UtlBoolean MpResource::processFrame(void)
 
 #ifdef WATCH_FRAME_PROCESSING /* [ */
    pName = mName;
-   len = sprintf(z, "%s(", pName);
+   len = sprintf(z, "%s(",    osPrintf("MprDecode::handleSelectCodecs(%d codec%s):\n",
+      numCodecs, ((1 == numCodecs) ? "" : "s"));pName));
    for (i=0; i < mMaxInputs; i++)
    {
       if (mpInBufs[i] != NULL)
@@ -263,13 +264,13 @@ void MpResource::resourceInfo(MpResource* pResource, int index)
 
    name = pResource->getName();
    printf("    Resource[%d]: %p, %s (%sabled)\n",
-          index, pResource, name, pResource->mIsEnabled ? "En" : "Dis");
+          index, pResource, SIPX_SAFENULL(name), pResource->mIsEnabled ? "En" : "Dis");
    
    for (i=0; i<pResource->mMaxInputs; i++) {
       if (NULL != pResource->mpInConns[i].pResource) {
          name = pResource->mpInConns[i].pResource->getName();
          printf("        Input %d from %s:%d\n", i, 
-            name, pResource->mpInConns[i].portIndex);
+            SIPX_SAFENULL(name), pResource->mpInConns[i].portIndex);
       }
    }
 
@@ -277,7 +278,7 @@ void MpResource::resourceInfo(MpResource* pResource, int index)
       if (NULL != pResource->mpOutConns[i].pResource) {
          name = pResource->mpOutConns[i].pResource->getName();
          printf("        Output %d to %s:%d\n", i, 
-            name, pResource->mpOutConns[i].portIndex);
+           SIPX_SAFENULL(name), pResource->mpOutConns[i].portIndex);
       }
    }
 }

@@ -26,6 +26,8 @@
 
 // APPLICATION INCLUDES
 // MACROS
+/* Prevent Coredumps on Solaris and other fully POSIX compliant platforms if %s = NULL */
+#define SIPX_SAFENULL(x) ((x) ? (x) : "(null)")
 // EXTERNAL FUNCTIONS
 // DEFINES
 #ifdef WIN32

@@ -114,7 +114,7 @@ StreamDataSource::StreamDataSource(const StreamDataSource& rStreamDataSource)
 void StreamDataSource::fireEvent(StreamDataSourceEvent event)
 {
 #ifdef MP_STREAM_DEBUG /* [ */
-   osPrintf("StreamDataSource: %s\n", getEventString(event)) ;
+   osPrintf("StreamDataSource: %s\n", SIPX_SAFENULL(getEventString(event))) ;
 #endif /* MP_STREAM_DEBUG ] */
 
    if (mpListener != NULL)
@@ -124,7 +124,7 @@ void StreamDataSource::fireEvent(StreamDataSourceEvent event)
 #ifdef MP_STREAM_DEBUG /* [ */
    else
    {
-      osPrintf("** WARNING: unable to send event %s -- null listener\n", getEventString(event)) ;
+      osPrintf("** WARNING: unable to send event %s -- null listener\n", SIPX_SAFENULL(getEventString(event))) ;
    }
 #endif /* MP_STREAM_DEBUG ] */
 }

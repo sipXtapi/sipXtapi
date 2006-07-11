@@ -177,7 +177,7 @@ UtlBoolean SipRouter::handleMessage(OsMsg& eventMessage)
                         if(! uriIsMe)
                         {
                             OsSysLog::add(FAC_SIP, PRI_WARNING, "Strict route: %s not to this server",
-                                requestUri.data());
+                                SIPX_SAFENULL(requestUri.data()));
                             // Put the route back on as this URI is
                             // not this server.
                             sipRequest->addRouteUri(requestUri);
@@ -190,13 +190,13 @@ UtlBoolean SipRouter::handleMessage(OsMsg& eventMessage)
                         sipRequest->getLastRouteUri(contactUri, lastRouteIndex);
 #ifdef TEST_PRINT
                         osPrintf("SipRouter::handleMessage setting new URI: %s\n",
-                            contactUri.data());
+                            SIPX_SAFENULL(contactUri.data()));
 #endif
 
                         sipRequest->removeRouteUri(lastRouteIndex, &contactUri);
 #ifdef TEST_PRINT
                         osPrintf("SipRouter::handleMessage route removed: %s\n",
-                            contactUri.data());
+                            SIPX_SAFENULL(contactUri.data()));
 #endif
                         // Put the last route in a the URI
                         Url newUri(contactUri);
@@ -207,7 +207,7 @@ UtlBoolean SipRouter::handleMessage(OsMsg& eventMessage)
                         int len;
                         sipRequest->getBytes(&bytes, &len);
                         osPrintf("SipRouter: \nStricttttttttttttttttttttttt\n%s\nNowLLLLLLLLLLLLLLLLLLLLLoooooose\n",
-                            bytes.data());
+                            bSIPX_SAFENULL(ytes.data()));
 #endif
                     }
                     else
@@ -225,7 +225,7 @@ UtlBoolean SipRouter::handleMessage(OsMsg& eventMessage)
                         else
                         {
                             OsSysLog::add(FAC_SIP, PRI_WARNING, "Loose route: %s not to this server",
-                                firstRouteUri.data());
+                                SIPX_SAFENULL(firstRouteUri.data()));
                         }
                     }
                 }
@@ -255,7 +255,7 @@ UtlBoolean SipRouter::handleMessage(OsMsg& eventMessage)
                     //domain.append(portBuf);
 #ifdef TEST_PRINT
                     //osPrintf("SipRouter::handleMessage uri domain: %s\n",
-                    //    domain.data());
+                    //    SIPX_SAFENULL(domain.data()));
 #endif
 
                     UtlString mappedTo;
@@ -266,7 +266,7 @@ UtlBoolean SipRouter::handleMessage(OsMsg& eventMessage)
                     {
 #ifdef TEST_PRINT
                         osPrintf("SipRouter::handleMessage domain mapped to: %s\n",
-                            mappedTo.data());
+                            SIPX_SAFENULL(mappedTo.data()));
 #endif
                         Url nextHopUrl(mappedTo);
                         // Add a loose route to the mapped server
@@ -276,7 +276,7 @@ UtlBoolean SipRouter::handleMessage(OsMsg& eventMessage)
                         sipRequest->addRouteUri(routeString.data());
 #ifdef TEST_PRINT
                         osPrintf("SipRouter::handleMessage added route: %s\n",
-                            routeString.data());
+                            SIPX_SAFENULL(routeString.data()));
 #endif
                     }
 
@@ -315,7 +315,7 @@ UtlBoolean SipRouter::handleMessage(OsMsg& eventMessage)
                               port);
 #ifdef TEST_PRINT
                     osPrintf("SipRouter:handleMessage Record-Route address: %s port: %d\n",
-                        uriString.data(), port);
+                        SIPX_SAFENULL(uriString.data()), port);
 #endif
                     Url routeUrl;
                     routeUrl.setHostAddress(uriString.data());

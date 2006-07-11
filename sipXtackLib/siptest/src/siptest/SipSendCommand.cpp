@@ -103,7 +103,7 @@ int SipSendCommand::execute(int argc, char* argv[])
                         while(charsRead);
             fclose(sipMessageFile);
 
-                        //printf("Read file contents:\n%s\n====END====\n", messageBuffer.data());
+                        //printf("Read file contents:\n%s\n====END====\n", SIPX_SAFENULL(messageBuffer.data()));
                         SipMessage message(messageBuffer.data());
             UtlString callId;
             message.getCallIdField(&callId);
@@ -124,7 +124,7 @@ int SipSendCommand::execute(int argc, char* argv[])
                     break;
                             }
                 sprintf(callIdBuffer, "%d-%s", transactionIndex + 1,
-                    callId.data());
+                    SIPX_SAFENULL(callId.data()));
                 message.setCallIdField(callIdBuffer);
             }
             OsTime finish;

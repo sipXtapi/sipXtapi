@@ -75,9 +75,9 @@ int showSpareBufs(int fixIt, char* tag)
         }
         OK &= ok;
         osPrintf("%sspare[%d] = 0x%X->0x%X (%sOK)%s\n",
-            tag, i, (int) sb, (int) src,
-            (ok ? "" : "NOT "),
-            (fixed ? " (Fixed)" : ""));
+            SIPX_SAFENULL(tag), i, (int) sb, (int) src,
+            SIPX_SAFENULL((ok ? "" : "NOT ")),
+            SIPX_SAFENULL((fixed ? " (Fixed)" : "")));
     }
     return OK;
 }
@@ -209,7 +209,7 @@ void dump1Buf(MpBufPtr t)
         }
         sprintf(str, "%3d: %c 0x%X->0x%X %4d(%06d)",
             i, state, (int) t, (int) t->pStorage, t->line_taken, t->time_taken);
-        Zprintf("%s %4d(%06d) %4d(%06d)\n", (int) str, t->line_freed,
+        Zprintf("%s %4d(%06d) %4d(%06d)\n", SIPX_SAFENULL((int) str), t->line_freed,
             t->time_freed, t->touched_by, t->touched_at, 0);
 #endif /* BUFFER_INSTRUMENTATION ] */
 }

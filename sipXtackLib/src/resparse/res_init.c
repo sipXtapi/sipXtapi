@@ -488,7 +488,7 @@ res_init()
                 if (_res.options & RES_DEBUG) {
                         printf(";; res_init()... default dnsrch list:\n");
                         for (pp = _res.dnsrch; *pp; pp++)
-                                printf(";;\t%s\n", *pp);
+                                printf(";;\t%s\n", SIPX_SAFENULL(*pp));
                         printf(";;\t..END..\n");
                 }
 #endif
@@ -515,7 +515,7 @@ res_setoptions(options, source)
 #ifdef DEBUG
         if (_res.options & RES_DEBUG)
                 printf(";; res_setoptions(\"%s\", \"%s\")...\n",
-                       options, source);
+                       SIPX_SAFENULL(options), SIPX_SAFENULL(source));
 #endif
         while (*cp) {
                 /* skip leading and inner runs of spaces */
@@ -536,7 +536,7 @@ res_setoptions(options, source)
 #ifdef DEBUG
                         if (!(_res.options & RES_DEBUG)) {
                                 printf(";; res_setoptions(\"%s\", \"%s\")..\n",
-                                       options, source);
+                                       SIPX_SAFENULL(options), SIPX_SAFENULL(source));
                                 _res.options |= RES_DEBUG;
                         }
                         printf(";;\tdebug\n");

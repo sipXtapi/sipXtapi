@@ -63,12 +63,12 @@ DepositCGI::execute(UtlString* out)
 
    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                  "DepositCGI::execute: attempting to validate mailbox '%s'",
-                 m_mailboxIdentity.data());
+                 SIPX_SAFENULL(m_mailboxIdentity.data()));
    ValidateMailboxCGIHelper validateMailboxHelper ( m_mailboxIdentity );
    OsStatus result = validateMailboxHelper.execute( out );
    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                  "DepositCGI::execute: validating mailbox '%s', result %d",
-                 m_mailboxIdentity.data(), result);
+                 SIPX_SAFENULL(m_mailboxIdentity.data()), result);
 
    if ( result == OS_SUCCESS )
    {
@@ -76,7 +76,7 @@ DepositCGI::execute(UtlString* out)
       validateMailboxHelper.getMailboxIdentity( m_mailboxIdentity );
       OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                     "DepositCGI::execute: getMailboxIdentity returned m_mailboxIdentity = '%s'",
-                    m_mailboxIdentity.data());
+                    SIPX_SAFENULL(m_mailboxIdentity.data()));
 
       // URL of user's greeting
       UtlString greetingUrl;

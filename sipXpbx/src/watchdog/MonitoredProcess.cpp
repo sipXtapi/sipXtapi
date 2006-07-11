@@ -134,13 +134,13 @@ OsStatus MonitoredProcess::AddReporter(FailureReporterBase *pReporter)
     {
 
         OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"Adding reporter to process alias %s\n",
-                      mAliasStr.data());
+                      SIPX_SAFENULL(mAliasStr.data()));
         mpReporters[mNumReporters] = pReporter;
         mNumReporters++;
         retval = OS_SUCCESS;
     } else
         OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"MAX_REPORTERS reached for process alias %s\n",
-                      mAliasStr.data());
+                      SIPX_SAFENULL(mAliasStr.data()));
     return retval;
 }
 
@@ -149,7 +149,7 @@ OsStatus MonitoredProcess::sendReports()
     OsStatus retval = OS_FAILED;
 
     OsSysLog::add(FAC_WATCHDOG,PRI_INFO," Flushing (Sending) reports STARTED for alias %s\n",
-                  mAliasStr.data());
+                  SIPX_SAFENULL(mAliasStr.data()));
 
     for ( int loop = 0; loop < mNumReporters;loop++ )
     {
@@ -157,7 +157,7 @@ OsStatus MonitoredProcess::sendReports()
     }
 
     OsSysLog::add(FAC_WATCHDOG,PRI_INFO," Send reports COMPLETE for alias %s\n",
-                  mAliasStr.data());
+                  SIPX_SAFENULL(mAliasStr.data()));
 
     return retval;
 }
@@ -232,17 +232,17 @@ void MonitoredProcess::ApplyUserRequestedState()
             verb = "restart";
 
         OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"User has requested a %s on process %s\n",
-                      verb.data(),mAliasStr.data());
+                      SIPX_SAFENULL(verb.data()),SIPX_SAFENULL(mAliasStr.data()));
         
         if ( startstopProcessTree(*doc,mAliasStr,verb) == OS_SUCCESS )
         {
             OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"[SUCCESS] User with %s on process %s\n",
-                          verb.data(),mAliasStr.data());
+                          SIPX_SAFENULL(verb.data()),SIPX_SAFENULL(mAliasStr.data()));
 
         }
         else
             OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"[FAILED] User could not %s process %s\n",
-                          verb.data(),mAliasStr.data());
+                          SIPX_SAFENULL(verb.data()),SIPX_SAFENULL(mAliasStr.data()));
     }
         
     pProcessMgr->unlockAliasFile() ;
@@ -281,14 +281,14 @@ OsStatus MonitoredProcess::check()
             {
                 stateToString(mnLastProcessState,lastStateStr);
                 OsSysLog::add(FAC_WATCHDOG,PRI_WARNING,"Process %s state changed: %s --> %s",
-                            mAliasStr.data(), lastStateStr.data(),currentStateStr.data() );
+                            SIPX_SAFENULL(mAliasStr.data()), SIPX_SAFENULL(lastStateStr.data()),SIPX_SAFENULL(currentStateStr.data()) );
             }
         }
 
         mnLastProcessState = processstate;
 
         //if debug level is set then monitor all states
-         OsSysLog::add(FAC_WATCHDOG,PRI_DEBUG,"Process %s in %s state.", mAliasStr.data(),currentStateStr.data());
+         OsSysLog::add(FAC_WATCHDOG,PRI_DEBUG,"Process %s in %s state.", SIPX_SAFENULL(mAliasStr.data()),SIPX_SAFENULL(currentStateStr.data()));
 
 
         //if it is running... see if we can get its process
@@ -299,7 +299,7 @@ OsStatus MonitoredProcess::check()
 #endif /* DEBUG */
             //wait up to STARTING_TIME seconds to see if we can get the process info
             //if after STARTING_TIME seconds we can't, then consider this process a ghost
-            OsSysLog::add(FAC_WATCHDOG,PRI_WARNING,"Process %s found in non-running state. (Waiting for it to start).", mAliasStr.data());
+            OsSysLog::add(FAC_WATCHDOG,PRI_WARNING,"Process %s found in non-running state. (Waiting for it to start).", SIPX_SAFENULL(mAliasStr.data()));
             int trycount = 0;
             int tmpProcessState = PROCESS_STARTING;
             
@@ -318,13 +318,13 @@ OsStatus MonitoredProcess::check()
             }
 
             if (bIsGhost)             
-                OsSysLog::add(FAC_WATCHDOG,PRI_WARNING,"Process %s found in non-running state (it was in STARTING state for more than %d seconds).", mAliasStr.data(), STARTING_TIME);
+                OsSysLog::add(FAC_WATCHDOG,PRI_WARNING,"Process %s found in non-running state (it was in STARTING state for more than %d seconds).", SIPX_SAFENULL(mAliasStr.data()), STARTING_TIME);
 
         }
 
 
 #ifdef DEBUG
-        osPrintf("%s is state : %d\n",mAliasStr,processstate);
+        osPrintf("%s is state : %d\n",SIPX_SAFENULL(mAliasStr),processstate);
 #endif /* DEBUG */
 
         //make sure it attempts start the first time no matter what the state is
@@ -336,7 +336,7 @@ OsStatus MonitoredProcess::check()
 
         if ( processstate == PROCESS_STARTED && mbRestartEnabled )
         {
-            sprintf(msgbuf,"Checking process %s", mAliasStr.data());
+            sprintf(msgbuf,"Checking process %s", SIPX_SAFENULL(mAliasStr.data()));
             OsSysLog::add(FAC_WATCHDOG,PRI_INFO,msgbuf);
             UtlBoolean bVerified = FALSE;
             OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"[running]\n");
@@ -402,7 +402,7 @@ OsStatus MonitoredProcess::check()
                     }
                 }
 
-                OsSysLog::add(FAC_WATCHDOG,PRI_WARNING,"Attempting %s startup...", mAliasStr.data());
+                OsSysLog::add(FAC_WATCHDOG,PRI_WARNING,"Attempting %s startup...", mAliasStr.data()));
                 mnTotalRestarts++;
                 if ( startstopProcessTree(*doc,mAliasStr,verb) == OS_SUCCESS )
                 {
@@ -423,7 +423,7 @@ OsStatus MonitoredProcess::check()
 
                 } else
                 {
-                    sprintf(msgbuf,"%s failed restarting.", mAliasStr.data());
+                    sprintf(msgbuf,"%s failed restarting.", SIPX_SAFENULL(mAliasStr.data()));
                     OsSysLog::add(FAC_WATCHDOG,PRI_ERR,msgbuf);
 
                     msgStr = mAliasStr;
@@ -439,7 +439,7 @@ OsStatus MonitoredProcess::check()
             } else
             {
                 char msg[256];
-                sprintf(msg,"%s Failed MAX restarts. Process can not be restarted!", mAliasStr.data());
+                sprintf(msg,"%s Failed MAX restarts. Process can not be restarted!", SIPX_SAFENULL(mAliasStr.data()));
                 OsSysLog::add(FAC_WATCHDOG,PRI_ERR,msg);
                 mbRestartEnabled = FALSE;
                 mbStartedOnce = TRUE; //so it wont keep changing the state

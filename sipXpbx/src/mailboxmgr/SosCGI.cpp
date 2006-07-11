@@ -36,7 +36,7 @@
 SosCGI::SosCGI(const Url& from)
 {
    from.getIdentity(mFrom);
-   OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG, "SosCGI - Caller identity = %s\n", mFrom.data());
+   OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG, "SosCGI - Caller identity = %s\n", SIPX_SAFENULL(mFrom.data()));
 }
 
 
@@ -83,7 +83,7 @@ SosCGI::parseMappingFile(const UtlString& mapFile)
 {
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                   "SosCGI - Entering parseMappingFile('%s')\n",
-                  mapFile.data());
+                  SIPX_SAFENULL(mapFile.data()));
     OsStatus result = OS_FAILED;
 
     TiXmlDocument doc(mapFile);
@@ -122,7 +122,7 @@ SosCGI::parseMappingFile(const UtlString& mapFile)
 
                       mSosUrl = userName + "@" + hostName;
                       OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                                    "SosCGI - parseMappingFile:: Found the device %s and use url %s\n", mFrom.data(), mSosUrl.data());
+                                    "SosCGI - parseMappingFile:: Found the device %s and use url %s\n", SIPX_SAFENULL(mFrom.data()), SIPX_SAFENULL(mSosUrl.data()));
 
                       return OS_SUCCESS;
                    }
@@ -132,7 +132,7 @@ SosCGI::parseMappingFile(const UtlString& mapFile)
 
           // There is no match device, use the default routing address instead
           OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_INFO,
-                        "SosCGI - parseMappingFile::Could not find the device in the mapping file = %s\n", mFrom.data());
+                        "SosCGI - parseMappingFile::Could not find the device in the mapping file = %s\n", SIPX_SAFENULL(mFrom.data()));
           TiXmlNode *defaultGroupNode = rootNode->FirstChild("defaultMatch");
           TiXmlNode *routeNode = defaultGroupNode->FirstChild("transform");
           UtlString userName = ((routeNode->FirstChild("user"))->FirstChild())->Value();
@@ -141,7 +141,7 @@ SosCGI::parseMappingFile(const UtlString& mapFile)
           
           mSosUrl = userName + "@" + hostName;
           OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                        "SosCGI - using default url = %s\n", mSosUrl.data());
+                        "SosCGI - using default url = %s\n", SIPX_SAFENULL(mSosUrl.data()));
 
           return OS_SUCCESS;
        }

@@ -1873,7 +1873,7 @@ int dbCLI::create_table(dbDatabase* db, char const* tableName, int nColumns,
         offs -= sizeof(dbField);
         field->name.offs = offs;
         field->name.size = strlen(columns[i].name) + 3;
-        sprintf((char*)field + offs, "%s[]", columns[i].name);
+        sprintf((char*)field + offs, "%s[]", SIPX_SAFENULL(columns[i].name));
         offs += field->name.size;   
             field->tableName.offs = offs;
             if (type == cli_array_of_oid) { 

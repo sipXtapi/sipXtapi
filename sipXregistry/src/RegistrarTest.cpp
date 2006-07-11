@@ -99,7 +99,7 @@ void RegistrarTest::checkPeers()
              )
          {
             OsSysLog::add( FAC_SIP, PRI_DEBUG, "RegistrarTest invoke SyncRpcReset(%s, %s)"
-                          ,sipRegistrar->primaryName().data(), peer->name());
+                          ,SIPX_SAFENULL(sipRegistrar->primaryName().data()), SIPX_SAFENULL(peer->name()));
 
             peer->setState(SyncRpcReset::invoke(sipRegistrar->primaryName(), *peer));
 
@@ -107,7 +107,7 @@ void RegistrarTest::checkPeers()
             {
                OsSysLog::add( FAC_SIP, PRI_NOTICE,
                              "registerSync.reset success to '%s'; update numbering synchronized."
-                             ,peer->name()
+                             ,SIPX_SAFENULL(peer->name())
                              );
             }
          }

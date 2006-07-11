@@ -89,7 +89,7 @@ ConferenceManager::parseConfigFile ( const UtlString& configFileName )
 {
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                   "Entering ConferenceManager::parseConfigFile('%s')\n",
-                  configFileName.data());
+                  SIPX_SAFENULL(configFileName.data()));
     OsStatus result = OS_FAILED;
 
     TiXmlDocument doc ( configFileName );
@@ -125,7 +125,7 @@ ConferenceManager::parseConfigFile ( const UtlString& configFileName )
       // into the log.
       OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_CRIT,
                     "ConferenceManager::parseConfigFile: doc.LoadFile() returned FALSE while attempting to process configuration file '%s'",
-                    configFileName.data());
+                    SIPX_SAFENULL(configFileName.data()));
    }
 
    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
@@ -182,8 +182,8 @@ ConferenceManager::getConfigValue (
 
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                   "ConferenceManager::getConfigValue('%s') returns result = %d value = '%s'",
-                  key.data(), result,
-                 (result == OS_SUCCESS ? value.data() : "[unknown]"));
+                  SIPX_SAFENULL(key.data()), result,
+                 SIPX_SAFENULL((result == OS_SUCCESS ? value.data() : "[unknown]")));
     return result;
 }
 
@@ -241,7 +241,7 @@ ConferenceManager::doLogin (
     
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                  "ConferenceManager::doLogin conference Id %s from contact %s",
-                 confId.data(), contact.data());
+                 SIPX_SAFENULL(confId.data()), SIPX_SAFENULL(contact.data()));
     
     // Validate the access code
     UtlString organizerCode;
@@ -279,7 +279,7 @@ ConferenceManager::doLogin (
             {
                 OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_WARNING,
                              "ConferenceManager::doLogin invalid access code %s for conference Id %s",
-                             accessCode.data(), confId.data());
+                             SIPX_SAFENULL(accessCode.data()), SIPX_SAFENULL(confId.data()));
                 result = OS_FAILED;
             }
         }
@@ -502,7 +502,7 @@ ConferenceManager::getCustomParameter( const UtlString& paramName,
 
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                   "ConferenceManager::getCustomParameter('%s') returns %d, rStrValue = '%s'",
-                  paramName.data(), OS_SUCCESS, rStrValue.data());
+                  SIPX_SAFENULL(paramName.data()), OS_SUCCESS, SIPX_SAFENULL(rStrValue.data()));
 
     return OS_SUCCESS ;
 
@@ -521,7 +521,7 @@ ConferenceManager::parseConferenceFile (
     UtlString confFile(CONFERENCE_REGISTER_FILE);
     
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                  "ConferenceManager::parseConferenceFile start to parse the file = %s\n", confFile.data());
+                  "ConferenceManager::parseConferenceFile start to parse the file = %s\n", SIPX_SAFENULL(confFile.data()));
     TiXmlDocument doc(confFile);
 
     // Verify that we can load the file (i.e it must exist)
@@ -545,7 +545,7 @@ ConferenceManager::parseConferenceFile (
                     
                     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                                   "ConferenceManager::parseConferenceFile confId %s, organizer code %s, participant code %s, bridge url %s",
-                                  confId.data(), organizerCode.data(), participantCode.data(), bridgeUrl.data());
+                                  SIPX_SAFENULL(confId.data()), SIPX_SAFENULL(organizerCode.data()), SIPX_SAFENULL(participantCode.data()), SIPX_SAFENULL(bridgeUrl.data()));
 
                     return OS_SUCCESS;
                 

@@ -159,7 +159,7 @@ getMessageIdsFromQuery( UtlString& returnString )
 
    OsSysLog::add(LOG_FACILITY, PRI_DEBUG,
                  "getMessageIdsFromQuery: returnString = '%s'",
-                 returnString.data());
+                 SIPX_SAFENULL(returnString.data()));
    return OS_SUCCESS;
 }
 
@@ -170,7 +170,7 @@ setLogLevel()
     ConferenceManager * pConferenceManager = ConferenceManager::getInstance();
     pConferenceManager->getCustomParameter( PARAM_LOG_LEVEL, logLevel ) ;
     OsSysLog::add( LOG_FACILITY, PRI_DEBUG, "setLogLevel logLevel = '%s'",
-                   logLevel.data());
+                   SIPX_SAFENULL(logLevel.data()));
     if( !logLevel.isNull() )
     {
         // Strip the leading and trailing spaces.
@@ -180,7 +180,7 @@ setLogLevel()
         logLevel.toUpper();
 
         OsSysLog::add( LOG_FACILITY, PRI_DEBUG, "setLogLevel: after cleaning, logLevel = '%s'",
-                       logLevel.data());
+                       SIPX_SAFENULL(logLevel.data()));
         if( logLevel == LOG_LEVEL_DEBUG )
         {
            OsSysLog::setLoggingPriority(PRI_DEBUG);
@@ -292,11 +292,11 @@ main(int argc, char* argv[])
                           sizeof ("QUERY_STRING=") - 1) == 0)
               {
                  OsSysLog::add(LOG_FACILITY, PRI_DEBUG, "query = '%s'",
-                               environ[i] + sizeof ("QUERY_STRING=") - 1);
+                               SIPX_SAFENULL(environ[i] + sizeof ("QUERY_STRING=") - 1));
               }
            }
            // Don't forget that envLog may contain %'s!
-           OsSysLog::add(LOG_FACILITY, PRI_DEBUG, "%s", envLog.data());
+           OsSysLog::add(LOG_FACILITY, PRI_DEBUG, "%s", SIPX_SAFENULL(envLog.data()));
         }
 
         gCgi = new cgicc::Cgicc();
@@ -312,7 +312,7 @@ main(int argc, char* argv[])
             OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG, "main: gValues->valueOf(\"eventtype\") == NULL, using gValues->valueOf(\"action\")");
         }
         
-        OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG, "sActionCGIVar = '%s'", sActionCGIVar);
+        OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG, "sActionCGIVar = '%s'", SIPX_SAFENULL(sActionCGIVar));
 
         // we must specify an action field
         if ( sActionCGIVar != NULL )
@@ -321,14 +321,14 @@ main(int argc, char* argv[])
             UtlString action ( sActionCGIVar );
             action.toLower();
 
-            OsSysLog::add(LOG_FACILITY, PRI_INFO, "CB Admission CGI - action = %s ", sActionCGIVar);
+            OsSysLog::add(LOG_FACILITY, PRI_INFO, "CB Admission CGI - action = %s ", SIPX_SAFENULL(sActionCGIVar));
 
             // Get the contact field
             //const char* sContactCGIVar = gValues->valueOf ( "contact" );
             const char* sContactCGIVar = gValues->valueOf ( "from" );
             if( sContactCGIVar )
             {
-                OsSysLog::add( LOG_FACILITY, PRI_INFO, "CB Admission CGI - contact = %s \n", sContactCGIVar);
+                OsSysLog::add( LOG_FACILITY, PRI_INFO, "CB Admission CGI - contact = %s \n", SIPX_SAFENULL(sContactCGIVar));
             }
             else
             {
@@ -341,7 +341,7 @@ main(int argc, char* argv[])
             if( sAccessCGIVar )
             {
                 access = sAccessCGIVar;
-                OsSysLog::add( LOG_FACILITY, PRI_INFO, "CB Admission CGI - access = %s \n", sAccessCGIVar);
+                OsSysLog::add( LOG_FACILITY, PRI_INFO, "CB Admission CGI - access = %s \n", SIPX_SAFENULL(sAccessCGIVar));
             }
             else
             {
@@ -356,7 +356,7 @@ main(int argc, char* argv[])
                     UtlString confId = UtlString( gValues->valueOf ( "confid" ) );
                     UtlString appName( gValues->valueOf ( "name" ) );
                     OsSysLog::add( LOG_FACILITY, PRI_INFO, "CB Admission CGI - Conference bridge basic admission control app name = %s \n",
-                                   appName.data());
+                                   SIPX_SAFENULL(appName.data()));
 
                    // Create the appropriate Command Object
                     cmd = new ConferenceBridgeCGI( appName, sContactCGIVar, confId, access );
@@ -390,9 +390,9 @@ main(int argc, char* argv[])
                         "CB Admission CGI executed successfully.\n");
                     if (!outStr.isNull())
                     {
-                        printf( "%s", outStr.data() );
+                        printf( "%s", SIPX_SAFENULL(outStr.data()) );
                         OsSysLog::add( LOG_FACILITY, PRI_DEBUG, "main: outStr = '%s'",
-                                       outStr.data() );
+                                       SIPX_SAFENULL(outStr.data()) );
                     }
                 }
                 else
@@ -406,7 +406,7 @@ main(int argc, char* argv[])
                     printf ( responseHeaders.data() );
                     printf ( vxmlBody.data() );
                     OsSysLog::add( LOG_FACILITY, PRI_ERR, "main: ERR in executing the CGI: action = '%s', cmd->execute() returned error, requestIsFromWebUI = 1\n",
-                                   action.data());
+                                   SIPX_SAFENULL(action.data()));
                     result = -1;
                 }
 
@@ -417,7 +417,7 @@ main(int argc, char* argv[])
         {
            OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
                          "main: CGI request had no action specified: QUERY_STRING = '%s'",
-                         getenv("QUERY_STRING"));
+                         SIPX_SAFENULL(getenv("QUERY_STRING")));
         }
     }
 

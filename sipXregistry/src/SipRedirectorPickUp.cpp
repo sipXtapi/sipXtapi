@@ -114,7 +114,7 @@ SipRedirectorPickUp::initialize(const UtlHashMap& configParameters,
       // Initialize the system.
       OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::initialize "
                     "Call pick-up feature code is '%s'",
-                    mCallPickUpCode.data());
+                    SIPX_SAFENULL(mCallPickUpCode.data()));
       r = OS_SUCCESS;
 
       // Record the two user-names that are excluded as being pick-up requests.
@@ -137,7 +137,7 @@ SipRedirectorPickUp::initialize(const UtlHashMap& configParameters,
    {
       OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::initialize "
                     "Global call pick-up code is '%s'",
-                    mGlobalPickUpCode.data());
+                    SIPX_SAFENULL(mGlobalPickUpCode.data()));
       r = OS_SUCCESS;
    }
 
@@ -186,8 +186,8 @@ SipRedirectorPickUp::initialize(const UtlHashMap& configParameters,
             OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::initialize "
                           "Call retrieve code is '%s', orbit file is '%s', "
                           "park server domain is '%s'",
-                          callRetrieveCode.data(), mOrbitFileName.data(),
-                          mParkServerDomain.data());
+                          SIPX_SAFENULL(callRetrieveCode.data()), SIPX_SAFENULL(mOrbitFileName.data()),
+                          SIPX_SAFENULL(mParkServerDomain.data()));
             r = OS_SUCCESS;
             // All needed information for call retrieval is present,
             // so set mCallRetrieveCode to activate it.
@@ -259,7 +259,7 @@ SipRedirectorPickUp::initialize(const UtlHashMap& configParameters,
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
                        "SipRedirectorPickUp::initialize "
                        CONFIG_SETTING_WAIT " is '%s'",
-                       waitUS.data());
+                       SIPX_SAFENULL(waitUS.data()));
          // Parse the value, checking for errors.
          unsigned int char_count;
          sscanf(waitUS.data(), " %f %n", &waitf, &char_count);
@@ -269,7 +269,7 @@ SipRedirectorPickUp::initialize(const UtlHashMap& configParameters,
                           "Invalid format for "
                           CONFIG_SETTING_WAIT
                           " '%s'", 
-                          waitUS.data());
+                          SIPX_SAFENULL(waitUS.data()));
          }
          else if (
             // Check that the value is in range.
@@ -471,7 +471,7 @@ SipRedirectorPickUp::lookUp(
             // Return LOOKUP_ERROR_REQUEST.
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SipRedirectorPickUp::lookUp Invalid orbit number '%s'",
-                          orbit.data());
+                          SIPX_SAFENULL(orbit.data()));
             return SipRedirector::LOOKUP_ERROR_REQUEST;
          }
       }
@@ -504,8 +504,8 @@ SipRedirectorPickUp::lookUpDialog(
                  "SipRedirectorPickUp::lookUpDialog requestString = '%s', "
                  "requestSeqNo = %d, redirectorNo = %d, privateStorage = %p, "
                  "subscribeUser = '%s', stateFilter = %d",
-                 requestString.data(), requestSeqNo, redirectorNo,
-                 privateStorage, subscribeUser, stateFilter);
+                 SIPX_SAFENULL(requestString.data()), requestSeqNo, redirectorNo,
+                 privateStorage, SIPX_SAFENULL(subscribeUser), stateFilter);
 
    // If the private storage is already allocated, then this is a
    // reprocessing cycle, and the dialog to pick up (if any) is
@@ -613,7 +613,7 @@ SipRedirectorPickUp::lookUpDialog(
       UtlString userId;
       Url requestUri(requestString);
       requestUri.getUserId(userId);      
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRedirectorPickUp::lookUpDialog userId '%s'", userId.data());
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRedirectorPickUp::lookUpDialog userId '%s'", SIPX_SAFENULL(userId.data()));
       // Test to see if this is a call retrieval
       if (!mCallRetrieveCode.isNull() &&
           userId.length() > mCallRetrieveCode.length() &&
@@ -774,7 +774,7 @@ OsStatus SipRedirectorPickUp::parseOrbitFile(UtlString& fileName)
                   OsSysLog::add(FAC_SIP, PRI_ERR,
                                 "SipRedirectorPrivateStoragePickUp::parseOrbitFile "
                                 "Extension '%s' specified as an orbit twice?",
-                                user->data());
+                                SIPX_SAFENULL(user->data()));
                   free(user);
                }
             }
@@ -808,7 +808,7 @@ OsStatus SipRedirectorPickUp::parseOrbitFile(UtlString& fileName)
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SipRedirectorPrivateStoragePickUp::parseOrbitFile "
                           "Orbit '%s'",
-                          (dynamic_cast<UtlString*> (itor.key()))->data());
+                          SIPX_SAFENULL((dynamic_cast<UtlString*> (itor.key()))->data()));
          }
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
                        "SipRedirectorPrivateStoragePickUp::parseOrbitFile "
@@ -823,7 +823,7 @@ OsStatus SipRedirectorPickUp::parseOrbitFile(UtlString& fileName)
       // Report error parsing file.
       OsSysLog::add(FAC_SIP, PRI_CRIT,
                     "SipRedirectorPrivateStoragePickUp::parseOrbitFile "
-                    "Orbit file '%s' could not be parsed.", fileName.data());
+                    "Orbit file '%s' could not be parsed.", SIPX_SAFENULL(fileName.data()));
       // No hope of doing call retrieval.
       return OS_FAILED;
    } 
@@ -871,7 +871,7 @@ void SipRedirectorPrivateStoragePickUp::processNotify(const char* body)
       // Report error.
       OsSysLog::add(FAC_SIP, PRI_ERR,
                     "SipRedirectorPrivateStoragePickUp::processNotify "
-                    "NOTIFY body invalid: '%s'", body);
+                    "NOTIFY body invalid: '%s'", SIPX_SAFENULL(body));
    } 
 }
 
@@ -930,7 +930,7 @@ void SipRedirectorPrivateStoragePickUp::processNotifyDialogElement(
                           "SipRedirectorPrivateStoragePickUp::"
                           "processNotifyDialogElement "
                           "Invalid <duration> '%s'",
-                          duration_s.data());
+                          SIPX_SAFENULL(duration_s.data()));
          }
       }
       else if (child->Type() == TiXmlNode::ELEMENT &&
@@ -981,16 +981,16 @@ void SipRedirectorPrivateStoragePickUp::processNotifyDialogElement(
                  "incoming = %d, duration = %d, state = %d, "
                  "local_identity = '%s', local_target = '%s', "
                  "remote_identity = '%s', remote_target = '%s'",
-                 call_id ? call_id : "[NULL]",
-                 local_tag ? local_tag : "[NULL]",
-                 remote_tag ? remote_tag : "[NULL]",
+                 SIPX_SAFENULL(call_id),
+                 SIPX_SAFENULL(local_tag),
+                 SIPX_SAFENULL(remote_tag),
                  incoming,
                  duration,
                  state,
-                 local_identity.data() ? local_identity.data() : "[NULL]",
-                 local_target.data() ? local_target.data() : "[NULL]",
-                 remote_identity.data() ? remote_identity.data() : "[NULL]",
-                 remote_target.data() ? remote_target.data() : "[NULL]");
+                 SIPX_SAFENULL(local_identity.data()),
+                 SIPX_SAFENULL(local_target.data()),
+                 SIPX_SAFENULL(remote_identity.data()),
+                 SIPX_SAFENULL(remote_target.data()));
 
    // Check whether the element has enough information to be usable, and
    // ignore it if not.
@@ -1138,7 +1138,7 @@ SipRedirectorPickUpTask::handleMessage(OsMsg& eventMessage)
          message->getCallIdField(&callId);
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
                        "SipRedirectorPickUpTask::handleMessage "
-                       "Start processing NOTIFY CallID '%s'", callId.data());
+                       "Start processing NOTIFY CallID '%s'", SIPX_SAFENULL(callId.data()));
 
          {
             // This block holds SipRedirectServer::mRedirectorMutex.
@@ -1192,7 +1192,7 @@ SipRedirectorPickUpTask::handleMessage(OsMsg& eventMessage)
                                       "body '%s'",
                                       itor.requestSeqNo(),
                                       (int) delta.seconds(), (int) delta.usecs(),
-                                      body);
+                                      SIPX_SAFENULL(body));
                      }
                      // Parse this NOTICE and store the needed
                      // information in private storage.
@@ -1336,8 +1336,8 @@ UtlBoolean SipRedirectorPickUp::findInOrbitList(UtlString& user)
             OsSysLog::add(FAC_SIP, PRI_INFO,
                           "SipRedirectorPickUp::findInOrbitList "
                           "Re-read orbit file '%s', status = %s",
-                          mOrbitFileName.data(),
-                          status == OS_SUCCESS ? "SUCCESS" : "FAILURE");
+                          SIPX_SAFENULL(mOrbitFileName.data()),
+                          SIPX_SAFENULL(status == OS_SUCCESS ? "SUCCESS" : "FAILURE"));
          }
          else
          {
@@ -1346,7 +1346,7 @@ UtlBoolean SipRedirectorPickUp::findInOrbitList(UtlString& user)
             OsSysLog::add(FAC_SIP, PRI_INFO,
                           "SipRedirectorPickUp::findInOrbitList "
                           "Orbit file '%s' does not exist",
-                          mOrbitFileName.data());
+                          SIPX_SAFENULL(mOrbitFileName.data()));
          }
       }
    }

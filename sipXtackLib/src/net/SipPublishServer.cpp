@@ -12,6 +12,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include <os/OsDefs.h>
 #include <os/OsMsg.h>
 #include <os/OsEventMsg.h>
 #include <utl/UtlHashMapIterator.h>
@@ -423,7 +424,7 @@ UtlBoolean SipPublishServer::handlePublish(const SipMessage& publishRequest)
     {
         OsSysLog::add(FAC_SIP, PRI_ERR, 
             "SipPublishServer::handlePublish event type: %s not enabled",
-            eventName.data());
+            SIPX_SAFENULL(eventName.data()));
 
         SipMessage eventTypeNotHandled;
         eventTypeNotHandled.setResponseData(&publishRequest,

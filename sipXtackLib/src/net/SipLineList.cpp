@@ -6,7 +6,7 @@
 ////////////////////////////////////////////////////////////////////////
 //////
 
-
+#include "os/OsDefs.h"
 #include "net/SipLineList.h"
 
 //#define TEST_PRINT
@@ -126,7 +126,7 @@ SipLineList::getLine(const UtlString& lineId)
             {
 #ifdef TEST_PRINT
                 osPrintf( "SipLineList::getLine Comparing %s to %s \n",
-                          lineId.data(), nextLineId.data() );
+                          SIPX_SAFENULL(lineId.data()),SIPX_SAFENULL( nextLineId.data()) );
 #endif
                         if( lineId == nextLineId )
                 {
@@ -165,7 +165,7 @@ SipLineList::getLine (
             {
 #ifdef TEST_PRINT
                 osPrintf( "SipLineList::getLine Comparing %s to %s \n",
-                          nextUserId.data(), userId.data() );
+                          SIPX_SAFENULL(nextUserId.data()), SIPX_SAFENULL(userId.data()));
 #endif
                         if( nextUserId.compareTo( userId ) == 0 )
                         {

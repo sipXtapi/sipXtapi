@@ -56,7 +56,7 @@ AliasDB::AliasDB( const UtlString& name )
     int users = pSIPDBManager->getNumDatabaseProcesses(name);
     if (gaVerboseLoggingEnabled)
         OsSysLog::add(FAC_DB, PRI_DEBUG, "AliasDB::_  user=%d \"%s\"",
-                    users, name.data());
+                    users, SIPX_SAFENULL(name.data()));
     if ( users == 1 )
     {
         // Load the file implicitly
@@ -112,7 +112,7 @@ AliasDB::load()
                 OsPath::separator + mDatabaseName + ".xml";
 
         OsSysLog::add(FAC_DB, PRI_DEBUG, "AliasDB::load loading \"%s\"",
-                    fileName.data());
+                    SIPX_SAFENULL(fileName.data()));
 
         TiXmlDocument doc ( fileName );
 
@@ -175,7 +175,7 @@ AliasDB::load()
         } else 
         {
             OsSysLog::add(FAC_DB, PRI_WARNING, "AliasDB::load failed to load \"%s\"",
-                    fileName.data());
+                    SIPX_SAFENULL(fileName.data()));
         }
     } else 
     {

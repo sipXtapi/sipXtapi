@@ -36,7 +36,7 @@ ValidateMailboxCGIHelper::ValidateMailboxCGIHelper( const UtlString& identityOrE
 {
    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                  "ValidateMailboxCGIHelper::ValidateMailboxCGIHelper('%s') called",
-                 m_identityOrExtension.data());
+                 SIPX_SAFENULL(m_identityOrExtension.data()));
 }
 
 ValidateMailboxCGIHelper::~ValidateMailboxCGIHelper()
@@ -66,8 +66,8 @@ ValidateMailboxCGIHelper::validate( const UtlBoolean& checkPermissions )
             checkPermissions );
         OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                       "ValidateMailboxCGIHelper::validate: checkPermissions = %d, returns m_mailboxIdentity = '%s', m_extension = '%s', result = %d",
-                      checkPermissions, m_mailboxIdentity.data(),
-                      m_extension.data(), result);
+                      checkPermissions, SIPX_SAFENULL(m_mailboxIdentity.data()),
+                      SIPX_SAFENULL(m_extension.data()), result);
         m_isValidated = true;
     }
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
@@ -102,8 +102,8 @@ ValidateMailboxCGIHelper::validateIdentityAndGetExtension (
         m_isValidated = true;
         OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                       "ValidateMailboxCGIHelper::validateIdentityAndGetExtension: m_identityOrExtension = '%s', checkPermissions = %d, returns m_mailboxIdentity = '%s', m_extension = '%s', result = %d",
-                      m_identityOrExtension.data(), checkPermissions,
-                      m_mailboxIdentity.data(), m_extension.data(), result);
+                      SIPX_SAFENULL(m_identityOrExtension.data()), checkPermissions,
+                      SIPX_SAFENULL(m_mailboxIdentity.data()), SIPX_SAFENULL(m_extension.data()), result);
     }
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                   "ValidateMailboxCGIHelper::validateIdentityAndGetExtension: checkPermissions = %d, result = %d",

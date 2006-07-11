@@ -97,12 +97,12 @@ OsStatus OsSharedLibMgrWnt::loadSharedLib(const char* libName)
         {
             int errorCode = GetLastError();
             osPrintf("Failed to load shared library: %s error: %d\n",
-                libName ? libName : "(null)", errorCode);
+                SIPX_SAFENULL(libName), errorCode);
             status = OS_NOT_FOUND;
         }
         else
         {
-            osPrintf("Loaded shared lib %s\n", libName ? libName : "(null)");
+            osPrintf("Loaded shared lib %s\n", SIPX_SAFENULL(libName);
             OsSharedLibHandleWnt* collectableHandle = 
                 new OsSharedLibHandleWnt(libName, libHandle);
 
@@ -164,7 +164,7 @@ OsStatus OsSharedLibMgrWnt::getSharedLibSymbol(const char* libName,
         {
             int errorCode = GetLastError();
             osPrintf("Failed to find symbol: %s in shared lib: %s error: %d\n",
-                symbolName, libName ? libName : "(null)", errorCode);
+                SIPX_SAFENULL(symbolName), SIPX_SAFENULL(libName), errorCode);
 
             LPVOID lpMsgBuf;
             FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | 
@@ -177,7 +177,7 @@ OsStatus OsSharedLibMgrWnt::getSharedLibSymbol(const char* libName,
                 0,
                 NULL 
             );
-            osPrintf("%s\n", lpMsgBuf);
+            osPrintf("%s\n", SIPX_SAFENULL(lpMsgBuf));
             LocalFree(lpMsgBuf);
 
             if(errorCode = 127) status = OS_NOT_FOUND;
@@ -186,7 +186,7 @@ OsStatus OsSharedLibMgrWnt::getSharedLibSymbol(const char* libName,
         else
         {
             osPrintf("Found symbol: %s in shared lib: %s\n",
-                symbolName, libName ? libName : "(null)");
+                SIPX_SAFENULL(symbolName),SIPX_SAFENULL(libName);
             status = OS_SUCCESS;
         }
 

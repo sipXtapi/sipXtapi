@@ -377,57 +377,57 @@ SIPXTAPI_API char* sipxEventToString(const SIPX_EVENT_CATEGORY category,
             {
                 SIPX_CALLSTATE_INFO* pCallEvent = (SIPX_CALLSTATE_INFO*)pEvent;
                 SNPRINTF(szBuffer, nBuffer, "%s::%s::%s", 
-                        convertEventCategoryToString(category),
-                        MajorEventToString((SIPX_CALLSTATE_MAJOR) pCallEvent->event), 
-                        MinorEventToString((SIPX_CALLSTATE_MINOR) pCallEvent->cause)) ;
+                        SIPX_SAFENULL(convertEventCategoryToString(category)),
+                        SIPX_SAFENULL(MajorEventToString((SIPX_CALLSTATE_MAJOR) pCallEvent->event)), 
+                        SIPX_SAFENULL(MinorEventToString((SIPX_CALLSTATE_MINOR) pCallEvent->cause))) ;
             }
             break;
         case EVENT_CATEGORY_LINESTATE:
             {
                 SIPX_LINESTATE_INFO* pLineEvent = (SIPX_LINESTATE_INFO*)pEvent;
                 SNPRINTF(szBuffer, nBuffer, "%s::%s::%s", 
-                        convertEventCategoryToString(category),
-                        MajorLineEventToString((SIPX_LINE_EVENT_TYPE_MAJOR) pLineEvent->event), 
-                        MinorLineEventToString((SIPX_LINE_EVENT_TYPE_MINOR) pLineEvent->cause)) ;
+                        SIPX_SAFENULL(convertEventCategoryToString(category)),
+                        SIPX_SAFENULL(MajorLineEventToString((SIPX_LINE_EVENT_TYPE_MAJOR) pLineEvent->event)), 
+                        SIPX_SAFENULL(MinorLineEventToString((SIPX_LINE_EVENT_TYPE_MINOR) pLineEvent->cause))) ;
             }
             break;
         case EVENT_CATEGORY_INFO_STATUS:
             {
                 SIPX_INFOSTATUS_INFO* pInfoEvent = (SIPX_INFOSTATUS_INFO*)pEvent;
                 SNPRINTF(szBuffer, nBuffer, "%s::%s::%s", 
-                        convertEventCategoryToString(category),
-                        convertInfoStatusEventToString(pInfoEvent->event),
-                        convertMessageStatusToString(pInfoEvent->status)) ;
+                        SIPX_SAFENULL(convertEventCategoryToString(category)),
+                        SIPX_SAFENULL(convertInfoStatusEventToString(pInfoEvent->event)),
+                        SIPX_SAFENULL(convertMessageStatusToString(pInfoEvent->status))) ;
 
             }
             break;
         case EVENT_CATEGORY_INFO:
             {
                 SNPRINTF(szBuffer, nBuffer, "%s", 
-                        convertEventCategoryToString(category)) ;
+                        SIPX_SAFENULL(convertEventCategoryToString(category))) ;
             }
             break ;
         case EVENT_CATEGORY_SUB_STATUS:
             {
                 SIPX_SUBSTATUS_INFO* pStatusInfo = (SIPX_SUBSTATUS_INFO*) pEvent ;
                 SNPRINTF(szBuffer, nBuffer, "%s::%s::%s", 
-                        convertEventCategoryToString(category),
-                        convertSubscriptionStateToString(pStatusInfo->state),
-                        convertSubscriptionCauseToString(pStatusInfo->cause)) ;
+                        SIPX_SAFENULL(convertEventCategoryToString(category)),
+                        SIPX_SAFENULL(convertSubscriptionStateToString(pStatusInfo->state)),
+                        SIPX_SAFENULL(convertSubscriptionCauseToString(pStatusInfo->cause))) ;
             }
             break ;
         case EVENT_CATEGORY_NOTIFY:
             {
                 SNPRINTF(szBuffer, nBuffer, "%s", 
-                        convertEventCategoryToString(category)) ;
+                        SIPX_SAFENULL(convertEventCategoryToString(category))) ;
             }
             break ;
         case EVENT_CATEGORY_CONFIG:
             {
                 SIPX_CONFIG_INFO* pConfigEvent = (SIPX_CONFIG_INFO*)pEvent;
                 SNPRINTF(szBuffer, nBuffer, "%s::%s", 
-                        convertEventCategoryToString(category),
-                        convertConfigEventToString(pConfigEvent->event)) ;
+                        SIPX_SAFENULL(convertEventCategoryToString(category)),
+                        SIPX_SAFENULL(convertConfigEventToString(pConfigEvent->event))) ;
             }
             break ;
         default:
@@ -445,7 +445,7 @@ SIPXTAPI_API char* sipxCallEventToString(SIPX_CALLSTATE_MAJOR eMajor,
 
     if (szBuffer)
     {
-        SNPRINTF(szBuffer, nBuffer, "%s::%s",  MajorEventToString(eMajor), MinorEventToString(eMinor)) ;
+        SNPRINTF(szBuffer, nBuffer, "%s::%s",  SIPX_SAFENULL(MajorEventToString(eMajor)), SIPX_SAFENULL(MinorEventToString(eMinor))) ;
     }
 
     return szBuffer ;
@@ -457,9 +457,9 @@ SIPXTAPI_API char* sipxLineEventToString(SIPX_LINE_EVENT_TYPE_MAJOR lineTypeMajo
                                          size_t nBuffer)
 {
 #ifdef WIN32
-   _snprintf(szBuffer, nBuffer, "%s::%s", MajorLineEventToString(lineTypeMajor), MinorLineEventToString(lineTypeMinor));
+   _snprintf(szBuffer, nBuffer, "%s::%s", SIPX_SAFENULL(MajorLineEventToString(lineTypeMajor)), SIPX_SAFENULL(MinorLineEventToString(lineTypeMinor)));
 #else
-   snprintf(szBuffer, nBuffer, "%s::%s", MajorLineEventToString(lineTypeMajor), MinorLineEventToString(lineTypeMinor));
+   snprintf(szBuffer, nBuffer, "%s::%s", SIPX_SAFENULL(MajorLineEventToString(lineTypeMajor)), SIPX_SAFENULL(MinorLineEventToString(lineTypeMinor)));
 #endif
 
     return szBuffer;
@@ -483,11 +483,11 @@ void ReportCallback(SIPX_CALL hCall,
                 pInst,
                 hCall,
                 ++nCnt,
-                MajorEventToString(eMajor),
-                MinorEventToString(eMinor),
-                remoteAddress.data(),
-                callId.data(),
-                lineId.data()) ;
+                SIPX_SAFENULL(MajorEventToString(eMajor)),
+                SIPX_SAFENULL(MinorEventToString(eMinor)),
+                SIPX_SAFENULL(remoteAddress.data()),
+                SIPX_SAFENULL(callId.data()),
+                SIPX_SAFENULL(lineId.data())) ;
     }
 }
 
@@ -503,8 +503,8 @@ void sipxFireCallEvent(const void* pSrc,
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxFireCallEvent pSrc=%p callId=%s pSession=%p, szRemoteAddress=%s major=%d minor=%d assertedId=%s",
-        pSrc, szCallId, pSession, szRemoteAddress, major, minor, 
-        szRemoteAssertedIdentity ? szRemoteAssertedIdentity : "");
+        pSrc, SAFENULL(szCallId), pSession, SAFENULL(szRemoteAddress), major, minor, 
+        SAFENULL(szRemoteAssertedIdentity ? szRemoteAssertedIdentity : ""));
      
     SIPX_CALL hCall = SIPX_CALL_NULL;
 
@@ -600,7 +600,7 @@ void sipxFireCallEvent(const void* pSrc,
             {
                 // no line exists for the lineId
                 // log it
-                OsSysLog::add(FAC_SIPXTAPI, PRI_NOTICE, "unknown line id = %s\n", lineId.data());
+                OsSysLog::add(FAC_SIPXTAPI, PRI_NOTICE, "unknown line id = %s\n", SAFENULL(lineId.data()));
             }
 
             // Fill in remote address
@@ -1022,7 +1022,7 @@ void sipxFireLineEvent(const void* pSrc,
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxFireLineEvent pSrc=%p szLineIdentifier=%s major=%d",
-        pSrc, szLineIdentifier, major);
+        pSrc, SAFENULL(szLineIdentifier), major);
 
 	OsLock lock(*g_pLineListenerLock);
     SIPX_LINE_DATA* pLineData = NULL;

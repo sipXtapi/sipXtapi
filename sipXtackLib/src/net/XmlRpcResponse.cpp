@@ -191,7 +191,7 @@ bool XmlRpcResponse::parseXmlRpcResponse(UtlString& responseContent)
    {
       OsSysLog::add(FAC_SIP, PRI_ERR,
                     "XmlRpcResponse::parseXmlRpcResponse ill formatted xml contents in %s. Parsing error = %s",
-                     responseContent.data(), doc.ErrorDesc());
+                     SIPX_SAFENULL(responseContent.data()), SIPX_SAFENULL(doc.ErrorDesc()));
       result = false;
    }
    
@@ -228,7 +228,7 @@ bool XmlRpcResponse::setResponse(UtlContainable* value)
    int bodyLength;
    mpResponseBody->getBytes(&bodyString, &bodyLength);
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "mpResponseBody::setResponse XML-RPC response message = \n%s", bodyString.data());
+                 "mpResponseBody::setResponse XML-RPC response message = \n%s", SIPX_SAFENULL(bodyString.data()));
    return result;
 }
 
@@ -294,7 +294,7 @@ bool XmlRpcResponse::setFault(int faultCode, const char* faultString)
    int bodyLength;
    mpResponseBody->getBytes(&bodyString, &bodyLength);
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "mpResponseBody::setFault XML-RPC response message = \n%s", bodyString.data());
+                 "mpResponseBody::setFault XML-RPC response message = \n%s", SIPX_SAFENULL(bodyString.data()));
 
    return result;
 }

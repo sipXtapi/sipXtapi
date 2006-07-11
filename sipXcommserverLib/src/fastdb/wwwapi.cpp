@@ -311,7 +311,7 @@ bool WWWapi::open(char const* socket_address,
     if (!sock->is_ok()) { 
 	char buf[64];
 	sock->get_error_text(buf, sizeof buf);
-	fprintf(stderr, "WWWapi::open: create socket failed: %s\n", buf);
+	fprintf(stderr, "WWWapi::open: create socket failed: %s\n", SIPX_SAFENULL(buf));
 	return false;
     }
     return true;	
@@ -331,7 +331,7 @@ bool WWWapi::connect(WWWconnection& con)
 	if (!canceled) { 
 	    char buf[64];
 	    sock->get_error_text(buf, sizeof buf);
-	    fprintf(stderr, "WWWapi::connect: accept failed: %s\n", buf);
+	    fprintf(stderr, "WWWapi::connect: accept failed: %s\n", SIPX_SAFENULL(buf));
 	}
 	return false;
     }
@@ -647,7 +647,7 @@ bool HTTPapi::handleRequest(WWWconnection& con, char* begin, char* end,
 	con.append(keepConnectionAlive 
 		   ? "Connection: Keep-Alive\r\n" 
 		   : "Connection: close\r\n");	
-	sprintf(buf, "http://%s/", host);
+	sprintf(buf, "http://%s/", SIPX_SAFENULL(host));
 	con.stub = buf;
 	result = dispatch(con, page);
 	char* body = con.reply_buf + length_pos;

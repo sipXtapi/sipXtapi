@@ -342,7 +342,7 @@ UtlBoolean TaoListenerClientTask::receiveCallEvent(TaoMessage& rMsg,
 
 #ifdef WV_DEBUG
         fireUserEvent(eventId, 3);
-        osPrintf("after CALL_%s\n", name);
+        osPrintf("after CALL_%s\n", SIPX_SAFENULL(name));
 #endif
         switch(eventId)
         {
@@ -449,7 +449,7 @@ UtlBoolean TaoListenerClientTask::receiveCallEvent(TaoMessage& rMsg,
 
 #ifdef WV_DEBUG
         fireUserEvent(eventId, 4);
-        osPrintf("after CALL_%s\n", name);
+        osPrintf("after CALL_%s\n", SIPX_SAFENULL(name));
 #endif
         return bHandledMsg;
 }
@@ -485,7 +485,7 @@ UtlBoolean TaoListenerClientTask::receiveConnectionEvent(TaoMessage& rMsg,
         }
 #ifdef WV_DEBUG
         fireUserEvent(eventId, 3);
-        osPrintf("before CONNECTION_%s\n", name);
+        osPrintf("before CONNECTION_%s\n", SIPX_SAFENULL(name));
 #endif
         switch(eventId)
         {
@@ -550,7 +550,7 @@ UtlBoolean TaoListenerClientTask::receiveConnectionEvent(TaoMessage& rMsg,
             localAddr  = argList[1];
             remoteAddr = argList[2];
             osPrintf("\nTAO client sending OFFERED event to listener:\n\tlocal address %s\n\tremote address %s\n\n",
-                     localAddr.data(), remoteAddr.data());
+                     SIPX_SAFENULL(localAddr.data()), SIPX_SAFENULL(remoteAddr.data()));
 #endif
                                 EVENT_TRACE("receiveConnectionEvent::CONNECTION_OFFERED:\n") ;
                                 pListener->connectionOffered((PtConnectionEvent&)(*mpConnEvent));
@@ -575,7 +575,7 @@ UtlBoolean TaoListenerClientTask::receiveConnectionEvent(TaoMessage& rMsg,
 
 #ifdef WV_DEBUG
         fireUserEvent(eventId, 4);
-        osPrintf("after CONNECTION_%s\n", name);
+        osPrintf("after CONNECTION_%s\n", SIPX_SAFENULL(name));
 #endif
         return bHandledMsg;
 }
@@ -662,7 +662,7 @@ UtlBoolean TaoListenerClientTask::receiveTerminalComponentEvent(TaoMessage& rMsg
 
 #ifdef WV_DEBUG
         fireUserEvent(eventId, 3);
-        osPrintf("before TERMINAL_COMPONENT_%s\n", name);
+        osPrintf("before TERMINAL_COMPONENT_%s\n", SIPX_SAFENULL(name));
 #endif
         switch(eventId)
         {
@@ -737,7 +737,7 @@ UtlBoolean TaoListenerClientTask::receiveTerminalComponentEvent(TaoMessage& rMsg
 
 #ifdef WV_DEBUG
         fireUserEvent(eventId, 4);
-        osPrintf("after TERMINAL_COMPONENT_%s\n", name);
+        osPrintf("after TERMINAL_COMPONENT_%s\n", SIPX_SAFENULL(name));
 #endif
         return bHandledMsg;
 }
@@ -775,7 +775,7 @@ UtlBoolean TaoListenerClientTask::receiveTerminalConnectionEvent(TaoMessage& rMs
 
 #ifdef WV_DEBUG
         fireUserEvent(eventId, 3);
-        osPrintf("before TERMINAL_CONNECTION_%s\n", name);
+        osPrintf("before TERMINAL_CONNECTION_%s\n", SIPX_SAFENULL(name));
 #endif
         switch(eventId)
         {
@@ -833,7 +833,7 @@ UtlBoolean TaoListenerClientTask::receiveTerminalConnectionEvent(TaoMessage& rMs
 
 #ifdef WV_DEBUG
         fireUserEvent(eventId, 4);
-        osPrintf("after TERMINAL_CONNECTION_%s\n", name);
+        osPrintf("after TERMINAL_CONNECTION_%s\n", SIPX_SAFENULL(name));
 #endif
         return bHandledMsg;
 }

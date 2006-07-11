@@ -192,19 +192,19 @@ MailboxManager::createMailbox ( const UtlString& mailboxIdentity )
 {
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                   "MailboxManager::createMailbox('%s') called",
-                  mailboxIdentity.data());
+                  SIPX_SAFENULL(mailboxIdentity.data()));
     OsStatus result = OS_FAILED;
     UtlString mailboxPath;
     result = getMailboxPath( mailboxIdentity, mailboxPath );
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                   "MailboxManager::createMailbox: getMailboxPath(mailboxIdentity = '%s', mailboxPath = '%s') = %d",
-                  mailboxIdentity.data(), mailboxPath.data(), result);
+                  SIPX_SAFENULL(mailboxIdentity.data()), SIPX_SAFENULL(mailboxPath.data()), result);
     if( result == OS_SUCCESS )
     {
         result = OsFileSystem::createDir( mailboxPath );
         OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                       "MailboxManager::createMailbox: createDir('%s') = %d",
-                      mailboxPath.data(), result);
+                      SIPX_SAFENULL(mailboxPath.data()), result);
 
         if ( result == OS_SUCCESS )
         {
@@ -233,7 +233,7 @@ MailboxManager::createMailbox ( const UtlString& mailboxIdentity )
                 result = OsFileSystem::createDir ( folderPath );
                 OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                               "MailboxManager::createMailbox: createDir('%s') = %d",
-                              folderPath.data(), result);
+                              SIPX_SAFENULL(folderPath.data()), result);
 
                 // ensure all folders created successfully
                 if ( result == OS_SUCCESS )
@@ -245,7 +245,7 @@ MailboxManager::createMailbox ( const UtlString& mailboxIdentity )
 
                     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                                   "MailboxManager::createMailbox: calling createSummaryFile('%s', '0', '0')",
-                                  summaryFilePath.data());
+                                  SIPX_SAFENULL(summaryFilePath.data()));
                     createSummaryFile(summaryFilePath, "0", "0" );
                 }
             }
@@ -262,7 +262,7 @@ MailboxManager::createMailbox ( const UtlString& mailboxIdentity )
         {
            OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
                          "MailboxManager::createMailbox: unable to create mailbox directory '%s'",
-                         mailboxPath.data());
+                         SIPX_SAFENULL(mailboxPath.data()));
         }
     }
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
@@ -342,7 +342,7 @@ MailboxManager::restoreSummaryFile(
 
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_WARNING,
                   "MailboxManager::restoreSummaryFile: we are crawling the entire directory to restore the summary file %s",
-                  summaryFileLocation.data());
+                  SIPX_SAFENULL(summaryFileLocation.data()));
 
     // Get the count of all *-00.xml files (gives the total count )
     OsStatus result = fi.findFirst( entry, "[0-9]-00.xml", OsFileIterator::FILES );
@@ -381,7 +381,7 @@ MailboxManager::parseMailboxFolderSummary (
 {
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                  "MailboxManager::parseMailboxFolderSummary: start parsing the summary file %s\n",
-                  summaryFileName.data());
+                  SIPX_SAFENULL(summaryFileName.data()));
 
     OsStatus result = OS_FAILED;
     TiXmlDocument doc ( summaryFileName );
@@ -419,7 +419,7 @@ MailboxManager::updateMailboxFolderSummary (
     UtlString mailboxLock = summaryFileLocation + OsPathBase::separator + "update.lck";
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                   "MailboxManager::updateMailboxFolderSummary: set up the lock file %s",
-                  mailboxLock.data());
+                  SIPX_SAFENULL(mailboxLock.data()));
     OsFileLinux lockFile(mailboxLock);
     lockFile.open(OsFileBase::CREATE);
     lockFile.filelock(OsFileBase::FSLOCK_WAIT);
@@ -484,7 +484,7 @@ MailboxManager::updateMailboxFolderSummary (
     // Unlock the file for update
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                   "MailboxManager::updateMailboxFolderSummary: unlock the lock file %s",
-                  summaryFileName.data());
+                  SIPX_SAFENULL(summaryFileName.data()));
     lockFile.fileunlock();
     lockFile.close();
 #endif
@@ -510,7 +510,7 @@ MailboxManager::parseConfigFile ( const UtlString& configFileName )
 {
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                   "Entering MailboxManager::parseConfigFile('%s')\n",
-                  configFileName.data());
+                  SIPX_SAFENULL(configFileName.data()));
     OsStatus result = OS_FAILED;
 
     TiXmlDocument doc ( configFileName );
@@ -659,7 +659,7 @@ MailboxManager::parseConfigFile ( const UtlString& configFileName )
       // into the log.
       OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_CRIT,
                     "MailboxManager::parseConfigFile: doc.LoadFile() returned FALSE while attempting to process configuration file '%s'",
-                    configFileName.data());
+                    SIPX_SAFENULL(configFileName.data()));
    }
 
    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
@@ -831,7 +831,7 @@ MailboxManager::parseMessageDescriptor (
     {
        OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
                      "parseMessageDescriptor: Dumping contents of descriptor file '%s'",
-                     descriptorFileName.data());
+                     SIPX_SAFENULL(descriptorFileName.data()));
        FILE *f = fopen(descriptorFileName.data(), "r");
        if (f == NULL)
        {
@@ -846,7 +846,7 @@ MailboxManager::parseMessageDescriptor (
           {
              OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
                            "parseMessageDescriptor: Contents: %s",
-                           buffer);
+                           SIPX_SAFENULL(buffer));
           }
           OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
                         "parseMessageDescriptor: EOF");
@@ -1022,7 +1022,7 @@ MailboxManager::parseMailboxPrefsFile(
 
                                             OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                                                           "MailboxManager::parseMailboxPrefsFile: addr = '%s', type = '%s', attachments = '%s', contactHashDict = %p",
-                                                          collectableValue->data(), contactType.data(), sendAttachments.data(), (void*) contactHashDict);
+                                                          SIPX_SAFENULL(collectableValue->data()), SIPX_SAFENULL(contactType.data()), SIPX_SAFENULL(sendAttachments.data()), (void*) contactHashDict);
 
                                             // Add the contact to a sorted vector.
                                             sortedContacts->insert( collectableValue );
@@ -1360,9 +1360,9 @@ MailboxManager::saveMessage (
 {
    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                  "MailboxManager::saveMessage(fromUrl = '%s', mailboxIdentity = '%s', duration = '%s', timestamp = '%s', datasize = %d, nextMessageId = '%s', saveIfDataIsEmpty = %d)",
-                 fromUrl.toString().data(), mailboxIdentity.data(),
-                 duration.data(), timestamp.data(), datasize,
-                 nextMessageID.data(), saveIfDataIsEmpty);
+                 SIPX_SAFENULL(fromUrl.toString().data()), SIPX_SAFENULL(mailboxIdentity.data()),
+                 SIPX_SAFENULL(duration.data()), SIPX_SAFENULL(timestamp.data()), datasize,
+                 SIPX_SAFENULL(nextMessageID.data()), saveIfDataIsEmpty);
    OsStatus result = OS_FAILED ;
    UtlString mailboxPath, logContent;
 
@@ -1374,13 +1374,13 @@ MailboxManager::saveMessage (
       {
          OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                        "MailboxManager::saveMessage: calling MessageIDGenerator::getInstance, m_mailstoreRoot = '%s'",
-                       m_mailstoreRoot.data());
+                       SIPX_SAFENULL(m_mailstoreRoot.data()));
          m_pMsgIDGenerator = MessageIDGenerator::getInstance(m_mailstoreRoot);
       }
       UtlString saveFolder = mailboxPath + OsPathBase::separator + m_inboxFolder;
       OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                     "MailboxManager::saveMessage: saveFolder = '%s'",
-                    saveFolder.data());
+                    SIPX_SAFENULL(saveFolder.data()));
 
       // check if message id was passed in the parameter (forwarded messages)
       UtlString messageid;
@@ -1428,10 +1428,10 @@ MailboxManager::saveMessage (
                      " " + messageid + "</subject>\n"
                      "  <priority>normal</priority>\n"
                      "</messagedescriptor>",
-                     mailboxIdentity.data(),
-                     xmlFriendlyFrom.data(),
+                     SIPX_SAFENULL(mailboxIdentity.data()),
+                     SIPX_SAFENULL(xmlFriendlyFrom.data()),
                      (atoi(duration.data())/1000),
-                     timestamp.data());
+                     SIPX_SAFENULL(timestamp.data()));
 
                   result = metaDataFile.write(
                      xmlText, strlen (xmlText), bytes_written );
@@ -1525,8 +1525,8 @@ MailboxManager::saveMessage (
                            writeToLog( "SaveMessage" , logContent, PRI_ERR) ;
                            OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                                          "MailboxManager::saveMessage: updateMailboxFolderSummary('%s', '%s', %d, %d) failed",
-                                         mailboxIdentity.data(),
-                                         summaryFileName.data(),
+                                         SIPX_SAFENULL(mailboxIdentity.data()),
+                                         SIPX_SAFENULL(summaryFileName.data()),
                                          iUnheardCount, iTotalCount );
                         }
                      } else
@@ -1538,7 +1538,7 @@ MailboxManager::saveMessage (
                            summaryFileName ;
                         OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
                                       "MailboxManager::saveMessage: parseMailboxFolderSummary('%s') failed",
-                                      summaryFileName.data());
+                                      SIPX_SAFENULL(summaryFileName.data()));
                      }
 
                   } else
@@ -1552,7 +1552,7 @@ MailboxManager::saveMessage (
                      logContent = "Unable to write to message descriptor file : " + nameWithoutExtension + ".xml\n" ;
                      OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
                                    "MailboxManager::saveMessage: metaDataFile.write() failed, filename '%s.xml'",
-                                   nameWithoutExtension.data());
+                                   SIPX_SAFENULL(nameWithoutExtension.data()));
                   }
                } else
                {
@@ -1563,7 +1563,7 @@ MailboxManager::saveMessage (
                   logContent = "Unable to create message descriptor file : " + nameWithoutExtension + ".xml\n" ;
                   OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
                                 "MailboxManager::saveMessage: Error opening metadata file '%s.xml' for output, errno = %d",
-                                nameWithoutExtension.data(), errno);
+                                SIPX_SAFENULL(nameWithoutExtension.data()), errno);
                }
             } else
             {
@@ -1572,7 +1572,7 @@ MailboxManager::saveMessage (
                logContent = "Failed to write recorded voicemail to " + nameWithoutExtension + ".wav\n" ;
                OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
                              "MailboxManager::saveMessage: write(fd = %d, size = %d) failed, fd opened on audio file '%s.wav', errno = %d",
-                             file, datasize, nameWithoutExtension.data(),
+                             file, datasize, SIPX_SAFENULL(nameWithoutExtension.data()),
                              errno);
             }
 
@@ -1586,7 +1586,7 @@ MailboxManager::saveMessage (
             logContent = "Unable to create file " + nameWithoutExtension + ".wav\n";
             OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
                           "MailboxManager::saveMessage: Error opening audio file '%s.wav' for output: errno = %d",
-                          nameWithoutExtension.data(), errno);
+                          SIPX_SAFENULL(nameWithoutExtension.data()), errno);
          }
       } else
       {
@@ -1600,7 +1600,7 @@ MailboxManager::saveMessage (
       logContent = "Unable to get mailbox path for " + mailboxIdentity;
       OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
                     "MailboxManager::saveMessage: getMailboxPath('%s') failed",
-                    mailboxIdentity.data());
+                    SIPX_SAFENULL(mailboxIdentity.data()));
    }
 
    if( result != OS_SUCCESS )
@@ -1661,7 +1661,7 @@ MailboxManager::getConfigValue (
 
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                   "MailboxManager::getConfigValue('%s') returns result = %d value = '%s'",
-                  key.data(), result,
+                  SIPX_SAFENULL(key.data()), result,
                  (result == OS_SUCCESS ? value.data() : "[unknown]"));
     return result;
 }
@@ -1926,7 +1926,7 @@ MailboxManager::validateMailbox (
 
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                   "MailboxManager::validateMailbox: loginString = '%s', resolveExtensionFlag = %d, checkPermissions = %d",
-                  loginString.data(), resolveExtensionFlag, checkPermissions);
+                  SIPX_SAFENULL(loginString.data(),) resolveExtensionFlag, checkPermissions);
 
     // Hack debugging info
     logContent = "entering with arguments " + loginString;
@@ -1962,7 +1962,7 @@ MailboxManager::validateMailbox (
 
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                   "MailboxManager::validateMailbox: userOrExtensionAtOptDomain = '%s'",
-                  userOrExtensionAtOptDomain.data());
+                  SIPX_SAFENULL(userOrExtensionAtOptDomain.data()));
 
     static UtlString identityKey ("identity");
     static UtlString contactKey ("contact");
@@ -1979,7 +1979,7 @@ MailboxManager::validateMailbox (
         getWellFormedURL ( userOrExtensionAtOptDomain, mailboxUrl );
         OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                       "MailboxManager::validateMailbox: mailboxUrl = '%s'",
-                      mailboxUrl.toString().data());
+                      SIPX_SAFENULL(mailboxUrl.toString().data()));
 
         // Look up credentials database to see if we can find a match
         UtlString realmName, authType;
@@ -2001,8 +2001,8 @@ MailboxManager::validateMailbox (
             {
                OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                              "MailboxManager::validateMailbox: CredentialDB::...isUriDefined succeeded, mailboxUrl = '%s', realmName = '%s', authType = '%s'",
-                             mailboxUrl.toString().data(), realmName.data(),
-                             authType.data());
+                             SIPX_SAFENULL(mailboxUrl.toString().data()), SIPX_SAFENULL(realmName.data()),
+                             SIPX_SAFENULL(authType.data()));
                 writeToLog( "validateMailbox", "found mailboxUrl", PRI_DEBUG );
                 // Flag to indicate if we found correct permission for this credential
                 UtlBoolean permissionFound = FALSE;
@@ -2062,7 +2062,7 @@ MailboxManager::validateMailbox (
                     UtlString mailboxId;
                     mailboxUrl.getUserId(mailboxId);
                     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                                  "MailboxManager::validateMailbox: mailboxId = '%s'", mailboxId.data());
+                                  "MailboxManager::validateMailbox: mailboxId = '%s'", SIPX_SAFENULL(mailboxId.data()));
                     // Make sure we have a userid
                     if ( !mailboxId.isNull() )
                     {
@@ -2072,7 +2072,7 @@ MailboxManager::validateMailbox (
                             mailboxId;
                         OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                                       "MailboxManager::validateMailbox: mailboxDirName = '%s'",
-                                      mailboxDirName.data());
+                                      SIPX_SAFENULL(mailboxDirName.data()));
 
                         OsDir mailboxDir ( mailboxDirName.data() );
 
@@ -2087,7 +2087,7 @@ MailboxManager::validateMailbox (
                             result = createMailbox( rMailboxIdentity );
                             OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                                           "MailboxManager::validateMailbox: createMailbox('%s') = %d",
-                                          rMailboxIdentity.data(), result);
+                                          SIPX_SAFENULL(rMailboxIdentity.data()), result);
                         }
 
                         if ( result == OS_SUCCESS )
@@ -2131,8 +2131,8 @@ MailboxManager::validateMailbox (
                         getUri ( userOrExtensionAtOptDomain, mailboxUrl );
                 OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                               "MailboxManager::validateMailbox: ExtensionDB::...getInstance called, userOrExtensionAtOptDomain = '%s', mailboxUrl = '%s', mailboxUrlFound = %d",
-                              userOrExtensionAtOptDomain.data(),
-                              mailboxUrl.toString().data(), mailboxUrlFound);
+                              SIPX_SAFENULL(userOrExtensionAtOptDomain.data()),
+                              SIPX_SAFENULL(mailboxUrl.toString().data()), mailboxUrlFound);
                 UtlString dbPassToken, dbAuthType;
                 if ( !mailboxUrlFound )
                 {
@@ -2151,7 +2151,7 @@ MailboxManager::validateMailbox (
                     }
                     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                                   "MailboxManager::validateMailbox: userOrExtensionAtOptDomain = '%s'",
-                                  userOrExtensionAtOptDomain.data());
+                                  SIPX_SAFENULL(userOrExtensionAtOptDomain.data()));
 
                     logContent =
                         "No Match, searching ExtensionDB with/(out) realm - " +
@@ -2164,8 +2164,8 @@ MailboxManager::validateMailbox (
                             getUri ( userOrExtensionAtOptDomain, mailboxUrl );
                     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                                   "MailboxManager::validateMailbox: ExtensionDB::...getUri called, userOrExtensionAtOptDomain = '%s', mailboxUrl = '%s', mailboxUrlFound = %d",
-                                  userOrExtensionAtOptDomain.data(),
-                                  mailboxUrl.toString().data(),
+                                  SIPX_SAFENULL(userOrExtensionAtOptDomain.data()),
+                                  SIPX_SAFENULL(mailboxUrl.toString().data()),
                                   mailboxUrlFound);
 
                     if ( !mailboxUrlFound )
@@ -2189,7 +2189,7 @@ MailboxManager::validateMailbox (
                         }
                         OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                                       "MailboxManager::validateMailbox: aliasIdentityUrl = '%s'",
-                                      aliasIdentityUrl.toString().data());
+                                      SIPX_SAFENULL(aliasIdentityUrl.toString().data()));
 
                         logContent = "Searching AliasDB for contact for alias - " +
                             aliasIdentityUrl.toString();
@@ -2238,10 +2238,10 @@ MailboxManager::validateMailbox (
                             dbAuthType );                // OUT
                         OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                                       "MailboxManager::validateMailbox: CredentialDB::...getUserPin called, mailboxUrl = '%s', m_defaultRealm = '%s', userOrExtensionAtOptDomain = '%s', dbPassToken = '%s', dbAuthType = '%s'",
-                                      mailboxUrl.toString().data(),
-                                      m_defaultRealm.data(),
-                                      userOrExtensionAtOptDomain.data(),
-                                      dbPassToken.data(), dbAuthType.data());
+                                      SIPX_SAFENULL(mailboxUrl.toString().data()),
+                                      SIPX_SAFENULL(m_defaultRealm.data()),
+                                      SIPX_SAFENULL(userOrExtensionAtOptDomain.data()),
+                                      SIPX_SAFENULL(dbPassToken.data()), SIPX_SAFENULL(dbAuthType.data()));
                     }
                 } else
                 {
@@ -2268,10 +2268,10 @@ MailboxManager::validateMailbox (
                     {
                        OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                                      "MailboxManager::validateMailbox: CredentialDB::...getUserPin called, mailboxUrl = '%s', m_defaultRealm = '%s', userOrExtensionAtOptDomain = '%s', dbPassToken = '%s', dbAuthType = '%s'",
-                                     mailboxUrl.toString().data(),
-                                     m_defaultRealm.data(),
-                                     userOrExtensionAtOptDomain.data(),
-                                     dbPassToken.data(), dbAuthType.data());
+                                     SIPX_SAFENULL(mailboxUrl.toString().data()),
+                                     SIPX_SAFENULL(m_defaultRealm.data()),
+                                     SIPX_SAFENULL(userOrExtensionAtOptDomain.data()),
+                                     SIPX_SAFENULL(dbPassToken.data()), SIPX_SAFENULL(dbAuthType.data()));
                     }
                 }
             }
@@ -2332,7 +2332,7 @@ MailboxManager::getMessageBlock(
 {
    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                  "MailboxManager::getMessageBlock(mailboxIdentity = '%s', category = '%s', blocksize = %d, nextBlockHandle = %d, isFromWeb = %d, msgOrderDescending = %d)",
-                 mailboxIdentity.data(), category.data(), blocksize,
+                 SIPX_SAFENULL(mailboxIdentity.data()), SIPX_SAFENULL(category.data()), blocksize,
                  nextBlockHandle, isFromWeb, msgOrderDescending);
 
    // Status variable used in many different places.
@@ -2342,7 +2342,7 @@ MailboxManager::getMessageBlock(
    result = getMailboxPath (mailboxIdentity, mailboxPath);
    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                  "MailboxManager::getMessageBlock: getMailboxPath(mailboxIdentity = '%s') returns %d, mailboxPath = '%s'",
-                 mailboxIdentity.data(), result, mailboxPath.data());
+                 SIPX_SAFENULL(mailboxIdentity.data()), result, SIPX_SAFENULL(mailboxPath.data()));
    if (result == OS_SUCCESS)
    {
       UtlString mailboxFolder = getFolderName(category) ;
@@ -2354,14 +2354,14 @@ MailboxManager::getMessageBlock(
          SORT_OTHER;
       OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                     "MailboxManager::getMessageBlock: mailboxFolder = '%s', folderPath = '%s'",
-                    mailboxFolder.data(), folderPath.data());
+                    SIPX_SAFENULL(mailboxFolder.data()), SIPX_SAFENULL(folderPath.data()));
 
 #if defined(__pingtel_on_posix__)
       // Set up a lock in the mailbox so that multiple access can be prevented
       UtlString mailboxLock = folderPath + OsPathBase::separator + "retrieve.lck";
       OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                     "MailboxManager::getMessageBlock: set up the lock file %s",
-                    mailboxLock.data());
+                    SIPX_SAFENULL(mailboxLock.data()));
       OsFileLinux lockFile(mailboxLock);
       lockFile.open(OsFileBase::CREATE);
       lockFile.filelock(OsFileBase::FSLOCK_WAIT);
@@ -2382,7 +2382,7 @@ MailboxManager::getMessageBlock(
       // meet the various selection criteria.
       OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                     "MailboxManager::getMessageBlock: regExp '%s'",
-                    regExp.data());
+                    SIPX_SAFENULL(regExp.data()));
       for (result = fi.findFirst(entry, regExp, OsFileIterator::FILES);
            result == OS_SUCCESS;
            result = fi.findNext(entry))
@@ -2394,7 +2394,7 @@ MailboxManager::getMessageBlock(
          UtlString messageId = entry.getFilename();
          OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                        "MailboxManager::getMessageBlock: found file '%s' in directory",
-                       messageId.data());
+                       SIPX_SAFENULL(messageId.data()));
          messageId = messageId(0, messageId.index('-'));
 
          // Add the message to the set if its message ID passes the
@@ -2468,14 +2468,14 @@ MailboxManager::getMessageBlock(
          {
             OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                           "MailboxManager::getMessageBlock: not adding '%s' to set because it fails selection",
-                          messageId.data());
+                          SIPX_SAFENULL(messageId.data()));
          }
          else
          {
             // Construct the collectable message ID.
             OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                           "MailboxManager::getMessageBlock: building CategorizedString(%d, '%s')",
-                          priority, messageId.data());
+                          priority, SIPX_SAFENULL(messageId.data()));
             CategorizedString* collectableMessageId =
                new CategorizedString(priority, messageId);
             // Skip this directory entry if the set of message IDs
@@ -2488,7 +2488,7 @@ MailboxManager::getMessageBlock(
             {
                OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                              "MailboxManager::getMessageBlock: '%s' already in set",
-                             messageId.data());
+                             SIPX_SAFENULL(messageId.data()));
                // Delete the temp string.
                delete collectableMessageId;
             }
@@ -2519,7 +2519,7 @@ MailboxManager::getMessageBlock(
             regExp = filename + ".+\\.xml";
             OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                           "MailboxManager::getMessageBlock: regExp = '%s'",
-                          regExp.data());
+                          rSIPX_SAFENULL(egExp.data()));
             UtlSortedList messages;
             for (result = fi.findFirst(entry, regExp,
                                        OsFileIterator::FILES);
@@ -2530,7 +2530,7 @@ MailboxManager::getMessageBlock(
                filename = entry.getFilename();
                OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                              "MailboxManager::getMessageBlock: filename = '%s'",
-                             filename.data());
+                             SIPX_SAFENULL(filename.data()));
 
                UtlString collectableFileName (filename);
 
@@ -2543,14 +2543,14 @@ MailboxManager::getMessageBlock(
                   {
                      OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                                    "MailboxManager::getMessageBlock: adding '%s' to messages list",
-                                   filename.data());
+                                   SIPX_SAFENULL(filename.data()));
                      messages.insert(new UtlString(filename));
                   }
                }
             }
             OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                           "MailboxManager::getMessageBlock: no more files for regExp = '%s'",
-                          regExp.data());
+                          SIPX_SAFENULL(regExp.data()));
 
             // Again this is a successful result so reset to SUCCESS
             if (result == OS_FILE_NOT_FOUND)
@@ -2567,7 +2567,7 @@ MailboxManager::getMessageBlock(
                UtlString* rwMessageId = (UtlString*) messages.get();
                OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                              "MailboxManager::getMessageBlock: rwMessageId = '%s'",
-                             rwMessageId->data());
+                             SIPX_SAFENULL(rwMessageId->data()));
 
                filename = rwMessageId->data();
                // Construct a Hash dictionary for storing the attributes
@@ -2581,8 +2581,8 @@ MailboxManager::getMessageBlock(
                   isFromWeb);
                OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                              "MailboxManager::getMessageBlock: getMessageInfo(mailboxIdentity = '%s', mailboxFolder = '%s', filename = '%s', isFromWeb = %d) returns %d",
-                             mailboxIdentity.data(),
-                             mailboxFolder.data(), filename.data(),
+                             SIPX_SAFENULL(mailboxIdentity.data()),
+                             SIPX_SAFENULL(mailboxFolder.data()), SIPX_SAFENULL(filename.data()),
                              isFromWeb, result);
                if (result == OS_SUCCESS)
                {
@@ -2615,7 +2615,7 @@ MailboxManager::getMessageBlock(
       // Unlock the lock file in the mailbox
       OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                     "MailboxManager::getMessageBlock: unlock the lock file %s",
-                    mailboxLock.data());
+                    SIPX_SAFENULL(mailboxLock.data()));
       lockFile.fileunlock();
       lockFile.close();
 #endif
@@ -2627,7 +2627,7 @@ MailboxManager::getMessageBlock(
    }
    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                  "MailboxManager::getMessageBlock(mailboxIdentity = '%s') returns %d",
-                 mailboxIdentity.data(), result);
+                 SIPX_SAFENULL(mailboxIdentity.data()), result);
    return result;
 }
 
@@ -2642,7 +2642,7 @@ MailboxManager::getMessageInfo (
 {
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                   "MailboxManager::getMessageInfo(mailboxIdentity = '%s', folderName = '%s', messageId = '%s', msgInfoHashDictionary = %p, isFromWeb = %d) entered",
-                  mailboxIdentity.data(), folderName.data(), messageId.data(),
+                  SIPX_SAFENULL(mailboxIdentity.data()), SIPX_SAFENULL(folderName.data()), SIPX_SAFENULL(messageId.data()),
                   msgInfoHashDictionary, isFromWeb);
 
     // Status variable used in many different places.
@@ -2774,7 +2774,7 @@ MailboxManager::getMessageBlockHandles (
         UtlString mailboxLock = folderPath + OsPathBase::separator + "retrieve.lck";
         OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                       "MailboxManager::getMessageBlockHandles: set up the lock file %s",
-                      mailboxLock.data());
+                      SIPX_SAFENULL(mailboxLock.data()));
         OsFileLinux lockFile(mailboxLock);
         lockFile.open(OsFileBase::CREATE);
         lockFile.filelock(OsFileBase::FSLOCK_WAIT);
@@ -2867,7 +2867,7 @@ MailboxManager::getMessageBlockHandles (
         // Unlock the lock file in the mailbox
         OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                       "MailboxManager::getMessageBlockHandles: unlock the lock file %s",
-                      mailboxLock.data());
+                      SIPX_SAFENULL(mailboxLock.data()));
         lockFile.fileunlock();
         lockFile.close();
 #endif
@@ -2891,7 +2891,7 @@ MailboxManager::updateMessageStates(
    UtlString mailboxPath, logContents;
    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                  "MailboxManager::updateMessageStates(mailboxIdentity = '%s', category = '%s', messageids = '%s')",
-                 mailboxIdentity.data(), category.data(), messageids.data());
+                 SIPX_SAFENULL(mailboxIdentity.data()), SIPX_SAFENULL(category.data()), SIPX_SAFENULL(messageids.data()));
 
    result = getMailboxPath(mailboxIdentity, mailboxPath);
    if (result == OS_SUCCESS)
@@ -2903,7 +2903,7 @@ MailboxManager::updateMessageStates(
       UtlString mailboxLock = mailboxPath + OsPathBase::separator + "retrieve.lck";
       OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                     "MailboxManager::updateMessageStates: set up the lock file %s",
-                    mailboxLock.data());
+                    SIPX_SAFENULL(mailboxLock.data()));
       OsFileLinux lockFile(mailboxLock);
       lockFile.open(OsFileBase::CREATE);
       lockFile.filelock(OsFileBase::FSLOCK_WAIT);
@@ -2930,7 +2930,7 @@ MailboxManager::updateMessageStates(
             OsFile file(fileLocation);
             OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                           "MailboxManager::updateMessageStates fileLocation = '%s'",
-                          fileLocation.data());
+                          SIPX_SAFENULL(fileLocation.data()));
             file.remove();
             msgCount++;
          }
@@ -2961,7 +2961,7 @@ MailboxManager::updateMessageStates(
                   OsFile file(fileLocation);
                   OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                                 "MailboxManager::updateMessageStates fileLocation = '%s'",
-                                fileLocation.data());
+                                SIPX_SAFENULL(fileLocation.data()));
                   file.remove();
                   msgCount++;
                }
@@ -2992,7 +2992,7 @@ MailboxManager::updateMessageStates(
             fromFile.remove();
             OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                           "MailboxManager::updateMessageStates fromFileLocation = '%s'",
-                          fromFileLocation.data());
+                          SIPX_SAFENULL(fromFileLocation.data()));
 
             if (result == OS_SUCCESS)
             {
@@ -3068,7 +3068,7 @@ MailboxManager::updateMessageStates(
       // Unlock the lock file in the mailbox
       OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                     "MailboxManager::updateMessageStates: unlock the lock file %s",
-                    mailboxLock.data());
+                    SIPX_SAFENULL(mailboxLock.data()));
       lockFile.fileunlock();
       lockFile.close();
 #endif
@@ -3110,7 +3110,7 @@ MailboxManager::moveMessages(
             UtlString mailboxLock = fromFolderPath + OsPathBase::separator + "retrieve.lck";
             OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                           "MailboxManager::moveMessages: set up the lock file %s",
-                          mailboxLock.data());
+                          SIPX_SAFENULL(mailboxLock.data()));
             OsFileLinux lockFile(mailboxLock);
             lockFile.open(OsFileBase::CREATE);
             lockFile.filelock(OsFileBase::FSLOCK_WAIT);
@@ -3253,7 +3253,7 @@ MailboxManager::moveMessages(
             // Unlock the lock file in the mailbox
             OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                           "MailboxManager::moveMessages: unlock the lock file %s",
-                          mailboxLock.data());
+                          SIPX_SAFENULL(mailboxLock.data()));
             lockFile.fileunlock();
             lockFile.close();
 #endif
@@ -3298,7 +3298,7 @@ MailboxManager::recycleDeletedMessages( const UtlString& mailbox,
         UtlString mailboxLock = mailboxPath + OsPathBase::separator + "retrieve.lck";
         OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                       "MailboxManager::recycleDeletedMessages: set up the lock file %s",
-                      mailboxLock.data());
+                      SIPX_SAFENULL(mailboxLock.data()));
         OsFileLinux lockFile(mailboxLock);
         lockFile.open(OsFileBase::CREATE);
         lockFile.filelock(OsFileBase::FSLOCK_WAIT);
@@ -3383,7 +3383,7 @@ MailboxManager::recycleDeletedMessages( const UtlString& mailbox,
         // Unlock the lock file in the mailbox
         OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                       "MailboxManager::recycleDeletedMessages: unlock the lock file %s",
-                      mailboxLock.data());
+                      SIPX_SAFENULL(mailboxLock.data()));
         lockFile.fileunlock();
         lockFile.close();
 #endif
@@ -4291,11 +4291,9 @@ MailboxManager::getMediaserverURLForWeb (
         {
            OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_WARNING,
                          "getMediaserverURLForWeb: m_mediaserverSecureUrl = '%s', m_mediaserverUrl = '%s', protocol = '%s'",
-                         (m_mediaserverSecureUrl == NULL ? "(null)" :
-                          m_mediaserverSecureUrl.data()),
-                         (m_mediaserverUrl == NULL ? "(null)" :
-                          m_mediaserverUrl.data()),
-                         protocol.data());
+                         SIPX_SAFENULL(m_mediaserverSecureUrl.data()),
+                         SIPX_SAFENULL(m_mediaserverUrl.data()),
+                         SIPX_SAFENULL(protocol.data()));
         }
 
         rMediaserverUrl = protocol + "://" + UtlString( getenv("SERVER_NAME") ) + ":" +
@@ -4601,18 +4599,18 @@ MailboxManager::postMWIStatus ( const UtlString& mailboxIdentity ) const
             UtlString status;
             pResponse->getResponseStatusText(&status);
             OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                          "postMWIEvent status = %s\n", status.data());
+                          "postMWIEvent status = %s\n", SIPX_SAFENULL(status.data()));
 
             if (status.compareTo("OK") == 0)
             {
               OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                            "postMWIEvent successful with status = %s\n", status.data());
+                            "postMWIEvent successful with status = %s\n", SIPX_SAFENULL(status.data()));
               result = OS_SUCCESS;
             }
             else
             {
               OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                            "postMWIEvent failed with status = %s\n", status.data());
+                            "postMWIEvent failed with status = %s\n", SIPX_SAFENULL(status.data()));
               result = OS_FAILED;
             }
 
@@ -4759,7 +4757,7 @@ MailboxManager::generateDefaultGreetings (
             if (mergeWaveFiles(infiles, greetingLocation ) != OS_SUCCESS)
                 OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
                               "MailboxManager::generateDefaultGreetings failed to generate default %s prompt for %s",
-                              greetingType.data(), mailboxIdentity.data());
+                              SIPX_SAFENULL(greetingType.data()), SIPX_SAFENULL(mailboxIdentity.data()));
                   
                 result = OS_FAILED;
 
@@ -4824,7 +4822,7 @@ MailboxManager::generateDefaultGreetings (
                 {
                     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
                                   "MailboxManager::generateDefaultGreetings failed to generate default %s prompt for %s",
-                                  greetingType.data(), mailboxIdentity.data());
+                                  SIPX_SAFENULL(greetingType.data()), SIPX_SAFENULL(mailboxIdentity.data()));
                   
                     result = OS_FAILED;
                 }
@@ -5023,7 +5021,7 @@ MailboxManager::getCustomParameter( const UtlString& paramName,
 
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                   "MailboxManager::getCustomParameter('%s') returns %d, rStrValue = '%s'",
-                  paramName.data(), OS_SUCCESS, rStrValue.data());
+                  SIPX_SAFENULL(paramName.data()), OS_SUCCESS, SIPX_SAFENULL(rStrValue.data()));
 
     return OS_SUCCESS ;
 
@@ -5167,7 +5165,7 @@ MailboxManager::saveSystemPrompts (
             sprintf(buffer, "-%ld.wav", epochTime);
             filename += RECORDED_AUTOATTENDANT_PROMPT_FILE + UtlString(buffer);
             OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                          "saveSystemPrompts filename = %s", filename.data());
+                          "saveSystemPrompts filename = %s", SIPX_SAFENULL(filename.data()));
         }
         else
             result = OS_FAILED;
@@ -5427,7 +5425,7 @@ MailboxManager::createOrganizationPrefsFile( const UtlString& orgPrefsFileLocati
 
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                   "createOrganizationPrefsFile creating a default file %s",
-                  orgPrefsFileLocation.data());
+                  SIPX_SAFENULL(orgPrefsFileLocation.data()));
                   
     OsFile prefsFile (orgPrefsFileLocation);
     OsStatus result = prefsFile.open(OsFile::CREATE);
@@ -5546,10 +5544,10 @@ MailboxManager::sendEmailNotification(  const UtlString& mailboxIdentity,
 
    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                  "MailboxManager::sendEmailNotification: mailboxIdentity = '%s', from = '%s', timestamp = '%s', duration ='%s', wavFileName = '%s', data = '%.*s%s', datasize = %d",
-                 mailboxIdentity.data(), from.data(), timestamp.data(),
-                 duration.data(), wavFileName.data(),
-                 (datasize > 20 ? 20 : datasize), data,
-                 (datasize > 20 ? "..." : ""), datasize);
+                 SIPX_SAFENULL(mailboxIdentity.data()), SIPX_SAFENULL(from.data()), SIPX_SAFENULL(timestamp.data()),
+                 SIPX_SAFENULL(duration.data()), SIPX_SAFENULL(wavFileName.data()),
+                 SIPX_SAFENULL((datasize > 20 ? 20 : datasize)), SIPX_SAFENULL(data),
+                 SIPX_SAFENULL((datasize > 20 ? "..." : "")), datasize);
 
    UtlHashMap contactsHashDictionary;
    getNotificationContactList (
@@ -5594,7 +5592,7 @@ MailboxManager::sendEmailNotification(  const UtlString& mailboxIdentity,
             // e-mail.
             OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                           "MailboxManager::sendEmailNotification: m_smtpServer = '%s'",
-                          m_smtpServer.data());
+                          SIPX_SAFENULL(m_smtpServer.data()));
             if( !m_smtpServer.isNull())
             {
                // send an email (from name, from email, smtp server
@@ -5614,9 +5612,9 @@ MailboxManager::sendEmailNotification(  const UtlString& mailboxIdentity,
 
                OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                              "MailboxManager::sendEmailNotification: m_smtpServer = '%s', mediaserverUrl = '%s', contactStr = '%s', duration = '%s', bAttachments = %d",
-                             m_smtpServer.data(),
-                             mediaserverUrl.toString().data(),
-                             contactStr.data(), duration.data(), bAttachments);
+                             SIPX_SAFENULL(m_smtpServer.data()),
+                             SIPX_SAFENULL(mediaserverUrl.toString().data()),
+                             SIPX_SAFENULL(contactStr.data()), SIPX_SAFENULL(duration.data()), bAttachments);
                NotificationHelper::getInstance()->send(
                   mailboxIdentity,
                   m_smtpServer,     // smtp server
@@ -5666,7 +5664,7 @@ MailboxManager::parseDistributionFile(const UtlString& distFile, const UtlString
     OsStatus result = OS_FAILED;
 
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                  "MailboxManager - parseDistributionFile:: start to parse the file = %s\n", distFile.data());
+                  "MailboxManager - parseDistributionFile:: start to parse the file = %s\n", SIPX_SAFENULL(distFile.data()));
     TiXmlDocument doc(distFile);
 
     // Verify that we can load the file (i.e it must exist)
@@ -5695,7 +5693,7 @@ MailboxManager::parseDistributionFile(const UtlString& distFile, const UtlString
                    UtlString mailbox = (destNode->FirstChild())->Value();
                    destinations.insert( new UtlString (mailbox) );
                    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                                 "MailboxManager - parseDistributionFile:: Use the destination = %s\n", mailbox.data());
+                                 "MailboxManager - parseDistributionFile:: Use the destination = %s\n", SIPX_SAFENULL(mailbox.data()));
 
                 }
 
@@ -5740,7 +5738,7 @@ MailboxManager::setPassword (
 #endif
 
    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                 "Sending the new pin to Config server for user %s\n", userId.data());
+                 "Sending the new pin to Config server for user %s\n", SIPX_SAFENULL(userId.data()));
 
    // Send to the config server
 #ifdef USE_SOAP   
@@ -5783,13 +5781,13 @@ MailboxManager::setPassword (
 
    pResponse->getResponseStatusText(&status);
    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                 "setPassword status = %s\n", status.data());
+                 "setPassword status = %s\n", SIPX_SAFENULL(status.data()));
 
 
    if (status.compareTo("OK") == 0)
    {
       OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                    "setPassword successful with status = %s\n", status.data());
+                    "setPassword successful with status = %s\n", SIPX_SAFENULL(status.data()));
 
       Url dataSetServiceUrl(m_configServerSecureUrl + "//pds/soap/services/urn:DataSetService");
       dataSetServiceUrl.setUserId("superadmin");
@@ -5834,14 +5832,14 @@ MailboxManager::setPassword (
       else
       {
          OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                      "resync dataset failed with status = %s\n", status.data());
+                      "resync dataset failed with status = %s\n", SIPX_SAFENULL(status.data()));
          result = OS_FAILED;
       }
    }
    else
    {
       OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                    "setPassword failed with status = %s\n", status.data());
+                    "setPassword failed with status = %s\n", SIPX_SAFENULL(status.data()));
       result = OS_FAILED;
    }
    
@@ -5855,7 +5853,7 @@ MailboxManager::setPassword (
    UtlString encodedToken;
    UtlString textToEncode = userId + ":" + m_defaultRealm + ":" + newPassToken;
    NetMd5Codec::encode(textToEncode, encodedToken);
-   sprintf(buffer, "%s;%s;%s", userId.data(), dbPassToken.data(), encodedToken.data());
+   sprintf(buffer, "%s;%s;%s", SIPX_SAFENULL(userId.data()), SIPX_SAFENULL(dbPassToken.data()), SIPX_SAFENULL(encodedToken.data()));
 
    UtlString httpMessage = UtlString(buffer);    
 
@@ -5884,19 +5882,19 @@ MailboxManager::setPassword (
 
    pResponse->getResponseStatusText(&status);
    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                 "setPassword status = %s\n", status.data());
+                 "setPassword status = %s\n", SIPX_SAFENULL(status.data()));
 
 
    if (status.compareTo("OK") == 0)
    {
       OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                    "setPassword successful with status = %s\n", status.data());
+                    "setPassword successful with status = %s\n", SIPX_SAFENULL(status.data()));
       result = OS_SUCCESS;
    }
    else
    {
       OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                    "setPassword failed with status = %s\n", status.data());
+                    "setPassword failed with status = %s\n", SIPX_SAFENULL(status.data()));
       result = OS_FAILED;
    }
    
@@ -5917,7 +5915,7 @@ MailboxManager::getTimeBasedAAName ( UtlString& rName,
     OsStatus result = OS_FAILED;
     
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                  "getTimeBasedAAName local time = %s", rLocalTime.data());
+                  "getTimeBasedAAName local time = %s", SIPX_SAFENULL(rLocalTime.data()));
                   
     // Mon, 25-Sep-2002 05:51:44 PM EST
     UtlString dayOfWeek;
@@ -5951,7 +5949,7 @@ MailboxManager::getTimeBasedAAName ( UtlString& rName,
     
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                   "getTimeBasedAAName dayOfWeek = %s, day = %s, currentTime = %d",
-                  dayOfWeek.data(), day.data(), currentTime);
+                  SIPX_SAFENULL(dayOfWeek.data()), SIPX_SAFENULL(day.data()), currentTime);
                   
     UtlString scheduleFileLocation;
     result = getScheduleFileLocation( rName, scheduleFileLocation );
@@ -5963,7 +5961,7 @@ MailboxManager::getTimeBasedAAName ( UtlString& rName,
         UtlString key("specialoperation");
         UtlString* special = (UtlString *) rOrgPrefsHashDict.findValue(&key);
         OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                      "getTimeBasedAAName special operation = %s", special->data());
+                      "getTimeBasedAAName special operation = %s", SIPX_SAFENULL(special->data()));
         
         if (special->compareTo("true", UtlString::ignoreCase) == 0)
         {
@@ -5982,7 +5980,7 @@ MailboxManager::getTimeBasedAAName ( UtlString& rName,
                 if (scheduleFile.mHolidays.find(&day))
                 {
                     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                                  "getTimeBasedAAName today is a holiday = %s", day.data());
+                                  "getTimeBasedAAName today is a holiday = %s", SIPX_SAFENULL(day.data()));
                     rAAName = scheduleFile.mHolidayMenu;
                 }
                 else
@@ -6010,7 +6008,7 @@ MailboxManager::getTimeBasedAAName ( UtlString& rName,
             else
             {
                 OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
-                              "getTimeBasedAAName failed to parse the schedule file %s", scheduleFileLocation.data());
+                              "getTimeBasedAAName failed to parse the schedule file %s", SIPX_SAFENULL(scheduleFileLocation.data()));
                 
             }
         }  
@@ -6286,7 +6284,7 @@ MailboxManager::getScheduleFileLocation( UtlString& rFileName, UtlString& rSched
         {
             OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
                           "getScheduleFileLocation failed to find the schedule file %s",
-                          rScheduleFileLocation.data());
+                          SIPX_SAFENULL(rScheduleFileLocation.data()));
         }
     }
     else

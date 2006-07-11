@@ -59,12 +59,12 @@ ConfigRPC::ConfigRPC( const char*         dbName     ///< dbName known to XMLRPC
 
    if ( ! sDatabases.find(this) )
    {
-      OsSysLog::add( FAC_KERNEL, PRI_INFO, "ConfigRPC:: register access to db name '%s'", dbName);
+      OsSysLog::add( FAC_KERNEL, PRI_INFO, "ConfigRPC:: register access to db name '%s'", SIPX_SAFENULL(dbName));
       sDatabases.insert(this);
    }
    else
    {
-      OsSysLog::add( FAC_KERNEL, PRI_CRIT, "ConfigRPC:: duplicate db name '%s'", dbName);
+      OsSysLog::add( FAC_KERNEL, PRI_CRIT, "ConfigRPC:: duplicate db name '%s'", SIPX_SAFENULL(dbName));
    }
 }
 
@@ -75,7 +75,7 @@ OsStatus ConfigRPC::load(OsConfigDb& dataset)
    {
       OsSysLog::add(FAC_KERNEL, PRI_ERR,
                     "ConfigRPC failed to load '%s' from '%s'",
-                    data(), mPath.data()
+                    SIPX_SAFENULL(data()), SIPX_SAFENULL(mPath.data())
                     );
    }
    return status;
@@ -89,7 +89,7 @@ OsStatus ConfigRPC::store(OsConfigDb& dataset)
    {
       OsSysLog::add(FAC_KERNEL, PRI_ERR,
                     "ConfigRPC failed to store '%s' to '%s'",
-                    data(), mPath.data()
+                    SIPX_SAFENULL(data()), SIPX_SAFENULL(mPath.data())
                     );
    }
    return status;
@@ -118,7 +118,7 @@ XmlRpcMethod::ExecutionStatus ConfigRPC_Callback::accessAllowed(
 {
    OsSysLog::add(FAC_KERNEL, PRI_INFO,
                  "ConfigRPC default accessAllowed for %s",
-                 MethodName[method]
+                 SIPX_SAFENULL(MethodName[method])
                  );
    return XmlRpcMethod::OK;
 }

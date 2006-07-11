@@ -107,12 +107,12 @@ OsSSL::OsSSL(const char* authorityPath,
                                 "   public  '%s'\n"
                                 "   private '%s'"
                                 ,this, mCTX,
-                                publicCertificateFile
+                                SIPX_SAFENULL(publicCertificateFile
                                 ? publicCertificateFile
-                                : defaultPublicCertificateFile,
-                                privateKeyPath
+                                : defaultPublicCertificateFile),
+                                SIPX_SAFENULL(privateKeyPath
                                 ? privateKeyPath
-                                : defaultPrivateKeyFile
+                                : defaultPrivateKeyFile)
                                 );
 
                   // TODO: log our own certificate data
@@ -131,12 +131,12 @@ OsSSL::OsSSL(const char* authorityPath,
                {
                   OsSysLog::add(FAC_KERNEL, PRI_ERR,
                                 "OsSSL::_ Private key '%s' does not match certificate '%s'",
-                                privateKeyPath
+                                SIPX_SAFENULL(privateKeyPath
                                 ? privateKeyPath
-                                : defaultPrivateKeyFile,
-                                publicCertificateFile
+                                : defaultPrivateKeyFile),
+                                SIPX_SAFENULL(publicCertificateFile
                                 ? publicCertificateFile
-                                : defaultPublicCertificateFile
+                                : defaultPublicCertificateFile)
                                 );
                }
             }
@@ -144,9 +144,9 @@ OsSSL::OsSSL(const char* authorityPath,
             {
                OsSysLog::add(FAC_KERNEL, PRI_ERR,
                              "OsSSL::_ Private key '%s' could not be initialized.",
-                             privateKeyPath
+                             SIPX_SAFENULL(privateKeyPath
                              ? privateKeyPath
-                             : defaultPrivateKeyFile
+                             : defaultPrivateKeyFile)
                              );
             }
          }
@@ -154,9 +154,9 @@ OsSSL::OsSSL(const char* authorityPath,
          {
             OsSysLog::add(FAC_KERNEL, PRI_ERR,
                           "OsSSL::_ Public key '%s' could not be initialized.",
-                          publicCertificateFile
+                          SIPX_SAFENULL(publicCertificateFile
                           ? publicCertificateFile
-                          : defaultPublicCertificateFile
+                          : defaultPublicCertificateFile)
                           );
          }
 
@@ -166,7 +166,7 @@ OsSSL::OsSSL(const char* authorityPath,
          OsSysLog::add(FAC_KERNEL, PRI_ERR,
                        "OsSSL::_ SSL_CTX_load_verify_locations failed\n"
                        "    authorityDir:  '%s'",
-                       authorityPath ? authorityPath : defaultAuthorityPath);
+                       SIPX_SAFENULL(authorityPath ? authorityPath : defaultAuthorityPath));
       }
    }
    else
@@ -211,7 +211,7 @@ SSL* OsSSL::getServerConnection()
          ciphers.append(cipher);
       }
       OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSSL::getServerConnection returning %p%s",
-                    server, ciphers.isNull() ? " NO CIPHERS" : ciphers.data());
+                    server, SIPX_SAFENULL(ciphers.isNull() ? " NO CIPHERS" : ciphers.data()));
       // SSL_set_accept_state(server);
       // SSL_set_options(server, SSL_OP_NO_SSLv2);
 #     endif
@@ -319,13 +319,13 @@ void OsSSL::logConnectParams(const OsSysLogFacility facility, ///< callers facil
                     "   alt URI: '%s'\n"
                     "   alt DNS: '%s'\n"
                     "   issuer:  '%s'",
-                    callerMsg,
-                    validity == X509_V_OK ? "Verified" : "NOT VERIFIED",
-                    subjectStr ? subjectStr : "",
-                    subjectAltNameURI ? subjectAltNameURI->data() : "",
-                    subjectAltNameDNS ? subjectAltNameDNS->data() : "",
-                    issuerStr  ? issuerStr  : "",
-                    cipher     ? cipher     : ""
+                    SIPX_SAFENULL(callerMsg),
+                    SIPX_SAFENULL(validity == X509_V_OK ? "Verified" : "NOT VERIFIED"),
+                    SIPX_SAFENULL(subjectStr ? subjectStr : ""),
+                    SIPX_SAFENULL(subjectAltNameURI ? subjectAltNameURI->data() : ""),
+                    SIPX_SAFENULL(subjectAltNameDNS ? subjectAltNameDNS->data() : ""),
+                    SIPX_SAFENULL(issuerStr  ? issuerStr  : ""),
+                    SIPX_SAFENULL(cipher     ? cipher     : "")
                     );
 
       // Release the various dynamic things
@@ -354,7 +354,7 @@ void OsSSL::logConnectParams(const OsSysLogFacility facility, ///< callers facil
    {
       OsSysLog::add(FAC_KERNEL, PRI_ERR,
                     "OsSSL::logConnectParams called by %s with NULL connection",
-                    callerMsg
+                    SIPX_SAFENULL(callerMsg)
                     );
    }
 }
@@ -454,7 +454,7 @@ bool OsSSL::peerIdentity( SSL*       connection ///< SSL connection to be descri
             sk_GENERAL_NAME_pop_free(names, GENERAL_NAME_free);
             }
 #           ifdef TEST_DEBUG
-            OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "%s", debugMsg.data());
+            OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "%s", SIPX_SAFENULL(debugMsg.data()));
 #           endif
          }
          else
@@ -487,7 +487,7 @@ void OsSSL::logError(const OsSysLogFacility facility,
    ERR_error_string_n(errCode, sslErrorString, sizeof(sslErrorString));
    OsSysLog::add(facility, priority,
                  "%s:\n   SSL error: %d '%s'",
-                 callerMsg, errCode, sslErrorString
+                 SIPX_SAFENULL(callerMsg), errCode, SIPX_SAFENULL(sslErrorString)
                  );
 }
 
@@ -541,8 +541,8 @@ int OsSSL::verifyCallback(int valid,            // validity so far from openssl
                     "       issuer='%s'\n"
                     "       subject='%s'",
                     X509_STORE_CTX_get_error_depth(store),
-                    X509_verify_cert_error_string(X509_STORE_CTX_get_error(store)),
-                    issuer, subject);
+                    SIPX_SAFENULL(X509_verify_cert_error_string(X509_STORE_CTX_get_error(store))),
+                    SIPX_SAFENULL(issuer), SIPX_SAFENULL(subject));
    }
 
    return valid;

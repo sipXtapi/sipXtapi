@@ -199,9 +199,9 @@ void initSysLog(OsConfigDb* pConfig)
          OsPath path(fileTarget);
          path.getNativePath(workingDirectory);
 
-         osPrintf("%s : %s\n", CONFIG_SETTING_LOG_DIR, workingDirectory.data());
+         osPrintf("%s : %s\n", SIPX_SAFENULL(CONFIG_SETTING_LOG_DIR), SIPX_SAFENULL(workingDirectory.data()));
          OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s",
-                       CONFIG_SETTING_LOG_DIR, workingDirectory.data());
+                       SIPX_SAFENULL(CONFIG_SETTING_LOG_DIR), SIPX_SAFENULL(workingDirectory.data()));
       }
       else
       {
@@ -209,9 +209,9 @@ void initSysLog(OsConfigDb* pConfig)
          OsFileSystem::getWorkingDirectory(path);
          path.getNativePath(workingDirectory);
 
-         osPrintf("%s : %s\n", CONFIG_SETTING_LOG_DIR, workingDirectory.data());
+         osPrintf("%s : %s\n", SIPX_SAFENULL(CONFIG_SETTING_LOG_DIR), SIPX_SAFENULL(workingDirectory.data()));
          OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s",
-                       CONFIG_SETTING_LOG_DIR, workingDirectory.data());
+                       SIPX_SAFENULL(CONFIG_SETTING_LOG_DIR), SIPX_SAFENULL(workingDirectory.data()));
       }
 
       fileTarget = workingDirectory +
@@ -221,8 +221,8 @@ void initSysLog(OsConfigDb* pConfig)
    else
    {
       bSpecifiedDirError = false;
-      osPrintf("%s : %s\n", CONFIG_SETTING_LOG_DIR, fileTarget.data());
-      OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, fileTarget.data());
+      osPrintf("%s : %s\n", SIPX_SAFENULL(CONFIG_SETTING_LOG_DIR), SIPX_SAFENULL(fileTarget.data()));
+      OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", SIPX_SAFENULL(CONFIG_SETTING_LOG_DIR), SIPX_SAFENULL(fileTarget.data()));
 
       fileTarget = fileTarget +
          OsPathBase::separator +
@@ -248,9 +248,9 @@ void initSysLog(OsConfigDb* pConfig)
       if (logLevel == lkupTable[i].pIdentity)
       {
          priority = lkupTable[i].ePriority;
-         osPrintf("%s : %s\n", CONFIG_SETTING_LOG_LEVEL, lkupTable[i].pIdentity);
+         osPrintf("%s : %s\n", SIPX_SAFENULL(CONFIG_SETTING_LOG_LEVEL), SIPX_SAFENULL(lkupTable[i].pIdentity));
          OsSysLog::add(LOG_FACILITY, PRI_INFO,
-                       "%s : %s", CONFIG_SETTING_LOG_LEVEL, lkupTable[i].pIdentity);
+                       "%s : %s", SIPX_SAFENULL(CONFIG_SETTING_LOG_LEVEL), SIPX_SAFENULL(lkupTable[i].pIdentity));
          break;
       }
    }
@@ -271,14 +271,14 @@ void initSysLog(OsConfigDb* pConfig)
    }
 
    osPrintf("%s : %s\n",
-            CONFIG_SETTING_LOG_CONSOLE, bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
+            SIPX_SAFENULL(CONFIG_SETTING_LOG_CONSOLE), SIPX_SAFENULL(bConsoleLoggingEnabled ? "ENABLE" : "DISABLE")) ;
    OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s",
-                 CONFIG_SETTING_LOG_CONSOLE, bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
+                 SIPX_SAFENULL(CONFIG_SETTING_LOG_CONSOLE), SIPX_SAFENULL(bConsoleLoggingEnabled ? "ENABLE" : "DISABLE")) ;
 
    if (bSpecifiedDirError)
    {
       OsSysLog::add(FAC_LOG, PRI_CRIT, "Cannot access %s directory; please check configuration.",
-                    CONFIG_SETTING_LOG_DIR);
+                    SIPX_SAFENULL(CONFIG_SETTING_LOG_DIR));
    }
 }
 
@@ -315,18 +315,18 @@ int main(int argc, char* argv[])
    UtlString argString;
    for(int argIndex = 1; argIndex < argc; argIndex++)
    {
-      osPrintf("arg[%d]: %s\n", argIndex, argv[argIndex]);
+      osPrintf("arg[%d]: %s\n", argIndex, SIPX_SAFENULL(argv[argIndex]));
       argString = argv[argIndex];
       NameValueTokenizer::frontBackTrim(&argString, "\t ");
       if(argString.compareTo("-v") == 0)
       {
-         osPrintf("Version: %s (%s)\n", SIPX_BBRIDGE_VERSION, SIPX_BBRIDGE_VERSION_COMMENT);
+         osPrintf("Version: %s (%s)\n", SIPX_SAFENULL(SIPX_BBRIDGE_VERSION), SIPX_SAFENULL(SIPX_BBRIDGE_VERSION_COMMENT));
          exit(0);
       }
       else
       {
          osPrintf("usage: %s [-v]\nwhere:\n -v provides the software version\n",
-         argv[0]);
+         SIPX_SAFENULL(argv[0]));
          exit(1);
       }
    }
@@ -426,9 +426,9 @@ int main(int argc, char* argv[])
    if (configDb.get(CONFIG_SETTING_SIP_DOMAIN, sipDomain) != OS_SUCCESS)
    {
       OsSysLog::add(FAC_SIP, PRI_CRIT,
-                    "No value configured for %s", CONFIG_SETTING_SIP_DOMAIN
+                    "No value configured for %s", SIPX_SAFENULL(CONFIG_SETTING_SIP_DOMAIN)
                     );
-      osPrintf("No value configured for %s\n", CONFIG_SETTING_SIP_DOMAIN );
+      osPrintf("No value configured for %s\n", SIPX_SAFENULL(CONFIG_SETTING_SIP_DOMAIN ));
       exit(1);
    }
 

@@ -131,10 +131,10 @@ void showWaveError(char *syscall, int e, int N, int line)
    }
    if (-1 == N) {
       osPrintf("%s failed (line %d): res = %s (%d):\n   %s\n\n",
-         syscall, line, name, e, str);
+         SIPX_SAFENULL(syscall), line, SIPX_SAFENULL(name), e, SIPX_SAFENULL(str));
    } else {
       osPrintf("%s failed (line %d): res = %s (%d, %d):\n   %s\n\n",
-        syscall, line, name, e, N, str);
+        SIPX_SAFENULL(syscall), line, SIPX_SAFENULL(name), e, N, SIPX_SAFENULL(str));
    }
 }
 

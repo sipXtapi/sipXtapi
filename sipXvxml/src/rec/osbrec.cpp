@@ -1079,7 +1079,7 @@ static VXIrecResult OSBrecRecord(VXIrecInterface *pThis,
                {
                   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                                 "osbrec::OSBrecRecord calling stopRecording() for %s",
-                                impl->callId);
+                                SIPX_SAFENULL(impl->callId));
                   impl->pCallMgr->stopRecording((const char*)impl->callId);
                   impl->recording = 0;
 
@@ -1114,7 +1114,7 @@ static VXIrecResult OSBrecRecord(VXIrecInterface *pThis,
            {
               OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                             "osbrec::OSBrecRecord calling stopRecording() for %s",
-                            impl->callId);
+                            SIPX_SAFENULL(impl->callId));
               impl->pCallMgr->stopRecording((const char*)impl->callId);
               impl->recording = 0;
            }
@@ -1296,7 +1296,7 @@ OSBREC_API VXIrecResult OSBrecExiting (VXIlogInterface  *log,
          {
             OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                           "osbrec::OSBrecExiting calling stopRecording() for %s",
-                          impl->callId);
+                          SIPX_SAFENULL(impl->callId));
             impl->pCallMgr->stopRecording((const char*)impl->callId);
             impl->recording = 0;
             tp->Diag(DIAG_TAG_REC, NULL, L"stopRecording called");

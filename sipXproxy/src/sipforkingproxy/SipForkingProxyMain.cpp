@@ -223,13 +223,13 @@ void initRoutes(const char* routeRuleFileName,
 
        UtlString parseError = xmlDoc.ErrorDesc();
        osPrintf("%s: %s\nSetting defaults:\n", 
-           parseError.data(),
-           routeRuleFileName);
-       osPrintf("%s", defaultXml.data());
+           SIPX_SAFENULL(parseError.data()),
+           SIPX_SAFENULL(routeRuleFileName));
+       osPrintf("%s", SIPX_SAFENULL(defaultXml.data()));
        OsSysLog::add(FAC_SIP, PRI_ERR, "%s: %s\nSetting defaults:", 
-           parseError.data(),
-           routeRuleFileName);
-       OsSysLog::add(FAC_SIP, PRI_INFO, "%s", defaultXml.data());
+           SIPX_SAFENULL(parseError.data(),)
+           SIPX_SAFENULL(routeRuleFileName));
+       OsSysLog::add(FAC_SIP, PRI_INFO, "%s", SIPX_SAFENULL(defaultXml.data()));
    }
 
    // There is a routing rules file.  Parse the contents
@@ -276,7 +276,7 @@ void initRoutes(const char* routeRuleFileName,
                        if (hostText)
                        {
                            fromHost = hostText->Value();
-                           //osPrintf("\tfound a routeFrom: %s\n", fromHost.data());
+                           //osPrintf("\tfound a routeFrom: %s\n", SIPX_SAFENULL(fromHost.data()));
                        }
                    }
                }
@@ -301,7 +301,7 @@ void initRoutes(const char* routeRuleFileName,
                        if (hostText)
                        {
                            toHost = hostText->Value();
-                           //osPrintf("\tfound a routeTo: %s\n", toHost.data());
+                           //osPrintf("\tfound a routeTo: %s\n", SIPX_SAFENULL(toHost.data()));
                        }
                    }
                }
@@ -314,20 +314,20 @@ void initRoutes(const char* routeRuleFileName,
                }
 
                //osPrintf("Found route from: %s to: %s\n",
-               //    fromHost.data(), toHost.data());
+               //    SIPX_SAFENULL(fromHost.data()), SIPX_SAFENULL(toHost.data()));
                routeMaps.set(fromHost, toHost);
 
            } // End loop through route containers
 
            OsSysLog::add(FAC_SIP, PRI_INFO, "found %d route rules in %s", 
-               routeCount, routeRuleFileName);
+               routeCount, SIPX_SAFENULL(routeRuleFileName));
        }
 
        // No routes container found
        else
        {
            OsSysLog::add(FAC_SIP, PRI_WARNING, "WARNING: no routes found in %s", 
-               routeRuleFileName);
+               SIPX_SAFENULL(routeRuleFileName));
        }
    }
 }
@@ -379,8 +379,8 @@ void initSysLog(OsConfigDb* pConfig)
          OsPath path(fileTarget);
          path.getNativePath(workingDirectory);
 
-         osPrintf("%s : %s\n", CONFIG_SETTING_LOG_DIR, workingDirectory.data()) ;
-         OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, workingDirectory.data()) ;
+         osPrintf("%s : %s\n", SIPX_SAFENULL(CONFIG_SETTING_LOG_DIR), SIPX_SAFENULL(workingDirectory.data())) ;
+         OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", SIPX_SAFENULL(CONFIG_SETTING_LOG_DIR), SIPX_SAFENULL(workingDirectory.data())) ;
       }
       else
       {
@@ -388,8 +388,8 @@ void initSysLog(OsConfigDb* pConfig)
          OsFileSystem::getWorkingDirectory(path);
          path.getNativePath(workingDirectory);
 
-         osPrintf("%s : %s\n", CONFIG_SETTING_LOG_DIR, workingDirectory.data()) ;
-         OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, workingDirectory.data()) ;
+         osPrintf("%s : %s\n", SIPX_SAFENULL(CONFIG_SETTING_LOG_DIR), SIPX_SAFENULL(workingDirectory.data())) ;
+         OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", SIPX_SAFENULL(CONFIG_SETTING_LOG_DIR), SIPX_SAFENULL(workingDirectory.data())) ;
       }
 
       fileTarget = workingDirectory + 
@@ -399,8 +399,8 @@ void initSysLog(OsConfigDb* pConfig)
    else
    {
       bSpecifiedDirError = false ;
-      osPrintf("%s : %s\n", CONFIG_SETTING_LOG_DIR, fileTarget.data()) ;
-      OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, fileTarget.data()) ;
+      osPrintf("%s : %s\n", SIPX_SAFENULL(CONFIG_SETTING_LOG_DIR), SIPX_SAFENULL(fileTarget.data())) ;
+      OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", SIPX_SAFENULL(CONFIG_SETTING_LOG_DIR), SIPX_SAFENULL(fileTarget.data())) ;
 
       fileTarget = fileTarget + 
          OsPathBase::separator +
@@ -425,8 +425,8 @@ void initSysLog(OsConfigDb* pConfig)
       if (logLevel == lkupTable[i].pIdentity)
       {
          priority = lkupTable[i].ePriority;
-         osPrintf("%s : %s\n", CONFIG_SETTING_LOG_LEVEL, lkupTable[i].pIdentity) ;
-         OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_LEVEL, lkupTable[i].pIdentity) ;
+         osPrintf("%s : %s\n", SIPX_SAFENULL(CONFIG_SETTING_LOG_LEVEL), SIPX_SAFENULL(lkupTable[i].pIdentity) );
+         OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", SIPX_SAFENULL(CONFIG_SETTING_LOG_LEVEL), SIPX_SAFENULL(lkupTable[i].pIdentity)) ;
          break;
       }
    }
@@ -442,19 +442,19 @@ void initSysLog(OsConfigDb* pConfig)
       if (consoleLogging == "ENABLE")
       {
          OsSysLog::enableConsoleOutput(true);        
-         osPrintf("%s : %s\n", CONFIG_SETTING_LOG_CONSOLE, "ENABLE") ;
-         OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_CONSOLE, "ENABLE") ;
+         osPrintf("%s : %s\n", SIPX_SAFENULL(CONFIG_SETTING_LOG_CONSOLE), "ENABLE") ;
+         OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", SIPX_SAFENULL(CONFIG_SETTING_LOG_CONSOLE), "ENABLE") ;
       }
       else
       {
-         osPrintf("%s : %s\n", CONFIG_SETTING_LOG_CONSOLE, "DISABLE") ;
-         OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_CONSOLE, "DISABLE") ;
+         osPrintf("%s : %s\n", SIPX_SAFENULL(CONFIG_SETTING_LOG_CONSOLE), "DISABLE") ;
+         OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", SIPX_SAFENULL(CONFIG_SETTING_LOG_CONSOLE), "DISABLE") ;
       }
    }   
 
    if (bSpecifiedDirError)
    {
-      OsSysLog::add(FAC_LOG, PRI_CRIT, "Cannot access %s directory; please check configuration.", CONFIG_SETTING_LOG_DIR);
+      OsSysLog::add(FAC_LOG, PRI_CRIT, "Cannot access %s directory; please check configuration.", SIPX_SAFENULL(CONFIG_SETTING_LOG_DIR));
    }
 }
 
@@ -491,7 +491,7 @@ main(int argc, char* argv[])
         NameValueTokenizer::frontBackTrim(&argString, "\t ");
         if(argString.compareTo("-v") == 0)
         {
-            osPrintf("Version: %s %s\n", SIPX_VERSION, SIPX_BUILD);
+            osPrintf("Version: %s %s\n", SIPX_SAFENULL(SIPX_VERSION), SIPX_SAFENULL(SIPX_BUILD));
             return(1);
         }
         else if( argString.compareTo("-i") == 0)
@@ -551,7 +551,7 @@ main(int argc, char* argv[])
 
     if(configDb.loadFromFile(ConfigfileName) == OS_SUCCESS)
     {      
-      osPrintf("Found config file: %s\n", ConfigfileName.data());
+      osPrintf("Found config file: %s\n", SIPX_SAFENULL(ConfigfileName.data()));
     }
     else
     {
@@ -581,7 +581,7 @@ main(int argc, char* argv[])
 
         if(configDb.storeToFile(ConfigfileName) != OS_SUCCESS)
         {
-           osPrintf("Could not write config file: %s\n", ConfigfileName.data());
+           osPrintf("Could not write config file: %s\n", SIPX_SAFENULL(ConfigfileName.data()));
         }
     }
 
@@ -589,7 +589,7 @@ main(int argc, char* argv[])
     initSysLog(&configDb);    
 
     OsSysLog::add(FAC_SIP, PRI_INFO, "Starting - version %s build %s",
-                  SIPX_VERSION, SIPX_BUILD
+                  SIPX_SAFENULL(SIPX_VERSION), SIPX_SAFENULL(SIPX_BUILD)
                   );
 
     configDb.get("SIP_PROXY_DOMAIN_NAME", domainName);
@@ -597,8 +597,8 @@ main(int argc, char* argv[])
     {
         domainName = ipAddress;
     }
-    OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_PROXY_DOMAIN_NAME : %s", domainName.data());
-    osPrintf("SIP_PROXY_DOMAIN_NAME : %s\n", domainName.data());
+    OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_PROXY_DOMAIN_NAME : %s", SIPX_SAFENULL(domainName.data()));
+    osPrintf("SIP_PROXY_DOMAIN_NAME : %s\n", SIPX_SAFENULL(domainName.data()));
 
     proxyUdpPort = configDb.getPort("SIP_PROXY_UDP_PORT") ;
     if (!portIsValid(proxyUdpPort))
@@ -649,8 +649,8 @@ main(int argc, char* argv[])
     {
         authEnabled = FALSE;
     }
-    OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_PROXY_USE_AUTH_SERVER : %s", authEnabled ? "ENABLE" : "DISABLE");
-    osPrintf("SIP_PROXY_USE_AUTH_SERVER : %s\n", authEnabled ? "ENABLE" : "DISABLE");
+    OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_PROXY_USE_AUTH_SERVER : %s", SIPX_SAFENULL(authEnabled ? "ENABLE" : "DISABLE"));
+    osPrintf("SIP_PROXY_USE_AUTH_SERVER : %s\n", SIPX_SAFENULL(authEnabled ? "ENABLE" : "DISABLE"));
 
     UtlString authServer;
     configDb.get("SIP_PROXY_AUTH_SERVER", authServer);
@@ -660,8 +660,8 @@ main(int argc, char* argv[])
         authServer = ipAddress;
         authServer.append(":5080");
     }
-    OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_PROXY_AUTH_SERVER : %s", authServer.data());
-    osPrintf("SIP_PROXY_AUTH_SERVER : %s\n", authServer.data());
+    OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_PROXY_AUTH_SERVER : %s", SIPX_SAFENULL(authServer.data()));
+    osPrintf("SIP_PROXY_AUTH_SERVER : %s\n", SIPX_SAFENULL(authServer.data()));
 
     int defaultExpires;
     int defaultSerialExpires;
@@ -737,8 +737,8 @@ main(int argc, char* argv[])
         hostAliases.append(portBuf);
     }
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_PROXY_HOST_ALIASES : %s",
-                  hostAliases.data());
-    osPrintf("SIP_PROXY_HOST_ALIASES : %s\n", hostAliases.data());
+                  SIPX_SAFENULL(hostAliases.data()));
+    osPrintf("SIP_PROXY_HOST_ALIASES : %s\n", SIPX_SAFENULL(hostAliases.data()));
 
     UtlString enableCallStateObserverSetting;
     configDb.get(CONFIG_SETTING_CALL_STATE, enableCallStateObserverSetting);
@@ -759,11 +759,11 @@ main(int argc, char* argv[])
        enableCallStateLogObserver = false;
        OsSysLog::add(FAC_SIP, PRI_ERR, "SipForkingProxyMain invalid configuration value for "
                      CONFIG_SETTING_CALL_STATE " '%s' - should be 'enable' or 'disable'",
-                     enableCallStateObserverSetting.data()
+                     SIPX_SAFENULL(enableCallStateObserverSetting.data())
                      );
     }
     OsSysLog::add(FAC_SIP, PRI_INFO, CONFIG_SETTING_CALL_STATE " : %s",
-                  enableCallStateLogObserver ? "ENABLE" : "DISABLE" );
+                  SIPX_SAFENULL(enableCallStateLogObserver ? "ENABLE" : "DISABLE" ));
 
     UtlString callStateLogFileName;
     if (enableCallStateLogObserver)
@@ -774,7 +774,7 @@ main(int argc, char* argv[])
           callStateLogFileName = CALL_STATE_LOG_FILE_DEFAULT;
        }
        OsSysLog::add(FAC_SIP, PRI_INFO, CONFIG_SETTING_CALL_STATE_LOG " : %s",
-                     callStateLogFileName.data());
+                     SIPX_SAFENULL(callStateLogFileName.data()));
     }
     
     // Check if CSE logging should go into a database
@@ -796,11 +796,11 @@ main(int argc, char* argv[])
     {
        enableCallStateDbObserver = false;
        OsSysLog::add(FAC_SIP, PRI_ERR, "SipForkingProxyMain:: invalid configuration value for "
-                     "%s '%s' - should be 'enable' or 'disable'", CONFIG_SETTING_CALL_STATE_DB,
-                     enableCallStateDbObserverSetting.data()
+                     "%s '%s' - should be 'enable' or 'disable'", SIPX_SAFENULL(CONFIG_SETTING_CALL_STATE_DB),
+                     SIPX_SAFENULL(enableCallStateDbObserverSetting.data())
                      );
     }
-    OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", CONFIG_SETTING_CALL_STATE_DB,
+    OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", SIPX_SAFENULL(CONFIG_SETTING_CALL_STATE_DB),
                   enableCallStateDbObserver ? "ENABLE" : "DISABLE" );
 
     UtlString callStateDbHostName;
@@ -814,32 +814,32 @@ main(int argc, char* argv[])
        {
           callStateDbHostName = CALL_STATE_DATABASE_HOST;
        }
-       OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", CONFIG_SETTING_CALL_STATE_DB_HOST,
-                     callStateDbHostName.data());
+       OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", SIPX_SAFENULL(CONFIG_SETTING_CALL_STATE_DB_HOST),
+                     SIPX_SAFENULL(callStateDbHostName.data()));
                      
        configDb.get(CONFIG_SETTING_CALL_STATE_DB_NAME, callStateDbName);
        if (callStateDbName.isNull())
        {
           callStateDbName = CALL_STATE_DATABASE_NAME;
        }
-       OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s",  CONFIG_SETTING_CALL_STATE_DB_NAME,
-                     callStateDbName.data());
+       OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s",  SIPX_SAFENULL(CONFIG_SETTING_CALL_STATE_DB_NAME),
+                     SIPX_SAFENULL(callStateDbName.data()));
                      
        configDb.get(CONFIG_SETTING_CALL_STATE_DB_USER, callStateDbUserName);
        if (callStateDbUserName.isNull())
        {
           callStateDbUserName = CALL_STATE_DATABASE_USER;
        }
-       OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", CONFIG_SETTING_CALL_STATE_DB_USER,
-                     callStateDbUserName.data());                                          
+       OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", SIPX_SAFENULL(CONFIG_SETTING_CALL_STATE_DB_USER),
+                     SIPX_SAFENULL(callStateDbUserName.data()));                                          
                      
        configDb.get(CONFIG_SETTING_CALL_STATE_DB_DRIVER, callStateDbDriver);
        if (callStateDbDriver.isNull())
        {
           callStateDbDriver = CALL_STATE_DATABASE_DRIVER;
        }
-       OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s",  CONFIG_SETTING_CALL_STATE_DB_DRIVER,
-                     callStateDbDriver.data());                          
+       OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s",  SIPX_SAFENULL(CONFIG_SETTING_CALL_STATE_DB_DRIVER),
+                     SIPX_SAFENULL(callStateDbDriver.data()));                          
     }    
     
     // Select logging method - database takes priority over XML file
@@ -902,17 +902,17 @@ main(int argc, char* argv[])
         if(OS_SUCCESS != forwardingRules.loadMappings(fileName))
         {
             OsSysLog::add(FAC_SIP, PRI_WARNING, "WARNING: Failed to load: %s",
-                fileName.data());
-            osPrintf("WARNING: Failed to load: %s\n", fileName.data());
+                SIPX_SAFENULL(fileName.data()));
+            osPrintf("WARNING: Failed to load: %s\n", SIPX_SAFENULL(fileName.data()));
             useDefaultRules = TRUE;
         }
     }
     else
     {
         OsSysLog::add(FAC_SIP, PRI_INFO, "%s not found",
-            fileName.data());
+            SIPX_SAFENULL(fileName.data()));
         osPrintf("%s not found\n",
-            fileName.data());
+            SIPX_SAFENULL(fileName.data()));
         useDefaultRules = TRUE;
     }
 
@@ -967,7 +967,7 @@ main(int argc, char* argv[])
 
         Url msgRouteToUri(routeTo);
         osPrintf("Message:\n\tmethod: %s\n\turi: %s\n\tevent: %s\nRouted:\n\tstring: %s\n\turi: %s\n\ttype: %s\n",
-            method, uri, eventType, routeTo.data(), msgRouteToUri.toString().data(), routeType.data());
+            SIPX_SAFENULL(method), SIPX_SAFENULL(uri), SIPX_SAFENULL(eventType), SIPX_SAFENULL(routeTo.data()), SIPX_SAFENULL(msgRouteToUri.toString().data()), SIPX_SAFENULL(routeType.data()));
         if(routeStatus != OS_SUCCESS) 
             osPrintf("forwardingRules.getRoute returned: %d\n",
                     routeStatus);
@@ -1095,7 +1095,7 @@ main(int argc, char* argv[])
             {
                sipUserAgent.printStatus();
                sipUserAgent.getMessageLog(buffer);
-               printf("=================>\n%s\n", buffer.data());
+               printf("=================>\n%s\n", SIPX_SAFENULL(buffer.data()));
             }
          }
       }

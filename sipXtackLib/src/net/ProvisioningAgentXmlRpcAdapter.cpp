@@ -55,7 +55,7 @@ ProvisioningAgentXmlRpcAdapter::ProvisioningAgentXmlRpcAdapter(const Provisionin
 
    OsSysLog::add(FAC_ACD, PRI_DEBUG,
                  "Creating XmlRpcDispatch on port: %d(%s)",
-                 serverPort, secureTransport ? "SSL" : "NON-SSL");
+                 serverPort, SIPX_SAFENULL(secureTransport ? "SSL" : "NON-SSL"));
 }
 
 

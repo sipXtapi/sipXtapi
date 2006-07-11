@@ -11,6 +11,7 @@
 #include <assert.h>
 
 // APPLICATION INCLUDES
+#include <os/OsDefs.h>
 #include <net/SipTcpServer.h>
 #include <net/SipUserAgent.h>
 #include <os/OsDateTime.h>
@@ -40,7 +41,7 @@ SipTcpServer::SipTcpServer(int port,
 {   
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipTcpServer::_ port = %d, taskName = '%s', bUseNextAvailablePort = %d, szBindAddr = '%s'",
-                 port, taskName, bUseNextAvailablePort, szBindAddr);
+                 port, SIPX_SAFENULL(taskName), bUseNextAvailablePort, SIPX_SAFENULL(szBindAddr));
 
    mServerPort = port ;
    mpServerBrokerListener = new SipServerBrokerListener(this);
@@ -236,7 +237,7 @@ void SipTcpServer::shutdownListener()
 {
 #   ifdef TEST_PRINT
     osPrintf("Sip%sServer::shutdownListener() - before requestShutDown\n",
-        mProtocolString.data());
+        SIPX_SAFENULL(mProtocolString.data()));
 #   endif
     requestShutdown();
 
@@ -305,19 +306,19 @@ UtlBoolean SipTcpServer::SipServerBrokerListener::handleMessage(OsMsg& eventMess
             clientSocket->getRemoteHostIp(&hostAddress, &hostPort);
 
             OsSysLog::add(FAC_SIP, PRI_DEBUG, "Sip%sServer::run client: %p %s:%d",
-                mpOwner->mProtocolString.data(), client, hostAddress.data(), hostPort);
+                SIPX_SAFENULL(mpOwner->mProtocolString.data()), client, SIPX_SAFENULL(hostAddress.data()), hostPort);
 
             UtlBoolean clientStarted = client->start();
             if(!clientStarted)
             {
-                OsSysLog::add(FAC_SIP, PRI_ERR, "SIP %s Client failed to start", mpOwner->mProtocolString.data());
+                OsSysLog::add(FAC_SIP, PRI_ERR, "SIP %s Client failed to start", SIPX_SAFENULL(mpOwner->mProtocolString.data()));
             }
             mpOwner->addClient(client);
             bRet = TRUE;
         }
         else
         {
-            OsSysLog::add(FAC_SIP, PRI_ERR, "SIP %s Client received spurious message", mpOwner->mProtocolString.data());
+            OsSysLog::add(FAC_SIP, PRI_ERR, "SIP %s Client received spurious message", SIPX_SAFENULL(mpOwner->mProtocolString.data()));
         }
     }
     

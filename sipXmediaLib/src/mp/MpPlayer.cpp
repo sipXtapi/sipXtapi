@@ -154,7 +154,7 @@ void MpPlayer::fireEvent(PlayerState state)
    OsLock lock(mListenerLock) ;
 
 #ifdef MP_STREAM_DEBUG /* [ */
-   osPrintf("MpPlayer: %s\n", getEventString(state)) ;
+   osPrintf("MpPlayer: %s\n", SIPX_SAFENULL(getEventString(state))) ;
 #endif /* MP_STREAM_DEBUG ] */
 
    // Notify Listeners

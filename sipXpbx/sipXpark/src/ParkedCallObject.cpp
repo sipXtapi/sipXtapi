@@ -68,14 +68,14 @@ OsStatus ParkedCallObject::playAudio()
 {
    OsStatus result = OS_SUCCESS;
 
-   OsSysLog::add(FAC_ACD, PRI_DEBUG, "CallId %s is requesting to play the wavefile", mCallId.data());
+   OsSysLog::add(FAC_ACD, PRI_DEBUG, "CallId %s is requesting to play the wavefile", SIPX_SAFENULL(mCallId.data()));
 
    // Create an audio player and queue up the audio to be played.
    mpCallManager->createPlayer(MpPlayer::STREAM_PLAYER, mCallId, mFile.data(), STREAM_SOUND_REMOTE | STREAM_FORMAT_WAV, &mpPlayer) ;
 
    if (mpPlayer == NULL)
    {
-      OsSysLog::add(FAC_ACD, PRI_ERR, "CallId %s: Failed to create player", mCallId.data());
+      OsSysLog::add(FAC_ACD, PRI_ERR, "CallId %s: Failed to create player", SIPX_SAFENULL(mCallId.data()));
       return OS_FAILED;
    }
 
@@ -83,19 +83,19 @@ OsStatus ParkedCallObject::playAudio()
 
    if (mpPlayer->realize(TRUE) != OS_SUCCESS)
    {
-      OsSysLog::add(FAC_ACD, PRI_ERR, "ParkedCallObject::playAudio - CallId %s: Failed to realize player", mCallId.data());
+      OsSysLog::add(FAC_ACD, PRI_ERR, "ParkedCallObject::playAudio - CallId %s: Failed to realize player", SIPX_SAFENULL(mCallId.data()));
       return OS_FAILED;
    }
 
    if (mpPlayer->prefetch(TRUE) != OS_SUCCESS)
    {
-      OsSysLog::add(FAC_ACD, PRI_ERR, "ParkedCallObject::playAudio - CallId %s: Failed to prefetch player", mCallId.data());
+      OsSysLog::add(FAC_ACD, PRI_ERR, "ParkedCallObject::playAudio - CallId %s: Failed to prefetch player", SIPX_SAFENULL(mCallId.data()));
       return OS_FAILED;
    }
 
    if (mpPlayer->play(FALSE) != OS_SUCCESS)
    {
-      OsSysLog::add(FAC_ACD, PRI_ERR, "ParkedCallObject::playAudio - CallId %s: Failed to play", mCallId.data());
+      OsSysLog::add(FAC_ACD, PRI_ERR, "ParkedCallObject::playAudio - CallId %s: Failed to play", SIPX_SAFENULL(mCallId.data()));
       return OS_FAILED;
    }
    OsSysLog::add(FAC_ACD, PRI_DEBUG, "ParkedCallObject::playAudio - Successful");

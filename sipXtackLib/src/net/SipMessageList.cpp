@@ -9,6 +9,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include <os/OsDefs.h>
 #include <net/SipMessageList.h>
 
 // EXTERNAL FUNCTIONS
@@ -281,12 +282,12 @@ SipMessageList::remove( SipMessage* message )
          UtlString listMessageStr;
          int listMessageLen;
          listMessage->getBytes(&listMessageStr, &listMessageLen);
-         osPrintf("\n-------\nSipMessageList::remove List message %s \n++++++\n",listMessageStr.data());
+         osPrintf("\n-------\nSipMessageList::remove List message %s \n++++++\n",SIPX_SAFENULL(listMessageStr.data()));
 
          UtlString MessageStr;
          int MessageLen;
          message->getBytes(&MessageStr, &MessageLen);
-         osPrintf("\nSipMessageList::remove parameter Message %s \n-------\n",MessageStr.data());
+         osPrintf("\nSipMessageList::remove parameter Message %s \n-------\n",SIPX_SAFENULL(MessageStr.data()));
       #endif
 
         if(listMessage == message)
@@ -403,8 +404,8 @@ void SipMessageList::printDebugTable()
         if (method.length() > DBG_TBL_MAX_FIELD)
             method.remove(DBG_TBL_MAX_FIELD) ;
 
-        osPrintf(DBG_TBL_FORMAT_STR, toURI.data(), callId.data(),
-                method.data(), iCseq, bIsResponse ? "FALSE" : "TRUE") ;
+        osPrintf(DBG_TBL_FORMAT_STR, SIPX_SAFENULL(toURI.data()), SIPX_SAFENULL(callId.data()),
+                SIPX_SAFENULL(method.data()), iCseq, bIsResponse ? "FALSE" : "TRUE") ;
     }
     osPrintf("\n") ;
 

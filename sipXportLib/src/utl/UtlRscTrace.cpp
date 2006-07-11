@@ -105,13 +105,13 @@ void UtlRscTrace::addAllocCnt(int size,
     long  ts;
 #ifdef _VXWORKS
     ts = *osTimerCtr - sStartTime;
-        sprintf(buf, "0x%08x 0x%08x %6d %12d %s %s %6d %6d %6d", taskId, addr, size, ts, taskName(taskId), 
-                                                                                        name, pArg, priority, options);
+        sprintf(buf, "0x%08x 0x%08x %6d %12d %s %s %6d %6d %6d", taskId, addr, size, ts, SIPX_SAFENULL(taskName(taskId)), 
+                                                                                        SIPX_SAFENULL(name), pArg, priority, options);
 
 #else 
         time( (time_t*)&ts );
         sprintf(buf, "0x%08x 0x%08x %6d %12d %s %6d %6d %6d", taskId, addr, size, ts, 
-                                                                                        name, pArg, priority, options);
+                                                                                        SIPX_SAFENULL(name), pArg, priority, options);
 #endif
 
         if (OS_SUCCESS != mUtlRscStore.insert(addr, buf))
@@ -137,11 +137,11 @@ void UtlRscTrace::addAllocCnt(int addr,
     long  ts;
 #ifdef _VXWORKS
     ts = *osTimerCtr - sStartTime;
-        sprintf(buf, "0x%08x 0x%08x %12d %s %s", taskId, addr, ts, taskName(taskId), name);
+        sprintf(buf, "0x%08x 0x%08x %12d %s %s", taskId, addr, ts, SIPX_SAFENULL(taskName(taskId)), SIPX_SAFENULL(name));
 
 #else 
         time( (time_t*)&ts );
-        sprintf(buf, "0x%08x 0x%08x %12d %s", taskId, addr, ts, name);
+        sprintf(buf, "0x%08x 0x%08x %12d %s", taskId, addr, ts, SIPX_SAFENULL(name));
 #endif
 
         if (OS_SUCCESS != mUtlRscStore.insert(addr, buf))
@@ -168,7 +168,7 @@ void UtlRscTrace::addAllocCnt(int options,
     long  ts;
 #ifdef _VXWORKS
     ts = *osTimerCtr - sStartTime;
-        sprintf(buf, "0x%08x 0x%08x %6d %12d %s %6d", taskId, addr, options, ts, taskName(taskId), state);
+        sprintf(buf, "0x%08x 0x%08x %6d %12d %s %6d", taskId, addr, options, ts, SIPX_SAFENULL(taskName(taskId)), state);
 
 #else 
         time( (time_t*)&ts );
@@ -200,7 +200,7 @@ void UtlRscTrace::addAllocCnt(int state,
     long  ts;
 #ifdef _VXWORKS
     ts = *osTimerCtr - sStartTime;
-        sprintf(buf, "0x%08x 0x%08x %6d %12d %s %6d %6d", taskId, addr, state, ts, taskName(taskId), timerId, type);
+        sprintf(buf, "0x%08x 0x%08x %6d %12d %s %6d %6d", taskId, addr, state, ts, SIPX_SAFENULL(taskName(taskId)), timerId, type);
 
 #else 
         time( (time_t*)&ts );
@@ -230,7 +230,7 @@ void UtlRscTrace::addAllocCnt(int size,
     long  ts;
 #ifdef _VXWORKS
     ts = *osTimerCtr - sStartTime;
-        sprintf(buf, "0x%08x 0x%08x %6d %12d %s", taskId, addr, size, ts, taskName(taskId));
+        sprintf(buf, "0x%08x 0x%08x %6d %12d %s", taskId, addr, size, ts, SIPX_SAFENULL(taskName(taskId)));
 
 #else 
         time( (time_t*)&ts );
@@ -259,7 +259,7 @@ void UtlRscTrace::addAllocCnt(int addr,
     long  ts;
 #ifdef _VXWORKS
     ts = *osTimerCtr - sStartTime;
-        sprintf(buf, "0x%08x 0x%08x %12d %s", taskId, addr, ts, taskName(taskId));
+        sprintf(buf, "0x%08x 0x%08x %12d %s", taskId, addr, ts, SIPX_SAFENULL(taskName(taskId)));
 
 #else 
         time( (time_t*)&ts );
@@ -374,7 +374,7 @@ int UtlRscTrace::allocCnt(int taskId)
                 for (i = 0; i < size; i++)
                 {
                         cnt++;
-                        printf("%s\n", activeRscs[i]);
+                        printf("%s\n", SIPX_SAFENULL(activeRscs[i]));
                 }
                 printf("============================================================================\n");
                 printf("        total current alloc's: %d\n", size);
@@ -387,12 +387,12 @@ int UtlRscTrace::allocCnt(int taskId)
                         if (id == taskId)
                         {
                                 cnt++;
-                                printf("%s\n", activeRscs[i]);
+                                printf("%s\n", SIPX_SAFENULL(activeRscs[i]));
                         }
                 }
                 printf("============================================================================\n");
 #ifdef _VXWORKS
-                printf("current alloc's for %s 0x%08x: %d\n", taskName(taskId), taskId, cnt);
+                printf("current alloc's for %s 0x%08x: %d\n", SIPX_SAFENULL(taskName(taskId)), taskId, cnt);
 #else
                 printf("current alloc's for 0x%08x: %d\n", taskId, cnt);
 #endif

@@ -84,7 +84,7 @@ WebServer::ProcessEvent(
     request.getBytes(&httpString , &len);
     OsSysLog::add(FAC_SIP, PRI_INFO, 
                   "WebServer::ProcessEvent HttpEvent \n%s", 
-                  httpString.data());
+                  SIPX_SAFENULL(httpString.data()));
 
     // get the ACTION CGI variable
     requestContext.getCgiVariable( EVENTTYPE, event );
@@ -111,7 +111,7 @@ WebServer::ProcessEvent(
             {
                OsSysLog::add(FAC_SIP, PRI_ERR, 
                              "WebServer::ProcessEvent no plugin in container for event type '%s'",
-                             event.data()
+                             SIPX_SAFENULL(event.data())
                              );
             }
         }
@@ -119,7 +119,7 @@ WebServer::ProcessEvent(
         {
            OsSysLog::add(FAC_SIP, PRI_WARNING, 
                          "WebServer::ProcessEvent no plugin found for event type '%s'",
-                         event.data()
+                         SIPX_SAFENULL(event.data())
                          );
         }
     }

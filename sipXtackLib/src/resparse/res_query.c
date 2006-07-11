@@ -150,7 +150,7 @@ res_query(name, class, type, answer, anslen)
         }
 #ifdef DEBUG
         if (_res.options & RES_DEBUG)
-                printf(";; res_query(%s, %d, %d)\n", name, class, type);
+                printf(";; res_query(%s, %d, %d)\n", SIPX_SAFENULL(name), class, type);
 #endif
 
         n = res_mkquery(QUERY, name, class, type, NULL, 0, NULL,
@@ -363,7 +363,7 @@ res_local_querydomain(name, domain, class, type, answer, anslen)
 #ifdef DEBUG
         if (_res.options & RES_DEBUG)
                 printf(";; res_local_querydomain(%s, %s, %d, %d)\n",
-                       name, domain?domain:"<Nil>", class, type);
+                       SIPX_SAFENULL(name), SIPX_SAFENULL(domain), class, type);
 #endif
         if (domain == NULL) {
                 /*
@@ -388,7 +388,7 @@ res_local_querydomain(name, domain, class, type, answer, anslen)
                         h_reserrno = NO_RECOVERY;
                         return (-1);
                 }
-                sprintf(nbuf, "%s.%s", name, domain);
+                sprintf(nbuf, "%s.%s", SIPX_SAFENULL(name), SIPX_SAFENULL(domain));
         }
         return (res_query(longname, class, type, answer, anslen));
 }

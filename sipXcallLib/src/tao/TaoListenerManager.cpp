@@ -416,11 +416,11 @@ TaoStatus TaoListenerManager::addEventListener(TaoMessage& rMsg)
                 if (mListenerCnt <= 0)
                 {
                         terminalName = "127.0.0.1";
-                        osPrintf("WARNING - TaoListenerManager::addEventListener: using invalid host, replaced with %s\n", terminalName.data());
+                        osPrintf("WARNING - TaoListenerManager::addEventListener: using invalid host, replaced with %s\n", SIPX_SAFENULL(terminalName.data()));
                 }
                 else
                 {
-                        osPrintf("WARNING - TaoListenerManager::addEventListener: using invalid host %s, listener not added.\n", terminalName.data());
+                        osPrintf("WARNING - TaoListenerManager::addEventListener: using invalid host %s, listener not added.\n", SIPX_SAFENULL(terminalName.data()));
                         return TAO_FAILURE;
                 }
         }
@@ -442,11 +442,11 @@ TaoStatus TaoListenerManager::addCallListener(TaoMessage& rMsg)
                 if (mListenerCnt <= 0)
                 {
                         terminalName = "127.0.0.1";
-                        osPrintf("WARNING - TaoListenerManager::addCallListener: using invalid host, replaced with %s\n", terminalName.data());
+                        osPrintf("WARNING - TaoListenerManager::addCallListener: using invalid host, replaced with %s\n", SIPX_SAFENULL(terminalName.data()));
                 }
                 else
                 {
-                        osPrintf("WARNING - TaoListenerManager::addCallListener: using invalid host %s, listener not added.\n", terminalName.data());
+                        osPrintf("WARNING - TaoListenerManager::addCallListener: using invalid host %s, listener not added.\n", SIPX_SAFENULL(terminalName.data()));
                         return TAO_FAILURE;
                 }
         }
@@ -479,7 +479,7 @@ TaoStatus TaoListenerManager::removeEventListener(TaoMessage& rMsg)
                                 mpListeners[i]->mRef--;
                                 if (mpListeners[i]->mRef <= 0)
                                 {
-                                        osPrintf("*** TaoListenerManager::removeEventListener %s 0x%08x %d\n", terminalName.data(), (int)mpListeners[i], mpListeners[i]->mRef);
+                                        osPrintf("*** TaoListenerManager::removeEventListener %s 0x%08x %d\n", SIPX_SAFENULL(terminalName.data()), (int)mpListeners[i], mpListeners[i]->mRef);
                                         if (mpListeners[i]->mpListenerPtr)
                                         {
                                                 TaoEventListener* pListener = (TaoEventListener*) mpListeners[i]->mpListenerPtr;
@@ -501,14 +501,14 @@ TaoStatus TaoListenerManager::removeEventListener(TaoMessage& rMsg)
                                                 }
                                         }
                                         else
-                                                osPrintf("TaoListenerManager removeEventListener Failure! did not find socket %s\n", terminalName.data());
+                                                osPrintf("TaoListenerManager removeEventListener Failure! did not find socket %s\n", SIPX_SAFENULL(terminalName.data()));
 
                                         if (TAO_SUCCESS == mpAgents->remove(terminalName.data()))
                                         {
-                                                osPrintf(" **** TaoListenerManager removeEventListener socket removed %s ****\n", terminalName.data());
+                                                osPrintf(" **** TaoListenerManager removeEventListener socket removed %s ****\n", SIPX_SAFENULL(terminalName.data()));
                                         }
                                         else
-                                                osPrintf("TaoListenerManager removeEventListener Failure! did not remove socket %s\n", terminalName.data());
+                                                osPrintf("TaoListenerManager removeEventListener Failure! did not remove socket %s\n", SIPX_SAFENULL(terminalName.data()));
                                 }
                         }
                 }

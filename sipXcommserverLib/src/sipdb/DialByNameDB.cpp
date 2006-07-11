@@ -67,7 +67,7 @@ DialByNameDB::DialByNameDB( const UtlString& name ) :
     gdVerboseLoggingEnabled = SIPDBManager::isVerboseLoggingEnabled();
     if (gdVerboseLoggingEnabled)
        OsSysLog::add(FAC_DB, PRI_DEBUG, "DialByNameDB::_  user=%d \"%s\"",
-                    users, name.data());
+                    users, SIPX_SAFENULL(name.data()));
     if ( users == 1 )
     {
         // Load the file implicitly

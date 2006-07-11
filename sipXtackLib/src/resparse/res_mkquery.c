@@ -133,7 +133,7 @@ res_mkquery(op, dname, class, type, data, datalen, newrr_in, buf, buflen)
 #ifdef DEBUG
         if (_res.options & RES_DEBUG)
                 printf(";; res_mkquery(%d, %s, %d, %d)\n",
-                       op, dname, class, type);
+                       op, SIPX_SAFENULL(dname), class, type);
 #endif
         /*
          * Initialize header fields.

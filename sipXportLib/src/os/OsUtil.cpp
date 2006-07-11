@@ -302,7 +302,7 @@ OsStatus OsUtil::checkDnsAvailability(char *dnsServer, OsTime timeout)
 
         if(! server)
         {
-                osPrintf("DNS failed to lookup host: %s\n",dnsServer);
+                osPrintf("DNS failed to lookup host: %s\n",SIPX_SAFENULL(dnsServer));
                 retval = OS_DNS_UNAVAILABLE;
         }
 
@@ -396,13 +396,13 @@ void OsUtil::getCurTime(UtlString& timeStr, const struct tm* pCurTime,
       sprintf(str, "%d:%02d:%02d%s", hour,
                    pCurTime->tm_min,
                    pCurTime->tm_sec,
-                   isAm ? "A" : "P");
+                   SIPX_SAFENULL(isAm ? "A" : "P"));
    }
    else if (maxLen >= 6)
    {
       sprintf(str, "%d:%02d%s", hour,
               pCurTime->tm_min,
-                   isAm ? "A" : "P");
+                   SIPX_SAFENULL(isAm ? "A" : "P"));
    }
    else
    {

@@ -343,7 +343,7 @@ void Url::setUrlType(const char* urlProtocol)
       if ( UnknownUrlScheme == mScheme )
       {
          OsSysLog::add(FAC_SIP, PRI_ERR, "Url::setUrlType unsupported Url scheme '%s'",
-                       urlProtocol
+                       SIPX_SAFENULL(urlProtocol)
                        );
       }
    }
@@ -1093,30 +1093,30 @@ void Url::dump()
 {
     UtlString proto;
     getUrlType(proto);
-    printf("Url type: '%s'\n", proto.data());
+    printf("Url type: '%s'\n", SIPX_SAFENULL(proto.data()));
 
     UtlString disp;
     getDisplayName(disp);
-    printf("DisplayName: '%s'\n", disp.data());
+    printf("DisplayName: '%s'\n", SIPX_SAFENULL(disp.data()));
 
     UtlString user;
     getUserId(user);
-    printf("UserId: '%s'\n", user.data());
+    printf("UserId: '%s'\n", SIPX_SAFENULL(user.data()));
 
     UtlString pwd;
     getPassword(pwd);
-    printf("Password: '%s'\n", pwd.data());
+    printf("Password: '%s'\n", SIPX_SAFENULL(pwd.data()));
 
     UtlString server;
     getHostAddress(server);
-    printf("Address: '%s'\n", server.data());
+    printf("Address: '%s'\n", SIPX_SAFENULL(server.data()));
 
     int port = getHostPort();
     printf("Port: %d\n", port);
 
     UtlString callId;
     getHeaderParameter("call-id", callId);
-    printf("Call-Id: '%s'\n", callId.data());
+    printf("Call-Id: '%s'\n", SIPX_SAFENULL(callId.data()));
 
     UtlString name;
     UtlString value;
@@ -1124,7 +1124,7 @@ void Url::dump()
     printf("\nHeader Parameters:\n");
     while(getHeaderParameter(index, name, value))
     {
-        printf("'%s'='%s'\n", name.data(), value.data());
+        printf("'%s'='%s'\n", SIPX_SAFENULL(name.data()), SIPX_SAFENULL(value.data()));
         index++;
     }
 
@@ -1132,7 +1132,7 @@ void Url::dump()
     printf("\nField Parameters:\n");
     while(getFieldParameter(index, name, value))
     {
-        printf("'%s'='%s'\n", name.data(), value.data());
+        printf("'%s'='%s'\n", SIPX_SAFENULL(name.data()), SIPX_SAFENULL(value.data()));
         index++;
     }
 
@@ -1140,7 +1140,7 @@ void Url::dump()
     printf("\nURL Parameters:\n");
     while(getUrlParameter(index, name, value))
     {
-        printf("'%s'='%s'\n", name.data(), value.data());
+        printf("'%s'='%s'\n", SIPX_SAFENULL(name.data()), SIPX_SAFENULL(value.data()));
         index++;
     }
 }
@@ -1175,7 +1175,7 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
    {
       OsSysLog::add(FAC_SIP, PRI_ERR,
                     "Url::parseString Invalid addr-spec found (probably name-addr format): '%s'",
-                    urlString);
+                    SIPX_SAFENULL(urlString));
    }
 
    int workingOffset = 0; // begin at the beginning...
@@ -1319,7 +1319,7 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
          OsSysLog::add(FAC_SIP, PRI_ERR,
                        "Url::parseString no valid host found at char %d in '%s', "
                        "isAddrSpec = %d",
-                       workingOffset, urlString, isAddrSpec
+                       workingOffset, SIPX_SAFENULL(urlString), isAddrSpec
                        );
       }
    }

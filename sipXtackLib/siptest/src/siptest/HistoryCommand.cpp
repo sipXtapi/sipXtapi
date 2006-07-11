@@ -82,7 +82,7 @@ int HistoryCommand::execute(int argc, char* argv[])
         {
                 UtlString usage;
                 getUsage(argv[0], &usage);
-                printf("%s", usage.data());
+                printf("%s", SIPX_SAFENULL(usage.data()));
                 commandStatus = CommandProcessor::COMMAND_BAD_SYNTAX;
         }
         else
@@ -99,7 +99,7 @@ int HistoryCommand::execute(int argc, char* argv[])
                 historyIndex++)
                 {
                         commandProcessor->getHistory(historyIndex, &commandLine);
-                        printf("%d: %s\n", historyIndex, commandLine.data());
+                        printf("%d: %s\n", historyIndex, SIPX_SAFENULL(commandLine.data()));
                 }
                 commandStatus = CommandProcessor::COMMAND_SUCCESS;
         }

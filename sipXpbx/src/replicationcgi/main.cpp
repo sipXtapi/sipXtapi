@@ -179,7 +179,7 @@ getLogFilePath(UtlString& logFilePath)
    if (varpath != NULL && varpath[0] != '\0')
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "getLogFilePath env variable '%s' set to '%s'"
-                    ,SIPX_DB_CFG_PATH, varpath);
+                    ,SIPX_SAFENULL(SIPX_DB_CFG_PATH), SIPX_SAFENULL(varpath));
       candidate = varpath;
 
       // If the last character is a separator, strip it.
@@ -196,7 +196,7 @@ getLogFilePath(UtlString& logFilePath)
       else
       {
          OsSysLog::add(FAC_SIP, PRI_ERR, "getLogFilePath env variable '%s' has value '%s' but is not valid"
-                       ,SIPX_DB_CFG_PATH, varpath);
+                       ,SIPX_SAFENULL(SIPX_DB_CFG_PATH), SIPX_SAFENULL(varpath));
       }
    }
 
@@ -204,7 +204,7 @@ getLogFilePath(UtlString& logFilePath)
    if (!found)
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "getLogFilePath trying default '%s'"
-                    ,REPLICATION_DEFAULT_LOG_DIR);
+                    ,RSIPX_SAFENULL(EPLICATION_DEFAULT_LOG_DIR));
       candidate = REPLICATION_DEFAULT_LOG_DIR;
 
       if (OsFileSystem::exists(candidate))
@@ -215,7 +215,7 @@ getLogFilePath(UtlString& logFilePath)
       else
       {
          OsSysLog::add(FAC_SIP, PRI_ERR, "getLogFilePath default '%s' is not valid"
-                    ,REPLICATION_DEFAULT_LOG_DIR);
+                    ,SIPX_SAFENULL(REPLICATION_DEFAULT_LOG_DIR));
       }
    }
 
@@ -333,7 +333,7 @@ insertRow (const UtlHashMap& nvPairs, const UtlString& type)
     if ( type.compareTo(CREDENTIAL , UtlString::ignoreCase)==0 ) {
 
 OsSysLog::add(FAC_REPLICATION_CGI, PRI_DEBUG, "before insertrow to credential db" );
-OsSysLog::add(FAC_REPLICATION_CGI, PRI_DEBUG, "pintoken= %s", (*((UtlString*)nvPairs.findValue(&pintokenKey))).data() );
+OsSysLog::add(FAC_REPLICATION_CGI, PRI_DEBUG, "pintoken= %s", SIPX_SAFENULL((*((UtlString*)nvPairs.findValue(&pintokenKey))).data()) );
 
         CredentialDB::getInstance()->
             insertRow (
@@ -974,36 +974,36 @@ void handleInput(const char* pBuf )
                      //update databases.
 
                      OsSysLog::add(FAC_REPLICATION_CGI,PRI_DEBUG,
-                           "before cleaning %s database", mappedLocation.data());
+                           "before cleaning %s database", SIPX_SAFENULL(mappedLocation.data()));
 
                      cleanDatabase(mappedLocation);
 
                      OsSysLog::add(FAC_REPLICATION_CGI,PRI_DEBUG,
-                           "after cleaning %s database", mappedLocation.data());
+                           "after cleaning %s database", SIPX_SAFENULL(mappedLocation.data()));
 
                      // If the payload data exceeds 5,000 characters, only print
                      // the first 5,000 characters and follow them with "...".
                      OsSysLog::add(FAC_REPLICATION_CGI,PRI_DEBUG,
                                    "before updating %s database with '%.5000s%s'",
-                                   mappedLocation.data(), pDecodedPayLoadData,
-                                   (iDecodedLength <= 5000 ? "" : "..."));
+                                   SIPX_SAFENULL(mappedLocation.data()), SIPX_SAFENULL(pDecodedPayLoadData),
+                                   SIPX_SAFENULL((iDecodedLength <= 5000 ? "" : "...")));
 
                      // Load all rows from an external XML Script
                      OsStatus status = updateDB( pDecodedPayLoadData, mappedLocation );
 
                      OsSysLog::add(FAC_REPLICATION_CGI,PRI_DEBUG,
-                           "after updating %s database", mappedLocation.data());
+                           "after updating %s database", SIPX_SAFENULL(mappedLocation.data()));
 
 
                      if( status== OS_SUCCESS ){
                          // Checkpoint each of the DBs
                         OsSysLog::add(FAC_REPLICATION_CGI,PRI_DEBUG,
-                              "before storing %s database to an xml file", mappedLocation.data());
+                              "before storing %s database to an xml file", SIPX_SAFENULL(mappedLocation.data()));
 
                         storeDatabase(mappedLocation);
 
                         OsSysLog::add(FAC_REPLICATION_CGI,PRI_DEBUG,
-                              "after storing %s database to an xml file", mappedLocation.data());
+                              "after storing %s database to an xml file", SIPX_SAFENULL(mappedLocation.data()));
 
                      }
 
@@ -1150,7 +1150,7 @@ main( int argc, char *argv[] )
                    OsSysLog::add(FAC_REPLICATION_CGI,PRI_DEBUG, "replication was successful");
 
                }
-               printf("%s", responseData.data());
+               printf("%s", SIPX_SAFENULL(responseData.data()));
 
 
                delete []buff;
@@ -1180,7 +1180,7 @@ main( int argc, char *argv[] )
                   responseData.append( "replication was successful");
                    OsSysLog::add(FAC_REPLICATION_CGI,PRI_DEBUG, "replication was successful");
                }
-               printf("%s\n", responseData.data());
+               printf("%s\n", SIPX_SAFENULL(responseData.data()));
             }
          }else
          {

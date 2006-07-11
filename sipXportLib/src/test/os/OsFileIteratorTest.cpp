@@ -166,7 +166,7 @@ public:
                 printf( Trials[trial].expected[i]
                         ? "\n! Expression '%s' did not find '%s'\n"
                         : "\n! Expression '%s' should not have found '%s'\n",
-                        Trials[trial].regex, TestFiles[i]
+                        SIPX_SAFENULL(Trials[trial].regex), SIPX_SAFENULL(TestFiles[i])
                    );
              }
           }

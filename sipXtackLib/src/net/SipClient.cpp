@@ -77,7 +77,7 @@ SipClient::SipClient(OsSocket* socket) :
        UtlString remoteSocketHost;
        socket->getRemoteHostName(&remoteSocketHost);
                 osPrintf("SipClient created with socket descriptor: %d host: %s port: %d\n",
-                        socket->getSocketDescriptor(), remoteSocketHost.data(),
+                        socket->getSocketDescriptor(), SIPX_SAFENULL(remoteSocketHost.data()),
             socket->getRemoteHostPort());
 #endif
    }
@@ -109,7 +109,7 @@ SipClient::~SipClient()
         // cause the run method to exit.
 #ifdef TEST_PRINT
         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::~SipClient 0%x socket 0%x closing %s socket",
-            this, clientSocket, ipProtocolString(mSocketType));
+            this, clientSocket, SIPX_SAFENULL(ipProtocolString(mSocketType)));
 
         osPrintf("SipClient::~SipClient closing socket\n");
 #endif
@@ -241,12 +241,12 @@ int SipClient::run(void* runArg)
                                     "sock addr: %s via addr: %s rcv addr: %s "
                                     "sock type: %s read ready %s",
                                     this, clientSocket,
-                                    mRemoteHostName.data(),
-                                    mRemoteSocketAddress.data(),
-                                    mRemoteViaAddress.data(),
-                                    mReceivedAddress.data(),
-                                    OsSocket::ipProtocolString(clientSocket->getIpProtocol()),
-                                    isReadyToRead() ? "READY" : "NOT READY"
+                                    SIPX_SAFENULL(mRemoteHostName.data()),
+                                    SIPX_SAFENULL(mRemoteSocketAddress.data()),
+                                    SIPX_SAFENULL(mRemoteViaAddress.data()),
+                                    SIPX_SAFENULL(mReceivedAddress.data()),
+                                    SIPX_SAFENULL(OsSocket::ipProtocolString(clientSocket->getIpProtocol())),
+                                    SIPX_SAFENULL(isReadyToRead() ? "READY" : "NOT READY")
                          );
                    }
 #ifdef LOG_TIME
@@ -283,7 +283,7 @@ int SipClient::run(void* runArg)
 #               if 0 // turn on to check socket address problems
                 OsSysLog::add(FAC_SIP, PRI_DEBUG,
                               "SipClient::run new msg got addr %s:%d",
-                              fromIpAddress.data(), fromPort);
+                              SIPX_SAFENULL(fromIpAddress.data()), fromPort);
 #               endif
             }
             else
@@ -313,8 +313,8 @@ int SipClient::run(void* runArg)
                     clientSocket->getRemoteHostName(&remoteHostName);
                     OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                   "Shutting down client: %s due to failed socket (%d)? bytes: %d isOk: %s",
-                                  remoteHostName.data(), clientSocket->getSocketDescriptor(),
-                                  bytesRead, (clientSocket->isOk() ? "OK" : "NO")
+                                  SIPX_SAFENULL(remoteHostName.data()), clientSocket->getSocketDescriptor(),
+                                  bytesRead, SIPX_SAFENULL((clientSocket->isOk() ? "OK" : "NO"))
                                   );
 
                     clientSocket->close();
@@ -326,7 +326,7 @@ int SipClient::run(void* runArg)
                 numFailures = 0;
                     touch();
 #ifdef TEST_PRINT
-               osPrintf("Read SIP message:\n%s====================END====================\n", buffer.data());
+               osPrintf("Read SIP message:\n%s====================END====================\n", SIPX_SAFENULL(buffer.data()));
 #endif
                 if(sipUserAgent)
                 {
@@ -356,7 +356,7 @@ int SipClient::run(void* runArg)
                        logMessage.append("====================END====================\n");
 
                        sipUserAgent->logMessage(logMessage.data(), logMessage.length());
-                       OsSysLog::add(FAC_SIP_INCOMING, PRI_INFO, "%s", logMessage.data());
+                       OsSysLog::add(FAC_SIP_INCOMING, PRI_INFO, "%s", SIPX_SAFENULL(logMessage.data()));
                     }
 
                     // Set the date field if not present
@@ -499,7 +499,7 @@ int SipClient::run(void* runArg)
                                   (clientSocket->getIpProtocol() ==
                                    OsSocket::UDP) ? PRI_ERR : PRI_DEBUG,
                                   "SipClient::run buffer residual bytes: %d\n===>%s<===\n",
-                                  buffer.length(), buffer.data());
+                                  buffer.length(), SIPX_SAFENULL(buffer.data()));
                 }
             } // if bytesRead > 0
 
@@ -507,7 +507,7 @@ int SipClient::run(void* runArg)
             UtlString timeString;
             eventTimes.getLogString(timeString);
             OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::run time log: %s",
-                timeString.data());
+                SIPX_SAFENULL(timeString.data()));
 #endif
             if(message)
             {
@@ -584,7 +584,7 @@ UtlBoolean SipClient::send(SipMessage* message)
             UtlString timeString;
             eventTimes.getLogString(timeString);
             OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::send time log: %s",
-                          timeString.data());
+                          SIPX_SAFENULL(timeString.data()));
 #endif
 
             if(sendOk)
@@ -865,7 +865,7 @@ UtlBoolean SipClient::isConnectedTo(UtlString& hostName, int hostPort)
         // as this is a bad spoofing/denial of service whole
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
                       "SipClient::isConnectedTo matches %s:%d but is not trusted",
-                      mRemoteViaAddress.data(), mRemoteViaPort);
+                      SIPX_SAFENULL(mRemoteViaAddress.data()), mRemoteViaPort);
     }
 
     return(isSame);

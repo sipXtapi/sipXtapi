@@ -298,9 +298,9 @@ UtlBoolean OsEncryption::openSslError(void)
         errbuff[0] = 0;
         ERR_error_string_n(err, errbuff, sizeof(errbuff));
         osPrintf("OpenSLL ERROR:\n\tlib:%s\n\tfunction:%s\n\treason:%s\n",
-            ERR_lib_error_string(err),
-            ERR_func_error_string(err),
-            ERR_reason_error_string(err));
+            SIPX_SAFENULL(ERR_lib_error_string(err)),
+            SIPX_SAFENULL(ERR_func_error_string(err)),
+            SIPX_SAFENULL(ERR_reason_error_string(err)));
         ERR_free_strings();
 
         return TRUE;

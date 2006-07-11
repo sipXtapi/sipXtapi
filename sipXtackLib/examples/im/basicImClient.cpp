@@ -17,6 +17,7 @@
 // APPLICATION INCLUDES
 #include <net/SipUserAgent.h>
 #include <net/SipPimClient.h>
+#include <os/OsDefs.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -95,7 +96,7 @@ void imTextPrinter(const UtlString& fromAddress,
         fromUrl.getUserId(displayName);
     }
 
-    printf("\n%s: %s\n", displayName.data(), textMessage);
+    printf("\n%s: %s\n", SIPX_SAFENULL(displayName.data()), SIPX_SAFENULL(textMessage));
 }
 
 int main(int argc, const char* argv[])
@@ -111,8 +112,8 @@ int main(int argc, const char* argv[])
     // Get the options and parameters
     parseArgs(argc, argv);
 
-    printf("From: %s\n", fromAor ? fromAor : "null");
-    printf("To: %s\n", toAor ? toAor : "null");
+    printf("From: %s\n", SIPX_SAFENULL(fromAor));
+    printf("To: %s\n", SIPX_SAFENULL(toAor));
     printf("SIP Port: %d\n", sipPort);
 
     // Create a user agent
@@ -144,7 +145,7 @@ int main(int argc, const char* argv[])
     if ( doPrompt )
     {
        printf("Enter IM text or -h for help\n");
-       printf("%s: ", fromDisplay.data());
+       printf("%s: ", SIPX_SAFENULL(fromDisplay.data()));
     }
 
     // Main loop: collect text and send it
@@ -200,13 +201,13 @@ int main(int argc, const char* argv[])
             if(sipStatusCode >= 300)
             {
                 printf("Failed to send message: %s\n",
-                    sipStatusText.data());
+                    SIPX_SAFENULL(sipStatusText.data()));
             }
         }
 
         if ( doPrompt )
         {
-            printf("%s: ", fromDisplay.data());
+            printf("%s: ", SIPX_SAFENULL(fromDisplay.data()));
         }
     }
     return(0);

@@ -161,8 +161,8 @@ CallManager::CallManager(UtlBoolean isRequredUserIdMatch,
     }
 #ifdef TEST
     OsSysLog::add(FAC_CP, PRI_DEBUG, "SIP forward on busy URL: %s\nSIP unconditional forward URL: %s\nSIP no answer timeout:%d URL: %s\n",
-        mSipForwardOnBusy.data(), mForwardUnconditional.data(),
-        forwardOnNoAnswerSeconds, mForwardOnNoAnswer.data());
+        SIPX_SAFENULL(mSipForwardOnBusy.data()), SIPX_SAFENULL(mForwardUnconditional.data()),
+        forwardOnNoAnswerSeconds, SIPX_SAFENULL(mForwardOnNoAnswer.data()));
 #endif
 
     mLocale = locale ? locale : "";
@@ -247,8 +247,8 @@ CallManager::CallManager(UtlBoolean isRequredUserIdMatch,
 
 #ifdef TEST_PRINT
     OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager: localAddress: %s mLocalAddress: %s publicAddress: %s mPublicAddress %s\n",
-        localAddress, mLocalAddress.data(), publicAddress,
-        mPublicAddress.data());
+        SIPX_SAFENULL(localAddress), SIPX_SAFENULL(mLocalAddress.data()), SIPX_SAFENULL(publicAddress),
+        SIPX_SAFENULL(mPublicAddress.data()));
 #endif
 
     mpCodecFactory = pCodecFactory;
@@ -444,7 +444,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
             UtlString subTypeString;
             getEventSubTypeString((enum CpCallManager::EventSubTypes)msgSubType,
                 subTypeString);
-            sprintf(eventDescription, "%s (%d)", subTypeString.data(),
+            sprintf(eventDescription, "%s (%d)", SIPX_SAFENULL(subTypeString.data()),
                 msgSubType);
             addHistoryEvent(eventDescription);
         }
@@ -484,7 +484,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                               // Otherwise, get the call id from the message.
                               sipMsg->getCallIdField(&callId);
                            }
-                           OsSysLog::add(FAC_CP, PRI_DEBUG, "Message callid: %s\n", callId.data());
+                           OsSysLog::add(FAC_CP, PRI_DEBUG, "Message callid: %s\n", SIPX_SAFENULL(callId.data()));
                         }
 
                         /////////////////
@@ -736,7 +736,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                 ((CpMultiStringMessage&)eventMessage).getString4Data(metaCallId2);
                 ((CpMultiStringMessage&)eventMessage).getString5Data(metaCallId3);
 
-                OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager:: create call %s\n", callId.data());
+                OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager:: create call %s\n", SIPX_SAFENULL(callId.data()));
 
                 metaEventCallIds[0] = metaCallId0.data();
                 metaEventCallIds[1] = metaCallId1.data();
@@ -937,7 +937,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                     // But output a debugging message, so the programmer can check
                     // to see that the CallId was valid in the past.
                     OsSysLog::add(FAC_CP, PRI_DEBUG, "Cannot find CallId: %s to post message: %d\n",
-                        callId.data(), msgSubType);
+                        SIPX_SAFENULL(callId.data()), msgSubType);
                     if(   msgSubType == CP_GET_NUM_CONNECTIONS ||
                         msgSubType == CP_GET_CONNECTIONS ||
                         msgSubType == CP_GET_CALLED_ADDRESSES ||
@@ -972,7 +972,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                         if (eventWithoutCall)
                         {
                             OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::handleMessage Received a message subtype %d request on invalid callId '%s'; signaled event in message\n",
-                                msgSubType, callId.data());
+                                msgSubType, SIPX_SAFENULL(callId.data()));
 
                             // Test if already signaled here and
                             // releasing the event if it is.
@@ -987,7 +987,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                         else
                         {
                             OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::handleMessage Received a message subtype %d request on invalid callId '%s'; no event to signal\n",
-                                msgSubType, callId.data());
+                                msgSubType, SIPX_SAFENULL(callId.data()));
                         }
                     }
                     else if (msgSubType == CP_REMOVE_DTMF_EVENT)
@@ -1158,7 +1158,7 @@ void CallManager::createCall(UtlString* callId,
     {
         getNewCallId(callId);
     }
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::createCall new Id: %s\n", callId->data());
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::createCall new Id: %s\n", SIPX_SAFENULL(callId->data()));
     CpMultiStringMessage callMessage(CP_CREATE_CALL,
         callId->data(),
         numCalls >= 1 ? callIds[0] : NULL,
@@ -1293,7 +1293,7 @@ void CallManager::drop(const char* callId)
 {
     CpMultiStringMessage callMessage(CP_DROP, callId);
     OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::drop is called for call %s",
-                  callId);
+                  SIPX_SAFENULL(callId));
     postMessage(callMessage);
 }
 
@@ -1313,7 +1313,7 @@ void CallManager::sendInfo(const char* callId,
 PtStatus CallManager::transfer(const char* targetCallId, const char* originalCallId)
 {
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManger::transfer targetCallId=%s, originalCallId=%s\n", targetCallId, originalCallId) ;
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManger::transfer targetCallId=%s, originalCallId=%s\n", SIPX_SAFENULL(targetCallId), SIPX_SAFENULL(originalCallId)) ;
 #endif
 
     PtStatus returnCode =  PT_SUCCESS;
@@ -1355,7 +1355,7 @@ PtStatus CallManager::transfer(const char* targetCallId, const char* originalCal
         transferTargetUrl.toString(transferTargetUrlString);
 
 #ifdef TEST_PRINT
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::transfer transferTargetUrlString=%s, targetCallId=%s\n", transferTargetUrlString.data(), targetCallId);
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::transfer transferTargetUrlString=%s, targetCallId=%s\n", SIPX_SAFENULL(transferTargetUrlString.data()), SIPX_SAFENULL(targetCallId));
 #endif
 
         // Tell the original call to complete the
@@ -1484,7 +1484,7 @@ PtStatus CallManager::transfer_blind(const char* callId, const char* transferToU
 
 #ifdef TEST_PRINT
         OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::transfer type: %d transferUrl: \"%s\"\n",
-            mTransferType, transferTargetUrl.data());
+            mTransferType, SIPX_SAFENULL(transferTargetUrl.data()));
 #endif
 
         // CP_BLIND_TRANSFER (i.e. two call blind transfer)
@@ -1559,7 +1559,7 @@ void CallManager::createPlayer(const char* callId,
 {
     // TO_BE_REMOVED
     OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::createPlayer(MpStreamPlaylistPlayer) for call %s",
-                  callId);
+                  SIPX_SAFENULL(callId));
     int msgtype = CP_CREATE_PLAYLIST_PLAYER;;
 
     OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
@@ -1645,7 +1645,7 @@ void CallManager::destroyPlayer(const char* callId, MpStreamPlaylistPlayer* pPla
 {
     // TO_BE_REMOVED
     OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::destroyPlayer(MpStreamPlaylistPlayer) for call %s",
-                  callId);
+                  SIPX_SAFENULL(callId));
     int msgtype = CP_DESTROY_PLAYLIST_PLAYER;
 
     OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
@@ -2022,7 +2022,7 @@ OsStatus CallManager::getFromField(const char* callId,
         fromUrl.toString(fromField);
 
 #ifdef TEST_PRINT_EVENT
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::getFromField %s\n", fromField.data());
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::getFromField %s\n", SIPX_SAFENULL(fromField.data()));
 #endif
     }
 
@@ -2039,7 +2039,7 @@ OsStatus CallManager::getSession(const char* callId,
                                  SipSession& session)
 {
    OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::getSession callId = '%s', address = '%s'",
-                 callId, address);
+                 SIPX_SAFENULL(callId), SIPX_SAFENULL(address));
     SipSession* sessionPtr = new SipSession;
 #ifdef TEST_PRINT
     OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::getSession allocated session: 0x%x",
@@ -2144,7 +2144,7 @@ UtlBoolean CallManager::sendInDialog(const char* callId,
                                      void* requestListenerData)
 {
     OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::sendInDialog callId = '%s', address = '%s'",
-                 callId, address);
+                 SIPX_SAFENULL(callId), SIPX_SAFENULL(address));
 
     SipMessage* requestCopy = new SipMessage(request);
     OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
@@ -2270,7 +2270,7 @@ OsStatus CallManager::getToField(const char* callId,
         toUrl.toString(toField);
 
 #ifdef TEST_PRINT_EVENT
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::getToField %s\n", toField.data());
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::getToField %s\n", SIPX_SAFENULL(toField.data()));
 #endif
     }
 
@@ -2348,7 +2348,7 @@ OsStatus CallManager::getTerminalConnections(const char* callId, const char* add
             }
 
 #ifdef TEST_PRINT_EVENT
-            OsSysLog::add(FAC_CP, PRI_DEBUG, "got terminal: %s\n", terminalNameCollectable->data());
+            OsSysLog::add(FAC_CP, PRI_DEBUG, "got terminal: %s\n", SIPX_SAFENULL(terminalNameCollectable->data()));
 #endif
 
             terminalNames[terminalIndex] = *terminalNameCollectable;
@@ -2611,7 +2611,7 @@ UtlBoolean CallManager::isTerminalConnectionLocal(const char* callId, const char
 OsStatus CallManager::stopRecording(const char* callId)
 {
     OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::stopRecording stopping the recording for call %s",
-                  callId);
+                  SIPX_SAFENULL(callId));
     OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
     OsProtectedEvent* stoprecEvent = eventMgr->alloc();
     OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
@@ -2648,7 +2648,7 @@ OsStatus CallManager::ezRecord(const char* callId,
                                OsProtectedEvent* recordEvent)
 {
     OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::ezRecord starting the recording for call %s",
-                  callId);
+                  SIPX_SAFENULL(callId));
     CpMultiStringMessage recordMessage(CP_EZRECORD,
         callId, fileName, NULL, NULL, NULL,
         (int)recordEvent, ms, silenceLength, dtmfterm);
@@ -3124,7 +3124,7 @@ void CallManager::printCalls()
         if(mMessageEventCount - historyIndex >= 0)
         {
             OsSysLog::add(FAC_CP, PRI_DEBUG, "%d) %s\n", mMessageEventCount - historyIndex,
-                (mCallManagerHistory[(mMessageEventCount - historyIndex) % CP_CALL_HISTORY_LENGTH]).data());
+                SIPX_SAFENULL((mCallManagerHistory[(mMessageEventCount - historyIndex) % CP_CALL_HISTORY_LENGTH]).data()));
         }
     }
     OsSysLog::add(FAC_CP, PRI_DEBUG, "============================\n");
@@ -3211,7 +3211,7 @@ void CallManager::flushCallStateLogAutoWrite()
 {
     // Write the previous log messages to the mediaserver log.
     OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::logCallState: %s",
-        mCallStateLog.data());
+        SIPX_SAFENULL(mCallStateLog.data()));
     mCallStateLog.remove(0);
 }
 
@@ -3239,7 +3239,7 @@ void CallManager::logCallState(const char* message,
                 // to the mediaserver log.
                 OsSysLog::add(FAC_CP, PRI_DEBUG,
                     "CallManager::logCallState: %s",
-                    mCallStateLog.data());
+                    SIPX_SAFENULL(mCallStateLog.data()));
             }
             else
             {
@@ -3608,7 +3608,7 @@ void CallManager::postTaoListenerMessage(int eventId,
                 ((OsServerTask*) (mpListeners[i]->mpListenerPtr))->postMessage((OsMsg&)msg);
 #ifdef TEST_PRINT
             OsSysLog::add(FAC_CP, PRI_DEBUG, "<===\ncall manager listener 0x%08x Message type: %d event id %d args: %s\n\n",
-                mpListeners[i]->mpListenerPtr, TaoMessage::EVENT, eventId, arg.data());
+                mpListeners[i]->mpListenerPtr, TaoMessage::EVENT, eventId, SIPX_SAFENULL(arg.data()));
 #endif
         }
 
@@ -3797,7 +3797,7 @@ void CallManager::doConnect(const char* callId,
     if(!call)
     {
         // This is generally bad.  The call should exist.
-        OsSysLog::add(FAC_CP, PRI_ERR, "doConnect cannot find CallId: %s\n", callId);
+        OsSysLog::add(FAC_CP, PRI_ERR, "doConnect cannot find CallId: %s\n", SIPX_SAFENULL(callId));
     }
     else
     {
@@ -3817,7 +3817,7 @@ void CallManager::doSendInfo(const char* callId,
     if(!call)
     {
         // This is generally bad.  The call should exist.
-        OsSysLog::add(FAC_CP, PRI_ERR, "doSendInfo cannot find CallId: %s\n", callId);
+        OsSysLog::add(FAC_CP, PRI_ERR, "doSendInfo cannot find CallId: %s\n", SIPX_SAFENULL(callId));
     }
     else
     {
@@ -3852,7 +3852,7 @@ UtlBoolean CallManager::disconnectConnection(const char* callId, const char* add
     if(!call)
     {
         // This is generally bad.  The call should exist.
-        OsSysLog::add(FAC_CP, PRI_ERR, "disconnectConnect cannot find CallId: %s\n", callId);
+        OsSysLog::add(FAC_CP, PRI_ERR, "disconnectConnect cannot find CallId: %s\n", SIPX_SAFENULL(callId));
         return FALSE;
     }
     else

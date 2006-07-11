@@ -93,7 +93,7 @@ void parseArgs(int argc, char* argv[])
          HttpPort = strtoul(optarg, &optend, 10);
          if ( '\0' != *optend )
          {
-            fprintf( stderr, "Invalid HTTP port %s\n", optarg );
+            fprintf( stderr, "Invalid HTTP port %s\n", SIPX_SAFENULL(optarg) );
             exit(1);
          }
          break;
@@ -111,7 +111,7 @@ void parseArgs(int argc, char* argv[])
          Duration *= 1000;
          if ( '\0' != *optend )
          {
-            fprintf( stderr, "Invalid duration %s\n", optarg );
+            fprintf( stderr, "Invalid duration %s\n", SIPX_SAFENULL(optarg) );
             exit(1);
          }         
          break;         

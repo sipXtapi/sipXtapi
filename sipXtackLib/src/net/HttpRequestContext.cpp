@@ -24,9 +24,9 @@
 // CONSTANTS
 //#define TEST_DEBUG
 
-#ifdef TEST_DEBUG
+
 #  include <os/OsSysLog.h>
-#endif
+
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -86,7 +86,7 @@ HttpRequestContext::HttpRequestContext(const char* requestMethod,
 #     ifdef TEST_DEBUG
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "HttpRequestContext::_( connection=%p ) %s",
-                    connection, mPeerCertTrusted ? "Cert Trusted" : "Cert Not Trusted"
+                    connection, SIPX_SAFENULL(mPeerCertTrusted ? "Cert Trusted" : "Cert Not Trusted")
                     );
 #     endif
 
@@ -270,7 +270,7 @@ UtlBoolean HttpRequestContext::getCgiVariable(const char* name,
 #  ifdef TEST_DEBUG
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "HttpRequestContext::getCgiVariable %p (\"%s\",<val>,%d)",
-                 &mCgiVariableList, name, occurance
+                 &mCgiVariableList, SIPX_SAFENULL(name), occurance
                  );
 #  endif
 
@@ -297,8 +297,8 @@ UtlBoolean HttpRequestContext::getCgiVariable(const char* name,
                     "HttpRequestContext::getCgiVariable(name,val,occ) %p skipping %d '%s' -> '%s'",
                     &mCgiVariableList,
                     fieldIndex,
-                    nameValuePair ? nameValuePair->data() : "UNFOUND",
-                    nameValuePair ? nameValuePair->getValue() : "UNFOUND"
+                    SIPX_SAFENULL(nameValuePair ? nameValuePair->data() : "UNFOUND"),
+                    SIPX_SAFENULL(nameValuePair ? nameValuePair->getValue() : "UNFOUND")
                     );
 #     endif
    }
@@ -308,8 +308,8 @@ UtlBoolean HttpRequestContext::getCgiVariable(const char* name,
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "HttpRequestContext::getCgiVariable(name,val,occ) %p stopped at %d '%s' -> '%s'",
                  &mCgiVariableList, fieldIndex,
-                 nameValuePair ? nameValuePair->data() : "UNFOUND",
-                 nameValuePair ? nameValuePair->getValue() : "UNFOUND"
+                 SIPX_SAFENULL(nameValuePair ? nameValuePair->data() : "UNFOUND"),
+                 SIPX_SAFENULL(nameValuePair ? nameValuePair->getValue() : "UNFOUND")
                  );
 #  endif
 
@@ -363,8 +363,8 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
 {
 #if 0
    printf("HttpRequestContext::parseCgiVariables queryString = '%s', pairSeparator = '%s', nameValueSeparator = '%s', nameIsCaseInsensitive = %d\n",
-          queryString, pairSeparator, nameValueSeparator,
-          nameIsCaseInsensitive);
+          SIPX_SAFENULL(queryString), SIPX_SAFENULL(pairSeparator), SIPX_SAFENULL(nameValueSeparator),
+          SIPX_SAFENULL(nameIsCaseInsensitive));
 #endif
    //UtlString nameAndValue;
    const char* nameAndValuePtr;
@@ -383,7 +383,7 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
    {
       // Pull out a name value pair
       //osPrintf("HttpRequestContext::parseCgiVariables parseCgiVariables: \"%s\" lastCharIndex: %d",
-      //    &(queryString[lastCharIndex]), lastCharIndex);
+      //    SIPX_SAFENULL(&(queryString[lastCharIndex])), lastCharIndex);
       NameValueTokenizer::getSubField(&(queryString[lastCharIndex]),
                                       queryStringLength - lastCharIndex,
                                       0,
@@ -460,7 +460,7 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
 #           ifdef TEST_DEBUG
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "HttpRequestContext::parseCgiVariables adding %p '%s' -> '%s'",
-                          &cgiVariableList, newNvPair->data(), newNvPair->getValue()
+                          &cgiVariableList, SIPX_SAFENULL(newNvPair->data()), SIPX_SAFENULL(newNvPair->getValue())
                           );
 #           endif
 
@@ -504,8 +504,8 @@ bool HttpRequestContext::isTrustedPeer( const UtlString& peername ) const
    }
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "HttpRequestContext::isTrustedPeer('%s')\n %s %s",
-                 peername.data(), mPeerCertTrusted ? "Cert Trusted" : "Cert Not Trusted",
-                 peerNames.data()
+                 peername.data(), SIPX_SAFENULL(mPeerCertTrusted ? "Cert Trusted" : "Cert Not Trusted"),
+                 SIPX_SAFENULL(peerNames.data())
                  );
 #  endif
    return mPeerCertTrusted && mPeerIdentities.contains(&peername);

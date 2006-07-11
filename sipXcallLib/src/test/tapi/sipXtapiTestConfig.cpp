@@ -508,7 +508,7 @@ bool codec_CallBack_Place(SIPX_EVENT_CATEGORY category,
         {
             char szMsg[128];
 
-            sprintf(szMsg, "Codec %s", pCallInfo->codecs.audioCodec.cName);
+            sprintf(szMsg, "Codec %s", SIPX_SAFENULL(pCallInfo->codecs.audioCodec.cName));
             g_recorder.addMsgString(pCallInfo->hLine, (const char*)szMsg);
         }
     }
@@ -568,7 +568,7 @@ bool codec_CallBack_Receive(SIPX_EVENT_CATEGORY category,
                 {
                     char szMsg[128];
 
-                    sprintf(szMsg, "Codec %s", pCallInfo->codecs.audioCodec.cName);
+                    sprintf(szMsg, "Codec %s", SIPX_SAFENULL(pCallInfo->codecs.audioCodec.cName));
                     g_recorder2.addMsgString(pCallInfo->hLine, (const char*)szMsg);
                 }
                 break;

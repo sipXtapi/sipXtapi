@@ -149,7 +149,7 @@ OsMulticastSocket::OsMulticastSocket(int multicastPortNum, const char* multicast
                 error = OsSocketGetERRNO();
                 close();
                 perror("call to gethostbyname failed\n");
-                osPrintf("gethostbyname(%s) call failed with error: %d\n",multicastHost,
+                osPrintf("gethostbyname(%s) call failed with error: %d\n",SIPX_SAFENULL(multicastHost),
                                 error);
                 goto EXIT;
         }

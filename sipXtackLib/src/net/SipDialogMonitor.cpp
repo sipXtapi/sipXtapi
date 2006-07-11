@@ -126,7 +126,7 @@ bool SipDialogMonitor::addExtension(UtlString& groupName, Url& contactUrl)
       
       mMonitoredLists.insertKeyAndValue(listName, list);
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::addExtension insert listName %s and object %p to the resource list",
-                    groupName.data(), list);   
+                    SIPX_SAFENULL(groupName.data()), list);   
    }
 
    // Check whether the contact has already being added to the group
@@ -149,7 +149,7 @@ bool SipDialogMonitor::addExtension(UtlString& groupName, Url& contactUrl)
       // Send out the SUBSCRIBE
       OsSysLog::add(FAC_LOG, PRI_DEBUG,
                     "SipDialogMonitor::addExtension Sending out the SUBSCRIBE to contact %s",
-                    resourceId.data());
+                    SIPX_SAFENULL(resourceId.data()));
 
       UtlString toUrl;
       contactUrl.toString(toUrl);
@@ -173,14 +173,14 @@ bool SipDialogMonitor::addExtension(UtlString& groupName, Url& contactUrl)
          result = false;
          OsSysLog::add(FAC_LOG, PRI_ERR,
                        "SipDialogMonitor::addExtension Subscription failed to contact %s.",
-                       resourceId.data());
+                       SIPX_SAFENULL(resourceId.data()));
       }
       else
       {
          mDialogHandleList.insertKeyAndValue(new UtlString(resourceId), new UtlString(dialogHandle));
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
                        "SipDialogMonitor::addExtension Added dialogHandle: %s",
-                       dialogHandle.data());
+                       SIPX_SAFENULL(dialogHandle.data()));
          result = true;
       }
    }
@@ -188,7 +188,7 @@ bool SipDialogMonitor::addExtension(UtlString& groupName, Url& contactUrl)
    {
       OsSysLog::add(FAC_LOG, PRI_WARNING,
                     "SipDialogMonitor::addExtension contact %s already exists.",
-                    resourceId.data());
+                    SIPX_SAFENULL(resourceId.data()));
    }
 
    list->buildBody();
@@ -206,7 +206,7 @@ bool SipDialogMonitor::removeExtension(UtlString& groupName, Url& contactUrl)
    if (list == NULL)
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::removeExtension group %s does not exist",
-                    groupName.data());   
+                    SIPX_SAFENULL(groupName.data()));
    }
    else
    {
@@ -219,14 +219,14 @@ bool SipDialogMonitor::removeExtension(UtlString& groupName, Url& contactUrl)
          UtlString* dialogHandle = dynamic_cast <UtlString *> (mDialogHandleList.findValue(&resourceId));
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
                        "SipDialogMonitor::removeExtension Calling endSubscription(%s)",
-                       dialogHandle->data());
+                       SIPX_SAFENULL(dialogHandle->data()));
          UtlBoolean status = mpSipSubscribeClient->endSubscription(dialogHandle->data());
                   
          if (!status)
          {
             OsSysLog::add(FAC_SIP, PRI_ERR,
                           "SipDialogMonitor::removeExtension Unsubscription failed for %s.",
-                          resourceId.data());
+                          SIPX_SAFENULL(resourceId.data()));
          }
 
          mDialogHandleList.destroy(&resourceId);
@@ -239,7 +239,7 @@ bool SipDialogMonitor::removeExtension(UtlString& groupName, Url& contactUrl)
       {
          OsSysLog::add(FAC_LOG, PRI_WARNING,
                        "SipDialogMonitor::removeExtension subscription for contact %s does not exists.",
-                       resourceId.data());
+                       SIPX_SAFENULL(resourceId.data()));
       }
    }
 
@@ -252,12 +252,12 @@ void SipDialogMonitor::addDialogEvent(UtlString& contact, SipDialogEvent* dialog
    if (mDialogEventList.find(&contact) == NULL)
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::addDialogEvent adding the dialogEvent %p for contact %s",
-                    dialogEvent, contact.data());
+                    dialogEvent, SIPX_SAFENULL(contact.data()));
    }
    else
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::addDialogEvent dialogEvent %p for contact %s already exists, just update the content.",
-                    dialogEvent, contact.data());
+                    dialogEvent, SIPX_SAFENULL(contact.data()));
                     
       // Get the object from the dialog event list
       UtlContainable* oldKey;
@@ -267,7 +267,7 @@ void SipDialogMonitor::addDialogEvent(UtlString& contact, SipDialogEvent* dialog
       SipDialogEvent* oldDialogEvent = dynamic_cast <SipDialogEvent *> (foundValue);
 
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::addDialogEvent remove the dialogEvent %p for contact %s",
-                    oldDialogEvent, contact.data()); 
+                    oldDialogEvent, SIPX_SAFENULL(contact.data())); 
 
       if (oldDialogEvent)
       {
@@ -309,7 +309,7 @@ void SipDialogMonitor::publishContent(UtlString& contact, SipDialogEvent* dialog
       
       list = dynamic_cast <SipResourceList *> (mMonitoredLists.findValue(listUri));
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::publishContent listUri %s list %p",
-                    listUri->data(), list); 
+                    SIPX_SAFENULL(listUri->data()), list); 
 
       // Search for the contact in this list
       resource = list->getResource(contact);
@@ -355,7 +355,7 @@ void SipDialogMonitor::publishContent(UtlString& contact, SipDialogEvent* dialog
             
             list->getBytes(&dialogContent, &length);
             OsSysLog::add(FAC_SIP, PRI_ERR, "SipDialogMonitor::publishContent DialogEvent %s\n was not successfully published to the subscribe server",
-                          dialogContent.data());
+                          SIPX_SAFENULL(dialogContent.data()));
          }
       }
    }
@@ -371,7 +371,7 @@ void SipDialogMonitor::subscriptionStateCallback(SipSubscribeClient::Subscriptio
                                                  const SipMessage* subscribeResponse)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::subscriptionStateCallback is called with responseCode = %d (%s)",
-                 responseCode, responseText); 
+                 responseCode, SIPX_SAFENULL(responseText)); 
 }                                            
 
 
@@ -395,7 +395,7 @@ void SipDialogMonitor::handleNotifyMessage(const SipMessage* notifyMessage)
    fromUrl.getIdentity(contact);
    
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::handleNotifyMessage receiving a notify message from %s",
-                 contact.data()); 
+                 SIPX_SAFENULL(contact.data())); 
    
    const HttpBody* notifyBody = notifyMessage->getBody();
    
@@ -415,7 +415,7 @@ void SipDialogMonitor::handleNotifyMessage(const SipMessage* notifyMessage)
    else
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::handleNotifyMessage receiving an empty notify body from %s",
-                    contact.data()); 
+                    SIPX_SAFENULL(contact.data())); 
    }
 }
 
@@ -439,7 +439,7 @@ void SipDialogMonitor::removeStateChangeNotifier(const char* fileUrl)
 void SipDialogMonitor::notifyStateChange(UtlString& contact, SipDialogEvent* dialogEvent)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::notifyStateChange contact = %s",
-                 contact.data());
+                 SIPX_SAFENULL(contact.data()));
 
    // Loop through the notifier list
    UtlHashMapIterator iterator(mStateChangeNotifiers);
@@ -466,7 +466,7 @@ void SipDialogMonitor::notifyStateChange(UtlString& contact, SipDialogEvent* dia
          dialog->getState(state, event, code);
             
          OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::notifyStateChange dialog state = %s",
-                       state.data());
+                       SIPX_SAFENULL(state.data()));
          if (state.compareTo(STATE_CONFIRMED) == 0)
          {
             notifier->setStatus(contactUrl, StateChangeNotifier::OFF_HOOK);

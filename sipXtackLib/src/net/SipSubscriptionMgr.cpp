@@ -178,7 +178,7 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
         {
             OsSysLog::add(FAC_SIP, PRI_WARNING,
                 "Incoming early SUBSCRIBE dialog: %s matches established dialog: %s",
-                dialogHandle.data(), establishedDialogHandle.data());
+                SIPX_SAFENULL(dialogHandle.data()), SIPX_SAFENULL(establishedDialogHandle.data()));
         }
 
         // make up a To tag and set it
@@ -612,7 +612,7 @@ UtlBoolean SipSubscriptionMgr::endSubscription(const UtlString& dialogHandle)
         {
             OsSysLog::add(FAC_SIP, PRI_ERR,
                 "SipSubscriptionMgr::endSubscription could not find SubscriptionServerStateIndex for state with dialog: %s",
-                dialogHandle.data());
+                SIPX_SAFENULL(dialogHandle.data()));
         }
     }
 

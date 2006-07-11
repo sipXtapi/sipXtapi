@@ -506,7 +506,7 @@ int HttpMessage::get(Url& httpUrl,
                      bool bPersistent)
 {
     OsSysLog::add(FAC_HTTP, PRI_DEBUG, "HttpMessage::get(2) httpUrl = '%s'",
-                  httpUrl.toString().data());
+                  SIPX_SAFENULL(httpUrl.toString().data()));
 
     HttpMessage request;
     UtlString uriString;
@@ -526,7 +526,7 @@ OsStatus HttpMessage::get(Url& httpUrl,
                           OsConnectionSocket** socket)
 {
    OsSysLog::add(FAC_HTTP, PRI_DEBUG, "HttpMessage::get(5) httpUrl = '%s'",
-                 httpUrl.toString().data());
+                 SIPX_SAFENULL(httpUrl.toString().data()));
    OsStatus rc = OS_SUCCESS ;
    UtlString uriString;
    httpUrl.getPath(uriString, TRUE); // Put CGI variable in PATH as this is GET
@@ -577,7 +577,7 @@ OsStatus HttpMessage::get(Url& httpUrl,
          // SSL is not configured in, so we cannot do https: gets.
          OsSysLog::add(FAC_SIP, PRI_CRIT,
                        "HttpMessage::get(Url&,int,...) SSL not configured; "
-                       "cannot get URL '%s'", httpUrl.toString().data());
+                       "cannot get URL '%s'", SIPX_SAFENULL(httpUrl.toString().data()));
          httpSocket = NULL;
 #endif /* HAVE_SSL */
       }
@@ -592,7 +592,7 @@ OsStatus HttpMessage::get(Url& httpUrl,
          {
             OsSysLog::add(FAC_SIP, PRI_ERR,
                           "HttpMessage::get socket connection to %s:%d failed, try again %d ...",
-                          httpHost.data(), httpPort, tries);
+                          SIPX_SAFENULL(httpHost.data()), httpPort, tries);
             delete httpSocket;
             httpSocket = 0;
             OsTask::delay(20*exp);
@@ -609,7 +609,7 @@ OsStatus HttpMessage::get(Url& httpUrl,
    {
       OsSysLog::add(FAC_SIP, PRI_ERR,
                     "HttpMessage::get socket connection to %s:%d failed, give up...",
-                    httpHost.data(), httpPort);
+                    SIPX_SAFENULL(httpHost.data()), httpPort);
       return OS_FAILED;
    }
 
@@ -657,7 +657,7 @@ int HttpMessage::get(Url& httpUrl,
                      bool bPersistent)
 {
     OsSysLog::add(FAC_HTTP, PRI_DEBUG, "HttpMessage::get(3) httpUrl = '%s'",
-                  httpUrl.toString().data());
+                  SIPX_SAFENULL(httpUrl.toString().data()));
     HttpConnectionMap *pConnectionMap = NULL;
     HttpConnectionMapEntry* pConnectionMapEntry = NULL;
     UtlString uriString;
@@ -742,7 +742,7 @@ int HttpMessage::get(Url& httpUrl,
                   // SSL is not configured in, so we cannot do https: gets.
                   OsSysLog::add(FAC_SIP, PRI_CRIT,
                                 "HttpMessage::get(Url&,HttpMessage&,int) SSL not configured; "
-                                "cannot get URL '%s'", httpUrl.toString().data());
+                                "cannot get URL '%s'", SIPX_SAFENULL(httpUrl.toString().data()));
                   httpSocket = NULL;
         #endif /* HAVE_SSL */
                }
@@ -757,7 +757,7 @@ int HttpMessage::get(Url& httpUrl,
                   {
                      OsSysLog::add(FAC_SIP, PRI_ERR,
                                    "HttpMessage::get socket connection to %s:%d failed, try again %d ...\n",
-                                   httpHost.data(), httpPort, tries);
+                                   SIPX_SAFENULL(httpHost.data()), httpPort, tries);
                      delete httpSocket;
                      httpSocket = 0;
                      OsTask::delay(20*exp);
@@ -785,7 +785,7 @@ int HttpMessage::get(Url& httpUrl,
         {
            OsSysLog::add(FAC_SIP, PRI_ERR,
                          "HttpMessage::get socket connection to %s:%d failed, give up...\n",
-                         httpHost.data(), httpPort);
+                         SIPX_SAFENULL(httpHost.data()), httpPort);
            if (pConnectionMap)
            {
                // Release lock on persistent connection
@@ -910,7 +910,7 @@ int HttpMessage::get(Url& httpUrl,
                       // SSL is not configured in, so we cannot do https: gets.
                       OsSysLog::add(FAC_SIP, PRI_CRIT,
                                     "HttpMessage::get(Url&,HttpMessage&,int) SSL not configured; "
-                                    "cannot get URL '%s'", httpUrl.toString().data());
+                                    "cannot get URL '%s'", SIPX_SAFENULL(httpUrl.toString().data()));
                       httpAuthSocket = NULL;
 #endif /* HAVE_SSL */
                    }
@@ -923,7 +923,7 @@ int HttpMessage::get(Url& httpUrl,
                       {
                          OsSysLog::add(FAC_SIP, PRI_ERR,
                                        "HttpMessage::get socket connection to %s:%d failed, try again %d ...\n",
-                                       httpHost.data(), httpPort, tries);
+                                       SIPX_SAFENULL(httpHost.data()), httpPort, tries);
                          delete httpAuthSocket;
                          httpAuthSocket = 0;
                          OsTask::delay(20*exp);
@@ -940,7 +940,7 @@ int HttpMessage::get(Url& httpUrl,
                 {
                    OsSysLog::add(FAC_SIP, PRI_ERR,
                                  "HttpMessage::get socket connection to %s:%d failed, give up...\n",
-                                 httpHost.data(), httpPort);
+                                 SIPX_SAFENULL(httpHost.data()), httpPort);
                    return httpStatus;
                 }
 
@@ -1143,7 +1143,7 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpMessage::read socket: %p "
                     "getIpProtocol: %d remoteHost: %s remotePort: %d\n",
                     inSocket, socketType,
-                    remoteHost.data(), remotePort);
+                    SIPX_SAFENULL(remoteHost.data()), remotePort);
 #endif
 
       // Initialize control variables.
@@ -1242,8 +1242,8 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
                   {
                      OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                    "HttpMessage::read Found header '%s': '%s'",
-                                   headerField->data(),
-                                   headerField->getValue());
+                                   SIPX_SAFENULL(headerField->data()),
+                                   SIPX_SAFENULL(headerField->getValue()));
                   }
 #                 endif /* MSG_DEBUG */
                }
@@ -1275,7 +1275,7 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
                              "contentLength %d, contentTypeSet %d, "
                              "contentType '%s'",
                              contentLengthSet, contentLength, contentTypeSet,
-                             contentType.data());
+                             SIPX_SAFENULL(contentType.data()));
 #endif
 
                // If this is UDP we know that the message has
@@ -1286,7 +1286,7 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
                   OsSysLog::add(FAC_SIP, PRI_WARNING,
                                 "HttpMessage::read Content-Length too big for "
                                 "UDP: %d, from %s:%d assuming: %d",
-                                contentLength, remoteHost.data(), remotePort,
+                                contentLength, SIPX_SAFENULL(remoteHost.data()), remotePort,
                                 MAX_UDP_MESSAGE);
                   contentLength = MAX_UDP_MESSAGE;
                }
@@ -1299,7 +1299,7 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
                   OsSysLog::add(FAC_SIP, PRI_WARNING,
                                 "HttpMessage::read Content-Length too big: %d,"
                                 "closing socket type: %d to %s:%d",
-                                contentLength, socketType, remoteHost.data(),
+                                contentLength, socketType, SIPX_SAFENULL(remoteHost.data()),
                                 remotePort);
                   // Shut it all down, because it may be an abusive sender.
                   inSocket->close();
@@ -1453,10 +1453,10 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
             OsSysLog::add(FAC_SIP, PRI_WARNING,
                           "HttpMessage::read protocol %d, remoteHost %s, "
                           "remotePort %d",
-                          socketType, remoteHost.data(), remotePort);
+                          socketType, SIPX_SAFENULL(remoteHost.data()), remotePort);
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "HttpMessage::read Content:\n>>>%.*s<<<\n",
-                          allBytes->length(), allBytes->data());
+                          allBytes->length(), SIPX_SAFENULL(allBytes->data()));
 #endif
          }
       }
@@ -1472,7 +1472,7 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
                        "HttpMessage::read End of headers not found.  "
                        "%d bytes read.  Content:\n>>>%.*s<<<\n",
                        allBytes->length(), allBytes->length(),
-                       allBytes->data());
+                       SIPX_SAFENULL(allBytes->data()));
 #        endif /* MSG_DEBUG */
       }
 
@@ -1588,7 +1588,7 @@ void HttpMessage::unescape(UtlString& escapedText)
                 {
 #ifdef TEST_PRINT
                     OsSysLog::add(FAC_SIP, PRI_DEBUG, "Bogus dude: escaped char wo/ 2 hex digits: %s\n",
-                        escapedText.data());
+                        SIPX_SAFENULL(escapedText.data()));
 #endif
                     break;
                 }
@@ -1597,7 +1597,7 @@ void HttpMessage::unescape(UtlString& escapedText)
             {
 #ifdef TEST_PRINT
                 OsSysLog::add(FAC_SIP, PRI_DEBUG, "Bogus dude: escaped char wo/ 2 hex digits: %s\n",
-                    escapedText.data());
+                    SIPX_SAFENULL(escapedText.data()));
 #endif
                 break;
             }
@@ -1652,7 +1652,7 @@ void HttpMessage::escape(UtlString& unEscapedText)
             sprintf(escapedChar, "%%%X", (int) unEscapedChar);
 #ifdef TEST_PRINT
             osPrintf("%d escaped: %s\n", (int) unEscapedChar,
-                escapedChar);
+                SIPX_SAFENULL(escapedChar));
 #endif
             escapedText.append(escapedChar);
         }
@@ -1677,7 +1677,7 @@ void HttpMessage::escapeOneChar(UtlString& unEscapedText, char tobeEscapedChar)
             sprintf(escapedChar, "%%%X", (int) unEscapedChar);
 #ifdef TEST_PRINT
             osPrintf("%d escaped: %s\n", (int) unEscapedChar,
-                escapedChar);
+                SIPX_SAFENULL(escapedChar));
 #endif
             escapedText.append(escapedChar);
         }
@@ -1734,7 +1734,7 @@ void HttpMessage::cannonizeToken(UtlString& token)
 
 #ifdef TEST_PRINT
     //osPrintf("HttpMessage::cannonizeToken \"%s\"\n",
-    //    token.data());
+    //    SIPX_SAFENULL(token.data()));
 #endif
 }
 
@@ -2171,7 +2171,7 @@ UtlBoolean HttpMessage::getDateField(long* epochDate) const
         {
 #ifdef TEST_PRINT
             osPrintf("WARNING: unsupported date format\n");
-            osPrintf("Date field: \"%s\"\n", dateField);
+            osPrintf("Date field: \"%s\"\n", SIPX_SAFENULL(dateField));
             osPrintf("epoch date: %d\n", *epochDate);
 #endif
         }
@@ -2279,7 +2279,7 @@ void HttpMessage::getBytes(UtlString* bufferString, int* length) const
                 char bodyLengthString[40];
                 sprintf(bodyLengthString, "%d", bodyLen);
                 OsSysLog::add(FAC_SIP, PRI_WARNING, "HttpMessage::getBytes content-length: %s wrong setting to: %s",
-                    value ? value : "", bodyLengthString);
+                    SIPX_SAFENULL(value), SIPX_SAFENULL(bodyLengthString));
                 headerField->setValue(bodyLengthString);
                 value = headerField->getValue();
             }
@@ -2403,7 +2403,7 @@ void HttpMessage::setRequestFirstHeaderLine(const char* method,
       OsSysLog::add(FAC_SIP,
                     PRI_ERR,
                     "HttpMessage::setRequestFirstHeaderLine(3) request URI has <>: '%s'",
-                    uri);
+                    SIPX_SAFENULL(uri));
    }
    setFirstHeaderLine(method, uri, protocol);
 }
@@ -2608,7 +2608,7 @@ UtlBoolean HttpMessage::getAuthorizationUser(UtlString* userId) const
     getAuthorizationScheme(&scheme);
 #ifdef TEST
     osPrintf("HttpMessage::getAuthorizationUser authorization scheme: \"%s\"\n",
-        scheme.data());
+        SIPX_SAFENULL(scheme.data()));
 #endif
 
     // Basic
@@ -2619,7 +2619,7 @@ UtlBoolean HttpMessage::getAuthorizationUser(UtlString* userId) const
         if(foundUserId)
         {
             osPrintf("HttpMessage::getAuthorizationUser userId: \"%s\" from message\n",
-                userId->data());
+                SIPX_SAFENULL(userId->data()));
         }
         else
         {
@@ -3039,7 +3039,7 @@ void HttpMessage::buildMd5Digest(const char* userPasswordDigest,
 
 #ifdef TEST_PRINT
     osPrintf("HttpMessage::buildMd5Digest expecting authorization:\n\tuserPasswordDigest: '%s'\n\tnonce: '%s'\n\tmethod: '%s'\n\turi: '%s'\n\tresponse: '%s'\n",
-        userPasswordDigest, nonce, method, uri, responseToken->data());
+        SIPX_SAFENULL(userPasswordDigest), SIPX_SAFENULL(nonce), SIPX_SAFENULL(method), SIPX_SAFENULL(uri), SIPX_SAFENULL(responseToken->data()));
 #endif
 }
 
@@ -3116,8 +3116,8 @@ UtlBoolean HttpMessage::verifyMd5Authorization(const char* userId,
     }
 
 #ifdef TEST
-    OsSysLog::add(FAC_SIP,PRI_DEBUG,"HttpMessage::verifyMd5Authorization got digest response: \"%s\"\n", msgDigestHash.data());
-    OsSysLog::add(FAC_SIP,PRI_DEBUG,"HttpMessage::verifyMd5Authorization wanted     response: \"%s\"\n", referenceHash.data());
+    OsSysLog::add(FAC_SIP,PRI_DEBUG,"HttpMessage::verifyMd5Authorization got digest response: \"%s\"\n", SIPX_SAFENULL(msgDigestHash.data()));
+    OsSysLog::add(FAC_SIP,PRI_DEBUG,"HttpMessage::verifyMd5Authorization wanted     response: \"%s\"\n", SIPX_SAFENULL(referenceHash.data()));
 #endif
     return(allowed);
 }
@@ -3176,8 +3176,8 @@ UtlBoolean HttpMessage::verifyMd5Authorization(const char* userPasswordDigest,
     }
 
 #ifdef TEST
-    OsSysLog::add(FAC_SIP,PRI_DEBUG,"HttpMessage::verifyMd5Authorization got digest response: \"%s\"\n", msgDigestHash.data());
-    OsSysLog::add(FAC_SIP,PRI_DEBUG,"HttpMessage::verifyMd5Authorization wanted     response: \"%s\"\n", referenceHash.data());
+    OsSysLog::add(FAC_SIP,PRI_DEBUG,"HttpMessage::verifyMd5Authorization got digest response: \"%s\"\n", SIPX_SAFENULL(msgDigestHash.data()));
+    OsSysLog::add(FAC_SIP,PRI_DEBUG,"HttpMessage::verifyMd5Authorization wanted     response: \"%s\"\n", SIPX_SAFENULL(referenceHash.data()));
 #endif
     return(allowed);
 }
@@ -3285,7 +3285,7 @@ UtlBoolean HttpMessage::getBasicAuthorizationData(UtlString* userId,
     {
 #ifdef TEST
         osPrintf("HttpMessage::getBasicAuthorizationData cookie: \"%s\"\n",
-            cookie.data());
+            SIPX_SAFENULL(cookie.data()));
 #endif
         int decodedLength = NetBase64Codec::decodedSize(cookie.length(), cookie.data());
         char* decodedCookie = new char[decodedLength + 1];
@@ -3295,7 +3295,7 @@ UtlBoolean HttpMessage::getBasicAuthorizationData(UtlString* userId,
 #ifdef TEST_PRINT
         decodedCookie[decodedLength] = 0;
         osPrintf("HttpMessage::getBasicAuthorizationData decoded cookie: \"%s\"\n",
-            decodedCookie);
+            SIPX_SAFENULL(decodedCookie));
 #endif
         // Parse out the userId and password
         int userPasswordSeparatorIndex = (int) strchr(decodedCookie, ':');
@@ -3310,7 +3310,7 @@ UtlBoolean HttpMessage::getBasicAuthorizationData(UtlString* userId,
             osPrintf("HttpMessage::getBasicAuthorizationData user/password separator index: %d\n",
                 userPasswordSeparatorIndex);
             osPrintf("HttpMessage::getBasicAuthorizationData user: \"%s\" password: \"%s\"\n",
-                userId->data(), password->data());
+                SIPX_SAFENULL(userId->data()), SIPX_SAFENULL(password->data()));
 #endif
         }
         // No separator, assume the whole thing is a user Id
@@ -3353,7 +3353,7 @@ UtlBoolean HttpMessage::verifyBasicAuthorization(const char* user,
     else
     {
         osPrintf("HttpMessage::verifyBasicAuthorization user: \"%s\" password: \"%s\"\n",
-            user, password);
+            SIPX_SAFENULL(user), SIPX_SAFENULL(password);
     }
 #endif
 
@@ -3366,11 +3366,11 @@ UtlBoolean HttpMessage::verifyBasicAuthorization(const char* user,
         userAllowed = getBasicAuthorizationData(&givenCookie);
 #ifdef TEST
         osPrintf("HttpMessage::verifyBasicAuthorization user: \"%s\" password: \"%s\"\n",
-            user, password);
+            SIPX_SAFENULL(user), SIPX_SAFENULL(password));
         osPrintf("HttpMessage::verifyBasicAuthorization ref. cookie: \"%s\"\n",
-            referenceCookie.data());
+            SIPX_SAFENULL(referenceCookie.data()));
         osPrintf("HttpMessage::verifyBasicAuthorization msg. cookie: \"%s\"\n",
-            givenCookie.data());
+            SIPX_SAFENULL(givenCookie.data()));
 #endif
     }
 

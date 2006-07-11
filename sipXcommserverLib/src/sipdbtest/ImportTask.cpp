@@ -71,7 +71,7 @@ ImportTask::~ImportTask()
 int
 ImportTask::run( void* runArg )
 {
-    OsSysLog::add(LOG_FACILITY, PRI_DEBUG, "Starting Import Thread %s\n", mArgument.data());
+    OsSysLog::add(LOG_FACILITY, PRI_DEBUG, "Starting Import Thread %s\n", SIPX_SAFENULL(mArgument.data()));
     // Indicate that we're finished, the monitor thread
     // reads this flag and if it's still set
     setBusy (TRUE);
@@ -248,7 +248,7 @@ ImportTask::loadDB( const UtlString& rFileName ) const
     }
     else
       {
-        osPrintf( "Import load failed for '%s'\n", rFileName.data() );
+        osPrintf( "Import load failed for '%s'\n", SIPX_SAFENULL(rFileName.data()) );
         result = OS_FAILED;
       }
 
@@ -302,7 +302,7 @@ ImportTask::insertRow (
     const UtlString& rTableName ) const
 {
     OsSysLog::add(LOG_FACILITY, PRI_DEBUG, "ImportTask::insertRow %s"
-                  ,rTableName.data()
+                  ,SIPX_SAFENULL(rTableName.data())
                   );
 
     // check the table

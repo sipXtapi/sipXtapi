@@ -35,7 +35,7 @@ CallStateEventWriter_XML::CallStateEventWriter_XML(const char* logName)
                                 mEventFile(NULL)
 {
    OsSysLog::add(FAC_CDR, PRI_DEBUG,
-                 "%s::constructor Log type file", ModuleName);
+                 "%s::constructor Log type file", SIPX_SAFENULL(ModuleName));
 }
 
 /// Destructor
@@ -57,7 +57,7 @@ bool CallStateEventWriter_XML::openLog()
       if (OS_SUCCESS == callStateLogStatus)
       {
          OsSysLog::add(FAC_CDR, PRI_DEBUG,
-                       "%s::openLog opened %s", ModuleName, mLogName.data());       
+                       "%s::openLog opened %s", SIPX_SAFENULL(ModuleName), SIPX_SAFENULL(mLogName.data()));       
          mbWriteable = true;
          bRet = true;
       }
@@ -65,7 +65,7 @@ bool CallStateEventWriter_XML::openLog()
       {
          OsSysLog::add(FAC_CDR, PRI_ERR,
                        "%s::openLog failed (%d) to open Call State Event Log '%s'",
-                       ModuleName, callStateLogStatus, mLogName.data());         
+                       SIPX_SAFENULL(ModuleName), callStateLogStatus, SIPX_SAFENULL(mLogName.data()));         
          if (mEventFile)
          {
             delete mEventFile;
@@ -76,7 +76,7 @@ bool CallStateEventWriter_XML::openLog()
    else
    {
      OsSysLog::add(FAC_CDR, PRI_ERR,
-                   "%s::openLog log %s already open", ModuleName, mLogName.data());
+                   "%s::openLog log %s already open", SIPX_SAFENULL(ModuleName), SIPX_SAFENULL(mLogName.data()));
    }
    return bRet;
 }
@@ -96,7 +96,7 @@ bool CallStateEventWriter_XML::closeLog()
    bRet = true;
       
    OsSysLog::add(FAC_CDR, PRI_DEBUG,
-                 "%s::closeLog", ModuleName);
+                 "%s::closeLog", SIPX_SAFENULL(ModuleName));
    return bRet;
 }
 
@@ -112,14 +112,14 @@ bool CallStateEventWriter_XML::writeLog(const char* event)
          unsigned long written;
          mEventFile->write(event, strlen(event), written);         
          OsSysLog::add(FAC_CDR, PRI_DEBUG,
-                       "%s::writeLog", ModuleName);
+                       "%s::writeLog", SIPX_SAFENULL(ModuleName));
          bRet = true;
       }
    }
    else
    {
       OsSysLog::add(FAC_CDR, PRI_ERR,
-                    "%s::writeLog log %s not writeable", ModuleName, mLogName.data());            
+                    "%s::writeLog log %s not writeable", SIPX_SAFENULL(ModuleName), SIPX_SAFENULL(mLogName.data()));            
    }
    return bRet;
 }

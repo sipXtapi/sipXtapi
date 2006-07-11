@@ -156,7 +156,7 @@ bool LinePresenceMonitor::setStatus(const Url& aor, const Status value)
    aor.getUserId(contact);
    
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "LinePresenceMonitor::setStatus set the value %d for %s",
-                 value, contact.data());
+                 value, SIPX_SAFENULL(contact.data()));
    
    // Set the dialog status
    UtlVoidPtr* container = dynamic_cast <UtlVoidPtr *> (mDialogSubscribeList.findValue(&contact));
@@ -235,7 +235,7 @@ OsStatus LinePresenceMonitor::subscribeDialog(LinePresenceBase* line)
    Url* lineUrl = line->getUri();
    
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "LinePresenceMonitor::subscribeDialog subscribing dialog for line %s",
-                 lineUrl->toString().data()); 
+                 SIPX_SAFENULL(lineUrl->toString().data())); 
 
    if (mLocal)
    {
@@ -291,7 +291,7 @@ OsStatus LinePresenceMonitor::unsubscribeDialog(LinePresenceBase* line)
    }
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "LinePresenceMonitor::unsubscribeDialog unsubscribing dialog for line %s",
-                 lineUrl->toString().data());
+                 SIPX_SAFENULL(lineUrl->toString().data()));
                   
    if (mLocal)
    {
@@ -371,7 +371,7 @@ OsStatus LinePresenceMonitor::subscribePresence(LinePresenceBase* line)
    Url* lineUrl = line->getUri();
    
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "LinePresenceMonitor::subscribePresence subscribing presence for line %s",
-                 lineUrl->toString().data()); 
+                 SIPX_SAFENULL(lineUrl->toString().data())); 
    
    // Send out the SUBSCRIBE to the presence server
    UtlString contactId, resourceId;
@@ -381,7 +381,7 @@ OsStatus LinePresenceMonitor::subscribePresence(LinePresenceBase* line)
       resourceId = contactId + mPresenceServer;
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "LinePresenceMonitor::subscribePresence Sending out the SUBSCRIBE to contact %s",
-                    resourceId.data());
+                    SIPX_SAFENULL(resourceId.data()));
    
       
       UtlString toUrl;
@@ -405,7 +405,7 @@ OsStatus LinePresenceMonitor::subscribePresence(LinePresenceBase* line)
       {
          OsSysLog::add(FAC_SIP, PRI_ERR,
                        "LinePresenceMonitor::subscribePresence Subscription failed to contact %s.",
-                       resourceId.data());
+                       SIPX_SAFENULL(resourceId.data()));
       }
       else
       {
@@ -434,7 +434,7 @@ OsStatus LinePresenceMonitor::unsubscribePresence(LinePresenceBase* line)
    }
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "LinePresenceMonitor::unsubscribePresence unsubscribing presence for line %s",
-                 lineUrl->toString().data());
+                 SIPX_SAFENULL(lineUrl->toString().data()));
                   
    // Remove the line from the Subscribe Map
    UtlString contact;
@@ -453,7 +453,7 @@ OsStatus LinePresenceMonitor::unsubscribePresence(LinePresenceBase* line)
          {
             OsSysLog::add(FAC_SIP, PRI_ERR,
                           "LinePresenceMonitor::unsubscribePresence Unsubscription failed for %s.",
-                          contact.data());
+                          SIPX_SAFENULL(contact.data()));
          }
       }
       
@@ -509,7 +509,7 @@ void LinePresenceMonitor::subscriptionStateCallback(SipSubscribeClient::Subscrip
                                                     const SipMessage* subscribeResponse)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "LinePresenceMonitor::subscriptionStateCallback is called with responseCode = %d (%s)",
-                 responseCode, responseText); 
+                 responseCode, SIPX_SAFENULL(responseText)); 
 }                                            
 
 
@@ -536,7 +536,7 @@ void LinePresenceMonitor::handleNotifyMessage(const SipMessage* notifyMessage)
    contact += mPresenceServer;
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "LinePresenceMonitor::handleNotifyMessage receiving a notify message from %s",
-                 contact.data()); 
+                 SIPX_SAFENULL(contact.data())); 
    
    const HttpBody* notifyBody = notifyMessage->getBody();
    
@@ -572,7 +572,7 @@ void LinePresenceMonitor::handleNotifyMessage(const SipMessage* notifyMessage)
       else
       {
          OsSysLog::add(FAC_SIP, PRI_DEBUG, "LinePresenceMonitor::handleNotifyMessage unable to find matching tuple for: %s",
-                       contact.data()); 
+                       SIPX_SAFENULL(contact.data())); 
       }
       
       delete sipPresenceEvent;
@@ -580,7 +580,7 @@ void LinePresenceMonitor::handleNotifyMessage(const SipMessage* notifyMessage)
    else
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "LinePresenceMonitor::handleNotifyMessage receiving an empty notify body from %s",
-                    contact.data()); 
+                    SIPX_SAFENULL(contact.data())); 
    }
 }
 

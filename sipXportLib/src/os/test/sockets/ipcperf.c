@@ -58,7 +58,7 @@ int createDatagramSocket(int serverPort,
         if(*pSocketDescriptor == INVALID_SOCKET_DESCRIPTOR)
         {
                 printf("socket(%s:%d) call failed with error: %d\n",
-                        serverName, serverPort, errno);
+                        SIPX_SAFENULL(serverName), serverPort, errno);
                 return errno;
         }
 
@@ -206,7 +206,7 @@ int createConnectionSocket(int serverPort,
         if(!server)
         {
                 close(*pSocketDescriptor);
-                printf("DNS failed to lookup host: %s\n", pServerName);
+                printf("DNS failed to lookup host: %s\n", SIPX_SAFENULL(pServerName));
                 return errno;
         }
 

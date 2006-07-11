@@ -102,7 +102,7 @@ Notifier::sendNotifyForeachSubscription (
     if (  numSubscriptions > 0 )
     {
         OsSysLog::add( FAC_SIP, PRI_INFO, "Notifier::sendNotifyForeachSubscription: "
-                      " %d '%s' msgs for '%s'", numSubscriptions, event, key );
+                      " %d '%s' msgs for '%s'", numSubscriptions, SIPX_SAFENULL(event), SIPX_SAFENULL(key) );
 
         // There may be any number of subscriptions
         // for the same identity and event type!
@@ -174,7 +174,7 @@ Notifier::sendNotifyForeachSubscription (
     else
     {
        OsSysLog::add( FAC_SIP, PRI_INFO, "Notifier::sendNotifyForeachSubscription: "
-                     " no '%s' subscriptions for '%s'", event, key );
+                     " no '%s' subscriptions for '%s'", SIPX_SAFENULL(event), SIPX_SAFENULL(key) );
     }
 }
 

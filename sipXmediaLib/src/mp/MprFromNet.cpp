@@ -180,7 +180,7 @@ OsStatus MprFromNet::rtcpStats(struct rtpHeader* rtpH)
 
       if (firstfew++ < 20)
       {
-         osPrintf("%s: New SSRC (0x%08X) detected\n", name, rtpH->ssrc);
+         osPrintf("%s: New SSRC (0x%08X) detected\n", SIPX_SAFENULL(name), rtpH->ssrc);
       }
       mInRtpHandle->ssrc = rtpH->ssrc;
       mInRtpHandle->seq = rtpH->seq - 1;
@@ -324,8 +324,8 @@ OsStatus MprFromNet::pushPacket(MpBufPtr buf,
                 OsSocket::inet_ntoa_pt(*fromIP, New);
                 osPrintf("   pushPacket: Pref:0x%X, rtpDest=%s:%d,\n"
                     "       this:0x%X (src=%s:%d)\n",
-                    getPrefSsrc(), Old.data(), mRtpDestPort,
-                    thisSsrc, New.data(), fromPort);
+                    SIPX_SAFENULL(getPrefSsrc()), Old.data(), mRtpDestPort,
+                    thisSsrc, SIPX_SAFENULL(New.data()), fromPort);
             }
             if ((fromIP->s_addr == mRtpDestIp) && (fromPort == mRtpDestPort)) {
                 setPrefSsrc(thisSsrc);
@@ -359,8 +359,8 @@ OsStatus MprFromNet::pushPacket(MpBufPtr buf,
                 OsSocket::inet_ntoa_pt(*fromIP, New);
 /*
                 osPrintf("MprFromNet(%d): SrcIP changed"
-                    " from '%s:%d' to '%s:%d'\n", mNumPushed, Old.data(),
-                    mPrevPort, New.data(), fromPort);
+                    " from '%s:%d' to '%s:%d'\n", mNumPushed, SIPX_SAFENULL(Old.data()),
+                    mPrevPort, SIPX_SAFENULL(New.data()), fromPort);
 */
             }
             mPrevIP = fromIP->s_addr;
@@ -406,7 +406,7 @@ OsStatus MprFromNet::pushPacket(MpBufPtr buf,
 
         name = getName();
         osPrintf("%s: RTCP packet received, length = %d\n",
-                                    name, MpBuf_getNumSamples(buf));
+                                    SIPX_SAFENULL(name), MpBuf_getNumSamples(buf));
 #endif /* DUMP_RTCP_PACKETS ] */
 
         MpBuf_setFormat(buf, MP_FMT_RTCPPKT);

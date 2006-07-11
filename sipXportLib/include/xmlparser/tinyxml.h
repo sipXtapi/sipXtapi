@@ -26,6 +26,9 @@ distribution.
 #ifndef TINYXML_INCLUDED
 #define TINYXML_INCLUDED
 
+/* Prevent Coredumps on Solaris and other fully POSIX compliant platforms if %s = NULL */
+#define SIPX_SAFENULL(x) ((x) ? (x) : "(null)")
+
 #ifdef _MSC_VER
 #pragma warning( disable : 4530 )
 #pragma warning( disable : 4786 )

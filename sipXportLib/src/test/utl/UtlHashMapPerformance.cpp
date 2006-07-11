@@ -96,7 +96,7 @@ int main()
    timer.addEvent("Done");
 
    osPrintf("UtlHashMap Performance v=%s %s:\n",
-            SipXportlibVersion, SipXportlibBuildStamp
+            SIPX_SAFENULL(SipXportlibVersion), SIPX_SAFENULL(SipXportlibBuildStamp)
             );
    timer.dumpLog();
 

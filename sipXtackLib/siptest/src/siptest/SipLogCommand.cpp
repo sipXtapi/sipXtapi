@@ -93,7 +93,7 @@ int SipLogCommand::execute(int argc, char* argv[])
         {
             UtlString log;
             mSipUserAgent->getMessageLog(log);
-            osPrintf("\n============>\n%s\n============>\n", log.data());
+            osPrintf("\n============>\n%s\n============>\n", SIPX_SAFENULL(log.data()));
         }
 
         else if(logOperations.compareTo("clear") == 0)
@@ -114,7 +114,7 @@ int SipLogCommand::execute(int argc, char* argv[])
         {
                 UtlString usage;
                 getUsage(argv[0], &usage);
-                printf("%s", usage.data());
+                printf("%s", SIPX_SAFENULL(usage.data()));
                 commandStatus = CommandProcessor::COMMAND_BAD_SYNTAX;
         }
         else

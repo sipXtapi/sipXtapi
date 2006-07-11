@@ -231,7 +231,7 @@ getMessageIdsFromQuery( UtlString& returnString )
 
    OsSysLog::add(LOG_FACILITY, PRI_DEBUG,
                  "getMessageIdsFromQuery: returnString = '%s'",
-                 returnString.data());
+                 SIPX_SAFENULL(returnString.data()));
    return OS_SUCCESS;
 }
 
@@ -242,7 +242,7 @@ setLogLevel()
     MailboxManager * pMailboxManager = MailboxManager::getInstance();
     pMailboxManager->getCustomParameter( PARAM_LOG_LEVEL, logLevel ) ;
     OsSysLog::add( LOG_FACILITY, PRI_DEBUG, "setLogLevel logLevel = '%s'",
-                   logLevel.data());
+                   SIPX_SAFENULL(logLevel.data()));
     if( !logLevel.isNull() )
     {
         // Strip the leading and trailing spaces.
@@ -252,7 +252,7 @@ setLogLevel()
         logLevel.toUpper();
 
         OsSysLog::add( LOG_FACILITY, PRI_DEBUG, "setLogLevel: after cleaning, logLevel = '%s'",
-                       logLevel.data());
+                       SIPX_SAFENULL(logLevel.data()));
         if( logLevel == LOG_LEVEL_DEBUG )
         {
            OsSysLog::setLoggingPriority(PRI_DEBUG);
@@ -364,11 +364,11 @@ main(int argc, char* argv[])
                           sizeof ("QUERY_STRING=") - 1) == 0)
               {
                  OsSysLog::add(LOG_FACILITY, PRI_DEBUG, "query = '%s'",
-                               environ[i] + sizeof ("QUERY_STRING=") - 1);
+                               SIPX_SAFENULL(environ[i] + sizeof ("QUERY_STRING=") - 1));
               }
            }
            // Don't forget that envLog may contain %'s!
-           OsSysLog::add(LOG_FACILITY, PRI_DEBUG, "%s", envLog.data());
+           OsSysLog::add(LOG_FACILITY, PRI_DEBUG, "%s", SIPX_SAFENULL(envLog.data()));
         }
 
         gCgi = new cgicc::Cgicc();
@@ -396,7 +396,7 @@ main(int argc, char* argv[])
             OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG, "main: gValues->valueOf(\"eventtype\") == NULL, using gValues->valueOf(\"action\")");
         }
         OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG, "sActionCGIVar = '%s'",
-                      sActionCGIVar);
+                      SIPX_SAFENULL(sActionCGIVar));
 
         // we must specify an action field
         if ( sActionCGIVar != NULL )
@@ -405,7 +405,7 @@ main(int argc, char* argv[])
             UtlString action ( sActionCGIVar );
             action.toLower();
 
-            OsSysLog::add(LOG_FACILITY, PRI_INFO, "Mediaserver CGI - action=%s ", sActionCGIVar);
+            OsSysLog::add(LOG_FACILITY, PRI_INFO, "Mediaserver CGI - action=%s ", SIPX_SAFENULL(sActionCGIVar));
 
             // the proxy appends the from address so it should always be a URL
             Url fromUrl;
@@ -413,7 +413,7 @@ main(int argc, char* argv[])
             if( sFromCGIVar )
             {
                 fromUrl = sFromCGIVar;
-                OsSysLog::add( LOG_FACILITY, PRI_INFO, "Mediaserver CGI - from=%s \n", sFromCGIVar);
+                OsSysLog::add( LOG_FACILITY, PRI_INFO, "Mediaserver CGI - from=%s \n", SIPX_SAFENULL(sFromCGIVar));
 
             }
             else
@@ -430,7 +430,7 @@ main(int argc, char* argv[])
             if( requestIsFromWebUI )
             {   // this will just be a userid without the @domain part
                 mailbox = getenv( "REMOTE_USER" );
-                OsSysLog::add( LOG_FACILITY, PRI_INFO, "Mediaserver CGI - mailbox=%s \n", mailbox.data());
+                OsSysLog::add( LOG_FACILITY, PRI_INFO, "Mediaserver CGI - mailbox=%s \n", SIPX_SAFENULL(mailbox.data()));
             }
             else
             {
@@ -438,7 +438,7 @@ main(int argc, char* argv[])
                 if ( sMailboxCGIVar )
                 {
                     mailbox = sMailboxCGIVar;
-                    OsSysLog::add( LOG_FACILITY, PRI_INFO, "Mediaserver CGI - mailbox=%s \n", mailbox.data());
+                    OsSysLog::add( LOG_FACILITY, PRI_INFO, "Mediaserver CGI - mailbox=%s \n", SIPX_SAFENULL(mailbox.data()));
                 }
             }
 
@@ -472,7 +472,7 @@ main(int argc, char* argv[])
                   sFromCGIVar;
                OsSysLog::add(LOG_FACILITY, PRI_INFO,
                              "Mediaserver CGI - For Retrieve, using mailbox '%s'",
-                             sRetrieveMailbox);
+                             SIPX_SAFENULL(sRetrieveMailbox));
 
                if ( sRetrieveMailbox )
                {
@@ -489,7 +489,7 @@ main(int argc, char* argv[])
 
                     const char* sName = gValues->valueOf ( "name" );
                     strName = sName;
-                    OsSysLog::add( LOG_FACILITY, PRI_INFO, "Mediaserver CGI - Autoattendant app name = %s \n", strName.data());
+                    OsSysLog::add( LOG_FACILITY, PRI_INFO, "Mediaserver CGI - Autoattendant app name = %s \n", SIPX_SAFENULL(strName.data()));
 
                     // Create the appropriate Command Object
                     cmd = new AutoAttendantCGI( fromUrl, strName, sDigits );
@@ -515,7 +515,7 @@ main(int argc, char* argv[])
             } else if ( action == "setspecialmenu" )
             {
                 const char* sOption = gValues->valueOf ( "setoption" );
-                OsSysLog::add( LOG_FACILITY, PRI_INFO, "Mediaserver CGI - Set special AA menu to %s \n", sOption);
+                OsSysLog::add( LOG_FACILITY, PRI_INFO, "Mediaserver CGI - Set special AA menu to %s \n", SIPX_SAFENULL(sOption));
 
                 // Create the appropriate Command Object
                 cmd = new SpecialAAMenuCGI( sOption );
@@ -804,7 +804,7 @@ main(int argc, char* argv[])
             {
                 if ( sFromCGIVar)
                 {
-                    OsSysLog::add(LOG_FACILITY, PRI_DEBUG, "savemessage param: from=%s ", sFromCGIVar );
+                    OsSysLog::add(LOG_FACILITY, PRI_DEBUG, "savemessage param: from=%s ", SIPX_SAFENULL(sFromCGIVar) );
                 }
                 const char* duration = gValues->valueOf ( "duration" );
                 const char* size = gValues->valueOf ( "size" );
@@ -813,7 +813,7 @@ main(int argc, char* argv[])
                 const char* termChar = gValues->valueOf ( "termchar" );
                   if (duration)
                 {
-                    OsSysLog::add(LOG_FACILITY, PRI_INFO, " duration=%sms\n", duration );
+                    OsSysLog::add(LOG_FACILITY, PRI_INFO, " duration=%sms\n", SIPX_SAFENULL(duration) );
                 }
                 if (size && encodedWavStr && timestamp)
                 {
@@ -839,12 +839,12 @@ main(int argc, char* argv[])
                 const char* encodedWavStr = gValues->valueOf ( "vm" );
                 const char* termChar = gValues->valueOf ( "termchar" );
 
-                OsSysLog::add(LOG_FACILITY, PRI_DEBUG, "sendbydistlist param: frommailbox = %s ", frommailbox );
-                OsSysLog::add(LOG_FACILITY, PRI_DEBUG, "sendbydistlist param: distribution list = %s ", distList );
+                OsSysLog::add(LOG_FACILITY, PRI_DEBUG, "sendbydistlist param: frommailbox = %s ", SIPX_SAFENULL(frommailbox) );
+                OsSysLog::add(LOG_FACILITY, PRI_DEBUG, "sendbydistlist param: distribution list = %s ", SIPX_SAFENULL(distList) );
 
                 if (duration)
                 {
-                    OsSysLog::add(LOG_FACILITY, PRI_INFO, " duration=%sms\n", duration );
+                    OsSysLog::add(LOG_FACILITY, PRI_INFO, " duration=%sms\n", SIPX_SAFENULL(duration) );
                 }
                 if (size && encodedWavStr && timestamp)
                 {
@@ -1164,9 +1164,9 @@ main(int argc, char* argv[])
                         "CGI executed successfully.\n");
                     if (!outStr.isNull())
                     {
-                        printf( "%s", outStr.data() );
+                        printf( "%s", SIPX_SAFENULL(outStr.data()) );
                         OsSysLog::add( LOG_FACILITY, PRI_DEBUG, "main: outStr = '%s'",
-                                       outStr.data() );
+                                       SIPX_SAFENULL(outStr.data()) );
                     }
                 } else if( requestIsFromWebUI )
                 {
@@ -1181,7 +1181,7 @@ main(int argc, char* argv[])
                     printf( REDIRECT_SCRIPT_END );
                     printf( HTML_END );
                     OsSysLog::add( LOG_FACILITY, PRI_ERR, "main: ERR in executing the CGI: action = '%s', cmd->execute() returned error, requestIsFromWebUI = 0\n",
-                                   action.data());
+                                   SIPX_SAFENULL(action.data()));
                     result = -1;
                 } else
                 {
@@ -1194,7 +1194,7 @@ main(int argc, char* argv[])
                     printf ( responseHeaders.data() );
                     printf ( vxmlBody.data() );
                     OsSysLog::add( LOG_FACILITY, PRI_ERR, "main: ERR in executing the CGI: action = '%s', cmd->execute() returned error, requestIsFromWebUI = 1\n",
-                                   action.data());
+                                   SIPX_SAFENULL(action.data()));
                     result = -1;
                 }
 
@@ -1212,7 +1212,7 @@ main(int argc, char* argv[])
                 printf( REDIRECT_SCRIPT_END );
                 printf( HTML_END );
                 OsSysLog::add( LOG_FACILITY, PRI_ERR, "main: ERR in executing the CGI: action = '%s', cmd = NULL, requestIsFromWebUI = 1\n",
-                                   action.data());
+                                   SIPX_SAFENULL(action.data()));
                 result = -1;
             }
             else
@@ -1223,7 +1223,7 @@ main(int argc, char* argv[])
                 printf ( responseHeaders.data() );
                 printf ( vxmlBody.data() );
                 OsSysLog::add( LOG_FACILITY, PRI_ERR, "main: ERR in executing the CGI: action = '%s', cmd = NULL, requestIsFromWebUI = 0\n",
-                                   action.data());
+                                   SIPX_SAFENULL(action.data()));
                 result = -1;
             }
         }
@@ -1231,7 +1231,7 @@ main(int argc, char* argv[])
         {
            OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
                          "main: CGI request had no action specified: QUERY_STRING = '%s'",
-                         getenv("QUERY_STRING"));
+                        SIPX_SAFENULL(getenv("QUERY_STRING")));
         }
     }
 

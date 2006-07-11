@@ -59,7 +59,7 @@ OsStatus OsProcessIteratorLinux::findFirst(OsProcess &rProcess)
         }
         else
         {
-            osPrintf("ERROR: Couldn't read %s file!\n",procName.data());
+            osPrintf("ERROR: Couldn't read %s file!\n",SIPX_SAFENULL(procName.data()));
         }
     }
     else
@@ -86,7 +86,7 @@ OsStatus OsProcessIteratorLinux::findNext(OsProcess &rProcess)
             if (readProcFile(procName,rProcess) == OS_SUCCESS)
                 retval = OS_SUCCESS;
             else
-                osPrintf("ERROR: Couldn't read %s file!\n",procName.data());
+                osPrintf("ERROR: Couldn't read %s file!\n",SIPX_SAFENULL(procName.data()));
         }
     }
 

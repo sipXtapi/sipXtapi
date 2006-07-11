@@ -119,7 +119,7 @@ BOOL isIPHLPAvail()
                                                                 (LPTSTR) &lpMsgBuf,
                                                                 0,
                                                                 NULL);
-                                osPrintf("ERROR STRING: %s",(char *)lpMsgBuf);
+                                osPrintf("ERROR STRING: %s",SIPX_SAFENULL((char *)lpMsgBuf));
                                 return retval;
                         }
 

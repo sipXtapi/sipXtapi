@@ -17,7 +17,7 @@
 
 void replication_socket_t::handleError(int socket, const char* operation, const char* error)
 {
-    fprintf(stderr, "Operation %s failed for socket %d: %s\n", operation, socket, error);
+    fprintf(stderr, "Operation %s failed for socket %d: %s\n", SIPX_SAFENULL(operation), socket, SIPX_SAFENULL(error));
 }
 
 int replication_socket_t::read(void* buf, size_t min_size, size_t max_size, time_t timeout)

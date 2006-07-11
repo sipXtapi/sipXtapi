@@ -144,7 +144,7 @@ void TaoListeningTask::deleteAgent(TaoTransportAgent* pAgent)
                 {
                         agent->getAgentName(&agentName);
 #ifdef TEST
-                        osPrintf("Removing TaoTransportAgent: %s\r\n", agentName.data());
+                        osPrintf("Removing TaoTransportAgent: %s\r\n", SIPX_SAFENULL(agentName.data()));
 #endif
                         agentList.remove(iteratorHandle);
                         delete agent;

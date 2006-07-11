@@ -73,7 +73,7 @@ OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
    mNumRecentWriteErrors(0)
 {
     OsSysLog::add(FAC_SIP, PRI_DEBUG, "OsDatagramSocket::_ attempt %s:%d"
-                  ,remoteHost, remoteHostPortNum);
+                  ,SIPX_SAFENULL(remoteHost), remoteHostPortNum);
 
     int                error = 0;
     UtlBoolean         isIp = FALSE;
@@ -110,7 +110,7 @@ OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
 
         OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                 "OsDatagramSocket::OsDatagramSocket( %s:%d %s:%d) failed w/ errno %d)",
-                        remoteHost, remoteHostPortNum, localHost, 
+                        SIPX_SAFENULL(remoteHost), remoteHostPortNum, SIPX_SAFENULL(localHost), 
                         localHostPortNum, error);
 
         goto EXIT;
@@ -232,7 +232,7 @@ void OsDatagramSocket::doConnect(int remoteHostPortNum, const char* remoteHost,
                 close();
                 OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                         "OsDatagramSocket::doConnect( %s:%d ) failed w/ errno %d)",
-                        remoteHost, remoteHostPortNum, error);
+                        SIPX_SAFENULL(remoteHost), remoteHostPortNum, error);
             }
             else
             {
@@ -244,7 +244,7 @@ void OsDatagramSocket::doConnect(int remoteHostPortNum, const char* remoteHost,
             close();
             OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                     "OsDatagramSocket::doConnect( %s:%d ) failed host lookup)",
-                    remoteHost, remoteHostPortNum);           
+                    SIPX_SAFENULL(remoteHost), remoteHostPortNum);           
 
             goto EXIT;
         }
@@ -289,7 +289,7 @@ int OsDatagramSocket::write(const char* buffer, int bufferLength,
             OS_INVALID_INET_ADDRESS)
     {
         osPrintf("OsDatagramSocket::write invalid IP address: \"%s\"\n",
-            ipAddress);
+            SIPX_SAFENULL(ipAddress));
     }
     else
     {
@@ -351,7 +351,7 @@ UtlBoolean OsDatagramSocket::getToSockaddr()
 /*
             osPrintf(
                "OsDatagramSocket::getToSockaddr: invalid IP address: \"%s\"\n",
-                ipAddress);
+                SIPX_SAFENULL(ipAddress));
 */
         } else {
             mToSockaddrValid = TRUE;

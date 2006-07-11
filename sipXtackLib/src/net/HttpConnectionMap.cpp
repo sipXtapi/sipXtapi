@@ -108,14 +108,14 @@ HttpConnectionMapEntry* HttpConnectionMap::getPersistentConnection(const Url& ur
                 OsSysLog::add(FAC_HTTP, PRI_DEBUG, 
                               "HttpConnectionMap::getPersistentConnection "
                               "- Adding %s for %s", 
-                              pEntry->data(), keyString.data());            
+                              SIPX_SAFENULL(pEntry->data()), SIPX_SAFENULL(keyString.data()));            
              }
              else
              {
                 OsSysLog::add(FAC_HTTP, PRI_ERR,   
                               "HttpConnectionMap::getPersistentConnection "
                               "- adding %s (entry %s) failed)",
-                              keyString.data(), pEntry->data());
+                              SIPX_SAFENULL(keyString.data()), SIPX_SAFENULL(pEntry->data()));
                 delete pEntry;
                 pEntry = NULL;
              }
@@ -130,7 +130,7 @@ HttpConnectionMapEntry* HttpConnectionMap::getPersistentConnection(const Url& ur
        pEntry->mbInUse = true;
        OsSysLog::add(FAC_HTTP, PRI_DEBUG,
                      "HttpConnectionMap::getPersistentConnection - Found %s for %s, socket %p", 
-                     pEntry->data(), keyString.data(), socket);
+                     SIPX_SAFENULL(pEntry->data()), SIPX_SAFENULL(keyString.data()), socket);
 
     }
 
@@ -199,7 +199,7 @@ HttpConnectionMapEntry::HttpConnectionMapEntry(const UtlString& name) :
 HttpConnectionMapEntry::~HttpConnectionMapEntry()
 {
     //OsSysLog::add(FAC_HTTP, PRI_DEBUG,
-    //              "HttpConnectionMapEntry::destructor %s", this->data());    
+    //              "HttpConnectionMapEntry::destructor %s", SIPX_SAFENULL(this->data()));    
     if (mpSocket)
     {
         delete mpSocket;

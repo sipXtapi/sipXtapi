@@ -279,7 +279,7 @@ SIPXAuthHandler::writeToLog(
     const OsSysLogPriority logLevel ) const
 {
     UtlString logContents = methodName + " : " + contents;
-    OsSysLog::add( LOG_FACILITY, logLevel, "%s", logContents.data() );
+    OsSysLog::add( LOG_FACILITY, logLevel, "%s", SIPX_SAFENULL(logContents.data()) );
     OsSysLog::flush();
     return;
 }
@@ -354,7 +354,7 @@ SIPXAuthHandler::check_user_id( ApacheRequestRec *pRequest )
         UtlString requestUrl = pRequest->uri();
 
         OsSysLog::add( LOG_FACILITY, PRI_DEBUG, "SIPXAuthHandler::check_user_id login %s realm %s request url %s",
-                        loginString.data(), realmName.data(), requestUrl.data() );
+                        SIPX_SAFENULL(loginString.data()), SIPX_SAFENULL(realmName.data()),SIPX_SAFENULL(requestUrl.data()) );
 
         // Using the pattern specified in the request
         // Url determine the type of resource that we're looking for
@@ -524,7 +524,7 @@ SIPXAuthHandler::getAuthResource (
         rAuthResource = UNKNOWN;
         result = OS_FAILED;
     }
-    OsSysLog::add( LOG_FACILITY, PRI_DEBUG, "SIPXAuthHandler::getAuthResource %s type %d result %d ", requestUrl.data(), (int)rAuthResource, (int)result);
+    OsSysLog::add( LOG_FACILITY, PRI_DEBUG, "SIPXAuthHandler::getAuthResource %s type %d result %d ", SIPX_SAFENULL(requestUrl.data()), (int)rAuthResource, (int)result);
 OsSysLog::flush();
     return result;
 }

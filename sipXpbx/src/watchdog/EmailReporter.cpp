@@ -74,7 +74,7 @@ OsStatus EmailReporter::report(UtlString &rProcessAlias,UtlString &rMessage)
     else
     {
         char msg[256];
-        sprintf(msg,"ERROR: Max number of messages reached for %s\n",rProcessAlias.data());
+        sprintf(msg,"ERROR: Max number of messages reached for %s\n",SIPX_SAFENULL(rProcessAlias.data()));
         OsSysLog::add(FAC_WATCHDOG,PRI_ERR,msg);
 #ifdef DEBUG
         osPrintf(msg);
@@ -106,7 +106,7 @@ OsStatus EmailReporter::send()
             //and now let's execute it!
             if (mNumMessages)
             {
-                OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"Sending mail to: %s",mContacts[loop]->data());
+                OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"Sending mail to: %s",SIPX_SAFENULL(mContacts[loop]->data()));
                 UtlString body;
                 UtlString sHostname;
                 OsSocket::getHostName(&sHostname) ;
@@ -155,7 +155,7 @@ OsStatus EmailReporter::send()
                     processMgr->startProcess(mailAlias,args[0],&args[1],startupDir);
                     delete [] args;
 
-                    OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"Sent message to %s",mContacts[loop]->data());
+                    OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"Sent message to %s",SIPX_SAFENULL(mContacts[loop]->data()));
                     numSent++;
                 }
 
@@ -167,9 +167,9 @@ OsStatus EmailReporter::send()
         else
         {
             const char *msg = "ERROR: %CONTACT% and %BODY% must be in the email execute tag in the xml file.\n";
-            OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"%s",msg);
+            OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"%s",SIPX_SAFENULL(msg));
 #ifdef DEBUG
-            osPrintf("%s",msg);
+            osPrintf("%s",SIPX_SAFENULL(msg));
 #endif /* DEBUG */
         }
     }
@@ -213,7 +213,7 @@ OsStatus EmailReporter::addContact(UtlString &rEmailAddress)
     else
     {
         const char *msg = "ERROR: Max number of contacts reached!\n";
-        OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"%s",msg);
+        OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"%s",SIPX_SAFENULL(msg));
 #ifdef DEBUG
         osPrintf(msg);
 #endif /* DEBUG */

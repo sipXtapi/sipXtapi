@@ -48,8 +48,8 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                 MpStreamPlaylistPlayer* pPlayer = new MpStreamPlaylistPlayer(mCfg->getFlowGraph()->getMsgQ()) ;
                 for (i=0; i<4; i++)
                 {
-                    sprintf(szUrl, "Playlist +http://%s/nums/%d.raw", BASE_URL, i) ;
-                    osPrintf("Playing %s\n", szUrl) ;
+                    sprintf(szUrl, "Playlist +http://%s/nums/%d.raw", SIPX_SAFENULL(BASE_URL), i) ;
+                    osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
 
                     Url url(szUrl) ;
                     pPlayer->add(url, STREAM_SOUND_LOCAL | STREAM_FORMAT_RAW) ;
@@ -122,8 +122,8 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
             {
                 for (i=0; i<4; i++)
                 {
-                    sprintf(szUrl, "Playlist +http://%s/nums/%d.raw", BASE_URL, i) ;
-                    osPrintf("Playing %s\n", szUrl) ;
+                    sprintf(szUrl, "Playlist +http://%s/nums/%d.raw", SIPX_SAFENULL(BASE_URL), i) ;
+                    osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
 
                     Url url(szUrl) ;
                     pPlayer->add(url, STREAM_SOUND_LOCAL | STREAM_FORMAT_RAW | STREAM_HINT_CACHE) ;
@@ -212,8 +212,8 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                 MpStreamPlaylistPlayer* pPlayer = new MpStreamPlaylistPlayer(mCfg->getFlowGraph()->getMsgQ()) ;
                 for (i=0; i<4; i++)
                 {
-                    sprintf(szUrl, "Playlist +http://%s/nums/%d.raw", BASE_URL, i) ;
-                    osPrintf("Playing %s\n", szUrl) ;
+                    sprintf(szUrl, "Playlist +http://%s/nums/%d.raw", SIPX_SAFENULL(BASE_URL), i) ;
+                    osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
 
                     Url url(szUrl) ;
                     pPlayer->add(url, STREAM_SOUND_LOCAL | STREAM_FORMAT_RAW | STREAM_HINT_CACHE) ;
@@ -297,8 +297,8 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                 MpStreamPlaylistPlayer* pPlayer = new MpStreamPlaylistPlayer(mCfg->getFlowGraph()->getMsgQ()) ;
                 for (i=0; i<4; i++)
                 {
-                    sprintf(szUrl, "Playlist +http://%s/nums/%d.raw", BASE_URL, i) ;
-                    osPrintf("Playing %s\n", szUrl) ;
+                    sprintf(szUrl, "Playlist +http://%s/nums/%d.raw", SIPX_SAFENULL(BASE_URL), i) ;
+                    osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
 
                     Url url(szUrl) ;
                     pPlayer->add(url, STREAM_SOUND_LOCAL | STREAM_FORMAT_RAW) ;
@@ -378,8 +378,8 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                 MpStreamPlaylistPlayer* pPlayer = new MpStreamPlaylistPlayer(mCfg->getFlowGraph()->getMsgQ()) ;
                 for (i=0; i<4; i++)
                 {
-                    sprintf(szUrl, "Playlist +http://%s/nums/%d.raw", BASE_URL, i) ;
-                    osPrintf("Playing %s\n", szUrl) ;
+                    sprintf(szUrl, "Playlist +http://%s/nums/%d.raw", SIPX_SAFENULL(BASE_URL), i) ;
+                    osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
 
                     Url url(szUrl) ;
                     pPlayer->add(url, STREAM_SOUND_LOCAL | STREAM_FORMAT_RAW | STREAM_HINT_CACHE) ;
@@ -475,8 +475,8 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                 MpStreamPlaylistPlayer* pPlayer = new MpStreamPlaylistPlayer(mCfg->getFlowGraph()->getMsgQ()) ;
                 for (i=0; i<2; i++)
                 {
-                    sprintf(szUrl, "Playlist +http://%s/longstream.raw", BASE_URL) ;
-                    osPrintf("Playing %s\n", szUrl) ;
+                    sprintf(szUrl, "Playlist +http://%s/longstream.raw", SIPX_SAFENULL(BASE_URL)) ;
+                    osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
 
                     Url url(szUrl) ;
                     pPlayer->add(url, STREAM_SOUND_LOCAL | STREAM_FORMAT_RAW) ;
@@ -555,8 +555,8 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                 MpStreamPlaylistPlayer* pPlayer = new MpStreamPlaylistPlayer(mCfg->getFlowGraph()->getMsgQ()) ;
                 for (i=0; i<2; i++)
                 {
-                    sprintf(szUrl, "Playlist +http://%s/longstream.raw", BASE_URL) ;
-                    osPrintf("Playing %s\n", szUrl) ;
+                    sprintf(szUrl, "Playlist +http://%s/longstream.raw", SIPX_SAFENULL(BASE_URL)) ;
+                    osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
 
                     Url url(szUrl) ;
                     pPlayer->add(url, STREAM_SOUND_LOCAL | STREAM_FORMAT_RAW) ;
@@ -650,7 +650,7 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
             {
                 MpStreamPlaylistPlayer* pPlayer = new MpStreamPlaylistPlayer(mCfg->getFlowGraph()->getMsgQ()) ;
 #if 0 /* [ */
-                sprintf(szUrl, "http://%s/nums/0.raw", BASE_URL) ;
+                sprintf(szUrl, "http://%s/nums/0.raw", SIPX_SAFENULL(BASE_URL)) ;
                 pPlayer->add(Url(szUrl), STREAM_SOUND_LOCAL) ;
 #endif /* ] */
 

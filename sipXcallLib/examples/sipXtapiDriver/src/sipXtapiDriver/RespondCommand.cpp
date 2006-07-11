@@ -114,7 +114,7 @@ int RespondCommand::execute(int argc, char* argv[])
         {
                 UtlString usage;
                 getUsage(argv[0], &usage);
-                printf("%s", usage.data());
+                printf("%s", SIPX_SAFENULL(usage.data()));
                 status = CommandProcessor::COMMAND_BAD_SYNTAX;
         }
 

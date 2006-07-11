@@ -540,7 +540,7 @@ JS_DumpArenaStats(FILE *fp)
 	    mean = variance = sigma = 0;
 	}
 
-        fprintf(fp, "\n%s allocation statistics:\n", stats->name);
+        fprintf(fp, "\n%s allocation statistics:\n", SIPX_SAFENULL(stats->name));
         fprintf(fp, "              number of arenas: %u\n", stats->narenas);
         fprintf(fp, "         number of allocations: %u\n", stats->nallocs);
         fprintf(fp, " number of free arena reclaims: %u\n", stats->nreclaims);

@@ -66,13 +66,13 @@ SipRedirectorMPT::initialize(const UtlHashMap& configParameters,
       *dynamic_cast<UtlString*> (configParameters.findValue(&s));
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipRedirectorMPT::SipRedirectorMPT domainName = '%s'",
-                 mDomainName.data());
+                 SIPX_SAFENULL(mDomainName.data()));
 
    configFileName =
       SIPX_CONFDIR + OsPathBase::separator + MPT_FILE_NAME;
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipRedirectorMPT::SipRedirectorMPT Loading mappings from '%s'",
-                 configFileName.data());
+                 SIPX_SAFENULL(configFileName.data()));
    loadMappings(&configFileName, &mMapUserToContacts, &mMapContactsToUser);
 
    // Set up the static pointer to the unique instance.
@@ -112,7 +112,7 @@ SipRedirectorMPT::lookUp(
    requestUri.getUserId(userId);
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRedirectorMPT::lookUp "
                  "userId = '%s'",
-                 userId.data());
+                 SIPX_SAFENULL(userId.data()));
 
    // Look up the user ID in the map.
    mMapLock.acquire();
@@ -221,7 +221,7 @@ void SipRedirectorMPT::loadMappings(UtlString* file_name,
                                // Load the mapping into the maps.
                                OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                              "SipRedirectorMPT::loadMappings added '%s' -> '%s'",
-                                             user, contact);
+                                             SIPX_SAFENULL(user), SIPX_SAFENULL(contact));
                                UtlString* user_string = new UtlString(user);
                                UtlString* contact_string = new UtlString(contact);
                                mapUserToContacts->insertKeyAndValue(user_string,
@@ -270,7 +270,7 @@ void SipRedirectorMPT::writeMappings(UtlString* file_name,
    {
       OsSysLog::add(FAC_SIP, PRI_CRIT,
                     "SipRedirectorMPT::writeMappings fopen('%s') failed, errno = %d",
-                    temp_file_name.data(), errno);
+                    SIPX_SAFENULL(temp_file_name.data()), SIPX_SAFENULL(errno));
    }
    else
    {
@@ -289,7 +289,7 @@ void SipRedirectorMPT::writeMappings(UtlString* file_name,
          UtlString v_escaped;
          XmlEscape(v_escaped, *v);
          fprintf(f, "  <map><user>%s</user><contacts>%s</contacts></map>\n",
-                 k_escaped.data(), v_escaped.data());
+                 SIPX_SAFENULL(k_escaped.data()), SIPX_SAFENULL(v_escaped.data()));
       }
       fprintf(f, "</MPT>\n");
       fclose(f);
@@ -302,7 +302,7 @@ void SipRedirectorMPT::writeMappings(UtlString* file_name,
       {
          OsSysLog::add(FAC_SIP, PRI_CRIT,
                        "SipRedirectorMPT::writeMappings rename('%s', '%s') failed, errno = %d",
-                       temp_file_name.data(), file_name->data(), errno);
+                       SIPX_SAFENULL(temp_file_name.data()), SIPX_SAFENULL(file_name->data()), errno);
       }
    }
 }
@@ -314,7 +314,7 @@ UtlString* SipRedirectorMPT::addMapping(const char* contacts,
    UtlString* contactString = new UtlString(contacts, length);
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipRedirectorMPT::addMapping inserting '%s'",
-                 contactString->data());
+                 SIPX_SAFENULL(contactString->data()));
    // Get its hash.
    unsigned hash = contactString->hash();
    // Keys are 24 bits, and the starting key is the lower 24 bits of the hash.
@@ -342,7 +342,7 @@ UtlString* SipRedirectorMPT::addMapping(const char* contacts,
          userString = new UtlString(buffer);
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
                        "SipRedirectorMPT::addMapping trying '%s'",
-                       buffer);
+                       SIPX_SAFENULL(buffer));
          if (mMapUserToContacts.findValue(userString) == NULL)
          {
             break;
@@ -362,7 +362,7 @@ UtlString* SipRedirectorMPT::addMapping(const char* contacts,
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipRedirectorMPT::addMapping using '%s'",
-                 userString->data());
+                 SIPX_SAFENULL(userString->data()));
 
    return userString;
 }
@@ -489,21 +489,21 @@ SipRedirectorMPT::processForm(const HttpRequestContext& requestContext,
 #if 0
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipRedirectorMPT::processForm *** domain '%s'",
-                 MPTredirector->mDomainName.data());
+                 SIPX_SAFENULL(MPTredirector->mDomainName.data()));
 #endif
    if (success)
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "SipRedirectorMPT::processForm success user '%s'",
-                    user->data());
+                    SIPX_SAFENULL(user->data()));
       sprintf(buffer1, "<code>sip:<font size=\"+1\">%s</font>@%s:65070</code> redirects to:<br />",
-              user->data(), MPTredirector->mDomainName.data());
+              SIPX_SAFENULL(user->data()), SIPX_SAFENULL(MPTredirector->mDomainName.data()));
    }
    else
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "SipRedirectorMPT::processForm failure error_msg '%s', error_location %d",
-                    error_msg, error_location);
+                    SIPX_SAFENULL(error_msg), error_location);
       strcpy(buffer1, "<i>Error:</i>");
    }
    // Transcribe the input value into buffer2.

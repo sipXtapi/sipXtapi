@@ -72,7 +72,7 @@ SubscriptionDB::SubscriptionDB( const UtlString& name )
     gsVerboseLoggingEnabled = SIPDBManager::isVerboseLoggingEnabled();
     if (gsVerboseLoggingEnabled)
         OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::_  user=%d \"%s\"",
-                    users, name.data());
+                    users, SIPX_SAFENULL(name.data()));
     if ( users == 1 )
     {
         // Load the file implicitly
@@ -128,7 +128,7 @@ SubscriptionDB::load()
                 OsPath::separator + mDatabaseName + ".xml";
 
         OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::load loading \"%s\"",
-                    fileName.data());
+                    SIPX_SAFENULL(fileName.data()));
 
         TiXmlDocument doc ( fileName );
 
@@ -189,7 +189,7 @@ SubscriptionDB::load()
         } else 
         {
             OsSysLog::add(FAC_SIP, PRI_WARNING, "SubscriptionDB::load failed to load \"%s\"",
-                    fileName.data());
+                    SIPX_SAFENULL(fileName.data()));
         }
     } else 
     {
@@ -462,7 +462,7 @@ SubscriptionDB::removeRow (
            OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::removeRow row not found:\n"
                          "to='%s' from='%s' callid='%s'\n"
                          "cseq='%d'",
-                         to.data(), from.data(), callid.data(),
+                         SIPX_SAFENULL(to.data()), SIPX_SAFENULL(from.data()), SIPX_SAFENULL(callid.data()),
                          subscribeCseq
                          );
         }
@@ -497,7 +497,7 @@ SubscriptionDB::removeErrorRow (
       {
          OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::removeErrorRow row not found:\n"
                        "to='%s' from='%s' callid='%s'\n",
-                       to.data(), from.data(), callid.data()
+                       SIPX_SAFENULL(to.data()), SIPX_SAFENULL(from.data()), SIPX_SAFENULL(callid.data())
                        );
       }
         

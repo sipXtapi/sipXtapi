@@ -196,7 +196,7 @@ void initSysLog(OsConfigDb* pConfig)
          OsPath path(fileTarget);
          path.getNativePath(workingDirectory);
 
-         OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, workingDirectory.data());
+         OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", SIPX_SAFENULL(CONFIG_SETTING_LOG_DIR), SIPX_SAFENULL(workingDirectory.data()));
       }
       else
       {
@@ -204,7 +204,7 @@ void initSysLog(OsConfigDb* pConfig)
          OsFileSystem::getWorkingDirectory(path);
          path.getNativePath(workingDirectory);
 
-         OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, workingDirectory.data());
+         OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", SIPX_SAFENULL(CONFIG_SETTING_LOG_DIR), SIPX_SAFENULL(workingDirectory.data()));
       }
 
       fileTarget = workingDirectory +
@@ -214,7 +214,7 @@ void initSysLog(OsConfigDb* pConfig)
    else
    {
       bSpecifiedDirError = false;
-      OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, fileTarget.data());
+      OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", SIPX_SAFENULL(CONFIG_SETTING_LOG_DIR), SIPX_SAFENULL(fileTarget.data()));
 
       fileTarget = fileTarget +
          OsPathBase::separator +
@@ -239,7 +239,7 @@ void initSysLog(OsConfigDb* pConfig)
       if (logLevel == lkupTable[i].pIdentity)
       {
          priority = lkupTable[i].ePriority;
-         OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_LEVEL, lkupTable[i].pIdentity);
+         OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", SIPX_SAFENULL(CONFIG_SETTING_LOG_LEVEL), SIPX_SAFENULL(lkupTable[i].pIdentity));
          break;
       }
    }
@@ -259,11 +259,11 @@ void initSysLog(OsConfigDb* pConfig)
       }
    }
 
-   OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_CONSOLE, bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
+   OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", SIPX_SAFENULL(CONFIG_SETTING_LOG_CONSOLE), bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
 
    if (bSpecifiedDirError)
    {
-      OsSysLog::add(FAC_LOG, PRI_CRIT, "Cannot access %s directory; please check configuration.", CONFIG_SETTING_LOG_DIR);
+      OsSysLog::add(FAC_LOG, PRI_CRIT, "Cannot access %s directory; please check configuration.", SIPX_SAFENULL(CONFIG_SETTING_LOG_DIR));
    }
 }
 
@@ -293,7 +293,7 @@ void initCodecs(SdpCodecFactory* codecFactory, OsConfigDb* pConfig)
       if (internalCodecId == SdpCodec::SDP_CODEC_UNKNOWN)
       {
          OsSysLog::add(FAC_ACD, PRI_ERR, "initCodecs: Unknown codec ID: %s",
-                       oneCodec.data());
+                       SIPX_SAFENULL(oneCodec.data()));
       }
       else
       {
@@ -433,7 +433,7 @@ int main(int argc, char* argv[])
    if (configDb.get(CONFIG_SETTING_DOMAIN_NAME, domain) != OS_SUCCESS)
    {
       OsSysLog::add(LOG_FACILITY, PRI_CRIT, "main: no value for %s",
-                    CONFIG_SETTING_DOMAIN_NAME);
+                    SIPX_SAFENULL(CONFIG_SETTING_DOMAIN_NAME));
       return 1;
    }
 

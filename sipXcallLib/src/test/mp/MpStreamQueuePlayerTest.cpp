@@ -53,8 +53,8 @@ class MpStreamQueuePlayerTest : public CppUnit::TestCase
 
             for (i=0; i<TESTING_ATTEMPTS; i++)
             {
-                sprintf(szUrl, "http://%s/nums/%d.raw", BASE_URL, i) ;
-                osPrintf("Playing %s\n", szUrl) ;
+                sprintf(szUrl, "http://%s/nums/%d.raw", SIPX_SAFENULL(BASE_URL), i) ;
+                osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
 
                 Url url(szUrl) ;
 
@@ -81,8 +81,8 @@ class MpStreamQueuePlayerTest : public CppUnit::TestCase
 
                 for (i=0; i<4; i++)
                 {
-                    sprintf(szUrl, "http://%s/nums/%d.raw", BASE_URL, i) ;
-                    osPrintf("Playing %s\n", szUrl) ;
+                    sprintf(szUrl, "http://%s/nums/%d.raw", SIPX_SAFENULL(BASE_URL), i) ;
+                    osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
 
                     Url url(szUrl) ;
 
@@ -108,8 +108,8 @@ class MpStreamQueuePlayerTest : public CppUnit::TestCase
 
                 for (i=0; i<4; i++)
                 {
-                    sprintf(szUrl, "http://%s/nums/%d.raw", BASE_URL, i) ;
-                    osPrintf("Playing %s\n", szUrl) ;
+                    sprintf(szUrl, "http://%s/nums/%d.raw", SIPX_SAFENULL(BASE_URL), i) ;
+                    osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
 
                     Url url(szUrl) ;
 
@@ -137,8 +137,8 @@ class MpStreamQueuePlayerTest : public CppUnit::TestCase
 
                 for (i=0; i<2; i++)
                 {
-                    sprintf(szUrl, "http://%s/nums/%d.raw", BASE_URL, i) ;
-                    osPrintf("Playing %s\n", szUrl) ;
+                    sprintf(szUrl, "http://%s/nums/%d.raw", SIPX_SAFENULL(BASE_URL), i) ;
+                    osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
 
                     Url url(szUrl) ;
 
@@ -149,8 +149,8 @@ class MpStreamQueuePlayerTest : public CppUnit::TestCase
 
                 for (i=2; i<5; i++)
                 {
-                    sprintf(szUrl, "http://%s/nums/%d.raw", BASE_URL, i) ;
-                    osPrintf("Playing %s\n", szUrl) ;
+                    sprintf(szUrl, "http://%s/nums/%d.raw", SIPX_SAFENULL(BASE_URL), i) ;
+                    osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
 
                     Url url(szUrl) ;
 
@@ -178,8 +178,8 @@ class MpStreamQueuePlayerTest : public CppUnit::TestCase
 
                 for (i=0; i<2; i++)
                 {
-                    sprintf(szUrl, "http://%s/nums/%d.raw", BASE_URL, i) ;
-                    osPrintf("Playing %s\n", szUrl) ;
+                    sprintf(szUrl, "http://%s/nums/%d.raw", SIPX_SAFENULL(BASE_URL), i) ;
+                    osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
 
                     Url url(szUrl) ;
 
@@ -190,8 +190,8 @@ class MpStreamQueuePlayerTest : public CppUnit::TestCase
 
                 for (i=2; i<4; i++)
                 {
-                    sprintf(szUrl, "http://%s/nums/%d.raw", BASE_URL, i) ;
-                    osPrintf("Playing %s\n", szUrl) ;
+                    sprintf(szUrl, "http://%s/nums/%d.raw", SIPX_SAFENULL(BASE_URL), i) ;
+                    osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
 
                     Url url(szUrl) ;
 
@@ -204,8 +204,8 @@ class MpStreamQueuePlayerTest : public CppUnit::TestCase
 
                 for (i=5; i<7; i++)
                 {
-                    sprintf(szUrl, "http://%s/nums/%d.raw", BASE_URL, i) ;
-                    osPrintf("Playing %s\n", szUrl) ;
+                    sprintf(szUrl, "http://%s/nums/%d.raw", SIPX_SAFENULL(BASE_URL), i) ;
+                    osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
 
                     Url url(szUrl) ;
 
@@ -234,8 +234,8 @@ class MpStreamQueuePlayerTest : public CppUnit::TestCase
                 MpStreamQueuePlayer* pPlayer = new MpStreamQueuePlayer(mCfg->getFlowGraph()->getMsgQ()) ;
                 pPlayer->addListener(pListener) ;
 
-                sprintf(szUrl, "http://%s/longstream.raw", BASE_URL) ;
-                osPrintf("Playing %s\n", szUrl) ;
+                sprintf(szUrl, "http://%s/longstream.raw", SIPX_SAFENULL(BASE_URL)) ;
+                osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
 
                 Url url(szUrl) ;
 
@@ -248,7 +248,7 @@ class MpStreamQueuePlayerTest : public CppUnit::TestCase
 
                 pPlayer->reset() ;
 
-                sprintf(szUrl, "http://%s/nums/8.wav", BASE_URL) ;
+                sprintf(szUrl, "http://%s/nums/8.wav", SIPX_SAFENULL(BASE_URL)) ;
                 Url url2(szUrl);
 
                 pPlayer->add(url2, STREAM_SOUND_LOCAL | STREAM_FORMAT_RAW) ;
@@ -278,17 +278,17 @@ class MpStreamQueuePlayerTest : public CppUnit::TestCase
 
                 MpStreamQueuePlayer* pPlayer = new MpStreamQueuePlayer(mCfg->getFlowGraph()->getMsgQ()) ;
 
-                sprintf(szUrl, "http://%s/nums/1.wav", BASE_URL) ;
+                sprintf(szUrl, "http://%s/nums/1.wav", SIPX_SAFENULL(BASE_URL)) ;
                 Url url1(szUrl);
-                sprintf(szUrl, "http://%s/nums/2.wav", BASE_URL) ;
+                sprintf(szUrl, "http://%s/nums/2.wav", SIPX_SAFENULL(BASE_URL)) ;
                 Url url2(szUrl);
-                sprintf(szUrl, "http://%s/nums/3.wav", BASE_URL) ;
+                sprintf(szUrl, "http://%s/nums/3.wav", SIPX_SAFENULL(BASE_URL)) ;
                 Url url3(szUrl);
-                sprintf(szUrl, "http://%s/nums/4.wav", BASE_URL) ;
+                sprintf(szUrl, "http://%s/nums/4.wav", SIPX_SAFENULL(BASE_URL)) ;
                 Url url4(szUrl);
-                sprintf(szUrl, "http://%s/nums/5.wav", BASE_URL) ;
+                sprintf(szUrl, "http://%s/nums/5.wav", SIPX_SAFENULL(BASE_URL)) ;
                 Url url5(szUrl);
-                sprintf(szUrl, "http://%s/nums/doesnotexist.wav", BASE_URL) ;
+                sprintf(szUrl, "http://%s/nums/doesnotexist.wav", SIPX_SAFENULL(BASE_URL)) ;
                 Url urlBad(szUrl);
 
                 pPlayer->add(url1, STREAM_SOUND_LOCAL | STREAM_FORMAT_WAV) ;
@@ -326,7 +326,7 @@ class MpStreamQueuePlayerTest : public CppUnit::TestCase
                 MpStreamQueuePlayer* pPlayer = new MpStreamQueuePlayer(mCfg->getFlowGraph()->getMsgQ()) ;
                 pPlayer->addListener(pListener) ;
 
-                sprintf(szUrl, "http://%s/nums/8.wav", BASE_URL) ;
+                sprintf(szUrl, "http://%s/nums/8.wav", SIPX_SAFENULL(BASE_URL)) ;
                 Url url2(szUrl);
 
                 for (int i = 0; i< 5; i++)
@@ -335,7 +335,7 @@ class MpStreamQueuePlayerTest : public CppUnit::TestCase
                 }
                 pPlayer->play() ;
 
-                sprintf(szUrl, "http://%s/nums/9.wav", BASE_URL) ;
+                sprintf(szUrl, "http://%s/nums/9.wav", SIPX_SAFENULL(BASE_URL)) ;
                 Url url3(szUrl);
 
                 for (int i = 0; i< 5; i++)
@@ -363,12 +363,12 @@ class MpStreamQueuePlayerTest : public CppUnit::TestCase
                 char szUrl[128] ;
 
                 osPrintf("\n\ntestRawSynchronousMultipleDelete (%d of %d): %s\n",
-                         j+1, TESTING_ATTEMPTS, BASE_URL) ;
+                         j+1, TESTING_ATTEMPTS, SIPX_SAFENULL(BASE_URL)) ;
 
                 MpStreamQueuePlayer* pPlayer = new MpStreamQueuePlayer(mCfg->getFlowGraph()->getMsgQ()) ;
 
-                sprintf(szUrl, "http://%s/longstream.raw", BASE_URL) ;
-                osPrintf("Playing %s\n", szUrl) ;
+                sprintf(szUrl, "http://%s/longstream.raw", SIPX_SAFENULL(BASE_URL)) ;
+                osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
 
                 Url url(szUrl) ;
 
@@ -392,30 +392,30 @@ class MpStreamQueuePlayerTest : public CppUnit::TestCase
 
                 MpStreamQueuePlayer* pPlayer = new MpStreamQueuePlayer(mCfg->getFlowGraph()->getMsgQ()) ;
 
-                sprintf(szUrl, "http://%s/noexist.raw", BASE_URL) ;
-                osPrintf("Playing %s\n", szUrl) ;
+                sprintf(szUrl, "http://%s/noexist.raw", SIPX_SAFENULL(BASE_URL)) ;
+                osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl) );
                 Url url1(szUrl);
                 pPlayer->add(url1, STREAM_SOUND_LOCAL | STREAM_FORMAT_RAW) ;
                 pPlayer->play() ;
                 pPlayer->wait() ;
 
-                sprintf(szUrl, "http://%s/nums/1.raw", BASE_URL) ;
-                osPrintf("Playing %s\n", szUrl) ;
+                sprintf(szUrl, "http://%s/nums/1.raw", SIPX_SAFENULL(BASE_URL)) ;
+                osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
                 Url url2(szUrl);
                 pPlayer->add(url2, STREAM_SOUND_LOCAL | STREAM_FORMAT_RAW) ;
                 pPlayer->play() ;
                 pPlayer->wait() ;
 
-                sprintf(szUrl, "http://%s/noexist.raw", BASE_URL) ;
-                osPrintf("Playing %s\n", szUrl) ;
+                sprintf(szUrl, "http://%s/noexist.raw", SIPX_SAFENULL(BASE_URL)) ;
+                osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
                 Url url3(szUrl);
                 pPlayer->add(url3, STREAM_SOUND_LOCAL | STREAM_FORMAT_RAW) ;
                 Url url3a(szUrl);
-                osPrintf("Playing %s\n", szUrl) ;
+                osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
                 pPlayer->add(url3a, STREAM_SOUND_LOCAL | STREAM_FORMAT_RAW) ;
 
-                sprintf(szUrl, "http://%s/nums/2.raw", BASE_URL) ;
-                osPrintf("Playing %s\n", szUrl) ;
+                sprintf(szUrl, "http://%s/nums/2.raw", SIPX_SAFENULL(BASE_URL)) ;
+                osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
                 Url url4(szUrl);
                 pPlayer->add(url4, STREAM_SOUND_LOCAL | STREAM_FORMAT_RAW) ;
                 pPlayer->play() ;
@@ -437,30 +437,30 @@ class MpStreamQueuePlayerTest : public CppUnit::TestCase
 
                 MpStreamQueuePlayer* pPlayer = new MpStreamQueuePlayer(mCfg->getFlowGraph()->getMsgQ()) ;
 
-                sprintf(szUrl, "http://%s/noexist.wav", BASE_URL) ;
-                osPrintf("Playing %s\n", szUrl) ;
+                sprintf(szUrl, "http://%s/noexist.wav", SIPX_SAFENULL(BASE_URL)) ;
+                osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
                 Url url1(szUrl);
                 pPlayer->add(url1, STREAM_SOUND_LOCAL | STREAM_FORMAT_RAW) ;
                 pPlayer->play() ;
                 pPlayer->wait() ;
 
-                sprintf(szUrl, "http://%s/nums/1.wav", BASE_URL) ;
-                osPrintf("Playing %s\n", szUrl) ;
+                sprintf(szUrl, "http://%s/nums/1.wav", SIPX_SAFENULL(BASE_URL)) ;
+                osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
                 Url url2(szUrl);
                 pPlayer->add(url2, STREAM_SOUND_LOCAL | STREAM_FORMAT_RAW) ;
                 pPlayer->play() ;
                 pPlayer->wait() ;
 
-                sprintf(szUrl, "http://%s/noexist.wav", BASE_URL) ;
-                osPrintf("Playing %s\n", szUrl) ;
+                sprintf(szUrl, "http://%s/noexist.wav", SIPX_SAFENULL(BASE_URL)) ;
+                osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
                 Url url3(szUrl);
                 pPlayer->add(url3, STREAM_SOUND_LOCAL | STREAM_FORMAT_RAW) ;
-                osPrintf("Playing %s\n", szUrl) ;
+                osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
                 Url url4(szUrl);
                 pPlayer->add(url4, STREAM_SOUND_LOCAL | STREAM_FORMAT_RAW) ;
 
-                sprintf(szUrl, "http://%s/nums/2.wav", BASE_URL) ;
-                osPrintf("Playing %s\n", szUrl) ;
+                sprintf(szUrl, "http://%s/nums/2.wav", SIPX_SAFENULL(BASE_URL)) ;
+                osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
                 Url url5(szUrl);
                 pPlayer->add(url5, STREAM_SOUND_LOCAL | STREAM_FORMAT_RAW) ;
                 pPlayer->play() ;
@@ -481,8 +481,8 @@ class MpStreamQueuePlayerTest : public CppUnit::TestCase
 
                 MpStreamQueuePlayer* pPlayer = new MpStreamQueuePlayer(mCfg->getFlowGraph()->getMsgQ()) ;
 
-                sprintf(szUrl, "http://%s/noexist.raw", BASE_URL) ;
-                osPrintf("Playing %s\n", szUrl) ;
+                sprintf(szUrl, "http://%s/noexist.raw", SIPX_SAFENULL(BASE_URL)) ;
+                osPrintf("Playing %s\n", SIPX_SAFENULL(szUrl)) ;
                 Url url(szUrl);
                 pPlayer->add(url, STREAM_SOUND_LOCAL | STREAM_FORMAT_RAW) ;
                 pPlayer->play() ;

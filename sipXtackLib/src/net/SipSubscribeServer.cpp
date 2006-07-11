@@ -13,6 +13,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include <os/OsDefs.h>
 #include <os/OsMsg.h>
 #include <os/OsEventMsg.h>
 #include <utl/UtlHashMapIterator.h>
@@ -221,7 +222,7 @@ UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId,
     {
         OsSysLog::add(FAC_SIP, PRI_ERR,
             "SipSubscribeServer::notifySubscribers event type: %s not enabled",
-            eventName.data());
+            SIPX_SAFENULL(eventName.data()));
     }
 
     unlockForRead();
@@ -575,7 +576,7 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
     {
         OsSysLog::add(FAC_SIP, PRI_ERR, 
             "SipSubscribeServer::handleSubscribe event type: %s not enabled",
-            eventName.data());
+            SIPX_SAFENULL(eventName.data()));
 
         SipMessage eventTypeNotHandled;
         eventTypeNotHandled.setResponseData(&subscribeRequest,
@@ -630,7 +631,7 @@ UtlBoolean SipSubscribeServer::handleNotifyResponse(const SipMessage& notifyResp
         {
             OsSysLog::add(FAC_SIP, PRI_ERR,
                 "SipSubscribeServer::handleNotifyResponse NOTIFY response with no dialog. Handle: %s",
-                 dialogHandle.data());
+                 SIPX_SAFENULL(dialogHandle.data()));
         }
     }
 

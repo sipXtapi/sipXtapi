@@ -106,7 +106,7 @@ StreamFormatDecoder::operator=(const StreamFormatDecoder& rhs)
 void StreamFormatDecoder::fireEvent(StreamDecoderEvent event)
 {
 #ifdef MP_STREAM_DEBUG /* [ */
-   osPrintf("StreamFormatDecoder: %s\n", getEventString(event)) ;
+   osPrintf("StreamFormatDecoder: %s\n", SIPX_SAFENULL(getEventString(event))) ;
 #endif /* MP_STREAM_DEBUG ] */
 
    if (mpListener != NULL)
@@ -116,7 +116,7 @@ void StreamFormatDecoder::fireEvent(StreamDecoderEvent event)
 #ifdef MP_STREAM_DEBUG /* [ */
    else
    {
-	  osPrintf("StreamFormatDecoder: Null listener for event %s\n", getEventString(event)) ;
+	  osPrintf("StreamFormatDecoder: Null listener for event %s\n", SIPX_SAFENULL(getEventString(event))) ;
    }
 #endif /* MP_STREAM_DEBUG ] */
 }

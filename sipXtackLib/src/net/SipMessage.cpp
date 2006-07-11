@@ -367,7 +367,7 @@ void SipMessage::setInviteData(const char* fromField,
            }
 #ifdef TEST_PRINT
             osPrintf("SipMessage::setInviteData: name=%s, value=%s\n",
-                    headerName.data(), headerValue.data());
+                    SIPX_SAFENULL(headerName.data()), SIPX_SAFENULL(headerValue.data()));
 #endif
         }
         else
@@ -375,7 +375,7 @@ void SipMessage::setInviteData(const char* fromField,
            OsSysLog::add(FAC_SIP, PRI_WARNING,
                          "SipMessage::setInviteData "
                          "URL header '%s: %s' may not be added using a header parameter",
-                         headerName.data(), headerValue.data());
+                         SIPX_SAFENULL(headerName.data()), SIPX_SAFENULL(headerValue.data()));
         }
 
         headerIndex++;
@@ -400,7 +400,7 @@ void SipMessage::setInviteData(const char* fromField,
         setSessionExpires(sessionReinviteTimer);
 
 #ifdef TEST
-   osPrintf("SipMessage::setInviteData rtpAddress: %s\n", rtpAddress);
+   osPrintf("SipMessage::setInviteData rtpAddress: %s\n", SIPX_SAFENULL(rtpAddress));
 #endif
    addSdpBody(rtpAddress, rtpAudioPort, rtcpAudioPort,
               rtpVideoPort, rtcpVideoPort,
@@ -1231,7 +1231,7 @@ UtlBoolean SipMessage::verifyMd5Authorization(const char* userId,
        {
           getRequestUri(&uriString);
           OsSysLog::add(FAC_SIP,PRI_DEBUG, "SipMessage::verifyMd5Authorization using request URI: %s instead of Auth header uri parameter for digest\n",
-                        uriString.data());
+                        SIPX_SAFENULL(uriString.data()));
        }
        getRequestMethod(&method);
     }
@@ -1239,7 +1239,7 @@ UtlBoolean SipMessage::verifyMd5Authorization(const char* userId,
 #ifdef TEST
     OsSysLog::add(FAC_SIP,PRI_DEBUG, "SipMessage::verifyMd5Authorization - "
          "userId='%s', password='%s', nonce='%s', realm='%s', uri='%s', method='%s' \n",
-         userId, password, nonce, realm, uriString.data(), method.data());
+         SIPX_SAFENULL(userId), SIPX_SAFENULL(password), SIPX_SAFENULL(nonce), SIPX_SAFENULL(realm), SIPX_SAFENULL(uriString.data()), SIPX_SAFENULL(method.data()));
 #endif
 
     UtlBoolean isAllowed = FALSE;
@@ -1359,7 +1359,7 @@ void SipMessage::setAckData(const SipMessage* inviteResponse,
          OsSysLog::add(FAC_SIP,
                        (uri.data()[0] == '<') ? PRI_ERR : PRI_DEBUG,
                        "SipMessage::setAckData inviteRequest->getRequestUri() = '%s'",
-                       uri.data());
+                       SIPX_SAFENULL(uri.data()));
          inviteRequest->getRouteField(&routeField);
          if(!routeField.isNull())
             setRouteField(routeField);
@@ -1852,8 +1852,8 @@ void SipMessage::addViaField(const char* viaField, UtlBoolean afterOtherVias)
     unsigned int fieldIndex = mNameValues.index(nv);
 
     //osPrintf("SipMessage::addViaField via: %s after: %s fieldIndex: %d headername: %s\n",
-    //    viaField, afterOtherVias ? "true" : "false", fieldIndex,
-    //    SIP_VIA_FIELD);
+    //    SIPX_SAFENULL(viaField), SIPX_SAFENULL(afterOtherVias ? "true" : "false"), fieldIndex,
+    //    SIPX_SAFENULL(SIP_VIA_FIELD));
 
 
     if(fieldIndex == UTL_NOT_FOUND)
@@ -1865,7 +1865,7 @@ void SipMessage::addViaField(const char* viaField, UtlBoolean afterOtherVias)
         NameValuePair* nv = NULL;
         while(nv = (NameValuePair*) iterator())
         {
-            osPrintf("\tName: %s\n", nv->data());
+            osPrintf("\tName: %s\n", SIPX_SAFENULL(nv->data()));
         }
 #endif
     }
@@ -1975,7 +1975,7 @@ void SipMessage::setViaFromRequest(const SipMessage* request)
    while(request->getViaFieldSubField(&viaSubField, subFieldindex ))
    {
 #ifdef TEST
-      osPrintf("Adding via field: %s\n", viaSubField.data());
+      osPrintf("Adding via field: %s\n", SIPX_SAFENULL(viaSubField.data()));
 #endif
       addViaField(viaSubField.data(), FALSE);
       subFieldindex++;
@@ -2032,7 +2032,7 @@ void SipMessage::buildSipUrl(UtlString* url, const char* address, int port,
    // If the SIP url type label is not already in the address
    int sipLabelIndex = tmpAddress.index(SIP_URL_TYPE);
    //osPrintf("Found \"%s\" in \"%s\" at index: %d\n",
-   // SIP_URL_TYPE, tmpAddress.data(),
+   // SIPX_SAFENULL(SIP_URL_TYPE), SIPX_SAFENULL(tmpAddress.data()),
    //   sipLabelIndex);
 
    if(sipLabelIndex < 0 && !tmpAddress.isNull())
@@ -2217,7 +2217,7 @@ void SipMessage::setWarningField(int code, const char* hostname, const char* tex
 
    if (allocated >= sizeNeeded)
    {
-      sprintf((char*)warningContent.data(), "%3d %s %s", code, hostname, text);
+      sprintf((char*)warningContent.data(), "%3d %s %s", code, SIPX_SAFENULL(hostname), SIPX_SAFENULL(text));
       
       setHeaderValue(SIP_WARNING_FIELD, warningContent.data());
    }
@@ -2225,7 +2225,7 @@ void SipMessage::setWarningField(int code, const char* hostname, const char* tex
    {
       OsSysLog::add(FAC_SIP, PRI_WARNING,
                     "SipMessage::setWarningField value too large (max %d) host '%s' text '%s'",
-                    allocated, hostname, text
+                    allocated, SIPX_SAFENULL(hostname), SIPX_SAFENULL(text)
                     );
    }
 }
@@ -2411,14 +2411,14 @@ UtlBoolean SipMessage::parseParameterFromUri(const char* uri,
     parameterValue->remove(0);
 
     //osPrintf("SipMessage::parseParameterFromUri uri: %s parameter: %s index: %d\n",
-    //    uriString.data(), parameterString.data(), parameterStart);
+    //    SIPX_SAFENULL(uriString.data()), SIPX_SAFENULL(parameterString.data()), parameterStart);
     if(parameterStart >= 0)
     {
         parameterStart += parameterString.length();
         uriString.remove(0, parameterStart);
         NameValueTokenizer::frontTrim(&uriString, " \t");
         //osPrintf("SipMessage::parseParameterFromUri uriString: %s index: %d\n",
-        //  uriString.data(), parameterStart);
+        //  SIPX_SAFENULL(uriString.data()), parameterStart);
         NameValueTokenizer::getSubField(uriString.data(), 0,
             " \t;>", parameterValue);
 
@@ -2528,9 +2528,9 @@ void SipMessage::setToFieldTag(const char* tagValue)
 {
    UtlString toField;
    getToField(&toField);
-   //osPrintf("To field before: \"%s\"\n", toField.data());
+   //osPrintf("To field before: \"%s\"\n", SIPX_SAFENULL(toField.data()));
    setUriTag(&toField, tagValue);
-   //osPrintf("To field after: \"%s\"\n", toField.data());
+   //osPrintf("To field after: \"%s\"\n", SIPX_SAFENULL(toField.data()));
    setRawToField(toField.data());
 }
 
@@ -2667,7 +2667,7 @@ UtlBoolean SipMessage::getResponseSendAddress(UtlString& address,
     if(receivedSet && receivedPortSet && portIsValid(receivedPort))
     {
         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipMessage::getResponseSendAddress response to receivedPort %s:%d not %d\n",
-            address.data(), receivedPort, port);
+            SIPX_SAFENULL(address.data()), receivedPort, port);
         port = receivedPort;
     }
 
@@ -2703,7 +2703,7 @@ void SipMessage::convertProtocolStringToEnum(const char* protocolString,
     {
         OsSysLog::add(FAC_SIP, PRI_ERR,
                       "SipMessage::convertProtocolStringToEnum unrecognized protocol: %s",
-                      protocolString);
+                      SIPX_SAFENULL(protocolString));
         protocolEnum = OsSocket::UNKNOWN;
     }
 
@@ -3059,7 +3059,7 @@ UtlBoolean SipMessage::getCSeqField(int* sequenceNum, UtlString* sequenceMethod)
             if(numStringLen > MAXIMUM_INTEGER_STRING_LENGTH)
             {
                 osPrintf("WARNING: SipMessage::getCSeqField CSeq number %d characters: %s.\nTruncating to %d\n",
-                    numStringLen, &value[valueStart], MAXIMUM_INTEGER_STRING_LENGTH);
+                    numStringLen, SIPX_SAFENULL(&value[valueStart]), MAXIMUM_INTEGER_STRING_LENGTH);
                 numStringLen = MAXIMUM_INTEGER_STRING_LENGTH;
             }
         }
@@ -3161,7 +3161,7 @@ UtlBoolean SipMessage::getContactEntry(int addressIndex, UtlString* uriAndParame
                        uriAndParameters->append(&value[addressStart], charIndex - addressStart);
                         #ifdef TEST_PRINT
                                             osPrintf("SipMessage::getContactEntry found contact[%d] starting: %d ending: %d \"%s\"\n",
-                                                addressIndex, addressStart, charIndex, uriAndParameters->data());
+                                                addressIndex, addressStart, charIndex, SIPX_SAFENULL(uriAndParameters->data()));
                         #endif
                        currentEntryValue ++;
                        contactFound = TRUE;
@@ -3255,7 +3255,7 @@ UtlBoolean SipMessage::getEventField(UtlString* eventType,
          }
          else
          {
-            OsSysLog::add(FAC_SIP,PRI_WARNING,"invalid event parameter '%s'", eventParam.data());
+            OsSysLog::add(FAC_SIP,PRI_WARNING,"invalid event parameter '%s'", SIPX_SAFENULL(eventParam.data()));
          }
       }
    }
@@ -3542,7 +3542,7 @@ UtlBoolean SipMessage::removeRouteUri(int index, UtlString* routeUri)
     while(getFieldSubfield(SIP_ROUTE_FIELD, uriIndex, &aRouteUri))
     {
 #ifdef TEST_PRINT
-        osPrintf("removeRouteUri::routeUri[%d]: %s\n", uriIndex, newRouteField.data());
+        osPrintf("removeRouteUri::routeUri[%d]: %s\n", uriIndex, SIPX_SAFENULL(newRouteField.data()));
 #endif
         if(uriIndex == index)
         {
@@ -3564,7 +3564,7 @@ UtlBoolean SipMessage::removeRouteUri(int index, UtlString* routeUri)
             newRouteField.append(aRouteUri.data());
         }
 #ifdef TEST_PRINT
-        osPrintf("removeRouteUri::newRouteField: %s\n", newRouteField.data());
+        osPrintf("removeRouteUri::newRouteField: %s\n", SIPX_SAFENULL(newRouteField.data()));
 #endif
         uriIndex++;
     }
@@ -3587,7 +3587,7 @@ UtlBoolean SipMessage::removeRouteUri(int index, UtlString* routeUri)
 void SipMessage::setRouteField(const char* routeField)
 {
 #ifdef TEST_PRINT
-    osPrintf("setRouteField: %s\n", routeField);
+    osPrintf("setRouteField: %s\n", SIPX_SAFENULL(routeField));
 #endif
     setHeaderValue(SIP_ROUTE_FIELD, routeField, 0);
 }
@@ -3616,7 +3616,7 @@ UtlBoolean SipMessage::buildRouteField(UtlString* routeFld) const
             routeField.append(recordRouteUri.data());
 #ifdef TEST_PRINT
             osPrintf("SipMessage::buildRouteField recordRouteUri[%d] %s\n",
-                recordRouteIndex, recordRouteUri.data());
+                recordRouteIndex, SIPX_SAFENULL(recordRouteUri.data()));
 #endif
             recordRouteIndex++;
         }
@@ -3650,7 +3650,7 @@ UtlBoolean SipMessage::buildRouteField(UtlString* routeFld) const
 
 #ifdef TEST_PRINT
             osPrintf("SipMessage::buildRouteField recordRouteUri[%d] %s\n",
-                index, recordRouteUri.data());
+                index, SIPX_SAFENULL(recordRouteUri.data()));
 #endif
             routeField.insert(0, recordRouteUri.data());
             index++;
@@ -3673,7 +3673,7 @@ UtlBoolean SipMessage::buildRouteField(UtlString* routeFld) const
 #endif
 
 #ifdef TEST_PRINT
-    osPrintf("buildRouteField: %s\n", routeField.data());
+    osPrintf("buildRouteField: %s\n", SIPX_SAFENULL(routeField.data()));
 #endif
 
    if (recordRouteFound)
@@ -3721,7 +3721,7 @@ UtlBoolean SipMessage::getFieldSubfield(const char* fieldName, int addressIndex,
       subFieldIndex = 0;
       NameValueTokenizer::getSubField(value, subFieldIndex, SIP_MULTIFIELD_SEPARATOR, &url);
 #ifdef TEST
-      osPrintf("Got field: \"%s\" subfield[%d]: %s\n", fieldName, fieldIndex, url.data());
+      osPrintf("Got field: \"%s\" subfield[%d]: %s\n", SIPX_SAFENULL(fieldName), fieldIndex, SIPX_SAFENULL(url.data()));
 #endif
 
       while(!url.isNull() && index < addressIndex)
@@ -3731,7 +3731,7 @@ UtlBoolean SipMessage::getFieldSubfield(const char* fieldName, int addressIndex,
          NameValueTokenizer::getSubField(value, subFieldIndex,
             SIP_MULTIFIELD_SEPARATOR, &url);
 #ifdef TEST
-         osPrintf("Got field: \"%s\" subfield[%d]: %s\n", fieldName, fieldIndex, url.data());
+         osPrintf("Got field: \"%s\" subfield[%d]: %s\n", SIPX_SAFENULL(fieldName), fieldIndex, SIPX_SAFENULL(url.data()));
 #endif
       }
 
@@ -3770,8 +3770,8 @@ UtlBoolean SipMessage::getFieldSubfield(const char* fieldName, int addressIndex,
       NameValueTokenizer::getSubField(value, subFieldIndex,
          SIP_MULTIFIELD_SEPARATOR, &url);
 #ifdef TEST
-      osPrintf("Got field: \"%s\" subfield[%d]: %s\n", fieldName,
-         fieldIndex, url.data());
+      osPrintf("Got field: \"%s\" subfield[%d]: %s\n", SIPX_SAFENULL(fieldName),
+         fieldIndex, SIPX_SAFENULL(url.data()));
 #endif
 
       while(!url.isNull() && index < addressIndex)
@@ -3866,8 +3866,8 @@ UtlBoolean SipMessage::isInSupportedField(const char* token) const
       NameValueTokenizer::getSubField(value, subFieldIndex,
                                       SIP_MULTIFIELD_SEPARATOR, &url);
 #ifdef TEST
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "Got field: \"%s\" subfield[%d]: %s\n", value,
-               fieldIndex, url.data());
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "Got field: \"%s\" subfield[%d]: %s\n", SIPX_SAFENULL(value),
+               fieldIndex, SIPX_SAFENULL(url.data()));
 #endif
       url.strip(UtlString::both);
       if (url.compareTo(token, UtlString::ignoreCase) == 0)
@@ -3882,8 +3882,8 @@ UtlBoolean SipMessage::isInSupportedField(const char* token) const
                                          SIP_MULTIFIELD_SEPARATOR, &url);
          url.strip(UtlString::both);
 #ifdef TEST
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "Got field: \"%s\" subfield[%d]: %s\n", SIP_SUPPORTED_FIELD,
-                  fieldIndex, url.data());
+         OsSysLog::add(FAC_SIP, PRI_DEBUG, "Got field: \"%s\" subfield[%d]: %s\n", SIPX_SAFENULL(SIP_SUPPORTED_FIELD),
+                  fieldIndex, SIPX_SAFENULL(url.data()));
 #endif
 
          if (url.compareTo(token, UtlString::ignoreCase) == 0)
@@ -4223,10 +4223,10 @@ UtlBoolean SipMessage::isSameSession(const SipMessage* message) const
                 {
 #ifdef TEST_PRINT
                     osPrintf("ERROR: From field did not match: \nAddr: (%s!=%s)\nPort: %d!=%d\nUser: (%s!=%s)\nTag:  (%s!=%s)\n",
-                        thisAddress.data(), thatAddress.data(),
+                        SIPX_SAFENULL(thisAddress.data()), SIPX_SAFENULL(thatAddress.data()),
                         thisPort, thatPort,
-                        thisUser.data(), thatUser.data(),
-                        thisTag.data(), thatTag.data());
+                        SIPX_SAFENULL(thisUser.data()), SIPX_SAFENULL(thatUser.data()),
+                        SIPX_SAFENULL(thisTag.data()), SIPX_SAFENULL(thatTag.data()));
 #endif
                 }
             }
@@ -4275,10 +4275,10 @@ UtlBoolean SipMessage::isSameSession(const SipMessage* message) const
                 {
 #ifdef TEST_PRINT
                     osPrintf("ERROR: To field did not match:\n: (%s!=%s)\nPort: %d!=%d\nUser: (%s!=%s)\nTag:  (%s!=%s)\n",
-                        thisAddress.data(), thatAddress.data(),
+                        SIPX_SAFENULL(thisAddress.data()), SIPX_SAFENULL(thatAddress.data()),
                         thisPort, thatPort,
-                        thisUser.data(), thatUser.data(),
-                        thisTag.data(), thatTag.data());
+                        SIPX_SAFENULL(thisUser.data()), SIPX_SAFENULL(thatUser.data()),
+                        SIPX_SAFENULL(thisTag.data()), SIPX_SAFENULL(thatTag.data()));
 #endif
                 }
          }
@@ -4330,10 +4330,10 @@ UtlBoolean SipMessage::isSameSession(Url& oldUrl, Url& newUrl)
     {
 #ifdef TEST_PRINT
         osPrintf("SipMessage::isSameSession Url did not match: \nAddr: (%s!=%s)\nPort: %d!=%d\nUser: (%s!=%s)\nTag:  (%s!=%s)\n",
-            thisAddress.data(), thatAddress.data(),
+            SIPX_SAFENULL(thisAddress.data()), SIPX_SAFENULL(thatAddress.data()),
             thisPort, thatPort,
-            thisUser.data(), thatUser.data(),
-            thisTag.data(), thatTag.data());
+            SIPX_SAFENULL(thisUser.data()), SIPX_SAFENULL(thatUser.data()),
+            SIPX_SAFENULL(thisTag.data()), SIPX_SAFENULL(thatTag.data()));
 #endif
     }
 
@@ -4564,7 +4564,7 @@ void SipMessage::ParseContactFields(const SipMessage *registerResponse,
             NameValueTokenizer::getSubField(subfieldText.data(), 1, "=", &subfieldValue);
 #               ifdef TEST_PRINT
             osPrintf("ipMessage::ParseContactFields found contact parameter[%d]: \"%s\" value: \"%s\"\n",
-               subfieldIndex, subfieldName.data(), subfieldValue.data());
+               subfieldIndex, SIPX_SAFENULL(subfieldName.data()), SIPX_SAFENULL(subfieldValue.data()));
 #               endif
             subfieldName.toUpper();
             if(subfieldName.compareTo(subField, UtlString::ignoreCase) == 0 &&
@@ -4653,7 +4653,7 @@ void SipMessage::parseViaParameters( const char* viaField
     {
 #       ifdef  TEST_PRINT
         osPrintf("SipMessage::parseViaParameters: \"%s\" lastCharIndex: %d",
-                 &(viaField[lastCharIndex]), lastCharIndex);
+                 SIPX_SAFENULL(&(viaField[lastCharIndex])), lastCharIndex);
 #       endif
         // Pull out a name value pair
         NameValueTokenizer::getSubField(&(viaField[lastCharIndex]),

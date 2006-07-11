@@ -47,9 +47,9 @@ m_nextBlockHandle (nextblockhandle)
 {
    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                  "MoveMessagesCGI::MoveMessagesCGI: requestIsFromWebUI = %d, mailbox = '%s', fromFolder = '%s', toFolder = '%s', messageIds = '%s', maintainstatus = '%s', nextblockhandle = '%s'",
-                 requestIsFromWebUI, mailbox.data(), fromFolder.data(),
-                 toFolder.data(), messageIds.data(), maintainstatus.data(),
-                 nextblockhandle.data());
+                 requestIsFromWebUI, SIPX_SAFENULL(mailbox.data()), SIPX_SAFENULL(fromFolder.data()),
+                 SIPX_SAFENULL(toFolder.data()), SIPX_SAFENULL(messageIds.data()), SIPX_SAFENULL(maintainstatus.data()),
+                 SIPX_SAFENULL(nextblockhandle.data()));
 }
 
 MoveMessagesCGI::~MoveMessagesCGI()
@@ -105,9 +105,9 @@ MoveMessagesCGI::handleWebRequest( UtlString* out )
             MailboxManager* pMailboxManager = MailboxManager::getInstance();
             OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                           "MoveMessagesCGI::handleWebRequest: call MailboxManager::moveMessages( m_mailboxIdentity = '%s', m_fromFolder = '%s', m_toFolder = '%s', m_messageIds = '%s', m_maintainstatus = '%s'",
-                          m_mailboxIdentity.data(), m_fromFolder.data(),
-                          m_toFolder.data(), m_messageIds.data(),
-                          m_maintainstatus.data());
+                          SIPX_SAFENULL(m_mailboxIdentity.data()), SIPX_SAFENULL(m_fromFolder.data()),
+                          SIPX_SAFENULL(m_toFolder.data()), SIPX_SAFENULL(m_messageIds.data()),
+                          SIPX_SAFENULL(m_maintainstatus.data()));
             result = pMailboxManager->moveMessages( m_mailboxIdentity, m_fromFolder, m_toFolder, m_messageIds, m_maintainstatus );
             OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                           "MoveMessagesCGI::handleWebRequest: MailboxManager::moveMessages() returns %d",
@@ -148,7 +148,7 @@ MoveMessagesCGI::handleWebRequest( UtlString* out )
                         HTML_END ;
         OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                       "MoveMessagesCGI::handleWebRequest: redirectUrl = '%s'",
-                      redirectUrl.data());
+                      SIPX_SAFENULL(redirectUrl.data()));
     }
     else
     {

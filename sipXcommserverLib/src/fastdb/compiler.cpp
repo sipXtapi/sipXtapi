@@ -1314,7 +1314,7 @@ void dbCompiler::compileOrderByPart(dbQuery& query)
 
 dbExprNode* dbCompiler::compileExpression(dbTableDescriptor* table, char const* expr, int startPos)
 {
-    TRACE_MSG(("Compile expression %s for table %s\n", table->name));    
+    TRACE_MSG(("Compile expression %s for table %s\n", SIPX_SAFENULL(table->name)));    
     if (setjmp(abortCompilation) == 0) { 
     this->table = table;
     bindings = NULL;
@@ -1331,7 +1331,7 @@ dbExprNode* dbCompiler::compileExpression(dbTableDescriptor* table, char const* 
 
 bool dbCompiler::compile(dbTableDescriptor* table, dbQuery& query)
 {
-    TRACE_MSG(("Compile query for table %s\n", table->name));
+    TRACE_MSG(("Compile query for table %s\n", SIPX_SAFENULL(table->name)));
     query.destroy(); 
     if (setjmp(abortCompilation) == 0) { 
     this->table = table;

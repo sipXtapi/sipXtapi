@@ -104,19 +104,19 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
 #ifdef DEBUGGING            
             sipDialog.toString(sipDialogContent);
             OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage sipDialog = '%s'", 
-                          sipDialogContent.data());
+                          SIPX_SAFENULL(sipDialogContent.data()));
 #endif            
 
             sipDialog.getRemoteRequestUri(remoteRequestUri);
             getEntity(remoteRequestUri, entity);
             
             OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage Call arrived: callId '%s' address '%s' requestUri '%s'", 
-                          callId.data(), address.data(), entity.data());
+                          SIPX_SAFENULL(callId.data()), SIPX_SAFENULL(address.data()), SIPX_SAFENULL(entity.data()));
 
             if (entity.isNull())
             {
                OsSysLog::add(FAC_SIP, PRI_WARNING, "DialogEventPublisher::handleMessage Call arrived: callId '%s' address '%s' without requestUrl", 
-                             callId.data(), address.data());
+                             SIPX_SAFENULL(callId.data()), SIPX_SAFENULL(address.data()));
                break;
             }
             else
@@ -175,7 +175,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
             {
                pThisCall->getBytes(&dialogEvent, &length);
                OsSysLog::add(FAC_SIP, PRI_ERR, "DialogEventPublisher:: Call arrived - DialogEvent %s\n was not successfully published to the subscribe server",
-                             dialogEvent.data());
+                             SIPX_SAFENULL(dialogEvent.data()));
             }
                         
             break;
@@ -188,18 +188,18 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
 #ifdef DEBUGGING            
                sipDialog.toString(sipDialogContent);
                OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage sipDialog = %s", 
-                             sipDialogContent.data());
+                             SIPX_SAFENULL(sipDialogContent.data()));
 #endif            
                sipDialog.getRemoteRequestUri(remoteRequestUri);
                getEntity(remoteRequestUri, entity);               
 
                OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage Call connected: callId %s address %s with request %s",
-                             callId.data(), address.data(), entity.data());
+                             SIPX_SAFENULL(callId.data()), SIPX_SAFENULL(address.data()), SIPX_SAFENULL(entity.data()));
 
                if (entity.isNull())
                {
                   OsSysLog::add(FAC_SIP, PRI_WARNING, "DialogEventPublisher::handleMessage Call connected: callId %s address %s without requestUrl", 
-                                callId.data(), address.data());
+                                SIPX_SAFENULL(callId.data()), SIPX_SAFENULL(address.data()));
                   break;
                }
                else
@@ -217,7 +217,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                   mCalls.insertKeyAndValue(pEntity, pThisCall);
                   OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                 "DialogEventPublisher::handleMessage inserting entity '%s'",
-                                entity.data());
+                                SIPX_SAFENULL(entity.data()));
                }
                
                // Get the new callId because it might be changed
@@ -284,7 +284,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                {
                   pThisCall->getBytes(&dialogEvent, &length);
                   OsSysLog::add(FAC_SIP, PRI_ERR, "DialogEventPublisher:: Call connected - DialogEvent %s\n was not successfully published to the subscribe server",
-                                dialogEvent.data());
+                                SIPX_SAFENULL(dialogEvent.data()));
                }
             }
 
@@ -300,7 +300,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                {
                   OsSysLog::add(FAC_ACD, PRI_ERR,
                                 "DialogEventPublisher::handleMessage - CONNECTION_DISCONNECTED - Failed call to getSipDialog(%s, %s)",
-                                callId.data(), address.data());
+                                SIPX_SAFENULL(callId.data()), SIPX_SAFENULL(address.data()));
                   // Fill sipDialog with empty information as if we had gotten an empty SipDialog - then go on 
                   // and try to remove the event by just knowing the callId that we got passed in.
                   UtlString emptyUri("");
@@ -309,13 +309,13 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
 #ifdef DEBUGGING            
                sipDialog.toString(sipDialogContent);
                OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage sipDialog = %s", 
-                             sipDialogContent.data());
+                             SIPX_SAFENULL(sipDialogContent.data()));
 #endif            
                sipDialog.getRemoteRequestUri(remoteRequestUri);
                getEntity(remoteRequestUri, entity);               
 
                OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage Call dropped: '%s' address '%s' with entity '%s'",
-                             callId.data(), address.data(), entity.data());
+                             SIPX_SAFENULL(callId.data()), SIPX_SAFENULL(address.data()), SIPX_SAFENULL(entity.data()));
             
                if (entity.isNull())
                {
@@ -323,7 +323,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                   // with an empty requestUrl and callId. We need to remember th callId that was passed in as a Tao message parameter
                   // and try to associate the callId with an entity.
                   OsSysLog::add(FAC_SIP, PRI_WARNING, "DialogEventPublisher::handleMessage Call dropped: callId '%s' address '%s' without requestUrl", 
-                                callId.data(), address.data());
+                                SIPX_SAFENULL(callId.data()), SIPX_SAFENULL(address.data()));
                   // We have no request Url - try to get entity from callId
                   failCallId = callId;
                   if (!findEntryByCallId(callId, entity))
@@ -347,12 +347,12 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                if (callId.isNull() && !failCallId.isNull())
                {
                   OsSysLog::add(FAC_SIP, PRI_WARNING, "DialogEventPublisher::handleMessage callId is empty, using fail callId '%s'", 
-                                failCallId.data());
+                                SIPX_SAFENULL(failCallId.data()));
                   callId = failCallId;
                }
 
                // Remove the call from the pool and clean up the call
-               OsSysLog::add(FAC_SIP, PRI_DEBUG, "Trying to find entity '%s'", entity.data());
+               OsSysLog::add(FAC_SIP, PRI_DEBUG, "Trying to find entity '%s'", SIPX_SAFENULL(entity.data()));
                pThisCall = (SipDialogEvent *) mCalls.findValue(&entity);
                if (pThisCall)
                {
@@ -377,7 +377,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                      {
                         pThisCall->getBytes(&dialogEvent, &length);
                         OsSysLog::add(FAC_SIP, PRI_ERR, "DialogEventPublisher:: Call dropped - DialogEvent %s\n was not successfully published to the subscribe server",
-                                      dialogEvent.data());
+                                      SIPX_SAFENULL(dialogEvent.data()));
                      }
                        
                      // Remove the dialog from the dialog event package
@@ -392,7 +392,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                      {
                         pThisCall->getBytes(&dialogEvent, &length);
                         OsSysLog::add(FAC_SIP, PRI_ERR, "DialogEventPublisher:: Call dropped - DialogEvent %s\n was not successfully unpublished to the subscribe server",
-                                      dialogEvent.data());
+                                      SIPX_SAFENULL(dialogEvent.data()));
                      }
                      
                      UtlContainable *foundValue;
@@ -410,7 +410,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                else
                {
                   OsSysLog::add(FAC_SIP, PRI_ERR, "DialogEventPublisher::handleMessage Call dropped - no entity %s founded in the active call list",
-                                entity.data());
+                                SIPX_SAFENULL(entity.data()));
                }
             }
 
@@ -435,7 +435,7 @@ void DialogEventPublisher::dumpTaoMessageArgs(unsigned char eventId, TaoString& 
    int argc = args.getCnt();
    for(int argIndex = 0; argIndex < argc; argIndex++)
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "\targ[%d]=\"%s\"", argIndex, args[argIndex]);
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "\targ[%d]=\"%s\"", argIndex, SIPX_SAFENULL(args[argIndex]));
    }
 }
 
@@ -452,11 +452,11 @@ void DialogEventPublisher::getEntity(UtlString& requestUri, UtlString& entity)
          UtlString localAddress;
          UtlString userId;
          
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::getEntity requestUri '%s'", requestUri.data());
+         OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::getEntity requestUri '%s'", SIPX_SAFENULL(requestUri.data()));
          
          Url tempRequestUri(requestUri);
          tempRequestUri.getUserId(userId);
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::getEntity userId '%s'", userId.data());  
+         OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::getEntity userId '%s'", SIPX_SAFENULL(userId.data()));  
          
          if (!userId.isNull())
          {
@@ -467,7 +467,7 @@ void DialogEventPublisher::getEntity(UtlString& requestUri, UtlString& entity)
             entityUrl.setUserId(userId.data());
          
             entityUrl.toString(entity);
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::getEntity entity '%s'", entity.data());         
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::getEntity entity '%s'", SIPX_SAFENULL(entity.data()));         
          }
       }
       else
@@ -489,7 +489,7 @@ bool DialogEventPublisher::findEntryByCallId(UtlString& callId, UtlString& entit
 
    while ((pKey = dynamic_cast<UtlString *>(iterator())))
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::findEntryByCallId callId '%s', key '%s'", callId.data(), pKey->data());
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::findEntryByCallId callId '%s', key '%s'", SIPX_SAFENULL(callId.data()), SIPX_SAFENULL(pKey->data()));
             
       SipDialogEvent* pEvent;         
       pEvent = dynamic_cast<SipDialogEvent *>(iterator.value());      

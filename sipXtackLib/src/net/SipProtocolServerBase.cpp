@@ -14,6 +14,7 @@
 #include <net/SipProtocolServerBase.h>
 #include <net/SipUserAgent.h>
 #include <utl/UtlHashMapIterator.h>
+#include <os/OsDefs.h>
 #include <os/OsDateTime.h>
 #include <os/OsEvent.h>
 #include <os/OsLock.h>
@@ -92,7 +93,7 @@ UtlBoolean SipProtocolServerBase::send(SipMessage* message,
 
         client->getClientNames(clientNames);
         OsSysLog::add(FAC_SIP, PRI_DEBUG, "Sip%sServerBase::send %p isInUseForWrite %d, client info\n %s",
-                mProtocolString.data(), client, isBusy, clientNames.data());
+                SIPX_SAFENULL(mProtocolString.data()), client, isBusy, SIPX_SAFENULL(clientNames.data()));
 
         sendOk = client->sendTo(*message, hostAddress, hostPort);
         if(!sendOk)
@@ -143,14 +144,14 @@ void SipProtocolServerBase::releaseClient(SipClient* client)
         {
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SipProtocolServerBase::releaseClient releasing %s client not locked: %p",
-                          mProtocolString.data(), client);
+                          SIPX_SAFENULL(mProtocolString.data()), client);
         }
     }
     else
     {
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
                       "SipProtocolServerBase::releaseClient releasing %s client not in list: %p",
-                      mProtocolString.data(), client);
+                      SIPX_SAFENULL(mProtocolString.data()), client);
     }
 
     mClientLock.releaseWrite();
@@ -216,7 +217,7 @@ SipClient* SipProtocolServerBase::createClient(const char* hostAddress,
     {
 #       if TEST_CLIENT_CREATION
         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipProtocolServerBase::createClient( %s, %d )",
-                      hostAddress, hostPort);
+                      SIPX_SAFENULL(hostAddress), hostPort);
 #       endif
 
         if(!portIsValid(hostPort))
@@ -240,7 +241,7 @@ SipClient* SipProtocolServerBase::createClient(const char* hostAddress,
         if(afterSecs - beforeSecs > 1)
         {
             OsSysLog::add(FAC_SIP, PRI_WARNING, "SIP %s socket create for %s:%d took %d seconds",
-                mProtocolString.data(), hostAddress, hostPort,
+                SIPX_SAFENULL(mProtocolString.data()), SIPX_SAFENULL(hostAddress), hostPort,
                 (int)(afterSecs - beforeSecs));
         }
 
@@ -252,7 +253,7 @@ SipClient* SipProtocolServerBase::createClient(const char* hostAddress,
         {
             OsSysLog::add(FAC_SIP, PRI_WARNING,
                           "SIP %s socket %s:%d not ready for writing after %d seconds",
-                          mProtocolString.data(), hostAddress, hostPort, (int) (writeWait/1000));
+                          SIPX_SAFENULL(mProtocolString.data()), SIPX_SAFENULL(hostAddress), hostPort, (int) (writeWait/1000));
         }
 
         if(isOk &&
@@ -283,12 +284,12 @@ SipClient* SipProtocolServerBase::createClient(const char* hostAddress,
                 if(!clientStarted)
                 {
                     osPrintf("SIP %s client failed to start\n",
-                        mProtocolString.data());
+                        SIPX_SAFENULL(mProtocolString.data()));
                 }
             }
 
             OsSysLog::add(FAC_SIP, PRI_DEBUG, "Sip%sServer::createClient client: %p %s:%d",
-                mProtocolString.data(), client, hostAddress, hostPort);
+                SIPX_SAFENULL(mProtocolString.data()), client, SIPX_SAFENULL(hostAddress), hostPort);
 
             mClientList.push(client);
         }
@@ -307,7 +308,7 @@ SipClient* SipProtocolServerBase::createClient(const char* hostAddress,
             }
             OsSysLog::add(FAC_SIP, PRI_WARNING,
                           "Sip%sServer::createClient client %p Failed to create socket %s:%d",
-                          mProtocolString.data(), this, hostAddress, hostPort);
+                          SIPX_SAFENULL(mProtocolString.data()), this, SIPX_SAFENULL(hostAddress), hostPort);
         }
     }
 
@@ -379,7 +380,7 @@ UtlBoolean SipProtocolServerBase::waitForClientToWrite(SipClient* client)
                 {
                    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                  "Sip%sServerBase::waitForClientToWrite %p locked after %d tries",
-                                 mProtocolString.data(), client, numTries);
+                                 SIPX_SAFENULL(mProtocolString.data()), client, numTries);
                 }
             }
             else
@@ -395,7 +396,7 @@ UtlBoolean SipProtocolServerBase::waitForClientToWrite(SipClient* client)
                 OsSysLog::add(FAC_SIP, PRI_DEBUG,
                               "Sip%sServerBase::waitForClientToWrite %p "
                               "waiting on: %p after %d tries",
-                              mProtocolString.data(), client, waitEvent, numTries);
+                              SIPX_SAFENULL(mProtocolString.data()), client, waitEvent, numTries);
 #endif
 
                                 // Do not block forever
@@ -425,7 +426,7 @@ UtlBoolean SipProtocolServerBase::waitForClientToWrite(SipClient* client)
 #ifdef TEST_PRINT
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "Sip%sServerBase::waitForClientToWrite %p done waiting after %d tries",
-                          mProtocolString.data(), client, numTries);
+                          SIPX_SAFENULL(mProtocolString.data()), client, numTries);
 #endif
             }
         }
@@ -435,7 +436,7 @@ UtlBoolean SipProtocolServerBase::waitForClientToWrite(SipClient* client)
 
             OsSysLog::add(FAC_SIP, PRI_ERR,
                           "Sip%sServerBase::waitForClientToWrite %p gone after %d tries",
-                          mProtocolString.data(), client, numTries);
+                          SIPX_SAFENULL(mProtocolString.data()), client, numTries);
         }
     }
     while(exists && busy);
@@ -454,7 +455,7 @@ SipClient* SipProtocolServerBase::getClient(const char* hostAddress,
 #   if TEST_CLIENT_CREATION
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "SipProtocolServerBase::getClient( %s, %d )",
-                  hostAddress, hostPort);
+                  SIPX_SAFENULL(hostAddress), hostPort);
 #   endif
 
     while ((client = (SipClient*)mClientList.next(iteratorHandle)))
@@ -473,7 +474,7 @@ SipClient* SipProtocolServerBase::getClient(const char* hostAddress,
             if(!client->isOk())
             {
                 OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s Client matches but is not OK",
-                    mProtocolString.data());
+                    SIPX_SAFENULL(mProtocolString.data()));
             }
         }
     }
@@ -484,7 +485,7 @@ SipClient* SipProtocolServerBase::getClient(const char* hostAddress,
     {
        OsSysLog::add(FAC_SIP, PRI_DEBUG,
                      "SipProtocolServerBase::getClient( %s, %d ) NOT FOUND",
-                     hostAddress, hostPort);
+                     SIPX_SAFENULL(hostAddress), hostPort);
     }
 #   endif
 
@@ -500,7 +501,7 @@ void SipProtocolServerBase::deleteClient(SipClient* sipClient)
 #ifdef TEST_PRINT
 
     OsSysLog::add(FAC_SIP, PRI_DEBUG, "Sip%sServer::deleteClient(%p)",
-        mProtocolString.data(), sipClient);
+        SIPX_SAFENULL(mProtocolString.data()), sipClient);
 #endif
     while ((client = (SipClient*)mClientList.next(iteratorHandle)))
     {
@@ -516,7 +517,7 @@ void SipProtocolServerBase::deleteClient(SipClient* sipClient)
             UtlString clientNames;
             client->getClientNames(clientNames);
             OsSysLog::add(FAC_SIP, PRI_DEBUG, "Removing %s client %p names:\n%s",
-                mProtocolString.data(), this, clientNames.data());
+                SIPX_SAFENULL(mProtocolString.data()), this, SIPX_SAFENULL(clientNames.data()));
 #endif
             mClientList.remove(iteratorHandle);
 
@@ -533,14 +534,14 @@ void SipProtocolServerBase::deleteClient(SipClient* sipClient)
     if(client)
     {
         OsSysLog::add(FAC_SIP, PRI_DEBUG, "Sip%sServer::deleteClient(%p) done",
-                      mProtocolString.data(), sipClient);
+                      SIPX_SAFENULL(mProtocolString.data()), sipClient);
         delete client;
         client = NULL;
     }
 
 #ifdef TEST_PRINT
     OsSysLog::add(FAC_SIP, PRI_DEBUG, "Sip%sServer::deleteClient(%p) done",
-        mProtocolString.data(), sipClient);
+        SIPX_SAFENULL(mProtocolString.data()), sipClient);
 #endif
 }
 
@@ -578,10 +579,10 @@ void SipProtocolServerBase::removeOldClients(long oldTime)
            client->getClientNames(clientNames);
 #ifdef TEST_PRINT
             osPrintf("Removing %s client names:\n%s\r\n",
-                mProtocolString.data(), clientNames.data());
+                SIPX_SAFENULL(mProtocolString.data()), SIPX_SAFENULL(clientNames.data()));
 #endif
             OsSysLog::add(FAC_SIP, PRI_DEBUG, "Sip%sServer::Removing old client %p:\n%s\r",
-                          mProtocolString.data(), client, clientNames.data());
+                          SIPX_SAFENULL(mProtocolString.data()), client, SIPX_SAFENULL(clientNames.data()));
 
             mClientList.remove(iteratorHandle);
             // Delete the clients after releasing the lock
@@ -599,7 +600,7 @@ void SipProtocolServerBase::removeOldClients(long oldTime)
             UtlString names;
             client->getClientNames(names);
             OsSysLog::add(FAC_SIP, PRI_DEBUG, "Sip%sServer::removeOldClients leaving client:\n%s",
-                mProtocolString.data(), names.data());
+                SIPX_SAFENULL(mProtocolString.data()), SIPX_SAFENULL(names.data()));
 #           endif
         }
     }
@@ -610,7 +611,7 @@ void SipProtocolServerBase::removeOldClients(long oldTime)
     {
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
                       "Sip%sServer::removeOldClients deleting %d of %d SipClients (%d busy)",
-                      mProtocolString.data(), numDelete, numClients, numBusy);
+                      SIPX_SAFENULL(mProtocolString.data()), numDelete, numClients, numBusy);
     }
     // These have been removed from the list so delete them
     // after releasing the locks
@@ -709,7 +710,7 @@ void SipProtocolServerBase::printStatus()
     UtlBoolean clientOk;
 
     osPrintf("%s %d clients in list at: %ld\n",
-        mProtocolString.data(), numClients, currentTime);
+        SIPX_SAFENULL(mProtocolString.data()), numClients, currentTime);
 
     while ((client = (SipClient*)mClientList.next(iteratorHandle)))
     {
@@ -719,8 +720,8 @@ void SipProtocolServerBase::printStatus()
         client->getClientNames(clientNames);
 
         osPrintf("%s client %p last used: %ld ok: %d names:\n%s\n",
-            mProtocolString.data(), this, clientTouchedTime,
-            clientOk, clientNames.data());
+            SIPX_SAFENULL(mProtocolString.data()), this, clientTouchedTime,
+            clientOk, SIPX_SAFENULL(clientNames.data()));
     }
     mClientList.releaseIteratorHandle(iteratorHandle);
 }

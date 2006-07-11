@@ -39,8 +39,8 @@ void usage(const char* szExecutable)
 
     sipxConfigGetVersion(szBuffer, 64);
     printf("\nUsage:\n") ;
-    printf("   %s <options> [URL]\n", szExecutable) ;
-    printf("      using %s\n", szBuffer);
+    printf("   %s <options> [URL]\n", SIPX_SAFENULL(szExecutable)) ;
+    printf("      using %s\n", SIPX_SAFENULL(szBuffer));
     printf("\n") ;
     printf("Options:\n") ;
     printf("   -d durationInSeconds (default=30 seconds)\n") ;
@@ -246,7 +246,7 @@ bool parseArgs(int argc,
         else if (strcmp(argv[i], "-v") == 0)
         {
             sipxConfigGetVersion(szBuffer, 64);
-            printf("%s\n", szBuffer);
+            printf("%s\n", SIPX_SAFENULL(szBuffer));
             exit(0);
         }
         else if (strcmp(argv[i], "-c") == 0)
@@ -314,7 +314,7 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
                    void* pUserData)
 {
     char cBuf[1024] ;
-    printf("%s\n", sipxEventToString(category, pInfo, cBuf, sizeof(cBuf))) ;    
+    printf("%s\n", SIPX_SAFENULL(sipxEventToString(category, pInfo, cBuf, sizeof(cBuf)))) ;    
 
     if (category == EVENT_CATEGORY_CALLSTATE)
     {
@@ -323,7 +323,7 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
 
         if (pCallInfo->cause == CALLSTATE_AUDIO_START)
         {
-            printf("* Negotiated codec: %s, payload type %d\n", pCallInfo->codecs.audioCodec.cName, pCallInfo->codecs.audioCodec.iPayloadType);
+            printf("* Negotiated codec: %s, payload type %d\n", SIPX_SAFENULL(pCallInfo->codecs.audioCodec.cName), pCallInfo->codecs.audioCodec.iPayloadType);
         }
         g_eRecordEvents[g_iNextEvent] = pCallInfo->event;
         g_iNextEvent = (g_iNextEvent + 1) % MAX_RECORD_EVENTS ;
@@ -403,7 +403,7 @@ void dumpLocalContacts(SIPX_CALL hCall)
                     break ;
             }
             printf("<-> Type %s, Interface: %s, Ip %s, Port %d\n",
-                    szType, contacts[i].cInterface, contacts[i].cIpAddress,
+                    SIPX_SAFENULL(szType), SIPX_SAFENULL(contacts[i].cInterface), SIPX_SAFENULL(contacts[i].cIpAddress),
                     contacts[i].iPort) ;
         }
     }
@@ -424,8 +424,8 @@ bool placeCall(char* szSipUrl, char* szFromIdentity, char* szUsername, char* szP
         szFromIdentity = "\"PlaceCall Demo\" <sip:placecalldemo@localhost>" ;
     }
 
-    printf("<-> Placing call to \"%s\" as \"%s\"\n", szSipUrl, szFromIdentity) ;
-    printf("<-> Username: %s, passwd: %s, realm: %s (all required for auth)\n", szUsername, szPassword, szRealm) ;
+    printf("<-> Placing call to \"%s\" as \"%s\"\n", SIPX_SAFENULL(szSipUrl), SIPX_SAFENULL(szFromIdentity)) ;
+    printf("<-> Username: %s, passwd: %s, realm: %s (all required for auth)\n", SIPX_SAFENULL(szUsername), SIPX_SAFENULL(szPassword), SIPX_SAFENULL(szRealm)) ;
 
     sipxLineAdd(g_hInst, szFromIdentity, &g_hLine) ;
     if (szUsername && szPassword && szRealm)
@@ -518,7 +518,7 @@ void dumpInputOutputDevices()
         {
             const char* szDevice ;
             sipxAudioGetInputDevice(g_hInst, i, szDevice) ;
-            printf("\t#%d: %s\n", i, szDevice) ;
+            printf("\t#%d: %s\n", i, SIPX_SAFENULL(szDevice)) ;
         }
     }
 
@@ -529,7 +529,7 @@ void dumpInputOutputDevices()
         {
             const char* szDevice ;
             sipxAudioGetOutputDevice(g_hInst, i, szDevice) ;
-            printf("\t#%d: %s\n", i, szDevice) ;
+            printf("\t#%d: %s\n", i, SIPX_SAFENULL(szDevice)) ;
         }
     }
 
@@ -586,7 +586,7 @@ int main(int argc, char* argv[])
                 {
                     if (sipxConfigGetAudioCodec(g_hInst, index, &audioCodec) == SIPX_RESULT_SUCCESS)
                     {
-                        printf("  audio %02d : %s\n", index, audioCodec.cName);
+                        printf("  audio %02d : %s\n", index, SIPX_SAFENULL(audioCodec.cName));
                     }
                     else
                     {
@@ -605,7 +605,7 @@ int main(int argc, char* argv[])
                 {
                     if (sipxConfigGetVideoCodec(g_hInst, index, &videoCodec) == SIPX_RESULT_SUCCESS)
                     {
-                        printf("  video %02d : %s\n", index, videoCodec.cName);
+                        printf("  video %02d : %s\n", index, SIPX_SAFENULL(videoCodec.cName));
                     }
                     else
                     {
@@ -632,21 +632,21 @@ int main(int argc, char* argv[])
         {
             if (sipxAudioSetCallOutputDevice(g_hInst, szOutDevice) != SIPX_RESULT_SUCCESS)
             {
-                printf("!! Setting output device %s failed !!\n", szOutDevice);
+                printf("!! Setting output device %s failed !!\n", SIPX_SAFENULL(szOutDevice));
             }
         }
         if (szInDevice)
         {
             if (sipxAudioSetCallInputDevice(g_hInst, szInDevice) != SIPX_RESULT_SUCCESS)
             { 
-                printf("!! Setting input device %s failed !!\n", szOutDevice);
+                printf("!! Setting input device %s failed !!\n", SIPX_SAFENULL(szOutDevice));
             }
         }
         if (szCodec)
         {
             if (sipxConfigSetAudioCodecByName(g_hInst, szCodec) == SIPX_RESULT_FAILURE)
             {
-                printf("!! Setting audio codec to %s failed !!\n", szCodec);
+                printf("!! Setting audio codec to %s failed !!\n", SIPX_SAFENULL(szCodec));
             };
         }
         // Wait for a STUN response (should actually look for the STUN event status
@@ -670,7 +670,7 @@ int main(int argc, char* argv[])
                 {
                     if (!playTones(szPlayTones))
                     {
-                        printf("%s: Failed to play tones: %s\n", argv[0], szPlayTones) ;
+                        printf("%s: Failed to play tones: %s\n", argv[0], SIPX_SAFENULL(szPlayTones)) ;
                     }
                     else
                     {
@@ -683,7 +683,7 @@ int main(int argc, char* argv[])
                 {
                     if (!playFile(szFile))
                     {
-                        printf("%s: Failed to play file: %s\n", argv[0], szFile) ;
+                        printf("%s: Failed to play file: %s\n", argv[0], sSIPX_SAFENULL(zFile)) ;
                     }
                     else
                     {

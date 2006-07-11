@@ -899,7 +899,7 @@ class SipMessageTest : public CppUnit::TestCase
          int code;
          char agent[128], text[128];
          int r =
-            sscanf(warning_header, " %d %s \"%[^\"]\"", &code, agent, text);
+            sscanf(warning_header, " %d %s \"%[^\"]\"", &code, SIPX_SAFENULL(agent), SIPX_SAFENULL(text));
          // Ensure that all three fields could be found.
          CPPUNIT_ASSERT_EQUAL(3, r);
          // Check the warning code.
@@ -958,7 +958,7 @@ class SipMessageTest : public CppUnit::TestCase
         const char* sdpCopyBytes = NULL;
         int sdpCopyLen = 0;
         sdpCopy->getBytes(&sdpCopyBytes, &sdpCopyLen);
-        //printf("SDP copy length: %d\n%s\n", sdpCopyLen, sdpCopyBytes);
+        //printf("SDP copy length: %d\n%s\n", sdpCopyLen, SIPX_SAFENULL(sdpCopyBytes));
         CPPUNIT_ASSERT_MESSAGE("Null sdp copy serialized content", sdpCopyBytes != NULL);
         CPPUNIT_ASSERT_MESSAGE("SDP does not match expected content",
             strcmp(referenceSdp, sdpCopyBytes) == 0);
@@ -1001,7 +1001,7 @@ class SipMessageTest : public CppUnit::TestCase
         const char* fooCopyBytes = NULL;
         int fooCopyLen = 0;
         fooCopy->getBytes(&fooCopyBytes, &fooCopyLen);
-        //printf("foo copy length: %d\n%s\n", fooCopyLen, fooCopyBytes);
+        //printf("foo copy length: %d\n%s\n", fooCopyLen, SIPX_SAFENULL(fooCopyBytes));
         CPPUNIT_ASSERT_MESSAGE("Null foo copy serialized content", fooCopyBytes != NULL);
         CPPUNIT_ASSERT_MESSAGE("foo body copy does not match expected content",
             strcmp(referenceContent, fooCopyBytes) == 0);
@@ -1034,7 +1034,7 @@ class SipMessageTest : public CppUnit::TestCase
          
          // Create a To URI containing the header.
          char to_URI[100];
-         sprintf(to_URI, "To: <sip:to@example.com?%s=value1>", header_name);
+         sprintf(to_URI, "To: <sip:to@example.com?%s=value1>", SIPX_SAFENULL(header_name));
 
          // Create the SIP message.
          // Since numRtpcodecs = 0, none of the RTP fields are used to produce SDP.
@@ -1061,14 +1061,14 @@ class SipMessageTest : public CppUnit::TestCase
          msg->getBytes(&p, &l);
          fprintf(stderr,
                  "testSetInviteDataHeaders for %s after first setInviteData:\n%s\n",
-                 header_name, p.data());
+                 SIPX_SAFENULL(header_name), SIPX_SAFENULL(p.data()));
 #endif
 
          const char* v = msg->getHeaderValue(0, header_name);
          CPPUNIT_ASSERT_MESSAGE(header_name, strcmp(v, "value1") == 0);
 
          // Create a second To URI containing the header.
-         sprintf(to_URI, "To: <sip:to@example.com?%s=value2>", header_name);
+         sprintf(to_URI, "To: <sip:to@example.com?%s=value2>", SIPX_SAFENULL(header_name));
 
          // Update the SIP message, creating a second value for the header.
          // Since numRtpcodecs = 0, none of the RTP fields are used to produce SDP.
@@ -1093,7 +1093,7 @@ class SipMessageTest : public CppUnit::TestCase
          msg->getBytes(&p, &l);
          fprintf(stderr,
                  "testSetInviteDataHeaders for %s after second setInviteData:\n%s\n",
-                 header_name, p.data());
+                 SIPX_SAFENULL(header_name), SIPX_SAFENULL(p.data()));
 #endif
 
          v = msg->getHeaderValue(0, header_name);
@@ -1130,7 +1130,7 @@ class SipMessageTest : public CppUnit::TestCase
          
          // Create a To URI containing the header.
          char to_URI[100];
-         sprintf(to_URI, "To: <sip:to@example.com?%s=value1>", header_name);
+         sprintf(to_URI, "To: <sip:to@example.com?%s=value1>", SIPX_SAFENULL(header_name));
 
          // Create the SIP message.
          // Since numRtpcodecs = 0, none of the RTP fields are used to produce SDP.
@@ -1157,14 +1157,14 @@ class SipMessageTest : public CppUnit::TestCase
          msg->getBytes(&p, &l);
          fprintf(stderr,
                  "testSetInviteDataHeaders for %s after first setInviteData:\n%s\n",
-                 header_name, p.data());
+                 SIPX_SAFENULL(header_name), SIPX_SAFENULL(p.data()));
 #endif
 
          const char* v = msg->getHeaderValue(0, header_name);
          CPPUNIT_ASSERT_MESSAGE(header_name, strcmp(v, "value1") == 0);
 
          // Create a second To URI containing the header.
-         sprintf(to_URI, "To: <sip:to@example.com?%s=value2>", header_name);
+         sprintf(to_URI, "To: <sip:to@example.com?%s=value2>", SIPX_SAFENULL(header_name));
 
          // Update the SIP message, creating a second value for the header.
          // Since numRtpcodecs = 0, none of the RTP fields are used to produce SDP.
@@ -1189,7 +1189,7 @@ class SipMessageTest : public CppUnit::TestCase
          msg->getBytes(&p, &l);
          fprintf(stderr,
                  "testSetInviteDataHeaders for %s after second setInviteData:\n%s\n",
-                 header_name, p.data());
+                 SIPX_SAFENULL(header_name), SIPX_SAFENULL(p.data()));
 #endif
 
          v = msg->getHeaderValue(0, header_name);
@@ -1232,7 +1232,7 @@ class SipMessageTest : public CppUnit::TestCase
          
          // Create a To URI containing the header.
          char to_URI[100];
-         sprintf(to_URI, "To: <sip:to@example.com?%s=value1>", header_name);
+         sprintf(to_URI, "To: <sip:to@example.com?%s=value1>", SIPX_SAFENULL(header_name));
 
          // Create the SIP message.
          // Since numRtpcodecs = 0, none of the RTP fields are used to produce SDP.
@@ -1259,7 +1259,7 @@ class SipMessageTest : public CppUnit::TestCase
          msg->getBytes(&p, &l);
          fprintf(stderr,
                  "testSetInviteDataHeaders for %s after first setInviteData:\n%s\n",
-                 header_name, p.data());
+                 SIPX_SAFENULL(header_name), SIPX_SAFENULL(p.data()));
 #endif
 
          const char* v = msg->getHeaderValue(0, header_name);
@@ -1395,8 +1395,8 @@ Content-Length: 0\n\
           testErrorMessage.append(expectedMessage);
           if(messageBytes.compareTo(expectedMessage))
           {
-              printf("Actual: %s\n", messageBytes.data());
-              printf("Expected: %s\n", expectedMessage.data());
+              printf("Actual: %s\n", SIPX_SAFENULL(messageBytes.data()));
+              printf("Expected: %s\n", SIPX_SAFENULL(expectedMessage.data()));
           }
           CPPUNIT_ASSERT( messageBytes.compareTo(expectedMessage) == 0);
       }

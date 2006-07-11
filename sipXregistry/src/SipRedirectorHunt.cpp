@@ -150,7 +150,7 @@ SipRedirectorHunt::lookUp(
                   OsSysLog::add( FAC_SIP, PRI_INFO,
                                  "SipRedirectorHunt::lookUp set q-value "
                                  "'%s' on '%s'\n",
-                                 temp, thisContact.data());
+                                 SIPX_SAFENULL(temp), SIPX_SAFENULL(thisContact.data()));
                }
             } while(duplicate);
          }
@@ -163,7 +163,7 @@ SipRedirectorHunt::lookUp(
             OsSysLog::add( FAC_SIP, PRI_WARNING,
                            "SipRedirectorHunt::lookUp overflow - "
                            "set q=0.0 on '%s'\n",
-                           thisContact.data());
+                           SIPX_SAFENULL(thisContact.data()));
          }
       }
       else

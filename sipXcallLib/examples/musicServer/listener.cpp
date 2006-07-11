@@ -72,7 +72,7 @@ UtlBoolean Listener::handleMessage(OsMsg& rMsg)
       {
          case PtEvent::CONNECTION_OFFERED:
             OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "Call arrived: callId %s address %s\n", 
-                          callId.data(), address.data());
+                          SIPX_SAFENULL(callId.data()), SIPX_SAFENULL(address.data()));
 
             mpCallManager->acceptConnection(callId, address);
             mpCallManager->answerTerminalConnection(callId, address, "*");
@@ -81,7 +81,7 @@ UtlBoolean Listener::handleMessage(OsMsg& rMsg)
          case PtEvent::CONNECTION_ESTABLISHED:
             if (localConnection) 
             {
-               OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "Call connected: callId %s\n", callId.data());
+               OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "Call connected: callId %s\n", SIPX_SAFENULL(callId.data()));
 
                CallObject* pThisCall = new CallObject(mpCallManager, callId, mPlayfile);
 
@@ -96,7 +96,7 @@ UtlBoolean Listener::handleMessage(OsMsg& rMsg)
                   // Drop the call
                   mpCallManager->drop(callId);
                   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_WARNING, "Listener::handleMessage - drop callId %s due to failure of playing audio\n",
-                                callId.data());
+                                SIPX_SAFENULL(callId.data()));
 
                   delete pThisCall;
                }
@@ -107,7 +107,7 @@ UtlBoolean Listener::handleMessage(OsMsg& rMsg)
          case PtEvent::CONNECTION_DISCONNECTED:
             if (!localConnection) 
             {
-               OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "Call Dropped: %s\n", callId.data());
+               OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "Call Dropped: %s\n", SIPX_SAFENULL(callId.data()));
 
                // Remove the call from the pool and clean up the call
                CallObject* pDroppedCall = removeEntry(callId);
@@ -122,14 +122,14 @@ UtlBoolean Listener::handleMessage(OsMsg& rMsg)
                else
                {
                   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "Lisenter::handleMessage - no callId %s founded in the active call list\n",
-                                callId.data());
+                                SIPX_SAFENULL(callId.data()));
                }
             }
 
             break;
             
          case PtEvent::CONNECTION_FAILED:
-            OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_WARNING, "Dropping call: %s\n", callId.data());
+            OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_WARNING, "Dropping call: %s\n", SIPX_SAFENULL(callId.data()));
 
             mpCallManager->drop(callId);
 
@@ -154,7 +154,7 @@ void Listener::dumpTaoMessageArgs(unsigned char eventId, TaoString& args)
    int argc = args.getCnt();
    for(int argIndex = 0; argIndex < argc; argIndex++)
    {
-      osPrintf("\targ[%d]=\"%s\"\n", argIndex, args[argIndex]);
+      osPrintf("\targ[%d]=\"%s\"\n", SIPX_SAFENULL(argIndex), SIPX_SAFENULL(args[argIndex]));
    }
 }
 
@@ -163,7 +163,7 @@ void Listener::insertEntry(UtlString& rKey,
                            CallObject* newObject)
 {
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "Listener::insertEntry - Putting %p into the call pool for callId %s\n",
-                 newObject, rKey.data());
+                 newObject, SIPX_SAFENULL(rKey.data()));
 
    OsWriteLock lock(mRWMutex);
    ActiveCall  tempEntry(rKey, newObject);
@@ -173,14 +173,14 @@ void Listener::insertEntry(UtlString& rKey,
    if (i != UTL_NOT_FOUND)
    {                             // we already have an entry with this key
       pOldEntry = (ActiveCall *)mCalls.at(i);
-      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_WARNING, "Listener::insertEntry - FOUND %s\n", rKey.data());
+      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_WARNING, "Listener::insertEntry - FOUND %s\n", SIPX_SAFENULL(rKey.data()));
    }
    else
    {
       ActiveCall* pNewEntry = new ActiveCall(rKey, newObject);
       mCalls.insert(pNewEntry);
 
-      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "Listener::insertEntry - inserted %s\n", rKey.data());
+      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "Listener::insertEntry - inserted %s\n", SIPX_SAFENULL(rKey.data()));
 
       mTotalCalls++;
    }

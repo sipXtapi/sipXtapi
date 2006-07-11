@@ -186,7 +186,7 @@ class dbXmlScanner {
         }
         if (strcmp(ident, expected) != 0) { 
             fprintf(stderr, "subsql.cpp:%d: line %d, column %d: Get tag '%s' instead of expected '%s'\n", 
-                    sourcePos, line, pos, ident, expected);
+                    sourcePos, line, pos, SIPX_SAFENULL(ident), SIPX_SAFENULL(expected));
             return false;
         }
         return true;

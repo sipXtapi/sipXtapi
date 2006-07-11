@@ -298,7 +298,7 @@ dbServer::dbServer(dbDatabase* db,
     socket_t::create_global(serverURL, connectionQueueLen);
     if (!globalAcceptSock->is_ok()) { 
     globalAcceptSock->get_error_text(buf, sizeof buf);
-    dbTrace((char*)"Failed to create global socket: %s\n", buf);
+    dbTrace((char*)"Failed to create global socket: %s\n", SIPX_SAFENULL(buf));
     delete globalAcceptSock;
     globalAcceptSock = NULL;
     }
@@ -306,7 +306,7 @@ dbServer::dbServer(dbDatabase* db,
     socket_t::create_local(serverURL, connectionQueueLen);
     if (!localAcceptSock->is_ok()) { 
     localAcceptSock->get_error_text(buf, sizeof buf);
-    dbTrace((char*)"Failed to create local socket: %s\n", buf);
+    dbTrace((char*)"Failed to create local socket: %s\n", SIPX_SAFENULL(buf));
     delete localAcceptSock;
     localAcceptSock = NULL;
     }
@@ -915,7 +915,7 @@ char* dbServer::checkColumns(dbStatement* stmt, int n_columns,
         break;
         }
     } else { 
-        TRACE_MSG(("Field '%s' not found\n", columnName));
+        TRACE_MSG(("Field '%s' not found\n", SIPX_SAFENULL(columnName)));
         response = cli_column_not_found;
         break;
     }

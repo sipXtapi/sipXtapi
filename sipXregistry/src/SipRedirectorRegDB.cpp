@@ -88,7 +88,7 @@ SipRedirectorRegDB::lookUp(
                     "SipRedirectorRegDB::lookUp "
                     "gridPresent = %d, gridParameter = '%s', "
                     "requestUriCopy after removing grid = '%s'",
-                    gridPresent, gridParameter.data(), temp.data());
+                    gridPresent, SIPX_SAFENULL(gridParameter.data()), SIPX_SAFENULL(temp.data()));
    }
 
    // Note that getUnexpiredContacts will reduce the requestUri to its
@@ -117,8 +117,8 @@ SipRedirectorRegDB::lookUp(
       UtlString qvalue  = *((UtlString*) record.findValue(&qvalueKey));
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "SipRedirectorRegDB::lookUp "
-                    "contact = '%s', qvalue = '%s'", contact.data(),
-                    qvalue.data());
+                    "contact = '%s', qvalue = '%s'", SIPX_SAFENULL(contact.data()),
+                    SIPX_SAFENULL(qvalue.data()));
       Url contactUri(contact);
 
       // If the contact URI is the same as the request URI, ignore it.

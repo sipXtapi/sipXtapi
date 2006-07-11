@@ -132,8 +132,8 @@ int AuthCommand::execute(int argc, char* argv[])
 
         printf("Adding identity '%s': user='%s' realm='%s' password='%s'\n"
                "                      H(A1)='%s'\n"
-               ,identity.toString().data(), user.data(), realm.data()
-               ,password.data(), cred_digest.data()
+               ,SIPX_SAFENULL(identity.toString().data()), SIPX_SAFENULL(user.data()), SIPX_SAFENULL(realm.data())
+               ,SIPX_SAFENULL(password.data()), SIPX_SAFENULL(cred_digest.data())
                );
 
         commandStatus = (   mLineMgr.addCredentialForLine( identity, realm, user, cred_digest
@@ -148,7 +148,7 @@ int AuthCommand::execute(int argc, char* argv[])
 
     default:
       fprintf( stderr, "%s: Invalid number of arguments\n", argv[0] );
-      fprintf( stderr, "%s%s", argv[0], UsageMsg );
+      fprintf( stderr, "%s%s", argv[0], SIPX_SAFENULL(UsageMsg));
       break;
     }
 

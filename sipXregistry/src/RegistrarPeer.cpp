@@ -86,7 +86,7 @@ void RegistrarPeer::markUnReachable()
          notifyTestThread = true;
 
          OsSysLog::add(FAC_SIP, PRI_ERR,
-                       "RegistrarPeer peer '%s' is UnReachable", name());
+                       "RegistrarPeer peer '%s' is UnReachable", SIPX_SAFENULL(name()));
          break;
 
       case UnReachable:
@@ -129,13 +129,13 @@ void RegistrarPeer::markReachable()
          mSyncState = Reachable;
       
          OsSysLog::add(FAC_SIP, PRI_INFO,
-                       "RegistrarPeer peer '%s' is Reachable", name());
+                       "RegistrarPeer peer '%s' is Reachable", SIPX_SAFENULL(name()));
       }
       else
       {
          OsSysLog::add(FAC_SIP, PRI_CRIT,
                        "RegistrarPeer::markReachable called for Incompatible peer '%s'",
-                       name()
+                       SIPX_SAFENULL(name())
                        );
       }
    }  // release lock before signalling RegistrarSync thread
@@ -155,7 +155,7 @@ void RegistrarPeer::markIncompatible()
    mSyncState = Incompatible;
 
    OsSysLog::add(FAC_SIP, PRI_ERR,
-                 "RegistrarPeer peer '%s' is Incompatible", name());
+                 "RegistrarPeer peer '%s' is Incompatible", SIPX_SAFENULL(name()));
 }
 
 /// Set the peer state to a non-initial state (any state but Uninitialized)

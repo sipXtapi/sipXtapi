@@ -41,14 +41,14 @@ MpRawAudioBuffer::MpRawAudioBuffer(const char* pFilePath)
 
    pAudioAbstract = MpOpenFormat(sourceFile);
    if (pAudioAbstract == NULL) {
-      OsSysLog::add(FAC_MP, PRI_ERR, "MpRawAudioBuffer::MpRawAudioBuffer(%s) - Failed to load file", pFilePath);
+      OsSysLog::add(FAC_MP, PRI_ERR, "MpRawAudioBuffer::MpRawAudioBuffer(%s) - Failed to load file", SIPX_SAFENULL(pFilePath));
       return;
    }
 
    // Now validate the format. It must be a WAV file formated as
    // unsigned 16 bit mono at 8KHz
    if (pAudioAbstract->getAudioFormat() != AUDIO_FORMAT_WAV) {
-      OsSysLog::add(FAC_MP, PRI_ERR, "MpRawAudioBuffer::MpRawAudioBuffer(%s) Not in WAV format", pFilePath);
+      OsSysLog::add(FAC_MP, PRI_ERR, "MpRawAudioBuffer::MpRawAudioBuffer(%s) Not in WAV format", SIPX_SAFENULL(pFilePath));
       return;
    }
 
@@ -56,20 +56,20 @@ MpRawAudioBuffer::MpRawAudioBuffer(const char* pFilePath)
    pAudioAbstract->minMaxSamplingRate(&minRate, &maxRate, &prefRate);
    if (prefRate != 8000) {
       OsSysLog::add(FAC_MP, PRI_ERR, "MpRawAudioBuffer::MpRawAudioBuffer(%s) Invalid sampling rate: %d",
-                    pFilePath, prefRate);
+                    SIPX_SAFENULL(pFilePath), prefRate);
       return;
    }
 
    pAudioAbstract->minMaxChannels(&minChan, &maxChan, &prefChan);
    if (prefChan != 1) {
       OsSysLog::add(FAC_MP, PRI_ERR, "MpRawAudioBuffer::MpRawAudioBuffer(%s) Invalid number of channels: %d",
-                    pFilePath, prefChan);
+                    SIPX_SAFENULL(pFilePath), prefChan);
       return;
    }
 
    decompressionType = pAudioAbstract->getDecompressionType();
    if (decompressionType != MpAudioWaveFileRead:: DePcm16LsbSigned) {
-      OsSysLog::add(FAC_MP, PRI_ERR, "MpRawAudioBuffer::MpRawAudioBuffer(%s) Data not PCM 16bit Signed", pFilePath);
+      OsSysLog::add(FAC_MP, PRI_ERR, "MpRawAudioBuffer::MpRawAudioBuffer(%s) Data not PCM 16bit Signed", SIPX_SAFENULL(pFilePath));
       return;
    }
 
@@ -78,7 +78,7 @@ MpRawAudioBuffer::MpRawAudioBuffer(const char* pFilePath)
    mpAudioBuffer = new char[mAudioBufferLength];
    if (mpAudioBuffer == NULL) {
       OsSysLog::add(FAC_MP, PRI_ERR, "MpRawAudioBuffer::MpRawAudioBuffer(%s) - Failed to allocate storage: new char[%d]",
-                    pFilePath, mAudioBufferLength);
+                    SIPX_SAFENULL(pFilePath), mAudioBufferLength);
       mAudioBufferLength = 0;
       return;
    }
@@ -86,7 +86,7 @@ MpRawAudioBuffer::MpRawAudioBuffer(const char* pFilePath)
    // Finally read in the data
    unsigned long readLen = pAudioAbstract->readBytes(reinterpret_cast<AudioByte*>(mpAudioBuffer), mAudioBufferLength);
    if (readLen != mAudioBufferLength) {
-      OsSysLog::add(FAC_MP, PRI_ERR, "MpRawAudioBuffer::MpRawAudioBuffer(%s) Failed to read audio data", pFilePath);
+      OsSysLog::add(FAC_MP, PRI_ERR, "MpRawAudioBuffer::MpRawAudioBuffer(%s) Failed to read audio data", SIPX_SAFENULL(pFilePath));
       mAudioBufferLength = 0;
       delete[] mpAudioBuffer;
    }

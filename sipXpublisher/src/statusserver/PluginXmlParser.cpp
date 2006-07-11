@@ -75,12 +75,12 @@ PluginXmlParser::loadPlugins (
     if( mDoc->LoadFile() )
     {
         OsSysLog::add(FAC_SIP, PRI_DEBUG, "PluginXmlParser::loadMappings "
-            "- Loaded %s", configFileName.data() );
+            "- Loaded %s", SIPX_SAFENULL(configFileName.data()) );
     }
     else
     {
         OsSysLog::add(FAC_SIP, PRI_ERR, "PluginXmlParser::loadMappings "
-            "- Unable to Open XML file %s", configFileName.data() );
+            "- Unable to Open XML file %s", SIPX_SAFENULL(configFileName.data() ));
 
         return OS_NOT_FOUND;
     }
@@ -171,7 +171,7 @@ PluginXmlParser::loadPlugins (
                 {
                     OsSysLog::add(FAC_SIP, PRI_ERR, "PluginXmlParser::loadMappings "
                         "- No Plugin for Node number %d event type: %s", 
-                        index, eventType.data());
+                        index, SIPX_SAFENULL(eventType.data()));
                 }
             }
         }      
@@ -225,7 +225,7 @@ PluginXmlParser::loadPlugin (
 	if (*plugin == NULL)
 	{
 		OsSysLog::add(FAC_SIP, PRI_ERR, "PluginXmlParser::loadPlugin return null " 
-	        "SubscribeServerPluginBasemissing %s ", entryTxt->Value());
+	        "SubscribeServerPluginBasemissing %s ", SIPX_SAFENULL(entryTxt->Value()));
 		return OS_FAILED;
 	}
 
@@ -243,7 +243,7 @@ PluginXmlParser::requireElement (
 	if (!n)
 	{
 		OsSysLog::add(FAC_SIP, PRI_ERR, "PluginXmlParser::requiredNode missing %s ", 
-                        tagName.data());
+                        SIPX_SAFENULL(tagName.data()));
 		*err = OS_FAILED;
 	}
 
@@ -251,7 +251,7 @@ PluginXmlParser::requireElement (
 	if (!e)
 	{
 		OsSysLog::add(FAC_SIP, PRI_ERR, "PluginXmlParser::requiredNode is not an element %s ", 
-                        tagName.data());
+                        SIPX_SAFENULL(tagName.data()));
 		*err = OS_FAILED;
 	}
 
@@ -274,7 +274,7 @@ PluginXmlParser::requireText (
 	}
 
 	OsSysLog::add(FAC_SIP, PRI_ERR, "PluginXmlParser::requiredText "
-		 "missing element text body %s ", elem.Value());
+		 "missing element text body %s ", SIPX_SAFENULL(elem.Value()));
 	*err = OS_FAILED;
 
 	return NULL;
@@ -300,7 +300,7 @@ PluginXmlParser::getPlugin( const UtlString& eventType )
     if (!pluginContainer)
     {
         OsSysLog::add(FAC_SIP, PRI_WARNING, "PluginXmlParser::getPlugin "
-            "eventType '%s' not found", eventType.data() );
+            "eventType '%s' not found", SIPX_SAFENULL(eventType.data()) );
     }
       
     return pluginContainer;

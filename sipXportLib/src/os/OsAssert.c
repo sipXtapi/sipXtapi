@@ -112,7 +112,7 @@ void __assert(const char *msg)
    taskUnlock();
 
    fdprintf(2, "\n\n(Task: '%s', TaskId: 0x%X)\n  %s\n",
-            taskName(0), taskIdSelf(), msg);
+            SIPX_SAFENULL(taskName(0)), taskIdSelf(), SIPX_SAFENULL(msg));
 
    __takeAssertAction(60);
 
@@ -126,7 +126,7 @@ void __assert(const char *msg)
 #endif /* BUILDING_FOR_TORNADO_2_2 ] */
    fdprintf(2, "\n *** RESUMING *** (Task: '%s', TaskId: 0x%X)  %s\n"
       "   Good Luck, you're probably gonna need it!!!!",
-      taskName(0), taskIdSelf(), msg);
+      SIPX_SAFENULL(taskName(0)), taskIdSelf(), SIPX_SAFENULL(msg));
 }
 
 int OsAssert_SetFailureAction(int action)
@@ -164,7 +164,7 @@ int bumpAssertPC(int tid, int resume)
    if (0 != (tid & 3)) {
       if (0 != lastAssertTask) {
          printf("most recently asserted task is 0x%X ('%s')\n",
-            lastAssertTask, taskName(lastAssertTask));
+            lastAssertTask, SIPX_SAFENULL(taskName(lastAssertTask)));
       } else {
          printf("no recently asserted task\n");
       }

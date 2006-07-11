@@ -352,7 +352,7 @@ OsStatus OsSysLogTask::processAdd(char* pEntry)
     */   
    if (mConsoleEnabled)
    {
-      osPrintf("%s\n", pEntry) ;
+      osPrintf("%s\n", SIPX_SAFENULL(pEntry)) ;
    }
 
 
@@ -375,7 +375,7 @@ OsStatus OsSysLogTask::processAdd(char* pEntry)
       {
          if ((mpUnboundedLog = fopen(mUnboundedLogFile.data(), "a+")) == NULL)
          {
-            syslog(FAC_LOG, PRI_ERR, "Error reopening logfile %s", mUnboundedLogFile.data());
+            syslog(FAC_LOG, PRI_ERR, "Error reopening logfile %s", SIPX_SAFENULL(mUnboundedLogFile.data()));
          }
 #ifdef __pingtel_on_posix__
          else
@@ -390,7 +390,7 @@ OsStatus OsSysLogTask::processAdd(char* pEntry)
       
       if (mpUnboundedLog)
       {
-         fprintf(mpUnboundedLog, "%s\n", pEntry) ;
+         fprintf(mpUnboundedLog, "%s\n", SIPX_SAFENULL(pEntry)) ;
          fclose(mpUnboundedLog);
          mpUnboundedLog = NULL ;
       }
@@ -433,7 +433,7 @@ OsStatus OsSysLogTask::processAdd(char* pEntry)
       
           if (mpUnboundedLog)
           {
-             fprintf(mpUnboundedLog, "%s\n", pEntry) ;
+             fprintf(mpUnboundedLog, "%s\n", SIPX_SAFENULL(pEntry)) ;
              fflush(mpUnboundedLog);
           }
       }
@@ -548,7 +548,7 @@ OsStatus OsSysLogTask::processHeadCommand(const int iEntries)
 
       if (mpRingBuffer[iIndex] != NULL)
       {
-         osPrintf("%s\n", mpRingBuffer[iIndex]) ;
+         osPrintf("%s\n", SIPX_SAFENULL(mpRingBuffer[iIndex])) ;
       }
    }
 
@@ -585,7 +585,7 @@ OsStatus OsSysLogTask::processTailCommand(const int iEntries)
 
       if (mpRingBuffer[iIndex] != NULL)
       {
-         osPrintf("%s\n", mpRingBuffer[iIndex]) ;
+         osPrintf("%s\n", SIPX_SAFENULL(mpRingBuffer[iIndex])) ;
       }
    }
 

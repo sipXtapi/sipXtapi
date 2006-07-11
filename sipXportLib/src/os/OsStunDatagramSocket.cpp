@@ -545,7 +545,7 @@ void OsStunDatagramSocket::markStunFailure()
     {
         OsSysLog::add(FAC_NET, PRI_WARNING, 
                 "STUN failed to obtain binding from %s (attempt=%d)\n",
-                mStunServer.data(), mStunRefreshErrors) ;
+                SIPX_SAFENULL(mStunServer.data()), mStunRefreshErrors) ;
 
         // Signal external identities interested in the STUN outcome.
         if (mpNotification)
@@ -570,7 +570,7 @@ void OsStunDatagramSocket::markStunFailure()
         {
             OsSysLog::add(FAC_NET, PRI_ERR, 
                 "STUN Aborted; Failed to obtain stun binding from %s (attempt=%d)\n",
-                mStunServer.data(), mStunRefreshErrors) ;
+                SIPX_SAFENULL(mStunServer.data()), mStunRefreshErrors) ;
             enableStun(FALSE) ;                               
         }
     }

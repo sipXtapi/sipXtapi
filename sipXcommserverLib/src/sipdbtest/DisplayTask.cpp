@@ -90,8 +90,8 @@ DisplayTask::run( void* runArg )
 
     UtlString databaseInfo;
     getDatabaseInfo ( databaseInfo );
-    osPrintf ( "%s", databaseInfo.data() );
-    OsSysLog::add(LOG_FACILITY, PRI_DEBUG, databaseInfo.data());
+    osPrintf ( "%s", SIPX_SAFENULL(databaseInfo.data()) );
+    OsSysLog::add(LOG_FACILITY, PRI_DEBUG, SIPX_SAFENULL(databaseInfo.data()));
 
     setBusy (FALSE);
 

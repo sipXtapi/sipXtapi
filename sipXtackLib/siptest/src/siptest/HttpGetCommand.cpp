@@ -78,7 +78,7 @@ int HttpGetCommand::execute(int argc, char* argv[])
         if(serverBegin != url)
         {
             printf("unsupported protocol in Url: %s\n",
-                url);
+                SIPX_SAFENULL(url));
                     commandStatus = CommandProcessor::COMMAND_BAD_SYNTAX;
         }
 
@@ -99,13 +99,13 @@ int HttpGetCommand::execute(int argc, char* argv[])
                     UtlString portString = server;
                     server.remove(portIndex);
                     portString.remove(0, portIndex + 1);
-                    printf("port string: %s\n", portString.data());
+                    printf("port string: %s\n", SIPX_SAFENULL(portString.data()));
                     port = atoi(portString.data());
                 }
                 uri.remove(0, serverEndIndex);
                 if(uri.isNull()) uri = "/";
                 printf("HTTP get of %s from server %s port: %d\n",
-                    uri.data(), server.data(), port);
+                    SIPX_SAFENULL(uri.data()), SIPX_SAFENULL(server.data()), SIPX_SAFENULL(port));
 
                 if (!portIsValid(port))
                 {
@@ -128,13 +128,13 @@ int HttpGetCommand::execute(int argc, char* argv[])
                 getResponse.getBytes(&responseBytes, &responseLength);
                 printf("Got %d bytes\n", responseLength);
                 printf("Response: ++++++++++++++++++++++++++++++++++\n%s\n",
-                    responseBytes.data());
+                    SIPX_SAFENULL(responseBytes.data()));
             }
 
             else
             {
                 printf("invalid server in Url: %s\n",
-                url);
+                SIPX_SAFENULL(url));
                         commandStatus = CommandProcessor::COMMAND_BAD_SYNTAX;
             }
         }
@@ -144,7 +144,7 @@ int HttpGetCommand::execute(int argc, char* argv[])
         {
                 UtlString usage;
                 getUsage(argv[0], &usage);
-                printf("%s", usage.data());
+                printf("%s", SIPX_SAFENULL(usage.data()));
                 commandStatus = CommandProcessor::COMMAND_BAD_SYNTAX;
                 //commandStatus = CommandProcessor::COMMAND_FAILED;
         }

@@ -366,13 +366,13 @@ static int openSpeakerDevices(WAVEHDR*& pWH, HWAVEOUT& hOut)
         if (strcmp(devcaps.szPname, DmaTask::getRingDevice())==0) 
         {
             gRingDeviceId = ii;
-            osPrintf("SpkrThread: Selected ring device: %s\n",devcaps.szPname);
+            osPrintf("SpkrThread: Selected ring device: %s\n",SIPX_SAFENULL(devcaps.szPname));
         }
 
 		if (strcmp(devcaps.szPname, DmaTask::getCallDevice())==0) 
         {
             gCallDeviceId = ii;
-            osPrintf("SpkrThread: Selected call device: %s\n",devcaps.szPname);
+            osPrintf("SpkrThread: Selected call device: %s\n",SIPX_SAFENULL(devcaps.szPname));
         }
     }
 

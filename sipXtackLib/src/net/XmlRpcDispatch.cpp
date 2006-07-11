@@ -171,7 +171,7 @@ void XmlRpcDispatch::processRequest(const HttpRequestContext& requestContext,
     request.getBytes(&httpString , &len);
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "XmlRpcDispatch::processRequest HttpEvent = \n%s",
-                  httpString.data());
+                  SIPX_SAFENULL(httpString.data()));
 #  endif
     
    // Create a response
@@ -231,10 +231,10 @@ void XmlRpcDispatch::processRequest(const HttpRequestContext& requestContext,
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "XmlRpcDispatch::processRequest request returned %s\n%s",
-                 (  status == XmlRpcMethod::OK
+                 SIPX_SAFENULL((  status == XmlRpcMethod::OK
                   ? "OK" : "FAILED"
-                  ),
-                 bodyString.data()
+                  )),
+                 SIPX_SAFENULL(bodyString.data())
                  );
    
    response->setBody(new HttpBody(bodyString.data(), bodyLength));
@@ -286,7 +286,7 @@ bool XmlRpcDispatch::parseXmlRpcRequest(UtlString& requestContent,
    bool result = false;
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "XmlRpcDispatch::parseXmlRpcRequest requestBody = \n%s",
-                 requestContent.data());
+                 SIPX_SAFENULL(requestContent.data()));
 
    // Parse the XML-RPC response
    TiXmlDocument doc("XmlRpcRequest.xml");
@@ -320,7 +320,7 @@ bool XmlRpcDispatch::parseXmlRpcRequest(UtlString& requestContent,
             {
                OsSysLog::add(FAC_SIP, PRI_DEBUG,
                              "XmlRpcDispatch::parseXmlRpcRequest requestMethod = %s",
-                             methodCall.data());
+                             SIPX_SAFENULL(methodCall.data()));
                              
                TiXmlNode* paramsNode = rootNode->FirstChild("params");
                
@@ -340,7 +340,7 @@ bool XmlRpcDispatch::parseXmlRpcRequest(UtlString& requestContent,
                         {
                            OsSysLog::add(FAC_SIP, PRI_ERR,
                                          "XmlRpcDispatch::parseXmlRpcRequest ill-formed XML contents in %s.",
-                                          requestContent.data());
+                                          SIPX_SAFENULL(requestContent.data()));
                            response.setFault(EMPTY_PARAM_VALUE_FAULT_CODE, EMPTY_PARAM_VALUE_FAULT_STRING);
                            break;
                         }
@@ -353,7 +353,7 @@ bool XmlRpcDispatch::parseXmlRpcRequest(UtlString& requestContent,
             {
                OsSysLog::add(FAC_SIP, PRI_ERR,
                              "XmlRpcDispatch::parseXmlRpcRequest no method named %s is registered",
-                             methodCall.data());
+                             SIPX_SAFENULL(methodCall.data()));
                response.setFault(UNREGISTERED_METHOD_FAULT_CODE, UNREGISTERED_METHOD_FAULT_STRING);
                result = false;
             }
@@ -371,7 +371,7 @@ bool XmlRpcDispatch::parseXmlRpcRequest(UtlString& requestContent,
    {
       OsSysLog::add(FAC_SIP, PRI_ERR,
                     "XmlRpcDispatch::parseXmlRpcRequest ill-formed XML contents in %s. Parsing error = %s",
-                     requestContent.data(), doc.ErrorDesc());
+                     SIPX_SAFENULL(requestContent.data()), SIPX_SAFENULL(doc.ErrorDesc()));
       response.setFault(ILL_FORMED_CONTENTS_FAULT_CODE, ILL_FORMED_CONTENTS_FAULT_STRING);
       result = false;
    }

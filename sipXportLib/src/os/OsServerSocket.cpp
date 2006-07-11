@@ -76,7 +76,7 @@ OsServerSocket::OsServerSocket(int connectionQueueSize,
 
    OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                  "OsServerSocket::_ queue=%d port=%d bindaddr=%s",
-                 connectionQueueSize, serverPort, szBindAddr
+                 connectionQueueSize, serverPort, SIPX_SAFENULL(szBindAddr)
                  );
 
    // Create the socket

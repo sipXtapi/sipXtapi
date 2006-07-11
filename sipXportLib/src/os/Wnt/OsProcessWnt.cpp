@@ -100,7 +100,7 @@ OsStatus OsProcessWnt::setIORedirect(OsPath &rStdInputFilename, OsPath &rStdOutp
                             NULL);                              // handle to template file
         if (mStdErrorHandle == INVALID_HANDLE_VALUE)
         {
-            osPrintf("Could not open %s for Std Error on new process\n");
+            osPrintf("Could not open %s for Std Error on new process\n",SIPX_SAFENULL(rStdErrorFilename.data()));
             bOneFailed = TRUE;
         }
         else
@@ -120,7 +120,7 @@ OsStatus OsProcessWnt::setIORedirect(OsPath &rStdInputFilename, OsPath &rStdOutp
                             NULL);                              // handle to template file
         if (mStdOutputHandle == INVALID_HANDLE_VALUE)
         {
-            osPrintf("Could not open %s for Std Error on new process\n");
+            osPrintf("Could not open %s for Std Error on new process\n",SIPX_SAFENULL(rStdOutputFilename.data()));
             bOneFailed = TRUE;
         }
         else
@@ -336,7 +336,7 @@ OsStatus OsProcessWnt::launch(UtlString &rAppName, UtlString parameters[],OsPath
             0,
             NULL
             );
-        osPrintf("***** ERROR FROM LAUNCH: %s",(LPCTSTR)lpMsgBuf);
+        osPrintf("***** ERROR FROM LAUNCH: %s",SIPX_SAFENULL((LPCTSTR)lpMsgBuf));
         // Free the buffer.
         LocalFree( lpMsgBuf );
 

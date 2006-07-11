@@ -146,7 +146,7 @@ UtlBoolean ConferenceController::handleMessage(OsMsg& eventMessage)
       sipxCallEventToString(eMajor, eMinor, s, sizeof (s));
       OsSysLog::add(FAC_CONFERENCE, PRI_DEBUG,
                     "ConferenceController::handleMessage call %d, event %s, major %d, minor %d",
-                    hCall, s, eMajor, eMinor);
+                    hCall, SIPX_SAFENULL(s), eMajor, eMinor);
 
       // Acquire the semaphore.
       mMutex.acquire();

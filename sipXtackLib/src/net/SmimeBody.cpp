@@ -58,7 +58,7 @@ static void dumpOpensslError()
     {
         UtlString errorString;
         errorString.append(bioErrorMem->data, bioErrorMem->length);
-        printf("OPENSSL Error:\n%s\n", errorString.data());
+        printf("OPENSSL Error:\n%s\n", SIPX_SAFENULL(errorString.data()));
     }
 }
 #endif

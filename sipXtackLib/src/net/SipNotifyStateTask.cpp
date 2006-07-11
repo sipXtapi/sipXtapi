@@ -66,7 +66,7 @@ void SipNotifyStateTask::defaultBinaryMessageWaiting(const char* toUrl,
                                   UtlBoolean newMessages)
 {
     osPrintf("SipNotifyStateTask::defaultBinaryMessageWaiting Message status for: %s\n%snew messages available\n",
-        toUrl, newMessages ? "" : "NO ");
+        SIPX_SAFENULL(toUrl), SIPX_SAFENULL(newMessages ? "" : "NO "));
 }
 
 void SipNotifyStateTask::defaultDetailMessageWaiting(const char* toUrl,
@@ -100,9 +100,9 @@ Flagged\t\t%d\t%d\n\
 Read\t\t%d\t%d\n\
 Answered\t%d\t%d\n\
 Deleted\t\t%d\t%d\n",
-               toUrl,
-               messageMediaType,
-               absoluteValues ? "Absolute counts:" : "Message deltas:",
+               SIPX_SAFENULL(toUrl),
+               SIPX_SAFENULL(messageMediaType),
+               SIPX_SAFENULL(absoluteValues ? "Absolute counts:" : "Message deltas:"),
                totalNewMessages,
                totalOldMessages,
                totalUntouchedMessages,
@@ -221,7 +221,7 @@ UtlBoolean SipNotifyStateTask::handleMessage(OsMsg& eventMessage)
 
                         // if binary message waiting status
                         osPrintf("SipNotifyStateTask::handleMessage body field name: %s value: %s\n",
-                            nv->data(), nv->getValue());
+                            SIPX_SAFENULL(nv->data()), SIPX_SAFENULL(nv->getValue()));
                         // Check for either a "Messages-Waiting" or a "Message-Waiting" field.
                         // "Messages-Waiting" is what's specified in the Internet draft;
                         // "Message-Waiting" is needed for backward compatibility.
@@ -315,7 +315,7 @@ UtlBoolean SipNotifyStateTask::handleMessage(OsMsg& eventMessage)
                             do
                             {
                                 osPrintf("SipNotifyStateTask::handleMessage flag=\'%s\'\n",
-                                    flag.data());
+                                    SIPX_SAFENULL(flag.data()));
                                 switch(flag.data()[0])
                                 {
                                 case 'u':
@@ -439,7 +439,7 @@ UtlBoolean SipNotifyStateTask::handleMessage(OsMsg& eventMessage)
 
                         // if binary message waiting status
                         osPrintf("SipNotifyStateTask::handleMessage body field name: %s value: %s\n",
-                            nv->data(), nv->getValue());
+                            SIPX_SAFENULL(nv->data()), SIPX_SAFENULL(nv->getValue()));
                         // Check for either a "Messages-Waiting" or a "Message-Waiting" field.
                         // "Messages-Waiting" is what's specified in the Internet draft;
                         // "Message-Waiting" is needed for backward compatibility.
@@ -523,9 +523,9 @@ UtlBoolean SipNotifyStateTask::handleMessage(OsMsg& eventMessage)
                 }
                 else
                 {
-                   osPrintf("Unhandled NOTIFY event type: %s\n", eventField.data()) ;
+                   osPrintf("Unhandled NOTIFY event type: %s\n", SIPX_SAFENULL(eventField.data())) ;
                    syslog(FAC_SIP, PRI_WARNING,
-                        "Unhandled NOTIFY event type: %s", eventField.data()) ;
+                        "Unhandled NOTIFY event type: %s", SIPX_SAFENULL(eventField.data())) ;
                 }
 
                 eventIndex++;
@@ -745,7 +745,7 @@ OsStatus SipNotifyStateTask::doRunScript(UtlString* pContent, CommandSecurityPol
    if (JXAPI_IsPhoneBusy())
    {
       syslog(FAC_UPGRADE, PRI_INFO,
-            "Phone busy; rescheduling check-sync script execution in %s seconds", RUN_SCRIPT_BUSY_DELAY) ;
+            "Phone busy; rescheduling check-sync script execution in %s seconds", SIPX_SAFENULL(RUN_SCRIPT_BUSY_DELAY)) ;
 
       // The phone is busy; reschedule the script until later
       scheduleRunScript(pContent, pPolicy, RUN_SCRIPT_BUSY_DELAY) ;

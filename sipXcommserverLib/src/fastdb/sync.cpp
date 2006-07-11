@@ -52,7 +52,7 @@ bool dbSharedMemory::open(char const* name, size_t size)
     char* fileName = (char*)name;
     if (strchr(name, '/') == NULL) { 
 	fileName = new char[strlen(name)+strlen(keyFileDir)+1];
-	sprintf(fileName, "%s%s", keyFileDir, name);
+	sprintf(fileName, "%s%s", SIPX_SAFENULL(keyFileDir), SIPX_SAFENULL(name));
     }
     int fd = ::open(fileName, O_RDWR|O_CREAT, 0777);
     if (fd < 0) { 
@@ -108,13 +108,13 @@ int sem_init(int& sem, char const* name, unsigned init_value)
 	char* path = (char*)name;
 	if (strchr(name, '/') == NULL) { 
 	    path = new char[strlen(name)+strlen(keyFileDir)+1];
-	    sprintf(path, "%s%s", keyFileDir, name);
+	    sprintf(path, "%s%s", SIPX_SAFENULL(keyFileDir), SIPX_SAFENULL(name));
 	}
 	fd = open(path, O_WRONLY|O_CREAT, 0777);
 	if (fd < 0) {
 	    PRINT_ERROR("open");
 	    fprintf(stderr, "Error attempting to open '%s' for writing.\n",
-		    path);
+		    SIPX_SAFENULL(path));
 	    if (path != name) { 
 		delete[] path;
 	    }
@@ -124,7 +124,7 @@ int sem_init(int& sem, char const* name, unsigned init_value)
 	key = ftok(path, '0');
 	if (key < 0) {
 	    PRINT_ERROR("ftok");
-            fprintf(stderr, "Error calling ftok('%s').\n", path);
+            fprintf(stderr, "Error calling ftok('%s').\n", SIPX_SAFENULL(path));
 	    if (path != name) { 
 	      delete[] path;
 	    }
@@ -383,12 +383,12 @@ dbInitializationMutex::initialize(char const* name)
     char* path = (char*)name;
     if (strchr(name, '/') == NULL) { 
 	path = new char[strlen(name)+strlen(keyFileDir)+1];
-	sprintf(path, "%s%s", keyFileDir, name);
+	sprintf(path, "%s%s", SIPX_SAFENULL(keyFileDir), SIPX_SAFENULL(name));
     }
     int fd = open(path, O_WRONLY|O_CREAT, 0777);
     if (fd < 0) {
 	PRINT_ERROR("open");
-        fprintf(stderr, "Error attempting to open '%s' for writing.\n", path);
+        fprintf(stderr, "Error attempting to open '%s' for writing.\n", SIPX_SAFENULL(path));
 	if (path != name) { 
 	    delete[] path;
 	}
@@ -398,7 +398,7 @@ dbInitializationMutex::initialize(char const* name)
     int key = ftok(path, '0');
     if (key < 0) {
 	PRINT_ERROR("ftok");
-        fprintf(stderr, "Error calling ftok('%s').\n", path);
+        fprintf(stderr, "Error calling ftok('%s').\n", SIPX_SAFENULL(path));
 	if (path != name) { 
 	delete[] path;
     }

@@ -153,7 +153,7 @@ typedef enum
     SIPX_INTERNAL_CALLSTATE_CONNECTED,          /** Active call - remote audio */
     SIPX_INTERNAL_CALLSTATE_HELD,               /** Remotely held call */
     SIPX_INTERNAL_CALLSTATE_BRIDGED,            /** Locally held call */
-    SIPX_INTERNAL_CALLSTATE_DISCONNECTED,       /** Disconnected or failed */
+    SIPX_INTERNAL_CALLSTATE_DISCONNECTED       /** Disconnected or failed */
 } SIPX_INTERNAL_CALLSTATE ;
 
 
@@ -185,7 +185,7 @@ typedef enum CONF_HOLD_STATE
 {
     CONF_STATE_UNHELD = 0,
     CONF_STATE_BRIDGING_HOLD,
-    CONF_STATE_NON_BRIDGING_HOLD,
+    CONF_STATE_NON_BRIDGING_HOLD
 } CONF_HOLD_STATE;
 
 typedef struct

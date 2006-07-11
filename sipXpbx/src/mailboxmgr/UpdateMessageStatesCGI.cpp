@@ -111,7 +111,7 @@ UpdateMessageStatesCGI::handleWebRequest( UtlString* out )
 
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                   "UpdateMessageStatesCGI::handleWebRequest: out = '%s'",
-                  out->data());
+                  SIPX_SAFENULL(out->data()));
     return OS_SUCCESS;
 }
 

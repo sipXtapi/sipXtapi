@@ -82,7 +82,7 @@ UtlBoolean SipDialogMgr::createDialog(const SipMessage& message,
         // already exists
         OsSysLog::add(FAC_SIP, PRI_ERR,
             "SipDialogMgr::createDialog called with handle: %s for existing dialog",
-            handle.data());
+            SIPX_SAFENULL(handle.data()));
     }
 
     // Dialog needs to be created
@@ -119,7 +119,7 @@ UtlBoolean SipDialogMgr::updateDialog(const SipMessage& message,
         UtlString dialogDump;
         dialog->toString(dialogDump);
         printf("SipDialogMgr::updateDialog dialog before:\n%s\n",
-               dialogDump.data());
+               SIPX_SAFENULL(dialogDump.data()));
 #endif
 
         dialog->updateDialogData(message);
@@ -127,7 +127,7 @@ UtlBoolean SipDialogMgr::updateDialog(const SipMessage& message,
 #ifdef TEST_PRINT
         dialog->toString(dialogDump);
         printf("SipDialogMgr::updateDialog dialog after:\n%s\n",
-               dialogDump.data());
+               SIPX_SAFENULL(dialogDump.data()));
 #endif
     }
 
@@ -164,7 +164,7 @@ UtlBoolean SipDialogMgr::setNextLocalTransactionInfo(SipMessage& request,
         UtlString dialogDump;
         dialog->toString(dialogDump);
         printf("SipDialogMgr::setNextLocalTransactionInfo dialog:\n%s\n",
-               dialogDump.data());
+               SIPX_SAFENULL(dialogDump.data()));
 #endif
 
     }

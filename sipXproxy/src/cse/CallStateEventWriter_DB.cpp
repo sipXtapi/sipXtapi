@@ -43,7 +43,7 @@ CallStateEventWriter_DB::CallStateEventWriter_DB(const char* logName,
                     mHandle(NULL)
 {
    OsSysLog::add(FAC_CDR, PRI_DEBUG,
-                 "%s::constructor Log type database", ModuleName);      
+                 "%s::constructor Log type database", SIPX_SAFENULL(ModuleName));      
 }
 
 /// Destructor
@@ -61,7 +61,7 @@ bool CallStateEventWriter_DB::openLog()
       if ((mHandle=odbcConnect(mLogName, mLogLocation, mLogUserName, mLogDriver, mLogPassword)) != NULL)
       {
          OsSysLog::add(FAC_CDR, PRI_DEBUG,
-                       "%s::openLog connected to database %s", ModuleName, mLogName.data()); 
+                       "%s::openLog connected to database %s", SIPX_SAFENULL(ModuleName), SIPX_SAFENULL(mLogName.data())); 
          mbWriteable = true;
          bRet = true;
       }
@@ -69,13 +69,13 @@ bool CallStateEventWriter_DB::openLog()
       {
          OsSysLog::add(FAC_CDR, PRI_ERR,
                        "%s::openLog connection to database %s failed", 
-                       ModuleName, mLogName.data());             
+                       SIPX_SAFENULL(ModuleName), SIPX_SAFENULL(mLogName.data()));             
       }
    }
    else
    {
      OsSysLog::add(FAC_CDR, PRI_ERR,
-                   "%s::openLog log %s already open", ModuleName, mLogName.data());
+                   "%s::openLog log %s already open", SIPX_SAFENULL(ModuleName), SIPX_SAFENULL(mLogName.data()));
    }
    return bRet;
 }
@@ -93,7 +93,7 @@ bool CallStateEventWriter_DB::closeLog()
    bRet = true;
       
    OsSysLog::add(FAC_CDR, PRI_DEBUG,
-                 "%s::closeLog", ModuleName);      
+                 "%s::closeLog", SIPX_SAFENULL(ModuleName));      
    return bRet;
 }
 

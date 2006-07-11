@@ -51,7 +51,7 @@ AuthexceptionDB::AuthexceptionDB( const UtlString& name )
     gauVerboseLoggingEnabled = SIPDBManager::isVerboseLoggingEnabled();
     if (gauVerboseLoggingEnabled)
         OsSysLog::add(FAC_DB, PRI_DEBUG, "AuthexceptionDB::_  user=%d \"%s\"",
-                    users, name.data());
+                    users, SIPX_SAFENULL(name.data()));
     if ( users == 1 )
     {
         // Load the file implicitly
@@ -107,7 +107,7 @@ AuthexceptionDB::load()
                 OsPath::separator + mDatabaseName + ".xml";
 
         OsSysLog::add(FAC_DB, PRI_DEBUG, "AuthexceptionDB::load loading \"%s\"",
-                    fileName.data());
+                    SIPX_SAFENULL(fileName.data()));
 
         TiXmlDocument doc ( fileName );
 
@@ -170,7 +170,7 @@ AuthexceptionDB::load()
         } else 
         {
             OsSysLog::add(FAC_DB, PRI_WARNING, "AuthexceptionDB::load failed to load \"%s\"",
-                    fileName.data());
+                    SIPX_SAFENULL(fileName.data()));
         }
     } else 
     {
