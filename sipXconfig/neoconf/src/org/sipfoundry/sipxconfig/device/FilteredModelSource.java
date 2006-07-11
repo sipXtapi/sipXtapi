@@ -28,8 +28,16 @@ public class FilteredModelSource implements ModelSource {
         m_modelSource = modelSource;
     }
 
+    /**
+     * Sets regular expression that is used to construct the filter limiting which models are
+     * available.
+     */
     public void setCertified(String certifiedRegex) {
         m_filter = new CertifiedPhones(certifiedRegex);
+    }
+
+    public void setFilter(Predicate filter) {
+        m_filter = filter;
     }
 
     public Collection<PhoneModel> getModels() {
@@ -49,8 +57,7 @@ public class FilteredModelSource implements ModelSource {
 
         public boolean evaluate(Object object) {
             PhoneModel model = (PhoneModel) object;
-            boolean certified = m_pattern.matcher(model.getName()).matches();
-            return certified;
+            return m_pattern.matcher(model.getName()).matches();
         }
     }
 }

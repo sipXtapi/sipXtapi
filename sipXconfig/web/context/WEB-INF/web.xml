@@ -38,6 +38,7 @@
       classpath*:/org/sipfoundry/sipxconfig/upload/upload.beans.xml
       classpath*:/org/sipfoundry/sipxconfig/presence/presence.beans.xml
       classpath*:/sipxplugin.beans.xml
+      classpath*:/org/sipfoundry/sipxconfig/**/*-models.beans.xml
     </param-value>
   </context-param>
 	

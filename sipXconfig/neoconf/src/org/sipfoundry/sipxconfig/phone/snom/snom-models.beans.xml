@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="org.sipfoundry.sipxconfig.phone.snom.SnomModel.MODEL_300"
+    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+  <bean id="org.sipfoundry.sipxconfig.phone.snom.SnomModel.MODEL_320"
+    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+  <bean id="org.sipfoundry.sipxconfig.phone.snom.SnomModel.MODEL_360"
+    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+  <!-- Snom -->
+  <bean id="snom" class="org.sipfoundry.sipxconfig.phone.snom.SnomPhone" singleton="false"
+    parent="unmanagedPhone">
+  </bean>
+</beans>
