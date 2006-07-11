@@ -1,9 +1,0 @@
-#!/bin/bash
-
-# Copyright (c) 2002 Pingtel Corp.
-
-# Common environment variables used by the in memory database (IMDB)
-#export SIPX_DB_VAR_PATH=@localstatedir@
-#export SIPX_DB_CFG_PATH=@localstatedir@/sipxdata/sipdb
-
-exec @bindir@/sipdbtest $@

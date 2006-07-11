@@ -1,9 +1,0 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
-//
-// $$
-////////////////////////////////////////////////////////////////////////
-//////
-
-char *crypt(register const char *pw, register const char *salt);

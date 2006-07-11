@@ -1,1 +1,0 @@
-SUBDIRS = sipxcgi processcgi

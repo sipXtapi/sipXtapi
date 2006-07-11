@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model>
-	<group name="car">
-  	<setting name="doodad">
-			<value>bell and whistle</value>
-    </setting>
-	</group>
-</model>
