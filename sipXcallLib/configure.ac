@@ -16,6 +16,7 @@ AC_PROG_LIBTOOL
 
 # Checks for programs.
 AC_PROG_CXX
+AX_COMPILER_VENDOR
 AC_PROG_CC
 
 # Checks for libraries.
