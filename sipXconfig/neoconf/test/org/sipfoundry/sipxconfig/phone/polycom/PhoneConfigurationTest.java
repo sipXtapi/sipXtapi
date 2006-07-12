@@ -47,7 +47,7 @@ public class PhoneConfigurationTest extends XMLTestCase {
         Reader generatedXml = new CharArrayReader(out.toCharArray());
 
         // helpful debug
-        System.out.println(new String(out.toCharArray()));
+        // System.out.println(new String(out.toCharArray()));
 
         Diff phoneDiff = new Diff(expectedXml, generatedXml);
         assertXMLEqual(phoneDiff, true);
