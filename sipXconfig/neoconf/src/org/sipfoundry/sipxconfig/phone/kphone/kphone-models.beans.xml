@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="org.sipfoundry.sipxconfig.phone.kphone.KPhone.MODEL_KPHONE"
+    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+
+  <!-- K P H O N E -->
+  <bean id="kphone" class="org.sipfoundry.sipxconfig.phone.kphone.KPhone" singleton="false"
+    parent="unmanagedPhone">
+  </bean>
+</beans>

@@ -13,6 +13,7 @@
 #include "fastdb.h"
 #include "symtab.h"
 #include "compiler.h"
+#include <os/OsDefs.h>
 
 dbQueryElementAllocator dbQueryElementAllocator::instance;
 

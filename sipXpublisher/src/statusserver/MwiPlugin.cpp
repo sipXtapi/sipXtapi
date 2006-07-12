@@ -310,7 +310,7 @@ MwiPlugin::handleEvent (
                             "MwiPlugin::handleEvent request body is not type '"
                             CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY "'\n"
                             "Content-Type: '%s'",
-                            SIPX_SAFENULL(odyType.data())
+                            SIPX_SAFENULL(bodyType.data())
                             );
            }
         }

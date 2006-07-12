@@ -11,6 +11,8 @@
 #ifndef __SUBSQL_H__
 #define __SUBSQL_H__
 
+#include <os/OsDefs.h>
+
 enum SubSqlTokens { 
     tkn_array = tkn_last_token, 
     tkn_autoincrement,

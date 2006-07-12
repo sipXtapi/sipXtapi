@@ -10,6 +10,7 @@
 
 #include "stdtp.h"
 #include "sockio.h"
+#include <os/OsDefs.h>
 
 void message(char const* msg)
 {

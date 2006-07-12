@@ -12,6 +12,7 @@
 
 #include "repsock.h"
 #include "sync.h"
+#include <os/OsDefs.h>
 
 
 

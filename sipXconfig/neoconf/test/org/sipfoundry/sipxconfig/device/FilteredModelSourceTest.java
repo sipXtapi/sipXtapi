@@ -17,6 +17,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.collections.Predicate;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
@@ -67,5 +68,17 @@ public class FilteredModelSourceTest extends TestCase {
         assertFalse(certified.contains(KPhone.MODEL_KPHONE));
         assertFalse(certified.contains(GrandstreamModel.MODEL_HT496));
         assertTrue(certified.contains(PolycomModel.MODEL_300));
+    }
+    
+    public void testSetFilter() {
+        Predicate onlyKPhone = new Predicate() {
+            public boolean evaluate(Object object) {
+                return object.equals(KPhone.MODEL_KPHONE);
+            }
+        };
+        m_modelSource.setFilter(onlyKPhone);
+        Collection certified = m_modelSource.getModels();
+        assertEquals(1, certified.size());
+        assertTrue(certified.contains(KPhone.MODEL_KPHONE));        
     }
 }

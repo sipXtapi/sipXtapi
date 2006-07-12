@@ -12,6 +12,7 @@
 
 #include "wwwapi.h"
 #include <ctype.h>
+#include <os/OsDefs.h>
 
 const size_t init_reply_buffer_size = 4*1024;
 

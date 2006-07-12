@@ -1297,7 +1297,7 @@ bool CSourceDescription::FormulateCName(void)
     if(m_ulNameLength == 0)
     {
         // Use a default name
-        sprintf((char *)m_uchCName, "UnknownUser@%s", SIPX_SAFENULL(uchHostName));
+        sprintf((char *)m_uchCName, "UnknownUser@%s", uchHostName);
     }
 
     // A valid Name component is present.  Let's use it instead

@@ -29,6 +29,7 @@ static const char *rcsid = 0 ? (char *) &rcsid :
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <os/OsDefs.h>
 
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN

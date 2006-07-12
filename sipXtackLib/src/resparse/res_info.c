@@ -20,6 +20,7 @@
 
 #include        "resparse/rr.h"
 #include        "resparse/res_info.h"
+#include	"resparse/res_config.h
 
 #if defined (_VXWORKS) /* required for compile --GAT */
 #       include <stdlib.h>

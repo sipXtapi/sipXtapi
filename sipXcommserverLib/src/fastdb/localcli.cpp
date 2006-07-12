@@ -15,6 +15,7 @@
 #include "hashtab.h"
 #include "symtab.h"
 #include <ctype.h>
+#include <os/OsDefs.h>
 
 dbCLI dbCLI::instance;
 

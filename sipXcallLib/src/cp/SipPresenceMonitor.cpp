@@ -183,7 +183,7 @@ bool SipPresenceMonitor::addExtension(UtlString& groupName, Url& contactUrl)
       
       mMonitoredLists.insertKeyAndValue(listName, list);
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceMonitor::addExtension insert listName %s and object %p to the resource list",
-                    SAFENULL(groupName.data()), list);   
+                    SIPX_SAFENULL(groupName.data()), list);   
    }
 
    // Check whether the contact has already being added to the group
@@ -209,7 +209,7 @@ bool SipPresenceMonitor::addExtension(UtlString& groupName, Url& contactUrl)
    {
       OsSysLog::add(FAC_LOG, PRI_WARNING,
                     "SipPresenceMonitor::addExtension contact %s already exists.",
-                    SAFENULL(resourceId.data()));
+                    SIPX_SAFENULL(resourceId.data()));
    }
 
    list->buildBody();
@@ -227,7 +227,7 @@ bool SipPresenceMonitor::removeExtension(UtlString& groupName, Url& contactUrl)
    if (list == NULL)
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceMonitor::removeExtension group %s does not exist",
-                    SAFENULL(groupName.data()));   
+                    SIPX_SAFENULL(groupName.data()));   
    }
    else
    {
@@ -246,7 +246,7 @@ bool SipPresenceMonitor::removeExtension(UtlString& groupName, Url& contactUrl)
       {
          OsSysLog::add(FAC_LOG, PRI_WARNING,
                        "SipPresenceMonitor::removeExtension subscription for contact %s does not exists.",
-                       SAFENULL(resourceId.data()));
+                       SIPX_SAFENULL(resourceId.data()));
       }
    }
 
@@ -262,12 +262,12 @@ bool SipPresenceMonitor::addPresenceEvent(UtlString& contact, SipPresenceEvent* 
    {
       requiredPublish = true;
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceMonitor::addPresenceEvent adding the presenceEvent %p for contact %s",
-                    presenceEvent, SAFENULL(contact.data()));
+                    presenceEvent, SIPX_SAFENULL(contact.data()));
    }
    else
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceMonitor::addPresenceEvent presenceEvent %p for contact %s already exists, just update the content.",
-                    presenceEvent, SAFENULL(contact.data()));
+                    presenceEvent, SIPX_SAFENULL(contact.data()));
                     
       // Get the object from the presence event list
       UtlContainable* oldKey;
@@ -287,7 +287,7 @@ bool SipPresenceMonitor::addPresenceEvent(UtlString& contact, SipPresenceEvent* 
          delete oldKey;
 
          OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceMonitor::addPresenceEvent remove the presenceEvent %p for contact %s",
-                       oldPresenceEvent, SAFENULL(contact.data())); 
+                       oldPresenceEvent, SIPX_SAFENULL(contact.data())); 
 
          int numOldContents;
          HttpBody* oldContent[1];           
@@ -300,7 +300,7 @@ bool SipPresenceMonitor::addPresenceEvent(UtlString& contact, SipPresenceEvent* 
                  
             oldPresenceEvent->getBytes(&presenceContent, &length);
             OsSysLog::add(FAC_SIP, PRI_ERR, "SipPresenceMonitor::publishContent PresenceEvent %s\n was not successfully unpublished from the subscribe server",
-                          SAFENULL(presenceContent.data()));
+                          SIPX_SAFENULL(presenceContent.data()));
          }
 
          if (oldPresenceEvent)
@@ -351,7 +351,7 @@ void SipPresenceMonitor::publishContent(UtlString& contact, SipPresenceEvent* pr
 
       list = dynamic_cast <SipResourceList *> (mMonitoredLists.findValue(listUri));
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceMonitor::publishContent listUri %s list %p",
-                    SAFENULL(listUri->data()), list); 
+                    SIPX_SAFENULL(listUri->data()), list); 
 
       // Search for the contact in this list
       resource = list->getResource(contact);
@@ -399,7 +399,7 @@ void SipPresenceMonitor::publishContent(UtlString& contact, SipPresenceEvent* pr
             
             list->getBytes(&presenceContent, &length);
             OsSysLog::add(FAC_SIP, PRI_ERR, "SipPresenceMonitor::publishContent PresenceEvent %s\n was not successfully published to the subscribe server",
-                          SAFENULL(presenceContent.data()));
+                          SIPX_SAFENULL(presenceContent.data()));
          }
       }      
    }
@@ -416,7 +416,7 @@ void SipPresenceMonitor::publishContent(UtlString& contact, SipPresenceEvent* pr
            
       presenceEvent->getBytes(&presenceContent, &length);
       OsSysLog::add(FAC_SIP, PRI_ERR, "SipPresenceMonitor::publishContent PresenceEvent %s\n was not successfully published to the subscribe server",
-                    SAFENULL(presenceContent.data()));
+                    SIPX_SAFENULL(presenceContent.data()));
    }
 }
 

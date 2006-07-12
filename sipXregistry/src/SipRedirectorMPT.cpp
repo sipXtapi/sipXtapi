@@ -270,7 +270,7 @@ void SipRedirectorMPT::writeMappings(UtlString* file_name,
    {
       OsSysLog::add(FAC_SIP, PRI_CRIT,
                     "SipRedirectorMPT::writeMappings fopen('%s') failed, errno = %d",
-                    SIPX_SAFENULL(temp_file_name.data()), SIPX_SAFENULL(errno));
+                    SIPX_SAFENULL(temp_file_name.data()), errno);
    }
    else
    {

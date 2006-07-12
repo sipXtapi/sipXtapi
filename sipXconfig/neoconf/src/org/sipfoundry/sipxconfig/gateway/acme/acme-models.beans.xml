@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <!-- This is just an example of how to register new gateway -->
+  <bean id="gmAcme" class="org.sipfoundry.sipxconfig.phone.PhoneModel">
+    <constructor-arg>
+      <value>gwAcme</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>1000</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>Acme 1000</value>
+    </constructor-arg>
+  </bean>
+
+  <bean id="gwAcme" class="org.sipfoundry.sipxconfig.gateway.acme.AcmeGateway" singleton="false"
+    parent="gwGeneric">
+    <property name="defaults" ref="phoneDefaults" />
+    <property name="velocityEngine" ref="velocityEngine" />
+  </bean>
+</beans>

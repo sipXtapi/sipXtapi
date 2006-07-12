@@ -237,7 +237,7 @@ void initSysLog(OsConfigDb* pConfig)
    else
    {
       bSpecifiedDirError = false ;
-      osPrintf("%s : %s\n", SIPX_SAFENULL(CONFIG_SETTING_LOG_DIR), fSIPX_SAFENULL(ileTarget.data())) ;
+      osPrintf("%s : %s\n", SIPX_SAFENULL(CONFIG_SETTING_LOG_DIR), SIPX_SAFENULL(fileTarget.data())) ;
       OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", SIPX_SAFENULL(CONFIG_SETTING_LOG_DIR), SIPX_SAFENULL(fileTarget.data())) ;
 
       fileTarget = fileTarget +
@@ -445,7 +445,7 @@ main( int argc, char* argv[] )
         realm = ipAddress;
     }
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_AUTHPROXY_AUTHENTICATE_REALM : %s", SIPX_SAFENULL(realm.data()));
-    osPrintf("SIP_AUTHPROXY_AUTHENTICATE_REALM : %s\n", SIPX_SAFENULL(ealm.data()));
+    osPrintf("SIP_AUTHPROXY_AUTHENTICATE_REALM : %s\n", SIPX_SAFENULL(realm.data()));
 
     UtlBoolean authEnabled;
     UtlString authScheme;

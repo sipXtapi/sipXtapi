@@ -29,6 +29,7 @@
 #include <stddef.h>
 #include <assert.h>
 #include <errno.h>
+#include <os/OsDefs.h>
 
 extern "C" {
 #include <netdb.h>

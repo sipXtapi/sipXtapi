@@ -449,9 +449,9 @@ StatusServer::startStatusServer (
     }
     OsSysLog::add(FAC_SIP, PRI_INFO,
                   "SIP_STATUS_MAX_EXPIRES : %s", 
-                  SIPX_SAFENULL(defaultMaxExpiresTime.data());
+                  SIPX_SAFENULL(defaultMaxExpiresTime.data()));
 
-    int maxExpiresTime = atoi(defaultMaxExpiresTime.data()));
+    int maxExpiresTime = atoi(defaultMaxExpiresTime.data());
 
     // SIP_STATUS_MIN_EXPIRES
     if ( defaultMinExpiresTime.isNull() )

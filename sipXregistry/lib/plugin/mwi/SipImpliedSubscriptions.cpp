@@ -313,7 +313,7 @@ bool SipImpliedSubscriptions::needsImpliedSubscription( const SipMessage& regist
       configuredForSubscription = true;
       OsSysLog::add( FAC_SIP, PRI_INFO
                     ,"%s User-Agent \"%s\" matched rule \"%s%s\""
-                    ,SIPX_SAFENULL(mLogName.data()
+                    ,SIPX_SAFENULL(mLogName.data())
                     ,SIPX_SAFENULL(userAgent.data())
                     ,SIPX_SAFENULL(ConfigPrefix)
                     ,SIPX_SAFENULL(configured->data())

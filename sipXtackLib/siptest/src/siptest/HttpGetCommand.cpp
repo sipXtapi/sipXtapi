@@ -105,7 +105,7 @@ int HttpGetCommand::execute(int argc, char* argv[])
                 uri.remove(0, serverEndIndex);
                 if(uri.isNull()) uri = "/";
                 printf("HTTP get of %s from server %s port: %d\n",
-                    SIPX_SAFENULL(uri.data()), SIPX_SAFENULL(server.data()), SIPX_SAFENULL(port));
+                    SIPX_SAFENULL(uri.data()), SIPX_SAFENULL(server.data()), port);
 
                 if (!portIsValid(port))
                 {

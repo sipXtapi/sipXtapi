@@ -51,7 +51,8 @@ public class PhoneTestHelper {
             endpoint[i].setSerialNumber(serNum.substring(serNum.length() - 12));
             m_tester.clickLink("NewPhone");
             m_tester.setFormElement("serialNumber", endpoint[i].getSerialNumber());
-            m_tester.setFormElement("phoneModel", "3");
+            // HACK: plenty of our test only work for Polycom phone - need a better way of creating polycom model
+            m_tester.selectOption("phoneModel", "Polycom SoundPoint IP 500/501");
             m_tester.clickButton("phone:ok");
             SiteTestHelper.home(m_tester);
 	    }

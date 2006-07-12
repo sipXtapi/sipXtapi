@@ -20,6 +20,7 @@
 #include "cliproto.h"
 #include "server.h"
 #include "localcli.h"
+#include <os/OsDefs.h>
 
 #if !THREADS_SUPPORTED
 #error Server requires multithreading support

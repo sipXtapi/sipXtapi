@@ -506,7 +506,7 @@ void sipxSubscribeClientSubCallback(SipSubscribeClient::SubscriptionState newSta
         {
             OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
                 "sipxSubscribeClientSubCallback: invalid SubscriptionState: %s",
-                SAFENULL(errorState.data()));
+                SIPX_SAFENULL(errorState.data()));
         }
     }
 
@@ -1226,7 +1226,7 @@ void GIPSVETraceCallback(char *szMsg, int iNum)
 {
     OsSysLog::add(FAC_AUDIO, PRI_DEBUG,
             "%s (%d)",
-            SAFENULL(szMsg), 
+            SIPX_SAFENULL(szMsg), 
             iNum);
 }
 
@@ -1299,7 +1299,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigVoicemailSubscribe(const SIPX_INST hInst,
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigVoicemailSubscribe hInst=%p URL=%s",
-        hInst, SAFENULL(szSubscribeURL));
+        hInst, SIPX_SAFENULL(szSubscribeURL));
 
     SIPX_RESULT rc = SIPX_RESULT_INVALID_ARGS;
     SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst;

@@ -579,7 +579,7 @@ UtlString* EventValidator::allocInfoEvent(SIPX_CALL hCall,
             hCall,
             hLine,
             SIPX_SAFENULL(from.data()),
-            SIPX_SAFENULL(szUserAgent)
+            SIPX_SAFENULL(szUserAgent),
             SIPX_SAFENULL(szContentType),
             SIPX_SAFENULL(szContent),
             nContentLength) ;

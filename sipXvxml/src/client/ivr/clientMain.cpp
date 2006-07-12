@@ -657,14 +657,14 @@ int main(int argc, char *argv[])
       else if (VXIValueGetType((const VXIValue *)urlStr) != VALUE_STRING)
       {
          fprintf(stderr, "ERROR: %S must be set to a VXIString value\n",
-                 SIPX_SAFENULL(BASE_CLIENT_VXML_URL));
+                 BASE_CLIENT_VXML_URL);
          return 1;
       }
 
       gblDefaultVxmlURL = (VXIchar *)VXIStringCStr(urlStr);
    }
 
-   printf("Using VXML document base '%S'\n\n", SIPX_SAFENULL(gblDefaultVxmlURL));
+   printf("Using VXML document base '%S'\n\n", gblDefaultVxmlURL);
 
    /* Initialize the platform */
    platformResult = VXIplatformInit(glbConfigArgs, &maxChannels);
@@ -1277,14 +1277,14 @@ int VXIProcessUrl (void *plistener,
       char* tmp = new char[llen];
       vxmlURL = (VXIchar *) calloc(llen, VXICHAR_SIZE);
       CLIENT_CHECK_MEMALLOC( vxmlURL, "URL buffer" );
-      sprintf(tmp, "%S%s", SIPX_SAFENULL(gblDefaultVxmlURL), SIPX_SAFENULL(url));
+      sprintf(tmp, "%S%s", gblDefaultVxmlURL, SIPX_SAFENULL(url));
       mbstowcs(vxmlURL, (char*)tmp, llen);
       delete[] tmp;
       tmp = NULL;
    }
 
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
-                 "VXIProcessUrl Using VXML document '%S'\n\n", SIPX_SAFENULL(vxmlURL));
+                 "VXIProcessUrl Using VXML document '%S'\n\n", vxmlURL);
 
    VXIMap *sessionArgs = VXIMapCreate();
 

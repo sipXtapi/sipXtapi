@@ -21,6 +21,7 @@
 #endif
 
 // APPLICATION INCLUDES
+#include <os/OsDefs.h>
 #include <os/OsQueuedEvent.h>
 #include <os/OsTimer.h>
 #include <os/OsUtil.h>
@@ -134,7 +135,7 @@ SipConnection::SipConnection(const char* outboundLineAddress,
     mHoldCompleteAction = CpCallManager::CP_UNSPECIFIED;
 #ifdef TEST_PRINT
     if (!callId.isNull())
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving SipConnection constructor: %s\n", SAFENULL(callId.data()));
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving SipConnection constructor: %s\n", SIPX_SAFENULL(callId.data()));
     else
         OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving SipConnection constructor: call is Null\n");
 #endif
@@ -153,7 +154,7 @@ SipConnection::~SipConnection()
 #ifdef TEST_PRINT
     if (mpCall) {
         mpCall->getCallId(callId);
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "Entering SipConnection destructor: %s\n", SAFENULL(callId.data()));
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "Entering SipConnection destructor: %s\n", SIPX_SAFENULL(callId.data()));
     } else
         OsSysLog::add(FAC_CP, PRI_DEBUG, "Entering SipConnection destructor: call is Null\n");
 #endif
@@ -170,7 +171,7 @@ SipConnection::~SipConnection()
     }
 #ifdef TEST_PRINT
     if (!callId.isNull())
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving SipConnection destructor: %s\n", SAFENULL(callId.data()));
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving SipConnection destructor: %s\n", SIPX_SAFENULL(callId.data()));
     else
         OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving SipConnection destructor: call is Null\n");
 #endif
@@ -895,7 +896,7 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
             {
                 OsSysLog::add(FAC_CP, PRI_DEBUG,
                     "SipConnection::answer: INVITE OK failed: %s",
-                    SAFENULL(remoteRtpAddress.data()));
+                    SIPX_SAFENULL(remoteRtpAddress.data()));
                 OsSysLog::add(FAC_CP, PRI_DEBUG,
                     "SipConnection::answer: CONNECTION_FAILED, CONNECTION_LOCAL, CONNECTION_CAUSE_NORMAL");
                 //phoneSet->setStatusDisplay(displayMsg);
@@ -2352,7 +2353,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
 
         UtlString requestString;         
         inviteMsg->getRequestUri(&requestString);
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "SipConnection::processInviteRequest - inviteMsg request URI '%s'", SAFENULL(requestString.data()));
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "SipConnection::processInviteRequest - inviteMsg request URI '%s'", SIPX_SAFENULL(requestString.data()));
         
         inviteFromThisSide = FALSE;
         setCallerId();
@@ -2365,7 +2366,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
            Url parsedUri(uri, TRUE);
            // Store into mLocalContact, which is in name-addr format.
            parsedUri.toString(mLocalContact);
-           OsSysLog::add(FAC_CP, PRI_DEBUG, "SipConnection::processInviteRequest - parsedURI to string '%s'", SAFENULL(mLocalContact.data()));           
+           OsSysLog::add(FAC_CP, PRI_DEBUG, "SipConnection::processInviteRequest - parsedURI to string '%s'", SIPX_SAFENULL(mLocalContact.data()));           
         }
 
         // Check if the P-Asserted-Identity header is present and update
@@ -4809,7 +4810,7 @@ void SipConnection::processReferResponse(const SipMessage* response)
         mToUrl.toString(toField);
         mpCall->getTargetCallId(targetCallId);
         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipConnection::processReferResponse callId %s, state %d, cause %d", 
-                      SAFENULL(targetCallId.data()), state, cause);        
+                      SIPX_SAFENULL(targetCallId.data()), state, cause);        
         CpMultiStringMessage transferControllerStatus(CallManager::CP_TRANSFER_CONNECTION_STATUS,
             targetCallId.data(), toField.data(),
             NULL, NULL, NULL,
@@ -5148,7 +5149,7 @@ void SipConnection::setContactType(CONTACT_TYPE eType)
        contactUrl.toString(localContact);
     }
     mLocalContact = localContact ;
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipConnection::setContactType contact type %d contactUrl '%s'", eType, SAFENULL(localContact.data()));     
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipConnection::setContactType contact type %d contactUrl '%s'", eType, SIPX_SAFENULL(localContact.data()));     
 }
 
 

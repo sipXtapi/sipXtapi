@@ -503,8 +503,8 @@ void sipxFireCallEvent(const void* pSrc,
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxFireCallEvent pSrc=%p callId=%s pSession=%p, szRemoteAddress=%s major=%d minor=%d assertedId=%s",
-        pSrc, SAFENULL(szCallId), pSession, SAFENULL(szRemoteAddress), major, minor, 
-        SAFENULL(szRemoteAssertedIdentity ? szRemoteAssertedIdentity : ""));
+        pSrc, SIPX_SAFENULL(szCallId), pSession, SIPX_SAFENULL(szRemoteAddress), major, minor, 
+        SIPX_SAFENULL(szRemoteAssertedIdentity ? szRemoteAssertedIdentity : ""));
      
     SIPX_CALL hCall = SIPX_CALL_NULL;
 
@@ -600,7 +600,7 @@ void sipxFireCallEvent(const void* pSrc,
             {
                 // no line exists for the lineId
                 // log it
-                OsSysLog::add(FAC_SIPXTAPI, PRI_NOTICE, "unknown line id = %s\n", SAFENULL(lineId.data()));
+                OsSysLog::add(FAC_SIPXTAPI, PRI_NOTICE, "unknown line id = %s\n", SIPX_SAFENULL(lineId.data()));
             }
 
             // Fill in remote address
@@ -1022,7 +1022,7 @@ void sipxFireLineEvent(const void* pSrc,
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxFireLineEvent pSrc=%p szLineIdentifier=%s major=%d",
-        pSrc, SAFENULL(szLineIdentifier), major);
+        pSrc, SIPX_SAFENULL(szLineIdentifier), major);
 
 	OsLock lock(*g_pLineListenerLock);
     SIPX_LINE_DATA* pLineData = NULL;

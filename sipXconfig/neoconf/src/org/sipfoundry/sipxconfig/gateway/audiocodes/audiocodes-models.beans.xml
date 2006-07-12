@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <!-- Audiocodes -->
+  <bean id="gmAutiocodesMP" abstract="true"
+    class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesModel">
+    <property name="modelFilesContext" ref="modelFilesContext" />
+    <property name="proxyNameSetting" value="SIP_Params/PROXYNAME" />
+    <property name="proxyIpSetting" value="SIP_Params/PROXYIP" />
+  </bean>
+
+  <bean id="gmAutiocodesTP" abstract="true"
+    class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesModel">
+    <property name="modelFilesContext" ref="modelFilesContext" />
+    <property name="proxyNameSetting" value="SIP_Params/PROXYNAME" />
+    <property name="proxyIpSetting" value="SIP_Params/PROXYIP" />
+  </bean>
+
+  <bean id="gmAudiocodesMP1X4_4_FXO" parent="gmAutiocodesMP">
+    <constructor-arg>
+      <value>gwAudiocodesMediant</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>1X4_4_FXO</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>AudioCodes MP1X4 4 Port FXO</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>MP108FXOProxy.ini</value>
+    </constructor-arg>
+  </bean>
+
+  <bean id="gmAudiocodesMP1X8_8_FXO" parent="gmAutiocodesMP">
+    <constructor-arg>
+      <value>gwAudiocodesMediant</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>1X8_8_FXO</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>AudioCodes MP1X8 8 Port FXO</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>MP108FXOProxy.ini</value>
+    </constructor-arg>
+  </bean>
+
+  <bean id="gmAudiocodesTP260_1_Span" parent="gmAutiocodesTP">
+    <constructor-arg>
+      <value>gwAudiocodesTp260</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>1_Span</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>AudioCodes TP260 1 Span T1/E1</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>TP260.ini</value>
+    </constructor-arg>
+  </bean>
+
+  <bean id="gmAudiocodesTP260_2_Span" parent="gmAutiocodesTP">
+    <constructor-arg>
+      <value>gwAudiocodesTp260</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>2_Span</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>AudioCodes TP260 2 Span T1/E1</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>TP260.ini</value>
+    </constructor-arg>
+  </bean>
+
+  <bean id="gmAudiocodesTP260_4_Span" parent="gmAutiocodesTP">
+    <constructor-arg>
+      <value>gwAudiocodesTp260</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>4_Span</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>AudioCodes TP260 4 Span T1/E1</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>TP260.ini</value>
+    </constructor-arg>
+  </bean>
+
+  <bean id="gmAudiocodesTP260_8_Span" parent="gmAutiocodesTP">
+    <constructor-arg>
+      <value>gwAudiocodesTp260</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>8_Span</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>AudioCodes TP260 8 Span T1/E1</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>TP260.ini</value>
+    </constructor-arg>
+  </bean>
+
+  <bean id="gwAudiocodesMediant"
+    class="org.sipfoundry.sipxconfig.gateway.audiocodes.MediantGateway" singleton="false"
+    parent="gwGeneric">
+    <property name="defaults" ref="phoneDefaults" />
+  </bean>
+
+  <bean id="gwAudiocodesTp260" class="org.sipfoundry.sipxconfig.gateway.audiocodes.Tp260Gateway"
+    singleton="false" parent="gwGeneric">
+    <property name="defaults" ref="phoneDefaults" />
+  </bean>
+</beans>

@@ -12,6 +12,7 @@
 
 #include "stdtp.h"
 #include "sync.h"
+#include <os/OsDefs.h>
 
 char const*  keyFileDir = SIPX_TMPDIR "/";
 

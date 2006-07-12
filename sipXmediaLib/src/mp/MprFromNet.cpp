@@ -324,7 +324,7 @@ OsStatus MprFromNet::pushPacket(MpBufPtr buf,
                 OsSocket::inet_ntoa_pt(*fromIP, New);
                 osPrintf("   pushPacket: Pref:0x%X, rtpDest=%s:%d,\n"
                     "       this:0x%X (src=%s:%d)\n",
-                    SIPX_SAFENULL(getPrefSsrc()), Old.data(), mRtpDestPort,
+                    getPrefSsrc(), SIPX_SAFENULL(Old.data()), mRtpDestPort,
                     thisSsrc, SIPX_SAFENULL(New.data()), fromPort);
             }
             if ((fromIP->s_addr == mRtpDestIp) && (fromPort == mRtpDestPort)) {

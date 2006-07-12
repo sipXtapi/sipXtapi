@@ -13,6 +13,7 @@
 #include "fastdb.h"
 #include "compiler.h"
 #include "symtab.h"
+#include <os/OsDefs.h>
 
 #ifndef CHECK_RECORD_SIZE
 #define CHECK_RECORD_SIZE 1
@@ -1032,7 +1033,7 @@ void dbTableDescriptor::checkRelationship()
                         SIPX_SAFENULL(refTable->name), SIPX_SAFENULL(fd->inverseRefName), SIPX_SAFENULL(fd->defTable->name), SIPX_SAFENULL(fd->longName));
             } else {
                 sprintf(msg, "Inverse references for field %s.%s is %s.%s, but its inverse reference is %s", 
-                        SIPX_SAFENULL(fd->defTable->name), SIPX_SAFENULL(fd->longName), SIPX_SAFENULL(refTable->name), SIPX_SAFENULL(fd->inverseRefName), SIPX_SAFENULL(fd->inverseRef->inverseRefName);
+                        SIPX_SAFENULL(fd->defTable->name), SIPX_SAFENULL(fd->longName), SIPX_SAFENULL(refTable->name), SIPX_SAFENULL(fd->inverseRefName), SIPX_SAFENULL(fd->inverseRef->inverseRefName));
             }
             db->handleError(dbDatabase::InconsistentInverseReference, msg);
         } 

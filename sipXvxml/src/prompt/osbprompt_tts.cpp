@@ -307,7 +307,7 @@ void OSBpromptTTS::parseBaseUrl(const VXIchar* url, const VXIchar* glbBaseUrl)
 {
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                  "OSBpromptTTS::parseBaseUrl: mBaseUrl(before) = '%s', url = '%ls', glbBaseUrl = '%ls'",
-                 SIPX_SAFENULL(mBaseUrl.data()), SIPX_SAFENULL(url), SIPX_SAFENULL(glbBaseUrl));
+                 SIPX_SAFENULL(mBaseUrl.data()), url, glbBaseUrl);
 
    // If glbBaseUrl is provided, convert it into 1-byte characters and
    // then a UtlString to use as mBaseUrl.
