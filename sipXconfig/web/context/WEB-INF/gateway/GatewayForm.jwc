@@ -14,7 +14,7 @@
   <!-- 
      - C O M P O N E N T S 
      -->
-  <component id="gatewayNameLabel" type="FieldPanel">
+  <component id="gatewayNamePanel" type="FieldPanel">
     <binding name="field" value="components.gatewayName"/>
     <binding name="label" value="message:label.name"/>
   </component>
@@ -23,9 +23,10 @@
     <binding name="validators" value="validators:required"/>
     <binding name="displayName" value="message:label.name"/>
   </component>
-  <component id="gatewaySerialLabel" type="FieldPanel">
+  <component id="gatewaySerialPanel" type="FieldPanel">
     <binding name="field" value="components.gatewaySerial"/>
     <binding name="label" value="message:label.serial"/>
+    <binding name="description" value="message:description.serial"/>
   </component>
   <component id="gatewaySerial" type="TextField">
     <binding name="value" value="gateway.serialNumber"/>
@@ -36,16 +37,17 @@
   <component id="renderGatewaySerial" type="If">
     <binding name="condition" value="gateway.model == null || gateway.model.hasSerialNumber"/>
   </component>  
-  <component id="gatewayAddressLabel" type="FieldPanel">
+  <component id="gatewayAddressPanel" type="FieldPanel">
     <binding name="field" value="components.gatewayAddress"/>
     <binding name="label" value="message:label.address"/>
+    <binding name="description" value="message:description.address"/>
   </component>
   <component id="gatewayAddress" type="TextField">
     <binding name="value" value="gateway.address"/>
     <binding name="validators" value="validators:required"/>
     <binding name="displayName" value="message:label.address"/>
   </component>
-  <component id="gatewayDescriptionLabel" type="FieldPanel">
+  <component id="gatewayDescriptionPanel" type="FieldPanel">
     <binding name="field" value="components.gatewayDescription"/>
     <binding name="label" value="message:label.description"/>
   </component>
@@ -54,7 +56,7 @@
     <binding name="validators" value="spring-validators:validFieldSize"/>
     <binding name="displayName" value="message:label.description"/>
   </component>
-  <component id="gatewayModelLabel" type="FieldPanel">
+  <component id="gatewayModelPanel" type="FieldPanel">
     <binding name="field" value="components.gatewayModel"/>
     <binding name="label" value="message:label.model"/>
   </component>
