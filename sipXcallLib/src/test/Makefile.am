@@ -1,6 +1,6 @@
 INCLUDES = -I$(top_srcdir)/include
 
-SUBDIRS = tapi
+#SUBDIRS = tapi
 
 ## All tests under this GNU variable should run relatively quickly
 ## and of course require no setup

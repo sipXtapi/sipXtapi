@@ -8,9 +8,11 @@
         <label jwcid="gatewayAddressLabel" for="gateway:address">
           <input jwcid="gatewayAddress" id="gateway:address" maxlength="40" type="text" value="10.1.1.15"/>
         </label>
-        <label jwcid="gatewaySerialLabel" for="gateway:serial">
-          <input jwcid="gatewaySerial" id="gateway:serial" maxlength="40" type="text"/>
-        </label>
+        <span jwcid="renderGatewaySerial">
+          <label jwcid="gatewaySerialLabel" for="gateway:serial">
+            <input jwcid="gatewaySerial" id="gateway:serial" maxlength="40" type="text"/>
+          </label>
+        </span>
         <label jwcid="gatewayModelLabel" for="gateway:model">
           <select jwcid="gatewayModel" id="gateway:model" size="1">
             <option>--- select one ---</option>

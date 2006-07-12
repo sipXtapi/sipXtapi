@@ -145,7 +145,7 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
             Gateway gateway = m_context.newGateway(model);
             String beanId = model.getBeanId();
             assertEquals(gateway.getClass(), m_appContext.getBean(beanId).getClass());
-            if (beanId.equals("gwGeneric")) {
+            if (beanId.equals("gwGeneric") || beanId.equals("gwSipTrunk")) {
                 assertNull(gateway.getSettings());
             } else {
                 assertNotNull(gateway.getSettings());

@@ -93,4 +93,11 @@ public class PhoneModel extends Enum {
             REGISTERED.remove(getName());
         }
     }
+    
+    /**
+     * @return true if phones with this model have a serial number, false otherwise
+     */
+    public boolean getHasSerialNumber() {
+        return true;
+    }
 }
