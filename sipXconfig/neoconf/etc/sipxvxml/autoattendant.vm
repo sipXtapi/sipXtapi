@@ -214,7 +214,7 @@
         <assign name="failedoption" expr="'2'" />
         <assign name="operation" expr="'transfer_to_extension'" />
         <assign name="action" expr="'transfer'" />
-        <assign name="extension" expr="'${onfail.getSetting('transfer-extension').Value}'" />
+        <assign name="extension" expr="'$!{onfail.getSetting('transfer-extension').Value}'" />
         <goto nextitem="transfertoextn" />
       </if>
 
