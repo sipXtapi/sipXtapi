@@ -8,6 +8,7 @@
 	  -->
   <inject property="dialPlanContext" object="spring:dialPlanContext"/>
   <inject property="validRule" object="spring:validRule"/>
+  <inject property="tapestry" object="spring:tapestry"/>	
   <property name="ruleId"  persist="session"/>
   <property name="rule"/>
   <!-- used by removeGateways submit button-->
@@ -22,7 +23,7 @@
      -->
   <component id="form" type="Form">
     <binding name="delegate" value="bean:validator"/>
-    <binding name="listener" value="listener:formSubmit"/>
+    <binding name="listener" value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.formSubmit)"/>
   </component>
   <component id="common" type="ItemCommon">
     <binding name="item" value="rule"/>
