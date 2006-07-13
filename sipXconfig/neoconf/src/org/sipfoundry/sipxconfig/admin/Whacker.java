@@ -11,9 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.admin;
 
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.Timer;
@@ -32,7 +31,8 @@ public class Whacker implements ApplicationListener {
     class WhackerTask extends TimerTask {
         public void run() {
             LOG.info("Restarting the media server");
-            m_processContext.manageServices(Arrays.asList(SERVICES), SipxProcessContext.Command.RESTART);
+            m_processContext.manageServices(Arrays.asList(SERVICES),
+                    SipxProcessContext.Command.RESTART);
         }
     }
 
@@ -43,10 +43,11 @@ public class Whacker implements ApplicationListener {
 
     private SipxProcessContext m_processContext;
     private boolean m_enabled = true;
-    private String m_timeOfDay = DailyBackupSchedule.convertUsTime("3:42 AM"); // in the local timezone
-    private String m_scheduledDay = "Sunday";
+    private int m_hours = 3;
+    private int m_minutes = 42;
+    private String m_scheduledDay = ScheduledDay.SUNDAY.getName();
     private Timer m_timer;
-    private boolean m_allowStaleDate;       // for testing only
+    private boolean m_allowStaleDate; // for testing only
 
     public void setProcessContext(SipxProcessContext processContext) {
         m_processContext = processContext;
@@ -68,14 +69,14 @@ public class Whacker implements ApplicationListener {
         m_scheduledDay = scheduledDay;
     }
 
-    public String getTimeOfDay() {
-        return m_timeOfDay;
+    public void setHours(int hours) {
+        m_hours = hours;
     }
 
-    public void setTimeOfDay(String timeOfDay) {
-        m_timeOfDay = timeOfDay;
+    public void setMinutes(int minutes) {
+        m_minutes = minutes;
     }
-    
+
     // for testing only
     void setAllowStaleDate(boolean allowStaleDate) {
         m_allowStaleDate = allowStaleDate;
@@ -109,9 +110,10 @@ public class Whacker implements ApplicationListener {
         sched.setEnabled(true);
         sched.setScheduledDay(getScheduledDayEnum());
         sched.setTimeOfDay(getTimeOfDayValue());
-        sched.setAllowStaleDate(m_allowStaleDate);  // for testing only
+        sched.setAllowStaleDate(m_allowStaleDate); // for testing only
         sched.schedule(m_timer, new WhackerTask());
-        LOG.info("Whacker is scheduled: " + sched.getScheduledDay().getName() + ", " + getTimeOfDay());
+        LOG.info("Whacker is scheduled: " + sched.getScheduledDay().getName() + ", "
+                + getTimeOfDayValue());
     }
 
     /** Convert the ScheduledDayName string to a ScheduledDay and return it */
@@ -125,19 +127,15 @@ public class Whacker implements ApplicationListener {
     }
 
     /**
-     * Convert the time-of-day string to a Date, expressed in Universal Time because that is what
+     * Convert the time-of-day string to a Date, expressed in GMT because that is what
      * DailyBackupSchedule is expecting.
      */
     private Date getTimeOfDayValue() {
-        DateFormat df = DateFormat.getTimeInstance(DateFormat.SHORT);
-        df.setTimeZone(TimeZone.getTimeZone("GMT"));
-        Date date = null;
-        try {
-            date = df.parse(getTimeOfDay());
-        } catch (ParseException e) {
-            throw new RuntimeException("Whacker: could not parse time of day: " + getTimeOfDay());
-        }
-        return date;
+        Calendar date = Calendar.getInstance();
+        date.set(Calendar.HOUR_OF_DAY, m_hours);
+        date.set(Calendar.MINUTE, m_minutes);
+        // switch to GMT timezone
+        date.setTimeZone(TimeZone.getTimeZone("GMT"));
+        return date.getTime();
     }
-
 }

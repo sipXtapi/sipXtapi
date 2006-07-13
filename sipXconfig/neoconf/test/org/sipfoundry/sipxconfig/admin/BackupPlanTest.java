@@ -98,8 +98,6 @@ public class BackupPlanTest extends TestCase {
         plan.addSchedule(schedule);
         TimerTask task = plan.getTask("root", "bin");
         
-//        IMocksControl timerControl = org.easymock.classextension.EasyMock.createStrictControl(Timer.class);
-//        Timer timer = (Timer) timerControl.createMock();
         IMocksControl timerControl = EasyMock.createStrictControl();
         Timer timer = timerControl.createMock(Timer.class);
         
