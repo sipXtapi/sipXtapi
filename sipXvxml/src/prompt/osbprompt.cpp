@@ -102,6 +102,7 @@ extern "C" {
       int                       hungup;       // 1 if caller has hung up and Exiting is called, set to 0 in AddResource.
       OsBSem                    *pWaitSem;  // demaphore to lock the blocking state for prompt play
       VXIunsigned               channel;
+      int                       playing;   // 'wait' is safe to call
    };
 }
 
@@ -374,6 +375,7 @@ VXIpromptResult OSBpromptBeginSession(VXIpromptInterface * pThis, VXIMap *sessio
       impl->pWaitSem = NULL;
       impl->callId = NULL;
       impl->pPlayerListener = NULL;
+      impl->playing = 0;
 
       val = VXIMapGetProperty(sessionArgs, L"callid");
       if ( (val) && (VXIValueGetType(val) == VALUE_STRING) )
@@ -495,6 +497,7 @@ VXIpromptResult OSBpromptEndSession(VXIpromptInterface *pThis, VXIMap *sessionAr
          impl->pPlayer = NULL; // set to null so not to be used any more.
 
          pPlayer->reset() ;
+         impl->playing = 0 ;
 
          if ( impl->pPlayerListener )
          {
@@ -547,6 +550,7 @@ VXIpromptResult OSBpromptStop(struct VXIpromptInterface  *pThis)
    if ( (impl->live == 1) && impl->pPlayer )
    {
       impl->pPlayer->reset() ;
+      impl->playing = 0 ;
    }
    return VXIprompt_RESULT_SUCCESS;
 }
@@ -569,10 +573,10 @@ VXIpromptResult OSBpromptAddPlayerListener(struct VXIpromptInterface  *pThis,
 static VXIpromptResult OSBpromptPlay(VXIpromptInterface * vxip)
 {
    OSBpromptImpl *impl = ToOSBpromptImpl(vxip);
-   Diag(impl, DIAG_TAG_PROMPTING, NULL, L"Playing queued prompts");
 
    if ( impl->pWaitSem ) impl->pWaitSem->acquire();
    int cnt = impl->mDlist.entries();
+   Diag(impl, DIAG_TAG_PROMPTING, NULL, L"Playing %d queued prompts", cnt);
    if ( impl->callId && (cnt > 0) )
    {
       if (impl->live == 1)
@@ -581,6 +585,10 @@ static VXIpromptResult OSBpromptPlay(VXIpromptInterface * vxip)
          {
             OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR, "OSBpromptPlay: MpStreamPlaylistPlayer::play failure");
          } 
+         else
+         {
+            impl->playing = 1 ;
+         }
       }
       UtlInt* audio;
       int bargein;
@@ -596,9 +604,13 @@ static VXIpromptResult OSBpromptPlay(VXIpromptInterface * vxip)
          blocking += ((bargein != 0) && ((bargein & 0x0003) != PromptManager::ENABLED));
       }
       Diag(impl, DIAG_TAG_PROMPTING, NULL, L"bargein = %d", !blocking);
-      if ( (impl->live == 1) && blocking )
+      if ( (impl->live == 1) && blocking && impl->playing)
       {
+         Diag(impl, DIAG_TAG_PROMPTING, NULL, L"waiting");
          impl->pPlayer->wait() ;
+         impl->pPlayer->reset() ;
+         impl->playing = 0 ;
+         Diag(impl, DIAG_TAG_PROMPTING, NULL, L"finished");
       }
    }
    if ( impl->pWaitSem ) impl->pWaitSem->release();
@@ -1034,6 +1046,17 @@ VXIpromptResult OSBpromptWait(VXIpromptInterface* vxip,
 {
    OSBpromptImpl *impl = ToOSBpromptImpl(vxip);
    Diag(impl, DIAG_TAG_PROMPTING, NULL, L"wait");
+   if ( impl->pWaitSem ) impl->pWaitSem->acquire();
+   int ok = (impl->live == 1 && impl->pPlayer && impl->playing) ;
+   if ( impl->pWaitSem ) impl->pWaitSem->release();
+   if (ok)
+   {
+      Diag(impl, DIAG_TAG_PROMPTING, NULL, L"waiting");
+      impl->pPlayer->wait() ;
+      impl->pPlayer->reset() ;
+      impl->playing = 0 ;
+      Diag(impl, DIAG_TAG_PROMPTING, NULL, L"finished");
+   }
    return VXIprompt_RESULT_SUCCESS;
 }
 
