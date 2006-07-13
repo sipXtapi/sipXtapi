@@ -2441,6 +2441,7 @@ void VXI::record_element(const VXMLElement & form, const VXMLElement & elem)
   try {
     pm->Play();
     int recResult = exe->gm.Record(recProps, answer);
+    pm->Stop(); // Just to clean up play structures
 
     switch (recResult) {
     case GrammarManager::Success:     // Record produced a recording
@@ -3043,8 +3044,8 @@ void VXI::do_recognition(const VXIMapHolder & properties)
   // (1) Process the recognizer result status.
   pm->Play();
   int recResult = exe->gm.Recognize(properties, answer, answerElement);
+  pm->Stop(); // Just to clean up play structures
 
-//  pm->Stop();
   // (1.1) Copy waveform.
   if (answer.waveform != NULL)
     exe->script.SetValue(L"application.waveform$",

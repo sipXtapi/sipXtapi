@@ -63,19 +63,7 @@
 	<reprompt/>
       </noinput>
       <noinput count="3">
-        <if cond="failedoption == '0'">
-          <prompt bargein="false">
-            <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
-          </prompt>
-          <disconnect />
-        <else />
-          <prompt bargein="false">
-            <audio expr="mediaserverurl + promptsalias + 'please_hold.wav'" />
-          </prompt>
-          <assign name="operation" expr="'transfer_to_extension'" />
-          <assign name="extension" expr="'${onfail.getSetting('transfer-extension').Value}'" />
-          <goto nextitem="menuaction" />
-        </if>
+        <goto nextitem="giveup" />
       </noinput>
     </field>
 
@@ -123,14 +111,24 @@
     <subdialog name="transfertoextn" cond="operation == 'transfer_to_extension'" srcexpr="securemediaserverurl + cgiurl" namelist="action extension">
       <filled>
 	<if cond="transfertoextn.result=='invalidextn'">
-	  <audio expr="mediaserverurl + promptsalias + 'extn_invalid.wav'" />
+	  <if cond="failedoption == '2'">
+	    <!-- We were transfering due to failure, and that failed!  -->
+	    <!-- Probably the provisioned "transfer-extension" is not real -->
+	    <goto nextitem="giveup" />
+	  </if>
+	  <prompt>
+	    <audio expr="mediaserverurl + promptsalias + 'extn_invalid.wav'" />
+	  </prompt>
 	  <goto nextitem="invalidoptions" />
 	<elseif cond="transfertoextn.result=='failed'"/>
+	  <if cond="failedoption == '2'">
+	    <!-- We were transfering due to failure, and that failed!  -->
+	    <goto nextitem="giveup" />
+	  </if>
 	  <prompt>
 	    <audio expr="mediaserverurl + promptsalias + 'system_error.wav'" />
 	  </prompt>
-	  <clear namelist="menu" />
-	  <goto nextitem="menu" />
+	  <goto nextitem="invalidoptions" />
 	<else />
 	  <return />
 	</if>
@@ -186,25 +184,51 @@
 
     <block name="invalidoptions">
       <if cond="dial_attempts == '2'">
-        <if cond="failedoption == '0'">
-          <prompt bargein="false">
-            <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
-          </prompt>
-          <disconnect />
-        <else />
-          <prompt bargein="false">
-            <audio expr="mediaserverurl + promptsalias + 'please_hold.wav'" />
-          </prompt>
-          <assign name="operation" expr="'transfer_to_extension'" />
-          <assign name="extension" expr="'${onfail.getSetting('transfer-extension').Value}'" />
-          <goto nextitem="menuaction" />
-        </if>
+        <goto nextitem="giveup" />
       <else/>
         <assign name="dial_attempts" expr="dial_attempts + 1" />
         <clear namelist="menu" />
         <goto nextitem="menu" />
       </if>
     </block>
+
+    <block name="giveup">
+      <!-- Time to give up on this call.  Behavior depends on value of 
+           failedoption.
+             0 means say goodbye and exit.
+             1 means try to transfer to the assigned extension
+             2 means we did #1, and that failed!                         -->
+      <if cond="failedoption == '0'">
+        <prompt bargein="false">
+          <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+        </prompt>
+        <disconnect />
+      </if>
+
+      <if cond="failedoption == '1'">
+        <prompt bargein="false">
+          <audio expr="mediaserverurl + promptsalias + 'please_hold.wav'" />
+        </prompt>
+        <!-- Flag we are transfering due to giving up, so we don't get 
+              back here on failure! -->
+        <assign name="failedoption" expr="'2'" />
+        <assign name="operation" expr="'transfer_to_extension'" />
+        <assign name="action" expr="'transfer'" />
+        <assign name="extension" expr="'$!{onfail.getSetting('transfer-extension').Value}'" />
+        <goto nextitem="transfertoextn" />
+      </if>
+
+      <if cond="failedoption == '2'">
+        <!-- We were transfering due to failure, and that failed!  -->
+        <prompt bargein="false">           
+          <audio expr="mediaserverurl + promptsalias + 'system_error_short.wav'" />
+          <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+        </prompt>
+        <disconnect/>
+      </if>
+    
+    </block>
+    
   </form>
 
   <form id="transferform">
