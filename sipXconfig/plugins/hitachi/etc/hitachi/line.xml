@@ -2,12 +2,21 @@
 <!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
   "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
 <model>
-  <group name="LineExample">
-    <label>Enter Group Name</label>
-    <setting name="name">
-      <label>Name</label>
-      <value>default value</value>
-      <description>Quick description goes here..</description>
+  <group name="SIP" advanced="yes">
+    <profileName>USER_ACCOUNT</profileName>
+    <setting name="Displayname">
+      <label>Displan name</label>
+      <value></value>
+      <description>User name displayed on the phone</description>
     </setting>
+    <setting name="Phone_Number">
+    </setting>
+    <setting name="User_ID">
+    </setting>
+    <setting name="User_Password" hidden="yes">
+      <type>
+        <string password="yes"></string>
+      </type>
+    </setting>    
   </group>
 </model>

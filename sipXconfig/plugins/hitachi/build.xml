@@ -29,6 +29,25 @@
     - all spring jars at this point
     -->
   <path id="runtime.dependencies">
+    <pathelement location="${neoconf.tests.classes}" />
+
+    <pathelement location="${dbunit.jar}" />
+    <pathelement location="${aopalliance.jar}" />
+    <pathelement location="${antlr.jar}" />
+    <pathelement location="${asm.jar}" />
+    <pathelement location="${commons-beanutils.jar}" />
+    <pathelement location="${commons-logging.jar}" />
+    <pathelement location="${commons-logging.jar}" />
+    <pathelement location="${commons-pool.jar}" />
+    <pathelement location="${c3p0.jar}" />
+    <pathelement location="${cglib.jar}" />
+    <pathelement location="${dom4j.jar}" />
+    <pathelement location="${ehcache.jar}" />
+    <pathelement location="${jdbc-driver.jar}" />
+    <pathelement location="${jta.jar}" />
+    <pathelement location="${lucene.jar}" />
+    <pathelement location="${logkit.jar}" />
+    <pathelement location="${odmg.jar}" />
   </path>
 
   <path id="base.path">
