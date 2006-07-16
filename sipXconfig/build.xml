@@ -56,6 +56,11 @@
       web/build.xml
       meta/build.xml"/>
   <property name="subdirs" value="components"/>
+  
+  <fileset id="plugin.components" dir="${basedir}">
+    <include name="plugins/*/build.xml"/>
+  </fileset>
+  <property name="plugin.subdirs" value="plugin.components"/>
 
   <property name="project.dir" value="."/>
   <import file="subant-targets.xml"/>

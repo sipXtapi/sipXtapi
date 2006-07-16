@@ -20,8 +20,6 @@ import java.net.URL;
 import java.security.CodeSource;
 import java.util.Properties;
 
-import org.apache.commons.lang.StringUtils;
-
 /**
  * Common utility methods for unit testing with neoconf. Somewhat controversial being in codebase,
  * however unit test library would be uglier, IMHO.
@@ -82,10 +80,10 @@ public final class TestUtil {
      * but when you need a filename use this. Example:
      * 
      * <pre>
-     *         
-     *          # Test file in same directory as JUnit test source file 
-     *          String testFile = TestUtil.getTestSourceDirectory(getClass()) + &quot;/test-file&quot;;
-     *          
+     *           
+     *            # Test file in same directory as JUnit test source file 
+     *            String testFile = TestUtil.getTestSourceDirectory(getClass()) + &quot;/test-file&quot;;
+     *            
      * </pre>
      */
     public static String getTestSourceDirectory(Class testClass) {
@@ -108,18 +106,20 @@ public final class TestUtil {
      */
     public static String getBuildDirectory(String project) {
         try {
-            int depth = StringUtils.countMatches(project, FORWARD_SLASH) + 1;
-            File topSrcDir = new File(getProjectDirectory());
-            for (int i = 0; i < depth; i++) {
-                topSrcDir = topSrcDir.getParentFile();
-            }
             String propName = "top.build.dir";
-            File propFile = new File(topSrcDir, propName);
-            Properties props = new Properties();
-            FileInputStream topBuildDirProperties = new FileInputStream(propFile);
-            props.load(topBuildDirProperties);
-
-            return props.getProperty(propName) + '/' + project;
+            File dir = new File(getProjectDirectory());
+            while (dir != null) {
+                File propFile = new File(dir, propName);
+                if (propFile.exists()) {
+                    Properties props = new Properties();
+                    FileInputStream topBuildDirProperties = new FileInputStream(propFile);
+                    props.load(topBuildDirProperties);
+                    return props.getProperty(propName) + '/' + project;
+                }
+                dir = dir.getParentFile();
+            }
+            throw new RuntimeException(String.format(
+                    "Cannot find %s in any of the parent of %s.", propName, dir.getPath()));
         } catch (IOException ioe) {
             throw new RuntimeException("Could not find top build directory", ioe);
         }

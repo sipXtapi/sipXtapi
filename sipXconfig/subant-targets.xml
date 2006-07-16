@@ -115,6 +115,8 @@
         <!-- may be tempted to use patternset, but order is not 
              preserved -->
         <filelist refid="${subdirs}"/>
+        <!-- order does not mattter for plugins -->
+        <fileset refid="${plugin.subdirs}"/>
       </subant>
     </presetdef>
 
