@@ -24,17 +24,17 @@ public class HitachiLineDefaults {
     
     @SettingEntry(path = "SIP/Displayname")
     public String getDisplayName() {
-        return m_line.getDisplayLabel();
+        User u = m_line.getUser();
+        if (u != null) {
+            return u.getDisplayName();
+        } 
+        return m_line.getLineInfo().getUserId();
     }
 
     @SettingEntry(path = "SIP/Phone_Number")
     public String getPhoneNumber() {
-        User user = m_line.getUser();
-        if (user == null) {
-            return null;
-        }
         // FIXME: we need a method that returns a numerical alias for the user
-        return user.getUserName();        
+        return getUserName();
     }
         
     @SettingEntry(path = "SIP/User_ID")

@@ -24,6 +24,8 @@ import org.apache.commons.digester.Rule;
 import org.apache.commons.digester.RuleSetBase;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
 import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
 import org.sipfoundry.sipxconfig.setting.type.FileSetting;
@@ -53,11 +55,11 @@ public class XmlModelBuilder implements ModelBuilder {
     public XmlModelBuilder(String configDirectory) {
         this(new File(configDirectory));
     }
-    
+
     public SettingSet buildModel(File modelFile) {
         return buildModel(modelFile, null);
     }
-    
+
     public SettingSet buildModel(File modelFile, Setting parent) {
         FileInputStream is = null;
         try {
@@ -75,12 +77,14 @@ public class XmlModelBuilder implements ModelBuilder {
     public SettingSet buildModel(InputStream is, Setting parent) throws IOException {
         return buildModel(is, parent, null);
     }
+
     /*
      * (non-Javadoc)
      * 
      * @see org.sipfoundry.sipxconfig.setting.ModelBuilder#buildModel(java.io.InputStream)
      */
-    public SettingSet buildModel(InputStream is, Setting parent, File baseSystemId) throws IOException {
+    public SettingSet buildModel(InputStream is, Setting parent, File baseSystemId)
+        throws IOException {
         Digester digester = new Digester();
 
         // setting classloader ensures classes are searched for in this classloader
@@ -101,7 +105,8 @@ public class XmlModelBuilder implements ModelBuilder {
         digester.addRuleSet(groupRule);
 
         String settingPattern = "*/setting";
-        SettingRuleSet settingRule = new SettingRuleSet(settingPattern, ConditionalSettingImpl.class);
+        SettingRuleSet settingRule = new SettingRuleSet(settingPattern,
+                ConditionalSettingImpl.class);
         digester.addRuleSet(settingRule);
 
         try {
@@ -163,10 +168,10 @@ public class XmlModelBuilder implements ModelBuilder {
     }
 
     static class CopyOfRule extends Rule {
-       
+
         public void begin(String namespace_, String name_, Attributes attributes) {
-            // warning, this is called TWICE by digester! and I do not know why.  Stack
-            // is identical so i think it's coming from SAXParser.  Code here works fine, 
+            // warning, this is called TWICE by digester! and I do not know why. Stack
+            // is identical so i think it's coming from SAXParser. Code here works fine,
             // but heed warning
             String copyOfName = attributes.getValue("copy-of");
             if (copyOfName != null) {
@@ -177,13 +182,13 @@ public class XmlModelBuilder implements ModelBuilder {
                 Setting copyOf = parent.getSetting(copyOfName);
                 Setting copy = copyOf.copy();
                 copy.setName(copyTo.getName());
-                
+
                 // copies will explicitly not inherit if/unless
                 // i think it's against intuition -- DLH 12/03/05
                 ConditionalSetting s = (ConditionalSetting) copy;
                 s.setIf(copyTo.getIf());
                 s.setUnless(copyTo.getUnless());
-                
+
                 getDigester().push(copy);
             }
         }
@@ -318,10 +323,11 @@ public class XmlModelBuilder implements ModelBuilder {
     }
 
     private static class ModelEntityResolver implements EntityResolver {
+        private static final Log LOG = LogFactory.getLog(ModelEntityResolver.class);
         private static final String DTD = "setting.dtd";
 
         private File m_dtd;
-        private File m_baseSystemId;               
+        private File m_baseSystemId;
 
         ModelEntityResolver(File configDirectory, File baseSystemId) {
             m_dtd = new File(configDirectory, DTD);
@@ -331,20 +337,33 @@ public class XmlModelBuilder implements ModelBuilder {
         public InputSource resolveEntity(String publicId, String systemId) throws IOException {
             if (publicId != null) {
                 if (publicId.startsWith("-//SIPFoundry//sipXconfig//Model specification ")) {
-                    return new InputSource(new FileInputStream(m_dtd));
+                    InputStream dtdStream = null;
+                    if (m_dtd.exists()) {
+                        dtdStream = new FileInputStream(m_dtd);
+                    } else {
+                        LOG.warn("Cannot find " + m_dtd);
+                        // try classpath
+                        dtdStream = getClass().getClassLoader().getResourceAsStream(DTD);
+
+                    }
+                    if (dtdStream != null) {
+                        return new InputSource(dtdStream);
+                    }
+                    // FIXME: this usually requires internet connection
+                    return new InputSource(systemId);
                 }
             } else if (systemId != null && m_baseSystemId != null) {
                 // LIMITATION: All files loaded as ENTITYies defined as SYSTEM
                 // must live in same directory as XML file
                 //
                 // HACK: Xerces 2.7.0 has a propensity to expand systemId to full path
-                // which makes it impossible to determine original relative URI. Tricks to use 
-                // systemId on inputsource and using file:// failed. 
+                // which makes it impossible to determine original relative URI. Tricks to use
+                // systemId on inputsource and using file:// failed.
                 String name = new File(systemId).getName();
                 File f = new File(m_baseSystemId, name);
-                return new InputSource(new FileInputStream(f));                    
+                return new InputSource(new FileInputStream(f));
             }
-                
+
             return null;
         }
     }

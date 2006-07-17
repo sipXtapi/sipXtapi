@@ -6,14 +6,14 @@
     <label>Port Configuration</label>
     <setting name="UID">
       <type>
-        <string required="yes"/>
+        <string required="yes" />
       </type>
       <value></value>
       <description>User ID</description>
     </setting>
     <setting name="PWD">
       <type>
-        <string password="yes"/>
+        <string password="yes" />
       </type>
       <value></value>
       <description>Password</description>
@@ -33,23 +33,29 @@
     <setting name="_Proxy.18x" if="18x">
       <label>Proxy</label>
       <type>
-        <string maxLen="31"/>
+        <string maxLen="31" />
       </type>
       <value>0</value>
-      <description>Proxy or registrar address, value of first line used for both lines due to device restriction.</description>
+      <description>
+        Proxy or registrar address, value of first line used for both lines due to device
+        restriction.
+      </description>
     </setting>
     <setting name="_ProxyPort.18x" if="18x">
       <label>ProxyPort</label>
       <type>
-        <integer min="1" max="65535"/>
+        <integer min="1" max="65535" />
       </type>
       <value>5060</value>
-      <description>Proxy or registrar port, value of first line used for both lines due to device restriction.</description>
+      <description>
+        Proxy or registrar port, value of first line used for both lines due to device
+        restriction.
+      </description>
     </setting>
     <setting name="_Proxy.79" if="79.*">
       <label>Proxy</label>
       <type>
-        <string maxLen="31"/>
+        <string maxLen="31" />
       </type>
       <value>0</value>
       <description>Proxy or registrar address.</description>
@@ -57,7 +63,7 @@
     <setting name="_ProxyPort.79" if="79.*">
       <label>ProxyPort</label>
       <type>
-        <integer min="1" max="65535"/>
+        <integer min="1" max="65535" />
       </type>
       <value>5060</value>
       <description>Proxy or registrar port.</description>

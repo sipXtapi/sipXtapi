@@ -4,40 +4,41 @@
 <model>
   <group name="SERVER_SETTINGS">
     <label>SIP</label>
-    <setting name="1st_Proxy">  
+    <setting name="1st_Proxy">
       <label>SIP Proxy</label>
+      <value>kkk</value>
     </setting>
-    <setting name="1st_Registrar">  
+    <setting name="1st_Registrar">
       <label>SIP Registrar</label>
     </setting>
-    <setting name="2nd_Proxy" advanced="yes">  
+    <setting name="2nd_Proxy" advanced="yes">
       <label>Secondary SIP Proxy</label>
     </setting>
-    <setting name="2nd_Registrar" advanced="yes">  
+    <setting name="2nd_Registrar" advanced="yes">
       <label>Secondary SIP Registrar</label>
     </setting>
-    <setting name="Domain_Realm" advanced="yes">  
+    <setting name="Domain_Realm" advanced="yes">
       <label>Authentication Realm</label>
-    </setting>    
+    </setting>
   </group>
   <group name="NETWORK1">
     <label>Network</label>
     <setting name="Name">
       <type>
-        <string required="yes"/>
+        <string required="yes" />
       </type>
       <value>Home</value>
     </setting>
     <setting name="Enable">
       <type>
-        <boolean/>
+        <boolean />
       </type>
       <value>1</value>
     </setting>
     <setting name="Enable_DHCP">
       <label>DHCP</label>
       <type>
-        <boolean/>
+        <boolean />
       </type>
       <value>1</value>
     </setting>

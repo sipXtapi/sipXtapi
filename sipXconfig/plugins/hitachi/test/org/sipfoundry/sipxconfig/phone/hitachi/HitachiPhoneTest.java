@@ -11,7 +11,13 @@
  */
 package org.sipfoundry.sipxconfig.phone.hitachi;
 
+import java.io.InputStream;
+import java.io.StringWriter;
+
 import junit.framework.TestCase;
+
+import org.apache.commons.io.IOUtils;
+import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
 public class HitachiPhoneTest extends TestCase {
     public void testFactoryRegistered() {
@@ -29,4 +35,21 @@ public class HitachiPhoneTest extends TestCase {
         phone.setTftpRoot("abc");
         assertEquals("abc/334455user.ini", phone.getPhoneFilename());
     }
+
+    public void testGenerateTypicalProfile() throws Exception {
+        HitachiPhone phone = new HitachiPhone(HitachiModel.MODEL_5000);
+
+        // call this to inject dummy data
+        PhoneTestDriver.supplyTestData(phone);
+
+        StringWriter actualWriter = new StringWriter();
+        phone.generateProfile(actualWriter);
+        InputStream expectedProfile = getClass().getResourceAsStream("test.user.ini");
+        assertNotNull(expectedProfile);
+        String expected = IOUtils.toString(expectedProfile);
+        expectedProfile.close();
+
+        assertEquals(expected, actualWriter.toString());
+    }
+
 }
