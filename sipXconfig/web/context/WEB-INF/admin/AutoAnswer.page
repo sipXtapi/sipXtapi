@@ -35,6 +35,22 @@
     <binding name="translator" value="translator:string,empty="/>
     <binding name="listener" value="listener:buildGroupCandidates"/>
   </component>
+  <component id="prefixPanel" type="FieldPanel">
+    <binding name="field" value="components.prefix"/>
+    <binding name="label" value="message:label.prefix"/>
+    <binding name="description" value="message:description.prefix"/>
+  </component>
+  <component id="prefix" type="TextField">
+    <binding name="value" value="literal:prefix"/>
+  </component>
+  <component id="codePanel" type="FieldPanel">
+    <binding name="field" value="components.code"/>
+    <binding name="label" value="message:label.code"/>
+    <binding name="description" value="message:description.code"/>
+  </component>
+  <component id="code" type="TextField">
+    <binding name="value" value="literal:code"/>
+  </component>
   <component id="formActions" type="FormActions">
     <binding name="listener" value="listener:commit"/>
   </component>

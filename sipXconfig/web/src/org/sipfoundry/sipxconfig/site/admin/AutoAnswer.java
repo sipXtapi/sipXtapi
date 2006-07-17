@@ -14,8 +14,6 @@ package org.sipfoundry.sipxconfig.site.admin;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.tapestry.IMarkupWriter;
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
@@ -37,34 +35,14 @@ public abstract class AutoAnswer extends BasePage {
         setGroupCandidates(candidates);        
     }
 
-    protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
-        
-        if (!cycle.isRewinding()) {
-/*            Phone phone = getPhone();        
+    /**
+     * Listeners
+     */
+    public void commit() {
+        // Proceed only if Tapestry validation succeeded
+        if (!TapestryUtils.isValid(this)) {
+            return;
+        }
 
-            if (getGroupsString() == null) {
-                List groups = phone.getGroupsAsList();
-                if (groups != null && groups.size() > 0) {
-                    String groupsString = getSettingDao().getGroupsAsString(groups); 
-                    setGroupsString(groupsString);
-                }
-            }
-*/        }
-        
-        super.renderComponent(writer, cycle);
-        
-        if (cycle.isRewinding()) {
-/*            Phone phone = getPhone();        
-            // Don't take any actions if the page is not valid
-            if (!TapestryUtils.isValid((AbstractPage) getPage())) {
-                return;
-            }
-
-            String groupsString = getGroupsString();
-            if (groupsString != null) {
-                List groups = getSettingDao().getGroupsByString(Phone.GROUP_RESOURCE_ID, groupsString);
-                phone.setGroupsAsList(groups);
-            }
-*/        }
     }
 }
