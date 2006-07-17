@@ -20,6 +20,7 @@
       -
       -->
     <page name="AddExternalLine" specification-path="line/AddExternalLine.page"/>
+    <page name="AutoAnswer" specification-path="admin/AutoAnswer.page"/>
     <page name="BulkImport" specification-path="admin/BulkImport.page"/>
     <page name="EditUpload" specification-path="upload/EditUpload.page"/>    
     <page name="ManageUploads" specification-path="upload/ManageUploads.page"/>    
