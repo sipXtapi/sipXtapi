@@ -30,8 +30,7 @@
     "<HEAD>\n" \
         "<TITLE>MediaServer User UI</TITLE>\n" \
         "<link rel=\"stylesheet\" href=\"/style/voicemail.css\" type=\"text/css\">\n" \
-        "<SCRIPT src=\"/userui/jsFunctions.js\"></SCRIPT>\n" \    
-    "</HEAD>\n" \
+        "<SCRIPT src=\"/userui/jsFunctions.js\"></SCRIPT>\n"  "</HEAD>\n" \
     "<BODY class=\"bglight\">\n"
 
 #define HTML_BEGIN_WITH_ONLOAD  NO_HTML_CACHE_HEADER \

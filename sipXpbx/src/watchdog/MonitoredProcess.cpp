@@ -402,7 +402,7 @@ OsStatus MonitoredProcess::check()
                     }
                 }
 
-                OsSysLog::add(FAC_WATCHDOG,PRI_WARNING,"Attempting %s startup...", mAliasStr.data()));
+                OsSysLog::add(FAC_WATCHDOG,PRI_WARNING,"Attempting %s startup...", SIPX_SAFENULL(mAliasStr.data()));
                 mnTotalRestarts++;
                 if ( startstopProcessTree(*doc,mAliasStr,verb) == OS_SUCCESS )
                 {

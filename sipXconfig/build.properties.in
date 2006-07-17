@@ -35,6 +35,8 @@ sipxpbx.tmp.dir=@SIPX_TMPDIR@
 sipxconfig.war=${top.build.dir}/web/dist/sipxconfig.war
 sipxsetup.war=${top.build.dir}/jsetup/dist/sipxsetup.war
 sipxconfig.jar=${top.build.dir}/neoconf/dist/sipxconfig.jar
+# hack for plugin test
+neoconf.tests.classes=${top.build.dir}/neoconf/tests
 # very optional
 sipfoundry.org.dir=@SIPFOUNDRY_ORG@
 neoconf.etc.dir=${top.dir}/neoconf/etc

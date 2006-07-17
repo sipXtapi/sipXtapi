@@ -182,7 +182,7 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                                                 
                         OsSysLog::add(FAC_SIP, PRI_DEBUG, "OrbitListener::handleMessage insert transfered call object %p "
                                       "with callId '%s', address '%s' into the list",
-                                      SIPX_SAFENULL(pTransferredCall), SIPX_SAFENULL(newCallId.data()), SIPX_SAFENULL(address.data()));
+                                     pTransferredCall, SIPX_SAFENULL(newCallId.data()), SIPX_SAFENULL(address.data()));
                      }
                      else
                      {

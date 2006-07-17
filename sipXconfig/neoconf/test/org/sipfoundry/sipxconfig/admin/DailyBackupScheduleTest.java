@@ -12,9 +12,10 @@
 package org.sipfoundry.sipxconfig.admin;
 
 import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 
 import junit.framework.TestCase;
 
@@ -25,30 +26,27 @@ public class DailyBackupScheduleTest extends TestCase {
     protected void setUp() {
         schedule = new DailyBackupSchedule();
     }
+    
+    /**
+     * Converts time of day expressed in 24-hour clock of local time into localized string
+     * expressed in GMT time. We only need this for Whacker which should be rewritten to use
+     * CronSchedule.
+     */
+    public static final String simpleTimeOfDayToLocalizedGmt(String tod) throws ParseException {
+        SimpleDateFormat format = new SimpleDateFormat("HH:mm");
+        format.setTimeZone(DailyBackupSchedule.GMT);
+        Date date = format.parse(tod);
+        return DailyBackupSchedule.GMT_TIME_OF_DAY_FORMAT.format(date);
+    }
+    
 
     public void testGetTimeOfDay() throws Exception {
         Date midnight = schedule.getTimeOfDay();
         String actual = DailyBackupSchedule.GMT_TIME_OF_DAY_FORMAT.format(midnight);
-        String expected = DailyBackupSchedule.convertUsTime("12:00 AM"); 
+        String expected = simpleTimeOfDayToLocalizedGmt("00:00"); 
         assertEquals(expected, actual);
         
         assertEquals(0, schedule.getTimeOfDay().getTime()); // midnight gmt
-    }
-    
-    static {
-        // helpful testing testConvertUsDate
-        // Locale.setDefault(Locale.UK);
-    }
-    public void testConvertUsDate() {
-        String time = DailyBackupSchedule.convertUsTime("12:00 AM");
-
-        // very hard to test w/preturbing the JVM, but here incase
-        // other locales act weird
-        if (!Locale.US.equals(Locale.getDefault())) {
-            assertFalse("12:00 AM".equals(time));
-        } else {
-            assertEquals("12:00 AM", time);            
-        }
     }
     
     public void testGetTimerPeriod() {
@@ -67,7 +65,7 @@ public class DailyBackupScheduleTest extends TestCase {
         midnightLocal.set(Calendar.MILLISECOND, 0);
         // midnight local time
         String expected = localTimeFormat.format(midnightLocal.getTime());
-        String actual = localTimeFormat.format(schedule.getTimerDate());  
+        String actual = localTimeFormat.format(schedule.getTimerDate());
         assertEquals(expected, actual);
     }    
 }

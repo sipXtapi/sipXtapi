@@ -61,7 +61,7 @@ PlayMessagesCGI::PlayMessagesCGI(
    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                  "PlayMessagesCGI::PlayMessagesCGI(m_fromWeb = %d, m_mailboxIdentity = '%s', m_from = '%s', m_category = '%s', m_iBlockSize = %d, m_iNextBlockHandle = %d, m_status = '%s', m_unheardMsgIdList = '%s', m_frameSet = '%s') called",
                  m_fromWeb, SIPX_SAFENULL(m_mailboxIdentity.data()), SIPX_SAFENULL(m_from.toString().data()),
-                 SIPX_SAFENULL(m_category.data()), m_iBlockSize, SIPX_SAFENULL(m_iNextBlockHandle)),
+                 SIPX_SAFENULL(m_category.data()), m_iBlockSize, m_iNextBlockHandle,
                  SIPX_SAFENULL(m_status.data()), SIPX_SAFENULL(m_unheardMsgIdList.data()),
                  SIPX_SAFENULL(m_frameSet.data()));
 }

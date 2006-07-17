@@ -204,7 +204,7 @@ getLogFilePath(UtlString& logFilePath)
    if (!found)
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "getLogFilePath trying default '%s'"
-                    ,RSIPX_SAFENULL(EPLICATION_DEFAULT_LOG_DIR));
+                    ,SIPX_SAFENULL(REPLICATION_DEFAULT_LOG_DIR));
       candidate = REPLICATION_DEFAULT_LOG_DIR;
 
       if (OsFileSystem::exists(candidate))

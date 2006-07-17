@@ -50,7 +50,7 @@
 			<type>
 				<string/>
 			</type>
-			<value>100</value>
+			<value/>
 			<description>Transfer the user to this extension</description>
 		</setting>    
   </group>

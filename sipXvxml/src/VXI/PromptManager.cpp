@@ -169,8 +169,8 @@ void PromptManager::Play()
   log->LogDiagnostic(2, L"PromptManager::Play()");
 
   VXIpromptResult temp;
-  prompt->Wait(prompt, &temp);
-  prompt->Play(prompt);
+  prompt->Wait(prompt, &temp);  // Wait for previous prompts to end
+  prompt->Play(prompt);         // Start new ones
   enabledSegmentInQueue = false;
   timeout = -1;
 }
@@ -191,8 +191,9 @@ void PromptManager::PlayAll()
   log->LogDiagnostic(2, L"PromptManager::PlayAll()");
 
   VXIpromptResult temp;
-  prompt->Play(prompt);
-  prompt->Wait(prompt, &temp);
+  prompt->Wait(prompt, &temp);  // Wait for previous prompts to end
+  prompt->Play(prompt);         // Start new ones
+  prompt->Wait(prompt, &temp);  // Wait for them to end too!
   enabledSegmentInQueue = false;
   timeout = -1;
 }

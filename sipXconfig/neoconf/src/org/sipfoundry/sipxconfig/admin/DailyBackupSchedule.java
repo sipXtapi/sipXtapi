@@ -16,7 +16,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -41,9 +40,6 @@ public class DailyBackupSchedule extends BeanWithId {
     
     static final long ONCE_A_WEEK = ONCE_A_DAY * DAYS_PER_WEEK;
 
-    private static final DateFormat GMT_TIME_OF_DAY_FORMAT_US = DateFormat
-            .getTimeInstance(DateFormat.SHORT, Locale.US);
-
     private static final Log LOG = LogFactory.getLog(BackupPlan.class);
 
     private boolean m_enabled;
@@ -61,26 +57,8 @@ public class DailyBackupSchedule extends BeanWithId {
         // disadvantage, conversions of date outside this converter appear
         // wrong unless you live in grenwich
         GMT_TIME_OF_DAY_FORMAT.setTimeZone(GMT);
-        GMT_TIME_OF_DAY_FORMAT_US.setTimeZone(GMT);
     }
     
-    /**
-     * Convienent for converting time strings in unit tests and default values 
-     * 
-     * @param usDate String format in US, e.g."3:00 PM"
-     * @throws RuntimeException is date is invalid
-     * @return date in local format, e.g. "15:00"
-     */
-    public static final String convertUsTime(String usDate) {
-        try {
-            Date d = GMT_TIME_OF_DAY_FORMAT_US.parse(usDate);
-            String localDate = GMT_TIME_OF_DAY_FORMAT.format(d);
-            return localDate;
-        } catch (ParseException e) {
-            throw new RuntimeException("Date invalid ", e);
-        }
-    }
-
     public BackupPlan getBackupPlan() {
         return m_backupPlan;
     }

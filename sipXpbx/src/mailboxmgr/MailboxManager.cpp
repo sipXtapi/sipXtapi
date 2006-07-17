@@ -1926,7 +1926,7 @@ MailboxManager::validateMailbox (
 
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                   "MailboxManager::validateMailbox: loginString = '%s', resolveExtensionFlag = %d, checkPermissions = %d",
-                  SIPX_SAFENULL(loginString.data(),) resolveExtensionFlag, checkPermissions);
+                  SIPX_SAFENULL(loginString.data()), resolveExtensionFlag, checkPermissions);
 
     // Hack debugging info
     logContent = "entering with arguments " + loginString;
@@ -2519,7 +2519,7 @@ MailboxManager::getMessageBlock(
             regExp = filename + ".+\\.xml";
             OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                           "MailboxManager::getMessageBlock: regExp = '%s'",
-                          rSIPX_SAFENULL(egExp.data()));
+                          SIPX_SAFENULL(regExp.data()));
             UtlSortedList messages;
             for (result = fi.findFirst(entry, regExp,
                                        OsFileIterator::FILES);
@@ -5546,7 +5546,7 @@ MailboxManager::sendEmailNotification(  const UtlString& mailboxIdentity,
                  "MailboxManager::sendEmailNotification: mailboxIdentity = '%s', from = '%s', timestamp = '%s', duration ='%s', wavFileName = '%s', data = '%.*s%s', datasize = %d",
                  SIPX_SAFENULL(mailboxIdentity.data()), SIPX_SAFENULL(from.data()), SIPX_SAFENULL(timestamp.data()),
                  SIPX_SAFENULL(duration.data()), SIPX_SAFENULL(wavFileName.data()),
-                 SIPX_SAFENULL((datasize > 20 ? 20 : datasize)), SIPX_SAFENULL(data),
+                 (datasize > 20 ? 20 : datasize), SIPX_SAFENULL(data),
                  SIPX_SAFENULL((datasize > 20 ? "..." : "")), datasize);
 
    UtlHashMap contactsHashDictionary;

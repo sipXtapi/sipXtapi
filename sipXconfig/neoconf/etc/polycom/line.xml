@@ -283,7 +283,7 @@
         <type>
           <boolean/>
         </type>
-        <value>1</value>
+        <value>0</value>
         <description>If set to 1, the user will be able to enable universal call forwarding via 
           the soft key menu. </description>
       </setting>

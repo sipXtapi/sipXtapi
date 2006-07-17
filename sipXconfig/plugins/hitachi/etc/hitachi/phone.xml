@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name="SERVER_SETTINGS">
+    <label>SIP</label>
+    <setting name="1st_Proxy">  
+      <label>SIP Proxy</label>
+    </setting>
+    <setting name="1st_Registrar">  
+      <label>SIP Registrar</label>
+    </setting>
+    <setting name="2nd_Proxy" advanced="yes">  
+      <label>Secondary SIP Proxy</label>
+    </setting>
+    <setting name="2nd_Registrar" advanced="yes">  
+      <label>Secondary SIP Registrar</label>
+    </setting>
+    <setting name="Domain_Realm" advanced="yes">  
+      <label>Authentication Realm</label>
+    </setting>    
+  </group>
+  <group name="NETWORK1">
+    <label>Network</label>
+    <setting name="Name">
+      <type>
+        <string required="yes"/>
+      </type>
+      <value>Home</value>
+    </setting>
+    <setting name="Enable">
+      <type>
+        <boolean/>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="Enable_DHCP">
+      <label>DHCP</label>
+      <type>
+        <boolean/>
+      </type>
+      <value>1</value>
+    </setting>
+  </group>
+</model>
+

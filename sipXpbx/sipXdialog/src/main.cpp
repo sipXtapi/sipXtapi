@@ -287,7 +287,7 @@ int main(int argc, char* argv[])
    UtlString argString;
    for (int argIndex = 1; argIndex < argc; argIndex++)
    {
-      osPrintf("arg[%d]: %s\n", SIPX_SAFENULL(argIndex), SIPX_SAFENULL(argv[argIndex]));
+      osPrintf("arg[%d]: %s\n", argIndex, SIPX_SAFENULL(argv[argIndex]));
       argString = argv[argIndex];
       NameValueTokenizer::frontBackTrim(&argString, "\t ");
       if(argString.compareTo("-v") == 0)
