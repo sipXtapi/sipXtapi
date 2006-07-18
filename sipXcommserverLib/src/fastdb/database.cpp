@@ -4313,7 +4313,7 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
             if ( gVerboseLoggingEnabled )
             {
                 OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction after cs.enter ctx access (W=%d, R=%d), accessType=%d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction after cs.enter monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction after cs.enter monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
             }
             if ( ctx->readAccess ) { 
                 assert(monitor->nWriters == 0);
@@ -4405,7 +4405,7 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
                     if ( gVerboseLoggingEnabled )
                     {
                         OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction before cs.leave() ctx access (W=%d, R=%d), accessType=%d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-                        OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction before cs.leave() monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+                        OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction before cs.leave() monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
                         OsSysLog::flush();
                     }
                     cs.leave();
@@ -4416,13 +4416,13 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
             if ( gVerboseLoggingEnabled )
             {
                 OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction setting ownerPid ctx access (W=%d, R=%d), accessType=%d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction setting ownerPid monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction setting ownerPid monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
                 OsSysLog::flush();
             }
         } else { 
             if ( monitor->ownerPid != ctx->currPid ) {
                 OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction before LockRevoked ctx access (W=%d, R=%d), accessType=%d, ctx->currPid=%d, %d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType, (int)ctx->currPid.getTid(), (int)ctx->currPid.getPid());
-                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction before LockRevoked monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction before LockRevoked monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
                 OsSysLog::flush();
                 handleError(LockRevoked);
             }
@@ -4433,7 +4433,7 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
             if ( gVerboseLoggingEnabled )
             {
                 OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction after cs.enter ctx access (W=%d, R=%d), accessType=%d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction after cs.enter monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction after cs.enter monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
             }
             if ( monitor->nWriters + monitor->nWaitWriters != 0 ) {
                 monitor->nWaitReaders += 1;
@@ -4455,13 +4455,13 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
                             if ( gVerboseLoggingEnabled )
                             {
                                 OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction:(line=%d) before checkVersion (W=%d, R=%d), accessType=%d", (int)pid, __LINE__, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-                                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction:(line=%d)  monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, __LINE__, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+                                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction:(line=%d)  monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, __LINE__, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
                             }
                             checkVersion();
                             if ( gVerboseLoggingEnabled )
                             {
                                 OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction:(line=%d) after checkVersion (W=%d, R=%d), accessType=%d", (int)pid, __LINE__, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-                                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction:(line=%d) monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, __LINE__, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+                                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction:(line=%d) monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, __LINE__, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
                             }
                             recovery();
                             monitor->nWriters = 0;
@@ -4483,7 +4483,7 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
                 if ( gVerboseLoggingEnabled )
                 {
                     OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction before cs.leave() ctx access (W=%d, R=%d), accessType=%d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-                    OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction before cs.leave() monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+                    OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction before cs.leave() monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
                     OsSysLog::flush();
                 }
                 cs.leave();
@@ -4500,7 +4500,7 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
         if ( gVerboseLoggingEnabled )
         {
             OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction:(line=%d) before checkVersion (W=%d, R=%d), accessType=%d", (int)pid, __LINE__, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction:(line=%d) monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, __LINE__, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction:(line=%d) monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, __LINE__, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
             OsSysLog::flush();
         }
         if ( !checkVersion() ) { 
@@ -4509,13 +4509,13 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
         if ( gVerboseLoggingEnabled )
         {
             OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction:(line=%d) after checkVersion (W=%d, R=%d), accessType=%d", (int)pid, __LINE__, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction:(line=%d) monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, __LINE__, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction:(line=%d) monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, __LINE__, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
         }
         cs.enter();
         if ( gVerboseLoggingEnabled )
         {
             OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction after cs.enter ctx access (W=%d, R=%d), accessType=%d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction after cs.enter monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction after cs.enter monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
         }
         index[0] = (offs_t*)(baseAddr + header->root[0].index);
         index[1] = (offs_t*)(baseAddr + header->root[1].index);
@@ -4537,7 +4537,7 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
         if ( gVerboseLoggingEnabled )
         {
             OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction before cs.leave() ctx access (W=%d, R=%d), accessType=%d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction before cs.leave() monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction before cs.leave() monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
             OsSysLog::flush();
         }
         cs.leave();
@@ -4628,7 +4628,7 @@ void dbDatabase::commit()
             if ( monitor->ownerPid != ctx->currPid ) {
                 int pid = getProcessID();
                 OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::commit before LockRevoked ctx access (W=%d, R=%d), accessType=%d, ctx->currPid=%d, %d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType, (int)ctx->currPid.getTid(), (int)ctx->currPid.getPid());
-                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::commit before LockRevoked monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::commit before LockRevoked monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
                 OsSysLog::flush();
                 handleError(LockRevoked);
             }
@@ -4687,7 +4687,7 @@ void dbDatabase::commit(dbDatabaseThreadContext* ctx)
     {
         int pid = getProcessID();
         OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::commit after ownerPid.clear() ctx access (W=%d, R=%d), accessType=%d, ctx->currPid=%d, %d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType, (int)ctx->currPid.getTid(), (int)ctx->currPid.getPid());
-        OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::commit after ownerPid.clear() monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+        OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::commit after ownerPid.clear() monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
         OsSysLog::flush();
     }
     if ( accessType == dbConcurrentUpdate ) { 
@@ -4895,14 +4895,14 @@ void dbDatabase::endTransaction(dbDatabaseThreadContext* ctx)
         if ( gVerboseLoggingEnabled )
         {
             OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Entering dbDatabase::endTransaction, after cs.enter ctx access (W=%d, R=%d), accessType=%d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::endTransaction, after cs.enter monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::endTransaction, after cs.enter monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
         }
         monitor->nWriters -= 1;
         monitor->ownerPid.clear();
         if ( gVerboseLoggingEnabled )
         {
             OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::endTransaction after ownerPid.clear() ctx access (W=%d, R=%d), accessType=%d, ctx->currPid=%d, %d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType, (int)ctx->currPid.getTid(), (int)ctx->currPid.getPid());
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::endTransaction after ownerPid.clear() monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::endTransaction after ownerPid.clear() monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
             OsSysLog::flush();
         }
         assert(monitor->nWriters == 0 && !monitor->waitForUpgrade);
@@ -4918,7 +4918,7 @@ void dbDatabase::endTransaction(dbDatabaseThreadContext* ctx)
         if ( gVerboseLoggingEnabled )
         {
             OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::endTransaction, before cs.leave ctx access (W=%d, R=%d), accessType=%d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Leaving dbDatabase::endTransaction, before cs.leave monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Leaving dbDatabase::endTransaction, before cs.leave monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
         }
         cs.leave();
     } else if ( ctx->readAccess ) { 
@@ -4926,7 +4926,7 @@ void dbDatabase::endTransaction(dbDatabaseThreadContext* ctx)
         if ( gVerboseLoggingEnabled )
         {
             OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Entering dbDatabase::endTransaction, after cs.enter  ctx access (W=%d, R=%d), accessType=%d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::endTransaction, after cs.enter monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::endTransaction, after cs.enter monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
         }
         monitor->nReaders -= 1;
         if ( monitor->nReaders == 1 && monitor->waitForUpgrade ) { 
@@ -4947,7 +4947,7 @@ void dbDatabase::endTransaction(dbDatabaseThreadContext* ctx)
         if ( gVerboseLoggingEnabled )
         {
             OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::endTransaction, before cs.leave ctx access (W=%d, R=%d), accessType=%d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Leaving dbDatabase::endTransaction, before cs.leave monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, (int)monitor->sem, (int)monitor->mutatorSem, monitor->waitForUpgrade);
+            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Leaving dbDatabase::endTransaction, before cs.leave monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
         }
         cs.leave();
     }

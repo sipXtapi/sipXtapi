@@ -980,6 +980,8 @@ class dbSharedObject : public dbSharedMemory {
 
 #if defined(__QNX__)
 
+#define LOG_SEM(sem) (int)((sem).__m_count)
+
 typedef pthread_mutext_t sharedsem_t;
 
 class dbGlobalCriticalSection { 
@@ -1015,6 +1017,8 @@ class dbGlobalCriticalSection {
 
 #elif defined(__osf__)
 
+#define LOG_SEM(sem) (int)((sem).msem_state)
+
 #include <errno.h>
 typedef msemaphore sharedsem_t;
 
@@ -1048,6 +1052,8 @@ class dbGlobalCriticalSection {
 
 #elif defined(__sun)
 
+#define LOG_SEM(sem) (int)((sem).count)
+
 #include <synch.h>
 #include <errno.h>
 typedef sema_t sharedsem_t;
@@ -1080,6 +1086,8 @@ class dbGlobalCriticalSection {
 
 #elif defined(USE_POSIX_API)
 
+#define LOG_SEM(sem) (*(int *)&(sem))
+
 typedef sem_t sharedsem_t;
 
 class dbGlobalCriticalSection { 
@@ -1109,6 +1117,8 @@ class dbGlobalCriticalSection {
 };
 
 #else
+
+#define LOG_SEM(sem) (int)(sem)
 
 typedef long sharedsem_t;
 
