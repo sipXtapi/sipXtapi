@@ -58,11 +58,28 @@ BUILDSTAMP: SVN-VERSION
 # Where rpmbuild will do its work.
 RPMBUILD_TOPDIR = $(shell rpm --eval '%{_topdir}')
 
-rpm : dist
+rpm : dist additional-package-files
 	rpmbuild -ta --define="buildno $(shell cat @abs_top_builddir@/SVN-VERSION)" @PACKAGE@-$(VERSION).tar.gz
 	mv -f $(RPMBUILD_TOPDIR)/SRPMS/@PACKAGE@-$(VERSION)-*.rpm .
 	mv -f $(RPMBUILD_TOPDIR)/RPMS/*/@PACKAGE@*-$(VERSION)-*.rpm .
-	md5sum @PACKAGE@-$(VERSION).tar.gz >@PACKAGE@-$(VERSION).tar.gz.md5
+
+.PHONY : additional-package-files
+additional-package-files: \
+	@PACKAGE@-$(VERSION).tar.gz.md5 \
+	@PACKAGE@-$(VERSION).tar.bz2 \
+	@PACKAGE@-$(VERSION).tar.bz2.md5
+
+@PACKAGE@-$(VERSION).tar.gz: dist
+
+@PACKAGE@-$(VERSION).tar.gz.md5: @PACKAGE@-$(VERSION).tar.gz
+	md5sum @PACKAGE@-$(VERSION).tar.gz > @PACKAGE@-$(VERSION).tar.gz.md5
+
+@PACKAGE@-$(VERSION).tar.bz2: @PACKAGE@-$(VERSION).tar.gz
+	zcat @PACKAGE@-$(VERSION).tar.gz \
+	| bzip2 --compress --stdout > @PACKAGE@-$(VERSION).tar.bz2
+
+@PACKAGE@-$(VERSION).tar.bz2.md5: @PACKAGE@-$(VERSION).tar.bz2
+	md5sum @PACKAGE@-$(VERSION).tar.bz2 > @PACKAGE@-$(VERSION).tar.bz2.md5
 
 # RPM Spec file
 @PACKAGE@.spec : @PACKAGE@.spec.in
