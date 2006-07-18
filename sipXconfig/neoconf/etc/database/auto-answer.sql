@@ -8,7 +8,7 @@ create table auto_answer (
    auto_answer_id int4 not null,
    prefix varchar(255) not null,
    timeout int4 not null,
-   code varchar(255) not null,
+   code varchar(255) not null unique,
    primary key (auto_answer_id)
 );
 
@@ -19,5 +19,20 @@ create table auto_answer (
 create table auto_answer_phone_group (
    auto_answer_id int4 not null,
    group_id int4 not null,
-   primary key (phone_id, group_id)
+   primary key (auto_answer_id, group_id)
 );
+
+
+/*
+ * Foreign key constraints
+ */
+ 
+alter table auto_answer_phone_group
+  add constraint auto_answer_phone_group_fk1
+  foreign key (auto_answer_id)
+  references auto_answer;
+  
+alter table auto_answer_phone_group
+  add constraint auto_answer_phone_group_fk2
+  foreign key (group_id)
+  references group_storage;
