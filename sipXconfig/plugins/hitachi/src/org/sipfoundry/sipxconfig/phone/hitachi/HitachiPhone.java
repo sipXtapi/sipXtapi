@@ -44,7 +44,7 @@ public class HitachiPhone extends Phone {
     @Override
     public void initializeLine(Line line) {
         HitachiLineDefaults defaults = new HitachiLineDefaults(line);
-        addDefaultBeanSettingHandler(defaults);
+        line.addDefaultBeanSettingHandler(defaults);
     }
 
     @Override

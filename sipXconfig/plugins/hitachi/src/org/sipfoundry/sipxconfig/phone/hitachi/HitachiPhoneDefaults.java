@@ -23,12 +23,12 @@ public class HitachiPhoneDefaults {
     }
 
     @SettingEntry(paths = { "SERVER_SETTINGS/1st_Proxy", "SERVER_SETTINGS/1st_Registrar" })
-    String getDomainName() {
+    public String getDomainName() {
         return m_defaults.getDomainName();
     }
 
     @SettingEntry(path = "SERVER_SETTINGS/Domain_Realm")
-    String getAuthorizationRealm() {
+    public String getAuthorizationRealm() {
         return m_defaults.getAuthorizationRealm();
     }
 }

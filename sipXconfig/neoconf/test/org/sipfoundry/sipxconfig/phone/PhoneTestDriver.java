@@ -54,6 +54,7 @@ public class PhoneTestDriver {
         defaults.setTftpServer("tftp.sipfoundry.org");
         defaults.setProxyServerAddr("outbound.sipfoundry.org");
         defaults.setProxyServerSipPort("5555");
+        defaults.setAuthorizationRealm("realm.sipfoundry.org");
 
         phoneContextControl = EasyMock.createNiceControl();
         phoneContext = phoneContextControl.createMock(PhoneContext.class);

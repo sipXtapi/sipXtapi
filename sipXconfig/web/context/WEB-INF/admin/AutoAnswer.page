@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.admin.AutoAnswer">
+  <description>Auto Answer</description>
+  <!--
+	  - P R O P E R T I E S
+	  -->
+  <inject property="tapestry" object="spring:tapestry"/>	
+
+  <!--
+     - B E A N S
+     -->
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+
+  <!--
+     - C O M P O N E N T S
+     -->
+  <component id="form" type="Form">
+    <binding name="delegate" value="bean:validator"/>
+    <binding name="listener" value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.formSubmit)"/>
+  </component>
+  <component id="errors" type="ErrorMsg"/>
+  <component id="groupsPanel" type="FieldPanel">
+    <!-- Tacos/Tapestry Bug
+      - give the right value for field, and autocomplete renders double 
+      -->
+    <binding name="field" value="components.groupsX"/>
+    <binding name="label" value="message:label.groups"/>
+    <binding name="description" value="message:description.groups"/>
+  </component>
+  <component id="groups" type="tacos:Autocompleter">
+    <binding name="value" value="groupsString"/>
+    <binding name="size" value="50"/>
+    <binding name="listSource" value="groupCandidates"/>
+    <binding name="translator" value="translator:string,empty="/>
+    <binding name="listener" value="listener:buildGroupCandidates"/>
+  </component>
+  <component id="prefixPanel" type="FieldPanel">
+    <binding name="field" value="components.prefix"/>
+    <binding name="label" value="message:label.prefix"/>
+    <binding name="description" value="message:description.prefix"/>
+  </component>
+  <component id="prefix" type="TextField">
+    <binding name="value" value="literal:prefix"/>
+  </component>
+  <component id="codePanel" type="FieldPanel">
+    <binding name="field" value="components.code"/>
+    <binding name="label" value="message:label.code"/>
+    <binding name="description" value="message:description.code"/>
+  </component>
+  <component id="code" type="TextField">
+    <binding name="value" value="literal:code"/>
+  </component>
+  <component id="formActions" type="FormActions">
+    <binding name="listener" value="listener:commit"/>
+  </component>
+</page-specification>
