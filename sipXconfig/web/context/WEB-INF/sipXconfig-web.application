@@ -20,7 +20,6 @@
       -
       -->
     <page name="AddExternalLine" specification-path="line/AddExternalLine.page"/>
-    <page name="AutoAnswer" specification-path="admin/AutoAnswer.page"/>
     <page name="BulkImport" specification-path="admin/BulkImport.page"/>
     <page name="EditUpload" specification-path="upload/EditUpload.page"/>    
     <page name="ManageUploads" specification-path="upload/ManageUploads.page"/>    
@@ -55,6 +54,7 @@
     <page name="FirstUser" specification-path="user/FirstUser.page"/>
     <page name="GroupSettings" specification-path="setting/GroupSettings.page"/>    
     <page name="Home" specification-path="Home.page"/>
+    <page name="Intercom" specification-path="admin/Intercom.page"/>
     <page name="JobStatusPage" specification-path="admin/JobStatusPage.page"/>    
     <page name="LdapImport" specification-path="admin/ldap/LdapImport.page"/>        
     <page name="LdapImportPreview" specification-path="admin/ldap/LdapImportPreview.page"/>        

@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
-<page-specification class="org.sipfoundry.sipxconfig.site.admin.AutoAnswer">
-  <description>Auto Answer</description>
+<page-specification class="org.sipfoundry.sipxconfig.site.admin.Intercom">
+  <description>Intercom</description>
   <!--
 	  - P R O P E R T I E S
 	  -->
   <inject property="tapestry" object="spring:tapestry"/>	
+  <inject property="phoneContext" object="spring:phoneContext"/>
 
   <!--
      - B E A N S

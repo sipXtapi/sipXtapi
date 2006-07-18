@@ -3,22 +3,23 @@
     <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
 </head>
 <body jwcid="$content$">
-<div jwcid="@Border">
-  <h2><span key="title">Auto-Answer</span></h2>        
+<div jwcid="@Border" useDojo="true">
+  <span jwcid="@GroupCloud" groups="ognl:phoneContext.groups"/>
+  <h2><span key="title">Intercom</span></h2>        
   <span jwcid="@QuickHelp" value="message:quick.help"/>    
   <span jwcid="errors"/>
   <form jwcid="form">
     <fieldset>
       <table>
         <tbody>
-          <tr jwcid="groupsPanel" for="autoanswer:groups">
+          <tr jwcid="groupsPanel" for="intercom:groups">
             <span class="auto_complete" jwcid="groups"/>
           </tr>
-          <tr jwcid="prefixPanel" for="autoanswer:prefix">
-            <input jwcid="prefix" id="autoanswer:prefix" type="text"/>
+          <tr jwcid="prefixPanel" for="intercom:prefix">
+            <input jwcid="prefix" id="intercom:prefix" type="text"/>
           </tr>
-          <tr jwcid="codePanel" for="autoanswer:code">
-            <input jwcid="code" id="autoanswer:code" type="text"/>
+          <tr jwcid="codePanel" for="intercom:code">
+            <input jwcid="code" id="intercom:code" type="text"/>
           </tr>
         </tbody>
       </table>

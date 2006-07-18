@@ -19,7 +19,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 
-public abstract class AutoAnswer extends BasePage {
+public abstract class Intercom extends BasePage {
     public abstract String getGroupsString();
     public abstract void setGroupsString(String groupsString);
     
