@@ -6,8 +6,10 @@
 	  - P R O P E R T I E S
 	  -->
   <inject property="tapestry" object="spring:tapestry"/>	
+  <inject property="intercomManager" object="spring:intercomManager"/>
   <inject property="phoneContext" object="spring:phoneContext"/>
-
+  <property name="intercom"/>
+  
   <!--
      - B E A N S
      -->
@@ -18,7 +20,6 @@
      -->
   <component id="form" type="Form">
     <binding name="delegate" value="bean:validator"/>
-    <binding name="listener" value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.formSubmit)"/>
   </component>
   <component id="errors" type="ErrorMsg"/>
   <component id="groupsPanel" type="FieldPanel">
@@ -42,7 +43,15 @@
     <binding name="description" value="message:description.prefix"/>
   </component>
   <component id="prefix" type="TextField">
-    <binding name="value" value="literal:prefix"/>
+    <binding name="value" value="intercom.prefix"/>
+  </component>
+  <component id="timeoutPanel" type="FieldPanel">
+    <binding name="field" value="components.timeout"/>
+    <binding name="label" value="message:label.timeout"/>
+    <binding name="description" value="message:description.timeout"/>
+  </component>
+  <component id="timeout" type="TextField">
+    <binding name="value" value="intercom.timeout"/>
   </component>
   <component id="codePanel" type="FieldPanel">
     <binding name="field" value="components.code"/>
@@ -50,7 +59,7 @@
     <binding name="description" value="message:description.code"/>
   </component>
   <component id="code" type="TextField">
-    <binding name="value" value="literal:code"/>
+    <binding name="value" value="intercom.code"/>
   </component>
   <component id="formActions" type="FormActions">
     <binding name="listener" value="listener:commit"/>

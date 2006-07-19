@@ -15,16 +15,24 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.admin.intercom.Intercom;
-import org.sipfoundry.sipxconfig.admin.intercom.IntercomManagerImpl;
+import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.context.ApplicationContext;
 
 public class IntercomManagerImplTestDb extends SipxDatabaseTestCase {
-    private IntercomManagerImpl m_intercomManager;
+    private static final String PREFIX_DEFAULT = "88";
+    private static final int TIMEOUT_DEFAULT = 2000;
+    
+    private IntercomManager m_intercomManager;
+    private PhoneContext m_phoneContext;
 
     protected void setUp() throws Exception {
         ApplicationContext app = TestHelper.getApplicationContext();
-        m_intercomManager = (IntercomManagerImpl) app.getBean(IntercomManagerImpl.CONTEXT_BEAN_NAME);
+        m_intercomManager = (IntercomManagerImpl) app.getBean(
+                IntercomManagerImpl.CONTEXT_BEAN_NAME);
+        m_phoneContext = (PhoneContext) TestHelper.getApplicationContext().getBean(
+                PhoneContext.CONTEXT_BEAN_NAME);
         TestHelper.cleanInsert("ClearDb.xml");
     }
     
@@ -33,6 +41,23 @@ public class IntercomManagerImplTestDb extends SipxDatabaseTestCase {
         assertNotNull(intercom);
     }
 
+    public void testGetIntercom() {
+        assertEquals(0, m_intercomManager.getNumIntercoms());
+        Intercom intercom = m_intercomManager.getIntercom();
+        assertNotNull(intercom);    // new Intercom must be created automatically
+        
+        // check the defaults
+        assertEquals(PREFIX_DEFAULT, intercom.getPrefix());
+        assertEquals(TIMEOUT_DEFAULT, intercom.getTimeout());
+        assertEquals(null, intercom.getCode());
+        
+        // save the new Intercom, then we should be able to load it
+        intercom.setCode("");   // can't save the Intercom with a null code
+        m_intercomManager.saveIntercom(intercom);
+        Intercom intercom2 = m_intercomManager.getIntercom();
+        assertEquals(intercom.getId(), intercom2.getId());
+    }
+    
     public void testSaveIntercom() {
         // create and save an intercom
         Intercom intercom = m_intercomManager.newIntercom();
@@ -64,7 +89,13 @@ public class IntercomManagerImplTestDb extends SipxDatabaseTestCase {
         Intercom i2 = (Intercom) intercoms.get(1);
         assertEquals(4000, i2.getTimeout());        
     }
-
+    
+    public void testGetNumIntercoms() throws Exception {
+        assertEquals(0, m_intercomManager.getNumIntercoms());
+        TestHelper.insertFlat("admin/intercom/SampleIntercoms.xml");
+        assertEquals(2, m_intercomManager.getNumIntercoms());
+    }
+    
     public void testClear() throws Exception {
         // load some sample intercoms
         TestHelper.insertFlat("admin/intercom/SampleIntercoms.xml");
@@ -75,5 +106,32 @@ public class IntercomManagerImplTestDb extends SipxDatabaseTestCase {
         // they should be gone
         List intercoms = m_intercomManager.loadIntercoms();
         assertEquals(0, intercoms.size());
+    }
+    
+    public void testGetIntercomForPhone() throws Exception {
+        // load some sample intercoms and phones
+        TestHelper.insertFlat("admin/intercom/SampleIntercoms.xml");
+        TestHelper.insertFlat("phone/SamplePhoneSeed.xml");
+
+        // play with linking phones to intercoms
+        
+        // load a phone and verify that it has no intercom
+        Phone phone1 = m_phoneContext.loadPhone(1000);
+        assertNotNull(phone1);
+        assertNull(m_intercomManager.getIntercomForPhone(phone1));
+        
+        // give it an intercom
+        List phone1Groups = phone1.getGroupsAsList();
+        Group group1 = (Group) phone1Groups.get(0);
+        Intercom intercom = (Intercom) m_intercomManager.loadIntercoms().get(0);
+        intercom.addGroup(group1);
+        m_intercomManager.saveIntercom(intercom);
+        assertEquals(intercom, m_intercomManager.getIntercomForPhone(phone1));
+        
+        // check a couple of other phones, one in the same group and one not in the same group
+        Phone phone2 = m_phoneContext.loadPhone(1001);
+        assertNull(m_intercomManager.getIntercomForPhone(phone2));
+        Phone phone3 = m_phoneContext.loadPhone(1002);
+        assertEquals(intercom, m_intercomManager.getIntercomForPhone(phone3));        
     }
 }
