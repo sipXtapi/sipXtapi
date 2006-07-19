@@ -24,6 +24,7 @@
 		<config>src/org/sipfoundry/sipxconfig/bulk/ldap/ldap.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/admin/dialplan/dialplan.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/gateway/gateway.beans.xml</config>
+		<config>src/org/sipfoundry/sipxconfig/admin/intercom/intercom.beans.xml</config>
 	</configs>
 	<configSets>
 		<configSet>
@@ -51,7 +52,8 @@
 				<config>src/org/sipfoundry/sipxconfig/device/device.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/bulk/ldap/ldap.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/bulk/csv/csv.beans.xml</config>
-			</configs>
+		        <config>src/org/sipfoundry/sipxconfig/admin/intercom/intercom.beans.xml</config>
+		    </configs>
 		</configSet>
 	</configSets>
 </beansProjectDescription>

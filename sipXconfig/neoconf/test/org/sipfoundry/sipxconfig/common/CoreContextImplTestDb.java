@@ -42,14 +42,14 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testLoadByUserName() throws Exception {
-        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+        TestHelper.insertFlat("common/UserSearchSeed.xml");
 
         assertNotNull(m_core.loadUserByUserName("userseed5"));
         assertNull(m_core.loadUserByUserName("wont find this guy"));
     }
 
     public void testLoadByAlias() throws Exception {
-        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+        TestHelper.insertFlat("common/UserSearchSeed.xml");
 
         User user = m_core.loadUserByAlias("2");
         assertNotNull(user);
@@ -65,7 +65,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testLoadUserByUserNameOrAlias() throws Exception {
-        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+        TestHelper.insertFlat("common/UserSearchSeed.xml");
 
         User user = m_core.loadUserByUserNameOrAlias("2");
         assertNotNull(user);
@@ -93,7 +93,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testCheckForDuplicateNameOrAlias() throws Exception {
-        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+        TestHelper.insertFlat("common/UserSearchSeed.xml");
         final String UNIQUE_NAME = "uniqueNameThatDoesntExistInTheUniverseOrBeyond";
 
         // Check that a user with a unique name won't collide with any existing users
@@ -134,7 +134,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testSearchByUserName() throws Exception {
-        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+        TestHelper.insertFlat("common/UserSearchSeed.xml");
 
         User template = new User();
         template.setUserName("userseed");
@@ -144,7 +144,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testSearchByAlias() throws Exception {
-        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+        TestHelper.insertFlat("common/UserSearchSeed.xml");
 
         User template = new User();
         template.setUserName("two");
@@ -155,7 +155,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testSearchByFirstName() throws Exception {
-        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+        TestHelper.insertFlat("common/UserSearchSeed.xml");
 
         User template = new User();
         template.setFirstName("user4");
@@ -166,7 +166,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testSearchByLastName() throws Exception {
-        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+        TestHelper.insertFlat("common/UserSearchSeed.xml");
 
         User template = new User();
         template.setLastName("seed5");
@@ -180,7 +180,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     // the specified first name, and a different user with the specified last
     // name. Because of the "AND" we should get no matches.
     public void testSearchByFirstAndLastName() throws Exception {
-        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+        TestHelper.insertFlat("common/UserSearchSeed.xml");
 
         User template = new User();
         template.setFirstName("user4");
@@ -190,7 +190,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testSearchFormBlank() throws Exception {
-        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+        TestHelper.insertFlat("common/UserSearchSeed.xml");
 
         User template = new User();
         template.setFirstName("");
@@ -200,7 +200,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testLoadUsers() throws Exception {
-        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+        TestHelper.insertFlat("common/UserSearchSeed.xml");
 
         List users = m_core.loadUsers();
 
@@ -209,7 +209,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testDeleteUsers() throws Exception {
-        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+        TestHelper.insertFlat("common/UserSearchSeed.xml");
 
         // Check that we have the expected number of users
         ITable usersTable = TestHelper.getConnection().createDataSet()
@@ -229,7 +229,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     }
     
     public void testDeleteUsersByUserName() throws Exception {
-        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+        TestHelper.insertFlat("common/UserSearchSeed.xml");
 
         // Check that we have the expected number of users
         ITable usersTable = TestHelper.getConnection().createDataSet()
@@ -293,14 +293,14 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         Collection userAliases = m_core.getAliasMappings();
         assertEquals(0, userAliases.size());
 
-        TestHelper.cleanInsertFlat("common/TestUserSeed.xml");
+        TestHelper.insertFlat("common/TestUserSeed.xml");
 
         userAliases = m_core.getAliasMappings();
         assertEquals(1, userAliases.size());
     }
 
     public void testClear() throws Exception {
-        TestHelper.cleanInsertFlat("common/TestUserSeed.xml");
+        TestHelper.insertFlat("common/TestUserSeed.xml");
         m_core.clear();
         ITable t = TestHelper.getConnection().createDataSet().getTable("users");
         assertEquals(0, t.getRowCount());
@@ -351,18 +351,18 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testCountUsers() throws Exception {
-        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+        TestHelper.insertFlat("common/UserSearchSeed.xml");
         assertEquals(10, m_core.getUsersCount());
     }
 
     public void testCountUsersInGroup() throws Exception {
-        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+        TestHelper.insertFlat("common/UserSearchSeed.xml");
         assertEquals(2, m_core.getUsersInGroupCount(new Integer(1001)));
         assertEquals(3, m_core.getUsersInGroupCount(new Integer(1002)));
     }
 
     public void testCountUsersInGroupWithSearch() throws Exception {
-        TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
+        TestHelper.insertFlat("common/SampleUsersSeed.xml");
         assertEquals(1, m_core.getUsersInGroupWithSearchCount(
                 new Integer(1001), "pha"));
         assertEquals(1, m_core.getUsersInGroupWithSearchCount(
@@ -372,7 +372,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testLoadUserPage() throws Exception {
-        TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
+        TestHelper.insertFlat("common/SampleUsersSeed.xml");
         Collection page = m_core.loadUsersByPage(null, null, 0, 2, "userName",
                 true);
         assertEquals(2, page.size());
@@ -387,7 +387,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testLoadUserPageDescending() throws Exception {
-        TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
+        TestHelper.insertFlat("common/SampleUsersSeed.xml");
         // expect third user from bottom
         Collection page = m_core.loadUsersByPage(null, null, 2, 2, "userName",
                 false);
@@ -396,7 +396,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testLoadUserPageOrderByFirstName() throws Exception {
-        TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
+        TestHelper.insertFlat("common/SampleUsersSeed.xml");
         // try sorting by last name
         Collection page = m_core.loadUsersByPage(null, null, 2, 2, "firstName",
                 true);
@@ -405,7 +405,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testLoadUserPageWithGroup() throws Exception {
-        TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
+        TestHelper.insertFlat("common/SampleUsersSeed.xml");
         Collection page = m_core.loadUsersByPage(null, new Integer(1001), 0,
                 10, "userName", true);
         assertEquals(1, page.size());
@@ -414,7 +414,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testLoadUserPageWithUserSearch() throws Exception {
-        TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
+        TestHelper.insertFlat("common/SampleUsersSeed.xml");
         Collection page = m_core.loadUsersByPage("og", null, 0, 10, "userName",
                 true);
         assertEquals(6, page.size());
@@ -436,7 +436,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testLoadUserPageWithUserSearchAndGroup() throws Exception {
-        TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
+        TestHelper.insertFlat("common/SampleUsersSeed.xml");
         Collection page = m_core.loadUsersByPage("og", new Integer(1003), 0,
                 10, "userName", true);
         assertEquals(1, page.size());
@@ -446,7 +446,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
 
     public void testLoadUserPageWithUserSearchCaseInsensitive()
             throws Exception {
-        TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
+        TestHelper.insertFlat("common/SampleUsersSeed.xml");
         Collection page = m_core.loadUsersByPage("mamba", null, 0, 10,
                 "userName", true);
         assertEquals(1, page.size());
@@ -455,21 +455,21 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testIsAliasInUse() throws Exception {
-        TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
+        TestHelper.insertFlat("common/SampleUsersSeed.xml");
         assertTrue(m_core.isAliasInUse("janus")); // a user ID
         assertTrue(m_core.isAliasInUse("dweezil")); // a user alias
         assertFalse(m_core.isAliasInUse("jessica")); // a first name
     }
 
     public void testGetBeanIdsOfObjectsWithAlias() throws Exception {
-        TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
+        TestHelper.insertFlat("common/SampleUsersSeed.xml");
         assertTrue(m_core.getBeanIdsOfObjectsWithAlias("janus").size() == 1); // a user ID
         assertTrue(m_core.getBeanIdsOfObjectsWithAlias("dweezil").size() == 1); // a user alias
         assertTrue(m_core.getBeanIdsOfObjectsWithAlias("jessica").size() == 0); // a first name
     }
 
     public void testMaxUsers() throws Exception {
-        TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
+        TestHelper.insertFlat("common/SampleUsersSeed.xml");
         try {
             m_core.checkMaxUsers(-1);
         } catch (UserException e) {

@@ -53,7 +53,9 @@
   <table name="line_group"/>
     
   <table name="gateway"/>  
-  <table name="extension_pool"/>  
+  <table name="extension_pool"/>
+  <table name="intercom_phone_group"/>
+  <table name="intercom"/>
       
   <!-- forwarding -->
   <table name="ring"/>

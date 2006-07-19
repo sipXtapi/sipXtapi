@@ -102,6 +102,7 @@
     <antcall target="settings-refactoring"/>
     <antcall target="ldap"/>
     <antcall target="supervisor"/>
+    <antcall target="intercom"/>
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="4" -->
   </target>
@@ -115,6 +116,10 @@
   
   <target name="supervisor" unless="supervisor">
     <db-patch patch="supervisor"/>
+  </target>  
+  
+  <target name="intercom" unless="intercom">
+    <db-patch patch="intercom"/>
   </target>  
 
   <target name="settings-refactoring" unless="settings-refactoring">
