@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.phone.snom;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.User;
@@ -22,6 +23,7 @@ import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class SnomPhone extends Phone {
@@ -107,15 +109,15 @@ public class SnomPhone extends Phone {
         return getModel().getMaxLineCount();
     }
 
-    public Collection getProfileLines() {
+    public Collection<Setting> getProfileLines() {
         int lineCount = getModel().getMaxLineCount();
-        ArrayList linesSettings = new ArrayList(getMaxLineCount());
+        List<Setting> linesSettings = new ArrayList<Setting>(getMaxLineCount());
 
-        Collection lines = getLines();
+        Collection<Line> lines = getLines();
         int i = 0;
-        Iterator ilines = lines.iterator();
+        Iterator<Line> ilines = lines.iterator();
         for (; ilines.hasNext() && (i < lineCount); i++) {
-            linesSettings.add(((Line) ilines.next()).getSettings());
+            linesSettings.add(ilines.next().getSettings());
         }
 
         for (; i < lineCount; i++) {

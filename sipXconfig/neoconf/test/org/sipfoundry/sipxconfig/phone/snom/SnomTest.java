@@ -5,11 +5,12 @@ import java.io.StringWriter;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
+import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
 public class SnomTest extends TestCase {
 
-    private SnomPhone m_phone;
+    private Phone m_phone;
 
     protected void setUp() {
         m_phone = new SnomPhone(SnomModel.MODEL_360);
@@ -25,10 +26,11 @@ public class SnomTest extends TestCase {
     }
 
     public void testGetProfileName() {
-        SnomPhone phone = new SnomPhone(SnomModel.MODEL_360);
+        Phone phone = new SnomPhone(SnomModel.MODEL_360);
+        phone.setWebDirectory("web");
         // it can be called without serial number
-        assertEquals("snom360.htm", phone.getProfileName());
+        assertEquals("web/snom360.htm", phone.getPhoneFilename());
         phone.setSerialNumber("abc123");
-        assertEquals("snom360-ABC123.htm", phone.getProfileName());
+        assertEquals("web/snom360-ABC123.htm", phone.getPhoneFilename());
     }
 }

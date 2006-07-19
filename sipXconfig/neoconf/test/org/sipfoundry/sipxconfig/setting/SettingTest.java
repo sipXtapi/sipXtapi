@@ -14,7 +14,6 @@ package org.sipfoundry.sipxconfig.setting;
 import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
-import org.easymock.IMocksControl;
 
 public class SettingTest extends TestCase {
 
@@ -67,22 +66,31 @@ public class SettingTest extends TestCase {
         assertEquals("bluejay", s.getProfileName());        
         s.setProfileName("indigojay");
         assertEquals("indigojay", s.getProfileName());
-    }    
+    }
+    
+    public void testGetProfilePath() {
+        SettingImpl birds = new SettingImpl("birds");
+        birds.setProfileName("BIRDS");
+        SettingImpl bird = new SettingImpl("bluejay");
+        bird.setParent(birds);
+        
+        assertEquals("BIRDS", birds.getProfilePath());
+        assertEquals("BIRDS/bluejay", bird.getProfilePath());        
+    }
     
     public void testGetProfileHandler() {
         SettingImpl s = new SettingImpl("bluejay");
         SettingValue2 originalValue = new SettingValueImpl("bluejay");
         SettingValue2 handlerValue = new SettingValueImpl("indigojay");
         
-        IMocksControl modelCtrl = EasyMock.createStrictControl();
-        SettingModel2 model = modelCtrl.createMock(SettingModel2.class);
+        SettingModel2 model = EasyMock.createStrictMock(SettingModel2.class);
         model.getProfileName(s, originalValue);
-        modelCtrl.andReturn(handlerValue);
-        modelCtrl.replay();
+        EasyMock.expectLastCall().andReturn(handlerValue);
+        EasyMock.replay(model);
 
         s.setModel(model);
         assertSame("indigojay", s.getProfileName());
 
-        modelCtrl.verify();
+        EasyMock.verify(model);
     }
 }

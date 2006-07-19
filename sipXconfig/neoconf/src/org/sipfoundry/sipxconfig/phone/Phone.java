@@ -46,7 +46,7 @@ public class Phone extends BeanWithGroups {
 
     private PhoneModel m_model;
 
-    private List m_lines = Collections.EMPTY_LIST;
+    private List<Line> m_lines = Collections.EMPTY_LIST;
 
     private PhoneContext m_phoneContext;
 
@@ -181,8 +181,7 @@ public class Phone extends BeanWithGroups {
     }
 
     public Line findByUsername(String username) {
-        for (int i = 0; i < getLines().size(); i++) {
-            Line l = (Line) getLines().get(i);
+        for (Line l : getLines()) {
             User user = l.getUser();
             if (user != null && user.getUserName().equals(username)) {
                 return l;
@@ -192,8 +191,7 @@ public class Phone extends BeanWithGroups {
     }
 
     public Line findByUri(String uri) {
-        for (int i = 0; i < getLines().size(); i++) {
-            Line l = (Line) getLines().get(i);
+        for (Line l : getLines()) {
             String candidate = l.getUri();
             if (candidate.equals(uri)) {
                 return l;
@@ -257,7 +255,7 @@ public class Phone extends BeanWithGroups {
 
         // XCF-1059
         String outboundProxy = m_phoneContext.getPhoneDefaults().getDomainName();
-        
+
         String outboundProxyPort = m_phoneContext.getPhoneDefaults().getProxyServerSipPort();
         m_sip.sendCheckSync(line.getUri(), outboundProxy, outboundProxyPort);
     }
@@ -307,17 +305,17 @@ public class Phone extends BeanWithGroups {
         return clean;
     }
 
-    public List getLines() {
+    public List<Line> getLines() {
         return m_lines;
     }
 
-    public void setLines(List lines) {
+    public void setLines(List<Line> lines) {
         m_lines = lines;
     }
 
     public void addLine(Line line) {
         if (m_lines == Collections.EMPTY_LIST) {
-            m_lines = new ArrayList();
+            m_lines = new ArrayList<Line>();
         }
         int max = getModel().getMaxLineCount();
         if (m_lines.size() >= max) {
@@ -336,7 +334,7 @@ public class Phone extends BeanWithGroups {
     }
 
     public Line getLine(int position) {
-        return (Line) m_lines.get(position);
+        return m_lines.get(position);
     }
 
     @SuppressWarnings("unused")

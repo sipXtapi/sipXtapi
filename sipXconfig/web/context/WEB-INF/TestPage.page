@@ -41,6 +41,9 @@
   <component id="resetCoreContext" type="DirectLink">
     <binding name="listener" value="listener:resetCoreContext"/>
   </component>
+  <component id="logout" type="DirectLink">
+    <binding name="listener" value="listener:logout"/>
+  </component>
   <component id="resetConferenceBridgeContext" type="DirectLink">
     <binding name="listener" value="listener:resetConferenceBridgeContext"/>
   </component>

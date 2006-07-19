@@ -137,6 +137,11 @@ public abstract class TestPage extends BasePage {
         return PAGE;
     }
 
+    public String logout() {
+        getApplicationLifecycle().logout();
+        return PAGE;
+    }
+
     public IPage newGroup(IRequestCycle cycle, String resource) {
         EditGroup page = (EditGroup) cycle.getPage(EditGroup.PAGE);
         page.newGroup(resource, PAGE);

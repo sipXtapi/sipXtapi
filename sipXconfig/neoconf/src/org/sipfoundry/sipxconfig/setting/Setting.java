@@ -41,6 +41,11 @@ public interface Setting extends Cloneable {
     public void setName(String name);
 
     public String getProfileName();
+    
+    /**
+     * Full profile path of the setting - including profile names of all parents and profile name of this setting
+     */
+    public String getProfilePath();
 
     /**
      * what would value be if it wasn't set., most implementation this is your the value from the
