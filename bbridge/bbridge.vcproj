@@ -33,7 +33,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib Dnsapi.lib Iphlpapi.lib Winmm.lib &quot;$(ProjectDir)..\..\resiprocate\contrib\openssl\lib\vc\static\libeay32.lib&quot; &quot;$(ProjectDir)..\..\resiprocate\contrib\openssl\lib\vc\static\ssleay32.lib&quot;"
+				AdditionalDependencies="Ws2_32.lib Dnsapi.lib Iphlpapi.lib Winmm.lib &quot;$(ProjectDir)..\ResiprocateLib\resiprocate\contrib\openssl\lib\vc\static\libeay32.lib&quot; &quot;$(ProjectDir)..\ResiprocateLib\resiprocate\contrib\openssl\lib\vc\static\ssleay32.lib&quot;"
 				OutputFile="$(OutDir)/bbridge.exe"
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
@@ -83,7 +83,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib Dnsapi.lib Iphlpapi.lib Winmm.lib &quot;$(ProjectDir)..\..\resiprocate\contrib\openssl\lib\vc\static\libeay32.lib&quot; &quot;$(ProjectDir)..\..\resiprocate\contrib\openssl\lib\vc\static\ssleay32.lib&quot;"
+				AdditionalDependencies="Ws2_32.lib Dnsapi.lib Iphlpapi.lib Winmm.lib &quot;$(ProjectDir)..\ResiprocateLib\resiprocate\contrib\openssl\lib\vc\static\libeay32.lib&quot; &quot;$(ProjectDir)..\ResiprocateLib\resiprocate\contrib\openssl\lib\vc\static\ssleay32.lib&quot;"
 				OutputFile="$(OutDir)/bbridge.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="TRUE"
