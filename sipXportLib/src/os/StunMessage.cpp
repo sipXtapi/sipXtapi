@@ -98,7 +98,7 @@ void StunMessage::reset()
     memset(&mServer, 0, STUN_MAX_STRING_LENGTH+1) ;
     mbServerValid = false ;
     mbSendXorOnly = false ;
-    mbRequestXorOnly = true ;
+    mbRequestXorOnly = false;
     mbIncludeMessageIntegrity = false ;
     memset(&mAltServer, 0, sizeof(STUN_ATTRIBUTE_ADDRESS)) ;
     mbAltServerValid = false ;
@@ -248,8 +248,6 @@ bool StunMessage::encodeBody(char* pBuf, size_t nBufLength, size_t& nBytesUsed)
         {
             bError = !encodeAttributeAddress(ATTR_STUN_MAPPED_ADDRESS, 
                     &mMappedAddress, pTraverse, nBytesLeft) ;
-            bError = !encodeXorAttributeAddress(ATTR_STUN_XOR_MAPPED_ADDRESS, 
-                    &mMappedAddress, pTraverse, nBytesLeft) ;        
         }
 
         if (!bError)
@@ -984,22 +982,15 @@ bool StunMessage::encodeXorAttributeAddress(unsigned short type, STUN_ATTRIBUTE_
     unsigned short usPort = pAddress->port ;
     unsigned long ulLong = pAddress->address ;
 
-    ptr = (char*) &usPort ;
-    ptr[0] ^= mMsgHeader.transactionId.id[1] ;
-    ptr[1] ^= mMsgHeader.transactionId.id[0] ;
-
-    ptr = (char*) &ulLong ;
-    ptr[0] ^= mMsgHeader.transactionId.id[3] ;
-    ptr[1] ^= mMsgHeader.transactionId.id[2] ;
-    ptr[2] ^= mMsgHeader.transactionId.id[1] ;
-    ptr[3] ^= mMsgHeader.transactionId.id[0] ;
+    usPort = htons(usPort) ^ ((unsigned short) htonl(mMsgHeader.magicId.id)) ;
+    ulLong = htonl(ulLong) ^ htonl(mMsgHeader.magicId.id) ;
 
     if (    (nBytesLeft >= (sizeof(STUN_ATTRIBUTE_ADDRESS) + sizeof(STUN_ATTRIBUTE_HEADER))) &&
             encodeAttributeHeader(type, sizeof(STUN_ATTRIBUTE_ADDRESS), pBuf, nBytesLeft) &&
             encodeByte(pAddress->unused, pBuf, nBytesLeft) &&
             encodeByte(pAddress->family, pBuf, nBytesLeft) &&
-            encodeShort(usPort, pBuf, nBytesLeft) &&
-            encodeLong(ulLong, pBuf, nBytesLeft))
+            encodeRaw((const char*) &usPort, 2, pBuf, nBytesLeft) &&
+            encodeRaw((const char*) &ulLong, 4, pBuf, nBytesLeft))
     {
         bRC = true ;
     }
@@ -1203,24 +1194,16 @@ bool StunMessage::parseAddressAttribute(char *pBuf, size_t nLength, STUN_ATTRIBU
 bool StunMessage::parseXorAddressAttribute(char *pBuf, size_t nLength, STUN_ATTRIBUTE_ADDRESS* pAddress)
 {
     bool bValid = false ;
-    char* ptr ;
 
     if (nLength == sizeof(STUN_ATTRIBUTE_ADDRESS))
     {
         memcpy(pAddress, pBuf, sizeof(STUN_ATTRIBUTE_ADDRESS)) ;
 
-        pAddress->port = ntohs(pAddress->port) ;
+        pAddress->port ^= (unsigned short) htonl(mMsgHeader.magicId.id) ;
+        pAddress->address ^= htonl(mMsgHeader.magicId.id) ;
+        
+	pAddress->port = ntohs(pAddress->port) ;
         pAddress->address = ntohl(pAddress->address) ;
-
-        ptr = (char*) &pAddress->port ;
-        ptr[0] ^= mMsgHeader.transactionId.id[1] ;
-        ptr[1] ^= mMsgHeader.transactionId.id[0] ;
-
-        ptr = (char*) &pAddress->address ;
-        ptr[0] ^= mMsgHeader.transactionId.id[3] ;
-        ptr[1] ^= mMsgHeader.transactionId.id[2] ;
-        ptr[2] ^= mMsgHeader.transactionId.id[1] ;
-        ptr[3] ^= mMsgHeader.transactionId.id[0] ;
 
         bValid = true ;
     }
