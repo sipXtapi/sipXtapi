@@ -1,3 +1,19 @@
+  <type id="reg-server-index">
+    <enum>
+      <option>
+        <label>--disabled--</label>
+        <value/>
+     </option>
+     <option>
+        <label>Primary Registration Server</label>
+        <value>1</value>
+     </option>            
+     <option>
+        <label>Secondary Registration Server</label>
+        <value>2</value>
+     </option>
+    </enum>
+  </type>
   <type id="transport">
     <enum>
       <option>

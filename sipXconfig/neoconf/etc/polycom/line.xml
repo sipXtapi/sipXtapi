@@ -80,6 +80,37 @@
       <description>The number of calls or conferences which may be active or on hold per
       line key for a specific registration on the phone.</description>
     </setting>
+    <setting name="lcs" unless="polycom1.6">
+      <type>
+        <string/>
+      </type>
+      <description>Microsoft 2005 LCS server</description>
+    </setting>
+    <setting name="outboundProxy.address" unless="polycom1.6">
+      <label>Outbound Proxy</label>
+      <type>
+        <string/>
+      </type>
+      <value/>
+      <description>Only required if both the following conditions are true. First, 
+        you want to direct all outgoing SIP traffic to a server other than 
+        the address you specified for the registration server.  Second, you want the outbound 
+        proxy only for this line. All other lines will continue to send traffic to 
+        the registrar.  NOTE: If you want to set the outbound proxy for all 
+        lines, goto to the phone settings for "Sip Server"</description>
+    </setting>
+    <setting name="outboundProxy.port" unless="polycom1.6">
+      <label>Outbound Proxy Port</label>
+      <type>
+        <integer min="0" max="65535"/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="outboundProxy.transport" unless="polycom1.6">
+      <label>Outbound Proxy Transport</label>
+      <type refid="transport"/>
+      <value>DNSnaptr</value>
+    </setting>
     <group name="server">
       <label>Registration server</label>
       <group name="1">
@@ -115,6 +146,13 @@
           <type></type>
           <value/>
           <description>positive integer</description>
+        </setting>
+        <setting name="expires.overlap" unless="polycom1.6">
+          <label>Re-registration interval</label>
+          <profileName>server.1.expires.overlap</profileName>
+          <type><integer min="5" max="65535"/></type>
+          <value>60</value>
+          <description>positive integer between 5 and 65535.</description>
         </setting>
         <setting name="register">
           <profileName>server.1.register</profileName>
@@ -184,6 +222,13 @@
           </type>
           <value/>
           <description></description>
+        </setting>
+        <setting name="expires.overlap" unless="polycom1.6">
+          <label>Re-registration interval</label>
+          <profileName>server.2.expires.overlap</profileName>
+          <type><integer min="5" max="65535"/></type>
+          <value>60</value>
+          <description>positive integer between 5 and 65535.</description>
         </setting>
         <setting name="register">
           <profileName>server.2.register</profileName>

@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -135,15 +136,35 @@ public class Phone extends BeanWithGroups {
     }
 
     protected Setting loadSettings() {
-        Set defines = Collections.singleton(getModel().getModelId());
+        Set defines = getModelDefinitions();
         return getModelFilesContext().loadDynamicModelFile("phone.xml", getModel().getBeanId(),
                 defines);
     }
 
     protected Setting loadLineSettings() {
-        Set defines = Collections.singleton(getModel().getModelId());
+        Set defines = getModelDefinitions();
         return getModelFilesContext().loadDynamicModelFile("line.xml", getModel().getBeanId(),
                 defines);
+    }
+    
+    /**
+     * When loading the settings model.
+     * 
+     * Example If you can add "not-extinct" the following setting will not
+     * be loaded. Phone model id and version are added by default.
+     *
+     *  &lt;setting name="dinosaur" unless="not-extinct"/&gt;
+     * 
+     * @return
+     */
+    protected Set getModelDefinitions() {
+        Set definitions = new HashSet();
+        PhoneModel model = getModel();
+        definitions.add(model.getModelId());
+        if (getDeviceVersion() != null) {
+            definitions.add(getDeviceVersion().getId());
+        }        
+        return definitions;
     }
 
     /**

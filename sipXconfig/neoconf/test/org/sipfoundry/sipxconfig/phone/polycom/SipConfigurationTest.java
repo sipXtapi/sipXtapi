@@ -13,10 +13,13 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 
 import java.io.CharArrayReader;
 import java.io.CharArrayWriter;
+import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.Writer;
 
+import org.apache.commons.io.IOUtils;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
@@ -37,7 +40,16 @@ public class SipConfigurationTest  extends XMLTestCase {
         tester = PhoneTestDriver.supplyTestData(phone);        
     }
     
-    public void testGenerateProfile() throws Exception {
+    public void _testGenerateProfile16() throws Exception {
+        assertProfileEquals("expected-sip.cfg.xml");
+    }
+    
+    public void testGenerateProfile20() throws Exception {
+        phone.setDeviceVersion(PolycomModel.VER_2_0);
+        assertProfileEquals("expected-sip-2.0.cfg.xml");
+    }
+    
+    private void assertProfileEquals(String expected) throws Exception {
         
         // settings selected at random, there are too many
         // to test all.  select a few.
@@ -56,12 +68,15 @@ public class SipConfigurationTest  extends XMLTestCase {
         CharArrayWriter out = new CharArrayWriter();
         cfg.generateProfile(phone.getSipTemplate(), out);       
         
-        InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-sip.cfg.xml");
+        InputStream expectedPhoneStream = getClass().getResourceAsStream(expected);
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);            
         Reader generatedXml = new CharArrayReader(out.toCharArray());
 
         // helpful debug
-        System.out.println(new String(out.toCharArray()));
+        // System.out.println(new String(out.toCharArray()));
+        Writer w = new FileWriter("/tmp/delme");
+        IOUtils.write(out.toCharArray(), w);
+        w.close();
 
         Diff phoneDiff = new Diff(expectedXml, generatedXml);
         assertXMLEqual(phoneDiff, true);
