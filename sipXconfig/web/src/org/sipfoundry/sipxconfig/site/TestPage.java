@@ -36,9 +36,11 @@ import org.sipfoundry.sipxconfig.job.JobContext;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
+import org.sipfoundry.sipxconfig.phone.polycom.PolycomModel;
 import org.sipfoundry.sipxconfig.search.IndexManager;
 import org.sipfoundry.sipxconfig.site.admin.commserver.ReplicationData;
 import org.sipfoundry.sipxconfig.site.admin.commserver.RestartReminder;
+import org.sipfoundry.sipxconfig.site.phone.NewPhone;
 import org.sipfoundry.sipxconfig.site.search.EnumEditPageProvider;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 import org.sipfoundry.sipxconfig.site.upload.EditUpload;
@@ -66,6 +68,8 @@ public abstract class TestPage extends BasePage {
     public static final String TEST_USER_ALIASES = TEST_USER_ALIAS1 + " " + TEST_USER_ALIAS2;
     public static final String TEST_USER_PIN = "1234";
     public static final int MANY_USERS = 10000;
+    
+    public static final PhoneModel TEST_PHONE_MODEL = PolycomModel.MODEL_500;
 
     public abstract DialPlanContext getDialPlanContext();
 
@@ -231,6 +235,12 @@ public abstract class TestPage extends BasePage {
             User user = (User) iter.next();
             getCoreContext().deleteUser(user);
         }
+    }
+    
+    public IPage newPhone() {
+        NewPhone newPhone = (NewPhone) getRequestCycle().getPage(NewPhone.PAGE);
+        newPhone.setPhoneModel(TEST_PHONE_MODEL);
+        return newPhone;
     }
     
     public void importLdap() {

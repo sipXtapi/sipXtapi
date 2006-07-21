@@ -6,8 +6,8 @@
 	  -->
   <inject property="phoneContext" object="spring:phoneContext"/>
   <inject property="settingDao" object="spring:settingDao"/>
-  <property name="phone"  initial-value="new org.sipfoundry.sipxconfig.phone.Phone()"/>
-  <property name="phoneModel"  initial-value="phone.model"/>
+  <property name="phone"/>
+  <property name="phoneModel" persist="session"/>
   <property name="stay" />
   <inject property="tapestry" object="spring:tapestry" />
   <!--
@@ -23,7 +23,6 @@
   <component id="editPhoneForm" type="EditPhoneForm">
     <binding name="phone" value="phone"/>
     <binding name="validator" value="bean:validator"/>
-    <binding name="phoneModel" value="phoneModel"/>
   </component>
   <component id="ok" type="Submit">
     <binding name="listener" value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.finish)"/>

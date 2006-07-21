@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.gateway;
 
 import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.common.NamedObject;
+import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -36,6 +37,8 @@ public class Gateway extends BeanWithSettings implements NamedObject {
     private String m_tftpRoot;
 
     private PhoneModel m_model;
+    
+    private DeviceVersion m_version;
 
     private VelocityEngine m_velocityEngine;
     
@@ -49,6 +52,14 @@ public class Gateway extends BeanWithSettings implements NamedObject {
 
     public void removeProfiles() {
         // do nothing for generic gateways - we do not generate profile for it
+    }
+
+    public DeviceVersion getDeviceVersion() {
+        return m_version;
+    }
+
+    public void setDeviceVersion(DeviceVersion version) {
+        m_version = version;
     }
 
     /**

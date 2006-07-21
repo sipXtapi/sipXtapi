@@ -52,7 +52,7 @@ public class PolycomPhone extends Phone {
 
     private String m_phoneTemplate = m_phoneConfigDir + "/phone.cfg.vm";
 
-    private String m_sipTemplate = m_phoneConfigDir + "/sip.cfg.vm";
+    private String m_sipTemplate = m_phoneConfigDir + "/sip-%s.cfg.vm";
 
     private String m_coreTemplate = m_phoneConfigDir + "/ipmid.cfg.vm";
 
@@ -60,11 +60,19 @@ public class PolycomPhone extends Phone {
 
     public PolycomPhone() {
         super(BEAN_ID);
+        constructorInitialize();
     }
 
     public PolycomPhone(PolycomModel model) {
         super(model);
+        constructorInitialize();
     }
+    
+    private void constructorInitialize() {
+        // default version
+        setDeviceVersion(PolycomModel.VER_1_6);
+    }
+    
     
     @Override
     public void initialize() {        
@@ -103,7 +111,7 @@ public class PolycomPhone extends Phone {
     }
 
     public String getSipTemplate() {
-        return m_sipTemplate;
+        return String.format(m_sipTemplate, getDeviceVersion().getId());
     }
 
     public void setSipTemplate(String sipTemplate) {

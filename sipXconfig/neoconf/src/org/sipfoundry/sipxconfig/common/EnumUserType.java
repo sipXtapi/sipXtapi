@@ -106,6 +106,11 @@ public class EnumUserType implements UserType {
             throw new IllegalArgumentException("Received value is not a ["
                     + returnedClass().getName() + "] but [" + value.getClass() + "]");
         }
+        
+        if (value == null) {
+            st.setNull(index, Types.VARCHAR);
+            return;
+        }
 
         Enum enumeration = (Enum) value;
         String enumCode = enumeration.getName();

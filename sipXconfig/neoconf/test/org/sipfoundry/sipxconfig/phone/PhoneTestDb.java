@@ -220,4 +220,16 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
         ITable actual = TestHelper.getConnection().createDataSet().getTable("line");
         assertEquals(1, actual.getRowCount());            	
     }
+    
+    public void testDeviceVersion() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("phone/PhoneVersionSeed.db.xml");
+        Phone phone = context.loadPhone(1000);
+        assertSame(PolycomModel.VER_2_0, phone.getDeviceVersion());
+        
+        phone.setDeviceVersion(PolycomModel.VER_1_6);
+        context.storePhone(phone);
+        
+        //assert db update expected
+    }
 }

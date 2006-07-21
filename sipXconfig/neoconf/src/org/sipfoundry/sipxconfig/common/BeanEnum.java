@@ -25,21 +25,14 @@ public abstract class BeanEnum extends Enum {
     
     private String m_enumId;
         
-    private String[] m_details;
-    
     public BeanEnum(String beanId, String label) {
         this(beanId, StringUtils.EMPTY, label);
     }
     
     public BeanEnum(String beanId, String enumId, String label) {
-        this(beanId, enumId, null, label);
-    }
-
-    public BeanEnum(String beanId, String enumId, String[] details, String label) {
-        super(beanId + enumId + StringUtils.defaultString(StringUtils.join(details)));
+        super(beanId + enumId);
         m_beanId = beanId;
         m_enumId = enumId;
-        m_details = details;
         m_label = label;        
     }
     
@@ -60,12 +53,5 @@ public abstract class BeanEnum extends Enum {
     
     protected String getEnumId() {
         return m_enumId;
-    }
-    
-    /**
-     * Additional details about this enum, version, build, etc.
-     */
-    public String[] getDetails() {
-        return m_details;
     }
 }

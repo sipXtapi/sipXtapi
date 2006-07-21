@@ -31,6 +31,7 @@ import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.device.RestartManager;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.search.SearchManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.site.line.EditLine;
@@ -65,6 +66,8 @@ public abstract class ManagePhones extends BasePage implements PageBeginRenderLi
     public abstract boolean getSearchMode();
 
     public abstract SearchManager getSearchManager();
+    
+    public abstract PhoneModel getPhoneModel();
 
     public IBasicTableModel getTableModel() {
         String queryText = getQueryText();
@@ -88,10 +91,6 @@ public abstract class ManagePhones extends BasePage implements PageBeginRenderLi
         EditLine page = (EditLine) cycle.getPage(EditLine.PAGE);
         page.setLineId(lineId);
         return page;
-    }
-
-    public String addPhone() {
-        return NewPhone.PAGE;
     }
 
     public void deletePhone() {
@@ -147,6 +146,15 @@ public abstract class ManagePhones extends BasePage implements PageBeginRenderLi
         }
         initActionsModel();
     }
+    
+    public void formSubmit(IRequestCycle cycle) {
+        PhoneModel model = getPhoneModel();
+        if (model != null) {
+            NewPhone newPhone = (NewPhone) cycle.getPage(NewPhone.PAGE);
+            newPhone.setPhoneModel(model);
+            cycle.activate(newPhone);
+        }
+    }
 
     private void initActionsModel() {
         Collection groups = getPhoneContext().getGroups();
@@ -170,7 +178,7 @@ public abstract class ManagePhones extends BasePage implements PageBeginRenderLi
             actions.add(new OptGroup(getMessages().getMessage("label.removeFrom")));
             actions.add(new RemoveFromPhoneGroupAction(removeFromGroup, getPhoneContext()));
         }
-
+        
         AdaptedSelectionModel model = new AdaptedSelectionModel();
         model.setCollection(actions);
         setActionModel(model);

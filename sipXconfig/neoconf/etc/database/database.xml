@@ -89,22 +89,13 @@
 	</target>    
   
   <!-- List each dependency on a separate line below to make source control merging easier -->
-  <target name="version1" description="upgrade from version 1" unless="version2">
+  <target name="version1" description="upgrade from version 0" unless="version2">
     <antcall target="conference_name_uniqueness"/>
     <antcall target="upload"/>
     <antcall target="grandstreamV2"/>
     <antcall target="upload_deployed"/>
     <antcall target="attendant_schedule"/>
     <sipx-version version="2"/>
-  </target>
-
-  <target name="version3" description="upgrade from version 2" unless="version4">
-    <antcall target="settings-refactoring"/>
-    <antcall target="ldap"/>
-    <antcall target="supervisor"/>
-    <antcall target="intercom"/>
-    <!-- When freezing schema uncomment this line -->
-    <!-- sipx-version version="4" -->
   </target>
 
   <target name="version2" description="upgrade from version 1" unless="version3">
@@ -114,6 +105,16 @@
     <sipx-version version="3"/>
   </target>
   
+  <target name="version3" description="upgrade from version 2" unless="version4">
+    <antcall target="settings-refactoring"/>
+    <antcall target="ldap"/>
+    <antcall target="supervisor"/>
+    <antcall target="intercom"/>
+    <antcall target="device-version"/>  	
+    <!-- When freezing schema uncomment this line -->
+    <!-- sipx-version version="4" -->
+  </target>
+
   <target name="supervisor" unless="supervisor">
     <db-patch patch="supervisor"/>
   </target>  
@@ -129,6 +130,15 @@
   <target name="ldap" unless="ldap">
     <db-patch patch="ldap"/>
   </target>  	
+	
+  <target name="device-version"	unless="device-version">
+    <sipx-sql>
+	    	alter table phone add column device_version_id varchar(32);
+	    	alter table gateway add column device_version_id varchar(32);
+    	    update phone set device_version_id = 'polycom1.6' where bean_id = 'polycom';
+    </sipx-sql>  	
+  	<mark-patch-applied patch="device-version"/>
+  </target>
 
   <target name="attendant_defaults" unless="attendant_defaults">
     <!-- remove spaces to enable things like auto-completion -->

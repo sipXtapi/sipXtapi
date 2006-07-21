@@ -25,6 +25,7 @@ import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -61,6 +62,8 @@ public class Phone extends BeanWithGroups {
     private String m_webDirectory;
 
     private String m_beanId;
+    
+    private DeviceVersion m_version;
 
     public Phone() {
         this(MODEL);
@@ -89,6 +92,14 @@ public class Phone extends BeanWithGroups {
 
     public PhoneModel getModel() {
         return m_model;
+    }
+
+    public DeviceVersion getDeviceVersion() {
+        return m_version;
+    }
+
+    public void setDeviceVersion(DeviceVersion version) {
+        m_version = version;
     }
 
     public String getWebDirectory() {
@@ -355,5 +366,5 @@ public class Phone extends BeanWithGroups {
         line.setPhone(this);
         line.setModelFilesContext(getModelFilesContext());
         return line;
-    }
+    }    
 }

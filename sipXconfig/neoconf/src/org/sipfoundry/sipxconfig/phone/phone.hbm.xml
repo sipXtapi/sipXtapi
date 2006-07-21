@@ -14,6 +14,7 @@
     <property name="modelId"/>
     <property name="description"/>
     <property name="serialNumber"/>
+    <property name="deviceVersion" column="device_version_id" type="org.sipfoundry.sipxconfig.device.DeviceVersion$Type"/>
     <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
       class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
     <set name="groups" table="phone_group" sort="natural" cascade="save-update">

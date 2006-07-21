@@ -16,6 +16,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.enums.Enum;
+import org.sipfoundry.sipxconfig.device.DeviceVersion;
 
 public class PhoneModel extends Enum {
 
@@ -30,6 +31,8 @@ public class PhoneModel extends Enum {
     private String m_modelId;
 
     private int m_maxLineCount;
+    
+    private DeviceVersion[] m_versions;
 
     public PhoneModel(String beanId, String label) {
         this(beanId, StringUtils.EMPTY, label);
@@ -99,5 +102,13 @@ public class PhoneModel extends Enum {
      */
     public boolean getHasSerialNumber() {
         return true;
+    }
+    
+    protected void setVersions(DeviceVersion[] versions) {
+        m_versions = versions;
+    }
+    
+    public DeviceVersion[] getVersions() {
+        return m_versions;
     }
 }

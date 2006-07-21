@@ -11,6 +11,7 @@
   <property name="currentLine" />
   <property name="selections" />
   <property name="idConverter" />
+  <property name="phoneModel" />
   <inject property="phoneContext" object="spring:phoneContext"/>
   <inject property="profileManager" object="spring:profileManager"/>
   <inject property="restartManager" object="spring:restartManager"/>
@@ -20,11 +21,21 @@
 	  - B E A N S
 	  -->
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+  <bean name="rawPhoneSelectionModel" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
+    <set name="collection" value="phoneContext.availablePhoneModels"/>
+    <set name="labelExpression" value="literal:label"/>
+  </bean>
+  <bean name="phoneSelectionModel" class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator">
+    <set name="model" value="bean:rawPhoneSelectionModel"/>
+    <set name="extraLabel" value="literal:Add new phone..."/>
+    <set name="extraOption" value="null"/>
+  </bean>
   <!--
 	  - C O M P O N E N T S
 	  -->
   <component id="phoneManagement" type="Form">
     <binding name="delegate" value="bean:validator"/>
+    <binding name="listener" value="listener:formSubmit"/>
   </component>
   <component id="newPhoneTable" type="Table">
     <binding name="columns" value="literal:* serialNumber,!lines,modelId:model.label,description"/>
@@ -32,9 +43,6 @@
     <binding name="usePager" value="true"/>
     <binding name="row" value="currentRow"/>
     <binding name="selections" value="selections"/>
-  </component>
-  <component id="addPhone" type="DirectLink">
-    <binding name="listener" value="listener:addPhone"/>
   </component>
   <!-- Column 2: edit phone -->
   <component id="serialNumberColumnValue" type="Block"/>
@@ -79,5 +87,10 @@
   <component id="groupActions" type="GroupActions">
     <binding name="selectedIds" value="selections.allSelected"/>
     <binding name="actionModel" value="actionModel"/>
+  </component>
+  <component id="selectPhoneModel" type="PropertySelection">
+    <binding name="model" value="bean:phoneSelectionModel"/>
+    <binding name="value" value="phoneModel"/>
+    <binding name="onchange" value="literal:javascript:this.form.submit();"/>
   </component>
 </page-specification>

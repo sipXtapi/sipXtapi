@@ -15,6 +15,7 @@ import junit.framework.Test;
 import net.sourceforge.jwebunit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
+import org.sipfoundry.sipxconfig.site.TestPage;
 
 public class NewPhoneTestUi extends WebTestCase {
 
@@ -38,11 +39,10 @@ public class NewPhoneTestUi extends WebTestCase {
     public void testAddPhone() {
         clickLink("NewPhone");
         setFormElement("serialNumber", "000000000000");
-        selectOption("phoneModel", "Polycom SoundPoint IP 500/501");
         clickButton("phone:ok");
         String[][] table = new String[][] {
             {
-                "000000000000", "", "Polycom SoundPoint IP 500/501"
+                "000000000000", "", TestPage.TEST_PHONE_MODEL.getLabel()
             },
         };
         assertTextInTable("phone:list", table[0]);
@@ -51,7 +51,6 @@ public class NewPhoneTestUi extends WebTestCase {
     public void testSaveAndStay() {
         clickLink("NewPhone");
         setFormElement("serialNumber", "000000000000");
-        selectOption("phoneModel", "Polycom SoundPoint IP 500/501");
         checkCheckbox("stay");
         clickButton("phone:ok");
         assertCheckboxSelected("stay");
@@ -61,7 +60,7 @@ public class NewPhoneTestUi extends WebTestCase {
         clickButton("phone:cancel");
         String[][] table = new String[][] {
             {
-                "000000000000", "", "Polycom SoundPoint IP 500/501"
+                "000000000000", "", TestPage.TEST_PHONE_MODEL.getLabel()
             },
         };
         assertTextInTable("phone:list", table[0]);
