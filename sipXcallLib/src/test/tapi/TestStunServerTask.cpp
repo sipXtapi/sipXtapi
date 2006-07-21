@@ -163,10 +163,14 @@ void TestStunServerTask::handleStunMessage(const char* pBuf, int nBuf, const Utl
                             }
                             StunMessage response ;
                             STUN_TRANSACTION_ID transactionId ;
+                            STUN_MAGIC_ID magicId ;
 
-                            // Copy transaction id
+                            // Copy magic and transaction ids
                             msg.getTransactionId(&transactionId) ;
                             response.setTransactionId(transactionId) ;
+                            msg.getMagicId(&magicId) ;
+                            response.setMagicId(magicId) ;
+
 
                             response.setType(MSG_STUN_BIND_ERROR_RESPONSE) ;
                             response.setError(400, "Forced Error") ;
@@ -254,13 +258,16 @@ void TestStunServerTask::handleStunBindRequest(StunMessage* pMsg, const UtlStrin
     size_t nUnknownAttributes ;
     StunMessage response ;
     STUN_TRANSACTION_ID transactionId ;
+    STUN_MAGIC_ID magicId ;
     UtlString sendToAddress ;
     unsigned short sendToPort ;
     OsDatagramSocket* pSendSocket ;
 
-    // Copy transaction id
+    // Copy magic and transaction ids
     pMsg->getTransactionId(&transactionId) ;
     response.setTransactionId(transactionId) ;
+    pMsg->getMagicId(&magicId) ;
+    response.setMagicId(magicId) ;
 
     // Check for unknown attributes
     if (pMsg->getUnknownParsedAttributes(unknownAttributes, STUN_MAX_UNKNOWN_ATTRIBUTES, nUnknownAttributes) && 
@@ -345,10 +352,14 @@ void TestStunServerTask::handleStunSharedSecretRequest(StunMessage* pMsg, const 
 {
     StunMessage response ;
     STUN_TRANSACTION_ID transactionId ;
+    STUN_MAGIC_ID magicId ;
 
-    // Copy transaction id
+    // Copy magic and transaction ids
     pMsg->getTransactionId(&transactionId) ;
     response.setTransactionId(transactionId) ;
+    pMsg->getMagicId(&magicId) ;
+    response.setMagicId(magicId) ;
+
 
     response.setType(MSG_STUN_SHARED_SECRET_ERROR_RESPONSE) ;
     response.setError(433, "Not Implemented") ;
