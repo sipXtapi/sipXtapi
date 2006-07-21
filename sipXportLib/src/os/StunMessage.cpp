@@ -1199,10 +1199,10 @@ bool StunMessage::parseXorAddressAttribute(char *pBuf, size_t nLength, STUN_ATTR
     {
         memcpy(pAddress, pBuf, sizeof(STUN_ATTRIBUTE_ADDRESS)) ;
 
-        pAddress->port ^= (unsigned short) htonl(mMsgHeader.magicId.id) ;
+        pAddress->port ^= (unsigned short) (htonl(mMsgHeader.magicId.id) & 0x0000FFFF) ;
         pAddress->address ^= htonl(mMsgHeader.magicId.id) ;
         
-	pAddress->port = ntohs(pAddress->port) ;
+        pAddress->port = ntohs(pAddress->port) ;
         pAddress->address = ntohl(pAddress->address) ;
 
         bValid = true ;
