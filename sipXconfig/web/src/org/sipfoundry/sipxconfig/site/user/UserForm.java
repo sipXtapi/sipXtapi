@@ -57,7 +57,7 @@ public abstract class UserForm extends BaseComponent implements PageEndRenderLis
     public abstract Collection getGroupsCandidates();
     public abstract void setGroupCandidates(Collection groupsList);
     
-    public void buildGroupCanidates(String groupsString) {
+    public void buildGroupCandidates(String groupsString) {
         List allGroups = getCoreContext().getGroups();
         Collection candidates = TapestryUtils.getAutoCompleteCandidates(allGroups, groupsString);
         setGroupCandidates(candidates);        

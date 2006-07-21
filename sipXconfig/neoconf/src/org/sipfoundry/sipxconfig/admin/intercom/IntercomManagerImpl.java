@@ -11,11 +11,14 @@
  */
 package org.sipfoundry.sipxconfig.admin.intercom;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
+import org.sipfoundry.sipxconfig.admin.dialplan.IntercomRule;
 import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -104,8 +107,19 @@ public class IntercomManagerImpl
         return theIntercom;
     }
 
+    /** Return a list of dialing rules, one for each intercom configuration */
+    public List<IDialingRule> getDialingRules() {
+        List intercoms = loadIntercoms();
+        List<IDialingRule> rules = new ArrayList<IDialingRule>();
+        for (Iterator iter = intercoms.iterator(); iter.hasNext();) {
+            Intercom intercom = (Intercom) iter.next();
+            IDialingRule rule = new IntercomRule(intercom);
+            rules.add(rule);
+        }
+        return rules;
+    }
+    
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = beanFactory;
     }
-
 }

@@ -34,7 +34,7 @@ public abstract class EditPhoneForm extends BaseComponent {
     public abstract Collection getGroupsCandidates();
     public abstract void setGroupCandidates(Collection groupsList);
     
-    public void buildGroupCanidates(String groupsString) {
+    public void buildGroupCandidates(String groupsString) {
         List allGroups = getPhoneContext().getGroups();
         Collection candidates = TapestryUtils.getAutoCompleteCandidates(allGroups, groupsString);
         setGroupCandidates(candidates);        

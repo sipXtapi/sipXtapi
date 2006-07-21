@@ -20,6 +20,7 @@ import org.dom4j.Document;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
 import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting;
 
 /**
@@ -32,17 +33,21 @@ public class ConfigGeneratorTest extends XMLTestCase {
 
     public void testGetFileContent() throws Exception {
         IMocksControl planCtrl = EasyMock.createStrictControl();
-        DialPlanContext empty = planCtrl.createMock(DialPlanContext.class);
-        empty.getGenerationRules();
+        DialPlanContext dialPlanContext = planCtrl.createMock(DialPlanContext.class);
+        DialingRuleProvider dialingRuleProvider = planCtrl.createMock(DialingRuleProvider.class);
+        dialingRuleProvider.getDialingRules();
         planCtrl.andReturn(Collections.EMPTY_LIST);
-        empty.getAttendantRules();
+        dialPlanContext.getGenerationRules();
+        planCtrl.andReturn(Collections.EMPTY_LIST);
+        dialPlanContext.getAttendantRules();
         planCtrl.andReturn(Collections.EMPTY_LIST);
         planCtrl.replay();
-
+        
         EmergencyRouting er = new EmergencyRouting();
 
         ConfigGenerator generator = new ConfigGenerator();
-        generator.generate(empty, er);
+        generator.setDialingRuleProvider(dialingRuleProvider);
+        generator.generate(dialPlanContext, er);
 
         AuthRules authRules = new AuthRules();
         authRules.begin();
@@ -65,7 +70,17 @@ public class ConfigGeneratorTest extends XMLTestCase {
         Document document = configFile.getDocument();
         StringWriter writer = new StringWriter();
         document.write(writer);
-        String xml = generator.getFileContent(type);
-        assertXMLEqual("Comparing: " + type, writer.getBuffer().toString(), xml);
+        String actualXml = generator.getFileContent(type);
+        String expectedXml = writer.getBuffer().toString();
+
+        // The XML diff is getting confused by whitespace, so remove it
+        actualXml = removeTroublesomeWhitespace(actualXml);
+        expectedXml = removeTroublesomeWhitespace(expectedXml);
+        
+        assertXMLEqual("Comparing: " + type, expectedXml, actualXml);
+    }
+    
+    private String removeTroublesomeWhitespace(String text) {
+        return text.replaceAll("\\n\\s*", "");
     }
 }

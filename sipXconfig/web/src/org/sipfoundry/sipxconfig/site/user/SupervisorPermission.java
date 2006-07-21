@@ -44,7 +44,7 @@ public abstract class SupervisorPermission extends PageWithCallback implements
     public abstract Collection getGroupsCandidates();
     public abstract void setGroupCandidates(Collection groupsList);
     
-    public void buildGroupCanidates(String groupsString) {
+    public void buildGroupCandidates(String groupsString) {
         List allGroups = getCoreContext().getGroups();
         Collection candidates = TapestryUtils.getAutoCompleteCandidates(allGroups, groupsString);
         setGroupCandidates(candidates);        

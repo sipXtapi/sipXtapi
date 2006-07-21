@@ -58,5 +58,11 @@ public class DialPatternTest extends TestCase {
 
         patterns = DialPattern.getPatternsFromList(StringUtils.EMPTY, "bongo");
         assertEquals(0, patterns.length);
-    }    
+    }
+    
+    public void testEscapingSpecialCharacters() {
+        DialPattern pattern = new DialPattern();
+        pattern.setPrefix("*78*");
+        assertEquals("\\*78\\*", pattern.getPrefix());
+    }
 }

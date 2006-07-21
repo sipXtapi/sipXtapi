@@ -22,6 +22,7 @@ import java.util.Map;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
 import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -35,8 +36,10 @@ public class ConfigGenerator {
     private MappingRules m_mappingRules;
     private AuthRules m_authRules;
     private FallbackRules m_fallbackRules;
+    private DialingRuleProvider m_dialingRuleProvider;
     private List m_attendantScheduleFiles = new ArrayList();
     private Map m_files = new HashMap();
+
 
     public ConfigGenerator() {
         // this is usually overwritten by spring configuration file
@@ -60,6 +63,10 @@ public class ConfigGenerator {
         m_files.put(ConfigFileType.FALLBACK_RULES, m_fallbackRules);
     }
 
+    public void setDialingRuleProvider(DialingRuleProvider dialingRuleProvider) {
+        m_dialingRuleProvider = dialingRuleProvider;
+    }
+    
     private void generate(EmergencyRouting er) {
         if (er == null) {
             return;
@@ -72,7 +79,28 @@ public class ConfigGenerator {
     }
 
     public void generate(DialPlanContext plan, EmergencyRouting er) {
-        List rules = plan.getGenerationRules();
+        generateXmlFromDialingRules(plan, er);
+
+        List attendantRules = plan.getAttendantRules();
+        for (Iterator i = attendantRules.iterator(); i.hasNext();) {
+            AttendantRule ar = (AttendantRule) i.next();
+            if (ar.isEnabled()) {
+                AttendantScheduleFile file = new AttendantScheduleFile();
+                file.generate(ar);
+                m_attendantScheduleFiles.add(file);
+            }
+        }
+    }
+
+    /** Given the DialPlanContext and the EmergencyRouting, generate XML */
+    private void generateXmlFromDialingRules(DialPlanContext plan, EmergencyRouting er) {
+        // Get rules from dialing rule providers and the dial plan
+        List rules = new ArrayList();
+        if (m_dialingRuleProvider != null) {
+            rules.addAll(m_dialingRuleProvider.getDialingRules());            
+        }
+        rules.addAll(plan.getGenerationRules());
+        
         m_mappingRules.begin();
         m_authRules.begin();
         m_fallbackRules.begin();
@@ -88,19 +116,9 @@ public class ConfigGenerator {
 
         m_mappingRules.end();
         m_authRules.end();
-        m_fallbackRules.end();
-
-        List attendantRules = plan.getAttendantRules();
-        for (Iterator i = attendantRules.iterator(); i.hasNext();) {
-            AttendantRule ar = (AttendantRule) i.next();
-            if (ar.isEnabled()) {
-                AttendantScheduleFile file = new AttendantScheduleFile();
-                file.generate(ar);
-                m_attendantScheduleFiles.add(file);
-            }
-        }
+        m_fallbackRules.end();         
     }
-
+    
     /**
      * Retrieves configuration file content as stream.
      * 

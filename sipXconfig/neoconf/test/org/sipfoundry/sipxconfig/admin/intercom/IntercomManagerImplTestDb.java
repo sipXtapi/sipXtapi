@@ -15,13 +15,14 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.context.ApplicationContext;
 
 public class IntercomManagerImplTestDb extends SipxDatabaseTestCase {
-    private static final String PREFIX_DEFAULT = "88";
+    private static final String PREFIX_DEFAULT = "*88";
     private static final int TIMEOUT_DEFAULT = 2000;
     
     private IntercomManager m_intercomManager;
@@ -96,18 +97,6 @@ public class IntercomManagerImplTestDb extends SipxDatabaseTestCase {
         assertEquals(2, m_intercomManager.getNumIntercoms());
     }
     
-    public void testClear() throws Exception {
-        // load some sample intercoms
-        TestHelper.insertFlat("admin/intercom/SampleIntercoms.xml");
-        
-        // blow them all away
-        m_intercomManager.clear();
-        
-        // they should be gone
-        List intercoms = m_intercomManager.loadIntercoms();
-        assertEquals(0, intercoms.size());
-    }
-    
     public void testGetIntercomForPhone() throws Exception {
         // load some sample intercoms and phones
         TestHelper.insertFlat("admin/intercom/SampleIntercoms.xml");
@@ -133,5 +122,23 @@ public class IntercomManagerImplTestDb extends SipxDatabaseTestCase {
         assertNull(m_intercomManager.getIntercomForPhone(phone2));
         Phone phone3 = m_phoneContext.loadPhone(1002);
         assertEquals(intercom, m_intercomManager.getIntercomForPhone(phone3));        
+    }
+    
+    public void testGetRules() throws Exception {
+        TestHelper.insertFlat("admin/intercom/SampleIntercoms.xml");
+        List<IDialingRule> rules = m_intercomManager.getDialingRules();
+        assertEquals(2, rules.size());
+    }
+    
+    public void testClear() throws Exception {
+        // load some sample intercoms
+        TestHelper.insertFlat("admin/intercom/SampleIntercoms.xml");
+        
+        // blow them all away
+        m_intercomManager.clear();
+        
+        // they should be gone
+        List intercoms = m_intercomManager.loadIntercoms();
+        assertEquals(0, intercoms.size());
     }
 }

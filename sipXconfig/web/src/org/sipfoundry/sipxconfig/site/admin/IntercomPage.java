@@ -15,16 +15,23 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.tapestry.AbstractPage;
+import org.apache.tapestry.IMarkupWriter;
+import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageBeginRenderListener;
+import org.apache.tapestry.event.PageEndRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.intercom.Intercom;
 import org.sipfoundry.sipxconfig.admin.intercom.IntercomManager;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 
-public abstract class IntercomPage extends BasePage implements PageBeginRenderListener {
+public abstract class IntercomPage extends BasePage
+    implements PageBeginRenderListener, PageEndRenderListener {
+    
     public static final String PAGE = "Intercom";
     private static final int CODE_LEN = 8;
 
@@ -62,6 +69,39 @@ public abstract class IntercomPage extends BasePage implements PageBeginRenderLi
         String code = intercom.getCode();
         if (code == null) {
             intercom.setCode(RandomStringUtils.randomAlphanumeric(CODE_LEN));
+        }
+    }
+    
+    // Update the Intercom object if the input data is valid
+    protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
+        
+        if (!cycle.isRewinding()) {
+            Intercom intercom = getIntercom();
+
+            if (getGroupsString() == null) {
+                List groups = intercom.getGroupsAsList();
+                if (groups != null && groups.size() > 0) {
+                    String groupsString = getSettingDao().getGroupsAsString(groups); 
+                    setGroupsString(groupsString);
+                }
+            }
+        }
+        
+        super.renderComponent(writer, cycle);
+        
+        if (cycle.isRewinding()) {
+            Intercom intercom = getIntercom();
+
+            // Don't take any actions if the page is not valid
+            if (!TapestryUtils.isValid((AbstractPage) getPage())) {
+                return;
+            }
+
+            String groupsString = getGroupsString();
+            if (groupsString != null) {
+                List groups = getSettingDao().getGroupsByString(Phone.GROUP_RESOURCE_ID, groupsString);
+                intercom.setGroupsAsList(groups);
+            }
         }
     }
     

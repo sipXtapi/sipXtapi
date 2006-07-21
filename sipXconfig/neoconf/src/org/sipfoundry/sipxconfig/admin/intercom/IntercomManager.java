@@ -13,10 +13,11 @@ package org.sipfoundry.sipxconfig.admin.intercom;
 
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
 import org.sipfoundry.sipxconfig.phone.Phone;
 
-public interface IntercomManager extends DataObjectSource {
+public interface IntercomManager extends DataObjectSource, DialingRuleProvider {
     
     public Intercom newIntercom();
 

@@ -299,7 +299,7 @@ public class GrandstreamPhone extends Phone {
                     + "first phone line is not valid");
         }
 
-        Line line = (Line) getLines().get(0);
+        Line line = getLines().get(0);
         LineInfo info = line.getLineInfo();
         String password = info.getPassword();
         byte[] resetPayload = new ResetPacket(password, getSerialNumber()).getResetMessage();

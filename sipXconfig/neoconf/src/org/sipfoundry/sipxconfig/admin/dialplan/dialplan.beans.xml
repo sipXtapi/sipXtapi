@@ -181,8 +181,10 @@
   <bean id="mappingRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.MappingRules"/>
   <bean id="fallbackRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.FallbackRules"/>
   <bean id="authRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.AuthRules"/>
+  <bean id="dialingRuleCollector" class="org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleCollector"/>
   
-  <bean id="dialPlanConfigGenerator" class="org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator">
+  <bean id="dialPlanConfigGenerator" class="org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator"
+    dependency-check="objects">
     <property name="mappingRules">
       <ref local="mappingRules"/>
     </property>
@@ -191,6 +193,9 @@
     </property>
     <property name="authRules">
       <ref local="authRules"/>
+    </property>
+    <property name="dialingRuleProvider">
+      <ref local="dialingRuleCollector"/>
     </property>
   </bean>
   

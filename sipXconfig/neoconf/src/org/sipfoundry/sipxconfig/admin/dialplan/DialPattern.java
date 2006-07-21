@@ -23,6 +23,10 @@ import org.apache.commons.lang.StringUtils;
  * for building such expression using constant prefix and number of digits in a suffic
  */
 public class DialPattern {
+    // Set the number of digits in the DialPattern to -1 (or any negative value) to
+    // indicate that the number of digits is variable
+    public static final int VARIABLE_DIGITS = -1;
+    
     private static final String SEPARATORS = " ,";
 
     private String m_prefix;
@@ -51,6 +55,12 @@ public class DialPattern {
 
     public void setPrefix(String prefix) {
         m_prefix = (String) ObjectUtils.defaultIfNull(prefix, StringUtils.EMPTY);
+        
+        // Escape special characters
+        //
+        // FIXME: we're only escaping "*" initially, must escape all special characters.
+        // Update DialPatternTest.testEscapingSpecialCharacters accordingly.
+        m_prefix = m_prefix.replaceAll("\\*", "\\\\\\*");
     }
 
     public String calculatePattern() {

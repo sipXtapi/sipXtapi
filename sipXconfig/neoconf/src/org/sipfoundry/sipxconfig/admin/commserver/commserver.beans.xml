@@ -56,7 +56,6 @@
   <bean id="externalAliases"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ExternalAliases"/>
   
-  <!-- aliasCollector needs to be a named bean - it listens to application events -->
   <bean id="aliasCollector" class="org.sipfoundry.sipxconfig.admin.commserver.AliasCollector">
     <property name="aliasProviderBeanIds">
       <list>

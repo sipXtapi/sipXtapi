@@ -27,7 +27,7 @@
     <binding name="size" value="50"/>
     <binding name="listSource" value="groupCandidates"/>
     <binding name="translator" value="translator:string,empty="/>
-    <binding name="listener" value="listener:buildGroupCanidates"/>
+    <binding name="listener" value="listener:buildGroupCandidates"/>
   </component>
   <component id="formActions" type="FormActions">
     <binding name="callback" value="callback"/>
