@@ -39,31 +39,31 @@
 #define MSG_STUN_SHARED_SECRET_RESPONSE         0x0102
 #define MSG_STUN_SHARED_SECRET_ERROR_RESPONSE   0x0112
 
-
 /**
  * STUN attribute IDs
  */
 #define ATTR_STUN_MAPPED_ADDRESS                0x0001
-#define ATTR_STUN_RESPONSE_ADDRESS              0x0002
+#define ATTR_STUN_RESPONSE_ADDRESS              0x0002  // deprecated
 #define ATTR_STUN_CHANGE_REQUEST                0x0003  // deprecated
-#define ATTR_STUN_SOURCE_ADDRESS                0x0004
-#define ATTR_STUN_CHANGED_ADDRESS               0x0005
+#define ATTR_STUN_SOURCE_ADDRESS                0x0004  // deprecated
+#define ATTR_STUN_CHANGED_ADDRESS               0x0005  // deprecated
 #define ATTR_STUN_USERNAME                      0x0006
-#define ATTR_STUN_PASSWORD                      0x0007
+#define ATTR_STUN_PASSWORD                      0x0007  // deprecated
 #define ATTR_STUN_MESSAGE_INTEGRITY             0x0008
 #define ATTR_STUN_ERROR_CODE                    0x0009
 #define ATTR_STUN_UNKNOWN_ATTRIBUTE             0x000A
-#define ATTR_STUN_REFLECTED_FROM                0x000B
-#define ATTR_STUN_ALTERNATE_SERVER2             0x000E
+#define ATTR_STUN_REFLECTED_FROM                0x000B  // deprecated
+#define ATTR_STUN_ALTERNATE_SERVER2             0x000E  // deprecated
 #define ATTR_STUN_REALM                         0x0014
 #define ATTR_STUN_NONCE                         0x0015
 #define ATTR_STUN_XOR_MAPPED_ADDRESS            0x0020
 #define ATTR_STUN_XOR_ONLY                      0x0021  // deprecated
-#define ATTR_STUN_XOR_MAPPED_ADDRESS2           0x8020
-#define ATTR_STUN_SERVER                        0x8022
-#define ATTR_STUN_SERVER2                       0x0022
-#define ATTR_STUN_ALTERNATE_SERVER              0x8023
-#define ATTR_STUN_BINDING_LIFETIME              0x8024
+#define ATTR_STUN_FINGERPRINT                   0x8023
+#define ATTR_STUN_XOR_MAPPED_ADDRESS2           0x8020  // deprecated
+#define ATTR_STUN_SERVER                        0x8022  
+#define ATTR_STUN_SERVER2                       0x0022  // deprecated
+#define ATTR_STUN_ALTERNATE_SERVER              0x8023  
+#define ATTR_STUN_BINDING_LIFETIME              0x8024 
 
 #define ATTR_CHANGE_FLAG_PORT                   0x0002  // deprecated
 #define ATTR_CHANGE_FLAG_IP                     0x0004  // deprecated
@@ -72,6 +72,10 @@
 #define ATTR_ADDRESS_FAMILY_IPV6                0x02
 
 // Error Defines
+
+#define STUN_ERROR_TRY_ALTERNATE_CODE           300
+#define STUN_ERROR_TRY_ALTERNATE_TEXT           "Try Alternative"
+
 #define STUN_ERROR_BAD_REQUEST_CODE             400
 #define STUN_ERROR_BAD_REQUEST_TEXT             "Bad request"
 
@@ -93,6 +97,18 @@
 #define STUN_ERROR_USE_TLS_CODE                 433
 #define STUN_ERROR_USE_TLS_TEXT                 "Use TLS"
 
+#define STUN_ERROR_MISSING_REALM_CODE           434
+#define STUN_ERROR_MISSING_REALM_TEXT           "Missing Realm"
+
+#define STUN_ERROR_MISSING_NONCE_CODE           435
+#define STUN_ERROR_MISSING_NONCE_TEXT           "Missing Nonce"
+
+#define STUN_ERROR_UNKNOWN_USERNAME_CODE        436
+#define STUN_ERROR_UNKNOWN_USERNAME_TEXT        "Unknown username"
+
+#define STUN_ERROR_STALE_NONCE_CODE             438
+#define STUN_ERROR_STALE_NONCE_TEXT             "Stale Nonce"
+
 #define STUN_ERROR_SERVER_CODE                  500
 #define STUN_ERROR_SERVER_TEXT                  "Server error"
 
@@ -105,7 +121,6 @@
 // CONSTANTS
 // STRUCTS
 // TYPEDEFS
-
 typedef struct
 {
     unsigned int id ;
@@ -157,41 +172,44 @@ typedef struct
 
 /**
  * A StunMessage includes all of the parse and encoding for a STUN message
- * as defined by draft-ietf-behave-rfc3489bis-03.txt:
+ * as defined by draft-ietf-behave-rfc3489bis-04.txt:
  *
  * All data is stored internally in host byte order
  *
-                                        Error
-    Attribute         Request  Response Response
-    ______________________________________________
-    MAPPED-ADDRESS       -        C         -
-    USERNAME             O        -         -
-    PASSWORD             -        -         -
-    MESSAGE-INTEGRITY    O        O         O
-    ERROR-CODE           -        -         M
-    ALTERNATE-SERVER     -        -         C
-    REALM                C        C         C
-    NONCE                C        -         C
-    UNKNOWN-ATTRIBUTES   -        -         C
-    XOR-MAPPED-ADDRESS   -        M         -
-    XOR-ONLY             O        -         -
-    SERVER               -        O         O
-    BINDING-LIFETIME     -        O         -
-
-
-                       Shared   Shared    Shared
-                       Secret   Secret    Secret
-    Attribute          Request  Response  Error
-                                          Response
-    ____________________________________________________________________
-    USERNAME             -         M         -
-    PASSWORD             -         M         -
-    ERROR-CODE           -         -         M
-    UNKNOWN-ATTRIBUTES   -         -         C
-    SERVER               -         O         O
-    REALM                C         -         C
+ *                         Error
+ *                                     Error
+ * Attribute         Request  Response Response Indication
+ * _______________________________________________________
+ * MAPPED-ADDRESS       -        C         -       -
+ * USERNAME             O        -         -       O
+ * PASSWORD             -        C         -       -
+ * MESSAGE-INTEGRITY    O        O         O       O
+ * ERROR-CODE           -        -         M       -
+ * ALTERNATE-SERVER     -        -         C       -
+ * REALM                C        -         C       -
+ * NONCE                C        -         C       -
+ * UNKNOWN-ATTRIBUTES   -        -         C       -
+ * XOR-MAPPED-ADDRESS   -        C         -       -
+ * SERVER               -        O         O       O
+ * REFRESH-INTERVAL     -        O         -       -
+ * FINGERPRINT          M        M         M       M
+ *
+ *
+ *                    Shared   Shared    Shared
+ *                    Secret   Secret    Secret
+ * Attribute          Request  Response  Error
+ *                                         Response
+ * ____________________________________________________________________
+ * USERNAME             O         M         -
+ * PASSWORD             -         M         -
+ * MESSAGE-INTEGRITY    O         O         O
+ * ERROR-CODE           -         -         M
+ * ALTERNATE-SERVER     -         -         C
+ * UNKNOWN-ATTRIBUTES   -         -         C
+ * SERVER               -         O         O
+ * REALM                C         -         C
+ * NONCE                C         -         C
  */
-
 class StunMessage
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -200,10 +218,10 @@ class StunMessage
 /* ============================ CREATORS ================================== */
 
     /**
-     * Default constructor
+     * Default constructor, if a msg is passed, the magic/transaction id 
+     * is copied -- otherwise a new magic/transaction id is generated.
      */
-    StunMessage() ;
-
+    StunMessage(StunMessage* pRequest = NULL) ;
 
     /**
      * Destructor
@@ -402,7 +420,6 @@ class StunMessage
     bool                   mbIncludeMessageIntegrity ;
     STUN_ATTRIBUTE_ADDRESS mAltServer ;
     bool                   mbAltServerValid ;
-
 
     STUN_ATTRIBUTE_UNKNOWN mUnknownParsedAttributes ;
 

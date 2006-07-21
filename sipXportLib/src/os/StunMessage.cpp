@@ -38,9 +38,24 @@ extern "C" void hmac_sha1(const char* pBlob, size_t nBlob, const char* pKey, siz
 /* ============================ CREATORS ================================== */
 
 // Constructor
-StunMessage::StunMessage()
+StunMessage::StunMessage(StunMessage* pRequest)
 {
     reset() ;
+
+    if (pRequest)
+    {
+        STUN_TRANSACTION_ID transactionId ;
+        STUN_MAGIC_ID magicId ;
+
+        pRequest->getTransactionId(&transactionId) ;
+        pRequest->getMagicId(&magicId) ;
+        setTransactionId(transactionId) ;
+        setMagicId(magicId) ;
+    }
+    else
+    {
+        allocTransactionId() ;
+    }
 }
 
 // Destructor
@@ -121,14 +136,15 @@ bool StunMessage::parse(const char* pBuf, size_t nBufLength)
                 STUN_ATTRIBUTE_HEADER header ;
                 memcpy(&header, pTraverse, sizeof(STUN_ATTRIBUTE_HEADER)) ;
                 header.type = ntohs(header.type) ;
-                header.length = ntohs(header.length) ;
+                header.length = ntohs(header.length) ;                
+                int paddedLength = ((header.length + 3) / 4) * 4 ;
                 pTraverse += sizeof(STUN_ATTRIBUTE_HEADER) ;
                 iBytesLeft -= sizeof(STUN_ATTRIBUTE_HEADER) ; 
                 if (header.length <= iBytesLeft)
                 {
                     bValid = parseAttribute(&header, pTraverse) ;
-                    pTraverse += header.length ;
-                    iBytesLeft -= header.length ;
+                    pTraverse += paddedLength ;
+                    iBytesLeft -= paddedLength ;
                 }
                 else
                 {
@@ -232,6 +248,8 @@ bool StunMessage::encodeBody(char* pBuf, size_t nBufLength, size_t& nBytesUsed)
         {
             bError = !encodeAttributeAddress(ATTR_STUN_MAPPED_ADDRESS, 
                     &mMappedAddress, pTraverse, nBytesLeft) ;
+            bError = !encodeXorAttributeAddress(ATTR_STUN_XOR_MAPPED_ADDRESS, 
+                    &mMappedAddress, pTraverse, nBytesLeft) ;        
         }
 
         if (!bError)
@@ -340,7 +358,6 @@ void StunMessage::setMagicId(STUN_MAGIC_ID& rMagicId)
 {
     memcpy(&mMsgHeader.magicId, &rMagicId, sizeof(STUN_MAGIC_ID)) ;
 }
-
 
 void StunMessage::setTransactionId(STUN_TRANSACTION_ID& rTransactionId)
 {
@@ -1004,7 +1021,7 @@ bool StunMessage::encodeString(unsigned short type, const char* szString, char*&
     memset(cPadding, 0, sizeof(cPadding)) ;
 
     if (    (nBytesLeft >= (nPaddedLength + sizeof(STUN_ATTRIBUTE_HEADER))) &&
-            encodeAttributeHeader(type, (short) nPaddedLength, pBuf, nBytesLeft) &&
+            encodeAttributeHeader(type, (short) nActualLength, pBuf, nBytesLeft) &&
             encodeRaw(szString, nActualLength, pBuf, nBytesLeft) &&
             encodeRaw(cPadding, nPaddedLength - nActualLength, pBuf, nBytesLeft))
     {
@@ -1244,7 +1261,7 @@ bool StunMessage::parseStringAttribute(char* pBuf, size_t nLength, char* pString
 {
     bool bValid = false ;
 
-    if ((nLength > 0) && (nLength % STUN_MIN_CHAR_PAD) == 0)
+    if (nLength > 0)
     {
         memset(pString, 0, STUN_MAX_STRING_LENGTH+1) ;
         memcpy(pString, pBuf, MIN(nLength, STUN_MAX_STRING_LENGTH)) ;
@@ -1280,7 +1297,7 @@ bool StunMessage::parseErrorAttribute(char *pBuf, size_t nLength, STUN_ATTRIBUTE
         pError->errorClass = (*pBuf++ & 0xF0) ;
         pError->errorNumber = *pBuf++ ;
         nLength -= 4 ;
-        memset(pError->szReasonPhrase, 0, STUN_MAX_STRING_LENGTH) ;
+        memset(pError->szReasonPhrase, 0, STUN_MAX_STRING_LENGTH+1) ;
         memcpy(pError->szReasonPhrase, pBuf, MIN(nLength, STUN_MAX_STRING_LENGTH)) ;
         bValid = true ;
     }
@@ -1318,7 +1335,7 @@ void StunMessage::calculateHmacSha1(char *pDataIn, size_t nDataIn, char *pKey, s
     memcpy(pTempBuf, pDataIn, nDataIn) ;
 
     memset(results, 0, 20) ;
-    hmac_sha1(pTempBuf, nPaddedLength, NULL, 0, results) ;
+    hmac_sha1(pTempBuf, nPaddedLength, pKey, nKey, results) ;
     free(pTempBuf) ;
 }
 
