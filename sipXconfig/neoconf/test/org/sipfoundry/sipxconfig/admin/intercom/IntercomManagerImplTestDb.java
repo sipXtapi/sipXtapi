@@ -59,8 +59,10 @@ public class IntercomManagerImplTestDb extends SipxDatabaseTestCase {
         assertEquals(intercom.getId(), intercom2.getId());
     }
     
-    public void testSaveIntercom() {
-        // create and save an intercom
+    public void testSaveIntercom() throws Exception {
+        TestHelper.insertFlat("phone/SeedPhoneGroup.xml");
+        
+        // create the intercom
         Intercom intercom = m_intercomManager.newIntercom();
         final String PREFIX = "77";
         intercom.setPrefix(PREFIX);
@@ -68,8 +70,13 @@ public class IntercomManagerImplTestDb extends SipxDatabaseTestCase {
         intercom.setTimeout(TIMEOUT);
         final String CODE = "whatever";
         intercom.setCode(CODE);
+        
+        List groups = m_phoneContext.getGroups();
+        intercom.addGroup((Group) groups.get(0));
+        intercom.addGroup((Group) groups.get(1));
+        
+        // save the intercom
         m_intercomManager.saveIntercom(intercom);
-        intercom = null;    // be really sure we're not holding on to it
         
         // load it back up and check it
         List intercoms = m_intercomManager.loadIntercoms();
@@ -78,6 +85,8 @@ public class IntercomManagerImplTestDb extends SipxDatabaseTestCase {
         assertEquals(PREFIX, intercom.getPrefix());
         assertEquals(TIMEOUT, intercom.getTimeout());
         assertEquals(CODE, intercom.getCode());
+        groups = intercom.getGroupsAsList();
+        assertEquals(2, groups.size());
     }
 
     public void testLoadIntercoms() throws Exception {
