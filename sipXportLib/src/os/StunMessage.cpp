@@ -38,9 +38,24 @@ extern "C" void hmac_sha1(const char* pBlob, size_t nBlob, const char* pKey, siz
 /* ============================ CREATORS ================================== */
 
 // Constructor
-StunMessage::StunMessage()
+StunMessage::StunMessage(StunMessage* pRequest)
 {
     reset() ;
+
+    if (pRequest)
+    {
+        STUN_TRANSACTION_ID transactionId ;
+        STUN_MAGIC_ID magicId ;
+
+        pRequest->getTransactionId(&transactionId) ;
+        pRequest->getMagicId(&magicId) ;
+        setTransactionId(transactionId) ;
+        setMagicId(magicId) ;
+    }
+    else
+    {
+        allocTransactionId() ;
+    }
 }
 
 // Destructor
@@ -83,7 +98,7 @@ void StunMessage::reset()
     memset(&mServer, 0, STUN_MAX_STRING_LENGTH+1) ;
     mbServerValid = false ;
     mbSendXorOnly = false ;
-    mbRequestXorOnly = true ;
+    mbRequestXorOnly = false;
     mbIncludeMessageIntegrity = false ;
     memset(&mAltServer, 0, sizeof(STUN_ATTRIBUTE_ADDRESS)) ;
     mbAltServerValid = false ;
@@ -121,14 +136,15 @@ bool StunMessage::parse(const char* pBuf, size_t nBufLength)
                 STUN_ATTRIBUTE_HEADER header ;
                 memcpy(&header, pTraverse, sizeof(STUN_ATTRIBUTE_HEADER)) ;
                 header.type = ntohs(header.type) ;
-                header.length = ntohs(header.length) ;
+                header.length = ntohs(header.length) ;                
+                int paddedLength = ((header.length + 3) / 4) * 4 ;
                 pTraverse += sizeof(STUN_ATTRIBUTE_HEADER) ;
                 iBytesLeft -= sizeof(STUN_ATTRIBUTE_HEADER) ; 
                 if (header.length <= iBytesLeft)
                 {
                     bValid = parseAttribute(&header, pTraverse) ;
-                    pTraverse += header.length ;
-                    iBytesLeft -= header.length ;
+                    pTraverse += paddedLength ;
+                    iBytesLeft -= paddedLength ;
                 }
                 else
                 {
@@ -340,7 +356,6 @@ void StunMessage::setMagicId(STUN_MAGIC_ID& rMagicId)
 {
     memcpy(&mMsgHeader.magicId, &rMagicId, sizeof(STUN_MAGIC_ID)) ;
 }
-
 
 void StunMessage::setTransactionId(STUN_TRANSACTION_ID& rTransactionId)
 {
@@ -967,22 +982,15 @@ bool StunMessage::encodeXorAttributeAddress(unsigned short type, STUN_ATTRIBUTE_
     unsigned short usPort = pAddress->port ;
     unsigned long ulLong = pAddress->address ;
 
-    ptr = (char*) &usPort ;
-    ptr[0] ^= mMsgHeader.transactionId.id[1] ;
-    ptr[1] ^= mMsgHeader.transactionId.id[0] ;
-
-    ptr = (char*) &ulLong ;
-    ptr[0] ^= mMsgHeader.transactionId.id[3] ;
-    ptr[1] ^= mMsgHeader.transactionId.id[2] ;
-    ptr[2] ^= mMsgHeader.transactionId.id[1] ;
-    ptr[3] ^= mMsgHeader.transactionId.id[0] ;
+    usPort = htons(usPort) ^ ((unsigned short) htonl(mMsgHeader.magicId.id)) ;
+    ulLong = htonl(ulLong) ^ htonl(mMsgHeader.magicId.id) ;
 
     if (    (nBytesLeft >= (sizeof(STUN_ATTRIBUTE_ADDRESS) + sizeof(STUN_ATTRIBUTE_HEADER))) &&
             encodeAttributeHeader(type, sizeof(STUN_ATTRIBUTE_ADDRESS), pBuf, nBytesLeft) &&
             encodeByte(pAddress->unused, pBuf, nBytesLeft) &&
             encodeByte(pAddress->family, pBuf, nBytesLeft) &&
-            encodeShort(usPort, pBuf, nBytesLeft) &&
-            encodeLong(ulLong, pBuf, nBytesLeft))
+            encodeRaw((const char*) &usPort, 2, pBuf, nBytesLeft) &&
+            encodeRaw((const char*) &ulLong, 4, pBuf, nBytesLeft))
     {
         bRC = true ;
     }
@@ -1004,7 +1012,7 @@ bool StunMessage::encodeString(unsigned short type, const char* szString, char*&
     memset(cPadding, 0, sizeof(cPadding)) ;
 
     if (    (nBytesLeft >= (nPaddedLength + sizeof(STUN_ATTRIBUTE_HEADER))) &&
-            encodeAttributeHeader(type, (short) nPaddedLength, pBuf, nBytesLeft) &&
+            encodeAttributeHeader(type, (short) nActualLength, pBuf, nBytesLeft) &&
             encodeRaw(szString, nActualLength, pBuf, nBytesLeft) &&
             encodeRaw(cPadding, nPaddedLength - nActualLength, pBuf, nBytesLeft))
     {
@@ -1186,24 +1194,16 @@ bool StunMessage::parseAddressAttribute(char *pBuf, size_t nLength, STUN_ATTRIBU
 bool StunMessage::parseXorAddressAttribute(char *pBuf, size_t nLength, STUN_ATTRIBUTE_ADDRESS* pAddress)
 {
     bool bValid = false ;
-    char* ptr ;
 
     if (nLength == sizeof(STUN_ATTRIBUTE_ADDRESS))
     {
         memcpy(pAddress, pBuf, sizeof(STUN_ATTRIBUTE_ADDRESS)) ;
 
+        pAddress->port ^= (unsigned short) (htonl(mMsgHeader.magicId.id) & 0x0000FFFF) ;
+        pAddress->address ^= htonl(mMsgHeader.magicId.id) ;
+        
         pAddress->port = ntohs(pAddress->port) ;
         pAddress->address = ntohl(pAddress->address) ;
-
-        ptr = (char*) &pAddress->port ;
-        ptr[0] ^= mMsgHeader.transactionId.id[1] ;
-        ptr[1] ^= mMsgHeader.transactionId.id[0] ;
-
-        ptr = (char*) &pAddress->address ;
-        ptr[0] ^= mMsgHeader.transactionId.id[3] ;
-        ptr[1] ^= mMsgHeader.transactionId.id[2] ;
-        ptr[2] ^= mMsgHeader.transactionId.id[1] ;
-        ptr[3] ^= mMsgHeader.transactionId.id[0] ;
 
         bValid = true ;
     }
@@ -1244,7 +1244,7 @@ bool StunMessage::parseStringAttribute(char* pBuf, size_t nLength, char* pString
 {
     bool bValid = false ;
 
-    if ((nLength > 0) && (nLength % STUN_MIN_CHAR_PAD) == 0)
+    if (nLength > 0)
     {
         memset(pString, 0, STUN_MAX_STRING_LENGTH+1) ;
         memcpy(pString, pBuf, MIN(nLength, STUN_MAX_STRING_LENGTH)) ;
@@ -1280,7 +1280,7 @@ bool StunMessage::parseErrorAttribute(char *pBuf, size_t nLength, STUN_ATTRIBUTE
         pError->errorClass = (*pBuf++ & 0xF0) ;
         pError->errorNumber = *pBuf++ ;
         nLength -= 4 ;
-        memset(pError->szReasonPhrase, 0, STUN_MAX_STRING_LENGTH) ;
+        memset(pError->szReasonPhrase, 0, STUN_MAX_STRING_LENGTH+1) ;
         memcpy(pError->szReasonPhrase, pBuf, MIN(nLength, STUN_MAX_STRING_LENGTH)) ;
         bValid = true ;
     }
@@ -1318,7 +1318,7 @@ void StunMessage::calculateHmacSha1(char *pDataIn, size_t nDataIn, char *pKey, s
     memcpy(pTempBuf, pDataIn, nDataIn) ;
 
     memset(results, 0, 20) ;
-    hmac_sha1(pTempBuf, nPaddedLength, NULL, 0, results) ;
+    hmac_sha1(pTempBuf, nPaddedLength, pKey, nKey, results) ;
     free(pTempBuf) ;
 }
 
