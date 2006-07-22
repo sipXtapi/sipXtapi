@@ -72,6 +72,7 @@ enum tagOsSysLogFacility
    FAC_CONFERENCE,         // Conference bridge
    FAC_VOICEENGINE,        // GIPS VoiceEngine-specific logging
    FAC_VIDEOENGINE,        // GIPS VideoEngine-specific logging
+   FAC_APP,				   // Generic application facility
    FAC_MAX_FACILITY        // Last Facility (used to for length)
 
    //
@@ -118,6 +119,7 @@ enum tagOsSysLogFacility
   //!enumcode: FAC_PROCESS - process related
   //!enumcode: FAC_VOICEENGINE - GIPS VoiceEngine related
   //!enumcode: FAC_VIDEOENGINE - GIPS VideoEngine related
+  //!enumcode: FAC_APP - Generic application messages
 
 // TYPEDEFS
 typedef enum tagOsSysLogFacility OsSysLogFacility ;
