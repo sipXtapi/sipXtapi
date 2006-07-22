@@ -19,6 +19,12 @@ import org.sipfoundry.sipxconfig.phone.PhoneModel;
  */
 public final class PolycomModel extends PhoneModel {
     
+    /** Firmware 1.6 */
+    public static final DeviceVersion VER_1_6 = new DeviceVersion(PolycomPhone.BEAN_ID, "1.6");
+
+    /** Firmware 2.0 */
+    public static final DeviceVersion VER_2_0 = new DeviceVersion(PolycomPhone.BEAN_ID, "2.0");
+
     /** basic phone */
     public static final PolycomModel MODEL_300 = new PolycomModel("300",
             "Polycom SoundPoint IP 300/301", 2);
@@ -39,10 +45,6 @@ public final class PolycomModel extends PhoneModel {
     public static final PolycomModel MODEL_4000 = new PolycomModel("4000",
             "Polycom SoundPoint IP 4000", 1);
     
-    public static final DeviceVersion VER_1_6 = new DeviceVersion("polycom1.6");
-
-    public static final DeviceVersion VER_2_0 = new DeviceVersion("polycom2.0");
-
     private PolycomModel(String modelId, String label, int maxLines) {
         super(PolycomPhone.BEAN_ID, modelId, label, maxLines);
         setVersions(new DeviceVersion[] { 

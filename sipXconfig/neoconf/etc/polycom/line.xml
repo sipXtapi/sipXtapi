@@ -80,13 +80,13 @@
       <description>The number of calls or conferences which may be active or on hold per
       line key for a specific registration on the phone.</description>
     </setting>
-    <setting name="lcs" unless="polycom1.6">
+    <setting name="lcs" unless="1.6">
       <type>
         <string/>
       </type>
       <description>Microsoft 2005 LCS server</description>
     </setting>
-    <setting name="outboundProxy.address" unless="polycom1.6">
+    <setting name="outboundProxy.address" unless="1.6">
       <label>Outbound Proxy</label>
       <type>
         <string/>
@@ -99,14 +99,14 @@
         the registrar.  NOTE: If you want to set the outbound proxy for all 
         lines, goto to the phone settings for "Sip Server"</description>
     </setting>
-    <setting name="outboundProxy.port" unless="polycom1.6">
+    <setting name="outboundProxy.port" unless="1.6">
       <label>Outbound Proxy Port</label>
       <type>
         <integer min="0" max="65535"/>
       </type>
       <value/>
     </setting>
-    <setting name="outboundProxy.transport" unless="polycom1.6">
+    <setting name="outboundProxy.transport" unless="1.6">
       <label>Outbound Proxy Transport</label>
       <type refid="transport"/>
       <value>DNSnaptr</value>
@@ -147,7 +147,7 @@
           <value/>
           <description>positive integer</description>
         </setting>
-        <setting name="expires.overlap" unless="polycom1.6">
+        <setting name="expires.overlap" unless="1.6">
           <label>Re-registration interval</label>
           <profileName>server.1.expires.overlap</profileName>
           <type><integer min="5" max="65535"/></type>
@@ -223,7 +223,7 @@
           <value/>
           <description></description>
         </setting>
-        <setting name="expires.overlap" unless="polycom1.6">
+        <setting name="expires.overlap" unless="1.6">
           <label>Re-registration interval</label>
           <profileName>server.2.expires.overlap</profileName>
           <type><integer min="5" max="65535"/></type>

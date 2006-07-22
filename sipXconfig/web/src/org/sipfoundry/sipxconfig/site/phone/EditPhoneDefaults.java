@@ -19,6 +19,7 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
@@ -72,6 +73,10 @@ public abstract class EditPhoneDefaults extends BasePage implements PageBeginRen
     
     public abstract int getResourceId();
     
+    public abstract void setDeviceVersion(DeviceVersion version);
+    
+    public abstract DeviceVersion getDeviceVersion();
+    
     /**
      * Entry point for other pages to edit a phone model's default settings 
      */
@@ -79,6 +84,10 @@ public abstract class EditPhoneDefaults extends BasePage implements PageBeginRen
         setPhoneModel(phoneModel);
         setEditFormSettingName(null);
         setGroupId(groupId);
+        DeviceVersion[] versions = phoneModel.getVersions(); 
+        if (versions.length > 0) {
+            setDeviceVersion(versions[0]);
+        }
     }
     
     public Collection getPhoneNavigationSettings() {
@@ -119,21 +128,22 @@ public abstract class EditPhoneDefaults extends BasePage implements PageBeginRen
         page.setGroupId(getGroupId());
         return page;
     }
+    
+    public void changeVersion() {
+        // clear current setting incase
+    }
 
-    public void pageBeginRender(PageEvent event_) {
-        Group group = getGroup();
-        if (group != null) {
-            return;
-        }
-        
+    public void pageBeginRender(PageEvent event_) {        
         if (getPhoneModel() == null) {
             throw new IllegalArgumentException("phone factory id required");
         }
         
+        Group group = getGroup();
         group = getSettingDao().loadGroup(getGroupId());
         setGroup(group);
         
         Phone phone = getPhoneContext().newPhone(getPhoneModel());        
+        phone.setDeviceVersion(getDeviceVersion());
         Line line = phone.createLine();
         phone.addLine(line);
         setPhone(phone);
@@ -162,6 +172,13 @@ public abstract class EditPhoneDefaults extends BasePage implements PageBeginRen
         
         Setting settings = getGroup().inherhitSettingsForEditing(bean);        
         Setting subset = settings.getSetting(getEditFormSettingName());
+        if (subset == null) {
+            // Only time this is true is if navigation on an item that doesn't
+            // exist anymore because a a new firmware version was selected. IMO 
+            // resetting navigation each time you change version is an inconvience.
+            subset = (Setting) settings.getValues().iterator().next();
+            setEditFormSettingName(subset.getName());
+        }
         setEditFormSetting(subset);
         
         setEditFormSettings(SettingUtil.filter(SettingFilter.ALL, subset));

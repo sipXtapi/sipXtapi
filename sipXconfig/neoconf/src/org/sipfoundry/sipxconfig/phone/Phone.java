@@ -162,7 +162,7 @@ public class Phone extends BeanWithGroups {
         PhoneModel model = getModel();
         definitions.add(model.getModelId());
         if (getDeviceVersion() != null) {
-            definitions.add(getDeviceVersion().getId());
+            definitions.add(getDeviceVersion().getVersionId());
         }        
         return definitions;
     }

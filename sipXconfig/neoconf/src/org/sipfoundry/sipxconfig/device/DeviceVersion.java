@@ -16,17 +16,22 @@ import org.sipfoundry.sipxconfig.common.EnumUserType;
 /**
  * For devices that need to distinguish version can enumerate versions
  */
-public final class DeviceVersion extends Enum {
+public final class DeviceVersion extends Enum {    
+    private String m_versionId;
+    private String m_vendorId;
     
-    private String m_id;
-    
-    public DeviceVersion(String id) {
-        super(id);
-        m_id = id;
+    public DeviceVersion(String vendorId, String versionId) {
+        super(vendorId + versionId);
+        m_vendorId = vendorId;
+        m_versionId = versionId;
     }
     
-    public String getId() {
-        return m_id;
+    public String getVendorId() {
+        return m_vendorId;
+    }
+    
+    public String getVersionId() {
+        return m_versionId;
     }
 
     /** For hibernate mapping */

@@ -26,6 +26,12 @@ public class ObjectSelectionModelTest extends TestCase {
         m_objects.add(new ExampleBusinessObject("kuku", new Integer(101)));
         m_objects.add(new ExampleBusinessObject("bongo", new Integer(102)));
     }
+    
+    public void testSetArray() {
+        ObjectSelectionModel model = new ObjectSelectionModel();
+        model.setArray(m_objects.toArray());
+        assertSame(m_objects.get(0), model.getOption(0));
+    }
 
     public void testGetLabel() {
         ObjectSelectionModel model = new ObjectSelectionModel();

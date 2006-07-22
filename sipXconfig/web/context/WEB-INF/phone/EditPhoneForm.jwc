@@ -13,7 +13,10 @@
   <property name="groupsString"/>
   <inject property="settingDao" object="spring:settingDao"/>
   <inject property="phoneContext" object="spring:phoneContext"/>
- 
+  <bean name="versions" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
+    <set name="array" value="phone.model.versions"/>
+    <set name="labelExpression" value="literal:versionId"/>
+  </bean>
   <!--
       - C O M P O N E N T S
       -->
@@ -36,6 +39,14 @@
     <binding name="validators" value="spring-validators:validSerialNumber,required"/>
     <binding name="translator" value="hivemind:spring:cleanSerialNumber"/>
     <binding name="displayName" value="literal:Serial number"/>
+  </component>
+  <component id="versionLabel" type="FieldLabel">
+    <binding name="field" value="components.selectVersion"/>
+  </component>
+  <component id="selectVersion" type="PropertySelection">
+    <binding name="model" value="bean:versions"/>
+    <binding name="value" value="phone.deviceVersion"/>
+    <binding name="displayName" value="literal:Firmware Version"/>
   </component>
   <component id="groupsPanel" type="FieldPanel">
     <!-- Bug, give the right value for field, and autocomplete renders double -->

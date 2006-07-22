@@ -32,7 +32,7 @@ public class PhoneModel extends Enum {
 
     private int m_maxLineCount;
     
-    private DeviceVersion[] m_versions;
+    private DeviceVersion[] m_versions = new DeviceVersion[0];
 
     public PhoneModel(String beanId, String label) {
         this(beanId, StringUtils.EMPTY, label);

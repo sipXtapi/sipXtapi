@@ -974,7 +974,7 @@
           feature will take precedence over this feature if enabled. 
           </description>
       </setting>
-      <setting name="exposeAutoHolds" unless="polycom1.6">
+      <setting name="exposeAutoHolds" unless="1.6">
         <type>
           <boolean/>
         </type>
@@ -1074,7 +1074,7 @@
 	    </setting>        
    </group>
   </group>
-  <group name="presence" unless="polycom1.6">
+  <group name="presence" unless="1.6">
     <setting name="pres.reg">
       <label>Registration Server</label>
       <type>
@@ -1231,7 +1231,7 @@
           passwords. </description>
       </setting>
     </group>
-    <group name="srtp" advanced="yes" unless="polycom1.6">
+    <group name="srtp" advanced="yes" unless="1.6">
       <label>SRTP</label>
       <setting name="offer">        
         <type>
@@ -1345,7 +1345,7 @@
       <description>Disable this to prevent unknown callers from
         being identified on the display by an IP address.</description>
     </setting>
-    <setting name="cpt-settings" if="polycom1.6">
+    <setting name="cpt-settings" if="1.6">
       <label>Call Progress Tones Setting</label>
       <type>
         <boolean/>
@@ -1527,7 +1527,7 @@
           attributes (such as a=sendonly) per RFC 3264 when initiating hold. In either case, the phone processes incoming hold
           signaling in either format. </description>
       </setting>
-      <setting name="lcs" if="polycom1.6">
+      <setting name="lcs" if="1.6">
         <type>
           <boolean/>
         </type>
@@ -1551,7 +1551,7 @@
         <value>0</value>
         <description>Windows Messaging 5.0 Compatability</description>
       </setting>
-      <setting name="ms-forking" unless="polycom1.6">
+      <setting name="ms-forking" unless="1.6">
         <type>
           <boolean/>
         </type>
@@ -1710,7 +1710,7 @@
           policy. </description>
       </setting>
     </group>
-    <group name="dialog" unless="polycom1.6">     
+    <group name="dialog" unless="1.6">     
       <setting name="useSDP" advanced="yes">
         <type>
           <boolean/>
@@ -1921,7 +1921,7 @@
         port, overriding the value set in RTP Settings.</description>
     </setting>
   </group>
-  <group name="attendant" unless="polycom1.6">
+  <group name="attendant" unless="1.6">
     <label>BLF</label>
     <setting name="uri">
       <label>Subscription URL</label>
@@ -1939,7 +1939,7 @@
       <description>Server that accepts BLF SIP SUBSCRIBE events</description>
     </setting>
   </group>
-  <group name="roaming_buddies" unless="polycom1.6">
+  <group name="roaming_buddies" unless="1.6">
     <label>Roaming Buddies</label>
     <setting name="reg">
       <label>Subscription Server</label>
@@ -1948,7 +1948,7 @@
       <description>Server that accepts Roaming Buddies SIP SUBSCRIBE events</description>
     </setting>
   </group>
-  <group name="roaming_privacy" unless="polycom1.6">
+  <group name="roaming_privacy" unless="1.6">
     <label>Roaming Privacy</label>
     <setting name="reg">
       <label>Subscription Server</label>

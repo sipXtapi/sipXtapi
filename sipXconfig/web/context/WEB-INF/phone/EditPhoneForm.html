@@ -26,6 +26,16 @@
 				<textarea jwcid="phoneDescription" id="phone:description" cols="45" rows="5"></textarea>
 			</td>
 		</tr>
+    <tr jwcid="@If" condition="ognl:phone.model.versions.length > 0" element="tr">
+      <td>
+        <label for="phone:version">
+					<span jwcid="versionLabel">Firmware Version</span>:          
+        </label>        
+      </td>      
+      <td>
+        <select jwcid="selectVersion"/>
+      </td>
+    </tr>
     <tr jwcid="groupsPanel" for="phone:groups">
       <span class="auto_complete" jwcid="groups"/>
     </tr>

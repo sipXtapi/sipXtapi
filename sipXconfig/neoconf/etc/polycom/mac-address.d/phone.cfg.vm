@@ -144,7 +144,7 @@
         nat.${setting.ProfileName}="$!{setting.Value}"
   #end
         />
-#if($phone.DeviceVersion.id != 'polycom1.6')
+#if($phone.DeviceVersion.VersionId != '1.6')
     
    <attendant
 #set ($group = $cfg.EndpointSettings.getSetting('attendant')) 

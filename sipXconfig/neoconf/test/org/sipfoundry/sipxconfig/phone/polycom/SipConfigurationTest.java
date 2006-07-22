@@ -13,13 +13,10 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 
 import java.io.CharArrayReader;
 import java.io.CharArrayWriter;
-import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.Writer;
 
-import org.apache.commons.io.IOUtils;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
@@ -74,9 +71,11 @@ public class SipConfigurationTest  extends XMLTestCase {
 
         // helpful debug
         // System.out.println(new String(out.toCharArray()));
-        Writer w = new FileWriter("/tmp/delme");
-        IOUtils.write(out.toCharArray(), w);
-        w.close();
+
+        // also helpful
+        // Writer w = new FileWriter("/tmp/delme");
+        // IOUtils.write(out.toCharArray(), w);
+        // w.close();
 
         Diff phoneDiff = new Diff(expectedXml, generatedXml);
         assertXMLEqual(phoneDiff, true);

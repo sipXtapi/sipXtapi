@@ -38,6 +38,10 @@ public class PolycomPhoneTest extends TestCase {
         m_phone = new PolycomPhone(PolycomModel.MODEL_600);
         m_tester = PhoneTestDriver.supplyTestData(m_phone);
     }
+    
+    public void testVersionArray() {
+        assertSame(PolycomModel.MODEL_600.getVersions()[0], PolycomModel.VER_1_6);
+    }
 
     public void testGenerateProfiles() throws Exception {
         m_phone.setVelocityEngine(TestHelper.getVelocityEngine());

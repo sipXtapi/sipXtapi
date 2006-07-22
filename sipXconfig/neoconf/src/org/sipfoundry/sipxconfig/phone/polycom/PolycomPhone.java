@@ -111,7 +111,7 @@ public class PolycomPhone extends Phone {
     }
 
     public String getSipTemplate() {
-        return String.format(m_sipTemplate, getDeviceVersion().getId());
+        return String.format(m_sipTemplate, getDeviceVersion().getVersionId());
     }
 
     public void setSipTemplate(String sipTemplate) {
