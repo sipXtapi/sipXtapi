@@ -1164,6 +1164,10 @@ bool StunMessage::parseAttribute(STUN_ATTRIBUTE_HEADER* pHeader, char* pBuf)
             bValid = parseAddressAttribute(pBuf, pHeader->length, &mAltServer) ;
             mbAltServerValid = bValid ;
             break ;
+        case ATTR_STUN_FINGERPRINT:
+            // Ignore for now ...
+            bValid = true ;
+            break ;
         default:
             if ((pHeader->type <= 0x7FFF) && (mUnknownParsedAttributes.nTypes < STUN_MAX_UNKNOWN_ATTRIBUTES))
             {

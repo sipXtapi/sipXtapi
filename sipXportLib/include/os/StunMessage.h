@@ -58,7 +58,7 @@
 #define ATTR_STUN_NONCE                         0x0015
 #define ATTR_STUN_XOR_MAPPED_ADDRESS            0x0020
 #define ATTR_STUN_XOR_ONLY                      0x0021  // deprecated
-#define ATTR_STUN_FINGERPRINT                   0x8023
+#define ATTR_STUN_FINGERPRINT                   0x0023
 #define ATTR_STUN_XOR_MAPPED_ADDRESS2           0x8020  // deprecated
 #define ATTR_STUN_SERVER                        0x8022  
 #define ATTR_STUN_SERVER2                       0x0022  // deprecated
