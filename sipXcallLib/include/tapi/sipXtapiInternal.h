@@ -669,8 +669,8 @@ SIPXTAPI_API SIPX_RESULT sipxFlushHandles() ;
  * @param toneId sipx-internal tone id
  * @param xlateId implementation-specific tone id
  */
-SIPXTAPI_API SIPX_RESULT sipxTranslateToneId(const TONE_ID toneId,
-                                             TONE_ID& xlateId) ;
+SIPXTAPI_API SIPX_RESULT sipxTranslateToneId(const SIPX_TONE_ID toneId,
+                                             SIPX_TONE_ID& xlateId) ;
 
 
 /**

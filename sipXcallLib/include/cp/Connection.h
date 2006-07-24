@@ -46,6 +46,7 @@ class TaoObjectMap;
 class TaoReference;
 class OsServerTask;
 class Url;
+class OsQueuedEvent;
 
 //:logical Connection within a call
 // The Connection encapsulates the call setup protocol and state
@@ -297,6 +298,7 @@ public:
     void fireSipXMediaEvent(SIPX_MEDIA_EVENT event, 
                             SIPX_MEDIA_CAUSE cause, 
                             SIPX_MEDIA_TYPE  type, 
+
                             void*            pEventData=NULL) ;
 
 /* ============================ ACCESSORS ================================= */
@@ -379,6 +381,8 @@ public:
 
     virtual UtlBoolean isLocallyInitiatedRemoteHold() const ;
 
+	OsQueuedEvent* getDtmfQueuedEvent() const { return mpDtmfQueuedEvent ;} ;
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
  
@@ -456,6 +460,8 @@ protected:
     UtlString mOriginalCallConnectionAddress;
     UtlString mTargetCallConnectionAddress;
     UtlString mTargetCallId;   
+
+	OsQueuedEvent* mpDtmfQueuedEvent;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

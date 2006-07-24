@@ -37,6 +37,7 @@
 #include "os/OsTimer.h"
 #include "os/OsTime.h"
 #include "os/OsDateTime.h"
+#include "os/OsEventMsg.h"
 #include "tao/TaoProviderAdaptor.h"
 #include "net/SmimeBody.h"
 
@@ -2477,6 +2478,39 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
     return(processedMessage);
 }
 
+UtlBoolean CpPeerCall::handleNotifyMessage(OsEventMsg& eventMsg)
+{
+	Connection* pConnection ;
+	int eventData;
+	int pListener;
+	eventMsg.getEventData(eventData);
+	eventMsg.getUserData(pListener);
+
+	printf("CpPeerCall::handleNotifyMessage\n") ;
+
+    OsReadLock lock(mConnectionMutex);
+    UtlDListIterator iterator(mConnections);
+    while ((pConnection = (Connection*) iterator()))
+    {
+		if (((Connection*) pListener) == pConnection)
+		{	
+            bool bButtonUp = ((eventData & 0x80000000) == 0x80000000) ;
+			SIPX_TONE_ID id = (SIPX_TONE_ID) (eventData  >> 16) ;
+            int iDuration = (eventData & 0xFFFF) ;	// not used
+
+			pConnection->fireSipXMediaEvent(
+					MEDIA_REMOTE_DTMF,
+					bButtonUp ? MEDIA_CAUSE_DTMF_STOP : MEDIA_CAUSE_DTMF_START,
+					MEDIA_TYPE_AUDIO,
+					(void*) id) ;
+
+			break ;
+		}
+	}
+
+	return false ;
+}
+
 UtlBoolean CpPeerCall::handleSendInfo(OsMsg* pEventMessage)
 {
     CpMultiStringMessage& infoMessage = (CpMultiStringMessage&) *pEventMessage;
@@ -2812,7 +2846,7 @@ UtlBoolean CpPeerCall::handleSplitConnection(OsMsg* pEventMessage)
         if (pConnection->isHeld())
         {
             pConnection->prepareForSplit() ;
-            mConnections.remove(pConnection) ;
+			removeConnection(pConnection) ;           
 
             CpMultiStringMessage joinMessage(CallManager::CP_JOIN_CONNECTION,   
                     targetCallId,
@@ -4071,11 +4105,28 @@ Connection* CpPeerCall::findHandlingConnection(UtlString& remoteAddress)
 void CpPeerCall::addConnection(Connection* connection)
 {
     connection->setLocalAddress(mLocalAddress.data());
-    OsWriteLock lock(mConnectionMutex);
-
+    
+	OsWriteLock lock(mConnectionMutex);
     mConnections.append(connection);
-
     addTaoListenerToConnection(connection);
+
+	if (mpMediaInterface)
+	{
+		mpMediaInterface->addToneListener(connection->getDtmfQueuedEvent(), 
+				connection->getConnectionId());
+	}
+}
+
+// Assumed lock is head externally
+void CpPeerCall::removeConnection(Connection* connection)
+{
+	// OsWriteLock lock(mConnectionMutex);
+	mConnections.remove(connection);
+
+	if (mpMediaInterface)
+	{
+		mpMediaInterface->removeToneListener(connection->getConnectionId());
+	}
 }
 
 void CpPeerCall::addToneListenersToConnection(Connection* connection)

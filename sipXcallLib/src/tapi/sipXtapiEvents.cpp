@@ -264,6 +264,7 @@ static const char* convertMediaEventToString(SIPX_MEDIA_EVENT event)
             break ;
         case MEDIA_DEVICE_FAILURE:
             str = "MEDIA_DEVICE_FAILURE";
+			break ;
         default:
             break ;
     }
@@ -306,9 +307,19 @@ static const char* convertMediaCauseToString(SIPX_MEDIA_CAUSE cause)
             str = "CAUSE_FAILED" ;
             break ;
         case MEDIA_CAUSE_DEVICE_UNAVAILABLE:
-            str = "MEDIA_CAUSE_DEVICE_UNAVAILABLE";
+            str = "CAUSE_DEVICE_UNAVAILABLE";
             break;
-        default:
+		case MEDIA_CAUSE_INCOMPATIBLE:
+			str = "CAUSE_DEVICE_UNAVAILABLE";
+			break ;
+		case MEDIA_CAUSE_DTMF_START:
+			str = "CAUSE_DTMF_START";
+			break ;
+		case MEDIA_CAUSE_DTMF_STOP:
+			str = "CAUSE_DTMF_STOP";
+			break ;
+
+		default:
             break ;
     }
     return str;
@@ -1363,10 +1374,11 @@ void sipxFireMediaEvent(const void* pSrc,
                             case MEDIA_REMOTE_SILENT:
                                 mediaInfo.idleTime = (int) pEventData ;
                                 break ;
+							case MEDIA_REMOTE_DTMF:
+								mediaInfo.toneId = (SIPX_TONE_ID) (int) pEventData ;
                             default:
                                 break ;
-                        }
-                                                        
+                        }                                                        
                         pData->pCallbackProc(EVENT_CATEGORY_MEDIA, &mediaInfo, pData->pUserData);
                     }
                 }

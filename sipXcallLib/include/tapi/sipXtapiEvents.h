@@ -497,10 +497,10 @@ typedef enum
                                      finished playing. */
     MEDIA_PLAYBUFFER_STOP,      /**< A buffer has completed playing or was
                                      aborted.*/
-    MEDIA_REMOTE_DTMF,          /**< Not yet implemented */
+    MEDIA_REMOTE_DTMF,          /**< A dtmf tone was started/stopped, see the
+								     cause codes for exact status */
     MEDIA_DEVICE_FAILURE,       /**< Fired if the media device is not present or
                                      already in use. */
-
 } SIPX_MEDIA_EVENT ;
 
 
@@ -517,8 +517,10 @@ typedef enum
     MEDIA_CAUSE_FAILED,             /**< Media state changed due to an error condition. */
     MEDIA_CAUSE_DEVICE_UNAVAILABLE, /**< Media state changed due to an error condition,
                                         (device was removed, already in use, etc). */
-    MEDIA_CAUSE_INCOMPATIBLE        /**< Incompatible destination -- We were unable
-                                         to negotiate a codec */
+    MEDIA_CAUSE_INCOMPATIBLE,        /**< Incompatible destination -- We were unable
+                                        to negotiate a codec */
+	MEDIA_CAUSE_DTMF_START,			 /**< A DTMF tone has started */
+	MEDIA_CAUSE_DTMF_STOP			 /**< A DTMF tone has stopped */
 
 } SIPX_MEDIA_CAUSE ;
 
@@ -560,6 +562,12 @@ typedef struct
     int                 idleTime;   /**< Idle time (ms) for SILENT events; only 
                                          supplied on MEDIA_REMOTE_SILENT 
                                          events. */
+	SIPX_TONE_ID	    toneId;		/**< DTMF tone received from remote party;
+									     only supplied on MEDIA_REMOTE_DTMF_START
+										 and MEDIA_REMOTE_DTMF_STOP events).
+										 Note: Only out-of-band DTMF is supported
+										 (not in-band DTMF or dialtone detection, 
+										 etc.)*/
 } SIPX_MEDIA_INFO ;
 
 

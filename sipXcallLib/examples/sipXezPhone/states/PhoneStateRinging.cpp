@@ -89,7 +89,6 @@ PhoneState* PhoneStateRinging::Execute()
     }
 #endif
 
-
     if (sipXezPhoneSettings::getInstance().getAutoAnswer() == true)
     {
         sipxCallAudioPlayFileStop(sipXmgr::getInstance().getCurrentCall()) ;

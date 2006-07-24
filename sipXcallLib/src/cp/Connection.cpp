@@ -71,6 +71,7 @@ Connection::Connection(CpCallManager* callMgr,
        OsSysLog::add(FAC_CP, PRI_DEBUG, "Connection constructed: call is Null\n");
 #endif
 
+	mpDtmfQueuedEvent = new OsQueuedEvent(*call->getMessageQueue(), (int) this) ;
     mOfferingDelay = offeringDelayMilliSeconds;
     mLineAvailableBehavior = availableBehavior;
     if(mLineAvailableBehavior == FORWARD_UNCONDITIONAL &&
@@ -159,6 +160,11 @@ Connection::~Connection()
 	   mpListeners = 0;
    }
 
+   if (mpDtmfQueuedEvent)
+   {
+		delete mpDtmfQueuedEvent ;
+		mpDtmfQueuedEvent = NULL ;
+   }
 
 #ifdef TEST_PRINT 
     if (!callId.isNull())

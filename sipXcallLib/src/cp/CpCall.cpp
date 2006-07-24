@@ -241,7 +241,6 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
 
     switch(msgType)
     {
-
     case OsMsg::PHONE_APP:
 
         switch(msgSubType)
@@ -601,105 +600,107 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
             {
             case OsEventMsg::NOTIFY:
                 {
-                    int eventData;
-                    int pListener;
-                    ((OsEventMsg&)eventMessage).getEventData(eventData);
-                    ((OsEventMsg&)eventMessage).getUserData(pListener);
-                    if (pListener)
-                    {
-                        char    buf[128];
-                        UtlString arg;
-                        int argCnt = 2;
-                        int i;
+					if (!handleNotifyMessage((OsEventMsg&)eventMessage))
+					{
+						int eventData;
+						int pListener;
+						((OsEventMsg&)eventMessage).getEventData(eventData);
+						((OsEventMsg&)eventMessage).getUserData(pListener);
+						if (pListener)
+						{
+							char    buf[128];
+							UtlString arg;
+							int argCnt = 2;
+							int i;
 
-                        getCallId(arg);
-                        arg.append(TAOMESSAGE_DELIMITER);
-                        sprintf(buf, "%d", eventData);
-                        arg.append(buf);
+							getCallId(arg);
+							arg.append(TAOMESSAGE_DELIMITER);
+							sprintf(buf, "%d", eventData);
+							arg.append(buf);
 
-                        for (i = 0; i < mToneListenerCnt; i++)
-                        {
-                            if (mpToneListeners[i] && (mpToneListeners[i]->mpListenerPtr == pListener))
-                            {
-                                arg.append(TAOMESSAGE_DELIMITER);
-                                arg.append(mpToneListeners[i]->mName);
-                                argCnt = 3;
+							for (i = 0; i < mToneListenerCnt; i++)
+							{
+								if (mpToneListeners[i] && (mpToneListeners[i]->mpListenerPtr == pListener))
+								{
+									arg.append(TAOMESSAGE_DELIMITER);
+									arg.append(mpToneListeners[i]->mName);
+									argCnt = 3;
 
-                                // post the dtmf event
-                                int eventId = TaoMessage::BUTTON_PRESS;
+									// post the dtmf event
+									int eventId = TaoMessage::BUTTON_PRESS;
 
-                                TaoMessage msg(TaoMessage::EVENT,
-                                    0,
-                                    0,
-                                    eventId,
-                                    0,
-                                    argCnt,
-                                    arg);
+									TaoMessage msg(TaoMessage::EVENT,
+										0,
+										0,
+										eventId,
+										0,
+										argCnt,
+										arg);
 
-                                ((OsServerTask*)pListener)->postMessage((OsMsg&)msg);
-                            }
-                        }
+									((OsServerTask*)pListener)->postMessage((OsMsg&)msg);
+								}
+							}
 
-                        // respond to the waitforDtmfTone event
-                        {
-                            OsWriteLock lock(mDtmfQMutex);
+							// respond to the waitforDtmfTone event
+							{
+								OsWriteLock lock(mDtmfQMutex);
 
-                            //#ifdef TEST_PRINT
-                            OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - received dtmf event 0x%08x QLen=%d\n",
-                                mCallId.data(), eventData, mDtmfQLen);
-                            //#endif
+								//#ifdef TEST_PRINT
+								OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - received dtmf event 0x%08x QLen=%d\n",
+									mCallId.data(), eventData, mDtmfQLen);
+								//#endif
 
-                            for (i = 0; i < mDtmfQLen; i++)
-                            {
-                                if (mDtmfEvents[i].enabled == FALSE)
-                                {
-                                    OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - event %p is disabled\n",
-                                        mCallId.data(), &mDtmfEvents[i]);
-                                    continue;
-                                }
+								for (i = 0; i < mDtmfQLen; i++)
+								{
+									if (mDtmfEvents[i].enabled == FALSE)
+									{
+										OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - event %p is disabled\n",
+											mCallId.data(), &mDtmfEvents[i]);
+										continue;
+									}
 
-                                if (mDtmfEvents[i].ignoreKeyUp && (eventData & 0x80000000))
-                                {
-                                    //#ifdef TEST_PRINT
-                                    OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - ignore KEYUP event 0x%08x\n",
-                                        mCallId.data(), eventData);
-                                    //#endif
-                                    continue; // ignore keyup event
-                                }
+									if (mDtmfEvents[i].ignoreKeyUp && (eventData & 0x80000000))
+									{
+										//#ifdef TEST_PRINT
+										OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - ignore KEYUP event 0x%08x\n",
+											mCallId.data(), eventData);
+										//#endif
+										continue; // ignore keyup event
+									}
 
-                                if (eventData & 0x0000ffff)
-                                {
-                                    //#ifdef TEST_PRINT
-                                    OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - ignore KEYDOWN event 0x%08x\n",
-                                        mCallId.data(), eventData);
-                                    //#endif
-                                    continue; // previous key still down, ignore long key event
-                                }
-                                OsQueuedEvent* dtmfEvent = (OsQueuedEvent*)(mDtmfEvents[i].event);
-                                if (dtmfEvent)
-                                {
-                                    OsStatus res = dtmfEvent->signal((eventData & 0xfffffff0));
-                                    // There could be a race condition in media server
-                                    // where the receiving msgq can be processing an event from the
-                                    // playerlistener and this event is signaled before the q is reset,
-                                    // so we'll try to send a few more times until success.
-                                    int tries = 0;
-                                    while ((tries++ < 10) && (res != OS_SUCCESS))
-                                    {
-                                        res = dtmfEvent->signal((eventData & 0xfffffff0));
-                                        OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - resend dtmfEvent event 0x%08x to %p, res=%d\n",
-                                            mCallId.data(), eventData, dtmfEvent, res);
-                                    }
-                                    if (res != OS_SUCCESS && tries >= 10)
-                                    {
-                                        OsSysLog::add(FAC_CP, PRI_ERR, "CpCall %s - failed to notify DTMF event 0x%08x to %p, res=%d\n",
-                                            mCallId.data(), eventData, dtmfEvent, res);
-                                    }
-                                }
-                            }
-                        }
-                    }
-
+									if (eventData & 0x0000ffff)
+									{
+										//#ifdef TEST_PRINT
+										OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - ignore KEYDOWN event 0x%08x\n",
+											mCallId.data(), eventData);
+										//#endif
+										continue; // previous key still down, ignore long key event
+									}
+									OsQueuedEvent* dtmfEvent = (OsQueuedEvent*)(mDtmfEvents[i].event);
+									if (dtmfEvent)
+									{
+										OsStatus res = dtmfEvent->signal((eventData & 0xfffffff0));
+										// There could be a race condition in media server
+										// where the receiving msgq can be processing an event from the
+										// playerlistener and this event is signaled before the q is reset,
+										// so we'll try to send a few more times until success.
+										int tries = 0;
+										while ((tries++ < 10) && (res != OS_SUCCESS))
+										{
+											res = dtmfEvent->signal((eventData & 0xfffffff0));
+											OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - resend dtmfEvent event 0x%08x to %p, res=%d\n",
+												mCallId.data(), eventData, dtmfEvent, res);
+										}
+										if (res != OS_SUCCESS && tries >= 10)
+										{
+											OsSysLog::add(FAC_CP, PRI_ERR, "CpCall %s - failed to notify DTMF event 0x%08x to %p, res=%d\n",
+												mCallId.data(), eventData, dtmfEvent, res);
+										}
+									}
+								}
+							}
+						}
+					}
                 }
                 break;
 

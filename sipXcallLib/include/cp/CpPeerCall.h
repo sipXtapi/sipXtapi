@@ -159,6 +159,7 @@ public:
     /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
     virtual UtlBoolean handleCallMessage(OsMsg& eventMessage);
+	virtual UtlBoolean handleNotifyMessage(OsEventMsg& eventMsg) ;
     void addTaoListenerToConnection(Connection* connection);
     void addToneListenersToConnection(Connection* connection);
 
@@ -340,6 +341,7 @@ protected:
         UtlBoolean  strictCompare);
 
     void addConnection(Connection* connection);
+	void removeConnection(Connection* connection);
     Connection* findQueuedConnection();
     UtlBoolean isConnectionLive(int* localConnectionState = NULL);
     void dropIfDead();
