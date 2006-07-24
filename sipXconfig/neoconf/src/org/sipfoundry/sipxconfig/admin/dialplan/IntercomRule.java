@@ -24,7 +24,7 @@ public class IntercomRule extends DialingRule {
         m_dialPattern = new DialPattern(prefix, DialPattern.VARIABLE_DIGITS);
         
         m_transform = new FullTransform();
-        CallPattern callPattern = new CallPattern(prefix, CallDigits.VARIABLE_DIGITS);
+        CallPattern callPattern = new CallPattern("", CallDigits.VARIABLE_DIGITS);
         String user = callPattern.calculatePattern();        
         m_transform.setUser(user);
         String headerParam = String.format("Alert-info=%s", code);

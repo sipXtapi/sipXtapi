@@ -18,6 +18,7 @@ import junit.framework.TestCase;
 
 public class IntercomRuleTest extends TestCase {
     private static final String TEST_PREFIX = "*78*";
+    private static final String ESCAPED_TEST_PREFIX = "\\*78\\*";
     private static final String TEST_CODE = "Ipek";
         
     private IntercomRule m_rule;
@@ -29,14 +30,14 @@ public class IntercomRuleTest extends TestCase {
     public void testGetPatterns() {
         String[] patterns = m_rule.getPatterns();
         assertEquals(1, patterns.length);
-        assertEquals(TEST_PREFIX + ".", patterns[0]);
+        assertEquals(ESCAPED_TEST_PREFIX + ".", patterns[0]);
     }
 
     public void testGetTransforms() {
         Transform[] transforms = m_rule.getTransforms();
         assertEquals(1, transforms.length);
         FullTransform transform = (FullTransform) transforms[0];
-        assertEquals(TEST_PREFIX + "{vdigits}", transform.getUser());
+        assertEquals("{vdigits}", transform.getUser());
         assertNull(transform.getHost());
     }    
 }

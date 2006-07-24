@@ -33,7 +33,7 @@ public class DialPattern {
     private int m_digits;
 
     public DialPattern(String prefix, int digits) {
-        m_prefix = prefix;
+        setPrefix(prefix);
         m_digits = digits;
     }
 

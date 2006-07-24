@@ -61,7 +61,12 @@ public class DialPatternTest extends TestCase {
     }
     
     public void testEscapingSpecialCharacters() {
-        DialPattern pattern = new DialPattern();
+        // pass in the prefix to the constructor, verify it gets escaped
+        DialPattern pattern = new DialPattern("*78*", 1);
+        assertEquals("\\*78\\*", pattern.getPrefix());
+        
+        // pass in the prefix through the setter, verify it gets escaped
+        pattern = new DialPattern();
         pattern.setPrefix("*78*");
         assertEquals("\\*78\\*", pattern.getPrefix());
     }
