@@ -6,6 +6,7 @@
  */
 create table intercom (
    intercom_id int4 not null,
+   enabled bool not null,
    prefix varchar(255) not null unique,
    timeout int4 not null,
    code varchar(255) not null unique,

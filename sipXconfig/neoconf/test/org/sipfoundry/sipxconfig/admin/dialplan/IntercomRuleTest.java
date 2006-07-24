@@ -24,7 +24,7 @@ public class IntercomRuleTest extends TestCase {
     private IntercomRule m_rule;
     
     protected void setUp() {
-        m_rule = new IntercomRule(TEST_PREFIX, TEST_CODE);
+        m_rule = new IntercomRule(true, TEST_PREFIX, TEST_CODE);
     }
     
     public void testGetPatterns() {

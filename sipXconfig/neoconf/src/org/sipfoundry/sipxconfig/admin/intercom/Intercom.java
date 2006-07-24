@@ -22,6 +22,7 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 // support mixins or multiple inheritance of implementations.
 public class Intercom extends BeanWithGroups {
 
+    private boolean m_enabled;
     private String m_prefix;
     private int m_timeout;
     private String m_code;    
@@ -43,6 +44,14 @@ public class Intercom extends BeanWithGroups {
     /** Set the code that identifies an auto-answer configuration to the phone */
     public void setCode(String code) {
         m_code = code;
+    }
+
+    public boolean isEnabled() {
+        return m_enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        m_enabled = enabled;
     }
 
     /** Return the prefix used to place intercom calls */

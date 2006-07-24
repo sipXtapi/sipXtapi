@@ -24,6 +24,9 @@
     <binding name="delegate" value="bean:validator"/>
   </component>
   <component id="errors" type="ErrorMsg"/>
+  <component id="enableIntercom" type="Checkbox">
+    <binding name="value" value="intercom.enabled"/>
+  </component>
   <component id="groupsPanel" type="FieldPanel">
     <!-- Tacos/Tapestry Bug
       - give the right value for field, and autocomplete renders double 

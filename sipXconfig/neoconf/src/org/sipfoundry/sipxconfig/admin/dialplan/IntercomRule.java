@@ -20,7 +20,9 @@ public class IntercomRule extends DialingRule {
     private DialPattern m_dialPattern;
     private FullTransform m_transform;
 
-    public IntercomRule(String prefix, String code) {
+    public IntercomRule(boolean enabled, String prefix, String code) {
+        setEnabled(enabled);
+        
         m_dialPattern = new DialPattern(prefix, DialPattern.VARIABLE_DIGITS);
         
         m_transform = new FullTransform();
@@ -32,7 +34,7 @@ public class IntercomRule extends DialingRule {
     }
     
     public IntercomRule(Intercom intercom) {
-        this(intercom.getPrefix(), intercom.getCode());
+        this(intercom.isEnabled(), intercom.getPrefix(), intercom.getCode());
     }
     
     @Override

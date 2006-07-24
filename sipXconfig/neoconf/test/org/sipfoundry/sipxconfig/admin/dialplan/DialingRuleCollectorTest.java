@@ -30,7 +30,7 @@ public class DialingRuleCollectorTest extends TestCase {
         final DialingRuleProvider[] drp = new DialingRuleProvider[len];
 
         // create a dummy dialing rule and put it in a list
-        IDialingRule rule = new IntercomRule("*88", "intercomCode");
+        IDialingRule rule = new IntercomRule(true, "*88", "intercomCode");
         List<IDialingRule> rules = new ArrayList<IDialingRule>();
         rules.add(rule);
 

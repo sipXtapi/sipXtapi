@@ -12,6 +12,7 @@
         <param name="sequence">intercom_seq</param>
       </generator>
     </id>
+    <property name="enabled"/>
     <property name="prefix"/>
     <property name="timeout"/>
     <property name="code"/>
