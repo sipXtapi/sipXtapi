@@ -631,7 +631,7 @@ bool playTones(char* szPlayTones)
             {
                 printf("<-> Playtone: %c\n", toneId) ;
                 SLEEP(250) ;
-                if (sipxCallStartTone(g_hCall, (TONE_ID) toneId, true, true) != SIPX_RESULT_SUCCESS)
+                if (sipxCallStartTone(g_hCall, (SIPX_TONE_ID) toneId, true, true) != SIPX_RESULT_SUCCESS)
                 {
                     printf("Playtone returned error\n");
                 }

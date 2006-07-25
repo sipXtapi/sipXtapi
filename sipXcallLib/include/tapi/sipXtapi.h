@@ -273,8 +273,10 @@ typedef enum SIPX_RESULT
 /**
  * DTMF/other tone ids used with sipxCallStartTone/sipxCallStopTone 
  */
-typedef enum TONE_ID
+typedef enum SIPX_TONE_ID
 {
+	ID_DTMF_INVALID		   = 0,	    /**< Invalid/Uninitialized DMTF Id */
+
     ID_DTMF_0              = '0',   /**< DMTF 0 */
     ID_DTMF_1              = '1',   /**< DMTF 1 */
     ID_DTMF_2              = '2',   /**< DMTF 2 */
@@ -308,7 +310,10 @@ typedef enum TONE_ID
                                          (Not supported with GIPS VoiceEngine) */
     ID_TONE_LOUD_FAST_BUSY          /**< Off hook / fast busy tone 
                                          (Not supported with GIPS VoiceEngine)*/
-} TONE_ID ;                 
+} SIPX_TONE_ID ;                 
+
+typedef SIPX_TONE_ID TONE_ID  ;		/**< Left for backwards compatibility -- please use 
+										 SIPX_TONE_ID */
 
 
 /**
@@ -1393,7 +1398,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetRemoteUserAgent(const SIPX_CALL hCall,
  * @param bRemote Should the tone be played to the remote party?
  */
 SIPXTAPI_API SIPX_RESULT sipxCallStartTone(const SIPX_CALL hCall, 
-                                           const TONE_ID toneId,
+                                           const SIPX_TONE_ID toneId,
                                            const bool bLocal,
                                            const bool bRemote) ;
 

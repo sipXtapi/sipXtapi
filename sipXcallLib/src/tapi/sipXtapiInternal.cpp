@@ -1849,27 +1849,27 @@ const char* sipxTransportTypeToString(SIPX_TRANSPORT_TYPE type)
     return szResult ;
 }
 
-SIPXTAPI_API SIPX_RESULT sipxTranslateToneId(const TONE_ID toneId,
-                                             TONE_ID& xlateId)
+SIPXTAPI_API SIPX_RESULT sipxTranslateToneId(const SIPX_TONE_ID toneId,
+                                             SIPX_TONE_ID&      xlateId)
 {
     SIPX_RESULT sr = SIPX_RESULT_SUCCESS;
-    xlateId = (TONE_ID)0;
+    xlateId = (SIPX_TONE_ID)0;
 #ifdef VOICE_ENGINE
     if (toneId >= '0' && toneId <= '9')
     {
-        xlateId = (TONE_ID)(toneId - '0');
+        xlateId = (SIPX_TONE_ID)(toneId - '0');
     } 
     else if (toneId == ID_DTMF_STAR)
     {
-        xlateId = (TONE_ID)10;
+        xlateId = (SIPX_TONE_ID)10;
     }
     else if (toneId == ID_DTMF_POUND)
     {
-        xlateId = (TONE_ID)11;
+        xlateId = (SIPX_TONE_ID)11;
     }
     else if (toneId == ID_DTMF_FLASH)
     {
-        xlateId = (TONE_ID)16;
+        xlateId = (SIPX_TONE_ID)16;
     }
     else
     {

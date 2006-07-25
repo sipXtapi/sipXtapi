@@ -26,7 +26,7 @@ BEGIN_EVENT_TABLE(DialPadButton, wxBitmapButton)
 END_EVENT_TABLE()
 
 // Constructor
-DialPadButton::DialPadButton(wxWindow* parent, int id, const wxBitmap& bitmap, const wxPoint& pos, const wxSize& size, const enum TONE_ID toneId, const char charVal) :
+DialPadButton::DialPadButton(wxWindow* parent, int id, const wxBitmap& bitmap, const wxPoint& pos, const wxSize& size, const enum SIPX_TONE_ID toneId, const char charVal) :
    wxBitmapButton(parent, id, bitmap, pos, size, 0),
    mToneId(toneId),
    mCharVal(charVal)

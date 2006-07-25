@@ -55,7 +55,7 @@ DialPadPanel::DialPadPanel(wxWindow* parent, const wxPoint& pos, const wxSize& s
 }
 
 
-void DialPadPanel::createPhoneButton(int index, const wxString& bmpFile, const wxString& bmpDown, const int btnID, const int row, const int col, const enum TONE_ID toneId, const char charRepresentation)
+void DialPadPanel::createPhoneButton(int index, const wxString& bmpFile, const wxString& bmpDown, const int btnID, const int row, const int col, const enum SIPX_TONE_ID toneId, const char charRepresentation)
 {
         static int lastRight = 0;
         static int lastBottom = 0;

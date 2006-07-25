@@ -35,7 +35,7 @@ public:
    /**
     * DialPadButton contructor.
     */
-   DialPadButton(wxWindow* parent, int id, const wxBitmap& bitmap, const wxPoint& pos, const wxSize& size, const enum TONE_ID toneId, const char charVal);
+   DialPadButton(wxWindow* parent, int id, const wxBitmap& bitmap, const wxPoint& pos, const wxSize& size, const enum SIPX_TONE_ID toneId, const char charVal);
 
    /**
     * DialPadButton destructor.
@@ -55,7 +55,7 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
     DECLARE_EVENT_TABLE()
-    const enum TONE_ID mToneId;
+    const enum SIPX_TONE_ID mToneId;
     const char mCharVal;
 
 };

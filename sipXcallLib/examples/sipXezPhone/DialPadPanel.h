@@ -56,7 +56,7 @@ private:
     DECLARE_EVENT_TABLE()
         wxGridSizer* mpGridSizer;
         DialPadButton* mpButton[12];
-        void createPhoneButton(int index, const wxString& bmpFile, const wxString& bmpDown, const int btnID, const int row, const int col, const enum TONE_ID toneId, const char charRepresentation);
+        void createPhoneButton(int index, const wxString& bmpFile, const wxString& bmpDown, const int btnID, const int row, const int col, const enum SIPX_TONE_ID toneId, const char charRepresentation);
 
 };
 

@@ -1880,7 +1880,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetRemoteUserAgent(const SIPX_CALL hCall,
 }
 
 SIPXTAPI_API SIPX_RESULT sipxCallStartTone(const SIPX_CALL hCall,
-                                           const TONE_ID toneId,
+                                           const SIPX_TONE_ID toneId,
                                            const bool bLocal,
                                            const bool bRemote)
 {
@@ -1893,7 +1893,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallStartTone(const SIPX_CALL hCall,
     SIPX_INSTANCE_DATA *pInst ;
     UtlString callId ;
     UtlString remoteAddress ;
-    TONE_ID xlateId;
+    SIPX_TONE_ID xlateId;
 
     if (sipxTranslateToneId(toneId, xlateId) == SIPX_RESULT_SUCCESS)
     {

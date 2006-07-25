@@ -62,6 +62,6 @@ PhoneState* PhoneStateRemoteAlerting::OnDisconnected(const SIPX_CALL hCall)
 PhoneState* PhoneStateRemoteAlerting::Execute()
 {
    thePhoneApp->setStatusMessage("Remote Alerting.");
-   sipxCallAudioPlayFileStart(sipXmgr::getInstance().getCurrentCall(), "res/ringTone.raw", true, true, false, true, 0.05);
+   //sipxCallAudioPlayFileStart(sipXmgr::getInstance().getCurrentCall(), "res/ringTone.raw", true, true, false, true, 0.05);
    return this;
 }
