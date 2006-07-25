@@ -58,14 +58,17 @@ CallManager *CpTestSupport::newCallManager(SipUserAgent* sua)
         UtlString oneCodec;
         pCodecFactory->buildSdpCodecFactory(codecList);
 
+        int rtpPortStart = 9000;
+        int rtpPortEnd = 9999; 
+
     CallManager *callManager =
        new CallManager(
           FALSE,
           NULL,
           TRUE, // early media in 180 ringing
           pCodecFactory,
-          9000, //rtp start
-          9999, //rtp end
+          rtpPortStart, //rtp start
+          rtpPortEnd, //rtp end
           localAddress.data(),
           localAddress.data(),
           sua,

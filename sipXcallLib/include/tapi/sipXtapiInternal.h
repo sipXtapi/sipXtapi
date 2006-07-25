@@ -287,7 +287,8 @@ typedef void (*sipxCallEventCallbackFn)(const void* pSrc,
 typedef void (*sipxLineEventCallbackFn)(const void* pSrc,
                                         const char* szLineIdentifier,
                                         SIPX_LINE_EVENT_TYPE_MAJOR major,
-                                        SIPX_LINE_EVENT_TYPE_MINOR minor);	
+                                        SIPX_LINE_EVENT_TYPE_MINOR minor,
+                                        const char *bodyBytes );	
 
 typedef void (*sipxEventCallbackFn)(const void* pSrc,
                     			    SIPX_EVENT_CATEGORY category, 
@@ -315,7 +316,9 @@ void sipxFireCallEvent(const void* pSrc,
 void sipxFireLineEvent(const void* pSrc,
                        const char* szLineIdentifier,
                        SIPX_LINE_EVENT_TYPE_MAJOR major,
-                       SIPX_LINE_EVENT_TYPE_MINOR minor);
+                       SIPX_LINE_EVENT_TYPE_MINOR minor,
+                       const char *bodyBytes = NULL
+                       );
 
 /**
  * Bubbles up all non-line and non-call events to the application layer
@@ -453,6 +456,13 @@ void sipxSubscribeClientNotifyCallback(const char* earlyDialogHandle,
  * Look for leaks in internal handles
  */
 SIPXTAPI_API SIPX_RESULT sipxCheckForHandleLeaks() ;
+
+
+/**
+ * Flush handles to remove peaks between test cases -- this *WILL* leak
+ * memory.
+ */
+SIPXTAPI_API SIPX_RESULT sipxFlushHandles() ;
 
 
 /**

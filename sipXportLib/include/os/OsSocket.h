@@ -12,6 +12,7 @@
 
 // SYSTEM INCLUDES
 //#include <...>
+#include <stdarg.h>
 
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
@@ -30,13 +31,17 @@
 #   include "os/wnt/WindowsAdapterInfo.h"
 #  define OsSocketGetERRNO() (WSAGetLastError())
 #  define OS_INVALID_INET_ADDRESS INADDR_NONE // 0xffffffff
+
 #elif defined(_VXWORKS)
+#  include <os/Vxw/OsAdapterInfoVxw.h>
 #  define OsSocketGetERRNO() (errno)
 #  define OS_INVALID_INET_ADDRESS 0xffffffff
+
 #elif defined(__pingtel_on_posix__)
 #  include "os/linux/AdapterInfo.h"
 #  define OsSocketGetERRNO() (errno)
 #  define OS_INVALID_INET_ADDRESS 0xffffffff
+
 #else
 #  error Unsupported target platform.
 #endif
@@ -56,7 +61,7 @@ extern "C" unsigned long osSocketGetDefaultBindAddress();
  */
 typedef enum
 {
-    LOCAL,      /**< Local address for a particular interface */
+    LOCAL_CONTACT,/**< Local address for a particular interface */
     NAT_MAPPED, /**< NAT mapped address (e.g. STUN)           */
     RELAY,      /**< Relay address (e.g. TURN)                */
     CONFIG,     /**< Manually configured address              */

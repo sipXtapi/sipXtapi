@@ -12,12 +12,17 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
 #include <sys/types.h>
+
 #ifndef _WIN32
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+
+#ifndef _VXWORKS
 #include <resolv.h>
+#endif
+
 #endif 
 
 #include <stdlib.h>

@@ -49,8 +49,11 @@
 #include "tao/TaoProviderAdaptor.h"
 #include "tao/TaoString.h"
 #include "tao/TaoPhoneComponentAdaptor.h"
+
+#ifndef EXCLUDE_STREAMING
 #include "ptapi/PtCall.h"
 #include "ptapi/PtEvent.h"
+#endif
 
 // TO_BE_REMOVED
 #ifndef EXCLUDE_STREAMING
@@ -95,7 +98,7 @@ CallManager::CallManager(UtlBoolean isRequredUserIdMatch,
                          const char* publicAddress,
                          SipUserAgent* userAgent,
                          int sipSessionReinviteTimer,
-                         PtMGCP* mgcpStackTask,
+                         void* mgcpStackTask,  // Depricated
                          const char* defaultCallExtension,
                          int availableBehavior,
                          const char* unconditionalForwardUrl,
@@ -237,9 +240,6 @@ CallManager::CallManager(UtlBoolean isRequredUserIdMatch,
     {
         mOutboundLine = defaultCallExtension;
     }
-
-    // MGCP stack
-    mpMgcpStackTask = mgcpStackTask;
 
     infocusCall = NULL;
     mOutGoingCallType = phonesetOutgoingCallProtocol;
@@ -434,7 +434,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
     UtlBoolean messageProcessed = TRUE;
     UtlString holdCallId;
     UtlBoolean messageConsumed = FALSE;
-    CpMediaInterface* pMediaInterface;
+    CpMediaInterface* pMediaInterface = NULL;
 
     switch(msgType)
     {
@@ -552,7 +552,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                                 getContactAdapterName(szAdapter, localAddress.data());
 
                                 CONTACT_ADDRESS contact;
-                                sipUserAgent->getContactDb().getRecordForAdapter(contact, szAdapter, LOCAL);
+                                sipUserAgent->getContactDb().getRecordForAdapter(contact, szAdapter, LOCAL_CONTACT);
                                 port = contact.iPort;
                                 
                                 pMediaInterface = mpMediaFactory->createMediaInterface(

@@ -250,7 +250,7 @@ void MprEchoSuppress::frame_match(MpBufPtr in)
     }
     while ((NULL == mpPrev) && (0 < MpMisc.pEchoQ->numMsgs())) {
         if (OS_SUCCESS == MpMisc.pEchoQ->receive((OsMsg*&) pMsg,
-                                                          OsTime::NO_WAIT)) {
+                                                          OsTime::NO_WAIT_TIME)) {
             mpPrev = pMsg->getTag();
             // MpBuf_delRef(pMsg->getTag(1));
             pMsg->releaseMsg();

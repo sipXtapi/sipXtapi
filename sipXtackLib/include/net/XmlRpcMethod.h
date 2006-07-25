@@ -77,6 +77,7 @@ public:
       REQUIRE_AUTHENTICATION
    } ExecutionStatus;
 
+/* ============================ CREATORS ================================== */
 
    typedef XmlRpcMethod* Get();
    
@@ -92,6 +93,13 @@ public:
                         void* userData, ///< user data
                         XmlRpcResponse& response, ///< request response
                         ExecutionStatus& status) = 0; ///< execution status
+
+/* ============================ MANIPULATORS ============================== */
+
+/* ============================ ACCESSORS ================================= */
+
+
+/* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

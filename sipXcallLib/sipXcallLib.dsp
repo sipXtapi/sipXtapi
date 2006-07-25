@@ -430,6 +430,10 @@ SOURCE=.\src\cp\SipConnection.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\cp\SipPresenceMonitor.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\tapi\SipXHandleMap.cpp
 # End Source File
 # Begin Source File

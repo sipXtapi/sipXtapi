@@ -165,7 +165,7 @@ OsStatus SipUdpServer::createServerSocket(const char* szBoundIp,
         CONTACT_ADDRESS contact;
         strcpy(contact.cIpAddress, szBoundIp);
         contact.iPort = port;
-        contact.eContactType = LOCAL;
+        contact.eContactType = LOCAL_CONTACT;
         char szAdapterName[16];
         memset((void*)szAdapterName, 0, sizeof(szAdapterName)); // null out the string
         

@@ -722,9 +722,20 @@ void sipXtapiTestSuite::testInDialogSipRequest()
     EventValidator validatorCalling("testInDialogSipRequest.calling") ;
     EventValidator validatorCalled("testInDialogSipRequest.called") ;
 
-    for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    // Use a different queue for each run to avoid interferance and to
+    // avoid having to have a transaction delay for each run.  This way
+    // we just have one delay at the end when we clean up.
+
+    OsMsgQ* responseReceiveQueue[STRESS_FACTOR];
+    int iStressFactor;
+    for (iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
-        printf("\ntestCallBasic (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
+        responseReceiveQueue[iStressFactor] = NULL;
+    }
+
+    for (iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    {
+        printf("\ntestInDialogSipRequest (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
         SIPX_CALL hCall ;
         SIPX_LINE hLine ;
         SIPX_LINE hReceivingLine;     
@@ -805,7 +816,7 @@ void sipXtapiTestSuite::testInDialogSipRequest()
         request.setHeaderValue("bar", "splat");
 
         // Create a queue to recieve the response on
-        OsMsgQ responseReceiveQueue;
+        responseReceiveQueue[iStressFactor] = new OsMsgQ;
         int applicationData = 22222222;
         SIPX_INSTANCE_DATA* sipXtapiCalledContext = 
             (SIPX_INSTANCE_DATA*) g_hInst2;
@@ -828,7 +839,7 @@ void sipXtapiTestSuite::testInDialogSipRequest()
         sipXtapiCalledContext->pCallManager->sendInDialog(calledSideCallId, 
                                                           remoteCallerAddress,
                                                           request,
-                                                          &responseReceiveQueue,
+                                                          responseReceiveQueue[iStressFactor],
                                                           (void*) applicationData);
 
         // Wait for the request
@@ -879,10 +890,22 @@ void sipXtapiTestSuite::testInDialogSipRequest()
     
         CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hLine), SIPX_RESULT_SUCCESS);
         CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hReceivingLine), SIPX_RESULT_SUCCESS);
+
+        // Delay to finish transaction on in dialog request and response
+        OsTask::delay(TEST_DELAY);
     }
 
-    OsTask::delay(TEST_DELAY) ;
+    // Wait a transaction timeout to be sure the in dialog request/response queues are no 
+    // longer used
+    SIPX_INSTANCE_DATA* sipXtapiCallingContext = (SIPX_INSTANCE_DATA*) g_hInst;
+    OsTask::delay(sipXtapiCallingContext->pSipUserAgent->getSipStateTransactionTimeout());
+    //OsTask::delay(TEST_DELAY);
 
+    for (iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    {
+        delete (responseReceiveQueue[iStressFactor]);
+        responseReceiveQueue[iStressFactor] = NULL;
+    }
     checkForLeaks();
 }
 

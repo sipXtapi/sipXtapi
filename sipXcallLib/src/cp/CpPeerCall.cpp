@@ -1707,10 +1707,11 @@ UtlBoolean CpPeerCall::handleGetConnectionState(OsMsg* pEventMessage)
     OsProtectedEvent* getStateEvent = (OsProtectedEvent*) 
         ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
 
-    int state;
+    int state = 0;
     if (!getConnectionState(remoteAddress, state))
+    {
         state = PtConnection::UNKNOWN;
-
+    }
     // Signal the caller that we are done.
     // If the event has already been signalled, clean up
     if(OS_ALREADY_SIGNALED == getStateEvent->signal(state))
@@ -1768,7 +1769,7 @@ void CpPeerCall::getLocalContactAddresses( CONTACT_ADDRESS contacts[],
     if (    (nActualContacts < nMaxContacts) && 
         (sipUserAgent->getLocalAddress(&ipAddress, &port)))
     {
-        contacts[nActualContacts].eContactType = LOCAL ;
+        contacts[nActualContacts].eContactType = LOCAL_CONTACT ;
         strncpy(contacts[nActualContacts].cIpAddress, ipAddress.data(), 32) ;
         contacts[nActualContacts].iPort = port ;
         nActualContacts++ ;
@@ -1848,7 +1849,9 @@ UtlBoolean CpPeerCall::handleGetTerminalConnectionState(OsMsg* pEventMessage)
 
     int state;
     if (!getTermConnectionState(remoteAddress, terminal, state))
+    {
         state = PtTerminalConnection::UNKNOWN;
+    }
 
     // Signal the caller that we are done.
     // If the event has already been signalled, clean up
@@ -2749,6 +2752,7 @@ void CpPeerCall::inFocus(int talking)
         {
             setCallState(responseCode, responseText, PtCall::ACTIVE, PtEvent::CAUSE_NEW_CALL);
         }
+
         postTaoListenerMessage(responseCode, responseText, PtEvent::CONNECTION_INITIATED, CONNECTION_STATE, PtEvent::CAUSE_NEW_CALL, remoteIsCallee, remoteAddress);
 
         if (mLocalTermConnectionState == PtTerminalConnection::IDLE)
@@ -2772,7 +2776,8 @@ void CpPeerCall::inFocus(int talking)
         {
             int cause = 0;
             int state = connection->getState(cause);
-            if (state != Connection::CONNECTION_ALERTING || mLocalTermConnectionState == PtTerminalConnection::HELD)
+            if (state != Connection::CONNECTION_ALERTING || 
+                mLocalTermConnectionState == PtTerminalConnection::HELD)
             {
                 UtlString responseText;
                 connection->getResponseText(responseText);
@@ -2935,7 +2940,7 @@ void CpPeerCall::dropIfDead()
             mbRequestedDrop = true ;
         }
 
-        setCallState(0, "", PtCall::INVALID);          
+        setCallState(0, "", PtCall::INVALID);
         mDtmfEnabled = FALSE;
 
         // Signal the manager to Shutdown the task

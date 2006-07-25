@@ -280,10 +280,10 @@ static void * soundCardReader(void * arg)
       pMsg->setBuf(MpBuf_getSamples(ob));
       pMsg->setLen(MpBuf_getNumSamples(ob));
 
-      if(MpMisc.pMicQ && MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT) != OS_SUCCESS)
+      if(MpMisc.pMicQ && MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT_TIME) != OS_SUCCESS)
       {
          OsStatus  res;
-         res = MpMisc.pMicQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT);
+         res = MpMisc.pMicQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT_TIME);
          if (OS_SUCCESS == res) {
             MpBuf_delRef(pFlush->getTag());
             pFlush->releaseMsg();
@@ -291,7 +291,7 @@ static void * soundCardReader(void * arg)
             osPrintf("DmaTask: queue was full, now empty (5)!"
                " (res=%d)\n", res);
          }
-         if(MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT) != OS_SUCCESS)
+         if(MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT_TIME) != OS_SUCCESS)
             MpBuf_delRef(ob);
       }
       if(!pMsg->isMsgReusable())
@@ -350,7 +350,7 @@ static void * soundCardWriter(void * arg)
          }
       }
 
-      if(MpMisc.pSpkQ && MpMisc.pSpkQ->receive((OsMsg*&) pMsg, OsTime::NO_WAIT) == OS_SUCCESS)
+      if(MpMisc.pSpkQ && MpMisc.pSpkQ->receive((OsMsg*&) pMsg, OsTime::NO_WAIT_TIME) == OS_SUCCESS)
       {
          ob = (MpBufPtr) pMsg->getTag();
          assert(ob != NULL);

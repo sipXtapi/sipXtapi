@@ -29,6 +29,8 @@
 
 class UtlHashMap;
 class SipUserAgent;
+class SipRegInfoBody;        // for RFC 3680
+
 
 // DEFINES
 
@@ -73,14 +75,18 @@ class SipUserAgent;
 #define SIP_CONTENT_ENCODING_FIELD "CONTENT-ENCODING"
 #define SIP_SHORT_CONTENT_ENCODING_FIELD "E"
 #define SIP_CSEQ_FIELD "CSEQ"
+#define SIP_DIVERSION_FIELD "DIVERSION"   // draft-levy-sip-diversion-08 Diversion header
 #define SIP_EVENT_FIELD "EVENT"
 #define SIP_SHORT_EVENT_FIELD "O"
+#define SIP_ETAG_FIELD "SIP-ETAG"
 #define SIP_EXPIRES_FIELD "EXPIRES"
-#define SIP_Q_FIELD "Q"
 #define SIP_FROM_FIELD "FROM"
+#define SIP_IF_MATCH_FIELD "SIP-IF-MATCH"
 #define SIP_SHORT_FROM_FIELD "F"
 #define SIP_MAX_FORWARDS_FIELD "MAX-FORWARDS"
 #define SIP_P_ASSERTED_IDENTITY_FIELD "P-ASSERTED-IDENTITY"
+#define SIP_Q_FIELD "Q"
+#define SIP_REASON_FIELD "REASON"          //  RFC 3326 Reason header
 #define SIP_RECORD_ROUTE_FIELD "RECORD-ROUTE"
 #define SIP_REFER_TO_FIELD "REFER-TO"
 #define SIP_SHORT_REFER_TO_FIELD "R"
@@ -91,9 +97,8 @@ class SipUserAgent;
 #define SIP_REQUESTED_BY_FIELD "REQUESTED-BY"
 #define SIP_REQUIRE_FIELD "REQUIRE"
 #define SIP_ROUTE_FIELD "ROUTE"
+#define SIP_SERVER_FIELD "SERVER"
 #define SIP_SESSION_EXPIRES_FIELD "SESSION-EXPIRES"
-#define SIP_IF_MATCH_FIELD "SIP-IF-MATCH"
-#define SIP_ETAG_FIELD "SIP-ETAG"
 #define SIP_SUBJECT_FIELD "SUBJECT"
 #define SIP_SHORT_SUBJECT_FIELD "S"
 #define SIP_SUBSCRIPTION_STATE_FIELD "SUBSCRIPTION-STATE"
@@ -258,6 +263,7 @@ class SipUserAgent;
 #define SIP_EVENT_REFER                     "refer"
 #define SIP_EVENT_CONFIG                    "sip-config"
 #define SIP_EVENT_UA_PROFILE                "ua-profile"
+#define SIP_EVENT_REGISTER                  "reg" //  RFC 3680 
 #define SIP_EVENT_PRESENCE                  "presence"
 
 // NOTIFY Subscription-State values
@@ -271,8 +277,24 @@ class SipUserAgent;
 #define CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY "application/simple-message-summary"
 #define CONTENT_TYPE_XPRESSA_SCRIPT         "text/xpressa-script"
 
+// Added for RFC 3680 
+#define CONTENT_TYPE_REG_INFO 		"application/reg-info+xml"
+
 #define SIP_REFER_SUCCESS_STATUS "SIP/2.0 200 OK\r\n"
 #define SIP_REFER_FAILURE_STATUS "SIP/2.0 503 Service Unavailable\r\n"
+
+//Added for Diversion header reason parameters
+
+#define SIP_DIVERSION_UNKNOWN "unknown"
+#define SIP_DIVERSION_BUSY "user-busy"
+#define SIP_DIVERSION_UNAVAILABLE "unavailable"
+#define SIP_DIVERSION_UNCONDITIONAL "unconditional"
+#define SIP_DIVERSION_TIMEOFDAY "time-of-day"
+#define SIP_DIVERSION_DND "do-not-disturb"
+#define SIP_DIVERSION_DEFLECTION "deflection"
+#define SIP_DIVERSION_OTOFSERVICE "out-of-service"
+#define SIP_DIVERSION_FOLLOWME "follow-me"
+#define SIP_DIVERSION_AWAY "away"
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -505,6 +527,41 @@ public:
                            const char* protocolField,
                            const char* profileField,
                            int expiresInSeconds = -1);
+
+    /* RFC 3428 - MWI*/
+    void SipMessage::setMessageSummaryData(
+                  UtlString& msgSummaryData,
+                  const char* msgAccountUri,
+                  UtlBoolean bNewMsgs=FALSE,
+                  UtlBoolean bVoiceMsgs=FALSE,
+                  UtlBoolean bFaxMsgs=FALSE,
+                  UtlBoolean bEmailMsgs=FALSE,
+                  int numNewMsgs=-1,
+                  int numOldMsgs=-1,
+                  int numFaxNewMsgs=-1,
+                  int numFaxOldMsgs=-1,
+                  int numEmailNewMsgs=-1,
+                  int numEmailOldMsgs=-1);
+
+    /* RFC 3428 - MWI */
+    void SipMessage::setMWIData(const char *method,
+				  const char* fromField,
+                  const char* toField,
+                  const char* uri,
+                  const char* contactUrl,
+                  const char* callId,
+                  int CSeq,
+                  UtlString bodyString);
+
+    /* RFC 3680 - Registration event */
+    void SipMessage::setRegInfoData(const char *method,
+		    const char* fromField,
+                  const char* toField,
+                  const char* uri,
+                  const char* contactUrl,
+                  const char* callId,
+                  int CSeq,
+                  SipRegInfoBody& regInfoBody);
 
     void setVoicemailData(const char* fromField,
                            const char* toField,
@@ -973,6 +1030,31 @@ public:
     UtlBoolean getReplacesData(UtlString& callId,
                               UtlString& toTag,
                               UtlString& fromTag) const;
+
+    // SERVER-header accessors
+    void setServerField(const char* serverField);
+    void setAcceptField(const char* acceptField);
+    void setAuthField(const char* authField);
+
+    // RFC 3326 REASON-header
+    void setReasonField(const char* reasonField);
+
+    UtlBoolean getReasonField(UtlString& reasonField) const;
+
+	
+    // Diversion-header
+    void addDiversionField(const char* addr, const char* reasonParam,
+    								UtlBoolean afterOtherDiversions=FALSE);
+
+    void addDiversionField(const char* diversionField, UtlBoolean afterOtherDiversions=FALSE);
+
+	
+    UtlBoolean getLastDiversionField(UtlString& diversionField,int& lastIndex);
+
+    UtlBoolean getDiversionField(int index, UtlString& diversionField);
+
+    UtlBoolean getDiversionField(int index, UtlString& addr, UtlString& reasonParam);
+	
     //@}
 
     // This method is needed to cover the symetrical situation which is

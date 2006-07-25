@@ -12,7 +12,6 @@
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
-
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
 
@@ -114,7 +113,7 @@ public:
         // First test the default constructor
         UtlLongLongInt testIntll ; 
         const char* msg0 = "Test the default constructor" ; 
-        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg0, 0LL, testIntll.getValue()) ; 
+        CPPUNIT_ASSERT_MESSAGE(msg0, UtlLongLongIntTests::llint_Zero == testIntll.getValue()) ; 
 
         // Now test the single argument constructor for each of 
         // the common test data type
@@ -125,7 +124,7 @@ public:
             TestUtilities::createMessage(2, &msg, prefix, commonTestSet[i].message) ; 
             UtlLongLongInt testIntll(commonTestSet[i].input) ; 
             INT64 actualValue = testIntll.getValue() ; 
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), commonTestSet[i].expectedValue, actualValue) ; 
+            CPPUNIT_ASSERT_MESSAGE(msg.data(), commonTestSet[i].expectedValue == actualValue) ; 
         }
     }
 
@@ -202,7 +201,7 @@ public:
             if (testType == TEST_COMPARE) 
             {
                 INT64 actual = testIntll.compareTo(&llintForCompare) ;  
-                CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), expectedForEquals, actual) ; 
+                CPPUNIT_ASSERT_MESSAGE(msg.data(), expectedForEquals == actual) ; 
             }
             else if (testType == TEST_EQUAL) 
             {
@@ -224,7 +223,7 @@ public:
                 if (testType == TEST_COMPARE) 
                 {
                     INT64 actual = testIntll.compareTo(&llintForCompare) ; 
-                    CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), expectedForGreaterThan, actual)  ; 
+                    CPPUNIT_ASSERT_MESSAGE(msg.data(), expectedForGreaterThan == actual)  ; 
                 }
                 else if (testType == TEST_EQUAL) 
                 {
@@ -247,7 +246,7 @@ public:
                 if (testType == TEST_COMPARE) 
                 {
                     INT64 actual = testIntll.compareTo(&llintForCompare) ; 
-                    CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), expectedForLessThan, actual) ;
+                    CPPUNIT_ASSERT_MESSAGE(msg.data(), expectedForLessThan == actual) ;
                 }
                 else if (testType == TEST_EQUAL) 
                 {
@@ -324,14 +323,14 @@ public:
                 TestUtilities::createMessage(5, &msg, prefix, commonTestSet[i].message, \
                                                " where setter = ", commonTestSet[j].message, \
                                                suffix1) ; 
-                CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), commonTestSet[i].expectedValue, \
+                CPPUNIT_ASSERT_MESSAGE(msg.data(), commonTestSet[i].expectedValue == \
                                                        oldActualValue) ; 
                 
                 // Verify that the value has been set.
                 TestUtilities::createMessage(5, &msg, prefix, commonTestSet[i].message, \
                                                " where setter = ", commonTestSet[j].message, \
                                                suffix2) ; 
-                CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), commonTestSet[j].expectedValue, \
+                CPPUNIT_ASSERT_MESSAGE(msg.data(), commonTestSet[j].expectedValue == \
                                                        newActualValue) ; 
                                
             } 
@@ -373,9 +372,9 @@ public:
 
 
 // ------------------- Static constant initializers -------------------------
-const INT64 UtlLongLongIntTests::llint_Zero = 0LL ;
-const INT64 UtlLongLongIntTests::llint_Positive = 101LL ;
-const INT64 UtlLongLongIntTests::llint_Negative = -51LL ;
+const INT64 UtlLongLongIntTests::llint_Zero = 0;
+const INT64 UtlLongLongIntTests::llint_Positive = 101;
+const INT64 UtlLongLongIntTests::llint_Negative = -51;
 const UtlLongLongIntTests::BasicIntllVerifier \
       UtlLongLongIntTests::commonTestSet[]  = { \
          {"Zero", llint_Zero, llint_Zero},  \

@@ -30,6 +30,8 @@
 #   include <inetLib.h>
 #   include <netdb.h>
 #   include <resolvLib.h>
+#   include <selectLib.h>
+#   include <ifLib.h>
 #   include <sockLib.h>
 #   include <unistd.h>
 #elif defined(__pingtel_on_posix__)
@@ -68,6 +70,17 @@
 #ifdef _VXWORKS
 extern "C" int enetIsLinkActive(void);
 #endif
+
+/*---------------------------------------------------------------------------
+** Define VxWorks ethernet, sem copied from NCP
+**-------------------------------------------------------------------------*/
+#if defined(_VXWORKS)
+
+#define ECTRL_NAME    "cpmac"       
+#define IF_UNIT_NAME  "cpmac0"      /* includes the Unit number ie "0" */ 
+
+#endif
+
 
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -891,7 +904,7 @@ void OsSocket::getHostIp(UtlString* hostAddress)
       char ipAddr[100];
       ipAddr[0] = '\0';
       hostAddress->remove(0);
-      if(!ifAddrGet("csp0", ipAddr))
+      if(!ifAddrGet(IF_UNIT_NAME, ipAddr))
          hostAddress->append(ipAddr);
 
 #elif defined(__pingtel_on_posix__) /* ] [ */
@@ -1005,6 +1018,18 @@ UtlBoolean OsSocket::getHostIpByName(const char* hostName, UtlString* hostAddres
       *hostAddress = "127.0.0.1";
       bSuccess = TRUE ;
    }
+#ifdef _VXWORKS
+   // $$$ (rschaaf)
+   // ToDo: Extend the OS abstraction layer with a method to determine
+   //       whether the network interface is available.
+   else if (!enetIsLinkActive())
+   {
+      *hostAddress = "0.0.0.0";
+      osPrintf("getHostIpByName failed for %s %s\n   %s\n",
+               hostName, hostAddress->data(),
+               "network is unavailable");
+   }
+#endif
    // if no default domain name and host name not fully qualified
    else if (!hasDefaultDnsDomain() && (strchr(hostName, '.') == NULL))
    {
@@ -1013,24 +1038,45 @@ UtlBoolean OsSocket::getHostIpByName(const char* hostName, UtlString* hostAddres
    else
    {
 #if defined(_WIN32) || defined(__pingtel_on_posix__)
-        server = gethostbyname(hostName);
+	   
+	   server = gethostbyname(hostName);
+		
+
+#elif defined(_VXWORKS)
+	   char hostentBuf[512];
+	   server = resolvGetHostByName((char*) hostName,
+				                       hostentBuf, sizeof(hostentBuf));
 #else
 #error Unsupported target platform.
-#endif
-        if(server)
-        {
-            inet_ntoa_pt(*((in_addr*) (server->h_addr)), *hostAddress);
-            bSuccess = TRUE ;
-        }
-        else
-        {                                                
-            *hostAddress = "0.0.0.0";
-        }
-    }
+#endif //_VXWORKS
+
+
+	   if(server)
+	   {
+		   // hostAddress->append(inet_ntoa_pt(*((in_addr*) (server->h_addr))));
+		   inet_ntoa_pt(*((in_addr*) (server->h_addr)), *hostAddress);
+           bSuccess = TRUE ;
+	   }
+	   else
+		{
+
+			//osPrintf("getHostIpByName DNS look up failed: %s %s\n", 
+			//	      hostName, hostAddress->data());
+
+            // if host name has valid ip, then use the name 
+			if(INADDR_NONE != inet_addr(hostName))
+			{
+				*hostAddress = hostName;
+			}
+            else
+            {
+			    *hostAddress = "0.0.0.0";
+            }
+		}
+   }
 
    return bSuccess ;
 }
-
 
 void OsSocket::getLocalHostIp(UtlString* localHostAddress) const
 {
@@ -1087,17 +1133,17 @@ UtlBoolean OsSocket::isIp4Address(const char* address)
     //       ^====== dot2
     //    ^========= dot1
 
-    const char* dot1 = strchr(address, '.');
+    char* dot1 = strchr(address, '.');
     UtlBoolean isIp4 = FALSE;
     if(dot1)
     {
-        const char* dot2 = strchr(dot1 + 1, '.');
+        char* dot2 = strchr(dot1 + 1, '.');
         if((dot2) && (dot2-dot1 > 1))
         {
-            const char* dot3 = strchr(dot2 + 1, '.');
+            char* dot3 = strchr(dot2 + 1, '.');
             if((dot3) && (dot3-dot2 > 1))
             {
-                const char* dot4 = strchr(dot3 + 1, '.');
+                char* dot4 = strchr(dot3 + 1, '.');
                 if((dot4 == NULL) && strlen(dot3) > 1)
                 {
                     if(INADDR_NONE != inet_addr(address))

@@ -842,20 +842,20 @@ int OsStunQueryAgent::randomInt ()
 asm("rdtsc" : "=A" (tick));
 #elif defined (__SUNPRO_CC) || defined( __sparc__ )
         tick = gethrtime();
-#elif defined(__pingtel_on_posix__)
+#elif defined(__pingtel_on_posix__) || defined(_VXWORKS)
 	tick = pt_get_ticks();
 #else
 #     error Need some way to seed the random number generator
 #endif
         int seed = int(tick);
-#ifdef WIN32
+#if defined(WIN32) || defined(_VXWORKS)
         srand(seed);
 #else
         srandom(seed);
 #endif
     }
 
-#ifdef WIN32
+#if defined(WIN32) || defined(_VXWORKS)
     assert( RAND_MAX == 0x7fff );
     int r1 = rand();
     int r2 = rand();

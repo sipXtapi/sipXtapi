@@ -27,7 +27,9 @@
 #ifndef _sipXtapi_h_
 #define _sipXtapi_h_
 
+#ifndef _VXWORKS
 #include <memory.h>
+#endif
 #include <string.h>
 #include <stddef.h>       // size_t
 
@@ -1422,6 +1424,18 @@ SIPXTAPI_API SIPX_RESULT sipxAudioGetNumOutputDevices(const SIPX_INST hInst,
 SIPXTAPI_API SIPX_RESULT sipxAudioGetOutputDevice(const SIPX_INST hInst,
                                                   const int index,
                                                   const char*& szDevice) ;
+
+
+/**
+ * Get the Active name/identifier for output device
+ *
+ * @param hInst Instance pointer obtained by sipxInitialize.
+ * @param szDevice Reference an character string pointer to receive 
+ *                 the device name.
+ */
+SIPXTAPI_API SIPX_RESULT sipxAudioGetActiveOutputDevice(const SIPX_INST hInst,                                                 
+                                                        char* szDevice) ;
+
 
 /**
  * Set the call input device (in-call microphone).  

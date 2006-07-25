@@ -38,6 +38,11 @@
 #include <cp/CpPeerCall.h>
 #include <cp/CpMultiStringMessage.h>
 #include <cp/CpIntMessage.h>
+
+#if defined(_VXWORKS)
+#include <inetLib.h>
+#endif
+
 #include "ptapi/PtCall.h"
 #include <net/TapiMgr.h>
 
@@ -133,6 +138,9 @@ SipConnection::SipConnection(const char* outboundLineAddress,
     // perform after hold has completed.
     mHoldCompleteAction = CpCallManager::CP_UNSPECIFIED;
 #ifdef TEST_PRINT
+    UtlString callId;
+    if (mpCall)
+      mpCall->getCallId(callId);  
     if (!callId.isNull())
         OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving SipConnection constructor: %s\n", callId.data());
     else
@@ -174,6 +182,13 @@ SipConnection::~SipConnection()
     else
         OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving SipConnection destructor: call is Null\n");
 #endif
+
+    if ((mpMediaInterface) && (mConnectionId != -1))
+    {
+       mpMediaInterface->deleteConnection( mConnectionId );       
+    }
+    mConnectionId = -1;
+
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -453,13 +468,13 @@ CONTACT_TYPE SipConnection::selectCompatibleContactType(const SipMessage& reques
         mContactId = stun_contact.id;
         contactType = NAT_MAPPED ;
     }
-    else if (sipUserAgent->getContactDb().getRecordForAdapter(local_contact, szAdapter, LOCAL) &&
+    else if (sipUserAgent->getContactDb().getRecordForAdapter(local_contact, szAdapter, LOCAL_CONTACT) &&
         (strcmp(local_contact.cIpAddress, requestUriHost) == 0) &&
         (requestUriPort == (!portIsValid(local_contact.iPort) ? 5060 : local_contact.iPort)))
 
     {
         mContactId = local_contact.id;
-        contactType = LOCAL ;
+        contactType = LOCAL_CONTACT ;
     }
 
     return contactType ;
@@ -490,7 +505,7 @@ void SipConnection::updateContact(Url* pContactUrl, CONTACT_TYPE eType)
 
         if (pContact == NULL)
         {
-            pContact = sipUserAgent->getContactDb().findByType(LOCAL);
+            pContact = sipUserAgent->getContactDb().findByType(LOCAL_CONTACT);
         }
     }
 
@@ -993,6 +1008,8 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds)
 {
     UtlBoolean ringingSent = FALSE;
     int cause = 0;
+    int codecIndex;
+
 #ifdef TEST_PRINT
     osPrintf("SipConnection::accept ringingTimeOutSeconds=%d\n", ringingTimeOutSeconds);
 #endif
@@ -1074,10 +1091,21 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds)
             // Free up the codec copies and array
             for(int codecIndex = 0; codecIndex < numMatchingCodecs; codecIndex++)
             {
-                delete matchingCodecs[codecIndex];
-                matchingCodecs[codecIndex] = NULL;
+               if (NULL == matchingCodecs[codecIndex])
+               {
+                   osPrintf("Null pointer matchingCodecs[%d]\n", codecIndex); 
+               }
+               else
+               {
+                  delete matchingCodecs[codecIndex];
+                  matchingCodecs[codecIndex] = NULL;
+               }
             }
-            delete[] matchingCodecs;
+
+            if(matchingCodecs) 
+            {
+               delete[] matchingCodecs;
+            }
             matchingCodecs = NULL;
         }
     }

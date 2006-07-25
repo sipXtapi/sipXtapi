@@ -25,7 +25,9 @@
 #include <utl/UtlHashMapIterator.h>
 #include <utl/UtlSListIterator.h>
 #include <os/OsServerSocket.h>
+#ifdef HAVE_SSL
 #include <os/OsSSLServerSocket.h>
+#endif
 #include <net/HttpServer.h>
 #include <net/HttpRequestContext.h>
 #include <net/HttpMessage.h>
@@ -104,7 +106,11 @@ XmlRpcDispatch::XmlRpcDispatch(int httpServerPort,
    OsServerSocket* pServerSocket = NULL;
    if (isSecureServer)
    {
+#ifdef HAVE_SSL
       pServerSocket = new OsSSLServerSocket(50, httpServerPort);
+#else
+      assert(0);
+#endif
    }
    else
    {
@@ -237,6 +243,7 @@ void XmlRpcDispatch::processRequest(const HttpRequestContext& requestContext,
                  bodyString.data()
                  );
    
+      
    response->setBody(new HttpBody(bodyString.data(), bodyLength));
    response->setContentType(CONTENT_TYPE_TEXT_XML);
    response->setContentLength(bodyLength);

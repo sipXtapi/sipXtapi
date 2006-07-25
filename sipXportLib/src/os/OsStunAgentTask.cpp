@@ -492,7 +492,7 @@ void OsStunAgentTask::removeSocket(OsStunDatagramSocket* pSocket)
         OsQueuedEvent* pEvent = (OsQueuedEvent*) pTimer->getNotifier() ;
         if (pEvent)
         {
-	    UtlVoidPtr key(pTimer) ;
+            UtlVoidPtr key(pTimer) ;
             pEvent->setUserData(0) ; 
             if (!mTimerPool.find(&key))
             {
@@ -542,7 +542,7 @@ void OsStunAgentTask::signalStunOutcome(OsStunDatagramSocket* pSocket,
             OsQueuedEvent* pEvent = (OsQueuedEvent*) pTimer->getNotifier() ;
             if (pEvent)
             {
-		UtlVoidPtr key(pTimer) ;
+                UtlVoidPtr key(pTimer) ;
                 pEvent->setUserData(0) ;        
                 if (!mTimerPool.find(&key))       
                 {

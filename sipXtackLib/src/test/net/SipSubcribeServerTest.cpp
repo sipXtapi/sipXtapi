@@ -41,9 +41,13 @@ class SipSubscribeServerTest : public CppUnit::TestCase
 
    void subscriptionTest()
    {
+       UtlString hostIp;
+       OsSocket::getHostIp(&hostIp);
 
         // Test MWI messages
-        char* mwiSubscribe="SUBSCRIBE sip:111@localhost SIP/2.0\r\n\
+        UtlString mwiSubscribe="SUBSCRIBE sip:111@";
+        mwiSubscribe.append(hostIp);
+        mwiSubscribe.append(" SIP/2.0\r\n\
 From: \"Dan Petrie\"<sip:111@example.com>;tag=1612c1612\r\n\
 To: \"Dan Petrie\"<sip:111@example.com>\r\n\
 Call-Id: e2aab34a72a0eb18300fbec445d5d665\r\n\
@@ -57,14 +61,15 @@ User-Agent: Pingtel/2.2.0 (VxWorks)\r\n\
 Accept-Language: en\r\n\
 Supported: sip-cc, sip-cc-01, timer, replaces\r\n\
 Content-Length: 0\r\n\
-\r\n";
+\r\n");
 
         const char* mwiStateString = "Messages-Waiting: no\r\n\
 Voice-Message: 0/0 (0/0)\r\n";
 
+
        UtlString eventName("message-summary");
        UtlString mwiMimeType("application/simple-message-summary");
-       SipUserAgent* userAgent = new SipUserAgent(UNIT_TEST_SIP_PORT, UNIT_TEST_SIP_PORT, 0, 0, "127.0.0.1" );
+       SipUserAgent* userAgent = new SipUserAgent(UNIT_TEST_SIP_PORT, UNIT_TEST_SIP_PORT, 0, 0, hostIp );
        userAgent->start();
        SipSubscribeServer* subServer = 
            SipSubscribeServer::buildBasicServer(*userAgent, 
@@ -121,7 +126,8 @@ Voice-Message: 0/0 (0/0)\r\n";
 
 
        // Send a subscribe to ourselves
-       UtlString resourceId("111@localhost");
+       UtlString resourceId("111@");
+       resourceId.append(hostIp);
        char portString[20];
        sprintf(portString, "%d", UNIT_TEST_SIP_PORT);
        resourceId.append(':');

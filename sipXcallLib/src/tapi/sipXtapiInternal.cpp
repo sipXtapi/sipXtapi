@@ -35,6 +35,9 @@
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
+extern UtlSList* g_pEventListeners ;
+extern OsMutex* g_pEventListenerLock ;
+
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -275,6 +278,7 @@ UtlBoolean sipxCallGetState(SIPX_CALL hCall,
         lastCause = pData->lastCallstateCause ;
         state = pData->state ;
         sipxCallReleaseLock(pData, SIPX_LOCK_READ) ;
+        bSuccess = true;
     }
 
     return bSuccess ;
@@ -1074,6 +1078,28 @@ SIPX_RESULT sipxGetActiveCallIds(SIPX_INST hInst, int maxCalls, int& actualCalls
     return rc ;
 }
 
+SIPX_RESULT sipxFlushHandles()
+{
+    gpCallHandleMap->destroyAll() ;
+    gpLineHandleMap->destroyAll() ;
+    gpConfHandleMap->destroyAll() ;
+    gpInfoHandleMap->destroyAll() ;
+    gpPubHandleMap->destroyAll() ;
+    gpSubHandleMap->destroyAll() ;
+    //gpTransportHandleMap->destroyAll() ;
+
+    gpSessionLock->acquire() ;
+    gpSessionList->destroyAll() ;
+    gpSessionLock->release() ;
+
+    if (g_pEventListenerLock && g_pEventListeners)
+    {
+        g_pEventListenerLock->acquire() ;
+        g_pEventListeners->destroyAll() ;
+        g_pEventListenerLock->release() ;
+    }
+    return SIPX_RESULT_SUCCESS ;
+}
 
 SIPX_RESULT sipxCheckForHandleLeaks() 
 {

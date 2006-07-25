@@ -140,7 +140,7 @@ OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
 #   if defined(_WIN32)
     error = bind( socketDescriptor, (const struct sockaddr*) &localAddr,
             sizeof(localAddr));
-#   elif defined(__pingtel_on_posix__)
+#   elif defined(_VXWORKS) || defined(__pingtel_on_posix__)
 
     error = bind( socketDescriptor, (struct sockaddr*) &localAddr,
             sizeof(localAddr));
@@ -196,6 +196,10 @@ void OsDatagramSocket::doConnect(int remoteHostPortNum, const char* remoteHost,
                                  UtlBoolean simulateConnect)
 {
     struct hostent* server;    
+#   if defined(_VXWORKS)
+    char hostentBuf[512];
+#   endif
+
 
     mToSockaddrValid = FALSE;
     memset(mpToSockaddr, 0, sizeof(struct sockaddr_in));
@@ -215,7 +219,15 @@ void OsDatagramSocket::doConnect(int remoteHostPortNum, const char* remoteHost,
     // Connect to a remote host if given
     if(portIsValid(remoteHostPort) && remoteHost && !simulateConnect)
     {
-        server = gethostbyname(remoteHost);
+#       if defined(_WIN32) || defined(__pingtel_on_posix__)
+            server = gethostbyname(remoteHost);
+#       elif defined(_VXWORKS)
+            server = resolvGetHostByName((char*) remoteHost,
+                                         hostentBuf, sizeof(hostentBuf));
+#       else
+#       error Unsupported target platform.
+#       endif //_VXWORKS
+
         if (server)
         {
             struct in_addr* serverAddr = (in_addr*) (server->h_addr);
@@ -225,8 +237,18 @@ void OsDatagramSocket::doConnect(int remoteHostPortNum, const char* remoteHost,
             serverSockAddr.sin_addr.s_addr = (serverAddr->s_addr);
 
             // Set the default destination address for the socket
+#       if defined(_WIN32) || defined(__pingtel_on_posix__)
             if(connect(socketDescriptor, (const struct sockaddr*) 
                     &serverSockAddr, sizeof(serverSockAddr)))
+#       elif defined(_VXWORKS)
+            if(connect(socketDescriptor, (struct sockaddr*) &serverSockAddr,
+                       sizeof(serverSockAddr)))
+#       else
+#           error Unsupported target platform.
+#       endif
+
+
+
             {
                 int error = OsSocketGetERRNO();
                 close();

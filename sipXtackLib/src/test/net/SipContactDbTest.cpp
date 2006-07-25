@@ -45,7 +45,7 @@ public:
         memset((void*)&contact2, 0, sizeof(CONTACT_ADDRESS));
         strcpy(contact2.cInterface, "eth0");
         strcpy(contact2.cIpAddress, "9.9.9.1");
-        contact2.eContactType = LOCAL;
+        contact2.eContactType = LOCAL_CONTACT;
         contact2.iPort = 9991;
         CPPUNIT_ASSERT(pDb->addContact(contact2) == false);
         CPPUNIT_ASSERT(contact2.id == 1);
@@ -56,7 +56,7 @@ public:
         memset((void*)&contact3, 0, sizeof(CONTACT_ADDRESS));
         strcpy(contact3.cInterface, "eth0");
         strcpy(contact3.cIpAddress, "9.9.9.1");
-        contact3.eContactType = LOCAL;
+        contact3.eContactType = LOCAL_CONTACT;
         contact3.iPort = 9992;
         CPPUNIT_ASSERT(pDb->addContact(contact3) == true);
         CPPUNIT_ASSERT(contact3.id == 2);
@@ -80,7 +80,7 @@ public:
         memset((void*)&contact5, 0, sizeof(CONTACT_ADDRESS));
         strcpy(contact5.cInterface, "eth1");
         strcpy(contact5.cIpAddress, "10.10.10.5");
-        contact5.eContactType = LOCAL;
+        contact5.eContactType = LOCAL_CONTACT;
         contact5.iPort = 9991;
         CPPUNIT_ASSERT(pDb->addContact(contact5) == true);
         CPPUNIT_ASSERT(contact5.id == 4);

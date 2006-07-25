@@ -87,8 +87,65 @@ INT64 UtlLongLongInt::setValue(INT64 iValue)
 
 INT64 UtlLongLongInt::stringToLongLong(const char* longLongString)
 {
-#ifdef WIN32
+#if defined(_WIN32)
     return(_atoi64(longLongString));
+#elif defined(_VXWORKS)
+
+    int numDigits = strlen(longLongString);
+    INT64 sum = -1;
+
+    if(numDigits <= 9)
+    {
+        sum = strtol(longLongString, 0, 0);
+    }
+
+    else if(numDigits > 9)
+    {
+        INT64 billions = 0;
+        INT64 first9digits = strtol(&longLongString[numDigits - 9], 0, 0);
+        char digitBuffer[10];
+
+        if(numDigits <= 18)
+        {
+            // Billions digits
+            memcpy(digitBuffer, longLongString, numDigits - 9);
+            digitBuffer[numDigits - 9] = '\0';
+            billions = strtol(digitBuffer, 0, 0);
+            if(billions >= 0)
+            {
+                sum = billions * 1000000 + first9digits;
+            }
+            else
+            {
+                sum = billions * 1000000 + first9digits * -1;
+            }
+        }
+
+        else //(numDigits > 18)
+        {
+            INT64 gazillions = 0;
+            // Billions digits
+            memcpy(digitBuffer, &longLongString[numDigits - 18], 9);
+            digitBuffer[9] = '\0';
+            billions = strtol(digitBuffer, 0, 0);
+
+            // Gazillions digits (take a maximum of 5 digits and sign)
+            int remainingDigits = numDigits > 23 ? 5 : numDigits - 18;
+            memcpy(digitBuffer, longLongString, remainingDigits);
+            digitBuffer[remainingDigits] = '\0';
+            gazillions = strtol(digitBuffer, 0, 0);
+
+            if(gazillions > 0)
+            {
+                sum = gazillions * 1000000000000 + billions * 1000000 + first9digits;
+            }
+            else
+            {
+                sum = gazillions * 1000000000000 + billions * -1000000 + first9digits * -1;
+            }
+        }
+    }
+    return(sum);
 #else
     // We could use "atoll" here but it is obsolete, "strtoll" is the recommended function
     // See http://www.delorie.com/gnu/docs/glibc/libc_423.html .
@@ -106,7 +163,7 @@ INT64 UtlLongLongInt::getValue() const
 
 unsigned UtlLongLongInt::hash() const
 {
-   return mValue ; 
+   return (unsigned)mValue ; 
 }
 
 

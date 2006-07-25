@@ -56,7 +56,6 @@ class SdpCodec;
 class CpCall;
 class SipUserAgent;
 class OsConfigDb;
-class PtMGCP;
 class TaoObjectMap;
 class TaoReference;
 class SdpCodecFactory;
@@ -85,7 +84,7 @@ public:
                const char* publicAddress,
                SipUserAgent* userAgent,
                int sipSessionReinviteTimer,               // Suggested value: 0
-               PtMGCP* mgcpStackTask,                     // Suggested value: NULL
+               void* mgcpStackTask,                       // Deprecated, Suggested value: NULL
                const char* defaultCallExtension,          // Suggested value: NULL
                int availableBehavior,                     // Suggested value: Connection::RING
                const char* unconditionalForwardUrl,       // Suggested value: NULL
@@ -463,7 +462,6 @@ private:
     UtlSList callStack;
     UtlString mDialString;
     int mOutGoingCallType;
-    PtMGCP* mpMgcpStackTask;
     int mNumDialPlanDigits;
     int mHoldType;
     SdpCodecFactory* mpCodecFactory;

@@ -25,7 +25,6 @@ distribution.
 #include <ctype.h>
 #ifdef _WIN32
 #   include <io.h>
-#   define fsync(fd) _commit(fd)
 #else
 #   include <unistd.h>
 #endif
@@ -1012,7 +1011,7 @@ bool TiXmlDocument::SaveFile( const char * filename ) const
       {
          Print( fp, 0 );
          fflush( fp ); // flush user space buffers
-         fsync( fileno( fp )); // sync kernel buffers to disk
+         fflush(fp); // sync kernel buffers to disk
          fclose( fp );
          // file is safe on disk - rename atomically changes it to filename,
          // ensuring that at all times there is a well-formed file on disk.xo

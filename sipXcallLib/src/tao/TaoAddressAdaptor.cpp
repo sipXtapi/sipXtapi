@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #endif
 
+#include <utl/UtlString.h>
 #include "tao/TaoAddressAdaptor.h"
 #include "tao/TaoTransportTask.h"
 #include "tao/TaoString.h"
@@ -345,7 +346,6 @@ TaoStatus TaoAddressAdaptor::addressCancelForward(TaoMessage& rMsg)
                                                                                                         noAnswerTimeout);
                 j += 5;
         }
-
         mpCallMgr->cancelAddressForwarding(size, pAddressForwards);
 
         TaoObjHandle clientSocket = rMsg.getSocket();

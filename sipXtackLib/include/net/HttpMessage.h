@@ -21,7 +21,7 @@
 #include <os/OsSocket.h>
 #include <os/OsTimeLog.h>
 #include <os/OsMsgQ.h>
-#include <utl/UtlHashMap.h>
+#include <utl/UtlDList.h>
 
 // DEFINES
 #define HTTP_NAME_VALUE_DELIMITER ':'
@@ -404,14 +404,14 @@ public:
 
     //! Gets the queue on which responses from the same transaction
     //! are deposited
-    OsMsgQ* getResponseListenerQueue();
+    OsMsgQ* getResponseListenerQueue() const;
 
     //! Sets the queue on which responses from the same transaction
     //! are deposited
     void setResponseListenerQueue(OsMsgQ* requestListenerQueue);
 
     //! Gets the data item to pass to the request listener
-    void* getResponseListenerData();
+    void* getResponseListenerData() const;
 
     //! Sets the data item to pass to the request listener
     void setResponseListenerData(void* requestListenerData);
@@ -696,6 +696,7 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+
    HttpBody* body;
    long transportTimeStamp;
    int lastResendDuration;

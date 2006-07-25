@@ -133,7 +133,7 @@ OsStatus SipTcpServer::createServerSocket(const char* szBindAddr, int& port, con
             CONTACT_ADDRESS contact;
             strcpy(contact.cIpAddress, szBindAddr);
             contact.iPort = port;
-            contact.eContactType = LOCAL;
+            contact.eContactType = LOCAL_CONTACT;
             char szAdapterName[16];
             memset((void*)szAdapterName, 0, sizeof(szAdapterName)); // null out the string
             

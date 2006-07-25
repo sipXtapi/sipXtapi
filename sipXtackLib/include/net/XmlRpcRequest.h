@@ -76,6 +76,8 @@ public:
 
    friend class XmlRpcTest;
    
+/* ============================ CREATORS ================================== */
+
    /// Contruct an XML-RPC request for a given method
    XmlRpcRequest(Url& uri, ///< uri type can only be either http or https
                  const char* methodName ///< name of the method in XML-RPC request
@@ -96,8 +98,15 @@ public:
     * 
     */
 
+/* ============================ MANIPULATORS ============================== */
+
    /// Add an atomic param to the XML-RPC request
    bool addParam(UtlContainable* value); ///< value for the param
+   
+/* ============================ ACCESSORS ================================= */
+
+
+/* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -124,6 +133,8 @@ private:
    /// Disabled assignment operator
    XmlRpcRequest& operator=(const XmlRpcRequest& rhs);   
 };
+
+/* ============================ INLINE METHODS ============================ */
 
 #endif  // _XMLRPCREQUEST_H_
 

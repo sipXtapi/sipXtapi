@@ -18,6 +18,7 @@
 #include "os/OsRpcMsg.h"
 #include "os/OsEventMsg.h"
 #include "utl/UtlHashMap.h"
+#include "utl/UtlSList.h"
 
 // DEFINES
 #define SYNC_MSG_TYPE (OsMsg::USER_START + 2)      /**< Synchronized Msg type/id */

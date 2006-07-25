@@ -106,23 +106,8 @@ mCallListMutex(OsMutex::Q_FIFO),
 mAddressForwardMutex(OsMutex::Q_FIFO)
 
 {
-    mDoNotDisturbFlag = rCpCallManager.mDoNotDisturbFlag;
-    mMsgWaitingFlag = rCpCallManager.mMsgWaitingFlag;
-    mOfferedTimeOut = rCpCallManager.mOfferedTimeOut;
-
-    mAddressForwardingCnt = rCpCallManager.mAddressForwardingCnt;
-    if (mAddressForwardingCnt > 0)
-    {
-        mpAddressForwards = new PtAddressForwarding[mAddressForwardingCnt];
-        for (int i = 0; i < mAddressForwardingCnt; i++)
-            mpAddressForwards[i] =  rCpCallManager.mpAddressForwards[i];
-    }
-    else
-    {
-        mpAddressForwards = 0;
-    }
-
-    mLastMetaEventId = 0;
+    // Copy of call manager not supported
+    assert(0);
 }
 
 // Destructor
@@ -392,11 +377,8 @@ CpCallManager::operator=(const CpCallManager& rhs)
    if (this == &rhs)            // handle the assignment to self case
       return *this;
 
-    mAddressForwardingCnt = rhs.mAddressForwardingCnt;
-    mpAddressForwards = rhs.mpAddressForwards;
-    mDoNotDisturbFlag = rhs.mDoNotDisturbFlag;
-    mMsgWaitingFlag = rhs.mMsgWaitingFlag;
-    mOfferedTimeOut = rhs.mOfferedTimeOut;
+    // Copy of call manager not supported
+    assert(0);
 
     return *this;
 }

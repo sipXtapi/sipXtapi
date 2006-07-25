@@ -1,10 +1,11 @@
+/*
 //
 // Copyright (C) 2004, 2005 Pingtel Corp.
 // 
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
-//////
+//////*/
 
 #ifndef INCLUDE_RESPARSE_BZERO_H
 #define INCLUDE_RESPARSE_BZERO_H

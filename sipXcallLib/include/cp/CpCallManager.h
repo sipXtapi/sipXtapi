@@ -26,7 +26,6 @@
 #include <os/OsRWMutex.h>
 #include "os/OsProtectEvent.h"
 #include "os/OsQueuedEvent.h"
-
 #include "ptapi/PtEvent.h"
 #include "ptapi/PtDefs.h"
 #include "net/SipMessage.h"
@@ -47,8 +46,12 @@ class CpMediaInterface;
 class PtAddressForwarding;
 class SipSession;
 class SipDialog;
+
+#ifndef EXCLUDE_STREAMING
 class MpStreamPlayer;
 class MpStreamPlaylistPlayer;
+#endif
+
 class OsEvent;
 
 //! Abstract call manager
@@ -392,6 +395,7 @@ public:
     //! For internal use
     virtual void stopPremiumSound(const char* callId) = 0;
 
+#ifndef EXCLUDE_STREAMING
     //! Create a MpStreamPlaylistPlayer media player associated with
     /*! the specified call. The media player can subsequently be used
      * to play media such as streamed audio to the connections
@@ -437,6 +441,7 @@ public:
                                const char* callid,
                                MpStreamPlayer* pPlayer) = 0 ;
 
+#endif  //   #ifndef EXCLUDE_STREAMING
 
     //!Sets the CPU codec limit for a call.
     /*! Each connection within the call

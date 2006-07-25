@@ -22,8 +22,10 @@ extern "C" {
 #       include "resparse/wnt/inet_aton.h"       
 }
 #elif defined(_VXWORKS)
+#       include <stdio.h>
 #       include <netdb.h>
 #       include <netinet/in.h>
+#       include <vxWorks.h>
 /* Use local lnameser.h for info missing from VxWorks version --GAT */
 /* lnameser.h is a subset of resparse/wnt/arpa/nameser.h                */
 #       include <resolv/nameser.h>
@@ -46,6 +48,9 @@ extern "C" {
 #       error Unsupported target platform.
 #endif
 
+#ifndef __pingtel_on_posix__
+extern struct __res_state _sip_res;
+#endif
 #include <sys/types.h>
 
 // Standard C includes.
@@ -307,7 +312,7 @@ server_t* SipSrvLookup::servers(const char* domain,
    }
    else
    // Case 1: Domain name is a numeric IP address.
-   if (inet_aton(domain, &in.sin_addr))
+   if ( IS_INET_RETURN_OK( inet_aton((char *)domain, &in.sin_addr)) )
    {
       in.sin_family = AF_INET;
       // Set up the port number.
@@ -429,12 +434,20 @@ void SipSrvLookup::setDnsSrvTimeouts(int initialTimeoutInSecs, int retries)
 {
    if (initialTimeoutInSecs > 0)
    {
+#if defined(__pingtel_on_posix__)
       _res.retrans = initialTimeoutInSecs;
+#else
+      _sip_res.retrans = initialTimeoutInSecs;
+#endif
    }
 
    if (retries > 0)
    {
+#if defined(__pingtel_on_posix__)
       _res.retry = retries;
+#else
+      _sip_res.retry = retries;
+#endif
    }
 }
 

@@ -136,13 +136,16 @@ public:
         int i;
         for (i=0; i<NUM_OF_RUNS; ++i)
         {
+            int rtpPortStart = 9000;
+            int rtpPortEnd = 9002; 
+
             CallManager *pCallManager =
                new CallManager(FALSE,
                                NULL, //LineMgr
                                TRUE, // early media in 180 ringing
                                NULL, // CodecFactory
-                               9000, // rtp start
-                               9002, // rtp end
+                               rtpPortStart, // rtp start
+                               rtpPortEnd, // rtp end
                                "sip:153@pingtel.com",
                                "sip:153@pingtel.com",
                                NULL, //SipUserAgent
@@ -219,13 +222,17 @@ public:
 
             sipUA->start();
 
+            int rtpPortStart = 9000;
+            int rtpPortEnd = 9002; 
+
+
             CallManager *pCallManager =
                new CallManager(FALSE,
                                NULL, //LineMgr
                                TRUE, // early media in 180 ringing
                                NULL, // CodecFactory
-                               9000, // rtp start
-                               9002, // rtp end
+                               rtpPortStart, // rtp start
+                               rtpPortEnd, // rtp end
                                "sip:153@pingtel.com",
                                "sip:153@pingtel.com",
                                sipUA, //SipUserAgent
@@ -297,13 +304,16 @@ public:
                                                    );
 
             sipUA->start();
+            int rtpPortStart = 9000;
+            int rtpPortEnd = 9002; 
+
             CallManager *pCallManager =
                new CallManager(FALSE,
                                NULL, //LineMgr
                                TRUE, // early media in 180 ringing
                                NULL, // CodecFactory
-                               9000, // rtp start
-                               9002, // rtp end
+                               rtpPortStart, // rtp start
+                               rtpPortEnd, // rtp end
                                "sip:153@pingtel.com",
                                "sip:153@pingtel.com",
                                sipUA, //SipUserAgent
@@ -384,6 +394,8 @@ public:
 
             sipUA->start();
             refreshMgr->init(sipUA);
+            int rtpPortStart = 9000;
+            int rtpPortEnd = 9002; 
 
 
             CallManager *pCallManager =
@@ -391,8 +403,8 @@ public:
                                NULL, //LineMgr
                                TRUE, // early media in 180 ringing
                                NULL, // CodecFactory
-                               9000, // rtp start
-                               9002, // rtp end
+                               rtpPortStart, // rtp start
+                               rtpPortEnd, // rtp end
                                "sip:153@pingtel.com",
                                "sip:153@pingtel.com",
                                sipUA, //SipUserAgent

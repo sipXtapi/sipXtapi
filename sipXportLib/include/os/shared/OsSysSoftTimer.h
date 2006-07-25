@@ -45,6 +45,17 @@
    /* Windows GetTickCount() returns milliseconds */
    #define TICKS_PER_SECOND ((pt_tick_t) 1000)
    #define TICKS_PER_MSEC   ((pt_tick_t) 1)
+#elif defined(_VXWORKS)
+   // wdn - Dan and Howie to code review this change
+   #include "time.h"
+
+   typedef int pt_tick_t;
+   #define pt_get_ticks()   tickGet()
+
+   /* VxWorks tickGet() returns number of ticks, each 16ms */
+   #define _TICKS_PER_MSEC(msec)  ((sysClkRateGet()*msec)/1000 == 0) ? 1 : ((sysClkRateGet()*msec)/1000)
+   #define TICKS_PER_SECOND ((pt_tick_t) _TICKS_PER_MSEC(1000))
+   #define TICKS_PER_MSEC   ((pt_tick_t) _TICKS_PER_MSEC(1))
 #else
    #error Unsupported target platform.
 #endif

@@ -45,7 +45,7 @@ OsStunDatagramSocket::OsStunDatagramSocket(int remoteHostPortNum,
                                            int iRefreshPeriodInSec,
                                            int iStunOptions,
                                            OsNotification *pNotification) 
-        : OsDatagramSocket(remoteHostPortNum, remoteHost, localHostPortNum, localHost)
+        : OsDatagramSocket(0, 0, localHostPortNum, localHost)  // make remote hostaddr/port=0, for NOT using udp "connect"
 {    
     pStunAgent = OsStunAgentTask::getInstance() ;
     mStunServer = szStunServer ;

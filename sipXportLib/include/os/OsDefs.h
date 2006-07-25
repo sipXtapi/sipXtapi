@@ -1,4 +1,4 @@
-// 
+/*// 
 // 
 // Copyright (C) 2005-2006 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -10,27 +10,32 @@
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // $$
-//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////*/
 
 
 #ifndef _OsDefs_h_
 #define _OsDefs_h_
 
-// SYSTEM INCLUDES
-#ifdef _VXWORKS
+/* SYSTEM INCLUDES */
+#if defined(_VXWORKS)
 #include "os/Vxw/OsVxwDefs.h"
-#endif // _VXWORKS
-#ifdef __pingtel_on_posix__
-#include "os/linux/OsLinuxDefs.h"
-#endif // __pingtel_on_posix__
+#include <vxWorks.h>
+#  define IS_INET_RETURN_OK( x )    (x == 0)  /* wdn - OK == 0 defined in vxWorks.h but has issues ??? */
+#else
+#  define IS_INET_RETURN_OK( x )    (x > 0)
+#endif
 
-// APPLICATION INCLUDES
-// MACROS
-// EXTERNAL FUNCTIONS
-// DEFINES
+#if defined(__pingtel_on_posix__)
+#include "os/linux/OsLinuxDefs.h"
+#endif /* __pingtel_on_posix__ */
+
 #ifdef WIN32
 #define snprintf _snprintf
 #endif
+/* APPLICATION INCLUDES  */
+/* MACROS                */
+/* EXTERNAL FUNCTIONS    */
+/* DEFINES               */
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,32 +44,36 @@ extern "C" {
 void enableConsoleOutput(int bEnable) ;
 void osPrintf(const char* format , ...)
 #ifdef __GNUC__
-            // with the -Wformat switch, this enables format string checking
-            __attribute__ ((format (printf, 1, 2)))
+            /* with the -Wformat switch, this enables format string checking */
+            __attribute__ ((format (printf, 1, 2))) 
+
 #endif
          ;
          
-// A special value for "port number" which means that no port is specified.
+/* A special value for "port number" which means that no port is specified.
+*/
 #define PORT_NONE (-1)
 
-// A special value for "port number" which means that some default port number
-// should be used.  The default may be defined by the situation, or
-// the OS may choose a port number.
-// For use when PORT_NONE is used to mean "open no port", and in socket-opening
-// calls.
+/* A special value for "port number" which means that some default port number
+** should be used.  The default may be defined by the situation, or
+** the OS may choose a port number.
+** For use when PORT_NONE is used to mean "open no port", and in socket-opening
+** calls.
+*/
 #define PORT_DEFAULT (-2)
 
-// Macro to test a port number for validity as a real port (and not PORT_NONE
-// or PORT_DEFAULT).  Note that 0 is a valid port number for the protocol,
-// but the Berkeley sockets interface makes it impossible to specify it.
-// In addition, RTP treats port 0 as a special value.  Thus we forbid port 0.
+/* Macro to test a port number for validity as a real port (and not PORT_NONE
+** or PORT_DEFAULT).  Note that 0 is a valid port number for the protocol,
+** but the Berkeley sockets interface makes it impossible to specify it.
+** In addition, RTP treats port 0 as a special value.  Thus we forbid port 0.
+*/
 #define portIsValid(p) ((p) >= 1 && (p) <= 65535)
 
-// EXTERNAL VARIABLES
-// CONSTANTS
-// STRUCTS
-// TYPEDEFS
-// FORWARD DECLARATIONS
+/* EXTERNAL VARIABLES   */
+/* CONSTANTS            */
+/* STRUCTS              */
+/* TYPEDEFS             */
+/* FORWARD DECLARATIONS */
 
 #ifdef __cplusplus
 }
@@ -85,5 +94,5 @@ extern "C"
 extern int getdomainname(char *, int);
 #endif
 
-#endif  // _OsDefs_h_
+#endif  /* _OsDefs_h_ */
 

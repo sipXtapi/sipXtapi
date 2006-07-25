@@ -29,8 +29,8 @@
 // CONSTANTS
 
 // STATIC VARIABLE INITIALIZATIONS
-const int OsTaskBase::DEF_OPTIONS   = 0;             // default task options
-const int OsTaskBase::DEF_PRIO      = 128;           // default task priority
+const int OsTaskBase::DEF_OPTIONS   = 0;              // default task options
+const int OsTaskBase::DEF_PRIO      = 128;            // default task priority
 const int OsTaskBase::DEF_STACKSIZE = 16384;         // default task stacksize
 const UtlString OsTaskBase::TASK_PREFIX("Task.");     // Task name db prefix
 const UtlString OsTaskBase::TASKID_PREFIX("TaskID."); // TaskId name db prefix
@@ -134,11 +134,19 @@ UtlBoolean OsTaskBase::isShuttingDown(void)
    return (mState == SHUTTING_DOWN);
 }
 
+
 // Return TRUE if the task has been started (and has not been shut down)
 UtlBoolean OsTaskBase::isStarted(void)
 {
    return (mState == STARTED);
 }
+
+// Return TRUE if the task is un-initialized
+UtlBoolean OsTaskBase::isUnInitialized(void)
+{
+   return (mState == UNINITIALIZED);
+}
+
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
@@ -189,7 +197,7 @@ UtlBoolean OsTaskBase::waitUntilShutDown(int milliSecToWait)
 
    UtlString taskName = getName();
 
-   if (isStarted())
+   if (isStarted() || isUnInitialized())
    {
       requestShutdown();  // ask the task to shut itself down
       yield();            // yield the CPU so the target task can terminate

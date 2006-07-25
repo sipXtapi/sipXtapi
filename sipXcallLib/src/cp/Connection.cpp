@@ -462,7 +462,16 @@ void Connection::markForDeletion()
 
 void Connection::setMediaInterface(CpMediaInterface* pMediaInterface) 
 {
+    
+
+    if ((mpMediaInterface) && (mConnectionId != -1))
+    {
+       mpMediaInterface->deleteConnection( mConnectionId );
+    }
+
+    mConnectionId = -1;
     mpMediaInterface = pMediaInterface ;
+
 }
 
 
@@ -1069,7 +1078,7 @@ UtlBoolean Connection::isStateTransitionAllowed(int newState, int oldState)
 
 int Connection::terminalConnectionState(int connState)
 {
-	int state;
+	int state = PtTerminalConnection::UNKNOWN;
 
 	switch(connState)
 	{

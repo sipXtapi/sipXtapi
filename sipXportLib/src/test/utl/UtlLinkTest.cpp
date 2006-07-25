@@ -42,7 +42,9 @@ public:
 
    void testEmptyPool()
       {
-         CPPUNIT_ASSERT(totalAllocated() == 0);
+         CPPUNIT_ASSERT_EQUAL_MESSAGE("Initial UtlLinkPool allocation should be zero!", \
+                        (size_t)0, \
+                        totalAllocated() );
       }
    
    void testLinkBefore()
@@ -366,7 +368,10 @@ public:
          for (int iteration = 0; iteration < 1000; iteration++)
          {
             // fill the start list with the number of blocks it took to force an allocation
-            for (unsigned i = 0; i < peakPoolSize; i++)
+            // 
+            // cannot assume starting pool size to be zero.
+            //
+            for (unsigned i = startingPoolSize; i < peakPoolSize; i++) 
             {
                UtlLink::after(&start, &data1);
             }
@@ -378,7 +383,9 @@ public:
                     "   totalAllocated   %d\n",
                     iteration, startingPoolSize, peakPoolSize, totalAllocated()
                     );
-            CPPUNIT_ASSERT_MESSAGE(msg, peakPoolSize == totalAllocated());
+            CPPUNIT_ASSERT_EQUAL_MESSAGE("peakPoolSize is not same as totalAllocated!", \
+                        peakPoolSize, \
+                        totalAllocated() );
 
             // release all those links
             while (!start.isUnLinked())

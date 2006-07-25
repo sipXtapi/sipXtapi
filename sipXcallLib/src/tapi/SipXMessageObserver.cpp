@@ -23,6 +23,10 @@ extern UtlSList*	g_pEventListeners;
 extern OsMutex*	    g_pEventListenerLock;
 extern SipXHandleMap* gpInfoHandleMap ;   // sipXtapiInternal.cpp
 
+#if defined(_VXWORKS)
+extern "C" char* strdup(const char*);
+#endif
+
 
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS

@@ -177,6 +177,7 @@ void sipXtapiTestSuite::tearDown()
         g_hInst5 = NULL;
     }
 
+    sipxFlushHandles() ;
 
 #ifdef _WIN32
 #ifdef SIPX_TEST_FOR_MEMORY_LEAKS

@@ -46,7 +46,7 @@ class CpMediaInterfaceFactoryImpl ;
  * This abstract class must be sub-classed and implemented to
  * replace the default media sub-system.
  */
-class CpMediaInterface
+class CpMediaInterface : public UtlInt
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -186,7 +186,7 @@ public:
    virtual OsStatus startRtpReceive(int connectionId,
                                     int numCodecs,
                                     SdpCodec* sendCodec[],
-                                    SdpSrtpParameters& srtpParams)  = 0 ;
+                                    SdpSrtpParameters& srtpParams) = 0 ;
 
 
    /**

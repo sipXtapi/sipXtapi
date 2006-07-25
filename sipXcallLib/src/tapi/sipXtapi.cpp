@@ -36,6 +36,8 @@
 #include "net/SipUserAgent.h"
 #include "net/SdpCodecFactory.h"
 #include "cp/CallManager.h"
+
+// Media include files
 #include "mi/CpMediaInterfaceFactory.h"
 #include "mi/CpMediaInterfaceFactoryImpl.h"
 #include "mi/CpMediaInterfaceFactoryFactory.h"
@@ -77,6 +79,12 @@ extern SipXHandleMap* gpPubHandleMap ;    // sipXtapiInternal.cpp
 extern SipXHandleMap* gpSubHandleMap ;    // sipXtapiInternal.cpp
 extern UtlDList*      gpSessionList ;     // sipXtapiInternal.cpp
 // EXTERNAL FUNCTIONS
+
+#if defined(_VXWORKS)
+extern "C" char* strdup(const char*);
+extern "C" int strcasecmp(const char *s1, const char *s2);
+#endif
+
 
 // STRUCTURES
 
@@ -406,12 +414,15 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST* phInst,
         }
 
 
+        // get the rtp end port
+        int rtpPortEnd = rtpPortStart + (2*maxConnections);
+
         pInst->pCallManager = new CallManager(FALSE,
                                pInst->pLineManager,
                                TRUE, // early media in 180 ringing
                                pInst->pCodecFactory,
                                rtpPortStart, // rtp start
-                               rtpPortStart + (2*maxConnections), // rtp end
+                               rtpPortEnd, // rtp end
                                localAddress.data(),
                                localAddress.data(),
                                pInst->pSipUserAgent,
@@ -445,7 +456,7 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST* phInst,
         sipxConfigSetAudioCodecPreferences(pInst, AUDIO_CODEC_BW_NORMAL);
         sipxConfigSetVideoCodecPreferences(pInst, VIDEO_CODEC_BW_HIGH);
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(_VXWORKS)
         initAudioDevices(pInst) ;
 #else
         // TBD
@@ -2584,7 +2595,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
                     pInst->nCalls++ ;
                     pInst->pLock->release() ;
 
-                    // Set the outbound line
+                    // need to set the line for the Conf
                     pData->pInst->pCallManager->setOutboundLineForCall(pData->strCallId->data(),
                                                                        lineId);
 
@@ -2592,7 +2603,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
                     SipSession session ;
                     sipxFireCallEvent(pData->pInst->pCallManager, sessionId.data(), &session, NULL, DIALTONE, DIALTONE_CONFERENCE) ;   
 
-                    PtStatus status = pData->pInst->pCallManager->connect(pData->strCallId->data(), szAddress, NULL, sessionId.data(), (CONTACT_ID) contactId, pDisplay) ;
+                    PtStatus status = pData->pInst->pCallManager->connect(pData->strCallId->data(), szAddress, lineId.data(), sessionId.data(), (CONTACT_ID) contactId, pDisplay) ;
                     if (status == PT_SUCCESS)
                     {
                         rc = SIPX_RESULT_SUCCESS ;
@@ -3404,6 +3415,46 @@ SIPXTAPI_API SIPX_RESULT sipxAudioGetOutputDevice(const SIPX_INST hInst,
 
     return rc ;
 }
+
+SIPXTAPI_API SIPX_RESULT sipxAudioGetActiveOutputDevice(const SIPX_INST hInst,                                                  
+                                                        char* szDevice)
+{
+    SPEAKER_TYPE type = SPEAKER;
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "sipxAudioGetActiveOutputDevice hInst=%p",
+        hInst);
+        
+    SIPX_RESULT rc = SIPX_RESULT_INVALID_ARGS ;
+    SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;
+    UtlString checkDevice ; 
+
+    assert(pInst) ;
+    assert(szDevice);
+
+    CpMediaInterfaceFactoryImpl* pInterface = 
+           pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation() ;
+
+    osPrintf("sipxAudioGetActiveOutputDevice, factImpl: 0x%x", (int)pInterface );
+
+
+    if (pInst->speakerSettings[type].bInitialized && (pInst->enabledSpeaker == type))
+    {
+      pInterface->getSpeakerDevice(checkDevice) ;
+      pInst->speakerSettings[type].device = checkDevice;
+
+      int len = checkDevice.length();
+      if (len)
+          memcpy( szDevice, checkDevice.data(), len );
+      else
+          szDevice[0] = 0;
+
+
+      rc = SIPX_RESULT_SUCCESS ;
+    }
+
+    return rc ;
+}
+
 
 SIPXTAPI_API SIPX_RESULT sipxAudioSetCallInputDevice(const SIPX_INST hInst,
                                                      const char* szDevice)
@@ -4362,7 +4413,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetAudioCodecPreferences(const SIPX_INST hIns
         int iRejected;
 
         // Check if bandwidth is legal, do not allow variable bandwidth
-        if (bandWidth >= AUDIO_CODEC_BW_LOW || bandWidth <= AUDIO_CODEC_BW_HIGH)
+        if (bandWidth >= AUDIO_CODEC_BW_LOW && bandWidth <= AUDIO_CODEC_BW_HIGH)
         {
             CpMediaInterfaceFactoryImpl* pInterface = 
                     pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation();

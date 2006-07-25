@@ -6,6 +6,11 @@
 
 #include "EventRecorder.h"
 
+#if defined(_VXWORKS)
+extern "C" char* strdup(const char*);
+#endif
+
+
 EventRecorder::EventRecorder()
 {
     int i ;

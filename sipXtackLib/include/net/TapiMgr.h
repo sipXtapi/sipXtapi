@@ -83,7 +83,8 @@ public:
     void fireLineEvent(const void* pSrc,
                         const char* szLineIdentifier,
                         SIPX_LINESTATE_EVENT event,
-                        SIPX_LINESTATE_CAUSE cause);	
+                        SIPX_LINESTATE_CAUSE cause,
+                        const char *bodyBytes= NULL );	
                         
     /** 
      * This method calls the new "unified callback" procedure in sipXtapi.

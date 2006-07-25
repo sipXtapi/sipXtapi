@@ -46,6 +46,7 @@ class SipMessageTest : public CppUnit::TestCase
       CPPUNIT_TEST(testMultipartBody);
       CPPUNIT_TEST(testCodecError);
       CPPUNIT_TEST(testSdpParse);
+      CPPUNIT_TEST(testSdpShortHeaderNames);
       CPPUNIT_TEST(testNonSdpSipMessage);
       CPPUNIT_TEST(testSetInviteDataHeaders);
       CPPUNIT_TEST(testSetInviteDataHeadersUnique);
@@ -913,7 +914,7 @@ class SipMessageTest : public CppUnit::TestCase
          user_agent.getViaInfo(OsSocket::UDP, address, port);
          char agent_expected[128];
          strcpy(agent_expected, address.data());
-         if (port != 5060)      // PORT_NONE
+         if ((port != 5060) && (port > 0))      // PORT_NONE
          {
             sprintf(&agent_expected[strlen(agent_expected)], ":%d", port);
          }
@@ -924,6 +925,50 @@ class SipMessageTest : public CppUnit::TestCase
  void testSdpParse()
    {
         const char* sip = "INVITE 14 SIP/2.0\nContent-Type:application/sdp\n\n"
+            "v=0\nm=audio 49170 RTP/AVP 0\nc=IN IP4 224.2.17.12/127";
+
+        SipMessage *msg = new SipMessage(sip);
+        const SdpBody *sdp = msg->getSdpBody();
+
+        CPPUNIT_ASSERT_MESSAGE("Null sdp buffer", sdp != NULL);
+
+        int mediaCount = sdp->getMediaSetCount();
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("incorrect media count", 1, mediaCount);
+
+        const char* referenceSdp = 
+            "v=0\r\nm=audio 49170 RTP/AVP 0\r\nc=IN IP4 224.2.17.12/127\r\n";
+        const char* sdpBytes = NULL;
+        int sdpByteLength = 0;
+        sdp->getBytes(&sdpBytes, &sdpByteLength);
+        for(int iii = 0; iii < sdpByteLength; iii++)
+        {
+            if(referenceSdp[iii] != sdpBytes[iii])
+            {
+                printf("index[%d]: expected: %d got: %d\n",
+                    iii, referenceSdp[iii], sdpBytes[iii]);
+            }
+        }
+        CPPUNIT_ASSERT_MESSAGE("Null sdp serialized content", sdpBytes != NULL);
+        CPPUNIT_ASSERT_MESSAGE("SDP does not match expected content",
+            strcmp(referenceSdp, sdpBytes) == 0);
+
+        SipMessage* msgCopy = new SipMessage(*msg);
+        CPPUNIT_ASSERT_MESSAGE("NULL message copy", msgCopy != NULL);
+        const SdpBody *sdpCopy = msgCopy->getSdpBody();
+        CPPUNIT_ASSERT_MESSAGE("NULL SDP copy", sdpCopy != NULL);
+        const char* sdpCopyBytes = NULL;
+        int sdpCopyLen = 0;
+        sdpCopy->getBytes(&sdpCopyBytes, &sdpCopyLen);
+        //printf("SDP copy length: %d\n%s\n", sdpCopyLen, sdpCopyBytes);
+        CPPUNIT_ASSERT_MESSAGE("Null sdp copy serialized content", sdpCopyBytes != NULL);
+        CPPUNIT_ASSERT_MESSAGE("SDP does not match expected content",
+            strcmp(referenceSdp, sdpCopyBytes) == 0);
+   }
+
+
+void testSdpShortHeaderNames()
+   {
+        const char* sip = "INVITE 14 SIP/2.0\nc:application/sdp\n\n"
             "v=0\nm=audio 49170 RTP/AVP 0\nc=IN IP4 224.2.17.12/127";
 
         SipMessage *msg = new SipMessage(sip);

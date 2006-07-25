@@ -143,21 +143,26 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
         smNumClientSubResponsesReceived = 0;
         smLastClientSubResponseReceived = NULL;
 
+        UtlString hostPort;
+        OsSocket::getHostIp(&hostPort);
+        hostPort.append(':');
+        char portText[20];
+        sprintf(portText, "%d", UNIT_TEST_SIP_PORT);
+        hostPort.append(portText);
 
-        UtlString resourceId("111@127.0.0.1:");
+        UtlString resourceId("111@");
         UtlString eventTypeKey("message-summary");
         UtlString eventType(eventTypeKey);
         UtlString from("Frida<sip:111@localhost:");
         UtlString to("Tia<sip:222@localhost:");
-        UtlString contact("sip:111@127.0.0.1:");
-        char portString[20];
-        sprintf(portString, "%d", UNIT_TEST_SIP_PORT);
-        resourceId.append(portString);
-        from.append(portString);
+        UtlString contact("sip:111@");
+
+        resourceId.append(hostPort);
+        from.append(portText);
         from.append('>');
-        to.append(portString);
+        to.append(portText);
         to.append('>');
-        contact.append(portString);
+        contact.append(hostPort);
         SipUserAgent* userAgent = new SipUserAgent(UNIT_TEST_SIP_PORT, UNIT_TEST_SIP_PORT);
         userAgent->start();
 

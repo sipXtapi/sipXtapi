@@ -36,6 +36,7 @@
 #include <net/SipUserAgent.h>
 #include <os/OsDateTime.h>
 #include <os/OsSysLog.h>
+#include <net/HttpBody.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -61,14 +62,10 @@ SipMessage::SipMessage(const char* messageBytes, int byteCount) :
    mLocalIp = "";
    mpSipTransaction = NULL;
    replaceShortFieldNames();
+
 #ifdef TRACK_LIFE
    osPrintf("Created SipMessage @ address:%X\n",this);
 #endif
-
-   if (spSipMessageFieldProps == NULL)
-   {
-      spSipMessageFieldProps = new SipMessage::SipMessageFieldProps() ;
-   }
 }
 
 SipMessage::SipMessage(OsSocket* inSocket, int bufferSize) :
@@ -134,6 +131,12 @@ UtlBoolean SipMessage::getShortName(const char* longFieldName,
    UtlBoolean nameFound = FALSE;
 
    shortFieldName->remove(0);
+
+   if (spSipMessageFieldProps == NULL)
+   {
+      spSipMessageFieldProps = new SipMessage::SipMessageFieldProps() ;
+   }
+
    NameValuePair* shortNV = (NameValuePair*) spSipMessageFieldProps->mLongFieldNames.find(&longNV);
    if(shortNV)
    {
@@ -154,6 +157,11 @@ UtlBoolean SipMessage::getLongName(const char* shortFieldName,
         shortFieldName[1] == '\0')
     {
         UtlString shortNV(shortFieldName);
+
+        if (spSipMessageFieldProps == NULL)
+        {
+           spSipMessageFieldProps = new SipMessage::SipMessageFieldProps() ;
+        }
 
        NameValuePair* longNV =
           (NameValuePair*) spSipMessageFieldProps->mShortFieldNames.find(&shortNV);
@@ -177,6 +185,11 @@ void SipMessage::replaceShortFieldNames()
    UtlString longName;
    size_t position;
    
+   if (spSipMessageFieldProps == NULL)
+   {
+      spSipMessageFieldProps = new SipMessage::SipMessageFieldProps() ;
+   }
+
    for ( position= 0;
          (nvPair = dynamic_cast<NameValuePair*>(mNameValues.at(position)));
          position++
@@ -457,9 +470,12 @@ const SdpBody* SipMessage::getSdpBody(const char* derPkcs12,
     smimeType.toLower();
 
     // If the body is of SDP type, return it
-    if(contentType.compareTo(sdpType) == 0)
+    const HttpBody *pHttpBody = getBody();
+
+    if ((pHttpBody) && 
+        (pHttpBody->getClassType() == HttpBody::SDP_BODY_CLASS))
     {
-        body = (const SdpBody*) getBody();
+       body = (SdpBody *)pHttpBody;       
     }
 
     // If we have a private key and this is a S/MIME body
@@ -722,7 +738,8 @@ void SipMessage::setInviteBadCodecs(const SipMessage* inviteRequest,
    // protocol this message arrived on.
    ua->getViaInfo(OsSocket::UDP, address, port);
    warningField.append(address);
-   if (port != 0)               // PORT_NONE
+
+   if ((port != 5060) && (port > 0))      // Port 5060 is treated as default port
    {
       sprintf(warningCodeString, ":%d", port);
       warningField.append(warningCodeString);
@@ -1137,6 +1154,119 @@ void SipMessage::setEnrollmentData(const char* uri,
 
    //setRxpires
    setExpiresField(expiresInSeconds);
+}
+
+
+// RFC 3248 MWI
+
+/******** SAMPLE CODE FOR CREATING MWI NOTIFY message****************************
+
+			SipMessage notifyRequest;
+			UtlString fromField;
+			UtlString toData;
+			UtlString contactField;
+			UtlString msgSummaryData;
+			
+			char *uri = "sip:100@127.0.0.1:3000";
+
+			sipMessage->getFromField(&fromField);
+			sipMessage->getToField(&toData);
+			sipMessage->getContactField(0,contactField);
+			
+		       notifyRequest.setMessageSummaryData(msgSummaryData,"udit@3com.com",TRUE,
+		       								TRUE,FALSE,FALSE,4,2);
+			notifyRequest.setMWIData(SIP_NOTIFY_METHOD, fromField.data(), toData.data(),uri,
+							contactField.data(),"1",1,msgSummaryData);			
+			
+**********************************************************************************/
+
+void SipMessage::setMessageSummaryData(
+                  UtlString& msgSummaryData,
+                  const char* msgAccountUri,
+                  UtlBoolean bNewMsgs,
+                  UtlBoolean bVoiceMsgs,
+                  UtlBoolean bFaxMsgs,
+                  UtlBoolean bEmailMsgs,
+                  int numNewMsgs,
+                  int numOldMsgs,
+                  int numFaxNewMsgs,
+                  int numFaxOldMsgs,
+                  int numEmailNewMsgs,
+                  int numEmailOldMsgs
+)
+{
+    char integerString[255];
+	
+    // Adding  Message-summary information
+    sprintf(integerString,"\r\n");
+    msgSummaryData.append(integerString);
+
+    if(NULL != msgAccountUri)
+    {
+        sprintf(integerString,"Message-Account: %s\r\n",msgAccountUri);
+        msgSummaryData.append(integerString);
+    }
+	
+    if (TRUE == bNewMsgs)
+    {
+         // Adding Messages-waiting Yes  
+         sprintf(integerString,"Messages-Waiting: yes\r\n");
+    }
+    else
+    {
+         // Adding Messages-waiting No
+        sprintf(integerString,"Messages-Waiting: no\r\n");
+    }
+    msgSummaryData.append(integerString);	
+
+    if (bVoiceMsgs)
+    {
+        sprintf(integerString,"Voice-Message: %d/%d\r\n",numNewMsgs,numOldMsgs);
+        msgSummaryData.append(integerString);
+    }
+
+    if (bFaxMsgs)
+    {
+        sprintf(integerString,"Fax-Message: %d/%d\r\n",numFaxNewMsgs,numFaxOldMsgs);
+        msgSummaryData.append(integerString);
+    }
+
+    if (bEmailMsgs)
+    {
+        sprintf(integerString,"Email-Message: %d/%d\r\n",numEmailNewMsgs,numEmailOldMsgs);
+        msgSummaryData.append(integerString);
+    }
+	
+}
+
+// Added by Udit for RFC 3248 MWI
+void SipMessage::setMWIData(const char *method,
+				  const char* fromField,
+                  const char* toField,
+                  const char* uri,
+                  const char* contactUrl,
+                  const char* callId,
+                  int CSeq,
+                  UtlString bodyString)
+{
+    setRequestData(method, uri,
+                     fromField, toField,
+                     callId,
+                     CSeq,
+                     contactUrl);
+    // Set the allow field
+    setHeaderValue(SIP_ACCEPT_FIELD, CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY, 0);
+    // Set the event type
+    setHeaderValue(SIP_EVENT_FIELD, SIP_EVENT_MESSAGE_SUMMARY, 0);
+    
+     // Add the content type
+    setContentType(CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY);
+	// Create and add the Http body
+    HttpBody *httpBody = new HttpBody(bodyString.data(),bodyString.length(),
+    	CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY);
+
+    setContentLength(bodyString.length());
+    setBody(httpBody);  
 }
 
 void SipMessage::setVoicemailData(const char* fromField,
@@ -2336,6 +2466,11 @@ void SipMessage::getFromLabel(UtlString* label) const
    if(!field.isNull())
    {
       labelEnd = field.index(" <");
+      if(labelEnd < 0)   // seen without space too 
+      {
+         labelEnd = field.index("<");
+      }
+
       if(labelEnd >= 0)
       {
          label->append(field.data());
@@ -2389,6 +2524,11 @@ void SipMessage::getToLabel(UtlString* label) const
    if(!field.isNull())
    {
       labelEnd = field.index(" <");
+      if(labelEnd < 0)  // seen without space too 
+      {
+         labelEnd = field.index("<");
+      }
+
       if(labelEnd >= 0)
       {
          label->append(field.data());
@@ -3871,6 +4011,7 @@ UtlBoolean SipMessage::isInSupportedField(const char* token) const
 #endif
       url.strip(UtlString::both);
       if (url.compareTo(token, UtlString::ignoreCase) == 0)
+      if (url.compareTo(token) == 0)
       {
          tokenFound = TRUE;
       }
@@ -4067,6 +4208,161 @@ UtlBoolean SipMessage::getAllowField(UtlString& allowField) const
     }
     return(value != NULL);
 }
+
+///// RFC 3326 ///
+void SipMessage::setReasonField(const char* reasonField)
+{
+    if(NULL != reasonField)
+    {
+	setHeaderValue(SIP_REASON_FIELD, reasonField);
+    }
+}
+
+UtlBoolean SipMessage::getReasonField(UtlString& reasonField) const
+{
+    const char* value;
+    reasonField.remove(0);
+    value = getHeaderValue(0, SIP_REASON_FIELD);
+    if(value && *value)
+    {
+        reasonField.append(value);
+	 NameValueTokenizer::frontBackTrim(&reasonField, " \t\n\r");
+    }
+    return(value != NULL);
+}
+////////////////////////////////
+
+
+
+
+// for Diversion-header
+void SipMessage::addDiversionField(const char* addr, const char* reasonParam, UtlBoolean afterOtherDiversions)
+{
+   if (NULL == addr || NULL == reasonParam)
+   {
+	return;
+   }
+
+   char diversionString[255];
+   sprintf(diversionString,"%s;reason=%s",addr,reasonParam);
+   
+   addDiversionField(diversionString,afterOtherDiversions);
+}
+
+void SipMessage::addDiversionField(const char* diversionField, UtlBoolean afterOtherDiversions)
+{
+    if(NULL != diversionField)
+    {
+	  mHeaderCacheClean = FALSE;
+
+	NameValuePair* nv = new NameValuePair(SIP_DIVERSION_FIELD, diversionField);
+    	// Look for other diversion fields
+    	int fieldIndex = mNameValues.index(nv);
+
+	if(fieldIndex == ~(size_t)0) // (RW_NPOS) = ~(size_t)0 - wdn ???
+	{
+#ifdef TEST_PRINT
+        UtlDListIterator iterator(nameValues);
+
+        	remove whole line
+       	NameValuePair* nv = NULL;
+		while(nv = (NameValuePair*) iterator())
+        	{
+            		osPrintf("\tName: %s\n", nv->data());
+        	}
+#endif
+	}
+
+	mHeaderCacheClean = FALSE;
+
+	// if(fieldIndex == RW_NPOS || afterOtherDiversions) - wdn ???
+	if(fieldIndex == ~(size_t)0 || afterOtherDiversions)
+	{
+		mNameValues.insert(nv);
+	}
+	else
+	{
+		mNameValues.insertAt(fieldIndex, nv);
+	}
+    }
+}
+
+UtlBoolean SipMessage::getLastDiversionField(UtlString& diversionField,
+                                      int& lastIndex)
+{
+    int index = 0;
+
+    UtlString tempDiversion;
+    while(getFieldSubfield(SIP_DIVERSION_FIELD, index, &tempDiversion))
+    {
+        index++;
+        diversionField = tempDiversion;
+    }
+
+    index--;
+    lastIndex = index;
+
+    return(!diversionField.isNull());
+}
+	
+UtlBoolean SipMessage::getDiversionField(int index, UtlString& diversionField) 
+{
+    diversionField.remove(0);
+
+    return getFieldSubfield(SIP_DIVERSION_FIELD,index,&diversionField);
+}
+
+UtlBoolean SipMessage::getDiversionField(int index, UtlString& addr, UtlString& reasonParam) 
+{
+    UtlString divString;
+    addr.remove(0);
+    reasonParam.remove(0);
+	
+    if (getFieldSubfield(SIP_DIVERSION_FIELD,index,&divString))
+    {
+                            
+         // Parse addr
+	  int parameterIndex = divString.index(";");
+	  if(parameterIndex > 0)
+	  {
+		addr.append(divString);
+		addr.remove(parameterIndex);
+		NameValueTokenizer::frontBackTrim(&addr, " \t\n\r");
+		
+		// Parse reason
+	       int reasonIndex = divString.index("reason=", 0, UtlString::ignoreCase); // wdn ??? - RWString::ignoreCase
+
+	       if(reasonIndex > parameterIndex)
+	       {
+		    reasonParam.append(&((divString.data())[reasonIndex + 7]));
+
+		    int endIndex = reasonParam.length()-1;
+		    int semicolonIndex = reasonParam.index(";");
+		    if (endIndex > semicolonIndex && semicolonIndex > 0)
+		    {
+			endIndex = semicolonIndex;
+ 		       reasonParam.remove(endIndex);
+			NameValueTokenizer::frontBackTrim(&reasonParam, " \t\n\r");
+		    }
+
+	       }
+	  }
+	  else if(parameterIndex)
+	  {
+		addr.append(divString);
+		NameValueTokenizer::frontBackTrim(&addr, " \t\n\r");
+	  }
+ 	  else
+ 	  {
+ 	  	return FALSE;
+ 	  }
+	  return TRUE;
+    }
+    return(FALSE);
+
+}
+	
+
 /* ============================ INQUIRY =================================== */
 
 UtlBoolean SipMessage::isResponse() const
@@ -4472,6 +4768,11 @@ UtlBoolean SipMessage::isUrlHeaderAllowed(const char* headerFieldName)
     name.toUpper();
     UtlString nameCollectable(name);
 
+    if (spSipMessageFieldProps == NULL)
+    {
+      spSipMessageFieldProps = new SipMessage::SipMessageFieldProps() ;
+    }
+
     return (NULL ==
             spSipMessageFieldProps->mDisallowedUrlHeaders.find(&nameCollectable));
 }
@@ -4482,6 +4783,11 @@ UtlBoolean SipMessage::isUrlHeaderUnique(const char* headerFieldName)
     name.toUpper();
     UtlString nameCollectable(name);
     
+    if (spSipMessageFieldProps == NULL)
+    {
+       spSipMessageFieldProps = new SipMessage::SipMessageFieldProps() ;
+    }
+
     return (NULL !=
             spSipMessageFieldProps->mUniqueUrlHeaders.find(&nameCollectable));
 }

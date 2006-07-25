@@ -26,7 +26,8 @@ public:
         CPPUNIT_ASSERT_MESSAGE("Timer task created", pTimerTask != NULL);
         OsTask::delay(500);    // wait 1/2 second
 
-        delete pTimerTask;
+        // delete pTimerTask; - wdn - 
+        OsTimerTask::destroyTimer();
     }
 };
 

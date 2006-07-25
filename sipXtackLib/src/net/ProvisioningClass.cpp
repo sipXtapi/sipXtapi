@@ -447,9 +447,9 @@ bool ProvisioningClass::setPSAttribute(TiXmlNode* pClassInstance, const char* pA
 
 bool ProvisioningClass::setPSAttribute(TiXmlNode* pClassInstance, const char* pAttribute, int value)
 {
-   char valueString[16];
+   char valueString[24];
 
-   snprintf(valueString, 16, "%d", value);
+   sprintf( valueString, "%d", value);
    return setPSAttribute(pClassInstance, pAttribute, valueString);
 }
 

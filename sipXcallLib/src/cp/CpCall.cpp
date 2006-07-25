@@ -21,6 +21,7 @@
 #include <cp/CpCall.h>
 #include <mi/CpMediaInterface.h>
 #include <cp/CpMultiStringMessage.h>
+#include <cp/Connection.h>
 #include <cp/CpIntMessage.h>
 #include "ptapi/PtConnection.h"
 #include "ptapi/PtCall.h"
@@ -31,7 +32,7 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-#define CALL_STACK_SIZE (24*1024)    // 24K stack for the call task
+#define CALL_STACK_SIZE (32*1024)    // 32K stack for the call task
 #       define LOCAL_ONLY 0
 #       define LOCAL_AND_REMOTE 1
 #define UI_TERMINAL_CONNECTION_STATE "TerminalConnectionState"
@@ -731,6 +732,7 @@ void CpCall::inFocus(int talking)
 
     mCallInFocus = TRUE;
     mLocalConnectionState = PtEvent::CONNECTION_ESTABLISHED;
+
     if (talking)
         mLocalTermConnectionState = PtTerminalConnection::TALKING;
     else
@@ -765,6 +767,7 @@ void CpCall::localHold()
         CpIntMessage localHoldMessage(CallManager::CP_YIELD_FOCUS,
             (int)this);
         mpManager->postMessage(localHoldMessage);
+
         mLocalTermConnectionState = PtTerminalConnection::HELD;
     }
 }
@@ -776,6 +779,7 @@ void CpCall::hangUp(UtlString callId, int metaEventId)
 #endif
     mDropping = TRUE;
     mLocalConnectionState = PtEvent::CONNECTION_DISCONNECTED;
+
     mLocalTermConnectionState = PtTerminalConnection::DROPPED;
 
     if (metaEventId > 0)
@@ -1572,7 +1576,7 @@ void CpCall::postTaoListenerMessage(int responseCode,
 
 int CpCall::tcStateFromEventId(int eventId)
 {
-    int state;
+    int state = 0;
 
     switch(eventId)
     {

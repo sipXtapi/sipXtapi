@@ -140,11 +140,14 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
                  "SipUserAgent::_ sipTcpPort = %d, sipUdpPort = %d, sipTlsPort = %d",
                  sipTcpPort, sipUdpPort, sipTlsPort);
                  
+    mSipUdpServer = NULL;
+    mSipTcpServer = NULL;
     // Get pointer to line manager
     mpLineMgr = lineMgr;
 
    // Create and start the SIP TLS, TCP and UDP Servers
 #ifdef SIP_TLS
+    mSipTlsServer = NULL;
     if (mTlsPort != PORT_NONE)
     {
         mSipTlsServer = new SipTlsServer(mTlsPort, this, bUseNextAvailablePort);
@@ -2393,6 +2396,23 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                                       delayMsgString.data());
                      }
 
+                     // if the request has a responseQueue, post the response.
+                     OsMsgQ* responseQ = NULL;
+                     responseQ =  sipMessage->getResponseListenerQueue();
+                     if ( responseQ &&
+                          !sipMessage->isResponse() &&
+                          delayedDispatchMessage->isResponse())
+                     {
+                        SipMessage *messageToQ = new SipMessage(*delayedDispatchMessage);
+
+                        messageToQ->setResponseListenerData(sipMessage->getResponseListenerData());
+                        SipMessageEvent eventMsg(messageToQ);
+                        eventMsg.setMessageStatus(SipMessageEvent::APPLICATION);
+                        responseQ->send(eventMsg);
+                        // The SipMessage gets freed with the SipMessageEvent
+                        messageToQ = NULL;
+                     }
+
                      queueMessageToObservers(delayedDispatchMessage,
                                              SipMessageEvent::APPLICATION
                                              );
@@ -2525,6 +2545,24 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                                       delayMsgString.data());
                      }
 
+                     // wdn - if the request has a responseQueue, post the response.
+                     OsMsgQ* responseQ = NULL;
+                     responseQ =  sipMessage->getResponseListenerQueue();
+                     if ( responseQ &&
+                          !sipMessage->isResponse() &&
+                          delayedDispatchMessage->isResponse())
+                     {
+                         SipMessage *messageToQ = new SipMessage(*delayedDispatchMessage);
+
+                         messageToQ->setResponseListenerData(sipMessage->getResponseListenerData());
+                         SipMessageEvent eventMsg(messageToQ);
+                         eventMsg.setMessageStatus(SipMessageEvent::APPLICATION);
+                         responseQ->send(eventMsg);
+                         // The SipMessage gets freed with the SipMessageEvent
+                         messageToQ = NULL;
+                     }
+
+                     // delayedDispatchMessage gets freed in queueMessageToObservers
                      queueMessageToObservers(delayedDispatchMessage,
                                              SipMessageEvent::APPLICATION
                                              );
@@ -2583,6 +2621,9 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
    if (getMessageQueue()->isEmpty())
    {
       garbageCollection();
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipUserAgent::handleMessage after GC, queue size = %d",
+                    getMessageQueue()->numMsgs());
    }
    return(messageProcessed);
 }
@@ -2621,7 +2662,13 @@ void SipUserAgent::garbageCollection()
        OsSysLog::add(FAC_SIP, PRI_DEBUG,
                      "SipUserAgent::garbageCollection starting removeOldClients(udp)");
 #      endif
-       mSipUdpServer->removeOldClients(then);
+
+       // Changed by Udit for null pointer check
+       if (mSipUdpServer)
+       {
+           mSipUdpServer->removeOldClients(then);
+       }
+
        if (mSipTcpServer)
        {
 #         ifdef LOG_TIME

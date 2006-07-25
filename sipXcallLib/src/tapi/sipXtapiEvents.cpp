@@ -34,8 +34,15 @@
 #include "net/SipSession.h"
 #include "cp/CallManager.h"
 
+
+
+#if defined(_VXWORKS)
+extern "C" int snprintf (char *str, size_t count, const char *fmt, ...);
+#endif
+
+
 // DEFINES
-#ifdef WIN32
+#if defined(WIN32)
 #define SNPRINTF _snprintf
 #else
 #define SNPRINTF snprintf
@@ -456,7 +463,7 @@ SIPXTAPI_API char* sipxLineEventToString(SIPX_LINE_EVENT_TYPE_MAJOR lineTypeMajo
                                          char*  szBuffer,
                                          size_t nBuffer)
 {
-#ifdef WIN32
+#if defined(WIN32)
    _snprintf(szBuffer, nBuffer, "%s::%s", MajorLineEventToString(lineTypeMajor), MinorLineEventToString(lineTypeMinor));
 #else
    snprintf(szBuffer, nBuffer, "%s::%s", MajorLineEventToString(lineTypeMajor), MinorLineEventToString(lineTypeMinor));
@@ -1018,7 +1025,8 @@ SIPXTAPI_API char* sipxConfigEventToString(SIPX_CONFIG_EVENT event,
 void sipxFireLineEvent(const void* pSrc,
                        const char* szLineIdentifier,
                        SIPX_LINE_EVENT_TYPE_MAJOR major,
-                       SIPX_LINE_EVENT_TYPE_MINOR minor)
+                       SIPX_LINE_EVENT_TYPE_MINOR minor,
+                       const char *bodyBytes )
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxFireLineEvent pSrc=%p szLineIdentifier=%s major=%d",
@@ -1057,7 +1065,8 @@ void sipxFireLineEvent(const void* pSrc,
                 lineInfo.cause = (SIPX_LINESTATE_CAUSE)(int)minor;
                 lineInfo.hLine = hLine;
                 lineInfo.nSize = sizeof(SIPX_LINESTATE_INFO);
-                
+                lineInfo.szBodyBytes = bodyBytes;
+
                 // callback signature:  typedef bool (*SIPX_EVENT_CALLBACK_PROC)(SIPX_EVENT_CATEGORY category, void* pInfo, void* pUserData);
                 pData->pCallbackProc(EVENT_CATEGORY_LINESTATE, &lineInfo, pData->pUserData);
             }

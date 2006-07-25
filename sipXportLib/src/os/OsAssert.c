@@ -1,10 +1,10 @@
-//
+/* //
 // Copyright (C) 2004, 2005 Pingtel Corp.
 // 
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
-//////
+////// */
 
 
 #ifdef _VXWORKS /* [ */
@@ -24,6 +24,8 @@
 #undef BUILDING_FOR_TORNADO_2_2
 #elif (CPU == XSCALE)  /* Tornado 2.2.0 */
 #define BUILDING_FOR_TORNADO_2_2
+#elif (CPU == MIPS32)  /* Tornado 2.2.x */
+#undef BUILDING_FOR_TORNADO_2_2
 #else
 #error Unexpected CPU value
 #endif

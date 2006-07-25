@@ -13,6 +13,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsDatagramSocket.h"
+#include "os/OsMsg.h"
 #include "os/OsMsgQ.h"
 #include "os/OsTimer.h"
 #include "os/OsQueuedEvent.h"

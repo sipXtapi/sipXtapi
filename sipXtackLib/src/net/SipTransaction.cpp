@@ -23,6 +23,7 @@
 #include <net/SipMessageEvent.h>
 #include <net/NetMd5Codec.h>
 #include <net/SipTransactionList.h>
+#include <os/OsSocket.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

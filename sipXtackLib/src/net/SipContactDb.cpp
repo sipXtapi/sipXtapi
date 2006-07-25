@@ -150,7 +150,7 @@ CONTACT_ADDRESS* SipContactDb::getLocalContact(CONTACT_ID id)
     CONTACT_ADDRESS* pOriginal = find(id) ;
     if (pOriginal)
     {
-        if (pOriginal->eContactType == LOCAL)
+        if (pOriginal->eContactType == LOCAL_CONTACT)
         {
             pRC = pOriginal ;
         }
@@ -168,7 +168,7 @@ CONTACT_ADDRESS* SipContactDb::getLocalContact(CONTACT_ID id)
                 pContact = (CONTACT_ADDRESS*)pValue->getValue();
                 assert(pContact) ;
                 if ((strcmp(pContact->cInterface, pOriginal->cInterface) == 0) && 
-                    (pContact->eContactType == LOCAL))
+                    (pContact->eContactType == LOCAL_CONTACT))
                 {
                     pRC = pContact ;
                     break ;

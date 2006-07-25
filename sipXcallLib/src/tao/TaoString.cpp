@@ -6,7 +6,6 @@
 ////////////////////////////////////////////////////////////////////////
 //////
 
-
 #include <stdlib.h>
 #include <string.h>
 
@@ -22,6 +21,10 @@ unsigned int getTaoStrCnt()
 {
         return TaoString::mStrCnt;
 }
+#endif
+
+#if defined(_VXWORKS)
+extern "C" char* strdup(const char*);
 #endif
 
 //////////////////////////////////////////////////////////////////////
@@ -88,7 +91,7 @@ TaoString::TaoString(const char *str, const char *delimiter)
    }
    else if ((mCnt == 0) && (*str != 0))
    {
-      mStrArray[mCnt++] = strdup(str) ;
+      mStrArray[mCnt++] = (char *)strdup(str) ;
    }
    mStrArray[mCnt] = NULL;
 }

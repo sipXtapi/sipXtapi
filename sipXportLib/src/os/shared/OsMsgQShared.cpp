@@ -131,7 +131,7 @@ OsStatus OsMsgQShared::sendUrgent(const OsMsg& rMsg,
 // sent using this method.
 OsStatus OsMsgQShared::sendFromISR(const OsMsg& rMsg)
 {
-   return doSend(rMsg, OsTime::NO_WAIT, FALSE, TRUE);
+   return doSend(rMsg, OsTime::NO_WAIT_TIME, FALSE, TRUE);
 }
 
 // Remove a message from the head of the queue

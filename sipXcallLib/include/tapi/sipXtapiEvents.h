@@ -258,6 +258,8 @@ typedef enum SIPX_CALLSTATE_CAUSE
                                                                              The identity may have changed because of a transfer or
                                                                              some other reason, but the signalling did not give any
                                                                              indication as to why it changed. */
+    CALLSTATE_CAUSE_UNKNOWN,                                            /* used in applicaiton when not event based */
+
 } SIPX_CALLSTATE_CAUSE ;
 
 /**
@@ -396,6 +398,8 @@ typedef struct
                                          Identifies the linestate event. */
     SIPX_LINESTATE_CAUSE cause ;    /**< Callstate cause enum code. 
                                          Identifies the cause of the linestate event. */
+    const char *szBodyBytes;        /**< msg body to extract reg body */
+
 } SIPX_LINESTATE_INFO ;
 
 

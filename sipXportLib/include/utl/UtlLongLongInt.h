@@ -26,17 +26,25 @@
 
 #ifdef WIN32 
 #define strtoll _strtoui64
-#define intll __int64
 #else
 // Borrow this from the gcc include file "limits.h".
 // LLONG_MIN and LLONG_MAX are defined by the ISO C99 standard but not by C++
 // LONG_LONG_MIN and LONG_LONG_MAX are defined by gcc.
-#ifndef LLONG_MIN
-# define LLONG_MIN	LONG_LONG_MIN
-#endif
 #ifndef LLONG_MAX
-# define LLONG_MAX	LONG_LONG_MAX
+#  ifdef LONG_LONG_MAX
+#    define LLONG_MAX LONG_LONG_MAX
+#  else
+#    define LLONG_MAX (9223372036854775807L)
+#  endif
 #endif
+#endif
+
+#ifndef LLONG_MIN
+#  ifdef LONG_LONG_MAX
+#    define LLONG_MIN LONG_LONG_MIN
+#  else
+#    define LLONG_MIN (-LLONG_MAX - 1L)
+#  endif
 #endif
 
 // EXTERNAL FUNCTIONS

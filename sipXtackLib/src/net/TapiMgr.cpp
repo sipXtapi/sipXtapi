@@ -86,13 +86,15 @@ void TapiMgr::fireCallEvent(const void*          pSrc,
 void TapiMgr::fireLineEvent(const void* pSrc,
                         const char* szLineIdentifier,
                         SIPX_LINESTATE_EVENT event,
-                        SIPX_LINESTATE_CAUSE cause)
+                        SIPX_LINESTATE_CAUSE cause,
+                        const char *bodyBytes )
 {
     if (sipxLineEventCallbackPtr)
     {
         (*sipxLineEventCallbackPtr)(pSrc, szLineIdentifier,
                                     (SIPX_LINE_EVENT_TYPE_MAJOR)(int)event,
-                                    (SIPX_LINE_EVENT_TYPE_MINOR)(int)cause);
+                                    (SIPX_LINE_EVENT_TYPE_MINOR)(int)cause,
+                                    bodyBytes );
     }
 }
 

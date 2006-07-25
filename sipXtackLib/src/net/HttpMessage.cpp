@@ -384,6 +384,17 @@ void HttpMessage::parseBody(const char* messageBytesPtr, int bodyLength)
 
     // Need to use a body factory
     const char* contentType = getHeaderValue(0, HTTP_CONTENT_TYPE_FIELD);
+    if (NULL == contentType)
+    {
+        // "C" => SIP_SHORT_CONTENT_TYPE_FIELD); cannot use sipMessage.h
+        //
+        //        Could not find full header field name, so check for
+        //        short header field names.
+        //
+        contentType = getHeaderValue(0, "C");  
+    }
+
+    // HTTP_CONTENT_TRANSFER_ENCODING_FIELD  does not have a short form.
     const char* contentEncodingString = 
             getHeaderValue(0, HTTP_CONTENT_TRANSFER_ENCODING_FIELD);
     body = HttpBody::createBody(messageBytesPtr,
@@ -1872,7 +1883,7 @@ void HttpMessage::resetTransport()
     mSendPort = PORT_NONE;
 }
 
-OsMsgQ* HttpMessage::getResponseListenerQueue()
+OsMsgQ* HttpMessage::getResponseListenerQueue() const
 {
     return(mpResponseListenerQueue);
 }
@@ -1882,7 +1893,7 @@ void HttpMessage::setResponseListenerQueue(OsMsgQ* responseListenerQueue)
     mpResponseListenerQueue = responseListenerQueue;
 }
 
-void* HttpMessage::getResponseListenerData()
+void* HttpMessage::getResponseListenerData() const
 {
     return(mResponseListenerData);
 }

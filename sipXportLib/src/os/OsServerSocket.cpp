@@ -16,6 +16,7 @@
 #undef OsSS_CONST
 #define OsSS_CONST const
 #elif defined(_VXWORKS)
+#define OsSS_CONST
 #   include <inetLib.h>
 #   include <sockLib.h>
 #   include <unistd.h>

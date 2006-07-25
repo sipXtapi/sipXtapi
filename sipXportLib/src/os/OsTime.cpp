@@ -19,11 +19,12 @@
 // CONSTANTS
 
 // STATIC VARIABLE INITIALIZATIONS
-const OsTime OsTime::OS_INFINITY(0x7FFFFFFF,0x7FFFFFFF);
-const OsTime OsTime::NO_WAIT(0,0);
-const long OsTime::MSECS_PER_SEC   = 1000;
-const long OsTime::USECS_PER_MSEC  = 1000;
-const long OsTime::USECS_PER_SEC   = 1000000;
+const long OsTime::MSECS_PER_SEC   = (1000);
+const long OsTime::USECS_PER_MSEC  = (1000);
+const long OsTime::USECS_PER_SEC   = (1000000);
+
+const OsTime OsTime::OS_INFINITY(0x7FFFFFFF,(OsTime::USECS_PER_SEC-1)); // wdn - changed to use legal usec value
+const OsTime OsTime::NO_WAIT_TIME(0,0);
 
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -260,7 +261,7 @@ UtlBoolean OsTime::isInfinite(void) const
 // Return TRUE if the time interval is zero (no wait)
 UtlBoolean OsTime::isNoWait(void) const
 {
-   if (this == &NO_WAIT ||
+   if (this == &NO_WAIT_TIME || 
        (seconds() == 0 && usecs() == 0))
       return TRUE;
    else

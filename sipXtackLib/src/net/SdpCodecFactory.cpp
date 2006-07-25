@@ -293,7 +293,6 @@ SdpCodec::SdpCodecTypes SdpCodecFactory::getCodecType(const char* pCodecName)
     return retType;
 }
 
-#ifndef _VXWORKS /* [ */
 //left this in to maintain backward compatibility
 
 //////////////////////////////////////////////////////////////////////////////
@@ -359,7 +358,6 @@ int SdpCodecFactory::buildSdpCodecFactory(UtlString &codecList)
 
    return numRejected;
 }
-#endif/* !_VXWORKS ] */
 
 int SdpCodecFactory::buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecTypes codecTypes[])
 {

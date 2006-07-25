@@ -21,8 +21,12 @@
 #include <net/SipMessage.h>
 #include <cp/SipPresenceMonitor.h>
 #include <mi/CpMediaInterfaceFactoryFactory.h>
+
+#ifndef EXCLUDE_STREAMING
 #include <mp/MpMediaTask.h>
 #include <mp/NetInTask.h>
+#endif
+
 #ifdef INCLUDE_RTCP
 #include <rtcp/RTCManager.h>
 #endif // INCLUDE_RTCP

@@ -21,6 +21,7 @@
 #include <os/OsMsgQ.h>
 #include <net/Url.h>
 #include <net/SipSrvLookup.h>
+#include <utl/UtlSList.h>
 
 // DEFINES
 // MACROS

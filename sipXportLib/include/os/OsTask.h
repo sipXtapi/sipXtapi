@@ -293,6 +293,10 @@ public:
      //:Check if the task is suspended
      // Return TRUE is the task is suspended, otherwise FALSE.
 
+   virtual UtlBoolean isUnInitialized(void);
+     //:Return TRUE if a task is un-initialized
+
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
    OsMutex   mDataGuard;  // Mutex guard to protect the OsTask internal data

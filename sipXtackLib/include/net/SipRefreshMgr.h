@@ -144,6 +144,13 @@ public:
     UtlBoolean getNatMappedAddress(UtlString* pIpAddress, int* pPort) ;
       //: Get the nat mapped address (if available)
 
+    void generateCallId (
+        const UtlString& lineId,
+        const UtlString& method,
+        UtlString& callid,
+        UtlBoolean onStartup = FALSE );
+
+
 protected:
     SipLineMgr* mpLineMgr;
     // the line manager object that uses this refresh manager
@@ -203,12 +210,6 @@ protected:
 
     void createTagNameValuePair( UtlString& tagNamevaluePair );
 
-    void generateCallId (
-        const UtlString& lineId,
-        const UtlString& method,
-        UtlString& callid,
-        UtlBoolean onStartup = FALSE );
-
     // register
     void registerUrl(
         const char* registerFromAddress,
@@ -263,7 +264,7 @@ protected:
       
       
       
-    void fireSipXLineEvent(const Url& url, const UtlString& lineId, const SIPX_LINESTATE_EVENT event, const SIPX_LINESTATE_CAUSE cause);
+    void fireSipXLineEvent(const Url& url, const UtlString& lineId, const SIPX_LINESTATE_EVENT event, const SIPX_LINESTATE_CAUSE cause, const char *bodyBytes= NULL );
     //: event firing method used to notify sipXtapi of line events       
     
     SIPX_LINESTATE_EVENT getLastLineEvent(const UtlString& lineId);
