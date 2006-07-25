@@ -17,11 +17,10 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 /**
  * The Intercom class represents an intercom (auto-answer) configuration.
  */
-// BeanWithGroups is overkill here because it inherits from BeanWithSettings, which
-// Intercom isn't.  But there is no easy way to fix that, given that Java doesn't
-// support mixins or multiple inheritance of implementations.
+// BeanWithGroups is overkill here because it inherits from BeanWithSettings and
+// Intercom doesn't have settings.  But there is no easy way to fix that, given
+// that Java doesn't support mixins or multiple inheritance of implementations.
 public class Intercom extends BeanWithGroups {
-
     private boolean m_enabled;
     private String m_prefix;
     private int m_timeout;
@@ -35,7 +34,7 @@ public class Intercom extends BeanWithGroups {
     protected Setting loadSettings() {
         return null;
     }
-
+                            
     /** Return the code that identifies an auto-answer configuration to the phone */
     public String getCode() {
         return m_code;
@@ -53,12 +52,12 @@ public class Intercom extends BeanWithGroups {
     public void setEnabled(boolean enabled) {
         m_enabled = enabled;
     }
-
+    
     /** Return the prefix used to place intercom calls */
     public String getPrefix() {
         return m_prefix;
     }
-
+    
     /** Set the prefix used to place intercom calls */
     public void setPrefix(String prefix) {
         m_prefix = prefix;
@@ -73,5 +72,4 @@ public class Intercom extends BeanWithGroups {
     public void setTimeout(int timeout) {
         m_timeout = timeout;
     }
-
 }

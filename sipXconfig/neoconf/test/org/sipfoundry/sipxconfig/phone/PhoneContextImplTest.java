@@ -6,6 +6,7 @@ import java.util.Collection;
 import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
+import org.sipfoundry.sipxconfig.admin.intercom.IntercomManager;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.phone.cisco.CiscoModel;
 import org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamModel;
@@ -38,5 +39,18 @@ public class PhoneContextImplTest extends TestCase {
     // FilteredModelSourceTest
     public void testGetAvailablePhones() {
         assertSame(m_models, m_impl.getAvailablePhoneModels());
+    }
+    
+    // The method getIntercomForPhone simply forwards to the intercom manager
+    public void testGetIntercomForPhone() {
+        IntercomManager intercomManager = EasyMock.createMock(IntercomManager.class);
+        Phone phone = new Phone();
+        intercomManager.getIntercomForPhone(phone);
+        EasyMock.expectLastCall().andReturn(null).anyTimes();
+        EasyMock.replay(intercomManager);
+        m_impl.setIntercomManager(intercomManager);
+        
+        m_impl.getIntercomForPhone(phone);
+        EasyMock.verify(intercomManager);
     }
 }

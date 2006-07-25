@@ -27,6 +27,7 @@
     <property name="systemDirectory" value="${sysdir.etc}" />
     <property name="phoneDefaults" ref="phoneDefaults" />
     <property name="phoneModelSource" ref="phoneModelSource" />
+    <property name="intercomManager" ref="intercomManager" />
   </bean>
 
   <!--

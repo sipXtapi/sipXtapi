@@ -15,6 +15,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.admin.intercom.Intercom;
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -95,4 +96,12 @@ public interface PhoneContext extends DataObjectSource {
     public void removeFromGroup(Integer groupId, Collection ids);
 
     public void addUsersToPhone(Integer phoneId, Collection ids);
+    
+    /**
+     * Return the intercom associated with a phone, through the groups the phone
+     * belongs to, or null if there is no intercom for the phone.
+     * There should be at most one intercom for any phone. If there is more than
+     * one, then return the first intercom found.
+     */
+    public Intercom getIntercomForPhone(Phone phone);    
 }

@@ -19,6 +19,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.admin.intercom.Intercom;
+import org.sipfoundry.sipxconfig.admin.intercom.IntercomManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
@@ -60,7 +62,9 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     private DeviceDefaults m_deviceDefaults;
 
     private ModelSource m_modelSource;
-
+    
+    private IntercomManager m_intercomManager;
+    
     public Collection getAvailablePhoneModels() {
         return m_modelSource.getModels();
     }
@@ -77,6 +81,10 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         m_coreContext = coreContext;
     }
 
+    public void setIntercomManager(IntercomManager intercomManager) {
+        m_intercomManager = intercomManager;
+    }
+    
     /**
      * Callback that supplies the owning factory to a bean instance.
      */
@@ -297,5 +305,15 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
             phone.addLine(line);
         }
         storePhone(phone);
+    }
+    
+    /**
+     * Return the intercom associated with a phone, through the groups the phone
+     * belongs to, or null if there is no intercom for the phone.
+     * There should be at most one intercom for any phone. If there is more than
+     * one, then return the first intercom found.
+     */
+    public Intercom getIntercomForPhone(Phone phone) {
+        return m_intercomManager.getIntercomForPhone(phone);
     }
 }

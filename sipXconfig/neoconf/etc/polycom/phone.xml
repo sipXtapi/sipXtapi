@@ -1593,6 +1593,7 @@
         <setting name="value">
           <type>
             <!-- string to compare against the value of Alert-Info headers in INVITE requests -->
+            <string/>
           </type>
           <value/>
           <description>Alert-Info fields from INVITE requests will be compared against with 
@@ -1601,24 +1602,10 @@
         </setting>
         <setting name="class">
           <type>
-            <enum>
-              <option>
-                <value>ring</value>
-              </option>
-              <option>
-                <value>visual</value>
-              </option>
-              <option>
-                <value>answer</value>
-              </option>
-              <option>
-                <value>ring-answer</value>
-              </option>
-            </enum>
+            <integer min="1"/>
           </type>
           <value/>
-          <description>one of these four valid values: ring, visual, answer, or 
-            ring-answer</description>
+          <description>"Ring class number" that identifies a configured ring type</description>
         </setting>
       </group>
     </group>
