@@ -14,7 +14,7 @@ call "%SIPXPHONE_MSVC_BASE%\bin\VCVARS32.bat"
 
 :BUILD_PROJECTS
 ECHO ???? Building Project...
-call _build_cpp_project sipXtapi-VoiceEngine %1
+call _build_cpp_project sipXtapi %1
 IF NOT "%ERRORLEVEL%"=="0" GOTO ERROR_EXIT
 
 GOTO DONE

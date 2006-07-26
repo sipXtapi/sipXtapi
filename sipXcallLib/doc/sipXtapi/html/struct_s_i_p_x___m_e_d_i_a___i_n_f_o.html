@@ -52,6 +52,9 @@ This information is passed as part of the sipXtapi callback mechanism. Based on 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_s_i_p_x___m_e_d_i_a___i_n_f_o.html#a432f15f86facbce967b03543a2ae2e9">idleTime</a></td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Idle time (ms) for SILENT events; only supplied on MEDIA_REMOTE_SILENT events.  <a href="#a432f15f86facbce967b03543a2ae2e9"></a><br></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb6">SIPX_TONE_ID</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_s_i_p_x___m_e_d_i_a___i_n_f_o.html#fbbbb555c7217dc50954a3cc361c8285">toneId</a></td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">DTMF tone received from remote party; only supplied on MEDIA_REMOTE_DTMF_START and MEDIA_REMOTE_DTMF_STOP events).  <a href="#fbbbb555c7217dc50954a3cc361c8285"></a><br></td></tr>
 </table>
 <hr><h2>Field Documentation</h2>
 <a class="anchor" name="1ba427adb4f51a29654bb6da696923ed"></a><!-- doxytag: member="SIPX_MEDIA_INFO::cause" ref="1ba427adb4f51a29654bb6da696923ed" args="" --><p>
@@ -229,9 +232,34 @@ Size of the structure.
     </td>
   </tr>
 </table>
+<a class="anchor" name="fbbbb555c7217dc50954a3cc361c8285"></a><!-- doxytag: member="SIPX_MEDIA_INFO::toneId" ref="fbbbb555c7217dc50954a3cc361c8285" args="" --><p>
+<table class="mdTable" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"><a class="el" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb6">SIPX_TONE_ID</a> <a class="el" href="struct_s_i_p_x___m_e_d_i_a___i_n_f_o.html#fbbbb555c7217dc50954a3cc361c8285">SIPX_MEDIA_INFO::toneId</a>          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing="5" cellpadding="0" border="0">
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+DTMF tone received from remote party; only supplied on MEDIA_REMOTE_DTMF_START and MEDIA_REMOTE_DTMF_STOP events). 
+<p>
+Note: Only out-of-band DTMF is supported (not in-band DTMF or dialtone detection, etc.)     </td>
+  </tr>
+</table>
 <hr>The documentation for this struct was generated from the following file:<ul>
 <li><a class="el" href="sip_xtapi_events_8h-source.html">sipXtapiEvents.h</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Thu Jun 8 15:27:12 2006 for SipX TAPI-like API for Call Processing by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Wed Jul 26 16:03:04 2006 for SipX TAPI-like API for Call Processing by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.6-NO </small></address>
 </body>

@@ -258,7 +258,9 @@ Figure 2: Event flows for an outbound call (placed call)
 <a class="el" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc95767840d4362c2983fdade43d940e0df">MEDIA_CAUSE_FAILED</a>, 
 <br>
 &nbsp;&nbsp;<a class="el" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc91a478d2edc79eb2304049234e95dcc39">MEDIA_CAUSE_DEVICE_UNAVAILABLE</a>, 
-<a class="el" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc973fce566b00ffdd1d225a9366c56529a">MEDIA_CAUSE_INCOMPATIBLE</a>
+<a class="el" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc973fce566b00ffdd1d225a9366c56529a">MEDIA_CAUSE_INCOMPATIBLE</a>, 
+<a class="el" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc9b5224b5761bcb78d85f957ce8aa9ef5d">MEDIA_CAUSE_DTMF_START</a>, 
+<a class="el" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc9a9772181c0a296884eccd09adc947aea">MEDIA_CAUSE_DTMF_STOP</a>
 <br>
  }</td></tr>
 
@@ -831,6 +833,10 @@ Media state changed due to an error condition. </td></tr>
 Media state changed due to an error condition, (device was removed, already in use, etc). </td></tr>
 <tr><td valign="top"><em><a class="anchor" name="0f821260d683c1e2252411fab3352bc973fce566b00ffdd1d225a9366c56529a"></a><!-- doxytag: member="MEDIA_CAUSE_INCOMPATIBLE" ref="0f821260d683c1e2252411fab3352bc973fce566b00ffdd1d225a9366c56529a" args="" -->MEDIA_CAUSE_INCOMPATIBLE</em>&nbsp;</td><td>
 Incompatible destination -- We were unable to negotiate a codec. </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="0f821260d683c1e2252411fab3352bc9b5224b5761bcb78d85f957ce8aa9ef5d"></a><!-- doxytag: member="MEDIA_CAUSE_DTMF_START" ref="0f821260d683c1e2252411fab3352bc9b5224b5761bcb78d85f957ce8aa9ef5d" args="" -->MEDIA_CAUSE_DTMF_START</em>&nbsp;</td><td>
+A DTMF tone has started. </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="0f821260d683c1e2252411fab3352bc9a9772181c0a296884eccd09adc947aea"></a><!-- doxytag: member="MEDIA_CAUSE_DTMF_STOP" ref="0f821260d683c1e2252411fab3352bc9a9772181c0a296884eccd09adc947aea" args="" -->MEDIA_CAUSE_DTMF_STOP</em>&nbsp;</td><td>
+A DTMF tone has stopped. </td></tr>
 </table>
 </dl>
     </td>
@@ -891,7 +897,7 @@ This event will be followed by a MEDIA_PLAYBUFFER_STOP when the file is manually
 <tr><td valign="top"><em><a class="anchor" name="80e44b98a28235387cf02104765962c1be89aefa56797747fb143669a6bfedf6"></a><!-- doxytag: member="MEDIA_PLAYBUFFER_STOP" ref="80e44b98a28235387cf02104765962c1be89aefa56797747fb143669a6bfedf6" args="" -->MEDIA_PLAYBUFFER_STOP</em>&nbsp;</td><td>
 A buffer has completed playing or was aborted. </td></tr>
 <tr><td valign="top"><em><a class="anchor" name="80e44b98a28235387cf02104765962c1dc12212a25d8e4fb12e1a9452e60445c"></a><!-- doxytag: member="MEDIA_REMOTE_DTMF" ref="80e44b98a28235387cf02104765962c1dc12212a25d8e4fb12e1a9452e60445c" args="" -->MEDIA_REMOTE_DTMF</em>&nbsp;</td><td>
-Not yet implemented. </td></tr>
+A dtmf tone was started/stopped, see the cause codes for exact status. </td></tr>
 <tr><td valign="top"><em><a class="anchor" name="80e44b98a28235387cf02104765962c1406106d710d0672a45dd046198e9ae9f"></a><!-- doxytag: member="MEDIA_DEVICE_FAILURE" ref="80e44b98a28235387cf02104765962c1406106d710d0672a45dd046198e9ae9f" args="" -->MEDIA_DEVICE_FAILURE</em>&nbsp;</td><td>
 Fired if the media device is not present or already in use. </td></tr>
 </table>
@@ -1916,7 +1922,7 @@ This is generally used for debugging.<p>
     </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Thu Jun 8 15:27:12 2006 for SipX TAPI-like API for Call Processing by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Wed Jul 26 16:03:04 2006 for SipX TAPI-like API for Call Processing by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.6-NO </small></address>
 </body>

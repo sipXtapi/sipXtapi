@@ -116,9 +116,9 @@ sipXtapi main API declarations
 <tr><td class="memItemLeft" nowrap align="right" valign="top">SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#8b381d438395a594d0ca6c79b4867824">sipxCallGetRemoteUserAgent</a> (const <a class="el" href="sip_xtapi_8h.html#d57dfd35f371dd289e4600cdc4504290">SIPX_CALL</a> hCall, char *szAgent, const size_t iMaxLength)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the remote user agent of the call represented by the specified call handle.  <a href="#8b381d438395a594d0ca6c79b4867824"></a><br></td></tr>
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#4e97ee052b01904d648f3839870d25ae">sipxCallStartTone</a> (const <a class="el" href="sip_xtapi_8h.html#d57dfd35f371dd289e4600cdc4504290">SIPX_CALL</a> hCall, const <a class="el" href="sip_xtapi_8h.html#d407578b47da10784d7a56ce81a3a2bc">TONE_ID</a> toneId, const bool bLocal, const bool bRemote)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#77afab8a5d537019a0b4adac96440d54">sipxCallStartTone</a> (const <a class="el" href="sip_xtapi_8h.html#d57dfd35f371dd289e4600cdc4504290">SIPX_CALL</a> hCall, const <a class="el" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb6">SIPX_TONE_ID</a> toneId, const bool bLocal, const bool bRemote)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Play a tone (DTMF, dialtone, ring back, etc) to the local and/or remote party.  <a href="#4e97ee052b01904d648f3839870d25ae"></a><br></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Play a tone (DTMF, dialtone, ring back, etc) to the local and/or remote party.  <a href="#77afab8a5d537019a0b4adac96440d54"></a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#56a0ba4560e6266a7960ecc487b5a59d">sipxCallStopTone</a> (const <a class="el" href="sip_xtapi_8h.html#d57dfd35f371dd289e4600cdc4504290">SIPX_CALL</a> hCall)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Stop playing a tone (DTMF, dialtone, ring back, etc).  <a href="#56a0ba4560e6266a7960ecc487b5a59d"></a><br></td></tr>
@@ -608,13 +608,13 @@ SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1b
 <tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#eaa8fc14b2b2535ccf7fdddc7d8750c4">SIPXTAPI_VERSION</a>&nbsp;&nbsp;&nbsp;&quot;2.9.1&quot;</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">sipXtapi API version -- automatically filled in during release process  <a href="#eaa8fc14b2b2535ccf7fdddc7d8750c4"></a><br></td></tr>
-<tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#e627a2937b5bc08a2606e803dd80cb81">SIPXTAPI_BUILDNUMBER</a>&nbsp;&nbsp;&nbsp;&quot;6937&quot;</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#e627a2937b5bc08a2606e803dd80cb81">SIPXTAPI_BUILDNUMBER</a>&nbsp;&nbsp;&nbsp;&quot;0&quot;</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Default build number -- automatically filled in during release process.  <a href="#e627a2937b5bc08a2606e803dd80cb81"></a><br></td></tr>
-<tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#ad04c1cdebb8086adc24193404279382">SIPXTAPI_BUILD_WORD</a>&nbsp;&nbsp;&nbsp;2,9,1,6937</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#ad04c1cdebb8086adc24193404279382">SIPXTAPI_BUILD_WORD</a>&nbsp;&nbsp;&nbsp;2,9,1,0</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Default build word -- automatically filled in during release process.  <a href="#ad04c1cdebb8086adc24193404279382"></a><br></td></tr>
-<tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#ddbf45c070ccc06c79978587e196e6a4">SIPXTAPI_FULL_VERSION</a>&nbsp;&nbsp;&nbsp;&quot;2.9.1.6937&quot;</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#ddbf45c070ccc06c79978587e196e6a4">SIPXTAPI_FULL_VERSION</a>&nbsp;&nbsp;&nbsp;&quot;2.9.1.0&quot;</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Default full version number -- automatically filled in during release process.  <a href="#ddbf45c070ccc06c79978587e196e6a4"></a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#b306a86affa71e175bb975d613d5dfc4">SIPXTAPI_BUILDDATE</a>&nbsp;&nbsp;&nbsp;&quot;2006-06-08&quot;</td></tr>
@@ -648,6 +648,9 @@ SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1b
 <tr><td class="memItemLeft" nowrap align="right" valign="top">typedef void(*&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#63f103579f4db7148f7fd61eae4f3c4b">sipxLogCallback</a> )(const char *szPriority, const char *szSource, const char *szMsg)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Signature for a log callback function that gets passed three strings, first string is the priority level, second string is the source id of the subsystem that generated the message, and the third string is the message itself.  <a href="#63f103579f4db7148f7fd61eae4f3c4b"></a><br></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">typedef <a class="el" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb6">SIPX_TONE_ID</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#13dc40cc06c70d945ab763bf59b62bae">TONE_ID</a></td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Left for backwards compatibility -- please use SIPX_TONE_ID.  <a href="#13dc40cc06c70d945ab763bf59b62bae"></a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">typedef void *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#72f702115019a9d9ba9d940ab05d18ea">SIPX_WINDOW_HANDLE</a></td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Type for storing a "window object handle" - in Windows, the application should cast their HWND to a SIPX_WINDOW_HANDLE.  <a href="#72f702115019a9d9ba9d940ab05d18ea"></a><br></td></tr>
@@ -760,39 +763,40 @@ SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1b
  }</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">SIPX_RESULT is an enumeration with all the possible result/return codes.  <a href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">More...</a><br></td></tr>
-<tr><td class="memItemLeft" nowrap align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#d407578b47da10784d7a56ce81a3a2bc">TONE_ID</a> { <br>
-&nbsp;&nbsp;<a class="el" href="sip_xtapi_8h.html#d407578b47da10784d7a56ce81a3a2bcaf1a041dcd3d3dd3c8be9a7a6ba2f095">ID_DTMF_0</a> =  '0', 
-<a class="el" href="sip_xtapi_8h.html#d407578b47da10784d7a56ce81a3a2bc407f9099b07f5006878410eb6a548344">ID_DTMF_1</a> =  '1', 
-<a class="el" href="sip_xtapi_8h.html#d407578b47da10784d7a56ce81a3a2bcd69e4b3c089d6919750646f5d83eec19">ID_DTMF_2</a> =  '2', 
-<a class="el" href="sip_xtapi_8h.html#d407578b47da10784d7a56ce81a3a2bc22466b976e72beb25c9e7ec82bb921b4">ID_DTMF_3</a> =  '3', 
+<tr><td class="memItemLeft" nowrap align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb6">SIPX_TONE_ID</a> { <br>
+&nbsp;&nbsp;<a class="el" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb6c6312dae684a6551351052f08ebc8e60">ID_DTMF_INVALID</a> =  0, 
+<a class="el" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb6af1a041dcd3d3dd3c8be9a7a6ba2f095">ID_DTMF_0</a> =  '0', 
+<a class="el" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb6407f9099b07f5006878410eb6a548344">ID_DTMF_1</a> =  '1', 
+<a class="el" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb6d69e4b3c089d6919750646f5d83eec19">ID_DTMF_2</a> =  '2', 
 <br>
-&nbsp;&nbsp;<a class="el" href="sip_xtapi_8h.html#d407578b47da10784d7a56ce81a3a2bcd4fb26d0f11658991052124e9c3cbaad">ID_DTMF_4</a> =  '4', 
-<a class="el" href="sip_xtapi_8h.html#d407578b47da10784d7a56ce81a3a2bcbc3c4fcd7d0900ced09630f0b98891bc">ID_DTMF_5</a> =  '5', 
-<a class="el" href="sip_xtapi_8h.html#d407578b47da10784d7a56ce81a3a2bc8cb07ceda5abf48dc13d61c30dd0ef76">ID_DTMF_6</a> =  '6', 
-<a class="el" href="sip_xtapi_8h.html#d407578b47da10784d7a56ce81a3a2bc365b7a2e0b5595494e7c5956d43a348d">ID_DTMF_7</a> =  '7', 
+&nbsp;&nbsp;<a class="el" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb622466b976e72beb25c9e7ec82bb921b4">ID_DTMF_3</a> =  '3', 
+<a class="el" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb6d4fb26d0f11658991052124e9c3cbaad">ID_DTMF_4</a> =  '4', 
+<a class="el" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb6bc3c4fcd7d0900ced09630f0b98891bc">ID_DTMF_5</a> =  '5', 
+<a class="el" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb68cb07ceda5abf48dc13d61c30dd0ef76">ID_DTMF_6</a> =  '6', 
 <br>
-&nbsp;&nbsp;<a class="el" href="sip_xtapi_8h.html#d407578b47da10784d7a56ce81a3a2bc1727867886c2de5821a254b40ec4ec8f">ID_DTMF_8</a> =  '8', 
-<a class="el" href="sip_xtapi_8h.html#d407578b47da10784d7a56ce81a3a2bcf648039d3c3a7e329ab843c547aef829">ID_DTMF_9</a> =  '9', 
-<a class="el" href="sip_xtapi_8h.html#d407578b47da10784d7a56ce81a3a2bcfa6cb8c12db8d052636da8f46a1ce70e">ID_DTMF_STAR</a> =  '*', 
-<a class="el" href="sip_xtapi_8h.html#d407578b47da10784d7a56ce81a3a2bccf84326c710cb4b01d8845a62de887b4">ID_DTMF_POUND</a> =  '#', 
+&nbsp;&nbsp;<a class="el" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb6365b7a2e0b5595494e7c5956d43a348d">ID_DTMF_7</a> =  '7', 
+<a class="el" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb61727867886c2de5821a254b40ec4ec8f">ID_DTMF_8</a> =  '8', 
+<a class="el" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb6f648039d3c3a7e329ab843c547aef829">ID_DTMF_9</a> =  '9', 
+<a class="el" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb6fa6cb8c12db8d052636da8f46a1ce70e">ID_DTMF_STAR</a> =  '*', 
 <br>
-&nbsp;&nbsp;<a class="el" href="sip_xtapi_8h.html#d407578b47da10784d7a56ce81a3a2bc9a8fe95cb4bfabb26ec6df190cf4740f">ID_DTMF_FLASH</a> =  '!', 
-<a class="el" href="sip_xtapi_8h.html#d407578b47da10784d7a56ce81a3a2bc4da79c3ba952b56be6924365016cb24d">ID_TONE_DIALTONE</a> =  512, 
-<a class="el" href="sip_xtapi_8h.html#d407578b47da10784d7a56ce81a3a2bcf6653a29566b4d11faca025c777c04a9">ID_TONE_BUSY</a>, 
-<a class="el" href="sip_xtapi_8h.html#d407578b47da10784d7a56ce81a3a2bc03148e11cec53bc19178f518b4837a24">ID_TONE_RINGBACK</a>, 
+&nbsp;&nbsp;<a class="el" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb6cf84326c710cb4b01d8845a62de887b4">ID_DTMF_POUND</a> =  '#', 
+<a class="el" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb69a8fe95cb4bfabb26ec6df190cf4740f">ID_DTMF_FLASH</a> =  '!', 
+<a class="el" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb64da79c3ba952b56be6924365016cb24d">ID_TONE_DIALTONE</a> =  512, 
+<a class="el" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb6f6653a29566b4d11faca025c777c04a9">ID_TONE_BUSY</a>, 
 <br>
-&nbsp;&nbsp;<a class="el" href="sip_xtapi_8h.html#d407578b47da10784d7a56ce81a3a2bc9b3102e611896742b470c701e48c5d4f">ID_TONE_RINGTONE</a>, 
-<a class="el" href="sip_xtapi_8h.html#d407578b47da10784d7a56ce81a3a2bc5e8ddb0e48d92e965c3264d267a4915f">ID_TONE_CALLFAILED</a>, 
-<a class="el" href="sip_xtapi_8h.html#d407578b47da10784d7a56ce81a3a2bc9c278bb4b852e237f3092a4f82c4f6c6">ID_TONE_SILENCE</a>, 
-<a class="el" href="sip_xtapi_8h.html#d407578b47da10784d7a56ce81a3a2bcdb70fb371e0c900ec3257c0b4ea7f8cd">ID_TONE_BACKSPACE</a>, 
+&nbsp;&nbsp;<a class="el" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb603148e11cec53bc19178f518b4837a24">ID_TONE_RINGBACK</a>, 
+<a class="el" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb69b3102e611896742b470c701e48c5d4f">ID_TONE_RINGTONE</a>, 
+<a class="el" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb65e8ddb0e48d92e965c3264d267a4915f">ID_TONE_CALLFAILED</a>, 
+<a class="el" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb69c278bb4b852e237f3092a4f82c4f6c6">ID_TONE_SILENCE</a>, 
 <br>
-&nbsp;&nbsp;<a class="el" href="sip_xtapi_8h.html#d407578b47da10784d7a56ce81a3a2bcbe95c0e44198eb81e15e33c95f911753">ID_TONE_CALLWAITING</a>, 
-<a class="el" href="sip_xtapi_8h.html#d407578b47da10784d7a56ce81a3a2bcf89d82faeb6d4b2ff3989c658422f7a2">ID_TONE_CALLHELD</a>, 
-<a class="el" href="sip_xtapi_8h.html#d407578b47da10784d7a56ce81a3a2bcb10c694e3b8bd7bc28053b8eaf13ddd6">ID_TONE_LOUD_FAST_BUSY</a>
+&nbsp;&nbsp;<a class="el" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb6db70fb371e0c900ec3257c0b4ea7f8cd">ID_TONE_BACKSPACE</a>, 
+<a class="el" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb6be95c0e44198eb81e15e33c95f911753">ID_TONE_CALLWAITING</a>, 
+<a class="el" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb6f89d82faeb6d4b2ff3989c658422f7a2">ID_TONE_CALLHELD</a>, 
+<a class="el" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb6b10c694e3b8bd7bc28053b8eaf13ddd6">ID_TONE_LOUD_FAST_BUSY</a>
 <br>
  }</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">DTMF/other tone ids used with sipxCallStartTone/sipxCallStopTone.  <a href="sip_xtapi_8h.html#d407578b47da10784d7a56ce81a3a2bc">More...</a><br></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">DTMF/other tone ids used with sipxCallStartTone/sipxCallStopTone.  <a href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb6">More...</a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#87f3dbd54db7a6e76b26743328faf14c">SIPX_LOG_LEVEL</a> { <br>
 &nbsp;&nbsp;<a class="el" href="sip_xtapi_8h.html#87f3dbd54db7a6e76b26743328faf14c538b2b6e011479d408ecd2be0f6d6177">LOG_LEVEL_DEBUG</a>, 
 <a class="el" href="sip_xtapi_8h.html#87f3dbd54db7a6e76b26743328faf14cedee1e3159bfe7d918b6e29873c5aee4">LOG_LEVEL_INFO</a>, 
@@ -1586,7 +1590,7 @@ Assume extern "C" for non-win32 platforms.
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top">#define SIPXTAPI_BUILD_WORD&nbsp;&nbsp;&nbsp;2,9,1,6937          </td>
+          <td class="md" nowrap valign="top">#define SIPXTAPI_BUILD_WORD&nbsp;&nbsp;&nbsp;2,9,1,0          </td>
         </tr>
       </table>
     </td>
@@ -1636,7 +1640,7 @@ Default build date -- automatically filled in during release process.
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top">#define SIPXTAPI_BUILDNUMBER&nbsp;&nbsp;&nbsp;&quot;6937&quot;          </td>
+          <td class="md" nowrap valign="top">#define SIPXTAPI_BUILDNUMBER&nbsp;&nbsp;&nbsp;&quot;0&quot;          </td>
         </tr>
       </table>
     </td>
@@ -1711,7 +1715,7 @@ Maximum length for codec name.
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top">#define SIPXTAPI_FULL_VERSION&nbsp;&nbsp;&nbsp;&quot;2.9.1.6937&quot;          </td>
+          <td class="md" nowrap valign="top">#define SIPXTAPI_FULL_VERSION&nbsp;&nbsp;&nbsp;&quot;2.9.1.0&quot;          </td>
         </tr>
       </table>
     </td>
@@ -2235,6 +2239,31 @@ Signature for a log callback function that gets passed three strings, first stri
     </td>
   </tr>
 </table>
+<a class="anchor" name="13dc40cc06c70d945ab763bf59b62bae"></a><!-- doxytag: member="sipXtapi.h::TONE_ID" ref="13dc40cc06c70d945ab763bf59b62bae" args="" --><p>
+<table class="mdTable" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top">typedef <a class="el" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb6">SIPX_TONE_ID</a> <a class="el" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb6">TONE_ID</a>          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing="5" cellpadding="0" border="0">
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Left for backwards compatibility -- please use SIPX_TONE_ID. 
+<p>
+    </td>
+  </tr>
+</table>
 <hr><h2>Enumeration Type Documentation</h2>
 <a class="anchor" name="0f637e5c11b2412abbea8d4f3fa65176"></a><!-- doxytag: member="sipXtapi.h::SIPX_AEC_MODE" ref="0f637e5c11b2412abbea8d4f3fa65176" args="" --><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
@@ -2621,6 +2650,83 @@ Enumeration of the possible levels of SRTP.
     </td>
   </tr>
 </table>
+<a class="anchor" name="5b03046b900c37afe074f2d10046ddb6"></a><!-- doxytag: member="sipXtapi.h::SIPX_TONE_ID" ref="5b03046b900c37afe074f2d10046ddb6" args="" --><p>
+<table class="mdTable" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top">enum <a class="el" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb6">SIPX_TONE_ID</a>          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing="5" cellpadding="0" border="0">
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+DTMF/other tone ids used with sipxCallStartTone/sipxCallStopTone. 
+<p>
+<dl compact><dt><b>Enumerator: </b></dt><dd>
+<table border="0" cellspacing="2" cellpadding="0">
+<tr><td valign="top"><em><a class="anchor" name="5b03046b900c37afe074f2d10046ddb6c6312dae684a6551351052f08ebc8e60"></a><!-- doxytag: member="ID_DTMF_INVALID" ref="5b03046b900c37afe074f2d10046ddb6c6312dae684a6551351052f08ebc8e60" args="" -->ID_DTMF_INVALID</em>&nbsp;</td><td>
+Invalid/Uninitialized DMTF Id. </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="5b03046b900c37afe074f2d10046ddb6af1a041dcd3d3dd3c8be9a7a6ba2f095"></a><!-- doxytag: member="ID_DTMF_0" ref="5b03046b900c37afe074f2d10046ddb6af1a041dcd3d3dd3c8be9a7a6ba2f095" args="" -->ID_DTMF_0</em>&nbsp;</td><td>
+DMTF 0. </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="5b03046b900c37afe074f2d10046ddb6407f9099b07f5006878410eb6a548344"></a><!-- doxytag: member="ID_DTMF_1" ref="5b03046b900c37afe074f2d10046ddb6407f9099b07f5006878410eb6a548344" args="" -->ID_DTMF_1</em>&nbsp;</td><td>
+DMTF 1. </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="5b03046b900c37afe074f2d10046ddb6d69e4b3c089d6919750646f5d83eec19"></a><!-- doxytag: member="ID_DTMF_2" ref="5b03046b900c37afe074f2d10046ddb6d69e4b3c089d6919750646f5d83eec19" args="" -->ID_DTMF_2</em>&nbsp;</td><td>
+DMTF 2. </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="5b03046b900c37afe074f2d10046ddb622466b976e72beb25c9e7ec82bb921b4"></a><!-- doxytag: member="ID_DTMF_3" ref="5b03046b900c37afe074f2d10046ddb622466b976e72beb25c9e7ec82bb921b4" args="" -->ID_DTMF_3</em>&nbsp;</td><td>
+DMTF 3. </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="5b03046b900c37afe074f2d10046ddb6d4fb26d0f11658991052124e9c3cbaad"></a><!-- doxytag: member="ID_DTMF_4" ref="5b03046b900c37afe074f2d10046ddb6d4fb26d0f11658991052124e9c3cbaad" args="" -->ID_DTMF_4</em>&nbsp;</td><td>
+DMTF 4. </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="5b03046b900c37afe074f2d10046ddb6bc3c4fcd7d0900ced09630f0b98891bc"></a><!-- doxytag: member="ID_DTMF_5" ref="5b03046b900c37afe074f2d10046ddb6bc3c4fcd7d0900ced09630f0b98891bc" args="" -->ID_DTMF_5</em>&nbsp;</td><td>
+DMTF 5. </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="5b03046b900c37afe074f2d10046ddb68cb07ceda5abf48dc13d61c30dd0ef76"></a><!-- doxytag: member="ID_DTMF_6" ref="5b03046b900c37afe074f2d10046ddb68cb07ceda5abf48dc13d61c30dd0ef76" args="" -->ID_DTMF_6</em>&nbsp;</td><td>
+DMTF 6. </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="5b03046b900c37afe074f2d10046ddb6365b7a2e0b5595494e7c5956d43a348d"></a><!-- doxytag: member="ID_DTMF_7" ref="5b03046b900c37afe074f2d10046ddb6365b7a2e0b5595494e7c5956d43a348d" args="" -->ID_DTMF_7</em>&nbsp;</td><td>
+DMTF 7. </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="5b03046b900c37afe074f2d10046ddb61727867886c2de5821a254b40ec4ec8f"></a><!-- doxytag: member="ID_DTMF_8" ref="5b03046b900c37afe074f2d10046ddb61727867886c2de5821a254b40ec4ec8f" args="" -->ID_DTMF_8</em>&nbsp;</td><td>
+DMTF 8. </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="5b03046b900c37afe074f2d10046ddb6f648039d3c3a7e329ab843c547aef829"></a><!-- doxytag: member="ID_DTMF_9" ref="5b03046b900c37afe074f2d10046ddb6f648039d3c3a7e329ab843c547aef829" args="" -->ID_DTMF_9</em>&nbsp;</td><td>
+DMTF 9. </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="5b03046b900c37afe074f2d10046ddb6fa6cb8c12db8d052636da8f46a1ce70e"></a><!-- doxytag: member="ID_DTMF_STAR" ref="5b03046b900c37afe074f2d10046ddb6fa6cb8c12db8d052636da8f46a1ce70e" args="" -->ID_DTMF_STAR</em>&nbsp;</td><td>
+DMTF *. </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="5b03046b900c37afe074f2d10046ddb6cf84326c710cb4b01d8845a62de887b4"></a><!-- doxytag: member="ID_DTMF_POUND" ref="5b03046b900c37afe074f2d10046ddb6cf84326c710cb4b01d8845a62de887b4" args="" -->ID_DTMF_POUND</em>&nbsp;</td><td>
+DMTF #. </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="5b03046b900c37afe074f2d10046ddb69a8fe95cb4bfabb26ec6df190cf4740f"></a><!-- doxytag: member="ID_DTMF_FLASH" ref="5b03046b900c37afe074f2d10046ddb69a8fe95cb4bfabb26ec6df190cf4740f" args="" -->ID_DTMF_FLASH</em>&nbsp;</td><td>
+DTMF Flash. </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="5b03046b900c37afe074f2d10046ddb64da79c3ba952b56be6924365016cb24d"></a><!-- doxytag: member="ID_TONE_DIALTONE" ref="5b03046b900c37afe074f2d10046ddb64da79c3ba952b56be6924365016cb24d" args="" -->ID_TONE_DIALTONE</em>&nbsp;</td><td>
+Dialtone (Not supported with GIPS VoiceEngine). </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="5b03046b900c37afe074f2d10046ddb6f6653a29566b4d11faca025c777c04a9"></a><!-- doxytag: member="ID_TONE_BUSY" ref="5b03046b900c37afe074f2d10046ddb6f6653a29566b4d11faca025c777c04a9" args="" -->ID_TONE_BUSY</em>&nbsp;</td><td>
+Call-busy tone (Not supported with GIPS VoiceEngine). </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="5b03046b900c37afe074f2d10046ddb603148e11cec53bc19178f518b4837a24"></a><!-- doxytag: member="ID_TONE_RINGBACK" ref="5b03046b900c37afe074f2d10046ddb603148e11cec53bc19178f518b4837a24" args="" -->ID_TONE_RINGBACK</em>&nbsp;</td><td>
+Remote party is ringing feedback tone (Not supported with GIPS VoiceEngine). </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="5b03046b900c37afe074f2d10046ddb69b3102e611896742b470c701e48c5d4f"></a><!-- doxytag: member="ID_TONE_RINGTONE" ref="5b03046b900c37afe074f2d10046ddb69b3102e611896742b470c701e48c5d4f" args="" -->ID_TONE_RINGTONE</em>&nbsp;</td><td>
+Default ring/alert tone (Not supported with GIPS VoiceEngine). </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="5b03046b900c37afe074f2d10046ddb65e8ddb0e48d92e965c3264d267a4915f"></a><!-- doxytag: member="ID_TONE_CALLFAILED" ref="5b03046b900c37afe074f2d10046ddb65e8ddb0e48d92e965c3264d267a4915f" args="" -->ID_TONE_CALLFAILED</em>&nbsp;</td><td>
+Fasy Busy / call failed tone (Not supported with GIPS VoiceEngine). </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="5b03046b900c37afe074f2d10046ddb69c278bb4b852e237f3092a4f82c4f6c6"></a><!-- doxytag: member="ID_TONE_SILENCE" ref="5b03046b900c37afe074f2d10046ddb69c278bb4b852e237f3092a4f82c4f6c6" args="" -->ID_TONE_SILENCE</em>&nbsp;</td><td>
+Silence (Not supported with GIPS VoiceEngine). </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="5b03046b900c37afe074f2d10046ddb6db70fb371e0c900ec3257c0b4ea7f8cd"></a><!-- doxytag: member="ID_TONE_BACKSPACE" ref="5b03046b900c37afe074f2d10046ddb6db70fb371e0c900ec3257c0b4ea7f8cd" args="" -->ID_TONE_BACKSPACE</em>&nbsp;</td><td>
+Backspace tone (Not supported with GIPS VoiceEngine). </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="5b03046b900c37afe074f2d10046ddb6be95c0e44198eb81e15e33c95f911753"></a><!-- doxytag: member="ID_TONE_CALLWAITING" ref="5b03046b900c37afe074f2d10046ddb6be95c0e44198eb81e15e33c95f911753" args="" -->ID_TONE_CALLWAITING</em>&nbsp;</td><td>
+Call waiting alert tone (Not supported with GIPS VoiceEngine). </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="5b03046b900c37afe074f2d10046ddb6f89d82faeb6d4b2ff3989c658422f7a2"></a><!-- doxytag: member="ID_TONE_CALLHELD" ref="5b03046b900c37afe074f2d10046ddb6f89d82faeb6d4b2ff3989c658422f7a2" args="" -->ID_TONE_CALLHELD</em>&nbsp;</td><td>
+Call held feedback tone (Not supported with GIPS VoiceEngine). </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="5b03046b900c37afe074f2d10046ddb6b10c694e3b8bd7bc28053b8eaf13ddd6"></a><!-- doxytag: member="ID_TONE_LOUD_FAST_BUSY" ref="5b03046b900c37afe074f2d10046ddb6b10c694e3b8bd7bc28053b8eaf13ddd6" args="" -->ID_TONE_LOUD_FAST_BUSY</em>&nbsp;</td><td>
+Off hook / fast busy tone (Not supported with GIPS VoiceEngine). </td></tr>
+</table>
+</dl>
+    </td>
+  </tr>
+</table>
 <a class="anchor" name="f39dac8dccd22f4a1ea95edc09eb96e0"></a><!-- doxytag: member="sipXtapi.h::SIPX_TRANSPORT_TYPE" ref="f39dac8dccd22f4a1ea95edc09eb96e0" args="" --><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
@@ -2835,81 +2941,6 @@ Speaker output types are used to differentiate between the logical ringer (used 
 Speaker / in call device. </td></tr>
 <tr><td valign="top"><em><a class="anchor" name="845f307240adc57373f95079d48a6727615fcfa2d8ffbcd05bf45bdcd2e0a7cd"></a><!-- doxytag: member="RINGER" ref="845f307240adc57373f95079d48a6727615fcfa2d8ffbcd05bf45bdcd2e0a7cd" args="" -->RINGER</em>&nbsp;</td><td>
 Ringer / alerting device. </td></tr>
-</table>
-</dl>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="d407578b47da10784d7a56ce81a3a2bc"></a><!-- doxytag: member="sipXtapi.h::TONE_ID" ref="d407578b47da10784d7a56ce81a3a2bc" args="" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">enum <a class="el" href="sip_xtapi_8h.html#d407578b47da10784d7a56ce81a3a2bc">TONE_ID</a>          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-DTMF/other tone ids used with sipxCallStartTone/sipxCallStopTone. 
-<p>
-<dl compact><dt><b>Enumerator: </b></dt><dd>
-<table border="0" cellspacing="2" cellpadding="0">
-<tr><td valign="top"><em><a class="anchor" name="d407578b47da10784d7a56ce81a3a2bcaf1a041dcd3d3dd3c8be9a7a6ba2f095"></a><!-- doxytag: member="ID_DTMF_0" ref="d407578b47da10784d7a56ce81a3a2bcaf1a041dcd3d3dd3c8be9a7a6ba2f095" args="" -->ID_DTMF_0</em>&nbsp;</td><td>
-DMTF 0. </td></tr>
-<tr><td valign="top"><em><a class="anchor" name="d407578b47da10784d7a56ce81a3a2bc407f9099b07f5006878410eb6a548344"></a><!-- doxytag: member="ID_DTMF_1" ref="d407578b47da10784d7a56ce81a3a2bc407f9099b07f5006878410eb6a548344" args="" -->ID_DTMF_1</em>&nbsp;</td><td>
-DMTF 1. </td></tr>
-<tr><td valign="top"><em><a class="anchor" name="d407578b47da10784d7a56ce81a3a2bcd69e4b3c089d6919750646f5d83eec19"></a><!-- doxytag: member="ID_DTMF_2" ref="d407578b47da10784d7a56ce81a3a2bcd69e4b3c089d6919750646f5d83eec19" args="" -->ID_DTMF_2</em>&nbsp;</td><td>
-DMTF 2. </td></tr>
-<tr><td valign="top"><em><a class="anchor" name="d407578b47da10784d7a56ce81a3a2bc22466b976e72beb25c9e7ec82bb921b4"></a><!-- doxytag: member="ID_DTMF_3" ref="d407578b47da10784d7a56ce81a3a2bc22466b976e72beb25c9e7ec82bb921b4" args="" -->ID_DTMF_3</em>&nbsp;</td><td>
-DMTF 3. </td></tr>
-<tr><td valign="top"><em><a class="anchor" name="d407578b47da10784d7a56ce81a3a2bcd4fb26d0f11658991052124e9c3cbaad"></a><!-- doxytag: member="ID_DTMF_4" ref="d407578b47da10784d7a56ce81a3a2bcd4fb26d0f11658991052124e9c3cbaad" args="" -->ID_DTMF_4</em>&nbsp;</td><td>
-DMTF 4. </td></tr>
-<tr><td valign="top"><em><a class="anchor" name="d407578b47da10784d7a56ce81a3a2bcbc3c4fcd7d0900ced09630f0b98891bc"></a><!-- doxytag: member="ID_DTMF_5" ref="d407578b47da10784d7a56ce81a3a2bcbc3c4fcd7d0900ced09630f0b98891bc" args="" -->ID_DTMF_5</em>&nbsp;</td><td>
-DMTF 5. </td></tr>
-<tr><td valign="top"><em><a class="anchor" name="d407578b47da10784d7a56ce81a3a2bc8cb07ceda5abf48dc13d61c30dd0ef76"></a><!-- doxytag: member="ID_DTMF_6" ref="d407578b47da10784d7a56ce81a3a2bc8cb07ceda5abf48dc13d61c30dd0ef76" args="" -->ID_DTMF_6</em>&nbsp;</td><td>
-DMTF 6. </td></tr>
-<tr><td valign="top"><em><a class="anchor" name="d407578b47da10784d7a56ce81a3a2bc365b7a2e0b5595494e7c5956d43a348d"></a><!-- doxytag: member="ID_DTMF_7" ref="d407578b47da10784d7a56ce81a3a2bc365b7a2e0b5595494e7c5956d43a348d" args="" -->ID_DTMF_7</em>&nbsp;</td><td>
-DMTF 7. </td></tr>
-<tr><td valign="top"><em><a class="anchor" name="d407578b47da10784d7a56ce81a3a2bc1727867886c2de5821a254b40ec4ec8f"></a><!-- doxytag: member="ID_DTMF_8" ref="d407578b47da10784d7a56ce81a3a2bc1727867886c2de5821a254b40ec4ec8f" args="" -->ID_DTMF_8</em>&nbsp;</td><td>
-DMTF 8. </td></tr>
-<tr><td valign="top"><em><a class="anchor" name="d407578b47da10784d7a56ce81a3a2bcf648039d3c3a7e329ab843c547aef829"></a><!-- doxytag: member="ID_DTMF_9" ref="d407578b47da10784d7a56ce81a3a2bcf648039d3c3a7e329ab843c547aef829" args="" -->ID_DTMF_9</em>&nbsp;</td><td>
-DMTF 9. </td></tr>
-<tr><td valign="top"><em><a class="anchor" name="d407578b47da10784d7a56ce81a3a2bcfa6cb8c12db8d052636da8f46a1ce70e"></a><!-- doxytag: member="ID_DTMF_STAR" ref="d407578b47da10784d7a56ce81a3a2bcfa6cb8c12db8d052636da8f46a1ce70e" args="" -->ID_DTMF_STAR</em>&nbsp;</td><td>
-DMTF *. </td></tr>
-<tr><td valign="top"><em><a class="anchor" name="d407578b47da10784d7a56ce81a3a2bccf84326c710cb4b01d8845a62de887b4"></a><!-- doxytag: member="ID_DTMF_POUND" ref="d407578b47da10784d7a56ce81a3a2bccf84326c710cb4b01d8845a62de887b4" args="" -->ID_DTMF_POUND</em>&nbsp;</td><td>
-DMTF #. </td></tr>
-<tr><td valign="top"><em><a class="anchor" name="d407578b47da10784d7a56ce81a3a2bc9a8fe95cb4bfabb26ec6df190cf4740f"></a><!-- doxytag: member="ID_DTMF_FLASH" ref="d407578b47da10784d7a56ce81a3a2bc9a8fe95cb4bfabb26ec6df190cf4740f" args="" -->ID_DTMF_FLASH</em>&nbsp;</td><td>
-DTMF Flash. </td></tr>
-<tr><td valign="top"><em><a class="anchor" name="d407578b47da10784d7a56ce81a3a2bc4da79c3ba952b56be6924365016cb24d"></a><!-- doxytag: member="ID_TONE_DIALTONE" ref="d407578b47da10784d7a56ce81a3a2bc4da79c3ba952b56be6924365016cb24d" args="" -->ID_TONE_DIALTONE</em>&nbsp;</td><td>
-Dialtone (Not supported with GIPS VoiceEngine). </td></tr>
-<tr><td valign="top"><em><a class="anchor" name="d407578b47da10784d7a56ce81a3a2bcf6653a29566b4d11faca025c777c04a9"></a><!-- doxytag: member="ID_TONE_BUSY" ref="d407578b47da10784d7a56ce81a3a2bcf6653a29566b4d11faca025c777c04a9" args="" -->ID_TONE_BUSY</em>&nbsp;</td><td>
-Call-busy tone (Not supported with GIPS VoiceEngine). </td></tr>
-<tr><td valign="top"><em><a class="anchor" name="d407578b47da10784d7a56ce81a3a2bc03148e11cec53bc19178f518b4837a24"></a><!-- doxytag: member="ID_TONE_RINGBACK" ref="d407578b47da10784d7a56ce81a3a2bc03148e11cec53bc19178f518b4837a24" args="" -->ID_TONE_RINGBACK</em>&nbsp;</td><td>
-Remote party is ringing feedback tone (Not supported with GIPS VoiceEngine). </td></tr>
-<tr><td valign="top"><em><a class="anchor" name="d407578b47da10784d7a56ce81a3a2bc9b3102e611896742b470c701e48c5d4f"></a><!-- doxytag: member="ID_TONE_RINGTONE" ref="d407578b47da10784d7a56ce81a3a2bc9b3102e611896742b470c701e48c5d4f" args="" -->ID_TONE_RINGTONE</em>&nbsp;</td><td>
-Default ring/alert tone (Not supported with GIPS VoiceEngine). </td></tr>
-<tr><td valign="top"><em><a class="anchor" name="d407578b47da10784d7a56ce81a3a2bc5e8ddb0e48d92e965c3264d267a4915f"></a><!-- doxytag: member="ID_TONE_CALLFAILED" ref="d407578b47da10784d7a56ce81a3a2bc5e8ddb0e48d92e965c3264d267a4915f" args="" -->ID_TONE_CALLFAILED</em>&nbsp;</td><td>
-Fasy Busy / call failed tone (Not supported with GIPS VoiceEngine). </td></tr>
-<tr><td valign="top"><em><a class="anchor" name="d407578b47da10784d7a56ce81a3a2bc9c278bb4b852e237f3092a4f82c4f6c6"></a><!-- doxytag: member="ID_TONE_SILENCE" ref="d407578b47da10784d7a56ce81a3a2bc9c278bb4b852e237f3092a4f82c4f6c6" args="" -->ID_TONE_SILENCE</em>&nbsp;</td><td>
-Silence (Not supported with GIPS VoiceEngine). </td></tr>
-<tr><td valign="top"><em><a class="anchor" name="d407578b47da10784d7a56ce81a3a2bcdb70fb371e0c900ec3257c0b4ea7f8cd"></a><!-- doxytag: member="ID_TONE_BACKSPACE" ref="d407578b47da10784d7a56ce81a3a2bcdb70fb371e0c900ec3257c0b4ea7f8cd" args="" -->ID_TONE_BACKSPACE</em>&nbsp;</td><td>
-Backspace tone (Not supported with GIPS VoiceEngine). </td></tr>
-<tr><td valign="top"><em><a class="anchor" name="d407578b47da10784d7a56ce81a3a2bcbe95c0e44198eb81e15e33c95f911753"></a><!-- doxytag: member="ID_TONE_CALLWAITING" ref="d407578b47da10784d7a56ce81a3a2bcbe95c0e44198eb81e15e33c95f911753" args="" -->ID_TONE_CALLWAITING</em>&nbsp;</td><td>
-Call waiting alert tone (Not supported with GIPS VoiceEngine). </td></tr>
-<tr><td valign="top"><em><a class="anchor" name="d407578b47da10784d7a56ce81a3a2bcf89d82faeb6d4b2ff3989c658422f7a2"></a><!-- doxytag: member="ID_TONE_CALLHELD" ref="d407578b47da10784d7a56ce81a3a2bcf89d82faeb6d4b2ff3989c658422f7a2" args="" -->ID_TONE_CALLHELD</em>&nbsp;</td><td>
-Call held feedback tone (Not supported with GIPS VoiceEngine). </td></tr>
-<tr><td valign="top"><em><a class="anchor" name="d407578b47da10784d7a56ce81a3a2bcb10c694e3b8bd7bc28053b8eaf13ddd6"></a><!-- doxytag: member="ID_TONE_LOUD_FAST_BUSY" ref="d407578b47da10784d7a56ce81a3a2bcb10c694e3b8bd7bc28053b8eaf13ddd6" args="" -->ID_TONE_LOUD_FAST_BUSY</em>&nbsp;</td><td>
-Off hook / fast busy tone (Not supported with GIPS VoiceEngine). </td></tr>
 </table>
 </dl>
     </td>
@@ -5517,7 +5548,7 @@ This method will fail with an SIPX_RESULT_INVALID_STATE return code if an existi
     </td>
   </tr>
 </table>
-<a class="anchor" name="4e97ee052b01904d648f3839870d25ae"></a><!-- doxytag: member="sipXtapi.h::sipxCallStartTone" ref="4e97ee052b01904d648f3839870d25ae" args="(const SIPX_CALL hCall, const TONE_ID toneId, const bool bLocal, const bool bRemote)" --><p>
+<a class="anchor" name="77afab8a5d537019a0b4adac96440d54"></a><!-- doxytag: member="sipXtapi.h::sipxCallStartTone" ref="77afab8a5d537019a0b4adac96440d54" args="(const SIPX_CALL hCall, const SIPX_TONE_ID toneId, const bool bLocal, const bool bRemote)" --><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -5531,7 +5562,7 @@ This method will fail with an SIPX_RESULT_INVALID_STATE return code if an existi
         <tr>
           <td class="md" nowrap align="right"></td>
           <td class="md"></td>
-          <td class="md" nowrap>const <a class="el" href="sip_xtapi_8h.html#d407578b47da10784d7a56ce81a3a2bc">TONE_ID</a>&nbsp;</td>
+          <td class="md" nowrap>const <a class="el" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb6">SIPX_TONE_ID</a>&nbsp;</td>
           <td class="mdname" nowrap> <em>toneId</em>, </td>
         </tr>
         <tr>
@@ -10938,7 +10969,7 @@ Represents a null transport handle.
     </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Thu Jun 8 15:27:12 2006 for SipX TAPI-like API for Call Processing by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Wed Jul 26 16:03:04 2006 for SipX TAPI-like API for Call Processing by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.6-NO </small></address>
 </body>
