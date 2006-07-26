@@ -115,14 +115,17 @@ UtlBoolean OsNatAgentTask::handleMessage(OsMsg& rMsg)
         case NAT_MSG_TYPE:
             if (((NatMsg&) rMsg).getType() == NatMsg::STUN_MESSAGE)
             {
+OutputDebugString("handleMessage::handleStunMessage\n") ;
                 bHandled = handleStunMessage((NatMsg&) rMsg) ;
             }
             else if (((NatMsg&) rMsg).getType() == NatMsg::TURN_MESSAGE)
             {
+OutputDebugString("handleMessage::handleTurnMessage\n") ;
                 bHandled = handleTurnMessage((NatMsg&) rMsg) ;
             }
             else if (((NatMsg&) rMsg).getType() == NatMsg::EXPIRATION_MESSAGE)
             {
+OutputDebugString("handleMessage::handleTimerEvent\n") ;
                 NAT_AGENT_CONTEXT* pContext = (NAT_AGENT_CONTEXT*) ((NatMsg&) rMsg).getContext() ;
                 if (pContext)
                 {
@@ -131,15 +134,18 @@ UtlBoolean OsNatAgentTask::handleMessage(OsMsg& rMsg)
             }
             else
             {
+OutputDebugString("handleMessage::unknown\n") ;
                  // Unknown message type
                 assert(false) ;
             }
             break ;
         case SYNC_MSG_TYPE:
+OutputDebugString("handleMessage::handleSynchronize\n") ;
             bHandled = handleSynchronize((OsRpcMsg&) rMsg) ;
             break ;
         case OsMsg::OS_EVENT:
             {
+OutputDebugString("handleMessage::EXPIRATION_MESSAGE (repost)\n") ;
                 // Pull out context
                 NAT_AGENT_CONTEXT* pContext = NULL ;
                 OsStatus rc = ((OsEventMsg&)rMsg).getUserData((int&) pContext) ;
@@ -302,6 +308,7 @@ UtlBoolean OsNatAgentTask::handleStunMessage(NatMsg& rMsg)
 
 UtlBoolean OsNatAgentTask::handleTurnMessage(NatMsg& rMsg) 
 {
+OutputDebugString("BEGIN handleTurnMessage\n") ;
     OsLock lock(mMapsLock) ;
 
     TurnMessage msg;
@@ -401,6 +408,8 @@ UtlBoolean OsNatAgentTask::handleTurnMessage(NatMsg& rMsg)
         free(pBuffer) ;
     }
 
+
+    OutputDebugString("END handleTurnMessage\n") ;
     return true ;
 }
 
@@ -520,6 +529,8 @@ void OsNatAgentTask::handleStunTimeout(NAT_AGENT_CONTEXT* pContext)
 
 void OsNatAgentTask::handleTurnTimeout(NAT_AGENT_CONTEXT* pContext) 
 {
+OutputDebugString("handleTurnTimeout\n") ;
+
     OsTime errorAt(0, NAT_RESPONSE_TIMEOUT_MS * OsTime::USECS_PER_MSEC) ;
     assert(pContext) ;
     if (pContext)
@@ -1416,6 +1427,7 @@ UtlBoolean OsNatAgentTask::sendMessage(StunMessage* pMsg,
                                        const UtlString& toAddress, 
                                        unsigned short toPort)
 {
+OutputDebugString("BEGIN sendMessage\n") ;
     UtlBoolean bSuccess = false ;
 
     char cEncoded[10240] ;
@@ -1443,6 +1455,7 @@ UtlBoolean OsNatAgentTask::sendMessage(StunMessage* pMsg,
         assert(false) ;
     }
 
+OutputDebugString("END sendMessage\n") ;
     return bSuccess ;
 }
 
@@ -1792,6 +1805,8 @@ void OsNatAgentTask::markStunFailure(NAT_AGENT_CONTEXT* pBinding)
 
 void OsNatAgentTask::markTurnSuccess(NAT_AGENT_CONTEXT* pBinding, const UtlString& relayAddress, int relayPort) 
 {
+OutputDebugString("markTurnSuccess\n") ;
+
     OsTime refreshPeriod(pBinding->keepAliveSecs, 0) ;
 
     assert(pBinding != NULL) ;
@@ -1829,6 +1844,8 @@ void OsNatAgentTask::markTurnSuccess(NAT_AGENT_CONTEXT* pBinding, const UtlStrin
 
 void OsNatAgentTask::markTurnFailure(NAT_AGENT_CONTEXT* pBinding) 
 {
+OutputDebugString("markTurnFailure\n") ;
+
     assert(pBinding != NULL) ;
     if (pBinding)
     {

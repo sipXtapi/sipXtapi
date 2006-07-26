@@ -77,7 +77,7 @@ const bool SipContactDb::addContact(SIPX_CONTACT_ADDRESS& contact)
         mContacts.insertKeyAndValue(new UtlInt(pContactCopy->id), new UtlVoidPtr(pContactCopy));
 
         // If turn is enabled, duplicate the contact with a relay type
-        if (mbTurnEnabled && contact.eContactType != CONTACT_RELAY)
+        if (mbTurnEnabled && contact.eContactType == CONTACT_LOCAL)
         {
             pContactCopy = new SIPX_CONTACT_ADDRESS(contact);
             pContactCopy->eContactType = CONTACT_RELAY ;
@@ -498,7 +498,7 @@ void SipContactDb::enableTurn(bool bEnable)
         {
             if (mbTurnEnabled)
             {
-                if (pContact->eContactType != CONTACT_RELAY)
+                if ((pContact->eContactType == CONTACT_LOCAL) && (pContact->eTransportType == TRANSPORT_UDP))
                 {
                     SIPX_CONTACT_ADDRESS* pContactCopy = new SIPX_CONTACT_ADDRESS(*pContact);
                     pContactCopy->eContactType = CONTACT_RELAY ;

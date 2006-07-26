@@ -977,7 +977,6 @@ bool StunMessage::encodeAttributeAddress(unsigned short type, STUN_ATTRIBUTE_ADD
 bool StunMessage::encodeXorAttributeAddress(unsigned short type, STUN_ATTRIBUTE_ADDRESS* pAddress, char*& pBuf, size_t& nBytesLeft)
 {
     bool bRC = false ;
-    char* ptr ;
 
     unsigned short usPort = pAddress->port ;
     unsigned long ulLong = pAddress->address ;
