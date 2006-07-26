@@ -26,7 +26,7 @@
     -->
   <bean id="org.sipfoundry.sipxconfig.admin.intercom.Intercom" class="org.sipfoundry.sipxconfig.admin.intercom.Intercom"
     singleton="false" parent="beanWithSettings">
-    <property name="prefix" value="*88"/>
+    <property name="prefix" value="*76"/>
     <property name="timeout" value="2000"/>
   </bean>
 </beans>

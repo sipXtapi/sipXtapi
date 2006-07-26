@@ -22,7 +22,7 @@ import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.context.ApplicationContext;
 
 public class IntercomManagerImplTestDb extends SipxDatabaseTestCase {
-    private static final String PREFIX_DEFAULT = "*88";
+    private static final String PREFIX_DEFAULT = "*76";     // keep in sync with intercom.beans.xml
     private static final int TIMEOUT_DEFAULT = 2000;
     
     private IntercomManager m_intercomManager;
