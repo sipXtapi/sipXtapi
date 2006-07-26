@@ -529,7 +529,7 @@ public:
                            int expiresInSeconds = -1);
 
     /* RFC 3428 - MWI*/
-    void SipMessage::setMessageSummaryData(
+    void setMessageSummaryData(
                   UtlString& msgSummaryData,
                   const char* msgAccountUri,
                   UtlBoolean bNewMsgs=FALSE,
@@ -544,7 +544,7 @@ public:
                   int numEmailOldMsgs=-1);
 
     /* RFC 3428 - MWI */
-    void SipMessage::setMWIData(const char *method,
+    void setMWIData(const char *method,
 				  const char* fromField,
                   const char* toField,
                   const char* uri,
@@ -554,7 +554,7 @@ public:
                   UtlString bodyString);
 
     /* RFC 3680 - Registration event */
-    void SipMessage::setRegInfoData(const char *method,
+    void setRegInfoData(const char *method,
 		    const char* fromField,
                   const char* toField,
                   const char* uri,
