@@ -361,6 +361,19 @@ static const char* convertRequestToString(unsigned short request)
         case MSG_TURN_ACTIVE_DESTINATION_ERROR_RESPONSE:
             szRequest = "MSG_TURN_ACTIVE_DESTINATION_ERROR_RESPONSE" ;
             break ;
+        case MSG_TURN_CONNECTION_STATUS_INDICATION:
+            szRequest = "MSG_TURN_CONNECTION_STATUS_INDICATION" ;
+            break ;
+        case MSG_TURN_CLOSE_BINDING_REQUEST:
+            szRequest = "MSG_TURN_CLOSE_BINDING_REQUEST" ;
+            break ;
+        case MSG_TURN_CLOSE_BINDING_RESPONSE:
+            szRequest = "MSG_TURN_CLOSE_BINDING_RESPONSE" ;
+            break ;
+        case MSG_TURN_CLOSE_BINDING_ERROR_RESPONSE:
+            szRequest = "MSG_TURN_CLOSE_BINDING_ERROR_RESPONSE" ;
+            break ;
+
     }
     return szRequest ;
 }
@@ -439,8 +452,8 @@ static const char* convertAttributeToString(unsigned short attribute)
         case ATTR_TURN_DESTINATION_ADDRESS:
             szAttribute = "ATTR_TURN_DESTINATION_ADDRESS" ;
             break ;
-        case ATTR_TURN_SOURCE_ADDRESS:
-            szAttribute = "ATTR_TURN_SOURCE_ADDRESS" ;
+        case ATTR_TURN_REMOTE_ADDRESS:
+            szAttribute = "ATTR_TURN_REMOTE_ADDRESS" ;
             break ;
         case ATTR_TURN_DATA:
             szAttribute = "ATTR_TURN_DATA" ;

@@ -827,12 +827,7 @@ UtlBoolean SipConnection::dial(const char* dialString,
 #endif
                 // Prepare to receive the codecs, without any srtp
                 // for early media
-
-				/*  for security reasons, do not play incoming RTP unless a
-				    200 OK or 183 is received.
-			    */
-
-                if (!mbLocallyInitiatedRemoteHold)
+//                if (!mbLocallyInitiatedRemoteHold)
                 {
                     mpMediaInterface->startRtpReceive(mConnectionId,
                             numCodecs,

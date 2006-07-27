@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <memory.h>
+#include <assert.h>
 
 #if defined(__pingtel_on_posix__)
 #   include <sys/types.h>
@@ -67,8 +68,8 @@ void TurnMessage::reset()
     mbBandwidthValid = false ;
     memset(&mDestinationAddress, 0, sizeof(STUN_ATTRIBUTE_ADDRESS)) ;
     mbDestinationAddressValid = false ;
-    memset(&mTurnSourceAddress, 0, sizeof(STUN_ATTRIBUTE_ADDRESS)) ;
-    mbTurnSourceAddressValid = false ;
+    memset(&mTurnRemoteAddress, 0, sizeof(STUN_ATTRIBUTE_ADDRESS)) ;
+    mbTurnRemoteAddressValid = false ;
     if (mszTurnData)
     {
         free(mszTurnData) ;
@@ -76,7 +77,12 @@ void TurnMessage::reset()
     mszTurnData = NULL ;
     mnTurnData = 0 ;
     mbTurnDataValid = false ;
-
+    memset(&mRelayAddress, 0, sizeof(STUN_ATTRIBUTE_ADDRESS)) ;
+    mbRelayAddressValid = false ;
+    mTransport = 0 ;
+    mbTransportValid = false ;
+    memset(&mRequestedIp, 0, sizeof(STUN_ATTRIBUTE_ADDRESS)) ;
+    mbRequestedIpValid = false ;
     setIncludeMessageIntegrity(true) ;
 }
 
@@ -89,17 +95,20 @@ bool TurnMessage::encodeBody(char* pBuf, size_t nBufLength, size_t& nBytesUsed)
 
     if (!bError)
     {
-        bError = !encodeAttributeLong(ATTR_TURN_MAGIC_COOKIE, ATTR_MAGIC_COOKIE, pTraverse, nBytesLeft) ;
+        bError = !encodeAttributeLong(ATTR_TURN_MAGIC_COOKIE, 
+                ATTR_MAGIC_COOKIE, pTraverse, nBytesLeft) ;
     }
 
     if ((!bError) && mbLifetimeValid)
     {
-        bError = !encodeAttributeLong(ATTR_TURN_LIFETIME, mLifetime, pTraverse, nBytesLeft) ;
+        bError = !encodeAttributeLong(ATTR_TURN_LIFETIME, mLifetime, 
+                pTraverse, nBytesLeft) ;
     }
    
     if ((!bError) && mbBandwidthValid)
     {
-        bError = !encodeAttributeLong(ATTR_TURN_BANDWIDTH, mbBandwidthValid, pTraverse, nBytesLeft) ;
+        bError = !encodeAttributeLong(ATTR_TURN_BANDWIDTH, mBandwidth, 
+                pTraverse, nBytesLeft) ;
     }
 
     if ((!bError) && mbDestinationAddressValid)
@@ -108,10 +117,10 @@ bool TurnMessage::encodeBody(char* pBuf, size_t nBufLength, size_t& nBytesUsed)
                     &mDestinationAddress, pTraverse, nBytesLeft) ;
     }
 
-    if ((!bError) && mbTurnSourceAddressValid)
+    if ((!bError) && mbTurnRemoteAddressValid)
     {
-        bError = !encodeAttributeAddress(ATTR_TURN_SOURCE_ADDRESS, 
-                    &mTurnSourceAddress, pTraverse, nBytesLeft) ;
+        bError = !encodeAttributeAddress(ATTR_TURN_REMOTE_ADDRESS, 
+                    &mTurnRemoteAddress, pTraverse, nBytesLeft) ;
     }
 
     if ((!bError) && mbTurnDataValid)
@@ -119,6 +128,25 @@ bool TurnMessage::encodeBody(char* pBuf, size_t nBufLength, size_t& nBytesUsed)
         bError = !encodeAttributeRaw(ATTR_TURN_DATA, mszTurnData, mnTurnData,
                 pTraverse, nBytesLeft) ;
     }
+
+    if ((!bError) && mbRelayAddressValid)
+    {
+        bError = !encodeAttributeAddress(ATTR_TURN_RELAY_ADDRESS, 
+                &mRelayAddress, pTraverse, nBytesLeft) ;
+    }
+
+    if ((!bError) && mbTransportValid)
+    {
+        bError = !encodeAttributeLong(ATTR_TURN_REQUESTED_TRANSPORT, 
+                mTransport, pTraverse, nBytesLeft) ;
+    }
+
+    if ((!bError) && mbRequestedIpValid)
+    {
+        bError = !encodeAttributeAddress(ATTR_TURN_REQUESTED_IP, 
+                &mRequestedIp, pTraverse, nBytesLeft) ;
+    }
+
       
     // Stun attributes must be last (e.g. message-integrity).
     size_t nStunBytesUsed = 0 ;
@@ -154,12 +182,12 @@ void TurnMessage::setDestinationAddress(const char* szIp, unsigned short port)
     mbDestinationAddressValid = true ;
 }
 
-void TurnMessage::setTurnSourceAddress(const char* szIp, unsigned short port) 
+void TurnMessage::setTurnRemoteAddress(const char* szIp, unsigned short port) 
 {
-    mTurnSourceAddress.family = ATTR_ADDRESS_FAMILY_IPV4 ;
-    mTurnSourceAddress.address = ntohl(inet_addr(szIp)) ;
-    mTurnSourceAddress.port = port ;
-    mbTurnSourceAddressValid = true ;
+    mTurnRemoteAddress.family = ATTR_ADDRESS_FAMILY_IPV4 ;
+    mTurnRemoteAddress.address = ntohl(inet_addr(szIp)) ;
+    mTurnRemoteAddress.port = port ;
+    mbTurnRemoteAddressValid = true ;
 }
 
 void TurnMessage::setData(const char* pData, unsigned short nLength) 
@@ -175,6 +203,32 @@ void TurnMessage::setData(const char* pData, unsigned short nLength)
     mbTurnDataValid = true ;
 }
 
+
+void TurnMessage::setRelayAddress(const char* szIp, unsigned short port) 
+{
+    mRelayAddress.family = ATTR_ADDRESS_FAMILY_IPV4 ;
+    mRelayAddress.address = ntohl(inet_addr(szIp)) ;
+    mRelayAddress.port = port ;
+    mbRelayAddressValid = true ;
+}
+
+
+void TurnMessage::setRequestedTransport(TURN_TRANSPORT_TYPE transportType)
+{
+    mTransport = (unsigned long) transportType ;
+    mbTransportValid = true ;
+
+    assert( (mTransport == 0) || (mTransport == 1) )  ;
+}
+
+
+void TurnMessage::setRequestedIp(const char* szIp, unsigned short port) 
+{
+    mRequestedIp.family = ATTR_ADDRESS_FAMILY_IPV4 ;
+    mRequestedIp.address = ntohl(inet_addr(szIp)) ;
+    mRequestedIp.port = port ;
+    mbRequestedIpValid = true ;
+}
 
 
 /* ============================ ACCESSORS ================================= */
@@ -214,14 +268,14 @@ bool TurnMessage::getDestinationAddress(char* szIp, unsigned short& rPort)
 
 bool TurnMessage::getTurnSourceAddress(char* szIp, unsigned short& rPort) 
 {
-    if (mbTurnSourceAddressValid)
+    if (mbTurnRemoteAddressValid)
     {
-        unsigned long address = htonl(mTurnSourceAddress.address) ;
+        unsigned long address = htonl(mTurnRemoteAddress.address) ;
         strcpy(szIp, inet_ntoa(*((in_addr*) &address))) ;        
-        rPort = mTurnSourceAddress.port ;          
+        rPort = mTurnRemoteAddress.port ;          
     } 
 
-    return mbTurnSourceAddressValid ;
+    return mbTurnRemoteAddressValid ;
 }
 
 bool TurnMessage::getData(char*& rpData, unsigned short& nLength) 
@@ -234,6 +288,44 @@ bool TurnMessage::getData(char*& rpData, unsigned short& nLength)
 
     return mbTurnDataValid ;        
 }
+
+
+bool TurnMessage::getRelayAddress(char* szIp, unsigned short& rPort) 
+{
+    if (mbRelayAddressValid)
+    {
+        unsigned long address = htonl(mRelayAddress.address) ;
+        strcpy(szIp, inet_ntoa(*((in_addr*) &address))) ;        
+        rPort = mRelayAddress.port ;          
+    } 
+
+    return mbRelayAddressValid ;
+}
+
+
+bool TurnMessage::getRequestedTransport(TURN_TRANSPORT_TYPE& rTransportType)
+{
+    if (mbTransportValid)
+    {
+        rTransportType = (TURN_TRANSPORT_TYPE) mTransport ;
+    }
+
+    return mbTransportValid ;
+}
+
+
+bool TurnMessage::getRequestedIp(char* szIp, unsigned short& rPort)
+{
+    if (mbRequestedIpValid)
+    {
+        unsigned long address = htonl(mRequestedIp.address) ;
+        strcpy(szIp, inet_ntoa(*((in_addr*) &address))) ;        
+        rPort = mRequestedIp.port ;          
+    } 
+
+    return mbRequestedIpValid ;
+}
+
 
 /* ============================ INQUIRY =================================== */
 
@@ -250,6 +342,13 @@ bool TurnMessage::validateMessageType(unsigned short type)
         case MSG_TURN_SEND_RESPONSE:
         case MSG_TURN_SEND_ERROR_RESPONSE:
         case MSG_TURN_DATA_INDICATION:
+        case MSG_TURN_ACTIVE_DESTINATION_REQUEST:
+        case MSG_TURN_ACTIVE_DESTINATION_RESPONSE:
+        case MSG_TURN_ACTIVE_DESTINATION_ERROR_RESPONSE:
+        case MSG_TURN_CONNECTION_STATUS_INDICATION:
+        case MSG_TURN_CLOSE_BINDING_REQUEST:
+        case MSG_TURN_CLOSE_BINDING_RESPONSE:
+        case MSG_TURN_CLOSE_BINDING_ERROR_RESPONSE:
             bValid = true ;
             break ;
         default:
@@ -293,6 +392,10 @@ bool TurnMessage::isTurnMessage(const char* pBuf, unsigned short nBufLength)
                 case MSG_TURN_ACTIVE_DESTINATION_REQUEST:
                 case MSG_TURN_ACTIVE_DESTINATION_RESPONSE:
                 case MSG_TURN_ACTIVE_DESTINATION_ERROR_RESPONSE:
+                case MSG_TURN_CONNECTION_STATUS_INDICATION:
+                case MSG_TURN_CLOSE_BINDING_REQUEST:
+                case MSG_TURN_CLOSE_BINDING_RESPONSE:
+                case MSG_TURN_CLOSE_BINDING_ERROR_RESPONSE:
 
                     // Validate Magic Cookie
                     pTraverse += sizeof(STUN_MESSAGE_HEADER) ;
@@ -330,13 +433,18 @@ bool TurnMessage::isRequestOrNonErrorResponse()
         case MSG_TURN_SEND_REQUEST:
         case MSG_TURN_SEND_RESPONSE:       
         case MSG_TURN_ACTIVE_DESTINATION_REQUEST:
-        case MSG_TURN_ACTIVE_DESTINATION_RESPONSE:   
+        case MSG_TURN_ACTIVE_DESTINATION_RESPONSE: 
+        case MSG_TURN_CLOSE_BINDING_REQUEST:
+        case MSG_TURN_CLOSE_BINDING_RESPONSE:
             bRequestOrNonErrorResponse = true ;
             break ;
         case MSG_TURN_ALLOCATE_ERROR_RESPONSE:
         case MSG_TURN_SEND_ERROR_RESPONSE:
         case MSG_TURN_DATA_INDICATION:
         case MSG_TURN_ACTIVE_DESTINATION_ERROR_RESPONSE:
+        case MSG_TURN_CONNECTION_STATUS_INDICATION:
+        case MSG_TURN_CLOSE_BINDING_ERROR_RESPONSE:
+            break ;
             bRequestOrNonErrorResponse = false ;
             break ;
         default:
@@ -377,9 +485,9 @@ bool TurnMessage::parseAttribute(STUN_ATTRIBUTE_HEADER* pHeader, char* pBuf)
             bValid = parseAddressAttribute(pBuf, pHeader->length, &mDestinationAddress) ;
             mbDestinationAddressValid = bValid ;
             break ;
-        case ATTR_TURN_SOURCE_ADDRESS:
-            bValid = parseAddressAttribute(pBuf, pHeader->length, &mTurnSourceAddress) ;
-            mbTurnSourceAddressValid = bValid ;
+        case ATTR_TURN_REMOTE_ADDRESS:
+            bValid = parseAddressAttribute(pBuf, pHeader->length, &mTurnRemoteAddress) ;
+            mbTurnRemoteAddressValid = bValid ;
             break ;
         case ATTR_TURN_DATA:
             if (pHeader->length)
@@ -396,6 +504,18 @@ bool TurnMessage::parseAttribute(STUN_ATTRIBUTE_HEADER* pHeader, char* pBuf)
                     }
                 }
             }
+            break ;
+        case ATTR_TURN_RELAY_ADDRESS:
+            bValid = parseAddressAttribute(pBuf, pHeader->length, &mRelayAddress) ;
+            mbRelayAddressValid = bValid ;
+            break ;
+        case ATTR_TURN_REQUESTED_TRANSPORT:
+            bValid = parseLongAttribute(pBuf, pHeader->length, &mTransport) ;
+            mbTransportValid = bValid ;            
+            break ;
+        case ATTR_TURN_REQUESTED_IP:
+            bValid = parseAddressAttribute(pBuf, pHeader->length, &mRequestedIp) ;
+            mbRequestedIpValid = bValid ;
             break ;
         default:
             bValid = StunMessage::parseAttribute(pHeader, pBuf) ;
