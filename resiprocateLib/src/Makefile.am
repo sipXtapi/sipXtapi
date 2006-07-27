@@ -6,6 +6,11 @@ include $(top_builddir)/config/sipXcommon.mak
 
 lib_LTLIBRARIES = libsipXresiprocateLib.la
 
+# While the files in src are being compiled, they need to be able to see the
+# Resiprocate include files, which are in what Resiprocate thinks is the
+# install directory, ../build
+# They also need to be able to see the include files for this glue code,
+# which are in ../include
 INCLUDES = \
 	-I$(top_builddir)/include \
 	-I$(top_srcdir)/include
