@@ -26,7 +26,7 @@ $(UNRESTRICTED) $(SRC_ZIP) :
 $(NOSRC_RPM) :
 	-mkdir $(JDK_LIBSRC)
 	wget --output-document=$@ \
-	  http://mirrors.dotsrc.org/jpackage/1.6/generic/non-free/SRPMS/`basename $@`
+	  $(JPKG_NONFREE_URL)/SRPMS/`basename $@`
 
 $(RPM) : $(NOSRC_RPM) $(SRC_ZIP) 
 	rpm -i $(NOSRC_RPM)

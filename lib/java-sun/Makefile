@@ -1,5 +1,4 @@
-# type  "make LIBSRC=XXX" to override this location, normal make syntax
-LIBSRC=~/libsrc
+include ../meta/libsrc.mak
 
 VERSION=1.5.0
 SUN_VERSION=1_5_0
@@ -13,9 +12,6 @@ NOSRC_RPM = $(JDK_LIBSRC)/java-$(VERSION)-sun-$(VERSION).$(BUILD)-$(REL)jpp.nosr
 RPM_SPEC=java-$(VERSION)-sun.spec
 RPM=java-$(VERSION)-sun-$(VERSION).$(BUILD)-$(REL)jpp.i586.rpm
 
-# Where rpmbuild will do its work.
-RPMBUILD_TOPDIR = $(shell rpm --eval '%{_topdir}')
-
 all : $(RPM)
 
 $(SRC_ZIP) :
@@ -25,7 +21,7 @@ $(SRC_ZIP) :
 $(NOSRC_RPM) :
 	-mkdir $(JDK_LIBSRC)
 	wget --output-document=$@ \
-	  http://mirrors.dotsrc.org/jpackage/1.6/generic/non-free/SRPMS/`basename $@`
+	  $(JPKG_NONFREE_URL)/SRPMS/`basename $@`
 
 $(RPM) : $(NOSRC_RPM) $(SRC_ZIP) 
 	rpm -i $(NOSRC_RPM)

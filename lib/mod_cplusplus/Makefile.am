@@ -1,14 +1,9 @@
-# hint: type  "make LIBSRC=XXX" to override this location
-LIBSRC=~/libsrc
+include ../meta/libsrc.mak
+
 MOD_CPLUSPLUS_LIBSRC=$(LIBSRC)/mod_cplusplus
 
 MOD_CPLUSPLUS_VER = 1.5.2
 MOD_CPLUSPLUS_REL = 1
-
-# /bin/arch may return i686 but RPMs default arch is i386.
-# hint: type  "make RPM_TARGET_ARCH=XXX" to override this location
-RPM_TARGET_ARCH = i386
-#RPM_TARGET_PLAT = rhe30
 
 MOD_CPLUSPLUS_RPM = mod_cplusplus-$(MOD_CPLUSPLUS_VER)-$(MOD_CPLUSPLUS_REL).$(RPM_TARGET_ARCH).rpm
 MOD_CPLUSPLUS_SRC = $(MOD_CPLUSPLUS_LIBSRC)/mod_cplusplus-$(MOD_CPLUSPLUS_VER).tar.gz
@@ -26,15 +21,12 @@ edit = sed \
 	-e 's,@APACHE2_APXS\@,@APACHE2_APXS@,g' \
 	-e 's,@APACHE2_VERSION\@,@APACHE2_VERSION@,g'
 
-# Where rpmbuild will do its work.
-RPMBUILD_TOPDIR = $(shell rpm --eval '%{_topdir}')
-
 all : $(MOD_CPLUSPLUS_RPM)
 
 $(MOD_CPLUSPLUS_SRC) :
 	-mkdir $(MOD_CPLUSPLUS_LIBSRC)
 	wget --output-document=$@ \
-		http://umn.dl.sourceforge.net/sourceforge/modcplusplus/`basename $@`
+		$(MOD_CLUSPLUS_URL)/`basename $@`
 
 $(MOD_CPLUSPLUS_RPM) : $(MOD_CPLUSPLUS_SRC) mod_cplusplus.spec
 	cp $(MOD_CPLUSPLUS_SRC) $(RPMBUILD_TOPDIR)/SOURCES

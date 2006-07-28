@@ -1,10 +1,9 @@
+include ../meta/libsrc.mak
+
 RPM_TARGET_ARCH = i386
 PCRE_RPM = pcre-4.5-2.i386.rpm
 PCRE_DEVEL_RPM = pcre-devel-4.5-2.i386.rpm
 PCRE_SRC = pcre-4.5.tar.bz2
-
-# Where rpmbuild will do its work.
-RPMBUILD_TOPDIR = $(shell rpm --eval '%{_topdir}')
 
 all : $(PCRE_RPM)
 

@@ -1,7 +1,7 @@
 # simply download prebuilt from dlutter :)
 
-# type  "make LIBSRC=XXX" to override this location, normal make syntax
-LIBSRC=~/libsrc
+include ../meta/libsrc.mak
+
 RAILS_LIBSRC=$(LIBSRC)/ruby-rails
 
 RAILS_RPMS = \
@@ -20,7 +20,7 @@ all : $(RAILS_RPMS)
 $(RAILS_RPMS_DOWNLOAD) :
 	-mkdir $(RAILS_LIBSRC)
 	wget --output-document=$@ \
-	  http://people.redhat.com/dlutter/yum/RPMS/`basename $@`
+	  $(RUBY_RPMS_URL)/RPMS/`basename $@`
 
 $(RAILS_RPMS) : $(RAILS_RPMS_DOWNLOAD)
 	cp $(RAILS_LIBSRC)/$@ $@
