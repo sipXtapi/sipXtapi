@@ -303,7 +303,7 @@ void SipDialogMonitor::publishContent(UtlString& contact, SipDialogEvent* dialog
    SipResourceList* list;
    Resource* resource;
    UtlString id, state;
-   while (listUri = dynamic_cast <UtlString *> (iterator()))
+   while ((listUri = dynamic_cast <UtlString *> (iterator())))
    {
       contentChanged = false;
       
@@ -448,7 +448,7 @@ void SipDialogMonitor::notifyStateChange(UtlString& contact, SipDialogEvent* dia
    StateChangeNotifier* notifier;
    Url contactUrl(contact);
    mLock.acquire();
-   while (listUri = dynamic_cast <UtlString *> (iterator()))
+   while ((listUri = dynamic_cast <UtlString *> (iterator())))
    {
       container = dynamic_cast <UtlVoidPtr *> (mStateChangeNotifiers.findValue(listUri));
       notifier = (StateChangeNotifier *) container->getValue();

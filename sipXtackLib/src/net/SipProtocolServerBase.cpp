@@ -165,7 +165,7 @@ UtlBoolean SipProtocolServerBase::startListener()
     UtlHashMapIterator iter(mServerSocketMap);
     UtlVoidPtr* pSocketContainer = NULL;
     UtlString* pKey;
-    while (pKey =(UtlString*)iter())
+    while ((pKey =(UtlString*)iter()))
     {
         OsSocket* pSocket = NULL;
         SipClient* pServer = NULL;
@@ -339,7 +339,7 @@ int SipProtocolServerBase::isOk()
     UtlVoidPtr* pServerContainer = NULL;
     UtlString* pKey = NULL;
     
-    while (pKey = (UtlString*)iterator())
+    while ((pKey = (UtlString*)iterator()))
     {
         pServerContainer = (UtlVoidPtr*)iterator.value();
         if (pServerContainer)
