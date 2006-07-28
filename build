@@ -581,7 +581,7 @@ do
         ;;
 
         *)
-        if [ "$Destination"x = ""x ]
+        if [ "$Destination" = "" ]
         then
             Destination=${1}
         else
@@ -615,11 +615,11 @@ fi
 
 if [ -z "$Distro" ]
 then
-    Distro=`uname`
+    Distro=${SIPX_DISTRO:-`uname`}
 fi
 if [ -z "$Distrover" ]
 then
-    Distrover=0
+    Distrover=${SIPX_DISTROVER:-0}
 fi
 
 MakeOptions="$MakeOptions DISTRO=$Distro DISTROVER=$Distrover"
@@ -686,8 +686,9 @@ else
     UNITCHECK=""
 fi
 
-if test "$Action" = "INCREMENTAL" 
-then
+case $Action in 
+
+  INCREMENTAL)
     if test -z "$Destination"
     then
         echo "Must specify <destination>" 1>&2
@@ -716,8 +717,9 @@ then
 
     cat build.err
     exit $BuildReturn
-elif test "$Action" = "TARBALL" 
-then
+    ;;
+
+  TARBALL)
     if test -z "$Destination"
     then
         echo "Must specify <destination>" 1>&2
@@ -741,8 +743,9 @@ then
 
     cat build.err
     exit $BuildReturn
-elif test "$Action" = "DISTRIBUTION" 
-then
+    ;;
+
+  DISTRIBUTION)
     if test -z "$Destination"
     then
         echo "Must specify <destination>" 1>&2
@@ -769,8 +772,9 @@ then
 
     cat build.err
     exit $BuildReturn
-elif test "$Action" = "RPM"
-then
+    ;;
+
+  RPM)
     mkdisttree
     Projects=`ProjectsInOrder $Projects`
     echo Build order is: $Projects
@@ -818,8 +822,9 @@ gpgcheck=0
 EOF
     cat build.err
     exit $BuildReturn
-elif test "$Action" = "AUXCLEAN"
-then
+    ;;
+
+  AUXCLEAN)
     for pkg in $AuxRpms
     do
        if rpm -q $pkg > /dev/null
@@ -832,8 +837,9 @@ then
     done
     cat build.err
     exit $BuildReturn
-elif test "$Action" = "AUXINSTALL"
-then
+    ;;
+
+  AUXINSTALL)
     echo "Installing $pkg"
     $Sudo rpm --upgrade --force --nodeps sipXbuild/build/rpms/cgicc/cgicc*.rpm
     $Sudo rpm --upgrade --force --nodeps sipXbuild/build/rpms/cgicc/cgicc-devel*.rpm
@@ -843,8 +849,9 @@ then
 
     cat build.err
     exit $BuildReturn
-elif test "$Action" = "RPMCLEAN"
-then
+    ;;
+
+  RPMCLEAN)
     # need to reverse because of interproject 
     # dependencies
     Reverse=""
@@ -864,8 +871,9 @@ then
     done
     cat build.err
     exit $BuildReturn
-elif test "$Action" = "CLEAN"
-then
+    ;;
+
+  CLEAN)
     Projects=`ProjectsInOrder $Projects`
     echo Build order is: $Projects
     echo
@@ -879,8 +887,9 @@ then
       fi
     done
     exit 0
-elif test "$Action" = "EXEC"
-then
+    ;;
+
+  EXEC)
     Projects=`ProjectsInOrder $Projects`
     echo Build order is: $Projects
     echo
@@ -896,9 +905,10 @@ then
       fi
     done
     exit 0
-fi
+    ;;
 
-cat <<USAGE
+  HELP)
+        cat <<USAGE
 
 Usage:
 
@@ -906,7 +916,7 @@ Usage:
                 [-c|--clean] 
                 [-s|--sudo]
                 [-f|--failfast] 
-                [-p|--projects {projects}]
+                [-p|--projects <projects>]
                 [-nd|--no-deps]
                 [-nc|--no-check]
                 [-ac|--auxclean]
@@ -916,11 +926,11 @@ Usage:
                 [-r|--rpm]
                 [-l|--label <label> ]
                 [-v|--verbose] 
-                [--distro]
-                [--distrover]
-                [--disttree path]
-                [--configure xxx] ...
-                [{destination directory}]
+                [--distro <distro-name>]
+                [--distrover <distro-version>]
+                [--disttree <path>]
+                [--configure <configure-argument>] ...
+                [<destination-directory>]
 
 Options are:
      none              Incrementally build every project. Must have rw access 
@@ -1008,9 +1018,14 @@ Options are:
      --verbose|-v      Do not add "-s" option to "make".
 
      --distro          The OS distribution RPMs are built for. The names are reserved for
-                       FC, RHE, etc.
+                       FC, RHE, etc.  
+                       If this is not specified, the value of the environment variable
+                       SIPX_DISTRO is used; if that is not set, then the output of the 
+                       uname command is used.
 
      --distrover       The OS distribution version.
+                       If this is not specified, the value of the environment variable
+                       SIPX_DISTROVER is used; if that is not set, then '0' is used.
 
      --disttree path   Indicates if distribution tree to be created. If presented, to conform
                        with the distribution tree model, the lowermost directory of the "path"
@@ -1020,5 +1035,7 @@ Options are:
      --configure xxx   Add "xxx" to the list of options to be passed to
                        ./configure, as if it appeared in a --label file.
 USAGE
+        ;;
+esac
 
 exit
