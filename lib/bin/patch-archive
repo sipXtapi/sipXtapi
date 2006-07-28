@@ -45,9 +45,9 @@ then
     fi
 
     mkdir -p $StagingDir
-    cat $Archive | (cd  $StagingDir > /dev/null; tar -xvzf -)
+    cat $Archive | (cd  $StagingDir > /dev/null; tar -xzf -)
     patch -p0 --directory $StagingDir < $PatchFile
-    (cd $StagingDir > /dev/null; tar -cvzf - *) | cat >  $PatchedArchive 
+    (cd $StagingDir > /dev/null; tar -czf - *) | cat >  $PatchedArchive 
     rm -rf $StagingDir
 
 elif [ x"$Action" = USAGE ]

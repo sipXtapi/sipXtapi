@@ -1,23 +1,25 @@
-RPM_TARGET_ARCH = noarch
-RUBY_GEMS_RPM = ruby-gems-0.8.11.noarch.rpm
-RUBY_GEMS_SRCS = \
-  postgres/ruby-postgres-0.7.1.tar.gz
+# simply download src rpm from dlutter and rebuild it :)
 
-RUBY_GEMS_SPECS = \
-  postgres/ruby-postgres.spec
+# type  "make LIBSRC=XXX" to override this location, normal make syntax
+LIBSRC=~/libsrc
+PGSQL_LIBSRC := $(LIBSRC)/ruby-postgres
+
+PGSQL_VER := 0.7.1
+PGSQL_REL := 3
+
+PGSQL_RPM = ruby-postgres-$(PGSQL_VER)-$(PGSQL_REL).i386.rpm
+PGSQL_SRPM = $(PGSQL_LIBSRC)/ruby-postgres-$(PGSQL_VER)-$(PGSQL_REL).src.rpm
 
 # Where rpmbuild will do its work.
 RPMBUILD_TOPDIR = $(shell rpm --eval '%{_topdir}')
 
-all : $(RUBY_GEMS_RPM)
+all : $(PGSQL_RPM)
 
-$(RUBY_GEMS_RPM) : $(RUBY_GEMS_SRCS)
-	list='$(RUBY_GEMS_SRCS)'; for sfile in $$list; do \
-    cp $$sfile $(RPMBUILD_TOPDIR)/SOURCES; \
-    done
-	rpmbuild -bb --target $(RPM_TARGET_ARCH)-none-linux ruby-gems.spec
-	mv $(RPMBUILD_TOPDIR)/RPMS/noarch/ruby-gems-0.8.11-2.noarch.rpm .
-#	sudo rpm --upgrade --force ruby-gems-0.8.11-2.noarch.rpm
-#	list='$(RUBY_GEMS_SPECS)'; for sfile in $$list; do \
-#    rpmbuild -bb --target $(RPM_TARGET_ARCH)-none-linux $$sfile; \
-#    mv $(RPMBUILD_TOPDIR)/RPMS/noarch/ruby-*.rpm .; done
+$(PGSQL_SRPM) :
+	-mkdir $(PGSQL_LIBSRC)
+	wget --output-document=$@ \
+	  http://people.redhat.com/dlutter/yum/SRPMS/`basename $@`
+
+$(PGSQL_RPM) : $(PGSQL_SRPM)
+	rpmbuild --rebuild $(PGSQL_SRPM)
+	cp $(RPMBUILD_TOPDIR)/RPMS/i386/$(PGSQL_RPM) .

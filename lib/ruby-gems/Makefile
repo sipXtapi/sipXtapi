@@ -1,19 +1,17 @@
-RPM_TARGET_ARCH = noarch
-RUBY_GEMS_RPM = ruby-gems-0.8.11.noarch.rpm
-RUBY_GEMS_SRCS = \
-  rubygems-0.8.11.tgz
+# simply download prebuilt from dlutter :)
 
-RUBY_GEMS_SPECS = \
-  rails/ruby-gems.spec
+# type  "make LIBSRC=XXX" to override this location, normal make syntax
+LIBSRC=~/libsrc
+GEMS_LIBSRC=$(LIBSRC)/ruby-gems
 
-# Where rpmbuild will do its work.
-RPMBUILD_TOPDIR = $(shell rpm --eval '%{_topdir}')
+GEMS_RPM = ruby-gems-0.8.11-2.noarch.rpm
 
-all : $(RUBY_GEMS_RPM)
+all : $(GEMS_RPM)
 
-$(RUBY_GEMS_RPM) : $(RUBY_GEMS_SRCS)
-	list='$(RUBY_GEMS_SRCS)'; for sfile in $$list; do \
-		cp $$sfile $(RPMBUILD_TOPDIR)/SOURCES; \
-		done
-	rpmbuild -bb --target $(RPM_TARGET_ARCH)-none-linux ruby-gems.spec
-	mv $(RPMBUILD_TOPDIR)/RPMS/noarch/ruby-gems-0.8.11-2.noarch.rpm .
+$(GEMS_LIBSRC)/$(GEMS_RPM) :
+	-mkdir $(GEMS_LIBSRC)
+	wget --output-document=$@ \
+	  http://people.redhat.com/dlutter/yum/RPMS/`basename $@`
+
+$(GEMS_RPM) : $(GEMS_LIBSRC)/$(GEMS_RPM)
+	cp $(GEMS_LIBSRC)/$(GEMS_RPM) .

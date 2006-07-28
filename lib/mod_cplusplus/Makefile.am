@@ -32,9 +32,9 @@ RPMBUILD_TOPDIR = $(shell rpm --eval '%{_topdir}')
 all : $(MOD_CPLUSPLUS_RPM)
 
 $(MOD_CPLUSPLUS_SRC) :
-	-mkdir $(XERCES_C_LIBSRC)
+	-mkdir $(MOD_CPLUSPLUS_LIBSRC)
 	wget --output-document=$@ \
-		http://prdownloads.sourceforge.net/modcplusplus/`basename $@`
+		http://umn.dl.sourceforge.net/sourceforge/modcplusplus/`basename $@`
 
 $(MOD_CPLUSPLUS_RPM) : $(MOD_CPLUSPLUS_SRC) mod_cplusplus.spec
 	cp $(MOD_CPLUSPLUS_SRC) $(RPMBUILD_TOPDIR)/SOURCES
