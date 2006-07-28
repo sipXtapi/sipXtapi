@@ -3,7 +3,7 @@
 # chkconfig: 35 90 10
 # description: This script starts up the sipXpbx processes.  
 #              Most of the real startup is done by the watchdog - it starts
-#              up all other SIPxchange processes and ensures that they are
+#              up all other sipX processes and ensures that they are
 #              operating properly. It restarts them if they exit unexpectedly,
 #              and notifies the administrator of the failure. 
 #
@@ -68,7 +68,7 @@ ulimit -c ${SIPX_CORELIMIT:-0}
 
 # This should somehow be syncronized with what's in 
 # the ProcessDefinitions.xml and Watchdog.xml
-sipxchange_processes=(
+sipx_processes=(
     watchdog
     sipproxy
     sipxconfig
@@ -238,15 +238,15 @@ configtest() { # process-name  process-wd  process-command
 }
 
 
-# Shut down SIPxchange services
-stop_sipxchange () {
+# Shut down sipX services
+stop_sipx () {
 
     # Iterate through the list of processes, above killing each one        
-    for process in ${sipxchange_processes[@]}
+    for process in ${sipx_processes[@]}
     do
         stop $process
     done
-    for process in ${sipxchange_processes[@]}
+    for process in ${sipx_processes[@]}
     do
         stopCheck $process
     done
@@ -428,19 +428,22 @@ EOF
     finish_check $ssl_status
 
     # Iterate through the processes and let each shell script do its own checks 
-    for process in ${sipxchange_processes[@]}
+    for process in ${sipx_processes[@]}
     do
         start_check "$process"
         configtest $process >> ${steperrfile} 2>&1
         finish_check $?
     done
 
+    testdate=`date -u +%Y-%m-%dT%H:%M:%S`
     if [ ${STATUS} -ne 0 ]
     then
        (echo ""; echo "sipXpbx configuration problems found:"; echo""; cat ${errfile} ) \
            | logger -s -t sipXpbx -p daemon.err 
-       date -u +%Y-%m-%dT%H:%M:%S >> @SIPX_LOGDIR@/configtest.log
-       cat ${errfile}             >> @SIPX_LOGDIR@/configtest.log
+       echo "${testdate} sipXpbx configuration problems found:" >> @SIPX_LOGDIR@/configtest.log
+       cat ${errfile}                                           >> @SIPX_LOGDIR@/configtest.log
+    else
+        echo "${testdate} configtest passed"  >> @SIPX_LOGDIR@/configtest.log
     fi
     rm -f ${errfile} # clean up temporary results file
 
@@ -448,8 +451,8 @@ EOF
 }
 
 # High-level stop function.
-# Stops the watchdog process (running as sipxchange), and the
-# SIPxchange services
+# Stops the watchdog process (running as @SIPXPBXUSER@), and the
+# sipX services
 do_stop() {
 
    echo -n "Stopping apache: "
@@ -458,7 +461,7 @@ do_stop() {
 
    echo "Stopping sipXpbx: "
 
-   stop_sipxchange
+   stop_sipx
 
    # The following line is so that the GUI
    # detects a successful shutdown properly
@@ -466,8 +469,8 @@ do_stop() {
 }
 
 # High-level start function.
-# Starts the watchdog process (running as sipxchange), which starts
-# the SIPxchange services
+# Starts the watchdog process (running as @SIPXPBXUSER@), which starts
+# the sipX services
 do_start() {
 
         ### Clean up various temporary files and locks.
@@ -542,20 +545,18 @@ status() { # process-name
 do_status() {
 
     # Iterate through the list of processes, display the status of each one
-    for process in ${sipxchange_processes[@]}
+    for process in ${sipx_processes[@]}
     do
         status $process
     done
 }
 
-# export SIPXCHANGE_HOME=@SIPX_CONFDIR@
 export PATH=$PATH:@bindir@
-# . $SIPXCHANGE_HOME/.bash_profile
 
 # See how we were called.
 case "$1" in
   start)
-        ### Verify that the SIPxchange services are not already running.
+        ### Verify that the sipX services are not already running.
         if [ -e @SIPX_RUNDIR@/watchdog.pid ]
         then
             echo "   Found @SIPX_RUNDIR@/watchdog.pid - checking for running watchdog process"
