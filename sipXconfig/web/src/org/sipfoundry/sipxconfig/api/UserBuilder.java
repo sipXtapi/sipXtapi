@@ -51,8 +51,7 @@ public class UserBuilder extends SimpleBeanBuilder {
         org.sipfoundry.sipxconfig.common.User my = (org.sipfoundry.sipxconfig.common.User) myObject;
         User api = (User) apiObject;
         if (properties.contains(ALIASES_PROP) && api.getAliases() != null) {
-            my.getAliases().clear();
-            my.addAliases(api.getAliases());
+            my.copyAliases(Arrays.asList(api.getAliases()));
         }
     }
 }

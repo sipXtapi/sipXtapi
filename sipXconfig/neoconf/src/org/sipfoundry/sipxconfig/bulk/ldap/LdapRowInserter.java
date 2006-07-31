@@ -126,7 +126,9 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
         setProperty(user, attrs, Index.SIP_PASSWORD);
 
         Set<String> aliases = getValues(attrs, Index.ALIAS);
-        user.setAliases(aliases);
+        if (aliases != null) {
+            user.copyAliases(aliases);
+        }
     }
 
     Collection<String> getGroupNames(SearchResult sr) throws NamingException {

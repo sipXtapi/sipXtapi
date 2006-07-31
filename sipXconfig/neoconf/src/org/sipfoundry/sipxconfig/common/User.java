@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.common;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -153,7 +154,7 @@ public class User extends BeanWithGroups implements NamedObject {
      * with it. Also, by copying the aliases, subsequent changes to the input Set won't affect the
      * user's Set, since it is a separate object.
      */
-    public void copyAliases(Set aliases) {
+    public void copyAliases(Collection aliases) {
         getAliases().clear();
         getAliases().addAll(aliases);
     }
