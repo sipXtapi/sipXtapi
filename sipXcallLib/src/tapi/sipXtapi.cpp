@@ -460,10 +460,12 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST* phInst,
         initAudioDevices(pInst) ;
 #else
         // TBD
-        for (int i=0; i<MAX_AUDIO_DEVICES; i++)
+        pInst->inputAudioDevices[0] = "/dev/dsp";
+        pInst->outputAudioDevices[0] = "/dev/dsp";
+        for (int i = 1; i < MAX_AUDIO_DEVICES; i++)
         {
-            pInst->inputAudioDevices[i] = NULL ;
-            pInst->outputAudioDevices[i] = NULL ;
+            pInst->inputAudioDevices[i] = NULL;
+            pInst->outputAudioDevices[i] = NULL;
         }
 #endif
         *phInst = pInst ;
