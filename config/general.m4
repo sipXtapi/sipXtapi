@@ -850,29 +850,25 @@ AC_DEFUN([CHECK_PCRE],
     # Process the --with-pcre argument which gives the pcre base directory.
     AC_ARG_WITH(pcre,
                 [  --with-pcre=PATH path to pcre install directory],
+                   homeval=$withval,
+                   homeval=""
                 )
-    homeval=$withval
-    # Have to unset withval so we can tell if --with-pcre_includedir was
-    # specified, as AC_ARG_WITH will not unset withval if the option is not
-    # there!
-    withval=
 
     # Process the --with-pcre_includedir argument which gives the pcre include
     # directory.
     AC_ARG_WITH(pcre_includedir,
                 [  --with-pcre_includedir=PATH path to pcre include directory (containing pcre.h)],
+                   includeval=$withval,
+                   includeval="$homeval:$homeval/include"
                 )
-    # If withval is set, use that.  If not and homeval is set, use
-    # $homeval/include.  If neither, use null.
-    includeval=${withval:-${homeval:+$homeval/include}}
-    withval=
 
     # Process the --with-pcre_libdir argument which gives the pcre library
     # directory.
     AC_ARG_WITH(pcre_libdir,
                 [  --with-pcre_libdir=PATH path to pcre lib directory (containing libpcre.{so,a})],
+                   libval=$withval,
+                   libval="$homeval:$homeval/lib"
                 )
-    libval=${withval:-${homeval:+$homeval/lib}}
 
     # Check for pcre.h in the specified include directory if any, and a number
     # of other likely places.
@@ -904,9 +900,9 @@ AC_DEFUN([CHECK_PCRE],
         else
             ## Test for version
 	    if test x$homeval != x; then
-		pcre_ver=`$homeval/bin/pcre-config --version`
+            pcre_ver=`$homeval/bin/pcre-config --version`
 	    else
-            	pcre_ver=`pcre-config --version`
+            pcre_ver=`pcre-config --version`
             fi
             AX_COMPARE_VERSION([$pcre_ver],[ge],[4.5],
                                [AC_MSG_RESULT($pcre_ver is ok)],
