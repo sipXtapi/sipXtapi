@@ -14,9 +14,9 @@ package org.sipfoundry.sipxconfig.setting;
 import java.util.Collection;
 
 public class MulticastSettingValueHandler implements SettingValueHandler {
-    private Collection<SettingValueHandler> m_resolvers;
-    
-    public MulticastSettingValueHandler(Collection<SettingValueHandler> resolvers) {
+    private Collection< ? extends SettingValueHandler> m_resolvers;
+
+    public MulticastSettingValueHandler(Collection< ? extends SettingValueHandler> resolvers) {
         m_resolvers = resolvers;
     }
 

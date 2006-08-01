@@ -23,25 +23,25 @@ import org.apache.commons.collections.Transformer;
  */
 public abstract class BeanWithGroups extends BeanWithSettings {
     public static final String GROUPS_PROP = "groups";
-    
-    private Set<SettingValueHandler> m_groups;
-    
+
+    private Set<Group> m_groups;
+
     @Override
     protected void initializeSettingModel() {
-        setSettingModel2(new BeanWithGroupsModel(this));        
+        setSettingModel2(new BeanWithGroupsModel(this));
     }
-    
-    public synchronized Set getGroups() {
+
+    public synchronized Set<Group> getGroups() {
         // lazy to avoid NPE in unit tests that create mock objects for subclasses
         if (m_groups == null) {
-            setGroups(new TreeSet());
+            setGroups(new TreeSet<Group>());
         }
         return m_groups;
     }
 
-    public void setGroups(Set settingSets) {
+    public void setGroups(Set<Group> settingSets) {
         m_groups = settingSets;
-        
+
         BeanWithGroupsModel model = (BeanWithGroupsModel) getSettingModel2();
         // passed collection is not copied
         model.setGroups(m_groups);

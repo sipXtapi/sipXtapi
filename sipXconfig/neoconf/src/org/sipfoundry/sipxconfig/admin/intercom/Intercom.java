@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.intercom;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -72,4 +73,14 @@ public class Intercom extends BeanWithGroups {
     public void setTimeout(int timeout) {
         m_timeout = timeout;
     }
+    
+    /** Return the timeout (seconds) after which the phone auto-answers */
+    public int getTimeoutInSeconds() {
+        return getTimeout() / (int) DateUtils.MILLIS_PER_SECOND;
+    }
+
+    /** Set the timeout (seconds) after which the phone auto-answers */
+    public void setTimeoutInSeconds(int timeout) {
+        setTimeout(timeout * (int) DateUtils.MILLIS_PER_SECOND);
+    }    
 }

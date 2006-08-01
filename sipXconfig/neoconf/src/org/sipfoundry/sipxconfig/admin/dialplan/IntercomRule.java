@@ -22,25 +22,27 @@ public class IntercomRule extends DialingRule {
 
     public IntercomRule(boolean enabled, String prefix, String code) {
         setEnabled(enabled);
-        
+
         m_dialPattern = new DialPattern(prefix, DialPattern.VARIABLE_DIGITS);
-        
+
         m_transform = new FullTransform();
         CallPattern callPattern = new CallPattern("", CallDigits.VARIABLE_DIGITS);
-        String user = callPattern.calculatePattern();        
+        String user = callPattern.calculatePattern();
         m_transform.setUser(user);
         String headerParam = String.format("Alert-info=%s", code);
-        m_transform.setHeaderParams(new String[] {headerParam});
+        m_transform.setHeaderParams(new String[] {
+            headerParam
+        });
     }
-    
+
     public IntercomRule(Intercom intercom) {
         this(intercom.isEnabled(), intercom.getPrefix(), intercom.getCode());
     }
-    
+
     @Override
     public String[] getPatterns() {
         return new String[] {
-                m_dialPattern.calculatePattern()
+            m_dialPattern.calculatePattern()
         };
     }
 
@@ -59,5 +61,4 @@ public class IntercomRule extends DialingRule {
     public boolean isInternal() {
         return true;
     }
-
 }

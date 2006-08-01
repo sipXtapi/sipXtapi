@@ -13,29 +13,29 @@ package org.sipfoundry.sipxconfig.setting;
 
 import java.util.Collection;
 
-public class BeanWithGroupsModel extends BeanWithSettingsModel {    
+public class BeanWithGroupsModel extends BeanWithSettingsModel {
     private MulticastSettingValueHandler m_groupsHandler;
-    
+
     public BeanWithGroupsModel(BeanWithGroups bean) {
         super(bean);
     }
-    
-    public void setGroups(Collection<SettingValueHandler> groups) {
+
+    public void setGroups(Collection< ? extends SettingValueHandler> groups) {
         m_groupsHandler = new MulticastSettingValueHandler(groups);
     }
-    
-    @Override    
+
+    @Override
     protected SettingValue2 getDefault(Setting setting) {
         SettingValue2 value = null;
-        
+
         if (m_groupsHandler != null) {
             value = m_groupsHandler.getSettingValue(setting);
-        }        
-        
+        }
+
         if (value == null) {
             value = getDefaultsHandler().getSettingValue(setting);
         }
-        
+
         return value;
     }
 }

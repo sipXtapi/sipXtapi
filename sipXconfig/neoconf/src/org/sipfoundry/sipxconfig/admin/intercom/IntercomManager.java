@@ -30,9 +30,7 @@ public interface IntercomManager extends DataObjectSource, DialingRuleProvider {
     
     public void saveIntercom(Intercom intercom);
 
-    public List loadIntercoms();
-    
-    public int getNumIntercoms();
+    public List<Intercom> loadIntercoms();
     
     public void clear();
     

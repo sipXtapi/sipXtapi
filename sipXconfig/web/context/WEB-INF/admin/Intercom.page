@@ -3,70 +3,84 @@
 <page-specification class="org.sipfoundry.sipxconfig.site.admin.IntercomPage">
   <description>Intercom</description>
   <!--
-	  - P R O P E R T I E S
-	  -->
-  <inject property="tapestry" object="spring:tapestry"/>	
-  <inject property="intercomManager" object="spring:intercomManager"/>
-  <inject property="phoneContext" object="spring:phoneContext"/>
-  <inject property="settingDao" object="spring:settingDao"/>
-  <property name="intercom"/>
-  <property name="groupsString"/>
-  
-  <!--
-     - B E A N S
-     -->
-  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+    - P R O P E R T I E S
+  -->
+  <inject property="tapestry" object="spring:tapestry" />
+  <inject property="intercomManager" object="spring:intercomManager" />
+  <inject property="phoneContext" object="spring:phoneContext" />
+  <inject property="settingDao" object="spring:settingDao" />
+
+  <property name="intercom" />
+  <property name="groupsString" />
+  <property name="showCode" persist="session" initial-value="false" />
 
   <!--
-     - C O M P O N E N T S
-     -->
+    - B E A N S
+  -->
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate" />
+
+  <!--
+    - C O M P O N E N T S
+  -->
   <component id="form" type="Form">
-    <binding name="delegate" value="bean:validator"/>
+    <binding name="delegate" value="bean:validator" />
   </component>
-  <component id="errors" type="ErrorMsg"/>
+  <component id="errors" type="ErrorMsg" />
   <component id="enableIntercom" type="Checkbox">
-    <binding name="value" value="intercom.enabled"/>
+    <binding name="value" value="intercom.enabled" />
   </component>
   <component id="groupsPanel" type="FieldPanel">
     <!-- Tacos/Tapestry Bug
       - give the right value for field, and autocomplete renders double 
-      -->
-    <binding name="field" value="components.groupsX"/>
-    <binding name="label" value="message:label.groups"/>
-    <binding name="description" value="message:description.groups"/>
+    -->
+    <binding name="field" value="components.groupsX" />
+    <binding name="label" value="message:label.groups" />
+    <binding name="description" value="message:description.groups" />
   </component>
   <component id="groups" type="tacos:Autocompleter">
-    <binding name="value" value="groupsString"/>
-    <binding name="size" value="50"/>
-    <binding name="listSource" value="groupCandidates"/>
-    <binding name="translator" value="translator:string,empty="/>
-    <binding name="listener" value="listener:buildGroupCandidates"/>
+    <binding name="value" value="groupsString" />
+    <binding name="size" value="50" />
+    <binding name="listSource" value="groupCandidates" />
+    <binding name="translator" value="translator:string,empty=" />
+    <binding name="listener" value="listener:buildGroupCandidates" />
   </component>
   <component id="prefixPanel" type="FieldPanel">
-    <binding name="field" value="components.prefix"/>
-    <binding name="label" value="message:label.prefix"/>
-    <binding name="description" value="message:description.prefix"/>
+    <binding name="field" value="components.prefix" />
+    <binding name="label" value="message:label.prefix" />
+    <binding name="description" value="message:description.prefix" />
   </component>
   <component id="prefix" type="TextField">
-    <binding name="value" value="intercom.prefix"/>
+    <binding name="value" value="intercom.prefix" />
+    <binding name="validators" value="spring-validators:validSipUserId,required" />
   </component>
   <component id="timeoutPanel" type="FieldPanel">
-    <binding name="field" value="components.timeout"/>
-    <binding name="label" value="message:label.timeout"/>
-    <binding name="description" value="message:description.timeout"/>
+    <binding name="field" value="components.timeout" />
+    <binding name="label" value="message:label.timeout" />
+    <binding name="description" value="message:description.timeout" />
   </component>
   <component id="timeout" type="TextField">
-    <binding name="value" value="intercom.timeout"/>
+    <binding name="value" value="intercom.timeoutInSeconds" />
+    <binding name="translator" value="translator:number,omitZero=false" />
+    <binding name="validators" value="validators:required,min=0" />
   </component>
   <component id="codePanel" type="FieldPanel">
-    <binding name="field" value="components.code"/>
-    <binding name="label" value="message:label.code"/>
-    <binding name="description" value="message:description.code"/>
+    <binding name="field" value="components.code" />
+    <binding name="label" value="message:label.code" />
+    <binding name="description" value="message:description.code" />
   </component>
   <component id="code" type="TextField">
-    <binding name="value" value="intercom.code"/>
+    <binding name="value" value="intercom.code" />
+    <binding name="validators" value="validators:required" />
   </component>
   <component id="formActions" type="FormActions">
-    <binding name="listener" value="listener:commit"/>
+    <binding name="listener" value="listener:commit" />
+    <binding name="successMessage" value="message:msg.success" />
+  </component>
+
+  <component id="toggleShowCode" type="ToggleLink">
+    <binding name="toggle" value="showCode" />
+  </component>
+  <component id="renderCode" type="If">
+    <binding name="condition" value="showCode" />
   </component>
 </page-specification>

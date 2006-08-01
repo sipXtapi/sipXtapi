@@ -25,39 +25,40 @@ import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 
-public abstract class IntercomPage extends BasePage
-    implements PageBeginRenderListener {
-    
+public abstract class IntercomPage extends BasePage implements PageBeginRenderListener {
+
     public static final String PAGE = "Intercom";
     private static final int CODE_LEN = 8;
 
     public abstract Intercom getIntercom();
+
     public abstract void setIntercom(Intercom intercom);
-    
+
     public abstract String getGroupsString();
+
     public abstract void setGroupsString(String groupsString);
-    
-    public abstract IntercomManager getIntercomManager();    
+
+    public abstract IntercomManager getIntercomManager();
+
     public abstract PhoneContext getPhoneContext();
+
     public abstract SettingDao getSettingDao();
-    
+
     public abstract Collection getGroupsCandidates();
+
     public abstract void setGroupCandidates(Collection groupsList);
-    
+
     public void buildGroupCandidates(String groupsString) {
         List allGroups = getPhoneContext().getGroups();
         Collection candidates = TapestryUtils.getAutoCompleteCandidates(allGroups, groupsString);
-        setGroupCandidates(candidates);        
+        setGroupCandidates(candidates);
     }
-    
+
     public void pageBeginRender(PageEvent event) {
         // Look up the Intercom, creating it if necessary
         Intercom intercom = getIntercom();
         if (intercom == null) {
             intercom = getIntercomManager().getIntercom();
-            if (intercom == null) {
-                throw new RuntimeException("Internal error in IntercomPage: null Intercom object");
-            }
             setIntercom(intercom);
         }
 
@@ -65,18 +66,18 @@ public abstract class IntercomPage extends BasePage
         if (getGroupsString() == null) {
             List groups = intercom.getGroupsAsList();
             if (groups != null && groups.size() > 0) {
-                String groupsString = getSettingDao().getGroupsAsString(groups); 
+                String groupsString = getSettingDao().getGroupsAsString(groups);
                 setGroupsString(groupsString);
             }
         }
-        
+
         // Create a random code if no code has been set
         String code = intercom.getCode();
         if (code == null) {
             intercom.setCode(RandomStringUtils.randomAlphanumeric(CODE_LEN));
         }
     }
-    
+
     /**
      * Listeners
      */
@@ -84,18 +85,17 @@ public abstract class IntercomPage extends BasePage
         // Proceed only if Tapestry validation succeeded
         if (!TapestryUtils.isValid(this)) {
             return;
-        }        
-        
+        }
+
         // If there is an Intercom, then update and save it
         Intercom intercom = getIntercom();
-        if (intercom != null) {
-            String groupsString = getGroupsString();
-            if (groupsString != null) {
-                List groups = getSettingDao().getGroupsByString(Phone.GROUP_RESOURCE_ID, groupsString);
-                intercom.setGroupsAsList(groups);
-            }
-
-            getIntercomManager().saveIntercom(intercom);
+        String groupsString = getGroupsString();
+        if (groupsString != null) {
+            List groups = getSettingDao()
+                    .getGroupsByString(Phone.GROUP_RESOURCE_ID, groupsString);
+            intercom.setGroupsAsList(groups);
         }
+
+        getIntercomManager().saveIntercom(intercom);
     }
 }
