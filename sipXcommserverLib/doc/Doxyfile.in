@@ -559,7 +559,7 @@ GRAPHICAL_HIERARCHY   = YES
 DOT_PATH              = 
 
 TEMPLATE_RELATIONS = YES
-MAX_DOT_GRAPH_DEPTH = 2
+MAX_DOT_GRAPH_DEPTH = 1
 DOT_MULTI_TARGETS = YES
 
 #---------------------------------------------------------------------------
