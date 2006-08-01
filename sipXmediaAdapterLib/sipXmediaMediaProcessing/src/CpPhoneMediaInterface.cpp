@@ -269,7 +269,7 @@ OsStatus CpPhoneMediaInterface::createConnection(int& connectionId,
         // host may be multi-homed
         OsNatDatagramSocket* rtpSocket = new OsNatDatagramSocket(0, NULL,
             localPort, mediaConnection->mLocalAddress, NULL);
-        rtpSocket->enableTransparentReads(false);
+        rtpSocket->enableTransparentReads(false);        
 
         OsNatDatagramSocket* rtcpSocket = new OsNatDatagramSocket(0, NULL,
             localPort == 0 ? 0 : localPort + 1, mediaConnection->mLocalAddress, NULL);
@@ -327,6 +327,9 @@ OsStatus CpPhoneMediaInterface::createConnection(int& connectionId,
             setsockopt (sRtp, IPPROTO_IP, IP_TOS, (char *)&tos, sizeof(int));
             setsockopt (sRtcp, IPPROTO_IP, IP_TOS, (char *)&tos, sizeof(int));
         }
+
+        // Start the packet pump
+        mpFlowGraph->startReceiveRtp(NULL, 0, *rtpSocket, *rtcpSocket, connectionId) ;
 
         // Enable Stun if we have a stun server and either non-local contact type or 
         // ICE is enabled.
