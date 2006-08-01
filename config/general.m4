@@ -903,7 +903,7 @@ AC_DEFUN([CHECK_PCRE],
             AC_MSG_ERROR(Cannot find libpcre.so or libpcre.a libraries - looked in $libval)
         else
             ## Test for version
-	    if test x$homval != x; then
+	    if test x$homeval != x; then
 		pcre_ver=`$homeval/bin/pcre-config --version`
 	    else
             	pcre_ver=`pcre-config --version`
