@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
 import org.sipfoundry.sipxconfig.components.selection.OptGroup;
+import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.device.RestartManager;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -68,6 +69,8 @@ public abstract class ManagePhones extends BasePage implements PageBeginRenderLi
     public abstract SearchManager getSearchManager();
     
     public abstract PhoneModel getPhoneModel();
+    
+    public abstract Phone getCurrentRow(); 
 
     public IBasicTableModel getTableModel() {
         String queryText = getQueryText();
@@ -182,5 +185,14 @@ public abstract class ManagePhones extends BasePage implements PageBeginRenderLi
         AdaptedSelectionModel model = new AdaptedSelectionModel();
         model.setCollection(actions);
         setActionModel(model);
+    }
+    
+    public String getCurrentDeviceVersion() {
+        DeviceVersion ver = getCurrentRow().getDeviceVersion();
+        if (ver == null) {
+            return null;           
+        }
+        
+        return "v" + ver.getVersionId();
     }
 }

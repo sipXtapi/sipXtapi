@@ -38,14 +38,12 @@
     <binding name="listener" value="listener:formSubmit"/>
   </component>
   <component id="newPhoneTable" type="Table">
-    <binding name="columns" value="literal:* serialNumber,!lines,modelId:model.label,description"/>
+    <binding name="columns" value="literal:* serialNumber,!lines,modelId:model.label + version,description"/>
     <binding name="source" value="tableModel"/>
     <binding name="usePager" value="true"/>
     <binding name="row" value="currentRow"/>
     <binding name="selections" value="selections"/>
   </component>
-  <!-- Column 2: edit phone -->
-  <component id="serialNumberColumnValue" type="Block"/>
   <component id="editPhoneLink" type="DirectLink">
     <binding name="listener" value="listener:editPhone"/>
     <binding name="parameters" value="currentRow.primaryKey"/>
@@ -53,8 +51,6 @@
   <component id="phoneLabel" type="Insert">
     <binding name="value" value="currentRow.serialNumber"/>
   </component>
-  <!-- Column 3: edit lines -->
-  <component id="linesColumnValue" type="Block"/>
   <component id="editLines" type="For">
     <binding name="source" value="currentRow.lines"/>
     <binding name="value" value="currentLine"/>

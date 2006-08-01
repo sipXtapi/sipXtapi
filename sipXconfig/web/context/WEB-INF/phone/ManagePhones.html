@@ -26,13 +26,18 @@
           </li>
         </ul>
         <table jwcid="newPhoneTable" id="phone:list">
-          <span jwcid="serialNumberColumnValue"> <a href="#" jwcid="editPhoneLink">
+          <span jwcid="serialNumberColumnValue@Block">
+            <a href="#" jwcid="editPhoneLink">
             <span jwcid="phoneLabel">serial number</span></a>
           </span>
-          <span jwcid="linesColumnValue">
+          <span jwcid="linesColumnValue@Block">
             <span jwcid="editLines"> <a href="#" jwcid="lineLink">
               <span jwcid="lineLabel">line</span></a>
             </span>
+          </span>
+          <span jwcid="modelIdColumnValue@Block">
+            <span jwcid="@Insert" value="ognl:currentRow.model.label"/>
+            <span jwcid="@Insert" value="ognl:currentDeviceVersion"/>
           </span>
         </table>
         <ul class="component-submit">
