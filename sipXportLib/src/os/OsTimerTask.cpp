@@ -129,17 +129,24 @@ void OsTimerTask::stopTimer(OsTimer& rTimer)
    pTimerTask = OsTimerTask::spInstance;
    if (pTimerTask)
    {
-    res = pTimerTask->postMessage(msg);
-    assert(res == OS_SUCCESS);
+      if (getCurrentTask() == pTimerTask)
+      {
+         pTimerTask->mpTimerSubsys->stopTimer(&rTimer);
+      }
+      else
+      {
+         res = pTimerTask->postMessage(msg);
+         assert(res == OS_SUCCESS);
 
-    res = rpcEvent.wait();
-    assert(res == OS_SUCCESS);
+         res = rpcEvent.wait();
+         assert(res == OS_SUCCESS);
 
-    res = rpcEvent.getEventData(rpcRetVal);
-    assert(res == OS_SUCCESS && rpcRetVal == OS_SUCCESS);
+         res = rpcEvent.getEventData(rpcRetVal);
+         assert(res == OS_SUCCESS && rpcRetVal == OS_SUCCESS);
 
-    res = rpcEvent.reset();
-    assert(res == OS_SUCCESS);
+         res = rpcEvent.reset();
+         assert(res == OS_SUCCESS);
+      }
    }
 }
 

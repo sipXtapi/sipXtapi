@@ -981,7 +981,7 @@ bool StunMessage::encodeXorAttributeAddress(unsigned short type, STUN_ATTRIBUTE_
     unsigned short usPort = pAddress->port ;
     unsigned long ulLong = pAddress->address ;
 
-    usPort = htons(usPort) ^ ((unsigned short) htonl(mMsgHeader.magicId.id)) ;
+    usPort = htons(usPort) ^ ((unsigned short) (htonl(mMsgHeader.magicId.id) & 0x0000FFFF)) ;
     ulLong = htonl(ulLong) ^ htonl(mMsgHeader.magicId.id) ;
 
     if (    (nBytesLeft >= (sizeof(STUN_ATTRIBUTE_ADDRESS) + sizeof(STUN_ATTRIBUTE_HEADER))) &&
