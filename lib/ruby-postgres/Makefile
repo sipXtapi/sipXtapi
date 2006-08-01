@@ -14,10 +14,8 @@ PGSQL_SRPM = $(PGSQL_LIBSRC)/ruby-postgres-$(PGSQL_VER)-$(PGSQL_REL).src.rpm
 all : $(PGSQL_RPM)
 
 $(PGSQL_SRPM) :
-	-mkdir $(PGSQL_LIBSRC)
-	wget --output-document=$@ \
-	  $(RUBY_RPMS_URL)/SRPMS/`basename $@`
+	../meta/download-file $@ $(RUBY_AUX_RPMS_URL)/SRPMS/`basename $@`
 
 $(PGSQL_RPM) : $(PGSQL_SRPM)
 	rpmbuild --rebuild $(PGSQL_SRPM)
-	cp $(RPMBUILD_TOPDIR)/RPMS/i386/$(PGSQL_RPM) .
+	cp $(RPMBUILD_TOPDIR)/RPMS/$(RPM_TARGET_ARCH)/$(PGSQL_RPM) .

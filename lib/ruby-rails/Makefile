@@ -18,9 +18,7 @@ RAILS_RPMS_DOWNLOAD = $(foreach file,$(RAILS_RPMS),$(RAILS_LIBSRC)/$(file))
 all : $(RAILS_RPMS)
 
 $(RAILS_RPMS_DOWNLOAD) :
-	-mkdir $(RAILS_LIBSRC)
-	wget --output-document=$@ \
-	  $(RUBY_RPMS_URL)/RPMS/`basename $@`
+	../meta/download-file $@ $(RUBY_AUX_RPMS_URL)/RPMS/`basename $@`
 
 $(RAILS_RPMS) : $(RAILS_RPMS_DOWNLOAD)
 	cp $(RAILS_LIBSRC)/$@ $@

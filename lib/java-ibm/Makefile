@@ -24,9 +24,7 @@ $(UNRESTRICTED) $(SRC_ZIP) :
 	@exit 1
 
 $(NOSRC_RPM) :
-	-mkdir $(JDK_LIBSRC)
-	wget --output-document=$@ \
-	  $(JPKG_NONFREE_URL)/SRPMS/`basename $@`
+	../meta/download-file $@ $(JPKG_NONFREE_URL)/SRPMS/`basename $@`
 
 $(RPM) : $(NOSRC_RPM) $(SRC_ZIP) 
 	rpm -i $(NOSRC_RPM)

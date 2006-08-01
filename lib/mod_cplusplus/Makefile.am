@@ -24,9 +24,7 @@ edit = sed \
 all : $(MOD_CPLUSPLUS_RPM)
 
 $(MOD_CPLUSPLUS_SRC) :
-	-mkdir $(MOD_CPLUSPLUS_LIBSRC)
-	wget --output-document=$@ \
-		$(MOD_CLUSPLUS_URL)/`basename $@`
+	../meta/download-file $@ $(MOD_CPLUSPLUS_URL)/`basename $@`	  
 
 $(MOD_CPLUSPLUS_RPM) : $(MOD_CPLUSPLUS_SRC) mod_cplusplus.spec
 	cp $(MOD_CPLUSPLUS_SRC) $(RPMBUILD_TOPDIR)/SOURCES

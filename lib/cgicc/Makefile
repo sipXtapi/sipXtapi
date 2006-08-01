@@ -5,7 +5,7 @@ CGICC_LIBSRC=$(LIBSRC)/cgicc
 CGICC_VER = 3.2.3
 CGICC_REL = 2
 
-CGICC_SRC = cgicc-$(CGICC_VER).tar.gz
+CGICC_SRC = $(CGICC_LIBSRC)/cgicc-$(CGICC_VER).tar.gz
 CGICC_RPM = cgicc-$(CGICC_VER)-$(CGICC_REL).$(RPM_TARGET_ARCH).rpm
 CGICC_DEVEL_RPM = cgicc-devel-$(CGICC_VER)-$(CGICC_REL).$(RPM_TARGET_ARCH).rpm
 CGICC_SRC_RPM = cgicc-$(CGICC_VER)-$(CGICC_REL).src.rpm
@@ -15,9 +15,7 @@ all : $(CGICC_RPM) $(CGICC_DEVEL_RPM)
 .PHONY: build-rpms
 
 $(CGICC_SRC) :
-	-mkdir $(CGICC_LIBSRC)
-	wget --output-document=$@ \
-	  $(CGICC_URL)/`basename $@`
+	../meta/download-file $@ $(CGICC_URL)/`basename $@`
 
 build-rpms: $(CGICC_SRC) cgicc.spec
 	cp cgicc-$(CGICC_VER).tar.gz \

@@ -15,13 +15,11 @@ RPM=java-$(VERSION)-sun-$(VERSION).$(BUILD)-$(REL)jpp.i586.rpm
 all : $(RPM)
 
 $(SRC_ZIP) :
-	@echo -e "\nMissing dependency: Download this from java.sun.com \n\t$@\n"
+	@echo -e "\nMissing dependency: Download site http://java.sun.com/javase/downloads/index.jsp \n\t$@\n"
 	@exit 1
 
 $(NOSRC_RPM) :
-	-mkdir $(JDK_LIBSRC)
-	wget --output-document=$@ \
-	  $(JPKG_NONFREE_URL)/SRPMS/`basename $@`
+	../meta/download-file $@ $(JPKG_NONFREE_URL)/SRPMS/`basename $@`
 
 $(RPM) : $(NOSRC_RPM) $(SRC_ZIP) 
 	rpm -i $(NOSRC_RPM)

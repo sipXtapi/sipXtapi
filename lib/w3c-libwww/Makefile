@@ -1,33 +1,30 @@
-PACKAGE_VER = 5.4.0
-PACKAGE_REL = 3
-PACKAGE_NAME = sipx-w3c-libwww
-TAR_NAME = w3c-libwww
+include ../meta/libsrc.mak
 
-# /bin/arch may return i686 but RPMs default arch is i386.
-RPM_TARGET_ARCH = i386
-#RPM_TARGET_PLAT = rhe30
+W3C_LIBSRC = $(LIBSRC)/w3c-libwww
 
-PACKAGE_RPM = $(PACKAGE_NAME)-$(PACKAGE_VER)-$(PACKAGE_REL).$(RPM_TARGET_ARCH).rpm
-PACKAGE_DEVEL_RPM = $(PACKAGE_NAME)-devel-$(PACKAGE_VER)-$(PACKAGE_REL).$(RPM_TARGET_ARCH).rpm
-PACKAGE_SRC_RPM = $(PACKAGE_NAME)-$(PACKAGE_VER)-$(PACKAGE_REL).src.rpm
+W3C_VER = 5.4.0
+W3C_REL = 10
 
-# Where rpmbuild will do its work.
-RPMBUILD_TOPDIR = $(shell rpm --eval '%{_topdir}')
+TARGET_DIR = $(RPMBUILD_TOPDIR)/RPMS/$(RPM_TARGET_ARCH)
+W3C_RPM = w3c-libwww-$(W3C_VER)-$(W3C_REL).$(RPM_TARGET_ARCH).rpm
+W3C_DEVEL_RPM = w3c-libwww-devel-$(W3C_VER)-$(W3C_REL).$(RPM_TARGET_ARCH).rpm
+W3C_SRPM = $(W3C_LIBSRC)/w3c-libwww-$(W3C_VER)-$(W3C_REL).src.rpm
 
-all : $(PACKAGE_RPM) $(PACKAGE_DEVEL_RPM)
+SIPX_W3C_RPM = $(subst w3c,sipx-w3c,$(W3C_RPM))
+SIPX_W3C_DEVEL_RPM = $(subst w3c,sipx-w3c,$(W3C_DEVEL_RPM))
 
-.PHONY: build-rpms
+all : $(SIPX_W3C_RPM) $(SIPX_W3C_DEVEL_RPM)
 
-build-rpms: $(TAR_NAME)-$(PACKAGE_VER).tgz $(PACKAGE_NAME).spec
-	../bin/archive-rootdir $(TAR_NAME)-$(PACKAGE_VER).tgz \
-		w3c-libwww-$(PACKAGE_VER) sipx-w3c-libwww-$(PACKAGE_VER)
-	cp $(TAR_NAME)-$(PACKAGE_VER).tgz.new \
-		$(RPMBUILD_TOPDIR)/SOURCES/$(TAR_NAME)-$(PACKAGE_VER).tgz
-	rpmbuild -ba --target $(RPM_TARGET_ARCH)-none-linux $(PACKAGE_NAME).spec
+$(W3C_SRPM) :
+	../meta/download-file $@ $(RE4_W3C_URL)/SRPMS/`basename $@`
 
-$(PACKAGE_RPM): build-rpms
-	mv $(RPMBUILD_TOPDIR)/RPMS/$(RPM_TARGET_ARCH)/$(PACKAGE_RPM) .
+$(TARGET_DIR)/$(W3C_RPM) $(TARGET_DIR)/$(W3C_DEVEL_RPM) : $(W3C_SRPM)
+	rpm -i $(W3C_SRPM)
+	patch -p0 $(RPMBUILD_TOPDIR)/SPECS/w3c-libwww.spec < sipx-w3c-libwww.patch
+	rpmbuild -ba $(RPMBUILD_TOPDIR)/SPECS/w3c-libwww.spec
 
-$(PACKAGE_DEVEL_RPM): build-rpms
-	mv $(RPMBUILD_TOPDIR)/RPMS/$(RPM_TARGET_ARCH)/$(PACKAGE_DEVEL_RPM) .
+$(SIPX_W3C_RPM) : $(TARGET_DIR)/$(W3C_RPM)
+	cp $(TARGET_DIR)/$(W3C_RPM) $(SIPX_W3C_RPM)
 
+$(SIPX_W3C_DEVEL_RPM) : $(TARGET_DIR)/$(W3C_DEVEL_RPM)
+	cp $(TARGET_DIR)/$(W3C_DEVEL_RPM) $(SIPX_W3C_DEVEL_RPM)

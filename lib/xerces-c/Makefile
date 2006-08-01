@@ -13,7 +13,7 @@ XERCES_C_TAR_PATCHED = `basename $(XERCES_C_TAR)`
 all : $(XERCES_C_RPM)
 
 $(XERCES_C_TAR) :
-	-mkdir $(XERCES_C_LIBSRC)
+	-mkdir -p $(XERCES_C_LIBSRC)
 	wget --output-document=$@ \
 	  $(XERCES_C_URL)/`basename $@`
 

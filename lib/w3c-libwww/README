@@ -1,8 +1,0 @@
-w3c-libwww was downloaded for RHE3 via:
-up2date -get-source w3c-libwww
-
-need to build using:
-./configure --with-ssl --prefix=/usr
-so that we get a libwwwssl.so.  The rpm from
-Redhat network for RHE3 is not built with ssl.
-
