@@ -655,9 +655,10 @@ SIPXTAPI_API SIPX_RESULT sipxDuplicateEvent(SIPX_EVENT_CATEGORY category,
                     pInfo->cause = pSourceInfo->cause ;
                     pInfo->mediaType = pSourceInfo->mediaType ;
                     pInfo->hCall = pSourceInfo->hCall ;
-                    pInfo->nSize = pSourceInfo->nSize ;
+                    pInfo->nSize = pSourceInfo->nSize ;                    
                     memcpy(&pInfo->codec, &pSourceInfo->codec, sizeof(SIPX_CODEC_INFO)) ;
                     pInfo->idleTime = pSourceInfo->idleTime ;
+                    pInfo->toneId = pSourceInfo->toneId;
 
                     *pEventCopy = pInfo ;
 
@@ -1055,6 +1056,18 @@ void sipxFireCallEvent(const void* pSrc,
                 SIPX_CONF hConf = sipxCallGetConf(hAssociatedCall) ;
                 if (hConf)
                 {
+                    sipxAddCallHandleToConf(hCall, hConf) ;
+                }
+            }
+            else if ((hAssociatedCall) && (cause == CALLSTATE_CAUSE_TRANSFER))
+            {
+                // This is the case where we are the transferee -- we want to
+                // make sure that the new call is part of the conference
+                SIPX_CONF hConf = sipxCallGetConf(hAssociatedCall) ;
+                if (hConf)
+                {
+                    // The original call was part of a transfer -- make sure the
+                    // replacement leg is also part of the conference.
                     sipxAddCallHandleToConf(hCall, hConf) ;
                 }
             }

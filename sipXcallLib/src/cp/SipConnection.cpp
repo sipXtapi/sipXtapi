@@ -832,6 +832,8 @@ UtlBoolean SipConnection::dial(const char* dialString,
                     mpMediaInterface->startRtpReceive(mConnectionId,
                             numCodecs,
                             rtpCodecsArray);
+                    mpMediaInterface->addToneListener(getDtmfQueuedEvent(), 
+	                        mConnectionId);
                 }
 
                 // Create and send an INVITE
@@ -1295,6 +1297,9 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
                             SdpCodec recvCodec((SdpCodec::SdpCodecTypes) receiveCodec);
                             mpMediaInterface->startRtpReceive(mConnectionId,
                                     numMatchingCodecs, matchingCodecs);
+                            mpMediaInterface->addToneListener(getDtmfQueuedEvent(), 
+	                                mConnectionId);
+
 
                             setMediaDestination(remoteRtpAddress.data(),
                                 remoteRtpPort,
@@ -1457,6 +1462,9 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds, const void* pSecurit
                 SdpCodec recvCodec((SdpCodec::SdpCodecTypes) receiveCodec);
                 mpMediaInterface->startRtpReceive(mConnectionId,
                         numMatchingCodecs, matchingCodecs);
+                mpMediaInterface->addToneListener(getDtmfQueuedEvent(), 
+	                        mConnectionId);
+
             }
             ringingSent = TRUE;
             proceedToRinging(inviteMsg, sipUserAgent, -1, mLineAvailableBehavior);
@@ -2272,6 +2280,7 @@ UtlBoolean SipConnection::doHangUp(const char* dialString,
             {
                 fireAudioStopEvents() ;
             }
+            mpMediaInterface->removeToneListener(mConnectionId);
             mpMediaInterface->deleteConnection(mConnectionId);
             mpMediaInterface = NULL ;
             mConnectionId = -1; 
@@ -3064,6 +3073,9 @@ void SipConnection::processInviteRequestReinvite(const SipMessage* request, int 
                     mpMediaInterface->startRtpSend(mConnectionId,
                         numMatchingCodecs, matchingCodecs);
                     mRemoteRequestedHold = FALSE;
+                    mpMediaInterface->addToneListener(getDtmfQueuedEvent(), 
+	                        mConnectionId);
+
 
                     mHoldState = TERMCONNECTION_TALKING ;
                     
@@ -3295,7 +3307,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
                 mpSecurity,
                 (ISocketIdle*)this,
                 (IMediaEventListener*) this);
-    }   
+    }
 
     if (createdConnection != OS_SUCCESS)
     {
@@ -3517,7 +3529,7 @@ void SipConnection::processReferRequest(const SipMessage* request)
         // connection and send the INVITE
         CpMultiStringMessage transfereeConnect(CallManager::CP_TRANSFEREE_CONNECTION,
             targetCallId.data(), referTo.data(), referredBy.data(), thisCallId.data(),
-            remoteAddress.data(), mbLocallyInitiatedRemoteHold);
+            remoteAddress.data(), mbLocallyInitiatedRemoteHold, mContactId);
 
 #ifdef TEST_PRINT
         osPrintf("SipConnection::processRequest posting CP_TRANSFEREE_CONNECTION\n");
@@ -3554,7 +3566,8 @@ void SipConnection::processReferRequest(const SipMessage* request)
         // Post a message to add a connection to this call
         CpMultiStringMessage transfereeConnect(CallManager::CP_TRANSFEREE_CONNECTION,
             callId.data(), referTo.data(),
-            referredBy.data(), callId.data(), fromField.data(), mbLocallyInitiatedRemoteHold);
+            referredBy.data(), callId.data(), fromField.data(), mbLocallyInitiatedRemoteHold,
+            mContactId);
         mpCallManager->postMessage(transfereeConnect);
 
         // Assume focus, probably not the right thing
@@ -4427,6 +4440,8 @@ void SipConnection::processInviteResponseRinging(const SipMessage* response)
                     mpMediaInterface->startRtpSend(mConnectionId,
                         numMatchingCodecs,
                         matchingCodecs);
+                    mpMediaInterface->addToneListener(getDtmfQueuedEvent(), 
+	                        mConnectionId);
 
                     fireAudioStartEvents() ;
                 }
@@ -4927,6 +4942,9 @@ void SipConnection::processInviteResponseNormal(const SipMessage* response)
                 mpMediaInterface->startRtpSend(mConnectionId,
                         numMatchingCodecs,
                         matchingCodecs);
+                mpMediaInterface->addToneListener(getDtmfQueuedEvent(), 
+	                        mConnectionId);
+
 
                 if (mpCall->isInFocus())
                 {

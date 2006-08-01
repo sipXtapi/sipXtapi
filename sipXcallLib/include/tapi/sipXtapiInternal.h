@@ -241,9 +241,10 @@ typedef struct
 {
     Url* lineURI ;
     SIPX_INSTANCE_DATA* pInst ;
-    OsRWMutex*          pMutex ;
+    OsRWMutex*          pMutex ;    
     SIPX_CONTACT_TYPE   contactType ;
     UtlSList*           pLineAliases ;
+    SIPX_CONTACT_ID     contactId ;
 } SIPX_LINE_DATA ;
 
 typedef struct

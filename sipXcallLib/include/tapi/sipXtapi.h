@@ -1335,6 +1335,20 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetContactID(const SIPX_CALL hCall,
  */
 SIPXTAPI_API SIPX_RESULT sipxCallGetConnectionId(const SIPX_CALL hCall,
                                                  int& connectionId);
+
+
+/**
+ * Get the conference handle for the specified call
+ *
+ * @param hCall Handle to a call.  Call handles are obtained either by 
+ *        invoking sipxCallCreate or passed to your application through
+ *        a listener interface.
+ * 
+ * @param hConf Conference handle for this call (if the call is part of a
+ *        conference)
+ */
+SIPXTAPI_API SIPX_RESULT sipxCallGetConference(const SIPX_CALL hCall,
+                                               SIPX_CONF&      hConf) ;
                                                  
 
 /**
@@ -2641,6 +2655,29 @@ SIPXTAPI_API SIPX_RESULT sipxLineGetURI(const SIPX_LINE hLine,
                                         const size_t nBuffer,
                                         size_t& nActual) ;
 
+/**
+ * Get the contact ID for the designated line handle
+ *
+ * @param hLine Handle to a line appearance.  Line handles are obtained by
+ *        creating a line using the sipxLineAdd function or by receiving
+ *        a line event notification.
+ * @param contactId contact Id specified during line creation
+ */
+SIPXTAPI_API SIPX_RESULT sipxLineGetContactId(const SIPX_LINE  hLine,
+                                              SIPX_CONTACT_ID& contactId) ;
+
+
+/**
+ * Find a line definition given a URI.  
+ *
+ * @param hInst Instance pointer obtained by sipxInitialize.
+ * @param szURI URI used to search for a line definition
+ * @param hLine line handle if successful
+ */
+SIPXTAPI_API SIPX_RESULT sipxLineFindByURI(const SIPX_INST hInst,
+                                           const char* szURI,
+                                           SIPX_LINE&  hLine) ;
+
 //@}
 /** @name Configuration Methods*/
 //@{
@@ -3632,5 +3669,35 @@ SIPXTAPI_API SIPX_RESULT sipxConfigExternalTransportHandleMessage(const SIPX_TRA
                                                                   const size_t nData);
 
 //@}
+/** @name Utility Functions */
+//@{
+
+/**
+ * Simple utility function to parse the username, host, and port from
+ * a URL.  All url, field, and header parameters are ignored.  You may also 
+ * specify NULL for any parameters (except szUrl) which are not needed.  
+ * Lastly, the caller must allocate enough storage space for each url
+ * component -- if in doubt use the length of the supplied szUrl.
+ */
+SIPXTAPI_API SIPX_RESULT sipxUtilUrlParse(const char* szUrl,
+                                          char* szUsername,
+                                          char* szHostname,
+                                          int*  iPort) ;
+
+/**
+ * Simple utility function to update a URL.  If the szUrl isn't large enough,
+ * or is NULL, this function will fail, however, the nUrl will contained the 
+ * required size in bytes.
+ *
+ * To leave an existing component unchanged, use NULL for strings and -1 for 
+ * ports.
+ */
+SIPXTAPI_API SIPX_RESULT sipxUtilUrlUpdate(char*       szUrl,
+                                           size_t &    nUrl,
+                                           const char* szNewUsername,
+                                           const char* szNewHostname,
+                                           const int   iNewPort) ;
+//@}
+
 
 #endif // _sipXtapi_h_
