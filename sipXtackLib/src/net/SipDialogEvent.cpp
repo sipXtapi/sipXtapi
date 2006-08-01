@@ -501,7 +501,7 @@ Dialog* SipDialogEvent::getDialog(UtlString& callId)
    UtlHashMapIterator dialogIterator(mDialogs);
    Dialog* pDialog;
    UtlString foundValue;
-   while (pDialog = (Dialog *) dialogIterator())
+   while ((pDialog = (Dialog *) dialogIterator()))
    {
       pDialog->getCallId(foundValue);
       
@@ -627,7 +627,7 @@ void SipDialogEvent::buildBody() const
    ((SipDialogEvent*)this)->mLock.acquire();
    UtlHashMapIterator dialogIterator(mDialogs);
    Dialog* pDialog;
-   while (pDialog = (Dialog *) dialogIterator())
+   while ((pDialog = (Dialog *) dialogIterator()))
    {
       UtlString id, callId, localTag, remoteTag, direction;
       pDialog->getDialog(id, callId, localTag, remoteTag, direction);

@@ -2137,15 +2137,18 @@ void SipRefreshMgr::setLastLineEvent(const UtlString& lineId, const SIPX_LINESTA
         mpLastLineEventMap = new UtlHashMap();
     }
 
-    if( mpLastLineEventMap->find(&lineId) )
+    UtlString* newId = new UtlString(lineId);
+    UtlString* exisitingId;
+    
+    if((exisitingId = dynamic_cast<UtlString*>(mpLastLineEventMap->find(newId))))
     {
-       osPrintf("SipRefreshMgr::setLastLineEvent: LineId found, being destroyed ??");
-       mpLastLineEventMap->destroy(& UtlString(lineId.data()));
+       OsSysLog::add(FAC_REFRESH_MGR, PRI_DEBUG,
+                     "SipRefreshMgr::setLastLineEvent: LineId found, being destroyed ??"
+                     );
+       mpLastLineEventMap->destroy(exisitingId);
     }
 
-    // mLastLineEventMap.remove(& UtlString(lineId.data())); - ???
-    mpLastLineEventMap->insertKeyAndValue(new UtlString(lineId.data()), new UtlInt(eMajor));
-    return;
+    mpLastLineEventMap->insertKeyAndValue(newId, new UtlInt(eMajor));
 }
 
 

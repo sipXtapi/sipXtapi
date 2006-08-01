@@ -243,7 +243,7 @@ Resource* SipResourceList::getResource(UtlString& resourceUri)
    UtlHashMapIterator resourceIterator(mResources);
    Resource* pResource;
    UtlString foundValue;
-   while (pResource = (Resource *) resourceIterator())
+   while ((pResource = (Resource *) resourceIterator()))
    {
       pResource->getResourceUri(foundValue);
       
@@ -354,7 +354,7 @@ void SipResourceList::buildBody() const
    ((SipResourceList*)this)->mLock.acquire();
    UtlHashMapIterator resourceIterator(mResources);
    Resource* pResource;
-   while (pResource = (Resource *) resourceIterator())
+   while ((pResource = (Resource *) resourceIterator()))
    {
       UtlString uriStr;
       pResource->getResourceUri(uriStr);

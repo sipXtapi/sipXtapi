@@ -655,53 +655,11 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
     // Look at the request and figure out how to route it.
     else
     {
-       // For INVITE, process header parameters in the request uri
-       if (0 == method.compareTo(SIP_INVITE_METHOD))
-       {
-          UtlString uriWithHeaderParams;
-          request.getRequestUri(&uriWithHeaderParams);
-          Url requestUri(uriWithHeaderParams, TRUE);
-
-          int header;
-          UtlString hdrName;
-          UtlString hdrValue;
-          for (header=0; requestUri.getHeaderParameter(header, hdrName, hdrValue); header++ )
-          {
-             // If the header is allowed in a header parameter?
-             if(SipMessage::isUrlHeaderAllowed(hdrName.data()))
-             {
-                if (SipMessage::isUrlHeaderUnique(hdrName.data()))
-                {
-                   // If the field exists, change it,
-                   // if does not exist, create it.
-                   request.setHeaderValue(hdrName.data(),
-                                          hdrValue.data(), 0);
-                }
-                else
-                {
-                   request.addHeaderField(hdrName.data(), hdrValue.data());
-                }
-             }
-             else
-             {
-                OsSysLog::add(FAC_SIP, PRI_WARNING, "URL header disallowed: %s: %s",
-                              hdrName.data(), hdrValue.data());
-             }
-          }
-          if (header)
-          {
-             // Remove the header fields from the URL as they
-             // have been added to the message
-             UtlString uriWithoutHeaderParams;
-             requestUri.removeHeaderParameters();
-             // Use getUri to get the addr-spec formmat, not the name-addr
-             // format, because uriWithoutHeaderParams will be used as the
-             // request URI of the request.
-             requestUri.getUri(uriWithoutHeaderParams);
-
-             request.changeRequestUri(uriWithoutHeaderParams);
-          }
-       }
+        // For INVITE, process header parameters in the request uri
+        if (0 == method.compareTo(SIP_INVITE_METHOD))
+        {
+           request.applyTargetUriHeaderParams();
+        }
 
         // Use the proxy only for requests
         userAgent.getProxyServer(0, &toAddress, &port, &protocol);

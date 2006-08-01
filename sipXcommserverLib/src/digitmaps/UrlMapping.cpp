@@ -568,8 +568,7 @@ UrlMapping::doTransform(const Url& requestUri,
                          nv.next(temp, "=");
                          value = temp ;
 
-                         tempContactUrl.includeAngleBrackets();
-                         tempContactUrl.setFieldParameter(name , value);
+                         tempContactUrl.setUrlParameter(name , value);
                       }
                    }
                 }
@@ -601,8 +600,7 @@ UrlMapping::doTransform(const Url& requestUri,
                          nv.next(temp, "=");
                          value = temp ;
 
-                         tempContactUrl.includeAngleBrackets();
-                         tempContactUrl.setFieldParameter(name , value);
+                         tempContactUrl.setHeaderParameter(name , value);
                       }
 
                    }

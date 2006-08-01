@@ -592,7 +592,17 @@ void Url::setUrlParameter(const char* name, const char* value)
        mpUrlParameters = new UtlDList;
     }
     
-    mpUrlParameters->append(nv);
+    NameValuePair* existingParam = dynamic_cast<NameValuePair*>(mpUrlParameters->find(nv));
+
+    if (existingParam)
+    {
+       existingParam->setValue(value);
+    }
+    else
+    {
+       mpUrlParameters->append(nv);
+    }
+    
 }
 
 UtlBoolean Url::getHeaderParameter(const char* name, UtlString& value, int index)
@@ -783,11 +793,11 @@ void Url::getUri(UtlString& urlString)
         )
     {
         UtlDListIterator headerParamIterator(*mpHeaderOrQueryParameters);
-        NameValuePair* headerParam = NULL;
+        NameValuePairInsensitive* headerParam = NULL;
         UtlString headerParamValue;
         UtlBoolean firstHeader = TRUE;
 
-        while ((headerParam = (NameValuePair*) headerParamIterator()))
+        while ((headerParam = dynamic_cast<NameValuePairInsensitive*>(headerParamIterator())))
         {
             // Add separator for first header parameter
             if(firstHeader)
@@ -814,16 +824,28 @@ void Url::getUri(UtlString& urlString)
 
 void Url::setHeaderParameter(const char* name, const char* value)
 {
-    NameValuePair* nv = new NameValuePair(name ? name : "",
-        value ? value : "");
+   if ( name && *name )
+   {
+      NameValuePairInsensitive* nv = new NameValuePairInsensitive(name, value ? value : "");
 
-    // ensure that mpHeaderOrQueryParameters is initialized
-    if (! (mpHeaderOrQueryParameters || parseHeaderOrQueryParameters()))
-    {
-       mpHeaderOrQueryParameters = new UtlDList;
-    }
+      // ensure that mpHeaderOrQueryParameters is initialized
+      if (! (mpHeaderOrQueryParameters || parseHeaderOrQueryParameters()))
+      {
+         mpHeaderOrQueryParameters = new UtlDList;
+      }
 
-    mpHeaderOrQueryParameters->append(nv);
+      if (   (   SipUrlScheme  == mScheme
+              || SipsUrlScheme == mScheme
+              )
+          && ( SipMessage::isUrlHeaderUnique(name) )
+          )
+      {
+         removeHeaderParameter(name);
+      }
+
+      // for all other cases, assume that duplicate query parameters are ok
+      mpHeaderOrQueryParameters->append(nv);
+   }
 }
 
 UtlBoolean Url::getHeaderParameter(int headerIndex, UtlString& name, UtlString& value)
@@ -835,7 +857,7 @@ UtlBoolean Url::getHeaderParameter(int headerIndex, UtlString& name, UtlString& 
         && (((int)(mpHeaderOrQueryParameters->entries())) > headerIndex)
         )
     {
-       header = (NameValuePair*) mpHeaderOrQueryParameters->at(headerIndex);
+       header = dynamic_cast<NameValuePairInsensitive*>(mpHeaderOrQueryParameters->at(headerIndex));
     }
     
     if(header)
@@ -966,7 +988,17 @@ void Url::setFieldParameter(const char* name, const char* value)
        mpFieldParameters = new UtlDList;
     }
     
-    mpFieldParameters->append(nv);
+    NameValuePair* existingParam = dynamic_cast<NameValuePair*>(mpFieldParameters->find(nv));
+
+    if (existingParam)
+    {
+       existingParam->setValue(value);
+       delete nv;
+    }
+    else
+    {
+       mpFieldParameters->append(nv);
+    }
 }
 
 void Url::removeFieldParameters()

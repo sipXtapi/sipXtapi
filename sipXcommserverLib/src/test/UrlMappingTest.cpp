@@ -31,8 +31,6 @@ class UrlMappingTest : public CppUnit::TestCase
       CPPUNIT_TEST(testAddUrlParams);
       CPPUNIT_TEST(testHeaderParamAdd);
       CPPUNIT_TEST(testFieldAdd);
-      CPPUNIT_TEST(testFieldReplace);
-      CPPUNIT_TEST(testUrlParamReplace);
       CPPUNIT_TEST(testAddFieldParams);
       CPPUNIT_TEST(testDigits);
       CPPUNIT_TEST(testVDigits);
@@ -230,7 +228,6 @@ class UrlMappingTest : public CppUnit::TestCase
                                );
          CPPUNIT_ASSERT( permissions.getSize() == 0 );
          CPPUNIT_ASSERT( registrations.getSize() == 1 );
-         KNOWN_BUG("URL params are inserted outside angle brackets", "XCS-9");
          getResult( registrations, 0, "contact" , actual );
          ASSERT_STR_EQUAL("<sip:ADDURLPARAM@thisdomain;NEWURLPARAM=URLVALUE>" , actual );
          registrations.destroyAll();
@@ -255,7 +252,6 @@ class UrlMappingTest : public CppUnit::TestCase
                                );
          CPPUNIT_ASSERT( permissions.getSize() == 0 );
          CPPUNIT_ASSERT( registrations.getSize() == 1 );
-         KNOWN_BUG("Header params not inserted correctly", "XCS-12");
          getResult( registrations, 0, "contact" , actual );
          ASSERT_STR_EQUAL("<sip:ADDHEADERPARAM@thisdomain?NEWHEADERPARAM=HEADERVALUE>" , actual );
          registrations.destroyAll();
@@ -290,63 +286,6 @@ class UrlMappingTest : public CppUnit::TestCase
 
       }
       
-      void testFieldReplace()
-      {
-         UrlMapping urlmap;
-         ResultSet registrations;
-         UtlBoolean isPSTNnumber = false;
-         ResultSet permissions;
-         UtlString actual;
-
-         UtlString paramsXml;
-         mFileTestContext->inputFilePath("params.xml", paramsXml);
-
-         CPPUNIT_ASSERT( loadUrlMap( urlmap, paramsXml.data()));
-
-         urlmap.getContactList( Url("<sip:ADDFIELDS@thisdomain;urlparam=avalue>;NEWFIELDPARAM=oldvalue")
-                               ,registrations, isPSTNnumber, permissions
-                               );
-         CPPUNIT_ASSERT( permissions.getSize() == 0 );
-         CPPUNIT_ASSERT( registrations.getSize() == 1 );
-         KNOWN_BUG("Field value appended rather than replaced", "XCS-11");
-         getResult( registrations, 0, "contact"
-                                  , actual
-                        );
-         ASSERT_STR_EQUAL("<sip:ADDFIELDS@thisdomain;urlparam=avalue>;NEWFIELDPARAM=FIELDVALUE"
-                         , actual );
-         registrations.destroyAll();
-
-      }
-      
-      void testUrlParamReplace()
-      {
-         UrlMapping urlmap;
-         ResultSet registrations;
-         UtlBoolean isPSTNnumber = false;
-         ResultSet permissions;
-         UtlString actual;
-
-         UtlString paramsXml;
-         mFileTestContext->inputFilePath("params.xml", paramsXml);
-
-         CPPUNIT_ASSERT( loadUrlMap( urlmap, paramsXml.data()));
-
-         urlmap.getContactList( Url("<sip:ADDURLPARAM@thisdomain;NEWURLPARAM=avalue>;field=oldvalue")
-                               ,registrations, isPSTNnumber, permissions
-                               );
-         CPPUNIT_ASSERT( permissions.getSize() == 0 );
-         CPPUNIT_ASSERT( registrations.getSize() == 1 );
-         KNOWN_BUG("URL params are inserted outside angle brackets", "XCS-9");
-         
-         getResult( registrations, 0, "contact"
-                                  , actual
-                        );
-         ASSERT_STR_EQUAL("<sip:ADDURLPARAM@thisdomain;NEWURLPARAM=URLVALUE>;field=oldvalue"
-                         , actual );
-         registrations.destroyAll();
-
-      }
-      
       void testAddFieldParams()
       {
          UrlMapping urlmap;
@@ -366,7 +305,7 @@ class UrlMappingTest : public CppUnit::TestCase
          CPPUNIT_ASSERT( permissions.getSize() == 0 );
          CPPUNIT_ASSERT( registrations.getSize() == 1 );
          getResult( registrations, 0, "contact", actual );
-         KNOWN_BUG("URL params are inserted outside angle brackets", "XCS-9");
+
          ASSERT_STR_EQUAL("<sip:ADDFIELDS@thisdomain;NEWURLPARAM=oldvalue>;NEWFIELDPARAM=FIELDVALUE", actual);
          registrations.destroyAll();
       }

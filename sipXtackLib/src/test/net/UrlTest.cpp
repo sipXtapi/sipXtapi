@@ -452,8 +452,7 @@ public:
 
     void testNoFieldParams()
     {
-        const char *szUrl = "<sip:tester@sipfoundry.org;up1=uval1;up2=uval2?"
-            "hp1=hval1&hp2=hval2>";
+        const char *szUrl = "<sip:tester@sipfoundry.org;up1=uval1;up2=uval2?hp1=hval1&hp2=hval2>";
         Url url(szUrl);
         sprintf(msg, "%s", szUrl);
         ASSERT_STR_EQUAL_MESSAGE(msg, "uval1", getParam("up1", url));
@@ -680,32 +679,69 @@ public:
     void testAddAttributesToExisting()
     {
         Url url("sip:u@host");
+
         url.setDisplayName("New Name");
+        ASSERT_STR_EQUAL("New Name<sip:u@host>", toString(url));
+
         url.setHostPort(5070);
+        ASSERT_STR_EQUAL("New Name<sip:u@host:5070>", toString(url));
+
         url.setUrlParameter("u1", "uv1");
+        ASSERT_STR_EQUAL("New Name<sip:u@host:5070;u1=uv1>", toString(url));
+
         url.setHeaderParameter("h1", "hv1");
+        ASSERT_STR_EQUAL("New Name<sip:u@host:5070;u1=uv1?h1=hv1>", toString(url));
+
         url.setFieldParameter("f1", "fv1");
-        ASSERT_STR_EQUAL("New Name<sip:u@host:5070;u1=uv1?h1=hv1>;f1=fv1", 
-            toString(url));
+        ASSERT_STR_EQUAL("New Name<sip:u@host:5070;u1=uv1?h1=hv1>;f1=fv1", toString(url));
+
+        Url url2("sip:u@host");
+
+        url2.setFieldParameter("field", "value2");
+        ASSERT_STR_EQUAL("<sip:u@host>;field=value2", toString(url2));
+
     }
 
     void testChangeValues()
     {
         Url url("New Name<sip:u@host:5070;u1=uv1?h1=hv1>;f1=fv1"); 
+
+        ASSERT_STR_EQUAL("New Name<sip:u@host:5070;u1=uv1?h1=hv1>;f1=fv1",
+                         toString(url));
+
         url.setDisplayName("Changed Name");
+        ASSERT_STR_EQUAL("Changed Name<sip:u@host:5070;u1=uv1?h1=hv1>;f1=fv1",
+                         toString(url));
+
         url.setHostPort(PORT_NONE);
-        url.setHeaderParameter("h1", "hchanged1");
-        url.setHeaderParameter("h2", "hnew2");
+        ASSERT_STR_EQUAL("Changed Name<sip:u@host;u1=uv1?h1=hv1>;f1=fv1",
+                         toString(url));
+        
+        url.setHeaderParameter("h1", "hv2");
+        ASSERT_STR_EQUAL("Changed Name<sip:u@host;u1=uv1?h1=hv1&h1=hv2>;f1=fv1",
+                         toString(url));
+        
+        url.setHeaderParameter("expires", "10");
+        ASSERT_STR_EQUAL("Changed Name<sip:u@host;u1=uv1?h1=hv1&h1=hv2&expires=10>;f1=fv1",
+                         toString(url));
+        
+        url.setHeaderParameter("expires", "20");
+        ASSERT_STR_EQUAL("Changed Name<sip:u@host;u1=uv1?h1=hv1&h1=hv2&expires=20>;f1=fv1",
+                         toString(url));
+        
+        url.setFieldParameter("f1", "fv2");
+        ASSERT_STR_EQUAL("Changed Name<sip:u@host;u1=uv1?h1=hv1&h1=hv2&expires=20>;f1=fv1;f1=fv2",
+                         toString(url));
+        
+
 
         // Only the changed attributes should actually changed
-        ASSERT_STR_EQUAL("Changed Name<sip:u@host;u1=uv1?"
-            "h1=hv1&h1=hchanged1&h2=hnew2>;f1=fv1", toString(url));
     }
 
     void testRemoveAttributes()
     {
-        Url url("Changed Name<sip:u@host;u1=uv1;u2=uv2?"
-                "h1=hv1&h1=hchanged1&h2=hnew2>;f1=fv1;f2=fv2");
+        Url url("Changed Name<sip:u@host;u1=uv1;u2=uv2"
+                "?h1=hv1&h2=hnew2>;f1=fv1;f2=fv2");
         url.removeHeaderParameter("h1") ; 
         url.removeFieldParameter("f1") ; 
         url.removeUrlParameter("u1") ; 
@@ -815,8 +851,8 @@ public:
 
     void testRemoveAllTypesOfAttributes()
     {
-        const char* szUrl = "Changed Name<sip:u@host;u1=uv1;u2=uv2?"
-            "h1=hv1&h1=hchanged1&h2=hnew2>;f1=fv1;f2=fv2";
+        const char* szUrl = "Changed Name<sip:u@host;u1=uv1;u2=uv2"
+            "?h1=hv1&h2=hchanged2&h3=hnew3>;f1=fv1;f2=fv2";
 
         Url noHeader(szUrl);
         noHeader.removeHeaderParameters();
@@ -825,12 +861,12 @@ public:
 
         Url noUrl(szUrl);
         noUrl.removeUrlParameters();
-        ASSERT_STR_EQUAL("Changed Name<sip:u@host?h1=hv1&h1=hchanged1&h2=hnew2>;f1=fv1;f2=fv2",
+        ASSERT_STR_EQUAL("Changed Name<sip:u@host?h1=hv1&h2=hchanged2&h3=hnew3>;f1=fv1;f2=fv2",
             toString(noUrl));
 
         Url noField(szUrl);
         noField.removeFieldParameters();
-        ASSERT_STR_EQUAL("Changed Name<sip:u@host;u1=uv1;u2=uv2?h1=hv1&h1=hchanged1&h2=hnew2>", 
+        ASSERT_STR_EQUAL("Changed Name<sip:u@host;u1=uv1;u2=uv2?h1=hv1&h2=hchanged2&h3=hnew3>", 
             toString(noField));
 
         Url noParameters(szUrl);
@@ -849,7 +885,7 @@ public:
     void testReset()
     {
         Url url("Changed Name<sip:u@host;u1=uv1;u2=uv2?h1=hv1"
-                "&h1=hchanged1&h2=hnew2>;f1=fv1;f2=fv2") ;
+                "&h2=hchanged2&h3=hnew3>;f1=fv1;f2=fv2") ;
         url.reset(); 
         ASSERT_STR_EQUAL("sip:", toString(url));
     }

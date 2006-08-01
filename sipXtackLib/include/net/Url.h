@@ -300,8 +300,7 @@ public:
                                  UtlString& value, 
                                  int index = 0);
 
-    /// Get the name and value of the header parameter at the indicated
-    //! index
+    /// Get the name and value of the header parameter at the indicated index
     /*! \param headerIndex - the index indicting which header parameter to 
      *          get (starting at 0 for the first one).
      * \param name - the parameter name at headerIndex
@@ -313,13 +312,18 @@ public:
                                  UtlString& headerValue);
 
     /// Set the named header parameter to the given value
-    /*! Adds the parameter if it does not exist, sets the value if
-     * it does exist.
-     * \param name - the parameter name
-     * \param value - the value of the parameter
+    void setHeaderParameter(const char* name,  ///< the parameter name
+                            const char* value  ///< the value of the parameter
+                            );
+    /**<
+     * For sip and sips URLs, this sets the header parameter to the value if the header name
+     * is unique according to SipMessage::isUrlHeaderUnique, overwriting any previous value.
+     * If the header is not unique, then this appends the header parameter.
+     *
+     * For all other URL schemes, the parameter is always appended.
+     *
+     * To ensure that any previous value is replaced, call removeHeaderParameter(name) first.
      */
-    void setHeaderParameter(const char* name, 
-                            const char* value);
 
     /// Removes all of the header parameters
     void removeHeaderParameters();

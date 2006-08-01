@@ -274,7 +274,7 @@ Tuple* SipPresenceEvent::getTuple(UtlString& tupleId)
    UtlHashMapIterator tupleIterator(mTuples);
    Tuple* pTuple;
    UtlString foundValue;
-   while (pTuple = (Tuple *) tupleIterator())
+   while ((pTuple = (Tuple *) tupleIterator()))
    {
       pTuple->getTupleId(foundValue);
       
@@ -329,7 +329,7 @@ void SipPresenceEvent::buildBody() const
    ((SipPresenceEvent*)this)->mLock.acquire();
    UtlHashMapIterator tupleIterator(mTuples);
    Tuple* pTuple;
-   while (pTuple = (Tuple *) tupleIterator())
+   while ((pTuple = (Tuple *) tupleIterator()))
    {
       
       UtlString tupleId;

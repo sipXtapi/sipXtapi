@@ -1927,6 +1927,99 @@ void SipMessage::setPublishData(const char* uri,
    setExpiresField(expiresInSeconds);
 }
 
+void SipMessage::applyTargetUriHeaderParams()
+{
+   UtlString uriWithHeaderParams;
+   getRequestUri(&uriWithHeaderParams);
+
+   Url requestUri(uriWithHeaderParams, TRUE);
+
+   int header;
+   UtlString hdrName;
+   UtlString hdrValue;
+   for (header=0; requestUri.getHeaderParameter(header, hdrName, hdrValue); header++ )
+   {
+      // If the header is allowed in a header parameter?
+      if(isUrlHeaderAllowed(hdrName.data()))
+      {
+         if (0 == hdrName.compareTo(SIP_FROM_FIELD, UtlString::ignoreCase))
+         {
+            /*
+             * The From header requires special handling
+             * - we need to preserve the tag, if any, from the original header
+             */
+            UtlString originalFromHeader;
+            getFromField(&originalFromHeader);
+            Url originalFromUrl(originalFromHeader);
+
+            UtlString originalFromTag;
+            originalFromUrl.getFieldParameter("tag", originalFromTag);
+
+            Url newFromUrl(hdrValue.data());
+            newFromUrl.removeFieldParameter("tag"); // specifying a tag is a no-no
+            if ( !originalFromTag.isNull() )
+            {
+               newFromUrl.setFieldParameter("tag", originalFromTag.data());
+            }
+            UtlString newFromFieldValue;
+            newFromUrl.toString(newFromFieldValue);
+                   
+            setRawFromField(newFromFieldValue.data());
+
+            // I suspect that this really should be adding a History-Info element of some kind
+            addHeaderField("X-Original-From", originalFromHeader);
+         }
+         else if (0 == hdrName.compareTo(SIP_ROUTE_FIELD, UtlString::ignoreCase))
+         {
+            /*
+             * The Route header requires special handling
+             * - we need to have a defined ordering.
+             *   For now, we choose to push the route (make it the topmost route)
+             */
+            Url newRouteUrl(hdrValue.data());
+            UtlString unusedValue;
+            if ( ! newRouteUrl.getUrlParameter("lr", unusedValue, 0))
+            {
+               newRouteUrl.setUrlParameter("lr",""); // force a loose route
+            }
+            
+            UtlString newRoute;
+            newRouteUrl.toString(newRoute);
+            
+            addRouteUri(newRoute.data());
+         }
+         else if (isUrlHeaderUnique(hdrName.data()))
+         {
+            // If the field exists, change it,
+            // if does not exist, create it.
+            setHeaderValue(hdrName.data(), hdrValue.data(), 0);
+         }
+         else
+         {
+            addHeaderField(hdrName.data(), hdrValue.data());
+         }
+      }
+      else
+      {
+         OsSysLog::add(FAC_SIP, PRI_WARNING, "URL header disallowed: %s: %s",
+                       hdrName.data(), hdrValue.data());
+      }
+   }
+   if (header)
+   {
+      // Remove the header fields from the URL as they
+      // have been added to the message
+      UtlString uriWithoutHeaderParams;
+      requestUri.removeHeaderParameters();
+      // Use getUri to get the addr-spec formmat, not the name-addr
+      // format, because uriWithoutHeaderParams will be used as the
+      // request URI of the request.
+      requestUri.getUri(uriWithoutHeaderParams);
+
+      changeRequestUri(uriWithoutHeaderParams);
+   }
+}
+
 
 void SipMessage::addVia(const char* domainName,
                         int port,
@@ -2233,12 +2326,7 @@ void SipMessage::setFromField(const char* address, int port,
                        const char* user, const char* userLabel)
 {
    UtlString url;
-   //UtlString field;
-
    buildSipUrl(&url, address, port, protocol, user, userLabel);
-
-
-   //buildSipToFromField(&field, url.data(), label);
 
    // If the field exists change it, if does not exist create it
    setHeaderValue(SIP_FROM_FIELD, url.data(), 0);
@@ -2246,38 +2334,11 @@ void SipMessage::setFromField(const char* address, int port,
 
 void SipMessage::setRawToField(const char* url)
 {
-   //UtlString value;
-   //UtlString address;
-   //UtlString protocol;
-   //UtlString user;
-   //UtlString userLabel;
-   //UtlString tag;
-   //int port;
-
-   //parseAddressFromUri(url, &address, &port, &protocol, &user,
-   // &userLabel, &tag);
-   //buildSipUrl(&value, address.data(), port, protocol.data(),
-   // user.data(), userLabel.data(), tag.data());
-
-   // If the field exists change it, if does not exist create it
    setHeaderValue(SIP_TO_FIELD, url, 0);
 }
 
 void SipMessage::setRawFromField(const char* url)
 {
-   //UtlString value;
-   //UtlString address;
-   //UtlString protocol;
-   //UtlString user;
-   //UtlString userLabel;
-   //UtlString tag;
-   //int port;
-
-   //parseAddressFromUri(url, &address, &port, &protocol, &user,
-   // &userLabel, &tag);
-   //buildSipUrl(&value, address.data(), port, protocol.data(),
-   // user.data(), userLabel.data(), tag.data());
-
    // If the field exists change it, if does not exist create it
    setHeaderValue(SIP_FROM_FIELD, url, 0);
 }
@@ -3594,20 +3655,25 @@ void SipMessage::addRouteUri(const char* routeUri)
 {
    UtlString routeField;
    UtlString routeParameter;
-    const char* bracketPtr = strchr(routeUri, '<');
-   if(bracketPtr == NULL) routeParameter.append('<');
+   const char* bracketPtr = strchr(routeUri, '<');
+   if(bracketPtr == NULL)
+   {
+      routeParameter.append('<');
+   }
    routeParameter.append(routeUri);
-    bracketPtr = strchr(routeUri, '>');
-   if(bracketPtr == NULL) routeParameter.append('>');
-
-    // If there is already a route header
+   bracketPtr = strchr(routeUri, '>');
+   if(bracketPtr == NULL)
+   {
+      routeParameter.append('>');
+   }
+   // If there is already a route header
    if(getRouteField( &routeField))
-    {
+   {
       routeParameter.append(SIP_MULTIFIELD_SEPARATOR);
 
-       // Remove the entire header
-        removeHeader(SIP_ROUTE_FIELD, 0);
-    }
+      // Remove the entire header
+      removeHeader(SIP_ROUTE_FIELD, 0);
+   }
 
    //add the updated header
    routeField.insert(0,routeParameter);
@@ -4253,15 +4319,15 @@ void SipMessage::addDiversionField(const char* diversionField, UtlBoolean afterO
 {
     if(NULL != diversionField)
     {
-	  mHeaderCacheClean = FALSE;
+       mHeaderCacheClean = FALSE;
 
-	NameValuePair* nv = new NameValuePair(SIP_DIVERSION_FIELD, diversionField);
-    	// Look for other diversion fields
-    	int fieldIndex = mNameValues.index(nv);
+       NameValuePair* nv = new NameValuePair(SIP_DIVERSION_FIELD, diversionField);
+       // Look for other diversion fields
+       size_t fieldIndex = mNameValues.index(nv);
 
-	if(fieldIndex == ~(size_t)0) // (RW_NPOS) = ~(size_t)0 - wdn ???
+#  ifdef TEST_PRINT
+	if(fieldIndex == UTL_NOT_FOUND)
 	{
-#ifdef TEST_PRINT
         UtlDListIterator iterator(nameValues);
 
         	remove whole line
@@ -4270,13 +4336,12 @@ void SipMessage::addDiversionField(const char* diversionField, UtlBoolean afterO
         	{
             		osPrintf("\tName: %s\n", nv->data());
         	}
-#endif
 	}
+#  endif
 
 	mHeaderCacheClean = FALSE;
 
-	// if(fieldIndex == RW_NPOS || afterOtherDiversions) - wdn ???
-	if(fieldIndex == ~(size_t)0 || afterOtherDiversions)
+	if(fieldIndex == UTL_NOT_FOUND || afterOtherDiversions)
 	{
 		mNameValues.insert(nv);
 	}
@@ -4766,30 +4831,26 @@ UtlBoolean SipMessage::isUrlHeaderAllowed(const char* headerFieldName)
 {
     UtlString name(headerFieldName);
     name.toUpper();
-    UtlString nameCollectable(name);
 
     if (spSipMessageFieldProps == NULL)
     {
       spSipMessageFieldProps = new SipMessage::SipMessageFieldProps() ;
     }
 
-    return (NULL ==
-            spSipMessageFieldProps->mDisallowedUrlHeaders.find(&nameCollectable));
+    return (!spSipMessageFieldProps->mDisallowedUrlHeaders.contains(&name));
 }
 
 UtlBoolean SipMessage::isUrlHeaderUnique(const char* headerFieldName)
 {
     UtlString name(headerFieldName);
     name.toUpper();
-    UtlString nameCollectable(name);
     
     if (spSipMessageFieldProps == NULL)
     {
        spSipMessageFieldProps = new SipMessage::SipMessageFieldProps() ;
     }
 
-    return (NULL !=
-            spSipMessageFieldProps->mUniqueUrlHeaders.find(&nameCollectable));
+    return (spSipMessageFieldProps->mUniqueUrlHeaders.contains(&name));
 }
 
 //SDUA
@@ -5121,11 +5182,9 @@ void SipMessage::SipMessageFieldProps::initDisallowedUrlHeaders()
    mDisallowedUrlHeaders.insert(new UtlString(SIP_CONTENT_ENCODING_FIELD));
    mDisallowedUrlHeaders.insert(new UtlString(SIP_SHORT_CONTENT_ENCODING_FIELD));
    mDisallowedUrlHeaders.insert(new UtlString(SIP_CSEQ_FIELD));
-   mDisallowedUrlHeaders.insert(new UtlString(SIP_FROM_FIELD));
    mDisallowedUrlHeaders.insert(new UtlString(SIP_RECORD_ROUTE_FIELD));
    mDisallowedUrlHeaders.insert(new UtlString(SIP_REFER_TO_FIELD));
    mDisallowedUrlHeaders.insert(new UtlString(SIP_REFERRED_BY_FIELD));
-   mDisallowedUrlHeaders.insert(new UtlString(SIP_ROUTE_FIELD));
    mDisallowedUrlHeaders.insert(new UtlString(SIP_TO_FIELD));
    mDisallowedUrlHeaders.insert(new UtlString(SIP_SHORT_TO_FIELD));
    mDisallowedUrlHeaders.insert(new UtlString(SIP_USER_AGENT_FIELD));

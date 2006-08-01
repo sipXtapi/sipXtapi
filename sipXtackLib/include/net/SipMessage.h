@@ -305,11 +305,14 @@ class SipRegInfoBody;        // for RFC 3680
 // FORWARD DECLARATIONS
 class SipTransaction;
 
-//:Specialization of HttpMessage to contain and manipulate SIP messages
-/*! See HttpMessage for the descriptions of the general constructs
+/// Specialization of HttpMessage to contain and manipulate SIP messages
+/**
+ * @see HttpMessage for the descriptions of the general constructs
  * manipulators and accessors for the three basic parts of a SIP
  * message.  A message can be queried as to whether it is a request or a
  * response via the isResponse method.
+ *
+ * @nosubgrouping
  */
 class SipMessage : public HttpMessage
 {
@@ -608,6 +611,28 @@ public:
                          const char* sipIfMatchField,
                          int expiresInSeconds);
 
+    
+    /// Apply any header parameters in the request uri to the message
+    void applyTargetUriHeaderParams();
+    /**
+     * There are some special rules implemented by this routine:
+     *
+     * - The header must not be forbidden by isUrlHeaderAllowed
+     *
+     * - If the header is a From, then any tag parameter on that
+     *   new From header value is removed, and the tag parameter
+     *   from the original From header is inserted.  The original
+     *   From header value is inserted in an X-Original-From header.
+     *
+     * - If the header is a Route, it is forced to be a loose route
+     *   and inserted as the topmost Route.
+     *
+     * - If it a unique header per isUrlHeaderUnique, then the new
+     *   value replaces the old one.
+     *
+     * - otherwise, the new header is just added.to the message.
+     */
+    
     //@}
 
     void addSdpBody(const char* rtpAddress,

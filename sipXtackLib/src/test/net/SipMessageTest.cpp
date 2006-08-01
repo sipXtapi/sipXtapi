@@ -53,6 +53,7 @@ class SipMessageTest : public CppUnit::TestCase
       CPPUNIT_TEST(testSetInviteDataHeadersForbidden);
       CPPUNIT_TEST(testCompactNames);
       CPPUNIT_TEST(testHeaderFieldAccessors);
+      CPPUNIT_TEST(testApplyTargetUriHeaderParams);
       CPPUNIT_TEST_SUITE_END();
 
       public:
@@ -1258,12 +1259,10 @@ void testSdpShortHeaderNames()
       const char* non_settable_headers[] =
          {
             SIP_CONTACT_FIELD,
-            SIP_FROM_FIELD,
             SIP_CALLID_FIELD,
             SIP_CSEQ_FIELD,
             SIP_VIA_FIELD,
-            SIP_RECORD_ROUTE_FIELD,
-            SIP_ROUTE_FIELD,
+            SIP_RECORD_ROUTE_FIELD
          };
 
       // For each field.
@@ -1315,6 +1314,314 @@ void testSdpShortHeaderNames()
          delete msg;
       }
    }
+
+   void testApplyTargetUriHeaderParams()
+      {
+         UtlString dumpStr;
+         int       dumpLength;
+
+         dumpLength = 0;
+         dumpLength = dumpLength; // suppress compiler warnings about unused variables
+         
+         {
+            // add an arbitrary unknown header
+            const char* rawmsg =
+               "INVITE sip:sipx.local?arbitrary-header=foobar SIP/2.0\r\n"
+               "To: sip:sipx.local\r\n"
+               "From: Sip Send <sip:sender@example.org>; tag=ORIG-TAG\r\n"
+               "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+               "Cseq: 1 INVITE\r\n"
+               "Max-Forwards: 20\r\n"
+               "Contact: me@127.0.0.1\r\n"
+               "Content-Length: 0\r\n"
+               "\r\n";
+
+            SipMessage sipmsg(rawmsg, strlen(rawmsg));
+            sipmsg.applyTargetUriHeaderParams();
+         
+            // sipmsg.getBytes(&dumpStr, &dumpLength);
+            // printf( "\nMSG BEFORE:\n%s\nAFTER:\n%s\n", rawmsg, dumpStr.data());
+         
+            CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("arbitrary-header"));
+            ASSERT_STR_EQUAL("foobar", sipmsg.getHeaderValue(0, "arbitrary-header"));
+            ASSERT_STR_EQUAL("INVITE sip:sipx.local SIP/2.0", sipmsg.getFirstHeaderLine());
+         }
+         
+         {
+            // add 2 of an arbitrary unknown header
+            const char* rawmsg =
+               "INVITE sip:sipx.local?arbitrary-header=foobar&arbitrary-header=again SIP/2.0\r\n"
+               "To: sip:sipx.local\r\n"
+               "From: Sip Send <sip:sender@example.org>; tag=ORIG-TAG\r\n"
+               "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+               "Cseq: 1 INVITE\r\n"
+               "Max-Forwards: 20\r\n"
+               "Contact: me@127.0.0.1\r\n"
+               "Content-Length: 0\r\n"
+               "\r\n";
+
+            SipMessage sipmsg(rawmsg, strlen(rawmsg));
+            sipmsg.applyTargetUriHeaderParams();
+
+            // sipmsg.getBytes(&dumpStr, &dumpLength);
+            // printf( "\nMSG BEFORE:\n%s\nAFTER:\n%s\n", rawmsg, dumpStr.data());
+         
+            CPPUNIT_ASSERT_EQUAL(2, sipmsg.getCountHeaderFields("arbitrary-header"));
+            ASSERT_STR_EQUAL("foobar", sipmsg.getHeaderValue(0, "arbitrary-header"));
+            ASSERT_STR_EQUAL("again", sipmsg.getHeaderValue(1, "arbitrary-header"));
+            ASSERT_STR_EQUAL("INVITE sip:sipx.local SIP/2.0", sipmsg.getFirstHeaderLine());
+         }
+         
+         {
+            // add an expires header
+            const char* rawmsg =
+               "INVITE sip:sipx.local?expires=10 SIP/2.0\r\n"
+               "To: sip:sipx.local\r\n"
+               "From: Sip Send <sip:sender@example.org>; tag=ORIG-TAG\r\n"
+               "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+               "Cseq: 1 INVITE\r\n"
+               "Max-Forwards: 20\r\n"
+               "Contact: me@127.0.0.1\r\n"
+               "Content-Length: 0\r\n"
+               "\r\n";
+
+            SipMessage sipmsg(rawmsg, strlen(rawmsg));
+            sipmsg.applyTargetUriHeaderParams();
+
+            // sipmsg.getBytes(&dumpStr, &dumpLength);
+            // printf( "\nMSG BEFORE:\n%s\nAFTER:\n%s\n", rawmsg, dumpStr.data());
+         
+            CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("expires"));
+            ASSERT_STR_EQUAL("10", sipmsg.getHeaderValue(0, "expires"));
+            ASSERT_STR_EQUAL("INVITE sip:sipx.local SIP/2.0", sipmsg.getFirstHeaderLine());
+         }
+         
+         {
+            // try to add 2 expires headers
+            const char* rawmsg =
+               "INVITE sip:sipx.local?expires=10&expires=20 SIP/2.0\r\n"
+               "To: sip:sipx.local\r\n"
+               "From: Sip Send <sip:sender@example.org>; tag=ORIG-TAG\r\n"
+               "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+               "Cseq: 1 INVITE\r\n"
+               "Max-Forwards: 20\r\n"
+               "Contact: me@127.0.0.1\r\n"
+               "Content-Length: 0\r\n"
+               "\r\n";
+
+            SipMessage sipmsg(rawmsg, strlen(rawmsg));
+            sipmsg.applyTargetUriHeaderParams();
+
+            // sipmsg.getBytes(&dumpStr, &dumpLength);
+            // printf( "\nMSG BEFORE:\n%s\nAFTER:\n%s\n", rawmsg, dumpStr.data());
+         
+            CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("expires"));
+            ASSERT_STR_EQUAL("20", sipmsg.getHeaderValue(0, "expires"));
+            ASSERT_STR_EQUAL("INVITE sip:sipx.local SIP/2.0", sipmsg.getFirstHeaderLine());
+         }
+
+         {
+            // add a From header
+            const char* rawmsg =
+               "INVITE sip:sipx.local?from=sip%3Afoo%40bar SIP/2.0\r\n"
+               "To: sip:sipx.local\r\n"
+               "From: Sip Send <sip:sender@example.org>; tag=ORIG-TAG\r\n"
+               "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+               "Cseq: 1 INVITE\r\n"
+               "Max-Forwards: 20\r\n"
+               "Contact: me@127.0.0.1\r\n"
+               "Content-Length: 0\r\n"
+               "\r\n";
+
+            SipMessage sipmsg(rawmsg, strlen(rawmsg));
+            sipmsg.applyTargetUriHeaderParams();
+
+            // sipmsg.getBytes(&dumpStr, &dumpLength);
+            // printf( "\nMSG BEFORE:\n%s\nAFTER:\n%s\n", rawmsg, dumpStr.data());
+         
+            CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("from"));
+            ASSERT_STR_EQUAL("<sip:foo@bar>;tag=ORIG-TAG", sipmsg.getHeaderValue(0, "from"));
+
+            CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("x-original-from"));
+            ASSERT_STR_EQUAL("Sip Send <sip:sender@example.org>; tag=ORIG-TAG",
+                             sipmsg.getHeaderValue(0, "x-original-from"));
+            
+            ASSERT_STR_EQUAL("INVITE sip:sipx.local SIP/2.0", sipmsg.getFirstHeaderLine());
+         }
+
+         {
+            // add a From header with a tag - the tag should be ignored
+            const char* rawmsg =
+               "INVITE sip:sipx.local?from=sip%3Afoo%40bar%3Btag%3DBAD-TAG SIP/2.0\r\n"
+               "To: sip:sipx.local\r\n"
+               "From: Sip Send <sip:sender@example.org>; tag=ORIG-TAG\r\n"
+               "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+               "Cseq: 1 INVITE\r\n"
+               "Max-Forwards: 20\r\n"
+               "Contact: me@127.0.0.1\r\n"
+               "Content-Length: 0\r\n"
+               "\r\n";
+
+            SipMessage sipmsg(rawmsg, strlen(rawmsg));
+            sipmsg.applyTargetUriHeaderParams();
+
+            // sipmsg.getBytes(&dumpStr, &dumpLength);
+            // printf( "\nMSG BEFORE:\n%s\nAFTER:\n%s\n", rawmsg, dumpStr.data());
+         
+            CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("from"));
+            ASSERT_STR_EQUAL("<sip:foo@bar>;tag=ORIG-TAG", sipmsg.getHeaderValue(0, "from"));
+
+            CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("x-original-from"));
+            ASSERT_STR_EQUAL("Sip Send <sip:sender@example.org>; tag=ORIG-TAG",
+                             sipmsg.getHeaderValue(0, "x-original-from"));
+            
+            ASSERT_STR_EQUAL("INVITE sip:sipx.local SIP/2.0", sipmsg.getFirstHeaderLine());
+         }
+
+
+         {
+            // try to add two From headers
+            //   this should work, but the second one should overwrite the first
+            //   and there will be 2 x-original-from headers (odd, but ok)
+            const char* rawmsg =
+               "INVITE sip:sipx.local?from=sip%3Afoo%40bar&from=sip%3Asecond%40try SIP/2.0\r\n"
+               "To: sip:sipx.local\r\n"
+               "From: Sip Send <sip:sender@example.org>; tag=ORIG-TAG\r\n"
+               "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+               "Cseq: 1 INVITE\r\n"
+               "Max-Forwards: 20\r\n"
+               "Contact: me@127.0.0.1\r\n"
+               "Content-Length: 0\r\n"
+               "\r\n";
+
+            SipMessage sipmsg(rawmsg, strlen(rawmsg));
+            sipmsg.applyTargetUriHeaderParams();
+
+            // sipmsg.getBytes(&dumpStr, &dumpLength);
+            // printf( "\nMSG BEFORE:\n%s\nAFTER:\n%s\n", rawmsg, dumpStr.data());
+         
+            CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("from"));
+            ASSERT_STR_EQUAL("<sip:second@try>;tag=ORIG-TAG", sipmsg.getHeaderValue(0, "from"));
+
+            CPPUNIT_ASSERT_EQUAL(2, sipmsg.getCountHeaderFields("x-original-from"));
+            ASSERT_STR_EQUAL("Sip Send <sip:sender@example.org>; tag=ORIG-TAG",
+                             sipmsg.getHeaderValue(0, "x-original-from"));
+            ASSERT_STR_EQUAL("<sip:foo@bar>;tag=ORIG-TAG",
+                             sipmsg.getHeaderValue(1, "x-original-from"));
+            
+            ASSERT_STR_EQUAL("INVITE sip:sipx.local SIP/2.0", sipmsg.getFirstHeaderLine());
+         }
+
+#        if 0
+         // these next two are broken because of un-escaping problems...
+         {
+            // try to add a From header with a display name
+            const char* rawmsg =
+               "INVITE sip:sipx.local?from=%22Foo+Bar%22+sip%3Afoo%40bar SIP/2.0\r\n"
+               "To: sip:sipx.local\r\n"
+               "From: Sip Send <sip:sender@example.org>; tag=ORIG-TAG\r\n"
+               "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+               "Cseq: 1 INVITE\r\n"
+               "Max-Forwards: 20\r\n"
+               "Contact: me@127.0.0.1\r\n"
+               "Content-Length: 0\r\n"
+               "\r\n";
+
+            SipMessage sipmsg(rawmsg, strlen(rawmsg));
+            sipmsg.applyTargetUriHeaderParams();
+
+            sipmsg.getBytes(&dumpStr, &dumpLength);
+            printf( "\nMSG BEFORE:\n%s\nAFTER:\n%s\n", rawmsg, dumpStr.data());
+         
+            CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("from"));
+            ASSERT_STR_EQUAL("Foo Bar<sip:foo@bar>;tag=ORIG-TAG", sipmsg.getHeaderValue(0, "from"));
+
+            CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("x-original-from"));
+            ASSERT_STR_EQUAL("From: Sip Send <sip:sender@example.org>; tag=ORIG-TAG",
+                             sipmsg.getHeaderValue(0, "x-original-from"));
+            
+            ASSERT_STR_EQUAL("INVITE sip:sipx.local SIP/2.0", sipmsg.getFirstHeaderLine());
+         }
+
+         {
+            // try to add a From header with a display name
+            const char* rawmsg =
+               "INVITE sip:sipx.local?from=Foo+Bar+%3Csip%3Afoo%40bar%3A SIP/2.0\r\n"
+               "To: sip:sipx.local\r\n"
+               "From: Sip Send <sip:sender@example.org>; tag=ORIG-TAG\r\n"
+               "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+               "Cseq: 1 INVITE\r\n"
+               "Max-Forwards: 20\r\n"
+               "Contact: me@127.0.0.1\r\n"
+               "Content-Length: 0\r\n"
+               "\r\n";
+
+            SipMessage sipmsg(rawmsg, strlen(rawmsg));
+            sipmsg.applyTargetUriHeaderParams();
+
+            sipmsg.getBytes(&dumpStr, &dumpLength);
+            printf( "\nMSG BEFORE:\n%s\nAFTER:\n%s\n", rawmsg, dumpStr.data());
+         
+            CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("from"));
+            ASSERT_STR_EQUAL("Foo Bar<sip:foo@bar>;tag=ORIG-TAG", sipmsg.getHeaderValue(0, "from"));
+
+            CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("x-original-from"));
+            ASSERT_STR_EQUAL("From: Sip Send <sip:sender@example.org>; tag=ORIG-TAG",
+                             sipmsg.getHeaderValue(0, "x-original-from"));
+            
+            ASSERT_STR_EQUAL("INVITE sip:sipx.local SIP/2.0", sipmsg.getFirstHeaderLine());
+         }
+#        endif
+
+         {
+            // try to add a Route header
+            const char* rawmsg =
+               "INVITE sip:sipx.local?route=%3Csip%3Afoo%40bar%3Blr%3E SIP/2.0\r\n"
+               "To: sip:sipx.local\r\n"
+               "From: Sip Send <sip:sender@example.org>; tag=ORIG-TAG\r\n"
+               "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+               "Cseq: 1 INVITE\r\n"
+               "Max-Forwards: 20\r\n"
+               "Contact: me@127.0.0.1\r\n"
+               "Content-Length: 0\r\n"
+               "\r\n";
+
+            SipMessage sipmsg(rawmsg, strlen(rawmsg));
+            sipmsg.applyTargetUriHeaderParams();
+
+            // sipmsg.getBytes(&dumpStr, &dumpLength);
+            // printf( "\nMSG BEFORE:\n%s\nAFTER:\n%s\n", rawmsg, dumpStr.data());
+         
+            CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("route"));
+            ASSERT_STR_EQUAL("<sip:foo@bar;lr>", sipmsg.getHeaderValue(0, "route"));
+            ASSERT_STR_EQUAL("INVITE sip:sipx.local SIP/2.0", sipmsg.getFirstHeaderLine());
+         }
+
+         {
+            // try to add a Route header when there is already one present
+            const char* rawmsg =
+               "INVITE sip:sipx.local?route=%3Csip%3Afoo%40bar%3Blr%3E SIP/2.0\r\n"
+               "Route: <sip:original@route;lr>\r\n"
+               "To: sip:sipx.local\r\n"
+               "From: Sip Send <sip:sender@example.org>; tag=ORIG-TAG\r\n"
+               "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+               "Cseq: 1 INVITE\r\n"
+               "Max-Forwards: 20\r\n"
+               "Contact: me@127.0.0.1\r\n"
+               "Content-Length: 0\r\n"
+               "\r\n";
+
+            SipMessage sipmsg(rawmsg, strlen(rawmsg));
+            sipmsg.applyTargetUriHeaderParams();
+
+            // sipmsg.getBytes(&dumpStr, &dumpLength);
+            // printf( "\nMSG BEFORE:\n%s\nAFTER:\n%s\n", rawmsg, dumpStr.data());
+         
+            CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("route"));
+            ASSERT_STR_EQUAL("<sip:foo@bar;lr>,<sip:original@route;lr>", sipmsg.getHeaderValue(0, "route"));
+            ASSERT_STR_EQUAL("INVITE sip:sipx.local SIP/2.0", sipmsg.getFirstHeaderLine());
+         }
+      }
 
    void testCompactNames()
       {
