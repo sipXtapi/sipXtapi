@@ -1429,6 +1429,13 @@ UtlBoolean Url::isUserHostPortEqual(const Url &url) const
            && ( checkPort == port ));
 }
 
+UtlBoolean Url::isUserHostEqual(const Url &url) const
+{
+   
+   return (   mHostAddress.compareTo(url.mHostAddress.data(), UtlString::ignoreCase) == 0
+           && mUserId.compareTo(url.mUserId.data()) == 0);
+}
+
 
 void Url::getIdentity(UtlString &identity) const
 {

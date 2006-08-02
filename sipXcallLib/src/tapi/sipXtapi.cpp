@@ -1747,6 +1747,30 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetConnectionId(const SIPX_CALL hCall,
     return sr;
 }                                                 
 
+SIPXTAPI_API SIPX_RESULT sipxCallGetConference(const SIPX_CALL hCall,
+                                               SIPX_CONF&      hConf) 
+{
+    OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallGetConference");
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "sipxCallGetConference hCall=%d", hCall);
+
+    SIPX_RESULT sr = SIPX_RESULT_INVALID_ARGS ;
+    if (hCall != SIPX_CALL_NULL)
+    {
+        hConf = sipxCallGetConf(hCall) ;
+        if (hConf != SIPX_CONF_NULL)
+        {
+            sr = SIPX_RESULT_SUCCESS ;
+        }
+        else
+        {
+            sr = SIPX_RESULT_FAILURE ;
+        }
+    }
+
+    return sr ;
+}
+
 SIPXTAPI_API SIPX_RESULT sipxCallGetRequestURI(const SIPX_CALL hCall,
                                                char* szUri,
                                                const size_t iMaxLength)
@@ -3825,6 +3849,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceGetCalls(const SIPX_CONF hConf,
         hConf);
 
     SIPX_RESULT rc = SIPX_RESULT_INVALID_ARGS ;
+    nActual = 0 ;
 
     if (hConf && iMax)
     {
@@ -4033,10 +4058,13 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceDestroy(SIPX_CONF hConf)
             // Get a snapshot of the calls, drop the connections, remove the conf handle,
             // and THEN whack the call -- otherwise whacking the calls will force updates
             // into SIPX_CONF_DATA structure (work that isn't needed).
-            sipxConferenceGetCalls(hConf, hCalls, CONF_MAX_CONNECTIONS, nCalls) ;
-            for (size_t idx=0; idx<nCalls; idx++)
+            if (sipxConferenceGetCalls(hConf, hCalls, CONF_MAX_CONNECTIONS, 
+                    nCalls) == SIPX_RESULT_SUCCESS)
             {
-                sipxConferenceRemove(hConf, hCalls[idx]) ;
+                for (size_t idx=0; idx<nCalls; idx++)
+                {
+                    sipxConferenceRemove(hConf, hCalls[idx]) ;
+                }
             }
 
             sipxConfFree(hConf) ;
@@ -5161,6 +5189,7 @@ SIPXTAPI_API SIPX_RESULT sipxLineAdd(const SIPX_INST hInst,
                 SIPX_LINE_DATA* pData = createLineData(pInst, uri) ;
                 if (pData != NULL)
                 {
+                    pData->contactId = contactId ;
                     pData->contactType = (SIPX_CONTACT_TYPE) contactType ;
                     *phLine = gpLineHandleMap->allocHandle(pData) ;
                     sr = SIPX_RESULT_SUCCESS ;
@@ -5431,6 +5460,50 @@ SIPXTAPI_API SIPX_RESULT sipxLineGetURI(const SIPX_LINE hLine,
 
     return sr ;
 }
+
+SIPXTAPI_API SIPX_RESULT sipxLineGetContactId(const SIPX_LINE  hLine,
+                                              SIPX_CONTACT_ID& contactId)
+{
+    OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxLineGetContactId");
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO, 
+            "sipxLineGetContactId hLine=%d", hLine);
+        
+    SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
+    SIPX_LINE_DATA* pData = sipxLineLookup(hLine, SIPX_LOCK_READ, stackLogger) ;
+    if (pData)
+    {
+        contactId = pData->contactId ;
+        sr = SIPX_RESULT_SUCCESS ;
+
+        sipxLineReleaseLock(pData, SIPX_LOCK_READ, stackLogger) ;
+    }  
+
+    return sr ;
+}
+
+
+SIPXTAPI_API SIPX_RESULT sipxLineFindByURI(const SIPX_INST hInst,
+                                           const char* szURI,
+                                           SIPX_LINE&  hLine) 
+{
+    OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxLineFindByURI");
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+            "sipxLineFindByURI hInst=%p szURI=%s", hInst, szURI);
+        
+    SIPX_RESULT sr = SIPX_RESULT_INVALID_ARGS ;
+
+    if (hInst && szURI)
+    {
+        hLine = sipxLineLookupHandleByURI(szURI) ;
+        if (hLine != SIPX_LINE_NULL)
+            sr = SIPX_RESULT_SUCCESS ;
+        else
+            sr = SIPX_RESULT_FAILURE ;
+    }
+
+    return sr ;
+}
+
 
 
 SIPXTAPI_API SIPX_RESULT sipxConfigSetLogLevel(SIPX_LOG_LEVEL logLevel) 
@@ -7800,3 +7873,85 @@ SIPXTAPI_API SIPX_RESULT sipxConfigEnableRtpOverTcp(const SIPX_INST hInst,
     
     return rc;        
 }                                                   
+
+
+/**
+ * Simple utility function to parse the username, host, and port from
+ * a URL.  All url, field, and header parameters are ignored.  You may also 
+ * specify NULL for any parameters (except szUrl) which are not needed.  
+ * Lastly, the caller must allocate enough storage space for each url
+ * component -- if in doubt use the length of the supplied szUrl.
+ */
+SIPXTAPI_API SIPX_RESULT sipxUtilUrlParse(const char* szUrl,
+                                          char* szUsername,
+                                          char* szHostname,
+                                          int*  iPort) 
+{
+    SIPX_RESULT rc = SIPX_RESULT_FAILURE;    
+
+    if (szUrl && strlen(szUrl))
+    {
+        Url url(szUrl) ;
+        UtlString temp ;
+
+        if (szUsername)
+        {
+            url.getUserId(temp) ;
+            strcpy(szUsername, temp) ;
+        }
+        if (szHostname)
+        {
+            url.getHostAddress(temp) ;
+            strcpy(szUsername, temp) ;
+        }
+        if (iPort)
+        {
+            *iPort = url.getHostPort() ;
+        }
+
+        rc = SIPX_RESULT_SUCCESS ;        
+    }
+
+    return rc ;
+}
+
+
+/**
+ * Simple utility function to update a URL.  If the szUrl isn't large enough,
+ * this function will fail.  Specify a NULL szUrl to request required length.
+ * To leave an existing component unchanged, use NULL for strings and -1 for 
+ * ports.
+ */
+SIPXTAPI_API SIPX_RESULT sipxUtilUrlUpdate(char*       szUrl,
+                                           size_t &    nUrl,
+                                           const char* szNewUsername,
+                                           const char* szNewHostname,
+                                           const int   iNewPort) 
+{
+    SIPX_RESULT rc = SIPX_RESULT_FAILURE ;    
+    UtlString   results ;
+
+    if (szUrl)
+    {
+        
+        Url         url(szUrl) ;
+        
+        if (szNewUsername)
+            url.setUserId(szNewUsername) ;
+        if (szNewHostname)
+            url.setHostAddress(szNewHostname) ;
+        if (iNewPort != -1)
+            url.setHostPort(iNewPort) ;
+        
+        url.toString(results) ;
+
+        if (szUrl && results.length() < nUrl) 
+        {
+            strcpy(szUrl, results) ;
+            rc = SIPX_RESULT_SUCCESS ;
+        }        
+    }
+    nUrl = results.length() + 1 ;
+
+    return rc ;
+}

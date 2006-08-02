@@ -426,6 +426,13 @@ public:
     */
    UtlBoolean isUserHostPortEqual(const Url& uri) const ;
 
+   /// Compare two URLs to see if the have the same user and host
+   /* Assumes that host is \a not case sensative, but that user id 
+    * \a is case sensative.
+    * \return TRUE if the user Id and host are the same
+    */   
+   UtlBoolean isUserHostEqual(const Url& uri) const ;
+
    /// Are angle brackets explicitly included
    UtlBoolean isIncludeAngleBracketsSet() const ;
    /**<

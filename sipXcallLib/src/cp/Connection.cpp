@@ -180,7 +180,8 @@ void Connection::prepareForSplit()
 {
     if ((mpMediaInterface) && (mConnectionId != -1))
     {
-        mpMediaInterface->deleteConnection(mConnectionId) ;
+        mpMediaInterface->removeToneListener(mConnectionId);
+        mpMediaInterface->deleteConnection(mConnectionId) ;		
     }
 
     mpCall = NULL ;

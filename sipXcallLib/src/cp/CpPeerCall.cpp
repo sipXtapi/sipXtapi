@@ -542,6 +542,7 @@ UtlBoolean CpPeerCall::handleTransfereeConnection(OsMsg* pEventMessage)
     ((CpMultiStringMessage*)pEventMessage)->getString4Data(originalCallId);
     ((CpMultiStringMessage*)pEventMessage)->getString5Data(originalConnectionAddress);
     bool bOnHold = (bool) ((CpMultiStringMessage*)pEventMessage)->getInt1Data() ;
+    int contactId = ((CpMultiStringMessage*)pEventMessage)->getInt2Data() ;
 
 #ifdef TEST_PRINT
     osPrintf("%s-CpPeerCall::CP_TRANSFEREE_CONNECTION referTo: %s referredBy: \"%s\" originalCallId: %s originalConnectionAddress: %s\n",
@@ -570,7 +571,7 @@ UtlBoolean CpPeerCall::handleTransfereeConnection(OsMsg* pEventMessage)
 #ifdef TEST_PRINT
             osPrintf("%s-CpPeerCall:CP_TRANSFEREE_CONNECTION creating connection via addParty\n", mName.data());
 #endif
-            addParty(referTo, referredBy, originalConnectionAddress, NULL, 0, 
+            addParty(referTo, referredBy, originalConnectionAddress, NULL, contactId, 
                     NULL, NULL, FALSE, AUDIO_CODEC_BW_DEFAULT, bOnHold, originalCallId);
             // Note: The connection is added to the call in addParty
         }
@@ -4109,12 +4110,6 @@ void CpPeerCall::addConnection(Connection* connection)
 	OsWriteLock lock(mConnectionMutex);
     mConnections.append(connection);
     addTaoListenerToConnection(connection);
-
-	if (mpMediaInterface)
-	{
-		mpMediaInterface->addToneListener(connection->getDtmfQueuedEvent(), 
-				connection->getConnectionId());
-	}
 }
 
 // Assumed lock is head externally

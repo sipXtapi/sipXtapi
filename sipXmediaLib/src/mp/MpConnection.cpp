@@ -315,12 +315,18 @@ void MpConnection::startReceiveRtp(SdpCodec* pCodecs[], int numCodecs,
                                        OsSocket& rRtpSocket,
                                        OsSocket& rRtcpSocket)
 {
-   mpDecode->selectCodecs(pCodecs, numCodecs);
+   if (numCodecs)
+   {
+       mpDecode->selectCodecs(pCodecs, numCodecs);       
+   }
    mpFlowGraph->synchronize();
    mpFromNet->setSockets(rRtpSocket, rRtcpSocket);
    mInRtpStarted = TRUE;
    mpFlowGraph->synchronize();
-   mpDecode->enable();
+   if (numCodecs)
+   {
+       mpDecode->enable();
+   }
 }
 
 // Stop receiving RTP and RTCP packets.
