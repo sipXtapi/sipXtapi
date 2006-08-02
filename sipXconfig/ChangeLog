@@ -3,6 +3,20 @@ SIPfoundry Issue Tracker at:
 
         http://track.sipfoundry.org/browse?XCF
 
+Version 3.5.3
+
+** Bug
+    * [XCF-1134] - cannot add external lines to Cisco ATA phone
+
+** New Feature
+    * [XCF-1115] - Add configuration support for Polycom SoundPoint IP430 phones
+    * [XCF-1116] - Add configuration support for Polycom 2.0 firmware
+    * [XCF-1119] - dynamically discover phone and gateway plugins
+
+** Improvement
+    * [XCF-1100] - Improve Implementation of Gateways
+
+	
 Version 3.5.2
 
 ** Bug
