@@ -29,30 +29,58 @@ public class PolycomIntercomDefaultsTest extends TestCase {
     public void testGetAlertInfoValue() {
         assertNull(m_noItercomDefaults.getAlertInfoValue());
         Intercom intercom = new Intercom();
-        intercom.setCode("abc");
+        intercom.setEnabled(true);
         PolycomIntercomDefaults defaults = new PolycomIntercomDefaultsDummy(intercom);
+        intercom.setCode("abc");
         assertEquals("abc", defaults.getAlertInfoValue());
     }
-
+    
+    public void testGetAlertInfoValueDisabled() {
+        Intercom intercom = new Intercom();
+        PolycomIntercomDefaults defaults = new PolycomIntercomDefaultsDummy(intercom);
+        intercom.setCode("abc");
+        assertNull(defaults.getAlertInfoValue());
+    }
+    
     public void testGetAlertInfoClass() {
         assertEquals(PolycomIntercomDefaults.DEFAULT_RING_CLASS, m_noItercomDefaults
                 .getAlertInfoClass());
         Intercom intercom = new Intercom();
-        intercom.setTimeout(0);
+        intercom.setEnabled(true);
         PolycomIntercomDefaults defaults = new PolycomIntercomDefaultsDummy(intercom);
+        intercom.setTimeout(0);
         assertEquals(PolycomIntercomDefaults.AUTO_ANSWER_RING_CLASS, defaults.getAlertInfoClass());
         intercom.setTimeout(1000);
         assertEquals(PolycomIntercomDefaults.RING_ANSWER_RING_CLASS, defaults.getAlertInfoClass());
     }
 
+    public void testGetAlertInfoClassDisabled() {
+        Intercom intercom = new Intercom();
+        PolycomIntercomDefaults defaults = new PolycomIntercomDefaultsDummy(intercom);
+        intercom.setTimeout(0);
+        assertEquals(PolycomIntercomDefaults.DEFAULT_RING_CLASS, defaults.getAlertInfoClass());
+        intercom.setTimeout(1000);
+        assertEquals(PolycomIntercomDefaults.DEFAULT_RING_CLASS, defaults.getAlertInfoClass());
+    }
+    
     public void testGetRingAnswerTimeout() {
         assertEquals(2000, m_noItercomDefaults.getRingAnswerTimeout());
+        Intercom intercom = new Intercom();
+        intercom.setEnabled(true);
+        PolycomIntercomDefaults defaults = new PolycomIntercomDefaultsDummy(intercom);
+        intercom.setTimeout(0);
+        assertEquals(2000, defaults.getRingAnswerTimeout());
+        intercom.setTimeout(1000);
+        assertEquals(1000, defaults.getRingAnswerTimeout());
+    }
+
+    public void testGetRingAnswerTimeoutDisabled() {
         Intercom intercom = new Intercom();
         intercom.setTimeout(0);
         PolycomIntercomDefaults defaults = new PolycomIntercomDefaultsDummy(intercom);
         assertEquals(2000, defaults.getRingAnswerTimeout());
         intercom.setTimeout(1000);
-        assertEquals(1000, defaults.getRingAnswerTimeout());
+        assertEquals(2000, defaults.getRingAnswerTimeout());
     }
 
     public static class PolycomIntercomDefaultsDummy extends PolycomIntercomDefaults {

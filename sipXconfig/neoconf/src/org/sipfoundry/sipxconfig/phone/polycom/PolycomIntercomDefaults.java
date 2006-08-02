@@ -44,7 +44,7 @@ public class PolycomIntercomDefaults {
     @SettingEntry(path = "voIpProt.SIP/alertInfo/1/value")
     public String getAlertInfoValue() {
         Intercom intercom = getIntercom();
-        if (intercom == null) {
+        if (intercom == null || !intercom.isEnabled()) {
             return null;
         }
         return intercom.getCode();
@@ -53,7 +53,7 @@ public class PolycomIntercomDefaults {
     @SettingEntry(path = "voIpProt.SIP/alertInfo/1/class")
     public int getAlertInfoClass() {
         Intercom intercom = getIntercom();
-        if (intercom == null) {
+        if (intercom == null || !intercom.isEnabled()) {
             return DEFAULT_RING_CLASS;
         }
         // If the timeout is zero, then auto-answer. Otherwise ring for
@@ -65,7 +65,7 @@ public class PolycomIntercomDefaults {
     @SettingEntry(path = "se/ringType/RING_ANSWER/timeout")
     public int getRingAnswerTimeout() {
         Intercom intercom = getIntercom();
-        if (intercom == null || intercom.getTimeout() <= 0) {
+        if (intercom == null || !intercom.isEnabled() || intercom.getTimeout() <= 0) {
             return DEFAULT_TIMEOUT;
         }
         return intercom.getTimeout();

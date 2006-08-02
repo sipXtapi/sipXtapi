@@ -14,5 +14,5 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 import java.util.List;
 
 public interface DialingRuleProvider {
-    public List<IDialingRule> getDialingRules();
+    public List<DialingRule> getDialingRules();
 }

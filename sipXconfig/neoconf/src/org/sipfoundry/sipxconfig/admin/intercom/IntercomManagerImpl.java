@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.IntercomRule;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -88,11 +88,11 @@ public class IntercomManagerImpl extends SipxHibernateDaoSupport implements Inte
     }
 
     /** Return a list of dialing rules, one for each intercom configuration */
-    public List<IDialingRule> getDialingRules() {
+    public List<DialingRule> getDialingRules() {
         List<Intercom> intercoms = loadIntercoms();
-        List<IDialingRule> rules = new ArrayList<IDialingRule>(intercoms.size());
+        List<DialingRule> rules = new ArrayList<DialingRule>(intercoms.size());
         for (Intercom intercom : intercoms) {
-            IDialingRule rule = new IntercomRule(intercom);
+            DialingRule rule = new IntercomRule(intercom);
             rules.add(rule);
         }
         return rules;

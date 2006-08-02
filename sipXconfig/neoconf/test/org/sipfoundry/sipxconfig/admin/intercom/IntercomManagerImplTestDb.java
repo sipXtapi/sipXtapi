@@ -15,7 +15,7 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -135,7 +135,7 @@ public class IntercomManagerImplTestDb extends SipxDatabaseTestCase {
 
     public void testGetRules() throws Exception {
         TestHelper.insertFlat("admin/intercom/SampleIntercoms.xml");
-        List<IDialingRule> rules = m_intercomManager.getDialingRules();
+        List<DialingRule> rules = m_intercomManager.getDialingRules();
         assertEquals(2, rules.size());
     }
 

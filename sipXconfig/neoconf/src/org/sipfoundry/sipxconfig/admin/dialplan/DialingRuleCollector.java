@@ -24,25 +24,26 @@ import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.ListableBeanFactory;
 
 public class DialingRuleCollector implements DialingRuleProvider, BeanFactoryAware {
-    private Collection m_dialingRuleProviders;
+    private Collection<DialingRuleProvider> m_dialingRuleProviders;
     private ListableBeanFactory m_beanFactory;
-    
-    public List<IDialingRule> getDialingRules() {
-        Collection dialingRuleProviders = getDialingRuleProviders();
-        List<IDialingRule> dialingRules = new ArrayList<IDialingRule>();
-        for (Iterator i = dialingRuleProviders.iterator(); i.hasNext();) {
-            DialingRuleProvider provider = (DialingRuleProvider) i.next();
-            dialingRules.addAll(provider.getDialingRules());
-        }
 
+    public List<DialingRule> getDialingRules() {
+        List<DialingRule> dialingRules = new ArrayList<DialingRule>();
+        Collection<DialingRuleProvider> dialingRuleProviders = getDialingRuleProviders();
+        for (DialingRuleProvider provider : dialingRuleProviders) {
+            for (DialingRule rule : provider.getDialingRules()) {
+                rule.appendToGenerationRules(dialingRules);
+            }
+        }
         return dialingRules;
     }
-    
+
     /**
      * Lazily creates the collection of beans that implement the DialingRuleProvider interface
+     * 
      * @return cached or newly created listener collection
      */
-    protected Collection getDialingRuleProviders() {
+    protected Collection<DialingRuleProvider> getDialingRuleProviders() {
         if (m_dialingRuleProviders == null) {
             if (m_beanFactory == null) {
                 throw new BeanInitializationException(getClass().getName() + " not initialized");
