@@ -50,3 +50,11 @@ regression_SOURCES = \
     mp/MyStreamQueueHistoryKeeper.cpp
 
 DISTCLEANFILES = Makefile.in
+
+# [DEBUG ASSISTANT] List a single unittest to isolate a unittest for
+# debugging or when developing a new unittest. As courtesy remove all
+# unittests before checking in, although forgetting to has no ill
+# effects.
+sandbox_LDADD = $(testsuite_LDADD)
+sandbox_CXXFLAGS = $(testsuite_CXXFLAGS)
+sandbox_SOURCES = 
