@@ -41,7 +41,7 @@
       
         <alertInfo 
         voIpProt.SIP.alertInfo.1.value="" 
-        voIpProt.SIP.alertInfo.1.class="1"/>
+        voIpProt.SIP.alertInfo.1.class=""/>
       
         <requestValidation 
         voIpProt.SIP.requestValidation.1.request="" 

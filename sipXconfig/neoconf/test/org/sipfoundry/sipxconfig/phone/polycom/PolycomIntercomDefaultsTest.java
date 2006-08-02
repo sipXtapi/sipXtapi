@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.admin.intercom.Intercom;
+import org.sipfoundry.sipxconfig.setting.BeanValueStorage;
 
 public class PolycomIntercomDefaultsTest extends TestCase {
     private PolycomIntercomDefaultsDummy m_noItercomDefaults;
@@ -27,24 +28,35 @@ public class PolycomIntercomDefaultsTest extends TestCase {
     }
 
     public void testGetAlertInfoValue() {
-        assertNull(m_noItercomDefaults.getAlertInfoValue());
         Intercom intercom = new Intercom();
         intercom.setEnabled(true);
         PolycomIntercomDefaults defaults = new PolycomIntercomDefaultsDummy(intercom);
         intercom.setCode("abc");
         assertEquals("abc", defaults.getAlertInfoValue());
     }
-    
+
+    public void testGetAlertInfoValueNoIntercom() {
+        try {
+            m_noItercomDefaults.getAlertInfoValue();
+            fail("exception expected");
+        } catch (BeanValueStorage.NoValueException e) {
+            // ok
+        }
+    }
+
     public void testGetAlertInfoValueDisabled() {
         Intercom intercom = new Intercom();
         PolycomIntercomDefaults defaults = new PolycomIntercomDefaultsDummy(intercom);
         intercom.setCode("abc");
-        assertNull(defaults.getAlertInfoValue());
+        try {
+            defaults.getAlertInfoValue();
+            fail("exception expected");
+        } catch (BeanValueStorage.NoValueException e) {
+            // ok
+        }
     }
-    
+
     public void testGetAlertInfoClass() {
-        assertEquals(PolycomIntercomDefaults.DEFAULT_RING_CLASS, m_noItercomDefaults
-                .getAlertInfoClass());
         Intercom intercom = new Intercom();
         intercom.setEnabled(true);
         PolycomIntercomDefaults defaults = new PolycomIntercomDefaultsDummy(intercom);
@@ -54,33 +66,75 @@ public class PolycomIntercomDefaultsTest extends TestCase {
         assertEquals(PolycomIntercomDefaults.RING_ANSWER_RING_CLASS, defaults.getAlertInfoClass());
     }
 
+    public void testGetAlertInfoClassNoIntercom() {
+        try {
+            m_noItercomDefaults.getAlertInfoClass();
+            fail("exception expected");
+        } catch (BeanValueStorage.NoValueException e) {
+            // ok
+        }
+    }
+
     public void testGetAlertInfoClassDisabled() {
         Intercom intercom = new Intercom();
         PolycomIntercomDefaults defaults = new PolycomIntercomDefaultsDummy(intercom);
         intercom.setTimeout(0);
-        assertEquals(PolycomIntercomDefaults.DEFAULT_RING_CLASS, defaults.getAlertInfoClass());
+        try {
+            defaults.getAlertInfoClass();
+            fail("exception expected");
+        } catch (BeanValueStorage.NoValueException e) {
+            // ok
+        }
         intercom.setTimeout(1000);
-        assertEquals(PolycomIntercomDefaults.DEFAULT_RING_CLASS, defaults.getAlertInfoClass());
+        try {
+            defaults.getAlertInfoClass();
+            fail("exception expected");
+        } catch (BeanValueStorage.NoValueException e) {
+            // ok
+        }
     }
-    
+
     public void testGetRingAnswerTimeout() {
-        assertEquals(2000, m_noItercomDefaults.getRingAnswerTimeout());
         Intercom intercom = new Intercom();
         intercom.setEnabled(true);
         PolycomIntercomDefaults defaults = new PolycomIntercomDefaultsDummy(intercom);
         intercom.setTimeout(0);
-        assertEquals(2000, defaults.getRingAnswerTimeout());
+        try {
+            defaults.getRingAnswerTimeout();
+            fail("exception expected");
+        } catch (BeanValueStorage.NoValueException e) {
+            // ok
+        }
         intercom.setTimeout(1000);
         assertEquals(1000, defaults.getRingAnswerTimeout());
+    }
+
+    public void testGetRingAnswerTimeoutNoIntercom() {
+        try {
+            m_noItercomDefaults.getRingAnswerTimeout();
+            fail("exception expected");
+        } catch (BeanValueStorage.NoValueException e) {
+            // ok
+        }
     }
 
     public void testGetRingAnswerTimeoutDisabled() {
         Intercom intercom = new Intercom();
         intercom.setTimeout(0);
         PolycomIntercomDefaults defaults = new PolycomIntercomDefaultsDummy(intercom);
-        assertEquals(2000, defaults.getRingAnswerTimeout());
+        try {
+            defaults.getRingAnswerTimeout();
+            fail("exception expected");
+        } catch (BeanValueStorage.NoValueException e) {
+            // ok
+        }
         intercom.setTimeout(1000);
-        assertEquals(2000, defaults.getRingAnswerTimeout());
+        try {
+            defaults.getRingAnswerTimeout();
+            fail("exception expected");
+        } catch (BeanValueStorage.NoValueException e) {
+            // ok
+        }
     }
 
     public static class PolycomIntercomDefaultsDummy extends PolycomIntercomDefaults {

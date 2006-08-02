@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 import org.sipfoundry.sipxconfig.admin.intercom.Intercom;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.setting.BeanValueStorage;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 /**
@@ -30,10 +31,8 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
  * 
  */
 public class PolycomIntercomDefaults {
-    static final int DEFAULT_RING_CLASS = 1;
     static final int AUTO_ANSWER_RING_CLASS = 3;
     static final int RING_ANSWER_RING_CLASS = 4;
-    static final int DEFAULT_TIMEOUT = 2000;
 
     private Phone m_phone;
 
@@ -45,7 +44,7 @@ public class PolycomIntercomDefaults {
     public String getAlertInfoValue() {
         Intercom intercom = getIntercom();
         if (intercom == null || !intercom.isEnabled()) {
-            return null;
+            throw new BeanValueStorage.NoValueException();
         }
         return intercom.getCode();
     }
@@ -54,7 +53,7 @@ public class PolycomIntercomDefaults {
     public int getAlertInfoClass() {
         Intercom intercom = getIntercom();
         if (intercom == null || !intercom.isEnabled()) {
-            return DEFAULT_RING_CLASS;
+            throw new BeanValueStorage.NoValueException();
         }
         // If the timeout is zero, then auto-answer. Otherwise ring for
         // the specified timeout before auto-answering.
@@ -66,7 +65,7 @@ public class PolycomIntercomDefaults {
     public int getRingAnswerTimeout() {
         Intercom intercom = getIntercom();
         if (intercom == null || !intercom.isEnabled() || intercom.getTimeout() <= 0) {
-            return DEFAULT_TIMEOUT;
+            throw new BeanValueStorage.NoValueException();
         }
         return intercom.getTimeout();
     }
