@@ -64,11 +64,7 @@ public abstract class IntercomPage extends BasePage implements PageBeginRenderLi
 
         // Initialize the groups string
         if (getGroupsString() == null) {
-            List groups = intercom.getGroupsAsList();
-            if (groups != null && groups.size() > 0) {
-                String groupsString = getSettingDao().getGroupsAsString(groups);
-                setGroupsString(groupsString);
-            }
+            setGroupsString(intercom.getGroupsNames());
         }
 
         // Create a random code if no code has been set

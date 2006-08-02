@@ -1612,9 +1612,12 @@
 			<VISUAL_ONLY se.rt.2.name="Visual" se.rt.2.type="visual"/>
 			<!-- Ring classes 3 and 4 are used by the Intercom feature -->
 			<AUTO_ANSWER se.rt.3.name="Auto Answer" se.rt.3.type="answer"/>
+#set ($ringAnswer = $cfg.EndpointSettings.getSetting('se/ringType/RING_ANSWER'))			
 			<RING_ANSWER se.rt.4.name="Ring Answer" se.rt.4.type="ring-answer" 
-				se.rt.4.timeout="2000" se.rt.4.ringer="2" se.rt.4.callWait="6" 
-				se.rt.4.mod="1"/>
+				se.rt.4.timeout="$!{ringAnswer.getSetting('timeout').Value}" 
+				se.rt.4.ringer="$!{ringAnswer.getSetting('ringer').Value}" 
+				se.rt.4.callWait="$!{ringAnswer.getSetting('callWait').Value}" 
+				se.rt.4.mod="$!{ringAnswer.getSetting('mod').Value}"/>
 			<INTERNAL se.rt.5.name="Internal" se.rt.5.type="ring" 
 				se.rt.5.ringer="2" se.rt.5.callWait="6" se.rt.5.mod="1"/>
 			<EXTERNAL se.rt.6.name="External" se.rt.6.type="ring" 

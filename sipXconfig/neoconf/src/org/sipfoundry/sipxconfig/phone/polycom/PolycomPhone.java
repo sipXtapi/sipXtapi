@@ -25,7 +25,6 @@ import org.dom4j.DocumentException;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
-import org.sipfoundry.sipxconfig.admin.intercom.Intercom;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
@@ -33,7 +32,6 @@ import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 /**
@@ -425,54 +423,6 @@ public class PolycomPhone extends Phone {
                 return m_line.getPhoneContext().getPhoneDefaults().getDomainName();
             }
             return null;
-        }
-    }
-    
-    public static class PolycomIntercomDefaults {
-        // Polycom allows many ring configurations to be set up using settings named
-        // volpProt.SIP.alertInfo.x.value where x = 1, 2, ... n.  For now x = 1, always,
-        // because we only provide a single ring configuration.
-        // Similarly there can be many ring classes.  We rely on the default ring classes
-        // defined in sip-1.6.cfg.vm and sip-2.0.cfg.vm rather than creating new ones.
-        // See sections 4.6.1.1.3.2 "Alert Information <alertInfo/>" and
-        // 4.6.1.7.2 "Ring type <ringType/>" in the Polycom admin manual.
-        private static final int DEFAULT_RING_CLASS = 1;
-        private static final int AUTO_ANSWER_RING_CLASS = 3;
-        private static final int RING_ANSWER_RING_CLASS = 4;
-        
-        private Phone m_phone;
-        
-        public PolycomIntercomDefaults(Phone phone) {
-            m_phone = phone;
-        }
-        
-        @SettingEntry(path = "voIpProt.SIP/alertInfo/1/value")
-        public String getAlertInfoValue() {
-            String alertInfoValue = null;
-            Intercom intercom = getIntercom();
-            if (intercom != null) {
-                alertInfoValue = intercom.getCode();
-            }
-            return alertInfoValue;                                
-        }
-        
-        @SettingEntry(path = "voIpProt.SIP/alertInfo/1/class")
-        public int getAlertInfoClass() {
-            int alertInfoClass = DEFAULT_RING_CLASS;
-            Intercom intercom = getIntercom();
-            if (intercom != null) {
-                // If the timeout is zero, then auto-answer.  Otherwise ring for
-                // the specified timeout before auto-answering.
-                int timeout = intercom.getTimeout();
-                alertInfoClass = timeout > 0 ? RING_ANSWER_RING_CLASS : AUTO_ANSWER_RING_CLASS;
-            }
-            return alertInfoClass;
-        }
-        
-        private Intercom getIntercom() {
-            PhoneContext context = m_phone.getPhoneContext();
-            Intercom intercom = context.getIntercomForPhone(m_phone);
-            return intercom;
         }
     }
     

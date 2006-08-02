@@ -37,7 +37,7 @@ public class SipConfigurationTest  extends XMLTestCase {
         tester = PhoneTestDriver.supplyTestData(phone);        
     }
     
-    public void _testGenerateProfile16() throws Exception {
+    public void testGenerateProfile16() throws Exception {
         assertProfileEquals("expected-sip.cfg.xml");
     }
     

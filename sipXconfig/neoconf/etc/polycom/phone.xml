@@ -211,6 +211,38 @@
          </setting>
       </group>      
     </group>
+    <group name="ringType" advanced="yes">
+      <label>Ring Types</label>
+      <profileName>rt</profileName>    
+      <group name="RING_ANSWER">
+        <label>Ring and answer</label>
+        <profileName>4</profileName>
+        <description>Configuration details for "first ring then answer automatically" type of ring. It is used mostly in intercom feature.</description>
+        <setting name="timeout">
+          <label>Ring time</label>
+          <type><integer/></type>
+          <value>2000</value>
+        </setting>
+        <setting name="ringer">
+          <label>Ringer</label>
+          <type refid="ringer-pattern"/>
+          <value>2</value>
+        </setting>
+        <setting name="callWait">
+          <label>Call waiting</label>
+          <type refid="call_progress_pattern"/>
+          <value>6</value>
+          <description>Pattern used to notify about incoming call when another call is in progress</description>
+        </setting>
+        <setting name="mod" hidden="yes">
+          <label>Modification allowed</label>
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>          
+        </setting>
+      </group>
+    </group>
   </group>
   <group name="voice">
     <label>Voice/Codecs</label>

@@ -21,6 +21,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 
@@ -57,10 +58,8 @@ public abstract class SupervisorPermission extends PageWithCallback implements
             setUser(user);
             
             Set groups = user.getSupervisorForGroups();
-            if (groups != null && groups.size() > 0) {
-                String groupsString = getSettingDao().getGroupsAsString(groups); 
-                setSupervisorForGroupsString(groupsString);
-            }            
+            String groupsString = BeanWithGroups.getGroupsAsString(groups); 
+            setSupervisorForGroupsString(groupsString);
         }
     }
 

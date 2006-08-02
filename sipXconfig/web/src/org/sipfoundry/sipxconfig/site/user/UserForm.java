@@ -79,11 +79,7 @@ public abstract class UserForm extends BaseComponent implements PageEndRenderLis
             initializePin();
 
             if (getGroupsString() == null) {
-                List groups = user.getGroupsAsList();
-                if (groups != null && groups.size() > 0) {
-                    String groupsString = getSettingDao().getGroupsAsString(groups); 
-                    setGroupsString(groupsString);
-                }
+                setGroupsString(user.getGroupsNames());
             }
         }
         

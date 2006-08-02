@@ -36,8 +36,6 @@ public interface SettingDao extends DataObjectSource {
      */
     public List getGroupsByString(String resource, String groupString);
 
-    public String getGroupsAsString(Collection groups);
-
     public Group getGroup(Integer id);
     
     public List getGroups(String resource);

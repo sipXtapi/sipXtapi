@@ -23,7 +23,6 @@ import org.apache.commons.collections.functors.ChainedTransformer;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
-import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
@@ -111,20 +110,6 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
         String query = "groupsByResourceAndName";
         List groups = getHibernateTemplate().findByNamedQueryAndNamedParam(query, params, values);
         return (Group) DaoUtils.requireOneOrZero(groups, query);
-    }
-
-    public String getGroupsAsString(Collection groups) {
-        String groupsString = StringUtils.join(getNames(groups).iterator(), " ");
-        return groupsString;
-    }
-    
-    public Collection getNames(Collection namedObject) {
-        Transformer toName = new Transformer() {
-            public Object transform(Object input) {
-                return ((NamedObject) input).getName();
-            }            
-        };
-        return CollectionUtils.collect(namedObject, toName);
     }
 
     public List getGroupsByString(String resource, String groupString) {
