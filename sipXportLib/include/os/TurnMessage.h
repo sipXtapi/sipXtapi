@@ -149,7 +149,7 @@ class TurnMessage : public StunMessage
     /** deprecated */
     bool getDestinationAddress(char* szIp, unsigned short& rPort) ;
 
-    bool getTurnSourceAddress(char* szIp, unsigned short& rPort) ;
+    bool getTurnRemoteAddress(char* szIp, unsigned short& rPort) ;
 
     bool getData(char*& rpData, unsigned short& nLength) ;
 

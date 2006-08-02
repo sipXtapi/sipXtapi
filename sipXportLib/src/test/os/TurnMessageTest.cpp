@@ -48,7 +48,6 @@ void TurnMessageTestSuite::testStunEncodeParse()
     CPPUNIT_ASSERT(!msg.getChangedAddress(szString, usValue)) ;
     CPPUNIT_ASSERT(!msg.getUsername(szString)) ;
     CPPUNIT_ASSERT(!msg.getPassword(szString)) ;
-    CPPUNIT_ASSERT(!msg.getMessageIntegrity(szString)) ;
     CPPUNIT_ASSERT(!msg.getError(usValue, szString)) ;
     CPPUNIT_ASSERT(!msg.getUnknownAttributes(values, 16, size)) ;
     CPPUNIT_ASSERT(!msg.getReflectedFrom(szString, usValue)) ;
@@ -64,7 +63,6 @@ void TurnMessageTestSuite::testStunEncodeParse()
     msg.setChangedAddress("10.1.1.4", 4) ;
     msg.setUsername("Username") ;
     msg.setPassword("Password") ;
-    msg.setMessageIntegrity("12345678901234567890") ;
     msg.setError(302, "Reason") ;
     msg.addUnknownAttribute(0x1234) ;
     msg.setReflectedFrom("10.1.1.5", 5) ;
@@ -105,10 +103,6 @@ void TurnMessageTestSuite::testStunEncodeParse()
     bRC = msg.getPassword(szString) ;
     CPPUNIT_ASSERT(bRC) ;
     CPPUNIT_ASSERT(strcmp(szString, "Password") == 0) ;
-
-    bRC = msg.getMessageIntegrity(szString) ;
-    CPPUNIT_ASSERT(bRC) ;
-    CPPUNIT_ASSERT(strcmp(szString, "12345678901234567890") == 0) ;
 
     bRC = msg.getError(usValue, szString) ;
     CPPUNIT_ASSERT(bRC) ;
@@ -168,10 +162,6 @@ void TurnMessageTestSuite::testStunEncodeParse()
             CPPUNIT_ASSERT(bRC) ;
             CPPUNIT_ASSERT(strcmp(szString, "Password") == 0) ;
 
-            bRC = msg.getMessageIntegrity(szString) ;
-            CPPUNIT_ASSERT(bRC) ;
-            CPPUNIT_ASSERT(strcmp(szString, "12345678901234567890") == 0) ;
-
             bRC = msg.getError(usValue, szString) ;
             CPPUNIT_ASSERT(bRC) ;
             CPPUNIT_ASSERT(usValue == 302) ;
@@ -210,38 +200,22 @@ void TurnMessageTestSuite::testTurnEncodeParseBasic()
     char* ptr ;
 
     // Valid empty state
-    CPPUNIT_ASSERT(!msg.getTransportPrefsRequestOddPort()) ;
-    CPPUNIT_ASSERT(!msg.getTransportPrefsRequestEvenPort()) ;
-    CPPUNIT_ASSERT(!msg.getTransportPrefsPreallocate(szString, usValue)) ;
-    CPPUNIT_ASSERT(!msg.getTransportPrefsFollowingPort()) ;
     CPPUNIT_ASSERT(!msg.getLifetime(ulValue)) ;
     CPPUNIT_ASSERT(!msg.getAltServer(szString, usValue)) ;
     CPPUNIT_ASSERT(!msg.getBandwidth(ulValue)) ;
     CPPUNIT_ASSERT(!msg.getDestinationAddress(szString, usValue)) ;
-    CPPUNIT_ASSERT(!msg.getTurnSourceAddress(szString, usValue)) ;
+    CPPUNIT_ASSERT(!msg.getTurnRemoteAddress(szString, usValue)) ;
     CPPUNIT_ASSERT(!msg.getData(ptr, usValue)) ;
 
     // Set Values
-    msg.setTransportPrefsPreallocate("10.1.1.1", 10001) ;
     msg.setLifetime(1000) ;
     msg.setAltServer("10.1.1.2", 10002) ;
     msg.setBandwidth(1001) ;
     msg.setDestinationAddress("10.1.1.3", 10003) ;
-    msg.setTurnSourceAddress("10.1.1.4", 10004) ;
+    msg.setTurnRemoteAddress("10.1.1.4", 10004) ;
     msg.setData("FOO", 3) ;
 
     // Verify Values
-    bRC = msg.getTransportPrefsPreallocate(szString, usValue) ;
-    CPPUNIT_ASSERT(bRC) ;
-    CPPUNIT_ASSERT(strcmp(szString, "10.1.1.1") == 0) ;
-    CPPUNIT_ASSERT(usValue == 10001) ;
-    bRC = msg.getTransportPrefsRequestOddPort() ;
-    CPPUNIT_ASSERT(!bRC) ;
-    bRC = msg.getTransportPrefsRequestEvenPort() ;
-    CPPUNIT_ASSERT(!bRC) ;
-    bRC = msg.getTransportPrefsFollowingPort() ;
-    CPPUNIT_ASSERT(!bRC) ;
-
     bRC = msg.getLifetime(ulValue) ;
     CPPUNIT_ASSERT(bRC) ;
     CPPUNIT_ASSERT(ulValue == 1000) ;
@@ -260,7 +234,7 @@ void TurnMessageTestSuite::testTurnEncodeParseBasic()
     CPPUNIT_ASSERT(strcmp(szString, "10.1.1.3") == 0) ;
     CPPUNIT_ASSERT(usValue == 10003) ;
 
-    bRC = msg.getTurnSourceAddress(szString, usValue) ;
+    bRC = msg.getTurnRemoteAddress(szString, usValue) ;
     CPPUNIT_ASSERT(bRC) ;
     CPPUNIT_ASSERT(strcmp(szString, "10.1.1.4") == 0) ;
     CPPUNIT_ASSERT(usValue == 10004) ;
@@ -277,17 +251,6 @@ void TurnMessageTestSuite::testTurnEncodeParseBasic()
         if (check.parse(encoded, nLength))
         {
             // Verify Values (again -- copy from above)   
-            bRC = msg.getTransportPrefsPreallocate(szString, usValue) ;
-            CPPUNIT_ASSERT(bRC) ;
-            CPPUNIT_ASSERT(strcmp(szString, "10.1.1.1") == 0) ;
-            CPPUNIT_ASSERT(usValue == 10001) ;
-            bRC = msg.getTransportPrefsRequestOddPort() ;
-            CPPUNIT_ASSERT(!bRC) ;
-            bRC = msg.getTransportPrefsRequestEvenPort() ;
-            CPPUNIT_ASSERT(!bRC) ;
-            bRC = msg.getTransportPrefsFollowingPort() ;
-            CPPUNIT_ASSERT(!bRC) ;
-
             bRC = msg.getLifetime(ulValue) ;
             CPPUNIT_ASSERT(bRC) ;
             CPPUNIT_ASSERT(ulValue == 1000) ;
@@ -306,7 +269,7 @@ void TurnMessageTestSuite::testTurnEncodeParseBasic()
             CPPUNIT_ASSERT(strcmp(szString, "10.1.1.3") == 0) ;
             CPPUNIT_ASSERT(usValue == 10003) ;
 
-            bRC = msg.getTurnSourceAddress(szString, usValue) ;
+            bRC = msg.getTurnRemoteAddress(szString, usValue) ;
             CPPUNIT_ASSERT(bRC) ;
             CPPUNIT_ASSERT(strcmp(szString, "10.1.1.4") == 0) ;
             CPPUNIT_ASSERT(usValue == 10004) ;
@@ -321,95 +284,6 @@ void TurnMessageTestSuite::testTurnEncodeParseBasic()
 
 
 void TurnMessageTestSuite::testTransportPrefs()
-{
-    TurnMessage msg ;
-    TurnMessage check ;
-    char encoded[4096] ;
-    size_t nLength ;
-    char szString[1024] ;
-    unsigned short usValue ;
-    
-    /*
-     * Test requesting odd port
-     */
-    msg.setTransportPrefsRequestOddPort() ;
-    CPPUNIT_ASSERT(msg.getTransportPrefsRequestOddPort()) ;
-    CPPUNIT_ASSERT(!msg.getTransportPrefsRequestEvenPort()) ;
-    CPPUNIT_ASSERT(!msg.getTransportPrefsPreallocate(szString, usValue)) ;
-    CPPUNIT_ASSERT(!msg.getTransportPrefsFollowingPort()) ;
+{    
 
-    if (msg.encode(encoded, 4096, nLength))
-    {
-        if (check.parse(encoded, nLength))
-        {
-            CPPUNIT_ASSERT(msg.getTransportPrefsRequestOddPort()) ;
-            CPPUNIT_ASSERT(!msg.getTransportPrefsRequestEvenPort()) ;
-            CPPUNIT_ASSERT(!msg.getTransportPrefsPreallocate(szString, usValue)) ;
-            CPPUNIT_ASSERT(!msg.getTransportPrefsFollowingPort()) ;
-        }
-    }
-
-    /*
-     * Test requesting Even port
-     */
-    msg.setTransportPrefsRequestEvenPort() ;
-    CPPUNIT_ASSERT(!msg.getTransportPrefsRequestOddPort()) ;
-    CPPUNIT_ASSERT(msg.getTransportPrefsRequestEvenPort()) ;
-    CPPUNIT_ASSERT(!msg.getTransportPrefsPreallocate(szString, usValue)) ;
-    CPPUNIT_ASSERT(!msg.getTransportPrefsFollowingPort()) ;
-
-    if (msg.encode(encoded, 4096, nLength))
-    {
-        if (check.parse(encoded, nLength))
-        {
-            CPPUNIT_ASSERT(!msg.getTransportPrefsRequestOddPort()) ;
-            CPPUNIT_ASSERT(msg.getTransportPrefsRequestEvenPort()) ;
-            CPPUNIT_ASSERT(!msg.getTransportPrefsPreallocate(szString, usValue)) ;
-            CPPUNIT_ASSERT(!msg.getTransportPrefsFollowingPort()) ;
-        }
-    }
-
-   /*
-     * Test requesting odd port + 1 
-     */
-    msg.setTransportPrefsRequestOddPort() ;
-    msg.setTransportPrefsFollowingPort() ;
-    CPPUNIT_ASSERT(msg.getTransportPrefsRequestOddPort()) ;
-    CPPUNIT_ASSERT(!msg.getTransportPrefsRequestEvenPort()) ;
-    CPPUNIT_ASSERT(!msg.getTransportPrefsPreallocate(szString, usValue)) ;
-    CPPUNIT_ASSERT(msg.getTransportPrefsFollowingPort()) ;
-
-    if (msg.encode(encoded, 4096, nLength))
-    {
-        if (check.parse(encoded, nLength))
-        {
-            CPPUNIT_ASSERT(msg.getTransportPrefsRequestOddPort()) ;
-            CPPUNIT_ASSERT(!msg.getTransportPrefsRequestEvenPort()) ;
-            CPPUNIT_ASSERT(!msg.getTransportPrefsPreallocate(szString, usValue)) ;
-            CPPUNIT_ASSERT(msg.getTransportPrefsFollowingPort()) ;
-        }
-    }
-
-
-    /*
-     * Test requesting Even port + 1
-     */
-    msg.setTransportPrefsRequestEvenPort() ;
-    msg.setTransportPrefsFollowingPort() ;
-
-    CPPUNIT_ASSERT(!msg.getTransportPrefsRequestOddPort()) ;
-    CPPUNIT_ASSERT(msg.getTransportPrefsRequestEvenPort()) ;
-    CPPUNIT_ASSERT(!msg.getTransportPrefsPreallocate(szString, usValue)) ;
-    CPPUNIT_ASSERT(msg.getTransportPrefsFollowingPort()) ;
-
-    if (msg.encode(encoded, 4096, nLength))
-    {
-        if (check.parse(encoded, nLength))
-        {
-            CPPUNIT_ASSERT(!msg.getTransportPrefsRequestOddPort()) ;
-            CPPUNIT_ASSERT(msg.getTransportPrefsRequestEvenPort()) ;
-            CPPUNIT_ASSERT(!msg.getTransportPrefsPreallocate(szString, usValue)) ;
-            CPPUNIT_ASSERT(msg.getTransportPrefsFollowingPort()) ;
-        }
-    }
 }

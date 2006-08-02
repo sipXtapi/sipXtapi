@@ -38,29 +38,40 @@ extern "C" void hmac_sha1(const char* pBlob, size_t nBlob, const char* pKey, siz
 /* ============================ CREATORS ================================== */
 
 // Constructor
-StunMessage::StunMessage(StunMessage* pRequest)
-{
-    reset() ;
+StunMessage::StunMessage(StunMessage* pRequest,
+                         bool         bLegacyMode)
+{    
+    mpRawData = NULL ;
+    mbLegacyMode = bLegacyMode ;
 
+    reset() ;
     if (pRequest)
     {
         STUN_TRANSACTION_ID transactionId ;
         STUN_MAGIC_ID magicId ;
 
         pRequest->getTransactionId(&transactionId) ;
-        pRequest->getMagicId(&magicId) ;
+        pRequest->getMagicId(&magicId) ;        
         setTransactionId(transactionId) ;
         setMagicId(magicId) ;
+
+        // Force legacy mode if magicId isn't for bis4+
+        if (magicId.id != STUN_MAGIC_COOKIE)
+        {
+            mbLegacyMode = true ;
+        }
     }
     else
     {
         allocTransactionId() ;
-    }
+    }    
 }
 
 // Destructor
 StunMessage::~StunMessage()
 {
+    if (mpRawData)
+        free(mpRawData) ;
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -87,7 +98,7 @@ void StunMessage::reset()
     mbRealmValid = false ;
     memset(&mNonce, 0, STUN_MAX_STRING_LENGTH+1) ;
     mbNonceValid = false ;
-    memset(&mMessageIntegrity, 0, STUN_MAX_MESSAGE_INTEGRITY_LENGTH) ;
+    memset(&mMessageIntegrity, 0, sizeof(mMessageIntegrity)) ;
     mbMessageIntegrityValid = false ;
     memset(&mError, 0, sizeof(STUN_ATTRIBUTE_ERROR)) ;
     mbErrorValid = false ;
@@ -102,6 +113,12 @@ void StunMessage::reset()
     mbIncludeMessageIntegrity = false ;
     memset(&mAltServer, 0, sizeof(STUN_ATTRIBUTE_ADDRESS)) ;
     mbAltServerValid = false ;
+    mbIncludeFingerPrint = !mbLegacyMode ;
+    mbFingerPrintValid = false ;
+    memset(&mFingerPrint, 0, sizeof(mFingerPrint)) ;
+    free(mpRawData) ;            
+    mpRawData = NULL ;
+    mnRawData = 0 ;
 
     memset(&mUnknownParsedAttributes, 0, sizeof(STUN_ATTRIBUTE_UNKNOWN)) ;        
 }
@@ -114,6 +131,13 @@ bool StunMessage::parse(const char* pBuf, size_t nBufLength)
     bool bValid = false ;        
     if (nBufLength >= sizeof(STUN_MESSAGE_HEADER))
     {
+        mnRawData = nBufLength ;        
+        mpRawData = (char*) malloc(mnRawData) ;
+        if (mpRawData)
+            memcpy(mpRawData, pBuf, mnRawData) ;
+        else
+            mnRawData = NULL ;
+
         char* pTraverse = (char*) pBuf ;
 
         // Copy header
@@ -199,6 +223,20 @@ bool StunMessage::encode(char* pBuf, size_t nBufLength, size_t& nActualLength)
                 bError = true ;
             }
         }
+
+        // Make room for fingerprint
+        if (mbIncludeFingerPrint && !mbLegacyMode)
+        {
+            if (nBytesLeft >= sizeof(STUN_ATTRIBUTE_HEADER) + sizeof(mFingerPrint))
+            {
+                nBytesLeft -= sizeof(STUN_ATTRIBUTE_HEADER) + sizeof(mFingerPrint) ;
+                nActualLength += sizeof(STUN_ATTRIBUTE_HEADER) + sizeof(mFingerPrint) ;
+            }
+            else
+            {
+                bError = true ;
+            }
+        }
     }
     else
     {
@@ -214,21 +252,51 @@ bool StunMessage::encode(char* pBuf, size_t nBufLength, size_t& nActualLength)
         bError = !encodeHeader(&mMsgHeader, pStart, nIgnore) ;
     }
 
-    // Lastly, calc/add message integrity (already made room)
+    // Calc/add message integrity (already made room)
     if (mbIncludeMessageIntegrity && isRequestOrNonErrorResponse())
     {
-        calculateHmacSha1(pBuf, nActualLength - (sizeof(STUN_ATTRIBUTE_HEADER) + sizeof(mMessageIntegrity)), 
-                NULL, STUN_MAX_MESSAGE_INTEGRITY_LENGTH, mMessageIntegrity) ;
+        int nSHA1Length = nActualLength - (sizeof(STUN_ATTRIBUTE_HEADER) + sizeof(mMessageIntegrity)) ;
+        if (mbIncludeFingerPrint)
+        {
+            nSHA1Length -= (sizeof(STUN_ATTRIBUTE_HEADER) + sizeof(mFingerPrint)) ;
+        }
+
+        calculateHmacSha1(pBuf, nSHA1Length, NULL, STUN_MAX_MESSAGE_INTEGRITY_LENGTH, 
+                mMessageIntegrity) ;
 
         mbMessageIntegrityValid = true ;
-
-        size_t nIgnore = nBytesLeft + sizeof(STUN_ATTRIBUTE_HEADER) + 
-                sizeof(mMessageIntegrity) ;
 
         bError = !(encodeAttributeHeader(ATTR_STUN_MESSAGE_INTEGRITY, 
                 sizeof(mMessageIntegrity), pTraverse, nBytesLeft) &&
                 encodeRaw(mMessageIntegrity, STUN_MAX_MESSAGE_INTEGRITY_LENGTH,
                 pTraverse, nBytesLeft)) ;                    
+    }
+
+    // Add finger print (already made room)
+    if (mbIncludeFingerPrint && !mbLegacyMode)
+    {
+        int nSHA1Length = nActualLength - (sizeof(STUN_ATTRIBUTE_HEADER) + sizeof(mFingerPrint)) ;
+
+        calculateHmacSha1(pBuf, nSHA1Length, NULL, 
+                STUN_MAX_MESSAGE_INTEGRITY_LENGTH, mFingerPrint) ;
+
+        mbFingerPrintValid = true ;
+
+        bError = !(encodeAttributeHeader(ATTR_STUN_FINGERPRINT, 
+                sizeof(mFingerPrint), pTraverse, nBytesLeft) &&
+                encodeRaw(mFingerPrint, STUN_MAX_MESSAGE_INTEGRITY_LENGTH,
+                pTraverse, nBytesLeft)) ;
+    }
+
+    if (!bError)
+    {
+        mnRawData = nActualLength ;
+        free(mpRawData) ;            
+        mpRawData = (char*) malloc(mnRawData) ;
+        if (mpRawData)
+            memcpy(mpRawData, pBuf, mnRawData) ;
+        else
+            mnRawData = 0 ; 
     }
 
     return !bError ;
@@ -365,7 +433,11 @@ void StunMessage::setTransactionId(STUN_TRANSACTION_ID& rTransactionId)
 
 void StunMessage::allocTransactionId()
 {
-    mMsgHeader.magicId.id = STUN_MAGIC_COOKIE ;
+    if (mbLegacyMode)
+        mMsgHeader.magicId.id = (STUN_MAGIC_COOKIE ^ 0xAAAAAAAA) ;
+    else
+        mMsgHeader.magicId.id = STUN_MAGIC_COOKIE ;
+
     for (int i=0; i<12; i++) 
     {
         mMsgHeader.transactionId.id[i] = (unsigned char) (mbRandomGenerator.rand() % 0x0100) ;
@@ -526,6 +598,11 @@ void StunMessage::setSendXorOnly()
 void StunMessage::setIncludeMessageIntegrity(bool bInclude) 
 {
     mbIncludeMessageIntegrity = bInclude ;
+}
+
+void StunMessage::setIncludeFingerPrint(bool bInclude) 
+{
+    mbIncludeFingerPrint = bInclude ;
 }
 
 void StunMessage::setAltServer(const char* szIp, unsigned short port) 
@@ -810,16 +887,80 @@ bool StunMessage::isStunMessage(const char* pBuf, unsigned short nBufLength)
             switch (header.type)
             {
                 case MSG_STUN_BIND_REQUEST:
-                case MSG_STUN_BIND_RESPONSE:
-                case MSG_STUN_BIND_ERROR_RESPONSE:
                 case MSG_STUN_SHARED_SECRET_REQUEST:
+                    // Is using bis4+, finger print is required with magic 
+                    // cookie
+                    if (ntohl(header.magicId.id) == (unsigned long) STUN_MAGIC_COOKIE)
+                    {
+                        bValid = isFingerPrintValid(pBuf, nBufLength, false) ;
+                    }
+                    else 
+                    {
+                        // Legacy Mode
+                        bValid = true ;
+                    }
+                    break ;
+                case MSG_STUN_BIND_RESPONSE:
+                case MSG_STUN_BIND_ERROR_RESPONSE:                
                 case MSG_STUN_SHARED_SECRET_RESPONSE:
                 case MSG_STUN_SHARED_SECRET_ERROR_RESPONSE:
-                    bValid = true ;
+                    if (ntohl(header.magicId.id) == (unsigned long) STUN_MAGIC_COOKIE)
+                    {
+                        // Not requiring the FINGERPRINT in responses to  
+                        // provide some backwards compatibility -- in reality,
+                        // the other side should complain about the 
+                        // FINGERPRINT -- so this only impacts servers which 
+                        // ignore the unknown attribute.
+                        bValid = isFingerPrintValid(pBuf, nBufLength, true) ;
+                    }
+                    else 
+                    {
+                        // Legacy Mode
+                        bValid = true ;
+                    }
                     break ;
                 default:
                     break ;
             }
+        }
+    }
+
+    return bValid ;
+}
+
+bool StunMessage::isFingerPrintValid(const char* pBuf, unsigned short nBufLength, bool bMissingOk) 
+{
+    bool bValid = false ;
+
+    // Make sure we have enough room to check for the finger print
+    if (    pBuf && (nBufLength >= (sizeof(STUN_MESSAGE_HEADER) + 
+            sizeof(STUN_ATTRIBUTE_HEADER) + 
+            STUN_FINGERPRINT_LENGTH)))
+    {
+        // Assume this is the last parameter (required)
+        const char* pLoc = pBuf + (nBufLength -
+                (sizeof(STUN_ATTRIBUTE_HEADER) + STUN_FINGERPRINT_LENGTH)) ;
+
+        // Make sure the attributes indicate a FingerPrint
+        STUN_ATTRIBUTE_HEADER* pHeader = (STUN_ATTRIBUTE_HEADER*) pLoc ;
+        if ((ntohs(pHeader->type) == ATTR_STUN_FINGERPRINT) && 
+                ntohs(pHeader->length) == STUN_FINGERPRINT_LENGTH)
+        {
+            // Make sure the attribute matches
+            char cResults[STUN_FINGERPRINT_LENGTH] ;
+            calculateHmacSha1(pBuf, pLoc-pBuf, NULL, 
+                    STUN_FINGERPRINT_LENGTH, cResults) ;
+            if (memcmp(cResults, 
+                    pLoc + sizeof(STUN_ATTRIBUTE_HEADER), 
+                    STUN_FINGERPRINT_LENGTH) == 0)
+            {
+                bValid = true ;
+            }
+        }
+        else if ((ntohs(pHeader->type) != ATTR_STUN_FINGERPRINT) &&             
+                bMissingOk)
+        {
+            bValid = true ;
         }
     }
 
@@ -848,6 +989,18 @@ bool StunMessage::isRequestOrNonErrorResponse()
     return bRequestOrNonErrorResponse ;
 }
 
+
+bool StunMessage::isMessageIntegrityValid(const char* cPassword, size_t nPassword)
+{
+    return false ;
+}
+
+
+bool StunMessage::isFingerPrintValid() 
+{
+    bool bValid = isFingerPrintValid(mpRawData, mnRawData, false) ;
+    return bValid ;
+}
  
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
@@ -1132,6 +1285,10 @@ bool StunMessage::parseAttribute(STUN_ATTRIBUTE_HEADER* pHeader, char* pBuf)
             bValid = parseRawAttribute(pBuf, pHeader->length, mMessageIntegrity, sizeof(mMessageIntegrity)) ;
             mbMessageIntegrityValid = bValid ;
             break ;
+        case ATTR_STUN_FINGERPRINT:
+            bValid = parseRawAttribute(pBuf, pHeader->length, mFingerPrint, sizeof(mFingerPrint)) ;
+            mbFingerPrintValid = bValid ;
+            break ;
         case ATTR_STUN_ERROR_CODE:
             bValid = parseErrorAttribute(pBuf, pHeader->length, &mError) ;
             mbErrorValid = bValid ;
@@ -1162,10 +1319,6 @@ bool StunMessage::parseAttribute(STUN_ATTRIBUTE_HEADER* pHeader, char* pBuf)
         case ATTR_STUN_ALTERNATE_SERVER2:
             bValid = parseAddressAttribute(pBuf, pHeader->length, &mAltServer) ;
             mbAltServerValid = bValid ;
-            break ;
-        case ATTR_STUN_FINGERPRINT:
-            // Ignore for now ...
-            bValid = true ;
             break ;
         default:
             if ((pHeader->type <= 0x7FFF) && (mUnknownParsedAttributes.nTypes < STUN_MAX_UNKNOWN_ATTRIBUTES))
@@ -1313,7 +1466,11 @@ bool StunMessage::parseUnknownAttribute(char* pBuf, size_t nLength, STUN_ATTRIBU
 }
 
 // zero pads to 64 boundry and results will be 20 bytes long for hmac/sha1
-void StunMessage::calculateHmacSha1(char *pDataIn, size_t nDataIn, char *pKey, size_t nKey, char* results) 
+void StunMessage::calculateHmacSha1(const char* pDataIn, 
+                                    size_t      nDataIn, 
+                                    const char* pKey, 
+                                    size_t      nKey, 
+                                    char        results[20]) 
 {
     size_t nPaddedLength = ((nDataIn + 63) / 64) * 64 ;
     char* pTempBuf = (char*) malloc(nPaddedLength) ;

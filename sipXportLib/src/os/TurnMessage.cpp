@@ -35,15 +35,15 @@
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 
-/* //////////////////////////// PUBLIC //////////////////////////////////// */
+/* /////////////////////////s/// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
 
 // Constructor
 TurnMessage::TurnMessage()
+    : StunMessage()
 {
     mszTurnData = NULL ;
-
     reset() ;
 }
 
@@ -266,7 +266,7 @@ bool TurnMessage::getDestinationAddress(char* szIp, unsigned short& rPort)
     return mbDestinationAddressValid ;
 }
 
-bool TurnMessage::getTurnSourceAddress(char* szIp, unsigned short& rPort) 
+bool TurnMessage::getTurnRemoteAddress(char* szIp, unsigned short& rPort) 
 {
     if (mbTurnRemoteAddressValid)
     {
