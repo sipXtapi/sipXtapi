@@ -227,18 +227,6 @@ bool OsTime::operator<=(const OsTime& rhs)
 
 /* ============================ ACCESSORS ================================= */
 
-// Return the seconds portion of the time interval
-long OsTime::seconds(void) const
-{
-   return mSeconds;
-}
-
-// Return the microseconds portion of the time interval
-long OsTime::usecs(void) const
-{
-   return mUsecs;
-}
-
 // Convert the time interval to milliseconds
 long OsTime::cvtToMsecs(void) const
 {

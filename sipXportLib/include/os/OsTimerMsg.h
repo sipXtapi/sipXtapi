@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
+// Copyright (C) 2004, 2005, 2006 Pingtel Corp.
 // 
 //
 // $$
@@ -36,17 +36,21 @@ public:
 
    enum MsgSubType
    {
-      UNSPECIFIED,      // not yet initialized
-      START,            // start a timer
-      STOP              // cancel a timer
+      UPDATE,                   ///< update the status of the timer
+      UPDATE_SYNC,              /**< update the status of the timer and signal
+                                 *   an event object
+                                 */
+      UPDATE_DELETE,            /**< update the status of the timer and
+                                 *   delete it
+                                 */
+      SHUTDOWN                  ///< shut down the timer task */
    };
-     //!enumcode: UNSPECIFIED - not yet initialized
-     //!enumcode: START - start a timer
-     //!enumcode: STOP  - cancel a timer
 
 /* ============================ CREATORS ================================== */
 
-   OsTimerMsg(const unsigned char subType, OsEvent& rEvent, OsTimer& rTimer);
+   OsTimerMsg(const unsigned char subType,
+              OsTimer* pTimer,
+              OsEvent* pEvent);
      //:Constructor
 
    OsTimerMsg(const OsTimerMsg& rOsTimerMsg);
@@ -72,8 +76,17 @@ public:
      // the message object even if that object has been upcast to the type of
      // an ancestor class.
 
-   virtual OsTimer* getTimer(void) const;
-     //:Return a pointer to the OsTimer object associated with this message
+   /// Return the (pointer to the OsTimer object) in this message.
+   inline OsTimer* getTimerP(void) const
+   {
+      return mpTimer;
+   }
+
+   /// Return the (pointer to the OsEvent object) in this message.
+   inline OsEvent* getEventP(void) const
+   {
+      return OsRpcMsg::getEvent();
+   }
 
 /* ============================ INQUIRY =================================== */
 

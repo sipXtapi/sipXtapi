@@ -36,7 +36,6 @@
 #include "os/OsRWMutex.h"
 #include "os/OsTime.h"
 #include "os/OsTimer.h"
-#include "os/OsTimerDb.h"
 #include "os/OsTimerTask.h"
 #include "os/OsWriteLock.h"
 #include "os/OsTask.h"

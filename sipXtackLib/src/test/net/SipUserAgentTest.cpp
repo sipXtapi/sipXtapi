@@ -155,7 +155,7 @@ public:
          delete sipUA;
          delete refreshMgr;
          delete lineMgr;
-         OsTimerTask::destroyTimer();
+         OsTimerTask::destroyTimerTask();
          OsStunAgentTask::releaseInstance();
 
          int numThreads = getNumThreads(myPID);
@@ -229,7 +229,7 @@ public:
          delete sipUA;
          delete refreshMgr;
          delete lineMgr;
-         OsTimerTask::destroyTimer();
+         OsTimerTask::destroyTimerTask();
          OsStunAgentTask::releaseInstance();
 
          int numThreads = getNumThreads(myPID);

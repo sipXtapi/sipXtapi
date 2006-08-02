@@ -103,7 +103,7 @@ libsipXport_la_SOURCES =  \
     os/OsProcessMgr.cpp \
     os/OsProtectEvent.cpp \
     os/OsProtectEventMgr.cpp \
-	os/OsPtrMsg.cpp \
+    os/OsPtrMsg.cpp \
     os/OsQueuedEvent.cpp \
     os/OsRpcMsg.cpp \
     os/OsRWMutex.cpp \
@@ -118,7 +118,6 @@ libsipXport_la_SOURCES =  \
     os/OsSysLogFacilities.cpp \
     os/OsSysLogMsg.cpp \
     os/OsSysLogTask.cpp \
-    os/OsSysTimer.cpp \
     os/OsTask.cpp \
     os/OsTime.cpp \
     os/OsTimeLog.cpp \
@@ -131,8 +130,6 @@ libsipXport_la_SOURCES =  \
     os/OsStunQueryAgent.cpp \
     os/OsStunDatagramSocket.cpp \
     os/shared/OsMsgQShared.cpp \
-    os/shared/OsSysSoftTimer.cpp \
-    os/shared/OsTimerMessage.cpp \
     os/linux/clock_gettime.c \
     os/linux/host_address.c \
     os/linux/AdapterInfo.cpp \
@@ -173,9 +170,7 @@ EXTRA_DIST= \
     os/Wnt/OsProcessIteratorWnt.cpp \
     os/Wnt/OsProcessWnt.cpp \
     os/Wnt/OsSharedLibMgrWnt.cpp \
-    os/Wnt/OsSysSoftTimer.cpp \
     os/Wnt/OsTaskWnt.cpp \
-    os/Wnt/OsTimerMessage.cpp \
     os/Wnt/OsUtilWnt.cpp \
     os/Wnt/WindowsAdapterInfo.cpp 
 

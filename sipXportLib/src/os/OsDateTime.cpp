@@ -332,8 +332,8 @@ void OsDateTimeBase::getDayOfWeek(int year, int  month, int dayOfMonth, int& day
     // A copy of this page is also in:
     // \\Pingpdc\Software\Info\technology\calendar-math\node3.html
 
-    //both vxw and windows will set the mMonth to 0 based.
-    //windows used 1 based month (doh) and vxw uses 0 based
+    // Both VxWorks and Windows will set the mMonth to 0 based.
+    // Windows used 1 based month (doh) and VxWorks uses 0 based
     month++;
 
 //    osPrintf("getDayOfWeek (IN): year=%d, month=%d, dayofmonth=%d\n",year,month,dayOfMonth);
@@ -497,6 +497,10 @@ void OsDateTimeBase::getLocalTimeString(UtlString& dateString)
 }
 
 // Return the current time as an OsTime value
+// Note that this method is overridden in both Linux and Windows with
+// methods that return time with microsecond resolution.  So don't be
+// deceived by this code that getCurTime only returns time with second
+// resolution.
 void OsDateTimeBase::getCurTime(OsTime& rTime)
 {
    OsTime curTime(time(NULL), 0);

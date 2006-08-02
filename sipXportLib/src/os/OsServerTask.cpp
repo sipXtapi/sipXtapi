@@ -125,6 +125,13 @@ OsStatus OsServerTask::receiveMessage(OsMsg*& rpMsg)
    return mIncomingQ.receive(rpMsg);
 }
 
+// Waits for a message to arrive on the task's incoming message queue.
+OsStatus OsServerTask::receiveMessage(OsMsg*& rpMsg,
+                                      const OsTime& rTimeout)
+{
+   return mIncomingQ.receive(rpMsg, rTimeout);
+}
+
 // The entry point for the task.
 // This method executes a message processing loop until either
 // requestShutdown(), deleteForce(), or the destructor for this object

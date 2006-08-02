@@ -75,13 +75,9 @@ testsuite_SOURCES = \
     os/OsProcessIteratorTest.cpp \
     os/OsProcessTest.cpp \
     os/OsProcessMgrTest.cpp \
+    os/OsTimerTest.cpp \
     utl/TestPlugin.h \
     utl/PluginHooksTest.cpp
-
-# Removed because it hangs when the working directory does not exist
-
-# :TODO: Removed because they depend on direct access to glib
-#    os/OsTimerTest.cpp
 
 # [DEBUG ASSISTANT] List a single unittest to isoloate a unittest for
 # debugging or when developing a new unittest. As courtesy remove all
@@ -96,8 +92,7 @@ testsuite_SOURCES = \
 sandbox_LDADD = $(testsuite_LDADD)
 
 sandbox_CXXFLAGS = $(testsuite_CXXFLAGS)
-sandbox_SOURCES = \
-    utl/UtlLongLongInt.cpp
+sandbox_SOURCES =
 
 # Performance test of UtlList
 

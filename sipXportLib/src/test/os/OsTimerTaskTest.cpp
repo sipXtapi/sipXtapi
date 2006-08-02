@@ -17,19 +17,24 @@ class OsTimerTaskTest : public CppUnit::TestCase
     CPPUNIT_TEST(testTimerTask);
     CPPUNIT_TEST_SUITE_END();
 
-
 public:
     void testTimerTask()
     {
         OsTimerTask* pTimerTask;
         pTimerTask = OsTimerTask::getTimerTask();
-        CPPUNIT_ASSERT_MESSAGE("Timer task created", pTimerTask != NULL);
+        CPPUNIT_ASSERT_MESSAGE("Timer task created 1", pTimerTask != NULL);
         OsTask::delay(500);    // wait 1/2 second
 
-        // delete pTimerTask; - wdn - 
-        OsTimerTask::destroyTimer();
+        pTimerTask->destroyTimerTask();
+
+        OsTask::delay(500);    // wait 1/2 second
+
+        pTimerTask = OsTimerTask::getTimerTask();
+        CPPUNIT_ASSERT_MESSAGE("Timer task created 2", pTimerTask != NULL);
+        OsTask::delay(500);    // wait 1/2 second
+
+        pTimerTask->destroyTimerTask();
     }
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(OsTimerTaskTest);
-

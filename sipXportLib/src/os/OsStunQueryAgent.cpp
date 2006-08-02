@@ -96,7 +96,6 @@
 #include <os/OsTask.h>
 #include <os/OsStunQueryAgent.h>
 #include <os/OsStunDatagramSocket.h>
-#include <os/shared/OsSysSoftTimer.h>
 
 
 /*-----------------------------------------------------------------------------

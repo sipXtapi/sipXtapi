@@ -516,7 +516,7 @@ SIPXTAPI_API SIPX_RESULT sipxUnInitialize(SIPX_INST hInst)
         if ( (nCalls == 0) && (nConferences == 0) && (nLines == 0) )
         {
             // Destroy the timer task to flush timers
-            OsTimerTask::destroyTimer() ;
+            OsTimerTask::destroyTimerTask() ;
 
             // get rid of pointer to the line manager in the refresh manager
             pInst->pRefreshManager->setLineMgr(NULL);
@@ -616,7 +616,7 @@ SIPXTAPI_API SIPX_RESULT sipxUnInitialize(SIPX_INST hInst)
 
             // Destroy the timer task once more -- some of the destructors (SipUserAgent)
             // mistakenly re-creates them when terminating.
-            OsTimerTask::destroyTimer() ;
+            OsTimerTask::destroyTimerTask() ;
 
             sipxDestroyMediaFactoryFactory() ;
 
