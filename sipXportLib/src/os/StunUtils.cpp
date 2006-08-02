@@ -418,6 +418,7 @@ static const char* convertAttributeToString(unsigned short attribute)
             szAttribute = "ATTR_STUN_REFLECTED_FROM" ;
             break ;
         case ATTR_STUN_ALTERNATE_SERVER:
+        case ATTR_STUN_ALTERNATE_SERVER2:
             szAttribute = "ATTR_STUN_ALTERNATE_SERVER" ;
             break ;
         case ATTR_STUN_REALM:
@@ -432,6 +433,9 @@ static const char* convertAttributeToString(unsigned short attribute)
             break ;
         case ATTR_STUN_XOR_ONLY:
             szAttribute = "ATTR_STUN_XOR_ONLY" ;
+            break ;
+        case ATTR_STUN_FINGERPRINT:
+            szAttribute = "ATTR_STUN_FINGERPRINT" ;
             break ;
         case ATTR_STUN_SERVER:
         case ATTR_STUN_SERVER2:
@@ -458,12 +462,18 @@ static const char* convertAttributeToString(unsigned short attribute)
         case ATTR_TURN_DATA:
             szAttribute = "ATTR_TURN_DATA" ;
             break ;
+        case ATTR_TURN_RELAY_ADDRESS:
+            szAttribute = "ATTR_TURN_RELAY_ADDRESS" ;
+            break ;
+        case ATTR_TURN_REQUESTED_TRANSPORT:
+            szAttribute = "ATTR_TURN_REQUESTED_TRANSPORT" ;
+            break ;
     }
 
     return szAttribute ;
 }
 
-// WARNING: nOutput is currently ignored -- should be a UtlString or actually checked
+
 void StunUtils::debugDump(char* pPacket, size_t nPacket, UtlString& output) 
 {
     char cTemp[1024] ;
@@ -478,14 +488,15 @@ void StunUtils::debugDump(char* pPacket, size_t nPacket, UtlString& output)
         memcpy(&msgHeader, pPacket, sizeof(msgHeader)) ;
         pTraverse += sizeof(msgHeader) ;
 
-        sprintf(cTemp, "Msg t=0x%04X/%s, l=%d, id=", 
+        sprintf(cTemp, "Msg t=0x%04X/%s, l=%d, id=%08X/", 
             ntohs(msgHeader.type), 
             convertRequestToString(ntohs(msgHeader.type)),
-            ntohs(msgHeader.length)) ;
+            ntohs(msgHeader.length),
+            ntohl(msgHeader.magicId.id)) ;
 
         output.append(cTemp) ;
 
-        for (int i=0; i<16; i++)
+        for (int i=0; i<12; i++)
         {           
             sprintf(cTemp, "%02X", msgHeader.transactionId.id[i]) ;
             cTemp[3] = 0 ;
