@@ -298,7 +298,7 @@ UrlMapping::parseUserMatchContainer(const Url& requestUri,
                       {
                          UtlString userRE = XmlUser->Value();
                          UtlString regStr;
-                         convertRegularExpression(userRE, regStr);
+                         convertDialString2RegEx(userRE, regStr);
                          RegEx userExpression(regStr.data());
                          if (userExpression.Search(testUser.data(), testUser.length()))
                          {
@@ -656,12 +656,12 @@ UrlMapping::doTransform(const Url& requestUri,
 }
 
 void
-UrlMapping::convertRegularExpression(const UtlString& source,
-                                     UtlString& rRegExp)
+UrlMapping::convertDialString2RegEx(const UtlString& source,
+                                    UtlString& rRegExp)
 {
     const char* sourceChar;
-    UtlBoolean specialEscaped;
-    UtlBoolean seenNonConstant = false;
+    bool escaped = false;
+    bool firstVmatch = true;
 
     rRegExp.remove(0);
     rRegExp.append("^");
@@ -671,118 +671,109 @@ UrlMapping::convertRegularExpression(const UtlString& source,
         sourceChar++
         )
     {
-        specialEscaped = false;
+       if ( !escaped )
+       {
+          switch (*sourceChar)
+          {
+          case '\\':
+             // just remember that the next character is escaped
+             escaped = true;
+             break;
 
-        if(*sourceChar == '\\')
-        {
-            specialEscaped = true;
-            sourceChar++ ;
-        }
+          case '^':
+          case '|':
+          case '(':
+          case ')':
+          case '{':
+          case '}':
+          case '$':
+          case '+':
+          case '*':
+          case '?':
+             // these are significant in a Perl RE, but not in a dial string, so escape the output
+             rRegExp.append("\\");
+             rRegExp.append(*sourceChar);
+             break;
+             
+          case 'x': // match any one character
+             if (firstVmatch)
+             {
+                rRegExp.append('(');
+                firstVmatch = false;
+             }
+             rRegExp.append('.');
+             break;
 
-        if(*sourceChar == '[')
-        {
-            if ( specialEscaped )
-            {
-                rRegExp.append("\\");
-            }
-            else if ( ! seenNonConstant )
-            {
-                rRegExp.append("(");
-                seenNonConstant = true;
-            }
-            rRegExp.append(*sourceChar);
-        }
-        else if(*sourceChar == '.')
-        {
-            if ( specialEscaped )
-            {
-                rRegExp.append("\\.");
-            }
-            else
-            {
-                if ( ! seenNonConstant )
-                {
-                    rRegExp.append("(");
-                    seenNonConstant = true;
-                }
-                rRegExp.append(".*");
-            }
-        }
-        else if(*sourceChar == '+')
-        {
-           if ( specialEscaped )
-           {
-              rRegExp.append("\\");
-           }
-           rRegExp.append("\\+");
-        }
-        else if(*sourceChar == '$')
-        {
-           if ( specialEscaped )
-           {
-              rRegExp.append("\\");
-           }
-           rRegExp.append("\\$");
-        }
-        else if(*sourceChar == '?')
-        {
-           if ( specialEscaped )
-           {
-              rRegExp.append("\\");
-           }
-           rRegExp.append("\\?");
-        }
-        else if(*sourceChar == '*')
-        {
-           if ( specialEscaped )
-           {
-              rRegExp.append("\\");
-           }
-           rRegExp.append("\\*");
-        }
-        else if(*sourceChar == '(')
-        {
-           if ( specialEscaped )
-           {
-              rRegExp.append("\\");
-           }
-           rRegExp.append("\\(");
-        }
-        else if(*sourceChar == ')')
-        {
-           if ( specialEscaped )
-           {
-              rRegExp.append("\\");
-           }
-           rRegExp.append("\\)");
-        }
-        else if(*sourceChar == 'x')
-        {
-            if ( specialEscaped )
-            {
-                rRegExp.append("x");
-            }
-            else
-            {
-                if ( ! seenNonConstant )
-                {
-                    rRegExp.append("(");
-                    seenNonConstant = true;
-                }
-                rRegExp.append('.');
-            }
-        }
-        else if (*sourceChar == '\\')
-        {
-            rRegExp.append("\\\\");
-        }
-        else
-        {
-           rRegExp.append(*sourceChar);
-        }
+          case '[': // start a set of characters to match
+             if (firstVmatch)
+             {
+                rRegExp.append('(');
+                firstVmatch = false;
+             }
+             rRegExp.append(*sourceChar);
+             break;
+
+          case '.': // match any number of characters
+             if (firstVmatch)
+             {
+                rRegExp.append('(');
+                firstVmatch = false;
+             }
+             rRegExp.append(".*");
+             break;
+
+          default: // for any other character, just include it
+             rRegExp.append(*sourceChar);
+             break;
+          }
+       }
+       else // sourceChar was escaped by a leading '\'
+       {
+          switch (*sourceChar)
+          {
+          case '\\':
+             // if we allow a backslash to get through, there all a lot of tricky
+             // things that could happen in the resulting perl regex,
+             // so we ensure that it's always escaped in the regexp.
+             rRegExp.append("\\\\");
+             break;
+
+          case '^':
+          case '|':
+          case '(':
+          case ')':
+          case '{':
+          case '}':
+          case '$':
+          case '+':
+          case '*':
+          case '?':
+             // these are significant in a Perl RE, but not in a dial string,
+             // but for backward compatibility we allow them to be escaped
+             // so fall down and escape the output
+
+          case '.':
+          case '[':
+          case ']':
+             // these are significant in a dial string, but have been escaped
+             // they are also significant in a regular expression, so escape them in the output
+             rRegExp.append("\\");
+             rRegExp.append(*sourceChar);
+             break;
+             
+          case 'x':
+             // this would be special in a dial string, but has been escaped so it is normal
+             // so just insert it like any other character below.
+          default:
+             rRegExp.append(*sourceChar);
+             break;
+          }
+          escaped = false;
+       }
+
     }
 
-    if ( seenNonConstant )
+    if ( !firstVmatch )
     {
        rRegExp.append(")");
     }

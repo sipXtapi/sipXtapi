@@ -64,6 +64,7 @@
 class TiXmlNode;
 class Url;
 class RegEx;
+class UrlMappingTest;
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -106,6 +107,8 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+    friend class UrlMappingTest;
+    
     TiXmlNode* mPrevMappingNode;
     TiXmlElement* mPrevMappingElement;
     TiXmlNode* mPrevHostMatchNode;
@@ -151,7 +154,7 @@ protected:
         const UtlString& replaceWhat,
         const UtlString& replaceWith);
 
-   void convertRegularExpression(const UtlString& source, UtlString& regExp);
+   void convertDialString2RegEx(const UtlString& source, UtlString& regExp);
 
    void getVDigits(RegEx& userPattern,
       UtlString& vdigits);

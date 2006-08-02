@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <!--
   - Example fallbackrules.xml file
+  - 
+  - This works the same way that mappingrules does, but is applied only if
+  - no other address resolution mechanism finds a target.  It should be used
+  - only for calls outside the local domain.
+  - 
+  - See the comments in mappingrules.xml and the schema file referenced
+  - there for descriptions of the elements and how to use them.
   -->
 <mappings xmlns='http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00'>
   <hostMatch>

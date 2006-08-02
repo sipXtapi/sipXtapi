@@ -24,5 +24,16 @@
         </transform>
       </permissionMatch>
     </userMatch>
+    <userMatch>
+      <userPattern>\*99...</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>sip:{digits}@digits</url>
+        </transform>
+        <transform>
+          <url>sip:{vdigits}@vdigits</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
   </hostMatch>
 </mappings>

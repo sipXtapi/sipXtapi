@@ -23,9 +23,10 @@
 #define MS "MeDiAsErVeR"
 #define LH "LoCaLhOsT"
 
-class UrlMappingTest : public CppUnit::TestCase
+class UrlMappingTest : public CppUnit::TestCase, public UrlMapping
 {
       CPPUNIT_TEST_SUITE(UrlMappingTest);
+      CPPUNIT_TEST(testConvertDialString2RegEx);
       CPPUNIT_TEST(testSimpleMap);
       CPPUNIT_TEST(testFieldParams);
       CPPUNIT_TEST(testAddUrlParams);
@@ -49,6 +50,51 @@ class UrlMappingTest : public CppUnit::TestCase
       void tearDown()
       {
          delete mFileTestContext;
+      }
+   
+      void testConvertDialString2RegEx()
+      {
+         UtlString regexp;
+
+         UtlString pattern;
+         pattern = "12x";
+         convertDialString2RegEx(pattern,regexp);
+         ASSERT_STR_EQUAL("^12(.)$",regexp.data());
+
+         pattern = "12.";
+         convertDialString2RegEx(pattern,regexp);
+         ASSERT_STR_EQUAL("^12(.*)$",regexp.data());
+
+         pattern = "12*";
+         convertDialString2RegEx(pattern,regexp);
+         ASSERT_STR_EQUAL("^12\\*$",regexp.data());
+
+         pattern = "(12)";
+         convertDialString2RegEx(pattern,regexp);
+         ASSERT_STR_EQUAL("^\\(12\\)$",regexp.data());
+
+         pattern = "[12]3";
+         convertDialString2RegEx(pattern,regexp);
+         ASSERT_STR_EQUAL("^([12]3)$",regexp.data());
+
+         pattern = "1[23]";
+         convertDialString2RegEx(pattern,regexp);
+         ASSERT_STR_EQUAL("^1([23])$",regexp.data());
+
+         pattern = "1\\[23]";
+         convertDialString2RegEx(pattern,regexp);
+         ASSERT_STR_EQUAL("^1\\[23]$",regexp.data());
+
+         pattern = "1\\[23\\]"; // userPattern 1\[23]
+         convertDialString2RegEx(pattern,regexp);
+         ASSERT_STR_EQUAL("^1\\[23\\]$",regexp.data());
+
+         pattern = "\\1\\\\2\\\\\\3"; // userPattern \1\\2\\\3
+         convertDialString2RegEx(pattern,regexp);
+         ASSERT_STR_EQUAL("^1\\\\2\\\\3$",regexp.data()); // regexp 1\\2\\3
+
+         // printf("pattern '%s' regexp '%s'\n", pattern.data(), regexp.data());
+
       }
    
       void testSimpleMap()
@@ -734,6 +780,17 @@ class UrlMappingTest : public CppUnit::TestCase
          CPPUNIT_ASSERT( registrations.getSize() == 0 );
          registrations.destroyAll();
 
+
+         urlmap->getContactList( Url("sip:*99123@thisdomain")
+                                ,registrations, isPSTNnumber, permissions
+                                );
+         CPPUNIT_ASSERT( permissions.getSize() == 0 );
+         CPPUNIT_ASSERT( registrations.getSize() == 2 );
+         getResult( registrations, 0, "contact", actual);
+         ASSERT_STR_EQUAL( "sip:*99123@digits", actual );
+         getResult( registrations, 1, "contact", actual);
+         ASSERT_STR_EQUAL( "sip:123@vdigits", actual );
+         registrations.destroyAll();
 
          delete urlmap;
       }

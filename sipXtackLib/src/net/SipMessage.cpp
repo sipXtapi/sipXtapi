@@ -66,6 +66,11 @@ SipMessage::SipMessage(const char* messageBytes, int byteCount) :
 #ifdef TRACK_LIFE
    osPrintf("Created SipMessage @ address:%X\n",this);
 #endif
+
+   if (spSipMessageFieldProps == NULL)
+   {
+      spSipMessageFieldProps = new SipMessage::SipMessageFieldProps() ;
+   }
 }
 
 SipMessage::SipMessage(OsSocket* inSocket, int bufferSize) :
@@ -3259,9 +3264,11 @@ UtlBoolean SipMessage::getCSeqField(int* sequenceNum, UtlString* sequenceMethod)
 
             if(numStringLen > MAXIMUM_INTEGER_STRING_LENGTH)
             {
-                osPrintf("WARNING: SipMessage::getCSeqField CSeq number %d characters: %s.\nTruncating to %d\n",
-                    numStringLen, &value[valueStart], MAXIMUM_INTEGER_STRING_LENGTH);
-                numStringLen = MAXIMUM_INTEGER_STRING_LENGTH;
+               OsSysLog::add(FAC_SIP, PRI_ERR,
+                             "SipMessage::getCSeqField CSeq field '%.*s' containes %d digits, which exceeds MAXIMUM_INTEGER_STRING_LENGTH (%d).  Truncated.\n",
+                             numStringLen, &value[valueStart], numStringLen,
+                             MAXIMUM_INTEGER_STRING_LENGTH);
+               numStringLen = MAXIMUM_INTEGER_STRING_LENGTH;
             }
         }
 
@@ -4077,7 +4084,6 @@ UtlBoolean SipMessage::isInSupportedField(const char* token) const
 #endif
       url.strip(UtlString::both);
       if (url.compareTo(token, UtlString::ignoreCase) == 0)
-      if (url.compareTo(token) == 0)
       {
          tokenFound = TRUE;
       }
