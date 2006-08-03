@@ -638,580 +638,605 @@
 <a name="l01327"></a>01327 
 <a name="l01336"></a>01336 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#07a45f9b95325823593771b872c0ed0f">sipxCallGetConnectionId</a>(<span class="keyword">const</span> SIPX_CALL hCall,
 <a name="l01337"></a>01337                                                  <span class="keywordtype">int</span>&amp; connectionId);
-<a name="l01338"></a>01338                                                  
+<a name="l01338"></a>01338 
 <a name="l01339"></a>01339 
-<a name="l01350"></a>01350 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#5da521229cfbdd7884d05f47c5e210d1">sipxCallGetRequestURI</a>(<span class="keyword">const</span> SIPX_CALL hCall, 
-<a name="l01351"></a>01351                                                <span class="keywordtype">char</span>* szUri, 
-<a name="l01352"></a>01352                                                <span class="keyword">const</span> size_t iMaxLength) ;
+<a name="l01350"></a>01350 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#b785567c741a0749181cd4a230f5cb89">sipxCallGetConference</a>(<span class="keyword">const</span> SIPX_CALL hCall,
+<a name="l01351"></a>01351                                                SIPX_CONF&amp;      hConf) ;
+<a name="l01352"></a>01352                                                  
 <a name="l01353"></a>01353 
-<a name="l01354"></a>01354 
-<a name="l01355"></a>01355                                                            
-<a name="l01366"></a>01366 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#8c163bd8f82447c2b176071bb317cb7a">sipxCallGetRemoteContact</a>(<span class="keyword">const</span> SIPX_CALL hCall, 
-<a name="l01367"></a>01367                                                   <span class="keywordtype">char</span>* szContact, 
-<a name="l01368"></a>01368                                                   <span class="keyword">const</span> size_t iMaxLength) ;
-<a name="l01369"></a>01369 
-<a name="l01370"></a>01370                                                            
-<a name="l01381"></a>01381 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#8b381d438395a594d0ca6c79b4867824">sipxCallGetRemoteUserAgent</a>(<span class="keyword">const</span> SIPX_CALL hCall,
-<a name="l01382"></a>01382                                                     <span class="keywordtype">char</span>* szAgent, 
-<a name="l01383"></a>01383                                                     <span class="keyword">const</span> size_t iMaxLength) ;
-<a name="l01384"></a>01384 
-<a name="l01385"></a>01385 
-<a name="l01401"></a>01401 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#77afab8a5d537019a0b4adac96440d54">sipxCallStartTone</a>(<span class="keyword">const</span> SIPX_CALL hCall, 
-<a name="l01402"></a>01402                                            <span class="keyword">const</span> <a class="code" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb6">SIPX_TONE_ID</a> toneId,
-<a name="l01403"></a>01403                                            <span class="keyword">const</span> <span class="keywordtype">bool</span> bLocal,
-<a name="l01404"></a>01404                                            <span class="keyword">const</span> <span class="keywordtype">bool</span> bRemote) ;
-<a name="l01405"></a>01405 
-<a name="l01420"></a>01420 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#56a0ba4560e6266a7960ecc487b5a59d">sipxCallStopTone</a>(<span class="keyword">const</span> SIPX_CALL hCall) ;
-<a name="l01421"></a>01421 
-<a name="l01422"></a>01422 
-<a name="l01448"></a>01448 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#fb7ef305fba13b7c4d4d0e6d1c3c7ee0">sipxCallAudioPlayFileStart</a>(<span class="keyword">const</span> SIPX_CALL hCall, 
-<a name="l01449"></a>01449                                                     <span class="keyword">const</span> <span class="keywordtype">char</span>* szFile,
-<a name="l01450"></a>01450                                                     <span class="keyword">const</span> <span class="keywordtype">bool</span> bRepeat,
-<a name="l01451"></a>01451                                                     <span class="keyword">const</span> <span class="keywordtype">bool</span> bLocal,
-<a name="l01452"></a>01452                                                     <span class="keyword">const</span> <span class="keywordtype">bool</span> bRemote,
-<a name="l01453"></a>01453                                                     <span class="keyword">const</span> <span class="keywordtype">bool</span> bMixWithMicrophone = <span class="keyword">false</span>,
-<a name="l01454"></a>01454                                                     <span class="keyword">const</span> <span class="keywordtype">float</span> fVolumeScaling = 1.0) ;
-<a name="l01455"></a>01455 
-<a name="l01468"></a>01468 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#f8d6f2c5a5d6e22c66347886bda7ebdf">sipxCallAudioPlayFileStop</a>(<span class="keyword">const</span> SIPX_CALL hCall) ; 
+<a name="l01364"></a>01364 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#5da521229cfbdd7884d05f47c5e210d1">sipxCallGetRequestURI</a>(<span class="keyword">const</span> SIPX_CALL hCall, 
+<a name="l01365"></a>01365                                                <span class="keywordtype">char</span>* szUri, 
+<a name="l01366"></a>01366                                                <span class="keyword">const</span> size_t iMaxLength) ;
+<a name="l01367"></a>01367 
+<a name="l01368"></a>01368 
+<a name="l01369"></a>01369                                                            
+<a name="l01380"></a>01380 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#8c163bd8f82447c2b176071bb317cb7a">sipxCallGetRemoteContact</a>(<span class="keyword">const</span> SIPX_CALL hCall, 
+<a name="l01381"></a>01381                                                   <span class="keywordtype">char</span>* szContact, 
+<a name="l01382"></a>01382                                                   <span class="keyword">const</span> size_t iMaxLength) ;
+<a name="l01383"></a>01383 
+<a name="l01384"></a>01384                                                            
+<a name="l01395"></a>01395 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#8b381d438395a594d0ca6c79b4867824">sipxCallGetRemoteUserAgent</a>(<span class="keyword">const</span> SIPX_CALL hCall,
+<a name="l01396"></a>01396                                                     <span class="keywordtype">char</span>* szAgent, 
+<a name="l01397"></a>01397                                                     <span class="keyword">const</span> size_t iMaxLength) ;
+<a name="l01398"></a>01398 
+<a name="l01399"></a>01399 
+<a name="l01415"></a>01415 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#77afab8a5d537019a0b4adac96440d54">sipxCallStartTone</a>(<span class="keyword">const</span> SIPX_CALL hCall, 
+<a name="l01416"></a>01416                                            <span class="keyword">const</span> <a class="code" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb6">SIPX_TONE_ID</a> toneId,
+<a name="l01417"></a>01417                                            <span class="keyword">const</span> <span class="keywordtype">bool</span> bLocal,
+<a name="l01418"></a>01418                                            <span class="keyword">const</span> <span class="keywordtype">bool</span> bRemote) ;
+<a name="l01419"></a>01419 
+<a name="l01434"></a>01434 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#56a0ba4560e6266a7960ecc487b5a59d">sipxCallStopTone</a>(<span class="keyword">const</span> SIPX_CALL hCall) ;
+<a name="l01435"></a>01435 
+<a name="l01436"></a>01436 
+<a name="l01462"></a>01462 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#fb7ef305fba13b7c4d4d0e6d1c3c7ee0">sipxCallAudioPlayFileStart</a>(<span class="keyword">const</span> SIPX_CALL hCall, 
+<a name="l01463"></a>01463                                                     <span class="keyword">const</span> <span class="keywordtype">char</span>* szFile,
+<a name="l01464"></a>01464                                                     <span class="keyword">const</span> <span class="keywordtype">bool</span> bRepeat,
+<a name="l01465"></a>01465                                                     <span class="keyword">const</span> <span class="keywordtype">bool</span> bLocal,
+<a name="l01466"></a>01466                                                     <span class="keyword">const</span> <span class="keywordtype">bool</span> bRemote,
+<a name="l01467"></a>01467                                                     <span class="keyword">const</span> <span class="keywordtype">bool</span> bMixWithMicrophone = <span class="keyword">false</span>,
+<a name="l01468"></a>01468                                                     <span class="keyword">const</span> <span class="keywordtype">float</span> fVolumeScaling = 1.0) ;
 <a name="l01469"></a>01469 
-<a name="l01470"></a>01470 
-<a name="l01485"></a>01485 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#0804b5be9e46d87d983b187fdf124460">sipxCallAudioRecordFileStart</a>(<span class="keyword">const</span> SIPX_CALL hCall,
-<a name="l01486"></a>01486                                                       <span class="keyword">const</span> <span class="keywordtype">char</span>* szFile) ;
-<a name="l01487"></a>01487 
-<a name="l01496"></a>01496 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#c071cafb430261d9c68c149204a3285a">sipxCallAudioRecordFileStop</a>(<span class="keyword">const</span> SIPX_CALL hCall) ;
-<a name="l01497"></a>01497 
-<a name="l01498"></a>01498 
-<a name="l01521"></a>01521 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#bf50573f155beef085b9ec94b73e81b9">sipxCallPlayBufferStart</a>(<span class="keyword">const</span> SIPX_CALL hCall,
-<a name="l01522"></a>01522                                                  <span class="keyword">const</span> <span class="keywordtype">char</span>* szBuffer,
-<a name="l01523"></a>01523                                                  <span class="keyword">const</span> <span class="keywordtype">int</span>  bufSize,
-<a name="l01524"></a>01524                                                  <span class="keyword">const</span> <span class="keywordtype">int</span>  bufType,
-<a name="l01525"></a>01525                                                  <span class="keyword">const</span> <span class="keywordtype">bool</span> bRepeat,
-<a name="l01526"></a>01526                                                  <span class="keyword">const</span> <span class="keywordtype">bool</span> bLocal,
-<a name="l01527"></a>01527                                                  <span class="keyword">const</span> <span class="keywordtype">bool</span> bRemote) ;
-<a name="l01528"></a>01528 
-<a name="l01529"></a>01529 
-<a name="l01542"></a>01542 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#83292f4e74936748478edcd53abda77a">sipxCallPlayBufferStop</a>(<span class="keyword">const</span> SIPX_CALL hCall) ; 
+<a name="l01482"></a>01482 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#f8d6f2c5a5d6e22c66347886bda7ebdf">sipxCallAudioPlayFileStop</a>(<span class="keyword">const</span> SIPX_CALL hCall) ; 
+<a name="l01483"></a>01483 
+<a name="l01484"></a>01484 
+<a name="l01499"></a>01499 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#0804b5be9e46d87d983b187fdf124460">sipxCallAudioRecordFileStart</a>(<span class="keyword">const</span> SIPX_CALL hCall,
+<a name="l01500"></a>01500                                                       <span class="keyword">const</span> <span class="keywordtype">char</span>* szFile) ;
+<a name="l01501"></a>01501 
+<a name="l01510"></a>01510 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#c071cafb430261d9c68c149204a3285a">sipxCallAudioRecordFileStop</a>(<span class="keyword">const</span> SIPX_CALL hCall) ;
+<a name="l01511"></a>01511 
+<a name="l01512"></a>01512 
+<a name="l01535"></a>01535 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#bf50573f155beef085b9ec94b73e81b9">sipxCallPlayBufferStart</a>(<span class="keyword">const</span> SIPX_CALL hCall,
+<a name="l01536"></a>01536                                                  <span class="keyword">const</span> <span class="keywordtype">char</span>* szBuffer,
+<a name="l01537"></a>01537                                                  <span class="keyword">const</span> <span class="keywordtype">int</span>  bufSize,
+<a name="l01538"></a>01538                                                  <span class="keyword">const</span> <span class="keywordtype">int</span>  bufType,
+<a name="l01539"></a>01539                                                  <span class="keyword">const</span> <span class="keywordtype">bool</span> bRepeat,
+<a name="l01540"></a>01540                                                  <span class="keyword">const</span> <span class="keywordtype">bool</span> bLocal,
+<a name="l01541"></a>01541                                                  <span class="keyword">const</span> <span class="keywordtype">bool</span> bRemote) ;
+<a name="l01542"></a>01542 
 <a name="l01543"></a>01543 
-<a name="l01544"></a>01544 
-<a name="l01574"></a>01574 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#511f9b86617d28d3a0cf4165289d66a5">sipxCallSubscribe</a>(<span class="keyword">const</span> SIPX_CALL hCall,
-<a name="l01575"></a>01575                                            <span class="keyword">const</span> <span class="keywordtype">char</span>* szEventType,
-<a name="l01576"></a>01576                                            <span class="keyword">const</span> <span class="keywordtype">char</span>* szAcceptType,
-<a name="l01577"></a>01577                                            SIPX_SUB* phSub,
-<a name="l01578"></a>01578                                            <span class="keywordtype">bool</span> bRemoteContactIsGruu = <span class="keyword">false</span>);
-<a name="l01579"></a>01579 
-<a name="l01588"></a>01588 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#ca57fa3a19eb2b3d683d677df9169138">sipxCallUnsubscribe</a>(<span class="keyword">const</span> SIPX_SUB hSub) ;
-<a name="l01589"></a>01589 
-<a name="l01590"></a>01590 
-<a name="l01607"></a>01607 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#3dc643bfbb720cda10fef37d01134cbc">sipxCallSendInfo</a>(SIPX_INFO* phInfo,
-<a name="l01608"></a>01608                                           <span class="keyword">const</span> SIPX_CALL hCall,
-<a name="l01609"></a>01609                                           <span class="keyword">const</span> <span class="keywordtype">char</span>* szContentType,
-<a name="l01610"></a>01610                                           <span class="keyword">const</span> <span class="keywordtype">char</span>* szContent,
-<a name="l01611"></a>01611                                           <span class="keyword">const</span> size_t nContentLength);
-<a name="l01612"></a>01612 
-<a name="l01699"></a>01699 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#7d41ce14b670b4dc65c2ee9efa04704b">sipxCallBlindTransfer</a>(<span class="keyword">const</span> SIPX_CALL hCall, 
-<a name="l01700"></a>01700                                                <span class="keyword">const</span> <span class="keywordtype">char</span>* szAddress) ;
-<a name="l01701"></a>01701 
-<a name="l01801"></a>01801 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#fcb5d6968431827e628bf6926dc47512">sipxCallTransfer</a>(<span class="keyword">const</span> SIPX_CALL hSourceCall,
-<a name="l01802"></a>01802                                           <span class="keyword">const</span> SIPX_CALL hTargetCall) ;
-<a name="l01803"></a>01803 
-<a name="l01804"></a>01804 
-<a name="l01805"></a>01805 
-<a name="l01813"></a>01813 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#1fd34d77c7724d4c663ed941a9f3c2ed">sipxCallUpdateVideoWindow</a>(<span class="keyword">const</span> SIPX_CALL hCall, <span class="keyword">const</span> <a class="code" href="sip_xtapi_8h.html#72f702115019a9d9ba9d940ab05d18ea">SIPX_WINDOW_HANDLE</a> hWnd);
-<a name="l01814"></a>01814 
-<a name="l01815"></a>01815 
-<a name="l01824"></a>01824 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#0765fab850a5afc6fb6b57593f290a45">sipxCallResizeWindow</a>(<span class="keyword">const</span> SIPX_CALL hCall, <span class="keyword">const</span> <a class="code" href="sip_xtapi_8h.html#72f702115019a9d9ba9d940ab05d18ea">SIPX_WINDOW_HANDLE</a> hWnd);
-<a name="l01825"></a>01825 
-<a name="l01826"></a>01826 
-<a name="l01854"></a>01854 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#ac37b3c2673e463d283b23ada9c425e9">sipxCallGetEnergyLevels</a>(<span class="keyword">const</span> SIPX_CALL hCall,
-<a name="l01855"></a>01855                                                  <span class="keywordtype">int</span>&amp;            iInputEnergyLevel,
-<a name="l01856"></a>01856                                                  <span class="keywordtype">int</span>&amp;            iOutputEnergyLevel,
-<a name="l01857"></a>01857                                                  <span class="keyword">const</span> size_t    nMaxContributors,
-<a name="l01858"></a>01858                                                  <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>    CCSRCs[],
-<a name="l01859"></a>01859                                                  <span class="keywordtype">int</span>             iEnergyLevels[],
-<a name="l01860"></a>01860                                                  size_t&amp;         nActualContributors) ;
-<a name="l01861"></a>01861 
-<a name="l01876"></a>01876 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#f9cfe2a74be8c2fa69119645e16812c9">sipxCallGetAudioRtpSourceIds</a>(<span class="keyword">const</span> SIPX_CALL hCall,
-<a name="l01877"></a>01877                                                       <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>&amp; iSendSSRC,
-<a name="l01878"></a>01878                                                       <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>&amp; iReceiveSSRC)  ;
-<a name="l01879"></a>01879 
-<a name="l01894"></a>01894 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#21c69619f4ec269c0a6d9f49a0064531">sipxCallGetAudioRtcpStats</a>(<span class="keyword">const</span> SIPX_CALL hCall,
-<a name="l01895"></a>01895                                                    <a class="code" href="struct_s_i_p_x___r_t_c_p___s_t_a_t_s.html">SIPX_RTCP_STATS</a>* pStats) ;
-<a name="l01896"></a>01896 
-<a name="l01920"></a>01920 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#992d1e75cb4dc67a520b49185711b85e">sipxCallLimitCodecPreferences</a>(<span class="keyword">const</span> SIPX_CALL hCall,
-<a name="l01921"></a>01921                                                        <span class="keyword">const</span> <a class="code" href="sip_xtapi_8h.html#1613b5a840e8debe4c8c4738649799b5">SIPX_AUDIO_BANDWIDTH_ID</a> audioBandwidth,
-<a name="l01922"></a>01922                                                        <span class="keyword">const</span> <a class="code" href="sip_xtapi_8h.html#2c005d65fdf566d7d7cb4fea87ba7783">SIPX_VIDEO_BANDWIDTH_ID</a> videoBandwidth,
-<a name="l01923"></a>01923                                                        <span class="keyword">const</span> <span class="keywordtype">char</span>* szVideoCodecName);
-<a name="l01924"></a>01924 
-<a name="l01926"></a>01926 
-<a name="l01929"></a>01929 
-<a name="l01930"></a>01930 
-<a name="l01955"></a>01955 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#763d53f98ffc81906a0ff214276db4f1">sipxPublisherCreate</a>(<span class="keyword">const</span> SIPX_INST hInst, 
-<a name="l01956"></a>01956                                              SIPX_PUB* phPub,
-<a name="l01957"></a>01957                                              <span class="keyword">const</span> <span class="keywordtype">char</span>* szResourceId,
-<a name="l01958"></a>01958                                              <span class="keyword">const</span> <span class="keywordtype">char</span>* szEventType,
-<a name="l01959"></a>01959                                              <span class="keyword">const</span> <span class="keywordtype">char</span>* szContentType,
-<a name="l01960"></a>01960                                              <span class="keyword">const</span> <span class="keywordtype">char</span>* pContent,
-<a name="l01961"></a>01961                                              <span class="keyword">const</span> size_t nContentLength);
-<a name="l01962"></a>01962 
-<a name="l01976"></a>01976 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#8e5ea778838eb5dce6655895d71efb5c">sipxPublisherDestroy</a>(<span class="keyword">const</span> SIPX_PUB hPub,
-<a name="l01977"></a>01977                                               <span class="keyword">const</span> <span class="keywordtype">char</span>* szContentType,
-<a name="l01978"></a>01978                                               <span class="keyword">const</span> <span class="keywordtype">char</span>* pFinalContent,
-<a name="l01979"></a>01979                                               <span class="keyword">const</span> size_t nContentLength);
-<a name="l01980"></a>01980 
-<a name="l01991"></a>01991 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#6ed680684e02b55e29774e36273b112e">sipxPublisherUpdate</a>(<span class="keyword">const</span> SIPX_PUB hPub,
-<a name="l01992"></a>01992                                              <span class="keyword">const</span> <span class="keywordtype">char</span>* szContentType,
-<a name="l01993"></a>01993                                              <span class="keyword">const</span> <span class="keywordtype">char</span>* pContent,
-<a name="l01994"></a>01994                                              <span class="keyword">const</span> size_t nContentLength);
-<a name="l01995"></a>01995 
-<a name="l01997"></a>01997 
-<a name="l02000"></a>02000 
-<a name="l02001"></a>02001 
-<a name="l02012"></a>02012 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#39de2862d68e3f0cade1d7306d2d6091">sipxConferenceCreate</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l02013"></a>02013                                               SIPX_CONF* phConference) ;
+<a name="l01556"></a>01556 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#83292f4e74936748478edcd53abda77a">sipxCallPlayBufferStop</a>(<span class="keyword">const</span> SIPX_CALL hCall) ; 
+<a name="l01557"></a>01557 
+<a name="l01558"></a>01558 
+<a name="l01588"></a>01588 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#511f9b86617d28d3a0cf4165289d66a5">sipxCallSubscribe</a>(<span class="keyword">const</span> SIPX_CALL hCall,
+<a name="l01589"></a>01589                                            <span class="keyword">const</span> <span class="keywordtype">char</span>* szEventType,
+<a name="l01590"></a>01590                                            <span class="keyword">const</span> <span class="keywordtype">char</span>* szAcceptType,
+<a name="l01591"></a>01591                                            SIPX_SUB* phSub,
+<a name="l01592"></a>01592                                            <span class="keywordtype">bool</span> bRemoteContactIsGruu = <span class="keyword">false</span>);
+<a name="l01593"></a>01593 
+<a name="l01602"></a>01602 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#ca57fa3a19eb2b3d683d677df9169138">sipxCallUnsubscribe</a>(<span class="keyword">const</span> SIPX_SUB hSub) ;
+<a name="l01603"></a>01603 
+<a name="l01604"></a>01604 
+<a name="l01621"></a>01621 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#3dc643bfbb720cda10fef37d01134cbc">sipxCallSendInfo</a>(SIPX_INFO* phInfo,
+<a name="l01622"></a>01622                                           <span class="keyword">const</span> SIPX_CALL hCall,
+<a name="l01623"></a>01623                                           <span class="keyword">const</span> <span class="keywordtype">char</span>* szContentType,
+<a name="l01624"></a>01624                                           <span class="keyword">const</span> <span class="keywordtype">char</span>* szContent,
+<a name="l01625"></a>01625                                           <span class="keyword">const</span> size_t nContentLength);
+<a name="l01626"></a>01626 
+<a name="l01713"></a>01713 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#7d41ce14b670b4dc65c2ee9efa04704b">sipxCallBlindTransfer</a>(<span class="keyword">const</span> SIPX_CALL hCall, 
+<a name="l01714"></a>01714                                                <span class="keyword">const</span> <span class="keywordtype">char</span>* szAddress) ;
+<a name="l01715"></a>01715 
+<a name="l01815"></a>01815 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#fcb5d6968431827e628bf6926dc47512">sipxCallTransfer</a>(<span class="keyword">const</span> SIPX_CALL hSourceCall,
+<a name="l01816"></a>01816                                           <span class="keyword">const</span> SIPX_CALL hTargetCall) ;
+<a name="l01817"></a>01817 
+<a name="l01818"></a>01818 
+<a name="l01819"></a>01819 
+<a name="l01827"></a>01827 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#1fd34d77c7724d4c663ed941a9f3c2ed">sipxCallUpdateVideoWindow</a>(<span class="keyword">const</span> SIPX_CALL hCall, <span class="keyword">const</span> <a class="code" href="sip_xtapi_8h.html#72f702115019a9d9ba9d940ab05d18ea">SIPX_WINDOW_HANDLE</a> hWnd);
+<a name="l01828"></a>01828 
+<a name="l01829"></a>01829 
+<a name="l01838"></a>01838 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#0765fab850a5afc6fb6b57593f290a45">sipxCallResizeWindow</a>(<span class="keyword">const</span> SIPX_CALL hCall, <span class="keyword">const</span> <a class="code" href="sip_xtapi_8h.html#72f702115019a9d9ba9d940ab05d18ea">SIPX_WINDOW_HANDLE</a> hWnd);
+<a name="l01839"></a>01839 
+<a name="l01840"></a>01840 
+<a name="l01868"></a>01868 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#ac37b3c2673e463d283b23ada9c425e9">sipxCallGetEnergyLevels</a>(<span class="keyword">const</span> SIPX_CALL hCall,
+<a name="l01869"></a>01869                                                  <span class="keywordtype">int</span>&amp;            iInputEnergyLevel,
+<a name="l01870"></a>01870                                                  <span class="keywordtype">int</span>&amp;            iOutputEnergyLevel,
+<a name="l01871"></a>01871                                                  <span class="keyword">const</span> size_t    nMaxContributors,
+<a name="l01872"></a>01872                                                  <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>    CCSRCs[],
+<a name="l01873"></a>01873                                                  <span class="keywordtype">int</span>             iEnergyLevels[],
+<a name="l01874"></a>01874                                                  size_t&amp;         nActualContributors) ;
+<a name="l01875"></a>01875 
+<a name="l01890"></a>01890 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#f9cfe2a74be8c2fa69119645e16812c9">sipxCallGetAudioRtpSourceIds</a>(<span class="keyword">const</span> SIPX_CALL hCall,
+<a name="l01891"></a>01891                                                       <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>&amp; iSendSSRC,
+<a name="l01892"></a>01892                                                       <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>&amp; iReceiveSSRC)  ;
+<a name="l01893"></a>01893 
+<a name="l01908"></a>01908 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#21c69619f4ec269c0a6d9f49a0064531">sipxCallGetAudioRtcpStats</a>(<span class="keyword">const</span> SIPX_CALL hCall,
+<a name="l01909"></a>01909                                                    <a class="code" href="struct_s_i_p_x___r_t_c_p___s_t_a_t_s.html">SIPX_RTCP_STATS</a>* pStats) ;
+<a name="l01910"></a>01910 
+<a name="l01934"></a>01934 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#992d1e75cb4dc67a520b49185711b85e">sipxCallLimitCodecPreferences</a>(<span class="keyword">const</span> SIPX_CALL hCall,
+<a name="l01935"></a>01935                                                        <span class="keyword">const</span> <a class="code" href="sip_xtapi_8h.html#1613b5a840e8debe4c8c4738649799b5">SIPX_AUDIO_BANDWIDTH_ID</a> audioBandwidth,
+<a name="l01936"></a>01936                                                        <span class="keyword">const</span> <a class="code" href="sip_xtapi_8h.html#2c005d65fdf566d7d7cb4fea87ba7783">SIPX_VIDEO_BANDWIDTH_ID</a> videoBandwidth,
+<a name="l01937"></a>01937                                                        <span class="keyword">const</span> <span class="keywordtype">char</span>* szVideoCodecName);
+<a name="l01938"></a>01938 
+<a name="l01940"></a>01940 
+<a name="l01943"></a>01943 
+<a name="l01944"></a>01944 
+<a name="l01969"></a>01969 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#763d53f98ffc81906a0ff214276db4f1">sipxPublisherCreate</a>(<span class="keyword">const</span> SIPX_INST hInst, 
+<a name="l01970"></a>01970                                              SIPX_PUB* phPub,
+<a name="l01971"></a>01971                                              <span class="keyword">const</span> <span class="keywordtype">char</span>* szResourceId,
+<a name="l01972"></a>01972                                              <span class="keyword">const</span> <span class="keywordtype">char</span>* szEventType,
+<a name="l01973"></a>01973                                              <span class="keyword">const</span> <span class="keywordtype">char</span>* szContentType,
+<a name="l01974"></a>01974                                              <span class="keyword">const</span> <span class="keywordtype">char</span>* pContent,
+<a name="l01975"></a>01975                                              <span class="keyword">const</span> size_t nContentLength);
+<a name="l01976"></a>01976 
+<a name="l01990"></a>01990 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#8e5ea778838eb5dce6655895d71efb5c">sipxPublisherDestroy</a>(<span class="keyword">const</span> SIPX_PUB hPub,
+<a name="l01991"></a>01991                                               <span class="keyword">const</span> <span class="keywordtype">char</span>* szContentType,
+<a name="l01992"></a>01992                                               <span class="keyword">const</span> <span class="keywordtype">char</span>* pFinalContent,
+<a name="l01993"></a>01993                                               <span class="keyword">const</span> size_t nContentLength);
+<a name="l01994"></a>01994 
+<a name="l02005"></a>02005 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#6ed680684e02b55e29774e36273b112e">sipxPublisherUpdate</a>(<span class="keyword">const</span> SIPX_PUB hPub,
+<a name="l02006"></a>02006                                              <span class="keyword">const</span> <span class="keywordtype">char</span>* szContentType,
+<a name="l02007"></a>02007                                              <span class="keyword">const</span> <span class="keywordtype">char</span>* pContent,
+<a name="l02008"></a>02008                                              <span class="keyword">const</span> size_t nContentLength);
+<a name="l02009"></a>02009 
+<a name="l02011"></a>02011 
 <a name="l02014"></a>02014 
-<a name="l02030"></a>02030 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#a81bb781458cd5b5cb40a76ba1304137">sipxConferenceJoin</a>(<span class="keyword">const</span> SIPX_CONF hConf,
-<a name="l02031"></a>02031                                             <span class="keyword">const</span> SIPX_CALL hCall) ;
-<a name="l02032"></a>02032 
-<a name="l02049"></a>02049 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#462640f6a246031ea5fe094226d79dae">sipxConferenceSplit</a>(<span class="keyword">const</span> SIPX_CONF hConf,
-<a name="l02050"></a>02050                                              <span class="keyword">const</span> SIPX_CALL hCall) ;
-<a name="l02051"></a>02051 
-<a name="l02086"></a>02086 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#c9e89445ce75d6337bb4e7bc3d86dfeb">sipxConferenceAdd</a>(<span class="keyword">const</span> SIPX_CONF hConf,
-<a name="l02087"></a>02087                                            <span class="keyword">const</span> SIPX_LINE hLine,
-<a name="l02088"></a>02088                                            <span class="keyword">const</span> <span class="keywordtype">char</span>* szAddress,
-<a name="l02089"></a>02089                                            SIPX_CALL* phNewCall,
-<a name="l02090"></a>02090                                            <a class="code" href="sip_xtapi_8h.html#f1274432c33002f92a7b85e8a1aca1bf">SIPX_CONTACT_ID</a> contactId = 0,
-<a name="l02091"></a>02091                                            <a class="code" href="struct_s_i_p_x___v_i_d_e_o___d_i_s_p_l_a_y.html">SIPX_VIDEO_DISPLAY</a>* <span class="keyword">const</span> pDisplay = NULL,
-<a name="l02092"></a>02092                                            <a class="code" href="class_s_i_p_x___s_e_c_u_r_i_t_y___a_t_t_r_i_b_u_t_e_s.html">SIPX_SECURITY_ATTRIBUTES</a>* <span class="keyword">const</span> pSecurity = NULL,
-<a name="l02093"></a>02093                                            <span class="keywordtype">bool</span> bTakeFocus = <span class="keyword">true</span>,
-<a name="l02094"></a>02094                                            <a class="code" href="struct_s_i_p_x___c_a_l_l___o_p_t_i_o_n_s.html">SIPX_CALL_OPTIONS</a>* options = NULL);
-<a name="l02095"></a>02095 
-<a name="l02104"></a>02104 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#91e6dd1dbe10946349c9eb0dff55176f">sipxConferenceRemove</a>(<span class="keyword">const</span> SIPX_CONF hConf,
-<a name="l02105"></a>02105                                               <span class="keyword">const</span> SIPX_CALL hCall) ;
-<a name="l02106"></a>02106 
-<a name="l02107"></a>02107 
-<a name="l02117"></a>02117 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#f17f349cccc3ea4d1affdfd927901494">sipxConferenceGetCalls</a>(<span class="keyword">const</span> SIPX_CONF hConf,
-<a name="l02118"></a>02118                                                 SIPX_CALL calls[], 
-<a name="l02119"></a>02119                                                 <span class="keyword">const</span> size_t iMax, 
-<a name="l02120"></a>02120                                                 size_t&amp; nActual) ;
+<a name="l02015"></a>02015 
+<a name="l02026"></a>02026 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#39de2862d68e3f0cade1d7306d2d6091">sipxConferenceCreate</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l02027"></a>02027                                               SIPX_CONF* phConference) ;
+<a name="l02028"></a>02028 
+<a name="l02044"></a>02044 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#a81bb781458cd5b5cb40a76ba1304137">sipxConferenceJoin</a>(<span class="keyword">const</span> SIPX_CONF hConf,
+<a name="l02045"></a>02045                                             <span class="keyword">const</span> SIPX_CALL hCall) ;
+<a name="l02046"></a>02046 
+<a name="l02063"></a>02063 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#462640f6a246031ea5fe094226d79dae">sipxConferenceSplit</a>(<span class="keyword">const</span> SIPX_CONF hConf,
+<a name="l02064"></a>02064                                              <span class="keyword">const</span> SIPX_CALL hCall) ;
+<a name="l02065"></a>02065 
+<a name="l02100"></a>02100 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#c9e89445ce75d6337bb4e7bc3d86dfeb">sipxConferenceAdd</a>(<span class="keyword">const</span> SIPX_CONF hConf,
+<a name="l02101"></a>02101                                            <span class="keyword">const</span> SIPX_LINE hLine,
+<a name="l02102"></a>02102                                            <span class="keyword">const</span> <span class="keywordtype">char</span>* szAddress,
+<a name="l02103"></a>02103                                            SIPX_CALL* phNewCall,
+<a name="l02104"></a>02104                                            <a class="code" href="sip_xtapi_8h.html#f1274432c33002f92a7b85e8a1aca1bf">SIPX_CONTACT_ID</a> contactId = 0,
+<a name="l02105"></a>02105                                            <a class="code" href="struct_s_i_p_x___v_i_d_e_o___d_i_s_p_l_a_y.html">SIPX_VIDEO_DISPLAY</a>* <span class="keyword">const</span> pDisplay = NULL,
+<a name="l02106"></a>02106                                            <a class="code" href="class_s_i_p_x___s_e_c_u_r_i_t_y___a_t_t_r_i_b_u_t_e_s.html">SIPX_SECURITY_ATTRIBUTES</a>* <span class="keyword">const</span> pSecurity = NULL,
+<a name="l02107"></a>02107                                            <span class="keywordtype">bool</span> bTakeFocus = <span class="keyword">true</span>,
+<a name="l02108"></a>02108                                            <a class="code" href="struct_s_i_p_x___c_a_l_l___o_p_t_i_o_n_s.html">SIPX_CALL_OPTIONS</a>* options = NULL);
+<a name="l02109"></a>02109 
+<a name="l02118"></a>02118 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#91e6dd1dbe10946349c9eb0dff55176f">sipxConferenceRemove</a>(<span class="keyword">const</span> SIPX_CONF hConf,
+<a name="l02119"></a>02119                                               <span class="keyword">const</span> SIPX_CALL hCall) ;
+<a name="l02120"></a>02120 
 <a name="l02121"></a>02121 
-<a name="l02142"></a>02142 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#b570e401953aff2858baf8b6f045f004">sipxConferenceHold</a>(<span class="keyword">const</span> SIPX_CONF hConf,
-<a name="l02143"></a>02143                                             <span class="keywordtype">bool</span> bBridging = <span class="keyword">true</span>);
-<a name="l02144"></a>02144                                             
-<a name="l02157"></a>02157 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#80bb4fb2d46458d4edb100b4593f228e">sipxConferenceUnhold</a>(<span class="keyword">const</span> SIPX_CONF hConf);
-<a name="l02158"></a>02158 
-<a name="l02159"></a>02159 
-<a name="l02185"></a>02185 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#8c6278adef02d410bbc909937d27efd2">sipxConferencePlayAudioFileStart</a>(<span class="keyword">const</span> SIPX_CONF hConf, 
-<a name="l02186"></a>02186                                                           <span class="keyword">const</span> <span class="keywordtype">char</span>* szFile,
-<a name="l02187"></a>02187                                                           <span class="keyword">const</span> <span class="keywordtype">bool</span> bRepeat,
-<a name="l02188"></a>02188                                                           <span class="keyword">const</span> <span class="keywordtype">bool</span> bLocal,
-<a name="l02189"></a>02189                                                           <span class="keyword">const</span> <span class="keywordtype">bool</span> bRemote,
-<a name="l02190"></a>02190                                                           <span class="keyword">const</span> <span class="keywordtype">bool</span> bMixWithMicrophone = <span class="keyword">false</span>,
-<a name="l02191"></a>02191                                                           <span class="keyword">const</span> <span class="keywordtype">float</span> fVolumeScaling = 1.0) ;
-<a name="l02192"></a>02192 
-<a name="l02193"></a>02193 <span class="comment">/*</span>
-<a name="l02194"></a>02194 <span class="comment"> * Stop playing a file started with sipxConferencePlayAudioFileStart</span>
-<a name="l02195"></a>02195 <span class="comment"> * If a sipxConferenceDestroy is attempted while an audio file is playing,</span>
-<a name="l02196"></a>02196 <span class="comment"> * sipxConferenceDestroy will fail with a SIPX_RESULT_BUSY return code.</span>
-<a name="l02197"></a>02197 <span class="comment"> * Call sipxConferencePlayAudioFileStop before making the call to</span>
-<a name="l02198"></a>02198 <span class="comment"> * sipxConferenceDestroy.</span>
-<a name="l02199"></a>02199 <span class="comment"> * </span>
-<a name="l02200"></a>02200 <span class="comment"> * @param hConf Conference handle obtained by calling sipxConferenceCreate.</span>
-<a name="l02201"></a>02201 <span class="comment"> */</span>
-<a name="l02202"></a>02202 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> sipxConferencePlayAudioFileStop(<span class="keyword">const</span> SIPX_CONF hConf) ;
-<a name="l02203"></a>02203 
-<a name="l02204"></a>02204 
-<a name="l02212"></a>02212 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#e58545db7912da44d0bbb252ba1b2504">sipxConferenceDestroy</a>(SIPX_CONF hConf) ;
-<a name="l02213"></a>02213 
-<a name="l02214"></a>02214 
-<a name="l02230"></a>02230 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#a61ca2e97bee469fcae3486c5dacb068">sipxConferenceGetEnergyLevels</a>(<span class="keyword">const</span> SIPX_CONF hConf,
-<a name="l02231"></a>02231                                                        <span class="keywordtype">int</span>&amp;            iInputEnergyLevel,
-<a name="l02232"></a>02232                                                        <span class="keywordtype">int</span>&amp;            iOutputEnergyLevel) ;
-<a name="l02233"></a>02233 
-<a name="l02234"></a>02234 
-<a name="l02235"></a>02235 
-<a name="l02258"></a>02258 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#efe8d2a40fec461a119c221ed61677fc">sipxConferenceLimitCodecPreferences</a>(<span class="keyword">const</span> SIPX_CONF hConf,
-<a name="l02259"></a>02259                                                              <span class="keyword">const</span> <a class="code" href="sip_xtapi_8h.html#1613b5a840e8debe4c8c4738649799b5">SIPX_AUDIO_BANDWIDTH_ID</a> audioBandwidth,
-<a name="l02260"></a>02260                                                              <span class="keyword">const</span> <a class="code" href="sip_xtapi_8h.html#2c005d65fdf566d7d7cb4fea87ba7783">SIPX_VIDEO_BANDWIDTH_ID</a> videoBandwidth,
-<a name="l02261"></a>02261                                                              <span class="keyword">const</span> <span class="keywordtype">char</span>* szVideoCodecName) ;
-<a name="l02263"></a>02263 
-<a name="l02266"></a>02266 
-<a name="l02275"></a>02275 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#32fc8f9561cec671fe0a9ecc8438e3d5">sipxAudioSetGain</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l02276"></a>02276                                           <span class="keyword">const</span> <span class="keywordtype">int</span> iLevel) ;
+<a name="l02131"></a>02131 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#f17f349cccc3ea4d1affdfd927901494">sipxConferenceGetCalls</a>(<span class="keyword">const</span> SIPX_CONF hConf,
+<a name="l02132"></a>02132                                                 SIPX_CALL calls[], 
+<a name="l02133"></a>02133                                                 <span class="keyword">const</span> size_t iMax, 
+<a name="l02134"></a>02134                                                 size_t&amp; nActual) ;
+<a name="l02135"></a>02135 
+<a name="l02156"></a>02156 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#b570e401953aff2858baf8b6f045f004">sipxConferenceHold</a>(<span class="keyword">const</span> SIPX_CONF hConf,
+<a name="l02157"></a>02157                                             <span class="keywordtype">bool</span> bBridging = <span class="keyword">true</span>);
+<a name="l02158"></a>02158                                             
+<a name="l02171"></a>02171 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#80bb4fb2d46458d4edb100b4593f228e">sipxConferenceUnhold</a>(<span class="keyword">const</span> SIPX_CONF hConf);
+<a name="l02172"></a>02172 
+<a name="l02173"></a>02173 
+<a name="l02199"></a>02199 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#8c6278adef02d410bbc909937d27efd2">sipxConferencePlayAudioFileStart</a>(<span class="keyword">const</span> SIPX_CONF hConf, 
+<a name="l02200"></a>02200                                                           <span class="keyword">const</span> <span class="keywordtype">char</span>* szFile,
+<a name="l02201"></a>02201                                                           <span class="keyword">const</span> <span class="keywordtype">bool</span> bRepeat,
+<a name="l02202"></a>02202                                                           <span class="keyword">const</span> <span class="keywordtype">bool</span> bLocal,
+<a name="l02203"></a>02203                                                           <span class="keyword">const</span> <span class="keywordtype">bool</span> bRemote,
+<a name="l02204"></a>02204                                                           <span class="keyword">const</span> <span class="keywordtype">bool</span> bMixWithMicrophone = <span class="keyword">false</span>,
+<a name="l02205"></a>02205                                                           <span class="keyword">const</span> <span class="keywordtype">float</span> fVolumeScaling = 1.0) ;
+<a name="l02206"></a>02206 
+<a name="l02207"></a>02207 <span class="comment">/*</span>
+<a name="l02208"></a>02208 <span class="comment"> * Stop playing a file started with sipxConferencePlayAudioFileStart</span>
+<a name="l02209"></a>02209 <span class="comment"> * If a sipxConferenceDestroy is attempted while an audio file is playing,</span>
+<a name="l02210"></a>02210 <span class="comment"> * sipxConferenceDestroy will fail with a SIPX_RESULT_BUSY return code.</span>
+<a name="l02211"></a>02211 <span class="comment"> * Call sipxConferencePlayAudioFileStop before making the call to</span>
+<a name="l02212"></a>02212 <span class="comment"> * sipxConferenceDestroy.</span>
+<a name="l02213"></a>02213 <span class="comment"> * </span>
+<a name="l02214"></a>02214 <span class="comment"> * @param hConf Conference handle obtained by calling sipxConferenceCreate.</span>
+<a name="l02215"></a>02215 <span class="comment"> */</span>
+<a name="l02216"></a>02216 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> sipxConferencePlayAudioFileStop(<span class="keyword">const</span> SIPX_CONF hConf) ;
+<a name="l02217"></a>02217 
+<a name="l02218"></a>02218 
+<a name="l02226"></a>02226 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#e58545db7912da44d0bbb252ba1b2504">sipxConferenceDestroy</a>(SIPX_CONF hConf) ;
+<a name="l02227"></a>02227 
+<a name="l02228"></a>02228 
+<a name="l02244"></a>02244 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#a61ca2e97bee469fcae3486c5dacb068">sipxConferenceGetEnergyLevels</a>(<span class="keyword">const</span> SIPX_CONF hConf,
+<a name="l02245"></a>02245                                                        <span class="keywordtype">int</span>&amp;            iInputEnergyLevel,
+<a name="l02246"></a>02246                                                        <span class="keywordtype">int</span>&amp;            iOutputEnergyLevel) ;
+<a name="l02247"></a>02247 
+<a name="l02248"></a>02248 
+<a name="l02249"></a>02249 
+<a name="l02272"></a>02272 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#efe8d2a40fec461a119c221ed61677fc">sipxConferenceLimitCodecPreferences</a>(<span class="keyword">const</span> SIPX_CONF hConf,
+<a name="l02273"></a>02273                                                              <span class="keyword">const</span> <a class="code" href="sip_xtapi_8h.html#1613b5a840e8debe4c8c4738649799b5">SIPX_AUDIO_BANDWIDTH_ID</a> audioBandwidth,
+<a name="l02274"></a>02274                                                              <span class="keyword">const</span> <a class="code" href="sip_xtapi_8h.html#2c005d65fdf566d7d7cb4fea87ba7783">SIPX_VIDEO_BANDWIDTH_ID</a> videoBandwidth,
+<a name="l02275"></a>02275                                                              <span class="keyword">const</span> <span class="keywordtype">char</span>* szVideoCodecName) ;
 <a name="l02277"></a>02277 
-<a name="l02278"></a>02278 
-<a name="l02285"></a>02285 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#e34c11e6693a948accbb86a902bf23d6">sipxAudioGetGain</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l02286"></a>02286                                           <span class="keywordtype">int</span>&amp; iLevel) ;
-<a name="l02287"></a>02287 
-<a name="l02288"></a>02288 
-<a name="l02296"></a>02296 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#ee442e8232ce7e32bf8058995a74ded3">sipxAudioMute</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l02297"></a>02297                                        <span class="keyword">const</span> <span class="keywordtype">bool</span> bMute) ;
-<a name="l02298"></a>02298 
-<a name="l02299"></a>02299 
-<a name="l02307"></a>02307 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#c6189047a7f02f6a602803ae053e5ec8">sipxAudioIsMuted</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l02308"></a>02308                                           <span class="keywordtype">bool</span> &amp;bMuted) ;
-<a name="l02309"></a>02309 
-<a name="l02310"></a>02310 
-<a name="l02319"></a>02319 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#fc2aad7e0c88069bbfeb1fb6a6749002">sipxAudioEnableSpeaker</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l02320"></a>02320                                                 <span class="keyword">const</span> <a class="code" href="sip_xtapi_8h.html#845f307240adc57373f95079d48a6727">SPEAKER_TYPE</a> type) ;
-<a name="l02321"></a>02321 
-<a name="l02322"></a>02322 
-<a name="l02331"></a>02331 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#d5fe0d78cd2e46cda7807b61f2fbf8da">sipxAudioGetEnabledSpeaker</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l02332"></a>02332                                                     <a class="code" href="sip_xtapi_8h.html#845f307240adc57373f95079d48a6727">SPEAKER_TYPE</a>&amp; type) ;
-<a name="l02333"></a>02333 
-<a name="l02334"></a>02334 
-<a name="l02345"></a>02345 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#97d4efc2df0fbd7333d8881416510b3f">sipxAudioSetVolume</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l02346"></a>02346                                             <span class="keyword">const</span> <a class="code" href="sip_xtapi_8h.html#845f307240adc57373f95079d48a6727">SPEAKER_TYPE</a> type, 
-<a name="l02347"></a>02347                                             <span class="keyword">const</span> <span class="keywordtype">int</span> iLevel) ;
+<a name="l02280"></a>02280 
+<a name="l02289"></a>02289 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#32fc8f9561cec671fe0a9ecc8438e3d5">sipxAudioSetGain</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l02290"></a>02290                                           <span class="keyword">const</span> <span class="keywordtype">int</span> iLevel) ;
+<a name="l02291"></a>02291 
+<a name="l02292"></a>02292 
+<a name="l02299"></a>02299 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#e34c11e6693a948accbb86a902bf23d6">sipxAudioGetGain</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l02300"></a>02300                                           <span class="keywordtype">int</span>&amp; iLevel) ;
+<a name="l02301"></a>02301 
+<a name="l02302"></a>02302 
+<a name="l02310"></a>02310 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#ee442e8232ce7e32bf8058995a74ded3">sipxAudioMute</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l02311"></a>02311                                        <span class="keyword">const</span> <span class="keywordtype">bool</span> bMute) ;
+<a name="l02312"></a>02312 
+<a name="l02313"></a>02313 
+<a name="l02321"></a>02321 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#c6189047a7f02f6a602803ae053e5ec8">sipxAudioIsMuted</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l02322"></a>02322                                           <span class="keywordtype">bool</span> &amp;bMuted) ;
+<a name="l02323"></a>02323 
+<a name="l02324"></a>02324 
+<a name="l02333"></a>02333 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#fc2aad7e0c88069bbfeb1fb6a6749002">sipxAudioEnableSpeaker</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l02334"></a>02334                                                 <span class="keyword">const</span> <a class="code" href="sip_xtapi_8h.html#845f307240adc57373f95079d48a6727">SPEAKER_TYPE</a> type) ;
+<a name="l02335"></a>02335 
+<a name="l02336"></a>02336 
+<a name="l02345"></a>02345 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#d5fe0d78cd2e46cda7807b61f2fbf8da">sipxAudioGetEnabledSpeaker</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l02346"></a>02346                                                     <a class="code" href="sip_xtapi_8h.html#845f307240adc57373f95079d48a6727">SPEAKER_TYPE</a>&amp; type) ;
+<a name="l02347"></a>02347 
 <a name="l02348"></a>02348 
-<a name="l02349"></a>02349 
-<a name="l02359"></a>02359 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#e4bed7436128c718ee1a9fb627452372">sipxAudioGetVolume</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l02359"></a>02359 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#97d4efc2df0fbd7333d8881416510b3f">sipxAudioSetVolume</a>(<span class="keyword">const</span> SIPX_INST hInst,
 <a name="l02360"></a>02360                                             <span class="keyword">const</span> <a class="code" href="sip_xtapi_8h.html#845f307240adc57373f95079d48a6727">SPEAKER_TYPE</a> type, 
-<a name="l02361"></a>02361                                             <span class="keywordtype">int</span>&amp; iLevel) ;
+<a name="l02361"></a>02361                                             <span class="keyword">const</span> <span class="keywordtype">int</span> iLevel) ;
 <a name="l02362"></a>02362 
 <a name="l02363"></a>02363 
-<a name="l02377"></a>02377 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#a63d55145ec1ec1bedb1d082d861f3fc">sipxAudioSetAECMode</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l02378"></a>02378                                              <span class="keyword">const</span> SIPX_AEC_MODE mode) ;
-<a name="l02379"></a>02379 
-<a name="l02380"></a>02380 
-<a name="l02389"></a>02389 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#0ee5da9f544aede97b0c1dc3e1ac213c">sipxAudioGetAECMode</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l02390"></a>02390                                              SIPX_AEC_MODE&amp;  mode) ;
-<a name="l02391"></a>02391 
-<a name="l02392"></a>02392 
-<a name="l02401"></a>02401 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#c40efd974741cc1457918436442f833a">sipxAudioSetAGCMode</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l02402"></a>02402                                              <span class="keyword">const</span> <span class="keywordtype">bool</span> bEnable) ;
-<a name="l02403"></a>02403 
-<a name="l02411"></a>02411 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#593b24d08fd6fdb37e28878c48c3c045">sipxAudioGetAGCMode</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l02412"></a>02412                                              <span class="keywordtype">bool</span>&amp; bEnabled) ;
-<a name="l02413"></a>02413 
-<a name="l02414"></a>02414 
-<a name="l02428"></a>02428 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#5b27258285d6985f19c963a94a1f359a">sipxAudioSetNoiseReductionMode</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l02429"></a>02429                                                         <span class="keyword">const</span> SIPX_NOISE_REDUCTION_MODE mode) ;
-<a name="l02430"></a>02430 
-<a name="l02431"></a>02431 
-<a name="l02440"></a>02440 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#58a9338f251ebaf1b16bdc991c233355">sipxAudioGetNoiseReductionMode</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l02441"></a>02441                                                         SIPX_NOISE_REDUCTION_MODE&amp; mode) ;
-<a name="l02442"></a>02442  
-<a name="l02450"></a>02450 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#8ca220bda90ab9b71eac1d7de1097c79">sipxAudioGetNumInputDevices</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l02451"></a>02451                                                      size_t&amp; numDevices) ;
-<a name="l02452"></a>02452 
-<a name="l02461"></a>02461 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#fb71b1a902d0f3ee93a6c70b7b157133">sipxAudioGetInputDevice</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l02462"></a>02462                                                  <span class="keyword">const</span> <span class="keywordtype">int</span> index,
-<a name="l02463"></a>02463                                                  <span class="keyword">const</span> <span class="keywordtype">char</span>*&amp; szDevice) ;
-<a name="l02464"></a>02464 
-<a name="l02471"></a>02471 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#523fc423f6c619a6c8bf724012a9c127">sipxAudioGetNumOutputDevices</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l02472"></a>02472                                                       size_t&amp; numDevices) ;
-<a name="l02473"></a>02473 
-<a name="l02482"></a>02482 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#4c2d9d15249c9a8cb555cf74a18ff916">sipxAudioGetOutputDevice</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l02483"></a>02483                                                   <span class="keyword">const</span> <span class="keywordtype">int</span> index,
-<a name="l02484"></a>02484                                                   <span class="keyword">const</span> <span class="keywordtype">char</span>*&amp; szDevice) ;
-<a name="l02485"></a>02485 
-<a name="l02493"></a>02493 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#cfa1f3d760267f2027b5c5aac5f3fb78">sipxAudioSetCallInputDevice</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l02494"></a>02494                                                      <span class="keyword">const</span> <span class="keywordtype">char</span>* szDevice) ;
-<a name="l02495"></a>02495 
-<a name="l02501"></a>02501 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#2723b16df342b04a3a1a2ae58461dced">sipxAudioSetRingerOutputDevice</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l02502"></a>02502                                                         <span class="keyword">const</span> <span class="keywordtype">char</span>* szDevice) ;
-<a name="l02503"></a>02503 
-<a name="l02504"></a>02504 
-<a name="l02510"></a>02510 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#0cc30bbd7a5f80262a3216500502b36c">sipxAudioSetCallOutputDevice</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l02511"></a>02511                                                       <span class="keyword">const</span> <span class="keywordtype">char</span>* szDevice) ;
-<a name="l02512"></a>02512 
-<a name="l02513"></a>02513 
-<a name="l02515"></a>02515 
+<a name="l02373"></a>02373 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#e4bed7436128c718ee1a9fb627452372">sipxAudioGetVolume</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l02374"></a>02374                                             <span class="keyword">const</span> <a class="code" href="sip_xtapi_8h.html#845f307240adc57373f95079d48a6727">SPEAKER_TYPE</a> type, 
+<a name="l02375"></a>02375                                             <span class="keywordtype">int</span>&amp; iLevel) ;
+<a name="l02376"></a>02376 
+<a name="l02377"></a>02377 
+<a name="l02391"></a>02391 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#a63d55145ec1ec1bedb1d082d861f3fc">sipxAudioSetAECMode</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l02392"></a>02392                                              <span class="keyword">const</span> SIPX_AEC_MODE mode) ;
+<a name="l02393"></a>02393 
+<a name="l02394"></a>02394 
+<a name="l02403"></a>02403 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#0ee5da9f544aede97b0c1dc3e1ac213c">sipxAudioGetAECMode</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l02404"></a>02404                                              SIPX_AEC_MODE&amp;  mode) ;
+<a name="l02405"></a>02405 
+<a name="l02406"></a>02406 
+<a name="l02415"></a>02415 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#c40efd974741cc1457918436442f833a">sipxAudioSetAGCMode</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l02416"></a>02416                                              <span class="keyword">const</span> <span class="keywordtype">bool</span> bEnable) ;
+<a name="l02417"></a>02417 
+<a name="l02425"></a>02425 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#593b24d08fd6fdb37e28878c48c3c045">sipxAudioGetAGCMode</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l02426"></a>02426                                              <span class="keywordtype">bool</span>&amp; bEnabled) ;
+<a name="l02427"></a>02427 
+<a name="l02428"></a>02428 
+<a name="l02442"></a>02442 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#5b27258285d6985f19c963a94a1f359a">sipxAudioSetNoiseReductionMode</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l02443"></a>02443                                                         <span class="keyword">const</span> SIPX_NOISE_REDUCTION_MODE mode) ;
+<a name="l02444"></a>02444 
+<a name="l02445"></a>02445 
+<a name="l02454"></a>02454 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#58a9338f251ebaf1b16bdc991c233355">sipxAudioGetNoiseReductionMode</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l02455"></a>02455                                                         SIPX_NOISE_REDUCTION_MODE&amp; mode) ;
+<a name="l02456"></a>02456  
+<a name="l02464"></a>02464 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#8ca220bda90ab9b71eac1d7de1097c79">sipxAudioGetNumInputDevices</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l02465"></a>02465                                                      size_t&amp; numDevices) ;
+<a name="l02466"></a>02466 
+<a name="l02475"></a>02475 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#fb71b1a902d0f3ee93a6c70b7b157133">sipxAudioGetInputDevice</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l02476"></a>02476                                                  <span class="keyword">const</span> <span class="keywordtype">int</span> index,
+<a name="l02477"></a>02477                                                  <span class="keyword">const</span> <span class="keywordtype">char</span>*&amp; szDevice) ;
+<a name="l02478"></a>02478 
+<a name="l02485"></a>02485 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#523fc423f6c619a6c8bf724012a9c127">sipxAudioGetNumOutputDevices</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l02486"></a>02486                                                       size_t&amp; numDevices) ;
+<a name="l02487"></a>02487 
+<a name="l02496"></a>02496 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#4c2d9d15249c9a8cb555cf74a18ff916">sipxAudioGetOutputDevice</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l02497"></a>02497                                                   <span class="keyword">const</span> <span class="keywordtype">int</span> index,
+<a name="l02498"></a>02498                                                   <span class="keyword">const</span> <span class="keywordtype">char</span>*&amp; szDevice) ;
+<a name="l02499"></a>02499 
+<a name="l02507"></a>02507 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#cfa1f3d760267f2027b5c5aac5f3fb78">sipxAudioSetCallInputDevice</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l02508"></a>02508                                                      <span class="keyword">const</span> <span class="keywordtype">char</span>* szDevice) ;
+<a name="l02509"></a>02509 
+<a name="l02515"></a>02515 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#2723b16df342b04a3a1a2ae58461dced">sipxAudioSetRingerOutputDevice</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l02516"></a>02516                                                         <span class="keyword">const</span> <span class="keywordtype">char</span>* szDevice) ;
 <a name="l02517"></a>02517 
 <a name="l02518"></a>02518 
-<a name="l02543"></a>02543 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#d1f30bb6de3ccc09226ab04458147254">sipxLineAdd</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l02544"></a>02544                                      <span class="keyword">const</span> <span class="keywordtype">char</span>* szLineURL,
-<a name="l02545"></a>02545                                      SIPX_LINE* phLine,
-<a name="l02546"></a>02546                                      <a class="code" href="sip_xtapi_8h.html#f1274432c33002f92a7b85e8a1aca1bf">SIPX_CONTACT_ID</a> contactId = 0) ;
-<a name="l02547"></a>02547 
-<a name="l02566"></a>02566 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#aa7027b3a5501f595178ed5d13ea953f">sipxLineAddAlias</a>(<span class="keyword">const</span> SIPX_LINE hLine, <span class="keyword">const</span> <span class="keywordtype">char</span>* szLineURL) ;
-<a name="l02567"></a>02567 
-<a name="l02583"></a>02583 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#816ddf455ff0f3a9ba2fdce43827dd59">sipxLineRegister</a>(<span class="keyword">const</span> SIPX_LINE hLine, <span class="keyword">const</span> <span class="keywordtype">bool</span> bRegister);
-<a name="l02584"></a>02584 
-<a name="l02595"></a>02595 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#e324abae3a21c74a532e8a35835e238f">sipxLineRemove</a>(SIPX_LINE hLine) ;
-<a name="l02596"></a>02596 
-<a name="l02609"></a>02609 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#dd20c864275b6f9a702cbbf05b4862ca">sipxLineAddCredential</a>(<span class="keyword">const</span> SIPX_LINE hLine,                                                 
-<a name="l02610"></a>02610                                                <span class="keyword">const</span> <span class="keywordtype">char</span>* szUserID,
-<a name="l02611"></a>02611                                                <span class="keyword">const</span> <span class="keywordtype">char</span>* szPasswd,
-<a name="l02612"></a>02612                                                <span class="keyword">const</span> <span class="keywordtype">char</span>* szRealm) ;
-<a name="l02613"></a>02613 
-<a name="l02623"></a>02623 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#8671e9c72b0bd7466471f92c30dd6f43">sipxLineGet</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l02624"></a>02624                                      SIPX_LINE lines[],
-<a name="l02625"></a>02625                                      <span class="keyword">const</span> size_t max,
-<a name="l02626"></a>02626                                      size_t&amp; actual) ;
+<a name="l02524"></a>02524 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#0cc30bbd7a5f80262a3216500502b36c">sipxAudioSetCallOutputDevice</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l02525"></a>02525                                                       <span class="keyword">const</span> <span class="keywordtype">char</span>* szDevice) ;
+<a name="l02526"></a>02526 
+<a name="l02527"></a>02527 
+<a name="l02529"></a>02529 
+<a name="l02531"></a>02531 
+<a name="l02532"></a>02532 
+<a name="l02557"></a>02557 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#d1f30bb6de3ccc09226ab04458147254">sipxLineAdd</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l02558"></a>02558                                      <span class="keyword">const</span> <span class="keywordtype">char</span>* szLineURL,
+<a name="l02559"></a>02559                                      SIPX_LINE* phLine,
+<a name="l02560"></a>02560                                      <a class="code" href="sip_xtapi_8h.html#f1274432c33002f92a7b85e8a1aca1bf">SIPX_CONTACT_ID</a> contactId = 0) ;
+<a name="l02561"></a>02561 
+<a name="l02580"></a>02580 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#aa7027b3a5501f595178ed5d13ea953f">sipxLineAddAlias</a>(<span class="keyword">const</span> SIPX_LINE hLine, <span class="keyword">const</span> <span class="keywordtype">char</span>* szLineURL) ;
+<a name="l02581"></a>02581 
+<a name="l02597"></a>02597 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#816ddf455ff0f3a9ba2fdce43827dd59">sipxLineRegister</a>(<span class="keyword">const</span> SIPX_LINE hLine, <span class="keyword">const</span> <span class="keywordtype">bool</span> bRegister);
+<a name="l02598"></a>02598 
+<a name="l02609"></a>02609 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#e324abae3a21c74a532e8a35835e238f">sipxLineRemove</a>(SIPX_LINE hLine) ;
+<a name="l02610"></a>02610 
+<a name="l02623"></a>02623 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#dd20c864275b6f9a702cbbf05b4862ca">sipxLineAddCredential</a>(<span class="keyword">const</span> SIPX_LINE hLine,                                                 
+<a name="l02624"></a>02624                                                <span class="keyword">const</span> <span class="keywordtype">char</span>* szUserID,
+<a name="l02625"></a>02625                                                <span class="keyword">const</span> <span class="keywordtype">char</span>* szPasswd,
+<a name="l02626"></a>02626                                                <span class="keyword">const</span> <span class="keywordtype">char</span>* szRealm) ;
 <a name="l02627"></a>02627 
-<a name="l02639"></a>02639 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#63a5e85b46726097be5cf9f6703c91d2">sipxLineGetURI</a>(<span class="keyword">const</span> SIPX_LINE hLine,
-<a name="l02640"></a>02640                                         <span class="keywordtype">char</span>*  szBuffer,
-<a name="l02641"></a>02641                                         <span class="keyword">const</span> size_t nBuffer,
-<a name="l02642"></a>02642                                         size_t&amp; nActual) ;
-<a name="l02643"></a>02643 
-<a name="l02645"></a>02645 
-<a name="l02647"></a>02647 
-<a name="l02648"></a>02648 
-<a name="l02661"></a>02661 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#ba3cd2ed30e6ae12abbdd11e7fc56fd4">sipxConfigSetLogLevel</a>(<a class="code" href="sip_xtapi_8h.html#87f3dbd54db7a6e76b26743328faf14c">SIPX_LOG_LEVEL</a> logLevel) ;
-<a name="l02662"></a>02662 
-<a name="l02663"></a>02663 
-<a name="l02676"></a>02676 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#9190a8b905b3a37e3452e6b4c85c2f18">sipxConfigSetLogFile</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *szFilename) ;
-<a name="l02677"></a>02677 
-<a name="l02678"></a>02678 
-<a name="l02688"></a>02688 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#790c92caf49c70731ac5358aeead0344">sipxConfigSetLogCallback</a>(<a class="code" href="sip_xtapi_8h.html#63f103579f4db7148f7fd61eae4f3c4b">sipxLogCallback</a> pCallback);
-<a name="l02689"></a>02689 
-<a name="l02690"></a>02690 
-<a name="l02701"></a>02701 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#34bf8690c936c09227bb600dc6809d64">sipxConfigEnableGIPSTracing</a>(SIPX_INST hInst, 
-<a name="l02702"></a>02702                                                      <span class="keywordtype">bool</span> bEnable) ;
-<a name="l02703"></a>02703 
-<a name="l02717"></a>02717 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#01532e845f50b062bdb8f737d5a020a6">sipxConfigSetMicAudioHook</a>(<a class="code" href="sip_xtapi_8h.html#b2eb57223160d96e042dd5144fab8435">fnMicAudioHook</a> hookProc) ;
-<a name="l02718"></a>02718 
-<a name="l02719"></a>02719 
-<a name="l02732"></a>02732 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#d7a46730ceb6169a9720fd2afc52a46b">sipxConfigSetSpkrAudioHook</a>(<a class="code" href="sip_xtapi_8h.html#549de91a3eeadb12b4f2895600c31259">fnSpkrAudioHook</a> hookProc) ;
-<a name="l02733"></a>02733 
-<a name="l02742"></a>02742 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#564dc88f1d3a4327861a7d8a59d1d244">sipxConfigSetUserAgentName</a>(<span class="keyword">const</span> SIPX_INST hInst, 
-<a name="l02743"></a>02743                                                     <span class="keyword">const</span> <span class="keywordtype">char</span>* szName, 
-<a name="l02744"></a>02744                                                     <span class="keyword">const</span> <span class="keywordtype">bool</span> bIncludePlatformName = <span class="keyword">true</span>);
-<a name="l02745"></a>02745                                                     
-<a name="l02752"></a>02752 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#fbbda812aa194e6cf0189ed1ecc0b5e9">sipxConfigSetOutboundProxy</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l02753"></a>02753                                                     <span class="keyword">const</span> <span class="keywordtype">char</span>* szProxy) ;
-<a name="l02754"></a>02754 
-<a name="l02776"></a>02776 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#a92749c8a23cbfb2577e0397457dc053">sipxConfigSetDnsSrvTimeouts</a>(<span class="keyword">const</span> <span class="keywordtype">int</span> initialTimeoutInSecs, 
-<a name="l02777"></a>02777                                                      <span class="keyword">const</span> <span class="keywordtype">int</span> retries) ;
-<a name="l02778"></a>02778 
-<a name="l02779"></a>02779 
-<a name="l02789"></a>02789 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#c10461a73f6e865fb14bbdb55982b36f">sipxConfigSetRegisterResponseWaitSeconds</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l02790"></a>02790                                                                   <span class="keyword">const</span> <span class="keywordtype">int</span> seconds);   
-<a name="l02801"></a>02801 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#aa5a43a0381f82d61185c46a5a168d12">sipxConfigSetDnsSrvFailoverTimeout</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l02802"></a>02802                                                             <span class="keyword">const</span> <span class="keywordtype">int</span> failoverTimeoutInSecs); 
-<a name="l02803"></a>02803 
-<a name="l02804"></a>02804 
-<a name="l02814"></a>02814 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#8a0b4c3ef3c3392921004366deaaa1aa">sipxConfigEnableRport</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l02815"></a>02815                                                <span class="keyword">const</span> <span class="keywordtype">bool</span> bEnable) ;
-<a name="l02816"></a>02816                                                
-<a name="l02826"></a>02826 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#64593301420c44e355792f7b13d8fcbe">sipxConfigSetRegisterExpiration</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l02827"></a>02827                                                          <span class="keyword">const</span> <span class="keywordtype">int</span> nRegisterExpirationSecs);
-<a name="l02828"></a>02828 
-<a name="l02838"></a>02838 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#c1a2701661a8973c23a03637be6078eb">sipxConfigSetSubscribeExpiration</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l02839"></a>02839                                                           <span class="keyword">const</span> <span class="keywordtype">int</span> nSubscribeExpirationSecs);
-<a name="l02840"></a>02840    
-<a name="l02862"></a>02862 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#2daaa3600dd8b93d58a28fcb3330882a">sipxConfigEnableStun</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l02863"></a>02863                                               <span class="keyword">const</span> <span class="keywordtype">char</span>* szServer, 
-<a name="l02864"></a>02864                                               <span class="keywordtype">int</span> iServerPort,
-<a name="l02865"></a>02865                                               <span class="keywordtype">int</span> iKeepAliveInSecs) ;
-<a name="l02866"></a>02866 
-<a name="l02872"></a>02872 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#d6772437fa40d489d05ba01a6734a4f9">sipxConfigDisableStun</a>(<span class="keyword">const</span> SIPX_INST hInst) ;
-<a name="l02873"></a>02873 
-<a name="l02874"></a>02874 
-<a name="l02890"></a>02890 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#131107d264dc1c7ea8a30225a5d3bef7">sipxConfigEnableTurn</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l02891"></a>02891                                               <span class="keyword">const</span> <span class="keywordtype">char</span>*     szServer,
-<a name="l02892"></a>02892                                               <span class="keyword">const</span> <span class="keywordtype">int</span>       iServerPort,
-<a name="l02893"></a>02893                                               <span class="keyword">const</span> <span class="keywordtype">char</span>*     szUsername,
-<a name="l02894"></a>02894                                               <span class="keyword">const</span> <span class="keywordtype">char</span>*     szPassword,
-<a name="l02895"></a>02895                                               <span class="keyword">const</span> <span class="keywordtype">int</span>       iKeepAliveInSecs) ;
-<a name="l02896"></a>02896 
-<a name="l02902"></a>02902 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#5746f9064896ef1ee66cb37f6e5e114f">sipxConfigDisableTurn</a>(<span class="keyword">const</span> SIPX_INST hInst) ;
+<a name="l02637"></a>02637 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#8671e9c72b0bd7466471f92c30dd6f43">sipxLineGet</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l02638"></a>02638                                      SIPX_LINE lines[],
+<a name="l02639"></a>02639                                      <span class="keyword">const</span> size_t max,
+<a name="l02640"></a>02640                                      size_t&amp; actual) ;
+<a name="l02641"></a>02641 
+<a name="l02653"></a>02653 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#63a5e85b46726097be5cf9f6703c91d2">sipxLineGetURI</a>(<span class="keyword">const</span> SIPX_LINE hLine,
+<a name="l02654"></a>02654                                         <span class="keywordtype">char</span>*  szBuffer,
+<a name="l02655"></a>02655                                         <span class="keyword">const</span> size_t nBuffer,
+<a name="l02656"></a>02656                                         size_t&amp; nActual) ;
+<a name="l02657"></a>02657 
+<a name="l02666"></a>02666 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#8d57264ac0299dbc28662a66c1c2ede2">sipxLineGetContactId</a>(<span class="keyword">const</span> SIPX_LINE  hLine,
+<a name="l02667"></a>02667                                               <a class="code" href="sip_xtapi_8h.html#f1274432c33002f92a7b85e8a1aca1bf">SIPX_CONTACT_ID</a>&amp; contactId) ;
+<a name="l02668"></a>02668 
+<a name="l02669"></a>02669 
+<a name="l02677"></a>02677 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#000eaeca8e8145c162fc53be731c1b5b">sipxLineFindByURI</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l02678"></a>02678                                            <span class="keyword">const</span> <span class="keywordtype">char</span>* szURI,
+<a name="l02679"></a>02679                                            SIPX_LINE&amp;  hLine) ;
+<a name="l02680"></a>02680 
+<a name="l02682"></a>02682 
+<a name="l02684"></a>02684 
+<a name="l02685"></a>02685 
+<a name="l02698"></a>02698 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#ba3cd2ed30e6ae12abbdd11e7fc56fd4">sipxConfigSetLogLevel</a>(<a class="code" href="sip_xtapi_8h.html#87f3dbd54db7a6e76b26743328faf14c">SIPX_LOG_LEVEL</a> logLevel) ;
+<a name="l02699"></a>02699 
+<a name="l02700"></a>02700 
+<a name="l02713"></a>02713 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#9190a8b905b3a37e3452e6b4c85c2f18">sipxConfigSetLogFile</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *szFilename) ;
+<a name="l02714"></a>02714 
+<a name="l02715"></a>02715 
+<a name="l02725"></a>02725 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#790c92caf49c70731ac5358aeead0344">sipxConfigSetLogCallback</a>(<a class="code" href="sip_xtapi_8h.html#63f103579f4db7148f7fd61eae4f3c4b">sipxLogCallback</a> pCallback);
+<a name="l02726"></a>02726 
+<a name="l02727"></a>02727 
+<a name="l02738"></a>02738 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#34bf8690c936c09227bb600dc6809d64">sipxConfigEnableGIPSTracing</a>(SIPX_INST hInst, 
+<a name="l02739"></a>02739                                                      <span class="keywordtype">bool</span> bEnable) ;
+<a name="l02740"></a>02740 
+<a name="l02754"></a>02754 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#01532e845f50b062bdb8f737d5a020a6">sipxConfigSetMicAudioHook</a>(<a class="code" href="sip_xtapi_8h.html#b2eb57223160d96e042dd5144fab8435">fnMicAudioHook</a> hookProc) ;
+<a name="l02755"></a>02755 
+<a name="l02756"></a>02756 
+<a name="l02769"></a>02769 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#d7a46730ceb6169a9720fd2afc52a46b">sipxConfigSetSpkrAudioHook</a>(<a class="code" href="sip_xtapi_8h.html#549de91a3eeadb12b4f2895600c31259">fnSpkrAudioHook</a> hookProc) ;
+<a name="l02770"></a>02770 
+<a name="l02779"></a>02779 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#564dc88f1d3a4327861a7d8a59d1d244">sipxConfigSetUserAgentName</a>(<span class="keyword">const</span> SIPX_INST hInst, 
+<a name="l02780"></a>02780                                                     <span class="keyword">const</span> <span class="keywordtype">char</span>* szName, 
+<a name="l02781"></a>02781                                                     <span class="keyword">const</span> <span class="keywordtype">bool</span> bIncludePlatformName = <span class="keyword">true</span>);
+<a name="l02782"></a>02782                                                     
+<a name="l02789"></a>02789 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#fbbda812aa194e6cf0189ed1ecc0b5e9">sipxConfigSetOutboundProxy</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l02790"></a>02790                                                     <span class="keyword">const</span> <span class="keywordtype">char</span>* szProxy) ;
+<a name="l02791"></a>02791 
+<a name="l02813"></a>02813 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#a92749c8a23cbfb2577e0397457dc053">sipxConfigSetDnsSrvTimeouts</a>(<span class="keyword">const</span> <span class="keywordtype">int</span> initialTimeoutInSecs, 
+<a name="l02814"></a>02814                                                      <span class="keyword">const</span> <span class="keywordtype">int</span> retries) ;
+<a name="l02815"></a>02815 
+<a name="l02816"></a>02816 
+<a name="l02826"></a>02826 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#c10461a73f6e865fb14bbdb55982b36f">sipxConfigSetRegisterResponseWaitSeconds</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l02827"></a>02827                                                                   <span class="keyword">const</span> <span class="keywordtype">int</span> seconds);   
+<a name="l02838"></a>02838 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#aa5a43a0381f82d61185c46a5a168d12">sipxConfigSetDnsSrvFailoverTimeout</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l02839"></a>02839                                                             <span class="keyword">const</span> <span class="keywordtype">int</span> failoverTimeoutInSecs); 
+<a name="l02840"></a>02840 
+<a name="l02841"></a>02841 
+<a name="l02851"></a>02851 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#8a0b4c3ef3c3392921004366deaaa1aa">sipxConfigEnableRport</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l02852"></a>02852                                                <span class="keyword">const</span> <span class="keywordtype">bool</span> bEnable) ;
+<a name="l02853"></a>02853                                                
+<a name="l02863"></a>02863 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#64593301420c44e355792f7b13d8fcbe">sipxConfigSetRegisterExpiration</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l02864"></a>02864                                                          <span class="keyword">const</span> <span class="keywordtype">int</span> nRegisterExpirationSecs);
+<a name="l02865"></a>02865 
+<a name="l02875"></a>02875 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#c1a2701661a8973c23a03637be6078eb">sipxConfigSetSubscribeExpiration</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l02876"></a>02876                                                           <span class="keyword">const</span> <span class="keywordtype">int</span> nSubscribeExpirationSecs);
+<a name="l02877"></a>02877    
+<a name="l02899"></a>02899 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#2daaa3600dd8b93d58a28fcb3330882a">sipxConfigEnableStun</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l02900"></a>02900                                               <span class="keyword">const</span> <span class="keywordtype">char</span>* szServer, 
+<a name="l02901"></a>02901                                               <span class="keywordtype">int</span> iServerPort,
+<a name="l02902"></a>02902                                               <span class="keywordtype">int</span> iKeepAliveInSecs) ;
 <a name="l02903"></a>02903 
-<a name="l02904"></a>02904 
-<a name="l02913"></a>02913 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#4237c61cf3f66754bdac2f092fa0bee0">sipxConfigEnableIce</a>(<span class="keyword">const</span> SIPX_INST hInst) ;
-<a name="l02914"></a>02914 
-<a name="l02915"></a>02915 
-<a name="l02921"></a>02921 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#48b3da6cc9f2388bf4ca8f62c79f7f53">sipxConfigDisableIce</a>(<span class="keyword">const</span> SIPX_INST hInst) ;
-<a name="l02922"></a>02922 
-<a name="l02923"></a>02923 
-<a name="l02942"></a>02942 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#ec1d2fc72a703f4ea652d8bdf517bf0c">sipxConfigKeepAliveAdd</a>(<span class="keyword">const</span> SIPX_INST     hInst,
-<a name="l02943"></a>02943                                                 <a class="code" href="sip_xtapi_8h.html#f1274432c33002f92a7b85e8a1aca1bf">SIPX_CONTACT_ID</a>     contactId,
-<a name="l02944"></a>02944                                                 SIPX_KEEPALIVE_TYPE type,
-<a name="l02945"></a>02945                                                 <span class="keyword">const</span> <span class="keywordtype">char</span>*         remoteIp,
-<a name="l02946"></a>02946                                                 <span class="keywordtype">int</span>                 remotePort,
-<a name="l02947"></a>02947                                                 <span class="keywordtype">int</span>                 keepAliveSecs) ;
-<a name="l02948"></a>02948 
-<a name="l02949"></a>02949 
-<a name="l02966"></a>02966 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#3a7959e64311729cf78d4696d24b0cf0">sipxConfigKeepAliveRemove</a>(<span class="keyword">const</span> SIPX_INST     hInst,
-<a name="l02967"></a>02967                                                    <a class="code" href="sip_xtapi_8h.html#f1274432c33002f92a7b85e8a1aca1bf">SIPX_CONTACT_ID</a>     contactId,
-<a name="l02968"></a>02968                                                    SIPX_KEEPALIVE_TYPE type,
-<a name="l02969"></a>02969                                                    <span class="keyword">const</span> <span class="keywordtype">char</span>*         remoteIp,
-<a name="l02970"></a>02970                                                    <span class="keywordtype">int</span>                 remotePort) ;
-<a name="l02971"></a>02971 
-<a name="l02972"></a>02972 
-<a name="l02988"></a>02988 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#9fd222c5259ef61b7547eb794c954e65">sipxConfigEnableOutOfBandDTMF</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l02989"></a>02989                                                        <span class="keyword">const</span> <span class="keywordtype">bool</span> bEnable) ;
-<a name="l02990"></a>02990 
-<a name="l02999"></a>02999 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#bd17e6aedc0c174ff02232306e6faba4">sipxConfigEnableInBandDTMF</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l03000"></a>03000                                                     <span class="keyword">const</span> <span class="keywordtype">bool</span> bEnable) ;
-<a name="l03001"></a>03001      
-<a name="l03002"></a>03002      
-<a name="l03010"></a>03010 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#c8f82654891b9923173436f30d2fbb9a">sipxConfigEnableRTCP</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l03011"></a>03011                                               <span class="keyword">const</span> <span class="keywordtype">bool</span> bEnable) ;
-<a name="l03012"></a>03012      
-<a name="l03013"></a>03013 
-<a name="l03020"></a>03020 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#fbcb03d3117a3b45e25fb0b28495b6d4">sipxConfigEnableDnsSrv</a>(<span class="keyword">const</span> <span class="keywordtype">bool</span> bEnable);
-<a name="l03021"></a>03021 
-<a name="l03028"></a>03028 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#dfff8ebb90914c89072d6256657f64b6">sipxConfigIsOutOfBandDTMFEnabled</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l03029"></a>03029                                                           <span class="keywordtype">bool</span>&amp; bEnable) ;
-<a name="l03030"></a>03030 
-<a name="l03037"></a>03037 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#75a2f17b13948c67a983c1dae3aa6d96">sipxConfigIsInBandDTMFEnabled</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l03038"></a>03038                                                        <span class="keywordtype">bool</span>&amp; bEnable) ;
-<a name="l03039"></a>03039 
-<a name="l03040"></a>03040 
-<a name="l03049"></a>03049 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#b903d21900d322145ebcdf0cd06ea394">sipxConfigGetVersion</a>(<span class="keywordtype">char</span>* szVersion,
-<a name="l03050"></a>03050                                               <span class="keyword">const</span> size_t nBuffer) ;
-<a name="l03051"></a>03051 
-<a name="l03062"></a>03062 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#18560bb30e8e4081dbe6cce5f0fa9d7e">sipxConfigGetLocalSipUdpPort</a>(SIPX_INST hInst, <span class="keywordtype">int</span>* pPort) ;
-<a name="l03063"></a>03063 
-<a name="l03064"></a>03064 
-<a name="l03075"></a>03075 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#c8faefd03e5e9b06139bd06cb37038e7">sipxConfigGetLocalSipTcpPort</a>(SIPX_INST hInst, <span class="keywordtype">int</span>* pPort) ;
+<a name="l02909"></a>02909 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#d6772437fa40d489d05ba01a6734a4f9">sipxConfigDisableStun</a>(<span class="keyword">const</span> SIPX_INST hInst) ;
+<a name="l02910"></a>02910 
+<a name="l02911"></a>02911 
+<a name="l02927"></a>02927 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#131107d264dc1c7ea8a30225a5d3bef7">sipxConfigEnableTurn</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l02928"></a>02928                                               <span class="keyword">const</span> <span class="keywordtype">char</span>*     szServer,
+<a name="l02929"></a>02929                                               <span class="keyword">const</span> <span class="keywordtype">int</span>       iServerPort,
+<a name="l02930"></a>02930                                               <span class="keyword">const</span> <span class="keywordtype">char</span>*     szUsername,
+<a name="l02931"></a>02931                                               <span class="keyword">const</span> <span class="keywordtype">char</span>*     szPassword,
+<a name="l02932"></a>02932                                               <span class="keyword">const</span> <span class="keywordtype">int</span>       iKeepAliveInSecs) ;
+<a name="l02933"></a>02933 
+<a name="l02939"></a>02939 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#5746f9064896ef1ee66cb37f6e5e114f">sipxConfigDisableTurn</a>(<span class="keyword">const</span> SIPX_INST hInst) ;
+<a name="l02940"></a>02940 
+<a name="l02941"></a>02941 
+<a name="l02950"></a>02950 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#4237c61cf3f66754bdac2f092fa0bee0">sipxConfigEnableIce</a>(<span class="keyword">const</span> SIPX_INST hInst) ;
+<a name="l02951"></a>02951 
+<a name="l02952"></a>02952 
+<a name="l02958"></a>02958 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#48b3da6cc9f2388bf4ca8f62c79f7f53">sipxConfigDisableIce</a>(<span class="keyword">const</span> SIPX_INST hInst) ;
+<a name="l02959"></a>02959 
+<a name="l02960"></a>02960 
+<a name="l02979"></a>02979 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#ec1d2fc72a703f4ea652d8bdf517bf0c">sipxConfigKeepAliveAdd</a>(<span class="keyword">const</span> SIPX_INST     hInst,
+<a name="l02980"></a>02980                                                 <a class="code" href="sip_xtapi_8h.html#f1274432c33002f92a7b85e8a1aca1bf">SIPX_CONTACT_ID</a>     contactId,
+<a name="l02981"></a>02981                                                 SIPX_KEEPALIVE_TYPE type,
+<a name="l02982"></a>02982                                                 <span class="keyword">const</span> <span class="keywordtype">char</span>*         remoteIp,
+<a name="l02983"></a>02983                                                 <span class="keywordtype">int</span>                 remotePort,
+<a name="l02984"></a>02984                                                 <span class="keywordtype">int</span>                 keepAliveSecs) ;
+<a name="l02985"></a>02985 
+<a name="l02986"></a>02986 
+<a name="l03003"></a>03003 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#3a7959e64311729cf78d4696d24b0cf0">sipxConfigKeepAliveRemove</a>(<span class="keyword">const</span> SIPX_INST     hInst,
+<a name="l03004"></a>03004                                                    <a class="code" href="sip_xtapi_8h.html#f1274432c33002f92a7b85e8a1aca1bf">SIPX_CONTACT_ID</a>     contactId,
+<a name="l03005"></a>03005                                                    SIPX_KEEPALIVE_TYPE type,
+<a name="l03006"></a>03006                                                    <span class="keyword">const</span> <span class="keywordtype">char</span>*         remoteIp,
+<a name="l03007"></a>03007                                                    <span class="keywordtype">int</span>                 remotePort) ;
+<a name="l03008"></a>03008 
+<a name="l03009"></a>03009 
+<a name="l03025"></a>03025 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#9fd222c5259ef61b7547eb794c954e65">sipxConfigEnableOutOfBandDTMF</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l03026"></a>03026                                                        <span class="keyword">const</span> <span class="keywordtype">bool</span> bEnable) ;
+<a name="l03027"></a>03027 
+<a name="l03036"></a>03036 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#bd17e6aedc0c174ff02232306e6faba4">sipxConfigEnableInBandDTMF</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l03037"></a>03037                                                     <span class="keyword">const</span> <span class="keywordtype">bool</span> bEnable) ;
+<a name="l03038"></a>03038      
+<a name="l03039"></a>03039      
+<a name="l03047"></a>03047 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#c8f82654891b9923173436f30d2fbb9a">sipxConfigEnableRTCP</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l03048"></a>03048                                               <span class="keyword">const</span> <span class="keywordtype">bool</span> bEnable) ;
+<a name="l03049"></a>03049      
+<a name="l03050"></a>03050 
+<a name="l03057"></a>03057 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#fbcb03d3117a3b45e25fb0b28495b6d4">sipxConfigEnableDnsSrv</a>(<span class="keyword">const</span> <span class="keywordtype">bool</span> bEnable);
+<a name="l03058"></a>03058 
+<a name="l03065"></a>03065 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#dfff8ebb90914c89072d6256657f64b6">sipxConfigIsOutOfBandDTMFEnabled</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l03066"></a>03066                                                           <span class="keywordtype">bool</span>&amp; bEnable) ;
+<a name="l03067"></a>03067 
+<a name="l03074"></a>03074 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#75a2f17b13948c67a983c1dae3aa6d96">sipxConfigIsInBandDTMFEnabled</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l03075"></a>03075                                                        <span class="keywordtype">bool</span>&amp; bEnable) ;
 <a name="l03076"></a>03076 
 <a name="l03077"></a>03077 
-<a name="l03088"></a>03088 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#f541b1a950dae1deef1fd5489ddbc1e7">sipxConfigGetLocalSipTlsPort</a>(SIPX_INST hInst, <span class="keywordtype">int</span>* pPort) ;
-<a name="l03089"></a>03089 
-<a name="l03090"></a>03090 
-<a name="l03102"></a>03102 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#37afb08de1300e93f8b88b05c659c563">sipxConfigSetAudioCodecPreferences</a>(<span class="keyword">const</span> SIPX_INST hInst, 
-<a name="l03103"></a>03103                                                             <a class="code" href="sip_xtapi_8h.html#1613b5a840e8debe4c8c4738649799b5">SIPX_AUDIO_BANDWIDTH_ID</a> bandWidth) ;
-<a name="l03104"></a>03104 
-<a name="l03115"></a>03115 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#74bb4d1d79bbeeaeb8c2a483a643b655">sipxConfigSetAudioCodecByName</a>(<span class="keyword">const</span> SIPX_INST hInst, 
-<a name="l03116"></a>03116                                                        <span class="keyword">const</span> <span class="keywordtype">char</span>* szCodecName) ;
-<a name="l03117"></a>03117 
-<a name="l03127"></a>03127 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#f98737f2dfb4f0b39d979748add0b2ea">sipxConfigGetAudioCodecPreferences</a>(<span class="keyword">const</span> SIPX_INST hInst, 
-<a name="l03128"></a>03128                                                             <a class="code" href="sip_xtapi_8h.html#1613b5a840e8debe4c8c4738649799b5">SIPX_AUDIO_BANDWIDTH_ID</a> *pBandWidth);
-<a name="l03129"></a>03129 
-<a name="l03140"></a>03140 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#91cc85480b5ce3bbef474dfb5701dea1">sipxConfigGetNumAudioCodecs</a>(<span class="keyword">const</span> SIPX_INST hInst, 
-<a name="l03141"></a>03141                                                      <span class="keywordtype">int</span>* pNumCodecs) ;
-<a name="l03142"></a>03142 
-<a name="l03143"></a>03143 
-<a name="l03158"></a>03158 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#f35bd1de2369813d56cc0b407c5b64a0">sipxConfigGetAudioCodec</a>(<span class="keyword">const</span> SIPX_INST hInst, 
-<a name="l03159"></a>03159                                                  <span class="keyword">const</span> <span class="keywordtype">int</span> index, 
-<a name="l03160"></a>03160                                                  <a class="code" href="struct_s_i_p_x___a_u_d_i_o___c_o_d_e_c.html">SIPX_AUDIO_CODEC</a>* pCodec) ;
-<a name="l03161"></a>03161 
-<a name="l03181"></a>03181 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#58ea54d9889eb199fac2e060034295b9">sipxConfigSetVideoBandwidth</a>(<span class="keyword">const</span> SIPX_INST hInst, 
-<a name="l03182"></a>03182                                                      <a class="code" href="sip_xtapi_8h.html#2c005d65fdf566d7d7cb4fea87ba7783">SIPX_VIDEO_BANDWIDTH_ID</a> bandWidth);
-<a name="l03183"></a>03183 
-<a name="l03191"></a>03191 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#239075153c6d91764381fd0a610f5952">sipxConfigGetVideoCaptureDevices</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l03192"></a>03192                                                           <span class="keywordtype">char</span> **arrSzCaptureDevices,
-<a name="l03193"></a>03193                                                           <span class="keywordtype">int</span> nDeviceStringLength,
-<a name="l03194"></a>03194                                                           <span class="keywordtype">int</span> nArrayLength);
-<a name="l03195"></a>03195                                                           
-<a name="l03196"></a>03196 
-<a name="l03204"></a>03204 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#3a776c46632696c11b7cf11c884112cd">sipxConfigGetVideoCaptureDevice</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l03205"></a>03205                                                           <span class="keywordtype">char</span>* szCaptureDevices,
-<a name="l03206"></a>03206                                                           <span class="keywordtype">int</span> nLength);
-<a name="l03207"></a>03207                                                           
-<a name="l03215"></a>03215 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#bf02ceca355731139d821ff37970780d">sipxConfigSetVideoCaptureDevice</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l03216"></a>03216                                                          <span class="keyword">const</span> <span class="keywordtype">char</span>* szCaptureDevice);
-<a name="l03217"></a>03217                                                           
-<a name="l03218"></a>03218                             
-<a name="l03229"></a>03229 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#62a6253e304be5d644041494bb8a6d69">sipxConfigSetVideoCodecByName</a>(<span class="keyword">const</span> SIPX_INST hInst, 
-<a name="l03230"></a>03230                                                        <span class="keyword">const</span> <span class="keywordtype">char</span>* szCodecName) ;
-<a name="l03231"></a>03231 
-<a name="l03241"></a>03241 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#f3e992d3fad4d0c853911b39272d2104">sipxConfigResetVideoCodecs</a>(<span class="keyword">const</span> SIPX_INST hInst);
-<a name="l03242"></a>03242 
-<a name="l03252"></a>03252 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#6c94ae53e123bbf8c77f348d54639a09">sipxConfigGetVideoCodecPreferences</a>(<span class="keyword">const</span> SIPX_INST hInst, 
-<a name="l03253"></a>03253                                                             <a class="code" href="sip_xtapi_8h.html#2c005d65fdf566d7d7cb4fea87ba7783">SIPX_VIDEO_BANDWIDTH_ID</a> *pBandWidth);
-<a name="l03254"></a>03254 
-<a name="l03265"></a>03265 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#69adf7a4a8868372611d87e681c6455f">sipxConfigGetNumVideoCodecs</a>(<span class="keyword">const</span> SIPX_INST hInst, 
-<a name="l03266"></a>03266                                                      <span class="keywordtype">int</span>* pNumCodecs) ;
-<a name="l03267"></a>03267 
+<a name="l03086"></a>03086 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#b903d21900d322145ebcdf0cd06ea394">sipxConfigGetVersion</a>(<span class="keywordtype">char</span>* szVersion,
+<a name="l03087"></a>03087                                               <span class="keyword">const</span> size_t nBuffer) ;
+<a name="l03088"></a>03088 
+<a name="l03099"></a>03099 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#18560bb30e8e4081dbe6cce5f0fa9d7e">sipxConfigGetLocalSipUdpPort</a>(SIPX_INST hInst, <span class="keywordtype">int</span>* pPort) ;
+<a name="l03100"></a>03100 
+<a name="l03101"></a>03101 
+<a name="l03112"></a>03112 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#c8faefd03e5e9b06139bd06cb37038e7">sipxConfigGetLocalSipTcpPort</a>(SIPX_INST hInst, <span class="keywordtype">int</span>* pPort) ;
+<a name="l03113"></a>03113 
+<a name="l03114"></a>03114 
+<a name="l03125"></a>03125 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#f541b1a950dae1deef1fd5489ddbc1e7">sipxConfigGetLocalSipTlsPort</a>(SIPX_INST hInst, <span class="keywordtype">int</span>* pPort) ;
+<a name="l03126"></a>03126 
+<a name="l03127"></a>03127 
+<a name="l03139"></a>03139 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#37afb08de1300e93f8b88b05c659c563">sipxConfigSetAudioCodecPreferences</a>(<span class="keyword">const</span> SIPX_INST hInst, 
+<a name="l03140"></a>03140                                                             <a class="code" href="sip_xtapi_8h.html#1613b5a840e8debe4c8c4738649799b5">SIPX_AUDIO_BANDWIDTH_ID</a> bandWidth) ;
+<a name="l03141"></a>03141 
+<a name="l03152"></a>03152 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#74bb4d1d79bbeeaeb8c2a483a643b655">sipxConfigSetAudioCodecByName</a>(<span class="keyword">const</span> SIPX_INST hInst, 
+<a name="l03153"></a>03153                                                        <span class="keyword">const</span> <span class="keywordtype">char</span>* szCodecName) ;
+<a name="l03154"></a>03154 
+<a name="l03164"></a>03164 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#f98737f2dfb4f0b39d979748add0b2ea">sipxConfigGetAudioCodecPreferences</a>(<span class="keyword">const</span> SIPX_INST hInst, 
+<a name="l03165"></a>03165                                                             <a class="code" href="sip_xtapi_8h.html#1613b5a840e8debe4c8c4738649799b5">SIPX_AUDIO_BANDWIDTH_ID</a> *pBandWidth);
+<a name="l03166"></a>03166 
+<a name="l03177"></a>03177 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#91cc85480b5ce3bbef474dfb5701dea1">sipxConfigGetNumAudioCodecs</a>(<span class="keyword">const</span> SIPX_INST hInst, 
+<a name="l03178"></a>03178                                                      <span class="keywordtype">int</span>* pNumCodecs) ;
+<a name="l03179"></a>03179 
+<a name="l03180"></a>03180 
+<a name="l03195"></a>03195 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#f35bd1de2369813d56cc0b407c5b64a0">sipxConfigGetAudioCodec</a>(<span class="keyword">const</span> SIPX_INST hInst, 
+<a name="l03196"></a>03196                                                  <span class="keyword">const</span> <span class="keywordtype">int</span> index, 
+<a name="l03197"></a>03197                                                  <a class="code" href="struct_s_i_p_x___a_u_d_i_o___c_o_d_e_c.html">SIPX_AUDIO_CODEC</a>* pCodec) ;
+<a name="l03198"></a>03198 
+<a name="l03218"></a>03218 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#58ea54d9889eb199fac2e060034295b9">sipxConfigSetVideoBandwidth</a>(<span class="keyword">const</span> SIPX_INST hInst, 
+<a name="l03219"></a>03219                                                      <a class="code" href="sip_xtapi_8h.html#2c005d65fdf566d7d7cb4fea87ba7783">SIPX_VIDEO_BANDWIDTH_ID</a> bandWidth);
+<a name="l03220"></a>03220 
+<a name="l03228"></a>03228 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#239075153c6d91764381fd0a610f5952">sipxConfigGetVideoCaptureDevices</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l03229"></a>03229                                                           <span class="keywordtype">char</span> **arrSzCaptureDevices,
+<a name="l03230"></a>03230                                                           <span class="keywordtype">int</span> nDeviceStringLength,
+<a name="l03231"></a>03231                                                           <span class="keywordtype">int</span> nArrayLength);
+<a name="l03232"></a>03232                                                           
+<a name="l03233"></a>03233 
+<a name="l03241"></a>03241 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#3a776c46632696c11b7cf11c884112cd">sipxConfigGetVideoCaptureDevice</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l03242"></a>03242                                                           <span class="keywordtype">char</span>* szCaptureDevices,
+<a name="l03243"></a>03243                                                           <span class="keywordtype">int</span> nLength);
+<a name="l03244"></a>03244                                                           
+<a name="l03252"></a>03252 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#bf02ceca355731139d821ff37970780d">sipxConfigSetVideoCaptureDevice</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l03253"></a>03253                                                          <span class="keyword">const</span> <span class="keywordtype">char</span>* szCaptureDevice);
+<a name="l03254"></a>03254                                                           
+<a name="l03255"></a>03255                             
+<a name="l03266"></a>03266 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#62a6253e304be5d644041494bb8a6d69">sipxConfigSetVideoCodecByName</a>(<span class="keyword">const</span> SIPX_INST hInst, 
+<a name="l03267"></a>03267                                                        <span class="keyword">const</span> <span class="keywordtype">char</span>* szCodecName) ;
 <a name="l03268"></a>03268 
-<a name="l03276"></a>03276 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#9b1cfbca8dd97d248a3327366be45147">sipxConfigSetVideoFormat</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l03277"></a>03277                                                   <a class="code" href="sip_xtapi_8h.html#ebabb7f61ba00aa89b24f755f3474e52">SIPX_VIDEO_FORMAT</a> videoFormat);
-<a name="l03278"></a>03278 
+<a name="l03278"></a>03278 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#f3e992d3fad4d0c853911b39272d2104">sipxConfigResetVideoCodecs</a>(<span class="keyword">const</span> SIPX_INST hInst);
 <a name="l03279"></a>03279 
-<a name="l03294"></a>03294 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#9fbc96852355bcf37a4986f0d74fe2b7">sipxConfigGetVideoCodec</a>(<span class="keyword">const</span> SIPX_INST hInst, 
-<a name="l03295"></a>03295                                                  <span class="keyword">const</span> <span class="keywordtype">int</span> index, 
-<a name="l03296"></a>03296                                                  <a class="code" href="struct_s_i_p_x___v_i_d_e_o___c_o_d_e_c.html">SIPX_VIDEO_CODEC</a>* pCodec) ;
-<a name="l03297"></a>03297 
-<a name="l03321"></a>03321 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#ff725ea44fdf21d2497859b92d5c9f75">sipxConfigGetLocalContacts</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l03322"></a>03322                                                     <a class="code" href="struct_s_i_p_x___c_o_n_t_a_c_t___a_d_d_r_e_s_s.html">SIPX_CONTACT_ADDRESS</a> addresses[],
-<a name="l03323"></a>03323                                                     size_t nMaxAddresses,
-<a name="l03324"></a>03324                                                     size_t&amp; nActualAddresses) ;
-<a name="l03325"></a>03325 
-<a name="l03326"></a>03326 
-<a name="l03337"></a>03337 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#f08bcc82f1f082c9c0fbd0f03152919b">sipxConfigGetAllLocalNetworkIps</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* arrAddresses[], 
-<a name="l03338"></a>03338                                                          <span class="keyword">const</span> <span class="keywordtype">char</span>* arrAddressAdapter[],
-<a name="l03339"></a>03339                                                          <span class="keywordtype">int</span> &amp;numAddresses);
-<a name="l03340"></a>03340                                                          
-<a name="l03350"></a>03350 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#8185a03366e1b2afcfc696307cd83885">sipxConfigSetSecurityParameters</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l03351"></a>03351                                                          <span class="keyword">const</span> <span class="keywordtype">char</span>* szDbLocation,
-<a name="l03352"></a>03352                                                          <span class="keyword">const</span> <span class="keywordtype">char</span>* szMyCertNickname,
-<a name="l03353"></a>03353                                                          <span class="keyword">const</span> <span class="keywordtype">char</span>* szDbPassword);                                        
-<a name="l03354"></a>03354 
-<a name="l03361"></a>03361 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#31187b93e03f071751346c578550f479">sipxConfigEnableSipShortNames</a>(<span class="keyword">const</span> SIPX_INST hInst, 
-<a name="l03362"></a>03362                                                        <span class="keyword">const</span> <span class="keywordtype">bool</span> bEnabled);
+<a name="l03289"></a>03289 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#6c94ae53e123bbf8c77f348d54639a09">sipxConfigGetVideoCodecPreferences</a>(<span class="keyword">const</span> SIPX_INST hInst, 
+<a name="l03290"></a>03290                                                             <a class="code" href="sip_xtapi_8h.html#2c005d65fdf566d7d7cb4fea87ba7783">SIPX_VIDEO_BANDWIDTH_ID</a> *pBandWidth);
+<a name="l03291"></a>03291 
+<a name="l03302"></a>03302 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#69adf7a4a8868372611d87e681c6455f">sipxConfigGetNumVideoCodecs</a>(<span class="keyword">const</span> SIPX_INST hInst, 
+<a name="l03303"></a>03303                                                      <span class="keywordtype">int</span>* pNumCodecs) ;
+<a name="l03304"></a>03304 
+<a name="l03305"></a>03305 
+<a name="l03313"></a>03313 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#9b1cfbca8dd97d248a3327366be45147">sipxConfigSetVideoFormat</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l03314"></a>03314                                                   <a class="code" href="sip_xtapi_8h.html#ebabb7f61ba00aa89b24f755f3474e52">SIPX_VIDEO_FORMAT</a> videoFormat);
+<a name="l03315"></a>03315 
+<a name="l03316"></a>03316 
+<a name="l03331"></a>03331 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#9fbc96852355bcf37a4986f0d74fe2b7">sipxConfigGetVideoCodec</a>(<span class="keyword">const</span> SIPX_INST hInst, 
+<a name="l03332"></a>03332                                                  <span class="keyword">const</span> <span class="keywordtype">int</span> index, 
+<a name="l03333"></a>03333                                                  <a class="code" href="struct_s_i_p_x___v_i_d_e_o___c_o_d_e_c.html">SIPX_VIDEO_CODEC</a>* pCodec) ;
+<a name="l03334"></a>03334 
+<a name="l03358"></a>03358 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#ff725ea44fdf21d2497859b92d5c9f75">sipxConfigGetLocalContacts</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l03359"></a>03359                                                     <a class="code" href="struct_s_i_p_x___c_o_n_t_a_c_t___a_d_d_r_e_s_s.html">SIPX_CONTACT_ADDRESS</a> addresses[],
+<a name="l03360"></a>03360                                                     size_t nMaxAddresses,
+<a name="l03361"></a>03361                                                     size_t&amp; nActualAddresses) ;
+<a name="l03362"></a>03362 
 <a name="l03363"></a>03363 
-<a name="l03370"></a>03370 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#26b2137638ad24187e5f991559bd92b3">sipxConfigEnableSipDateHeader</a>(<span class="keyword">const</span> SIPX_INST hInst, 
-<a name="l03371"></a>03371                                                        <span class="keyword">const</span> <span class="keywordtype">bool</span> bEnabled);
-<a name="l03378"></a>03378 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#407947c3f8d08b4f1d843c0b299dd08e">sipxConfigEnableSipAllowHeader</a>(<span class="keyword">const</span> SIPX_INST hInst, 
-<a name="l03379"></a>03379                                                        <span class="keyword">const</span> <span class="keywordtype">bool</span> bEnabled);
-<a name="l03386"></a>03386 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#22b71bc6d2a6b44317c3948ab5edfd75">sipxConfigSetSipAcceptLanguage</a>(<span class="keyword">const</span> SIPX_INST hInst, 
-<a name="l03387"></a>03387                                                         <span class="keyword">const</span> <span class="keywordtype">char</span>* szLanguage);
-<a name="l03401"></a>03401 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#7cc5d764323c3c6d1f85449d2782009e">sipxConfigSetLocationHeader</a>(<span class="keyword">const</span> SIPX_INST hInst, 
-<a name="l03402"></a>03402                                                      <span class="keyword">const</span> <span class="keywordtype">char</span>* szHeader);
-<a name="l03403"></a>03403 
-<a name="l03418"></a>03418 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#b8af5deeea8fd83ce9b0d00eea88ba86">sipxConfigSetConnectionIdleTimeout</a>(<span class="keyword">const</span> SIPX_INST hInst, 
-<a name="l03419"></a>03419                                                             <span class="keyword">const</span> <span class="keywordtype">int</span> idleTimeout);
-<a name="l03420"></a>03420 
-<a name="l03427"></a>03427 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#fc90cfbf3c592a29dd8fb7a63ffe9aae">sipxConfigPrepareToHibernate</a>(<span class="keyword">const</span> SIPX_INST hInst);
-<a name="l03428"></a>03428 
-<a name="l03429"></a>03429 
-<a name="l03435"></a>03435 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#ad108ad22e0bdfd87a96e8391cd279d4">sipxConfigUnHibernate</a>(<span class="keyword">const</span> SIPX_INST hInst);
-<a name="l03436"></a>03436 
-<a name="l03437"></a>03437 
-<a name="l03445"></a>03445 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#e842a20f97332452f6220cb73b41b1e4">sipxConfigEnableRtpOverTcp</a>(<span class="keyword">const</span> SIPX_INST hInst,
-<a name="l03446"></a>03446                                                     <span class="keywordtype">bool</span> bEnable);
-<a name="l03447"></a>03447 
-<a name="l03453"></a>03453 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#af460772baaf18f1bfea38dbc90c8dea">sipxConfigSetVideoPreviewDisplay</a>(<span class="keyword">const</span> SIPX_INST hInst, 
-<a name="l03454"></a>03454                                                           <a class="code" href="struct_s_i_p_x___v_i_d_e_o___d_i_s_p_l_a_y.html">SIPX_VIDEO_DISPLAY</a>* <span class="keyword">const</span> pDisplay);
-<a name="l03455"></a>03455 
-<a name="l03456"></a>03456 
-<a name="l03464"></a>03464 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#3c012720ad9ec23c3111e7e481cd8910">sipxConfigUpdatePreviewWindow</a>(<span class="keyword">const</span> SIPX_INST hInst, <span class="keyword">const</span> <a class="code" href="sip_xtapi_8h.html#72f702115019a9d9ba9d940ab05d18ea">SIPX_WINDOW_HANDLE</a> hWnd);
+<a name="l03374"></a>03374 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#f08bcc82f1f082c9c0fbd0f03152919b">sipxConfigGetAllLocalNetworkIps</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* arrAddresses[], 
+<a name="l03375"></a>03375                                                          <span class="keyword">const</span> <span class="keywordtype">char</span>* arrAddressAdapter[],
+<a name="l03376"></a>03376                                                          <span class="keywordtype">int</span> &amp;numAddresses);
+<a name="l03377"></a>03377                                                          
+<a name="l03387"></a>03387 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#8185a03366e1b2afcfc696307cd83885">sipxConfigSetSecurityParameters</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l03388"></a>03388                                                          <span class="keyword">const</span> <span class="keywordtype">char</span>* szDbLocation,
+<a name="l03389"></a>03389                                                          <span class="keyword">const</span> <span class="keywordtype">char</span>* szMyCertNickname,
+<a name="l03390"></a>03390                                                          <span class="keyword">const</span> <span class="keywordtype">char</span>* szDbPassword);                                        
+<a name="l03391"></a>03391 
+<a name="l03398"></a>03398 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#31187b93e03f071751346c578550f479">sipxConfigEnableSipShortNames</a>(<span class="keyword">const</span> SIPX_INST hInst, 
+<a name="l03399"></a>03399                                                        <span class="keyword">const</span> <span class="keywordtype">bool</span> bEnabled);
+<a name="l03400"></a>03400 
+<a name="l03407"></a>03407 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#26b2137638ad24187e5f991559bd92b3">sipxConfigEnableSipDateHeader</a>(<span class="keyword">const</span> SIPX_INST hInst, 
+<a name="l03408"></a>03408                                                        <span class="keyword">const</span> <span class="keywordtype">bool</span> bEnabled);
+<a name="l03415"></a>03415 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#407947c3f8d08b4f1d843c0b299dd08e">sipxConfigEnableSipAllowHeader</a>(<span class="keyword">const</span> SIPX_INST hInst, 
+<a name="l03416"></a>03416                                                        <span class="keyword">const</span> <span class="keywordtype">bool</span> bEnabled);
+<a name="l03423"></a>03423 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#22b71bc6d2a6b44317c3948ab5edfd75">sipxConfigSetSipAcceptLanguage</a>(<span class="keyword">const</span> SIPX_INST hInst, 
+<a name="l03424"></a>03424                                                         <span class="keyword">const</span> <span class="keywordtype">char</span>* szLanguage);
+<a name="l03438"></a>03438 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#7cc5d764323c3c6d1f85449d2782009e">sipxConfigSetLocationHeader</a>(<span class="keyword">const</span> SIPX_INST hInst, 
+<a name="l03439"></a>03439                                                      <span class="keyword">const</span> <span class="keywordtype">char</span>* szHeader);
+<a name="l03440"></a>03440 
+<a name="l03455"></a>03455 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#b8af5deeea8fd83ce9b0d00eea88ba86">sipxConfigSetConnectionIdleTimeout</a>(<span class="keyword">const</span> SIPX_INST hInst, 
+<a name="l03456"></a>03456                                                             <span class="keyword">const</span> <span class="keywordtype">int</span> idleTimeout);
+<a name="l03457"></a>03457 
+<a name="l03464"></a>03464 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#fc90cfbf3c592a29dd8fb7a63ffe9aae">sipxConfigPrepareToHibernate</a>(<span class="keyword">const</span> SIPX_INST hInst);
 <a name="l03465"></a>03465 
 <a name="l03466"></a>03466 
-<a name="l03473"></a>03473 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#781ff976cb3250c23f1dbc09a7b7760c">sipxConfigSetVideoQuality</a>(<span class="keyword">const</span> SIPX_INST hInst, <span class="keyword">const</span> <a class="code" href="sip_xtapi_8h.html#8ba5957183d7dcf049177ab2e4d2c94b">SIPX_VIDEO_QUALITY_ID</a> quality);
+<a name="l03472"></a>03472 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#ad108ad22e0bdfd87a96e8391cd279d4">sipxConfigUnHibernate</a>(<span class="keyword">const</span> SIPX_INST hInst);
+<a name="l03473"></a>03473 
 <a name="l03474"></a>03474 
-<a name="l03482"></a>03482 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#45de92b9b8cf7e8dab3c41671edbee66">sipxConfigSetVideoParameters</a>(<span class="keyword">const</span> SIPX_INST hInst, 
-<a name="l03483"></a>03483                                                       <span class="keyword">const</span> <span class="keywordtype">int</span> bitRate,
-<a name="l03484"></a>03484                                                       <span class="keyword">const</span> <span class="keywordtype">int</span> frameRate);
-<a name="l03485"></a>03485 
-<a name="l03492"></a>03492 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#e897c027ad56bcdbc5d3fd756547de4a">sipxConfigSetVideoBitrate</a>(<span class="keyword">const</span> SIPX_INST hInst, 
-<a name="l03493"></a>03493                                                    <span class="keyword">const</span> <span class="keywordtype">int</span> bitRate);
-<a name="l03494"></a>03494 
-<a name="l03501"></a>03501 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#760c9011255bfbd0ca12d9b51e988bd9">sipxConfigSetVideoFramerate</a>(<span class="keyword">const</span> SIPX_INST hInst, 
-<a name="l03502"></a>03502                                                      <span class="keyword">const</span> <span class="keywordtype">int</span> frameRate);
+<a name="l03482"></a>03482 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#e842a20f97332452f6220cb73b41b1e4">sipxConfigEnableRtpOverTcp</a>(<span class="keyword">const</span> SIPX_INST hInst,
+<a name="l03483"></a>03483                                                     <span class="keywordtype">bool</span> bEnable);
+<a name="l03484"></a>03484 
+<a name="l03490"></a>03490 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#af460772baaf18f1bfea38dbc90c8dea">sipxConfigSetVideoPreviewDisplay</a>(<span class="keyword">const</span> SIPX_INST hInst, 
+<a name="l03491"></a>03491                                                           <a class="code" href="struct_s_i_p_x___v_i_d_e_o___d_i_s_p_l_a_y.html">SIPX_VIDEO_DISPLAY</a>* <span class="keyword">const</span> pDisplay);
+<a name="l03492"></a>03492 
+<a name="l03493"></a>03493 
+<a name="l03501"></a>03501 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#3c012720ad9ec23c3111e7e481cd8910">sipxConfigUpdatePreviewWindow</a>(<span class="keyword">const</span> SIPX_INST hInst, <span class="keyword">const</span> <a class="code" href="sip_xtapi_8h.html#72f702115019a9d9ba9d940ab05d18ea">SIPX_WINDOW_HANDLE</a> hWnd);
+<a name="l03502"></a>03502 
 <a name="l03503"></a>03503 
-<a name="l03510"></a>03510 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#fde82543f9de515db2d4b5a4db00a1cb">sipxConfigSetVideoCpuUsage</a>(<span class="keyword">const</span> SIPX_INST hInst, 
-<a name="l03511"></a>03511                                                     <span class="keyword">const</span> <span class="keywordtype">int</span> cpuUsage);
-<a name="l03512"></a>03512 
-<a name="l03513"></a>03513 
-<a name="l03548"></a>03548 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#03b662919ee51bad877a8dea1f470480">sipxConfigSubscribe</a>(<span class="keyword">const</span> SIPX_INST hInst, 
-<a name="l03549"></a>03549                                              <span class="keyword">const</span> SIPX_LINE hLine, 
-<a name="l03550"></a>03550                                              <span class="keyword">const</span> <span class="keywordtype">char</span>* szTargetUrl, 
-<a name="l03551"></a>03551                                              <span class="keyword">const</span> <span class="keywordtype">char</span>* szEventType, 
-<a name="l03552"></a>03552                                              <span class="keyword">const</span> <span class="keywordtype">char</span>* szAcceptType, 
-<a name="l03553"></a>03553                                              <span class="keyword">const</span> <a class="code" href="sip_xtapi_8h.html#f1274432c33002f92a7b85e8a1aca1bf">SIPX_CONTACT_ID</a> contactId, 
-<a name="l03554"></a>03554                                              SIPX_SUB* phSub); 
-<a name="l03563"></a>03563 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#aa17759360acd4bbf632f643300b23de">sipxConfigUnsubscribe</a>(<span class="keyword">const</span> SIPX_SUB hSub); 
-<a name="l03564"></a>03564 
-<a name="l03565"></a>03565 
-<a name="l03589"></a>03589 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#89e93f5e6e9957db896d2320e3430cc9">sipxConfigExternalTransportAdd</a>(SIPX_INST <span class="keyword">const</span>           hInst,
-<a name="l03590"></a>03590                                                         SIPX_TRANSPORT&amp;           hTransport,
-<a name="l03591"></a>03591                                                         <span class="keyword">const</span> <span class="keywordtype">bool</span>                bIsReliable,
-<a name="l03592"></a>03592                                                         <span class="keyword">const</span> <span class="keywordtype">char</span>*               szTransport,
-<a name="l03593"></a>03593                                                         <span class="keyword">const</span> <span class="keywordtype">char</span>*               szLocalIP,
-<a name="l03594"></a>03594                                                         <span class="keyword">const</span> <span class="keywordtype">int</span>                 iLocalPort,
-<a name="l03595"></a>03595                                                         <a class="code" href="sip_xtapi_8h.html#0c45124a31b36266d4cca42fd72a7819">SIPX_TRANSPORT_WRITE_PROC</a> writeProc,
-<a name="l03596"></a>03596                                                         <span class="keyword">const</span> <span class="keywordtype">char</span>*               szLocalRoutingId,
-<a name="l03597"></a>03597                                                         <span class="keyword">const</span> <span class="keywordtype">void</span>*               pUserData = NULL) ;
-<a name="l03598"></a>03598 
-<a name="l03606"></a>03606 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#7f25c568d42a75bb2dbc79b3995f05e3">sipxConfigExternalTransportRemove</a>(<span class="keyword">const</span> SIPX_TRANSPORT hTransport);
-<a name="l03607"></a>03607 
-<a name="l03608"></a>03608 
-<a name="l03626"></a>03626 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#eb16d5712128f50fcd68930d0b5dda50">sipxConfigExternalTransportHandleMessage</a>(<span class="keyword">const</span> SIPX_TRANSPORT hTransport,
-<a name="l03627"></a>03627                                                                   <span class="keyword">const</span> <span class="keywordtype">char</span>*  szSourceIP,
-<a name="l03628"></a>03628                                                                   <span class="keyword">const</span> <span class="keywordtype">int</span>    iSourcePort,
-<a name="l03629"></a>03629                                                                   <span class="keyword">const</span> <span class="keywordtype">char</span>*  szLocalIP,
-<a name="l03630"></a>03630                                                                   <span class="keyword">const</span> <span class="keywordtype">int</span>    iLocalPort,
-<a name="l03631"></a>03631                                                                   <span class="keyword">const</span> <span class="keywordtype">void</span>*  pData,
-<a name="l03632"></a>03632                                                                   <span class="keyword">const</span> size_t nData);
-<a name="l03633"></a>03633 
+<a name="l03510"></a>03510 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#781ff976cb3250c23f1dbc09a7b7760c">sipxConfigSetVideoQuality</a>(<span class="keyword">const</span> SIPX_INST hInst, <span class="keyword">const</span> <a class="code" href="sip_xtapi_8h.html#8ba5957183d7dcf049177ab2e4d2c94b">SIPX_VIDEO_QUALITY_ID</a> quality);
+<a name="l03511"></a>03511 
+<a name="l03519"></a>03519 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#45de92b9b8cf7e8dab3c41671edbee66">sipxConfigSetVideoParameters</a>(<span class="keyword">const</span> SIPX_INST hInst, 
+<a name="l03520"></a>03520                                                       <span class="keyword">const</span> <span class="keywordtype">int</span> bitRate,
+<a name="l03521"></a>03521                                                       <span class="keyword">const</span> <span class="keywordtype">int</span> frameRate);
+<a name="l03522"></a>03522 
+<a name="l03529"></a>03529 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#e897c027ad56bcdbc5d3fd756547de4a">sipxConfigSetVideoBitrate</a>(<span class="keyword">const</span> SIPX_INST hInst, 
+<a name="l03530"></a>03530                                                    <span class="keyword">const</span> <span class="keywordtype">int</span> bitRate);
+<a name="l03531"></a>03531 
+<a name="l03538"></a>03538 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#760c9011255bfbd0ca12d9b51e988bd9">sipxConfigSetVideoFramerate</a>(<span class="keyword">const</span> SIPX_INST hInst, 
+<a name="l03539"></a>03539                                                      <span class="keyword">const</span> <span class="keywordtype">int</span> frameRate);
+<a name="l03540"></a>03540 
+<a name="l03547"></a>03547 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#fde82543f9de515db2d4b5a4db00a1cb">sipxConfigSetVideoCpuUsage</a>(<span class="keyword">const</span> SIPX_INST hInst, 
+<a name="l03548"></a>03548                                                     <span class="keyword">const</span> <span class="keywordtype">int</span> cpuUsage);
+<a name="l03549"></a>03549 
+<a name="l03550"></a>03550 
+<a name="l03585"></a>03585 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#03b662919ee51bad877a8dea1f470480">sipxConfigSubscribe</a>(<span class="keyword">const</span> SIPX_INST hInst, 
+<a name="l03586"></a>03586                                              <span class="keyword">const</span> SIPX_LINE hLine, 
+<a name="l03587"></a>03587                                              <span class="keyword">const</span> <span class="keywordtype">char</span>* szTargetUrl, 
+<a name="l03588"></a>03588                                              <span class="keyword">const</span> <span class="keywordtype">char</span>* szEventType, 
+<a name="l03589"></a>03589                                              <span class="keyword">const</span> <span class="keywordtype">char</span>* szAcceptType, 
+<a name="l03590"></a>03590                                              <span class="keyword">const</span> <a class="code" href="sip_xtapi_8h.html#f1274432c33002f92a7b85e8a1aca1bf">SIPX_CONTACT_ID</a> contactId, 
+<a name="l03591"></a>03591                                              SIPX_SUB* phSub); 
+<a name="l03600"></a>03600 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#aa17759360acd4bbf632f643300b23de">sipxConfigUnsubscribe</a>(<span class="keyword">const</span> SIPX_SUB hSub); 
+<a name="l03601"></a>03601 
+<a name="l03602"></a>03602 
+<a name="l03626"></a>03626 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#89e93f5e6e9957db896d2320e3430cc9">sipxConfigExternalTransportAdd</a>(SIPX_INST <span class="keyword">const</span>           hInst,
+<a name="l03627"></a>03627                                                         SIPX_TRANSPORT&amp;           hTransport,
+<a name="l03628"></a>03628                                                         <span class="keyword">const</span> <span class="keywordtype">bool</span>                bIsReliable,
+<a name="l03629"></a>03629                                                         <span class="keyword">const</span> <span class="keywordtype">char</span>*               szTransport,
+<a name="l03630"></a>03630                                                         <span class="keyword">const</span> <span class="keywordtype">char</span>*               szLocalIP,
+<a name="l03631"></a>03631                                                         <span class="keyword">const</span> <span class="keywordtype">int</span>                 iLocalPort,
+<a name="l03632"></a>03632                                                         <a class="code" href="sip_xtapi_8h.html#0c45124a31b36266d4cca42fd72a7819">SIPX_TRANSPORT_WRITE_PROC</a> writeProc,
+<a name="l03633"></a>03633                                                         <span class="keyword">const</span> <span class="keywordtype">char</span>*               szLocalRoutingId,
+<a name="l03634"></a>03634                                                         <span class="keyword">const</span> <span class="keywordtype">void</span>*               pUserData = NULL) ;
 <a name="l03635"></a>03635 
-<a name="l03636"></a>03636 <span class="preprocessor">#endif // _sipXtapi_h_</span>
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Wed Jul 26 16:03:04 2006 for SipX TAPI-like API for Call Processing by&nbsp;
+<a name="l03643"></a>03643 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#7f25c568d42a75bb2dbc79b3995f05e3">sipxConfigExternalTransportRemove</a>(<span class="keyword">const</span> SIPX_TRANSPORT hTransport);
+<a name="l03644"></a>03644 
+<a name="l03645"></a>03645 
+<a name="l03663"></a>03663 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#eb16d5712128f50fcd68930d0b5dda50">sipxConfigExternalTransportHandleMessage</a>(<span class="keyword">const</span> SIPX_TRANSPORT hTransport,
+<a name="l03664"></a>03664                                                                   <span class="keyword">const</span> <span class="keywordtype">char</span>*  szSourceIP,
+<a name="l03665"></a>03665                                                                   <span class="keyword">const</span> <span class="keywordtype">int</span>    iSourcePort,
+<a name="l03666"></a>03666                                                                   <span class="keyword">const</span> <span class="keywordtype">char</span>*  szLocalIP,
+<a name="l03667"></a>03667                                                                   <span class="keyword">const</span> <span class="keywordtype">int</span>    iLocalPort,
+<a name="l03668"></a>03668                                                                   <span class="keyword">const</span> <span class="keywordtype">void</span>*  pData,
+<a name="l03669"></a>03669                                                                   <span class="keyword">const</span> size_t nData);
+<a name="l03670"></a>03670 
+<a name="l03672"></a>03672 
+<a name="l03674"></a>03674 
+<a name="l03682"></a>03682 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#ffaf36a71651144e0d6e6f500c26a1f3">sipxUtilUrlParse</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* szUrl,
+<a name="l03683"></a>03683                                           <span class="keywordtype">char</span>* szUsername,
+<a name="l03684"></a>03684                                           <span class="keywordtype">char</span>* szHostname,
+<a name="l03685"></a>03685                                           <span class="keywordtype">int</span>*  iPort) ;
+<a name="l03686"></a>03686 
+<a name="l03695"></a>03695 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_8h.html#3ca500305412b2612dc4f76434f6773d">sipxUtilUrlUpdate</a>(<span class="keywordtype">char</span>*       szUrl,
+<a name="l03696"></a>03696                                            size_t &amp;    nUrl,
+<a name="l03697"></a>03697                                            <span class="keyword">const</span> <span class="keywordtype">char</span>* szNewUsername,
+<a name="l03698"></a>03698                                            <span class="keyword">const</span> <span class="keywordtype">char</span>* szNewHostname,
+<a name="l03699"></a>03699                                            <span class="keyword">const</span> <span class="keywordtype">int</span>   iNewPort) ;
+<a name="l03701"></a>03701 
+<a name="l03702"></a>03702 
+<a name="l03703"></a>03703 <span class="preprocessor">#endif // _sipXtapi_h_</span>
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Thu Aug 3 09:01:00 2006 for SipX TAPI-like API for Call Processing by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.6-NO </small></address>
 </body>

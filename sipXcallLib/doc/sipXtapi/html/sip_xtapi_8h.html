@@ -107,6 +107,9 @@ sipXtapi main API declarations
 <tr><td class="memItemLeft" nowrap align="right" valign="top">SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#07a45f9b95325823593771b872c0ed0f">sipxCallGetConnectionId</a> (const <a class="el" href="sip_xtapi_8h.html#d57dfd35f371dd289e4600cdc4504290">SIPX_CALL</a> hCall, int &amp;connectionId)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Gets the media interface connectionid.  <a href="#07a45f9b95325823593771b872c0ed0f"></a><br></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#b785567c741a0749181cd4a230f5cb89">sipxCallGetConference</a> (const <a class="el" href="sip_xtapi_8h.html#d57dfd35f371dd289e4600cdc4504290">SIPX_CALL</a> hCall, <a class="el" href="sip_xtapi_8h.html#10ada69a047fa3214d65c771bf0a11d5">SIPX_CONF</a> &amp;hConf)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the conference handle for the specified call.  <a href="#b785567c741a0749181cd4a230f5cb89"></a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#5da521229cfbdd7884d05f47c5e210d1">sipxCallGetRequestURI</a> (const <a class="el" href="sip_xtapi_8h.html#d57dfd35f371dd289e4600cdc4504290">SIPX_CALL</a> hCall, char *szUri, const size_t iMaxLength)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the SIP request uri.  <a href="#5da521229cfbdd7884d05f47c5e210d1"></a><br></td></tr>
@@ -309,6 +312,12 @@ SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1b
 <tr><td class="memItemLeft" nowrap align="right" valign="top">SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#63a5e85b46726097be5cf9f6703c91d2">sipxLineGetURI</a> (const <a class="el" href="sip_xtapi_8h.html#4679e181a248fe34b5aaef2862706352">SIPX_LINE</a> hLine, char *szBuffer, const size_t nBuffer, size_t &amp;nActual)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the Line URI for the designated line handle.  <a href="#63a5e85b46726097be5cf9f6703c91d2"></a><br></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#8d57264ac0299dbc28662a66c1c2ede2">sipxLineGetContactId</a> (const <a class="el" href="sip_xtapi_8h.html#4679e181a248fe34b5aaef2862706352">SIPX_LINE</a> hLine, <a class="el" href="sip_xtapi_8h.html#f1274432c33002f92a7b85e8a1aca1bf">SIPX_CONTACT_ID</a> &amp;contactId)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the contact ID for the designated line handle.  <a href="#8d57264ac0299dbc28662a66c1c2ede2"></a><br></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#000eaeca8e8145c162fc53be731c1b5b">sipxLineFindByURI</a> (const <a class="el" href="sip_xtapi_8h.html#338b507421c789dda3c552458230161c">SIPX_INST</a> hInst, const char *szURI, <a class="el" href="sip_xtapi_8h.html#4679e181a248fe34b5aaef2862706352">SIPX_LINE</a> &amp;hLine)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Find a line definition given a URI.  <a href="#000eaeca8e8145c162fc53be731c1b5b"></a><br></td></tr>
 <tr><td colspan="2"><br><h2>Configuration Methods</h2></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#ba3cd2ed30e6ae12abbdd11e7fc56fd4">sipxConfigSetLogLevel</a> (<a class="el" href="sip_xtapi_8h.html#87f3dbd54db7a6e76b26743328faf14c">SIPX_LOG_LEVEL</a> logLevel)</td></tr>
 
@@ -523,6 +532,13 @@ SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1b
 <tr><td class="memItemLeft" nowrap align="right" valign="top">SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#eb16d5712128f50fcd68930d0b5dda50">sipxConfigExternalTransportHandleMessage</a> (const <a class="el" href="sip_xtapi_8h.html#2950a05104a7acd50b15dee4251dfcf8">SIPX_TRANSPORT</a> hTransport, const char *szSourceIP, const int iSourcePort, const char *szLocalIP, const int iLocalPort, const void *pData, const size_t nData)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called by the application when it receives a complete SIP message via it's external transport mechanism and want to pass it along to sipXtapi.  <a href="#eb16d5712128f50fcd68930d0b5dda50"></a><br></td></tr>
+<tr><td colspan="2"><br><h2>Utility Functions</h2></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#ffaf36a71651144e0d6e6f500c26a1f3">sipxUtilUrlParse</a> (const char *szUrl, char *szUsername, char *szHostname, int *iPort)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Simple utility function to parse the username, host, and port from a URL.  <a href="#ffaf36a71651144e0d6e6f500c26a1f3"></a><br></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#3ca500305412b2612dc4f76434f6773d">sipxUtilUrlUpdate</a> (char *szUrl, size_t &amp;nUrl, const char *szNewUsername, const char *szNewHostname, const int iNewPort)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Simple utility function to update a URL.  <a href="#3ca500305412b2612dc4f76434f6773d"></a><br></td></tr>
 <tr><td colspan="2"><br><h2>Defines</h2></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="anchor" name="eb45b39190dfa2b1c89916a295ff3e95"></a><!-- doxytag: member="sipXtapi.h::SIPX_CALLING_CONVENTION" ref="eb45b39190dfa2b1c89916a295ff3e95" args="" -->
 #define&nbsp;</td><td class="memItemRight" valign="bottom"><b>SIPX_CALLING_CONVENTION</b></td></tr>
@@ -4601,6 +4617,51 @@ This API is only supported when sipXtapi is bundled with VoiceEngine from GIPS.<
     <tr><td valign="top"></td><td valign="top"><em>hCall</em>&nbsp;</td><td>Handle to a call. Call handles are obtained either by invoking sipxCallCreate or passed to your application through a listener interface. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>iSendSSRC</em>&nbsp;</td><td>The RTP SSRC used when sending audio </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>iReceiveSSRC</em>&nbsp;</td><td>The RTP SSRC used by the remote party to sending audio </td></tr>
+  </table>
+</dl>
+    </td>
+  </tr>
+</table>
+<a class="anchor" name="b785567c741a0749181cd4a230f5cb89"></a><!-- doxytag: member="sipXtapi.h::sipxCallGetConference" ref="b785567c741a0749181cd4a230f5cb89" args="(const SIPX_CALL hCall, SIPX_CONF &amp;hConf)" --><p>
+<table class="mdTable" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top">SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> sipxCallGetConference           </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const <a class="el" href="sip_xtapi_8h.html#d57dfd35f371dd289e4600cdc4504290">SIPX_CALL</a>&nbsp;</td>
+          <td class="mdname" nowrap> <em>hCall</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap><a class="el" href="sip_xtapi_8h.html#10ada69a047fa3214d65c771bf0a11d5">SIPX_CONF</a> &amp;&nbsp;</td>
+          <td class="mdname" nowrap> <em>hConf</em></td>
+        </tr>
+        <tr>
+          <td class="md"></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing="5" cellpadding="0" border="0">
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Get the conference handle for the specified call. 
+<p>
+<dl compact><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>hCall</em>&nbsp;</td><td>Handle to a call. Call handles are obtained either by invoking sipxCallCreate or passed to your application through a listener interface.</td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>hConf</em>&nbsp;</td><td>Conference handle for this call (if the call is part of a conference) </td></tr>
   </table>
 </dl>
     </td>
@@ -10252,6 +10313,58 @@ Credentials are often required by registration services to verify that the line 
     </td>
   </tr>
 </table>
+<a class="anchor" name="000eaeca8e8145c162fc53be731c1b5b"></a><!-- doxytag: member="sipXtapi.h::sipxLineFindByURI" ref="000eaeca8e8145c162fc53be731c1b5b" args="(const SIPX_INST hInst, const char *szURI, SIPX_LINE &amp;hLine)" --><p>
+<table class="mdTable" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top">SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> sipxLineFindByURI           </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const <a class="el" href="sip_xtapi_8h.html#338b507421c789dda3c552458230161c">SIPX_INST</a>&nbsp;</td>
+          <td class="mdname" nowrap> <em>hInst</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>const char *&nbsp;</td>
+          <td class="mdname" nowrap> <em>szURI</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap><a class="el" href="sip_xtapi_8h.html#4679e181a248fe34b5aaef2862706352">SIPX_LINE</a> &amp;&nbsp;</td>
+          <td class="mdname" nowrap> <em>hLine</em></td>
+        </tr>
+        <tr>
+          <td class="md"></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing="5" cellpadding="0" border="0">
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Find a line definition given a URI. 
+<p>
+<dl compact><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>hInst</em>&nbsp;</td><td>Instance pointer obtained by sipxInitialize. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>szURI</em>&nbsp;</td><td>URI used to search for a line definition </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>hLine</em>&nbsp;</td><td>line handle if successful </td></tr>
+  </table>
+</dl>
+    </td>
+  </tr>
+</table>
 <a class="anchor" name="8671e9c72b0bd7466471f92c30dd6f43"></a><!-- doxytag: member="sipXtapi.h::sipxLineGet" ref="8671e9c72b0bd7466471f92c30dd6f43" args="(const SIPX_INST hInst, SIPX_LINE lines[], const size_t max, size_t &amp;actual)" --><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
@@ -10306,6 +10419,51 @@ Gets the active list of line identities.
     <tr><td valign="top"></td><td valign="top"><em>lines</em>&nbsp;</td><td>Pre-allocated array of line handles. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>max</em>&nbsp;</td><td>Maximum number of lines to return. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>actual</em>&nbsp;</td><td>Actual number of valid lines returned. </td></tr>
+  </table>
+</dl>
+    </td>
+  </tr>
+</table>
+<a class="anchor" name="8d57264ac0299dbc28662a66c1c2ede2"></a><!-- doxytag: member="sipXtapi.h::sipxLineGetContactId" ref="8d57264ac0299dbc28662a66c1c2ede2" args="(const SIPX_LINE hLine, SIPX_CONTACT_ID &amp;contactId)" --><p>
+<table class="mdTable" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top">SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> sipxLineGetContactId           </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const <a class="el" href="sip_xtapi_8h.html#4679e181a248fe34b5aaef2862706352">SIPX_LINE</a>&nbsp;</td>
+          <td class="mdname" nowrap> <em>hLine</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap><a class="el" href="sip_xtapi_8h.html#f1274432c33002f92a7b85e8a1aca1bf">SIPX_CONTACT_ID</a> &amp;&nbsp;</td>
+          <td class="mdname" nowrap> <em>contactId</em></td>
+        </tr>
+        <tr>
+          <td class="md"></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing="5" cellpadding="0" border="0">
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Get the contact ID for the designated line handle. 
+<p>
+<dl compact><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>hLine</em>&nbsp;</td><td>Handle to a line appearance. Line handles are obtained by creating a line using the sipxLineAdd function or by receiving a line event notification. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>contactId</em>&nbsp;</td><td>contact Id specified during line creation </td></tr>
   </table>
 </dl>
     </td>
@@ -10818,6 +10976,115 @@ This method tears down the basic SIP stack and media process resources and shoul
     </td>
   </tr>
 </table>
+<a class="anchor" name="ffaf36a71651144e0d6e6f500c26a1f3"></a><!-- doxytag: member="sipXtapi.h::sipxUtilUrlParse" ref="ffaf36a71651144e0d6e6f500c26a1f3" args="(const char *szUrl, char *szUsername, char *szHostname, int *iPort)" --><p>
+<table class="mdTable" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top">SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> sipxUtilUrlParse           </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const char *&nbsp;</td>
+          <td class="mdname" nowrap> <em>szUrl</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>char *&nbsp;</td>
+          <td class="mdname" nowrap> <em>szUsername</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>char *&nbsp;</td>
+          <td class="mdname" nowrap> <em>szHostname</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>int *&nbsp;</td>
+          <td class="mdname" nowrap> <em>iPort</em></td>
+        </tr>
+        <tr>
+          <td class="md"></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing="5" cellpadding="0" border="0">
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Simple utility function to parse the username, host, and port from a URL. 
+<p>
+All url, field, and header parameters are ignored. You may also specify NULL for any parameters (except szUrl) which are not needed. Lastly, the caller must allocate enough storage space for each url component -- if in doubt use the length of the supplied szUrl.     </td>
+  </tr>
+</table>
+<a class="anchor" name="3ca500305412b2612dc4f76434f6773d"></a><!-- doxytag: member="sipXtapi.h::sipxUtilUrlUpdate" ref="3ca500305412b2612dc4f76434f6773d" args="(char *szUrl, size_t &amp;nUrl, const char *szNewUsername, const char *szNewHostname, const int iNewPort)" --><p>
+<table class="mdTable" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top">SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> sipxUtilUrlUpdate           </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">char *&nbsp;</td>
+          <td class="mdname" nowrap> <em>szUrl</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>size_t &amp;&nbsp;</td>
+          <td class="mdname" nowrap> <em>nUrl</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>const char *&nbsp;</td>
+          <td class="mdname" nowrap> <em>szNewUsername</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>const char *&nbsp;</td>
+          <td class="mdname" nowrap> <em>szNewHostname</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>const int&nbsp;</td>
+          <td class="mdname" nowrap> <em>iNewPort</em></td>
+        </tr>
+        <tr>
+          <td class="md"></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing="5" cellpadding="0" border="0">
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Simple utility function to update a URL. 
+<p>
+If the szUrl isn't large enough, or is NULL, this function will fail, however, the nUrl will contained the required size in bytes.<p>
+To leave an existing component unchanged, use NULL for strings and -1 for ports.     </td>
+  </tr>
+</table>
 <hr><h2>Variable Documentation</h2>
 <a class="anchor" name="9304aa9728e1cd8898ff913462158c4b"></a><!-- doxytag: member="sipXtapi.h::SIPX_CALL_NULL" ref="9304aa9728e1cd8898ff913462158c4b" args="" --><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
@@ -10969,7 +11236,7 @@ Represents a null transport handle.
     </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Wed Jul 26 16:03:04 2006 for SipX TAPI-like API for Call Processing by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Thu Aug 3 09:01:00 2006 for SipX TAPI-like API for Call Processing by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.6-NO </small></address>
 </body>
