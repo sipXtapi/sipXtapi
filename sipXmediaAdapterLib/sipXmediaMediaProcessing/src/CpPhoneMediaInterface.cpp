@@ -620,23 +620,12 @@ OsStatus CpPhoneMediaInterface::setConnectionDestination(int connectionId,
         {
             pMediaConnection->mpRtpAudioSocket->readyDestination(remoteRtpHostAddress, remoteAudioRtpPort) ;
             pMediaConnection->mpRtpAudioSocket->applyDestinationAddress(remoteRtpHostAddress, remoteAudioRtpPort) ;
-
-            // TODO:: Do not call doConnect -- this filters out packets from other sources (e.g. 
-            // breaks ICE)
-            pMediaConnection->mpRtpAudioSocket->doConnect(remoteAudioRtpPort, remoteRtpHostAddress, TRUE);
-            returnCode = OS_SUCCESS;
         }
 
         if(pMediaConnection->mpRtcpAudioSocket && (remoteAudioRtcpPort > 0))
         {
             pMediaConnection->mpRtcpAudioSocket->readyDestination(remoteRtpHostAddress, remoteAudioRtcpPort) ;
             pMediaConnection->mpRtcpAudioSocket->applyDestinationAddress(remoteRtpHostAddress, remoteAudioRtcpPort) ;
-
-            // TODO:: Do not call doConnect -- this filters out packets from other sources (e.g. 
-            // breaks ICE)
-            pMediaConnection->mpRtcpAudioSocket->doConnect(remoteAudioRtcpPort, remoteRtpHostAddress, TRUE);
-
-            // TODO:: Enable RTCP (forget if it is enabled by default)
         }
         else
         {
@@ -653,19 +642,11 @@ OsStatus CpPhoneMediaInterface::setConnectionDestination(int connectionId,
             pMediaConnection->mpRtpVideoSocket->readyDestination(remoteRtpHostAddress, remoteVideoRtpPort) ;
             pMediaConnection->mpRtpVideoSocket->applyDestinationAddress(remoteRtpHostAddress, remoteVideoRtpPort) ;
 
-            // TODO:: Do not call doConnect -- this filters out packets from other sources (e.g. 
-            // breaks ICE)
-            mediaConnection->mpRtpVideoSocket->doConnect(remoteAudioRtpPort, remoteRtpHostAddress, TRUE);
-
             if(mediaConnection->mpRtcpVideoSocket && (remoteVideoRtcpPort > 0))
             {
                 pMediaConnection->mRtcpVideoSendHostPort = remoteVideoRtcpPort ;               
                 pMediaConnection->mpRtcpVideoSocket->readyDestination(remoteRtpHostAddress, remoteVideoRtcpPort) ;
                 pMediaConnection->mpRtcpVideoSocket->applyDestinationAddress(remoteRtpHostAddress, remoteVideoRtcpPort) ;
-
-                // TODO:: Do not call doConnect -- this filters out packets from other sources (e.g. 
-                // breaks ICE)
-                mediaConnection->mpRtcpVideoSocket->doConnect(remoteAudioRtcpPort, remoteRtpHostAddress, TRUE);
             }
             else
             {
@@ -2177,10 +2158,6 @@ void CpPhoneMediaInterface::applyAlternateDestinations(int connectionId)
                 pMediaConnection->mpRtpAudioSocket->applyDestinationAddress(destAddress, destPort) ;                                
                 pMediaConnection->mRtpSendHostAddress = destAddress;
                 pMediaConnection->mRtpAudioSendHostPort = destPort;
-
-                // TODO:: Do not call doConnect -- this filters out packets from other sources (e.g. 
-                // breaks ICE)
-                pMediaConnection->mpRtpAudioSocket->doConnect(destPort, destAddress, TRUE);
             }
         }
 
@@ -2191,10 +2168,6 @@ void CpPhoneMediaInterface::applyAlternateDestinations(int connectionId)
             {
                 pMediaConnection->mpRtcpAudioSocket->applyDestinationAddress(destAddress, destPort) ;                
                 pMediaConnection->mRtcpAudioSendHostPort = destPort;                
-
-                // TODO:: Do not call doConnect -- this filters out packets from other sources (e.g. 
-                // breaks ICE)
-                pMediaConnection->mpRtcpAudioSocket->doConnect(destPort, destAddress, TRUE);
             }            
         }
 
@@ -2208,10 +2181,6 @@ void CpPhoneMediaInterface::applyAlternateDestinations(int connectionId)
             {
                 pMediaConnection->mpRtpVideoSocket->applyDestinationAddress(destAddress, destPort) ;                
                 pMediaConnection->mRtpVideoSendHostPort = destPort;
-
-                // TODO:: Do not call doConnect -- this filters out packets from other sources (e.g. 
-                // breaks ICE)
-                pMediaConnection->mpRtpVideoSocket->doConnect(destPort, destAddress, TRUE);
             }            
         }
 
@@ -2222,10 +2191,6 @@ void CpPhoneMediaInterface::applyAlternateDestinations(int connectionId)
             {
                 pMediaConnection->mpRtcpVideoSocket->applyDestinationAddress(destAddress, destPort) ;                
                 pMediaConnection->mRtcpVideoSendHostPort = destPort;
-
-                // TODO:: Do not call doConnect -- this filters out packets from other sources (e.g. 
-                // breaks ICE)
-                pMediaConnection->mRtcpVideoSendHostPort->doConnect(destPort, destAddress, TRUE);
             }            
         }
 
