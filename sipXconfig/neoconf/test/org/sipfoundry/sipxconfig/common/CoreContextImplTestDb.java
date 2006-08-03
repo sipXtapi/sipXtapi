@@ -311,7 +311,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         m_core.createAdminGroupAndInitialUserTask();
 
         User admin = m_core.loadUserByUserName(User.SUPERADMIN);
-        Group adminGroup = (Group) admin.getGroups().iterator().next();
+        Group adminGroup = admin.getGroups().iterator().next();
         IDataSet expectedDs = TestHelper
                 .loadDataSetFlat("common/CreateAdminAndInitialUserExpected.xml");
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);

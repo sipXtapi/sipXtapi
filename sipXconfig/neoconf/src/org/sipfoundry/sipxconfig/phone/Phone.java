@@ -154,8 +154,6 @@ public class Phone extends BeanWithGroups {
      * be loaded. Phone model id and version are added by default.
      *
      *  &lt;setting name="dinosaur" unless="not-extinct"/&gt;
-     * 
-     * @return
      */
     protected Set getModelDefinitions() {
         Set definitions = new HashSet();

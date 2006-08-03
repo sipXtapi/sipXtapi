@@ -70,7 +70,7 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
     public void testDefaultAttendantGroup() throws Exception {
         Group defaultGroup = m_context.getDefaultAutoAttendantGroup();
         AutoAttendant aa = m_context.newAutoAttendantWithDefaultGroup();        
-        Group[] groups = (Group[]) aa.getGroups().toArray(new Group[1]);
+        Group[] groups = aa.getGroups().toArray(new Group[1]);
         assertEquals(1, groups.length);
         assertEquals(defaultGroup.getPrimaryKey(), groups[0].getPrimaryKey());
     }

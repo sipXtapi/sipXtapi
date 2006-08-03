@@ -42,8 +42,6 @@ public class SkinControl {
      * will become
      *   "http://example.com/help-9-0.html
      * for version 9.0 of sipX
-     * 
-     * @return
      */
     public String getHelpLink() {
         return m_helpLink;

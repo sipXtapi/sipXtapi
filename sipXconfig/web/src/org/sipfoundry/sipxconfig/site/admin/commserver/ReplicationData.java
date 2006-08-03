@@ -29,6 +29,7 @@ public abstract class ReplicationData extends PageWithCallback {
         return getSipxReplicationContext().getXml(DataSet.getEnum(getDataSetName()));
     }
 
+    @SuppressWarnings("unused")
     public void setXml(String xml_) {
         // ignore xml - read only field
     }
