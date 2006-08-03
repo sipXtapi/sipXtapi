@@ -239,9 +239,9 @@ class OsTimer : public UtlContainable
    /**< Class type used for runtime checking */
 
    /// type for absolute time
-   typedef long long int Time;
+   typedef INT64 Time;
    /// type for time interval
-   typedef long long int Interval;
+   typedef INT64 Interval;
 
    OsBSem          mBSem;      //< semaphore to lock access to members
 
