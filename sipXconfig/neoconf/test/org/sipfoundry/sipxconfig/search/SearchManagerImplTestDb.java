@@ -24,7 +24,6 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.search.BeanAdaptor.Identity;
-import org.sipfoundry.sipxconfig.search.BeanAdaptor.IdentityToBean;
 import org.springframework.context.ApplicationContext;
 
 public class SearchManagerImplTestDb extends TestCase {
@@ -80,20 +79,20 @@ public class SearchManagerImplTestDb extends TestCase {
         assertEquals(0, collection.size());
 
         user.setAliasesString("aaa, bcd");
-        //user.setFirstName("zzzfirstname");
+        // user.setFirstName("zzzfirstname");
         m_coreContext.saveUser(user);
 
         collection = m_searchManager.search("zzzfirstname", m_identityToBean);
 
-        //assertEquals(1, collection.size());        
-        //assertTrue(collection.remove(user));
-        
+        // assertEquals(1, collection.size());
+        // assertTrue(collection.remove(user));
+
         User user2 = m_coreContext.loadUser(user.getId());
         System.err.println(user2.getAliasesString());
 
         collection = m_searchManager.search("aaa", m_identityToBean);
 
-        assertEquals(1, collection.size());        
+        assertEquals(1, collection.size());
         assertTrue(collection.remove(user));
 
         collection = m_searchManager.search("alias:bcd", m_identityToBean);
@@ -156,7 +155,8 @@ public class SearchManagerImplTestDb extends TestCase {
         String[] orderBy = new String[] {
             "userName"
         };
-        List collection = m_searchManager.search(User.class, "first*", 0, -1, orderBy, true, m_identityToBean);
+        List collection = m_searchManager.search(User.class, "first*", 0, -1, orderBy, true,
+                m_identityToBean);
         assertEquals(names.length, collection.size());
         User user = (User) collection.get(0);
         assertEquals(names[0], user.getUserName());
@@ -164,7 +164,8 @@ public class SearchManagerImplTestDb extends TestCase {
         assertEquals(names[names.length - 1], user.getUserName());
 
         // descending
-        collection = m_searchManager.search(User.class, "first*", 0, -1, orderBy, false, m_identityToBean);
+        collection = m_searchManager.search(User.class, "first*", 0, -1, orderBy, false,
+                m_identityToBean);
         assertEquals(names.length, collection.size());
         user = (User) collection.get(names.length - 1);
         assertEquals(names[0], user.getUserName());
@@ -172,7 +173,8 @@ public class SearchManagerImplTestDb extends TestCase {
         assertEquals(names[names.length - 1], user.getUserName());
 
         // do not return first item - descending order
-        collection = m_searchManager.search(User.class, "first*", 1, -1, orderBy, false, m_identityToBean);
+        collection = m_searchManager.search(User.class, "first*", 1, -1, orderBy, false,
+                m_identityToBean);
         int size = collection.size();
         assertEquals(names.length - 1, size);
         user = (User) collection.get(0);
@@ -182,7 +184,8 @@ public class SearchManagerImplTestDb extends TestCase {
 
         // only return 2 items starting from first - ascending order
         int pageSize = 2;
-        collection = m_searchManager.search(User.class, "first*", 1, pageSize, orderBy, true, m_identityToBean);
+        collection = m_searchManager.search(User.class, "first*", 1, pageSize, orderBy, true,
+                m_identityToBean);
         assertEquals(pageSize, collection.size());
         user = (User) collection.get(0);
         assertEquals(names[1], user.getUserName());
@@ -214,8 +217,9 @@ public class SearchManagerImplTestDb extends TestCase {
         String[] orderBy = new String[] {
             "lastName", "firstName"
         };
-        List users = m_searchManager.search(User.class, "x*", 0, -1, orderBy, false, m_identityToBean);
-        
+        List users = m_searchManager.search(User.class, "x*", 0, -1, orderBy, false,
+                m_identityToBean);
+
         assertEquals("xzz", ((User) users.get(0)).getUserName());
         assertEquals("xee", ((User) users.get(1)).getUserName());
         assertEquals("xbb", ((User) users.get(2)).getUserName());
@@ -244,5 +248,24 @@ public class SearchManagerImplTestDb extends TestCase {
 
         query = impl.parseUserQuery("name:kuku AND bongo");
         assertFalse(query instanceof PrefixQuery);
+    }
+
+    public void testOutdatedIndex() throws Exception {
+        User user = new User();
+        user.setFirstName("first");
+        user.setLastName("last");
+        user.setUserName("bongo");
+
+        m_coreContext.saveUser(user);
+        Collection collection = m_searchManager.search(User.class, "bon*", m_identityToBean);
+        assertEquals(1, collection.size());
+        assertTrue(collection.contains(user));
+
+        // remove user from database only
+        TestHelper.cleanInsert("ClearDb.xml");
+
+        // cannot find user but no exception
+        collection = m_searchManager.search(User.class, "bon*", m_identityToBean);
+        assertEquals(0, collection.size());
     }
 }

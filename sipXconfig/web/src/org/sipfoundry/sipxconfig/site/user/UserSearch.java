@@ -25,7 +25,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.search.BeanAdaptor;
+import org.sipfoundry.sipxconfig.search.IdentityToBean;
 import org.sipfoundry.sipxconfig.search.SearchManager;
 import org.sipfoundry.sipxconfig.search.UserSearchManager;
 
@@ -58,7 +58,7 @@ public abstract class UserSearch extends BaseComponent {
         List results = null;
         String query = getQuery();
 
-        BeanAdaptor.IdentityToBean identityToBean = new BeanAdaptor.IdentityToBean(
+        IdentityToBean identityToBean = new IdentityToBean(
                 getCoreContext());
         if (getSimpleSearch() && StringUtils.isNotBlank(query)) {
             results = getSearchManager().search(User.class, query, 0, MAX_RESULT, null, false,
