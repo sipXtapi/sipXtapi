@@ -17,20 +17,16 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import junit.framework.TestCase;
 
 public class IntercomRuleTest extends TestCase {
-    private static final String TEST_PREFIX = "*78*";
-    private static final String ESCAPED_TEST_PREFIX = "\\*78\\*";
-    private static final String TEST_CODE = "Ipek";
-        
     private IntercomRule m_rule;
     
     protected void setUp() {
-        m_rule = new IntercomRule(true, TEST_PREFIX, TEST_CODE);
+        m_rule = new IntercomRule(true, "*78", "Ipek");
     }
     
     public void testGetPatterns() {
         String[] patterns = m_rule.getPatterns();
         assertEquals(1, patterns.length);
-        assertEquals(ESCAPED_TEST_PREFIX + ".", patterns[0]);
+        assertEquals("*78" + ".", patterns[0]);
     }
 
     public void testGetTransforms() {
@@ -38,6 +34,9 @@ public class IntercomRuleTest extends TestCase {
         assertEquals(1, transforms.length);
         FullTransform transform = (FullTransform) transforms[0];
         assertEquals("{vdigits}", transform.getUser());
+        String[] headerparams = transform.getHeaderParams();
+        assertEquals(1, headerparams.length);
+        assertEquals("Alert-info=Ipek", headerparams[0]);
         assertNull(transform.getHost());
     }    
 }
