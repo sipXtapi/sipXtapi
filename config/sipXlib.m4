@@ -106,7 +106,7 @@ AC_DEFUN([SFAC_DISTRO_CONDITIONAL],
 [
    distroid="${DISTRO}${DISTROVER}"
    AC_MSG_CHECKING(Distribution specific settings for '${distroid}')
- 
+
    AM_CONDITIONAL([PLATFORM_FC4], [test "${distroid}" = "FC4"])
    AM_CONDITIONAL([PLATFORM_FC5], [test "${distroid}" = "FC5"])
    AM_CONDITIONAL([PLATFORM_RHE3],[test "${distroid}" = "RHE3"])
@@ -135,6 +135,29 @@ AC_DEFUN([SFAC_DISTRO_CONDITIONAL],
    esac
 
    AC_SUBST([LIBWWW_RPM])
+])
+
+## Soon to replace above macro...
+AC_DEFUN([SFAC_DISTRO_CONDITIONAL2],
+[
+   AC_ARG_VAR(LIBWWW_RPM, [Name of package that support w3c-libwww support])
+   if [ -z ${LIBWWW_RPM} ]
+   then
+       AC_MSG_CHECKING(Checking distribution version)
+       RH_DISTRO = `cat /etc/redhat-release 2> /dev/null`
+       case "$(RH_DISTRO)" in
+         CentOS release 4* | \
+         Red Hat Enterprise Linux ES release 4* | \
+         Fedora Core release 3* )
+           AC_MSG_RESULT([  using sipx version of libwww])
+           LIBWWW_RPM = sipx-w3c-libwww
+	   ;;
+         *)
+           AC_MSG_RESULT([  using distro supplied version of libwww])
+           LIBWWW_RPM = w3c-libwww
+           ;;
+       esac
+   fi
 ])
 
 ## sipXportLib 

@@ -18,6 +18,7 @@ Source: %{name}-%{version}.tar.gz
 #Patch2: mod_cplusplus.patch.apache_handler.cpp
 
 Requires: httpd >= 2.0
+BuildRequires: httpd-devel >= 2.0
 
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root

@@ -18,8 +18,7 @@ $(CGICC_SRC) :
 	../meta/download-file $@ $(CGICC_URL)/`basename $@`
 
 build-rpms: $(CGICC_SRC) cgicc.spec
-	cp cgicc-$(CGICC_VER).tar.gz \
-		$(RPMBUILD_TOPDIR)/SOURCES
+	cp $(CGICC_SRC) $(RPMBUILD_TOPDIR)/SOURCES
 	rpmbuild -ba --target $(RPM_TARGET_ARCH)-none-linux cgicc.spec
 
 $(CGICC_RPM): build-rpms
