@@ -1,5 +1,3 @@
-## Makefile components common to the top level of any sipX project
-
 ## BUILDSTAMP records the subversion revision, date/time, and host of the build
 ##   it also creates the cpp file config/sipX-buildstamp.cpp with the same information.
 

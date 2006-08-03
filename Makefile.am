@@ -1,13 +1,27 @@
+
+# rpm
+# rpm clean
+# build * (all [check] install-if-lib)
+# build target[dependencies] (all [check] install-if-lib)
+# dist
+# 
+# options
+#  failfast
+#  sudo
+
 RECURSE = \
-	all \
-	rpm \
-	install \
+	check \
+	rpmclean \
 	clean \
+	install \
 	uninstall \
+	recurse \
 	dist
 
-# Lifted from Makefile.in for normal recursive targets.  Couldn't
-# find a clean way to leverage it to copied target body here. -- dlh
+CHECK = check
+
+PROJECTS = $(subdirs)
+
 $(RECURSE):
 	@failcom='exit 1'; \
 	for f in x $$MAKEFLAGS; do \
@@ -16,19 +30,26 @@ $(RECURSE):
 	    *k*) failcom='fail=yes';; \
 	  esac; \
 	done; \
-	dot_seen=no; \
-	target=`echo $@ | sed s/-recursive//`; \
-	list='$(subdirs)'; for subdir in $$list; do \
+	target="$(TARGETS)`echo $@ | sed -e s/recurse//`"; \
+	list='$(PROJECTS)'; for subdir in $$list; do \
 	  echo "Making $$target in $$subdir"; \
-	  if test "$$subdir" = "."; then \
-	    dot_seen=yes; \
-	    local_target="$$target-am"; \
-	  else \
-	    local_target="$$target"; \
-	  fi; \
-	  (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) $$local_target) \
+	  (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) $$target) \
 	  || eval $$failcom; \
-	done; \
-	if test "$$dot_seen" = "no"; then \
-	  $(MAKE) $(AM_MAKEFLAGS) "$$target-am" || exit 1; \
-	fi; test -z "$$fail"
+	done;
+
+# simply list projects in correct build order
+.PHONY: list
+list:
+	@echo $(PROJECTS)
+
+.PHONY: all dist
+all:
+	@echo "Target is not valid."
+
+.PHONY: build
+build:
+	$(MAKE) recurse TARGETS="all $(CHECK) install"
+
+# TODO rpm-install should only install if it's a dependency
+rpm:
+	$(MAKE) recurse TARGETS="rpm rpm-install"

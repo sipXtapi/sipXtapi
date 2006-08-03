@@ -18,6 +18,10 @@ AC_DEFUN([SFAC_INIT_FLAGS],
     AC_SUBST(SIPX_LIBDIR, [${libdir}])
     AC_SUBST(SIPX_LIBEXECDIR, [${libexecdir}])
 
+    CFLAGS="-I${prefix}/include $CFLAGS"
+    CXXFLAGS="-I${prefix}/include $CXXFLAGS"
+    LD_FLAGS="-L${prefix}/lib ${LDFLAGS}"
+
     if test x_"${ax_cv_c_compiler_vendor}" = x_gnu
     then
     	SF_CXX_C_FLAGS="-D__pingtel_on_posix__ -D_linux_ -D_REENTRANT -D_FILE_OFFSET_BITS=64 -fmessage-length=0"
@@ -173,71 +177,8 @@ AC_DEFUN([SFAC_LIB_PORT],
     AC_REQUIRE([SFAC_INIT_FLAGS])
     AC_REQUIRE([CHECK_PCRE])
     AC_REQUIRE([CHECK_SSL])
-
-    SFAC_ARG_WITH_INCLUDE([os/OsDefs.h],
-            [sipxportinc],
-            [ --with-sipxportinc=<dir> portability include path ],
-            [sipXportLib])
-
-    if test x_$foundpath != x_; then
-        AC_MSG_RESULT($foundpath)
-    else
-        AC_MSG_ERROR('os/OsDefs.h' not found)
-    fi
-    SIPXPORTINC=$foundpath
-    AC_SUBST(SIPXPORTINC)
-
-    CFLAGS="-I$SIPXPORTINC $PCRE_CFLAGS $CPPUNIT_CFLAGS $CFLAGS"
-    CXXFLAGS="-I$SIPXPORTINC $PCRE_CXXFLAGS $CPPUNIT_CFLAGS $CXXFLAGS"
-
-    foundpath=""
-
-    SFAC_ARG_WITH_INCLUDE([sipxunit/TestUtilities.h],
-            [sipxportinc],
-            [ --with-sipxportinc=<dir> portability include path ],
-            [sipXportLib])
-
-    if test x_$foundpath != x_; then
-        AC_MSG_RESULT($foundpath)
-    else
-        AC_MSG_ERROR('sipxunit/TestUtilities.h' not found)
-    fi
-    SIPXUNITINC=$foundpath
-    AC_SUBST(SIPXUNITINC)
-
-    CFLAGS="-I$SIPXUNITINC $CFLAGS"
-    CXXFLAGS="-I$SIPXUNITINC $CXXFLAGS"
-
-    foundpath=""
-
-    SFAC_ARG_WITH_LIB([libsipXport.la],
-            [sipxportlib],
-            [ --with-sipxportlib=<dir> portability library path ],
-            [sipXportLib])
-
-    if test x_$foundpath != x_; then
-        AC_MSG_RESULT($foundpath)
-        AC_SUBST(SIPXPORT_LIBS,    "$foundpath/libsipXport.la")
-        AC_SUBST(SIPXPORT_LDFLAGS, "-L$foundpath")
-    else
-        AC_MSG_ERROR('libsipXport.la' not found)
-    fi
-
-    foundpath=""
-
-    SFAC_ARG_WITH_LIB([libsipXunit.la],
-            [sipxportlib],
-            [ --with-sipxportlib=<dir> portability library path ],
-            [sipXportLib])
-
-    if test x_$foundpath != x_; then
-        AC_MSG_RESULT($foundpath)
-        # sipXunit unitesting support
-        AC_SUBST(SIPXUNIT_LDFLAGS, "-L$foundpath")
-        AC_SUBST(SIPXUNIT_LIBS,    "$foundpath/libsipXunit.la")
-    else
-        AC_MSG_ERROR('libsipXunit.la' not found)
-    fi
+    AC_SUBST(SIPXPORT_LIBS, [-lsipXport])
+    AC_SUBST(SIPXUNIT_LIBS, [-lsipXunit])
 ]) # SFAC_LIB_PORT
 
 
@@ -252,42 +193,7 @@ AC_DEFUN([SFAC_LIB_PORT],
 AC_DEFUN([SFAC_LIB_STACK],
 [
     AC_REQUIRE([SFAC_LIB_PORT])
-
-    SFAC_ARG_WITH_INCLUDE([net/SipUserAgent.h],
-            [sipxtackinc],
-            [ --with-sipxtackinc=<dir> sip stack include path ],
-            [sipXtackLib])
-
-    if test x_$foundpath != x_; then
-        AC_MSG_RESULT($foundpath)
-    else
-        AC_MSG_ERROR('net/SipUserAgent.h' not found)
-    fi
-    SIPXTACKINC=$foundpath
-    AC_SUBST(SIPXTACKINC)
-
-    if test "$SIPXTACKINC" != "$SIPXPORTINC"
-    then
-        CFLAGS="-I$SIPXTACKINC $CFLAGS"
-        CXXFLAGS="-I$SIPXTACKINC $CXXFLAGS"
-    fi
-
-    SFAC_ARG_WITH_LIB([libsipXtack.la],
-            [sipxtacklib],
-            [ --with-sipxtacklib=<dir> sip stack library path ],
-            [sipXtackLib])
-
-    if test x_$foundpath != x_; then
-        AC_MSG_RESULT($foundpath)
-    else
-        AC_MSG_ERROR('libsipXtack.la' not found)
-    fi
-
-    SIPXTACKLIB=$foundpath
-
-    AC_SUBST(SIPXTACK_LIBS,["$SIPXTACKLIB/libsipXtack.la"])
-    AC_SUBST(SIPXTACK_LDFLAGS,["-L$SIPXTACKLIB"])
-
+    AC_SUBST([SIPXTACK_LIBS], [-lsipXtack])
 ]) # SFAC_LIB_STACK
 
 
@@ -302,40 +208,7 @@ AC_DEFUN([SFAC_LIB_STACK],
 AC_DEFUN([SFAC_LIB_MEDIA],
 [
     AC_REQUIRE([SFAC_LIB_STACK])
-
-    SFAC_ARG_WITH_INCLUDE([mp/MpMediaTask.h],
-            [sipxmediainc],
-            [ --with-sipxmediainc=<dir> media library include path ],
-            [sipXmediaLib])
-
-    if test x_$foundpath != x_; then
-        AC_MSG_RESULT($foundpath)
-    else
-        AC_MSG_ERROR('mp/MpMediaTask.h' not found)
-    fi
-    SIPXMEDIAINC=$foundpath
-    AC_SUBST(SIPXMEDIAINC)
-
-    if test "$SIPXMEDIAINC" != "$SIPXPORTINC"
-    then
-        CFLAGS="-I$SIPXMEDIAINC $CFLAGS"
-        CXXFLAGS="-I$SIPXMEDIAINC $CXXFLAGS"
-    fi
-    
-    SFAC_ARG_WITH_LIB([libsipXmedia.la],
-            [sipxmedialib],
-            [ --with-sipxmedialib=<dir> media library path ],
-            [sipXmediaLib])
-
-    if test x_$foundpath != x_; then
-        AC_MSG_RESULT($foundpath)
-    else
-        AC_MSG_ERROR('libsipXmedia.la' not found)
-    fi
-    SIPXMEDIALIB=$foundpath
-
-    AC_SUBST(SIPXMEDIA_LIBS, ["$SIPXMEDIALIB/libsipXmedia.la"])
-    AC_SUBST(SIPXMEDIA_LDFLAGS, ["-L$SIPXMEDIALIB"])
+    AC_SUBST([SIPXMEDIA_LIBS], [-lsipXmedia])
 ]) # SFAC_LIB_MEDIA
 
 
@@ -351,40 +224,7 @@ AC_DEFUN([SFAC_LIB_MEDIA],
 AC_DEFUN([SFAC_LIB_MEDIAADAPTER],
 [
     AC_REQUIRE([SFAC_LIB_MEDIA])
-
-    SFAC_ARG_WITH_INCLUDE([mi/CpMediaInterface.h],
-            [sipxmediaadapterinc],
-            [ --with-sipxmediaadapterinc=<dir> media adapter library include path ],
-            [sipXmediaAdapterLib])
-
-    if test x_$foundpath != x_; then
-        AC_MSG_RESULT($foundpath)
-    else
-        AC_MSG_ERROR('mi/CpMediaInterface.h' not found)
-    fi
-    SIPXMEDIAADAPTERINC=$foundpath
-    AC_SUBST(SIPXMEDIAADAPTERINC)
-
-    if test "$SIPXMEDIAADAPTERINC" != "$SIPXPORTINC"
-    then
-        CFLAGS="-I$SIPXMEDIAADAPTERINC $CFLAGS"
-        CXXFLAGS="-I$SIPXMEDIAADAPTERINC $CXXFLAGS"
-    fi
-    
-    SFAC_ARG_WITH_LIB([libsipXmediaProcessing.la],
-            [sipxmediaadapterlib],
-            [ --with-sipxmediaadapterlib=<dir> media adapter library path ],
-            [sipXmediaAdapterLib])
-
-    if test x_$foundpath != x_; then
-        AC_MSG_RESULT($foundpath)
-    else
-        AC_MSG_ERROR('libsipXmediaProcessing.la' not found)
-    fi
-    SIPXMEDIAADAPTERLIB=$foundpath
-
-    AC_SUBST(SIPXMEDIAADAPTER_LIBS, ["$SIPXMEDIAADAPTERLIB/libsipXmediaProcessing.la"])
-    AC_SUBST(SIPXMEDIAADAPTER_LDFLAGS, ["-L$SIPXMEDIAADAPTERLIB"])
+    AC_SUBST([SIPXMEDIAADAPTER_LIBS], [-lsipXmediaProcessing])
 ]) # SFAC_LIB_MEDIAADAPTER
 
 
@@ -540,40 +380,7 @@ AC_DEFUN([CHECK_GIPSCE],
 AC_DEFUN([SFAC_LIB_CALL],
 [
     AC_REQUIRE([SFAC_LIB_MEDIA])
-
-    SFAC_ARG_WITH_INCLUDE([cp/CallManager.h],
-            [sipxcallinc],
-            [ --with-sipxcallinc=<dir> call processing library include path ],
-            [sipXcallLib])
-
-    if test x_$foundpath != x_; then
-        AC_MSG_RESULT($foundpath)
-    else
-        AC_MSG_ERROR('cp/CallManager.h' not found)
-    fi
-    SIPXCALLINC=$foundpath
-    AC_SUBST(SIPXCALLINC)
-
-    if test "$SIPXCALLINC" != "$SIPXPORTINC"
-    then
-        CFLAGS="-I$SIPXCALLINC $CFLAGS"
-        CXXFLAGS="-I$SIPXCALLINC $CXXFLAGS"
-    fi
-
-    SFAC_ARG_WITH_LIB([libsipXcall.la],
-            [sipxcalllib],
-            [ --with-sipxcalllib=<dir> call processing library path ],
-            [sipXcallLib])
-
-    if test x_$foundpath != x_; then
-        AC_MSG_RESULT($foundpath)
-    else
-        AC_MSG_ERROR('libsipXcall.la' not found)
-    fi
-    SIPXCALLLIB=$foundpath
-
-    AC_SUBST(SIPXCALL_LIBS,   ["$SIPXCALLLIB/libsipXcall.la"])
-    AC_SUBST(SIPXCALL_LDFLAGS,["-L$SIPXCALLLIB"])
+    AC_SUBST([SIPXCALL_LIBS], [-lsipXcall])
 ]) # SFAC_LIB_CALL
 
 
@@ -589,56 +396,7 @@ AC_DEFUN([SFAC_LIB_CALL],
 AC_DEFUN([SFAC_LIB_COMMSERVER],
 [
     AC_REQUIRE([SFAC_LIB_STACK])
-
-    SFAC_ARG_WITH_INCLUDE([sipdb/SIPDBManager.h],
-            [sipxcommserverinc],
-            [ --with-sipxcommserverinc=<dir> call processing library include path ],
-            [sipXcommserverLib])
-
-    if test x_$foundpath != x_; then
-        AC_MSG_RESULT($foundpath)
-    else
-        AC_MSG_ERROR('sipdb/SIPDBManager.h' not found)
-    fi
-    SIPXCOMMSERVERINC=$foundpath
-    if test "$SIPXCOMMSERVERINC" != "$SIPXPORTINC"
-    then
-        CFLAGS="-I$SIPXCOMMSERVERINC $CFLAGS"
-        CXXFLAGS="-I$SIPXCOMMSERVERINC $CXXFLAGS"
-    fi
-    AC_SUBST(SIPXCOMMSERVERINC)
-
-    SFAC_ARG_WITH_LIB([libsipXcommserver.la],
-            [sipxcommserverlib],
-            [ --with-sipxcommserverlib=<dir> call processing library path ],
-            [sipXcommserverLib])
-
-    if test x_$foundpath != x_; then
-        AC_MSG_RESULT($foundpath)
-    else
-        AC_MSG_ERROR('libsipXcommserver.la' not found)
-    fi
-    SIPXCOMMSERVERLIB=$foundpath
-
-    AC_SUBST(SIPXCOMMSERVER_LIBS,   ["$SIPXCOMMSERVERLIB/libsipXcommserver.la"])
-    AC_SUBST(SIPXCOMMSERVER_LDFLAGS,["-L$SIPXCOMMSERVERLIB"])
-
-    # helper library for unit tests that use sipdb databases
-    SFAC_ARG_WITH_LIB([libsipXcommserverTest.la],
-            [sipxcommservertest],
-            [ --with-sipxcommservertest=<dir> commserver unit test helpers library path ],
-            [sipXcommserverLib])
-
-    if test x_$foundpath != x_; then
-        AC_MSG_RESULT($foundpath)
-    else
-        AC_MSG_ERROR('libsipXcommserverTest.la' not found)
-    fi
-    SIPXCOMMSERVERTESTLIB=$foundpath
-
-    AC_SUBST(SIPXCOMMSERVERTEST_LIBS,   ["$SIPXCOMMSERVERTESTLIB/libsipXcommserverTest.la"])
-    AC_SUBST(SIPXCOMMSERVERTEST_LDFLAGS,["-L$SIPXCOMMSERVERTESTLIB]")
-
+    AC_SUBST([SIPXCOMMSERVER_LIBS], [-lsipXcommserver])
 ]) # SFAC_LIB_COMMSERVER
 
 

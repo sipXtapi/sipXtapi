@@ -3,27 +3,18 @@ AC_INIT(sipX, 0.0.0, sipx-dev@list.sipfoundry.org)
 AC_CONFIG_AUX_DIR(config)
 AM_INIT_AUTOMAKE(foreign)
 
-AC_ARG_ENABLE(conference, 
-  AC_HELP_STRING([--enable-conference], 
-    [Compile Boston Bridge conference server]), conference=yes)
-
-if test x$conference = xyes
-then
-  AC_CONFIG_SUBDIRS(resiprocateLib)
-  AC_CONFIG_SUBDIRS(bbridge)
-fi
-
 AC_CONFIG_SUBDIRS(sipXportLib)
 AC_CONFIG_SUBDIRS(sipXtackLib)
 AC_CONFIG_SUBDIRS(sipXmediaLib)
 AC_CONFIG_SUBDIRS(sipXmediaAdapterLib)
 AC_CONFIG_SUBDIRS(sipXcallLib)
 
-AC_ARG_ENABLE(servers, 
-  AC_HELP_STRING([--disable-servers], 
-    [Do not compile SIP servers]), servers=no , servers=yes)
+AC_ARG_ENABLE(server, 
+  AC_HELP_STRING([--disable-server], 
+    [SIP servers, proxy, registrar, webui, mediaserver, etc. ]), 
+     server=no, server=yes)
 
-if test x$servers = xyes
+if test x$server = xyes
 then
   AC_CONFIG_SUBDIRS(sipXcommserverLib)
   AC_CONFIG_SUBDIRS(sipXproxy)
@@ -32,6 +23,17 @@ then
   AC_CONFIG_SUBDIRS(sipXvxml)
   AC_CONFIG_SUBDIRS(sipXconfig)
   AC_CONFIG_SUBDIRS(sipXpbx)
+fi
+
+AC_ARG_ENABLE(conference, 
+  AC_HELP_STRING([--enable-conference], 
+    [experimental conference server, last known not to compile]),
+      conference=yes)
+
+if test x$conference = xyes
+then
+  AC_CONFIG_SUBDIRS(resiprocateLib)
+  AC_CONFIG_SUBDIRS(bbridge)
 fi
 
 AC_ARG_ENABLE(phone, 
