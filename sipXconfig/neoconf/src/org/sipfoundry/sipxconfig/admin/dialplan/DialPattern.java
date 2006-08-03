@@ -55,12 +55,6 @@ public class DialPattern {
 
     public void setPrefix(String prefix) {
         m_prefix = (String) ObjectUtils.defaultIfNull(prefix, StringUtils.EMPTY);
-        
-        // Escape special characters
-        //
-        // FIXME: we're only escaping "*" initially, must escape all special characters.
-        // Update DialPatternTest.testEscapingSpecialCharacters accordingly.
-        m_prefix = m_prefix.replaceAll("\\*", "\\\\\\*");
     }
 
     public String calculatePattern() {

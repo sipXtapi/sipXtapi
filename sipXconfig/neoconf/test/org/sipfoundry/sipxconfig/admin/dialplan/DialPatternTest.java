@@ -58,16 +58,5 @@ public class DialPatternTest extends TestCase {
 
         patterns = DialPattern.getPatternsFromList(StringUtils.EMPTY, "bongo");
         assertEquals(0, patterns.length);
-    }
-    
-    public void testEscapingSpecialCharacters() {
-        // pass in the prefix to the constructor, verify it gets escaped
-        DialPattern pattern = new DialPattern("*78*", 1);
-        assertEquals("\\*78\\*", pattern.getPrefix());
-        
-        // pass in the prefix through the setter, verify it gets escaped
-        pattern = new DialPattern();
-        pattern.setPrefix("*78*");
-        assertEquals("\\*78\\*", pattern.getPrefix());
-    }
+    }    
 }
