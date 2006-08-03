@@ -210,7 +210,7 @@ void getMessageData(UtlString& content,
             // Record whether the send failed or not.
             failed = (content.index("User Agent failed to send message") !=
                       UTL_NOT_FOUND);
-         }
+        }
         else
         {
             messageEnd = content.index("====================END", messageIndex);
@@ -235,11 +235,6 @@ void getMessageData(UtlString& content,
                responseCode = responseCode + " FAILED";
             }
             sipMsg.getFirstHeaderLinePart(2, &responseText);
-
-            if(!isOutgoing)
-            {
-                remoteHost.remove(0);
-            }
         }
         else
         {
@@ -265,7 +260,7 @@ void getMessageData(UtlString& content,
                method = "FAILED " + method;
             }
 
-            //We can derive the source entity from the via in
+            // We can derive the source entity from the via in
             // incoming requests
             if(!isOutgoing)
             {
