@@ -138,10 +138,12 @@ public:
      */
     Url& operator=(const char* urlString);
 
-    //! Serialize this URL to a string
+    //! Serialize this URL to a string in name-addr format, suitable for use
+    //  as a field in a header.
     void toString(UtlString& urlString) const;
 
-    //! Serialize this URL to a string
+    //! Serialize this URL to a string in name-addr format, suitable for use
+    //  as a field in a header.
     UtlString toString() const;
 
     //! Debug dump to STDOUT
@@ -155,7 +157,7 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
-    /// Construct the cannonical identity.
+    /// Construct the canonical identity.
     void getIdentity(UtlString& identity) const;
     /**<
      * In some applications this is used to compare if this
@@ -239,7 +241,7 @@ public:
                                int index = 0 
                                );
     /**<
-     * Gets the index occurance of the named parameter (the same parameter name may
+     * Gets the index occurrence of the named parameter (the same parameter name may
      * occur multiple times in a URL).
      * @return TRUE if the indicated parameter exists
      */
@@ -295,8 +297,7 @@ public:
                                  UtlString& value, 
                                  int index = 0);
 
-    /// Get the name and value of the header parameter at the indicated
-    //! index
+    /// Get the name and value of the header parameter at the indicated index
     /*! \param headerIndex - the index indicting which header parameter to 
      *          get (starting at 0 for the first one).
      * \param name - the parameter name at headerIndex
@@ -308,13 +309,18 @@ public:
                                  UtlString& headerValue);
 
     /// Set the named header parameter to the given value
-    /*! Adds the parameter if it does not exist, sets the value if
-     * it does exist.
-     * \param name - the parameter name
-     * \param value - the value of the parameter
+    void setHeaderParameter(const char* name,  ///< the parameter name
+                            const char* value  ///< the value of the parameter
+                            );
+    /**<
+     * For sip and sips URLs, this sets the header parameter to the value if the header name
+     * is unique according to SipMessage::isUrlHeaderUnique, overwriting any previous value.
+     * If the header is not unique, then this appends the header parameter.
+     *
+     * For all other URL schemes, the parameter is always appended.
+     *
+     * To ensure that any previous value is replaced, call removeHeaderParameter(name) first.
      */
-    void setHeaderParameter(const char* name, 
-                            const char* value);
 
     /// Removes all of the header parameters
     void removeHeaderParameters();
@@ -405,6 +411,13 @@ public:
      * possible to omit them.
      */
 
+    /// Escape a string as a gen_value, which is what field-parameters
+    //! use for values.
+    static void gen_value_escape(UtlString& escapedText);
+
+    /// Un-escape a string as a gen_value, which is what field-parameters
+    //! use for values.
+    static void gen_value_unescape(UtlString& escapedText);
     /// Gets the serialized URL as a string (with no display name or 
     //! field parameters)
     void getUri(UtlString& Uri);
@@ -419,7 +432,8 @@ public:
    static UtlBoolean isDigitString(const char* dialedCharacters);
 
    /// Compare two URLs to see if the have the same user, host and port
-   /* Assumes that no port set is the same as the default port for
+   /* Follows the rules of RFC 3261 section 19.1.4, especially that
+    * that no port specifies is NOT the same as the default port for
     * the URL type/protocol.  Also assumes that host is \a not case 
     * sensative, but that user id \a is case sensative.
     * \return TRUE if the user Id, host and port are the same
