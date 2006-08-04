@@ -56,10 +56,17 @@ BUILDSTAMP: SVN-VERSION
 # Where rpmbuild will do its work.
 RPMBUILD_TOPDIR = $(shell rpm --eval '%{_topdir}')
 
-rpm : dist additional-package-files
+.PHONY : rpm-repo-init
+rpm-repo-init:
+	if [ -z "$(RPM_REPO)" ]; then \
+	  echo "You must specific --with-rpm-repo to ./configure " >&2; \
+	  exit 1; \
+	fi;
+
+rpm : dist additional-package-files rpm-repo-init
 	rpmbuild -ta --define="buildno $(shell cat @abs_top_builddir@/SVN-VERSION)" @PACKAGE@-$(VERSION).tar.gz
-	mv -f $(RPMBUILD_TOPDIR)/SRPMS/@PACKAGE@-$(VERSION)-*.rpm .
-	mv -f $(RPMBUILD_TOPDIR)/RPMS/*/@PACKAGE@*-$(VERSION)-*.rpm .
+	mv -f $(RPMBUILD_TOPDIR)/SRPMS/@PACKAGE@-$(VERSION)-*.rpm $(RPM_REPO)
+	mv -f $(RPMBUILD_TOPDIR)/RPMS/*/@PACKAGE@*-$(VERSION)-*.rpm $(RPM_REPO)
 
 .PHONY : additional-package-files
 additional-package-files: \

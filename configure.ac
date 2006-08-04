@@ -45,6 +45,8 @@ if test x$phone = xyes
 then
   AC_CONFIG_SUBDIRS(sipXphone)
 fi
+
+SFAC_RPM_REPO
    
 AC_CONFIG_FILES([Makefile])
 

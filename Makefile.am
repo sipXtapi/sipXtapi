@@ -16,7 +16,9 @@ RECURSE = \
 	install \
 	uninstall \
 	recurse \
-	dist
+	dist \
+	rpm \
+	distclean
 
 CHECK = check
 
@@ -49,7 +51,3 @@ all:
 .PHONY: build
 build:
 	$(MAKE) recurse TARGETS="all $(CHECK) install"
-
-# TODO rpm-install should only install if it's a dependency
-rpm:
-	$(MAKE) recurse TARGETS="rpm rpm-install"

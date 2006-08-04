@@ -1,10 +1,13 @@
 # -*-makefile-*-
 
-ConfigureArgs=$(shell sed \
-	-e '/^ *\$$ .*\/configure/!d' \
-	-e 's/^ *\$$ .*\/configure *//' \
-	$(top_builddir)/config.log \
-	)
+# need better way of control rpm build switched then blindly
+# taking all top level switches
+
+#ConfigureArgs=$(shell sed \
+#	-e '/^ *\$$ .*\/configure/!d' \
+#	-e 's/^ *\$$ .*\/configure *//' \
+#	$(top_builddir)/config.log \
+#	)
 
 LocalizeSipXconfig = sed \
 		  -e 's,@PACKAGE\@,@PACKAGE@,g' \
