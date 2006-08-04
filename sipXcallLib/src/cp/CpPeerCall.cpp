@@ -2487,8 +2487,6 @@ UtlBoolean CpPeerCall::handleNotifyMessage(OsEventMsg& eventMsg)
 	eventMsg.getEventData(eventData);
 	eventMsg.getUserData(pListener);
 
-	printf("CpPeerCall::handleNotifyMessage\n") ;
-
     OsReadLock lock(mConnectionMutex);
     UtlDListIterator iterator(mConnections);
     while ((pConnection = (Connection*) iterator()))

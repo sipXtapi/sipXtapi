@@ -73,11 +73,13 @@ int MpJitterBuffer::ReceivePacket(JB_uchar* RTPpacket, JB_size RTPlength, JB_ulo
 
    if (numSamples != 160) 
    {
+/*
       if (debugCount++ < 10) 
       {
 	        printf("RTPlength=%d, cc=%d, payloadType=%d\n", RTPlength, 
                     cc, payloadType);
       }
+*/
    }
 
    if (JbQWait > 0) 
