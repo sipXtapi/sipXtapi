@@ -218,7 +218,7 @@ int HttpServer::run(void* runArg)
                 httpStatus = OS_PORT_IN_USE;
     }
 
-    while(! isShuttingDown() && mpServerSocket->isOk())
+    while(!isShuttingDown() && mpServerSocket->isOk())
     {
         requestSocket = mpServerSocket->accept();
         
@@ -320,9 +320,9 @@ int HttpServer::run(void* runArg)
         {
            httpStatus = OS_PORT_IN_USE;
         }
-    } // while (! isShuttingDown && mpServerSocket->isOk()) 
+    } // while (!isShuttingDown && mpServerSocket->isOk()) 
 
-    if ( ! isShuttingDown() )
+    if ( !isShuttingDown() )
     {
        OsSysLog::add( FAC_SIP, PRI_ERR, "HttpServer: exit due to port failure" );
     }
