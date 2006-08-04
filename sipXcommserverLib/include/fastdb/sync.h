@@ -35,9 +35,9 @@ class FASTDB_DLL_ENTRY dbNullSecurityDesciptor {
     static dbNullSecurityDesciptor instance;
 };
 #define FASTDB_SECURITY_ATTRIBUTES &dbNullSecurityDesciptor::instance.sa
-#else    
+#else /* ! SET_NULL_DACL */
 #define FASTDB_SECURITY_ATTRIBUTES NULL
-#endif
+#endif /* ! SET_NULL_DACL */
 
 class FASTDB_DLL_ENTRY dbMutex { 
     CRITICAL_SECTION cs;
@@ -99,11 +99,11 @@ class FASTDB_DLL_ENTRY dbThread {
     static int numberOfProcessors() { 
 #ifdef PHAR_LAP
     return 1;
-#else
+#else /* ! PHAR_LAP */
     SYSTEM_INFO sysinfo;
     GetSystemInfo(&sysinfo);
     return sysinfo.dwNumberOfProcessors;
-#endif
+#endif /* ! PHAR_LAP */
     }
 };
     
@@ -305,7 +305,7 @@ class dbSharedObject {
     bool open(char* name) { 
 #ifdef NO_MMAP
     ptr = new T();
-#else
+#else /* ! NO_MMAP */
     h = CreateFileMapping(INVALID_HANDLE_VALUE,
                   FASTDB_SECURITY_ATTRIBUTES, PAGE_READWRITE, 0, 
                   sizeof(T), name);
@@ -317,7 +317,7 @@ class dbSharedObject {
         CloseHandle(h);
         return false;
     }
-#endif
+#endif /* ! NO_MMAP */
     return true;
     }
 
@@ -326,10 +326,10 @@ class dbSharedObject {
     void close() { 
 #ifdef NO_MMAP
     delete[] ptr;
-#else
+#else /* ! NO_MMAP */
     UnmapViewOfFile(ptr);
     CloseHandle(h);
-#endif
+#endif /* ! NO_MMAP */
     }
     void erase() { 
     close();
@@ -386,7 +386,7 @@ class FASTDB_DLL_ENTRY dbGlobalCriticalSection {
 };
     
     
-#else // Unix
+#else /* ! _WIN32 - Unix? */
 
 #include <unistd.h>
 #include <string.h>
@@ -398,12 +398,12 @@ class FASTDB_DLL_ENTRY dbGlobalCriticalSection {
 #ifdef USE_POSIX_API
 #include <semaphore.h>
 #include <sys/mman.h>
-#else
+#else /* ! USE_POSIX_API */
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include <sys/shm.h>
 #include <sys/mman.h>
-#endif
+#endif /* ! USE_POSIX_API */
 
 #define thread_proc
 
@@ -441,11 +441,11 @@ class dbThread {
     pthread_attr_init(&attr);
 #if !defined(__linux__)
     pthread_attr_setstacksize(&attr, dbThreadStackSize);
-#endif
+#endif /* !defined(__linux__) */
 #if defined(_AIX41)
     // At AIX 4.1, 4.2 threads are by default created detached
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_UNDETACHED);
-#endif
+#endif /* defined(_AIX41) */
     pthread_create(&thread, &attr, (void*(*)(void*))f, arg);
     pthread_attr_destroy(&attr);
     }
@@ -467,7 +467,7 @@ class dbThread {
     struct sched_param sp;
     sp.sched_priority = pri == THR_PRI_LOW ? PRI_OTHER_MIN : PRI_OTHER_MAX;
     pthread_setschedparam(thread, SCHED_OTHER, &sp); 
-#endif
+#endif /* defined(PRI_OTHER_MIN) && defined(PRI_OTHER_MAX) */
     }
 
     static int numberOfProcessors();
@@ -491,7 +491,7 @@ class dbLocalEvent {
         rel_ts.tv_sec = timeout/1000; 
         rel_ts.tv_nsec = timeout%1000*1000000;
         pthread_get_expiration_np(&rel_ts, &abs_ts);
-#else
+#else /* ! PTHREAD_GET_EXPIRATION_NP */
         struct timeval cur_tv;
         gettimeofday(&cur_tv, NULL);
         abs_ts.tv_sec = cur_tv.tv_sec + timeout/1000; 
@@ -500,7 +500,7 @@ class dbLocalEvent {
         abs_ts.tv_nsec -= 1000000000;
         abs_ts.tv_sec += 1;
         }
-#endif
+#endif /* ! PTHREAD_GET_EXPIRATION_NP */
         int rc = pthread_cond_timedwait(&cond, &mutex.cs, &abs_ts);
         if (rc == ETIMEDOUT) { 
         return false;
@@ -542,7 +542,7 @@ class dbLocalSemaphore {
         rel_ts.tv_sec = timeout/1000; 
         rel_ts.tv_nsec = timeout%1000*1000000;
         pthread_get_expiration_np(&rel_ts, &abs_ts);
-#else
+#else /* ! PTHREAD_GET_EXPIRATION_NP */
         struct timeval cur_tv;
         gettimeofday(&cur_tv, NULL);
         abs_ts.tv_sec = cur_tv.tv_sec + timeout/1000; 
@@ -551,7 +551,7 @@ class dbLocalSemaphore {
         abs_ts.tv_nsec -= 1000000000;
         abs_ts.tv_sec += 1;
         }
-#endif
+#endif /* ! PTHREAD_GET_EXPIRATION_NP */
         pthread_cond_timedwait(&cond, &mutex.cs, &abs_ts);
     }
     count -= 1;
@@ -621,7 +621,7 @@ class dbProcessId {
     }
 };
 
-#else
+#else /* ! NO_PTHREADS */
 
 class dbMutex { 
    public:
@@ -712,7 +712,7 @@ class dbProcessId {
     }
 };
 
-#endif
+#endif /* ! NO_PTHREADS */
 
 #define INFINITE (~0U)
 
@@ -796,11 +796,11 @@ class dbSemaphore {
         return false;
     }
     return true;
-#else 
+#else /* ! POSIX_1003_1d */
     int rc = sem_wait(sem);
     assert(rc == 0);
     return true;
-#endif  
+#endif /* ! POSIX_1003_1d */
     }
 
     void signal(unsigned inc = 1) {
@@ -911,7 +911,7 @@ class dbSharedObject {
     }
 };
 
-#else // USE_POSIX_API
+#else /* ! USE_POSIX_API */
 
 extern char const* keyFileDir; // default value: "/tmp/" 
 
@@ -976,7 +976,7 @@ class dbSharedObject : public dbSharedMemory {
     T* get() { return (T*)ptr; }
 };
 
-#endif
+#endif /* ! USE_POSIX_API */
 
 #if defined(__QNX__)
 
@@ -1136,7 +1136,7 @@ class dbGlobalCriticalSection {
 };
 #endif
 
-#endif
+#endif /* ! def _WIN32 */
 
 class FASTDB_DLL_ENTRY dbCriticalSection { 
   private:
@@ -1150,7 +1150,9 @@ class FASTDB_DLL_ENTRY dbCriticalSection {
     }
 };
     
+#define LOG_SEM(sem) (int)(sem)
 #define SMALL_BUF_SIZE 512
+
 
 class FASTDB_DLL_ENTRY dbSmallBuffer { 
   protected:
@@ -1229,6 +1231,6 @@ class FASTDB_DLL_ENTRY dbThreadPool {
     ~dbThreadPool();
 };    
     
-#endif
+#endif /*__SYNC_H__ */
 
 
