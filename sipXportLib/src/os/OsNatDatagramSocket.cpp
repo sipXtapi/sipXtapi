@@ -583,7 +583,8 @@ void OsNatDatagramSocket::markStunSuccess(bool bAddressChanged)
         getContactAdapterName(szAdapterName, mLocalIp.data(), false);
 #else
         // TODO - call the appropriate Linux function to the adapter name
-        assert(false) ;
+#warning "unknown adapter name for linux -- codeme"
+        strcpy(szAdapterName, "unknown") ;
 #endif
 
         SIPX_CONTACT_ADDRESS* pContact = new SIPX_CONTACT_ADDRESS();
