@@ -106,6 +106,7 @@
 	<component-type type="CancelButton" specification-path="common/CancelButton.jwc"/>
     <component-type type="ConferencesPanel" specification-path="conference/ConferencesPanel.jwc"/>
     <component-type type="ConfirmPassword" specification-path="user/ConfirmPassword.jwc"/>
+    <component-type type="DialRuleCommon" specification-path="dialplan/DialRuleCommon.jwc"/>
     <component-type type="DownloadLink" specification-path="common/DownloadLink.jwc"/>
     <component-type type="EditPhoneForm" specification-path="phone/EditPhoneForm.jwc"/>
     <component-type type="ErrorMsg" specification-path="common/ErrorMsg.jwc"/>

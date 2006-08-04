@@ -12,6 +12,8 @@
   <parameter name="buttonPressed">
     <description>optional parameter set to true if Apply was pressed and to false otherwise</description>
   </parameter>
+  <parameter name="validator" required="no"></parameter>
+  
   <!-- C O M P O N E N T S -->
   <component id="ifRenderOk" type="If">
     <binding name="condition" value="callback != null"/>
