@@ -1,16 +1,30 @@
 #! /bin/bash
 
-# Merge a set of siplog files.  The siplogs are turned into siptraces.
-# Any options are passed to siptrace-merge.
+# Merge a set of syslog files.  The syslogs are turned into siptraces,
+# which are then fed to siptrace-merge to be combined into one siptrace
+# file, named merged.xml.
+# Most options are passed to siptrace-merge, so all of the siptrace-merge
+# options can be used.  The exceptions are --after=xxx and --before=xxx,
+# which are passed to syslog2siptrace (which are the only such options
+# that it accepts).  This is done because applying --before/--after at
+# the syslog2siptrace stage is much faster when the logs are large.
 
 # Separate the options from the files.
-OPTIONS=
-while [[ "$1" = -* && "$1" != - ]]
+SYSLOG2SIPTRACE_OPTIONS=
+SIPTRACE_MERGE_OPTIONS=
+while [[ "$1" = -* && "$1" != -- ]]
 do
-  OPTIONS="$OPTIONS $1"
+  # The --before and --after options are passed to syslog2siptrace
+  # rather than siptrace-merge to speed up processing.
+  if [[ "$1" = --after=* ]] || [[ "$1" = --before=* ]]
+  then
+    SYSLOG2SIPTRACE_OPTIONS="$SYSLOG2SIPTRACE_OPTIONS $1"
+  else
+    SIPTRACE_MERGE_OPTIONS="$SIPTRACE_MERGE_OPTIONS $1"
+  fi
   shift
 done
-if [[ "$1" = - ]]
+if [[ "$1" = -- ]]
 then
   shift
 fi
@@ -19,8 +33,8 @@ fi
 XML=
 for LOG in ${@:-*.log}
 do
-  syslog2siptrace <$LOG >${LOG%.log}.xml
+  syslog2siptrace $SYSLOG2SIPTRACE_OPTIONS <$LOG >${LOG%.log}.xml
   XML="$XML ${LOG%.log}.xml"
 done
 
-siptrace-merge $OPTIONS -- $XML >merged.xml
+siptrace-merge $SIPTRACE_MERGE_OPTIONS -- $XML >merged.xml
