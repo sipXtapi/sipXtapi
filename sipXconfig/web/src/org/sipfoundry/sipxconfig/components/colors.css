@@ -108,9 +108,10 @@ li.tab.active a:visited
 
 #footer
 {
-	color: #fff;
-	border-color: #3D3D3D;
-	background: #669999;
+	color: grey;
+	border-color: grey;
+	border-top-width: thin;
+	border-top-style: solid;	
 }
 
 p.message
@@ -191,22 +192,6 @@ form.with-sections legend
 #comments
 {
 	color: #000033;
-}
-
-table.tapestry-palette th
-{
-	color: white;
-	background-color: #3d3d3d;
-}
-
-td.available-cell select
-{
-	background-color: #FFFFFF;
-}
- 
-td.selected-cell select
-{
-	background-color: #FFFFFF;
 }
 
 div.auto_complete {

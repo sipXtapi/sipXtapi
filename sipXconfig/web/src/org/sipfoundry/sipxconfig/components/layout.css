@@ -207,11 +207,17 @@ li.tab.active a:link,li.tab.active a:hover,li.tab.active a:visited
 
 #footer
 {
+	/* clear:both is important for IE guillotine bug */
 	clear:both;
-	border-top-width: thick;
-	border-top-style: solid;
 	text-align:center;
-	padding:10px;
+    margin: 10em 0;
+    padding: 15px;
+}
+
+#footer p 
+{
+    margin: 0;
+    padding: 3px;
 }
 
 .pageLabel
@@ -436,32 +442,6 @@ ul.form-actions li
 {
 	float:left;
 	width:25em;
-}
-
-table.tapestry-palette th
-{
-	font-size: 9pt;
-	font-weight: bold;
-	text-align: center;
-}
-
-td.available-cell select
-{
-	font-weight: normal;
-	width: 200px;
-}
- 
-td.selected-cell select
-{
-	font-weight: normal;
-	width: 200px;
-}
- 
-table.tapestry-palette td.controls
-{
-	text-align: center;
-	vertical-align: middle;
-	width: 60px;
 }
 
 div.auto_complete {

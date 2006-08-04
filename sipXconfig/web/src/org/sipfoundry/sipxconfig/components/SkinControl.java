@@ -26,8 +26,10 @@ public class SkinControl {
     private static final String ASSET_LAYOUT = "layout.css";
     private TapestryContext m_tapestryContext;
     private String m_helpLink;
+    private String m_copyright;
+    private String m_productName;
     private Map<String, String> m_assets = new HashMap();
-    
+
     public SkinControl() {
         // default skin resources
         m_assets.put("logo.png", "org/sipfoundry/sipxconfig/components/sipxconfig-logo.png");
@@ -36,11 +38,8 @@ public class SkinControl {
     }
 
     /**
-     * Link to online help.  Can include 2 placeholders for app major and minor version numbers
-     * example 
-     *  http://example.com/help-{0}-{1}.html
-     * will become
-     *   "http://example.com/help-9-0.html
+     * Link to online help. Can include 2 placeholders for app major and minor version numbers
+     * example http://example.com/help-{0}-{1}.html will become "http://example.com/help-9-0.html
      * for version 9.0 of sipX
      */
     public String getHelpLink() {
@@ -49,6 +48,25 @@ public class SkinControl {
 
     public void setHelpLink(String helpLink) {
         m_helpLink = helpLink;
+    }
+
+    /**
+     * Copyright displayed in sipXconfig footer. If not configured default sipFoundry copyright is displayed.
+     */
+    public String getCopyright() {
+        return m_copyright;
+    }
+
+    public void setCopyright(String copyright) {
+        m_copyright = copyright;
+    }
+        
+    public String getProductName() {
+        return m_productName;
+    }
+
+    public void setProductName(String productName) {
+        m_productName = productName;
     }
 
     public IAsset[] getStylesheetAssets() {
@@ -61,21 +79,21 @@ public class SkinControl {
     private AssetFactory getAssetFactory() {
         return m_tapestryContext.getHivemindContext().getClasspathAssetFactory();
     }
-    
+
     public Map<String, String> getAssets() {
         return m_assets;
     }
-    
+
     public void setAssets(Map<String, String> assets) {
         m_assets.putAll(assets);
     }
-    
+
     public IAsset getAsset(String path) {
         String resourcePath = m_assets.get(path);
         if (resourcePath == null) {
             return null;
         }
-        
+
         return getAssetFactory().createAbsoluteAsset(resourcePath, null, null);
     }
 
