@@ -30,6 +30,8 @@
 // Constructor
 UtlRandom::UtlRandom()
 {
+    static int siCounter = 0 ;
+
     int iTaskId = 0 ;
     OsTime now ;
     unsigned int seed ;
@@ -37,7 +39,8 @@ UtlRandom::UtlRandom()
     OsTask::getCurrentTaskId(iTaskId) ;      
     OsDateTime::getCurTime(now) ;
 
-    seed = (now.cvtToMsecs() ^ (now.usecs() + now.usecs() << 16) ^ iTaskId) ;
+    seed = (now.cvtToMsecs() ^ (now.usecs() + now.usecs() << 16) ^ 
+            iTaskId) + siCounter++ ;
 
     srand(seed) ;
 }
