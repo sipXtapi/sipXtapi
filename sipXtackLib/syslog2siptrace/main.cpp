@@ -408,6 +408,9 @@ int main(int argc, char * argv[])
    int ifd = 0;
    // Output file descriptor.  Default is stdout.
    int ofd = 1;
+   // Time limit strings.  Both tests are inclusive.  NULL means no test.
+   char* before_test_string = NULL;
+   char* after_test_string = NULL;
 
    // Parse the arguments.
    for(i = 1; i < argc; i++)
@@ -442,6 +445,30 @@ int main(int argc, char * argv[])
          {
             fprintf(stderr, "%s: %s\n", &argv[i][3], strerror(errno));
             return 1;
+         }
+      }
+      else if(!strncmp(argv[i], "--before=", 9))
+      {
+         // --before=xxx gives a time range.
+         char* t = (char*) malloc(strlen(argv[i]) - 9 + 1 + 1);
+         strcpy(t, "\"");
+         strcat(t, argv[i] + 9);
+         // If this is less than the current before_test_string, use it.
+         if (before_test_string == NULL || strcmp(t, before_test_string) < 0)
+         {
+            before_test_string = t;
+         }
+      }
+      else if(!strncmp(argv[i], "--after=", 8))
+      {
+         // --after=xxx gives a time range.
+         char* t = (char*) malloc(strlen(argv[i]) - 8 + 1 + 1);
+         strcpy(t, "\"");
+         strcat(t, argv[i] + 8);
+         // If this is greater than the current after_test_string, use it.
+         if (after_test_string == NULL || strcmp(t, after_test_string) > 0)
+         {
+            after_test_string = t;
          }
       }
       else
@@ -483,14 +510,24 @@ int main(int argc, char * argv[])
             line.append(bufferString, lineLen);
             bufferString.remove(0, nextLineStart);
 
-            convertToXml(line, ofd);
+            // Test the string to see if the timestamp is in range.
+            if ((before_test_string == NULL || line.compareTo(before_test_string) <= 0) &&
+                (after_test_string == NULL || line.compareTo(after_test_string) >= 0))
+            {
+               // Write the line as XML.
+               convertToXml(line, ofd);
+            }
          }
       }
       while(nextLineStart > 0);
    } while(i && i != -1);
 
    // Last line without a newline
-   convertToXml(bufferString, ofd);
+   if ((before_test_string == NULL || bufferString.compareTo(before_test_string) <= 0) &&
+       (after_test_string == NULL || bufferString.compareTo(after_test_string) >= 0))
+   {
+      convertToXml(bufferString, ofd);
+   }
 
    writeMessageNodesEnd(ofd);
 

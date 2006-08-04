@@ -1,0 +1,26 @@
+#! /bin/bash
+
+# Merge a set of siplog files.  The siplogs are turned into siptraces.
+# Any options are passed to siptrace-merge.
+
+# Separate the options from the files.
+OPTIONS=
+while [[ "$1" = -* && "$1" != - ]]
+do
+  OPTIONS="$OPTIONS $1"
+  shift
+done
+if [[ "$1" = - ]]
+then
+  shift
+fi
+
+# The list of XML files to merge.
+XML=
+for LOG in ${@:-*.log}
+do
+  syslog2siptrace <$LOG >${LOG%.log}.xml
+  XML="$XML ${LOG%.log}.xml"
+done
+
+siptrace-merge $OPTIONS -- $XML >merged.xml
