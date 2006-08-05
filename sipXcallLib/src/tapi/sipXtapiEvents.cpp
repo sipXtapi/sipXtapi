@@ -23,6 +23,7 @@
 #include "tapi/sipXtapiEvents.h"
 #include "tapi/sipXtapiInternal.h"
 #include "tapi/SipXHandleMap.h"
+#include "tapi/SipXEventDispatcher.h"
 #include "utl/UtlSList.h"
 #include "utl/UtlSListIterator.h"
 #include "utl/UtlVoidPtr.h"
@@ -1405,13 +1406,63 @@ void sipxFireMediaEvent(const void* pSrc,
     }
 }
 
-
 SIPXTAPI_API SIPX_RESULT sipxEventListenerAdd(const SIPX_INST hInst,
-                                             SIPX_EVENT_CALLBACK_PROC pCallbackProc,
-                                             void *pUserData)
+                                              SIPX_EVENT_CALLBACK_PROC pCallbackProc,
+                                              void* pUserData)
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxEventListenerAdd hInst=%p pCallbackProc=%p pUserData=%p",
+            "sipxEventListenerAdd hInst=%p pCallbackProc=%p pUserData=%p",
+            hInst, pCallbackProc, pUserData);
+
+    SIPX_RESULT rc = SIPX_RESULT_INVALID_ARGS;
+    if (hInst && pCallbackProc)
+    {
+        rc = SIPX_RESULT_FAILURE ;
+        SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst;
+        if (pInst && pInst->pEventDispatcher)
+        {
+            if (pInst->pEventDispatcher->addListener(pCallbackProc, pUserData))
+            {
+                rc = SIPX_RESULT_SUCCESS ;
+            }           
+        }
+    }
+
+    return rc ;
+}
+
+SIPXTAPI_API SIPX_RESULT sipxEventListenerRemove(const SIPX_INST hInst, 
+                                                 SIPX_EVENT_CALLBACK_PROC pCallbackProc, 
+                                                 void* pUserData) 
+{
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+            "sipxEventListenerRemove hInst=%p pCallbackProc=%p pUserData=%p",
+            hInst, pCallbackProc, pUserData);
+
+    SIPX_RESULT rc = SIPX_RESULT_INVALID_ARGS;
+    if (hInst && pCallbackProc)
+    {
+        rc = SIPX_RESULT_FAILURE ;
+        SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst;
+        if (pInst && pInst->pEventDispatcher)
+        {
+            if (pInst->pEventDispatcher->removeListener(pCallbackProc, pUserData))
+            {
+                rc = SIPX_RESULT_SUCCESS ;
+            }           
+        }
+    }
+
+    return rc ;
+}
+
+
+SIPX_RESULT __sipxEventListenerAdd(const SIPX_INST hInst,
+                                   SIPX_EVENT_CALLBACK_PROC pCallbackProc,
+                                   void *pUserData)
+{
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "__sipxEventListenerAdd hInst=%p pCallbackProc=%p pUserData=%p",
         hInst, pCallbackProc, pUserData);
         
     SIPX_RESULT rc = SIPX_RESULT_INVALID_ARGS;
@@ -1432,12 +1483,12 @@ SIPXTAPI_API SIPX_RESULT sipxEventListenerAdd(const SIPX_INST hInst,
 	return rc;
 }
 
-SIPXTAPI_API SIPX_RESULT sipxEventListenerRemove(const SIPX_INST hInst, 
-                                                 SIPX_EVENT_CALLBACK_PROC pCallbackProc, 
-                                                 void* pUserData) 
+SIPX_RESULT __sipxEventListenerRemove(const SIPX_INST hInst, 
+                                      SIPX_EVENT_CALLBACK_PROC pCallbackProc, 
+                                      void* pUserData) 
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxEventListenerRemove hInst=%p pCallbackProc=%p pUserData=%p",
+        "__sipxEventListenerRemove hInst=%p pCallbackProc=%p pUserData=%p",
         hInst, pCallbackProc, pUserData);
         
     SIPX_RESULT rc = SIPX_RESULT_INVALID_ARGS ;

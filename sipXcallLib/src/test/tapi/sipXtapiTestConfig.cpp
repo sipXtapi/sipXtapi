@@ -179,8 +179,7 @@ void sipXtapiTestSuite::testVolumeAPI()
         CPPUNIT_ASSERT_EQUAL(iLevel, VOLUME_MAX) ;
     }
 
-    // Does not create a call -- no need to pause
-    // OsTask::delay(TEST_DELAY) ;    
+    OsTask::delay(TEST_DELAY) ;    
     checkForLeaks() ;
 }
 

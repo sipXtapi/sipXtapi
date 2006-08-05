@@ -28,6 +28,7 @@
 #include "tapi/sipXtapiInternal.h"
 #include "tapi/SipXHandleMap.h"
 #include "tapi/SipXMessageObserver.h"
+#include "tapi/SipXEventDispatcher.h"
 //#include "rtcp/RTCManager.h"
 #include "net/SipUserAgent.h"
 #include "net/SdpCodecFactory.h"
@@ -35,6 +36,7 @@
 #include "mi/CpMediaInterfaceFactory.h"
 #include "mi/CpMediaInterfaceFactoryImpl.h"
 #include "mi/CpMediaInterfaceFactoryFactory.h"
+
 
 #include "ptapi/PtProvider.h"
 #include "net/Url.h"
@@ -481,6 +483,10 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
     sipxCreateLocalAudioConnection(pInst) ;
 #endif
 
+    // Setup listener delegation
+    pInst->pEventDispatcher = new SipXEventDispatcher(pInst) ;
+    pInst->pEventDispatcher->start() ;
+
     *phInst = pInst ;
     gpSessionList->insert(new UtlVoidPtr(pInst)) ;
     sipxIncSessionCount();
@@ -580,10 +586,6 @@ SIPXTAPI_API SIPX_RESULT sipxReInitialize(SIPX_INST*  phInst,
                        szTLSCertificatePassword,
                        szDbLocation);
 
-        if (hOldInst && *phInst)
-        {
-            sipxUpdateListeners(hOldInst, *phInst) ;
-        }
     }
 
     return rc;
@@ -661,6 +663,10 @@ SIPXTAPI_API SIPX_RESULT sipxUnInitialize(SIPX_INST hInst,
             pInst->pSipRefreshManager->requestShutdown();
             pInst->pMessageObserver->requestShutdown();
             pInst->pCodecFactory->clearCodecs();
+            if (pInst->pEventDispatcher)
+            {
+                pInst->pEventDispatcher->requestShutdown();
+            }            
 
             delete pInst->pSubscribeClient ;
             delete pInst->pSubscribeServer ;
@@ -669,7 +675,9 @@ SIPXTAPI_API SIPX_RESULT sipxUnInitialize(SIPX_INST hInst,
             delete pInst->pDialogManager ;
             delete pInst->pLineManager;            
             delete pInst->pCallManager; // Deletes SipUserAgent
-            delete pInst->pCodecFactory;
+            delete pInst->pCodecFactory;            
+
+            sipxDestroyMediaFactoryFactory() ;
 
             // Destroy the timer task to flush timers
             OsTimerTask::destroyTimer() ;
@@ -679,8 +687,7 @@ SIPXTAPI_API SIPX_RESULT sipxUnInitialize(SIPX_INST hInst,
             if (sipxGetSessionCount() == 0)
             {
                 OsNatAgentTask::releaseInstance();
-            }
-            sipxDestroyMediaFactoryFactory() ;
+            }            
 
             int codecIndex;
             // Did we previously allocate an audio codecs array and store it in our codec settings?
@@ -744,6 +751,11 @@ SIPXTAPI_API SIPX_RESULT sipxUnInitialize(SIPX_INST hInst,
             {
                 delete pInst->pMessageObserver ;
                 pInst->pMessageObserver = NULL ;
+            }
+
+            if (pInst->pEventDispatcher)
+            {
+                delete pInst->pEventDispatcher;
             }
 
             delete pInst->pLock ;
@@ -6746,10 +6758,9 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetNumVideoCodecs(const SIPX_INST hInst,
 #else
     if (pNumCodecs)
     {
-        *pNumCodecs = 0 ;
-        return SIPX_RESULT_SUCCESS ;
+        *pNumCodecs = 0 ;        
     }
-
+    return SIPX_RESULT_SUCCESS ;
 #endif
 }
 

@@ -194,6 +194,9 @@ copy include\tapi\sipXtapiEvents.h examples\include\tapi
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
 			<File
+				RelativePath=".\src\tapi\SipXEventDispatcher.cpp">
+			</File>
+			<File
 				RelativePath="src\tapi\SipXHandleMap.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -307,6 +310,9 @@ copy include\tapi\sipXtapiEvents.h examples\include\tapi
 			Filter="h;hpp;hxx;hm;inl">
 			<File
 				RelativePath=".\resource.h">
+			</File>
+			<File
+				RelativePath=".\include\tapi\SipXEventDispatcher.h">
 			</File>
 			<File
 				RelativePath="include\tapi\SipXHandleMap.h">

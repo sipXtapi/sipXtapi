@@ -104,15 +104,14 @@ typedef enum SIPX_EVENT_CATEGORY
 
 /**
  * Signature for event callback/observer.  Application developers should
- * not block this event callback thread -- doing so will cause deadlocks 
- * and will slow down call processing.  You should re-post these events
- * to your own thread context for handling.  The sipxDuplicateEvent and 
- * sipxFreeDuplicatedEvent methods are available to copy the event callback
- * data (The data is only available for the duration of the callback).  For
- * example, upon receiving the callback, copy the data using 
- * sipxDuplicateEvent(...), post the copied data to your event callback, 
- * process it, and lastly free the event data using 
- * sipxFreeDuplicatedEvent(...).
+ * not block this event callback thread -- You should re-post these events
+ * to your own thread context for handling if you require blocking and/or 
+ * heavy prorcessing.  The sipxDuplicateEvent and sipxFreeDuplicatedEvent 
+ * methods are available to copy the event callback data (The data is only 
+ * available for the duration of the callback).  For example, upon receiving 
+ * the callback, copy the data using sipxDuplicateEvent(...), post the 
+ * copied data to your event callback, process it, and lastly free the event 
+ * data using sipxFreeDuplicatedEvent(...).
  *
  * The application developer must look at the SIPX_EVENT_CATEGORY and then 
  * cast the pInfo method to the appropriate structure:

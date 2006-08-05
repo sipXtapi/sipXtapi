@@ -1211,6 +1211,10 @@ void sipXtapiTestSuite::testCallRedirect()
         CPPUNIT_ASSERT(bRC) ;
         bRC = validatorRedirector.waitForCallEvent(g_hAutoRedirectCallbackLine, g_hAutoRedirectCallbackCall, CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_REDIRECTED, true) ;
         CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorRedirector.waitForMediaEvent(MEDIA_LOCAL_STOP, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, true);
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorRedirector.waitForMediaEvent(MEDIA_REMOTE_STOP, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, true);
+        CPPUNIT_ASSERT(bRC) ;
         bRC = validatorRedirector.waitForCallEvent(g_hAutoRedirectCallbackLine, g_hAutoRedirectCallbackCall, CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL, true) ;
         CPPUNIT_ASSERT(bRC) ;
 
