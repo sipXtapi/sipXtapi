@@ -16,7 +16,7 @@
 #include "os/OsServerTask.h"
 #include "tapi/sipXtapi.h"
 #include "tapi/sipXtapiEvents.h"
-#include "Utl/UtlHashMap.h"
+#include "utl/UtlHashMap.h"
 #include "os/OsRWMutex.h"
 
 // DEFINES
