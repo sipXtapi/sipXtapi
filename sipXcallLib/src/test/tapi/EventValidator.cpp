@@ -750,14 +750,24 @@ UtlString* EventValidator::allocInfoEvent(SIPX_CALL hCall,
         from.remove(tagIndex) ;
     }
 
+    char* szTemp = NULL ;
+    if (szContent && nContentLength)
+    {
+        szTemp = (char*) malloc(nContentLength+1) ;
+        memset(szTemp, 0, nContentLength+1) ;
+        memcpy(szTemp, szContent, nContentLength) ;
+    }
+
     sprintf(szBuffer, "<INFO> hCall=%d, hLine=%d, from=%s, szUserAgent=%s, type=%s, content=%s, len=%d",
             hCall,
             hLine,
             from.data(),
             szUserAgent ? szUserAgent : "",
             szContentType ? szContentType : "",
-            szContent ? szContent : "",
+            szTemp ? szTemp : "",
             nContentLength) ;
+
+    free(szTemp) ;
 
     return new UtlString(szBuffer) ;
 }
@@ -839,11 +849,21 @@ UtlString* EventValidator::allocNotifyEvent(SIPX_NOTIFY_INFO* pInfo)
 { 
     char szBuffer[1024] ; 
 
+    char* szTemp = NULL ;
+    if (pInfo->pContent && pInfo->nContentLength)
+    {
+        szTemp = (char*) malloc(pInfo->nContentLength+1) ;
+        memset(szTemp, 0, pInfo->nContentLength+1) ;
+        memcpy(szTemp, pInfo->pContent, pInfo->nContentLength) ;
+    }
+
     sprintf(szBuffer, "<NOTIFY> hSub=%d, contentType=%s, contentLength=%d, content=%s", 
                         pInfo->hSub, 
                         pInfo->szContentType, 
                         pInfo->nContentLength, 
-                        pInfo->pContent); 
+                        szTemp); 
+
+    free (szTemp) ;
 
     return new UtlString(szBuffer) ; 
 } 

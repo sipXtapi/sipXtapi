@@ -270,7 +270,7 @@ void sipXtapiTestSuite::testGetVersion()
         printf("\ntestGetVersion (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
 
         CPPUNIT_ASSERT_EQUAL(sipxConfigGetVersion(szBuffer, 64), SIPX_RESULT_SUCCESS);
-        CPPUNIT_ASSERT(strstr(szBuffer, "SIPxua")!=NULL);
+        CPPUNIT_ASSERT(strstr(szBuffer, "sipXtapi")!=NULL);
         CPPUNIT_ASSERT_EQUAL(sipxConfigGetVersion(szBuffer, 2), SIPX_RESULT_INSUFFICIENT_BUFFER);
     }
 
@@ -633,6 +633,12 @@ void sipXtapiTestSuite::testReinitializeCall()
 
         rc = sipxReInitialize(&hInst2, 8003, 8003, 8004, 8060, 32, NULL, "127.0.0.1") ;
         CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+
+        rc = sipxEventListenerAdd(hInst1, UniversalEventValidatorCallback, &validatorCalling) ;
+        CPPUNIT_ASSERT(rc == SIPX_RESULT_SUCCESS) ;
+
+        rc = sipxEventListenerAdd(hInst2, UniversalEventValidatorCallback, &validatorCalled) ;        
+        CPPUNIT_ASSERT(rc == SIPX_RESULT_SUCCESS) ;
 
         bRC = validatorCalling.waitForCallEvent(hCallingLine, hCallingCall, CALLSTATE_DESTROYED, CALLSTATE_CAUSE_SHUTDOWN, true) ;
         CPPUNIT_ASSERT(bRC) ;
@@ -1375,7 +1381,7 @@ void sipXtapiTestSuite::testConfigCrlfKeepAlive()
     SIPX_RESULT rc ;
     UtlString serverAddress ;
 
-    OsSocket::getHostIpByName("sipxchange.pingtel.com", &serverAddress) ;
+    OsSocket::getHostIpByName("sbc.pingtel.com", &serverAddress) ;
 
     for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
@@ -1520,7 +1526,7 @@ void sipXtapiTestSuite::testConfigKeepAliveNoStop()
     SIPX_RESULT rc ;
     UtlString serverAddress ;
 
-    OsSocket::getHostIpByName("sipxchange.pingtel.com", &serverAddress) ;
+    OsSocket::getHostIpByName("sbc.pingtel.com", &serverAddress) ;
 
     for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {

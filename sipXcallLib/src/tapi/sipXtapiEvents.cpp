@@ -1302,7 +1302,23 @@ void sipxFireMediaEvent(const void* pSrc,
             switch (type)
             {
                 case MEDIA_TYPE_AUDIO:
-                    if ((event == MEDIA_LOCAL_START) || (event == MEDIA_LOCAL_STOP))
+                    if (event == MEDIA_LOCAL_STOP)
+                    {
+                        if ((lastLocalMediaAudioEvent == MEDIA_UNKNOWN) || 
+                                (lastLocalMediaAudioEvent == event))
+                        {
+                            bDuplicateEvent = true ;
+                        }
+                    }
+                    else if (event == MEDIA_REMOTE_STOP)
+                    {
+                        if ((lastRemoteMediaAudioEvent == MEDIA_UNKNOWN) || 
+                                (lastRemoteMediaAudioEvent == event))
+                        {
+                            bDuplicateEvent = true ;
+                        }
+                    }
+                    else if ((event == MEDIA_LOCAL_START) || (event == MEDIA_LOCAL_STOP))
                     {
                         if (event == lastLocalMediaAudioEvent)
                         {
@@ -1318,7 +1334,23 @@ void sipxFireMediaEvent(const void* pSrc,
                     }
                     break ;
                 case MEDIA_TYPE_VIDEO:
-                    if ((event == MEDIA_LOCAL_START) || (event == MEDIA_LOCAL_STOP))
+                    if (event == MEDIA_LOCAL_STOP)
+                    {
+                        if ((lastLocalMediaVideoEvent == MEDIA_UNKNOWN) || 
+                                (lastLocalMediaVideoEvent == event))
+                        {
+                            bDuplicateEvent = true ;
+                        }
+                    }
+                    else if (event == MEDIA_REMOTE_STOP)
+                    {
+                        if ((lastRemoteMediaVideoEvent == MEDIA_UNKNOWN) || 
+                                (lastRemoteMediaVideoEvent == event))
+                        {
+                            bDuplicateEvent = true ;
+                        }
+                    }
+                    else if ((event == MEDIA_LOCAL_START) || (event == MEDIA_LOCAL_STOP))
                     {
                         if (event == lastLocalMediaVideoEvent)
                         {

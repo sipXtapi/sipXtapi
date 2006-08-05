@@ -470,7 +470,7 @@ UtlBoolean sipxCallSetMediaState(SIPX_CALL hCall,
                                  SIPX_MEDIA_EVENT event,
                                  SIPX_MEDIA_TYPE type) 
 {
- UtlBoolean bSuccess = false ;
+    UtlBoolean bSuccess = false ;
 
     OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallSetMediaState");
     SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_WRITE, logItem);

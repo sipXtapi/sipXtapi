@@ -160,6 +160,7 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
     CPPUNIT_TEST(testSendInfoTimeout);
     CPPUNIT_TEST(testSendInfoFailure);
     CPPUNIT_TEST(testCallDestroyRinging);
+    
     CPPUNIT_TEST(testCallGetRemoteUserAgent);
 
     /*CPPUNIT_TEST(testCallBasicSecure);
