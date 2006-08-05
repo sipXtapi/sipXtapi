@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html><head><meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1">
-<title>SipX TAPI-like API for Call Processing: sipXtapiEvents.h File Reference</title>
+<title>sipXtapi: SipX TAPI-like API for Call Processing: sipXtapiEvents.h File Reference</title>
 <link href="doxygen.css" rel="stylesheet" type="text/css">
 <link href="tabs.css" rel="stylesheet" type="text/css">
 </head><body>
@@ -356,7 +356,7 @@ Figure 2: Event flows for an outbound call (placed call)
 <p>
 Signature for event callback/observer. 
 <p>
-Application developers should not block this event callback thread -- doing so will cause deadlocks and will slow down call processing. You should re-post these events to your own thread context for handling. The sipxDuplicateEvent and sipxFreeDuplicatedEvent methods are available to copy the event callback data (The data is only available for the duration of the callback). For example, upon receiving the callback, copy the data using sipxDuplicateEvent(...), post the copied data to your event callback, process it, and lastly free the event data using sipxFreeDuplicatedEvent(...).<p>
+Application developers should not block this event callback thread -- You should re-post these events to your own thread context for handling if you require blocking and/or heavy prorcessing. The sipxDuplicateEvent and sipxFreeDuplicatedEvent methods are available to copy the event callback data (The data is only available for the duration of the callback). For example, upon receiving the callback, copy the data using sipxDuplicateEvent(...), post the copied data to your event callback, process it, and lastly free the event data using sipxFreeDuplicatedEvent(...).<p>
 The application developer must look at the SIPX_EVENT_CATEGORY and then cast the pInfo method to the appropriate structure:<p>
 <pre>
  EVENT_CATEGORY_CALLSTATE:   pCallInfo = (SIPX_CALLSTATE_INFO*) pInfo ;
@@ -1922,7 +1922,7 @@ This is generally used for debugging.<p>
     </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Thu Aug 3 09:01:00 2006 for SipX TAPI-like API for Call Processing by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Sat Aug 5 11:27:21 2006 for sipXtapi: SipX TAPI-like API for Call Processing by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.6-NO </small></address>
 </body>

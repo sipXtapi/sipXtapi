@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html><head><meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1">
-<title>SipX TAPI-like API for Call Processing: sipXtapiEvents.h Source File</title>
+<title>sipXtapi: SipX TAPI-like API for Call Processing: sipXtapiEvents.h Source File</title>
 <link href="doxygen.css" rel="stylesheet" type="text/css">
 <link href="tabs.css" rel="stylesheet" type="text/css">
 </head><body>
@@ -65,367 +65,367 @@
 <a name="l00102"></a>00102 <span class="preprocessor">#define VALID_SIPX_EVENT_CATEGORY(x) (((x) &gt;= EVENT_CATEGORY_CALLSTATE) &amp;&amp; ((x) &lt;= EVENT_CATEGORY_MEDIA))</span>
 <a name="l00103"></a>00103 <span class="preprocessor"></span>
 <a name="l00104"></a>00104 
-<a name="l00141"></a><a class="code" href="sip_xtapi_events_8h.html#774711345365e5b043e029e43551a320">00141</a> <span class="keyword">typedef</span> bool (SIPX_CALLING_CONVENTION *<a class="code" href="sip_xtapi_events_8h.html#774711345365e5b043e029e43551a320">SIPX_EVENT_CALLBACK_PROC</a>)(<a class="code" href="sip_xtapi_events_8h.html#9af24b60ca3d9db0ddb0bd9b7ae6f980">SIPX_EVENT_CATEGORY</a> category, 
-<a name="l00142"></a>00142                                                                  <span class="keywordtype">void</span>* pInfo, 
-<a name="l00143"></a>00143                                                                  <span class="keywordtype">void</span>* pUserData);
-<a name="l00148"></a><a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f9">00148</a> <span class="keyword">typedef</span> <span class="keyword">enum</span> <a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f9">SIPX_CALLSTATE_EVENT</a>
-<a name="l00149"></a>00149 {
-<a name="l00150"></a>00150     <a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f933d6019d900ca22025c9efd594ffb45c">CALLSTATE_UNKNOWN</a>         = 0,
-<a name="l00153"></a>00153     <a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f965d7aa83da4422c2f20f74f25b3b4f34">CALLSTATE_NEWCALL</a>         = 1000, 
-<a name="l00157"></a>00157     <a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f9030e6f5ff9b204aa07e920b18eae71a5">CALLSTATE_DIALTONE</a>        = 2000, 
-<a name="l00161"></a>00161     <a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f9db6e72b7f849d30ee9b6c5b8a3b4ac8e">CALLSTATE_REMOTE_OFFERING</a> = 2500, 
-<a name="l00168"></a>00168     <a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f96b986c42e2d0fcf01f6cea18b399e86a">CALLSTATE_REMOTE_ALERTING</a> = 3000, 
-<a name="l00182"></a>00182     <a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f90c075bccdeda543f07a9ca5e492647d5">CALLSTATE_CONNECTED</a>       = 4000, 
-<a name="l00186"></a>00186     CALLSTATE_BRIDGED         = 5000, 
-<a name="l00191"></a>00191     <a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f94cc512826163b1537f8a3aad2795820c">CALLSTATE_HELD</a>            = 6000, 
-<a name="l00194"></a>00194     <a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f92b221e993fb2c335a13def4c1d25928c">CALLSTATE_REMOTE_HELD</a>     = 7000, 
-<a name="l00198"></a>00198     <a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f94c23ba76d7932632fc0f158c47aad990">CALLSTATE_DISCONNECTED</a>    = 8000, 
-<a name="l00203"></a>00203     <a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f9cf458df4be0b024f9e24cca3e6bc8c10">CALLSTATE_OFFERING</a>        = 9000, 
-<a name="l00209"></a>00209     <a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f9abad40f59aa10efd4cef033668c1eb52">CALLSTATE_ALERTING</a>        = 10000, 
-<a name="l00215"></a>00215     <a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f9b8cb272091c557f40819b47ef4582394">CALLSTATE_DESTROYED</a>       = 11000, 
-<a name="l00219"></a>00219     <a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f984b5052a508c251b3179c19209f0e2da">CALLSTATE_TRANSFER_EVENT</a>   = 12000, 
-<a name="l00222"></a>00222 } <a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f9">SIPX_CALLSTATE_EVENT</a>;
-<a name="l00223"></a>00223 
-<a name="l00224"></a>00224  
-<a name="l00229"></a><a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4">00229</a> <span class="keyword">typedef</span> <span class="keyword">enum</span> <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4">SIPX_CALLSTATE_CAUSE</a>
-<a name="l00230"></a>00230 {
-<a name="l00231"></a>00231     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4286769f62e2a792401e97e123cb9a2ef">CALLSTATE_CAUSE_UNKNOWN</a>,        
-<a name="l00232"></a>00232     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4bb188ac87dfa0750d8a98f918482d313">CALLSTATE_CAUSE_NORMAL</a>,         
-<a name="l00233"></a>00233     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f426b4abd5cd40092b0bdd1cc13146c05f">CALLSTATE_CAUSE_TRANSFERRED</a>,    
-<a name="l00235"></a>00235     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4f0d1e361a92b1fff33887cb472eb47f8">CALLSTATE_CAUSE_TRANSFER</a>,       
-<a name="l00237"></a>00237     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4e2281e7185c4999aedbafe64cad9cdb1">CALLSTATE_CAUSE_CONFERENCE</a>,     
-<a name="l00238"></a>00238     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4771f12a9808d78d6d93f5dedb2be764b">CALLSTATE_CAUSE_EARLY_MEDIA</a>,    
-<a name="l00241"></a>00241     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4350447e9fab0f6848de5be49dd525ea7">CALLSTATE_CAUSE_REQUEST_NOT_ACCEPTED</a>, 
-<a name="l00243"></a>00243     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f447a7c038b1cc7f5e77aa033c16a08100">CALLSTATE_CAUSE_BAD_ADDRESS</a>,    
-<a name="l00246"></a>00246     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f44191d641b40c0472230dc223f6dbed49">CALLSTATE_CAUSE_BUSY</a>,           
-<a name="l00248"></a>00248     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4b1d38a8a7c82a1f114092129badd19cb">CALLSTATE_CAUSE_RESOURCE_LIMIT</a>, 
-<a name="l00250"></a>00250     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f46e535a1e7449558072837114f2d3c4c3">CALLSTATE_CAUSE_NETWORK</a>,        
-<a name="l00252"></a>00252     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4e65cb216b8615f3b041127789c5eb065">CALLSTATE_CAUSE_REDIRECTED</a>,     
-<a name="l00253"></a>00253     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4a4366335f8a6a2d1eda0089dabc3b206">CALLSTATE_CAUSE_NO_RESPONSE</a>,    
-<a name="l00255"></a>00255     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4ed5032ff17e3c64087e6553626bbcea5">CALLSTATE_CAUSE_AUTH</a>,           
-<a name="l00257"></a>00257     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f467a9b26abc6bd00d41f3fd05521d4d51">CALLSTATE_CAUSE_TRANSFER_INITIATED</a>,  
-<a name="l00261"></a>00261     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4b3f20df5b9b48e0c19d888bc81cb91d2">CALLSTATE_CAUSE_TRANSFER_ACCEPTED</a>,  
-<a name="l00267"></a>00267     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f46b97ca022f0989f313da461fb81231ac">CALLSTATE_CAUSE_TRANSFER_TRYING</a>,
-<a name="l00272"></a>00272     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f431c271f76bcf5cea10a63f3963106569">CALLSTATE_CAUSE_TRANSFER_RINGING</a>,   
-<a name="l00277"></a>00277     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4ab3f21f6b7483c640e3e9c6fed9cc9f7">CALLSTATE_CAUSE_TRANSFER_SUCCESS</a>,
-<a name="l00281"></a>00281     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f407ed62b89aeb39ad119f1bc394b37ee7">CALLSTATE_CAUSE_TRANSFER_FAILURE</a>,
-<a name="l00286"></a>00286     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4e8cdfabd0909464f9ebb39b86f78a27c">CALLSTATE_CAUSE_REMOTE_SMIME_UNSUPPORTED</a>,
-<a name="l00289"></a>00289     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f48574e55ff085f3b27fc7dfd18a14ded0">CALLSTATE_CAUSE_SMIME_FAILURE</a>,
-<a name="l00293"></a><a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4a318fbabf37e3db9548100aa2dca2fac">00293</a>     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4a318fbabf37e3db9548100aa2dca2fac">CALLSTATE_CAUSE_SHUTDOWN</a>       
-<a name="l00295"></a>00295 } <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4">SIPX_CALLSTATE_CAUSE</a> ;
-<a name="l00296"></a>00296 
-<a name="l00300"></a><a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a">00300</a>  <span class="keyword">typedef</span> <span class="keyword">enum</span> <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a">SIPX_LINESTATE_EVENT</a>
-<a name="l00301"></a>00301 {
-<a name="l00302"></a>00302     <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a00eab7acd5bfad74e06533098ee12b65">LINESTATE_UNKNOWN</a>         = 0,        
-<a name="l00303"></a>00303     <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a2fd619af2e29390464cba4941a7dc35a">LINESTATE_REGISTERING</a>     = 20000,    
-<a name="l00307"></a>00307     <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26aad063d0095d96fc68a8ebb44ffb05105">LINESTATE_REGISTERED</a>      = 21000,    
-<a name="l00310"></a>00310     <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a6e96eb9280cbc9d63a9877f2fde6d165">LINESTATE_UNREGISTERING</a>   = 22000,    
-<a name="l00314"></a>00314     <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a8dc1ac3192bd8d9c3499be4cbf4f8ee7">LINESTATE_UNREGISTERED</a>    = 23000,    
-<a name="l00317"></a>00317     <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a025612682b4b55bc34558f12bcd62b51">LINESTATE_REGISTER_FAILED</a> = 24000,    
-<a name="l00324"></a>00324     <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a26465a88ef5d467640eab03b2483e6b1">LINESTATE_UNREGISTER_FAILED</a>  = 25000, 
-<a name="l00331"></a>00331     <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a2f8f4f560039eb2fa11e6fc3477ce61c">LINESTATE_PROVISIONED</a>      = 26000,   
-<a name="l00333"></a>00333 } <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a">SIPX_LINESTATE_EVENT</a>;  
+<a name="l00140"></a><a class="code" href="sip_xtapi_events_8h.html#774711345365e5b043e029e43551a320">00140</a> <span class="keyword">typedef</span> bool (SIPX_CALLING_CONVENTION *<a class="code" href="sip_xtapi_events_8h.html#774711345365e5b043e029e43551a320">SIPX_EVENT_CALLBACK_PROC</a>)(<a class="code" href="sip_xtapi_events_8h.html#9af24b60ca3d9db0ddb0bd9b7ae6f980">SIPX_EVENT_CATEGORY</a> category, 
+<a name="l00141"></a>00141                                                                  <span class="keywordtype">void</span>* pInfo, 
+<a name="l00142"></a>00142                                                                  <span class="keywordtype">void</span>* pUserData);
+<a name="l00147"></a><a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f9">00147</a> <span class="keyword">typedef</span> <span class="keyword">enum</span> <a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f9">SIPX_CALLSTATE_EVENT</a>
+<a name="l00148"></a>00148 {
+<a name="l00149"></a>00149     <a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f933d6019d900ca22025c9efd594ffb45c">CALLSTATE_UNKNOWN</a>         = 0,
+<a name="l00152"></a>00152     <a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f965d7aa83da4422c2f20f74f25b3b4f34">CALLSTATE_NEWCALL</a>         = 1000, 
+<a name="l00156"></a>00156     <a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f9030e6f5ff9b204aa07e920b18eae71a5">CALLSTATE_DIALTONE</a>        = 2000, 
+<a name="l00160"></a>00160     <a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f9db6e72b7f849d30ee9b6c5b8a3b4ac8e">CALLSTATE_REMOTE_OFFERING</a> = 2500, 
+<a name="l00167"></a>00167     <a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f96b986c42e2d0fcf01f6cea18b399e86a">CALLSTATE_REMOTE_ALERTING</a> = 3000, 
+<a name="l00181"></a>00181     <a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f90c075bccdeda543f07a9ca5e492647d5">CALLSTATE_CONNECTED</a>       = 4000, 
+<a name="l00185"></a>00185     CALLSTATE_BRIDGED         = 5000, 
+<a name="l00190"></a>00190     <a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f94cc512826163b1537f8a3aad2795820c">CALLSTATE_HELD</a>            = 6000, 
+<a name="l00193"></a>00193     <a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f92b221e993fb2c335a13def4c1d25928c">CALLSTATE_REMOTE_HELD</a>     = 7000, 
+<a name="l00197"></a>00197     <a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f94c23ba76d7932632fc0f158c47aad990">CALLSTATE_DISCONNECTED</a>    = 8000, 
+<a name="l00202"></a>00202     <a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f9cf458df4be0b024f9e24cca3e6bc8c10">CALLSTATE_OFFERING</a>        = 9000, 
+<a name="l00208"></a>00208     <a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f9abad40f59aa10efd4cef033668c1eb52">CALLSTATE_ALERTING</a>        = 10000, 
+<a name="l00214"></a>00214     <a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f9b8cb272091c557f40819b47ef4582394">CALLSTATE_DESTROYED</a>       = 11000, 
+<a name="l00218"></a>00218     <a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f984b5052a508c251b3179c19209f0e2da">CALLSTATE_TRANSFER_EVENT</a>   = 12000, 
+<a name="l00221"></a>00221 } <a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f9">SIPX_CALLSTATE_EVENT</a>;
+<a name="l00222"></a>00222 
+<a name="l00223"></a>00223  
+<a name="l00228"></a><a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4">00228</a> <span class="keyword">typedef</span> <span class="keyword">enum</span> <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4">SIPX_CALLSTATE_CAUSE</a>
+<a name="l00229"></a>00229 {
+<a name="l00230"></a>00230     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4286769f62e2a792401e97e123cb9a2ef">CALLSTATE_CAUSE_UNKNOWN</a>,        
+<a name="l00231"></a>00231     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4bb188ac87dfa0750d8a98f918482d313">CALLSTATE_CAUSE_NORMAL</a>,         
+<a name="l00232"></a>00232     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f426b4abd5cd40092b0bdd1cc13146c05f">CALLSTATE_CAUSE_TRANSFERRED</a>,    
+<a name="l00234"></a>00234     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4f0d1e361a92b1fff33887cb472eb47f8">CALLSTATE_CAUSE_TRANSFER</a>,       
+<a name="l00236"></a>00236     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4e2281e7185c4999aedbafe64cad9cdb1">CALLSTATE_CAUSE_CONFERENCE</a>,     
+<a name="l00237"></a>00237     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4771f12a9808d78d6d93f5dedb2be764b">CALLSTATE_CAUSE_EARLY_MEDIA</a>,    
+<a name="l00240"></a>00240     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4350447e9fab0f6848de5be49dd525ea7">CALLSTATE_CAUSE_REQUEST_NOT_ACCEPTED</a>, 
+<a name="l00242"></a>00242     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f447a7c038b1cc7f5e77aa033c16a08100">CALLSTATE_CAUSE_BAD_ADDRESS</a>,    
+<a name="l00245"></a>00245     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f44191d641b40c0472230dc223f6dbed49">CALLSTATE_CAUSE_BUSY</a>,           
+<a name="l00247"></a>00247     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4b1d38a8a7c82a1f114092129badd19cb">CALLSTATE_CAUSE_RESOURCE_LIMIT</a>, 
+<a name="l00249"></a>00249     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f46e535a1e7449558072837114f2d3c4c3">CALLSTATE_CAUSE_NETWORK</a>,        
+<a name="l00251"></a>00251     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4e65cb216b8615f3b041127789c5eb065">CALLSTATE_CAUSE_REDIRECTED</a>,     
+<a name="l00252"></a>00252     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4a4366335f8a6a2d1eda0089dabc3b206">CALLSTATE_CAUSE_NO_RESPONSE</a>,    
+<a name="l00254"></a>00254     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4ed5032ff17e3c64087e6553626bbcea5">CALLSTATE_CAUSE_AUTH</a>,           
+<a name="l00256"></a>00256     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f467a9b26abc6bd00d41f3fd05521d4d51">CALLSTATE_CAUSE_TRANSFER_INITIATED</a>,  
+<a name="l00260"></a>00260     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4b3f20df5b9b48e0c19d888bc81cb91d2">CALLSTATE_CAUSE_TRANSFER_ACCEPTED</a>,  
+<a name="l00266"></a>00266     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f46b97ca022f0989f313da461fb81231ac">CALLSTATE_CAUSE_TRANSFER_TRYING</a>,
+<a name="l00271"></a>00271     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f431c271f76bcf5cea10a63f3963106569">CALLSTATE_CAUSE_TRANSFER_RINGING</a>,   
+<a name="l00276"></a>00276     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4ab3f21f6b7483c640e3e9c6fed9cc9f7">CALLSTATE_CAUSE_TRANSFER_SUCCESS</a>,
+<a name="l00280"></a>00280     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f407ed62b89aeb39ad119f1bc394b37ee7">CALLSTATE_CAUSE_TRANSFER_FAILURE</a>,
+<a name="l00285"></a>00285     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4e8cdfabd0909464f9ebb39b86f78a27c">CALLSTATE_CAUSE_REMOTE_SMIME_UNSUPPORTED</a>,
+<a name="l00288"></a>00288     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f48574e55ff085f3b27fc7dfd18a14ded0">CALLSTATE_CAUSE_SMIME_FAILURE</a>,
+<a name="l00292"></a><a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4a318fbabf37e3db9548100aa2dca2fac">00292</a>     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4a318fbabf37e3db9548100aa2dca2fac">CALLSTATE_CAUSE_SHUTDOWN</a>       
+<a name="l00294"></a>00294 } <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4">SIPX_CALLSTATE_CAUSE</a> ;
+<a name="l00295"></a>00295 
+<a name="l00299"></a><a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a">00299</a>  <span class="keyword">typedef</span> <span class="keyword">enum</span> <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a">SIPX_LINESTATE_EVENT</a>
+<a name="l00300"></a>00300 {
+<a name="l00301"></a>00301     <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a00eab7acd5bfad74e06533098ee12b65">LINESTATE_UNKNOWN</a>         = 0,        
+<a name="l00302"></a>00302     <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a2fd619af2e29390464cba4941a7dc35a">LINESTATE_REGISTERING</a>     = 20000,    
+<a name="l00306"></a>00306     <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26aad063d0095d96fc68a8ebb44ffb05105">LINESTATE_REGISTERED</a>      = 21000,    
+<a name="l00309"></a>00309     <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a6e96eb9280cbc9d63a9877f2fde6d165">LINESTATE_UNREGISTERING</a>   = 22000,    
+<a name="l00313"></a>00313     <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a8dc1ac3192bd8d9c3499be4cbf4f8ee7">LINESTATE_UNREGISTERED</a>    = 23000,    
+<a name="l00316"></a>00316     <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a025612682b4b55bc34558f12bcd62b51">LINESTATE_REGISTER_FAILED</a> = 24000,    
+<a name="l00323"></a>00323     <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a26465a88ef5d467640eab03b2483e6b1">LINESTATE_UNREGISTER_FAILED</a>  = 25000, 
+<a name="l00330"></a>00330     <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a2f8f4f560039eb2fa11e6fc3477ce61c">LINESTATE_PROVISIONED</a>      = 26000,   
+<a name="l00332"></a>00332 } <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a">SIPX_LINESTATE_EVENT</a>;  
+<a name="l00333"></a>00333 
 <a name="l00334"></a>00334 
-<a name="l00335"></a>00335 
-<a name="l00339"></a><a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c3">00339</a> <span class="keyword">typedef</span> <span class="keyword">enum</span> <a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c3">SIPX_LINESTATE_CAUSE</a>
-<a name="l00340"></a>00340 {
-<a name="l00341"></a>00341     <a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c3daf0bd2e5fadca5a4d819c311a24445d">LINESTATE_CAUSE_UNKNOWN</a>                           = 0,                                 
-<a name="l00342"></a>00342     <a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c3ccc0e10ab5dbeae61c5e5f2656b2d5ed">LINESTATE_REGISTERING_NORMAL</a>                      = <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a2fd619af2e29390464cba4941a7dc35a">LINESTATE_REGISTERING</a> + 1,         
-<a name="l00344"></a>00344     <a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c3aad54768ebd31e10151cec710466f4b0">LINESTATE_REGISTERED_NORMAL</a>                       = <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26aad063d0095d96fc68a8ebb44ffb05105">LINESTATE_REGISTERED</a> + 1,          
-<a name="l00346"></a>00346     <a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c370cab97109e8f58824d202d6c340ed99">LINESTATE_UNREGISTERING_NORMAL</a>                    = <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a6e96eb9280cbc9d63a9877f2fde6d165">LINESTATE_UNREGISTERING</a> + 1,       
-<a name="l00348"></a>00348     <a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c3be0a5e50b3127068cb91f1a6859e4c09">LINESTATE_UNREGISTERED_NORMAL</a>                     = <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a8dc1ac3192bd8d9c3499be4cbf4f8ee7">LINESTATE_UNREGISTERED</a> + 1,        
-<a name="l00350"></a>00350     <a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c3f4dabd716fc336bdccc99100412994aa">LINESTATE_REGISTER_FAILED_COULD_NOT_CONNECT</a>       = <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a025612682b4b55bc34558f12bcd62b51">LINESTATE_REGISTER_FAILED</a> + 1,     
-<a name="l00352"></a>00352     <a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c34b2aff12275ed5f2a9725f4dc0142be6">LINESTATE_REGISTER_FAILED_NOT_AUTHORIZED</a>          = <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a025612682b4b55bc34558f12bcd62b51">LINESTATE_REGISTER_FAILED</a> + 2,     
-<a name="l00355"></a>00355     <a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c38d7d8f1ac06aa3609cefb8c3fbe0e0ad">LINESTATE_REGISTER_FAILED_TIMEOUT</a>                 = <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a025612682b4b55bc34558f12bcd62b51">LINESTATE_REGISTER_FAILED</a> + 3,     
-<a name="l00357"></a>00357     <a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c3bd9b0314977f8cff304e91b60c0c83f8">LINESTATE_UNREGISTER_FAILED_COULD_NOT_CONNECT</a>     = <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a26465a88ef5d467640eab03b2483e6b1">LINESTATE_UNREGISTER_FAILED</a> + 1,   
-<a name="l00359"></a>00359     <a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c31b2db4c9f692c9794fdadb4a31d4f89c">LINESTATE_UNREGISTER_FAILED_NOT_AUTHORIZED</a>        = <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a26465a88ef5d467640eab03b2483e6b1">LINESTATE_UNREGISTER_FAILED</a> + 2,   
-<a name="l00362"></a>00362     <a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c3eb0bd3c42d62d19f2c86662cf4118c74">LINESTATE_UNREGISTER_FAILED_TIMEOUT</a>               = <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a26465a88ef5d467640eab03b2483e6b1">LINESTATE_UNREGISTER_FAILED</a> + 3,   
-<a name="l00364"></a><a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c35cce20229164d14e04b409aa0c2c1297">00364</a>     <a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c35cce20229164d14e04b409aa0c2c1297">LINESTATE_PROVISIONED_NORMAL</a>                      = <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a2f8f4f560039eb2fa11e6fc3477ce61c">LINESTATE_PROVISIONED</a> + 1          
-<a name="l00366"></a>00366 } <a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c3">SIPX_LINESTATE_CAUSE</a>;
+<a name="l00338"></a><a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c3">00338</a> <span class="keyword">typedef</span> <span class="keyword">enum</span> <a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c3">SIPX_LINESTATE_CAUSE</a>
+<a name="l00339"></a>00339 {
+<a name="l00340"></a>00340     <a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c3daf0bd2e5fadca5a4d819c311a24445d">LINESTATE_CAUSE_UNKNOWN</a>                           = 0,                                 
+<a name="l00341"></a>00341     <a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c3ccc0e10ab5dbeae61c5e5f2656b2d5ed">LINESTATE_REGISTERING_NORMAL</a>                      = <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a2fd619af2e29390464cba4941a7dc35a">LINESTATE_REGISTERING</a> + 1,         
+<a name="l00343"></a>00343     <a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c3aad54768ebd31e10151cec710466f4b0">LINESTATE_REGISTERED_NORMAL</a>                       = <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26aad063d0095d96fc68a8ebb44ffb05105">LINESTATE_REGISTERED</a> + 1,          
+<a name="l00345"></a>00345     <a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c370cab97109e8f58824d202d6c340ed99">LINESTATE_UNREGISTERING_NORMAL</a>                    = <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a6e96eb9280cbc9d63a9877f2fde6d165">LINESTATE_UNREGISTERING</a> + 1,       
+<a name="l00347"></a>00347     <a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c3be0a5e50b3127068cb91f1a6859e4c09">LINESTATE_UNREGISTERED_NORMAL</a>                     = <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a8dc1ac3192bd8d9c3499be4cbf4f8ee7">LINESTATE_UNREGISTERED</a> + 1,        
+<a name="l00349"></a>00349     <a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c3f4dabd716fc336bdccc99100412994aa">LINESTATE_REGISTER_FAILED_COULD_NOT_CONNECT</a>       = <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a025612682b4b55bc34558f12bcd62b51">LINESTATE_REGISTER_FAILED</a> + 1,     
+<a name="l00351"></a>00351     <a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c34b2aff12275ed5f2a9725f4dc0142be6">LINESTATE_REGISTER_FAILED_NOT_AUTHORIZED</a>          = <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a025612682b4b55bc34558f12bcd62b51">LINESTATE_REGISTER_FAILED</a> + 2,     
+<a name="l00354"></a>00354     <a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c38d7d8f1ac06aa3609cefb8c3fbe0e0ad">LINESTATE_REGISTER_FAILED_TIMEOUT</a>                 = <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a025612682b4b55bc34558f12bcd62b51">LINESTATE_REGISTER_FAILED</a> + 3,     
+<a name="l00356"></a>00356     <a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c3bd9b0314977f8cff304e91b60c0c83f8">LINESTATE_UNREGISTER_FAILED_COULD_NOT_CONNECT</a>     = <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a26465a88ef5d467640eab03b2483e6b1">LINESTATE_UNREGISTER_FAILED</a> + 1,   
+<a name="l00358"></a>00358     <a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c31b2db4c9f692c9794fdadb4a31d4f89c">LINESTATE_UNREGISTER_FAILED_NOT_AUTHORIZED</a>        = <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a26465a88ef5d467640eab03b2483e6b1">LINESTATE_UNREGISTER_FAILED</a> + 2,   
+<a name="l00361"></a>00361     <a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c3eb0bd3c42d62d19f2c86662cf4118c74">LINESTATE_UNREGISTER_FAILED_TIMEOUT</a>               = <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a26465a88ef5d467640eab03b2483e6b1">LINESTATE_UNREGISTER_FAILED</a> + 3,   
+<a name="l00363"></a><a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c35cce20229164d14e04b409aa0c2c1297">00363</a>     <a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c35cce20229164d14e04b409aa0c2c1297">LINESTATE_PROVISIONED_NORMAL</a>                      = <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a2f8f4f560039eb2fa11e6fc3477ce61c">LINESTATE_PROVISIONED</a> + 1          
+<a name="l00365"></a>00365 } <a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c3">SIPX_LINESTATE_CAUSE</a>;
+<a name="l00366"></a>00366 
 <a name="l00367"></a>00367 
 <a name="l00368"></a>00368 
 <a name="l00369"></a>00369 
-<a name="l00370"></a>00370 
-<a name="l00374"></a><a class="code" href="sip_xtapi_events_8h.html#3e3d6afbf3c80b7d53448dce6f3eea9c">00374</a> <span class="keyword">enum</span> <a class="code" href="sip_xtapi_events_8h.html#3e3d6afbf3c80b7d53448dce6f3eea9c">SIPX_INFOSTATUS_EVENT</a>
-<a name="l00375"></a>00375 {
-<a name="l00376"></a>00376     <a class="code" href="sip_xtapi_events_8h.html#3e3d6afbf3c80b7d53448dce6f3eea9c799852f761a37763f57998fb65f5f368">INFOSTATUS_UNKNOWN</a>       = 0 ,     
-<a name="l00377"></a>00377     <a class="code" href="sip_xtapi_events_8h.html#3e3d6afbf3c80b7d53448dce6f3eea9c1d4bfa84f55d8a2be8d6f78b5d62c83c">INFOSTATUS_RESPONSE</a>      = 30000,  
-<a name="l00379"></a><a class="code" href="sip_xtapi_events_8h.html#3e3d6afbf3c80b7d53448dce6f3eea9c818144e74884dedf1eb3b1eebbad7979">00379</a>     <a class="code" href="sip_xtapi_events_8h.html#3e3d6afbf3c80b7d53448dce6f3eea9c818144e74884dedf1eb3b1eebbad7979">INFOSTATUS_NETWORK_ERROR</a> = 31000   
-<a name="l00381"></a>00381 };
+<a name="l00373"></a><a class="code" href="sip_xtapi_events_8h.html#3e3d6afbf3c80b7d53448dce6f3eea9c">00373</a> <span class="keyword">enum</span> <a class="code" href="sip_xtapi_events_8h.html#3e3d6afbf3c80b7d53448dce6f3eea9c">SIPX_INFOSTATUS_EVENT</a>
+<a name="l00374"></a>00374 {
+<a name="l00375"></a>00375     <a class="code" href="sip_xtapi_events_8h.html#3e3d6afbf3c80b7d53448dce6f3eea9c799852f761a37763f57998fb65f5f368">INFOSTATUS_UNKNOWN</a>       = 0 ,     
+<a name="l00376"></a>00376     <a class="code" href="sip_xtapi_events_8h.html#3e3d6afbf3c80b7d53448dce6f3eea9c1d4bfa84f55d8a2be8d6f78b5d62c83c">INFOSTATUS_RESPONSE</a>      = 30000,  
+<a name="l00378"></a><a class="code" href="sip_xtapi_events_8h.html#3e3d6afbf3c80b7d53448dce6f3eea9c818144e74884dedf1eb3b1eebbad7979">00378</a>     <a class="code" href="sip_xtapi_events_8h.html#3e3d6afbf3c80b7d53448dce6f3eea9c818144e74884dedf1eb3b1eebbad7979">INFOSTATUS_NETWORK_ERROR</a> = 31000   
+<a name="l00380"></a>00380 };
+<a name="l00381"></a>00381 
 <a name="l00382"></a>00382 
-<a name="l00383"></a>00383 
-<a name="l00387"></a><a class="code" href="sip_xtapi_events_8h.html#1c3359b48bd1b785a1fcf7d85fc68ae0">00387</a> <span class="keyword">enum</span> <a class="code" href="sip_xtapi_events_8h.html#1c3359b48bd1b785a1fcf7d85fc68ae0">SIPX_CONFIG_EVENT</a>
-<a name="l00388"></a>00388 {
-<a name="l00389"></a>00389     <a class="code" href="sip_xtapi_events_8h.html#1c3359b48bd1b785a1fcf7d85fc68ae07ba7ce89c1903e45b0f9f8c3cd4f9ea6">CONFIG_UNKNOWN</a> = 0,           
-<a name="l00390"></a>00390     <a class="code" href="sip_xtapi_events_8h.html#1c3359b48bd1b785a1fcf7d85fc68ae0db15c3609a3f8b703922a8b04b62b9b1">CONFIG_STUN_SUCCESS</a>  = 40000, 
-<a name="l00394"></a>00394     <a class="code" href="sip_xtapi_events_8h.html#1c3359b48bd1b785a1fcf7d85fc68ae0e97b6d613f213267b8f9e469a9e823ca">CONFIG_STUN_FAILURE</a>  = 41000, 
-<a name="l00395"></a>00395 } ;
+<a name="l00386"></a><a class="code" href="sip_xtapi_events_8h.html#1c3359b48bd1b785a1fcf7d85fc68ae0">00386</a> <span class="keyword">enum</span> <a class="code" href="sip_xtapi_events_8h.html#1c3359b48bd1b785a1fcf7d85fc68ae0">SIPX_CONFIG_EVENT</a>
+<a name="l00387"></a>00387 {
+<a name="l00388"></a>00388     <a class="code" href="sip_xtapi_events_8h.html#1c3359b48bd1b785a1fcf7d85fc68ae07ba7ce89c1903e45b0f9f8c3cd4f9ea6">CONFIG_UNKNOWN</a> = 0,           
+<a name="l00389"></a>00389     <a class="code" href="sip_xtapi_events_8h.html#1c3359b48bd1b785a1fcf7d85fc68ae0db15c3609a3f8b703922a8b04b62b9b1">CONFIG_STUN_SUCCESS</a>  = 40000, 
+<a name="l00393"></a>00393     <a class="code" href="sip_xtapi_events_8h.html#1c3359b48bd1b785a1fcf7d85fc68ae0e97b6d613f213267b8f9e469a9e823ca">CONFIG_STUN_FAILURE</a>  = 41000, 
+<a name="l00394"></a>00394 } ;
+<a name="l00395"></a>00395 
 <a name="l00396"></a>00396 
-<a name="l00397"></a>00397 
-<a name="l00401"></a><a class="code" href="sip_xtapi_events_8h.html#d9fdc2bd96875464ab3c8d5e34fb803a">00401</a> <span class="keyword">typedef</span> <span class="keyword">enum</span> <a class="code" href="sip_xtapi_events_8h.html#d9fdc2bd96875464ab3c8d5e34fb803a">SIPX_SECURITY_EVENT</a>
-<a name="l00402"></a>00402 {
-<a name="l00403"></a>00403     <a class="code" href="sip_xtapi_events_8h.html#d9fdc2bd96875464ab3c8d5e34fb803a9f6de3eb66755b7c86377d5805edef6a">SECURITY_UNKNOWN</a>       = 0,
-<a name="l00406"></a>00406     <a class="code" href="sip_xtapi_events_8h.html#d9fdc2bd96875464ab3c8d5e34fb803a8861e5e9a50cd417600424704b8e0491">SECURITY_ENCRYPT</a> = 1000, 
-<a name="l00409"></a>00409     <a class="code" href="sip_xtapi_events_8h.html#d9fdc2bd96875464ab3c8d5e34fb803aafa5c65d991eecf41a14b41da43f407f">SECURITY_DECRYPT</a> = 2000, 
-<a name="l00412"></a>00412     <a class="code" href="sip_xtapi_events_8h.html#d9fdc2bd96875464ab3c8d5e34fb803aa6c0a2c2d99f98eec913c036b61e25c2">SECURITY_TLS</a>              = 4000, 
-<a name="l00413"></a>00413 } <a class="code" href="sip_xtapi_events_8h.html#d9fdc2bd96875464ab3c8d5e34fb803a">SIPX_SECURITY_EVENT</a>;
-<a name="l00414"></a>00414 
-<a name="l00418"></a><a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4">00418</a> <span class="keyword">typedef</span> <span class="keyword">enum</span> <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4">SIPX_SECURITY_CAUSE</a>
-<a name="l00419"></a>00419 {
-<a name="l00420"></a>00420     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee42e2488112397acf633ebb60dfc0435ec">SECURITY_CAUSE_UNKNOWN</a> = 0,                      
-<a name="l00424"></a>00424     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee445a22b8e6a5dbc77ce9e9c02851be07c">SECURITY_CAUSE_NORMAL</a>,                           
-<a name="l00425"></a>00425     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4cad4d58b85fc8202813262f2b2186e8f">SECURITY_CAUSE_ENCRYPT_SUCCESS</a>,                  
-<a name="l00426"></a>00426     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee40081d83c12483865a0de53cee7025258">SECURITY_CAUSE_ENCRYPT_FAILURE_LIB_INIT</a>,         
-<a name="l00428"></a>00428     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee44ff78eb857574c3a429e35a730eede02">SECURITY_CAUSE_ENCRYPT_FAILURE_BAD_PUBLIC_KEY</a>,   
-<a name="l00429"></a>00429     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4c8ce7f931b58545fca4994078e4bffe4">SECURITY_CAUSE_ENCRYPT_FAILURE_INVALID_PARAMETER</a>,
-<a name="l00430"></a>00430     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee482ad17d63a35636f4e95b041bb5ed89c">SECURITY_CAUSE_DECRYPT_SUCCESS</a>,                  
-<a name="l00431"></a>00431     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4990993436f0582544411bf38831e010b">SECURITY_CAUSE_DECRYPT_FAILURE_DB_INIT</a>,          
-<a name="l00432"></a>00432     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee465da38d78d01bd7b10c31521fd2a2030">SECURITY_CAUSE_DECRYPT_FAILURE_BAD_DB_PASSWORD</a>,  
-<a name="l00433"></a>00433     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee482e1a786fad4178c1ff3fded8f1d84ad">SECURITY_CAUSE_DECRYPT_FAILURE_INVALID_PARAMETER</a>,
-<a name="l00434"></a>00434     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4f898d78679a6d644a3ff2fbccb7e7ac7">SECURITY_CAUSE_DECRYPT_BAD_SIGNATURE</a>,            
-<a name="l00435"></a>00435     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4df05a59f38b06ed35a5e2430f6bbb715">SECURITY_CAUSE_DECRYPT_MISSING_SIGNATURE</a>,        
-<a name="l00436"></a>00436     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4b20c74c1cf45cb64b1e333652946b571">SECURITY_CAUSE_DECRYPT_SIGNATURE_REJECTED</a>,       
-<a name="l00437"></a>00437     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee40bf9187c1cccfdfb66cf3623774b58d9">SECURITY_CAUSE_TLS_SERVER_CERTIFICATE</a>,           
-<a name="l00441"></a>00441     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4dfe9b525f220bbd8cd78060304563ea1">SECURITY_CAUSE_TLS_BAD_PASSWORD</a>,                
-<a name="l00442"></a>00442     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4c85021251a3a06d50d5d3c32e3111b83">SECURITY_CAUSE_TLS_LIBRARY_FAILURE</a>,             
-<a name="l00443"></a>00443     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4bc13664f032ba8957d6e1a9ed56a785c">SECURITY_CAUSE_REMOTE_HOST_UNREACHABLE</a>,         
-<a name="l00444"></a>00444     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4545468c9ff4703b73927b9d7ed0bc45e">SECURITY_CAUSE_TLS_CONNECTION_FAILURE</a>,          
-<a name="l00445"></a>00445     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee41936f62537e0a02cd8d74b082f444c6d">SECURITY_CAUSE_TLS_HANDSHAKE_FAILURE</a>,           
-<a name="l00446"></a>00446     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4b91f375021bb88ddeeda9942719515da">SECURITY_CAUSE_SIGNATURE_NOTIFY</a>,                
-<a name="l00453"></a>00453     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4d9e74e17285fdd2361a7a7b5fbc7dd20">SECURITY_CAUSE_TLS_CERTIFICATE_REJECTED</a>         
-<a name="l00454"></a>00454 } <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4">SIPX_SECURITY_CAUSE</a>;
+<a name="l00400"></a><a class="code" href="sip_xtapi_events_8h.html#d9fdc2bd96875464ab3c8d5e34fb803a">00400</a> <span class="keyword">typedef</span> <span class="keyword">enum</span> <a class="code" href="sip_xtapi_events_8h.html#d9fdc2bd96875464ab3c8d5e34fb803a">SIPX_SECURITY_EVENT</a>
+<a name="l00401"></a>00401 {
+<a name="l00402"></a>00402     <a class="code" href="sip_xtapi_events_8h.html#d9fdc2bd96875464ab3c8d5e34fb803a9f6de3eb66755b7c86377d5805edef6a">SECURITY_UNKNOWN</a>       = 0,
+<a name="l00405"></a>00405     <a class="code" href="sip_xtapi_events_8h.html#d9fdc2bd96875464ab3c8d5e34fb803a8861e5e9a50cd417600424704b8e0491">SECURITY_ENCRYPT</a> = 1000, 
+<a name="l00408"></a>00408     <a class="code" href="sip_xtapi_events_8h.html#d9fdc2bd96875464ab3c8d5e34fb803aafa5c65d991eecf41a14b41da43f407f">SECURITY_DECRYPT</a> = 2000, 
+<a name="l00411"></a>00411     <a class="code" href="sip_xtapi_events_8h.html#d9fdc2bd96875464ab3c8d5e34fb803aa6c0a2c2d99f98eec913c036b61e25c2">SECURITY_TLS</a>              = 4000, 
+<a name="l00412"></a>00412 } <a class="code" href="sip_xtapi_events_8h.html#d9fdc2bd96875464ab3c8d5e34fb803a">SIPX_SECURITY_EVENT</a>;
+<a name="l00413"></a>00413 
+<a name="l00417"></a><a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4">00417</a> <span class="keyword">typedef</span> <span class="keyword">enum</span> <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4">SIPX_SECURITY_CAUSE</a>
+<a name="l00418"></a>00418 {
+<a name="l00419"></a>00419     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee42e2488112397acf633ebb60dfc0435ec">SECURITY_CAUSE_UNKNOWN</a> = 0,                      
+<a name="l00423"></a>00423     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee445a22b8e6a5dbc77ce9e9c02851be07c">SECURITY_CAUSE_NORMAL</a>,                           
+<a name="l00424"></a>00424     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4cad4d58b85fc8202813262f2b2186e8f">SECURITY_CAUSE_ENCRYPT_SUCCESS</a>,                  
+<a name="l00425"></a>00425     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee40081d83c12483865a0de53cee7025258">SECURITY_CAUSE_ENCRYPT_FAILURE_LIB_INIT</a>,         
+<a name="l00427"></a>00427     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee44ff78eb857574c3a429e35a730eede02">SECURITY_CAUSE_ENCRYPT_FAILURE_BAD_PUBLIC_KEY</a>,   
+<a name="l00428"></a>00428     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4c8ce7f931b58545fca4994078e4bffe4">SECURITY_CAUSE_ENCRYPT_FAILURE_INVALID_PARAMETER</a>,
+<a name="l00429"></a>00429     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee482ad17d63a35636f4e95b041bb5ed89c">SECURITY_CAUSE_DECRYPT_SUCCESS</a>,                  
+<a name="l00430"></a>00430     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4990993436f0582544411bf38831e010b">SECURITY_CAUSE_DECRYPT_FAILURE_DB_INIT</a>,          
+<a name="l00431"></a>00431     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee465da38d78d01bd7b10c31521fd2a2030">SECURITY_CAUSE_DECRYPT_FAILURE_BAD_DB_PASSWORD</a>,  
+<a name="l00432"></a>00432     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee482e1a786fad4178c1ff3fded8f1d84ad">SECURITY_CAUSE_DECRYPT_FAILURE_INVALID_PARAMETER</a>,
+<a name="l00433"></a>00433     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4f898d78679a6d644a3ff2fbccb7e7ac7">SECURITY_CAUSE_DECRYPT_BAD_SIGNATURE</a>,            
+<a name="l00434"></a>00434     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4df05a59f38b06ed35a5e2430f6bbb715">SECURITY_CAUSE_DECRYPT_MISSING_SIGNATURE</a>,        
+<a name="l00435"></a>00435     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4b20c74c1cf45cb64b1e333652946b571">SECURITY_CAUSE_DECRYPT_SIGNATURE_REJECTED</a>,       
+<a name="l00436"></a>00436     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee40bf9187c1cccfdfb66cf3623774b58d9">SECURITY_CAUSE_TLS_SERVER_CERTIFICATE</a>,           
+<a name="l00440"></a>00440     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4dfe9b525f220bbd8cd78060304563ea1">SECURITY_CAUSE_TLS_BAD_PASSWORD</a>,                
+<a name="l00441"></a>00441     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4c85021251a3a06d50d5d3c32e3111b83">SECURITY_CAUSE_TLS_LIBRARY_FAILURE</a>,             
+<a name="l00442"></a>00442     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4bc13664f032ba8957d6e1a9ed56a785c">SECURITY_CAUSE_REMOTE_HOST_UNREACHABLE</a>,         
+<a name="l00443"></a>00443     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4545468c9ff4703b73927b9d7ed0bc45e">SECURITY_CAUSE_TLS_CONNECTION_FAILURE</a>,          
+<a name="l00444"></a>00444     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee41936f62537e0a02cd8d74b082f444c6d">SECURITY_CAUSE_TLS_HANDSHAKE_FAILURE</a>,           
+<a name="l00445"></a>00445     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4b91f375021bb88ddeeda9942719515da">SECURITY_CAUSE_SIGNATURE_NOTIFY</a>,                
+<a name="l00452"></a>00452     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4d9e74e17285fdd2361a7a7b5fbc7dd20">SECURITY_CAUSE_TLS_CERTIFICATE_REJECTED</a>         
+<a name="l00453"></a>00453 } <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4">SIPX_SECURITY_CAUSE</a>;
+<a name="l00454"></a>00454 
 <a name="l00455"></a>00455 
-<a name="l00456"></a>00456 
-<a name="l00460"></a><a class="code" href="sip_xtapi_events_8h.html#80e44b98a28235387cf02104765962c1">00460</a> <span class="keyword">typedef</span> <span class="keyword">enum</span>
-<a name="l00461"></a>00461 {
-<a name="l00462"></a>00462     <a class="code" href="sip_xtapi_events_8h.html#80e44b98a28235387cf02104765962c1bf58491c5f49996dd8ee49d37c16277a">MEDIA_UNKNOWN</a>     = 0,      
-<a name="l00465"></a>00465     <a class="code" href="sip_xtapi_events_8h.html#80e44b98a28235387cf02104765962c12fdab40401a5e068cfcef129648fff79">MEDIA_LOCAL_START</a> = 50000,  
-<a name="l00467"></a>00467     <a class="code" href="sip_xtapi_events_8h.html#80e44b98a28235387cf02104765962c1e73f03725aa5743dbd47999dd9990a67">MEDIA_LOCAL_STOP</a>,           
-<a name="l00473"></a>00473     <a class="code" href="sip_xtapi_events_8h.html#80e44b98a28235387cf02104765962c1545534b9897075a1bfac0d659b56e4e2">MEDIA_REMOTE_START</a>,         
-<a name="l00478"></a>00478     <a class="code" href="sip_xtapi_events_8h.html#80e44b98a28235387cf02104765962c1c404dbbed8640c32d25bb3226342e424">MEDIA_REMOTE_STOP</a>,          
-<a name="l00480"></a>00480     <a class="code" href="sip_xtapi_events_8h.html#80e44b98a28235387cf02104765962c16193fd21baff34166e1ad1f66bead658">MEDIA_REMOTE_SILENT</a>,        
-<a name="l00486"></a>00486     <a class="code" href="sip_xtapi_events_8h.html#80e44b98a28235387cf02104765962c12f245aa95a0030b964273c84541e93a8">MEDIA_PLAYFILE_START</a>,       
-<a name="l00491"></a>00491     <a class="code" href="sip_xtapi_events_8h.html#80e44b98a28235387cf02104765962c1b17f3e59f16a53107ab44ada66af5744">MEDIA_PLAYFILE_STOP</a>,        
-<a name="l00493"></a>00493     <a class="code" href="sip_xtapi_events_8h.html#80e44b98a28235387cf02104765962c1823e156bc7bc8b2b78bf1f1acdf49697">MEDIA_PLAYBUFFER_START</a>,     
-<a name="l00498"></a>00498     <a class="code" href="sip_xtapi_events_8h.html#80e44b98a28235387cf02104765962c1be89aefa56797747fb143669a6bfedf6">MEDIA_PLAYBUFFER_STOP</a>,      
-<a name="l00500"></a>00500     <a class="code" href="sip_xtapi_events_8h.html#80e44b98a28235387cf02104765962c1dc12212a25d8e4fb12e1a9452e60445c">MEDIA_REMOTE_DTMF</a>,          
-<a name="l00502"></a>00502     <a class="code" href="sip_xtapi_events_8h.html#80e44b98a28235387cf02104765962c1406106d710d0672a45dd046198e9ae9f">MEDIA_DEVICE_FAILURE</a>,       
-<a name="l00504"></a>00504 } <a class="code" href="sip_xtapi_events_8h.html#80e44b98a28235387cf02104765962c1">SIPX_MEDIA_EVENT</a> ;
+<a name="l00459"></a><a class="code" href="sip_xtapi_events_8h.html#80e44b98a28235387cf02104765962c1">00459</a> <span class="keyword">typedef</span> <span class="keyword">enum</span>
+<a name="l00460"></a>00460 {
+<a name="l00461"></a>00461     <a class="code" href="sip_xtapi_events_8h.html#80e44b98a28235387cf02104765962c1bf58491c5f49996dd8ee49d37c16277a">MEDIA_UNKNOWN</a>     = 0,      
+<a name="l00464"></a>00464     <a class="code" href="sip_xtapi_events_8h.html#80e44b98a28235387cf02104765962c12fdab40401a5e068cfcef129648fff79">MEDIA_LOCAL_START</a> = 50000,  
+<a name="l00466"></a>00466     <a class="code" href="sip_xtapi_events_8h.html#80e44b98a28235387cf02104765962c1e73f03725aa5743dbd47999dd9990a67">MEDIA_LOCAL_STOP</a>,           
+<a name="l00472"></a>00472     <a class="code" href="sip_xtapi_events_8h.html#80e44b98a28235387cf02104765962c1545534b9897075a1bfac0d659b56e4e2">MEDIA_REMOTE_START</a>,         
+<a name="l00477"></a>00477     <a class="code" href="sip_xtapi_events_8h.html#80e44b98a28235387cf02104765962c1c404dbbed8640c32d25bb3226342e424">MEDIA_REMOTE_STOP</a>,          
+<a name="l00479"></a>00479     <a class="code" href="sip_xtapi_events_8h.html#80e44b98a28235387cf02104765962c16193fd21baff34166e1ad1f66bead658">MEDIA_REMOTE_SILENT</a>,        
+<a name="l00485"></a>00485     <a class="code" href="sip_xtapi_events_8h.html#80e44b98a28235387cf02104765962c12f245aa95a0030b964273c84541e93a8">MEDIA_PLAYFILE_START</a>,       
+<a name="l00490"></a>00490     <a class="code" href="sip_xtapi_events_8h.html#80e44b98a28235387cf02104765962c1b17f3e59f16a53107ab44ada66af5744">MEDIA_PLAYFILE_STOP</a>,        
+<a name="l00492"></a>00492     <a class="code" href="sip_xtapi_events_8h.html#80e44b98a28235387cf02104765962c1823e156bc7bc8b2b78bf1f1acdf49697">MEDIA_PLAYBUFFER_START</a>,     
+<a name="l00497"></a>00497     <a class="code" href="sip_xtapi_events_8h.html#80e44b98a28235387cf02104765962c1be89aefa56797747fb143669a6bfedf6">MEDIA_PLAYBUFFER_STOP</a>,      
+<a name="l00499"></a>00499     <a class="code" href="sip_xtapi_events_8h.html#80e44b98a28235387cf02104765962c1dc12212a25d8e4fb12e1a9452e60445c">MEDIA_REMOTE_DTMF</a>,          
+<a name="l00501"></a>00501     <a class="code" href="sip_xtapi_events_8h.html#80e44b98a28235387cf02104765962c1406106d710d0672a45dd046198e9ae9f">MEDIA_DEVICE_FAILURE</a>,       
+<a name="l00503"></a>00503 } <a class="code" href="sip_xtapi_events_8h.html#80e44b98a28235387cf02104765962c1">SIPX_MEDIA_EVENT</a> ;
+<a name="l00504"></a>00504 
 <a name="l00505"></a>00505 
-<a name="l00506"></a>00506 
-<a name="l00510"></a><a class="code" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc9">00510</a> <span class="keyword">typedef</span> <span class="keyword">enum</span>
-<a name="l00511"></a>00511 {
-<a name="l00512"></a>00512     <a class="code" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc9027909293251977c4863e64afd1375d7">MEDIA_CAUSE_NORMAL</a>,             
-<a name="l00513"></a>00513     <a class="code" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc90c496853eb2118398a826df96ecc8ae5">MEDIA_CAUSE_HOLD</a>,               
-<a name="l00515"></a>00515     <a class="code" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc93f9957a34f398253dc134997dc2a4769">MEDIA_CAUSE_UNHOLD</a>,             
-<a name="l00517"></a>00517     <a class="code" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc95767840d4362c2983fdade43d940e0df">MEDIA_CAUSE_FAILED</a>,             
-<a name="l00518"></a>00518     <a class="code" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc91a478d2edc79eb2304049234e95dcc39">MEDIA_CAUSE_DEVICE_UNAVAILABLE</a>, 
-<a name="l00520"></a>00520     <a class="code" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc973fce566b00ffdd1d225a9366c56529a">MEDIA_CAUSE_INCOMPATIBLE</a>,        
-<a name="l00522"></a>00522     <a class="code" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc9b5224b5761bcb78d85f957ce8aa9ef5d">MEDIA_CAUSE_DTMF_START</a>,          
-<a name="l00523"></a><a class="code" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc9a9772181c0a296884eccd09adc947aea">00523</a>     <a class="code" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc9a9772181c0a296884eccd09adc947aea">MEDIA_CAUSE_DTMF_STOP</a>            
-<a name="l00525"></a>00525 } <a class="code" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc9">SIPX_MEDIA_CAUSE</a> ;
-<a name="l00526"></a>00526 
-<a name="l00531"></a><a class="code" href="sip_xtapi_events_8h.html#edcd3a09275f2b4bd1fca7fa931f895a">00531</a> <span class="keyword">typedef</span> <span class="keyword">enum</span>
-<a name="l00532"></a>00532 {
-<a name="l00533"></a>00533     <a class="code" href="sip_xtapi_events_8h.html#edcd3a09275f2b4bd1fca7fa931f895af52b22a820a99b5739b50f8548ddb77e">MEDIA_TYPE_AUDIO</a>,   
-<a name="l00534"></a>00534     <a class="code" href="sip_xtapi_events_8h.html#edcd3a09275f2b4bd1fca7fa931f895adc28d7140f76491c4809d3f5acee3fe2">MEDIA_TYPE_VIDEO</a>,   
-<a name="l00536"></a>00536 } <a class="code" href="sip_xtapi_events_8h.html#edcd3a09275f2b4bd1fca7fa931f895a">SIPX_MEDIA_TYPE</a> ;
+<a name="l00509"></a><a class="code" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc9">00509</a> <span class="keyword">typedef</span> <span class="keyword">enum</span>
+<a name="l00510"></a>00510 {
+<a name="l00511"></a>00511     <a class="code" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc9027909293251977c4863e64afd1375d7">MEDIA_CAUSE_NORMAL</a>,             
+<a name="l00512"></a>00512     <a class="code" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc90c496853eb2118398a826df96ecc8ae5">MEDIA_CAUSE_HOLD</a>,               
+<a name="l00514"></a>00514     <a class="code" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc93f9957a34f398253dc134997dc2a4769">MEDIA_CAUSE_UNHOLD</a>,             
+<a name="l00516"></a>00516     <a class="code" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc95767840d4362c2983fdade43d940e0df">MEDIA_CAUSE_FAILED</a>,             
+<a name="l00517"></a>00517     <a class="code" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc91a478d2edc79eb2304049234e95dcc39">MEDIA_CAUSE_DEVICE_UNAVAILABLE</a>, 
+<a name="l00519"></a>00519     <a class="code" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc973fce566b00ffdd1d225a9366c56529a">MEDIA_CAUSE_INCOMPATIBLE</a>,        
+<a name="l00521"></a>00521     <a class="code" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc9b5224b5761bcb78d85f957ce8aa9ef5d">MEDIA_CAUSE_DTMF_START</a>,          
+<a name="l00522"></a><a class="code" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc9a9772181c0a296884eccd09adc947aea">00522</a>     <a class="code" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc9a9772181c0a296884eccd09adc947aea">MEDIA_CAUSE_DTMF_STOP</a>            
+<a name="l00524"></a>00524 } <a class="code" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc9">SIPX_MEDIA_CAUSE</a> ;
+<a name="l00525"></a>00525 
+<a name="l00530"></a><a class="code" href="sip_xtapi_events_8h.html#edcd3a09275f2b4bd1fca7fa931f895a">00530</a> <span class="keyword">typedef</span> <span class="keyword">enum</span>
+<a name="l00531"></a>00531 {
+<a name="l00532"></a>00532     <a class="code" href="sip_xtapi_events_8h.html#edcd3a09275f2b4bd1fca7fa931f895af52b22a820a99b5739b50f8548ddb77e">MEDIA_TYPE_AUDIO</a>,   
+<a name="l00533"></a>00533     <a class="code" href="sip_xtapi_events_8h.html#edcd3a09275f2b4bd1fca7fa931f895adc28d7140f76491c4809d3f5acee3fe2">MEDIA_TYPE_VIDEO</a>,   
+<a name="l00535"></a>00535 } <a class="code" href="sip_xtapi_events_8h.html#edcd3a09275f2b4bd1fca7fa931f895a">SIPX_MEDIA_TYPE</a> ;
+<a name="l00536"></a>00536 
 <a name="l00537"></a>00537 
-<a name="l00538"></a>00538 
-<a name="l00548"></a><a class="code" href="struct_s_i_p_x___m_e_d_i_a___i_n_f_o.html">00548</a> <span class="keyword">typedef</span> <span class="keyword">struct</span>
-<a name="l00549"></a>00549 <span class="keyword"></span>{
-<a name="l00550"></a><a class="code" href="struct_s_i_p_x___m_e_d_i_a___i_n_f_o.html#c496034294d6b14bf09c7eeb050ec2cd">00550</a>     size_t              nSize ;     
-<a name="l00551"></a><a class="code" href="struct_s_i_p_x___m_e_d_i_a___i_n_f_o.html#0d5c2818a47721a304079ad9deb2b26e">00551</a>     <a class="code" href="sip_xtapi_events_8h.html#80e44b98a28235387cf02104765962c1">SIPX_MEDIA_EVENT</a>    event ;     
-<a name="l00553"></a><a class="code" href="struct_s_i_p_x___m_e_d_i_a___i_n_f_o.html#1ba427adb4f51a29654bb6da696923ed">00553</a>     <a class="code" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc9">SIPX_MEDIA_CAUSE</a>    cause ;     
-<a name="l00555"></a><a class="code" href="struct_s_i_p_x___m_e_d_i_a___i_n_f_o.html#533c67ec85ab19473ed486ff157ea47a">00555</a>     <a class="code" href="sip_xtapi_events_8h.html#edcd3a09275f2b4bd1fca7fa931f895a">SIPX_MEDIA_TYPE</a>     mediaType ; 
-<a name="l00557"></a><a class="code" href="struct_s_i_p_x___m_e_d_i_a___i_n_f_o.html#d7532f78fb2da74660392c247aa0cdc5">00557</a>     <a class="code" href="sip_xtapi_8h.html#d57dfd35f371dd289e4600cdc4504290">SIPX_CALL</a>           hCall ;     
-<a name="l00559"></a><a class="code" href="struct_s_i_p_x___m_e_d_i_a___i_n_f_o.html#d483478a4168f17e1f17b05c7bbe441f">00559</a>     <a class="code" href="struct_s_i_p_x___c_o_d_e_c___i_n_f_o.html">SIPX_CODEC_INFO</a>     codec ;     
-<a name="l00562"></a><a class="code" href="struct_s_i_p_x___m_e_d_i_a___i_n_f_o.html#a432f15f86facbce967b03543a2ae2e9">00562</a>     <span class="keywordtype">int</span>                 idleTime;   
-<a name="l00565"></a><a class="code" href="struct_s_i_p_x___m_e_d_i_a___i_n_f_o.html#fbbbb555c7217dc50954a3cc361c8285">00565</a>     <a class="code" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb6">SIPX_TONE_ID</a>        toneId;     
-<a name="l00571"></a>00571 } <a class="code" href="struct_s_i_p_x___m_e_d_i_a___i_n_f_o.html">SIPX_MEDIA_INFO</a> ;
+<a name="l00547"></a><a class="code" href="struct_s_i_p_x___m_e_d_i_a___i_n_f_o.html">00547</a> <span class="keyword">typedef</span> <span class="keyword">struct</span>
+<a name="l00548"></a>00548 <span class="keyword"></span>{
+<a name="l00549"></a><a class="code" href="struct_s_i_p_x___m_e_d_i_a___i_n_f_o.html#c496034294d6b14bf09c7eeb050ec2cd">00549</a>     size_t              nSize ;     
+<a name="l00550"></a><a class="code" href="struct_s_i_p_x___m_e_d_i_a___i_n_f_o.html#0d5c2818a47721a304079ad9deb2b26e">00550</a>     <a class="code" href="sip_xtapi_events_8h.html#80e44b98a28235387cf02104765962c1">SIPX_MEDIA_EVENT</a>    event ;     
+<a name="l00552"></a><a class="code" href="struct_s_i_p_x___m_e_d_i_a___i_n_f_o.html#1ba427adb4f51a29654bb6da696923ed">00552</a>     <a class="code" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc9">SIPX_MEDIA_CAUSE</a>    cause ;     
+<a name="l00554"></a><a class="code" href="struct_s_i_p_x___m_e_d_i_a___i_n_f_o.html#533c67ec85ab19473ed486ff157ea47a">00554</a>     <a class="code" href="sip_xtapi_events_8h.html#edcd3a09275f2b4bd1fca7fa931f895a">SIPX_MEDIA_TYPE</a>     mediaType ; 
+<a name="l00556"></a><a class="code" href="struct_s_i_p_x___m_e_d_i_a___i_n_f_o.html#d7532f78fb2da74660392c247aa0cdc5">00556</a>     <a class="code" href="sip_xtapi_8h.html#d57dfd35f371dd289e4600cdc4504290">SIPX_CALL</a>           hCall ;     
+<a name="l00558"></a><a class="code" href="struct_s_i_p_x___m_e_d_i_a___i_n_f_o.html#d483478a4168f17e1f17b05c7bbe441f">00558</a>     <a class="code" href="struct_s_i_p_x___c_o_d_e_c___i_n_f_o.html">SIPX_CODEC_INFO</a>     codec ;     
+<a name="l00561"></a><a class="code" href="struct_s_i_p_x___m_e_d_i_a___i_n_f_o.html#a432f15f86facbce967b03543a2ae2e9">00561</a>     <span class="keywordtype">int</span>                 idleTime;   
+<a name="l00564"></a><a class="code" href="struct_s_i_p_x___m_e_d_i_a___i_n_f_o.html#fbbbb555c7217dc50954a3cc361c8285">00564</a>     <a class="code" href="sip_xtapi_8h.html#5b03046b900c37afe074f2d10046ddb6">SIPX_TONE_ID</a>        toneId;     
+<a name="l00570"></a>00570 } <a class="code" href="struct_s_i_p_x___m_e_d_i_a___i_n_f_o.html">SIPX_MEDIA_INFO</a> ;
+<a name="l00571"></a>00571 
 <a name="l00572"></a>00572 
-<a name="l00573"></a>00573 
-<a name="l00583"></a><a class="code" href="struct_s_i_p_x___c_a_l_l_s_t_a_t_e___i_n_f_o.html">00583</a> <span class="keyword">typedef</span> <span class="keyword">struct </span>
-<a name="l00584"></a>00584 <span class="keyword"></span>{
-<a name="l00585"></a>00585     <span class="comment">// TODO: Add a bitmask that identified which structure items are valid.  For </span>
-<a name="l00586"></a>00586     <span class="comment">//       example, codec and hAssociatedCall are only valid for certain event</span>
-<a name="l00587"></a>00587     <span class="comment">//       sequences.</span>
-<a name="l00588"></a>00588 
-<a name="l00589"></a><a class="code" href="struct_s_i_p_x___c_a_l_l_s_t_a_t_e___i_n_f_o.html#21d2efef92bbaa822115ad2aafb23612">00589</a>     size_t    nSize;                
-<a name="l00590"></a><a class="code" href="struct_s_i_p_x___c_a_l_l_s_t_a_t_e___i_n_f_o.html#aded59f801f4200a95d0cd136eabf9c0">00590</a>     <a class="code" href="sip_xtapi_8h.html#d57dfd35f371dd289e4600cdc4504290">SIPX_CALL</a> hCall;                
-<a name="l00591"></a><a class="code" href="struct_s_i_p_x___c_a_l_l_s_t_a_t_e___i_n_f_o.html#f633927c17209b0da1d6fedccf1851fc">00591</a>     <a class="code" href="sip_xtapi_8h.html#4679e181a248fe34b5aaef2862706352">SIPX_LINE</a> hLine;                
-<a name="l00592"></a><a class="code" href="struct_s_i_p_x___c_a_l_l_s_t_a_t_e___i_n_f_o.html#bd033c3ff0ef82cd3f65a5afe73216db">00592</a>     <a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f9">SIPX_CALLSTATE_EVENT</a> event;     
-<a name="l00594"></a><a class="code" href="struct_s_i_p_x___c_a_l_l_s_t_a_t_e___i_n_f_o.html#02a7967c5fb17e21141d0f7b13af3680">00594</a>     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4">SIPX_CALLSTATE_CAUSE</a> cause;     
-<a name="l00596"></a><a class="code" href="struct_s_i_p_x___c_a_l_l_s_t_a_t_e___i_n_f_o.html#363d96bc687eebf929b3eaa5a6e2780a">00596</a>     <a class="code" href="sip_xtapi_8h.html#d57dfd35f371dd289e4600cdc4504290">SIPX_CALL</a> hAssociatedCall ;     
-<a name="l00600"></a>00600 } <a class="code" href="struct_s_i_p_x___c_a_l_l_s_t_a_t_e___i_n_f_o.html">SIPX_CALLSTATE_INFO</a>; 
+<a name="l00582"></a><a class="code" href="struct_s_i_p_x___c_a_l_l_s_t_a_t_e___i_n_f_o.html">00582</a> <span class="keyword">typedef</span> <span class="keyword">struct </span>
+<a name="l00583"></a>00583 <span class="keyword"></span>{
+<a name="l00584"></a>00584     <span class="comment">// TODO: Add a bitmask that identified which structure items are valid.  For </span>
+<a name="l00585"></a>00585     <span class="comment">//       example, codec and hAssociatedCall are only valid for certain event</span>
+<a name="l00586"></a>00586     <span class="comment">//       sequences.</span>
+<a name="l00587"></a>00587 
+<a name="l00588"></a><a class="code" href="struct_s_i_p_x___c_a_l_l_s_t_a_t_e___i_n_f_o.html#21d2efef92bbaa822115ad2aafb23612">00588</a>     size_t    nSize;                
+<a name="l00589"></a><a class="code" href="struct_s_i_p_x___c_a_l_l_s_t_a_t_e___i_n_f_o.html#aded59f801f4200a95d0cd136eabf9c0">00589</a>     <a class="code" href="sip_xtapi_8h.html#d57dfd35f371dd289e4600cdc4504290">SIPX_CALL</a> hCall;                
+<a name="l00590"></a><a class="code" href="struct_s_i_p_x___c_a_l_l_s_t_a_t_e___i_n_f_o.html#f633927c17209b0da1d6fedccf1851fc">00590</a>     <a class="code" href="sip_xtapi_8h.html#4679e181a248fe34b5aaef2862706352">SIPX_LINE</a> hLine;                
+<a name="l00591"></a><a class="code" href="struct_s_i_p_x___c_a_l_l_s_t_a_t_e___i_n_f_o.html#bd033c3ff0ef82cd3f65a5afe73216db">00591</a>     <a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f9">SIPX_CALLSTATE_EVENT</a> event;     
+<a name="l00593"></a><a class="code" href="struct_s_i_p_x___c_a_l_l_s_t_a_t_e___i_n_f_o.html#02a7967c5fb17e21141d0f7b13af3680">00593</a>     <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4">SIPX_CALLSTATE_CAUSE</a> cause;     
+<a name="l00595"></a><a class="code" href="struct_s_i_p_x___c_a_l_l_s_t_a_t_e___i_n_f_o.html#363d96bc687eebf929b3eaa5a6e2780a">00595</a>     <a class="code" href="sip_xtapi_8h.html#d57dfd35f371dd289e4600cdc4504290">SIPX_CALL</a> hAssociatedCall ;     
+<a name="l00599"></a>00599 } <a class="code" href="struct_s_i_p_x___c_a_l_l_s_t_a_t_e___i_n_f_o.html">SIPX_CALLSTATE_INFO</a>; 
+<a name="l00600"></a>00600 
 <a name="l00601"></a>00601 
-<a name="l00602"></a>00602 
-<a name="l00612"></a><a class="code" href="struct_s_i_p_x___l_i_n_e_s_t_a_t_e___i_n_f_o.html">00612</a> <span class="keyword">typedef</span> <span class="keyword">struct                      </span>
-<a name="l00613"></a>00613 <span class="keyword"></span>{
-<a name="l00614"></a><a class="code" href="struct_s_i_p_x___l_i_n_e_s_t_a_t_e___i_n_f_o.html#8fa10ca517dc0db2503fc5490b51b8ee">00614</a>     size_t    nSize ;               
-<a name="l00615"></a><a class="code" href="struct_s_i_p_x___l_i_n_e_s_t_a_t_e___i_n_f_o.html#ca4b378b4af0976bb45f1315a969c699">00615</a>     <a class="code" href="sip_xtapi_8h.html#4679e181a248fe34b5aaef2862706352">SIPX_LINE</a> hLine;                
-<a name="l00616"></a><a class="code" href="struct_s_i_p_x___l_i_n_e_s_t_a_t_e___i_n_f_o.html#57f5524524448615529e87548fdb9276">00616</a>     <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a">SIPX_LINESTATE_EVENT</a> event ;    
-<a name="l00618"></a><a class="code" href="struct_s_i_p_x___l_i_n_e_s_t_a_t_e___i_n_f_o.html#b992616e4479d264069c50c4a654c159">00618</a>     <a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c3">SIPX_LINESTATE_CAUSE</a> cause ;    
-<a name="l00620"></a>00620 } <a class="code" href="struct_s_i_p_x___l_i_n_e_s_t_a_t_e___i_n_f_o.html">SIPX_LINESTATE_INFO</a> ;
+<a name="l00611"></a><a class="code" href="struct_s_i_p_x___l_i_n_e_s_t_a_t_e___i_n_f_o.html">00611</a> <span class="keyword">typedef</span> <span class="keyword">struct                      </span>
+<a name="l00612"></a>00612 <span class="keyword"></span>{
+<a name="l00613"></a><a class="code" href="struct_s_i_p_x___l_i_n_e_s_t_a_t_e___i_n_f_o.html#8fa10ca517dc0db2503fc5490b51b8ee">00613</a>     size_t    nSize ;               
+<a name="l00614"></a><a class="code" href="struct_s_i_p_x___l_i_n_e_s_t_a_t_e___i_n_f_o.html#ca4b378b4af0976bb45f1315a969c699">00614</a>     <a class="code" href="sip_xtapi_8h.html#4679e181a248fe34b5aaef2862706352">SIPX_LINE</a> hLine;                
+<a name="l00615"></a><a class="code" href="struct_s_i_p_x___l_i_n_e_s_t_a_t_e___i_n_f_o.html#57f5524524448615529e87548fdb9276">00615</a>     <a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a">SIPX_LINESTATE_EVENT</a> event ;    
+<a name="l00617"></a><a class="code" href="struct_s_i_p_x___l_i_n_e_s_t_a_t_e___i_n_f_o.html#b992616e4479d264069c50c4a654c159">00617</a>     <a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c3">SIPX_LINESTATE_CAUSE</a> cause ;    
+<a name="l00619"></a>00619 } <a class="code" href="struct_s_i_p_x___l_i_n_e_s_t_a_t_e___i_n_f_o.html">SIPX_LINESTATE_INFO</a> ;
+<a name="l00620"></a>00620 
 <a name="l00621"></a>00621 
-<a name="l00622"></a>00622 
-<a name="l00626"></a><a class="code" href="sip_xtapi_events_8h.html#13a3b17122483dcdd8552408defe91e5">00626</a> <span class="keyword">typedef</span> <span class="keyword">enum</span> 
-<a name="l00627"></a>00627 {
-<a name="l00628"></a>00628     <a class="code" href="sip_xtapi_events_8h.html#13a3b17122483dcdd8552408defe91e590ca1b574e7e5219289c88ebb0adb7da">SIPX_MESSAGE_OK</a>,                  
-<a name="l00629"></a>00629     <a class="code" href="sip_xtapi_events_8h.html#13a3b17122483dcdd8552408defe91e54bec8ecc54d917be062622dcc1d7fd48">SIPX_MESSAGE_FAILURE</a>,             
-<a name="l00631"></a>00631     <a class="code" href="sip_xtapi_events_8h.html#13a3b17122483dcdd8552408defe91e55cf4a4fdb093872e79a73d0517b1f232">SIPX_MESSAGE_SERVER_FAILURE</a>,      
-<a name="l00633"></a>00633     <a class="code" href="sip_xtapi_events_8h.html#13a3b17122483dcdd8552408defe91e5ae5c51906b989427c5c97c2dd47e7fc6">SIPX_MESSAGE_GLOBAL_FAILURE</a>,      
-<a name="l00634"></a>00634 } <a class="code" href="sip_xtapi_events_8h.html#13a3b17122483dcdd8552408defe91e5">SIPX_MESSAGE_STATUS</a> ;
-<a name="l00635"></a>00635 
-<a name="l00646"></a><a class="code" href="struct_s_i_p_x___i_n_f_o_s_t_a_t_u_s___i_n_f_o.html">00646</a> <span class="keyword">typedef</span> <span class="keyword">struct</span>
-<a name="l00647"></a>00647 <span class="keyword"></span>{
-<a name="l00648"></a><a class="code" href="struct_s_i_p_x___i_n_f_o_s_t_a_t_u_s___i_n_f_o.html#4fd86adba4148bf4f90fe00f487f17c5">00648</a>     size_t              nSize ;             
-<a name="l00649"></a><a class="code" href="struct_s_i_p_x___i_n_f_o_s_t_a_t_u_s___i_n_f_o.html#df2736453b51f91f47a73884fef4b874">00649</a>     <a class="code" href="sip_xtapi_8h.html#9e34c00dd24bba43fcd83b30136562b5">SIPX_INFO</a>           hInfo ;             
-<a name="l00650"></a><a class="code" href="struct_s_i_p_x___i_n_f_o_s_t_a_t_u_s___i_n_f_o.html#f659af0a728a381745d881ce696959fe">00650</a>     <a class="code" href="sip_xtapi_events_8h.html#13a3b17122483dcdd8552408defe91e5">SIPX_MESSAGE_STATUS</a> status ;            
-<a name="l00652"></a><a class="code" href="struct_s_i_p_x___i_n_f_o_s_t_a_t_u_s___i_n_f_o.html#986404867f64408e7b700781ff47ba57">00652</a>     <span class="keywordtype">int</span>                 responseCode ;      
-<a name="l00654"></a><a class="code" href="struct_s_i_p_x___i_n_f_o_s_t_a_t_u_s___i_n_f_o.html#7d5607126662f8d19363a56bdbe50d6c">00654</a>     <span class="keyword">const</span> <span class="keywordtype">char</span>*         szResponseText ;    
-<a name="l00655"></a><a class="code" href="struct_s_i_p_x___i_n_f_o_s_t_a_t_u_s___i_n_f_o.html#4e1b4e1024a978ed5e651df618fcf038">00655</a>     <a class="code" href="sip_xtapi_events_8h.html#3e3d6afbf3c80b7d53448dce6f3eea9c">SIPX_INFOSTATUS_EVENT</a> event;            
-<a name="l00656"></a>00656 } <a class="code" href="struct_s_i_p_x___i_n_f_o_s_t_a_t_u_s___i_n_f_o.html">SIPX_INFOSTATUS_INFO</a> ;
+<a name="l00625"></a><a class="code" href="sip_xtapi_events_8h.html#13a3b17122483dcdd8552408defe91e5">00625</a> <span class="keyword">typedef</span> <span class="keyword">enum</span> 
+<a name="l00626"></a>00626 {
+<a name="l00627"></a>00627     <a class="code" href="sip_xtapi_events_8h.html#13a3b17122483dcdd8552408defe91e590ca1b574e7e5219289c88ebb0adb7da">SIPX_MESSAGE_OK</a>,                  
+<a name="l00628"></a>00628     <a class="code" href="sip_xtapi_events_8h.html#13a3b17122483dcdd8552408defe91e54bec8ecc54d917be062622dcc1d7fd48">SIPX_MESSAGE_FAILURE</a>,             
+<a name="l00630"></a>00630     <a class="code" href="sip_xtapi_events_8h.html#13a3b17122483dcdd8552408defe91e55cf4a4fdb093872e79a73d0517b1f232">SIPX_MESSAGE_SERVER_FAILURE</a>,      
+<a name="l00632"></a>00632     <a class="code" href="sip_xtapi_events_8h.html#13a3b17122483dcdd8552408defe91e5ae5c51906b989427c5c97c2dd47e7fc6">SIPX_MESSAGE_GLOBAL_FAILURE</a>,      
+<a name="l00633"></a>00633 } <a class="code" href="sip_xtapi_events_8h.html#13a3b17122483dcdd8552408defe91e5">SIPX_MESSAGE_STATUS</a> ;
+<a name="l00634"></a>00634 
+<a name="l00645"></a><a class="code" href="struct_s_i_p_x___i_n_f_o_s_t_a_t_u_s___i_n_f_o.html">00645</a> <span class="keyword">typedef</span> <span class="keyword">struct</span>
+<a name="l00646"></a>00646 <span class="keyword"></span>{
+<a name="l00647"></a><a class="code" href="struct_s_i_p_x___i_n_f_o_s_t_a_t_u_s___i_n_f_o.html#4fd86adba4148bf4f90fe00f487f17c5">00647</a>     size_t              nSize ;             
+<a name="l00648"></a><a class="code" href="struct_s_i_p_x___i_n_f_o_s_t_a_t_u_s___i_n_f_o.html#df2736453b51f91f47a73884fef4b874">00648</a>     <a class="code" href="sip_xtapi_8h.html#9e34c00dd24bba43fcd83b30136562b5">SIPX_INFO</a>           hInfo ;             
+<a name="l00649"></a><a class="code" href="struct_s_i_p_x___i_n_f_o_s_t_a_t_u_s___i_n_f_o.html#f659af0a728a381745d881ce696959fe">00649</a>     <a class="code" href="sip_xtapi_events_8h.html#13a3b17122483dcdd8552408defe91e5">SIPX_MESSAGE_STATUS</a> status ;            
+<a name="l00651"></a><a class="code" href="struct_s_i_p_x___i_n_f_o_s_t_a_t_u_s___i_n_f_o.html#986404867f64408e7b700781ff47ba57">00651</a>     <span class="keywordtype">int</span>                 responseCode ;      
+<a name="l00653"></a><a class="code" href="struct_s_i_p_x___i_n_f_o_s_t_a_t_u_s___i_n_f_o.html#7d5607126662f8d19363a56bdbe50d6c">00653</a>     <span class="keyword">const</span> <span class="keywordtype">char</span>*         szResponseText ;    
+<a name="l00654"></a><a class="code" href="struct_s_i_p_x___i_n_f_o_s_t_a_t_u_s___i_n_f_o.html#4e1b4e1024a978ed5e651df618fcf038">00654</a>     <a class="code" href="sip_xtapi_events_8h.html#3e3d6afbf3c80b7d53448dce6f3eea9c">SIPX_INFOSTATUS_EVENT</a> event;            
+<a name="l00655"></a>00655 } <a class="code" href="struct_s_i_p_x___i_n_f_o_s_t_a_t_u_s___i_n_f_o.html">SIPX_INFOSTATUS_INFO</a> ;
+<a name="l00656"></a>00656 
 <a name="l00657"></a>00657 
-<a name="l00658"></a>00658 
-<a name="l00671"></a><a class="code" href="struct_s_i_p_x___i_n_f_o___i_n_f_o.html">00671</a> <span class="keyword">typedef</span> <span class="keyword">struct</span>
-<a name="l00672"></a>00672 <span class="keyword"></span>{
-<a name="l00673"></a><a class="code" href="struct_s_i_p_x___i_n_f_o___i_n_f_o.html#a2218e237cdf654816d86fde6e59f446">00673</a>     size_t      nSize ;             
-<a name="l00674"></a><a class="code" href="struct_s_i_p_x___i_n_f_o___i_n_f_o.html#79f3bd5d66e5466b50e246ec2db6ef3a">00674</a>     <a class="code" href="sip_xtapi_8h.html#d57dfd35f371dd289e4600cdc4504290">SIPX_CALL</a>   hCall ;             
-<a name="l00675"></a><a class="code" href="struct_s_i_p_x___i_n_f_o___i_n_f_o.html#b2804df3707d0c6acad5ad0e68ddb158">00675</a>     <a class="code" href="sip_xtapi_8h.html#4679e181a248fe34b5aaef2862706352">SIPX_LINE</a>   hLine ;             
-<a name="l00676"></a><a class="code" href="struct_s_i_p_x___i_n_f_o___i_n_f_o.html#8b1a066f174465e69def30ed27168c80">00676</a>     <span class="keyword">const</span> <span class="keywordtype">char</span>* szFromURL ;         
-<a name="l00678"></a><a class="code" href="struct_s_i_p_x___i_n_f_o___i_n_f_o.html#7e45ec6d573e5e7105a73d5978b0b6a5">00678</a>     <span class="keyword">const</span> <span class="keywordtype">char</span>* szUserAgent;        
-<a name="l00679"></a><a class="code" href="struct_s_i_p_x___i_n_f_o___i_n_f_o.html#01bb6f8d08409d943caf627d4f5b7494">00679</a>     <span class="keyword">const</span> <span class="keywordtype">char</span>* szContentType ;     
-<a name="l00680"></a><a class="code" href="struct_s_i_p_x___i_n_f_o___i_n_f_o.html#7d74d5113fa1b9b9df1c2ae1d02673d9">00680</a>     <span class="keyword">const</span> <span class="keywordtype">char</span>* pContent ;          
-<a name="l00681"></a><a class="code" href="struct_s_i_p_x___i_n_f_o___i_n_f_o.html#cb536bc60f9fc310f2eb185467c533ef">00681</a>     size_t      nContentLength ;    
-<a name="l00683"></a>00683 } <a class="code" href="struct_s_i_p_x___i_n_f_o___i_n_f_o.html">SIPX_INFO_INFO</a> ;
-<a name="l00684"></a>00684 
-<a name="l00688"></a><a class="code" href="sip_xtapi_events_8h.html#af205cf99a4a80f4c915be081f8a9fa2">00688</a> <span class="keyword">typedef</span> <span class="keyword">enum</span> 
-<a name="l00689"></a>00689 {
-<a name="l00690"></a>00690     <a class="code" href="sip_xtapi_events_8h.html#af205cf99a4a80f4c915be081f8a9fa21c65dd164cb0cb11039129ad4f46b3f6">SIPX_SUBSCRIPTION_PENDING</a>,      
-<a name="l00691"></a>00691     <a class="code" href="sip_xtapi_events_8h.html#af205cf99a4a80f4c915be081f8a9fa281f0829bf40d5de1dabd9091917c946d">SIPX_SUBSCRIPTION_ACTIVE</a> ,      
-<a name="l00692"></a>00692     <a class="code" href="sip_xtapi_events_8h.html#af205cf99a4a80f4c915be081f8a9fa2511173de923e4726709082bffedb24e0">SIPX_SUBSCRIPTION_FAILED</a> ,      
-<a name="l00693"></a>00693     <a class="code" href="sip_xtapi_events_8h.html#af205cf99a4a80f4c915be081f8a9fa200502a0f8861f4fa057a0c24fa893ff9">SIPX_SUBSCRIPTION_EXPIRED</a> ,     
-<a name="l00694"></a>00694     <span class="comment">// TBD</span>
-<a name="l00695"></a>00695 } <a class="code" href="sip_xtapi_events_8h.html#af205cf99a4a80f4c915be081f8a9fa2">SIPX_SUBSCRIPTION_STATE</a>;
-<a name="l00696"></a>00696 
-<a name="l00700"></a><a class="code" href="sip_xtapi_events_8h.html#64dcc0a8fa483fa3dbec3cf3c1d16907">00700</a> <span class="keyword">typedef</span> <span class="keyword">enum</span>
-<a name="l00701"></a>00701 {
-<a name="l00702"></a>00702     <a class="code" href="sip_xtapi_events_8h.html#64dcc0a8fa483fa3dbec3cf3c1d16907f093b4e5d5bcf9e85c0a9b31cffb5074">SUBSCRIPTION_CAUSE_UNKNOWN</a> = -1, 
-<a name="l00703"></a><a class="code" href="sip_xtapi_events_8h.html#64dcc0a8fa483fa3dbec3cf3c1d16907e75fcf5bd3b39e8cf0e8190f3521d761">00703</a>     <a class="code" href="sip_xtapi_events_8h.html#64dcc0a8fa483fa3dbec3cf3c1d16907e75fcf5bd3b39e8cf0e8190f3521d761">SUBSCRIPTION_CAUSE_NORMAL</a>     
-<a name="l00704"></a>00704 } <a class="code" href="sip_xtapi_events_8h.html#64dcc0a8fa483fa3dbec3cf3c1d16907">SIPX_SUBSCRIPTION_CAUSE</a>;
-<a name="l00705"></a>00705 
-<a name="l00717"></a><a class="code" href="struct_s_i_p_x___s_u_b_s_t_a_t_u_s___i_n_f_o.html">00717</a> <span class="keyword">typedef</span> <span class="keyword">struct </span>
-<a name="l00718"></a>00718 <span class="keyword"></span>{
-<a name="l00719"></a><a class="code" href="struct_s_i_p_x___s_u_b_s_t_a_t_u_s___i_n_f_o.html#ed5ef5d4db33c56e15cf7a0888f23d42">00719</a>     size_t nSize ;                      
-<a name="l00720"></a><a class="code" href="struct_s_i_p_x___s_u_b_s_t_a_t_u_s___i_n_f_o.html#c434da67e133ede2aadbcf0ecaba9f79">00720</a>     <a class="code" href="sip_xtapi_8h.html#e23dd007679308a06edd907e47f937d9">SIPX_SUB</a> hSub ;                     
-<a name="l00722"></a><a class="code" href="struct_s_i_p_x___s_u_b_s_t_a_t_u_s___i_n_f_o.html#83e7bf453cdb3b0ba4a526806ef755a2">00722</a>     <a class="code" href="sip_xtapi_events_8h.html#af205cf99a4a80f4c915be081f8a9fa2">SIPX_SUBSCRIPTION_STATE</a> state ;     
-<a name="l00724"></a><a class="code" href="struct_s_i_p_x___s_u_b_s_t_a_t_u_s___i_n_f_o.html#89228504b4402ca771d03cba8e4dc84e">00724</a>     <a class="code" href="sip_xtapi_events_8h.html#64dcc0a8fa483fa3dbec3cf3c1d16907">SIPX_SUBSCRIPTION_CAUSE</a> cause;      
-<a name="l00726"></a><a class="code" href="struct_s_i_p_x___s_u_b_s_t_a_t_u_s___i_n_f_o.html#879143c5b2ab500ec3d1fadbad499953">00726</a>     <span class="keyword">const</span> <span class="keywordtype">char</span>* szSubServerUserAgent;   
-<a name="l00729"></a>00729 } <a class="code" href="struct_s_i_p_x___s_u_b_s_t_a_t_u_s___i_n_f_o.html">SIPX_SUBSTATUS_INFO</a> ;
+<a name="l00670"></a><a class="code" href="struct_s_i_p_x___i_n_f_o___i_n_f_o.html">00670</a> <span class="keyword">typedef</span> <span class="keyword">struct</span>
+<a name="l00671"></a>00671 <span class="keyword"></span>{
+<a name="l00672"></a><a class="code" href="struct_s_i_p_x___i_n_f_o___i_n_f_o.html#a2218e237cdf654816d86fde6e59f446">00672</a>     size_t      nSize ;             
+<a name="l00673"></a><a class="code" href="struct_s_i_p_x___i_n_f_o___i_n_f_o.html#79f3bd5d66e5466b50e246ec2db6ef3a">00673</a>     <a class="code" href="sip_xtapi_8h.html#d57dfd35f371dd289e4600cdc4504290">SIPX_CALL</a>   hCall ;             
+<a name="l00674"></a><a class="code" href="struct_s_i_p_x___i_n_f_o___i_n_f_o.html#b2804df3707d0c6acad5ad0e68ddb158">00674</a>     <a class="code" href="sip_xtapi_8h.html#4679e181a248fe34b5aaef2862706352">SIPX_LINE</a>   hLine ;             
+<a name="l00675"></a><a class="code" href="struct_s_i_p_x___i_n_f_o___i_n_f_o.html#8b1a066f174465e69def30ed27168c80">00675</a>     <span class="keyword">const</span> <span class="keywordtype">char</span>* szFromURL ;         
+<a name="l00677"></a><a class="code" href="struct_s_i_p_x___i_n_f_o___i_n_f_o.html#7e45ec6d573e5e7105a73d5978b0b6a5">00677</a>     <span class="keyword">const</span> <span class="keywordtype">char</span>* szUserAgent;        
+<a name="l00678"></a><a class="code" href="struct_s_i_p_x___i_n_f_o___i_n_f_o.html#01bb6f8d08409d943caf627d4f5b7494">00678</a>     <span class="keyword">const</span> <span class="keywordtype">char</span>* szContentType ;     
+<a name="l00679"></a><a class="code" href="struct_s_i_p_x___i_n_f_o___i_n_f_o.html#7d74d5113fa1b9b9df1c2ae1d02673d9">00679</a>     <span class="keyword">const</span> <span class="keywordtype">char</span>* pContent ;          
+<a name="l00680"></a><a class="code" href="struct_s_i_p_x___i_n_f_o___i_n_f_o.html#cb536bc60f9fc310f2eb185467c533ef">00680</a>     size_t      nContentLength ;    
+<a name="l00682"></a>00682 } <a class="code" href="struct_s_i_p_x___i_n_f_o___i_n_f_o.html">SIPX_INFO_INFO</a> ;
+<a name="l00683"></a>00683 
+<a name="l00687"></a><a class="code" href="sip_xtapi_events_8h.html#af205cf99a4a80f4c915be081f8a9fa2">00687</a> <span class="keyword">typedef</span> <span class="keyword">enum</span> 
+<a name="l00688"></a>00688 {
+<a name="l00689"></a>00689     <a class="code" href="sip_xtapi_events_8h.html#af205cf99a4a80f4c915be081f8a9fa21c65dd164cb0cb11039129ad4f46b3f6">SIPX_SUBSCRIPTION_PENDING</a>,      
+<a name="l00690"></a>00690     <a class="code" href="sip_xtapi_events_8h.html#af205cf99a4a80f4c915be081f8a9fa281f0829bf40d5de1dabd9091917c946d">SIPX_SUBSCRIPTION_ACTIVE</a> ,      
+<a name="l00691"></a>00691     <a class="code" href="sip_xtapi_events_8h.html#af205cf99a4a80f4c915be081f8a9fa2511173de923e4726709082bffedb24e0">SIPX_SUBSCRIPTION_FAILED</a> ,      
+<a name="l00692"></a>00692     <a class="code" href="sip_xtapi_events_8h.html#af205cf99a4a80f4c915be081f8a9fa200502a0f8861f4fa057a0c24fa893ff9">SIPX_SUBSCRIPTION_EXPIRED</a> ,     
+<a name="l00693"></a>00693     <span class="comment">// TBD</span>
+<a name="l00694"></a>00694 } <a class="code" href="sip_xtapi_events_8h.html#af205cf99a4a80f4c915be081f8a9fa2">SIPX_SUBSCRIPTION_STATE</a>;
+<a name="l00695"></a>00695 
+<a name="l00699"></a><a class="code" href="sip_xtapi_events_8h.html#64dcc0a8fa483fa3dbec3cf3c1d16907">00699</a> <span class="keyword">typedef</span> <span class="keyword">enum</span>
+<a name="l00700"></a>00700 {
+<a name="l00701"></a>00701     <a class="code" href="sip_xtapi_events_8h.html#64dcc0a8fa483fa3dbec3cf3c1d16907f093b4e5d5bcf9e85c0a9b31cffb5074">SUBSCRIPTION_CAUSE_UNKNOWN</a> = -1, 
+<a name="l00702"></a><a class="code" href="sip_xtapi_events_8h.html#64dcc0a8fa483fa3dbec3cf3c1d16907e75fcf5bd3b39e8cf0e8190f3521d761">00702</a>     <a class="code" href="sip_xtapi_events_8h.html#64dcc0a8fa483fa3dbec3cf3c1d16907e75fcf5bd3b39e8cf0e8190f3521d761">SUBSCRIPTION_CAUSE_NORMAL</a>     
+<a name="l00703"></a>00703 } <a class="code" href="sip_xtapi_events_8h.html#64dcc0a8fa483fa3dbec3cf3c1d16907">SIPX_SUBSCRIPTION_CAUSE</a>;
+<a name="l00704"></a>00704 
+<a name="l00716"></a><a class="code" href="struct_s_i_p_x___s_u_b_s_t_a_t_u_s___i_n_f_o.html">00716</a> <span class="keyword">typedef</span> <span class="keyword">struct </span>
+<a name="l00717"></a>00717 <span class="keyword"></span>{
+<a name="l00718"></a><a class="code" href="struct_s_i_p_x___s_u_b_s_t_a_t_u_s___i_n_f_o.html#ed5ef5d4db33c56e15cf7a0888f23d42">00718</a>     size_t nSize ;                      
+<a name="l00719"></a><a class="code" href="struct_s_i_p_x___s_u_b_s_t_a_t_u_s___i_n_f_o.html#c434da67e133ede2aadbcf0ecaba9f79">00719</a>     <a class="code" href="sip_xtapi_8h.html#e23dd007679308a06edd907e47f937d9">SIPX_SUB</a> hSub ;                     
+<a name="l00721"></a><a class="code" href="struct_s_i_p_x___s_u_b_s_t_a_t_u_s___i_n_f_o.html#83e7bf453cdb3b0ba4a526806ef755a2">00721</a>     <a class="code" href="sip_xtapi_events_8h.html#af205cf99a4a80f4c915be081f8a9fa2">SIPX_SUBSCRIPTION_STATE</a> state ;     
+<a name="l00723"></a><a class="code" href="struct_s_i_p_x___s_u_b_s_t_a_t_u_s___i_n_f_o.html#89228504b4402ca771d03cba8e4dc84e">00723</a>     <a class="code" href="sip_xtapi_events_8h.html#64dcc0a8fa483fa3dbec3cf3c1d16907">SIPX_SUBSCRIPTION_CAUSE</a> cause;      
+<a name="l00725"></a><a class="code" href="struct_s_i_p_x___s_u_b_s_t_a_t_u_s___i_n_f_o.html#879143c5b2ab500ec3d1fadbad499953">00725</a>     <span class="keyword">const</span> <span class="keywordtype">char</span>* szSubServerUserAgent;   
+<a name="l00728"></a>00728 } <a class="code" href="struct_s_i_p_x___s_u_b_s_t_a_t_u_s___i_n_f_o.html">SIPX_SUBSTATUS_INFO</a> ;
+<a name="l00729"></a>00729 
 <a name="l00730"></a>00730 
-<a name="l00731"></a>00731 
-<a name="l00743"></a><a class="code" href="struct_s_i_p_x___n_o_t_i_f_y___i_n_f_o.html">00743</a> <span class="keyword">typedef</span> <span class="keyword">struct </span>
-<a name="l00744"></a>00744 <span class="keyword"></span>{
-<a name="l00745"></a><a class="code" href="struct_s_i_p_x___n_o_t_i_f_y___i_n_f_o.html#93dd2a066431ba4ba209806b3702653c">00745</a>     size_t      nSize ;             
-<a name="l00746"></a><a class="code" href="struct_s_i_p_x___n_o_t_i_f_y___i_n_f_o.html#03f6c17d083e6c265934d13d1c96a0ee">00746</a>     <a class="code" href="sip_xtapi_8h.html#e23dd007679308a06edd907e47f937d9">SIPX_SUB</a>    hSub ;              
-<a name="l00748"></a><a class="code" href="struct_s_i_p_x___n_o_t_i_f_y___i_n_f_o.html#55879fe3cacbfb4224f2fc3b9a3dcd3f">00748</a>     <span class="keyword">const</span> <span class="keywordtype">char</span>* szNotiferUserAgent; 
-<a name="l00750"></a><a class="code" href="struct_s_i_p_x___n_o_t_i_f_y___i_n_f_o.html#a01defeab114cdad8dd806995848d057">00750</a>     <span class="keyword">const</span> <span class="keywordtype">char</span>* szContentType ;     
-<a name="l00751"></a><a class="code" href="struct_s_i_p_x___n_o_t_i_f_y___i_n_f_o.html#7672f898435db4246eeb128cc9db8433">00751</a>     <span class="keyword">const</span> <span class="keywordtype">void</span>* pContent ;          
-<a name="l00752"></a><a class="code" href="struct_s_i_p_x___n_o_t_i_f_y___i_n_f_o.html#b556738b4a1df99edb1b634c22e7326b">00752</a>     size_t      nContentLength ;    
-<a name="l00753"></a>00753 } <a class="code" href="struct_s_i_p_x___n_o_t_i_f_y___i_n_f_o.html">SIPX_NOTIFY_INFO</a> ;
+<a name="l00742"></a><a class="code" href="struct_s_i_p_x___n_o_t_i_f_y___i_n_f_o.html">00742</a> <span class="keyword">typedef</span> <span class="keyword">struct </span>
+<a name="l00743"></a>00743 <span class="keyword"></span>{
+<a name="l00744"></a><a class="code" href="struct_s_i_p_x___n_o_t_i_f_y___i_n_f_o.html#93dd2a066431ba4ba209806b3702653c">00744</a>     size_t      nSize ;             
+<a name="l00745"></a><a class="code" href="struct_s_i_p_x___n_o_t_i_f_y___i_n_f_o.html#03f6c17d083e6c265934d13d1c96a0ee">00745</a>     <a class="code" href="sip_xtapi_8h.html#e23dd007679308a06edd907e47f937d9">SIPX_SUB</a>    hSub ;              
+<a name="l00747"></a><a class="code" href="struct_s_i_p_x___n_o_t_i_f_y___i_n_f_o.html#55879fe3cacbfb4224f2fc3b9a3dcd3f">00747</a>     <span class="keyword">const</span> <span class="keywordtype">char</span>* szNotiferUserAgent; 
+<a name="l00749"></a><a class="code" href="struct_s_i_p_x___n_o_t_i_f_y___i_n_f_o.html#a01defeab114cdad8dd806995848d057">00749</a>     <span class="keyword">const</span> <span class="keywordtype">char</span>* szContentType ;     
+<a name="l00750"></a><a class="code" href="struct_s_i_p_x___n_o_t_i_f_y___i_n_f_o.html#7672f898435db4246eeb128cc9db8433">00750</a>     <span class="keyword">const</span> <span class="keywordtype">void</span>* pContent ;          
+<a name="l00751"></a><a class="code" href="struct_s_i_p_x___n_o_t_i_f_y___i_n_f_o.html#b556738b4a1df99edb1b634c22e7326b">00751</a>     size_t      nContentLength ;    
+<a name="l00752"></a>00752 } <a class="code" href="struct_s_i_p_x___n_o_t_i_f_y___i_n_f_o.html">SIPX_NOTIFY_INFO</a> ;
+<a name="l00753"></a>00753 
 <a name="l00754"></a>00754 
-<a name="l00755"></a>00755 
-<a name="l00769"></a><a class="code" href="struct_s_i_p_x___c_o_n_f_i_g___i_n_f_o.html">00769</a> <span class="keyword">typedef</span> <span class="keyword">struct</span>
-<a name="l00770"></a>00770 <span class="keyword"></span>{
-<a name="l00771"></a><a class="code" href="struct_s_i_p_x___c_o_n_f_i_g___i_n_f_o.html#4becfd1948ba269b99d154d33040db1e">00771</a>     size_t            nSize ;   
-<a name="l00772"></a><a class="code" href="struct_s_i_p_x___c_o_n_f_i_g___i_n_f_o.html#061751bb3a16bbfb16fb85c93410b1c0">00772</a>     <a class="code" href="sip_xtapi_events_8h.html#1c3359b48bd1b785a1fcf7d85fc68ae0">SIPX_CONFIG_EVENT</a> event ;   
-<a name="l00774"></a><a class="code" href="struct_s_i_p_x___c_o_n_f_i_g___i_n_f_o.html#a1f9d9c826ba02a8ca47f5c41e6fa152">00774</a>     <span class="keywordtype">void</span>*             pData;    
-<a name="l00776"></a>00776 } <a class="code" href="struct_s_i_p_x___c_o_n_f_i_g___i_n_f_o.html">SIPX_CONFIG_INFO</a> ;
-<a name="l00777"></a>00777                           
-<a name="l00778"></a>00778 
-<a name="l00790"></a><a class="code" href="struct_s_i_p_x___s_e_c_u_r_i_t_y___i_n_f_o.html">00790</a> <span class="keyword">typedef</span> <span class="keyword">struct</span>
-<a name="l00791"></a>00791 <span class="keyword"></span>{
-<a name="l00792"></a><a class="code" href="struct_s_i_p_x___s_e_c_u_r_i_t_y___i_n_f_o.html#ffb8935137b43a43ab7084752e997106">00792</a>     size_t              nSize ;             
-<a name="l00793"></a><a class="code" href="struct_s_i_p_x___s_e_c_u_r_i_t_y___i_n_f_o.html#6cd9067dcd6c90385fb4eb0d697fe3df">00793</a>     <span class="keywordtype">char</span>*               szSRTPkey;          
-<a name="l00794"></a><a class="code" href="struct_s_i_p_x___s_e_c_u_r_i_t_y___i_n_f_o.html#6d41e017930633f67fb047829af7a1c4">00794</a>     <span class="keywordtype">void</span>*               pCertificate;       
-<a name="l00796"></a><a class="code" href="struct_s_i_p_x___s_e_c_u_r_i_t_y___i_n_f_o.html#28e99bc8ae166f05a32946099096991c">00796</a>     <span class="keywordtype">int</span>                 nCertificateSize;   
-<a name="l00797"></a><a class="code" href="struct_s_i_p_x___s_e_c_u_r_i_t_y___i_n_f_o.html#9f81838a27bce79548e68e68f6415e92">00797</a>     <a class="code" href="sip_xtapi_events_8h.html#d9fdc2bd96875464ab3c8d5e34fb803a">SIPX_SECURITY_EVENT</a> event;              
-<a name="l00798"></a><a class="code" href="struct_s_i_p_x___s_e_c_u_r_i_t_y___i_n_f_o.html#2328f00b176450c84e2c5b053a0c8a89">00798</a>     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4">SIPX_SECURITY_CAUSE</a> cause;              
-<a name="l00799"></a><a class="code" href="struct_s_i_p_x___s_e_c_u_r_i_t_y___i_n_f_o.html#f6212e8850a0ab836f3496fd8183aa69">00799</a>     <span class="keywordtype">char</span>*               szSubjAltName;      
-<a name="l00800"></a><a class="code" href="struct_s_i_p_x___s_e_c_u_r_i_t_y___i_n_f_o.html#159da4a87a2e9cba2af3c9465dc1554e">00800</a>     <span class="keywordtype">char</span>*               callId;             
-<a name="l00802"></a><a class="code" href="struct_s_i_p_x___s_e_c_u_r_i_t_y___i_n_f_o.html#f64b3a7dda7efadfd7569253e791ed1d">00802</a>     <a class="code" href="sip_xtapi_8h.html#d57dfd35f371dd289e4600cdc4504290">SIPX_CALL</a>           hCall;              
-<a name="l00804"></a><a class="code" href="struct_s_i_p_x___s_e_c_u_r_i_t_y___i_n_f_o.html#8db5973d0c750c60c3c1e6001f475a2a">00804</a>     <span class="keywordtype">char</span>*               remoteAddress;      
-<a name="l00805"></a>00805 } <a class="code" href="struct_s_i_p_x___s_e_c_u_r_i_t_y___i_n_f_o.html">SIPX_SECURITY_INFO</a> ;
+<a name="l00768"></a><a class="code" href="struct_s_i_p_x___c_o_n_f_i_g___i_n_f_o.html">00768</a> <span class="keyword">typedef</span> <span class="keyword">struct</span>
+<a name="l00769"></a>00769 <span class="keyword"></span>{
+<a name="l00770"></a><a class="code" href="struct_s_i_p_x___c_o_n_f_i_g___i_n_f_o.html#4becfd1948ba269b99d154d33040db1e">00770</a>     size_t            nSize ;   
+<a name="l00771"></a><a class="code" href="struct_s_i_p_x___c_o_n_f_i_g___i_n_f_o.html#061751bb3a16bbfb16fb85c93410b1c0">00771</a>     <a class="code" href="sip_xtapi_events_8h.html#1c3359b48bd1b785a1fcf7d85fc68ae0">SIPX_CONFIG_EVENT</a> event ;   
+<a name="l00773"></a><a class="code" href="struct_s_i_p_x___c_o_n_f_i_g___i_n_f_o.html#a1f9d9c826ba02a8ca47f5c41e6fa152">00773</a>     <span class="keywordtype">void</span>*             pData;    
+<a name="l00775"></a>00775 } <a class="code" href="struct_s_i_p_x___c_o_n_f_i_g___i_n_f_o.html">SIPX_CONFIG_INFO</a> ;
+<a name="l00776"></a>00776                           
+<a name="l00777"></a>00777 
+<a name="l00789"></a><a class="code" href="struct_s_i_p_x___s_e_c_u_r_i_t_y___i_n_f_o.html">00789</a> <span class="keyword">typedef</span> <span class="keyword">struct</span>
+<a name="l00790"></a>00790 <span class="keyword"></span>{
+<a name="l00791"></a><a class="code" href="struct_s_i_p_x___s_e_c_u_r_i_t_y___i_n_f_o.html#ffb8935137b43a43ab7084752e997106">00791</a>     size_t              nSize ;             
+<a name="l00792"></a><a class="code" href="struct_s_i_p_x___s_e_c_u_r_i_t_y___i_n_f_o.html#6cd9067dcd6c90385fb4eb0d697fe3df">00792</a>     <span class="keywordtype">char</span>*               szSRTPkey;          
+<a name="l00793"></a><a class="code" href="struct_s_i_p_x___s_e_c_u_r_i_t_y___i_n_f_o.html#6d41e017930633f67fb047829af7a1c4">00793</a>     <span class="keywordtype">void</span>*               pCertificate;       
+<a name="l00795"></a><a class="code" href="struct_s_i_p_x___s_e_c_u_r_i_t_y___i_n_f_o.html#28e99bc8ae166f05a32946099096991c">00795</a>     <span class="keywordtype">int</span>                 nCertificateSize;   
+<a name="l00796"></a><a class="code" href="struct_s_i_p_x___s_e_c_u_r_i_t_y___i_n_f_o.html#9f81838a27bce79548e68e68f6415e92">00796</a>     <a class="code" href="sip_xtapi_events_8h.html#d9fdc2bd96875464ab3c8d5e34fb803a">SIPX_SECURITY_EVENT</a> event;              
+<a name="l00797"></a><a class="code" href="struct_s_i_p_x___s_e_c_u_r_i_t_y___i_n_f_o.html#2328f00b176450c84e2c5b053a0c8a89">00797</a>     <a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4">SIPX_SECURITY_CAUSE</a> cause;              
+<a name="l00798"></a><a class="code" href="struct_s_i_p_x___s_e_c_u_r_i_t_y___i_n_f_o.html#f6212e8850a0ab836f3496fd8183aa69">00798</a>     <span class="keywordtype">char</span>*               szSubjAltName;      
+<a name="l00799"></a><a class="code" href="struct_s_i_p_x___s_e_c_u_r_i_t_y___i_n_f_o.html#159da4a87a2e9cba2af3c9465dc1554e">00799</a>     <span class="keywordtype">char</span>*               callId;             
+<a name="l00801"></a><a class="code" href="struct_s_i_p_x___s_e_c_u_r_i_t_y___i_n_f_o.html#f64b3a7dda7efadfd7569253e791ed1d">00801</a>     <a class="code" href="sip_xtapi_8h.html#d57dfd35f371dd289e4600cdc4504290">SIPX_CALL</a>           hCall;              
+<a name="l00803"></a><a class="code" href="struct_s_i_p_x___s_e_c_u_r_i_t_y___i_n_f_o.html#8db5973d0c750c60c3c1e6001f475a2a">00803</a>     <span class="keywordtype">char</span>*               remoteAddress;      
+<a name="l00804"></a>00804 } <a class="code" href="struct_s_i_p_x___s_e_c_u_r_i_t_y___i_n_f_o.html">SIPX_SECURITY_INFO</a> ;
+<a name="l00805"></a>00805 
 <a name="l00806"></a>00806 
-<a name="l00807"></a>00807 
-<a name="l00808"></a>00808 <span class="comment">/* ============================ FUNCTIONS ================================= */</span>
-<a name="l00809"></a>00809 
-<a name="l00822"></a>00822 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_events_8h.html#0de70c694a55d9a8b4551e3014460856">sipxDuplicateEvent</a>(<a class="code" href="sip_xtapi_events_8h.html#9af24b60ca3d9db0ddb0bd9b7ae6f980">SIPX_EVENT_CATEGORY</a> category, 
-<a name="l00823"></a>00823                                             <span class="keyword">const</span> <span class="keywordtype">void</span>*         pEventSource, 
-<a name="l00824"></a>00824                                             <span class="keywordtype">void</span>**              pEventCopy) ;
+<a name="l00807"></a>00807 <span class="comment">/* ============================ FUNCTIONS ================================= */</span>
+<a name="l00808"></a>00808 
+<a name="l00821"></a>00821 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_events_8h.html#0de70c694a55d9a8b4551e3014460856">sipxDuplicateEvent</a>(<a class="code" href="sip_xtapi_events_8h.html#9af24b60ca3d9db0ddb0bd9b7ae6f980">SIPX_EVENT_CATEGORY</a> category, 
+<a name="l00822"></a>00822                                             <span class="keyword">const</span> <span class="keywordtype">void</span>*         pEventSource, 
+<a name="l00823"></a>00823                                             <span class="keywordtype">void</span>**              pEventCopy) ;
+<a name="l00824"></a>00824 
 <a name="l00825"></a>00825 
-<a name="l00826"></a>00826 
-<a name="l00834"></a>00834 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_events_8h.html#2979e48cbafabeb21d24f55642f4657a">sipxFreeDuplicatedEvent</a>(<a class="code" href="sip_xtapi_events_8h.html#9af24b60ca3d9db0ddb0bd9b7ae6f980">SIPX_EVENT_CATEGORY</a> category, 
-<a name="l00835"></a>00835                                                  <span class="keywordtype">void</span>*               pEventCopy) ;
-<a name="l00836"></a>00836 
-<a name="l00844"></a>00844 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_events_8h.html#15258b3308d51b1b1f5b181e776589e4">sipxEventListenerAdd</a>(<span class="keyword">const</span> <a class="code" href="sip_xtapi_8h.html#338b507421c789dda3c552458230161c">SIPX_INST</a> hInst,
-<a name="l00845"></a>00845                                              <a class="code" href="sip_xtapi_events_8h.html#774711345365e5b043e029e43551a320">SIPX_EVENT_CALLBACK_PROC</a> pCallbackProc,
-<a name="l00846"></a>00846                                              <span class="keywordtype">void</span> *pUserData);
-<a name="l00847"></a>00847                                              
-<a name="l00856"></a>00856 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_events_8h.html#009c0d2c345630cb6d0bffed561943a2">sipxEventListenerRemove</a>(<span class="keyword">const</span> <a class="code" href="sip_xtapi_8h.html#338b507421c789dda3c552458230161c">SIPX_INST</a> hInst, 
-<a name="l00857"></a>00857                                                  <a class="code" href="sip_xtapi_events_8h.html#774711345365e5b043e029e43551a320">SIPX_EVENT_CALLBACK_PROC</a> pCallbackProc, 
-<a name="l00858"></a>00858                                                  <span class="keywordtype">void</span>* pUserData) ;
-<a name="l00859"></a>00859 
-<a name="l00860"></a>00860 <span class="comment">/* ============================ FUNCTIONS ================================= */</span>
-<a name="l00861"></a>00861 
-<a name="l00871"></a>00871 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <span class="keywordtype">char</span>* <a class="code" href="sip_xtapi_events_8h.html#399584d148303a5252902e7ca177728b">sipxCallEventToString</a>(<a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f9">SIPX_CALLSTATE_EVENT</a> event,
-<a name="l00872"></a>00872                                          <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4">SIPX_CALLSTATE_CAUSE</a> cause,
-<a name="l00873"></a>00873                                          <span class="keywordtype">char</span>*  szBuffer,
-<a name="l00874"></a>00874                                          size_t nBuffer) ;
+<a name="l00833"></a>00833 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_events_8h.html#2979e48cbafabeb21d24f55642f4657a">sipxFreeDuplicatedEvent</a>(<a class="code" href="sip_xtapi_events_8h.html#9af24b60ca3d9db0ddb0bd9b7ae6f980">SIPX_EVENT_CATEGORY</a> category, 
+<a name="l00834"></a>00834                                                  <span class="keywordtype">void</span>*               pEventCopy) ;
+<a name="l00835"></a>00835 
+<a name="l00843"></a>00843 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_events_8h.html#15258b3308d51b1b1f5b181e776589e4">sipxEventListenerAdd</a>(<span class="keyword">const</span> <a class="code" href="sip_xtapi_8h.html#338b507421c789dda3c552458230161c">SIPX_INST</a> hInst,
+<a name="l00844"></a>00844                                              <a class="code" href="sip_xtapi_events_8h.html#774711345365e5b043e029e43551a320">SIPX_EVENT_CALLBACK_PROC</a> pCallbackProc,
+<a name="l00845"></a>00845                                              <span class="keywordtype">void</span> *pUserData);
+<a name="l00846"></a>00846                                              
+<a name="l00855"></a>00855 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <a class="code" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> <a class="code" href="sip_xtapi_events_8h.html#009c0d2c345630cb6d0bffed561943a2">sipxEventListenerRemove</a>(<span class="keyword">const</span> <a class="code" href="sip_xtapi_8h.html#338b507421c789dda3c552458230161c">SIPX_INST</a> hInst, 
+<a name="l00856"></a>00856                                                  <a class="code" href="sip_xtapi_events_8h.html#774711345365e5b043e029e43551a320">SIPX_EVENT_CALLBACK_PROC</a> pCallbackProc, 
+<a name="l00857"></a>00857                                                  <span class="keywordtype">void</span>* pUserData) ;
+<a name="l00858"></a>00858 
+<a name="l00859"></a>00859 <span class="comment">/* ============================ FUNCTIONS ================================= */</span>
+<a name="l00860"></a>00860 
+<a name="l00870"></a>00870 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <span class="keywordtype">char</span>* <a class="code" href="sip_xtapi_events_8h.html#399584d148303a5252902e7ca177728b">sipxCallEventToString</a>(<a class="code" href="sip_xtapi_events_8h.html#2d915f69523566965cc0df15970eb0f9">SIPX_CALLSTATE_EVENT</a> event,
+<a name="l00871"></a>00871                                          <a class="code" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4">SIPX_CALLSTATE_CAUSE</a> cause,
+<a name="l00872"></a>00872                                          <span class="keywordtype">char</span>*  szBuffer,
+<a name="l00873"></a>00873                                          size_t nBuffer) ;
+<a name="l00874"></a>00874 
 <a name="l00875"></a>00875 
-<a name="l00876"></a>00876 
-<a name="l00886"></a>00886 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <span class="keywordtype">char</span>* <a class="code" href="sip_xtapi_events_8h.html#ca11f8ac6540b34b908b249ac2343ed0">sipxEventToString</a>(<span class="keyword">const</span> <a class="code" href="sip_xtapi_events_8h.html#9af24b60ca3d9db0ddb0bd9b7ae6f980">SIPX_EVENT_CATEGORY</a> category,
-<a name="l00887"></a>00887                                      <span class="keyword">const</span> <span class="keywordtype">void</span>* pEvent,
-<a name="l00888"></a>00888                                      <span class="keywordtype">char</span>*  szBuffer,
-<a name="l00889"></a>00889                                      size_t nBuffer);
-<a name="l00890"></a>00890 
-<a name="l00901"></a>00901 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <span class="keywordtype">char</span>* <a class="code" href="sip_xtapi_events_8h.html#3227aac44252a81d60f34439a66ed8a9">sipxLineEventToString</a>(<a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a">SIPX_LINESTATE_EVENT</a> event,
-<a name="l00902"></a>00902                                          <a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c3">SIPX_LINESTATE_CAUSE</a> cause,
-<a name="l00903"></a>00903                                          <span class="keywordtype">char</span>*  szBuffer,
-<a name="l00904"></a>00904                                          size_t nBuffer);
-<a name="l00905"></a>00905  
-<a name="l00906"></a>00906 
-<a name="l00915"></a>00915 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <span class="keywordtype">char</span>* <a class="code" href="sip_xtapi_events_8h.html#66892789158c44b0f1ddf28ee0f31cd7">sipxConfigEventToString</a>(<a class="code" href="sip_xtapi_events_8h.html#1c3359b48bd1b785a1fcf7d85fc68ae0">SIPX_CONFIG_EVENT</a> event, 
-<a name="l00916"></a>00916                                            <span class="keywordtype">char</span>* szBuffer, 
-<a name="l00917"></a>00917                                            size_t nBuffer) ;
-<a name="l00918"></a>00918 
-<a name="l00927"></a>00927 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <span class="keywordtype">char</span>* <a class="code" href="sip_xtapi_events_8h.html#9e11fb6ae81c43709b83a5606e185715">sipxSubStatusStateToString</a>(<a class="code" href="sip_xtapi_events_8h.html#af205cf99a4a80f4c915be081f8a9fa2">SIPX_SUBSCRIPTION_STATE</a> state, 
-<a name="l00928"></a>00928                                             <span class="keywordtype">char</span>* szBuffer, 
-<a name="l00929"></a>00929                                             size_t nBuffer) ; 
-<a name="l00930"></a>00930                                             
-<a name="l00939"></a>00939 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <span class="keywordtype">char</span>* <a class="code" href="sip_xtapi_events_8h.html#66a46dc8505e23dc7e8d0fe5e7afb95a">sipxSubStatusCauseToString</a>(<a class="code" href="sip_xtapi_events_8h.html#64dcc0a8fa483fa3dbec3cf3c1d16907">SIPX_SUBSCRIPTION_CAUSE</a> cause, 
-<a name="l00940"></a>00940                                             <span class="keywordtype">char</span>* szBuffer, 
-<a name="l00941"></a>00941                                             size_t nBuffer) ; 
-<a name="l00942"></a>00942 
-<a name="l00951"></a>00951 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <span class="keywordtype">char</span>* <a class="code" href="sip_xtapi_events_8h.html#db90fc066d4eb8f618d8514f43fe4653">sipxSecurityEventToString</a>(<a class="code" href="sip_xtapi_events_8h.html#d9fdc2bd96875464ab3c8d5e34fb803a">SIPX_SECURITY_EVENT</a> event, 
-<a name="l00952"></a>00952                                            <span class="keywordtype">char</span>* szBuffer, 
-<a name="l00953"></a>00953                                            size_t nBuffer);
-<a name="l00954"></a>00954 
-<a name="l00963"></a>00963 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <span class="keywordtype">char</span>* <a class="code" href="sip_xtapi_events_8h.html#c05d8fb556b3c9a3ccfd18e2abc30345">sipxSecurityCauseToString</a>(<a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4">SIPX_SECURITY_CAUSE</a> cause, 
-<a name="l00964"></a>00964                                            <span class="keywordtype">char</span>* szBuffer, 
-<a name="l00965"></a>00965                                            size_t nBuffer);
-<a name="l00966"></a>00966                                      
-<a name="l00967"></a>00967 
-<a name="l00976"></a>00976 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <span class="keywordtype">char</span>* <a class="code" href="sip_xtapi_events_8h.html#6907b24c12717291ad539fa30edb610f">sipxMediaEventToString</a>(<a class="code" href="sip_xtapi_events_8h.html#80e44b98a28235387cf02104765962c1">SIPX_MEDIA_EVENT</a> event,
-<a name="l00977"></a>00977                                           <span class="keywordtype">char</span>* szBuffer,
-<a name="l00978"></a>00978                                           size_t nBuffer);
-<a name="l00987"></a>00987 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <span class="keywordtype">char</span>* <a class="code" href="sip_xtapi_events_8h.html#5e8fbada8621524b14300a97de902424">sipxMediaCauseToString</a>(<a class="code" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc9">SIPX_MEDIA_CAUSE</a> cause,
-<a name="l00988"></a>00988                                           <span class="keywordtype">char</span>* szBuffer,
-<a name="l00989"></a>00989                                           size_t nBuffer);
-<a name="l00990"></a>00990                                                                                     
-<a name="l00991"></a>00991 <span class="preprocessor">#endif </span><span class="comment">/* ifndef _sipXtapiEvents_h_ */</span>
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Thu Aug 3 09:01:00 2006 for SipX TAPI-like API for Call Processing by&nbsp;
+<a name="l00885"></a>00885 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <span class="keywordtype">char</span>* <a class="code" href="sip_xtapi_events_8h.html#ca11f8ac6540b34b908b249ac2343ed0">sipxEventToString</a>(<span class="keyword">const</span> <a class="code" href="sip_xtapi_events_8h.html#9af24b60ca3d9db0ddb0bd9b7ae6f980">SIPX_EVENT_CATEGORY</a> category,
+<a name="l00886"></a>00886                                      <span class="keyword">const</span> <span class="keywordtype">void</span>* pEvent,
+<a name="l00887"></a>00887                                      <span class="keywordtype">char</span>*  szBuffer,
+<a name="l00888"></a>00888                                      size_t nBuffer);
+<a name="l00889"></a>00889 
+<a name="l00900"></a>00900 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <span class="keywordtype">char</span>* <a class="code" href="sip_xtapi_events_8h.html#3227aac44252a81d60f34439a66ed8a9">sipxLineEventToString</a>(<a class="code" href="sip_xtapi_events_8h.html#e4a586230a9e20b6ac45fcace68ca26a">SIPX_LINESTATE_EVENT</a> event,
+<a name="l00901"></a>00901                                          <a class="code" href="sip_xtapi_events_8h.html#57155f28b16789e180ac3e3c8da228c3">SIPX_LINESTATE_CAUSE</a> cause,
+<a name="l00902"></a>00902                                          <span class="keywordtype">char</span>*  szBuffer,
+<a name="l00903"></a>00903                                          size_t nBuffer);
+<a name="l00904"></a>00904  
+<a name="l00905"></a>00905 
+<a name="l00914"></a>00914 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <span class="keywordtype">char</span>* <a class="code" href="sip_xtapi_events_8h.html#66892789158c44b0f1ddf28ee0f31cd7">sipxConfigEventToString</a>(<a class="code" href="sip_xtapi_events_8h.html#1c3359b48bd1b785a1fcf7d85fc68ae0">SIPX_CONFIG_EVENT</a> event, 
+<a name="l00915"></a>00915                                            <span class="keywordtype">char</span>* szBuffer, 
+<a name="l00916"></a>00916                                            size_t nBuffer) ;
+<a name="l00917"></a>00917 
+<a name="l00926"></a>00926 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <span class="keywordtype">char</span>* <a class="code" href="sip_xtapi_events_8h.html#9e11fb6ae81c43709b83a5606e185715">sipxSubStatusStateToString</a>(<a class="code" href="sip_xtapi_events_8h.html#af205cf99a4a80f4c915be081f8a9fa2">SIPX_SUBSCRIPTION_STATE</a> state, 
+<a name="l00927"></a>00927                                             <span class="keywordtype">char</span>* szBuffer, 
+<a name="l00928"></a>00928                                             size_t nBuffer) ; 
+<a name="l00929"></a>00929                                             
+<a name="l00938"></a>00938 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <span class="keywordtype">char</span>* <a class="code" href="sip_xtapi_events_8h.html#66a46dc8505e23dc7e8d0fe5e7afb95a">sipxSubStatusCauseToString</a>(<a class="code" href="sip_xtapi_events_8h.html#64dcc0a8fa483fa3dbec3cf3c1d16907">SIPX_SUBSCRIPTION_CAUSE</a> cause, 
+<a name="l00939"></a>00939                                             <span class="keywordtype">char</span>* szBuffer, 
+<a name="l00940"></a>00940                                             size_t nBuffer) ; 
+<a name="l00941"></a>00941 
+<a name="l00950"></a>00950 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <span class="keywordtype">char</span>* <a class="code" href="sip_xtapi_events_8h.html#db90fc066d4eb8f618d8514f43fe4653">sipxSecurityEventToString</a>(<a class="code" href="sip_xtapi_events_8h.html#d9fdc2bd96875464ab3c8d5e34fb803a">SIPX_SECURITY_EVENT</a> event, 
+<a name="l00951"></a>00951                                            <span class="keywordtype">char</span>* szBuffer, 
+<a name="l00952"></a>00952                                            size_t nBuffer);
+<a name="l00953"></a>00953 
+<a name="l00962"></a>00962 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <span class="keywordtype">char</span>* <a class="code" href="sip_xtapi_events_8h.html#c05d8fb556b3c9a3ccfd18e2abc30345">sipxSecurityCauseToString</a>(<a class="code" href="sip_xtapi_events_8h.html#dc9f86781dd8f009a98de3adb6a1fee4">SIPX_SECURITY_CAUSE</a> cause, 
+<a name="l00963"></a>00963                                            <span class="keywordtype">char</span>* szBuffer, 
+<a name="l00964"></a>00964                                            size_t nBuffer);
+<a name="l00965"></a>00965                                      
+<a name="l00966"></a>00966 
+<a name="l00975"></a>00975 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <span class="keywordtype">char</span>* <a class="code" href="sip_xtapi_events_8h.html#6907b24c12717291ad539fa30edb610f">sipxMediaEventToString</a>(<a class="code" href="sip_xtapi_events_8h.html#80e44b98a28235387cf02104765962c1">SIPX_MEDIA_EVENT</a> event,
+<a name="l00976"></a>00976                                           <span class="keywordtype">char</span>* szBuffer,
+<a name="l00977"></a>00977                                           size_t nBuffer);
+<a name="l00986"></a>00986 <a class="code" href="sip_xtapi_8h.html#59f3523cab5a74632fb7db9b6cafb1da">SIPXTAPI_API</a> <span class="keywordtype">char</span>* <a class="code" href="sip_xtapi_events_8h.html#5e8fbada8621524b14300a97de902424">sipxMediaCauseToString</a>(<a class="code" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc9">SIPX_MEDIA_CAUSE</a> cause,
+<a name="l00987"></a>00987                                           <span class="keywordtype">char</span>* szBuffer,
+<a name="l00988"></a>00988                                           size_t nBuffer);
+<a name="l00989"></a>00989                                                                                     
+<a name="l00990"></a>00990 <span class="preprocessor">#endif </span><span class="comment">/* ifndef _sipXtapiEvents_h_ */</span>
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Sat Aug 5 11:27:21 2006 for sipXtapi: SipX TAPI-like API for Call Processing by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.6-NO </small></address>
 </body>
