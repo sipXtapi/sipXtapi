@@ -825,9 +825,7 @@ SipRefreshMgr::processResponse(
     
 
     SipMessage* responseCopy = new SipMessage(*response);
-    UtlBoolean sendEventToUpperlayer = FALSE;
-
-    removeAllFromRequestList(response);
+    UtlBoolean sendEventToUpperlayer = FALSE;    
 
     UtlString method;
     requestCopy->getRequestMethod( &method) ;
@@ -846,10 +844,12 @@ SipRefreshMgr::processResponse(
                     (responseCode < SIP_3XX_CLASS_CODE) ) )
         {
             // Success Class response 2XX
+            removeAllFromRequestList(response);
             processOKResponse(responseCopy, requestCopy );
         }
         else  // failure case 
         {
+            removeAllFromRequestList(response);
             // unregister/unsubscribe?
             if ( isExpiresZero(requestCopy) )
             {
