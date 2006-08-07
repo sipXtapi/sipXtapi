@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 
 import junit.framework.TestCase;
 
-import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.test.Creator;
 import org.easymock.EasyMock;
@@ -49,10 +48,10 @@ public class SelectRuleTypeTest extends TestCase {
         IRequestCycle cycle = cycleControl.createMock(IRequestCycle.class);
         cycle.getPage(pageName);
         cycleControl.andReturn(page);
+        cycle.activate(page);
         cycleControl.replay();
 
-        IPage nextPage = m_selectRuleType.next(cycle);
-        assertSame(nextPage, page);
+        m_selectRuleType.activateNewRulePage(cycle);
 
         assertNull(page.getRuleId());
 

@@ -82,6 +82,9 @@
     <property name="externalLen" value="7" />
   </bean>
 
+  <bean id="defaultCustomRule" class="org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule"
+    singleton="false" />
+
   <bean id="defaultDialPlan" class="org.sipfoundry.sipxconfig.admin.dialplan.DialPlan"
     singleton="false">
     <property name="rules">

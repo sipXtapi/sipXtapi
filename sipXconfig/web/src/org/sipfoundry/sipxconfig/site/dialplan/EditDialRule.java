@@ -29,8 +29,6 @@ import org.sipfoundry.sipxconfig.common.Permission;
  */
 public abstract class EditDialRule extends BasePage implements PageBeginRenderListener {
 
-    private DialingRuleType m_ruleType;
-
     public abstract DialPlanContext getDialPlanContext();
 
     public abstract Integer getRuleId();
@@ -49,23 +47,22 @@ public abstract class EditDialRule extends BasePage implements PageBeginRenderLi
         return Permission.CALL_HANDLING.getChildren();
     }
 
-    public DialingRuleType getRuleType() {
-        return m_ruleType;
-    }
+    public abstract DialingRuleType getRuleType();
 
-    public void setRuleType(DialingRuleType dialingType) {
-        m_ruleType = dialingType;
-    }
+    public abstract void setRuleType(DialingRuleType dialingType);
 
     public void pageBeginRender(PageEvent event_) {
         DialingRule rule = getRule();
         if (null != rule) {
+            // FIXME: in custom rules: rule is persitent but rule type not...
+            setRuleType(rule.getType());
             return;
         }
         Integer id = getRuleId();
         if (null != id) {
             DialPlanContext manager = getDialPlanContext();
             rule = manager.getRule(id);
+            setRuleType(rule.getType());
         } else {
             rule = createNewRule();
         }

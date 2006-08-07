@@ -11,40 +11,57 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 
 /**
- * DialingRuleFactory
- * TODO: we should be able to use spring for that...
+ * DialingRuleFactory TODO: we should be able to use spring for that...
  */
-public class DialingRuleFactory {
-    private static final Map PROTOTYPES = new HashMap();
+public class DialingRuleFactory implements BeanFactoryAware {
+    private static final Map<DialingRuleType, String> PROTOTYPES = new HashMap<DialingRuleType, String>();
+    private BeanFactory m_beanFactory;
 
     static {
-        PROTOTYPES.put(DialingRuleType.CUSTOM, new CustomDialingRule());
-        PROTOTYPES.put(DialingRuleType.INTERNAL, new InternalRule());
-        PROTOTYPES.put(DialingRuleType.LONG_DISTANCE, new LongDistanceRule());
-        PROTOTYPES.put(DialingRuleType.LOCAL, new LocalRule());
-        PROTOTYPES.put(DialingRuleType.EMERGENCY, new EmergencyRule());
-        PROTOTYPES.put(DialingRuleType.INTERNATIONAL, new InternationalRule());
-        PROTOTYPES.put(DialingRuleType.ATTENDANT, new AttendantRule());
+        PROTOTYPES.put(DialingRuleType.CUSTOM, "defaultCustomRule");
+        PROTOTYPES.put(DialingRuleType.INTERNAL, "defaultInternalRule");
+        PROTOTYPES.put(DialingRuleType.LONG_DISTANCE, "defaultLongDistanceRule");
+        PROTOTYPES.put(DialingRuleType.LOCAL, "defaultLocalRule");
+        PROTOTYPES.put(DialingRuleType.EMERGENCY, "defaultEmergencyRule");
+        PROTOTYPES.put(DialingRuleType.INTERNATIONAL, "defaultInternationalRule");
+        PROTOTYPES.put(DialingRuleType.ATTENDANT, "defaultAttendantRule");
     }
 
     /**
-     * Constructs dialing rule by cloning prototypes.
+     * Constructs dialing rule from prototypes defined in Spring configuration file.
      * 
      * Throws illegal argument exception if invalid or unregistered type is passed.
+     * 
      * @param type dialing rule type
      * @return newly created object
      */
     public DialingRule create(DialingRuleType type) {
-        BeanWithId proto = (BeanWithId) PROTOTYPES.get(type);
-        if (null == proto) {
+        String beanId = PROTOTYPES.get(type);
+        if (null == beanId) {
             throw new IllegalArgumentException("Illegal Dialing rule type: " + type);
         }
-        return (DialingRule) proto.duplicate();
+        DialingRule rule = (DialingRule) m_beanFactory.getBean(beanId, DialingRule.class);
+        // reset new rule - we do not want to suggest invalid values for name, description etc.
+        rule.setEnabled(false);
+        rule.setDescription(StringUtils.EMPTY);
+        rule.setName(StringUtils.EMPTY);
+        return rule;
+    }
+
+    public Collection<DialingRuleType> getTypes() {
+        return PROTOTYPES.keySet();
+    }
+
+    public void setBeanFactory(BeanFactory beanFactory) {
+        m_beanFactory = beanFactory;
     }
 }

@@ -27,7 +27,7 @@
   </bean>
   <bean name="phoneSelectionModel" class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator">
     <set name="model" value="bean:rawPhoneSelectionModel"/>
-    <set name="extraLabel" value="literal:Add new phone..."/>
+    <set name="extraLabel" value="message:label.addNewPhone"/>
     <set name="extraOption" value="null"/>
   </bean>
   <!--

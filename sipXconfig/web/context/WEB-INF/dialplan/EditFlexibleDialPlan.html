@@ -1,59 +1,48 @@
-<html title="Dial Plans Configuration">
-  <head>
-    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
-  </head>
-  <body jwcid="$content$">
-    <div jwcid="@Border">
-      <h2>Dial Plans</h2>
-      <div class="help">        
-        <p>Dial plans consist of various types of dial rules. You can configure dial plans by adding, removing, editing, or reordering
-          rules. It is possible to have more than one rule of each kind.</p>
-        <p>Rule order matters: Make sure that more specific rules precede more general rules. For example, move Long Distance rules for
-          specified area codes above the default Long Distance rule.</p>
-        <b>Quick Links</b>
-        <ul>
-          <li><a jwcid="gatewaysLink" href="#">Gateways</a>
-          </li>
-        </ul>
-      </div>
-      <ul class="component-links">
-        <li><a jwcid="addLink" id="dialplan:add" href="#">Add Dial Rules</a>
-        </li>
-      </ul>
-      <form jwcid="form" id="dialplan:list:form">
-        <table jwcid="tableView" id="dialplan:list">
-          <span jwcid="NameColumnValue">
-            <span jwcid="editRowLink">
-              <span jwcid="nameText"/>
-            </span>
-          </span>
-        </table>
-        <ul class="component-submit">
-          <li>
-            <input jwcid="duplicate" type="submit" name="" value="Duplicate"/>
-          </li>
-          <li>
-            <input type="submit" jwcid="delete" id="dialplan:delete" value="Delete"
-              onclick="return confirm('Are you sure you want to delete selected rules?')"/>
-          </li>
-          <li>
-            <input type="submit" jwcid="moveUp" id="dialplan:move:up" value="Move up"/>
-          </li>
-          <li>
-            <input type="submit" jwcid="moveDown" id="dialplan:move:down" value="Move down"/>
-          </li>
-        </ul>
-        <h3>Dial Plan Activation</h3>
-        <ul class="component-submit">
-          <li>
-            <input type="submit" jwcid="activate" id="dialplan:activate" value="Activate"/>
-          </li>
-          <li>
-            <input type="submit" jwcid="revert" id="dialplan:revert" value="Revert"
-              onclick="return confirm('Are you sure you want to discard all your changes?')"/>
-          </li>
-        </ul>
-      </form>
-    </div>
-  </body>
-</html>
+<div jwcid="@Border">
+  <h2><span key="title">Dial Plans</span></h2>
+  <div class="help">        
+    <b>Quick Links</b>
+    <ul>
+      <li><a jwcid="gatewaysLink" href="#">Gateways</a>
+      </li>
+    </ul>
+  </div>
+  <div jwcid="@QuickHelp" value="message:quick.help"/>
+  <form jwcid="form" id="dialplan:list:form">
+    <ul class="component-links">
+      <li><span jwcid="selectRuleType"/></li>
+    </ul>
+    <table jwcid="tableView" id="dialplan:list">
+      <span jwcid="nameColumnValue">
+        <span jwcid="editRowLink">
+          <span jwcid="nameText"/>
+        </span>
+      </span>
+    </table>
+    <ul class="component-submit">
+      <li>
+        <input jwcid="duplicate" type="submit"/>
+      </li>
+      <li>
+        <input type="submit" jwcid="delete" id="dialplan:delete"
+          onclick="return confirm('Are you sure you want to delete selected rules?')"/>
+      </li>
+      <li>
+        <input type="submit" jwcid="moveUp" id="dialplan:move:up"/>
+      </li>
+      <li>
+        <input type="submit" jwcid="moveDown" id="dialplan:move:down"/>
+      </li>
+    </ul>
+    <h3>Dial Plan Activation</h3>
+    <ul class="component-submit">
+      <li>
+        <input type="submit" jwcid="activate" id="dialplan:activate"/>
+      </li>
+      <li>
+        <input type="submit" jwcid="revert" id="dialplan:revert"
+          onclick="return confirm('Are you sure you want to discard all your changes?')"/>
+      </li>
+    </ul>
+  </form>
+</div>

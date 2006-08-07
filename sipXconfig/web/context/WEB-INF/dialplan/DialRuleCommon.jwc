@@ -38,7 +38,7 @@
       value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.formSubmit)" />
   </component>
   <component id="common" type="ItemCommon">
-    <binding name="item" value="rule" />
+    <inherited-binding name="item" parameter-name="rule"/>
   </component>
   <component id="formActions" type="FormActions">
     <binding name="callback" value="callback" />
@@ -47,7 +47,7 @@
   </component>
   <!-- gateways configuration -->
   <component id="gatewaysPanel" type="GatewaysPanel">
-    <binding name="rule" value="rule" />
+    <inherited-binding name="rule" parameter-name="rule"/>
     <binding name="addGatewayListener" value="listener:addGateway" />
     <binding name="selectGatewayListener" value="listener:selectGateway" />
   </component>

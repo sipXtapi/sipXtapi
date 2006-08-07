@@ -7,6 +7,7 @@
   <inject property="dialPlanContext" object="spring:dialPlanContext" />
 
   <property name="ruleId" persist="session" />
+  <property name="ruleType" persist="client" />
   <property name="rule" />
   <property name="callback" persist="session" />
 

@@ -7,8 +7,10 @@
   <inject property="dialPlanContext" object="spring:dialPlanContext" />
 
   <property name="ruleId" persist="session" />
+  <property name="ruleType" persist="client" />
+  <!-- FIXME: this needs to be persistent for now because of the patterns editor bug -->
   <property name="rule" persist="session" />
-  <property name="callback" persist="session" />
+  <property name="callback" persist="session" />  
   <!--
     - B E A N S
   -->

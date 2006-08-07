@@ -8,6 +8,7 @@
   <inject property="tapestry" object="spring:tapestry" />
 
   <property name="ruleId" persist="session" />
+  <property name="ruleType" persist="client" />
   <property name="rule" />
   <property name="callback" persist="session" />
 

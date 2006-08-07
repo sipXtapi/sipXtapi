@@ -14,7 +14,6 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IActionListener;
-import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.ICallback;
@@ -52,11 +51,6 @@ public abstract class DialRuleCommon extends BaseComponent {
     public abstract DialingRuleType getRuleType();
 
     public abstract boolean isRenderGateways();
-
-    protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
-        // placeholder - remove if not needed
-        super.renderComponent(writer, cycle);
-    }
 
     public IPage addGateway(IRequestCycle cycle) {
         EditGateway editGatewayPage = (EditGateway) cycle.getPage(EditGateway.PAGE);
@@ -130,7 +124,7 @@ public abstract class DialRuleCommon extends BaseComponent {
         if (null != action) {
             saveValid();
             // HACK: clean rule if persistent - action will take us to some other page
-            setRule(null);            
+            setRule(null);
             action.actionTriggered(panel, cycle);
         }
     }
