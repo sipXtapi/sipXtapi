@@ -114,7 +114,7 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule, Da
      * 
      * @param rules
      */
-    public void appendToGenerationRules(List rules) {
+    public void appendToGenerationRules(List<DialingRule> rules) {
         if (isEnabled()) {
             rules.add(this);
         }

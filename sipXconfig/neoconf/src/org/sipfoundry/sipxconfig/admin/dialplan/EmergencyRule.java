@@ -82,7 +82,7 @@ public class EmergencyRule extends DialingRule {
         return false;
     }
 
-    public void appendToGenerationRules(List rules) {
+    public void appendToGenerationRules(List<DialingRule> rules) {
         if (!isEnabled()) {
             return;
         }

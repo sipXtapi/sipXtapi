@@ -111,6 +111,7 @@
     <antcall target="supervisor"/>
     <antcall target="intercom"/>
     <antcall target="device-version"/>  	
+    <antcall target="long-distance-rule"/>      
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="4" -->
   </target>
@@ -138,6 +139,10 @@
     	    update phone set device_version_id = 'polycom1.6' where bean_id = 'polycom';
     </sipx-sql>  	
   	<mark-patch-applied patch="device-version"/>
+  </target>
+
+  <target name="long-distance-rule" unless="long-distance-rule">
+    <db-patch patch="long-distance-rule"/>
   </target>
 
   <target name="attendant_defaults" unless="attendant_defaults">
