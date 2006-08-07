@@ -16,11 +16,16 @@
   <!--
     - B E A N S
   -->
-  <bean name="externalLenModel" class="org.sipfoundry.sipxconfig.components.LenSelectionModel"
+  <bean name="digitsOnlyModel" class="org.sipfoundry.sipxconfig.components.LenSelectionModel"
     lifecycle="page">
     <set name="min" value="literal:5" />
     <set name="max" value="literal:15" />
   </bean>
+  <bean name="externalLenModel" class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator" lifecycle="page">
+    <set name="model" value="bean:digitsOnlyModel"/>
+    <set name="extraLabel" value="message:label.anyDigits"/>
+  </bean>
+  
   <bean name="permissionTypeModel"
     class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel" lifecycle="page">
     <set name="options" value="callHandlingPermissions" />

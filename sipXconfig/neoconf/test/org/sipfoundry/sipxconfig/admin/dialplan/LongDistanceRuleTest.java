@@ -133,11 +133,19 @@ public class LongDistanceRuleTest extends TestCase {
         assertEquals(0, list.size());
     }
 
+    public void testAnyNumberOfDigits() {
+        m_rule.setExternalLen(-1);
+        List<DialPattern> list = m_rule.calculateDialPatterns("305");
+        assertEquals(2, list.size());
+        assertEquals("91305.", list.get(0).calculatePattern());
+        assertEquals("1305.", list.get(1).calculatePattern());
+    }    
+    
     public void testCalculateCallPattern() {
         CallPattern callPattern = m_rule.calculateCallPattern("503");
         assertEquals("1503{vdigits}", callPattern.calculatePattern());
     }
-
+    
     public void testAreaCodes() {
         m_rule.setLongDistancePrefixOptional(true);
         m_rule.setAreaCodes("  305 411,222");
@@ -163,7 +171,7 @@ public class LongDistanceRuleTest extends TestCase {
             assertTrue(transform.getUser().endsWith("{vdigits}"));
             assertEquals("longdistance.gateway.com", transform.getHost());
         }
-    }
+    }        
 
     public void testTollFreeDialing() {
         m_rule.setPermission(Permission.TOLL_FREE_DIALING);

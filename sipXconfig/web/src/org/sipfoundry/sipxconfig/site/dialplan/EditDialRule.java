@@ -28,14 +28,6 @@ import org.sipfoundry.sipxconfig.common.Permission;
  * EditDialRule
  */
 public abstract class EditDialRule extends BasePage implements PageBeginRenderListener {
-    /**
-     * list of permission types allowed for long distance permission, used in permssions modle on
-     * a long distance page
-     */
-    public static final Permission[] LONG_DISTANCE_PERMISSIONS = {
-        Permission.LONG_DISTANCE_DIALING, Permission.RESTRICTED_DIALING,
-        Permission.TOLL_FREE_DIALING
-    };
 
     private DialingRuleType m_ruleType;
 

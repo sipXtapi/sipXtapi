@@ -39,8 +39,9 @@
     <property name="name" value="Long Distance" />
     <property name="description" value="Long distance dialing plan" />
     <property name="enabled" value="false" />
+    <property name="pstnPrefixOptional" value="true" />
     <property name="pstnPrefix" value="9" />
-    <property name="longDistancePrefixOptional" value="true" />
+    <property name="longDistancePrefixOptional" value="false" />
     <property name="longDistancePrefix" value="1" />
     <property name="externalLen" value="10" />
   </bean>
