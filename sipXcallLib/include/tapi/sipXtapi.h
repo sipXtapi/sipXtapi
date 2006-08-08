@@ -266,7 +266,8 @@ typedef enum SIPX_RESULT
     SIPX_RESULT_TLS_BAD_PASSWORD,     /**< The operation failed because the certificate database did not accept the password.*/
     SIPX_RESULT_TLS_TCP_IMPORT_FAILURE, /**< The operation failed because a TCP socket could not be imported by the SSL/TLS module. */
     SIPX_RESULT_NSS_FAILURE,          /**< The operation failed due to an NSS failure. */
-    SIPX_RESULT_NOT_SUPPORTED         /**< The operation is not supported in this build/configuration */
+    SIPX_RESULT_NOT_SUPPORTED,        /**< The operation is not supported in this build/configuration */
+    SIPX_RESULT_NETWORK_FAILURE       /**< The network is down or failing */
     
 } SIPX_RESULT ;
 
@@ -3363,6 +3364,8 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalContacts(const SIPX_INST hInst,
 /**
  * Populates an array of IP Addresses in char* form.  The array must be preallocated to 
  * contain MAX_IP_ADDRESSES elements.
+ *
+ * WARNING: THIS API IS DEPRECATED AND WILL CHANGE IN FUTURE REVISIONS
  *
  * @param arrAddresses Pre-allocated array to be popluated with ip addresses.
  * @param arrAddressAdapter For each record in arrAddresses, there is a corresponding record,

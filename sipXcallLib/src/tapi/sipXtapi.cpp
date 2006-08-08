@@ -291,6 +291,33 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
     // Disable Console by default
     enableConsoleOutput(false) ;
 
+#ifdef WIN32
+    // Validate Network status (need to be implemented on linux/macos)
+    const char* szAddresses[1] ;
+    const char* szAdapters[1] ;
+    int numAdapters = 1 ;
+    if (sipxConfigGetAllLocalNetworkIps(szAddresses, szAdapters, numAdapters) == SIPX_RESULT_SUCCESS)
+    {
+        if (numAdapters > 0)
+        {
+            free((void*) szAddresses[0]) ;
+            free((void*) szAdapters[0]) ;
+        }
+        else
+        {
+            OsSysLog::add(FAC_SIPXTAPI, PRI_ERR, "No network interfaces found") ;
+            return SIPX_RESULT_NETWORK_FAILURE ;
+        }
+    }
+    else
+    {
+        OsSysLog::add(FAC_SIPXTAPI, PRI_ERR, "Unable to query for network interfaces") ;
+        return SIPX_RESULT_NETWORK_FAILURE ;
+    }
+#else
+#warning "Network availability check not implemented on non-WIN32"
+#endif
+   
     SIPX_RESULT rc = SIPX_RESULT_INVALID_ARGS ;
 
 #ifdef SIPXTAPI_EVAL_EXPIRATION
@@ -390,7 +417,8 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
             pInst->pSipUserAgent->getTlsPort()) ;
 
     // Startup Line Manager  Refresh Manager
-    pInst->pLineManager->initializeRefreshMgr(pInst->pRefreshManager) ;
+    pInst->pLineManager->start() ;
+    pInst->pLineManager->initializeRefreshMgr(pInst->pRefreshManager) ;    
     pInst->pRefreshManager->init(pInst->pSipUserAgent, pInst->pSipUserAgent->getTcpPort(), pInst->pSipUserAgent->getUdpPort()) ;
     pInst->pRefreshManager->StartRefreshMgr();
 
@@ -7226,26 +7254,30 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetAllLocalNetworkIps(const char* arrAddresse
     
     const HostAdapterAddress* utlAddresses[SIPX_MAX_IP_ADDRESSES];
     
-    if (OS_SUCCESS == getAllLocalHostIps(utlAddresses, numAddresses))
+    if (getAllLocalHostIps(utlAddresses, numAddresses))
     {
         rc = SIPX_RESULT_SUCCESS;
-    }
 
-    for (int i = 0; i < numAddresses; i++)
+        for (int i = 0; i < numAddresses; i++)
+        {
+            char *szAddress = NULL;
+            char *szAdapter = NULL;        
+            szAddress = (char*)malloc(utlAddresses[i]->mAddress.length() + 1);
+            szAdapter = (char*)malloc(utlAddresses[i]->mAdapter.length() + 1);
+            strcpy(szAddress, utlAddresses[i]->mAddress.data());
+            strcpy(szAdapter, utlAddresses[i]->mAdapter.data());
+            arrAddresses[i] = szAddress;
+            arrAddressAdapter[i] = szAdapter;
+            
+            OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+                "sipxConfigGetAllLocalNetworkIps index=%d address=%s adapter=%s",
+                i, arrAddresses[i], arrAddressAdapter[i]);
+            delete utlAddresses[i];
+        }
+    }
+    else
     {
-        char *szAddress = NULL;
-        char *szAdapter = NULL;        
-        szAddress = (char*)malloc(utlAddresses[i]->mAddress.length() + 1);
-        szAdapter = (char*)malloc(utlAddresses[i]->mAdapter.length() + 1);
-        strcpy(szAddress, utlAddresses[i]->mAddress.data());
-        strcpy(szAdapter, utlAddresses[i]->mAdapter.data());
-        arrAddresses[i] = szAddress;
-        arrAddressAdapter[i] = szAdapter;
-        
-        OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-            "sipxConfigGetAllLocalNetworkIps index=%d address=%s adapter=%s",
-            i, arrAddresses[i], arrAddressAdapter[i]);
-        delete utlAddresses[i];
+        numAddresses = 0 ;
     }
     
     return rc;
