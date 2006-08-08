@@ -9,7 +9,6 @@
   -->
   <parameter name="rule" />
   <parameter name="ruleId" />
-  <parameter name="ruleType" />
   <parameter name="callback" />
   <parameter name="renderGateways" required="no" default-value="true"/>
 
@@ -29,9 +28,6 @@
     <binding name="validator" value="bean:validator" />
   </component>
 
-  <component id="title" type="InsertText">
-    <binding name="value" value="ruleType.name" />
-  </component>
   <component id="form" type="Form">
     <binding name="delegate" value="bean:validator" />
     <binding name="listener"

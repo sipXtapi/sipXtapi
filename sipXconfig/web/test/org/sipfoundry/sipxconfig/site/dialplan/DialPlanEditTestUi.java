@@ -40,20 +40,20 @@ public class DialPlanEditTestUi extends WebTestCase {
         {
             "Emergency", "false", "Emergency", "Emergency dialing plan"
         }, {
-            "International", "false", "International", "International dialing"
+            "International", "false", "Long Distance", "International dialing"
         }, {
-            "AutoAttendant", "true", "Attendant", "Default autoattendant dialing plan"
-        }, {
-            "Internal", "true", "Internal", "Default internal dialing plan"
-        }, {
-            "Local", "false", "Local", "Local dialing"
+            "Local", "false", "Long Distance", "Local dialing"
         }, {
             "Long Distance", "false", "Long Distance", "Long distance dialing plan"
         }, {
             "Restricted", "false", "Long Distance", "Restricted dialing"
         }, {
             "Toll free", "false", "Long Distance", "Toll free dialing"
-        }
+        }, {
+            "AutoAttendant", "true", "Attendant", "Default autoattendant dialing plan"
+        }, {
+            "Internal", "true", "Internal", "Default internal dialing plan"
+        },
     };
 
     public void setUp() {
@@ -136,13 +136,12 @@ public class DialPlanEditTestUi extends WebTestCase {
         for (int i = 0; i < 4; i++) {
             String name = "international" + i;
             String description = "international description" + i;
-            // 2 means custom...
             selectOption("ruleTypeSelection", "International");
 
             setFormElement("name", name);
             setFormElement("description", description);
             // dial pattern prefix
-            setFormElement("internationalPrefix", "100" + i);
+            setFormElement("longDistancePrefix", "100" + i);
 
             clickButton("form:ok");
 
@@ -165,7 +164,7 @@ public class DialPlanEditTestUi extends WebTestCase {
             clickButton("form:ok");
             SiteTestHelper.assertNoException(tester);
             SiteTestHelper.assertNoUserError(tester);
-            
+
             assertTextInTable("dialplan:list", row[2]);
             assertLinkPresentWithText(row[0]);
         }

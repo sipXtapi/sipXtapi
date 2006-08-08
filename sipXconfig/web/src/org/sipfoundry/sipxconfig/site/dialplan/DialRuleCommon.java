@@ -22,7 +22,6 @@ import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.gateway.EditGateway;
 import org.sipfoundry.sipxconfig.site.gateway.GatewaysPanel;
@@ -47,8 +46,6 @@ public abstract class DialRuleCommon extends BaseComponent {
     public abstract void setCallback(ICallback callback);
 
     public abstract RuleValidator getValidRule();
-
-    public abstract DialingRuleType getRuleType();
 
     public abstract boolean isRenderGateways();
 

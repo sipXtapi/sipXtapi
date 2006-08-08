@@ -64,20 +64,28 @@
     </property>
   </bean>
 
-  <bean id="defaultInternationalRule"
-    class="org.sipfoundry.sipxconfig.admin.dialplan.InternationalRule" singleton="false">
+  <bean id="defaultInternationalRule" parent="defaultLongDistanceRule" singleton="false">
     <property name="name" value="International" />
     <property name="description" value="International dialing" />
-    <property name="internationalPrefix" value="011" />
+    <property name="longDistancePrefix" value="011" />
+    <property name="externalLen" value="-1" />
+    <property name="permission">
+      <bean id="org.sipfoundry.sipxconfig.common.Permission.INTERNATIONAL_DIALING"
+        class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+    </property>
   </bean>
 
-  <bean id="defaultLocalRule" class="org.sipfoundry.sipxconfig.admin.dialplan.LocalRule"
-    singleton="false">
+  <bean id="defaultLocalRule" parent="defaultLongDistanceRule" singleton="false">
     <property name="name" value="Local" />
     <property name="description" value="Local dialing" />
-    <property name="enabled" value="false" />
     <property name="pstnPrefix" value="9" />
+    <property name="longDistancePrefix" value="" />
+    <property name="longDistancePrefixOptional" value="true" />
     <property name="externalLen" value="7" />
+    <property name="permission">
+      <bean id="org.sipfoundry.sipxconfig.common.Permission.LOCAL_DIALING"
+        class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+    </property>
   </bean>
 
   <bean id="defaultCustomRule" class="org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule"
@@ -89,12 +97,12 @@
       <list>
         <ref bean="defaultEmergencyRule" />
         <ref bean="defaultInternationalRule" />
-        <ref bean="defaultAttendantRule" />
-        <ref bean="defaultInternalRule" />
         <ref bean="defaultLocalRule" />
         <ref bean="defaultLongDistanceRule" />
         <ref bean="defaultRestrictedRule" />
         <ref bean="defaultTollFreeRule" />
+        <ref bean="defaultAttendantRule" />
+        <ref bean="defaultInternalRule" />
       </list>
     </property>
   </bean>
