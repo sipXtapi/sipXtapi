@@ -1,13 +1,11 @@
-include ../meta/libsrc.mak
+VER = 1.5.2
+REL = 1
 
-MOD_CPLUSPLUS_VER = 1.5.2
-MOD_CPLUSPLUS_REL = 1
+SRC = $(LIBSRC)/mod_cplusplus/mod_cplusplus-$(VER).tar.gz
 
-SRC = $(LIBSRC)/mod_cplusplus/mod_cplusplus-$(MOD_CPLUSPLUS_VER).tar.gz
+RPMS = $(DEST_RPM)/mod_cplusplus-$(VER)-$(REL).$(RPM_TARGET_ARCH).rpm
 
-RPMS = $(DEST_RPM)/mod_cplusplus-$(MOD_CPLUSPLUS_VER)-$(MOD_CPLUSPLUS_REL).$(RPM_TARGET_ARCH).rpm
-
-SRPM = $(DEST_SRPM)/mod_cplusplus-$(MOD_CPLUSPLUS_VER)-$(MOD_CPLUSPLUS_REL).src.rpm
+SRPM = $(DEST_SRPM)/mod_cplusplus-$(VER)-$(REL).src.rpm
 
 edit = sed \
 	-e 's,@APACHE2_HTTPD\@,@APACHE2_HTTPD@,g' \

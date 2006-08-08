@@ -1,4 +1,3 @@
-include ../meta/libsrc.mak
 RUBY_LIBSRC = $(LIBSRC)/ruby
 
 RUBY_VER = 1.8.4

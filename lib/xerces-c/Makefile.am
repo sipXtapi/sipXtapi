@@ -1,5 +1,3 @@
-include ../meta/libsrc.mak
-
 XERCES_C_LIBSRC=$(LIBSRC)/xerces-c
 
 VER = 2.7.0

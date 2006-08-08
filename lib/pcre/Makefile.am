@@ -1,5 +1,3 @@
-include ../meta/libsrc.mak
-
 # There are much newer versions, however PCRE is only required for stale distros
 # like RHE4 so little reason to risk upgrading IMO
 VER = 4.5

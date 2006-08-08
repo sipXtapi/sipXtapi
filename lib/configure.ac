@@ -15,13 +15,13 @@ test x$cppunit = xyes && AC_CONFIG_SUBDIRS(cppunit)
 
 AC_ARG_ENABLE(java-ibm,
 	AC_HELP_STRING([--enable-java-ibm], [Build IBM Java SDK dependency]),
-	[ java-ibm=yes ])
-test x$java-ibm = xyes && AC_CONFIG_SUBDIRS(java-ibm)
+	[ java_ibm=yes ])
+test x$java_ibm = xyes && AC_CONFIG_SUBDIRS(java-ibm)
 
 AC_ARG_ENABLE(java-sun,
 	AC_HELP_STRING([--enable-java-sun], [Build Sun Java SDK dependency]),
-	[ java-sun=yes ])
-test x$java-sun = xyes && AC_CONFIG_SUBDIRS(java-sun)
+	[ java_sun=yes ])
+test x$java_sun = xyes && AC_CONFIG_SUBDIRS(java-sun)
 
 AC_ARG_ENABLE(mod_cpluscplus,
 	AC_HELP_STRING([--enable-mod_cpluscplus], [Build mod_cplusplus dependency]),
@@ -40,28 +40,28 @@ test x$ruby = xyes && AC_CONFIG_SUBDIRS(ruby)
 
 AC_ARG_ENABLE(ruby-gems,
 	AC_HELP_STRING([--enable-ruby-gems], [Build ruby gems dependency]),
-	[ ruby-gems=yes ])
-test x$ruby-gems = xyes && AC_CONFIG_SUBDIRS(ruby-gems)
+	[ ruby_gems=yes ])
+test x$ruby_gems = xyes && AC_CONFIG_SUBDIRS(ruby-gems)
 
 AC_ARG_ENABLE(ruby-postgres,
 	AC_HELP_STRING([--enable-ruby-postgres], [Build ruby postgres dependency]),
-	[ ruby-postgres=yes ])
-test x$ruby-postgres = xyes && AC_CONFIG_SUBDIRS(ruby-postgres)
+	[ ruby_postgres=yes ])
+test x$ruby_postgres = xyes && AC_CONFIG_SUBDIRS(ruby-postgres)
 
 AC_ARG_ENABLE(ruby-rails,
 	AC_HELP_STRING([--enable-ruby-rails], [Build ruby rails dependency]),
-	[ ruby-rails=yes ])
-test x$ruby-rails = xyes && AC_CONFIG_SUBDIRS(ruby-rails)
+	[ ruby_rails=yes ])
+test x$ruby_rails = xyes && AC_CONFIG_SUBDIRS(ruby-rails)
 
 AC_ARG_ENABLE(w3c-libwww,
 	AC_HELP_STRING([--enable-w3c-libwww], [Build w3c-libwww w/ssl dependency]),
-	[ w3c-libwww=yes ])
-test x$w3c-libwww = xyes && AC_CONFIG_SUBDIRS(w3c-libwww)
+	[ w3c_libwww=yes ])
+test x$w3c_libwww = xyes && AC_CONFIG_SUBDIRS(w3c-libwww)
 
 AC_ARG_ENABLE(xerces-c,
 	AC_HELP_STRING([--enable-xerces-c], [Build xerces-c dependency]),
-	[ xerces-c=yes ])
-test x$xerces-c = xyes && AC_CONFIG_SUBDIRS(xerces-c)
+	[ xerces_c=yes ])
+test x$xerces_c = xyes && AC_CONFIG_SUBDIRS(xerces-c)
 
 SFAC_RPM_REPO
    
