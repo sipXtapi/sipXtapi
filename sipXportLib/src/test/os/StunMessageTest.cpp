@@ -4,7 +4,7 @@
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
 
-
+/*
 int main(int argc, char* argv[])
 {
     // Get the top level suite from the registry
@@ -23,6 +23,7 @@ int main(int argc, char* argv[])
     // Return error code 1 if one of the tests failed.
     return wasSuccessful ? 0 : 1 ;
 }
+*/
 
 
 CPPUNIT_TEST_SUITE_REGISTRATION( StunMessageTestSuite );
@@ -47,7 +48,6 @@ void StunMessageTestSuite::testFullEncodeParse()
     CPPUNIT_ASSERT(!msg.getChangedAddress(szString, usValue)) ;
     CPPUNIT_ASSERT(!msg.getUsername(szString)) ;
     CPPUNIT_ASSERT(!msg.getPassword(szString)) ;
-    CPPUNIT_ASSERT(!msg.getMessageIntegrity(szString)) ;
     CPPUNIT_ASSERT(!msg.getError(usValue, szString)) ;
     CPPUNIT_ASSERT(!msg.getUnknownAttributes(values, 16, size)) ;
     CPPUNIT_ASSERT(!msg.getReflectedFrom(szString, usValue)) ;
@@ -64,7 +64,6 @@ void StunMessageTestSuite::testFullEncodeParse()
     msg.setChangedAddress("10.1.1.4", 4) ;
     msg.setUsername("Username") ;
     msg.setPassword("Password") ;
-    msg.setMessageIntegrity("12345678901234567890") ;
     msg.setError(302, "Reason") ;
     msg.addUnknownAttribute(0x1234) ;
     msg.setReflectedFrom("10.1.1.5", 5) ;
@@ -106,10 +105,6 @@ void StunMessageTestSuite::testFullEncodeParse()
     bRC = msg.getPassword(szString) ;
     CPPUNIT_ASSERT(bRC) ;
     CPPUNIT_ASSERT(strcmp(szString, "Password") == 0) ;
-
-    bRC = msg.getMessageIntegrity(szString) ;
-    CPPUNIT_ASSERT(bRC) ;
-    CPPUNIT_ASSERT(strcmp(szString, "12345678901234567890") == 0) ;
 
     bRC = msg.getError(usValue, szString) ;
     CPPUNIT_ASSERT(bRC) ;
@@ -175,10 +170,6 @@ void StunMessageTestSuite::testFullEncodeParse()
             CPPUNIT_ASSERT(bRC) ;
             CPPUNIT_ASSERT(strcmp(szString, "Password") == 0) ;
 
-            bRC = msg.getMessageIntegrity(szString) ;
-            CPPUNIT_ASSERT(bRC) ;
-            CPPUNIT_ASSERT(strcmp(szString, "12345678901234567890") == 0) ;
-
             bRC = msg.getError(usValue, szString) ;
             CPPUNIT_ASSERT(bRC) ;
             CPPUNIT_ASSERT(usValue == 302) ;
@@ -188,7 +179,7 @@ void StunMessageTestSuite::testFullEncodeParse()
             CPPUNIT_ASSERT(bRC) ;
             CPPUNIT_ASSERT(size == 1) ;
             CPPUNIT_ASSERT(values[0] == 0x1234) ;
-            
+
             bRC = msg.getReflectedFrom(szString, usValue) ;
             CPPUNIT_ASSERT(bRC) ;
             CPPUNIT_ASSERT(strcmp(szString, "10.1.1.5") == 0) ;
@@ -207,4 +198,63 @@ void StunMessageTestSuite::testFullEncodeParse()
     {
         CPPUNIT_ASSERT(false) ;
     }
+}
+
+void StunMessageTestSuite::testLegacyMode() 
+{
+    StunMessage legacy(NULL, true) ;
+    StunMessage nonLegacy(NULL, false) ;
+    StunMessage responseWithLegacy(&legacy, false) ;
+    StunMessage responseWithNonLegacy(&nonLegacy, true) ;
+
+    STUN_MAGIC_ID magicId ;
+
+    legacy.getMagicId(&magicId) ;
+    CPPUNIT_ASSERT(magicId.id != STUN_MAGIC_COOKIE) ;
+
+    nonLegacy.getMagicId(&magicId) ;
+    CPPUNIT_ASSERT(magicId.id == STUN_MAGIC_COOKIE) ;
+
+    responseWithLegacy.getMagicId(&magicId) ;
+    CPPUNIT_ASSERT(magicId.id != STUN_MAGIC_COOKIE) ;
+
+    responseWithNonLegacy.getMagicId(&magicId) ;
+    CPPUNIT_ASSERT(magicId.id == STUN_MAGIC_COOKIE) ;
+}
+
+
+void StunMessageTestSuite::testFingerPrint() 
+{
+    char   cBuf[4096] ;
+    size_t length ;
+    StunMessage check(NULL, false) ;
+
+    // Disabled FingerPrint
+    check.reset() ;
+    check.setIncludeFingerPrint(false) ;
+    check.setType(MSG_STUN_BIND_REQUEST) ;
+    check.encode(cBuf, sizeof(cBuf), length) ;
+    CPPUNIT_ASSERT(check.isStunMessage(cBuf, (unsigned short) length) == true) ;
+    CPPUNIT_ASSERT(check.isFingerPrintValid() == false) ;
+
+    // Enable FingerPrint
+    check.reset() ;
+    check.allocTransactionId() ;
+    check.setIncludeFingerPrint(true) ;
+    check.setType(MSG_STUN_BIND_REQUEST) ;
+    check.encode(cBuf, sizeof(cBuf), length) ;
+    CPPUNIT_ASSERT(check.isStunMessage(cBuf, (unsigned short) length) == true) ;
+    CPPUNIT_ASSERT(check.isFingerPrintValid() == true) ;
+
+    // Bogus FingerPrint
+    check.reset() ;
+    check.allocTransactionId() ;
+    check.setIncludeFingerPrint(true) ;
+    check.setType(MSG_STUN_BIND_REQUEST) ;
+    check.encode(cBuf, sizeof(cBuf), length) ;
+    cBuf[length-3] = cBuf[length-3] + 1;
+    CPPUNIT_ASSERT(check.isStunMessage(cBuf, (unsigned short) length) == false) ;
+    check.reset ;
+    check.parse(cBuf, length) ;
+    CPPUNIT_ASSERT(check.isFingerPrintValid() == false) ;
 }

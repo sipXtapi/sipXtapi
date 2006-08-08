@@ -26,6 +26,7 @@
 #define STUN_MAX_STRING_LENGTH              128 
 #define STUN_MAX_UNKNOWN_ATTRIBUTES         16
 #define STUN_MAX_MESSAGE_INTEGRITY_LENGTH   20
+#define STUN_FINGERPRINT_LENGTH             20  // Unstable
 #define STUN_MIN_CHAR_PAD                   4
 #define STUN_MAGIC_COOKIE                   0x2112A442
 
@@ -221,7 +222,8 @@ class StunMessage
      * Default constructor, if a msg is passed, the magic/transaction id 
      * is copied -- otherwise a new magic/transaction id is generated.
      */
-    StunMessage(StunMessage* pRequest = NULL) ;
+    StunMessage(StunMessage* pRequest = NULL,
+                bool         bLegacyMode = true) ;
 
     /**
      * Destructor
@@ -280,6 +282,8 @@ class StunMessage
 
     void setIncludeMessageIntegrity(bool bInclude) ;
 
+    void setIncludeFingerPrint(bool bInclude) ;
+
     void setAltServer(const char* szIp, unsigned short port) ;
 
 /* ============================ ACCESSORS ================================= */
@@ -326,13 +330,21 @@ class StunMessage
 
     bool getAltServer(char* szIp, unsigned short& rPort) ;
 
+    bool getFingerPrint(bool& bValid) ;
+
 /* ============================ INQUIRY =================================== */
 
     virtual bool validateMessageType(unsigned short type) ;
 
     static bool isStunMessage(const char* pBuf, unsigned short nBufLength) ;
 
+    static bool isFingerPrintValid(const char* pBuf, unsigned short nBufLength, bool bMissingOk) ;
+
     virtual bool isRequestOrNonErrorResponse() ;
+
+    virtual bool isMessageIntegrityValid(const char* cPassword, size_t nPassword) ;
+
+    virtual bool isFingerPrintValid() ;
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
@@ -380,7 +392,11 @@ class StunMessage
     /**
      * zero pads to 64 boundry and results will be 20 bytes long for hmac/sha1
      */
-    void calculateHmacSha1(char *pDataIn, size_t nDataIn, char *pKey, size_t nKey, char* results) ;
+    static void calculateHmacSha1(const char* pDataIn, 
+                                  size_t      nDataIn, 
+                                  const char* pKey, 
+                                  size_t      nKey, 
+                                  char        results[20]) ;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:
@@ -420,6 +436,12 @@ class StunMessage
     bool                   mbIncludeMessageIntegrity ;
     STUN_ATTRIBUTE_ADDRESS mAltServer ;
     bool                   mbAltServerValid ;
+    bool                   mbIncludeFingerPrint ;
+    char                   mbFingerPrintValid ;
+    char                   mFingerPrint[STUN_FINGERPRINT_LENGTH] ;
+    char*                  mpRawData ;
+    size_t                 mnRawData ;
+    bool                   mbLegacyMode ;
 
     STUN_ATTRIBUTE_UNKNOWN mUnknownParsedAttributes ;
 

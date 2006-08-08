@@ -177,6 +177,9 @@
 				RelativePath=".\src\test\os\OsTimeTest.cpp">
 			</File>
 			<File
+				RelativePath=".\src\test\os\StunMessageTest.cpp">
+			</File>
+			<File
 				RelativePath=".\src\test\sipxunit\TestMonitor.cpp">
 			</File>
 			<File
@@ -202,6 +205,9 @@
 			</File>
 			<File
 				RelativePath=".\src\test\sipxunit\TestUtilities.h">
+			</File>
+			<File
+				RelativePath=".\src\test\os\TurnMessageTest.cpp">
 			</File>
 			<File
 				RelativePath=".\src\test\sipxunit\unitmain.cpp">
