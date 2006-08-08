@@ -20,7 +20,6 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleFactory;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
 import org.sipfoundry.sipxconfig.common.Permission;
 
@@ -28,6 +27,14 @@ import org.sipfoundry.sipxconfig.common.Permission;
  * EditDialRule
  */
 public abstract class EditDialRule extends BasePage implements PageBeginRenderListener {
+
+    public static final String CUSTOM = "EditCustomDialRule";
+    public static final String INTERNAL = "EditInternalDialRule";
+    public static final String ATTENDANT = "EditAttendantDialRule";
+    public static final String LOCAL = "EditLocalDialRule";
+    public static final String LONG_DISTANCE = "EditLongDistanceDialRule";
+    public static final String EMERGENCY = "EditEmergencyDialRule";
+    public static final String INTERNATIONAL = "EditInternationalDialRule";
 
     public abstract DialPlanContext getDialPlanContext();
 
@@ -64,19 +71,13 @@ public abstract class EditDialRule extends BasePage implements PageBeginRenderLi
             rule = manager.getRule(id);
             setRuleType(rule.getType());
         } else {
-            rule = createNewRule();
+            rule = getRuleType().create();
         }
         setRule(rule);
 
         // Ignore the callback passed to us for now because we're navigating
         // to unexpected places. Always go to the EditFlexibleDialPlan plan.
         setCallback(new PageCallback(EditFlexibleDialPlan.PAGE));
-    }
-
-    protected DialingRule createNewRule() {
-        DialingRuleFactory ruleFactory = getDialPlanContext().getRuleFactory();
-        DialingRuleType ruleType = getRuleType();
-        return ruleFactory.create(ruleType);
     }
 
     /**

@@ -5,8 +5,6 @@
   <!--
     - D I A L   P L A N S
   -->
-  <bean id="dialRuleFactory" class="org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleFactory" />
-
   <bean id="defaultInternalRule" class="org.sipfoundry.sipxconfig.admin.dialplan.InternalRule"
     singleton="false">
     <property name="name" value="Internal" />
@@ -101,6 +99,23 @@
     </property>
   </bean>
 
+  <bean id="dialingRuleFactory"
+    class="org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleFactory">
+    <!-- list all the rules that should be accessible from Add New Rule menu -->
+    <property name="beanIds">
+      <list>
+        <value>defaultInternalRule</value>
+        <value>defaultCustomRule</value>
+        <value>defaultInternalRule</value>
+        <value>defaultLongDistanceRule</value>
+        <value>defaultLocalRule</value>
+        <value>defaultEmergencyRule</value>
+        <value>defaultInternationalRule</value>
+        <value>defaultAttendantRule</value>
+      </list>
+    </property>
+  </bean>
+
   <!--
     - D I A L P L A N  C O N T E X T
   -->
@@ -109,7 +124,6 @@
     <property name="coreContext" ref="coreContext" />
     <property name="aliasManager" ref="aliasManager" />
     <property name="sessionFactory" ref="sessionFactory" />
-    <property name="ruleFactory" ref="dialRuleFactory" />
     <property name="settingDao" ref="settingDao" />
     <property name="sipxReplicationContext" ref="sipxReplicationContext" />
   </bean>

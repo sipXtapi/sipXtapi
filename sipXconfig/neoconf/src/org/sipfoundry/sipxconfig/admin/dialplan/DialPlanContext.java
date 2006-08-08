@@ -36,8 +36,6 @@ public interface DialPlanContext extends DataObjectSource, AliasOwner {
 
     public abstract ConfigGenerator getGenerator();
 
-    public abstract DialingRuleFactory getRuleFactory();
-
     public abstract void storeAutoAttendant(AutoAttendant attendant);
 
     public abstract void deleteAutoAttendant(AutoAttendant attendant, String scriptsDir);

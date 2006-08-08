@@ -12,29 +12,15 @@
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 
-/**
- * DialingRuleFactory TODO: we should be able to use spring for that...
- */
 public class DialingRuleFactory implements BeanFactoryAware {
-    private static final Map<DialingRuleType, String> PROTOTYPES = new HashMap<DialingRuleType, String>();
-    private BeanFactory m_beanFactory;
+    private Collection<String> m_beanIds;
 
-    static {
-        PROTOTYPES.put(DialingRuleType.CUSTOM, "defaultCustomRule");
-        PROTOTYPES.put(DialingRuleType.INTERNAL, "defaultInternalRule");
-        PROTOTYPES.put(DialingRuleType.LONG_DISTANCE, "defaultLongDistanceRule");
-        PROTOTYPES.put(DialingRuleType.LOCAL, "defaultLocalRule");
-        PROTOTYPES.put(DialingRuleType.EMERGENCY, "defaultEmergencyRule");
-        PROTOTYPES.put(DialingRuleType.INTERNATIONAL, "defaultInternationalRule");
-        PROTOTYPES.put(DialingRuleType.ATTENDANT, "defaultAttendantRule");
-    }
+    private BeanFactory m_beanFactory;
 
     /**
      * Constructs dialing rule from prototypes defined in Spring configuration file.
@@ -44,11 +30,7 @@ public class DialingRuleFactory implements BeanFactoryAware {
      * @param type dialing rule type
      * @return newly created object
      */
-    public DialingRule create(DialingRuleType type) {
-        String beanId = PROTOTYPES.get(type);
-        if (null == beanId) {
-            throw new IllegalArgumentException("Illegal Dialing rule type: " + type);
-        }
+    public DialingRule create(String beanId) {
         DialingRule rule = (DialingRule) m_beanFactory.getBean(beanId, DialingRule.class);
         // reset new rule - we do not want to suggest invalid values for name, description etc.
         rule.setEnabled(false);
@@ -57,11 +39,15 @@ public class DialingRuleFactory implements BeanFactoryAware {
         return rule;
     }
 
-    public Collection<DialingRuleType> getTypes() {
-        return PROTOTYPES.keySet();
-    }
-
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = beanFactory;
+    }
+
+    public void setBeanIds(Collection<String> beanIds) {
+        m_beanIds = beanIds;
+    }
+
+    public Collection<String> getBeanIds() {
+        return m_beanIds;
     }
 }
