@@ -142,6 +142,7 @@ libsipXcall_la_SOURCES = \
     ps/PsTaoRinger.cpp \
     ps/PsTaoSpeaker.cpp \
     tapi/sipXtapi.cpp \
+    tapi/SipXEventDispatcher.cpp \
     tapi/sipXtapiEvents.cpp \
     tapi/sipXtapiInternal.cpp \
     tapi/SipXHandleMap.cpp \

@@ -50,6 +50,7 @@ class SipSubscribeClient;
 class CallManager ;
 class SipUserAgent ;
 class SipRefreshMgr ;
+class SipXEventDispatcher;
 
 // STRUCTS
 
@@ -138,6 +139,8 @@ typedef struct SIPX_INSTANCE_DATA
     VIDEO_CODEC_PREFERENCES 
                      videoCodecSetting;
     TONE_STATES      toneStates;
+
+    SipXEventDispatcher* pEventDispatcher;
 
 
 
@@ -770,6 +773,13 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalAudioConnectionId(const SIPX_INST hIn
 UtlBoolean sipxCallSetRemoveInsteadofDrop(SIPX_CALL hCall) ;
 UtlBoolean sipxCallIsRemoveInsteadOfDropSet(SIPX_CALL hCall) ;
 
+SIPX_RESULT __sipxEventListenerAdd(const SIPX_INST hInst,
+                                   SIPX_EVENT_CALLBACK_PROC pCallbackProc,
+                                   void *pUserData) ;
+
+SIPX_RESULT __sipxEventListenerRemove(const SIPX_INST hInst, 
+                                      SIPX_EVENT_CALLBACK_PROC pCallbackProc, 
+                                      void* pUserData) ;
 void sipxUpdateListeners(SIPX_INST hOldInst, SIPX_INST hNewInst) ;
 
 /**
