@@ -2,27 +2,29 @@ include ../meta/libsrc.mak
 
 XERCES_C_LIBSRC=$(LIBSRC)/xerces-c
 
-XERCES_C_VER = 2.7.0
-XERCES_C_REL = 3
+VER = 2.7.0
+REL = 3
 
-XERCES_C_RPM = xerces-c-$(XERCES_C_VER)-$(XERCES_C_REL).$(RPM_TARGET_ARCH).rpm
-XERCES_C_VER_UNDERSCORE = $(subst .,_,$(XERCES_C_VER))
-XERCES_C_TAR = $(XERCES_C_LIBSRC)/xerces-c-src_$(XERCES_C_VER_UNDERSCORE).tar.gz
-XERCES_C_TAR_PATCHED = `basename $(XERCES_C_TAR)`
+RPMS = \
+	$(DEST_RPM)/xerces-c-$(VER)-$(REL).$(RPM_TARGET_ARCH).rpm \
+	$(DEST_RPM)/xerces-c-devel-$(VER)-$(REL).$(RPM_TARGET_ARCH).rpm
 
-all : $(XERCES_C_RPM)
+VER_UNDERSCORE = $(subst .,_,$(VER))
+SRC = $(XERCES_C_LIBSRC)/xerces-c-src_$(VER_UNDERSCORE).tar.gz
 
-$(XERCES_C_TAR) :
-	-mkdir -p $(XERCES_C_LIBSRC)
-	wget --output-document=$@ \
-	  $(XERCES_C_URL)/`basename $@`
+all : $(RPMS)
 
-# Patch the .spec file to include libxerces-depdom.so*
-$(XERCES_C_TAR_PATCHED) : xerces-c-sipx.patch $(XERCES_C_TAR)
-	../bin/patch-archive xerces-c-sipx.patch \
-	$(XERCES_C_TAR) $(XERCES_C_TAR_PATCHED)
+$(SRC) :
+	$(srcdir)/config/download $@ $(XERCES_C_URL)/`basename $@`
 
-$(XERCES_C_RPM) : $(XERCES_C_TAR_PATCHED)
-	cp $(XERCES_C_TAR_PATCHED) $(RPMBUILD_TOPDIR)/SOURCES
-	rpmbuild -ta --target $(RPM_TARGET_ARCH)-none-linux $(XERCES_C_TAR_PATCHED)
-	mv $(RPMBUILD_TOPDIR)/RPMS/$(RPM_TARGET_ARCH)/xerces-c-*.rpm .
+# Patch the spec file, rpmbuild complains when building it
+.PHONY: build-rpms
+build-rpms : $(SRC)
+	cp $(SRC) $(RPMBUILD_TOPDIR)/SOURCES
+	tar -xzf $(SRC) -O xerces-c-src_$(VER_UNDERSCORE)/xerces-c.spec > xerces-c.spec.orig
+	patch -p0 xerces-c.spec.orig < $(srcdir)/xerces-c-sipx.patch \
+	    -o $(RPMBUILD_TOPDIR)/SPECS/xerces-c.spec
+	rpmbuild -ba $(RPMBUILD_TOPDIR)/SPECS/xerces-c.spec
+
+$(RPMS) : build-rpms
+	cp $(RPMBUILD_TOPDIR)/RPMS/$(RPM_TARGET_ARCH)/`basename $@` $@

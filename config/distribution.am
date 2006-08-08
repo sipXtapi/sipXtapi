@@ -1,0 +1,25 @@
+## common 
+
+RECURSE = recurse
+RECURSE_SUBDIRS = $(subdirs)
+
+$(RECURSE):
+	@failcom='exit 1'; \
+	for f in x $$MAKEFLAGS; do \
+	  case $$f in \
+	    *=* | --[!k]*);; \
+	    *k*) failcom='fail=yes';; \
+	  esac; \
+	done; \
+	target="$(TARGETS)`echo $@ | sed -e s/recurse//`"; \
+	list='$(RECURSE_SUBDIRS)'; for subdir in $$list; do \
+	  echo "Making $$target in $$subdir"; \
+	  (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) $$target) \
+	  || eval $$failcom; \
+	done;
+
+# simply list projects in correct build order
+.PHONY: list
+list:
+	@echo $(RECURSE_TARGETS)
+

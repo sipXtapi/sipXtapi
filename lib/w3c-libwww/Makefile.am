@@ -1,30 +1,26 @@
-include ../meta/libsrc.mak
-
 W3C_LIBSRC = $(LIBSRC)/w3c-libwww
 
-W3C_VER = 5.4.0
-W3C_REL = 10
+VER = 5.4.0
+REL = 10
 
-TARGET_DIR = $(RPMBUILD_TOPDIR)/RPMS/$(RPM_TARGET_ARCH)
-W3C_RPM = w3c-libwww-$(W3C_VER)-$(W3C_REL).$(RPM_TARGET_ARCH).rpm
-W3C_DEVEL_RPM = w3c-libwww-devel-$(W3C_VER)-$(W3C_REL).$(RPM_TARGET_ARCH).rpm
-W3C_SRPM = $(W3C_LIBSRC)/w3c-libwww-$(W3C_VER)-$(W3C_REL).src.rpm
+SRPM = $(W3C_LIBSRC)/w3c-libwww-$(VER)-$(REL).src.rpm
+RPMS = \
+	$(DEST_RPM)/sipx-w3c-libwww-$(VER)-$(REL).$(RPM_TARGET_ARCH).rpm \
+	$(DEST_RPM)/sipx-w3c-libwww-devel-$(VER)-$(REL).$(RPM_TARGET_ARCH).rpm
 
-SIPX_W3C_RPM = $(subst w3c,sipx-w3c,$(W3C_RPM))
-SIPX_W3C_DEVEL_RPM = $(subst w3c,sipx-w3c,$(W3C_DEVEL_RPM))
+ORIG_RPM = $(subst sipx-w3c,w3c,`basename $@`)
 
-all : $(SIPX_W3C_RPM) $(SIPX_W3C_DEVEL_RPM)
+all : $(RPMS)
 
-$(W3C_SRPM) :
-	../meta/download-file $@ $(RE4_W3C_URL)/SRPMS/`basename $@`
+$(SRPM) :
+	$(srcdir)/config/download-file $@ $(W3C_URL)/SRPMS/`basename $@`
 
-$(TARGET_DIR)/$(W3C_RPM) $(TARGET_DIR)/$(W3C_DEVEL_RPM) : $(W3C_SRPM)
-	rpm -i $(W3C_SRPM)
-	patch -p0 $(RPMBUILD_TOPDIR)/SPECS/w3c-libwww.spec < sipx-w3c-libwww.patch
+.PHONY: build-rpms
+build-rpms : $(SRPM) $(srcdir)/sipx-w3c-libwww.patch
+	rpm -i $(SRPM)
+	patch -p0 $(RPMBUILD_TOPDIR)/SPECS/w3c-libwww.spec < $(srcdir)/sipx-w3c-libwww.patch
 	rpmbuild -ba $(RPMBUILD_TOPDIR)/SPECS/w3c-libwww.spec
 
-$(SIPX_W3C_RPM) : $(TARGET_DIR)/$(W3C_RPM)
-	cp $(TARGET_DIR)/$(W3C_RPM) $(SIPX_W3C_RPM)
+$(RPMS) : build-rpms
+	cp $(RPMBUILD_TOPDIR)/RPMS/$(RPM_TARGET_ARCH)/$(ORIG_RPM) $@
 
-$(SIPX_W3C_DEVEL_RPM) : $(TARGET_DIR)/$(W3C_DEVEL_RPM)
-	cp $(TARGET_DIR)/$(W3C_DEVEL_RPM) $(SIPX_W3C_DEVEL_RPM)

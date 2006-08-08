@@ -1,5 +1,3 @@
-include ../meta/libsrc.mak
-
 VERSION=1.5.0
 SUN_VERSION=1_5_0
 BUILD=07
@@ -10,19 +8,30 @@ JDK_LIBSRC = $(LIBSRC)/java-sun
 SRC_ZIP = $(JDK_LIBSRC)/jdk-$(SUN_VERSION)_$(BUILD)-linux-i586.bin
 NOSRC_RPM = $(JDK_LIBSRC)/java-$(VERSION)-sun-$(VERSION).$(BUILD)-$(REL)jpp.nosrc.rpm
 RPM_SPEC=java-$(VERSION)-sun.spec
-RPM=java-$(VERSION)-sun-$(VERSION).$(BUILD)-$(REL)jpp.i586.rpm
+RPMS = \
+	$(DEST_RPM)/java-$(VERSION)-sun-$(VERSION).$(BUILD)-$(REL)jpp.i586.rpm \
+	$(DEST_RPM)/java-$(VERSION)-sun-alsa-$(VERSION).$(BUILD)-$(REL)jpp.i586.rpm \
+	$(DEST_RPM)/java-$(VERSION)-sun-devel-$(VERSION).$(BUILD)-$(REL)jpp.i586.rpm \
+	$(DEST_RPM)/java-$(VERSION)-sun-demo-$(VERSION).$(BUILD)-$(REL)jpp.i586.rpm \
+	$(DEST_RPM)/java-$(VERSION)-sun-fonts-$(VERSION).$(BUILD)-$(REL)jpp.i586.rpm \
+	$(DEST_RPM)/java-$(VERSION)-sun-jdbc-$(VERSION).$(BUILD)-$(REL)jpp.i586.rpm \
+	$(DEST_RPM)/java-$(VERSION)-sun-plugin-$(VERSION).$(BUILD)-$(REL)jpp.i586.rpm \
+	$(DEST_RPM)/java-$(VERSION)-sun-src-$(VERSION).$(BUILD)-$(REL)jpp.i586.rpm
 
-all : $(RPM)
+all : $(RPMS)
 
 $(SRC_ZIP) :
 	@echo -e "\nMissing dependency: Download site http://java.sun.com/javase/downloads/index.jsp \n\t$@\n"
 	@exit 1
 
 $(NOSRC_RPM) :
-	../meta/download-file $@ $(JPKG_NONFREE_URL)/SRPMS/`basename $@`
+	$(srcdir)/config/download-file $@ $(JPKG_NONFREE_URL)/SRPMS/`basename $@`
 
-$(RPM) : $(NOSRC_RPM) $(SRC_ZIP) 
+.PHONY: build-rpms
+build-rpms : $(NOSRC_RPM) $(SRC_ZIP) 
 	rpm -i $(NOSRC_RPM)
 	cp $(SRC_ZIP) $(RPMBUILD_TOPDIR)/SOURCES
 	rpmbuild -ba $(RPMBUILD_TOPDIR)/SPECS/$(RPM_SPEC)
-	mv $(RPMBUILD_TOPDIR)/RPMS/i586/java-$(VERSION)-sun-*$(VERSION).$(BUILD)-$(REL)jpp.i586.rpm .
+
+$(RPMS) : build-rpms
+	mv $(RPMBUILD_TOPDIR)/RPMS/i586/`basename $@` $@

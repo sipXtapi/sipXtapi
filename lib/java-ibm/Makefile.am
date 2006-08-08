@@ -1,6 +1,3 @@
-# type  "make LIBSRC=XXX" to override this location, normal make syntax
-LIBSRC=~/libsrc
-
 VERSION=1.5.0
 IBM_VERSION=1_5_0
 BUILD=2.3
@@ -10,29 +7,38 @@ REL=1
 JDK_LIBSRC = $(LIBSRC)/java-ibm
 SRC_ZIP = $(JDK_LIBSRC)/ibm-java2-sdk-50-linux-i386.tgz
 NOSRC_RPM = $(JDK_LIBSRC)/java-$(VERSION)-ibm-$(VERSION).$(BUILD)-$(REL)jpp.nosrc.rpm
-RPM_SPEC=java-$(VERSION)-ibm.spec
-RPM=java-$(VERSION)-ibm-$(VERSION).$(BUILD)-$(REL)jpp.i586.rpm
-UNRESTRICTED = $(JDK_LIBSRC)/unrestrict142.zip
+RPM_SPEC = java-$(VERSION)-ibm.spec
+UNRESTRICTED_SRC = $(JDK_LIBSRC)/unrestrict142.zip
+UNRESTRICTED_RPM = $(DEST_RPM)/java-ibm-unrestricted.noarch.rpm
+RPMS = \
+	$(DEST_RPM)/java-$(VERSION)-ibm-$(VERSION).$(BUILD)-$(REL)jpp.i586.rpm \
+	$(DEST_RPM)/java-$(VERSION)-ibm-alsa-$(VERSION).$(BUILD)-$(REL)jpp.i586.rpm \
+	$(DEST_RPM)/java-$(VERSION)-ibm-devel-$(VERSION).$(BUILD)-$(REL)jpp.i586.rpm \
+	$(DEST_RPM)/java-$(VERSION)-ibm-demo-$(VERSION).$(BUILD)-$(REL)jpp.i586.rpm \
+	$(DEST_RPM)/java-$(VERSION)-ibm-fonts-$(VERSION).$(BUILD)-$(REL)jpp.i586.rpm \
+	$(DEST_RPM)/java-$(VERSION)-ibm-jdbc-$(VERSION).$(BUILD)-$(REL)jpp.i586.rpm \
+	$(DEST_RPM)/java-$(VERSION)-ibm-plugin-$(VERSION).$(BUILD)-$(REL)jpp.i586.rpm \
+	$(DEST_RPM)/java-$(VERSION)-ibm-src-$(VERSION).$(BUILD)-$(REL)jpp.i586.rpm
 
-# Where rpmbuild will do its work.
-RPMBUILD_TOPDIR = $(shell rpm --eval '%{_topdir}')
+all :  $(RPMS) $(UNRESTRICTED_RPM)
 
-all : $(RPM) java-ibm-unrestricted.noarch.rpm
-
-$(UNRESTRICTED) $(SRC_ZIP) :
+$(UNRESTRICTED_SRC) $(SRC_ZIP) :
 	@echo -e "\nMissing dependency: Download this from www.ibm.com \n\t$@\n"
 	@exit 1
 
 $(NOSRC_RPM) :
-	../meta/download-file $@ $(JPKG_NONFREE_URL)/SRPMS/`basename $@`
+	$(srcdir)/config/download-file $@ $(JPKG_NONFREE_URL)/SRPMS/`basename $@`
 
-$(RPM) : $(NOSRC_RPM) $(SRC_ZIP) 
+.PHONY:build-rpms
+build-rpms: $(NOSRC_RPM) $(SRC_ZIP)
 	rpm -i $(NOSRC_RPM)
 	cp $(SRC_ZIP) $(RPMBUILD_TOPDIR)/SOURCES
 	rpmbuild -ba $(RPMBUILD_TOPDIR)/SPECS/$(RPM_SPEC)
-	mv $(RPMBUILD_TOPDIR)/RPMS/i586/java-$(VERSION)-ibm-*$(VERSION).$(BUILD)-$(REL)jpp.i586.rpm .
 
-java-ibm-unrestricted.noarch.rpm : $(UNRESTRICTED) java-ibm-unrestricted.spec
-	cp $(UNRESTRICTED) $(RPMBUILD_TOPDIR)/SOURCES
-	rpmbuild --target noarch --quiet -ba java-ibm-unrestricted.spec
-	mv $(RPMBUILD_TOPDIR)/RPMS/noarch/java-ibm-unrestricted.noarch.rpm .
+$(RPMS) : build-rpms
+	mv $(RPMBUILD_TOPDIR)/RPMS/i586/`basename $@` $@
+
+$(UNRESTRICTED_RPM) : $(UNRESTRICTED_SRC) $(srcdir)/java-ibm-unrestricted.spec
+	cp $(UNRESTRICTED_SRC) $(RPMBUILD_TOPDIR)/SOURCES
+	rpmbuild --target noarch --quiet -ba $(srcdir)/java-ibm-unrestricted.spec
+	mv $(RPMBUILD_TOPDIR)/RPMS/noarch/`basename $@` $@

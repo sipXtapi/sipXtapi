@@ -644,19 +644,3 @@ AC_DEFUN([SFAC_FEATURE_DBTEST],
      AC_MSG_RESULT(${enable_dbtests})
    fi
 ])
-
-# Place to store RPM output files
-AC_DEFUN([SFAC_RPM_REPO],
-[
-  AC_ARG_ENABLE([rpm-repo],
-    AC_HELP_STRING([--enable-rpm-repo=directory], 
-      [Directory to create RPM repository for RPM targets, no default!]),
-    [RPM_REPO=${enableval}],[RPM_REPO=""])
-
-  if test "x$RPM_REPO" != "x"
-  then
-    mkdir -p "$RPM_REPO"
-    RPM_REPO=`cd "$RPM_REPO"; pwd`
-  fi
-  AC_SUBST(RPM_REPO)
-])
