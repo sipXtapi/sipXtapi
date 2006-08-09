@@ -8,6 +8,7 @@
   <!ENTITY SIP_USER_CHARS "a-zA-Z0-9&SIP_USER_UNRESERVED;">
   <!-- 37 === percent -->
   <!ENTITY SIP_USER_ESCAPED "&#37;[0-9a-fA-F]{2}">
+  <!ENTITY SIP_USER_REGEX "\[\]">
 ]>
 <!-- global beans used by tapestry pages -->
 <beans>
@@ -85,6 +86,15 @@
     <property name="message">
       <value>Only a limited set of characters is valid in SIP URLs. Spaces and some special 
         characters are not allowed. For example: 321, joedoe, joe!?~*222</value>
+    </property>
+  </bean>
+  
+  <bean name="validMappingRuleSipUserId" class="org.apache.tapestry.form.validator.Pattern">
+    <property name="pattern">
+      <value>^([&SIP_USER_CHARS;&SIP_USER_REGEX;]|&SIP_USER_ESCAPED;)+$</value>
+    </property>
+    <property name="message">
+      <value>Only a limited set of characters is allowed in dialing rules patterns: &SIP_USER_CHARS;&SIP_USER_REGEX;</value>
     </property>
   </bean>
   

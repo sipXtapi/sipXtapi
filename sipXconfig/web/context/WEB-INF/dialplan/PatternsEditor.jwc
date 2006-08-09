@@ -39,7 +39,7 @@
   </component>
   <component id="prefix" type="TextField">
     <binding name="value" value="pattern.prefix" />
-    <binding name="validators" value="spring-validators:validSipUserId" />
+    <binding name="validators" value="spring-validators:validMappingRuleSipUserId" />
     <binding name="displayName" value="message:label.prefix" />
   </component>
   <component id="add" type="LinkSubmit">
