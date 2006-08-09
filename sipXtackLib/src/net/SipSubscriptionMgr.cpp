@@ -323,7 +323,12 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
 
         // Acceptable expiration, create a subscription and dialog
         if(expiration > mMinExpiration ||
-           expiration == 0)
+           expiration == 0 ||
+           // :WORKAROUND:  Also allow expiration == 1, to support the
+           // 1-second subscriptions the pick-up agent makes because
+           // current Snom phones do not respond to 0-second subscriptions.
+           // See XPB-399 and ENG-319.
+           expiration == 1)
         {
             // Update the dialog state
             mpDialogMgr->updateDialog(subscribeRequest, dialogHandle);
