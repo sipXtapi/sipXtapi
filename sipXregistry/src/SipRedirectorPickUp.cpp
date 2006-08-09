@@ -30,14 +30,6 @@
 
 // DEFINES
 
-// If ALWAYS_PINGTEL_NEO is defined, the effect of the PINGTEL_NEO
-// env. var. is always active.  Namely, the INVITE/Replaces for a call
-// pick-up is generated without the "early-only" parameter which it
-// should have.  This is a work-around for the older Polycom phones,
-// which could not cope with the "early-only" parameter.
-// :WORKAROUND:
-#define ALWAYS_PINGTEL_NEO
-
 // The parameter giving the directed call pick-up feature code.
 #define CONFIG_SETTING_DIRECTED_CODE \
     "SIP_REGISTRAR_DIRECTED_CALL_PICKUP_CODE"
@@ -53,6 +45,15 @@
 // The parameter giving the call pick-up wait time.
 #define CONFIG_SETTING_WAIT \
     "SIP_REGISTRAR_CALL_PICKUP_WAIT"
+// The parameter for activating the "no early-only" workaround.
+#define CONFIG_SETTING_NEO \
+    "SIP_REGISTRAR_PICKUP_NO_EARLY_ONLY"
+// The parameter for activating the "reversed Replaces" workaround.
+#define CONFIG_SETTING_RR \
+    "SIP_REGISTRAR_PICKUP_REVERSED_REPLACES"
+// The parameter for activating the "1 second subscription" workaround.
+#define CONFIG_SETTING_1_SEC \
+    "SIP_REGISTRAR_PICKUP_1_SEC_SUBSCRIBE"
 // The default call pick-up wait time, in seconds and microseconds.
 #define DEFAULT_WAIT_TIME_SECS        1
 #define DEFAULT_WAIT_TIME_USECS       0
@@ -69,6 +70,12 @@ const int SipRedirectorPrivateStoragePickUp::TargetDialogDurationAbsent = -1;
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
+
+// Function to get a boolean configuration setting based on the Y/N value of
+// a configuration parameter.
+static UtlBoolean getYNconfig(OsConfigDb& configDb,
+                              const char* parameterName,
+                              UtlBoolean defaultValue);
 
 // Constructor
 SipRedirectorPickUp::SipRedirectorPickUp() :
@@ -98,6 +105,16 @@ SipRedirectorPickUp::initialize(const UtlHashMap& configParameters,
    // It will be OS_SUCCESS if this redirector is configured to do any work,
    // and OS_FAILED if not.
    OsStatus r = OS_FAILED;
+
+   // Fetch the configuration parameters for the workaround features.
+   // Defaults are set to match the previous behavior of the code.
+   
+   // No early-only.
+   mNoEarlyOnly = getYNconfig(configDb, CONFIG_SETTING_NEO, TRUE);
+   // Reversed Replaces.
+   mReversedReplaces = getYNconfig(configDb, CONFIG_SETTING_RR, FALSE);
+   // One-second subscriptions.
+   mOneSecondSubscription = getYNconfig(configDb, CONFIG_SETTING_1_SEC, TRUE);
 
    // Fetch the call pick-up festure code from the config file.
    // If it is null, it doesn't count.
@@ -521,16 +538,10 @@ SipRedirectorPickUp::lookUpDialog(
          header_value.append(dialog_info->mTargetDialogLocalTag);
          // If the state filtering is "early", add "early-only", so we
          // don't pick up a call that has just been answered.
-         if (dialog_info->mStateFilter == stateEarly)
+         if (dialog_info->mStateFilter == stateEarly &&
+             !mNoEarlyOnly)
          {
-#ifndef ALWAYS_PINGTEL_NEO
-            // If env. var. PINGTEL_NEO is set, do not add "early-only".
-            char* v = getenv("PINGTEL_NEO");
-            if (!(v != NULL && v[0] != '\0'))
-            {
-               header_value.append(";early-only");
-            }
-#endif
+            header_value.append(";early-only");
          }
 
          // Add a header parameter to specify the Replaces: header.
@@ -546,10 +557,9 @@ SipRedirectorPickUp::lookUpDialog(
          // Record the URI as a contact.
          addContact(response, requestString, contact_URI, "pick-up");
 
-         // If env. var. PINGTEL_RR is set, also add a Replaces: with
+         // If "reversed Replaces" is configured, also add a Replaces: with
          // the to-tag and from-tag reversed.
-         char* v = getenv("PINGTEL_RR");
-         if (v != NULL && v[0] != '\0')
+         if (mReversedReplaces)
          {
             Url c(dialog_info->mTargetDialogRemoteURI);
 
@@ -558,19 +568,15 @@ SipRedirectorPickUp::lookUpDialog(
             h.append(dialog_info->mTargetDialogLocalTag);
             h.append(";from-tag=");
             h.append(dialog_info->mTargetDialogRemoteTag);
-            if (dialog_info->mStateFilter == stateEarly)
+            if (dialog_info->mStateFilter == stateEarly &&
+                !mNoEarlyOnly)
             {
-#ifndef ALWAYS_PINGTEL_NEO
-               // If env. var. PINGTEL_NEO is set, do not add "early-only".
-               char* v = getenv("PINGTEL_NEO");
-               if (!(v != NULL && v[0] != '\0'))
-               {
-                  h.append(";early-only");
-               }
-#endif
+               h.append(";early-only");
             }
 
             c.setHeaderParameter("Replaces", h.data());
+            // Put this contact at a lower priority than the one in
+            // the correct order.
             c.setFieldParameter("q", "0.9");
 
             addContact(response, requestString, c, "pick-up");
@@ -636,10 +642,11 @@ SipRedirectorPickUp::lookUpDialog(
       // Increment CSeq and roll it over if necessary.
       mCSeq++;
       mCSeq &= 0x0FFFFFFF;
-      // Set the "Expires: 0" header.
-      // :WORKAROUND: Use "Expires: 1" in hope of getting current Snom
-      // phones to work.
-      subscribe.setExpiresField(1);
+      // Set the Expires header.
+      // If "1 second subscriptions" is set (needed for some versions
+      // of Snom phones), use a 1-second subscription.  Otherwise, use
+      // a 0-second subscription, so we get just one NOTIFY.
+      subscribe.setExpiresField(mOneSecondSubscription ? 1 : 0);
       // Set the "Event: dialog" header.
       subscribe.setEventField("dialog");
       // Set the "Accept: application/dialog-info+xml" header.
@@ -1294,4 +1301,39 @@ UtlBoolean SipRedirectorPickUp::findInOrbitList(UtlString& user)
    // Having refreshed mOrbitList if necessary, check to see if 'user' is
    // in it.
    return mOrbitList.find(&user) != NULL;
+}
+
+// Function to get a boolean configuration setting based on the Y/N value of
+// a configuration parameter.
+static UtlBoolean getYNconfig(OsConfigDb& configDb,
+                              const char* parameterName,
+                              UtlBoolean defaultValue)
+{
+   // Start with the default value.
+   UtlBoolean value = defaultValue;
+   UtlString temp;
+   // If we can get the parameter from the configDb, and if its value is
+   // not null...
+   if (configDb.get(parameterName, temp) == OS_SUCCESS &&
+       !temp.isNull())
+   {
+      switch (temp(0))
+      {
+      case 'y':
+      case 'Y':
+      case '1':
+         // If the value starts with Y or 1, set the result to TRUE.
+         value = TRUE;
+         break;
+      case 'n':
+      case 'N':
+      case '0':
+         // If the value starts with N or 0, set the result to FALSE.
+         value = FALSE;
+        defuault:
+         // Ignore all other values.
+         break;
+      } 
+   }
+   return value;
 }
