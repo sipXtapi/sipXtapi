@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.components;
 
 import java.util.Collection;
 
-import org.apache.tapestry.AbstractPage;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IActionListener;
 import org.apache.tapestry.IBinding;
@@ -38,7 +37,7 @@ public abstract class TablePanel extends BaseComponent {
 
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
         super.renderComponent(writer, cycle);
-        if (cycle.isRewinding() && TapestryUtils.isValid((AbstractPage) cycle.getPage())) {
+        if (TapestryUtils.isRewinding(cycle, this) && TapestryUtils.isValid(this)) {
             onFormSubmit(cycle);
         }
     }

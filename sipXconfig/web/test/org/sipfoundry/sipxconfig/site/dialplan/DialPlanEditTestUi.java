@@ -205,8 +205,7 @@ public class DialPlanEditTestUi extends WebTestCase {
     }
 
     private void checkGateways() throws Exception {
-        assertLinkPresent("gateway:add");
-        assertLinkPresent("gateway:select");
+        assertFormElementPresent("actionSelection");
 
         assertButtonPresent("gateway:remove");
         assertButtonPresent("gateway:moveUp");
@@ -220,7 +219,7 @@ public class DialPlanEditTestUi extends WebTestCase {
         String[][] gateways = new String[gatewayCount][];
 
         for (int i = 0; i < gatewayCount; i++) {
-            clickLink("gateway:add");
+            selectOption("actionSelection", "Unmanaged gateway");
             SiteTestHelper.assertNoException(tester);
             SiteTestHelper.assertNoUserError(tester);
 
@@ -264,17 +263,10 @@ public class DialPlanEditTestUi extends WebTestCase {
         assertEquals(1, SiteTestHelper.getRowCount(tester, "list:gateway"));
 
         // test adding existing gateways
-        clickLink("gateway:select");
-        // one more time check if gateway edit is working
-        clickLinkWithText(gateways[0][0]);
+        selectOption("actionSelection", gateways[0][0]);
         SiteTestHelper.assertNoException(tester);
-        clickButton("form:cancel");
-
-        SiteTestHelper.assertNoException(tester);
-        for (int i = 0; i < gatewayCount; i++) {
-            SiteTestHelper.selectRow(tester, i, true);
-        }
-        clickButton("select:gateway:save");
-        assertEquals(gatewayCount + 1, SiteTestHelper.getRowCount(tester, "list:gateway"));
+        assertEquals(2, SiteTestHelper.getRowCount(tester, "list:gateway"));
+        gatewayTable = getTester().getDialog().getWebTableBySummaryOrId("list:gateway");
+        assertEquals(gateways[0][0], gatewayTable.getCellAsText(1, 1));
     }
 }

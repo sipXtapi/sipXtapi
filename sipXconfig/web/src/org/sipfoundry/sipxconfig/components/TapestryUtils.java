@@ -19,7 +19,9 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hivemind.Messages;
 import org.apache.tapestry.AbstractPage;
+import org.apache.tapestry.IBeanProvider;
 import org.apache.tapestry.IComponent;
+import org.apache.tapestry.IForm;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.PageRedirectException;
 import org.apache.tapestry.contrib.table.model.IAdvancedTableColumn;
@@ -136,9 +138,40 @@ public final class TapestryUtils {
      * @param page
      * @return true if no errors found
      */
-    public static boolean isValid(AbstractPage page) {
+    public static boolean isValid(IComponent page) {
         IValidationDelegate validator = getValidator(page);
+        if (validator == null) {
+            return false;
+        }
         return !validator.getHasErrors();
+    }
+
+    /**
+     * Preferred version of isValid. Looks for form delegate instead of looking for a bean with a
+     * specific name.
+     */
+    public static boolean isValid(IRequestCycle cycle, IComponent component) {
+        IForm form = org.apache.tapestry.TapestryUtils.getForm(cycle, component);
+        if (form == null) {
+            return false;
+        }
+        IValidationDelegate validator = form.getDelegate();
+        if (validator == null) {
+            return false;
+        }
+        return !validator.getHasErrors();
+    }
+
+    /**
+     * Checks is cycle is rewinding and form we are in is rewinding.
+     * 
+     * Not sure why we need to check the cycle but this is what all standard tapestry components
+     * are doing. Call this is renderComponent that needs to participate in form rewinding.
+     * 
+     */
+    public static boolean isRewinding(IRequestCycle cycle, IComponent component) {
+        return cycle.isRewinding()
+                && org.apache.tapestry.TapestryUtils.getForm(cycle, component).isRewinding();
     }
 
     /**
@@ -149,10 +182,15 @@ public final class TapestryUtils {
      * 
      * @param page
      * @return validation delegate component
-     */    
+     */
     public static IValidationDelegate getValidator(IComponent page) {
-        IValidationDelegate validator = (IValidationDelegate) page.getBeans().getBean(VALIDATOR);
-        return validator;
+        for (IComponent c = page; c != null; c = c.getContainer()) {
+            IBeanProvider beans = c.getBeans();
+            if (beans.canProvideBean(VALIDATOR)) {
+                return (IValidationDelegate) c.getBeans().getBean(VALIDATOR);
+            }
+        }
+        return null;
     }
 
     public static void recordSuccess(IComponent page, String msg) {
@@ -201,7 +239,7 @@ public final class TapestryUtils {
         column.setValueRendererSource(new DateTableRendererSource());
         return column;
     }
-    
+
     /**
      * For auto completetion of space delimited fields. Collection is represented named
      * 
@@ -217,18 +255,18 @@ public final class TapestryUtils {
             prefix = "";
         } else if (currentValue.endsWith(" ")) {
             targetGroup = null;
-            prefix = currentValue;            
+            prefix = currentValue;
         } else {
             String[] groups = currentValue.split("\\s+");
             int ignore = groups.length - 1;
-            targetGroup = groups[ignore].toLowerCase();            
+            targetGroup = groups[ignore].toLowerCase();
             StringBuffer sb = new StringBuffer();
             for (int i = 0; i < ignore; i++) {
                 sb.append(groups[i]).append(' ');
             }
             prefix = sb.toString();
         }
-        
+
         List candidates = new ArrayList();
         for (Iterator i = namedItems.iterator(); i.hasNext();) {
             NamedObject candidate = (NamedObject) i.next();
@@ -240,9 +278,9 @@ public final class TapestryUtils {
                 if (prefix.indexOf(candidateName + ' ') < 0) {
                     candidates.add(prefix + candidateName);
                 }
-            }               
+            }
         }
-        
-        return candidates;        
+
+        return candidates;
     }
 }

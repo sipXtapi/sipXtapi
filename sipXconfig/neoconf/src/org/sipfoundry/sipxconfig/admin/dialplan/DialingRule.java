@@ -126,9 +126,9 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule, Da
      * @param allGateways pool of all possible gateways
      * @return list of gateways that still can be assigned to this rule
      */
-    public Collection getAvailableGateways(List allGateways) {
-        Set gateways = new HashSet(allGateways);
-        Collection ruleGateways = getGateways();
+    public Collection<Gateway> getAvailableGateways(List<Gateway> allGateways) {
+        Set<Gateway> gateways = new HashSet<Gateway>(allGateways);
+        Collection<Gateway> ruleGateways = getGateways();
         gateways.removeAll(ruleGateways);
         return gateways;
     }

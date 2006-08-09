@@ -56,10 +56,7 @@ public abstract class BulkGroupAction implements OptionAdapter, IActionListener 
         return getClass().getName() + m_group.getId();
     }
 
-    @SuppressWarnings("unused")
-    public String getSuccessMsg(Messages messages_) {
-        // FIXME: use global message repository...
-        // messages_.getMessage("msg.actionSuccess");
-        return "Operation completed successfully";
+    public String getSuccessMsg(Messages messages) {
+        return messages.getMessage("msg.actionSuccess");
     }
 }

@@ -13,12 +13,12 @@ package org.sipfoundry.sipxconfig.site.gateway;
 
 import java.util.Collection;
 
-import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
+import org.sipfoundry.sipxconfig.phone.PhoneModel;
 
 /**
  * List all the gateways, allow adding and deleting gateways
@@ -33,19 +33,13 @@ public abstract class ListGateways extends BasePage {
     public abstract Collection getGatewaysToDelete();
 
     public abstract Collection getGatewaysToPropagate();
+    
+    public abstract PhoneModel getGatewayModel();
 
     /**
      * When user clicks on link to edit a gateway
      */
-    public IPage addGateway(IRequestCycle cycle) {
-        EditGateway page = (EditGateway) cycle.getPage(EditGateway.PAGE);
-        page.setGatewayId(null);
-        page.setRuleId(null);
-        page.setReturnPage(this);
-        return page;
-    }
-
-    public void formSubmit() {
+    public void formSubmit(IRequestCycle cycle) {
         Collection selectedRows = getGatewaysToDelete();
         if (selectedRows != null) {
             getGatewayContext().deleteGateways(selectedRows);
@@ -53,6 +47,15 @@ public abstract class ListGateways extends BasePage {
         selectedRows = getGatewaysToPropagate();
         if (selectedRows != null) {
             propagateGateways(selectedRows);
+        }
+        PhoneModel model = getGatewayModel();
+        if (model != null) {
+            EditGateway page = (EditGateway) cycle.getPage(EditGateway.PAGE);
+            page.setGatewayModel(model);
+            page.setGatewayId(null);
+            page.setRuleId(null);
+            page.setReturnPage(this);
+            cycle.activate(page);
         }
     }
 

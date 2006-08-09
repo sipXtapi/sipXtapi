@@ -116,7 +116,7 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
      * @param ruleId id of the rule for which gateways are checked
      * @return collection of available gateways
      */
-    public Collection getAvailableGateways(Integer ruleId) {
+    public Collection<Gateway> getAvailableGateways(Integer ruleId) {
         DialingRule rule = m_dialPlanContext.getRule(ruleId);
         if (null == rule) {
             return Collections.EMPTY_LIST;
@@ -137,7 +137,7 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         return gateway;
     }
 
-    public Collection getAvailableGatewayModels() {
+    public Collection<PhoneModel> getAvailableGatewayModels() {
         return m_modelSource.getModels();
     }
 

@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.site.admin.ldap;
 
 import java.util.Collection;
 
-import org.apache.tapestry.AbstractPage;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -70,7 +69,7 @@ public abstract class LdapServer extends BasePage implements PageBeginRenderList
     }
 
     public void applyConnectionParams() {
-        if (!TapestryUtils.isValid((AbstractPage) getPage())) {
+        if (!TapestryUtils.isValid(this)) {
             return;
         }
         LdapConnectionParams connectionParams = getConnectionParams();
@@ -99,7 +98,7 @@ public abstract class LdapServer extends BasePage implements PageBeginRenderList
     }
 
     public IPage applyAttrMap(IRequestCycle cycle) {
-        if (!TapestryUtils.isValid((AbstractPage) getPage())) {
+        if (!TapestryUtils.isValid(this)) {
             return null;
         }
         getLdapManager().setAttrMap(getAttrMap());

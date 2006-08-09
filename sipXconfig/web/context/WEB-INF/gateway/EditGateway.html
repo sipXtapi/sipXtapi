@@ -5,6 +5,7 @@
 <body jwcid="$content$">
 	<div jwcid="@Border">
 	<h2><span key="title">Gateway Details</span></h2>
+    <span jwcid="@Insert" value="ognl:gateway.model.label"/>
     <span jwcid="@ErrorMsg"/>    
     <form jwcid="@Form" delegate="ognl:beans.validator" id="gateway">
         <fieldset jwcid="gatewayForm"></fieldset>

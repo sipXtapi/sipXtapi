@@ -11,11 +11,24 @@
  */
 package org.sipfoundry.sipxconfig.site.gateway;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.tapestry.BaseComponent;
-import org.apache.tapestry.IActionListener;
+import org.apache.tapestry.IComponent;
+import org.apache.tapestry.IForm;
+import org.apache.tapestry.IMarkupWriter;
+import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.TapestryUtils;
+import org.apache.tapestry.form.IPropertySelectionModel;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
+import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
+import org.sipfoundry.sipxconfig.components.selection.OptGroup;
+import org.sipfoundry.sipxconfig.gateway.Gateway;
+import org.sipfoundry.sipxconfig.gateway.GatewayContext;
+import org.sipfoundry.sipxconfig.phone.PhoneModel;
+import org.sipfoundry.sipxconfig.site.setting.BulkGroupAction;
 
 public abstract class GatewaysPanel extends BaseComponent {
 
@@ -24,12 +37,131 @@ public abstract class GatewaysPanel extends BaseComponent {
     public abstract Collection getRowsToMoveUp();
 
     public abstract Collection getRowsToMoveDown();
-    
-    public abstract IActionListener getAction();
-    
+
     public abstract DialingRule getRule();
 
-    public boolean onFormSubmit() {
+    public abstract GatewayContext getGatewayContext();
+
+    public abstract DialPlanContext getDialPlanContext();
+
+    public abstract Gateway getGateway();
+
+    public abstract void setGateway(Gateway gateway);
+
+    public abstract void setRuleChanged(boolean changed);
+
+    protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
+        super.renderComponent(writer, cycle);
+        if (cycle.isRewinding() && TapestryUtils.getForm(cycle, this).isRewinding()) {
+            if (onFormSubmit()) {
+                setRuleChanged(true);
+            }
+        }
+    }
+
+    public IPropertySelectionModel getActionModel() {
+        GatewayContext context = getGatewayContext();
+        Collection actions = new ArrayList();
+        DialingRule rule = getRule();
+
+        Collection<Gateway> gateways;
+        if (rule.isNew()) {
+            gateways = context.getGateways();
+        } else {
+            gateways = context.getAvailableGateways(getRule().getId());
+        }
+        if (!gateways.isEmpty()) {
+            actions.add(new OptGroup(getMessages().getMessage("label.addGateway")));
+
+            for (Gateway gateway : gateways) {
+                AddExistingGatewayAction action = new AddExistingGatewayAction(gateway);
+                actions.add(action);
+            }
+        }
+
+        Collection<PhoneModel> models = context.getAvailableGatewayModels();
+        actions.add(new OptGroup(getMessages().getMessage("label.createGateway")));
+        for (PhoneModel model : models) {
+            AddNewGatewayAction action = new AddNewGatewayAction(model);
+            actions.add(action);
+        }
+
+        AdaptedSelectionModel model = new AdaptedSelectionModel();
+        model.setCollection(actions);
+        return model;
+    }
+
+    class AddNewGatewayAction extends BulkGroupAction {
+        private PhoneModel m_model;
+
+        AddNewGatewayAction(PhoneModel model) {
+            super(null);
+            m_model = model;
+        }
+
+        public void actionTriggered(IComponent component, final IRequestCycle cycle) {
+            // mark rule to be changed
+            setRuleChanged(true);
+
+            // defer activating gateway page
+            Runnable action = new Runnable() {
+                public void run() {
+                    EditGateway page = (EditGateway) cycle.getPage(EditGateway.PAGE);
+                    DialingRule rule = getRule();
+                    getDialPlanContext().storeRule(rule);
+                    page.setRuleId(rule.getId());
+                    page.setGatewayId(null);
+                    page.setReturnPage(cycle.getPage());
+                    page.setGatewayModel(m_model);
+                    cycle.activate(page);
+                }
+            };
+
+            IForm form = TapestryUtils.getForm(cycle, component);
+            form.addDeferredRunnable(action);
+        }
+
+        public String getLabel(Object option, int index) {
+            return m_model.getLabel();
+        }
+
+        public Object getValue(Object option, int index) {
+            return m_model;
+        }
+
+        public String squeezeOption(Object option, int index) {
+            return m_model.getModelId() + m_model.getBeanId();
+        }
+    }
+
+    class AddExistingGatewayAction extends BulkGroupAction {
+        private Gateway m_gateway;
+
+        AddExistingGatewayAction(Gateway gateway) {
+            super(null);
+            m_gateway = gateway;
+        }
+
+        public String getLabel(Object option, int index) {
+            return m_gateway.getName();
+        }
+
+        public Object getValue(Object option, int index) {
+            return m_gateway;
+        }
+
+        public String squeezeOption(Object option, int index) {
+            return m_gateway.getId().toString();
+        }
+
+        public void actionTriggered(IComponent component, IRequestCycle cycle) {
+            DialingRule rule = getRule();
+            rule.addGateway(m_gateway);
+            setRuleChanged(true);
+        }
+    }
+
+    private boolean onFormSubmit() {
         DialingRule rule = getRule();
         Collection selectedGateways = getRowsToDelete();
         if (null != selectedGateways) {
