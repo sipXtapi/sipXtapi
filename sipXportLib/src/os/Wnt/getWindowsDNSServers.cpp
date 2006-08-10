@@ -544,6 +544,7 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[], int &num
             char szAddr[16];
             
             memset((void*)szAddr, 0, sizeof(szAddr));
+            int maxAddresses = numAddresses;
             rc = true;
             numAddresses = 0;
 
@@ -551,7 +552,7 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[], int &num
 
             unsigned int adapterId = 0;
             char szAdapterId[MAX_IP_ADDRESSES];
-            while (pNextInfoRecord)
+            while (pNextInfoRecord && (numAddresses<maxAddresses))
             {
                 sprintf(szAdapterId, "eth%u", adapterId);
                 PIP_ADDRESS_STRING pNextAddress = &(pNextInfoRecord->IpAddressList.IpAddress);
@@ -590,9 +591,9 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[], int &num
         }
         free((void*)pIpAdapterInfo);
     }                
- #else
+#else
     rc = false;
- #endif    
+#endif    
     return rc;
 }
 
