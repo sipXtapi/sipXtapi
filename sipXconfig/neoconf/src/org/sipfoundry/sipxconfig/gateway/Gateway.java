@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.gateway;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
@@ -26,6 +27,8 @@ public class Gateway extends BeanWithSettings implements NamedObject {
 
     private String m_address;
 
+    private String m_prefix;
+
     private String m_description;
 
     private String m_beanId;
@@ -37,13 +40,13 @@ public class Gateway extends BeanWithSettings implements NamedObject {
     private String m_tftpRoot;
 
     private PhoneModel m_model;
-    
+
     private DeviceVersion m_version;
 
     private VelocityEngine m_velocityEngine;
-    
+
     @Override
-    public void initialize() {        
+    public void initialize() {
     }
 
     public void generateProfiles() {
@@ -112,14 +115,14 @@ public class Gateway extends BeanWithSettings implements NamedObject {
     public void setTftpRoot(String tftpRoot) {
         m_tftpRoot = tftpRoot;
     }
-    
+
     public VelocityEngine getVelocityEngine() {
         return m_velocityEngine;
     }
 
     public void setVelocityEngine(VelocityEngine velocityEngine) {
         m_velocityEngine = velocityEngine;
-    }    
+    }
 
     public PhoneModel getModel() {
         return m_model;
@@ -141,8 +144,26 @@ public class Gateway extends BeanWithSettings implements NamedObject {
         return m_modelId;
     }
 
+    public String getPrefix() {
+        return m_prefix;
+    }
+
+    public void setPrefix(String prefix) {
+        m_prefix = prefix;
+    }
+
     @Override
     protected Setting loadSettings() {
         return null;
+    }
+
+    /**
+     * Prepends gateway specific call pattern to call pattern.
+     */
+    public String getCallPattern(String callPattern) {
+        if (StringUtils.isEmpty(m_prefix)) {
+            return callPattern;
+        }
+        return m_prefix + callPattern;
     }
 }

@@ -37,6 +37,16 @@
     <binding name="validators" value="validators:required"/>
     <binding name="displayName" value="message:label.address"/>
   </component>
+  <component id="gatewayPrefixPanel" type="FieldPanel">
+    <binding name="field" value="components.gatewayPrefix"/>
+    <binding name="label" value="message:label.prefix"/>
+    <binding name="description" value="message:description.prefix"/>
+  </component>
+  <component id="gatewayPrefix" type="TextField">
+    <binding name="value" value="gateway.prefix"/>
+    <binding name="validators" value="spring-validators:validSipUserId"/>
+    <binding name="displayName" value="message:label.prefix"/>
+  </component>
   <component id="gatewayDescriptionPanel" type="FieldPanel">
     <binding name="field" value="components.gatewayDescription"/>
     <binding name="label" value="message:label.description"/>

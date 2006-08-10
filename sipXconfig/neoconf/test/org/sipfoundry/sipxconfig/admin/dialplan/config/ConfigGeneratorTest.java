@@ -50,13 +50,10 @@ public class ConfigGeneratorTest extends XMLTestCase {
         generator.generate(dialPlanContext, er);
 
         AuthRules authRules = new AuthRules();
-        authRules.begin();
         checkConfigFileGeneration(generator, authRules, ConfigFileType.AUTH_RULES);
         MappingRules mappingRules = new MappingRules();
-        mappingRules.begin();
         checkConfigFileGeneration(generator, mappingRules, ConfigFileType.MAPPING_RULES);
         FallbackRules fallbackRules = new FallbackRules();
-        fallbackRules.begin();
         checkConfigFileGeneration(generator, fallbackRules, ConfigFileType.FALLBACK_RULES);
         planCtrl.verify();
     }
@@ -65,8 +62,10 @@ public class ConfigGeneratorTest extends XMLTestCase {
      * Execute test for a single configuration type. Tries to generate it directly and generate
      * pretty formatted text through generator.
      */
-    private void checkConfigFileGeneration(ConfigGenerator generator, XmlFile configFile,
+    private void checkConfigFileGeneration(ConfigGenerator generator, RulesXmlFile configFile,
             ConfigFileType type) throws Exception {
+        configFile.begin();
+        configFile.end();
         Document document = configFile.getDocument();
         StringWriter writer = new StringWriter();
         document.write(writer);

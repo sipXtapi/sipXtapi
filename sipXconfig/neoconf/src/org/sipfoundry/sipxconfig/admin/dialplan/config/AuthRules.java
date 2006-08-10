@@ -11,20 +11,14 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.QName;
-import org.sipfoundry.sipxconfig.admin.dialplan.CallDigits;
-import org.sipfoundry.sipxconfig.admin.dialplan.CallPattern;
-import org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPattern;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.common.Permission;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
@@ -51,13 +45,19 @@ public class AuthRules extends RulesXmlFile {
     private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00";
     private static final String NO_ACCESS_RULE = "Reject all other calls to the gateways"
             + " that are not handled by the earlier rules";
+    private static final String PERMISSION = "permission";
+    private static final String PERMISSION_MATCH = "permissionMatch";
+    private static final String USER_PATTERN = "userPattern";
+    private static final String USER_MATCH = "userMatch";
+    private static final String HOST_PATTERN = "hostPattern";
+    private static final String HOST_MATCH = "hostMatch";
 
     private Document m_doc;
-    private Set m_gateways = new HashSet();
+    private Set<Gateway> m_gateways = new HashSet<Gateway>();
 
     public AuthRules() {
     }
-    
+
     public void begin() {
         m_doc = FACTORY.createDocument();
         QName mappingsName = FACTORY.createQName("mappings", NAMESPACE);
@@ -66,56 +66,57 @@ public class AuthRules extends RulesXmlFile {
     }
 
     public void generate(IDialingRule rule) {
-        List gateways = rule.getGateways();
-        List permissions = rule.getPermissions();
+        List<Gateway> gateways = rule.getGateways();
+        List<Permission> permissions = rule.getPermissions();
         if (gateways.size() == 0) {
             // nothing to generate
             return;
         }
         Element mappings = m_doc.getRootElement();
-        Element hostMatch = mappings.addElement("hostMatch");
-        addRuleNameComment(hostMatch, rule);
-        addRuleDescription(hostMatch, rule);
-        for (Iterator i = gateways.iterator(); i.hasNext();) {
-            Gateway gateway = (Gateway) i.next();
-            Element hostPattern = hostMatch.addElement("hostPattern");
+        for (Gateway gateway : gateways) {
+            Element hostMatch = mappings.addElement(HOST_MATCH);
+            addRuleNameComment(hostMatch, rule);
+            addRuleDescription(hostMatch, rule);
+            Element hostPattern = hostMatch.addElement(HOST_PATTERN);
             hostPattern.setText(gateway.getAddress());
             m_gateways.add(gateway);
-        }
-        Element userMatch = hostMatch.addElement("userMatch");
-        String[] patterns = rule.getTransformedPatterns();
-        for (int i = 0; i < patterns.length; i++) {
-            String pattern = patterns[i];
-            Element userPattern = userMatch.addElement("userPattern");
-            userPattern.setText(pattern);
-        }
-        // even if no permission is specified (permission list is empty) we create empty element
-        Element permissionMatch = userMatch.addElement("permissionMatch");
-        for (Iterator i = permissions.iterator(); i.hasNext();) {
-            Permission permission = (Permission) i.next();
-            Element pelement = permissionMatch.addElement("permission");
-            pelement.setText(permission.getName());
+            Element userMatch = hostMatch.addElement(USER_MATCH);
+            String[] patterns = rule.getTransformedPatterns(gateway);
+            for (int i = 0; i < patterns.length; i++) {
+                String pattern = patterns[i];
+                Element userPattern = userMatch.addElement(USER_PATTERN);
+                userPattern.setText(pattern);
+            }
+            // even if no permission is specified (permission list is empty) we create empty
+            // element
+            Element permissionMatch = userMatch.addElement(PERMISSION_MATCH);
+            for (Permission permission : permissions) {
+                Element pelement = permissionMatch.addElement(PERMISSION);
+                pelement.setText(permission.getName());
+            }
         }
     }
 
     public Document getDocument() {
         return m_doc;
     }
-    
-    
-    void generateNoAccess(List gateways) {
-        CustomDialingRule rule = new CustomDialingRule();
-        rule.setDescription(NO_ACCESS_RULE);
-        rule.setGateways(gateways);
-        rule.setPermissions(Collections.singletonList(Permission.NO_ACCESS));
-        rule.setCallPattern(new CallPattern("", CallDigits.FIXED_DIGITS));
-        DialPattern matchAll = new DialPattern(".", 0);        
-        rule.setDialPatterns(Collections.singletonList(matchAll));
-        generate(rule);
+
+    void generateNoAccess(Collection<Gateway> gateways) {
+        Element mappings = m_doc.getRootElement();
+        Element hostMatch = mappings.addElement(HOST_MATCH);
+        hostMatch.addElement("description").setText(NO_ACCESS_RULE);
+        for (Gateway gateway : gateways) {
+            Element hostPattern = hostMatch.addElement(HOST_PATTERN);
+            hostPattern.setText(gateway.getAddress());
+        }
+        Element userMatch = hostMatch.addElement(USER_MATCH);
+        userMatch.addElement(USER_PATTERN).setText(".");
+        Element permissionMatch = userMatch.addElement(PERMISSION_MATCH);
+        permissionMatch.addElement(PERMISSION).setText(Permission.NO_ACCESS.getName());
     }
 
     public void end() {
-        generateNoAccess(new ArrayList(m_gateways));
+        generateNoAccess(m_gateways);
     }
 
     public ConfigFileType getType() {

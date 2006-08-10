@@ -24,6 +24,7 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.DataCollectionItem;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.NamedObject;
+import org.sipfoundry.sipxconfig.common.Permission;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 
 /**
@@ -36,7 +37,7 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule, Da
     private String m_name;
     private String m_description;
     private int m_position;
-    private List m_gateways = new ArrayList();
+    private List<Gateway> m_gateways = new ArrayList<Gateway>();
 
     public abstract String[] getPatterns();
 
@@ -74,16 +75,16 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule, Da
         m_name = name;
     }
 
-    public List getGateways() {
+    public List<Gateway> getGateways() {
         return m_gateways;
     }
 
-    public void setGateways(List gateways) {
+    public void setGateways(List<Gateway> gateways) {
         m_gateways = gateways;
     }
 
-    public List getPermissions() {
-        return Collections.EMPTY_LIST;
+    public List<Permission> getPermissions() {
+        return Collections.emptyList();
     }
 
     /**
@@ -153,9 +154,14 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule, Da
      * Attempts to apply standard transformations to patterns. It is used when generating
      * authorization rules For example 9xxxx -> 7{digits} results in 97xxxx
      * 
-     * Default implementation does not attempt any transformation
+     * Default implementation inserts gateway specific prefixes.
      */
-    public String[] getTransformedPatterns() {
-        return getPatterns();
+    public String[] getTransformedPatterns(Gateway gateway) {
+        String[] patterns = getPatterns();
+        String[] transformed = new String[patterns.length];
+        for (int i = 0; i < patterns.length; i++) {
+            transformed[i] = gateway.getCallPattern(patterns[i]);
+        }
+        return transformed;
     }
 }

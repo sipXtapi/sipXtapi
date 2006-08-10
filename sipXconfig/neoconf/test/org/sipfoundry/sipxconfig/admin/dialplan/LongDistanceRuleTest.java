@@ -69,10 +69,15 @@ public class LongDistanceRuleTest extends TestCase {
     }
 
     public void testGetTransformedPatterns() {
+        Gateway gateway = new Gateway();
         DialingRule rule = getGenerationRule(m_rule);
-        String[] patterns = rule.getTransformedPatterns();
+        String[] patterns = rule.getTransformedPatterns(gateway);
         assertEquals(1, patterns.length);
         assertEquals("1xxxxxxx", patterns[0]);
+        gateway.setPrefix("555");
+        patterns = rule.getTransformedPatterns(gateway);
+        assertEquals(1, patterns.length);
+        assertEquals("5551xxxxxxx", patterns[0]);
     }
 
     public void testGetTransforms() {
