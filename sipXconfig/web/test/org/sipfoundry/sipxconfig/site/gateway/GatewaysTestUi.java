@@ -41,6 +41,8 @@ public class GatewaysTestUi extends WebTestCase {
 
         assertTablePresent("list:gateway");
         WebTable gatewaysTable = getDialog().getWebTableBySummaryOrId("list:gateway");
+        // make sure it's sorted by name
+        clickLinkWithText("Name");
         int lastColumn = gatewaysTable.getColumnCount() - 1;
         assertEquals(3, lastColumn);
 
