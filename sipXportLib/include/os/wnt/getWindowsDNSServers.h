@@ -271,8 +271,14 @@ typedef struct _IP_INTERFACE_INFO {
 
 #ifdef __cplusplus
     extern "C" int getWindowsDNSServers(char DNSServers[][MAXIPLEN], int max, const char* szLocalIp);
+
+    /// Get this host's IP addresses.
     extern "C" bool getAllLocalHostIps(const class HostAdapterAddress* localHostAddresses[], int &numAddresses);
-    //: Return this host's ip addresses, as an array of UtlString references
+    /**<
+    *  @param localHostAddresses Preallocated array for determined IP addresses.
+    *  @param numAddresses Input: Size of the preallocated array.
+    *                      Output: Number of IPs found by the system.
+    */
 
     extern "C" bool getContactAdapterName(char* szAdapter, const char* szIp, bool trueName);
     //: Returns a generated adapter name associated with the IP address

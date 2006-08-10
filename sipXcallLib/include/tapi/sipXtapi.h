@@ -3371,7 +3371,8 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalContacts(const SIPX_INST hInst,
  * @param arrAddressAdapter For each record in arrAddresses, there is a corresponding record,
  *        with the same index, in arrAddressAdpater which represents the 
  *        "sipx adapter name" for that address
- * @param numAddresses Reference to the number of IPs found by the system.
+ * @param numAddresses Input: Size of the preallocated arrays.
+ *                     Output: Number of IPs found by the system.
  */
 SIPXTAPI_API SIPX_RESULT sipxConfigGetAllLocalNetworkIps(const char* arrAddresses[], 
                                                          const char* arrAddressAdapter[],
