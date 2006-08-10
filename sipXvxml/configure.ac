@@ -44,11 +44,11 @@ SFAC_FEATURE_SIP_TLS
 
 SFAC_DISTRO_CONDITIONAL
 
-dnl Double the LIBS to deal with recursive dependencies
-LIBS="$LIBS $LIBS"
-
 # Conditionally use the GIPS audio libraries
 CHECK_GIPSNEQ
+
+dnl Double the LIBS to deal with recursive dependencies
+LIBS="$LIBS $LIBS"
 
 ## Common flags for pingtel related source
 

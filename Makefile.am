@@ -1,15 +1,5 @@
 include config/distribution.am
 
-# rpm
-# rpm clean
-# build * (all [check] install-if-lib)
-# build target[dependencies] (all [check] install-if-lib)
-# dist
-# 
-# options
-#  failfast
-#  sudo
-
 RECURSE += \
 	check \
 	rpmclean \

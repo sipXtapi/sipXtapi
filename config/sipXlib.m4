@@ -268,6 +268,8 @@ AC_DEFUN([CHECK_GIPSNEQ],
 ],
       compile_with_gips=yes)
 
+   AC_REQUIRE([SFAC_LIB_MEDIAADAPTER])
+
    AC_MSG_CHECKING(if link in with gips NetEQ)
 
    if test x$compile_with_gips = xyes
@@ -306,8 +308,6 @@ AC_DEFUN([CHECK_GIPSNEQ],
    AC_SUBST(GIPSINC)
    AC_SUBST(GIPS_NEQ_OBJS)
    AC_SUBST(GIPS_CPPFLAGS)
-
-   AC_SUBST(SIPXMEDIA_MP_LIBS, ["$SIPXMEDIALIB/libsipXmediaProcessing.la"])
 ]) # CHECK_GIPSNEQ
 
 

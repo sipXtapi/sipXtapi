@@ -7,7 +7,7 @@ all: BUILDSTAMP
 .PHONY: BUILDSTAMP
 BUILDSTAMP:
 	@echo "Generating BUILDSTAMP" 
-	sipxSvnVersion=`@SVN_VERSION@` ; \
+	sipxSvnVersion="@SVN_VERSION@" ; \
 	sipxBuildTime=`date -u +%Y-%m-%dT%H:%M:%S` ; \
 	sipxBuildHost=`uname -n` ; \
 	SIPX_BUILDSTAMP="$${sipxSvnVersion} $${sipxBuildTime} $${sipxBuildHost}" ; \
@@ -33,26 +33,26 @@ DEBUG_RPM=$(DEST_RPM)/@PACKAGE@-debug-$(VERSION)-@SVN_VERSION@.$(RPM_TARGET_ARCH
 RPMS = $(RPM) $(DEVEL_RPM)
 SRPM = $(DEST_SRPM)/@PACKAGE@-$(VERSION)-@SVN_VERSION@.src.rpm
 
-RPM_INSTALL_FLAGS = -F --nodeps --quiet --noscripts --notriggers
-
-.PHONY: rpm
-rpm : $(RPMS)
+RPM_INSTALL_FLAGS = --upgrade --nodeps --quiet --noscripts --notriggers --verbose --hash --force
 
 .PHONY: install-rpms
-install-rpms : $(RPMS)
+install-rpms :
 	$(SUDO) rpm $(RPM_INSTALL_FLAGS) $(RPMS)
 
 list-rpms :
 	@echo $(RPMS)
 
-.PHONY : build-rpms
-build-rpms : dist additional-package-files
+.PHONY : rpm
+rpm : dist additional-package-files build-rpms $(SRPM) $(RPMS)
+
+.PHONY: build-rpms
+build-rpms :
 	rpmbuild -ta --define="buildno @SVN_VERSION@" @PACKAGE@-$(VERSION).tar.gz
 
-$(RPMS) : $(SRPM)
+$(RPMS) :
 	cp $(RPMBUILD_TOPDIR)/RPMS/$(RPM_TARGET_ARCH)/`basename $@` $@
 
-$(SRPM) : build-rpms
+$(SRPM) :
 	cp $(RPMBUILD_TOPDIR)/SRPMS/`basename $@` $@
 
 .PHONY : additional-package-files
@@ -107,3 +107,18 @@ CONFIG_DISTCLEANFILES = \
 	config/missing \
 	config/@PACKAGE@-buildstamp.cpp \
 	config/@PACKAGE@-buildstamp.h
+
+# Alternative is to do svn export, but it's very handy to be able to 
+# create a dist tarball from a working svn checkout
+dist-hook :
+	rm -rf `find $(distdir) -type d -name .svn`
+
+# Override default tarball creation, need to support paths > 99 chars
+# change tar optoions: "chof"  to "chf", implications tarball is not
+# compatible on legacy systems.  See 'man tar' for more info
+# Other dist types will have same problem, but not orerriding yet as we do
+# support them at this time nor do I have time to check/maintain them, yet.
+dist dist-all : distdir
+	$(AMTAR) chf - $(distdir) | GZIP=$(GZIP_ENV) gzip -c >$(distdir).tar.gz
+	$(am__remove_distdir)
+

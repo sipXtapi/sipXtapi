@@ -33,8 +33,4 @@ AC_DEFUN([SFAC_RPM_REPO],
   AC_SUBST(FC4_RUBY_RPM_URL, http://download.fedora.redhat.com/pub/fedora/linux/core/updates/4)
   AC_SUBST(W3C_URL, http://ftp.redhat.com/pub/redhat/linux/enterprise/4/en/os/i386)
   AC_SUBST(PCRE_URL, http://umn.dl.sourceforge.net/sourceforge/pcre)
-
 ])
-
-
-

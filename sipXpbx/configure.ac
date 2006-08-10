@@ -1,7 +1,5 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
-# benign edit
-
 AC_PREREQ(2.57)
 AC_INIT(sipXpbx, 3.5.0, sipx-dev@list.sipfoundry.org)
 AC_CONFIG_AUX_DIR(config)

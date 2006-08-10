@@ -8,7 +8,7 @@ bin_PROGRAMS = sipxconference
 
 sipxconference_LDADD = \
         @SIPXCALL_LIBS@ \
-	@SIPXMEDIA_MP_LIBS@
+	@SIPXMEDIAADAPTER_LIBS@
 
 sipxconference_CXXFLAGS = \
         -I$(top_builddir)/config \

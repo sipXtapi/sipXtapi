@@ -3,7 +3,7 @@
 bin_PROGRAMS = sipxpresence
 
 sipxpresence_LDADD = \
-		@SIPXMEDIA_MP_LIBS@ \
+        @SIPXMEDIAADAPTER_LIBS@ \
         @SIPXCALL_LIBS@
 
 sipxpresence_CXXFLAGS = \
@@ -17,7 +17,7 @@ sipxpresence_SOURCES =  \
     ../../config/sipxpbx-buildstamp.h \
     ../../config/sipxpbx-buildstamp.cpp \
 	main.cpp
-	
+
 noinst_HEADERS =
 
 install-exec-hook :

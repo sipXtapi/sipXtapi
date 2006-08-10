@@ -1,5 +1,3 @@
-## common 
-
 RECURSE = recurse
 PROJECTS = $(subdirs)
 
@@ -24,5 +22,3 @@ $(RECURSE):
 .PHONY: list
 list:
 	@echo $(PROJECTS)
-
-
