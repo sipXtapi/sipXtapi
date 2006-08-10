@@ -7945,7 +7945,7 @@ SIPXTAPI_API SIPX_RESULT sipxUtilUrlParse(const char* szUrl,
         if (szHostname)
         {
             url.getHostAddress(temp) ;
-            strcpy(szUsername, temp) ;
+            strcpy(szHostname, temp) ;
         }
         if (iPort)
         {
@@ -7975,9 +7975,8 @@ SIPXTAPI_API SIPX_RESULT sipxUtilUrlUpdate(char*       szUrl,
     UtlString   results ;
 
     if (szUrl)
-    {
-        
-        Url         url(szUrl) ;
+    { 
+        Url url(szUrl) ;
         
         if (szNewUsername)
             url.setUserId(szNewUsername) ;
@@ -7995,6 +7994,72 @@ SIPXTAPI_API SIPX_RESULT sipxUtilUrlUpdate(char*       szUrl,
         }        
     }
     nUrl = results.length() + 1 ;
+
+    return rc ;
+}
+
+static bool findUrlParameter(Url*        pUrl,
+                             const char* szName,
+                             size_t      index,
+                             char*       szValue,
+                             size_t      nValue)
+{
+    bool      bRC = false ;
+    int       paramCount = 0 ;
+    UtlString name ;
+    UtlString value ;
+
+    while (bRC == false && pUrl->getUrlParameter(paramCount, name, value))
+    {
+        if (name.compareTo(szName, UtlString::ignoreCase) == 0)
+        {
+            if (index == 0)
+            {
+                bRC = true ;
+                strncpy(szValue, value.data(), nValue) ;
+            }
+            else
+            {
+                index-- ;
+            }
+        }
+        paramCount++ ;
+    }
+
+    return bRC ;
+}
+
+
+
+SIPXTAPI_API SIPX_RESULT sipxUtilUrlGetUrlParam(const char* szUrl,
+                                                const char* szParamName,
+                                                size_t      nParamIndex,
+                                                char*       szParamValue,
+                                                size_t      nParamValue)
+{
+    SIPX_RESULT rc = SIPX_RESULT_INVALID_ARGS ;    
+    UtlString   results ;
+
+    if (szUrl && szParamName && szParamValue)
+    {
+        UtlString value ;
+
+        //  Assume addr-spec, but allow name-addr
+        Url addrSpec(szUrl, true) ;
+        Url nameAddr(szUrl, false) ;
+        
+        if (    findUrlParameter(&addrSpec, szParamName, nParamIndex, 
+                szParamValue, nParamValue) ||
+                findUrlParameter(&nameAddr, szParamName, nParamIndex, 
+                szParamValue, nParamValue))
+        {
+            rc = SIPX_RESULT_SUCCESS ;
+        }
+        else
+        {
+            rc = SIPX_RESULT_FAILURE ;
+        }
+    }
 
     return rc ;
 }

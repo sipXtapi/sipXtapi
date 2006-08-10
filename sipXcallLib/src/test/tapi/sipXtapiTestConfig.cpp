@@ -1653,3 +1653,108 @@ void sipXtapiTestSuite::testConfigEnableShortNames()
 
     checkForLeaks();
 }
+
+
+void sipXtapiTestSuite::testUtilUrlParse() 
+{
+    char szUsername[100] ;
+    char szHostname[100] ;
+    int  iPort ;
+    SIPX_RESULT rc ;
+
+    rc = sipxUtilUrlParse("sip:user@host:1000", szUsername, szHostname, &iPort) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+    CPPUNIT_ASSERT(strcmp(szUsername, "user") == 0) ;
+    CPPUNIT_ASSERT(strcmp(szHostname, "host") == 0) ;
+    CPPUNIT_ASSERT(iPort == 1000) ;
+
+    rc = sipxUtilUrlParse("sip:user2@host2", szUsername, szHostname, &iPort) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+    CPPUNIT_ASSERT(strcmp(szUsername, "user2") == 0) ;
+    CPPUNIT_ASSERT(strcmp(szHostname, "host2") == 0) ;
+    CPPUNIT_ASSERT(iPort == -1) ;
+
+    rc = sipxUtilUrlParse(NULL, szUsername, szHostname, &iPort) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_FAILURE) ;
+
+    rc = sipxUtilUrlParse("", szUsername, szHostname, &iPort) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_FAILURE) ;
+
+    rc = sipxUtilUrlParse("sip:user3@host3", NULL, NULL, NULL) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+}
+
+
+void sipXtapiTestSuite::testUtilUrlUpdate() 
+{
+    char        szUrl[100] ;
+    size_t      nLength ;
+    SIPX_RESULT rc ;
+
+    strcpy(szUrl, "<sip:user@host:5060;urlparam=1234>;otherparam=3422") ;
+    nLength = sizeof(szUrl) ;
+    rc = sipxUtilUrlUpdate(szUrl, nLength, "user2", "host2", 2222) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+    CPPUNIT_ASSERT(strcmp(szUrl, "<sip:user2@host2:2222;urlparam=1234>;otherparam=3422") == 0) ;
+
+    strcpy(szUrl, "<sip:user@host:5060;urlparam=1234>;otherparam=3422") ;
+    nLength = sizeof(szUrl) ;
+    rc = sipxUtilUrlUpdate(szUrl, nLength, NULL, NULL, -1) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+    CPPUNIT_ASSERT(strcmp(szUrl, "<sip:user@host:5060;urlparam=1234>;otherparam=3422") == 0) ;
+
+    strcpy(szUrl, "<sip:user@host;urlparam=1234>;otherparam=3422") ;
+    nLength = sizeof(szUrl) ;
+    rc = sipxUtilUrlUpdate(szUrl, nLength, NULL, NULL, -1) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+    CPPUNIT_ASSERT(strcmp(szUrl, "<sip:user@host;urlparam=1234>;otherparam=3422") == 0) ;
+
+    nLength = sizeof(szUrl) ;
+    rc = sipxUtilUrlUpdate(NULL, nLength, NULL, NULL, -1) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_FAILURE) ;
+}
+
+
+void sipXtapiTestSuite::testUtilUrlGetUrlParam() 
+{
+    char        szValue[100] ;
+    SIPX_RESULT rc ;
+ 
+    rc = sipxUtilUrlGetUrlParam("sip:user@host", "missing", 0, szValue, sizeof(szValue)) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_FAILURE) ;
+    rc = sipxUtilUrlGetUrlParam("sip:user@host", "missing", 1, szValue, sizeof(szValue)) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_FAILURE) ;
+    
+    rc = sipxUtilUrlGetUrlParam("sip:user@host;param=1234", "param", 0, szValue, sizeof(szValue)) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+    CPPUNIT_ASSERT(strcmp(szValue, "1234") == 0) ;
+    rc = sipxUtilUrlGetUrlParam("sip:user@host;param=1234", "missing", 1, szValue, sizeof(szValue)) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_FAILURE) ;
+
+    rc = sipxUtilUrlGetUrlParam("<sip:user@host;param=1234>", "param", 0, szValue, sizeof(szValue)) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+    CPPUNIT_ASSERT(strcmp(szValue, "1234") == 0) ;
+    rc = sipxUtilUrlGetUrlParam("<sip:user@host;param=1234>", "missing", 1, szValue, sizeof(szValue)) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_FAILURE) ;
+
+    rc = sipxUtilUrlGetUrlParam("<sip:user@host>;param=1234", "param", 0, szValue, sizeof(szValue)) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_FAILURE) ;
+    rc = sipxUtilUrlGetUrlParam("<sip:user@host>param=1234", "missing", 1, szValue, sizeof(szValue)) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_FAILURE) ;
+
+    rc = sipxUtilUrlGetUrlParam("<sip:user@host;param=1234;other=2;param=5678>", "param", 0, szValue, sizeof(szValue)) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+    CPPUNIT_ASSERT(strcmp(szValue, "1234") == 0) ;
+    rc = sipxUtilUrlGetUrlParam("<sip:user@host;param=1234;other=2;param=5678>", "param", 1, szValue, sizeof(szValue)) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+    CPPUNIT_ASSERT(strcmp(szValue, "5678") == 0) ;
+    rc = sipxUtilUrlGetUrlParam("<sip:user@host;param=1234;other=2;param=5678>", "param", 2, szValue, sizeof(szValue)) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_FAILURE) ;
+    rc = sipxUtilUrlGetUrlParam("<sip:user@host;param=1234;other=2;param=5678>", "other", 0, szValue, sizeof(szValue)) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+    CPPUNIT_ASSERT(strcmp(szValue, "2") == 0) ;
+
+//@}
+
+
+}

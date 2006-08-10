@@ -3700,6 +3700,24 @@ SIPXTAPI_API SIPX_RESULT sipxUtilUrlUpdate(char*       szUrl,
                                            const char* szNewUsername,
                                            const char* szNewHostname,
                                            const int   iNewPort) ;
+
+
+/**
+ * Get the Nth named url parameter from the designated url. 
+ *
+ * @param szUrl The url to parse
+ * @param szParamName Name of the url parameter
+ * @param nParamIndex Index of the url parameter (zero-based).  This is used 
+ *        if you have multiple url parameters with the same name -- otherwise,
+ *        you should use 0.
+ * @param szParamValue Buffer to place parameter value
+ * @param nParamValue size of parameter value buffer (szParamValue)
+ */
+SIPXTAPI_API SIPX_RESULT sipxUtilUrlGetUrlParam(const char* szUrl,
+                                                const char* szParamName,
+                                                size_t      nParamIndex,
+                                                char*       szParamValue,
+                                                size_t      nParamValue) ;
 //@}
 
 
