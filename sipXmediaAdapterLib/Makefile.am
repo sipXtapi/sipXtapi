@@ -9,8 +9,8 @@ EXTRA_DIST = \
     config/sipXprojtop.mak \
     config/sipXcommon.mak.in \
     CONTRIBUTORS \
+    SVN_VERSION \
     BUILDSTAMP \
-    SVN-EXPORT-VERSION \
     sipxmediaadapterlib.spec
 
 unconditional_SUBDIRS = . interface sipXmediaMediaProcessing

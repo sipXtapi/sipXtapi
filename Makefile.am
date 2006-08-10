@@ -1,7 +1,3 @@
-
-PROJECTS = $(subdirs)
-RECURSE_SUBDIRS = $(PROJECTS)
-
 include config/distribution.am
 
 # rpm
@@ -28,9 +24,12 @@ CHECK = check
 
 
 .PHONY: all dist
-all:
-	@echo "Target is not valid. Try 'make build' instead."
+dist all:
+	@echo "Target '$@' is not valid. Type 'make build' to build and install."
 
 .PHONY: build
 build:
 	$(MAKE) recurse TARGETS="all $(CHECK) install"
+
+rpm:
+	$(MAKE) recurse TARGETS="rpm install-rpms"

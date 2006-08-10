@@ -11,7 +11,7 @@ EXTRA_DIST = \
     CONTRIBUTORS \
     LICENSE \
     BUILDSTAMP \
-    SVN-EXPORT-VERSION \
+    SVN_VERSION \
     sipxportlib.spec
 
 unconditional_SUBDIRS = . bin src include syslogviewer

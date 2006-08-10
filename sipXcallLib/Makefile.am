@@ -9,8 +9,8 @@ EXTRA_DIST = \
     config/sipXcommon.mak.in \
     CONTRIBUTORS \
     LICENSE \
+    SVN_VERSION \
     BUILDSTAMP \
-    SVN-EXPORT-VERSION \
     sipxcalllib.spec
 
 unconditional_SUBDIRS = . src examples include bin 

@@ -97,8 +97,36 @@ AC_DEFUN([SFAC_INIT_FLAGS],
     # Enable profiling via gprof
     ENABLE_PROFILE
 
+    SFAC_SVN_VERSION
     SFAC_RPM_REPO
 ])
+
+# Determine the svn repository revision number, useful to build stamps
+AC_DEFUN([SFAC_SVN_VERSION],[
+   AC_MSG_CHECKING(codebase svn revision)
+   svnversion=${srcdir}/SVN-VERSION
+   if test -f $svnversion  
+   then
+     SVN_VERSION=`cat $svnversion`
+   else
+     if test -d ${srcdir}/.svn
+     then
+       SVN_VERSION=`svnversion ${srcdir} \
+         | perl -p \
+           -e 'm /(\d+)/ && do { $padded=sprintf( "%06d", $1 ); s/\d+/$padded/; };' \
+           -e 's/:/./; s/M/.M/;'`
+       elif test -r ${srcdir}/../SVN-VERSION
+       then
+         SVN_VERSION=`cat ${srcdir}/../SVN-VERSION`
+       else
+         SVN_VERSION="0.unknown"
+     fi
+   fi
+
+   AC_MSG_RESULT(${SVN_VERSION})
+   AC_SUBST(SVN_VERSION)
+])
+
 
 
 ## Check to see that we are using the minimum required version of automake

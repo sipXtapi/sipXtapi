@@ -1,42 +1,13 @@
-## BUILDSTAMP records the subversion revision, date/time, and host of the build
-##   it also creates the cpp file config/sipX-buildstamp.cpp with the same information.
-
-## The SVN-VERSION file is created to record the version 
-##  in the distribution tarball; it is not used in a subversion working copy
-##  (see the BUILDSTAMP rule below).
-.PHONY: SVN-VERSION
-SVN-VERSION: 
-	@if test -d @top_srcdir@/.svn ; \
-	then \
-		echo "Generating SVN-VERSION from svnversion"; \
-		svnversion @top_srcdir@ \
-		| perl -p \
-			-e 'm /(\d+)/ && do { $$padded=sprintf( "%06d", $$1 ); s/\d+/$$padded/; };' \
-			-e 's/:/./; s/M/.M/;' \
-		> @abs_top_builddir@/SVN-VERSION ; \
-	elif test -r @abs_top_srcdir@/SVN-EXPORT-VERSION ; \
-	then \
-		echo "Copying SVN-VERSION from SVN-EXPORT-VERSION"; \
-		cp @abs_top_srcdir@/SVN-EXPORT-VERSION @abs_top_builddir@/SVN-VERSION ; \
-	elif test -r @abs_top_srcdir@/../SVN-EXPORT-VERSION ; \
-	then \
-		echo "Copying SVN-VERSION from top level SVN-EXPORT-VERSION"; \
-		cp @abs_top_srcdir@/../SVN-EXPORT-VERSION @abs_top_builddir@/SVN-VERSION ; \
-	else \
-		echo "Unknown SVN-VERSION"; \
-		echo '0.unknown' > @abs_top_builddir@/SVN-VERSION ; \
-	fi
-	@echo -n "SVN-VERSION=" ; cat @abs_top_builddir@/SVN-VERSION; echo ""
-
-SVN-EXPORT-VERSION: SVN-VERSION
-	cp SVN-VERSION SVN-EXPORT-VERSION
+SUDO = sudo
 
 all: BUILDSTAMP
 
+## BUILDSTAMP records the subversion revision, date/time, and host of the build
+##   it also creates the cpp file config/sipX-buildstamp.cpp with the same information.
 .PHONY: BUILDSTAMP
-BUILDSTAMP: SVN-VERSION
+BUILDSTAMP:
 	@echo "Generating BUILDSTAMP" 
-	sipxSvnVersion=`cat @abs_top_builddir@/SVN-VERSION` ; \
+	sipxSvnVersion=`@SVN_VERSION@` ; \
 	sipxBuildTime=`date -u +%Y-%m-%dT%H:%M:%S` ; \
 	sipxBuildHost=`uname -n` ; \
 	SIPX_BUILDSTAMP="$${sipxSvnVersion} $${sipxBuildTime} $${sipxBuildHost}" ; \
@@ -52,21 +23,37 @@ BUILDSTAMP: SVN-VERSION
 	    $(srcdir)/config/sipX-buildstamp.h.in \
 	> config/@PACKAGE@-buildstamp.h
 
-.PHONY : rpm
-# Where rpmbuild will do its work.
-RPMBUILD_TOPDIR = $(shell rpm --eval '%{_topdir}')
+SVN_VERSION:
+	echo "@SVN_VERSION@" > SVN_VERSION
 
-.PHONY : rpm-repo-init
-rpm-repo-init:
-	if [ -z "$(RPM_REPO)" ]; then \
-	  echo "You must specific --with-rpm-repo to ./configure " >&2; \
-	  exit 1; \
-	fi;
+RPM=$(DEST_RPM)/@PACKAGE@-$(VERSION)-@SVN_VERSION@.$(RPM_TARGET_ARCH).rpm 
+DEVEL_RPM=$(DEST_RPM)/@PACKAGE@-devel-$(VERSION)-@SVN_VERSION@.$(RPM_TARGET_ARCH).rpm
+DEBUG_RPM=$(DEST_RPM)/@PACKAGE@-debug-$(VERSION)-@SVN_VERSION@.$(RPM_TARGET_ARCH).rpm
 
-rpm : dist additional-package-files rpm-repo-init
-	rpmbuild -ta --define="buildno $(shell cat @abs_top_builddir@/SVN-VERSION)" @PACKAGE@-$(VERSION).tar.gz
-	mv -f $(RPMBUILD_TOPDIR)/SRPMS/@PACKAGE@-$(VERSION)-*.rpm $(RPM_REPO)
-	mv -f $(RPMBUILD_TOPDIR)/RPMS/*/@PACKAGE@*-$(VERSION)-*.rpm $(RPM_REPO)
+RPMS = $(RPM) $(DEVEL_RPM)
+SRPM = $(DEST_SRPM)/@PACKAGE@-$(VERSION)-@SVN_VERSION@.src.rpm
+
+RPM_INSTALL_FLAGS = -F --nodeps --quiet --noscripts --notriggers
+
+.PHONY: rpm
+rpm : $(RPMS)
+
+.PHONY: install-rpms
+install-rpms : $(RPMS)
+	$(SUDO) rpm $(RPM_INSTALL_FLAGS) $(RPMS)
+
+list-rpms :
+	@echo $(RPMS)
+
+.PHONY : build-rpms
+build-rpms : dist additional-package-files
+	rpmbuild -ta --define="buildno @SVN_VERSION@" @PACKAGE@-$(VERSION).tar.gz
+
+$(RPMS) : $(SRPM)
+	cp $(RPMBUILD_TOPDIR)/RPMS/$(RPM_TARGET_ARCH)/`basename $@` $@
+
+$(SRPM) : build-rpms
+	cp $(RPMBUILD_TOPDIR)/SRPMS/`basename $@` $@
 
 .PHONY : additional-package-files
 additional-package-files: \

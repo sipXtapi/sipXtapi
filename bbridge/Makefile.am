@@ -12,7 +12,6 @@ RELEASE = 1
 
 EXTRA_DIST = \
     BUILDSTAMP \
-	 SVN-EXPORT-VERSION \
     config/sipX-config.in \
     config/sipX-buildstamp.cpp.in \
     config/sipX-buildstamp.h.in \

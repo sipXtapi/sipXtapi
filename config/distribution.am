@@ -1,7 +1,9 @@
 ## common 
 
 RECURSE = recurse
-RECURSE_SUBDIRS = $(subdirs)
+PROJECTS = $(subdirs)
+
+RPMS ?= $(RPM) $(DEVEL_RPM)
 
 $(RECURSE):
 	@failcom='exit 1'; \
@@ -12,7 +14,7 @@ $(RECURSE):
 	  esac; \
 	done; \
 	target="$(TARGETS)`echo $@ | sed -e s/recurse//`"; \
-	list='$(RECURSE_SUBDIRS)'; for subdir in $$list; do \
+	list='$(PROJECTS)'; for subdir in $$list; do \
 	  echo "Making $$target in $$subdir"; \
 	  (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) $$target) \
 	  || eval $$failcom; \
@@ -21,5 +23,6 @@ $(RECURSE):
 # simply list projects in correct build order
 .PHONY: list
 list:
-	@echo $(RECURSE_TARGETS)
+	@echo $(PROJECTS)
+
 

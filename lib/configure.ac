@@ -23,10 +23,10 @@ AC_ARG_ENABLE(java-sun,
 	[ java_sun=yes ])
 test x$java_sun = xyes && AC_CONFIG_SUBDIRS(java-sun)
 
-AC_ARG_ENABLE(mod_cpluscplus,
-	AC_HELP_STRING([--enable-mod_cpluscplus], [Build mod_cplusplus dependency]),
-	[ mod_cpluscplus=yes ])
-test x$mod_cpluscplus = xyes && AC_CONFIG_SUBDIRS(mod_cpluscplus)
+AC_ARG_ENABLE(mod_cplusplus,
+	AC_HELP_STRING([--enable-mod_cplusplus], [Build mod_cplusplus dependency]),
+	[ mod_cplusplus=yes ])
+test x$mod_cplusplus = xyes && AC_CONFIG_SUBDIRS(mod_cplusplus)
 
 AC_ARG_ENABLE(pcre,
 	AC_HELP_STRING([--enable-pcre], [Build pcre dependency]),

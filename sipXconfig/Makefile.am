@@ -1,6 +1,6 @@
 include $(top_builddir)/config/sipXcommon.mak
-
 include $(srcdir)/config/sipXprojtop.mak
+
 # Append to global search/replace with _very_ project specific search/replaces
 edit = $(LocalizeSipXconfig) \
     -e 's,@OPENSSL\@,@OPENSSL@,g' \
@@ -12,6 +12,8 @@ edit = $(LocalizeSipXconfig) \
 
 
 SUBDIRS = . bin neoconf web meta agent $(doc_SUBDIRS)
+
+RPMS = $(RPM)
 
 EXTRA_DIST = \
     config/sipX-config.in \
@@ -27,7 +29,7 @@ EXTRA_DIST = \
     acsite.m4 \
     CONTRIBUTORS \
     BUILDSTAMP \
-    SVN-EXPORT-VERSION \
+    SVN_VERSION \
     LICENSE \
     build.properties.in \
     lib.properties \

@@ -9,7 +9,7 @@ RELEASE = 1
 EXTRA_DIST = \
     CONTRIBUTORS \
     BUILDSTAMP \
-	 SVN-EXPORT-VERSION \
+    SVN_VERSION \
     src/cdr \
     config/sipX-config.in \
     config/sipX-buildstamp.cpp.in \

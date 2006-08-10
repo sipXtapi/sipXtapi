@@ -18,9 +18,9 @@ INSTALL = @INSTALL@
 
 EXTRA_DIST = \
     BUILDSTAMP \
+    SVN_VERSION \
     CONTRIBUTORS \
     LICENSE \
-    SVN-EXPORT-VERSION \
     bin/httpd-sipxchange-config.sh.in \
     config/apache_version.awk \
     config/sipX-buildstamp.cpp.in \
