@@ -107,7 +107,7 @@ nobase_include_HEADERS =  \
     resparse/types.h \
     tapi/SipXHandleMap.h \
     tapi/SipXMessageObserver.h \
-    tapi/SipXtapiEventDispatcher.h \
+    tapi/SipXEventDispatcher.h \
     tapi/doxyfile \
     tapi/sipXtapi.h \
     tapi/sipXtapiEvents.h \
