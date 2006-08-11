@@ -10,7 +10,7 @@ SRPM = $(PGSQL_LIBSRC)/ruby-postgres-$(VER)-$(REL).src.rpm
 all : $(RPM)
 
 $(SRPM) :
-	../meta/download-file $@ $(RUBY_AUX_RPMS_URL)/SRPMS/`basename $@`
+	$(srcdir)/config/download-file $@ $(RUBY_AUX_RPMS_URL)/SRPMS/`basename $@`
 
 $(RPM) : $(SRPM)
 	rpmbuild --rebuild $(SRPM)

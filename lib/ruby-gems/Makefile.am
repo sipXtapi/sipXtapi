@@ -9,4 +9,4 @@ all : $(RPM)
 
 # simply download, no need to patch/recompile
 $(RPM) :
-	../meta/download-file $@ $(RUBY_AUX_RPMS_URL)/RPMS/`basename $@`
+	$(srcdir)/config/download-file $@ $(RUBY_AUX_RPMS_URL)/RPMS/`basename $@`
