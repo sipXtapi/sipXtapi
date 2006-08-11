@@ -60,8 +60,6 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
 
     private transient ConfigGenerator m_generator;
 
-    private DialingRuleFactory m_ruleFactory;
-
     private CoreContext m_coreContext;
 
     private AliasManager m_aliasManager;
@@ -375,14 +373,6 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
             return generateDialPlan();
         }
         return m_generator;
-    }
-
-    public DialingRuleFactory getRuleFactory() {
-        return m_ruleFactory;
-    }
-
-    public void setRuleFactory(DialingRuleFactory ruleFactory) {
-        m_ruleFactory = ruleFactory;
     }
 
     public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {

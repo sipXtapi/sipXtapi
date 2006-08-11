@@ -1008,7 +1008,6 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds)
 {
     UtlBoolean ringingSent = FALSE;
     int cause = 0;
-    int codecIndex;
 
 #ifdef TEST_PRINT
     osPrintf("SipConnection::accept ringingTimeOutSeconds=%d\n", ringingTimeOutSeconds);

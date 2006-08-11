@@ -3,17 +3,7 @@
 <component-specification class="org.sipfoundry.sipxconfig.site.gateway.GatewayForm" allow-body="no" allow-informal-parameters="no">
   <parameter name="gateway"  required="yes" />
   <inject property="gatewayContext" object="spring:gatewayContext"/>
-  <!-- 
-     - B E A N S 
-     -->
-  <bean name="gatewayModels" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
-    <set name="collection" value="gatewayContext.availableGatewayModels"/>
-    <set name="labelExpression" value="literal:label"/>
-  </bean>
-  
-  <!-- 
-     - C O M P O N E N T S 
-     -->
+
   <component id="gatewayNamePanel" type="FieldPanel">
     <binding name="field" value="components.gatewayName"/>
     <binding name="label" value="message:label.name"/>
@@ -35,7 +25,7 @@
     <binding name="displayName" value="message:label.serial"/>
   </component>
   <component id="renderGatewaySerial" type="If">
-    <binding name="condition" value="gateway.model == null || gateway.model.hasSerialNumber"/>
+    <binding name="condition" value="gateway.model.hasSerialNumber"/>
   </component>  
   <component id="gatewayAddressPanel" type="FieldPanel">
     <binding name="field" value="components.gatewayAddress"/>
@@ -47,6 +37,16 @@
     <binding name="validators" value="validators:required"/>
     <binding name="displayName" value="message:label.address"/>
   </component>
+  <component id="gatewayPrefixPanel" type="FieldPanel">
+    <binding name="field" value="components.gatewayPrefix"/>
+    <binding name="label" value="message:label.prefix"/>
+    <binding name="description" value="message:description.prefix"/>
+  </component>
+  <component id="gatewayPrefix" type="TextField">
+    <binding name="value" value="gateway.prefix"/>
+    <binding name="validators" value="spring-validators:validSipUserId"/>
+    <binding name="displayName" value="message:label.prefix"/>
+  </component>
   <component id="gatewayDescriptionPanel" type="FieldPanel">
     <binding name="field" value="components.gatewayDescription"/>
     <binding name="label" value="message:label.description"/>
@@ -55,15 +55,5 @@
     <binding name="value" value="gateway.description"/>
     <binding name="validators" value="spring-validators:validFieldSize"/>
     <binding name="displayName" value="message:label.description"/>
-  </component>
-  <component id="gatewayModelPanel" type="FieldPanel">
-    <binding name="field" value="components.gatewayModel"/>
-    <binding name="label" value="message:label.model"/>
-  </component>
-  <component id="gatewayModel" type="PropertySelection">
-    <binding name="model" value="bean:gatewayModels"/>
-    <binding name="value" value="gateway.model"/>
-    <binding name="disabled" value="!gateway.isNew()"/>
-	<binding name="onchange" value="literal:javascript:this.form.submit();"/>
   </component>
 </component-specification>

@@ -333,14 +333,6 @@ SOURCE=.\src\os\OsSysLogTask.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\os\Wnt\OsSysSoftTimer.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\os\OsSysTimer.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\src\os\OsTask.cpp
 # End Source File
 # Begin Source File
@@ -358,10 +350,6 @@ SOURCE=.\src\os\OsTimeLog.cpp
 # Begin Source File
 
 SOURCE=.\src\os\OsTimer.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\os\OsTimerDb.cpp
 # End Source File
 # Begin Source File
 

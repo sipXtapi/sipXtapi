@@ -88,8 +88,10 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
         g1.setAddress("10.1.1.1");
         m_context.storeGateway(g1);
         g1.setAddress("10.1.1.2");
+        g1.setPrefix("33");
         m_context.storeGateway(g1);
         assertEquals("10.1.1.2", g1.getAddress());
+        assertEquals("33", g1.getPrefix());
     }
 
     public void testSaveLoadUpdateGateway() throws Exception {

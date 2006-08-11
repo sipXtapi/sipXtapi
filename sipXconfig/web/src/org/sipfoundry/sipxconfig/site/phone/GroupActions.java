@@ -18,7 +18,6 @@ import org.apache.tapestry.IActionListener;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.form.IPropertySelectionModel;
-import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.setting.BulkGroupAction;
@@ -35,7 +34,7 @@ public abstract class GroupActions extends BaseComponent {
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
         setSelectedAction(null);
         super.renderComponent(writer, cycle);
-        if (cycle.isRewinding()) {
+        if (TapestryUtils.isRewinding(cycle, this) && TapestryUtils.isValid(this)) {
             triggerAction(cycle);
         }
     }
@@ -51,18 +50,17 @@ public abstract class GroupActions extends BaseComponent {
             return;
         }
         Collection selectedIds = getSelectedIds();
-        if (selectedIds.size() == 0) {
+        if (selectedIds != null && selectedIds.size() == 0) {
             // nothing to do
             return;
         }
+
         BulkGroupAction action = (BulkGroupAction) a;
         action.setIds(selectedIds);
 
         action.actionTriggered(this, cycle);
 
-        // record success
-        SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils
-                .getValidator(getPage());
-        validator.recordSuccess(action.getSuccessMsg(getContainer().getMessages()));
+        String successMsg = action.getSuccessMsg(getContainer().getMessages());
+        TapestryUtils.recordSuccess(this, successMsg);
     }
 }

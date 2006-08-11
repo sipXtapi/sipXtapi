@@ -39,10 +39,6 @@ public abstract class EditFlexibleDialPlan extends BasePage {
 
     public abstract Collection getRowsToMoveDown();
 
-    public String add() {
-        return SelectRuleType.PAGE;
-    }
-
     public IPage edit(IRequestCycle cycle, Integer ruleId) {
         DialingRule rule = getDialPlanContext().getRule(ruleId);
         DialingRuleType ruleType = rule.getType();

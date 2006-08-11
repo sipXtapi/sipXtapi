@@ -722,18 +722,19 @@ void sipxInfoFree(SIPX_INFO_DATA* pData)
 }
 
 
-SIPX_LINE sipxLineLookupHandle(const char* szLineURI)
+SIPX_LINE sipxLineLookupHandle(const char* szURI)
 {
     gpLineHandleMap->lock() ;
 
     UtlHashMapIterator iter(*gpLineHandleMap);
-    Url                urlLine(szLineURI) ; 
-   
+    Url                urlURI(szURI) ; 
+
     UtlInt* pIndex = NULL;
     UtlVoidPtr* pObj = NULL;
-    SIPX_LINE hLine = 0 ;
-   
-    while (pIndex = dynamic_cast<UtlInt*>( iter() ) )       
+    SIPX_LINE hLine = SIPX_LINE_NULL ;
+
+    // First pass: strict matching
+    while ((pIndex = dynamic_cast<UtlInt*>(iter())))
     {
         pObj = dynamic_cast<UtlVoidPtr*>(gpLineHandleMap->findValue(pIndex));
         SIPX_LINE_DATA* pData = NULL ;
@@ -743,7 +744,7 @@ SIPX_LINE sipxLineLookupHandle(const char* szLineURI)
             if (pData)
             {         
                 // Check main line definition
-                if (urlLine.isUserHostPortEqual(*pData->lineURI))
+                if (urlURI.isUserHostPortEqual(*pData->lineURI))
                 {
                     hLine = pIndex->getValue() ;
                     break ;
@@ -756,14 +757,109 @@ SIPX_LINE sipxLineLookupHandle(const char* szLineURI)
                     Url* pUrl ;
                     UtlSListIterator iterator(*pData->pLineAliases) ;
 
-                    while (pValue = (UtlVoidPtr*) iterator()) 
+                    while ((pValue = (UtlVoidPtr*) iterator()))
                     {
                         pUrl = (Url*) pValue->getValue() ;
-                        
-                        if (urlLine.isUserHostPortEqual(*pUrl))
+
+                        if (urlURI.isUserHostPortEqual(*pUrl))
                         {
                             hLine = pIndex->getValue() ;
                             break ;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Second pass: Relax port
+    if (hLine == SIPX_LINE_NULL)
+    {
+        iter.reset() ;    
+        while ((pIndex = dynamic_cast<UtlInt*>(iter())))
+        {
+            pObj = dynamic_cast<UtlVoidPtr*>(gpLineHandleMap->findValue(pIndex));
+            SIPX_LINE_DATA* pData = NULL ;
+            if (pObj)
+            {
+                pData = (SIPX_LINE_DATA*) pObj->getValue() ;
+                if (pData)
+                {         
+                    // Check main line definition
+                    if (urlURI.isUserHostEqual(*pData->lineURI))
+                    {
+                        hLine = pIndex->getValue() ;
+                        break ;
+                    }
+
+                    // Check for line aliases
+                    if (pData->pLineAliases)
+                    {
+                        UtlVoidPtr* pValue ;
+                        Url* pUrl ;
+                        UtlSListIterator iterator(*pData->pLineAliases) ;
+
+                        while ((pValue = (UtlVoidPtr*) iterator()))
+                        {
+                            pUrl = (Url*) pValue->getValue() ;
+
+                            if (urlURI.isUserHostEqual(*pUrl))
+                            {
+                                hLine = pIndex->getValue() ;
+                                break ;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Third pass: username only
+    if (hLine == SIPX_LINE_NULL)
+    {
+        iter.reset() ;    
+        while ((pIndex = dynamic_cast<UtlInt*>(iter())))
+        {
+            pObj = dynamic_cast<UtlVoidPtr*>(gpLineHandleMap->findValue(pIndex));
+            SIPX_LINE_DATA* pData = NULL ;
+            if (pObj)
+            {
+                pData = (SIPX_LINE_DATA*) pObj->getValue() ;
+                if (pData)
+                {
+                    UtlString uriUsername ;
+                    UtlString hostUsername ;
+                                       
+                    urlURI.getUserId(uriUsername) ;
+                    pData->lineURI->getUserId(hostUsername) ;
+
+                    if (uriUsername.compareTo(hostUsername, 
+                            UtlString::ignoreCase) == 0)
+                    {
+                        hLine = pIndex->getValue() ;
+                        break ;
+                    }
+
+                    // Check for line aliases
+                    if (pData->pLineAliases)
+                    {
+                        UtlVoidPtr* pValue ;
+                        Url* pUrl ;
+                        UtlSListIterator iterator(*pData->pLineAliases) ;
+
+                        while ((pValue = (UtlVoidPtr*) iterator()))
+                        {
+                            pUrl = (Url*) pValue->getValue() ;
+                            UtlString aliasUsername ;
+
+                            pUrl->getUserId(aliasUsername) ;
+
+                            if (uriUsername.compareTo(aliasUsername, UtlString::ignoreCase) == 0)
+                            {
+                                hLine = pIndex->getValue() ;
+                                break ;
+                            }
                         }
                     }
                 }

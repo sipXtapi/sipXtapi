@@ -415,7 +415,9 @@ public class SiteTestHelper {
      * Turn on/off javascript, make sure to restore state
      * to true after you're done
      */
-    public static void setScriptingEnabled(boolean enabled) {   
+    public static boolean setScriptingEnabled(boolean enabled) {
+        boolean old = HttpUnitOptions.isScriptingEnabled();
         HttpUnitOptions.setScriptingEnabled(enabled);
+        return old;
     }
 }

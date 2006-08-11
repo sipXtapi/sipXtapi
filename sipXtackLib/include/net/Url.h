@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _Url_h_
@@ -143,11 +145,6 @@ public:
     //! Serialize this URL to a string in name-addr format, suitable for use
     //  as a field in a header.
     UtlString toString() const;
-
-    /// Gets the serialized URL as a string in addr-spec format (with
-    //  no display name or field parameters), suitable for use as a request
-    //  URI.
-    void getUri(UtlString& Uri);
 
     //! Debug dump to STDOUT
     void dump();
@@ -421,6 +418,9 @@ public:
     /// Un-escape a string as a gen_value, which is what field-parameters
     //! use for values.
     static void gen_value_unescape(UtlString& escapedText);
+    /// Gets the serialized URL as a string (with no display name or 
+    //! field parameters)
+    void getUri(UtlString& Uri);
 
 /* ============================ INQUIRY =================================== */
 
@@ -439,6 +439,13 @@ public:
     * \return TRUE if the user Id, host and port are the same
     */
    UtlBoolean isUserHostPortEqual(const Url& uri) const ;
+
+   /// Compare two URLs to see if the have the same user and host
+   /* Assumes that host is \a not case sensative, but that user id 
+    * \a is case sensative.
+    * \return TRUE if the user Id and host are the same
+    */   
+   UtlBoolean isUserHostEqual(const Url& uri) const ;
 
    /// Are angle brackets explicitly included
    UtlBoolean isIncludeAngleBracketsSet() const ;

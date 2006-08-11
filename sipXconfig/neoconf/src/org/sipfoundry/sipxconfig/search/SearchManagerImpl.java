@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -95,18 +94,29 @@ public class SearchManagerImpl implements SearchManager {
         throws IOException {
         final int hitCount = hits.length();
         List results = new ArrayList(hitCount);
+        // if (transformer != null) {
+        // results = ListUtils.predicatedList(results, NotNullPredicate.INSTANCE);
+        // results = ListUtils.transformedList(results, transformer);
+        // }
+
         int from = firstItem < 0 ? 0 : firstItem;
         int to = pageSize < 0 ? hitCount : Math.min(hitCount, firstItem + pageSize);
         for (int i = from; i < to; i++) {
             Document document = hits.doc(i);
             Identity identity = m_beanAdaptor.getBeanIdentity(document);
-            if (identity != null) {
+            if (identity == null) {
+                continue;
+            }
+            if (transformer != null) {
+                Object bean = transformer.transform(identity);
+                if (bean != null) {
+                    results.add(bean);
+                }
+            } else {
                 results.add(identity);
             }
         }
-        if (transformer != null) {
-            CollectionUtils.transform(results, transformer);
-        }
+        
         return results;
     }
 

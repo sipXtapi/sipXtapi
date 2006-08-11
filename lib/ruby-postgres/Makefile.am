@@ -1,7 +1,7 @@
 PGSQL_LIBSRC = $(LIBSRC)/ruby-postgres
 
 VER = 0.7.1
-REL = 3
+REL = 4
 
 RPM = $(DEST_RPM)/ruby-postgres-$(VER)-$(REL).$(RPM_TARGET_ARCH).rpm
 SRPM = $(PGSQL_LIBSRC)/ruby-postgres-$(VER)-$(REL).src.rpm

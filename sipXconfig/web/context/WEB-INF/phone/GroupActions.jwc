@@ -6,7 +6,7 @@
 <component-specification class="org.sipfoundry.sipxconfig.site.phone.GroupActions" allow-body="no"
   allow-informal-parameters="no">
   <description>Component presents action to add and remove property groups.</description>
-  <parameter name="selectedIds" required="yes"/>
+  <parameter name="selectedIds" required="no" default-value="null"/>
   <parameter name="actionModel" required="yes"/>
   
   <bean name="propertyRenderer" class="org.sipfoundry.sipxconfig.components.selection.OptGroupPropertySelectionRenderer"/>

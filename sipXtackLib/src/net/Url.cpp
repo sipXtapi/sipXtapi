@@ -1,13 +1,12 @@
-// 
 //
-// Copyright (C) 2004 SIPfoundry Inc.
+// Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
-// Copyright (C) 2004 Pingtel Corp.
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -1452,10 +1451,28 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
 
 UtlBoolean Url::isUserHostPortEqual(const Url &url) const
 {
-   // Compare the relevant components of the URI.
+   int port = url.mHostPort ;
+   if(port <= 0)
+   {
+      port = SIP_PORT;
+   }
+   
+   int checkPort = mHostPort ;
+   if(checkPort <= 0)
+   {
+      checkPort = SIP_PORT;
+   }
+   
    return (   mHostAddress.compareTo(url.mHostAddress.data(), UtlString::ignoreCase) == 0
            && mUserId.compareTo(url.mUserId.data()) == 0
-           && mHostPort == url.mHostPort );
+           && ( checkPort == port ));
+}
+
+UtlBoolean Url::isUserHostEqual(const Url &url) const
+{
+   
+   return (   mHostAddress.compareTo(url.mHostAddress.data(), UtlString::ignoreCase) == 0
+           && mUserId.compareTo(url.mUserId.data()) == 0);
 }
 
 
@@ -1469,7 +1486,7 @@ void Url::getIdentity(UtlString &identity) const
    identity.append(lowerHostAddress);
 
    // If the port designates an actual port, it must be specified.
-   if(portIsValid(mHostPort))
+   if(portIsValid(mHostPort) && mHostPort != 5060)
    {
       char portBuffer[20];
       sprintf(portBuffer, ":%d", mHostPort);

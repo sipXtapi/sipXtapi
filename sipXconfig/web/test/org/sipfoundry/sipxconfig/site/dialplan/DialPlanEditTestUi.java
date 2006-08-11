@@ -40,20 +40,20 @@ public class DialPlanEditTestUi extends WebTestCase {
         {
             "Emergency", "false", "Emergency", "Emergency dialing plan"
         }, {
-            "International", "false", "International", "International dialing"
+            "International", "false", "Long Distance", "International dialing"
         }, {
-            "AutoAttendant", "true", "Attendant", "Default autoattendant dialing plan"
-        }, {
-            "Internal", "true", "Internal", "Default internal dialing plan"
-        }, {
-            "Local", "false", "Local", "Local dialing"
+            "Local", "false", "Long Distance", "Local dialing"
         }, {
             "Long Distance", "false", "Long Distance", "Long distance dialing plan"
         }, {
             "Restricted", "false", "Long Distance", "Restricted dialing"
         }, {
             "Toll free", "false", "Long Distance", "Toll free dialing"
-        }
+        }, {
+            "AutoAttendant", "true", "Attendant", "Default autoattendant dialing plan"
+        }, {
+            "Internal", "true", "Internal", "Default internal dialing plan"
+        },
     };
 
     public void setUp() {
@@ -108,11 +108,8 @@ public class DialPlanEditTestUi extends WebTestCase {
     public void testCustomRuleAdd() throws Exception {
         for (int i = 0; i < NAMES.length; i++) {
             String[] row = NAMES[i];
-            clickLink("dialplan:add");
-            // 2 means custom...
             selectOption("ruleTypeSelection", "Custom");
-            clickButton("selectRule:next");
-            
+
             SiteTestHelper.assertNoException(tester);
 
             assertLinkNotPresent("pattern:delete");
@@ -137,17 +134,14 @@ public class DialPlanEditTestUi extends WebTestCase {
 
     public void testInternationalRuleAdd() {
         for (int i = 0; i < 4; i++) {
-            clickLink("dialplan:add");
             String name = "international" + i;
             String description = "international description" + i;
-            // 2 means custom...
             selectOption("ruleTypeSelection", "International");
-            clickButton("selectRule:next");
 
             setFormElement("name", name);
             setFormElement("description", description);
             // dial pattern prefix
-            setFormElement("internationalPrefix", "100" + i);
+            setFormElement("longDistancePrefix", "100" + i);
 
             clickButton("form:ok");
 
@@ -159,16 +153,18 @@ public class DialPlanEditTestUi extends WebTestCase {
     public void testAttendantRuleAdd() throws Exception {
         for (int i = 0; i < NAMES.length; i++) {
             String[] row = NAMES[i];
-            clickLink("dialplan:add");
             selectOption("ruleTypeSelection", "Attendant");
-            clickButton("selectRule:next");
 
             setFormElement("name", row[0]);
             setFormElement("description", row[2]);
             // dial pattern prefix
             setFormElement("extension", "33344" + i);
+            setFormElement("autoAttendantAliases", "");
 
             clickButton("form:ok");
+            SiteTestHelper.assertNoException(tester);
+            SiteTestHelper.assertNoUserError(tester);
+
             assertTextInTable("dialplan:list", row[2]);
             assertLinkPresentWithText(row[0]);
         }
@@ -209,8 +205,7 @@ public class DialPlanEditTestUi extends WebTestCase {
     }
 
     private void checkGateways() throws Exception {
-        assertLinkPresent("gateway:add");
-        assertLinkPresent("gateway:select");
+        assertFormElementPresent("actionSelection");
 
         assertButtonPresent("gateway:remove");
         assertButtonPresent("gateway:moveUp");
@@ -224,7 +219,9 @@ public class DialPlanEditTestUi extends WebTestCase {
         String[][] gateways = new String[gatewayCount][];
 
         for (int i = 0; i < gatewayCount; i++) {
-            clickLink("gateway:add");
+            selectOption("actionSelection", "Unmanaged gateway");
+            SiteTestHelper.assertNoException(tester);
+            SiteTestHelper.assertNoUserError(tester);
 
             // Give the new gateway a name that is extremely unlikely to collide
             // with any existing gateway names
@@ -255,6 +252,7 @@ public class DialPlanEditTestUi extends WebTestCase {
         clickLinkWithText(gateways[0][0]);
         SiteTestHelper.assertNoException(tester);
         clickButton("form:cancel");
+        SiteTestHelper.assertNoException(tester);
 
         // test removal
         for (int i = 0; i < gatewayCount; i++) {
@@ -265,17 +263,10 @@ public class DialPlanEditTestUi extends WebTestCase {
         assertEquals(1, SiteTestHelper.getRowCount(tester, "list:gateway"));
 
         // test adding existing gateways
-        clickLink("gateway:select");
-        // one more time check if gateway edit is working
-        clickLinkWithText(gateways[0][0]);
+        selectOption("actionSelection", gateways[0][0]);
         SiteTestHelper.assertNoException(tester);
-        clickButton("form:cancel");        
-        
-        SiteTestHelper.assertNoException(tester);
-        for (int i = 0; i < gatewayCount; i++) {
-            SiteTestHelper.selectRow(tester, i, true);
-        }
-        clickButton("select:gateway:save");
-        assertEquals(gatewayCount + 1, SiteTestHelper.getRowCount(tester, "list:gateway"));
+        assertEquals(2, SiteTestHelper.getRowCount(tester, "list:gateway"));
+        gatewayTable = getTester().getDialog().getWebTableBySummaryOrId("list:gateway");
+        assertEquals(gateways[0][0], gatewayTable.getCellAsText(1, 1));
     }
 }

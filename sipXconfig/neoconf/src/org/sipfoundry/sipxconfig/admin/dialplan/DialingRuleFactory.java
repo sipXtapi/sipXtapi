@@ -11,40 +11,43 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collection;
 
-import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 
-/**
- * DialingRuleFactory
- * TODO: we should be able to use spring for that...
- */
-public class DialingRuleFactory {
-    private static final Map PROTOTYPES = new HashMap();
+public class DialingRuleFactory implements BeanFactoryAware {
+    private Collection<String> m_beanIds;
 
-    static {
-        PROTOTYPES.put(DialingRuleType.CUSTOM, new CustomDialingRule());
-        PROTOTYPES.put(DialingRuleType.INTERNAL, new InternalRule());
-        PROTOTYPES.put(DialingRuleType.LONG_DISTANCE, new LongDistanceRule());
-        PROTOTYPES.put(DialingRuleType.LOCAL, new LocalRule());
-        PROTOTYPES.put(DialingRuleType.EMERGENCY, new EmergencyRule());
-        PROTOTYPES.put(DialingRuleType.INTERNATIONAL, new InternationalRule());
-        PROTOTYPES.put(DialingRuleType.ATTENDANT, new AttendantRule());
-    }
+    private BeanFactory m_beanFactory;
 
     /**
-     * Constructs dialing rule by cloning prototypes.
+     * Constructs dialing rule from prototypes defined in Spring configuration file.
      * 
      * Throws illegal argument exception if invalid or unregistered type is passed.
+     * 
      * @param type dialing rule type
      * @return newly created object
      */
-    public DialingRule create(DialingRuleType type) {
-        BeanWithId proto = (BeanWithId) PROTOTYPES.get(type);
-        if (null == proto) {
-            throw new IllegalArgumentException("Illegal Dialing rule type: " + type);
-        }
-        return (DialingRule) proto.duplicate();
+    public DialingRule create(String beanId) {
+        DialingRule rule = (DialingRule) m_beanFactory.getBean(beanId, DialingRule.class);
+        // reset new rule - we do not want to suggest invalid values for name, description etc.
+        rule.setEnabled(false);
+        rule.setDescription(StringUtils.EMPTY);
+        rule.setName(StringUtils.EMPTY);
+        return rule;
+    }
+
+    public void setBeanFactory(BeanFactory beanFactory) {
+        m_beanFactory = beanFactory;
+    }
+
+    public void setBeanIds(Collection<String> beanIds) {
+        m_beanIds = beanIds;
+    }
+
+    public Collection<String> getBeanIds() {
+        return m_beanIds;
     }
 }

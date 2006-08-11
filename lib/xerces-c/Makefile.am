@@ -13,7 +13,7 @@ SRC = $(XERCES_C_LIBSRC)/xerces-c-src_$(VER_UNDERSCORE).tar.gz
 all : $(RPMS)
 
 $(SRC) :
-	$(srcdir)/config/download $@ $(XERCES_C_URL)/`basename $@`
+	$(srcdir)/config/download-file $@ $(XERCES_C_URL)/`basename $@`
 
 # Patch the spec file, rpmbuild complains when building it
 .PHONY: build-rpms

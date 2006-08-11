@@ -66,6 +66,12 @@
         <value>ENABLE</value>
         <description>User can dial long distance numbers</description>
       </setting>
+      <setting name="Mobile">
+        <label>Mobile Dialing</label>
+        <type refid="enable-disable"/>
+        <value>ENABLE</value>
+        <description>User can dial mobile numbers</description>
+      </setting>
       <setting name="TollFree">
         <label>Toll Free</label>
         <type refid="enable-disable"/>

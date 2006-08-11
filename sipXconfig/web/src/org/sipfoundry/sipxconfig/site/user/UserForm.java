@@ -18,7 +18,6 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hivemind.util.PropertyUtils;
-import org.apache.tapestry.AbstractPage;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
@@ -66,7 +65,7 @@ public abstract class UserForm extends BaseComponent implements PageEndRenderLis
     // Update the User object if input data is valid
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
         
-        if (!cycle.isRewinding()) {
+        if (!TapestryUtils.isRewinding(cycle, this)) {
             User user = getUser();        
             // Automatically assign a numeric extension if appropriate
             assignExtension();
@@ -85,12 +84,8 @@ public abstract class UserForm extends BaseComponent implements PageEndRenderLis
         
         super.renderComponent(writer, cycle);
         
-        if (cycle.isRewinding()) {
+        if (TapestryUtils.isRewinding(cycle, this) && TapestryUtils.isValid(this)) {
             User user = getUser();        
-            // Don't take any actions if the page is not valid
-            if (!TapestryUtils.isValid((AbstractPage) getPage())) {
-                return;
-            }
 
             // Set the user aliases from the aliases string
             user.setAliasesString(getAliasesString());

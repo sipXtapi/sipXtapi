@@ -18,7 +18,7 @@ import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.search.BeanAdaptor;
+import org.sipfoundry.sipxconfig.search.IdentityToBean;
 import org.sipfoundry.sipxconfig.search.SearchManager;
 
 /**
@@ -61,7 +61,7 @@ public class SearchPhoneTableModel implements IBasicTableModel {
     public Iterator getCurrentPageRows(int firstRow, int pageSize, ITableColumn objSortColumn,
             boolean orderAscending) {
         String[] orderBy = PhoneTableModel.orderByFromSortColum(objSortColumn);
-        BeanAdaptor.IdentityToBean identityToBean = new BeanAdaptor.IdentityToBean(m_phoneContext);
+        IdentityToBean identityToBean = new IdentityToBean(m_phoneContext);
         List page = m_searchManager.search(Phone.class, m_queryText, firstRow, pageSize, orderBy,
                 orderAscending, identityToBean);
         return page.iterator();

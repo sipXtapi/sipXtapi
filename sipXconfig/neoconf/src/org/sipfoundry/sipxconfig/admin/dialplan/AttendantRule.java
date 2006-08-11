@@ -29,7 +29,7 @@ public class AttendantRule extends DialingRule {
     private String m_attendantAliases;
     private String m_extension;
 
-    public void appendToGenerationRules(List rules) {
+    public void appendToGenerationRules(List<DialingRule> rules) {
         if (!isEnabled()) {
             return;
         }

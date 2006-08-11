@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.site.admin.ldap;
 
-import org.apache.tapestry.AbstractPage;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -42,7 +41,7 @@ public abstract class LdapImport extends BasePage implements PageBeginRenderList
     }
 
     public void importLdap() {
-        if (!TapestryUtils.isValid((AbstractPage) getPage())) {
+        if (!TapestryUtils.isValid(this)) {
             return;
         }
         getLdapImportManager().insert();

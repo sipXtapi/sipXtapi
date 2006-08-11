@@ -32,6 +32,7 @@ public class GatewaysTestUi extends WebTestCase {
     protected void setUp() throws Exception {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
+        SiteTestHelper.setScriptingEnabled(true);
         clickLink("resetDialPlans");
     }
 
@@ -40,10 +41,12 @@ public class GatewaysTestUi extends WebTestCase {
 
         assertTablePresent("list:gateway");
         WebTable gatewaysTable = getDialog().getWebTableBySummaryOrId("list:gateway");
+        // make sure it's sorted by name
+        clickLinkWithText("Name");
         int lastColumn = gatewaysTable.getColumnCount() - 1;
         assertEquals(3, lastColumn);
 
-        clickLink("addGateway");
+        selectOption("selectGatewayModel", "Unmanaged gateway"); // javascript submit
 
         addGateway(null);
         // if validation works we are still on the same page
@@ -56,7 +59,8 @@ public class GatewaysTestUi extends WebTestCase {
         assertEquals(2, gatewaysTable.getRowCount());
         assertEquals("bongoDescription", gatewaysTable.getCellAsText(1, lastColumn));
 
-        clickLink("addGateway");
+        selectOption("selectGatewayModel", "Unmanaged gateway"); // javascript submit
+
         addGateway("kuku");
 
         gatewaysTable = getDialog().getWebTableBySummaryOrId("list:gateway");
@@ -92,7 +96,7 @@ public class GatewaysTestUi extends WebTestCase {
 
     public void testValidateDescription() {
         clickLink("ListGateways");
-        clickLink("addGateway");
+        selectOption("selectGatewayModel", "Unmanaged gateway"); // javascript submit
         addGateway("bongo");
         clickLinkWithText("bongo");
         int limit = 255; // postgres database field size
@@ -144,10 +148,12 @@ public class GatewaysTestUi extends WebTestCase {
      * @param counter number of gateways to add - names gateway0..gateway'count-1'
      */
     public static void addTestGateways(WebTester tester, int counter) {
+        boolean scripting = SiteTestHelper.setScriptingEnabled(true);
+
         tester.clickLink("ListGateways");
 
         for (int i = 0; i < counter; i++) {
-            tester.clickLink("addGateway");
+            tester.selectOption("selectGatewayModel", "Unmanaged gateway"); // javascript submit
 
             // Give the new gateway a name that is extremely unlikely to collide
             // with any existing gateway names
@@ -155,5 +161,6 @@ public class GatewaysTestUi extends WebTestCase {
 
             addGateway(tester, gatewayName);
         }
+        SiteTestHelper.setScriptingEnabled(scripting);
     }
 }
