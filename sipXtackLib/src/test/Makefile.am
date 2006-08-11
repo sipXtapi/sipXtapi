@@ -37,7 +37,6 @@ testsuite_SOURCES = \
     net/SipSrvLookupTest.cpp \
     net/SipSubcriptionMgrTest.cpp \
     net/SipUserAgentTest.cpp \
-    net/UrlTest.cpp \
     net/XmlRpcTest.cpp
 
 # These all crash with no unit test results

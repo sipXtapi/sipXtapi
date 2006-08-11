@@ -418,6 +418,7 @@ public:
     /// Un-escape a string as a gen_value, which is what field-parameters
     //! use for values.
     static void gen_value_unescape(UtlString& escapedText);
+
     /// Gets the serialized URL as a string (with no display name or 
     //! field parameters)
     void getUri(UtlString& Uri);
