@@ -21,7 +21,6 @@ import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
-import org.sipfoundry.sipxconfig.common.Permission;
 
 /**
  * EditDialRule
@@ -49,11 +48,7 @@ public abstract class EditDialRule extends BasePage implements PageBeginRenderLi
     public abstract ICallback getCallback();
 
     public abstract void setCallback(ICallback callback);
-
-    public Permission[] getCallHandlingPermissions() {
-        return Permission.CALL_HANDLING.getChildren();
-    }
-
+    
     public abstract DialingRuleType getRuleType();
 
     public abstract void setRuleType(DialingRuleType dialingType);

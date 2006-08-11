@@ -7,6 +7,7 @@
     - P R O P E R T I E S
   -->
   <inject property="dialPlanContext" object="spring:dialPlanContext" />
+  <inject property="permissionManager" object="spring:permissionManager" />
 
   <property name="ruleId" persist="session" />
   <property name="ruleType" persist="client" />
@@ -22,14 +23,16 @@
     <set name="min" value="literal:5" />
     <set name="max" value="literal:15" />
   </bean>
-  <bean name="externalLenModel" class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator" lifecycle="page">
-    <set name="model" value="bean:digitsOnlyModel"/>
-    <set name="extraLabel" value="message:label.anyDigits"/>
+  <bean name="externalLenModel"
+    class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator" lifecycle="page">
+    <set name="model" value="bean:digitsOnlyModel" />
+    <set name="extraLabel" value="message:label.anyDigits" />
   </bean>
-  
+
   <bean name="permissionTypeModel"
-    class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel" lifecycle="page">
-    <set name="options" value="callHandlingPermissions" />
+    class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel" lifecycle="page">
+    <set name="collection" value="permissionManager.callPermissions" />
+    <set name="labelExpression" value="literal:label" />
   </bean>
   <!--
     - C O M P O N E N T S
@@ -66,7 +69,7 @@
   </component>
   <component id="pstnPrefixOptional" type="Checkbox">
     <binding name="value" value="rule.pstnPrefixOptional" />
-  </component>  
+  </component>
   <component id="longDistancePrefixLabel" type="FieldPanel">
     <binding name="field" value="components.longDistancePrefix" />
     <binding name="label" value="message:label.longDistancePrefix" />
@@ -83,7 +86,7 @@
   </component>
   <component id="longDistancePrefixOptional" type="Checkbox">
     <binding name="value" value="rule.longDistancePrefixOptional" />
-  </component>  
+  </component>
   <component id="areaCodesLabel" type="FieldPanel">
     <binding name="field" value="components.areaCodes" />
     <binding name="label" value="message:label.areaCodes" />

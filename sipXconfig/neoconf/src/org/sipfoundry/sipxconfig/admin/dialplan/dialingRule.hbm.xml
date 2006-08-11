@@ -48,7 +48,7 @@
       </list>
       <bag name="permissions" table="custom_dialing_rule_permission">
         <key column="custom_dialing_rule_id" />
-        <element type="org.sipfoundry.sipxconfig.common.Permission$UserType" column="permission" />
+        <element type="org.sipfoundry.sipxconfig.permission.PermissionUserType" column="permission" />
       </bag>
     </joined-subclass>
 
@@ -83,7 +83,7 @@
       <property name="externalLen" />
       <property name="longDistancePrefix" />
       <property name="longDistancePrefixOptional" />
-      <property name="permission" type="org.sipfoundry.sipxconfig.common.Permission$UserType" />
+      <property name="permission" type="org.sipfoundry.sipxconfig.permission.PermissionUserType" />
       <property name="pstnPrefix" />
       <property name="pstnPrefixOptional" />
     </joined-subclass>

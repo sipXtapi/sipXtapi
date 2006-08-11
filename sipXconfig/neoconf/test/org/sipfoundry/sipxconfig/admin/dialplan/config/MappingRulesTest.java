@@ -32,7 +32,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.MappingRule;
-import org.sipfoundry.sipxconfig.common.Permission;
+import org.sipfoundry.sipxconfig.permission.Permission;
 
 /**
  * MappingRulesTest

@@ -282,13 +282,6 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         assertNotNull(model.getSetting("permission"));
     }
 
-    public void testPermissionInit() {
-        Setting model = m_core.getUserSettingsModel();
-        Permission.init(model);
-        assertNull(Permission.getEnum("bongo"));
-        assertSame(Permission.VOICEMAIL, Permission.getEnum("Voicemail"));
-    }
-
     public void testAliases() throws Exception {
         Collection userAliases = m_core.getAliasMappings();
         assertEquals(0, userAliases.size());

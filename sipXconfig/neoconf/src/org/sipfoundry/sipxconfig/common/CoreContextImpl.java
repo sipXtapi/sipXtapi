@@ -29,6 +29,7 @@ import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
+import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -354,10 +355,6 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
             if (task.getTask().equals("admin-group-and-user")) {
                 createAdminGroupAndInitialUserTask();
             }
-        }
-        // read permissions from settings file
-        if (event instanceof ApplicationInitializedEvent) {
-            Permission.init(getUserSettingsModel());
         }
     }
 

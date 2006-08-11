@@ -49,7 +49,7 @@
     <property name="description" value="Toll free dialing" />
     <property name="areaCodes" value="800, 866, 877, 888" />
     <property name="permission">
-      <bean id="org.sipfoundry.sipxconfig.common.Permission.TOLL_FREE_DIALING"
+      <bean id="org.sipfoundry.sipxconfig.permission.Permission.TOLL_FREE_DIALING"
         class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
     </property>
   </bean>
@@ -59,7 +59,7 @@
     <property name="description" value="Restricted dialing" />
     <property name="areaCodes" value="900" />
     <property name="permission">
-      <bean id="org.sipfoundry.sipxconfig.common.Permission.RESTRICTED_DIALING"
+      <bean id="org.sipfoundry.sipxconfig.permission.Permission.RESTRICTED_DIALING"
         class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
     </property>
   </bean>
@@ -70,7 +70,7 @@
     <property name="longDistancePrefix" value="011" />
     <property name="externalLen" value="-1" />
     <property name="permission">
-      <bean id="org.sipfoundry.sipxconfig.common.Permission.INTERNATIONAL_DIALING"
+      <bean id="org.sipfoundry.sipxconfig.permission.Permission.INTERNATIONAL_DIALING"
         class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
     </property>
   </bean>
@@ -83,7 +83,7 @@
     <property name="longDistancePrefixOptional" value="true" />
     <property name="externalLen" value="7" />
     <property name="permission">
-      <bean id="org.sipfoundry.sipxconfig.common.Permission.LOCAL_DIALING"
+      <bean id="org.sipfoundry.sipxconfig.permission.Permission.LOCAL_DIALING"
         class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
     </property>
   </bean>
