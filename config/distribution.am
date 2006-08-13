@@ -24,8 +24,8 @@ list:
 	@echo $(PROJECTS)
 
 create-local-repo:
-	echo -e "[sipx]\n
-	name=sipx\n
-	baseurl=file://@DEST_RPM@\n
-	gpgcheck=0\n" >> @DEST_RPM@
+	echo -e "[sipx]\n\
+	name=sipx\n\
+	baseurl=file://@DEST_RPM@\n\
+	gpgcheck=0\n" >> @DEST_RPM@/local.repo
 	cd @DEST_RPM@ && createrepo .

@@ -92,7 +92,7 @@ AC_ARG_ENABLE(xerces-c,
 	[ xerces_c=${enableval} ])
 test x$xerces_c = xyes && AC_CONFIG_SUBDIRS(xerces-c)
 
-SFAC_RPM_REPO
+SFAC_DIST_DIR
    
 AC_CONFIG_FILES([Makefile])
 
