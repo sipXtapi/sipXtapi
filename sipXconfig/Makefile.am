@@ -13,7 +13,9 @@ edit = $(LocalizeSipXconfig) \
 
 SUBDIRS = . bin neoconf web meta agent $(doc_SUBDIRS)
 
-RPMS = $(RPM)
+RPMS = \
+	$(RPM) \
+	$(DEST_RPM)/@PACKAGE@-tftp-$(VERSION)-@SVN_VERSION@.$(RPM_TARGET_ARCH).rpm
 
 EXTRA_DIST = \
     config/sipX-config.in \

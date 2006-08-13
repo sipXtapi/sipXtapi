@@ -1,28 +1,37 @@
 # Place to store RPM output files
-AC_DEFUN([SFAC_RPM_REPO],
+AC_DEFUN([SFAC_DIST_DIR],
 [
-  AC_ARG_ENABLE([rpm-repo],
-    AC_HELP_STRING([--enable-rpm-repo=directory], 
-      [Directory to create RPM repository for RPM targets, no default is $(top_builddir)/repo]),
-    [RPM_REPO=${enableval}],[RPM_REPO=repo])
+  AC_ARG_WITH([dist-dir],
+    AC_HELP_STRING([--with-dist-dir=directory], 
+      [Directory to output distribution output files like tarballs, srpms and rpms, default is $(top_builddir)/dist]),
+    [DIST_DIR{enableval}],[DIST_DIR=dist])
 
   AC_SUBST([RPMBUILD_TOPDIR], [`rpm --eval '%{_topdir}'`])
   AC_SUBST([RPM_TARGET_ARCH], [`rpm --eval '%{_target_cpu}'`])
 
-  mkdir -p "$RPM_REPO" 2>/dev/null
-  RPM_REPO=`cd "$RPM_REPO"; pwd`
+  mkdir -p "$DIST_DIR" 2>/dev/null
+  DIST_DIR=`cd "$DIST_DIR"; pwd`
 
-  DEST_RPM="${RPM_REPO}/RPM"
+  DEST_RPM="${DIST_DIR}/RPM"
   mkdir "${DEST_RPM}" 2>/dev/null
   AC_SUBST([DEST_RPM])
 
-  DEST_SRPM="${RPM_REPO}/SRPM"
+  DEST_SRPM="${DIST_DIR}/SRPM"
   mkdir "${DEST_SRPM}"  2>/dev/null
   AC_SUBST([DEST_SRPM])
 
+  # tarballs
+  DEST_SRC="${DIST_DIR}/SRC
+  mkdir "${DEST_SRC}"  2>/dev/null
+  AC_SUBST([DEST_SRC])
+
   AC_ARG_VAR([LIBSRC], [Where downloaded files are kept between builds, default ~/libsrc])
   test -z $LIBSRC && LIBSRC=~/libsrc
-  
+])
+
+
+AC_DEFUN([SFAC_DEPENDENCY_URLS],
+[  
   # URLs to files pulled down files
   AC_SUBST(RUBY_AUX_RPMS_URL, http://people.redhat.com/dlutter/yum)
   AC_SUBST(MOD_CPLUSPLUS_URL, http://umn.dl.sourceforge.net/sourceforge/modcplusplus)

@@ -26,6 +26,7 @@ BUILDSTAMP:
 SVN_VERSION:
 	echo "@SVN_VERSION@" > SVN_VERSION
 
+DIST_SRC=$(DEST_SRC)/$(distdir).tar.gz
 RPM=$(DEST_RPM)/@PACKAGE@-$(VERSION)-@SVN_VERSION@.$(RPM_TARGET_ARCH).rpm 
 DEVEL_RPM=$(DEST_RPM)/@PACKAGE@-devel-$(VERSION)-@SVN_VERSION@.$(RPM_TARGET_ARCH).rpm
 DEBUG_RPM=$(DEST_RPM)/@PACKAGE@-debug-$(VERSION)-@SVN_VERSION@.$(RPM_TARGET_ARCH).rpm
@@ -46,8 +47,8 @@ list-rpms :
 rpm : dist additional-package-files build-rpms $(SRPM) $(RPMS)
 
 .PHONY: build-rpms
-build-rpms :
-	rpmbuild -ta --define="buildno @SVN_VERSION@" @PACKAGE@-$(VERSION).tar.gz
+%-build-rpms :
+	rpmbuild -ta --define="buildno @SVN_VERSION@" $(DIST_SRC)
 
 $(RPMS) :
 	cp $(RPMBUILD_TOPDIR)/RPMS/$(RPM_TARGET_ARCH)/`basename $@` $@
@@ -119,6 +120,6 @@ dist-hook :
 # Other dist types will have same problem, but not orerriding yet as we do
 # support them at this time nor do I have time to check/maintain them, yet.
 dist dist-all : distdir
-	$(AMTAR) chf - $(distdir) | GZIP=$(GZIP_ENV) gzip -c >$(distdir).tar.gz
+	$(AMTAR) chf - $(distdir) | GZIP=$(GZIP_ENV) gzip -c >$(DIST_SRC)
 	$(am__remove_distdir)
 

@@ -3,9 +3,24 @@ AC_INIT(sipXlib, 0.0.0, sipx-dev@list.sipfoundry.org)
 AC_CONFIG_AUX_DIR(config)
 AM_INIT_AUTOMAKE(foreign)
 
+# default
+cgicc=yes
+java_sun=yes
+mod_cplusplus=yes
+ruby_gems=yes
+xerces_c=yes
+
+AC_ARG_ENABLE(rhe4,
+	AC_HELP_STRING([--enable-rhe4], [Enable dependencies for RHE4 and Centos4]),
+	[ 
+          pcre=yes
+          ruby=yes
+          w3c_libwww=yes
+        ])
+
 AC_ARG_ENABLE(cgicc,
 	AC_HELP_STRING([--enable-cgicc], [Build cgicc dependency]),
-	[ cgicc=yes ])
+	[ cgicc=${enableval} ])
 test x$cgicc = xyes && AC_CONFIG_SUBDIRS(cgicc)
 
 AC_ARG_ENABLE(cppunit,
@@ -60,7 +75,7 @@ test x$w3c_libwww = xyes && AC_CONFIG_SUBDIRS(w3c-libwww)
 
 AC_ARG_ENABLE(xerces-c,
 	AC_HELP_STRING([--enable-xerces-c], [Build xerces-c dependency]),
-	[ xerces_c=yes ])
+	[ xerces_c=${withval} ])
 test x$xerces_c = xyes && AC_CONFIG_SUBDIRS(xerces-c)
 
 SFAC_RPM_REPO
