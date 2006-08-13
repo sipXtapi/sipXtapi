@@ -46,7 +46,7 @@ then
   AC_CONFIG_SUBDIRS(sipXphone)
 fi
 
-SFAC_RPM_REPO
+SFAC_DIST_DIR
    
 AC_CONFIG_FILES([Makefile])
 

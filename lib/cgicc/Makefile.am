@@ -11,7 +11,7 @@ all : $(SRPM) $(RPMS)
 
 
 $(SRC) :
-	$(srcdir)/config/download-file $@ $(CGICC_URL)/`basename $@`
+	$(DOWNLOAD_FILE) $@ $(CGICC_URL)/`basename $@`
 
 .PHONY: build-rpms
 build-rpms: $(SRC) $(srcdir)/cgicc.spec

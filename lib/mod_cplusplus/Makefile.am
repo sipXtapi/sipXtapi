@@ -19,7 +19,7 @@ edit = sed \
 all : $(SRPM) $(RPMS)
 
 $(SRC) :
-	$(srcdir)/config/download-file $@ $(MOD_CPLUSPLUS_URL)/`basename $@`
+	$(DOWNLOAD_FILE) $@ $(MOD_CPLUSPLUS_URL)/`basename $@`
 
 .PHONY: build-rpms
 build-rpms: $(SRC) mod_cplusplus.spec

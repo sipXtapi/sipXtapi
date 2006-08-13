@@ -27,7 +27,7 @@ $(UNRESTRICTED_SRC) $(SRC_ZIP) :
 	@exit 1
 
 $(NOSRC_RPM) :
-	$(srcdir)/config/download-file $@ $(JPKG_NONFREE_URL)/SRPMS/`basename $@`
+	$(DOWNLOAD_FILE) $@ $(JPKG_NONFREE_URL)/SRPMS/`basename $@`
 
 .PHONY:build-rpms
 build-rpms: $(NOSRC_RPM) $(SRC_ZIP)

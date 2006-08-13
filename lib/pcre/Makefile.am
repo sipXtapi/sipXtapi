@@ -12,7 +12,7 @@ RPMS = \
 all : $(SRC) $(RPMS)
 
 $(SRC) :
-	$(srcdir)/config/download-file $@ $(PCRE_URL)/`basename $@`
+	$(DOWNLOAD_FILE) $@ $(PCRE_URL)/`basename $@`
 
 .PHONY: build-rpms
 build-rpms : $(SRC) $(srcdir)/pcre-3.9-libtool.patch $(srcdir)/pcre.spec

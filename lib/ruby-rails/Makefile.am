@@ -15,7 +15,7 @@ RPMS = $(foreach file,$(RAILS),$(DEST_RPM)/$(file))
 all : $(RPMS)
 
 $(DOWNLOAD) :
-	$(srcdir)/config/download-file $@ $(RUBY_AUX_RPMS_URL)/RPMS/`basename $@`
+	$(DOWNLOAD_FILE) $@ $(RUBY_AUX_RPMS_URL)/RPMS/`basename $@`
 
 $(RPMS) : $(DOWNLOAD)
 	cp $(RAILS_LIBSRC)/`basename $@` $@

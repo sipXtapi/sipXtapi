@@ -2,7 +2,8 @@ AC_PREREQ(2.57)
 AC_INIT(java-sun, 0.0.0, sipx-dev@list.sipfoundry.org)
 AC_CONFIG_AUX_DIR(config)
 AM_INIT_AUTOMAKE(foreign)
-SFAC_RPM_REPO
+SFAC_DIST_DIR
+SFAC_DOWNLOAD_DEPENDENCIES
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
 

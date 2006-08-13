@@ -13,7 +13,7 @@ ORIG_RPM = $(subst sipx-w3c,w3c,`basename $@`)
 all : $(RPMS)
 
 $(SRPM) :
-	$(srcdir)/config/download-file $@ $(W3C_URL)/SRPMS/`basename $@`
+	$(DOWNLOAD_FILE) $@ $(W3C_URL)/SRPMS/`basename $@`
 
 .PHONY: build-rpms
 build-rpms : $(SRPM) $(srcdir)/sipx-w3c-libwww.patch

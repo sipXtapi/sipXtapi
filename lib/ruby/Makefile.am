@@ -10,7 +10,7 @@ RPMS = \
 all : $(RPMS)
 
 $(SRPM) :
-	$(srcdir)/config/download-file $@ $(RUBY_RPM_URL)/SRPMS/`basename $@`
+	$(DOWNLOAD_FILE) $@ $(RUBY_RPM_URL)/SRPMS/`basename $@`
 
 .PHONY:build-rpms
 build-rpms : $(SRPM)

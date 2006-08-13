@@ -98,7 +98,7 @@ AC_DEFUN([SFAC_INIT_FLAGS],
     ENABLE_PROFILE
 
     SFAC_SVN_VERSION
-    SFAC_RPM_REPO
+    SFAC_DIST_DIR
 ])
 
 # Determine the svn repository revision number, useful to build stamps
