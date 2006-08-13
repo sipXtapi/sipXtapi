@@ -47,7 +47,7 @@ list-rpms :
 rpm : dist additional-package-files build-rpms $(SRPM) $(RPMS)
 
 .PHONY: build-rpms
-%-build-rpms :
+build-rpms :
 	rpmbuild -ta --define="buildno @SVN_VERSION@" $(DIST_SRC)
 
 $(RPMS) :
