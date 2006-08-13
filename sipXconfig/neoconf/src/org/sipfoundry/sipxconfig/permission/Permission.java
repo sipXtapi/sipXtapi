@@ -23,7 +23,7 @@ import org.sipfoundry.sipxconfig.setting.Setting;
  * Permission Copy of permission setting names exist in user-setting.xml
  */
 public final class Permission {
-    enum Type {
+    public enum Type {
         APPLICATION("application"), CALL("call-handling");
 
         private String m_name;
@@ -36,7 +36,7 @@ public final class Permission {
             return m_name;
         }
 
-        Permission create(String name) {
+        public Permission create(String name) {
             return new Permission(this, name);
         }
     }
@@ -70,9 +70,12 @@ public final class Permission {
 
     private String m_name;
 
-    Permission(Type type, String name) {
+    public Permission(Type type, String name) {
         m_type = type;
         m_name = name;
+    }
+
+    public Permission() {
     }
 
     public static boolean isEnabled(String value) {
@@ -115,8 +118,20 @@ public final class Permission {
         return m_description;
     }
 
+    public void setName(String name) {
+        m_name = name;
+    }
+
     public String getName() {
         return m_name;
+    }
+
+    public Object getId() {
+        return getName();
+    }
+
+    public void setId(Object id) {
+        setName((String) id);
     }
 
     public boolean equals(Object obj) {

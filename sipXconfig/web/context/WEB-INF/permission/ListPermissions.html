@@ -1,0 +1,27 @@
+<div jwcid="@Border">
+    <h2><span key="title">Call Parking</span></h2>        
+    <div class="help">
+      <b>
+        <span key="label.quickLinks">Quick Links</span>
+      </b>
+      <ul>
+        <li><a href="#" jwcid="@PageLink" page="EditFlexibleDialPlan"><span key="link.dialPlans">Dial Plans</span></a></li>
+      </ul>
+    </div>  
+	<ul class="component-links">
+		<li><a jwcid="addLink" id="permissions:add" href="edit-call-group.html"><span key="link.add">Add Permission</span></a></li>
+	</ul>                
+    <form jwcid="form" id="permissions:form">
+    	<table jwcid="tableView" id="permissions:list">
+			<span jwcid="nameColumnValue">
+				<span jwcid="editRowLink"><span jwcid="nameText"/></span>
+			</span>
+		</table>
+		<ul class="component-submit">
+			<li>
+				<input type="submit" jwcid="delete" id="permissions:delete" 
+                	onclick="return confirm('Are you sure you want to delete selected permissions?')"/>
+			</li>
+		</ul>
+	</form>                    
+</div>

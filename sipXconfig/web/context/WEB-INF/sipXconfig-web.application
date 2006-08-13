@@ -48,6 +48,7 @@
     <page name="EditPhoneDefaults" specification-path="phone/EditPhoneDefaults.page"/>
     <page name="EditGateway" specification-path="gateway/EditGateway.page"/>
     <page name="EditParkOrbit" specification-path="admin/EditParkOrbit.page"/>
+    <page name="EditPermission" specification-path="permission/EditPermission.page"/>
     <page name="EditPhone" specification-path="phone/EditPhone.page"/>
     <page name="EditUser" specification-path="user/EditUser.page"/>    
     <page name="ExtensionPools" specification-path="admin/ExtensionPools.page"/>    
@@ -63,6 +64,7 @@
     <page name="LineSettings" specification-path="line/LineSettings.page"/>
     <page name="ListGateways" specification-path="gateway/ListGateways.page"/>
     <page name="ListParkOrbits" specification-path="admin/ListParkOrbits.page"/>    
+    <page name="ListPermissions" specification-path="permission/ListPermissions.page"/>
     <page name="ManageAttendants" specification-path="dialplan/ManageAttendants.page"/>    
     <page name="ManagePhones" specification-path="phone/ManagePhones.page"/>
     <page name="ManagePresence" specification-path="user_portal/ManagePresence.page"/>
