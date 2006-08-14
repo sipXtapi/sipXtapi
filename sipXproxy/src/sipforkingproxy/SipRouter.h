@@ -29,6 +29,7 @@
 // FORWARD DECLARATIONS
 class SipUserAgent;
 class ForwardRules;
+class SipMessage;
 
 //:Class short description which may consist of multiple lines (note the ':')
 // Class detailed description which may extend to multiple lines
@@ -41,24 +42,23 @@ public:
 
    SipRouter(SipUserAgent& sipUserAgent, 
              ForwardRules& forwardingRules,
-             UtlBoolean useAuthServer,
-             const char* authServer,
-             UtlBoolean shouldRecordRoute);
-     //:Default constructor
+             bool          useAuthServer,
+             const char*   authServer,
+             bool          shouldRecordRoute
+             );
 
-   SipRouter(const SipRouter& rSipRouter);
-     //:Copy constructor
-
-   virtual
-   ~SipRouter();
-     //:Destructor
+   virtual ~SipRouter();
 
 /* ============================ MANIPULATORS ============================== */
 
-   SipRouter& operator=(const SipRouter& rhs);
-     //:Assignment operator
-
    virtual UtlBoolean handleMessage(OsMsg& rMsg);
+
+   /// Modify the message as needed to be proxied
+   bool proxyMessage(SipMessage& sipRequest);
+   ///< @returns true if message should be sent, false if not
+
+   void addAuthRoute(SipMessage& request);         
+
 /* ============================ ACCESSORS ================================= */
 
 /* ============================ INQUIRY =================================== */
@@ -70,9 +70,17 @@ protected:
 private:
     SipUserAgent* mpSipUserAgent;
     ForwardRules* mpForwardingRules;
-    UtlBoolean mShouldRecordRoute;
-    UtlBoolean mAuthEnabled;
-    UtlString mAuthServer;
+    bool          mShouldRecordRoute;
+    UtlString     mRecordRoute;
+
+    bool          mAuthEnabled;
+    UtlString     mAuthRoute;
+
+    SipRouter(const SipRouter& rSipRouter);
+    //:Copy constructor
+
+    SipRouter& operator=(const SipRouter& rhs);
+    //:Assignment operator
 };
 
 /* ============================ INLINE METHODS ============================ */

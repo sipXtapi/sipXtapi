@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <routes>
-  <route mappingType="local">
+  <route mappingType="config">
     <!-- Route to the config service -->
     <routeFrom>sipuaconfig.SIPXCHANGE_DOMAIN_NAME</routeFrom>
     <routeFrom>sipuaconfig</routeFrom>
+
     <routeTo>CONFIG_SERVER</routeTo>
   </route>
   <route mappingType="local">

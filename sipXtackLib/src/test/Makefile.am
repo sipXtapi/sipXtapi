@@ -37,6 +37,7 @@ testsuite_SOURCES = \
     net/SipSrvLookupTest.cpp \
     net/SipSubcriptionMgrTest.cpp \
     net/SipUserAgentTest.cpp \
+    net/SipProxyMessageTest.cpp \
     net/XmlRpcTest.cpp
 
 # These all crash with no unit test results
@@ -56,6 +57,6 @@ EXTRA_DIST = \
 sandbox_LDADD = $(testsuite_LDADD)
 sandbox_CXXFLAGS = $(testsuite_CXXFLAGS)
 sandbox_SOURCES = \
-   net/NameValuePairTest.cpp \
+	net/SipMessageTest.cpp \
 	net/UrlTest.cpp \
-	net/SipMessageTest.cpp
+   net/SipProxyMessageTest.cpp

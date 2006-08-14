@@ -25,6 +25,7 @@
 class ForwardRulesTest : public CppUnit::TestCase
 {
       CPPUNIT_TEST_SUITE(ForwardRulesTest);
+      CPPUNIT_TEST(testNoMethodDefault);
       CPPUNIT_TEST(testSimpleMapMatchMethod);
       CPPUNIT_TEST(testSimpleMapMatchFieldExact);
       CPPUNIT_TEST(testSimpleMapMatchFieldLong);
@@ -34,6 +35,32 @@ class ForwardRulesTest : public CppUnit::TestCase
 
 
    public:
+   void testNoMethodDefault()
+      {
+         ForwardRules theRules;
+         UtlString     theRoute;
+         UtlString     mappingType;
+         UtlString     rulesFile(TEST_DATA_DIR "rulesdata/simple.xml");
+            
+         CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
+                        == OS_SUCCESS
+                        );
+
+         CPPUNIT_ASSERT( theRules.getRoute(Url("sip:sipuaconfig.SIPXCHANGE_DOMAIN_NAME"),
+                                           SipMessage("UNKNOWN sip:sipuaconfig.SIPXCHANGE_DOMAIN_NAME SIP/2.0\r\n"
+                                                      "\r\n"
+                                                      ),
+                                           theRoute,
+                                           mappingType
+                                           )
+                        == OS_SUCCESS
+                        );
+
+         ASSERT_STR_EQUAL("CONFIG_SERVER", theRoute.data());
+         ASSERT_STR_EQUAL("config", mappingType.data());
+      }
+   
+
       void testSimpleMapDefault()
       {
          ForwardRules theRules;
@@ -57,6 +84,8 @@ class ForwardRulesTest : public CppUnit::TestCase
          //CPPUNIT_ASSERT( strcmp(theRoute.data(),"REGISTRAR_SERVER_DEFAULT") == 0 );
          //CPPUNIT_ASSERT( strcmp(mappingType.data(),"local") == 0 );
       }
+
+
 
       void testSimpleMapMatchMethod()
       {
