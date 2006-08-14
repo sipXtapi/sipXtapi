@@ -79,7 +79,7 @@ public abstract class GroupSettings extends BasePage implements PageBeginRenderL
         setSettings(settings);
         String currentSettingName = getParentSettingName();
         if (currentSettingName == null) {
-            Setting first = (Setting) settings.getValues().iterator().next();
+            Setting first = settings.getValues().iterator().next();
             currentSettingName = first.getName();
         }
         Setting parent = settings.getSetting(currentSettingName);   

@@ -16,8 +16,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
-import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
+import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -26,7 +26,7 @@ public class PermissionManagerImpl implements PermissionManager, ApplicationList
 
     private Map<String, Permission> m_permissions = new TreeMap<String, Permission>();
 
-    private CoreContext m_coreContext;
+    private ModelFilesContext m_modelFilesContext;
 
     public void addCallPermission(Permission permission) {
         m_permissions.put(permission.getName(), permission);
@@ -52,12 +52,16 @@ public class PermissionManagerImpl implements PermissionManager, ApplicationList
         }
     }
 
-    public void setCoreContext(CoreContext coreContext) {
-        m_coreContext = coreContext;
+    public void setModelFilesContext(ModelFilesContext modelFilesContext) {
+        m_modelFilesContext = modelFilesContext;
+    }
+
+    public Setting getPermissionModel() {
+        return loadSettings();
     }
 
     public void init() {
-        Setting userSettingsModel = m_coreContext.getUserSettingsModel();
+        Setting userSettingsModel = loadSettings();
         Setting callHandlingGroup = userSettingsModel.getSetting(Permission.CALL_PERMISSION_PATH);
         callHandlingGroup.acceptVisitor(new PermissionCreator(this));
     }
@@ -80,4 +84,8 @@ public class PermissionManagerImpl implements PermissionManager, ApplicationList
             permission.setDescription(setting.getDescription());
         }
     }
+
+    private Setting loadSettings() {
+        return m_modelFilesContext.loadModelFile("user-settings.xml");
+    }    
 }

@@ -31,7 +31,6 @@ import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.setting.Group;
-import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -116,7 +115,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
                 }
             }
         }
-        
+
         getHibernateTemplate().saveOrUpdate(user);
     }
 
@@ -419,11 +418,6 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         return m_settingDao.getGroupByName(USER_GROUP_RESOURCE_ID, userGroupName);
     }
 
-    public Setting getUserSettingsModel() {
-        User u = newUser();
-        return u.getSettings();
-    }
-
     public Collection getAliasMappings() {
         List aliases = new ArrayList();
         List users = loadUsers();
@@ -466,7 +460,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
 
                     saveUser(user);
                 }
-                
+
                 Collection<User> groupSupervisors = getGroupSupervisors(group);
                 for (User user : groupSupervisors) {
                     Set supervisors = user.getSupervisorForGroups();
@@ -514,16 +508,16 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = beanFactory;
     }
-    
+
     public List<User> getGroupSupervisors(Group group) {
         List<User> objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "groupSupervisors", QUERY_PARAM_GROUP_ID, group.getId());    
+                "groupSupervisors", QUERY_PARAM_GROUP_ID, group.getId());
         return objs;
     }
-    
+
     public List<User> getUsersThatISupervise(User supervisor) {
         List<User> objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "usersThatISupervise", "supervisorId", supervisor.getId());    
-        return objs;        
+                "usersThatISupervise", "supervisorId", supervisor.getId());
+        return objs;
     }
 }

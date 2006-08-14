@@ -19,14 +19,14 @@ public class SettingTest extends TestCase {
 
     private SettingSet m_root;
 
-    private SettingImpl m_apple;
+    private AbstractSetting m_apple;
 
-    private SettingImpl m_fruit;
+    private AbstractSetting m_fruit;
 
     private void seedSimpleSettingGroup() {
         m_root = new SettingSet();
-        m_fruit = (SettingSet) m_root.addSetting(new SettingSet("fruit"));
-        m_apple = (SettingImpl) m_fruit.addSetting(new SettingImpl("apple"));
+        m_fruit = (AbstractSetting) m_root.addSetting(new SettingSet("fruit"));
+        m_apple = (AbstractSetting) m_fruit.addSetting(new SettingImpl("apple"));
         m_root.addSetting(new SettingSet("vegatables"));
     }
 
@@ -59,32 +59,31 @@ public class SettingTest extends TestCase {
         assertSame(anotherFruit, m_root.getSetting("fruit"));
         assertSame(banana, anotherFruit.getSetting("banana"));
         assertSame(m_apple, anotherFruit.getSetting("apple"));
-    }    
-    
+    }
+
     public void testGetProfileName() {
         SettingImpl s = new SettingImpl("bluejay");
-        assertEquals("bluejay", s.getProfileName());        
+        assertEquals("bluejay", s.getProfileName());
         s.setProfileName("indigojay");
         assertEquals("indigojay", s.getProfileName());
     }
-    
+
     public void testGetProfilePath() {
         SettingImpl birds = new SettingImpl("birds");
         birds.setProfileName("BIRDS");
-        SettingImpl bird = new SettingImpl("bluejay");
+        AbstractSetting bird = new SettingImpl("bluejay");
         bird.setParent(birds);
-        
+
         assertEquals("BIRDS", birds.getProfilePath());
-        assertEquals("BIRDS/bluejay", bird.getProfilePath());        
+        assertEquals("BIRDS/bluejay", bird.getProfilePath());
     }
-    
+
     public void testGetProfileHandler() {
         SettingImpl s = new SettingImpl("bluejay");
-        SettingValue2 originalValue = new SettingValueImpl("bluejay");
         SettingValue2 handlerValue = new SettingValueImpl("indigojay");
-        
+
         SettingModel2 model = EasyMock.createStrictMock(SettingModel2.class);
-        model.getProfileName(s, originalValue);
+        model.getProfileName(s);
         EasyMock.expectLastCall().andReturn(handlerValue);
         EasyMock.replay(model);
 

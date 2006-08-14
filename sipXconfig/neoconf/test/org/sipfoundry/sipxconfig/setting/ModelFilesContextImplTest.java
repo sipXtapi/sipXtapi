@@ -35,7 +35,6 @@ public class ModelFilesContextImplTest extends TestCase {
     
     public void testLoadModelFile() {
         SettingSet setting = new SettingSet();
-        setting.setValue("555");
         setting.setName("bongo");
 
         IMocksControl control = EasyMock.createControl();
@@ -47,7 +46,6 @@ public class ModelFilesContextImplTest extends TestCase {
         m_impl.setModelBuilder(builder);
         Setting loadedSetting = m_impl.loadModelFile("bb", "aa");
 
-        assertEquals("555", loadedSetting.getValue());
         assertEquals("bongo", loadedSetting.getName());
 
         control.verify();

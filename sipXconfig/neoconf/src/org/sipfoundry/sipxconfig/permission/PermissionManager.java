@@ -13,9 +13,10 @@ package org.sipfoundry.sipxconfig.permission;
 
 import java.util.Collection;
 
+import org.sipfoundry.sipxconfig.setting.Setting;
 
 public interface PermissionManager {
-    
+
     Permission getPermission(String name);
 
     void addCallPermission(Permission permission);
@@ -23,4 +24,6 @@ public interface PermissionManager {
     Collection<Permission> getCallPermissions();
 
     void removeCallPermissions(Collection<String> permissionNames);
+
+    Setting getPermissionModel();
 }

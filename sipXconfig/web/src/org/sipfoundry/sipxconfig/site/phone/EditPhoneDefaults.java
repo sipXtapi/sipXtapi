@@ -176,7 +176,7 @@ public abstract class EditPhoneDefaults extends BasePage implements PageBeginRen
             // Only time this is true is if navigation on an item that doesn't
             // exist anymore because a a new firmware version was selected. IMO 
             // resetting navigation each time you change version is an inconvience.
-            subset = (Setting) settings.getValues().iterator().next();
+            subset = settings.getValues().iterator().next();
             setEditFormSettingName(subset.getName());
         }
         setEditFormSetting(subset);

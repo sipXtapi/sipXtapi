@@ -54,6 +54,7 @@
   <bean id="org.sipfoundry.sipxconfig.common.User" class="org.sipfoundry.sipxconfig.common.User"
     singleton="false" parent="beanWithSettings">
     <property name="modelFilesContext" ref="modelFilesContext"/>
+    <property name="permissionManager" ref="permissionManager"/>
   </bean>
   
 </beans>

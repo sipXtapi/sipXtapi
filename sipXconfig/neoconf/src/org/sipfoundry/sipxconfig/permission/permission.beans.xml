@@ -5,7 +5,7 @@
 
   <bean id="permissionManager"
     class="org.sipfoundry.sipxconfig.permission.PermissionManagerImpl">
-    <property name="coreContext" ref="coreContext" />
+    <property name="modelFilesContext" ref="modelFilesContext" />
   </bean>
   
 </beans>
