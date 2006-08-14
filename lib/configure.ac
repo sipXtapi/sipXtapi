@@ -27,9 +27,9 @@ AC_ARG_ENABLE(rhe4,
 	AC_HELP_STRING([--enable-rhe4], [Enable dependencies for RHE4 and Centos4]),
 	[ 
           java_sun=yes
-          pcre=yes
           ruby=yes
           w3c_libwww=yes
+          cppunit=yes
         ])
 
 AC_ARG_ENABLE(cgicc,
