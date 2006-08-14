@@ -7,26 +7,26 @@ AM_INIT_AUTOMAKE(foreign)
 cgicc=yes
 mod_cplusplus=yes
 xerces_c=yes
+ruby_gems=yes
+ruby_rails=yes
+ruby_postgres=yes
 
 AC_ARG_ENABLE(fc4,
 	AC_HELP_STRING([--enable-fc4], [Enable dependencies for Fedora Core 4]),
 	[ 
           java_sun=yes
-          ruby_gems=yes
         ])
 
 AC_ARG_ENABLE(fc5,
 	AC_HELP_STRING([--enable-fc5], [Enable dependencies for Fedora Core 5]),
 	[ 
           java_sun=yes
-          ruby_gems=yes
         ])
 
 AC_ARG_ENABLE(rhe4,
 	AC_HELP_STRING([--enable-rhe4], [Enable dependencies for RHE4 and Centos4]),
 	[ 
           java_sun=yes
-          ruby_gems=yes
           pcre=yes
           ruby=yes
           w3c_libwww=yes

@@ -58,21 +58,20 @@ $(SRPM) :
 
 .PHONY : additional-package-files
 additional-package-files: \
-	@PACKAGE@-$(VERSION).tar.gz.md5 \
-	@PACKAGE@-$(VERSION).tar.bz2 \
-	@PACKAGE@-$(VERSION).tar.bz2.md5
+	$(DEST_SRC)/@PACKAGE@-$(VERSION).tar.gz.md5 \
+	$(DEST_SRC)/@PACKAGE@-$(VERSION).tar.bz2 \
+	$(DEST_SRC)/@PACKAGE@-$(VERSION).tar.bz2.md5
 
-@PACKAGE@-$(VERSION).tar.gz: dist
+$(DEST_SRC)/@PACKAGE@-$(VERSION).tar.gz: dist
 
-@PACKAGE@-$(VERSION).tar.gz.md5: @PACKAGE@-$(VERSION).tar.gz
-	md5sum @PACKAGE@-$(VERSION).tar.gz > @PACKAGE@-$(VERSION).tar.gz.md5
+$(DEST_SRC)/@PACKAGE@-$(VERSION).tar.gz.md5: $(DIST_SRC)
+	md5sum $< > $@
 
-@PACKAGE@-$(VERSION).tar.bz2: @PACKAGE@-$(VERSION).tar.gz
-	zcat @PACKAGE@-$(VERSION).tar.gz \
-	| bzip2 --compress --stdout > @PACKAGE@-$(VERSION).tar.bz2
+$(DEST_SRC)/@PACKAGE@-$(VERSION).tar.bz2: $(DIST_SRC)
+	zcat $< | bzip2 --compress --stdout > $@
 
-@PACKAGE@-$(VERSION).tar.bz2.md5: @PACKAGE@-$(VERSION).tar.bz2
-	md5sum @PACKAGE@-$(VERSION).tar.bz2 > @PACKAGE@-$(VERSION).tar.bz2.md5
+$(DEST_SRC)/@PACKAGE@-$(VERSION).tar.bz2.md5: $(DEST_SRC)/@PACKAGE@-$(VERSION).tar.bz2
+	md5sum $< > $@
 
 # RPM Spec file
 @PACKAGE@.spec : @PACKAGE@.spec.in
