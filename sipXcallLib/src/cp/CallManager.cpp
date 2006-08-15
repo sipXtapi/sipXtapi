@@ -216,6 +216,10 @@ CallManager::CallManager(UtlBoolean isRequredUserIdMatch,
             TRUE, // Incoming messages
             FALSE); // Don't want to see out going messages
 
+        // Allow the "replaces" extension, because CallManager
+        // implements the INVITE-with-Replaces logic.
+        sipUserAgent->allowExtension(SIP_REPLACES_EXTENSION);
+
         int sipExpireSeconds = sipUserAgent->getDefaultExpiresSeconds();
         if (mInviteExpireSeconds > sipExpireSeconds) mInviteExpireSeconds = sipExpireSeconds;
 
