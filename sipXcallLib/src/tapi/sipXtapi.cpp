@@ -374,6 +374,11 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
     pInst->nLines = 0 ;
     pInst->nConferences = 0 ; 
 
+    if (szBindToAddr == NULL)
+    {
+        szBindToAddr = "0.0.0.0" ;
+    }
+
     // Bind the SIP user agent to a port and start it up
     pInst->pSipUserAgent = new SipUserAgent(
             tcpPort,                    // sipTcpPort

@@ -280,14 +280,19 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
     {
         // get the first CONTACT entry in the Db
         SIPX_CONTACT_ADDRESS* pContact = mContactDb.find(1); 
+        assert(pContact) ;
         // Bind to the contact's Ip
-        defaultSipAddress = pContact->cIpAddress;
+        if (pContact)
+        {
+            defaultSipAddress = pContact->cIpAddress;
+        }
     }
     else
     {
         defaultSipAddress.append(defaultAddress);
         sipIpAddress.append(defaultAddress);
     }
+
     if(sipRegistryServers)
     {
         registryServers.append(sipRegistryServers);
