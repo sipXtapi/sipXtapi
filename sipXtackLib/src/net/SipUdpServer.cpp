@@ -72,7 +72,7 @@ SipUdpServer::SipUdpServer(int port,
     }
     else
     {
-        int numAddresses = 0;
+        int numAddresses = MAX_IP_ADDRESSES;
         const HostAdapterAddress* adapterAddresses[MAX_IP_ADDRESSES];
         getAllLocalHostIps(adapterAddresses, numAddresses);
 

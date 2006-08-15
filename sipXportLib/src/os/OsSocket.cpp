@@ -944,7 +944,7 @@ void OsSocket::getHostIp(UtlString* hostAddress)
         // get the first local address and
         // make it the default address
         const HostAdapterAddress* addresses[MAX_IP_ADDRESSES];
-        int numAddresses = 0;
+        int numAddresses = MAX_IP_ADDRESSES;
         memset(addresses, 0, sizeof(addresses));
         getAllLocalHostIps(addresses, numAddresses);
         assert(numAddresses > 0);
