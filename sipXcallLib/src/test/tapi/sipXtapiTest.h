@@ -56,7 +56,8 @@
   #define TEST_CONFIG             1
   #define TEST_SUBSCRIBE          1
   #define TEST_NAT                1
-  #define TEST_PROBLEMATIC_CASES  0
+  #define TEST_UTILS              1  
+  #define TEST_PROBLEMATIC_CASES  0  
 #else
   #define TEST_AUDIO              0
   #define TEST_LINE               0
@@ -69,6 +70,7 @@
   #define TEST_CONFIG             0
   #define TEST_SUBSCRIBE          0
   #define TEST_NAT                0
+  #define TEST_UTILS              1  
   #define TEST_PROBLEMATIC_CASES  0
 #endif /* _WIN32 */
 
@@ -284,6 +286,12 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
     CPPUNIT_TEST(testConfigStunKeepAliveOnce);
     CPPUNIT_TEST(testConfigKeepAliveNoStop) ;
 #endif  /* TEST_NAT ] */
+
+#ifdef TEST_UTILS
+    CPPUNIT_TEST(testUtilUrlParse) ;
+    CPPUNIT_TEST(testUtilUrlUpdate) ;
+    CPPUNIT_TEST(testUtilUrlGetUrlParam) ;
+#endif
 
 #ifdef TEST_PROBLEMATIC_CASES /* [ */
     void testCallRapidCallAndHangup();
@@ -512,6 +520,11 @@ public:
     void testPublishAndSubscribeConfig();
 
     void testCallRapidCallAndHangup();
+
+    void testUtilUrlParse() ;
+    void testUtilUrlUpdate() ;
+    void testUtilUrlGetUrlParam() ;
+
 protected:
     static void callMultipleProc1(SIPX_CALL hCallingParty, 
                                   SIPX_LINE hCallingPartyLine,
