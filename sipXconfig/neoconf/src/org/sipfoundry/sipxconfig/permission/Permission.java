@@ -18,11 +18,13 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.enums.EnumUtils;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingImpl;
+import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
 
 /**
  * Permission Copy of permission setting names exist in user-setting.xml
  */
-public final class Permission {
+public final class Permission implements Comparable<Permission> {
     public enum Type {
         APPLICATION("application"), CALL("call-handling");
 
@@ -62,7 +64,7 @@ public final class Permission {
     public static final Permission FORWARD_CALLS_EXTERNAL = Type.CALL
             .create("ForwardCallsExternal");
 
-    private Type m_type;
+    private Type m_type = Type.CALL;
 
     private String m_label;
 
@@ -76,6 +78,12 @@ public final class Permission {
     }
 
     public Permission() {
+    }
+
+    public Permission(Setting setting) {
+        m_name = setting.getName();
+        m_label = setting.getLabel();
+        m_description = setting.getDescription();
     }
 
     public static boolean isEnabled(String value) {
@@ -134,6 +142,14 @@ public final class Permission {
         setName((String) id);
     }
 
+    public Type getType() {
+        return m_type;
+    }
+
+    public void setType(Type type) {
+        m_type = type;
+    }
+
     public boolean equals(Object obj) {
         if (!(obj instanceof Permission)) {
             return false;
@@ -150,5 +166,31 @@ public final class Permission {
 
     public int hashCode() {
         return new HashCodeBuilder().append(m_name).append(m_type).hashCode();
+    }
+
+    public int compareTo(Permission o) {
+        return getName().compareTo(o.getName());
+    }
+    
+    /**
+     * Create setting that corresponds to this permission
+     * 
+     * @return newly created setting
+     */
+    Setting getSetting() {
+        SettingImpl setting = new SettingImpl(m_name);
+        setting.setType(PermissionSetting.INSTANCE);
+        setting.setDescription(m_description);
+        setting.setLabel(m_label);
+        return setting;
+    }
+
+    private static class PermissionSetting extends BooleanSetting {
+        public static final PermissionSetting INSTANCE = new PermissionSetting();
+
+        public PermissionSetting() {
+            setTrueValue(ENABLE);
+            setFalseValue(DISABLE);
+        }
     }
 }

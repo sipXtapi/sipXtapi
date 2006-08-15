@@ -17,6 +17,8 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 
 public interface PermissionManager {
 
+    public static final String CONTEXT_BEAN_NAME = "permissionManager";
+
     Permission getPermission(String name);
 
     void addCallPermission(Permission permission);

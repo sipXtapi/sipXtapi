@@ -161,6 +161,7 @@
     value_storage_id CDATA #IMPLIED
     model_id CDATA #IMPLIED
     device_version_id CDATA #IMPLIED
+    prefix CDATA #IMPLIED
 >
 
 <!ELEMENT group_storage EMPTY>
@@ -192,6 +193,7 @@
 <!ELEMENT intercom EMPTY>
 <!ATTLIST intercom
     intercom_id CDATA #REQUIRED
+    enabled CDATA #REQUIRED
     prefix CDATA #REQUIRED
     timeout CDATA #REQUIRED
     code CDATA #REQUIRED
@@ -293,6 +295,8 @@
     long_distance_prefix CDATA #IMPLIED
     permission CDATA #IMPLIED
     pstn_prefix CDATA #IMPLIED
+    pstn_prefix_optional CDATA #IMPLIED
+    long_distance_prefix_optional CDATA #IMPLIED
 >
 
 <!ELEMENT meetme_bridge EMPTY>
@@ -340,6 +344,13 @@
 <!ELEMENT patch EMPTY>
 <!ATTLIST patch
     name CDATA #REQUIRED
+>
+
+<!ELEMENT permission EMPTY>
+<!ATTLIST permission
+    name CDATA #REQUIRED
+    description CDATA #IMPLIED
+    label CDATA #IMPLIED
 >
 
 <!ELEMENT phone EMPTY>
