@@ -4,7 +4,7 @@ AC_DEFUN([SFAC_DIST_DIR],
   AC_ARG_WITH([distdir],
     AC_HELP_STRING([--with-distdir=directory], 
       [Directory to output distribution output files like tarballs, srpms and rpms, default is $(top_builddir)/dist]),
-    [DIST_DIR=${withval}],[DIST_DIR=${ac_top_builddir}/dist])
+    [DIST_DIR=${withval}],[DIST_DIR=dist])
 
   AC_SUBST([RPMBUILD_TOPDIR], [`rpm --eval '%{_topdir}'`])
   AC_SUBST([RPM_TARGET_ARCH], [`rpm --eval '%{_target_cpu}'`])
@@ -44,5 +44,9 @@ AC_DEFUN([SFAC_DOWNLOAD_DEPENDENCIES],
   AC_SUBST(FC4_RUBY_RPM_URL, http://download.fedora.redhat.com/pub/fedora/linux/core/updates/4)
   AC_SUBST(W3C_URL, http://ftp.redhat.com/pub/redhat/linux/enterprise/4/en/os/i386)
   AC_SUBST(PCRE_URL, http://umn.dl.sourceforge.net/sourceforge/pcre)
+  #AC_SUBST(CPPUNIT_URL, ftp://download.fedora.redhat.com/pub/fedora/linux/extras/3/SRPMS)
+  AC_SUBST(CPPUNIT_URL, http://umn.dl.sourceforge.net/sourceforge/cppunit)
+  AC_SUBST(GRAPHVIZ_URL, ftp://194.199.20.114/linux/SuSE-Linux/i386/9.3/suse/src)
   AC_SUBST(DOWNLOAD_FILE, ${srcdir}/config/download-file)
+
 ])

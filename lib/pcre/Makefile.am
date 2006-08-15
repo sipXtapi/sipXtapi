@@ -1,5 +1,7 @@
 # There are much newer versions, however PCRE is only required for stale distros
-# like RHE4 so little reason to risk upgrading IMO
+# like RHE4 so little reason to risk upgrading IMO.  
+# pcre-devel that comes w/RHE4 installs pcre into /usr/include/pcre/pcre.h and we need it
+# in /usr/include/pcre.h
 VER = 4.5
 REL = 2
 

@@ -20,8 +20,7 @@ install : $(INSTALL_GEM) $(DESTDIR)$(bindir)/sipxconfig-agent
 .PHONY: package-gem
 package-gem :
 	builddir=`pwd`; \
-	cd $(srcdir) && $(rake) package
-	cd $(builddir)
+	cd $(srcdir) && $(rake) package && cd $(builddir)
 
 # install gems now, this is the final host machine
 .PHONY: install-gem 
