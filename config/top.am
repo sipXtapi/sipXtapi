@@ -1,8 +1,6 @@
 RECURSE = recurse
 PROJECTS = $(subdirs)
 
-RPMS ?= $(RPM) $(DEVEL_RPM)
-
 $(RECURSE):
 	@failcom='exit 1'; \
 	for f in x $$MAKEFLAGS; do \
@@ -23,7 +21,8 @@ $(RECURSE):
 list:
 	@echo $(PROJECTS)
 
-create-local-repo:
+.PHONY: createrepo
+createrepo:
 	cd @DEST_RPM@ && createrepo .
 	sed -e 's,@DEST_RPM\@,@DEST_RPM@,g' \
 	 $(srcdir)/config/local.repo.in > local.repo
