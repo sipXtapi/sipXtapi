@@ -35,14 +35,29 @@ SFAC_LIB_COMMSERVER
 
 SFAC_FEATURE_SIP_TLS
 
-SFAC_FEATURE_DBTEST
-AM_CONDITIONAL(BUILD_DBTESTS, test x$enable_dbtests = xyes)
-if test x$enable_dbtests = xyes
-then
-  CHECK_RUBY
-fi
+AC_ARG_ENABLE(cdr,
+  AC_HELP_STRING([--enable-cdr], [Build CDR capability, requires ruby and deve tools like gem and rake]),
+  enable_cdr=yes)
 
-AC_CONFIG_FILES([Makefile src/Makefile])
+if test x$enable_cdr = xyes
+then
+  CHECK_RUBY([1.8.2])
+  CHECK_RAKE([0.5.3])
+fi
+AM_CONDITIONAL(ENABLE_CDR, test x$enable_cdr = xyes)
+
+
+AC_ARG_ENABLE(cse-tests,
+  AC_HELP_STRING([--enable-cse-tests], [Run unit tests that test saving CSE data to postgres db setup]),
+  enable_cse_tests=yes)
+if test x$enable_cse_tests = xyes
+then
+  AC_SUBST(SIPXTEST_DATABASE, SIPXDB-TEST)
+fi
+AM_CONDITIONAL(ENABLE_CSE_TESTS, test x$enable_cse_tests = xyes)
+
+AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([src/Makefile])
 AC_CONFIG_FILES([config/sipXcommon.mak])
 AC_CONFIG_FILES([bin/Makefile])
 AC_CONFIG_FILES([src/sipforkingproxy/Makefile])
@@ -54,11 +69,7 @@ AC_CONFIG_FILES([meta/Makefile])
 AC_CONFIG_FILES([etc/Makefile])
 AC_CONFIG_FILES([etc/database/Makefile])
 AC_CONFIG_FILES([src/cdr/Makefile])
-
-if test x$enable_dbtests = xyes
-then
-  AC_CONFIG_FILES([src/cse/test/Makefile])
-fi
+AC_CONFIG_FILES([src/cse/test/Makefile])
 
 AC_OUTPUT
 

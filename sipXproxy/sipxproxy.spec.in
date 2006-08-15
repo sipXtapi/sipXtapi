@@ -12,8 +12,7 @@ Url:      http://www.sipfoundry.org/sipXregistry
 Source:   %name-%version.tar.gz
 
 Requires: sipxcommserverlib >= 3.5
-Requires: ruby >= 1.8.4
-Requires: ruby-gems >= 0.8.11
+Requires: ruby >= 1.8.1
 
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
@@ -34,6 +33,17 @@ proxy. Though it is not necessary. The forking proxy provides service level
 routing as well as parallel and serial forking. The auth proxy provides AAA
 services.
 
+%package cdr
+Requires: ruby >= 1.8.4
+Requires: ruby-gems >= 0.8.11
+Group:    Productivity/Telephony/SIP/Servers
+Vendor: SIPfoundry
+Summary: CDR (Call Distribution Record) aggregration
+
+%description cdr
+Gather CSE (Call State Events) for one or more proxy servers and generate
+postgres database records from data.
+
 %package devel
 Requires: %name
 Group: Development/Libraries
@@ -48,7 +58,7 @@ Internal class documentation for the proxy classes
 %setup -q
 
 %build
-%configure --enable-rpmbuild @CONFIGURE_OPTIONS@
+%configure --enable-rpmbuild --enable-cdr @CONFIGURE_OPTIONS@
 cp config.log %name.configlog
 make
 
@@ -81,22 +91,16 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipauthproxy.sh
 %attr(755,root,root) %{_bindir}/sipauthproxy
 %attr(755,root,root) %{_bindir}/%name-config
-%attr(755,root,root) %{_bindir}/sipxcallresolver.sh
 %attr(755,root,root) %{_bindir}/sipxha-distrib.sh
-
-%attr(755,root,root) %{sipxcallresolverdir}/sipxcallresolver-1.0.0.gem
 
 # The configuration directory needs to be writeable because
 # config files are generated from templates via config.defs
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/cdr
 
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/proxy-config.in
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/forwardingrules.xml.in
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/authproxy-config.in
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/authrules.xml.in
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/callresolver-config.in
-%config %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/cdr/*
 
 %{upgrade_archive_dir}/%{this_archive}
 %{upgrade_archive_dir}/%{name}-previous.tgz
@@ -110,9 +114,6 @@ sipx-upgrade -p sipxproxy -c
 
 %post
 sipx-upgrade -p sipxproxy -u --bdir %{_bindir} --ddir %{_datadir} --cdir %{_sysconfdir} --sdir %{_localstatedir}
-sipxcallresolver.sh --setup
-
-gem install --no-rdoc --local %{sipxcallresolverdir}/sipxcallresolver-*.gem >/dev/null 2>&1
 
 %define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
 %define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz
@@ -123,11 +124,23 @@ mv %{upgrade_archive_dir}/%{this_archive} %{current_archive}
 
 pkg-upgrade --previous %{previous_archive} --current %{current_archive}
 
+%files cdr
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/callresolver-config.in
+%config %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/cdr/*
+
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/cdr
+%attr(755,root,root) %{sipxcallresolverdir}/sipxcallresolver-1.0.0.gem
+%attr(755,root,root) %{_bindir}/sipxcallresolver.sh
+
+%post cdr
+sipxcallresolver.sh --setup
+
+gem install --no-rdoc --local %{sipxcallresolverdir}/sipxcallresolver-*.gem >/dev/null 2>&1
 if [ -f %{_sysconfdir}/cron.daily/callresolver_run ]; then
   rm -f %{_sysconfdir}/cron.daily/callresolver_run
 fi
 
-%preun
+%preun cdr
 # prevent uninstalling during an upgrade
 #   see http://www-128.ibm.com/developerworks/library/l-rpm3/
 if [ "$1" = "0" ] ; then

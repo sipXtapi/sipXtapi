@@ -1,4 +1,8 @@
 ## Process this file with automake to produce Makefile.in
 
-SUBDIRS = cse cdr sipauthproxy sipforkingproxy test
+if ENABLE_CDR
+CDR_OPT = cdr
+endif
+
+SUBDIRS = cse $(CDR_OPT) sipauthproxy sipforkingproxy test
 
