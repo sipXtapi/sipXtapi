@@ -351,6 +351,7 @@
     permission_id CDATA #REQUIRED
     description CDATA #IMPLIED
     label CDATA #IMPLIED
+    default_value CDATA #REQUIRED
 >
 
 <!ELEMENT phone EMPTY>

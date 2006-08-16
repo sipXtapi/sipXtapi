@@ -33,7 +33,7 @@
   </component>
   <component id="tableView" type="Table">
     <binding name="source" value="permissionManager.callPermissions" />
-    <binding name="columns" value="literal:* label,description" />
+    <binding name="columns" value="literal:* label,defaultValue,description" />
     <binding name="class" value="bean:rowClass.next" />
     <binding name="row" value="currentRow" />
     <binding name="converter" value="bean:converter" />
@@ -43,6 +43,10 @@
   <component id="labelColumnValue" type="Block" />
   <component id="labelText" type="Insert">
     <binding name="value" value="currentRow.label" />
+  </component>
+  <component id="defaultValueColumnValue" type="Block" />
+  <component id="defaultValueText" type="Insert">
+    <binding name="value" value="getMessage(currentRow.defaultValue ? 'enabled' : 'disabled')" />
   </component>
   <component id="editRowLink" type="DirectLink">
     <binding name="listener" value="listener:edit" />

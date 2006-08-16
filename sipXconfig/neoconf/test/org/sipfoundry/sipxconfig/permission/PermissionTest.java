@@ -26,6 +26,11 @@ public class PermissionTest extends TestCase {
         Setting setting = Permission.VOICEMAIL.getSetting();
         assertEquals(Permission.VOICEMAIL.getName(), setting.getName());
         assertTrue(setting.getType() instanceof BooleanSetting);
+
+        Permission permission = new Permission();
+        permission.setDefaultValue(true);
+        assertEquals("ENABLE", permission.getSetting().getDefaultValue());
+        assertTrue(permission.getSetting().getName().startsWith("perm"));
     }
 
     public void testGetPrimaryKey() throws Exception {

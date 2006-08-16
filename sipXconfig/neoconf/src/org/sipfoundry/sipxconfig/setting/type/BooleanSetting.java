@@ -50,7 +50,7 @@ public class BooleanSetting implements SettingType {
         if (value == null) {
             return null;
         }
-        return Boolean.valueOf(value.equals(m_trueValue));
+        return value.equals(m_trueValue);
     }
 
     public String convertToStringValue(Object value) {

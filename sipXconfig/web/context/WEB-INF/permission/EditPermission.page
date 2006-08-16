@@ -43,6 +43,17 @@
     <binding name="validators" value="validators:maxLength=255" />
     <binding name="disabled" value="permission.builtIn" />
   </component>
+
+  <component id="defaultValueLabel" type="FieldPanel">
+    <binding name="field" value="components.defaultValue" />
+    <binding name="label" value="message:label.defaultValue" />
+    <binding name="description" value="message:description.defaultValue" />
+  </component>
+  <component id="defaultValue" type="Checkbox">
+    <binding name="value" value="permission.defaultValue" />
+    <binding name="disabled" value="permission.builtIn" />
+  </component>
+
   <component id="formActions" type="FormActions">
     <binding name="callback" value="callback" />
     <binding name="listener" value="listener:commit" />

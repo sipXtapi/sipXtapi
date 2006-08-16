@@ -74,6 +74,8 @@ public final class Permission implements Comparable<Permission>, PrimaryKeySourc
 
     private String m_name;
 
+    private boolean m_defaultValue;
+
     private final boolean m_builtIn;
 
     private Integer m_id = BeanWithId.UNSAVED_ID;
@@ -93,6 +95,7 @@ public final class Permission implements Comparable<Permission>, PrimaryKeySourc
         m_label = setting.getLabel();
         m_description = setting.getDescription();
         m_builtIn = true;
+        m_defaultValue = isEnabled(setting.getValue());
     }
 
     void setId(Integer id) {
@@ -104,7 +107,7 @@ public final class Permission implements Comparable<Permission>, PrimaryKeySourc
     }
 
     public static boolean isEnabled(String value) {
-        return ENABLE.equals(value);
+        return (Boolean) PermissionSetting.INSTANCE.convertToTypedValue(value);
     }
 
     public boolean isBuiltIn() {
@@ -145,6 +148,14 @@ public final class Permission implements Comparable<Permission>, PrimaryKeySourc
 
     public String getDescription() {
         return m_description;
+    }
+
+    public void setDefaultValue(boolean defaultValue) {
+        m_defaultValue = defaultValue;
+    }
+
+    public boolean getDefaultValue() {
+        return m_defaultValue;
     }
 
     public String getName() {
@@ -194,10 +205,11 @@ public final class Permission implements Comparable<Permission>, PrimaryKeySourc
      * @return newly created setting
      */
     Setting getSetting() {
-        SettingImpl setting = new SettingImpl(m_name);
+        SettingImpl setting = new SettingImpl(getName());
         setting.setType(PermissionSetting.INSTANCE);
         setting.setDescription(m_description);
         setting.setLabel(m_label);
+        setting.setTypedValue(m_defaultValue);
         return setting;
     }
 

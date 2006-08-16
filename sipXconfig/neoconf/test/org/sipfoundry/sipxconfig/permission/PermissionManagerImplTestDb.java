@@ -16,6 +16,7 @@ import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.setting.Setting;
 import org.springframework.context.ApplicationContext;
 
 public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
@@ -61,6 +62,16 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
         TestHelper.insertFlat("permission/permission.db.xml");
         permissions = m_manager.getCallPermissions();
         assertEquals(size + 2, permissions.size());
+    }
+
+    public void testPermisionModel() throws Exception {
+        Setting setting = m_manager.getPermissionModel();
+        Collection<Setting> settingsBefore = setting.getSetting(Permission.CALL_PERMISSION_PATH).getValues();
+
+        TestHelper.insertFlat("permission/permission.db.xml");
+        setting = m_manager.getPermissionModel();
+        Collection<Setting> settingsAfter = setting.getSetting(Permission.CALL_PERMISSION_PATH).getValues();
+        assertEquals(settingsBefore.size() + 2, settingsAfter.size());
     }
 
     public void testRemoveCallPermissions() throws Exception {
