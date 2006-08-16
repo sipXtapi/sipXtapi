@@ -11,7 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.permission;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -23,7 +23,8 @@ import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public class PermissionManagerImpl extends SipxHibernateDaoSupport implements PermissionManager {
+public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> implements
+        PermissionManager {
 
     private ModelFilesContext m_modelFilesContext;
 
@@ -35,28 +36,20 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport implements Pe
         return getAllPermissions();
     }
 
-    public void removeCallPermissions(Collection<String> permissionNames) {
-        Map<String, Permission> builtInPermissions = getBuiltInPermissions();
-        Collection toBeRemoved = new ArrayList(permissionNames.size());
-        for (String name : permissionNames) {
-            if (builtInPermissions.containsKey(name)) {
-                // ignore build in permissions
-                continue;
-            }
-            Object permission = getHibernateTemplate().load(Permission.class, name);
-            toBeRemoved.add(permission);
-        }
-        getHibernateTemplate().deleteAll(toBeRemoved);
+    public void removeCallPermissions(Collection<Integer> permissionIds) {
+        removeAll(Permission.class, permissionIds);
     }
 
-    public Permission getPermission(String name) {
-        Set<Permission> allPermissions = getAllPermissions();
-        for (Permission permission : allPermissions) {
-            if (permission.getName().equals(name)) {
-                return permission;
-            }
+    public Permission getPermission(Object id) {
+        return load(Permission.class, (Serializable) id);
+    }
+
+    public Permission load(Class<Permission> c, Serializable id) {
+        if (id instanceof String) {
+            Map<String, Permission> builtInPermissions = getBuiltInPermissions();
+            return builtInPermissions.get(id);
         }
-        return null;
+        return super.load(c, id);
     }
 
     public void setModelFilesContext(ModelFilesContext modelFilesContext) {
@@ -92,8 +85,8 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport implements Pe
     /**
      * Load all permissions from the DB
      * 
-     * HACK: In order to make this function work in non-DB test we return empty set of permissions in
-     * case hibernate session factory is not set.
+     * HACK: In order to make this function work in non-DB test we return empty set of permissions
+     * in case hibernate session factory is not set.
      */
     private Collection<Permission> loadCustomPermissions() {
         if (getSessionFactory() != null) {

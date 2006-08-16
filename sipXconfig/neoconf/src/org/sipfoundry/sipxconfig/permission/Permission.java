@@ -16,6 +16,8 @@ import java.util.List;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.enums.EnumUtils;
+import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingImpl;
@@ -24,7 +26,7 @@ import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
 /**
  * Permission Copy of permission setting names exist in user-setting.xml
  */
-public final class Permission implements Comparable<Permission> {
+public final class Permission implements Comparable<Permission>, PrimaryKeySource {
     public enum Type {
         APPLICATION("application"), CALL("call-handling");
 
@@ -72,22 +74,41 @@ public final class Permission implements Comparable<Permission> {
 
     private String m_name;
 
+    private final boolean m_builtIn;
+
+    private Integer m_id = BeanWithId.UNSAVED_ID;
+
     public Permission(Type type, String name) {
         m_type = type;
         m_name = name;
+        m_builtIn = true;
     }
 
     public Permission() {
+        m_builtIn = false;
     }
 
     public Permission(Setting setting) {
         m_name = setting.getName();
         m_label = setting.getLabel();
         m_description = setting.getDescription();
+        m_builtIn = true;
+    }
+
+    void setId(Integer id) {
+        m_id = id;
+    }
+
+    public Integer getId() {
+        return m_id;
     }
 
     public static boolean isEnabled(String value) {
         return ENABLE.equals(value);
+    }
+
+    public boolean isBuiltIn() {
+        return m_builtIn;
     }
 
     /**
@@ -126,20 +147,15 @@ public final class Permission implements Comparable<Permission> {
         return m_description;
     }
 
-    public void setName(String name) {
-        m_name = name;
-    }
-
     public String getName() {
-        return m_name;
+        if (m_builtIn) {
+            return m_name;
+        }
+        return "perm_" + getId();
     }
 
-    public Object getId() {
-        return getName();
-    }
-
-    public void setId(Object id) {
-        setName((String) id);
+    public Object getPrimaryKey() {
+        return m_builtIn ? m_name : m_id;
     }
 
     public Type getType() {
@@ -171,7 +187,7 @@ public final class Permission implements Comparable<Permission> {
     public int compareTo(Permission o) {
         return getName().compareTo(o.getName());
     }
-    
+
     /**
      * Create setting that corresponds to this permission
      * 

@@ -8,7 +8,7 @@
   -->
   <inject property="permissionManager" object="spring:permissionManager" />
 
-  <property name="permissionName" persist="session" />
+  <property name="permissionId" persist="session" />
   <property name="permission" />
   <property name="callback" persist="session" />
   <!--
@@ -22,17 +22,6 @@
     <binding name="delegate" value="bean:validator" />
   </component>
 
-  <component id="nameLabel" type="FieldPanel">
-    <binding name="field" value="components.name" />
-    <binding name="label" value="message:label.name" />
-    <binding name="description" value="message:description.name" />
-  </component>
-  <component id="name" type="TextField">
-    <binding name="value" value="permission.name" />
-    <binding name="displayName" value="message:label.name" />
-    <binding name="validators" value="validators:required" />
-  </component>
-
   <component id="labelLabel" type="FieldPanel">
     <binding name="field" value="components.label" />
     <binding name="label" value="message:label.label" />
@@ -42,6 +31,7 @@
     <binding name="value" value="permission.label" />
     <binding name="displaylabel" value="message:label.label" />
     <binding name="validators" value="validators:required" />
+    <binding name="disabled" value="permission.builtIn" />
   </component>
 
   <component id="descriptionLabel" type="FieldPanel">
@@ -51,6 +41,7 @@
   <component id="description" type="TextArea">
     <binding name="value" value="permission.description" />
     <binding name="validators" value="validators:maxLength=255" />
+    <binding name="disabled" value="permission.builtIn" />
   </component>
   <component id="formActions" type="FormActions">
     <binding name="callback" value="callback" />

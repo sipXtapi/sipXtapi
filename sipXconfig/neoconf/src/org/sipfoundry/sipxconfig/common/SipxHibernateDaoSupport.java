@@ -32,7 +32,7 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-public class SipxHibernateDaoSupport extends HibernateDaoSupport {    
+public class SipxHibernateDaoSupport<T> extends HibernateDaoSupport {    
     
     /**
      * Check if a bean exists w/o loading it or trying to load it and getting
@@ -46,8 +46,8 @@ public class SipxHibernateDaoSupport extends HibernateDaoSupport {
         return !results.isEmpty();        
     }
     
-    public Object load(Class c, Serializable id) {
-        return getHibernateTemplate().load(c, id);
+    public T load(Class<T> c, Serializable id) {
+        return (T) getHibernateTemplate().load(c, id);
     }
 
     /**
@@ -118,7 +118,7 @@ public class SipxHibernateDaoSupport extends HibernateDaoSupport {
         return crit;
     }
 
-    protected void removeAll(Class klass, Collection ids) {
+    protected void removeAll(Class<T> klass, Collection ids) {
         HibernateTemplate template = getHibernateTemplate();
         Collection entities = new ArrayList(ids.size());
         for (Iterator i = ids.iterator(); i.hasNext();) {

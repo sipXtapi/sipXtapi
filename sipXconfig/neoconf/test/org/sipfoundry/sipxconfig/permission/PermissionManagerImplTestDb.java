@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.permission;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
@@ -35,7 +34,7 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
 
         TestHelper.insertFlat("permission/permission.db.xml");
 
-        permission = m_manager.getPermission("kuku");
+        permission = m_manager.getPermission(1002);
         assertNotNull(permission);
 
         assertEquals("kukuDescription", permission.getDescription());
@@ -47,13 +46,12 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
 
     public void testAddCallPermission() throws Exception {
         Permission permission = new Permission();
-        permission.setName("abc");
         permission.setDescription("description");
-        permission.setLabel("label");
+        permission.setLabel("abc");
 
         m_manager.addCallPermission(permission);
 
-        assertEquals(1, getConnection().getRowCount("permission", "where name = 'abc'"));
+        assertEquals(1, getConnection().getRowCount("permission", "where label = 'abc'"));
     }
 
     public void testGetCallPermissions() throws Exception {
@@ -66,17 +64,12 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testRemoveCallPermissions() throws Exception {
-        String[] names = {
-            "kuku", "bongo"
+        Integer[] names = {
+            1002, 1001
         };
         TestHelper.insertFlat("permission/permission.db.xml");
 
         m_manager.removeCallPermissions(Arrays.asList(names));
-        assertEquals(0, getConnection().getRowCount("permission"));
-    }
-
-    public void testRemoveCallBuiltInPermissions() throws Exception {
-        m_manager.removeCallPermissions(Collections.singleton(Permission.VOICEMAIL.getName()));
         assertEquals(0, getConnection().getRowCount("permission"));
     }
 }
