@@ -1,6 +1,7 @@
 AC_PREREQ(2.57)
 AC_INIT(sipX, 0.0.0, sipx-dev@list.sipfoundry.org)
 AC_CONFIG_AUX_DIR(config)
+AC_PREFIX_DEFAULT([/usr/local/sipx])
 AM_INIT_AUTOMAKE(foreign)
 
 AC_CONFIG_SUBDIRS(sipXportLib)

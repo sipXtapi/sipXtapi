@@ -20,7 +20,7 @@ AC_DEFUN([SFAC_INIT_FLAGS],
 
     CFLAGS="-I${prefix}/include $CFLAGS"
     CXXFLAGS="-I${prefix}/include $CXXFLAGS"
-    LD_FLAGS="-L${prefix}/lib ${LDFLAGS}"
+    LDFLAGS="-L${prefix}/lib ${LDFLAGS}"
 
     if test x_"${ax_cv_c_compiler_vendor}" = x_gnu
     then
