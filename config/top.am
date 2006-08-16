@@ -21,8 +21,8 @@ $(RECURSE):
 list:
 	@echo $(PROJECTS)
 
-.PHONY: createrepo
-createrepo:
+.PHONY: repo
+repo:
 	cd @DEST_RPM@ && createrepo .
 	sed -e 's,@DEST_RPM\@,@DEST_RPM@,g' \
 	 $(srcdir)/config/local.repo.in > local.repo

@@ -43,7 +43,6 @@ AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
 
 AC_CONFIG_FILES([
   Makefile 
-  config/sipXcommon.mak
   interface/Makefile
   sipXmediaMediaProcessing/Makefile
   sipXmediaMediaProcessing/src/Makefile

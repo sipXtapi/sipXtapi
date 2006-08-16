@@ -1,6 +1,6 @@
-## Wrapper for building resiprocate as a set of static libraries
+include $(srcdir)/config/project.am
 
-include $(top_builddir)/config/sipXcommon.mak
+## Wrapper for building resiprocate as a set of static libraries
 
 SUBDIRS = . include src
 
@@ -316,8 +316,6 @@ RESIP_LIB_FILES_TO_INSTALL = \
 	$(libdir)/libares.a \
 	$(libdir)/libdum.a \
 	$(libdir)/libresip.a
-
-include $(srcdir)/config/sipXprojtop.mak
 
 check: resip-test
 

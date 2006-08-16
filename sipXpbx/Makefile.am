@@ -1,7 +1,5 @@
 ## Process this file with automake to produce Makefile.in
-include $(top_builddir)/config/sipXcommon.mak
-
-include $(srcdir)/config/sipXprojtop.mak
+include $(srcdir)/config/project.am
 
 SUBDIRS = . \
     include \
@@ -26,8 +24,6 @@ EXTRA_DIST = \
     config/sipX-buildstamp.cpp.in \
     config/sipX-buildstamp.h.in \
     config/sipX-config.in \
-    config/sipXcommon.mak.in \
-    config/sipXprojtop.mak \
     sipxpbx.spec
 
 install-exec-hook :

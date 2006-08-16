@@ -48,7 +48,6 @@ CHECK_GIPSNEQ
 
 AC_CONFIG_FILES([
   Makefile 
-  config/sipXcommon.mak
   include/Makefile 
   src/Makefile 
   src/test/Makefile

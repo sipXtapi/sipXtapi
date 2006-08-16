@@ -53,7 +53,6 @@ AC_DEFUN([ADD_SIPX_INCL_LIB],
 SFAC_LIB_CALL
 
 AC_CONFIG_FILES([
-   config/sipXcommon.mak
    Makefile
    src/Makefile
    include/Makefile

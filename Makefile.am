@@ -1,4 +1,4 @@
-include config/distribution.am
+include config/top.am
 
 RECURSE += \
 	check \

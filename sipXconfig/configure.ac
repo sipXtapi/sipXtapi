@@ -55,7 +55,6 @@ fi
 
 AC_CONFIG_FILES([
     Makefile
-    config/sipXcommon.mak
     bin/Makefile
     neoconf/Makefile
     web/Makefile

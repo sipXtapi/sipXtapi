@@ -58,7 +58,6 @@ AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
 
 AC_CONFIG_FILES([
   Makefile 
-  config/sipXcommon.mak
   include/Makefile 
   bin/Makefile
   src/Makefile 

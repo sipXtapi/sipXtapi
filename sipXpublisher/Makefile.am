@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-include $(top_builddir)/config/sipXcommon.mak
+include $(srcdir)/config/project.am
 
 INSTALL = @INSTALL@
 
@@ -22,11 +22,9 @@ EXTRA_DIST = \
     config/sipX-config.in \
     config/sipX-buildstamp.cpp.in \
     config/sipX-buildstamp.h.in \
-    config/sipXprojtop.mak \
-    config/sipXcommon.mak.in \
+    config/project.am \
+    config/subdir.am \
     sipxpublisher.spec
-
-include $(srcdir)/config/sipXprojtop.mak
 
 SUBDIRS = . src include bin etc meta $(doc_SUBDIRS)
 

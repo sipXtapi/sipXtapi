@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-include $(top_builddir)/config/sipXcommon.mak
+include $(top_srcdir)/config/subdir.am
 
 INCLUDES = -I$(top_srcdir)/include -I$(top_builddir)/config
 

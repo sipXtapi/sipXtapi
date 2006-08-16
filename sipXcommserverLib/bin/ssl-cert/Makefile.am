@@ -1,4 +1,4 @@
-include $(top_builddir)/config/sipXcommon.mak
+include $(top_srcdir)/config/subdir.am
 
 SCRIPT_TEMPLATES = \
 	gen-ssl-keys.sh \

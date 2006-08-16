@@ -1,5 +1,4 @@
-include $(top_builddir)/config/sipXcommon.mak
-include $(srcdir)/config/sipXprojtop.mak
+include $(srcdir)/config/project.am
 
 # Append to global search/replace with _very_ project specific search/replaces
 edit = $(LocalizeSipXconfig) \
@@ -21,8 +20,8 @@ EXTRA_DIST = \
     config/sipX-config.in \
     config/sipX-buildstamp.cpp.in \
     config/sipX-buildstamp.h.in \
-    config/sipXprojtop.mak \
-    config/sipXcommon.mak.in \
+    config/project.am \
+    config/subdir.am \
     ant-targets.am \
     ant-targets.xml \
     build.xml \
