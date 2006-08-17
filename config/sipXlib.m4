@@ -639,9 +639,6 @@ AC_DEFUN([SFAC_DIST_DIR],
       [Directory to output distribution output files like tarballs, srpms and rpms, default is $(top_builddir)/dist]),
     [DIST_DIR=${withval}],[DIST_DIR=dist])
 
-  AC_SUBST([RPMBUILD_TOPDIR], [`rpm --eval '%{_topdir}'`])
-  AC_SUBST([RPM_TARGET_ARCH], [`rpm --eval '%{_target_cpu}'`])
-
   mkdir -p "$DIST_DIR" 2>/dev/null
   DIST_DIR=`cd "$DIST_DIR"; pwd`
 
@@ -654,14 +651,21 @@ AC_DEFUN([SFAC_DIST_DIR],
   test -z $LIBSRC && LIBSRC=~/libsrc
 
   # RPM based distros
+  AC_PATH_PROG(RPM, rpm)
+  if test x"$RPM" != x
+  then
+    DEST_RPM="${DIST_DIR}/RPM"
+    mkdir "${DEST_RPM}" 2>/dev/null
+    AC_SUBST([DEST_RPM])
 
-  DEST_RPM="${DIST_DIR}/RPM"
-  mkdir "${DEST_RPM}" 2>/dev/null
-  AC_SUBST([DEST_RPM])
+    DEST_SRPM="${DIST_DIR}/SRPM"
+    mkdir "${DEST_SRPM}"  2>/dev/null
+    AC_SUBST([DEST_SRPM])
 
-  DEST_SRPM="${DIST_DIR}/SRPM"
-  mkdir "${DEST_SRPM}"  2>/dev/null
-  AC_SUBST([DEST_SRPM])
+    AC_SUBST([RPMBUILD_TOPDIR], [`rpm --eval '%{_topdir}'`])
+    AC_SUBST([RPM_TARGET_ARCH], [`rpm --eval '%{_target_cpu}'`])
+  fi
+
 ])
 
 AC_DEFUN([SFAC_DOWNLOAD_DEPENDENCIES],
