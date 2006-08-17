@@ -1,8 +1,17 @@
 ## Process this file with automake to produce Makefile.in
 
-include $(srcdir)/config/project.am
+include config/project.am
 
-INSTALL = @INSTALL@
+RPMS = $(DEFAULT_RPMS)
+
+SUBDIRS = \
+	. \
+	src \
+	include \
+	bin \
+	etc \
+	meta \
+	$(doc_SUBDIRS)
 
 editscripts_IN = \
     bin/sipstatus.sh.in
@@ -26,7 +35,6 @@ EXTRA_DIST = \
     config/subdir.am \
     sipxpublisher.spec
 
-SUBDIRS = . src include bin etc meta $(doc_SUBDIRS)
 
 DISTCLEANFILES = \
 	$(CONFIG_DISTCLEANFILES)

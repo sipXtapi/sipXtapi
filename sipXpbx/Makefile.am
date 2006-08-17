@@ -1,5 +1,5 @@
 ## Process this file with automake to produce Makefile.in
-include $(srcdir)/config/project.am
+include config/project.am
 
 SUBDIRS = . \
     include \
@@ -12,7 +12,7 @@ SUBDIRS = . \
     meta \
     $(doc_SUBDIRS)
 
-INSTALL = @INSTALL@
+RPMS = $(DEFAULT_RPMS)
 
 EXTRA_DIST = \
     BUILDSTAMP \

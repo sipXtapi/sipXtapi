@@ -1,4 +1,4 @@
-include $(srcdir)/config/project.am
+include config/project.am
 
 # Append to global search/replace with _very_ project specific search/replaces
 edit = $(LocalizeSipXconfig) \
@@ -10,11 +10,18 @@ edit = $(LocalizeSipXconfig) \
     -e 's,@SIPFOUNDRY_ORG\@,@SIPFOUNDRY_ORG@,g'
 
 
-SUBDIRS = . bin neoconf web meta agent $(doc_SUBDIRS)
+SUBDIRS = \
+	. \
+	bin \
+	neoconf \
+	web \
+	meta \
+	agent \
+	$(doc_SUBDIRS)
 
 RPMS = \
 	$(RPM) \
-	$(DEST_RPM)/@PACKAGE@-tftp-$(VERSION)-@SVN_VERSION@.$(RPM_TARGET_ARCH).rpm
+	$(DEST_RPM)/@PACKAGE@-tftp-$(VERSION)-$(RELEASE).$(RPM_TARGET_ARCH).rpm
 
 EXTRA_DIST = \
     config/sipX-config.in \

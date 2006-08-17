@@ -1,5 +1,15 @@
 ## Process this file with automake to produce Makefile.in
-include $(top_srcdir)/config/subdir.am
+include config/project.am
+
+RPMS = $(DEFAULT_RPMS)
+
+SUBDIRS = \
+	. \
+	src \
+	examples \
+	include \
+	bin \
+	$(doc_SUBDIRS)
 
 EXTRA_DIST = \
     config/sipX-config.in \
@@ -11,11 +21,6 @@ EXTRA_DIST = \
     BUILDSTAMP \
     sipxcalllib.spec
 
-unconditional_SUBDIRS = . src examples include bin 
-
-include $(srcdir)/config/project.am
-
-SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)
 
 DISTCLEANFILES = \
 	$(CONFIG_DISTCLEANFILES) \

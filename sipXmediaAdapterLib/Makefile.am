@@ -1,6 +1,8 @@
 ## Process this file with automake to produce Makefile.in
 include $(top_srcdir)/config/project.am
 
+RPMS = $(DEFAULT_RPMS)
+
 EXTRA_DIST = \
     config/sipX-config.in \
     config/sipX-buildstamp.cpp.in \
@@ -10,10 +12,11 @@ EXTRA_DIST = \
     BUILDSTAMP \
     sipxmediaadapterlib.spec
 
-unconditional_SUBDIRS = . interface sipXmediaMediaProcessing
-
-
-SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)
+SUBDIRS = \
+	. \
+	interface \
+	sipXmediaMediaProcessing \
+	$(doc_SUBDIRS)
 
 DISTCLEANFILES = \
 	$(CONFIG_DISTCLEANFILES)

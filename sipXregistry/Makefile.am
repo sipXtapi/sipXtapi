@@ -1,13 +1,17 @@
 ## Process this file with automake to produce Makefile.in
 include config/project.am
 
-INSTALL=@INSTALL@
+RPMS = $(DEFAULT_RPMS)
 
-unconditional_SUBDIRS = . include src lib bin meta etc
-
-
-SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)
-RELEASE = 1
+SUBDIRS = \
+	. \
+	include \
+	src \
+	lib \
+	bin \
+	meta \
+	etc \
+	$(doc_SUBDIRS)
 
 EXTRA_DIST = \
     CONTRIBUTORS \

@@ -5,7 +5,7 @@ RPM=$(DEST_RPM)/@PACKAGE@-$(VERSION)-$(RELEASE).$(RPM_TARGET_ARCH).rpm
 DEVEL_RPM=$(DEST_RPM)/@PACKAGE@-devel-$(VERSION)-$(RELEASE).$(RPM_TARGET_ARCH).rpm
 DEBUG_RPM=$(DEST_RPM)/@PACKAGE@-debug-$(VERSION)-$(RELEASE).$(RPM_TARGET_ARCH).rpm
 
-RPMS = $(RPM) $(DEVEL_RPM)
+DEFAULT_RPMS = $(RPM) $(DEVEL_RPM)
 SRPM = $(DEST_SRPM)/@PACKAGE@-$(VERSION)-$(RELEASE).src.rpm
 
 RPM_INSTALL_FLAGS = --upgrade --nodeps --quiet --noscripts --notriggers --verbose --hash --force

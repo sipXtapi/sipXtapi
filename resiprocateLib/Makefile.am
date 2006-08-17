@@ -1,8 +1,13 @@
-include $(srcdir)/config/project.am
+include config/project.am
 
 ## Wrapper for building resiprocate as a set of static libraries
 
-SUBDIRS = . include src
+SUBDIRS = \
+	. \
+	include \
+	src
+
+RPMS = $(DEFAULT_RPMS)
 
 # To do the 'build' operation, we perform the Resiprocate build and install
 # operations for all the appropriate components in order.

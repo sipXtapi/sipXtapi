@@ -1,14 +1,9 @@
 ## Process this file with automake to produce Makefile.in
-include $(top_srcdir)/config/subdir.am
+include config/project.am
 
-INSTALL=@INSTALL@
+SUBDIRS = src $(doc_SUBDIRS)
 
-unconditional_SUBDIRS = src $(doc_SUBDIRS)
-
-include $(srcdir)/config/project.am
-
-SUBDIRS = $(unconditional_SUBDIRS)
-RELEASE = 1
+RPMS = $(DEFAULT_RPMS)
 
 EXTRA_DIST = \
     BUILDSTAMP \

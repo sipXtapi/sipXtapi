@@ -1,5 +1,5 @@
 ## Process this file with automake to produce Makefile.in
-include $(srcdir)/config/project.am
+include config/project.am
 
 EXTRA_DIST = \
     config/sipX-config.in \
@@ -11,9 +11,14 @@ EXTRA_DIST = \
     BUILDSTAMP \
     sipxmedialib.spec
 
-unconditional_SUBDIRS = . src include bin
+RPMS = $(DEFAULT_RPMS)
 
-SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)
+SUBDIRS = \
+	. \
+	src \
+	include \
+	bin \
+	$(doc_SUBDIRS)
 
 DISTCLEANFILES = \
 	$(CONFIG_DISTCLEANFILES)

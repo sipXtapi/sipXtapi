@@ -1,5 +1,5 @@
 ## Process this file with automake to produce Makefile.in
-include $(srcdir)/config/project.am
+include config/project.am
 
 EXTRA_DIST = \
     config/sipX-config.in \
@@ -11,9 +11,15 @@ EXTRA_DIST = \
     SVN_VERSION \
     sipxportlib.spec
 
-unconditional_SUBDIRS = . bin src include syslogviewer
+RPMS = $(DEFAULT_RPMS)
 
-SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)
+SUBDIRS = \
+	. \
+	bin \
+	src \
+	include \
+	syslogviewer \
+	$(doc_SUBDIRS)
 
 DISTCLEANFILES = \
 	$(CONFIG_DISTCLEANFILES) \

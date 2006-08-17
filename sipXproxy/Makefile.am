@@ -1,8 +1,15 @@
 ## Process this file with automake to produce Makefile.in
 include config/project.am
 
-SUBDIRS = . src bin meta etc $(doc_SUBDIRS)
-RELEASE = 1
+RPMS = $(DEFAULT_RPMS)
+
+SUBDIRS = \
+	. \
+	src \
+	bin \
+	meta \
+	etc \
+	$(doc_SUBDIRS)
 
 EXTRA_DIST = \
     CONTRIBUTORS \

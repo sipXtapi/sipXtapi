@@ -1,5 +1,29 @@
 ## Process this file with automake to produce Makefile.in
-include $(srcdir)/config/project.am
+include config/project.am
+
+if SIPVIEWER
+SIPVIEWER_OPT = sipviewer
+endif
+
+if EXAMPLES
+EXAMPLES_OPT = examples
+endif
+
+SUBDIRS = \
+	. \
+	include \
+	src \
+	bin \
+	meta \
+	examples \
+	syslog2siptrace \
+	siplog2siptrace \
+	siptest \
+	$(SIPVIEWER_OPT) \
+	$(EXAMPLES_OPT) \
+	$(doc_SUBDIRS)
+
+RPMS = $(DEFAULT_RPMS)
 
 EXTRA_DIST = \
     config/sipX-config.in \
@@ -16,18 +40,6 @@ EXTRA_DIST = \
     lib/junit.jar \
     config.properties.in \
     syslog2siptrace/siptrace-merge
-
-if SIPVIEWER
-SIPVIEWER_OPT = sipviewer
-endif
-
-if EXAMPLES
-EXAMPLES_OPT = examples
-endif
-
-unconditional_SUBDIRS = . include src bin meta examples syslog2siptrace siplog2siptrace siptest $(SIPVIEWER_OPT) $(EXAMPLES_OPT)
-
-SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)
 
 # BUILT_SOURCES is special autoconf variable to be checked on every make
 BUILT_SOURCES = config.properties

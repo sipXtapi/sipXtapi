@@ -1,9 +1,16 @@
 ## Process this file with automake to produce Makefile.in
-include $(srcdir)/config/project.am
+include config/project.am
 
-SUBDIRS = . js src bin include meta $(doc_SUBDIRS)
+RPMS = $(DEFAULT_RPMS)
 
-INSTALL = @INSTALL@
+SUBDIRS = \
+	. \
+	js \
+	src \
+	bin \
+	include \
+	meta \
+	$(doc_SUBDIRS)
 
 EXTRA_DIST = \
     CONTRIBUTORS \
