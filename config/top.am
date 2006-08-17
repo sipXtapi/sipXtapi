@@ -5,8 +5,7 @@ $(RECURSE):
 	@failcom='exit 1'; \
 	for f in x $$MAKEFLAGS; do \
 	  case $$f in \
-	    *=* | --[!k]*);; \
-	    *k*) failcom='fail=yes';; \
+	    -k) failcom='fail=yes';; \
 	  esac; \
 	done; \
 	target="$(TARGETS)`echo $@ | sed -e s/recurse//`"; \

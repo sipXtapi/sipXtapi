@@ -1,20 +1,19 @@
 include config/top.am
 
+
 RECURSE += \
 	check \
 	rpmclean \
 	clean \
 	install \
 	uninstall \
-	dist \
-	rpm \
 	distclean
 
 CHECK = check
 
 
-.PHONY: all dist
-dist all:
+.PHONY: all
+all:
 	@echo "Target '$@' is not valid. Type 'make build' to build and install."
 
 .PHONY: build
@@ -23,3 +22,8 @@ build:
 
 rpm:
 	$(MAKE) recurse TARGETS="rpm install-rpms"
+
+# causes duplicate target error!
+.PHONY:
+dists:
+	$(MAKE) recurse TARGETS="dist"
