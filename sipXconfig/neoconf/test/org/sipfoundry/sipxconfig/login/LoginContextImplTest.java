@@ -17,23 +17,29 @@ import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.Permission;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.setting.Group;
 
 public class LoginContextImplTest extends TestCase {
     private LoginContextImpl m_impl;
     private User m_user;
     private static final Integer USER_ID = new Integer(314159);
+    private PermissionManagerImpl m_permissionManager;
 
     protected void setUp() throws Exception {
         m_impl = new LoginContextImpl();
 
+        m_permissionManager = new PermissionManagerImpl();
+        m_permissionManager.setModelFilesContext(TestHelper.getModelFilesContext());
+
         m_user = new User();
+        m_user.setPermissionManager(m_permissionManager);
+
         Group admin = new Group();
         m_user.addGroup(admin);
-        
-        m_user.setModelFilesContext(TestHelper.getModelFilesContext());
+
         Permission.SUPERADMIN.setEnabled(admin, true);
 
         IMocksControl control = EasyMock.createNiceControl();
@@ -43,7 +49,7 @@ public class LoginContextImplTest extends TestCase {
 
         coreContext.getAuthorizationRealm();
         control.andReturn("pingtel.com").times(3);
-        
+
         coreContext.loadUser(USER_ID);
         control.andReturn(m_user).times(1);
         control.replay();
@@ -83,19 +89,19 @@ public class LoginContextImplTest extends TestCase {
         m_user.setUserName("xyz");
         assertTrue(m_impl.isAdmin(m_user));
     }
-    
-    public void testNotAdmin() {        
+
+    public void testNotAdmin() {
         User nonAdmin = new User();
-        nonAdmin.setUserName("superadmin"); //not really superadmin
+        nonAdmin.setPermissionManager(m_permissionManager);
+        nonAdmin.setUserName("superadmin"); // not really superadmin
         Group nonAdminGroup = new Group();
-        nonAdmin.addGroup(nonAdminGroup);        
-        nonAdmin.setModelFilesContext(TestHelper.getModelFilesContext());
-        
+        nonAdmin.addGroup(nonAdminGroup);
+
         assertFalse(m_impl.isAdmin(nonAdmin));
     }
 
     public void testIsAdminUserId() {
         m_user.setUserName("superadmin");
-        assertTrue(m_impl.isAdmin(USER_ID));        
+        assertTrue(m_impl.isAdmin(USER_ID));
     }
 }

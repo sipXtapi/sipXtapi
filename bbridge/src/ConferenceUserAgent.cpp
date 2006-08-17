@@ -72,6 +72,9 @@ ConferenceUserAgent::ConferenceUserAgent(OsConfigDb& db) :
    mConfigDb.get("BOSTON_BRIDGE_TCP_PORT", mTcpPort);
    mConfigDb.get("BOSTON_BRIDGE_TLS_PORT", mTlsPort);
    
+   // Disable statistics Manager
+   mStack.statisticsManagerEnabled() = false;
+
    resip::NameAddr myAor;
    mDum.addTransport(resip::UDP, mUdpPort);
    mDum.addTransport(resip::TCP, mTcpPort);

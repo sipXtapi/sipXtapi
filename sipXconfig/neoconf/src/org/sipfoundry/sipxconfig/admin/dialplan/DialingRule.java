@@ -24,8 +24,8 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.DataCollectionItem;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.NamedObject;
-import org.sipfoundry.sipxconfig.common.Permission;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
+import org.sipfoundry.sipxconfig.permission.Permission;
 
 /**
  * DialingRule At some point it will be replaced by the IDialingRule interface or made abstract.

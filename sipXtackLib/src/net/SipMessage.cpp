@@ -2428,15 +2428,7 @@ void SipMessage::setWarningField(int code, const char* hostname, const char* tex
 
 void SipMessage::changeUri(const char* newUri)
 {
-   //UtlString address;
-   //UtlString protocol;
-   //int port;
    UtlString uriString;
-    //UtlString user;
-
-   //parseAddressFromUri(newUri, &address, &port, &protocol, &user);
-   //buildSipUrl(&uriString, address.data(), port, protocol.data(),
-    //    user.data());
 
     // Remove the stuff that should not be in a URI
     Url cleanUri(newUri);
@@ -4047,6 +4039,13 @@ UtlBoolean SipMessage::getSessionExpires(int* sessionExpiresSeconds) const
     return(value != NULL);
 }
 
+
+void SipMessage::setServerField(const char* serverField)
+{
+   setHeaderValue(SIP_SERVER_FIELD, serverField);
+}
+
+
 void SipMessage::setSessionExpires(int sessionExpiresSeconds)
 {
    char numString[HTTP_LONG_INT_CHARS];
@@ -5204,4 +5203,142 @@ void SipMessage::SipMessageFieldProps::initUniqueUrlHeaders()
    // parameter overrides the existing header in the message.
 
    mUniqueUrlHeaders.insert(new UtlString(SIP_EXPIRES_FIELD));
+}
+
+void SipMessage::normalizeProxyRoutes(const SipUserAgent* sipUA,
+                                      Url& requestUri,
+                                      UtlSList* removedRoutes
+                                      )
+{
+   UtlString requestUriString;
+   Url topRouteUrl;
+   UtlString topRouteValue;
+
+   /*
+    * Check the request URI and the topmost route
+    *   - Detect and correct for any strict router upstream
+    *     as specified by RFC 3261 section 16.4 Route Information Preprocessing:
+    *
+    *       The proxy MUST inspect the Request-URI of the request.  If the
+    *       Request-URI of the request contains a value this proxy previously
+    *       placed into a Record-Route header field (see Section 16.6 item 4),
+    *       the proxy MUST replace the Request-URI in the request with the last
+    *       value from the Route header field, and remove that value from the
+    *       Route header field.  The proxy MUST then proceed as if it received
+    *       this modified request.
+    *
+    *   - Pop off the topmost route until it is not me
+    *
+    * Note that this loop always executes at least once, and that:
+    *   - it leaves requestUri set correctly
+    */
+   bool doneNormalizingRouteSet = false;
+   while (! doneNormalizingRouteSet)
+   {
+      // Check the request URI.
+      //    If it has 'lr' parameter that is me, then the sender was a 
+      //    strict router (it didn't recognize the loose route indication)
+      getRequestUri(&requestUriString);
+      requestUri.fromString(requestUriString, TRUE /* is a request uri */);
+
+      UtlString noValue;
+      if (   requestUri.getUrlParameter("lr", noValue, 0)
+          && sipUA->isMyHostAlias(requestUri)
+          )
+      {
+         /*
+          * We need to fix it (convert it back to a loose route)..
+          * - pop the last route and put it in the request URI
+          *   see RFC 3261 section 16.4
+          *
+          * For example:
+          *   INVITE sip:mydomain.com;lr SIP/2.0
+          *   Route: <sip:proxy.example.com;lr>, <sip:user@elsewhere.example.com>
+          * becomes:
+          *   INVITE sip:user@elsewhere.example.com SIP/2.0
+          *   Route: <sip:proxy.example.com;lr>
+          */
+         UtlString lastRouteValue;
+         int lastRouteIndex;
+         if ( getLastRouteUri(lastRouteValue, lastRouteIndex) )
+         {
+            removeRouteUri(lastRouteIndex, &lastRouteValue);
+
+            // Put the last route in as the request URI
+            changeUri(lastRouteValue); // this strips appropriately
+                     
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipMessage::normalizeProxyRoutes "
+                          "strict route '%s' replaced with uri from '%s'",
+                          requestUriString.data(), lastRouteValue.data());
+            if (removedRoutes)
+            {
+               // save a copy of the route we're removing for the caller.
+               // this looks just like this was properly loose routed.
+               // use the output from Url::toString so that all are normalized.
+               UtlString* removedRoute = new UtlString;
+               requestUri.toString(*removedRoute);
+               removedRoutes->append(removedRoute);
+               // caller is responsible for deleting the savedRoute
+            }
+         }
+         else
+         {
+            OsSysLog::add(FAC_SIP, PRI_WARNING, "SipMessage::normalizeProxyRoutes  "
+                          "found 'lr' in Request-URI with no Route; stripped 'lr'"
+                          );
+
+            requestUri.removeUrlParameter("lr");
+            UtlString newUri;
+            requestUri.toString(newUri);
+            changeRequestUri(newUri); // this strips appropriately
+         }
+
+         // note: we've changed the request uri and the route set,
+         //       but not set doneNormalizingRouteSet, so we go around again...
+      }
+      else // topmost route was not a loose route uri we put there... 
+      {
+         if ( getRouteUri(0, &topRouteValue) )
+         {
+            /*
+             * There is a Route header... if it is a route to this proxy, pop it off.
+             * For example:
+             *   INVITE sip:user@elsewhere.example.com SIP/2.0
+             *   Route: <sip:mydomain.com;lr>, <sip:proxy.example.com;lr>
+             * becomes:
+             *   INVITE sip:user@elsewhere.example.com SIP/2.0
+             *   Route: <sip:proxy.example.com;lr>
+             */
+            topRouteUrl.fromString(topRouteValue,FALSE /* not a request uri */);
+            if ( sipUA->isMyHostAlias(topRouteUrl) )
+            {
+               if (removedRoutes)
+               {
+                  // save a copy of the route we're removing for the caller.
+                  // use the output from Url::toString so that all are normalized.
+                  UtlString* savedRoute = new UtlString();
+                  topRouteUrl.toString(*savedRoute);
+                  removedRoutes->append(savedRoute);
+                  // caller is responsible for deleting the savedRoute
+               }
+               UtlString removedRoute;
+               removeRouteUri(0, &removedRoute);
+                           
+               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                             "SipMessage::normalizeProxyRoutes popped route to self '%s'",
+                             removedRoute.data()
+                             );
+            }
+            else // topmost route is someone else
+            {
+               doneNormalizingRouteSet = true;
+            }
+         }
+         else // no more routes
+         {
+            doneNormalizingRouteSet = true;
+         }
+      }
+   } // while ! doneNormalizingRouteSet
 }

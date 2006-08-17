@@ -20,8 +20,8 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.QName;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
-import org.sipfoundry.sipxconfig.common.Permission;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
+import org.sipfoundry.sipxconfig.permission.Permission;
 
 /**
  * Authorization rule generator.

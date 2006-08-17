@@ -35,7 +35,7 @@ class CallStateEventWriter_DB : public CallStateEventWriter
 /* ============================ CREATORS ================================== */
 
    /// Instantiate an event builder and set the observer name for its events
-   /*! \param logType (in) - specifies either file or database
+   /*
     * \param logName - database name
     * \param logLocation - database host
     * \param logUserName - database user

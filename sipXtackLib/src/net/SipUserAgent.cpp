@@ -881,7 +881,7 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
       // Make sure the User Agent field is set
       if(isUaTransaction)
       {
-         setUserAgentHeader(message);
+         setSelfHeader(message);
 
          // Make sure the accept language is set
          UtlString language;
@@ -1855,7 +1855,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
                                             SIP_TOO_MANY_HOPS_TEXT
                                             );
 
-                  setUserAgentHeader(*response);
+                  setSelfHeader(*response);
                   
                   // If we are suppose to return the vias in the
                   // error response for Max-Forwards exeeded
@@ -2794,6 +2794,20 @@ void SipUserAgent::setIsUserAgent(UtlBoolean isUserAgent)
     mIsUaTransactionByDefault = isUserAgent;
 }
 
+/// Add either Server or User-Agent header, as appropriate
+void SipUserAgent::setSelfHeader(SipMessage& message)
+{
+   if (mIsUaTransactionByDefault)
+   {
+      setUserAgentHeader(message);
+   }
+   else
+   {
+      setServerHeader(message);
+   }
+}
+    
+
 // setUserAgentHeaderProperty
 //      provides a string to be appended to the standard User-Agent
 //      header value between "<vendor>/<version>" and the platform (eg "(VxWorks)")
@@ -3376,7 +3390,7 @@ UtlBoolean SipUserAgent::isForkingEnabled()
     return(mForkingEnabled);
 }
 
-UtlBoolean SipUserAgent::isMyHostAlias(Url& route)
+UtlBoolean SipUserAgent::isMyHostAlias(Url& route) const
 {
     UtlString hostAlias;
     route.getHostAddress(hostAlias);
@@ -3730,6 +3744,14 @@ void SipUserAgent::lookupSRVSipAddress(UtlString protocol, UtlString& sipAddress
     }
 }
 
+void SipUserAgent::setServerHeader(SipMessage& message)
+{
+   UtlString headerValue;
+   selfHeaderValue(headerValue);
+
+   message.setServerField(headerValue.data());
+}
+
 void SipUserAgent::setUserAgentHeader(SipMessage& message)
 {
    UtlString uaName;
@@ -3737,20 +3759,24 @@ void SipUserAgent::setUserAgentHeader(SipMessage& message)
 
    if(uaName.isNull())
    {
-      uaName = defaultUserAgentName;
-
-      if ( !mUserAgentHeaderProperties.isNull() )
-      {
-         uaName.append(mUserAgentHeaderProperties);
-      }
-
-      if (mbIncludePlatformInUserAgentName)
-      {
-         uaName.append(PLATFORM_UA_PARAM);
-      }      
-
-      message.setUserAgentField(uaName);
+      selfHeaderValue(uaName);
+      message.setUserAgentField(uaName.data());
    }
+}
+
+void SipUserAgent::selfHeaderValue(UtlString& self)
+{
+   self = defaultUserAgentName;
+
+   if ( !mUserAgentHeaderProperties.isNull() )
+   {
+      self.append(mUserAgentHeaderProperties);
+   }
+
+   if (mbIncludePlatformInUserAgentName)
+   {
+      self.append(PLATFORM_UA_PARAM);
+   }      
 }
 
 void SipUserAgent::setIncludePlatformInUserAgentName(const bool bInclude)
@@ -3767,6 +3793,7 @@ void SipUserAgent::getContactAddresses(CONTACT_ADDRESS* pContacts[], int &numCon
 {
     mContactDb.getAll(pContacts, numContacts);
 }
+
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 

@@ -150,189 +150,6 @@ sigHandler( int sig_num )
     OsSysLog::flush();
 }
 
-// This might eventially get moved to SipRouter
-// Though a real container probably needs to be created
-// for the route rules as the logic will soon outgrow
-// the OsConfigDb
-/*
-void initRoutes(const char* routeRuleFileName,
-                int udpPort,
-                OsConfigDb& routeMaps)
-{
-   TiXmlDocument xmlDoc =  TiXmlDocument(routeRuleFileName);
-
-   // There is no routing rules file. Create the defaults
-   if(!xmlDoc.LoadFile())
-   {
-       UtlString defaultXml("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<routes>\n");
-
-       UtlString ipAddress;
-       OsSocket::getHostIp(&ipAddress);
-
-       // Default registry/redirect server address
-       UtlString rrServer(ipAddress);
-       rrServer.append(":5070");
-
-       // Map Explicit IP address
-       char thisPort[64];
-       sprintf(thisPort, ":%d", udpPort);
-       UtlString explicitIp(ipAddress);
-       explicitIp.append(thisPort);
-       PRINT_ROUTE_RULE(defaultXml, explicitIp, rrServer);
-       routeMaps.set(explicitIp, rrServer);
-
-       // Map non-Fully qualified host name
-       UtlString hostName;
-       OsSocket::getHostName(&hostName);
-       UtlString hostNamePort(hostName);
-       hostNamePort.append(thisPort);
-       PRINT_ROUTE_RULE(defaultXml, hostNamePort, rrServer);
-       routeMaps.set(hostNamePort, rrServer);
-
-       // Map The local domain (e.g. assumes DNS SRV mapping
-       UtlString localDomain;
-       OsSocket::getDomainName(localDomain);
-       UtlString localDomainPort(localDomain);
-       localDomainPort.append(thisPort);
-       PRINT_ROUTE_RULE(defaultXml, localDomainPort, rrServer);
-       routeMaps.set(localDomainPort, rrServer);
-
-       // Map Fully qualified host name (FQHN)
-       UtlString fqhn(hostName);
-       fqhn.append('.');
-       fqhn.append(localDomain);
-       fqhn.append(thisPort);
-       PRINT_ROUTE_RULE(defaultXml, fqhn, rrServer);
-       routeMaps.set(fqhn, rrServer);
-
-       // Default config server address
-       UtlString configServer(ipAddress);
-       configServer.append(":5090");
-
-       // Map Non-fully qualified config server name
-       PRINT_ROUTE_RULE(defaultXml, "sipuaconfig", configServer);
-       routeMaps.set("sipuaconfig", configServer);
-
-       // Map Fully qualified (FQHN) config server name
-       UtlString fqhnConfig("sipuaconfig.");
-       fqhnConfig.append(localDomain);
-       fqhnConfig.append(thisPort);
-       PRINT_ROUTE_RULE(defaultXml, fqhnConfig, configServer);
-       routeMaps.set(fqhnConfig, configServer);
-       defaultXml.append("</routes>\n");
-
-       UtlString parseError = xmlDoc.ErrorDesc();
-       osPrintf("%s: %s\nSetting defaults:\n", 
-           parseError.data(),
-           routeRuleFileName);
-       osPrintf("%s", defaultXml.data());
-       OsSysLog::add(FAC_SIP, PRI_ERR, "%s: %s\nSetting defaults:", 
-           parseError.data(),
-           routeRuleFileName);
-       OsSysLog::add(FAC_SIP, PRI_INFO, "%s", defaultXml.data());
-   }
-
-   // There is a routing rules file.  Parse the contents
-   else
-   {
-       // Find the routes container
-       TiXmlNode* routesContainer = xmlDoc.FirstChild("routes");
-       if(routesContainer)
-       {
-           TiXmlNode* routeNode = NULL;
-           UtlString fromHost;
-           UtlString toHost;
-           int routeCount = 0;
-           // Loop through all the route elements
-           while ((routeNode = routesContainer->IterateChildren(routeNode)))
-           {
-               // Skip over attributes
-               if(routeNode->Type() != TiXmlNode::ELEMENT)
-               {
-                  continue;
-               }
-
-               // Skip over non-route elements
-               TiXmlElement* routeElement = routeNode->ToElement();
-               UtlString tagValue = routeElement->Value();
-               if(tagValue.compareTo("route", UtlString::ignoreCase) != 0 )
-               {
-                  continue;
-               }
-
-               //osPrintf("Found a route\n");
-               routeCount++;
-
-               // Find the first routeFrom
-               fromHost.remove(0);
-               TiXmlNode* fromNode = routeElement->FirstChild("routeFrom");
-               TiXmlElement* fromElement = fromNode ? fromNode->ToElement() : NULL;
-               if(fromElement)
-               {
-                   TiXmlNode* hostNode = fromElement->FirstChild();
-                   if(hostNode && hostNode->Type() == TiXmlNode::TEXT)
-                   {
-                       TiXmlText* hostText = hostNode->ToText();
-                       if (hostText)
-                       {
-                           fromHost = hostText->Value();
-                           //osPrintf("\tfound a routeFrom: %s\n", fromHost.data());
-                       }
-                   }
-               }
-
-               if(fromHost.isNull())
-               {
-                   OsSysLog::add(FAC_SIP, PRI_WARNING, "WARNING: route container %d ignored. no routeFrom element",
-                       routeCount);
-                   continue;
-               }
-
-               // Find the first routeTo
-               toHost.remove(0);
-               TiXmlNode* toNode = fromNode->NextSibling("routeTo");
-               TiXmlElement* toElement = toNode ? toNode->ToElement() : NULL;
-               if(toElement)
-               {
-                   TiXmlNode* hostNode = toElement->FirstChild();
-                   if(hostNode && hostNode->Type() == TiXmlNode::TEXT)
-                   {
-                       TiXmlText* hostText = hostNode->ToText();
-                       if (hostText)
-                       {
-                           toHost = hostText->Value();
-                           //osPrintf("\tfound a routeTo: %s\n", toHost.data());
-                       }
-                   }
-               }
-
-               if(toHost.isNull())
-               {
-                   OsSysLog::add(FAC_SIP, PRI_WARNING, "WARNING: route container %d ignored. no routeTo element",
-                       routeCount);
-                   continue;
-               }
-
-               //osPrintf("Found route from: %s to: %s\n",
-               //    fromHost.data(), toHost.data());
-               routeMaps.set(fromHost, toHost);
-
-           } // End loop through route containers
-
-           OsSysLog::add(FAC_SIP, PRI_INFO, "found %d route rules in %s", 
-               routeCount, routeRuleFileName);
-       }
-
-       // No routes container found
-       else
-       {
-           OsSysLog::add(FAC_SIP, PRI_WARNING, "WARNING: no routes found in %s", 
-               routeRuleFileName);
-       }
-   }
-}
-*/
-
 // Initialize the OsSysLog
 void initSysLog(OsConfigDb* pConfig)
 {
@@ -588,7 +405,7 @@ main(int argc, char* argv[])
     // Initialize the OsSysLog...
     initSysLog(&configDb);    
 
-    OsSysLog::add(FAC_SIP, PRI_INFO, "Starting - version %s build %s",
+    OsSysLog::add(FAC_SIP, PRI_INFO, ">>>>>>>>>>>>>>>> Starting - version %s build %s",
                   SIPX_VERSION, SIPX_BUILD
                   );
 
@@ -1002,6 +819,7 @@ main(int argc, char* argv[])
         SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE // OsServerTask message queue size
         );
     sipUserAgent.setIsUserAgent(FALSE);
+    sipUserAgent.setUserAgentHeaderProperty("sipX/forkingproxy");
     sipUserAgent.setMaxForwards(maxForwards);
     sipUserAgent.setDnsSrvTimeout(dnsSrvTimeout);
     sipUserAgent.setMaxSrvRecords(maxNumSrvRecords);

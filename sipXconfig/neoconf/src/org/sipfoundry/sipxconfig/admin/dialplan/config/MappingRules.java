@@ -18,7 +18,7 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.QName;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
-import org.sipfoundry.sipxconfig.common.Permission;
+import org.sipfoundry.sipxconfig.permission.Permission;
 
 /**
  * Special type of mappingrules document with a single host match matching standard SIPx hosts

@@ -11,9 +11,12 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
-public interface SettingModel2  {
-    public SettingValue2 getSettingValue(Setting setting, SettingValue2 originalValue);
-    public SettingValue2 getDefaultSettingValue(Setting setting, SettingValue2 originalValue);
+public interface SettingModel2 {
+    public SettingValue2 getSettingValue(Setting setting);
+
+    public SettingValue2 getDefaultSettingValue(Setting setting);
+
     public void setSettingValue(Setting setting, String value);
-    public SettingValue2 getProfileName(Setting setting, SettingValue2 originalValue);
+
+    public SettingValue2 getProfileName(Setting setting);
 }

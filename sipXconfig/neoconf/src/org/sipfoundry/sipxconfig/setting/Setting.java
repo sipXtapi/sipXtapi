@@ -71,7 +71,7 @@ public interface Setting extends Cloneable {
 
     public String getDescription();
 
-    public Collection getValues();
+    public Collection<Setting> getValues();
 
     public void acceptVisitor(SettingVisitor visitor);
 

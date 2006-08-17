@@ -17,7 +17,6 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.setting.Group;
-import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
  * CoreContext
@@ -102,11 +101,6 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
      * @return user group or null if group not found and createIfNotFound is false
      */
     public Group getGroupByName(String userGroupName, boolean createIfNotFound);
-
-    /**
-     * Model of all user settings
-     */
-    public Setting getUserSettingsModel();
 
     public Collection getGroupMembers(Group group);
     

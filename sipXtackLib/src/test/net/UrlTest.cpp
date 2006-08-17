@@ -83,6 +83,7 @@ class UrlTest : public CppUnit::TestCase
     CPPUNIT_TEST(testIsUserHostPortNoMatch);
     CPPUNIT_TEST(testIsUserHostPortPorts);
     CPPUNIT_TEST(testToString);
+    CPPUNIT_TEST(testFromString);
     CPPUNIT_TEST(testGetIdentity);
     CPPUNIT_TEST_SUITE_END();
 
@@ -1403,6 +1404,28 @@ public:
         // Verify that toString replaces (as opposed to append)
         ASSERT_STR_EQUAL(szUrl, toString.data()) ;
     }
+
+   void testFromString()
+      {
+         Url url;
+
+         UtlString inputUrl("sip:192.168.1.102");
+         url.fromString(inputUrl);
+         
+         UtlString firstString("SHOULD_BE_REPLACED");
+         url.toString(firstString) ;
+
+         ASSERT_STR_EQUAL(inputUrl.data(), firstString.data()) ;
+
+         UtlString rewrittenUrl("sip:user@host");
+         url.fromString(rewrittenUrl);
+         
+         UtlString secondString("SHOULD_BE_REPLACED");
+         url.toString(secondString) ;
+
+         ASSERT_STR_EQUAL(rewrittenUrl.data(), secondString.data()) ;
+      }
+
 
     void testGetIdentity()
     {

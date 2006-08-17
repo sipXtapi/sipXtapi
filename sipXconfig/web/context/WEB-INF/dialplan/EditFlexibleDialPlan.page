@@ -37,9 +37,6 @@
     <binding name="listener" value="listener:edit"/>
     <binding name="parameters" value="currentRow.id"/>
   </component>
-  <component id="gatewaysLink" type="PageLink">
-    <binding name="page" value="literal:ListGateways"/>
-  </component>
   <component id="delete" type="Submit">
     <binding name="selected" value="selectedRows"/>
     <binding name="tag" value="selections.allSelected"/>

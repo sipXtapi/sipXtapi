@@ -22,6 +22,8 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
+import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -152,8 +154,11 @@ public class UserTest extends TestCase {
     }
     
     public void testHasPermission() {
+        PermissionManagerImpl pm = new PermissionManagerImpl();
+        pm.setModelFilesContext(TestHelper.getModelFilesContext());
+                
         User user = new User();
-        user.setModelFilesContext(TestHelper.getModelFilesContext());
+        user.setPermissionManager(pm);
         
         Group group = new Group();
         user.addGroup(group);
