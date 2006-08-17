@@ -27,35 +27,57 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-//:The "Mixer" media processing resource
+/**
+*  @brief The "Mixer" media processing resource
+*/
 class MprMixer : public MpAudioResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
 
+     /// Constructor
    MprMixer(const UtlString& rName, int numWeights,
-                               int samplesPerFrame, int samplesPerSec);
-     //:Constructor
+            int samplesPerFrame, int samplesPerSec);
 
+     /// Destructor
    virtual
    ~MprMixer();
-     //:Destructor
+
+//@}
 
 /* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
 
+     /// Sets the weighting factors for the first "numWeights" inputs.
    UtlBoolean setWeights(int *newWeights, int numWeights);
-     //:Sets the weighting factors for the first "numWeights" inputs.
-     // For now, this method always returns TRUE.
+     /**<
+     *  For now, this method always returns TRUE.
+     */
 
+     /// Sets the weighting factor for the "weightIndex" input.
    UtlBoolean setWeight(int newWeight, int weightIndex);
-     //:Sets the weighting factor for the "weightIndex" input.
-     // For now, this method always returns TRUE.
+     /**<
+     *  For now, this method always returns TRUE.
+     */
+
+//@}
 
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -76,27 +98,27 @@ private:
    int mScale;
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
-                                    MpBufPtr outBufs[],
-                                    int inBufsSize,
-                                    int outBufsSize,
-                                    UtlBoolean isEnabled,
-                                    int samplesPerFrame=80,
-                                    int samplesPerSecond=8000);
+                                     MpBufPtr outBufs[],
+                                     int inBufsSize,
+                                     int outBufsSize,
+                                     UtlBoolean isEnabled,
+                                     int samplesPerFrame=80,
+                                     int samplesPerSecond=8000);
 
+     /// Handle messages for this resource.
    virtual UtlBoolean handleMessage(MpFlowGraphMsg& rMsg);
-     //:Handle messages for this resource.
 
+     /// Handle the @link MprMixer::SET_WEIGHT SET_WEIGHT @endlink message.
    UtlBoolean handleSetWeight(int newWeight, int weightIndex);
-     //:Handle the SET_WEIGHT message.
 
+     /// Handle the @link MprMixer::SET_WEIGHTS SET_WEIGHTS @endlink message.
    UtlBoolean handleSetWeights(int *newWeights, int numWeights);
-     //:Handle the SET_WEIGHTS message.
 
+     /// Copy constructor (not implemented for this class)
    MprMixer(const MprMixer& rMprMixer);
-     //:Copy constructor (not implemented for this class)
 
+     /// Assignment operator (not implemented for this class)
    MprMixer& operator=(const MprMixer& rhs);
-     //:Assignment operator (not implemented for this class)
 
 };
 

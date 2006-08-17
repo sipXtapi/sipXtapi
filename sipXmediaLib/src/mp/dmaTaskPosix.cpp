@@ -195,8 +195,6 @@ static void * mediaSignaller(void * arg)
 OsStatus dmaStartup(int samplesPerFrame)
 {
    int res;
-   pthread_t thread;
-   
 
    dmaOnline = 1;
 
@@ -239,8 +237,7 @@ static void * soundCardReader(void * arg)
 {
    MpBufferMsg* pMsg;
    MpBufferMsg* pFlush;
-   MpBufPtr ob;
-   Sample* buffer;
+   MpAudioSample* buffer;
    int recorded;
    int justRead;
 
@@ -248,22 +245,25 @@ static void * soundCardReader(void * arg)
 
    while(dmaOnline)
    {
-      ob = MpBuf_getBuf(MpMisc.UcbPool, N_SAMPLES, 0, MP_FMT_T12);
-      assert(ob != NULL);
-      buffer = MpBuf_getSamples(ob);
+      MpAudioBufPtr ob;
+
+      ob = MpMisc.UcbPool->obtainBuffer();
+      assert(ob.isValid());
+      assert(ob->setSamplesNumber(N_SAMPLES));
+      buffer = ob->getSamples();
       recorded = 0;
       sem_wait(&read_sem);
       while(recorded < N_SAMPLES)
       {
-         justRead = read(soundCard, &buffer[recorded], BUFLEN - (recorded * sizeof(Sample)));
+         justRead = read(soundCard, &buffer[recorded], BUFLEN - (recorded * sizeof(MpAudioSample)));
 
          assert(justRead > 0);
-         recorded += justRead/sizeof(Sample);
+         recorded += justRead/sizeof(MpAudioSample);
       }
       sem_post(&write_sem);
 
       if (DmaTask::isMuteEnabled())
-         memset(buffer, 0, sizeof(Sample) * N_SAMPLES); /* clear it out */
+         memset(buffer, 0, sizeof(MpAudioSample) * N_SAMPLES); /* clear it out */
 
       assert(recorded == N_SAMPLES);
 
@@ -273,22 +273,20 @@ static void * soundCardReader(void * arg)
 
       pMsg->setMsgSubType(MpBufferMsg::AUD_RECORDED);
       pMsg->setTag(ob);
-      pMsg->setBuf(MpBuf_getSamples(ob));
-      pMsg->setLen(MpBuf_getNumSamples(ob));
 
       if(MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT) != OS_SUCCESS)
       {
          OsStatus  res;
          res = MpMisc.pMicQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT);
          if (OS_SUCCESS == res) {
-            MpBuf_delRef(pFlush->getTag());
             pFlush->releaseMsg();
          } else {
             osPrintf("DmaTask: queue was full, now empty (5)!"
                " (res=%d)\n", res);
          }
-         if(MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT) != OS_SUCCESS)
-            MpBuf_delRef(ob);
+         if(MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT) != OS_SUCCESS) {
+            osPrintf("pMicQ->send() failed!\n");
+         }
       }
       if(!pMsg->isMsgReusable())
          delete pMsg;
@@ -312,8 +310,7 @@ static void * soundCardWriter(void * arg)
    while(dmaOnline)
    {
       MpBufferMsg* pMsg;
-      MpBufPtr ob;
-      Sample last_buffer[N_SAMPLES] = {0};
+      MpAudioSample last_buffer[N_SAMPLES] = {0};
 
       /* write to the card */
 
@@ -348,12 +345,12 @@ static void * soundCardWriter(void * arg)
 
       if(MpMisc.pSpkQ->receive((OsMsg*&) pMsg, OsTime::NO_WAIT) == OS_SUCCESS)
       {
-         ob = (MpBufPtr) pMsg->getTag();
+         MpAudioBufPtr ob = pMsg->getTag();
          assert(ob != NULL);
          if(playFrame)
          {
             int played = 0;
-            Sample* buffer = MpBuf_getSamples(ob);
+            MpAudioSample* buffer = ob->getSamples();
             
             /* copy the buffer for skip protection */
             memcpy(&last_buffer[N_SAMPLES / 2], &buffer[N_SAMPLES / 2], BUFLEN / 2);
@@ -362,9 +359,9 @@ static void * soundCardWriter(void * arg)
             while(played < N_SAMPLES)
             {
                int justWritten;
-               justWritten = write(soundCard, &buffer[played], BUFLEN - (played * sizeof(Sample)));
+               justWritten = write(soundCard, &buffer[played], BUFLEN - (played * sizeof(MpAudioSample)));
                assert(justWritten > 0);
-               played += justWritten/sizeof(Sample);
+               played += justWritten/sizeof(MpAudioSample);
             }
             sem_post(&read_sem);
             assert(played == N_SAMPLES);
@@ -373,7 +370,6 @@ static void * soundCardWriter(void * arg)
          else
             osPrintf("soundCardWriter dropping sound packet\n");
 
-         MpBuf_delRef(ob);
          pMsg->releaseMsg();
       }
       else if(playFrame)
@@ -389,9 +385,9 @@ static void * soundCardWriter(void * arg)
          while(played < N_SAMPLES)
          {
             int justWritten;
-            justWritten = write(soundCard, &last_buffer[played], BUFLEN - (played * sizeof(Sample)));
+            justWritten = write(soundCard, &last_buffer[played], BUFLEN - (played * sizeof(MpAudioSample)));
             assert(justWritten > 0);
-            played += justWritten/sizeof(Sample);
+            played += justWritten/sizeof(MpAudioSample);
          }
          sem_post(&read_sem);
          assert(played == N_SAMPLES);

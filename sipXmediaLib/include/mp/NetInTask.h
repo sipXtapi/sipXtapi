@@ -28,6 +28,8 @@
 class OsNotification;
 
 // DEFINES
+#define NETWORK_MTU 1500
+
 #define CODEC_TYPE_PCMU 0
 #define CODEC_TYPE_PCMA 8
 #define CODEC_TYPE_L16  11
@@ -50,17 +52,9 @@ class OsConnectionSocket;
 class OsServerSocket;
 class OsSocket;
 
-struct rtpHeader {
-        UCHAR vpxcc;
-        UCHAR mpt;
-        USHORT seq;      /* Big Endian! */
-        UINT timestamp;  /* Big Endian! */
-        UINT ssrc;       /* Big Endian, but random */
-};
-
 struct rtpSession {
-        UCHAR vpxcc; /* Usually: ((2<<6) | (0<<5) | (0<<4) | 0) */
-        UCHAR mpt;   /* Usually: ((0<<7) | 0) */
+        UCHAR vpxcc; ///< Usually: ((2<<6) | (0<<5) | (0<<4) | 0)
+        UCHAR mpt;   ///< Usually: ((0<<7) | 0)
         USHORT seq;
         UINT timestamp;
         UINT ssrc;
@@ -113,18 +107,20 @@ class NetInTask : public OsTask
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   static const int DEF_NET_IN_TASK_PRIORITY;      // default task priority
-   static const int DEF_NET_IN_TASK_OPTIONS;       // default task options
-   static const int DEF_NET_IN_TASK_STACKSIZE;     // default task stacksize
+   static const int DEF_NET_IN_TASK_PRIORITY;      ///< default task priority
+   static const int DEF_NET_IN_TASK_OPTIONS;       ///< default task options
+   static const int DEF_NET_IN_TASK_STACKSIZE;     ///< default task stacksize
 
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
 
+     /// Return a pointer to the NetIn task, creating it if necessary
    static NetInTask* getNetInTask();
-     //:Return a pointer to the NetIn task, creating it if necessary
 
+     /// Destructor
    virtual
    ~NetInTask();
-     //:Destructor
 
    int getWriteFD();
    
@@ -132,42 +128,52 @@ public:
    void shutdownSockets();   
 
 /* ============================ MANIPULATORS ============================== */
-         virtual int run(void* pArg);
+///@name Manipulators
+//@{
+
+   virtual int run(void* pArg);
+
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
    OsConnectionSocket* getWriteSocket(void);
    OsConnectionSocket* getReadSocket(void);
    void openWriteFD(void);
    static OsRWMutex& getLockObj() { return sLock; }
 
+//@}
+
 /* ============================ INQUIRY =================================== */
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
+     /// Default constructor
    NetInTask(
-      int prio    = DEF_NET_IN_TASK_PRIORITY,      // default task priority
-      int options = DEF_NET_IN_TASK_OPTIONS,       // default task options
-      int stack   = DEF_NET_IN_TASK_STACKSIZE);    // default task stacksize
-     //:Default constructor
+      int prio    = DEF_NET_IN_TASK_PRIORITY,      ///< default task priority
+      int options = DEF_NET_IN_TASK_OPTIONS,       ///< default task options
+      int stack   = DEF_NET_IN_TASK_STACKSIZE);    ///< default task stacksize
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
    // Static data members used to enforce Singleton behavior
-   static NetInTask* spInstance;    // pointer to the single instance of
-                                    //  the MpNetInTask class
-   static OsRWMutex     sLock;         // semaphore used to ensure that there
-                                    //  is only one instance of this class
+   static NetInTask* spInstance;    ///< pointer to the single instance of
+                                    ///<  the MpNetInTask class
+   static OsRWMutex     sLock;      ///< semaphore used to ensure that there
+                                    ///<  is only one instance of this class
 
    OsConnectionSocket* mpWriteSocket;
    OsConnectionSocket* mpReadSocket;
-   int               mCmdPort;      // internal socket port number
+   int               mCmdPort;      ///< internal socket port number
 
+     /// Copy constructor (not implemented for this task)
    NetInTask(const NetInTask& rNetInTask);
-     //:Copy constructor (not implemented for this task)
 
+     /// Assignment operator (not implemented for this task)
    NetInTask& operator=(const NetInTask& rhs);
-     //:Assignment operator (not implemented for this task)
 
 };
 

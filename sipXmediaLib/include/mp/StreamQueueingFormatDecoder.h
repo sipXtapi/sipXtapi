@@ -41,7 +41,8 @@ class StreamQueueingFormatDecoder : public StreamFormatDecoder
 public:
 
 /* ============================ CREATORS ================================== */
-
+///@name Creators
+//@{
    StreamQueueingFormatDecoder(StreamDataSource* pDataSource, 
                                int               iQueueLength);
      //:Constructs a queueing format decoder given a data source and queue
@@ -51,8 +52,11 @@ public:
    ~StreamQueueingFormatDecoder();
      //:Destructor
 
-/* ============================ MANIPULATORS ============================== */
+//@}
 
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
    virtual OsStatus getFrame(unsigned short* samples);
      //: Gets the next available frame
      //! returns OS_SUCCESS if a frame is available
@@ -67,7 +71,11 @@ public:
    virtual OsStatus drain();
      //: Drains any queued frames
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
    int getMaxQueueLength() ;
      //: Gets the maximum number of frames that can be queued before the
@@ -76,7 +84,13 @@ public:
    int getNumQueuedFrames() ;
      //: Gets the current number of queued frames.
 
+//@}
+
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

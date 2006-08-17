@@ -16,7 +16,7 @@
 // APPLICATION INCLUDES
 #include "os/OsStatus.h"
 #include "mp/MpCodecInfo.h"
-#include "mp/MpBuf.h"
+#include "mp/MpRtpBuf.h"
 
 // DEFINES
 // MACROS
@@ -31,7 +31,7 @@ class MpConnection;
 class OsNotification;
 class MprRecorder;
 
-//:Base class for all media processing decoders.
+/// Base class for all media processing decoders.
 class MpDecoderBase
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -40,62 +40,87 @@ public:
    friend class MprDecode;
 
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
 
-   MpDecoderBase(int payloadType, const MpCodecInfo* pInfo);
-     //:Constructor
-     // Returns a new decoder object.
-     //!param: payloadType - (in) RTP payload type associated with this decoder
-     //!param: pInfo - (in) pointer to derived class' static const MpCodecInfo
+     /// Constructor
+   MpDecoderBase( int payloadType ///< (in) RTP payload type associated with
+                                  ///<  this decoder
+                , const MpCodecInfo* pInfo ///< (in) pointer to derived class'
+                                           ///<  static const MpCodecInfo
+                );
 
+     /// Destructor
    virtual
    ~MpDecoderBase();
-     //:Destructor
 
+     /// Initializes a codec data structure for use as a decoder
    virtual OsStatus initDecode(MpConnection* pConnection)=0;
-     //:Initializes a codec data structure for use as a decoder
+     /**<
      //!param: pConnection - (in) Pointer to the MpConnection container
-     //!retcode: OS_SUCCESS - Success
-     //!retcode: OS_NO_MEMORY - Memory allocation failure
+     *  @returns <b>OS_SUCCESS</b> - Success
+     *  @returns <b>OS_NO_MEMORY</b> - Memory allocation failure
+     */
 
+     /// Frees all memory allocated to the decoder by <i>initDecode</i>
    virtual OsStatus freeDecode(void)=0;
-     //:Frees all memory allocated to the decoder by <i>initDecode</i>
-     //!retcode: OS_SUCCESS - Success
-     //!retcode: OS_DELETED - Object has already been deleted
+     /**<
+     *  @returns <b>OS_SUCCESS</b> - Success
+     *  @returns <b>OS_DELETED</b> - Object has already been deleted
+     */
+
+//@}
 
 /* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
+
+//@}
 
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
+     /// Get static information about the decoder
    virtual const MpCodecInfo* getInfo(void) const;
-     //:Get static information about the decoder
-     // Returns a pointer to an <i>MpCodecInfo</i> object that provides
-     // static information about the decoder.
+     /**<
+     *  @returns a pointer to an <i>MpCodecInfo</i> object that provides
+     *  static information about the decoder.
+     */
 
+     /// Returns the RTP payload type associated with this decoder.
    virtual int getPayloadType(void);
-     //:Returns the RTP payload type associated with this decoder.
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
-   virtual int decodeIn(MpBufPtr pPacket);
-     //:Receive a packet of RTP data
-     //!param: pPacket - (in) Pointer to a media buffer
-     //!retcode: length of packet to hand to jitter buffer, 0 means don't.
+     /// Receive a packet of RTP data
+   virtual int decodeIn(MpRtpBufPtr &pPacket ///< (in) Pointer to a media buffer
+                       );
+     /**<
+     *  @returns length of packet to hand to jitter buffer, 0 means don't.
+     */
 
+     /// Handle the FLOWGRAPH_SET_DTMF_NOTIFY message.
    virtual UtlBoolean handleSetDtmfNotify(OsNotification* pNotify);
-     //:Handle the FLOWGRAPH_SET_DTMF_NOTIFY message.
 
    virtual UtlBoolean setDtmfTerm(MprRecorder *pRecorder);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
+     /// Copy constructor
    MpDecoderBase(const MpDecoderBase& rMpDecoderBase);
-     //:Copy constructor
 
+     /// Assignment operator
    MpDecoderBase& operator=(const MpDecoderBase& rhs);
-     //:Assignment operator
 
    const MpCodecInfo* mpCodecInfo;
    int mPayloadType;

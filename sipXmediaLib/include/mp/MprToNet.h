@@ -32,7 +32,6 @@
 #endif /* INCLUDE_RTCP ] */
 
 // DEFINES
-#define NETWORK_MTU 1500
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -41,16 +40,19 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-//:The "To Network" media processing resource
+/**
+*  @brief The "To Network" media processing resource
+*/
 class MprToNet : public MpAudioResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   enum { RESERVED_RTP_PACKET_HEADER_BYTES = 76};
-             // 76 =    4 for encryption prefix +
-             //        12 for basic packet header +
-             //      15*4 for CSRC list
+   enum { RESERVED_RTP_PACKET_HEADER_BYTES = 76
+             ///< 76 =    4 for encryption prefix +<br>
+             ///<        12 for basic packet header +<br>
+             ///<      15*4 for CSRC list
+   };
 
 #ifdef ENABLE_PACKET_HACKING /* [ */
    static int sDebug1;
@@ -61,37 +63,51 @@ public:
 #endif /* ENABLE_PACKET_HACKING ] */
 
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
 
+     /// Constructor
    MprToNet(const UtlString& rName, int samplesPerFrame, int samplesPerSec);
-     //:Constructor
 
+     /// Destructor
    virtual
    ~MprToNet();
-     //:Destructor
+
+//@}
 
 /* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
 
+     /// @brief Sends a @link MprToNet::SET_SOCKETS SET_SOCKETS @endlink message
+     /// to this resource to set the outbound RTP and RTCP sockets.
    OsStatus setSockets(OsSocket& rRtpSocket, OsSocket& rRtcpSocket);
-     //:Sends a SET_SOCKETS message to this resource to set the outbound
-     //:RTP and RTCP sockets.
-     // Returns the result of attempting to queue the message to this
-     // resource.
+     /**<
+     *  @returns the result of attempting to queue the message to this resource.
+     */
 
+     /// @brief Sends a @link MprToNet::RESET_SOCKETS RESET_SOCKETS @endlink
+     /// message to this resource to stop sending RTP and RTCP sockets.
    OsStatus resetSockets();
-     //:Sends a RESET_SOCKETS message to this resource to stop sending
-     //:RTP and RTCP sockets.
-     // returns OS_SUCCESS, unless unable to queue message.
+     /**<
+     *  @returns OS_SUCCESS, unless unable to queue message.
+     */
 
+     /// Connect us to our corresponding FromNet, for RTCP stats.
    OsStatus setRtpPal(MprFromNet* pal);
-   // Connect us to our corresponding FromNet, for RTCP stats.
 
-   OsStatus sendRtcpPacket(void); // Time to send an RTCP message
+     /// Time to send an RTCP message
+   OsStatus sendRtcpPacket(void);
 
    int writeRtp(int payloadType, UtlBoolean markerState,
       unsigned char* payloadData, int payloadOctets, unsigned int timestamp,
       void* csrcList);
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
 // These accessors were added by DMG to allow a Connection to access and modify
 // rtp and rtcp stream information
@@ -99,7 +115,13 @@ public:
 #ifdef INCLUDE_RTCP /* [ */
    void   setRTPAccumulator(ISetSenderStatistics *piRTPAccumulator);
 #endif /* INCLUDE_RTCP ] */
+//@}
+
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -130,11 +152,11 @@ private:
    int          mNumRtcpWriteErrors;
 
 #ifdef ENABLE_PACKET_HACKING /* [ */
-   void adjustRtpPacket(struct rtpHeader* p);
+   void adjustRtpPacket(struct RtpHeader* p);
 #endif /* ENABLE_PACKET_HACKING ] */
 
 #ifdef INCLUDE_RTCP /* [ */
-// Allow outbound RTP stream to accumulate RTP packet statistics
+   /// Allow outbound RTP stream to accumulate RTP packet statistics
    ISetSenderStatistics *mpiRTPAccumulator;
 #endif /* INCLUDE_RTCP ] */
 
@@ -146,14 +168,14 @@ private:
                                     int samplesPerFrame=80,
                                     int samplesPerSecond=8000);
 
+     /// Handle messages for this resource.
    virtual UtlBoolean handleMessage(MpFlowGraphMsg& rMsg);
-     //:Handle messages for this resource.
 
+     /// Copy constructor (not implemented for this class)
    MprToNet(const MprToNet& rMprToNet);
-     //:Copy constructor (not implemented for this class)
 
+     /// Assignment operator (not implemented for this class)
    MprToNet& operator=(const MprToNet& rhs);
-     //:Assignment operator (not implemented for this class)
 
    void sentRtcpPacket(void);
 

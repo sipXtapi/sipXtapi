@@ -134,7 +134,7 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
                                  samplesPerFrame, samplesPerSec);
 #ifndef DISABLE_LOCAL_AUDIO
    mpFromMic          = new MprFromMic("FromMic",
-                                 samplesPerFrame, samplesPerSec);
+                                 samplesPerFrame, samplesPerSec, MpMisc.pMicQ);
 #ifdef DOING_ECHO_SUPPRESSION /* [ */
    mpEchoSuppress     = new MprEchoSuppress("EchoSuppress",
                                  samplesPerFrame, samplesPerSec);
@@ -148,7 +148,8 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
                                  samplesPerFrame, samplesPerSec);
 #ifndef DISABLE_LOCAL_AUDIO
    mpToSpkr           = new MprToSpkr("ToSpkr",
-                                 samplesPerFrame, samplesPerSec);
+                                 samplesPerFrame, samplesPerSec,
+                                 MpMisc.pSpkQ, MpMisc.pEchoQ);
 #endif
    mpToneGen          = new MprToneGen("ToneGen",
                                  samplesPerFrame, samplesPerSec, 
@@ -185,10 +186,6 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
    // connect FromMic -> EchoSuppress -> TFsMicMixer -> Bridge
    res = addLink(*mpFromMic, 0, *mpEchoSuppress, 0);
    assert(res == OS_SUCCESS);
-#ifdef  FLOWGRAPH_DOES_RESAMPLING /* [ */ 
-   res = addLink(*mpFromMic, 1, *mpEchoSuppress, 1);
-   assert(res == OS_SUCCESS);
-#endif /* FLOWGRAPH_DOES_RESAMPLING ] */
 
    res = addLink(*mpEchoSuppress, 0, *mpTFsMicMixer, 1);
    assert(res == OS_SUCCESS);
@@ -953,8 +950,6 @@ OsStatus MpCallFlowGraph::record(int ms, int silenceLength, const char* micName,
 
 OsStatus MpCallFlowGraph::startRecording(const char* audioFileName,
                   UtlBoolean repeat, int toneOptions, OsNotification* event)
-                     
-
 {
    OsStatus  res = OS_SUCCESS;
    MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_START_RECORD, NULL,
@@ -978,7 +973,6 @@ UtlBoolean MpCallFlowGraph::setupRecorder(RecorderChoice which,
                   const char* audioFileName, int timeMS, 
                   int silenceLength, OsNotification* event,
                   MprRecorder::RecordFileFormat format)
-
 {
    int file = -1;
    OsStatus  res = OS_INVALID_ARGUMENT;
@@ -1446,7 +1440,7 @@ UtlBoolean MpCallFlowGraph::writeWAVHeader(int handle)
     char tmpbuf[80];
     short bitsPerSample = 16;
 
-    short sampleSize = sizeof(Sample); 
+    short sampleSize = sizeof(MpAudioSample); 
     short compressionCode = 1; //PCM
     short numChannels = 1; 
     unsigned long samplesPerSecond = 8000;

@@ -27,23 +27,32 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-//:The "Tone Generator" media processing resource
+/**
+*  @brief The "Tone Generator" media processing resource
+*
+*/
 class MprToneGen : public MpAudioResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
 
+     /// Constructor
    MprToneGen(const UtlString& rName, int samplesPerFrame, int samplesPerSec,
-       const char* locale);
-     //:Constructor
+              const char* locale);
 
+     /// Destructor
    virtual
    ~MprToneGen();
-     //:Destructor
+
+//@}
 
 /* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
 
 #ifdef LATER
 /* Later (soon) this will be incorporated, but this is not quite the right
@@ -52,27 +61,40 @@ implementation.  At least these changes are needed:
     handleSetSamplesPerSec.
 (2) MpResource (the base class) needs to be enhanced so that the base
     virtual function exists to be overridden.
+
+     /// Sets the number of samples expected per second.
    virtual UtlBoolean setSamplesPerSec(int samplesPerSec);
-*/
-     //:Sets the number of samples expected per second.
      // Returns FALSE if the specified rate is not supported, TRUE otherwise.
+*/
 #endif
 
+     /// @brief Sends a START_TONE message to this resource to begin generating 
+     /// an audio tone.
    OsStatus startTone(int toneId);
-     //:Sends a START_TONE message to this resource to begin generating 
-     //:an audio tone.
-     // Returns the result of attempting to queue the message to this
-     // resource.
+     /**<
+     *  Returns the result of attempting to queue the message to this resource.
+     */
 
+     /// @brief Sends a STOP_TONE message to this resource to stop generating 
+     /// an audio tone.
    OsStatus stopTone(void);
-     //:Sends a STOP_TONE message to this resource to stop generating 
-     //:an audio tone.
-     // Returns the result of attempting to queue the message to this
-     // resource.
+     /**<
+     *  Returns the result of attempting to queue the message to this resource.
+     */
+
+//@}
 
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -91,21 +113,21 @@ private:
    MpToneGenPtr mpToneGenState;
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
-                                    MpBufPtr outBufs[],
-                                    int inBufsSize,
-                                    int outBufsSize,
-                                    UtlBoolean isEnabled,
-                                    int samplesPerFrame,
-                                    int samplesPerSecond);
+                                     MpBufPtr outBufs[],
+                                     int inBufsSize,
+                                     int outBufsSize,
+                                     UtlBoolean isEnabled,
+                                     int samplesPerFrame,
+                                     int samplesPerSecond);
 
+     /// Handle messages for this resource.
    virtual UtlBoolean handleMessage(MpFlowGraphMsg& rMsg);
-     //:Handle messages for this resource.
 
+     /// Copy constructor (not implemented for this class)
    MprToneGen(const MprToneGen& rMprToneGen);
-     //:Copy constructor (not implemented for this class)
 
+     /// Assignment operator (not implemented for this class)
    MprToneGen& operator=(const MprToneGen& rhs);
-     //:Assignment operator (not implemented for this class)
 
 };
 

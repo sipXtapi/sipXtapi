@@ -52,7 +52,8 @@ public:
    } ;
 
 /* ============================ CREATORS ================================== */
-
+///@name Creators
+//@{
    MpStreamPlayer(OsMsgQ* pMsg, Url url, int flags, const char* pTarget = NULL) ;
      //:Contructs a stream player given a msgq, stream url, and 
      //:playing flags.
@@ -78,8 +79,11 @@ public:
    virtual ~MpStreamPlayer();
      //:Destructor
 
-/* ============================ MANIPULATORS ============================== */
+//@}
 
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
    virtual OsStatus realize(UtlBoolean bBlock = TRUE);
      //: Realizes the player by initiating a connection to the target,
      //: allocates buffers, etc.
@@ -125,7 +129,11 @@ public:
    virtual void waitForDestruction() ;
      //: Blocks until the the lower layer stream player is destroyed
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
    virtual OsStatus getState(PlayerState& state) ;
      //: Gets the player state 
@@ -139,7 +147,13 @@ public:
    virtual OsStatus getSourceBuffer(UtlString*& pBuffer) const;
      //: Gets the source buffer if the source type is a SourceBuffer
 
+//@}
+
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

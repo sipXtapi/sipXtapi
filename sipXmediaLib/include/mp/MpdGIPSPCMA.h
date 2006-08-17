@@ -63,18 +63,33 @@ public:
      //!retcode: OS_SUCCESS - Success
      //!retcode: OS_DELETED - Object has already been deleted
 
-/* ============================ MANIPULATORS ============================== */
+//@}
 
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
 #ifdef OLD_GIPS /* [ */
-   virtual int decodeIn(MpBufPtr pPacket);
-     //:Receive a packet of RTP data
-     //!param: pPacket - (in) Pointer to a media buffer
-     //!retcode: length of packet to hand to jitter buffer, 0 means don't.
+
+     /// Receive a packet of RTP data
+   virtual int decodeIn(MpRtpBufPtr &pPacket ///< (in) Pointer to a media buffer
+                       );
+     /**<
+     *  @returns length of packet to hand to jitter buffer, 0 means don't.
+     */
+
 #endif /* OLD_GIPS ] */
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

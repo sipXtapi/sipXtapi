@@ -29,6 +29,8 @@ class MpConnection;
 #include "os/OsSocket.h"
 #include "mp/MpAudioResource.h"
 #include "mp/NetInTask.h"
+#include "mp/MpUdpBuf.h"
+#include "mp/MpRtpBuf.h"
 #ifdef INCLUDE_RTCP /* [ */
 #include "rtcp/IRTPDispatch.h"
 #include "rtcp/INetDispatch.h"
@@ -36,16 +38,11 @@ class MpConnection;
 
 // DEFINES
 // MACROS
-#undef TESTING_ODD_LENGTH_PACKETS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STRUCTS
 // TYPEDEFS
-
-// typedef struct rtpSession *rtpHandle;
-// typedef struct rtcpSession *rtcpHandle;
-
 // FORWARD DECLARATIONS
 
 /// The "From Network" media processing resource
@@ -82,7 +79,7 @@ public:
      /** @returns OS_SUCCESS, unless unable to queue message. */
 
      /// Take in a buffer from the NetIn task
-   OsStatus pushPacket(MpBufPtr buf, int rtpOrRtcp, struct in_addr* I, int P);
+   OsStatus pushPacket(const MpUdpBufPtr &buf, int rtpOrRtcp);
 
      /// Inform this object of its sibling dejitter object.
    void setMyDejitter(MprDejitter* newDJ);
@@ -130,17 +127,13 @@ private:
    rtpHandle        mInRtpHandle;
    int              mRtcpCount;
 #endif /* INCLUDE_RTCP ] */
-#ifdef TESTING_ODD_LENGTH_PACKETS /* [ */
-   static int       sPacketPad;
 
-   static int setPacketPad(int value);
-#endif /* TESTING_ODD_LENGTH_PACKETS ] */
    unsigned long mPrevIP;
    int mPrevPort;
    int mNumPushed;
    int mNumWarnings;
 
-   int mPrefSsrc;  ///< current "preferred SSRC"
+   int mPrefSsrc;               ///< current "preferred SSRC"
    UtlBoolean mPrefSsrcValid;
    unsigned long mRtpDestIp;    ///< where this connection is sending to
    int mRtpDestPort;
@@ -156,12 +149,12 @@ private:
 
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
-                                    MpBufPtr outBufs[],
-                                    int inBufsSize,
-                                    int outBufsSize,
-                                    UtlBoolean isEnabled,
-                                    int samplesPerFrame=80,
-                                    int samplesPerSecond=8000);
+                                     MpBufPtr outBufs[],
+                                     int inBufsSize,
+                                     int outBufsSize,
+                                     UtlBoolean isEnabled,
+                                     int samplesPerFrame=80,
+                                     int samplesPerSecond=8000);
 
      /// Copy constructor (not implemented for this class)
    MprFromNet(const MprFromNet& rMprFromNet);
@@ -170,17 +163,17 @@ private:
    MprFromNet& operator=(const MprFromNet& rhs);
 
      /// Update the RR info for the current incoming packet
-   OsStatus rtcpStats(struct rtpHeader *h);
+   OsStatus rtcpStats(struct RtpHeader *h);
 
    MprDejitter* getMyDejitter(void);
 
-     /// Adjust buffer header based on RTP packet header.
-   int adjustBufferForRtp(MpBufPtr buf);
+     /// Parse UDP packet and return filled RTP packet buffer.
+   static MpRtpBufPtr parseRtpPacket(const MpUdpBufPtr &buf);
 
-     /// Extract and return SSRC from RTP packet header.
-   int extractSsrc(MpBufPtr buf);
-
+     /// Set current "preferred SSRC".
    int setPrefSsrc(int newSsrc);
+
+     /// Get current "preferred SSRC".
    int getPrefSsrc(void);
 
 

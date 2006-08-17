@@ -47,8 +47,11 @@ public:
      //!retcode: OS_SUCCESS - Success
      //!retcode: OS_DELETED - Object has already been deleted
 
-/* ============================ MANIPULATORS ============================== */
+//@}
 
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
    virtual OsStatus encode(const short* pAudioSamples,
                    const int numSamples,
                    int& rSamplesConsumed,
@@ -56,7 +59,7 @@ public:
                    const int bytesLeft,
                    int& rSizeInBytes,
                    UtlBoolean& sendNow,
-                   MpBufSpeech& rAudioCategory);
+                   MpAudioBuf::SpeechType& rAudioCategory);
      //:Encode audio samples
      // Processes the array of audio samples.  If sufficient samples to encode
      // a frame are now available, the encoded data will be written to the
@@ -72,7 +75,11 @@ public:
      //!param: rAudioCategory - (out) Audio type (e.g., unknown, silence, comfort noise)
      //!retcode: OS_SUCCESS - Success
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -80,7 +87,7 @@ private:
    ILBC_encinst *pEncoderState;
 
    int    mNumSamples;
-   Sample mBuf[ILBC_SAMPLES_PER_PACKET];
+   MpAudioSample mBuf[ILBC_SAMPLES_PER_PACKET];
 };
 
 #endif  // _MpeGIPSiLBC_h_

@@ -34,9 +34,13 @@ class MpQueuePlayerListener
 public:
 
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
+//@}
 
 /* ============================ MANIPULATORS ============================== */
-
+///@name Manipulators
+//@{
    virtual void queuePlayerStarted() = 0 ;
      //:Called when a queue player has started playing its playlist.
 
@@ -49,9 +53,19 @@ public:
      // This method is called before the new playlist element is played and
      // may occur multiple times before a queuePlayerStopped.
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

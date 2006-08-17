@@ -32,52 +32,64 @@
 // FORWARD DECLARATIONS
 class MpConnection;
 
-//:The "Dejitter" media processing resource
+/// The "Dejitter" media processing resource
 class MprDejitter : public MpAudioResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
 #ifdef DEBUGGING_LATENCY /* [ */
-   enum { MAX_RTP_PACKETS = 64};  // MUST BE A POWER OF 2, AND SHOULD BE >3
+   enum { MAX_RTP_PACKETS = 64};  ///< MUST BE A POWER OF 2, AND SHOULD BE >3
         // 20 Apr 2001 (HZM): Increased from 16 to 64 for debugging purposes.
 #else /* DEBUGGING_LATENCY ] [ */
-   enum { MAX_RTP_PACKETS = 16};  // MUST BE A POWER OF 2, AND SHOULD BE >3
+   enum { MAX_RTP_PACKETS = 16};  ///< MUST BE A POWER OF 2, AND SHOULD BE >3
 #endif /* DEBUGGING_LATENCY ] */
 
-   enum { GET_ALL = 1 }; // get all packets, ignoring timestamps.  For NetEQ
+   enum { GET_ALL = 1 }; ///< get all packets, ignoring timestamps.  For NetEQ
 
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
 
+     /// Constructor
    MprDejitter(const UtlString& rName, MpConnection* pConn,
       int samplesPerFrame, int samplesPerSec);
-     //:Constructor
 
+     /// Destructor
    virtual
    ~MprDejitter();
-     //:Destructor
+
+//@}
 
 /* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
 
-   OsStatus pushPacket(MpBufPtr pRtp);
-     //:Add a buffer containing an incoming RTP packet to the dejitter pool
+     /// Add a buffer containing an incoming RTP packet to the dejitter pool
+   OsStatus pushPacket(const MpRtpBufPtr &pRtp);
 
-   MpBufPtr pullPacket(void);
-     //:Submit all RTP packets to the Jitter Buffer.
+     /// Submit all RTP packets to the Jitter Buffer.
+   MpRtpBufPtr pullPacket();
 
+     /// Return status info on current backlog.
    OsStatus getPacketsInfo(int& nPackets,
                            unsigned int& lowTimestamp);
-     //:Return status info on current backlog.
 
    void dumpState();
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
-public:
-   static unsigned short getSeqNum(MpBufPtr pRtp);
-   static unsigned int getTimestamp(MpBufPtr pRtp);
-   static unsigned int getPayloadType(MpBufPtr pRtp);
+///@name Accessors
+//@{
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -85,37 +97,26 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   MpBufPtr      mpPackets[MAX_RTP_PACKETS];
+   MpRtpBufPtr   mpPackets[MAX_RTP_PACKETS];
    OsBSem        mRtpLock;
    int           mNumPackets;
    int           mNumDiscarded;
 
-#ifdef DEJITTER_DEBUG /* [ */
-   // These are only used if DEJITTER_DEBUG is defined, but I am
-   // leaving them in all the time so that changing that definition
-   // does not require recompiling more things...
-   int           mPullCount;
-   int           mLatencyMax;
-   int           mLatencyMin;
-   int           mPrevNumPackets;
-   int           mPrevPullTime;
-#endif /* DEJITTER_DEBUG ] */
-  
    /* end of Dejitter handling variables */
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
-                                    MpBufPtr outBufs[],
-                                    int inBufsSize,
-                                    int outBufsSize,
-                                    UtlBoolean isEnabled,
-                                    int samplesPerFrame=80,
-                                    int samplesPerSecond=8000);
+                                     MpBufPtr outBufs[],
+                                     int inBufsSize,
+                                     int outBufsSize,
+                                     UtlBoolean isEnabled,
+                                     int samplesPerFrame=80,
+                                     int samplesPerSecond=8000);
 
+     /// Copy constructor (not implemented for this class)
    MprDejitter(const MprDejitter& rMprDejitter);
-     //:Copy constructor (not implemented for this class)
 
+     /// Assignment operator (not implemented for this class)
    MprDejitter& operator=(const MprDejitter& rhs);
-     //:Assignment operator (not implemented for this class)
 
 };
 

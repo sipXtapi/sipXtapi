@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -16,6 +19,7 @@
 
 // APPLICATION INCLUDES
 #include "mp/MpResource.h"
+#include "mp/MpAudioBuf.h"
 
 // DEFINES
 // MACROS
@@ -41,9 +45,10 @@ public:
 //@{
 
      /// Constructor
-   MpAudioResource(const UtlString& rName, int minInputs, int maxInputs,
-              int minOutputs, int maxOutputs,
-              int samplesPerFrame, int samplesPerSec);
+   MpAudioResource(const UtlString& rName,
+                   int minInputs, int maxInputs,
+                   int minOutputs, int maxOutputs,
+                   int samplesPerFrame, int samplesPerSec);
 
      /// Destructor
    virtual ~MpAudioResource();

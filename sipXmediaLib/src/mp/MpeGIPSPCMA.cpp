@@ -49,7 +49,7 @@ OsStatus MpeGIPSPCMA::encode(const short* pAudioSamples,
                              const int bytesLeft,
                              int& rSizeInBytes,
                              UtlBoolean& sendNow,
-                             MpBufSpeech& rAudioCategory)
+                             MpAudioBuf::SpeechType& rAudioCategory)
 {
    int res;
    short size;

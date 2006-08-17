@@ -35,7 +35,8 @@ class MpPlayerEvent
 public:
 
 /* ============================ CREATORS ================================== */
-
+///@name Creators
+//@{
    MpPlayerEvent() ;
      //:Default Constructor
 
@@ -51,8 +52,11 @@ public:
    ~MpPlayerEvent();
      //:Destructor
 
-/* ============================ MANIPULATORS ============================== */
+//@}
 
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
    MpPlayerEvent& operator=(const MpPlayerEvent& rhs);
      //:Assignment operator
 
@@ -66,7 +70,13 @@ public:
    PlayerState getState() const ;
      //: Gets the state of player snapshotted when the event was fired.
 
+//@}
+
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

@@ -59,7 +59,8 @@ public:
    } ;
 
 /* ============================ CREATORS ================================== */
-
+///@name Creators
+//@{
    MpStreamQueuePlayer(OsMsgQ* pMsgQ, const char* pTarget = NULL);
      //:Constructor accepting a msgQ
 
@@ -67,8 +68,11 @@ public:
    ~MpStreamQueuePlayer();
      //:Destructor
 
-/* ============================ MANIPULATORS ============================== */
+//@}
 
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
    virtual OsStatus add(Url& url, int flags) ;
      //:Queues a URL for playing
      //
@@ -111,13 +115,23 @@ public:
      // cease to receive state change notifications.
 
    
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
 
    UtlBoolean isPlaying() ;
      //:Is the Queue player playing (or about to play)
 
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

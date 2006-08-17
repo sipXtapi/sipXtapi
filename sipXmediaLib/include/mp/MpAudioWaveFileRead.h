@@ -29,45 +29,57 @@ public:
    };
 
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
+
+   /// Constructor form a stream
    MpAudioWaveFileRead(istream & s);
-   //: constructor form a stream
+
+   /// Destructor
    ~MpAudioWaveFileRead();
-   //: destructor
+
+//@}
+
 /* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
+
    size_t readBytes(AudioByte *buffer, size_t numSamples);
 
-   // Access stuff
    size_t getBytesSize();
 
    int getDecompressionType();
 
+//@}
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   //: general private functions
    void minMaxSamplingRate(long *min, long *max, long *preferred);
    void minMaxChannels(int *min, int *max, int *preferred);
    size_t getSamples(AudioSample *buffer, size_t numSamples);
    void initializeDecompression();
+
+   /// Get next chunk for chunk management
    void nextChunk(void);
-   //: Get next Chunk for chunk management
+
 private:
     //: private stream, ... stuff
    istream & mStream;
-   AbstractDecompressor *_decoder; // Current decompressor
-   unsigned char *mpformatData; // Contents of fmt chunk
-   unsigned long mformatDataLength; // length of fmt chunk
+   AbstractDecompressor *_decoder;  ///< Current decompressor
+   unsigned char *mpformatData;     ///< Contents of fmt chunk
+   unsigned long mformatDataLength; ///< length of fmt chunk
 
 private:
     //: Chunk stuff
    // WAVE chunk stack
    struct {
-      unsigned long type; // Type of chunk
-      unsigned long size; // Size of chunk
-      unsigned long remaining; // Bytes left to read
-      bool isContainer;   // true if this is a container
-      unsigned long containerType; // type of container
+      unsigned long type;          ///< Type of chunk
+      unsigned long size;          ///< Size of chunk
+      unsigned long remaining;     ///< Bytes left to read
+      bool isContainer;            ///< true if this is a container
+      unsigned long containerType; ///< type of container
    } _chunk[5];
-   int _currentChunk; // top of stack
+   int _currentChunk;              ///< top of stack
    unsigned long mFileSize;
 };
 

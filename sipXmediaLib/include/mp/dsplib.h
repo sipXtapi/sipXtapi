@@ -13,6 +13,7 @@
 
 #include "mp/DSP_type.h"
 #include "mp/MpBuf.h"
+#include "mp/MpTypes.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,16 +27,16 @@ extern "C" {
 // -----------------------------------------------------
 extern void init_CNG();
 
-extern void white_noise_generator(Sample  *shpSamples,
+extern void white_noise_generator(MpAudioSample  *shpSamples,
                                   int     iLength,
                                   Word32  ulNoiseLevelAve);
 
-extern void comfort_noise_generator(Sample  *shpSamples,
+extern void comfort_noise_generator(MpAudioSample  *shpSamples,
                                     int     iLength,
                                     Word32  ulNoiseLevelAve);
 
 extern void background_noise_level_estimation(Word32& shNoiseLevel,
-                                              Sample* shpSamples,
+                                              MpAudioSample* shpSamples,
                                               int     iLength);
 
 //////////////////////////////////////////////////////////////////////////////

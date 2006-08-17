@@ -51,7 +51,8 @@ public:
 
 
 /* ============================ CREATORS ================================== */
-
+///@name Creators
+//@{
    FilterBank();
      //:Constructor
 

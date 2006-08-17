@@ -57,15 +57,19 @@ class StreamHttpDataSource : public StreamDataSource, public OsTask
 public:
 
 /* ============================ CREATORS ================================== */
-
+///@name Creators
+//@{
      /// Default constructor
    StreamHttpDataSource(Url url, int iFlags);
 
      /// Destructor
    virtual ~StreamHttpDataSource();
 
-/* ============================ MANIPULATORS ============================== */
+//@}
 
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
      /// Opens the data source
    virtual OsStatus open() ;
 
@@ -111,7 +115,11 @@ public:
      /// Callback routine that is invoked whenever new data is available from http socket.
    UtlBoolean deliverData(char *szData, int iLength, int iMaxLength) ;
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
    /// Gets the length of the stream (if available)
    virtual OsStatus getLength(int& iLength);      
@@ -126,7 +134,13 @@ public:
      /// Gets the amount of data presently buffered.
    virtual int getBufferedLength();
 
+//@}
+
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

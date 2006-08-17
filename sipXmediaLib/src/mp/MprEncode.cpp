@@ -172,39 +172,46 @@ OsStatus MprEncode::selectCodecs(SdpCodec* pPrimary, SdpCodec* pDtmf,
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
+
+// Get maximum payload size, estimated from MpEncoderBase::getMaxPacketBits().
 int MprEncode::payloadByteLength(MpEncoderBase& rEncoder)
 {
    int maxBitsPerPacket = rEncoder.getInfo()->getMaxPacketBits();
-   int packetPayloadBytes = 0;
 
-   packetPayloadBytes = (maxBitsPerPacket + 7) / 8;
-/*
-   osPrintf(
-      "MprEncode::payloadByteLength: maxBitsPerPacket=%d, returning bytes=%d\n",
-      maxBitsPerPacket, packetPayloadBytes);
-*/
-   return packetPayloadBytes;
+   return (maxBitsPerPacket + 7) / 8;
 }
 
 OsStatus MprEncode::allocPacketBuffer(MpEncoderBase& rEncoder,
-   unsigned char*& rpPacketBuffer, unsigned char*& rpPacketPayload,
-   int& rPacketPayloadBytes, int& rPacketPayloadUsed)
+                                      unsigned char*& rpPacketBuffer,
+                                      unsigned char*& rpPacketPayload,
+                                      int& rPacketPayloadBytes,
+                                      int& rPacketPayloadUsed)
 {
    OsStatus ret = OS_SUCCESS;
 
+   // Estimate packet size
    rPacketPayloadBytes = payloadByteLength(rEncoder);
    int packetBytes =
          MprToNet::RESERVED_RTP_PACKET_HEADER_BYTES + rPacketPayloadBytes;
+
+   // Allocate buffer for RTP packet data
    rpPacketBuffer = new unsigned char[packetBytes+26];
-   if (NULL != rpPacketBuffer) {
+   if (rpPacketBuffer != NULL ) {
+
+      // Set payload pointer
       rpPacketPayload = rpPacketBuffer +
                               MprToNet::RESERVED_RTP_PACKET_HEADER_BYTES;
+
+      // Clear buffer
       memset(rpPacketBuffer, 0, packetBytes+26);
       memcpy(rpPacketBuffer+packetBytes, "DON'T TOUCH!!!!!!!!!!!!!!", 26);
    } else {
+
+      // No free memory. Return error.
       ret = OS_NO_MEMORY;
       rpPacketPayload = NULL;
    }
+
    rPacketPayloadUsed = 0;
    return ret;
 }
@@ -367,7 +374,7 @@ void MprEncode::handleStartTone(int toneId)
    if (NULL == mpDtmfCodec) return;
    if ((mCurrentTone == -1) && (mNumToneStops < 1)) {
       mCurrentTone = lookupTone(toneId);
-      if (-1 != mCurrentTone) {
+      if (mCurrentTone != -1) {
          mNewTone = 1;
       }
    }
@@ -451,32 +458,36 @@ int MprEncode::lookupTone(int toneId)
 static int NumberOfEncodes = 0;
 #endif /* DEBUG ] */
 
-void MprEncode::doPrimaryCodec(MpBufPtr in, unsigned int startTs)
+void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
 {
    int numSamplesIn;
    int numSamplesOut;
-   Sample* pSamplesIn;
+   MpAudioSample* pSamplesIn;
    int payloadBytesLeft;
    unsigned char* pDest;
    int bytesAdded; //$$$
-   MpBufSpeech content = MP_SPEECH_UNKNOWN;
+   MpAudioBuf::SpeechType content = MpAudioBuf::MP_SPEECH_UNKNOWN;
    OsStatus ret;
    UtlBoolean sendNow;
 
-   if (NULL == mpPrimaryCodec) return;
+   if (mpPrimaryCodec == NULL)
+      return;
 
-   numSamplesIn = MpBuf_getNumSamples(in);
-   pSamplesIn = MpBuf_getSamples(in);
+   if (!in.isValid())
+      return;
+
+   numSamplesIn = in->getSamplesNumber();
+   pSamplesIn = in->getSamples();
 
    while (numSamplesIn > 0) {
 
-      if (0 == mPacket1PayloadUsed) {
+      if (mPacket1PayloadUsed == 0) {
          mStartTimestamp1 = startTs;
          mActiveAudio1 = mDoesVad1;
       }
 
       if (!mActiveAudio1) {
-         mActiveAudio1 = MpBuf_isActiveAudio(in);
+         mActiveAudio1 = in->isActiveAudio();
       }
 
       payloadBytesLeft = mPacket1PayloadBytes - mPacket1PayloadUsed;
@@ -499,7 +510,7 @@ void MprEncode::doPrimaryCodec(MpBufPtr in, unsigned int startTs)
       numSamplesIn -= numSamplesOut;
       startTs += numSamplesOut;
 
-      if (MP_SPEECH_ACTIVE == content) {
+      if (content == MpAudioBuf::MP_SPEECH_ACTIVE) {
          mActiveAudio1 = TRUE;
       }
 
@@ -513,11 +524,11 @@ void MprEncode::doPrimaryCodec(MpBufPtr in, unsigned int startTs)
              (mConsecutiveUnsentFrames1 >= RTP_KEEP_ALIVE_FRAME_INTERVAL))
          {
             mpToNet->writeRtp(mpPrimaryCodec->getPayloadType(),
-               mMarkNext1,
-               mpPacket1Payload,
-               mPacket1PayloadUsed,
-               mStartTimestamp1,
-               NULL);
+                              mMarkNext1,
+                              mpPacket1Payload,
+                              mPacket1PayloadUsed,
+                              mStartTimestamp1,
+                              NULL);
             mMarkNext1 = FALSE;
             mConsecutiveUnsentFrames1 = 0;
          } else {
@@ -529,7 +540,7 @@ void MprEncode::doPrimaryCodec(MpBufPtr in, unsigned int startTs)
 }
 
 void MprEncode::doDtmfCodec(unsigned int startTs, int samplesPerFrame,
-   int samplesPerSecond)
+                            int samplesPerSecond)
 {
    int numSampleTimes;
 #ifdef _VXWORKS /* [ */
@@ -539,17 +550,16 @@ void MprEncode::doDtmfCodec(unsigned int startTs, int samplesPerFrame,
    int skipped;
 #endif /* DEBUG_DTMF_SEND ] */
 
-   if (-1 == mCurrentTone) return;
-   if (NULL == mpDtmfCodec) return;
+   if (mCurrentTone == -1)
+      return;
+
+   if (mpDtmfCodec == NULL)
+      return;
 
    if (mNewTone) {
       mStartTimestamp2 = startTs;
       mDtmfSampleInterval = samplesPerFrame * 2;
       mNumToneStops = -1;
-#ifdef _VXWORKS /* [ */
-      OsSysLog::add(FAC_MP, PRI_INFO, "MprEncode::doDtmfCodec - key down,"
-         " key=%d, TS=0x%X, OsTC=0x%X\n", mNewTone, startTs, *pOsTC);
-#endif /* _VXWORKS ] */
    }
 
    if (TONE_STOP_PACKETS == mNumToneStops) {
@@ -568,11 +578,11 @@ void MprEncode::doDtmfCodec(unsigned int startTs, int samplesPerFrame,
          mpPacket2Payload[2] = (numSampleTimes >> 8) & 0xff; // Big Endian
          mpPacket2Payload[3] = numSampleTimes & 0xff; // Big Endian
          mpToNet->writeRtp(mpDtmfCodec->getPayloadType(),
-            (0 != mNewTone),  // set marker on first packet
-            mpPacket2Payload,
-            4,
-            mStartTimestamp2,
-            NULL);
+                           (0 != mNewTone),  // set marker on first packet
+                           mpPacket2Payload,
+                           4,
+                           mStartTimestamp2,
+                           NULL);
          mLastDtmfSendTimestamp = startTs;
          mNewTone = 0;
 #ifdef DEBUG_DTMF_SEND /* [ */
@@ -591,24 +601,18 @@ void MprEncode::doDtmfCodec(unsigned int startTs, int samplesPerFrame,
       numSampleTimes = mTotalTime;
       if (numSampleTimes > ((1<<16) - 1)) numSampleTimes = ((1<<16) - 1);
 
-#ifdef _VXWORKS /* [ */
-      OsSysLog::add(FAC_MP, PRI_DEBUG, "MprEncode::doDtmfCodec - key up (%d),"
-         " key=%d, TS=0x%X, OsTC=0x%X\n",
-         mNumToneStops, mNewTone, startTs, *pOsTC);
-#endif /* _VXWORKS ] */
-
       mpPacket2Payload[0] = mCurrentTone;
       mpPacket2Payload[1] = (1<<7) + 10; // -10 dBm0, with E bit
       mpPacket2Payload[2] = (numSampleTimes >> 8) & 0xff; // Big Endian
       mpPacket2Payload[3] = numSampleTimes & 0xff; // Big Endian
       mpToNet->writeRtp(mpDtmfCodec->getPayloadType(),
-         FALSE,
-         mpPacket2Payload,
-         4,
-         mStartTimestamp2,
-         NULL);
+                        FALSE,
+                        mpPacket2Payload,
+                        4,
+                        mStartTimestamp2,
+                        NULL);
       mLastDtmfSendTimestamp = startTs;
-      if (1 > mNumToneStops) { // all done, ready to start next tone.
+      if (mNumToneStops < 1) { // all done, ready to start next tone.
          mCurrentTone = -1;
          mNumToneStops = -1;
          mTotalTime = 0;
@@ -616,18 +620,18 @@ void MprEncode::doDtmfCodec(unsigned int startTs, int samplesPerFrame,
    }
 }
 
-void MprEncode::doSecondaryCodec(MpBufPtr in, unsigned int startTs)
+void MprEncode::doSecondaryCodec(MpAudioBufPtr in, unsigned int startTs)
 {
    assert(FALSE);
 }
 
 UtlBoolean MprEncode::doProcessFrame(MpBufPtr inBufs[],
-                                    MpBufPtr outBufs[],
-                                    int inBufsSize,
-                                    int outBufsSize,
-                                    UtlBoolean isEnabled,
-                                    int samplesPerFrame,
-                                    int samplesPerSecond)
+                                     MpBufPtr outBufs[],
+                                     int inBufsSize,
+                                     int outBufsSize,
+                                     UtlBoolean isEnabled,
+                                     int samplesPerFrame,
+                                     int samplesPerSecond)
 {
    MpBufPtr in;
    unsigned int startTs;
@@ -639,7 +643,7 @@ UtlBoolean MprEncode::doProcessFrame(MpBufPtr inBufs[],
 
    if (!isEnabled) return TRUE;
 
-   in = *inBufs;
+   in = inBufs[0];
 
    startTs = (showFrameCount(1) * samplesPerFrame);
 

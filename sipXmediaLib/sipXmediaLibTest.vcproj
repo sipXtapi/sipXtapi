@@ -31,7 +31,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcrtd.lib MSVCPRTD.lib Ws2_32.lib winmm.lib sipXmediaLib.lib sipXtackLib.lib sipXportLib.lib cppunitd.lib pcre.lib"
+				AdditionalDependencies="msvcrtd.lib MSVCPRTD.lib Ws2_32.lib winmm.lib cppunitd.lib pcre.lib"
 				OutputFile="bin\sipXtapiTestD.exe"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="Debug;..\sipXtackLib\debug;..\sipXportLib\debug;..\CPPUnit\lib"
@@ -80,7 +80,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcrt.lib MSVCPRT.lib wsock32.lib sipXtackLib.lib sipXportLib.lib sipXtapi.lib odbc32.lib odbccp32.lib cppunit.lib pcre.lib"
+				AdditionalDependencies="msvcrt.lib MSVCPRT.lib Ws2_32.lib winmm.lib cppunit.lib pcre.lib"
 				OutputFile="bin\sipXtapiTest.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -126,7 +126,27 @@
 				RelativePath=".\src\test\mp\MpMediaTaskTest.cpp">
 			</File>
 			<File
+				RelativePath=".\src\test\mp\MprBridgeTest.cpp">
+			</File>
+			<File
 				RelativePath=".\src\test\mp\MpResourceTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\mp\MprFromMicTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\mp\MprMixerTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\mp\MprSplitterTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\mp\MprToSpkrTest.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\src\test\mp\MpTestResource.cpp">
@@ -136,6 +156,9 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			<File
+				RelativePath=".\src\test\mp\MpGenericResourceTest.h">
+			</File>
 			<File
 				RelativePath=".\src\test\mp\MpTestResource.h">
 			</File>
@@ -147,7 +170,7 @@
 		</Filter>
 		<Filter
 			Name="sipXunit Sources"
-			Filter="">
+			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx">
 			<File
 				RelativePath="..\sipXportLib\src\test\sipxunit\TestMonitor.cpp">
 			</File>
@@ -166,7 +189,7 @@
 		</Filter>
 		<Filter
 			Name="sipXunit Headers"
-			Filter="">
+			Filter="h;hpp;hxx;hm;inl;inc;xsd">
 			<File
 				RelativePath="..\sipXportLib\src\test\sipxunit\TestMonitor.h">
 			</File>

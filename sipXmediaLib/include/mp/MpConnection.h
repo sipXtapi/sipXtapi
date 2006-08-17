@@ -51,8 +51,10 @@ typedef struct GIPSNETEQ_inst NETEQ_inst;
 
 typedef int MpConnectionID;
 
-//:Connection container for the inbound and outbound network paths to a
-// single remote party.
+/**
+*  @brief Connection container for the inbound and outbound network paths to a
+*  single remote party.
+*/
 class MpConnection
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -71,144 +73,193 @@ public:
    };
 
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
 
+     /// Constructor
    MpConnection(MpCallFlowGraph* pParent, MpConnectionID myID,
                                  int samplesPerFrame, int samplesPerSec);
-     //:Constructor
 
+     /// Destructor
    virtual
    ~MpConnection();
-     //:Destructor
+
+//@}
 
 /* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
 
-   OsStatus disableIn(void);
-   OsStatus disableOut(void);
-   OsStatus disable(void); // Both in and out
-     //:Disables the input path, output path, or both paths, of the connection.
-     // Resources on the path(s) will also be disabled by these calls.
-     // If the flow graph is not "started", this call takes effect
-     // immediately.  Otherwise, the call takes effect at the start of the
-     // next frame processing interval.
-     //!retcode: OS_SUCCESS - for now, these methods always return success
+     /// Disables the input path of the connection.
+   OsStatus disableIn();
+     /**<
+     *  @see See disable() for more information.
+     */
 
-   OsStatus enableIn(void);
-   OsStatus enableOut(void);
-   OsStatus enable(void); // Both in and out
-     //:Enables the input path, output path, or both paths, of the connection.
-     // Resources on the path(s) will also be enabled by these calls.
-     // Resources may allocate needed data (e.g. output path reframe buffer)
-     //  during this operation.
-     // If the flow graph is not "started", this call takes effect
-     // immediately.  Otherwise, the call takes effect at the start of the
-     // next frame processing interval.
-     //!retcode: OS_SUCCESS - for now, these methods always return success
+     /// Disables the output path of the connection.
+   OsStatus disableOut();
+     /**<
+     *  @see See disable() for more information.
+     */
 
+     /// Disables both paths, of the connection.
+   OsStatus disable(); // Both in and out
+     /**<
+     *  Resources on the path(s) will also be disabled by these calls.
+     *  If the flow graph is not "started", this call takes effect
+     *  immediately.  Otherwise, the call takes effect at the start of the
+     *  next frame processing interval.
+     *
+     *  @returns <b>OS_SUCCESS</b> - for now, these methods always return success
+     */
+
+     /// Enables the input path of the connection.
+   OsStatus enableIn();
+     /**<
+     *  @see See enable() for more information.
+     */
+
+     /// Enables the output path of the connection.
+   OsStatus enableOut();
+     /**<
+     *  @see See enable() for more information.
+     */
+
+     /// Enables both paths of the connection.
+   OsStatus enable(); // Both in and out
+     /**<
+     *  Resources on the path(s) will also be enabled by these calls.
+     *  Resources may allocate needed data (e.g. output path reframe buffer)
+     *   during this operation.
+     *  If the flow graph is not "started", this call takes effect
+     *  immediately.  Otherwise, the call takes effect at the start of the
+     *  next frame processing interval.
+     *
+     *  @returns <b>OS_SUCCESS</b> - for now, these methods always return success
+     */
+
+     /// Starts sending RTP and RTCP packets.
    void startSendRtp(OsSocket& rRtpSocket, OsSocket& rRtcpSocket,
-                  SdpCodec* pPrimary, SdpCodec* pDtmf, SdpCodec* pSecondary
-                  );
-     //:Starts sending RTP and RTCP packets.
+                     SdpCodec* pPrimary, SdpCodec* pDtmf, SdpCodec* pSecondary);
 
+     /// Starts sending RTP and RTCP packets.
    void startSendRtp(SdpCodec& rCodec,
-                  OsSocket& rRtpSocket, OsSocket& rRtcpSocket);
-     //:Starts sending RTP and RTCP packets.
-
-   void stopSendRtp(void);
-     //:Stops sending RTP and RTCP packets.
-
-   void startReceiveRtp(SdpCodec* pCodecs[], int numCodecs,
                      OsSocket& rRtpSocket, OsSocket& rRtcpSocket);
-     //:Starts receiving RTP and RTCP packets.
 
+     /// Stops sending RTP and RTCP packets.
+   void stopSendRtp(void);
+
+     /// Starts receiving RTP and RTCP packets.
+   void startReceiveRtp(SdpCodec* pCodecs[], int numCodecs,
+                        OsSocket& rRtpSocket, OsSocket& rRtcpSocket);
+
+     /// Stops receiving RTP and RTCP packets.
    void stopReceiveRtp(void);
-     //:Stops receiving RTP and RTCP packets.
 
+     /// Save the port number that was assigned by the bridge.
    OsStatus setBridgePort(int port);
-     //:Save the port number that was assigned by the bridge.
 
+     /// Start sending DTMF tone.
    void startTone(int toneId);
 
+     /// Stop sending DTMF tone.
    void stopTone(void);
 
 #ifdef INCLUDE_RTCP /* [ */
-// A new SSRC has been generated for the Session
-   void     reassignSSRC(int iSSRC);
+     /// A new SSRC has been generated for the Session
+   void reassignSSRC(int iSSRC);
 #endif /* INCLUDE_RTCP ] */
 
+     /// Add an RTP payload type to decoder instance mapping table
    void addPayloadType(int payloadId, MpDecoderBase* pDecoder);
-   //:Add an RTP payload type to decoder instance mapping table
 
+     /// Remove an RTP payload type from decoder instance map
    void deletePayloadType(int payloadId);
-   //:Remove an RTP payload type from decoder instance map
+
+//@}
 
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
+     /// Returns a pointer to the JB instance, creating it if necessary
    JB_inst* getJBinst(UtlBoolean optional = FALSE);
-     //:Returns a pointer to the JB instance, creating it if necessary
-     // If the instance has not been created, but the argument "optional" is
-     // TRUE, then do not create it, just return NULL.
+     /**<
+     *  If the instance has not been created, but the argument "optional" is
+     *  TRUE, then do not create it, just return NULL.
+     */
 
+     /// Returns the resource to link to upstream resource's outPort.
    MpResource* getSinkResource(void);
-     //:Returns the resource to link to upstream resource's outPort.
 
+     /// Returns the resource to link to downstream resource's inPort.
    MpResource* getSourceResource(void);
-     //:Returns the resource to link to downstream resource's inPort.
 
+     /// Retrieve the port number that was assigned by the bridge.
    int getBridgePort(void);
-     //:Retrieve the port number that was assigned by the bridge.
 
 #ifdef INCLUDE_RTCP /* [ */
-    //:Retrieve the RTCP Connection interface associated with this MpConnection
+     /// Retrieve the RTCP Connection interface associated with this MpConnection
    IRTCPConnection *getRTCPConnection(void);
 #endif /* INCLUDE_RTCP ] */
 
+     /// Get decoder for this payload type
    MpDecoderBase* mapPayloadType(int payloadType);
 
+     /// Disables or enables the GIPS premium sound.
    void setPremiumSound(PremiumSoundOptions op);
-     //:Disables or enables the GIPS premium sound.
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
+     /// Handle the FLOWGRAPH_SET_DTMF_NOTIFY message.
    UtlBoolean handleSetDtmfNotify(OsNotification* n);
-     //:Handle the FLOWGRAPH_SET_DTMF_NOTIFY message.
-     // Returns TRUE
+     /**<
+     *  @Returns <b>TRUE</b>
+     */
 
    UtlBoolean setDtmfTerm(MprRecorder *pRecorder);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
+     /// Default constructor
    MpConnection();
-     //:Default constructor
 
+     /// Copy constructor (not implemented for this type)
    MpConnection(const MpConnection& rMpConnection);
-     //:Copy constructor (not implemented for this type)
 
+     /// Assignment operator (not implemented for this type)
    MpConnection& operator=(const MpConnection& rhs);
-     //:Assignment operator (not implemented for this type)
 
-   MpCallFlowGraph*   mpFlowGraph;     // parent
-   MprEncode*         mpEncode;        // the outbound components
-   MprToNet*          mpToNet;
-   MprFromNet*        mpFromNet;       // the inbound components
-   MprDejitter*       mpDejitter;
-   MprDecode*         mpDecode;
-   MpConnectionID     mMyID;           // my ID within my parent
-   int                mBridgePort;     // where we are connected on the bridge
-   UtlBoolean          mInEnabled;      // current state of components
-   UtlBoolean          mOutEnabled;
-   UtlBoolean          mInRtpStarted;   // are we currently receiving
-   UtlBoolean          mOutRtpStarted;  //                  sending
-   JB_inst*           mpJB_inst;
+   MpCallFlowGraph*   mpFlowGraph;     ///< Parent flowgraph
+   MprEncode*         mpEncode;        ///< Outbound component: Encoder
+   MprToNet*          mpToNet;         ///< Outbound component: ToNet
+   MprFromNet*        mpFromNet;       ///< Inbound component: FromNet
+   MprDejitter*       mpDejitter;      ///< Inbound component: Dejitter
+   MprDecode*         mpDecode;        ///< Inbound component: Decoder
+   MpConnectionID     mMyID;           ///< ID within parent flowgraph
+   int                mBridgePort;     ///< Where we are connected on the bridge
+   UtlBoolean         mInEnabled;      ///< Current state of inbound components
+   UtlBoolean         mOutEnabled;     ///< Current state of outbound components
+   UtlBoolean         mInRtpStarted;   ///< Are we currently receiving RTP stream?
+   UtlBoolean         mOutRtpStarted;  ///< Are we currently sending RTP stream?
+   JB_inst*           mpJB_inst;       ///< Pointer to JitterBuffer instance
 
    MpDecoderBase*     mpPayloadMap[NUM_PAYLOAD_TYPES];
+                                       ///< Map RTP payload types to our decoders
    OsMutex            mLock;
 
 #ifdef INCLUDE_RTCP /* [ */
-// RTCP Connection Interface pointer
+     /// RTCP Connection Interface pointer
    IRTCPConnection *mpiRTCPConnection;
 
 #endif /* INCLUDE_RTCP ] */

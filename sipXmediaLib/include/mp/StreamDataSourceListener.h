@@ -32,7 +32,8 @@ class StreamDataSourceListener
 public:
 
 /* ============================ CREATORS ================================== */
-
+///@name Creators
+//@{
    StreamDataSourceListener();
      //:Default constructor
 
@@ -40,17 +41,30 @@ public:
    ~StreamDataSourceListener();
      //:Destructor
 
-/* ============================ MANIPULATORS ============================== */
+//@}
 
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
    virtual void dataSourceUpdate(StreamDataSource* pDataSource, 
                                  StreamDataSourceEvent event) = 0 ;
      //: Informs the listener when the data soruce has an event to publish.
      //! param pDataSource - Data source publishing the state change
      //! param event - The new data source event state
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

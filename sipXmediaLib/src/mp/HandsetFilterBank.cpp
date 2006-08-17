@@ -335,7 +335,7 @@ void HandsetFilterBankFinalReport(int total_simulations)
 
 /* ********************************************************************* */
 
-void HandsetFilterBank::DoHandsetFilterBank(short fbecmic[], short mic[], short ldspkr[])
+void HandsetFilterBank::DoHandsetFilterBank(short *fbecmic, short *mic, short *ldspkr)
 {
 
 #include "mp/HandsetFilterbankWindows.h"
@@ -819,9 +819,9 @@ void HandsetFilterBank::DoHandsetFilterBank(short fbecmic[], short mic[], short 
 
 // Window, overlap and add for HS_NUM_FRAMES_PER_10MS subframes. Then DFT each of the subframes.
 void HandsetFilterBank::MultiFrameHandsetFilterBankAnalysis(icomplex outFFTArray[][HS_M+1],
-                                                            int Input[],
-                                                            int AnalysisDL[],
-                                                            int AnalysisWindow[],
+                                                            int *Input,
+                                                            int *AnalysisDL,
+                                                            int *AnalysisWindow,
                                                             int iMicOrSpkrFlag)
 {
    int i;

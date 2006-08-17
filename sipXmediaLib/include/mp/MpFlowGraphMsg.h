@@ -102,10 +102,10 @@ public:
      /// Set destination object of the message.
    void setMsgDest(MpResource* pMsgDest);
      /**<
-      * Sets the intended recipient for this message.  Setting the message 
-      * destination to NULL indicates that the message is intended for the 
-      * flow graph itself.
-      */
+     *  Sets the intended recipient for this message.  Setting the message 
+     *  destination to NULL indicates that the message is intended for the 
+     *  flow graph itself.
+     */
 
      /// Sets pointer 1 (void*) of the media flow graph message
    void setPtr1(void* p);
@@ -131,10 +131,10 @@ public:
      /// Get destination object of the message.
    MpResource* getMsgDest(void) const;
      /**<
-      * Returns the MpResource object that is the intended recipient for this 
-      * message.  A NULL return indicates that the message is intended for 
-      * the flow graph itself.
-      */
+     *  Returns the MpResource object that is the intended recipient for this 
+     *  message.  A NULL return indicates that the message is intended for 
+     *  the flow graph itself.
+     */
 
      /// Return pointer 1 (void*) of the media flow graph message
    void* getPtr1(void) const;

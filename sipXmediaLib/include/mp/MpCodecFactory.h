@@ -38,7 +38,8 @@ class MpCodecFactory
 public:
 
 /* ============================ CREATORS ================================== */
-
+///@name Creators
+//@{
    static MpCodecFactory* getMpCodecFactory(void);
      //:Return a pointer to the MpCodecFactory singleton object, creating 
      //:it if necessary
@@ -47,8 +48,11 @@ public:
    ~MpCodecFactory();
      //:Destructor
 
-/* ============================ MANIPULATORS ============================== */
+//@}
 
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
    OsStatus createDecoder(SdpCodec::SdpCodecTypes internalCodecId,
                           int payloadType,
                           MpDecoderBase*& rpDecoder);
@@ -65,9 +69,19 @@ public:
      //!param: payloadType - (in) RTP payload type associated with this encoder
      //!param: rpEncoder - (out) Reference to a pointer to the new encoder object
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

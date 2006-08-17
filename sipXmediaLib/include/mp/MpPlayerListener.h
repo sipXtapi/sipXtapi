@@ -34,9 +34,13 @@ class MpPlayerListener
 public:
 
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
+//@}
 
 /* ============================ MANIPULATORS ============================== */
-
+///@name Manipulators
+//@{
    virtual void playerRealized(MpPlayerEvent& event) = 0 ;
      //: The player has been realized
 
@@ -55,9 +59,19 @@ public:
    virtual void playerFailed(MpPlayerEvent& event) = 0 ;
      //: The player has failed
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

@@ -181,9 +181,6 @@ int MpCodec_getVolume()
 /* dummy routine */
 int MpCodec_isSpeakerOn() { return 0;}
 
-/* dummy routine */
-OsStatus MpCodec_doProcessFrame() { return OS_SUCCESS;}
-
 #elif defined(__pingtel_on_posix__) /* WIN32 ] [ */
 
 #include <stdio.h>
@@ -226,10 +223,6 @@ OsStatus MpCodec_setVolume(int level)
    OsStatus ret = OS_SUCCESS;
    return ret;
 }
-
-
-/* dummy routine */
-OsStatus MpCodec_doProcessFrame() { return OS_SUCCESS;}
 
 
 #endif /* ] */

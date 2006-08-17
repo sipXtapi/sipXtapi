@@ -59,20 +59,34 @@ public:
      //!retcode: OS_SUCCESS - Success
      //!retcode: OS_DELETED - Object has already been deleted
 
-/* ============================ MANIPULATORS ============================== */
+//@}
 
-   virtual int decodeIn(MpBufPtr pPacket);
-     //:Receive a packet of RTP data
-     //!param: pPacket - (in) Pointer to a media buffer
-     //!retcode: length of packet to hand to jitter buffer, 0 means don't.
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
+
+     /// Receive a packet of RTP data
+   virtual int decodeIn(MpRtpBufPtr &pPacket ///< (in) Pointer to a media buffer
+                       );
+     /**<
+     *  @returns length of packet to hand to jitter buffer, 0 means don't.
+     */
 
    virtual OsStatus createDecoder(void);
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
    virtual IppsG729DecoderStruct* getDecoder(void);
 
+//@}
+
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -16,10 +19,8 @@
 
 // SYSTEM INCLUDES
 
-#include "os/OsDefs.h"
 #include <assert.h>
 #include <string.h>
-#include "os/OsTask.h"
 #ifdef _VXWORKS /* [ */
 #include <selectLib.h>
 #include <iosLib.h>
@@ -47,6 +48,7 @@
 #include "os/OsConnectionSocket.h"
 #include "os/OsEvent.h"
 #include "mp/NetInTask.h"
+#include "mp/MpUdpBuf.h"
 #include "mp/MprFromNet.h"
 #include "mp/MpBufferMsg.h"
 #include "mp/dmaTask.h"
@@ -220,22 +222,14 @@ OsConnectionSocket* NetInTask::getReadSocket()
 static OsStatus get1Msg(OsSocket* pRxpSkt, MprFromNet* fwdTo, int rtpOrRtcp,
     int ostc)
 {
-        MpBufPtr ib;
-        char junk[MAX_RTP_BYTES];
-        int ret, nRead;
-        struct rtpHeader *rp;
+        MpUdpBufPtr ib;
+        int nRead;
         struct in_addr fromIP;
         int      fromPort;
 
 static  int numFlushed = 0;
 static  int flushedLimit = 125;
 
-        rp = (struct rtpHeader *) &junk[0];
-        if (MpBufferMsg::AUD_RTP_RECV == rtpOrRtcp) {
-           ib = MpBuf_getBuf(MpMisc.RtpPool, 0, 0, MP_FMT_RTPPKT);
-        } else {
-           ib = MpBuf_getBuf(MpMisc.RtcpPool, 0, 0, MP_FMT_RTCPPKT);
-        }
         if (numFlushed >= flushedLimit) {
             Zprintf("get1Msg: flushed %d packets! (after %d DMA frames).\n",
                numFlushed, showFrameCount(1), 0,0,0,0);
@@ -246,25 +240,31 @@ static  int flushedLimit = 125;
                 flushedLimit = 125;
             }
         }
-        if (NULL != ib) {
-            nRead = ret = pRxpSkt->read(junk, MAX_RTP_BYTES, &fromIP, &fromPort);
-            MpBuf_setOsTC(ib, ostc);
-            if (ret > 0) 
-            {               
-                if (ret > MpBuf_getByteLen(ib)) {
-                    ret = MpBuf_getByteLen(ib);
-                    if (MpBufferMsg::AUD_RTP_RECV == rtpOrRtcp) {
-                        junk[0] &= ~0x20; /* must turn off Pad flag */
-                    }
-                }
-                memcpy((char *) MpBuf_getStorage(ib), junk, ret);
-                MpBuf_setNumSamples(ib, ret);
-                MpBuf_setContentLen(ib, ret);
-                fwdTo->pushPacket(ib, rtpOrRtcp, &fromIP, fromPort);
+
+        // Get new buffer for incoming packet
+        ib = MpMisc.UdpPool->obtainBuffer();
+
+        if (ib.isValid()) {
+            // Read packet data.
+            // Note: nRead could not be greater then buffer size.
+            nRead = pRxpSkt->read(ib->getPacketData(), ib->getMaximumPacketSize()
+                                 , &fromIP, &fromPort);
+            // Set size of received data
+            ib->setPacketSize(nRead);
+
+            // Set IP address and port of this packet
+            ib->setIP(fromIP);
+            ib->setUdpPort(fromPort);
+
+            // Set time we receive this packet.
+            ib->setTimecode(ostc);
+
+            if (nRead > 0) 
+            {
+                fwdTo->pushPacket(ib, rtpOrRtcp);
             } 
             else 
             {
-                MpBuf_delRef(ib);
                 if (!pRxpSkt->isOk())
                 {
                     Zprintf(" *** get1Msg: read(%d) returned %d, errno=%d=0x%X)\n",
@@ -273,7 +273,9 @@ static  int flushedLimit = 125;
                 }                                
             }
         } else {
-            nRead = pRxpSkt->read(junk, sizeof(junk));
+            // Flush packet if could not get buffer for it.
+            char buffer[NETWORK_MTU];
+            nRead = pRxpSkt->read(buffer, NETWORK_MTU, &fromIP, &fromPort);
             if (numFlushed++ < 10) {
                 Zprintf("get1Msg: flushing a packet! (%d, %d, %d)"
                     " (after %d DMA frames).\n",

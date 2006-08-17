@@ -89,7 +89,8 @@ class MpStreamFeeder : public StreamDataSourceListener, public StreamDecoderList
 public:
 
 /* ============================ CREATORS ================================== */
-
+///@name Creators
+//@{
      /// Constructor accepting a url resource, type, and cache all flag
    MpStreamFeeder(Url resource, int flags);
 
@@ -131,7 +132,11 @@ public:
      ///  stream.
    void markPaused(UtlBoolean bPaused) ;
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
      ///  Get a frames worth of data (80 samples per frame) ;
    OsStatus getFrame(unsigned short *samples) ;
@@ -148,7 +153,11 @@ public:
      ///  Called by the MprFromStream resource when events changes.
    void fromStreamUpdate(FeederEvent event) ;
 
+//@}
+
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
 
      ///  Is the transition from state source to target valid?
    UtlBoolean isValidStateChange(FeederState source, FeederState target) ;
@@ -158,6 +167,8 @@ public:
 #ifdef MP_STREAM_DEBUG /* [ */
 static const char* getEventString(FeederEvent event);
 #endif /* MP_STREAM_DEBUG ] */
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

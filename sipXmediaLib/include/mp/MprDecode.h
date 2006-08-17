@@ -35,7 +35,7 @@ class MpConnection;
 class MpDecoderBase;
 class MprRecorder;
 
-//:The "Decode" media processing resource
+/// The "Decode" media processing resource
 class MprDecode : public MpAudioResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -43,6 +43,7 @@ public:
 
    friend class MpConnection;
 
+#ifdef _DEPRECATED_IPSE_
    /* This was 3 in the past, which is probably far too pessimistic most of
     * the time.  1 is probably fine on a LAN or with only a router or two.
     * Let's leave it at 3 for now...
@@ -50,38 +51,56 @@ public:
    /* ... that was then, this is now.  VON is coming, squeeze it down! */
    /* ... VON is coming again, and so is NetEQ.  Make it at least 5, or lose */
    enum { MIN_RTP_PACKETS = 5};
-
+#endif
 
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
 
+     /// Constructor
    MprDecode(const UtlString& rName, MpConnection* pConn,
-      int samplesPerFrame, int samplesPerSec);
-     //:Constructor
+             int samplesPerFrame, int samplesPerSec);
 
+     /// Destructor
    virtual
    ~MprDecode();
-     //:Destructor
+
+//@}
 
 /* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
 
-OsStatus selectCodecs(SdpCodec* codecs[], int numCodecs);
+   OsStatus selectCodecs(SdpCodec* codecs[], int numCodecs);
 
-OsStatus selectCodec(SdpCodec& rCodec);
+   OsStatus selectCodec(SdpCodec& rCodec);
 
-OsStatus deselectCodec(void);
+   OsStatus deselectCodec(void);
 
-void setMyDejitter(MprDejitter* newDJ);
+   void setMyDejitter(MprDejitter* newDJ);
+
+//@}
 
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
+     /// Handle the FLOWGRAPH_SET_DTMF_NOTIFY message.
    UtlBoolean handleSetDtmfNotify(OsNotification* n);
-     //:Handle the FLOWGRAPH_SET_DTMF_NOTIFY message.
-     // Returns TRUE
+     /**<
+     *  @returns <b>TRUE</b>
+     */
 
    UtlBoolean setDtmfTerm(MprRecorder *pRecorder);
 
@@ -100,69 +119,68 @@ private:
 
    MprDejitter* mpMyDJ;
 
-   // Semaphore that protects access to the m*Codecs members.
-   // This is needed because outside threads can call the destructor.
+   /// Semaphore that protects access to the m*Codecs members.
+   /**
+   *  This is needed because outside threads can call the destructor.
+   */
    OsMutex mLock;
 
-   // List of the codecs to be used to decode media.
-   // Pointer to array of length mNumCurrentCodecs of MpDecoderBase*'s
-   // which represent the codecs, or NULL if mNumCurrentCodecs == 0.
+   /// List of the codecs to be used to decode media.
+   /**
+   *  Pointer to array of length mNumCurrentCodecs of MpDecoderBase*'s
+   *  which represent the codecs, or NULL if mNumCurrentCodecs == 0.
+   */
    MpDecoderBase** mpCurrentCodecs;
-   int             mNumCurrentCodecs;
+   int             mNumCurrentCodecs; ///< Length of mpCurrentCodecs array.
 
-   // Similar list of all codecs that have ever been listed on
-   // mpCurrentCodecs.
+   /// Similar list of all codecs that have ever been listed on mpCurrentCodecs.
    MpDecoderBase** mpPrevCodecs;
-   int             mNumPrevCodecs;
+   int             mNumPrevCodecs; ///< Length of mpPrevCodecs array.
 
-   MpConnection*   mpConnection;
-
-   enum {
-      MAX_MARKER_NOTICES = 5, // max messages per MARKER_WAIT_FRAMES interval
-      MARKER_WAIT_FRAMES = (1*60*60*100) // 1 hour at 100 frames/second
-   };
-   int   mNumMarkerNotices;
-   int   mFrameLastMarkerNotice;
-   int   mFrameCounter;
+   MpConnection*   mpConnection;   ///< Link to the parent Connection.
 
    enum {
       NUM_TRACKED_PACKETS = 128
    };
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
-                                    MpBufPtr outBufs[],
-                                    int inBufsSize,
-                                    int outBufsSize,
-                                    UtlBoolean isEnabled,
-                                    int samplesPerFrame=80,
-                                    int samplesPerSecond=8000);
+                                     MpBufPtr outBufs[],
+                                     int inBufsSize,
+                                     int outBufsSize,
+                                     UtlBoolean isEnabled,
+                                     int samplesPerFrame=80,
+                                     int samplesPerSecond=8000);
 
    UtlBoolean isPayloadTypeSupported(int payloadType);
 
+     /// Handle messages for this resource.
    virtual UtlBoolean handleMessage(MpFlowGraphMsg& rMsg);
-     //:Handle messages for this resource.
 
-   // Replace mpCurrentCodecs with pCodecs.
-   // (Copy the codecs in mpCurrentCodecs onto mpPrevCodecs.)
-   // Deletes pCodecs.
+     /// Replace mpCurrentCodecs with pCodecs.
    UtlBoolean handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs);
+     /**<
+     *  Copy the codecs in mpCurrentCodecs onto mpPrevCodecs and deletes pCodecs.
+     */
 
-   // Remove all codecs from mpCurrentCodecs, transferring them to
-   // mpPrevCodecs.
+     /// @brief Remove all codecs from mpCurrentCodecs, transferring them to
+     /// mpPrevCodecs.
    UtlBoolean handleDeselectCodecs(void);
-   // Remove one codec from mpConnection's payload type decoder table.
-   // Caller must hold mLock.
+
+     /// Remove one codec from mpConnection's payload type decoder table.
    UtlBoolean handleDeselectCodec(MpDecoderBase* pDecoder);
+     /**<
+     *  @note Caller must hold mLock.
+     */
 
+     /// Copy constructor (not implemented for this class)
    MprDecode(const MprDecode& rMprDecode);
-     //:Copy constructor (not implemented for this class)
 
+     /// Assignment operator (not implemented for this class)
    MprDecode& operator=(const MprDecode& rhs);
-     //:Assignment operator (not implemented for this class)
 
    MprDejitter* getMyDejitter(void);
 
-   void pushIntoJitterBuffer(MpBufPtr rtp, int packetLen);
+   void pushIntoJitterBuffer(MpRtpBufPtr &rtp, int packetLen);
 
 };
 

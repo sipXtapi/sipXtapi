@@ -18,6 +18,8 @@
 #include "os/OsDefs.h"
 #include "os/OsRWMutex.h"
 #include "os/OsStatus.h"
+#include "utl/UtlContainable.h"
+#include "utl/UtlString.h"
 #include "mp/MpBuf.h"
 
 // DEFINES
@@ -120,6 +122,8 @@ public:
 //@}
 
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
      /// Displays information on the console about the specified resource.
    static void resourceInfo(MpResource* pResource, int index);
@@ -256,23 +260,26 @@ protected:
 
      /// @brief If there already is a buffer stored for this input port, delete it. 
      /// Then store <i>pBuf</i> for the indicated input port.
-   void setInputBuffer(int inPortIdx, MpBufPtr pBuf);
+   void setInputBuffer(int inPortIdx, const MpBufPtr &pBuf);
 
-     /// Post a message to this resource.
+     /// Post a message from this resource.
    OsStatus postMessage(MpFlowGraphMsg& rMsg);
      /**<
      *  If this resource is not part of a flow graph, then <i>rMsg</i> is
-     *  immediately passed to the <i>handleMessage()</i> method for this
+     *  immediately passed to the <i>handleMessage()</i> method for <i>this</i>
      *  resource.  If this resource is part of a flow graph, then
      *  <i>rMsg</i> will be sent to the message queue for the flow graph
      *  that this resource belongs to.  The <i>handleMessage()</i> method
-     *  for this resource will be invoked at the start of the next frame
-     *  processing interval.
+     *  for <i>destination</i> resource will be invoked at the start of the next
+     *  frame processing interval.
+     *
+     * @warning Feel the difference in method behaviour if resource in the
+     *          flow graph and if it is not.
      */
 
      /// @brief Makes <i>pBuf</i> available to resource connected to the
      /// <i>outPortIdx</i> output port of this resource.
-   UtlBoolean setOutputBuffer(int outPortIdx, MpBufPtr pBuf);
+   UtlBoolean pushBufferDownsream(int outPortIdx, const MpBufPtr &pBuf);
      /**<
      *  @returns TRUE if there is a resource connected to the specified output
      *  port, FALSE otherwise.

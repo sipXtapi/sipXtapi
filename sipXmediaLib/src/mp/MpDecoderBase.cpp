@@ -11,10 +11,10 @@
 #include <assert.h>
 #include "mp/MpDecoderBase.h"
 #include "mp/MpConnection.h"
-     // Constructor
-     // Returns a new decoder object.
-     // param: payloadType - (in) RTP payload type associated with this decoder
 
+// Constructor
+// Returns a new decoder object.
+// param: payloadType - (in) RTP payload type associated with this decoder
 MpDecoderBase::MpDecoderBase(int payloadType, const MpCodecInfo* pInfo) :
    mpCodecInfo(pInfo),
    mPayloadType(payloadType)
@@ -29,9 +29,9 @@ MpDecoderBase::~MpDecoderBase()
 
 /* ============================ MANIPULATORS ============================== */
 
-int MpDecoderBase::decodeIn(MpBufPtr pPacket)
+int MpDecoderBase::decodeIn(MpRtpBufPtr &pPacket)
 {
-   return MpBuf_getContentLen(pPacket);
+   return pPacket->getPayloadSize();
 }
 
 /* ============================ ACCESSORS ================================= */

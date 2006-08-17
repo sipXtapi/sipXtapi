@@ -46,9 +46,9 @@ public:
    size_t getBytesSize();
 
 private:
-   bool _headerRead; // true if header has already been read
-   int _headerChannels; // channels from header
-   int _headerRate; // sampling rate from header
+   bool _headerRead;    ///< true if header has already been read
+   int _headerChannels; ///< channels from header
+   int _headerRate;     ///< sampling rate from header
    void ReadHeader(void);
 protected:
    void minMaxSamplingRate(long *min, long *max, long *preferred) {

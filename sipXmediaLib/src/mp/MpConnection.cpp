@@ -137,19 +137,20 @@ MpConnection::MpConnection(MpCallFlowGraph* pParent, MpConnectionID myID,
    // connect FromNet -> Dejitter -> Decode
    res = pParent->addLink(*mpFromNet, 0, *mpDejitter, 0);
    assert(res == OS_SUCCESS);
+   mpFromNet->setMyDejitter(mpDejitter);   // Do real connection
 
    res = pParent->addLink(*mpDejitter, 0, *mpDecode, 0);
    assert(res == OS_SUCCESS);
+   mpDecode->setMyDejitter(mpDejitter);    // Do real connection
 
    //////////////////////////////////////////////////////////////////////////
    // connect Encode -> ToNet
    res = pParent->addLink(*mpEncode, 0, *mpToNet, 0);
    assert(res == OS_SUCCESS);
+   mpEncode->setMyToNet(mpToNet);          // Do real connection
 
    //////////////////////////////////////////////////////////////////////////
-   mpEncode->setMyToNet(mpToNet);
-   mpDecode->setMyDejitter(mpDejitter);
-   mpFromNet->setMyDejitter(mpDejitter);
+   // connect ToNet -> FromNet for RTP synchronization
    mpToNet->setRtpPal(mpFromNet);
 
    pParent->synchronize("new Connection, before enable(), %dx%X\n");

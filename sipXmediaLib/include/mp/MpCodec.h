@@ -11,9 +11,6 @@
 #ifndef _INCLUDED_MPCODEC_H /* [ */
 #define _INCLUDED_MPCODEC_H
 
-#define TUNING_AUDIO_POP_DELAY
-#undef TUNING_AUDIO_POP_DELAY
-
 #include <mp/MpMisc.h>
 #include <os/OsStatus.h>
 /*************************************************************************/
@@ -130,7 +127,5 @@ extern OsStatus MpCodec_setSidetone(int level);
 extern OsStatus MpCodec_setLCDBrightness(int level);
 extern OsStatus MpCodec_setLCDContrast(int level);
 extern UtlBoolean MpCodec_isExtSpkrPresent(void);
-
-extern OsStatus MpCodec_doProcessFrame(void);
 
 #endif /* _INCLUDED_MPCODEC_H ] */

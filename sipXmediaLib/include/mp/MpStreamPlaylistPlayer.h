@@ -55,7 +55,8 @@ public:
    } ;
 
 /* ============================ CREATORS ================================== */
-
+///@name Creators
+//@{
    MpStreamPlaylistPlayer(OsMsgQ* pMsgQ, const char* pTarget = NULL);
      //:Constructor accepting a flow graph
 
@@ -64,8 +65,11 @@ public:
    ~MpStreamPlaylistPlayer();
      //:Destructor
 
-/* ============================ MANIPULATORS ============================== */
+//@}
 
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
    virtual OsStatus add(Url& url, int flags) ;
      //:Adds a url to the playlist 
      //
@@ -131,7 +135,11 @@ public:
      //: Pauses the media stream temporarily.  
 
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
    virtual OsStatus getCount(int& count) const ;
      //:Gets the number of play list entries
@@ -155,7 +163,13 @@ public:
    virtual OsStatus getState(PlayerState& state)  ;
      //: Gets the aggregate playerlist player state 
 
+//@}
+
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

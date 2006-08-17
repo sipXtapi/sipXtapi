@@ -37,7 +37,8 @@ class StreamRAWFormatDecoder : public StreamQueueingFormatDecoder, public OsTask
 public:
 
 /* ============================ CREATORS ================================== */
-
+///@name Creators
+//@{
    StreamRAWFormatDecoder(StreamDataSource* pDataSource);
      //:Default constructor
 
@@ -46,8 +47,11 @@ public:
    ~StreamRAWFormatDecoder();
      //:Destructor
 
-/* ============================ MANIPULATORS ============================== */
+//@}
 
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
    virtual OsStatus init();
      //:Initializes the decoder
 
@@ -60,13 +64,21 @@ public:
    virtual OsStatus end();
      //:Ends decoding
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
    virtual OsStatus toString(UtlString& string);
      //:Renders a string describing this decoder.  
      // This is often used for debugging purposes.
 
+//@}
+
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
 
    virtual UtlBoolean isDecoding();
      //:Gets the decoding status.  TRUE indicates decoding activity, false
@@ -78,6 +90,8 @@ public:
      // The data source is "peeked" for data, so that the stream's
      // data is not disturbed.
 
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

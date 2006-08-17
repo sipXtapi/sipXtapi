@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -8,6 +11,8 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#define WATCH_FRAME_PROCESSING
+#undef  WATCH_FRAME_PROCESSING
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -28,9 +33,10 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MpAudioResource::MpAudioResource(const UtlString& rName, int minInputs, int maxInputs,
-                       int minOutputs, int maxOutputs,
-                       int samplesPerFrame, int samplesPerSec)
+MpAudioResource::MpAudioResource(const UtlString& rName,
+                                 int minInputs, int maxInputs,
+                                 int minOutputs, int maxOutputs,
+                                 int samplesPerFrame, int samplesPerSec)
 :  MpResource(rName, minInputs, maxInputs, minOutputs, maxOutputs),
    mSamplesPerFrame(samplesPerFrame),
    mSamplesPerSec(samplesPerSec)
@@ -55,28 +61,22 @@ UtlBoolean MpAudioResource::processFrame(void)
    int       i;
    UtlBoolean res;
 
-#define WATCH_FRAME_PROCESSING
-#undef  WATCH_FRAME_PROCESSING
 #ifdef WATCH_FRAME_PROCESSING /* [ */
    char      z[500];
-   const char* pName;
    int       len;
-#endif /* WATCH_FRAME_PROCESSING ] */
 
-#ifdef WATCH_FRAME_PROCESSING /* [ */
-   pName = mName;
-   len = sprintf(z, "%s(", pName);
+   len = sprintf(z, "%s in(", (const char*)mName);
    for (i=0; i < mMaxInputs; i++)
    {
-      if (mpInBufs[i] != NULL)
+      if (mpInBufs[i].isValid())
       {
-         len += sprintf(z+len, "%d,", MpBuf_bufNum(mpInBufs[i]));
+         len += sprintf(z+len, "%d,", mpInBufs[i].getBufferNumber());
       } else {
          len += sprintf(z+len, "-,");
       }
    }
    if (mMaxInputs > 0) len--;
-   len += sprintf(z+len, ")..(");
+   len += sprintf(z+len, ") -> unprocessed(");
 #endif /* WATCH_FRAME_PROCESSING ] */
 
    // call doProcessFrame to do any "real" work
@@ -87,21 +87,21 @@ UtlBoolean MpAudioResource::processFrame(void)
 #ifdef WATCH_FRAME_PROCESSING /* [ */
    for (i=0; i < mMaxInputs; i++)
    {
-      if (mpInBufs[i] != NULL)
+      if (mpInBufs[i].isValid())
       {
-         len += sprintf(z+len, "%d,", MpBuf_bufNum(mpInBufs[i]));
+         len += sprintf(z+len, "%d,", mpInBufs[i].getBufferNumber());
       } else {
          len += sprintf(z+len, "-,");
       }
    }
    if (mMaxInputs > 0) len--;
-   len += sprintf(z+len, ")..(");
+   len += sprintf(z+len, ") -> out(");
 
    for (i=0; i < mMaxOutputs; i++)
    {
-      if (mpOutBufs[i] != NULL)
+      if (mpOutBufs[i].isValid())
       {
-         len += sprintf(z+len, "%d,", MpBuf_bufNum(mpOutBufs[i]));
+         len += sprintf(z+len, "%d,", mpOutBufs[i].getBufferNumber());
       } else {
          len += sprintf(z+len, "-,");
       }
@@ -109,24 +109,20 @@ UtlBoolean MpAudioResource::processFrame(void)
    if (mMaxOutputs > 0) len--;
    len += sprintf(z+len, ")\n");
    z[len] = 0;
-   Zprintf("%s", (int) z, 0,0,0,0,0);
+   osPrintf("%s", (int) z, 0,0,0,0,0);
 #endif /* WATCH_FRAME_PROCESSING ] */
 
    // delete any input buffers that were not consumed by doProcessFrame()
    for (i=0; i < mMaxInputs; i++)
    {
-      if (mpInBufs[i] != NULL)
-      {
-         MpBuf_delRef(mpInBufs[i]);
-         mpInBufs[i] = NULL;
-      }
+      mpInBufs[i].release();
    }
 
    // pass the output buffers downstream
    for (i=0; i < mMaxOutputs; i++)
    {
-      if (!setOutputBuffer(i, mpOutBufs[i])) MpBuf_delRef(mpOutBufs[i]);
-      mpOutBufs[i] = NULL;
+       pushBufferDownsream(i, mpOutBufs[i]);
+       mpOutBufs[i].release();
    }
 
    return res;

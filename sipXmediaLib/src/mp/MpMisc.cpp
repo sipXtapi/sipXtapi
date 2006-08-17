@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -25,7 +28,6 @@
 #endif /* _VXWORKS ] */
 
 // APPLICATION INCLUDES
-
 #ifdef _VXWORKS /* [ */
 #if CPU == ARMSA110 || (CPU == ARMARCH4) || (CPU == STRONGARM) /* [ [ */
 #include "mp/sa1100.h"
@@ -42,6 +44,9 @@
 #include "mp/MpCodec.h"
 #include "mp/dmaTask.h"
 #include "mp/MpBuf.h"
+#include "mp/MpAudioBuf.h"
+#include "mp/MpRtpBuf.h"
+#include "mp/MpUdpBuf.h"
 #include "mp/MpBufferMsg.h"
 #include "mp/MpMisc.h"
 #include "mp/NetInTask.h"
@@ -49,9 +54,10 @@
 #include "mp/MprToSpkr.h"
 #include "mp/MprDejitter.h"
 #include "mp/MprDecode.h"
+#include "mp/MprToNet.h"
+#include "mp/MpMediaTask.h"
 
 // EXTERNAL FUNCTIONS
-extern long MpBuf_setMVE(long newMin);
 
 // EXTERNAL VARIABLES
 
@@ -65,6 +71,12 @@ extern long MpBuf_setMVE(long newMin);
 #define LOG_MSGQ_ITEM_LEN 60
 #define ABSOLUTE_MAX_LOG_MSG_LEN 2048
 #endif /* _VXWORKS ] */
+
+#define RTP_BUFS 16
+#undef  RTP_BUFS
+#define RTP_BUFS 250
+#define RTCP_BUFS 16
+#define UDP_BUFS 10
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -144,7 +156,7 @@ int Zprintf0(int force, char *buf)
                 if (ERROR == msgret) {
                     // int r2 =
                     msgQReceive(MpMisc.LogQ, &junk, 1, VX_NO_WAIT);
-                    // printf("discard message; r1=%d, r2=%d, q=0x%X: '%s'\n",
+                    // osPrintf("discard message; r1=%d, r2=%d, q=0x%X: '%s'\n",
                         // msgret, r2, MpMisc.LogQ, buf);
                     numDiscarded++;
                     msgret = msgQSend(MpMisc.LogQ, buf, n,
@@ -235,7 +247,7 @@ static int printTask(int t1, int t2, int t3, int t4, int t5,
                 msg[l] = 0;
                 fwrite(msg, 1, l, stderr);
             } else {
-                printf("\n\nLogger: quitting!\n\n");
+                osPrintf("\n\nLogger: quitting!\n\n");
                 return 0;
             }
         }
@@ -245,7 +257,7 @@ MSG_Q_ID startLogging(int nmsgs, int maxlen)
 {
         MpMisc.LogQ = msgQCreate(nmsgs, maxlen, MSG_Q_FIFO);
         if (NULL == MpMisc.LogQ) {
-                printf("cannot create LogQ!  Quitting\n");
+                osPrintf("cannot create LogQ!  Quitting\n");
         } else {
             Zprintf("logQ is 0x%X\n", (int) MpMisc.LogQ, 0,0,0,0,0);
             taskSpawn("Logger", logTaskPrio, 0, 8192, (FUNCPTR) printTask,
@@ -300,7 +312,9 @@ extern "C" {
 extern int showMpMisc(int justAddress);
 extern int setMaxMic(int v);
 extern int setMaxSpkr(int v);
-extern int setMinRtp(int v);
+#ifdef _DEPRECATED_IPSE_
+    extern int setMinRtp(int v);
+#endif
 extern int mpSetLatency(int maxMic, int maxSpkr, int minRtp);
 #ifdef _VXWORKS /* [ */
 extern int LoopBack(int on);
@@ -325,8 +339,6 @@ int LoopBack(int on) {
    while (0 < MpMisc.pLoopBackQ->numMsgs()) {
       if (OS_SUCCESS == MpMisc.pLoopBackQ->receive((OsMsg*&) pMsg,
                                                     OsTime::NO_WAIT)) {
-         MpBuf_delRef(pMsg->getTag());
-         MpBuf_delRef(pMsg->getTag(1));
          pMsg->releaseMsg();
       }
    }
@@ -350,13 +362,17 @@ int showMpMisc(int justAddress)
    Zprintf("&MpMisc = 0x%X\n", (int) &MpMisc, 0,0,0,0,0);
    if (!justAddress) {
       Zprintf(" MicQ=0x%X, SpkQ=0x%X, EchoQ=0x%X, silence=0x%X\n"
+#ifdef _DEPRECATED_IPSE_
          " micMuteStatus=%d, spkrMuteStatus=%d,",
+#endif
          (int) MpMisc.pMicQ, (int) MpMisc.pSpkQ, (int) MpMisc.pEchoQ,
-         (int) MpMisc.XXXsilence, MpMisc.micMuteStatus, MpMisc.spkrMuteStatus);
-      Zprintf(" audio_on=%d\n frameSamples=%d,"
-         " frameBytes=%d, sampleBytes=%d,",
-         MpMisc.audio_on,
-         MpMisc.frameSamples, MpMisc.frameBytes, MpMisc.sampleBytes, 0,0);
+         (int) MpMisc.mpFgSilence
+#ifdef _DEPRECATED_IPSE_
+         , MpMisc.micMuteStatus, MpMisc.spkrMuteStatus
+#endif
+         );
+      Zprintf(" \n frameSamples=%d, frameBytes=%d, sampleBytes=%d,",
+         MpMisc.frameSamples, MpMisc.frameBytes, MpMisc.sampleBytes, 0,0,0);
       Zprintf(" rtpMaxBytes=%d\n UcbPool=0x%X, RtpPool=0x%X, RtcpPool=0x%X\n",
          MpMisc.rtpMaxBytes, (int) MpMisc.UcbPool, (int) MpMisc.RtpPool,
          (int) MpMisc.RtcpPool, 0,0);
@@ -366,9 +382,15 @@ int showMpMisc(int justAddress)
          MpMisc.mem_page_size, MpMisc.mem_page_mask,
          (int) MpMisc.LogQ, MpMisc.logMsgLimit, MpMisc.logMsgSize, 0);
 #endif /* _VXWORKS ] */
-      Zprintf(" Latency: maxMic=%d, maxSpkr=%d, minRtp=%d\n",
+      Zprintf(" Latency: maxMic=%d, maxSpkr=%d"
+#ifdef _DEPRECATED_IPSE_
+              ", minRtp=%d\n",
+#endif
          MpMisc.max_mic_buffers, MpMisc.max_spkr_buffers,
-         MpMisc.min_rtp_packets, 0,0,0);
+#ifdef _DEPRECATED_IPSE_
+         MpMisc.min_rtp_packets,
+#endif
+         0,0,0);
    }
    return (int) &MpMisc;
 }
@@ -403,6 +425,7 @@ int setMaxSpkr(int v)
     return save;
 }
 
+#ifdef _DEPRECATED_IPSE_
 int setMinRtp(int v)
 {
     int save = MpMisc.min_rtp_packets;
@@ -417,12 +440,15 @@ int setMinRtp(int v)
     if (v > 0) MpMisc.min_rtp_packets = v;
     return save;
 }
+#endif
 
 int mpSetLatency(int maxMic, int maxSpkr, int minRtp)
 {
     setMaxMic(maxMic);
     setMaxSpkr(maxSpkr);
+#ifdef _DEPRECATED_IPSE_
     setMinRtp(minRtp);
+#endif
     return 0;
 }
 
@@ -441,6 +467,7 @@ int mpSetLowLatency()
     return mpSetLatency(1, 1, 1);
 }
 
+#ifdef _DEPRECATED_IPSE_
 int mpStartSawTooth()
 {
     int save = MpMisc.micSawTooth;
@@ -454,12 +481,13 @@ int mpStopSawTooth()
     MpMisc.micSawTooth = 0;
     return save;
 }
+#endif
 
 extern void doFrameLoop(int sampleRate, int frame_samples);
 extern STATUS netStartup();
 
 OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
-      int numAudioBuffers, OsConfigDb* pConfigDb)
+                   int numAudioBuffers, OsConfigDb* pConfigDb)
 {
 #ifdef _VXWORKS
         int defSilenceSuppressLevel = 10000;
@@ -475,7 +503,9 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
         samplesPerFrame = min(samplesPerFrame, FRAME_SAMPS);
 
         showMpMisc(TRUE);
+#ifdef _DEPRECATED_IPSE_
         MpMisc.micMuteStatus = MpMisc.spkrMuteStatus = 0;
+#endif
 
 #ifdef _VXWORKS /* [ */
         /* Rashly assumes page size is a power of two */
@@ -483,19 +513,155 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
         MpMisc.mem_page_mask = MpMisc.mem_page_size - 1;
 #endif /* _VXWORKS ] */
 
-        MpMisc.sampleBytes = sizeof(short);
+        MpMisc.sampleBytes = sizeof(MpAudioSample);
         MpMisc.frameSamples = samplesPerFrame;
         MpMisc.frameBytes = MpMisc.sampleBytes * MpMisc.frameSamples;
-        MpMisc.rtpMaxBytes = /* sizeof(struct rtpHeader) */ 12 + 
+        MpMisc.rtpMaxBytes = /* sizeof(struct RtpHeader) */ 12 + 
             (((sampleRate + 24) / 25) * MpMisc.sampleBytes);
 
-        MpMisc.audio_on = 0;
-
-        if (OS_SUCCESS != MpBuf_init(samplesPerFrame, numAudioBuffers)) {
-            return OS_UNSPECIFIED;
+        // Create buffer for audio data in mediagraph
+        MpMisc.UcbPool = new MpBufPool( samplesPerFrame*sizeof(MpAudioSample)
+                                        +MpArrayBuf::getHeaderSize()
+                                      , numAudioBuffers);
+        Nprintf( "mpStartUp: MpMisc.UcbPool = 0x%X\n"
+               , (int) MpMisc.UcbPool, 0,0,0,0,0);
+        if (NULL == MpMisc.UcbPool) {
+            return OS_NO_MEMORY;
         }
 
-        // Use the config database to determine the silence supression level
+        // Create buffer for raw audio data
+        MpMisc.DMAPool = new MpBufPool( 8*samplesPerFrame*sizeof(MpAudioSample)
+                                        +MpArrayBuf::getHeaderSize()
+                                      , 64); // Cache align: 32
+        Nprintf( "mpStartUp: MpMisc.DMAPool = 0x%X\n"
+               , (int) MpMisc.DMAPool, 0,0,0,0,0);
+        if (NULL == MpMisc.DMAPool) {
+            delete MpMisc.UcbPool;
+            MpMisc.UcbPool = NULL;
+            return OS_NO_MEMORY;
+        }
+
+        // Create buffer for audio headers
+        int audioBuffers  = MpMisc.UcbPool->getNumBlocks();
+            audioBuffers += MpMisc.DMAPool->getNumBlocks();
+        MpMisc.AudioHeadersPool = new MpBufPool(sizeof(MpAudioBuf), audioBuffers);
+        Nprintf( "mpStartUp: MpMisc.AudioHeadersPool = 0x%X\n"
+               , (int) MpMisc.AudioHeadersPool, 0,0,0,0,0);
+        if (NULL == MpMisc.AudioHeadersPool) {
+            // TODO:: Think about proper resource deallocation on fail in mpStartUp()
+            return OS_NO_MEMORY;
+        }
+        MpAudioBuf::smpDefaultPool = MpMisc.AudioHeadersPool;
+
+        /*
+        * Go get a buffer and fill with silence.  We will use this for muting
+        * either or both of input and output, and whenever we are starved for
+        * audio data.
+        */
+        {
+            MpAudioBufPtr sb = MpMisc.UcbPool->obtainBuffer();
+            if (!sb.isValid()) {
+                Zprintf("\n\mpStartUp:"
+                        " MpBufPool::obtainBuffer() failed, quitting!\n\n\n",
+                        0,0,0,0,0,0);
+                delete MpMisc.UcbPool;
+                MpMisc.UcbPool = NULL;
+                return OS_LIMIT_REACHED;
+            }
+
+            sb->setSamplesNumber(samplesPerFrame);
+            memset(sb->getSamples(), 0, sb->getSamplesNumber()*sizeof(MpAudioSample));
+            sb->setSpeechType(MpAudioBuf::MP_SPEECH_SILENT);
+            MpMisc.mpFgSilence = sb;
+            Zprintf("mpStartUp: MpMisc.silence = 0x%X\n",
+                (int) MpMisc.mpFgSilence, 0,0,0,0,0);
+        }
+
+        /*
+        * generate a buffer called comfort noise buffer. Even though the zero
+        * initiation is not necessary, we do it as the silence buffer for safety.
+        */
+        {
+            MpAudioBufPtr cnb = MpMisc.UcbPool->obtainBuffer();
+            if (!cnb.isValid()) {
+                Zprintf("\n\mpStartUp:"
+                        " MpBufPool::obtainBuffer() failed, quitting!\n\n\n",
+                        0,0,0,0,0,0);
+                delete MpMisc.UcbPool;
+                MpMisc.UcbPool = NULL;
+                return OS_LIMIT_REACHED;
+            }
+
+            cnb->setSamplesNumber(samplesPerFrame);
+            memset(cnb->getSamples(), 0, cnb->getSamplesNumber()*sizeof(MpAudioSample));
+            cnb->setSpeechType(MpAudioBuf::MP_SPEECH_COMFORT_NOISE);
+            MpMisc.comfortNoise = cnb;
+            Zprintf("mpStartUp: MpMisc.comfortNoise = 0x%X\n",
+                    (int) MpMisc.comfortNoise, 0,0,0,0,0);
+        }
+
+        // Create buffer for RTP packets
+        MpMisc.RtpPool = new MpBufPool( NETWORK_MTU+MpArrayBuf::getHeaderSize()
+                                      , RTP_BUFS);
+        Nprintf("mpStartUp: MpMisc.RtpPool = 0x%X\n",
+                (int) MpMisc.RtpPool, 0,0,0,0,0);
+        if (NULL == MpMisc.RtpPool) {
+            delete MpMisc.UcbPool;
+            MpMisc.UcbPool = NULL;
+            delete MpMisc.DMAPool;
+            MpMisc.DMAPool = NULL;
+            return OS_NO_MEMORY;
+        }
+
+        // Create buffer for RTCP packets
+        MpMisc.RtcpPool = new MpBufPool( NETWORK_MTU+MpArrayBuf::getHeaderSize()
+                                       , RTCP_BUFS);
+        Nprintf("mpStartUp: MpMisc.RtcpPool = 0x%X\n",
+                (int) MpMisc.RtcpPool, 0,0,0,0,0);
+        if (NULL == MpMisc.RtcpPool) {
+            delete MpMisc.UcbPool;
+            MpMisc.UcbPool = NULL;
+            delete MpMisc.DMAPool;
+            MpMisc.DMAPool = NULL;
+            delete MpMisc.RtpPool;
+            MpMisc.RtpPool = NULL;
+            return OS_NO_MEMORY;
+        }
+
+        // Create buffer for RTP and RTCP headers
+        MpMisc.RtpHeadersPool = new MpBufPool( sizeof(MpRtpBuf)
+                                             , MpMisc.RtpPool->getNumBlocks()
+                                               + MpMisc.RtcpPool->getNumBlocks());
+        Nprintf( "mpStartUp: MpMisc.RtpHeadersPool = 0x%X\n"
+               , (int) MpMisc.RtpHeadersPool, 0,0,0,0,0);
+        if (NULL == MpMisc.RtpHeadersPool) {
+            // TODO:: Think about proper resource deallocation on fail in mpStartUp()
+            return OS_NO_MEMORY;
+        }
+        MpRtpBuf::smpDefaultPool = MpMisc.RtpHeadersPool;
+
+        // Create buffer for UDP packets
+        MpMisc.UdpPool = new MpBufPool( NETWORK_MTU+MpArrayBuf::getHeaderSize()
+                                      , UDP_BUFS);
+        Nprintf("mpStartUp: MpMisc.UdpPool = 0x%X\n",
+                (int) MpMisc.UdpPool, 0,0,0,0,0);
+        if (NULL == MpMisc.UdpPool) {
+            // TODO:: Think about proper resource deallocation on fail in mpStartUp()
+            return OS_NO_MEMORY;
+        }
+
+        // Create buffer for UDP packet headers
+        MpMisc.UdpHeadersPool = new MpBufPool( sizeof(MpUdpBuf)
+                                              , MpMisc.UdpPool->getNumBlocks());
+        Nprintf( "mpStartUp: MpMisc.UdpHeadersPool = 0x%X\n"
+               , (int) MpMisc.UdpHeadersPool, 0,0,0,0,0);
+        if (NULL == MpMisc.UdpHeadersPool) {
+            // TODO:: Think about proper resource deallocation on fail in mpStartUp()
+            return OS_NO_MEMORY;
+        }
+        MpUdpBuf::smpDefaultPool = MpMisc.UdpHeadersPool;
+
+        // Use the config database to determine the silence suppression level
         silenceSuppressFlag  = FALSE;
         silenceSuppressLevel = defSilenceSuppressLevel;
         if (pConfigDb)
@@ -519,11 +685,6 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
            }
         }
 
-        if (silenceSuppressFlag)
-           MpBuf_setMVE(silenceSuppressLevel);
-        else
-           MpBuf_setMVE(0);
-
 #ifdef WIN32 /* [ */
         // Adjust initial audio latency if specified in config files:
         if (pConfigDb)
@@ -544,7 +705,7 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
            {
               frames = atoi(latency.data()) / MS_PER_FRAME;
               DmaTask_setMicQPreload(frames);
-           }
+          }
         }
 #endif /* WIN32 ] */
 
@@ -572,9 +733,8 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
             MpMisc.pLoopBackQ = NULL;
         }
 #endif /* _VXWORKS ] */
-        assert(
-            (MIC_BUFFER_Q_LEN+SPK_BUFFER_Q_LEN+MIC_BUFFER_Q_LEN) <
-                               (MpBufPool_getNumBufs(MpMisc.UcbPool)-3));
+        assert( (MIC_BUFFER_Q_LEN+SPK_BUFFER_Q_LEN+MIC_BUFFER_Q_LEN)
+                < (MpMisc.UcbPool->getNumBlocks()-3) );
         MpMisc.pMicQ = new OsMsgQ(MIC_BUFFER_Q_LEN);
         MpMisc.pSpkQ = new OsMsgQ(SPK_BUFFER_Q_LEN);
         MpMisc.pEchoQ = new OsMsgQ(MIC_BUFFER_Q_LEN);
@@ -585,18 +745,27 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
 
         assert(MprFromMic::MAX_MIC_BUFFERS > 0);
         assert(MprToSpkr::MAX_SPKR_BUFFERS > 0);
+#ifdef _DEPRECATED_IPSE_
         assert(MprDecode::MIN_RTP_PACKETS > 0);
+#endif
 
         setMaxMic(MprFromMic::MAX_MIC_BUFFERS - 1);
         setMaxSpkr(MprToSpkr::MAX_SPKR_BUFFERS);
+#ifdef _DEPRECATED_IPSE_
         setMinRtp(MprDecode::MIN_RTP_PACKETS);
         mpStopSawTooth();
+#endif
 
         return OS_SUCCESS;
 }
 
 OsStatus mpShutdown(void)
 {
+        if (NULL != MpMediaTask::getMediaTask(0)) {
+           // This will MpMediaTask::spInstance to NULL
+           delete MpMediaTask::getMediaTask(0);
+        }
+
         if (NULL != MpMisc.pMicQ) {
             delete MpMisc.pMicQ;
             MpMisc.pMicQ = NULL;
@@ -615,7 +784,51 @@ OsStatus mpShutdown(void)
             MpMisc.pLoopBackQ = NULL;
         }
 #endif /* _VXWORKS ] */
-    return OS_SUCCESS;
+
+        MpMisc.mpFgSilence.release();
+        MpMisc.comfortNoise.release();
+
+        if (NULL != MpMisc.UdpHeadersPool) {
+            delete MpMisc.UdpHeadersPool;
+            MpMisc.UdpHeadersPool = NULL;
+        }
+
+        if (NULL != MpMisc.UdpPool) {
+            delete MpMisc.UdpPool;
+            MpMisc.UdpPool = NULL;
+        }
+
+        if (NULL != MpMisc.RtpHeadersPool) {
+            delete MpMisc.RtpHeadersPool;
+            MpMisc.RtpHeadersPool = NULL;
+        }
+
+        if (NULL != MpMisc.RtpPool) {
+            delete MpMisc.RtpPool;
+            MpMisc.RtpPool = NULL;
+        }
+
+        if (NULL != MpMisc.RtcpPool) {
+            delete MpMisc.RtcpPool;
+            MpMisc.RtcpPool = NULL;
+        }
+
+        if (NULL != MpMisc.AudioHeadersPool) {
+            delete MpMisc.AudioHeadersPool;
+            MpMisc.AudioHeadersPool = NULL;
+        }
+
+        if (NULL != MpMisc.DMAPool) {
+            delete MpMisc.DMAPool;
+            MpMisc.DMAPool = NULL;
+        }
+
+        if (NULL != MpMisc.UcbPool) {
+            delete MpMisc.UcbPool;
+            MpMisc.UcbPool = NULL;
+        }
+
+        return OS_SUCCESS;
 }
 
 OsStatus mpStartTasks(void)
@@ -636,6 +849,6 @@ OsStatus mpStopTasks(void)
 
     shutdownNetInTask();
     dmaShutdown();
-    
+   
     return OS_SUCCESS;
 }

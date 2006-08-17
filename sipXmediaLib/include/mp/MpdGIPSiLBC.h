@@ -54,11 +54,22 @@ public:
      //!retcode: OS_SUCCESS - Success
      //!retcode: OS_DELETED - Object has already been deleted
 
+//@}
+
 /* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
+//@}
 
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

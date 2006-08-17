@@ -89,21 +89,21 @@ int NPR() {return DoPadRtp(0);}
 // Constructor
 MprToNet::MprToNet(const UtlString& rName,
                            int samplesPerFrame, int samplesPerSec)
-:  MpAudioResource(rName, 1, 1, 0, 0, samplesPerFrame, samplesPerSec),
+:  MpAudioResource(rName, 1, 1, 0, 0, samplesPerFrame, samplesPerSec)
 #ifdef DEBUG /* [ */
-   mRtpSampleCounter(0),
+,  mRtpSampleCounter(0)
 #endif /* DEBUG ] */
-   mpFromNetPal(NULL),
-   mRtcpPackets(0),
-   mRtcpFrameCount(0),
-   mRtcpFrameLimit(500),
-   mSSRC(0),
-   mpRtpSocket(NULL),
-   mpRtcpSocket(NULL),
-   mNumRtpWriteErrors(0),
-   mNumRtcpWriteErrors(0)
+,  mpFromNetPal(NULL)
+,  mRtcpPackets(0)
+,  mRtcpFrameCount(0)
+,  mRtcpFrameLimit(500)
+,  mSSRC(0)
+,  mpRtpSocket(NULL)
+,  mpRtcpSocket(NULL)
+,  mNumRtpWriteErrors(0)
+,  mNumRtcpWriteErrors(0)
 #ifdef INCLUDE_RTCP /* [ */
-   , mpiRTPAccumulator(NULL)
+,  mpiRTPAccumulator(NULL)
 #endif /* INCLUDE_RTCP ] */
 
 {
@@ -185,7 +185,7 @@ int NumberOfRtpWrites = 0;
 #define RTP_BAD_DIRECTION 0x12300001
 
 struct __rtpPacket {
-        struct rtpHeader s;
+        struct RtpHeader s;
         char b[1];
 };
 typedef struct __rtpPacket rtpPacket;
@@ -230,15 +230,15 @@ int dropEvery(int limit)
 #endif /* DROP_SOME_PACKETS ] */
 
 int MprToNet::writeRtp(int payloadType, UtlBoolean markerState,
-   unsigned char* payloadData, int payloadOctets, unsigned int timestamp,
-   void* csrcList)
+                       unsigned char* payloadData, int payloadOctets,
+                       unsigned int timestamp, void* csrcList)
 {
-        struct rtpHeader* ph;
+        struct RtpHeader* ph;
         int pad, l;
         int sendret;
         int len;
 
-        ph = (struct rtpHeader*) (payloadData - sizeof(struct rtpHeader));//$$$
+        ph = (struct RtpHeader*) (payloadData - sizeof(struct RtpHeader));//$$$
                //$$$ Line above will need to adjust for CSRC list someday...
         len = payloadOctets;
         Lprintf("Enter rW: %d, %d\n", len, timestamp, 0,0,0,0);
@@ -284,7 +284,7 @@ int MprToNet::writeRtp(int payloadType, UtlBoolean markerState,
         mpiRTPAccumulator->IncrementCounts(len);
 #endif /* INCLUDE_RTCP ] */
 
-        l = sizeof(struct rtpHeader) + len + pad;
+        l = sizeof(struct RtpHeader) + len + pad;
 
 #ifdef DROP_SOME_PACKETS /* [ */
         if (dropCount++ == dropLimit) {
@@ -351,11 +351,11 @@ OsStatus MprToNet::setRtpPal(MprFromNet* pal)
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 #ifdef ENABLE_PACKET_HACKING /* [ */
-void MprToNet::adjustRtpPacket(struct rtpHeader* rp)
+void MprToNet::adjustRtpPacket(struct RtpHeader* rp)
 {
-   struct rtpHeader rh;
+   struct RtpHeader rh;
 
-   memcpy((char *) &rh, (char *) rp, sizeof(struct rtpHeader));
+   memcpy((char *) &rh, (char *) rp, sizeof(struct RtpHeader));
    // rh.vpxcc = rh.vpxcc;
    // rh.mpt = rh.mpt;
    rh.ssrc = ntohl(rh.ssrc) - sDebug1;
@@ -364,7 +364,7 @@ void MprToNet::adjustRtpPacket(struct rtpHeader* rp)
    rh.ssrc = htonl(rh.ssrc);
    rh.seq = htons(rh.seq);
    rh.timestamp = htonl(rh.timestamp);
-   memcpy((char *) rp, (char *) &rh, sizeof(struct rtpHeader));
+   memcpy((char *) rp, (char *) &rh, sizeof(struct RtpHeader));
 }
 #endif /* ENABLE_PACKET_HACKING ] */
 

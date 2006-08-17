@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -108,7 +111,7 @@ OsStatus MprFromFile::playBuffer(const char* audioBuffer, unsigned long bufSize,
 
 // play file w/ file name & repeat option
 OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
-   OsNotification* notify)
+                               OsNotification* notify)
 {
     char* charBuffer;
     FILE* audioFilePtr = NULL;
@@ -135,7 +138,7 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
     }
 
     //get file size
-    inputFile.seekg(0,ios::end);
+    inputFile.seekg(0, ios::end);
     filesize = trueFilesize = inputFile.tellg();
     inputFile.seekg(0);
    
@@ -194,9 +197,6 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
             iTotalChannels = channelsPreferred;
 
             compressionType = audioFile->getDecompressionType();
-#if 0
-            osPrintf("compression = %d\n", compressionType);
-#endif
         }
         else
             osPrintf("\nERROR: Could not detect format correctly. Should be AU or WAV or RAW\n");
@@ -205,9 +205,6 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
         // First, figure out which kind of file it is
         if (bDetectedFormatIsOk && audioFile->getAudioFormat() == AUDIO_FORMAT_WAV)
         {
-#if 0
-            osPrintf("AudioFile: It's WAV file\n");
-#endif
 
             switch(compressionType) 
             {
@@ -238,9 +235,6 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
                         if (buffer)
                         {
                             buffer->append(charBuffer, filesize);
-#if 0
-                            osPrintf("Buffer length: %d\n", buffer->length());
-#endif
                         }
                         free(charBuffer);
                     }
@@ -269,9 +263,6 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
                         if (buffer)
                         {
                             buffer->append(charBuffer, filesize);
-#if 0
-                            osPrintf("Buffer length: %d\n", buffer->length());
-#endif
                         }
                         free(charBuffer);
                     }
@@ -287,9 +278,7 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
         else
         if (bDetectedFormatIsOk && audioFile->getAudioFormat() == AUDIO_FORMAT_AU)
         {
-#if 0
-            osPrintf("AudioFile: It's a AU file\n");
-#endif
+
             switch(compressionType)
             {
                 case MpAuRead::DePcm8Unsigned:
@@ -316,9 +305,6 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
                         if (buffer)
                         {
                             buffer->append(charBuffer, filesize);
-#if 0
-                            osPrintf("Buffer length: %d\n", buffer->length());
-#endif
                         }
                         free(charBuffer);
                     }
@@ -500,51 +486,51 @@ UtlBoolean MprFromFile::disable(void) //$$$
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
-                                    MpBufPtr outBufs[],
-                                    int inBufsSize,
-                                    int outBufsSize,
-                                    UtlBoolean isEnabled,
-                                    int samplesPerFrame,
-                                    int samplesPerSecond)
+                                       MpBufPtr outBufs[],
+                                       int inBufsSize,
+                                       int outBufsSize,
+                                       UtlBoolean isEnabled,
+                                       int samplesPerFrame,
+                                       int samplesPerSecond)
 {
-   MpBufPtr out = NULL;
-   Sample *outbuf;
+   MpAudioBufPtr out;
+   MpAudioSample *outbuf;
    int count;
    int bytesLeft;
 
-   if (0 == outBufsSize) return FALSE;
-   *outBufs = NULL;
-   if (0 == samplesPerFrame) return FALSE;
-   if (isEnabled) {
-      out = MpBuf_getBuf(MpMisc.UcbPool, samplesPerFrame, 0, MP_FMT_T12);
-      assert(NULL != out);
-      count = MpBuf_getByteLen(out) / sizeof(Sample);
-      count = min(samplesPerFrame, count);
-      MpBuf_setNumSamples(out, count);
-      MpBuf_setSpeech(out, MP_SPEECH_TONE);
-      outbuf = MpBuf_getSamples(out);
+   if (outBufsSize == 0)
+       return FALSE;
 
-      int bytesPerFrame = count * sizeof(Sample);
-      if(mpFileBuffer)
+   if (samplesPerFrame == 0)
+       return FALSE;
+
+   if (isEnabled) {
+
+      // Get new buffer
+      out = MpMisc.UcbPool->obtainBuffer();
+      if (!out.isValid())
+          return FALSE;
+      out->setSamplesNumber(samplesPerFrame);
+      count = out->getSamplesNumber();
+      out->setSpeechType(MpAudioBuf::MP_SPEECH_TONE);
+      outbuf = out->getSamples();
+
+      int bytesPerFrame = count * sizeof(MpAudioSample);
+      if (mpFileBuffer)
       {
           int bufferLength = mpFileBuffer->length();
           int totalBytesRead = 0;
-#if 0
-          if(mFileBufferIndex == 0) {
-             osPrintf("MprFromFile: buffer frameSize: %d\n", bytesPerFrame);
-          }
-#endif
+
           if(mFileBufferIndex < bufferLength)
           {
               totalBytesRead = bufferLength - mFileBufferIndex;
               totalBytesRead = min(totalBytesRead, bytesPerFrame);
               memcpy(outbuf, &(mpFileBuffer->data()[mFileBufferIndex]),
-                 totalBytesRead);
+                     totalBytesRead);
               mFileBufferIndex += totalBytesRead;
 
           }
-          if(totalBytesRead != bytesPerFrame &&
-              mFileBufferIndex < bufferLength)
+          if (totalBytesRead != bytesPerFrame && mFileBufferIndex < bufferLength)
                 osPrintf("MprFromFile: only got %d bytes from buffer\n",
                     totalBytesRead);
 
@@ -552,22 +538,18 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
              bytesLeft = 1;
              while((totalBytesRead < bytesPerFrame) && (bytesLeft > 0))
              {
-#if 0
-                 osPrintf("MprFromFile: repeating buffer frameSize: %d\n",
-                    bytesPerFrame);
-#endif
                  mFileBufferIndex = 0;
                  bytesLeft = min(bufferLength - mFileBufferIndex,
-                    bytesPerFrame - totalBytesRead);
-                 memcpy(&outbuf[(totalBytesRead/sizeof(Sample))],
-                    &(mpFileBuffer->data()[mFileBufferIndex]), bytesLeft);
+                                 bytesPerFrame - totalBytesRead);
+                 memcpy(&outbuf[(totalBytesRead/sizeof(MpAudioSample))],
+                        &(mpFileBuffer->data()[mFileBufferIndex]), bytesLeft);
                  totalBytesRead += bytesLeft;
                  mFileBufferIndex += bytesLeft;
              }
           } else {
              if (mFileBufferIndex >= bufferLength) {
                 bytesLeft = bytesPerFrame - totalBytesRead;
-                memset(&outbuf[(totalBytesRead/sizeof(Sample))], 0, bytesLeft);
+                memset(&outbuf[(totalBytesRead/sizeof(MpAudioSample))], 0, bytesLeft);
                 MpCallFlowGraph* mpMyFG = (MpCallFlowGraph*) getFlowGraph();
                 mpMyFG->stopFile(0);
                 disable();
@@ -575,13 +557,16 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
           }
       }
    }
-   if (NULL == out) {
-      out = *inBufs;
-      *inBufs = NULL;
+   else
+   {
+      // Resource is disabled. Passthrough input data
+      out.swap(inBufs[0]);
    }
-   *outBufs = out;
 
-   return (TRUE);
+   // Push audio data downstream
+   outBufs[0] = out;
+
+   return TRUE;
 }
 
 // Handle messages for this resource.
@@ -595,9 +580,6 @@ UtlBoolean MprFromFile::handleSetup(MpFlowGraphMsg& rMsg)
    mpNotify = (OsNotification*) rMsg.getPtr1();
    mpFileBuffer = (UtlString*) rMsg.getPtr2();
    if(mpFileBuffer) {
-#if 0
-      osPrintf("File buffer %d bytes long\n", mpFileBuffer->length());
-#endif
       mFileBufferIndex = 0;
       mFileRepeat = (rMsg.getInt1() == PLAY_ONCE) ? FALSE : TRUE;
    }

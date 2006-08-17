@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -14,9 +17,6 @@
 //The decoder will look at the latency at certain frequency to make 
 //the decision. -Brian Puh
 //
-
-#define DEJITTER_DEBUG
-#undef  DEJITTER_DEBUG
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -54,106 +54,68 @@ extern volatile int* pOsTC;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
-unsigned short MprDejitter::getSeqNum(MpBufPtr pRtp)
-{
-   assert(NULL != pRtp);
-   return ntohs(((struct rtpHeader*) MpBuf_getStorage(pRtp))->seq);
-}
-
-unsigned int MprDejitter::getTimestamp(MpBufPtr pRtp)
-{
-   assert(NULL != pRtp);
-   return ntohl(((struct rtpHeader*) MpBuf_getStorage(pRtp))->timestamp);
-}
-
-unsigned int MprDejitter::getPayloadType(MpBufPtr pRtp)
-{
-   assert(NULL != pRtp);
-   return (0x7f & (((struct rtpHeader*) MpBuf_getStorage(pRtp))->mpt));
-}
-
 /* ============================ CREATORS ================================== */
 
 // Constructor
 MprDejitter::MprDejitter(const UtlString& rName, MpConnection* pConn,
-                           int samplesPerFrame, int samplesPerSec)
+                         int samplesPerFrame, int samplesPerSec)
 :  MpAudioResource(rName, 1, 1, 1, 1, samplesPerFrame, samplesPerSec),
    mRtpLock(OsBSem::Q_FIFO, OsBSem::FULL),
    mNumPackets(0),
    mNumDiscarded(0)
-   /* for Dejitter handling */
-#ifdef DEJITTER_DEBUG /* [ */
-   , mPullCount(0),
-   mLatencyMax(0x80000000),
-   mLatencyMin(0x7FFFFFFF)
-#endif /* DEJITTER_DEBUG ] */
 {
-   memset(mpPackets, 0, MAX_RTP_PACKETS * sizeof(MpBufPtr));
 }
 
 // Destructor
 MprDejitter::~MprDejitter()
 {
-   int i;
-
-   mRtpLock.acquire();
-   for (i=0; i<MAX_RTP_PACKETS; i++) {
-      MpBuf_delRef(mpPackets[i]);
-      mpPackets[i] = NULL;
-   }
-   mRtpLock.release();
 }
 /* ============================ MANIPULATORS ============================== */
 
 //Add a buffer containing an incoming RTP packet to the dejitter pool
-OsStatus MprDejitter::pushPacket(MpBufPtr pRtp)
+OsStatus MprDejitter::pushPacket(const MpRtpBufPtr &pRtp)
 {
    int index;
+   OsLock locker(mRtpLock);
 
-   MpBuf_touch(pRtp);
-   mRtpLock.acquire();
-   index = getSeqNum(pRtp) % MAX_RTP_PACKETS;
-   if (NULL != mpPackets[index]) {
+   index = pRtp->getRtpSequenceNumber() % MAX_RTP_PACKETS;
+   if (mpPackets[index].isValid()) {
       mNumDiscarded++;
 #ifdef MP_STREAM_DEBUG /* [ */
       if (mNumDiscarded < 40) {
          osPrintf("Dej: discard#%d Seq: %d -> %d at 0x%X\n",
             mNumDiscarded,
-            getSeqNum(mpPackets[index]),
-            getSeqNum(pRtp), *pOsTC);
+            mpPackets[index]->getRtpSequenceNumber(),
+            pRtp->getRtpSequenceNumber(),
+            *pOsTC);
       }
 #endif /* MP_STREAM_DEBUG ] */
-      MpBuf_delRef(mpPackets[index]);
-      mpPackets[index] = NULL;
       mNumPackets--;
    }
    mpPackets[index] = pRtp;
    mNumPackets++;
-   mRtpLock.release();
 
    return OS_SUCCESS;
 }
 
 // Get a pointer to the next RTP packet, or NULL if none is available.
 
-MpBufPtr MprDejitter::pullPacket(void)
+MpRtpBufPtr MprDejitter::pullPacket()
 {
-   MpBufPtr found = NULL;
-   MpBufPtr cur;
+   MpRtpBufPtr found;
    int curSeq ;
    int first = -1; 
    int firstSeq ;
    int i;
+   OsLock locker(mRtpLock);
 
-   mRtpLock.acquire();
 
    // Find smallest seq number
    for (i=0;i<MAX_RTP_PACKETS; i++)
    {
-       cur = mpPackets[i];
-       if (cur != NULL) 
+       if (mpPackets[i].isValid()) 
        {
-           curSeq = getSeqNum(mpPackets[i]) ;
+           curSeq = mpPackets[i]->getRtpSequenceNumber();
            if (first == -1)
            {
                first = i ;
@@ -167,15 +129,11 @@ MpBufPtr MprDejitter::pullPacket(void)
        }
    }
 
-   if (-1 != first) 
+   if (first != -1)
    {
-      found = mpPackets[first];
-      mpPackets[first] = NULL;
+      found.swap(mpPackets[first]);
       mNumPackets--;
-      MpBuf_touch(found);
    }
-
-   mRtpLock.release();
 
    return found;
 }
@@ -189,40 +147,23 @@ MpBufPtr MprDejitter::pullPacket(void)
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 UtlBoolean MprDejitter::doProcessFrame(MpBufPtr inBufs[],
-                                    MpBufPtr outBufs[],
-                                    int inBufsSize,
-                                    int outBufsSize,
-                                    UtlBoolean isEnabled,
-                                    int samplesPerFrame,
-                                    int samplesPerSecond)
+                                       MpBufPtr outBufs[],
+                                       int inBufsSize,
+                                       int outBufsSize,
+                                       UtlBoolean isEnabled,
+                                       int samplesPerFrame,
+                                       int samplesPerSecond)
 {
    UtlBoolean ret = FALSE;
 
-   if (!isEnabled) return TRUE;
+   if (!isEnabled)
+      return TRUE;
 
    if ((1 != inBufsSize) || (1 != outBufsSize))
-      ret = FALSE;
-   else
-   {
-      *outBufs = *inBufs;
-      *inBufs = NULL;
-      ret = TRUE;
-   }
-   return ret;
+      return FALSE;
+
+   outBufs[0].swap(inBufs[0]);
+   return TRUE;
 }
 
 /* ============================ FUNCTIONS ================================= */
-#ifdef DEJITTER_DEBUG /* [ */
-int dejitterdebug(int Flag)
-{
-    int save = iShowDejitterInfoFlag;
-    if( Flag != 0) {
-        Flag = 1;
-    }
-    iShowDejitterInfoFlag = Flag;
-    return (save);
-}
-int ShowDejitterInfo(int iFlag) {
-   return dejitterdebug(iFlag);
-}
-#endif /* DEJITTER_DEBUG ] */

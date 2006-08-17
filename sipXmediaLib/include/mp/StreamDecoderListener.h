@@ -32,7 +32,8 @@ class StreamDecoderListener
 public:
 
 /* ============================ CREATORS ================================== */
-
+///@name Creators
+//@{
    StreamDecoderListener();
      //:Default constructor
 
@@ -40,17 +41,30 @@ public:
    ~StreamDecoderListener();
      //:Destructor
 
-/* ============================ MANIPULATORS ============================== */
+//@}
 
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
    virtual void decoderUpdate(StreamFormatDecoder* pDecoder, 
                               StreamDecoderEvent event) = 0 ;
      //: Informs the listener when the decoder has an event to publish.
      //! param pDecoder - Decoder publishing the state change
      //! param event - The new decoder event state
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

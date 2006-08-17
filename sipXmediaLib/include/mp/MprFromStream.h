@@ -72,6 +72,8 @@ class MprFromStream : public MpAudioResource
 public:
 
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
 
    MprFromStream(const UtlString& rName, int samplesPerFrame, int samplesPerSec);
      //:Constructor
@@ -80,7 +82,11 @@ public:
    ~MprFromStream();
      //:Destructor
 
+//@}
+
 /* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
 
    OsStatus realize(Url urlSource,
                     int flags,
@@ -106,9 +112,19 @@ public:
 
    OsStatus getFlags(StreamHandle handle, int& flags) ;
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -128,23 +144,23 @@ private:
    };
 
 
-   OsNotification* mpNotify ;
-   MpStreamFeeder* mpStreamRenderer ;
-   FeederEvent     mEventState ;
-   UtlBoolean       mbStreamChange ;
-   int             miStreamCount ;      // Count for generating unique handles
-   OsLockingList   mStreamList ;        // List of stream players
+   OsNotification* mpNotify;
+   MpStreamFeeder* mpStreamRenderer;
+   FeederEvent     mEventState;
+   UtlBoolean      mbStreamChange;
+   int             miStreamCount;      ///< Count for generating unique handles
+   OsLockingList   mStreamList;        ///< List of stream players
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
-                                    MpBufPtr outBufs[],
-                                    int inBufsSize,
-                                    int outBufsSize,
-                                    UtlBoolean isEnabled,
-                                    int samplesPerFrame=80,
-                                    int samplesPerSecond=8000);
+                                     MpBufPtr outBufs[],
+                                     int inBufsSize,
+                                     int outBufsSize,
+                                     UtlBoolean isEnabled,
+                                     int samplesPerFrame=80,
+                                     int samplesPerSecond=8000);
 
+     /// Handle messages for this resource.
    virtual UtlBoolean handleMessage(MpFlowGraphMsg& rMsg);
-     //:Handle messages for this resource.
 
    UtlBoolean handleRender(MpStreamFeeder* pFeeder);
    UtlBoolean handlePlay(MpStreamFeeder* pFeeder);
@@ -154,22 +170,24 @@ private:
    UtlBoolean handleDestroy(MpStreamFeeder* pFeeder);
    
 
+     /// Copy constructor (not implemented for this class)
    MprFromStream(const MprFromStream& rMprFromStream);
-     //:Copy constructor (not implemented for this class)
 
+     /// Assignment operator (not implemented for this class)
    MprFromStream& operator=(const MprFromStream& rhs);
-     //:Assignment operator (not implemented for this class)
 
+     /// Get the stream feeder for the given handle
    MpStreamFeeder* getStreamFeeder(StreamHandle handle) ;
-     //:Get the stream feeder for the given handle
 
+     /// Removes the stream feeder from the stream list.
    MpStreamFeeder* removeStreamFeeder(StreamHandle handle) ;
-     //:Removes the stream feeder from the stream list.
-     // The Stream feeder is returned if found, someone else
-     // is responsible for deleting it.
+     /**<
+     *  The Stream feeder is returned if found, someone else is responsible for
+     *  deleting it.
+     */
 
+     /// Stops, destroys, and frees all stream feeders
    void destroyFeeders() ;
-     //:Stops, destroys, and frees all stream feeders
 
 };
 

@@ -15,7 +15,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-// #include "mp/MpBuf.h"
+#include "mp/MpRtpBuf.h"
 
 // DEFINES
 // MACROS
@@ -34,52 +34,66 @@
 
 class MpSipxDecoder;
 
-//:class for managing dejitter/decode of incoming RTP.
+/// Class for managing dejitter/decode of incoming RTP.
 class MpJitterBuffer
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
 
-   MpJitterBuffer(void);
-     //:Constructor
-     // Returns a new jitter buffer object.
-     ////!param: ARGs - (in? out?) What?
+     /// Constructor
+   MpJitterBuffer();
 
+     /// Destructor
    virtual
-   ~MpJitterBuffer(void);
-     //:Destructor
+   ~MpJitterBuffer();
+
+//@}
 
 /* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
 
-   int ReceivePacket(JB_uchar* RTPpacket, JB_size RTPlength, JB_ulong TS);
+   int ReceivePacket(MpRtpBufPtr &rtpPacket);
 
-   int GetSamples(Sample *voiceSamples, JB_size *pLength);
+   int GetSamples(MpAudioSample *voiceSamples, JB_size *pLength);
 
    int SetCodepoint(const JB_char* codec, JB_size sampleRate,
-      JB_code codepoint);
+                    JB_code codepoint);
+
+//@}
 
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
+     /// Copy constructor
    MpJitterBuffer(const MpJitterBuffer& rMpJitterBuffer);
-     //:Copy constructor
 
+     /// Assignment operator
    MpJitterBuffer& operator=(const MpJitterBuffer& rhs);
-     //:Assignment operator
 
-   int JbQWait;  // fixed latency delay control
+   int JbQWait;  ///< Fixed latency delay control.
    int JbQCount;
    int JbQIn;
    int JbQOut;
-   Sample JbQ[JbQueueSize];
+   MpAudioSample JbQ[JbQueueSize];
 
    MpSipxDecoder* payloadMap[JbPayloadMapSize];
 };

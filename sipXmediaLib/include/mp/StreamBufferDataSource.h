@@ -40,7 +40,8 @@ class StreamBufferDataSource : public StreamDataSource
 public:
 
 /* ============================ CREATORS ================================== */
-
+///@name Creators
+//@{
    StreamBufferDataSource(UtlString *pBuffer, int iFlags);
      //:Default constructor
 
@@ -48,8 +49,11 @@ public:
    ~StreamBufferDataSource();
      //:Destructor
 
-/* ============================ MANIPULATORS ============================== */
+//@}
 
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
    virtual OsStatus open() ;
      //:Opens the data source
 
@@ -79,7 +83,11 @@ public:
      //
      //!param iLocation - The desired seek location
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
    virtual OsStatus getLength(int& iLength) ;
      //:Gets the length of the stream (if available)
@@ -92,9 +100,15 @@ public:
      //:Renders a string describing this data source.  
      // This is often used for debugging purposes.
    
+//@}
+
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
 
    
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

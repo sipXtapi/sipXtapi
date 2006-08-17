@@ -38,13 +38,7 @@ typedef void * MSG_Q_ID;
 typedef void * SEM_ID;
 #endif /* _VXWORKS ] */
 
-typedef short Sample;
-
-typedef struct __MpBuf_tag MpBuf;
-typedef struct __MpBuf_tag *MpBufPtr;
-typedef struct __MpBufPool_tag *MpBufPoolPtr;
-
-/* buffer message types */
+typedef short MpAudioSample;
 
 #define DMA_COMPLETE 103
 

@@ -26,27 +26,49 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-//:The "Splitter" media processing resource
+/**
+*  @brief The "Splitter" media processing resource
+*
+*  <H3>Enabled behaviour</H3>
+*  Copy first input to all connected outputs.
+*
+*  <H3>Disabled behaviour</H3>
+*  Copy first input to the first connected output.
+*/
 class MprSplitter : public MpAudioResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
 /* ============================ CREATORS ================================== */
-
+///@name Creators
+//@{
+     /// Constructor
    MprSplitter(const UtlString& rName, int numOutputs,
-                               int samplesPerFrame, int samplesPerSec);
-     //:Constructor
+               int samplesPerFrame, int samplesPerSec);
 
+     /// Destructor
    virtual
    ~MprSplitter();
-     //:Destructor
+
+//@}
 
 /* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
+//@}
 
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -55,18 +77,18 @@ protected:
 private:
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
-                                    MpBufPtr outBufs[],
-                                    int inBufsSize,
-                                    int outBufsSize,
-                                    UtlBoolean isEnabled,
-                                    int samplesPerFrame=80,
-                                    int samplesPerSecond=8000);
+                                     MpBufPtr outBufs[],
+                                     int inBufsSize,
+                                     int outBufsSize,
+                                     UtlBoolean isEnabled,
+                                     int samplesPerFrame=80,
+                                     int samplesPerSecond=8000);
 
+     /// Copy constructor (not implemented for this class)
    MprSplitter(const MprSplitter& rMprSplitter);
-     //:Copy constructor (not implemented for this class)
 
+     /// Assignment operator (not implemented for this class)
    MprSplitter& operator=(const MprSplitter& rhs);
-     //:Assignment operator (not implemented for this class)
 
 };
 

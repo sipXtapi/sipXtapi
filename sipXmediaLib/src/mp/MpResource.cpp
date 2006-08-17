@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -61,14 +64,14 @@ MpResource::MpResource(const UtlString& rName, int minInputs, int maxInputs,
    {
       mpInConns[i].pResource = NULL;
       mpInConns[i].portIndex = -1;
-      mpInBufs[i] = NULL;
+      mpInBufs[i].release();
    }
 
    for (i=0; i < maxOutputs; i++)      // initialize the output port storage
    {
       mpOutConns[i].pResource = NULL;
       mpOutConns[i].portIndex = -1;
-      mpOutBufs[i] = NULL;
+      mpOutBufs[i].release();
    }
 
 }
@@ -79,20 +82,20 @@ MpResource::~MpResource()
    int i;
 
    for (i=0; i < mMaxInputs; i++)
-      MpBuf_delRef(mpInBufs[i]);       // free all input buffers
+      mpInBufs[i].release();       // free all input buffers
 
    for (i=0; i < mMaxOutputs; i++)
-      MpBuf_delRef(mpOutBufs[i]);      // free all output buffers
+      mpOutBufs[i].release();      // free all output buffers
 
    delete[] mpInConns;
-   mpInConns = 0;
+   mpInConns = NULL;
    delete[] mpOutConns;
-   mpOutConns = 0;
+   mpOutConns = NULL;
 
    delete[] mpInBufs;
-   mpInBufs = 0;
+   mpInBufs = NULL;
    delete[] mpOutBufs;
-   mpOutBufs = 0;
+   mpOutBufs = NULL;
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -149,13 +152,13 @@ void MpResource::resourceInfo(MpResource* pResource, int index)
    const char*       name;
 
    name = pResource->getName();
-   printf("    Resource[%d]: %p, %s (%sabled)\n",
+   osPrintf("    Resource[%d]: %p, %s (%sabled)\n",
           index, pResource, name, pResource->mIsEnabled ? "En" : "Dis");
    
    for (i=0; i<pResource->mMaxInputs; i++) {
       if (NULL != pResource->mpInConns[i].pResource) {
          name = pResource->mpInConns[i].pResource->getName();
-         printf("        Input %d from %s:%d\n", i, 
+         osPrintf("        Input %d from %s:%d\n", i, 
             name, pResource->mpInConns[i].portIndex);
       }
    }
@@ -163,7 +166,7 @@ void MpResource::resourceInfo(MpResource* pResource, int index)
    for (i=0; i<pResource->mMaxOutputs; i++) {
       if (NULL != pResource->mpOutConns[i].pResource) {
          name = pResource->mpOutConns[i].pResource->getName();
-         printf("        Output %d to %s:%d\n", i, 
+         osPrintf("        Output %d to %s:%d\n", i, 
             name, pResource->mpOutConns[i].portIndex);
       }
    }
@@ -368,14 +371,34 @@ UtlBoolean MpResource::handleMessage(MpFlowGraphMsg& rMsg)
 
 // If there already is a buffer stored for this input port, delete it.
 // Then store pBuf for the indicated input port.
-void MpResource::setInputBuffer(int inPortIdx, MpBufPtr pBuf)
+void MpResource::setInputBuffer(int inPortIdx, const MpBufPtr &pBuf)
 {
    // make sure we have a valid port that is connected to a resource
    assert((inPortIdx >= 0) && (inPortIdx < mMaxInputs) &&
           (mpInConns[inPortIdx].pResource != NULL));
 
-   MpBuf_delRef(mpInBufs[inPortIdx]);  // delete any existing buffer
-   mpInBufs[inPortIdx] = pBuf;         // store the new buffer
+   mpInBufs[inPortIdx] = pBuf;    // store the new buffer
+}
+
+// Makes pBuf available to resource connected to the outPortIdx output
+// port of this resource.
+// Returns TRUE if there is a resource connected to the specified output
+// port, FALSE otherwise.
+UtlBoolean MpResource::pushBufferDownsream(int outPortIdx, const MpBufPtr &pBuf)
+{
+   MpResource* pDownstreamInput;
+   int         downstreamPortIdx;
+
+   if (outPortIdx < 0 || outPortIdx >= mMaxOutputs)  // port  out of range
+      return FALSE;
+
+   pDownstreamInput  = mpOutConns[outPortIdx].pResource;
+   downstreamPortIdx = mpOutConns[outPortIdx].portIndex;
+   if (pDownstreamInput == NULL)                     // no connected resource
+      return FALSE;
+
+   pDownstreamInput->setInputBuffer(downstreamPortIdx, pBuf);
+   return TRUE;
 }
 
 // Post a message to this resource.
@@ -402,27 +425,6 @@ OsStatus MpResource::postMessage(MpFlowGraphMsg& rMsg)
    }
 }
 
-// Makes pBuf available to resource connected to the outPortIdx output
-// port of this resource.
-// Returns TRUE if there is a resource connected to the specified output
-// port, FALSE otherwise.
-UtlBoolean MpResource::setOutputBuffer(int outPortIdx, MpBufPtr pBuf)
-{
-   MpResource* pDownstreamInput;
-   int         downstreamPortIdx;
-
-   if (outPortIdx < 0 || outPortIdx >= mMaxOutputs)  // port  out of range
-      return FALSE;
-
-   pDownstreamInput  = mpOutConns[outPortIdx].pResource;
-   downstreamPortIdx = mpOutConns[outPortIdx].portIndex;
-   if (pDownstreamInput == NULL)                     // no connected resource
-      return FALSE;
-
-   pDownstreamInput->setInputBuffer(downstreamPortIdx, pBuf);
-   return TRUE;
-}
-
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 // Connects the toPortIdx input port on this resource to the 
@@ -435,8 +437,7 @@ UtlBoolean MpResource::connectInput(MpResource& rFrom, int fromPortIdx,
        toPortIdx >= mMaxInputs)        // bad port index
       return FALSE;
 
-   MpBuf_delRef(mpInBufs[toPortIdx]);  // get rid of old buffer (if any)
-   mpInBufs[toPortIdx]            = NULL;
+   mpInBufs[toPortIdx].release();
    mpInConns[toPortIdx].pResource = &rFrom;
    mpInConns[toPortIdx].portIndex = fromPortIdx;
 
@@ -455,8 +456,7 @@ UtlBoolean MpResource::connectOutput(MpResource& rTo, int toPortIdx,
        fromPortIdx >= mMaxOutputs)     // bad port index
       return FALSE;
 
-   MpBuf_delRef(mpOutBufs[fromPortIdx]);  // get rid of old buffer (if any)
-   mpOutBufs[fromPortIdx]            = NULL;
+   mpOutBufs[fromPortIdx].release();
    mpOutConns[fromPortIdx].pResource = &rTo;
    mpOutConns[fromPortIdx].portIndex = toPortIdx;
 
@@ -474,8 +474,7 @@ UtlBoolean MpResource::disconnectInput(int inPortIdx)
        inPortIdx >= mMaxInputs)                  // bad port index
       return FALSE;
 
-   MpBuf_delRef(mpInBufs[inPortIdx]);        // get rid of old buffer (if any)
-   mpInBufs[inPortIdx]            = NULL;
+   mpInBufs[inPortIdx].release();
    mpInConns[inPortIdx].pResource = NULL;
    mpInConns[inPortIdx].portIndex = -1;
 
@@ -493,8 +492,7 @@ UtlBoolean MpResource::disconnectOutput(int outPortIdx)
        outPortIdx >= mMaxOutputs)                  // bad port index
       return FALSE;
 
-   MpBuf_delRef(mpOutBufs[outPortIdx]);     // get rid of old buffer (if any)
-   mpOutBufs[outPortIdx]            = NULL;
+   mpOutBufs[outPortIdx].release();
    mpOutConns[outPortIdx].pResource = NULL;
    mpOutConns[outPortIdx].portIndex = -1;
 

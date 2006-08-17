@@ -105,8 +105,11 @@ public:
    virtual ~MpPlayer();
      //:Destructor
 
-/* ============================ MANIPULATORS ============================== */
+//@}
 
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
    virtual OsStatus realize(UtlBoolean bBlock = TRUE) = 0;
      //: Realizes the player by initiating a connection to the target,
      //: allocates buffers, etc.
@@ -146,12 +149,20 @@ public:
      // cease to receive state change notifications.
 
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
    virtual OsStatus getState(PlayerState& state) = 0 ;
      //: Gets the player state 
 
+//@}
+
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
 
 /* ============================ TESTING =================================== */
 
@@ -159,6 +170,8 @@ public:
 static const char* getEventString(PlayerState event);
 #endif /* MP_STREAM_DEBUG ] */
 
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

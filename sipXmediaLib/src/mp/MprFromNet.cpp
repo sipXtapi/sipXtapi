@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -31,7 +34,6 @@
 #include "mp/MpMisc.h"
 #include "mp/MpBuf.h"
 #include "mp/MpConnection.h"
-// #include "mp/NetInTask.h"
 #include "mp/MprFromNet.h"
 #include "mp/MprDejitter.h"
 #include "mp/MpBufferMsg.h"
@@ -48,10 +50,6 @@
 
 // STATIC VARIABLE INITIALIZATIONS
 const int MprFromNet::SSRC_SWITCH_MISMATCH_COUNT = 8;
-
-#ifdef TESTING_ODD_LENGTH_PACKETS /* [ */
-int MprFromNet::sPacketPad = 0;
-#endif /* TESTING_ODD_LENGTH_PACKETS ] */
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -156,15 +154,6 @@ OsStatus MprFromNet::resetSockets(void)
    return OS_SUCCESS;
 }
 
-#ifdef TESTING_ODD_LENGTH_PACKETS /* [ */
-int MprFromNet::setPacketPad(int value)
-{
-   int ret = sPacketPad;
-   sPacketPad = value;
-   return ret;
-}
-#endif /* TESTING_ODD_LENGTH_PACKETS ] */
-
 #ifndef INCLUDE_RTCP /* [ */
 OsStatus MprFromNet::getRtcpStats(MprRtcpStats& stats)
 {
@@ -174,7 +163,7 @@ OsStatus MprFromNet::getRtcpStats(MprRtcpStats& stats)
    return OS_SUCCESS;
 }
 
-OsStatus MprFromNet::rtcpStats(struct rtpHeader* rtpH)
+OsStatus MprFromNet::rtcpStats(struct RtpHeader* rtpH)
 {
    if (mInRtpHandle->ssrc != rtpH->ssrc) {
       const char* name = getName();
@@ -200,50 +189,64 @@ OsStatus MprFromNet::rtcpStats(struct rtpHeader* rtpH)
 }
 #endif /* INCLUDE_RTCP ] */
 
-int MprFromNet::adjustBufferForRtp(MpBufPtr buf)
+MpRtpBufPtr MprFromNet::parseRtpPacket(const MpUdpBufPtr &buf)
 {
-   struct rtpHeader* pRtpH;
-   int padded;
-   int ccs;
-   int padBytes;
+   MpRtpBufPtr rtpBuf;
    int packetLength;
    int offset;
-   int payloadType;
-   int xBit;
+   int csrcSize;
 
-   pRtpH = (struct rtpHeader*) MpBuf_getStorage(buf);
-   payloadType = (pRtpH->mpt & 0x7f);
-   padded = (pRtpH->vpxcc) & 0x20;
-   xBit   = (pRtpH->vpxcc) & 0x10;
-   ccs    = (pRtpH->vpxcc) & 0x0f;
-   packetLength = MpBuf_getContentLen(buf); /* RTP packet length */
-   if (padded) {
-      padBytes = *(((char *) pRtpH) + (packetLength - 1));
-      if (0 != ((~3) & padBytes)) {
+   // Get new RTP buffer
+   rtpBuf = MpMisc.RtpPool->obtainBuffer();
+
+   // Copy RTP header data to RTP buffer.
+   memcpy(&rtpBuf->getRtpHeader(), buf->getPacketData(), sizeof(RtpHeader));
+   offset = sizeof(RtpHeader);
+
+   // Adjust packet size according to padding
+   packetLength = buf->getPacketSize();
+   if (rtpBuf->isRtpPadding()) {
+      UCHAR padBytes = *(buf->getPacketData() + packetLength - 1);
+
+      // Ipse: I'm not sure why we do this... Say me if you know.
+      if ((padBytes & (~3)) != 0) {
          padBytes = 0;
       }
-   } else {
-      padBytes = 0;
-   }
-   packetLength -= padBytes;
 
-   pRtpH->vpxcc &= ~0x20;
-   offset = sizeof(struct rtpHeader) + (4 * ccs);
-   if (0 != xBit) { // Check for RTP Header eXtension
-      int xLen; // number of 32-bit words after extension header
-      short* pXhdr; // pointer to extension header, after CSRC list
-      pXhdr = (short*) (((int)pRtpH) + sizeof(struct rtpHeader) + offset + 2);
-      xLen = ntohs(*pXhdr);
-      offset += (sizeof(int) * (xLen + 1));
+      packetLength -= padBytes;
+      rtpBuf->disableRtpPadding();
    }
-   MpBuf_setOffset(buf, offset);
-#ifdef TESTING_ODD_LENGTH_PACKETS /* [ */
-   MpBuf_setNumSamples(buf, (packetLength - offset) + sPacketPad);
-#else /* TESTING_ODD_LENGTH_PACKETS ] [ */
-   MpBuf_setNumSamples(buf, (packetLength - offset));
-#endif /* TESTING_ODD_LENGTH_PACKETS ] */
-   MpBuf_setContentLen(buf, packetLength);
-   return payloadType;
+
+   // Copy CSRC list to RTP buffer
+   csrcSize = rtpBuf->getRtpCSRCCount() * sizeof(UINT);
+   memcpy(rtpBuf->getRtpCSRCs(), buf->getPacketData()+offset, csrcSize);
+   offset += csrcSize;
+
+   // Check for RTP Header extension
+   if (rtpBuf->isRtpExtension()) {
+      int xLen;     // number of 32-bit words after extension header
+      short* pXhdr; // pointer to extension header, after CSRC list
+
+      // Length (in 32bit words) is beared in the second 16bits of first
+      // 32bit word of extension header.
+      pXhdr = (short*) (buf->getPacketData() + offset);
+      xLen = ntohs(pXhdr[1]);
+
+      // Increment offset by extention header plus extension size
+      offset += (sizeof(int) * (1 + xLen));
+   }
+
+   if (!rtpBuf->setPayloadSize(packetLength - offset)) {
+      osPrintf( "RTP buffer size is too small: %d (need %d)\n"
+              , rtpBuf->getPayloadSize()
+              , packetLength - offset);
+   }
+
+   // Copy payload to RTP buffer.
+   memcpy( rtpBuf->getPayload(), buf->getPacketData()+offset
+         , rtpBuf->getPayloadSize());
+
+   return rtpBuf;
 }
 
 /**************************************************************************
@@ -285,11 +288,10 @@ int FR() {return ForwardRtcp(1);}
 /**************************************************************************/
 
 // Take in a buffer from the NetIn task
-OsStatus MprFromNet::pushPacket(MpBufPtr buf,
-                      int rtpOrRtcp, struct in_addr* fromIP, int fromPort)
+OsStatus MprFromNet::pushPacket(const MpUdpBufPtr &udpBuf, int rtpOrRtcp)
 {
+    MpRtpBufPtr rtpBuf;
     OsStatus ret = OS_SUCCESS;
-    int      payloadType;
     int      thisSsrc;
 
 #ifdef INCLUDE_RTCP /* [ */
@@ -299,22 +301,24 @@ OsStatus MprFromNet::pushPacket(MpBufPtr buf,
     mNumPushed++;
     if (0 == (mNumPushed & ((1<<11)-1))) mNumWarnings = 0; // every 2048
 
-    if (MpBufferMsg::AUD_RTP_RECV == rtpOrRtcp) {
+    if (rtpOrRtcp == MpBufferMsg::AUD_RTP_RECV)
+    {
+        rtpBuf = parseRtpPacket(udpBuf);
 
-        MpBuf_setFormat(buf, MP_FMT_RTPPKT);
-        payloadType = adjustBufferForRtp(buf);
-
-        if (NULL == mpConnection->mapPayloadType(payloadType)) {
+        // Check if we can decode this packet
+        if (mpConnection->mapPayloadType(rtpBuf->getRtpPayloadType()) == NULL) {
             // just ignore it!
-            MpBuf_delRef(buf);
             return ret;
         }
 
-        thisSsrc = extractSsrc(buf);
+        thisSsrc = rtpBuf->getRtpSSRC();
+
+        // Update preffered SSRC if it is not valid
         if (!mPrefSsrcValid) {
             setPrefSsrc(thisSsrc);
         }
 
+        // Check packet's SSRC for validity
         if (thisSsrc == getPrefSsrc()) {
             mNumNonPrefPackets = 0;
         } else {
@@ -323,20 +327,21 @@ OsStatus MprFromNet::pushPacket(MpBufPtr buf,
                 struct in_addr t;
                 t.s_addr = mRtpDestIp;
                 OsSocket::inet_ntoa_pt(t, Old);
-                OsSocket::inet_ntoa_pt(*fromIP, New);
+                OsSocket::inet_ntoa_pt(udpBuf->getIP(), New);
                 osPrintf("   pushPacket: Pref:0x%X, rtpDest=%s:%d,\n"
                     "       this:0x%X (src=%s:%d)\n",
                     getPrefSsrc(), Old.data(), mRtpDestPort,
-                    thisSsrc, New.data(), fromPort);
+                    thisSsrc, New.data(), udpBuf->getUdpPort());
             }
-            if ((fromIP->s_addr == mRtpDestIp) && (fromPort == mRtpDestPort)) {
+            if (  (udpBuf->getIP().s_addr == mRtpDestIp)
+               && (udpBuf->getUdpPort() == mRtpDestPort)) {
                 setPrefSsrc(thisSsrc);
-            } else if (mRtpRtcpMatchSsrcValid &&
-                               (thisSsrc == mRtpRtcpMatchSsrc)) {
+            } else if (  mRtpRtcpMatchSsrcValid
+                      && (thisSsrc == mRtpRtcpMatchSsrc)) {
                 setPrefSsrc(thisSsrc);
             } else {
                 mNumNonPrefPackets++;
-                if (fromIP->s_addr == mRtpDestIp) {
+                if (udpBuf->getIP().s_addr == mRtpDestIp) {
                     mRtpDestMatchIpOnlySsrc = thisSsrc;
                     mRtpDestMatchIpOnlySsrcValid = TRUE;
                 } else {
@@ -348,36 +353,33 @@ OsStatus MprFromNet::pushPacket(MpBufPtr buf,
                         mRtpDestMatchIpOnlySsrc : mRtpOtherSsrc);
                 }
             }
-            MpBuf_delRef(buf);
             return ret;
         }
 
-        if ((mPrevIP != fromIP->s_addr) || (mPrevPort != fromPort)) {
+        if (  (mPrevIP != udpBuf->getIP().s_addr)
+           || (mPrevPort != udpBuf->getUdpPort()))
+        {
             if (mNumWarnings++ < 20) {
                 UtlString Old(""), New("");
                 struct in_addr t;
                 t.s_addr = mPrevIP;
                 OsSocket::inet_ntoa_pt(t, Old);
-                OsSocket::inet_ntoa_pt(*fromIP, New);
+                OsSocket::inet_ntoa_pt(udpBuf->getIP(), New);
 /*
                 osPrintf("MprFromNet(%d): SrcIP changed"
                     " from '%s:%d' to '%s:%d'\n", mNumPushed, Old.data(),
                     mPrevPort, New.data(), fromPort);
 */
             }
-            mPrevIP = fromIP->s_addr;
-            mPrevPort = fromPort;
+            mPrevIP = udpBuf->getIP().s_addr;
+            mPrevPort = udpBuf->getUdpPort();
         }
 
-#ifdef INCLUDE_RTCP /* [ */
-//      bump the reference count so the buffer cannot unexpectedly
-//      go away before being processed by RTCP
-        MpBuf_addRef(buf);
-#else /* INCLUDE_RTCP ] [ */
-        rtcpStats((struct rtpHeader*) MpBuf_getStorage(buf));
+#ifndef INCLUDE_RTCP /* [ */
+        rtcpStats(&rtpBuf->getRtpHeader());
 #endif /* INCLUDE_RTCP ] */
 
-        ret = getMyDejitter()->pushPacket(buf);
+        ret = getMyDejitter()->pushPacket(rtpBuf);
 
 #ifdef INCLUDE_RTCP /* [ */
         // This is the logic that forwards RTP packets to the RTCP subsystem
@@ -385,7 +387,7 @@ OsStatus MprFromNet::pushPacket(MpBufPtr buf,
 
         // Set RTP Header Received Timestamp
         {
-            unsigned long t = (unsigned long)MpBuf_getOsTC(buf);
+            unsigned long t = (unsigned long)udpBuf->getTimecode();
             double x;
             x = ((((double) t) * 8000.) / 3686400.);
             t = (unsigned long) x;
@@ -393,27 +395,24 @@ OsStatus MprFromNet::pushPacket(MpBufPtr buf,
         }
 
         // Parse the packet stream into an RTP header
-        oRTPHeader.ParseRTPHeader((unsigned char *)MpBuf_getStorage(buf));
+        oRTPHeader.ParseRTPHeader((unsigned char *)udpBuf->getPacketData());
 
         // Dispatch packet to RTCP Render object
         mpiRTPDispatch->ForwardRTPHeader((IRTPHeader *)&oRTPHeader);
-
-        // release our reference to the RTP buffer
-        MpBuf_delRef(buf);
 #endif /* INCLUDE_RTCP ] */
 
-    } else {  // RTCP packet
+    }
+#ifdef INCLUDE_RTCP /* [ */
+    else
+    {  // RTCP packet
 #ifdef DUMP_RTCP_PACKETS /* [ */
         const char*       name;
 
         name = getName();
         osPrintf("%s: RTCP packet received, length = %d\n",
-                                    name, MpBuf_getNumSamples(buf));
+                                    name, buf->getSamplesNumber());
 #endif /* DUMP_RTCP_PACKETS ] */
 
-        MpBuf_setFormat(buf, MP_FMT_RTCPPKT);
-
-#ifdef INCLUDE_RTCP /* [ */
 //      Dispatch the RTCP data packet to the RTCP Source object registered
 /**************************************************************************
  *            HACK   HACK   HACK   $$$
@@ -422,16 +421,14 @@ OsStatus MprFromNet::pushPacket(MpBufPtr buf,
  **************************************************************************/
         if (DoForwardRtcp) {
             mpiRTCPDispatch->ProcessPacket(
-                      (unsigned char *)MpBuf_getStorage(buf), 
-                      (unsigned long)MpBuf_getContentLen(buf));
+                      (unsigned char *)udpBuf->getPacketData(), 
+                      (unsigned long)udpBuf->getPacketSize());
         } else {
             RtcpDiscards++;
         }
-#endif /* INCLUDE_RTCP ] */
-        // release our [the only] reference to the RTCP buffer
-        MpBuf_delRef(buf);
-
     }
+#endif /* INCLUDE_RTCP ] */
+
     return ret;
 }
 
@@ -472,12 +469,6 @@ MprDejitter* MprFromNet::getMyDejitter(void)
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
-int MprFromNet::extractSsrc(MpBufPtr buf)
-{
-   rtpHeader* pR = (struct rtpHeader*) MpBuf_getStorage(buf);
-   return pR->ssrc;
-}
-
 int MprFromNet::getPrefSsrc()
 {
    return mPrefSsrc;
@@ -496,12 +487,12 @@ int MprFromNet::setPrefSsrc(int newSsrc)
 }
 
 UtlBoolean MprFromNet::doProcessFrame(MpBufPtr inBufs[],
-                                    MpBufPtr outBufs[],
-                                    int inBufsSize,
-                                    int outBufsSize,
-                                    UtlBoolean isEnabled,
-                                    int samplesPerFrame,
-                                    int samplesPerSecond)
+                                      MpBufPtr outBufs[],
+                                      int inBufsSize,
+                                      int outBufsSize,
+                                      UtlBoolean isEnabled,
+                                      int samplesPerFrame,
+                                      int samplesPerSecond)
 {
    return TRUE;
 }

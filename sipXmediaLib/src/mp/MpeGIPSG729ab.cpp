@@ -111,7 +111,7 @@ OsStatus MpeGIPSG729ab::encode(const short* pAudioSamples,
                              const int bytesLeft,
                              int& rSizeInBytes,
                              UtlBoolean& sendNow,
-                             MpBufSpeech& rAudioCategory)
+                             MpAudioBuf::SpeechType& rAudioCategory)
 #ifdef READY_FOR_ANNEX_B /* [ */
 {
    short Serial[82];

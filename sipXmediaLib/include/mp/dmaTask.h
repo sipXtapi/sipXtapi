@@ -86,7 +86,8 @@ class DmaTask : public OsTask
 public:
 
 /* ============================ CREATORS ================================== */
-
+///@name Creators
+//@{
    static DmaTask* getDmaTask(int samplesPerFrame = 80);
      //:Return a pointer to the DMA task, creating it if necessary
 
@@ -98,7 +99,11 @@ public:
    virtual int run(void* pArg);
 
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
     static bool setRingerEnabled(bool enabled)
     {

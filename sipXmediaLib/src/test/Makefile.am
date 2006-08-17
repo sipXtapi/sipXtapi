@@ -16,7 +16,13 @@ testsuite_SOURCES = \
     mp/MpFlowGraphTest.cpp \
     mp/MpResourceTest.cpp \
     mp/MpTestResource.h \
-    mp/MpTestResource.cpp
+    mp/MpTestResource.cpp \
+    mp/MpGenericResourceTest.h \
+    mp/MprBridgeTest.cpp \
+    mp/MprFromMicTest.cpp \
+    mp/MprMixerTest.cpp \
+    mp/MprSplitterTest.cpp \
+    mp/MprToSpkrTest.cpp
 
 
 # [DEBUG ASSISTANT] List a single unittest to isoloate a unittest for

@@ -346,6 +346,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MpArrayBuf.cpp">
+			</File>
+			<File
 				RelativePath="src\mp\mpau.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -384,6 +387,9 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpAudioBuf.cpp">
 			</File>
 			<File
 				RelativePath="src\mp\MpAudioFileDecompress.cpp">
@@ -487,6 +493,9 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpBufPool.cpp">
 			</File>
 			<File
 				RelativePath="src\mp\MpBuf.cpp">
@@ -627,6 +636,9 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpDataBuf.cpp">
 			</File>
 			<File
 				RelativePath="src\mp\MpDecoderBase.cpp">
@@ -1589,6 +1601,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MpRtpBuf.cpp">
+			</File>
+			<File
 				RelativePath="src\mp\MpSipxDecoders.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -1707,6 +1722,9 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpUdpBuf.cpp">
 			</File>
 			<File
 				RelativePath="src\rtcp\MsgQueue.cpp">
@@ -2379,10 +2397,16 @@
 				RelativePath="include\rtcp\Message.h">
 			</File>
 			<File
+				RelativePath=".\include\mp\MpArrayBuf.h">
+			</File>
+			<File
 				RelativePath="include\mp\mpau.h">
 			</File>
 			<File
 				RelativePath="include\mp\MpAudioAbstract.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpAudioBuf.h">
 			</File>
 			<File
 				RelativePath="include\mp\MpAudioFileDecompress.h">
@@ -2409,6 +2433,9 @@
 				RelativePath="include\mp\MpBufferMsg.h">
 			</File>
 			<File
+				RelativePath=".\include\mp\MpBufPool.h">
+			</File>
+			<File
 				RelativePath="include\mp\MpCallFlowGraph.h">
 			</File>
 			<File
@@ -2422,6 +2449,9 @@
 			</File>
 			<File
 				RelativePath="include\mp\MpConnection.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpDataBuf.h">
 			</File>
 			<File
 				RelativePath="include\mp\MpDecoderBase.h">
@@ -2571,6 +2601,9 @@
 				RelativePath="include\mp\MprToSpkr.h">
 			</File>
 			<File
+				RelativePath=".\include\mp\MpRtpBuf.h">
+			</File>
+			<File
 				RelativePath="include\mp\MpSipxDecoders.h">
 			</File>
 			<File
@@ -2590,6 +2623,9 @@
 			</File>
 			<File
 				RelativePath="include\mp\MpTypes.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpUdpBuf.h">
 			</File>
 			<File
 				RelativePath="include\rtcp\MsgQueue.h">

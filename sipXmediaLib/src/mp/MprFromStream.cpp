@@ -47,10 +47,10 @@
 MprFromStream::MprFromStream(const UtlString& rName,
                              int samplesPerFrame, 
                              int samplesPerSec)
-   : MpAudioResource(rName, 0, 1, 1, 1, samplesPerFrame, samplesPerSec)   
-   , mpStreamRenderer(NULL)
-   , mEventState(FeederStreamStoppedEvent)
-   , miStreamCount(1)
+: MpAudioResource(rName, 0, 1, 1, 1, samplesPerFrame, samplesPerSec)   
+, mpStreamRenderer(NULL)
+, mEventState(FeederStreamStoppedEvent)
+, miStreamCount(1)
 {
 }
 
@@ -317,41 +317,41 @@ MpStreamFeeder* MprFromStream::getStreamSource()
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 UtlBoolean MprFromStream::doProcessFrame(MpBufPtr inBufs[],
-                                        MpBufPtr outBufs[],
-                                        int inBufsSize,
-                                        int outBufsSize,
-                                        UtlBoolean isEnabled,
-                                        int samplesPerFrame,
-                                        int samplesPerSecond)
+                                         MpBufPtr outBufs[],
+                                         int inBufsSize,
+                                         int outBufsSize,
+                                         UtlBoolean isEnabled,
+                                         int samplesPerFrame,
+                                         int samplesPerSecond)
 {
    UtlBoolean bSentData = FALSE ;
-   MpBufPtr out = NULL;
-   Sample *outbuf;
+   MpAudioBufPtr out;
+   MpAudioSample *outbuf;
    int count;
 
    // Check params for sanity
-   if (0 == outBufsSize) return FALSE;
-   *outBufs = NULL;
-   if (0 == samplesPerFrame) return FALSE;
+   if (outBufsSize == 0)
+       return FALSE;
+
+   if (samplesPerFrame == 0)
+       return FALSE;
 
    if (isEnabled) 
    {
-      // Get ready to give data
-      out = MpBuf_getBuf(MpMisc.UcbPool, samplesPerFrame, 0, MP_FMT_T12);
-      assert(NULL != out);
+      // Get new buffer
+      out = MpMisc.UcbPool->obtainBuffer();
+      if (!out.isValid())
+          return FALSE;
+      out->setSamplesNumber(samplesPerFrame);
+      count = out->getSamplesNumber();
 
-      count = MpBuf_getByteLen(out) / sizeof(Sample);
-      count = min(samplesPerFrame, count);
-      MpBuf_setNumSamples(out, count);
-      
-      
       if (mpStreamRenderer)
       {
          mbStreamChange = FALSE ;
          if (!mpStreamRenderer->isMarkedPaused())
          {
-            MpBuf_setSpeech(out, MP_SPEECH_TONE);
-            outbuf = MpBuf_getSamples(out);
+            out->setSpeechType(MpAudioBuf::MP_SPEECH_TONE);
+            outbuf = out->getSamples();
 
             if (mpStreamRenderer->getFrame((unsigned short*) outbuf) == OS_SUCCESS)
             {
@@ -398,19 +398,19 @@ UtlBoolean MprFromStream::doProcessFrame(MpBufPtr inBufs[],
 
       if (!bSentData) 
       {
-         outbuf = MpBuf_getSamples(out);
-         memset(outbuf, 0, MpBuf_getByteLen(out));
-         MpBuf_setSpeech(out, MP_SPEECH_SILENT);      
+         outbuf = out->getSamples();
+         memset(outbuf, 0, out->getSamplesNumber()*sizeof(MpAudioSample));
+         out->setSpeechType(MpAudioBuf::MP_SPEECH_SILENT);      
       }
    }      
-         
-   if (NULL == out) 
+   else
    {
-      out = *inBufs;
-      *inBufs = NULL;
+      // Resource is disabled. Passthrough input data
+      out.swap(inBufs[0]);
    }
-   
-   *outBufs = out;
+
+   // Push audio data downstream
+   outBufs[0] = out;
 
    return (TRUE);
 }

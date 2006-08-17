@@ -31,33 +31,49 @@ class MprToSpkr;
 class FilterBank;
 class HandsetFilterBank;
 
-//:The "From Microphone" media processing resource
+/**
+*  @brief The "Echo suppress" media processing resource
+*/
 class MprEchoSuppress : public MpAudioResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
 /* ============================ CREATORS ================================== */
-   MprEchoSuppress(const UtlString& rName,
-                           int samplesPerFrame, int samplesPerSec);
-     //:Constructor
+///@name Manipulators
+//@{
 
+     /// Constructor
+   MprEchoSuppress(const UtlString& rName, int samplesPerFrame, int samplesPerSec);
+
+     /// Destructor
    virtual
    ~MprEchoSuppress();
-     //:Destructor
 
-   
+//@}
 
 /* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
 
-void setSpkrPal(MprToSpkr* pal);
+   void setSpkrPal(MprToSpkr* pal);
 
-int startSpeech();
-int endSpeech();
+   int startSpeech();
+   int endSpeech();
+
+//@}
 
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -66,7 +82,7 @@ protected:
 private:
    short                mState;
    MprToSpkr*           mpSpkrPal;
-   MpBufPtr             mpPrev;
+   MpAudioBufPtr        mpPrev;
    int                  mTicksPerFrame;
    int                  mLastSpkrAtten;
    int                  mSpeechFake;
@@ -74,11 +90,9 @@ private:
    FilterBank*          mpFilterBank;
    HandsetFilterBank*   mpHandsetFilterBank;
 
-   DspResampling*       mpDspResampSpk;
-
    MpBufPtr LoudspeakerFade(MpBufPtr in, short& shSpkState, int iFreezeFlag);
 
-   void frame_match(MpBufPtr in);
+   void frame_match(const MpAudioBufPtr &in);
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
                                     MpBufPtr outBufs[],
@@ -93,11 +107,11 @@ private:
                               short&      shSpkState,
                                 int       iFreezeFlag);
 
+     /// Copy constructor (not implemented for this class)
    MprEchoSuppress(const MprEchoSuppress& rMprEchoSuppress);
-     //:Copy constructor (not implemented for this class)
 
+     /// Assignment operator (not implemented for this class)
    MprEchoSuppress& operator=(const MprEchoSuppress& rhs);
-     //:Assignment operator (not implemented for this class)
 
 };
 

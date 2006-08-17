@@ -43,7 +43,8 @@ public:
    } ;
 
 /* ============================ CREATORS ================================== */
-
+///@name Creators
+//@{
    StreamQueueMsg() ;
      //:Constructor
 
@@ -57,20 +58,33 @@ public:
       ~StreamQueueMsg();
      //:Destructor
 
-/* ============================ MANIPULATORS ============================== */
+//@}
 
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
    StreamQueueMsg& operator=(const StreamQueueMsg& rhs);
      //:Assignment operator
 
    void setSamples(const short* pSamples);
      //:Set the sample data for this message
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
    UtlBoolean getSamples(short* pSamples) const ;
      //:Get the sample data for this message
 
+//@}
+
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

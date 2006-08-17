@@ -26,41 +26,57 @@
 // STRUCTS
 // TYPEDEFS
 
-//:Derived class for G.711 u-Law decoder.
+/// Derived class for G.711 u-Law decoder.
 class MpdSipxPcmu: public MpDecoderBase
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
 /* ============================ CREATORS ================================== */
-   MpdSipxPcmu(int payloadType);
-     //:Constructor
-     // Returns a new decoder object.
-     //!param: payloadType - (in) RTP payload type associated with this decoder
 
+     /// Constructor
+   MpdSipxPcmu(int payloadType ///< (in) RTP payload type associated with this decoder
+              );
+
+     /// Destructor
    virtual ~MpdSipxPcmu(void);
-     //:Destructor
 
+     /// Initializes a codec data structure for use as a decoder
    virtual OsStatus initDecode(MpConnection* pConnection);
-     //:Initializes a codec data structure for use as a decoder
-     //!param: pConnection - (in) Pointer to the MpConnection container
-     //!retcode: OS_SUCCESS - Success
-     //!retcode: OS_NO_MEMORY - Memory allocation failure
+     /**<
+     *  @param pConnection - (in) Pointer to the MpConnection container
+     *
+     *  @returns <b>OS_SUCCESS</b> - Success
+     *  @returns <b>OS_NO_MEMORY</b> - Memory allocation failure
+     */
 
+     /// Frees all memory allocated to the decoder by <i>initDecode</i>
    virtual OsStatus freeDecode(void);
-     //:Frees all memory allocated to the decoder by <i>initDecode</i>
-     //!retcode: OS_SUCCESS - Success
-     //!retcode: OS_DELETED - Object has already been deleted
+     /**<
+     *  @returns <b>OS_SUCCESS</b> - Success
+     *  @returns <b>OS_DELETED</b> - Object has already been deleted
+     */
+
+//@}
 
 /* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
+//@}
 
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   static const MpCodecInfo smCodecInfo;  // static information about the codec
+   static const MpCodecInfo smCodecInfo;  ///< Static information about the codec
    JB_inst* pJBState;
 };
 

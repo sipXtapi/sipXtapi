@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -156,7 +159,7 @@ bool inPostUnprep(int n, int discard, DWORD bufLen, bool bFree)
    bool retVal = false;  //assume we didn't succeed for now
 
    WAVEHDR* pWH;
-   MpBufPtr ob = NULL;
+   MpAudioBufPtr ob;
 
    static int iPU = 0;
    static int flushes = 0;
@@ -199,30 +202,34 @@ bool inPostUnprep(int n, int discard, DWORD bufLen, bool bFree)
 #endif /* DEBUG_WINDOZE ] */
 
       if (!discard) {
-         ob = MpBuf_getBuf(MpMisc.UcbPool, N_SAMPLES, 0, MP_FMT_T12);
+         ob = MpMisc.UcbPool->obtainBuffer();
+         if (!ob.isValid())
+            return false;
+         ob->setSamplesNumber(N_SAMPLES);
       }
       if (!discard) {
          MpBufferMsg* pFlush;
          MpBufferMsg* pMsg;
 
-   //    DWW took this assert out, because on windows, when you pull the usb dev out
-   //    you can receive 0 bytes back
-   //    assert(bufLen == pWH->dwBytesRecorded);
-		 if (NULL != ob)
+		 if (ob.isValid())
 		 {
-	         memcpy(MpBuf_getSamples(ob), pWH->lpData, pWH->dwBytesRecorded);
+	         memcpy( ob->getSamples()
+                   , pWH->lpData
+                   , min( pWH->dwBytesRecorded
+                        , ob->getSamplesNumber()*sizeof(MpAudioSample)));
 		 }
 #ifdef INSERT_SAWTOOTH /* [ */
          if (NULL == ob) { /* nothing in Q, or we are disabled */
-            ob = MpBuf_getBuf(MpMisc.UcbPool, MpMisc.frameSamples, 0, MP_FMT_T12);
-            if (NULL != ob) {
-               int i, n;
-               Sample *s;
+            ob = MpMisc.UcbPool->obtainBuffer();
+            if (ob.isValid()) {
+                ob->setSamplesNumber(MpMisc.frameSamples);
+                int i, n;
+                MpAudioSample *s;
 
-               s = MpBuf_getSamples(ob);
-               n = MpBuf_getNumSamples(ob);
-               for (i=0; i<n; i++)
-                   *s++= ((i % 80) << 10);
+                s = ob->getSamples();
+                n = ob->getSamplesNumber();
+                for (i=0; i<n; i++)
+                    *s++= ((i % 80) << 10);
             }
          }
 #endif /* INSERT_SAWTOOTH ] */
@@ -235,37 +242,26 @@ bool inPostUnprep(int n, int discard, DWORD bufLen, bool bFree)
          pMsg->setMsgSubType(MpBufferMsg::AUD_RECORDED);
 
          pMsg->setTag(ob);
-         if (ob)
-         {            
-            pMsg->setBuf(MpBuf_getSamples(ob));
-            pMsg->setLen(MpBuf_getNumSamples(ob));
-         }
 
-         if (MpMisc.pMicQ) {
+         if (MpMisc.pMicQ)
+         {
             if (MpMisc.pMicQ->numMsgs() >= MpMisc.pMicQ->maxMsgs())
             {
-               // if its full, flush one and send
-               OsStatus  res;
-               flushes++;
-               res = MpMisc.pMicQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT);
-               if (OS_SUCCESS == res) {
-                  MpBuf_delRef(pFlush->getTag());
-                  pFlush->releaseMsg();
-               } else {
-                  osPrintf("DmaTask: queue was full, now empty (3)!"
-                           " (res=%d)\n", res);
-               }
-               if (OS_SUCCESS != MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT))
-               {
-                  MpBuf_delRef(ob);
-               }
+                // if its full, flush one and send
+                OsStatus  res;
+                flushes++;
+                res = MpMisc.pMicQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT);
+                if (OS_SUCCESS == res) {
+                   pFlush->releaseMsg();
+                } else {
+                   osPrintf("DmaTask: queue was full, now empty (3)!"
+                            " (res=%d)\n", res);
+                }
             }
-            else
-            {
-               MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT);
-            }
+            MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT);
          }
-         if (!pMsg->isMsgReusable()) delete pMsg;
+         if (!pMsg->isMsgReusable())
+             delete pMsg;
       }
       return true;
    }
