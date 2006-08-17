@@ -1,7 +1,6 @@
-RECURSE = recurse
-PROJECTS = $(subdirs)
+PROJECTS ?= @subdirs@
 
-$(RECURSE):
+recurse:
 	@failcom='exit 1'; \
 	for f in x $$MAKEFLAGS; do \
 	  case $$f in \

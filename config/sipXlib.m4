@@ -520,74 +520,10 @@ AC_DEFUN([CHECK_RESIPROCATE],
 ]) # CHECK_RESIPROCATE
 
 
-
-##  Generic find of an include
-#   Fed from AC_DEFUN([SFAC_INCLUDE_{module name here}],
-#
-# $1 - sample include file
-# $2 - variable name (for overridding with --with-$2
-# $3 - help text
-# $4 - directory name (assumed parallel with this script)
-AC_DEFUN([SFAC_ARG_WITH_INCLUDE],
-[
-    SFAC_SRCDIR_EXPAND()
-
-    AC_MSG_CHECKING(for [$4] [($1)] includes)
-    AC_ARG_WITH( [$2],
-        [ [$3] ],
-        [ include_path=$withval ],
-        [ include_path="$includedir $prefix/include /usr/include /usr/local/include [$abs_srcdir]/../[$4]/include [$abs_srcdir]/../[$4]/interface [$abs_srcdir]/../[$4]/src/test"]
-    )
-
-    for dir in $include_path ; do
-        if test -f "$dir/[$1]";
-        then
-            foundpath=$dir;
-            break;
-        fi;
-    done
-    if test x_$foundpath = x_; then
-       AC_MSG_ERROR("'$1' not found; searched $include_path")
-    fi
-        
-
-]) # SFAC_ARG_WITH_INCLUDE
-
-
-##  Generic find of a library
-#   Fed from AC_DEFUN([SFAC_LIB_{module name here}],
-#
-# $1 - sample lib file
-# $2 - variable name (for overridding with --with-$2
-# $3 - help text
-# $4 - directory name (assumed parallel with this script)
-AC_DEFUN([SFAC_ARG_WITH_LIB],
-[
-    SFAC_SRCDIR_EXPAND()
-
-    AC_MSG_CHECKING(for [$4] [($1)] libraries)
-    AC_ARG_WITH( [$2],
-        [ [$3] ],
-        [ lib_path=$withval ],
-        [ lib_path="$libdir $prefix/lib /usr/lib /usr/local/lib `pwd`/../[$4]/src `pwd`/../[$4]/sipXmediaMediaProcessing/src `pwd`/../[$4]/src/test/sipxunit `pwd`/../[$4]/src/test/testlib" ]
-    )
-    foundpath=""
-    for dir in $lib_path ; do
-        if test -f "$dir/[$1]";
-        then
-            foundpath=$dir;
-            break;
-        fi;
-    done
-    if test x_$foundpath = x_; then
-       AC_MSG_ERROR("'$1' not found; searched $lib_path")
-    fi
-]) # SFAC_ARG_WITH_LIB
-
-
 AC_DEFUN([SFAC_SRCDIR_EXPAND], 
 [
     abs_srcdir=`cd $srcdir && pwd`
+    AC_SUBST(TOP_SRCDIR, $srcdir)
 ])
 
 

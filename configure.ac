@@ -1,8 +1,12 @@
 AC_PREREQ(2.57)
 AC_INIT(sipX, 0.0.0, sipx-dev@list.sipfoundry.org)
 AC_CONFIG_AUX_DIR(config)
+m4_include([config/general.m4])
+m4_include([config/sipXlib.m4])
 AC_PREFIX_DEFAULT([/usr/local/sipx])
 AM_INIT_AUTOMAKE(foreign)
+
+SFAC_SRCDIR_EXPAND
 
 AC_CONFIG_SUBDIRS(sipXportLib)
 AC_CONFIG_SUBDIRS(sipXtackLib)
@@ -50,5 +54,6 @@ fi
 SFAC_DIST_DIR
    
 AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([config/top.mak])
 
 AC_OUTPUT

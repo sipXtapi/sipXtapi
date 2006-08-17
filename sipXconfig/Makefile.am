@@ -27,7 +27,6 @@ EXTRA_DIST = \
     build.xml \
     dependencies.xml \
     subant-targets.xml \
-    acsite.m4 \
     CONTRIBUTORS \
     BUILDSTAMP \
     SVN_VERSION \

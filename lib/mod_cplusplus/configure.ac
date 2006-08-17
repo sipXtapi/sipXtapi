@@ -16,7 +16,6 @@ SFAC_DOWNLOAD_DEPENDENCIES
 
 AC_CONFIG_FILES([
   Makefile
-  config/sipXcommon.mak
 ])
 
 AC_OUTPUT

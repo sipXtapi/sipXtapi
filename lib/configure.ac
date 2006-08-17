@@ -1,7 +1,11 @@
 AC_PREREQ(2.57)
 AC_INIT(sipXlib, 0.0.0, sipx-dev@list.sipfoundry.org)
 AC_CONFIG_AUX_DIR(config)
+m4_include([config/general.m4])
+m4_include([config/sipXlib.m4])
 AM_INIT_AUTOMAKE(foreign)
+
+SFAC_SRCDIR_EXPAND
 
 # default, fc5
 cgicc=yes
@@ -95,6 +99,7 @@ test x$xerces_c = xyes && AC_CONFIG_SUBDIRS(xerces-c)
 SFAC_DIST_DIR
    
 AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([config/top.mak])
 
 AC_OUTPUT
 
