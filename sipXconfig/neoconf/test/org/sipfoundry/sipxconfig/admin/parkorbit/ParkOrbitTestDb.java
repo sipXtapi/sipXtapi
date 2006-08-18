@@ -43,11 +43,11 @@ public class ParkOrbitTestDb extends SipxDatabaseTestCase {
     }
     
     public void testGetParkOrbits() throws Exception {
-        Collection orbits = m_context.getParkOrbits();
+        Collection<ParkOrbit> orbits = m_context.getParkOrbits();
         assertEquals(2, orbits.size());
-        Iterator i = orbits.iterator();
-        ParkOrbit orbit1 = (ParkOrbit) i.next();
-        ParkOrbit orbit2 = (ParkOrbit) i.next();
+        Iterator<ParkOrbit> i = orbits.iterator();
+        ParkOrbit orbit1 = i.next();
+        ParkOrbit orbit2 = i.next();
         assertFalse(orbit1.getName().equals(orbit2.getName()));
     }
 

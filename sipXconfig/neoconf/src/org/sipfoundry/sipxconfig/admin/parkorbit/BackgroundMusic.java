@@ -11,9 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.admin.parkorbit;
 
-import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
+import org.sipfoundry.sipxconfig.setting.Setting;
 
-public class BackgroundMusic extends BeanWithId {
+public class BackgroundMusic extends BeanWithGroups {
     private static final String DEFAULT = "default.wav";
 
     private String m_music = DEFAULT;
@@ -34,5 +35,17 @@ public class BackgroundMusic extends BeanWithId {
 
     public void setEnabled(boolean enabled) {
         m_enabled = enabled;
+    }
+
+    @Override
+    public void initialize() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    protected Setting loadSettings() {
+        // no settings for Background music
+        return null;
     }
 }

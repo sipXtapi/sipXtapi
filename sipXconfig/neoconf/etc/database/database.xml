@@ -114,6 +114,7 @@
     <antcall target="long-distance-rule"/>      
     <antcall target="gateway-prefix"/>
     <antcall target="permission"/>    
+    <antcall target="park-orbit-settings"/>    
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="4" -->
   </target>
@@ -164,6 +165,10 @@
 
   <target name="permission" depends="drop-permission">
     <db-patch patch="permission"/>
+  </target>  
+
+  <target name="park-orbit-settings" unless="park-orbit-settings">
+    <db-patch patch="park-orbit-settings"/>
   </target>  
   
   <target name="attendant_defaults" unless="attendant_defaults">

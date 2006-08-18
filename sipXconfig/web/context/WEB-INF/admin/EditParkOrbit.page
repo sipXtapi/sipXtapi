@@ -40,6 +40,10 @@
     <binding name="contentType" value="literal:audio/x-wav"/>
     <binding name="selectable" value="true"></binding>
   </component>
+  <component id="settingsFieldset" type="SettingsFieldset">
+    <binding name="settings" value="parkOrbit.settings"/>
+    <binding name="renderGroupTitle" value="false"/>
+  </component>  
   <component id="formActions" type="FormActions">
     <binding name="callback" value="callback"/>
     <binding name="listener" value="listener:commit"/>

@@ -36,7 +36,8 @@
   <table name="attendant_working_hours"/>
   
   <!-- park orbit -->
-  <table name="park_orbit"/>
+  <table name="park_orbit"/>  
+  <table name="park_orbit_group"/>
       
   <!-- users -->
   <table name="users"/>

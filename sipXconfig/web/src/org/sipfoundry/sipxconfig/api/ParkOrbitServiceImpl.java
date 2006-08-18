@@ -17,10 +17,10 @@ import java.util.Collection;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 
 public class ParkOrbitServiceImpl implements ParkOrbitService {
-    
+
     private ParkOrbitContext m_parkOrbitContext;
     private SimpleBeanBuilder m_parkOrbitBuilder;
-    
+
     public void setParkOrbitContext(ParkOrbitContext parkOrbitContext) {
         m_parkOrbitContext = parkOrbitContext;
     }
@@ -32,18 +32,18 @@ public class ParkOrbitServiceImpl implements ParkOrbitService {
     public GetParkOrbitsResponse getParkOrbits() throws RemoteException {
         GetParkOrbitsResponse response = new GetParkOrbitsResponse();
         Collection orbitsColl = m_parkOrbitContext.getParkOrbits();
-        org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit[] orbits =
-            (org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit[]) orbitsColl
-                .toArray(new org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit[orbitsColl.size()]);
-        ParkOrbit[] arrayOfParkOrbits =
-            (ParkOrbit[]) ApiBeanUtil.toApiArray(m_parkOrbitBuilder, orbits, ParkOrbit.class);
+        org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit[] orbits = (org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit[]) orbitsColl
+                .toArray(new org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit[orbitsColl
+                        .size()]);
+        ParkOrbit[] arrayOfParkOrbits = (ParkOrbit[]) ApiBeanUtil.toApiArray(m_parkOrbitBuilder,
+                orbits, ParkOrbit.class);
         response.setParkOrbits(arrayOfParkOrbits);
         return response;
     }
 
     public void addParkOrbit(AddParkOrbit apo) throws RemoteException {
-        org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit myOrbit =
-            new org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit();
+        org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit myOrbit = m_parkOrbitContext
+                .newParkOrbit();
         ParkOrbit apiOrbit = apo.getParkOrbit();
         ApiBeanUtil.toMyObject(m_parkOrbitBuilder, myOrbit, apiOrbit);
         m_parkOrbitContext.storeParkOrbit(myOrbit);

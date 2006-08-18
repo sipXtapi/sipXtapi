@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.admin.parkorbit;
 
 import junit.framework.TestCase;
 
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 
 public class ParkOrbitTest extends TestCase {
@@ -22,5 +23,18 @@ public class ParkOrbitTest extends TestCase {
         AliasMapping alias = orbit.generateAlias("from.com", "to.com");
         assertEquals("1002@from.com", alias.getIdentity());
         assertEquals("1002@to.com", alias.getContact());
+    }
+    
+    public void testDefaultSettings() throws Exception {
+        ParkOrbit orbit = new ParkOrbit();
+        orbit.setModelFilesContext(TestHelper.getModelFilesContext());
+        
+        assertFalse(orbit.isParkTimeoutEnabled());
+        assertEquals(120, orbit.getParkTimeout());
+        
+        assertFalse(orbit.isMultipleCalls());
+        
+        assertFalse(orbit.isTransferAllowed());
+        assertEquals("*", orbit.getTransferKey());
     }
 }

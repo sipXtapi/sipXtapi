@@ -19,6 +19,7 @@ import java.util.Collection;
 
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.parkorbit.BackgroundMusic;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit;
 import org.sipfoundry.sipxconfig.common.TestUtil;
@@ -42,6 +43,7 @@ public class OrbitsTest extends XMLTestCase {
         m_parkOrbits = new ArrayList(DATA.length);
         for (int i = 0; i < DATA.length; i++) {
             ParkOrbit orbit = new ParkOrbit();
+            orbit.setModelFilesContext(TestHelper.getModelFilesContext());
             orbit.setName(DATA[i][0]);
             orbit.setExtension(DATA[i][1]);
             orbit.setMusic(DATA[i][2]);
