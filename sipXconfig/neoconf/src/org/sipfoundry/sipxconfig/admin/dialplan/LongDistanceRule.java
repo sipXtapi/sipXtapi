@@ -173,6 +173,10 @@ public class LongDistanceRule extends DialingRule {
         m_permission = permission;
     }
 
+    public void setPermissionName(String permisisonName) {
+        setPermission(getPermission(permisisonName));
+    }
+
     public boolean isPstnPrefixOptional() {
         return m_pstnPrefixOptional;
     }

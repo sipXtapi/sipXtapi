@@ -20,14 +20,15 @@ import java.util.Set;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
+import org.sipfoundry.sipxconfig.permission.Permission;
 
 /**
  * CustomDialingRule
  */
 public class CustomDialingRule extends DialingRule {
-    private List m_dialPatterns = new ArrayList();
+    private List<DialPattern> m_dialPatterns = new ArrayList<DialPattern>();
     private CallPattern m_callPattern = new CallPattern();
-    private List m_permissions = new ArrayList();
+    private List<Permission> m_permissions = new ArrayList<Permission>();
 
     public CustomDialingRule() {
         m_dialPatterns.add(new DialPattern());
@@ -44,7 +45,7 @@ public class CustomDialingRule extends DialingRule {
         return m_dialPatterns;
     }
 
-    public void setDialPatterns(List dialPaterns) {
+    public void setDialPatterns(List<DialPattern> dialPaterns) {
         m_dialPatterns = dialPaterns;
     }
 
@@ -56,15 +57,17 @@ public class CustomDialingRule extends DialingRule {
         m_callPattern = callPattern;
     }
 
+    @Override
     public String[] getPatterns() {
         String[] patterns = new String[m_dialPatterns.size()];
         for (int i = 0; i < patterns.length; i++) {
-            DialPattern p = (DialPattern) m_dialPatterns.get(i);
+            DialPattern p = m_dialPatterns.get(i);
             patterns[i] = p.calculatePattern();
         }
         return patterns;
     }
 
+    @Override
     public Transform[] getTransforms() {
         final String calculatePattern = getCallPattern().calculatePattern();
         List gateways = getGateways();
@@ -97,12 +100,20 @@ public class CustomDialingRule extends DialingRule {
         return DialingRuleType.CUSTOM;
     }
 
-    public List getPermissions() {
+    public List<Permission> getPermissions() {
         return m_permissions;
     }
 
-    public void setPermissions(List permissions) {
+    public void setPermissions(List<Permission> permissions) {
         m_permissions = permissions;
+    }
+
+    public void setPermissionNames(List<String> names) {
+        List<Permission> permissions = new ArrayList<Permission>(names.size());
+        for (String name : names) {
+            permissions.add(getPermission(name));
+        }
+        setPermissions(permissions);
     }
 
     /**
