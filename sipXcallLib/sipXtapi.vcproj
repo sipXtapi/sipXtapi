@@ -129,11 +129,11 @@ copy include\tapi\sipXtapiEvents.h examples\include\tapi
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcrt.lib msvcprt.lib winmm.lib Ws2_32.lib sipXportLib.lib sipXtackLib.lib sipXcallLib.lib pcre.lib sipXmediaLib.lib sipXmediaMediaProcessing.lib"
+				AdditionalDependencies="msvcrt.lib msvcprt.lib winmm.lib Ws2_32.lib sipXportLib.lib sipXtackLib.lib sipXcallLib.lib pcre.lib sipXmediaLib.lib sipXmediaMediaProcessing.lib libspeex.lib"
 				OutputFile="bin\sipXtapi.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="lib;..\sipXportLib\Release;..\sipXtackLib\Release;..\sipXmediaAdapterLib\sipXmediaMediaProcessing\Release;..\sipXmediaLib\Release;..\sipXcallLib\Release"
+				AdditionalLibraryDirectories="lib;..\sipXportLib\Release;..\sipXtackLib\Release;..\sipXmediaAdapterLib\sipXmediaMediaProcessing\Release;..\sipXmediaLib\Release;..\sipXcallLib\Release;..\Speex\lib\static"
 				IgnoreDefaultLibraryNames="libcpmt.lib,libcpmtd.lib,libc,libcd,libc.lib,libcd.lib,libcmt.lib,msvcrtd.lib,msvcprtd.lib,libcmtd.lib"
 				ModuleDefinitionFile=""
 				GenerateDebugInformation="FALSE"

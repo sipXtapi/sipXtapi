@@ -78,7 +78,7 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXtackLib\include"
-				PreprocessorDefinitions="NDEBUG;WIN32;_LIB"
+				PreprocessorDefinitions="HAVE_SPEEX;NDEBUG;WIN32;_LIB"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
