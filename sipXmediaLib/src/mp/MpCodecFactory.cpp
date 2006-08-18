@@ -47,6 +47,10 @@
 #include "mp/MpeSipxPcmu.h"
 #endif /* HAVE_GIPS ] */
 
+#ifdef HAVE_SPEEX // [
+#include "mp/MpeSipxSpeex.h"
+#endif // HAVE_SPEEX ]
+
 // All decoder child classes
 #include "mp/MpdPtAVT.h"
 
@@ -68,6 +72,10 @@
 #include "mp/MpdSipxPcma.h"
 #include "mp/MpdSipxPcmu.h"
 #endif /* HAVE_GIPS ] */
+
+#ifdef HAVE_SPEEX // [
+#include "mp/MpdSipxSpeex.h"
+#endif // HAVE_SPEEX ]
 
 MpCodecFactory* MpCodecFactory::spInstance = NULL;
 OsBSem MpCodecFactory::sLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
@@ -170,6 +178,26 @@ OsStatus MpCodecFactory::createDecoder(SdpCodec::SdpCodecTypes internalCodecId,
       rpDecoder = new MpdSipxPcmu(payloadType);
       break;
 
+#ifdef HAVE_SPEEX // [
+
+   case (SdpCodec::SDP_CODEC_SPEEX):
+      rpDecoder = new MpdSipxSpeex(payloadType);
+      break;
+
+   case (SdpCodec::SDP_CODEC_SPEEX_5):
+      rpDecoder = new MpdSipxSpeex(payloadType);
+      break;
+
+    case (SdpCodec::SDP_CODEC_SPEEX_15):
+      rpDecoder = new MpdSipxSpeex(payloadType);
+      break;
+
+    case (SdpCodec::SDP_CODEC_SPEEX_24):
+      rpDecoder = new MpdSipxSpeex(payloadType);
+      break;
+
+#endif // HAVE_SPEEX ]
+
    default:
       OsSysLog::add(FAC_MP, PRI_WARNING, 
                     "MpCodecFactory::createDecoder unknown codec type "
@@ -252,6 +280,22 @@ OsStatus MpCodecFactory::createEncoder(SdpCodec::SdpCodecTypes internalCodecId,
       rpEncoder = new MpeSipxPcmu(payloadType);
       break;
 #endif /* HAVE_GIPS*/
+
+#ifdef HAVE_SPEEX // [
+   case (SdpCodec::SDP_CODEC_SPEEX):
+      rpEncoder = new MpeSipxSpeex(payloadType);
+      break;
+   case (SdpCodec::SDP_CODEC_SPEEX_5):
+      rpEncoder = new MpeSipxSpeex(payloadType);
+      break;
+    case (SdpCodec::SDP_CODEC_SPEEX_15):
+      rpEncoder = new MpeSipxSpeex(payloadType);
+      break;
+    case (SdpCodec::SDP_CODEC_SPEEX_24):
+      rpEncoder = new MpeSipxSpeex(payloadType);
+      break;
+#endif // HAVE_SPEEX ]
+
    default:
       OsSysLog::add(FAC_MP, PRI_WARNING, 
                     "MpCodecFactory::createEncoder unknown codec type "

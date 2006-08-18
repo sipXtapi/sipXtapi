@@ -38,6 +38,24 @@
 #define CONFIG_PHONESET_SEND_INBAND_DTMF  "PHONESET_SEND_INBAND_DTMF"
 #define MAX_MANAGED_FLOW_GRAPHS           16
 
+#define GENERIC_CODECS_NUM 3
+
+#define GIPS_CODECS_BEGIN  GENERIC_CODECS_NUM
+#ifdef HAVE_GIPS /* [ */
+#define GIPS_CODECS_NUM 3
+#else /* HAVE_GIPS ] [ */
+#define GIPS_CODECS_NUM 0
+#endif /* HAVE_GIPS ] */
+
+#define SPEEX_CODECS_BEGIN  (GIPS_CODECS_BEGIN+GIPS_CODECS_NUM)
+#ifdef HAVE_SPEEX /* [ */
+#define SPEEX_CODECS_NUM 4
+#else /* HAVE_SPEEX ] [ */
+#define SPEEX_CODECS_NUM 0
+#endif /* HAVE_SPEEX ] */
+
+#define TOTAL_CODECS_NUM (SPEEX_CODECS_BEGIN + SPEEX_CODECS_NUM)
+
 // STATIC VARIABLE INITIALIZATIONS
 int sipXmediaFactoryImpl::miInstanceCount=0;
 
@@ -245,25 +263,25 @@ OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory,
 
     *iRejected = 0;
 
-#ifdef HAVE_GIPS /* [ */
-    numCodecs = 6;
-    SdpCodec::SdpCodecTypes codecs[6];
-            
-    codecs[0] = SdpCodec::SDP_CODEC_GIPS_PCMU;
-    codecs[1] = SdpCodec::SDP_CODEC_GIPS_PCMA;
-    codecs[2] = SdpCodec::SDP_CODEC_GIPS_IPCMU;
-    codecs[3] = SdpCodec::SDP_CODEC_GIPS_IPCMA;
-    codecs[4] = SdpCodec::SDP_CODEC_GIPS_IPCMWB;
-    codecs[5] = SdpCodec::SDP_CODEC_TONES;
-            
-#else /* HAVE_GIPS ] [ */
-    numCodecs = 3;
-    SdpCodec::SdpCodecTypes codecs[3];
-            
+    numCodecs = TOTAL_CODECS_NUM;
+    SdpCodec::SdpCodecTypes codecs[TOTAL_CODECS_NUM];
+
     codecs[0] = SdpCodec::SDP_CODEC_GIPS_PCMU;
     codecs[1] = SdpCodec::SDP_CODEC_GIPS_PCMA;
     codecs[2] = SdpCodec::SDP_CODEC_TONES;
+
+#ifdef HAVE_GIPS /* [ */
+    codecs[GIPS_CODECS_BEGIN+0] = SdpCodec::SDP_CODEC_GIPS_IPCMU;
+    codecs[GIPS_CODECS_BEGIN+1] = SdpCodec::SDP_CODEC_GIPS_IPCMA;
+    codecs[GIPS_CODECS_BEGIN+2] = SdpCodec::SDP_CODEC_GIPS_IPCMWB;
 #endif /* HAVE_GIPS ] */
+
+#ifdef HAVE_SPEEX /* [ */
+    codecs[SPEEX_CODECS_BEGIN+0] = SdpCodec::SDP_CODEC_SPEEX;
+    codecs[SPEEX_CODECS_BEGIN+1] = SdpCodec::SDP_CODEC_SPEEX_5;
+    codecs[SPEEX_CODECS_BEGIN+2] = SdpCodec::SDP_CODEC_SPEEX_15;
+    codecs[SPEEX_CODECS_BEGIN+3] = SdpCodec::SDP_CODEC_SPEEX_24;
+#endif /* HAVE_SPEEX ] */
 
     if (pFactory)
     {
@@ -377,7 +395,7 @@ OsStatus sipXmediaFactoryImpl::getMicrophoneDevice(UtlString& device) const
 
 OsStatus sipXmediaFactoryImpl::getNumOfCodecs(int& iCodecs) const
 {
-    iCodecs = 3;
+    iCodecs = TOTAL_CODECS_NUM;
     return OS_SUCCESS;
 }
 
@@ -388,19 +406,33 @@ OsStatus sipXmediaFactoryImpl::getCodec(int iCodec, UtlString& codec, int &bandW
 
     switch (iCodec)
     {
-#ifdef HAVE_GIPS /* [ */
     case 0: codec = (const char*) SdpCodec::SDP_CODEC_GIPS_PCMU;
         break;
     case 1: codec = (const char*) SdpCodec::SDP_CODEC_GIPS_PCMA;
         break;
-#else /* HAVE_GIPS ] [ */
-    case 0: codec = (const char*) SdpCodec::SDP_CODEC_GIPS_PCMU;
-        break;
-    case 1: codec = (const char*) SdpCodec::SDP_CODEC_GIPS_PCMA;
-        break;
-#endif /* HAVE_GIPS ] */
     case 2: codec = (const char*) SdpCodec::SDP_CODEC_TONES;
         break;
+
+#ifdef HAVE_GIPS /* [ */
+    case GIPS_CODECS_BEGIN+1: codec = (const char*) SdpCodec::SDP_CODEC_GIPS_IPCMU;
+        break;
+    case GIPS_CODECS_BEGIN+2: codec = (const char*) SdpCodec::SDP_CODEC_GIPS_IPCMA;
+        break;
+    case GIPS_CODECS_BEGIN+3: codec = (const char*) SdpCodec::SDP_CODEC_GIPS_IPCMWB;
+        break;
+#endif /* HAVE_GIPS ] */
+
+#ifdef HAVE_SPEEX /* [ */
+    case SPEEX_CODECS_BEGIN+1: codec = (const char*) SdpCodec::SDP_CODEC_SPEEX;
+        break;
+    case SPEEX_CODECS_BEGIN+2: codec = (const char*) SdpCodec::SDP_CODEC_SPEEX_5;
+        break;
+    case SPEEX_CODECS_BEGIN+3: codec = (const char*) SdpCodec::SDP_CODEC_SPEEX_15;
+        break;
+    case SPEEX_CODECS_BEGIN+4: codec = (const char*) SdpCodec::SDP_CODEC_SPEEX_24;
+        break;
+#endif /* HAVE_SPEEX ] */
+
     default: rc = OS_FAILED;
     }
 
@@ -471,6 +503,18 @@ OsStatus sipXmediaFactoryImpl::getCodecNameByType(SdpCodec::SdpCodecTypes type, 
         break;
     case SdpCodec::SDP_CODEC_GIPS_ISAC:
         codecName = GIPS_CODEC_ID_ISAC;
+        break;
+    case SdpCodec::SDP_CODEC_SPEEX:
+        codecName = SIPX_CODEC_ID_SPEEX;
+        break;
+    case SdpCodec::SDP_CODEC_SPEEX_5:
+        codecName = SIPX_CODEC_ID_SPEEX_5;
+        break;
+    case SdpCodec::SDP_CODEC_SPEEX_15:
+        codecName = SIPX_CODEC_ID_SPEEX_15;
+        break;
+    case SdpCodec::SDP_CODEC_SPEEX_24:
+        codecName = SIPX_CODEC_ID_SPEEX_24;
         break;
     default:
         OsSysLog::add(FAC_MP, PRI_WARNING,

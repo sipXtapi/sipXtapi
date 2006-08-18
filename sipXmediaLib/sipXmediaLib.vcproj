@@ -22,8 +22,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXtackLib\include"
-				PreprocessorDefinitions="_DEBUG;WIN32;_LIB"
+				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXtackLib\include;..\Speex\include"
+				PreprocessorDefinitions="HAVE_SPEEX;_DEBUG;WIN32;_LIB"
 				StringPooling="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -42,6 +42,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile=".\Debug\sipXmediaLib.lib"
+				AdditionalLibraryDirectories=""
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -495,9 +496,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpBufPool.cpp">
-			</File>
-			<File
 				RelativePath="src\mp\MpBuf.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -536,6 +534,9 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpBufPool.cpp">
 			</File>
 			<File
 				RelativePath="src\mp\MpCallFlowGraph.cpp">
@@ -861,6 +862,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MpdSipxSpeex.cpp">
+			</File>
+			<File
 				RelativePath="src\mp\MpeGIPSG729ab.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -1079,6 +1083,9 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpeSipxSpeex.cpp">
 			</File>
 			<File
 				RelativePath="src\mp\MpFlowGraphBase.cpp">
@@ -2487,6 +2494,9 @@
 				RelativePath="include\mp\MpdSipxPcmu.h">
 			</File>
 			<File
+				RelativePath=".\include\mp\MpdSipxSpeex.h">
+			</File>
+			<File
 				RelativePath="include\mp\MpeGIPSG729ab.h">
 			</File>
 			<File
@@ -2518,6 +2528,9 @@
 			</File>
 			<File
 				RelativePath="include\mp\MpeSipxPcmu.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpeSipxSpeex.h">
 			</File>
 			<File
 				RelativePath="include\mp\MpFlowGraphBase.h">

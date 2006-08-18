@@ -79,7 +79,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXcallLib\include"
-				PreprocessorDefinitions="_DEBUG;WIN32;_LIB;SIP_STACK_VERSION=\&quot;1.3.0\&quot;;SIPX_CONFDIR=\&quot;.\&quot;;SIPX_LOGDIR=\&quot;.\&quot;;_WINDOWS"
+				PreprocessorDefinitions="HAVE_SPEEX;_DEBUG;WIN32;_LIB;SIP_STACK_VERSION=\&quot;1.3.0\&quot;;SIPX_CONFDIR=\&quot;.\&quot;;SIPX_LOGDIR=\&quot;.\&quot;;_WINDOWS"
 				StringPooling="FALSE"
 				ExceptionHandling="TRUE"
 				BasicRuntimeChecks="3"

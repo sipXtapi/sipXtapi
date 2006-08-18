@@ -20,7 +20,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories=".;..\..\sipXportLib\include;..\..\sipXmediaLib\include;..\..\sipXcallLib\include;..\..\sipXtackLib\include;..\..\sipXmediaAdapterLib\interface"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
+				PreprocessorDefinitions="HAVE_SPEEX;WIN32;_DEBUG;_LIB"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"

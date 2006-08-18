@@ -40,11 +40,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcrtd.lib msvcprtd.lib Ws2_32.lib sipXportLib.lib sipXtackLib.lib sipXcallLib.lib pcre.lib sipXmediaLib.lib winmm.lib sipXmediaMediaProcessing.lib"
+				AdditionalDependencies="msvcrtd.lib msvcprtd.lib Ws2_32.lib sipXportLib.lib sipXtackLib.lib sipXcallLib.lib pcre.lib sipXmediaLib.lib winmm.lib sipXmediaMediaProcessing.lib libspeex.lib"
 				OutputFile="bin\sipXtapid.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="lib;..\sipXportLib\Debug;..\sipXtackLib\Debug;..\sipXmediaAdapterLib\sipXmediaMediaProcessing\Debug;..\sipXmediaLib\Debug;..\sipXcallLib\Debug"
+				AdditionalLibraryDirectories="lib;..\sipXportLib\Debug;..\sipXtackLib\Debug;..\sipXmediaAdapterLib\sipXmediaMediaProcessing\Debug;..\sipXmediaLib\Debug;..\sipXcallLib\Debug;..\Speex\lib\static"
 				IgnoreAllDefaultLibraries="FALSE"
 				IgnoreDefaultLibraryNames="libc,libc.lib,libcmt.lib,msvcrt.lib,libcmtd.lib"
 				ModuleDefinitionFile=""

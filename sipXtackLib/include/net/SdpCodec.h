@@ -40,6 +40,7 @@
 #define MIME_SUBTYPE_ILBC "ILBC"
 #define MIME_SUBTYPE_ISAC "ISAC"
 #define MIME_SUBTYPE_GSM "GSM"
+#define MIME_SUBTYPE_SPEEX "SPEEX"
 #define MIME_SUBTYPE_VP71 "VP71"
 #define MIME_SUBTYPE_IYUV "IYUV"
 #define MIME_SUBTYPE_I420 "I420"
@@ -126,6 +127,10 @@ public:
         SDP_CODEC_G729 = 18,       ///< G.729, with or without Annexes A or B
         SDP_CODEC_H263 = 34,
         SDP_CODEC_MAXIMUM_STATIC_CODEC = 95,
+        SDP_CODEC_SPEEX = 110,     ///< Speex, mono 8bits 8000samples/sec
+        SDP_CODEC_SPEEX_5 = 111,   ///< Profile 1
+        SDP_CODEC_SPEEX_15 = 112,  ///< Profile 2
+        SDP_CODEC_SPEEX_24 = 113,  ///< Profile 3
         SDP_CODEC_TONES = 128,     ///< AVT/DTMF Tones, RFC 2833
         SDP_CODEC_G729A = 129,
         SDP_CODEC_G7221 = 130,     ///< Siren
@@ -181,17 +186,17 @@ public:
 
      ///Default constructor
    SdpCodec(enum SdpCodecTypes sdpCodecType = SDP_CODEC_UNKNOWN,
-           int payloadFormat = -1,
-           const char* mimeType = "audio",
-           const char* mimeSubtype = "",
-           int sampleRate = 8000,             ///< samples per second
-           int preferredPacketLength = 20000, ///< micro seconds
-           int numChannels = 1,
-           const char* formatSpecificData = "",
-           const int CPUCost = SDP_CODEC_CPU_LOW,
-           const int BWCost = SDP_CODEC_BANDWIDTH_NORMAL,
-           const int videoFormat = SDP_VIDEO_FORMAT_QCIF,
-           const int videoFmtp = 0);
+            int payloadFormat = -1,
+            const char* mimeType = MIME_TYPE_AUDIO,
+            const char* mimeSubtype = "",
+            int sampleRate = 8000,             ///< samples per second
+            int preferredPacketLength = 20000, ///< micro seconds
+            int numChannels = 1,
+            const char* formatSpecificData = "",
+            const int CPUCost = SDP_CODEC_CPU_LOW,
+            const int BWCost = SDP_CODEC_BANDWIDTH_NORMAL,
+            const int videoFormat = SDP_VIDEO_FORMAT_QCIF,
+            const int videoFmtp = 0);
 
      ///Copy constructor
    SdpCodec(const SdpCodec& rSdpCodec);

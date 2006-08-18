@@ -185,7 +185,11 @@ CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFacto
        //SdpCodec mapCodecs2(SdpCodec::SDP_CODEC_PCMA, SdpCodec::SDP_CODEC_PCMA);
        //mSupportedCodecs.addCodec(mapCodecs2);
        //mapCodecs[2] = new SdpCodec(SdpCodec::SDP_CODEC_L16_MONO);
-       UtlString codecs = "PCMU PCMA TELEPHONE-EVENT";
+       UtlString codecs = 
+#ifdef HAVE_SPEEX // [
+                          "SPEEX SPEEX_5 SPEEX_15 SPEEX_24 "
+#endif // HAVE_SPEEX ]
+                          "PCMU PCMA TELEPHONE-EVENT";
        mSupportedCodecs.buildSdpCodecFactory(codecs);
    }
 

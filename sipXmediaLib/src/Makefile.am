@@ -69,6 +69,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MpdPtAVT.cpp \
     mp/MpdSipxPcma.cpp \
     mp/MpdSipxPcmu.cpp \
+    mp/MpdSipxSpeex.cpp \
     mp/MpeGIPSG729ab.cpp \
     mp/MpeGIPSiLBC.cpp \
     mp/MpeGIPSiPCMA.cpp \
@@ -78,6 +79,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MpeGIPSPCMU.cpp \
     mp/MpeSipxPcma.cpp \
     mp/MpeSipxPcmu.cpp \
+    mp/MpeSipxSpeex.cpp \
     mp/MpEncoderBase.cpp \
     mp/MpePtAVT.cpp \
     mp/MpFlowGraphBase.cpp \

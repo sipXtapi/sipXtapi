@@ -19,8 +19,9 @@
 
 #include "mp/JB/JB_API.h"
 #include "mp/MpJitterBuffer.h"
-#include "mp/MpSipxDecoders.h"
-#include "mp/NetInTask.h" // for definition of RTP packet
+#include "mp/MpSipxDecoders.h" // for G.711 decoder
+#include "mp/MpdSipxSpeex.h"   // for Speex decoder
+#include "mp/NetInTask.h"      // for definition of RTP packet
 
 static int debugCount = 0;
 
@@ -51,10 +52,20 @@ int MpJitterBuffer::ReceivePacket(MpRtpBufPtr &rtpPacket)
    int numSamples = 0;
 
    switch (rtpPacket->getRtpPayloadType()) {
-   case 0: // G.711 u-Law
-   case 8: // G.711 a-Law
+   case CODEC_TYPE_PCMU: // G.711 u-Law
+   case CODEC_TYPE_PCMA: // G.711 a-Law
       numSamples = rtpPacket->getPayloadSize();
       break;
+
+#ifdef HAVE_SPEEX // [
+   case CODEC_TYPE_SPEEX: //Speex
+   case CODEC_TYPE_SPEEX_5: //Speex
+   case CODEC_TYPE_SPEEX_15: //Speex
+   case CODEC_TYPE_SPEEX_24: //Speex
+      numSamples = 160;
+      break;
+#endif // HAVE_SPEEX ]
+
    default:
       return 0;
    }
@@ -79,6 +90,17 @@ int MpJitterBuffer::ReceivePacket(MpRtpBufPtr &rtpPacket)
    case 8: // G.711 a-Law
       G711A_Decoder(numSamples, (JB_uchar*)rtpPacket->getPayload(), JbQ+JbQIn);
       break;
+
+#ifdef HAVE_SPEEX // [
+   case CODEC_TYPE_SPEEX: //Speex
+   case CODEC_TYPE_SPEEX_5: //Speex
+   case CODEC_TYPE_SPEEX_15: //Speex
+   case CODEC_TYPE_SPEEX_24: //Speex
+      MpdSipxSpeex::decode(numSamples, (JB_uchar*)rtpPacket->getPayload(),
+                           JbQ+JbQIn);
+      break;
+#endif // HAVE_SPEEX ]
+
    default:
       break;
    }

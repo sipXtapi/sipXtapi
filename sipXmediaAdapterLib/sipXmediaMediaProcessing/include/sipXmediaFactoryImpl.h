@@ -26,6 +26,10 @@
 #define GIPS_CODEC_ID_ILBC      "iLBC"
 #define GIPS_CODEC_ID_G729      "G729"
 #define GIPS_CODEC_ID_TELEPHONE "audio/telephone-event"
+#define SIPX_CODEC_ID_SPEEX     "SPEEX"
+#define SIPX_CODEC_ID_SPEEX_5   "SPEEX_5"
+#define SIPX_CODEC_ID_SPEEX_15  "SPEEX_15"
+#define SIPX_CODEC_ID_SPEEX_24  "SPEEX_24"
 
 // MACROS
 // EXTERNAL FUNCTIONS
