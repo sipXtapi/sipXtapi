@@ -57,7 +57,7 @@ public:
      /// Initializes a codec data structure for use as a decoder
    virtual OsStatus initDecode(MpConnection* pConnection)=0;
      /**<
-     //!param: pConnection - (in) Pointer to the MpConnection container
+     *  @param pConnection - (in) Pointer to the MpConnection container
      *  @returns <b>OS_SUCCESS</b> - Success
      *  @returns <b>OS_NO_MEMORY</b> - Memory allocation failure
      */
