@@ -252,8 +252,8 @@ static void initAudioDevices(SIPX_INSTANCE_DATA* pInst)
 
 
 SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
-                                        const int   tcpPort,
                                         const int   udpPort,
+                                        const int   tcpPort,
                                         const int   tlsPort,
                                         const int   rtpPortStart,
                                         const int   maxConnections,
@@ -571,8 +571,8 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
 }
 
 SIPXTAPI_API SIPX_RESULT sipxReInitialize(SIPX_INST*  phInst,
-                                          const int   tcpPort,
                                           const int   udpPort,
+                                          const int   tcpPort,
                                           const int   tlsPort,
                                           const int   rtpPortStart,
                                           const int   maxConnections,
@@ -610,8 +610,8 @@ SIPXTAPI_API SIPX_RESULT sipxReInitialize(SIPX_INST*  phInst,
         }
 
         rc = sipxInitialize(phInst,
-                       tcpPort,
                        udpPort,
+                       tcpPort,
                        tlsPort, 
                        rtpPortStart,
                        maxConnections,
