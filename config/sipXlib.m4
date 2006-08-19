@@ -99,7 +99,32 @@ AC_DEFUN([SFAC_INIT_FLAGS],
 
     SFAC_SVN_VERSION
     SFAC_DIST_DIR
+
+    SFAC_CONFIGURE_OPTIONS
 ])
+
+AC_DEFUN([SFAC_CONFIGURE_OPTIONS],
+[
+  ConfigureArgs=`sed \
+    -e '/^ *\$ .*\/configure/!d' \
+    -e 's/^ *\$ .*\/configure *//' \
+    config.log`
+
+  ## Strip out configure switched that cause issue in RPM spec file
+  ## configure switch. Does not support spaces in paths
+  for a in $ConfigureArgs; do
+    case ${a} in
+      --srcdir=*|--cache-file=*|--prefix=*)
+        ;;
+      *)
+        CleanedArgs="$CleanedArgs $a"
+        ;;
+    esac 
+  done
+
+  AC_SUBST(CONFIGURE_OPTIONS, $CleanedArgs)
+])
+
 
 # Determine the svn repository revision number, useful to build stamps
 AC_DEFUN([SFAC_SVN_VERSION],[
@@ -268,6 +293,8 @@ AC_DEFUN([CHECK_GIPSNEQ],
 ],
       compile_with_gips=yes)
 
+   gips_file_check=$withval/include/GIPS/Vendor_gips_typedefs.h
+
    AC_REQUIRE([SFAC_LIB_MEDIAADAPTER])
 
    AC_MSG_CHECKING(if link in with gips NetEQ)
@@ -281,15 +308,15 @@ AC_DEFUN([CHECK_GIPSNEQ],
       AC_MSG_CHECKING(for gips includes)
       # Define HAVE_GIPS for c pre-processor
       GIPS_CPPFLAGS=-DHAVE_GIPS
-      if test -e $withval/include/GIPS/Vendor_gips_typedefs.h
+      if test -e $gips_file_check
       then
          gips_dir=$withval
-      elif test -e $abs_srcdir/../sipXbuild/vendors/gips/include/GIPS/Vendor_gips_typedefs.h
-      then
-         gips_dir=$abs_srcdir/../sipXbuild/vendors/gips
       else
-         AC_MSG_ERROR(GIPS/Vendor_gips_typedefs.h not found)
+         AC_MSG_ERROR($gips_file_check not found)
       fi
+
+      # Cascade flags into RPM build
+      DIST_FLAGS="$DIST_FLAGS --with-gipsneq=$gips_dir"
 
       AC_MSG_RESULT($gips_dir)
 

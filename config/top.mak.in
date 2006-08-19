@@ -20,7 +20,7 @@ list:
 	@echo $(PROJECTS)
 
 .PHONY: repo
-repo:
+repo: @TOP_SRCDIR@/config/local.repo.in
 	cd @DEST_RPM@ && createrepo .
 	sed -e 's,@DEST_RPM\@,@DEST_RPM@,g' \
-	 $(srcdir)/config/local.repo.in > local.repo
+	$< > local.repo

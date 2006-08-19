@@ -30,7 +30,9 @@ testsuite_SOURCES = \
    CallStateEventBuilder_XMLTest.cpp \
    CallStateEventBuilder_DBTest.cpp \
    $(top_srcdir)/src/sipauthproxy/SipAaa.cpp \
-   SipAaaTest.cpp
+   SipAaaTest.cpp \
+	$(top_srcdir)/src/sipforkingproxy/SipRouter.cpp \
+   SipRouterTest.cpp
 
 
 # [DEBUG ASSISTANT] List a single unit test to isolate a unit test for
@@ -48,10 +50,13 @@ sandbox_LDADD = $(testsuite_LDADD)
 sandbox_CXXFLAGS = $(testsuite_CXXFLAGS)
 sandbox_SOURCES = \
    $(top_srcdir)/src/sipforkingproxy/ForwardRules.cpp \
-   ForwardRulesTest.cpp
+   ForwardRulesTest.cpp \
+   $(top_srcdir)/src/sipforkingproxy/SipRouter.cpp \
+   SipRouterTest.cpp
 
 EXTRA_DATA = \
-   rulesdata/simple.xml 
+   rulesdata/simple.xml \
+   rulesdata/routing.xml
 
 
 EXTRA_DIST = $(EXTRA_DATA)
