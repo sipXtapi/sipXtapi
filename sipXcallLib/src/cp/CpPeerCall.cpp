@@ -3837,13 +3837,19 @@ CpCall::handleWillingness CpPeerCall::willHandleMessage(const OsMsg& eventMessag
             UtlString strToField;
             sipMsg->getToField(&strToField);
 
-            // DWW 08/18/03 If we are dropping and a invite comes in, but 
-            // has a to field, we should let the callmanager create a new call.
-            // Otherwise, if a invite comes in, and does not have a to field,
-            // the we SHOULD handle it.
+            // Ignore any reINVITE when attempting to drop a call.
+            if (mDropping && seqMethod == "INVITE" && !sipMsg->isResponse())
+            {
+                if (OsSysLog::willLog(FAC_CP, PRI_WARNING))
+                {
+                    UtlString callId;
+                    sipMsg->getCallIdField(&callId);                    
 
-            if (mDropping && seqMethod == "INVITE" && strToField.length())
-                ; 
+                    OsSysLog::add(FAC_CP, PRI_WARNING, 
+                            "willHandleMessage: Ignoring SIP request for dropping call: %s",
+                            callId.data()) ;
+                }
+            }
             else
             {
                 UtlString callId;

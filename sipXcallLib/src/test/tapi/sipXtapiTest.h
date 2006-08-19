@@ -56,7 +56,7 @@
   #define TEST_CONFIG             1
   #define TEST_SUBSCRIBE          1
   #define TEST_NAT                1
-  #define TEST_UTILS              1  
+  #define TEST_UTILS              1
   #define TEST_PROBLEMATIC_CASES  0  
 #else
   #define TEST_AUDIO              0
@@ -136,9 +136,10 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
     CPPUNIT_TEST(testCallGetRemoteID) ;
     CPPUNIT_TEST(testCallGetLocalID) ;
     CPPUNIT_TEST(testCallCancel) ;
+    CPPUNIT_TEST(testCallCancel2) ;
     CPPUNIT_TEST(testCallBasic) ;
-    CPPUNIT_TEST(testCallBasic2) ;  
-    CPPUNIT_TEST(testCallBasicTCP);
+    CPPUNIT_TEST(testCallBasic2) ;
+    CPPUNIT_TEST(testCallBasicTCP) ;
     CPPUNIT_TEST(testCallBasicNoRtcp) ;
 #if 0
     // Per Mike Cohen on May/2006 -- doesn't pass because 
@@ -436,6 +437,7 @@ public:
     void testCallRedirect();
     void testCallShutdown();
     void testCallCancel();
+    void testCallCancel2();
     void testCallGetRemoteUserAgent();
     void testCallBasicSecure();
     void testCallHoldSecure();

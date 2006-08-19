@@ -43,6 +43,10 @@ SIPX_LINE g_hAutoRejectCallbackLine ;
 SIPX_CALL g_hAutoRedirectCallbackCall ;
 SIPX_LINE g_hAutoRedirectCallbackLine ;
 
+SIPX_CALL g_hAutoAnswerCallbackCallHolder ;
+SIPX_CALL g_hAutoAnswerCallbackCallOtherHolder ;
+SIPX_LINE g_hAutoAnswerCallbackLineHolder ;
+
 SIPX_CALL g_hNewCallDetectorCall1 ;
 SIPX_CALL g_hNewCallDetectorSourceCall1 ;
 SIPX_CALL g_hNewCallDetectorCall2 ;
@@ -97,8 +101,8 @@ void resetAutoAnswerCallback()
 
 
 bool SIPX_CALLING_CONVENTION AutoAnswerCallback(SIPX_EVENT_CATEGORY category, 
-                        void* pInfo, 
-                        void* pUserData)
+                                                void* pInfo, 
+                                                void* pUserData)
 {
     if (category == EVENT_CATEGORY_CALLSTATE)
     {
@@ -137,7 +141,7 @@ bool SIPX_CALLING_CONVENTION AutoAnswerCallback(SIPX_EVENT_CATEGORY category,
                 break ;
             case CALLSTATE_ALERTING:
                 {
-                    int delay = rand() % 40 ;
+                    int delay = rand() % 500 ;
                     OsTask::delay(delay) ;
                     sipxCallAnswer(pCallInfo->hCall) ;
                 }
@@ -155,6 +159,81 @@ bool SIPX_CALLING_CONVENTION AutoAnswerCallback(SIPX_EVENT_CATEGORY category,
     
     return true;
 }
+
+void resetAutoAnswerCallbackHolder() 
+{
+    g_hAutoAnswerCallbackCallHolder = 0 ;
+    g_hAutoAnswerCallbackCallOtherHolder = 0 ;
+}
+
+
+bool SIPX_CALLING_CONVENTION AutoAnswerCallbackHolder(SIPX_EVENT_CATEGORY category, 
+                                                        void* pInfo, 
+                                                        void* pUserData)
+{
+    if (category == EVENT_CATEGORY_CALLSTATE)
+    {
+        SIPX_CALLSTATE_INFO* pCallInfo = (SIPX_CALLSTATE_INFO*) pInfo;
+
+        if (g_hAutoAnswerCallbackCallHolder == 0)
+        {
+            g_hAutoAnswerCallbackCallHolder = pCallInfo->hCall;
+        }
+        else if (g_hAutoAnswerCallbackCallHolder != pCallInfo->hCall)
+        {
+            g_hAutoAnswerCallbackCallOtherHolder = pCallInfo->hCall ;
+        }
+        g_hAutoAnswerCallbackLineHolder = pCallInfo->hLine;
+        
+        
+        // If we have user data verify the line url against it
+        if (pUserData)
+        {
+            char szBuffer[500] ; 
+            size_t nBuffer ;
+
+            if (strlen((const char*) pUserData))
+            {
+                if (pCallInfo->hLine)  // hLine can be 0, and therefore, sipxLineGetURI should fail)
+                {
+                    CPPUNIT_ASSERT_EQUAL(sipxLineGetURI(pCallInfo->hLine, szBuffer, sizeof(szBuffer), nBuffer), SIPX_RESULT_SUCCESS) ;
+                }
+            }
+        }
+
+        switch(pCallInfo->event)
+        {
+            case CALLSTATE_OFFERING:
+                sipxCallAccept(pCallInfo->hCall) ;
+                break ;
+            case CALLSTATE_ALERTING:
+                {
+                    // printf("%d Alerting\n", GetTickCount()) ;
+                    int delay = rand() % 500 ;
+                    OsTask::delay(delay) ;
+                    // printf("%d Answering\n", GetTickCount()) ;
+                    sipxCallAnswer(pCallInfo->hCall) ;                    
+                    delay = rand() % 500 ;
+                    OsTask::delay(delay) ;
+                    // printf("%d Holding\n", GetTickCount()) ;
+                    sipxCallHold(pCallInfo->hCall, true) ;                   
+                }
+                break ;
+            case CALLSTATE_DISCONNECTED:
+                {
+                    // printf("%d Dropping\n", GetTickCount()) ;
+                    SIPX_CALL hDestroy = pCallInfo->hCall ;
+                    sipxCallDestroy(hDestroy) ; 
+                }
+                break ;
+            default:
+                break ;
+        }
+    }     
+    
+    return true;
+}
+
 
 SIPX_SECURITY_ATTRIBUTES* gpAcceptSecurity = NULL;
 void setAutoAnswerSecurity(SIPX_SECURITY_ATTRIBUTES* pSecurity)
