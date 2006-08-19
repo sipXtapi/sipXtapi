@@ -75,7 +75,7 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
 
     public void activateParkOrbits() {
         m_replicationContext.generate(DataSet.ALIAS);
-        Collection orbits = getParkOrbits();
+        Collection<ParkOrbit> orbits = getParkOrbits();
         BackgroundMusic defaultMusic = getBackgroundMusic();
         m_orbitsGenerator.generate(defaultMusic, orbits);
         m_replicationContext.replicate(m_orbitsGenerator);

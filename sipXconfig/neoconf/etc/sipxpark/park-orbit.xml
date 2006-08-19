@@ -9,7 +9,7 @@
       <type>
         <boolean />
       </type>
-      <value>false</value>
+      <value>0</value>
       <description>
         If enabled the call will be automatically transfered to the parking party once time
         specified in Park timeout elapses.
@@ -31,7 +31,7 @@
       <type>
         <boolean />
       </type>
-      <value>false</value>
+      <value>0</value>
       <description>
         If checked, more than one call can be parked on the orbit at the same time. Calls are
         retrieved in the order they were parked.
@@ -42,7 +42,7 @@
       <type>
         <boolean />
       </type>
-      <value>false</value>
+      <value>0</value>
       <description>
         If checked callers parked on the orbit are able to transfer the call back to the parking
         party by pressing transfer key.

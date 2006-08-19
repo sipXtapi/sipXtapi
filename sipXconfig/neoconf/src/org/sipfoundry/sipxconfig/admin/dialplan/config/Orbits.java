@@ -14,7 +14,6 @@ package org.sipfoundry.sipxconfig.admin.dialplan.config;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Iterator;
 
 import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
@@ -36,7 +35,7 @@ public class Orbits extends XmlFile {
         return m_document;
     }
 
-    public void generate(BackgroundMusic defaultMusic, Collection parkOrbits) {
+    public void generate(BackgroundMusic defaultMusic, Collection<ParkOrbit> parkOrbits) {
         m_document = FACTORY.createDocument();
         Element orbits = m_document.addElement("orbits", NAMESPACE);
         File dir = new File(m_audioDirectory);
@@ -44,8 +43,7 @@ public class Orbits extends XmlFile {
         Element musicOnHold = orbits.addElement("music-on-hold");
         addBackgroundAudio(musicOnHold, dir, defaultMusic);
         // add other orbits
-        for (Iterator i = parkOrbits.iterator(); i.hasNext();) {
-            ParkOrbit parkOrbit = (ParkOrbit) i.next();
+        for (ParkOrbit parkOrbit : parkOrbits) {
             // ignore disabled orbits
             if (!parkOrbit.isEnabled()) {
                 continue;
@@ -54,6 +52,17 @@ public class Orbits extends XmlFile {
             orbit.addElement("name").setText(parkOrbit.getName());
             orbit.addElement("extension").setText(parkOrbit.getExtension());
             addBackgroundAudio(orbit, dir, parkOrbit);
+            if (parkOrbit.isParkTimeoutEnabled()) {
+                String timeout = Integer.toString(parkOrbit.getParkTimeout());
+                orbit.addElement("time-out").setText(timeout);
+            }
+            if (!parkOrbit.isMultipleCalls()) {
+                orbit.addElement("capacity").setText("1");
+            }
+            if (parkOrbit.isTransferAllowed()) {
+                String key = parkOrbit.getTransferKey();
+                orbit.addElement("transfer-key").setText(key);
+            }
             String description = parkOrbit.getDescription();
             if (StringUtils.isNotBlank(description)) {
                 orbit.addElement("description").setText(description);
