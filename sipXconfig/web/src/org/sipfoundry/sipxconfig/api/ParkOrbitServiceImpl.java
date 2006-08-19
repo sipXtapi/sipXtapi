@@ -30,13 +30,14 @@ public class ParkOrbitServiceImpl implements ParkOrbitService {
     }
 
     public GetParkOrbitsResponse getParkOrbits() throws RemoteException {
-        GetParkOrbitsResponse response = new GetParkOrbitsResponse();
-        Collection orbitsColl = m_parkOrbitContext.getParkOrbits();
-        org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit[] orbits = (org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit[]) orbitsColl
+        Collection<org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit> orbitsColl = m_parkOrbitContext
+                .getParkOrbits();
+        org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit[] orbits = orbitsColl
                 .toArray(new org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit[orbitsColl
                         .size()]);
         ParkOrbit[] arrayOfParkOrbits = (ParkOrbit[]) ApiBeanUtil.toApiArray(m_parkOrbitBuilder,
                 orbits, ParkOrbit.class);
+        GetParkOrbitsResponse response = new GetParkOrbitsResponse();
         response.setParkOrbits(arrayOfParkOrbits);
         return response;
     }
