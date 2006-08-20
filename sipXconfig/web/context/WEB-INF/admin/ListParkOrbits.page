@@ -42,6 +42,9 @@
   <component id="addLink" type="DirectLink">
     <binding name="listener" value="listener:add"/>
   </component>
+  <component id="defaultsLink" type="DirectLink">
+    <binding name="listener" value="listener:defaultGroup"/>
+  </component>  
   <component id="delete" type="Submit">
     <binding name="selected" value="rowsToDelete"/>
     <binding name="tag" value="selections.allSelected"/>

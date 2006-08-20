@@ -48,6 +48,7 @@
     <page name="EditPhoneDefaults" specification-path="phone/EditPhoneDefaults.page"/>
     <page name="EditGateway" specification-path="gateway/EditGateway.page"/>
     <page name="EditParkOrbit" specification-path="admin/EditParkOrbit.page"/>
+    <page name="EditParkOrbitDefaults" specification-path="admin/EditParkOrbitDefaults.page"/>
     <page name="EditPermission" specification-path="permission/EditPermission.page"/>
     <page name="EditPhone" specification-path="phone/EditPhone.page"/>
     <page name="EditUser" specification-path="user/EditUser.page"/>    

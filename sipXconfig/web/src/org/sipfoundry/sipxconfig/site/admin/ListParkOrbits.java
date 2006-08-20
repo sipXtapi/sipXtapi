@@ -22,6 +22,9 @@ import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
+import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.site.setting.GroupSettings;
 
 public abstract class ListParkOrbits extends BasePage implements PageBeginRenderListener {
 
@@ -72,5 +75,14 @@ public abstract class ListParkOrbits extends BasePage implements PageBeginRender
         if (null != selectedRows) {
             getParkOrbitContext().removeParkOrbits(selectedRows);
         }
+    }
+
+    public IPage defaultGroup(IRequestCycle cycle) {
+        // get new orbit and its default group
+        BeanWithGroups po = getParkOrbitContext().newParkOrbit();
+        Group group = po.getGroups().iterator().next();
+        GroupSettings page = (GroupSettings) cycle.getPage("EditParkOrbitDefaults");
+        page.editGroup(group.getId(), po, PAGE);
+        return page;
     }
 }
