@@ -8,6 +8,8 @@
 // Database memory management, query execution, scheme evaluation
 //-------------------------------------------------------------------*--------*
 
+// #define FASTDB_VERBOSE_LOGGING
+
 #define INSIDE_FASTDB
 
 #include <ctype.h>
@@ -20,21 +22,12 @@
 #include "symtab.h"
 #include "os/OsFS.h"
 #include "os/OsSysLog.h"
-#include "os/OsDatagramSocket.h"
-
-#define SYSLOG_ENABLED SIPX_CONFDIR "/imdb-log"
-#define UDPLOG_ENABLED SIPX_CONFDIR "/udp-log"
-#define UDP_LOGGING_PORT    4999
 
 dbNullReference null;
 
 char const* const dbMetaTableName = "Metatable";
 
 unsigned dbDatabase::dbParallelScanThreshold = 1000;
-
-/** @JC Added for debugging IMDB problems */
-bool gVerboseLoggingEnabled = FALSE;
-bool gUdpLoggingEnabled = FALSE;
 
 /**
  * Helper method to return the process id
@@ -50,28 +43,6 @@ getProcessID()
 #else
     (getpid());
 #endif
-}
-
-/**
- * Helper method to debug IMDB related problems,
- * all processes can write interleaved to the udp port
- * 
- * @param port
- * @param rDebugString
- * 
- * @return 
- */
-int
-logOutputToUDP ( const int& port, const UtlString& rDebugString )
-{
-    int pid = getProcessID();
-    char temp[1024];
-    OsSocket* udpLoggingSocket = new OsDatagramSocket( port, "127.0.0.1" );
-    sprintf (temp, "(pid=%d)\t%s\n", pid, rDebugString.data() );
-    UtlString messageBuffer = temp;
-    int bytesSent = udpLoggingSocket->write( messageBuffer.data(), messageBuffer.length());
-    delete udpLoggingSocket;
-    return bytesSent;
 }
 
 size_t dbDatabase::internalObjectSize[] = {
@@ -1338,17 +1309,14 @@ void _fastcall dbDatabase::execute(dbExprNode*             expr,
 
 void dbDatabase::handleError(dbErrorClass error, char const* msg, int arg)
 {
-    int pid = getProcessID();
-    if ( gVerboseLoggingEnabled )
+#   ifdef FASTDB_VERBOSE_LOGGING
     {
-        OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Entering dbDatabase::handleError - msg=%s, arg=%d", pid, msg, arg);
+        OsSysLog::add(FAC_DB, PRI_DEBUG, "dbDatabase::handleError - msg=%s, arg=%d",
+                      msg, arg);
     }
+#   endif
     if ( errorHandler != NULL ) { 
         (*errorHandler)(error, msg, arg);
-    }
-    if ( gVerboseLoggingEnabled )
-    {
-        OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Leaving dbDatabase::handleError", pid);
     }
 #ifdef THROW_EXCEPTION_ON_ERROR
     if ( error != NoError ) {
@@ -1497,24 +1465,12 @@ void dbDatabase::initializeMetaTable()
 bool dbDatabase::open(char const* dbName, char const* fiName, 
                       time_t waitLockTimeoutMsec, time_t commitDelaySec)
 {
-    int pid = getProcessID();
-
-    // If the following file is found on the file system 
-    // turn verbose logging on
-    if ( OsFileSystem::exists( SYSLOG_ENABLED ) ) {
-        gVerboseLoggingEnabled = TRUE;
+#   ifdef FASTDB_VERBOSE_LOGGING
+    {
+       OsSysLog::add(FAC_DB, PRI_DEBUG, "Entering dbDatabase::open");
     }
-
-    // If the following file is found on the file system 
-    // turn verbose logging on
-    if ( OsFileSystem::exists( UDPLOG_ENABLED ) ) {
-        gUdpLoggingEnabled = TRUE;
-    }
-
-    if ( gVerboseLoggingEnabled ) {
-        OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Entering dbDatabase::open", pid);
-    }
-
+#   endif
+    
     dbWaitLockTimeout = waitLockTimeoutMsec;
     delete[] databaseName;
     delete[] fileName;
@@ -1772,18 +1728,13 @@ bool dbDatabase::open(char const* dbName, char const* fiName,
     }
     cs.enter();            
     monitor->users += 1;
-    // @JC Track User Leakage
-    if ( gUdpLoggingEnabled ) {
-        char temp[256];
-        sprintf ( temp, "dbDatabase::open()\tusers: %d", monitor->users );
-        UtlString messageBuffer = temp;
-        logOutputToUDP (4999, messageBuffer );
-    }
 
-    if ( gVerboseLoggingEnabled ) {
+#   ifdef FASTDB_VERBOSE_LOGGING
+    {
         OsSysLog::add(FAC_DB, PRI_DEBUG, 
-                      "(pid=%d) dbDatabase::open - users (%d)", pid, monitor->users );
+                      "dbDatabase::open - users (%d)", monitor->users );
     }
+#   endif    
     cs.leave();
     opened = true;
 
@@ -1793,10 +1744,11 @@ bool dbDatabase::open(char const* dbName, char const* fiName,
         commitThread.create((dbThread::thread_proc_t)delayedCommitProc, this);
         commitThreadSyncEvent.wait(delayedCommitStartTimerMutex);
     }
-    if ( gVerboseLoggingEnabled )
+#   ifdef FASTDB_VERBOSE_LOGGING
     {
-        OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Leaving dbDatabase::open", pid);
+        OsSysLog::add(FAC_DB, PRI_DEBUG, "dbDatabase::open");
     }
+#   endif
     return true;
 }
 
@@ -2328,11 +2280,12 @@ oid_t dbDatabase::addNewTable(dbTableDescriptor* desc)
 
 void dbDatabase::close()
 {
-    int pid = getProcessID();
-    if ( gVerboseLoggingEnabled )
+#   ifdef FASTDB_VERBOSE_LOGGING
     {
-        OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Entering dbDatabase::close", pid);
+       OsSysLog::add(FAC_DB, PRI_DEBUG, "Entering dbDatabase::close");
     }
+#   endif
+
     detach();
     if ( backupFileName != NULL ) { 
         {
@@ -2370,19 +2323,12 @@ void dbDatabase::close()
     cs.enter();
     monitor->users -= 1;
 
-    // @JC Track User Leakage
-    if ( gUdpLoggingEnabled ) {
-        char temp[256];
-        sprintf ( temp, "dbDatabase::close()\tusers: %d", monitor->users );
-        UtlString messageBuffer = temp;
-        logOutputToUDP (4999, messageBuffer );
-    }
-
-    if ( gVerboseLoggingEnabled )
+#   ifdef FASTDB_VERBOSE_LOGGING
     {
         OsSysLog::add(FAC_DB, PRI_DEBUG, 
-                      "(pid=%d) dbDatabase::close - users (%d)", pid, monitor->users );
+                      "dbDatabase::close - users (%d)", monitor->users );
     }
+#   endif
     if ( header != NULL && header->dirty && accessType != dbReadOnly && accessType != dbConcurrentRead && monitor->nWriters == 0 ) { 
         file.flush(true);
         header->dirty = false;
@@ -2431,10 +2377,11 @@ void dbDatabase::close()
         }
     }
 
-    if ( gVerboseLoggingEnabled )
+#   ifdef FASTDB_VERBOSE_LOGGING
     {
-        OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Leaving dbDatabase::close", pid);
+        OsSysLog::add(FAC_DB, PRI_DEBUG, "Leaving dbDatabase::close");
     }
+#   endif
 }
 
 dbTableDescriptor* dbDatabase::lookupTable(dbTableDescriptor* origDesc)
@@ -2451,17 +2398,6 @@ dbTableDescriptor* dbDatabase::lookupTable(dbTableDescriptor* origDesc)
 
 void dbDatabase::attach() 
 {
-    if ( gUdpLoggingEnabled ) {
-        char temp[256];
-        sprintf (temp, "dbDatabase::attach()\treaders: %d,\twriters: %d,\t"
-                 "waitR: %d,\twaitW: %d,\tusers: %d,\tdbpid: %d", 
-                 monitor->nReaders, monitor->nWriters, monitor->nWaitReaders, 
-                 monitor->nWaitWriters, monitor->users, monitor->ownerPid.getPid());
-        UtlString messageBuffer = temp;
-        // Nothing I can do if it fails so don't bother checking 
-        logOutputToUDP ( 4999, messageBuffer );
-    }
-
     if ( threadContext.get() == NULL ) { 
         dbDatabaseThreadContext* ctx = new dbDatabaseThreadContext();
         { 
@@ -2495,17 +2431,6 @@ void dbDatabase::detach(int flags)
             delete ctx;
         }
         threadContext.set(NULL);
-    }
-
-    if ( gUdpLoggingEnabled ) {
-        char temp[256];
-        sprintf (temp, "dbDatabase::detach()\treaders: %d,\twriters: %d,\t"
-                 "waitR: %d,\twaitW: %d,\tusers: %d,\tdbpid: %d", 
-                 monitor->nReaders, monitor->nWriters, monitor->nWaitReaders, 
-                 monitor->nWaitWriters, monitor->users, monitor->ownerPid.getPid());
-        UtlString messageBuffer = temp;
-        // Nothing I can do if it fails so don't bother checking 
-        logOutputToUDP ( 4999, messageBuffer );
     }
 }
 
@@ -3199,13 +3124,16 @@ void dbDatabase::traverse(dbAnyCursor* cursor, dbQuery& query)
 
 void dbDatabase::select(dbAnyCursor* cursor, dbQuery& query) 
 {    
-    char buf[4096];
-    int pid = getProcessID();
-    if ( gVerboseLoggingEnabled )
+#   ifdef FASTDB_VERBOSE_LOGGING
     {
-        OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Entering dbDatabase::select cursor(0x%08x) select * from %s where %s", 
-                      (int)pid, (int)cursor,  (query.table)? query.table->name:((char*)"NULL"), query.dump(buf));
+       char buf[4096];
+       OsSysLog::add(FAC_DB, PRI_DEBUG,
+                     "Entering dbDatabase::select cursor(0x%08x) select * from %s where %s", 
+                     (int)cursor,  (query.table)? query.table->name:((char*)"NULL"),
+                     query.dump(buf)
+                     );
     }
+#   endif
 
     assert(opened);
     dbDatabaseThreadContext* ctx = threadContext.get();
@@ -3232,12 +3160,16 @@ void dbDatabase::select(dbAnyCursor* cursor, dbQuery& query)
     if ( query.startFrom != dbCompiledQuery::StartFromAny ) { 
         ctx->cursors.link(cursor);
         traverse(cursor, query);
-        if ( gVerboseLoggingEnabled )
+#       ifdef FASTDB_VERBOSE_LOGGING
         {
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Leaving dbDatabase::select:(line=%d) cursor(0x%08x) select * from %s where %s ", 
-                          (int)pid, __LINE__, (int)cursor,  (query.table)? query.table->name:((char*)"NULL"), query.dump(buf));
+            OsSysLog::add(FAC_DB, PRI_DEBUG,
+                          "Leaving dbDatabase::select:(line=%d) cursor(0x%08x) "
+                          "select * from %s where %s ", 
+                          __LINE__, (int)cursor,  (query.table)? query.table->name:((char*)"NULL"),
+                          query.dump(buf));
             OsSysLog::flush();
         }
+#       endif
         return;
     }
 
@@ -3245,12 +3177,14 @@ void dbDatabase::select(dbAnyCursor* cursor, dbQuery& query)
     if ( condition->cop == dbvmVoid && query.order == NULL ) { 
         // Empty select condition: select all records in the table
         select(cursor);
-        if ( gVerboseLoggingEnabled )
+#       ifdef FASTDB_VERBOSE_LOGGING
         {
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Leaving dbDatabase::select:(line=%d) cursor(0x%08x) query(0x%08x)\n",
-                          (int)pid, __LINE__, (int)cursor,  (int)&query);
+            OsSysLog::add(FAC_DB, PRI_DEBUG,
+                          "Leaving dbDatabase::select:(line=%d) cursor(0x%08x) query(0x%08x)\n",
+                          __LINE__, (int)cursor,  (int)&query);
             OsSysLog::flush();
         }
+#       endif
         return;
     }
     if ( condition->cop == dbvmEqReference ) { 
@@ -3264,12 +3198,17 @@ void dbDatabase::select(dbAnyCursor* cursor, dbQuery& query)
              && condition->operand[0]->cop == dbvmLoadVarReference )
         {
             cursor->setCurrent(*(dbAnyReference*)((char*)condition->operand[0]->var + (size_t)cursor->paramBase));
-            if ( gVerboseLoggingEnabled )
+#           ifdef FASTDB_VERBOSE_LOGGING
             {
-                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Leaving dbDatabase::select:(line=%d) cursor(0x%08x) select * from %s where %s ", 
-                              (int)pid, __LINE__, (int)cursor,  (query.table)? query.table->name:((char*)"NULL"), query.dump(buf));
+                OsSysLog::add(FAC_DB, PRI_DEBUG,
+                              "Leaving dbDatabase::select:(line=%d) cursor(0x%08x) "
+                              "select * from %s where %s ", 
+                              __LINE__, (int)cursor,
+                              (query.table)? query.table->name:((char*)"NULL"), query.dump(buf)
+                              );
                 OsSysLog::flush();
             }
+#           endif
             return;
         }
     }
@@ -3289,12 +3228,15 @@ void dbDatabase::select(dbAnyCursor* cursor, dbQuery& query)
                     cursor->selection.reverse();
                 }
             }
-            if ( gVerboseLoggingEnabled )
+#           ifdef FASTDB_VERBOSE_LOGGING
             {
-                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Leaving dbDatabase::select:(line=%d) cursor(0x%08x) select * from %s where %s ", 
-                              (int)pid, __LINE__, (int)cursor,  (query.table)? query.table->name:((char*)"NULL"), query.dump(buf));
+                OsSysLog::add(FAC_DB, PRI_DEBUG, "Leaving dbDatabase::select:(line=%d) "
+                              "cursor(0x%08x) select * from %s where %s ", 
+                              __LINE__, (int)cursor,
+                              (query.table)? query.table->name:((char*)"NULL"), query.dump(buf));
                 OsSysLog::flush();
             }
+#           endif
             return;
         }
     } else { 
@@ -3322,12 +3264,15 @@ void dbDatabase::select(dbAnyCursor* cursor, dbQuery& query)
                     cursor->selection.reverse();        
                 }
             }
-            if ( gVerboseLoggingEnabled )
+#           ifdef FASTDB_VERBOSE_LOGGING
             {
-                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Leaving dbDatabase::select:(line=%d) cursor(0x%08x) select * from %s where %s ", 
-                              (int)pid, __LINE__, (int)cursor,  (query.table)? query.table->name:((char*)"NULL"), query.dump(buf));
+                OsSysLog::add(FAC_DB, PRI_DEBUG, "Leaving dbDatabase::select:(line=%d) "
+                              "cursor(0x%08x) select * from %s where %s ", 
+                              __LINE__, (int)cursor,
+                              (query.table)? query.table->name:((char*)"NULL"), query.dump(buf));
                 OsSysLog::flush();
             }
+#           endif
             return;
         }
     }
@@ -3350,12 +3295,16 @@ void dbDatabase::select(dbAnyCursor* cursor, dbQuery& query)
                 dbTtree::traverseBackward(this,field->tTree,cursor,condition);
             }
         }
-        if ( gVerboseLoggingEnabled )
+#       ifdef FASTDB_VERBOSE_LOGGING
         {
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Leaving dbDatabase::select:(line=%d) cursor(0x%08x) select * from %s where %s ", 
-                          (int)pid, __LINE__, (int)cursor,  (query.table)? query.table->name:((char*)"NULL"), query.dump(buf));
+            OsSysLog::add(FAC_DB, PRI_DEBUG,
+                          "Leaving dbDatabase::select:(line=%d) cursor(0x%08x) "
+                          "select * from %s where %s ", 
+                          __LINE__, (int)cursor,
+                          (query.table)? query.table->name:((char*)"NULL"), query.dump(buf));
             OsSysLog::flush();
         }
+#       endif
         return;
     }
 
@@ -3398,12 +3347,17 @@ void dbDatabase::select(dbAnyCursor* cursor, dbQuery& query)
                     }
                 }
                 if ( min < 0 ) { 
-                    if ( gVerboseLoggingEnabled )
+#                   ifdef FASTDB_VERBOSE_LOGGING
                     {
-                        OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Leaving dbDatabase::select:(line=%d) cursor(0x%08x) select * from %s where %s ", 
-                                      (int)pid, __LINE__, (int)cursor,  (query.table)? query.table->name:((char*)"NULL"), query.dump(buf));
+                        OsSysLog::add(FAC_DB, PRI_DEBUG,
+                                      "Leaving dbDatabase::select:(line=%d) cursor(0x%08x) "
+                                      "select * from %s where %s ", 
+                                      __LINE__, (int)cursor,
+                                      (query.table)? query.table->name:((char*)"NULL"),
+                                      query.dump(buf));
                         OsSysLog::flush();
                     }
+#                   endif
                     return;
                 }
                 oid_t oid = 
@@ -3452,22 +3406,27 @@ void dbDatabase::select(dbAnyCursor* cursor, dbQuery& query)
             cursor->selection.sort(this, query.order);
         }
     }
-    if ( gVerboseLoggingEnabled )
+#   ifdef FASTDB_VERBOSE_LOGGING
     {
-        OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Leaving dbDatabase::select:(line=%d) cursor(0x%08x) select * from %s where %s ", 
-                      (int)pid, __LINE__, (int)cursor,  (query.table)? query.table->name:((char*)"NULL"), query.dump(buf));
+        OsSysLog::add(FAC_DB, PRI_DEBUG, "Leaving dbDatabase::select:(line=%d) cursor(0x%08x) "
+                      "select * from %s where %s ", 
+                      __LINE__, (int)cursor,
+                      (query.table)? query.table->name:((char*)"NULL"), query.dump(buf));
         OsSysLog::flush();
     }
+#   endif
 }
 
 void dbDatabase::select(dbAnyCursor* cursor) 
 {
-    int pid = getProcessID();
-    if ( gVerboseLoggingEnabled )
+#   ifdef FASTDB_VERBOSE_LOGGING
     {
-        OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Entering 2 dbDatabase::select entering cursor(0x%08x), opened(%d)", (int)pid, (int)cursor, (int)opened);
+        OsSysLog::add(FAC_DB, PRI_DEBUG,
+                      "Entering 2 dbDatabase::select entering cursor(0x%08x), opened(%d)",
+                      (int)cursor, (int)opened);
         OsSysLog::flush();
     }
+#   endif
     assert(opened);
     beginTransaction(cursor->type == dbCursorForUpdate ? dbExclusiveLock : dbSharedLock);
     dbTable* table = (dbTable*)getRow(cursor->table->tableId);
@@ -3476,11 +3435,14 @@ void dbDatabase::select(dbAnyCursor* cursor)
     cursor->selection.nRows = table->nRows;
     cursor->allRecords = true;
     threadContext.get()->cursors.link(cursor);
-    if ( gVerboseLoggingEnabled )
+#   ifdef FASTDB_VERBOSE_LOGGING
     {
-        OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Leaving 2 dbDatabase::select entering cursor(0x%08x), opened(%d)", (int)pid, (int)cursor, (int)opened);
+        OsSysLog::add(FAC_DB, PRI_DEBUG,
+                      "Leaving 2 dbDatabase::select entering cursor(0x%08x), opened(%d)",
+                      (int)pid, (int)cursor, (int)opened);
         OsSysLog::flush();
     }
+#   endif
 }
 
 
@@ -4272,13 +4234,15 @@ void dbDatabase::freeId(oid_t oid, int n)
 
 bool dbDatabase::beginTransaction(dbLockType lockType)
 {
-    int pid = getProcessID();
     bool gotSem = false;
-    if ( gVerboseLoggingEnabled )
+#   ifdef FASTDB_VERBOSE_LOGGING
     {
-        OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Entering dbDatabase::beginTransaction lockType(%d)", (int)pid, (int)lockType);
+        OsSysLog::add(FAC_DB, PRI_DEBUG,
+                      "Entering dbDatabase::beginTransaction lockType(%d)",
+                      (int)lockType);
         OsSysLog::flush();
     }
+#   endif
     dbDatabaseThreadContext* ctx = threadContext.get();
 
     if ( commitDelay != 0 && lockType != dbCommitLock ) { 
@@ -4310,11 +4274,13 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
         if ( !ctx->writeAccess ) { 
             assert(accessType != dbReadOnly && accessType != dbConcurrentRead);
             cs.enter();
-            if ( gVerboseLoggingEnabled )
+#           ifdef FASTDB_VERBOSE_LOGGING
             {
-                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction after cs.enter ctx access (W=%d, R=%d), accessType=%d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction after cs.enter monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
+                OsSysLog::add(FAC_DB, PRI_DEBUG, "dbDatabase::beginTransaction "
+                              "after cs.enter ctx access (W=%d, R=%d), accessType=%d",
+                              (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
             }
+#           endif
             if ( ctx->readAccess ) { 
                 assert(monitor->nWriters == 0);
                 TRACE_MSG(("Attempt to upgrade lock from shared to exclusive can cause deadlock\n"));
@@ -4402,39 +4368,51 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
                     assert(monitor->nWriters == 1 && monitor->nReaders == 0);
                 } else { 
                     monitor->nWriters = 1;
-                    if ( gVerboseLoggingEnabled )
+#                   ifdef FASTDB_VERBOSE_LOGGING
                     {
-                        OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction before cs.leave() ctx access (W=%d, R=%d), accessType=%d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-                        OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction before cs.leave() monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
+                        OsSysLog::add(FAC_DB, PRI_DEBUG, "dbDatabase::beginTransaction "
+                                      "before cs.leave() ctx access (W=%d, R=%d), accessType=%d",
+                                      (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
                         OsSysLog::flush();
                     }
+#                   endif
                     cs.leave();
                 }
             }
             monitor->ownerPid = ctx->currPid;
             ctx->writeAccess = true;
-            if ( gVerboseLoggingEnabled )
+#           ifdef FASTDB_VERBOSE_LOGGING
             {
-                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction setting ownerPid ctx access (W=%d, R=%d), accessType=%d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction setting ownerPid monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
+                OsSysLog::add(FAC_DB, PRI_DEBUG,
+                              "dbDatabase::beginTransaction setting ownerPid ctx "
+                              "access (W=%d, R=%d), accessType=%d",
+                              (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
                 OsSysLog::flush();
             }
+#           endif
         } else { 
             if ( monitor->ownerPid != ctx->currPid ) {
-                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction before LockRevoked ctx access (W=%d, R=%d), accessType=%d, ctx->currPid=%d, %d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType, (int)ctx->currPid.getTid(), (int)ctx->currPid.getPid());
-                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction before LockRevoked monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
+#               ifdef FASTDB_VERBOSE_LOGGING
+                OsSysLog::add(FAC_DB, PRI_DEBUG,
+                              "dbDatabase::beginTransaction before LockRevoked"
+                              " ctx access (W=%d, R=%d), accessType=%d, ctx->currPid=%d, %d",
+                              (int)ctx->writeAccess, (int)ctx->readAccess, accessType,
+                              (int)ctx->currPid.getTid(), (int)ctx->currPid.getPid());
                 OsSysLog::flush();
+#               endif
                 handleError(LockRevoked);
             }
         }
     } else { 
         if ( !ctx->readAccess && !ctx->writeAccess ) { 
             cs.enter();
-            if ( gVerboseLoggingEnabled )
+#           ifdef FASTDB_VERBOSE_LOGGING
             {
-                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction after cs.enter ctx access (W=%d, R=%d), accessType=%d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction after cs.enter monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
+                OsSysLog::add(FAC_DB, PRI_DEBUG, "dbDatabase::beginTransaction after cs.enter "
+                              "ctx access (W=%d, R=%d), accessType=%d",
+                              (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
             }
+#           endif
             if ( monitor->nWriters + monitor->nWaitWriters != 0 ) {
                 monitor->nWaitReaders += 1;
                 cs.leave();
@@ -4452,17 +4430,25 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
                         monitor->lastDeadlockRecoveryTime = currTime;
                         if ( monitor->nWriters != 0 ) { 
                             // writer was died
-                            if ( gVerboseLoggingEnabled )
+#                           ifdef FASTDB_VERBOSE_LOGGING
                             {
-                                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction:(line=%d) before checkVersion (W=%d, R=%d), accessType=%d", (int)pid, __LINE__, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-                                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction:(line=%d)  monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, __LINE__, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
+                                OsSysLog::add(FAC_DB, PRI_DEBUG, "dbDatabase::beginTransaction:"
+                                              "(line=%d) before checkVersion (W=%d, R=%d), "
+                                              "accessType=%d",
+                                              __LINE__, (int)ctx->writeAccess,
+                                              (int)ctx->readAccess, accessType);
                             }
+#                           endif
                             checkVersion();
-                            if ( gVerboseLoggingEnabled )
+#                           ifdef FASTDB_VERBOSE_LOGGING
                             {
-                                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction:(line=%d) after checkVersion (W=%d, R=%d), accessType=%d", (int)pid, __LINE__, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-                                OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction:(line=%d) monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, __LINE__, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
+                                OsSysLog::add(FAC_DB, PRI_DEBUG, "dbDatabase::beginTransaction:"
+                                              "(line=%d) after checkVersion (W=%d, R=%d), "
+                                              "accessType=%d",
+                                              __LINE__, (int)ctx->writeAccess,
+                                              (int)ctx->readAccess, accessType);
                             }
+#                           endif
                             recovery();
                             monitor->nWriters = 0;
                         } else {
@@ -4480,12 +4466,15 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
                 assert(monitor->nWriters == 0 && monitor->nReaders > 0);
             } else { 
                 monitor->nReaders += 1;
-                if ( gVerboseLoggingEnabled )
+#               ifdef FASTDB_VERBOSE_LOGGING
                 {
-                    OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction before cs.leave() ctx access (W=%d, R=%d), accessType=%d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-                    OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction before cs.leave() monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
+                    OsSysLog::add(FAC_DB, PRI_DEBUG,
+                                  "dbDatabase::beginTransaction before cs.leave() "
+                                  "ctx access (W=%d, R=%d), accessType=%d",
+                                  (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
                     OsSysLog::flush();
                 }
+#               endif
                 cs.leave();
             }
             ctx->readAccess = true;
@@ -4497,26 +4486,32 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
             monitor->forceCommitCount -= 1;
         }
 
-        if ( gVerboseLoggingEnabled )
+#       ifdef FASTDB_VERBOSE_LOGGING
         {
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction:(line=%d) before checkVersion (W=%d, R=%d), accessType=%d", (int)pid, __LINE__, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction:(line=%d) monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, __LINE__, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
+            OsSysLog::add(FAC_DB, PRI_DEBUG, "dbDatabase::beginTransaction:(line=%d) "
+                          "before checkVersion (W=%d, R=%d), accessType=%d",
+                          __LINE__, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
             OsSysLog::flush();
         }
+#       endif
         if ( !checkVersion() ) { 
             return false;
         }
-        if ( gVerboseLoggingEnabled )
+#       ifdef FASTDB_VERBOSE_LOGGING
         {
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction:(line=%d) after checkVersion (W=%d, R=%d), accessType=%d", (int)pid, __LINE__, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction:(line=%d) monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, __LINE__, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
+            OsSysLog::add(FAC_DB, PRI_DEBUG, "dbDatabase::beginTransaction:(line=%d) "
+                          "after checkVersion (W=%d, R=%d), accessType=%d",
+                          __LINE__, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
         }
+#       endif
         cs.enter();
-        if ( gVerboseLoggingEnabled )
+#       ifdef FASTDB_VERBOSE_LOGGING
         {
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction after cs.enter ctx access (W=%d, R=%d), accessType=%d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction after cs.enter monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
+            OsSysLog::add(FAC_DB, PRI_DEBUG, "dbDatabase::beginTransaction "
+                          "after cs.enter ctx access (W=%d, R=%d), accessType=%d",
+                          (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
         }
+#       endif
         index[0] = (offs_t*)(baseAddr + header->root[0].index);
         index[1] = (offs_t*)(baseAddr + header->root[1].index);
         if ( lockType == dbExclusiveLock && !header->dirty ) { 
@@ -4534,12 +4529,14 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
             currIndexSize = header->root[curr].indexUsed;
             committedIndexSize = header->root[curr].indexUsed;
         }
-        if ( gVerboseLoggingEnabled )
+#       ifdef FASTDB_VERBOSE_LOGGING
         {
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction before cs.leave() ctx access (W=%d, R=%d), accessType=%d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::beginTransaction before cs.leave() monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
+            OsSysLog::add(FAC_DB, PRI_DEBUG, "dbDatabase::beginTransaction "
+                          "before cs.leave() ctx access (W=%d, R=%d), accessType=%d",
+                          (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
             OsSysLog::flush();
         }
+#       endif
         cs.leave();
     }
     return true;
@@ -4683,13 +4680,15 @@ void dbDatabase::commit(dbDatabaseThreadContext* ctx)
     monitor->nWriters -= 1;
     monitor->nReaders += 1;
     monitor->ownerPid.clear();
-    if ( gVerboseLoggingEnabled )
+#   ifdef FASTDB_VERBOSE_LOGGING
     {
-        int pid = getProcessID();
-        OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::commit after ownerPid.clear() ctx access (W=%d, R=%d), accessType=%d, ctx->currPid=%d, %d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType, (int)ctx->currPid.getTid(), (int)ctx->currPid.getPid());
-        OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::commit after ownerPid.clear() monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
+        OsSysLog::add(FAC_DB, PRI_DEBUG, "dbDatabase::commit after ownerPid.clear() "
+                      "ctx access (W=%d, R=%d), accessType=%d, ctx->currPid=%d, %d",
+                      (int)ctx->writeAccess, (int)ctx->readAccess, accessType,
+                      (int)ctx->currPid.getTid(), (int)ctx->currPid.getPid());
         OsSysLog::flush();
     }
+#   endif
     if ( accessType == dbConcurrentUpdate ) { 
         // now readers will see updated data
         monitor->curr ^= 1;
@@ -4886,25 +4885,29 @@ void dbDatabase::updateCursors(oid_t oid, bool removed)
 
 void dbDatabase::endTransaction(dbDatabaseThreadContext* ctx) 
 {
-    int pid = getProcessID();
     while ( !ctx->cursors.isEmpty() ) { 
         ((dbAnyCursor*)ctx->cursors.next)->reset();
     }
     if ( ctx->writeAccess ) { 
         cs.enter();
-        if ( gVerboseLoggingEnabled )
+#       ifdef FASTDB_VERBOSE_LOGGING
         {
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Entering dbDatabase::endTransaction, after cs.enter ctx access (W=%d, R=%d), accessType=%d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::endTransaction, after cs.enter monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
+            OsSysLog::add(FAC_DB, PRI_DEBUG, "Entering dbDatabase::endTransaction, "
+                          "after cs.enter ctx access (W=%d, R=%d), accessType=%d",
+                          (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
         }
+#       endif
         monitor->nWriters -= 1;
         monitor->ownerPid.clear();
-        if ( gVerboseLoggingEnabled )
+#       ifdef FASTDB_VERBOSE_LOGGING
         {
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::endTransaction after ownerPid.clear() ctx access (W=%d, R=%d), accessType=%d, ctx->currPid=%d, %d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType, (int)ctx->currPid.getTid(), (int)ctx->currPid.getPid());
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::endTransaction after ownerPid.clear() monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
+            OsSysLog::add(FAC_DB, PRI_DEBUG, "dbDatabase::endTransaction after ownerPid.clear() "
+                          "ctx access (W=%d, R=%d), accessType=%d, ctx->currPid=%d, %d",
+                          (int)ctx->writeAccess, (int)ctx->readAccess, accessType,
+                          (int)ctx->currPid.getTid(), (int)ctx->currPid.getPid());
             OsSysLog::flush();
         }
+#       endif
         assert(monitor->nWriters == 0 && !monitor->waitForUpgrade);
         if ( monitor->nWaitWriters != 0 ) { 
             monitor->nWaitWriters -= 1;
@@ -4915,19 +4918,23 @@ void dbDatabase::endTransaction(dbDatabaseThreadContext* ctx)
             monitor->nWaitReaders = 0;
             readSem.signal(monitor->nReaders);
         }
-        if ( gVerboseLoggingEnabled )
+#       ifdef FASTDB_VERBOSE_LOGGING
         {
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::endTransaction, before cs.leave ctx access (W=%d, R=%d), accessType=%d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Leaving dbDatabase::endTransaction, before cs.leave monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
+            OsSysLog::add(FAC_DB, PRI_DEBUG, "dbDatabase::endTransaction, before cs.leave "
+                          "ctx access (W=%d, R=%d), accessType=%d",
+                          (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
         }
+#       endif
         cs.leave();
     } else if ( ctx->readAccess ) { 
         cs.enter();
-        if ( gVerboseLoggingEnabled )
+#       ifdef FASTDB_VERBOSE_LOGGING
         {
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Entering dbDatabase::endTransaction, after cs.enter  ctx access (W=%d, R=%d), accessType=%d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::endTransaction, after cs.enter monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
+            OsSysLog::add(FAC_DB, PRI_DEBUG, "Entering dbDatabase::endTransaction, after cs.enter"
+                          "  ctx access (W=%d, R=%d), accessType=%d",
+                          (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
         }
+#       endif
         monitor->nReaders -= 1;
         if ( monitor->nReaders == 1 && monitor->waitForUpgrade ) { 
             assert(monitor->nWriters == 0);
@@ -4944,11 +4951,13 @@ void dbDatabase::endTransaction(dbDatabaseThreadContext* ctx)
                 writeSem.signal();
             }
         }
-        if ( gVerboseLoggingEnabled )
+#       ifdef FASTDB_VERBOSE_LOGGING
         {
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) dbDatabase::endTransaction, before cs.leave ctx access (W=%d, R=%d), accessType=%d", (int)pid, (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) Leaving dbDatabase::endTransaction, before cs.leave monitor(owner=%d, %d, nWriters=%d, nReaders=%d, nWaitWriters=%d, nWaitReaders=%d, sem=%d mutatorSem=%d), waitForUpgrade(%d)", (int)pid, (int)monitor->ownerPid.getTid(), (int)monitor->ownerPid.getPid(), monitor->nWriters, monitor->nReaders, monitor->nWaitWriters, monitor->nWaitReaders, LOG_SEM(monitor->sem), LOG_SEM(monitor->mutatorSem), monitor->waitForUpgrade);
+            OsSysLog::add(FAC_DB, PRI_DEBUG, "dbDatabase::endTransaction, before cs.leave "
+                          "ctx access (W=%d, R=%d), accessType=%d",
+                          (int)ctx->writeAccess, (int)ctx->readAccess, accessType);
         }
+#       endif
         cs.leave();
     }
     ctx->writeAccess = false;

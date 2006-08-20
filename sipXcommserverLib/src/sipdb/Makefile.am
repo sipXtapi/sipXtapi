@@ -1,15 +1,8 @@
 ## Process this file with automake to produce Makefile.in
 
-SUBDIRS = fastdb sipdb . sipdbtest xsdvalid test
+INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/include/fastdb
 
-INCLUDES = -I$(top_srcdir)/include
-
-libexec_SCRIPTS = sipx-utils.sh
-
-EXTRA_DIST = \
-	$(libexec_SCRIPTS)
-
-lib_LTLIBRARIES = libsipXcommserver.la
+noinst_LTLIBRARIES = libsipdb.la
 
 ## Libtool version info - update only immediately before a release
 # Current - increment if any interfaces are added, removed, or changed
@@ -21,27 +14,32 @@ version_Revision=0
 #       increment if any interfaces have been added
 version_Age=0
 
-libsipXcommserver_la_LDFLAGS = \
+libsipdb_la_LDFLAGS = \
 	-version-info ${version_Current}:${version_Revision}:${version_Age} \
 	@ODBC_LDFLAGS@
 
-libsipXcommserver_la_CXXFLAGS = \
+libsipdb_la_CXXFLAGS = \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
 	-DSIPX_RUNDIR=\"@SIPX_RUNDIR@\" \
 	-DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
-	-DSIPX_DBDIR=\"@SIPX_DBDIR@\" \
-	@ODBC_CXXFLAGS@
+	-DSIPX_DBDIR=\"@SIPX_DBDIR@\"
 
-libsipXcommserver_la_LIBADD = \
-	@SIPXTACK_LIBS@ \
-	@ODBC_LIBS@ \
-	fastdb/libfastdb.la \
-	sipdb/libsipdb.la 
+libsipdb_la_LIBADD = \
+	@SIPXTACK_LIBS@
 
-libsipXcommserver_la_SOURCES =  \
-	../config/sipxcommserverlib-buildstamp.h \
-	../config/sipxcommserverlib-buildstamp.cpp \
-   digitmaps/UrlMapping.cpp \
-   configrpc/ConfigRPC.cpp \
-   odbc/OdbcWrapper.cpp
+libsipdb_la_SOURCES =  \
+	AliasDB.cpp \
+   AuthexceptionDB.cpp \
+   CredentialDB.cpp \
+   DialByNameDB.cpp \
+   ExtensionDB.cpp \
+   HuntgroupDB.cpp \
+   RegistrationBinding.cpp \
+   PermissionDB.cpp \
+   RegistrationDB.cpp \
+   ResultSet.cpp \
+   SIPDBManager.cpp \
+   SIPXAuthHelper.cpp \
+   SubscriptionDB.cpp
+

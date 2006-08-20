@@ -52,6 +52,8 @@ AC_CONFIG_FILES([
   bin/Makefile
   bin/ssl-cert/Makefile
   src/Makefile 
+  src/sipdb/Makefile 
+  src/fastdb/Makefile 
   src/sipdbtest/Makefile
   src/xsdvalid/Makefile
   src/test/Makefile 

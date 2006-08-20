@@ -57,9 +57,7 @@ public:
 
    void tearDown()
       {
-         RegistrationDB* regDb = RegistrationDB::getInstance();
-         regDb->removeAllRows();  
-         regDb->releaseInstance();         
+         RegistrationDB::getInstance()->releaseInstance();
       }
 
    void testGetMaxUpdateNumberForRegistrar()
