@@ -221,7 +221,7 @@ int SipRegistrarServer::pullUpdates(
    // Critical Section here
    OsLock lock(sLockMutex);
 
-   RegistrationDB* imdb = RegistrationDB::getInstance();
+   RegistrationDB* imdb = mRegistrar.getRegistrationDB();
    int numUpdates = imdb->getNewUpdatesForRegistrar(registrarName, updateNumber, updates);
    return numUpdates;
 }
@@ -277,7 +277,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
     int registerCseqInt = 0;
     registerMessage.getCSeqField( &registerCseqInt, &method );
 
-    RegistrationDB* imdb = RegistrationDB::getInstance();
+    RegistrationDB* imdb = mRegistrar.getRegistrationDB();
 
     // Check that this call-id and cseq are newer than what we have in the db
     if (! imdb->isOutOfSequence(toUrl, registerCallidStr, registerCseqInt))
@@ -692,7 +692,7 @@ SipRegistrarServer::applyUpdatesToDirectory(
    // All updates must be for the same primary registrar.
    UtlSListIterator updateIter(updates);
    RegistrationBinding* reg;
-   RegistrationDB* imdb = RegistrationDB::getInstance();
+   RegistrationDB* imdb = mRegistrar.getRegistrationDB();
    UtlString primary;
    UtlString emptyPrimary;
    UtlString myPrimary(mRegistrar.primaryName());
@@ -923,9 +923,10 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                         //get all current contacts now for the response
                         ResultSet registrations;
 
-                        RegistrationDB::getInstance()->
-                            getUnexpiredContacts(
-                                toUrl, timeNow, registrations );
+                        mRegistrar.getRegistrationDB()->getUnexpiredContacts(toUrl,
+                                                                              timeNow,
+                                                                              registrations
+                                                                              );
 
                         int numRegistrations = registrations.getSize();
                         for ( int i = 0 ; i<numRegistrations; i++ )
