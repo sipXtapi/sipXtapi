@@ -90,8 +90,8 @@ void g_get_current_time(GTimeVal* curTime)
  */
 #define OSTIMETOLERANCE 10
 
-#define REPORT_SKEW(x) printf x
-//#define REPORT_SKEW(x) /* x */
+//#define REPORT_SKEW(x) printf x
+#define REPORT_SKEW(x) /* x */
 using namespace std;
 
 OsTime      tenMsec(0, 10000);// timer offset ten msec into the future
