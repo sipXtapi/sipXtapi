@@ -146,6 +146,20 @@ public:
 
 
     /** 
+     * Standard write, see OsDatagramSocket for details.
+     */
+    virtual int write(const char* buffer, int bufferLength);
+
+
+    /** 
+     * Standard write, see OsDatagramSocket for details.
+     */
+    virtual int write(const char* buffer, 
+                      int bufferLength,
+                      const char* ipAddress, 
+                      int port);
+
+    /** 
      * Enable STUN.  Enabling STUN will reset the the keep alive timer and 
      * will force a binding refresh.
      *

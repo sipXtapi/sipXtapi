@@ -280,6 +280,47 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength, long waitMilliseco
 }
 
 
+int OsNatDatagramSocket::write(const char* buffer, int bufferLength)
+{
+    int rc ;
+
+    // Datagram sockets can be simulate a connection-oriented socket (in API) 
+    // by allowing a connect().  This filters inbound packets from others (on 
+    // Win32 -- not sure if this is the case for all platforms) and breaks 
+    // ICE.
+
+    if (mIsConnected)
+    {
+        rc = OsDatagramSocket::write(buffer, bufferLength) ;
+    }
+    else
+    {
+        if (mDestAddress.length() > 0 && miDestPort > 0)
+        {
+            rc = OsDatagramSocket::write(buffer, bufferLength, mDestAddress.data(), miDestPort) ;
+        }
+        else
+        {
+            // This is suggest something is writing without applying a 
+            // destination address. 
+            assert(false) ;
+            rc = 0 ;
+        }
+    }
+
+    return rc ;
+}
+
+int OsNatDatagramSocket::write(const char* buffer, 
+                               int bufferLength,
+                               const char* ipAddress, 
+                               int port)
+{
+    return OsDatagramSocket::write(buffer, bufferLength, ipAddress, port) ;
+}
+
+
+
 void OsNatDatagramSocket::enableStun(const char* szStunServer, int stunPort, int iKeepAlive,  int iStunOptions, bool bReadFromSocket) 
 {    
     if (!mStunState.bEnabled)
@@ -634,6 +675,9 @@ UtlBoolean OsNatDatagramSocket::getBestDestinationAddress(UtlString& address,
 UtlBoolean OsNatDatagramSocket::applyDestinationAddress(const char* szAddress, int iPort) 
 {
     UtlBoolean bRC = false ;
+
+    mDestAddress = szAddress ;
+    miDestPort = iPort ;
 
     // ::TODO:: The keepalive period should be configurable (taken from 
     // default stun keepalive setting)
