@@ -41,7 +41,9 @@ public:
 
      /// Constructor
    MpEncoderBase(int payloadType, const MpCodecInfo* pInfo);
-     //!param: payloadType - (in) RTP payload type associated with this encoder
+     /**<
+     *  @param payloadType - (in) RTP payload type associated with this encoder
+     */
 
      /// Destructor
    virtual
