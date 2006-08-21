@@ -23,12 +23,16 @@ extern SIPX_CALL g_hAutoRejectCallbackCall ;
 extern SIPX_LINE g_hAutoRejectCallbackLine ;
 extern SIPX_CALL g_hAutoRedirectCallbackCall ;
 extern SIPX_LINE g_hAutoRedirectCallbackLine ;
+extern SIPX_CALL g_hAutoAnswerCallbackCallHolder ;
+extern SIPX_CALL g_hAutoAnswerCallbackCallOtherHolder ;
+extern SIPX_LINE g_hAutoAnswerCallbackLineHolder ;
 extern SIPX_CALL g_hNewCallDetectorCall1 ;
 extern SIPX_CALL g_hNewCallDetectorSourceCall1 ;
 extern SIPX_CALL g_hNewCallDetectorCall2 ;
 extern SIPX_CALL g_hNewCallDetectorSourceCall2 ;
 
 void resetAutoAnswerCallback() ;
+void resetAutoAnswerCallbackHolder() ;
 
 bool SIPX_CALLING_CONVENTION FlibbleTransportCallback(SIPX_TRANSPORT hTransport,
                                       const char* szDestinationIp,
@@ -42,6 +46,11 @@ bool SIPX_CALLING_CONVENTION FlibbleTransportCallback(SIPX_TRANSPORT hTransport,
 bool SIPX_CALLING_CONVENTION AutoAnswerCallback(SIPX_EVENT_CATEGORY category, 
                         void* pInfo, 
                         void* pUserData) ;
+
+bool SIPX_CALLING_CONVENTION AutoAnswerCallbackHolder(SIPX_EVENT_CATEGORY category, 
+                        void* pInfo, 
+                        void* pUserData) ;
+
 
 void setAutoAnswerSecurity(SIPX_SECURITY_ATTRIBUTES* pSecurity);
 

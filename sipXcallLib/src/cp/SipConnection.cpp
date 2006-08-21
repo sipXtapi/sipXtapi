@@ -3927,6 +3927,7 @@ void SipConnection::processByeRequest(const SipMessage* request)
         // Build an OK response
         SipMessage sipResponse;
         sipResponse.setOkResponseData(request, mLocalContact);
+
         send(sipResponse);
 
         setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE);
@@ -6388,6 +6389,10 @@ UtlBoolean SipConnection::send(SipMessage& message,
                     OsMsgQ* responseListener,
                     void* responseListenerData)
 {
+    // Uncomment to add some randomness into the message timing -- generally 
+    // for unit tests -- you NEVER want this in production.
+    // OsTask::delay(20 + rand() % 80) ;
+
     UtlString localIp = message.getLocalIp();
     if (message.getLocalIp().length() < 1)
     {

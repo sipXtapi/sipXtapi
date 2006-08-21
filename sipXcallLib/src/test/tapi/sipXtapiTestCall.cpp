@@ -1361,7 +1361,12 @@ void sipXtapiTestSuite::testCallCancel()
         CPPUNIT_ASSERT(bRC) ;
 
         sipxCallConnect(hCall, "sip:foo@127.0.0.1:9100") ;
-        int delay = rand() % 40 ;
+
+        // The AutoAnswerCallback also waits a random period prior to 
+        // answering, so with enough iterations, this test catches dropping
+        // the call after it is connected, before it is connected, and while 
+        // the other side is attempt to connect.
+        int delay = rand() % 1500 ;
         OsTask::delay(delay) ;
 
         SIPX_CALL hDestroyedCall = hCall ;
@@ -1381,12 +1386,93 @@ void sipXtapiTestSuite::testCallCancel()
     
         CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hLine), SIPX_RESULT_SUCCESS);
         CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hReceivingLine), SIPX_RESULT_SUCCESS);
+
+        OsTask::delay(TEST_DELAY) ;
     }
 
     OsTask::delay(TEST_DELAY) ;
-
     checkForLeaks();
 }
+
+
+/**
+ * Slight variation on testCallCancel -- after answering we will attempt to 
+ * place the call on hold -- force a reinvite during tear down.
+ */
+void sipXtapiTestSuite::testCallCancel2() 
+{
+    bool bRC ;
+    EventValidator validatorCalling("testCallCancel.calling") ;
+    EventValidator validatorCalled("testCallCancel.called") ;
+
+    for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR*4; iStressFactor++)
+    {
+        printf("\ntestCallCancel2 (%2d of %2d)", iStressFactor+1, STRESS_FACTOR*4);
+        SIPX_CALL hCall ;
+        SIPX_LINE hLine ;
+        SIPX_LINE hReceivingLine ;
+
+        validatorCalling.reset() ;
+        validatorCalling.setMaxLookhead(20) ;
+        validatorCalled.reset() ;
+        validatorCalled.setMaxLookhead(20) ;
+        
+        // Setup Auto-answer call back
+        resetAutoAnswerCallbackHolder() ;
+        sipxEventListenerAdd(g_hInst2, AutoAnswerCallbackHolder, NULL) ;
+        sipxEventListenerAdd(g_hInst2, UniversalEventValidatorCallback, &validatorCalled) ;        
+        sipxEventListenerAdd(g_hInst, UniversalEventValidatorCallback, &validatorCalling) ;
+
+        sipxLineAdd(g_hInst2, "sip:foo@127.0.0.1:9100", &hReceivingLine, CONTACT_LOCAL);
+        bRC = validatorCalled.waitForLineEvent(hReceivingLine, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        createCall(&hLine, &hCall) ;
+        bRC = validatorCalling.waitForLineEvent(hLine, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        //printf("%d CONNECTING\n", GetTickCount()) ;
+        sipxCallConnect(hCall, "sip:foo@127.0.0.1:9100") ;
+        //printf("%d CONNECT\n", GetTickCount()) ;
+
+        // The AutoAnswerCallback also waits a random period prior to 
+        // answering, so with enough iterations, this test catches dropping
+        // the call after it is connected, before it is connected, and while 
+        // the other side is attempt to connect.
+        int delay = rand() % 1500 ;
+        OsTask::delay(delay) ;
+
+        //printf("%d DESTROY\n", GetTickCount()) ;
+
+        SIPX_CALL hDestroyedCall = hCall ;
+        sipxCallDestroy(hCall) ;
+        
+        // Validate Calling Side
+        bRC = validatorCalling.waitForCallEvent(hLine, hDestroyedCall, CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL, false) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        // Validate Called Side
+        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerCallbackLineHolder, 
+                g_hAutoAnswerCallbackCallHolder,
+                CALLSTATE_DESTROYED,
+                CALLSTATE_CAUSE_NORMAL, 
+                false) ;
+        CPPUNIT_ASSERT(bRC) ;
+        
+        CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst, UniversalEventValidatorCallback, &validatorCalling), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst2, AutoAnswerCallbackHolder, NULL), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst2, UniversalEventValidatorCallback, &validatorCalled), SIPX_RESULT_SUCCESS) ;
+    
+        CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hLine), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hReceivingLine), SIPX_RESULT_SUCCESS);
+
+        OsTask::delay(TEST_DELAY) ;
+    }
+
+    OsTask::delay(TEST_DELAY) ;
+    checkForLeaks();
+}
+
 
 
 void sipXtapiTestSuite::testCallHoldX(bool bTcp)
