@@ -100,7 +100,7 @@
                                                   during release process */
 #define SIPXTAPI_FULL_VERSION "2.9.0.5554"               /**< Default full version number -- automatically filled in 
                                                   during release process*/
-#define SIPXTAPI_BUILDDATE "2006-03-09"            /**< Default build date -- automatically filled in 
+#define SIPXTAPI_BUILDDATE "0000-00-00"      /**< Default build date -- automatically filled in 
                                                   during release process*/
 #define SIPX_MAX_ADAPTER_NAME_LENGTH 256	 /**< Max length of an adapter name */
 
@@ -972,13 +972,14 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST* phInst,
 /** 
  * Re-initialize the sipX tapi-like API layer.  This method will remove all lines,
  * conferences, calls, publishers, and subscribers, and listeners.
- * Before calling this function, the application should un-register all registered
- * lines.  
+ * Before calling this function, the application should un-register all registered 
+ * lines.
  *
- * Your listeners are NOT maintained.
+ * Your listeners are NOT maintained.  You should also reset any of your 
+ * configuration settings (rport, outbound proxy, etc).
  *
  * @param phInst A pointer to a SIPX_INST variable.  Your old SIPX_INST
- *        pointer will be invalid after this call.  Calling any routines
+ *        handle will be invalid after this call.  Calling any routines
  *        with the old SIPX_INST variable is undefined and may result in
  *        an exception.
  * @param udpPort The default UDP port for the SIP protocol stack.  The
