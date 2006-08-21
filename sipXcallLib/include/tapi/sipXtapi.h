@@ -91,14 +91,14 @@
                                              signaling or audio when passed to 
                                              sipXinitialize */
 
-#define SIPXTAPI_VERSION_STRING "SIPxua SDK %s.%s %s (built %s)" /**< Version string format string */
-#define SIPXTAPI_VERSION        "2.9.0"      /**< sipXtapi API version -- automatically filled in 
+#define SIPXTAPI_VERSION_STRING "sipXtapi SDK %s.%s %s (built %s)" /**< Version string format string */
+#define SIPXTAPI_VERSION        "2.9.1"      /**< sipXtapi API version -- automatically filled in 
                                                   during release process */   
-#define SIPXTAPI_BUILDNUMBER "5554"                     /**< Default build number -- automatically filled in 
+#define SIPXTAPI_BUILDNUMBER "0"             /**< Default build number -- automatically filled in 
                                                   during release process*/
-#define SIPXTAPI_BUILD_WORD 2,9,0,5554 /**< Default build word -- automatically filled in 
+#define SIPXTAPI_BUILD_WORD 2,9,1,0          /**< Default build word -- automatically filled in 
                                                   during release process */
-#define SIPXTAPI_FULL_VERSION "2.9.0.5554"               /**< Default full version number -- automatically filled in 
+#define SIPXTAPI_FULL_VERSION "2.9.1.0"      /**< Default full version number -- automatically filled in 
                                                   during release process*/
 #define SIPXTAPI_BUILDDATE "0000-00-00"      /**< Default build date -- automatically filled in 
                                                   during release process*/

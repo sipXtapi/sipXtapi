@@ -8,7 +8,7 @@ Please see the instructions in the INSTALL doc in sipXportLib for all the requir
 
 Linux Build Hints
 =================
-The Linux build has been tested on both Red Hat Enterprise Linux ES release 6 and gentoo.  Automake and autoconf should do the trick for you.  If you find any missing components, you will need to install those.  See the INSTALL doc in sipXportLib for more info on these dependences.
+The Linux build has been tested on Fedora Core 5 and gentoo.  Automake and autoconf should do the trick for you.  If you find any missing components, you will need to install those.  See the INSTALL doc in sipXportLib for more info on these dependences.  Under FC5, I needed to yum pcre-devel and cppunit-devel.
 
 1) Build 
 
@@ -27,7 +27,6 @@ autoreconf -fi
 ./configure --prefix=/tmp/stage --enable-local-audio
 make;make install
 
-
 cd ../sipXmediaAdapterLib
 autoreconf -fi
 ./configure --prefix=/tmp/stage
@@ -44,9 +43,8 @@ cd examples/PlaceCall/src
 make
 ./PlaceCall <IP>
 
-
-sipXezPhone, PlaceCall and ReceiveCall are known to build/work with this source tree.
-
+PlaceCall and ReceiveCall are known to build/work with this source tree.
+sipXezPhone *should* work, but hasn't been tested with the latest source.
 
 MacOs Build Hints
 =================
@@ -68,13 +66,11 @@ autoconf (GNU Autoconf) 2.59
 Written by David J. MacKenzie and Akim Demaille.
 ...
 
-
 minimac:~/work/pax737/sipXportLib build$ which automake;automake --version
 /sw/bin/automake
 automake (GNU automake) 1.9.4
 Written by Tom Tromey <tromey@redhat.com>.
 ...
-
 
 2) Build the various components
 
@@ -93,14 +89,14 @@ autoreconf -fi
 ./configure --prefix=/tmp/stage --enable-local-audio
 make;make install
 
-NOTE: for sipXmediaLib to build you need the CoreAudio header files normally located in:
-/System/Library/Frameworks/CoreAudio.framework/Versions/A/Headers
-I’m not sure where these files come from - they were installed on my PowerBook, but not our minimac.  If you wish to build without these header files, remove the “—-enable-local-audio” switch on the configure line.
-
 cd ../sipXmediaAdapterLib
 autoreconf -fi
 ./configure --prefix=/tmp/stage
 make;make install
+
+NOTE: for sipXmediaLib and sipXmediaAdapterLib to build you need the CoreAudio header files normally located in:
+/System/Library/Frameworks/CoreAudio.framework/Versions/A/Headers
+I'm not sure where these files come from - they were installed on my PowerBook, but not our minimac.  If you wish to build without these header files, remove the '--enable-local-audio' switch on the configure line.
 
 cd ../sipXcallLib
 autoreconf -fi
