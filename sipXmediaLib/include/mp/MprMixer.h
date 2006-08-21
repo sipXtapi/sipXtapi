@@ -85,11 +85,11 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   enum AddlMsgTypes
+   typedef enum
    {
       SET_WEIGHT  = MpFlowGraphMsg::RESOURCE_SPECIFIC_START,
       SET_WEIGHTS
-   };
+   } AddlMsgTypes;
 
    enum { MAX_MIXER_INPUTS = 10 };
 

@@ -128,11 +128,11 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   enum AddlMsgTypes
+   typedef enum
    {
       SET_SOCKETS = MpFlowGraphMsg::RESOURCE_SPECIFIC_START,
       RESET_SOCKETS
-   };
+   } AddlMsgTypes;
 
 #ifdef DEBUG /* [ */
    unsigned int mRtpSampleCounter;

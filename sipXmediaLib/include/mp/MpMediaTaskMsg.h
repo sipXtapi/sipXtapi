@@ -32,7 +32,7 @@ class MpMediaTaskMsg : public OsMsg
 public:
 
    /// Phone set message types
-   enum MpMediaTaskMsgType
+   typedef enum
    {
       MANAGE,
       SET_FOCUS,
@@ -44,7 +44,7 @@ public:
       STOP_SEND_RTP,
       START_RECEIVE_RTP,
       STOP_RECEIVE_RTP,
-   };
+   } MpMediaTaskMsgType;
 
 /* ============================ CREATORS ================================== */
 ///@name Creators

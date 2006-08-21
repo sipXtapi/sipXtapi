@@ -19,14 +19,13 @@ bool isWaveFile(istream &file);
 
 class MpAudioWaveFileRead: public MpAudioAbstract {
 public:
-   enum WaveDecompressionType
-   {
+   typedef enum {
       DePcm8Unsigned = 1,
       DePcm16LsbSigned,
       DeG711ALaw = 6,
       DeG711MuLaw = 7,
       DeImaAdpcm = 17
-   };
+   } WaveDecompressionType;
 
 /* ============================ CREATORS ================================== */
 ///@name Creators

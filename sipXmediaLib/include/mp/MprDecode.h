@@ -106,11 +106,11 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   enum AddlMsgTypes
+   typedef enum
    {
       SELECT_CODECS = MpFlowGraphMsg::RESOURCE_SPECIFIC_START,
       DESELECT_CODECS,
-   };
+   } AddlMsgTypes;
 
    enum { MAX_RTP_FRAMES = 25};
 

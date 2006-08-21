@@ -23,12 +23,11 @@ private:
    int m_CompressionType;
    AbstractDecompressor *_decoder;
 public:
-   enum AuDecompressionType
-   {
+   typedef enum {
       DeG711MuLaw = 1,
       DePcm8Unsigned,
       DePcm16MsbSigned
-   };
+   } AuDecompressionType;
 
    MpAuRead(istream & s, int raw = 0);
 

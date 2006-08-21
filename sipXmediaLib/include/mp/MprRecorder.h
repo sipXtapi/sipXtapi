@@ -53,10 +53,10 @@ class MprRecorder : public MpAudioResource
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   enum RecordFileFormat {
+   typedef enum {
       RAW_PCM_16 = 0,
       WAV_PCM_16
-   } ;
+   }  RecordFileFormat;
 
 /* ============================ CREATORS ================================== */
 ///@name Creators
@@ -69,7 +69,7 @@ public:
    virtual
    ~MprRecorder();
 
-   enum Completion
+   typedef enum
    {
       RECORD_FINISHED,
       RECORD_STOPPED,
@@ -77,7 +77,7 @@ public:
       WRITE_ERROR,
       RECORD_IDLE,
       INVALID_SETUP
-   };
+   }Completion;
 
 //@}
 
@@ -132,12 +132,12 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   enum AddlMsgTypes
+   typedef enum
    {
       BEGIN = MpFlowGraphMsg::RESOURCE_SPECIFIC_START,
       STOP,
       SETUP
-   };
+   } AddlMsgTypes;
 
    int mTermKey;
    int mFileDescriptor;

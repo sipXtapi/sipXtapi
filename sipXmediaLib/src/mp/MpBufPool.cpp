@@ -145,7 +145,7 @@ void MpBufPool::releaseBuffer(MpBuf *pBuffer)
     assert(pBuffer->mRefCounter == 0);
 
     // This check is need cause we don't synchronize MpBuf's reference counter.
-    // See note in MpBuf::decrementRefCounter().
+    // See note in MpBuf::detach().
     if (pBuffer->mpPool == this) {
         appendFreeList(pBuffer);
     } else {

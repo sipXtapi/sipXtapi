@@ -56,12 +56,12 @@ public:
 
    /// @brief Graph traversal states that are used when running a topological 
    /// sort to order resources within a flow graph.
-   enum VisitState
+   typedef enum
    {
       NOT_VISITED,
       IN_PROGRESS,
       FINISHED
-   };
+   } VisitState;
 
 
 /* ============================ CREATORS ================================== */

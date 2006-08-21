@@ -90,13 +90,13 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   enum AddlMsgTypes
+   typedef enum
    {
       SELECT_CODECS = MpFlowGraphMsg::RESOURCE_SPECIFIC_START,
       DESELECT_CODECS,
       START_TONE,
       STOP_TONE
-   };
+   } AddlMsgTypes;
 
    enum {TONE_STOP_PACKETS = 3}; // MUST BE > 0
    enum {HANGOVER_PACKETS = 25}; // At 20 ms each, 500 ms.

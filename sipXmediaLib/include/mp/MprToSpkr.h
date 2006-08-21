@@ -80,10 +80,10 @@ public:
    void SpeakerEqualization_ix(MpAudioSample* samples, int iLength);
 #endif /* REIMPLEMENT_CLARISIS_EQ ] */
 
-   enum AttenValues {
+   typedef enum {
       ATTEN_LOUDEST = 0,    ///< 0 dB, no attenuation
       ATTEN_QUIETEST = -6   ///< Please do not make this lower than -48
-   };
+   } AttenValues;
 
 //@}
 
@@ -114,10 +114,10 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   enum AddlMsgTypes
+   typedef enum
    {
       PLAY_FILE = MpFlowGraphMsg::RESOURCE_SPECIFIC_START
-   };
+   } AddlMsgTypes;
 
    enum{EqFilterLen = 24};
 

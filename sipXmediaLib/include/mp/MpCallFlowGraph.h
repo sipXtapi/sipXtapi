@@ -63,11 +63,11 @@ class MpCallFlowGraph : public MpFlowGraphBase
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   enum ToneOptions
+   typedef enum
    {
       TONE_TO_SPKR = 0x1,   ///< Play locally
       TONE_TO_NET  = 0x2    ///< Mix the tone to play out the network connection
-   };
+   } ToneOptions;
 
    enum RecorderChoice {
       RECORDER_MIC = 0,
@@ -381,11 +381,11 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   enum PlayStart {
+   typedef enum {
       START_PLAY_NONE = 0,
       START_PLAY_FILE,
       START_PLAY_SPKR
-   };
+   } PlayStart;
 
    static const int DEF_SAMPLES_PER_FRAME;
    static const int DEF_SAMPLES_PER_SEC;

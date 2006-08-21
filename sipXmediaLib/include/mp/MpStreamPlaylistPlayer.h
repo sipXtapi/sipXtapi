@@ -48,11 +48,11 @@ class MpStreamPlaylistPlayer : public OsServerTask, public MpPlayer
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   enum SourceType
+   typedef enum
    {
       SourceUrl,
       SourceBuffer,
-   } ;
+   } SourceType;
 
 /* ============================ CREATORS ================================== */
 ///@name Creators

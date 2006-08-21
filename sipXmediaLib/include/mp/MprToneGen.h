@@ -101,11 +101,11 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   enum AddlMsgTypes
+   typedef enum
    {
       START_TONE = MpFlowGraphMsg::RESOURCE_SPECIFIC_START,
       STOP_TONE
-   };
+   } AddlMsgTypes;
 
    static const int MIN_SAMPLE_RATE;
    static const int MAX_SAMPLE_RATE;

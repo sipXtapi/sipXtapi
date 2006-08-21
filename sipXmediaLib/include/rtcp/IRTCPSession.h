@@ -25,10 +25,10 @@ interface IGetSrcDescription;
 interface IGetByeInfo;
 
 //  Enumerated Types
-enum MIXER_MODE_ET {
+typedef enum {
     MIXER_DISABLED = 0,
     MIXER_ENABLED  = 1
-};
+}  MIXER_MODE_ET;
 
 /**
  *

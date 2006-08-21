@@ -48,7 +48,7 @@ public:
    virtual
    ~MprFromFile();
 
-   enum Completion /// $$$ These need more thought and clarification...
+   typedef enum /// $$$ These need more thought and clarification...
    {
       PLAY_FINISHED,
       PLAY_STOPPED,
@@ -56,7 +56,7 @@ public:
       READ_ERROR,
       PLAY_IDLE,
       INVALID_SETUP
-   };
+   } Completion;
 
 //@}
 
@@ -131,17 +131,17 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   enum AddlMsgTypes
+   typedef enum
    {
       PLAY_FILE = MpFlowGraphMsg::RESOURCE_SPECIFIC_START,
       STOP_FILE
-   };
+   } AddlMsgTypes;
 
-   enum MessageAttributes
+   typedef enum
    {
        PLAY_ONCE,
        PLAY_REPEAT
-   };
+   } MessageAttributes;
 
    UtlString* mpFileBuffer;
    int mFileBufferIndex;

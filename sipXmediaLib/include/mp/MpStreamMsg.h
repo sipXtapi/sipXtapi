@@ -36,7 +36,7 @@ class MpStreamMsg : public OsMsg
 public:
 
    /// Phone set message types
-   enum MpStreamMsgType
+   typedef enum
    {
       STREAM_REALIZE_URL,
       STREAM_REALIZE_BUFFER,
@@ -46,7 +46,7 @@ public:
       STREAM_PAUSE,
       STREAM_STOP,
       STREAM_DESTROY      
-   };
+   } MpStreamMsgType;
 
 /* ============================ CREATORS ================================== */
 ///@name Creators

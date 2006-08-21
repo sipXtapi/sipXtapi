@@ -37,14 +37,14 @@ struct MpAudioBuf : public MpDataBuf
 public:
 
     /// Sort of audio data.
-    enum SpeechType {
+    typedef enum {
         MP_SPEECH_UNKNOWN,        ///< is yet undetermined
         MP_SPEECH_SILENT,         ///< found to contain no speech
         MP_SPEECH_COMFORT_NOISE,  ///< to be replaced by comfort noise
         MP_SPEECH_ACTIVE,         ///< found to contain speech
         MP_SPEECH_MUTED,          ///< may contain speech, but must be muted
         MP_SPEECH_TONE            ///< filled with active (not silent) tone data
-    };
+    } SpeechType;
 
     static MpBufPool *smpDefaultPool; ///< Default pool for this type of buffer
 

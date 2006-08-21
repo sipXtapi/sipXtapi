@@ -91,12 +91,12 @@ class MpPlayer
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   enum playerType  // Type of players
+   typedef enum  // Type of players
    {
       STREAM_PLAYER,
       STREAM_PLAYLIST_PLAYER,
       STREAM_QUEUE_PLAYER
-   };
+   } playerType;
 
 /* ============================ CREATORS ================================== */
    MpPlayer();

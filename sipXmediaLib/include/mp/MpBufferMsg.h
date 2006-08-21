@@ -36,14 +36,14 @@ class MpBufferMsg : public OsMsg
 public:
 
    /// Phone set message types
-   enum MpBufferMsgType
+   typedef enum
    {
       AUD_RECORDED,
       AUD_RTP_RECV,
       AUD_RTCP_RECV,
       AUD_PLAY,
       ACK_EOSTREAM
-   };
+   } MpBufferMsgType;
 
 /* ============================ CREATORS ================================== */
 ///@name Creators

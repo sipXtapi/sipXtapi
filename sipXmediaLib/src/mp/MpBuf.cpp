@@ -24,7 +24,7 @@
 
 /* ============================ MANIPULATORS ============================== */
 
-void MpBuf::incrementRefCounter()
+void MpBuf::attach()
 {
     mRefCounter++;
 #ifdef MPBUF_DEBUG
@@ -36,7 +36,7 @@ void MpBuf::incrementRefCounter()
 #endif
 }
 
-void MpBuf::decrementRefCounter()
+void MpBuf::detach()
 {
 #ifdef MPBUF_DEBUG
     if (mpPool->getBufferNumber(this) == 123)

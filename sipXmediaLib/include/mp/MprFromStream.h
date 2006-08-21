@@ -133,7 +133,7 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   enum AddlMsgTypes
+   typedef enum
    {     
       SOURCE_PLAY = MpFlowGraphMsg::RESOURCE_SPECIFIC_START,
       SOURCE_PAUSE,
@@ -141,7 +141,7 @@ private:
       SOURCE_STOP,
       SOURCE_DESTROY,
       SOURCE_RENDER,
-   };
+   } AddlMsgTypes;
 
 
    OsNotification* mpNotify;

@@ -62,15 +62,16 @@ public:
 
    friend class MpCallFlowGraph;
 
-   enum {NUM_PAYLOAD_TYPES = (2<<7),
-         MAX_ACTIVE_PAYLOAD_TYPES = 10,
+   enum {
+      NUM_PAYLOAD_TYPES = (2<<7),
+      MAX_ACTIVE_PAYLOAD_TYPES = 10,
    };
 
-   enum PremiumSoundOptions
+   typedef enum
    {
       DisablePremiumSound,
       EnablePremiumSound
-   };
+   } PremiumSoundOptions;
 
 /* ============================ CREATORS ================================== */
 ///@name Creators

@@ -17,7 +17,7 @@
 
 /* MCP/Codec interface: */
 
-enum MpCodecSpkrChoice {
+typedef enum {
     CODEC_DISABLE_SPKR=0,
     CODEC_ENABLE_SPKR1=(1<<0),
     CODEC_ENABLE_SPKR2=(1<<1),
@@ -25,7 +25,7 @@ enum MpCodecSpkrChoice {
     CODEC_ENABLE_SPKR4=(1<<3),
     CODEC_ENABLE_SPKR5=(1<<4),
     CODEC_ENABLE_SPKR6=(1<<5),
-};
+} MpCodecSpkrChoice;
 
 #define CODEC_ENABLE_HANDSET_SPKR         CODEC_ENABLE_SPKR1
 #define CODEC_ENABLE_BASE_SPKR            CODEC_ENABLE_SPKR2
@@ -37,12 +37,12 @@ enum MpCodecSpkrChoice {
 
 extern OsStatus MpCodec_setSpeakerMode(MpCodecSpkrChoice mask);
 
-enum MpCodecMicChoice {
+typedef enum {
     CODEC_DISABLE_MIC=0,
     CODEC_ENABLE_MIC1=(1<<0),
     CODEC_ENABLE_MIC2=(1<<1),
     CODEC_ENABLE_MIC3=(1<<2),
-};
+} MpCodecMicChoice;
 
 #define CODEC_ENABLE_HANDSET_MIC CODEC_ENABLE_MIC1
 #define CODEC_ENABLE_BASE_MIC CODEC_ENABLE_MIC2

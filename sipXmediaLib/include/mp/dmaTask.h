@@ -62,11 +62,11 @@ extern int muteSpkr(void);
 extern int unMuteMic(void);
 extern int muteMic(void);
 
-enum MpDmaMicChoice {
+typedef enum {
     MP_MIC_SELECT_NEITHER,
     MP_MIC_SELECT_HANDSET,
     MP_MIC_SELECT_BASE,
-};
+} MpDmaMicChoice;
 
 extern OsStatus MpDma_selectMic(MpDmaMicChoice choice);
 extern MpDmaMicChoice MpDma_getMicMode(void);

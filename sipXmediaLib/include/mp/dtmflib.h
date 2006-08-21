@@ -16,7 +16,7 @@
 
 #define DTMF_TONES_BASE 512
 
-enum toneName {
+typedef enum {
 DTMF_TONE_DIALTONE   = (DTMF_TONES_BASE + 0),
 DTMF_TONE_BUSY,
 DTMF_TONE_RINGBACK,
@@ -27,9 +27,7 @@ DTMF_TONE_BACKSPACE,
 DTMF_TONE_CALLWAITING,
 DTMF_TONE_CALLHELD,
 DTMF_TONE_LOUD_FAST_BUSY
-};
-
-typedef enum toneName toneID;
+} toneID;
 
 typedef struct __MpToneGen_tag *MpToneGenPtr;
 

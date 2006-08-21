@@ -34,7 +34,7 @@ class MpFlowGraphMsg : public OsMsg
 public:
 
    /// Phone set message types
-   enum MpFlowGraphMsgType
+   typedef enum
    {
       FLOWGRAPH_ADD_LINK,
       FLOWGRAPH_ADD_RESOURCE,
@@ -69,7 +69,7 @@ public:
       FLOWGRAPH_SET_DTMF_NOTIFY,
 
       RESOURCE_SPECIFIC_START = 100     ///< start of resource-specific messages
-   };
+   } MpFlowGraphMsgType;
 
 /* ============================ CREATORS ================================== */
 ///@name Creators

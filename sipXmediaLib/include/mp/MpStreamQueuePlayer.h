@@ -52,11 +52,11 @@ class MpStreamQueuePlayer : public OsServerTask, protected MpPlayerListener
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   enum SourceType
+   typedef enum
    {
       SourceUrl,
       SourceBuffer,
-   } ;
+   } SourceType;
 
 /* ============================ CREATORS ================================== */
 ///@name Creators

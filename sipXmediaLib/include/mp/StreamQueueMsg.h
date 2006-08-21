@@ -36,11 +36,11 @@ class StreamQueueMsg : public OsMsg
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   enum tagStreamQueueMsgSubTypes
+   typedef enum
    {
       AudioFrame,
       EndOfFrameMarker,
-   } ;
+   } StreamQueueMsgSubTypes;
 
 /* ============================ CREATORS ================================== */
 ///@name Creators

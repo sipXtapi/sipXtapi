@@ -85,11 +85,11 @@ class MpFlowGraphBase
 public:
    friend OsStatus MpResource::postMessage(MpFlowGraphMsg& rMsg);
 
-   enum FlowGraphState
+   typedef enum
    {
       STARTED,   ///< flow graph has been started (is processing media streams)
       STOPPED    ///< flow graph is stopped (not processing media streams)
-   };
+   } FlowGraphState;
 
 /* ============================ CREATORS ================================== */
 ///@name Creators

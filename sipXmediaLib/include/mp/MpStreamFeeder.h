@@ -39,7 +39,7 @@
 
 //: Feeder states (match player states for the most part, but add a 
 //: realizing and rendering states)
-typedef enum tagFeederState
+typedef enum
 {
    UnrealizedState,
    RealizedState,

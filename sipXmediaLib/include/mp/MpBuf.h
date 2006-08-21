@@ -41,7 +41,7 @@
 *  E.g. MpAudioBuf could be converted to MpDataBuf, but could not be converted
 *  to MpArrayBuf. This check is done inside MpBufPtr's child classes.
 */
-enum MP_BUFFERS_TREE {
+typedef enum {
     MP_BUF,               ///< Begin of the MpBuf type
       MP_BUF_ARRAY,       ///< Begin of the MpArrayBuf type
       MP_BUF_ARRAY_END,   ///< End of the MpArrayBuf type
@@ -54,7 +54,7 @@ enum MP_BUFFERS_TREE {
         MP_BUF_UDP_END,   ///< End of the MpUdpBuf type
       MP_BUF_DATA_END,    ///< End of the MpDataBuf type
     MP_BUF_END            ///< End of the MpBuf type
-};
+} MP_BUFFERS_TREE;
 
 // TYPEDEFS
 
@@ -86,10 +86,10 @@ public:
 //@{
 
     /// Increments reference counter.
-    void incrementRefCounter();
+    void attach();
 
     /// Decrements reference counter and free buffer if needed.
-    void decrementRefCounter();
+    void detach();
 
 //@}
 
@@ -170,7 +170,7 @@ public:
         if (mpBuffer != NULL) {
             mpBuffer->mType = MP_BUF;
             mpBuffer->mpDestroy = NULL;
-            mpBuffer->incrementRefCounter();
+            mpBuffer->attach();
         }
 #ifdef _DEBUG
         else {
@@ -183,7 +183,7 @@ public:
     ~MpBufPtr()
     {
         if (mpBuffer != NULL)
-            mpBuffer->decrementRefCounter();
+            mpBuffer->detach();
     };
 
     /// Copy buffer pointer and increment its reference counter.
@@ -191,7 +191,7 @@ public:
         : mpBuffer(buffer.mpBuffer)
     {
         if (mpBuffer != NULL)
-            mpBuffer->incrementRefCounter();
+            mpBuffer->attach();
     }
 
 //@}
@@ -212,10 +212,10 @@ public:
         }
 
         if (mpBuffer != NULL)
-            mpBuffer->decrementRefCounter();
+            mpBuffer->detach();
         mpBuffer = bufferPtr.mpBuffer;
         if (mpBuffer != NULL)
-            mpBuffer->incrementRefCounter();
+            mpBuffer->attach();
 
         return *this;
     }
@@ -245,7 +245,7 @@ public:
     void release()
     {
         if (mpBuffer != NULL)
-            mpBuffer->decrementRefCounter();
+            mpBuffer->detach();
         mpBuffer = NULL;
     }
 

@@ -166,11 +166,11 @@ public:
         }
 
         if (mpBuffer != NULL) {
-            ((MpDataBuf*)mpBuffer)->decrementRefCounter();
+            ((MpDataBuf*)mpBuffer)->detach();
         }
         mpBuffer = buffer.mpBuffer;
         if (mpBuffer != NULL) {
-            mpBuffer->incrementRefCounter();
+            mpBuffer->attach();
         }
 
         return *this;
