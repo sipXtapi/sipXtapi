@@ -4,6 +4,7 @@ EXTRA_DIST = \
 	Doxyfile.in \
 	Redirection.txt \
 	alias.xml \
+	caller-alias.xml \
 	huntgroup.xml \
 	mappingrules.xml \
 	fallbackrules.xml \

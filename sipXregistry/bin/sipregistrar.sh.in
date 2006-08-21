@@ -66,6 +66,9 @@ case ${Action} in
      ! test -e @SIPX_DBDIR@/alias.xml \
      || @bindir@/sipx-validate-xml @SIPX_DBDIR@/alias.xml
      Status=$(($Status+$?))
+     ! test -e @SIPX_DBDIR@/caller-alias.xml \
+     || @bindir@/sipx-validate-xml @SIPX_DBDIR@/caller-alias.xml
+     Status=$(($Status+$?))
 
      # if this system is configured for HA, check that both have valid routes
      SyncWith=`sipx_config_value @SIPX_CONFDIR@/registrar-config SIP_REGISTRAR_SYNC_WITH`

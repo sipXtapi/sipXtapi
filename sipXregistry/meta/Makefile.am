@@ -2,6 +2,7 @@ include $(top_builddir)/config/sipXcommon.mak
 
 schemas = \
 	alias.xsd \
+	caller-alias.xsd \
 	huntgroup.xsd
 
 EXTRA_DATA = $(foreach xsd,$(schemas),$(xsd).in)
