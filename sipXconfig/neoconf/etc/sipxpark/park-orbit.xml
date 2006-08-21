@@ -15,7 +15,7 @@
         specified in Park timeout elapses.
       </description>
     </setting>
-    <setting name="parkTimeout">
+    <setting name="parkTimeout" advanced="yes">
       <label>Park time-out</label>
       <type>
         <integer min="30" max="300" />
@@ -48,7 +48,7 @@
         party by pressing transfer key.
       </description>
     </setting>
-    <setting name="transferKey">
+    <setting name="transferKey" advanced="yes">
       <label>Transfer key</label>
       <type>
         <string maxLen="1">
