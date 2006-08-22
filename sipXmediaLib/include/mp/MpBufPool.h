@@ -62,10 +62,10 @@ public:
 ///@name Accessors
 //@{
 
-    /// Return number of blocks in the pool.
+    /// Return size of the one block in the pool (in bytes).
     unsigned getBlockSize() const {return mBlockSize;};
 
-    /// Return size of the one block in the pool (in bytes).
+    /// Return number of blocks in the pool.
     unsigned getNumBlocks() const {return mNumBlocks;};
 
     /// Return number of the buffer in the pool. Use this for debug ouput.
