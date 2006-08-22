@@ -1,16 +1,20 @@
 INCLUDES = -I$(top_srcdir)/include
 
+# disabled testsuite, this entire makefile needs to be refactored, this
+# was giving errors in 'make dist' target and non-standard usage of build
+# switches had to be removed -- DLH
+
 # Define values used in local database unit tests. This only
 # happens if configure was run with --with-dbtests.
-if BUILD_DBTESTS
 db_deps = db_setup
 PG_USER = postgres
-testsuite = cse_test.sh
+# testsuite_SCRIPTS = cse_test.sh
 SCHEMA_FILE = $(top_srcdir)/etc/database/schema.sql
-else
-testsuite = 
-db_deps =
-endif
+
+EXTRA_DIST = \
+  cse_test.rb \
+  environment.rb \
+  sipsupport.rb
 
 CSE_TEST_FILES = \
   $(srcdir)/cse_test.rb \
@@ -19,12 +23,12 @@ CSE_TEST_FILES = \
 
 ## All tests under this GNU variable should run relatively quickly
 ## and of course require no setup
-TESTS = $(testsuite)
+# TESTS = $(testsuite)
 
 # Let make check create a small shell script to start the real Ruby 
 # file. This satisfies the automake requirement that a testsuite must 
 # be an executable file that is created during make check.
-check_PROGRAMS = $(testsuite)
+# check_PROGRAMS = $(testsuite)
 
 # Create simple shell script to start up Ruby, pass in the correct
 # parameters. First copy all Ruby script files from src/cse/test

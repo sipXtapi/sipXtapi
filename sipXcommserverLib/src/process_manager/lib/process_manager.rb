@@ -24,7 +24,7 @@ require 'process_config'
 :TODO: Don't hardwire directories like /var/log/sipxpbx, instead get them from
          sipX directory variables, as defined in
          http://www.sipfoundry.org/sipX/doc/filesystem.html .
-        The file config/sipXcommon.mak.in provides some machinery that can be
+        The file config/subdir.am provides some machinery that can be
         applied via a Makefile.
 
 :TODO: Honor process config:

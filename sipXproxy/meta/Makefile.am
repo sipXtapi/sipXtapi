@@ -1,4 +1,4 @@
-include $(top_builddir)/config/sipXcommon.mak
+include $(top_srcdir)/config/subdir.am
 
 # Pristine copies of sipX 3.0 configuration files.  When no longer
 # supporting upgrade from 3.0, you can delete this file and respective

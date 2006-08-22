@@ -26,9 +26,11 @@ version_Age=0
 
 libsipXtack_la_LDFLAGS = \
 	-version-info ${version_Current}:${version_Revision}:${version_Age} \
+	@PCRE_LDFLAGS@ \
 	@SSL_LDFLAGS@
 
 libsipXtack_la_CXXFLAGS = \
+	@PCRE_CXXFLAGS@ \
 	@SSL_CXXFLAGS@ \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
@@ -36,6 +38,7 @@ libsipXtack_la_CXXFLAGS = \
 libsipXtack_la_LIBADD = \
 	@SIPXPORT_LIBS@ \
 	@SSL_LIBS@ \
+	@PCRE_LIBS@ \
 	-lresolv 
 if ISGCC
 libsipXtack_la_LIBADD += -lstdc++

@@ -18,6 +18,10 @@ AC_DEFUN([SFAC_INIT_FLAGS],
     AC_SUBST(SIPX_LIBDIR, [${libdir}])
     AC_SUBST(SIPX_LIBEXECDIR, [${libexecdir}])
 
+    CFLAGS="-I${prefix}/include $CFLAGS"
+    CXXFLAGS="-I${prefix}/include $CXXFLAGS"
+    LDFLAGS="-L${prefix}/lib ${LDFLAGS}"
+
     if test x_"${ax_cv_c_compiler_vendor}" = x_gnu
     then
     	SF_CXX_C_FLAGS="-D__pingtel_on_posix__ -D_linux_ -D_REENTRANT -D_FILE_OFFSET_BITS=64 -fmessage-length=0"
@@ -92,7 +96,62 @@ AC_DEFUN([SFAC_INIT_FLAGS],
 
     # Enable profiling via gprof
     ENABLE_PROFILE
+
+    SFAC_SVN_VERSION
+    SFAC_DIST_DIR
+
+    SFAC_CONFIGURE_OPTIONS
 ])
+
+AC_DEFUN([SFAC_CONFIGURE_OPTIONS],
+[
+  ConfigureArgs=`sed \
+    -e '/^ *\$ .*\/configure/!d' \
+    -e 's/^ *\$ .*\/configure *//' \
+    config.log`
+
+  ## Strip out configure switched that cause issue in RPM spec file
+  ## configure switch. Does not support spaces in paths
+  for a in $ConfigureArgs; do
+    case ${a} in
+      --srcdir=*|--cache-file=*|--prefix=*)
+        ;;
+      *)
+        CleanedArgs="$CleanedArgs $a"
+        ;;
+    esac 
+  done
+
+  AC_SUBST(CONFIGURE_OPTIONS, $CleanedArgs)
+])
+
+
+# Determine the svn repository revision number, useful to build stamps
+AC_DEFUN([SFAC_SVN_VERSION],[
+   AC_MSG_CHECKING(codebase svn revision)
+   svnversion=${srcdir}/SVN-VERSION
+   if test -f $svnversion  
+   then
+     SVN_VERSION=`cat $svnversion`
+   else
+     if test -d ${srcdir}/.svn
+     then
+       SVN_VERSION=`svnversion ${srcdir} \
+         | perl -p \
+           -e 'm /(\d+)/ && do { $padded=sprintf( "%06d", $1 ); s/\d+/$padded/; };' \
+           -e 's/:/./; s/M/.M/;'`
+       elif test -r ${srcdir}/../SVN-VERSION
+       then
+         SVN_VERSION=`cat ${srcdir}/../SVN-VERSION`
+       else
+         SVN_VERSION="0.unknown"
+     fi
+   fi
+
+   AC_MSG_RESULT(${SVN_VERSION})
+   AC_SUBST(SVN_VERSION)
+])
+
 
 
 ## Check to see that we are using the minimum required version of automake
@@ -173,71 +232,8 @@ AC_DEFUN([SFAC_LIB_PORT],
     AC_REQUIRE([SFAC_INIT_FLAGS])
     AC_REQUIRE([CHECK_PCRE])
     AC_REQUIRE([CHECK_SSL])
-
-    SFAC_ARG_WITH_INCLUDE([os/OsDefs.h],
-            [sipxportinc],
-            [ --with-sipxportinc=<dir> portability include path ],
-            [sipXportLib])
-
-    if test x_$foundpath != x_; then
-        AC_MSG_RESULT($foundpath)
-    else
-        AC_MSG_ERROR('os/OsDefs.h' not found)
-    fi
-    SIPXPORTINC=$foundpath
-    AC_SUBST(SIPXPORTINC)
-
-    CFLAGS="-I$SIPXPORTINC $PCRE_CFLAGS $CPPUNIT_CFLAGS $CFLAGS"
-    CXXFLAGS="-I$SIPXPORTINC $PCRE_CXXFLAGS $CPPUNIT_CFLAGS $CXXFLAGS"
-
-    foundpath=""
-
-    SFAC_ARG_WITH_INCLUDE([sipxunit/TestUtilities.h],
-            [sipxportinc],
-            [ --with-sipxportinc=<dir> portability include path ],
-            [sipXportLib])
-
-    if test x_$foundpath != x_; then
-        AC_MSG_RESULT($foundpath)
-    else
-        AC_MSG_ERROR('sipxunit/TestUtilities.h' not found)
-    fi
-    SIPXUNITINC=$foundpath
-    AC_SUBST(SIPXUNITINC)
-
-    CFLAGS="-I$SIPXUNITINC $CFLAGS"
-    CXXFLAGS="-I$SIPXUNITINC $CXXFLAGS"
-
-    foundpath=""
-
-    SFAC_ARG_WITH_LIB([libsipXport.la],
-            [sipxportlib],
-            [ --with-sipxportlib=<dir> portability library path ],
-            [sipXportLib])
-
-    if test x_$foundpath != x_; then
-        AC_MSG_RESULT($foundpath)
-        AC_SUBST(SIPXPORT_LIBS,    "$foundpath/libsipXport.la")
-        AC_SUBST(SIPXPORT_LDFLAGS, "-L$foundpath")
-    else
-        AC_MSG_ERROR('libsipXport.la' not found)
-    fi
-
-    foundpath=""
-
-    SFAC_ARG_WITH_LIB([libsipXunit.la],
-            [sipxportlib],
-            [ --with-sipxportlib=<dir> portability library path ],
-            [sipXportLib])
-
-    if test x_$foundpath != x_; then
-        AC_MSG_RESULT($foundpath)
-        # sipXunit unitesting support
-        AC_SUBST(SIPXUNIT_LDFLAGS, "-L$foundpath")
-        AC_SUBST(SIPXUNIT_LIBS,    "$foundpath/libsipXunit.la")
-    else
-        AC_MSG_ERROR('libsipXunit.la' not found)
-    fi
+    AC_SUBST(SIPXPORT_LIBS, [-lsipXport])
+    AC_SUBST(SIPXUNIT_LIBS, [-lsipXunit])
 ]) # SFAC_LIB_PORT
 
 
@@ -252,42 +248,7 @@ AC_DEFUN([SFAC_LIB_PORT],
 AC_DEFUN([SFAC_LIB_STACK],
 [
     AC_REQUIRE([SFAC_LIB_PORT])
-
-    SFAC_ARG_WITH_INCLUDE([net/SipUserAgent.h],
-            [sipxtackinc],
-            [ --with-sipxtackinc=<dir> sip stack include path ],
-            [sipXtackLib])
-
-    if test x_$foundpath != x_; then
-        AC_MSG_RESULT($foundpath)
-    else
-        AC_MSG_ERROR('net/SipUserAgent.h' not found)
-    fi
-    SIPXTACKINC=$foundpath
-    AC_SUBST(SIPXTACKINC)
-
-    if test "$SIPXTACKINC" != "$SIPXPORTINC"
-    then
-        CFLAGS="-I$SIPXTACKINC $CFLAGS"
-        CXXFLAGS="-I$SIPXTACKINC $CXXFLAGS"
-    fi
-
-    SFAC_ARG_WITH_LIB([libsipXtack.la],
-            [sipxtacklib],
-            [ --with-sipxtacklib=<dir> sip stack library path ],
-            [sipXtackLib])
-
-    if test x_$foundpath != x_; then
-        AC_MSG_RESULT($foundpath)
-    else
-        AC_MSG_ERROR('libsipXtack.la' not found)
-    fi
-
-    SIPXTACKLIB=$foundpath
-
-    AC_SUBST(SIPXTACK_LIBS,["$SIPXTACKLIB/libsipXtack.la"])
-    AC_SUBST(SIPXTACK_LDFLAGS,["-L$SIPXTACKLIB"])
-
+    AC_SUBST([SIPXTACK_LIBS], [-lsipXtack])
 ]) # SFAC_LIB_STACK
 
 
@@ -302,40 +263,7 @@ AC_DEFUN([SFAC_LIB_STACK],
 AC_DEFUN([SFAC_LIB_MEDIA],
 [
     AC_REQUIRE([SFAC_LIB_STACK])
-
-    SFAC_ARG_WITH_INCLUDE([mp/MpMediaTask.h],
-            [sipxmediainc],
-            [ --with-sipxmediainc=<dir> media library include path ],
-            [sipXmediaLib])
-
-    if test x_$foundpath != x_; then
-        AC_MSG_RESULT($foundpath)
-    else
-        AC_MSG_ERROR('mp/MpMediaTask.h' not found)
-    fi
-    SIPXMEDIAINC=$foundpath
-    AC_SUBST(SIPXMEDIAINC)
-
-    if test "$SIPXMEDIAINC" != "$SIPXPORTINC"
-    then
-        CFLAGS="-I$SIPXMEDIAINC $CFLAGS"
-        CXXFLAGS="-I$SIPXMEDIAINC $CXXFLAGS"
-    fi
-    
-    SFAC_ARG_WITH_LIB([libsipXmedia.la],
-            [sipxmedialib],
-            [ --with-sipxmedialib=<dir> media library path ],
-            [sipXmediaLib])
-
-    if test x_$foundpath != x_; then
-        AC_MSG_RESULT($foundpath)
-    else
-        AC_MSG_ERROR('libsipXmedia.la' not found)
-    fi
-    SIPXMEDIALIB=$foundpath
-
-    AC_SUBST(SIPXMEDIA_LIBS, ["$SIPXMEDIALIB/libsipXmedia.la"])
-    AC_SUBST(SIPXMEDIA_LDFLAGS, ["-L$SIPXMEDIALIB"])
+    AC_SUBST([SIPXMEDIA_LIBS], [-lsipXmedia])
 ]) # SFAC_LIB_MEDIA
 
 
@@ -351,40 +279,7 @@ AC_DEFUN([SFAC_LIB_MEDIA],
 AC_DEFUN([SFAC_LIB_MEDIAADAPTER],
 [
     AC_REQUIRE([SFAC_LIB_MEDIA])
-
-    SFAC_ARG_WITH_INCLUDE([mi/CpMediaInterface.h],
-            [sipxmediaadapterinc],
-            [ --with-sipxmediaadapterinc=<dir> media adapter library include path ],
-            [sipXmediaAdapterLib])
-
-    if test x_$foundpath != x_; then
-        AC_MSG_RESULT($foundpath)
-    else
-        AC_MSG_ERROR('mi/CpMediaInterface.h' not found)
-    fi
-    SIPXMEDIAADAPTERINC=$foundpath
-    AC_SUBST(SIPXMEDIAADAPTERINC)
-
-    if test "$SIPXMEDIAADAPTERINC" != "$SIPXPORTINC"
-    then
-        CFLAGS="-I$SIPXMEDIAADAPTERINC $CFLAGS"
-        CXXFLAGS="-I$SIPXMEDIAADAPTERINC $CXXFLAGS"
-    fi
-    
-    SFAC_ARG_WITH_LIB([libsipXmediaProcessing.la],
-            [sipxmediaadapterlib],
-            [ --with-sipxmediaadapterlib=<dir> media adapter library path ],
-            [sipXmediaAdapterLib])
-
-    if test x_$foundpath != x_; then
-        AC_MSG_RESULT($foundpath)
-    else
-        AC_MSG_ERROR('libsipXmediaProcessing.la' not found)
-    fi
-    SIPXMEDIAADAPTERLIB=$foundpath
-
-    AC_SUBST(SIPXMEDIAADAPTER_LIBS, ["$SIPXMEDIAADAPTERLIB/libsipXmediaProcessing.la"])
-    AC_SUBST(SIPXMEDIAADAPTER_LDFLAGS, ["-L$SIPXMEDIAADAPTERLIB"])
+    AC_SUBST([SIPXMEDIAADAPTER_LIBS], [-lsipXmediaProcessing])
 ]) # SFAC_LIB_MEDIAADAPTER
 
 
@@ -398,6 +293,10 @@ AC_DEFUN([CHECK_GIPSNEQ],
 ],
       compile_with_gips=yes)
 
+   gips_file_check=$withval/include/GIPS/Vendor_gips_typedefs.h
+
+   AC_REQUIRE([SFAC_LIB_MEDIAADAPTER])
+
    AC_MSG_CHECKING(if link in with gips NetEQ)
 
    if test x$compile_with_gips = xyes
@@ -409,15 +308,15 @@ AC_DEFUN([CHECK_GIPSNEQ],
       AC_MSG_CHECKING(for gips includes)
       # Define HAVE_GIPS for c pre-processor
       GIPS_CPPFLAGS=-DHAVE_GIPS
-      if test -e $withval/include/GIPS/Vendor_gips_typedefs.h
+      if test -e $gips_file_check
       then
          gips_dir=$withval
-      elif test -e $abs_srcdir/../sipXbuild/vendors/gips/include/GIPS/Vendor_gips_typedefs.h
-      then
-         gips_dir=$abs_srcdir/../sipXbuild/vendors/gips
       else
-         AC_MSG_ERROR(GIPS/Vendor_gips_typedefs.h not found)
+         AC_MSG_ERROR($gips_file_check not found)
       fi
+
+      # Cascade flags into RPM build
+      DIST_FLAGS="$DIST_FLAGS --with-gipsneq=$gips_dir"
 
       AC_MSG_RESULT($gips_dir)
 
@@ -436,8 +335,6 @@ AC_DEFUN([CHECK_GIPSNEQ],
    AC_SUBST(GIPSINC)
    AC_SUBST(GIPS_NEQ_OBJS)
    AC_SUBST(GIPS_CPPFLAGS)
-
-   AC_SUBST(SIPXMEDIA_MP_LIBS, ["$SIPXMEDIALIB/libsipXmediaProcessing.la"])
 ]) # CHECK_GIPSNEQ
 
 
@@ -540,40 +437,7 @@ AC_DEFUN([CHECK_GIPSCE],
 AC_DEFUN([SFAC_LIB_CALL],
 [
     AC_REQUIRE([SFAC_LIB_MEDIA])
-
-    SFAC_ARG_WITH_INCLUDE([cp/CallManager.h],
-            [sipxcallinc],
-            [ --with-sipxcallinc=<dir> call processing library include path ],
-            [sipXcallLib])
-
-    if test x_$foundpath != x_; then
-        AC_MSG_RESULT($foundpath)
-    else
-        AC_MSG_ERROR('cp/CallManager.h' not found)
-    fi
-    SIPXCALLINC=$foundpath
-    AC_SUBST(SIPXCALLINC)
-
-    if test "$SIPXCALLINC" != "$SIPXPORTINC"
-    then
-        CFLAGS="-I$SIPXCALLINC $CFLAGS"
-        CXXFLAGS="-I$SIPXCALLINC $CXXFLAGS"
-    fi
-
-    SFAC_ARG_WITH_LIB([libsipXcall.la],
-            [sipxcalllib],
-            [ --with-sipxcalllib=<dir> call processing library path ],
-            [sipXcallLib])
-
-    if test x_$foundpath != x_; then
-        AC_MSG_RESULT($foundpath)
-    else
-        AC_MSG_ERROR('libsipXcall.la' not found)
-    fi
-    SIPXCALLLIB=$foundpath
-
-    AC_SUBST(SIPXCALL_LIBS,   ["$SIPXCALLLIB/libsipXcall.la"])
-    AC_SUBST(SIPXCALL_LDFLAGS,["-L$SIPXCALLLIB"])
+    AC_SUBST([SIPXCALL_LIBS], [-lsipXcall])
 ]) # SFAC_LIB_CALL
 
 
@@ -589,56 +453,8 @@ AC_DEFUN([SFAC_LIB_CALL],
 AC_DEFUN([SFAC_LIB_COMMSERVER],
 [
     AC_REQUIRE([SFAC_LIB_STACK])
-
-    SFAC_ARG_WITH_INCLUDE([sipdb/SIPDBManager.h],
-            [sipxcommserverinc],
-            [ --with-sipxcommserverinc=<dir> call processing library include path ],
-            [sipXcommserverLib])
-
-    if test x_$foundpath != x_; then
-        AC_MSG_RESULT($foundpath)
-    else
-        AC_MSG_ERROR('sipdb/SIPDBManager.h' not found)
-    fi
-    SIPXCOMMSERVERINC=$foundpath
-    if test "$SIPXCOMMSERVERINC" != "$SIPXPORTINC"
-    then
-        CFLAGS="-I$SIPXCOMMSERVERINC $CFLAGS"
-        CXXFLAGS="-I$SIPXCOMMSERVERINC $CXXFLAGS"
-    fi
-    AC_SUBST(SIPXCOMMSERVERINC)
-
-    SFAC_ARG_WITH_LIB([libsipXcommserver.la],
-            [sipxcommserverlib],
-            [ --with-sipxcommserverlib=<dir> call processing library path ],
-            [sipXcommserverLib])
-
-    if test x_$foundpath != x_; then
-        AC_MSG_RESULT($foundpath)
-    else
-        AC_MSG_ERROR('libsipXcommserver.la' not found)
-    fi
-    SIPXCOMMSERVERLIB=$foundpath
-
-    AC_SUBST(SIPXCOMMSERVER_LIBS,   ["$SIPXCOMMSERVERLIB/libsipXcommserver.la"])
-    AC_SUBST(SIPXCOMMSERVER_LDFLAGS,["-L$SIPXCOMMSERVERLIB"])
-
-    # helper library for unit tests that use sipdb databases
-    SFAC_ARG_WITH_LIB([libsipXcommserverTest.la],
-            [sipxcommservertest],
-            [ --with-sipxcommservertest=<dir> commserver unit test helpers library path ],
-            [sipXcommserverLib])
-
-    if test x_$foundpath != x_; then
-        AC_MSG_RESULT($foundpath)
-    else
-        AC_MSG_ERROR('libsipXcommserverTest.la' not found)
-    fi
-    SIPXCOMMSERVERTESTLIB=$foundpath
-
-    AC_SUBST(SIPXCOMMSERVERTEST_LIBS,   ["$SIPXCOMMSERVERTESTLIB/libsipXcommserverTest.la"])
-    AC_SUBST(SIPXCOMMSERVERTEST_LDFLAGS,["-L$SIPXCOMMSERVERTESTLIB]")
-
+    AC_SUBST([SIPXCOMMSERVER_LIBS], [-lsipXcommserver])
+    AC_SUBST(SIPXCOMMSERVERTEST_LIBS,   [-lsipXcommserverTest])
 ]) # SFAC_LIB_COMMSERVER
 
 
@@ -732,74 +548,10 @@ AC_DEFUN([CHECK_RESIPROCATE],
 ]) # CHECK_RESIPROCATE
 
 
-
-##  Generic find of an include
-#   Fed from AC_DEFUN([SFAC_INCLUDE_{module name here}],
-#
-# $1 - sample include file
-# $2 - variable name (for overridding with --with-$2
-# $3 - help text
-# $4 - directory name (assumed parallel with this script)
-AC_DEFUN([SFAC_ARG_WITH_INCLUDE],
-[
-    SFAC_SRCDIR_EXPAND()
-
-    AC_MSG_CHECKING(for [$4] [($1)] includes)
-    AC_ARG_WITH( [$2],
-        [ [$3] ],
-        [ include_path=$withval ],
-        [ include_path="$includedir $prefix/include /usr/include /usr/local/include [$abs_srcdir]/../[$4]/include [$abs_srcdir]/../[$4]/interface [$abs_srcdir]/../[$4]/src/test"]
-    )
-
-    for dir in $include_path ; do
-        if test -f "$dir/[$1]";
-        then
-            foundpath=$dir;
-            break;
-        fi;
-    done
-    if test x_$foundpath = x_; then
-       AC_MSG_ERROR("'$1' not found; searched $include_path")
-    fi
-        
-
-]) # SFAC_ARG_WITH_INCLUDE
-
-
-##  Generic find of a library
-#   Fed from AC_DEFUN([SFAC_LIB_{module name here}],
-#
-# $1 - sample lib file
-# $2 - variable name (for overridding with --with-$2
-# $3 - help text
-# $4 - directory name (assumed parallel with this script)
-AC_DEFUN([SFAC_ARG_WITH_LIB],
-[
-    SFAC_SRCDIR_EXPAND()
-
-    AC_MSG_CHECKING(for [$4] [($1)] libraries)
-    AC_ARG_WITH( [$2],
-        [ [$3] ],
-        [ lib_path=$withval ],
-        [ lib_path="$libdir $prefix/lib /usr/lib /usr/local/lib `pwd`/../[$4]/src `pwd`/../[$4]/sipXmediaMediaProcessing/src `pwd`/../[$4]/src/test/sipxunit `pwd`/../[$4]/src/test/testlib" ]
-    )
-    foundpath=""
-    for dir in $lib_path ; do
-        if test -f "$dir/[$1]";
-        then
-            foundpath=$dir;
-            break;
-        fi;
-    done
-    if test x_$foundpath = x_; then
-       AC_MSG_ERROR("'$1' not found; searched $lib_path")
-    fi
-]) # SFAC_ARG_WITH_LIB
-
-
 AC_DEFUN([SFAC_SRCDIR_EXPAND], 
 [
     abs_srcdir=`cd $srcdir && pwd`
+    AC_SUBST(TOP_SRCDIR, $srcdir)
 ])
 
 
@@ -843,44 +595,57 @@ AC_DEFUN([SFAC_FEATURE_SIPX_EZPHONE],
    AC_MSG_RESULT(${enable_sipx_ezphone})
 ])
 
-AC_DEFUN([SFAC_FEATURE_DBTEST],
+# Place to store RPM output files
+AC_DEFUN([SFAC_DIST_DIR],
 [
-   AC_REQUIRE([CHECK_ODBC])
+  AC_ARG_WITH([distdir],
+    AC_HELP_STRING([--with-distdir=directory], 
+      [Directory to output distribution output files like tarballs, srpms and rpms, default is $(top_builddir)/dist]),
+    [DIST_DIR=${withval}],[DIST_DIR=dist])
 
-   AC_ARG_WITH(dbtests, 
-               [  --with-dbtests=dbname run database unit tests (no)],
-               [enable_dbtests=yes], 
-               [enable_dbtests=no])
-   AC_MSG_CHECKING([for enabling database unit tests])
-   if test x$enable_dbtests = xyes
-   then
-     if test x$withval = x
-     then
-       SIPXTEST_DATABASE=SIPXDB-TEST
-     else
-       # Allow for --with-dbtests without parameters
-       if test x$withval = xyes
-       then
-         SIPXTEST_DATABASE=SIPXDB-TEST
-       else
-         SIPXTEST_DATABASE=$withval
-       fi
-     fi
-     AC_MSG_RESULT([${enable_dbtests} - using database $SIPXTEST_DATABASE])
+  mkdir -p "$DIST_DIR" 2>/dev/null
+  DIST_DIR=`cd "$DIST_DIR"; pwd`
 
-     AC_MSG_CHECKING([for running PostgreSQL])
+  # all distro tarballs
+  DEST_SRC="${DIST_DIR}/SRC"
+  mkdir "${DEST_SRC}"  2>/dev/null
+  AC_SUBST([DEST_SRC])
 
-     if psql -l -U postgres &>/dev/null
-     then
-       AC_MSG_RESULT(running)
-       # Run tests in a separate test database
-       AC_SUBST(SIPXTEST_DATABASE)
-     else
-       AC_MSG_RESULT(not running - disabling test)
-     enable_dbtests=no
-     fi
+  AC_ARG_VAR([LIBSRC], [Where downloaded files are kept between builds, default ~/libsrc])
+  test -z $LIBSRC && LIBSRC=~/libsrc
 
-   else
-     AC_MSG_RESULT(${enable_dbtests})
-   fi
+  # RPM based distros
+  AC_PATH_PROG(RPM, rpm)
+  if test x"$RPM" != x
+  then
+    DEST_RPM="${DIST_DIR}/RPM"
+    mkdir "${DEST_RPM}" 2>/dev/null
+    AC_SUBST([DEST_RPM])
+
+    DEST_SRPM="${DIST_DIR}/SRPM"
+    mkdir "${DEST_SRPM}"  2>/dev/null
+    AC_SUBST([DEST_SRPM])
+
+    AC_SUBST([RPMBUILD_TOPDIR], [`rpm --eval '%{_topdir}'`])
+    AC_SUBST([RPM_TARGET_ARCH], [`rpm --eval '%{_target_cpu}'`])
+  fi
+
+])
+
+AC_DEFUN([SFAC_DOWNLOAD_DEPENDENCIES],
+[  
+  # URLs to files pulled down files
+  AC_SUBST(RUBY_AUX_RPMS_URL, http://people.redhat.com/dlutter/yum)
+  AC_SUBST(MOD_CPLUSPLUS_URL, http://umn.dl.sourceforge.net/sourceforge/modcplusplus)
+  AC_SUBST(JPKG_NONFREE_URL, http://mirrors.dotsrc.org/jpackage/1.6/generic/non-free)
+  AC_SUBST(CGICC_URL, http://ftp.gnu.org/gnu/cgicc)
+  AC_SUBST(XERCES_C_URL, http://www.apache.org/dist/xml/xerces-c/source)
+  AC_SUBST(RUBY_RPM_URL, http://dev.centos.org/centos/4/testing)
+  AC_SUBST(FC4_RUBY_RPM_URL, http://download.fedora.redhat.com/pub/fedora/linux/core/updates/4)
+  AC_SUBST(W3C_URL, http://ftp.redhat.com/pub/redhat/linux/enterprise/4/en/os/i386)
+  AC_SUBST(PCRE_URL, http://umn.dl.sourceforge.net/sourceforge/pcre)
+  #AC_SUBST(CPPUNIT_URL, ftp://download.fedora.redhat.com/pub/fedora/linux/extras/3/SRPMS)
+  AC_SUBST(CPPUNIT_URL, http://umn.dl.sourceforge.net/sourceforge/cppunit)
+  AC_SUBST(GRAPHVIZ_URL, ftp://194.199.20.114/linux/SuSE-Linux/i386/9.3/suse/src)
+  AC_SUBST(DOWNLOAD_FILE, ${srcdir}/config/download-file)
 ])

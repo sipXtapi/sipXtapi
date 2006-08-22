@@ -1,0 +1,26 @@
+PROJECTS ?= @subdirs@
+
+recurse:
+	@failcom='exit 1'; \
+	for f in x $$MAKEFLAGS; do \
+	  case $$f in \
+	    -k) failcom='fail=yes';; \
+	  esac; \
+	done; \
+	target="$(TARGETS)`echo $@ | sed -e s/recurse//`"; \
+	list='$(PROJECTS)'; for subdir in $$list; do \
+	  echo "Making $$target in $$subdir"; \
+	  (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) $$target) \
+	  || eval $$failcom; \
+	done;
+
+# simply list projects in correct build order
+.PHONY: list
+list:
+	@echo $(PROJECTS)
+
+.PHONY: repo
+repo: @TOP_SRCDIR@/config/local.repo.in
+	cd @DEST_RPM@ && createrepo .
+	sed -e 's,@DEST_RPM\@,@DEST_RPM@,g' \
+	$< > local.repo

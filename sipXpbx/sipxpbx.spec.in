@@ -26,6 +26,9 @@ Requires: sipxpublisher >= 3.5
 Requires: sipxregistry >= 3.5
 Requires: sipxvxml >= 3.5
 
+# replication, processmgr cgis 
+Requires: httpd >= 2.0
+
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
 

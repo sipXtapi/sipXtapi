@@ -1,4 +1,4 @@
-include $(top_builddir)/config/sipXcommon.mak
+include $(top_srcdir)/config/subdir.am
 
 # Necessary Makefile for Autoconf 2.57, will not recurse into developer and license
 # if not told to explicitely

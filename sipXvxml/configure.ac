@@ -48,16 +48,15 @@ SFAC_FEATURE_SIP_TLS
 
 SFAC_DISTRO_CONDITIONAL
 
-dnl Double the LIBS to deal with recursive dependencies
-LIBS="$LIBS $LIBS"
-
 # Conditionally use the GIPS audio libraries
 CHECK_GIPSNEQ
+
+dnl Double the LIBS to deal with recursive dependencies
+LIBS="$LIBS $LIBS"
 
 ## Common flags for pingtel related source
 
 AC_CONFIG_FILES([Makefile])
-AC_CONFIG_FILES([config/sipXcommon.mak])
 AC_CONFIG_FILES([js/Makefile])
 AC_CONFIG_FILES([include/Makefile])
 AC_CONFIG_FILES([src/Makefile])

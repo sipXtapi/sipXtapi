@@ -56,7 +56,6 @@ AM_CONDITIONAL(BUILDEZPHONE, test x$enable_sipx_ezphone = xyes)
 AC_CONFIG_FILES([
   Makefile 
   bin/Makefile
-  config/sipXcommon.mak
   doc/Makefile
   examples/CallScript/src/Makefile
   examples/Makefile 

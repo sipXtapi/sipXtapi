@@ -1,24 +1,5 @@
 ## Process this file with automake to produce Makefile.in
-
-include $(top_builddir)/config/sipXcommon.mak
-
-EXTRA_DIST = \
-    config/sipX-config.in \
-    config/sipX-buildstamp.cpp.in \
-    config/sipX-buildstamp.h.in \
-    config/sipXprojtop.mak \
-    config/sipXcommon.mak.in \
-    CONTRIBUTORS \
-    LICENSE \
-    BUILDSTAMP \
-    SVN-EXPORT-VERSION \
-    ant-targets.xml \
-    ant-targets.am \
-    sipxtacklib.spec \
-    lib/jdom-b10.jar \
-    lib/junit.jar \
-    config.properties.in \
-    syslog2siptrace/siptrace-merge
+include config/project.am
 
 if SIPVIEWER
 SIPVIEWER_OPT = sipviewer
@@ -28,11 +9,37 @@ if EXAMPLES
 EXAMPLES_OPT = examples
 endif
 
-unconditional_SUBDIRS = . include src bin meta examples syslog2siptrace siplog2siptrace siptest $(SIPVIEWER_OPT) $(EXAMPLES_OPT)
+SUBDIRS = \
+	. \
+	include \
+	src \
+	bin \
+	meta \
+	examples \
+	syslog2siptrace \
+	siplog2siptrace \
+	siptest \
+	$(SIPVIEWER_OPT) \
+	$(EXAMPLES_OPT) \
+	$(doc_SUBDIRS)
 
-include $(srcdir)/config/sipXprojtop.mak
+RPMS = $(DEFAULT_RPMS)
 
-SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)
+EXTRA_DIST = \
+    config/sipX-config.in \
+    config/sipX-buildstamp.cpp.in \
+    config/sipX-buildstamp.h.in \
+    CONTRIBUTORS \
+    LICENSE \
+    BUILDSTAMP \
+    SVN_VERSION \
+    ant-targets.xml \
+    ant-targets.am \
+    sipxtacklib.spec \
+    lib/jdom-b10.jar \
+    lib/junit.jar \
+    config.properties.in \
+    syslog2siptrace/siptrace-merge
 
 # BUILT_SOURCES is special autoconf variable to be checked on every make
 BUILT_SOURCES = config.properties

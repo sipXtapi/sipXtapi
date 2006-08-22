@@ -36,7 +36,6 @@ SFAC_LIB_COMMSERVER
 SFAC_FEATURE_SIP_TLS
 
 AC_CONFIG_FILES([Makefile include/Makefile src/Makefile])
-AC_CONFIG_FILES([config/sipXcommon.mak])
 AC_CONFIG_FILES([etc/Makefile])
 AC_CONFIG_FILES([bin/Makefile])
 AC_CONFIG_FILES([doc/Makefile])

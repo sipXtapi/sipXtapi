@@ -4,7 +4,7 @@ SUBDIRS = testlib
 
 # Define values used in local database unit tests. This only
 # happens if configure was run with --enable-dbtests.
-if BUILD_DBTESTS
+if ENABLE_ODBC_TESTS
 db_FILES = \
   OdbcWrapperTest.cpp
 db_CXXFLAGS = -DTESTDATABASE=\"$(SIPXTEST_DATABASE)\"

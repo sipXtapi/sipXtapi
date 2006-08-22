@@ -1,4 +1,4 @@
-include $(top_builddir)/config/sipXcommon.mak
+include $(top_srcdir)/config/subdir.am
 
 INSTALL = @INSTALL@
 
@@ -20,14 +20,13 @@ install : $(INSTALL_GEM)
 
 .PHONY: package-gem
 package-gem :
-	pushd .; rm -rf $(srcdir)/pkg; \
-	cd $(srcdir) && rake callresolver_version=1.0.0 builddir=$(top_builddir)/src/cdr package; \
-	popd
+	builddir=`pwd`; \
+	cd $(srcdir) && $(rake) callresolver_version=1.0.0 package && cd $(builddir)
 
 .PHONY: install-gem 
 install-gem : package-gem
 	$(mkdir_p) $(GEM_LIB_DIR)
-	gem install \
+	$(GEM) install \
 	  --install-dir $(GEM_LIB_DIR) \
 	  --local $(srcdir)/pkg/sipxcallresolver
 

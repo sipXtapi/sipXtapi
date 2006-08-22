@@ -38,15 +38,20 @@ SFAC_LIB_STACK
 
 SFAC_FEATURE_SIP_TLS
 
-SFAC_FEATURE_DBTEST
-AM_CONDITIONAL(BUILD_DBTESTS, test x$enable_dbtests = xyes)
-
 ENABLE_DOXYGEN
 AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
 
+AC_ARG_ENABLE(odbc-tests,
+  AC_HELP_STRING([--enable-odbc-tests], [Run unit tests that test ODBC connection to postgres]),
+  enable_odbc_tests=yes)
+if test x$enable_odbc_tests = xyes
+then
+  AC_SUBST(SIPXTEST_DATABASE, SIPXDB-TEST)
+fi
+AM_CONDITIONAL(ENABLE_ODBC_TESTS, test x$enable_odbc_tests = xyes)
+
 AC_CONFIG_FILES([
   Makefile 
-  config/sipXcommon.mak
   include/Makefile 
   etc/Makefile 
   bin/Makefile
