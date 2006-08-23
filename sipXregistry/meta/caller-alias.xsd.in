@@ -47,8 +47,8 @@
     <complexType>
       <sequence>
         <element ref='a:identity' minOccurs='0' maxOccurs='1' />
-        <element ref='a:target_domain' minOccurs='1' maxOccurs='1' />
-        <element ref='a:caller_alias' minOccurs='1' maxOccurs='1' />
+        <element ref='a:domain' minOccurs='1' maxOccurs='1' />
+        <element ref='a:alias' minOccurs='1' maxOccurs='1' />
       </sequence>
     </complexType>
   </element>
@@ -63,7 +63,7 @@
     </annotation>
   </element>
 
-  <element name='target_domain' type='sip:dns_name_port'>
+  <element name='domain' type='sip:dns_name_port'>
     <annotation>
       <documentation>
         The input target domain (domain[:port])
@@ -71,7 +71,7 @@
     </annotation>
   </element>
   
-  <element name='caller_alias' type='sip:name_addr'>
+  <element name='alias' type='sip:name_addr'>
     <annotation>
       <documentation>
         The output From field value
