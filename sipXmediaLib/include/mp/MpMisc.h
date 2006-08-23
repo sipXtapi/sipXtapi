@@ -68,7 +68,6 @@ struct __MpGlobals {
         int sampleBytes;        ///< Size of one audio sample (in bytes)
         int rtpMaxBytes;        ///< Maximum bytes in an RTP packet
         MpBufPool *UcbPool;          ///< Memory pool for raw audio data buffers
-        MpBufPool *DMAPool;          ///< Memory pool for speaker data buffers
         MpBufPool *AudioHeadersPool; ///< Memory pool for headers of raw audio
                                      ///<  data buffers
         MpBufPool *RtpPool;          ///< Memory pool for RTP data buffers

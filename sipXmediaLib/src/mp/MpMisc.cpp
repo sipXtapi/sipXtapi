@@ -529,21 +529,8 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
             return OS_NO_MEMORY;
         }
 
-        // Create buffer for raw audio data
-        MpMisc.DMAPool = new MpBufPool( 8*samplesPerFrame*sizeof(MpAudioSample)
-                                        +MpArrayBuf::getHeaderSize()
-                                      , 64); // Cache align: 32
-        Nprintf( "mpStartUp: MpMisc.DMAPool = 0x%X\n"
-               , (int) MpMisc.DMAPool, 0,0,0,0,0);
-        if (NULL == MpMisc.DMAPool) {
-            delete MpMisc.UcbPool;
-            MpMisc.UcbPool = NULL;
-            return OS_NO_MEMORY;
-        }
-
         // Create buffer for audio headers
         int audioBuffers  = MpMisc.UcbPool->getNumBlocks();
-            audioBuffers += MpMisc.DMAPool->getNumBlocks();
         MpMisc.AudioHeadersPool = new MpBufPool(sizeof(MpAudioBuf), audioBuffers);
         Nprintf( "mpStartUp: MpMisc.AudioHeadersPool = 0x%X\n"
                , (int) MpMisc.AudioHeadersPool, 0,0,0,0,0);
@@ -608,8 +595,6 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
         if (NULL == MpMisc.RtpPool) {
             delete MpMisc.UcbPool;
             MpMisc.UcbPool = NULL;
-            delete MpMisc.DMAPool;
-            MpMisc.DMAPool = NULL;
             return OS_NO_MEMORY;
         }
 
@@ -621,8 +606,6 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
         if (NULL == MpMisc.RtcpPool) {
             delete MpMisc.UcbPool;
             MpMisc.UcbPool = NULL;
-            delete MpMisc.DMAPool;
-            MpMisc.DMAPool = NULL;
             delete MpMisc.RtpPool;
             MpMisc.RtpPool = NULL;
             return OS_NO_MEMORY;
@@ -816,11 +799,6 @@ OsStatus mpShutdown(void)
         if (NULL != MpMisc.AudioHeadersPool) {
             delete MpMisc.AudioHeadersPool;
             MpMisc.AudioHeadersPool = NULL;
-        }
-
-        if (NULL != MpMisc.DMAPool) {
-            delete MpMisc.DMAPool;
-            MpMisc.DMAPool = NULL;
         }
 
         if (NULL != MpMisc.UcbPool) {
