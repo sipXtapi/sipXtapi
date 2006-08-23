@@ -53,14 +53,32 @@ const char *MpDataBuf::getDataPtr() const
 
 void MpDataBuf::init()
 {
+   // mpData must be invalid pointer. Else it will be considered as allocated
+   // buffer and in attempt to free it random memory will be corrupted.
 //   assert(!mpData.isValid());
    (*(MpArrayBuf**)(&mpData)) = NULL;
+
+   // Update virtual functions to MpDataBuf versions.
    mpDestroy = MpDataBuf::sDestroy;
+   mpInitClone = MpDataBuf::sInitClone;
+
 #ifdef MPBUF_DEBUG
    osPrintf(">>> MpDataBuf::init()\n");
 #endif
 }
 
+void MpDataBuf::sInitClone(MpBuf *pBuffer)
+{
+   // First pass initialization to parent..
+   MpBuf::sInitClone(pBuffer);
+
+   // Get clone of the data
+   MpArrayBufPtr pDataClone = ((MpDataBuf*)pBuffer)->mpData.makeClone();
+
+   // This prevents mpData from being freed here:
+   ((MpDataBuf*)pBuffer)->mpData.swap(pDataClone);
+   (*(MpArrayBuf**)(&pDataClone)) = NULL;
+}
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 

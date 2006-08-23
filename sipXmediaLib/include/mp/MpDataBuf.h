@@ -49,8 +49,8 @@ struct MpDataBuf : public MpBuf
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
+    /// Default pool for MpDataBuf objects.
     static MpBufPool *smpDefaultPool;
-    static void sDestroy(MpBuf *pBuffer);
 
 /* ============================ CREATORS ================================== */
 ///@name Creators
@@ -98,6 +98,13 @@ protected:
 
     /// This is called in place of constructor.
     void init();
+
+    /// Destructor for MpDataBuf.
+    static void sDestroy(MpBuf *pBuffer);
+
+    /// @brief Function that initialize buffer after cloning. It makes clone
+    /// of mpData.
+    static void sInitClone(MpBuf *pBuffer);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

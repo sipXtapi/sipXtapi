@@ -75,21 +75,22 @@ MpBufferMsg::operator=(const MpBufferMsg& rhs)
    return *this;
 }
 
-// Set pointer 1 (void*) of the buffer message
+// Set pointer of the buffer message
 void MpBufferMsg::setTag(const MpBufPtr &p)
 {
    mpTag = p;
+   mpTag.requestWrite();
 }
 
 /* ============================ ACCESSORS ================================= */
 
 // Return the type of the media task message
-int MpBufferMsg::getMsg(void) const
+int MpBufferMsg::getMsg() const
 {
    return OsMsg::getMsgSubType();
 }
 
-// Return pointer 1 (void*) of the buffer message
+// Return pointer of the buffer message
 MpBufPtr &MpBufferMsg::getTag()
 {
    return mpTag;

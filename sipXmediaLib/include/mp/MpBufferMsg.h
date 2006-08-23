@@ -74,8 +74,26 @@ public:
      /// Assignment operator
    MpBufferMsg& operator=(const MpBufferMsg& rhs);
 
-     /// Set buffer object pointer of the buffer message
+     /// Copy buffer to this message
    void setTag(const MpBufPtr &p);
+     /**<
+     *  Note, that this function create copy of the buffer! To avoid copying
+     *  use takeTag() function. Copying is needed to avoid racing conditions
+     *  in MpBuf::detach() code.
+     */
+
+     /// Own provided buffer
+   void takeTag(MpBufPtr &p);
+     /**<
+     *  This function may be used to avoid buffer copying when passing buffer
+     *  to message object. It owns provided buffer and invalidates it, i.e.
+     *  after execution of this function MpBufPtr::isValid() will return false
+     *  for passed buffer pointer.
+     *
+     *  Note, that buffer will not be copied only if MpBufPtr::isWritable()
+     *  returns true for passed pointer. Copying is needed to avoid racing
+     *  conditions in MpBuf::detach() code.
+     */
 
 //@}
 

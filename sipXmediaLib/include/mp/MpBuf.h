@@ -15,9 +15,6 @@
  *  @todo cache align - align pool begining, buffer sizes (must be multiple of
  *        the cache size) and data begining in MpArrayBuf.
  *  @todo error handling - return OsStatus may be?
- *  @todo MpBufPtr::requestWrite() - create new buffer if MpBufPtr::isWritable()
- *        return false. 
- *  @todo defines for most reused code - MpBufPtr parts, for example.
  */
 
 // SYSTEM INCLUDES
@@ -109,12 +106,6 @@ public:
 ///@name Inquiry
 //@{
 
-    /// You should write to the buffer if and only if this function return true.
-    /**
-    * isWritable() check are you the only owner of this buffer.
-    */
-    bool isWritable() {return (mRefCounter == 1);};
-
 //@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -125,6 +116,12 @@ protected:
     MpBufPool* mpPool;         ///< Parent memory pool.
     void (*mpDestroy)(MpBuf*); ///< Pointer to deinitialization method. Used as
                                ///<  virtual destructor.
+    void (*mpInitClone)(MpBuf*); ///< Pointer to function that initialize buffer
+                                 ///<  after cloning. 
+
+    /// @brief Function that initialize buffer after cloning. It adjusts
+    /// reference counters.
+    static void sInitClone(MpBuf *pBuffer);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -170,6 +167,7 @@ public:
         if (mpBuffer != NULL) {
             mpBuffer->mType = MP_BUF;
             mpBuffer->mpDestroy = NULL;
+            mpBuffer->mpInitClone = MpBuf::sInitClone;
             mpBuffer->attach();
         }
 #ifdef _DEBUG
@@ -192,6 +190,28 @@ public:
     {
         if (mpBuffer != NULL)
             mpBuffer->attach();
+    }
+
+    MpBufPtr makeClone()
+    {
+       MpBufPtr clone;
+
+       // Return invalid pointer as a copy of invalid pointer.
+       if (!isValid())
+          return clone;
+
+       // Get fresh buffer
+       clone.mpBuffer = mpBuffer->getBufferPool()->obtainBuffer();
+       if (!clone.isValid())
+          return clone;
+
+       // Copy raw buffer's content to new location
+       memcpy(clone.mpBuffer, mpBuffer, mpBuffer->getBufferPool()->getBlockSize());
+
+       // Init clone
+       clone->mpInitClone(clone.mpBuffer);
+
+       return clone;
     }
 
 //@}
@@ -262,6 +282,26 @@ public:
         mpBuffer = temp;
     }
 
+    /// Check if buffer is writable and create copy if no.
+    /**
+    *  @returns <b>true</b> - on success.
+    *  @returns <b>false</b> - if buffer cannot be made writable. E.g. if buffer
+    *                          contain NULL pointer.
+    */
+    bool requestWrite()
+    {
+       // We already writable?
+       if (isWritable())
+          return true;
+
+       // Cannot make buffer writable...
+       if (mpBuffer == NULL)
+          return false;
+
+       // Create the clone and own it.
+       swap(makeClone());
+    }
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -292,6 +332,12 @@ public:
     /// @brief Can this pointer be dereferenced? Use this function instead of
     /// NULL comparison.
     bool isValid() const {return mpBuffer != NULL;};
+
+    /// You should write to the buffer if and only if this function return true.
+    /**
+    * isWritable() check are you the only owner of this buffer.
+    */
+    bool isWritable() {return (mpBuffer != NULL) && (mpBuffer->mRefCounter == 1);};
 
 //@}
 
