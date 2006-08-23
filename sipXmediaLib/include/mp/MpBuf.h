@@ -192,7 +192,7 @@ public:
             mpBuffer->attach();
     }
 
-    MpBufPtr makeClone()
+    MpBufPtr clone()
     {
        MpBufPtr clone;
 
@@ -299,7 +299,7 @@ public:
           return false;
 
        // Create the clone and own it.
-       swap(makeClone());
+       swap(clone());
     }
 
 //@}
