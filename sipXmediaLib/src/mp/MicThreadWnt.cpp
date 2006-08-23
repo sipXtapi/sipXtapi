@@ -241,7 +241,8 @@ bool inPostUnprep(int n, int discard, DWORD bufLen, bool bFree)
 
          pMsg->setMsgSubType(MpBufferMsg::AUD_RECORDED);
 
-         pMsg->setTag(ob);
+         // Buffer is moved to the message. ob pointer is invalidated.
+         pMsg->ownBuffer(ob);
 
          if (MpMisc.pMicQ)
          {

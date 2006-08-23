@@ -215,7 +215,7 @@ void MprEchoSuppress::frame_match(const MpAudioBufPtr &in)
     while ((!mpPrev.isValid()) && (0 < MpMisc.pEchoQ->numMsgs())) {
         if (OS_SUCCESS == MpMisc.pEchoQ->receive((OsMsg*&) pMsg,
                                                           OsTime::NO_WAIT)) {
-            mpPrev = pMsg->getTag();
+            mpPrev = pMsg->getBuffer();
             pMsg->releaseMsg();
             if (mpPrev == MpMisc.mpFgSilence) { // $$$ !
                 mpPrev.release();

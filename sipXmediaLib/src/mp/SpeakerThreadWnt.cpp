@@ -243,7 +243,7 @@ static WAVEHDR* outPrePrep(int n, DWORD bufLen)
          skip = 0;
          if (MpMisc.pSpkQ->receive((OsMsg*&)msg, OsTime::NO_WAIT) == OS_SUCCESS)
          {
-            ob = (MpAudioBufPtr)(msg->getTag());
+            ob = (MpAudioBufPtr)(msg->getBuffer());
             msg->releaseMsg();
          }
 //         osPrintf("pSpkQ message received\n");

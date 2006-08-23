@@ -27,17 +27,17 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MpBufferMsg::MpBufferMsg(int msg, const MpBufPtr &pTag)
+MpBufferMsg::MpBufferMsg(int msg, const MpBufPtr &pBuffer)
 :  OsMsg(OsMsg::MP_BUFFER_MSG, msg)
 {
-   setTag(pTag);
+   setBuffer(pBuffer);
 }
 
 // Copy constructor
 MpBufferMsg::MpBufferMsg(const MpBufferMsg& rMpBufferMsg)
 :  OsMsg(rMpBufferMsg)
 {
-   mpTag = rMpBufferMsg.mpTag;
+   mpBuffer = rMpBufferMsg.mpBuffer;
 }
 
 // Create a copy of this msg object (which may be of a derived type)
@@ -49,7 +49,7 @@ OsMsg* MpBufferMsg::createCopy(void) const
 // Done with message, delete it or mark it unused
 void MpBufferMsg::releaseMsg()
 {
-   mpTag.release();
+   mpBuffer.release();
    OsMsg::releaseMsg();
 }
 
@@ -70,16 +70,23 @@ MpBufferMsg::operator=(const MpBufferMsg& rhs)
 
    OsMsg::operator=(rhs);       // assign fields for parent class
 
-   mpTag = rhs.mpTag;
+   mpBuffer = rhs.mpBuffer;
 
    return *this;
 }
 
-// Set pointer of the buffer message
-void MpBufferMsg::setTag(const MpBufPtr &p)
+// Copy buffer to this message
+void MpBufferMsg::setBuffer(const MpBufPtr &p)
 {
-   mpTag = p;
-   mpTag.requestWrite();
+   // Make a copy of passed buffer
+   mpBuffer = p.clone();
+}
+
+// Own provided buffer
+void MpBufferMsg::ownBuffer(MpBufPtr &p)
+{
+   // Make a copy of passed buffer
+   mpBuffer = p.clone();
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -91,9 +98,9 @@ int MpBufferMsg::getMsg() const
 }
 
 // Return pointer of the buffer message
-MpBufPtr &MpBufferMsg::getTag()
+MpBufPtr &MpBufferMsg::getBuffer()
 {
-   return mpTag;
+   return mpBuffer;
 }
 
 /* ============================ INQUIRY =================================== */

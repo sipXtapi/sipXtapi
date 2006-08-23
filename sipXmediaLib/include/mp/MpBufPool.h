@@ -39,6 +39,7 @@ public:
     MpBufPool(unsigned blockSize, unsigned numBlocks);
 
     /// Destroys pool.
+    virtual
     ~MpBufPool();
 
 //@}
@@ -83,10 +84,10 @@ public:
 protected:
 
     /// Return pointer to the byte after end of the pool data.
-    void *poolDataEnd() {return mpPoolData + mBlockSize*mNumBlocks;}
+    void *getPoolDataEnd() {return mpPoolData + mBlockSize*mNumBlocks;}
 
     /// Return pointer to the block, next to this.
-    char *nextBlock(char *pBlock) {return pBlock + mBlockSize;}
+    char *getNextBlock(char *pBlock) {return pBlock + mBlockSize;}
     
     void appendFreeList(MpBuf *pBuf);
 

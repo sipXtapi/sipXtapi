@@ -28,7 +28,6 @@ void MpBuf::attach()
 {
     mRefCounter++;
 #ifdef MPBUF_DEBUG
-    if (mpPool->getBufferNumber(this) == 123)
     osPrintf( "Buffer %d from pool %x have %d references now (++)\n"
             , mpPool->getBufferNumber(this)
             , mpPool
@@ -39,7 +38,6 @@ void MpBuf::attach()
 void MpBuf::detach()
 {
 #ifdef MPBUF_DEBUG
-    if (mpPool->getBufferNumber(this) == 123)
     osPrintf( "Buffer %d from pool %x have %d references now (--)\n"
             , mpPool->getBufferNumber(this)
             , mpPool

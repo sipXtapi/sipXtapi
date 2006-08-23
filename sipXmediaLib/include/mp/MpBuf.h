@@ -192,7 +192,7 @@ public:
             mpBuffer->attach();
     }
 
-    MpBufPtr clone()
+    MpBufPtr clone() const
     {
        MpBufPtr clone;
 

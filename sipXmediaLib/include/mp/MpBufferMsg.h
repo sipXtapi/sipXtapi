@@ -50,7 +50,7 @@ public:
 //@{
 
      /// Constructor
-   MpBufferMsg(int msg, const MpBufPtr &pTag=MpBufPtr());
+   MpBufferMsg(int msg, const MpBufPtr &pBuffer=MpBufPtr());
 
      /// Copy constructor
    MpBufferMsg(const MpBufferMsg& rMpBufferMsg);
@@ -75,15 +75,15 @@ public:
    MpBufferMsg& operator=(const MpBufferMsg& rhs);
 
      /// Copy buffer to this message
-   void setTag(const MpBufPtr &p);
+   void setBuffer(const MpBufPtr &p);
      /**<
      *  Note, that this function create copy of the buffer! To avoid copying
-     *  use takeTag() function. Copying is needed to avoid racing conditions
+     *  use ownBuffer() function. Copying is needed to avoid racing conditions
      *  in MpBuf::detach() code.
      */
 
      /// Own provided buffer
-   void takeTag(MpBufPtr &p);
+   void ownBuffer(MpBufPtr &p);
      /**<
      *  This function may be used to avoid buffer copying when passing buffer
      *  to message object. It owns provided buffer and invalidates it, i.e.
@@ -105,7 +105,7 @@ public:
    int getMsg() const;
 
      /// Return buffer object pointer from the buffer message
-   MpBufPtr &getTag();
+   MpBufPtr &getBuffer();
 
 //@}
 
@@ -121,7 +121,7 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   MpBufPtr mpTag; ///< The descriptor of the buffers
+   MpBufPtr mpBuffer; ///< Carried buffer
 
 };
 

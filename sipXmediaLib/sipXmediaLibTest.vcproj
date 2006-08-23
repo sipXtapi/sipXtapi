@@ -31,10 +31,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcrtd.lib MSVCPRTD.lib Ws2_32.lib winmm.lib cppunitd.lib pcre.lib"
+				AdditionalDependencies="Ws2_32.lib winmm.lib cppunitd.lib pcre.lib libspeex.lib"
 				OutputFile="bin\sipXtapiTestD.exe"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="Debug;..\sipXtackLib\debug;..\sipXportLib\debug;..\CPPUnit\lib"
+				AdditionalLibraryDirectories="Debug;..\sipXtackLib\debug;..\sipXportLib\debug;..\CPPUnit\lib;..\Speex\lib\static"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/sipXmediaLibTest.pdb"
 				SubSystem="1"
@@ -80,7 +80,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcrt.lib MSVCPRT.lib Ws2_32.lib winmm.lib cppunit.lib pcre.lib"
+				AdditionalDependencies="Ws2_32.lib winmm.lib cppunit.lib pcre.lib"
 				OutputFile="bin\sipXtapiTest.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -120,6 +120,9 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
+				RelativePath=".\src\test\mp\MpBufTest.cpp">
+			</File>
+			<File
 				RelativePath=".\src\test\mp\MpFlowGraphTest.cpp">
 			</File>
 			<File
@@ -142,11 +145,6 @@
 			</File>
 			<File
 				RelativePath=".\src\test\mp\MprToSpkrTest.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\src\test\mp\MpTestResource.cpp">

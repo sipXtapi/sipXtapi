@@ -129,7 +129,7 @@ UtlBoolean MprFromMic::doProcessFrame(MpBufPtr inBufs[],
          {
 //                osPrintf( "mpMicQ->receive() succeed, %d msgs in queue\n"
 //                        , mpMicQ->numMsgs());
-            out = pMsg->getTag();
+            out = pMsg->getBuffer();
             pMsg->releaseMsg();
          }
       }

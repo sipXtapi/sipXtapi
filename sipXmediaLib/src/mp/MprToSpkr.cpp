@@ -380,7 +380,9 @@ UtlBoolean MprToSpkr::doProcessFrame(MpBufPtr inBufs[],
         } 
 
         pMsg->setMsgSubType(MpBufferMsg::AUD_PLAY);
-        pMsg->setTag(out);
+
+        // Copy buffer to the message
+        pMsg->setBuffer(out);
 
         // Send data to Media Task
         if (  mpSpkQ
@@ -393,7 +395,8 @@ UtlBoolean MprToSpkr::doProcessFrame(MpBufPtr inBufs[],
             // TODO: We should pre-allocate a bunch of messages for 
             //       this purpose (see DmaMsgPool as an example).
              
-            AECMsg.setTag(out) ;         
+            // Buffer is moved to the message. ob pointer is invalidated.
+            AECMsg.ownBuffer(out) ;         
             if (  mpEchoQ->numMsgs() >= mpEchoQ->maxMsgs()
                || mpEchoQ->send(AECMsg, OsTime::NO_WAIT) != OS_SUCCESS)
             {

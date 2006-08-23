@@ -83,7 +83,7 @@ MpBufPool::MpBufPool(unsigned blockSize, unsigned numBlocks)
         appendFreeList(pBuf);
         
         // Jump to next block
-        pBlock = nextBlock(pBlock);
+        pBlock = getNextBlock(pBlock);
     }
 
 #ifdef MPBUF_DEBUG
@@ -102,7 +102,7 @@ MpBufPool::~MpBufPool()
                     , (pBlock-mpPoolData)/mBlockSize
                     , this);
         }
-        pBlock = nextBlock(pBlock);
+        pBlock = getNextBlock(pBlock);
     }
 #endif
 
