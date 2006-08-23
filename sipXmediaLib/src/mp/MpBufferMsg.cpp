@@ -85,8 +85,11 @@ void MpBufferMsg::setBuffer(const MpBufPtr &p)
 // Own provided buffer
 void MpBufferMsg::ownBuffer(MpBufPtr &p)
 {
-   // Make a copy of passed buffer
-   mpBuffer = p.clone();
+   // Make sure mpBuffer is empty.
+   mpBuffer.release();
+
+   // Own passed buffer
+   mpBuffer.swap(p);
 }
 
 /* ============================ ACCESSORS ================================= */
