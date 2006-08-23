@@ -54,6 +54,6 @@ fi
 SFAC_DIST_DIR
    
 AC_CONFIG_FILES([Makefile])
-AC_CONFIG_FILES([config/top.mak])
+AC_CONFIG_FILES([top.mak])
 
 AC_OUTPUT

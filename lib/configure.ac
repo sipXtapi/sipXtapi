@@ -19,6 +19,7 @@ AC_ARG_ENABLE(fc4,
 	AC_HELP_STRING([--enable-fc4], [Enable dependencies for Fedora Core 4]),
 	[ 
           java_sun=yes
+echo "Got Here" > /tmp/delme
         ])
 
 AC_ARG_ENABLE(fc5,
@@ -99,7 +100,7 @@ test x$xerces_c = xyes && AC_CONFIG_SUBDIRS(xerces-c)
 SFAC_DIST_DIR
    
 AC_CONFIG_FILES([Makefile])
-AC_CONFIG_FILES([config/top.mak])
+AC_CONFIG_FILES([top.mak])
 
 AC_OUTPUT
 

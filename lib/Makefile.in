@@ -1,4 +1,4 @@
-include config/top.mak
+include top.mak
 
 .PHONY: all
 all : rpm
