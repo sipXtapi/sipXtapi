@@ -88,10 +88,11 @@ void g_get_current_time(GTimeVal* curTime)
  * be off by this much before the test is considered a failure.  The
  * current value may be too high; see XPL-39.
  */
-#define OSTIMETOLERANCE 10
+#define OSTIMETOLERANCE 30
 
-//#define REPORT_SKEW(x) printf x
-#define REPORT_SKEW(x) /* x */
+#define REPORT_SKEW(x) printf x
+// #define REPORT_SKEW(x) /* x */
+
 using namespace std;
 
 OsTime      tenMsec(0, 10000);// timer offset ten msec into the future
