@@ -1,6 +1,6 @@
 VERSION=1.5.0
 SUN_VERSION=1_5_0
-BUILD=07
+BUILD=08
 REL=1
 
 # Combine the SRC and NOSRC to create usable (non-free) rpm
