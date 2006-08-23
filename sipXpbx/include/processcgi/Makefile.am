@@ -1,3 +1,5 @@
 
-noinst_HEADERS = DependencyList.h processXMLCommon.h
+noinst_HEADERS = \
+	DependencyList.h \
+	processXMLCommon.h
 

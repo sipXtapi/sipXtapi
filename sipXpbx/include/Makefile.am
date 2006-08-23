@@ -1,1 +1,3 @@
-SUBDIRS = sipxcgi processcgi
+SUBDIRS = \
+	sipxcgi \
+	processcgi
