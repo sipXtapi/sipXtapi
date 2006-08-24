@@ -74,7 +74,7 @@ libsipXport_la_SOURCES =  \
     os/OsAssert.c \
     os/OsCallback.cpp \
     os/OsConfigDb.cpp \
-    os/OsContact.cpp
+    os/OsContact.cpp \
     os/OsContactList.cpp \
     os/OsConnectionSocket.cpp \
     os/OsCSemBase.cpp \
