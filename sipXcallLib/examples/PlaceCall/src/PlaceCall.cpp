@@ -559,10 +559,6 @@ bool placeCall(char* szSipUrl, char* szFromIdentity, char* szUsername, char* szP
         gContactId = lookupContactId(address.cIpAddress, "flibble", ghTransport);
     }
 
-
-    sipxCallCreate(g_hInst, g_hLine, &g_hCall) ;
-    dumpLocalContacts(g_hCall) ;
-    
     if (bVideo)
     {
 #if defined(_WIN32) && defined(VIDEO)

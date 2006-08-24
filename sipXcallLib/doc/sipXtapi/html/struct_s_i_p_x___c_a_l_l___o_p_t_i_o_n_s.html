@@ -37,6 +37,9 @@ This structure gets passed into sipxCallConnect, sipxCallAccept, and sipxConfere
 <tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="sip_xtapi_8h.html#f1274432c33002f92a7b85e8a1aca1bf">SIPX_CONTACT_ID</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_s_i_p_x___c_a_l_l___o_p_t_i_o_n_s.html#3f18dc33aa62cfc2cf685f540ff13612">contactId</a></td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">desired contactId (only used for sipxCallAccept at this moment)  <a href="#3f18dc33aa62cfc2cf685f540ff13612"></a><br></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SIPX_RTP_TRANSPORT&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_s_i_p_x___c_a_l_l___o_p_t_i_o_n_s.html#7fad412def36bd3c57da4063f38d243b">rtpTransportOptions</a></td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">true if media to be sent over tcp.  <a href="#7fad412def36bd3c57da4063f38d243b"></a><br></td></tr>
 </table>
 <hr><h2>Field Documentation</h2>
 <a class="anchor" name="1198105727ff5783a9337fbd321f21b5"></a><!-- doxytag: member="SIPX_CALL_OPTIONS::bandwidthId" ref="1198105727ff5783a9337fbd321f21b5" args="" -->
@@ -90,6 +93,23 @@ desired contactId (only used for sipxCallAccept at this moment)
 
 </div>
 </div><p>
+<a class="anchor" name="7fad412def36bd3c57da4063f38d243b"></a><!-- doxytag: member="SIPX_CALL_OPTIONS::rtpTransportOptions" ref="7fad412def36bd3c57da4063f38d243b" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SIPX_RTP_TRANSPORT <a class="el" href="struct_s_i_p_x___c_a_l_l___o_p_t_i_o_n_s.html#7fad412def36bd3c57da4063f38d243b">SIPX_CALL_OPTIONS::rtpTransportOptions</a>          </td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>
+true if media to be sent over tcp. 
+<p>
+
+</div>
+</div><p>
 <a class="anchor" name="fb44e118ea0b5deb46d2c90fa317a990"></a><!-- doxytag: member="SIPX_CALL_OPTIONS::sendLocation" ref="fb44e118ea0b5deb46d2c90fa317a990" args="" -->
 <div class="memitem">
 <div class="memproto">
@@ -109,7 +129,7 @@ True sends location header.
 </div><p>
 <hr>The documentation for this struct was generated from the following file:<ul>
 <li><a class="el" href="sip_xtapi_8h-source.html">sipXtapi.h</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Wed Aug 23 11:37:45 2006 for sipXtapi: SipX TAPI-like API for Call Processing by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Thu Aug 24 15:00:05 2006 for sipXtapi: SipX TAPI-like API for Call Processing by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.7 </small></address>
 </body>

@@ -37,6 +37,7 @@
     <li><a href="globals_0x66.html#index_f"><span>f</span></a></li>
     <li><a href="globals_0x67.html#index_g"><span>g</span></a></li>
     <li><a href="globals_0x69.html#index_i"><span>i</span></a></li>
+    <li><a href="globals_0x6b.html#index_k"><span>k</span></a></li>
     <li><a href="globals_0x6c.html#index_l"><span>l</span></a></li>
     <li><a href="globals_0x6d.html#index_m"><span>m</span></a></li>
     <li><a href="globals_0x72.html#index_r"><span>r</span></a></li>
@@ -97,8 +98,11 @@ Here is a list of all documented functions, variables, defines, enums, and typed
 : <a class="el" href="sip_xtapi_8h.html#9e34c00dd24bba43fcd83b30136562b5">sipXtapi.h</a><li>SIPX_INFOSTATUS_EVENT
 : <a class="el" href="sip_xtapi_events_8h.html#3e3d6afbf3c80b7d53448dce6f3eea9c">sipXtapiEvents.h</a><li>SIPX_INST
 : <a class="el" href="sip_xtapi_8h.html#338b507421c789dda3c552458230161c">sipXtapi.h</a><li>SIPX_INST_NULL
-: <a class="el" href="sip_xtapi_8h.html#ab504daa1b93c5f1d49220f4211475a8">sipXtapi.h</a><li>SIPX_KEEPALIVE_CRLF
-: <a class="el" href="sip_xtapi_8h.html#e0ec6fef9f1c9f64c6e40d528770885818bf58c3e3f473a5ac8d23f15a0c5482">sipXtapi.h</a><li>SIPX_KEEPALIVE_SIP_PING
+: <a class="el" href="sip_xtapi_8h.html#ab504daa1b93c5f1d49220f4211475a8">sipXtapi.h</a><li>SIPX_KEEPALIVE_CAUSE
+: <a class="el" href="sip_xtapi_events_8h.html#6a2277508d8cb2aafa80950a92d17f90">sipXtapiEvents.h</a><li>SIPX_KEEPALIVE_CRLF
+: <a class="el" href="sip_xtapi_8h.html#e0ec6fef9f1c9f64c6e40d528770885818bf58c3e3f473a5ac8d23f15a0c5482">sipXtapi.h</a><li>SIPX_KEEPALIVE_EVENT
+: <a class="el" href="sip_xtapi_events_8h.html#f840536ebb56b468b32473c6d05f5606">sipXtapiEvents.h</a><li>SIPX_KEEPALIVE_SIP_OPTIONS
+: <a class="el" href="sip_xtapi_8h.html#e0ec6fef9f1c9f64c6e40d52877088580f0d2d984d8119b9aae83ac155f12e24">sipXtapi.h</a><li>SIPX_KEEPALIVE_SIP_PING
 : <a class="el" href="sip_xtapi_8h.html#e0ec6fef9f1c9f64c6e40d5287708858306d48d6eabd18227cb65e1e859bfb2e">sipXtapi.h</a><li>SIPX_KEEPALIVE_STUN
 : <a class="el" href="sip_xtapi_8h.html#e0ec6fef9f1c9f64c6e40d5287708858ec5a640e667dba208745254d31e5b014">sipXtapi.h</a><li>SIPX_KEEPALIVE_TYPE
 : <a class="el" href="sip_xtapi_8h.html#e0ec6fef9f1c9f64c6e40d5287708858">sipXtapi.h</a><li>SIPX_LINE
@@ -261,14 +265,15 @@ Here is a list of all documented functions, variables, defines, enums, and typed
 : <a class="el" href="sip_xtapi_8h.html#f08bcc82f1f082c9c0fbd0f03152919b">sipXtapi.h</a><li>sipxConfigGetAudioCodec()
 : <a class="el" href="sip_xtapi_8h.html#f35bd1de2369813d56cc0b407c5b64a0">sipXtapi.h</a><li>sipxConfigGetAudioCodecPreferences()
 : <a class="el" href="sip_xtapi_8h.html#f98737f2dfb4f0b39d979748add0b2ea">sipXtapi.h</a><li>sipxConfigGetLocalContacts()
-: <a class="el" href="sip_xtapi_8h.html#ff725ea44fdf21d2497859b92d5c9f75">sipXtapi.h</a><li>sipxConfigGetLocalSipTcpPort()
+: <a class="el" href="sip_xtapi_8h.html#ff725ea44fdf21d2497859b92d5c9f75">sipXtapi.h</a><li>sipxConfigGetLocalFeedbackAddress()
+: <a class="el" href="sip_xtapi_8h.html#1246433cedc1654b45c22e3dd604a9fb">sipXtapi.h</a><li>sipxConfigGetLocalSipTcpPort()
 : <a class="el" href="sip_xtapi_8h.html#c8faefd03e5e9b06139bd06cb37038e7">sipXtapi.h</a><li>sipxConfigGetLocalSipTlsPort()
 : <a class="el" href="sip_xtapi_8h.html#f541b1a950dae1deef1fd5489ddbc1e7">sipXtapi.h</a><li>sipxConfigGetLocalSipUdpPort()
 : <a class="el" href="sip_xtapi_8h.html#18560bb30e8e4081dbe6cce5f0fa9d7e">sipXtapi.h</a><li>sipxConfigGetNumAudioCodecs()
 : <a class="el" href="sip_xtapi_8h.html#91cc85480b5ce3bbef474dfb5701dea1">sipXtapi.h</a><li>sipxConfigGetNumVideoCodecs()
 : <a class="el" href="sip_xtapi_8h.html#69adf7a4a8868372611d87e681c6455f">sipXtapi.h</a><li>sipxConfigGetVersion()
 : <a class="el" href="sip_xtapi_8h.html#b903d21900d322145ebcdf0cd06ea394">sipXtapi.h</a><li>sipxConfigGetVideoCaptureDevice()
-: <a class="el" href="sip_xtapi_8h.html#3a776c46632696c11b7cf11c884112cd">sipXtapi.h</a><li>sipxConfigGetVideoCaptureDevices()
+: <a class="el" href="sip_xtapi_8h.html#839a4705f73ded635b75dabf37f46144">sipXtapi.h</a><li>sipxConfigGetVideoCaptureDevices()
 : <a class="el" href="sip_xtapi_8h.html#239075153c6d91764381fd0a610f5952">sipXtapi.h</a><li>sipxConfigGetVideoCodec()
 : <a class="el" href="sip_xtapi_8h.html#9fbc96852355bcf37a4986f0d74fe2b7">sipXtapi.h</a><li>sipxConfigGetVideoCodecPreferences()
 : <a class="el" href="sip_xtapi_8h.html#6c94ae53e123bbf8c77f348d54639a09">sipXtapi.h</a><li>sipxConfigIsInBandDTMFEnabled()
@@ -305,7 +310,8 @@ Here is a list of all documented functions, variables, defines, enums, and typed
 : <a class="el" href="sip_xtapi_8h.html#760c9011255bfbd0ca12d9b51e988bd9">sipXtapi.h</a><li>sipxConfigSetVideoParameters()
 : <a class="el" href="sip_xtapi_8h.html#45de92b9b8cf7e8dab3c41671edbee66">sipXtapi.h</a><li>sipxConfigSetVideoPreviewDisplay()
 : <a class="el" href="sip_xtapi_8h.html#af460772baaf18f1bfea38dbc90c8dea">sipXtapi.h</a><li>sipxConfigSetVideoQuality()
-: <a class="el" href="sip_xtapi_8h.html#781ff976cb3250c23f1dbc09a7b7760c">sipXtapi.h</a><li>sipxConfigSubscribe()
+: <a class="el" href="sip_xtapi_8h.html#781ff976cb3250c23f1dbc09a7b7760c">sipXtapi.h</a><li>sipxConfigSetVoiceQualityServer()
+: <a class="el" href="sip_xtapi_8h.html#3afe45bf5e933de92b5083067a19cf37">sipXtapi.h</a><li>sipxConfigSubscribe()
 : <a class="el" href="sip_xtapi_8h.html#03b662919ee51bad877a8dea1f470480">sipXtapi.h</a><li>sipxConfigUnHibernate()
 : <a class="el" href="sip_xtapi_8h.html#ad108ad22e0bdfd87a96e8391cd279d4">sipXtapi.h</a><li>sipxConfigUnsubscribe()
 : <a class="el" href="sip_xtapi_8h.html#aa17759360acd4bbf632f643300b23de">sipXtapi.h</a><li>sipxConfigUpdatePreviewWindow()
@@ -353,7 +359,7 @@ Here is a list of all documented functions, variables, defines, enums, and typed
 : <a class="el" href="sip_xtapi_8h.html#845f307240adc57373f95079d48a6727">sipXtapi.h</a><li>SUBSCRIPTION_CAUSE_NORMAL
 : <a class="el" href="sip_xtapi_events_8h.html#64dcc0a8fa483fa3dbec3cf3c1d16907e75fcf5bd3b39e8cf0e8190f3521d761">sipXtapiEvents.h</a><li>SUBSCRIPTION_CAUSE_UNKNOWN
 : <a class="el" href="sip_xtapi_events_8h.html#64dcc0a8fa483fa3dbec3cf3c1d16907f093b4e5d5bcf9e85c0a9b31cffb5074">sipXtapiEvents.h</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Wed Aug 23 11:37:46 2006 for sipXtapi: SipX TAPI-like API for Call Processing by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Thu Aug 24 15:00:05 2006 for sipXtapi: SipX TAPI-like API for Call Processing by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.7 </small></address>
 </body>

@@ -53,7 +53,10 @@ public:
      //:Destructor
 
 /* ============================ MANIPULATORS ============================== */
- 
+
+   virtual int connect();
+   //: Sets up the initial connection with the server
+    
    virtual UtlBoolean reconnect();
    //: Sets up the connection again, assuming the connection failed
 
@@ -93,9 +96,13 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+    bool initialize(const char* serverName, int serverPort, UtlBoolean blockingConnect);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+
+   struct sockaddr_in serverSockAddr;
+   
    OsConnectionSocket(const OsConnectionSocket& rOsConnectionSocket);
      //:Disable copy constructor
 

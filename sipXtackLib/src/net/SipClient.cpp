@@ -305,7 +305,7 @@ int SipClient::run(void* runArg)
             if(clientSocket // This second check is in case there is
                 // some sort of race with the destructor.  This should
                 // not actually ever happen.
-               && (bytesRead <= 0 || !clientSocket->isOk()))
+               && (bytesRead < 0 || !clientSocket->isOk()))
             {
                 numFailures++;
                 readAMessage = FALSE;
@@ -499,8 +499,8 @@ int SipClient::run(void* runArg)
                                   "SipClient::run buffer residual bytes: %d\n===>%s<===\n",
                                   buffer.length(), buffer.data());
                 }
-            } // if bytesRead > 0
-
+            } 
+            
 #ifdef LOG_TIME
             UtlString timeString;
             eventTimes.getLogString(timeString);

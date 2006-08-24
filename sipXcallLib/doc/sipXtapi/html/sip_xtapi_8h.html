@@ -436,9 +436,9 @@ SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1b
 <tr><td class="memItemLeft" nowrap align="right" valign="top">SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#239075153c6d91764381fd0a610f5952">sipxConfigGetVideoCaptureDevices</a> (const <a class="el" href="sip_xtapi_8h.html#338b507421c789dda3c552458230161c">SIPX_INST</a> hInst, char **arrSzCaptureDevices, int nDeviceStringLength, int nArrayLength)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Gets the list of video capture devices.  <a href="#239075153c6d91764381fd0a610f5952"></a><br></td></tr>
-<tr><td class="memItemLeft" nowrap align="right" valign="top">SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#3a776c46632696c11b7cf11c884112cd">sipxConfigGetVideoCaptureDevice</a> (const <a class="el" href="sip_xtapi_8h.html#338b507421c789dda3c552458230161c">SIPX_INST</a> hInst, char *szCaptureDevices, int nLength)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#839a4705f73ded635b75dabf37f46144">sipxConfigGetVideoCaptureDevice</a> (const <a class="el" href="sip_xtapi_8h.html#338b507421c789dda3c552458230161c">SIPX_INST</a> hInst, char *szCaptureDevice, int nLength)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Gets the current video capture device.  <a href="#3a776c46632696c11b7cf11c884112cd"></a><br></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Gets the current video capture device.  <a href="#839a4705f73ded635b75dabf37f46144"></a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#bf02ceca355731139d821ff37970780d">sipxConfigSetVideoCaptureDevice</a> (const <a class="el" href="sip_xtapi_8h.html#338b507421c789dda3c552458230161c">SIPX_INST</a> hInst, const char *szCaptureDevice)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Sets the video capture device.  <a href="#bf02ceca355731139d821ff37970780d"></a><br></td></tr>
@@ -463,6 +463,9 @@ SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1b
 <tr><td class="memItemLeft" nowrap align="right" valign="top">SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#ff725ea44fdf21d2497859b92d5c9f75">sipxConfigGetLocalContacts</a> (const <a class="el" href="sip_xtapi_8h.html#338b507421c789dda3c552458230161c">SIPX_INST</a> hInst, <a class="el" href="struct_s_i_p_x___c_o_n_t_a_c_t___a_d_d_r_e_s_s.html">SIPX_CONTACT_ADDRESS</a> addresses[], size_t nMaxAddresses, size_t &amp;nActualAddresses)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the local contact address available for outbound/inbound signaling and audio.  <a href="#ff725ea44fdf21d2497859b92d5c9f75"></a><br></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#1246433cedc1654b45c22e3dd604a9fb">sipxConfigGetLocalFeedbackAddress</a> (const <a class="el" href="sip_xtapi_8h.html#338b507421c789dda3c552458230161c">SIPX_INST</a> hInst, const char *szRemoteIp, const int iRemotePort, char *szContactIp, size_t nContactIpLength, int &amp;iContactPort, int iTimeoutMs)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get our local ip/port combination for the designated remote ip/port.  <a href="#1246433cedc1654b45c22e3dd604a9fb"></a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#f08bcc82f1f082c9c0fbd0f03152919b">sipxConfigGetAllLocalNetworkIps</a> (const char *arrAddresses[], const char *arrAddressAdapter[], int &amp;numAddresses)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Populates an array of IP Addresses in char* form.  <a href="#f08bcc82f1f082c9c0fbd0f03152919b"></a><br></td></tr>
@@ -532,6 +535,9 @@ SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1b
 <tr><td class="memItemLeft" nowrap align="right" valign="top">SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#eb16d5712128f50fcd68930d0b5dda50">sipxConfigExternalTransportHandleMessage</a> (const <a class="el" href="sip_xtapi_8h.html#2950a05104a7acd50b15dee4251dfcf8">SIPX_TRANSPORT</a> hTransport, const char *szSourceIP, const int iSourcePort, const char *szLocalIP, const int iLocalPort, const void *pData, const size_t nData)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called by the application when it receives a complete SIP message via it's external transport mechanism and want to pass it along to sipXtapi.  <a href="#eb16d5712128f50fcd68930d0b5dda50"></a><br></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#3afe45bf5e933de92b5083067a19cf37">sipxConfigSetVoiceQualityServer</a> (const <a class="el" href="sip_xtapi_8h.html#338b507421c789dda3c552458230161c">SIPX_INST</a> hInst, const char *szServer)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Sets the SIP target URL for voice quality reports.  <a href="#3afe45bf5e933de92b5083067a19cf37"></a><br></td></tr>
 <tr><td colspan="2"><br><h2>Utility Functions</h2></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#ffaf36a71651144e0d6e6f500c26a1f3">sipxUtilUrlParse</a> (const char *szUrl, char *szUsername, char *szHostname, int *iPort)</td></tr>
 
@@ -627,16 +633,16 @@ SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1b
 <tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#eaa8fc14b2b2535ccf7fdddc7d8750c4">SIPXTAPI_VERSION</a>&nbsp;&nbsp;&nbsp;&quot;2.9.1&quot;</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">sipXtapi API version -- automatically filled in during release process  <a href="#eaa8fc14b2b2535ccf7fdddc7d8750c4"></a><br></td></tr>
-<tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#e627a2937b5bc08a2606e803dd80cb81">SIPXTAPI_BUILDNUMBER</a>&nbsp;&nbsp;&nbsp;&quot;7318&quot;</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#e627a2937b5bc08a2606e803dd80cb81">SIPXTAPI_BUILDNUMBER</a>&nbsp;&nbsp;&nbsp;&quot;0&quot;</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Default build number -- automatically filled in during release process.  <a href="#e627a2937b5bc08a2606e803dd80cb81"></a><br></td></tr>
-<tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#ad04c1cdebb8086adc24193404279382">SIPXTAPI_BUILD_WORD</a>&nbsp;&nbsp;&nbsp;2,9,1,7318</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#ad04c1cdebb8086adc24193404279382">SIPXTAPI_BUILD_WORD</a>&nbsp;&nbsp;&nbsp;2,9,1,0</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Default build word -- automatically filled in during release process.  <a href="#ad04c1cdebb8086adc24193404279382"></a><br></td></tr>
-<tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#ddbf45c070ccc06c79978587e196e6a4">SIPXTAPI_FULL_VERSION</a>&nbsp;&nbsp;&nbsp;&quot;2.9.1.7318&quot;</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#ddbf45c070ccc06c79978587e196e6a4">SIPXTAPI_FULL_VERSION</a>&nbsp;&nbsp;&nbsp;&quot;2.9.1.0&quot;</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Default full version number -- automatically filled in during release process.  <a href="#ddbf45c070ccc06c79978587e196e6a4"></a><br></td></tr>
-<tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#b306a86affa71e175bb975d613d5dfc4">SIPXTAPI_BUILDDATE</a>&nbsp;&nbsp;&nbsp;&quot;2006-08-23&quot;</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#b306a86affa71e175bb975d613d5dfc4">SIPXTAPI_BUILDDATE</a>&nbsp;&nbsp;&nbsp;&quot;0000-00-00&quot;</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Default build date -- automatically filled in during release process.  <a href="#b306a86affa71e175bb975d613d5dfc4"></a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#5c8b0a81de53f47ff2f8f202d9745d1b">SIPX_MAX_ADAPTER_NAME_LENGTH</a>&nbsp;&nbsp;&nbsp;256</td></tr>
@@ -863,9 +869,15 @@ SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1b
  }</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Enum for specifying the type of display object to be used for displaying video.  <a href="sip_xtapi_8h.html#7ad86bb008fcbbcdfebf94014ea87b0c">More...</a><br></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom"><b>SIPX_RTP_TRANSPORT</b> { <b>UDP_ONLY</b>, 
+<b>TCP_ONLY</b>, 
+<b>BOTH</b>
+ }</td></tr>
+
 <tr><td class="memItemLeft" nowrap align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_8h.html#e0ec6fef9f1c9f64c6e40d5287708858">SIPX_KEEPALIVE_TYPE</a> { <a class="el" href="sip_xtapi_8h.html#e0ec6fef9f1c9f64c6e40d528770885818bf58c3e3f473a5ac8d23f15a0c5482">SIPX_KEEPALIVE_CRLF</a>, 
 <a class="el" href="sip_xtapi_8h.html#e0ec6fef9f1c9f64c6e40d5287708858ec5a640e667dba208745254d31e5b014">SIPX_KEEPALIVE_STUN</a>, 
-<a class="el" href="sip_xtapi_8h.html#e0ec6fef9f1c9f64c6e40d5287708858306d48d6eabd18227cb65e1e859bfb2e">SIPX_KEEPALIVE_SIP_PING</a>
+<a class="el" href="sip_xtapi_8h.html#e0ec6fef9f1c9f64c6e40d5287708858306d48d6eabd18227cb65e1e859bfb2e">SIPX_KEEPALIVE_SIP_PING</a>, 
+<a class="el" href="sip_xtapi_8h.html#e0ec6fef9f1c9f64c6e40d52877088580f0d2d984d8119b9aae83ac155f12e24">SIPX_KEEPALIVE_SIP_OPTIONS</a>
  }</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">SIPX_KEEPALIVE_TYPEs define different methods of keeping NAT/firewall port open.  <a href="sip_xtapi_8h.html#e0ec6fef9f1c9f64c6e40d5287708858">More...</a><br></td></tr>
@@ -1385,7 +1397,7 @@ Assume extern "C" for non-win32 platforms.
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define SIPXTAPI_BUILD_WORD&nbsp;&nbsp;&nbsp;2,9,1,7318          </td>
+          <td class="memname">#define SIPXTAPI_BUILD_WORD&nbsp;&nbsp;&nbsp;2,9,1,0          </td>
         </tr>
       </table>
 </div>
@@ -1402,7 +1414,7 @@ Default build word -- automatically filled in during release process.
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define SIPXTAPI_BUILDDATE&nbsp;&nbsp;&nbsp;&quot;2006-08-23&quot;          </td>
+          <td class="memname">#define SIPXTAPI_BUILDDATE&nbsp;&nbsp;&nbsp;&quot;0000-00-00&quot;          </td>
         </tr>
       </table>
 </div>
@@ -1419,7 +1431,7 @@ Default build date -- automatically filled in during release process.
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define SIPXTAPI_BUILDNUMBER&nbsp;&nbsp;&nbsp;&quot;7318&quot;          </td>
+          <td class="memname">#define SIPXTAPI_BUILDNUMBER&nbsp;&nbsp;&nbsp;&quot;0&quot;          </td>
         </tr>
       </table>
 </div>
@@ -1470,7 +1482,7 @@ Maximum length for codec name.
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define SIPXTAPI_FULL_VERSION&nbsp;&nbsp;&nbsp;&quot;2.9.1.7318&quot;          </td>
+          <td class="memname">#define SIPXTAPI_FULL_VERSION&nbsp;&nbsp;&nbsp;&quot;2.9.1.0&quot;          </td>
         </tr>
       </table>
 </div>
@@ -1913,8 +1925,7 @@ Bandwidth requirements for supported codecs:<p>
            GSM     13 kbps, 20 ms frame size
            G729    8 Kbps, 10ms frame size
  Variable: ISAC    variable bitrate
-<pre>
-</pre></pre><dl compact><dt><b>Enumerator: </b></dt><dd>
+ </pre> <dl compact><dt><b>Enumerator: </b></dt><dd>
 <table border="0" cellspacing="2" cellpadding="0">
 <tr><td valign="top"><em><a class="anchor" name="1613b5a840e8debe4c8c4738649799b548cb9ad072734ba5f766729d231b9f38"></a><!-- doxytag: member="AUDIO_CODEC_BW_VARIABLE" ref="1613b5a840e8debe4c8c4738649799b548cb9ad072734ba5f766729d231b9f38" args="" -->AUDIO_CODEC_BW_VARIABLE</em>&nbsp;</td><td>
 ID for codecs with variable bandwidth requirements. </td></tr>
@@ -2009,15 +2020,18 @@ SIPX_KEEPALIVE_TYPEs define different methods of keeping NAT/firewall port open.
 <p>
 These approaches are used for the signaling path of a call and are generally only needed under specific network configurations.<p>
 Examples: - When not using a proxy<ul>
-<li>When the registration period is longer then NAT bindings timeout </li></ul>
-<dl compact><dt><b>Enumerator: </b></dt><dd>
+<li>When the registration period is longer then NAT bindings timeout</li></ul>
+<p>
+The STUN, and SIP_PING and SIP_OPTIONS events may also give you more information about your network NAT mappings. When you add a keepalive, you may get KEEPALIVE_FEEDBACK events with the IP/port that your peer thinks is you. For STUN, this comes from the STUN response, for the SIP keepalives, this comes from the "via" response if the remote supports rport/symmetric signaling. <dl compact><dt><b>Enumerator: </b></dt><dd>
 <table border="0" cellspacing="2" cellpadding="0">
 <tr><td valign="top"><em><a class="anchor" name="e0ec6fef9f1c9f64c6e40d528770885818bf58c3e3f473a5ac8d23f15a0c5482"></a><!-- doxytag: member="SIPX_KEEPALIVE_CRLF" ref="e0ec6fef9f1c9f64c6e40d528770885818bf58c3e3f473a5ac8d23f15a0c5482" args="" -->SIPX_KEEPALIVE_CRLF</em>&nbsp;</td><td>
 Send a Carriage Return/Line Feed to other side. </td></tr>
 <tr><td valign="top"><em><a class="anchor" name="e0ec6fef9f1c9f64c6e40d5287708858ec5a640e667dba208745254d31e5b014"></a><!-- doxytag: member="SIPX_KEEPALIVE_STUN" ref="e0ec6fef9f1c9f64c6e40d5287708858ec5a640e667dba208745254d31e5b014" args="" -->SIPX_KEEPALIVE_STUN</em>&nbsp;</td><td>
 Send a Stun request to the other side. </td></tr>
 <tr><td valign="top"><em><a class="anchor" name="e0ec6fef9f1c9f64c6e40d5287708858306d48d6eabd18227cb65e1e859bfb2e"></a><!-- doxytag: member="SIPX_KEEPALIVE_SIP_PING" ref="e0ec6fef9f1c9f64c6e40d5287708858306d48d6eabd18227cb65e1e859bfb2e" args="" -->SIPX_KEEPALIVE_SIP_PING</em>&nbsp;</td><td>
-Send a SIP PING method request to the other side (not implemented). </td></tr>
+Send a SIP PING method request to the other side. </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="e0ec6fef9f1c9f64c6e40d52877088580f0d2d984d8119b9aae83ac155f12e24"></a><!-- doxytag: member="SIPX_KEEPALIVE_SIP_OPTIONS" ref="e0ec6fef9f1c9f64c6e40d52877088580f0d2d984d8119b9aae83ac155f12e24" args="" -->SIPX_KEEPALIVE_SIP_OPTIONS</em>&nbsp;</td><td>
+Send a SIP OPTIONS method request to the other side. </td></tr>
 </table>
 </dl>
 
@@ -6205,15 +6219,15 @@ Associates an external transport mechanism for SIP signalling with the given ins
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>hInst</em>&nbsp;</td><td></td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>phInst</em>&nbsp;</td><td>A pointer to a hInst that must be various other sipx routines. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>hTransport</em>&nbsp;</td><td>Reference to a SIPX_TRANSPORT handle. This function will assign a value to the referenced handle. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>bIsReliable</em>&nbsp;</td><td>If false, indicates that SIPxua should retry external transport writes in case of response timeouts. If true, SIPxua will not attempt retries in case of a response timeouts. For connection oriented transport (like TCP), bIsReliable should be true, for packet oriented transport (like UDP), bIsReliable should be false. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>szTransport</em>&nbsp;</td><td>Transport type string to be used in SIP URIs. For example, passing in a szTransport of "flibble" will cause the transport tag to be added to the URI like so: "sip:mickey\@example.com;transport=flibble" </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>szLocalIp</em>&nbsp;</td><td>IP address which is the source address for the write. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>iLocalPort</em>&nbsp;</td><td>Port value from which the data will be sent. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>writeProc</em>&nbsp;</td><td>Function pointer to the callback for writing data using the transport mechanism. </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>szLocalRoutingId</em>&nbsp;</td><td></td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>pUserData</em>&nbsp;</td><td></td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>szLocalRoutingId</em>&nbsp;</td><td>A local routing id pass back to the write proc callback. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>pUserData</em>&nbsp;</td><td>User data passed back to the write proc. </td></tr>
   </table>
 </dl>
 
@@ -6501,6 +6515,80 @@ Determining which contact address to use depends on your network topology. If yo
 
 </div>
 </div><p>
+<a class="anchor" name="1246433cedc1654b45c22e3dd604a9fb"></a><!-- doxytag: member="sipXtapi.h::sipxConfigGetLocalFeedbackAddress" ref="1246433cedc1654b45c22e3dd604a9fb" args="(const SIPX_INST hInst, const char *szRemoteIp, const int iRemotePort, char *szContactIp, size_t nContactIpLength, int &amp;iContactPort, int iTimeoutMs)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> sipxConfigGetLocalFeedbackAddress           </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="sip_xtapi_8h.html#338b507421c789dda3c552458230161c">SIPX_INST</a>&nbsp;</td>
+          <td class="paramname"> <em>hInst</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&nbsp;</td>
+          <td class="paramname"> <em>szRemoteIp</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const int&nbsp;</td>
+          <td class="paramname"> <em>iRemotePort</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *&nbsp;</td>
+          <td class="paramname"> <em>szContactIp</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&nbsp;</td>
+          <td class="paramname"> <em>nContactIpLength</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int &amp;&nbsp;</td>
+          <td class="paramname"> <em>iContactPort</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>iTimeoutMs</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td width="100%"></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>
+Get our local ip/port combination for the designated remote ip/port. 
+<p>
+This API will look at all of the stun and/or SIP message results to see if a NAT binding exists for this particular host. If using a proxy server, this is generally never needed, however, in peer-to-peer modes this can sometimes help you get through NATs when using out-of-band registrars / signaling helpers (not recommended -- use a proxy instead).<p>
+For this API to be useful, you need to add a keepalive to the remote host prior to calling this API. This may optionally block if a keep-alive request has been started, but we are waiting for a response.<p>
+<dl compact><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>hInst</em>&nbsp;</td><td>Instance pointer obtained by sipxInitialize </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>szRemoteIp</em>&nbsp;</td><td>IP of remote party </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>iRemotePort</em>&nbsp;</td><td>port or remote party </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>szContactIp</em>&nbsp;</td><td>Buffer to place local contact IP if successful </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>nContactIpLength</em>&nbsp;</td><td>Length of szContactIp buffer </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>iContactPort</em>&nbsp;</td><td>Int to place contact port </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>iTimeoutMs</em>&nbsp;</td><td>Timeout in MS. Values of 0 (or less) signal not to block. Any other value is rounded up to multiple of 50ms. For VoIP, a value of 500ms seems plenty (latency longer than 300ms will result in a fairly bad audio experience). </td></tr>
+  </table>
+</dl>
+
+</div>
+</div><p>
 <a class="anchor" name="c8faefd03e5e9b06139bd06cb37038e7"></a><!-- doxytag: member="sipXtapi.h::sipxConfigGetLocalSipTcpPort" ref="c8faefd03e5e9b06139bd06cb37038e7" args="(SIPX_INST hInst, int *pPort)" -->
 <div class="memitem">
 <div class="memproto">
@@ -6728,7 +6816,7 @@ Get the sipXtapi API version string.
 
 </div>
 </div><p>
-<a class="anchor" name="3a776c46632696c11b7cf11c884112cd"></a><!-- doxytag: member="sipXtapi.h::sipxConfigGetVideoCaptureDevice" ref="3a776c46632696c11b7cf11c884112cd" args="(const SIPX_INST hInst, char *szCaptureDevices, int nLength)" -->
+<a class="anchor" name="839a4705f73ded635b75dabf37f46144"></a><!-- doxytag: member="sipXtapi.h::sipxConfigGetVideoCaptureDevice" ref="839a4705f73ded635b75dabf37f46144" args="(const SIPX_INST hInst, char *szCaptureDevice, int nLength)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -6742,7 +6830,7 @@ Get the sipXtapi API version string.
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">char *&nbsp;</td>
-          <td class="paramname"> <em>szCaptureDevices</em>, </td>
+          <td class="paramname"> <em>szCaptureDevice</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -6766,6 +6854,7 @@ Gets the current video capture device.
   <table border="0" cellspacing="2" cellpadding="0">
     <tr><td valign="top"></td><td valign="top"><em>hInst</em>&nbsp;</td><td>Instance pointer obtained by sipxInitialize </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>szCaptureDevice</em>&nbsp;</td><td>Character array to be populated by this function call. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>Max</em>&nbsp;</td><td>length of szCaptureDevice buffer. </td></tr>
   </table>
 </dl>
 
@@ -8186,6 +8275,45 @@ Sets the video quality.
 
 </div>
 </div><p>
+<a class="anchor" name="3afe45bf5e933de92b5083067a19cf37"></a><!-- doxytag: member="sipXtapi.h::sipxConfigSetVoiceQualityServer" ref="3afe45bf5e933de92b5083067a19cf37" args="(const SIPX_INST hInst, const char *szServer)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SIPXTAPI_API <a class="el" href="sip_xtapi_8h.html#d3098469949d53e3ecf3e75038a1bca6">SIPX_RESULT</a> sipxConfigSetVoiceQualityServer           </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="sip_xtapi_8h.html#338b507421c789dda3c552458230161c">SIPX_INST</a>&nbsp;</td>
+          <td class="paramname"> <em>hInst</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&nbsp;</td>
+          <td class="paramname"> <em>szServer</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td width="100%"></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>
+Sets the SIP target URL for voice quality reports. 
+<p>
+Voice Quality reports are sent at the completion of each call and give details on the voice quality (latency, noise, MOS scores, etc). Presently, this is not implemented in the open source version.<p>
+This must be enabled prior to creating a call or receiving a new call indiciation. Likewise, changes will not take effect for existing calls.<p>
+<dl compact><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>hInst</em>&nbsp;</td><td>An instance handle obtained from sipxInitialize. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>szTargetSipUrl</em>&nbsp;</td><td>Target SIP URL for the voice quality reports. A value of NULL will disable voice quality reports. </td></tr>
+  </table>
+</dl>
+
+</div>
+</div><p>
 <a class="anchor" name="03b662919ee51bad877a8dea1f470480"></a><!-- doxytag: member="sipXtapi.h::sipxConfigSubscribe" ref="03b662919ee51bad877a8dea1f470480" args="(const SIPX_INST hInst, const SIPX_LINE hLine, const char *szTargetUrl, const char *szEventType, const char *szAcceptType, const SIPX_CONTACT_ID contactId, SIPX_SUB *phSub)" -->
 <div class="memitem">
 <div class="memproto">
@@ -9429,7 +9557,7 @@ Represents a null transport handle.
 
 </div>
 </div><p>
-<hr size="1"><address style="align: right;"><small>Generated on Wed Aug 23 11:37:45 2006 for sipXtapi: SipX TAPI-like API for Call Processing by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Thu Aug 24 15:00:04 2006 for sipXtapi: SipX TAPI-like API for Call Processing by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.7 </small></address>
 </body>

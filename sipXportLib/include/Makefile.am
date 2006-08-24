@@ -4,10 +4,11 @@
 nobase_includeHEADERS_INSTALL = $(INSTALL) -D -p -c -m 644
 
 nobase_include_HEADERS = \
-    os/HostAdapterAddress.h \
     os/fstream \
+    os/HostAdapterAddress.h \
     os/iostream \
     os/istream \
+    os/IStunSocket.h \
     os/linux/host_address.h \
     os/linux/AdapterInfo.h \
     os/linux/OsBSemLinux.h \
@@ -27,12 +28,15 @@ nobase_include_HEADERS = \
     os/linux/OsUtilLinux.h \
     os/linux/pt_csem.h \
     os/linux/pt_mutex.h \
+    os/NatMsg.h \
     os/OsAssert.h \
     os/OsBSem.h \
     os/OsCallback.h \
     os/OsConfigDb.h \
     os/OsConfigEncryption.h \
     os/OsConnectionSocket.h \
+    os/OsContact.h \
+    os/OsContactList.h \
     os/OsCSem.h \
     os/OsDatagramSocket.h \
     os/OsDateTime.h \
@@ -56,7 +60,10 @@ nobase_include_HEADERS = \
     os/OsMutex.h \
     os/OsNameDb.h \
     os/OsNatAgentTask.h \
+    os/OsNatConnectionSocket.h \
     os/OsNatDatagramSocket.h \
+    os/OsNatKeepaliveListener.h \
+    os/OsNatSocketBaseImpl.h \
     os/OsNotification.h \
     os/OsPathBase.h \
     os/OsProcess.h \
@@ -64,7 +71,7 @@ nobase_include_HEADERS = \
     os/OsProcessMgr.h \
     os/OsProtectEvent.h \
     os/OsProtectEventMgr.h \
-	os/OsPtrMsg.h \
+    os/OsPtrMsg.h \
     os/OsQueuedEvent.h \
     os/OsReadLock.h \
     os/OsRpcMsg.h \
@@ -124,6 +131,8 @@ nobase_include_HEADERS = \
     utl/UtlIterator.h \
     utl/UtlList.h \
     utl/UtlListIterator.h \
+    utl/UtlObservable.h \
+    utl/UtlObservableImpl.h \
     utl/UtlRegex.h \
     utl/UtlRscStore.h \
     utl/UtlRscTrace.h \

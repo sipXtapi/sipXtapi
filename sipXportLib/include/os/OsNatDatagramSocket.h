@@ -13,6 +13,7 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
+#include "os/IStunSocket.h"
 #include "os/OsDatagramSocket.h"
 #include "os/OsMsgQ.h"
 #include "os/OsTimer.h"
@@ -20,6 +21,14 @@
 
 // DEFINES
 #define NAT_MSG_TYPE         (OsMsg::USER_START + 1) /**< Stun Msg type/Id */
+
+// The follow defines are used to keep track of what has been recorded for
+// various time-based metrics.
+#define ONDS_MARK_NONE           0x00000000
+#define ONDS_MARK_FIRST_READ     0x00000001
+#define ONDS_MARK_LAST_READ      0x00000002
+#define ONDS_MARK_FIRST_WRITE    0x00000004
+#define ONDS_MARK_LAST_WRITE     0x00000008
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -31,6 +40,7 @@
 class NatMsg ;
 class OsEvent ;
 class OsNatAgentTask;
+class OsNatKeepaliveListener;
 
 
 /**
@@ -86,7 +96,7 @@ typedef struct
  * received/processed.  Internally, the implemenation peeks at the read 
  * data and passes the message to the OsNatAgentTask for processing.
  */
-class OsNatDatagramSocket : public OsDatagramSocket
+class OsNatDatagramSocket : public OsDatagramSocket, public IStunSocket
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -122,6 +132,8 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
+    virtual OsSocket* getSocket();
+    
     /**
      * Standard read, see OsDatagramSocket for details.
      */
@@ -145,19 +157,23 @@ public:
     virtual int read(char* buffer, int bufferLength, long waitMilliseconds);
 
 
-    /** 
+    /**
      * Standard write, see OsDatagramSocket for details.
      */
     virtual int write(const char* buffer, int bufferLength);
 
 
-    /** 
+    /**
      * Standard write, see OsDatagramSocket for details.
      */
-    virtual int write(const char* buffer, 
-                      int bufferLength,
-                      const char* ipAddress, 
-                      int port);
+    virtual int write(const char* buffer, int bufferLength,
+                      const char* ipAddress, int port);
+
+    /**
+     * Standard write, see OsDatagramSocket for details.
+     */
+    virtual int write(const char* buffer, int bufferLength, 
+                      long waitMilliseconds);
 
     /** 
      * Enable STUN.  Enabling STUN will reset the the keep alive timer and 
@@ -253,15 +269,17 @@ public:
     virtual void setNotifier(OsNotification* pNotification) ;
 
     virtual UtlBoolean addCrLfKeepAlive(const char* szRemoteIp,
-                                       const int   remotePort, 
-                                       const int   keepAliveSecs) ;
+                                        const int   remotePort, 
+                                        const int   keepAliveSecs,
+                                        OsNatKeepaliveListener* pListener) ;
 
     virtual UtlBoolean removeCrLfKeepAlive(const char* szRemoteIp, 
                                           const int   remotePort) ;
 
     virtual UtlBoolean addStunKeepAlive(const char* szRemoteIp, 
-                                       const int   remotePort, 
-                                       const int   keepAliveSecs) ;
+                                        const int   remotePort, 
+                                        const int   keepAliveSecs,
+                                        OsNatKeepaliveListener* pListener) ;
 
     virtual UtlBoolean removeStunKeepAlive(const char* szRemoteIp, 
                                           const int   remotePort) ;
@@ -299,8 +317,36 @@ public:
     */
    virtual UtlBoolean applyDestinationAddress(const char* szAddress, int iPort) ;
 
+   /**
+    * Get the timestamp of the first read data packet (excluding any 
+    * STUN/TURN/NAT packets).
+    */
+   virtual bool getFirstReadTime(OsDateTime& time) ;
+
+   /**
+    * Get the timestamp of the last read data packet (excluding any 
+    * STUN/TURN/NAT packets).
+    */
+   virtual bool getLastReadTime(OsDateTime& time) ;
+
+   /**
+    * Get the timestamp of the first written data packet (excluding any
+    * STUN/TURN/NAT packets).
+    */
+   virtual bool getFirstWriteTime(OsDateTime& time) ;
+
+   /**
+    * Get the timestamp of the last written data packet (excluding any
+    * STUN/TURN/NAT packets).
+    */
+   virtual bool getLastWriteTime(OsDateTime& time) ;
+   
+   virtual void destroy();
+
+
 
 /* ============================ INQUIRY =================================== */
+
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -370,8 +416,20 @@ protected:
      */
     void handleTurnMessage(char* pBuf, int length, UtlString& fromAddress, int fromPort) ;
 
+    void markReadTime() ;
+
+    void markWriteTime() ;
+
+    /* ICE Settings */
+    int miDestPriority ;        /**< Priority of destination address / port. */
+    UtlString mDestAddress;     /**< Destination address */
+    int miDestPort ;            /**< Destination port */      
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+    
+
+
     STUN_STATE mStunState ; /**< STUN status/state */
     TURN_STATE mTurnState ; /**< TURN status/state */
 
@@ -382,10 +440,13 @@ private:
     OsNotification* mpNotification ; /** Notify on initial stun success or failure */
     bool            mbNotified ;     /** Have we notified the requestor? */
 
-    /* ICE Settings */
-    int miDestPriority ;        /**< Priority of destination address / port. */
-    UtlString mDestAddress;     /**< Destination address */
-    int miDestPort ;            /**< Destination port */      
+
+    unsigned int          miRecordTimes ;   // Bitmask populated w/ ONDS_MARK_*
+    OsDateTime            mFirstRead ;
+    OsDateTime            mLastRead ;
+    OsDateTime            mFirstWrite ;
+    OsDateTime            mLastWrite ;
+
 };
 
 /* ============================ INLINE METHODS ============================ */
@@ -393,75 +454,6 @@ private:
 
 /* ///////////////////////// HELPER CLASSES /////////////////////////////// */
 
-//: Basic NatMsg -- relies on external bodies to allocate and free memory.
-class NatMsg : public OsMsg
-{
-public:
-
-enum
-{
-    STUN_MESSAGE,
-    TURN_MESSAGE,
-    EXPIRATION_MESSAGE
-} ;
-
-/* ============================ CREATORS ================================== */
-   NatMsg(int                   type,
-          char*                 szBuffer, 
-          int                   nLength, 
-          OsNatDatagramSocket*  pSocket, 
-          UtlString             receivedIp, 
-          int                   iReceivedPort);
-     //:Constructor
-   
-   NatMsg(int   type,
-          void* pContext);
-     //:Constructor
-
-
-   NatMsg(const NatMsg& rNatMsg);
-     //:Copy constructor
-
-   virtual OsMsg* createCopy(void) const;
-     //:Create a copy of this msg object (which may be of a derived type)
-
-   virtual
-      ~NatMsg();
-     //:Destructor
-/* ============================ MANIPULATORS ============================== */
-
-   NatMsg& operator=(const NatMsg& rhs);
-     //:Assignment operator
-/* ============================ ACCESSORS ================================= */
-
-   char* getBuffer() const ;
-
-   int getLength() const ;
-
-   OsNatDatagramSocket* getSocket() const ;
-
-   UtlString getReceivedIp() const ;
-
-   int getReceivedPort() const ;
-
-   int getType() const ;
-
-   void* getContext() const ;
-
-/* ============================ INQUIRY =================================== */
-
-/* //////////////////////////// PROTECTED ///////////////////////////////// */
-protected:
-    int                   miType ;
-    char*                 mBuffer ;
-    int                   mLength ;
-    OsNatDatagramSocket*  mpSocket ;
-    UtlString             mReceivedIp ;
-    int                   miReceivedPort ;
-    void*                 mpContext ;
-
-/* //////////////////////////// PRIVATE /////////////////////////////////// */
-};
 
 
 #endif  // _OsNatDatagramSocket_h_

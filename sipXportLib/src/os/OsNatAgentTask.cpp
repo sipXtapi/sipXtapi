@@ -14,7 +14,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsNatAgentTask.h"
-#include "os/OsNatDatagramSocket.h"
+#include "os/IStunSocket.h"
 #include "os/TurnMessage.h"
 #include "os/StunMessage.h"
 #include "os/StunUtils.h"
@@ -22,6 +22,10 @@
 #include "os/OsMutex.h"
 #include "os/OsLock.h"
 #include "os/OsEvent.h"
+#include "os/OsWriteLock.h"
+#include "os/OsReadLock.h"
+#include "os/OsTime.h"
+#include "os/OsQueuedEvent.h"
 #include "utl/UtlVoidPtr.h"
 #include "utl/UtlHashMapIterator.h"
 #include "utl/UtlSListIterator.h"
@@ -45,6 +49,7 @@ OsNatAgentTask* OsNatAgentTask::spInstance = NULL ;
 OsNatAgentTask::OsNatAgentTask()
     : OsServerTask("OsNatAgentTask-%d")
     , mMapsLock(OsMutex::Q_FIFO)
+    , mExternalBindingMutex(OsRWMutex::Q_FIFO)
 {
 
 }
@@ -165,7 +170,7 @@ UtlBoolean OsNatAgentTask::handleStunMessage(NatMsg& rMsg)
     StunMessage msg ;
     size_t nBuffer = rMsg.getLength() ;
     char* pBuffer = rMsg.getBuffer() ;
-    OsNatDatagramSocket* pSocket = rMsg.getSocket() ;
+    IStunSocket* pSocket = rMsg.getSocket() ;
     UtlString sendToAddress ;
     unsigned short sendToPort ;
     unsigned short unknownAttributes[STUN_MAX_UNKNOWN_ATTRIBUTES] ;
@@ -227,14 +232,14 @@ UtlBoolean OsNatAgentTask::handleStunMessage(NatMsg& rMsg)
                         respMsg.setMappedAddress(rMsg.getReceivedIp(), rMsg.getReceivedPort()) ;
 
                         // Set Source Address
-                        respMsg.setSourceAddress(pSocket->getLocalIp(), pSocket->getLocalHostPort()) ;
+                        respMsg.setSourceAddress(pSocket->getSocket()->getLocalIp(), pSocket->getSocket()->getLocalHostPort()) ;
 
                         // Check for response address
                         char cResponseAddress[64] ;
                         unsigned short responsePort ;
                         if (msg.getResponseAddress(cResponseAddress, responsePort))
                         {
-                            respMsg.setReflectedFrom(pSocket->getLocalIp(), pSocket->getLocalHostPort()) ;
+                            respMsg.setReflectedFrom(pSocket->getSocket()->getLocalIp(), pSocket->getSocket()->getLocalHostPort()) ;
                             sendToAddress = cResponseAddress ;
                             sendToPort = responsePort ;
                         }
@@ -308,7 +313,7 @@ UtlBoolean OsNatAgentTask::handleTurnMessage(NatMsg& rMsg)
     TurnMessage respMsg ;
     size_t nBuffer = rMsg.getLength() ;
     char* pBuffer = rMsg.getBuffer() ;
-    OsNatDatagramSocket* pSocket = rMsg.getSocket() ;
+    IStunSocket* pSocket = rMsg.getSocket() ;
     STUN_TRANSACTION_ID transactionId ;
     STUN_MAGIC_ID       magicId ;
 
@@ -598,10 +603,22 @@ UtlBoolean OsNatAgentTask::handleCrLfKeepAlive(NAT_AGENT_CONTEXT* pContext)
 {
     UtlBoolean bRC = false ;
    
-    if (pContext->pSocket->write(STR_CRLF, 3, pContext->serverAddress, 
+    // This is a bit of a hack -- The IStunSocket keeps track of the last
+    // read/write times.  Instead of creating a 'special' write or some markers
+    // to figure it the packet should update the last written timestamp, I am 
+    // just calling the base class implementation directly.
+    if (pContext->pSocket->getSocket()->write(STR_CRLF, 3, pContext->serverAddress, 
             pContext->serverPort) == 3)
     {
         bRC = true ;
+    }
+    else
+    {
+        if (pContext->pKeepaliveListener)
+        {
+            pContext->pKeepaliveListener->OnKeepaliveFailure(
+                        populateKeepaliveEvent(pContext)); 
+        }
     }
 
     return bRC ;
@@ -616,12 +633,20 @@ UtlBoolean OsNatAgentTask::handleStunKeepAlive(NAT_AGENT_CONTEXT* pContext)
     {
         bRC = true ;
     }
+    else
+    {
+        if (pContext->pKeepaliveListener)
+        {
+            pContext->pKeepaliveListener->OnKeepaliveFailure(
+                    populateKeepaliveEvent(pContext)); 
+        }
+    }
 
     return bRC ;
 }
 
 
-UtlBoolean OsNatAgentTask::sendStunProbe(OsNatDatagramSocket* pSocket,
+UtlBoolean OsNatAgentTask::sendStunProbe(IStunSocket* pSocket,
                                          const UtlString&     stunServer,
                                          int                  stunPort,
                                          int                  priority) 
@@ -633,10 +658,10 @@ UtlBoolean OsNatAgentTask::sendStunProbe(OsNatDatagramSocket* pSocket,
     UtlString serverAddress ;
 
     UtlString localHostIp ;
-    pSocket->getLocalHostIp(&localHostIp) ;
+    pSocket->getSocket()->getLocalHostIp(&localHostIp) ;
     OsSysLog::add(FAC_NET, PRI_INFO, "Stun probe for %s:%d with server %s:%d priority=%d",
             localHostIp.data(),         
-            pSocket->getLocalHostPort(),
+            pSocket->getSocket()->getLocalHostPort(),
             stunServer.data(),
             stunPort,
             priority) ;
@@ -670,6 +695,7 @@ UtlBoolean OsNatAgentTask::sendStunProbe(OsNatDatagramSocket* pSocket,
             pContext->refreshErrors = 0 ;            
             pContext->port = PORT_NONE ;
             pContext->priority = priority ;
+            pContext->pKeepaliveListener = NULL ;
 
             mContextMap.insertKeyAndValue(new UtlVoidPtr(pContext), new UtlVoidPtr(pSocket)) ;
 
@@ -697,7 +723,7 @@ UtlBoolean OsNatAgentTask::sendStunProbe(OsNatDatagramSocket* pSocket,
     return bSuccess ;
 }
 
-UtlBoolean OsNatAgentTask::enableStun(OsNatDatagramSocket* pSocket,
+UtlBoolean OsNatAgentTask::enableStun(IStunSocket* pSocket,
                                       const UtlString&     stunServer,
                                       int                  stunPort,                                      
                                       const int            stunOptions,
@@ -710,10 +736,10 @@ UtlBoolean OsNatAgentTask::enableStun(OsNatDatagramSocket* pSocket,
     UtlString serverAddress ;
 
     UtlString localHostIp ;
-    pSocket->getLocalHostIp(&localHostIp) ;
+    pSocket->getSocket()->getLocalHostIp(&localHostIp) ;
     OsSysLog::add(FAC_NET, PRI_INFO, "Stun enabled for %s:%d with server %s:%d options=%d, keepAlive=%d",
             localHostIp.data(),         
-            pSocket->getLocalHostPort(),
+            pSocket->getSocket()->getLocalHostPort(),
             stunServer.data(),
             stunPort,
             stunOptions,
@@ -748,6 +774,7 @@ UtlBoolean OsNatAgentTask::enableStun(OsNatDatagramSocket* pSocket,
             pContext->refreshErrors = 0 ;
             pContext->port = PORT_NONE ;
             pContext->priority = 0 ;
+            pContext->pKeepaliveListener = NULL ;
 
             mContextMap.insertKeyAndValue(new UtlVoidPtr(pContext), new UtlVoidPtr(pSocket)) ;
 
@@ -775,15 +802,15 @@ UtlBoolean OsNatAgentTask::enableStun(OsNatDatagramSocket* pSocket,
     return bSuccess ;
 }
 
-UtlBoolean OsNatAgentTask::disableStun(OsNatDatagramSocket* pSocket) 
+UtlBoolean OsNatAgentTask::disableStun(IStunSocket* pSocket) 
 {
     OsLock lock(mMapsLock) ;
 
     UtlString localHostIp ;
-    pSocket->getLocalHostIp(&localHostIp) ;
+    pSocket->getSocket()->getLocalHostIp(&localHostIp) ;
     OsSysLog::add(FAC_NET, PRI_INFO, "Stun disabled for %s:%d",
             localHostIp.data(),         
-            pSocket->getLocalHostPort()) ;
+            pSocket->getSocket()->getLocalHostPort()) ;
 
     NAT_AGENT_CONTEXT* pBinding = getBinding(pSocket, STUN_DISCOVERY) ;
     if (pBinding)
@@ -795,7 +822,7 @@ UtlBoolean OsNatAgentTask::disableStun(OsNatDatagramSocket* pSocket)
 }
 
 
-UtlBoolean OsNatAgentTask::enableTurn(OsNatDatagramSocket* pSocket,
+UtlBoolean OsNatAgentTask::enableTurn(IStunSocket* pSocket,
                                       const UtlString&     turnServer,
                                       int                  turnPort,
                                       int                  keepAliveSecs,
@@ -808,10 +835,10 @@ UtlBoolean OsNatAgentTask::enableTurn(OsNatDatagramSocket* pSocket,
     UtlString serverAddress ;
 
     UtlString localHostIp ;
-    pSocket->getLocalHostIp(&localHostIp) ;
+    pSocket->getSocket()->getLocalHostIp(&localHostIp) ;
     OsSysLog::add(FAC_NET, PRI_INFO, "Turn enabled for %s:%d with server %s:%d, keepalive=%d",
             localHostIp.data(),         
-            pSocket->getLocalHostPort(),
+            pSocket->getSocket()->getLocalHostPort(),
             turnServer.data(),
             turnPort,
             keepAliveSecs) ;
@@ -848,6 +875,7 @@ UtlBoolean OsNatAgentTask::enableTurn(OsNatDatagramSocket* pSocket,
             pContext->username = username ;
             pContext->password = password ;
             pContext->priority = 0 ;
+            pContext->pKeepaliveListener = NULL ;
 
             mContextMap.insertKeyAndValue(new UtlVoidPtr(pContext), new UtlVoidPtr(pSocket)) ;
 
@@ -876,7 +904,7 @@ UtlBoolean OsNatAgentTask::enableTurn(OsNatDatagramSocket* pSocket,
 }
 
 
-UtlBoolean OsNatAgentTask::primeTurnReception(OsNatDatagramSocket* pSocket,
+UtlBoolean OsNatAgentTask::primeTurnReception(IStunSocket* pSocket,
                                               const                char* szAddress,
                                               int                  iPort)
 {
@@ -884,10 +912,10 @@ UtlBoolean OsNatAgentTask::primeTurnReception(OsNatDatagramSocket* pSocket,
     OsLock lock(mMapsLock) ;
 
     UtlString localHostIp ;
-    pSocket->getLocalHostIp(&localHostIp) ;
+    pSocket->getSocket()->getLocalHostIp(&localHostIp) ;
     OsSysLog::add(FAC_NET, PRI_INFO, "Turn Priming %s:%d -> %s:%d",
             localHostIp.data(),         
-            pSocket->getLocalHostPort(),
+            pSocket->getSocket()->getLocalHostPort(),
             szAddress,
             iPort) ;
 
@@ -920,7 +948,7 @@ UtlBoolean OsNatAgentTask::primeTurnReception(OsNatDatagramSocket* pSocket,
 }
 
 
-UtlBoolean OsNatAgentTask::setTurnDestination(OsNatDatagramSocket* pSocket,
+UtlBoolean OsNatAgentTask::setTurnDestination(IStunSocket* pSocket,
                                               const char* szAddress,
                                               int iPort ) 
 {
@@ -931,10 +959,10 @@ UtlBoolean OsNatAgentTask::setTurnDestination(OsNatDatagramSocket* pSocket,
     if (pBinding)
     {
         UtlString localHostIp ;
-        pSocket->getLocalHostIp(&localHostIp) ;
+        pSocket->getSocket()->getLocalHostIp(&localHostIp) ;
         OsSysLog::add(FAC_NET, PRI_INFO, "Turn destination %s:%d -> %s:%d",
                 localHostIp.data(),         
-                pSocket->getLocalHostPort(),
+                pSocket->getSocket()->getLocalHostPort(),
                 szAddress,
                 iPort) ;
 
@@ -961,15 +989,15 @@ UtlBoolean OsNatAgentTask::setTurnDestination(OsNatDatagramSocket* pSocket,
     return bRC ;
 }
 
-void OsNatAgentTask::disableTurn(OsNatDatagramSocket* pSocket) 
+void OsNatAgentTask::disableTurn(IStunSocket* pSocket) 
 {
     OsLock lock(mMapsLock) ;
 
     UtlString localHostIp ;
-    pSocket->getLocalHostIp(&localHostIp) ;
+    pSocket->getSocket()->getLocalHostIp(&localHostIp) ;
     OsSysLog::add(FAC_NET, PRI_INFO, "Turn disabled for %s:%d",
             localHostIp.data(),         
-            pSocket->getLocalHostPort()) ;
+            pSocket->getSocket()->getLocalHostPort()) ;
 
 
     NAT_AGENT_CONTEXT* pBinding = getBinding(pSocket, TURN_ALLOCATION) ;
@@ -1006,50 +1034,61 @@ void OsNatAgentTask::disableTurn(OsNatDatagramSocket* pSocket)
 }
 
 
-UtlBoolean OsNatAgentTask::addCrLfKeepAlive(OsNatDatagramSocket* pSocket, 
+
+UtlBoolean OsNatAgentTask::addCrLfKeepAlive(IStunSocket*    pSocket, 
                                             const UtlString&     remoteIp,
                                             int                  remotePort,
-                                            int                  keepAliveSecs)
+                                            int                     keepAliveSecs,
+                                            OsNatKeepaliveListener* pListener)
 {
     OsLock lock(mMapsLock) ;
     UtlBoolean bSuccess = false ;
     UtlString serverAddress ;
 
-    UtlString localHostIp ;
-    pSocket->getLocalHostIp(&localHostIp) ;
-    OsSysLog::add(FAC_NET, PRI_INFO, "Enabled CrLf keep alive %s:%d --> %s:%d every %d secs" ,
-            localHostIp.data(),         
-            pSocket->getLocalHostPort(),
-            remoteIp.data(),
-            remotePort,
-            keepAliveSecs) ;
-
-    NAT_AGENT_CONTEXT* pContext = new NAT_AGENT_CONTEXT ;
-    if (pContext)
+    if (!doesBindingExist(pSocket, CRLF_KEEPALIVE, remoteIp, remotePort))
     {
-        pContext->type = CRLF_KEEPALIVE ;
-        pContext->status = SUCCESS ;
-        pContext->serverAddress = remoteIp ;
-        pContext->serverPort = remotePort ;
-        pContext->options = 0 ;
-        memset(&pContext->transactionId, 0, sizeof(STUN_TRANSACTION_ID)) ;
-        pContext->nOldTransactions = 0 ;
-        for (int i=0; i<MAX_OLD_TRANSACTIONS; i++)
-        {
-            memset(&pContext->oldTransactionsIds[i], 0, sizeof(STUN_TRANSACTION_ID)) ;            
-        }                
-        pContext->pSocket = pSocket ;
-        pContext->pTimer = getTimer() ;
-        pContext->keepAliveSecs = keepAliveSecs;   
-        pContext->abortCount = NAT_INITIAL_ABORT_COUNT ;
-        pContext->refreshErrors = 0 ;
-        pContext->port = PORT_NONE ;
-        pContext->priority = 0 ;
+        UtlString localHostIp ;
+        pSocket->getSocket()->getLocalHostIp(&localHostIp) ;
+        OsSysLog::add(FAC_NET, PRI_INFO, "Enabled CrLf keep alive %s:%d --> %s:%d every %d secs" ,
+                localHostIp.data(),         
+                pSocket->getSocket()->getLocalHostPort(),
+                remoteIp.data(),
+                remotePort,
+                keepAliveSecs) ;
 
-        mContextMap.insertKeyAndValue(new UtlVoidPtr(pContext), new UtlVoidPtr(pSocket)) ;
-
-        if (handleCrLfKeepAlive(pContext))
+        NAT_AGENT_CONTEXT* pContext = new NAT_AGENT_CONTEXT ;
+        if (pContext)
         {
+            pContext->type = CRLF_KEEPALIVE ;
+            pContext->status = SUCCESS ;
+            pContext->serverAddress = remoteIp ;
+            pContext->serverPort = remotePort ;
+            pContext->options = 0 ;
+            memset(&pContext->transactionId, 0, sizeof(STUN_TRANSACTION_ID)) ;
+            pContext->nOldTransactions = 0 ;
+            for (int i=0; i<MAX_OLD_TRANSACTIONS; i++)
+            {
+                memset(&pContext->oldTransactionsIds[i], 0, sizeof(STUN_TRANSACTION_ID)) ;            
+            }                
+            pContext->pSocket = pSocket ;
+            pContext->pTimer = getTimer() ;
+            pContext->keepAliveSecs = keepAliveSecs;   
+            pContext->abortCount = NAT_INITIAL_ABORT_COUNT ;
+            pContext->refreshErrors = 0 ;
+            pContext->port = PORT_NONE ;
+            pContext->priority = 0 ;
+            pContext->pKeepaliveListener = pListener ;
+
+            mContextMap.insertKeyAndValue(new UtlVoidPtr(pContext), new UtlVoidPtr(pSocket)) ;
+
+            if (pContext->pKeepaliveListener)
+            {
+                pContext->pKeepaliveListener->OnKeepaliveStart(
+                        populateKeepaliveEvent(pContext)); 
+            }
+    
+            handleCrLfKeepAlive(pContext) ;
+            bSuccess = true ;
             if (keepAliveSecs > 0)
             {
                 OsTime refreshAt(keepAliveSecs, 0) ;
@@ -1062,12 +1101,6 @@ UtlBoolean OsNatAgentTask::addCrLfKeepAlive(OsNatDatagramSocket* pSocket,
             {
                 destroyBinding(pContext) ;
             }
-
-            bSuccess = true ;
-        }
-        else
-        {
-            destroyBinding(pContext) ;
         }
     }
 
@@ -1075,7 +1108,7 @@ UtlBoolean OsNatAgentTask::addCrLfKeepAlive(OsNatDatagramSocket* pSocket,
 }
 
 
-UtlBoolean OsNatAgentTask::removeCrLfKeepAlive(OsNatDatagramSocket* pSocket, 
+UtlBoolean OsNatAgentTask::removeCrLfKeepAlive(IStunSocket* pSocket, 
                                                const UtlString&     remoteIp,
                                                int                  remotePort) 
 {
@@ -1102,10 +1135,10 @@ UtlBoolean OsNatAgentTask::removeCrLfKeepAlive(OsNatDatagramSocket* pSocket,
     if (pRC)
     {
         UtlString localHostIp ;
-        pSocket->getLocalHostIp(&localHostIp) ;      
+        pSocket->getSocket()->getLocalHostIp(&localHostIp) ;      
         OsSysLog::add(FAC_NET, PRI_INFO, "Disable CrLf keep alive %s:%d --> %s:%d" ,
                 localHostIp.data(),         
-                pSocket->getLocalHostPort(),
+                pSocket->getSocket()->getLocalHostPort(),
                 remoteIp.data(),
                 remotePort) ;
 
@@ -1117,49 +1150,62 @@ UtlBoolean OsNatAgentTask::removeCrLfKeepAlive(OsNatDatagramSocket* pSocket,
 }
 
 
-UtlBoolean OsNatAgentTask::addStunKeepAlive(OsNatDatagramSocket* pSocket, 
+UtlBoolean OsNatAgentTask::addStunKeepAlive(IStunSocket*    pSocket, 
                                             const UtlString&     remoteIp,
                                             int                  remotePort,
-                                            int                  keepAliveSecs) 
+                                            int                     keepAliveSecs,
+                                            OsNatKeepaliveListener* pListener) 
 {
     OsLock lock(mMapsLock) ;
     UtlBoolean bSuccess = false ;
 
-    UtlString localHostIp ;
-    pSocket->getLocalHostIp(&localHostIp) ;
-    OsSysLog::add(FAC_NET, PRI_INFO, "Enabled STUN keep alive %s:%d --> %s:%d every %d secs" ,
-            localHostIp.data(),         
-            pSocket->getLocalHostPort(),
-            remoteIp.data(),
-            remotePort,
-            keepAliveSecs) ;     
-
-    NAT_AGENT_CONTEXT* pContext = new NAT_AGENT_CONTEXT ;
-    if (pContext)
+    if (!doesBindingExist(pSocket, STUN_KEEPALIVE, remoteIp, remotePort))
     {
-        pContext->type = STUN_KEEPALIVE ;
-        pContext->status = SUCCESS ;
-        pContext->serverAddress = remoteIp ;
-        pContext->serverPort = remotePort ;
-        pContext->options = 0 ;
-        memset(&pContext->transactionId, 0, sizeof(STUN_TRANSACTION_ID)) ;
-        pContext->nOldTransactions = 0 ;
-        for (int i=0; i<MAX_OLD_TRANSACTIONS; i++)
-        {
-            memset(&pContext->oldTransactionsIds[i], 0, sizeof(STUN_TRANSACTION_ID)) ;            
-        }                
-        pContext->pSocket = pSocket ;
-        pContext->pTimer = getTimer() ;
-        pContext->keepAliveSecs = keepAliveSecs;   
-        pContext->abortCount = NAT_INITIAL_ABORT_COUNT ;
-        pContext->refreshErrors = 0 ;
-        pContext->port = PORT_NONE ;
-        pContext->priority = 0 ;
+        UtlString localHostIp ;
+        OsSocket* pActualSocket = pSocket->getSocket();
+        
+        pActualSocket->getLocalHostIp(&localHostIp) ;
+        int port = pActualSocket->getLocalHostPort();
+        OsSysLog::add(FAC_NET, PRI_INFO, "Enabled STUN keep alive %s:%d --> %s:%d every %d secs" ,
+                localHostIp.data(),         
+                pSocket->getSocket()->getLocalHostPort(),
+                remoteIp.data(),
+                remotePort,
+                keepAliveSecs) ;     
 
-        mContextMap.insertKeyAndValue(new UtlVoidPtr(pContext), new UtlVoidPtr(pSocket)) ;
-
-        if (handleStunKeepAlive(pContext))
+        NAT_AGENT_CONTEXT* pContext = new NAT_AGENT_CONTEXT ;
+        if (pContext)
         {
+            pContext->type = STUN_KEEPALIVE ;
+            pContext->status = SUCCESS ;
+            pContext->serverAddress = remoteIp ;
+            pContext->serverPort = remotePort ;
+            pContext->options = 0 ;
+            memset(&pContext->transactionId, 0, sizeof(STUN_TRANSACTION_ID)) ;
+            pContext->nOldTransactions = 0 ;
+            for (int i=0; i<MAX_OLD_TRANSACTIONS; i++)
+            {
+                memset(&pContext->oldTransactionsIds[i], 0, sizeof(STUN_TRANSACTION_ID)) ;            
+            }                
+            pContext->pSocket = pSocket ;
+            pContext->pTimer = getTimer() ;
+            pContext->keepAliveSecs = keepAliveSecs;   
+            pContext->abortCount = NAT_INITIAL_ABORT_COUNT ;
+            pContext->refreshErrors = 0 ;
+            pContext->port = PORT_NONE ;
+            pContext->priority = 0 ;
+            pContext->pKeepaliveListener = pListener ;
+
+            mContextMap.insertKeyAndValue(new UtlVoidPtr(pContext), new UtlVoidPtr(pSocket)) ;
+
+            if (pContext->pKeepaliveListener)
+            {
+                pContext->pKeepaliveListener->OnKeepaliveStart(
+                        populateKeepaliveEvent(pContext)); 
+            }
+
+            handleStunKeepAlive(pContext) ;
+            bSuccess = true ;
             if (keepAliveSecs > 0)
             {
                 OsTime refreshAt(keepAliveSecs, 0) ;
@@ -1167,17 +1213,12 @@ UtlBoolean OsNatAgentTask::addStunKeepAlive(OsNatDatagramSocket* pSocket,
                 pEvent->setUserData((int) pContext) ;
 
                 pContext->pTimer->periodicEvery(refreshAt, refreshAt) ;
+
             }
             else
             {
                 destroyBinding(pContext) ;
             }
-
-            bSuccess = true ;
-        }
-        else
-        {
-            destroyBinding(pContext) ;
         }
     }
 
@@ -1185,7 +1226,7 @@ UtlBoolean OsNatAgentTask::addStunKeepAlive(OsNatDatagramSocket* pSocket,
 }
 
 
-UtlBoolean OsNatAgentTask::removeStunKeepAlive(OsNatDatagramSocket* pSocket, 
+UtlBoolean OsNatAgentTask::removeStunKeepAlive(IStunSocket* pSocket, 
                                                const UtlString&     remoteIp,
                                                int                  remotePort) 
 {
@@ -1212,10 +1253,10 @@ UtlBoolean OsNatAgentTask::removeStunKeepAlive(OsNatDatagramSocket* pSocket,
     if (pRC)
     {
         UtlString localHostIp ;
-        pSocket->getLocalHostIp(&localHostIp) ;      
+        pSocket->getSocket()->getLocalHostIp(&localHostIp) ;      
         OsSysLog::add(FAC_NET, PRI_INFO, "Disable STUN keep alive %s:%d --> %s:%d" ,
                 localHostIp.data(),         
-                pSocket->getLocalHostPort(),
+                pSocket->getSocket()->getLocalHostPort(),
                 remoteIp.data(),
                 remotePort) ;
 
@@ -1227,7 +1268,7 @@ UtlBoolean OsNatAgentTask::removeStunKeepAlive(OsNatDatagramSocket* pSocket,
 }
 
 
-UtlBoolean OsNatAgentTask::removeKeepAlives(OsNatDatagramSocket* pSocket) 
+UtlBoolean OsNatAgentTask::removeKeepAlives(IStunSocket* pSocket) 
 {
     NAT_AGENT_CONTEXT* pRC = NULL ;
     UtlVoidPtr* pKey;
@@ -1243,11 +1284,11 @@ UtlBoolean OsNatAgentTask::removeKeepAlives(OsNatDatagramSocket* pSocket)
                 ((pContext->type == STUN_KEEPALIVE) || (pContext->type == CRLF_KEEPALIVE)))
         {
             UtlString localHostIp ;
-            pSocket->getLocalHostIp(&localHostIp) ;      
+            pSocket->getSocket()->getLocalHostIp(&localHostIp) ;      
             OsSysLog::add(FAC_NET, PRI_INFO, "Disable %s keep alive %s:%d --> %s:%d",
                     pContext->type == STUN_KEEPALIVE ? "STUN" : "CrLf",
                     localHostIp.data(),         
-                    pSocket->getLocalHostPort(),
+                    pSocket->getSocket()->getLocalHostPort(),
                     pContext->serverAddress.data(),
                     pContext->serverPort) ;
 
@@ -1259,7 +1300,7 @@ UtlBoolean OsNatAgentTask::removeKeepAlives(OsNatDatagramSocket* pSocket)
     return bSuccess ;
 }
 
-UtlBoolean OsNatAgentTask::removeStunProbes(OsNatDatagramSocket* pSocket) 
+UtlBoolean OsNatAgentTask::removeStunProbes(IStunSocket* pSocket) 
 {
     NAT_AGENT_CONTEXT* pRC = NULL ;
     UtlVoidPtr* pKey;
@@ -1275,10 +1316,10 @@ UtlBoolean OsNatAgentTask::removeStunProbes(OsNatDatagramSocket* pSocket)
                 (pContext->type == STUN_PROBE))
         {
             UtlString localHostIp ;
-            pSocket->getLocalHostIp(&localHostIp) ;      
+            pSocket->getSocket()->getLocalHostIp(&localHostIp) ;      
             OsSysLog::add(FAC_NET, PRI_INFO, "Disable stun probe %s:%d --> %s:%d",
                     localHostIp.data(),         
-                    pSocket->getLocalHostPort(),
+                    pSocket->getSocket()->getLocalHostPort(),
                     pContext->serverAddress.data(),
                     pContext->serverPort) ;
 
@@ -1309,11 +1350,11 @@ void OsNatAgentTask::synchronize()
 
 
 // Determines if probes of a higher priority are still outstanding
-UtlBoolean OsNatAgentTask::areProbesOutstanding(OsNatDatagramSocket* pSocket, int priority) 
+UtlBoolean OsNatAgentTask::areProbesOutstanding(IStunSocket* pSocket, int priority) 
 {
     NAT_AGENT_CONTEXT* pRC = NULL ;
     UtlVoidPtr* pKey;
-    UtlBoolean bOutstanding = FALSE ;
+    UtlBoolean bOutstanding = false ;
 
     OsLock lock(mMapsLock) ;
 
@@ -1338,67 +1379,117 @@ UtlBoolean OsNatAgentTask::areProbesOutstanding(OsNatDatagramSocket* pSocket, in
     return bOutstanding ;
 }
 
+// Does a binding of the designated type/server exist 
+UtlBoolean OsNatAgentTask::doesBindingExist(IStunSocket*   pSocket,
+                                            NAT_AGENT_BINDING_TYPE type, 
+                                            const UtlString&       serverIp,
+                                            int                    serverPort)
+{
+    NAT_AGENT_CONTEXT* pRC = NULL ;
+    UtlVoidPtr* pKey;
+    UtlBoolean bFound = false ;
+
+    OsLock lock(mMapsLock) ;
+
+    UtlHashMapIterator iterator(mContextMap);
+    while (pKey = (UtlVoidPtr*)iterator())
+    {        
+        NAT_AGENT_CONTEXT* pContext = (NAT_AGENT_CONTEXT*) pKey->getValue();
+        if (    (pContext->pSocket == pSocket) &&
+                (pContext->type == type) &&
+                (pContext->serverAddress.compareTo(serverIp) == 0) &&
+                (pContext->serverPort == serverPort)    )
+        {
+            bFound = true ;
+            break ;
+        }        
+    }
+
+    return bFound ;
+}
+
 /* ============================ ACCESSORS ================================= */
 
 UtlBoolean OsNatAgentTask::findContactAddress(const UtlString& destHost, 
                                               int              destPort, 
                                               UtlString*       pContactHost, 
-                                              int*             pContactPort) 
+                                              int*             pContactPort,
+                                              int              iTimeoutMs) 
 {
     NAT_AGENT_CONTEXT* pRC = NULL ;
     UtlVoidPtr* pKey;
-    UtlBoolean  bFound = FALSE ;
+    UtlBoolean  bFound = false ;
     int         iAttempts = 0 ;
     UtlBoolean  bTryAgain = false ;
+    UtlBoolean  bTimedOut = false ;
+    int         iMaxAttempts = 1 ;
 
-    // Poll for upto 400 ms if the record isn't ready
-    while ((iAttempts == 0 || bTryAgain) && iAttempts < 8)
+    if (iTimeoutMs > 0)
     {
-        bTryAgain = false ;
-        iAttempts++ ;
+        // Figure out max attempts, rounding to next highest polling chunk (50ms)
+        iMaxAttempts = (iTimeoutMs + (NAT_FIND_BINDING_POOL_MS-1)) / 
+                NAT_FIND_BINDING_POOL_MS ;
+    }
 
-        OsLock lock(mMapsLock) ;
-        UtlHashMapIterator iterator(mContextMap);
-        while (pKey = (UtlVoidPtr*)iterator())
-        {        
-            NAT_AGENT_CONTEXT* pContext = (NAT_AGENT_CONTEXT*) pKey->getValue();
-
-            // Ignore uninteresting contexts
-            if (    (pContext->type == TURN_ALLOCATION) || 
-                    (pContext->type == CRLF_KEEPALIVE)  ||
-                    (pContext->status == FAILED)    )
-            {
-                continue ;
-            }
-
-            // Search for a match
-            if (    (destPort == pContext->serverPort) &&
-                    (destHost.compareTo(pContext->serverAddress, UtlString::ignoreCase) == 0))
-            {
-                if (pContext->port != PORT_NONE)
-                {
-                    if (pContactHost)
-                    {
-                        *pContactHost = pContext->address ;
-                    }
-                    if (pContactPort)
-                    {
-                        *pContactPort = pContext->port ;
-                    }
-
-                    bFound = true ;
-                    break ;
-                }
-                else
-                {
-                    bTryAgain = true ;
-                }
-            }        
-        }
-
-        if (bTryAgain && iAttempts < 8) 
+    bFound = findExternalBinding(destHost, destPort, pContactHost, pContactPort, iTimeoutMs, &bTimedOut) ;
+    if (!bFound)
+    {
+        // Poll if the record isn't ready
+        while ((iAttempts == 0 || bTryAgain) && iAttempts < iMaxAttempts)
         {
-            OsTask::delay(50) ;
+            bTryAgain = false ;
+            iAttempts++ ;
+
+            mMapsLock.acquire() ;
+            UtlHashMapIterator iterator(mContextMap);
+            while (pKey = (UtlVoidPtr*)iterator())
+            {        
+                NAT_AGENT_CONTEXT* pContext = (NAT_AGENT_CONTEXT*) pKey->getValue();
+
+                // Ignore uninteresting contexts
+                if (    (pContext->type == TURN_ALLOCATION) || 
+                        (pContext->type == CRLF_KEEPALIVE)  ||
+                        (pContext->status == FAILED)    )
+                {
+                    continue ;
+                }
+
+                // Search for a match
+                if (    (destPort == pContext->serverPort) &&
+                        (destHost.compareTo(pContext->serverAddress, UtlString::ignoreCase) == 0))
+                {
+                    if (pContext->port != PORT_NONE)
+                    {
+                        if (pContactHost)
+                        {
+                            *pContactHost = pContext->address ;
+                        }
+                        if (pContactPort)
+                        {
+                            *pContactPort = pContext->port ;
+                        }
+
+                        bTryAgain = false ;
+                        bFound = true ;
+                        break ;
+                    }
+                    else
+                    {
+                        // If findExternalBinding timed out -- don't bother
+                        // waiting any additional time
+                        if (!bTimedOut && iMaxAttempts > 0)
+                        {
+                            bTryAgain = true ;
+                        }
+                    }        
+                }
+            }
+            mMapsLock.release() ;
+
+            if (bTryAgain && iAttempts < iMaxAttempts) 
+            {
+                OsTask::delay(NAT_FIND_BINDING_POOL_MS) ;
+            }
         }
     }
 
@@ -1406,13 +1497,197 @@ UtlBoolean OsNatAgentTask::findContactAddress(const UtlString& destHost,
 }
 
 
+/**
+ * Add an external binding (used for findContactAddress)
+ */
+void OsNatAgentTask::addExternalBinding(OsSocket*  pSocket,
+                                        UtlString  remoteAddress,
+                                        int        remotePort,
+                                        UtlString  contactAddress,
+                                        int        contactPort) 
+{
+    OsTime now ;
+    OsTime expiration ;
+
+    if ((remoteAddress.compareTo(contactAddress) == 0) && (remotePort == contactPort))
+    {
+        // Transport error
+        return ;
+    }
+
+    OsWriteLock lock(mExternalBindingMutex) ;
+    UtlBoolean bUpdated = false ;    
+   
+    // Expire and external binding after 60 seconds
+    OsDateTime::getCurTime(now) ;
+    OsDateTime::getCurTime(expiration) ;
+    if (contactAddress.isNull())
+    {
+        // If this is a place holder, expire in 1s (default timeout)
+        expiration += OsTime(1, 0) ;
+    }
+    else
+    {
+        expiration += OsTime(NAT_BINDING_EXPIRATION_SECS, 0) ;
+    }
+
+    // Update contact if found and GC old ones 
+    UtlSListIterator itor(mExternalBindingsList) ;
+    while (UtlContainable* pCont = itor())
+    {
+        NAT_AGENT_EXTERNAL_CONTEXT* pContext = (NAT_AGENT_EXTERNAL_CONTEXT*)
+            ((UtlVoidPtr*) pCont)->getValue() ;
+
+        if (    (pContext->pSocket == pSocket) &&
+                (pContext->remoteAddress.compareTo(remoteAddress) == 0) &&
+                (pContext->remotePort == remotePort)    )
+        {
+            pContext->contactAddress = contactAddress ;
+            pContext->contactPort = contactPort ;
+            pContext->expiration = expiration ;
+            bUpdated = true ;
+        }
+        else if (pContext->expiration < now)
+        {
+            mExternalBindingsList.destroy(pCont) ;
+            delete pContext ;
+        }
+    }
+
+    if (!bUpdated)
+    {
+        NAT_AGENT_EXTERNAL_CONTEXT* pContext = new 
+                NAT_AGENT_EXTERNAL_CONTEXT ;
+
+        pContext->pSocket = pSocket ;
+        pContext->remoteAddress = remoteAddress ;
+        pContext->remotePort = remotePort ;
+        pContext->contactAddress = contactAddress ;
+        pContext->contactPort = contactPort ;
+        pContext->expiration = expiration ;
+
+        mExternalBindingsList.append(new UtlVoidPtr(pContext)) ;
+    }
+}
+
+void OsNatAgentTask::clearExternalBinding(OsSocket*  pSocket,
+                                          UtlString  remoteAddress,
+                                          int        remotePort,
+                                          bool       bOnlyIfEmpty) 
+{    
+    OsWriteLock lock(mExternalBindingMutex) ;
+
+    UtlSListIterator itor(mExternalBindingsList) ;
+    while (UtlContainable* pCont = itor())
+    {
+        NAT_AGENT_EXTERNAL_CONTEXT* pContext = (NAT_AGENT_EXTERNAL_CONTEXT*)
+                ((UtlVoidPtr*) pCont)->getValue() ;
+
+        if (    (pContext->remoteAddress.compareTo(remoteAddress) == 0) &&
+                    (pContext->remotePort == remotePort)    )
+        {
+            if (bOnlyIfEmpty)
+            {
+                if (!pContext->contactAddress.isNull())
+                {
+                    mExternalBindingsList.destroy(pCont) ;
+                    delete pContext ;                   
+                }
+            }
+            else
+            {
+                mExternalBindingsList.destroy(pCont) ;
+                delete pContext ;                   
+            }
+            break ;
+        }
+    }
+}
+
+
+UtlBoolean OsNatAgentTask::findExternalBinding(const UtlString& destHost, 
+                                               int              destPort, 
+                                               UtlString*       pContactHost, 
+                                               int*             pContactPort,
+                                               int              iTimeoutMs,
+                                               UtlBoolean*      pTimedOut)
+{
+    UtlBoolean  bFound = false ;
+    int         iAttempts = 0 ;
+    UtlBoolean  bTryAgain = false ;
+    int         iMaxAttempts = 1 ;
+    
+    if (iTimeoutMs > 0)
+    {
+        // Figure out max attempts, rounding to next highest polling chunk (50ms)
+        iMaxAttempts = (iTimeoutMs + (NAT_FIND_BINDING_POOL_MS-1)) / 
+                NAT_FIND_BINDING_POOL_MS ;
+    }
+
+    // Poll for upto 1s if the record isn't ready
+    while ((iAttempts == 0 || bTryAgain) && iAttempts < iMaxAttempts)
+    {
+        bTryAgain = false ;
+        iAttempts++ ;               
+        OsTime now ;
+        OsDateTime::getCurTime(now) ;
+    
+        mExternalBindingMutex.acquireRead() ;
+        // Finding matching contact
+        UtlSListIterator itor(mExternalBindingsList) ;
+        while (UtlContainable* pCont = itor())
+        {
+            NAT_AGENT_EXTERNAL_CONTEXT* pContext = (NAT_AGENT_EXTERNAL_CONTEXT*)
+                ((UtlVoidPtr*) pCont)->getValue() ;
+
+            if (    (pContext->expiration > now) &&
+                    (pContext->remoteAddress.compareTo(destHost) == 0) &&
+                    (pContext->remotePort == destPort)    )
+            {
+                if (pContext->contactAddress.isNull())
+                {
+                    if (iMaxAttempts > 0)
+                    {
+                        bTryAgain = true ;
+                    }
+                }
+                else
+                {
+                    if (pContactHost)
+                        *pContactHost = pContext->contactAddress ;
+                    if (pContactPort)
+                        *pContactPort = pContext->contactPort ;
+
+                    bFound = true ;
+                    bTryAgain = false ;
+                }
+                break ;
+            }
+        }
+        mExternalBindingMutex.releaseRead() ;
+
+        if (bTryAgain && iAttempts < iMaxAttempts) 
+        {
+            OsTask::delay(NAT_FIND_BINDING_POOL_MS) ;
+        }
+    }
+
+    // Set the timed out flag
+    if (pTimedOut)
+    {
+        *pTimedOut = (bTryAgain && !bFound) ;
+    }
+
+    return bFound ;
+}
+
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 
 UtlBoolean OsNatAgentTask::sendMessage(StunMessage* pMsg, 
-                                       OsNatDatagramSocket* pSocket, 
+                                       IStunSocket* pSocket, 
                                        const UtlString& toAddress, 
                                        unsigned short toPort)
 {
@@ -1421,6 +1696,7 @@ UtlBoolean OsNatAgentTask::sendMessage(StunMessage* pMsg,
     char cEncoded[10240] ;
     size_t length ;
 
+    pMsg->setServer("sipXtapi (www.sipfoundry.org)") ;
     if (pMsg->encode(cEncoded, sizeof(cEncoded), length))
     {
 
@@ -1432,7 +1708,12 @@ UtlBoolean OsNatAgentTask::sendMessage(StunMessage* pMsg,
                     output.data()) ;
         }
 
-        if (pSocket->write(cEncoded, (int) length, toAddress, toPort) > 0)
+        // This is a bit of a hack -- The IStunSocket keeps track of 
+        // the last read/write times.  Instead of creating a 'special' write 
+        // or some markers to figure it the packet should update the last 
+        // written timestamp, I am just calling the base class implementation 
+        // directly.
+        if (pSocket->getSocket()->write(cEncoded, (int) length, toAddress, toPort) > 0)
         {
             bSuccess = true ;
         }
@@ -1447,7 +1728,7 @@ UtlBoolean OsNatAgentTask::sendMessage(StunMessage* pMsg,
 }
 
 
-NAT_AGENT_CONTEXT* OsNatAgentTask::getBinding(OsNatDatagramSocket* pSocket, NAT_AGENT_BINDING_TYPE type) 
+NAT_AGENT_CONTEXT* OsNatAgentTask::getBinding(IStunSocket* pSocket, NAT_AGENT_BINDING_TYPE type) 
 {
     NAT_AGENT_CONTEXT* pRC = NULL ;
     UtlHashMapIterator iterator(mContextMap);
@@ -1529,6 +1810,12 @@ void OsNatAgentTask::destroyBinding(NAT_AGENT_CONTEXT* pBinding)
         {                
             mContextMap.destroy(pKey) ;
             releaseTimer(pBinding->pTimer) ;
+
+            if (pBinding->pKeepaliveListener)
+            {
+                pBinding->pKeepaliveListener->OnKeepaliveStop(
+                        populateKeepaliveEvent(pBinding)) ; 
+            }
             delete pBinding ;
             break ;
         }
@@ -1678,10 +1965,10 @@ void OsNatAgentTask::markStunSuccess(NAT_AGENT_CONTEXT* pBinding, const UtlStrin
     if (pBinding)
     {
         UtlString localHostIp ;
-        pBinding->pSocket->getLocalHostIp(&localHostIp) ;
+        pBinding->pSocket->getSocket()->getLocalHostIp(&localHostIp) ;
         OsSysLog::add(FAC_NET, PRI_INFO, "Stun success for %s:%d, mapped address: %s:%d",
                 localHostIp.data(),         
-                pBinding->pSocket->getLocalHostPort(),
+                pBinding->pSocket->getSocket()->getLocalHostPort(),
                 mappedAddress.data(),
                 mappedPort) ;
 
@@ -1700,7 +1987,7 @@ void OsNatAgentTask::markStunSuccess(NAT_AGENT_CONTEXT* pBinding, const UtlStrin
                 OsSysLog::add(FAC_NET, PRI_CRIT, 
                         "Stun binding changed for %s:%d, %s:%d is now %s:%d",
                         localHostIp.data(),
-                        pBinding->pSocket->getLocalHostPort(),
+                        pBinding->pSocket->getSocket()->getLocalHostPort(),
                         pBinding->address.data(),
                         pBinding->port,
                         mappedAddress.data(),
@@ -1736,7 +2023,11 @@ void OsNatAgentTask::markStunSuccess(NAT_AGENT_CONTEXT* pBinding, const UtlStrin
         }
         else if (pBinding->type == STUN_KEEPALIVE)
         {
-            // We are currently ignore keep alive responses
+            if (pBinding->pKeepaliveListener)
+            {
+                pBinding->pKeepaliveListener->OnKeepaliveFeedback(
+                        populateKeepaliveEvent(pBinding)); 
+            }
         }
         else
         {
@@ -1752,10 +2043,10 @@ void OsNatAgentTask::markStunFailure(NAT_AGENT_CONTEXT* pBinding)
     if (pBinding)
     {
         UtlString localHostIp ;
-        pBinding->pSocket->getLocalHostIp(&localHostIp) ;
+        pBinding->pSocket->getSocket()->getLocalHostIp(&localHostIp) ;
         OsSysLog::add(FAC_NET, PRI_INFO, "Stun failure for %s:%d -> %s:%d",
                     localHostIp.data(),         
-                    pBinding->pSocket->getLocalHostPort(),
+                    pBinding->pSocket->getSocket()->getLocalHostPort(),
                     pBinding->serverAddress.data(),
                     pBinding->serverPort) ;
 
@@ -1798,10 +2089,10 @@ void OsNatAgentTask::markTurnSuccess(NAT_AGENT_CONTEXT* pBinding, const UtlStrin
     if (pBinding)
     {
         UtlString localHostIp ;
-        pBinding->pSocket->getLocalHostIp(&localHostIp) ;
+        pBinding->pSocket->getSocket()->getLocalHostIp(&localHostIp) ;
         OsSysLog::add(FAC_NET, PRI_INFO, "Turn success for %s:%d, relay address: %s:%d",
                 localHostIp.data(),         
-                pBinding->pSocket->getLocalHostPort(),
+                pBinding->pSocket->getSocket()->getLocalHostPort(),
                 relayAddress.data(),
                 relayPort) ;
 
@@ -1833,10 +2124,10 @@ void OsNatAgentTask::markTurnFailure(NAT_AGENT_CONTEXT* pBinding)
     if (pBinding)
     {
         UtlString localHostIp ;
-        pBinding->pSocket->getLocalHostIp(&localHostIp) ;
+        pBinding->pSocket->getSocket()->getLocalHostIp(&localHostIp) ;
         OsSysLog::add(FAC_NET, PRI_INFO, "Turn failure for %s:%d -> %s:%d",
                     localHostIp.data(),         
-                    pBinding->pSocket->getLocalHostPort(),
+                    pBinding->pSocket->getSocket()->getLocalHostPort(),
                     pBinding->serverAddress.data(),
                     pBinding->serverPort) ;
 
@@ -1853,6 +2144,29 @@ void OsNatAgentTask::markTurnFailure(NAT_AGENT_CONTEXT* pBinding)
         pBinding->pSocket->setTurnAddress(empty, PORT_NONE) ;
         pBinding->pSocket->markTurnFailure() ;   
     }
+}
+
+OsNatKeepaliveEvent OsNatAgentTask::populateKeepaliveEvent(NAT_AGENT_CONTEXT* pContext)
+{
+    OsNatKeepaliveEvent event ;
+
+    if (pContext)
+    {
+        if (pContext->type == CRLF_KEEPALIVE)
+            event.type = OS_NAT_KEEPALIVE_CRLF ;
+        else if (pContext->type == STUN_KEEPALIVE)
+            event.type = OS_NAT_KEEPALIVE_STUN ;
+        else
+            event.type = OS_NAT_KEEPALIVE_INVALID ;
+
+        event.remoteAddress = pContext->serverAddress ;
+        event.remotePort = pContext->serverPort ;
+        event.keepAliveSecs = pContext->keepAliveSecs ;
+        event.mappedAddress = pContext->address ;
+        event.mappedPort = pContext->port ;
+    }
+
+    return event ;
 }
 
 
@@ -1886,8 +2200,8 @@ void OsNatAgentTask::dumpContext(UtlString* pResults, NAT_AGENT_CONTEXT* pBindin
 
         if (pBinding->pSocket)
         {
-            pBinding->pSocket->getLocalHostIp(&socketHostIp) ;
-            socketPort = pBinding->pSocket->getLocalHostPort() ;
+            pBinding->pSocket->getSocket()->getLocalHostIp(&socketHostIp) ;
+            socketPort = pBinding->pSocket->getSocket()->getLocalHostPort() ;
         }
 
         sprintf(cBuf, 

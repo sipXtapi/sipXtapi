@@ -14,22 +14,34 @@
 #include "sipXtapiTest.h"
 #include "EventValidator.h"
 #include "callbacks.h"
+#include "TestExternalTransport.h"
 
 extern SIPX_INST g_hInst;
 extern SIPX_INST g_hInst2;
 extern SIPX_INST g_hInst3;
+extern SIPX_TRANSPORT ghTransport1;
+extern SIPX_TRANSPORT ghTransport2;
 
+void sipXtapiTestSuite::testPublishAndSubscribeCallCustom() 
+{
+    return testPublishAndSubscribe(true, true, "testPublishAndSubscribeCallCustom");
+}
+void sipXtapiTestSuite::testPublishAndSubscribeConfigCustom() 
+{
+    return testPublishAndSubscribe(false, true, "testPublishAndSubscribeConfigCustom");
+}
 
 void sipXtapiTestSuite::testPublishAndSubscribeCall() 
 {
-    return testPublishAndSubscribe(true, "testPublishAndSubscribeCall");
+    return testPublishAndSubscribe(true, false, "testPublishAndSubscribeCall");
 }
 void sipXtapiTestSuite::testPublishAndSubscribeConfig() 
 {
-    return testPublishAndSubscribe(false, "testPublishAndSubscribeConfig");
+    return testPublishAndSubscribe(false, false, "testPublishAndSubscribeConfig");
 }
 
 void sipXtapiTestSuite::testPublishAndSubscribe(bool bCallContext,
+                                                bool bCustomTransport,
                                                 const char* szTestName) 
 {
     
@@ -50,7 +62,36 @@ void sipXtapiTestSuite::testPublishAndSubscribe(bool bCallContext,
         SIPX_SUB hSub1_lunch  = 0;
         SIPX_SUB hSub2_coffee = 0;
         SIPX_SUB hSub2_lunch  = 0;
+        TransportTask* pTask1 = NULL;
+        TransportTask* pTask2 = NULL;
+        int j;
+        size_t nDummy;
+        SIPX_CONTACT_ADDRESS aAddress[32];
+        SIPX_CONTACT_ID contactId = CONTACT_LOCAL;
+        memset(aAddress, 0, 32);
 
+        if (bCustomTransport)
+        {
+            pTask1 = new TransportTask(1, "externalTransport1");
+            pTask2 = new TransportTask(2, "externalTransport2");
+            pTask1->start();
+            pTask2->start();
+            
+            sipxConfigExternalTransportAdd(g_hInst, ghTransport1, true, "sub-tunnel", "127.0.0.1", -1, transportProc1, "sub-token1", "inst1");
+            sipxConfigExternalTransportAdd(g_hInst2, ghTransport2, true, "sub-tunnel", "127.0.0.1", -1, transportProc2, "sub-token2", "inst2");
+        }        
+
+
+        sipxConfigGetLocalContacts(g_hInst, aAddress, 32, nDummy);
+        for (j = 0; j < nDummy; j++)
+        {
+            if (strcmp(aAddress[j].cCustomTransportName, "sub-tunnel") == 0)
+            {
+                contactId = aAddress[j].id;
+                break;
+            }
+        }
+        
         validatorPublish.reset();
         validatorSubscribe1.reset();
         validatorSubscribe2.reset();
@@ -71,18 +112,24 @@ void sipXtapiTestSuite::testPublishAndSubscribe(bool bCallContext,
         validatorPublish.waitForLineEvent(hLine, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL) ;        
         validatorSubscribe1.waitForLineEvent(hLine2, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL) ;        
         validatorSubscribe2.waitForLineEvent(hLine3, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL) ;        
+        
+        UtlString publisherUrl1("foo@127.0.0.1:8000");
+        if (bCustomTransport)
+        {
+            //publisherUrl1.append(";transport=sub-tunnel");
+        }        
 
-        rc = sipxPublisherCreate(g_hInst, &hPub_coffee, "foo@127.0.0.1:8000", "coffee", "application/coffeeStuff", "java ready", 10);
+        rc = sipxPublisherCreate(g_hInst, &hPub_coffee, publisherUrl1.data(), "coffee", "application/coffeeStuff", "java ready", 10);
         CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == rc);
 
-        rc = sipxPublisherCreate(g_hInst, &hPub_lunch, "foo@127.0.0.1:8000", "lunch", "application/lunchStuff", "order up", 8);
+        rc = sipxPublisherCreate(g_hInst, &hPub_lunch, publisherUrl1.data(), "lunch", "application/lunchStuff", "order up", 8);
         CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == rc);
 
         if (bCallContext)
         {
             SIPX_CALL hCall1 ;
             SIPX_LINE hCall2;
-
+            SIPX_CALL hTemp;
 
             /*
             * Setup Auto-answer call back
@@ -106,7 +153,7 @@ void sipXtapiTestSuite::testPublishAndSubscribe(bool bCallContext,
             /*
             * Initiate Call
             */ 
-            rc = sipxCallConnect(hCall1, "sip:foo@127.0.0.1:8000", CONTACT_LOCAL, NULL, NULL, false) ;
+            rc = sipxCallConnect(hCall1, publisherUrl1.data(), contactId, NULL, NULL, false) ;
             CPPUNIT_ASSERT(rc == SIPX_RESULT_SUCCESS) ;
 
             /*
@@ -142,38 +189,42 @@ void sipXtapiTestSuite::testPublishAndSubscribe(bool bCallContext,
             * Create Call
             */
             OsTask::delay(2000);  // wait for autoanswercallback events to fire
-            resetAutoAnswerCallback() ;
+            
+            if (!bCustomTransport)
+            {
+                resetAutoAnswerCallback() ;
 
-            rc = sipxCallCreate(g_hInst3, hLine3, &hCall2) ;
-            CPPUNIT_ASSERT(rc == SIPX_RESULT_SUCCESS) ;
-            bRC = validatorSubscribe2.waitForCallEvent(hLine3, hCall2, CALLSTATE_DIALTONE, CALLSTATE_CAUSE_NORMAL, false) ;
-            CPPUNIT_ASSERT(bRC) ;
+                rc = sipxCallCreate(g_hInst3, hLine3, &hCall2) ;
+                CPPUNIT_ASSERT(rc == SIPX_RESULT_SUCCESS) ;
+                bRC = validatorSubscribe2.waitForCallEvent(hLine3, hCall2, CALLSTATE_DIALTONE, CALLSTATE_CAUSE_NORMAL, false) ;
+                CPPUNIT_ASSERT(bRC) ;
 
-            /*
-            * Initiate Call
-            */ 
-            rc = sipxCallConnect(hCall2, "sip:foo@127.0.0.1:8000", CONTACT_LOCAL, NULL, NULL, false);
-            CPPUNIT_ASSERT(rc == SIPX_RESULT_SUCCESS) ;
+                /*
+                * Initiate Call
+                */ 
+                rc = sipxCallConnect(hCall2, publisherUrl1.data(), contactId, NULL, NULL, false);
+                CPPUNIT_ASSERT(rc == SIPX_RESULT_SUCCESS) ;
 
-            /*
-            * Validate events (listener auto-answers)
-            */
-            // Calling Side
-            bRC = validatorSubscribe2.waitForCallEvent(hLine3, hCall2, CALLSTATE_REMOTE_OFFERING, CALLSTATE_CAUSE_NORMAL, false) ;
-            CPPUNIT_ASSERT(bRC) ;
-            bRC = validatorSubscribe2.waitForCallEvent(hLine3, hCall2, CALLSTATE_REMOTE_ALERTING, CALLSTATE_CAUSE_NORMAL, false) ;
-            CPPUNIT_ASSERT(bRC) ;
-            bRC = validatorSubscribe2.waitForCallEvent(hLine3, hCall2, CALLSTATE_CONNECTED, CALLSTATE_CAUSE_NORMAL, false) ;
-            CPPUNIT_ASSERT(bRC) ;
-            bRC = validatorSubscribe2.waitForMediaEvent(MEDIA_LOCAL_START, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, false);
-            CPPUNIT_ASSERT(bRC) ;
-            bRC = validatorSubscribe2.waitForMediaEvent(MEDIA_REMOTE_START, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, false);
-            CPPUNIT_ASSERT(bRC) ;
+                /*
+                * Validate events (listener auto-answers)
+                */
+                // Calling Side
+                bRC = validatorSubscribe2.waitForCallEvent(hLine3, hCall2, CALLSTATE_REMOTE_OFFERING, CALLSTATE_CAUSE_NORMAL, false) ;
+                CPPUNIT_ASSERT(bRC) ;
+                bRC = validatorSubscribe2.waitForCallEvent(hLine3, hCall2, CALLSTATE_REMOTE_ALERTING, CALLSTATE_CAUSE_NORMAL, false) ;
+                CPPUNIT_ASSERT(bRC) ;
+                bRC = validatorSubscribe2.waitForCallEvent(hLine3, hCall2, CALLSTATE_CONNECTED, CALLSTATE_CAUSE_NORMAL, false) ;
+                CPPUNIT_ASSERT(bRC) ;
+                bRC = validatorSubscribe2.waitForMediaEvent(MEDIA_LOCAL_START, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, false);
+                CPPUNIT_ASSERT(bRC) ;
+                bRC = validatorSubscribe2.waitForMediaEvent(MEDIA_REMOTE_START, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, false);
+                CPPUNIT_ASSERT(bRC) ;
 
-            sipxCallHold(g_hAutoAnswerCallbackCall, true);
-            validatorSubscribe2.waitForMediaEvent(MEDIA_LOCAL_STOP, MEDIA_CAUSE_HOLD, MEDIA_TYPE_AUDIO, false);
-            validatorSubscribe2.waitForMediaEvent(MEDIA_REMOTE_STOP, MEDIA_CAUSE_HOLD, MEDIA_TYPE_AUDIO, false);
-
+                sipxCallHold(g_hAutoAnswerCallbackCall, true);
+                validatorSubscribe2.waitForMediaEvent(MEDIA_LOCAL_STOP, MEDIA_CAUSE_HOLD, MEDIA_TYPE_AUDIO, false);
+                validatorSubscribe2.waitForMediaEvent(MEDIA_REMOTE_STOP, MEDIA_CAUSE_HOLD, MEDIA_TYPE_AUDIO, false);
+            }
+            
             // ok, now we have a publisher set up, and two calls hCall1, hCall2, have called into
             // the publisher
             validatorSubscribe1.reset();
@@ -192,26 +243,31 @@ void sipXtapiTestSuite::testPublishAndSubscribe(bool bCallContext,
             matchingNotify.pContent = "java ready";
             validatorSubscribe1.waitForNotifyEvent(&matchingNotify, true);
 
-            // hCall2 subscribes to the coffee publisher
-            rc = sipxCallSubscribe(hCall2, "coffee", "application/coffeeStuff", &hSub2_coffee, false);
-            CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == rc);
-            validatorSubscribe2.waitForSubStatusEvent(SIPX_SUBSCRIPTION_ACTIVE, SUBSCRIPTION_CAUSE_NORMAL, true);
+            if (!bCustomTransport)
+            {
+                // hCall2 subscribes to the coffee publisher
+                rc = sipxCallSubscribe(hCall2, "coffee", "application/coffeeStuff", &hSub2_coffee, false);
+                CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == rc);
+                validatorSubscribe2.waitForSubStatusEvent(SIPX_SUBSCRIPTION_ACTIVE, SUBSCRIPTION_CAUSE_NORMAL, true);
 
-            // hCall2 receives the initial "java ready" content
-            matchingNotify.hSub = hSub2_coffee;
-            validatorSubscribe2.waitForNotifyEvent(&matchingNotify, true);
-
+                // hCall2 receives the initial "java ready" content
+                matchingNotify.hSub = hSub2_coffee;
+                validatorSubscribe2.waitForNotifyEvent(&matchingNotify, true);
+            }
 
             // hCall1 subscribes to the lunch publisher
             rc = sipxCallSubscribe(hCall1, "lunch", "application/lunchStuff", &hSub1_lunch, false);
             CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == rc);
             validatorSubscribe1.waitForSubStatusEvent(SIPX_SUBSCRIPTION_ACTIVE, SUBSCRIPTION_CAUSE_NORMAL, true);
 
-            // hCall2 subscribes to the lunch publisher
-            rc = sipxCallSubscribe(hCall2, "lunch", "application/lunchStuff", &hSub2_lunch, false);
-            CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == rc);
-            validatorSubscribe2.waitForSubStatusEvent(SIPX_SUBSCRIPTION_ACTIVE, SUBSCRIPTION_CAUSE_NORMAL, true);
-
+            if (!bCustomTransport)
+            {
+                // hCall2 subscribes to the lunch publisher
+                rc = sipxCallSubscribe(hCall2, "lunch", "application/lunchStuff", &hSub2_lunch, false);
+                CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == rc);
+                validatorSubscribe2.waitForSubStatusEvent(SIPX_SUBSCRIPTION_ACTIVE, SUBSCRIPTION_CAUSE_NORMAL, true);
+            }
+            
             // hCall1 receives the initial "order up" content
             matchingNotify.hSub = hSub1_lunch;
             matchingNotify.nContentLength = 8;
@@ -219,10 +275,13 @@ void sipXtapiTestSuite::testPublishAndSubscribe(bool bCallContext,
             matchingNotify.pContent = "order up";
             validatorSubscribe1.waitForNotifyEvent(&matchingNotify, true);
 
-            // hCall2 receives the initial "order up content
-            matchingNotify.hSub = hSub2_lunch;
-            validatorSubscribe2.waitForNotifyEvent(&matchingNotify, true);
-
+            if (!bCustomTransport)
+            {
+                // hCall2 receives the initial "order up content
+                matchingNotify.hSub = hSub2_lunch;
+                validatorSubscribe2.waitForNotifyEvent(&matchingNotify, true);
+            }
+            
             // start percolating
             char szPercolatingContent[256];
             for (int i = 0; i < 20; i++)
@@ -237,9 +296,12 @@ void sipXtapiTestSuite::testPublishAndSubscribe(bool bCallContext,
                 matchingNotify.pContent = szPercolatingContent;
                 validatorSubscribe1.waitForNotifyEvent(&matchingNotify, true);
 
-                // hCall2 receives percolation content from the coffee publisher
-                matchingNotify.hSub = hSub2_coffee;
-                validatorSubscribe2.waitForNotifyEvent(&matchingNotify, true);
+                if (!bCustomTransport)
+                {
+                    // hCall2 receives percolation content from the coffee publisher
+                    matchingNotify.hSub = hSub2_coffee;
+                    validatorSubscribe2.waitForNotifyEvent(&matchingNotify, true);
+                }
             }
 
             // Destroy the coffee Publisher, with "out of order" content
@@ -258,15 +320,17 @@ void sipXtapiTestSuite::testPublishAndSubscribe(bool bCallContext,
             CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == rc);
             validatorSubscribe1.waitForSubStatusEvent(SIPX_SUBSCRIPTION_EXPIRED, SUBSCRIPTION_CAUSE_NORMAL, true);
 
-            // hCall1 receives the final "out of order" content from the coffee publisher
-            matchingNotify.hSub = hSub2_coffee;
-            validatorSubscribe2.waitForNotifyEvent(&matchingNotify, true);
-
-            // hCall2 Unsubscribes from the coffee publisher
-            rc = sipxCallUnsubscribe(hSub2_coffee);
-            CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == rc);
-            validatorSubscribe2.waitForSubStatusEvent(SIPX_SUBSCRIPTION_EXPIRED, SUBSCRIPTION_CAUSE_NORMAL, true);
-
+            // hCall2 receives the final "out of order" content from the coffee publisher
+            if (!bCustomTransport)
+            {
+                matchingNotify.hSub = hSub2_coffee;
+                validatorSubscribe2.waitForNotifyEvent(&matchingNotify, true);
+                // hCall2 Unsubscribes from the coffee publisher
+                rc = sipxCallUnsubscribe(hSub2_coffee);
+                CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == rc);
+                validatorSubscribe2.waitForSubStatusEvent(SIPX_SUBSCRIPTION_EXPIRED, SUBSCRIPTION_CAUSE_NORMAL, true);
+            }
+            
             // Destroy the lunch Publisher, with "check please" content
             rc = sipxPublisherDestroy(hPub_lunch, "application/lunchStuff", "check please", 12);
             CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == rc);
@@ -284,21 +348,24 @@ void sipXtapiTestSuite::testPublishAndSubscribe(bool bCallContext,
             CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == rc);
             validatorSubscribe1.waitForSubStatusEvent(SIPX_SUBSCRIPTION_EXPIRED, SUBSCRIPTION_CAUSE_NORMAL, true);
 
-            // hCall2 receives the final "check please" content from the lunch publisher
-            matchingNotify.hSub = hSub2_lunch;
-            validatorSubscribe2.waitForNotifyEvent(&matchingNotify, true);
+            if (!bCustomTransport)
+            {
+                // hCall2 receives the final "check please" content from the lunch publisher
+                matchingNotify.hSub = hSub2_lunch;
+                validatorSubscribe2.waitForNotifyEvent(&matchingNotify, true);
 
-            // hCall2 unsubscribes from the lunch publisher
-            rc = sipxConfigUnsubscribe(hSub2_lunch);
-            CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == rc);
-            validatorSubscribe2.waitForSubStatusEvent(SIPX_SUBSCRIPTION_EXPIRED, SUBSCRIPTION_CAUSE_NORMAL, true);
+                // hCall2 unsubscribes from the lunch publisher
+                rc = sipxConfigUnsubscribe(hSub2_lunch);
+                CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == rc);
+                validatorSubscribe2.waitForSubStatusEvent(SIPX_SUBSCRIPTION_EXPIRED, SUBSCRIPTION_CAUSE_NORMAL, true);
 
-            SIPX_CALL hTemp = hCall2;
-            sipxCallDestroy(hCall2);
-            validatorSubscribe2.waitForCallEvent(hLine3, hTemp, CALLSTATE_HELD, CALLSTATE_CAUSE_NORMAL, false);
-            validatorSubscribe2.waitForCallEvent(hLine3, hTemp, CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL, false);
-            validatorSubscribe2.waitForCallEvent(hLine3, hTemp, CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL, false);
-
+                hTemp = hCall2;
+                sipxCallDestroy(hCall2);
+                validatorSubscribe2.waitForCallEvent(hLine3, hTemp, CALLSTATE_HELD, CALLSTATE_CAUSE_NORMAL, false);
+                validatorSubscribe2.waitForCallEvent(hLine3, hTemp, CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL, false);
+                validatorSubscribe2.waitForCallEvent(hLine3, hTemp, CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL, false);
+            }
+            
             hTemp = hCall1;
             sipxCallDestroy(hCall1);
             validatorSubscribe1.waitForCallEvent(hLine2, hTemp, CALLSTATE_HELD, CALLSTATE_CAUSE_NORMAL, false);
@@ -317,7 +384,7 @@ void sipXtapiTestSuite::testPublishAndSubscribe(bool bCallContext,
         else
         {
             // Line2 subscribes to the coffee publisher
-            rc = sipxConfigSubscribe(g_hInst2, hLine2, "foo@127.0.0.1:8000", "coffee", "application/coffeeStuff", 1, &hSub1_coffee);
+            rc = sipxConfigSubscribe(g_hInst2, hLine2, publisherUrl1.data(), "coffee", "application/coffeeStuff", contactId, &hSub1_coffee);
             CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == rc);
             validatorSubscribe1.waitForSubStatusEvent(SIPX_SUBSCRIPTION_ACTIVE, SUBSCRIPTION_CAUSE_NORMAL, true);
 
@@ -329,25 +396,31 @@ void sipXtapiTestSuite::testPublishAndSubscribe(bool bCallContext,
             matchingNotify.pContent = "java ready";
             validatorSubscribe1.waitForNotifyEvent(&matchingNotify, true);
 
-            // Line3 subscribes to the coffee publisher
-            rc = sipxConfigSubscribe(g_hInst3, hLine3, "foo@127.0.0.1:8000", "coffee", "application/coffeeStuff", 1, &hSub2_coffee);
-            CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == rc);
-            validatorSubscribe2.waitForSubStatusEvent(SIPX_SUBSCRIPTION_ACTIVE, SUBSCRIPTION_CAUSE_NORMAL, true);
+            if (!bCustomTransport)
+            {
+                // Line3 subscribes to the coffee publisher
+                rc = sipxConfigSubscribe(g_hInst3, hLine3, publisherUrl1.data(), "coffee", "application/coffeeStuff", contactId, &hSub2_coffee);
+                CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == rc);
+                validatorSubscribe2.waitForSubStatusEvent(SIPX_SUBSCRIPTION_ACTIVE, SUBSCRIPTION_CAUSE_NORMAL, true);
 
-            // Line3 receives the initial "java ready" content
-            matchingNotify.hSub = hSub2_coffee;
-            validatorSubscribe2.waitForNotifyEvent(&matchingNotify, true);
-
+                // Line3 receives the initial "java ready" content
+                matchingNotify.hSub = hSub2_coffee;
+                validatorSubscribe2.waitForNotifyEvent(&matchingNotify, true);
+            }
+            
             // Line2 subscribes to the lunch publisher
-            rc = sipxConfigSubscribe(g_hInst2, hLine2, "foo@127.0.0.1:8000", "lunch", "application/lunchStuff", 1, &hSub1_lunch);
+            rc = sipxConfigSubscribe(g_hInst2, hLine2, publisherUrl1.data(), "lunch", "application/lunchStuff", contactId, &hSub1_lunch);
             CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == rc);
             validatorSubscribe1.waitForSubStatusEvent(SIPX_SUBSCRIPTION_ACTIVE, SUBSCRIPTION_CAUSE_NORMAL, true);
 
-            // Line3 subscribes to the lunch publisher
-            rc = sipxConfigSubscribe(g_hInst3, hLine3, "foo@127.0.0.1:8000", "lunch", "application/lunchStuff", 1, &hSub2_lunch);
-            CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == rc);
-            validatorSubscribe2.waitForSubStatusEvent(SIPX_SUBSCRIPTION_ACTIVE, SUBSCRIPTION_CAUSE_NORMAL, true);
-
+            if (!bCustomTransport)
+            {
+                // Line3 subscribes to the lunch publisher
+                rc = sipxConfigSubscribe(g_hInst3, hLine3, publisherUrl1.data(), "lunch", "application/lunchStuff", contactId, &hSub2_lunch);
+                CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == rc);
+                validatorSubscribe2.waitForSubStatusEvent(SIPX_SUBSCRIPTION_ACTIVE, SUBSCRIPTION_CAUSE_NORMAL, true);
+            }
+            
             // Line2 receives the initial "order up" content
             matchingNotify.hSub = hSub1_lunch;
             matchingNotify.nContentLength = 8;
@@ -355,10 +428,12 @@ void sipXtapiTestSuite::testPublishAndSubscribe(bool bCallContext,
             matchingNotify.pContent = "order up";
             validatorSubscribe1.waitForNotifyEvent(&matchingNotify, true);
 
-            // Line3 receives the initial "order up content
-            matchingNotify.hSub = hSub2_lunch;
-            validatorSubscribe2.waitForNotifyEvent(&matchingNotify, true);
-            
+            if (!bCustomTransport)
+            {
+                // Line3 receives the initial "order up content
+                matchingNotify.hSub = hSub2_lunch;
+                validatorSubscribe2.waitForNotifyEvent(&matchingNotify, true);
+            }            
 
             // start percolating
             char szPercolatingContent[256];
@@ -374,9 +449,12 @@ void sipXtapiTestSuite::testPublishAndSubscribe(bool bCallContext,
                 matchingNotify.pContent = szPercolatingContent;
                 validatorSubscribe1.waitForNotifyEvent(&matchingNotify, true);
 
-                // hCall2 receives percolation content from the coffee publisher
-                matchingNotify.hSub = hSub2_coffee;
-                validatorSubscribe2.waitForNotifyEvent(&matchingNotify, true);
+                if (!bCustomTransport)
+                {
+                    // hCall2 receives percolation content from the coffee publisher
+                    matchingNotify.hSub = hSub2_coffee;
+                    validatorSubscribe2.waitForNotifyEvent(&matchingNotify, true);
+                }
             }
 
             // Destroy the coffee Publisher, with "out of order" content
@@ -395,15 +473,17 @@ void sipXtapiTestSuite::testPublishAndSubscribe(bool bCallContext,
             CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == rc);
             validatorSubscribe1.waitForSubStatusEvent(SIPX_SUBSCRIPTION_EXPIRED, SUBSCRIPTION_CAUSE_NORMAL, true);
 
-            // Line2 receives the final "out of order" content from the coffee publisher
-            matchingNotify.hSub = hSub2_coffee;
-            validatorSubscribe2.waitForNotifyEvent(&matchingNotify, true);
-
-            // Line3 Unsubscribes from the coffee publisher
-            rc = sipxConfigUnsubscribe(hSub2_coffee);
-            CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == rc);
-            validatorSubscribe2.waitForSubStatusEvent(SIPX_SUBSCRIPTION_EXPIRED, SUBSCRIPTION_CAUSE_NORMAL, true);
-
+            if (!bCustomTransport)
+            {
+                // Line3 receives the final "out of order" content from the coffee publisher
+                matchingNotify.hSub = hSub2_coffee;
+                validatorSubscribe2.waitForNotifyEvent(&matchingNotify, true);
+                // Line3 Unsubscribes from the coffee publisher
+                rc = sipxConfigUnsubscribe(hSub2_coffee);
+                CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == rc);
+                validatorSubscribe2.waitForSubStatusEvent(SIPX_SUBSCRIPTION_EXPIRED, SUBSCRIPTION_CAUSE_NORMAL, true);
+            }
+            
             // Destroy the lunch Publisher, with "check please" content
             rc = sipxPublisherDestroy(hPub_lunch, "application/lunchStuff", "check please", 12);
             CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == rc);
@@ -422,15 +502,17 @@ void sipXtapiTestSuite::testPublishAndSubscribe(bool bCallContext,
             CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == rc);
             validatorSubscribe1.waitForSubStatusEvent(SIPX_SUBSCRIPTION_EXPIRED, SUBSCRIPTION_CAUSE_NORMAL, true);
 
-            // LiNE3 receives the final "check please" content from the lunch publisher
-            matchingNotify.hSub = hSub2_lunch;
-            validatorSubscribe2.waitForNotifyEvent(&matchingNotify, true);
+            if (!bCustomTransport)
+            {
+                // LiNE3 receives the final "check please" content from the lunch publisher
+                matchingNotify.hSub = hSub2_lunch;
+                validatorSubscribe2.waitForNotifyEvent(&matchingNotify, true);
 
-            // Line3 unsubscribes from the lunch publisher
-            rc = sipxConfigUnsubscribe(hSub2_lunch);
-            CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == rc);
-            validatorSubscribe2.waitForSubStatusEvent(SIPX_SUBSCRIPTION_EXPIRED, SUBSCRIPTION_CAUSE_NORMAL, true);
-
+                // Line3 unsubscribes from the lunch publisher
+                rc = sipxConfigUnsubscribe(hSub2_lunch);
+                CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == rc);
+                validatorSubscribe2.waitForSubStatusEvent(SIPX_SUBSCRIPTION_EXPIRED, SUBSCRIPTION_CAUSE_NORMAL, true);
+            }
         }
         rc = sipxLineRemove(hLine);
         CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == rc);
@@ -440,6 +522,14 @@ void sipXtapiTestSuite::testPublishAndSubscribe(bool bCallContext,
 
         rc = sipxLineRemove(hLine3);
         CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == rc);
+        
+        if (bCustomTransport)
+        {
+            sipxConfigExternalTransportRemove(ghTransport1);
+            sipxConfigExternalTransportRemove(ghTransport2);
+            delete pTask1;
+            delete pTask2;
+        }
 
         sipxEventListenerRemove(g_hInst, UniversalEventValidatorCallback, &validatorPublish) ;
         sipxEventListenerRemove(g_hInst2, UniversalEventValidatorCallback, &validatorSubscribe1) ;

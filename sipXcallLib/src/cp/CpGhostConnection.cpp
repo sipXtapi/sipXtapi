@@ -77,7 +77,8 @@ UtlBoolean CpGhostConnection::dial(const char* dialString,
                                    const char* locationHeader,
                                    const int bandWidth,
                                    UtlBoolean bOnHold,
-                                   const char* originalCallId)
+                                   const char* originalCallId,
+                                   const SIPX_RTP_TRANSPORT rtpTransportOptions)
 {
     unimplemented("CpGhostConnection::dial");
     return(FALSE);

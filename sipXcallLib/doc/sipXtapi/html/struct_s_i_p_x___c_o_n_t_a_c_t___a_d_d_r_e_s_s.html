@@ -50,18 +50,21 @@ The CONTACT_ADDRESS structure includes contact information (ip and port), addres
 <tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_s_i_p_x___c_o_n_t_a_c_t___a_d_d_r_e_s_s.html#e71d8071f6a6539a4a29ce7d7b8f2f49">cInterface</a> [32]</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Source interface.  <a href="#e71d8071f6a6539a4a29ce7d7b8f2f49"></a><br></td></tr>
-<tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_s_i_p_x___c_o_n_t_a_c_t___a_d_d_r_e_s_s.html#b99999ad8477f0d66eb7cc579d2caae2">cIpAddress</a> [32]</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_s_i_p_x___c_o_n_t_a_c_t___a_d_d_r_e_s_s.html#5557370e89ec1f0f271b75b7c69a6a00">cIpAddress</a> [28]</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">IP Address.  <a href="#b99999ad8477f0d66eb7cc579d2caae2"></a><br></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">IP Address.  <a href="#5557370e89ec1f0f271b75b7c69a6a00"></a><br></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_s_i_p_x___c_o_n_t_a_c_t___a_d_d_r_e_s_s.html#dd068bbc85e9e75db5c7d0ead6703188">cbSize</a></td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Size of structure.  <a href="#dd068bbc85e9e75db5c7d0ead6703188"></a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_s_i_p_x___c_o_n_t_a_c_t___a_d_d_r_e_s_s.html#59aad52f0b9c7bbc210149f9a72e2371">iPort</a></td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Port.  <a href="#59aad52f0b9c7bbc210149f9a72e2371"></a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_s_i_p_x___c_o_n_t_a_c_t___a_d_d_r_e_s_s.html#ff90b1a55b94a22c6827cc4d8469422e">cCustomTransportName</a> [32]</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Custom transport name.  <a href="#ff90b1a55b94a22c6827cc4d8469422e"></a><br></td></tr>
-<tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="anchor" name="e37b9ef9f3fbb7584bda7aa823eadc76"></a><!-- doxytag: member="SIPX_CONTACT_ADDRESS::cCustomRouteID" ref="e37b9ef9f3fbb7584bda7aa823eadc76" args="[64]" -->
-char&nbsp;</td><td class="memItemRight" valign="bottom"><b>cCustomRouteID</b> [64]</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_s_i_p_x___c_o_n_t_a_c_t___a_d_d_r_e_s_s.html#e37b9ef9f3fbb7584bda7aa823eadc76">cCustomRouteID</a> [64]</td></tr>
 
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Custom transport routing tag.  <a href="#e37b9ef9f3fbb7584bda7aa823eadc76"></a><br></td></tr>
 </table>
 <hr><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" name="10f2c2aac2b979b409e9bbee81be32d3"></a><!-- doxytag: member="SIPX_CONTACT_ADDRESS::SIPX_CONTACT_ADDRESS" ref="10f2c2aac2b979b409e9bbee81be32d3" args="()" -->
@@ -131,6 +134,40 @@ Assignment operator.
 </div>
 </div><p>
 <hr><h2>Field Documentation</h2>
+<a class="anchor" name="dd068bbc85e9e75db5c7d0ead6703188"></a><!-- doxytag: member="SIPX_CONTACT_ADDRESS::cbSize" ref="dd068bbc85e9e75db5c7d0ead6703188" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int <a class="el" href="struct_s_i_p_x___c_o_n_t_a_c_t___a_d_d_r_e_s_s.html#dd068bbc85e9e75db5c7d0ead6703188">SIPX_CONTACT_ADDRESS::cbSize</a>          </td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>
+Size of structure. 
+<p>
+
+</div>
+</div><p>
+<a class="anchor" name="e37b9ef9f3fbb7584bda7aa823eadc76"></a><!-- doxytag: member="SIPX_CONTACT_ADDRESS::cCustomRouteID" ref="e37b9ef9f3fbb7584bda7aa823eadc76" args="[64]" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char <a class="el" href="struct_s_i_p_x___c_o_n_t_a_c_t___a_d_d_r_e_s_s.html#e37b9ef9f3fbb7584bda7aa823eadc76">SIPX_CONTACT_ADDRESS::cCustomRouteID</a>[64]          </td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>
+Custom transport routing tag. 
+<p>
+
+</div>
+</div><p>
 <a class="anchor" name="ff90b1a55b94a22c6827cc4d8469422e"></a><!-- doxytag: member="SIPX_CONTACT_ADDRESS::cCustomTransportName" ref="ff90b1a55b94a22c6827cc4d8469422e" args="[32]" -->
 <div class="memitem">
 <div class="memproto">
@@ -165,12 +202,12 @@ Source interface.
 
 </div>
 </div><p>
-<a class="anchor" name="b99999ad8477f0d66eb7cc579d2caae2"></a><!-- doxytag: member="SIPX_CONTACT_ADDRESS::cIpAddress" ref="b99999ad8477f0d66eb7cc579d2caae2" args="[32]" -->
+<a class="anchor" name="5557370e89ec1f0f271b75b7c69a6a00"></a><!-- doxytag: member="SIPX_CONTACT_ADDRESS::cIpAddress" ref="5557370e89ec1f0f271b75b7c69a6a00" args="[28]" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">char <a class="el" href="struct_s_i_p_x___c_o_n_t_a_c_t___a_d_d_r_e_s_s.html#b99999ad8477f0d66eb7cc579d2caae2">SIPX_CONTACT_ADDRESS::cIpAddress</a>[32]          </td>
+          <td class="memname">char <a class="el" href="struct_s_i_p_x___c_o_n_t_a_c_t___a_d_d_r_e_s_s.html#5557370e89ec1f0f271b75b7c69a6a00">SIPX_CONTACT_ADDRESS::cIpAddress</a>[28]          </td>
         </tr>
       </table>
 </div>
@@ -252,7 +289,7 @@ Port.
 </div><p>
 <hr>The documentation for this struct was generated from the following file:<ul>
 <li><a class="el" href="sip_xtapi_8h-source.html">sipXtapi.h</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Wed Aug 23 11:37:46 2006 for sipXtapi: SipX TAPI-like API for Call Processing by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Thu Aug 24 15:00:05 2006 for sipXtapi: SipX TAPI-like API for Call Processing by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.7 </small></address>
 </body>

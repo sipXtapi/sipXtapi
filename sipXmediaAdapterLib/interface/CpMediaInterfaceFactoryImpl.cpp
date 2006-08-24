@@ -15,6 +15,7 @@
 #include "mi/CpMediaInterfaceFactoryImpl.h"
 #include "os/OsLock.h"
 #include "os/OsDatagramSocket.h"
+#include "os/OsServerSocket.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -160,9 +161,20 @@ bool CpMediaInterfaceFactoryImpl::isPortBusy(int iPort, int checkTimeMS)
             {
                 bBusy = true ;
             }
-
             pSocket->close() ;
             delete pSocket ;
+        }
+        
+        // also check TCP port availability
+        OsServerSocket* pTcpSocket = new OsServerSocket(64, iPort, 0, 1);
+        if (pTcpSocket != NULL)
+        {
+            if (!pTcpSocket->isOk())
+            {
+                bBusy = true;
+            }
+            pTcpSocket->close();
+            delete pTcpSocket;
         }
     }
 

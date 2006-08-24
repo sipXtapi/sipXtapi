@@ -15,6 +15,9 @@
 // APPLICATION INCLUDES
 #include "utl/UtlDefs.h"
 #include "utl/UtlSListIterator.h"
+#include "os/OsSocket.h"
+#include "os/OsNatConnectionSocket.h"
+#include <tapi/sipXtapiEvents.h>
 
 #include <net/HttpBody.h>
 #include <net/NameValuePair.h>
@@ -53,6 +56,7 @@ typedef struct SdpSrtpParameters
     int securityLevel;
     unsigned char masterKey[SRTP_KEY_LENGTH+1];
 } SdpSrtpParameters;
+
 
 // FORWARD DECLARATIONS
 class SdpCodecFactory;
@@ -161,6 +165,10 @@ class SdpBody : public HttpBody
                    unsigned long ntpEndTime = 0
                    );
 
+   // set all media attributes to either a=setup:actpass, a=setup:active, or a=setup:passive
+   void setRtpTcpRole(RtpTcpRoles role);                   
+   UtlString getRtpTcpRole();
+
 ///@}
 
 /**
@@ -173,7 +181,7 @@ class SdpBody : public HttpBody
 
    /// Create a set of media codec and address entries
    void addAudioCodecs(int iNumAddresses,
-                       UtlString hostAddresses[],
+                       UtlString mediaAddresses[],
                        int rtpAudioPorts[],
                        int rtcpAudioPorts[],
                        int rtpVideoPorts[],
@@ -182,7 +190,8 @@ class SdpBody : public HttpBody
                        SdpCodec* rtpCodecs[],
                        SdpSrtpParameters& srtpParams,
                        int videoBandwidth,
-                       int videoFramerate
+                       int videoFramerate,
+                       OsSocket::SocketProtocolTypes transportType = OsSocket::UDP
                        );
 
    /**<
@@ -192,7 +201,7 @@ class SdpBody : public HttpBody
 
    /// Create a response to a set of media codec and address entries.
    void addAudioCodecs(int iNumAddresses,
-                       UtlString hostAddresses[],
+                       UtlString mediaAddresses[],
                        int rtpAudioPorts[],
                        int rtcpAudioPorts[],
                        int rtpVideoPorts[],
@@ -202,8 +211,8 @@ class SdpBody : public HttpBody
                        SdpSrtpParameters& srtpParams,
                        int videoBandwidth,
                        int videoFramerate,
-                       const SdpBody* sdpRequest ///< Sdp we are responding to
-                       );
+                       const SdpBody* sdpRequest, ///< Sdp we are responding to
+                       OsSocket::SocketProtocolTypes transportType);
    /**<
     * This method is for building a SdpBody which is in response
     * to a SdpBody send from the other side
@@ -231,7 +240,7 @@ class SdpBody : public HttpBody
                            );
 
    /// Set address.
-   void addAddressData(const char* ipAddress /**< for IP4 this is of the format:
+   void addConnectionAddress(const char* ipAddress /**< for IP4 this is of the format:
                                               * nnn.nnn.nnn.nnn where nnn is 0 to 255 */
                        );
     /**<
@@ -239,7 +248,7 @@ class SdpBody : public HttpBody
      * after addAddressData.
      */
 
-   void addAddressData(const char* networkType, ///< network type - should be "IN"
+   void addConnectionAddress(const char* networkType, ///< network type - should be "IN"
                        const char* addressType, ///< address type - should be "IP4"
                        const char* ipAddress    ///< IP address
                        );
@@ -301,6 +310,11 @@ class SdpBody : public HttpBody
                            int* numPayloadTypes,
                            int payloadTypes[]) const;
 
+   /// Inspects whether the given transport type and media type combination is specified 
+   /// as an m-line in the sdp
+   const bool isTransportAvailable(const OsSocket::SocketProtocolTypes protocol,
+                                   const SIPX_MEDIA_TYPE mediaType) const;
+                                   
    /// Read whether the media network type is IP4 or IP6.
    UtlBoolean getMediaNetworkType(int mediaIndex, ///< which media description set to read
                                   UtlString* networkType) const;

@@ -26,6 +26,8 @@
 #include "sipXmgr.h"
 #include "sipXezPhoneApp.h"
 
+
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 extern sipXezPhoneApp* thePhoneApp;

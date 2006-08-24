@@ -39,6 +39,9 @@ Figure 2: Event flows for an outbound call (placed call)
 <a href="sip_xtapi_events_8h-source.html">Go to the source code of this file.</a><table border="0" cellpadding="0" cellspacing="0">
 <tr><td></td></tr>
 <tr><td colspan="2"><br><h2>Data Structures</h2></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_s_i_p_x___k_e_e_p_a_l_i_v_e___i_n_f_o.html">SIPX_KEEPALIVE_INFO</a></td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Keepalive event information structure.  <a href="struct_s_i_p_x___k_e_e_p_a_l_i_v_e___i_n_f_o.html#_details">More...</a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_s_i_p_x___m_e_d_i_a___i_n_f_o.html">SIPX_MEDIA_INFO</a></td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Media event information structure.  <a href="struct_s_i_p_x___m_e_d_i_a___i_n_f_o.html#_details">More...</a><br></td></tr>
@@ -71,7 +74,7 @@ Figure 2: Event flows for an outbound call (placed call)
 #define&nbsp;</td><td class="memItemRight" valign="bottom"><b>SIPX_CALLING_CONVENTION</b></td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="anchor" name="c0774afa7db344c204b2d9c86f19a539"></a><!-- doxytag: member="sipXtapiEvents.h::VALID_SIPX_EVENT_CATEGORY" ref="c0774afa7db344c204b2d9c86f19a539" args="(x)" -->
-#define&nbsp;</td><td class="memItemRight" valign="bottom"><b>VALID_SIPX_EVENT_CATEGORY</b>(x)&nbsp;&nbsp;&nbsp;(((x) &gt;= EVENT_CATEGORY_CALLSTATE) &amp;&amp; ((x) &lt;= EVENT_CATEGORY_MEDIA))</td></tr>
+#define&nbsp;</td><td class="memItemRight" valign="bottom"><b>VALID_SIPX_EVENT_CATEGORY</b>(x)&nbsp;&nbsp;&nbsp;(((x) &gt;= EVENT_CATEGORY_CALLSTATE) &amp;&amp; ((x) &lt;= EVENT_CATEGORY_KEEPALIVE))</td></tr>
 
 <tr><td colspan="2"><br><h2>Typedefs</h2></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">typedef bool(SIPX_CALLING_CONVENTION *)&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_events_8h.html#ba116838c632eebc14fd3d1209dafbbb">SIPX_EVENT_CALLBACK_PROC</a> (<a class="el" href="sip_xtapi_events_8h.html#9af24b60ca3d9db0ddb0bd9b7ae6f980">SIPX_EVENT_CATEGORY</a> category, void *pInfo, void *pUserData)</td></tr>
@@ -89,7 +92,8 @@ Figure 2: Event flows for an outbound call (placed call)
 <a class="el" href="sip_xtapi_events_8h.html#9af24b60ca3d9db0ddb0bd9b7ae6f980fbdf29af1eed74b88b7e207039194179">EVENT_CATEGORY_CONFIG</a>, 
 <a class="el" href="sip_xtapi_events_8h.html#9af24b60ca3d9db0ddb0bd9b7ae6f9807ff127161a7e114c9d4ef9043cc11164">EVENT_CATEGORY_SECURITY</a>, 
 <br>
-&nbsp;&nbsp;<a class="el" href="sip_xtapi_events_8h.html#9af24b60ca3d9db0ddb0bd9b7ae6f980728b89b33c5dde7eaba7954e6b296969">EVENT_CATEGORY_MEDIA</a>
+&nbsp;&nbsp;<a class="el" href="sip_xtapi_events_8h.html#9af24b60ca3d9db0ddb0bd9b7ae6f980728b89b33c5dde7eaba7954e6b296969">EVENT_CATEGORY_MEDIA</a>, 
+<a class="el" href="sip_xtapi_events_8h.html#9af24b60ca3d9db0ddb0bd9b7ae6f980c5c40bb9a45499a2437ed581a7ec58e9">EVENT_CATEGORY_KEEPALIVE</a>
 <br>
  }</td></tr>
 
@@ -144,7 +148,16 @@ Figure 2: Event flows for an outbound call (placed call)
 <br>
 &nbsp;&nbsp;<a class="el" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4e8cdfabd0909464f9ebb39b86f78a27c">CALLSTATE_CAUSE_REMOTE_SMIME_UNSUPPORTED</a>, 
 <a class="el" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f48574e55ff085f3b27fc7dfd18a14ded0">CALLSTATE_CAUSE_SMIME_FAILURE</a>, 
-<a class="el" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4a318fbabf37e3db9548100aa2dca2fac">CALLSTATE_CAUSE_SHUTDOWN</a>
+<a class="el" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4a318fbabf37e3db9548100aa2dca2fac">CALLSTATE_CAUSE_SHUTDOWN</a>, 
+<a class="el" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4f57b3a19f9b6e3100ef072a568057a04">CALLSTATE_CAUSE_BAD_REFER</a>, 
+<br>
+&nbsp;&nbsp;<a class="el" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4adce3b312fd56057e53c1422131402a7">CALLSTATE_CAUSE_NO_KNOWN_INVITE</a>, 
+<a class="el" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f4a44281a9ada57ac15ee2da49df49be1a">CALLSTATE_CAUSE_BYE_DURING_IDLE</a>, 
+<a class="el" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f487eadcc8efdfc42e1e4be4b16bd9f1dc">CALLSTATE_CAUSE_UNKNOWN_STATUS_CODE</a>, 
+<a class="el" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f42a4ba64bc9ac55213024e41a89471fe0">CALLSTATE_CAUSE_BAD_REDIRECT</a>, 
+<br>
+&nbsp;&nbsp;<a class="el" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f44da25fda406b5ad3b0bfa14b76ece885">CALLSTATE_CAUSE_TRANSACTION_DOES_NOT_EXIST</a>, 
+<a class="el" href="sip_xtapi_events_8h.html#747e03fcb580314fb9d33d42d74a88f436923438f823560b4d04ea98aebdbf93">CALLSTATE_CAUSE_CANCEL</a>
 <br>
  }</td></tr>
 
@@ -251,6 +264,17 @@ Figure 2: Event flows for an outbound call (placed call)
  }</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Enumeration of possible media events.  <a href="sip_xtapi_events_8h.html#80e44b98a28235387cf02104765962c1">More...</a><br></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_events_8h.html#f840536ebb56b468b32473c6d05f5606">SIPX_KEEPALIVE_EVENT</a> { <a class="el" href="sip_xtapi_events_8h.html#f840536ebb56b468b32473c6d05f560687de2a7fc251adf05a096fb8d584d989">KEEPALIVE_START</a>, 
+<a class="el" href="sip_xtapi_events_8h.html#f840536ebb56b468b32473c6d05f56063d3fb6498b6b067dc0ca9bfd68853903">KEEPALIVE_FEEDBACK</a>, 
+<a class="el" href="sip_xtapi_events_8h.html#f840536ebb56b468b32473c6d05f5606812b960cae190cc5498feb666d79c064">KEEPALIVE_FAILURE</a>, 
+<a class="el" href="sip_xtapi_events_8h.html#f840536ebb56b468b32473c6d05f560659f551010e9781230691191bd2a4c61c">KEEPALIVE_STOP</a>
+ }</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Enumeration of possible KEEPALIVE events (EVENT_CATEGORY_KEEPALIVE).  <a href="sip_xtapi_events_8h.html#f840536ebb56b468b32473c6d05f5606">More...</a><br></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_events_8h.html#6a2277508d8cb2aafa80950a92d17f90">SIPX_KEEPALIVE_CAUSE</a> { <b>KEEPALIVE_CAUSE_NORMAL</b>
+ }</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Enumeration of possible KEEPALIVE cause codes (EVENT_CATEGORY_KEEPALIVE).  <a href="sip_xtapi_events_8h.html#6a2277508d8cb2aafa80950a92d17f90">More...</a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc9">SIPX_MEDIA_CAUSE</a> { <br>
 &nbsp;&nbsp;<a class="el" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc9027909293251977c4863e64afd1375d7">MEDIA_CAUSE_NORMAL</a>, 
 <a class="el" href="sip_xtapi_events_8h.html#0f821260d683c1e2252411fab3352bc90c496853eb2118398a826df96ecc8ae5">MEDIA_CAUSE_HOLD</a>, 
@@ -453,6 +477,20 @@ Fired if a local S/MIME operation failed.
 For more information, applications should process the SECURITY event. </td></tr>
 <tr><td valign="top"><em><a class="anchor" name="747e03fcb580314fb9d33d42d74a88f4a318fbabf37e3db9548100aa2dca2fac"></a><!-- doxytag: member="CALLSTATE_CAUSE_SHUTDOWN" ref="747e03fcb580314fb9d33d42d74a88f4a318fbabf37e3db9548100aa2dca2fac" args="" -->CALLSTATE_CAUSE_SHUTDOWN</em>&nbsp;</td><td>
 The even was fired as part of sipXtapi shutdown. </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="747e03fcb580314fb9d33d42d74a88f4f57b3a19f9b6e3100ef072a568057a04"></a><!-- doxytag: member="CALLSTATE_CAUSE_BAD_REFER" ref="747e03fcb580314fb9d33d42d74a88f4f57b3a19f9b6e3100ef072a568057a04" args="" -->CALLSTATE_CAUSE_BAD_REFER</em>&nbsp;</td><td>
+An unusable refer was sent to this user-agent. </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="747e03fcb580314fb9d33d42d74a88f4adce3b312fd56057e53c1422131402a7"></a><!-- doxytag: member="CALLSTATE_CAUSE_NO_KNOWN_INVITE" ref="747e03fcb580314fb9d33d42d74a88f4adce3b312fd56057e53c1422131402a7" args="" -->CALLSTATE_CAUSE_NO_KNOWN_INVITE</em>&nbsp;</td><td>
+This user-agent received a request or response, but there is no known matching invite. </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="747e03fcb580314fb9d33d42d74a88f4a44281a9ada57ac15ee2da49df49be1a"></a><!-- doxytag: member="CALLSTATE_CAUSE_BYE_DURING_IDLE" ref="747e03fcb580314fb9d33d42d74a88f4a44281a9ada57ac15ee2da49df49be1a" args="" -->CALLSTATE_CAUSE_BYE_DURING_IDLE</em>&nbsp;</td><td>
+A BYE message was received, however, the call is in in an idle state. </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="747e03fcb580314fb9d33d42d74a88f487eadcc8efdfc42e1e4be4b16bd9f1dc"></a><!-- doxytag: member="CALLSTATE_CAUSE_UNKNOWN_STATUS_CODE" ref="747e03fcb580314fb9d33d42d74a88f487eadcc8efdfc42e1e4be4b16bd9f1dc" args="" -->CALLSTATE_CAUSE_UNKNOWN_STATUS_CODE</em>&nbsp;</td><td>
+A response was received with an unknown status code. </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="747e03fcb580314fb9d33d42d74a88f42a4ba64bc9ac55213024e41a89471fe0"></a><!-- doxytag: member="CALLSTATE_CAUSE_BAD_REDIRECT" ref="747e03fcb580314fb9d33d42d74a88f42a4ba64bc9ac55213024e41a89471fe0" args="" -->CALLSTATE_CAUSE_BAD_REDIRECT</em>&nbsp;</td><td>
+Receive a redirect with NO contact or a RANDOM redirect. </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="747e03fcb580314fb9d33d42d74a88f44da25fda406b5ad3b0bfa14b76ece885"></a><!-- doxytag: member="CALLSTATE_CAUSE_TRANSACTION_DOES_NOT_EXIST" ref="747e03fcb580314fb9d33d42d74a88f44da25fda406b5ad3b0bfa14b76ece885" args="" -->CALLSTATE_CAUSE_TRANSACTION_DOES_NOT_EXIST</em>&nbsp;</td><td>
+No such transaction; Accepting or Rejecting a call that is part of a transfer. </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="747e03fcb580314fb9d33d42d74a88f436923438f823560b4d04ea98aebdbf93"></a><!-- doxytag: member="CALLSTATE_CAUSE_CANCEL" ref="747e03fcb580314fb9d33d42d74a88f436923438f823560b4d04ea98aebdbf93" args="" -->CALLSTATE_CAUSE_CANCEL</em>&nbsp;</td><td>
+The event was fired in response to a cancel attempt from the remote party. </td></tr>
 </table>
 </dl>
 
@@ -611,6 +649,11 @@ SECURITY events signify occurences in call security processing.
 These events are only sent when using S/MIME or TLS. </td></tr>
 <tr><td valign="top"><em><a class="anchor" name="9af24b60ca3d9db0ddb0bd9b7ae6f980728b89b33c5dde7eaba7954e6b296969"></a><!-- doxytag: member="EVENT_CATEGORY_MEDIA" ref="9af24b60ca3d9db0ddb0bd9b7ae6f980728b89b33c5dde7eaba7954e6b296969" args="" -->EVENT_CATEGORY_MEDIA</em>&nbsp;</td><td>
 MEDIA events signify changes in the audio state for sipXtapi or a particular call. </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="9af24b60ca3d9db0ddb0bd9b7ae6f980c5c40bb9a45499a2437ed581a7ec58e9"></a><!-- doxytag: member="EVENT_CATEGORY_KEEPALIVE" ref="9af24b60ca3d9db0ddb0bd9b7ae6f980c5c40bb9a45499a2437ed581a7ec58e9" args="" -->EVENT_CATEGORY_KEEPALIVE</em>&nbsp;</td><td>
+KEEPALIVE events signal when a keepalive is started/stopped/fails. 
+<p>
+A feedback event will report back your NAT-mapped IP address in some cases.<dl compact><dt><b>See also:</b></dt><dd><a class="el" href="sip_xtapi_8h.html#e0ec6fef9f1c9f64c6e40d5287708858">SIPX_KEEPALIVE_TYPE</a> for more information. </dd></dl>
+</td></tr>
 </table>
 </dl>
 
@@ -638,6 +681,58 @@ This is the initial value for an INFOSTATUS event. </td></tr>
 This event is fired if a response is received after an INFO message has been sent. </td></tr>
 <tr><td valign="top"><em><a class="anchor" name="3e3d6afbf3c80b7d53448dce6f3eea9c818144e74884dedf1eb3b1eebbad7979"></a><!-- doxytag: member="INFOSTATUS_NETWORK_ERROR" ref="3e3d6afbf3c80b7d53448dce6f3eea9c818144e74884dedf1eb3b1eebbad7979" args="" -->INFOSTATUS_NETWORK_ERROR</em>&nbsp;</td><td>
 This event is fired in case a network error was encountered while trying to send an INFO event. </td></tr>
+</table>
+</dl>
+
+</div>
+</div><p>
+<a class="anchor" name="6a2277508d8cb2aafa80950a92d17f90"></a><!-- doxytag: member="sipXtapiEvents.h::SIPX_KEEPALIVE_CAUSE" ref="6a2277508d8cb2aafa80950a92d17f90" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="sip_xtapi_events_8h.html#6a2277508d8cb2aafa80950a92d17f90">SIPX_KEEPALIVE_CAUSE</a>          </td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>
+Enumeration of possible KEEPALIVE cause codes (EVENT_CATEGORY_KEEPALIVE). 
+<p>
+
+</div>
+</div><p>
+<a class="anchor" name="f840536ebb56b468b32473c6d05f5606"></a><!-- doxytag: member="sipXtapiEvents.h::SIPX_KEEPALIVE_EVENT" ref="f840536ebb56b468b32473c6d05f5606" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="sip_xtapi_events_8h.html#f840536ebb56b468b32473c6d05f5606">SIPX_KEEPALIVE_EVENT</a>          </td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>
+Enumeration of possible KEEPALIVE events (EVENT_CATEGORY_KEEPALIVE). 
+<p>
+<dl compact><dt><b>Enumerator: </b></dt><dd>
+<table border="0" cellspacing="2" cellpadding="0">
+<tr><td valign="top"><em><a class="anchor" name="f840536ebb56b468b32473c6d05f560687de2a7fc251adf05a096fb8d584d989"></a><!-- doxytag: member="KEEPALIVE_START" ref="f840536ebb56b468b32473c6d05f560687de2a7fc251adf05a096fb8d584d989" args="" -->KEEPALIVE_START</em>&nbsp;</td><td>
+A keepalive attempt has been started. 
+<p>
+The developer is responsible for stopping all keepalives. In some cases, keepalives will be automatically stopped -- however do not rely on that. </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="f840536ebb56b468b32473c6d05f56063d3fb6498b6b067dc0ca9bfd68853903"></a><!-- doxytag: member="KEEPALIVE_FEEDBACK" ref="f840536ebb56b468b32473c6d05f56063d3fb6498b6b067dc0ca9bfd68853903" args="" -->KEEPALIVE_FEEDBACK</em>&nbsp;</td><td>
+The keepalive process has obtained information regarding your NAT mapped address (or local address). 
+<p>
+Feedback events are sent with the mapped address from a STUN transaction or the rport results from a SIP transaction. </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="f840536ebb56b468b32473c6d05f5606812b960cae190cc5498feb666d79c064"></a><!-- doxytag: member="KEEPALIVE_FAILURE" ref="f840536ebb56b468b32473c6d05f5606812b960cae190cc5498feb666d79c064" args="" -->KEEPALIVE_FAILURE</em>&nbsp;</td><td>
+FAILURE events are only fired when the physical send fails. 
+<p>
+The application developer should stop the keepalive or can monitor the keepalive until the condition changes (lack of failure or feedback event). </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="f840536ebb56b468b32473c6d05f560659f551010e9781230691191bd2a4c61c"></a><!-- doxytag: member="KEEPALIVE_STOP" ref="f840536ebb56b468b32473c6d05f560659f551010e9781230691191bd2a4c61c" args="" -->KEEPALIVE_STOP</em>&nbsp;</td><td>
+A keepalive process has been stopped. </td></tr>
 </table>
 </dl>
 
@@ -1682,7 +1777,7 @@ This is generally used for debugging.<p>
 
 </div>
 </div><p>
-<hr size="1"><address style="align: right;"><small>Generated on Wed Aug 23 11:37:45 2006 for sipXtapi: SipX TAPI-like API for Call Processing by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Thu Aug 24 15:00:04 2006 for sipXtapi: SipX TAPI-like API for Call Processing by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.7 </small></address>
 </body>

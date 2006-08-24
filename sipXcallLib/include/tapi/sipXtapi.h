@@ -155,7 +155,7 @@ typedef enum SPEAKER_TYPE
  *           GSM     13 kbps, 20 ms frame size
  *           G729    8 Kbps, 10ms frame size
  * Variable: ISAC    variable bitrate
- * <pre>
+ * </pre>
  */
 typedef enum SIPX_AUDIO_BANDWIDTH_ID
 {
@@ -537,7 +537,6 @@ struct SIPX_VIDEO_DISPLAY
 #endif              
         }
     }
-    
 	/** Copy constructor */
     SIPX_VIDEO_DISPLAY(const SIPX_VIDEO_DISPLAY& ref)
     {
@@ -551,7 +550,6 @@ struct SIPX_VIDEO_DISPLAY
         copy(ref);
         return *this;
     }    
-        
     int cbSize;						/**< Size of structure */
     SIPX_VIDEO_DISPLAY_TYPE type;	/**< Type of video display */
     union
@@ -593,6 +591,7 @@ struct SIPX_CONTACT_ADDRESS
     /** Contructor. */
     SIPX_CONTACT_ADDRESS()
     {
+        cbSize = sizeof(SIPX_CONTACT_ADDRESS);
         memset((void*)cInterface, 0, sizeof(cInterface));
         memset((void*)cIpAddress, 0, sizeof(cIpAddress));
         memset((void*)cCustomTransportName, 0, sizeof(cCustomTransportName));
@@ -605,39 +604,58 @@ struct SIPX_CONTACT_ADDRESS
     /** Copy constructor. */
     SIPX_CONTACT_ADDRESS(const SIPX_CONTACT_ADDRESS& ref)
     {
-        strcpy(cInterface, ref.cInterface);
-        strcpy(cIpAddress, ref.cIpAddress);
+        cbSize = sizeof(SIPX_CONTACT_ADDRESS);
+        strncpy(cInterface, ref.cInterface, sizeof(cInterface));
+        strncpy(cIpAddress, ref.cIpAddress, sizeof(cIpAddress));
         eContactType = ref.eContactType;
         eTransportType = ref.eTransportType;
         id = ref.id;
         iPort = ref.iPort;
+        if (ref.cbSize == sizeof(SIPX_CONTACT_ADDRESS))
+        {
         strncpy(cCustomTransportName, ref.cCustomTransportName, 32);
         strncpy(cCustomRouteID, ref.cCustomRouteID, sizeof(cCustomRouteID));
     }
+        else
+        {
+            memset((void*)cCustomTransportName, 0, sizeof(cCustomTransportName));
+            memset((void*)cCustomRouteID, 0, sizeof(cCustomRouteID));
+        }
+    }
+
     /** Assignment operator. */
     SIPX_CONTACT_ADDRESS& operator=(const SIPX_CONTACT_ADDRESS& ref)
     {
         // check for assignment to self
         if (this == &ref) return *this;
-        strcpy(cInterface, ref.cInterface);
-        strcpy(cIpAddress, ref.cIpAddress);
+        strncpy(cInterface, ref.cInterface, sizeof(cInterface));
+        strncpy(cIpAddress, ref.cIpAddress, sizeof(cIpAddress));
         eContactType = ref.eContactType;
         eTransportType = ref.eTransportType;
         id = ref.id;
         iPort = ref.iPort;
-        strncpy(cCustomTransportName, ref.cCustomTransportName, sizeof(cCustomTransportName));
-        strncpy(cCustomRouteID, ref.cCustomRouteID, sizeof(cCustomRouteID));
+        if (cbSize == sizeof(SIPX_CONTACT_ADDRESS))
+        {
+            strncpy(cCustomTransportName, ref.cCustomTransportName, sizeof(cCustomTransportName));
+            strncpy(cCustomRouteID, ref.cCustomRouteID, sizeof(cCustomRouteID));
+        }
         return *this;
     }    
-    
     SIPX_CONTACT_ID     id;              /**< Contact record Id      */
     SIPX_CONTACT_TYPE   eContactType ;   /**< Address type/source    */
     SIPX_TRANSPORT_TYPE eTransportType ; /**< Contact transport type */
     char                cInterface[32] ; /**< Source interface       */
-    char                cIpAddress[32] ; /**< IP Address             */
+    char                cIpAddress[28] ; /**< IP Address             */
+    int                 cbSize;		 /**< Size of structure      */
     int                 iPort ;          /**< Port                   */
-	char                cCustomTransportName[32]; /**< Custom transport name */
-    char                cCustomRouteID[64] ;
+    char                cCustomTransportName[32]; /**< Custom transport name */
+    char                cCustomRouteID[64] ; /**< Custom transport routing tag */
+
+/*
+    NOTE: I've carved a cbSize out of the cIpAddress to allow binary backwards 
+          compatibilty with older version of the DLL.  If the cbSize isn't 
+          want we expected, we should not touch data members.
+*/
 };
 
 
@@ -695,6 +713,12 @@ typedef struct
     bool bIsEncrypted;               /**< SRTP enabled */
 } SIPX_CODEC_INFO;
 
+typedef enum 
+{
+    UDP_ONLY,
+    TCP_ONLY,
+    BOTH
+} SIPX_RTP_TRANSPORT;
 
 /**
  * This structure gets passed into sipxCallConnect, sipxCallAccept, and
@@ -705,7 +729,15 @@ typedef struct
     int cbSize;                          /**< Size of structure          */
     SIPX_AUDIO_BANDWIDTH_ID bandwidthId; /**< Bandwidth range            */
     bool sendLocation;                   /**< True sends location header */
-    SIPX_CONTACT_ID contactId;           /**< desired contactId (only used for sipxCallAccept at this moment) */
+    SIPX_CONTACT_ID contactId;           /**< desired contactId (only used for 
+                                              sipxCallAccept at this moment) */
+    SIPX_RTP_TRANSPORT rtpTransportOptions; /**< true if media to be sent over tcp. */
+
+    /*
+     * NOTE: When adding new data to this structure, please always add it to
+     *       the end.  This will allow us to maintain some drop-in 
+     *       backwards compatibility between releases.
+     */
 } SIPX_CALL_OPTIONS;
 
 
@@ -841,13 +873,20 @@ typedef void (*fnSpkrAudioHook)(const int nSamples, short* pSamples) ;
  * Examples: - When not using a proxy
  *           - When the registration period is longer then NAT bindings 
  *             timeout
+ *
+ * The STUN, and SIP_PING and SIP_OPTIONS events may also give you more 
+ * information about your network NAT mappings.  When you add a keepalive,
+ * you may get KEEPALIVE_FEEDBACK events with the IP/port that your
+ * peer thinks is you.  For STUN, this comes from the STUN response, for 
+ * the SIP keepalives, this comes from the "via" response if the remote
+ * supports rport/symmetric signaling.
  */
 typedef enum
 {
     SIPX_KEEPALIVE_CRLF,        /**<Send a Carriage Return/Line Feed to other side */
     SIPX_KEEPALIVE_STUN,        /**<Send a Stun request to the other side */
-    SIPX_KEEPALIVE_SIP_PING     /**<Send a SIP PING method request to the other side 
-                                    (not implemented) */
+    SIPX_KEEPALIVE_SIP_PING,    /**<Send a SIP PING method request to the other side */
+    SIPX_KEEPALIVE_SIP_OPTIONS, /**<Send a SIP OPTIONS method request to the other side */
 } SIPX_KEEPALIVE_TYPE ;
 
 /** 
@@ -3237,11 +3276,13 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetVideoCaptureDevices(const SIPX_INST hInst,
  * Gets the current video capture device.
  * 
  * @param hInst Instance pointer obtained by sipxInitialize
- * @param szCaptureDevice Character array to be populated
- *        by this function call.
+ * @param szCaptureDevice Character array to be populated by this function 
+ *        call. 
+ * @param Max length of szCaptureDevice buffer.
+ *
  */
 SIPXTAPI_API SIPX_RESULT sipxConfigGetVideoCaptureDevice(const SIPX_INST hInst,
-                                                          char* szCaptureDevices,
+                                                         char* szCaptureDevice,
                                                           int nLength);
                                                           
 /**
@@ -3362,6 +3403,36 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalContacts(const SIPX_INST hInst,
                                                     size_t nMaxAddresses,
                                                     size_t& nActualAddresses) ;
 
+/**
+ * Get our local ip/port combination for the designated remote ip/port.  This
+ * API will look at all of the stun and/or SIP message results to see if a
+ * NAT binding exists for this particular host. If using a proxy server, 
+ * this is generally never needed, however, in peer-to-peer modes this can 
+ * sometimes help you get through NATs when using out-of-band registrars /
+ * signaling helpers (not recommended -- use a proxy instead).
+ *
+ * For this API to be useful, you need to add a keepalive to the remote host
+ * prior to calling this API.  This may optionally block if a keep-alive request 
+ * has been started, but we are waiting for a response.
+ *
+ * @param hInst Instance pointer obtained by sipxInitialize
+ * @param szRemoteIp IP of remote party
+ * @param iRemotePort port or remote party
+ * @param szContactIp Buffer to place local contact IP if successful
+ * @param nContactIpLength Length of szContactIp buffer
+ * @param iContactPort Int to place contact port
+ * @param iTimeoutMs Timeout in MS.  Values of 0 (or less) signal not to 
+ *        block.  Any other value is rounded up to multiple of 50ms.  For
+ *        VoIP, a value of 500ms seems plenty (latency longer than 300ms 
+ *        will result in a fairly bad audio experience).
+ */
+SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalFeedbackAddress(const SIPX_INST hInst,
+                                                           const char*     szRemoteIp,
+                                                           const int       iRemotePort,
+                                                           char*           szContactIp,
+                                                           size_t          nContactIpLength,
+                                                           int&            iContactPort,
+                                                           int             iTimeoutMs) ;
 
 /**
  * Populates an array of IP Addresses in char* form.  The array must be preallocated to 
@@ -3609,7 +3680,8 @@ SIPXTAPI_API SIPX_RESULT sipxConfigUnsubscribe(const SIPX_SUB hSub);
  * Associates an external transport mechanism for SIP signalling with 
  * the given instance.  
  *
- * @param hInst 
+ * @param phInst A pointer to a hInst that must be various other
+ *        sipx routines. 
  * @param hTransport Reference to a SIPX_TRANSPORT handle.  This function will
  *        assign a value to the referenced handle.
  * @param bIsReliable If false, indicates that SIPxua should retry external transport
@@ -3625,8 +3697,9 @@ SIPXTAPI_API SIPX_RESULT sipxConfigUnsubscribe(const SIPX_SUB hSub);
  * @param iLocalPort Port value from which the data will be sent.
  * @param writeProc Function pointer to the callback for writing data
  *        using the transport mechanism.
- * @param szLocalRoutingId
- * @param pUserData 
+ * @param szLocalRoutingId A local routing id pass back to the write proc 
+          callback.
+ * @param pUserData User data passed back to the write proc.
  */
 SIPXTAPI_API SIPX_RESULT sipxConfigExternalTransportAdd(SIPX_INST const           hInst,
                                                         SIPX_TRANSPORT&           hTransport,
@@ -3672,6 +3745,22 @@ SIPXTAPI_API SIPX_RESULT sipxConfigExternalTransportHandleMessage(const SIPX_TRA
                                                                   const int    iLocalPort,
                                                                   const void*  pData,
                                                                   const size_t nData);
+
+/**
+ * Sets the SIP target URL for voice quality reports.  Voice Quality reports 
+ * are sent at the completion of each call and give details on the voice 
+ * quality (latency, noise, MOS scores, etc).  Presently, this is not 
+ * implemented in the open source version.
+ *
+ * This must be enabled prior to creating a call or receiving a new call 
+ * indiciation.  Likewise, changes will not take effect for existing calls.
+ *
+ * @param hInst An instance handle obtained from sipxInitialize. 
+ * @param szTargetSipUrl Target SIP URL for the voice quality reports.  A 
+ *        value of NULL will disable voice quality reports.
+ */
+SIPXTAPI_API SIPX_RESULT sipxConfigSetVoiceQualityServer(const SIPX_INST hInst,
+                                                         const char*     szServer) ;
 
 //@}
 /** @name Utility Functions */
