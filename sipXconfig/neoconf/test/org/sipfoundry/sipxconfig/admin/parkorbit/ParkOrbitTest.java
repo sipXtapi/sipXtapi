@@ -35,6 +35,6 @@ public class ParkOrbitTest extends TestCase {
         assertFalse(orbit.isMultipleCalls());
         
         assertFalse(orbit.isTransferAllowed());
-        assertEquals("*", orbit.getTransferKey());
+        assertEquals("0", orbit.getTransferKey());
     }
 }

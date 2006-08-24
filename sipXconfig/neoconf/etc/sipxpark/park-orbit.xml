@@ -11,8 +11,8 @@
       </type>
       <value>0</value>
       <description>
-        If enabled, the call will be automatically transfered to the parking party once time
-        specified in Park timeout elapses.
+        If enabled, the call will be automatically transfered back to the extension that parked
+        the call once the time specified in Park timeout has elapsed.
       </description>
     </setting>
     <setting name="parkTimeout" advanced="yes">
@@ -22,8 +22,8 @@
       </type>
       <value>120</value>
       <description>
-        Time period (in seconds) after which the call is automatically transferred to the parking
-        party.
+        Time period in seconds, after which the call is automatically transferred back to the
+        extension that parked the call if time-out is enabled.
       </description>
     </setting>
     <setting name="multipleCalls">
@@ -34,7 +34,7 @@
       <value>0</value>
       <description>
         If checked, more than one call can be parked on the orbit at the same time. Calls are
-        retrieved in the order they were parked.
+        retrieved in the order in which they were parked.
       </description>
     </setting>
     <setting name="allowTransfer">
@@ -44,8 +44,9 @@
       </type>
       <value>0</value>
       <description>
-        If checked, callers parked on the orbit are able to transfer the call back to the parking
-        party by pressing transfer key.
+        If checked, callers put on park are able to transfer the call back to the extension that
+        parked the call by pressing 0. You can configure a different transfer key in the advanced
+        section.
       </description>
     </setting>
     <setting name="transferKey" advanced="yes">
@@ -55,10 +56,10 @@
           <pattern>[*#0-9]</pattern>
         </string>
       </type>
-      <value>*</value>
+      <value>0</value>
       <description>
-        If transfer is allowed, pressing this while the call is parked will transfer the call back
-        to the parking party.
+        Pressing the transfer key defined here will transfer the call back to the extension that
+        parked the call. Allow transfer has to be enabled.
       </description>
     </setting>
   </group>
