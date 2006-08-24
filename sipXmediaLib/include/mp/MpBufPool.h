@@ -49,7 +49,7 @@ public:
 //@{
 
     /// Get free block from pool.
-    MpBuf *obtainBuffer();
+    MpBuf *getBuffer();
     /**<
     * @return If there are no free blocks in pool invalid pointer returned.
     */

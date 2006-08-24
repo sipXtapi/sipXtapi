@@ -111,7 +111,7 @@ MpBufPool::~MpBufPool()
 
 /* ============================ MANIPULATORS ============================== */
 
-MpBuf *MpBufPool::obtainBuffer()
+MpBuf *MpBufPool::getBuffer()
 {
     OsLock lock(mMutex);
 

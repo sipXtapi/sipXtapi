@@ -265,7 +265,7 @@ static int numWarnings = 0;
    }
 
    // Get new audio buffer for decoded sound
-   out = MpMisc.UcbPool->obtainBuffer();
+   out = MpMisc.RawAudioPool->getBuffer();
    if (!out.isValid())
    {
       return FALSE;

@@ -116,7 +116,7 @@ UtlBoolean MprBridge::doMix(MpAudioBufPtr inBufs[], int inBufsSize,
         }
 
         // Get new buffer for mixed output
-        out = MpMisc.UcbPool->obtainBuffer();
+        out = MpMisc.RawAudioPool->getBuffer();
         if (!out.isValid())
             return FALSE;
         out->setSamplesNumber(samplesPerFrame);

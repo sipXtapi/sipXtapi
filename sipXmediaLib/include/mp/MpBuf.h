@@ -201,7 +201,7 @@ public:
           return clone;
 
        // Get fresh buffer
-       clone.mpBuffer = mpBuffer->getBufferPool()->obtainBuffer();
+       clone.mpBuffer = mpBuffer->getBufferPool()->getBuffer();
        if (!clone.isValid())
           return clone;
 

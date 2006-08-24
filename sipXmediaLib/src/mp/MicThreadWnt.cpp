@@ -202,7 +202,7 @@ bool inPostUnprep(int n, int discard, DWORD bufLen, bool bFree)
 #endif /* DEBUG_WINDOZE ] */
 
       if (!discard) {
-         ob = MpMisc.UcbPool->obtainBuffer();
+         ob = MpMisc.RawAudioPool->getBuffer();
          if (!ob.isValid())
             return false;
          ob->setSamplesNumber(N_SAMPLES);
@@ -220,7 +220,7 @@ bool inPostUnprep(int n, int discard, DWORD bufLen, bool bFree)
 		 }
 #ifdef INSERT_SAWTOOTH /* [ */
          if (NULL == ob) { /* nothing in Q, or we are disabled */
-            ob = MpMisc.UcbPool->obtainBuffer();
+            ob = MpMisc.RawAudioPool->getBuffer();
             if (ob.isValid()) {
                 ob->setSamplesNumber(MpMisc.frameSamples);
                 int i, n;

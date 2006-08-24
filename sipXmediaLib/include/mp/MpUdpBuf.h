@@ -83,7 +83,7 @@ public:
     unsigned getPacketSize() const {return mpData->getDataSize();}
 
     /// Get maximum size of data this buffer can bear.
-    unsigned getMaximumPacketSize() const {return mpData->getMaximumDataSize();}
+    unsigned getMaximumPacketSize() const {return mpData->getMaxDataSize();}
 
     /// Get time code for this packet
     unsigned getTimecode() const {return mTimecode;}

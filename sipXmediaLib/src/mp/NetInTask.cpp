@@ -242,7 +242,7 @@ static  int flushedLimit = 125;
         }
 
         // Get new buffer for incoming packet
-        ib = MpMisc.UdpPool->obtainBuffer();
+        ib = MpMisc.UdpPool->getBuffer();
 
         if (ib.isValid()) {
             // Read packet data.

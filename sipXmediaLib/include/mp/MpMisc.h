@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -67,7 +70,7 @@ struct __MpGlobals {
         int frameBytes;         ///< Size of one audio frame 
         int sampleBytes;        ///< Size of one audio sample (in bytes)
         int rtpMaxBytes;        ///< Maximum bytes in an RTP packet
-        MpBufPool *UcbPool;          ///< Memory pool for raw audio data buffers
+        MpBufPool *RawAudioPool;     ///< Memory pool for raw audio data buffers
         MpBufPool *AudioHeadersPool; ///< Memory pool for headers of raw audio
                                      ///<  data buffers
         MpBufPool *RtpPool;          ///< Memory pool for RTP data buffers

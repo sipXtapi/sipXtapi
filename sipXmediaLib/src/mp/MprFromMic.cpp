@@ -142,7 +142,7 @@ UtlBoolean MprFromMic::doProcessFrame(MpBufPtr inBufs[],
 #ifdef INSERT_SAWTOOTH /* [ */
       if (!out.isValid())
       {
-         out = MpMisc.UcbPool->obtainBuffer();
+         out = MpMisc.RawAudioPool->getBuffer();
             if (!out.isValid())
                return FALSE;
          out->setSamplesNumber(MpMisc.frameSamples);
@@ -161,7 +161,7 @@ UtlBoolean MprFromMic::doProcessFrame(MpBufPtr inBufs[],
 
          if (!out.isValid())
          {
-            out = MpMisc.UcbPool->obtainBuffer();
+            out = MpMisc.RawAudioPool->getBuffer();
                 if (!out.isValid())
                    return FALSE;
             out->setSamplesNumber(MpMisc.frameSamples);
@@ -199,7 +199,7 @@ UtlBoolean MprFromMic::doProcessFrame(MpBufPtr inBufs[],
                   int n = out->getSamplesNumber();
                   shpSamples = out->getSamples();
 
-                  tpBuf = MpMisc.UcbPool->obtainBuffer();
+                  tpBuf = MpMisc.RawAudioPool->getBuffer();
                   if (!out.isValid())
                      return FALSE;
                   tpBuf->setSamplesNumber(n);

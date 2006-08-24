@@ -142,7 +142,7 @@ public:
 
     /// This constructor owns MpBuf object.
     MpDataBufPtr(MpBuf *pDataBuffer, MpBufPool *pHeaderPool=MpDataBuf::smpDefaultPool)
-        : MpBufPtr(pHeaderPool->obtainBuffer())
+        : MpBufPtr(pHeaderPool->getBuffer())
     {
         if (mpBuffer != NULL) {
             MPBUF_FROM_BASE_CONSTRUCTOR_INIT(MpDataBuf, MP_BUF_DATA)

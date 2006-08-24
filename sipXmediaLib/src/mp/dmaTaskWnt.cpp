@@ -19,7 +19,6 @@
 
 // APPLICATION INCLUDES
 #include "mp/dmaTask.h"
-#include "mp/MpBufferMsg.h"
 #include "mp/MpBuf.h"
 #include "mp/MpMisc.h"
 #include "mp/MprToSpkr.h"

@@ -26,8 +26,8 @@
 
 bool MpArrayBuf::setDataSize(unsigned size)
 {
-    if (size > getMaximumDataSize()) {
-        mDataSize = getMaximumDataSize();
+    if (size > getMaxDataSize()) {
+        mDataSize = getMaxDataSize();
         return false;
     } else {
         mDataSize = size;
@@ -44,7 +44,7 @@ bool MpArrayBuf::setDataSize(unsigned size)
 
 void MpArrayBuf::init()
 {
-    mDataSize = getMaximumDataSize();
+    mDataSize = getMaxDataSize();
 #ifdef MPBUF_DEBUG
     osPrintf(">>> MpArrayBuf::init()\n");
 #endif

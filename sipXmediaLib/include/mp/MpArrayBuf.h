@@ -53,7 +53,7 @@ public:
                     );
     /**<
      * New data size could not be greater then allocated space (provided by
-     * getMaximumDataSize()).
+     * getMaxDataSize()).
      * @return <b>false</b> if size is greater then allocated space.
      *                      In this case size is set to maximum possible).
      * @return <b>true</b> is returned in either case.
@@ -65,8 +65,8 @@ public:
 ///@name Accessors
 //@{
 
-    /// Get pointer to the buffer data.
-    char *getDataPtr() {return mpData;}
+    /// Get pointer to the buffer data with intent to write/change it.
+    char *getWriteDataPtr() {return mpData;}
 
     /// Get read only pointer to the buffer data.
     const char *getDataPtr() const {return mpData;}
@@ -75,7 +75,7 @@ public:
     static unsigned getHeaderSize() {return sizeof(MpArrayBuf)-sizeof(char);}
 
     /// Get maximum allowed payload size (in bytes).
-    unsigned getMaximumDataSize() const
+    unsigned getMaxDataSize() const
     {return mpPool->getBlockSize()-getHeaderSize();}
 
     /// Get current data size.

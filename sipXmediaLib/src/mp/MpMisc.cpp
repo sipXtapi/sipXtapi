@@ -373,8 +373,8 @@ int showMpMisc(int justAddress)
          );
       Zprintf(" \n frameSamples=%d, frameBytes=%d, sampleBytes=%d,",
          MpMisc.frameSamples, MpMisc.frameBytes, MpMisc.sampleBytes, 0,0,0);
-      Zprintf(" rtpMaxBytes=%d\n UcbPool=0x%X, RtpPool=0x%X, RtcpPool=0x%X\n",
-         MpMisc.rtpMaxBytes, (int) MpMisc.UcbPool, (int) MpMisc.RtpPool,
+      Zprintf(" rtpMaxBytes=%d\n RawAudioPool=0x%X, RtpPool=0x%X, RtcpPool=0x%X\n",
+         MpMisc.rtpMaxBytes, (int) MpMisc.RawAudioPool, (int) MpMisc.RtpPool,
          (int) MpMisc.RtcpPool, 0,0);
 #ifdef _VXWORKS /* [ */
       Zprintf(" mem_page_size=%d, mem_page_mask=0x%08X\n"
@@ -520,17 +520,17 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
             (((sampleRate + 24) / 25) * MpMisc.sampleBytes);
 
         // Create buffer for audio data in mediagraph
-        MpMisc.UcbPool = new MpBufPool( samplesPerFrame*sizeof(MpAudioSample)
+        MpMisc.RawAudioPool = new MpBufPool( samplesPerFrame*sizeof(MpAudioSample)
                                         +MpArrayBuf::getHeaderSize()
                                       , numAudioBuffers);
-        Nprintf( "mpStartUp: MpMisc.UcbPool = 0x%X\n"
-               , (int) MpMisc.UcbPool, 0,0,0,0,0);
-        if (NULL == MpMisc.UcbPool) {
+        Nprintf( "mpStartUp: MpMisc.RawAudioPool = 0x%X\n"
+               , (int) MpMisc.RawAudioPool, 0,0,0,0,0);
+        if (NULL == MpMisc.RawAudioPool) {
             return OS_NO_MEMORY;
         }
 
         // Create buffer for audio headers
-        int audioBuffers  = MpMisc.UcbPool->getNumBlocks();
+        int audioBuffers  = MpMisc.RawAudioPool->getNumBlocks();
         MpMisc.AudioHeadersPool = new MpBufPool(sizeof(MpAudioBuf), audioBuffers);
         Nprintf( "mpStartUp: MpMisc.AudioHeadersPool = 0x%X\n"
                , (int) MpMisc.AudioHeadersPool, 0,0,0,0,0);
@@ -546,13 +546,13 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
         * audio data.
         */
         {
-            MpAudioBufPtr sb = MpMisc.UcbPool->obtainBuffer();
+            MpAudioBufPtr sb = MpMisc.RawAudioPool->getBuffer();
             if (!sb.isValid()) {
                 Zprintf("\n\mpStartUp:"
-                        " MpBufPool::obtainBuffer() failed, quitting!\n\n\n",
+                        " MpBufPool::getBuffer() failed, quitting!\n\n\n",
                         0,0,0,0,0,0);
-                delete MpMisc.UcbPool;
-                MpMisc.UcbPool = NULL;
+                delete MpMisc.RawAudioPool;
+                MpMisc.RawAudioPool = NULL;
                 return OS_LIMIT_REACHED;
             }
 
@@ -569,13 +569,13 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
         * initiation is not necessary, we do it as the silence buffer for safety.
         */
         {
-            MpAudioBufPtr cnb = MpMisc.UcbPool->obtainBuffer();
+            MpAudioBufPtr cnb = MpMisc.RawAudioPool->getBuffer();
             if (!cnb.isValid()) {
                 Zprintf("\n\mpStartUp:"
-                        " MpBufPool::obtainBuffer() failed, quitting!\n\n\n",
+                        " MpBufPool::getBuffer() failed, quitting!\n\n\n",
                         0,0,0,0,0,0);
-                delete MpMisc.UcbPool;
-                MpMisc.UcbPool = NULL;
+                delete MpMisc.RawAudioPool;
+                MpMisc.RawAudioPool = NULL;
                 return OS_LIMIT_REACHED;
             }
 
@@ -593,8 +593,8 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
         Nprintf("mpStartUp: MpMisc.RtpPool = 0x%X\n",
                 (int) MpMisc.RtpPool, 0,0,0,0,0);
         if (NULL == MpMisc.RtpPool) {
-            delete MpMisc.UcbPool;
-            MpMisc.UcbPool = NULL;
+            delete MpMisc.RawAudioPool;
+            MpMisc.RawAudioPool = NULL;
             return OS_NO_MEMORY;
         }
 
@@ -604,8 +604,8 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
         Nprintf("mpStartUp: MpMisc.RtcpPool = 0x%X\n",
                 (int) MpMisc.RtcpPool, 0,0,0,0,0);
         if (NULL == MpMisc.RtcpPool) {
-            delete MpMisc.UcbPool;
-            MpMisc.UcbPool = NULL;
+            delete MpMisc.RawAudioPool;
+            MpMisc.RawAudioPool = NULL;
             delete MpMisc.RtpPool;
             MpMisc.RtpPool = NULL;
             return OS_NO_MEMORY;
@@ -717,7 +717,7 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
         }
 #endif /* _VXWORKS ] */
         assert( (MIC_BUFFER_Q_LEN+SPK_BUFFER_Q_LEN+MIC_BUFFER_Q_LEN)
-                < (MpMisc.UcbPool->getNumBlocks()-3) );
+                < (MpMisc.RawAudioPool->getNumBlocks()-3) );
         MpMisc.pMicQ = new OsMsgQ(MIC_BUFFER_Q_LEN);
         MpMisc.pSpkQ = new OsMsgQ(SPK_BUFFER_Q_LEN);
         MpMisc.pEchoQ = new OsMsgQ(MIC_BUFFER_Q_LEN);
@@ -801,9 +801,9 @@ OsStatus mpShutdown(void)
             MpMisc.AudioHeadersPool = NULL;
         }
 
-        if (NULL != MpMisc.UcbPool) {
-            delete MpMisc.UcbPool;
-            MpMisc.UcbPool = NULL;
+        if (NULL != MpMisc.RawAudioPool) {
+            delete MpMisc.RawAudioPool;
+            MpMisc.RawAudioPool = NULL;
         }
 
         return OS_SUCCESS;

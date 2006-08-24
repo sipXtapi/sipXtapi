@@ -339,7 +339,7 @@ UtlBoolean MprFromStream::doProcessFrame(MpBufPtr inBufs[],
    if (isEnabled) 
    {
       // Get new buffer
-      out = MpMisc.UcbPool->obtainBuffer();
+      out = MpMisc.RawAudioPool->getBuffer();
       if (!out.isValid())
           return FALSE;
       out->setSamplesNumber(samplesPerFrame);
