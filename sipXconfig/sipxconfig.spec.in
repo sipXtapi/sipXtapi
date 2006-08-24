@@ -55,8 +55,19 @@ Summary: Configures/enables TFTP for devices controlled by %{name}
 
 %description tftp
 * requires tftp-server
-* Turns on xinit.d/tftp service on
-* Redirects /tftpboot to %{phonedir}/profile/tftproot
+* turns on xinit.d/tftp service on
+* redirects /tftpboot to %{phonedir}/profile/tftproot
+
+%package ftp
+Requires: vsftpd
+Group: Productivity/Telephony/SIP/Servers
+Vendor: SIPfoundry
+Summary: Configures/enables FTP for devices controlled by %{name} 
+
+%description ftp
+* installs and configures vsftpd server
+* turns on xinit.d/vsftpd service on
+* add a user account w/default account for polycom phones
 
 %prep
 %setup -q
@@ -146,8 +157,26 @@ fi
 rm -rf /var/sipxdata/tmp/index 2> /dev/null
 rm -rf /var/sipxdata/tmp/Jetty__8443__sipxconfig 2> /dev/null
 
+# empty but required to generate RPM
 %files tftp
 
 %post tftp
-echo "running sed /etc/xinetd.d/tftp -i -e 's|^\W*disable\W*=\W*yes\W*$|disable = no|' -e 's|\W*/tftpboot\W*| %{phonedir}/profile/tftproot|'" > /tmp/delme
 sed /etc/xinetd.d/tftp -i -e 's|^\W*disable\W*=\W*yes\W*$|disable = no|' -e 's|\W*/tftpboot\W*| %{phonedir}/profile/tftproot|'
+
+# empty but required to generate RPM
+%files ftp
+
+%post ftp
+if ! id -u plcmspip > /dev/null 2>&1
+then
+  # default user account polycom phones use
+  adduser -d %{phonedir}/profile/tftproot \
+    -G @SIPXPBXUSER@ -s /sbin/nologin -M plcmspip
+  echo -e "PlcmSpIp" | sudo passwd --stdin plcmspip
+fi
+chkconfig vsftpd on
+service vsftpd start
+
+%postun ftp
+userdel plcmspip
+#leave ftp server, cannot be sure it is not used

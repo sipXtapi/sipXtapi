@@ -21,7 +21,8 @@ SUBDIRS = \
 
 RPMS = \
 	$(RPM) \
-	$(DEST_RPM)/@PACKAGE@-tftp-$(VERSION)-$(RELEASE).$(RPM_TARGET_ARCH).rpm
+	$(DEST_RPM)/@PACKAGE@-tftp-$(VERSION)-$(RELEASE).$(RPM_TARGET_ARCH).rpm \
+	$(DEST_RPM)/@PACKAGE@-ftp-$(VERSION)-$(RELEASE).$(RPM_TARGET_ARCH).rpm
 
 EXTRA_DIST = \
     config/sipX-config.in \
