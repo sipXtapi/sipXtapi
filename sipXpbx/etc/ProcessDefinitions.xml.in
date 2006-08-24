@@ -20,32 +20,6 @@
     <logfile level="warning">@SIPX_LOGDIR@/processcgi.log</logfile>
 
     <!-- ================================ -->
-    <!-- ======== CONFIG SERVER ========= -->
-    <!-- ================================ -->
-    <group name="ConfigServer">
-        <process name="ConfigServer">
-            <dependentdelay wait="0" />
-            <stdout file="/dev/null" />
-            <stderr file="/dev/null" />
-            <stdin  file="" />
-
-            <start control="true">
-                <execute command="@bindir@/sipxconfig.sh"
-                         parameters=""
-                         defaultdir="@SIPX_LOGDIR@" />
-            </start>
-
-            <!-- If no execute, then kill -->
-            <stop control="false" />
-
-            <!-- If no execute, then stop-start -->
-            <restart control="false" />
-
-        </process>
-
-    </group>
-
-    <!-- ================================ -->
     <!-- ======== COMM SERVER =========== -->
     <!-- ================================ -->
     <group name="CommServer" >
