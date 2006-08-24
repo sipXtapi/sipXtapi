@@ -167,16 +167,27 @@ sed /etc/xinetd.d/tftp -i -e 's|^\W*disable\W*=\W*yes\W*$|disable = no|' -e 's|\
 %files ftp
 
 %post ftp
+
+# create a special group so plcmspip user cannot inherhit permissions of
+# sipx user
+if ! grep sipxftp /etc/group > /dev/null
+then
+   /usr/sbin/groupadd sipxftp >/dev/null 2>&1
+fi
+
+chgrp sipxftp %{phonedir}/profile/tftproot
+
 if ! id -u plcmspip > /dev/null 2>&1
 then
   # default user account polycom phones use
-  adduser -d %{phonedir}/profile/tftproot \
-    -G @SIPXPBXUSER@ -s /sbin/nologin -M plcmspip
+  /usr/sbin/adduser -d %{phonedir}/profile/tftproot \
+    -G sipxftp -s /sbin/nologin -M plcmspip
   echo -e "PlcmSpIp" | sudo passwd --stdin plcmspip
 fi
-chkconfig vsftpd on
-service vsftpd start
+
+/sbin/chkconfig vsftpd on
+/sbin/service vsftpd start
 
 %postun ftp
-userdel plcmspip
-#leave ftp server, cannot be sure it is not used
+/usr/sbin/userdel plcmspip
+#leave ftp server, cannot be sure it wasn't already installed

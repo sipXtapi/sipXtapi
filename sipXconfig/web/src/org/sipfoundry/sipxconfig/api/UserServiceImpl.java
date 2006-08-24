@@ -67,8 +67,9 @@ public class UserServiceImpl implements UserService {
     }
     
     public FindUserResponse findUser(FindUser findUser) throws RemoteException {
-        FindUserResponse response = new FindUserResponse();        
-        org.sipfoundry.sipxconfig.common.User[] users = search(findUser.getSearch());
+        FindUserResponse response = new FindUserResponse();      
+        UserSearch search = (findUser == null ? null : findUser.getSearch());
+        org.sipfoundry.sipxconfig.common.User[] users = search(search);
         User[] arrayOfUsers = (User[]) ApiBeanUtil.toApiArray(m_userBuilder, users, User.class);
         response.setUsers(arrayOfUsers);
         
