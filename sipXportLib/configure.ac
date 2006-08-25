@@ -3,7 +3,11 @@
 
 AC_PREREQ(2.57)
 AC_INIT(sipXportLib, 3.5.0, sipx-dev@list.sipfoundry.org)
+
 AC_CONFIG_AUX_DIR(config)
+m4_include([config/general.m4])
+m4_include([config/sipXlib.m4])
+
 AC_PREFIX_DEFAULT([/usr/local/sipx])
 AM_INIT_AUTOMAKE(foreign)
 SFAC_AUTOMAKE_VERSION([1.6])
@@ -21,22 +25,7 @@ AC_PROG_CXX
 AX_COMPILER_VENDOR
 AC_PROG_CC
 
-
-AC_MSG_CHECKING(whether MSG_NOSIGNAL exists)
-AC_TRY_COMPILE([#include <sys/socket.h>],
-[
-int main()
-{
- int f=MSG_NOSIGNAL;
-}
-],
- # Yes, we have it...
- AC_MSG_RESULT(yes)
-,
- # We'll have to use signals
-[ AC_MSG_RESULT(no)
- CPPFLAGS="$CPPFLAGS -DMSG_NOSIGNAL=0"
-])
+CHECK_MSG_NOSIGNAL
 
 # Checks for libraries.
 CHECK_LIBRT
