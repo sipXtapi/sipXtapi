@@ -200,13 +200,13 @@ MpRtpBufPtr MprFromNet::parseRtpPacket(const MpUdpBufPtr &buf)
    rtpBuf = MpMisc.RtpPool->getBuffer();
 
    // Copy RTP header data to RTP buffer.
-   memcpy(&rtpBuf->getRtpHeader(), buf->getPacketData(), sizeof(RtpHeader));
+   memcpy(&rtpBuf->getRtpHeader(), buf->getDataPtr(), sizeof(RtpHeader));
    offset = sizeof(RtpHeader);
 
    // Adjust packet size according to padding
    packetLength = buf->getPacketSize();
    if (rtpBuf->isRtpPadding()) {
-      UCHAR padBytes = *(buf->getPacketData() + packetLength - 1);
+      UCHAR padBytes = *(buf->getDataPtr() + packetLength - 1);
 
       // Ipse: I'm not sure why we do this... Say me if you know.
       if ((padBytes & (~3)) != 0) {
@@ -219,7 +219,7 @@ MpRtpBufPtr MprFromNet::parseRtpPacket(const MpUdpBufPtr &buf)
 
    // Copy CSRC list to RTP buffer
    csrcSize = rtpBuf->getRtpCSRCCount() * sizeof(UINT);
-   memcpy(rtpBuf->getRtpCSRCs(), buf->getPacketData()+offset, csrcSize);
+   memcpy(rtpBuf->getRtpCSRCs(), buf->getDataPtr()+offset, csrcSize);
    offset += csrcSize;
 
    // Check for RTP Header extension
@@ -229,7 +229,7 @@ MpRtpBufPtr MprFromNet::parseRtpPacket(const MpUdpBufPtr &buf)
 
       // Length (in 32bit words) is beared in the second 16bits of first
       // 32bit word of extension header.
-      pXhdr = (short*) (buf->getPacketData() + offset);
+      pXhdr = (short*) (buf->getDataPtr() + offset);
       xLen = ntohs(pXhdr[1]);
 
       // Increment offset by extention header plus extension size
@@ -243,7 +243,7 @@ MpRtpBufPtr MprFromNet::parseRtpPacket(const MpUdpBufPtr &buf)
    }
 
    // Copy payload to RTP buffer.
-   memcpy( rtpBuf->getPayload(), buf->getPacketData()+offset
+   memcpy( rtpBuf->getWriteDataPtr(), buf->getDataPtr()+offset
          , rtpBuf->getPayloadSize());
 
    return rtpBuf;
@@ -395,7 +395,7 @@ OsStatus MprFromNet::pushPacket(const MpUdpBufPtr &udpBuf, int rtpOrRtcp)
         }
 
         // Parse the packet stream into an RTP header
-        oRTPHeader.ParseRTPHeader((unsigned char *)udpBuf->getPacketData());
+        oRTPHeader.ParseRTPHeader((unsigned char *)udpBuf->getDataPtr());
 
         // Dispatch packet to RTCP Render object
         mpiRTPDispatch->ForwardRTPHeader((IRTPHeader *)&oRTPHeader);
@@ -421,7 +421,7 @@ OsStatus MprFromNet::pushPacket(const MpUdpBufPtr &udpBuf, int rtpOrRtcp)
  **************************************************************************/
         if (DoForwardRtcp) {
             mpiRTCPDispatch->ProcessPacket(
-                      (unsigned char *)udpBuf->getPacketData(), 
+                      (unsigned char *)udpBuf->getDataPtr(), 
                       (unsigned long)udpBuf->getPacketSize());
         } else {
             RtcpDiscards++;

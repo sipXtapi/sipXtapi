@@ -247,7 +247,7 @@ static  int flushedLimit = 125;
         if (ib.isValid()) {
             // Read packet data.
             // Note: nRead could not be greater then buffer size.
-            nRead = pRxpSkt->read(ib->getPacketData(), ib->getMaximumPacketSize()
+            nRead = pRxpSkt->read(ib->getWriteDataPtr(), ib->getMaximumPacketSize()
                                  , &fromIP, &fromPort);
             // Set size of received data
             ib->setPacketSize(nRead);

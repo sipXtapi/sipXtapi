@@ -180,12 +180,6 @@ public:
 ///@name Accessors
 //@{
 
-    /// Get pointer to payload data.
-    char *getPayload() {return getDataPtr();}
-
-    /// Get pointer to payload data.
-    const char *getPayload() const {return getDataPtr();}
-
     /// Get current number of samples in payload data.
     unsigned getPayloadSize() const {return mpData->getDataSize();}
 

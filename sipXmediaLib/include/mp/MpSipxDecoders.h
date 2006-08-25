@@ -80,8 +80,8 @@ private:
 extern "C" {
 #endif
 
-extern int G711A_Decoder(int N, JB_uchar* S, MpAudioSample* D);
-extern int G711U_Decoder(int N, JB_uchar* S, MpAudioSample* D);
+extern int G711A_Decoder(int N, const JB_uchar* S, MpAudioSample* D);
+extern int G711U_Decoder(int N, const JB_uchar* S, MpAudioSample* D);
 
 #ifdef __cplusplus
 }

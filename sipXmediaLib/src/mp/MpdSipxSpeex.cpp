@@ -82,7 +82,7 @@ OsStatus MpdSipxSpeex::freeDecode(void)
    return OS_SUCCESS;
 }
 
-int MpdSipxSpeex::decode(int numSamples, JB_uchar *encoded, MpAudioSample *decoded) 
+int MpdSipxSpeex::decode(int numSamples, const JB_uchar *encoded, MpAudioSample *decoded) 
 {
    speex_bits_read_from(&decbits,(char*)encoded,numSamples);
    speex_decode_int(smpDecoderState,&decbits,decbuffer);   

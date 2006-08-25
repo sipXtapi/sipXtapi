@@ -108,7 +108,7 @@ void dumpRawAvtPacket(const MpRtpBufPtr &pRtp, int pThis)
    timestamp = pRtp->getRtpTimestamp();
    ssrc = pRtp->getRtpSSRC();
 
-   pAvt = (AvtPacket*)pRtp->getPayload();
+   pAvt = (AvtPacket*)pRtp->getDataPtr();
    key = pAvt->key;
    dB  = pAvt->dB;
    duration = ntohs(pAvt->samplesSwapped);
@@ -121,11 +121,11 @@ void dumpRawAvtPacket(const MpRtpBufPtr &pRtp, int pThis)
 
 int MpdPtAVT::decodeIn(MpRtpBufPtr &pPacket)
 {
-   struct AvtPacket* pAvt;
+   const struct AvtPacket* pAvt;
    unsigned int samples;
    unsigned int ts;
 
-   pAvt = (AvtPacket*) pPacket->getPayload();
+   pAvt = (const AvtPacket*) pPacket->getDataPtr();
 
    dumpRawAvtPacket(pPacket, (int)this);
 
@@ -208,11 +208,11 @@ UtlBoolean MpdPtAVT::setDtmfTerm(MprRecorder* pRecorder)
 
 void MpdPtAVT::signalKeyDown(const MpRtpBufPtr &pPacket)
 {
-   struct AvtPacket* pAvt;
+   const struct AvtPacket* pAvt;
    unsigned int ts;
    OsStatus ret;
 
-   pAvt = (struct AvtPacket*) pPacket->getPayload();
+   pAvt = (const struct AvtPacket*) pPacket->getDataPtr();
 
    ts = pPacket->getRtpTimestamp();
    OsSysLog::add(FAC_MP, PRI_INFO, "MpdPtAvt(0x%X) Start Rcv Tone key=%d"
@@ -241,12 +241,12 @@ void MpdPtAVT::signalKeyDown(const MpRtpBufPtr &pPacket)
 
 void MpdPtAVT::signalKeyUp(const MpRtpBufPtr &pPacket)
 {
-   struct AvtPacket* pAvt;
+   const struct AvtPacket* pAvt;
    unsigned int samples;
    unsigned int ts;
    OsStatus ret;
 
-   pAvt = (struct AvtPacket*) pPacket->getPayload();
+   pAvt = (const struct AvtPacket*) pPacket->getDataPtr();
    ts = pPacket->getRtpTimestamp();
    samples = pAvt->samplesSwapped;
    samples = ntohs(samples);

@@ -161,6 +161,9 @@ public:
     {};
 
     /// This constructor owns MpBuf object.
+    /**
+    *  @note THIS CONSTRUCTOR ARE ONLY USABLE BY POOLS
+    */
     MpBufPtr(MpBuf *buffer)
         : mpBuffer(buffer)
     {

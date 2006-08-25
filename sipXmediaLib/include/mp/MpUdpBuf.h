@@ -73,12 +73,6 @@ public:
 ///@name Accessors
 //@{
 
-    /// Get pointer to packet data.
-    char *getPacketData() {return getDataPtr();}
-
-    /// Get pointer to packet data.
-    const char *getPacketData() const {return getDataPtr();}
-
     /// Get size of packet data in bytes.
     unsigned getPacketSize() const {return mpData->getDataSize();}
 

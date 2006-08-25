@@ -85,10 +85,10 @@ int MpJitterBuffer::ReceivePacket(MpRtpBufPtr &rtpPacket)
    switch (rtpPacket->getRtpPayloadType())
    {
    case 0: // G.711 u-Law
-      G711U_Decoder(numSamples, (JB_uchar*)rtpPacket->getPayload(), JbQ+JbQIn);
+      G711U_Decoder(numSamples, (const JB_uchar*)rtpPacket->getDataPtr(), JbQ+JbQIn);
       break;
    case 8: // G.711 a-Law
-      G711A_Decoder(numSamples, (JB_uchar*)rtpPacket->getPayload(), JbQ+JbQIn);
+      G711A_Decoder(numSamples, (const JB_uchar*)rtpPacket->getDataPtr(), JbQ+JbQIn);
       break;
 
 #ifdef HAVE_SPEEX // [
@@ -96,7 +96,7 @@ int MpJitterBuffer::ReceivePacket(MpRtpBufPtr &rtpPacket)
    case CODEC_TYPE_SPEEX_5: //Speex
    case CODEC_TYPE_SPEEX_15: //Speex
    case CODEC_TYPE_SPEEX_24: //Speex
-      MpdSipxSpeex::decode(numSamples, (JB_uchar*)rtpPacket->getPayload(),
+      MpdSipxSpeex::decode(numSamples, (const JB_uchar*)rtpPacket->getDataPtr(),
                            JbQ+JbQIn);
       break;
 #endif // HAVE_SPEEX ]

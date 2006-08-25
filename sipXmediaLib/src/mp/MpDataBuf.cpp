@@ -32,10 +32,12 @@ void MpDataBuf::sDestroy(MpBuf *pBuffer)
 
 /* ============================ ACCESSORS ================================= */
 
-char *MpDataBuf::getDataPtr()
+char *MpDataBuf::getWriteDataPtr()
 {
-   // We use this to delegate all work to const version of function
-   return (char*)((const MpDataBuf *)this)->getDataPtr();
+   if (mpData.isValid())
+      return mpData->getWriteDataPtr();
+   else
+      return NULL;
 };
 
 const char *MpDataBuf::getDataPtr() const

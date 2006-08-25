@@ -72,7 +72,9 @@ public:
 /* ============================ MANIPULATORS ============================== */
 
    /// Here we do real decode.
-   static int decode(int numSamples, JB_uchar *encoded, MpAudioSample *decoded);
+   static int decode(int numSamples,
+                     const JB_uchar *encoded,
+                     MpAudioSample *decoded);
 
 ///@name Manipulators
 //@{

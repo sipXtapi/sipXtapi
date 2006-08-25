@@ -74,7 +74,7 @@ public:
 //@{
 
     /// Return pointer to payload data.
-    char *getDataPtr();
+    char *getWriteDataPtr();
 
     /// Return pointer to payload data.
     const char *getDataPtr() const;

@@ -49,16 +49,13 @@ LOCAL short hzm_ULaw2linear(unsigned char u)
         return L;
 }
 
-LOCAL int ULawToLinear(MpAudioSample *Dest, unsigned char *Source, int samples)
+LOCAL int ULawToLinear(MpAudioSample *Dest, const unsigned char *Source, int samples)
 {
         int i;
-        unsigned char  *src;
-
-        src = Source;
 
         for (i=0; i<samples; i++) {
-            *Dest = hzm_ULaw2linear(*src);
-            Dest++; src++;
+            *Dest = hzm_ULaw2linear(*Source);
+            Dest++; Source++;
         }
         return samples;
 }
@@ -91,7 +88,7 @@ LOCAL int ALaw2Linear(unsigned char a_val)
         return ((a_val & SIGN_BIT) ? t : -t);
 }
 
-LOCAL int ALawToLinear(MpAudioSample *Dest, unsigned char *src, int samples)
+LOCAL int ALawToLinear(MpAudioSample *Dest, const unsigned char *src, int samples)
 {
         int i;
 
@@ -117,7 +114,7 @@ LOCAL int search(int val, short *table, int size)
 }
 
 JB_ret G711A_Decoder(JB_size noOfSamples,
-                     JB_uchar* codBuff,
+                     const JB_uchar* codBuff,
                      MpAudioSample* outBuff)
 {
    ALawToLinear(outBuff, codBuff, noOfSamples);
@@ -125,7 +122,7 @@ JB_ret G711A_Decoder(JB_size noOfSamples,
 }
 
 JB_ret G711U_Decoder(JB_size noOfSamples,
-                     JB_uchar* codBuff,
+                     const JB_uchar* codBuff,
                      MpAudioSample* outBuff)
 {
    ULawToLinear(outBuff, codBuff, noOfSamples);
