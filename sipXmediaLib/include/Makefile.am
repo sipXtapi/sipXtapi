@@ -102,6 +102,7 @@ nobase_include_HEADERS =  \
     mp/MpStreamPlaylistPlayer.h \
     mp/MpStreamQueuePlayer.h \
     mp/MpTypes.h \
+    mp/MpVideoBuf.h \
     mp/NetInTask.h \
     mp/resamplingby2.h \
     mp/StreamBufferDataSource.h \

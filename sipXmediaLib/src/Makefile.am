@@ -115,6 +115,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MpStreamPlayer.cpp \
     mp/MpStreamPlaylistPlayer.cpp \
     mp/MpStreamQueuePlayer.cpp \
+    mp/MpVideoBuf.cpp \
     mp/NetInTask.cpp \
     mp/resamplingby2.cpp \
     mp/MpSipxDecoders.cpp \

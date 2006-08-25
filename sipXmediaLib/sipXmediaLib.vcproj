@@ -1734,6 +1734,9 @@
 				RelativePath=".\src\mp\MpUdpBuf.cpp">
 			</File>
 			<File
+				RelativePath=".\src\mp\MpVideoBuf.cpp">
+			</File>
+			<File
 				RelativePath="src\rtcp\MsgQueue.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -2639,6 +2642,9 @@
 			</File>
 			<File
 				RelativePath=".\include\mp\MpUdpBuf.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpVideoBuf.h">
 			</File>
 			<File
 				RelativePath="include\rtcp\MsgQueue.h">
