@@ -244,7 +244,10 @@
       <fileset file="${acegi-security.jar}"/>
     </copy>
   </target>	
-	
+
+  <property name="test.systemRoot" 
+    location="${test.results.dir}/artificial-system-root"/>
+  
   <target name="run" depends="test-war" 
     description="Runs Jetty on current code, development purpose only">
   	<echo/>
@@ -257,14 +260,14 @@
       <classpath location="${junit.jar}"/>
       <classpath location="${log4j.jar}"/>
       <classpath location="${server-bindings.jar}"/>
+      <!-- simulates appending sipxpbx.conf.dir in real start-up script -->      
+      <classpath location="${test.systemRoot}/etc"/>
       <sysproperty key="basedir" value="${basedir}"/>
     </java>
   </target>
   <target name="test-all" depends="ant-targets.test-all,test-ui,test-api"/>
   <target name="test-war" depends="default.deps,compile.test,war" 
     description="Creates a war file for unittests">
-    <property name="test.systemRoot" 
-      location="${test.results.dir}/artificial-system-root"/>
     <delete dir="${test.war}"/>
     <unwar src="${sipxconfig.war}" dest="${test.war}"/>
     <!-- generates sipxconfig.properties that has test oriented values -->
