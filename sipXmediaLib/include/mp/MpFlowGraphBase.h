@@ -354,16 +354,14 @@ protected:
      * @returns <b>FALSE</b> - otherwise.
      */
 
-     /// @brief Handle the @link MpFlowGraphMsg::FLOWGRAPH_REMOVE_LINK
-     /// FLOWGRAPH_REMOVE_LINK @endlink message.
+     /// Handle the @link MpFlowGraphMsg::FLOWGRAPH_REMOVE_LINK FLOWGRAPH_REMOVE_LINK @endlink message.
    UtlBoolean handleRemoveLink(MpResource* pFrom, int outPortIdx);
      /**<
      * @returns <b>TRUE</b> - if the message was handled,
      * @returns <b>FALSE</b> - otherwise.
      */
 
-     /// @brief Handle the @link MpFlowGraphMsg::FLOWGRAPH_REMOVE_RESOURCE
-     /// FLOWGRAPH_REMOVE_RESOURCE @endlink message.
+     /// Handle the @link MpFlowGraphMsg::FLOWGRAPH_REMOVE_RESOURCE FLOWGRAPH_REMOVE_RESOURCE @endlink message.
    UtlBoolean handleRemoveResource(MpResource* pResource);
      /**<
      * @returns <b>TRUE</b> - if the message was handled,
@@ -415,8 +413,7 @@ private:
      *  @returns <b>FALSE</b> - otherwise.
      */
 
-     /// @brief Handle the @link MpFlowGraphMsg::FLOWGRAPH_ADD_LINK
-     /// FLOWGRAPH_ADD_LINK @endlink message.
+     /// Handle the @link MpFlowGraphMsg::FLOWGRAPH_ADD_LINK FLOWGRAPH_ADD_LINK @endlink message.
    UtlBoolean handleAddLink(MpResource* pFrom, int outPortIdx,
                             MpResource* pTo,   int inPortIdx);
      /**<
@@ -424,8 +421,7 @@ private:
      * @returns <b>FALSE</b> - otherwise.
      */
 
-     /// @brief Handle the @link MpFlowGraphMsg::FLOWGRAPH_ADD_RESOURCE
-     /// FLOWGRAPH_ADD_RESOURCE @endlink message.
+     /// Handle the @link MpFlowGraphMsg::FLOWGRAPH_ADD_RESOURCE FLOWGRAPH_ADD_RESOURCE @endlink message.
    UtlBoolean handleAddResource(MpResource* pResource,
                                UtlBoolean makeNameUnique);
      /**<
@@ -433,56 +429,49 @@ private:
      * @returns <b>FALSE</b> - otherwise.
      */
 
-     /// @brief Handle the @link MpFlowGraphMsg::FLOWGRAPH_DESTROY_RESOURCES
-     /// FLOWGRAPH_DESTROY_RESOURCES @endlink message.
+     /// Handle the @link MpFlowGraphMsg::FLOWGRAPH_DESTROY_RESOURCES FLOWGRAPH_DESTROY_RESOURCES @endlink message.
    UtlBoolean handleDestroyResources(void);
      /**<
      * @returns <b>TRUE</b> - if the message was handled,
      * @returns <b>FALSE</b> - otherwise.
      */
 
-     /// @brief Handle the @link MpFlowGraphMsg::FLOWGRAPH_DISABLE
-     /// FLOWGRAPH_DISABLE @endlink message.
+     /// Handle the @link MpFlowGraphMsg::FLOWGRAPH_DISABLE FLOWGRAPH_DISABLE @endlink message.
    UtlBoolean handleDisable(void);
      /**<
      * @returns <b>TRUE</b> - if the message was handled,
      * @returns <b>FALSE</b> - otherwise.
      */
 
-     /// @brief Handle the @link MpFlowGraphMsg::FLOWGRAPH_ENABLE
-     /// FLOWGRAPH_ENABLE @endlink message.
+     /// Handle the @link MpFlowGraphMsg::FLOWGRAPH_ENABLE FLOWGRAPH_ENABLE @endlink message.
    UtlBoolean handleEnable(void);
      /**<
      * @returns <b>TRUE</b> - if the message was handled,
      * @returns <b>FALSE</b> - otherwise.
      */
 
-     /// @brief Handle the @link MpFlowGraphMsg::FLOWGRAPH_SET_SAMPLES_PER_FRAME
-     /// FLOWGRAPH_SET_SAMPLES_PER_FRAME @endlink message.
+     /// Handle the @link MpFlowGraphMsg::FLOWGRAPH_SET_SAMPLES_PER_FRAME FLOWGRAPH_SET_SAMPLES_PER_FRAME @endlink message.
    UtlBoolean handleSetSamplesPerFrame(int samplesPerFrame);
      /**<
      * @returns <b>TRUE</b> - if the message was handled,
      * @returns <b>FALSE</b> - otherwise.
      */
 
-     /// @brief Handle the @link MpFlowGraphMsg::FLOWGRAPH_SET_SAMPLES_PER_SEC
-     /// FLOWGRAPH_SET_SAMPLES_PER_SEC @endlink message.
+     /// Handle the @link MpFlowGraphMsg::FLOWGRAPH_SET_SAMPLES_PER_SEC FLOWGRAPH_SET_SAMPLES_PER_SEC @endlink message.
    UtlBoolean handleSetSamplesPerSec(int samplesPerSec);
      /**<
      * @returns <b>TRUE</b> - if the message was handled,
      * @returns <b>FALSE</b> - otherwise.
      */
 
-     /// @brief Handle the @link MpFlowGraphMsg::FLOWGRAPH_START FLOWGRAPH_START
-     /// @endlink message.
+     /// Handle the @link MpFlowGraphMsg::FLOWGRAPH_START FLOWGRAPH_START @endlink message.
    UtlBoolean handleStart(void);
      /**<
      * @returns <b>TRUE</b> - if the message was handled,
      * @returns <b>FALSE</b> - otherwise.
      */
 
-     /// @brief Handle the @link MpFlowGraphMsg::FLOWGRAPH_STOP FLOWGRAPH_STOP
-     /// @endlink message.
+     /// Handle the @link MpFlowGraphMsg::FLOWGRAPH_STOP FLOWGRAPH_STOP @endlink message.
    UtlBoolean handleStop(void);
      /**<
      * @returns <b>TRUE</b> - if the message was handled,

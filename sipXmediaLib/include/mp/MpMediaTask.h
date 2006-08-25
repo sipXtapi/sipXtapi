@@ -409,8 +409,7 @@ private:
      *  @returns <b>FALSE</b> - otherwise.
      */
 
-     /// @brief Handles the @link MpMediaTaskMsg::WAIT_FOR_SIGNAL
-     /// WAIT_FOR_SIGNAL @endlink message.
+     /// Handles the @link MpMediaTaskMsg::WAIT_FOR_SIGNAL WAIT_FOR_SIGNAL @endlink message.
    UtlBoolean handleWaitForSignal(MpMediaTaskMsg*);
      /**<
      *  @returns <b>TRUE</b> - if the message was handled,

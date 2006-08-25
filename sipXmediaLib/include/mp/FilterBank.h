@@ -81,7 +81,7 @@ private:
    void FilterBankInit();
    void FilterBankReinit();
 
-   static void TwoFrameFilterBankAnalysis(icomplex [][M+1], int *, int *, int *, int);
+   static void TwoFrameFilterBankAnalysis(icomplex [][M+1], int [], int [], int [], int);
    void EchoSuppress(icomplex [][M+1], int [], int [], int [], int);
    static void ComplexCoefUpdate(icomplex *, icomplex *, icomplex *, int);
 
