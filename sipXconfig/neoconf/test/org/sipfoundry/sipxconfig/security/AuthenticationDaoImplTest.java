@@ -17,8 +17,8 @@ import org.acegisecurity.userdetails.UserDetails;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.Permission;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.permission.Permission;
 
 public class AuthenticationDaoImplTest extends TestCase {
     private static final String USER_NAME = "Hjelje";

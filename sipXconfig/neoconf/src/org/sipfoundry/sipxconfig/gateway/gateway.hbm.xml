@@ -14,6 +14,7 @@
     <discriminator column="bean_id"/>
     <property name="name"/>
     <property name="address"/>
+    <property name="prefix"/>
     <property name="description"/>
     <property name="serialNumber"/>
     <property name="beanId" column="bean_id" insert="false" update="false"/>

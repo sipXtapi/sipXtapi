@@ -9,19 +9,26 @@
   
   <property name="gatewaysToDelete" />
   <property name="gatewaysToPropagate" />
+  <property name="gatewayModel"/>
   <!--
      - B E A N S
      -->
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+  <bean name="rawGatewaySelectionModel" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
+    <set name="collection" value="gatewayContext.availableGatewayModels"/>
+    <set name="labelExpression" value="literal:label"/>
+  </bean>
+  <bean name="gatewaySelectionModel" class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator">
+    <set name="model" value="bean:rawGatewaySelectionModel"/>
+    <set name="extraLabel" value="literal:Add new gateway..."/>
+    <set name="extraOption" value="null"/>
+  </bean>
   <!--
      - C O M P O N E N T S
      -->
   <component id="gatewayTable" type="GatewayTable">
     <binding name="gatewayCollection" value="gatewayContext.gateways"/>
     <binding name="editPageName" value="literal:EditGateway"/>
-  </component>
-  <component id="addGatewayLink" type="DirectLink">
-    <binding name="listener" value="listener:addGateway"/>
   </component>
   <component id="dialPlansLink" type="PageLink">
     <binding name="page" value="literal:EditFlexibleDialPlan"/>
@@ -44,7 +51,9 @@
     <binding name="delegate" value="bean:validator"/>
     <binding name="listener" value="listener:formSubmit"/>
   </component>
-  <!--
-	  - A S S E T S
-	  -->
+  <component id="selectGatewayModel" type="PropertySelection">
+    <binding name="model" value="bean:gatewaySelectionModel"/>
+    <binding name="value" value="gatewayModel"/>
+    <binding name="onchange" value="literal:javascript:this.form.submit();"/>
+  </component>
 </page-specification>

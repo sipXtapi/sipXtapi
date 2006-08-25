@@ -17,14 +17,16 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
-import org.sipfoundry.sipxconfig.common.Permission;
+import org.sipfoundry.sipxconfig.permission.Permission;
 
 /**
  * LongDistanceRule
  */
 public class LongDistanceRule extends DialingRule {
     private String m_pstnPrefix = StringUtils.EMPTY;
+    private boolean m_pstnPrefixOptional;
     private String m_longDistancePrefix = StringUtils.EMPTY;
+    private boolean m_longDistancePrefixOptional;
     private String m_areaCodes = StringUtils.EMPTY;
     private int m_externalLen;
     private Permission m_permission = Permission.LONG_DISTANCE_DIALING;
@@ -43,21 +45,24 @@ public class LongDistanceRule extends DialingRule {
      * @param areaCode single are code for which patterns will be generated
      * @return list of dial patterns objects
      */
-    List calculateDialPatterns(String areaCode) {
+    List<DialPattern> calculateDialPatterns(String areaCode) {
         int variableLenght = m_externalLen - areaCode.length();
-        ArrayList patterns = new ArrayList();
-        if (StringUtils.isNotBlank(m_pstnPrefix)) {
-            DialPattern patternFull = new DialPattern(m_pstnPrefix + m_longDistancePrefix
-                    + areaCode, variableLenght);
-            patterns.add(patternFull);
+        List<DialPattern> patterns = new ArrayList<DialPattern>();
+        if (StringUtils.isNotBlank(m_pstnPrefix) && StringUtils.isNotBlank(m_longDistancePrefix)) {
+            String prefix = m_pstnPrefix + m_longDistancePrefix + areaCode;
+            patterns.add(new DialPattern(prefix, variableLenght));
         }
-        if (StringUtils.isNotBlank(m_longDistancePrefix)) {
-            DialPattern patternNormal = new DialPattern(m_longDistancePrefix + areaCode,
-                    variableLenght);
-            patterns.add(patternNormal);
+        if (m_pstnPrefixOptional && StringUtils.isNotBlank(m_longDistancePrefix)) {
+            String prefix = m_longDistancePrefix + areaCode;
+            patterns.add(new DialPattern(prefix, variableLenght));
         }
-        DialPattern patternShort = new DialPattern(areaCode, variableLenght);
-        patterns.add(patternShort);
+        if (StringUtils.isNotBlank(m_pstnPrefix) && m_longDistancePrefixOptional) {
+            String prefix = m_pstnPrefix + areaCode;
+            patterns.add(new DialPattern(prefix, variableLenght));
+        }
+        if (m_pstnPrefixOptional && m_longDistancePrefixOptional) {
+            patterns.add(new DialPattern(areaCode, variableLenght));
+        }
         return patterns;
     }
 
@@ -78,7 +83,7 @@ public class LongDistanceRule extends DialingRule {
                 "getTransforms not implemented for LongDistance rule");
     }
 
-    public void appendToGenerationRules(List rules) {
+    public void appendToGenerationRules(List<DialingRule> rules) {
         if (!isEnabled()) {
             return;
         }
@@ -166,5 +171,21 @@ public class LongDistanceRule extends DialingRule {
 
     public void setPermission(Permission permission) {
         m_permission = permission;
+    }
+
+    public boolean isPstnPrefixOptional() {
+        return m_pstnPrefixOptional;
+    }
+
+    public void setPstnPrefixOptional(boolean pstnPrefixOptional) {
+        m_pstnPrefixOptional = pstnPrefixOptional;
+    }
+
+    public boolean isLongDistancePrefixOptional() {
+        return m_longDistancePrefixOptional;
+    }
+
+    public void setLongDistancePrefixOptional(boolean longDistancePrefixOptional) {
+        m_longDistancePrefixOptional = longDistancePrefixOptional;
     }
 }

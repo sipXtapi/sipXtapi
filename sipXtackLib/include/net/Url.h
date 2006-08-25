@@ -138,6 +138,12 @@ public:
      */
     Url& operator=(const char* urlString);
 
+    /// set the value of this url by parsing the given string.
+    void fromString(const UtlString& urlString,
+                    UtlBoolean isAddrSpec = FALSE
+                    );
+    ///< all arguments are the same as for the constructor.
+
     //! Serialize this URL to a string in name-addr format, suitable for use
     //  as a field in a header.
     void toString(UtlString& urlString) const;
@@ -418,6 +424,7 @@ public:
     /// Un-escape a string as a gen_value, which is what field-parameters
     //! use for values.
     static void gen_value_unescape(UtlString& escapedText);
+
     /// Gets the serialized URL as a string (with no display name or 
     //! field parameters)
     void getUri(UtlString& Uri);

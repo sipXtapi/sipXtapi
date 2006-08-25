@@ -789,9 +789,6 @@ SipRefreshMgr::rescheduleRequest(
 
         OsTimer* timer = new OsTimer(&mIncomingQ, (int)timerRegisterMessage);
 
-        int maxSipTransactionTimeSecs = 
-            (mMyUserAgent->getSipStateTransactionTimeout()/1000);
-
         secondsFromNow = (secondsFromNow * percentage)/100;
 
         // ensure that the time that the transaction times out

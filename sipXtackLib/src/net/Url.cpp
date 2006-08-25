@@ -190,6 +190,15 @@ Url::Url(const char* urlString, UtlBoolean isAddrSpec) :
    }
 }
 
+void Url::fromString(const UtlString& urlString,
+                UtlBoolean isAddrSpec
+                )
+{
+   reset();
+   
+   parseString(urlString.data(), isAddrSpec);
+}
+
 // Copy constructor
 Url::Url(const Url& rUrl) :
    mPasswordSet(FALSE),
@@ -1310,6 +1319,9 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
       break;
    }
    
+   mUserId.remove(0);
+   mPassword.remove(0);
+
    if (FileUrlScheme != mScheme) // no user part in file urls
    {
       // Parse the username and password
@@ -1324,6 +1336,9 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
       }
    }
 
+   mHostAddress.remove(0);
+   mHostPort = PORT_NONE;
+   
    // Parse the hostname and port
    RegEx hostAndPort(HostAndPort);
    if (   (hostAndPort.SearchAt(urlString,workingOffset))
@@ -1335,10 +1350,6 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
       if (hostAndPort.MatchString(&portStr,3))
       {
          mHostPort = atoi(portStr.data());
-      }
-      else
-      {
-         mHostPort = PORT_NONE;
       }
 
       workingOffset = hostAndPort.AfterMatch(0);
@@ -1359,6 +1370,8 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
    //      OR url parameters if sip or sips.
    // There can be no Url parameters for http, https, or ftp
    //    because semicolon is a valid part of the path value
+   mPath.remove(0);
+   mRawUrlParameters.remove(0);
    switch ( mScheme )
    {
    case FileUrlScheme:
@@ -1416,6 +1429,7 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
    }
 
    // Parse any header or query parameters
+   mRawHeaderOrQueryParameters.remove(0);
    RegEx headerOrQueryParams(HeaderOrQueryParams);
    if(   (headerOrQueryParams.SearchAt(urlString, workingOffset))
       && (headerOrQueryParams.MatchStart(0) == workingOffset)
@@ -1429,6 +1443,7 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
    }
 
    // Parse the field parameters
+   mRawFieldParameters.remove(0);
    if (!isAddrSpec) // can't have field parameters in an addrspec
    {
       if (afterAngleBrackets != UTL_NOT_FOUND)
@@ -1451,28 +1466,18 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
 
 UtlBoolean Url::isUserHostPortEqual(const Url &url) const
 {
-   int port = url.mHostPort ;
-   if(port <= 0)
-   {
-      port = SIP_PORT;
-   }
+   int port = (PORT_NONE == url.mHostPort) ? SIP_PORT : url.mHostPort ;
    
-   int checkPort = mHostPort ;
-   if(checkPort <= 0)
-   {
-      checkPort = SIP_PORT;
-   }
+   int checkPort = (PORT_NONE == mHostPort)? SIP_PORT : mHostPort;
    
-   return (   mHostAddress.compareTo(url.mHostAddress.data(), UtlString::ignoreCase) == 0
-           && mUserId.compareTo(url.mUserId.data()) == 0
-           && ( checkPort == port ));
+   return ((checkPort == port) && isUserHostEqual(url));
 }
 
 UtlBoolean Url::isUserHostEqual(const Url &url) const
 {
    
-   return (   mHostAddress.compareTo(url.mHostAddress.data(), UtlString::ignoreCase) == 0
-           && mUserId.compareTo(url.mUserId.data()) == 0);
+   return (   (mHostAddress.compareTo(url.mHostAddress, UtlString::ignoreCase) == 0)
+           && (mUserId.compareTo(url.mUserId) == 0));
 }
 
 
@@ -1486,7 +1491,7 @@ void Url::getIdentity(UtlString &identity) const
    identity.append(lowerHostAddress);
 
    // If the port designates an actual port, it must be specified.
-   if(portIsValid(mHostPort) && mHostPort != 5060)
+   if(portIsValid(mHostPort))
    {
       char portBuffer[20];
       sprintf(portBuffer, ":%d", mHostPort);

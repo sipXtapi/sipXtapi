@@ -5,16 +5,19 @@
     - P R O P E R T I E S
   -->
   <inject property="dialPlanContext" object="spring:dialPlanContext" />
+  <inject property="permissionManager" object="spring:permissionManager" />
 
   <property name="ruleId" persist="session" />
-  <property name="rule" persist="session" />
+  <property name="ruleType" persist="client" />
+  <property name="rule" />
   <property name="callback" persist="session" />
   <!--
     - B E A N S
   -->
-  <bean name="permissionsModel"
-    class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel" lifecycle="page">
-    <set name="options" value="callHandlingPermissions" />
+  <bean name="permissionTypeModel"
+    class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel" lifecycle="page">
+    <set name="collection" value="permissionManager.callPermissions" />
+    <set name="labelExpression" value="literal:label" />
   </bean>
   <!--
     - C O M P O N E N T S
@@ -22,13 +25,12 @@
   <component id="dialRuleCommon" type="DialRuleCommon">
     <binding name="ruleId" value="ruleId" />
     <binding name="rule" value="rule" />
-    <binding name="ruleType" value="ruleType" />
     <binding name="callback" value="callback" />
   </component>
 
   <component id="permissions" type="contrib:MultiplePropertySelection">
     <binding name="selectedList" value="rule.permissions" />
-    <binding name="model" value="bean:permissionsModel" />
+    <binding name="model" value="bean:permissionTypeModel" />
   </component>
   <component id="patterns" type="PatternsEditor">
     <binding name="patterns" value="rule.dialPatterns" />

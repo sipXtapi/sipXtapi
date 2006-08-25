@@ -20,9 +20,9 @@ import java.util.LinkedHashMap;
  * Meta information about a group of settings, can contain nested SettingModels. Order is
  * preserved
  */
-public class SettingSet extends SettingImpl implements Cloneable, Serializable {
+public class SettingSet extends AbstractSetting implements Cloneable, Serializable {
 
-    private LinkedHashMap m_children = new LinkedHashMap();
+    private LinkedHashMap<String, Setting> m_children = new LinkedHashMap<String, Setting>();
 
     /**
      * Root setting group and bean access only
@@ -39,25 +39,21 @@ public class SettingSet extends SettingImpl implements Cloneable, Serializable {
      */
     public Setting copy() {
         SettingSet copy = (SettingSet) shallowCopy();
-        Iterator i = m_children.values().iterator();
-        while (i.hasNext()) {
-            Setting child = (Setting) i.next();
+        for (Setting child : m_children.values()) {
             copy.addSetting(child.copy());
         }
-
         return copy;
     }
-    
+
     protected Setting shallowCopy() {
         SettingSet copy = (SettingSet) super.copy();
-        copy.m_children = new LinkedHashMap();
+        copy.m_children = new LinkedHashMap<String, Setting>();
         return copy;
     }
 
     public void acceptVisitor(SettingVisitor visitor) {
         visitor.visitSettingGroup(this);
-        for (Iterator i = m_children.values().iterator(); i.hasNext();) {
-            Setting setting = (Setting) i.next();
+        for (Setting setting : m_children.values()) {
             setting.acceptVisitor(visitor);
         }
     }
@@ -68,16 +64,11 @@ public class SettingSet extends SettingImpl implements Cloneable, Serializable {
     public Setting addSetting(Setting setting) {
         setting.setParent(this);
 
-        Setting existingChild = (Setting) m_children.get(setting.getName());
-        m_children.put(setting.getName(), setting);
+        Setting existingChild = m_children.put(setting.getName(), setting);
         if (existingChild != null) {
-            Collection grandChildren = existingChild.getValues();
-            if (!grandChildren.isEmpty()) {
-                Iterator igrandChildren = grandChildren.iterator();
-                while (igrandChildren.hasNext()) {
-                    Setting grandChild = (Setting) igrandChildren.next();
-                    setting.addSetting(grandChild);
-                }
+            Collection<Setting> grandChildren = existingChild.getValues();
+            for (Setting grandChild : grandChildren) {
+                setting.addSetting(grandChild);
             }
         }
 
@@ -88,7 +79,7 @@ public class SettingSet extends SettingImpl implements Cloneable, Serializable {
         return SettingUtil.getSettingByPath(m_children, this, name);
     }
 
-    public Collection getValues() {
+    public Collection<Setting> getValues() {
         return m_children.values();
     }
 
@@ -104,5 +95,17 @@ public class SettingSet extends SettingImpl implements Cloneable, Serializable {
             }
         }
         return null;
+    }
+
+    public String getDefaultValue() {
+        throw new UnsupportedOperationException();
+    }
+
+    public String getValue() {
+        throw new UnsupportedOperationException();
+    }
+
+    public void setValue(String value) {
+        throw new UnsupportedOperationException();
     }
 }

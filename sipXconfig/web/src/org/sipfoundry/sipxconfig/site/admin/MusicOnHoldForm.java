@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
-import org.apache.tapestry.AbstractPage;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
@@ -40,7 +39,7 @@ public abstract class MusicOnHoldForm extends BaseComponent implements PageBegin
             return;
         }
 
-        if (TapestryUtils.isValid((AbstractPage) getPage())) {
+        if (TapestryUtils.isValid(this)) {
             saveValid();
         }
     }

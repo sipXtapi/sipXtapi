@@ -16,6 +16,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
@@ -28,6 +29,11 @@ public class CustomDialingRuleTest extends TestCase {
     private static final String[] GATEWAYS = {
         "10.2.3.4", "10.4.5.6"
     };
+    private static final String[] PREFIXES = {
+        null, "43"
+    };
+    
+    
     private CustomDialingRule m_rule;
     private List m_patternsList;
 
@@ -48,6 +54,7 @@ public class CustomDialingRuleTest extends TestCase {
             Gateway gateway = new Gateway();
             gateway.setUniqueId();
             gateway.setAddress(GATEWAYS[i]);
+            gateway.setPrefix(PREFIXES[i]);
             m_rule.addGateway(gateway);
         }
 
@@ -72,7 +79,7 @@ public class CustomDialingRuleTest extends TestCase {
             FullTransform full = (FullTransform) transforms[i];
             assertTrue(full.getFieldParams()[0].startsWith("q="));
             assertEquals(GATEWAYS[i], full.getHost());
-            assertTrue(full.getUser().startsWith("999"));
+            assertTrue(full.getUser().startsWith(StringUtils.defaultString(PREFIXES[i]) + "999"));
         }
     }
 
@@ -102,7 +109,7 @@ public class CustomDialingRuleTest extends TestCase {
         rule.setEnabled(true);
         rule.setCallPattern(new CallPattern("77", CallDigits.VARIABLE_DIGITS));
 
-        String[] patterns = rule.getTransformedPatterns();
+        String[] patterns = rule.getTransformedPatterns(new Gateway());
         assertEquals(PATTERN_COUNT, patterns.length);
         String suffix = "xx";
         for (int i = 0; i < patterns.length; i++) {
@@ -117,7 +124,7 @@ public class CustomDialingRuleTest extends TestCase {
         rule.setEnabled(true);
         rule.setCallPattern(new CallPattern("77", CallDigits.FIXED_DIGITS));
 
-        String[] patterns = rule.getTransformedPatterns();
+        String[] patterns = rule.getTransformedPatterns(new Gateway());
         assertEquals(PATTERN_COUNT, patterns.length);
         String suffix = "xx";
         for (int i = 0; i < patterns.length; i++) {
@@ -132,7 +139,7 @@ public class CustomDialingRuleTest extends TestCase {
         rule.setEnabled(true);
         rule.setCallPattern(new CallPattern("77", CallDigits.NO_DIGITS));
 
-        String[] patterns = rule.getTransformedPatterns();
+        String[] patterns = rule.getTransformedPatterns(new Gateway());
         assertEquals(1, patterns.length);
         assertEquals("77", patterns[0]);
     }

@@ -23,6 +23,8 @@ import java.util.Set;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
+import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -47,6 +49,8 @@ public class User extends BeanWithGroups implements NamedObject {
     // anything, it's just "superadmin" by current convention.
     public static final String SUPERADMIN = "superadmin";
 
+    private PermissionManager m_permissionManager;
+
     private String m_firstName;
 
     private String m_sipPassword;
@@ -58,11 +62,11 @@ public class User extends BeanWithGroups implements NamedObject {
     private String m_userName;
 
     private Set m_aliases = new LinkedHashSet(0);
-    
+
     private Set m_supervisorForGroups;
-    
+
     @Override
-    public void initialize() {        
+    public void initialize() {
     }
 
     /**
@@ -192,9 +196,9 @@ public class User extends BeanWithGroups implements NamedObject {
 
     @Override
     protected Setting loadSettings() {
-        return getModelFilesContext().loadModelFile("user-settings.xml");        
+        return m_permissionManager.getPermissionModel();
     }
-    
+
     public List getAliasMappings(String domainName) {
         final String contact = getUri(domainName);
         List mappings = new ArrayList(getAliases().size());
@@ -227,19 +231,19 @@ public class User extends BeanWithGroups implements NamedObject {
     public boolean isAdmin() {
         return hasPermission(Permission.SUPERADMIN);
     }
-    
+
     public boolean isSupervisor() {
-        return m_supervisorForGroups != null && m_supervisorForGroups.size() > 0;        
+        return m_supervisorForGroups != null && m_supervisorForGroups.size() > 0;
     }
-    
+
     public Set getSupervisorForGroups() {
         return m_supervisorForGroups;
     }
-    
+
     public void setSupervisorForGroups(Set supervisorForGroups) {
         m_supervisorForGroups = supervisorForGroups;
     }
-    
+
     public void addSupervisorForGroup(Group group) {
         if (m_supervisorForGroups == null) {
             m_supervisorForGroups = new HashSet();
@@ -253,5 +257,9 @@ public class User extends BeanWithGroups implements NamedObject {
 
     public void setName(String name) {
         setUserName(name);
+    }
+
+    public void setPermissionManager(PermissionManager permissionManager) {
+        m_permissionManager = permissionManager;
     }
 }

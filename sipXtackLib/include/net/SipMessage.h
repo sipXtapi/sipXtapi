@@ -1019,6 +1019,24 @@ public:
     void setRouteField(const char* routeField);
 
     UtlBoolean buildRouteField(UtlString* routeField) const;
+
+    /// Adjust route values as required when receiving at a proxy.
+    void normalizeProxyRoutes(const SipUserAgent* sipUA, ///< used to check isMyHostAlias
+                              Url& requestUri,           ///< returns normalized request uri
+                              UtlSList* removedRoutes = NULL // route headers popped 
+                              );
+    /**<
+     * Check the request URI and the topmost route
+     *   - Detect and correct for any strict router upstream
+     *     as specified by RFC 3261 section 16.4 Route Information Preprocessing
+     *   - Pop off the topmost route until it is not me
+     *  
+     * If the removedRoutes is non-NULL, then any removed routes are returned
+     *   on this list (in the order returned - topmost first) as UtlString objects.
+     *   The caller is responsible for deleting these UtlStrings (a call to
+     *   removedRoutes->destroyAll will delete them all).
+     */
+
     //@}
 
 

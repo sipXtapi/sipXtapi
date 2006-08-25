@@ -9,6 +9,7 @@
   <inject property="dialPlanContext" object="spring:dialPlanContext" />
 
   <property name="ruleId" persist="session" />
+  <property name="ruleType" persist="client" />
   <property name="rule" />
   <property name="callback" persist="session" />
   <!--
@@ -17,7 +18,6 @@
   <component id="dialRuleCommon" type="DialRuleCommon">
     <binding name="ruleId" value="ruleId" />
     <binding name="rule" value="rule" />
-    <binding name="ruleType" value="ruleType" />
     <binding name="callback" value="callback" />
   </component>
   <component id="internationalPrefixLabel" type="FieldLabel">

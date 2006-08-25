@@ -102,6 +102,7 @@ setConfigureSwitches()
 {
     ConfigureSwitches="$SpecialConfigureSwitches"
     UsedLabels=""
+    UsedVariables=""
     for bl in `echo ${BuildLabel} | sed 's/,/ /g'`
     do
         ConfigureSwitchFile="meta/${bl}.configure-switches"

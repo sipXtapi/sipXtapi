@@ -9,15 +9,15 @@
   -->
   <parameter name="rule" />
   <parameter name="ruleId" />
-  <parameter name="ruleType" />
   <parameter name="callback" />
-  <parameter name="renderGateways" required="no" default-value="true"/>
+  <parameter name="renderGateways" required="no" default-value="true" />
 
   <inject property="dialPlanContext" object="spring:dialPlanContext" />
   <inject property="validRule" object="spring:validRule" />
   <inject property="tapestry" object="spring:tapestry" />
-  <!-- used by removeGateways submit button-->
-  <property name="removeGateways" />
+
+  <property name="ruleChanged" />
+
   <!--
     - B E A N S
   -->
@@ -29,16 +29,13 @@
     <binding name="validator" value="bean:validator" />
   </component>
 
-  <component id="title" type="InsertText">
-    <binding name="value" value="ruleType.name" />
-  </component>
   <component id="form" type="Form">
     <binding name="delegate" value="bean:validator" />
     <binding name="listener"
       value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.formSubmit)" />
   </component>
   <component id="common" type="ItemCommon">
-    <binding name="item" value="rule" />
+    <inherited-binding name="item" parameter-name="rule" />
   </component>
   <component id="formActions" type="FormActions">
     <binding name="callback" value="callback" />
@@ -47,9 +44,8 @@
   </component>
   <!-- gateways configuration -->
   <component id="gatewaysPanel" type="GatewaysPanel">
-    <binding name="rule" value="rule" />
-    <binding name="addGatewayListener" value="listener:addGateway" />
-    <binding name="selectGatewayListener" value="listener:selectGateway" />
+    <inherited-binding name="rule" parameter-name="rule" />
+    <binding name="ruleChanged" value="ruleChanged" />
   </component>
   <component id="renderGateways" type="If">
     <binding name="condition" value="renderGateways" />

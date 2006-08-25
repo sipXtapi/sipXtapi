@@ -82,7 +82,7 @@ public class CustomDialingRule extends DialingRule {
                 Gateway g = (Gateway) gateways.get(i);
                 FullTransform transform = new FullTransform();
                 transform.setHost(g.getAddress());
-                transform.setUser(calculatePattern);
+                transform.setUser(g.getCallPattern(calculatePattern));
                 String[] fieldParams = new String[] {
                     q.getSerial()
                 };
@@ -112,13 +112,15 @@ public class CustomDialingRule extends DialingRule {
         return getGateways().isEmpty();
     }
 
-    public String[] getTransformedPatterns() {
+    @Override
+    public String[] getTransformedPatterns(Gateway gateway) {
         List dialPatterns = getDialPatterns();
         Set transformedPatterns = new LinkedHashSet();
         for (Iterator i = dialPatterns.iterator(); i.hasNext();) {
             DialPattern dp = (DialPattern) i.next();
             DialPattern tdp = m_callPattern.transform(dp);
-            transformedPatterns.add(tdp.calculatePattern());
+            String pattern = gateway.getCallPattern(tdp.calculatePattern());
+            transformedPatterns.add(pattern);
         }
         return (String[]) transformedPatterns.toArray(new String[transformedPatterns.size()]);
     }

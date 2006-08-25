@@ -168,7 +168,6 @@ SipAaa::handleMessage( OsMsg& eventMessage )
     {
         SipMessage* sipRequest = (SipMessage*)((SipMessageEvent&)eventMessage).getMessage();
         int messageType = ((SipMessageEvent&)eventMessage).getMessageStatus();
-        UtlString callId;
 
         if ( messageType == SipMessageEvent::TRANSPORT_ERROR )
         {
@@ -183,6 +182,8 @@ SipAaa::handleMessage( OsMsg& eventMessage )
             }
             else
             {
+                UtlString callId;
+                sipRequest->getCallIdField(&callId);
                 UtlString myRouteUri;
                 UtlString targetUri;
                 UtlBoolean isNextHop = FALSE;
@@ -241,7 +242,7 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                         if(! uriIsMe)
                         {
                             OsSysLog::add(FAC_SIP, PRI_WARNING,
-                                          "Strict route: %s not to this server",
+                                          "SipAaa::handleMessage Strict route: %s not to this server",
                                           requestUri.data());
                             // Put the route back on as this URI is
                             // not this server.
@@ -310,7 +311,7 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                         else
                         {
                             myRouteUri = "";
-                            OsSysLog::add(FAC_SIP, PRI_WARNING, "Loose route: %s not to this server",
+                            OsSysLog::add(FAC_SIP, PRI_WARNING, "SipAaa::handleMessage Loose route: %s not to this server",
                                 firstRouteUri.data());
                         }
 
@@ -391,11 +392,16 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                     if(validRouteSignature.compareTo(routeSignature) == 0)
                     {
                         routeSignatureIsValid = TRUE;
+                        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                      "SipAaa::handleMessage Authorized by route signature call-id: %s signature a: %s t: %s s: %s",
+                                      callId.data(), routePermission.data(),
+                                      routeTag.data(), routeSignature.data()
+                                      );
                     }
                     else
                     {
                         OsSysLog::add(FAC_SIP, PRI_WARNING,
-                                      "invalid route call-id: %s signature a: %s t: %s s: %s",
+                                      "SipAaa::handleMessage Invalid route signature call-id: %s signature a: %s t: %s s: %s",
                                       callId.data(), routePermission.data(),
                                       routeTag.data(), routeSignature.data()
                                       );
@@ -433,27 +439,27 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                         // no authentication
                         else // if(toMatches) or no permissions
                         {
-                            // No authentication or authorization
-                            // required
+                           // No authentication or authorization
+                           // required
                            if (!fromMatches)
                            {
                               OsSysLog::add(
                                  FAC_SIP, PRI_INFO,
-                                 "upstream request call-id: %s, not authenticating",
+                                 "SipAaa::handleMessage upstream request call-id: %s, not authenticating",
                                  callId.data());
                            }
                            else if(routePermission.isNull())
                            {
                               OsSysLog::add(
                                  FAC_SIP, PRI_INFO,
-                                 "signed route call-id: %s with no authentication required",
+                                 "SipAaa::handleMessage signed route call-id: %s with no authentication required",
                                  callId.data());
                            }
                            else
                            {
                               OsSysLog::add(
                                  FAC_SIP, PRI_INFO,
-                                 "request call-id %s to unrestricted entity with signed route",
+                                 "SipAaa::handleMessage request call-id %s to unrestricted entity with signed route",
                                  callId.data());
                            }
                         }
@@ -577,7 +583,7 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                         }
 
                         // We only add the signature on the initial dialog request
-                        else if(toTag.isNull())
+                        else if(toTag.isNull() && !matchedPermission.isNull())
                         {
                             calcRouteSignature(matchedPermission,
                                                callId,

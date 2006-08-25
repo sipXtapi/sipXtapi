@@ -22,7 +22,6 @@ import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.setting.Group;
-import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.context.ApplicationContext;
 
@@ -275,18 +274,6 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         assertEquals("bongo", g2.getName());
 
         assertEquals(2, getConnection().getRowCount("group_storage"));
-    }
-
-    public void testGetUserSettingModel() {
-        Setting model = m_core.getUserSettingsModel();
-        assertNotNull(model.getSetting("permission"));
-    }
-
-    public void testPermissionInit() {
-        Setting model = m_core.getUserSettingsModel();
-        Permission.init(model);
-        assertNull(Permission.getEnum("bongo"));
-        assertSame(Permission.VOICEMAIL, Permission.getEnum("Voicemail"));
     }
 
     public void testAliases() throws Exception {

@@ -41,9 +41,9 @@ public interface GatewayContext {
      * @param ruleId id of the rule for which gateways are checked
      * @return collection of available gateways
      */
-    Collection getAvailableGateways(Integer ruleId);
+    Collection<Gateway> getAvailableGateways(Integer ruleId);
 
     Gateway newGateway(PhoneModel model);
 
-    Collection getAvailableGatewayModels();
+    Collection<PhoneModel> getAvailableGatewayModels();
 }

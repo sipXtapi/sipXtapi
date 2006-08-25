@@ -16,10 +16,7 @@
 #include <SipRouter.h>
 #include <ForwardRules.h>
 #include <net/SipUserAgent.h>
-#include <os/OsConfigDb.h>
 #include <os/OsSysLog.h>
-
-//#define TEST_PRINT 1
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -33,22 +30,50 @@
 // Constructor
 SipRouter::SipRouter(SipUserAgent& sipUserAgent, 
                      ForwardRules& forwardingRules,
-                     UtlBoolean useAuthServer,
-                     const char* authServer,
-                     UtlBoolean shouldRecordRoute) :
-   OsServerTask("SipRouter-%d", NULL, 2000)
+                     bool          useAuthServer,
+                     const char*   authServer,
+                     bool          shouldRecordRoute) :
+   OsServerTask("SipRouter-%d", NULL, 2000),
+   mpSipUserAgent(&sipUserAgent),
+   mpForwardingRules(&forwardingRules),
+   mShouldRecordRoute(shouldRecordRoute),
+   mAuthEnabled(useAuthServer)
 {
-   mpSipUserAgent = &sipUserAgent;
-   mpForwardingRules = &forwardingRules;
-
-   mAuthEnabled = useAuthServer;
-   mAuthServer = authServer ? authServer : "";
-   if(useAuthServer &&
-       mAuthServer.isNull())
+   if ( mAuthEnabled )
    {
-       mAuthEnabled = FALSE;
-       OsSysLog::add(FAC_SIP, PRI_WARNING, "SipRouter::SipRouter auth server enabled but not set");
-       //osPrintf("WARNING SipRouter::SipRouter auth server enabled but not set\n");
+      if ( authServer && *authServer != '\000' )
+      {
+         // Construct the loose route URI to be used
+         Url nextHopUrl(authServer);
+         // Add a loose route to the mapped server
+         nextHopUrl.setUrlParameter("lr", NULL);
+         nextHopUrl.toString(mAuthRoute);
+         OsSysLog::add(FAC_SIP, PRI_INFO, "SipRouter: auth server route '%s'", mAuthRoute.data());
+      }
+      else
+      {
+         mAuthEnabled = false;
+         OsSysLog::add(FAC_SIP, PRI_ERR,
+                       "SipRouter::SipRouter auth server enabled but no address set");
+      }
+   }
+
+   if ( shouldRecordRoute )
+   {
+      UtlString uriString;
+      int port;
+
+      mpSipUserAgent->getViaInfo(OsSocket::UDP, uriString, port);
+      Url routeUrl;
+      routeUrl.setHostAddress(uriString.data());
+      routeUrl.setHostPort(port);
+      routeUrl.setUrlParameter("lr", NULL);
+
+      routeUrl.toString(mRecordRoute);
+
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipRouter Record-Route address: '%s'",
+                    mRecordRoute.data());
    }
 
    // Register to get incoming requests
@@ -63,12 +88,6 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
                                    NULL, //   SipSession* pSession,
                                    NULL); //observerData)
 
-   mShouldRecordRoute = shouldRecordRoute;
-}
-
-// Copy constructor
-SipRouter::SipRouter(const SipRouter& rSipRouter)
-{
 }
 
 // Destructor
@@ -80,281 +99,131 @@ SipRouter::~SipRouter()
 
 UtlBoolean SipRouter::handleMessage(OsMsg& eventMessage)
 {
-	int msgType = eventMessage.getMsgType();
-	// int msgSubType =
-        eventMessage.getMsgSubType();
-
-	if(msgType == OsMsg::PHONE_APP)
-	 //&& msgSubType == CP_SIP_MESSAGE)
+	if(OsMsg::PHONE_APP == eventMessage.getMsgType())
 	{
-		SipMessage* sipRequest = (SipMessage*)((SipMessageEvent&)eventMessage).getMessage();
-        int messageType = ((SipMessageEvent&)eventMessage).getMessageStatus();
-		UtlString callId;
+		SipMessageEvent* sipMsgEvent = dynamic_cast<SipMessageEvent*>(&eventMessage);
 
-        if(messageType == SipMessageEvent::TRANSPORT_ERROR)
-        {
-           OsSysLog::add(FAC_SIP, PRI_ERR, "ERROR: SipRouter::handleMessage received transport error message");
-           //osPrintf("ERROR: SipRouter::handleMessage received transport error message\n");
-        }
-
-		else if(sipRequest)
+      int messageType = sipMsgEvent->getMessageStatus();
+      if(messageType == SipMessageEvent::TRANSPORT_ERROR)
+      {
+         OsSysLog::add(FAC_SIP, PRI_CRIT,
+                       "SipRouter::handleMessage received transport error message");
+      }
+		else
 		{
-            if(sipRequest->isResponse())
+         SipMessage* sipRequest = const_cast<SipMessage*>(sipMsgEvent->getMessage());
+         if(sipRequest)
+         {
+            if(!sipRequest->isResponse())
             {
-               OsSysLog::add(FAC_SIP, PRI_ERR, "ERROR: SipRouter::handleMessage received response");
-               //osPrintf("ERROR: SipRouter::handleMessage received response\n");
+               if (proxyMessage(*sipRequest))
+               {
+                  // clear timestamps, protocol, and port information so send will recalculate it
+                  sipRequest->resetTransport();
+                  mpSipUserAgent->send(*sipRequest);
+               }
             }
-
-            else
+            else 
             {
-                UtlString firstRouteUri;
-                UtlBoolean routeExists = sipRequest->getRouteUri(0, &firstRouteUri);
-                // If there is a route header just send it on its way
-                if(routeExists)
-                {
-#ifdef TEST_PRINT
-                    osPrintf("SipRoute::handleMessage found a route\n");
-#endif
-                    // CHeck the URI.  If the URI has lw the
-                    // previous proxy was a strict router
-                    UtlString requestUri;
-                    sipRequest->getRequestUri(&requestUri);
-                    Url routeUrlParser(requestUri, TRUE);
-                    UtlString dummyValue;
-                    UtlBoolean previousHopStrictRoutes = routeUrlParser.getUrlParameter("lr", dummyValue, 0);
-                    UtlBoolean uriIsMe = mpSipUserAgent->isMyHostAlias(routeUrlParser);
-                    Url firstRouteUriUrl(firstRouteUri);
-                    UtlBoolean firstRouteIsMe = mpSipUserAgent->isMyHostAlias(firstRouteUriUrl);
-
-                    // If the URI is not this server and the
-                    // URI is not marked as a loose route and
-                    // the first route is not this server then
-                    // this server was not in the routes and we
-                    // really do not know if the route set is
-                    // set up as loose or strict routing.  We
-                    // used to assume that it is strict routing
-                    // I think due to some busted RFC2543 UAs
-                    // that strict routed and dropped the lr
-                    // parameter.  That is why the following
-                    // code remains, but is commented out:
-                    //if(!previousHopStrictRoutes &&
-                    //   !uriIsMe &&
-                    //   !firstRouteIsMe)
-                    //{
-                    //    previousHopStrictRoutes = TRUE;
-                    //}
-
-                    // If the URI does not have the loose route
-                    // tag and the URI is pointed to this server
-                    // we assume the previous hop strict routed.
-                    // Originally this did not check if !firstRouteIsMe
-                    // I believe this was intensional to work around
-                    // some UAs that strict routed and dropped the
-                    // lr parameter making it falsely look like a
-                    // loose route.  I put the check for the route
-                    // not me back in as it causes problems with
-                    // pre-set routes.  What happens is a request
-                    // comes in with an AOR for this domain in the URI 
-                    // and a preset route to this proxy as it is also
-                    // the prior hop's (UA) outbound proxy.  This shows
-                    // up as uriIsMe == TRUE and firstRouteIsMe == TRUE.
-                    // In that case we should not assume that it is a 
-                    // strict route It is now tough luck for 
-                    // UA's that strict route and drop the lr parameter.
-                    if(!previousHopStrictRoutes &&
-                       uriIsMe &&
-                       !firstRouteIsMe)
-                    {
-                        previousHopStrictRoutes = TRUE;
-                    }
-
-                    if(previousHopStrictRoutes)
-                    {
-#ifdef TEST_PRINT
-                        osPrintf("SipRoute::handleMessage previous hop strict routed\n");
-#endif
-                        // If this is NOT my host and port in the URI
-                        if(! uriIsMe)
-                        {
-                            OsSysLog::add(FAC_SIP, PRI_WARNING, "Strict route: %s not to this server",
-                                requestUri.data());
-                            // Put the route back on as this URI is
-                            // not this server.
-                            sipRequest->addRouteUri(requestUri);
-                        }
-
-                        // We have to pop the last route and
-                        // put it in the URI
-                        UtlString contactUri;
-                        int lastRouteIndex;
-                        sipRequest->getLastRouteUri(contactUri, lastRouteIndex);
-#ifdef TEST_PRINT
-                        osPrintf("SipRouter::handleMessage setting new URI: %s\n",
-                            contactUri.data());
-#endif
-
-                        sipRequest->removeRouteUri(lastRouteIndex, &contactUri);
-#ifdef TEST_PRINT
-                        osPrintf("SipRouter::handleMessage route removed: %s\n",
-                            contactUri.data());
-#endif
-                        // Put the last route in a the URI
-                        Url newUri(contactUri);
-                        newUri.getUri(contactUri);
-                        sipRequest->changeRequestUri(contactUri);
-#ifdef TEST_PRINT
-                        UtlString bytes;
-                        int len;
-                        sipRequest->getBytes(&bytes, &len);
-                        osPrintf("SipRouter: \nStricttttttttttttttttttttttt\n%s\nNowLLLLLLLLLLLLLLLLLLLLLoooooose\n",
-                            bytes.data());
-#endif
-                    }
-                    else
-                    {
-#ifdef TEST_PRINT
-                        osPrintf("SipRoute::handleMessage previous hop loose routed\n");
-#endif
-                        // If this route is to me, pop it off
-                        if(firstRouteIsMe)
-                        {
-                            // THis is a loose router pop my route off
-                            UtlString dummyUri;
-                            sipRequest->removeRouteUri(0, &dummyUri);
-                        }
-                        else
-                        {
-                            OsSysLog::add(FAC_SIP, PRI_WARNING, "Loose route: %s not to this server",
-                                firstRouteUri.data());
-                        }
-                    }
-                }
-                
-
-                // Check that there is no route again as we may have  
-                // popped off a route if it was to this server.
-                // If there is no routes left check if the URI
-                // is mapped to something local
-                UtlString dummyRoute;
-                if(!routeExists ||
-	               !sipRequest->getRouteUri(0, &dummyRoute))
-                {
-#ifdef TEST_PRINT
-                    osPrintf("SipRoute::handleMessage no found a route\n");
-#endif
-                    UtlString uri;
-                    sipRequest->getRequestUri(&uri);
-                    Url originalUri(uri);
-                    //UtlString domain;
-                    //originalUri.getHostAddress(domain);
-                    //int port = originalUri.getHostPort();
-                    //if(!portIsValid(port)) port = SIP_PORT;
-                    //char portBuf[64];
-                    //sprintf(portBuf, "%d", port);
-                    //domain.append(':');
-                    //domain.append(portBuf);
-#ifdef TEST_PRINT
-                    //osPrintf("SipRouter::handleMessage uri domain: %s\n",
-                    //    domain.data());
-#endif
-
-                    UtlString mappedTo;
-                    UtlString routeType;
-                    if(mpForwardingRules &&
-                       mpForwardingRules->getRoute(originalUri, *sipRequest, 
-                          mappedTo, routeType) == OS_SUCCESS)
-                    {
-#ifdef TEST_PRINT
-                        osPrintf("SipRouter::handleMessage domain mapped to: %s\n",
-                            mappedTo.data());
-#endif
-                        Url nextHopUrl(mappedTo);
-                        // Add a loose route to the mapped server
-                        nextHopUrl.setUrlParameter("lr", "");
-                        UtlString routeString = nextHopUrl.toString();
-
-                        sipRequest->addRouteUri(routeString.data());
-#ifdef TEST_PRINT
-                        osPrintf("SipRouter::handleMessage added route: %s\n",
-                            routeString.data());
-#endif
-                    }
-
-                    // We are not routing this to a server baed upon
-                    // domain, therefore we need to be sure it goes
-                    // through the aaa server if it exist.
-                    else if(mAuthEnabled && 
-                        !mAuthServer.isNull())
-                    {
-                        // Add a loose route
-                        Url nextHopUrl(mAuthServer);
-                        // Add a loose route to the mapped server
-                        nextHopUrl.setUrlParameter("lr", "");
-                        UtlString routeString = nextHopUrl.toString();
-
-                        sipRequest->addRouteUri(routeString.data());
-                    }
-
-                    else
-                    {
-#ifdef TEST_PRINT
-                        osPrintf("SipRouter::handleMessage domain not mapped\n");
-#endif
-                    }
-                }
-
-                // If record route is enabled
-                if(mShouldRecordRoute)
-                {
-                    
-                    UtlString uriString;
-                    int port;
-                    //sipRequest->getRequestUri(&uriString);
-                    mpSipUserAgent->getViaInfo(OsSocket::UDP,
-                              uriString,
-                              port);
-#ifdef TEST_PRINT
-                    osPrintf("SipRouter:handleMessage Record-Route address: %s port: %d\n",
-                        uriString.data(), port);
-#endif
-                    Url routeUrl;
-                    routeUrl.setHostAddress(uriString.data());
-                    routeUrl.setHostPort(port);
-                    routeUrl.setUrlParameter("lr", "");
-                    //routeUrl.setAngleBrackets();
-                    UtlString recordRoute = routeUrl.toString();
-                    sipRequest->addRecordRouteUri(recordRoute);
-                }
-
-                // Decrement max forwards
-                int maxForwards;
-                if(sipRequest->getMaxForwards(maxForwards))
-                {
-                    maxForwards--;
-                }
-                else
-                {
-                    maxForwards = mpSipUserAgent->getMaxForwards();
-                }
-                sipRequest->setMaxForwards(maxForwards);
-
-                sipRequest->resetTransport();
-                mpSipUserAgent->send(*sipRequest);
+               // got a response - should never happen
+               OsSysLog::add(FAC_SIP, PRI_CRIT,
+                             "SipRouter::handleMessage received response");
             }
-        }
-    }
+         }
+         else 
+         {
+            // not a SIP message - should never happen
+            OsSysLog::add(FAC_SIP, PRI_CRIT,
+                          "SipRouter::handleMessage is not a sip message");
+         }
+      }
+   }
 
-    return(TRUE);
+   return TRUE;
 }
 
-// Assignment operator
-SipRouter& 
-SipRouter::operator=(const SipRouter& rhs)
+bool SipRouter::proxyMessage(SipMessage& sipRequest)
 {
-   if (this == &rhs)            // handle the assignment to self case
-      return *this;
+   // TBD - [XPR-183] Check for loops here.
+   
+   /*
+    * Check the request URI and the topmost route
+    *   - Detect and correct for any strict router upstream
+    *     as specified by RFC 3261 section 16.4 Route Information Preprocessing
+    *   - Pop off the topmost route until it is not me
+    */
+   Url requestUri;
+   sipRequest.normalizeProxyRoutes(mpSipUserAgent, requestUri);
+   // requestUri is set to the target uri from the request line after normalization
+   
+   UtlString topRouteValue;
+   if (sipRequest.getRouteUri(0, &topRouteValue)) 
+   {
+      /*
+       * There is a top route that is not to this domain
+       * (if the top route were to this domain, it would have been removed),
+       * so let the authproxy decide whether or not it can go through
+       */
+      addAuthRoute(sipRequest);
+   }
+   else // there is no Route header, so route on the Request URI
+   {
+      UtlString mappedTo;
+      UtlString routeType;               
+                  
+      // see if we have a mapping for the normalized request uri
+      if (   mpForwardingRules 
+          && (mpForwardingRules->getRoute(requestUri, sipRequest, mappedTo, routeType)==OS_SUCCESS)
+          )
+      {
+         // Yes, so add a loose route to the mapped server
+         Url nextHopUrl(mappedTo);
+         nextHopUrl.setUrlParameter("lr", NULL);
+         UtlString routeString;
+         nextHopUrl.toString(routeString);
+         sipRequest.addRouteUri(routeString.data());
 
-   return *this;
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "SipRouter fowardingrules added route type '%s' to: '%s'",
+                       routeType.data(), routeString.data());
+      }
+      else
+      {
+         // the mapping rules didn't have any route for this,
+         // so let the authproxy decide whether or not it can go through
+         addAuthRoute(sipRequest);
+      }
+   }
+
+   if(mShouldRecordRoute) // If record route is configureed
+   {
+      sipRequest.addRecordRouteUri(mRecordRoute);
+   }
+
+   // Decrement max forwards
+   //   we don't need to check for zero - the stack would already have rejected it.
+   int maxForwards;
+   if (sipRequest.getMaxForwards(maxForwards))
+   {
+      maxForwards--;
+   }
+   else
+   {
+      maxForwards = mpSipUserAgent->getMaxForwards();
+   }
+   sipRequest.setMaxForwards(maxForwards);
+
+   return true;
+}
+
+void SipRouter::addAuthRoute(SipMessage& request)
+{
+   if (mAuthEnabled)
+   {
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRouter routing through auth proxy");
+      // Add a loose route to the auth server
+      request.addRouteUri(mAuthRoute.data());
+   }
 }
 
 /* ============================ ACCESSORS ================================= */

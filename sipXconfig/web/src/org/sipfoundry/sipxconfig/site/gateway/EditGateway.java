@@ -20,6 +20,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
+import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
 
 /**
@@ -39,6 +40,10 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
     public abstract Integer getRuleId();
 
     public abstract void setRuleId(Integer id);
+    
+    public abstract void setGatewayModel(PhoneModel model);
+    
+    public abstract PhoneModel getGatewayModel();
 
     public abstract DialPlanContext getDialPlanContext();
 
@@ -65,10 +70,11 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
             return;
         }
         Integer id = getGatewayId();
+        GatewayContext gatewayContext = getGatewayContext();
         if (null != id) {
             gateway = getGatewayContext().getGateway(id);
         } else {
-            gateway = new Gateway();
+            gateway = gatewayContext.newGateway(getGatewayModel());
         }
         setGateway(gateway);
 
@@ -89,15 +95,6 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
     void saveGateway() {
         Gateway gateway = getGateway();
         GatewayContext gatewayContext = getGatewayContext();
-        if (gateway.isNew()) {
-            Gateway newGateway = gatewayContext.newGateway(gateway.getModel());
-            newGateway.setName(gateway.getName());
-            newGateway.setAddress(gateway.getAddress());
-            newGateway.setDescription(gateway.getDescription());
-            newGateway.setSerialNumber(gateway.getSerialNumber());
-            setGateway(newGateway);
-            gateway = newGateway;
-        }
         gatewayContext.storeGateway(gateway);
         // attach gateway to current rule
         Integer ruleId = getRuleId();

@@ -397,13 +397,14 @@ public:
 
     void setIsUserAgent(UtlBoolean isUserAgent);
 
-    // setUserAgentHeaderProperty
-    //      provides a string to be appended to the standard User-Agent
-    //      header value between "Pingtel/<version>" and the platform (eg "(VxWorks)")
-    //      Value should be formated either as "token/token" or "(string)"
-    //      with no leading or trailing space.
+    /// Provides a string to be appended to the standard User-Agent header.
     void setUserAgentHeaderProperty( const char* property );
-
+    /**<
+     * The property is added between "<product>/<version>" and the platform (eg "(VxWorks)")
+     * The value should be formated either as "token/token", "token", or "(string)"
+     * with no leading or trailing space.
+     */
+    
     //! Set the limit of allowed hops a message can make
     void setMaxForwards(int maxForwards);
 
@@ -523,7 +524,7 @@ public:
 
     UtlBoolean isForkingEnabled();
 
-    UtlBoolean isMyHostAlias(Url& route);
+    UtlBoolean isMyHostAlias(Url& route) const;
 
     UtlBoolean recurseOnlyOne300Contact();
 
@@ -538,6 +539,11 @@ public:
 
     void setUserAgentHeader(SipMessage& message);
 
+    void setServerHeader(SipMessage& message);
+
+    /// Add either Server or User-Agent header, as appropriate based on isUserAgent
+    void setSelfHeader(SipMessage& message);
+
     SipContactDb& getContactDb() { return mContactDb; }
 
     //! Adds a contact record to the contact db
@@ -548,6 +554,9 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+
+    /// constuct the value to be used in either user-agent or server header.
+    void selfHeaderValue(UtlString& self);
 
     void getAllowedMethods(UtlString* allowedMethods);
 

@@ -111,6 +111,9 @@
     <antcall target="supervisor"/>
     <antcall target="intercom"/>
     <antcall target="device-version"/>  	
+    <antcall target="long-distance-rule"/>      
+    <antcall target="gateway-prefix"/>
+    <antcall target="permission"/>    
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="4" -->
   </target>
@@ -140,6 +143,29 @@
   	<mark-patch-applied patch="device-version"/>
   </target>
 
+  <target name="long-distance-rule" unless="long-distance-rule">
+    <db-patch patch="long-distance-rule"/>
+  </target>
+
+  <target name="gateway-prefix" unless="gateway-prefix">
+    <sipx-sql>
+          alter table gateway add column prefix varchar(255);
+    </sipx-sql>     
+    <mark-patch-applied patch="gateway-prefix"/>
+  </target>
+  
+  <!-- TODO: remove when permission schema gets stable -->
+  <target name="drop-permission" if="permission">
+    <sipx-sql>
+        drop table permission;
+        delete from patch where name = 'permission';
+    </sipx-sql>
+  </target>
+
+  <target name="permission" depends="drop-permission">
+    <db-patch patch="permission"/>
+  </target>  
+  
   <target name="attendant_defaults" unless="attendant_defaults">
     <!-- remove spaces to enable things like auto-completion -->
     <sipx-sql>
