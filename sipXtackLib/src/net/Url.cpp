@@ -27,42 +27,66 @@
 #include "net/SipMessage.h"
 #include "net/HttpRequestContext.h"
 
+#undef TIME_PARSE
+#if TIME_PARSE
+#   include "os/OsTimeLog.h"
+#   define LOG_TIME(x) timeLog.addEvent(x)
+#else
+#   define LOG_TIME(x) /* x */
+#endif
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
 
+/* =========================================================================
+ * IMPORTANT NOTE:
+ *   If you change any of the following regular expressions, enable the
+ *   verbose form of the PARSE macro in ../test/net/UrlTest.cpp and check
+ *   to see if the parsing times are reasonable.  It's pretty easy to
+ *   cause very deep recursions, which can be both a performance problem
+ *   and can cause crashes due to stack overflow.
+ * ========================================================================= */
+
 #define DQUOTE "\""
 #define LWS "\\s+"
 #define SWS "\\s*"
-#define SLASHESC "\\"
+#define SLASH "\\"
 
-#define SIP_TOKEN "[a-zA-Z0-9.!%*_+`'~-]+"
-#define TOKENS_OR_DQUOTED "(" SIP_TOKEN "(?:" LWS SIP_TOKEN ")*" \
-                           "|" DQUOTE "(?:[^" SLASHESC DQUOTE "]" \
-                                       "|" SLASHESC DQUOTE \
-                                       "|" SLASHESC SLASHESC \
-                                      ")*" DQUOTE \
-                          ")"
+#define SIP_TOKEN "[a-zA-Z0-9.!%*_+`'~-]++"
 
 // SipTokenSequenceOrQuoted - used to validate display name values in setDisplayName
-const RegEx SipTokenSequenceOrQuoted("^" TOKENS_OR_DQUOTED "$");
+//   does not capture any substrings - this is important to avoid recursion
+const RegEx SipTokenSequenceOrQuoted("^(?:" SIP_TOKEN "(?:" LWS SIP_TOKEN ")*" \
+                                       "|" DQUOTE "(?:[^" SLASH DQUOTE "]++"   \
+                                                   "|" SLASH DQUOTE            \
+                                                   "|" SLASH SLASH             \
+                                                  ")*"                         \
+                                           DQUOTE                              \
+                                     ")$");
 
 // DisplayName - used to parse display name from a url string
-//    $1 matches a quoted or unquoted name (including the quotes)
-//       but not any leading or trailing whitespace
-const RegEx DisplayName("^\\s*" TOKENS_OR_DQUOTED "(?=" SWS "<)" );
+//    $1 matches an unquoted string
+//    $2 matches a quoted string but without the quotes
+//       Do Not Change This To Include The Quotes - that causes the regex
+//       processor to recurse, possibly very very deeply.  
+//       Instead, we add the quotes back in explicitly below.
+// neither includes any leading or trailing whitespace
+const RegEx DisplayName( SWS "(?:(" SIP_TOKEN "(?:" LWS SIP_TOKEN ")*)"
+                              "|" DQUOTE "((?:[^" SLASH DQUOTE "]++"
+                                           "|" SLASH DQUOTE
+                                           "|" SLASH SLASH
+                                           ")*)"
+                                  DQUOTE
+                             ")"
+                         "(?=" SWS "<)"
+                        );
 
 // AngleBrackets
 //   allows and matches leading whitespace
 //   $0 matches any leading whitespace, the angle brackets, and the contents
 //   $1 matches just the contents
 const RegEx AngleBrackets( SWS "<([^>]+)>" );
-
-// AnyScheme
-//   matches any scheme name as defined by RFC 3986
-//   allows but does not match leading and trailing whitespace
-//   $1 is the scheme name 
-const RegEx AnyScheme( SWS "([a-zA-Z][a-zA-Z0-9+.-]+)" SWS ":" );
 
 /* SupportedSchemes - matches any supported scheme name followed by ':'
  *   allows leading whitespace
@@ -79,7 +103,9 @@ const RegEx AnyScheme( SWS "([a-zA-Z][a-zA-Z0-9+.-]+)" SWS ":" );
  *    Similarly, the Scheme value is used as an index into SchemeName, so the translation
  *    to a string will be wrong if that is not kept correct.
  */
-const RegEx SupportedSchemes( "^(?i)(?:(sip)|(sips)|(http)|(https)|(ftp)|(file)|(mailto))$" );
+#define SUPPORTED_SCHEMES "(?i:(sip)|(sips)|(http)|(https)|(ftp)|(file)|(mailto))"
+const RegEx SupportedScheme( SWS SUPPORTED_SCHEMES SWS ":" );
+const RegEx SupportedSchemeExact( "^" SUPPORTED_SCHEMES "$" );
 const char* SchemeName[ Url::NUM_SUPPORTED_URL_SCHEMES ] =
 {
    "UNKNOWN-URL-SCHEME",
@@ -94,23 +120,22 @@ const char* SchemeName[ Url::NUM_SUPPORTED_URL_SCHEMES ] =
 
 // UsernameAndPassword
 //   requires and matches the trailing '@'
-//   $0 matches user:password@ 
 //   $1 matches user
-//   $4 matches password
+//   $2 matches password
 const RegEx UsernameAndPassword(
    "("
-     "("
-         "[a-zA-Z0-9_.!~*'()&=+$,;?/-]"
-      "|"
+      "(?:"
+         "[a-zA-Z0-9_.!~*'()&=+$,;?/-]++"
+       "|"
          "%[0-9a-fA-F]{2}"
       ")+"
     ")"
-   "(:"
+   "(?:" ":"
       "("
-        "("
-           "[a-zA-Z0-9_.!~*'()&=+$,-]"
-        "|"
-           "%[0-9a-fA-F]{2}"
+        "(?:"
+            "[a-zA-Z0-9_.!~*'()&=+$,-]++"
+         "|"
+            "%[0-9a-fA-F]{2}"
         ")*"
       ")"
     ")?"
@@ -121,17 +146,17 @@ const RegEx UsernameAndPassword(
 //   does not allow leading whitespace
 //   $0 matches host:port
 //   $1 matches host
-//   $3 matches port
+//   $2 matches port
 #define DOMAIN_LABEL "(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)"
 const RegEx HostAndPort( 
    "("
-    "(?:" DOMAIN_LABEL "\\.)*" DOMAIN_LABEL "\\.?" // DNS name 
-   "|"
-    "(?:[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})" // IPv4 address
-   "|"
-    "(?:\\[[0-9a-fA-F:.]+\\])" // IPv6 address
-   ")"
-  "(:([0-9]+))?" // port number
+     "(?:" DOMAIN_LABEL "\\.)*" DOMAIN_LABEL "\\.?" // DNS name 
+      "|"
+        "(?:[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})" // IPv4 address
+      "|"
+        "(?:\\[[0-9a-fA-F:.]++\\])" // IPv6 address
+     ")"
+   "(?:" ":" "([0-9]{1,6}))?" // port number
                         );
 
 // UrlPath
@@ -139,14 +164,14 @@ const RegEx HostAndPort(
 //   does not require, but matches a trailing '?'
 //   $0 matches path?
 //   $1 matches path
-const RegEx UrlPath( "([^?\\s]+)\\??" );
+const RegEx UrlPath( "([^?\\s]++)\\??" );
 
 // UrlParams
 //   allows leading whitespace
 //   is terminated by but does not require a trailing '?' or '>'
 //   $0 matches ;params
 //   $1 matches params
-const RegEx UrlParams( SWS ";([^?>]+)" );
+const RegEx UrlParams( SWS ";([^?>]++)" );
 
 // FieldParams
 //   allows leading whitespace
@@ -160,10 +185,13 @@ const RegEx FieldParams( SWS ";(.+)$" );
 //   is terminated by but does not require a trailing '>'
 //   $0 matches ?params
 //   $1 matches params
-const RegEx HeaderOrQueryParams( SWS "\\?([^>]+)>?" );
+const RegEx HeaderOrQueryParams( SWS "\\?([^>]++)>?" );
 
 // AllDigits
-const RegEx AllDigits("^\\+?[0-9*]+$");
+const RegEx AllDigits("^\\+?[0-9*]++$");
+
+// The end of the value (allowing optional whitespace)
+const RegEx TheEnd("^" SWS "$");
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -1169,6 +1197,11 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
    // If !isAddrSpec:
    //    DisplayName<userinfo@hostport;urlParameters?headerParameters>;fieldParameters
 
+#  ifdef TIME_PARSE
+   OsTimeLog timeLog;
+   LOG_TIME("start    ");
+#  endif
+
    // Try to catch when a name-addr is passed but we are expecting an
    // addr-spec -- many name-addr's start with '<' or '"'.
    if (isAddrSpec && (urlString[0] == '<' || urlString[0] == '"'))
@@ -1190,18 +1223,39 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
    {
       // Is there a display name on the front?
       mDisplayName.remove(0);
+      LOG_TIME("display   <");
       RegEx displayName(DisplayName);
       if (displayName.SearchAt(urlString, workingOffset))
       {
-         displayName.MatchString(&mDisplayName, 1); // does not include whitespace
+         LOG_TIME("display   > ");
+         switch (displayName.Matches() /* number of substrings that matched */)
+         {
+         case 2: // matched unquoted sequence of tokens
+            displayName.MatchString(&mDisplayName, 1);
+            break;
+            
+         case 3: // matched a double quoted string
+            // see performance note on DisplayName
+            mDisplayName.append("\"");
+            displayName.MatchString(&mDisplayName, 2);
+            mDisplayName.append("\"");
+            break;
+
+         default:
+            assert(false);
+         }
+
+         // does not include whitespace or the '<'
          workingOffset = displayName.AfterMatch(0);
       }
 
       // Are there angle brackets around the URI?
+      LOG_TIME("angles   < ");
       RegEx angleBrackets(AngleBrackets);
       if (angleBrackets.SearchAt(urlString, workingOffset))
       {
-
+         LOG_TIME("angles   > ");
+         // yes, there are angle brackets
          workingOffset = angleBrackets.MatchStart(1); // inside the angle brackets
          afterAngleBrackets = angleBrackets.AfterMatch(0); // following the '>'
          
@@ -1214,51 +1268,52 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
       }
    }
 
-   UtlString foundScheme;
-
-   // Parse the url type (aka scheme)
-   RegEx anyScheme(AnyScheme);
-   if (   (anyScheme.SearchAt(urlString,workingOffset))
-       && (anyScheme.MatchStart(0) == workingOffset)
+   /*
+    * AMBIGUITY - there is a potential ambiguity when parsing real URLs.
+    *
+    * Consider the url 'foo:333' - it could be:
+    *       scheme 'foo' host '333' ('333' is a valid local host name - bad idea, but legal)
+    *   or  host   'foo' port '333' (and scheme 'sip' is implied)
+    *
+    * Now make it worse by using 'sips' as a hostname:
+    *   'sips:333'     
+    *       scheme 'sips' host '333'
+    *   or  host   'sips' port '333' (and scheme 'sip' is implied)
+    *
+    * We resolve the first case by treating anything left of the colon as a scheme if
+    * it is one of the supported schemes.  Otherwise, we set the scheme to the
+    * default (sip) and go on so that it will be parsed as a hostname.  This does not
+    * do the right thing for the (scheme 'sips' host '333') case, but they get what
+    * they deserve.
+    */
+   
+   // Parse the scheme (aka url type)
+   LOG_TIME("scheme   < ");
+   RegEx supportedScheme(SupportedScheme);
+   if (   (supportedScheme.SearchAt(urlString,workingOffset))
+       && (supportedScheme.MatchStart(0) == workingOffset)
        )
    {
-      anyScheme.MatchString(&foundScheme,1);
-      mScheme = scheme(foundScheme);
-
-      /*
-       * There is a potential ambiguity here.
-       * Consider the url 'foo:333' - it could be:
-       *       scheme 'foo' host '333' ('333' is a valid local host name - bad idea, but legal)
-       *   or  host   'foo' port '333' (and scheme 'sip' is implied)
-       *
-       * Now make it worse by using 'sips' as a hostname:
-       *   'sips:333'     
-       *       scheme 'sips' host '333'
-       *   or  host   'sips' port '333' (and scheme 'sip' is implied)
-       *
-       * We resolve the first case by treating anything left of the colon as a scheme if
-       * it is one of the supported schemes.  Otherwise, we set the scheme to the
-       * default (sip) and go on so that it will be parsed as a hostname.  This does not
-       * do the right thing for the (scheme 'sips' host '333') case, but they get what
-       * they deserve.
-       */
-      if (UnknownUrlScheme != mScheme)
-      {
-         workingOffset = anyScheme.AfterMatch(0); // past the ':'
-      }
-      else
-      {
-         // foundScheme is not a supported scheme, so guess that it's a host and "sip:" is implied
-         mScheme = SipUrlScheme;
-      }
+      LOG_TIME("scheme   > ");
+      // the scheme name matches one of the supported schemes
+      mScheme = static_cast<Scheme>(supportedScheme.Matches()-1);
+      workingOffset = supportedScheme.AfterMatch(0); // past the ':'
    }
    else
    {
-      // no scheme specified, so assume 'sip'
-      mScheme = SipUrlScheme;
+      /*
+       * It did not match one of the supported scheme names
+       * so proceed on the assumption that it's a host and "sip:" is implied
+       * Leave the workingOffset where it is (before the token).
+       * The code below, through the parsing of host and port
+       * treats this as an implicit 'sip:' url; if it parses ok
+       * up to that point, it resets the scheme to SipsUrlScheme
+       */
+      mScheme = UnknownUrlScheme;
    }
+   
 
-   // skip over any '//' following the scheme for the ones that use that
+   // skip over any '//' following the scheme for the ones we know use that
    switch (mScheme)
    {
    case FileUrlScheme:
@@ -1282,26 +1337,35 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
    if (FileUrlScheme != mScheme) // no user part in file urls
    {
       // Parse the username and password
+      LOG_TIME("userpass   < ");
       RegEx usernameAndPassword(UsernameAndPassword);
       if (   (usernameAndPassword.SearchAt(urlString, workingOffset))
           && usernameAndPassword.MatchStart(0) == workingOffset 
           )
       {
+         LOG_TIME("userpass   > ");
          usernameAndPassword.MatchString(&mUserId, 1);
-         usernameAndPassword.MatchString(&mPassword, 4);
+         usernameAndPassword.MatchString(&mPassword, 2);
          workingOffset = usernameAndPassword.AfterMatch(0);
+      }
+      else
+      {
+         // username and password are optional, so not finding them is ok
+         // leave workingOffset where it is
       }
    }
 
    // Parse the hostname and port
+   LOG_TIME("hostport   < ");
    RegEx hostAndPort(HostAndPort);
    if (   (hostAndPort.SearchAt(urlString,workingOffset))
        && (hostAndPort.MatchStart(0) == workingOffset)
        )
    {
+      LOG_TIME("hostport   > ");
       hostAndPort.MatchString(&mHostAddress,1);
       UtlString portStr;
-      if (hostAndPort.MatchString(&portStr,3))
+      if (hostAndPort.MatchString(&portStr,2))
       {
          mHostPort = atoi(portStr.data());
       }
@@ -1311,16 +1375,38 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
       }
 
       workingOffset = hostAndPort.AfterMatch(0);
+
+      if (UnknownUrlScheme == mScheme)
+      {
+         /*
+          * Resolve AMBIGUITY
+          *   Since we were able to parse this as a host and port, it is now safe to
+          *   set the scheme to the implied 'sip:'.
+          */
+         mScheme = SipUrlScheme;
+      }
    }
    else
    {
       if (FileUrlScheme != mScheme) // no host is ok in a file URL
       {
+         /*
+          * This is not a file URL, so not having a recognized host name is invalid.
+          *
+          * Since we may have been called from a constructor, there is no way to
+          * return an error, but at this point we know this is bad, so instead
+          * we just log an error and set the scheme to the unknown url type and
+          * clear any components that might have been set.
+          */
          OsSysLog::add(FAC_SIP, PRI_ERR,
                        "Url::parseString no valid host found at char %d in '%s', "
                        "isAddrSpec = %d",
                        workingOffset, urlString, isAddrSpec
                        );
+         mScheme = UnknownUrlScheme;
+         mDisplayName.remove(0);
+         mUserId.remove(0);
+         mPassword.remove(0);
       }
    }
    
@@ -1336,11 +1422,13 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
    case HttpsUrlScheme:
    {
       // this is an http, https, or ftp URL, so get the path
+      LOG_TIME("path   < ");
       RegEx urlPath(UrlPath);
       if (   (urlPath.SearchAt(urlString, workingOffset))
           && (urlPath.MatchStart(0) == workingOffset)
           )
       {
+         LOG_TIME("path   > ");
          urlPath.MatchString(&mPath,1);
          workingOffset = urlPath.AfterMatch(1);
       }
@@ -1363,11 +1451,13 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
           || afterAngleBrackets != UTL_NOT_FOUND // inside angle brackets there may be a url param
           ) 
       {
+         LOG_TIME("urlparm   < ");
          RegEx urlParams(UrlParams);
          if (   (urlParams.SearchAt(urlString, workingOffset))
              && (urlParams.MatchStart(0) == workingOffset)
              )
          {
+            LOG_TIME("urlparm   > ");
             urlParams.MatchString(&mRawUrlParameters, 1);
             workingOffset = urlParams.AfterMatch(1);
 
@@ -1384,38 +1474,50 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
       break;
    }
 
-   // Parse any header or query parameters
-   RegEx headerOrQueryParams(HeaderOrQueryParams);
-   if(   (headerOrQueryParams.SearchAt(urlString, workingOffset))
-      && (headerOrQueryParams.MatchStart(0) == workingOffset)
-      )
+   if (UnknownUrlScheme != mScheme)
    {
-      headerOrQueryParams.MatchString(&mRawHeaderOrQueryParameters, 1);
-      workingOffset = headerOrQueryParams.AfterMatch(0);
+      // Parse any header or query parameters
+      LOG_TIME("hdrparm   < ");
+      RegEx headerOrQueryParams(HeaderOrQueryParams);
+      if(   (headerOrQueryParams.SearchAt(urlString, workingOffset))
+         && (headerOrQueryParams.MatchStart(0) == workingOffset)
+         )
+      {
+         LOG_TIME("hdrparm   > ");
+         headerOrQueryParams.MatchString(&mRawHeaderOrQueryParameters, 1);
+         workingOffset = headerOrQueryParams.AfterMatch(0);
             
-      // actual parsing of the parameters is in parseHeaderOrQueryParameters
-      // so that it only happens if someone asks for them.
-   }
-
-   // Parse the field parameters
-   if (!isAddrSpec) // can't have field parameters in an addrspec
-   {
-      if (afterAngleBrackets != UTL_NOT_FOUND)
-      {
-         workingOffset = afterAngleBrackets;
-      }
-
-      RegEx fieldParameters(FieldParams);
-      if (   (fieldParameters.SearchAt(urlString, workingOffset))
-          && (fieldParameters.MatchStart(0) == workingOffset)
-          )
-      {
-         fieldParameters.MatchString(&mRawFieldParameters, 1);
-
-         // actual parsing of the parameters is in parseFieldParameters
+         // actual parsing of the parameters is in parseHeaderOrQueryParameters
          // so that it only happens if someone asks for them.
       }
+
+      // Parse the field parameters
+      if (!isAddrSpec) // can't have field parameters in an addrspec
+      {
+         if (afterAngleBrackets != UTL_NOT_FOUND)
+         {
+            workingOffset = afterAngleBrackets;
+         }
+
+         LOG_TIME("fldparm   < ");
+         RegEx fieldParameters(FieldParams);
+         if (   (fieldParameters.SearchAt(urlString, workingOffset))
+             && (fieldParameters.MatchStart(0) == workingOffset)
+             )
+         {
+            LOG_TIME("fldparm   > ");
+            fieldParameters.MatchString(&mRawFieldParameters, 1);
+
+            // actual parsing of the parameters is in parseFieldParameters
+            // so that it only happens if someone asks for them.
+         }
+      }
    }
+#  ifdef TIME_PARSE
+   UtlString timeDump;
+   timeLog.getLogString(timeDump);
+   printf("\n%s\n", timeDump.data());
+#  endif
 }
 
 UtlBoolean Url::isUserHostPortEqual(const Url &url) const
@@ -1450,10 +1552,10 @@ Url::Scheme Url::scheme( const UtlString& schemeName )
 {
    Scheme theScheme;
    
-   RegEx supportedSchemes(SupportedSchemes);
-   if (supportedSchemes.Search(schemeName.data()))
+   RegEx supportedSchemeExact(SupportedSchemeExact);
+   if (supportedSchemeExact.Search(schemeName.data()))
    {
-      theScheme = static_cast<Scheme>(supportedSchemes.Matches()-1);
+      theScheme = static_cast<Scheme>(supportedSchemeExact.Matches()-1);
    }
    else
    {

@@ -15,6 +15,8 @@
 #include <net/NetMd5Codec.h>
 #include <utl/UtlTokenizer.h>
 
+#include "os/OsTimeLog.h"
+
 #define MISSING_PARAM  "---missing---"
 
 #define ASSERT_ARRAY_MESSAGE(message, expected, actual) \
@@ -84,6 +86,13 @@ class UrlTest : public CppUnit::TestCase
     CPPUNIT_TEST(testIsUserHostPortPorts);
     CPPUNIT_TEST(testToString);
     CPPUNIT_TEST(testGetIdentity);
+    CPPUNIT_TEST(testNormalUri);
+    CPPUNIT_TEST(testBigUriDisplayName);
+    CPPUNIT_TEST(testBigUriQuotedName);
+    CPPUNIT_TEST(testBigUriScheme);
+    CPPUNIT_TEST(testBigUriUser);
+    CPPUNIT_TEST(testBigUriNoSchemeUser);
+    CPPUNIT_TEST(testBigUriHost);
     CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -92,11 +101,20 @@ private:
 
     char msg[1024];
 
+   static const size_t BIG_SIZE=8200;
+   UtlString bigtoken; // bigtoken = BIG_SIZE characters to be used in constructing strings
+
 public:
 
-    void setUp()
+   void setUp()
     {
         assertValue = new UtlString();
+
+        CPPUNIT_ASSERT(bigtoken.capacity(BIG_SIZE) >= BIG_SIZE);
+        while (bigtoken.length() < BIG_SIZE)
+        {
+           bigtoken.append("a123456789"); // use leading a to match name syntax
+        }
     }
 
     void tearDown()
@@ -1399,6 +1417,206 @@ public:
                                    getIdentity(url));
        }
     }
+
+/*
+ * The primary purpose of the following tests is to look for cases in which
+ * the regular expressions either take too long to run, or recurse too deeply
+ * (the latter will usually also cause the former).
+ *
+ * Because we don't want the tests to be chatty, and we don't want to pick an
+ * arbitrary time for "too long", the following PARSE macro.  It wraps the
+ * constructor and in the verbose form prints how long it took to run.
+ * Normally, this should be disabled, but turn it on if you're making changes
+ * to the regular expressions so that you can see any performance/recursion
+ * problems.
+ */
+#if 0
+#     define PARSE(name)                        \
+      OsTimeLog name##timeLog;                  \
+      name##timeLog.addEvent("start  " #name);  \
+      Url name##Url(name);                      \
+      name##timeLog.addEvent("parsed " #name);  \
+      UtlString name##Log;                      \
+      name##timeLog.getLogString(name##Log);    \
+      printf("\n%s\n", name##Log.data());
+#else
+#     define PARSE(name)                     \
+      Url name##Url(name);
+#endif
+         
+   void testNormalUri()
+      {
+         // exists just to provide a time comparison for the following testBigUri... tests
+         UtlString normal("Display Name <sip:user@example.com>");
+         PARSE(normal);
+      }
+
+   void testBigUriDisplayName()
+      {
+         // <bigtoken> sip:user@example.com
+         
+         UtlString bigname;
+         bigname.append(bigtoken);
+         bigname.append(" <sip:user@example.com>");
+         
+         PARSE(bigname);
+         
+         CPPUNIT_ASSERT(bignameUrl.getScheme() == Url::SipUrlScheme);
+
+         UtlString component;
+
+         bignameUrl.getDisplayName(component);
+         CPPUNIT_ASSERT(! component.compareTo(bigtoken)); 
+         
+         bignameUrl.getUserId(component);
+         CPPUNIT_ASSERT(! component.compareTo("user")); 
+         
+         bignameUrl.getHostAddress(component);
+         CPPUNIT_ASSERT(! component.compareTo("example.com"));          
+      }
+
+   void testBigUriQuotedName()
+      {
+         // "<bigtoken>" sip:user@example.com
+         
+         UtlString bigquotname;
+         bigquotname.append("\"");
+         bigquotname.append(bigtoken);
+         bigquotname.append("\" <sip:user@example.com>");
+         
+         PARSE(bigquotname);
+
+         UtlString component;
+
+         bigquotnameUrl.getDisplayName(component);
+         UtlString quoted_bigtoken;
+         quoted_bigtoken.append("\"");
+         quoted_bigtoken.append(bigtoken);
+         quoted_bigtoken.append("\"");
+         CPPUNIT_ASSERT(! component.compareTo(quoted_bigtoken)); 
+         
+         CPPUNIT_ASSERT(bigquotnameUrl.getScheme() == Url::SipUrlScheme);
+
+         bigquotnameUrl.getUserId(component);
+         CPPUNIT_ASSERT(! component.compareTo("user")); 
+         
+         bigquotnameUrl.getHostAddress(component);
+         CPPUNIT_ASSERT(! component.compareTo("example.com"));
+      }
+
+   void testBigUriScheme()
+      {
+         // <bigtoken>:user:password@example.com
+         
+         UtlString bigscheme;
+         bigscheme.append(bigtoken);
+         bigscheme.append(":user:password@example.com");
+         
+         PARSE(bigscheme);
+
+         UtlString component;
+
+         CPPUNIT_ASSERT(bigschemeUrl.getScheme() == Url::UnknownUrlScheme); 
+
+         bigschemeUrl.getUserId(component);
+         CPPUNIT_ASSERT(component.isNull()); 
+         
+         bigschemeUrl.getHostAddress(component);
+         CPPUNIT_ASSERT(component.isNull());
+         
+         Url bigSchemeAddrType(bigscheme, TRUE /* as addr-type */);
+
+         CPPUNIT_ASSERT(bigSchemeAddrType.getScheme() == Url::UnknownUrlScheme); // ?
+
+         bigSchemeAddrType.getUserId(component);
+         CPPUNIT_ASSERT(component.isNull()); // bigtoken
+         
+         bigSchemeAddrType.getHostAddress(component);
+         CPPUNIT_ASSERT(component.isNull());        
+      }
+
+   void testBigUriUser()
+      {
+         // sip:<bigtoken>@example.com
+         
+         UtlString biguser;
+         biguser.append("sip:");
+         biguser.append(bigtoken);
+         biguser.append("@example.com");
+         
+         PARSE(biguser);
+
+         CPPUNIT_ASSERT(biguserUrl.getScheme() == Url::SipUrlScheme);
+         
+         UtlString component;
+
+         biguserUrl.getUserId(component);
+         CPPUNIT_ASSERT(component.compareTo(bigtoken) == 0);
+         
+         biguserUrl.getHostAddress(component);
+         CPPUNIT_ASSERT(! component.compareTo("example.com"));
+      }
+
+   void testBigUriNoSchemeUser()
+      {
+         // <bigtoken>@example.com
+         
+         UtlString bigusernoscheme;
+
+         bigusernoscheme.append(bigtoken);
+         bigusernoscheme.append("@example.com");
+         
+         PARSE(bigusernoscheme);
+
+         CPPUNIT_ASSERT(bigusernoschemeUrl.getScheme() == Url::SipUrlScheme);
+         
+         UtlString component;
+
+         bigusernoschemeUrl.getUserId(component);
+         CPPUNIT_ASSERT(component.compareTo(bigtoken) == 0);
+         
+         bigusernoschemeUrl.getHostAddress(component);
+         CPPUNIT_ASSERT(! component.compareTo("example.com"));
+      }
+
+   void testBigUriHost()
+      {
+         
+         // see if a 128 character host parses ok
+         UtlString okhost("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+         UtlString bigok;
+         bigok.append("sip:user@");
+         bigok.append(okhost);
+         
+         PARSE(bigok);
+
+         CPPUNIT_ASSERT(bigokUrl.getScheme() == Url::SipUrlScheme);
+
+         UtlString component;
+
+         bigokUrl.getUserId(component);
+         CPPUNIT_ASSERT(!component.compareTo("user"));
+         
+         bigokUrl.getHostAddress(component);
+         CPPUNIT_ASSERT(!component.compareTo(okhost));
+
+         // user@<bigtoken>
+         /*
+          * A really big host name like this causes recursion in the regular expression
+          * that matches a domain name; the limit causes this match to fail.
+          * This is preferable to having the match succeed but either take minutes (yes,
+          * minutes) to do the match and/or overflow the stack, so we let it fail.
+          */
+
+         UtlString bighost;
+
+         bighost.append("sip:user@");
+         bighost.append(bigtoken);
+         
+         PARSE(bighost);
+
+         CPPUNIT_ASSERT(bighostUrl.getScheme() == Url::UnknownUrlScheme);
+      }
 
     /////////////////////////
     // Helper Methods
