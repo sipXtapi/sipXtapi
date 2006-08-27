@@ -58,8 +58,8 @@ public:
 
 
 /* ============================ ACCESSORS ================================= */
-   void* OsPtrMsg::getPtr();
-   void* OsPtrMsg::getPtr2();
+   void* getPtr();
+   void* getPtr2();
    
 
 /* ============================ INQUIRY =================================== */

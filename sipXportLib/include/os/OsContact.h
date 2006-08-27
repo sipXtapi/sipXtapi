@@ -79,15 +79,15 @@ public:
      * @param protocol The prefered protocol for this contact. 
      * @param type The type of ip address.
      */
-    OsContact::OsContact(UtlString address,
-                       int port,
-                       OsSocket::SocketProtocolTypes protocol,
-                       IpAddressType type);
+    OsContact(UtlString address,
+              int port,
+              OsSocket::SocketProtocolTypes protocol,
+              IpAddressType type);
                        
     /**
      * Copy constructor.
      */                       
-    OsContact::OsContact(const OsContact& ref);
+    OsContact(const OsContact& ref);
          
     /**
      * Destructor
@@ -156,9 +156,7 @@ private:
     /**
      * Disallow assignment.
      */
-    OsContact& operator=(const OsContact&)
-    {
-    }
+    OsContact& operator=(const OsContact&) ;
     
     /**
      * Helper function for comparison of two ints.

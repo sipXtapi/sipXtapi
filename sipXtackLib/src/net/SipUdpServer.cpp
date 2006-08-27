@@ -62,12 +62,12 @@ public:
     UtlString m_sendIp ;
     int       m_sendPort ;
 
-    SipKeepAliveBinding::SipKeepAliveBinding(OsSocket*        pSocket,
-                                             const UtlString& targetIp,
-                                             int              targetPort,
-                                             const UtlString& method,
-                                             int              iKeepAlive,
-                                             OsNatKeepaliveListener* pListener)
+    SipKeepAliveBinding(OsSocket*        pSocket,
+                        const UtlString& targetIp,
+                        int              targetPort,
+                        const UtlString& method,
+                        int              iKeepAlive,
+                        OsNatKeepaliveListener* pListener)
     {
         m_pSocket = pSocket ;
         m_targetIp = targetIp ;
@@ -156,7 +156,7 @@ public:
                 (m_method.compareTo(szMethod) == 0)) ;
     }
 
-    SipKeepAliveBinding::~SipKeepAliveBinding()
+    ~SipKeepAliveBinding()
     {
         stop() ;
         delete m_pTimer ;
