@@ -21,10 +21,22 @@ public class PermissionTest extends TestCase {
         Permission x = Permission.Type.CALL.create("x");
         assertEquals("permission/call-handling/x", x.getSettingPath());
     }
-    
+
     public void testGetSetting() {
         Setting setting = Permission.VOICEMAIL.getSetting();
         assertEquals(Permission.VOICEMAIL.getName(), setting.getName());
-        assertTrue(setting.getType() instanceof BooleanSetting);        
+        assertTrue(setting.getType() instanceof BooleanSetting);
+
+        Permission permission = new Permission();
+        permission.setDefaultValue(true);
+        assertEquals("ENABLE", permission.getSetting().getDefaultValue());
+        assertTrue(permission.getSetting().getName().startsWith("perm"));
+    }
+
+    public void testGetPrimaryKey() throws Exception {
+        Permission permission = new Permission();
+        Object key = permission.getPrimaryKey();
+        assertEquals(-1, key);
+        assertEquals("Voicemail", Permission.VOICEMAIL.getPrimaryKey());
     }
 }

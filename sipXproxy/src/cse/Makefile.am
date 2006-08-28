@@ -1,11 +1,12 @@
 ## Process this file with automake to produce Makefile.in
 
-# Only go into test subdir if --with-dbtests was specified
-if BUILD_DBTESTS
-SUBDIRS = . test
+# Only go into test subdir if --with-test-cse was specified
+
+if ENABLE_CSE_TESTS
+TEST_CSE_OPT = test
 endif
 
-DIST_SUBDIRS = .
+SUBDIRS = . $(TEST_CSE_OPT)
 
 noinst_LTLIBRARIES = libcse.la
 

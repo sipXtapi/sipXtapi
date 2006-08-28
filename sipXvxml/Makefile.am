@@ -1,21 +1,24 @@
 ## Process this file with automake to produce Makefile.in
-include $(top_builddir)/config/sipXcommon.mak
+include config/project.am
 
-include $(srcdir)/config/sipXprojtop.mak
+RPMS = $(DEFAULT_RPMS)
 
-SUBDIRS = . js src bin include meta $(doc_SUBDIRS)
-
-INSTALL = @INSTALL@
+SUBDIRS = \
+	. \
+	js \
+	src \
+	bin \
+	include \
+	meta \
+	$(doc_SUBDIRS)
 
 EXTRA_DIST = \
     CONTRIBUTORS \
     BUILDSTAMP \
-    SVN-EXPORT-VERSION \
+    SVN_VERSION \
     config/sipX-config.in \
     config/sipX-buildstamp.cpp.in \
     config/sipX-buildstamp.h.in \
-    config/sipXprojtop.mak \
-    config/sipXcommon.mak.in \
     etc/mediaserver-config.in.in \
     sipxvxml.spec
 

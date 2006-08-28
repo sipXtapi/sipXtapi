@@ -1,7 +1,5 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
-# benign edit
-
 AC_PREREQ(2.57)
 AC_INIT(sipXpbx, 3.5.0, sipx-dev@list.sipfoundry.org)
 
@@ -44,7 +42,6 @@ SFAC_LIB_STACK
 CHECK_GIPSNEQ
 
 AC_CONFIG_FILES([Makefile])
-AC_CONFIG_FILES([config/sipXcommon.mak])
 AC_CONFIG_FILES([bin/Makefile])
 AC_CONFIG_FILES([doc/developer/Makefile.config])
 AC_CONFIG_FILES([etc/Makefile])
@@ -63,6 +60,7 @@ AC_CONFIG_FILES([src/replicationcgi/Makefile])
 AC_CONFIG_FILES([src/sipxcgi/Makefile])
 AC_CONFIG_FILES([src/test/Makefile])
 AC_CONFIG_FILES([src/test/sipxcgi/Makefile])
+AC_CONFIG_FILES([src/test/processcgi/Makefile])
 AC_CONFIG_FILES([src/watchdog/Makefile])
 AC_CONFIG_FILES([src/wwwcontent/Makefile])
 #AC_CONFIG_FILES([sipXconference/Makefile])

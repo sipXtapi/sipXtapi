@@ -64,7 +64,6 @@ CHECK_NAMED
 
 AC_CONFIG_FILES([
   Makefile 
-  config/sipXcommon.mak
   include/Makefile 
   src/Makefile 
   bin/Makefile 

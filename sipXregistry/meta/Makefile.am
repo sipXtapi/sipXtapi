@@ -1,7 +1,8 @@
-include $(top_builddir)/config/sipXcommon.mak
+include $(top_srcdir)/config/subdir.am
 
 schemas = \
 	alias.xsd \
+	caller-alias.xsd \
 	huntgroup.xsd
 
 EXTRA_DATA = $(foreach xsd,$(schemas),$(xsd).in)

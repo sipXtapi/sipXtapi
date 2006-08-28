@@ -15,7 +15,10 @@ import java.util.Collection;
 
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.components.RowInfo;
+import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
 
 public abstract class ListPermissions extends BasePage {
@@ -28,13 +31,15 @@ public abstract class ListPermissions extends BasePage {
 
     public IPage add(IRequestCycle cycle) {
         EditPermission editPage = (EditPermission) cycle.getPage(EditPermission.PAGE);
-        editPage.setPermissionName(null);
+        editPage.setPermissionId(null);
+        editPage.setCallback(new PageCallback(this));
         return editPage;
     }
 
-    public IPage edit(IRequestCycle cycle, String permissionName) {
+    public IPage edit(IRequestCycle cycle, Object permissionId) {
         EditPermission editPage = (EditPermission) cycle.getPage(EditPermission.PAGE);
-        editPage.setPermissionName(permissionName);
+        editPage.setPermissionId(permissionId);
+        editPage.setCallback(new PageCallback(this));
         return editPage;
     }
 
@@ -50,5 +55,15 @@ public abstract class ListPermissions extends BasePage {
         if (null != selectedRows) {
             getPermissionManager().removeCallPermissions(selectedRows);
         }
+    }
+
+    /**
+     * Only custom permissions are selectable.
+     */
+    public static class PermissionRowInfo implements RowInfo<Permission> {
+        public boolean isSelectable(Permission row) {
+            return !row.isBuiltIn();
+        }
+
     }
 }

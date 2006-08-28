@@ -16,11 +16,17 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Meta information about a group of settings, can contain nested SettingModels. Order is
  * preserved
  */
 public class SettingSet extends AbstractSetting implements Cloneable, Serializable {
+
+    public static final Log LOG = LogFactory.getLog(SettingSet.class);
 
     private LinkedHashMap<String, Setting> m_children = new LinkedHashMap<String, Setting>();
 
@@ -76,7 +82,35 @@ public class SettingSet extends AbstractSetting implements Cloneable, Serializab
     }
 
     public Setting getSetting(String name) {
-        return SettingUtil.getSettingByPath(m_children, this, name);
+        if (StringUtils.isEmpty(name)) {
+            // empty string returns the setting itself
+            // why?
+            // to support path round-tripping
+            // String s = root.getSetting("x").getParent().getPath();
+            // Setting root = root.getSetting(s);
+            return this;
+        }
+
+        String prefix = name;
+        String remainder = null;
+        int slash = name.indexOf(Setting.PATH_DELIM);
+        if (slash > 0) {
+            prefix = name.substring(0, slash);
+            remainder = name.substring(slash + 1);
+        }
+        Setting child = m_children.get(prefix);
+        if (child == null) {
+            // TODO: should we throw an exception here?
+            LOG.warn("Cannot find setting: " + name + " in " + this.getPath());
+            return null;
+        }
+
+        if (remainder == null) {
+            // nothing more to do
+            return child;
+        }
+
+        return child.getSetting(remainder);
     }
 
     public Collection<Setting> getValues() {

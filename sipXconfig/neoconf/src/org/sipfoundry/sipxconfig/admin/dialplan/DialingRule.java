@@ -26,6 +26,7 @@ import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.permission.PermissionManager;
 
 /**
  * DialingRule At some point it will be replaced by the IDialingRule interface or made abstract.
@@ -38,6 +39,7 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule, Da
     private String m_description;
     private int m_position;
     private List<Gateway> m_gateways = new ArrayList<Gateway>();
+    private PermissionManager m_permissionManager;
 
     public abstract String[] getPatterns();
 
@@ -163,5 +165,16 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule, Da
             transformed[i] = gateway.getCallPattern(patterns[i]);
         }
         return transformed;
+    }
+
+    public void setPermissionManager(PermissionManager permissionManager) {
+        m_permissionManager = permissionManager;
+    }
+
+    protected Permission getPermission(String name) {
+        if (m_permissionManager == null) {
+            throw new IllegalStateException("Permission manager not configured.");
+        }
+        return m_permissionManager.getPermission(name);
     }
 }

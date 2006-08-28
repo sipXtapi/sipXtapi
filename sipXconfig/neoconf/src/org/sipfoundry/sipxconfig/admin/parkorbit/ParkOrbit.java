@@ -13,8 +13,10 @@ package org.sipfoundry.sipxconfig.admin.parkorbit;
 
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.NamedObject;
+import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class ParkOrbit extends BackgroundMusic implements NamedObject {
+
     private String m_name;
     private String m_extension;
     private String m_description;
@@ -47,5 +49,30 @@ public class ParkOrbit extends BackgroundMusic implements NamedObject {
         String identity = AliasMapping.createUri(m_extension, dnsDomain);
         String contact = AliasMapping.createUri(m_extension, orbitServer);
         return new AliasMapping(identity, contact);
+    }
+
+    @Override
+    protected Setting loadSettings() {
+        return getModelFilesContext().loadModelFile("sipxpark/park-orbit.xml");
+    }
+
+    public boolean isParkTimeoutEnabled() {
+        return (Boolean) getSettingTypedValue("general/enableTimeout");
+    }
+
+    public int getParkTimeout() {
+        return (Integer) getSettingTypedValue("general/parkTimeout");
+    }
+
+    public boolean isMultipleCalls() {
+        return (Boolean) getSettingTypedValue("general/multipleCalls");
+    }
+
+    public boolean isTransferAllowed() {
+        return (Boolean) getSettingTypedValue("general/allowTransfer");
+    }
+
+    public String getTransferKey() {
+        return (String) getSettingTypedValue("general/transferKey");
     }
 }

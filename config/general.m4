@@ -916,6 +916,9 @@ AC_DEFUN([CHECK_PCRE],
 
             AC_SUBST(PCRE_LIBS, "-lpcre" )
             AC_SUBST(PCRE_LDFLAGS, "-L$libval")
+
+            CXXFLAGS="$CXXFLAGS $PCRE_CXXFLAGS"
+            CFLAGS="$CFLAGS $PCRE_CFLAGS"
         fi
     fi
 ])dnl

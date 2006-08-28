@@ -28,7 +28,6 @@ public abstract class AbstractSetting implements Setting, NamedObject {
     private boolean m_advanced;
     private boolean m_hidden;
     private SettingValue2 m_value = NULL;
-    
 
     public AbstractSetting() {
         super();
@@ -87,7 +86,11 @@ public abstract class AbstractSetting implements Setting, NamedObject {
      * @throws IllegalArgumentException Cannot get settings from another setting, only groups
      */
     public Setting getSetting(String name) {
-        return SettingUtil.getSettingByPath(null, this, name);
+        if (StringUtils.isEmpty(name)) {
+            return this;
+        }
+        throw new IllegalArgumentException(
+                "Cannot get settings from another setting, only groups");
     }
 
     public void acceptVisitor(SettingVisitor visitor) {
@@ -123,7 +126,7 @@ public abstract class AbstractSetting implements Setting, NamedObject {
         }
         return m_profileName;
     }
-    
+
     public String getDescription() {
         return m_description;
     }
@@ -171,11 +174,11 @@ public abstract class AbstractSetting implements Setting, NamedObject {
     public Object getTypedValue() {
         return getType().convertToTypedValue(getValue());
     }
-    
+
     public String getValue() {
         return m_value.getValue();
     }
-    
+
     public void setValue(String value) {
         m_value = new SettingValueImpl(value);
     }

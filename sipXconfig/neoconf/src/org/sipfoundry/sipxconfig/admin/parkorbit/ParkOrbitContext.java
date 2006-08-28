@@ -20,12 +20,14 @@ public interface ParkOrbitContext extends AliasOwner, AliasProvider {
     public static final String CONTEXT_BEAN_NAME = "parkOrbitContext";
 
     ParkOrbit loadParkOrbit(Integer id);
+    
+    ParkOrbit newParkOrbit();
 
     void storeParkOrbit(ParkOrbit parkOrbit);
 
     void removeParkOrbits(Collection ids);
 
-    Collection getParkOrbits();
+    Collection<ParkOrbit> getParkOrbits();
 
     void activateParkOrbits();
 

@@ -1,23 +1,22 @@
 ## Process this file with automake to produce Makefile.in
+include $(top_srcdir)/config/project.am
 
-include $(top_builddir)/config/sipXcommon.mak
+RPMS = $(DEFAULT_RPMS)
 
 EXTRA_DIST = \
     config/sipX-config.in \
     config/sipX-buildstamp.cpp.in \
     config/sipX-buildstamp.h.in \
-    config/sipXprojtop.mak \
-    config/sipXcommon.mak.in \
     CONTRIBUTORS \
+    SVN_VERSION \
     BUILDSTAMP \
-    SVN-EXPORT-VERSION \
     sipxmediaadapterlib.spec
 
-unconditional_SUBDIRS = . interface sipXmediaMediaProcessing
-
-include $(srcdir)/config/sipXprojtop.mak
-
-SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)
+SUBDIRS = \
+	. \
+	interface \
+	sipXmediaMediaProcessing \
+	$(doc_SUBDIRS)
 
 DISTCLEANFILES = \
 	$(CONFIG_DISTCLEANFILES)

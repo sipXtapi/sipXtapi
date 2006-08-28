@@ -14,14 +14,10 @@ Url: http://www.sipfoundry.org/sipXconfig
 %define sipxpbxconf %{_sysconfdir}/sipxpbx
 %define sipxpbxdata %{_datadir}/sipxpbx
 %define sipxconfiglib %{_datadir}/sipxpbx/lib
+%define tftproot /tftpboot
 
 # Should match sipXlib.m4:SIPX_CONFIGPHONEDIR
 %define phonedir %{_localstatedir}/sipxdata/configserver/phone
-
-
-# Unfortunately because of Java's .so's  TODO: Figure out a way to 
-# tell rpm find-requires to find java's so
-AutoReqProv: no
 
 Source: %name-%version.tar.gz
 
@@ -30,6 +26,10 @@ Requires: sipxcommserverlib >= 3.5
 Requires: postgresql-server >= 7.3
 Requires: ruby >= 1.8.4
 Requires: ruby-gems >= 0.8.11
+
+# known incompatabilities w/gcj, unclear how to enforce. can be issue
+# when gcj gets to 1.5, until them sun and ibm jvms ok
+Requires: java >= 1.5
 
 # only used to serve phone profiles under http devices
 Requires: httpd >= 2.0
@@ -45,6 +45,29 @@ BuildRoot: %{_tmppath}/%name-%version-root
   Configuring one phone can be a daunting task, configuring a hundred
 phones can be maddening. sipXconfig leverages Jetty, Axis
 SOAP, postgresql and other JEE technologies to get the job done.
+
+# For phones that use TFTP to server profiles
+%package tftp
+Requires: tftp-server
+Group: Productivity/Telephony/SIP/Servers
+Vendor: SIPfoundry
+Summary: Configures/enables TFTP for devices controlled by %{name}
+
+%description tftp
+* requires tftp-server
+* turns on xinit.d/tftp service on
+* redirects /tftpboot to %{phonedir}/profile/tftproot
+
+%package ftp
+Requires: vsftpd
+Group: Productivity/Telephony/SIP/Servers
+Vendor: SIPfoundry
+Summary: Configures/enables FTP for devices controlled by %{name} 
+
+%description ftp
+* installs and configures vsftpd server
+* turns on xinit.d/vsftpd service on
+* add a user account w/default account for polycom phones
 
 %prep
 %setup -q
@@ -133,3 +156,27 @@ fi
 # uninstall lucene index and Jetty scratch dir on every install
 rm -rf /var/sipxdata/tmp/index 2> /dev/null
 rm -rf /var/sipxdata/tmp/Jetty__8443__sipxconfig 2> /dev/null
+
+# empty but required to generate RPM
+%files tftp
+
+%post tftp
+sed /etc/xinetd.d/tftp -i -e 's|^\W*disable\W*=\W*yes\W*$|disable = no|' -e 's|\W*/tftpboot\W*| %{phonedir}/profile/tftproot|'
+
+# empty but required to generate RPM
+%files ftp
+
+%post ftp
+if ! id -u plcmspip > /dev/null 2>&1
+then
+  # default user account polycom phones use
+  adduser -d %{phonedir}/profile/tftproot \
+    -G @SIPXPBXUSER@ -s /sbin/nologin -M plcmspip
+  echo -e "PlcmSpIp" | sudo passwd --stdin plcmspip
+fi
+chkconfig vsftpd on
+service vsftpd start
+
+%postun ftp
+userdel plcmspip
+#leave ftp server, cannot be sure it is not used

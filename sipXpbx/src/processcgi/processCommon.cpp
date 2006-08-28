@@ -20,6 +20,8 @@
 #endif
 
 // APPLICATION INCLUDES
+#include "os/OsFS.h"
+#include "os/OsFileIteratorBase.h"
 #include "os/OsTask.h"
 #include "os/OsTokenizer.h"
 #include "processcgi/processXMLCommon.h"
@@ -78,8 +80,11 @@ loadProcessXML(UtlString &rProcessXMLPath, TiXmlDocument &doc)
     if ( doc.LoadFile(rProcessXMLFullPath.data()) )
     {
         //        doc.Print();
-        retval = OS_SUCCESS;
+	OsPath processDefsFilename(rProcessXMLFullPath);
+	OsPath subdocDir = processDefsFilename.getDirName() + OsPath::separator + PROCESS_DIR;
+	retval = findSubDocs(subdocDir, doc, &addProcessDefSubDoc);
     }
+
 
     return retval;
 }
@@ -898,3 +903,100 @@ OsStatus initProcessXMLLayer(UtlString &rProcessXMLPath,  TiXmlDocument &rProces
     return retval;
 }
 
+OsStatus findSubDocs(OsPath &path, TiXmlDocument &rootDoc, ProcessSubDoc addSubDoc)
+{
+    OsFileIterator subdocs(path);
+    OsPath subdocName;
+    OsStatus status = subdocs.findFirst(subdocName, "[.]xml$");
+    while (status == OS_SUCCESS && subdocName.length() > 0) {
+        TiXmlDocument subdoc;
+        OsPath pathCopy(path);
+	// iterator doesn't appear to load full path, it's just the file name
+        bool success = subdoc.LoadFile(pathCopy + OsPath::separator + subdocName);
+        if (!success) {
+            status = OS_FAILED;
+        } else {
+            status = (*addSubDoc)(rootDoc, subdoc);
+            if (status == OS_SUCCESS) 
+            {
+	        status = subdocs.findNext(subdocName);
+            }
+        }
+    }
+
+    return status == OS_FILE_NOT_FOUND ? OS_SUCCESS : status;
+}
+
+OsStatus addWatchDogSubDoc(TiXmlDocument &rWatchDogXMLDoc, TiXmlDocument &subdoc)
+{
+    OsStatus status = OS_FAILED;
+
+    // navigate child doc
+    TiXmlElement *subroot = subdoc.RootElement();
+    if (subroot != NULL) 
+    {
+        TiXmlNode *subwatchdog = subroot->FirstChild("watchdog");
+        if (subwatchdog != NULL) 
+        {
+            TiXmlNode *submonitor = subwatchdog->FirstChild("monitor");
+            if (submonitor != NULL) 
+            {
+                // navigate root doc
+                TiXmlElement *root = rWatchDogXMLDoc.RootElement();
+                if (root != NULL) 
+                {
+                    TiXmlNode *monitor = root->FirstChild("monitor");
+                    if (monitor != NULL) 
+                    {
+                        // copy
+                        for (TiXmlNode *child = submonitor->FirstChild("process");
+                              child != NULL;
+                              child = child->NextSibling( "process" ) )
+                        {
+                            // according to tinyxml docs clone should be free'ed
+                            // but watchdog doc is never free'ed so leave as is
+                            TiXmlNode *clone = child->Clone();
+                            monitor->LinkEndChild(clone);
+                            status = OS_SUCCESS;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return status;
+}
+
+OsStatus addProcessDefSubDoc(TiXmlDocument &rProcessXMLDoc, TiXmlDocument &subdoc)
+{
+    OsStatus status = OS_FAILED;
+
+    // navigate child doc
+    TiXmlElement *subroot = subdoc.RootElement();
+    if (subroot != NULL) 
+    {
+        TiXmlNode *subproc_defs = subroot->FirstChild("process_definitions");
+        if (subproc_defs != NULL) 
+        {
+            // navigate root doc
+            TiXmlElement *root = rProcessXMLDoc.RootElement();
+            if (root != NULL) 
+            {
+                // copy
+                for (TiXmlNode *child = subproc_defs->FirstChild("group");
+                      child != NULL;
+                      child = child->NextSibling( "group" ) )
+                {
+                    // according to tinyxml docs clone should be free'ed
+                    // but process doc is never free'ed so leave as is
+                    TiXmlNode *clone = child->Clone();
+                    root->LinkEndChild(clone);
+                    status = OS_SUCCESS;
+                }
+            }
+        }
+    }
+
+    return status;
+}

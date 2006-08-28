@@ -27,12 +27,15 @@ public abstract class EditParkOrbit extends BasePage implements PageBeginRenderL
     public abstract ParkOrbitContext getParkOrbitContext();
 
     public abstract Integer getParkOrbitId();
+
     public abstract void setParkOrbitId(Integer id);
 
     public abstract ParkOrbit getParkOrbit();
+
     public abstract void setParkOrbit(ParkOrbit parkOrbit);
-    
+
     public abstract ICallback getCallback();
+
     public abstract void setCallback(ICallback callback);
 
     public void pageBeginRender(PageEvent event_) {
@@ -45,10 +48,10 @@ public abstract class EditParkOrbit extends BasePage implements PageBeginRenderL
             ParkOrbitContext context = getParkOrbitContext();
             orbit = context.loadParkOrbit(id);
         } else {
-            orbit = new ParkOrbit();
+            orbit = getParkOrbitContext().newParkOrbit();
         }
         setParkOrbit(orbit);
-        
+
         // If no callback was set before navigating to this page, then by
         // default, go back to the ListParkOrbits page
         if (getCallback() == null) {

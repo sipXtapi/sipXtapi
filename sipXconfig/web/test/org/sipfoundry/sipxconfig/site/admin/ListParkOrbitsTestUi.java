@@ -59,4 +59,16 @@ public class ListParkOrbitsTestUi extends ListWebTestCase {
         super.setAddParams(names, values);
         getDialog().getForm().setParameter("promptUpload", m_tempFile);
     }
+    
+    public void testParkOrbitDefaults() {
+        clickLink("orbits:defaults");
+        SiteTestHelper.assertNoException(tester);
+        checkCheckbox("booleanField");
+        clickButton("setting:apply");
+        SiteTestHelper.assertNoException(tester);
+        assertCheckboxSelected("booleanField");
+        clickButton("setting:cancel");
+        assertTablePresent("orbits:list");
+    }
+    
 }

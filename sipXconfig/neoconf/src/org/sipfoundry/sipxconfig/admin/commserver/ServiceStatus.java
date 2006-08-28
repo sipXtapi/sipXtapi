@@ -15,8 +15,9 @@ import java.util.List;
 
 import org.apache.commons.lang.enums.Enum;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Process;
+import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
 
-public class ServiceStatus {
+public class ServiceStatus implements PrimaryKeySource {
 
     public static final class Status extends Enum {
         public static final Status STARTING = new Status("Starting");
@@ -54,7 +55,7 @@ public class ServiceStatus {
         return m_status;
     }
 
-    public Object getId() {
+    public Object getPrimaryKey() {
         return m_process;
     }
 }

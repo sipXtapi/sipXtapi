@@ -1,0 +1,16 @@
+include top.mak
+
+.PHONY: all
+all:
+	@echo "Target '$@' is not valid. Type 'make build' to build and install."
+
+.PHONY: build
+build:
+	$(MAKE) recurse TARGETS="all check install"
+
+.PHONY: rpm
+rpm:
+	$(MAKE) recurse TARGETS="rpm install-rpms"
+
+%:
+	$(MAKE) recurse TARGETS="$@"

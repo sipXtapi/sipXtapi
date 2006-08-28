@@ -79,4 +79,18 @@
     </userMatch>
 
   </hostMatch>
+
+  <hostMatch>
+    <!-- Calls to example.org are routed via SIP through a session border controller -->
+    <hostPattern>example.org</hostPattern>
+    <userMatch>
+      <userPattern>.</userPattern>
+      <permissionMatch>
+        <transform>
+          <headerparams>route=sbc.example.edu</headerparams>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+  </hostMatch>
+
 </mappings>

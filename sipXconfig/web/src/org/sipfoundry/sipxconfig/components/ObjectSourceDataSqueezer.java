@@ -16,8 +16,8 @@ import org.sipfoundry.sipxconfig.common.DataObjectSource;
 import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
 
 /**
- * Read objects by Id for Tapestry pages that need to read individual objects by their primary key. For example
- * table with select boxes. 
+ * Read objects by Id for Tapestry pages that need to read individual objects by their primary
+ * key. For example table with select boxes.
  */
 public class ObjectSourceDataSqueezer implements IPrimaryKeyConverter {
     private DataObjectSource m_source;
@@ -32,7 +32,7 @@ public class ObjectSourceDataSqueezer implements IPrimaryKeyConverter {
     public ObjectSourceDataSqueezer() {
         // empty bean constructor
     }
-    
+
     public void setClass(Class klass) {
         if (!PrimaryKeySource.class.isAssignableFrom(klass)) {
             throw new IllegalArgumentException(
@@ -40,7 +40,7 @@ public class ObjectSourceDataSqueezer implements IPrimaryKeyConverter {
         }
         m_class = klass;
     }
-    
+
     public void setClassName(String className) {
         try {
             setClass(Class.forName(className));

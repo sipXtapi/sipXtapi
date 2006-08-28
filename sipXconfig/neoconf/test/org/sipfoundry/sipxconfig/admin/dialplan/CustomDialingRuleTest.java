@@ -17,9 +17,12 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
+import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 
 /**
  * CustomDialingRuleTest
@@ -32,8 +35,7 @@ public class CustomDialingRuleTest extends TestCase {
     private static final String[] PREFIXES = {
         null, "43"
     };
-    
-    
+
     private CustomDialingRule m_rule;
     private List m_patternsList;
 
@@ -142,5 +144,29 @@ public class CustomDialingRuleTest extends TestCase {
         String[] patterns = rule.getTransformedPatterns(new Gateway());
         assertEquals(1, patterns.length);
         assertEquals("77", patterns[0]);
+    }
+
+    public void testSetPermissionNames() throws Exception {
+        String[] names = {
+            "Voicemail", "LongDistanceDialing"
+        };
+        CustomDialingRule rule = new CustomDialingRule();
+
+        try {
+            rule.setPermissionNames(Arrays.asList(names));
+            fail("Illegal state exception expected.");
+        } catch (IllegalStateException e) {
+            // ok
+        }
+
+        PermissionManagerImpl pm = new PermissionManagerImpl();
+        pm.setModelFilesContext(TestHelper.getModelFilesContext());
+        rule.setPermissionManager(pm);
+
+        rule.setPermissionNames(Arrays.asList(names));
+        List<Permission> permissions = rule.getPermissions();
+        assertEquals(names.length, permissions.size());
+        assertTrue(permissions.contains(Permission.VOICEMAIL));
+        assertTrue(permissions.contains(Permission.LONG_DISTANCE_DIALING));
     }
 }

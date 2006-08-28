@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+	"http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name="general">
+    <label>General</label>
+    <setting name="enableTimeout">
+      <label>Enable time-out</label>
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+      <description>
+        If enabled, the call will be automatically transfered to the parking party once time
+        specified in Park timeout elapses.
+      </description>
+    </setting>
+    <setting name="parkTimeout" advanced="yes">
+      <label>Park time-out</label>
+      <type>
+        <integer min="30" max="300" />
+      </type>
+      <value>120</value>
+      <description>
+        Time period (in seconds) after which the call is automatically transferred to the parking
+        party.
+      </description>
+    </setting>
+    <setting name="multipleCalls">
+      <label>Allow multiple calls</label>
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+      <description>
+        If checked, more than one call can be parked on the orbit at the same time. Calls are
+        retrieved in the order they were parked.
+      </description>
+    </setting>
+    <setting name="allowTransfer">
+      <label>Allow transfer</label>
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+      <description>
+        If checked, callers parked on the orbit are able to transfer the call back to the parking
+        party by pressing transfer key.
+      </description>
+    </setting>
+    <setting name="transferKey" advanced="yes">
+      <label>Transfer key</label>
+      <type>
+        <string maxLen="1">
+          <pattern>[*#0-9]</pattern>
+        </string>
+      </type>
+      <value>*</value>
+      <description>
+        If transfer is allowed, pressing this while the call is parked will transfer the call back
+        to the parking party.
+      </description>
+    </setting>
+  </group>
+</model>

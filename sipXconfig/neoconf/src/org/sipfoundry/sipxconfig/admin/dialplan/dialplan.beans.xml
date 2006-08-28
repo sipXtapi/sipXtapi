@@ -34,6 +34,7 @@
 
   <bean id="defaultLongDistanceRule"
     class="org.sipfoundry.sipxconfig.admin.dialplan.LongDistanceRule" singleton="false">
+    <property name="permissionManager" ref="permissionManager" />
     <property name="name" value="Long Distance" />
     <property name="description" value="Long distance dialing plan" />
     <property name="enabled" value="false" />
@@ -42,26 +43,21 @@
     <property name="longDistancePrefixOptional" value="false" />
     <property name="longDistancePrefix" value="1" />
     <property name="externalLen" value="10" />
+    <property name="permissionName" value="LongDistanceDialing" />
   </bean>
 
   <bean id="defaultTollFreeRule" parent="defaultLongDistanceRule" singleton="false">
     <property name="name" value="Toll free" />
     <property name="description" value="Toll free dialing" />
     <property name="areaCodes" value="800, 866, 877, 888" />
-    <property name="permission">
-      <bean id="org.sipfoundry.sipxconfig.permission.Permission.TOLL_FREE_DIALING"
-        class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
-    </property>
+    <property name="permissionName" value="TollFree" />
   </bean>
 
   <bean id="defaultRestrictedRule" parent="defaultLongDistanceRule" singleton="false">
     <property name="name" value="Restricted" />
     <property name="description" value="Restricted dialing" />
     <property name="areaCodes" value="900" />
-    <property name="permission">
-      <bean id="org.sipfoundry.sipxconfig.permission.Permission.RESTRICTED_DIALING"
-        class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
-    </property>
+    <property name="permissionName" value="900Dialing" />
   </bean>
 
   <bean id="defaultInternationalRule" parent="defaultLongDistanceRule" singleton="false">
@@ -69,10 +65,7 @@
     <property name="description" value="International dialing" />
     <property name="longDistancePrefix" value="011" />
     <property name="externalLen" value="-1" />
-    <property name="permission">
-      <bean id="org.sipfoundry.sipxconfig.permission.Permission.INTERNATIONAL_DIALING"
-        class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
-    </property>
+    <property name="permissionName" value="InternationalDialing" />
   </bean>
 
   <bean id="defaultLocalRule" parent="defaultLongDistanceRule" singleton="false">
@@ -82,14 +75,13 @@
     <property name="longDistancePrefix" value="" />
     <property name="longDistancePrefixOptional" value="true" />
     <property name="externalLen" value="7" />
-    <property name="permission">
-      <bean id="org.sipfoundry.sipxconfig.permission.Permission.LOCAL_DIALING"
-        class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
-    </property>
+    <property name="permissionName" value="LocalDialing" />
   </bean>
 
   <bean id="defaultCustomRule" class="org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule"
-    singleton="false" />
+    singleton="false">
+    <property name="permissionManager" ref="permissionManager" />
+  </bean>
 
   <bean id="defaultDialPlan" class="org.sipfoundry.sipxconfig.admin.dialplan.DialPlan"
     singleton="false">

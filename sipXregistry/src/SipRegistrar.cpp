@@ -117,12 +117,6 @@ int SipRegistrar::run(void* pArg)
 
    int taskResult = OsServerTask::run(pArg);
 
-   if (mRegistrationDB)
-   {
-      mRegistrationDB->releaseInstance();
-      mRegistrationDB = NULL;
-   }
-
    return taskResult;
 }
 
@@ -338,6 +332,13 @@ SipRegistrar::~SipRegistrar()
        mRegistrarPersist->requestShutdown();
        delete mRegistrarPersist;
        mRegistrarPersist = NULL;
+    }
+
+    // release the registration database instance
+    if (mRegistrationDB)
+    {
+       mRegistrationDB->releaseInstance();
+       mRegistrationDB = NULL;
     }
 }
 

@@ -348,9 +348,10 @@
 
 <!ELEMENT permission EMPTY>
 <!ATTLIST permission
-    name CDATA #REQUIRED
+    permission_id CDATA #REQUIRED
     description CDATA #IMPLIED
     label CDATA #IMPLIED
+    default_value CDATA #REQUIRED
 >
 
 <!ELEMENT phone EMPTY>

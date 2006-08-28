@@ -92,7 +92,7 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
         TestHelper.cleanInsertFlat("phone/EndpointSeed.xml");
 
         Phone p = context.loadPhone(new Integer(1000));        
-        p.setSettingValue("/server/outboundProxy", "bigbird");
+        p.setSettingValue("server/outboundProxy", "bigbird");
         context.storePhone(p);        
         context.flush();
         

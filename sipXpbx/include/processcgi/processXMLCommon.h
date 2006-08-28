@@ -34,10 +34,17 @@
 #define ACTION_RESTART  "restart"
 #define ACTION_STATUS   "status"
 #define ACTION_VERIFY   "verify"
+#define PROCESS_DIR     "process.d"
 
+typedef OsStatus (*ProcessSubDoc)(TiXmlDocument &rootdoc, TiXmlDocument &subdoc);
+     
 OsStatus initProcessXMLLayer(UtlString &rProcessXMLPath, TiXmlDocument &rProcessXMLDoc, UtlString &rStrErrorMsg);
 OsStatus startstopProcessTree(TiXmlDocument &rProcessXMLDoc, UtlString &rProcessAlias, UtlString &rActionVerb);
 OsStatus WriteProcessXML(TiXmlDocument &doc, UtlString &buffer);
 OsStatus VerifyProcess(UtlString &rAlias);
+OsStatus findSubDocs(OsPath &path, TiXmlDocument &rootDoc, ProcessSubDoc addSubDoc);
+OsStatus addWatchDogSubDoc(TiXmlDocument &rWatchDogXMLDoc, TiXmlDocument &subdoc);
+
+OsStatus addProcessDefSubDoc(TiXmlDocument &rProcessXMLDoc, TiXmlDocument &subdoc);
 
 #endif //_processXMLCommon__

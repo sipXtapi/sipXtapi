@@ -1,9 +1,10 @@
-include $(top_builddir)/config/sipXcommon.mak
+include $(top_srcdir)/config/subdir.am
 
 EXTRA_DIST = \
 	Doxyfile.in \
 	Redirection.txt \
 	alias.xml \
+	caller-alias.xml \
 	huntgroup.xml \
 	mappingrules.xml \
 	fallbackrules.xml \

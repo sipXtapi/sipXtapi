@@ -96,7 +96,7 @@ SipRedirectorRegDB::lookUp(
    // database.  The requestUri identity is matched against the
    // "identity" column of the database, which is the identity part of
    // the "uri" column which is stored in registration.xml.
-   RegistrationDB::getInstance()->
+   RegistrationDB::getInstance()-> // TODO - change to SipRegistrar::getRegistrationDB (see Scott Lawrence)
       getUnexpiredContacts(requestUriCopy, timeNow, registrations);
 
    int numUnexpiredContacts = registrations.getSize();

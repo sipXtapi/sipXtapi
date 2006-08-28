@@ -16,6 +16,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsFS.h"
+#include "sipdb/SIPDBManager.h"
 #include "sipxunit/TestUtilities.h"
 #include "testlib/FileTestContext.h"
 #include "testlib/SipDbTestContext.h"
@@ -50,5 +51,5 @@ void SipDbTestContext::setFastDbEnvironment()
 /// destructor
 SipDbTestContext::~SipDbTestContext()
 {
-   
+   delete SIPDBManager::getInstance();
 };

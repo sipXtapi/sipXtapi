@@ -17,9 +17,12 @@
     - B E A N S
   -->
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate" />
-  <bean name="converter" class="org.sipfoundry.sipxconfig.site.permission.PermissionConverter">
-    <set name="manager" value="permissionManager" />
+  <bean name="converter" class="org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer">
+    <set name="source" value="permissionManager" />
+    <set name="class" value="@org.sipfoundry.sipxconfig.permission.Permission@class"></set>
   </bean>
+  <bean name="rowInfo"
+    class="org.sipfoundry.sipxconfig.site.permission.ListPermissions$PermissionRowInfo" />
 
   <!--
     - C O M P O N E N T S
@@ -30,19 +33,24 @@
   </component>
   <component id="tableView" type="Table">
     <binding name="source" value="permissionManager.callPermissions" />
-    <binding name="columns" value="literal:* name,label,description" />
+    <binding name="columns" value="literal:* label,defaultValue,description" />
     <binding name="class" value="bean:rowClass.next" />
     <binding name="row" value="currentRow" />
     <binding name="converter" value="bean:converter" />
     <binding name="selections" value="selections" />
+    <binding name="rowInfo" value="bean:rowInfo" />
   </component>
-  <component id="nameColumnValue" type="Block" />
-  <component id="nameText" type="Insert">
-    <binding name="value" value="currentRow.name" />
+  <component id="labelColumnValue" type="Block" />
+  <component id="labelText" type="Insert">
+    <binding name="value" value="currentRow.label" />
+  </component>
+  <component id="defaultValueColumnValue" type="Block" />
+  <component id="defaultValueText" type="Insert">
+    <binding name="value" value="getMessage(currentRow.defaultValue ? 'enabled' : 'disabled')" />
   </component>
   <component id="editRowLink" type="DirectLink">
     <binding name="listener" value="listener:edit" />
-    <binding name="parameters" value="currentRow.id" />
+    <binding name="parameters" value="currentRow.primaryKey" />
   </component>
   <component id="addLink" type="DirectLink">
     <binding name="listener" value="listener:add" />

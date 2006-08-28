@@ -1,24 +1,26 @@
 ## Process this file with automake to produce Makefile.in
+include config/project.am
 
-include $(top_builddir)/config/sipXcommon.mak
+RPMS = $(DEFAULT_RPMS)
 
 EXTRA_DIST = \
     config/sipX-config.in \
     config/sipX-buildstamp.cpp.in \
     config/sipX-buildstamp.h.in \
-    config/sipXprojtop.mak \
-    config/sipXcommon.mak.in \
     CONTRIBUTORS \
     LICENSE \
+    SVN_VERSION \
     BUILDSTAMP \
-    SVN-EXPORT-VERSION \
     sipxcommserverlib.spec
 
-unconditional_SUBDIRS = . src include etc meta bin
-
-include $(srcdir)/config/sipXprojtop.mak
-
-SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)
+SUBDIRS = \
+	. \
+	src \
+	include \
+	etc \
+	meta \
+	bin \
+	$(doc_SUBDIRS)
 
 install-data-hook:
 	$(INSTALL) -d -m 755 $(DESTDIR)$(sysconfdir)/sipxpbx

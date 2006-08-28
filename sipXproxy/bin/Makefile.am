@@ -1,4 +1,4 @@
-include $(top_builddir)/config/sipXcommon.mak
+include $(top_srcdir)/config/subdir.am
 
 GEM_LIB_DIR=$(libdir)/ruby/gems/1.8/gems
 SIPX_SYSCONFDIR=$(sysconfdir)

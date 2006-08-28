@@ -327,8 +327,11 @@ OsStatus loadWatchDogXML(TiXmlDocument &doc, UtlString &rStrFilename)
 
     if ( doc.LoadFile(rStrFilename.data()) )
     {
-        retval = OS_SUCCESS;
+        OsPath watchdogFilename(rStrFilename);
+	OsPath subprocessDir = watchdogFilename.getDirName() + OsPath::separator + PROCESS_DIR;
+	retval = findSubDocs(subprocessDir, doc, &addWatchDogSubDoc);
     }
+
 
     return retval;
 }
@@ -577,10 +580,10 @@ int main(int argc, char* argv[])
                     osPrintf("Couldn't get logfile path from xml!\n");
             } else
             {
-                osPrintf("Couldn't load watchdog XML file!\n");
+	        osPrintf("Couldn't init logfile!\n");
             }
         } else
-            osPrintf("Couldn't init logfile!\n");
+	    osPrintf("Couldn't load watchdog XML file!\n");
 
     }
     // :TODO: This should exit success/failure as appropriate.

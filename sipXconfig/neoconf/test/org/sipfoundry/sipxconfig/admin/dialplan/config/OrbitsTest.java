@@ -15,16 +15,17 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.parkorbit.BackgroundMusic;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit;
 import org.sipfoundry.sipxconfig.common.TestUtil;
 
 public class OrbitsTest extends XMLTestCase {
-    private Collection m_parkOrbits;
+    private List<ParkOrbit> m_parkOrbits;
 
     private static String[][] DATA = {
         {
@@ -39,9 +40,10 @@ public class OrbitsTest extends XMLTestCase {
     protected void setUp() throws Exception {
         XMLUnit.setIgnoreWhitespace(true);
 
-        m_parkOrbits = new ArrayList(DATA.length);
+        m_parkOrbits = new ArrayList<ParkOrbit>(DATA.length);
         for (int i = 0; i < DATA.length; i++) {
             ParkOrbit orbit = new ParkOrbit();
+            orbit.setModelFilesContext(TestHelper.getModelFilesContext());
             orbit.setName(DATA[i][0]);
             orbit.setExtension(DATA[i][1]);
             orbit.setMusic(DATA[i][2]);
@@ -51,6 +53,16 @@ public class OrbitsTest extends XMLTestCase {
             orbit.setEnabled(i > 0);
             m_parkOrbits.add(orbit);
         }
+
+        // make 3rd orbit more interesting
+
+        ParkOrbit orbit = m_parkOrbits.get(2);
+        orbit.setSettingValue("general/enableTimeout", "1");
+        orbit.setSettingValue("general/parkTimeout", "150");
+        orbit.setSettingValue("general/allowTransfer", "1");
+        orbit.setSettingValue("general/transferKey", "9");
+        orbit.setSettingValue("general/multipleCalls", "1");
+
     }
 
     public void testGenerate() throws Exception {

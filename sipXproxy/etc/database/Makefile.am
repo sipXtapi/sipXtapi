@@ -1,7 +1,7 @@
 
 INSTALL=@INSTALL@
 
-include $(top_builddir)/config/sipXcommon.mak
+include $(top_srcdir)/config/subdir.am
 
 sql_files = \
     schema.sql \

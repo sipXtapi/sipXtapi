@@ -1,5 +1,5 @@
 ## Process this file with automake to produce Makefile.in
-include $(top_builddir)/config/sipXcommon.mak
+include $(top_srcddir)/config/subdir.am
 
 EXTRA_DIST = \
     ant-targets.xml \

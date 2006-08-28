@@ -4,9 +4,12 @@
 <hibernate-mapping package="org.sipfoundry.sipxconfig.permission" default-lazy="false">
 
   <class name="Permission" table="permission">
-    <id name="id" column="name" type="string" />
+    <id name="id" column="permission_id" type="int" unsaved-value="-1">
+      <generator class="native" />
+    </id>
     <property name="description" />
     <property name="label" />
+    <property name="defaultValue" />
     <!-- we are not mapping the type yet - only call permissions are stored in DB -->
   </class>
 

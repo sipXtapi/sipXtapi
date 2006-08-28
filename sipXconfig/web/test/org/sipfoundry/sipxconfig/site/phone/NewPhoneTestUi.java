@@ -28,6 +28,7 @@ public class NewPhoneTestUi extends WebTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
+        SiteTestHelper.home(getTester());
         m_helper = new PhoneTestHelper(tester);
         m_helper.reset();
     }
@@ -71,26 +72,28 @@ public class NewPhoneTestUi extends WebTestCase {
 
         // no digits
         clickButton("phone:ok");
-        assertElementPresent("user:error");
+        SiteTestHelper.assertUserError(tester);
 
         // wrong chars and wrong number
         setFormElement("serialNumber", "x");
         clickButton("phone:ok");
-        assertElementPresent("user:error");
+        SiteTestHelper.assertUserError(tester);
 
         // 12 digits, but not valid chars
         setFormElement("serialNumber", "123456789abx");
         clickButton("phone:ok");
-        assertElementPresent("user:error");
+        SiteTestHelper.assertUserError(tester);
 
-        // 16 correct digits
+        // 16 correct digits - is OK - we accept 12 or more now
         setFormElement("serialNumber", "123456789abcdef");
         clickButton("phone:ok");
-        assertElementPresent("user:error");
+        SiteTestHelper.assertNoUserError(tester);
 
+        SiteTestHelper.home(getTester());
+        clickLink("NewPhone");
         // finally got it right
         setFormElement("serialNumber", "123456789abc");
         clickButton("phone:ok");
-        assertElementNotPresent("user:error");
+        SiteTestHelper.assertNoUserError(tester);
     }
 }

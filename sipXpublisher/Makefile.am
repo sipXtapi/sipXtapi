@@ -1,8 +1,17 @@
 ## Process this file with automake to produce Makefile.in
 
-include $(top_builddir)/config/sipXcommon.mak
+include config/project.am
 
-INSTALL = @INSTALL@
+RPMS = $(DEFAULT_RPMS)
+
+SUBDIRS = \
+	. \
+	src \
+	include \
+	bin \
+	etc \
+	meta \
+	$(doc_SUBDIRS)
 
 editscripts_IN = \
     bin/sipstatus.sh.in
@@ -18,17 +27,14 @@ editscripts :
 EXTRA_DIST = \
     CONTRIBUTORS \
     BUILDSTAMP \
-	 SVN-EXPORT-VERSION \
+    SVN_VERSION \
     config/sipX-config.in \
     config/sipX-buildstamp.cpp.in \
     config/sipX-buildstamp.h.in \
-    config/sipXprojtop.mak \
-    config/sipXcommon.mak.in \
+    config/project.am \
+    config/subdir.am \
     sipxpublisher.spec
 
-include $(srcdir)/config/sipXprojtop.mak
-
-SUBDIRS = . src include bin etc meta $(doc_SUBDIRS)
 
 DISTCLEANFILES = \
 	$(CONFIG_DISTCLEANFILES)
