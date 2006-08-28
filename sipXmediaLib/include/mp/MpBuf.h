@@ -303,6 +303,8 @@ public:
 
        // Create the clone and own it.
        swap(clone());
+
+       return true;
     }
 
 //@}
