@@ -12,15 +12,11 @@
 package org.sipfoundry.sipxconfig.phone.grandstream;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.io.HexDump;
 import org.apache.commons.io.IOUtils;
 import org.easymock.EasyMock;
 import org.easymock.IArgumentMatcher;
@@ -50,11 +46,6 @@ public class GrandstreamPhoneTest extends TestCase {
         assertEquals(expected, actual);
     }
 
-    /**
-     * Failing, binary format incompatable w/grandstream configuration tool
-     * 
-     * FIXME: uncomment KNOWN_FAILURE_XCF_642
-     */
     public void testGenerateBinaryProfiles() throws Exception {
         ByteArrayOutputStream actualBinary = new ByteArrayOutputStream();
         GrandstreamBinaryProfileWriter wtr = new GrandstreamBinaryProfileWriter(phone);
@@ -62,10 +53,6 @@ public class GrandstreamPhoneTest extends TestCase {
         inmemory.write("P1=A&".getBytes());
         wtr.writeBody(inmemory, actualBinary);
         byte[] actual = actualBinary.toByteArray();
-        
-        OutputStream simple = new FileOutputStream("/tmp/simple.bin");
-        IOUtils.copy(new ByteArrayInputStream(actual), simple);
-        IOUtils.closeQuietly(simple);
 
         InputStream stream = new BufferedInputStream(getClass().getResourceAsStream("simple.bin"));
         byte[] expected = new byte[actual.length];
@@ -74,14 +61,14 @@ public class GrandstreamPhoneTest extends TestCase {
         // no more characters to read
         assertEquals(-1, stream.read());
 
-        // debug aid 
-        HexDump.dump(actual, 0, System.out, 0);
-        
+        // debug aid
+        // HexDump.dump(actual, 0, System.out, 0);
+
         for (int i = 0; i < actual.length; i++) {
             assertEquals("Different byte: " + i, expected[i], actual[i]);
         }
     }
-    
+
     static byte[] resetMatcher() {
         EasyMock.reportMatcher(new ResetArgumentMatcher());
         return null;
@@ -90,11 +77,9 @@ public class GrandstreamPhoneTest extends TestCase {
     public void testReset() throws Exception {
         tester.sipControl = EasyMock.createStrictControl();
         tester.sip = tester.sipControl.createMock(SipService.class);
-        tester.sip.sendNotify(
-                EasyMock.eq("\"Joe User\"<sip:juser@sipfoundry.org>"), 
-                EasyMock.eq("sipfoundry.org"), 
-                (String) EasyMock.eq(null),
-                EasyMock.eq("Content-Type: application/octet-stream\r\nEvent: sys-control\r\n"),
+        tester.sip.sendNotify(EasyMock.eq("\"Joe User\"<sip:juser@sipfoundry.org>"), EasyMock
+                .eq("sipfoundry.org"), (String) EasyMock.eq(null), EasyMock
+                .eq("Content-Type: application/octet-stream\r\nEvent: sys-control\r\n"),
                 resetMatcher());
         tester.sipControl.replay();
 
