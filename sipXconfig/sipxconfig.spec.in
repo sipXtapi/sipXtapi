@@ -64,6 +64,8 @@ Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
 Summary: Configures/enables FTP for devices controlled by %{name} 
 
+%define vsftpd_conf /etc/vsftpd/vsftpd.conf
+
 %description ftp
 * installs and configures vsftpd server
 * turns on xinit.d/vsftpd service on
@@ -133,7 +135,7 @@ rm -rf $RPM_BUILD_ROOT
 gem install --no-rdoc --local %{sipxconfiglib}/file-tail-*.gem > /dev/null
 gem install --local %{sipxconfiglib}/sipXconfig-agent-*.gem > /dev/null
 
-sipxconfig.sh --setup
+sipxconfig.sh --setup >/dev/null
 
 %define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
 %define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz
@@ -168,26 +170,41 @@ sed /etc/xinetd.d/tftp -i -e 's|^\W*disable\W*=\W*yes\W*$|disable = no|' -e 's|\
 
 %post ftp
 
-# create a special group so plcmspip user cannot inherhit permissions of
-# sipx user
-if ! grep sipxftp /etc/group > /dev/null
-then
-   /usr/sbin/groupadd sipxftp >/dev/null 2>&1
-fi
-
-chgrp sipxftp %{phonedir}/profile/tftproot
-
 if ! id -u plcmspip > /dev/null 2>&1
 then
   # default user account polycom phones use
   /usr/sbin/adduser -d %{phonedir}/profile/tftproot \
-    -G sipxftp -s /sbin/nologin -M plcmspip
-  echo -e "PlcmSpIp" | sudo passwd --stdin plcmspip
+    -s /sbin/nologin -M plcmspip >/dev/null
+  echo -e "PlcmSpIp" | sudo passwd --stdin plcmspip >/dev/null
 fi
 
-/sbin/chkconfig vsftpd on
-/sbin/service vsftpd start
+# 'install' ftpd config file
+mv %{vsftpd_conf} %{vsftpd_conf}.sipx-orig
+cat > %{vsftpd_conf} <<EOF
+# vsftpd config for sipxconfig 
+local_enable=YES
+write_enable=YES
+local_umask=022
+dirmessage_enable=YES
+xferlog_enable=YES
+connect_from_port_20=YES
+xferlog_std_format=YES
+pam_service_name=vsftpd
+userlist_enable=YES
+listen=YES
+tcp_wrappers=YES
+chroot_local_user=YES
+EOF
+chmod 600 %{vsftpd_conf}
+
+/sbin/chkconfig vsftpd on >/dev/null
+/sbin/service vsftpd start >/dev/null
 
 %postun ftp
 /usr/sbin/userdel plcmspip
-#leave ftp server, cannot be sure it wasn't already installed
+if [ -e %{vsftpd_conf}.sipx-orig ]
+then
+  mv %{vsftpd_conf}.sipx-orig %{vsftpd_conf}
+  service vsftpd restart
+fi
+# leave ftp server, not standard practice to remove dependencies
