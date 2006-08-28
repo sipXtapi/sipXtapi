@@ -18,16 +18,16 @@ list-rpms :
 	@echo $(RPMS)
 
 .PHONY : rpm
-rpm : dist additional-package-files build-rpms $(SRPM) $(RPMS)
+rpm : dist additional-package-files $(SRPM) $(RPMS)
 
 .PHONY: build-rpms
 build-rpms :
 	rpmbuild -ta --define="buildno $(RELEASE)" $(DIST_SRC)
 
-$(RPMS) :
+$(RPMS) : build-rpms
 	cp $(RPMBUILD_TOPDIR)/RPMS/$(RPM_TARGET_ARCH)/`basename $@` $@
 
-$(SRPM) :
+$(SRPM) : build-rpms
 	cp $(RPMBUILD_TOPDIR)/SRPMS/`basename $@` $@
 
 .PHONY : additional-package-files
