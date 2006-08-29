@@ -76,6 +76,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libRegistrarImpliedMWI.la
 %attr(755,root,root) %{_libdir}/libRegistrarImpliedMWI.so*
 %attr(755,root,root) %{_datadir}/sipx/schema/alias.xsd
+%attr(755,root,root) %{_datadir}/sipx/schema/caller-alias.xsd
 %attr(755,root,root) %{_datadir}/sipx/schema/huntgroup.xsd
 
 # The configuration directory needs to be writeable becausen
