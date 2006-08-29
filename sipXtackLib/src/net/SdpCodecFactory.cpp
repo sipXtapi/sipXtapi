@@ -768,7 +768,7 @@ int SdpCodecFactory::buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecType
                   1,
                   "a=fmtp:113 mode=7",
                   SdpCodec::SDP_CODEC_CPU_LOW,
-                  SDP_CODEC_BANDWIDTH_HIGH);
+                  SDP_CODEC_BANDWIDTH_NORMAL);
               addCodec(aCodec);
               aCodec.getMediaType(codecMediaType);
               aCodec.getEncodingName(codecEncodingName);
