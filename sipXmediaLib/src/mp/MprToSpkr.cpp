@@ -400,7 +400,7 @@ UtlBoolean MprToSpkr::doProcessFrame(MpBufPtr inBufs[],
             if (  mpEchoQ->numMsgs() >= mpEchoQ->maxMsgs()
                || mpEchoQ->send(AECMsg, OsTime::NO_WAIT) != OS_SUCCESS)
             {
-               osPrintf("pEchoQ->send() failed!\n");
+//               osPrintf("pEchoQ->send() failed!\n");
             }
         } 
         else

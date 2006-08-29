@@ -153,7 +153,7 @@ UtlBoolean MprSpeexEchoCancel::doProcessFrame(MpBufPtr inBufs[],
       } else {
          //There was no speaker data to match.  Pass the frame.
          outBuffer = inputBuffer;
-         osPrintf("SpeexEchoCancel: No frame to match...\n");
+//         osPrintf("SpeexEchoCancel: No frame to match...\n");
 //         assert (!mStartedCanceling);
       }
    }
