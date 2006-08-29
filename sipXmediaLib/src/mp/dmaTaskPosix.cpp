@@ -247,7 +247,7 @@ static void * soundCardReader(void * arg)
    {
       MpAudioBufPtr ob;
 
-      ob = MpMisc.UcbPool->obtainBuffer();
+      ob = MpMisc.RawAudioPool->getBuffer();
       assert(ob.isValid());
       assert(ob->setSamplesNumber(N_SAMPLES));
       buffer = ob->getSamples();
@@ -272,7 +272,9 @@ static void * soundCardReader(void * arg)
          pMsg = new MpBufferMsg(MpBufferMsg::AUD_RECORDED);
 
       pMsg->setMsgSubType(MpBufferMsg::AUD_RECORDED);
-      pMsg->setTag(ob);
+      
+      // Pass buffer to mesage. Buffer will be invalid after this!
+      pMsg->ownBuffer(ob);
 
       if(MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT) != OS_SUCCESS)
       {
@@ -345,7 +347,7 @@ static void * soundCardWriter(void * arg)
 
       if(MpMisc.pSpkQ->receive((OsMsg*&) pMsg, OsTime::NO_WAIT) == OS_SUCCESS)
       {
-         MpAudioBufPtr ob = pMsg->getTag();
+         MpAudioBufPtr ob = pMsg->getBuffer();
          assert(ob != NULL);
          if(playFrame)
          {

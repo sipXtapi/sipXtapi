@@ -302,7 +302,8 @@ public:
           return false;
 
        // Create the clone and own it.
-       swap(clone());
+       MpBufPtr pBuf = clone();
+       swap(pBuf);
 
        return true;
     }

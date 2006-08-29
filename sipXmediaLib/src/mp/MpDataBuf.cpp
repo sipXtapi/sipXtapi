@@ -75,7 +75,7 @@ void MpDataBuf::sInitClone(MpBuf *pBuffer)
    MpBuf::sInitClone(pBuffer);
 
    // Get clone of the data
-   MpArrayBufPtr pDataClone = ((MpDataBuf*)pBuffer)->mpData.clone();
+   MpBufPtr pDataClone = ((MpDataBuf*)pBuffer)->mpData.clone();
 
    // This prevents mpData from being freed here:
    ((MpDataBuf*)pBuffer)->mpData.swap(pDataClone);

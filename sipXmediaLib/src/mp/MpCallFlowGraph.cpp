@@ -184,13 +184,15 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
    res = addResource(*mpBridge);            assert(res == OS_SUCCESS);
    res = addResource(*mpFromStream);        assert(res == OS_SUCCESS);
    res = addResource(*mpFromFile);          assert(res == OS_SUCCESS);
-#ifndef DISABLE_LOCAL_AUDIO
+#ifndef DISABLE_LOCAL_AUDIO // [
    res = addResource(*mpFromMic);           assert(res == OS_SUCCESS);
-#ifdef DOING_ECHO_CANCELATION /* [ */
+#ifdef DOING_ECHO_CANCELATION // [
    res = addResource(*mpEchoCancel);        assert(res == OS_SUCCESS);
-#endif /* DOING_ECHO_CANCELATION ] */
+#endif // DOING_ECHO_CANCELATION ]
+#ifdef HAVE_SPEEX // [
    res = addResource(*mpSpeexPreProcess);   assert(res == OS_SUCCESS);
-#endif
+#endif // HAVE_SPEEX ]
+#endif // DISABLE_LOCAL_AUDIO ]
    res = addResource(*mpTFsMicMixer);       assert(res == OS_SUCCESS);
    res = addResource(*mpTFsBridgeMixer);    assert(res == OS_SUCCESS);
    res = addResource(*mpToneFileSplitter);  assert(res == OS_SUCCESS);
