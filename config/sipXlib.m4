@@ -165,7 +165,6 @@ AC_DEFUN([SFAC_DISTRO_CONDITIONAL],
 [
    distroid="${DISTRO}${DISTROVER}"
    AC_MSG_CHECKING(Distribution specific settings for '${distroid}')
-
    AM_CONDITIONAL([PLATFORM_FC4], [test "${distroid}" = "FC4"])
    AM_CONDITIONAL([PLATFORM_FC5], [test "${distroid}" = "FC5"])
    AM_CONDITIONAL([PLATFORM_RHE3],[test "${distroid}" = "RHE3"])
@@ -267,9 +266,8 @@ AC_DEFUN([SFAC_LIB_MEDIA],
 ]) # SFAC_LIB_MEDIA
 
 
-
 ## sipXmediaAdapterLib 
-# SFAC_LIB_MEDIAADAPTER attempts to find the sf media iadapter library and include
+# SFAC_LIB_MEDIAADAPTER attempts to find the sf media adapter library and include
 # files by looking in /usr/[lib|include], /usr/local/[lib|include], and
 # relative paths.
 #
@@ -281,7 +279,6 @@ AC_DEFUN([SFAC_LIB_MEDIAADAPTER],
     AC_REQUIRE([SFAC_LIB_MEDIA])
     AC_SUBST([SIPXMEDIAADAPTER_LIBS], [-lsipXmediaProcessing])
 ]) # SFAC_LIB_MEDIAADAPTER
-
 
 ## Optionally compile in the GIPS library in the media subsystem
 # (sipXmediaLib project) and executables that link it in

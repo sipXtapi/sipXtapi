@@ -164,7 +164,6 @@ rm -rf /var/sipxdata/tmp/Jetty__8443__sipxconfig 2> /dev/null
 
 %post tftp
 sed /etc/xinetd.d/tftp -i -e 's|^\W*disable\W*=\W*yes\W*$|disable = no|' -e 's|\W*/tftpboot\W*| %{phonedir}/profile/tftproot|'
-
 # empty but required to generate RPM
 %files ftp
 
