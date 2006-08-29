@@ -39,6 +39,8 @@ public class Gateway extends BeanWithSettings implements NamedObject {
 
     private String m_tftpRoot;
 
+    private String m_defaultCallerAlias;
+
     private PhoneModel m_model;
 
     private DeviceVersion m_version;
@@ -150,6 +152,14 @@ public class Gateway extends BeanWithSettings implements NamedObject {
 
     public void setPrefix(String prefix) {
         m_prefix = prefix;
+    }
+
+    public String getDefaultCallerAlias() {
+        return m_defaultCallerAlias;
+    }
+
+    public void setDefaultCallerAlias(String defaultCallerAlias) {
+        m_defaultCallerAlias = defaultCallerAlias;
     }
 
     @Override

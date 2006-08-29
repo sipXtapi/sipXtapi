@@ -34,13 +34,13 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
 
     public void deleteUser(User user);
 
-    public void deleteUsers(Collection usersIds);
+    public void deleteUsers(Collection<Integer> usersIds);
     
     public void deleteUsersByUserName(Collection<String> usersName);
 
     public User loadUser(Integer id);
 
-    public List loadUsers();
+    public List<User> loadUsers();
 
     public int getUsersCount();
 
@@ -58,10 +58,10 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
      */
     public int getUsersInGroupWithSearchCount(Integer groupId, String searchString);
 
-    public List loadUsersByPage(String search, Integer groupId, int page, int pageSize,
+    public List<User> loadUsersByPage(String search, Integer groupId, int page, int pageSize,
             String orderBy, boolean orderAscending);
 
-    public List loadUserByTemplateUser(User template);
+    public List<User> loadUserByTemplateUser(User template);
 
     public User loadUserByUserName(String userName);
 
@@ -119,9 +119,9 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
      */
     public void createAdminGroupAndInitialUser(String pin);
 
-    public void addToGroup(Integer groupId, Collection ids);
+    public void addToGroup(Integer groupId, Collection<Integer> ids);
 
-    public void removeFromGroup(Integer groupId, Collection ids);
+    public void removeFromGroup(Integer groupId, Collection<Integer> ids);
 
     public List<User> getGroupSupervisors(Group group);
     

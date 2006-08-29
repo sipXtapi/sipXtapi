@@ -13,12 +13,10 @@ package org.sipfoundry.sipxconfig.common;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
@@ -151,14 +149,13 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         getHibernateTemplate().delete(user);
     }
 
-    public void deleteUsers(Collection userIds) {
+    public void deleteUsers(Collection<Integer> userIds) {
         if (userIds.isEmpty()) {
             // no users to delete => nothing to do
             return;
         }
-        List users = new ArrayList(userIds.size());
-        for (Iterator i = userIds.iterator(); i.hasNext();) {
-            Integer id = (Integer) i.next();
+        List<User> users = new ArrayList<User>(userIds.size());
+        for (Integer id : userIds) {
             User user = loadUser(id);
             users.add(user);
             m_daoEventPublisher.publishDelete(user);
@@ -239,8 +236,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
                 result = userName;
             } else {
                 // Check the aliases and return any duplicate as a bad name.
-                for (Iterator iter = user.getAliases().iterator(); iter.hasNext();) {
-                    String alias = (String) iter.next();
+                for (String alias : user.getAliases()) {
                     if (!m_aliasManager.canObjectUseAlias(user, alias)) {
                         result = alias;
                         break;
@@ -256,14 +252,12 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
      * Given a collection of strings, look for duplicates. Return the first duplicate found, or
      * null if all strings are unique.
      */
-    String checkForDuplicateString(Collection strings) {
-        Map map = new HashMap(strings.size());
-        for (Iterator iter = strings.iterator(); iter.hasNext();) {
-            String str = (String) iter.next();
-            if (map.containsKey(str)) {
+    String checkForDuplicateString(Collection<String> strings) {
+        Set<String> set = new TreeSet<String>();
+        for (String str : strings) {
+            if (!set.add(str)) {
                 return str;
             }
-            map.put(str, null);
         }
         return null;
     }
@@ -290,18 +284,18 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
      * ignored in the search. The userName property matches either the userName or aliases
      * properties.
      */
-    public List loadUserByTemplateUser(final User userTemplate) {
+    public List<User> loadUserByTemplateUser(final User userTemplate) {
         HibernateCallback callback = new HibernateCallback() {
             public Object doInHibernate(Session session) {
                 UserLoader loader = new UserLoader(session);
                 return loader.loadUsers(userTemplate);
             }
         };
-        List users = getHibernateTemplate().executeFind(callback);
+        List<User> users = getHibernateTemplate().executeFind(callback);
         return users;
     }
 
-    public List loadUsers() {
+    public List<User> loadUsers() {
         return getHibernateTemplate().loadAll(User.class);
     }
 
@@ -330,8 +324,9 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         return numUsers;
     }
 
-    public List loadUsersByPage(final String search, final Integer groupId, final int firstRow,
-            final int pageSize, final String orderBy, final boolean orderAscending) {
+    public List<User> loadUsersByPage(final String search, final Integer groupId,
+            final int firstRow, final int pageSize, final String orderBy,
+            final boolean orderAscending) {
         HibernateCallback callback = new HibernateCallback() {
             public Object doInHibernate(Session session) {
                 UserLoader loader = new UserLoader(session);
@@ -339,7 +334,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
                         orderAscending);
             }
         };
-        List users = getHibernateTemplate().executeFind(callback);
+        List<User> users = getHibernateTemplate().executeFind(callback);
         return users;
     }
 
@@ -407,7 +402,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         m_settingDao = settingDao;
     }
 
-    public List getGroups() {
+    public List<Group> getGroups() {
         return m_settingDao.getGroups(USER_GROUP_RESOURCE_ID);
     }
 
@@ -420,16 +415,14 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
 
     public Collection getAliasMappings() {
         List aliases = new ArrayList();
-        List users = loadUsers();
-        for (Iterator i = users.iterator(); i.hasNext();) {
-            User user = (User) i.next();
+        for (User user : loadUsers()) {
             aliases.addAll(user.getAliasMappings(m_domainName));
         }
         return aliases;
     }
 
-    public Collection getGroupMembers(Group group) {
-        Collection users = getHibernateTemplate().findByNamedQueryAndNamedParam(
+    public Collection<User> getGroupMembers(Group group) {
+        Collection<User> users = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 "userGroupMembers", QUERY_PARAM_GROUP_ID, group.getId());
         return users;
     }
@@ -445,10 +438,8 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
             Group group = (Group) entity;
             getHibernateTemplate().update(group);
             if (User.GROUP_RESOURCE_ID.equals(group.getResource())) {
-                Collection users = getGroupMembers(group);
-                Iterator iusers = users.iterator();
-                while (iusers.hasNext()) {
-                    User user = (User) iusers.next();
+                Collection<User> users = getGroupMembers(group);
+                for (User user : users) {
                     Object[] ids = new Object[] {
                         group.getId()
                     };
