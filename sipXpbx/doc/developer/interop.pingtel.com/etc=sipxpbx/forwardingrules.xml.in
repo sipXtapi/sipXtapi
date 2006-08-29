@@ -4,6 +4,7 @@
     <routeFrom>${SIPXCHANGE_DOMAIN_NAME}:${PROXY_SERVER_SIP_PORT}</routeFrom>
     <routeFrom>${MY_IP_ADDR}:${PROXY_SERVER_SIP_PORT}</routeFrom>
     <routeFrom>${MY_FULL_HOSTNAME}:${PROXY_SERVER_SIP_PORT}</routeFrom>
+    <routeFrom>${MY_HOSTNAME}:${PROXY_SERVER_SIP_PORT}</routeFrom>
 
     <methodMatch>
       <methodPattern>SUBSCRIBE</methodPattern>
@@ -16,12 +17,12 @@
       </fieldMatch>
 
       <!-- All other SUBSCRIBE requests go to the SIP registry service -->
-      <routeTo>&lt;${REGISTRAR_SERVER_SIP_SRV_OR_HOSTPORT};transport=tcp&gt;</routeTo>
+      <routeTo>&lt;${REGISTRAR_SERVER_SIP_SRV_OR_HOSTPORT}&gt;</routeTo>
 
     </methodMatch>
 
     <!-- All other requests go to the SIP registry service -->
-    <routeTo>&lt;${REGISTRAR_SERVER_SIP_SRV_OR_HOSTPORT};transport=tcp&gt;</routeTo>
+    <routeTo>&lt;${REGISTRAR_SERVER_SIP_SRV_OR_HOSTPORT}&gt;</routeTo>
 
   </route>
 </routes>
