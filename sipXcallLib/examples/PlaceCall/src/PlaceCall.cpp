@@ -4,6 +4,9 @@
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -103,6 +106,9 @@ void usage(const char* szExecutable)
     printf("   -O call output device name\n");
     printf("   -C codec name\n");
     printf("   -L list all supported codecs\n");
+    printf("   -aec enable acoustic echo cancelation\n");
+    printf("   -agc enable automatic gain control\n");
+    printf("   -denoise enable speex denoiser\n");
     printf("   -E use bogus custom external transport, reliable (transport=tribble)\n");
     printf("   -e use bogus custom external transport, unreliable (transport=flibble)\n");
 #if defined(_WIN32) && defined(VIDEO)
@@ -135,6 +141,9 @@ bool parseArgs(int argc,
                char** pszOutputDevice,
                char** pszCodecName,
                bool*  bCodecList,
+               bool*  bAEC,
+               bool*  bAGC,
+               bool*  bDenoise,
                bool*  bUseCustomTransportReliable,
                bool*  bUseCustomTransportUnreliable)
 {
@@ -162,6 +171,9 @@ bool parseArgs(int argc,
     *pszOutputDevice = NULL;
     *pszCodecName = NULL;
     *bCodecList = false;
+    *bAEC = false;
+    *bAGC = false;
+    *bDenoise = false;
 
     for (int i=1; i<argc; i++)
     {
@@ -371,6 +383,18 @@ bool parseArgs(int argc,
         else if (strcmp(argv[i], "-V") == 0)
         {
             bVideo = true;
+        }
+        else if (strcmp(argv[i], "-aec") == 0)
+        {
+            *bAEC = true;
+        }
+        else if (strcmp(argv[i], "-agc") == 0)
+        {
+            *bAGC = true;
+        }
+        else if (strcmp(argv[i], "-denoise") == 0)
+        {
+            *bDenoise = true;
         }
         else if (strcmp(argv[i], "-E") == 0)
         {
@@ -746,15 +770,18 @@ int local_main(int argc, char* argv[])
     char* szOutDevice;
     char* szInDevice;
     char* szCodec;
-    bool bUseRport ;
+    bool bUseRport;
     bool bCList;
+    bool bAEC;
+    bool bAGC;
+    bool bDenoise;
 
     // Parse Arguments
     if (parseArgs(argc, argv, &iDuration, &iSipPort, &iRtpPort, &szPlayTones,
             &szFile, &szFileBuffer, &szSipUrl, &bUseRport, &szUsername, 
             &szPassword, &szRealm, &szFromIdentity, &szStunServer, &szProxy, 
             &szBindAddr, &iRepeatCount, &szInDevice, &szOutDevice, &szCodec, &bCList,
-            &bUseCustomTransportReliable, &bUseCustomTransportUnreliable) 
+            &bAEC, &bAGC, &bDenoise, &bUseCustomTransportReliable, &bUseCustomTransportUnreliable) 
             && (iDuration > 0) && (portIsValid(iSipPort)) && (portIsValid(iRtpPort)))
     {
         // initialize sipx TAPI-like API
@@ -765,6 +792,20 @@ int local_main(int argc, char* argv[])
         sipxConfigEnableRport(g_hInst, bUseRport) ;
         dumpInputOutputDevices() ;
         sipxEventListenerAdd(g_hInst, EventCallBack, NULL) ;
+
+        // Enable/disable AEC.
+        if (bAEC)
+           sipxAudioSetAECMode(g_hInst, SIPX_AEC_CANCEL_AUTO) ;
+        else
+           sipxAudioSetAECMode(g_hInst, SIPX_AEC_DISABLED) ;
+
+        // Enable/disable AGC
+        sipxAudioSetAGCMode(g_hInst, bAGC);
+
+        if (bDenoise)
+           sipxAudioSetNoiseReductionMode(g_hInst, SIPX_NOISE_REDUCTION_HIGH);
+        else
+           sipxAudioSetNoiseReductionMode(g_hInst, SIPX_NOISE_REDUCTION_DISABLED);
 
         if (bCList)
         {

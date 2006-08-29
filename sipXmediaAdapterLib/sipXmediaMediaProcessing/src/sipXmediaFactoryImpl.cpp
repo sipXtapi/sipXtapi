@@ -4,6 +4,9 @@
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -247,6 +250,36 @@ OsStatus sipXmediaFactoryImpl::muteMicrophone(UtlBoolean bMute)
     }
 //#endif
     return OS_SUCCESS ;
+}
+
+OsStatus sipXmediaFactoryImpl::setAudioAECMode(const MEDIA_AEC_MODE mode)
+{
+  if (MpCallFlowGraph::setAECMode((FLOWGRAPH_AEC_MODE)mode)) {
+    return OS_SUCCESS;
+  }else {
+    return OS_NOT_SUPPORTED; 
+  }
+}
+
+OsStatus sipXmediaFactoryImpl::enableAGC(UtlBoolean bEnable) {
+  if (MpCallFlowGraph::setAGC(bEnable)) {
+    return OS_SUCCESS;
+  }else {
+    return OS_NOT_SUPPORTED; 
+  }
+}
+
+OsStatus sipXmediaFactoryImpl::setAudioNoiseReductionMode(const MEDIA_NOISE_REDUCTION_MODE mode) {
+  if (mode == MEDIA_NOISE_REDUCTION_DISABLED) {
+    if (MpCallFlowGraph::setAudioNoiseReduction(FALSE)) {
+      return OS_SUCCESS;
+    }
+  } else {
+    if (MpCallFlowGraph::setAudioNoiseReduction(TRUE)) {
+      return OS_SUCCESS;
+    }
+  }
+  return OS_NOT_SUPPORTED;
 }
 
 OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory, 

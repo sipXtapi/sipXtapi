@@ -1528,6 +1528,12 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MprSpeexEchoCancel.cpp">
+			</File>
+			<File
+				RelativePath=".\src\mp\MprSpeexPreprocess.cpp">
+			</File>
+			<File
 				RelativePath="src\mp\MprSplitter.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -2603,6 +2609,12 @@
 			</File>
 			<File
 				RelativePath="include\mp\MprRecorder.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MprSpeexEchoCancel.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MprSpeexPreprocess.h">
 			</File>
 			<File
 				RelativePath="include\mp\MprSplitter.h">

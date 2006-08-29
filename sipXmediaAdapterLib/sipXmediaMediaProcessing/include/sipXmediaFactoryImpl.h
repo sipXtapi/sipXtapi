@@ -4,6 +4,9 @@
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -89,6 +92,9 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
     virtual OsStatus setMicrophoneGain(int iGain) ;
     virtual OsStatus setMicrophoneDevice(const UtlString& device) ;
     virtual OsStatus muteMicrophone(UtlBoolean bMute) ;
+    virtual OsStatus setAudioAECMode(const MEDIA_AEC_MODE mode) ;
+    virtual OsStatus enableAGC(UtlBoolean bEnable) ;
+    virtual OsStatus setAudioNoiseReductionMode(const MEDIA_NOISE_REDUCTION_MODE mode) ;
 
     virtual OsStatus buildCodecFactory(SdpCodecFactory *pFactory, 
                                        const UtlString& sPreferences,

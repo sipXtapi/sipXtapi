@@ -65,6 +65,7 @@
 
 #define MIC_BUFFER_Q_LEN 10
 #define SPK_BUFFER_Q_LEN 14
+#define ECHO_BUFFER_Q_LEN MIC_BUFFER_Q_LEN+SPK_BUFFER_Q_LEN
 
 #ifdef _VXWORKS /* [ */
 #define LOG_MSGQ_MAX_MSGS 8000
@@ -720,7 +721,7 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
                 < (MpMisc.RawAudioPool->getNumBlocks()-3) );
         MpMisc.pMicQ = new OsMsgQ(MIC_BUFFER_Q_LEN);
         MpMisc.pSpkQ = new OsMsgQ(SPK_BUFFER_Q_LEN);
-        MpMisc.pEchoQ = new OsMsgQ(MIC_BUFFER_Q_LEN);
+        MpMisc.pEchoQ = new OsMsgQ(ECHO_BUFFER_Q_LEN);
 #ifdef _VXWORKS /* [ */
         MpMisc.doLoopBack = 0;
         MpMisc.pLoopBackQ = new OsMsgQ(MIC_BUFFER_Q_LEN);

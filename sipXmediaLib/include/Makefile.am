@@ -91,6 +91,8 @@ nobase_include_HEADERS =  \
     mp/MprFromStream.h \
     mp/MprMixer.h \
     mp/MprRecorder.h \
+    mp/MprSpeexEchoCancel.h \
+    mp/MprSpeexPreprocess.h \
     mp/MprSplitter.h \
     mp/MprToneGen.h \
     mp/MprToNet.h \

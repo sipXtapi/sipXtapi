@@ -4,6 +4,9 @@
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -33,12 +36,42 @@
 #define DEBUG_POSTPONE
 #undef DEBUG_POSTPONE
 
+/// Undefine this to fully disable AEC
+#define DOING_ECHO_CANCELATION
+/// Undefine this to enable internal AEC.
+#define SPEEX_ECHO_CANCELATION
+
+// Disable Speex AEC if Speex is not available
+#ifndef HAVE_SPEEX // [
+#  undef SPEEX_ECHO_CANCELATION
+#endif // !HAVE_SPEEX ]
+
+// Make sure that at least one canceler enabled if AEC enabled at all.
+// And make sure that all cancelers disabled if AEC is disabled.
+#ifdef DOING_ECHO_CANCELATION // [
+#  ifndef SPEEX_ECHO_CANCELATION // [
+//#     define SIPX_ECHO_CANCELATION
+// $$$ Ipse: sipX AEC is not working now!
+#     undef DOING_ECHO_CANCELATION
+#  endif // !SPEEX_ECHO_CANCELATION ]
+#else // DOING_ECHO_CANCELATION ][
+#  undef SPEEX_ECHO_CANCELATION
+#  undef SIPX_ECHO_CANCELATION
+#endif // DOING_ECHO_CANCELATION ]
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STRUCTS
 // TYPEDEFS
+typedef enum FLOWGRAPH_AEC_MODE
+{
+    FLOWGRAPH_AEC_DISABLED, 
+    FLOWGRAPH_AEC_SUPPRESS,
+    FLOWGRAPH_AEC_CANCEL,
+    FLOWGRAPH_AEC_CANCEL_AUTO
+} FLOWGRAPH_AEC_MODE ;
 
 // FORWARD DECLARATIONS
 class MprBridge;
@@ -46,6 +79,8 @@ class MprFromStream;
 class MprFromFile;
 class MprFromMic;
 class MprEchoSuppress;
+class MprSpeexEchoCancel;
+class MprSpeexPreprocess;
 class MprMixer;
 class MprSplitter;
 class MprToSpkr;
@@ -243,12 +278,6 @@ public:
      /// Enables the GIPS premium sound.
    void enablePremiumSound(void);
 
-     /// Enables/Disable the transmission of inband DTMF audio
-   static UtlBoolean setInbandDTMF(UtlBoolean bEnable);
-
-     /// Enables/Disables Acoustic Echo cancellation
-   static UtlBoolean setEnableAEC(UtlBoolean bEnable);
-
      /// Adds tone listener to receive the dtmf key events.
    OsStatus addToneListener(OsNotification* pNotify, MpConnectionID connectionId);
 
@@ -256,6 +285,29 @@ public:
    OsStatus removeToneListener(MpConnectionID connectionId);
 
 //@}
+   
+     /// Enables/Disable the transmission of inband DTMF audio
+   static UtlBoolean setInbandDTMF(UtlBoolean bEnable);
+
+     /// Set Acoustic Echo Cancelation mode
+   static UtlBoolean setAECMode(FLOWGRAPH_AEC_MODE mode);
+     /**<
+     *  @warning Only available when Speex or internal AEC module is enabled!
+     */
+ 
+     /// Enable/disable Automatic Gain Control.
+   static UtlBoolean setAGC(UtlBoolean bEnable);
+     /**<
+     *  @warning Only available when Speex is enabled!
+     */
+
+     /// Enable/disable speex noise reduction.
+   static UtlBoolean setAudioNoiseReduction(UtlBoolean bEnable);
+     /**<
+     *  @note Enabling this also enables echo residue filtering.
+     *  
+     *  @warning Only available when Speex is enabled!
+     */
 
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
@@ -392,6 +444,8 @@ private:
 
    static UtlBoolean sbSendInBandDTMF ;
    static UtlBoolean sbEnableAEC ;
+   static UtlBoolean sbEnableAGC ;
+   static UtlBoolean sbEnableNoiseReduction ;
 
    enum { MAX_CONNECTIONS = 10 };
 
@@ -399,7 +453,14 @@ private:
    MprFromFile*  mpFromFile;
    MprFromStream*  mpFromStream;
    MprFromMic*   mpFromMic;
-   MprEchoSuppress*   mpEchoSuppress;
+#ifdef HAVE_SPEEX // [
+   MprSpeexPreprocess* mpSpeexPreProcess;
+#endif // HAVE_SPEEX ]
+#if defined (SPEEX_ECHO_CANCELATION)
+   MprSpeexEchoCancel* mpEchoCancel;
+#elif defined (SIPX_ECHO_CANCELATION) 
+   MprEchoSuppress*   mpEchoCancel;
+#endif
    MprMixer*     mpTFsMicMixer;
    MprMixer*     mpTFsBridgeMixer;
    MprSplitter*  mpToneFileSplitter;
