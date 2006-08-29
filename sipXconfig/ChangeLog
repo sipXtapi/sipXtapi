@@ -2,7 +2,41 @@ The most current information on the status of any release is in the
 SIPfoundry Issue Tracker at:
 
         http://track.sipfoundry.org/browse?XCF
+	
+Version 3.5.4
 
+** Bug
+    * [XCF-1092] - outdated index can cause sipXconfig crash
+    * [XCF-1136] - Add new gateway, select gateway model => get validation error
+    * [XCF-1155] - Intercom timeout should default to 5 seconds (2 rings), not 2 seconds
+    * [XCF-1156] - Intercom: timeout must be configurable
+    * [XCF-1167] - null pointer exception in User.getAliasesString
+    * [XCF-1185] - Page exception on services page
+
+** New Feature
+    * [XCF-861] - SIPx install script should also install FTP server and configure it
+    * [XCF-1102] - Add simple test pages for viewing replication datasets as xml
+    * [XCF-1114] - Support one-to-one (or point-to-point) intercom using Polycom phone's auto-answer feature
+    * [XCF-1181] - Configure call park timeout value
+    * [XCF-1182] - Configure a system-wide call park parameter to enable or disable one parked call per orbit feature in XPB-731.
+
+
+** Improvement
+    * [XCF-441] - UI for optional gateway prefix in standard dialing rules
+    * [XCF-731] - International Dialing Rule - Missing fields
+    * [XCF-836] - adding new dialing rules requires selecting rule type on additional page
+    * [XCF-926] - config server dialplans can't modify numbers based on a routing target
+    * [XCF-1032] - Dialplan templating
+    * [XCF-1037] - Add default call timeout to Voice Mail config screen
+    * [XCF-1110] - add "mobile" permission
+    * [XCF-1121] - Allow Custom Permissions to be defined in sipXconfig as part of the dial plan
+    * [XCF-1142] - Dial plan in sipXconfig should alow entry of digit ranges using square brackets
+    * [XCF-1170] - Intercom feature timeout should be in seconds or number of rings
+    * [XCF-1171] - Adding new Gateway should be dropdown list instead of hyperlink
+    * [XCF-1172] - Create new single file installer decoupled from pingtel's single file installer
+    * [XCF-1175] - Refactor build environment to allow OEMs to build/and install components along-side value-add components
+
+	
 Version 3.5.3
 
 ** Bug
