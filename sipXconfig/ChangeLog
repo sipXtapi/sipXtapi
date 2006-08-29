@@ -17,6 +17,7 @@ Version 3.5.4
     * [XCF-861] - SIPx install script should also install FTP server and configure it
     * [XCF-1102] - Add simple test pages for viewing replication datasets as xml
     * [XCF-1114] - Support one-to-one (or point-to-point) intercom using Polycom phone's auto-answer feature
+    * [XCF-1174] - Allow addtional services beyond those defined in watchdog and processdefitions to be controlled by respective daemons
     * [XCF-1181] - Configure call park timeout value
     * [XCF-1182] - Configure a system-wide call park parameter to enable or disable one parked call per orbit feature in XPB-731.
 
