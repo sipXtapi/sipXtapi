@@ -84,7 +84,6 @@ UtlString RegistrationDB::gPrimaryKey("primary");
 UtlString RegistrationDB::gUpdateNumberKey("update_number");
 
 UtlString RegistrationDB::nullString("");
-UtlBoolean     grVerboseLoggingEnabled = FALSE;
 
 /* ============================ CREATORS ================================== */
 
@@ -108,10 +107,6 @@ RegistrationDB::RegistrationDB( const UtlString& name ) :
     // If we are the first process to attach
     // then we need to load the DB
     int users = pSIPDBManager->getNumDatabaseProcesses(name);
-    grVerboseLoggingEnabled = SIPDBManager::isVerboseLoggingEnabled();
-    if (grVerboseLoggingEnabled)
-        OsSysLog::add(FAC_DB, PRI_DEBUG, "RegistrationDB::_  user=%d \"%s\"",
-                    users, name.data());
     if ( users == 1 )
     {
         // Load the file implicitly

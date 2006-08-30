@@ -70,6 +70,9 @@ SipRedirectorAliasDB::lookUp(
    UtlString requestIdentity;
    requestUri.getIdentity(requestIdentity);
 
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRedirectorAliasDB::lookUp "
+                 "identity '%s'", requestIdentity.data());
+
    ResultSet aliases;
    AliasDB::getInstance()->getContacts(requestUri, aliases);
    int numAliasContacts = aliases.getSize();
@@ -88,12 +91,8 @@ SipRedirectorAliasDB::lookUp(
             UtlString contact = *((UtlString*)record.findValue(&contactKey));
             Url contactUri(contact);
 
-            // prevent loops here
-            if (!contactUri.isUserHostPortEqual(requestUri))
-            {
-               // Add the contact.
-               addContact(response, requestString, contactUri, "alias");
-            }
+            // Add the contact.
+            addContact(response, requestString, contactUri, "alias");
          }
       }
    }

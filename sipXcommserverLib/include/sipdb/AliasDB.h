@@ -102,8 +102,6 @@ protected:
     // ResultSet column Keys
     static UtlString gIdentityKey;
     static UtlString gContactKey;
-    // @JC Remove this after beta sites upgrade
-    static UtlString gLegacyIdentityKey;
 
     // Fast DB instance
     dbDatabase* m_pFastDB;

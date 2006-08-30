@@ -49,8 +49,6 @@ const char digitmap [] = {
     '9','9','9','9'     // w,x,y,z
 };
 
-UtlBoolean     gdVerboseLoggingEnabled = FALSE;
-
 /* ============================ CREATORS ================================== */
 
 DialByNameDB::DialByNameDB( const UtlString& name ) : 
@@ -63,11 +61,6 @@ DialByNameDB::DialByNameDB( const UtlString& name ) :
     // If we are the first process to attach
     // then we need to load the DB
     int users = pSIPDBManager->getNumDatabaseProcesses(name);
-
-    gdVerboseLoggingEnabled = SIPDBManager::isVerboseLoggingEnabled();
-    if (gdVerboseLoggingEnabled)
-       OsSysLog::add(FAC_DB, PRI_DEBUG, "DialByNameDB::_  user=%d \"%s\"",
-                    users, name.data());
     if ( users == 1 )
     {
         // Load the file implicitly

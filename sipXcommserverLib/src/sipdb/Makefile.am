@@ -31,6 +31,7 @@ libsipdb_la_LIBADD = \
 libsipdb_la_SOURCES =  \
 	AliasDB.cpp \
    AuthexceptionDB.cpp \
+	CallerAliasDB.cpp \
    CredentialDB.cpp \
    DialByNameDB.cpp \
    ExtensionDB.cpp \

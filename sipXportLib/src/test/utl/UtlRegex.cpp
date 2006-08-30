@@ -34,6 +34,7 @@ class UtlRegExTest : public CppUnit::TestCase
    CPPUNIT_TEST(testMatchAfter);
    CPPUNIT_TEST(testMatchUtlLookBehind);
    CPPUNIT_TEST(testCopy1);
+   CPPUNIT_TEST(testRecursionLimit);
    CPPUNIT_TEST_SUITE_END();
 
 # define EXPRESSION( expression, options ) \
@@ -274,6 +275,39 @@ public:
          CPPUNIT_ASSERT( start == 4 );
          CPPUNIT_ASSERT( length == 2 );
       }
+
+
+   void testRecursionLimit()
+      {
+         // this pattern recurses for every character 
+         RegEx matchAs("([^<]|<(?!inet))+", 0, 100 );
+
+         /*
+          * Because we are using a version of PCRE that does not support a limit on
+          * recursion, this string must be much shorter than the limit.  See the
+          * cautionary note in UtlRegEx.h on MAX_RECURSION.
+          */
+         UtlString okSubject( /* 45 x 'a' */
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa<foo"
+                              );
+         UtlString bigSubject( /* 100 x 'a' */
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa<foo"
+                              );
+         CPPUNIT_ASSERT(matchAs.Search(okSubject));
+         
+//         CPPUNIT_ASSERT(matchAs.Matches() == 3);
+
+//         int start;
+//         int length;
+
+//         CPPUNIT_ASSERT( matchAs.Match(0, start, length));
+//         CPPUNIT_ASSERT_EQUAL( 0, start );
+//         CPPUNIT_ASSERT_EQUAL( 99, length );
+
+         CPPUNIT_ASSERT(!matchAs.Search(bigSubject));
+      }
+
+      
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(UtlRegExTest);

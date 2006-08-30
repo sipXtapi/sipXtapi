@@ -26,6 +26,7 @@
 #include "SipRedirectServer.h"
 #include "SipRedirectorRegDB.h"
 #include "SipRedirectorAliasDB.h"
+#include "SipRedirectorCallerAlias.h"
 #include "SipRedirectorMapping.h"
 #include "SipRedirectorHunt.h"
 #include "SipRedirectorSubscribe.h"
@@ -122,15 +123,23 @@ SipRedirectServer::initialize(OsConfigDb& configDb    ///< Configuration paramet
    UtlString v4 = defaultDomain;
    configParameters.insertKeyAndValue(&k4, &v4);
 
+   unsigned int rNum = 0;
    // Create and initialize the SipRedirectorRegDB object.
-   mRedirectors[0] = new SipRedirectorRegDB;
-   mRedirectors[0]->initialize(configParameters, configDb, mpSipUserAgent, 0);
+   mRedirectors[rNum] = new SipRedirectorRegDB;
+   mRedirectors[rNum]->initialize(configParameters, configDb, mpSipUserAgent, rNum);
 
    // Create and initialize the SipRedirectorAliasDB object.
-   mRedirectors[1] = new SipRedirectorAliasDB;
-   mRedirectors[1]->initialize(configParameters, configDb, mpSipUserAgent, 1);
+   rNum++;
+   mRedirectors[rNum] = new SipRedirectorAliasDB;
+   mRedirectors[rNum]->initialize(configParameters, configDb, mpSipUserAgent, rNum);
+
+   // Create and initialize the mRedirectorSubscribe object.
+   rNum++;
+   mRedirectors[rNum] = new SipRedirectorSubscribe;
+   mRedirectors[rNum]->initialize(configParameters, configDb, mpSipUserAgent, rNum);
 
    // Create and initialize the mRedirectorMappingRules object.
+   rNum++;
    UtlString k5 = "mappingRulesFilename";
    UtlString v5 = URL_MAPPING_RULES_FILENAME;
    configParameters.insertKeyAndValue(&k5, &v5);
@@ -140,38 +149,46 @@ SipRedirectServer::initialize(OsConfigDb& configDb    ///< Configuration paramet
    UtlString k7 = "fallback";
    UtlString v7 = "false";
    configParameters.insertKeyAndValue(&k7, &v7);
-   mRedirectors[2] = new SipRedirectorMapping;
-   mRedirectors[2]->initialize(configParameters, configDb, mpSipUserAgent, 2);
+   mRedirectors[rNum] = new SipRedirectorMapping;
+   mRedirectors[rNum]->initialize(configParameters, configDb, mpSipUserAgent, rNum);
 
    // Create and initialize the mRedirectorFallbackRules object.
+   rNum++;
    v5 = URL_FALLBACK_RULES_FILENAME;
    configParameters.insertKeyAndValue(&k5, &v5);
    v6 = "fallback rules";
    configParameters.insertKeyAndValue(&k6, &v6);
    v7 = "true";
    configParameters.insertKeyAndValue(&k7, &v7);
-   mRedirectors[3] = new SipRedirectorMapping;
-   mRedirectors[3]->initialize(configParameters, configDb, mpSipUserAgent, 3);
+   mRedirectors[rNum] = new SipRedirectorMapping;
+   mRedirectors[rNum]->initialize(configParameters, configDb, mpSipUserAgent, rNum);
 
    // Create and initialize the mRedirectorHunt object.
-   mRedirectors[4] = new SipRedirectorHunt;
-   mRedirectors[4]->initialize(configParameters, configDb, mpSipUserAgent, 4);
+   rNum++;
+   mRedirectors[rNum] = new SipRedirectorHunt;
+   mRedirectors[rNum]->initialize(configParameters, configDb, mpSipUserAgent, rNum);
 
-   // Create and initialize the mRedirectorSubscribe object.
-   mRedirectors[5] = new SipRedirectorSubscribe;
-   mRedirectors[5]->initialize(configParameters, configDb, mpSipUserAgent, 5);
+   // Create and initialize the CallerAlias redirector
+   rNum++;
+   mRedirectors[rNum] = new SipRedirectorCallerAlias;
+   mRedirectors[rNum]->initialize(configParameters, configDb, mpSipUserAgent, rNum);
 
    // Create and initialize the mRedirectorPickUp object.
+   rNum++;
    UtlString k8 = "orbitConfigFilename";
    UtlString v8 = ORBIT_CONFIG_FILENAME;
    configParameters.insertKeyAndValue(&k8, &v8);
-   mRedirectors[6] = new SipRedirectorPickUp;
-   mRedirectors[6]->initialize(configParameters, configDb, mpSipUserAgent, 6);
+   mRedirectors[rNum] = new SipRedirectorPickUp;
+   mRedirectors[rNum]->initialize(configParameters, configDb, mpSipUserAgent, rNum);
 
-// Update this test with the index of the last redirector loaded.
-#if 6 != (MREDIRECTORCOUNT-1)
-#error MREDIRECTORCOUNT does not match SipRedirectServer::initialize.
-#endif
+   // Update this test with the index of the last redirector loaded.
+   if (rNum != (MREDIRECTORCOUNT))
+   {
+      OsSysLog::add(FAC_SIP, PRI_CRIT,
+                    "SipRedirectServer::initialize MREDIRECTORCOUNT does not match."
+                    );
+      assert(false);
+   }
 
    return true;
 }
@@ -439,6 +456,9 @@ void SipRedirectServer::processRedirect(const SipMessage* message,
                                      SIP_NOT_FOUND_TEXT);
          }
       }
+
+      // Identify ourselves in the response
+      mpSipUserAgent->setUserAgentHeader(response);
 
       // Now that we've set the right code into the response, send the
       // response.

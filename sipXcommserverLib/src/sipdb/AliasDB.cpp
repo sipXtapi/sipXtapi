@@ -36,10 +36,6 @@ OsMutex  AliasDB::sLockMutex (OsMutex::Q_FIFO);
 UtlString AliasDB::gIdentityKey("identity");
 UtlString AliasDB::gContactKey("contact");
 
-// @JC Remove this after customers upgrade
-UtlString AliasDB::gLegacyIdentityKey("aliasIdentity");
-UtlBoolean     gaVerboseLoggingEnabled = FALSE;
-
 /* ============================ CREATORS ================================== */
 
 AliasDB::AliasDB( const UtlString& name )
@@ -49,14 +45,9 @@ AliasDB::AliasDB( const UtlString& name )
     SIPDBManager* pSIPDBManager = SIPDBManager::getInstance();
     m_pFastDB = pSIPDBManager->getDatabase(name);
 
-    gaVerboseLoggingEnabled = SIPDBManager::isVerboseLoggingEnabled();
-
     // If we are the first process to attach
     // then we need to load the DB
     int users = pSIPDBManager->getNumDatabaseProcesses(name);
-    if (gaVerboseLoggingEnabled)
-        OsSysLog::add(FAC_DB, PRI_DEBUG, "AliasDB::_  user=%d \"%s\"",
-                    users, name.data());
     if ( users == 1 )
     {
         // Load the file implicitly
@@ -293,13 +284,7 @@ AliasDB::insertRow (const UtlHashMap& nvPairs)
     // Note we do not need the identity object here
     // as it is inferred from the uri
     UtlString identity, contact;
-    if (nvPairs.findValue(&gIdentityKey) == NULL)
-    {
-        identity = *((UtlString*)nvPairs.findValue(&gLegacyIdentityKey));
-    } else
-    {
-        identity = *((UtlString*)nvPairs.findValue(&gIdentityKey));
-    }
+    identity = *((UtlString*)nvPairs.findValue(&gIdentityKey));
     contact = *((UtlString*)nvPairs.findValue(&gContactKey));
     return insertRow ( Url( identity ), Url( contact ) );
 }

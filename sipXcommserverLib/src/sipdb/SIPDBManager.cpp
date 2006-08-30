@@ -23,6 +23,7 @@
 #include "sipdb/ResultSet.h"
 #include "sipdb/SIPDBManager.h"
 #include "sipdb/AliasDB.h"
+#include "sipdb/CallerAliasDB.h"
 #include "sipdb/CredentialDB.h"
 #include "sipdb/ExtensionDB.h"
 #include "sipdb/HuntgroupDB.h"
@@ -31,7 +32,6 @@
 #include "sipdb/SubscriptionDB.h"
 
 // DEFINES
-#define SYSLOG_VERBOSE_LOGGING    "imdb-log"
 
 REGISTER( TableInfo );
 
@@ -57,7 +57,6 @@ static const char* DefaultCfgPath = SIPX_DBDIR;
 SIPDBManager* SIPDBManager::spInstance = NULL;
 dbDatabase*   SIPDBManager::spFastDB = NULL;
 OsMutex       SIPDBManager::sLockMutex (OsMutex::Q_FIFO);
-UtlBoolean    SIPDBManager::gVerboseLoggingEnabled = FALSE;
 
 /* Helper method to return the process id */
 int 
@@ -77,26 +76,12 @@ SIPDBManager::SIPDBManager ()
     : m_absWorkingDirectory("")
     , m_absConfigDirectory("")
 {
-    int pid = getPid();
-
-    gVerboseLoggingEnabled = isVerboseLoggingEnabled() ;
-    if ( gVerboseLoggingEnabled )
-    {
-        OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) SIPDBManager::_ entering", pid);
-    }
-
     // Get the working and config file paths
     m_absWorkingDirectory = getVarPath() ;
     m_absConfigDirectory = getCfgPath() ;
 
     // Override the default fastdb tmp dir if SIPX_DB_VAR_PATH was set
     setFastdbTempDir();
-
-    if ( gVerboseLoggingEnabled )
-    {
-        OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) SIPDBManager::_ leaving", pid);
-        OsSysLog::flush();
-    }
 }
 
 SIPDBManager::~SIPDBManager ()
@@ -105,11 +90,6 @@ SIPDBManager::~SIPDBManager ()
     OsLock lock( sLockMutex );
 
     int pid = getPid();
-
-    if ( gVerboseLoggingEnabled )
-    {
-        OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) SIPDBManager::~ entering ", pid);
-    }
 
     // it is possible that the database was never opened
     // as it is opened only the first time a request for
@@ -132,13 +112,6 @@ SIPDBManager::~SIPDBManager ()
         spFastDB->detach(0);
 
         // close() is MultiProcesss aware - always call it
-        if ( gVerboseLoggingEnabled )
-        {
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) SIPDBManager::~ closing fastDB ", pid);
-        }
-
-        OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) SIPDBManager::~ closing fastDB ", pid);
-
         spFastDB->close();
         // put this here
         delete spFastDB;
@@ -147,11 +120,6 @@ SIPDBManager::~SIPDBManager ()
 
     // reset the static instance pointer to NULL
     spInstance = NULL;
-    if ( gVerboseLoggingEnabled )
-    {
-        OsSysLog::add(FAC_DB, PRI_DEBUG, "(pid=%d) SIPDBManager::~ leaving ", pid);
-        OsSysLog::flush();
-    }
 }
 
 OsStatus
@@ -159,11 +127,6 @@ SIPDBManager::getProcessCount ( int& rProcessCount ) const
 {
     // Critical Section here
     OsLock lock( sLockMutex );
-
-    if ( gVerboseLoggingEnabled )
-    {
-        OsSysLog::add(FAC_DB, PRI_DEBUG, "SIPDBManager::getProcessCount entering ");
-    }
 
     // Ensure that the database is opened first
     if ( spFastDB == NULL )
@@ -187,12 +150,6 @@ SIPDBManager::getProcessCount ( int& rProcessCount ) const
 
         // Initialize the process count to zero
         rProcessCount = 0;
-
-        if ( gVerboseLoggingEnabled )
-        {
-            OsSysLog::add(FAC_DB, PRI_DEBUG, 
-                "SIPDBManager::getProcessCount pid=%d ", pid );
-        }
 
         // Now count the number or processes
         dbCursor< TableInfo > cursor;
@@ -221,13 +178,6 @@ SIPDBManager::getProcessCount ( int& rProcessCount ) const
         rProcessCount = 0;
     }
 
-    if ( gVerboseLoggingEnabled )
-    {
-       OsSysLog::add(FAC_DB, PRI_DEBUG, 
-           "SIPDBManager::getProcessCount leaving count=%d, result=%d", 
-           rProcessCount, result);   
-       OsSysLog::flush();
-    }
     return result;
 }
 
@@ -257,12 +207,6 @@ SIPDBManager::pingDatabase (
         dbCursor< TableInfo > cursor;
         dbCursor< TableInfo > cursorWithWriteLock( dbCursorForUpdate );
 
-        if ( gVerboseLoggingEnabled )
-        {
-            OsSysLog::add(FAC_DB, PRI_DEBUG, 
-                "SIPDBManager::pingDatabase - attached");
-        }
-
         dbQuery query;
         query="pid=",pid;
 
@@ -288,11 +232,6 @@ SIPDBManager::pingDatabase (
         // ping succeeded
         result = OS_SUCCESS;
 
-        if ( gVerboseLoggingEnabled )
-        {
-            OsSysLog::add(FAC_DB, PRI_DEBUG, 
-                "SIPDBManager::pingDatabase - detached");
-        }
     }
     return result;
 }
@@ -353,13 +292,6 @@ SIPDBManager::getNumDatabaseProcesses ( const UtlString& tablename ) const
     // Critical Section here
     OsLock lock( sLockMutex );
 
-    if ( gVerboseLoggingEnabled )
-    {
-        OsSysLog::add(FAC_DB, PRI_DEBUG, 
-            "SIPDBManager::getNumDatabaseProcesses entering tablename=%s", 
-            tablename.data());
-    }
-
     int numUsers = 0;
 
     // Ensure that the database is opened first
@@ -387,13 +319,6 @@ SIPDBManager::getNumDatabaseProcesses ( const UtlString& tablename ) const
         spFastDB->detach(0);
     }
 
-    if ( gVerboseLoggingEnabled )
-    {
-       OsSysLog::add(FAC_DB, PRI_DEBUG, 
-           "SIPDBManager::getNumDatabaseProcesses leaving numUsers=%d", 
-           numUsers);   
-       OsSysLog::flush();
-    }
     return numUsers;
 }
 
@@ -419,11 +344,6 @@ SIPDBManager::openDatabase () const
     {
         // Begin TX
         database->attach();
-        if ( gVerboseLoggingEnabled )
-        {
-            OsSysLog::add(FAC_DB, PRI_DEBUG, 
-               "SIPDBManager::openDatabase, pid=%d", pid);
-        }
 
         // This is the first process to use the fastDB
         // fastDB restores its old contents from "imdb.odb" so
@@ -443,13 +363,6 @@ SIPDBManager::openDatabase () const
         // call the destructor on the IMDB
         delete database;
         database = NULL;
-
-        if ( gVerboseLoggingEnabled )
-        {
-            OsSysLog::add(FAC_DB, PRI_ERR, 
-               "SIPDBManager::openDatabase failed, pid=%d", pid);
-            OsSysLog::flush();
-        }
     }
     return database;
 }
@@ -461,13 +374,6 @@ SIPDBManager::getDatabase ( const UtlString& tablename ) const
     OsLock lock( sLockMutex );
 
     int pid = getPid();
-
-    if ( gVerboseLoggingEnabled )
-    {
-       OsSysLog::add(FAC_DB, PRI_DEBUG, 
-           "SIPDBManager::getDatabase entering tablename=%s, pid=%d", 
-           tablename.data(), pid);
-    }
 
     // Only construct one dbDatabase object per process
     if ( spFastDB == NULL )
@@ -482,28 +388,13 @@ SIPDBManager::getDatabase ( const UtlString& tablename ) const
     {
         // the file name used for persistent storage 
         // (using fastDB proprietary format)
-        UtlString imdbFileName = 
-            getWorkingDirectory() + 
-            OsPath::separator + "imdb.odb";
-        if ( gVerboseLoggingEnabled )
-        {
-            OsSysLog::add(FAC_DB, PRI_DEBUG, 
-               "SIPDBManager::getDatabase opening database %s, pid=%d", 
-               imdbFileName.data(), pid);
-        }
-
+        UtlString imdbFileName = getWorkingDirectory() + OsPath::separator + "imdb.odb";
 
         // test for successful return code
         if ( spFastDB->open( "imdb", imdbFileName /*, 60000 */) )
         {
             // Begin TX
             spFastDB->attach();
-            if ( gVerboseLoggingEnabled )
-            {
-                OsSysLog::add(FAC_DB, PRI_DEBUG, 
-                   "SIPDBManager::getDatabase table=%s opened, pid=%d", 
-                   tablename.data(), pid);
-            }
 
             // This is the first process to use the fastDB
             // fastDB restores its old contents from "imdb.odb" so
@@ -516,14 +407,7 @@ SIPDBManager::getDatabase ( const UtlString& tablename ) const
             {
                 cursor.removeAllSelected();
             }
-          else
-        {
-                if ( gVerboseLoggingEnabled )
-                {
-                    OsSysLog::add(FAC_DB, PRI_DEBUG, 
-                        "SIPDBManager::getDatabase attached, but cursor select failed, spFastDB=0x%08x",  (int)spFastDB);   
-                }
-         }
+
             // End TX
             spFastDB->detach(0);
         } else // failed to open IMDB delete datbase & return NULL
@@ -534,22 +418,7 @@ SIPDBManager::getDatabase ( const UtlString& tablename ) const
             // reset the global pointer to NULL so that we 
             // always come through this code path
             spFastDB = NULL;
-            if ( gVerboseLoggingEnabled )
-            {
-                OsSysLog::add(FAC_DB, PRI_ERR, 
-                   "SIPDBManager::getDatabase table=%s open failed, deleting dbDatabase, pid=%d", 
-                   tablename.data(), pid);
-            }
         }
-    }
-    else
-    {
-            if ( gVerboseLoggingEnabled )
-            {
-                OsSysLog::add(FAC_DB, PRI_DEBUG, 
-                   "SIPDBManager::getDatabase table=%s is already opened, pid=%d", 
-                   tablename.data(), pid);
-            }
     }
 
     // potentially the spFastDB can be NULL above if the open fails
@@ -576,11 +445,6 @@ SIPDBManager::getDatabase ( const UtlString& tablename ) const
             } while ( cursor.next() );
         } else 
         {
-            if ( gVerboseLoggingEnabled )
-            {
-                OsSysLog::add(FAC_DB, PRI_DEBUG, 
-                    "SIPDBManager::getDatabase cursor select failed, spFastDB=0x%08x",  (int)spFastDB);   
-            }
             TableInfo tableInfo;
             tableInfo.tablename = tablename;
             tableInfo.pid = pid;
@@ -592,11 +456,6 @@ SIPDBManager::getDatabase ( const UtlString& tablename ) const
         // End Tx
         spFastDB->detach(0);
 
-        if ( gVerboseLoggingEnabled )
-        {
-            OsSysLog::add(FAC_DB, PRI_DEBUG, 
-                "SIPDBManager::getDatabase leaving, spFastDB=0x%08x",  (int)spFastDB);   
-        }
     }
     OsSysLog::flush();
     return spFastDB;
@@ -608,13 +467,6 @@ SIPDBManager::removeDatabase ( const UtlString& tablename ) const
     // remove all rows from the imdb with this tablename
     OsLock lock( sLockMutex );
 
-    if ( gVerboseLoggingEnabled )
-    {
-       OsSysLog::add(FAC_DB, PRI_DEBUG, 
-           "SIPDBManager::removeDatabase - entering tablename=%s", 
-           tablename.data());
-    }
-
     // one dbDatabase construction call allowed per process
     if ( spFastDB != NULL )
     {
@@ -623,11 +475,6 @@ SIPDBManager::removeDatabase ( const UtlString& tablename ) const
         spFastDB->attach();
         dbCursor< TableInfo > cursor (dbCursorForUpdate);
 
-        if ( gVerboseLoggingEnabled )
-        {
-            OsSysLog::add(FAC_DB, PRI_DEBUG, 
-                "SIPDBManager::removeDatabase pid=%d", pid);
-        }
         dbQuery query;
         query="tablename=",tablename,"and pid=",pid;
         // cannot be 0 rows at this stage
@@ -638,12 +485,6 @@ SIPDBManager::removeDatabase ( const UtlString& tablename ) const
         // Commit rows to memory - multiprocess workaround
         spFastDB->detach(0);
     }
-
-    if ( gVerboseLoggingEnabled )
-    {
-        OsSysLog::add(FAC_DB, PRI_DEBUG, "SIPDBManager::removeDatabase leaving");
-        OsSysLog::flush();
-    }
 }
 
 void 
@@ -653,13 +494,6 @@ SIPDBManager::setDatabaseChangedFlag (
 {
     // Critical Section here
     OsLock lock( sLockMutex );
-
-    if ( gVerboseLoggingEnabled )
-    {
-        OsSysLog::add(FAC_DB, PRI_DEBUG, 
-           "SIPDBManager::setDatabaseChangedFlag entering  tablename=%s flag=%d", 
-           tablename.data(), (int)changed);
-    }
 
     if ( spFastDB != NULL ) 
     {
@@ -683,29 +517,13 @@ SIPDBManager::setDatabaseChangedFlag (
         }
         // Commit rows to memory - multiprocess workaround
         spFastDB->detach(0);
-        if ( gVerboseLoggingEnabled )
-        {
-            OsSysLog::add(FAC_DB, PRI_DEBUG, 
-                "SIPDBManager::setDatabaseChangedFlag detached");
-        }
     }
 
-    if ( gVerboseLoggingEnabled )
-    {
-        OsSysLog::add(FAC_DB, PRI_DEBUG, "SIPDBManager::setDatabaseChangedFlag leaving");
-        OsSysLog::flush();
-    }
 }
 
 OsStatus 
 SIPDBManager::getDatabaseInfo( UtlString& rDatabaseInfo ) const
 {
-    if ( gVerboseLoggingEnabled )
-    {
-        OsSysLog::add(
-            FAC_DB, PRI_DEBUG, 
-            "SIPDBManager::getDatabaseInfo entering");
-    }
 
     // Ensure that the database is opened first
     if ( spFastDB == NULL )
@@ -761,14 +579,6 @@ SIPDBManager::getDatabaseChangedFlag (
     // Critical Section here
     OsLock lock( sLockMutex );
 
-    if ( gVerboseLoggingEnabled )
-    {
-        OsSysLog::add(
-            FAC_DB, PRI_DEBUG, 
-            "SIPDBManager::getDatabaseChangedFlag entering tablename=%s", 
-            tablename.data());
-    }
-
     // Ensure that the database is opened first
     if ( spFastDB == NULL )
     {
@@ -792,14 +602,6 @@ SIPDBManager::getDatabaseChangedFlag (
         spFastDB->detach(0);
     }
 
-    if ( gVerboseLoggingEnabled )
-    {
-        OsSysLog::add(
-            FAC_DB, PRI_DEBUG, 
-            "SIPDBManager::getDatabaseChangedFlag leaving tablename=%s, result=%d", 
-            tablename.data(), (int)result );
-        OsSysLog::flush();
-    }
     return result;
 }
 
@@ -813,41 +615,16 @@ SIPDBManager::updateDatabaseInfo (
 
     int pid = getPid();
 
-    if ( gVerboseLoggingEnabled )
-    {
-        OsSysLog::add(
-            FAC_DB, PRI_DEBUG, 
-            "SIPDBManager::updateDatabaseInfo entering tablename=%s, checksum=%d, pid=%d", 
-            tablename.data(), 
-            (int)checksum, 
-            pid);
-    }
-
     if (spFastDB != NULL)
     {
         spFastDB->attach();
         dbCursor< TableInfo > cursor ( dbCursorForUpdate );
-
-        if ( gVerboseLoggingEnabled )
-        {
-            OsSysLog::add(
-                FAC_DB, PRI_DEBUG, 
-                "SIPDBManager::updateDatabaseInfo pid=%d", 
-                pid);
-        }
 
         dbQuery query;
         query="tablename=",tablename,"and pid=",pid;
         // cannot be 0 rows at this stage
         if ( cursor.select( query ) > 0 )
         {
-            if ( gVerboseLoggingEnabled )
-            {
-                OsSysLog::add(
-                    FAC_DB, PRI_DEBUG, 
-                    "SIPDBManager::updateDatabaseInfo for table: %s before do loop",
-                    tablename.data() );
-            }
             do {
                 if ( cursor->loadchecksum != checksum )
                 {
@@ -864,21 +641,8 @@ SIPDBManager::updateDatabaseInfo (
                 }
             } while ( cursor.next() );
 
-            if ( gVerboseLoggingEnabled )
-            {
-                OsSysLog::add(
-                    FAC_DB, PRI_DEBUG, 
-                    "SIPDBManager::updateDatabaseInfo for table: %s after do loop", 
-                    tablename.data());
-            }
         } else // this block should never be run
         {
-            if ( gVerboseLoggingEnabled )
-            {
-                OsSysLog::add(FAC_DB, PRI_ERR, 
-                    "SIPDBManager::updateDatabaseInfo cursor.select not > 0, SHOULD'NT BE HERE");
-            }
-
             // Insert or Update the process related info
             TableInfo tableInfo;
             tableInfo.tablename = tablename;
@@ -892,14 +656,6 @@ SIPDBManager::updateDatabaseInfo (
         spFastDB->detach(0);
     }
 
-    if ( gVerboseLoggingEnabled )
-    {
-        OsSysLog::add(
-            FAC_DB, PRI_DEBUG, 
-            "SIPDBManager::updateDatabaseInfo leaving tablename=%s, pid=%d", 
-            tablename.data(), pid);
-        OsSysLog::flush();
-    }
 }
 
 const UtlString& 
@@ -920,14 +676,6 @@ SIPDBManager::getInstance()
     // Critical Section here
     OsLock lock( sLockMutex );
 
-    if ( gVerboseLoggingEnabled )
-    {
-        OsSysLog::add(
-            FAC_DB, PRI_DEBUG, 
-            "SIPDBManager::getInstance entering spInstance=%d", 
-            (int)spInstance);
-    }
-
     // See if this is the first time through for this process
     // Note that this being null => pgDatabase is also null
     if ( spInstance == NULL )
@@ -935,14 +683,6 @@ SIPDBManager::getInstance()
         spInstance = new SIPDBManager();
     }
 
-    if ( gVerboseLoggingEnabled )
-    {
-        OsSysLog::add(
-            FAC_DB, PRI_DEBUG, 
-            "SIPDBManager::getInstance leaving spInstance=%d", 
-            (int)spInstance);
-        OsSysLog::flush();
-    }
     return spInstance;
 }
 
@@ -1243,18 +983,6 @@ SIPDBManager::getCfgPath()
    return nativePath;
 }
 
-/** Determines if verbose logging is requested by looking to see if a special
-    file exists */
-UtlBoolean SIPDBManager::isVerboseLoggingEnabled()
-{
-    UtlBoolean bFoundFile = FALSE ;
-    UtlString base = getCfgPath() + OsPath::separator + SYSLOG_VERBOSE_LOGGING ;
-
-    if (OsFileSystem::exists(base))
-        bFoundFile = TRUE ;
-    
-    return bFoundFile ;
-}
 
 /// Override the default fastdb tmp dir if the env var SIPX_DB_VAR_PATH is set
 void SIPDBManager::setFastdbTempDir()

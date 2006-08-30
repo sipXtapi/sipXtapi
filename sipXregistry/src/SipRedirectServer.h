@@ -27,7 +27,7 @@
 #include "os/OsMutex.h"
 
 // DEFINES
-#define MREDIRECTORCOUNT        7
+#define MREDIRECTORCOUNT        8
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

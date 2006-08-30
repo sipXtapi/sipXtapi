@@ -27,6 +27,7 @@
 #include "sipdb/ResultSet.h"
 #include "sipdb/SIPDBManager.h"
 #include "sipdb/AliasDB.h"
+#include "sipdb/CallerAliasDB.h"
 #include "sipdb/PermissionDB.h"
 #include "sipdb/CredentialDB.h"
 #include "sipdb/RegistrationDB.h"
@@ -51,9 +52,11 @@
 #define  AUTHTYPE       "authtype"
 #define  IDENTITY       "identity"
 #define  USER           "user"
+#define  DOMAIN         "domain"
 
 #define  CREDENTIAL     "credential"
 #define  ALIAS          "alias"
+#define  CALLER_ALIAS   "caller-alias"
 #define  PERMISSION     "permission"
 #define  EXTENSION      "extension"
 #define  AUTHEXCEPTION  "authexception"
@@ -329,13 +332,11 @@ insertRow (const UtlHashMap& nvPairs, const UtlString& type)
     static UtlString identityKey      (IDENTITY);
     static UtlString permissionKey    (PERMISSION);
     static UtlString userKey          (USER);
+    static UtlString domainKey        (DOMAIN);
+    static UtlString aliasKey         (ALIAS);
 
     if ( type.compareTo(CREDENTIAL , UtlString::ignoreCase)==0 ) {
-
-OsSysLog::add(FAC_REPLICATION_CGI, PRI_DEBUG, "before insertrow to credential db" );
-OsSysLog::add(FAC_REPLICATION_CGI, PRI_DEBUG, "pintoken= %s", (*((UtlString*)nvPairs.findValue(&pintokenKey))).data() );
-
-        CredentialDB::getInstance()->
+       CredentialDB::getInstance()->
             insertRow (
                 Url (*((UtlString*)nvPairs.findValue(&uriKey))),
                 *((UtlString*)nvPairs.findValue(&realmKey)),
@@ -371,6 +372,14 @@ OsSysLog::add(FAC_REPLICATION_CGI, PRI_DEBUG, "pintoken= %s", (*((UtlString*)nvP
         AuthexceptionDB::getInstance()->
             insertRow (
                  *((UtlString*)nvPairs.findValue(&userKey)));
+    } 
+    
+    else if ( type.compareTo(CALLER_ALIAS , UtlString::ignoreCase)==0 ) {
+       CallerAliasDB::getInstance()->
+          insertRow(*dynamic_cast<UtlString*>(nvPairs.findValue(&identityKey)),
+                    *dynamic_cast<UtlString*>(nvPairs.findValue(&domainKey)),
+                    *dynamic_cast<UtlString*>(nvPairs.findValue(&aliasKey))
+                    );
     } 
     
     else {
@@ -728,6 +737,11 @@ void cleanDatabase(const UtlString& databaseName){
     else if ( databaseName == AUTHEXCEPTION ){
        AuthexceptionDB::getInstance()->removeAllRows();
     }
+
+    else if ( databaseName == CALLER_ALIAS ){
+       CallerAliasDB::getInstance()->removeAllRows();
+    }
+    
 }
 
 /*write the database's content to xml file
@@ -762,6 +776,14 @@ void storeDatabase(const UtlString& databaseName){
              gstrError.append("Problem storing AuthexceptionDB to local XML file");
         }
     }
+
+    else if ( databaseName == CALLER_ALIAS ){
+       if ( CallerAliasDB::getInstance()->store() != OS_SUCCESS ){
+          gstrError.append("Problem storing CallerAliasDB to local XML file");
+       }
+    }
+    
+
 }
 
 

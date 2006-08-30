@@ -217,6 +217,9 @@ public:
     /// Get the URL host name or IP address
     void getHostAddress(UtlString& address) const;
 
+    /// Get the host and port together as a string "host:port"
+    void getHostWithPort(UtlString& domain) const;
+    
     /// Set the URL host name or IP address
     void setHostAddress(const char* address);
 
@@ -417,16 +420,13 @@ public:
      * possible to omit them.
      */
 
-    /// Escape a string as a gen_value, which is what field-parameters
-    //! use for values.
+    /// Escape a string as a gen_value, which is what field-parameters use for values.
     static void gen_value_escape(UtlString& escapedText);
 
-    /// Un-escape a string as a gen_value, which is what field-parameters
-    //! use for values.
+    /// Un-escape a string as a gen_value, which is what field-parameters use for values.
     static void gen_value_unescape(UtlString& escapedText);
 
-    /// Gets the serialized URL as a string (with no display name or 
-    //! field parameters)
+    /// Gets the serialized URL as a string (with no display name or field parameters)
     void getUri(UtlString& Uri);
 
 /* ============================ INQUIRY =================================== */

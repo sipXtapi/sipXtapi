@@ -33,7 +33,6 @@ PermissionDB* PermissionDB::spInstance = NULL;
 OsMutex  PermissionDB::sLockMutex (OsMutex::Q_FIFO);
 UtlString PermissionDB::gIdentityKey("identity");
 UtlString PermissionDB::gPermissionKey("permission");
-UtlBoolean     gpVerboseLoggingEnabled = FALSE;
 
 /* ============================ CREATORS ================================== */
 
@@ -47,11 +46,6 @@ PermissionDB::PermissionDB( const UtlString& name )
     // If we are the first process to attach
     // then we need to load the DB
     int users = pSIPDBManager->getNumDatabaseProcesses(name);
-
-    gpVerboseLoggingEnabled = SIPDBManager::isVerboseLoggingEnabled();
-    if (gpVerboseLoggingEnabled)
-        OsSysLog::add(FAC_DB, PRI_DEBUG, "PermissionDB::_  user=%d \"%s\"",
-                    users, name.data());
     if ( users == 1 )
     {
         // Load the file implicitly
