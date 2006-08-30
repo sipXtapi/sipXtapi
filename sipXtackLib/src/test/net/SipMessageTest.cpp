@@ -459,7 +459,7 @@ class SipMessageTest : public CppUnit::TestCase
                     i, i);
             ASSERT_STR_EQUAL_MESSAGE(buffer, vias[i], value.data());
          }
-         CPPUNIT_ASSERT_EQUAL(i, sizeof (vias) / sizeof (vias[0]));
+         CPPUNIT_ASSERT_EQUAL(i, (unsigned int) (sizeof (vias) / sizeof (vias[0])));
 
          SipMessage testMessage2(message2, strlen(message2));
 
@@ -474,7 +474,7 @@ class SipMessageTest : public CppUnit::TestCase
                     i, i);
             ASSERT_STR_EQUAL_MESSAGE(buffer, vias[i], value.data());
          }
-         CPPUNIT_ASSERT_EQUAL(i, sizeof (vias) / sizeof (vias[0]));
+         CPPUNIT_ASSERT_EQUAL(i, (unsigned int) (sizeof (vias) / sizeof (vias[0])));
       };
 
 
