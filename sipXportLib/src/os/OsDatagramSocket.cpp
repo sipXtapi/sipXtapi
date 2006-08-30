@@ -302,6 +302,7 @@ int OsDatagramSocket::write(const char* buffer, int bufferLength,
     int bytesSent = 0;
 
     struct sockaddr_in toSockAddress;
+    memset(&toSockAddress, 0, sizeof(toSockAddress));
     toSockAddress.sin_family = AF_INET;
     toSockAddress.sin_port = htons(port);
 
