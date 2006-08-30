@@ -1330,8 +1330,8 @@ public:
         Url url(szUrl);
         
         sprintf(msg, "test=%s, url=%s", szTest, szUrl);
-        KNOWN_BUG("port 5060 matches when it may be implicit, and should not","[XSL-137]");
         CPPUNIT_ASSERT_MESSAGE(msg, !url.isUserHostPortEqual(szTest));
+        CPPUNIT_ASSERT_MESSAGE(msg, url.isUserHostPortEqual(szTest, 5060));
     }
 
     void testIsUserHostPortNoMatch()
@@ -1415,7 +1415,6 @@ public:
                 int actual = urls[i].isUserHostPortEqual(urls[j]);
                 char msg[80];
                 sprintf(msg, "%s == %s", strings[i], strings[j]);
-                KNOWN_BUG("port 5060 matches when it may be implicit, and should not","[XSL-137]");
                 CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, expected, actual);
              }
           }

@@ -1561,13 +1561,26 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
 #  endif
 }
 
-UtlBoolean Url::isUserHostPortEqual(const Url &url) const
+UtlBoolean Url::isUserHostPortEqual(const Url &url,
+                                    int impliedPort
+                                    ) const
 {
-   int port = (PORT_NONE == url.mHostPort) ? SIP_PORT : url.mHostPort ;
+   int otherPort;
+   int myPort;
+   if (impliedPort == PORT_NONE)
+   {
+      // strict checking - no implied port values
+      otherPort = url.mHostPort;
+      myPort    = mHostPort;
+   }
+   else
+   {
+      // sloppy checking - an unspecified port is considered to be impliedPort
+      otherPort = ( url.mHostPort == PORT_NONE ) ? impliedPort : url.mHostPort;
+      myPort    = ( mHostPort     == PORT_NONE ) ? impliedPort : mHostPort;
+   }
    
-   int checkPort = (PORT_NONE == mHostPort)? SIP_PORT : mHostPort;
-   
-   return ((checkPort == port) && isUserHostEqual(url));
+   return ((myPort == otherPort) && isUserHostEqual(url));
 }
 
 UtlBoolean Url::isUserHostEqual(const Url &url) const
