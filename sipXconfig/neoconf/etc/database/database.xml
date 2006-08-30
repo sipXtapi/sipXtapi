@@ -115,6 +115,7 @@
     <antcall target="gateway-prefix"/>
     <antcall target="permission"/>    
     <antcall target="park-orbit-settings"/>    
+    <antcall target="caller-alias"/>    
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="4" -->
   </target>
@@ -170,6 +171,10 @@
   <target name="park-orbit-settings" unless="park-orbit-settings">
     <db-patch patch="park-orbit-settings"/>
   </target>  
+  
+  <target name="caller-alias" unless="caller-alias">
+    <db-patch patch="caller-alias"/>
+  </target>
   
   <target name="attendant_defaults" unless="attendant_defaults">
     <!-- remove spaces to enable things like auto-completion -->

@@ -34,8 +34,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
 
     protected void setUp() throws Exception {
         ApplicationContext app = TestHelper.getApplicationContext();
-        m_core = (CoreContextImpl) app
-                .getBean(CoreContextImpl.CONTEXT_BEAN_NAME);
+        m_core = (CoreContextImpl) app.getBean(CoreContextImpl.CONTEXT_BEAN_NAME);
         m_settingDao = (SettingDao) app.getBean(SettingDao.CONTEXT_NAME);
         TestHelper.cleanInsert("ClearDb.xml");
     }
@@ -211,8 +210,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         TestHelper.insertFlat("common/UserSearchSeed.xml");
 
         // Check that we have the expected number of users
-        ITable usersTable = TestHelper.getConnection().createDataSet()
-                .getTable("users");
+        ITable usersTable = TestHelper.getConnection().createDataSet().getTable("users");
         assertEquals(NUM_USERS, usersTable.getRowCount());
 
         // Delete two users
@@ -222,17 +220,15 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         m_core.deleteUsers(usersToDelete);
 
         // We should have reduced the user count by two
-        usersTable = TestHelper.getConnection().createDataSet().getTable(
-                "users");
+        usersTable = TestHelper.getConnection().createDataSet().getTable("users");
         assertEquals(NUM_USERS - 2, usersTable.getRowCount());
     }
-    
+
     public void testDeleteUsersByUserName() throws Exception {
         TestHelper.insertFlat("common/UserSearchSeed.xml");
 
         // Check that we have the expected number of users
-        ITable usersTable = TestHelper.getConnection().createDataSet()
-                .getTable("users");
+        ITable usersTable = TestHelper.getConnection().createDataSet().getTable("users");
         assertEquals(NUM_USERS, usersTable.getRowCount());
 
         // Delete two users
@@ -242,11 +238,9 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         m_core.deleteUsersByUserName(usersToDelete);
 
         // We should have reduced the user count by two
-        usersTable = TestHelper.getConnection().createDataSet().getTable(
-                "users");
+        usersTable = TestHelper.getConnection().createDataSet().getTable("users");
         assertEquals(NUM_USERS - 2, usersTable.getRowCount());
     }
-    
 
     public void testLoadGroups() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
@@ -309,8 +303,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
 
         IDataSet actualDs = TestHelper.getConnection().createDataSet();
 
-        Assertion.assertEquals(expectedRds.getTable("users"), actualDs
-                .getTable("users"));
+        Assertion.assertEquals(expectedRds.getTable("users"), actualDs.getTable("users"));
         Assertion.assertEquals(expectedRds.getTable("group_storage"), actualDs
                 .getTable("group_storage"));
         Assertion.assertEquals(expectedRds.getTable("setting_value"), actualDs
@@ -350,24 +343,19 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
 
     public void testCountUsersInGroupWithSearch() throws Exception {
         TestHelper.insertFlat("common/SampleUsersSeed.xml");
-        assertEquals(1, m_core.getUsersInGroupWithSearchCount(
-                new Integer(1001), "pha"));
-        assertEquals(1, m_core.getUsersInGroupWithSearchCount(
-                new Integer(1002), "add"));
-        assertEquals(2, m_core.getUsersInGroupWithSearchCount(
-                new Integer(1003), "l"));
+        assertEquals(1, m_core.getUsersInGroupWithSearchCount(new Integer(1001), "pha"));
+        assertEquals(1, m_core.getUsersInGroupWithSearchCount(new Integer(1002), "add"));
+        assertEquals(2, m_core.getUsersInGroupWithSearchCount(new Integer(1003), "l"));
     }
 
     public void testLoadUserPage() throws Exception {
         TestHelper.insertFlat("common/SampleUsersSeed.xml");
-        Collection page = m_core.loadUsersByPage(null, null, 0, 2, "userName",
-                true);
+        Collection page = m_core.loadUsersByPage(null, null, 0, 2, "userName", true);
         assertEquals(2, page.size());
         User u = (User) page.iterator().next();
         assertEquals("alpha", u.getUserName());
 
-        Collection next = m_core.loadUsersByPage(null, null, 2, 2, "userName",
-                true);
+        Collection next = m_core.loadUsersByPage(null, null, 2, 2, "userName", true);
         assertEquals(2, next.size());
         User nextUser = (User) next.iterator().next();
         assertEquals("charlie", nextUser.getUserName());
@@ -376,8 +364,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     public void testLoadUserPageDescending() throws Exception {
         TestHelper.insertFlat("common/SampleUsersSeed.xml");
         // expect third user from bottom
-        Collection page = m_core.loadUsersByPage(null, null, 2, 2, "userName",
-                false);
+        Collection page = m_core.loadUsersByPage(null, null, 2, 2, "userName", false);
         User u = (User) page.iterator().next();
         assertEquals("horatio", u.getUserName());
     }
@@ -385,16 +372,15 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     public void testLoadUserPageOrderByFirstName() throws Exception {
         TestHelper.insertFlat("common/SampleUsersSeed.xml");
         // try sorting by last name
-        Collection page = m_core.loadUsersByPage(null, null, 2, 2, "firstName",
-                true);
+        Collection page = m_core.loadUsersByPage(null, null, 2, 2, "firstName", true);
         User u = (User) page.iterator().next();
         assertEquals("kyle", u.getUserName());
     }
 
     public void testLoadUserPageWithGroup() throws Exception {
         TestHelper.insertFlat("common/SampleUsersSeed.xml");
-        Collection page = m_core.loadUsersByPage(null, new Integer(1001), 0,
-                10, "userName", true);
+        Collection page = m_core
+                .loadUsersByPage(null, new Integer(1001), 0, 10, "userName", true);
         assertEquals(1, page.size());
         User u = (User) page.iterator().next();
         assertEquals("alpha", u.getUserName());
@@ -402,8 +388,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
 
     public void testLoadUserPageWithUserSearch() throws Exception {
         TestHelper.insertFlat("common/SampleUsersSeed.xml");
-        Collection page = m_core.loadUsersByPage("og", null, 0, 10, "userName",
-                true);
+        Collection page = m_core.loadUsersByPage("og", null, 0, 10, "userName", true);
         assertEquals(6, page.size());
         User u = (User) page.iterator().next();
         assertEquals("alpha", u.getUserName());
@@ -424,18 +409,16 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
 
     public void testLoadUserPageWithUserSearchAndGroup() throws Exception {
         TestHelper.insertFlat("common/SampleUsersSeed.xml");
-        Collection page = m_core.loadUsersByPage("og", new Integer(1003), 0,
-                10, "userName", true);
+        Collection page = m_core
+                .loadUsersByPage("og", new Integer(1003), 0, 10, "userName", true);
         assertEquals(1, page.size());
         User u = (User) page.iterator().next();
         assertEquals("gogo", u.getUserName());
     }
 
-    public void testLoadUserPageWithUserSearchCaseInsensitive()
-            throws Exception {
+    public void testLoadUserPageWithUserSearchCaseInsensitive() throws Exception {
         TestHelper.insertFlat("common/SampleUsersSeed.xml");
-        Collection page = m_core.loadUsersByPage("mamba", null, 0, 10,
-                "userName", true);
+        Collection page = m_core.loadUsersByPage("mamba", null, 0, 10, "userName", true);
         assertEquals(1, page.size());
         User u = (User) page.iterator().next();
         assertEquals("kyle", u.getUserName());
@@ -462,7 +445,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         } catch (UserException e) {
             fail();
         }
-        
+
         try {
             m_core.checkMaxUsers(NUM_USERS + 1);
         } catch (UserException e) {
@@ -483,18 +466,29 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         Group group = m_settingDao.getGroup(1001);
         List<User> supervisors = m_core.getGroupSupervisors(group);
         assertEquals(1, supervisors.size());
-        assertEquals((Integer) 1001, supervisors.get(0).getId());        
+        assertEquals((Integer) 1001, supervisors.get(0).getId());
     }
-    
+
     public void testUsersThatISupervisr() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/UsersThatISupervise.db.xml");
         User supervisor = m_core.loadUser(2001);
-        
+
         List<User> peons = m_core.getUsersThatISupervise(supervisor);
         assertEquals(3, peons.size());
-        assertEquals("peon1", peons.get(0).getUserName());        
-        assertEquals("peon2", peons.get(1).getUserName());        
-        assertEquals("peon5", peons.get(2).getUserName());        
+        assertEquals("peon1", peons.get(0).getUserName());
+        assertEquals("peon2", peons.get(1).getUserName());
+        assertEquals("peon5", peons.get(2).getUserName());
+    }
+
+    public void testUsersWithExternalNumbers() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.insertFlat("common/UsersWithExternalNumbers.db.xml");
+
+        List<User> all = m_core.loadUsers();
+        assertEquals(3, all.size());
+        List<User> users = m_core.getUsersWithExternalNumbers();
+        assertEquals(1, users.size());
+        assertEquals("alpha", users.get(0).getUserName());
     }
 }

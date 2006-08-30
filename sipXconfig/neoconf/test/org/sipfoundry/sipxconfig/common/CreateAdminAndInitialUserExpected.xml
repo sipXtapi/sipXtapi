@@ -9,6 +9,7 @@
 		sip_password="[null]"
     user_name="superadmin"
     value_storage_id="[null]"
+    external_number="[null]"
 		/>
     <group_storage 
   		resource="user"

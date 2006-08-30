@@ -126,4 +126,6 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
     public List<User> getGroupSupervisors(Group group);
     
     public List<User> getUsersThatISupervise(User uservisor);
+    
+    public List<User> getUsersWithExternalNumbers();
 }

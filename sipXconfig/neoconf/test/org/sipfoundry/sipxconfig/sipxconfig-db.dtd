@@ -162,6 +162,7 @@
     model_id CDATA #IMPLIED
     device_version_id CDATA #IMPLIED
     prefix CDATA #IMPLIED
+    default_caller_alias CDATA #IMPLIED
 >
 
 <!ELEMENT group_storage EMPTY>
@@ -339,6 +340,14 @@
     name CDATA #IMPLIED
     extension CDATA #IMPLIED
     description CDATA #IMPLIED
+    value_storage_id CDATA #IMPLIED
+    group_id CDATA #IMPLIED
+>
+
+<!ELEMENT park_orbit_group EMPTY>
+<!ATTLIST park_orbit_group
+    park_orbit_id CDATA #REQUIRED
+    group_id CDATA #REQUIRED
 >
 
 <!ELEMENT patch EMPTY>
@@ -445,6 +454,7 @@
     last_name CDATA #IMPLIED
     user_name CDATA #REQUIRED
     value_storage_id CDATA #IMPLIED
+    external_number CDATA #IMPLIED
 >
 
 <!ELEMENT value_storage EMPTY>

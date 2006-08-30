@@ -511,4 +511,10 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
                 "usersThatISupervise", "supervisorId", supervisor.getId());
         return objs;
     }
+
+    public List<User> getUsersWithExternalNumbers() {
+        List<User> objs = getHibernateTemplate().findByNamedQuery("usersWithExternalNumbers");
+        return objs;
+    }
+
 }

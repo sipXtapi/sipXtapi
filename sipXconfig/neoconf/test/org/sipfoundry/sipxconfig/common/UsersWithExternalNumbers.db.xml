@@ -1,0 +1,11 @@
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+	<users first_name="sam" last_name="" user_name="alpha" pintoken="x" user_id="1001" external_number="1234"/>
+	<users last_name="" user_name="beta" pintoken="x" user_id="1002"/>
+	<users first_name="jessica" last_name="agog" user_name="charlie" pintoken="x" user_id="1003" external_number=""/>
+	
+    <value_storage value_storage_id="1001"/>
+    <value_storage value_storage_id="1002"/>
+    <value_storage value_storage_id="1003"/>
+
+</dataset>
