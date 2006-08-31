@@ -59,8 +59,7 @@ make DESTDIR=$RPM_BUILD_ROOT install
 mkdir -p %{upgrade_archive_root}
 tar --directory ${RPM_BUILD_ROOT} \
     -czf %{upgrade_archive_root}/%{this_archive} \
-    etc \
-    var/sipxdata/sipdb
+    etc
 
 %clean
 rm -rf $RPM_BUILD_ROOT
