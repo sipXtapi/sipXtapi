@@ -21,5 +21,5 @@ build-rpms : $(SRPM)
 	patch -p0 $(RPMBUILD_TOPDIR)/SPECS/cppunit.spec < $(srcdir)/cppunit-sipx.patch
 	rpmbuild -ba $(RPMBUILD_TOPDIR)/SPECS/cppunit.spec
 
-$(RPMS) :
+$(RPMS) : build-rpms
 	cp $(RPMBUILD_TOPDIR)/RPMS/$(RPM_TARGET_ARCH)/`basename $@` $@
