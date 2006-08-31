@@ -697,6 +697,7 @@ main( int argc, char* argv[] )
     sipUserAgent.setIsUserAgent(FALSE);
     sipUserAgent.setDnsSrvTimeout(dnsSrvTimeout);
     sipUserAgent.setMaxSrvRecords(maxNumSrvRecords);
+    sipUserAgent.setUserAgentHeaderProperty("sipX/authproxy");
 
     sipUserAgent.setForking(FALSE);  // Disable forking
     sipUserAgent.setHostAliases(hostAliases);

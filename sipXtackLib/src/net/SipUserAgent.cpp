@@ -3746,10 +3746,16 @@ void SipUserAgent::lookupSRVSipAddress(UtlString protocol, UtlString& sipAddress
 
 void SipUserAgent::setServerHeader(SipMessage& message)
 {
-   UtlString headerValue;
-   selfHeaderValue(headerValue);
+   UtlString existing;
+   message.getServerField(&existing);
 
-   message.setServerField(headerValue.data());
+   if(existing.isNull())
+   {
+      UtlString headerValue;
+      selfHeaderValue(headerValue);
+
+      message.setServerField(headerValue.data());
+   }
 }
 
 void SipUserAgent::setUserAgentHeader(SipMessage& message)

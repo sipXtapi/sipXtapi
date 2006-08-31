@@ -1079,6 +1079,7 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                          "Sending final response\n%s", finalMessageStr.data());
         }
         
+        mSipUserAgent->setUserAgentHeader(finalResponse);
         mSipUserAgent->send(finalResponse);
     }
     return TRUE;

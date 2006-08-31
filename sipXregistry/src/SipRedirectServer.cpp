@@ -127,19 +127,19 @@ SipRedirectServer::initialize(OsConfigDb& configDb    ///< Configuration paramet
    // Create and initialize the SipRedirectorRegDB object.
    mRedirectors[rNum] = new SipRedirectorRegDB;
    mRedirectors[rNum]->initialize(configParameters, configDb, mpSipUserAgent, rNum);
+   rNum++;
 
    // Create and initialize the SipRedirectorAliasDB object.
-   rNum++;
    mRedirectors[rNum] = new SipRedirectorAliasDB;
    mRedirectors[rNum]->initialize(configParameters, configDb, mpSipUserAgent, rNum);
+   rNum++;
 
    // Create and initialize the mRedirectorSubscribe object.
-   rNum++;
    mRedirectors[rNum] = new SipRedirectorSubscribe;
    mRedirectors[rNum]->initialize(configParameters, configDb, mpSipUserAgent, rNum);
+   rNum++;
 
    // Create and initialize the mRedirectorMappingRules object.
-   rNum++;
    UtlString k5 = "mappingRulesFilename";
    UtlString v5 = URL_MAPPING_RULES_FILENAME;
    configParameters.insertKeyAndValue(&k5, &v5);
@@ -151,9 +151,9 @@ SipRedirectServer::initialize(OsConfigDb& configDb    ///< Configuration paramet
    configParameters.insertKeyAndValue(&k7, &v7);
    mRedirectors[rNum] = new SipRedirectorMapping;
    mRedirectors[rNum]->initialize(configParameters, configDb, mpSipUserAgent, rNum);
+   rNum++;
 
    // Create and initialize the mRedirectorFallbackRules object.
-   rNum++;
    v5 = URL_FALLBACK_RULES_FILENAME;
    configParameters.insertKeyAndValue(&k5, &v5);
    v6 = "fallback rules";
@@ -162,24 +162,25 @@ SipRedirectServer::initialize(OsConfigDb& configDb    ///< Configuration paramet
    configParameters.insertKeyAndValue(&k7, &v7);
    mRedirectors[rNum] = new SipRedirectorMapping;
    mRedirectors[rNum]->initialize(configParameters, configDb, mpSipUserAgent, rNum);
+   rNum++;
 
    // Create and initialize the mRedirectorHunt object.
-   rNum++;
    mRedirectors[rNum] = new SipRedirectorHunt;
    mRedirectors[rNum]->initialize(configParameters, configDb, mpSipUserAgent, rNum);
+   rNum++;
 
    // Create and initialize the CallerAlias redirector
-   rNum++;
    mRedirectors[rNum] = new SipRedirectorCallerAlias;
    mRedirectors[rNum]->initialize(configParameters, configDb, mpSipUserAgent, rNum);
+   rNum++;
 
    // Create and initialize the mRedirectorPickUp object.
-   rNum++;
    UtlString k8 = "orbitConfigFilename";
    UtlString v8 = ORBIT_CONFIG_FILENAME;
    configParameters.insertKeyAndValue(&k8, &v8);
    mRedirectors[rNum] = new SipRedirectorPickUp;
    mRedirectors[rNum]->initialize(configParameters, configDb, mpSipUserAgent, rNum);
+   rNum++;
 
    // Update this test with the index of the last redirector loaded.
    if (rNum != (MREDIRECTORCOUNT))
@@ -380,7 +381,7 @@ void SipRedirectServer::processRedirect(const SipMessage* message,
          break;
 
       case SipRedirector::LOOKUP_SUSPEND:
-         OsSysLog::add(FAC_SIP, PRI_ERR,
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
                        "SipRedirectServer::processRedirect "
                        "LOOKUP_SUSPEND returned by redirector "
                        "%d while processing method '%s' URI '%s'",
@@ -412,6 +413,9 @@ void SipRedirectServer::processRedirect(const SipMessage* message,
          switch (responseCode)
          {
          case 403:
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipRedirectServer::processRedirect "
+                          "Sending 403 response");
             response.setResponseData(message,
                                      SIP_FORBIDDEN_CODE,
                                      SIP_FORBIDDEN_TEXT);
@@ -426,6 +430,9 @@ void SipRedirectServer::processRedirect(const SipMessage* message,
                           responseCode);
             /* Fall through to next case. */
          case 500:
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipRedirectServer::processRedirect "
+                          "Sending 500 response");
             response.setResponseData(message,
                                      SIP_SERVER_INTERNAL_ERROR_CODE,
                                      SIP_SERVER_INTERNAL_ERROR_TEXT);
@@ -441,6 +448,9 @@ void SipRedirectServer::processRedirect(const SipMessage* message,
          if (response.getCountHeaderFields(SIP_CONTACT_FIELD) > 0)
          {
             // There are contacts, so send a 302 Moved Temporarily.
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipRedirectServer::processRedirect "
+                          "Contacts added, sending 302 response");
             response.setResponseData(message,
                                      SIP_TEMPORARY_MOVE_CODE,
                                      SIP_TEMPORARY_MOVE_TEXT);
@@ -500,8 +510,6 @@ SipRedirectServer::handleMessage(OsMsg& eventMessage)
    case OsMsg::PHONE_APP:
    {      
       // An incoming request to be redirected.
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRedirectServer::handleMessage "
-                    "Start processing redirect message %d", mNextSeqNo);
 
       // Get a pointer to the SIP message.
       const SipMessage* message =
@@ -510,6 +518,16 @@ SipRedirectServer::handleMessage(OsMsg& eventMessage)
       // Extract the request method.
       UtlString method;
       message->getRequestMethod(&method);
+
+      if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+      {
+         UtlString stringUri;
+         message->getRequestUri(&stringUri);
+
+         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRedirectServer::handleMessage "
+                       "Start processing redirect message %d: '%s' '%s'",
+                       mNextSeqNo, method.data(), stringUri.data());
+      }
 
       if (method.compareTo(SIP_ACK_METHOD, UtlString::ignoreCase) == 0)
       {
@@ -584,7 +602,7 @@ SipRedirectServer::handleMessage(OsMsg& eventMessage)
    }
    break;
 
-   case REDIRECT_RESTART:
+   case RedirectResumeMsg::REDIRECT_RESTART:
    {
       // A message saying that a redirector is now willing to resume
       // processing of a request.

@@ -540,6 +540,7 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                         )
                     )
                 {   // Either not authenticated or not authorized
+                    mpSipUserAgent->setServerHeader(authResponse);
                     mpSipUserAgent->send(authResponse);
                 }
                 else

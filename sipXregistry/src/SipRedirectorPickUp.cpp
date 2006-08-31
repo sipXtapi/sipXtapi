@@ -258,6 +258,7 @@ SipRedirectorPickUp::initialize(const UtlHashMap& configParameters,
          OsServerTask::DEF_MAX_MSGS, // queueSize
          FALSE // bUseNextAvailablePort
          );
+      mpSipUserAgent->setUserAgentHeaderProperty("sipX/pickup");
       mpSipUserAgent->start();
 
       // Get the wait time for NOTIFYs in response to our SUBSCRIBEs.
@@ -722,6 +723,7 @@ SipRedirectorPickUp::lookUpDialog(
                                   "application/dialog-info+xml");
    
          // Send the SUBSCRIBE.
+         mpSipUserAgent->setUserAgentHeader(subscribe);
          mpSipUserAgent->send(subscribe);
    
          // Allocate private storage.
@@ -1228,6 +1230,7 @@ SipRedirectorPickUpTask::handleMessage(OsMsg& eventMessage)
                        "Sending 200 OK response to NOTIFY");
          SipMessage response;
          response.setOkResponseData(message);
+         mpSipUserAgent->setServerHeader(response);
          mpSipUserAgent->send(response);
       }
    }

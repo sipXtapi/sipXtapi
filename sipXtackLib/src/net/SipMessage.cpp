@@ -4039,6 +4039,26 @@ UtlBoolean SipMessage::getSessionExpires(int* sessionExpiresSeconds) const
     return(value != NULL);
 }
 
+bool SipMessage::hasSelfHeader() const
+{
+   UtlString value;
+   getUserAgentField(&value);
+   if (value.isNull())
+   {
+      getServerField(&value);
+   }
+   return ! value.isNull();
+}
+
+void SipMessage::getServerField(UtlString* serverFieldValue) const
+{
+   const char* server = getHeaderValue(0, SIP_SERVER_FIELD);
+   serverFieldValue->remove(0);
+   if(server)
+   {
+      serverFieldValue->append(server);
+   }
+}
 
 void SipMessage::setServerField(const char* serverField)
 {

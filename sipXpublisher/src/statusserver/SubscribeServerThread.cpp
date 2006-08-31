@@ -438,6 +438,7 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
             finalResponse.getBytes(&finalMessageStr, &finalMessageLen);
             syslog(FAC_SIP, PRI_DEBUG, "\n----------------------------------\n"
                 "Sending final response\n%s\n",finalMessageStr.data());
+            mpSipUserAgent->setUserAgentHeader( finalResponse );
             mpSipUserAgent->send( finalResponse );
         } 
         else // Invalid domain
@@ -447,6 +448,7 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
                                          SIP_NOT_FOUND_CODE,
                                          notFoundMsg
                                          );
+           mpSipUserAgent->setUserAgentHeader( finalResponse );
            mpSipUserAgent->send( finalResponse );
         }
     } 
