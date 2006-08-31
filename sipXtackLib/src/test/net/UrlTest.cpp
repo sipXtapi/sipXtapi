@@ -1,9 +1,15 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -102,12 +108,12 @@ private:
 
     char msg[1024];
 
-   static const size_t BIG_SIZE=8200;
-   UtlString bigtoken; // bigtoken = BIG_SIZE characters to be used in constructing strings
+    static const size_t BIG_SIZE;
+    UtlString bigtoken; // bigtoken = BIG_SIZE characters to be used in constructing strings
 
 public:
 
-   void setUp()
+    void setUp()
     {
         assertValue = new UtlString();
 
@@ -241,7 +247,7 @@ public:
       }
 
 
-   void testSipBasic()
+    void testSipBasic()
     {
         const char* szUrl = "sip:rschaaf@10.1.1.89";
 
@@ -398,53 +404,53 @@ public:
                                  );
     }
 
-   void testQuotedName()
-      {
-         const char *szUrl = "\"Display \\\"Name\"<sip:easy@sipserver>";
-         Url url(szUrl);
-         sprintf(msg, "%s", szUrl);
-         ASSERT_STR_EQUAL_MESSAGE(msg, "\"Display \\\"Name\"", getDisplayName(url));
-         ASSERT_STR_EQUAL_MESSAGE(msg, "sip", getUrlType(url));
-         ASSERT_STR_EQUAL_MESSAGE(msg, "easy", getUserId(url));
-         ASSERT_STR_EQUAL_MESSAGE(msg, "sipserver", getHostAddress(url));
-         CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, PORT_NONE, url.getHostPort());
+    void testQuotedName()
+    {
+        const char *szUrl = "\"Display \\\"Name\"<sip:easy@sipserver>";
+        Url url(szUrl);
+        sprintf(msg, "%s", szUrl);
+        ASSERT_STR_EQUAL_MESSAGE(msg, "\"Display \\\"Name\"", getDisplayName(url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "sip", getUrlType(url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "easy", getUserId(url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "sipserver", getHostAddress(url));
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, PORT_NONE, url.getHostPort());
 
-         ASSERT_STR_EQUAL_MESSAGE(msg, szUrl, toString(url));
-         ASSERT_STR_EQUAL_MESSAGE(msg, "sip:easy@sipserver", getUri(url));
-      }
+        ASSERT_STR_EQUAL_MESSAGE(msg, szUrl, toString(url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "sip:easy@sipserver", getUri(url));
+    }
 
-   void testFancyNames()
-      {
-         const char *szUrl = "\"(Display \\\"< @ Name)\"  <sip:?$,;silly/user+(name)_&=.punc%2d!bing*bang~'-@sipserver:555;"
+    void testFancyNames()
+    {
+        const char *szUrl = "\"(Display \\\"< @ Name)\"  <sip:?$,;silly/user+(name)_&=.punc%2d!bing*bang~'-@sipserver:555;"
             "tag=xxxxx;transport=TCP;msgId=4?call-Id=call2&cseq=2+INVITE>;"
             "fieldParam1=1234;fieldParam2=2345";
-         const char *szUrl_corrected = "\"(Display \\\"< @ Name)\"<sip:?$,;silly/user+(name)_&=.punc%2d!bing*bang~'-@sipserver:555;"
+        const char *szUrl_corrected = "\"(Display \\\"< @ Name)\"<sip:?$,;silly/user+(name)_&=.punc%2d!bing*bang~'-@sipserver:555;"
             "tag=xxxxx;transport=TCP;msgId=4?call-Id=call2&cseq=2+INVITE>;"
             "fieldParam1=1234;fieldParam2=2345";
-         Url url(szUrl);
-         sprintf(msg, "%s", szUrl);
-         ASSERT_STR_EQUAL_MESSAGE(msg, "\"(Display \\\"< @ Name)\"", getDisplayName(url));
-         ASSERT_STR_EQUAL_MESSAGE(msg, "sip", getUrlType(url));
-         ASSERT_STR_EQUAL_MESSAGE(msg, "?$,;silly/user+(name)_&=.punc%2d!bing*bang~'-", getUserId(url));
-         ASSERT_STR_EQUAL_MESSAGE(msg, "sipserver", getHostAddress(url));
-         CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, 555, url.getHostPort());
-         ASSERT_STR_EQUAL_MESSAGE(msg, "xxxxx", getParam("tag", url));
-         ASSERT_STR_EQUAL_MESSAGE(msg, "TCP", getParam("transport", url));
-         ASSERT_STR_EQUAL_MESSAGE(msg, "4", getParam("msgId", url));
-         ASSERT_STR_EQUAL_MESSAGE(msg, "call2", getHeaderParam("call-Id", url));
-         ASSERT_STR_EQUAL_MESSAGE(msg, "2 INVITE", getHeaderParam("cseq", url));
-         ASSERT_STR_EQUAL_MESSAGE(msg, "1234", getFieldParam("fieldParam1", url));
-         ASSERT_STR_EQUAL_MESSAGE(msg, "2345", getFieldParam("fieldParam2", url));
+            Url url(szUrl);
+        sprintf(msg, "%s", szUrl);
+        ASSERT_STR_EQUAL_MESSAGE(msg, "\"(Display \\\"< @ Name)\"", getDisplayName(url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "sip", getUrlType(url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "?$,;silly/user+(name)_&=.punc%2d!bing*bang~'-", getUserId(url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "sipserver", getHostAddress(url));
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, 555, url.getHostPort());
+        ASSERT_STR_EQUAL_MESSAGE(msg, "xxxxx", getParam("tag", url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "TCP", getParam("transport", url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "4", getParam("msgId", url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "call2", getHeaderParam("call-Id", url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "2 INVITE", getHeaderParam("cseq", url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "1234", getFieldParam("fieldParam1", url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "2345", getFieldParam("fieldParam2", url));
 
-         ASSERT_STR_EQUAL_MESSAGE(msg, szUrl_corrected, toString(url));
-         ASSERT_STR_EQUAL_MESSAGE(
+        ASSERT_STR_EQUAL_MESSAGE(msg, szUrl_corrected, toString(url));
+        ASSERT_STR_EQUAL_MESSAGE(
             msg,
             "sip:?$,;silly/user+(name)_&=.punc%2d!bing*bang~'-@sipserver:555;"
             "tag=xxxxx;transport=TCP;msgId=4?call-Id=call2&cseq=2+INVITE",
             getUri(url));
-      }
+    }
 
-   void testEncoded()
+    void testEncoded()
     {
         const char *szUrl = "D Name<sip:autoattendant@sipfoundry.org:5100;"
             "play=http%3A%2F%2Flocalhost%3A8090%2Fsipx-cgi%2Fmediaserver.cgi"
@@ -519,54 +525,54 @@ public:
         ASSERT_STR_EQUAL_MESSAGE(msg, szUrlCorrected, toString(url));
     }
 
-   void testSemiHeaderParam()
-      {
-         const char *withAngles          = "<sip:tester@sipfoundry.org?foo=bar;bing>";
-         const char *withoutAngles        = "sip:tester@sipfoundry.org?foo=bar;bing";
-         const char *withAnglesEscaped   = "<sip:tester@sipfoundry.org?foo=bar%3Bbing>";
-         const char *withoutAnglesEscaped = "sip:tester@sipfoundry.org?foo=bar%3Bbing";
+    void testSemiHeaderParam()
+    {
+        const char *withAngles          = "<sip:tester@sipfoundry.org?foo=bar;bing>";
+        const char *withoutAngles        = "sip:tester@sipfoundry.org?foo=bar;bing";
+        const char *withAnglesEscaped   = "<sip:tester@sipfoundry.org?foo=bar%3Bbing>";
+        const char *withoutAnglesEscaped = "sip:tester@sipfoundry.org?foo=bar%3Bbing";
 
-         Url urlHdr(withAngles);
-         sprintf(msg, "with angle brackets %s", withAngles);
+        Url urlHdr(withAngles);
+        sprintf(msg, "with angle brackets %s", withAngles);
 
-         ASSERT_STR_EQUAL_MESSAGE(msg, "bar;bing", getHeaderParam("foo", urlHdr));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "bar;bing", getHeaderParam("foo", urlHdr));
 
-         ASSERT_STR_EQUAL_MESSAGE(msg, withAnglesEscaped, toString(urlHdr));
-         ASSERT_STR_EQUAL_MESSAGE(msg, withoutAnglesEscaped, getUri(urlHdr));
+        ASSERT_STR_EQUAL_MESSAGE(msg, withAnglesEscaped, toString(urlHdr));
+        ASSERT_STR_EQUAL_MESSAGE(msg, withoutAnglesEscaped, getUri(urlHdr));
 
-         Url url(withoutAngles, TRUE /* parse as a request uri */ );
-         sprintf(msg, "without angle brackets %s", withoutAngles);
+        Url url(withoutAngles, TRUE /* parse as a request uri */ );
+        sprintf(msg, "without angle brackets %s", withoutAngles);
 
-         ASSERT_STR_EQUAL_MESSAGE(msg, "bar;bing", getHeaderParam("foo", url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "bar;bing", getHeaderParam("foo", url));
 
-         ASSERT_STR_EQUAL_MESSAGE(msg, withAnglesEscaped, toString(url));
-         ASSERT_STR_EQUAL_MESSAGE(msg, withoutAnglesEscaped, getUri(url));
-      }
+        ASSERT_STR_EQUAL_MESSAGE(msg, withAnglesEscaped, toString(url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, withoutAnglesEscaped, getUri(url));
+    }
 
-   void testMissingAngles()
-      {
-         const char *szUrl = "sip:tester@sipfoundry.org?foo=bar";
+    void testMissingAngles()
+    {
+        const char *szUrl = "sip:tester@sipfoundry.org?foo=bar";
 
-         const char *szUrlCorrected = "<sip:tester@sipfoundry.org?foo=bar>";
+        const char *szUrlCorrected = "<sip:tester@sipfoundry.org?foo=bar>";
 
-         Url url(szUrl);
-         sprintf(msg, "needed angle brackets %s", szUrl);
-         ASSERT_STR_EQUAL_MESSAGE(msg, szUrlCorrected, toString(url));
-         ASSERT_STR_EQUAL_MESSAGE(msg, "bar", getHeaderParam("foo", url));
-      }
+        Url url(szUrl);
+        sprintf(msg, "needed angle brackets %s", szUrl);
+        ASSERT_STR_EQUAL_MESSAGE(msg, szUrlCorrected, toString(url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "bar", getHeaderParam("foo", url));
+    }
 
-   void testNoAngleParam()
-      {
-         const char *szUrl = "sip:tester@sipfoundry.org;foo=bar";
+    void testNoAngleParam()
+    {
+        const char *szUrl = "sip:tester@sipfoundry.org;foo=bar";
 
-         Url url(szUrl);
-         ASSERT_STR_EQUAL_MESSAGE(msg, MISSING_PARAM, getParam("foo", url));
-         ASSERT_STR_EQUAL_MESSAGE(msg, "bar", getFieldParam("foo", url));
+        Url url(szUrl);
+        ASSERT_STR_EQUAL_MESSAGE(msg, MISSING_PARAM, getParam("foo", url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "bar", getFieldParam("foo", url));
 
-         Url requrl(szUrl, TRUE);
-         ASSERT_STR_EQUAL_MESSAGE(msg, "bar", getParam("foo", requrl));
-         ASSERT_STR_EQUAL_MESSAGE(msg, MISSING_PARAM, getFieldParam("foo", requrl));
-      }
+        Url requrl(szUrl, TRUE);
+        ASSERT_STR_EQUAL_MESSAGE(msg, "bar", getParam("foo", requrl));
+        ASSERT_STR_EQUAL_MESSAGE(msg, MISSING_PARAM, getFieldParam("foo", requrl));
+    }
 
 
     void testIpAddressOnly()
@@ -576,36 +582,36 @@ public:
         ASSERT_STR_EQUAL_MESSAGE(szUrl, "sip:10.1.1.225", toString(url));
     }
 
-   void testHostAddressOnly()
-      {
-         const char *szUrl = "somewhere.sipfoundry.org";
-         Url url(szUrl);
-         ASSERT_STR_EQUAL_MESSAGE(msg, "somewhere.sipfoundry.org", getHostAddress(url));
-         ASSERT_STR_EQUAL_MESSAGE(szUrl, "sip:somewhere.sipfoundry.org", toString(url));
+    void testHostAddressOnly()
+    {
+        const char *szUrl = "somewhere.sipfoundry.org";
+        Url url(szUrl);
+        ASSERT_STR_EQUAL_MESSAGE(msg, "somewhere.sipfoundry.org", getHostAddress(url));
+        ASSERT_STR_EQUAL_MESSAGE(szUrl, "sip:somewhere.sipfoundry.org", toString(url));
 
-         const char *szUrl2 = "some-where.sipfoundry.org";
-         Url url2(szUrl2);
-         ASSERT_STR_EQUAL_MESSAGE(msg, "some-where.sipfoundry.org", getHostAddress(url2));
-         ASSERT_STR_EQUAL_MESSAGE(szUrl, "sip:some-where.sipfoundry.org", toString(url2));
+        const char *szUrl2 = "some-where.sipfoundry.org";
+        Url url2(szUrl2);
+        ASSERT_STR_EQUAL_MESSAGE(msg, "some-where.sipfoundry.org", getHostAddress(url2));
+        ASSERT_STR_EQUAL_MESSAGE(szUrl, "sip:some-where.sipfoundry.org", toString(url2));
 
-         UtlString hostWithPort;
-         url.getHostWithPort(hostWithPort);
-         ASSERT_STR_EQUAL("somewhere.sipfoundry.org", hostWithPort.data());
-      }
+        UtlString hostWithPort;
+        url.getHostWithPort(hostWithPort);
+        ASSERT_STR_EQUAL("somewhere.sipfoundry.org", hostWithPort.data());
+    }
 
-   void testHostAndPort()
-      {
-         const char *szUrl = "somewhere.sipfoundry.org:333";
-         Url url(szUrl);
-         ASSERT_STR_EQUAL_MESSAGE(msg, "somewhere.sipfoundry.org", getHostAddress(url));
-         CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, 333, url.getHostPort());        
+    void testHostAndPort()
+    {
+        const char *szUrl = "somewhere.sipfoundry.org:333";
+        Url url(szUrl);
+        ASSERT_STR_EQUAL_MESSAGE(msg, "somewhere.sipfoundry.org", getHostAddress(url));
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, 333, url.getHostPort());        
 
-         ASSERT_STR_EQUAL_MESSAGE(szUrl, "sip:somewhere.sipfoundry.org:333", toString(url));
+        ASSERT_STR_EQUAL_MESSAGE(szUrl, "sip:somewhere.sipfoundry.org:333", toString(url));
 
-         UtlString hostWithPort;
-         url.getHostWithPort(hostWithPort);
-         ASSERT_STR_EQUAL("somewhere.sipfoundry.org:333", hostWithPort.data());
-      }
+        UtlString hostWithPort;
+        url.getHostWithPort(hostWithPort);
+        ASSERT_STR_EQUAL("somewhere.sipfoundry.org:333", hostWithPort.data());
+    }
 
     void testBogusPort()
     {
@@ -618,18 +624,18 @@ public:
         CPPUNIT_ASSERT_EQUAL_MESSAGE(szUrl, PORT_NONE, url.getHostPort());
     }
 
-   void testIPv6Host()
-      {
-         const char *szUrl = "[a0:32:44::99]:333";
-         Url url(szUrl);
-         ASSERT_STR_EQUAL_MESSAGE(msg, "[a0:32:44::99]", getHostAddress(url));
-         CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, 333, url.getHostPort());        
+    void testIPv6Host()
+    {
+        const char *szUrl = "[a0:32:44::99]:333";
+        Url url(szUrl);
+        ASSERT_STR_EQUAL_MESSAGE(msg, "[a0:32:44::99]", getHostAddress(url));
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, 333, url.getHostPort());        
 
-         ASSERT_STR_EQUAL_MESSAGE(szUrl, "sip:[a0:32:44::99]:333", toString(url));
-      }
+        ASSERT_STR_EQUAL_MESSAGE(szUrl, "sip:[a0:32:44::99]:333", toString(url));
+    }
 
 
-   void testNoBracketUrlWithAllParamsWithVaryingSpace()
+    void testNoBracketUrlWithAllParamsWithVaryingSpace()
     {
         const char *szUrl = "<sip:fsmith@sipfoundry.org:5555 ? call-id=12345 > ; "
             "msgId=5 ;msgId=6;transport=TCP";
@@ -1432,26 +1438,26 @@ public:
         ASSERT_STR_EQUAL(szUrl, toString.data()) ;
     }
 
-   void testFromString()
-      {
-         Url url;
+    void testFromString()
+    {
+        Url url;
 
-         UtlString inputUrl("sip:192.168.1.102");
-         url.fromString(inputUrl);
-         
-         UtlString firstString("SHOULD_BE_REPLACED");
-         url.toString(firstString) ;
+        UtlString inputUrl("sip:192.168.1.102");
+        url.fromString(inputUrl);
 
-         ASSERT_STR_EQUAL(inputUrl.data(), firstString.data()) ;
+        UtlString firstString("SHOULD_BE_REPLACED");
+        url.toString(firstString) ;
 
-         UtlString rewrittenUrl("sip:user@host");
-         url.fromString(rewrittenUrl);
-         
-         UtlString secondString("SHOULD_BE_REPLACED");
-         url.toString(secondString) ;
+        ASSERT_STR_EQUAL(inputUrl.data(), firstString.data()) ;
 
-         ASSERT_STR_EQUAL(rewrittenUrl.data(), secondString.data()) ;
-      }
+        UtlString rewrittenUrl("sip:user@host");
+        url.fromString(rewrittenUrl);
+
+        UtlString secondString("SHOULD_BE_REPLACED");
+        url.toString(secondString) ;
+
+        ASSERT_STR_EQUAL(rewrittenUrl.data(), secondString.data()) ;
+    }
 
 
     void testGetIdentity()
@@ -1512,67 +1518,67 @@ public:
       Url name##Url(name);
 #endif
          
-   void testNormalUri()
-      {
-         // exists just to provide a time comparison for the following testBigUri... tests
-         UtlString normal("Display Name <sip:user@example.com>");
-         PARSE(normal);
-      }
+    void testNormalUri()
+    {
+        // exists just to provide a time comparison for the following testBigUri... tests
+        UtlString normal("Display Name <sip:user@example.com>");
+        PARSE(normal);
+    }
 
-   void testBigUriDisplayName()
-      {
-         // <bigtoken> sip:user@example.com
-         
-         UtlString bigname;
-         bigname.append(bigtoken);
-         bigname.append(" <sip:user@example.com>");
-         
-         PARSE(bigname);
-         
-         CPPUNIT_ASSERT(bignameUrl.getScheme() == Url::SipUrlScheme);
+    void testBigUriDisplayName()
+    {
+        // <bigtoken> sip:user@example.com
 
-         UtlString component;
+        UtlString bigname;
+        bigname.append(bigtoken);
+        bigname.append(" <sip:user@example.com>");
 
-         bignameUrl.getDisplayName(component);
-         CPPUNIT_ASSERT(! component.compareTo(bigtoken)); 
-         
-         bignameUrl.getUserId(component);
-         CPPUNIT_ASSERT(! component.compareTo("user")); 
-         
-         bignameUrl.getHostAddress(component);
-         CPPUNIT_ASSERT(! component.compareTo("example.com"));          
-      }
+        PARSE(bigname);
 
-   void testBigUriQuotedName()
-      {
-         // "<bigtoken>" sip:user@example.com
-         
-         UtlString bigquotname;
-         bigquotname.append("\"");
-         bigquotname.append(bigtoken);
-         bigquotname.append("\" <sip:user@example.com>");
-         
-         PARSE(bigquotname);
+        CPPUNIT_ASSERT(bignameUrl.getScheme() == Url::SipUrlScheme);
 
-         UtlString component;
+        UtlString component;
 
-         bigquotnameUrl.getDisplayName(component);
-         UtlString quoted_bigtoken;
-         quoted_bigtoken.append("\"");
-         quoted_bigtoken.append(bigtoken);
-         quoted_bigtoken.append("\"");
-         CPPUNIT_ASSERT(! component.compareTo(quoted_bigtoken)); 
-         
-         CPPUNIT_ASSERT(bigquotnameUrl.getScheme() == Url::SipUrlScheme);
+        bignameUrl.getDisplayName(component);
+        CPPUNIT_ASSERT(! component.compareTo(bigtoken)); 
 
-         bigquotnameUrl.getUserId(component);
-         CPPUNIT_ASSERT(! component.compareTo("user")); 
-         
-         bigquotnameUrl.getHostAddress(component);
-         CPPUNIT_ASSERT(! component.compareTo("example.com"));
-      }
+        bignameUrl.getUserId(component);
+        CPPUNIT_ASSERT(! component.compareTo("user")); 
 
-   void testBigUriScheme()
+        bignameUrl.getHostAddress(component);
+        CPPUNIT_ASSERT(! component.compareTo("example.com"));          
+    }
+
+    void testBigUriQuotedName()
+    {
+        // "<bigtoken>" sip:user@example.com
+
+        UtlString bigquotname;
+        bigquotname.append("\"");
+        bigquotname.append(bigtoken);
+        bigquotname.append("\" <sip:user@example.com>");
+
+        PARSE(bigquotname);
+
+        UtlString component;
+
+        bigquotnameUrl.getDisplayName(component);
+        UtlString quoted_bigtoken;
+        quoted_bigtoken.append("\"");
+        quoted_bigtoken.append(bigtoken);
+        quoted_bigtoken.append("\"");
+        CPPUNIT_ASSERT(! component.compareTo(quoted_bigtoken)); 
+
+        CPPUNIT_ASSERT(bigquotnameUrl.getScheme() == Url::SipUrlScheme);
+
+        bigquotnameUrl.getUserId(component);
+        CPPUNIT_ASSERT(! component.compareTo("user")); 
+
+        bigquotnameUrl.getHostAddress(component);
+        CPPUNIT_ASSERT(! component.compareTo("example.com"));
+    }
+
+    void testBigUriScheme()
       {
          // <bigtoken>:user:password@example.com
          
@@ -1814,5 +1820,7 @@ public:
         }
     }
 }; 
+
+const size_t UrlTest::BIG_SIZE=8200;
 
 CPPUNIT_TEST_SUITE_REGISTRATION(UrlTest);
