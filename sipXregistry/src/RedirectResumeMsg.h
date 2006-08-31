@@ -22,10 +22,6 @@
 #include "SipRedirector.h"
 
 // DEFINES
-   /** Message type code.
-    */
-#define REDIRECT_RESTART OsMsg::USER_START
-
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -38,6 +34,10 @@
 class RedirectResumeMsg : public OsMsg
 {
 public:
+   
+   /** Message type code.
+    */
+   static const int REDIRECT_RESTART = USER_START;
 
    /** Construct a message saying that redirector redirectorNo is willing to
     * reprocess request seqNo.
@@ -48,7 +48,7 @@ public:
    /**
     * Copy this message.
     */
-   virtual OsMsg* createCopy(void) const;
+   virtual RedirectResumeMsg* createCopy(void) const;
 
    /** Get the sequence number
     */

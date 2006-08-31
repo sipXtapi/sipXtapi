@@ -35,7 +35,7 @@ RedirectResumeMsg::RedirectResumeMsg(RequestSeqNo seqNo,
 }
 
 // Create a copy of this msg object
-OsMsg* RedirectResumeMsg::createCopy(void) const
+RedirectResumeMsg* RedirectResumeMsg::createCopy(void) const
 {
    return new RedirectResumeMsg(mSeqNo, mRedirectorNo);
 }
