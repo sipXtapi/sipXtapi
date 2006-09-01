@@ -380,6 +380,49 @@
 				</description>
 			</setting>
 		</group>
+		<group name="TOS_WMM" unless="5000">
+		  <label>WMM Priorities</label>
+		  <setting name="Precedence_0">
+		    <label>Precedence 0</label>
+		    <type>
+		      <integer min="0" max="7"/>
+		    </type>
+		    <value>0</value>
+		    <description>Set the WMM priority for Precedence0</description>
+		  </setting>
+		  <setting name="Precedence_1">
+		    <label>Precedence 1</label>
+		    <type>
+		      <integer min="0" max="7"/>
+		    </type>
+		    <value>6</value>
+		    <description>Set the WMM priority for Precedence1</description>
+		  </setting>
+		  <setting name="Precedence_2" copy-of="Precedence_1">
+		    <label>Precedence 2</label>
+		    <description>Set the WMM priority for Precedence2</description>
+		  </setting>
+		  <setting name="Precedence_3" copy-of="Precedence_1">
+		    <label>Precedence 3</label>
+		    <description>Set the WMM priority for Precedence3</description>
+		  </setting>
+		  <setting name="Precedence_4" copy-of="Precedence_1">
+		    <label>Precedence 4</label>
+		    <description>Set the WMM priority for Precedence4</description>
+		  </setting>
+		  <setting name="Precedence_5" copy-of="Precedence_1">
+		    <label>Precedence 5</label>
+		    <description>Set the WMM priority for Precedence5</description>
+		  </setting>
+		  <setting name="Precedence_6" copy-of="Precedence_1">
+		    <label>Precedence 6</label>
+		    <description>Set the WMM priority for Precedence6</description>
+		  </setting>
+		  <setting name="Precedence_7" copy-of="Precedence_1">
+		    <label>Precedence 7</label>
+		    <description>Set the WMM priority for Precedence7</description>
+		  </setting>
+		</group>
 		<group name="SERVICE_LAMP">
 			<label>Service Lamp</label>
 			<setting name="Enable_Service_Lamp">
@@ -922,6 +965,14 @@
 				<value>0</value>
 				<description>RTP DSCP</description>
 			</setting>
+			<setting name="WMM" unless="5000">
+			  <label>Enable WMM</label>
+			  <type>
+			    <boolean/>
+			  </type>
+			  <value>0</value>
+			  <description>Use WMM (Wireless MultiMedia) pioritization</description>
+			</setting>
 		</group>
 		<group name="VoIP" advanced="yes">
 			<setting name="Jitter_Buffer_Size">
@@ -1455,6 +1506,14 @@
 				</type>
 				<value>0</value>
 				<description>RTP DSCP</description>
+			</setting>
+			<setting name="WMM" unless="5000">
+			  <label>Enable WMM</label>
+			  <type>
+			    <boolean/>
+			  </type>
+			  <value>0</value>
+			  <description>Use WMM (Wireless MultiMedia) pioritization</description>
 			</setting>
 		</group>
 		<group name="VoIP" advanced="yes">
@@ -1990,6 +2049,14 @@
 				<value>0</value>
 				<description>RTP DSCP</description>
 			</setting>
+			<setting name="WMM" unless="5000">
+			  <label>Enable WMM</label>
+			  <type>
+			    <boolean/>
+			  </type>
+			  <value>0</value>
+			  <description>Use WMM (Wireless MultiMedia) pioritization</description>
+			</setting>
 		</group>
 		<group name="VoIP" advanced="yes">
 			<setting name="Jitter_Buffer_Size">
@@ -2524,6 +2591,14 @@
 				<value>0</value>
 				<description>RTP DSCP</description>
 			</setting>
+			<setting name="WMM" unless="5000">
+			  <label>Enable WMM</label>
+			  <type>
+			    <boolean/>
+			  </type>
+			  <value>0</value>
+			  <description>Use WMM (Wireless MultiMedia) pioritization</description>
+			</setting>
 		</group>
 		<group name="VoIP" advanced="yes">
 			<setting name="Jitter_Buffer_Size">
@@ -3057,6 +3132,14 @@
 				</type>
 				<value>0</value>
 				<description>RTP DSCP</description>
+			</setting>
+			<setting name="WMM" unless="5000">
+			  <label>Enable WMM</label>
+			  <type>
+			    <boolean/>
+			  </type>
+			  <value>0</value>
+			  <description>Use WMM (Wireless MultiMedia) pioritization</description>
 			</setting>
 		</group>
 		<group name="VoIP" advanced="yes">
@@ -5042,6 +5125,14 @@
 			<value>0</value>
 			<description>Set the MESSAGE Content-Type</description>
 		</setting>
+		<setting name="Use_Unicode_On_SMS" unless="5000">
+		  <label>Use Unicode On SMS</label>
+		  <type>
+		    <boolean/>
+		  </type>
+		  <value>0</value>
+		  <description>Set whether to use UTF8 on SMS Content.</description>
+		</setting>
 	</group>
 	<group name="WiFiSettings">
 		<label>WiFi Settings</label>
@@ -5053,7 +5144,7 @@
 					sets the function to fix the TxRate for the handset
 				</description>
 			</setting>
-			<setting name="Dot11_Packet_TxRate">
+			<setting name="Dot11_Packet_TxRate" if="5000">
 				<label>Dot11 Packet TxRate</label>
 				<value>0</value>
 			</setting>
@@ -5067,7 +5158,7 @@
 					Disable Power Saving Mode on the WiFi Interface
 				</description>
 			</setting>
-			<setting name="PowerSave_Wakeup_Period">
+			<setting name="PowerSave_Wakeup_Period" if="5000">
 				<label>PowerSave Wakeup Period</label>
 				<type>
 					<integer min="0" max="3600" />
@@ -5078,7 +5169,7 @@
 					(Active mode). (Unit: seconds)
 				</description>
 			</setting>
-			<setting name="PowerSave_Awake_Interval">
+			<setting name="PowerSave_Awake_Interval" if="5000">
 				<label>PowerSave Awake Interval</label>
 				<type>
 					<integer min="20" max="3600" />
@@ -5127,7 +5218,7 @@
 					Set the channel range for each country
 				</description>
 			</setting>
-			<setting name="Use_Statistics_Window">
+			<setting name="Use_Statistics_Window" if="5000">
 				<label>Use Statistics Window</label>
 				<type>
 					<boolean />
@@ -5135,7 +5226,7 @@
 				<value>0</value>
 				<description>Enable the statistics Window</description>
 			</setting>
-			<setting name="Statistics_Window_Update_Interval">
+			<setting name="Statistics_Window_Update_Interval" if="5000">
 				<label>Statistics Window Update Interval</label>
 				<type>
 					<integer min="10" max="3600" />
@@ -5146,7 +5237,7 @@
 					Window. (Unit: seconds)
 				</description>
 			</setting>
-			<setting name="Use_Meru_Extension">
+			<setting name="Use_Meru_Extension" if="5000">
 				<label>Use Meru Extension</label>
 				<type>
 					<boolean />
@@ -5217,7 +5308,7 @@
 				<label>Default Listen Interval</label>
 				<value>3</value>
 			</setting>
-			<setting name="RxLevel_Association_Threshold">
+			<setting name="RxLevel_Association_Threshold" if="5000">
 				<label>RxLevel Association Threshold</label>
 				<type>
 					<integer min="-103" max="0" />
@@ -5232,16 +5323,44 @@
 					profile of Auto
 				</description>
 			</setting>
-			<setting name="Use_PowerSave_Monitor">
+			<setting name="Use_PowerSave_Monitor" if="5000">
 				<label>Use PowerSave Monitor</label>
 				<type>
 					<boolean />
 				</type>
 				<value>1</value>
 			</setting>
-			<setting name="Use_Supported_Rates_By_AP">
+			<setting name="Use_Supported_Rates_By_AP" if="5000">
 				<label>Use Supported Rates By AP</label>
+				<type>
+				  <boolean/>
+				</type>
 				<value>1</value>
+			</setting>
+			<setting name="802_11_Tx_Mode" unless="5000">
+			  <label>802.11 Tx Mode</label>
+			  <type>
+			    <enum>
+			      <option>
+			        <label>802.11b</label>
+			        <value>0</value>
+			      </option>
+			      <option>
+			        <label>802.11b/802.11g</label>
+			        <value>1</value>
+			      </option>
+			    </enum>
+			  </type>
+			  <value>1</value>
+			  <description>Set 802.11 mode</description>
+			</setting>
+			<setting name="Use_WLAN_Watchdog">
+			  <label>Use WLAN Warchdog</label>
+			  <type>
+			    <boolean/>
+			  </type>
+			  <value>1</value>
+			  <description>Enable the WLAN watchdog feature</description>
 			</setting>
 		</group>
 		<group name="WIFI_SCAN">
@@ -5252,7 +5371,7 @@
 					<integer max="255" />
 				</type>
 				<value>1</value>
-				<description></description>
+				<description>How often to perform the scan (in total, NOT per channel)</description>
 			</setting>
 			<setting name="Scan_Mode" unless="5000">
 				<label>Scan Mode</label>
@@ -5284,7 +5403,15 @@
 		</group>
 		<group name="ROAMING">
 			<label>Roaming Settings</label>
-			<setting name="Try_RxLevel">
+			<setting name="Try_Beacon_Signal_Level" unless="5000">
+			  <label>Try Beacon Signal Level</label>
+			  <type>
+			     <integer min="-103" max="0"/>
+			  </type>
+			  <value>-79</value>
+			  <description>Set the threshold of the electromagnetic wave reception level the processes AP scans. Unit(dBm)</description>
+			</setting>
+			<setting name="Try_RxLevel"  if="5000">
 				<label>Try RxLevel</label>
 				<type>
 					<integer min="-103" max="0" />
@@ -5297,7 +5424,20 @@
 					during call
 				</description>
 			</setting>
-			<setting name="PreRoaming_Enable_RxLevel">
+			<setting name="Try_Rx_Signal_Level" unless="5000">
+			    <label>Try Rx Signal Level</label>
+				<type>
+					<integer min="-103" max="0" />
+				</type>
+				<value>-79</value>
+				<description>
+					Set the threshold of the electromagnetic wave
+					reception level that processes AP scans. Unit (dBm).
+					AP scan is processed when less than the Try_RxLevel
+					during call
+				</description>
+				</setting>			    
+			<setting name="PreRoaming_Enable_RxLevel" if="5000">
 				<label>PreRoaming Enable RxLevel</label>
 				<type>
 					<integer min="-103" max="0" />
@@ -5327,7 +5467,7 @@
 					roaming are performed.
 				</description>
 			</setting>
-			<setting name="Try_Over_RxError_Count">
+			<setting name="Try_Over_RxError_Count" if="5000">
 				<label>Try Over RxError Count</label>
 				<type>
 					<integer min="0" max="10000" />
@@ -5363,7 +5503,7 @@
 					values
 				</description>
 			</setting>
-			<setting name="Use_Refresh_PreRoaming">
+			<setting name="Use_Refresh_PreRoaming" if="5000">
 				<label>Use Refresh PreRoaming</label>
 				<type>
 					<boolean />
@@ -5374,15 +5514,15 @@
 					checking association status.
 				</description>
 			</setting>
-			<setting name="Enable_PreRoaming_On_Association">
+			<setting name="Enable_PreRoaming_On_Association" if="5000">
 				<label>Enable PreRoaming On Association</label>
 				<value>0</value>
 			</setting>
-			<setting name="PreRoaming_Mode">
+			<setting name="PreRoaming_Mode" if="5000">
 				<label>PreRoaming Mode</label>
 				<value>0</value>
 			</setting>
-			<setting name="PreRoaming_Refresh_Interval">
+			<setting name="PreRoaming_Refresh_Interval" if="5000">
 				<label>PreRoaming Refresh Interval</label>
 				<value>0</value>
 			</setting>
@@ -5437,5 +5577,205 @@
 				entry sent to the server
 			</description>
 		</setting>
+	</group>
+	<group name="PROVISIONING">
+	  <label>Provision & Upgrade</label>
+	  <group name="AUTO_UPGRADE">
+	  <setting name="Enable">
+	    <label>Enable Auto Upgrade</label>
+	    <type>
+	      <boolean/>
+	    </type>
+	    <value>0</value>
+	  </setting>
+	  <setting name="Time">
+	    <label>Upgrade Time</label>
+	    <type>
+	      <enum>
+	        <option>
+	          <label>0am - 1am</label>
+	          <value>0</value>
+	        </option>
+	        <option>
+	          <label>1am - 2am</label>
+	          <value>1</value>
+	        </option>
+	        <option>
+	          <label>2am - 3am</label>
+	          <value>2</value>
+	        </option>
+	        <option>
+	          <label>3am - 4am</label>
+	          <value>3</value>
+	        </option>
+	        <option>
+	          <label>4am - 5am</label>
+	          <value>4</value>
+	        </option>
+	        <option>
+	          <label>5am - 6am</label>
+	          <value>5</value>
+	        </option>
+	        <option>
+	          <label>6am - 7am</label>
+	          <value>6</value>
+	        </option>
+	        <option>
+	          <label>7am - 8am</label>
+	          <value>7</value>
+	        </option>
+	        <option>
+	          <label>8am - 9am</label>
+	          <value>8</value>
+	        </option>
+	        <option>
+	          <label>9am - 10am</label>
+	          <value>9</value>
+	        </option>
+	        <option>
+	          <label>10am - 11am</label>
+	          <value>10</value>
+	        </option>
+	        <option>
+	          <label>11am - 12am</label>
+	          <value>11</value>
+	        </option>
+	        <option>
+	          <label>12am - 1pm</label>
+	          <value>12</value>
+	        </option>
+	        <option>
+	          <label>1pm - 2pm</label>
+	          <value>13</value>
+	        </option>
+	        <option>
+	          <label>2pm - 3pm</label>
+	          <value>14</value>
+	        </option>
+	        <option>
+	          <label>3pm - 4pm</label>
+	          <value>15</value>
+	        </option>
+	        <option>
+	          <label>4pm - 5pm</label>
+	          <value>16</value>
+	        </option>
+	        <option>
+	          <label>5pm - 6pm</label>
+	          <value>17</value>
+	        </option>
+	        <option>
+	          <label>6pm - 7pm</label>
+	          <value>18</value>
+	        </option>
+	        <option>
+	          <label>7pm - 8pm</label>
+	          <value>19</value>
+	        </option>
+	        <option>
+	          <label>8pm - 9pm</label>
+	          <value>20</value>
+	        </option>
+	        <option>
+	          <label>9pm - 10pm</label>
+	          <value>21</value>
+	        </option>
+	        <option>
+	          <label>10pm - 11pm</label>
+	          <value>22</value>
+	        </option>
+	        <option>
+	          <label>11pm - 0am</label>
+	          <value>23</value>
+	        </option>
+	        </enum>
+	        </type>
+	        <value>0</value>
+	        <description>Time of Autoupgrade</description>
+	      </setting>
+	      <setting name="Repeat">
+	        <label>Repeat</label>
+	        <type>
+	          <enum>
+	            <option>
+	              <label>Everyday</label>
+	              <value>0</value>
+	            </option>
+	            <option>
+	              <label>Sunday</label>
+	              <value>1</value>
+	            </option>
+	            <option>
+	              <label>Monday</label>
+	              <value>2</value>
+	            </option>
+	            <option>
+	              <label>Tuesday</label>
+	              <value>3</value>
+	            </option>
+	            <option>
+	              <label>Wednesday</label>
+	              <value>4</value>
+	            </option>
+	            <option>
+	              <label>Thursday</label>
+	              <value>5</value>
+	            </option>
+	            <option>
+	              <label>Friday</label>
+	              <value>6</value>
+	            </option>
+	            <option>
+	              <label>Saturday</label>
+	              <value>7</value>
+	            </option>
+	          </enum>
+	        </type>
+	        <value>0</value>
+	        <description>On which day to perform upgrades</description>
+	      </setting>
+	    </group>
+	    <group name="PROVISION">
+	      <label>Provision</label>
+	      <setting name="Use_Provision">
+	        <label>Use Provision</label>
+	        <type>
+	          <boolean/>
+	        </type>
+	        <value>1</value>
+	        <description>Enable Prosioning system</description>
+	      </setting>
+	      <setting name="Configuration_URL">
+	        <label>Configuration URL</label>
+	        <type>
+	          <string maxLen="128"/>
+	        </type>
+	        <value/>
+	        <description>URL under which to find the configuration file</description>
+	      </setting>
+	      <setting name="Firmware_URL">
+	        <label>Firmware URL</label>
+	        <type>
+	          <string maxLen="128"/>
+	        </type>
+	        <value/>
+	        <description>URL under which to find the firmware files</description>
+	      </setting>
+	      <setting name="Configuration_Version">
+	        <label>Configuration Version</label>
+	        <type>
+	          <string maxLen="30"/>
+	        </type>
+	        <value/>
+	        <description>Version of the configuration</description>
+	      </setting>
+	      <setting name="Firmware_Version">
+	        <label>Firmware Version</label>
+	        <type>
+	          <string maxLen="30"/>
+	        </type>
+	        <value/>
+	      </setting>
+	  </group>
 	</group>
 </model>
