@@ -116,6 +116,16 @@
 			<value>1</value>
 			<description>Location for the SIP setup menu</description>
 		</setting>
+		<setting name="Use_Index_Setting">
+			<label>Phonebook - Use Index Setting</label>
+			<type>
+				<boolean />
+			</type>
+			<value>1</value>
+			<description>
+				Enable pre-programmed memory dial send function
+			</description>
+		</setting>
 	</group>
 	<group name="SYSTEM">
 		<label>Global System Settings</label>
@@ -324,6 +334,52 @@
 				If checked, the HTTP server will be enabled.
 			</description>
 		</setting>
+		<group name="DYNAMIC_NETWORK">
+			<label>Dynamic Network</label>
+			<setting name="Backoff_Interval">
+				<label>Backoff Interval</label>
+				<type>
+					<string maxLen="50" />
+				</type>
+				<value>4,8,16,32,64</value>
+				<description>
+					Back off interval if a NetworkFail occurs (Unit:
+					seconds)
+				</description>
+			</setting>
+			<setting name="DHCP_Verify_Count">
+				<label>DHCP Verify Count</label>
+				<type>
+					<integer min="0" max="10" />
+				</type>
+				<value>3</value>
+				<description>
+					Set the number of times to send a DHCPRequest to the
+					DefaultGW after L3 roaming. (Unit: Number of times)
+				</description>
+			</setting>
+			<setting name="DHCP_Verify_Interval">
+				<label>DHCP Verify Interval</label>
+				<type>
+					<integer min="0" max="100" />
+				</type>
+				<value>3</value>
+				<description>
+					Set the interval at which to send a DHCPRequest to
+					the DefaultGW after L3 Roaming. (Unit: seconds)
+				</description>
+			</setting>
+			<setting name="8021X_Bind_Timeout">
+				<label>802.1X Bind Timeout</label>
+				<type>
+					<integer min="0" max="3600" />
+				</type>
+				<value>15</value>
+				<description>
+					802.1X timeout value (Unit: seconds)
+				</description>
+			</setting>
+		</group>
 		<group name="SERVICE_LAMP">
 			<label>Service Lamp</label>
 			<setting name="Enable_Service_Lamp">
@@ -374,7 +430,7 @@
 				<type>
 					<enum>
 						<option>
-							<label>Lamp pnly</label>
+							<label>Lamp only</label>
 							<value>0</value>
 						</option>
 						<option>
@@ -3552,7 +3608,8 @@
 				<enum>
 					<option>
 						<label>
-							contact="*" --> RFC3261"10.2.2 Removing Bindings"
+							contact="*" --> RFC3261"10.2.2 Removing
+							Bindings"
 						</label>
 						<value>0</value>
 					</option>
@@ -4065,96 +4122,116 @@
 			</setting>
 		</group>
 		<group name="CALLER_ID">
-		  <label>CallerID</label>
-		  <setting name="Use_Caller_ID_OnOff">
-		    <label>Use CallerID</label>
-		    <type>
-		      <boolean/>
-		    </type>
-		    <value>1</value>
-		    <description>Enable sending of CallerID</description>
-		  </setting>
-		  <setting name="Enable_Caller_ID">
-		  </setting>
-		  <setting name="Anonymous_Displayname">
-		    <label>Anonymous Displayname</label>
-		    <type>
-		      <string maxLen="30"/>
-		    </type>
-		    <value>Anonymous</value>
-		    <description>String that is used in the displayname in the From line of the INVITE Request when the number generated is not advertisd</description>
-		  </setting>
-		  <setting name="Use_Update_Caller_ID">
-		    <label>Use Update Caller ID</label>
-		    <type>
-		      <boolean/>
-		    </type>
-		    <value>0</value>
-		    <description>Set whether or not to update the CallerID if it is changed while a call is being processed</description>
-		  </setting>
-		  <setting name="Hide_Displayname">
-		    <label>Hide Displayname</label>
-		    <type>
-		      <boolean/>
-		    </type>
-		    <value>0</value>
-		    <description>Set whether or not to display the DisplayName</description>
-		  </setting>
-		  <setting name="Update_Caller_ID_After_Transfer">
-		    <label>Update Caller ID After Transfer</label>
-		    <type>
-		      <boolean/>
-		    </type>
-		    <value>1</value>
-		    <description>Wether to display Caller ID on Transferee and TransferTarget after transfer (also on Call log)</description>
-		  </setting>
+			<label>CallerID</label>
+			<setting name="Use_Caller_ID_OnOff">
+				<label>Use CallerID</label>
+				<type>
+					<boolean />
+				</type>
+				<value>1</value>
+				<description>Enable sending of CallerID</description>
+			</setting>
+			<setting name="Enable_Caller_ID"></setting>
+			<setting name="Anonymous_Displayname">
+				<label>Anonymous Displayname</label>
+				<type>
+					<string maxLen="30" />
+				</type>
+				<value>Anonymous</value>
+				<description>
+					String that is used in the displayname in the From
+					line of the INVITE Request when the number generated
+					is not advertisd
+				</description>
+			</setting>
+			<setting name="Use_Update_Caller_ID">
+				<label>Use Update Caller ID</label>
+				<type>
+					<boolean />
+				</type>
+				<value>0</value>
+				<description>
+					Set whether or not to update the CallerID if it is
+					changed while a call is being processed
+				</description>
+			</setting>
+			<setting name="Hide_Displayname">
+				<label>Hide Displayname</label>
+				<type>
+					<boolean />
+				</type>
+				<value>0</value>
+				<description>
+					Set whether or not to display the DisplayName
+				</description>
+			</setting>
+			<setting name="Update_Caller_ID_After_Transfer">
+				<label>Update Caller ID After Transfer</label>
+				<type>
+					<boolean />
+				</type>
+				<value>1</value>
+				<description>
+					Wether to display Caller ID on Transferee and
+					TransferTarget after transfer (also on Call log)
+				</description>
+			</setting>
 		</group>
 		<group name="TONE_TYPE">
-		  <label>Dial Tone Type</label>
-		  <setting name="Dial_Tone_Type_On_Idle">
-		    <label>Dial Tone Type On Idle</label>
-		    <type>
-		      <enum>
-		        <option>
-		          <label>Silent</label>
-		          <value>0</value>
-		        </option>
-		        <option>
-		          <label>PDT</label>
-		          <value>1</value>
-		        </option>
-		        <option>
-		          <label>CDT</label>
-		          <value>1</value>
-		        </option>
-		      </enum>
-		    </type>
-		    <value>2</value>
-		    <description>Set the Dialtone to which to listen by pressing and holding down the SEND button while in wait mode</description>
-		  </setting>
-		  <setting name="Dial_Tone_Type_On_Hold">
-		    <label>Dial Tone Type on Hold</label>
-		    <type>
-		      <enum>
-		        <option>
-		          <label>Silent</label>
-		          <value>0</value>
-		        </option>
-		        <option>
-		          <label>SDT</label>
-		          <value>1</value>
-		        </option>
-		      </enum>
-		    </type>
-		    <value>0</value>
-		    <description>Set the Dialtone to whch to listen using your own hold terminal while holding</description>
-		  </setting>
-		  <setting name="Send_Dial_Tone_Type">
-		    <label>Send Dial Tone Type</label>
-		    <description>Set the Dialtone to which to listen from once INVITE has been sent to listening to RBT</description>
-		  </setting>
+			<label>Dial Tone Type</label>
+			<setting name="Dial_Tone_Type_On_Idle">
+				<label>Dial Tone Type On Idle</label>
+				<type>
+					<enum>
+						<option>
+							<label>Silent</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>PDT</label>
+							<value>1</value>
+						</option>
+						<option>
+							<label>CDT</label>
+							<value>1</value>
+						</option>
+					</enum>
+				</type>
+				<value>2</value>
+				<description>
+					Set the Dialtone to which to listen by pressing and
+					holding down the SEND button while in wait mode
+				</description>
+			</setting>
+			<setting name="Dial_Tone_Type_On_Hold">
+				<label>Dial Tone Type on Hold</label>
+				<type>
+					<enum>
+						<option>
+							<label>Silent</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>SDT</label>
+							<value>1</value>
+						</option>
+					</enum>
+				</type>
+				<value>0</value>
+				<description>
+					Set the Dialtone to whch to listen using your own
+					hold terminal while holding
+				</description>
+			</setting>
+			<setting name="Send_Dial_Tone_Type">
+				<label>Send Dial Tone Type</label>
+				<description>
+					Set the Dialtone to which to listen from once INVITE
+					has been sent to listening to RBT
+				</description>
+			</setting>
 		</group>
-    </group>
+	</group>
 	<group name="RingAndAlert">
 		<label>Ringing and Alerting</label>
 		<group name="RING">
@@ -4859,44 +4936,6 @@
 				</description>
 			</setting>
 		</group>
-		<group name="SMS">
-			<label>SMS</label>
-			<setting name="Use_SMS">
-				<label>Disable SMS</label>
-				<type>
-					<boolean />
-				</type>
-				<value>1</value>
-				<description>
-					Disable SMS Service on this device
-				</description>
-			</setting>
-			<setting name="Message_Server">
-				<label>Message Server</label>
-				<type>
-					<string maxLen="50" />
-				</type>
-				<value />
-				<description>Message Server address</description>
-			</setting>
-			<setting name="Message_Content_Type">
-				<label>Message Content Type</label>
-				<type>
-					<enum>
-						<option>
-							<label>text/plain</label>
-							<value>0</value>
-						</option>
-						<option>
-							<label>text/html</label>
-							<value>1</value>
-						</option>
-					</enum>
-				</type>
-				<value>0</value>
-				<description>Set the MESSAGE Content-Type</description>
-			</setting>
-		</group>
 	</group>
 	<group name="PRESENCE">
 		<label>Presence</label>
@@ -4964,6 +5003,44 @@
 			<description>
 				Wether to send REGISTER to presence server
 			</description>
+		</setting>
+	</group>
+	<group name="SMS">
+		<label>SMS</label>
+		<setting name="Use_SMS">
+			<label>Disable SMS</label>
+			<type>
+				<boolean />
+			</type>
+			<value>1</value>
+			<description>
+				Disable SMS Service on this device
+			</description>
+		</setting>
+		<setting name="Message_Server">
+			<label>Message Server</label>
+			<type>
+				<string maxLen="50" />
+			</type>
+			<value />
+			<description>Message Server address</description>
+		</setting>
+		<setting name="Message_Content_Type">
+			<label>Message Content Type</label>
+			<type>
+				<enum>
+					<option>
+						<label>text/plain</label>
+						<value>0</value>
+					</option>
+					<option>
+						<label>text/html</label>
+						<value>1</value>
+					</option>
+				</enum>
+			</type>
+			<value>0</value>
+			<description>Set the MESSAGE Content-Type</description>
 		</setting>
 	</group>
 	<group name="WiFiSettings">
