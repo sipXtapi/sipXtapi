@@ -464,7 +464,7 @@
 		</setting>
 		<group name="NetworkSettings">
 			<label>Network Settings</label>
-			<setting name="Enable_DHCP" advanced="yes">
+			<setting name="Enable_DHCP">
 				<label>DHCP</label>
 				<type>
 					<boolean />
@@ -849,7 +849,7 @@
 				<value>3478</value>
 			</setting>
 		</group>
-		<group name="QoS">
+		<group name="QoS" advanced="yes">
 			<setting name="Diffserv_Signal">
 				<label>Diffserv Signal</label>
 				<type>
@@ -867,7 +867,7 @@
 				<description>RTP DSCP</description>
 			</setting>
 		</group>
-		<group name="VoIP">
+		<group name="VoIP" advanced="yes">
 			<setting name="Jitter_Buffer_Size">
 				<label>Jitter Buffer Size</label>
 				<type>
@@ -975,7 +975,7 @@
 			<type>
 				<boolean />
 			</type>
-			<value>1</value>
+			<value>0</value>
 		</setting>
 		<setting name="Join_Method">
 			<label>Join Method</label>
@@ -998,7 +998,7 @@
 		</setting>
 		<group name="NetworkSettings">
 			<label>Network Settings</label>
-			<setting name="Enable_DHCP" advanced="yes">
+			<setting name="Enable_DHCP">
 				<label>DHCP</label>
 				<type>
 					<boolean />
@@ -1383,7 +1383,7 @@
 				<value>3478</value>
 			</setting>
 		</group>
-		<group name="QoS">
+		<group name="QoS" advanced="yes">
 			<setting name="Diffserv_Signal">
 				<label>Diffserv Signal</label>
 				<type>
@@ -1401,7 +1401,7 @@
 				<description>RTP DSCP</description>
 			</setting>
 		</group>
-		<group name="VoIP">
+		<group name="VoIP" advanced="yes">
 			<setting name="Jitter_Buffer_Size">
 				<label>Jitter Buffer Size</label>
 				<type>
@@ -1509,7 +1509,7 @@
 			<type>
 				<boolean />
 			</type>
-			<value>1</value>
+			<value>0</value>
 		</setting>
 		<setting name="Join_Method">
 			<label>Join Method</label>
@@ -1532,7 +1532,7 @@
 		</setting>
 		<group name="NetworkSettings">
 			<label>Network Settings</label>
-			<setting name="Enable_DHCP" advanced="yes">
+			<setting name="Enable_DHCP">
 				<label>DHCP</label>
 				<type>
 					<boolean />
@@ -1917,7 +1917,7 @@
 				<value>3478</value>
 			</setting>
 		</group>
-		<group name="QoS">
+		<group name="QoS" advanced="yes">
 			<setting name="Diffserv_Signal">
 				<label>Diffserv Signal</label>
 				<type>
@@ -1935,7 +1935,7 @@
 				<description>RTP DSCP</description>
 			</setting>
 		</group>
-		<group name="VoIP">
+		<group name="VoIP" advanced="yes">
 			<setting name="Jitter_Buffer_Size">
 				<label>Jitter Buffer Size</label>
 				<type>
@@ -2043,7 +2043,7 @@
 			<type>
 				<boolean />
 			</type>
-			<value>1</value>
+			<value>0</value>
 		</setting>
 		<setting name="Join_Method">
 			<label>Join Method</label>
@@ -2066,7 +2066,7 @@
 		</setting>
 		<group name="NetworkSettings">
 			<label>Network Settings</label>
-			<setting name="Enable_DHCP" advanced="yes">
+			<setting name="Enable_DHCP">
 				<label>DHCP</label>
 				<type>
 					<boolean />
@@ -2451,7 +2451,7 @@
 				<value>3478</value>
 			</setting>
 		</group>
-		<group name="QoS">
+		<group name="QoS" advanced="yes">
 			<setting name="Diffserv_Signal">
 				<label>Diffserv Signal</label>
 				<type>
@@ -2469,7 +2469,7 @@
 				<description>RTP DSCP</description>
 			</setting>
 		</group>
-		<group name="VoIP">
+		<group name="VoIP" advanced="yes">
 			<setting name="Jitter_Buffer_Size">
 				<label>Jitter Buffer Size</label>
 				<type>
@@ -2577,7 +2577,7 @@
 			<type>
 				<boolean />
 			</type>
-			<value>1</value>
+			<value>0</value>
 		</setting>
 		<setting name="Join_Method">
 			<label>Join Method</label>
@@ -2600,7 +2600,7 @@
 		</setting>
 		<group name="NetworkSettings">
 			<label>Network Settings</label>
-			<setting name="Enable_DHCP" advanced="yes">
+			<setting name="Enable_DHCP">
 				<label>DHCP</label>
 				<type>
 					<boolean />
@@ -2985,7 +2985,7 @@
 				<value>3478</value>
 			</setting>
 		</group>
-		<group name="QoS">
+		<group name="QoS" advanced="yes">
 			<setting name="Diffserv_Signal">
 				<label>Diffserv Signal</label>
 				<type>
@@ -3003,7 +3003,7 @@
 				<description>RTP DSCP</description>
 			</setting>
 		</group>
-		<group name="VoIP">
+		<group name="VoIP" advanced="yes">
 			<setting name="Jitter_Buffer_Size">
 				<label>Jitter Buffer Size</label>
 				<type>
