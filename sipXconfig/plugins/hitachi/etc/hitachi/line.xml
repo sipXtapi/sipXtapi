@@ -5,7 +5,7 @@
   <group name="SIP" advanced="yes">
     <profileName>USER_ACCOUNT</profileName>
     <setting name="Displayname">
-      <label>Displan name</label>
+      <label>Display name</label>
       <value></value>
       <description>User name displayed on the phone</description>
     </setting>
