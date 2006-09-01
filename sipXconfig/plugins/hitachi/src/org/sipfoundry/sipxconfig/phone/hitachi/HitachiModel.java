@@ -21,7 +21,7 @@ public final class HitachiModel extends PhoneModel {
             " Hitachi Wireless IP 5000", 1);
     
     public static final HitachiModel MODEL_5000A = new HitachiModel("5000A",
-    		" Hitachi Wireless IP 5000A", 1);
+            " Hitachi Wireless IP 5000A", 1);
     
     private HitachiModel(String modelId, String label, int maxLines) {
         super(HitachiPhone.BEAN_ID, modelId, label, maxLines);
