@@ -98,7 +98,7 @@ Displayname=$!ua.getSetting('Displayname').Value
 Phone_Number=$!ua.getSetting('Phone_Number').Value
 User_ID=$!ua.getSetting('User_ID').Value
 User_Password=$!ua.getSetting('User_Password').Value
-URL_Scheme=0
+URL_Scheme=$ua.getSetting('URL_Scheme').Value
 
 #set($ss = $ps.getSetting('SERVER_SETTINGS'))
 [SERVER_SETTINGS]
@@ -266,39 +266,54 @@ Key_Tone_Volume=$!UI.getSetting('Key_Tone_Volume').Value
 #set($wifiset = $ps.getSetting('WiFiSettings').getSetting('WIFI'))
 [WIFI]
 Data_Packet_TxRate=$!wifiset.getSetting('Data_Packet_TxRate').Value
-Dot11_Packet_TxRate=$!wifiset.getSetting('Dot11_Packet_TxRate').Value
 Use_PowerSave=$!wifiset.getSetting('Use_PowerSave').Value
-PowerSave_Wakeup_Period=$!wifiset.getSetting('PowerSave_Wakeup_Period').Value
-PowerSave_Awake_Interval=$!wifiset.getSetting('PowerSave_Awake_Interval').Value
 Domain=$!wifiset.getSetting('Domain').Value
-Use_Statistics_Window=$!wifiset.getSetting('Use_Statistics_Window').Value
-Statistics_Window_Update_Interval=$!wifiset.getSetting('Statistics_Window_Update_Interval').Value
-Use_Meru_Extension=$!wifiset.getSetting('Use_Menu_Extension').Value
 Short_Retry_Limit=$!wifiset.getSetting('Short_Retry_Limit').Value
 Long_Retry_Limit=$!wifiset.getSetting('Long_Retry_Limit').Value
 Preamble_Mode=$!wifiset.getSetting('Preamble_Mode').Value
 RTS_Threshold=$!wifiset.getSetting('RTS_Threshold').Value
 Default_Listen_Interval=$!wifiset.getSetting('Default_Listen_Interval').Value
+#if($myphone != "5000")
+802_11_Tx_Mode=$!wifiset.getSetting('802_11_Tx_Mode').Value
+Use_WLAN_Watchdog=$!wifiset.getSetting('Use_WLAN_Watchdog').Value
+#end
+#if($myphone == "5000")
+Dot11_Packet_TxRate=$!wifiset.getSetting('Dot11_Packet_TxRate').Value
+PowerSave_Wakeup_Period=$!wifiset.getSetting('PowerSave_Wakeup_Period').Value
+PowerSave_Awake_Interval=$!wifiset.getSetting('PowerSave_Awake_Interval').Value
+Use_Statistics_Window=$!wifiset.getSetting('Use_Statistics_Window').Value
+Statistics_Window_Update_Interval=$!wifiset.getSetting('Statistics_Window_Update_Interval').Value
+Use_Meru_Extension=$!wifiset.getSetting('Use_Menu_Extension').Value
 RxLevel_Association_Threshold=$!wifiset.getSetting('RxLevel_Association_Interval').Value
 Use_PowerSave_Monitor=$!wifiset.getSetting('Use_PowerSave_Monitor').Value
 Use_Supported_Rates_By_AP=$!wifiset.getSetting('Use_SUpported_Rates_By_AP').Value
+#end
 
 #set($wifiscan = $ps.getSetting('WiFiSettings').getSetting('WIFI_SCAN'))
 [WIFI_SCAN]
+#if($myphone == "5000")
 Scan_Count=$!wifiscan.getSetting('Scan_Count').Value
+#else
+Scan_Mode=$!wifiscan.getSetting('Scan_Mode').Value
+#end
 Scan_Channel_List=$!wifiscan('Scan_Channel_List').Value
 
 #set($roam = $ps.getSetting('WiFiSettings').getSetting('ROAMING'))
 [ROAMING]
+#if($myphone == "5000")
 Try_RxLevel=$!roam.getSetting('Try_RxLevel').Value
 PreRoaming_Enable_RxLevel=$!roam.getSetting('PreRoaming_Enable_RxLevel').Value
-Try_Over_TxError_Count=$!roam.getSetting('Try_Over_TxError_Count').Value
 Try_Over_RxError_Count=$!roam.getSetting('Try_Over_RxError_Count').Value
-Level_Diff_Higher_Than_Curr_Site=$!roam.getSetting('Level_Diff_Higher_Than_Curr_Site').Value
 Use_Refresh_PreRoaming=$!roam.getSetting('Use_Refresh_PreRoaming').Value
 Enable_PreRoaming_On_Association=$!roam.getSetting('Enable_PreRoaming_On_Association').Value
 PreRoaming_Mode=$!roam.getSetting('PreRoaming_Mode').Value
 PreRoaming_Refresh_Interval=$!roam.getSetting('PreRoaming_Refresh_Interval').Value
+#else
+Try_Beacon_Signal_Level=$!roam.getSetting('Try_Beacon_Signal_Level').Value
+Try_Rx_Signal_Level=$!roam.getSetting('Try_Rx_Signal_Level').Value
+#end
+Try_Over_TxError_Count=$!roam.getSetting('Try_Over_TxError_Count').Value
+Level_Diff_Higher_Than_Curr_Site=$!roam.getSetting('Level_Diff_Higher_Than_Curr_Site').Value
 Clear_Blacklist_Interval=$!roam.getSetting('Clear_Blacklist_Interval').Value
 
 #set($net1 = $ps.getSetting('NETWORK1'))
@@ -575,7 +590,9 @@ Enable_Key_Lock=$!UI.getSetting('Enable_Key_Lock').Value
 Enable_Key_Lock_Password=$!UI.getSetting('Enable_Key_Lock_Password').Value
 Enable_Mannermode=$!UI.getSetting('Enable_Mannermode').Value
 Enable_Error_Indication=$!UI.getSetting('Enable_Error_Indication').Value
+#if($myphone != '3000')
 Use_Advanced_Rate_Set=$!UI.getSetting('Use_Advanced_Rate_Set').Value
+#end
 Network_Setup_Menu_Location=$!UI.getSetting('Network_Setup_Menu_Location').Value
 SIP_Menu_Location=$!UI.getSetting('SIP_Menu_Location').Value
 
@@ -634,14 +651,16 @@ Precedence_7=$!wmm.getSetting('Precedence_7').Value
 Use_Unicode_On_SMS=$!sms.getSetting('Use_Unicode_On_SMS').Value
 #end
 
+#set($aupg = $ps.getSetting('PROVISIONING').getSetting('AUTO_UPGRADE'))
 [AUTO_UPGRADE]
-Enable=0
-Time=0
-Repeat=0
+Enable=$!aupg.getSetting('Enable').Value
+Time=$aupg.getSetting('Time').Value
+Repeat=$aupg.getSetting('Repeat').Value
 
+#set($prov = $ps.getSetting('PROVISIONING').getSetting('PROVISION'))
 [PROVISION]
-Use_Provision=0
-Configuration_URL=
-Firmware_URL=
-Configuration_Version=
-Firmware_Version=
+Use_Provision=$!prov.getSetting('Use_Provision').Value
+Configuration_URL=$!prov.getSetting('Configuration_Url').Value
+Firmware_URL=$!prov.getSetting('Firmware_URL').Value
+Configuration_Version=$!prov.getSetting('Configuration_Version').Value
+Firmware_Version=$!prov.getSetting('Firmware_Version').Value

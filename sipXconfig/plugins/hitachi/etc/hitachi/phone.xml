@@ -4229,6 +4229,40 @@
 				<value>100</value>
 				<description>DTMF duration value</description>
 			</setting>
+			<setting name="RFC2833_Volume">
+				<label>RFC2833 Volume</label>
+				<type>
+					<integer min="0" max="63" />
+				</type>
+				<value>10</value>
+				<description>
+					Set the Volume of the RFC2833 packet. (Range 0-63)
+				</description>
+			</setting>
+			<setting name="RFC2833_Payload_Type">
+				<label>RFC2833 Payload Type</label>
+				<type>
+					<integer min="96" max="127" />
+				</type>
+				<value>101</value>
+				<description>
+					Set the payload type for the RFC2833 packets
+				</description>
+			</setting>
+			<setting name== " Enable_Auto_DTMF_Mode ">
+				<label>Enable Auto DTMF Mode</label>
+				<type>
+					<boolean />
+				</type>
+				<value>0</value>
+				<description>
+					Set the DTMF auto selection function. Select to
+					prioritize RFC2833 if 2833 is displayed in ON (SDP)
+					or OFF (Send using DTMF, which is set using “Mode”.)
+					If 2833 is not displayed in the SDP, send using
+					DTMF, which is set using “Mode”.
+				</description>
+			</setting>
 		</group>
 		<group name="CALLER_ID">
 			<label>CallerID</label>
@@ -5383,7 +5417,7 @@
 				<value>1</value>
 				<description>Set 802.11 mode</description>
 			</setting>
-			<setting name="Use_WLAN_Watchdog">
+			<setting name="Use_WLAN_Watchdog" unless="5000">
 				<label>Use WLAN Warchdog</label>
 				<type>
 					<boolean />
