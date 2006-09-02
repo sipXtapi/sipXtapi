@@ -1,5 +1,7 @@
 #set($ps = $phone.Settings)
+#set($myphone = $phone.Model)
 #set($ls = $phone.Lines.get(0).Settings)
+
 #set($sysset = $ps.getSetting('SYSTEM'))
 [SYSTEM]
 Language=$!sysset.getSetting('Language').Value
@@ -61,7 +63,7 @@ Timer_F=$!pssip.getSetting('Timer_F').Value
 Use_User_Agent=$!pssip.getSetting('Use_User_Agent').Value
 User_Agent_Name=$!pssip.getSetting('User_Agent_Name').Value
 Use_Version_On_User_Agent=$!pssip.getSetting('Use_Version_On_User_Agent').Value
-Use_Vendor_ID_On_User_Agent=0
+Use_Vendor_ID_On_User_Agent=!pssip.getSetting('Use_Vendor_ID_On_User_Agent').Value
 Use_MAC_On_User_Agent=$!pssip.getSetting('Use_MAC_On_User_Agent').Value
 Max_Forwards=$!pssip.getSetting('Max_Forward').Value
 Retry_Hold_On_491=$!pssip.getSetting('Retry_Hold_On_491').Value
@@ -108,68 +110,76 @@ Domain_Realm=$!ss.getSetting('Domain_Realm').Value
 Register_Expire=$!ss.getSetting('Register_Expire').Value
 Register_Retry_Backoff_Interval=60,120,240,480,960
 
+#set($redund = $ps.getSetting('SIP').getSetting('REDUNDANCY'))
 [REDUNDANCY]
-Mode=0
-Request_Timeout=4000
-Use_Fixed_Primary_Server=1
-Use_DNS_Additional_Records=0
+Mode=$!redund.getSetting('Mode').Value
+Request_Timeout=$!redund.getSetting('Request_Timing').Value
+Use_Fixed_Primary_Server=$!redund.getSetting('Use_Fixed_Primary_Server').Value
+Use_DNS_Additional_Records=$!redund.getSetting('Use_DNS_Additional_Records').Value
 
+#set($dialplan = $ps.getSetting('CallSettings').getSetting('DIALPLAN'))
 [DIALPLAN]
-External_Prefix=0
-Caller_ID_On_Prefix=186
-Caller_ID_Off_Prefix=184
-Global_Network_Prefix=+
+External_Prefix=$!dialplan('External_Prefix').Value
+Caller_ID_On_Prefix=$!dialplan('Caller_ID_On_Prefix').Value
+Caller_ID_Off_Prefix=$!dialplan('Caller_ID_Off_Prefix').Value
+Global_Network_Prefix=$!dialplan('Global_Network_Prefix').Value
 
+#set($basic = $ps.getSetting('CallSettings').getSetting('BASIC_CALL'))
 [BASIC_CALL]
-Busy_Tone_Count=10
-Transfer_Busy_Tone_Count=10
-Call_Waiting_Tone_Count=-1
-Reject_Hold_Request_On_Hold=1
-Reject_Hold_Request_On_2Calls=0
-Block_Request_Hold_On_Holded=0
-Session_Expire=1800
-Ringing_Timeout=180
-Update_RBT=0
-Dial_Sending_Timeout=30000
-Check_Alias_In_Call_List=1
-Remove_DASH_On_Alias=1
-Use_Silent_Packet_On_Mute=0
-Echo_Canceller=0
-Reject_Invite_During_BT=1
+Busy_Tone_Count=$!basic.getSetting('Busy_Tone_Count').Value
+Transfer_Busy_Tone_Count=$!basic.getSetting('Transfer_Busy_Tone_Count').Value
+Call_Waiting_Tone_Count=-$!basic.getSetting('Call_Waiting_Tone_Count').Value
+Reject_Hold_Request_On_Hold=$!basic.getSetting('Reject_Hold_Request_On_Hold').Value
+Reject_Hold_Request_On_2Calls=$!basic.getSetting('Reject_Hold_Request_On_2Calls').Value
+Block_Request_Hold_On_Holded=$!basic.getSetting('Block_Request_Hold_On_Holded').Value
+Session_Expire=$!basic.getSetting('Session_Expire').Value
+Ringing_Timeout=$!basic.getSetting('Ringing_Timeout').Value
+Update_RBT=$!basic.getSetting('Update_RBT').Value
+Dial_Sending_Timeout=$!basic.getSetting('Dial_Sending_Timeout').Value
+Check_Alias_In_Call_List=$!basic.getSetting('Check_Alias_In_Call_List').Value
+Remove_DASH_On_Alias=$!basic.getSetting('Remove_DASH_On_Alias').Value
+Use_Silent_Packet_On_Mute=$!basic.getSetting('Use_Silent_Packet_On_Mute').Value
+Echo_Canceller=$!basic.getSetting('Echo_Canceller').Value
+Reject_Invite_During_BT=$!basic.getSetting('Reject_Invite_During_BT').Value
 
+#set($hold = $ps.getSetting('CallFeatures').getSetting('HOLD'))
 [HOLD]
-Mode=0
-Use_Local_Hold_Tone=1
-RTP_Hold_Multiframe=40
-RTP_Hold_Play_Wait_Time=500
-Enable_Hold_With_Inactive=0
-Enable_RTP_Hold=1
+Mode=$hold.getSetting('Mode').Value
+Use_Local_Hold_Tone=$!hold.getSetting('Use_Local_Hold_Tone').Value
+RTP_Hold_Multiframe=$!hold.getSetting('RTP_Hold_Multiframe').Value
+RTP_Hold_Play_Wait_Time=$!hold.getSetting('RTP_Hold_Play_Wait_Time').Value
+Enable_Hold_With_Inactive=$!hold.getSetting('Enable_Hold_With_Inactive').Value
+Enable_RTP_Hold=$!hold.getSetting('Enable_RTP_Hold').Value
 
+#set($mwi = $ps.getSetting('CallFeatures').getSetting('MWI'))
 [MWI]
-Use_MWI=0
-Use_Subscribe=0
-Subscribe_Server=
-Subscribe_Expire=3600
+Use_MWI=$!mwi.getSetting('Use_MWI').Value
+Use_Subscribe=$!mwi.getSetting('Use_Subscribe').Value
+Subscribe_Server=$!mwi.getSetting('Subscribe_Server').Value
+Subscribe_Expire=$!mwi.getSetting('Subscribe_Expire').Value
 
+#set($transfer = $ps.getSetting('CallFeatures').getSetting('TRANSFER'))
 [TRANSFER]
-Use_Transfer_Target_Hold=1
-Use_Consultation_Transfer=1
-Use_Blind_Transfer=1
-Use_100_NOTIFY=1
-Use_Attended_Transfer_On_Incomming_Call=1
-Use_Contact_For_Refer_To=1
-Use_Attended_Transfer_On_Call_Switch=1
-Check_BYE_After_Refer=0
+Use_Transfer_Target_Hold=$!transfer.getSetting('Use_Transfer_Target_Hold').Value
+Use_Consultation_Transfer=$!transfer.getSetting('Use_Consultation_Transfer').Value
+Use_Blind_Transfer=$!transfer.getSetting('Use_Blind_Transfer').Value
+Use_100_NOTIFY=$!transfer.getSetting('Use_100_NOTIFY').Value
+Use_Attended_Transfer_On_Incomming_Call=$!transfer.getSetting('Use_Attended_Transfer_On_Incomming_call').Value
+Use_Contact_For_Refer_To=$!transfer.getSetting('Use_Contact_For_Refer_To').Value
+Use_Attended_Transfer_On_Call_Switch=$!transfer.getSetting('Use_Attended_Transfer_On_Call_Switch').Value
+Check_BYE_After_Refer=$!transfer.getSetting('Check_BYE_After_Refer').Value
 
+#set($conf = $ps.getSetting('CallFeatures').getSetting('CONFERENCE'))
 [CONFERENCE]
-Use_Conference=0
-Phone_Number=conference
+Use_Conference=$!conf.getSetting('Use_Conference').Value
+Phone_Number=$!conf.getSetting('Phone_Number').Value
 
+#set($dialmode = $ps.getSetting('CallSettings').getSetting('DIAL_MODE'))
 [DIAL_MODE]
-DTMF_Input_Timeout=20
-UnHold_Indication_Timeout=30
-Overlap_Send_Timeout=4
-Use_Overlap_Send_on_Hold=0
+DTMF_Input_Timeout=$!dialmode.getSetting('DTMF_Input_Timeout').Value
+UnHold_Indication_Timeout=$!dialmode.getSetting('UnHold_Indication_Timeout').Value
+Overlap_Send_Timeout=$!dialmode.getSetting('Overlap_Send_Timeout').Value
+Use_Overlap_Send_on_Hold=$!dialmode.getSetting('Use_Overlap_Send_on_Hold').Value
 
 #set($ring = $ps.getSetting('RingAndAlert').getSetting('RING'))
 [RING]
@@ -251,43 +261,45 @@ Dialed5_Mode=$!ring2.getSetting('Dialed5_Mode').Value
 Dialed5_Led=$!ring2.getSetting('Dialed5_Led').Value
 
 [KEY_TONE]
-Key_Tone_Volume=3
+Key_Tone_Volume=$!UI.getSetting('Key_Tone_Volume').Value
 
-#set($wifiset = $ps.getSetting('WiFiSettinfs').getSetting('WIFI'))
+#set($wifiset = $ps.getSetting('WiFiSettings').getSetting('WIFI'))
 [WIFI]
-Data_Packet_TxRate=$wifiset.getSetting('Data_Packet_TxRate').Value
-Dot11_Packet_TxRate=$wifiset.getSetting('Dot11_Packet_TxRate').Value
-Use_PowerSave=$wifiset.getSetting('Use_PowerSave').Value
-PowerSave_Wakeup_Period=$wifiset.getSetting('PowerSave_Wakeup_Period').Value
-PowerSave_Awake_Interval=$wifiset.getSetting('PowerSave_Awake_Interval').Value
-Domain=$wifiset.getSetting('Domain').Value
-Use_Statistics_Window=$wifiset.getSetting('Use_Statistics_Window').Value
-Statistics_Window_Update_Interval=$wifiset.getSetting('Statistics_Window_Update_Interval').Value
-Use_Meru_Extension=$wifiset.getSetting('Use_Menu_Extension').Value
-Short_Retry_Limit=7
-Long_Retry_Limit=7
-Preamble_Mode=0
-RTS_Threshold=2347
-Default_Listen_Interval=3
-RxLevel_Association_Threshold=-69
-Use_PowerSave_Monitor=1
-Use_Supported_Rates_By_AP=0
+Data_Packet_TxRate=$!wifiset.getSetting('Data_Packet_TxRate').Value
+Dot11_Packet_TxRate=$!wifiset.getSetting('Dot11_Packet_TxRate').Value
+Use_PowerSave=$!wifiset.getSetting('Use_PowerSave').Value
+PowerSave_Wakeup_Period=$!wifiset.getSetting('PowerSave_Wakeup_Period').Value
+PowerSave_Awake_Interval=$!wifiset.getSetting('PowerSave_Awake_Interval').Value
+Domain=$!wifiset.getSetting('Domain').Value
+Use_Statistics_Window=$!wifiset.getSetting('Use_Statistics_Window').Value
+Statistics_Window_Update_Interval=$!wifiset.getSetting('Statistics_Window_Update_Interval').Value
+Use_Meru_Extension=$!wifiset.getSetting('Use_Menu_Extension').Value
+Short_Retry_Limit=$!wifiset.getSetting('Short_Retry_Limit').Value
+Long_Retry_Limit=$!wifiset.getSetting('Long_Retry_Limit').Value
+Preamble_Mode=$!wifiset.getSetting('Preamble_Mode').Value
+RTS_Threshold=$!wifiset.getSetting('RTS_Threshold').Value
+Default_Listen_Interval=$!wifiset.getSetting('Default_Listen_Interval').Value
+RxLevel_Association_Threshold=$!wifiset.getSetting('RxLevel_Association_Interval').Value
+Use_PowerSave_Monitor=$!wifiset.getSetting('Use_PowerSave_Monitor').Value
+Use_Supported_Rates_By_AP=$!wifiset.getSetting('Use_SUpported_Rates_By_AP').Value
 
+#set($wifiscan = $ps.getSetting('WiFiSettings').getSetting('WIFI_SCAN'))
 [WIFI_SCAN]
-Scan_Count=1
-Scan_Channel_List=1,2,3,4,5,6,7,8,9,10,11,12,13,14
+Scan_Count=$!wifiscan.getSetting('Scan_Count').Value
+Scan_Channel_List=$!wifiscan('Scan_Channel_List').Value
 
+#set($roam = $ps.getSetting('WiFiSettings').getSetting('ROAMING'))
 [ROAMING]
-Try_RxLevel=-79
-PreRoaming_Enable_RxLevel=-59
-Try_Over_TxError_Count=10
-Try_Over_RxError_Count=10
-Level_Diff_Higher_Than_Curr_Site=10
-Use_Refresh_PreRoaming=1
-Enable_PreRoaming_On_Association=0
-PreRoaming_Mode=0
-PreRoaming_Refresh_Interval=3
-Clear_Blacklist_Interval=3
+Try_RxLevel=$!roam.getSetting('Try_RxLevel').Value
+PreRoaming_Enable_RxLevel=$!roam.getSetting('PreRoaming_Enable_RxLevel').Value
+Try_Over_TxError_Count=$!roam.getSetting('Try_Over_TxError_Count').Value
+Try_Over_RxError_Count=$!roam.getSetting('Try_Over_RxError_Count').Value
+Level_Diff_Higher_Than_Curr_Site=$!roam.getSetting('Level_Diff_Higher_Than_Curr_Site').Value
+Use_Refresh_PreRoaming=$!roam.getSetting('Use_Refresh_PreRoaming').Value
+Enable_PreRoaming_On_Association=$!roam.getSetting('Enable_PreRoaming_On_Association').Value
+PreRoaming_Mode=$!roam.getSetting('PreRoaming_Mode').Value
+PreRoaming_Refresh_Interval=$!roam.getSetting('PreRoaming_Refresh_Interval').Value
+Clear_Blacklist_Interval=$!roam.getSetting('Clear_Blacklist_Interval').Value
 
 #set($net1 = $ps.getSetting('NETWORK1'))
 [NETWORK1]
@@ -302,7 +314,12 @@ Netmask=$!net1.getSetting('Netmask').Value
 Gateway=$!net1.getSetting('Gateway').Value
 DNS1=$!net1.getSetting('DNS1').Value
 DNS2=$!net1.getSetting('DNS2').Value
+#if ($myphone == "5000")
 Enable_WEP=$!net1.getSetting('Enable_WEP').Value
+#else
+Security=$!inet1.getSetting('Securiity').Value
+WPA_PSK_Passphrase=$!inet1.getSetting('WPA_PSK_Passphrase').Value
+#end
 WEP_Bits=$!net1.getSetting('WEP_Bits').Value
 Default_WEP_Key=$!net1.getSetting('Default_WEP_Key').Value
 WEP_Key1=$!net1.getSetting('WEP_Key1').Value
@@ -325,6 +342,9 @@ Static_NAT_External_IP=$!net1.getSetting('Static_NAT_External_IP').Value
 Static_NAT_Start_Port=$!net1.getSetting('Static_NAT_Start_Port').Value
 STUN_Server=$!net1.getSetting('STUN_Server').Value
 STUN_Port=$!net1.getSetting('STUN_Port').Value
+#if ($myphone != "5000")
+WMM=$!net1.getSetting('WMM').Value
+#end
 DiffServ_Signal=$!net1.getSetting('DiffServ_Signal').Value
 DiffServ_Media=$!net1.getSetting('DiffServ_Media').Value
 Jitter_Buffer_Size=$!net1.getSetting('Jitter_Buffer_Size').Value
@@ -344,7 +364,12 @@ Netmask=$!net2.getSetting('Netmask').Value
 Gateway=$!net2.getSetting('Gateway').Value
 DNS1=$!net2.getSetting('DNS1').Value
 DNS2=$!net2.getSetting('DNS2').Value
+#if ($myphone == "5000")
 Enable_WEP=$!net2.getSetting('Enable_WEP').Value
+#else
+Security=$!inet2.getSetting('Securiity').Value
+WPA_PSK_Passphrase=$!inet2.getSetting('WPA_PSK_Passphrase').Value
+#end
 WEP_Bits=$!net2.getSetting('WEP_Bits').Value
 Default_WEP_Key=$!net2.getSetting('Default_WEP_Key').Value
 WEP_Key1=$!net2.getSetting('WEP_Key1').Value
@@ -367,6 +392,9 @@ Static_NAT_External_IP=$!net2.getSetting('Static_NAT_External_IP').Value
 Static_NAT_Start_Port=$!net2.getSetting('Static_NAT_Start_Port').Value
 STUN_Server=$!net2.getSetting('STUN_Server').Value
 STUN_Port=$!net2.getSetting('STUN_Port').Value
+#if ($myphone != "5000")
+WMM=$!net2.getSetting('WMM').Value
+#end
 DiffServ_Signal=$!net2.getSetting('DiffServ_Signal').Value
 DiffServ_Media=$!net2.getSetting('DiffServ_Media').Value
 Jitter_Buffer_Size=$!net2.getSetting('Jitter_Buffer_Size').Value
@@ -386,7 +414,12 @@ Netmask=$!net3.getSetting('Netmask').Value
 Gateway=$!net3.getSetting('Gateway').Value
 DNS1=$!net3.getSetting('DNS1').Value
 DNS2=$!net3.getSetting('DNS2').Value
+#if ($myphone == "5000")
 Enable_WEP=$!net3.getSetting('Enable_WEP').Value
+#else
+Security=$!inet3.getSetting('Securiity').Value
+WPA_PSK_Passphrase=$!inet3.getSetting('WPA_PSK_Passphrase').Value
+#end
 WEP_Bits=$!net3.getSetting('WEP_Bits').Value
 Default_WEP_Key=$!net3.getSetting('Default_WEP_Key').Value
 WEP_Key1=$!net3.getSetting('WEP_Key1').Value
@@ -409,6 +442,9 @@ Static_NAT_External_IP=$!net3.getSetting('Static_NAT_External_IP').Value
 Static_NAT_Start_Port=$!net3.getSetting('Static_NAT_Start_Port').Value
 STUN_Server=$!net3.getSetting('STUN_Server').Value
 STUN_Port=$!net3.getSetting('STUN_Port').Value
+#if ($myphone != "5000")
+WMM=$!net3.getSetting('WMM').Value
+#end
 DiffServ_Signal=$!net3.getSetting('DiffServ_Signal').Value
 DiffServ_Media=$!net3.getSetting('DiffServ_Media').Value
 Jitter_Buffer_Size=$!net3.getSetting('Jitter_Buffer_Size').Value
@@ -428,7 +464,12 @@ Netmask=$!net4.getSetting('Netmask').Value
 Gateway=$!net4.getSetting('Gateway').Value
 DNS1=$!net4.getSetting('DNS1').Value
 DNS2=$!net4.getSetting('DNS2').Value
+#if ($myphone == "5000")
 Enable_WEP=$!net4.getSetting('Enable_WEP').Value
+#else
+Security=$!inet4.getSetting('Securiity').Value
+WPA_PSK_Passphrase=$!inet4.getSetting('WPA_PSK_Passphrase').Value
+#end
 WEP_Bits=$!net4.getSetting('WEP_Bits').Value
 Default_WEP_Key=$!net4.getSetting('Default_WEP_Key').Value
 WEP_Key1=$!net4.getSetting('WEP_Key1').Value
@@ -451,6 +492,9 @@ Static_NAT_External_IP=$!net4.getSetting('Static_NAT_External_IP').Value
 Static_NAT_Start_Port=$!net4.getSetting('Static_NAT_Start_Port').Value
 STUN_Server=$!net4.getSetting('STUN_Server').Value
 STUN_Port=$!net4.getSetting('STUN_Port').Value
+#if ($myphone != "5000")
+WMM=$!net4.getSetting('WMM').Value
+#end
 DiffServ_Signal=$!net4.getSetting('DiffServ_Signal').Value
 DiffServ_Media=$!net4.getSetting('DiffServ_Media').Value
 Jitter_Buffer_Size=$!net4.getSetting('Jitter_Buffer_Size').Value
@@ -470,7 +514,12 @@ Netmask=$!net5.getSetting('Netmask').Value
 Gateway=$!net5.getSetting('Gateway').Value
 DNS1=$!net5.getSetting('DNS1').Value
 DNS2=$!net5.getSetting('DNS2').Value
+#if ($myphone == "5000")
 Enable_WEP=$!net5.getSetting('Enable_WEP').Value
+#else
+Security=$!inet5.getSetting('Securiity').Value
+WPA_PSK_Passphrase=$!inet5.getSetting('WPA_PSK_Passphrase').Value
+#end
 WEP_Bits=$!net5.getSetting('WEP_Bits').Value
 Default_WEP_Key=$!net5.getSetting('Default_WEP_Key').Value
 WEP_Key1=$!net5.getSetting('WEP_Key1').Value
@@ -493,26 +542,31 @@ Static_NAT_External_IP=$!net5.getSetting('Static_NAT_External_IP').Value
 Static_NAT_Start_Port=$!net5.getSetting('Static_NAT_Start_Port').Value
 STUN_Server=$!net5.getSetting('STUN_Server').Value
 STUN_Port=$!net5.getSetting('STUN_Port').Value
+#if ($myphone != "5000")
+WMM=$!net5.getSetting('WMM').Value
+#end
 DiffServ_Signal=$!net5.getSetting('DiffServ_Signal').Value
 DiffServ_Media=$!net5.getSetting('DiffServ_Media').Value
 Jitter_Buffer_Size=$!net5.getSetting('Jitter_Buffer_Size').Value
 Payload_Type=$!net5.getSetting('Payload_Type').Value
 Multiframe=$!net5.getSetting('Multiframe').Value
 
+#set($dtmf = $ps.getSetting('CallSettings').getSetting('DTMF'))
 [DTMF]
-Mode=2
-Duration=100
-RFC2833_Volume=10
-RFC2833_Payload_Type=101
-Enable_Auto_DTMF_Mode=0
+Mode=$!dtmf.getSetting('Mode').Value
+Duration=$!dtmf.getSetting('Duration').Value
+RFC2833_Volume=$!dtmf.getSetting('RFC2833_Volume').Value
+RFC2833_Payload_Type=$!dtmf.getSetting('RFC2833_Payload_Type').Value
+Enable_Auto_DTMF_Mode=$!dtmf.getSetting('Enable_Auto_DTMF_Mode').Value
 
+#set($cid = $ps.getSetting('CallSettings').getSetting('CALLER_ID'))
 [CALLER_ID]
-Use_Caller_ID_OnOff=1
-Enable_Caller_ID=1
-Anonymous_Displayname=Anonymous
-Use_Update_Caller_ID=0
-Hide_Displayname=0
-Update_Caller_ID_After_Transfer=1
+Use_Caller_ID_OnOff=$!cid.getSetting('Use_Caller_ID_OnOff').Value
+Enable_Caller_ID=$cid.getSetting('Enable_Caller_ID').Value
+Anonymous_Displayname=$cid.getSetting('Anonymous_Displayname').Value
+Use_Update_Caller_ID=$cid.getSetting('Use_Update_Caller_ID').Value
+Hide_Displayname=$cid.getSetting('Hide_Displayname').Value
+Update_Caller_ID_After_Transfer=$cid.getSetting('Update_Caller_ID_After_Transfer').Value
 
 #set($UI = $ps.getSetting('UI'))
 [UI]
@@ -526,33 +580,59 @@ Network_Setup_Menu_Location=$!UI.getSetting('Network_Setup_Menu_Location').Value
 SIP_Menu_Location=$!UI.getSetting('SIP_Menu_Location').Value
 
 [PHONEBOOK]
-Use_Index_Sending=1
+Use_Index_Sending=$!UI.getSetting)'Use_Index_Setting').Value
 
+#set($prov = $ps.getSetting('PRESENCE'))
 [PRESENCE]
-Use_Presence=1
-Enable_Online_Ring=1
-Online_Ring_Type=3
-Online_Ring_Mode=3
-Subscribe_Expire=600
-Presence_Server=
-Use_Register=0
+Use_Presence=$!prov.getSetting('Use_Presence').Value
+Enable_Online_Ring=$!prov.getSetting('Enable_Online_Ring').Value
+Online_Ring_Type=$!prov.getSetting('Online_Ring_Type').Value
+Online_Ring_Mode=$!prov.getSetting('Online_Ring_Mode').Value
+Subscribe_Expire=$!prov.getSetting('Subscribe_Expire').Value
+Presence_Server=$!prov.getSetting('Presence_Server').Value
+Use_Register=$!prov.getSetting('Use_Register').Value
 
+#set($lamp = $ps.getSetting('SYSTEM').getSetting('SYSTEM_LAMP'))
 [SERVICE_LAMP]
-Enable_Service_Lamp=1
-Red_Alert_Antenna_Level=0
-Indication_Interval=10
-Indication_Mode=0
+Enable_Service_Lamp=$!lamp.getSetting('Enable_Service_Lamp').Value
+Red_Alert_Antenna_Level=$!lamp.getSetting('Red_Alert_Antenna_Level').Value
+Indication_Interval=$!lamp.getSetting('Indication_Interval').Value
+Indication_Mode=$!lamp.getSetting('Indication_Mode').Value
 
+#set($dnet = $ps.getSetting('SYSTEM').getSetting('DYNAMIC_NETWORK'))
 [DYNAMIC_NETWORK]
-Backoff_Interval=4,8,16,32,64
-DHCP_Verify_Count=3
-DHCP_Verify_Interval=1
-8021X_Bind_Timeout=15
+Backoff_Interval=$!dnet.getSetting('Backoff_Interval').Value
+DHCP_Verify_Count=$!dnet.getSetting('DHCP_Verify_Count').Value
+DHCP_Verify_Interval=$!dnet.getSetting('DHCP_Verify_Interval').Value
+8021X_Bind_Timeout=$!dnet.getSetting('8021X_Bind_Timeout').Value
 
+#set($ttype = $ps.getSetting('CallSettings').getSetting('TONE_TYPE'))
 [TONE_TYPE]
-Dial_Tone_Type_On_Idle=2
-Dial_Tone_Type_On_Hold=0
-Send_Dial_Tone_Type=1
+Dial_Tone_Type_On_Idle=$!ttype.getSetting('Dial_Tone_Type_On_Idle').Value
+Dial_Tone_Type_On_Hold=$!ttype.getSetting('Dial_Tone_Type_On_Hold').Value
+Send_Dial_Tone_Type=$!ttype.getSetting('Send_Dial_Tone_Type').Value
+
+#set($sms = $ps.getSetting('SMS'))
+[SMS]
+Use_SMS=$!sms.getSetting('Use_SMS').Value
+Message_Server=$!sms.getSetting('Message_Server').Value
+Messasge_Content_Type=$!sms.getSetting('Message_Content_Type').Value
+
+#if ($myphone != "5000")
+#set($wmm = $ps.getSetting('SYSTEM').getSetting('TOS_WMM'))
+[TOS_WMM]
+Precedence_0=$!wmm.getSetting('Precedence_0').Value
+Precedence_1=$!wmm.getSetting('Precedence_1').Value
+Precedence_2=$!wmm.getSetting('Precedence_2').Value
+Precedence_3=$!wmm.getSetting('Precedence_3').Value
+Precedence_4=$!wmm.getSetting('Precedence_4').Value
+Precedence_5=$!wmm.getSetting('Precedence_5').Value
+Precedence_6=$!wmm.getSetting('Precedence_6').Value
+Precedence_7=$!wmm.getSetting('Precedence_7').Value
+
+[UNICODE]
+Use_Unicode_On_SMS=$!sms.getSetting('Use_Unicode_On_SMS').Value
+#end
 
 [AUTO_UPGRADE]
 Enable=0

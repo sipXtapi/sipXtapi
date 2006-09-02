@@ -5617,7 +5617,7 @@
 		</setting>
 	</group>
 	<group name="PROVISIONING">
-		<label>Provision & Upgrade</label>
+		<label>Provision and Upgrade</label>
 		<group name="AUTO_UPGRADE">
 			<setting name="Enable">
 				<label>Enable Auto Upgrade</label>
