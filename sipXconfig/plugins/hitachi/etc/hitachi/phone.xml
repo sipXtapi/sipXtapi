@@ -4249,7 +4249,7 @@
 					Set the payload type for the RFC2833 packets
 				</description>
 			</setting>
-			<setting name== " Enable_Auto_DTMF_Mode ">
+			<setting name="Enable_Auto_DTMF_Mode ">
 				<label>Enable Auto DTMF Mode</label>
 				<type>
 					<boolean />
