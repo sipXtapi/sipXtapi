@@ -1,5 +1,5 @@
 #set($ps = $phone.Settings)
-#set($myphone = $phone.Model)
+#set($myphone = $phone.Model.label)
 #set($ls = $phone.Lines.get(0).Settings)
 
 #set($sysset = $ps.getSetting('SYSTEM'))
@@ -19,7 +19,7 @@ Watchdog_Timeout=$!sysset.getSetting('Watchdog_Timeout').Value
 Use_RTCP=$!rtp.getSetting('Use_RTCP').Value
 RTP_Port_Min=$!rtp.getSetting('RTP_Port_Min').Value
 RTP_Port_Max=$!rtp.getSetting('RTP_Port_Max').Value
-RTCP_Report_Interval=$!rtp.getSetting('RTP_Report_Interval').Value
+RTCP_Report_Interval=$!rtp.getSetting('RTCP_Report_Interval').Value
 RTCP_CNAME=$!rtp.getSetting('RTCP_CNAME').Value
 Last_RTP_Received_Timeout=$!rtp.getSetting('Last_RTP_Received_Timeout').Value
 
@@ -65,10 +65,10 @@ User_Agent_Name=$!pssip.getSetting('User_Agent_Name').Value
 Use_Version_On_User_Agent=$!pssip.getSetting('Use_Version_On_User_Agent').Value
 Use_Vendor_ID_On_User_Agent=!pssip.getSetting('Use_Vendor_ID_On_User_Agent').Value
 Use_MAC_On_User_Agent=$!pssip.getSetting('Use_MAC_On_User_Agent').Value
-Max_Forwards=$!pssip.getSetting('Max_Forward').Value
+Max_Forwards=$!pssip.getSetting('Max_Forwards').Value
 Retry_Hold_On_491=$!pssip.getSetting('Retry_Hold_On_491').Value
 Caller_ID_Mode=$!pssip.getSetting('Caller_ID_Mode').Value
-ICT_Transaction_Max_Count=$!pssip.getSetting('ICD_Transaction_Max_Count').Value
+ICT_Transaction_Max_Count=$!pssip.getSetting('ICT_Transaction_Max_Count').Value
 Use_rport=$!pssip.getSetting('Use_rport').Value
 Options_Expire=$!pssip.getSetting('Options_Expire').Value
 Request_REFER_Timeout=$!pssip.getSetting('Request_REFER_Timeout').Value
@@ -80,7 +80,7 @@ Reuse_Auth_Header_On_Register=$!pssip.getSetting('Reuse_Auth_Header_On_Register'
 Register_Contact_Change=$!pssip.getSetting('Register_Contact_Change').Value
 Use_Remove_All_Contact=$!pssip.getSetting('Use_Remove_All_Contact').Value
 Use_Random_Contact=$!pssip.getSetting('Use_Random_Contact').Value
-Retry_To_Redirect_Contact=$!pssip.getSetting('Retry_To_redirect_Contact').Value
+Retry_To_Redirect_Contact=$!pssip.getSetting('Retry_To_Redirect_Contact').Value
 Auth_Retry_Count=$!pssip.getSetting('Auth_Retry_Count').Value
 Retry_Register_After_Auth_Fail=$!pssip.getSetting('Retry_Register_After_Auth_Fail').Value
 Ignore_183_Without_SDP=$!pssip.getSetting('Ignore_183_Without_SDP').Value
@@ -98,7 +98,7 @@ Displayname=$!ua.getSetting('Displayname').Value
 Phone_Number=$!ua.getSetting('Phone_Number').Value
 User_ID=$!ua.getSetting('User_ID').Value
 User_Password=$!ua.getSetting('User_Password').Value
-URL_Scheme=$ua.getSetting('URL_Scheme').Value
+URL_Scheme=$!ua.getSetting('URL_Scheme').Value
 
 #set($ss = $ps.getSetting('SERVER_SETTINGS'))
 [SERVER_SETTINGS]
@@ -113,7 +113,7 @@ Register_Retry_Backoff_Interval=60,120,240,480,960
 #set($redund = $ps.getSetting('SIP').getSetting('REDUNDANCY'))
 [REDUNDANCY]
 Mode=$!redund.getSetting('Mode').Value
-Request_Timeout=$!redund.getSetting('Request_Timing').Value
+Request_Timeout=$!redund.getSetting('Request_Timeout').Value
 Use_Fixed_Primary_Server=$!redund.getSetting('Use_Fixed_Primary_Server').Value
 Use_DNS_Additional_Records=$!redund.getSetting('Use_DNS_Additional_Records').Value
 
@@ -164,7 +164,7 @@ Use_Transfer_Target_Hold=$!transfer.getSetting('Use_Transfer_Target_Hold').Value
 Use_Consultation_Transfer=$!transfer.getSetting('Use_Consultation_Transfer').Value
 Use_Blind_Transfer=$!transfer.getSetting('Use_Blind_Transfer').Value
 Use_100_NOTIFY=$!transfer.getSetting('Use_100_NOTIFY').Value
-Use_Attended_Transfer_On_Incomming_Call=$!transfer.getSetting('Use_Attended_Transfer_On_Incomming_call').Value
+Use_Attended_Transfer_On_Incomming_Call=$!transfer.getSetting('Use_Attended_Transfer_On_Incomming_Call').Value
 Use_Contact_For_Refer_To=$!transfer.getSetting('Use_Contact_For_Refer_To').Value
 Use_Attended_Transfer_On_Call_Switch=$!transfer.getSetting('Use_Attended_Transfer_On_Call_Switch').Value
 Check_BYE_After_Refer=$!transfer.getSetting('Check_BYE_After_Refer').Value
@@ -286,7 +286,7 @@ Statistics_Window_Update_Interval=$!wifiset.getSetting('Statistics_Window_Update
 Use_Meru_Extension=$!wifiset.getSetting('Use_Menu_Extension').Value
 RxLevel_Association_Threshold=$!wifiset.getSetting('RxLevel_Association_Interval').Value
 Use_PowerSave_Monitor=$!wifiset.getSetting('Use_PowerSave_Monitor').Value
-Use_Supported_Rates_By_AP=$!wifiset.getSetting('Use_SUpported_Rates_By_AP').Value
+Use_Supported_Rates_By_AP=$!wifiset.getSetting('Use_Supported_Rates_By_AP').Value
 #end
 
 #set($wifiscan = $ps.getSetting('WiFiSettings').getSetting('WIFI_SCAN'))
@@ -323,248 +323,54 @@ Enable=$!net1.getSetting('Enable').Value
 Join_Method=$!net1.getSetting('Join_Method').Value
 SIP_Outbound_Proxy=$!net1.getSetting('SIP_Outbound_Proxy').Value
 SSID=$!net1.getSetting('SSID').Value
-Enable_DHCP=$!net1.getSetting('Enable_DHCP').Value
-Address=$!net1.getSetting('Address').Value
-Netmask=$!net1.getSetting('Netmask').Value
-Gateway=$!net1.getSetting('Gateway').Value
-DNS1=$!net1.getSetting('DNS1').Value
-DNS2=$!net1.getSetting('DNS2').Value
+#set($inet1_net = $ps.getSetting('NETWORK1').getSetting('NetworkSettings'))
+Enable_DHCP=$!net1_net.getSetting('Enable_DHCP').Value
+Address=$!net1_net.getSetting('Address').Value
+Netmask=$!net1_net.getSetting('Netmask').Value
+Gateway=$!net1_net.getSetting('Gateway').Value
+DNS1=$!net1_net.getSetting('DNS1').Value
+DNS2=$!net1_net.getSetting('DNS2').Value
+#set($inet1_wifisec = $ps.getSetting('NETWORK1').getSetting('WifiSecurity'))
 #if ($myphone == "5000")
-Enable_WEP=$!net1.getSetting('Enable_WEP').Value
+Enable_WEP=$!net1_wifisec.getSetting('Enable_WEP').Value
 #else
-Security=$!inet1.getSetting('Securiity').Value
-WPA_PSK_Passphrase=$!inet1.getSetting('WPA_PSK_Passphrase').Value
+Security=$!inet1_wifisec.getSetting('Securiity').Value
+WPA_PSK_Passphrase=$!inet1_wifisec.getSetting('WPA_PSK_Passphrase').Value
 #end
-WEP_Bits=$!net1.getSetting('WEP_Bits').Value
-Default_WEP_Key=$!net1.getSetting('Default_WEP_Key').Value
-WEP_Key1=$!net1.getSetting('WEP_Key1').Value
-WEP_Key2=$!net1.getSetting('WEP_Key2').Value
-WEP_Key3=$!net1.getSetting('WEP_Key3').Value
-WEP_Key4=$!net1.getSetting('WEP_Key4').Value
-Authentication_Algorithm=$!net1.getSetting('Authentication_Algorithm').Value
-Post_Authentication_Mode=$!net1.getSetting('Post_Authentication_Mode').Value
-8021X_Name=$!net1.getSetting('8021X_Name').Value
-8021X_Password=$!net1.getSetting('8021X_Password').Value
-UAM_Use_Manual=$!net1.getSetting('UAM_Use_Manual').Value
-UAM_Login_URL=$!net1.getSetting('UAM_Login_URL').Value
-UAM_IDTag_Name=$!net1.getSetting('UAM_IDTag_Name').Value
-UAM_PWTag_Name=$!net1.getSetting('UAM_PWTag_Name').Value
-UAM_URL=$!net1.getSetting('UAM_URL').Value
-UAM_ID=$!net1.getSetting('UAM_ID').Value
-UAM_Password=$!net1.getSetting('UAM_Password').Value
-NAT_Traversal_Mode=$!net1.getSetting('NAT_Traversal_Mode').Value
-Static_NAT_External_IP=$!net1.getSetting('Static_NAT_External_IP').Value
-Static_NAT_Start_Port=$!net1.getSetting('Static_NAT_Start_Port').Value
-STUN_Server=$!net1.getSetting('STUN_Server').Value
-STUN_Port=$!net1.getSetting('STUN_Port').Value
+WEP_Bits=$!net1_wifisec.getSetting('WEP_Bits').Value
+Default_WEP_Key=$!net1_wifisec.getSetting('Default_WEP_Key').Value
+WEP_Key1=$!net1_wifisec.getSetting('WEP_Key1').Value
+WEP_Key2=$!net1_wifisec.getSetting('WEP_Key2').Value
+WEP_Key3=$!net1_wifisec.getSetting('WEP_Key3').Value
+WEP_Key4=$!net1_wifisec.getSetting('WEP_Key4').Value
+Authentication_Algorithm=$!net1_wifisec.getSetting('Authentication_Algorithm').Value
+#set($inet_postauth = $ps.getSetting('NETWORK1').getSetting('PostAuthentication'))
+Post_Authentication_Mode=$!net1_postauth.getSetting('Post_Authentication_Mode').Value
+8021X_Name=$!net1_postauth.getSetting('8021X_Name').Value
+8021X_Password=$!net1_postauth.getSetting('8021X_Password').Value
+UAM_Use_Manual=$!net1_postauth.getSetting('UAM_Use_Manual').Value
+UAM_Login_URL=$!net1_postauth.getSetting('UAM_Login_URL').Value
+UAM_IDTag_Name=$!net1_postauth.getSetting('UAM_IDTag_Name').Value
+UAM_PWTag_Name=$!net1_postauth.getSetting('UAM_PWTag_Name').Value
+UAM_URL=$!net1_postauth.getSetting('UAM_URL').Value
+UAM_ID=$!net1_postauth.getSetting('UAM_ID').Value
+UAM_Password=$!net1_postauth.getSetting('UAM_Password').Value
+#set($inet_nat = $ps.getSetting('NETWORK1').getSetting('NAT'))
+NAT_Traversal_Mode=$!net1_nat.getSetting('NAT_Traversal_Mode').Value
+Static_NAT_External_IP=$!net1_nat.getSetting('Static_NAT_External_IP').Value
+Static_NAT_Start_Port=$!net1_nat.getSetting('Static_NAT_Start_Port').Value
+STUN_Server=$!net1_nat.getSetting('STUN_Server').Value
+STUN_Port=$!net1_nat.getSetting('STUN_Port').Value
+#set($inet_qos = $ps.getSetting('NETWORK1').getSetting('QoS'))
 #if ($myphone != "5000")
-WMM=$!net1.getSetting('WMM').Value
+WMM=$!net1_qos.getSetting('WMM').Value
 #end
-DiffServ_Signal=$!net1.getSetting('DiffServ_Signal').Value
-DiffServ_Media=$!net1.getSetting('DiffServ_Media').Value
-Jitter_Buffer_Size=$!net1.getSetting('Jitter_Buffer_Size').Value
-Payload_Type=$!net1.getSetting('Payload_Type').Value
-Multiframe=$!net1.getSetting('Multiframe').Value
-
-#set($net2 = $ps.getSetting('NETWORK2'))
-[NETWORK2]
-Name=$!net2.getSetting('Name').Value
-Enable=$!net2.getSetting('Enable').Value
-Join_Method=$!net2.getSetting('Join_Method').Value
-SIP_Outbound_Proxy=$!net2.getSetting('SIP_Outbound_Proxy').Value
-SSID=$!net2.getSetting('SSID').Value
-Enable_DHCP=$!net2.getSetting('Enable_DHCP').Value
-Address=$!net2.getSetting('Address').Value
-Netmask=$!net2.getSetting('Netmask').Value
-Gateway=$!net2.getSetting('Gateway').Value
-DNS1=$!net2.getSetting('DNS1').Value
-DNS2=$!net2.getSetting('DNS2').Value
-#if ($myphone == "5000")
-Enable_WEP=$!net2.getSetting('Enable_WEP').Value
-#else
-Security=$!inet2.getSetting('Securiity').Value
-WPA_PSK_Passphrase=$!inet2.getSetting('WPA_PSK_Passphrase').Value
-#end
-WEP_Bits=$!net2.getSetting('WEP_Bits').Value
-Default_WEP_Key=$!net2.getSetting('Default_WEP_Key').Value
-WEP_Key1=$!net2.getSetting('WEP_Key1').Value
-WEP_Key2=$!net2.getSetting('WEP_Key2').Value
-WEP_Key3=$!net2.getSetting('WEP_Key3').Value
-WEP_Key4=$!net2.getSetting('WEP_Key4').Value
-Authentication_Algorithm=$!net2.getSetting('Authentication_Algorithm').Value
-Post_Authentication_Mode=$!net2.getSetting('Post_Authentication_Mode').Value
-8021X_Name=$!net2.getSetting('8021X_Name').Value
-8021X_Password=$!net2.getSetting('8021X_Password').Value
-UAM_Use_Manual=$!net2.getSetting('UAM_Use_Manual').Value
-UAM_Login_URL=$!net2.getSetting('UAM_Login_URL').Value
-UAM_IDTag_Name=$!net2.getSetting('UAM_IDTag_Name').Value
-UAM_PWTag_Name=$!net2.getSetting('UAM_PWTag_Name').Value
-UAM_URL=$!net2.getSetting('UAM_URL').Value
-UAM_ID=$!net2.getSetting('UAM_ID').Value
-UAM_Password=$!net2.getSetting('UAM_Password').Value
-NAT_Traversal_Mode=$!net2.getSetting('NAT_Traversal_Mode').Value
-Static_NAT_External_IP=$!net2.getSetting('Static_NAT_External_IP').Value
-Static_NAT_Start_Port=$!net2.getSetting('Static_NAT_Start_Port').Value
-STUN_Server=$!net2.getSetting('STUN_Server').Value
-STUN_Port=$!net2.getSetting('STUN_Port').Value
-#if ($myphone != "5000")
-WMM=$!net2.getSetting('WMM').Value
-#end
-DiffServ_Signal=$!net2.getSetting('DiffServ_Signal').Value
-DiffServ_Media=$!net2.getSetting('DiffServ_Media').Value
-Jitter_Buffer_Size=$!net2.getSetting('Jitter_Buffer_Size').Value
-Payload_Type=$!net2.getSetting('Payload_Type').Value
-Multiframe=$!net2.getSetting('Multiframe').Value
-
-#set($net3 = $ps.getSetting('NETWORK3'))
-[NETWORK3]
-Name=$!net3.getSetting('Name').Value
-Enable=$!net3.getSetting('Enable').Value
-Join_Method=$!net3.getSetting('Join_Method').Value
-SIP_Outbound_Proxy=$!net3.getSetting('SIP_Outbound_Proxy').Value
-SSID=$!net3.getSetting('SSID').Value
-Enable_DHCP=$!net3.getSetting('Enable_DHCP').Value
-Address=$!net3.getSetting('Address').Value
-Netmask=$!net3.getSetting('Netmask').Value
-Gateway=$!net3.getSetting('Gateway').Value
-DNS1=$!net3.getSetting('DNS1').Value
-DNS2=$!net3.getSetting('DNS2').Value
-#if ($myphone == "5000")
-Enable_WEP=$!net3.getSetting('Enable_WEP').Value
-#else
-Security=$!inet3.getSetting('Securiity').Value
-WPA_PSK_Passphrase=$!inet3.getSetting('WPA_PSK_Passphrase').Value
-#end
-WEP_Bits=$!net3.getSetting('WEP_Bits').Value
-Default_WEP_Key=$!net3.getSetting('Default_WEP_Key').Value
-WEP_Key1=$!net3.getSetting('WEP_Key1').Value
-WEP_Key2=$!net3.getSetting('WEP_Key2').Value
-WEP_Key3=$!net3.getSetting('WEP_Key3').Value
-WEP_Key4=$!net3.getSetting('WEP_Key4').Value
-Authentication_Algorithm=$!net3.getSetting('Authentication_Algorithm').Value
-Post_Authentication_Mode=$!net3.getSetting('Post_Authentication_Mode').Value
-8021X_Name=$!net3.getSetting('8021X_Name').Value
-8021X_Password=$!net3.getSetting('8021X_Password').Value
-UAM_Use_Manual=$!net3.getSetting('UAM_Use_Manual').Value
-UAM_Login_URL=$!net3.getSetting('UAM_Login_URL').Value
-UAM_IDTag_Name=$!net3.getSetting('UAM_IDTag_Name').Value
-UAM_PWTag_Name=$!net3.getSetting('UAM_PWTag_Name').Value
-UAM_URL=$!net3.getSetting('UAM_URL').Value
-UAM_ID=$!net3.getSetting('UAM_ID').Value
-UAM_Password=$!net3.getSetting('UAM_Password').Value
-NAT_Traversal_Mode=$!net3.getSetting('NAT_Traversal_Mode').Value
-Static_NAT_External_IP=$!net3.getSetting('Static_NAT_External_IP').Value
-Static_NAT_Start_Port=$!net3.getSetting('Static_NAT_Start_Port').Value
-STUN_Server=$!net3.getSetting('STUN_Server').Value
-STUN_Port=$!net3.getSetting('STUN_Port').Value
-#if ($myphone != "5000")
-WMM=$!net3.getSetting('WMM').Value
-#end
-DiffServ_Signal=$!net3.getSetting('DiffServ_Signal').Value
-DiffServ_Media=$!net3.getSetting('DiffServ_Media').Value
-Jitter_Buffer_Size=$!net3.getSetting('Jitter_Buffer_Size').Value
-Payload_Type=$!net3.getSetting('Payload_Type').Value
-Multiframe=$!net3.getSetting('Multiframe').Value
-
-#set($net4 = $ps.getSetting('NETWORK4'))
-[NETWORK4]
-Name=$!net4.getSetting('Name').Value
-Enable=$!net4.getSetting('Enable').Value
-Join_Method=$!net4.getSetting('Join_Method').Value
-SIP_Outbound_Proxy=$!net4.getSetting('SIP_Outbound_Proxy').Value
-SSID=$!net4.getSetting('SSID').Value
-Enable_DHCP=$!net4.getSetting('Enable_DHCP').Value
-Address=$!net4.getSetting('Address').Value
-Netmask=$!net4.getSetting('Netmask').Value
-Gateway=$!net4.getSetting('Gateway').Value
-DNS1=$!net4.getSetting('DNS1').Value
-DNS2=$!net4.getSetting('DNS2').Value
-#if ($myphone == "5000")
-Enable_WEP=$!net4.getSetting('Enable_WEP').Value
-#else
-Security=$!inet4.getSetting('Securiity').Value
-WPA_PSK_Passphrase=$!inet4.getSetting('WPA_PSK_Passphrase').Value
-#end
-WEP_Bits=$!net4.getSetting('WEP_Bits').Value
-Default_WEP_Key=$!net4.getSetting('Default_WEP_Key').Value
-WEP_Key1=$!net4.getSetting('WEP_Key1').Value
-WEP_Key2=$!net4.getSetting('WEP_Key2').Value
-WEP_Key3=$!net4.getSetting('WEP_Key3').Value
-WEP_Key4=$!net4.getSetting('WEP_Key4').Value
-Authentication_Algorithm=$!net4.getSetting('Authentication_Algorithm').Value
-Post_Authentication_Mode=$!net4.getSetting('Post_Authentication_Mode').Value
-8021X_Name=$!net4.getSetting('8021X_Name').Value
-8021X_Password=$!net4.getSetting('8021X_Password').Value
-UAM_Use_Manual=$!net4.getSetting('UAM_Use_Manual').Value
-UAM_Login_URL=$!net4.getSetting('UAM_Login_URL').Value
-UAM_IDTag_Name=$!net4.getSetting('UAM_IDTag_Name').Value
-UAM_PWTag_Name=$!net4.getSetting('UAM_PWTag_Name').Value
-UAM_URL=$!net4.getSetting('UAM_URL').Value
-UAM_ID=$!net4.getSetting('UAM_ID').Value
-UAM_Password=$!net4.getSetting('UAM_Password').Value
-NAT_Traversal_Mode=$!net4.getSetting('NAT_Traversal_Mode').Value
-Static_NAT_External_IP=$!net4.getSetting('Static_NAT_External_IP').Value
-Static_NAT_Start_Port=$!net4.getSetting('Static_NAT_Start_Port').Value
-STUN_Server=$!net4.getSetting('STUN_Server').Value
-STUN_Port=$!net4.getSetting('STUN_Port').Value
-#if ($myphone != "5000")
-WMM=$!net4.getSetting('WMM').Value
-#end
-DiffServ_Signal=$!net4.getSetting('DiffServ_Signal').Value
-DiffServ_Media=$!net4.getSetting('DiffServ_Media').Value
-Jitter_Buffer_Size=$!net4.getSetting('Jitter_Buffer_Size').Value
-Payload_Type=$!net4.getSetting('Payload_Type').Value
-Multiframe=$!net4.getSetting('Multiframe').Value
-
-#set($net5 = $ps.getSetting('NETWORK5'))
-[NETWORK5]
-Name=$!net5.getSetting('Name').Value
-Enable=$!net5.getSetting('Enable').Value
-Join_Method=$!net5.getSetting('Join_Method').Value
-SIP_Outbound_Proxy=$!net5.getSetting('SIP_Outbound_Proxy').Value
-SSID=$!net5.getSetting('SSID').Value
-Enable_DHCP=$!net5.getSetting('Enable_DHCP').Value
-Address=$!net5.getSetting('Address').Value
-Netmask=$!net5.getSetting('Netmask').Value
-Gateway=$!net5.getSetting('Gateway').Value
-DNS1=$!net5.getSetting('DNS1').Value
-DNS2=$!net5.getSetting('DNS2').Value
-#if ($myphone == "5000")
-Enable_WEP=$!net5.getSetting('Enable_WEP').Value
-#else
-Security=$!inet5.getSetting('Securiity').Value
-WPA_PSK_Passphrase=$!inet5.getSetting('WPA_PSK_Passphrase').Value
-#end
-WEP_Bits=$!net5.getSetting('WEP_Bits').Value
-Default_WEP_Key=$!net5.getSetting('Default_WEP_Key').Value
-WEP_Key1=$!net5.getSetting('WEP_Key1').Value
-WEP_Key2=$!net5.getSetting('WEP_Key2').Value
-WEP_Key3=$!net5.getSetting('WEP_Key3').Value
-WEP_Key4=$!net5.getSetting('WEP_Key4').Value
-Authentication_Algorithm=$!net5.getSetting('Authentication_Algorithm').Value
-Post_Authentication_Mode=$!net5.getSetting('Post_Authentication_Mode').Value
-8021X_Name=$!net5.getSetting('8021X_Name').Value
-8021X_Password=$!net5.getSetting('8021X_Password').Value
-UAM_Use_Manual=$!net5.getSetting('UAM_Use_Manual').Value
-UAM_Login_URL=$!net5.getSetting('UAM_Login_URL').Value
-UAM_IDTag_Name=$!net5.getSetting('UAM_IDTag_Name').Value
-UAM_PWTag_Name=$!net5.getSetting('UAM_PWTag_Name').Value
-UAM_URL=$!net5.getSetting('UAM_URL').Value
-UAM_ID=$!net5.getSetting('UAM_ID').Value
-UAM_Password=$!net5.getSetting('UAM_Password').Value
-NAT_Traversal_Mode=$!net5.getSetting('NAT_Traversal_Mode').Value
-Static_NAT_External_IP=$!net5.getSetting('Static_NAT_External_IP').Value
-Static_NAT_Start_Port=$!net5.getSetting('Static_NAT_Start_Port').Value
-STUN_Server=$!net5.getSetting('STUN_Server').Value
-STUN_Port=$!net5.getSetting('STUN_Port').Value
-#if ($myphone != "5000")
-WMM=$!net5.getSetting('WMM').Value
-#end
-DiffServ_Signal=$!net5.getSetting('DiffServ_Signal').Value
-DiffServ_Media=$!net5.getSetting('DiffServ_Media').Value
-Jitter_Buffer_Size=$!net5.getSetting('Jitter_Buffer_Size').Value
-Payload_Type=$!net5.getSetting('Payload_Type').Value
-Multiframe=$!net5.getSetting('Multiframe').Value
+DiffServ_Signal=$!net1_qos.getSetting('DiffServ_Signal').Value
+DiffServ_Media=$!net1_qos.getSetting('DiffServ_Media').Value
+#set($inet_voip = $ps.getSetting('NETWORK1').getSetting('VoIP'))
+Jitter_Buffer_Size=$!net1_voip.getSetting('Jitter_Buffer_Size').Value
+Payload_Type=$!net1_voip.getSetting('Payload_Type').Value
+Multiframe=$!net1_voip.getSetting('Multiframe').Value
 
 #set($dtmf = $ps.getSetting('CallSettings').getSetting('DTMF'))
 [DTMF]
@@ -577,11 +383,11 @@ Enable_Auto_DTMF_Mode=$!dtmf.getSetting('Enable_Auto_DTMF_Mode').Value
 #set($cid = $ps.getSetting('CallSettings').getSetting('CALLER_ID'))
 [CALLER_ID]
 Use_Caller_ID_OnOff=$!cid.getSetting('Use_Caller_ID_OnOff').Value
-Enable_Caller_ID=$cid.getSetting('Enable_Caller_ID').Value
-Anonymous_Displayname=$cid.getSetting('Anonymous_Displayname').Value
-Use_Update_Caller_ID=$cid.getSetting('Use_Update_Caller_ID').Value
-Hide_Displayname=$cid.getSetting('Hide_Displayname').Value
-Update_Caller_ID_After_Transfer=$cid.getSetting('Update_Caller_ID_After_Transfer').Value
+Enable_Caller_ID=$!cid.getSetting('Enable_Caller_ID').Value
+Anonymous_Displayname=$!cid.getSetting('Anonymous_Displayname').Value
+Use_Update_Caller_ID=$!cid.getSetting('Use_Update_Caller_ID').Value
+Hide_Displayname=$!cid.getSetting('Hide_Displayname').Value
+Update_Caller_ID_After_Transfer=$!cid.getSetting('Update_Caller_ID_After_Transfer').Value
 
 #set($UI = $ps.getSetting('UI'))
 [UI]
@@ -609,7 +415,7 @@ Subscribe_Expire=$!prov.getSetting('Subscribe_Expire').Value
 Presence_Server=$!prov.getSetting('Presence_Server').Value
 Use_Register=$!prov.getSetting('Use_Register').Value
 
-#set($lamp = $ps.getSetting('SYSTEM').getSetting('SYSTEM_LAMP'))
+#set($lamp = $ps.getSetting('SYSTEM').getSetting('SERVICE_LAMP'))
 [SERVICE_LAMP]
 Enable_Service_Lamp=$!lamp.getSetting('Enable_Service_Lamp').Value
 Red_Alert_Antenna_Level=$!lamp.getSetting('Red_Alert_Antenna_Level').Value
@@ -660,7 +466,7 @@ Repeat=$aupg.getSetting('Repeat').Value
 #set($prov = $ps.getSetting('PROVISIONING').getSetting('PROVISION'))
 [PROVISION]
 Use_Provision=$!prov.getSetting('Use_Provision').Value
-Configuration_URL=$!prov.getSetting('Configuration_Url').Value
+Configuration_URL=$!prov.getSetting('Configuration_URL').Value
 Firmware_URL=$!prov.getSetting('Firmware_URL').Value
 Configuration_Version=$!prov.getSetting('Configuration_Version').Value
 Firmware_Version=$!prov.getSetting('Firmware_Version').Value

@@ -992,15 +992,23 @@
 				</description>
 			</setting>
 		</group>
-		<group name="VoIP" advanced="yes">
-			<setting name="Jitter_Buffer_Size">
+		<group name="VoIP">
+		    <setting name="SIP_Outbound_Proxy">
+		      <label>SIP Ourbound Proxy</label>
+		      <type>
+		        <string max="32"/>
+		      </type>
+		      <value/>
+		      <description>URL of the SIP Outbound Proxy to use for this network</description>
+		    </setting>
+			<setting name="Jitter_Buffer_Size" advanced="yes">
 				<label>Jitter Buffer Size</label>
 				<type>
 					<integer min="20" max="200" />
 				</type>
 				<value>60</value>
 			</setting>
-			<setting name="Payload_Type">
+			<setting name="Payload_Type" advanced="yes">
 				<label>Payload Type</label>
 				<type>
 					<enum>
@@ -1035,7 +1043,7 @@
 					Set the payload (Codec) priorities.
 				</description>
 			</setting>
-			<setting name="Multiframe">
+			<setting name="Multiframe" advanced="yes">
 				<type>
 					<enum>
 						<option>
