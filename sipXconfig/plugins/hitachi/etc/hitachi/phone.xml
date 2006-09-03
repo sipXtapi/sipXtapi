@@ -994,9 +994,9 @@
 		</group>
 		<group name="VoIP">
 		    <setting name="SIP_Outbound_Proxy">
-		      <label>SIP Ourbound Proxy</label>
+		      <label>SIP Outbound Proxy</label>
 		      <type>
-		        <string max="32"/>
+		        <string maxLen="32"/>
 		      </type>
 		      <value/>
 		      <description>URL of the SIP Outbound Proxy to use for this network</description>
@@ -1544,15 +1544,23 @@
 				</description>
 			</setting>
 		</group>
-		<group name="VoIP" advanced="yes">
-			<setting name="Jitter_Buffer_Size">
+		<group name="VoIP">
+		    <setting name="SIP_Outbound_Proxy" advanced="yes">
+		      <label>SIP Outbound Proxy</label>
+		      <type>
+		        <string maxLen="32"/>
+		      </type>
+		      <value/>
+		      <description>URL of the SIP Outbound Proxy to use for this network</description>
+		    </setting>
+			<setting name="Jitter_Buffer_Size" advanced="yes">
 				<label>Jitter Buffer Size</label>
 				<type>
 					<integer min="20" max="200" />
 				</type>
 				<value>60</value>
 			</setting>
-			<setting name="Payload_Type">
+			<setting name="Payload_Type" advanced="yes">
 				<label>Payload Type</label>
 				<type>
 					<enum>
@@ -1587,7 +1595,7 @@
 					Set the payload (Codec) priorities.
 				</description>
 			</setting>
-			<setting name="Multiframe">
+			<setting name="Multiframe" advanced="yes">
 				<type>
 					<enum>
 						<option>
@@ -2088,15 +2096,23 @@
 				</description>
 			</setting>
 		</group>
-		<group name="VoIP" advanced="yes">
-			<setting name="Jitter_Buffer_Size">
+		<group name="VoIP">
+		    <setting name="SIP_Outbound_Proxy" advanced="yes">
+		      <label>SIP Outbound Proxy</label>
+		      <type>
+		        <string maxLen="32"/>
+		      </type>
+		      <value/>
+		      <description>URL of the SIP Outbound Proxy to use for this network</description>
+		    </setting>
+			<setting name="Jitter_Buffer_Size" advanced="yes">
 				<label>Jitter Buffer Size</label>
 				<type>
 					<integer min="20" max="200" />
 				</type>
 				<value>60</value>
 			</setting>
-			<setting name="Payload_Type">
+			<setting name="Payload_Type" advanced="yes">
 				<label>Payload Type</label>
 				<type>
 					<enum>
@@ -2131,7 +2147,7 @@
 					Set the payload (Codec) priorities.
 				</description>
 			</setting>
-			<setting name="Multiframe">
+			<setting name="Multiframe" advanced="yes">
 				<type>
 					<enum>
 						<option>
@@ -2632,15 +2648,23 @@
 				</description>
 			</setting>
 		</group>
-		<group name="VoIP" advanced="yes">
-			<setting name="Jitter_Buffer_Size">
+		<group name="VoIP">
+		    <setting name="SIP_Outbound_Proxy">
+		      <label>SIP Outbound Proxy</label>
+		      <type>
+		        <string maxLen="32"/>
+		      </type>
+		      <value/>
+		      <description>URL of the SIP Outbound Proxy to use for this network</description>
+		    </setting>
+			<setting name="Jitter_Buffer_Size" advanced="yes">
 				<label>Jitter Buffer Size</label>
 				<type>
 					<integer min="20" max="200" />
 				</type>
 				<value>60</value>
 			</setting>
-			<setting name="Payload_Type">
+			<setting name="Payload_Type" advanced="yes">
 				<label>Payload Type</label>
 				<type>
 					<enum>
@@ -2675,7 +2699,7 @@
 					Set the payload (Codec) priorities.
 				</description>
 			</setting>
-			<setting name="Multiframe">
+			<setting name="Multiframe" advanced="yes">
 				<type>
 					<enum>
 						<option>
@@ -3176,15 +3200,23 @@
 				</description>
 			</setting>
 		</group>
-		<group name="VoIP" advanced="yes">
-			<setting name="Jitter_Buffer_Size">
+		<group name="VoIP">
+			  <setting name="SIP_Outbound_Proxy">
+		      <label>SIP Outbound Proxy</label>
+		      <type>
+		        <string maxLen="32"/>
+		      </type>
+		      <value/>
+		      <description>URL of the SIP Outbound Proxy to use for this network</description>
+		    </setting>
+			<setting name="Jitter_Buffer_Size" advanced="yes">
 				<label>Jitter Buffer Size</label>
 				<type>
 					<integer min="20" max="200" />
 				</type>
 				<value>60</value>
 			</setting>
-			<setting name="Payload_Type">
+			<setting name="Payload_Type" advanced="yes">
 				<label>Payload Type</label>
 				<type>
 					<enum>
@@ -3219,7 +3251,7 @@
 					Set the payload (Codec) priorities.
 				</description>
 			</setting>
-			<setting name="Multiframe">
+			<setting name="Multiframe" advanced="yes">
 				<type>
 					<enum>
 						<option>
@@ -3501,32 +3533,12 @@
 				messages
 			</description>
 		</setting>
-		<setting name="User_Agent_Name" advanced="yes" if="5000">
+		<setting name="User_Agent_Name" advanced="yes">
 			<label>User Agent Name</label>
 			<type>
 				<string maxLen="60" />
 			</type>
-			<value>WirelessIP5000</value>
-			<description>
-				Define the string used in the User-Agent Header
-			</description>
-		</setting>
-		<setting name="User_Agent_Name" advanced="yes" if="3000">
-			<label>User Agent Name</label>
-			<type>
-				<string maxLen="60" />
-			</type>
-			<value>WirelessIP3000</value>
-			<description>
-				Define the string used in the User-Agent Header
-			</description>
-		</setting>
-		<setting name="User_Agent_Name" advanced="yes" if="5000A">
-			<label>User Agent Name</label>
-			<type>
-				<string maxLen="60" />
-			</type>
-			<value>WirelessIP5000A</value>
+			<value>HitachiWirelessIP</value>
 			<description>
 				Define the string used in the User-Agent Header
 			</description>
@@ -5308,7 +5320,7 @@
 					Window. (Unit: seconds)
 				</description>
 			</setting>
-			<setting name="Use_Meru_Extension" if="5000">
+			<setting name="Use_Menu_Extension" if="5000">
 				<label>Use Meru Extension</label>
 				<type>
 					<boolean />
