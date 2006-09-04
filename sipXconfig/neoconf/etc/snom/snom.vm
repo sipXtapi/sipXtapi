@@ -7,8 +7,6 @@ ${setting.ProfileName}: $!{setting.Value}
 #end
 #end
 #end
-
-
 #foreach ($line in $phone.ProfileLines)
 #set ($i = $velocityCount)
 #foreach ($group in $line.Values)
