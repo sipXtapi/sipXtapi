@@ -1,5 +1,5 @@
 #set($ps = $phone.Settings)
-#set($myphone = $phone.Model.label)
+#set($myphone = $phone.Model.modelId.trim())
 #set($ls = $phone.Lines.get(0).Settings)
 
 #set($sysset = $ps.getSetting('SYSTEM'))
@@ -9,7 +9,7 @@ Admin_Password=$!sysset.getSetting('Admin_Password').Value
 TFTP_Server_IP=$!sysset.getSetting('TFTP_Server_IP').Value
 Country_Tone_Type=$!sysset.getSetting('Country_Tone_Type').Value
 Use_DNS_SRV=$!sysset.getSetting('Use_DNS_SRV').Value
-Vendor_ID=
+Vendor_ID=$!myphone
 Vendor_Password=
 LCD_Contrast=$!sysset.getSetting('LCD_Contrast').Value
 Watchdog_Timeout=$!sysset.getSetting('Watchdog_Timeout').Value
@@ -284,7 +284,7 @@ PowerSave_Awake_Interval=$!wifiset.getSetting('PowerSave_Awake_Interval').Value
 Use_Statistics_Window=$!wifiset.getSetting('Use_Statistics_Window').Value
 Statistics_Window_Update_Interval=$!wifiset.getSetting('Statistics_Window_Update_Interval').Value
 Use_Meru_Extension=$!wifiset.getSetting('Use_Menu_Extension').Value
-RxLevel_Association_Threshold=$!wifiset.getSetting('RxLevel_Association_Interval').Value
+RxLevel_Association_Threshold=$!wifiset.getSetting('RxLevel_Association_Threshold').Value
 Use_PowerSave_Monitor=$!wifiset.getSetting('Use_PowerSave_Monitor').Value
 Use_Supported_Rates_By_AP=$!wifiset.getSetting('Use_Supported_Rates_By_AP').Value
 #end
@@ -296,7 +296,7 @@ Scan_Count=$!wifiscan.getSetting('Scan_Count').Value
 #else
 Scan_Mode=$!wifiscan.getSetting('Scan_Mode').Value
 #end
-Scan_Channel_List=$!wifiscan('Scan_Channel_List').Value
+Scan_Channel_List=$!wifiscan.getSetting('Scan_Channel_List').Value
 
 #set($roam = $ps.getSetting('WiFiSettings').getSetting('ROAMING'))
 [ROAMING]
@@ -321,7 +321,6 @@ Clear_Blacklist_Interval=$!roam.getSetting('Clear_Blacklist_Interval').Value
 Name=$!net1.getSetting('Name').Value
 Enable=$!net1.getSetting('Enable').Value
 Join_Method=$!net1.getSetting('Join_Method').Value
-SIP_Outbound_Proxy=$!net1.getSetting('SIP_Outbound_Proxy').Value
 SSID=$!net1.getSetting('SSID').Value
 #set($inet1_net = $ps.getSetting('NETWORK1').getSetting('NetworkSettings'))
 Enable_DHCP=$!net1_net.getSetting('Enable_DHCP').Value
@@ -334,7 +333,7 @@ DNS2=$!net1_net.getSetting('DNS2').Value
 #if ($myphone == "5000")
 Enable_WEP=$!net1_wifisec.getSetting('Enable_WEP').Value
 #else
-Security=$!inet1_wifisec.getSetting('Securiity').Value
+Security=$!inet1_wifisec.getSetting('Security').Value
 WPA_PSK_Passphrase=$!inet1_wifisec.getSetting('WPA_PSK_Passphrase').Value
 #end
 WEP_Bits=$!net1_wifisec.getSetting('WEP_Bits').Value
@@ -396,7 +395,7 @@ Enable_Key_Lock=$!UI.getSetting('Enable_Key_Lock').Value
 Enable_Key_Lock_Password=$!UI.getSetting('Enable_Key_Lock_Password').Value
 Enable_Mannermode=$!UI.getSetting('Enable_Mannermode').Value
 Enable_Error_Indication=$!UI.getSetting('Enable_Error_Indication').Value
-#if($myphone != '3000')
+#if($myphone != "3000")
 Use_Advanced_Rate_Set=$!UI.getSetting('Use_Advanced_Rate_Set').Value
 #end
 Network_Setup_Menu_Location=$!UI.getSetting('Network_Setup_Menu_Location').Value
@@ -441,18 +440,18 @@ Use_SMS=$!sms.getSetting('Use_SMS').Value
 Message_Server=$!sms.getSetting('Message_Server').Value
 Messasge_Content_Type=$!sms.getSetting('Message_Content_Type').Value
 
-#if ($myphone != "5000")
-#set($wmm = $ps.getSetting('SYSTEM').getSetting('TOS_WMM'))
+#if($myphone != "5000")
 [TOS_WMM]
-Precedence_0=$!wmm.getSetting('Precedence_0').Value
-Precedence_1=$!wmm.getSetting('Precedence_1').Value
-Precedence_2=$!wmm.getSetting('Precedence_2').Value
-Precedence_3=$!wmm.getSetting('Precedence_3').Value
-Precedence_4=$!wmm.getSetting('Precedence_4').Value
-Precedence_5=$!wmm.getSetting('Precedence_5').Value
-Precedence_6=$!wmm.getSetting('Precedence_6').Value
-Precedence_7=$!wmm.getSetting('Precedence_7').Value
-
+Precedence_0=$!ps.getSetting('SYSTEM').getSetting('TOS_WMM')).getSetting('Precedence_0').Value
+Precedence_1=$!ps.getSetting('SYSTEM').getSetting('TOS_WMM')).getSetting('Precedence_1').Value
+Precedence_2=$!ps.getSetting('SYSTEM').getSetting('TOS_WMM')).getSetting('Precedence_2').Value
+Precedence_3=$!ps.getSetting('SYSTEM').getSetting('TOS_WMM')).getSetting('Precedence_3').Value
+Precedence_4=$!ps.getSetting('SYSTEM').getSetting('TOS_WMM')).getSetting('Precedence_4').Value
+Precedence_5=$!ps.getSetting('SYSTEM').getSetting('TOS_WMM')).getSetting('Precedence_5').Value
+Precedence_6=$!ps.getSetting('SYSTEM').getSetting('TOS_WMM')).getSetting('Precedence_6').Value
+Precedence_7=$!ps.getSetting('SYSTEM').getSetting('TOS_WMM')).getSetting('Precedence_7').Value
+#end
+#if($myphone != "5000")
 [UNICODE]
 Use_Unicode_On_SMS=$!sms.getSetting('Use_Unicode_On_SMS').Value
 #end

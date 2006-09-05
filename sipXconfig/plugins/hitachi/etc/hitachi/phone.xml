@@ -821,10 +821,10 @@
 					Name used for 8021X Authentication
 				</description>
 			</setting>
-			<setting name="8021X_Password" hidden="yes">
+			<setting name="8021X_Password">
 				<label>8021X Password</label>
 				<type>
-					<string maxLen="50" />
+					<string maxLen="50" password="yes" />
 				</type>
 				<value />
 				<description>
@@ -894,10 +894,10 @@
 					Username used for WEB authentication
 				</description>
 			</setting>
-			<setting name="UAM_Password" hidden="yes">
+			<setting name="UAM_Password">
 				<label>UAM Password</label>
 				<type>
-					<string maxLen="50" />
+					<string maxLen="50" password="yes"/>
 				</type>
 				<value />
 				<description>
@@ -1373,10 +1373,10 @@
 					Name used for 8021X Authentication
 				</description>
 			</setting>
-			<setting name="8021X_Password" hidden="yes">
+			<setting name="8021X_Password">
 				<label>8021X Password</label>
 				<type>
-					<string maxLen="50" />
+					<string maxLen="50" password="yes"/>
 				</type>
 				<value />
 				<description>
@@ -1446,10 +1446,10 @@
 					Username used for WEB authentication
 				</description>
 			</setting>
-			<setting name="UAM_Password" hidden="yes">
+			<setting name="UAM_Password">
 				<label>UAM Password</label>
 				<type>
-					<string maxLen="50" />
+					<string maxLen="50" password="yes"/>
 				</type>
 				<value />
 				<description>
@@ -1925,10 +1925,10 @@
 					Name used for 8021X Authentication
 				</description>
 			</setting>
-			<setting name="8021X_Password" hidden="yes">
+			<setting name="8021X_Password">
 				<label>8021X Password</label>
 				<type>
-					<string maxLen="50" />
+					<string maxLen="50" password="yes"/>
 				</type>
 				<value />
 				<description>
@@ -1998,10 +1998,10 @@
 					Username used for WEB authentication
 				</description>
 			</setting>
-			<setting name="UAM_Password" hidden="yes">
+			<setting name="UAM_Password">
 				<label>UAM Password</label>
 				<type>
-					<string maxLen="50" />
+					<string maxLen="50" password="yes" />
 				</type>
 				<value />
 				<description>
@@ -2477,10 +2477,10 @@
 					Name used for 8021X Authentication
 				</description>
 			</setting>
-			<setting name="8021X_Password" hidden="yes">
+			<setting name="8021X_Password">
 				<label>8021X Password</label>
 				<type>
-					<string maxLen="50" />
+					<string maxLen="50" password="yes" />
 				</type>
 				<value />
 				<description>
@@ -2550,10 +2550,10 @@
 					Username used for WEB authentication
 				</description>
 			</setting>
-			<setting name="UAM_Password" hidden="yes">
+			<setting name="UAM_Password">
 				<label>UAM Password</label>
 				<type>
-					<string maxLen="50" />
+					<string maxLen="50" password="yes"/>
 				</type>
 				<value />
 				<description>
@@ -3029,10 +3029,10 @@
 					Name used for 8021X Authentication
 				</description>
 			</setting>
-			<setting name="8021X_Password" hidden="yes">
+			<setting name="8021X_Password">
 				<label>8021X Password</label>
 				<type>
-					<string maxLen="50" />
+					<string maxLen="50" password="yes"/>
 				</type>
 				<value />
 				<description>
@@ -3102,10 +3102,10 @@
 					Username used for WEB authentication
 				</description>
 			</setting>
-			<setting name="UAM_Password" hidden="yes">
+			<setting name="UAM_Password">
 				<label>UAM Password</label>
 				<type>
-					<string maxLen="50" />
+					<string maxLen="50" password="yes" />
 				</type>
 				<value />
 				<description>
