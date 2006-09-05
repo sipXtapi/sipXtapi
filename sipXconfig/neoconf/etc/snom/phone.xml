@@ -6,6 +6,7 @@
 <model>
 	&types;
 	<group name="Basic_Settings">
+	    <label>Basic Settings</label>
 		<setting name="web_language">
 			<label>Web Language</label>
 			<type>
@@ -54,9 +55,9 @@
 			<label>Language</label>
 			<type>
 				<enum>
-				    <option>
-				        <value>English</value>
-				    </option>
+					<option>
+						<value>English</value>
+					</option>
 					<option>
 						<value>English(UK)</value>
 					</option>
@@ -192,9 +193,9 @@
 		<setting name="peer_to_peer_cc">
 			<label>Peer To Peer Call Completion</label>
 			<type refid="on-off" />
-			<value>on</value>
+			<value>off</value>
 			<description>
-				The SIP signaling for call coempletion can be made
+				The SIP signaling for call completion can be made
 				either via proxy "off" or peer to peer "on"
 			</description>
 		</setting>
@@ -725,7 +726,7 @@
 			</description>
 		</setting>
 		<setting name="redirect_always_on_code" advanced="yes">
-		    <label>Redirect Always On Code</label>
+			<label>Redirect Always On Code</label>
 			<type>
 				<string />
 			</type>
@@ -738,7 +739,7 @@
 			</description>
 		</setting>
 		<setting name="redirect_always_off_code" advanced="yes">
-		    <label>Redirect Always Off Code</label>
+			<label>Redirect Always Off Code</label>
 			<type>
 				<string />
 			</type>
@@ -751,7 +752,7 @@
 			</description>
 		</setting>
 		<setting name="redirect_busy_on_code" advanced="yes">
-		    <label>Redirect Busy On Code</label>
+			<label>Redirect Busy On Code</label>
 			<type>
 				<string />
 			</type>
@@ -764,7 +765,7 @@
 			</description>
 		</setting>
 		<setting name="redirect_busy_off_code" advanced="yes">
-		    <label>Redirect Busy Off Code</label>
+			<label>Redirect Busy Off Code</label>
 			<type>
 				<string />
 			</type>
@@ -777,7 +778,7 @@
 			</description>
 		</setting>
 		<setting name="redirect_time_on_code" advanced="yes">
-		    <label>Redirect Time On Code</label>
+			<label>Redirect Time On Code</label>
 			<type>
 				<string />
 			</type>
@@ -790,7 +791,7 @@
 			</description>
 		</setting>
 		<setting name="redirect_time_off_code" advanced="yes">
-		    <label>Redirect Time Off Code</label>
+			<label>Redirect Time Off Code</label>
 			<type>
 				<string />
 			</type>
@@ -805,28 +806,35 @@
 	</group>
 	<group name="Basic_Network_Settings">
 		<label>Basic Network</label>
-		<setting name="ip_adr" advanced="yes">
+		<description>
+			Since the phone is required to have a working network setup
+			to work with the config server, we left out the basic
+			network settings since they would break the configuration of
+			the phone if it has a working network setup
+		</description>
+		<!--
+			<setting name="ip_adr" advanced="yes">
 			<label>IP Address</label>
 			<type>
-				<ipaddr />
+			<ipaddr />
 			</type>
 			<value />
 			<description>
-				The IP address of the device. This parameter is
-				mandatory in order to enable the ethernet connection
+			The IP address of the device. This parameter is
+			mandatory in order to enable the ethernet connection
 			</description>
-		</setting>
-		<setting name="netmask" advanced="yes">
+			</setting>
+			<setting name="netmask" advanced="yes">
 			<label>Netmask</label>
 			<type>
-				<string maxLen="15" />
+			<string maxLen="15" />
 			</type>
 			<value />
 			<description>
-				The netmask for the device. This parameter is mandatory
-				in order to enable the ethernet connection
+			The netmask for the device. This parameter is mandatory
+			in order to enable the ethernet connection
 			</description>
-		</setting>
+			</setting> -->
 		<setting name="phone_name">
 			<label>Phone Name</label>
 			<type>
@@ -838,22 +846,23 @@
 				it is used for identifying the device in SIP signalling
 			</description>
 		</setting>
-		<setting name="gateway" advanced="yes">
+		<!--
+			<setting name="gateway" advanced="yes">
 			<label>Gateway</label>
 			<type>
-				<ipaddr />
+			<ipaddr />
 			</type>
 			<value />
 			<description>
-				The IP address of the default IP gateway (not the VoIP
-				gateway !!!!!!!!!). It is the address to which the
-				packets get routed if the wanted packet address is not
-				in the current subnet. Setting up this parameter is
-				mandatory in order to reach an external network.
+			The IP address of the default IP gateway (not the VoIP
+			gateway !!!!!!!!!). It is the address to which the
+			packets get routed if the wanted packet address is not
+			in the current subnet. Setting up this parameter is
+			mandatory in order to reach an external network.
 			</description>
-		</setting>
+			</setting> -->
 		<setting name="dhcp">
-			<label>Enable dhcp</label>
+			<label>Enable DHCP</label>
 			<type refid="on-off" />
 			<value>on</value>
 			<description>
@@ -1584,6 +1593,79 @@
 	</group>
 	<group name="Updates_and_settings">
 		<label>Updates</label>
+		<description>Since the phone is getting the settings from the sipXconfig server, the server is set automatically. Adjust the Firmware settings only if you have a different firmware server than sipxconfig</description>
+		<setting name="update_policy">
+			<label>Update Policy</label>
+			<type>
+				<enum>
+					<option>
+						<label>Auto Update</label>
+						<value>auto_update</value>
+					</option>
+					<option>
+						<label>Ask For Update</label>
+						<value>ask_for_update</value>
+					</option>
+					<option>
+						<label>Never Update Firmware</label>
+						<value>never_update_firm</value>
+					</option>
+					<option>
+						<label>Never Update Bootrom</label>
+						<value>never_update_boot</value>
+					</option>
+					<option>
+						<label>Settings Only</label>
+						<value>settings_only</value>
+					</option>
+					<option>
+						<label>Never Update</label>
+						<value>never_update</value>
+					</option>
+				</enum>
+			</type>
+			<value>settings_only</value>
+			<description>
+				Determines the update behaviour of the phone. Never
+				Update does not connect to a server for settings or
+				updates at all. Settings Only loads settings only from
+				the settings server. Auto Update does not ask again, if
+				you are really sure to update
+			</description>
+		</setting>
+		<setting name="firmware_interval">
+			<label>Firmware Interval</label>
+			<type>
+				<integer />
+			</type>
+			<value>1440</value>
+			<description>
+				The phone polls by default each 24 hours for a new
+				firmware. If you want to change that, it has to be set
+				to the amount of minutes after which a new poll reqeust
+				should be performed
+			</description>
+		</setting>
+		<setting name="firmware_status">
+			<label>Firmware Status URL</label>
+			<type>
+				<string />
+			</type>
+			<value />
+			<description>
+				URL of the config file that consists of the bootloader
+				and firmware setting
+			</description>
+		</setting>
+		<setting name="pnp_config">
+			<label>PnP Configuration</label>
+			<type refid="on-off" />
+			<value>on</value>
+			<description>
+				If turned to on, the phone will try to retrieve its
+				settings via a Plug-and-Play (PnP) Server.
+			</description>
+		</setting>
 	</group>
 	<group name="Audio_Settings">
 		<label>Audio</label>
@@ -1924,7 +2006,7 @@
 		</setting>
 	</group>
 	<group name="Key_Mapping">
-		<label>Key Mapping</label>
+		<label>Keys</label>
 		<description>
 			This group should contain the function key settings as well,
 			but until I find a way to add strings to a setting
@@ -1935,7 +2017,7 @@
 			<type refid="on-off" />
 			<value>off</value>
 			<description>
-				his setting decides wether an incoming intercom
+				This setting decides wether an incoming intercom
 				connection (see fkey setting above) is denied "off" or
 				in general allowed "on", authentication if needed has to
 				be provided additionally anyway.
@@ -1964,7 +2046,7 @@
 				be provided additionally anyway
 			</description>
 		</setting>
-		<setting name="no-dnd" advanced="yes">
+		<setting name="no_dnd" advanced="yes">
 			<label>No DND</label>
 			<type refid="on-off" />
 			<value>off</value>
@@ -2212,7 +2294,7 @@
 			<value>0</value>
 			<description>
 				If no identity is registered at the phone for the given
-				time, it will reboot. The timeis given in minutes. This
+				time, it will reboot. The time is given in minutes. This
 				can be useful for provisioning scenarios, e.g. where you
 				want the phone to reboot every 10 minutes and recheck
 				the settings
@@ -2335,7 +2417,7 @@
 		<setting name="keyboard_lock_pw" advanced="yes">
 			<label>Keyboard Lock Password</label>
 			<type>
-				<integer />
+				<string />
 			</type>
 			<value />
 			<description>
