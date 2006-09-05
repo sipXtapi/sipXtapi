@@ -387,23 +387,6 @@ bool CallerAliasDB::getCallerAlias (
          // found a match 
          callerAlias.append(exactCursor->alias);
       }
-      else if (!identity.isNull())
-      {
-         /*
-          * The identity was specific (not null), but we did not find an exact match
-          * for it, so now try with the identity specified as a null string.
-          */
-         UtlString nullIdentity;
-           
-         dbQuery wildcardQuery;
-         wildcardQuery="identity=",nullIdentity.data()," and domain=",domain.data();
-         dbCursor< CallerAliasRow > wildcardCursor;
-         if (wildcardCursor.select(wildcardQuery))
-         {
-            // found a match 
-            callerAlias.append(wildcardCursor->alias);
-         }
-      }
         
       // Commit the rows to memory - multiprocess workaround
       mpFastDB->detach(0);

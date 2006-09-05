@@ -65,12 +65,9 @@ class CallerAliasDB
    /**<
     * @returns true if an alias was found for this caller, false if not
     *
-    * This first looks in the database for an exact match of identity and domain;
-    *   if this match is found, the resulting alias is returned in callerAlias.
-    * If no exact match is found, the database is then checked for a row containing
-    *   a null (empty string) identity and the domain; this is a domain wildcard entry
-    *   and it is returned in callerAlias.
-    * If neither match is found, callerAlias is set to the null string.
+    * This looks in the database for an exact match of identity and domain
+    * The caller must decide whether or not to pass a null identity for wildcards.
+    * If no match is found, callerAlias is set to the null string.
     */
 
    // Clear out all rows in the database.

@@ -112,7 +112,7 @@ SipRedirector::LookUpStatus SipRedirectorCallerAlias::lookUp(
             // start with the From header field (someday we should use the Identity if present)
             Url fromUrl;
             message.getFromUrl(fromUrl);
-            fromUrl.removeParameters(); // strip off the parameters
+            fromUrl.removeParameters(); // parameters are not relevant for this 
          
             Url::Scheme fromUrlScheme = fromUrl.getScheme();
             switch (fromUrlScheme)
@@ -138,12 +138,18 @@ SipRedirector::LookUpStatus SipRedirectorCallerAlias::lookUp(
                              );
                break;
             }
+
+            /* determine whether the identity is one for which this registrar
+             * is authoritative; if not, we will not use wildcard matches. */
+            bool identityIsLocal = SipRegistrar::getInstance()->isValidDomain(fromUrl);
+            
             // now we have callerIdentity set; use for looking up each contact.
             
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SipRedirectorCallerAlias::lookUp "
-                          "\n  caller '%s'",
-                          callerIdentity.data()
+                          "\n  caller '%s' %s",
+                          callerIdentity.data(),
+                          identityIsLocal ? "is local" : "is not local"
                           );
 
             /*
@@ -175,7 +181,12 @@ SipRedirector::LookUpStatus SipRedirectorCallerAlias::lookUp(
 
                   // look up any caller alias for this identity and contact domain
                   UtlString callerAlias;
-                  if (mpCallerAliasDB->getCallerAlias(callerIdentity, contactDomain, callerAlias))
+                  UtlString nullId; // empty string for wildcard matches
+                  if (mpCallerAliasDB->getCallerAlias(callerIdentity, contactDomain, callerAlias)
+                      || (   identityIsLocal
+                          && mpCallerAliasDB->getCallerAlias(nullId, contactDomain, callerAlias)
+                          )
+                      )
                   {
                      // found a caller alias, so add it as a header parameter to the contact
                      contactUri.setHeaderParameter(SIP_FROM_FIELD, callerAlias);

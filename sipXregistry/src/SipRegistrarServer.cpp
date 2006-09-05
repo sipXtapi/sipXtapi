@@ -144,51 +144,9 @@ SipRegistrarServer::initialize(
        mDefaultRegistryPeriod = mMinExpiresTimeint;
     }
 
-    // Domain Name
-    pOsConfigDb->get("SIP_REGISTRAR_DOMAIN_NAME", mDefaultDomain);
-    if ( mDefaultDomain.isNull() )
-    {
-       OsSocket::getHostIp(&mDefaultDomain);
-       OsSysLog::add(FAC_SIP, PRI_CRIT,
-                     "SIP_REGISTRAR_DOMAIN_NAME not configured using IP '%s'",
-                     mDefaultDomain.data()
-                     );
-    }
-    // get the url parts for the domain
-    Url defaultDomainUrl(mDefaultDomain);
-    mDefaultDomainPort = defaultDomainUrl.getHostPort();
-    defaultDomainUrl.getHostAddress(mDefaultDomainHost);
-    // make sure that the unspecified domain name is also valid
-    addValidDomain(mDefaultDomainHost, mDefaultDomainPort);
-
-    // Domain Aliases
-    //   (other domain names that this registrar accepts as valid in the request URI)
-    UtlString domainAliases;
-    pOsConfigDb->get("SIP_REGISTRAR_DOMAIN_ALIASES", domainAliases);
-    
-    UtlString aliasString;
-    int aliasIndex = 0;
-    while(NameValueTokenizer::getSubField(domainAliases.data(), aliasIndex,
-                                          ", \t", &aliasString))
-    {
-       Url aliasUrl(aliasString);
-       UtlString hostAlias;
-       aliasUrl.getHostAddress(hostAlias);
-       int port = aliasUrl.getHostPort();
-
-       addValidDomain(hostAlias,port);
-       aliasIndex++;
-    }
-
     // Authentication Realm Name
     pOsConfigDb->get("SIP_REGISTRAR_AUTHENTICATE_REALM", mRealm);
 
-    mProxyNormalPort = pOsConfigDb->getPort("SIP_REGISTRAR_PROXY_PORT");
-    if (mProxyNormalPort == PORT_DEFAULT)
-    {
-       mProxyNormalPort = SIP_PORT;
-    }
-    
     // Authentication Scheme:  NONE | DIGEST
     UtlString authenticateScheme;
     pOsConfigDb->get("SIP_REGISTRAR_AUTHENTICATE_SCHEME", authenticateScheme);
@@ -430,7 +388,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                            // a NUL.
                            temp.append("sipX");
                            temp.append("\001");
-                           temp.append(mDefaultDomain);
+                           temp.append(mRegistrar.defaultDomain());
                            temp.append("\001");
                            temp.append(toUrl.toString());
                            temp.append("\001");
@@ -447,7 +405,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                            gruuValue = new UtlString(GRUU_PREFIX);
                            gruuValue->append(hash);
                            gruuValue->append("@");
-                           gruuValue->append(mDefaultDomain);
+                           gruuValue->append(mRegistrar.defaultDomain());
                            OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                          "SipRegistrarServer::applyRegisterToDirectory "
                                          "temp = '%s' gruu = '%s'",
@@ -855,7 +813,12 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
         UtlString userKey, uri;
         SipMessage finalResponse;
 
-        if ( isValidDomain( message, finalResponse ) )
+        // Fetch the domain and port from the request URI
+        UtlString lookupDomain, requestUri;
+        message.getRequestUri( &requestUri );
+        Url reqUri(requestUri);
+
+        if ( mRegistrar.isValidDomain(reqUri) )
         {
            // get the header 'to' field from the register
            // message and construct a URL with it
@@ -879,8 +842,9 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
             * For the strict rules, set the configuration parameter
             *   SIP_REGISTRAR_PROXY_PORT : PORT_NONE
             */
-           if (   mProxyNormalPort != PORT_NONE
-               && toUrl.getHostPort() == mProxyNormalPort
+           int proxyPort = mRegistrar.domainProxyPort();
+           if (   proxyPort != PORT_NONE
+               && toUrl.getHostPort() == proxyPort
                )
            {
               toUrl.setHostPort(PORT_NONE);
@@ -1065,10 +1029,24 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                // authentication error - response data was set in isAuthorized
             }
         }
-        else   
+        else
         {
-           // Invalid domain for registration - response data was set in isValidDomain
+           // Invalid domain for registration
+           UtlString requestedDomain;
+           reqUri.getHostAddress(requestedDomain);
+
+           OsSysLog::add(FAC_AUTH, PRI_WARNING,
+                         "SipRegistrarServer::handleMessage('%s' == '%s') Invalid",
+                         requestedDomain.data(), lookupDomain.data()) ;
+
+           UtlString responseText;
+           responseText.append("Domain '");
+           responseText.append(requestedDomain);
+           responseText.append("' is not valid at this registrar");
+           finalResponse.setResponseData(&message, SIP_NOT_FOUND_CODE, responseText.data() );
         }
+
+        mSipUserAgent->setUserAgentHeader(finalResponse);
 
         if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
         {
@@ -1079,7 +1057,6 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                          "Sending final response\n%s", finalMessageStr.data());
         }
         
-        mSipUserAgent->setUserAgentHeader(finalResponse);
         mSipUserAgent->send(finalResponse);
     }
     return TRUE;
@@ -1222,73 +1199,6 @@ SipRegistrarServer::isAuthorized (
     return isAuthorized;
 }
 
-void
-SipRegistrarServer::addValidDomain(const UtlString& host, int port)
-{
-   UtlString* valid = new UtlString(host);
-   valid->toLower();
-
-   char explicitPort[20];
-   sprintf(explicitPort,":%d", PORT_NONE==port ? SIP_PORT : port );
-   valid->append(explicitPort);
-   
-   OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipRegistrarServer::addValidDomain(%s)",valid->data()) ;
-
-   mValidDomains.insert(valid);
-}
-
-UtlBoolean
-SipRegistrarServer::isValidDomain(
-    const SipMessage& message,
-    SipMessage& responseMessage )
-{
-    UtlBoolean isValid;
-   
-    // Fetch the domain and port from the request URI
-    UtlString lookupDomain, requestUri;
-    message.getRequestUri( &requestUri );
-    Url reqUri(requestUri);
-
-    reqUri.getHostAddress(lookupDomain);
-    lookupDomain.toLower();
-
-    int port = reqUri.getHostPort();
-    if (port == PORT_NONE)
-    {
-       port = SIP_PORT;
-    }
-    char portNum[15];
-    sprintf(portNum,"%d",port);
-
-    lookupDomain.append(":");
-    lookupDomain.append(portNum);
-
-    if ( mValidDomains.contains(&lookupDomain) )
-    {
-        OsSysLog::add(FAC_AUTH, PRI_DEBUG,
-                      "SipRegistrarServer::isValidDomain(%s) VALID",
-                      lookupDomain.data()) ;
-        isValid = TRUE;
-    }
-    else
-    {
-       UtlString requestedDomain;
-       reqUri.getHostAddress(requestedDomain);
-
-       OsSysLog::add(FAC_AUTH, PRI_WARNING,
-                     "SipRegistrarServer::isValidDomain('%s' == '%s') Invalid",
-                     requestedDomain.data(), lookupDomain.data()) ;
-
-       UtlString responseText;
-       responseText.append("Domain '");
-       responseText.append(requestedDomain);
-       responseText.append("' is not valid at this registrar");
-       responseMessage.setResponseData(&message, SIP_NOT_FOUND_CODE, responseText.data() );
-       isValid = FALSE;
-    }
-
-    return isValid;
-}
 
 const UtlString& SipRegistrarServer::primaryName() const
 {
@@ -1402,7 +1312,6 @@ void SipRegistrarServer::restoreDbUpdateNumber()
 
 SipRegistrarServer::~SipRegistrarServer()
 {
-   mValidDomains.destroyAll();
 }
 
 void RegisterPlugin::takeAction( const SipMessage&   registerMessage  

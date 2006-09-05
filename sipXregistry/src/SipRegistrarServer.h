@@ -22,7 +22,6 @@
 #include "os/OsLock.h"
 #include "os/OsServerTask.h"
 #include "net/SipNonceDb.h"
-#include "utl/UtlHashMap.h"
 #include "utl/PluginHooks.h"
 
 // DEFINES
@@ -135,14 +134,6 @@ protected:
     bool mUseCredentialDB;
     UtlString mRealm;
 
-    UtlString mDefaultDomain;
-    int mDefaultDomainPort;
-    UtlString mDefaultDomainHost;
-    UtlHashMap mValidDomains;
-    // A port number, which if found on an AOR to register,
-    // will be removed, or PORT_NONE
-    int mProxyNormalPort;
-    
     SipNonceDb mNonceDb;
     long mNonceExpiration;
 
@@ -187,23 +178,6 @@ protected:
      * - true if request is authenticated as user for To address
      * - false if not (responseMessage is then set up as a challenge)
      */
-
-    // Is the target of this message this domain?
-    UtlBoolean isValidDomain(const SipMessage& message,///< REGISTER message
-                             SipMessage& responseMessage /// response if not valid
-                             );
-    /**<
-     * @return
-     * - true if request is targetted to this domain
-     * - false if not (responseMessage is then set up as an error response)
-     */
-
-    /**
-     * Configure a domain as valid for registration at this server.
-     * @param host the host part of a valid registration url
-     * @param port the port number portion of a valid registration url
-     */
-    void addValidDomain(const UtlString& host, int port = PORT_NONE);
 
     /// If replication is configured, then name of this registrar as primary
     const UtlString& primaryName() const;
