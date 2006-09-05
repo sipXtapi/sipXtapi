@@ -142,8 +142,8 @@ typedef enum SPEAKER_TYPE
  * Bandwidth requirements for supported codecs:
  *
  * <pre>
- * High:     IPCMWB  ~ 80 kbps                        
- * Normal    G711U   64 kpbs                          
+ * High:     IPCMWB  ~ 80 kbps
+ * Normal:   G711U   64 kpbs
  *           G711A   64 kbps, 20 ms frame size
  *           PCMU    64 kbps
  *           PCMA    64 kbps
@@ -1822,7 +1822,9 @@ SIPXTAPI_API SIPX_RESULT sipxCallTransfer(const SIPX_CALL hSourceCall,
  * Updates the Video window with a new frame buffer.  Should be called
  * when the window receives a PAINT message.
  *
- * @param hInst Instance pointer obtained by sipxInitialize
+ * @param hCall Handle to a call.  Call handles are obtained either by 
+ *        invoking sipxCallCreate or passed to your application through
+ *        a listener interface.
  * @param hWnd Window handle of the video preview window.
  */
 SIPXTAPI_API SIPX_RESULT sipxCallUpdateVideoWindow(const SIPX_CALL hCall, const SIPX_WINDOW_HANDLE hWnd);
@@ -3207,7 +3209,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetAudioCodec(const SIPX_INST hInst,
  * VIDEO_CODEC_BW_HIGH    bitrate 400 kbps, framerate is what it was set to
  *                        with sipxConfigSetVideoParameters or 30 if not set.
  *
- * This method will return SIPX_RESULT_SUCCESS if able to set the audio codec
+ * This method will return SIPX_RESULT_SUCCESS if able to set the video codec
  * preferences.  SIPX_RESULT_FAILURE is returned if the preference is not set.
  * 
  * @param hInst Instance pointer obtained by sipxInitialize
