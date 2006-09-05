@@ -5939,15 +5939,30 @@ MailboxManager::getTimeBasedAAName ( UtlString& rName,
     time = rLocalTime(dayLength+1, timeLength-dayLength-1);
     hour = time(0, 2);
     minute = time(3, 2);
-    
+
+    int hr = atoi(hour.data()) ;
+    int currentTime = hr * 100 + atoi(minute);
+
+    // Adjust for 12 AM (0 hours), and 1-11 PM (13-23 hours), but not 12 PM
+    // (fixes XMR-72) --Woof!
     if (rLocalTime.index("PM") != UTL_NOT_FOUND)
     {
-        char temp[3];
-        sprintf(temp, "%d", atoi(hour.data()) + 12);
-        hour = temp;
+       if (hr < 12)
+       {
+          // 1-11 PM is 13-23 hours
+          currentTime += 1200 ;
+       }
+       // 12 PM (noon) is 12 hours, no change needed
     }
-    
-    int currentTime = atoi(hour) * 100 + atoi(minute);
+    else
+    {
+       // 1-11 AM, no change needed.
+       if (hr == 12) 
+       {
+          // 12 AM is midnight or 0 hours
+          currentTime -= 1200 ;
+       }
+    }
     
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                   "getTimeBasedAAName dayOfWeek = %s, day = %s, currentTime = %d",
@@ -6035,6 +6050,7 @@ MailboxManager::parseAutoAttendantSchduleFile ( UtlString& fileLocation,
         TiXmlNode * rootNode = doc.FirstChild ("schedules");
         if (rootNode != NULL)
         {
+/*
             // 3. Get individual element values.              
             //
             //<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" \
@@ -6074,6 +6090,7 @@ MailboxManager::parseAutoAttendantSchduleFile ( UtlString& fileLocation,
             //    </afterhours>\n" \
             //  </autoattendant>\n" \
             //</schedules>";
+*/
               
             TiXmlNode* aaNode = rootNode->FirstChild("autoattendant");
             if (aaNode != NULL)
