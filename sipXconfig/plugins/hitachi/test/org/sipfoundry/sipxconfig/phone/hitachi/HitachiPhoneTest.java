@@ -27,6 +27,7 @@ public class HitachiPhoneTest extends TestCase {
         // PhoneContext.CONTEXT_BEAN_NAME);
         // assertNotNull(pc.newPhone(HitachiModel.MODEL_3000));
         // assertNotNull(pc.newPhone(HitachiModel.MODEL_5000));
+        // assertNoyNull(pc.newPhone(HitachiModel.Model_5000A));
     }
 
     public void testGetFileName() throws Exception {
@@ -50,7 +51,7 @@ public class HitachiPhoneTest extends TestCase {
         expectedProfile.close();
 
         // FIXME: commented out
-        // assertEquals(expected, actualWriter.toString());
+        assertEquals(expected, actualWriter.toString());
     }
 
 }
