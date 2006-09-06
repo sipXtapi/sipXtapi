@@ -65,6 +65,8 @@ AC_CONFIG_FILES([
     meta/Makefile
     doc/Makefile
     agent/Makefile
+    plugins/Makefile
+    plugins/hitachi/Makefile
 ])
 
 AC_OUTPUT

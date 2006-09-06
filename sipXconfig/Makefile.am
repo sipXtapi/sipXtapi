@@ -17,6 +17,7 @@ SUBDIRS = \
 	web \
 	meta \
 	agent \
+	plugins \
 	$(doc_SUBDIRS)
 
 RPMS = \
