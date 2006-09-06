@@ -28,6 +28,7 @@ int pt_mutex_init(pt_mutex_t *mutex)
 
 int pt_mutex_lock(pt_mutex_t *mutex)
 {
+        int retval = 0 ;
         pthread_mutex_lock(&mutex->mutex);
         if( mutex->count && mutex->thread==pthread_self())
         {
@@ -35,47 +36,61 @@ int pt_mutex_lock(pt_mutex_t *mutex)
         }
         else
         {
-           while(mutex->count)
+           // wait for count to be 0, or error
+           while(retval == 0 && mutex->count)
            {
-              pthread_cond_wait(&mutex->cond,&mutex->mutex);
+              retval = pthread_cond_wait(&mutex->cond,&mutex->mutex);
            }
-           mutex->count=1;
-           mutex->thread=pthread_self();
+           switch ( retval )
+           {
+           case 0: // retval and count are 0, we now own the mutex
+              mutex->count=1;
+              mutex->thread=pthread_self();
+              break;
+
+           default: // all error cases
+              assert(0) ;  // something is amiss
+              /*NOTREACHED*/
+              errno = retval;
+              retval = -1;
+              break;
+           }
         }
         pthread_mutex_unlock(&mutex->mutex);
         
-        return 0;
+        return retval;
 }
 
 int pt_mutex_timedlock(pt_mutex_t *mutex,const struct timespec *timeout)
 {
-        int retval;
+        int retval = 0 ;
         pthread_mutex_lock(&mutex->mutex);
         if(mutex->count && mutex->thread==pthread_self()) // allow recursive locks
         {
                 mutex->count++;
-                retval = 0;
         }
         else
         {
-           retval = 0;
-           while(ETIMEDOUT != retval && mutex->count)
+           // wait for count to be 0, or error
+           while(0 == retval && mutex->count)
            {
               retval = pthread_cond_timedwait(&mutex->cond,&mutex->mutex,timeout);
            }
            switch ( retval )
            {
-           case 0: // we got the mutex
+           case 0: // retval and count are 0, we now own the mutex
               mutex->count=1;
               mutex->thread=pthread_self();
               break;
 
-           case ETIMEDOUT:
-              errno=EAGAIN;
+           case ETIMEDOUT:  // timed out waiting for count to be 0
+              errno = EAGAIN;
               retval = -1;
               break;
 
            default: // all error cases
+              assert(0) ;  // if something is amiss, drop core please.
+              /*NOTREACHED*/
               errno = retval;
               retval = -1;
               break;
@@ -88,18 +103,16 @@ int pt_mutex_timedlock(pt_mutex_t *mutex,const struct timespec *timeout)
 
 int pt_mutex_trylock(pt_mutex_t *mutex)
 {
-        int retval;
+        int retval = 0;
         pthread_mutex_lock(&mutex->mutex);
         if(!mutex->count)
         {
                 mutex->count=1;
                 mutex->thread=pthread_self();
-                retval = 0;
         }
         else if(mutex->thread==pthread_self())
         {
                 mutex->count++;
-                retval = 0;
         }
         else
         {

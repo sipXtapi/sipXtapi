@@ -51,6 +51,7 @@ static const char *rcsid = 0 ? (char *) &rcsid :
 
 #define VXITRD_EXPORTS
 #define SIPXCHANGE_STACK_SIZE_1M 1024*1024
+#define SIPXCHANGE_STACK_SIZE_128K 128*1024
 #include "VXItrd.h"                   // Header for this API
 
 extern "C" {
@@ -342,7 +343,7 @@ VXItrdResult VXItrdThreadCreate(VXItrdThread **thread,
   prc = pthread_attr_getstacksize(&thread_attr, &stacksize);
 
   if (prc == 0) { 
-    prc = pthread_attr_setstacksize(&thread_attr, SIPXCHANGE_STACK_SIZE_1M);
+    prc = pthread_attr_setstacksize(&thread_attr, SIPXCHANGE_STACK_SIZE_128K);
   }
 
   // Start the thread using our wrapper function

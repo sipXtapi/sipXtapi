@@ -216,11 +216,9 @@ sigHandler(int sig_num)
    // if OsSysLogTask throws a signal doing flush or add.
    if (sInSigHandler)
    {
-      // Make sure SEGV is not caught.
-      pt_signal(SIGSEGV, SIG_DFL);
-      // Die by sending a SEGV to ourself.
-      kill(getpid(), SIGSEGV);
-      // In case kill() returns an error, exit.
+      // Die by calling abort.
+      abort() ;
+      // In the unlikely case abort returns 
       exit(1);
    }
    sInSigHandler = TRUE;
@@ -237,17 +235,6 @@ sigHandler(int sig_num)
 
    // Flush the log to disk.
    OsSysLog::flush();
-
-   // If the signal is not INT or TERM, abort.
-   if (!(sig_num == SIGINT || sig_num == SIGTERM))
-   {
-      // Make sure SEGV is not caught.
-      pt_signal(SIGSEGV, SIG_DFL);
-      // Die by sending a SEGV to ourself.
-      kill(getpid(), SIGSEGV);
-      // In case kill() returns an error, exit.
-      exit(1);
-   }
 
    // Otherwise, shut down gracefully.
    gShutdownFlag = TRUE;
@@ -530,10 +517,6 @@ int main(int argc, char *argv[])
    sInSigHandler = 0;
    // Register Signal handlers
    pt_signal(SIGINT,   sigHandler);    // Trap Ctrl-C
-   pt_signal(SIGILL,   sigHandler); 
-   pt_signal(SIGABRT,  sigHandler);
-   pt_signal(SIGFPE,   sigHandler);    // Floading Point Exception
-   pt_signal(SIGSEGV,  sigHandler);    // Address access violations
    // SIGTERM is the standard Unix way to tell a process to die.
    pt_signal(SIGTERM,  sigHandler);
 #if defined(__pingtel_on_posix__)
@@ -541,12 +524,6 @@ int main(int argc, char *argv[])
    pt_signal(SIGQUIT,  sigHandler); 
    // SIGPIPE can result from TCP failure, so it has to be ignored.
    pt_signal(SIGPIPE,  SIG_IGN);
-   pt_signal(SIGBUS,   sigHandler); 
-   pt_signal(SIGSYS,   sigHandler); 
-   pt_signal(SIGXCPU,  sigHandler); 
-   pt_signal(SIGXFSZ,  sigHandler);
-   pt_signal(SIGUSR1,  sigHandler); 
-   pt_signal(SIGUSR2,  sigHandler);
 #endif
 
    char *configFile = NULL, *ptr = NULL;
@@ -1007,6 +984,10 @@ int main(int argc, char *argv[])
       delete pMedia;
       pMedia = NULL;
    }
+/*
+Don't delete userAgent, it appears that the CallManger destructor does that.
+If we delete it here, we get crashes when we CallManager tries to as well.
+
    if (userAgent)
    {
       userAgent->shutdown(FALSE);
@@ -1014,6 +995,7 @@ int main(int argc, char *argv[])
       delete userAgent;
       userAgent = NULL;
    }
+*/
    if (pCallMgr)
    {
       delete pCallMgr;
