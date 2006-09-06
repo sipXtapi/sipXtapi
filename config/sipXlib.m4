@@ -161,61 +161,16 @@ AC_DEFUN([SFAC_AUTOMAKE_VERSION],[
    AX_COMPARE_VERSION( [$1], [le], [$sf_am_version], AC_MSG_RESULT( $sf_am_version is ok), AC_MSG_ERROR( found $sf_am_version - you must upgrade automake ))
 ])
 
-AC_DEFUN([SFAC_DISTRO_CONDITIONAL],
+AC_DEFUN([SFAC_REQUIRE_LIBWWWSSL],
 [
-   distroid="${DISTRO}${DISTROVER}"
-   AC_MSG_CHECKING(Distribution specific settings for '${distroid}')
-   AM_CONDITIONAL([PLATFORM_FC4], [test "${distroid}" = "FC4"])
-   AM_CONDITIONAL([PLATFORM_FC5], [test "${distroid}" = "FC5"])
-   AM_CONDITIONAL([PLATFORM_RHE3],[test "${distroid}" = "RHE3"])
-   AM_CONDITIONAL([PLATFORM_RHE4],[test "${distroid}" = "RHE4"])
-
-   LIBWWW_RPM=w3c-libwww
-
-   case "${DISTRO}${DISTROVER}" in
-    FC4)
-      AC_MSG_RESULT()
-      ;;
-    FC5)
-      AC_MSG_RESULT()
-      ;;
-    RHE3)
-      AC_MSG_RESULT([  using sipx version of libwww])
-      LIBWWW_RPM=sipx-w3c-libwww
-      ;;
-    RHE4)
-      AC_MSG_RESULT([  using sipx version of libwww])
-      LIBWWW_RPM=sipx-w3c-libwww
-      ;;
-    *)
-      AC_MSG_WARN(Unrecognized distribution '${DISTRO}${DISTROVER}')
-      ;;
-   esac
-
-   AC_SUBST([LIBWWW_RPM])
-])
-
-## Soon to replace above macro...
-AC_DEFUN([SFAC_DISTRO_CONDITIONAL2],
-[
-   AC_ARG_VAR(LIBWWW_RPM, [Name of package that support w3c-libwww support])
-   if [ -z ${LIBWWW_RPM} ]
-   then
-       AC_MSG_CHECKING(Checking distribution version)
-       RH_DISTRO = `cat /etc/redhat-release 2> /dev/null`
-       case "$(RH_DISTRO)" in
-         CentOS release 4* | \
-         Red Hat Enterprise Linux ES release 4* | \
-         Fedora Core release 3* )
-           AC_MSG_RESULT([  using sipx version of libwww])
-           LIBWWW_RPM = sipx-w3c-libwww
-	   ;;
-         *)
-           AC_MSG_RESULT([  using distro supplied version of libwww])
-           LIBWWW_RPM = w3c-libwww
-           ;;
-       esac
-   fi
+   AC_MSG_CHECKING(W3C libwww ssl requirement)
+   AC_ARG_ENABLE(sipx-w3c-libwww-rpm,
+     AC_HELP_STRING([--enable-sipx-w3c-libwww-rpm],
+       [Forces RPM to require sipx-w3c-libwww, only required on RHE3 or RHE4]),
+       LIBWWW_RPM=sipx-w3c-libwww, 
+       LIBWWW_RPM=w3c-libwww)
+   AC_MSG_RESULT(${LIBWWW_RPM})
+   AC_SUBST(LIBWWW_RPM)
 ])
 
 ## sipXportLib 
@@ -640,6 +595,7 @@ AC_DEFUN([SFAC_DOWNLOAD_DEPENDENCIES],
   AC_SUBST(RUBY_RPM_URL, http://dev.centos.org/centos/4/testing)
   AC_SUBST(FC4_RUBY_RPM_URL, http://download.fedora.redhat.com/pub/fedora/linux/core/updates/4)
   AC_SUBST(W3C_URL, http://ftp.redhat.com/pub/redhat/linux/enterprise/4/en/os/i386)
+  AC_SUBST(W3C_SRC_URL, http://www.w3.org/Library/Distribution)
   AC_SUBST(PCRE_URL, http://umn.dl.sourceforge.net/sourceforge/pcre)
   #AC_SUBST(CPPUNIT_URL, ftp://download.fedora.redhat.com/pub/fedora/linux/extras/3/SRPMS)
   AC_SUBST(CPPUNIT_URL, http://umn.dl.sourceforge.net/sourceforge/cppunit)
