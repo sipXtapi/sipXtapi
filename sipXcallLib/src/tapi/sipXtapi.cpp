@@ -8146,6 +8146,32 @@ SIPXTAPI_API SIPX_RESULT sipxUtilUrlParse(const char* szUrl,
 }
 
 
+SIPXTAPI_API SIPX_RESULT sipxUtilUrlGetDisplayName(const char* szUrl,
+                                                   char*       szDisplayName,
+                                                   size_t      nDisplayName) 
+{
+    SIPX_RESULT rc = SIPX_RESULT_FAILURE;    
+
+    if (szUrl && strlen(szUrl))
+    {
+        Url url(szUrl) ;
+        UtlString temp ;
+
+        if (szDisplayName && nDisplayName)
+        {
+            url.getDisplayName(temp) ;
+            temp.strip(UtlString::both, '\"') ;
+            strncpy(szDisplayName, temp, nDisplayName) ;
+        }
+
+        rc = SIPX_RESULT_SUCCESS ;        
+    }
+
+    return rc ;
+}
+
+
+
 /**
  * Simple utility function to update a URL.  If the szUrl isn't large enough,
  * this function will fail.  Specify a NULL szUrl to request required length.
