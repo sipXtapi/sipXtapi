@@ -5,7 +5,7 @@ EXTRA_DIST = \
   footer.html \
   credential.xml \
   permission.xml \
-  INSTALL.ssl
+  INSTALL.ssl.in
 
 all: doc
 
@@ -39,8 +39,8 @@ install-ssl-doc: $(DESTDIR)@SIPX_DOCDIR@/INSTALL.ssl
 $(DESTDIR)@SIPX_DOCDIR@/INSTALL.ssl: $(builddir)/INSTALL.ssl
 	@INSTALL@ -m u=rw,go=r INSTALL.ssl $(DESTDIR)@SIPX_DOCDIR@/INSTALL.ssl
 
-$(builddir)/INSTALL.ssl: $(srcdir)/INSTALL.ssl
-	$(LocalizeSipXconfig) $(srcdir)/INSTALL.ssl > INSTALL.ssl
+$(builddir)/INSTALL.ssl: $(srcdir)/INSTALL.ssl.in
+	$(LocalizeSipXconfig) $(srcdir)/INSTALL.ssl.in > $(builddir)/INSTALL.ssl
 
 clean: clean-doc
 
