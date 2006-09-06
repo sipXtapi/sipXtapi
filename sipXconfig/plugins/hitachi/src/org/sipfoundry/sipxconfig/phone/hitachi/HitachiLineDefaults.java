@@ -22,7 +22,7 @@ public class HitachiLineDefaults {
         m_line = line;
     }
     
-    @SettingEntry(path = "SIP/Displayname")
+    @SettingEntry(path = "USER_ACCOUNT/Displayname")
     public String getDisplayName() {
         User u = m_line.getUser();
         if (u != null) {
@@ -31,13 +31,13 @@ public class HitachiLineDefaults {
         return m_line.getLineInfo().getUserId();
     }
 
-    @SettingEntry(path = "SIP/Phone_Number")
+    @SettingEntry(path = "USER_ACCOUNT/Phone_Number")
     public String getPhoneNumber() {
         // FIXME: we need a method that returns a numerical alias for the user
         return getUserName();
     }
         
-    @SettingEntry(path = "SIP/User_ID")
+    @SettingEntry(path = "USER_ACCOUNT/User_ID")
     public String getUserName() {
         m_line.getDisplayLabel();
         User user = m_line.getUser();
@@ -47,7 +47,7 @@ public class HitachiLineDefaults {
         return user.getUserName();        
     }
         
-    @SettingEntry(path = "SIP/User_Password")
+    @SettingEntry(path = "USER_ACCOUNT/User_Password")
     public String getSipPassword() {
         User user = m_line.getUser();
         if (user == null) {
