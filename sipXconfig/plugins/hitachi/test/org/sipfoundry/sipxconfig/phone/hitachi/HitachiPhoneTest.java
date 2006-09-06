@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.phone.hitachi;
 
 import java.io.InputStream;
 import java.io.StringWriter;
+//import java.io.FileWriter;
 
 import junit.framework.TestCase;
 
@@ -27,7 +28,7 @@ public class HitachiPhoneTest extends TestCase {
         // PhoneContext.CONTEXT_BEAN_NAME);
         // assertNotNull(pc.newPhone(HitachiModel.MODEL_3000));
         // assertNotNull(pc.newPhone(HitachiModel.MODEL_5000));
-        // assertNoyNull(pc.newPhone(HitachiModel.Model_5000A));
+        // assertNotNull(pc.newPhone(HitachiModel.Model_5000A));
     }
 
     public void testGetFileName() throws Exception {
@@ -44,14 +45,17 @@ public class HitachiPhoneTest extends TestCase {
         PhoneTestDriver.supplyTestData(phone);
 
         StringWriter actualWriter = new StringWriter();
+        //FileWriter actualWriter = new FileWriter("/tmp/actual.user.ini");
         phone.generateProfile(actualWriter);
+        //actualWriter.close();
         InputStream expectedProfile = getClass().getResourceAsStream("test.user.ini");
         assertNotNull(expectedProfile);
         String expected = IOUtils.toString(expectedProfile);
         expectedProfile.close();
 
         // FIXME: commented out - only uncomment when test is working!
-        // assertEquals(expected, actualWriter.toString());
+        assertEquals(expected, actualWriter.toString());
+
     }
 
 }

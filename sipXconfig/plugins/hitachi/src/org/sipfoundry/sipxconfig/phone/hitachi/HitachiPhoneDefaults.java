@@ -22,7 +22,9 @@ public class HitachiPhoneDefaults {
         m_defaults = defaults;
     }
 
-    @SettingEntry(paths = { "SERVER_SETTINGS/1st_Proxy", "SERVER_SETTINGS/1st_Registrar" })
+    @SettingEntry(paths = {
+            "SERVER_SETTINGS/1st_Proxy", "SERVER_SETTINGS/1st_Registrar"
+            })
     public String getDomainName() {
         return m_defaults.getFullyQualifiedDomainName();
     }
@@ -41,7 +43,6 @@ public class HitachiPhoneDefaults {
         if (tzhrs <= 0) {
             return time;
         }
-
         return '+' + time;
     }
 
