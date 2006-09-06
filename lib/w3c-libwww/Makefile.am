@@ -19,11 +19,14 @@ all : $(RPMS)
 $(SRC) :
 	$(DOWNLOAD_FILE) $@ $(W3C_SRC_URL)/`basename $@`
 
+# untar and tar to change the root path
 $(SIPX_SRC) : $(SRC)
 	rm -rf /tmp/w3c-libwww-$(VER) 2>/dev/null
 	tar -C /tmp -xzf $(SRC)
+	rm -rf /tmp/sipx-w3c-libwww-$(VER) 2>/dev/null
 	mv -f /tmp/w3c-libwww-$(VER) /tmp/sipx-w3c-libwww-$(VER)
 	tar -C /tmp -czf $@ sipx-w3c-libwww-$(VER)
+	rm -rf /tmp/sipx-w3c-libwww-$(VER)
 
 .PHONY: build-rpms
 build-rpms : $(SIPX_SRC) $(srcdir)/sipx-w3c-libwww.spec
