@@ -109,6 +109,7 @@
                         </prompt>
                         <return />
                     <else />
+                        <assign name="action" expr="'login'" />
 		        <goto nextitem="login" />
                     </if>
                 <else />
@@ -129,7 +130,8 @@
         </field>
 
 	<!-- Proceed to login menu -->
-	<subdialog name="login" method="get" src="login.vxml">
+	<subdialog name="login" cond="action=='login'" method="get" 
+          src="login.vxml">
 	    <param name="mailbox" expr="mailbox" />
 	    <param name="extn" expr="mailbox" />
 	    <param name="from" expr="from" />
