@@ -95,7 +95,7 @@ public:
 protected:
 
     /// @brief This method does the real work for the media processing resource and 
-    /// must de defined in each class derived from this one.
+    /// must be defined in each class derived from this one.
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
                                      MpBufPtr outBufs[],
                                      int inBufsSize,
