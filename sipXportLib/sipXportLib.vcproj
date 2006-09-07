@@ -1758,6 +1758,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\utl\UtlCrc32.cpp">
+			</File>
+			<File
 				RelativePath="src\utl\UtlDList.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -2537,6 +2540,9 @@
 			</File>
 			<File
 				RelativePath="include\utl\UtlContainer.h">
+			</File>
+			<File
+				RelativePath=".\include\utl\UtlCrc32.h">
 			</File>
 			<File
 				RelativePath="include\utl\UtlDefs.h">

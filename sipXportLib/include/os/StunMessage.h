@@ -26,7 +26,6 @@
 #define STUN_MAX_STRING_LENGTH              128 
 #define STUN_MAX_UNKNOWN_ATTRIBUTES         16
 #define STUN_MAX_MESSAGE_INTEGRITY_LENGTH   20
-#define STUN_FINGERPRINT_LENGTH             20  // Unstable
 #define STUN_MIN_CHAR_PAD                   4
 #define STUN_MAGIC_COOKIE                   0x2112A442
 
@@ -438,7 +437,7 @@ class StunMessage
     bool                   mbAltServerValid ;
     bool                   mbIncludeFingerPrint ;
     char                   mbFingerPrintValid ;
-    char                   mFingerPrint[STUN_FINGERPRINT_LENGTH] ;
+    unsigned long          mFingerPrint ;
     char*                  mpRawData ;
     size_t                 mnRawData ;
     bool                   mbLegacyMode ;

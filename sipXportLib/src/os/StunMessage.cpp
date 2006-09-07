@@ -26,6 +26,7 @@
 #include "os/OsDatagramSocket.h"
 #include "os/StunMessage.h"
 #include "os/TurnMessage.h"
+#include "utl/UtlCrc32.h"
 
 // EXTERNAL FUNCTIONS
 extern "C" void hmac_sha1(const char* pBlob, size_t nBlob, const char* pKey, size_t nKey, char* digest) ;
@@ -115,7 +116,7 @@ void StunMessage::reset()
     mbAltServerValid = false ;
     mbIncludeFingerPrint = !mbLegacyMode ;
     mbFingerPrintValid = false ;
-    memset(&mFingerPrint, 0, sizeof(mFingerPrint)) ;
+    mFingerPrint = 0 ;
     free(mpRawData) ;            
     mpRawData = NULL ;
     mnRawData = 0 ;
@@ -275,17 +276,16 @@ bool StunMessage::encode(char* pBuf, size_t nBufLength, size_t& nActualLength)
     // Add finger print (already made room)
     if (mbIncludeFingerPrint && !mbLegacyMode)
     {
-        int nSHA1Length = nActualLength - (sizeof(STUN_ATTRIBUTE_HEADER) + sizeof(mFingerPrint)) ;
+        int nCrcLength = nActualLength - (sizeof(STUN_ATTRIBUTE_HEADER) + sizeof(mFingerPrint)) ;
 
-        calculateHmacSha1(pBuf, nSHA1Length, NULL, 
-                STUN_MAX_MESSAGE_INTEGRITY_LENGTH, mFingerPrint) ;
+        UtlCrc32 crc32 ;
+        crc32.calc((unsigned char*) pBuf, nCrcLength) ;
 
         mbFingerPrintValid = true ;
 
         bError = !(encodeAttributeHeader(ATTR_STUN_FINGERPRINT, 
                 sizeof(mFingerPrint), pTraverse, nBytesLeft) &&
-                encodeRaw(mFingerPrint, STUN_MAX_MESSAGE_INTEGRITY_LENGTH,
-                pTraverse, nBytesLeft)) ;
+                encodeLong(crc32.getValue(), pTraverse, nBytesLeft)) ;
     }
 
     if (!bError)
@@ -935,24 +935,26 @@ bool StunMessage::isFingerPrintValid(const char* pBuf, unsigned short nBufLength
     // Make sure we have enough room to check for the finger print
     if (    pBuf && (nBufLength >= (sizeof(STUN_MESSAGE_HEADER) + 
             sizeof(STUN_ATTRIBUTE_HEADER) + 
-            STUN_FINGERPRINT_LENGTH)))
+            sizeof(unsigned long))))
     {
         // Assume this is the last parameter (required)
         const char* pLoc = pBuf + (nBufLength -
-                (sizeof(STUN_ATTRIBUTE_HEADER) + STUN_FINGERPRINT_LENGTH)) ;
+                (sizeof(STUN_ATTRIBUTE_HEADER) + sizeof(unsigned long))) ;
 
         // Make sure the attributes indicate a FingerPrint
         STUN_ATTRIBUTE_HEADER* pHeader = (STUN_ATTRIBUTE_HEADER*) pLoc ;
         if ((ntohs(pHeader->type) == ATTR_STUN_FINGERPRINT) && 
-                ntohs(pHeader->length) == STUN_FINGERPRINT_LENGTH)
-        {
-            // Make sure the attribute matches
-            char cResults[STUN_FINGERPRINT_LENGTH] ;
-            calculateHmacSha1(pBuf, pLoc-pBuf, NULL, 
-                    STUN_FINGERPRINT_LENGTH, cResults) ;
-            if (memcmp(cResults, 
-                    pLoc + sizeof(STUN_ATTRIBUTE_HEADER), 
-                    STUN_FINGERPRINT_LENGTH) == 0)
+                ntohs(pHeader->length) == sizeof(unsigned long))
+        {    
+            unsigned long fingerPrintValue = 0 ;
+            memcpy(&fingerPrintValue, 
+                    ((char*) pHeader) + sizeof(STUN_ATTRIBUTE_HEADER), 
+                    sizeof(unsigned long)) ;
+            fingerPrintValue = ntohl(fingerPrintValue) ;
+            
+            UtlCrc32 crc32 ;
+            crc32.calc((unsigned char*) pBuf, pLoc-pBuf) ;
+            if (crc32.getValue() == fingerPrintValue)
             {
                 bValid = true ;
             }
@@ -1286,7 +1288,7 @@ bool StunMessage::parseAttribute(STUN_ATTRIBUTE_HEADER* pHeader, char* pBuf)
             mbMessageIntegrityValid = bValid ;
             break ;
         case ATTR_STUN_FINGERPRINT:
-            bValid = parseRawAttribute(pBuf, pHeader->length, mFingerPrint, sizeof(mFingerPrint)) ;
+            bValid = parseLongAttribute(pBuf, pHeader->length, &mFingerPrint) ;
             mbFingerPrintValid = bValid ;
             break ;
         case ATTR_STUN_ERROR_CODE:
