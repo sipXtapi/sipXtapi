@@ -2,12 +2,12 @@ Name: @PACKAGE@
 Version: @VERSION@
 Release: %{buildno}
 
-Summary: Configuration Managment for SIP base Phones
-License: LGPL
-Group: Productivity/Telephony/SIP/Servers
-Vendor: SIPfoundry
-Packager: SIPfoundry <sipx-dev@sipfoundry.org>
-Url: http://www.sipfoundry.org/sipXconfig
+Summary:  Configuration Managment for SIP base Phones
+License:  Pingtel Commercial License
+Group:    Productivity/Telephony/SIP/Servers
+Vendor:   Pingtel Corp.
+Packager: Pingtel <support@pingtel.com>
+Url:      http://www.pingtel.com
 
 %define sipxpbxlog %{_localstatedir}/log/sipxpbx
 %define sipxpbxrun %{_localstatedir}/run/sipxpbx
@@ -107,7 +107,7 @@ rm -rf $RPM_BUILD_ROOT
 # WARNING: Do use @ SIPX_CONFDIR @ because prefix used and 'make dist'
 # typically does not RPM's prefix
 
-%doc CONTRIBUTORS LICENSE INSTALL README NEWS TODO ChangeLog %name.configlog
+%doc CONTRIBUTORS INSTALL README NEWS TODO ChangeLog %name.configlog
 %attr(755,root,root) %{_bindir}
 
 # Because of generation of data and profiles
@@ -169,7 +169,7 @@ sed /etc/xinetd.d/tftp -i -e 's|^\W*disable\W*=\W*yes\W*$|disable = no|' -e 's|\
 
 %post ftp
 
-if ! id -u plcmspip > /dev/null 2>&1
+if ! id -u PlcmSpIp > /dev/null 2>&1
 then
   # default user account polycom phones use
   /usr/sbin/adduser -d %{phonedir}/profile/tftproot \
@@ -199,11 +199,12 @@ chmod 600 %{vsftpd_conf}
 /sbin/chkconfig vsftpd on >/dev/null
 /sbin/service vsftpd start >/dev/null
 
-%postun ftp
-/usr/sbin/userdel plcmspip
-if [ -e %{vsftpd_conf}.sipx-orig ]
-then
-  mv %{vsftpd_conf}.sipx-orig %{vsftpd_conf}
-  service vsftpd restart
+%preun ftp
+if [ "$1" = "0" ] ; then
+  /usr/sbin/userdel PlcmSpIp
+  if [ -e %{vsftpd_conf}.sipx-orig ]
+  then
+    mv %{vsftpd_conf}.sipx-orig %{vsftpd_conf}
+    service vsftpd restart
+  fi
 fi
-# leave ftp server, not standard practice to remove dependencies
