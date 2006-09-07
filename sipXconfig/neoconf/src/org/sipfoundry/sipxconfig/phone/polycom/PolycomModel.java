@@ -41,6 +41,10 @@ public final class PolycomModel extends PhoneModel {
     public static final PolycomModel MODEL_600 = new PolycomModel("600",
             "Polycom SoundPoint IP 600/601", 12);
 
+    /** wideband phone, 6 normally but 12 lines if expansion module installed, only runs 2.0 firmware */
+    public static final PolycomModel MODEL_650 = new PolycomModel("650",
+            "Polycom SoundPoint IP 650", 12);
+
     /** conference phone, verify num lines */
     public static final PolycomModel MODEL_4000 = new PolycomModel("4000",
             "Polycom SoundPoint IP 4000", 1);
