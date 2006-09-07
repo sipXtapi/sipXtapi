@@ -30,6 +30,9 @@ extern bool g_bCallbackCalled;
 extern SIPX_INST g_hInstInfo;
 extern SIPX_CALL ghCallHangup;
 
+// Do not check in with print enabled
+//#define TEST_PRINT
+
 void sipXtapiTestSuite::testCallMakeAPI()
 {
     for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
@@ -144,11 +147,20 @@ void sipXtapiTestSuite::testCallGetRemoteID()
         CPPUNIT_ASSERT(bRC) ;
 
         createCall(&hLine, &hCall) ;
+#ifdef TEST_PRINT
+        UtlString callDumpString;
+        sipxCallDataToString(hCall, callDumpString);
+        printf("testCallGetRemoteID createCall:\n %s\n", callDumpString.data());
+#endif
+
         bRC = validatorCalling.waitForLineEvent(hLine, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL, true) ;
         CPPUNIT_ASSERT(bRC) ;
 
         sipxCallConnect(hCall, "sip:foo@127.0.0.1:9100") ;
-        
+#ifdef TEST_PRINT
+        sipxCallDataToString(hCall, callDumpString);
+        printf("testCallGetRemoteID sipxCallConnect:\n %s\n", callDumpString.data());
+#endif
 
         // Validate Calling Side
         bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_DIALTONE, CALLSTATE_DIALTONE_UNKNOWN, true) ;
@@ -173,6 +185,11 @@ void sipXtapiTestSuite::testCallGetRemoteID()
         CPPUNIT_ASSERT(bRC) ;
         bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_START, true) ;
         CPPUNIT_ASSERT(bRC) ;
+
+#ifdef TEST_PRINT
+        sipxCallDataToString(hCall, callDumpString);
+        printf("testCallGetRemoteID steady state call setup:\n %s\n", callDumpString.data());
+#endif
 
         // Test sipxCallGetRemoteID
         char cBuf[128] ;

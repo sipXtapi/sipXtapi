@@ -1,10 +1,16 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
+// 
+// Copyright (C) 2005, 2006 SIPez LLC
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
+// Copyright (C) 2005, 2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+//////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -305,6 +311,8 @@ UtlBoolean sipxCallSetState(SIPX_CALL hCall,
             case CALLSTATE_NEWCALL:
                 break ;
             case CALLSTATE_DIALTONE:
+                pData->state = SIPX_INTERNAL_CALLSTATE_OUTBOUND_IDLE;
+                break ;
             case CALLSTATE_REMOTE_OFFERING:
             case CALLSTATE_REMOTE_ALERTING:
                 pData->state = SIPX_INTERNAL_CALLSTATE_OUTBOUND_ATTEMPT ;
@@ -1520,4 +1528,342 @@ UtlBoolean sipxCallIsRemoveInsteadOfDropSet(SIPX_CALL hCall)
     return bShouldRemove ;
 }
 
+void internalCallStateToString(SIPX_INTERNAL_CALLSTATE internalCallState, UtlString& stateString)
+{
+    switch (internalCallState)
+    {
+    case SIPX_INTERNAL_CALLSTATE_UNKNOWN:
+        stateString = "SIPX_INTERNAL_CALLSTATE_UNKNOWN";
+        break;
 
+    case SIPX_INTERNAL_CALLSTATE_OUTBOUND_IDLE:
+        stateString = "SIPX_INTERNAL_CALLSTATE_OUTBOUND_IDLE";
+        break;
+
+    case SIPX_INTERNAL_CALLSTATE_OUTBOUND_ATTEMPT:
+        stateString = "SIPX_INTERNAL_CALLSTATE_OUTBOUND_ATTEMPT";
+        break;
+
+    case SIPX_INTERNAL_CALLSTATE_INBOUND_ATEMPT:
+        stateString = "SIPX_INTERNAL_CALLSTATE_INBOUND_ATEMPT";
+        break;
+
+    case SIPX_INTERNAL_CALLSTATE_CONNECTED:
+        stateString = "SIPX_INTERNAL_CALLSTATE_CONNECTED";
+        break;
+
+    case SIPX_INTERNAL_CALLSTATE_HELD:
+        stateString = "SIPX_INTERNAL_CALLSTATE_HELD";
+        break;
+
+    case SIPX_INTERNAL_CALLSTATE_BRIDGED:
+        stateString = "SIPX_INTERNAL_CALLSTATE_BRIDGED";
+        break;
+
+    case SIPX_INTERNAL_CALLSTATE_DISCONNECTED:
+        stateString = "SIPX_INTERNAL_CALLSTATE_DISCONNECTED";
+
+    default:
+        {
+            char numBuff[30];
+            sprintf(numBuff, "unknown(%d)", internalCallState);
+            stateString = numBuff;
+        }
+        break;
+    }
+}
+
+void conferenceHoldStateToString(CONF_HOLD_STATE holdState, UtlString& holdStateString)
+{
+    switch(holdState)
+    {
+    case CONF_STATE_UNHELD:
+        holdStateString = "CONF_STATE_UNHELD";
+        break;
+
+    case CONF_STATE_BRIDGING_HOLD:
+        holdStateString = "CONF_STATE_BRIDGING_HOLD";
+        break;
+
+    case CONF_STATE_NON_BRIDGING_HOLD:
+        holdStateString = "CONF_STATE_NON_BRIDGING_HOLD";
+        break;
+
+    default:
+        {
+            char numBuff[30];
+            sprintf(numBuff, "unknown(%d)", holdState);
+            holdStateString = numBuff;
+        }
+        break;
+    }
+}
+
+SIPX_RESULT sipxCallDataToString(SIPX_CALL hCall, UtlString& serializedDump) 
+{
+    SIPX_RESULT resultCode = SIPX_RESULT_FAILURE;
+
+    SIPX_CALL_DATA* pCallData = sipxCallLookup(hCall, SIPX_LOCK_READ);
+    if (pCallData)
+    {
+        SipxCallData_toString(pCallData, serializedDump);
+       
+        resultCode = SIPX_RESULT_SUCCESS;
+
+        sipxCallReleaseLock(pCallData, SIPX_LOCK_READ);
+    }
+
+    return resultCode;
+}
+
+SIPX_RESULT sipxConfDataToString(SIPX_CONF hConf, UtlString& serializedDump)
+{
+    SIPX_RESULT resultCode = SIPX_RESULT_FAILURE;
+
+    SIPX_CONF_DATA* pConfData = sipxConfLookup(hConf, SIPX_LOCK_READ);
+    if(pConfData)
+    {
+        SipxConfData_toString(pConfData, serializedDump);
+       
+        resultCode = SIPX_RESULT_SUCCESS;
+
+        sipxConfReleaseLock(pConfData, SIPX_LOCK_READ);
+    }
+
+    return resultCode;
+}
+
+/* ============================ SIPX_CALL_DATA FUNCTIONS ================================= */
+// Would like to migrate SIPX_CALL_DATA to a full fledged class.  The following
+// are the beginnings of what should be methods for SIPX_CALL_DATA.
+
+void SipxCallData_toString(const SIPX_CALL_DATA* pCallData, UtlString& serializedDump)
+{
+    if(pCallData)
+    {
+        char numBuff[20];
+        sprintf(numBuff, "%p", pCallData);
+
+        serializedDump = "SipxCallData(";
+        serializedDump.append(numBuff);
+
+        // callId
+        serializedDump.append(")\n{\n\tcallId=");
+        if(pCallData->callId)
+        {
+            serializedDump.append("\"");
+            serializedDump.append(*pCallData->callId);
+            serializedDump.append("\"");
+        }
+        else
+        {
+            serializedDump.append("<null>");
+        }
+
+        // sessionCallId
+        serializedDump.append("\n\tsessionCallId=");
+        if(pCallData->sessionCallId)
+        {
+            serializedDump.append("\"");
+            serializedDump.append(*pCallData->sessionCallId);
+            serializedDump.append("\"");
+        }
+        else
+        {
+            serializedDump.append("<null>");
+        }
+
+        // ghostCallId
+        serializedDump.append("\n\tghostCallId=");
+        if(pCallData->ghostCallId)
+        {
+            serializedDump.append("\"");
+            serializedDump.append(*pCallData->ghostCallId);
+            serializedDump.append("\"");
+        }
+        else
+        {
+            serializedDump.append("<null>");
+        }
+
+        // remoteAddress
+        serializedDump.append("\n\tremoteAddress=");
+        if(pCallData->remoteAddress)
+        {
+            serializedDump.append("\"");
+            serializedDump.append(*pCallData->remoteAddress);
+            serializedDump.append("\"");
+        }
+        else
+        {
+            serializedDump.append("<null>");
+        }
+
+        // lineURI
+        serializedDump.append("\n\tlineURI=");
+        if(pCallData->lineURI)
+        {
+            serializedDump.append("\"");
+            serializedDump.append(*pCallData->lineURI);
+            serializedDump.append("\"");
+        }
+        else
+        {
+            serializedDump.append("<null>");
+        }
+
+        // hLine
+        serializedDump.append("\n\thLine=");
+        sprintf(numBuff, "%d", pCallData->hLine);
+        serializedDump.append(numBuff);
+
+        // pInst
+        serializedDump.append("\n\tpInst=");
+        sprintf(numBuff, "%p", pCallData->pInst);
+        serializedDump.append(numBuff);
+
+        // pMutex
+        serializedDump.append("\n\tpMutex=");
+        sprintf(numBuff, "%p", pCallData->pMutex);
+        serializedDump.append(numBuff);
+
+        // hConf
+        serializedDump.append("\n\thConf=");
+        sprintf(numBuff, "%d", pCallData->hConf);
+        serializedDump.append(numBuff);
+
+        // display
+        serializedDump.append("\n\tdisplay=");
+        sprintf(numBuff, "%p", pCallData->display);
+        serializedDump.append(numBuff);
+
+        // bRemoveInsteadOfDrop
+        serializedDump.append("\n\tbRemoveInsteadOfDrop=");
+        if(pCallData->bRemoveInsteadOfDrop == TRUE)
+        {
+            serializedDump.append("TRUE");
+        }
+        else if(pCallData->bRemoveInsteadOfDrop == FALSE)
+        {
+            serializedDump.append("FALSE");
+        }
+        else
+        {
+            sprintf(numBuff, "%p", pCallData->bRemoveInsteadOfDrop);
+            serializedDump.append(numBuff);
+        }
+
+        // lastCallstateEvent
+        serializedDump.append("\n\tlastCallstateEvent=");
+        //serializedDump.append(MajorEventToString((SIPX_CALLSTATE_MAJOR)pCallData->lastCallstateEvent));
+        // cannot currently call string method as it is static.  So do it the
+        // crude way for now
+        sprintf(numBuff, "%d", pCallData->lastCallstateEvent);
+        serializedDump.append(numBuff);
+
+        // lastCallstateCause
+        serializedDump.append("\n\tlastCallstateCause=");
+        //serializedDump.append(MinorEventToString((SIPX_CALLSTATE_MINOR)pCallData->lastCallstateCause));
+        // cannot currently call string method as it is static.  So do it the
+        // crude way for now
+        sprintf(numBuff, "%d", pCallData->lastCallstateCause);
+        serializedDump.append(numBuff);
+
+        // state
+        serializedDump.append("\n\tstate=");
+        UtlString stateString;
+        internalCallStateToString(pCallData->state, stateString);
+        serializedDump.append(stateString);
+
+        // bInFocus
+        serializedDump.append("\n\tbInFocus=");
+        if(pCallData->bInFocus == TRUE)
+        {
+            serializedDump.append("TRUE");
+        }
+        else if(pCallData->bInFocus == FALSE)
+        {
+            serializedDump.append("FALSE");
+        }
+        else
+        {
+            sprintf(numBuff, "%p", pCallData->bInFocus);
+            serializedDump.append(numBuff);
+        }
+
+        serializedDump.append("\n}");
+    }
+    else
+    {
+        serializedDump = "SipxCallData(null)";
+    }
+}
+
+/* ============================ SIPX_CONF_DATA FUNCTIONS ================================= */
+// Would like to migrate SIPX_CONF_DATA to a full fledged class.  The following
+// are the beginnings of what should be methods for SIPX_CONF_DATA.
+
+void SipxConfData_toString(const SIPX_CONF_DATA* pConfData, UtlString& serializedDump)
+{
+    if(pConfData)
+    {
+        char numBuff[20];
+        sprintf(numBuff, "%p", pConfData);
+        serializedDump = "SipxConfData(";
+        serializedDump.append(numBuff);
+
+        // callId
+        serializedDump.append(")\n{\n\tstrCallId=");
+        if(pConfData->strCallId)
+        {
+            serializedDump.append("\"");
+            serializedDump.append(*pConfData->strCallId);
+            serializedDump.append("\"");
+        }
+        else
+        {
+            serializedDump.append("<null>");
+        }
+
+        // pInst
+        serializedDump.append("\n\tpInst=");
+        sprintf(numBuff, "%p", pConfData->pInst);
+        serializedDump.append(numBuff);
+
+        // nCalls
+        serializedDump.append("\n\tnCalls=");
+        sprintf(numBuff, "%d", pConfData->nCalls);
+        serializedDump.append(numBuff);
+
+        // hCalls
+        serializedDump.append("\n\thCalls={");
+        for(unsigned int callIndex = 0; callIndex < pConfData->nCalls; callIndex++)
+        {
+            if(callIndex > 0)
+            {
+                serializedDump.append(", ");
+            }
+            sprintf(numBuff, "%d", pConfData->hCalls[callIndex]);
+            serializedDump.append(numBuff);
+        }
+        serializedDump.append("}");
+
+        // confHoldState
+        UtlString holdStateString;
+        conferenceHoldStateToString(pConfData->confHoldState, holdStateString);
+        serializedDump.append("\n\tconfHoldState=");
+        serializedDump.append(holdStateString);
+
+        // pMutex
+        serializedDump.append("\n\tpMutex=");
+        sprintf(numBuff, "%p", pConfData->pMutex);
+        serializedDump.append(numBuff);
+
+        serializedDump.append("\n}");
+    }
+
+    else
+    {
+        serializedDump = "SipxCallData(null)";
+    }
+}
