@@ -173,7 +173,7 @@ AC_DEFUN([CHECK_JDK],
 
     TRY_JAVA_HOME=`ls -dr /usr/java/* 2> /dev/null | head -n 1`
     for dir in $JAVA_HOME $JDK_HOME /usr/lib/jvm/java /usr/local/jdk /usr/local/java $TRY_JAVA_HOME; do
-        AC_PATH_PROG(jar, dt.jar, ,$dir/lib)
+        AC_CHECK_FILE([$dir/lib/dt.jar],[jar=$dir/lib/dt.jar])
         if test x$jar != x; then
             found_jdk="yes";
             JAVA_HOME=$dir
