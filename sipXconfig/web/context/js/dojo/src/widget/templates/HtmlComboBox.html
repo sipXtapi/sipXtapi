@@ -7,12 +7,11 @@
 		cellpadding="0"
 		cellmargin="0"
 		border="0"
-		dojoAttachPoint="cbTableNode"
-		dojoAttachEvent="onClick: killEvent;">
+		dojoAttachPoint="cbTableNode">
 		<tr valign="top">
 			<td width=100%>
-				<input type="text" class="comboBoxInput"
-					dojoAttachEvent="keyDown: onKeyDown; keyUp: onKeyUp;"
+				<input type="text" autocomplete="off" class="dojoComboBoxInput"
+					dojoAttachEvent="keyDown: onKeyDown; keyUp: onKeyUp; keyPress: onKeyPress;"
 					dojoAttachPoint="textInputNode"
 					style="width: 100%;">
 			</td>
@@ -27,8 +26,9 @@
 		</tr>
 	</table>
 	<div dojoAttachPoint="optionsListWrapper" style="position:relative;" tabindex="-1">
-		<div class="comboBoxOptions" dojoAttachPoint="optionsListNode"
-			dojoAttachEvent="onClick: selectOption" style="display:none;" tabindex="-1">
+		<div class="dojoComboBoxOptions" dojoAttachPoint="optionsListNode"
+			dojoAttachEvent="onClick: selectOption;  onMouseOver: _onMouseOver; onMouseOut: _onMouseOut;"
+			style="display:none;" tabindex="-1">
 		</div>
 	</div>
 </div>

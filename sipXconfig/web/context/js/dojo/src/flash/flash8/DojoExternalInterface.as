@@ -1,3 +1,13 @@
+/*
+	Copyright (c) 2004-2006, The Dojo Foundation
+	All Rights Reserved.
+
+	Licensed under the Academic Free License version 2.1 or above OR the
+	modified BSD license. For more information on Dojo licensing, see:
+
+		http://dojotoolkit.org/community/licensing.shtml
+*/
+
 /**
 	A wrapper around Flash 8's ExternalInterface; DojoExternalInterface is needed so that we
 	can do a Flash 6 implementation of ExternalInterface, and be able
@@ -17,6 +27,7 @@ import flash.external.ExternalInterface;
 
 class DojoExternalInterface{
 	public static var available:Boolean;
+	public static var dojoPath = "";
 	
 	private static var flashMethods:Array = new Array();
 	private static var numArgs:Number;
@@ -24,6 +35,9 @@ class DojoExternalInterface{
 	private static var resultData = null;
 	
 	public static function initialize(){
+		// extract the dojo base path
+		DojoExternalInterface.dojoPath = DojoExternalInterface.getDojoPath();
+		
 		// see if we need to do an express install
 		var install:ExpressInstall = new ExpressInstall();
 		if(install.needsUpdate){
@@ -61,7 +75,7 @@ class DojoExternalInterface{
 	}
 	
 	public static function call(methodName:String,
-															resultsCallback:Function) : Void{
+								resultsCallback:Function) : Void{
 		// we might have any number of optional arguments, so we have to 
 		// pass them in dynamically; strip out the results callback
 		var parameters = new Array();
@@ -113,7 +127,6 @@ class DojoExternalInterface{
 	}
 	
 	public static function exec(methodName):Void{
-		//getURL("javascript:alert('test')");
 		// decode all of the arguments that were passed in
 		for(var i = 0; i < DojoExternalInterface.argData.length; i++){
 			DojoExternalInterface.argData[i] = 
@@ -204,6 +217,17 @@ class DojoExternalInterface{
 		var splitStr = inputStr.split(replaceThis)
 		inputStr = splitStr.join(withThis)
 		return inputStr;
+	}
+	
+	private static function getDojoPath(){
+		var url = _root._url;
+		var start = url.indexOf("baseRelativePath=") + "baseRelativePath=".length;
+		var path = url.substring(start);
+		var end = path.indexOf("&");
+		if(end != -1){
+			path = path.substring(0, end);
+		}
+		return path;
 	}
 }
 
