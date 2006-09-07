@@ -51,13 +51,12 @@ void ConvertUnsigned8ToSigned16(unsigned char *in_buffer, MpAudioSample *out_buf
 
 int gcd(int a, int b)
 {
-   int c = b;
    if(b > a)
       return gcd(b, a);
    /* a >= b */
-   while(c)
+   while(b)
    {
-      c = a % b;
+      int c = a % b;
       a = b;
       b = c;
    }
