@@ -10,7 +10,7 @@ recurse:
 	target="$(TARGETS)`echo $@ | sed -e s/recurse//`"; \
 	list='$(PROJECTS)'; for subdir in $$list; do \
 	  echo "Making $$target in $$subdir"; \
-	  (cd $$subdir && $(MAKE) $$MAKEFLAGS $$target) \
+	  (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) $$target) \
 	  || eval $$failcom; \
 	done;
 

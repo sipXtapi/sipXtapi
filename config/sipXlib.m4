@@ -94,6 +94,9 @@ AC_DEFUN([SFAC_INIT_FLAGS],
                  [  --enable-buildnumber    enable build number as part of RPM name],
                  enable_buildnumber=yes)
 
+    AC_ARG_VAR(SIPXPBX_LABEL, [Label for sipxpbx, default is 'sipxpbx'])
+    test -z $SIPXPBX_LABEL && SIPXPBX_LABEL=sipxpbx
+
     # Enable profiling via gprof
     ENABLE_PROFILE
 

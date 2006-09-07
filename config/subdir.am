@@ -2,6 +2,7 @@
 LocalizeSipXconfig = sed \
 		  -e 's,@PACKAGE\@,@PACKAGE@,g' \
 		  -e 's,@VERSION\@,@VERSION@,g' \
+		  -e 's,@RELEASE\@,$(RELEASE),g' \
 		  -e 's,@abs_builddir\@,@abs_builddir@,g' \
 		  -e 's,@abs_srcdir\@,@abs_srcdir@,g' \
 		  -e 's,@abs_top_srcdir\@,@abs_top_srcdir@,g' \
@@ -50,12 +51,12 @@ LocalizeSipXconfig = sed \
 		  -e 's,@SIPX_UPGRADEDIR\@,@SIPX_UPGRADEDIR@,g' \
 		  -e 's,@SIPX_VXMLDATADIR\@,@SIPX_VXMLDATADIR@,g' \
 		  -e 's,@SIPX_PARKMUSICDIR\@,@SIPX_PARKMUSICDIR@,g' \
-		  -e 's,@SPRING_HOME\@,@SPRING_HOME@,g' \
 		  -e 's,@XPRESSA_BUILD_NUMBER\@,@XPRESSA_BUILD_NUMBER@,g' \
 		  -e 's,@XPRESSA_BUILD_COMMENT\@,@XPRESSA_BUILD_COMMENT@,g' \
 		  -e 's,@SIPXPHONELIB\@,@SIPXPHONELIB@,g' \
 		  -e 's,@SIPXPHONEDATA\@,@SIPXPHONEDATA@,g' \
 		  -e 's,@SIPXPHONECONF\@,@SIPXPHONECONF@,g' \
+		  -e 's,@SIPXPBX_LABEL\@,@SIPXPBX_LABEL@,g' \
 		  -e 's,@NAMED_PROGRAM\@,@NAMED_PROGRAM@,g' \
 		  -e 's,@SELINUX_GETENFORCE\@,@SELINUX_GETENFORCE@,g' \
 		  -e 's,@LIBWWW_RPM\@,@LIBWWW_RPM@,g'

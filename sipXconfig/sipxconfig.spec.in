@@ -174,7 +174,7 @@ then
   # default user account polycom phones use
   /usr/sbin/adduser -d %{phonedir}/profile/tftproot \
     -s /sbin/nologin -M PlcmSpIp >/dev/null
-  echo -e "PlcmSpIp" | sudo passwd --stdin plcmspip >/dev/null
+  echo -e "PlcmSpIp" | sudo passwd --stdin PlcmSpIp >/dev/null
 fi
 
 # 'install' ftpd config file

@@ -29,9 +29,6 @@ EXTRA_DIST = \
     config/sipX-config.in \
     config/sipX-buildstamp.cpp.in \
     config/sipX-buildstamp.h.in \
-    config/project.am \
-    config/subdir.am \
-    ant-targets.am \
     ant-targets.xml \
     build.xml \
     dependencies.xml \

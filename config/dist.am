@@ -14,6 +14,9 @@ RPM_INSTALL_FLAGS = --upgrade --nodeps --quiet --noscripts --notriggers --verbos
 install-rpms :
 	$(SUDO) rpm $(RPM_INSTALL_FLAGS) $(RPMS)
 
+uninstall-rpms :
+	$(SUDO) rpm -e $(shell rpm -qp $(RPMS))
+
 list-rpms :
 	@echo $(RPMS)
 
