@@ -26,6 +26,7 @@ testsuite_CXXFLAGS = \
 #             any test that uses any UtlContainer.
 testsuite_SOURCES = \
     utl/UtlChainTest.cpp \
+    utl/UtlCrc32Test.cpp \
     utl/UtlLinkTest.cpp \
     utl/UtlContainableTestStub.cpp \
     utl/UtlContainableTestStub.h \
