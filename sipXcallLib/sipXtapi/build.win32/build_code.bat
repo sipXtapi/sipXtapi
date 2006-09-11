@@ -23,5 +23,7 @@ GOTO DONE
 ECHO .
 ECHO *** %0 Error detected, aborting ... ***
 ECHO .
+exit /b 1
 
 :DONE
+exit /b 0

@@ -3691,6 +3691,13 @@ SIPXTAPI_API SIPX_RESULT sipxUtilUrlParse(const char* szUrl,
                                           int*  iPort) ;
 
 /**
+ * Simple utility function to parse the display name from a SIP URL.
+ */
+SIPXTAPI_API SIPX_RESULT sipxUtilUrlGetDisplayName(const char* szUrl,
+                                                   char*       szDisplayName,
+                                                   size_t      nDisplayName) ;
+
+/**
  * Simple utility function to update a URL.  If the szUrl isn't large enough,
  * or is NULL, this function will fail, however, the nUrl will contained the 
  * required size in bytes.
