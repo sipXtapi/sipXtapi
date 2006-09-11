@@ -16,10 +16,13 @@
 static int hsVolMax = DEF_HSVOLMAX;
 static int hsVolStep = DEF_HSVOLSTEP;
 
-// TODO
-// The rest of this file is really two independent platform-specific
-// implementations of the MpCodec module.  These should be broken out into
-// separate files.
+/**
+*  @file MpCodec.cpp
+*
+*  @TODO The rest of this file is really two independent platform-specific
+*  implementations of the MpCodec module.  These should be broken out into
+*  separate files.
+*/
 
 #if defined(_WIN32) /* [ */
 
@@ -70,8 +73,8 @@ OsStatus MpCodec_setGain(int level)
 		   }
 		   
 		   // Find a volume control, if any, of the microphone line
-		   LPMIXERCONTROL pmxctrl = (LPMIXERCONTROL)calloc(1, sizeof MIXERCONTROL);
-		   MIXERLINECONTROLS mxlctrl = {sizeof mxlctrl, mxl.dwLineID, MIXERCONTROL_CONTROLTYPE_VOLUME, 1, sizeof MIXERCONTROL, pmxctrl};
+		   LPMIXERCONTROL pmxctrl = (LPMIXERCONTROL)calloc(1, sizeof(MIXERCONTROL));
+		   MIXERLINECONTROLS mxlctrl = {sizeof(mxlctrl), mxl.dwLineID, MIXERCONTROL_CONTROLTYPE_VOLUME, 1, sizeof(MIXERCONTROL), pmxctrl};
 		   
 		   if(!mixerGetLineControls((HMIXEROBJ) hmx, &mxlctrl, MIXER_GETLINECONTROLSF_ONEBYTYPE))
 		   {
@@ -81,10 +84,10 @@ OsStatus MpCodec_setGain(int level)
 				 cChannels = 1;
 
 			  LPMIXERCONTROLDETAILS_UNSIGNED pUnsigned =
-			  (LPMIXERCONTROLDETAILS_UNSIGNED)  malloc(cChannels * sizeof MIXERCONTROLDETAILS_UNSIGNED);
+			  (LPMIXERCONTROLDETAILS_UNSIGNED)  malloc(cChannels * sizeof(MIXERCONTROLDETAILS_UNSIGNED));
 		      
 			  MIXERCONTROLDETAILS mxcd = {sizeof(mxcd), pmxctrl->dwControlID, cChannels, (HWND)0, 
-				 sizeof MIXERCONTROLDETAILS_UNSIGNED, (LPVOID) pUnsigned};
+				 sizeof(MIXERCONTROLDETAILS_UNSIGNED), (LPVOID) pUnsigned};
 			  mixerGetControlDetails((HMIXEROBJ)hmx, &mxcd, MIXER_SETCONTROLDETAILSF_VALUE);
 
 			  // Set the volume to the the level  (for both channels as needed)
