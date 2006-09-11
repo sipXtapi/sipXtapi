@@ -91,7 +91,11 @@ OsStatus MpCodec_setGain(int level)
 			  mixerGetControlDetails((HMIXEROBJ)hmx, &mxcd, MIXER_SETCONTROLDETAILSF_VALUE);
 
 			  // Set the volume to the the level  (for both channels as needed)
-			  pUnsigned[0].dwValue = pUnsigned[cChannels - 1].dwValue = (DWORD)((float)pmxctrl->Bounds.dwMinimum+(float)pmxctrl->Bounds.dwMaximum) * ( (float)((float)level-1.0f) / 9.0f )  ;
+              pUnsigned[0].dwValue 
+                 = pUnsigned[cChannels - 1].dwValue
+                 = pmxctrl->Bounds.dwMinimum
+                   + (DWORD)((double)(level - MIC_GAIN_MIN) / (MIC_GAIN_MAX - MIC_GAIN_MIN)
+                     * (pmxctrl->Bounds.dwMaximum - pmxctrl->Bounds.dwMinimum));
 			  mixerSetControlDetails((HMIXEROBJ)hmx, &mxcd, MIXER_SETCONTROLDETAILSF_VALUE);
 
 			  free(pmxctrl);

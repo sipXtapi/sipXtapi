@@ -65,7 +65,7 @@
 #define CODEC_G711_PCMA         "257"   /**< ID for PCMA vocodec*/
 #define CODEC_DTMF_RFC2833      "128"   /**< ID for RFC2833 DMTF (out of band DTMF codec) */
 
-#define GAIN_MIN                1       /**< Min acceptable gain value */
+#define GAIN_MIN                0       /**< Min acceptable gain value. This gain will mute mic. */
 #define GAIN_MAX                100     /**< Max acceptable gain value */
 #define GAIN_DEFAULT            70      /**< Nominal gain value */
 

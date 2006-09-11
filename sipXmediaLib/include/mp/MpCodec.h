@@ -11,8 +11,8 @@
 #ifndef _INCLUDED_MPCODEC_H /* [ */
 #define _INCLUDED_MPCODEC_H
 
-#include <mp/MpMisc.h>
 #include <os/OsStatus.h>
+#include <utl/UtlBool.h>
 /*************************************************************************/
 
 /* MCP/Codec interface: */
@@ -65,6 +65,8 @@ extern void setCodecIO(int options);
 
 #define START_GAIN 25
 #define START_VOLUME 60
+#define MIC_GAIN_MIN 0    ///< Minimal microphone gain. This gain will mute mic.
+#define MIC_GAIN_MAX 100  ///< Maximal microphone gain.
 
 #define SPEAKER_VOLUME_LEVELS                10
 
@@ -72,10 +74,10 @@ extern OsStatus MpCodecOpen(int sampleRate, int gain, int volume);
 extern OsStatus MpCodecEnableOutput(int turnOn);
 extern OsStatus MpCodecClose(void);
 
-extern MpCodecSpkrChoice MpCodec_getSpeakerMode(void); /* both speakers */
-extern UtlBoolean MpCodec_isBaseSpeakerOn(void); /* the speakerphone speaker */
-extern UtlBoolean MpCodec_isHeadsetSpeakerOn(void); /* the headset speaker */
-extern UtlBoolean MpCodec_isHandsetSpeakerOn(void); /* the handset speaker */
+extern MpCodecSpkrChoice MpCodec_getSpeakerMode(void); ///< both speakers
+extern UtlBoolean MpCodec_isBaseSpeakerOn(void); ///< the speakerphone speaker
+extern UtlBoolean MpCodec_isHeadsetSpeakerOn(void); ///< the headset speaker
+extern UtlBoolean MpCodec_isHandsetSpeakerOn(void); ///< the handset speaker
 
 #ifdef USE_DEV_AUDIO /* [ */
 extern int DevAudio_getGain(void);
@@ -84,37 +86,37 @@ extern OsStatus DevAudio_setGain(int newgain);
 extern OsStatus DevAudio_setVolume(int newvolume);
 #endif /* USE_DEV_AUDIO ] */
 
-extern OsStatus MpCodec_getVolumeRange( // NEW WAY!
-                      int& low,         // lowest value
-                      int& high,        // highest value
-                      int& nominal,     // low <= nominal <= high
-                      int& stepsize,    // in .1 dB
-                      int& mute,        // input value to mute
-                      int& splash,      // value to use during startup
+extern OsStatus MpCodec_getVolumeRange(
+                      int& low,         ///< lowest value
+                      int& high,        ///< highest value
+                      int& nominal,     ///< low <= nominal <= high
+                      int& stepsize,    ///< in .1 dB
+                      int& mute,        ///< input value to mute
+                      int& splash,      ///< value to use during startup
                       MpCodecSpkrChoice Choice);
 
 extern OsStatus MpCodec_getGainRange(
-                      int& low,         // lowest value
-                      int& high,        // highest value
-                      int& nominal,     // low <= nominal <= high
-                      int& stepsize,    // in .1 dB
-                      int& mute,        // input value to mute
+                      int& low,         ///< lowest value
+                      int& high,        ///< highest value
+                      int& nominal,     ///< low <= nominal <= high
+                      int& stepsize,    ///< in .1 dB
+                      int& mute,        ///< input value to mute
                       MpCodecMicChoice Choice);
 
 extern OsStatus MpCodec_getSidetoneRange(
-                      int& low,         // lowest value
-                      int& high,        // highest value
-                      int& nominal);    // low <= nominal <= high
+                      int& low,         ///< lowest value
+                      int& high,        ///< highest value
+                      int& nominal);    ///< low <= nominal <= high
 
 extern OsStatus MpCodec_getLCDContrastRange(
-                      int& low,         // lowest value
-                      int& high,        // highest value
-                      int& nominal);    // low <= nominal <= high
+                      int& low,         ///< lowest value
+                      int& high,        ///< highest value
+                      int& nominal);    ///< low <= nominal <= high
 
 extern OsStatus MpCodec_getLCDBrightnessRange(
-                      int& low,         // lowest value
-                      int& high,        // highest value
-                      int& nominal);    // low <= nominal <= high
+                      int& low,         ///< lowest value
+                      int& high,        ///< highest value
+                      int& nominal);    ///< low <= nominal <= high
 
 extern int MpCodec_getGain(void);
 extern int MpCodec_getVolume(void);
