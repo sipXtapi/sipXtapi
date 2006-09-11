@@ -19,7 +19,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsMsg.h"
-#include "SipRedirector.h"
+#include "registry/RedirectPlugin.h"
 
 // DEFINES
    /** Message type code.
@@ -42,7 +42,7 @@ public:
    /** Construct a message saying that redirector redirectorNo is willing to
     * reprocess request seqNo.
     */
-   RedirectResumeMsg(RequestSeqNo seqNo,
+   RedirectResumeMsg(RedirectPlugin::RequestSeqNo seqNo,
                      int redirectorNo);
 
    /**
@@ -52,14 +52,14 @@ public:
 
    /** Get the sequence number
     */
-   inline RequestSeqNo getRequestSeqNo() const
+   inline RedirectPlugin::RequestSeqNo getRequestSeqNo() const
    {
       return mSeqNo;
    }
 
    /** Get the redirector number
     */
-   inline RequestSeqNo getRedirectorNo() const
+   inline int getRedirectorNo() const
    {
       return mRedirectorNo;
    }
@@ -68,7 +68,7 @@ private:
 
    /** Sequence number of the request
     */
-   RequestSeqNo mSeqNo;
+   RedirectPlugin::RequestSeqNo mSeqNo;
 
    /** Number of the redirector
     */

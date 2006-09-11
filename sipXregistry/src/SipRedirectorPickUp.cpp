@@ -1387,20 +1387,26 @@ static UtlBoolean getYNconfig(OsConfigDb& configDb,
    if (configDb.get(parameterName, temp) == OS_SUCCESS &&
        !temp.isNull())
    {
+      // Examine the first character.
       switch (temp(0))
       {
       case 'y':
       case 'Y':
+      case 'T':
+      case 't':
       case '1':
          // If the value starts with Y or 1, set the result to TRUE.
          value = TRUE;
          break;
       case 'n':
       case 'N':
+      case 'F':
+      case 'f':
       case '0':
          // If the value starts with N or 0, set the result to FALSE.
          value = FALSE;
-        defuault:
+         break;
+      defuault:
          // Ignore all other values.
          break;
       } 

@@ -1,9 +1,9 @@
 // 
 // 
-// Copyright (C) 2005 SIPfoundry Inc.
+// Copyright (C) 2005, 2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
-// Copyright (C) 2005 Pingtel Corp.
+// Copyright (C) 2005,2006 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // $$
@@ -11,46 +11,38 @@
 
 // SYSTEM INCLUDES
 
-
 // APPLICATION INCLUDES
 #include <utl/UtlRegex.h>
 #include "os/OsDateTime.h"
 #include "os/OsFS.h"
 #include "sipdb/ResultSet.h"
-#include "SipRedirector.h"
+#include "registry/RedirectPlugin.h"
 
 // DEFINES
-#define URL_MAPPING_RULES_FILENAME "mappingrules.xml"
-#define URL_FALLBACK_RULES_FILENAME "fallbackrules.xml"
-enum mappingSource
-{
-   UrlMappingRules = 1,
-   UrlFallbackRules = 2
-};
-
-// DEFINES
-#define CONFIG_ETC_DIR SIPX_CONFDIR
-
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+
+const char* RedirectPlugin::Prefix  = "SIP_REDIRECT";
+const char* RedirectPlugin::Factory = "getRedirectPlugin";
+
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-// Destructor
-SipRedirector::~SipRedirector()
+// Null default destructor.
+RedirectPlugin::~RedirectPlugin()
 {
 }
 
 // Null default cancel() implementation.
-void SipRedirector::cancel(RequestSeqNo request)
+void RedirectPlugin::cancel(RequestSeqNo request)
 {
 }
 
 void
-SipRedirector::addContact(SipMessage& response,
+RedirectPlugin::addContact(SipMessage& response,
                           const UtlString& requestString,
                           const Url& contact,
                           const char* label)
@@ -71,19 +63,19 @@ SipRedirector::addContact(SipMessage& response,
    response.setContactField(contactString, numContactsInHeader);
 
    OsSysLog::add(FAC_SIP, PRI_INFO,
-                 "SipRedirector::addContact Redirector '%s' maps '%s' to '%s'",
+                 "RedirectPlugin::addContact Redirector '%s' maps '%s' to '%s'",
                  label, requestString.data(), contactString);
 }
 
 void
-SipRedirector::removeAllContacts(SipMessage& response)
+RedirectPlugin::removeAllContacts(SipMessage& response)
 {
    // Get the number of contacts already present.
    int numContactsInHeader =
       response.getCountHeaderFields(SIP_CONTACT_FIELD);
 
    OsSysLog::add(FAC_SIP, PRI_INFO,
-                 "SipRedirector::removeAllContacts Removing %d contacts",
+                 "RedirectPlugin::removeAllContacts Removing %d contacts",
                  numContactsInHeader);
 
    for (int i = numContactsInHeader - 1; i >= 0; i--)
@@ -117,4 +109,3 @@ SipRedirectorPrivateStorage::compareTo(const UtlContainable*) const
 {
    return TRUE;
 }
-

@@ -24,14 +24,10 @@
 #include "sipdb/AliasDB.h"
 #include "sipdb/PermissionDB.h"
 #include "SipRedirectServer.h"
-#include "SipRedirectorRegDB.h"
-#include "SipRedirectorAliasDB.h"
-#include "SipRedirectorMapping.h"
-#include "SipRedirectorHunt.h"
-#include "SipRedirectorSubscribe.h"
-#include "SipRedirectorPickUp.h"
 #include "RedirectResumeMsg.h"
 #include "RedirectSuspend.h"
+#include "utl/PluginHooks.h"
+#include "registry/RedirectPlugin.h"
 
 // DEFINES
 
@@ -59,7 +55,8 @@ SipRedirectServer::SipRedirectServer(OsConfigDb*   pOsConfigDb,  ///< Configurat
    mRedirectorMutex(OsMutex::Q_FIFO),
    mIsStarted(FALSE),
    mpSipUserAgent(pSipUserAgent),
-   mNextSeqNo(0)
+   mNextSeqNo(0),
+   mRedirectPlugins(RedirectPlugin::Factory, RedirectPlugin::Prefix)
 {
    spInstance = this;
    initialize(*pOsConfigDb);
@@ -80,12 +77,12 @@ SipRedirectServer::~SipRedirectServer()
                      dynamic_cast<RedirectSuspend*> (itor.value()));
    }
 
-   // Finalize and delete all the redirectors.
-   for (int i = 0; i < MREDIRECTORCOUNT; i++)
+   // Finalize all the redirectors.
+   PluginIterator iterator(mRedirectPlugins);
+   RedirectPlugin* redirector;
+   while (redirector = static_cast <RedirectPlugin*> (iterator.next()))
    {
-      mRedirectors[i]->finalize();
-      delete mRedirectors[i];
-      mRedirectors[i] = NULL;
+      redirector->finalize();
    }
 
    spInstance = NULL;
@@ -99,7 +96,8 @@ SipRedirectServer::getInstance()
 }
 
 UtlBoolean
-SipRedirectServer::initialize(OsConfigDb& configDb    ///< Configuration parameters
+SipRedirectServer::initialize(OsConfigDb& configDb
+                              ///< Configuration parameters
                               )
 {
    UtlString defaultDomain;
@@ -111,8 +109,19 @@ SipRedirectServer::initialize(OsConfigDb& configDb    ///< Configuration paramet
       mProxyNormalPort = SIP_PORT;
    }
    
-   // Initialize the list of redirect processors.
+   // Load the list of redirect processors.
+   mRedirectPlugins.readConfig(configDb);
+   // Call their ::initialize() methods.
+   PluginIterator iterator(mRedirectPlugins);
+   RedirectPlugin* redirector;
+   int i;                       // Iterator sequence number.
+   for (i = 0; redirector = static_cast <RedirectPlugin*> (iterator.next());
+        i++)
+   {
+      redirector->initialize(configDb, mpSipUserAgent, i, defaultDomain);
+   }
 
+#if 0
    // Make a hash map to convey the configuration parameters to the
    // redirector objects.
    // This really ought to be simpler, but UtlHashMap demands that its
@@ -168,10 +177,7 @@ SipRedirectServer::initialize(OsConfigDb& configDb    ///< Configuration paramet
    mRedirectors[6] = new SipRedirectorPickUp;
    mRedirectors[6]->initialize(configParameters, configDb, mpSipUserAgent, 6);
 
-// Update this test with the index of the last redirector loaded.
-#if 6 != (MREDIRECTORCOUNT-1)
-#error MREDIRECTORCOUNT does not match SipRedirectServer::initialize.
-#endif
+#endif /* 0 */
 
    return true;
 }
@@ -198,20 +204,24 @@ static void logResponse(UtlString& messageStr)
 void SipRedirectServer::cancelRedirect(UtlInt& containableSeqNo,
                                        RedirectSuspend* suspendObject)
 {
-   RequestSeqNo seqNo = containableSeqNo.getValue();
+   RedirectPlugin::RequestSeqNo seqNo = containableSeqNo.getValue();
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipRedirectServer::cancelRedirect "
                  "Canceling suspense of request %d", seqNo);
    // Call cancel for redirectors that need it.
-   for (int i = 0; i < MREDIRECTORCOUNT; i++)
+   PluginIterator iterator(mRedirectPlugins);
+   RedirectPlugin* redirector;
+   int i;                       // Iterator sequence number.
+   for (i = 0; redirector = static_cast <RedirectPlugin*> (iterator.next());
+        i++)
    {
       if (suspendObject->mRedirectors[i].needsCancel)
       {
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
                        "SipRedirectServer::cancelRedirect "
                        "Calling cancel(%d) for redirector %d", seqNo, i);
-         mRedirectors[i]->cancel(seqNo);
+         redirector->cancel(seqNo);
       }
    }
    // Remove the entry from mSuspendList.
@@ -243,7 +253,7 @@ void SipRedirectServer::cancelRedirect(UtlInt& containableSeqNo,
  */
 void SipRedirectServer::processRedirect(const SipMessage* message,
                                         UtlString& method,
-                                        RequestSeqNo seqNo,
+                                        RedirectPlugin::RequestSeqNo seqNo,
                                         RedirectSuspend* suspendObject)
 {
    // The response we will compose and, hopefully, send.
@@ -291,8 +301,12 @@ void SipRedirectServer::processRedirect(const SipMessage* message,
    UtlBoolean willError = FALSE;
    // If willError is set, this is the response code to give.
    int responseCode = 0;        // Initialize to avoid warning.
-   // Cycle through the redirectors in order.
-   for (int i = 0; i < MREDIRECTORCOUNT; i++)
+
+   PluginIterator iterator(mRedirectPlugins);
+   RedirectPlugin* redirector;
+   int i;                       // Iterator sequence number.
+   for (i = 0; redirector = static_cast <RedirectPlugin*> (iterator.next());
+        i++)
    {
       // Place to store the private storage pointer.
       SipRedirectorPrivateStorage* privateStorageP;
@@ -302,13 +316,13 @@ void SipRedirectServer::processRedirect(const SipMessage* message,
                          NULL);
 
       // Call the redirector to process the request.
-      SipRedirector::LookUpStatus status =
-         mRedirectors[i]->lookUp(*message, stringUri, requestUri, method,
-                                 response, seqNo, i, privateStorageP);
+      RedirectPlugin::LookUpStatus status =
+         redirector->lookUp(*message, stringUri, requestUri, method,
+                            response, seqNo, i, privateStorageP);
 
       // Create the suspend object if it does not already exist and we need it.
       if (!suspendObject &&
-          (status == SipRedirector::LOOKUP_SUSPEND || privateStorageP))
+          (status == RedirectPlugin::LOOKUP_SUSPEND || privateStorageP))
       {
          suspendObject = new RedirectSuspend(MREDIRECTORCOUNT);
          // Insert it into mSuspendList, keyed by seqNo.
@@ -334,11 +348,11 @@ void SipRedirectServer::processRedirect(const SipMessage* message,
       // Dispatch on status.
       switch (status)
       {
-      case SipRedirector::LOOKUP_SUCCESS:
+      case RedirectPlugin::LOOKUP_SUCCESS:
          // Processing was successful.
          break;
 
-      case SipRedirector::LOOKUP_ERROR_REQUEST:
+      case RedirectPlugin::LOOKUP_ERROR_REQUEST:
          // Processing detected an error.  Processing of this request
          // should end immediately and a 403 Forbidden response returned.
          OsSysLog::add(FAC_SIP, PRI_ERR,
@@ -350,7 +364,7 @@ void SipRedirectServer::processRedirect(const SipMessage* message,
          responseCode = 403;
          break;
 
-      case SipRedirector::LOOKUP_ERROR_SERVER:
+      case RedirectPlugin::LOOKUP_ERROR_SERVER:
          // Processing detected an error.  Processing of this request
          // should end immediately and a 500 response returned.
          OsSysLog::add(FAC_SIP, PRI_ERR,
@@ -362,7 +376,7 @@ void SipRedirectServer::processRedirect(const SipMessage* message,
          responseCode = 500;
          break;
 
-      case SipRedirector::LOOKUP_SUSPEND:
+      case RedirectPlugin::LOOKUP_SUSPEND:
          OsSysLog::add(FAC_SIP, PRI_ERR,
                        "SipRedirectServer::processRedirect "
                        "LOOKUP_SUSPEND returned by redirector "
@@ -415,7 +429,7 @@ void SipRedirectServer::processRedirect(const SipMessage* message,
             break;
          }
          // Remove all Contact: headers.
-         SipRedirector::removeAllContacts(response);
+         RedirectPlugin::removeAllContacts(response);
       }
       else
       {
@@ -571,7 +585,7 @@ SipRedirectServer::handleMessage(OsMsg& eventMessage)
       // Get the redirector and sequence number.
       const RedirectResumeMsg* msg =
          dynamic_cast<RedirectResumeMsg*> (&eventMessage);
-      RequestSeqNo seqNo = msg->getRequestSeqNo();
+      RedirectPlugin::RequestSeqNo seqNo = msg->getRequestSeqNo();
       int redirectorNo = msg->getRedirectorNo();
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRedirectServer::handleMessage "
                     "Resume for redirector %d request %d",
@@ -637,7 +651,7 @@ SipRedirectServer::handleMessage(OsMsg& eventMessage)
 }
 
 void
-SipRedirectServer::resumeRequest(RequestSeqNo requestSeqNo,
+SipRedirectServer::resumeRequest(RedirectPlugin::RequestSeqNo requestSeqNo,
                                  int redirectorNo)
 {
    // Create the appropriate message.
@@ -654,7 +668,7 @@ SipRedirectServer::resumeRequest(RequestSeqNo requestSeqNo,
 
 SipRedirectorPrivateStorage*
 SipRedirectServer::getPrivateStorage(
-   RequestSeqNo requestSeqNo,
+   RedirectPlugin::RequestSeqNo requestSeqNo,
    int redirectorNo)
 {
    // Turn the request number into a UtlInt.
@@ -707,7 +721,7 @@ SipRedirectServerPrivateStorageIterator::operator()()
    return pStorage;
 }
 
-RequestSeqNo SipRedirectServerPrivateStorageIterator::requestSeqNo() const
+RedirectPlugin::RequestSeqNo SipRedirectServerPrivateStorageIterator::requestSeqNo() const
 {
    // The key is a UtlInt which is the request sequence number.
    return (dynamic_cast<UtlInt*> (this->key()))->getValue();

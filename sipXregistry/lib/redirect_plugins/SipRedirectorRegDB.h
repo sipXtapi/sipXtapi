@@ -16,7 +16,7 @@
 //#include <...>
 
 // APPLICATION INCLUDES
-#include "SipRedirector.h"
+#include "registry/RedirectPlugin.h"
 
 // DEFINES
 // MACROS
@@ -32,22 +32,22 @@
  * listed in the registration database.
  */
 
-class SipRedirectorRegDB : public SipRedirector
+class SipRedirectorRegDB : public RedirectPlugin
 {
   public:
 
-   SipRedirectorRegDB();
+   SipRedirectorRegDB(const UtlString& instanceName);
 
    ~SipRedirectorRegDB();
 
-   virtual OsStatus initialize(const UtlHashMap& configParameters,
-                               OsConfigDb& configDb,
+   virtual OsStatus initialize(OsConfigDb& configDb,
                                SipUserAgent* pSipUserAgent,
-                               int redirectorNo);
+                               int redirectorNo,
+                               const UtlString& localDomainHost);
 
    virtual void finalize();
 
-   virtual SipRedirector::LookUpStatus lookUp(
+   virtual RedirectPlugin::LookUpStatus lookUp(
       const SipMessage& message,
       const UtlString& requestString,
       const Url& requestUri,

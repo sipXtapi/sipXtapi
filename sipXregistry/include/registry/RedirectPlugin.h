@@ -1,21 +1,21 @@
 // 
 // 
-// Copyright (C) 2005 SIPfoundry Inc.
+// Copyright (C) 2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
-// Copyright (C) 2005 Pingtel Corp.
+// Copyright (C) 2006 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef SIPREDIRECTOR_H
-#define SIPREDIRECTOR_H
+#ifndef _REDIRECTPLUGIN_H_
+#define _REDIRECTPLUGIN_H_
 
 // SYSTEM INCLUDES
-//#include <...>
-
 // APPLICATION INCLUDES
+#include "utl/Plugin.h"
+#include "os/OsStatus.h"
 #include "net/SipMessage.h"
 #include "utl/UtlString.h"
 #include "net/Url.h"
@@ -29,18 +29,56 @@
 // CONSTANTS
 // STRUCTS
 // TYPEDEFS
-
-/**
- * The type of the request sequence numbers.
- *
- * Must be a type for which '++' will increment with rollover when
- * the end of its range is reached.
- */
-typedef unsigned int RequestSeqNo;
-
 // FORWARD DECLARATIONS
 
 class SipRedirectorPrivateStorage;
+
+/**
+ * SIP Redirect Plugin Hook
+ *
+ * A RegisterPlugin is an action invoked by the SipRegistrarServer whenever a
+ *   successful REGISTER request has been processed (that is, after it has
+ *   effected its change on the registry database).  The plugin may then take
+ *   any action based on the fact that the registration has occured.
+ *
+ * This class is the abstract base from which all RegisterPlugins must inherit.
+ *
+ * To configure a RegisterPlugin into the SipRegistrarServer, the registrar-config
+ * file should have a directive configuring the plugin library:
+ * @code
+ * SIP_REGISTRAR_HOOK_LIBRARY.[instance] : [path to libexampleregplugin.so]
+ * @endcode
+ * Where [instance] is replaced by a unique plugin name, and the value
+ * points to the libary that provides the plugin code.
+ *
+ * In addition to the class derived from this base, a RegisterPlugin library must
+ * provide a factory routine named getRegisterPlugin with extern "C" linkage so
+ * that the OsSharedLib mechanism can look it up in the dynamically loaded library
+ * (looking up C++ symbols is problematic because of name mangling).
+ * The factory routine looks like:
+ * @code
+ * class ExampleRegisterPlugin : public RegisterPlugin
+ * {
+ *    virtual void takeAction( const SipMessage&   registerMessage ///< the successful registration
+ *                            ,const unsigned int  registrationDuration ///< the actual allowed
+ *                                                                      /// registration time (note
+ *                                                                      /// that this may be < the
+ *                                                                      /// requested time).
+ *                            ,SipUserAgent*       sipUserAgent     ///< to be used if the plugin
+ *                                                                  /// wants to send any SIP msg
+ *                            );
+ *
+ *    friend RegisterPlugin* getRegisterPlugin(const UtlString& name);
+ * }
+ *
+ * extern "C" RegisterPlugin* getRegisterPlugin(const UtlString& instance)
+ * {
+ *   return new ExampleRegisterPlugin(instance);
+ * }
+ * @endcode
+ *
+ * @see Plugin
+ */
 
 /**
  * SipRedirector is a virtual class.  Instances of its subclasses are the
@@ -48,15 +86,29 @@ class SipRedirectorPrivateStorage;
  * for addresses of record.
  */
 
-class SipRedirector
+class RedirectPlugin : public Plugin
 {
   public:
+
+   /**
+    * The type of the request sequence numbers.
+    *
+    * Must be a type for which '++' will increment with rollover when
+    * the end of its range is reached.
+    */
+   typedef unsigned int RequestSeqNo;
+
+   static const char* Prefix;
+   ///< the configuration file prefix = "SIP_REDIRECT"
+
+   static const char* Factory;
+   ///< the factory method name = "getRedirectPlugin"
 
    /**
     * The destructor does almost nothing, as the primary finalization
     * work should be done by ::finalize().
     */
-   virtual ~SipRedirector();
+   virtual ~RedirectPlugin();
 
    /**
     * All initialization should be done in ::initialize() in preference
@@ -80,10 +132,10 @@ class SipRedirector
     * it must output an error message on its own, as OS_FAILED per se isn't
     * an error signal.
     */
-   virtual OsStatus initialize(const UtlHashMap& configParameters,
-                               OsConfigDb& configDb,
+   virtual OsStatus initialize(OsConfigDb& configDb,
                                SipUserAgent* pSipUserAgent,
-                               int redirectorNo) = 0;
+                               int redirectorNo,
+                               const UtlString& localDomainHost) = 0;
 
    /**
     * All finalization should be done in ::finalize() in preference
@@ -173,6 +225,12 @@ class SipRedirector
 
   protected:
 
+   /// Constructor is protected so that it is only callable from subclasses.
+   RedirectPlugin(const UtlString& instanceName) :
+      Plugin(instanceName)
+      {
+      };
+    
    /**
     * Declare that a redirector is ready to reprocess a request.
     *
@@ -188,6 +246,14 @@ class SipRedirector
     */
    static void resumeRedirection(RequestSeqNo request,
                                  int redirector);
+  private:
+
+   /// There is no copy constructor.
+   RedirectPlugin(const RedirectPlugin&);
+
+   /// There is no assignment operator.
+   RedirectPlugin& operator=(const RedirectPlugin&);
+    
 };
 
 /**
@@ -214,4 +280,4 @@ class SipRedirectorPrivateStorage : public UtlContainable
    virtual int compareTo(const UtlContainable*) const;
 };
 
-#endif // SIPREDIRECTOR_H
+#endif // _REDIRECTPLUGIN_H_
