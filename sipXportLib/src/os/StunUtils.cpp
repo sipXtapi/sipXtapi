@@ -499,7 +499,7 @@ void StunUtils::debugDump(char* pPacket, size_t nPacket, UtlString& output)
         for (int i=0; i<12; i++)
         {           
             sprintf(cTemp, "%02X", msgHeader.transactionId.id[i]) ;
-            cTemp[3] = 0 ;
+            cTemp[2] = 0 ;
             output.append(cTemp) ;
         }
         output.append("\n") ;
@@ -517,13 +517,15 @@ void StunUtils::debugDump(char* pPacket, size_t nPacket, UtlString& output)
                     convertAttributeToString(ntohs(attrHeader.type)),
                     ntohs(attrHeader.length)) ;
                 output.append(cTemp) ;           
-
+ 
                 if (((pPacket + nPacket) - pTraverse) >= ntohs(attrHeader.length))
                 {
                     for (int i=0; i<ntohs(attrHeader.length); i++)
                     {
-                        sprintf(cTemp, "%02X", *pTraverse++) ;
-                        cTemp[3] = 0 ;
+                        unsigned char ch = *pTraverse ;
+                        sprintf(cTemp, "%02X", ch) ;
+                        cTemp[2] = 0 ;
+                        *pTraverse++ ;
                         output.append(cTemp) ;
                     }
                     output.append("\n") ;
