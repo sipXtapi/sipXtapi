@@ -81,9 +81,6 @@ MpeSipxSpeex::MpeSipxSpeex(int payloadType)
 //   mDoDtx = 1; // Discontinuous transmission
 //   mDoVbr = 1; // VBR (not used at the moment)
    
-   printf("Speex initial settings: mode=%d;rate=%d;vad=%d;dtx=%d;vbr=%d;preprocess=%d;denoise=%d;agc=%d.",
-      mMode,mSampleRate,mDoVad,mDoDtx,mDoVbr,(mDoPreprocess)?1:0,mDoDenoise,mDoAgc);
-   
 }
 
 MpeSipxSpeex::~MpeSipxSpeex()
