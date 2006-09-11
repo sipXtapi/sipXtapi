@@ -93,7 +93,7 @@ nobase_include_HEADERS = \
     os/OsTLSConnectionSocket.h \
     os/OsTLSClientConnectionSocket.h \
     os/OsTokenizer.h \
-	os/OsTLS.h \
+    os/OsTLS.h \
     os/ostream \
     os/OsUtil.h \
     os/OsWriteLock.h \
@@ -108,6 +108,7 @@ nobase_include_HEADERS = \
     xmlparser/tinyxml.h \
     xmlparser/TiXmlIterator.h \
     utl/UtlBool.h \
+    utl/UtlCrc32.h \
     utl/UtlLink.h \
     utl/UtlContainable.h \
     utl/UtlContainer.h \
@@ -136,8 +137,8 @@ nobase_include_HEADERS = \
     utl/XmlContent.h \
     utl/UtlSortedListIterator.h \
     utl/UtlRandom.h \
-	 utl/Plugin.h \
-	 utl/PluginHooks.h
+    utl/Plugin.h \
+    utl/PluginHooks.h
 
 EXTRA_DIST= \
     os/wnt/getWindowsDNSServers.h \
