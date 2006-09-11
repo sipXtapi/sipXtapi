@@ -57,8 +57,8 @@ public class CallerAliases extends DataSetGenerator {
         if (identity != null) {
             item.addElement("identity").setText(identity);
         }
-        item.addElement("domain").setText(domain);
-        item.addElement("alias").setText(alias);
+        item.addElement("target_domain").setText(domain);
+        item.addElement("caller_alias").setText(alias);
         return item;
     }
 
