@@ -54,7 +54,6 @@ UtlString SubscriptionDB::gFromKey("from");
 UtlString SubscriptionDB::gFileKey("file");
 UtlString SubscriptionDB::gKeyKey("key");
 UtlString SubscriptionDB::gRecordrouteKey("recordroute");
-UtlBoolean     gsVerboseLoggingEnabled = FALSE;
 
 /* ============================ CREATORS ================================== */
 
@@ -68,11 +67,6 @@ SubscriptionDB::SubscriptionDB( const UtlString& name )
     // If we are the first process to attach
     // then we need to load the DB
     int users = pSIPDBManager->getNumDatabaseProcesses(name);
-
-    gsVerboseLoggingEnabled = SIPDBManager::isVerboseLoggingEnabled();
-    if (gsVerboseLoggingEnabled)
-        OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::_  user=%d \"%s\"",
-                    users, name.data());
     if ( users == 1 )
     {
         // Load the file implicitly

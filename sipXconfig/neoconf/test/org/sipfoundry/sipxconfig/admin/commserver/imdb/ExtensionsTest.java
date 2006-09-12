@@ -35,10 +35,10 @@ public class ExtensionsTest extends XMLTestCase {
         },
     };
 
-    private final List m_users;
+    private final List<User> m_users;
 
     public ExtensionsTest() {
-        List users = new ArrayList();
+        List<User> users = new ArrayList<User>();
         for (int i = 0; i < DATA.length; i++) {
             String[] userData = DATA[i];
             User user = new User();

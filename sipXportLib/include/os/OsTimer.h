@@ -1,10 +1,16 @@
-//
-// Copyright (C) 2004, 2005, 2006 Pingtel Corp.
-//
-//
+// 
+// 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004-2006 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+//////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _OsTimer_h_
@@ -328,7 +334,7 @@ class OsTimer : public UtlContainable
    /// Convert a Timer into an OsTime.
    inline static void cvtToOsTime(OsTime& out, Time in)
    {
-      OsTime temp(in / 1000000, in % 1000000);
+      OsTime temp((long)in / 1000000, (long)in % 1000000);
       out = temp;
    }
 
@@ -348,7 +354,7 @@ class OsTimer : public UtlContainable
    inline static int compareTimes(Time a, Time b)
    {
       // Interpret a and b as long long int's and take their difference.
-      return a - b;
+      return (int)(a - b);
    }
    ///< Returns > 0, 0, or < 0 according to whether a > b, a == b, or a < b.
 

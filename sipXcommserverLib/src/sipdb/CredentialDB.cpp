@@ -42,7 +42,6 @@ CredentialDB* CredentialDB::spInstance = NULL;
 OsMutex       CredentialDB::sLockMutex (OsMutex::Q_FIFO);
 
 // GLOBAL VARIABLES
-UtlBoolean     gcVerboseLoggingEnabled = FALSE;
 UtlString CredentialDB::gUriKey("uri");
 UtlString CredentialDB::gRealmKey("realm");
 UtlString CredentialDB::gUseridKey("userid");
@@ -62,12 +61,6 @@ CredentialDB::CredentialDB ( const UtlString& name )
     // If we are the first process to attach
     // then we need to load the DB
     int numusers = pSIPDBManager->getNumDatabaseProcesses (name);
-
-    gcVerboseLoggingEnabled = SIPDBManager::isVerboseLoggingEnabled() ;
-    if (gcVerboseLoggingEnabled)
-        OsSysLog::add(FAC_DB, PRI_DEBUG, "CredentialDB::_ name=%s, nummber of users = %d",
-                    name.data(), numusers);
-
     if ( numusers == 1 )
     {
         // Load the file implicitly

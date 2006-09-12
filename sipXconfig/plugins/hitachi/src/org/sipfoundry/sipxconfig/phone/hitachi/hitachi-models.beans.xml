@@ -6,7 +6,8 @@
     class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
   <bean id="org.sipfoundry.sipxconfig.phone.hitachi.HitachiModel.MODEL_5000"
     class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
-
+  <bean id="org.sipfoundry.sipxconfig.phone.hitachi.HitachiModel.MODEL_5000A"
+    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
   <!-- Hitachi phones -->
   <bean id="hitachi" class="org.sipfoundry.sipxconfig.phone.hitachi.HitachiPhone"
     singleton="false" parent="unmanagedPhone">

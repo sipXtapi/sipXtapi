@@ -59,8 +59,7 @@ make DESTDIR=$RPM_BUILD_ROOT install
 mkdir -p %{upgrade_archive_root}
 tar --directory ${RPM_BUILD_ROOT} \
     -czf %{upgrade_archive_root}/%{this_archive} \
-    etc \
-    var/sipxdata/sipdb
+    etc
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -76,6 +75,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libRegistrarImpliedMWI.la
 %attr(755,root,root) %{_libdir}/libRegistrarImpliedMWI.so*
 %attr(755,root,root) %{_datadir}/sipx/schema/alias.xsd
+%attr(755,root,root) %{_datadir}/sipx/schema/caller-alias.xsd
 %attr(755,root,root) %{_datadir}/sipx/schema/huntgroup.xsd
 
 # The configuration directory needs to be writeable becausen
@@ -84,9 +84,6 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/mappingrules.xml.in
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/fallbackrules.xml.in
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/registrar-config.in
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/sipxdata/sipdb/alias.xml
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/sipxdata/sipdb/huntgroup.xml
-
 %{upgrade_archive_dir}/%{this_archive}
 %{upgrade_archive_dir}/%{name}-previous.tgz
 

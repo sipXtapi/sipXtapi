@@ -1,3 +1,13 @@
+/*
+	Copyright (c) 2004-2006, The Dojo Foundation
+	All Rights Reserved.
+
+	Licensed under the Academic Free License version 2.1 or above OR the
+	modified BSD license. For more information on Dojo licensing, see:
+
+		http://dojotoolkit.org/community/licensing.shtml
+*/
+
 import DojoExternalInterface;
 
 class Storage {
@@ -8,6 +18,7 @@ class Storage {
 	public var so;
 	
 	public function Storage(){
+		//getURL("javascript:dojo.debug('FLASH:Storage constructor')");
 		DojoExternalInterface.initialize();
 		DojoExternalInterface.addCallback("put", this, put);
 		DojoExternalInterface.addCallback("get", this, get);
@@ -16,6 +27,11 @@ class Storage {
 		DojoExternalInterface.addCallback("getKeys", this, getKeys);
 		DojoExternalInterface.addCallback("remove", this, remove);
 		DojoExternalInterface.loaded();
+		
+		// preload the System Settings finished button movie for offline
+		// access so it is in the cache
+		_root.createEmptyMovieClip("_settingsBackground", 1);
+		_root._settingsBackground.loadMovie(DojoExternalInterface.dojoPath + "storage_dialog.swf");
 	}
 
 	public function put(keyName, keyValue, namespace){
@@ -61,7 +77,6 @@ class Storage {
 			statusResults = Storage.FAILED;
 		}
 		
-		//getURL("javascript:dojo.debug('FLASH: flat, statusResults="+statusResults+"')");
 		DojoExternalInterface.call("dojo.storage._onStatus", null, statusResults, 
 															 keyName);
 	}
@@ -76,20 +91,14 @@ class Storage {
 	
 	public function showSettings(){
 		// Show the configuration options for the Flash player, opened to the
-		// section for local storage controls
+		// section for local storage controls (pane 1)
 		System.showSettings(1);
 		
 		// there is no way we can intercept when the Close button is pressed, allowing us
-		// to hide the Flash dialog. Instead, we have an image behind that tells the user
-		// to press the Close button again when they are finished. We do this on a slight
-		// timeout so that it appears _after_ the storage settings have appeared, otherwise
-		// we will get a flicker effect as the user sees the underlying image a little before
-		// the settings dialog appears
-		var showCloseButton = function(){
-			// TODO: Draw a simple box and button that tells the user to press
-			// the button when they are finished with the settings dialog
-		};
-		_root.setTimeout(showCloseButton, 400);
+		// to hide the Flash dialog. Instead, we need to load a movie in the
+		// background that we can show a close button on.
+		_root.createEmptyMovieClip("_settingsBackground", 1);
+		_root._settingsBackground.loadMovie(DojoExternalInterface.dojoPath + "storage_dialog.swf");
 	}
 	
 	public function clear(namespace){
@@ -99,7 +108,6 @@ class Storage {
 	}
 	
 	public function getKeys(namespace){
-		//getURL("javascript:dojo.debug('FLASH:getKeys, namespace="+namespace+"')");
 		// Returns a list of the available keys in this namespace
 		
 		// get the storage object
@@ -110,7 +118,7 @@ class Storage {
 		for(var i in so.data)
 			results.push(i);	
 		
-		// join the keys together in a comma seperate string
+		// join the keys together in a comma seperated string
 		results = results.join(",");
 		
 		return results;
@@ -130,17 +138,8 @@ class Storage {
 	}
 
 	static function main(mc){
-		/* Very rarely, on Internet Explorer, a timing issue will
-		 * cause the Flash file to load before the ActiveX infrastructure
-		 * has loaded, squelching our callbacks into JavaScript. Put
-		 * initializing the Storage system on a very slight timeout
-		 * to avoid this problem.
-		 * 
-		 * TODO: Move this timeout into dojo.flash somehow.
-		 */
-		_global.setTimeout(function(){ 
-			var app = new Storage(); 
-		}, 20);
+		//getURL("javascript:dojo.debug('FLASH: storage loaded')");
+		_root.app = new Storage(); 
 	}
 }
 

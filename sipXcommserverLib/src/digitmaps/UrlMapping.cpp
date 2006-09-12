@@ -487,7 +487,10 @@ UrlMapping::doTransform(const Url& requestUri,
                       {
                          tempContactUrl.setHostPort(tempPort);
                       }
-
+                      // We have changed the domain; any transport restriction in the 
+                      // original uri may now not match the capabilities of the new domain,
+                      // so remove it.  The urlParams attribute can put in a new one if needed.
+                      tempContactUrl.removeUrlParameter("transport");
                    }
                 }
              }

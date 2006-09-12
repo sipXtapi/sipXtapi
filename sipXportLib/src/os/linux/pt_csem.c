@@ -19,6 +19,8 @@
 
 #include <pthread.h>
 #include <errno.h>
+#include <assert.h>
+
 #include "os/linux/pt_csem.h"
 
 int pt_sem_init(pt_sem_t *sem, unsigned int max, unsigned int count)
@@ -32,32 +34,57 @@ int pt_sem_init(pt_sem_t *sem, unsigned int max, unsigned int count)
 
 int pt_sem_wait(pt_sem_t *sem)
 {
+        int retval = 0 ;
         pthread_mutex_lock(&sem->mutex);
-        while(!sem->count)
+        // wait for sem->count to be not zero, or error
+        while(retval == 0 && !sem->count)
         {
-           pthread_cond_wait(&sem->cond,&sem->mutex);
+           retval = pthread_cond_wait(&sem->cond,&sem->mutex);
         }
-        sem->count--;
+        switch ( retval )
+        {
+        case 0: // retval is 0 and sem->count is not, the sem is ours
+           sem->count--;
+           break ;
+
+        default: // all error cases
+           assert(0) ; // something is amiss, drop core
+           /*NOTREACHED */
+           errno = retval ;
+           retval = -1 ;
+        }
+           
         pthread_mutex_unlock(&sem->mutex);
-        return 0;
+
+        return retval;
 }
 
 int pt_sem_timedwait(pt_sem_t *sem,const struct timespec *timeout)
 {
         pthread_mutex_lock(&sem->mutex);
         int retval = 0;
-        while (ETIMEDOUT != retval && !sem->count)
+
+        // wait for sem->count to be not zero, or error
+        while (0 == retval && !sem->count)
         {
            retval = pthread_cond_timedwait(&sem->cond,&sem->mutex,timeout);
         }
-        if (ETIMEDOUT != retval)
+        switch ( retval )
         {
+        case 0: // retval is 0 and sem->count is not, the sem is ours
            sem->count--;
-        }
-        else
-        {
-           errno=EAGAIN;
-           retval=-1;
+           break ;
+
+        case ETIMEDOUT: // timedout waiting for count to be not zero
+           errno = EAGAIN;
+           retval = -1;
+           break ;
+
+        default: // all error cases
+           assert(0) ; // something is amiss
+           /*NOTREACHED */
+           errno = retval ;
+           retval = -1 ;
         }
         pthread_mutex_unlock(&sem->mutex);
         return retval;

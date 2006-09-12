@@ -11,6 +11,8 @@ nobase_include_HEADERS =  \
     sipdb/AliasRow.h \
     sipdb/AuthexceptionDB.h \
     sipdb/AuthexceptionRow.h \
+    sipdb/CallerAliasDB.h \
+    sipdb/CallerAliasRow.h \
     sipdb/CredentialDB.h \
     sipdb/CredentialRow.h \
     sipdb/DialByNameDB.h \

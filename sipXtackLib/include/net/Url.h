@@ -217,6 +217,9 @@ public:
     /// Get the URL host name or IP address
     void getHostAddress(UtlString& address) const;
 
+    /// Get the host and port together as a string "host:port"
+    void getHostWithPort(UtlString& domain) const;
+    
     /// Set the URL host name or IP address
     void setHostAddress(const char* address);
 
@@ -417,16 +420,13 @@ public:
      * possible to omit them.
      */
 
-    /// Escape a string as a gen_value, which is what field-parameters
-    //! use for values.
+    /// Escape a string as a gen_value, which is what field-parameters use for values.
     static void gen_value_escape(UtlString& escapedText);
 
-    /// Un-escape a string as a gen_value, which is what field-parameters
-    //! use for values.
+    /// Un-escape a string as a gen_value, which is what field-parameters use for values.
     static void gen_value_unescape(UtlString& escapedText);
 
-    /// Gets the serialized URL as a string (with no display name or 
-    //! field parameters)
+    /// Gets the serialized URL as a string (with no display name or field parameters)
     void getUri(UtlString& Uri);
 
 /* ============================ INQUIRY =================================== */
@@ -439,20 +439,49 @@ public:
    static UtlBoolean isDigitString(const char* dialedCharacters);
 
    /// Compare two URLs to see if the have the same user, host and port
-   /* Follows the rules of RFC 3261 section 19.1.4, especially that
+   UtlBoolean isUserHostPortEqual(const Url& uri,
+                                  int impliedPort = PORT_NONE 
+                                  ) const ;
+   /**<
+    * Follows the rules of RFC 3261 section 19.1.4, especially that
     * that no port specifies is NOT the same as the default port for
-    * the URL type/protocol.  Also assumes that host is \a not case 
-    * sensative, but that user id \a is case sensative.
-    * \return TRUE if the user Id, host and port are the same
+    * the URL type/protocol (but see the description of impliedPort).
+    *
+    * Assumes that host is not case sensitive (because DNS names are not by definition),
+    * but that user id is case sensitive.
+    *
+    * If the impliedPort is some value other than PORT_NONE, then that port number
+    * is considered to be equal to an unspecified port number.  For example:
+    * @code
+    *   Url implicitPortUrl("sip:user@example.com");
+    *   UtlBoolean result;
+    *   
+    *   Url explicitPortUrl("<sip:user@Example.COM:5060>;param=x");
+    *   result = implicitPortUrl.isUserHostPortEqual(explicitPortUrl);
+    *   // result is FALSE because an implicit port != 5060
+    *
+    *   Url unspecifiedPortUrl("<sip:user@Example.COM>;param=x");
+    *   result = implicitPortUrl.isUserHostPortEqual(unspecifiedPortUrl);
+    *   // result is TRUE, despite case difference in domain name
+    *
+    *   Url otherPortUrl("<sip:user@Example.COM:5999>;param=x");
+    *   result = implicitPortUrl.isUserHostPortEqual(otherPortUrl, 5999);
+    *   // result is TRUE because the specified implicit port is
+    *   // considered to be that implied by the unspecified port in implicitPortUrl
+    *
+    *   result = implicitPortUrl.isUserHostPortEqual(otherPortUrl, 5060);
+    *   // result is FALSE because the specified implicit port does not match
+    * @endcode
+    *
+    * @return TRUE if the user Id, host and port are the same
     */
-   UtlBoolean isUserHostPortEqual(const Url& uri) const ;
 
    /// Compare two URLs to see if the have the same user and host
-   /* Assumes that host is \a not case sensative, but that user id 
-    * \a is case sensative.
-    * \return TRUE if the user Id and host are the same
-    */   
    UtlBoolean isUserHostEqual(const Url& uri) const ;
+   /**<
+    * Assumes that host is not case sensitive, but that user id is case sensitive.
+    * @return TRUE if the user Id and host are the same
+    */   
 
    /// Are angle brackets explicitly included
    UtlBoolean isIncludeAngleBracketsSet() const ;

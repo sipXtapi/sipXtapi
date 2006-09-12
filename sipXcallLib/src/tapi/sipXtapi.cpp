@@ -813,6 +813,8 @@ static SIPX_RESULT sipxCallCreateHelper(const SIPX_INST hInst,
         {
             SIPX_CALL_DATA* pData = new SIPX_CALL_DATA ;
             memset((void*)pData, 0, sizeof(SIPX_CALL_DATA));
+            // Set the call state to initialized but not yet used (e.g. not connecting)
+            pData->state = SIPX_INTERNAL_CALLSTATE_UNKNOWN;
 
             if (pData)
             {
@@ -977,6 +979,10 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
                 sipxCallReleaseLock(pData, SIPX_LOCK_WRITE) ;
             }
 
+            // Set the outbound line for the new connection
+            pInst->pCallManager->setOutboundLineForCall(*(pData->callId),
+                                                        lineId);
+
             if (pDisplay && pDisplay->handle)
             {
                 status = pInst->pCallManager->connect(callId.data(), szAddress, NULL, sessionId, (CONTACT_ID) contactId, &pData->display) ;
@@ -994,9 +1000,28 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
                 OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
                               "sipxCallConnect connected hCall=%d callId=%s, numAddr = %d, addr = %s",
                               hCall, callId.data(), numAddresses, address.data());
-                assert(rc == OS_SUCCESS) ;
-                assert(numAddresses == 1) ;
+                if(rc == OS_SUCCESS)
+                {
+                    assert(numAddresses == 1);
+                }
 
+                // There is more than 1 connection in this CpPeerCall.
+                else if(rc == OS_LIMIT_REACHED)
+                {
+                    // Need to get the remote address (To field) for the new connection.
+                    // For now as with sipXconferenceAdd, we defer setting the remote address
+                    // until an event bubbles out.  This avoids the abiguity problem when there
+                    // is more than one connection with the same SIP URI user Id.  The events
+                    // get labeled with a sessionId which is unique.  So the first event for
+                    // this sessionId with a remote address set will set the remoteAddress for
+                    // this call handle.
+                    address = "";
+                }
+                else 
+                {
+                   assert(rc == OS_SUCCESS) ;
+                }
+                
                 // Set Remote Connection
                 SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_WRITE);
                 if (pData)
@@ -2333,6 +2358,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceJoin(const SIPX_CONF hConf,
         hConf, hCall);
 
     SIPX_RESULT rc = SIPX_RESULT_INVALID_ARGS ;
+    UtlBoolean joinFailed = FALSE;
     bool bDoSplit = false ;
     UtlString sourceCallId ;
     UtlString sourceAddress ;
@@ -2363,7 +2389,29 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceJoin(const SIPX_CONF hConf,
                     {
                         // This is an existing conference, need to physically 
                         // join/split.
-                        if (pCallData->state == SIPX_INTERNAL_CALLSTATE_HELD)
+
+                        // Max calls per conference
+                        if(pConfData->nCalls >= CONF_MAX_CONNECTIONS)
+                        {
+                            OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+                                          "sipxConferenceJoin attempt to exceed maximum %d calls per conference: %d hCall=%d hConf=%d",
+                                          CONF_MAX_CONNECTIONS, pConfData->nCalls, hCall, hConf);
+                            rc = SIPX_RESULT_OUT_OF_RESOURCES;
+                            joinFailed = TRUE;
+                        }
+
+                        // Max resources per conference
+                        else if(!pConfData->pInst->pCallManager->canAddConnection(pConfData->strCallId->data()))
+                        {
+                            OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+                                          "sipxConferenceJoin cannot add another call to conference: %d hCall=%d hConf=%d Conf Callid: %s",
+                                          pConfData->nCalls, hCall, hConf, pConfData->strCallId->data());
+                            rc = SIPX_RESULT_OUT_OF_RESOURCES;
+                            joinFailed = TRUE;
+                        }
+
+                        // Joining a held call
+                        else if (pCallData->state == SIPX_INTERNAL_CALLSTATE_HELD)
                         {
                             // Mark data for split/drop below
                             bDoSplit = true ;
@@ -2377,23 +2425,69 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceJoin(const SIPX_CONF hConf,
                             pCallData->hConf = hConf ;
                             pConfData->hCalls[pConfData->nCalls++] = hCall ;
                         }
+
+                        // Joining a call that is in the idle state
+                        else if((pCallData->state == SIPX_INTERNAL_CALLSTATE_UNKNOWN ||
+                                 pCallData->state == SIPX_INTERNAL_CALLSTATE_OUTBOUND_IDLE) &&
+                            pCallData->hConf == SIPX_CONF_NULL) // currently do not support split of idle call
+                        {
+                            // The idle call is assocated with a CpPeerCall, but is not realized yet
+                            // as a SipConnection.  So the call handle points to an CpPeerCall
+                            // with no remote legs.  The call handle represents a to be created
+                            // remote leg so there is no CallManager operations or book keeping
+                            // to straighten out.  We just need to fix the call handle and the
+                            // conference handle assocated data so that they reference each other and 
+                            // the call handle is now part of the conference.
+
+                            // Fix the conference data to include this call handle
+                            pConfData->hCalls[pConfData->nCalls++] = hCall;
+                            targetCallId = *pConfData->strCallId;
+
+                            // Fix the call data to be associated with this call handle
+                            pCallData->hConf = hConf;
+                            sourceCallId = *pCallData->callId;
+                            *pCallData->callId = targetCallId;
+
+                            // Drop the CpPeerCall with the idle call (no legs)
+                            assert(pCallData->pInst);
+                            assert(pCallData->pInst->pCallManager);
+                            pCallData->pInst->pCallManager->drop(sourceCallId);
+                        }
+                        
+                        // Invalid call state
                         else
                         {
+                            OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+                                          "sipxConferenceJoin invalid call state: %d for join hCall=%d Target hConf=%d Source hConf: %d",
+                                          pCallData->state, hCall, hConf, pCallData->hConf);
                             rc = SIPX_RESULT_INVALID_STATE ;
+                            joinFailed = TRUE;
                         }
                     }
                 }
                 else
                 {
+                    OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+                        "sipxConferenceJoin call with no conference handle hCall=%p hConf=%p",
+                        hCall, hConf);
                     rc = SIPX_RESULT_INVALID_STATE ;
+                    joinFailed = TRUE;
                 }
 
                 sipxCallReleaseLock(pCallData, SIPX_LOCK_WRITE) ;
             }
+            else // no call data
+            {
+                joinFailed = TRUE;
+            }
             sipxConfReleaseLock(pConfData, SIPX_LOCK_WRITE) ;
         }
+        else // no conference data
+        {
+            joinFailed = TRUE;
+        }
 
-        if (bDoSplit)
+        if (bDoSplit && !joinFailed)
         {
             // Do the split
             PtStatus status = pInst->pCallManager->split(sourceCallId, sourceAddress, targetCallId) ;
@@ -2409,7 +2503,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceJoin(const SIPX_CONF hConf,
             // If the call fails -- hard to recover, drop the call anyways.
             pInst->pCallManager->drop(sourceCallId) ;
         }
-        else
+        else if(!joinFailed)
         {
             rc = SIPX_RESULT_SUCCESS ;
         }

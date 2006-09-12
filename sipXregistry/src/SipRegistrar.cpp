@@ -101,6 +101,50 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
 
       configurePeers();
    }
+
+   // Some phones insist (incorrectly) on putting the proxy port number on urls;
+   // we get it from the configuration so that we can ignore it.
+   mProxyNormalPort = mConfigDb->getPort("SIP_REGISTRAR_PROXY_PORT");
+   if (mProxyNormalPort == PORT_DEFAULT)
+   {
+      mProxyNormalPort = SIP_PORT;
+   }
+    
+   // Domain Name
+   mConfigDb->get("SIP_REGISTRAR_DOMAIN_NAME", mDefaultDomain);
+   if ( mDefaultDomain.isNull() )
+   {
+      OsSocket::getHostIp(&mDefaultDomain);
+      OsSysLog::add(FAC_SIP, PRI_CRIT,
+                    "SIP_REGISTRAR_DOMAIN_NAME not configured using IP '%s'",
+                    mDefaultDomain.data()
+                    );
+   }
+   // get the url parts for the domain
+   Url defaultDomainUrl(mDefaultDomain);
+   mDefaultDomainPort = defaultDomainUrl.getHostPort();
+   defaultDomainUrl.getHostAddress(mDefaultDomainHost);
+   // make sure that the unspecified domain name is also valid
+   addValidDomain(mDefaultDomainHost, mDefaultDomainPort);
+
+   // Domain Aliases
+   //   (other domain names that this registrar accepts as valid in the request URI)
+   UtlString domainAliases;
+   mConfigDb->get("SIP_REGISTRAR_DOMAIN_ALIASES", domainAliases);
+    
+   UtlString aliasString;
+   int aliasIndex = 0;
+   while(NameValueTokenizer::getSubField(domainAliases.data(), aliasIndex,
+                                         ", \t", &aliasString))
+   {
+      Url aliasUrl(aliasString);
+      UtlString hostAlias;
+      aliasUrl.getHostAddress(hostAlias);
+      int port = aliasUrl.getHostPort();
+
+      addValidDomain(hostAlias,port);
+      aliasIndex++;
+   }
 }
 
 int SipRegistrar::run(void* pArg)
@@ -221,6 +265,8 @@ void SipRegistrar::operationalPhase()
       mSipUserAgent->allowMethod(SIP_CANCEL_METHOD);
 
       mSipUserAgent->allowExtension("gruu"); // should be moved to gruu processor?
+
+      mSipUserAgent->setUserAgentHeaderProperty("sipX/registry");
    }
 
    if (mReplicationConfigured)
@@ -334,12 +380,27 @@ SipRegistrar::~SipRegistrar()
        mRegistrarPersist = NULL;
     }
 
+    mValidDomains.destroyAll();
+
     // release the registration database instance
     if (mRegistrationDB)
     {
        mRegistrationDB->releaseInstance();
        mRegistrationDB = NULL;
     }
+}
+
+/// Get the default domain name for this registrar 
+const char* SipRegistrar::defaultDomain() const
+{
+   return mDefaultDomain.data();
+}
+
+
+/// Get the proxy port for the domain
+int SipRegistrar::domainProxyPort() const
+{
+   return mProxyNormalPort;
 }
 
 
@@ -575,3 +636,49 @@ void SipRegistrar::createReplicationThreads()
    mRegistrarSync = new RegistrarSync(*this);
    mRegistrarTest = new RegistrarTest(*this);
 }
+
+bool
+SipRegistrar::isValidDomain(const Url& uri) const
+{
+   bool isValid = false;
+
+   UtlString domain;
+   uri.getHostAddress(domain);
+   domain.toLower();
+
+   int port = uri.getHostPort();
+   if (port == PORT_NONE)
+   {
+      port = SIP_PORT;
+   }
+   char portNum[15];
+   sprintf(portNum,"%d",port);
+
+   domain.append(":");
+   domain.append(portNum);
+
+   if ( mValidDomains.contains(&domain) )
+   {
+      isValid = true;
+      OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                    "SipRegistrar::isValidDomain(%s) VALID",
+                    domain.data()) ;
+   }
+   return isValid;
+}
+
+void
+SipRegistrar::addValidDomain(const UtlString& host, int port)
+{
+   UtlString* valid = new UtlString(host);
+   valid->toLower();
+
+   char explicitPort[20];
+   sprintf(explicitPort,":%d", PORT_NONE==port ? SIP_PORT : port );
+   valid->append(explicitPort);
+   
+   OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipRegistrar::addValidDomain(%s)",valid->data()) ;
+
+   mValidDomains.insert(valid);
+}
+

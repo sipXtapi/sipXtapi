@@ -20,6 +20,7 @@
 #include "os/OsBSem.h"
 #include "os/OsRWMutex.h"
 #include "net/SipServerBase.h"
+#include "utl/UtlHashMap.h"
 #include "utl/PluginHooks.h"
 
 // DEFINES
@@ -63,7 +64,7 @@ public:
      //:Destructor
 
 
-    static SipRegistrar* getInstance(OsConfigDb* configDb);
+    static SipRegistrar* getInstance(OsConfigDb* configDb = NULL);
 
     SipRegistrarServer& getRegistrarServer();
 
@@ -138,8 +139,27 @@ public:
     /// Get the config DB
     OsConfigDb* getConfigDB();
     
+    // Is this registrar authoritative for the domain in this URL?
+    bool isValidDomain(const Url& uri) const;
+    /**<
+     * @return
+     * - true if this registrar is authoritative for this URL
+     * - false if not
+     */
+
+    /// Get the default domain name for this registrar 
+    const char* defaultDomain() const;
+
+    /// Get the proxy port for the domain
+    int domainProxyPort() const;
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+
+    /// Configure a domain as valid for registration at this server.
+    void addValidDomain(const UtlString& host, ///<the host part of a registration url
+                        int port = PORT_NONE   ///<the port number portion of a registration url
+                        );
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -177,6 +197,14 @@ private:
    RegistrarTest* mRegistrarTest;
    RegistrarPersist* mRegistrarPersist;
 
+   UtlString mDefaultDomain;
+   int mDefaultDomainPort;
+   UtlString mDefaultDomainHost;
+   UtlHashMap mValidDomains;
+   // A port number, which if found on an AOR to register,
+   // will be removed, or PORT_NONE
+   int mProxyNormalPort;
+    
    /* ============================ REGISTRAR =================================== */
    void startRegistrarServer();
    void sendToRegistrarServer(OsMsg& eventMessage);

@@ -6,61 +6,49 @@
     - D I A L   P L A N S
   -->
   <bean id="defaultInternalRule" class="org.sipfoundry.sipxconfig.admin.dialplan.InternalRule"
-    singleton="false">
+    abstract="true">
     <property name="name" value="Internal" />
     <property name="description" value="Default internal dialing plan" />
     <property name="enabled" value="true" />
-    <property name="voiceMail" value="101" />
-    <property name="voiceMailPrefix" value="8" />
   </bean>
 
   <bean id="defaultAttendantRule" class="org.sipfoundry.sipxconfig.admin.dialplan.AttendantRule"
-    singleton="false">
+    abstract="true">
     <property name="name" value="AutoAttendant" />
     <property name="description" value="Default autoattendant dialing plan" />
     <property name="enabled" value="true" />
-    <property name="extension" value="100" />
-    <property name="attendantAliases" value="operator 0" />
   </bean>
 
   <bean id="defaultEmergencyRule" class="org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRule"
-    singleton="false">
+    abstract="true">
     <property name="name" value="Emergency" />
     <property name="description" value="Emergency dialing plan" />
     <property name="enabled" value="false" />
-    <property name="optionalPrefix" value="9" />
-    <property name="emergencyNumber" value="911" />
   </bean>
 
   <bean id="defaultLongDistanceRule"
-    class="org.sipfoundry.sipxconfig.admin.dialplan.LongDistanceRule" singleton="false">
+    class="org.sipfoundry.sipxconfig.admin.dialplan.LongDistanceRule" abstract="true">
     <property name="permissionManager" ref="permissionManager" />
     <property name="name" value="Long Distance" />
     <property name="description" value="Long distance dialing plan" />
     <property name="enabled" value="false" />
-    <property name="pstnPrefixOptional" value="true" />
-    <property name="pstnPrefix" value="9" />
-    <property name="longDistancePrefixOptional" value="false" />
-    <property name="longDistancePrefix" value="1" />
-    <property name="externalLen" value="10" />
-    <property name="permissionName" value="LongDistanceDialing" />
   </bean>
 
-  <bean id="defaultTollFreeRule" parent="defaultLongDistanceRule" singleton="false">
+  <bean id="defaultTollFreeRule" parent="defaultLongDistanceRule" abstract="true">
     <property name="name" value="Toll free" />
     <property name="description" value="Toll free dialing" />
     <property name="areaCodes" value="800, 866, 877, 888" />
     <property name="permissionName" value="TollFree" />
   </bean>
 
-  <bean id="defaultRestrictedRule" parent="defaultLongDistanceRule" singleton="false">
+  <bean id="defaultRestrictedRule" parent="defaultLongDistanceRule" abstract="true">
     <property name="name" value="Restricted" />
     <property name="description" value="Restricted dialing" />
     <property name="areaCodes" value="900" />
     <property name="permissionName" value="900Dialing" />
   </bean>
 
-  <bean id="defaultInternationalRule" parent="defaultLongDistanceRule" singleton="false">
+  <bean id="defaultInternationalRule" parent="defaultLongDistanceRule" abstract="true">
     <property name="name" value="International" />
     <property name="description" value="International dialing" />
     <property name="longDistancePrefix" value="011" />
@@ -68,7 +56,7 @@
     <property name="permissionName" value="InternationalDialing" />
   </bean>
 
-  <bean id="defaultLocalRule" parent="defaultLongDistanceRule" singleton="false">
+  <bean id="defaultLocalRule" parent="defaultLongDistanceRule" abstract="true">
     <property name="name" value="Local" />
     <property name="description" value="Local dialing" />
     <property name="pstnPrefix" value="9" />
@@ -84,34 +72,26 @@
   </bean>
 
   <bean id="defaultDialPlan" class="org.sipfoundry.sipxconfig.admin.dialplan.DialPlan"
-    singleton="false">
-    <property name="rules">
-      <list>
-        <ref bean="defaultEmergencyRule" />
-        <ref bean="defaultInternationalRule" />
-        <ref bean="defaultLocalRule" />
-        <ref bean="defaultLongDistanceRule" />
-        <ref bean="defaultRestrictedRule" />
-        <ref bean="defaultTollFreeRule" />
-        <ref bean="defaultAttendantRule" />
-        <ref bean="defaultInternalRule" />
-      </list>
-    </property>
+    singleton="false" abstract="true">
   </bean>
 
-  <bean id="dialingRuleFactory"
-    class="org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleFactory">
-    <!-- list all the rules that should be accessible from Add New Rule menu -->
+  <!-- list all the rules that should be accessible from Add New Rule menu -->
+  <bean id="defaultDialingRuleFactory"
+    class="org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleFactory" abstract="true">
+  </bean>
+
+  <!-- this is the list of rules that are accesible from Add New Rule dropdown menu -->
+  <!-- some of the bean names here refer to beans defined in etc/dialplan/dialrules.beans.xml -->
+  <bean id="dialingRuleFactory" parent="defaultDialingRuleFactory">
     <property name="beanIds">
       <list>
-        <value>defaultInternalRule</value>
+        <value>internalRule</value>
         <value>defaultCustomRule</value>
-        <value>defaultInternalRule</value>
-        <value>defaultLongDistanceRule</value>
-        <value>defaultLocalRule</value>
-        <value>defaultEmergencyRule</value>
-        <value>defaultInternationalRule</value>
-        <value>defaultAttendantRule</value>
+        <value>longDistanceRule</value>
+        <value>localRule</value>
+        <value>emergencyRule</value>
+        <value>internationalRule</value>
+        <value>attendantRule</value>
       </list>
     </property>
   </bean>

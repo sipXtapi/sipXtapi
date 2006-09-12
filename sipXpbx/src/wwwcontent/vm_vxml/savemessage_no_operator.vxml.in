@@ -61,13 +61,13 @@
             </prompt>
             <prompt cond="msgurltype == 'url'" timeout="1s">
                 <audio expr="msgurl"/>
-                <audio expr="mediaserverurl + promptsalias + 'deposit_greeting_extn.wav'" />
+                <audio expr="mediaserverurl + promptsalias + 'deposit_greeting_extn_no_operator.wav'" />
             </prompt>
             <prompt cond="msgurltype == 'name'" timeout="1s">
                 <audio expr="msgurl"/>
                 <audio expr="mediaserverurl + promptsalias + 'is_not_available.wav'" />
                 <audio expr="mediaserverurl + promptsalias + 'please_leave_a_msg.wav'" />
-                <audio expr="mediaserverurl + promptsalias + 'deposit_greeting_extn.wav'" />
+                <audio expr="mediaserverurl + promptsalias + 'deposit_greeting_extn_no_operator.wav'" />
             </prompt>
             <prompt cond="msgurltype == 'extension'" timeout="1s">
                 <audio expr="mediaserverurl + promptsalias + 'default_greeting_prefix.wav'" />
@@ -80,7 +80,7 @@
             <prompt cond="msgurltype == 'extension'" timeout="1s">
                 <audio expr="mediaserverurl + promptsalias + 'is_not_available.wav'" />
                 <audio expr="mediaserverurl + promptsalias + 'please_leave_a_msg.wav'" />
-                <audio expr="mediaserverurl + promptsalias + 'deposit_greeting_extn.wav'" />
+                <audio expr="mediaserverurl + promptsalias + 'deposit_greeting_extn_no_operator.wav'" />
             </prompt>
             <prompt cond="msgurltype == 'alphanumeric'" timeout="1s">
                 <audio expr="mediaserverurl + promptsalias + 'default_greeting_prefix.wav'" />
@@ -93,7 +93,7 @@
             <prompt cond="msgurltype == 'alphanumeric'" timeout="1s">
                 <audio expr="mediaserverurl + promptsalias + 'is_not_available.wav'" />
                 <audio expr="mediaserverurl + promptsalias + 'please_leave_a_msg.wav'"/>
-                <audio expr="mediaserverurl + promptsalias + 'deposit_greeting_extn.wav'" />
+                <audio expr="mediaserverurl + promptsalias + 'deposit_greeting_extn_no_operator.wav'" />
             </prompt>
             <filled>
                 <if cond="playgreeting == '*'" >
@@ -104,6 +104,7 @@
                         </prompt>
                         <return />
                     <else />
+                        <assign name="action" expr="'login'" />
 		        <goto nextitem="login" />
                     </if>
                 <else />
@@ -124,7 +125,8 @@
         </field>
 
 	<!-- Proceed to login menu -->
-	<subdialog name="login" method="get" src="login.vxml">
+	<subdialog name="login" cond="action=='login'" method="get" 
+          src="login.vxml">
 	    <param name="mailbox" expr="mailbox" />
 	    <param name="extn" expr="mailbox" />
 	    <param name="from" expr="from" />

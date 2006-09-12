@@ -1,68 +1,44 @@
 /* ---- button --- */
 .dojoButton {
 	padding: 0 0 0 0;
-	margin: 0 0 0 0;
 	font-size: 8pt;
 	white-space: nowrap;
 	cursor: pointer;
+	font-family: Myriad, Tahoma, Verdana, sans-serif;
 }
 
-.dojoButton.dojoDisabled {
-	cursor: default;
-}
-
-.dojoButton a {
-	color: black;
-	text-decoration: none;
-}
-.dojoButton.dojoDisabled a {
-	color: #999;
-}
-
-.dojoButton .label {
-	padding-right: 5px;
+.dojoButton .dojoButtonContents {
+	padding: 2px 2px 2px 2px;
 	text-align: center;		/* if icon and label are split across two lines, center icon */
+	color: white;
 }
 
-.dojoButton img {
+.dojoButtonLeftPart .dojoButtonContents {
+	padding-right: 8px;
+}
+
+.dojoButtonDisabled {
+	cursor: url("images/no.gif"), default;
+}
+
+
+.dojoButtonContents img {
 	vertical-align: middle;	/* if icon and label are on same line, center them */
 }
 
-.dojoButton td, .dojoButtonWrapper td {
-	margin: 0 0 0 0;
-	padding: 0 0 0 0;
-	position: relative;
-}
-.dojoButton table {
-	padding: 0 0 0 0;
-	cell-spacing: 0px;
-	cell-padding: 0px;
-}
-
 /* -------- colors ------------ */
-.dojoButtonNoHover  {
+
+.dojoButtonHover .dojoButtonContents {
 }
 
-.dojoButtonHover {
+.dojoButtonDepressed .dojoButtonContents {
+	color: #293a4b;
 }
 
-.dojoButton.disabled, .dojoButton.disabled * {
-	color : #999;
-	cursor : default;
-	background-color : #f4f4f4;
+.dojoButtonDisabled .dojoButtonContents {
+	color: #eeeeee;
 }
 
-/** ----- container for the button and stub to attach the menu below it ----- **/
-.dojoButtonWrapper {
-	border-spacing: 0px;
-	cell-spacing: 0px;
-	cell-padding: 0px;
-	margin: 0 0 0 0;
-	padding: 0 0 0 0;
-	display: inline;
-	margin-right: 10px;
-	text-decoration: none;
-}
 
 /* ---------- drop down button specific ---------- */
 

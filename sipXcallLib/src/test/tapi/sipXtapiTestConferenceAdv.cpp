@@ -1,5 +1,13 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
+//
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
 // 
 //
 // $$
@@ -20,6 +28,8 @@ extern SIPX_INST g_hInst5;
 
 extern bool g_bCallbackCalled;
 
+// Do not check in with print enabled
+//#define TEST_PRINT
 
 void sipXtapiTestSuite::testConfHoldIndividual()
 {
@@ -340,10 +350,26 @@ void sipXtapiTestSuite::testConfJoin()
         CPPUNIT_ASSERT_EQUAL(sipxConferenceGetCalls(hConf, hCheckCalls, 10, nCheckCalls), SIPX_RESULT_SUCCESS) ;
         CPPUNIT_ASSERT(nCheckCalls == 1) ;
         CPPUNIT_ASSERT(hCheckCalls[0] == hCall1) ;
-
+#ifdef TEST_PRINT
+        UtlString callDumpString2;
+#endif
         // Setup 2nd Leg        
         CPPUNIT_ASSERT_EQUAL(sipxConferenceAdd(hConf, hLine, "sip:blah2@127.0.0.1:10000", &hCall2), SIPX_RESULT_SUCCESS) ;
 
+#ifdef TEST_PRINT
+        // Capture dump for call2 ASAP after sipxConferenceAdd to see remoteAddress
+        sipxCallDataToString(hCall2, callDumpString2);
+
+        UtlString confDumpString;
+        sipxConfDataToString(hConf, confDumpString);
+        printf("testConfJoin add second leg conf:\n %s\n", confDumpString.data());
+
+        UtlString callDumpString1;
+        sipxCallDataToString(hCall1, callDumpString1);
+        printf("testConfJoin add second leg call1:\n %s\n", callDumpString1.data());
+
+        printf("testConfJoin add second leg call2:\n %s\n", callDumpString2.data());
+#endif
         // Validate Calling Side
         bRC = validatorCalling.waitForCallEvent(hLine, hCall2, CALLSTATE_DIALTONE, CALLSTATE_DIALTONE_CONFERENCE, true) ;
         CPPUNIT_ASSERT(bRC) ;
@@ -457,6 +483,278 @@ void sipXtapiTestSuite::testConfJoin()
     checkForLeaks() ;
 }
 
+
+// Setup conferencing using join (first party), create, join and connect the second party.
+void sipXtapiTestSuite::testConfCreateJoin()
+{
+    bool bRC ;
+    EventValidator validatorCalling("testConfCreateJoin.calling") ;
+    EventValidator validatorCalled1("testConfCreateJoin.called1") ;
+    EventValidator validatorCalled2("testConfCreateJoin.called2") ;
+
+    for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    {
+        printf("\ntestConfCreateJoin (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
+
+        SIPX_CALL hCall1 ;
+        SIPX_CALL hCall2 ;
+        SIPX_CONF hConf ;
+        SIPX_LINE hLine ;
+        SIPX_LINE hReceivingLine1;
+        SIPX_LINE hReceivingLine2;
+
+        SIPX_CALL hCheckCalls[10] ;
+        size_t nCheckCalls ;
+
+        validatorCalling.reset() ;
+        validatorCalled1.reset() ;
+        validatorCalled2.reset() ;
+
+        // Setup Auto-answer call back        
+        resetAutoAnswerCallback() ;
+        resetAutoAnswerCallback2() ;
+        sipxEventListenerAdd(g_hInst, UniversalEventValidatorCallback, &validatorCalling) ;
+        sipxEventListenerAdd(g_hInst2, UniversalEventValidatorCallback, &validatorCalled1) ;
+        sipxEventListenerAdd(g_hInst2, AutoAnswerCallback, NULL) ;       
+        sipxEventListenerAdd(g_hInst3, UniversalEventValidatorCallback, &validatorCalled2) ;
+        sipxEventListenerAdd(g_hInst3, AutoAnswerCallback2, NULL) ;       
+
+        // Create Lines
+        CPPUNIT_ASSERT_EQUAL(sipxLineAdd(g_hInst, "sip:foo@127.0.0.1:8000", &hLine), SIPX_RESULT_SUCCESS) ;
+        bRC = validatorCalling.waitForLineEvent(hLine, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        CPPUNIT_ASSERT_EQUAL(sipxLineAdd(g_hInst2, "sip:foo@127.0.0.1:9100", &hReceivingLine1, CONTACT_AUTO), SIPX_RESULT_SUCCESS) ;
+        bRC = validatorCalled1.waitForLineEvent(hReceivingLine1, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        CPPUNIT_ASSERT_EQUAL(sipxLineAdd(g_hInst3, "sip:foo@127.0.0.1:10000", &hReceivingLine2, CONTACT_AUTO), SIPX_RESULT_SUCCESS) ;
+        bRC = validatorCalled2.waitForLineEvent(hReceivingLine2, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        // Setup first leg
+        CPPUNIT_ASSERT_EQUAL(sipxCallCreate(g_hInst, hLine, &hCall1), SIPX_RESULT_SUCCESS) ; 
+#ifdef TEST_PRINT
+        UtlString callDumpString;
+
+        sipxCallDataToString(hCall1, callDumpString);
+        printf("testConfCreateJoin create first leg call:\n %s\n", callDumpString.data());
+#endif
+
+        CPPUNIT_ASSERT_EQUAL(sipxCallConnect(hCall1, "sip:blah@127.0.0.1:9100"), SIPX_RESULT_SUCCESS) ; 
+#ifdef TEST_PRINT
+        sipxCallDataToString(hCall1, callDumpString);
+        printf("testConfCreateJoin connect first leg call:\n %s\n", callDumpString.data());
+#endif
+        
+        // Validate Calling Side
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall1, CALLSTATE_DIALTONE, CALLSTATE_DIALTONE_UNKNOWN, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall1, CALLSTATE_REMOTE_OFFERING, CALLSTATE_REMOTE_OFFERING_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall1, CALLSTATE_REMOTE_ALERTING, CALLSTATE_REMOTE_ALERTING_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall1, CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall1, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_START, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        // Validate Called Side
+        bRC = validatorCalled1.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_NEWCALL, CALLSTATE_NEW_CALL_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled1.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_OFFERING, CALLSTATE_OFFERING_ACTIVE, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled1.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_ALERTING, CALLSTATE_ALERTING_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled1.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled1.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_START, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        // Make sure we don't have any unexpected events
+        CPPUNIT_ASSERT(!validatorCalling.validateNoWaitingEvent()) ;
+        CPPUNIT_ASSERT(!validatorCalled1.validateNoWaitingEvent()) ;
+        CPPUNIT_ASSERT(!validatorCalled2.validateNoWaitingEvent()) ;
+
+        // Do the join
+        CPPUNIT_ASSERT_EQUAL(sipxConferenceCreate(g_hInst, &hConf), SIPX_RESULT_SUCCESS) ;
+#ifdef TEST_PRINT
+        UtlString confDumpString;
+        sipxConfDataToString(hConf, confDumpString);
+        printf("testConfCreateJoin create conf:\n %s\n", confDumpString.data());
+#endif
+
+        CPPUNIT_ASSERT_EQUAL(sipxConferenceJoin(hConf, hCall1), SIPX_RESULT_SUCCESS) ;
+#ifdef TEST_PRINT
+        sipxConfDataToString(hConf, confDumpString);
+        printf("testConfCreateJoin join first leg conf:\n %s\n", confDumpString.data());
+
+        sipxCallDataToString(hCall1, callDumpString);
+        printf("testConfCreateJoin join first leg call:\n %s\n", callDumpString.data());
+#endif
+
+        // Validate Get Calls
+        CPPUNIT_ASSERT_EQUAL(sipxConferenceGetCalls(hConf, hCheckCalls, 10, nCheckCalls), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT(nCheckCalls == 1) ;
+        CPPUNIT_ASSERT(hCheckCalls[0] == hCall1) ;
+
+        // Setup 2nd Leg doing a createCall, join and connect to get discrete DIALTONE event
+        //CPPUNIT_ASSERT_EQUAL(sipxConferenceAdd(hConf, hLine, "sip:blah2@127.0.0.1:10000", &hCall2), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxCallCreate(g_hInst, hLine, &hCall2), SIPX_RESULT_SUCCESS);
+#ifdef TEST_PRINT
+        sipxCallDataToString(hCall2, callDumpString);
+        printf("testConfCreateJoin create second leg call2:\n %s\n", callDumpString.data());
+#endif
+        // Validate Calling Side
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall2, CALLSTATE_DIALTONE, CALLSTATE_DIALTONE_UNKNOWN, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+ 
+        // Should be legal to join a call in the idle state
+        CPPUNIT_ASSERT_EQUAL(sipxConferenceJoin(hConf, hCall2), SIPX_RESULT_SUCCESS);
+#ifdef TEST_PRINT
+        sipxConfDataToString(hConf, confDumpString);
+        printf("testConfCreateJoin join second leg conf:\n %s\n", confDumpString.data());
+
+        sipxCallDataToString(hCall1, callDumpString);
+        printf("testConfCreateJoin join second leg call1:\n %s\n", callDumpString.data());
+
+        sipxCallDataToString(hCall2, callDumpString);
+        printf("testConfCreateJoin join second leg call2:\n %s\n", callDumpString.data());
+#endif
+
+        CPPUNIT_ASSERT_EQUAL(sipxCallConnect(hCall2, "sip:blah2@127.0.0.1:10000"), SIPX_RESULT_SUCCESS);
+#ifdef TEST_PRINT
+        sipxConfDataToString(hConf, confDumpString);
+        printf("testConfCreateJoin connect second leg conf:\n %s\n", confDumpString.data());
+
+        sipxCallDataToString(hCall1, callDumpString);
+        printf("testConfCreateJoin connect second leg call1:\n %s\n", callDumpString.data());
+
+        sipxCallDataToString(hCall2, callDumpString);
+        printf("testConfCreateJoin connect second leg call2:\n %s\n", callDumpString.data());
+#endif
+
+        // Validate Calling Side
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall2, CALLSTATE_REMOTE_OFFERING, CALLSTATE_REMOTE_OFFERING_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall2, CALLSTATE_REMOTE_ALERTING, CALLSTATE_REMOTE_ALERTING_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall2, CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall2, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_START, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        // Validate Called Side
+        bRC = validatorCalled2.waitForCallEvent(g_hAutoAnswerCallbackLine2, g_hAutoAnswerCallbackCall2, CALLSTATE_NEWCALL, CALLSTATE_NEW_CALL_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled2.waitForCallEvent(g_hAutoAnswerCallbackLine2, g_hAutoAnswerCallbackCall2, CALLSTATE_OFFERING, CALLSTATE_OFFERING_ACTIVE, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled2.waitForCallEvent(g_hAutoAnswerCallbackLine2, g_hAutoAnswerCallbackCall2, CALLSTATE_ALERTING, CALLSTATE_ALERTING_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled2.waitForCallEvent(g_hAutoAnswerCallbackLine2, g_hAutoAnswerCallbackCall2, CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled2.waitForCallEvent(g_hAutoAnswerCallbackLine2, g_hAutoAnswerCallbackCall2, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_START, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        // Make sure we don't have any unexpected events
+        CPPUNIT_ASSERT(!validatorCalling.validateNoWaitingEvent()) ;
+        CPPUNIT_ASSERT(!validatorCalled1.validateNoWaitingEvent()) ;
+        CPPUNIT_ASSERT(!validatorCalled2.validateNoWaitingEvent()) ;
+
+        // Validate Get Calls
+        CPPUNIT_ASSERT_EQUAL(sipxConferenceGetCalls(hConf, hCheckCalls, 10, nCheckCalls), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT(nCheckCalls == 2) ;
+        CPPUNIT_ASSERT(hCheckCalls[0] == hCall1) ;
+        CPPUNIT_ASSERT(hCheckCalls[1] == hCall2) ;
+        CPPUNIT_ASSERT(hCheckCalls[0] != hCheckCalls[1]) ;
+
+#ifdef TEST_PRINT
+        sipxConfDataToString(hConf, confDumpString);
+        printf("testConfCreateJoin steady state 2 legs conf:\n %s\n", confDumpString.data());
+
+        sipxCallDataToString(hCall1, callDumpString);
+        printf("testConfCreateJoin steady state 2 legs call1:\n %s\n", callDumpString.data());
+
+        sipxCallDataToString(hCall2, callDumpString);
+        printf("testConfCreateJoin steady state 2 legs call2:\n %s\n", callDumpString.data());
+#endif
+
+        // Tear Down first leg
+        CPPUNIT_ASSERT_EQUAL(sipxConferenceRemove(hConf, hCall1), SIPX_RESULT_SUCCESS) ;        
+        // TODO: FIX PT-1
+        // bRC = validatorCalling.waitForCallEvent(hLine, hCall1, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_STOP, true) ;
+        // CPPUNIT_ASSERT(bRC) ;
+        
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall1, CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;        
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall1, CALLSTATE_DESTROYED, CALLSTATE_DESTROYED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        // Validate Called Sides
+        bRC = validatorCalled1.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_STOP, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled1.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled1.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_DESTROYED, CALLSTATE_DESTROYED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        // Make sure we don't have any unexpected events
+        CPPUNIT_ASSERT(!validatorCalling.validateNoWaitingEvent()) ;
+        CPPUNIT_ASSERT(!validatorCalled1.validateNoWaitingEvent()) ;
+        CPPUNIT_ASSERT(!validatorCalled2.validateNoWaitingEvent()) ;
+
+        // Validate Get Calls
+        CPPUNIT_ASSERT_EQUAL(sipxConferenceGetCalls(hConf, hCheckCalls, 10, nCheckCalls), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT(nCheckCalls == 1) ;
+        CPPUNIT_ASSERT(hCheckCalls[0] == hCall2) ;
+
+        // Tear Down 2nd leg
+        CPPUNIT_ASSERT_EQUAL(sipxConferenceRemove(hConf, hCall2), SIPX_RESULT_SUCCESS) ;        
+
+        // TODO: FIX PT-1
+        // bRC = validatorCalling.waitForCallEvent(hLine, hCall2, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_STOP, true) ;
+        // CPPUNIT_ASSERT(bRC) ;
+                
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall2, CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall2, CALLSTATE_DESTROYED, CALLSTATE_DESTROYED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        // Validate Called Sides
+        bRC = validatorCalled2.waitForCallEvent(g_hAutoAnswerCallbackLine2, g_hAutoAnswerCallbackCall2, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_STOP, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled2.waitForCallEvent(g_hAutoAnswerCallbackLine2, g_hAutoAnswerCallbackCall2, CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled2.waitForCallEvent(g_hAutoAnswerCallbackLine2, g_hAutoAnswerCallbackCall2, CALLSTATE_DESTROYED, CALLSTATE_DESTROYED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        // Make sure we don't have any unexpected events
+        CPPUNIT_ASSERT(!validatorCalling.validateNoWaitingEvent()) ;
+        CPPUNIT_ASSERT(!validatorCalled1.validateNoWaitingEvent()) ;
+        CPPUNIT_ASSERT(!validatorCalled2.validateNoWaitingEvent()) ;
+
+        // Tear down conference
+        CPPUNIT_ASSERT_EQUAL(sipxConferenceDestroy(hConf), SIPX_RESULT_SUCCESS) ;
+
+        // Make sure we don't have any unexpected events
+        CPPUNIT_ASSERT(!validatorCalling.validateNoWaitingEvent()) ;
+        CPPUNIT_ASSERT(!validatorCalled1.validateNoWaitingEvent()) ;
+        CPPUNIT_ASSERT(!validatorCalled2.validateNoWaitingEvent()) ;
+
+        CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst, UniversalEventValidatorCallback, &validatorCalling), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst2, UniversalEventValidatorCallback, &validatorCalled1), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst2, AutoAnswerCallback, NULL), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst3, UniversalEventValidatorCallback, &validatorCalled2), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst3, AutoAnswerCallback2, NULL), SIPX_RESULT_SUCCESS) ;
+    
+        CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hLine), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hReceivingLine1), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hReceivingLine2), SIPX_RESULT_SUCCESS) ;
+    }
+
+    OsTask::delay(TEST_DELAY*2) ;    
+    checkForLeaks() ;
+}
 
 void sipXtapiTestSuite::testConfHoldBridge()
 {

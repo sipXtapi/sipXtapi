@@ -99,7 +99,7 @@
 
   <target name="test-models">
     <xmlvalidate description="validate setting description files">
-      <fileset dir="${plugin.models.dir}" includes="**/*.xml">
+      <fileset dir="${plugin.models.dir}" includes="**/*.xml" excludes="**/types.xml">
       </fileset>
       <dtd publicid="-//SIPFoundry//sipXconfig//Model specification 2.0//EN" location="etc/setting.dtd" />
     </xmlvalidate>

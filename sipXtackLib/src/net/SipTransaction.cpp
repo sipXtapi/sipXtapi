@@ -505,14 +505,14 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
        && !mIsDnsSrvChild
        && (method.compareTo(SIP_CANCEL_METHOD) == 0))
     {
-        if (OsSysLog::willLog(FAC_SIP, PRI_WARNING))
+        if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
         {
             UtlString requestString;
             int len;
             outgoingMessage.getBytes(&requestString, &len);
             UtlString transString;
             toString(transString, TRUE);
-            OsSysLog::add(FAC_SIP, PRI_WARNING,
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SipTransaction::handleOutgoing "
                           "should not send CANCEL on DNS parent\n%s\n%s",
                 requestString.data(),
@@ -2210,6 +2210,13 @@ void SipTransaction::handleChildTimeoutEvent(SipTransaction& child,
 #ifdef LOG_FORKING
                             OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::handleChildTimeoutEvent %p sending best response", this);
 #endif
+                            if (   (SIP_REQUEST_TIMEOUT_CODE == bestResponseCode)
+                                && (!bestResponse.hasSelfHeader())
+                                )
+                            {
+                               userAgent.setSelfHeader(bestResponse);
+                            }
+                            
                             handleOutgoing(bestResponse,
                                             userAgent,
                                             transactionList,

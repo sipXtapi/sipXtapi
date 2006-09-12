@@ -2,15 +2,18 @@
 # Model $phone.Model.Name Maxlines $phone.Model.MaxLineCount
 #foreach ($group in $phone.Settings.Values)
 #foreach ($setting in $group.Values)
+#if($setting.Value.trim())
 ${setting.ProfileName}: $!{setting.Value}
 #end
 #end
-
+#end
 #foreach ($line in $phone.ProfileLines)
 #set ($i = $velocityCount)
 #foreach ($group in $line.Values)
 #foreach ($setting in $group.Values)
+#if($setting.Value.trim())
 ${setting.ProfileName}${i}: $!{setting.Value}
+#end
 #end
 #end
 #end

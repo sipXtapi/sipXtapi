@@ -19,6 +19,8 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
@@ -49,6 +51,8 @@ public class User extends BeanWithGroups implements NamedObject {
     // anything, it's just "superadmin" by current convention.
     public static final String SUPERADMIN = "superadmin";
 
+    private static final Pattern PATTERN_NUMERIC = Pattern.compile("\\d+");
+
     private PermissionManager m_permissionManager;
 
     private String m_firstName;
@@ -60,8 +64,10 @@ public class User extends BeanWithGroups implements NamedObject {
     private String m_lastName;
 
     private String m_userName;
+    
+    private String m_externalNumber;
 
-    private Set m_aliases = new LinkedHashSet(0);
+    private Set<String> m_aliases = new LinkedHashSet<String>(0);
 
     private Set m_supervisorForGroups;
 
@@ -136,6 +142,14 @@ public class User extends BeanWithGroups implements NamedObject {
         m_userName = userName;
     }
 
+    public String getExternalNumber() {
+        return m_externalNumber;
+    }
+    
+    public void setExternalNumber(String externalNumber) {
+        m_externalNumber = externalNumber;
+    }
+    
     public String getDisplayName() {
         Object[] names = {
             m_firstName, m_lastName
@@ -144,12 +158,24 @@ public class User extends BeanWithGroups implements NamedObject {
         return StringUtils.trimToNull(s);
     }
 
-    public Set getAliases() {
+    public Set<String> getAliases() {
         return m_aliases;
     }
 
-    public void setAliases(Set aliases) {
+    public void setAliases(Set<String> aliases) {
         m_aliases = aliases;
+    }
+
+    public List<String> getNumericAliases() {
+        Set<String> aliases = getAliases();
+        List<String> numeric = new ArrayList<String>(aliases.size());
+        for (String alias : aliases) {
+            Matcher m = PATTERN_NUMERIC.matcher(alias);
+            if (m.matches()) {
+                numeric.add(alias);
+            }
+        }
+        return numeric;
     }
 
     /**
@@ -158,7 +184,7 @@ public class User extends BeanWithGroups implements NamedObject {
      * with it. Also, by copying the aliases, subsequent changes to the input Set won't affect the
      * user's Set, since it is a separate object.
      */
-    public void copyAliases(Collection aliases) {
+    public void copyAliases(Collection<String> aliases) {
         getAliases().clear();
         getAliases().addAll(aliases);
     }
@@ -193,7 +219,7 @@ public class User extends BeanWithGroups implements NamedObject {
     public String getUri(String domainName) {
         return SipUri.format(this, domainName);
     }
-
+    
     @Override
     protected Setting loadSettings() {
         return m_permissionManager.getPermissionModel();

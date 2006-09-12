@@ -156,10 +156,6 @@ public:
     /** Gets the absolute or relative path prefix for static data files */
     static OsPath getCfgPath() ;
 
-    /** Is verbose logging enabled? */
-    static UtlBoolean isVerboseLoggingEnabled() ;
-
-
 protected:
     /**
      * Registerd the database and pid, opens the DB if necessary
@@ -181,9 +177,6 @@ protected:
 
     // Fast DB instance
     static dbDatabase* spFastDB;
-
-    // used to log to a special file
-    static UtlBoolean gVerboseLoggingEnabled;
 
     // the working directory for all database instances
     // the XML files are located here (var)

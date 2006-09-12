@@ -153,14 +153,14 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
         UtlString resourceId("111@");
         UtlString eventTypeKey("message-summary");
         UtlString eventType(eventTypeKey);
-        UtlString from("Frida<sip:111@localhost:");
-        UtlString to("Tia<sip:222@localhost:");
+        UtlString from("Frida<sip:111@");
+        UtlString to("Tia<sip:222@");
         UtlString contact("sip:111@");
 
         resourceId.append(hostPort);
-        from.append(portText);
+        from.append(hostPort);
         from.append('>');
-        to.append(portText);
+        to.append(hostPort);
         to.append('>');
         contact.append(hostPort);
         SipUserAgent* userAgent = new SipUserAgent(UNIT_TEST_SIP_PORT, UNIT_TEST_SIP_PORT);

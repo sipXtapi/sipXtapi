@@ -13,14 +13,14 @@
 
   The redirectors are (in their current order):
 
-  1) Registrations ($prefix/var/sipxdata/sipdb/registration.xml)
+  ++ Registrations ($prefix/var/sipxdata/sipdb/registration.xml)
 
      If the target URI matches a registered address, then the Contact
      addresses sent in the registration are added.  These are stored
      in the in-memory database, but are made persistent in the XML
      file.
 
-  2) Aliases ($prefix/var/sipxdata/sipdb/alias.xml)
+  ++ Aliases ($prefix/var/sipxdata/sipdb/alias.xml)
 
      The file maps addresses based on the contacts configured in the
      XML file.  Each AOR can translate to any number of contacts.
@@ -28,14 +28,28 @@
      SIP URL to an extension number (or the reverse).  There is an
      example alias.xml file in this directory.
 
-  3) Mapping Rules ($prefix/etc/sipxpbx/mappingrules.xml)
+  ++ SUBSCRIBE Processing
+
+     If the request method is SUBSCRIBE, this step removes the q
+     values from all the contacts, so the SUBSCRIBE always forks in
+     parallel rather than in series.  This ensures that the subscriber
+     gets a prompt response from all targets for the requested
+     extension.  This is placed here in the order so that it does not
+     apply to contacts added by later phases, but affects only
+     contacts added by user agents directly or provisioned aliase;
+     this has the effect that low q-value contacts like fallback to
+     voicemail are not pursued.  Since most SUBSCRIBEs are concerned
+     only with local events, this reduces the number of messages
+     forked to systems that don't do anything useful with them anyway.
+
+  ++ Mapping Rules ($prefix/etc/sipxpbx/mappingrules.xml)
 
      Mapping rules provide the means to select addresses based on host
      and user name patterns and configured permissions, and then add
      contacts.  Mapping rules may use the results of those matches and
      other configured data to add contacts to the result set.
 
-  4) Fallback Mapping Rules ($prefix/etc/sipxpbx/fallbackrules.xml)
+  ++ Fallback Mapping Rules ($prefix/etc/sipxpbx/fallbackrules.xml)
 
      This phase is used _only_ if there are no contacts in the result
      set when it is reached; if the result set is non-empty, this
@@ -45,7 +59,7 @@
      this phase uses the same syntax and expressive ability as the
      first Mapping Rules phase.
 
-  5) Hunt Group Reordering ($prefix/var/sipxdata/sipdb/huntgroup.xml)
+  ++ Hunt Group Reordering ($prefix/var/sipxdata/sipdb/huntgroup.xml)
 
      This phase occurs _only_ if the result set is non-empty.  If the
      target URI is found in the huntgroups file, then any contacts in
@@ -58,15 +72,7 @@
      range).  There is an example huntgroup.xml file in this
      directory.
 
-  6) SUBSCRIBE Processing
-
-     If the request method is SUBSCRIBE, this step removes the q
-     values from all the contacts, so the SUBSCRIBE always forks in
-     parallel rather than in series.  This ensures that the subscriber
-     gets a prompt response from all targets for the requested
-     extension.
-
-  7) Global Call Pick-Up Processing
+  ++ Global Call Pick-Up Processing
      ($prefix/var/sipxdata/sipdb/credentials.xml)
 
      This redirector handles the mappings needed by the Global Call
@@ -74,6 +80,26 @@
      pick-up feature code to a proper invocation of the pick-up agent,
      and it maps the special "all extensions" user name
      ("*allcredentials") to all URIs in the credentials.xml file.
+
+  ++ Caller Alias Processing
+     ($prefix/var/sipxdata/sipdb/caller-alias.xml)
+
+     This redirector processes Contacts added by earlier steps to
+     determine if there is a caller alias defined for the identity of
+     the caller when calling to the target domain.  At this time, the
+     identity of the caller is just the From header identity (the
+     identity being just the 'user@domain' part of the uri).  The
+     target domain is the domain part of the Contact URI.  For each
+     Contact, these values are extracted and a lookup is done in the
+     caller-alias database.  First, both values are used; if this
+     specific entry is found, then the returned caller_alias value is
+     added to the Contact as the value of the From field header
+     parameter.  If there is no specific entry, then the database is
+     checked for an entry that specifies the target domain with no
+     identity; if this domain wildcard entry is found, then the
+     returned From field value is used as the From value.  If there
+     are no Contacts, this step is a no-op; it never adds Contact
+     values.
 
   Other Configuration files
   =========================

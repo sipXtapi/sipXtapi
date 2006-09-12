@@ -149,13 +149,5 @@ bool getContactAdapterName(char* szAdapter, const char* szIp)
       delete adapterAddresses[i];
    }
    
-   if (found)
-   {
-      return true;
-   }
-   else
-   {
-      return false;
-   }
+   return found;
 }
-

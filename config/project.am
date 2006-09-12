@@ -10,7 +10,7 @@ all: BUILDSTAMP
 .PHONY: BUILDSTAMP
 BUILDSTAMP:
 	@echo "Generating BUILDSTAMP" 
-	mkdir config || echo "config dir exists"
+	test -d config || mkdir config
 	sipxSvnVersion="$(RELEASE)" ; \
 	sipxBuildTime=`date -u +%Y-%m-%dT%H:%M:%S` ; \
 	sipxBuildHost=`uname -n` ; \

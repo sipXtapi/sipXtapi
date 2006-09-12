@@ -3,7 +3,7 @@
 # benign edit
 
 AC_PREREQ(2.57)
-AC_INIT(sipXconfig, 3.5.3, sipx-dev@list.sipfoundry.org)
+AC_INIT(sipXconfig, 3.5.4, sipx-dev@list.sipfoundry.org)
 
 AC_CONFIG_AUX_DIR(config)
 m4_include([config/general.m4])
@@ -47,7 +47,7 @@ AC_ARG_ENABLE(ruby-bindings,
 CHECK_RUBY([1.8.2])
 CHECK_RUBY_MODULE([soap/wsdlDriver])
 CHECK_GEM([0.8.11])
-CHECK_RAKE([0.5.3])
+CHECK_RAKE([0.7])
 # CHECK_RUBY_GEM([file-tail])
 
 AC_SUBST(RUBY_BINDINGS_ENABLED, [])
@@ -65,6 +65,8 @@ AC_CONFIG_FILES([
     meta/Makefile
     doc/Makefile
     agent/Makefile
+    plugins/Makefile
+    plugins/hitachi/Makefile
 ])
 
 AC_OUTPUT

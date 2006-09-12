@@ -148,6 +148,7 @@ typedef struct
 typedef enum
 {
     SIPX_INTERNAL_CALLSTATE_UNKNOWN,            /** Unknown call state */
+    SIPX_INTERNAL_CALLSTATE_OUTBOUND_IDLE,      /** Created call not connecting yet */
     SIPX_INTERNAL_CALLSTATE_OUTBOUND_ATTEMPT,   /** Early dialog: outbound */
     SIPX_INTERNAL_CALLSTATE_INBOUND_ATEMPT,     /** Early dialog: inbound */
     SIPX_INTERNAL_CALLSTATE_CONNECTED,          /** Active call - remote audio */
@@ -562,9 +563,50 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetConnectionMediaInterface(const SIPX_CALL hCa
 SIPXTAPI_API SIPX_RESULT sipxConfigVoicemailSubscribe(const SIPX_INST hInst, 
                                                       const char* szSubscribeURL);
 
+/**
+ * set readable string value for SIPX_INTERNAL_CALLSTATE enumeration
+ * @param internalCallState call state enumeration
+ * @param stateString human readable equivalent to internalCallState
+ */
+void getInternalCallStateString(SIPX_INTERNAL_CALLSTATE internalCallState, UtlString stateString);
 
 UtlBoolean sipxCallSetRemoveInsteadofDrop(SIPX_CALL hCall) ;
 UtlBoolean sipxCallIsRemoveInsteadOfDropSet(SIPX_CALL hCall) ;
 
+/**
+ * Serialize into a human readable format the SIPX_CALL_DATA
+ * @param hCall - call handle to serialize
+ * @param serializedDump - string containing the human readable dump of the struct
+ */
+SIPX_RESULT sipxCallDataToString(SIPX_CALL hCall, UtlString& serializedDump);
+
+/**
+ * Serialize into a human readable format the SIPX_CONF_DATA
+ * @param hConf - conference handle to serialize
+ * @param serializedDump - string containing the human readable dump of the struct
+ */
+SIPX_RESULT sipxConfDataToString(SIPX_CONF hCall, UtlString& serializedDump);
+
+/* ============================ SIPX_CALL_DATA FUNCTIONS ================================= */
+// Would like to migrate SIPX_CALL_DATA to a full fledged class.  The following
+// are the beginnings of what should be methods for SIPX_CALL_DATA.
+
+/**
+ * Serialize into a human readable format the SIPX_CALL_DATA
+ * @param pointer to SIPX_CALL_DATA to serialize
+ * @param serializedDump string containing the human readable dump of the struct
+ */
+void SipxCallData_toString(const SIPX_CALL_DATA* pCallData, UtlString& serializedDump);
+
+/* ============================ SIPX_CONF_DATA FUNCTIONS ================================= */
+// Would like to migrate SIPX_CONF_DATA to a full fledged class.  The following
+// are the beginnings of what should be methods for SIPX_CONF_DATA.
+
+/**
+ * Serialize into a human readable format the SIPX_CONF_DATA
+ * @param pointer to SIPX_CONF_DATA to serialize
+ * @param serializedDump string containing the human readable dump of the struct
+ */
+void SipxConfData_toString(const SIPX_CONF_DATA* pConfData, UtlString& serializedDump);
 
 #endif /* ] _SIPXTAPIINTERNAL_H */

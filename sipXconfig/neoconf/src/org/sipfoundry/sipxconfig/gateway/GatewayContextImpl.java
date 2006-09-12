@@ -14,7 +14,6 @@ package org.sipfoundry.sipxconfig.gateway;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
@@ -57,12 +56,11 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         super();
     }
 
-    public List getGateways() {
-        List gateways = getHibernateTemplate().loadAll(Gateway.class);
-        return gateways;
+    public List<Gateway> getGateways() {
+        return getHibernateTemplate().loadAll(Gateway.class);
     }
 
-    public Collection getAllGatewayIds() {
+    public Collection<Integer> getAllGatewayIds() {
         return getHibernateTemplate().findByNamedQuery("gatewayIds");
     }
 
@@ -91,20 +89,18 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         return true;
     }
 
-    public void deleteGateways(Collection selectedRows) {
+    public void deleteGateways(Collection<Integer> selectedRows) {
         // remove gateways from rules first
         m_dialPlanContext.removeGateways(selectedRows);
         // remove gateways from the database
-        for (Iterator i = selectedRows.iterator(); i.hasNext();) {
-            Integer id = (Integer) i.next();
+        for (Integer id : selectedRows) {
             deleteGateway(id);
         }
     }
 
-    public List getGatewayByIds(Collection gatewayIds) {
-        List gateways = new ArrayList(gatewayIds.size());
-        for (Iterator i = gatewayIds.iterator(); i.hasNext();) {
-            Integer id = (Integer) i.next();
+    public List<Gateway> getGatewayByIds(Collection<Integer> gatewayIds) {
+        List<Gateway> gateways = new ArrayList<Gateway>(gatewayIds.size());
+        for (Integer id : gatewayIds) {
             gateways.add(getGateway(id));
         }
         return gateways;

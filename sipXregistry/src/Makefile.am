@@ -29,30 +29,29 @@ libsipXregistry_la_LIBADD = \
 	@SIPXCOMMSERVER_LIBS@
 
 libsipXregistry_la_SOURCES = \
-    ../lib/redirect_plugins/SipRedirectorRegDB.cpp \
     ../config/sipxregistry-buildstamp.h \
     ../config/sipxregistry-buildstamp.cpp \
     RedirectPlugin.cpp \
     RedirectResumeMsg.cpp \
-    RedirectSuspend.cpp \
-    RegistrarInitialSync.h \
-    RegistrarInitialSync.cpp \
-    RegistrarPersist.h \
-    RegistrarPersist.cpp \
-    RegistrarTest.h \
-    RegistrarTest.cpp \
-    RegistrarSync.h \
-    RegistrarSync.cpp \
-    RegistrarPeer.h \
-    RegistrarPeer.cpp \
-    SipRedirectServer.cpp \
-    SipRegistrar.cpp \
-    SipRegistrarServer.cpp \
     RedirectResumeMsg.h \
+    RedirectSuspend.cpp \
     RedirectSuspend.h \
-    SipRedirectServer.h \
-    SipRegistrar.h \
-    SipRegistrarServer.h \
+    RegistrarInitialSync.cpp \
+    RegistrarInitialSync.h \
+    RegistrarPeer.cpp \
+    RegistrarPeer.h \
+    RegistrarPersist.cpp \
+    RegistrarPersist.h \
+    RegistrarSync.cpp \
+    RegistrarSync.h \
+    RegistrarTest.cpp \
+    RegistrarTest.h \
     SipRedirector.h \
-    SyncRpc.h \
-    SyncRpc.cpp
+    SipRedirectServer.cpp \
+    SipRedirectServer.h \
+    SipRegistrar.cpp \
+    SipRegistrar.h \
+    SipRegistrarServer.cpp \
+    SipRegistrarServer.h \
+    SyncRpc.cpp \
+    SyncRpc.h

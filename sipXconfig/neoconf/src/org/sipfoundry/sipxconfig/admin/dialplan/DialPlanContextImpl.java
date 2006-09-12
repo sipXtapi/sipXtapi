@@ -227,7 +227,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         // collisions would go away as soon as the session was flushed.
         getHibernateTemplate().flush();
 
-        dialPlan = (DialPlan) m_beanFactory.getBean("defaultDialPlan");
+        dialPlan = (DialPlan) m_beanFactory.getBean("dialPlan");
         AutoAttendant operator = getOperator();
         dialPlan.setOperator(operator);
         getHibernateTemplate().saveOrUpdate(dialPlan);

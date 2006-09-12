@@ -164,6 +164,7 @@ Notifier::sendNotifyForeachSubscription (
 
             // Send the NOTIFY message via the user agent with
             // the incremented notify csequence value
+            mpSipUserAgent->setUserAgentHeader( notifyRequest );
             mpSipUserAgent->send( notifyRequest );
 
             // Update the Notify sequence number (CSeq) in the IMDB

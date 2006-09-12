@@ -35,6 +35,7 @@
 #define STRESS_FACTOR   3       /**< How many times to repeat each test case */
 #define TEST_DELAY      4000    /**< Time to delay between each test */
 
+// See XCL-112 as to why these are disabled
 #define TEST_AUDIO              0
 #define TEST_LINE               0
 #define TEST_CALL               0
@@ -42,6 +43,7 @@
 #define TEST_REG                0
 #define TEST_TRANSFER           0
 #define TEST_CONFIG             0
+
 #define TEST_PROBLEMATIC_CASES  0
 
 
@@ -123,6 +125,7 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
     CPPUNIT_TEST(testConfBasic6) ;    
     CPPUNIT_TEST(testConfHoldIndividual) ;
     CPPUNIT_TEST(testConfJoin) ;
+    CPPUNIT_TEST(testConfCreateJoin);
     CPPUNIT_TEST(testConfHoldNoBridge) ;
     CPPUNIT_TEST(testConfHoldBridge) ;
     //CPPUNIT_TEST(testConfReAdd) ;
@@ -212,6 +215,7 @@ public:
     void testConfBasic5() ;
     void testConfBasic6() ;
     void testConfJoin() ;
+    void testConfCreateJoin();
     void testConfHoldIndividual() ;    
     void testConfHoldNoBridge() ;
     void testConfHoldBridge() ;

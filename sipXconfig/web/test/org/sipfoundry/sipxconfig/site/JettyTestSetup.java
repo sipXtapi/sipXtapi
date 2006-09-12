@@ -23,6 +23,9 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 
 import org.mortbay.jetty.Server;
+import org.mortbay.jetty.servlet.JettyWebConfiguration;
+import org.mortbay.jetty.servlet.WebApplicationContext;
+import org.mortbay.jetty.servlet.XMLConfiguration;
 import org.mortbay.util.InetAddrPort;
 import org.sipfoundry.sipxconfig.security.AuthenticationDaoImpl;
 
@@ -61,19 +64,23 @@ public class JettyTestSetup extends TestSetup {
      */
     protected void setUp() throws Exception {
         if (m_server == null) {
-            startServer();
+            m_server = startServer();
         }
     }
 
-    protected void startServer() throws Exception {
+    protected Server startServer() throws Exception {
         // uncomment to disable page and component caching
         // System.setProperty("org.apache.tapestry.disable-caching", "true");
-        m_server = new Server();
-        m_server.addListener(new InetAddrPort(m_port));
-
+        Server server = new Server();
+        server.addListener(new InetAddrPort(m_port));
         // add the sipXconfig web application
         String war = SiteTestHelper.getBuildDirectory() + "/tests/war";
-        m_server.addWebApplication("/sipxconfig", war);
+        WebApplicationContext context = server.addWebApplication("/sipxconfig", war);
+
+        String[] configurationClassNames = {
+            XMLConfiguration.class.getName(), JettyTestWebConfiguration.class.getName()
+        };
+        context.setConfigurationClassNames(configurationClassNames);
 
         // enable dummy admin user for unit testing
         AuthenticationDaoImpl.setDummyAdminUserEnabled(true);
@@ -81,7 +88,8 @@ public class JettyTestSetup extends TestSetup {
         // start monitor thread that allows stopping server
         Monitor.monitor(MONITOR_PORT, MONITOR_KEY);
 
-        m_server.start();
+        server.start();
+        return server;
     }
 
     private static void shutdownJetty() throws UnknownHostException, IOException {
@@ -101,7 +109,7 @@ public class JettyTestSetup extends TestSetup {
         };
         JettyTestSetup jetty = new JettyTestSetup(notest);
         try {
-            jetty.startServer();
+            m_server = jetty.startServer();
             Runtime.getRuntime().addShutdownHook(new Thread(jetty.shutdownHoook()));
         } catch (Exception e) {
             e.printStackTrace();
@@ -130,5 +138,16 @@ public class JettyTestSetup extends TestSetup {
                 }
             }
         };
+    }
+
+    /**
+     * Special version of JettyConfiguration that appends class path
+     */
+    public static class JettyTestWebConfiguration extends JettyWebConfiguration {
+        public void configureClassPath() throws Exception {
+            getWebApplicationContext().addClassPath(
+                    SiteTestHelper.getArtificialSystemRootDirectory() + "/etc");
+        }
+
     }
 }

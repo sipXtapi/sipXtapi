@@ -34,7 +34,6 @@ REGISTER( HuntgroupRow );
 HuntgroupDB* HuntgroupDB::spInstance = NULL;
 OsMutex  HuntgroupDB::sLockMutex (OsMutex::Q_FIFO);
 UtlString HuntgroupDB::gIdentityKey("identity");
-UtlBoolean     ghVerboseLoggingEnabled = FALSE;
 
 
 /* ============================ CREATORS ================================== */
@@ -53,12 +52,6 @@ HuntgroupDB::HuntgroupDB( const UtlString& name ) :
     // If we are the first process to attach
     // then we need to load the DB
     int users = pSIPDBManager->getNumDatabaseProcesses(name);
-
-
-    ghVerboseLoggingEnabled = SIPDBManager::isVerboseLoggingEnabled() ;
-    if (ghVerboseLoggingEnabled)
-        OsSysLog::add(FAC_DB, PRI_DEBUG, "HuntgroupDB::_  user=%d \"%s\"",
-                    users, name.data());
     if ( users == 1 )
     {
         // Load the file implicitly

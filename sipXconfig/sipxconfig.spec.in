@@ -2,12 +2,12 @@ Name: @PACKAGE@
 Version: @VERSION@
 Release: %{buildno}
 
-Summary: Configuration Managment for SIP base Phones
-License: LGPL
-Group: Productivity/Telephony/SIP/Servers
-Vendor: SIPfoundry
-Packager: SIPfoundry <sipx-dev@sipfoundry.org>
-Url: http://www.sipfoundry.org/sipXconfig
+Summary:  Configuration Managment for SIP base Phones
+License:  Pingtel Commercial License
+Group:    Productivity/Telephony/SIP/Servers
+Vendor:   Pingtel Corp.
+Packager: Pingtel <support@pingtel.com>
+Url:      http://www.pingtel.com
 
 %define sipxpbxlog %{_localstatedir}/log/sipxpbx
 %define sipxpbxrun %{_localstatedir}/run/sipxpbx
@@ -64,6 +64,8 @@ Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
 Summary: Configures/enables FTP for devices controlled by %{name} 
 
+%define vsftpd_conf /etc/vsftpd/vsftpd.conf
+
 %description ftp
 * installs and configures vsftpd server
 * turns on xinit.d/vsftpd service on
@@ -105,7 +107,7 @@ rm -rf $RPM_BUILD_ROOT
 # WARNING: Do use @ SIPX_CONFDIR @ because prefix used and 'make dist'
 # typically does not RPM's prefix
 
-%doc CONTRIBUTORS LICENSE INSTALL README NEWS TODO ChangeLog %name.configlog
+%doc CONTRIBUTORS INSTALL README NEWS TODO ChangeLog %name.configlog
 %attr(755,root,root) %{_bindir}
 
 # Because of generation of data and profiles
@@ -133,7 +135,7 @@ rm -rf $RPM_BUILD_ROOT
 gem install --no-rdoc --local %{sipxconfiglib}/file-tail-*.gem > /dev/null
 gem install --local %{sipxconfiglib}/sipXconfig-agent-*.gem > /dev/null
 
-sipxconfig.sh --setup
+sipxconfig.sh --setup >/dev/null
 
 %define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
 %define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz
@@ -162,21 +164,47 @@ rm -rf /var/sipxdata/tmp/Jetty__8443__sipxconfig 2> /dev/null
 
 %post tftp
 sed /etc/xinetd.d/tftp -i -e 's|^\W*disable\W*=\W*yes\W*$|disable = no|' -e 's|\W*/tftpboot\W*| %{phonedir}/profile/tftproot|'
-
 # empty but required to generate RPM
 %files ftp
 
 %post ftp
-if ! id -u plcmspip > /dev/null 2>&1
+
+if ! id -u PlcmSpIp > /dev/null 2>&1
 then
   # default user account polycom phones use
-  adduser -d %{phonedir}/profile/tftproot \
-    -G @SIPXPBXUSER@ -s /sbin/nologin -M plcmspip
-  echo -e "PlcmSpIp" | sudo passwd --stdin plcmspip
+  /usr/sbin/adduser -d %{phonedir}/profile/tftproot \
+    -s /sbin/nologin -M PlcmSpIp >/dev/null
+  echo -e "PlcmSpIp" | sudo passwd --stdin PlcmSpIp >/dev/null
 fi
-chkconfig vsftpd on
-service vsftpd start
 
-%postun ftp
-userdel plcmspip
-#leave ftp server, cannot be sure it is not used
+# 'install' ftpd config file
+mv %{vsftpd_conf} %{vsftpd_conf}.sipx-orig
+cat > %{vsftpd_conf} <<EOF
+# vsftpd config for sipxconfig 
+local_enable=YES
+write_enable=YES
+local_umask=022
+dirmessage_enable=YES
+xferlog_enable=YES
+connect_from_port_20=YES
+xferlog_std_format=YES
+pam_service_name=vsftpd
+userlist_enable=YES
+listen=YES
+tcp_wrappers=YES
+chroot_local_user=YES
+EOF
+chmod 600 %{vsftpd_conf}
+
+/sbin/chkconfig vsftpd on >/dev/null
+/sbin/service vsftpd start >/dev/null
+
+%preun ftp
+if [ "$1" = "0" ] ; then
+  /usr/sbin/userdel PlcmSpIp
+  if [ -e %{vsftpd_conf}.sipx-orig ]
+  then
+    mv %{vsftpd_conf}.sipx-orig %{vsftpd_conf}
+    service vsftpd restart
+  fi
+fi

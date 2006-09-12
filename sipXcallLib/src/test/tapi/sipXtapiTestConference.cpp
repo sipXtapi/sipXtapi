@@ -1,5 +1,13 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
+//
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
 // 
 //
 // $$
@@ -20,6 +28,8 @@ extern SIPX_INST g_hInst5;
 
 extern bool g_bCallbackCalled;
 
+// Do not check in with print enabled
+//#define TEST_PRINT
 
 // Setup conference and drop conference as a whole
 void sipXtapiTestSuite::testConfBasic1()
@@ -71,7 +81,21 @@ void sipXtapiTestSuite::testConfBasic1()
 
         // Setup first leg
         CPPUNIT_ASSERT_EQUAL(sipxConferenceCreate(g_hInst, &hConf), SIPX_RESULT_SUCCESS) ;
+#ifdef TEST_PRINT
+        UtlString confDumpString;
+        sipxConfDataToString(hConf, confDumpString);
+        printf("testConfBasic1 Setup first leg conf:\n %s\n", confDumpString.data());
+#endif
+
         CPPUNIT_ASSERT_EQUAL(sipxConferenceAdd(hConf, hLine, "sip:blah@127.0.0.1:9100", &hCall1), SIPX_RESULT_SUCCESS) ;
+#ifdef TEST_PRINT
+        UtlString callDumpString;
+        sipxConfDataToString(hConf, confDumpString);
+        printf("testConfBasic1 add first leg conf:\n %s\n", confDumpString.data());
+
+        sipxCallDataToString(hCall1, callDumpString);
+        printf("testConfBasic1 add first leg call:\n %s\n", callDumpString.data());
+#endif
 
         // Validate Calling Side
         bRC = validatorCalling.waitForCallEvent(hLine, hCall1, CALLSTATE_DIALTONE, CALLSTATE_DIALTONE_CONFERENCE, true) ;
@@ -106,6 +130,14 @@ void sipXtapiTestSuite::testConfBasic1()
         CPPUNIT_ASSERT_EQUAL(sipxConferenceGetCalls(hConf, hCheckCalls, 10, nCheckCalls), SIPX_RESULT_SUCCESS) ;
         CPPUNIT_ASSERT(nCheckCalls == 1) ;
         CPPUNIT_ASSERT(hCheckCalls[0] == hCall1) ;
+
+#ifdef TEST_PRINT
+        sipxConfDataToString(hConf, confDumpString);
+        printf("testConfBasic1 steady state first leg conf:\n %s\n", confDumpString.data());
+
+        sipxCallDataToString(hCall1, callDumpString);
+        printf("testConfBasic1 steady state first leg call:\n %s\n", callDumpString.data());
+#endif
 
         // Setup 2nd Leg        
         CPPUNIT_ASSERT_EQUAL(sipxConferenceAdd(hConf, hLine, "sip:blah2@127.0.0.1:10000", &hCall2), SIPX_RESULT_SUCCESS) ;
@@ -145,6 +177,17 @@ void sipXtapiTestSuite::testConfBasic1()
         CPPUNIT_ASSERT(hCheckCalls[0] == hCall1) ;
         CPPUNIT_ASSERT(hCheckCalls[1] == hCall2) ;
         CPPUNIT_ASSERT(hCheckCalls[0] != hCheckCalls[1]) ;
+
+#ifdef TEST_PRINT
+        sipxConfDataToString(hConf, confDumpString);
+        printf("testConfBasic1 steady state second leg conf:\n %s\n", confDumpString.data());
+
+        sipxCallDataToString(hCall1, callDumpString);
+        printf("testConfBasic1 steady state second leg call1:\n %s\n", callDumpString.data());
+
+        sipxCallDataToString(hCall2, callDumpString);
+        printf("testConfBasic1 steady state second leg call2:\n %s\n", callDumpString.data());
+#endif
 
         // Tear down conference
         CPPUNIT_ASSERT_EQUAL(sipxConferenceDestroy(hConf), SIPX_RESULT_SUCCESS) ;

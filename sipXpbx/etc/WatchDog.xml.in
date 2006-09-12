@@ -42,11 +42,6 @@
          <failure_contact method="email">@SIPXPBXUSER@@localhost</failure_contact>
       </process>
 
-      <!-- Configuration Server - Web admin UI -->
-      <process name="ConfigServer" restart="enable" max_restarts="3" report="enable" max_reports="3">
-         <failure_contact method="email">@SIPXPBXUSER@@localhost</failure_contact>
-      </process>
-
       <!-- VXML voicemail and autoattendant applications -->
       <process name="MediaServer" restart="enable" max_restarts="3" report="enable" max_reports="3">
          <failure_contact method="email">@SIPXPBXUSER@@localhost</failure_contact>

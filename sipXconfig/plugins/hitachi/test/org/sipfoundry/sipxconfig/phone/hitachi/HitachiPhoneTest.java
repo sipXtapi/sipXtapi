@@ -27,6 +27,7 @@ public class HitachiPhoneTest extends TestCase {
         // PhoneContext.CONTEXT_BEAN_NAME);
         // assertNotNull(pc.newPhone(HitachiModel.MODEL_3000));
         // assertNotNull(pc.newPhone(HitachiModel.MODEL_5000));
+        // assertNotNull(pc.newPhone(HitachiModel.Model_5000A));
     }
 
     public void testGetFileName() throws Exception {
@@ -50,6 +51,7 @@ public class HitachiPhoneTest extends TestCase {
         expectedProfile.close();
 
         assertEquals(expected, actualWriter.toString());
+
     }
 
 }

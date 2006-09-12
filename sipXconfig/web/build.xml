@@ -199,6 +199,30 @@
         <include name="*.properties"/>
       </fileset>
     </copy>
+
+    <property name="process.dir" value="${dest.dir}${sipxpbx.conf.dir}/process.d"/>
+    <mkdir dir="${process.dir}"/>
+    <copy file="etc/sipxconfig-process.xml.in" 
+      tofile="${process.dir}/sipxconfig-process.xml"/>
+    <replace file="${process.dir}/sipxconfig-process.xml" 
+      propertyfile="${top.build.dir}/build.properties">
+
+      <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir"/>
+      <replacefilter token="@sipxconfig.lib.dir@" property="sipxconfig.lib.dir" 
+       />
+      <replacefilter token="@sipxpbx.data.dir@" property="sipxpbx.data.dir"/>
+      <replacefilter token="@sipxpbx.log.dir@" property="sipxpbx.log.dir"/>    	
+      <replacefilter token="@bin.dir@" property="bin.dir"/>
+      <replacefilter token="@sipxpbx.run.dir@" property="sipxpbx.run.dir"/>
+      <replacefilter token="@sipxpbx.tmp.dir@" property="sipxpbx.tmp.dir"/>
+      <replacefilter token="@sipxpbx.user@" property="sipxpbx.user"/>
+      <replacefilter token="@sipxconfig.db.user@" property="sipxconfig.db.user"/>
+
+      <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir"/>
+      <replacefilter token="@sipxpbx.user@" property="sipxpbx.user"/>
+      <replacefilter token="@sipxconfig.lib.dir@" property="sipxconfig.lib.dir"/>
+      <replacefilter token="@bin.dir@" property="bin.dir"/>
+    </replace>
   	
     <copy todir="${dest.dir}${sipxpbx.data.dir}/lib">
       <fileset file="${wsdl4j.jar}"/>
@@ -220,7 +244,10 @@
       <fileset file="${acegi-security.jar}"/>
     </copy>
   </target>	
-	
+
+  <property name="test.systemRoot" 
+    location="${test.results.dir}/artificial-system-root"/>
+  
   <target name="run" depends="test-war" 
     description="Runs Jetty on current code, development purpose only">
   	<echo/>
@@ -233,14 +260,14 @@
       <classpath location="${junit.jar}"/>
       <classpath location="${log4j.jar}"/>
       <classpath location="${server-bindings.jar}"/>
+      <!-- simulates appending sipxpbx.conf.dir in real start-up script -->      
+      <classpath location="${test.systemRoot}/etc"/>
       <sysproperty key="basedir" value="${basedir}"/>
     </java>
   </target>
   <target name="test-all" depends="ant-targets.test-all,test-ui,test-api"/>
   <target name="test-war" depends="default.deps,compile.test,war" 
     description="Creates a war file for unittests">
-    <property name="test.systemRoot" 
-      location="${test.results.dir}/artificial-system-root"/>
     <delete dir="${test.war}"/>
     <unwar src="${sipxconfig.war}" dest="${test.war}"/>
     <!-- generates sipxconfig.properties that has test oriented values -->

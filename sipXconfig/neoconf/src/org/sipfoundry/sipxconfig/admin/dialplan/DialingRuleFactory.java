@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.commons.lang.StringUtils;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.BeanFactoryAware;
 
 public class DialingRuleFactory implements BeanFactoryAware {
     private Collection<String> m_beanIds;
+    private Collection<String> m_filteredBeanIds;
 
     private BeanFactory m_beanFactory;
 
@@ -45,9 +47,26 @@ public class DialingRuleFactory implements BeanFactoryAware {
 
     public void setBeanIds(Collection<String> beanIds) {
         m_beanIds = beanIds;
+        m_filteredBeanIds = null;
     }
 
+    /**
+     * @return beanIds that are defined in bean factory and can be used as prototypes for rules
+     */
     public Collection<String> getBeanIds() {
-        return m_beanIds;
+        if (m_filteredBeanIds == null) {
+            m_filteredBeanIds = filterBeanIds(m_beanIds);
+        }
+        return m_filteredBeanIds;
+    }
+
+    private Collection<String> filterBeanIds(Collection<String> beanIds) {
+        ArrayList<String> filteredBeanIds = new ArrayList<String>(beanIds.size());
+        for (String beanId : beanIds) {
+            if (m_beanFactory.containsBean(beanId)) {
+                filteredBeanIds.add(beanId);
+            }
+        }
+        return filteredBeanIds;
     }
 }

@@ -29,8 +29,6 @@
 REGISTER ( ExtensionRow );
 
 // Static Initializers
-UtlBoolean     geVerboseLoggingEnabled = FALSE;
-
 ExtensionDB* ExtensionDB::spInstance = NULL;
 OsMutex  ExtensionDB::sLockMutex (OsMutex::Q_FIFO);
 UtlString ExtensionDB::gUriKey("uri");
@@ -48,11 +46,6 @@ ExtensionDB::ExtensionDB( const UtlString& name ) :
     // If we are the first process to attach
     // then we need to load the DB
     int users = pSIPDBManager->getNumDatabaseProcesses(name);
-
-    geVerboseLoggingEnabled = SIPDBManager::isVerboseLoggingEnabled();
-    if (geVerboseLoggingEnabled)
-        OsSysLog::add(FAC_DB, PRI_DEBUG, "ExtensionDB::_  user=%d \"%s\"",
-                    users, name.data());
     if ( users == 1 )
     {
         // Load the file implicitly

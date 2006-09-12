@@ -14,6 +14,7 @@
 #include "os/OsFS.h"
 #include "os/OsLock.h"
 #include "os/OsSysLog.h"
+#include "utl/XmlContent.h"
 #include "net/Url.h"
 #include "net/MailMessage.h"
 #include "mailboxmgr/NotificationHelper.h"
@@ -161,24 +162,32 @@ NotificationHelper::send (
     plainBodyText += "Show Voicemail Inbox "   + showMailboxLink + "\n";
     plainBodyText += "Delete message " + deleteMessageLink + "\n";
 
+    UtlString playMessageLinkXml ;
+    UtlString deleteMessageLinkXml;
+    UtlString showMailboxLinkXml;
+    XmlEscape(playMessageLinkXml, playMessageLink) ;
+    XmlEscape(deleteMessageLinkXml, deleteMessageLink) ;
+    XmlEscape(showMailboxLinkXml, showMailboxLink) ;
     // Format the html text if supported by the browser
     htmlBodyText =
-        (UtlString)"<HTML>\n" +
+        (UtlString)"<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01//EN\"\n" +
+                  "   \"http://www.w3.org/TR/html4/strict.dtd\">\n" +
+                  "<HTML>\n" +
                   "<HEAD>\n" +
                   "<TITLE>Voicemail Notification</TITLE>\n" +
-                  "</HEAD>\n<BODY>";
+                  "</HEAD>\n<BODY>\n";
     htmlBodyText +=
         "<p>On " + rDate + ", " + strFrom + " left new voicemail. Duration " +
-        durationText + "</p>";
+        durationText + "</p>\n";
     htmlBodyText +=
-        "<p><a href=\"" + playMessageLink + "\">Listen to message</p>\n";
+        "<p><a href=\"" + playMessageLinkXml + "\">Listen to message</a></p>\n";
     htmlBodyText +=
-        "<p><a href=\"" + showMailboxLink + "\">Show Voicemail Inbox</a>\n";
+        "<p><a href=\"" + showMailboxLinkXml + "\">Show Voicemail Inbox</a></p>\n";
     htmlBodyText +=
-        "<p><a href=\"" + deleteMessageLink + "\">Delete message</a>\n";
+        "<p><a href=\"" + deleteMessageLinkXml + "\">Delete message</a></p>\n";
     htmlBodyText +=
         (UtlString)"</BODY>\n" +
-                                  "</HTML>";
+                                  "</HTML>\n";
 
     if ( rAttachmentEnabled == TRUE )
     {

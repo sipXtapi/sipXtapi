@@ -19,14 +19,12 @@ import junit.framework.TestCase;
 import org.apache.commons.lang.StringUtils;
 
 public class SipUriTest extends TestCase {
-    private static final String USERNAME = "username";
-    
     public void testFormatFullUri() {
-        String uri = SipUri.formatIgnoreDefaultPort("First Last", USERNAME, "example.com", 5060);
-        assertEquals("\"First Last\"<sip:" + USERNAME + "@example.com>", uri);
+        String uri = SipUri.formatIgnoreDefaultPort("First Last", "username", "example.com", 5060);
+        assertEquals("\"First Last\"<sip:username@example.com>", uri);
 
-        String uri2 = SipUri.formatIgnoreDefaultPort("First Last", USERNAME, "example.com", 5070);
-        assertEquals("\"First Last\"<sip:" + USERNAME + "@example.com:5070>", uri2);
+        String uri2 = SipUri.formatIgnoreDefaultPort("First Last", "username", "example.com", 5070);
+        assertEquals("\"First Last\"<sip:username@example.com:5070>", uri2);
     }
     
     public void testParsePort() {
@@ -38,44 +36,49 @@ public class SipUriTest extends TestCase {
 
     public void testFormatUser() {
         User user = new User();
-        user.setUserName(USERNAME);
-        SipUri uri = new SipUri(user, "mycomp.com");
+        user.setUserName("username");
+        String uri = SipUri.format(user, "mycomp.com");
 
-        assertEquals("sip:" + USERNAME + "@mycomp.com", uri.toString());
+        assertEquals("sip:username@mycomp.com", uri);
 
         user.setLastName("Last");
-        uri = new SipUri(user, "mycomp.com");
+        uri = SipUri.format(user, "mycomp.com");
 
-        assertEquals("\"Last\"<sip:" + USERNAME + "@mycomp.com>", uri.toString());
+        assertEquals("\"Last\"<sip:username@mycomp.com>", uri);
 
         user.setFirstName("First");
-        uri = new SipUri(user, "mycomp.com");
+        uri = SipUri.format(user, "mycomp.com");
 
-        assertEquals("\"First Last\"<sip:" + USERNAME + "@mycomp.com>", uri.toString());
+        assertEquals("\"First Last\"<sip:username@mycomp.com>", uri.toString());        
+    }
+    
+    public void testFormatDisplayNameUserNameDomainName() {
+        String uri = SipUri.format("Adam Słodowy", "adam", "zróbtosam.com");
+        assertEquals("\"Adam Słodowy\"<sip:adam@zróbtosam.com>", uri);
+        uri = SipUri.format("", "adam", "zróbtosam.com");
+        assertEquals("sip:adam@zróbtosam.com", uri);
+        uri = SipUri.format(null, "adam", "zróbtosam.com");
+        assertEquals("sip:adam@zróbtosam.com", uri);
     }
 
     public void testFormatNameDomainPort() {
-        SipUri uri = new SipUri("name", "sipfoundry.org", 33);
-
-        assertEquals("sip:name@sipfoundry.org:33", uri.toString());
+        String uri = SipUri.format("name", "sipfoundry.org", 33);
+        assertEquals("sip:name@sipfoundry.org:33", uri);
     }
 
     public void testFormatDomainPort() {
-        SipUri uri = new SipUri("sipfoundry.org", 34);
-
-        assertEquals("sip:sipfoundry.org:34", uri.toString());
+        String uri = SipUri.format("sipfoundry.org", 34);
+        assertEquals("sip:sipfoundry.org:34", uri);
     }
 
     public void testFormatNameDomain() {
-        SipUri uri = new SipUri("name", "sipfoundry.org", false);
-
-        assertEquals("sip:name@sipfoundry.org", uri.toString());
+        String uri = SipUri.format("name", "sipfoundry.org", false);
+        assertEquals("sip:name@sipfoundry.org", uri);
     }
 
     public void testFormatNameDomainQuote() {
-        SipUri uri = new SipUri("name", "sipfoundry.org", true);
-
-        assertEquals("<sip:name@sipfoundry.org>", uri.toString());
+        String uri = SipUri.format("name", "sipfoundry.org", true);
+        assertEquals("<sip:name@sipfoundry.org>", uri);
     }
 
     public void testExtractUser() {

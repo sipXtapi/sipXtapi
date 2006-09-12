@@ -313,7 +313,7 @@ void SipRedirectServer::processRedirect(const SipMessage* message,
          break;
 
       case RedirectPlugin::LOOKUP_SUSPEND:
-         OsSysLog::add(FAC_SIP, PRI_ERR,
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
                        "SipRedirectServer::processRedirect "
                        "LOOKUP_SUSPEND returned by redirector "
                        "%d while processing method '%s' URI '%s'",
@@ -345,6 +345,9 @@ void SipRedirectServer::processRedirect(const SipMessage* message,
          switch (responseCode)
          {
          case 403:
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipRedirectServer::processRedirect "
+                          "Sending 403 response");
             response.setResponseData(message,
                                      SIP_FORBIDDEN_CODE,
                                      SIP_FORBIDDEN_TEXT);
@@ -359,6 +362,9 @@ void SipRedirectServer::processRedirect(const SipMessage* message,
                           responseCode);
             /* Fall through to next case. */
          case 500:
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipRedirectServer::processRedirect "
+                          "Sending 500 response");
             response.setResponseData(message,
                                      SIP_SERVER_INTERNAL_ERROR_CODE,
                                      SIP_SERVER_INTERNAL_ERROR_TEXT);
@@ -374,6 +380,9 @@ void SipRedirectServer::processRedirect(const SipMessage* message,
          if (response.getCountHeaderFields(SIP_CONTACT_FIELD) > 0)
          {
             // There are contacts, so send a 302 Moved Temporarily.
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipRedirectServer::processRedirect "
+                          "Contacts added, sending 302 response");
             response.setResponseData(message,
                                      SIP_TEMPORARY_MOVE_CODE,
                                      SIP_TEMPORARY_MOVE_TEXT);
@@ -389,6 +398,9 @@ void SipRedirectServer::processRedirect(const SipMessage* message,
                                      SIP_NOT_FOUND_TEXT);
          }
       }
+
+      // Identify ourselves in the response
+      mpSipUserAgent->setUserAgentHeader(response);
 
       // Now that we've set the right code into the response, send the
       // response.
@@ -430,8 +442,6 @@ SipRedirectServer::handleMessage(OsMsg& eventMessage)
    case OsMsg::PHONE_APP:
    {      
       // An incoming request to be redirected.
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRedirectServer::handleMessage "
-                    "Start processing redirect message %d", mNextSeqNo);
 
       // Get a pointer to the SIP message.
       const SipMessage* message =
@@ -440,6 +450,16 @@ SipRedirectServer::handleMessage(OsMsg& eventMessage)
       // Extract the request method.
       UtlString method;
       message->getRequestMethod(&method);
+
+      if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+      {
+         UtlString stringUri;
+         message->getRequestUri(&stringUri);
+
+         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRedirectServer::handleMessage "
+                       "Start processing redirect message %d: '%s' '%s'",
+                       mNextSeqNo, method.data(), stringUri.data());
+      }
 
       if (method.compareTo(SIP_ACK_METHOD, UtlString::ignoreCase) == 0)
       {
@@ -514,7 +534,7 @@ SipRedirectServer::handleMessage(OsMsg& eventMessage)
    }
    break;
 
-   case REDIRECT_RESTART:
+   case RedirectResumeMsg::REDIRECT_RESTART:
    {
       // A message saying that a redirector is now willing to resume
       // processing of a request.

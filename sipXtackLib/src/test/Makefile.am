@@ -21,11 +21,12 @@ testsuite_LDADD = \
     ../libsipXtack.la 
 
 testsuite_SOURCES = \
-    net/HttpMessageTest.cpp \
     net/NameValuePairInsensitiveTest.cpp \
     net/NameValuePairTest.cpp \
     net/NetAttributeTokenizerTest.cpp \
+    net/UrlTest.cpp \
     net/NetMd5CodecTest.cpp \
+    net/HttpMessageTest.cpp \
     net/SdpBodyTest.cpp \
     net/SipContactDbTest.cpp \
     net/SipDialogEventTest.cpp \
@@ -57,6 +58,4 @@ EXTRA_DIST = \
 sandbox_LDADD = $(testsuite_LDADD)
 sandbox_CXXFLAGS = $(testsuite_CXXFLAGS)
 sandbox_SOURCES = \
-	net/SipMessageTest.cpp \
-	net/UrlTest.cpp \
-   net/SipProxyMessageTest.cpp
+	net/UrlTest.cpp

@@ -19,11 +19,11 @@ import org.sipfoundry.sipxconfig.phone.PhoneModel;
 public interface GatewayContext {
     public static final String CONTEXT_BEAN_NAME = "gatewayContext";
 
-    List getGateways();
+    List<Gateway> getGateways();
 
-    Collection getAllGatewayIds();
+    Collection<Integer> getAllGatewayIds();
 
-    List getGatewayByIds(Collection gatewayIds);
+    List<Gateway> getGatewayByIds(Collection<Integer> gatewayIds);
 
     Gateway getGateway(Integer id);
 
@@ -33,7 +33,7 @@ public interface GatewayContext {
 
     boolean deleteGateway(Integer id);
 
-    void deleteGateways(Collection selectedRows);
+    void deleteGateways(Collection<Integer> selectedRows);
 
     /**
      * Returns the list of gateways available for a specific rule

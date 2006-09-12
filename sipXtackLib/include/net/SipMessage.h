@@ -1074,7 +1074,11 @@ public:
                               UtlString& toTag,
                               UtlString& fromTag) const;
 
+    /// @returns true if the message has either a User-Agent or Server header
+    bool hasSelfHeader() const;
+
     // SERVER-header accessors
+    void getServerField(UtlString* serverFieldValue) const;
     void setServerField(const char* serverField);
     void setAcceptField(const char* acceptField);
     void setAuthField(const char* authField);

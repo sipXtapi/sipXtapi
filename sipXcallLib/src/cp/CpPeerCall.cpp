@@ -2519,6 +2519,9 @@ UtlBoolean CpPeerCall::handleSplitConnection(OsMsg* pEventMessage)
         }
         else
         {
+            OsSysLog::add(FAC_CP, PRI_ERR, 
+                "CpPeerCall::handleSplitConnection connection: %s not in held state: %d",
+                remoteAddress.data(), pConnection->getRemoteState());
             pEvent->signal(FALSE) ;
         }
     }

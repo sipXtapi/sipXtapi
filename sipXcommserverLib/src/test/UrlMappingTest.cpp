@@ -220,6 +220,16 @@ class UrlMappingTest : public CppUnit::TestCase, public UrlMapping
          ASSERT_STR_EQUAL( "sip:THATUSER@NewHost", actual );
          registrations.destroyAll();
 
+         // do the domain transformtion again and check that the transport is removed [XRR-114]
+         urlmap->getContactList( Url("<sip:THATUSER@HostChgDOMAIN;transport=xyz>")
+                                ,registrations, isPSTNnumber, permissions
+                                );
+         CPPUNIT_ASSERT( permissions.getSize() == 0 );
+         CPPUNIT_ASSERT( registrations.getSize() == 1 );
+         getResult( registrations, 0, "contact", actual);
+         ASSERT_STR_EQUAL( "sip:THATUSER@NewHost", actual );
+         registrations.destroyAll();
+
          urlmap->getContactList( Url("sip:OTHERUSER@UserChgDOMAIN")
                                 ,registrations, isPSTNnumber, permissions
                                 );

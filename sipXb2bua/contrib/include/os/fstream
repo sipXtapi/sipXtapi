@@ -1,0 +1,23 @@
+// 
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
+//
+// $$
+//////////////////////////////////////////////////////////////////////////////
+
+#ifndef _fstream_h_
+#define _fstream_h_
+
+// If we are compiling for VxWorks, use the old form of fstream.h
+// We do this to stay compatible with the version of the tools++
+// object modules that are distributed with VxWorks.
+
+#if defined(_VXWORKS)
+#include <fstream.h>
+#else
+#include <fstream>
+using namespace std;
+#endif
+
+#endif  // _fstream_h_

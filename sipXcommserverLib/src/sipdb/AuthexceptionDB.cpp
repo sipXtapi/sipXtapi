@@ -35,7 +35,6 @@ AuthexceptionDB* AuthexceptionDB::spInstance = NULL;
 OsMutex  AuthexceptionDB::sLockMutex (OsMutex::Q_FIFO);
 UtlString AuthexceptionDB::gUserKey("user");
 
-UtlBoolean     gauVerboseLoggingEnabled = FALSE;
 /* ============================ CREATORS ================================== */
 
 AuthexceptionDB::AuthexceptionDB( const UtlString& name )
@@ -48,10 +47,6 @@ AuthexceptionDB::AuthexceptionDB( const UtlString& name )
     // If we are the first process to attach
     // then we need to load the DB
     int users = pSIPDBManager->getNumDatabaseProcesses(name);
-    gauVerboseLoggingEnabled = SIPDBManager::isVerboseLoggingEnabled();
-    if (gauVerboseLoggingEnabled)
-        OsSysLog::add(FAC_DB, PRI_DEBUG, "AuthexceptionDB::_  user=%d \"%s\"",
-                    users, name.data());
     if ( users == 1 )
     {
         // Load the file implicitly

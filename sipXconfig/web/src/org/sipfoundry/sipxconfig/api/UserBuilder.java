@@ -37,7 +37,7 @@ public class UserBuilder extends SimpleBeanBuilder {
         org.sipfoundry.sipxconfig.common.User my = (org.sipfoundry.sipxconfig.common.User) myObject;
         User api = (User) apiObject;
         if (properties.contains(ALIASES_PROP) && !StringUtils.isBlank(my.getAliasesString())) {
-            api.setAliases((String[]) my.getAliases().toArray(new String[0]));
+            api.setAliases(my.getAliases().toArray(new String[0]));
         }
         if (properties.contains(GROUPS_PROP)) {
             Collection groupNames = CollectionUtils.collect(my.getGroups(),

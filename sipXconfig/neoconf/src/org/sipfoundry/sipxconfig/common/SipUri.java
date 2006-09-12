@@ -11,15 +11,13 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
-import java.text.MessageFormat;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
-public class SipUri {
+public final class SipUri {
     public static final String SIP_PREFIX = "sip:";
     public static final int DEFAULT_SIP_PORT = 5060;
 
@@ -27,59 +25,39 @@ public class SipUri {
     private static final Pattern EXTRACT_FULL_USER_RE = Pattern
             .compile("(?:\"(.*)\")?\\s*<?(?:sip:)?(.+?)@.+");
 
-    private String m_uri;
-
-    public SipUri(User user, String domainName) {
-        m_uri = format(user, domainName);
-    }
-
-    public SipUri(String userName, String domain, int port) {
-        String uri = format(userName, domain, port);
-        m_uri = uri;
-    }
-
-    public SipUri(String domain, int port) {
-        String uri = format(domain, port);
-        m_uri = uri;
-    }
-
-    public SipUri(String userName, String domain, boolean quote) {
-        m_uri = format(userName, domain, quote);
+    private SipUri() {
+        // utility class
     }
 
     public static String format(User user, String domainName) {
-        StringBuffer uri = new StringBuffer();
-        boolean needsWrapping = false;
+        return format(user.getDisplayName(), user.getUserName(), domainName);
+    }
 
-        String displayName = user.getDisplayName();
-        if (org.apache.commons.lang.StringUtils.isNotBlank(displayName)) {
-            needsWrapping = true;
+    public static String format(String displayName, String userName, String domainName) {
+        StringBuilder uri = new StringBuilder();
+        boolean needsWrapping = StringUtils.isNotBlank(displayName);
+
+        if (needsWrapping) {
             uri.append('"');
             uri.append(displayName);
             uri.append('"');
         }
 
-        String uriProper = format(user.getUserName(), domainName, needsWrapping);
+        String uriProper = format(userName, domainName, needsWrapping);
         uri.append(uriProper);
         return uri.toString();
     }
 
     public static String format(String userName, String domainName, int port) {
-        Object[] params = {
-            userName, domainName, Integer.toString(port)
-        };
-        String uri = MessageFormat.format("sip:{0}@{1}:{2}", params);
+        String uri = String.format("sip:%s@%s:%d", userName, domainName, port);
         return uri;
     }
 
     public static String format(String domainName, int port) {
-        Object[] params = {
-            domainName, Integer.toString(port)
-        };
-        String uri = MessageFormat.format("sip:{0}:{1}", params);
+        String uri = String.format("sip:%s:%d", domainName, port);
         return uri;
     }
-    
+
     public static int parsePort(String sPort, int defaultPort) {
         if (StringUtils.isBlank(sPort)) {
             return defaultPort;
@@ -87,7 +65,7 @@ public class SipUri {
         int port = Integer.parseInt(sPort);
         return port;
     }
-    
+
     public static String formatIgnoreDefaultPort(String userName, String domain, int port) {
         if (port == DEFAULT_SIP_PORT) {
             return format(userName, domain, false);
@@ -95,7 +73,8 @@ public class SipUri {
         return format(userName, domain, port);
     }
 
-    public static String formatIgnoreDefaultPort(String displayName, String userName, String domain, int port) {
+    public static String formatIgnoreDefaultPort(String displayName, String userName,
+            String domain, int port) {
         String baseUri = formatIgnoreDefaultPort(userName, domain, port);
         if (displayName == null) {
             return baseUri;
@@ -105,10 +84,8 @@ public class SipUri {
     }
 
     public static String format(String userName, String domain, boolean quote) {
-        Object[] params = {
-            quote ? "<" : StringUtils.EMPTY, userName, domain, quote ? ">" : StringUtils.EMPTY
-        };
-        return MessageFormat.format("{0}sip:{1}@{2}{3}", params);
+        String format = quote ? "<sip:%s@%s>" : "sip:%s@%s";
+        return String.format(format, userName, domain);
     }
 
     public static String normalize(String uri) {
@@ -129,7 +106,7 @@ public class SipUri {
         if (matcher.matches()) {
             return matcher.group(1);
         }
-        
+
         return null;
     }
 
@@ -137,10 +114,9 @@ public class SipUri {
      * Extract user id and optional user info
      * 
      * <!--
-     *  
-     * 154@example.org => 154 
-     * sip:user@exampl.org => user 
-     * "Full name"<sip:202@example.org> =>Full name - 202 
+     * 
+     * 154@example.org => 154 sip:user@exampl.org => user "Full name"<sip:202@example.org> =>Full
+     * name - 202
      * 
      * -->
      * 
@@ -158,11 +134,10 @@ public class SipUri {
         }
         return fullName + " - " + userId;
     }
-    
-    public static String format(String name, String domain, Map urlParams) {
-        StringBuffer paramsBuffer = new StringBuffer();
-        for (Iterator i = urlParams.entrySet().iterator(); i.hasNext();) {
-            Map.Entry entry = (Map.Entry) i.next();
+
+    public static String format(String name, String domain, Map< ? , ? > urlParams) {
+        StringBuilder paramsBuffer = new StringBuilder();
+        for (Map.Entry< ? , ? > entry : urlParams.entrySet()) {
             paramsBuffer.append(';');
             paramsBuffer.append(entry.getKey());
             Object value = entry.getValue();
@@ -172,13 +147,6 @@ public class SipUri {
             }
         }
 
-        Object[] params = {
-            name, domain, paramsBuffer
-        };
-        return MessageFormat.format("<sip:{0}@{1}{2}>", params);
-    }
-
-    public String toString() {
-        return m_uri;
+        return String.format("<sip:%s@%s%s>", name, domain, paramsBuffer);
     }
 }

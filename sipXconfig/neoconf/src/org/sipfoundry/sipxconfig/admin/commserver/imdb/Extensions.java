@@ -11,39 +11,24 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.dom4j.Element;
 import org.sipfoundry.sipxconfig.common.User;
 
 public class Extensions extends DataSetGenerator {
-    private static final Pattern PATTERN_NUMERIC = Pattern.compile("\\d+");
 
     /** Add all numeric aliases as extension elements in an XML document */
     protected void addItems(Element items) {
         String domainName = getSipDomain();
-        List users = getCoreContext().loadUsers();
-        for (Iterator i = users.iterator(); i.hasNext();) {
-            User user = (User) i.next();
-            Set aliases = user.getAliases();
-            boolean foundNumericAlias = false;
-            Element item = null;
-            for (Iterator iter = aliases.iterator(); iter.hasNext();) {
-                String alias = (String) iter.next();
-                Matcher m = PATTERN_NUMERIC.matcher(alias);
-                if (m.matches()) {
-                    if (!foundNumericAlias) {
-                        // There is at least one numeric alias, so add an entry for this user
-                        item = items.addElement("item");
-                        item.addElement("uri").setText(user.getUri(domainName));
-                        foundNumericAlias = true;
-                    }
-                    item.addElement("extension").setText(alias);
-                }
+        List<User> users = getCoreContext().loadUsers();
+        for (User user : users) {
+            List<String> numericAliases = user.getNumericAliases();
+            if (numericAliases.size() > 0) {
+                Element item = items.addElement("item");
+                item.addElement("uri").setText(user.getUri(domainName));
+                // add first found numeric alias
+                item.addElement("extension").setText(numericAliases.get(0));
             }
         }
     }

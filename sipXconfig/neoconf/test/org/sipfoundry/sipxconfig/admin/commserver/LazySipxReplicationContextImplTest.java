@@ -38,6 +38,7 @@ public class LazySipxReplicationContextImplTest extends TestCase {
         replication.generate(DataSet.CREDENTIAL);
         replication.generate(DataSet.EXTENSION);
         replication.generate(DataSet.PERMISSION);
+        replication.generate(DataSet.CALLER_ALIAS);
         replication.publishEvent(event);
         replication.replicate(orbits);
         replication.generate(DataSet.ALIAS);
@@ -45,6 +46,7 @@ public class LazySipxReplicationContextImplTest extends TestCase {
         replication.generate(DataSet.CREDENTIAL);
         replication.generate(DataSet.EXTENSION);
         replication.generate(DataSet.PERMISSION);
+        replication.generate(DataSet.CALLER_ALIAS);
         replicationCtrl.replay();
         
         LazySipxReplicationContextImpl lazy = new LazySipxReplicationContextImpl();
