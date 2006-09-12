@@ -46,9 +46,9 @@ public abstract class GroupSettings extends BasePage implements PageBeginRenderL
     public abstract void setSettings(Setting setting);
 
     public abstract Setting getSettings();
-    
+
     public abstract BeanWithGroups getBean();
-    
+
     public abstract void setBean(BeanWithGroups bean);
 
     public abstract void setReturnPage(String returnPage);
@@ -75,14 +75,14 @@ public abstract class GroupSettings extends BasePage implements PageBeginRenderL
 
         group = getSettingDao().getGroup(getGroupId());
         setGroup(group);
-        Setting settings = group.inherhitSettingsForEditing(getBean());                
+        Setting settings = group.inherhitSettingsForEditing(getBean());
         setSettings(settings);
         String currentSettingName = getParentSettingName();
         if (currentSettingName == null) {
             Setting first = settings.getValues().iterator().next();
             currentSettingName = first.getName();
         }
-        Setting parent = settings.getSetting(currentSettingName);   
+        Setting parent = settings.getSetting(currentSettingName);
         setParentSetting(parent);
     }
 

@@ -1,34 +1,25 @@
-<html>
-	<head>
-		<link rel="stylesheet" type="text/css" href="../css/sipxconfig.css"/>
-	</head>
-	<body>
-		<span jwcid="$content$">
-			<span class="pageLabel">User:</span> <span jwcid="userLabel"/>
-			<h2>
-				<span jwcid="heading">Page Heading</span>
-			</h2>
-			<div id="settings-nav">
-				<ul>
-					<li>
-						<a jwcid="editUserLink">Identification</a>
-					</li>
-					<li>
-					    <a jwcid="callForwardingLink" href="#">Call Forwarding</a>
-					</li>        
-				  <span jwcid="settingsTabs">
-						<li>
-							<a href="#" jwcid="settingsLink">
-								<span jwcid="settingsTabLabel"/>
-							</a>
-						</li>
-					</span>
-					<li>
-					    <a id="groupSupervisorLink" jwcid="supervisorPermissionLink" href="#">Group Supervisor</a>
-					</li>        
-				</ul>
-			</div>
-			<span jwcid="@RenderBody"/>
-		</span>
-	</body>
-</html>
+<span class="pageLabel" key="label.user">User:</span>&nbsp;<span jwcid="userLabel"/>
+<h2><span jwcid="heading"/></h2>
+<div id="settings-nav">
+  <ul>
+    <li>
+      <a jwcid="editUserLink">
+        <span key="link.identification">Identification</span>
+      </a>
+    </li>
+    <li>
+      <a jwcid="callForwardingLink" href="#">
+        <span key="link.forwarding">Call Forwarding</span>
+      </a>
+    </li>        
+    <span jwcid="settingsTabs">
+      <li><a href="#" jwcid="settingsLink"><span jwcid="settingsTabLabel"/></a></li>
+    </span>
+    <li>
+      <a id="groupSupervisorLink" jwcid="supervisorPermissionLink" href="#">
+        <span key="link.supervisor">Group Supervisor</span>
+      </a>
+    </li>        
+  </ul>
+</div>
+<span jwcid="@RenderBody"/>

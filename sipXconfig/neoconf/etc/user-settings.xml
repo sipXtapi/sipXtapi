@@ -97,4 +97,27 @@
       </setting>
     </group>
   </group>
+  <group name="caller-alias">
+    <label>External Identity</label>
+    <setting name="external-number">
+      <label>External number</label>
+      <type>
+        <string maxLen="40">
+          <pattern>^[#*/d]*$</pattern>
+        </string>
+      </type>
+      <description>Externally visible user number.</description>
+    </setting>
+    <setting name="anonymous-caller-alias">
+      <label>Block external number</label>
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+      <description>
+        Block caller identity for external calls. If enabled it works similarly to Caller ID
+        blocking.
+      </description>
+    </setting>
+  </group>
 </model>

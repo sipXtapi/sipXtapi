@@ -11,6 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.site.user;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
@@ -50,32 +53,63 @@ public abstract class UserNavigation extends BaseComponent {
         return page;
     }
 
-    public IPage editSettings(IRequestCycle cycle, Integer userId, String section) {
+    public IPage editSettings(IRequestCycle cycle, Integer userId, String path) {
         UserSettings page = (UserSettings) cycle.getPage(UserSettings.PAGE);
         page.setUserId(userId);
-        // only permissions are interesting in user settings.
-        page.setParentSettingName("permission/" + section);
+        page.setParentSettingName(path);
         return page;
     }
-    
+
     public IPage editSupervisorPermission(IRequestCycle cycle, Integer userId) {
-        SupervisorPermission page = (SupervisorPermission) cycle.getPage(SupervisorPermission.PAGE);
+        SupervisorPermission page = (SupervisorPermission) cycle
+                .getPage(SupervisorPermission.PAGE);
         page.setUserId(userId);
         page.setCallback(new PageCallback(ManageUsers.PAGE));
         return page;
     }
 
-    /**
-     * Used for contructing parameters for EditSettings DirectLink
-     */
-    public Object[] getEditSettingListenerParameters() {
-        return new Object[] {
-            getUser().getId(), getCurrentSetting().getName()
-        };
-    }
-
     public void prepareForRender(IRequestCycle cycle) {
         super.prepareForRender(cycle);
         setSettings(getUser().getSettings());
+    }
+
+    public Collection<Setting> getNavigationGroups() {
+        Setting settings = getSettings();
+        return getUserNavigationGroups(settings);
+    }
+
+    /**
+     * We need to flatten user settings so the permissions show up on a higher level. We convert
+     * tree that looks like this: <code>
+     * - permission
+     * -- application permissions
+     * -- call handling 
+     * - group 1
+     * - group 2
+     * </code>
+     * 
+     * Into tree that looks like this: <code>
+     * - aplication permissions 
+     * - call handling
+     * - group 1
+     * - group 2
+     * </code>
+     * 
+     */
+    public static Collection<Setting> getUserNavigationGroups(Setting settings) {
+        Collection<Setting> result = new ArrayList<Setting>();
+        for (Setting group : settings.getValues()) {
+            if (group.getParent() != settings) {
+                // only first level groups are interesting
+                continue;
+            }
+            if (group.getName().equals("permission")) {
+                result.addAll(group.getValues());
+            } else {
+                result.add(group);
+            }
+        }
+
+        return result;
     }
 }
