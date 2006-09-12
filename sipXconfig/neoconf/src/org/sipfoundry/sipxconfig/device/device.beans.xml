@@ -4,7 +4,6 @@
   <!-- most phone defaults properties is set in sipxconfig.properties.in -->
   <bean id="phoneDefaults" class="org.sipfoundry.sipxconfig.device.DeviceDefaults">
     <property name="dialPlanContext" ref="dialPlanContext"/>
-  </bean>
-  
-  
+    <property name="domainManager" ref="domainManager"/>
+  </bean>   
 </beans>

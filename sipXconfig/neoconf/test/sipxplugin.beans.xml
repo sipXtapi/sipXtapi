@@ -2,10 +2,7 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-  <bean id="skinProperties"
-    class="org.sipfoundry.sipxconfig.components.SkinProperties">
-    <property name="locationPath" value="skin.properties"/>
-  </bean>  
   <bean name="unitTestDefaults" class="org.sipfoundry.sipxconfig.common.UnitTestDefaults">
   </bean>
 </beans>
+

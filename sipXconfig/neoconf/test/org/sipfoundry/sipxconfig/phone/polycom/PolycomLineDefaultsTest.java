@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 
 import junit.framework.TestCase;
 
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.phone.Line;
@@ -27,7 +28,7 @@ public class PolycomLineDefaultsTest extends TestCase {
         PolycomPhone phone = new PolycomPhone();
         m_line = phone.createLine();
         DeviceDefaults defaults = new DeviceDefaults();
-        defaults.setDomainName("example.org");
+        defaults.setDomainManager(TestHelper.getTestDomainManager("example.org"));
         m_defaults = new PolycomLineDefaults(defaults, m_line);
         m_user = new User();
         m_user.setUserName("bluejay");

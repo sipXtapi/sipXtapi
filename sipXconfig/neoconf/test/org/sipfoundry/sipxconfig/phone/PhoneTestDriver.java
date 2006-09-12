@@ -49,7 +49,7 @@ public class PhoneTestDriver {
     private PhoneTestDriver(Phone _phone) {
         defaults = new DeviceDefaults();
         defaults.setDeviceTimeZone(new DeviceTimeZone("Etc/GMT+5")); // no DST for consistent results
-        defaults.setDomainName("sipfoundry.org");
+        defaults.setDomainManager(TestHelper.getTestDomainManager("sipfoundry.org"));
         defaults.setFullyQualifiedDomainName("pbx.sipfoundry.org");
         defaults.setTftpServer("tftp.sipfoundry.org");
         defaults.setProxyServerAddr("outbound.sipfoundry.org");

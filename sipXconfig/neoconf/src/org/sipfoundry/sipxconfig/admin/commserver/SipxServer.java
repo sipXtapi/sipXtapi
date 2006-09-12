@@ -20,7 +20,6 @@ import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipUri;
-import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.ConfigFileStorage;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -39,15 +38,10 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
     private String m_configDirectory;
     private ConfigFileStorage m_storage;
     private SipxReplicationContext m_sipxReplicationContext;
-    private DeviceDefaults m_deviceDefaults;
     private CoreContext m_coreContext;
 
     public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
         m_sipxReplicationContext = sipxReplicationContext;
-    }
-
-    public void setPhoneDefaults(DeviceDefaults deviceDefaults) {
-        m_deviceDefaults = deviceDefaults;
     }
 
     public void setCoreContext(CoreContext coreContext) {
@@ -85,7 +79,6 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
 
     public void applySettings() {
         try {
-            handlePossibleDomainNameChange();
             handlePossiblePresenceServerChange();
             m_storage.flush();
         } catch (IOException e) {
@@ -97,21 +90,6 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
     private void handlePossiblePresenceServerChange() {
         // TODO: in reality only need to do that if sing-in/sign-out code changed
         m_sipxReplicationContext.generate(DataSet.ALIAS);
-    }
-
-    void handlePossibleDomainNameChange() {
-        String newDomainName = getSettingValue(DOMAIN_NAME);
-        // bail if domain name wasn't changed.
-        if (m_coreContext.getDomainName().equals(newDomainName)) {
-            return;
-        }
-
-        // unwelcome dependencies, resolve when domain name editing
-        // refactored.
-        m_deviceDefaults.setDomainName(newDomainName);
-        m_coreContext.setDomainName(newDomainName);
-
-        m_sipxReplicationContext.generateAll();
     }
 
     public void setConfigDirectory(String configDirectory) {

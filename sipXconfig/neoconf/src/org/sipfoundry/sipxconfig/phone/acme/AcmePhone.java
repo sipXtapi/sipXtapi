@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.phone.acme;
 
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -136,7 +137,8 @@ public class AcmePhone extends Phone {
      
         @SettingEntry(path = REGISTRATION_SERVER_SETTING)
         public String getRegistrationServer() {
-            return m_line.getPhoneContext().getPhoneDefaults().getDomainName();
+            DeviceDefaults defaults = m_line.getPhoneContext().getPhoneDefaults();
+            return defaults.getDomainName();
         }        
     }    
 }

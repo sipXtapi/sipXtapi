@@ -40,12 +40,13 @@ public class LineTest extends TestCase {
 
     public void testNoUserGetUriAndDisplayLabel() {
         DeviceDefaults defaults = new DeviceDefaults();
+        defaults.setDomainManager(TestHelper.getTestDomainManager("sipfoundry.org"));
 
         IMocksControl phoneContextCtrl = EasyMock.createNiceControl();
         PhoneContext phoneContext = phoneContextCtrl.createMock(PhoneContext.class);
         phoneContext.getPhoneDefaults();
-        phoneContextCtrl.andReturn(defaults).times(1);
-        phoneContextCtrl.replay();
+        phoneContextCtrl.andReturn(defaults).anyTimes();
+        phoneContextCtrl.replay();        
 
         Phone phone = new AcmePhone();
         phone.setPhoneContext(phoneContext);

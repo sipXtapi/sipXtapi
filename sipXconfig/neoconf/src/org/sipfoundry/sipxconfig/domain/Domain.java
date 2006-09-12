@@ -22,6 +22,12 @@ public class Domain extends BeanWithId {
     private String m_name;
     private Set<String> m_aliases;
 
+    public Domain() {        
+    }
+    
+    public Domain(String name) {
+        setName(name);
+    }
     /**
      * Fully qualified host name is NOT using DNS SRV (e.g. myhost.example.com),
      * otherwise use domain name (example.com)  
@@ -47,9 +53,5 @@ public class Domain extends BeanWithId {
 
     public void setAliases(Set<String> aliases) {
         m_aliases = aliases;
-    }
-    
-    public String getLocalFQDN() {
-        return "localhost.localdomain";
     }
 }

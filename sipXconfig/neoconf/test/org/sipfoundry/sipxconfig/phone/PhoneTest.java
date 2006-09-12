@@ -64,7 +64,7 @@ public class PhoneTest extends TestCase {
     
     public void testFindByUsername() {
         DeviceDefaults defaults = new DeviceDefaults();
-        defaults.setDomainName("sipfoundry.org");
+        defaults.setDomainManager(TestHelper.getTestDomainManager("sipfoundry.org"));
         IMocksControl phoneContextCtrl = EasyMock.createControl();
         PhoneContext phoneContext = phoneContextCtrl.createMock(PhoneContext.class);
         phoneContextCtrl.replay();
@@ -87,7 +87,7 @@ public class PhoneTest extends TestCase {
     
     public void testFindByUri() {
         DeviceDefaults defaults = new DeviceDefaults();
-        defaults.setDomainName("sipfoundry.org");
+        defaults.setDomainManager(TestHelper.getTestDomainManager("sipfoundry.org"));
         IMocksControl phoneContextCtrl = EasyMock.createControl();
         PhoneContext phoneContext = phoneContextCtrl.createMock(PhoneContext.class);
         phoneContext.getPhoneDefaults();

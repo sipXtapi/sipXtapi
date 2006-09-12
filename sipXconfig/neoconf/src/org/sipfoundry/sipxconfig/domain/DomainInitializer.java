@@ -57,7 +57,7 @@ public class DomainInitializer implements ApplicationListener {
         return d;        
     }
     
-    String getInitialDomainName() {
+    public String getInitialDomainName() {
         if (m_initialDomain != null) {
             return m_initialDomain;
         }
