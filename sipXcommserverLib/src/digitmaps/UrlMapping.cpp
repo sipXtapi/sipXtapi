@@ -55,8 +55,8 @@ UrlMapping::~UrlMapping()
 }
 /* ============================ MANIPULATORS ============================== */
 OsStatus
-UrlMapping::loadMappings(const UtlString configFileName,
-                         const UtlString mediaserver,
+UrlMapping::loadMappings(const UtlString& configFileName,
+                         const UtlString& mediaserver,
                          const UtlString& voicemail,
                          const UtlString& localhost)
 {
@@ -66,7 +66,7 @@ UrlMapping::loadMappings(const UtlString configFileName,
     if (mDoc->LoadFile())
     {
        OsSysLog::add(FAC_SIP, PRI_INFO, "UrlMapping::loadMappings - "
-                     "loaded %s", configFileName.data());
+                     "loaded '%s'", configFileName.data());
 
        currentStatus = OS_SUCCESS;
 
@@ -88,7 +88,7 @@ UrlMapping::loadMappings(const UtlString configFileName,
     else
     {
        OsSysLog::add( FAC_SIP, PRI_ERR, "UrlMapping::loadMappings - "
-                     "failed to load %s", configFileName.data() );
+                     "failed to load '%s'", configFileName.data() );
        currentStatus = OS_NOT_FOUND;
     }
 

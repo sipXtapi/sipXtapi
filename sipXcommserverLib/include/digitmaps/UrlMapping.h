@@ -90,8 +90,8 @@ public:
 
 /* ============================ ACCESSORS ================================= */
     OsStatus loadMappings(
-        const UtlString configFileName,
-        const UtlString mediaserver = "",
+        const UtlString& configFileName,
+        const UtlString& mediaserver = "",
         const UtlString& voicemail = "",
         const UtlString& localhost = "");
 
