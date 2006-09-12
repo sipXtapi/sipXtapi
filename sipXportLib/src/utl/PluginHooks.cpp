@@ -126,7 +126,7 @@ public:
             if (OS_SUCCESS == configDb.getSubHash(myConfigName, myConfig))
             {
                OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                             "PluginHooks configuring '%s' from '%s'",
+                             "ConfiguredHook:: configuring instance '%s' using prefix '%s'",
                              data(), myConfigName.data()
                              );
                hook->readConfig(myConfig);
@@ -134,7 +134,7 @@ public:
             else
             {
                OsSysLog::add(FAC_KERNEL, PRI_CRIT,
-                             "PluginHooks no configuration found for '%s'",
+                             "PluginHooks no configuration found for instance '%s'",
                              data()
                              );
             }
@@ -162,7 +162,9 @@ PluginHooks::~PluginHooks()
 
 void PluginHooks::readConfig(OsConfigDb& configDb)
 {
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "PluginHooks::readConfig" );
+   OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                 "PluginHooks::readConfig mFactory = '%s', mPrefix = '%s'",
+                 mFactory.data(), mPrefix.data());
 
    // Move any existing hooks from the current configured list to
    // a temporary holding list.
@@ -207,7 +209,7 @@ void PluginHooks::readConfig(OsConfigDb& configDb)
          {
             // not an existing hook, so create a new one
             OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                          "PluginHooks: loading '%s'", hookName.data()
+                          "PluginHooks: loading instance '%s'", hookName.data()
                           );
             thisHook = new ConfiguredHook(hookName, mFactory, hookLibrary);
          }
