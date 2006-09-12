@@ -125,6 +125,18 @@
     index CDATA #REQUIRED
 >
 
+<!ELEMENT domain EMPTY>
+<!ATTLIST domain
+    domain_id CDATA #REQUIRED
+    name CDATA #REQUIRED
+>
+
+<!ELEMENT domain_alias EMPTY>
+<!ATTLIST domain_alias
+    domain_id CDATA #REQUIRED
+    alias CDATA #REQUIRED
+>
+
 <!ELEMENT emergency_dialing_rule EMPTY>
 <!ATTLIST emergency_dialing_rule
     emergency_dialing_rule_id CDATA #REQUIRED

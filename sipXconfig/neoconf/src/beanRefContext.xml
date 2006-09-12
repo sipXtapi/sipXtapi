@@ -30,6 +30,7 @@
         <value>classpath:/org/sipfoundry/sipxconfig/upload/upload.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/presence/presence.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/admin/intercom/intercom.beans.xml</value>
+        <value>classpath:/org/sipfoundry/sipxconfig/domain/domain.beans.xml</value>
         <value>classpath*:/sipxplugin.beans.xml</value>
         <!-- all *-models.beans.xml files on the classpath -->
         <value>classpath*:/org/sipfoundry/sipxconfig/**/*-models.beans.xml</value>

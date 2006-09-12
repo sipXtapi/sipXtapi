@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <bean id="domainManager" class="org.springframework.aop.framework.ProxyFactoryBean"
+    parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.domain.DomainManager</value>
+    </property>
+    <property name="target">
+      <ref local="domainManagerImpl" />
+    </property>
+  </bean>
+
+  <bean id="domainManagerImpl"
+    class="org.sipfoundry.sipxconfig.domain.DomainManagerImpl">
+    <property name="sessionFactory" ref="sessionFactory"/>
+  </bean>
+  
+  <bean id="domainInitializer"
+    class="org.sipfoundry.sipxconfig.domain.DomainInitializer">
+    <property name="domainManager" ref="domainManager"/>
+  </bean>
+
+</beans>

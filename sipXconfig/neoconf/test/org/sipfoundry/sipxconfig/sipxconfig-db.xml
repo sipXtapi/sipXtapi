@@ -95,6 +95,14 @@
     <column>gateway_id</column>
     <column>index</column>
   </table>
+  <table name="domain">
+    <column>domain_id</column>
+    <column>name</column>
+  </table>
+  <table name="domain_alias">
+    <column>domain_id</column>
+    <column>alias</column>
+  </table>
   <table name="emergency_dialing_rule">
     <column>emergency_dialing_rule_id</column>
     <column>optional_prefix</column>
@@ -144,21 +152,6 @@
   </table>
   <table name="initialization_task">
     <column>name</column>
-    <row>
-      <value>add_default_user_group</value>
-    </row>
-    <row>
-      <value>default-phone-group</value>
-    </row>
-    <row>
-      <value>dial_plan_migrate_attendant_rules</value>
-    </row>
-    <row>
-      <value>dial-plans</value>
-    </row>
-    <row>
-      <value>operator</value>
-    </row>
   </table>
   <table name="intercom">
     <column>intercom_id</column>
@@ -285,36 +278,6 @@
   </table>
   <table name="patch">
     <column>name</column>
-    <row>
-      <value>caller-alias</value>
-    </row>
-    <row>
-      <value>device-version</value>
-    </row>
-    <row>
-      <value>gateway-prefix</value>
-    </row>
-    <row>
-      <value>intercom</value>
-    </row>
-    <row>
-      <value>ldap</value>
-    </row>
-    <row>
-      <value>long-distance-rule</value>
-    </row>
-    <row>
-      <value>park-orbit-settings</value>
-    </row>
-    <row>
-      <value>permission</value>
-    </row>
-    <row>
-      <value>settings-refactoring</value>
-    </row>
-    <row>
-      <value>supervisor</value>
-    </row>
   </table>
   <table name="permission">
     <column>permission_id</column>
@@ -402,15 +365,15 @@
     <column>applied</column>
     <row>
       <value>1</value>
-      <value>2006-08-30</value>
+      <value>2006-09-12</value>
     </row>
     <row>
       <value>2</value>
-      <value>2006-08-30</value>
+      <value>2006-09-12</value>
     </row>
     <row>
       <value>3</value>
-      <value>2006-08-30</value>
+      <value>2006-09-12</value>
     </row>
   </table>
 </dataset>

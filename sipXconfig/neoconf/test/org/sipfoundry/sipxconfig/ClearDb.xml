@@ -78,4 +78,7 @@
   <table name="ldap_selected_object_classes"/>  
   
   <table name="permission"/>
+  
+  <table name="domain"/>
+  <table name="domain_alias"/>
 </dataset>
