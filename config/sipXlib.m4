@@ -141,7 +141,7 @@ AC_DEFUN([SFAC_SVN_VERSION],[
      then
        SVN_VERSION=`svnversion ${srcdir} \
          | perl -p \
-           -e 'm /(\d+)/ && do { $padded=sprintf( "%06d", $1 ); s/\d+/$padded/; };' \
+           -e 'm /(\d+)/ && do { $padded=sprintf( "%06d", [$][1] ); s/\d+/$padded/; };' \
            -e 's/:/./; s/M/.M/;'`
        elif test -r ${srcdir}/../SVN-VERSION
        then
