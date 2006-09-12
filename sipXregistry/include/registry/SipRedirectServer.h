@@ -21,7 +21,7 @@
 #include "os/OsConfigDb.h"
 #include "utl/UtlHashMap.h"
 #include "registry/RedirectPlugin.h"
-#include "RedirectSuspend.h"
+#include "registry/RedirectSuspend.h"
 #include "net/SipUserAgent.h"
 #include "utl/UtlHashMapIterator.h"
 #include "os/OsMutex.h"

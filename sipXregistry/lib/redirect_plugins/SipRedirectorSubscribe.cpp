@@ -25,8 +25,15 @@
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 
+// Static factory function.
+extern "C" RedirectPlugin* getRedirectPlugin(const UtlString& instanceName)
+{
+   return new SipRedirectorSubscribe(instanceName);
+}
+
 // Constructor
-SipRedirectorSubscribe::SipRedirectorSubscribe()
+SipRedirectorSubscribe::SipRedirectorSubscribe(const UtlString& instanceName) :
+   RedirectPlugin(instanceName)
 {
 }
 
@@ -51,7 +58,7 @@ SipRedirectorSubscribe::finalize()
 {
 }
 
-SipRedirector::LookUpStatus
+RedirectPlugin::LookUpStatus
 SipRedirectorSubscribe::lookUp(
    const SipMessage& message,
    const UtlString& requestString,
@@ -65,7 +72,7 @@ SipRedirectorSubscribe::lookUp(
    // Return immediately if the method is not SUBSCRIBE.
    if (method.compareTo(SIP_SUBSCRIBE_METHOD, UtlString::ignoreCase) != 0)
    {
-      return SipRedirector::LOOKUP_SUCCESS;
+      return RedirectPlugin::LOOKUP_SUCCESS;
    }
 
    UtlString thisContact;
@@ -91,5 +98,5 @@ SipRedirectorSubscribe::lookUp(
       }
    } // for all contacts
 
-   return SipRedirector::LOOKUP_SUCCESS;
+   return RedirectPlugin::LOOKUP_SUCCESS;
 }

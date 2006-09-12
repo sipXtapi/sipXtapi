@@ -23,19 +23,13 @@
 #include "sipdb/ResultSet.h"
 #include "sipdb/AliasDB.h"
 #include "sipdb/PermissionDB.h"
-#include "SipRedirectServer.h"
+#include "registry/SipRedirectServer.h"
 #include "RedirectResumeMsg.h"
-#include "RedirectSuspend.h"
+#include "registry/RedirectSuspend.h"
 #include "utl/PluginHooks.h"
 #include "registry/RedirectPlugin.h"
 
 // DEFINES
-
-// Names of configuration files.  All are assumed to be in the directory SIPX_CONFDIR
-#define URL_MAPPING_RULES_FILENAME "mappingrules.xml"
-#define URL_FALLBACK_RULES_FILENAME "fallbackrules.xml"
-#define ORBIT_CONFIG_FILENAME "orbits.xml"
-
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -120,64 +114,6 @@ SipRedirectServer::initialize(OsConfigDb& configDb
    {
       redirector->initialize(configDb, mpSipUserAgent, i, defaultDomain);
    }
-
-#if 0
-   // Make a hash map to convey the configuration parameters to the
-   // redirector objects.
-   // This really ought to be simpler, but UtlHashMap demands that its
-   // arguments be pointers to writable objects.
-   UtlHashMap configParameters;
-   UtlString k4 = "localDomainHost";
-   UtlString v4 = defaultDomain;
-   configParameters.insertKeyAndValue(&k4, &v4);
-
-   // Create and initialize the SipRedirectorRegDB object.
-   mRedirectors[0] = new SipRedirectorRegDB;
-   mRedirectors[0]->initialize(configParameters, configDb, mpSipUserAgent, 0);
-
-   // Create and initialize the SipRedirectorAliasDB object.
-   mRedirectors[1] = new SipRedirectorAliasDB;
-   mRedirectors[1]->initialize(configParameters, configDb, mpSipUserAgent, 1);
-
-   // Create and initialize the mRedirectorMappingRules object.
-   UtlString k5 = "mappingRulesFilename";
-   UtlString v5 = URL_MAPPING_RULES_FILENAME;
-   configParameters.insertKeyAndValue(&k5, &v5);
-   UtlString k6 = "reportingName";
-   UtlString v6 = "mapping rules";
-   configParameters.insertKeyAndValue(&k6, &v6);
-   UtlString k7 = "fallback";
-   UtlString v7 = "false";
-   configParameters.insertKeyAndValue(&k7, &v7);
-   mRedirectors[2] = new SipRedirectorMapping;
-   mRedirectors[2]->initialize(configParameters, configDb, mpSipUserAgent, 2);
-
-   // Create and initialize the mRedirectorFallbackRules object.
-   v5 = URL_FALLBACK_RULES_FILENAME;
-   configParameters.insertKeyAndValue(&k5, &v5);
-   v6 = "fallback rules";
-   configParameters.insertKeyAndValue(&k6, &v6);
-   v7 = "true";
-   configParameters.insertKeyAndValue(&k7, &v7);
-   mRedirectors[3] = new SipRedirectorMapping;
-   mRedirectors[3]->initialize(configParameters, configDb, mpSipUserAgent, 3);
-
-   // Create and initialize the mRedirectorHunt object.
-   mRedirectors[4] = new SipRedirectorHunt;
-   mRedirectors[4]->initialize(configParameters, configDb, mpSipUserAgent, 4);
-
-   // Create and initialize the mRedirectorSubscribe object.
-   mRedirectors[5] = new SipRedirectorSubscribe;
-   mRedirectors[5]->initialize(configParameters, configDb, mpSipUserAgent, 5);
-
-   // Create and initialize the mRedirectorPickUp object.
-   UtlString k8 = "orbitConfigFilename";
-   UtlString v8 = ORBIT_CONFIG_FILENAME;
-   configParameters.insertKeyAndValue(&k8, &v8);
-   mRedirectors[6] = new SipRedirectorPickUp;
-   mRedirectors[6]->initialize(configParameters, configDb, mpSipUserAgent, 6);
-
-#endif /* 0 */
 
    return true;
 }

@@ -18,6 +18,9 @@ sipregistrar_SOURCES =  \
 sipregistrar_LDADD = \
 	libsipXregistry.la
 
+sipregistrar_LDFLAGS = \
+	-rdynamic
+
 noinst_LTLIBRARIES = libsipXregistry.la
 
 libsipXregistry_la_CXXFLAGS = $(sipregistrar_CXXFLAGS)
@@ -26,6 +29,7 @@ libsipXregistry_la_LIBADD = \
 	@SIPXCOMMSERVER_LIBS@
 
 libsipXregistry_la_SOURCES = \
+    ../lib/redirect_plugins/SipRedirectorRegDB.cpp \
     ../config/sipxregistry-buildstamp.h \
     ../config/sipxregistry-buildstamp.cpp \
     RedirectPlugin.cpp \

@@ -29,8 +29,15 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
+// Static factory function.
+extern "C" RedirectPlugin* getRedirectPlugin(const UtlString& instanceName)
+{
+   return new SipRedirectorMapping(instanceName);
+}
+
 // Constructor
-SipRedirectorMapping::SipRedirectorMapping() :
+SipRedirectorMapping::SipRedirectorMapping(const UtlString& instanceName) :
+   RedirectPlugin(instanceName),
    mMappingRulesLoaded(OS_FAILED)
 {
 }
@@ -40,49 +47,32 @@ SipRedirectorMapping::~SipRedirectorMapping()
 {
 }
 
+// Read config information.
+void SipRedirectorMapping::readConfig(OsConfigDb& configDb)
+{
+   configDb.get("MEDIA_SERVER", mMediaServer);
+   configDb.get("VOICEMAIL_SERVER", mVoicemailServer);
+   configDb.get("MAPPING_RULES_FILENAME", mFileName);
+   UtlString s;
+   configDb.get("FALLBACK", s);
+   mFallback = s.compareTo("true") == 0;
+}
+
 // Initialize
 OsStatus
-SipRedirectorMapping::initialize(const UtlHashMap& configParameters,
-                                 OsConfigDb& configDb,
+SipRedirectorMapping::initialize(OsConfigDb& configDb,
                                  SipUserAgent* pSipUserAgent,
-                                 int redirectorNo)
+                                 int redirectorNo,
+                                 const UtlString& localDomainHost)
 {
-   UtlString mediaServer;
-   configDb.get("SIP_REGISTRAR_MEDIA_SERVER", mediaServer);
-
-   UtlString voicemailServer;
-   configDb.get("SIP_REGISTRAR_VOICEMAIL_SERVER", voicemailServer);
-
-   UtlString s;
-   s = "localDomainHost";
-   const UtlString* localDomainHost =
-      dynamic_cast<UtlString*> (configParameters.findValue(&s));
-
-   s = "mappingRulesFilename";
-   const UtlString* mappingRulesFilename =
-      dynamic_cast<UtlString*> (configParameters.findValue(&s));
-
-   s = "reportingName";
-   mName = *dynamic_cast<UtlString*> (configParameters.findValue(&s));
-
-   s = "fallback";
-   mFallback =
-      (*dynamic_cast<UtlString*> (configParameters.findValue(&s))).
-      compareTo("true") == 0;
-
-   UtlString fileName;
-   fileName.append(SIPX_CONFDIR);
-   fileName.append(OsPathBase::separator);
-   fileName.append(*mappingRulesFilename);
-
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipRedirectorMapping::SipRedirectorMapping Loading mapping rules from '%s'",
-                 fileName.data());
+                 mFileName.data());
 
-   mMappingRulesLoaded = mMap.loadMappings(fileName,
-                                           mediaServer,
-                                           voicemailServer,
-                                           *localDomainHost);
+   mMappingRulesLoaded = mMap.loadMappings(mFileName,
+                                           mMediaServer,
+                                           mVoicemailServer,
+                                           localDomainHost);
 
    return mMappingRulesLoaded ? OS_SUCCESS : OS_FAILED;
 }
@@ -93,7 +83,7 @@ SipRedirectorMapping::finalize()
 {
 }
 
-SipRedirector::LookUpStatus
+RedirectPlugin::LookUpStatus
 SipRedirectorMapping::lookUp(
    const SipMessage& message,
    const UtlString& requestString,
@@ -114,7 +104,7 @@ SipRedirectorMapping::lookUp(
    if (mFallback &&
        response.getCountHeaderFields(SIP_CONTACT_FIELD) > 0)
    {
-      return SipRedirector::LOOKUP_SUCCESS;
+      return RedirectPlugin::LOOKUP_SUCCESS;
    }
 
    // @JC This variable is strangely overloaded
@@ -252,5 +242,5 @@ SipRedirectorMapping::lookUp(
       }
    }
 
-   return SipRedirector::LOOKUP_SUCCESS;
+   return RedirectPlugin::LOOKUP_SUCCESS;
 }

@@ -9,14 +9,14 @@
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef SIPREDIRECTORALIASDB_H
-#define SIPREDIRECTORALIASDB_H
+#ifndef SIPREDIRECTORSUBSCRIBE_H
+#define SIPREDIRECTORSUBSCRIBE_H
 
 // SYSTEM INCLUDES
 //#include <...>
 
 // APPLICATION INCLUDES
-#include "SipRedirector.h"
+#include "registry/RedirectPlugin.h"
 
 // DEFINES
 // MACROS
@@ -26,28 +26,26 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
+class SipMessage;
 
-/**
- * SipRedirectorAliasDB is singleton class whose object adds contacts that are
- * listed in the registration database.
- */
-
-class SipRedirectorAliasDB : public SipRedirector
+class SipRedirectorSubscribe : public RedirectPlugin
 {
-  public:
+public:
 
-   SipRedirectorAliasDB();
+   SipRedirectorSubscribe();
 
-   ~SipRedirectorAliasDB();
+   ~SipRedirectorSubscribe();
 
-   virtual OsStatus initialize(const UtlHashMap& configParameters,
-                               OsConfigDb& configDb,
+   virtual void readConfig(OsConfigDb& configDb);
+
+   virtual OsStatus initialize(OsConfigDb& configDb,
                                SipUserAgent* pSipUserAgent,
-                               int redirectorNo);
+                               int redirectorNo,
+                               const UtlString& localDomainHost);
 
    virtual void finalize();
 
-   virtual SipRedirector::LookUpStatus lookUp(
+   virtual RedirectPlugin::LookUpStatus lookUp(
       const SipMessage& message,
       const UtlString& requestString,
       const Url& requestUri,
@@ -57,7 +55,10 @@ class SipRedirectorAliasDB : public SipRedirector
       int redirectorNo,
       SipRedirectorPrivateStorage*& privateStorage);
 
-  protected:
+protected:
+
+private:
+
 };
 
-#endif // SIPREDIRECTORALIASDB_H
+#endif // SIPREDIRECTORSUBSCRIBE_H

@@ -30,8 +30,15 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
+// Static factory function.
+extern "C" RedirectPlugin* getRedirectPlugin(const UtlString& instanceName)
+{
+   return new SipRedirectorAliasDB(instanceName);
+}
+
 // Constructor
-SipRedirectorAliasDB::SipRedirectorAliasDB()
+SipRedirectorAliasDB::SipRedirectorAliasDB(const UtlString& instanceName) :
+   RedirectPlugin(instanceName)
 {
 }
 
@@ -40,12 +47,17 @@ SipRedirectorAliasDB::~SipRedirectorAliasDB()
 {
 }
 
+// Read config information.
+void SipRedirectorAliasDB::readConfig(OsConfigDb& configDb)
+{
+}
+
 // Initializer
 OsStatus
-SipRedirectorAliasDB::initialize(const UtlHashMap& configParameters,
-                                 OsConfigDb& configDb,
+SipRedirectorAliasDB::initialize(OsConfigDb& configDb,
                                  SipUserAgent* pSipUserAgent,
-                                 int redirectorNo)
+                                 int redirectorNo,
+                               const UtlString& localDomainHost)
 {
    return OS_SUCCESS;
 }
@@ -56,7 +68,7 @@ SipRedirectorAliasDB::finalize()
 {
 }
 
-SipRedirector::LookUpStatus
+RedirectPlugin::LookUpStatus
 SipRedirectorAliasDB::lookUp(
    const SipMessage& message,
    const UtlString& requestString,
@@ -98,5 +110,5 @@ SipRedirectorAliasDB::lookUp(
       }
    }
 
-   return SipRedirector::LOOKUP_SUCCESS;
+   return RedirectPlugin::LOOKUP_SUCCESS;
 }
