@@ -185,5 +185,15 @@
       </permissionMatch>
     </userMatch>
 
+    <!-- Support ISN dialing: match on "digits*digits" -->
+    <userMatch>
+      <userPattern>x.\*x.</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>&lt;sip:{digits}@isn.tello.com&gt;</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
   </hostMatch>
 </mappings>
