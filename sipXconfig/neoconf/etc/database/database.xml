@@ -126,6 +126,7 @@
   	<sipx-sql>
   		drop table domain;
   		drop table domain_alias;
+      drop sequence domain_seq;
   		delete from patch where name = 'domain';
   		delete from initialization_task where name = 'initialize-domain';
   	</sipx-sql>

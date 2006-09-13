@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.admin.ManageDomain">
+  <description>Domain</description>
+  <inject property="tapestry" object="spring:tapestry" />
+  <inject property="domainManager" object="spring:domainManager" />
+
+  <property name="domain" initial-value="domainManager.domain"/>
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate" />
+  <component id="form" type="Form">
+    <binding name="delegate" value="bean:validator" />
+  </component>
+  <component id="errors" type="ErrorMsg" />
+  <component id="enableIntercom" type="Checkbox">
+    <binding name="value" value="intercom.enabled" />
+  </component>
+  <component id="namePanel" type="FieldPanel">
+    <binding name="field" value="components.name" />
+    <binding name="label" value="message:label.name" />
+    <binding name="description" value="message:description.name" />
+  </component>
+  <component id="name" type="TextField">
+    <binding name="value" value="domain.name" />
+    <binding name="validators" value="spring-validators:validHostOrIp" />    
+  </component>
+  <component id="formActions" type="FormActions">
+    <binding name="listener" value="listener:commit" />
+    <binding name="successMessage" value="message:msg.actionSuccess" />
+  </component>
+</page-specification>
