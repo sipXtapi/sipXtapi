@@ -509,13 +509,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         return objs;
     }
 
-    public List<User> getUsersWithExternalNumbers() {
-        List<User> objs = getHibernateTemplate().findByNamedQuery("usersWithExternalNumbers");
-        return objs;
-    }
-
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
     }
-
 }

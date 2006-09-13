@@ -22,11 +22,15 @@ import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
 import org.easymock.EasyMock;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.UserCallerAliasInfo;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
+import org.sipfoundry.sipxconfig.gateway.GatewayCallerAliasInfo;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
+import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 
 public class CallerAliasesTest extends XMLTestCase {
     public CallerAliasesTest() {
@@ -44,11 +48,11 @@ public class CallerAliasesTest extends XMLTestCase {
         },
     };
 
-    private String[][] GATEWAY_DATA = {
+    private Object[][] GATEWAY_DATA = {
         {
-            "example.org", "7832331111"
+            "example.org", "7832331111", true
         }, {
-            "bongo.com", null
+            "bongo.com", null, false
         }
     };
 
@@ -57,21 +61,30 @@ public class CallerAliasesTest extends XMLTestCase {
     private List<Gateway> m_gateways;
 
     protected void setUp() throws Exception {
+        PermissionManagerImpl impl = new PermissionManagerImpl();
+        impl.setModelFilesContext(TestHelper.getModelFilesContext());
+
         m_users = new ArrayList<User>();
         for (String[] ud : USER_DATA) {
             User user = new User();
+            user.setPermissionManager(impl);
+            
             user.setFirstName(ud[0]);
             user.setLastName(ud[1]);
             user.setUserName(ud[2]);
-            user.setExternalNumber(ud[3]);
+            
+            user.setSettingValue(UserCallerAliasInfo.EXTERNAL_NUMBER, ud[3]);
             m_users.add(user);
         }
-        
+
         m_gateways = new ArrayList<Gateway>();
-        for (String[] gd : GATEWAY_DATA) {
+        for (Object[] gd : GATEWAY_DATA) {
             Gateway gateway = new Gateway();
-            gateway.setAddress(gd[0]);
-            gateway.setDefaultCallerAlias(gd[1]);
+            gateway.setAddress((String) gd[0]);
+            GatewayCallerAliasInfo info = new GatewayCallerAliasInfo();
+            info.setDefaultCallerAlias((String) gd[1]);
+            info.setOverwriteUserInfo((Boolean) gd[2]);
+            gateway.setCallerAliasInfo(info);
             m_gateways.add(gateway);
         }
     }
@@ -119,13 +132,14 @@ public class CallerAliasesTest extends XMLTestCase {
         EasyMock.replay(coreContext, gatewayContext);
 
         Document document = cas.generate();
-        
+
         String casXml = XmlUnitHelper.asString(document);
-        InputStream referenceXmlStream = AliasesTest.class.getResourceAsStream("caller-alias.test.xml");
+        
+        InputStream referenceXmlStream = AliasesTest.class
+                .getResourceAsStream("caller-alias.test.xml");
         assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(casXml));
-        
-        
+
         EasyMock.verify(coreContext, gatewayContext);
     }
-    
+
 }

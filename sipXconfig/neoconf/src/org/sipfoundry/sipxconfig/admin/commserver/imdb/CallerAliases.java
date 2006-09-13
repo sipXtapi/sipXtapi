@@ -18,11 +18,15 @@ import org.dom4j.Element;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.UserCallerAliasInfo;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
+import org.sipfoundry.sipxconfig.gateway.GatewayCallerAliasInfo;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 
 public class CallerAliases extends DataSetGenerator {
     private GatewayContext m_gatewayContext;
+
+    private String m_anonymousAlias;
 
     protected void addItems(Element items) {
         // FIXME: use only gateways that are used in dialplan...
@@ -33,17 +37,23 @@ public class CallerAliases extends DataSetGenerator {
         for (Gateway gateway : gateways) {
             String gatewayAddr = gateway.getAddress();
             // add default entry for the gateway
-            String defaultCallerAlias = gateway.getDefaultCallerAlias();
+            GatewayCallerAliasInfo gatewayInfo = gateway.getCallerAliasInfo();
 
+            String defaultCallerAlias = gatewayInfo.getDefaultCallerAlias();
             if (StringUtils.isNotEmpty(defaultCallerAlias)) {
                 String callerAliasUri = SipUri.format(defaultCallerAlias, sipDomain, false);
                 addItem(items, gatewayAddr, callerAliasUri);
-            } else {
+            }
+
+            // only add user aliases is overwrite is not set
+            if (!gatewayInfo.isOverwriteUserInfo()) {
                 // add per-user entries
                 for (User user : users) {
-                    String externalNumber = user.getExternalNumber();
-                    if (StringUtils.isNotEmpty(externalNumber)) {
-                        String callerAliasUri = SipUri.format(user.getDisplayName(), externalNumber, sipDomain);
+                    UserCallerAliasInfo info = new UserCallerAliasInfo(user);
+                    if (info.hasExternalNumber()) {
+                        String externalNumber = info.getExternalNumber(m_anonymousAlias);
+                        String callerAliasUri = SipUri.format(user.getDisplayName(),
+                                externalNumber, sipDomain);
                         String identity = AliasMapping.createUri(user.getUserName(), sipDomain);
                         addItem(items, gatewayAddr, callerAliasUri, identity);
                     }
@@ -72,5 +82,9 @@ public class CallerAliases extends DataSetGenerator {
 
     public void setGatewayContext(GatewayContext gatewayContext) {
         m_gatewayContext = gatewayContext;
+    }
+
+    public void setAnonymousAlias(String anonymousAlias) {
+        m_anonymousAlias = anonymousAlias;
     }
 }

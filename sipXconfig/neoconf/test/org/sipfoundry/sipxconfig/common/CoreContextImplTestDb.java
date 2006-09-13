@@ -480,15 +480,4 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         assertEquals("peon2", peons.get(1).getUserName());
         assertEquals("peon5", peons.get(2).getUserName());
     }
-
-    public void testUsersWithExternalNumbers() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.insertFlat("common/UsersWithExternalNumbers.db.xml");
-
-        List<User> all = m_core.loadUsers();
-        assertEquals(3, all.size());
-        List<User> users = m_core.getUsersWithExternalNumbers();
-        assertEquals(1, users.size());
-        assertEquals("alpha", users.get(0).getUserName());
-    }
 }

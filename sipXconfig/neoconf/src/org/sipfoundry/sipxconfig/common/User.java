@@ -64,8 +64,6 @@ public class User extends BeanWithGroups implements NamedObject {
     private String m_lastName;
 
     private String m_userName;
-    
-    private String m_externalNumber;
 
     private Set<String> m_aliases = new LinkedHashSet<String>(0);
 
@@ -142,14 +140,6 @@ public class User extends BeanWithGroups implements NamedObject {
         m_userName = userName;
     }
 
-    public String getExternalNumber() {
-        return m_externalNumber;
-    }
-    
-    public void setExternalNumber(String externalNumber) {
-        m_externalNumber = externalNumber;
-    }
-    
     public String getDisplayName() {
         Object[] names = {
             m_firstName, m_lastName
@@ -219,7 +209,7 @@ public class User extends BeanWithGroups implements NamedObject {
     public String getUri(String domainName) {
         return SipUri.format(this, domainName);
     }
-    
+
     @Override
     protected Setting loadSettings() {
         return m_permissionManager.getPermissionModel();
