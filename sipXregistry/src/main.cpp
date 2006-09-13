@@ -31,7 +31,7 @@
 #include "net/NameValueTokenizer.h"
 #include "sipdb/SIPDBManager.h"
 #include "sipdb/ExtensionDB.h"
-#include "SipRegistrar.h"
+#include "registry/SipRegistrar.h"
 
 // DEFINES
 #define CONFIG_SETTINGS_FILE  "registrar-config"

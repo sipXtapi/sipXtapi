@@ -17,7 +17,7 @@
 #include "net/Url.h"
 #include "net/SipMessage.h"
 #include "sipdb/ResultSet.h"
-#include "SipRegistrar.h"
+#include "registry/SipRegistrar.h"
 #include "SipRedirectorTest.h"
 #include "SipRedirectServer.h"
 

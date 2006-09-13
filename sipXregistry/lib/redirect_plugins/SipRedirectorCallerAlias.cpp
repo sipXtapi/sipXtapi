@@ -16,7 +16,7 @@
 #include "os/OsSysLog.h"
 #include "net/Url.h"
 #include "net/SipMessage.h"
-#include "SipRegistrar.h"
+#include "registry/SipRegistrar.h"
 #include "SipRedirectorCallerAlias.h"
 
 // EXTERNAL FUNCTIONS
@@ -24,8 +24,15 @@
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 
+// Static factory function.
+extern "C" RedirectPlugin* getRedirectPlugin(const UtlString& instanceName)
+{
+   return new SipRedirectorCallerAlias(instanceName);
+}
+
 // Constructor
-SipRedirectorCallerAlias::SipRedirectorCallerAlias()
+SipRedirectorCallerAlias::SipRedirectorCallerAlias(const UtlString& instanceName) :
+   RedirectPlugin(instanceName)
 {
 }
 
@@ -34,12 +41,17 @@ SipRedirectorCallerAlias::~SipRedirectorCallerAlias()
 {
 }
 
+// Read config information.
+void SipRedirectorCallerAlias::readConfig(OsConfigDb& configDb)
+{
+}
+
 // Initializer
 OsStatus
-SipRedirectorCallerAlias::initialize(const UtlHashMap& configParameters,
-                                     OsConfigDb& configDb,
+SipRedirectorCallerAlias::initialize(OsConfigDb& configDb,
                                      SipUserAgent* pSipUserAgent,
-                                     int redirectorNo)
+                                     int redirectorNo,
+                                     const UtlString& localDomainHost)
 {
    mpCallerAliasDB = CallerAliasDB::getInstance();
 
@@ -66,7 +78,7 @@ SipRedirectorCallerAlias::finalize()
    }
 }
 
-SipRedirector::LookUpStatus SipRedirectorCallerAlias::lookUp(
+RedirectPlugin::LookUpStatus SipRedirectorCallerAlias::lookUp(
    const SipMessage& message,
    const UtlString& requestString,
    const Url& requestUri,
@@ -76,7 +88,7 @@ SipRedirector::LookUpStatus SipRedirectorCallerAlias::lookUp(
    int redirectorNo,
    SipRedirectorPrivateStorage*& privateStorage)
 {
-   SipRedirector::LookUpStatus lookupStatus = SipRedirector::LOOKUP_SUCCESS; // always, so far
+   RedirectPlugin::LookUpStatus lookupStatus = RedirectPlugin::LOOKUP_SUCCESS; // always, so far
    
    // Do the cheap global tests first
    //   Is there a caller alias database? (should always be true)

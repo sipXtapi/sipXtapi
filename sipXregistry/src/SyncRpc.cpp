@@ -24,7 +24,7 @@
 #include "sipdb/RegistrationBinding.h"
 #include "sipdb/RegistrationDB.h"
 #include "RegistrarPeer.h"
-#include "SipRegistrar.h"
+#include "registry/SipRegistrar.h"
 #include "SipRegistrarServer.h"
 #include "SyncRpc.h"
 

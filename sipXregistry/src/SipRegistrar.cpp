@@ -26,7 +26,7 @@
 #include "net/NameValueTokenizer.h"
 #include "net/XmlRpcDispatch.h"
 #include "sipdb/RegistrationDB.h"
-#include "SipRegistrar.h"
+#include "registry/SipRegistrar.h"
 #include "registry/RegisterPlugin.h"
 #include "registry/SipRedirectServer.h"
 #include "SipRegistrarServer.h"

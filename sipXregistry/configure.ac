@@ -12,7 +12,6 @@ AC_PREFIX_DEFAULT([/usr/local/sipx])
 AM_INIT_AUTOMAKE(foreign)
 SFAC_AUTOMAKE_VERSION([1.6])
 
-AC_CONFIG_SRCDIR([src/SipRegistrar.h])
 AM_CONFIG_HEADER([config.h])
 AC_PROG_LIBTOOL
 
