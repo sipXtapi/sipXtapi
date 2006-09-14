@@ -6,6 +6,4 @@
     class="org.sipfoundry.sipxconfig.components.SkinProperties">
     <property name="locationPath" value="skin.properties"/>
   </bean>  
-  <bean name="unitTestDefaults" class="org.sipfoundry.sipxconfig.common.UnitTestDefaults">
-  </bean>
 </beans>

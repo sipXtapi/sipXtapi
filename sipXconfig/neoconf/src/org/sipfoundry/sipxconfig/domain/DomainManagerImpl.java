@@ -16,30 +16,33 @@ import java.util.Collection;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 
-public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implements DomainManager {    
-    private Domain m_domain;
+public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implements DomainManager {
 
     /**
-     * @return non-null unless test environment  
+     * @return non-null unless test environment
      */
     public Domain getDomain() {
-        if (m_domain != null) {
-            return m_domain;
+        Domain domain = getExistingDomain();
+        if (domain == null) {
+            throw new DomainNotInitializedException();
         }
-        Collection domains = getHibernateTemplate().findByNamedQuery("domain");
-        m_domain = (Domain) DaoUtils.requireOneOrZero(domains, "named query: domain");
-        if (m_domain == null) {
-            throw new RuntimeException("System was not initialized properly");
-        }
-        return m_domain;
-    }
 
-    public void saveDomain(Domain domain) {
-        getHibernateTemplate().saveOrUpdate(domain);
-        setDomain(domain);
+        return domain;
     }
     
-    public void setDomain(Domain domain) {
-        m_domain = domain;
+    public void saveDomain(Domain domain) {
+        if (domain.isNew()) {
+            Domain existing = getExistingDomain();
+            if (existing != null) {
+                getHibernateTemplate().delete(getDomain());
+            }
+        }
+        getHibernateTemplate().saveOrUpdate(domain);
+    }
+    
+    private Domain getExistingDomain() {
+        Collection domains = getHibernateTemplate().findByNamedQuery("domain");
+        Domain domain = (Domain) DaoUtils.requireOneOrZero(domains, "named query: domain");
+        return domain;        
     }
 }

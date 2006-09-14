@@ -18,7 +18,7 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
 /**
  * Single holder of domain name 
  */
-public class Domain extends BeanWithId {
+public class Domain extends BeanWithId implements Cloneable {
     private String m_name;
     private Set<String> m_aliases;
 

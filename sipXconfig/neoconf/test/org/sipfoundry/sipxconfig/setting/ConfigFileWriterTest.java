@@ -23,7 +23,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.common.TestUtil;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class ConfigFileWriterTest extends TestCase {
     private String m_originalContent;

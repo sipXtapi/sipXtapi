@@ -19,4 +19,9 @@ public interface DomainManager {
     
     public void saveDomain(Domain domain);
 
+    public static class DomainNotInitializedException extends RuntimeException {
+        DomainNotInitializedException() {
+            super("System was not initialized properly");
+        }
+    }
 }

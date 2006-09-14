@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.common;
+package org.sipfoundry.sipxconfig.test;
 
 import java.io.File;
 import java.io.FileInputStream;

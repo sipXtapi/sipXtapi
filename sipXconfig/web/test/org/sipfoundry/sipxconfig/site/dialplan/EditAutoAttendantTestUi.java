@@ -22,8 +22,8 @@ import net.sourceforge.jwebunit.WebTestCase;
 import net.sourceforge.jwebunit.WebTester;
 
 import org.apache.commons.io.IOUtils;
-import org.sipfoundry.sipxconfig.common.TestUtil;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class EditAutoAttendantTestUi extends WebTestCase {
 

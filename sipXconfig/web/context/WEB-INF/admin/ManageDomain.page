@@ -6,6 +6,7 @@
   <inject property="domainManager" object="spring:domainManager" />
 
   <property name="domain" initial-value="domainManager.domain"/>
+  <property name="uneditedDomainName" initial-value="domainManager.domain.name"/>
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate" />
   <component id="form" type="Form">
     <binding name="delegate" value="bean:validator" />

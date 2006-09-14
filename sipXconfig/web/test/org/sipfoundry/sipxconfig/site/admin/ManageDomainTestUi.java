@@ -12,10 +12,10 @@
 package org.sipfoundry.sipxconfig.site.admin;
 
 import junit.framework.Test;
-
-import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-
 import net.sourceforge.jwebunit.WebTestCase;
+
+import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class ManageDomainTestUi extends WebTestCase {
 
@@ -33,9 +33,22 @@ public class ManageDomainTestUi extends WebTestCase {
         assertElementPresent("domain:name");
     }
     
-    public void testUpdateDomain() {
-        setFormElement("name", "lala");
+    public void testUpdateDomainSameName() {
+        String existingDomain = getDialog().getFormParameterValue("name");        
+        setFormElement("name", existingDomain);
         clickButton("form:apply");
-        assertFormElementEquals("name", "lala");
+        assertFormElementEquals("name", existingDomain);
+    }
+    
+    public void testUpdateDomainDifferentName() {
+        
+        String existingDomain = getDialog().getFormParameterValue("name");
+        String newDomain = StringUtils.reverse(existingDomain);
+        assertNotSame("test incorrectly assumed domain name is a palindrome", newDomain, existingDomain);
+        setFormElement("name", newDomain);
+        clickButton("form:apply");
+        assertElementPresent("restart:save");
+        clickButton("restart:save");
+        assertFormElementEquals("name", newDomain);
     }
 }

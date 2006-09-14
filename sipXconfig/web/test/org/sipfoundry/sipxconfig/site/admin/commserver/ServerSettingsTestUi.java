@@ -60,21 +60,4 @@ public class ServerSettingsTestUi extends WebTestCase {
             }
         }
     }
-
-    /**
-     * If domain name changes, replication is triggered, make sure system is ok
-     */
-    public void testDomainNameChange() {
-        SiteTestHelper.assertNoException(tester);
-        SiteTestHelper.assertNoUserError(tester);
-        clickLink("link:domain");
-
-        // HACK: Don't know how to set user form element with id setting:SIPXCHANGE_DOMAIN_NAME
-        // very difficult Web/Http Unit do not expose some internal attributes.
-        String domainNameElement = "stringField";
-
-        setFormElement(domainNameElement, "zappa");
-        clickButton("setting:apply");
-        SiteTestHelper.assertNoException(tester);
-    }
 }

@@ -79,6 +79,13 @@
   
   <table name="permission"/>
   
-  <table name="domain"/>
+  <table name="domain">
+    <column>domain_id</column>
+    <column>name</column>
+    <row>
+      <value>1000</value>
+      <value>example.org</value>
+    </row>
+  </table>
   <table name="domain_alias"/>
 </dataset>

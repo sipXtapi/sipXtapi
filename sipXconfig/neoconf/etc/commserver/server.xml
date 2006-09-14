@@ -51,7 +51,7 @@
   </type>
   <group name="domain">
     <label>SIP Parameters</label>
-    <setting name="SIPXCHANGE_DOMAIN_NAME">
+    <setting name="SIPXCHANGE_DOMAIN_NAME" hidden="yes">
       <label>Domain name</label>
       <profileName>config.defs</profileName>
       <type />

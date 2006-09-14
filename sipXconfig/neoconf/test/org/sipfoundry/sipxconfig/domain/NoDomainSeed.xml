@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dataset>
- <domain name="example.com" domain_id="1001"/>
+ <table name="domain">
+   <row/>
+ </table>
 </dataset>
