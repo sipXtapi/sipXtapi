@@ -1,8 +1,5 @@
 include top.mak
 
-# Useful for uninstalling targets
-PROJECTS_REVERSE := $(shell x=""; for i in $(PROJECTS); do x="$$i $$x"; done; echo $$x)
-
 .PHONY: all
 all:
 	@echo "Target '$@' is not valid. Type 'make build' to build and install."
@@ -17,9 +14,6 @@ rpm:
 
 uninstall-rpm:
 	$(MAKE) recurse TARGETS="uninstall-rpm" PROJECTS=$(PROJECTS_REVERSE)
-
-reverse:
-	echo $(PROJECTS_REVERSE)
 
 %:
 	$(MAKE) recurse TARGETS="$@"
