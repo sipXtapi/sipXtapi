@@ -1,5 +1,10 @@
 SUDO = sudo
 
+if RPM_CAPABLE
+RPMBUILD_TOPDIR = $(shell rpm --eval '%{_topdir}')
+RPM_TARGET_ARCH = $(shell rpm --eval '%{_target_cpu}')
+endif
+
 DIST_SRC=$(DEST_SRC)/$(distdir).tar.gz
 RPM=$(DEST_RPM)/@PACKAGE@-$(VERSION)-$(RELEASE).$(RPM_TARGET_ARCH).rpm 
 DEVEL_RPM=$(DEST_RPM)/@PACKAGE@-devel-$(VERSION)-$(RELEASE).$(RPM_TARGET_ARCH).rpm
@@ -9,28 +14,29 @@ DEFAULT_RPMS = $(RPM) $(DEVEL_RPM)
 SRPM = $(DEST_SRPM)/@PACKAGE@-$(VERSION)-$(RELEASE).src.rpm
 
 RPM_INSTALL_FLAGS = --upgrade --nodeps --quiet --noscripts --notriggers --verbose --hash --force
+RPM_UNINSTALL_FLAGS = --erase --nodeps --quiet --noscripts --notriggers --verbose
 
-.PHONY: install-rpms
-install-rpms :
+.PHONY: install-rpm
+install-rpm :
 	$(SUDO) rpm $(RPM_INSTALL_FLAGS) $(RPMS)
 
-uninstall-rpms :
-	$(SUDO) rpm -e $(shell rpm -qp $(RPMS))
+uninstall-rpm :
+	$(SUDO) rpm $(RPM_UNINSTALL_FLAGS) $(shell rpm -qp $(RPMS))
 
-list-rpms :
+list-rpm :
 	@echo $(RPMS)
 
 .PHONY : rpm
 rpm : dist additional-package-files $(SRPM) $(RPMS)
 
-.PHONY: build-rpms
-build-rpms :
+.PHONY: build-rpm
+build-rpm :
 	rpmbuild -ta --define="buildno $(RELEASE)" $(DIST_SRC)
 
-$(RPMS) : build-rpms
+$(RPMS) : build-rpm
 	cp $(RPMBUILD_TOPDIR)/RPMS/$(RPM_TARGET_ARCH)/`basename $@` $@
 
-$(SRPM) : build-rpms
+$(SRPM) : build-rpm
 	cp $(RPMBUILD_TOPDIR)/SRPMS/`basename $@` $@
 
 .PHONY : additional-package-files
