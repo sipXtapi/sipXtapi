@@ -87,19 +87,21 @@ foreach $registration (sort registration_cmp @registrations) {
                       : '<i>1.0</i>'
                       ),
                     ),
-                &td({style => 'border-bottom-width: 1px'},
-                    [
-                     &show($registration->{'contact'}, 1),
-                     ( $registration->{'instance_id'}
-                       ? &show($registration->{'instance_id'}, 1)
-                       : '<font color="red">no +sip.instance parameter</font>'
-                       ),
-                     ( $registration->{'instance_id'}
-                       ? &show($registration->{'gruu'}, 1)
-                       : '<font color="red">need +sip.instance</font>'
-                       ),
+                &td({-align => 'right', style => 'border-bottom-width: 1px'},
+                    &show($registration->{'contact'}, 1)
+                    ),
+                &td(
+                    {style => 'border-bottom-width: 1px',
+                     colspan => ($registration->{'instance_id'} ? '1' : '2')
+                     },
+                    ($registration->{'instance_id'} 
+                     ? [
+                        &show($registration->{'instance_id'}, 1),
+                        &show($registration->{'gruu'}, 1)
+                        ]
+                     : '<font color="red">+sip.instance parameter required for gruu; none seen</font>'
 
-                     ]),
+                     )),
                 ) . "\n";;
         $table_body .=
             &Tr({style => 'border: 2px solid; border-top-width: 1px'},
