@@ -73,7 +73,7 @@ if (open(LOG, "<$Log"))
     $FORMAT_LINES_LEFT = 0; # force new headings at next write
     $FORMAT_TOP_NAME = 'REGISTRATIONS_TOP';
     $FORMAT_NAME = 'REGISTRATIONS';
-    foreach $host ( sort {$HostFirstSeen{$b} <=> $HostFirstSeen{$a}} keys %HostFirstSeen )
+    foreach $host ( sort {$HostFirstSeen{$a} cmp $HostFirstSeen{$b}} keys %HostFirstSeen )
     { 
 	write;
     }
