@@ -11,18 +11,46 @@
  */
 package org.sipfoundry.sipxconfig.gateway;
 
+import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.common.User;
+
 public class GatewayCallerAliasInfo {
     private String m_defaultCallerAlias;
 
     private boolean m_anonymous;
 
-    private boolean m_overwriteUserInfo;
+    private boolean m_ignoreUserInfo;
 
-    private boolean m_transformUserId;
+    private boolean m_transformUserExtension;
 
     private String m_addPrefix;
 
     private int m_keepDigits;
+
+    /**
+     * Transforms user extension into from header
+     * 
+     * @param user for which we are transforming extension
+     * @return transformed extension which should be used, or null if there is nothing to
+     *         transform
+     */
+    public String getTransformedNumber(User user) {
+        if (!m_transformUserExtension) {
+            return null;
+        }
+        String extension = user.getExtension();
+        if (extension == null) {
+            // nothing to transform
+            return null;
+        }
+        if (m_keepDigits > 0) {
+            extension = StringUtils.substring(extension, -m_keepDigits);
+        }
+        if (m_addPrefix != null) {
+            extension = m_addPrefix + extension;
+        }
+        return extension;
+    }
 
     public String getDefaultCallerAlias() {
         return m_defaultCallerAlias;
@@ -40,12 +68,12 @@ public class GatewayCallerAliasInfo {
         m_anonymous = anonymous;
     }
 
-    public boolean isOverwriteUserInfo() {
-        return m_overwriteUserInfo;
+    public boolean isIgnoreUserInfo() {
+        return m_ignoreUserInfo;
     }
 
-    public void setOverwriteUserInfo(boolean overwriteUserInfo) {
-        m_overwriteUserInfo = overwriteUserInfo;
+    public void setIgnoreUserInfo(boolean overwriteUserInfo) {
+        m_ignoreUserInfo = overwriteUserInfo;
     }
 
     public String getAddPrefix() {
@@ -65,10 +93,10 @@ public class GatewayCallerAliasInfo {
     }
 
     public boolean isTransformUserId() {
-        return m_transformUserId;
+        return m_transformUserExtension;
     }
 
     public void setTransformUserId(boolean transformUserId) {
-        m_transformUserId = transformUserId;
+        m_transformUserExtension = transformUserId;
     }
 }

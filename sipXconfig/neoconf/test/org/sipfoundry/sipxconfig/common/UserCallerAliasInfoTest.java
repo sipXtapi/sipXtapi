@@ -30,30 +30,14 @@ public class UserCallerAliasInfoTest extends TestCase {
         super.tearDown();
     }
 
-    public void testHasExternalNumber() {
-        UserCallerAliasInfo info = new UserCallerAliasInfo(m_user);
-        assertFalse(info.hasExternalNumber());
-
-        m_user.setSettingValue(UserCallerAliasInfo.EXTERNAL_NUMBER, "333");
-        info = new UserCallerAliasInfo(m_user);
-        assertTrue(info.hasExternalNumber());
-
-        m_user.setSettingValue(UserCallerAliasInfo.ANONYMOUS_CALLER_ALIAS, "1");
-        info = new UserCallerAliasInfo(m_user);
-        assertTrue(info.hasExternalNumber());
-
-        m_user.setSettingValue(UserCallerAliasInfo.EXTERNAL_NUMBER, "");
-        info = new UserCallerAliasInfo(m_user);
-        assertTrue(info.hasExternalNumber());
-    }
-
     public void testGetExternalNumber() {
         m_user.setSettingValue(UserCallerAliasInfo.EXTERNAL_NUMBER, "333");
         UserCallerAliasInfo info = new UserCallerAliasInfo(m_user);
-        assertEquals("333", info.getExternalNumber("bongo@invalid"));
+        assertEquals("333", info.getExternalNumber());
+        assertFalse(info.isAnonymous());
 
         m_user.setSettingValue(UserCallerAliasInfo.ANONYMOUS_CALLER_ALIAS, "1");
         info = new UserCallerAliasInfo(m_user);
-        assertEquals("bongo@invalid", info.getExternalNumber("bongo@invalid"));
+        assertTrue(info.isAnonymous());
     }
 }

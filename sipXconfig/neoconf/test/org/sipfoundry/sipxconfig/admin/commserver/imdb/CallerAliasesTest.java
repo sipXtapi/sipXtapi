@@ -40,19 +40,21 @@ public class CallerAliasesTest extends XMLTestCase {
 
     private String[][] USER_DATA = {
         {
-            "first", "last", "userName", "1234"
+            "first", "last", "userName", "1234", "ss"
         }, {
-            null, null, "kuku", "4321"
+            null, null, "kuku", "4321", "87654321"
         }, {
-            "user", "without", "number", null
+            "user", "without", "number", null, "12345"
         },
     };
 
     private Object[][] GATEWAY_DATA = {
         {
-            "example.org", "7832331111", true
+            "example.org", "7832331111", true, false, "", -1
         }, {
-            "bongo.com", null, false
+            "bongo.com", null, false, false, "", -1
+        }, {
+            "kuku.net", "233", false, true, "+", 2
         }
     };
 
@@ -68,12 +70,12 @@ public class CallerAliasesTest extends XMLTestCase {
         for (String[] ud : USER_DATA) {
             User user = new User();
             user.setPermissionManager(impl);
-            
+
             user.setFirstName(ud[0]);
             user.setLastName(ud[1]);
-            user.setUserName(ud[2]);
-            
-            user.setSettingValue(UserCallerAliasInfo.EXTERNAL_NUMBER, ud[3]);
+            user.setUserName(ud[2]);            
+            user.setSettingValue(UserCallerAliasInfo.EXTERNAL_NUMBER, ud[3]);            
+            user.addAlias(ud[4]);
             m_users.add(user);
         }
 
@@ -83,7 +85,10 @@ public class CallerAliasesTest extends XMLTestCase {
             gateway.setAddress((String) gd[0]);
             GatewayCallerAliasInfo info = new GatewayCallerAliasInfo();
             info.setDefaultCallerAlias((String) gd[1]);
-            info.setOverwriteUserInfo((Boolean) gd[2]);
+            info.setIgnoreUserInfo((Boolean) gd[2]);
+            info.setTransformUserId((Boolean) gd[3]);
+            info.setAddPrefix((String) gd[4]);
+            info.setKeepDigits((Integer) gd[5]);
             gateway.setCallerAliasInfo(info);
             m_gateways.add(gateway);
         }
@@ -134,7 +139,8 @@ public class CallerAliasesTest extends XMLTestCase {
         Document document = cas.generate();
 
         String casXml = XmlUnitHelper.asString(document);
-        
+        System.err.println(casXml);
+
         InputStream referenceXmlStream = AliasesTest.class
                 .getResourceAsStream("caller-alias.test.xml");
         assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(casXml));

@@ -169,6 +169,26 @@ public class User extends BeanWithGroups implements NamedObject {
     }
 
     /**
+     * Get numeric extension for this user. Since we are trying to support many possible options
+     * we are going to try user name and then list of aliases. If user has more than a single
+     * numeric alias it's not going to work reliably.
+     * 
+     * @return String representing numeric extension for this user
+     */
+    public String getExtension() {
+        Matcher m = PATTERN_NUMERIC.matcher(m_userName);
+        if (m.matches()) {
+            return m_userName;
+        }
+        List<String> numericAliases = getNumericAliases();
+        if (!numericAliases.isEmpty()) {
+            return numericAliases.get(0);
+        }
+        // no alias to return
+        return null;
+    }
+
+    /**
      * Copy the input aliases to become the aliases of this user, without replacing the Set
      * object. For a user read from the DB, Hibernate creates the Set and we don't want to mess
      * with it. Also, by copying the aliases, subsequent changes to the input Set won't affect the

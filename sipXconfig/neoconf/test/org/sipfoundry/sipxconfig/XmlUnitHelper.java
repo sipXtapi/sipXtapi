@@ -34,7 +34,9 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.QName;
 import org.dom4j.io.DOMWriter;
+import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
+import org.dom4j.io.XMLWriter;
 
 /**
  * Collection of utility function to XMLUnit and DOM4J testing with XMLUnit
@@ -65,7 +67,12 @@ public abstract class XmlUnitHelper {
     public static String asString(Document doc) {
         try {
             StringWriter writer = new StringWriter();
-            doc.write(writer);
+            OutputFormat format = new OutputFormat();
+            format.setNewlines(true);
+            format.setIndent(true);
+            XMLWriter xmlWriter = new XMLWriter(writer, format);
+            xmlWriter.write(doc);
+            xmlWriter.close();
             return writer.toString();
         } catch (IOException e) {
             e.printStackTrace(System.err);

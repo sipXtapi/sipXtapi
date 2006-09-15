@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
-import org.apache.commons.lang.StringUtils;
 
 public class UserCallerAliasInfo {
     public static final String ANONYMOUS_CALLER_ALIAS = "caller-alias/anonymous-caller-alias";
@@ -26,11 +25,11 @@ public class UserCallerAliasInfo {
         m_externalNumber = (String) user.getSettingTypedValue(EXTERNAL_NUMBER);
     }
 
-    public boolean hasExternalNumber() {
-        return m_anonymous || StringUtils.isNotBlank(m_externalNumber);
+    public String getExternalNumber() {
+        return m_externalNumber;
     }
 
-    public String getExternalNumber(String anonymousNumber) {
-        return m_anonymous ? anonymousNumber : m_externalNumber;
+    public boolean isAnonymous() {
+        return m_anonymous;
     }
 }

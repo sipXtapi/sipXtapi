@@ -46,20 +46,34 @@ public class CallerAliases extends DataSetGenerator {
             }
 
             // only add user aliases is overwrite is not set
-            if (!gatewayInfo.isOverwriteUserInfo()) {
-                // add per-user entries
-                for (User user : users) {
-                    UserCallerAliasInfo info = new UserCallerAliasInfo(user);
-                    if (info.hasExternalNumber()) {
-                        String externalNumber = info.getExternalNumber(m_anonymousAlias);
-                        String callerAliasUri = SipUri.format(user.getDisplayName(),
-                                externalNumber, sipDomain);
-                        String identity = AliasMapping.createUri(user.getUserName(), sipDomain);
-                        addItem(items, gatewayAddr, callerAliasUri, identity);
-                    }
+            if (gatewayInfo.isIgnoreUserInfo()) {
+                continue;
+            }
+            // add per-user entries
+            for (User user : users) {
+                UserCallerAliasInfo info = new UserCallerAliasInfo(user);
+                String externalNumber = getExternalNumber(gatewayInfo, info, user);
+                if (externalNumber != null) {
+                    String callerAliasUri = SipUri.format(user.getDisplayName(), externalNumber,
+                            sipDomain);
+                    String identity = AliasMapping.createUri(user.getUserName(), sipDomain);
+                    addItem(items, gatewayAddr, callerAliasUri, identity);
                 }
             }
         }
+    }
+
+    private String getExternalNumber(GatewayCallerAliasInfo gatewayInfo,
+            UserCallerAliasInfo userInfo, User user) {
+        if (userInfo.isAnonymous()) {
+            return m_anonymousAlias;
+        }
+        String externalNumber = gatewayInfo.getTransformedNumber(user);
+        if (externalNumber != null) {
+            return externalNumber;
+        }
+        return userInfo.getExternalNumber();
+
     }
 
     private Element addItem(Element items, String domain, String alias, String identity) {

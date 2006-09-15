@@ -18,7 +18,6 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
@@ -36,7 +35,7 @@ public class UserTest extends TestCase {
     private static final String ALIAS1 = "mambo";
     private static final String ALIAS2 = "tango";
     private static final String ALIASES_STRING = ALIAS1 + " " + ALIAS2;
-    
+
     public void testGetDisplayName() {
         User u = new User();
         assertNull(u.getDisplayName());
@@ -73,7 +72,7 @@ public class UserTest extends TestCase {
     public void testSetNullPin() throws Exception {
         checkSetPin(null);
     }
-    
+
     private void checkSetPin(String pin) throws Exception {
         User user = new User();
         user.setUserName(USERNAME);
@@ -111,22 +110,22 @@ public class UserTest extends TestCase {
         assertFalse(hash.equals(newHash));
         assertEquals(newHash, user.getSipPasswordHash(REALM));
     }
-    
+
     public void testGetAliases() {
         User user = new User();
         user.setUserName(USERNAME);
-        
-        Set aliases = new LinkedHashSet();  // use LinkedHashSet for stable ordering
+
+        Set aliases = new LinkedHashSet(); // use LinkedHashSet for stable ordering
         aliases.add(ALIAS1);
         aliases.add(ALIAS2);
         user.setAliases(aliases);
         assertEquals(ALIASES_STRING, user.getAliasesString());
         checkAliases(user);
-        
+
         user.setAliases(new LinkedHashSet());
         user.setAliasesString(ALIASES_STRING);
         checkAliases(user);
-                
+
         List aliasMappings = user.getAliasMappings(DOMAIN);
         assertEquals(2, aliasMappings.size());
         AliasMapping alias = (AliasMapping) aliasMappings.get(0);
@@ -137,41 +136,56 @@ public class UserTest extends TestCase {
         assertEquals(ALIAS2 + "@" + DOMAIN, alias.getIdentity());
         assertEquals(CONTACT, alias.getContact());
     }
-    
+
     private void checkAliases(User user) {
         Set aliasesCheck = user.getAliases();
         assertEquals(2, aliasesCheck.size());
         Iterator i = aliasesCheck.iterator();
         assertEquals(ALIAS1, i.next());
-        assertEquals(ALIAS2, i.next());        
+        assertEquals(ALIAS2, i.next());
     }
-    
+
     public void testGetEmptyAliases() {
         User user = new User();
         user.setUserName(USERNAME);
         List aliasMappings = user.getAliasMappings(DOMAIN);
         assertEquals(0, aliasMappings.size());
     }
-    
+
     public void testHasPermission() {
         PermissionManagerImpl pm = new PermissionManagerImpl();
         pm.setModelFilesContext(TestHelper.getModelFilesContext());
-                
+
         User user = new User();
         user.setPermissionManager(pm);
-        
+
         Group group = new Group();
         user.addGroup(group);
-        
+
         String path = Permission.SUPERADMIN.getSettingPath();
-        Setting superAdmin = user.getSettings().getSetting(path); 
+        Setting superAdmin = user.getSettings().getSetting(path);
         assertNotNull(superAdmin);
         assertFalse(user.hasPermission(Permission.SUPERADMIN));
     }
 
-    
+    public void testGetExtension() throws Exception {
+        User user = new User();
+        user.setUserName("abc");
+
+        assertNull(user.getExtension());
+
+        user.addAliases(new String[] {
+            "oooi", "333", "xyz"
+        });
+        assertEquals("333", user.getExtension());
+
+        user.setUserName("12345");
+        assertEquals("12345", user.getExtension());
+    }
+
     private String getPintoken(String username, String pin) {
-        String safePin = (String) ObjectUtils.defaultIfNull(pin, StringUtils.EMPTY);   // handle null pin
+        // handle null pin
+        String safePin = StringUtils.defaultString(pin);
         return Md5Encoder.digestPassword(username, REALM, safePin);
     }
 }
