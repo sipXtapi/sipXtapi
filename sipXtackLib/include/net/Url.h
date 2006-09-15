@@ -152,6 +152,11 @@ public:
     //  as a field in a header.
     UtlString toString() const;
 
+    /// Gets the serialized URL as a string in addr-spec format (with
+    //  no display name, field parameters, or <...>), suitable for use
+    //  as a request URI.
+    void getUri(UtlString& Uri);
+
     //! Debug dump to STDOUT
     void dump();
 
@@ -377,8 +382,8 @@ public:
                                 UtlString& value);
 
     /// Set the named field parameter to the given value
-    /*! Adds the parameter if it does not exist, sets the value if
-     * it does exist.
+    /*! Adds the parameter name and value.  Does not remove other parameters
+     *  with the same value.
      * \param name - the parameter name
      * \param value - the value of the parameter
      */
@@ -426,8 +431,15 @@ public:
     /// Un-escape a string as a gen_value, which is what field-parameters use for values.
     static void gen_value_unescape(UtlString& escapedText);
 
-    /// Gets the serialized URL as a string (with no display name or field parameters)
-    void getUri(UtlString& Uri);
+    /** Un-escape a string that has %-escapes, such as URI user, URI password, or
+     *  URI-parameter values.
+     */
+    static void Url::percent_unescape(UtlString& escapedText);
+
+    /// Escape a string with %-escapes.
+    static void Url::percent_escape(UtlString& unEscapedText,
+                                    UtlString& escapedTest,
+                                    const char* unescaped_chars);
 
 /* ============================ INQUIRY =================================== */
 

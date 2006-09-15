@@ -982,6 +982,28 @@ size_t UtlString::last(char searchChar) const
 }
 
 
+// Find the number of characters from a set starting at a location.
+// The string and the set may not contain 0 bytes.
+size_t UtlString::setSpan(const char* set, size_t offset) const
+{
+   return
+      offset >= mSize ?
+      0 :
+      strspn(mpData + offset, set);
+}
+
+
+// Find the number of characters not from a set starting at a location.
+// The string and the set may not contain 0 bytes.
+size_t UtlString::setComplementSpan(const char* set, size_t offset) const
+{
+   return
+      offset >= mSize ?
+      0 :
+      strcspn(mpData + offset, set);
+}
+
+
 // Return the storage capacity allocated for this string.
 size_t UtlString::capacity() const
 {

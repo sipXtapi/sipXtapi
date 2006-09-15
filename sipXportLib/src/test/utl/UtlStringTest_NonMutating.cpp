@@ -65,6 +65,7 @@ class UtlStringTest_NonMutating : public UtlStringTest
     CPPUNIT_TEST(testPlusOperator); 
     CPPUNIT_TEST(testIndexOperator); 
     CPPUNIT_TEST(testCharAtOperator); 
+    CPPUNIT_TEST(testSpan);
     CPPUNIT_TEST_SUITE_END();
     
 private :
@@ -1634,6 +1635,67 @@ public:
                 actualValue); 
         }
     }//testCharAtOperator
+
+
+    /*!a Test the span functions
+    */
+    void testSpan()
+    {
+        struct TestSpanStructure
+        {
+           const char* testDescription; 
+           size_t offset;
+           const char* set;
+           size_t spanExpectedValue; 
+           size_t cspanExpectedValue; 
+        };
+        
+        const char* span_prefix = "Test setSpan, "; 
+        const char* cspan_prefix = "Test setComplementSpan, "; 
+        string Message; 
+
+        TestSpanStructure testData[] = {
+            { "null set", 0, "", 0, 11 },
+            { "u.c. letters", 0, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", 1, 0 },
+            { "all letters", 0, "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                "abcdefghijklmnopqrstuvwxyz", 4, 0 },
+            { "u.c. letters at 2", 2, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", 0, 5 },
+            { "all letters at 2", 2, "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                     "abcdefghijklmnopqrstuvwxyz", 2, 0 },
+            { "u.c. letters at 4", 4, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", 0, 3 },
+            { "all letters at 4", 4, "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                     "abcdefghijklmnopqrstuvwxyz", 0, 3 },
+            { "u.c. letters at 10", 10, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", 0, 1 },
+            { "all letters at 10", 10, "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                       "abcdefghijklmnopqrstuvwxyz", 1, 0 },
+            { "u.c. letters at 11", 11, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", 0, 0 },
+            { "all letters at 11", 11, "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                       "abcdefghijklmnopqrstuvwxyz", 0, 0 },
+        }; 
+        
+        const char* baseString = "Some12$Text";
+        UtlString testString(baseString); 
+
+        const int testCount = sizeof(testData)/sizeof(testData[0]); 
+        for (int i=0; i < testCount; i++)
+        {
+            size_t spanActualValue = testString.setSpan(testData[i].set,
+                                                        testData[i].offset); 
+            TestUtilities::createMessage(2, &Message, span_prefix,
+                                         testData[i].testDescription); 
+            CPPUNIT_ASSERT_MESSAGE(Message.data(),
+                                   testData[i].spanExpectedValue ==
+                                   spanActualValue); 
+            size_t cspanActualValue =
+               testString.setComplementSpan(testData[i].set,
+                                            testData[i].offset); 
+            TestUtilities::createMessage(2, &Message, cspan_prefix,
+                                         testData[i].testDescription); 
+            CPPUNIT_ASSERT_MESSAGE(Message.data(),
+                                   testData[i].cspanExpectedValue ==
+                                   cspanActualValue); 
+        }
+    }//testSpan
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(UtlStringTest_NonMutating);

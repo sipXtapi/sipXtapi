@@ -79,10 +79,15 @@ public:
                                  const char* pairSeparator = "&",
                                  const char* namValueSeparator = "=",
                                  UtlBoolean nameIsCaseInsensitive = TRUE,
-                                 UnEscapeFunction unescape =
-                                     &HttpMessage::unescape);
+                                 UnEscapeFunction name_unescape = NULL,
+                                 UnEscapeFunction value_unescape =
+                                 &HttpMessage::unescape);
    // If nameIsCaseInsensitive == TRUE, puts NameValuePairInsensitive's
    // into cgiVariableList rather than NameValuePair's.
+   // name_unescape (if not NULL), is used to strip the escaping from the 
+   // 'name' component of pairs.
+   // value_unescape (if not NULL), is used to strip the escaping from the 
+   // 'value' component of pairs.
 
    HttpRequestContext(const HttpRequestContext& rHttpRequestContext);
      //:Copy constructor

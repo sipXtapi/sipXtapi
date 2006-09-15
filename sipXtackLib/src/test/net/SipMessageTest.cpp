@@ -830,7 +830,7 @@ class SipMessageTest : public CppUnit::TestCase
          CPPUNIT_ASSERT_EQUAL(PORT_NONE, port);
 
          ASSERT_STR_EQUAL("username", user);
-         ASSERT_STR_EQUAL("\"Display@Name\"", userLabel);
+         ASSERT_STR_EQUAL("Display@Name", userLabel);
          ASSERT_STR_EQUAL("1234-2345", tag);
          ASSERT_STR_EQUAL("sipserver", address);
 

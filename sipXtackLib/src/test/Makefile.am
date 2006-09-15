@@ -24,7 +24,6 @@ testsuite_SOURCES = \
     net/NameValuePairInsensitiveTest.cpp \
     net/NameValuePairTest.cpp \
     net/NetAttributeTokenizerTest.cpp \
-    net/UrlTest.cpp \
     net/NetMd5CodecTest.cpp \
     net/HttpMessageTest.cpp \
     net/SdpBodyTest.cpp \
@@ -39,6 +38,9 @@ testsuite_SOURCES = \
     net/SipSubcriptionMgrTest.cpp \
     net/SipUserAgentTest.cpp \
     net/SipProxyMessageTest.cpp \
+    net/UrlGetFieldsTest.cpp \
+    net/UrlSetFieldsTest.cpp \
+    net/UrlTest.cpp \
     net/XmlRpcTest.cpp
 
 # These all crash with no unit test results

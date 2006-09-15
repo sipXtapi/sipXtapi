@@ -359,12 +359,13 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
                                            const char* pairSeparator,
                                            const char* nameValueSeparator,
                                            UtlBoolean nameIsCaseInsensitive,
-                                           UnEscapeFunction unescape)
+                                           UnEscapeFunction name_unescape,
+                                           UnEscapeFunction value_unescape)
 {
 #if 0
-   printf("HttpRequestContext::parseCgiVariables queryString = '%s', pairSeparator = '%s', nameValueSeparator = '%s', nameIsCaseInsensitive = %d\n",
+   printf("HttpRequestContext::parseCgiVariables queryString = '%s', pairSeparator = '%s', nameValueSeparator = '%s', nameIsCaseInsensitive = %d, name_unescape = %p, value_unescape = %p\n",
           queryString, pairSeparator, nameValueSeparator,
-          nameIsCaseInsensitive);
+          nameIsCaseInsensitive, name_unescape, value_unescape);
 #endif
    //UtlString nameAndValue;
    const char* nameAndValuePtr;
@@ -444,8 +445,14 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
             {
                value.remove(0);
                value.append(valuePtr, valueLength);
+#if 0
                NameValueTokenizer::frontBackTrim(&value, " \t\n\r");
-               unescape(value);
+#endif
+               // Unescape the value, if requested.
+               if (value_unescape)
+               {
+                  value_unescape(value);
+               }
                newNvPair->setValue(value);
             }
             else
@@ -453,9 +460,14 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
                newNvPair->setValue("");
             }
 
-            // Unescape the name.
-            unescape(*newNvPair);
+            // Unescape the name, if requested.
+            if (name_unescape)
+            {
+               name_unescape(*newNvPair);
+            }
+#if 0
             NameValueTokenizer::frontBackTrim(newNvPair, " \t\n\r");
+#endif
 
 #           ifdef TEST_DEBUG
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -463,6 +475,12 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
                           &cgiVariableList, newNvPair->data(), newNvPair->getValue()
                           );
 #           endif
+#if 0
+            printf(
+                          "HttpRequestContext::parseCgiVariables adding %p '%s' -> '%s'\n",
+                          &cgiVariableList, newNvPair->data(), newNvPair->getValue()
+                          );
+#endif
 
             // Add the name, value pair to the list
             cgiVariableList.insert(newNvPair);

@@ -389,29 +389,12 @@ void Url::setUrlType(const char* urlProtocol)
 
 void Url::getDisplayName(UtlString& displayName) const
 {
-    displayName = mDisplayName;
-    if (isDigitString(mDisplayName.data()))
-    {
-       NameValueTokenizer::frontBackTrim(&displayName, "\"");
-    }
+   displayName = mDisplayName;
 }
 
 void Url::setDisplayName(const char* displayName)
 {
-   mDisplayName.remove(0);
-
-   if (displayName && strlen(displayName))
-   {
-       RegEx tokenSequenceOrQuoted(SipTokenSequenceOrQuoted);
-       if (tokenSequenceOrQuoted.Search(displayName))
-       {
-          mDisplayName = displayName;
-       }
-       else
-       {
-          assert(FALSE); // invalid display name value
-       }
-   }
+   mDisplayName = displayName;
 }
 
 void Url::getUserId(UtlString& userId) const
@@ -762,7 +745,17 @@ void Url::getUri(UtlString& urlString)
     {
        if(!mUserId.isNull())
        {
-          urlString.append(mUserId);
+          UtlString escapedUserId;
+          percent_escape(mUserId, escapedUserId,
+                         // Alphanum
+                         "ABCDEFGHIJKLMNOPQRSTUVEXYZabcdefghijklmnopqrstuvexyz"
+                         "0123456789"
+                         // Mark
+                         "-_.!~*'()"
+                         // User-unreserved
+                         "&=+$,;?/"
+             );
+          urlString.append(escapedUserId);
           if(!mPassword.isNull() || mPasswordSet)
           {
              urlString.append(":", 1);
@@ -1096,6 +1089,14 @@ void Url::toString(UtlString& urlString) const
    if ( !mDisplayName.isNull() )
    {
       urlString.append(mDisplayName);
+      // If the display name contains any special characters, quote it.
+      if (mDisplayName.setSpan(
+             "ABCDEFGHIJKLMNOPQRSTUVEXYZabcdefghijklmnopqrstuvexyz"
+             "0123456789"
+             "-.!%*_+`'~") != mDisplayName.length())
+      {
+         gen_value_escape(urlString);
+      }
       isNameAddr = TRUE;
    }
 
@@ -1291,6 +1292,8 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
          }
 
          // does not include whitespace or the '<'
+         // Remove the quotes, if any.
+         gen_value_unescape(mDisplayName);
          workingOffset = displayName.AfterMatch(0);
       }
 
@@ -1390,7 +1393,9 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
       {
          LOG_TIME("userpass   > ");
          usernameAndPassword.MatchString(&mUserId, 1);
-         usernameAndPassword.MatchString(&mPassword, 2);
+         percent_unescape(mUserId);
+         usernameAndPassword.MatchString(&mPassword, 4);
+         percent_unescape(mPassword);
          workingOffset = usernameAndPassword.AfterMatch(0);
       }
       else
@@ -1653,7 +1658,8 @@ bool Url::parseUrlParameters()
 
       HttpRequestContext::parseCgiVariables(mRawUrlParameters,
                                             *mpUrlParameters, ";", "=",
-                                            TRUE, &HttpMessage::unescape);
+                                            TRUE, NULL,
+                                            &Url::percent_unescape);
       mRawUrlParameters.remove(0);
    }
 
@@ -1667,8 +1673,14 @@ bool Url::parseHeaderOrQueryParameters()
       mpHeaderOrQueryParameters = new UtlDList();
 
       HttpRequestContext::parseCgiVariables(mRawHeaderOrQueryParameters,
-                                            *mpHeaderOrQueryParameters, "&", "=",
-                                            TRUE, &HttpMessage::unescape);
+                                            *mpHeaderOrQueryParameters,
+                                            "&", "=", TRUE,
+                                            mScheme == HttpUrlScheme ?
+                                            NULL :
+                                            &Url::percent_unescape,
+                                            mScheme == HttpUrlScheme ?
+                                            &HttpMessage::unescape :
+                                            &Url::percent_unescape);
       mRawHeaderOrQueryParameters.remove(0);
    }
 
@@ -1687,7 +1699,8 @@ bool Url::parseFieldParameters()
 #endif
       HttpRequestContext::parseCgiVariables(mRawFieldParameters,
                                             *mpFieldParameters, ";", "=",
-                                            TRUE, &Url::gen_value_unescape);
+                                            TRUE, NULL,
+                                            &Url::gen_value_unescape);
       mRawFieldParameters.remove(0);
    }
 
@@ -1740,6 +1753,8 @@ void Url::gen_value_unescape(UtlString& escapedText)
                 // The next character is copied unchanged.
                 resultPtr[numUnescapedChars] = *unescapedTextPtr;
                 numUnescapedChars++;
+                // Get the next char.
+                unescapedTextPtr++;
              }
           }
           // A double-quote without backslash ends the string.
@@ -1752,9 +1767,9 @@ void Url::gen_value_unescape(UtlString& escapedText)
           {
              resultPtr[numUnescapedChars] = *unescapedTextPtr;
              numUnescapedChars++;
+             // Go to the next character
+             unescapedTextPtr++;
           }
-          // Go to the next character
-          unescapedTextPtr++;
        }
     }
     else
@@ -1814,7 +1829,7 @@ void Url::gen_value_escape(UtlString& unEscapedText)
             // Construct a little 2-character string and append it.
             char escapedChar[2];
             escapedChar[0] = '\\';
-            escapedChar[1] = *unescapedTextPtr;
+            escapedChar[1] = unEscapedChar;
             escapedText.append(&unEscapedChar, 2);
         }
         else
@@ -1832,6 +1847,130 @@ void Url::gen_value_escape(UtlString& unEscapedText)
       // Write the escaped string into the argumemt.
       unEscapedText = escapedText;
    }
+}
+
+void Url::percent_unescape(UtlString& escapedText)
+{
+#if 0
+   printf("Url::percent_unescape before escapedText = '%s'\n",
+          escapedText.data());
+#endif
+
+    int numUnescapedChars = 0;
+    const char* unescapedTextPtr = escapedText;
+    // The number of unescaped characters is always less than
+    // or equal to the number of escaped characters.  Therefore
+    // we will cheat a little and used the escapedText as
+    // the destiniation to directly write characters in place
+    // as the append method is very expensive
+    char* resultPtr = new char[escapedText.length() + 1];
+
+    while (*unescapedTextPtr)
+    {
+       // Substitute a (%-) escaped character
+       if (*unescapedTextPtr == '%')
+       {
+          // Get the next two chars.
+          unescapedTextPtr++;
+          // Don't get deceived if the characters are not there.
+          unsigned char c1, c2;
+          if ((c1 = *unescapedTextPtr++) && (c2 = *unescapedTextPtr++))
+          {
+             // Compose the unescaped character.
+             // It appears that in SIP, %-escapes are required to be upper-case.
+             // See the production 'escaped' at the top of sec. 25.1, which
+             // refers to HEXDIG, which is defined in RFC 2234 sec 6.1.
+             // But this code handles lower case as well.
+             c1 = (c1 <= '9') ? c1 & 0xF : (c1 & 0xF) + 9;
+             c2 = (c2 <= '9') ? c2 & 0xF : (c2 & 0xF) + 9;
+             resultPtr[numUnescapedChars] = (c1 << 4) | c2;
+             numUnescapedChars++;
+          }
+          else
+          {
+             // The next two characters aren't there, so just insert '%'
+             // as a placeholder.
+             resultPtr[numUnescapedChars] = '%';
+             numUnescapedChars++;
+          }
+       }
+       // Char is face value.
+       else
+       {
+          resultPtr[numUnescapedChars] = *unescapedTextPtr;
+          numUnescapedChars++;
+          // Examine the next character.
+          unescapedTextPtr++;
+       }
+    }
+    
+    // Copy back into the UtlString.
+    resultPtr[numUnescapedChars] = '\0';
+    escapedText.replace(0, numUnescapedChars, resultPtr);
+    escapedText.remove(numUnescapedChars);
+    delete[] resultPtr;
+
+#if 0
+   printf("Url::percent_unescape after escapedText = '%s'\n",
+          escapedText.data());
+#endif
+}
+
+void Url::percent_escape(UtlString& unEscapedText, UtlString& escapedText,
+                         const char* unescaped_chars)
+{
+#if 0
+   printf("Url::percent_escape before escapedText = '%s'\n",
+          escapedText.data());
+#endif
+
+   // Check if there are any characters in unEscapedText that need to be
+   // escaped in any of the %-escaped fields.
+   if (strspn(unEscapedText.data(), unescaped_chars) != unEscapedText.length())
+   {
+      escapedText.remove(0);
+      // Pre-size it to the size of the un-escaped test, plus 2 for
+      // at least one escaped char.
+      escapedText.capacity((size_t) unEscapedText.length() + 2);
+      const char* unescapedTextPtr = unEscapedText.data();
+
+      // Process each character of the un-escaped value.
+      while(*unescapedTextPtr)
+      {
+         char unEscapedChar = *unescapedTextPtr;
+         if (!strchr(unescaped_chars, unEscapedChar))
+         {
+            // Construct a little 3-character string and append it.
+            char escapedChar[3];
+            escapedChar[0] = '%';
+            int t = unEscapedChar & 0xF;
+            escapedChar[1] = t + (t < 10 ? '0' : 'A' - 10);
+            t = (unEscapedChar & 0xF0) >> 4;
+            escapedChar[2] = t + (t < 10 ? '0' : 'A' - 10);
+            escapedText.append(&unEscapedChar, 3);
+        }
+        else
+        {
+           // Append the character directly.
+           escapedText.append(&unEscapedChar, 1);
+        }
+         // Consider the next character.
+         unescapedTextPtr++;
+      }
+
+      // Write the escaped string into the argumemt.
+      unEscapedText = escapedText;
+   }
+   else
+   {
+      // No escapes are needed, just copy the characters.
+      escapedText = unEscapedText;
+   }
+
+#if 0
+   printf("Url::percent_escape after escapedText = '%s'\n",
+          escapedText.data());
+#endif
 }
 
 /* ============================ FUNCTIONS ================================= */

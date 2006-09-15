@@ -67,6 +67,7 @@ class UrlTest : public CppUnit::TestCase
     CPPUNIT_TEST(testHttpConstruction);
     CPPUNIT_TEST(testComplexConstruction);
     CPPUNIT_TEST(testAddAttributesToExisting);
+    CPPUNIT_TEST(testMultipleFieldParams);
     CPPUNIT_TEST(testChangeValues);
     CPPUNIT_TEST(testRemoveAttributes);
     CPPUNIT_TEST(testRemoveUrlParameterCase);
@@ -735,6 +736,15 @@ public:
 
     }
 
+    void testMultipleFieldParams()
+    {
+        Url url("sip:u@host");
+        url.setFieldParameter("f", "fv1");
+        url.setFieldParameter("f", "fv2");
+        ASSERT_STR_EQUAL("<sip:u@host>;f=fv1;f=fv2",
+                         toString(url));
+    }
+
     void testChangeValues()
     {
         Url url("New Name<sip:u@host:5070;u1=uv1?h1=hv1>;f1=fv1"); 
@@ -1289,6 +1299,59 @@ public:
        ASSERT_STR_EQUAL("12", value.data());
        url6.getHeaderParameter("aBCd", value, 2);
        ASSERT_STR_EQUAL("EfG", value.data());
+    }
+
+    // Service functions that extract values (after removal
+    // of quoting) from components of a Url for use by
+    // testParameterQuoting.
+    static void testParameterQuotingGetDisplayName(Url& uri, UtlString& value)
+    {
+       uri.getDisplayName(value);
+    }
+    static void testParameterQuotingGetUser(Url& uri, UtlString& value)
+    {
+       uri.getUserId(value);
+    }
+    static void testParameterQuotingGetPassword(Url& uri, UtlString& value)
+    {
+       uri.getPassword(value);
+    }
+    static void testParameterQuotingGetHost(Url& uri, UtlString& value)
+    {
+       uri.getHostAddress(value);
+    }
+    static void testParameterQuotingGetUrlParameterName(Url& uri,
+                                                        UtlString& name)
+    {
+       UtlString value;
+       uri.getUrlParameter(0, name, value);
+    }
+    static void testParameterQuotingGetUrlParameterValue(Url& uri,
+                                                         UtlString& value)
+    {
+       uri.getUrlParameter("pname", value, 0);
+    }
+    static void testParameterQuotingGetHeaderName(Url& uri,
+                                                  UtlString& name)
+    {
+       UtlString value;
+       uri.getHeaderParameter(0, name, value);
+    }
+    static void testParameterQuotingGetHeaderValue(Url& uri,
+                                                   UtlString& value)
+    {
+       uri.getHeaderParameter("hname", value, 0);
+    }
+    static void testParameterQuotingGetFieldParameterName(Url& uri,
+                                                          UtlString& name)
+    {
+       UtlString value;
+       uri.getFieldParameter(0, name, value);
+    }
+    static void testParameterQuotingGetFieldParameterValue(Url& uri,
+                                                           UtlString& value)
+    {
+       uri.getFieldParameter("pname", value, 0);
     }
 
     void testIsDigitString()

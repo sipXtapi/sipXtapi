@@ -335,6 +335,21 @@ public:
      * @return the offset of the string or UTL_NOT_FOUND
      */
 
+    /// Find the number of characters from a set starting at a location.
+    // The string and the set may not contain 0 bytes.
+    size_t setSpan(const char* set, size_t offset = 0) const;
+    /**<
+     * @return the offset of the string or UTL_NOT_FOUND
+     */
+
+    /// Find the number of characters not from a set starting at a location.
+    // The string and the set may not contain 0 bytes.
+    size_t setComplementSpan(const char* set, size_t offset = 0) const;
+
+    /**<
+     * @return the offset of the string or UTL_NOT_FOUND
+     */
+
 ///@}
 // ================================================================
 /** @name                  Append Operations
