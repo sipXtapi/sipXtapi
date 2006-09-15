@@ -17,23 +17,22 @@ import java.util.Set;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 
 /**
- * Single holder of domain name 
+ * Single holder of domain name
  */
 public class Domain extends BeanWithId implements Cloneable {
     private String m_name;
     private Set<String> m_aliases;
 
-    public Domain() {        
+    public Domain() {
     }
-    
+
     public Domain(String name) {
         setName(name);
     }
-    
+
     /**
-     * Fully qualified host name is NOT using DNS SRV (e.g. myhost.example.com),
-     * otherwise use domain name (example.com)  
-     * @return
+     * Fully qualified host name is NOT using DNS SRV (e.g. myhost.example.com), otherwise use
+     * domain name (example.com)
      */
     public String getName() {
         return m_name;
@@ -44,10 +43,8 @@ public class Domain extends BeanWithId implements Cloneable {
     }
 
     /**
-     * Addresses (potentially invalid or inaccessable to sipx) that sipx commservers
-     * will accept messages for and treat as actual domain name.
-     * 
-     * @return
+     * Addresses (potentially invalid or inaccessable to sipx) that sipx commservers will accept
+     * messages for and treat as actual domain name.
      */
     public Set<String> getAliases() {
         return m_aliases;
@@ -56,17 +53,17 @@ public class Domain extends BeanWithId implements Cloneable {
     public void setAliases(Set<String> aliases) {
         m_aliases = aliases;
     }
-    
+
     public void addAlias(String alias) {
         if (m_aliases == null) {
             m_aliases = new HashSet();
         }
         m_aliases.add(alias);
     }
-    
+
     public void removeAlias(String alias) {
         if (m_aliases != null) {
             m_aliases.remove(alias);
-        }        
+        }
     }
 }
