@@ -7,7 +7,33 @@
         <tbody>
           <tr jwcid="namePanel" for="domain:name">
             <input jwcid="name" id="domain:name" type="text"/>
-          </tr>
+          </tr>          
+        </tbody>
+      </table>      
+    </fieldset>
+    <fieldset>
+      <legend key="label.aliasSection">Domain Aliases</legend>
+      <p>All the folling domain names and IP addresses will be accepted as 
+      if they where the real domain name value and not get redirected 
+      to other servers.</p>
+      <ul class="component-links">
+        <li><a jwcid="addAliasLink" href="#">
+          <span key="add.label">Add Alias</span></a>
+        </li>
+      </ul>
+      <table>
+        <tbody>
+            <tr jwcid="aliases" element="tr">
+              <td>
+                <label jwcid="aliasLabel">Alias</label>
+              </td>
+              <td>
+                <input jwcid="alias" type="text"/>
+              </td>
+              <td>
+                <a href="#" jwcid="removeAlias"><span key="label.removeAlias">Remove Alias</span></a>
+              </td>
+            </tr>
         </tbody>
       </table>
     </fieldset>

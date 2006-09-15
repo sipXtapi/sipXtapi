@@ -124,15 +124,17 @@
   <!-- TEMP: Remove before freezing schema -->
   <target name="drop-domain" if="domain">
   	<sipx-sql>
-  		drop table domain;
-  		drop table domain_alias;
-      drop sequence domain_seq;
-  		delete from patch where name = 'domain';
-  		delete from initialization_task where name = 'initialize-domain';
+  	    drop table domain;
+  	    drop table domain_alias;
+        drop sequence domain_seq;
+  	    delete from patch where name = 'domain';
+  	    delete from initialization_task where name = 'initialize-domain';
   	</sipx-sql>
   </target>
 	
-  <!-- target name="domain" unless="domain" -->
+  <!-- TEMP: activate this before freezing schema
+    target name="domain" unless="domain"
+  -->
   <target name="domain" depends="drop-domain">
     <db-patch patch="domain"/>
   </target>

@@ -9,7 +9,7 @@ create sequence domain_seq;
 create table domain_alias (
    domain_id int4 not null,
    alias varchar(255) not null,
-   primary key (domain_id, alias)
+   primary key (domain_id, alias)   
 );
 
 -- make sure that the domain is created on system startup

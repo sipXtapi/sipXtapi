@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.domain;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.common.BeanWithId;
@@ -28,6 +29,7 @@ public class Domain extends BeanWithId implements Cloneable {
     public Domain(String name) {
         setName(name);
     }
+    
     /**
      * Fully qualified host name is NOT using DNS SRV (e.g. myhost.example.com),
      * otherwise use domain name (example.com)  
@@ -53,5 +55,18 @@ public class Domain extends BeanWithId implements Cloneable {
 
     public void setAliases(Set<String> aliases) {
         m_aliases = aliases;
+    }
+    
+    public void addAlias(String alias) {
+        if (m_aliases == null) {
+            m_aliases = new HashSet();
+        }
+        m_aliases.add(alias);
+    }
+    
+    public void removeAlias(String alias) {
+        if (m_aliases != null) {
+            m_aliases.remove(alias);
+        }        
     }
 }
