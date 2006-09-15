@@ -196,4 +196,22 @@ public class LineTestDb extends SipxDatabaseTestCase {
         Phone loadedPhone = m_context.loadPhone(newPhone.getId());
         assertEquals(0, loadedPhone.getLines().size());
     }
+
+    /**
+     * Hits the db indirectly thru domainManager
+     */
+    public void testGetLineInfo() {
+        Phone phone = new AcmePhone();
+        PhoneContext context = (PhoneContext) TestHelper.getApplicationContext().getBean(
+                PhoneContext.CONTEXT_BEAN_NAME);
+        phone.setPhoneContext(context);
+        phone.setModelFilesContext(TestHelper.getModelFilesContext());
+        phone.initialize();
+        Line line = phone.createLine();
+        User u = new User();
+        u.setUserName("turkey");
+        line.setUser(u);
+        phone.addLine(line);
+        assertEquals("turkey", line.getLineInfo().getUserId());
+    }    
 }

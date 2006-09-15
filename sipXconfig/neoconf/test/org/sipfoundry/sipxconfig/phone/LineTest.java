@@ -76,19 +76,4 @@ public class LineTest extends TestCase {
         line.setUser(u);
         assertEquals("joe", line.getDisplayLabel());
     }
-
-    public void testGetLineInfo() {
-        Phone phone = new AcmePhone();
-        PhoneContext context = (PhoneContext) TestHelper.getApplicationContext().getBean(
-                PhoneContext.CONTEXT_BEAN_NAME);
-        phone.setPhoneContext(context);
-        phone.setModelFilesContext(TestHelper.getModelFilesContext());
-        phone.initialize();
-        Line line = phone.createLine();
-        User u = new User();
-        u.setUserName("turkey");
-        line.setUser(u);
-        phone.addLine(line);
-        assertEquals("turkey", line.getLineInfo().getUserId());
-    }
 }
