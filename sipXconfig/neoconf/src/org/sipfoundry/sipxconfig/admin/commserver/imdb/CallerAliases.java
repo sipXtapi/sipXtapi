@@ -38,12 +38,8 @@ public class CallerAliases extends DataSetGenerator {
             String gatewayAddr = gateway.getAddress();
             // add default entry for the gateway
             GatewayCallerAliasInfo gatewayInfo = gateway.getCallerAliasInfo();
-
-            String defaultCallerAlias = gatewayInfo.getDefaultCallerAlias();
-            if (StringUtils.isNotEmpty(defaultCallerAlias)) {
-                String callerAliasUri = SipUri.format(defaultCallerAlias, sipDomain, false);
-                addItem(items, gatewayAddr, callerAliasUri);
-            }
+            String callerAliasUri = getGatewayCallerAliasUri(sipDomain, gatewayInfo);
+            addItem(items, gatewayAddr, callerAliasUri);
 
             // only add user aliases is overwrite is not set
             if (gatewayInfo.isIgnoreUserInfo()) {
@@ -51,32 +47,47 @@ public class CallerAliases extends DataSetGenerator {
             }
             // add per-user entries
             for (User user : users) {
-                UserCallerAliasInfo info = new UserCallerAliasInfo(user);
-                String externalNumber = getExternalNumber(gatewayInfo, info, user);
-                if (externalNumber != null) {
-                    String callerAliasUri = SipUri.format(user.getDisplayName(), externalNumber,
-                            sipDomain);
-                    String identity = AliasMapping.createUri(user.getUserName(), sipDomain);
-                    addItem(items, gatewayAddr, callerAliasUri, identity);
-                }
+                String userCallerAliasUri = getCallerAliasUri(gatewayInfo, user);
+                String identity = AliasMapping.createUri(user.getUserName(), sipDomain);
+                addItem(items, gatewayAddr, userCallerAliasUri, identity);
             }
         }
     }
 
-    private String getExternalNumber(GatewayCallerAliasInfo gatewayInfo,
-            UserCallerAliasInfo userInfo, User user) {
-        if (userInfo.isAnonymous()) {
+    private String getGatewayCallerAliasUri(String sipDomain, GatewayCallerAliasInfo gatewayInfo) {
+        if (gatewayInfo.isAnonymous()) {
             return m_anonymousAlias;
         }
-        String externalNumber = gatewayInfo.getTransformedNumber(user);
-        if (externalNumber != null) {
-            return externalNumber;
+        String defaultExternalNumber = gatewayInfo.getDefaultCallerAlias();
+        if (defaultExternalNumber != null) {
+            return SipUri.format(defaultExternalNumber, sipDomain, false);
         }
-        return userInfo.getExternalNumber();
+        return null;
+    }
 
+    private String getCallerAliasUri(GatewayCallerAliasInfo gatewayInfo, User user) {
+        UserCallerAliasInfo info = new UserCallerAliasInfo(user);
+        if (info.isAnonymous()) {
+            return m_anonymousAlias;
+        }
+        // try transforming in gateway
+        String externalNumber = gatewayInfo.getTransformedNumber(user);
+        if (externalNumber == null) {
+            // get number defined by user
+            externalNumber = info.getExternalNumber();
+        }
+        if (externalNumber != null) {
+            // if we found the number we can return it
+            return SipUri.format(user.getDisplayName(), externalNumber, getSipDomain());
+        }
+        return null;
     }
 
     private Element addItem(Element items, String domain, String alias, String identity) {
+        if (StringUtils.isEmpty(alias)) {
+            // nothing to add
+            return null;
+        }
         Element item = addItem(items);
         if (identity != null) {
             item.addElement("identity").setText(identity);

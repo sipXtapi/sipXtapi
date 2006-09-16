@@ -53,5 +53,4 @@ public class GatewayCallerAliasInfoTest extends TestCase {
         info.setAddPrefix("2");
         assertEquals("2123456789", info.getTransformedNumber(user));
     }
-
 }
