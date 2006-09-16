@@ -23,7 +23,6 @@ import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.ConfigFileStorage;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class SipxServer extends BeanWithSettings implements Server, AliasProvider {
     private static final String DOMAIN_NAME = "domain/SIPXCHANGE_DOMAIN_NAME";
@@ -48,33 +47,15 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
         m_coreContext = coreContext;
     }
     
-    @Override
-    public void initialize() {
-        addDefaultBeanSettingHandler(new SipxDefaults(m_coreContext));
-    }
-    
-    public static class SipxDefaults {
-        private CoreContext m_core;
-        SipxDefaults(CoreContext core) {
-            m_core = core;
-        }
-
-        /*
-         * XCF-552 - Domain name on a vanilla installation is `hostname -d` evaluating shell
-         * expression is beyond the scope of the UI. Therefore we inject the domain name set on
-         * this bean because it's been resolved already. When we support the separation of
-         * commserver from general sipxconfig configuration, I suspect domain name will be stored
-         * in a separate object and that drives the modification of config.defs and is referenced
-         * directly by phoneContext and coreContext
-         */
-        @SettingEntry(path = DOMAIN_NAME)
-        public String getDomainName() {
-            return m_core.getDomainName();
-        }        
-    }
-    
     protected Setting loadSettings() {
         return getModelFilesContext().loadModelFile("server.xml", "commserver");
+    }
+    
+    /**
+     * Still need to call <code>applySettings</code> save to send to disk
+     */
+    public void setDomainName(String domainName) {
+        setSettingValue(DOMAIN_NAME, domainName);
     }
 
     public void applySettings() {
@@ -146,5 +127,9 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
 
     public String getPresenceServerUri() {
         return SipUri.format(getPresenceServerLocation(), getPresenceServerPort());
+    }
+
+    @Override
+    public void initialize() {
     }
 }

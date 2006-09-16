@@ -33,8 +33,6 @@ public abstract class ManageDomain extends PageWithCallback implements PageBegin
     public abstract Domain getDomain();
     public abstract int getIndex();
     public abstract void setDomain(Domain domain);
-    public abstract String getUneditedDomainName();
-    public abstract void setUneditedDomainName(String name);
     public abstract String getAction();
     public abstract List<String> getAliases();
     public abstract void setAliases(List<String> aliases);
@@ -74,14 +72,8 @@ public abstract class ManageDomain extends PageWithCallback implements PageBegin
         d.getAliases().addAll(getAliases());
         getDomainManager().saveDomain(d);
 
-        IPage next = null;
-        if (!getUneditedDomainName().equals(d.getName())) {
-            RestartReminder restartPage = (RestartReminder) cycle.getPage(RestartReminder.PAGE);
-            restartPage.setNextPage(PAGE);
-            next = restartPage; 
-            setUneditedDomainName(d.getName());
-        }
-        
-        return next;
+        RestartReminder restartPage = (RestartReminder) cycle.getPage(RestartReminder.PAGE);
+        restartPage.setNextPage(PAGE);
+        return restartPage; 
     }
 }

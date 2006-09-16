@@ -8,7 +8,6 @@
   <property name="domain" initial-value="domainManager.domain"/>
   <property name="aliases" persist="session"/>
   <property name="action"/>
-  <property name="uneditedDomainName" initial-value="domainManager.domain.name" persist="client"/>
   <property name="index"/>
   <property name="callback" persist="session"/>
   <property name="returnPage" persist="session"/>

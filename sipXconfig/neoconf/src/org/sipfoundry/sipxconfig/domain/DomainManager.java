@@ -11,7 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.domain;
 
-public interface DomainManager {
+import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
+
+public interface DomainManager extends DialingRuleProvider {
     
     public static final String CONTEXT_BEAN_NAME = "domainManager";
     
