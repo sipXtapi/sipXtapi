@@ -424,6 +424,11 @@ protected:
                                  UtlString* pRecvFromIp,
                                  int*       pRecvFromPort) ;
 
+    bool handleSturnData(char*      buffer, 
+                         int&       bufferLength,
+                         UtlString& receivedIp,
+                         int&       receivedPort) ; 
+
     void markReadTime() ;
 
     void markWriteTime() ;

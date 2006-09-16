@@ -106,32 +106,16 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength)
     int iReceivedPort ;
 
     do
-    {   
-        bool bDataIndication ;
-        bNatPacket = FALSE ;
+    {
         iRC = OsSocket::read(buffer, bufferLength, &receivedIp, &iReceivedPort) ;
-        if ((iRC > 0) && TurnMessage::isTurnMessage(buffer, iRC, &bDataIndication))
+        if (handleSturnData(buffer, iRC, receivedIp, iReceivedPort))
         {
-            if (bDataIndication)
-                iRC = handleTurnDataIndication(buffer, iRC, NULL, NULL) ;
-            else
-            {
-                handleTurnMessage(buffer, iRC, receivedIp, iReceivedPort) ;
-                if (!mbTransparentReads)
-                    iRC = 0 ;
-                else
-                    bNatPacket = TRUE ;
-            }
-        }
-        else if ((iRC > 0) && StunMessage::isStunMessage(buffer, iRC))
-        {
-            handleStunMessage(buffer, iRC, receivedIp, iReceivedPort) ;
             if (!mbTransparentReads)
                 iRC = 0 ;
             else
                 bNatPacket = TRUE ;
         }
-    } while ((iRC >= 0) && bNatPacket) ;   
+    } while ((iRC >= 0) && bNatPacket) ;
 
     // Make read time for non-NAT packets
     if (iRC > 0 && !bNatPacket)
@@ -150,30 +134,15 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength,
 
     do
     {
-        bool bDataIndication ;
         bNatPacket = FALSE ;
         iRC = OsSocket::read(buffer, bufferLength, &receivedIp, &iReceivedPort) ;       
-        if ((iRC > 0) && TurnMessage::isTurnMessage(buffer, iRC, &bDataIndication))
+        if (handleSturnData(buffer, iRC, receivedIp, iReceivedPort))
         {
-            if (bDataIndication)
-                iRC = handleTurnDataIndication(buffer, iRC, ipAddress, port) ;
-            else
-            {
-                handleTurnMessage(buffer, iRC, receivedIp, iReceivedPort) ;
-                if (!mbTransparentReads)
-                    iRC = 0 ;
-                else
-                    bNatPacket = TRUE ;
-            }
-        }
-        else if ((iRC > 0) && StunMessage::isStunMessage(buffer, iRC))
-        {
-            handleStunMessage(buffer, iRC, receivedIp, iReceivedPort) ;
             if (!mbTransparentReads)
                 iRC = 0 ;
             else
                 bNatPacket = TRUE ;
-        }
+        }    
     } while ((iRC >= 0) && bNatPacket) ;
 
     if (ipAddress)
@@ -198,62 +167,17 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength,
 int OsNatDatagramSocket::read(char* buffer, int bufferLength,
        struct in_addr* ipAddress, int* port)
 {
-    bool bNatPacket ;
-    int iRC ;    
-    struct in_addr fromSockAddress;
+    int iRC ;
     int iReceivedPort ;
+    UtlString receivedIp ;
+
+    iRC = OsSocket::read(buffer, bufferLength, &receivedIp, &iReceivedPort) ;
    
-    do
-    {
-        bool bDataIndication ;
-        bNatPacket = FALSE ;
-        iRC = OsSocket::read(buffer, bufferLength, &fromSockAddress, &iReceivedPort) ;      
-        if ((iRC > 0) && TurnMessage::isTurnMessage(buffer, iRC, &bDataIndication))
-        {
-            if (bDataIndication)
-            {
-                UtlString tempAddress ;
-                iRC = handleTurnDataIndication(buffer, iRC, &tempAddress, port) ;
-                fromSockAddress.s_addr = inet_addr(tempAddress) ;                 
-            }
-            else
-            {
-                UtlString receivedIp ;
-                inet_ntoa_pt(fromSockAddress, receivedIp);
-                handleTurnMessage(buffer, iRC, receivedIp, iReceivedPort) ;
-                if (!mbTransparentReads)
-                    iRC = 0 ;
-                else
-                    bNatPacket = TRUE ;
-            }
-        }
-        else if ((iRC > 0) && StunMessage::isStunMessage(buffer, iRC))
-        {
-            UtlString receivedIp ;
-            inet_ntoa_pt(fromSockAddress, receivedIp);
-            handleStunMessage(buffer, iRC, receivedIp, iReceivedPort) ;
-            if (!mbTransparentReads)
-                iRC = 0 ;
-            else
-                bNatPacket = TRUE ;
-        }
-    } while ((iRC >= 0) && bNatPacket) ;
+    if (ipAddress)
+        ipAddress->s_addr = inet_addr(receivedIp) ;
 
-    if (ipAddress != NULL)
-    {
-        memcpy(ipAddress, &fromSockAddress, sizeof(struct in_addr)) ;
-    }
-
-    if (port != NULL)
-    {
+    if (port)
         *port = iReceivedPort ;
-    }
-
-    // Make read time for non-NAT packets
-    if (iRC > 0 && !bNatPacket)
-    {
-        markReadTime() ;
-    }
 
     return iRC ;
 }
@@ -270,32 +194,14 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength, long waitMilliseco
     {
         if (isReadyToRead(waitMilliseconds))
         {
-            bool bDataIndication ;
             bNatPacket = FALSE ;
             iRC = OsSocket::read(buffer, bufferLength, &receivedIp, &iReceivedPort) ;            
-            if ((iRC > 0) && TurnMessage::isTurnMessage(buffer, iRC, &bDataIndication))
+            if (handleSturnData(buffer, iRC, receivedIp, iReceivedPort))
             {
-                handleTurnMessage(buffer, iRC, receivedIp, iReceivedPort) ;
                 if (!mbTransparentReads)
-                {
                     iRC = 0 ;
-                }
                 else
-                {
                     bNatPacket = TRUE ;
-                }
-            }
-            else if ((iRC > 0) && StunMessage::isStunMessage(buffer, iRC))
-            {
-                handleStunMessage(buffer, iRC, receivedIp, iReceivedPort) ;
-                if (!mbTransparentReads)
-                {
-                    iRC = 0 ;
-                }
-                else
-                {
-                    bNatPacket = TRUE ;
-                }
             }
         }
         else
@@ -881,10 +787,10 @@ void OsNatDatagramSocket::markReadTime()
 
     // Mark first read if not already set
     if ((miRecordTimes & ONDS_MARK_FIRST_READ) == 0)
-{
+    {
         miRecordTimes |= ONDS_MARK_FIRST_READ ;
         mFirstRead = mLastRead ;
-}
+    }
 }
 
 void OsNatDatagramSocket::markWriteTime()
@@ -895,11 +801,47 @@ void OsNatDatagramSocket::markWriteTime()
 
     // Mark first write if not already set
     if ((miRecordTimes & ONDS_MARK_FIRST_WRITE) == 0)
+    {
+            miRecordTimes |= ONDS_MARK_FIRST_WRITE ;
+            mFirstWrite = mLastWrite ;
+    }
+}
+
+bool OsNatDatagramSocket::handleSturnData(char*      buffer, 
+                                          int&       bufferLength,
+                                          UtlString& receivedIp,
+                                          int&       receivedPort)
 {
-        miRecordTimes |= ONDS_MARK_FIRST_WRITE ;
-        mFirstWrite = mLastWrite ;
+    bool bHandled = false ;
+    bool bDataIndication = false ;
+
+    if ((bufferLength > 0) && TurnMessage::isTurnMessage(buffer, bufferLength, &bDataIndication))
+    {
+        if (bDataIndication)
+        {
+            bufferLength = handleTurnDataIndication(buffer, bufferLength, 
+                    &receivedIp, &receivedPort) ;
+
+            // We need to recurse for DIs -- it may be an encapsulated STUN 
+            // message (e.g. ICE)
+            return handleSturnData(buffer, bufferLength, receivedIp, receivedPort) ;
+        }
+        else
+        {
+            handleTurnMessage(buffer, bufferLength, receivedIp, receivedPort) ;
+            bHandled = true ;           
+        }
+    }
+    else if ((bufferLength > 0) && StunMessage::isStunMessage(buffer, 
+            bufferLength))
+    {
+        handleStunMessage(buffer, bufferLength, receivedIp, receivedPort) ;
+        bHandled = true ;
+    }
+
+    return bHandled ;
 }
-}
+
 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
