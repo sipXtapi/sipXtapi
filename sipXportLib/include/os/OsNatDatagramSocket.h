@@ -415,6 +415,14 @@ protected:
      * Handle/process an inbound TURN message.
      */
     void handleTurnMessage(char* pBuf, int length, UtlString& fromAddress, int fromPort) ;
+    
+    /**
+     * Pull a data indication out of the buffer
+     */
+    int handleTurnDataIndication(char*      buffer, 
+                                 int        bufferLength,
+                                 UtlString* pRecvFromIp,
+                                 int*       pRecvFromPort) ;
 
     void markReadTime() ;
 

@@ -40,8 +40,9 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-TurnMessage::TurnMessage()
-    : StunMessage()
+TurnMessage::TurnMessage(TurnMessage* pRequest,
+                         bool         bLegacyMode)
+    : StunMessage(pRequest, bLegacyMode)
 {
     mszTurnData = NULL ;
     reset() ;
@@ -360,7 +361,9 @@ bool TurnMessage::validateMessageType(unsigned short type)
 }
 
 
-bool TurnMessage::isTurnMessage(const char* pBuf, unsigned short nBufLength) 
+bool TurnMessage::isTurnMessage(const char*    pBuf, 
+                                unsigned short nBufLength, 
+                                bool*          pbDataIndication) 
 {
     bool bValid = false ;
 
@@ -411,6 +414,10 @@ bool TurnMessage::isTurnMessage(const char* pBuf, unsigned short nBufLength)
                             (magicCookie == ATTR_MAGIC_COOKIE)  )
                     {                                        
                         bValid = true ;
+
+                        if (pbDataIndication)
+                            *pbDataIndication = (header.type == 
+                                    MSG_TURN_DATA_INDICATION) ;
                     }
                     break ;
                 default:
@@ -496,11 +503,13 @@ bool TurnMessage::parseAttribute(STUN_ATTRIBUTE_HEADER* pHeader, char* pBuf)
                 if (mszTurnData)
                 {
                     bValid = parseRawAttribute(pBuf, pHeader->length, mszTurnData, pHeader->length) ;
-                    mbTurnDataValid = bValid ;
+                    mbTurnDataValid = pHeader->length ;
+                    mnTurnData = pHeader->length ;
                     if (!bValid)
                     {
                         free(mszTurnData) ;
                         mszTurnData = NULL ;
+                        mnTurnData = 0 ;
                     }
                 }
             }

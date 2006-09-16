@@ -107,39 +107,35 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength)
 
     do
     {   
+        bool bDataIndication ;
         bNatPacket = FALSE ;
         iRC = OsSocket::read(buffer, bufferLength, &receivedIp, &iReceivedPort) ;
-        if ((iRC > 0) && TurnMessage::isTurnMessage(buffer, iRC))
+        if ((iRC > 0) && TurnMessage::isTurnMessage(buffer, iRC, &bDataIndication))
         {
-            handleTurnMessage(buffer, iRC, receivedIp, iReceivedPort) ;
-            if (!mbTransparentReads)
-            {
-                iRC = 0 ;
-            }
+            if (bDataIndication)
+                iRC = handleTurnDataIndication(buffer, iRC, NULL, NULL) ;
             else
             {
-                bNatPacket = TRUE ;
+                handleTurnMessage(buffer, iRC, receivedIp, iReceivedPort) ;
+                if (!mbTransparentReads)
+                    iRC = 0 ;
+                else
+                    bNatPacket = TRUE ;
             }
         }
         else if ((iRC > 0) && StunMessage::isStunMessage(buffer, iRC))
         {
             handleStunMessage(buffer, iRC, receivedIp, iReceivedPort) ;
             if (!mbTransparentReads)
-            {
                 iRC = 0 ;
-            }
             else
-            {
                 bNatPacket = TRUE ;
-            }
         }
     } while ((iRC >= 0) && bNatPacket) ;   
 
     // Make read time for non-NAT packets
     if (iRC > 0 && !bNatPacket)
-    {
         markReadTime() ;
-    }
 
     return iRC ;
 }
@@ -154,31 +150,29 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength,
 
     do
     {
+        bool bDataIndication ;
         bNatPacket = FALSE ;
         iRC = OsSocket::read(buffer, bufferLength, &receivedIp, &iReceivedPort) ;       
-        if ((iRC > 0) && TurnMessage::isTurnMessage(buffer, iRC))
+        if ((iRC > 0) && TurnMessage::isTurnMessage(buffer, iRC, &bDataIndication))
         {
-            handleTurnMessage(buffer, iRC, receivedIp, iReceivedPort) ;
-            if (!mbTransparentReads)
-            {
-                iRC = 0 ;
-            }
+            if (bDataIndication)
+                iRC = handleTurnDataIndication(buffer, iRC, ipAddress, port) ;
             else
             {
-                bNatPacket = TRUE ;
+                handleTurnMessage(buffer, iRC, receivedIp, iReceivedPort) ;
+                if (!mbTransparentReads)
+                    iRC = 0 ;
+                else
+                    bNatPacket = TRUE ;
             }
         }
         else if ((iRC > 0) && StunMessage::isStunMessage(buffer, iRC))
         {
             handleStunMessage(buffer, iRC, receivedIp, iReceivedPort) ;
             if (!mbTransparentReads)
-            {
                 iRC = 0 ;
-            }
             else
-            {
                 bNatPacket = TRUE ;
-            }
         }
     } while ((iRC >= 0) && bNatPacket) ;
 
@@ -211,20 +205,26 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength,
    
     do
     {
+        bool bDataIndication ;
         bNatPacket = FALSE ;
         iRC = OsSocket::read(buffer, bufferLength, &fromSockAddress, &iReceivedPort) ;      
-        if ((iRC > 0) && TurnMessage::isTurnMessage(buffer, iRC))
+        if ((iRC > 0) && TurnMessage::isTurnMessage(buffer, iRC, &bDataIndication))
         {
-            UtlString receivedIp ;
-            inet_ntoa_pt(fromSockAddress, receivedIp);
-            handleTurnMessage(buffer, iRC, receivedIp, iReceivedPort) ;
-            if (!mbTransparentReads)
+            if (bDataIndication)
             {
-                iRC = 0 ;
+                UtlString tempAddress ;
+                iRC = handleTurnDataIndication(buffer, iRC, &tempAddress, port) ;
+                fromSockAddress.s_addr = inet_addr(tempAddress) ;                 
             }
             else
             {
-                bNatPacket = TRUE ;
+                UtlString receivedIp ;
+                inet_ntoa_pt(fromSockAddress, receivedIp);
+                handleTurnMessage(buffer, iRC, receivedIp, iReceivedPort) ;
+                if (!mbTransparentReads)
+                    iRC = 0 ;
+                else
+                    bNatPacket = TRUE ;
             }
         }
         else if ((iRC > 0) && StunMessage::isStunMessage(buffer, iRC))
@@ -233,13 +233,9 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength,
             inet_ntoa_pt(fromSockAddress, receivedIp);
             handleStunMessage(buffer, iRC, receivedIp, iReceivedPort) ;
             if (!mbTransparentReads)
-            {
                 iRC = 0 ;
-            }
             else
-            {
                 bNatPacket = TRUE ;
-            }
         }
     } while ((iRC >= 0) && bNatPacket) ;
 
@@ -274,9 +270,10 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength, long waitMilliseco
     {
         if (isReadyToRead(waitMilliseconds))
         {
+            bool bDataIndication ;
             bNatPacket = FALSE ;
             iRC = OsSocket::read(buffer, bufferLength, &receivedIp, &iReceivedPort) ;            
-            if ((iRC > 0) && TurnMessage::isTurnMessage(buffer, iRC))
+            if ((iRC > 0) && TurnMessage::isTurnMessage(buffer, iRC, &bDataIndication))
             {
                 handleTurnMessage(buffer, iRC, receivedIp, iReceivedPort) ;
                 if (!mbTransparentReads)
@@ -831,6 +828,48 @@ void OsNatDatagramSocket::handleTurnMessage(char* pBuf,
         NatMsg msg(NatMsg::TURN_MESSAGE, szCopy, length, this, fromAddress, fromPort);
         mpNatAgent->postMessage(msg) ;
     }    
+}
+
+
+int OsNatDatagramSocket::handleTurnDataIndication(char*      buffer, 
+                                                  int        bufferLength,
+                                                  UtlString* pRecvFromIp,
+                                                  int*       pRecvFromPort)
+{
+    int rc = 0 ;
+    TurnMessage msg ;
+
+    if (msg.parse(buffer, bufferLength))
+    {
+        char*          pData ;
+        unsigned short nData ;
+
+        if (msg.getData(pData, nData))
+        {
+            assert(pData) ;
+            assert(nData < bufferLength) ;
+            if (pData && nData < bufferLength)
+            {
+                memcpy(buffer, pData, nData) ;
+                rc = nData ;
+
+                if (pRecvFromIp || pRecvFromPort)
+                {
+                    char           remoteAddr[32] ;
+                    unsigned short remotePort ;
+                    if (msg.getTurnRemoteAddress(remoteAddr, remotePort))
+                    {
+                        if (pRecvFromIp)
+                            *pRecvFromIp = remoteAddr ;
+                        if (pRecvFromPort)
+                            *pRecvFromPort = remotePort ;
+                    }
+                }
+            }
+        }
+    }
+
+    return rc ;
 }
 
 

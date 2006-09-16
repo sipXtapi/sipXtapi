@@ -110,7 +110,8 @@ class TurnMessage : public StunMessage
    /**
     * Default constructor
     */
-   TurnMessage();
+   TurnMessage(TurnMessage* pRequest = NULL,
+               bool         bLegacyMode = true) ;
      
    /**
     * Destructor
@@ -163,7 +164,9 @@ class TurnMessage : public StunMessage
 
     virtual bool validateMessageType(unsigned short type) ;
 
-    static bool isTurnMessage(const char* pBuf, unsigned short nBufLength) ;
+    static bool isTurnMessage(const char*    pBuf, 
+                             unsigned short nBufLength, 
+                             bool*          pbDataIndication = NULL) ;  
 
     virtual bool isRequestOrNonErrorResponse() ;
 

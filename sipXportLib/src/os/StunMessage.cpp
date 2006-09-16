@@ -162,7 +162,7 @@ bool StunMessage::parse(const char* pBuf, size_t nBufLength)
                 memcpy(&header, pTraverse, sizeof(STUN_ATTRIBUTE_HEADER)) ;
                 header.type = ntohs(header.type) ;
                 header.length = ntohs(header.length) ;                
-                int paddedLength = ((header.length + 3) / 4) * 4 ;
+                int paddedLength = mbLegacyMode ? header.length : ((header.length + 3) / 4) * 4 ;
                 pTraverse += sizeof(STUN_ATTRIBUTE_HEADER) ;
                 iBytesLeft -= sizeof(STUN_ATTRIBUTE_HEADER) ; 
                 if (header.length <= iBytesLeft)
@@ -1166,7 +1166,7 @@ bool StunMessage::encodeString(unsigned short type, const char* szString, char*&
     memset(cPadding, 0, sizeof(cPadding)) ;
 
     if (    (nBytesLeft >= (nPaddedLength + sizeof(STUN_ATTRIBUTE_HEADER))) &&
-            encodeAttributeHeader(type, (short) nActualLength, pBuf, nBytesLeft) &&
+            encodeAttributeHeader(type, (short) nPaddedLength, pBuf, nBytesLeft) &&
             encodeRaw(szString, nActualLength, pBuf, nBytesLeft) &&
             encodeRaw(cPadding, nPaddedLength - nActualLength, pBuf, nBytesLeft))
     {
