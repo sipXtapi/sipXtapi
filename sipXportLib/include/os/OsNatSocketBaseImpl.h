@@ -58,7 +58,7 @@ public:
     /**
      * Handle/process an inbound STUN message.
      */
-    void handleStunMessage(char* pBuf, int length, UtlString& fromAddress, int fromPort) ;
+    virtual void handleStunMessage(char* pBuf, int length, UtlString& fromAddress, int fromPort) ;
 
 
     /**
