@@ -2637,6 +2637,9 @@
 				RelativePath=".\src\os\OsNatConnectionSocket.cpp">
 			</File>
 			<File
+				RelativePath=".\include\os\OsNatConnectionSocket.h">
+			</File>
+			<File
 				RelativePath=".\src\os\OsNatDatagramSocket.cpp">
 			</File>
 			<File
@@ -2644,6 +2647,9 @@
 			</File>
 			<File
 				RelativePath=".\src\os\OsNatSocketBaseImpl.cpp">
+			</File>
+			<File
+				RelativePath=".\include\os\OsNatSocketBaseImpl.h">
 			</File>
 			<File
 				RelativePath=".\src\os\StunMessage.cpp">
