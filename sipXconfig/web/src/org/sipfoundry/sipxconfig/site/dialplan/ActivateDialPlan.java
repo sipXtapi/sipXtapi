@@ -26,7 +26,8 @@ import org.sipfoundry.sipxconfig.site.admin.commserver.RestartReminderPanel;
  */
 public abstract class ActivateDialPlan extends BasePage {
     public static final Enum[] OPTIONS = {
-        ConfigFileType.MAPPING_RULES, ConfigFileType.FALLBACK_RULES, ConfigFileType.AUTH_RULES
+        ConfigFileType.MAPPING_RULES, ConfigFileType.FALLBACK_RULES, ConfigFileType.AUTH_RULES, 
+        ConfigFileType.FORWARDING_RULES
     };
 
     public static final String PAGE = "ActivateDialPlan";

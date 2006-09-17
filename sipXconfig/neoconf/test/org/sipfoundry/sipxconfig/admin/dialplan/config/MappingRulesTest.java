@@ -27,9 +27,11 @@ import org.dom4j.Element;
 import org.dom4j.VisitorSupport;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.HostPatternProvider;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.MappingRule;
 import org.sipfoundry.sipxconfig.permission.Permission;
@@ -239,6 +241,7 @@ public class MappingRulesTest extends XMLTestCase {
         controlPlan.replay();
 
         ConfigGenerator generator = new ConfigGenerator();
+        generator.getForwardingRules().setVelocityEngine(TestHelper.getVelocityEngine());
         generator.generate(plan, null);
 
         String generatedXml = generator.getFileContent(ConfigFileType.MAPPING_RULES);
@@ -259,5 +262,35 @@ public class MappingRulesTest extends XMLTestCase {
         assertEquals(f1.hashCode(), f2.hashCode());
         assertFalse(f1.equals(null));
         assertFalse(f1.equals(f3));
+    }
+    
+    public void testHostPatternProvider() throws Exception {
+        IMocksControl control = EasyMock.createNiceControl();
+        HostPatternProvider rule = control.createMock(HostPatternProvider.class);
+        rule.isInternal();
+        control.andReturn(true).times(2);
+        rule.getHostPatterns();
+        control.andReturn(new String[] { "gander" });
+        rule.getPatterns();
+        control.andReturn(new String[] { "dot" });
+        rule.getPermissions();
+        control.andReturn(Collections.EMPTY_LIST);
+        rule.getTransforms();
+        control.andReturn(new Transform[0]);
+        
+        control.replay();
+
+        MappingRules mappingRules = new MappingRules();
+        mappingRules.begin();
+        mappingRules.generate(rule);
+        mappingRules.end();
+
+        Document document = mappingRules.getDocument();
+        String domDoc = XmlUnitHelper.asString(document);
+
+        assertXpathExists("/mappings/hostMatch[2]/hostPattern", domDoc);
+        assertXpathExists("/mappings/hostMatch[2]/userMatch/userPattern", domDoc);
+
+        control.verify();
     }
 }

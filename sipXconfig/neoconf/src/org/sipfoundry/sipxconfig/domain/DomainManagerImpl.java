@@ -12,12 +12,11 @@
 package org.sipfoundry.sipxconfig.domain;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.commserver.SipxServer;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 
@@ -66,32 +65,14 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
     }
 
     public List<DialingRule> getDialingRules() {
-        return null;
-    }
-    
-    public static class DomainAliasRule extends DialingRule {
-
-        @Override
-        public String[] getPatterns() {
-            // TODO Auto-generated method stub
-            return null;
+        List<DialingRule> rules;
+        Domain d = getDomain();
+        if (d.hasAliases()) {
+            DialingRule domainRule = new DomainDialingRule(getDomain());
+            rules = Collections.singletonList(domainRule);
+        } else {
+            rules = Collections.EMPTY_LIST;
         }
-
-        @Override
-        public Transform[] getTransforms() {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        @Override
-        public DialingRuleType getType() {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        public boolean isInternal() {
-            // TODO Auto-generated method stub
-            return false;
-        }
-    }
+        return rules;
+    }  
 }

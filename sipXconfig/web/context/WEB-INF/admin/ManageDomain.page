@@ -18,9 +18,6 @@
     <binding name="listener" value="listener:submit"/>
   </component>
   <component id="errors" type="ErrorMsg" />
-  <component id="enableIntercom" type="Checkbox">
-    <binding name="value" value="intercom.enabled" />
-  </component>
   <component id="namePanel" type="FieldPanel">
     <binding name="field" value="components.name" />
     <binding name="label" value="message:label.name" />
