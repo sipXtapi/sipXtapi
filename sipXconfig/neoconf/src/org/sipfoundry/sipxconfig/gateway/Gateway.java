@@ -45,7 +45,7 @@ public class Gateway extends BeanWithSettings implements NamedObject {
 
     private VelocityEngine m_velocityEngine;
 
-    private GatewayCallerAliasInfo m_callerAliasInfo;
+    private GatewayCallerAliasInfo m_callerAliasInfo = new GatewayCallerAliasInfo();
 
     @Override
     public void initialize() {
@@ -175,5 +175,11 @@ public class Gateway extends BeanWithSettings implements NamedObject {
             return callPattern;
         }
         return m_prefix + callPattern;
+    }
+
+    protected Object clone() throws CloneNotSupportedException {
+        Gateway clone = (Gateway) super.clone();
+        clone.m_callerAliasInfo = (GatewayCallerAliasInfo) m_callerAliasInfo.clone();
+        return clone;
     }
 }

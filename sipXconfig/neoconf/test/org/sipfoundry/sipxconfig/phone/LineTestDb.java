@@ -37,7 +37,7 @@ public class LineTestDb extends SipxDatabaseTestCase {
         m_core = (CoreContext) TestHelper.getApplicationContext().getBean(
                 CoreContext.CONTEXT_BEAN_NAME);
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.insertFlat("common/TestUserSeed.xml");
+        TestHelper.insertFlat("common/TestUserSeed.db.xml");
     }
 
     public void testAddingLine() throws Exception {

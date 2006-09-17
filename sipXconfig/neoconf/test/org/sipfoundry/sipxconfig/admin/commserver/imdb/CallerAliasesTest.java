@@ -86,7 +86,7 @@ public class CallerAliasesTest extends XMLTestCase {
             GatewayCallerAliasInfo info = new GatewayCallerAliasInfo();
             info.setDefaultCallerAlias((String) gd[1]);
             info.setIgnoreUserInfo((Boolean) gd[2]);
-            info.setTransformUserId((Boolean) gd[3]);
+            info.setTransformUserExtension((Boolean) gd[3]);
             info.setAddPrefix((String) gd[4]);
             info.setKeepDigits((Integer) gd[5]);
             info.setAnonymous((Boolean) gd[6]);

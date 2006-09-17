@@ -36,7 +36,7 @@ public class CallGroupContextImplTestDb extends SipxDatabaseTestCase {
         m_context = (CallGroupContext) appContext.getBean(CallGroupContext.CONTEXT_BEAN_NAME);
         m_coreContext = (CoreContext) appContext.getBean(CoreContext.CONTEXT_BEAN_NAME);
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.insertFlat("common/TestUserSeed.xml");
+        TestHelper.insertFlat("common/TestUserSeed.db.xml");
         TestHelper.cleanInsert("admin/callgroup/CallGroupSeed.xml");
     }
 

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd" -->
-<dataset>
-	<gateway 
-    gateway_id="1001"
-    bean_id="gwAudiocodesMediant"
-    model_id="1X4_4_FXO"
-    name="test gateway"/>
-</dataset>

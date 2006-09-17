@@ -29,10 +29,10 @@ public class GatewayCallerAliasInfoTest extends TestCase {
         GatewayCallerAliasInfo info = new GatewayCallerAliasInfo();
         User user = new User();
         user.setUserName("abc");
-        info.setTransformUserId(false);
+        info.setTransformUserExtension(false);
         assertNull(info.getTransformedNumber(user));
 
-        info.setTransformUserId(true);
+        info.setTransformUserExtension(true);
         assertNull(info.getTransformedNumber(user));
 
         user.setUserName("123456789");

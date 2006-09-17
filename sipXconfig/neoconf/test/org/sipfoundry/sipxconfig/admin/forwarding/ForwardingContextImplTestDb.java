@@ -38,7 +38,7 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
         m_coreContext = (CoreContext) appContext.getBean(CoreContext.CONTEXT_BEAN_NAME);
         m_context = (ForwardingContext) appContext.getBean(ForwardingContext.CONTEXT_BEAN_NAME);
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.insertFlat("common/TestUserSeed.xml");
+        TestHelper.insertFlat("common/TestUserSeed.db.xml");
         TestHelper.insertFlat("admin/forwarding/RingSeed.xml");
     }
 

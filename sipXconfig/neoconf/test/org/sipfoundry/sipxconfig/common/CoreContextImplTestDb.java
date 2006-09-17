@@ -244,7 +244,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
 
     public void testLoadGroups() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.insertFlat("common/UserGroupSeed.xml");
+        TestHelper.insertFlat("common/UserGroupSeed.db.xml");
         List groups = m_core.getGroups();
         assertEquals(1, groups.size());
         Group group = (Group) groups.get(0);
@@ -253,7 +253,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
 
     public void testGetGroupByName() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.insertFlat("common/UserGroupSeed.xml");
+        TestHelper.insertFlat("common/UserGroupSeed.db.xml");
 
         Group g1 = m_core.getGroupByName("SeedUserGroup1", false);
         assertNotNull(g1);
@@ -274,14 +274,14 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         Collection userAliases = m_core.getAliasMappings();
         assertEquals(0, userAliases.size());
 
-        TestHelper.insertFlat("common/TestUserSeed.xml");
+        TestHelper.insertFlat("common/TestUserSeed.db.xml");
 
         userAliases = m_core.getAliasMappings();
         assertEquals(1, userAliases.size());
     }
 
     public void testClear() throws Exception {
-        TestHelper.insertFlat("common/TestUserSeed.xml");
+        TestHelper.insertFlat("common/TestUserSeed.db.xml");
         m_core.clear();
         ITable t = TestHelper.getConnection().createDataSet().getTable("users");
         assertEquals(0, t.getRowCount());
@@ -294,7 +294,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         User admin = m_core.loadUserByUserName(User.SUPERADMIN);
         Group adminGroup = admin.getGroups().iterator().next();
         IDataSet expectedDs = TestHelper
-                .loadDataSetFlat("common/CreateAdminAndInitialUserExpected.xml");
+                .loadDataSetFlat("common/CreateAdminAndInitialUserExpected.db.xml");
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         expectedRds.addReplacementObject("[user_id]", admin.getId());
         expectedRds.addReplacementObject("[group_id]", adminGroup.getId());
