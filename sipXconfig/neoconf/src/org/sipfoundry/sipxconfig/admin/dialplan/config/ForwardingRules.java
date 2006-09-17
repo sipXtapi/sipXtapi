@@ -54,6 +54,7 @@ public class ForwardingRules extends XmlFile {
     public void end() {    
         VelocityContext velocityContext = new VelocityContext();
         velocityContext.put("routes", m_routes);
+        velocityContext.put("dollar", "$");
         Writer out = new StringWriter();
         try {
             m_velocityEngine.mergeTemplate(m_template, velocityContext, out);
