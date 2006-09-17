@@ -23,12 +23,11 @@ import org.apache.velocity.app.VelocityEngine;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
-import org.sipfoundry.sipxconfig.admin.dialplan.HostPatternProvider;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 
 /**
- * Controls very initial SIP message routing from proxy based on SIP method and potentialy  
- * message content.
+ * Controls very initial SIP message routing from proxy based on SIP method and potentialy message
+ * content.
  */
 public class ForwardingRules extends XmlFile {
     private VelocityEngine m_velocityEngine;
@@ -39,19 +38,16 @@ public class ForwardingRules extends XmlFile {
     public void setVelocityEngine(VelocityEngine velocityEngine) {
         m_velocityEngine = velocityEngine;
     }
-    
+
     public void begin() {
         m_routes = new ArrayList();
     }
-        
+
     public void generate(IDialingRule rule) {
-        if (rule instanceof HostPatternProvider) {
-            HostPatternProvider hostProvider = (HostPatternProvider) rule;
-            m_routes.addAll(Arrays.asList(hostProvider.getHostPatterns()));
-        }
+        m_routes.addAll(Arrays.asList(rule.getHostPatterns()));
     }
 
-    public void end() {    
+    public void end() {
         VelocityContext velocityContext = new VelocityContext();
         velocityContext.put("routes", m_routes);
         velocityContext.put("dollar", "$");
@@ -76,7 +72,7 @@ public class ForwardingRules extends XmlFile {
 
     @Override
     public Document getDocument() {
-        return m_doc;        
+        return m_doc;
     }
 
     public String getTemplate() {

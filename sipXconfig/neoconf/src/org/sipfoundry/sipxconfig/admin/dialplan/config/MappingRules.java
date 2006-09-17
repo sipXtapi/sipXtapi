@@ -17,7 +17,6 @@ import java.util.List;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.QName;
-import org.sipfoundry.sipxconfig.admin.dialplan.HostPatternProvider;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.permission.Permission;
 
@@ -65,15 +64,15 @@ public class MappingRules extends RulesXmlFile {
     }
 
     protected final void generateRule(IDialingRule rule) {
-        if (rule instanceof HostPatternProvider) {
-            // devious?
-            Element mappings = getDocument().getRootElement();
-            generateHostPatternRule((HostPatternProvider) rule, mappings);
-        } else {
-            Element hostMatch = getFirstHostMatch();
-            generateRule(rule, hostMatch);
+        String[] hostPatterns = rule.getHostPatterns();
+        Element hostMatch = getFirstHostMatch();
+        if (hostPatterns.length > 0) {
+            Element root = getDocument().getRootElement();
+            hostMatch = addHostPatterns(hostPatterns, root);
         }
+        generateRule(rule, hostMatch);
     }
+
     private void generateRule(IDialingRule rule, Element hostMatch) {
         Element userMatch = hostMatch.addElement("userMatch");
         addRuleNameComment(userMatch, rule);
@@ -99,17 +98,7 @@ public class MappingRules extends RulesXmlFile {
             transform.addToParent(permissionMatch);
         }
     }
-    
-    private void generateHostPatternRule(HostPatternProvider rule, Element mappings) {
-        String[] hostPatterns = ((HostPatternProvider) rule).getHostPatterns();
-        if (hostPatterns.length == 0) {
-            return;            
-        }
-        
-        Element hostMatch = addHostPatterns(hostPatterns, mappings);        
-        generateRule(rule, hostMatch);
-    }
-    
+
     protected Element addHostPatterns(String[] hostPatterns, Element mappings) {
         Element hostMatch = mappings.addElement("hostMatch");
         for (String hostPattern : hostPatterns) {

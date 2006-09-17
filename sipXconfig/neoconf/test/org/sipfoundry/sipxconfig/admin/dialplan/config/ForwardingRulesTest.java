@@ -17,16 +17,18 @@ import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
-import org.sipfoundry.sipxconfig.admin.dialplan.HostPatternProvider;
+import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 
 public class ForwardingRulesTest extends XMLTestCase {
 
     public void testGenerate() throws Exception {
         IMocksControl control = EasyMock.createNiceControl();
-        HostPatternProvider rule = control.createMock(HostPatternProvider.class);
+        IDialingRule rule = control.createMock(IDialingRule.class);
         rule.getHostPatterns();
-        control.andReturn(new String[] { "gander" });
-        
+        control.andReturn(new String[] {
+            "gander"
+        });
+
         control.replay();
 
         ForwardingRules rules = new ForwardingRules();

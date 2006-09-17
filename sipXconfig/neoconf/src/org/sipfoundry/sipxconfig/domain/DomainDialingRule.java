@@ -18,13 +18,11 @@ import java.util.Set;
 import org.dom4j.Element;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
-import org.sipfoundry.sipxconfig.admin.dialplan.HostPatternProvider;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.permission.Permission;
 
 /**
- * Generate the following into the mappingrules.xml
- * 
+ * Generate the following into the mappingrules.xml <code>
  * <hostMatch> 
  *   <hostPattern>DOMAIN ALIAS #1 HERE</hostPattern> 
  *   <hostPattern>DOMAIN ALIAS #2 HERE</hostPattern>
@@ -37,8 +35,9 @@ import org.sipfoundry.sipxconfig.permission.Permission;
  *     </permissionMatch> 
  *   </userMatch> 
  * </hostMatch>
+ * </code>
  */
-public class DomainDialingRule extends DialingRule implements HostPatternProvider {
+public class DomainDialingRule extends DialingRule {
     private static final String[] MATCH_ALL = new String[] {
         "."
     };
@@ -69,7 +68,7 @@ public class DomainDialingRule extends DialingRule implements HostPatternProvide
 
     @Override
     public DialingRuleType getType() {
-        // do i need this?
+        // no type
         return null;
     }
 

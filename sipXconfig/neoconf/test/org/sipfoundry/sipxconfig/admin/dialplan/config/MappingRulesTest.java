@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
@@ -31,7 +32,6 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
-import org.sipfoundry.sipxconfig.admin.dialplan.HostPatternProvider;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.MappingRule;
 import org.sipfoundry.sipxconfig.permission.Permission;
@@ -94,7 +94,7 @@ public class MappingRulesTest extends XMLTestCase {
 
         assertXpathExists("/mappings/hostMatch[2]/hostPattern", xml);
     }
-    
+
     public void testGetDocumentValidExternalsExtraSpaceInFilename() throws Exception {
         URL resource = getClass().getResource("external_mappingrules.test.xml");
 
@@ -114,7 +114,6 @@ public class MappingRulesTest extends XMLTestCase {
 
         assertXpathExists("/mappings/hostMatch[2]/hostPattern", xml);
     }
-    
 
     /**
      * This is mostly to demonstrate how complicated the XPatch expression becomes for a document
@@ -157,6 +156,8 @@ public class MappingRulesTest extends XMLTestCase {
         IDialingRule rule = control.createMock(IDialingRule.class);
         rule.isInternal();
         control.andReturn(true);
+        rule.getHostPatterns();
+        control.andReturn(ArrayUtils.EMPTY_STRING_ARRAY);
         rule.getName();
         control.andReturn(null);
         rule.getDescription();
@@ -263,21 +264,25 @@ public class MappingRulesTest extends XMLTestCase {
         assertFalse(f1.equals(null));
         assertFalse(f1.equals(f3));
     }
-    
+
     public void testHostPatternProvider() throws Exception {
         IMocksControl control = EasyMock.createNiceControl();
-        HostPatternProvider rule = control.createMock(HostPatternProvider.class);
+        IDialingRule rule = control.createMock(IDialingRule.class);
         rule.isInternal();
         control.andReturn(true).times(2);
         rule.getHostPatterns();
-        control.andReturn(new String[] { "gander" });
+        control.andReturn(new String[] {
+            "gander"
+        });
         rule.getPatterns();
-        control.andReturn(new String[] { "dot" });
+        control.andReturn(new String[] {
+            "dot"
+        });
         rule.getPermissions();
         control.andReturn(Collections.EMPTY_LIST);
         rule.getTransforms();
         control.andReturn(new Transform[0]);
-        
+
         control.replay();
 
         MappingRules mappingRules = new MappingRules();
