@@ -10,7 +10,6 @@
   <property name="action"/>
   <property name="index"/>
   <property name="callback" persist="session"/>
-  <property name="returnPage" persist="session"/>
   
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate" />
   <component id="form" type="Form">
