@@ -69,6 +69,7 @@
     <binding name="okListener" value="listener:ok"/>
     <binding name="cancelListener" value="listener:cancel"/>
     <binding name="settings" value="editFormSetting"/>
+    <binding name="requiredEnabled" value="false"/>
   </component>
   <component id="groupLabel" type="GroupLabel">
     <binding name="group" value="group"/>
