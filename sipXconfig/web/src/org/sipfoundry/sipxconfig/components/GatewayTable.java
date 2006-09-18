@@ -46,6 +46,7 @@ public abstract class GatewayTable extends BaseComponent implements PageBeginRen
         String editPageName = getEditPageName();
         EditGateway page = (EditGateway) cycle.getPage(editPageName);
         page.setGatewayId(id);
+        page.setGateway(null);        
         page.setRuleId(ruleId);
         page.setCallback(new PageCallback(getPage()));
         return page;

@@ -118,6 +118,7 @@
     <component-type type="Footer" specification-path="common/Footer.jwc"/>
     <component-type type="FormActions" specification-path="common/FormActions.jwc"/>
     <component-type type="GatewayForm" specification-path="gateway/GatewayForm.jwc"/>
+    <component-type type="GatewayCallerAliasInfoPanel" specification-path="gateway/GatewayCallerAliasInfoPanel.jwc"/>
     <component-type type="GatewaysPanel" specification-path="gateway/GatewaysPanel.jwc"/>
     <component-type type="GatewayTable" specification-path="gateway/GatewayTable.jwc"/>
     <component-type type="GroupActions" specification-path="phone/GroupActions.jwc"/>

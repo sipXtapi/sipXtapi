@@ -1,21 +1,34 @@
-<html title="Edit Gateway">
-<head>
-    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
-</head>
-<body jwcid="$content$">
-	<div jwcid="@Border">
-	<h2><span key="title">Gateway Details</span></h2>
-    <span jwcid="@Insert" value="ognl:gateway.model.label"/>
-    <span jwcid="@ErrorMsg"/>    
-    <form jwcid="@Form" delegate="ognl:beans.validator" id="gateway">
-        <fieldset jwcid="gatewayForm"></fieldset>
-	    <span jwcid="renderSettings">
-    	    <span jwcid="settings"/>
-        	    <span jwcid="settingDescription"></span>
-	        <fieldset jwcid="settingsFieldset"/>
-    	</span>
-        <ul jwcid="formActions"/>
-    </form>
+<div jwcid="@Border">
+  <h2><span key="title">Gateway Details</span></h2>
+  <span jwcid="@Insert" value="ognl:gateway.model.label"/>
+  <form jwcid="@Form" delegate="ognl:beans.validator" id="gateway">
+    <span jwcid="tabs"/>
+    <div id="settings-content">
+      <div jwcid="configBlock@Block">
+        <fieldset jwcid="gatewayForm"/>
+        <span jwcid="renderSettings">
+          <span jwcid="settings"/>
+          <span jwcid="settingDescription"/>
+          <fieldset jwcid="settingsFieldset"/>
+        </span>
+      </div>
+      <div jwcid="gcaiBlock@Block">
+        <fieldset jwcid="gcaiPanel"/>
+      </div>
+      <div jwcid="dialplanBlock@Block">
+        <fieldset>
+          <table>
+            <tbody>
+              <label jwcid="gatewayPrefixPanel" for="gateway:prefix">
+                <input jwcid="gatewayPrefix" id="gateway:prefix" maxlength="10"/>
+              </label>
+            </tbody>
+          </table>
+        </fieldset>
+      </div>
+      <span jwcid="@ErrorMsg"/>
+      <span jwcid="tabContent"/>
+      <ul jwcid="formActions"/>
     </div>
-</body>
-</html>
+  </form>    
+</div>
