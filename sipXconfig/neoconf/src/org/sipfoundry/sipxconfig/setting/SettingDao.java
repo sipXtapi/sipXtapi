@@ -27,18 +27,18 @@ public interface SettingDao extends DataObjectSource {
 
     public void saveGroup(Group group);
     
-    public void deleteGroups(Collection allSelected);
+    public void deleteGroups(Collection<Integer> allSelected);
     
     public Group getGroupByName(String resource, String name);
     
     /**
      * Will create but not save groups that do not exist yet
      */
-    public List getGroupsByString(String resource, String groupString);
+    public List<Group> getGroupsByString(String resource, String groupString);
 
     public Group getGroup(Integer id);
     
-    public List getGroups(String resource);
+    public List<Group> getGroups(String resource);
     
     public Group loadGroup(Integer tagId);
 
@@ -51,7 +51,7 @@ public interface SettingDao extends DataObjectSource {
      * 
      * @return map {groupId as Integer, count as Integer} 
      */
-    public Map getGroupMemberCountIndexedByGroupId(Class groupOwner);
+    public Map<Integer, Integer> getGroupMemberCountIndexedByGroupId(Class groupOwner);
 
     /**
      * convienence: find and create group if not found

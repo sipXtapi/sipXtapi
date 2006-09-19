@@ -68,7 +68,7 @@ public interface PhoneContext extends DataObjectSource {
 
     public void deletePhone(Phone phone);
 
-    public List getGroups();
+    public List<Group> getGroups();
 
     /**
      * Retrieves phone group by name.
