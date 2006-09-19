@@ -32,6 +32,8 @@ public class ExtensionsTest extends XMLTestCase {
             null, null, "kuku", "4321"
         }, {
             "user", "without", "extension", null
+        }, {
+            "abbb", "cccc", "1234", "32"
         },
     };
 
@@ -47,7 +49,11 @@ public class ExtensionsTest extends XMLTestCase {
             user.setUserName(userData[2]);
             String extension = userData[3];
             if (!StringUtils.isBlank(extension)) {
-                user.getAliases().add(extension);                
+                user.addAlias(extension);
+            }
+            if(i == 0) {
+                // long extension should be ignored
+                user.addAlias("555555555555");
             }
             users.add(user);
         }
@@ -72,7 +78,7 @@ public class ExtensionsTest extends XMLTestCase {
         assertXpathNotExists("/items/item", domDoc);
         control.verify();
     }
-    
+
     public void testGenerate() throws Exception {
         IMocksControl control = EasyMock.createControl();
         CoreContext coreContext = control.createMock(CoreContext.class);
@@ -87,10 +93,13 @@ public class ExtensionsTest extends XMLTestCase {
 
         Document document = extensions.generate();
         org.w3c.dom.Document domDoc = XmlUnitHelper.getDomDoc(document);
+        String extensionsXml = XmlUnitHelper.asString(document);
+        System.err.println(extensionsXml);
 
         assertXpathEvaluatesTo("extension", "/items/@type", domDoc);
         assertXpathEvaluatesTo("1234", "/items/item/extension", domDoc);
-        assertXpathEvaluatesTo("\"first last\"<sip:userName@company.com>", "/items/item/uri", domDoc);
+        assertXpathEvaluatesTo("\"first last\"<sip:userName@company.com>", "/items/item/uri",
+                domDoc);
         assertXpathEvaluatesTo("4321", "/items/item[2]/extension", domDoc);
         assertXpathEvaluatesTo("sip:kuku@company.com", "/items/item[2]/uri", domDoc);
         assertXpathNotExists("/items/item[3]", domDoc);

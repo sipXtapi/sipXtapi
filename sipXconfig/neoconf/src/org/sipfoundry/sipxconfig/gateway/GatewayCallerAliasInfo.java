@@ -38,7 +38,7 @@ public class GatewayCallerAliasInfo implements Cloneable {
         if (!m_transformUserExtension) {
             return null;
         }
-        String extension = user.getExtension();
+        String extension = user.getExtension(true);
         if (extension == null) {
             // nothing to transform
             return null;

@@ -27,14 +27,6 @@ import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class UserTest extends TestCase {
-    private static final String USERNAME = "username";
-    private static final String PIN = "pin";
-    private static final String SIP_PASSWORD = "sip password";
-    private static final String REALM = "sipfoundry.org";
-    private static final String DOMAIN = "sipfoundry.org";
-    private static final String ALIAS1 = "mambo";
-    private static final String ALIAS2 = "tango";
-    private static final String ALIASES_STRING = ALIAS1 + " " + ALIAS2;
 
     public void testGetDisplayName() {
         User u = new User();
@@ -49,23 +41,23 @@ public class UserTest extends TestCase {
 
     public void testGetUri() {
         User user = new User();
-        user.setUserName(USERNAME);
+        user.setUserName("username");
         String uri = user.getUri("mycomp.com");
 
-        assertEquals("sip:" + USERNAME + "@mycomp.com", uri);
+        assertEquals("sip:username@mycomp.com", uri);
 
         user.setLastName("Last");
         uri = user.getUri("mycomp.com");
-        assertEquals("\"Last\"<sip:" + USERNAME + "@mycomp.com>", uri);
+        assertEquals("\"Last\"<sip:username@mycomp.com>", uri);
 
         user.setFirstName("First");
         uri = user.getUri("mycomp.com");
-        assertEquals("\"First Last\"<sip:" + USERNAME + "@mycomp.com>", uri);
+        assertEquals("\"First Last\"<sip:username@mycomp.com>", uri);
     }
 
     /** Test that setting a typical PIN yields expected results */
     public void testSetPin() throws Exception {
-        checkSetPin(PIN);
+        checkSetPin("pin");
     }
 
     /** Test that setting a null PIN yields expected results */
@@ -75,65 +67,67 @@ public class UserTest extends TestCase {
 
     private void checkSetPin(String pin) throws Exception {
         User user = new User();
-        user.setUserName(USERNAME);
-        user.setPin(pin, REALM);
-        String pintoken = getPintoken(USERNAME, pin);
+        user.setUserName("username");
+        user.setPin(pin, "realm.sipfoundry.org");
+        String pintoken = getPintoken("username", pin);
         assertEquals(pintoken, user.getPintoken());
     }
 
     public void testGetSipPasswordHash() throws Exception {
         User user = new User();
-        user.setUserName(USERNAME);
-        user.setSipPassword(SIP_PASSWORD);
-        String hash = Md5Encoder.digestPassword(USERNAME, REALM, SIP_PASSWORD);
+        user.setUserName("username");
+        user.setSipPassword("sip password");
+        String hash = Md5Encoder.digestPassword("username", "realm.sipfoundry.org",
+                "sip password");
 
-        assertEquals(hash, user.getSipPasswordHash(REALM));
+        assertEquals(hash, user.getSipPasswordHash("realm.sipfoundry.org"));
     }
 
     public void testGetSipPasswordHashEmpty() throws Exception {
         User user = new User();
-        user.setUserName(USERNAME);
+        user.setUserName("username");
         user.setSipPassword(null);
-        String hash = Md5Encoder.digestPassword(USERNAME, REALM, "");
+        String hash = Md5Encoder.digestPassword("username", "realm.sipfoundry.org", "");
 
-        assertEquals(hash, user.getSipPasswordHash(REALM));
+        assertEquals(hash, user.getSipPasswordHash("realm.sipfoundry.org"));
     }
 
     public void testGetSipPasswordHashMd5() throws Exception {
         User user = new User();
-        user.setUserName(USERNAME);
-        String hash = Md5Encoder.digestPassword(USERNAME, REALM, "");
+        user.setUserName("username");
+        String hash = Md5Encoder.digestPassword("username", "realm.sipfoundry.org", "");
         user.setSipPassword(hash);
 
-        String newHash = Md5Encoder.digestPassword(USERNAME, REALM, hash);
+        String newHash = Md5Encoder.digestPassword("username", "realm.sipfoundry.org", hash);
 
         assertFalse(hash.equals(newHash));
-        assertEquals(newHash, user.getSipPasswordHash(REALM));
+        assertEquals(newHash, user.getSipPasswordHash("realm.sipfoundry.org"));
     }
 
     public void testGetAliases() {
         User user = new User();
-        user.setUserName(USERNAME);
+        user.setUserName("username");
 
         Set aliases = new LinkedHashSet(); // use LinkedHashSet for stable ordering
-        aliases.add(ALIAS1);
-        aliases.add(ALIAS2);
+        aliases.add("mambo");
+        aliases.add("tango");
         user.setAliases(aliases);
-        assertEquals(ALIASES_STRING, user.getAliasesString());
+        assertEquals("mambo tango", user.getAliasesString());
         checkAliases(user);
 
         user.setAliases(new LinkedHashSet());
-        user.setAliasesString(ALIASES_STRING);
+        user.setAliasesString("mambo tango");
         checkAliases(user);
 
-        List aliasMappings = user.getAliasMappings(DOMAIN);
+        List aliasMappings = user.getAliasMappings("sipfoundry.org");
         assertEquals(2, aliasMappings.size());
         AliasMapping alias = (AliasMapping) aliasMappings.get(0);
-        assertEquals(ALIAS1 + "@" + DOMAIN, alias.getIdentity());
-        final String CONTACT = "sip:" + USERNAME + "@" + DOMAIN;
+        assertEquals("mambo@sipfoundry.org", alias.getIdentity());
+        
+        final String CONTACT = "sip:username@sipfoundry.org";
         assertEquals(CONTACT, alias.getContact());
         alias = (AliasMapping) aliasMappings.get(1);
-        assertEquals(ALIAS2 + "@" + DOMAIN, alias.getIdentity());
+        assertEquals("tango@sipfoundry.org", alias.getIdentity());
         assertEquals(CONTACT, alias.getContact());
     }
 
@@ -141,14 +135,14 @@ public class UserTest extends TestCase {
         Set aliasesCheck = user.getAliases();
         assertEquals(2, aliasesCheck.size());
         Iterator i = aliasesCheck.iterator();
-        assertEquals(ALIAS1, i.next());
-        assertEquals(ALIAS2, i.next());
+        assertEquals("mambo", i.next());
+        assertEquals("tango", i.next());
     }
 
     public void testGetEmptyAliases() {
         User user = new User();
-        user.setUserName(USERNAME);
-        List aliasMappings = user.getAliasMappings(DOMAIN);
+        user.setUserName("username");
+        List aliasMappings = user.getAliasMappings("sipfoundry.org");
         assertEquals(0, aliasMappings.size());
     }
 
@@ -172,20 +166,31 @@ public class UserTest extends TestCase {
         User user = new User();
         user.setUserName("abc");
 
-        assertNull(user.getExtension());
+        assertNull(user.getExtension(true));
 
         user.addAliases(new String[] {
             "oooi", "333", "xyz"
         });
-        assertEquals("333", user.getExtension());
+        assertEquals("333", user.getExtension(true));
+        assertFalse(user.hasNumericUsername());
+
+        user.addAlias("2344");
+        assertEquals("333", user.getExtension(true));
+
+        user.addAlias("23");
+        assertEquals("23", user.getExtension(true));
 
         user.setUserName("12345");
-        assertEquals("12345", user.getExtension());
+        assertEquals("12345", user.getExtension(true));
+        assertTrue(user.hasNumericUsername());
+
+        user.setUserName("12345");
+        assertEquals("23", user.getExtension(false));
     }
 
     private String getPintoken(String username, String pin) {
         // handle null pin
         String safePin = StringUtils.defaultString(pin);
-        return Md5Encoder.digestPassword(username, REALM, safePin);
+        return Md5Encoder.digestPassword(username, "realm.sipfoundry.org", safePin);
     }
 }
