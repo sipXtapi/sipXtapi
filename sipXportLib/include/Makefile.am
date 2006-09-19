@@ -62,7 +62,7 @@ nobase_include_HEADERS = \
     os/OsProcessMgr.h \
     os/OsProtectEvent.h \
     os/OsProtectEventMgr.h \
-	os/OsPtrMsg.h \
+    os/OsPtrMsg.h \
     os/OsQueuedEvent.h \
     os/OsReadLock.h \
     os/OsRpcMsg.h \
@@ -130,8 +130,8 @@ nobase_include_HEADERS = \
     utl/XmlContent.h \
     utl/UtlSortedListIterator.h \
     utl/UtlRandom.h \
-	 utl/Plugin.h \
-	 utl/PluginHooks.h
+    utl/Plugin.h \
+    utl/PluginHooks.h
 
 EXTRA_DIST= \
     os/wnt/getWindowsDNSServers.h \

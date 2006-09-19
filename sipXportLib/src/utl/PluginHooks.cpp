@@ -64,23 +64,22 @@ public:
                hook = factory(hookPrefix); 
 
                OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                             "PluginHooks created '%s' from '%s'",
+                             "PluginHooks ConfiguredHook:: created instance '%s' from '%s'",
                              data(), libName.data()
                              );
             }
             else
             {
                OsSysLog::add(FAC_KERNEL, PRI_ERR,
-                             "PluginHooks: factory '%s' not found in library '%s' for '%s'",
+                             "PluginHooks ConfiguredHook:: factory '%s' not found in library '%s' for instance '%s'",
                              hookFactoryName.data(), libName.data(), data()
                              );
-
             }
          }
          else
          {
             OsSysLog::add(FAC_KERNEL, PRI_CRIT,
-                          "PluginHooks: failed to getOsSharedLibMgr"
+                          "PluginHooks ConfiguredHook:: failed to getOsSharedLibMgr"
                           );
          }
       }
