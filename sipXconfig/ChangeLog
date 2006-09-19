@@ -3,6 +3,28 @@ SIPfoundry Issue Tracker at:
 
         http://track.sipfoundry.org/browse?XCF
 	
+Version 3.5.5
+
+** Bug
+    * [XCF-1162] - Adding users and phones using IE browser is giving an exception 
+    * [XCF-1166] - Domain name is missing in the uri field in the credential DB, when the changes are made from general page of the config server ui.
+    * [XCF-1177] - Provisioning filename for Snom phones should not include model number with firmware >= 4.1
+    * [XCF-1209] - In callpark, park time-out parameter value is accepting blank value without giving an error message
+    * [XCF-1210] - Deleting the Phone group which is also an Intercom group gives an exception 
+    * [XCF-1213] - default dialplan and default autoattendants are not created after system restart
+    * [XCF-1225] - Supress all console output during RPM install
+    * [XCF-1248] - Cosmetic change in Dialplan page
+    * [XCF-1256] - cannot add new gateway after opening edit gatewar screen at least once
+
+** New Feature
+    * [XCF-1183] - Add configuration support for "aliased domain" - as described in XPB-454
+    * [XCF-1187] - Configure caller aliases (From header modification) 
+    * [XCF-1202] - support anonymous caller aliases
+
+
+** Improvement
+    * [XCF-1058] - sipxconfig.log should include date, currently only time
+	
 Version 3.5.4
 
 ** Bug
