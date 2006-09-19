@@ -33,7 +33,8 @@ libsipXtack_la_CXXFLAGS = \
 	@PCRE_CXXFLAGS@ \
 	@SSL_CXXFLAGS@ \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
-	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
+	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
+	-DRES_PARSE_NAPTR
 
 libsipXtack_la_LIBADD = \
 	@SIPXPORT_LIBS@ \
@@ -136,6 +137,7 @@ libsipXtack_la_SOURCES =  \
     resparse/res_info.c \
     resparse/res_init.c \
     resparse/res_mkquery.c \
+    resparse/res_naptr.c \
     resparse/res_parse.c \
     resparse/res_print.c \
     resparse/res_query.c \
