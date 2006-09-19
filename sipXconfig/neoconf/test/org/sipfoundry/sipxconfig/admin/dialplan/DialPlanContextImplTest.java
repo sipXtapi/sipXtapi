@@ -33,6 +33,7 @@ public class DialPlanContextImplTest extends TestCase {
         bf.getBean(ConfigGenerator.BEAN_NAME, ConfigGenerator.class);
         bfCtrl.andReturn(createConfigGenerator());
         bfCtrl.andReturn(createConfigGenerator());
+        bfCtrl.andReturn(createConfigGenerator());
         bfCtrl.replay();
 
         DialPlanContextImpl manager = new MockDialPlanContextImpl(new DialPlan());
@@ -44,7 +45,7 @@ public class DialPlanContextImplTest extends TestCase {
         assertNotNull(g1);
         assertNotNull(g2);
         assertNotSame(g1, g2);
-        assertSame(g2, g3);
+        assertNotSame(g2, g3);
 
         bfCtrl.verify();
     }

@@ -58,8 +58,6 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
 
     private static final String DIALING_RULE = "dialing rule";
 
-    private transient ConfigGenerator m_generator;
-
     private CoreContext m_coreContext;
 
     private AliasManager m_aliasManager;
@@ -330,8 +328,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         ConfigGenerator generator = (ConfigGenerator) m_beanFactory.getBean(
                 ConfigGenerator.BEAN_NAME, ConfigGenerator.class);
         generator.generate(this, getEmergencyRouting());
-        m_generator = generator;
-        return m_generator;
+        return generator;
     }
 
     public void activateDialPlan() {
@@ -369,10 +366,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     }
 
     public ConfigGenerator getGenerator() {
-        if (null == m_generator) {
-            return generateDialPlan();
-        }
-        return m_generator;
+        return generateDialPlan();
     }
 
     public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
