@@ -203,4 +203,16 @@ public class UserTestDb extends SipxDatabaseTestCase {
             fail();
         }
     }
+
+    public void testIsSupervisor() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.insertFlat("common/GroupSupervisorSeed.db.xml");        
+        User supervisor = m_core.loadUser(1001);
+        assertTrue(supervisor.isSupervisor());
+
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.insertFlat("common/TestUserSeed.db.xml");        
+        User peon = m_core.loadUser(1000);
+        assertFalse(peon.isSupervisor());
+    }
 }
