@@ -11,7 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.site.gateway;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.tapestry.IPage;
+import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.valid.IValidationDelegate;
@@ -68,7 +71,9 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
 
     public void pageBeginRender(PageEvent event_) {
         Gateway gateway = getGateway();
-        if (null != gateway) {
+        // HACK: even if we have the gateway we need to check if gatewayID matches
+        // this is because edit page provider does not, clean persistent properties
+        if (null != gateway && ObjectUtils.equals(gateway.getId(), getGatewayId())) {
             // still need to adjust settings - gateway is persisten, settings are not
             setSettingProperties(gateway);
             return;
@@ -122,5 +127,27 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
             setGatewayId(gateway.getId());
             setGateway(null);
         }
+    }
+
+    public static EditGateway getEditPage(IRequestCycle cycle, Integer gatewayId,
+            IPage returnPage, Integer ruleId) {
+        EditGateway page = (EditGateway) cycle.getPage(PAGE);
+        page.setGatewayModel(null);
+        page.setGatewayId(gatewayId);
+        page.setGateway(null);
+        page.setRuleId(ruleId);
+        page.setReturnPage(returnPage);
+        return page;
+    }
+
+    public static EditGateway getAddPage(IRequestCycle cycle, PhoneModel model, IPage returnPage,
+            Integer ruleId) {
+        EditGateway page = (EditGateway) cycle.getPage(PAGE);
+        page.setGatewayModel(model);
+        page.setGatewayId(null);
+        page.setGateway(null);
+        page.setRuleId(ruleId);
+        page.setReturnPage(returnPage);
+        return page;
     }
 }

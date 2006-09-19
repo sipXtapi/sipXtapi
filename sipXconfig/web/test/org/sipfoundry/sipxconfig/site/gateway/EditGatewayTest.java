@@ -78,6 +78,7 @@ public class EditGatewayTest extends TestCase {
         PropertyUtils.write(m_editGatewayPage, "dialPlanContext", dialPlanContext);
         PropertyUtils.write(m_editGatewayPage, "gatewayContext", context);
         m_editGatewayPage.setGateway(g);
+        m_editGatewayPage.setGatewayId(g.getId());
         m_editGatewayPage.setRuleId(rule.getId());
         m_editGatewayPage.pageBeginRender(null);
 
