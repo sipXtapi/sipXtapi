@@ -17,7 +17,6 @@ import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
@@ -57,17 +56,6 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
     public abstract void setCurrentSettingSet(SettingSet currentSettingSet);
 
     public abstract SettingSet getCurrentSettingSet();
-
-    private boolean isValid() {
-        IValidationDelegate delegate = (IValidationDelegate) getBeans().getBean("validator");
-        return !delegate.getHasErrors();
-    }
-
-    public void apply() {
-        if (isValid()) {
-            saveGateway();
-        }
-    }
 
     public void pageBeginRender(PageEvent event_) {
         Gateway gateway = getGateway();
@@ -110,7 +98,7 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
         setCurrentSettingSet(currentSettingSet);
     }
 
-    void saveGateway() {
+    public void saveGateway() {
         Gateway gateway = getGateway();
         GatewayContext gatewayContext = getGatewayContext();
         gatewayContext.storeGateway(gateway);

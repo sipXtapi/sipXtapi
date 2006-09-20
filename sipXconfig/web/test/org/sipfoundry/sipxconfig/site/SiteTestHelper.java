@@ -74,18 +74,18 @@ public class SiteTestHelper {
      */
     public static void home(WebTester tester) {
         home(tester, true);
-        
+
     }
 
     /**
-     * Go to TestPage.html. Log in if the login arg is true. Includes hack for slow machines.
-     * And disables javascript be default too
+     * Go to TestPage.html. Log in if the login arg is true. Includes hack for slow machines. And
+     * disables javascript be default too
      */
     public static void home(WebTester tester, boolean login) {
-        
-        // default is to disable javascript, re-enable at will        
+
+        // default is to disable javascript, re-enable at will
         setScriptingEnabled(false);
-        
+
         tester.beginAt(TEST_PAGE_URL);
         if (login) {
             tester.clickLink("login");
@@ -136,6 +136,7 @@ public class SiteTestHelper {
      * ErrorMsg component belong to this category.
      */
     public static void assertNoUserError(WebTester tester) {
+        assertNoException(tester);
         Element element = tester.getDialog().getElement("user:error");
         if (null != element) {
             tester.dumpResponse(System.err);
@@ -144,6 +145,7 @@ public class SiteTestHelper {
     }
 
     public static void assertUserError(WebTester tester) {
+        assertNoException(tester);
         Element element = tester.getDialog().getElement("user:error");
         if (null == element) {
             tester.dumpResponse(System.err);
@@ -412,8 +414,7 @@ public class SiteTestHelper {
     }
 
     /**
-     * Turn on/off javascript, make sure to restore state
-     * to true after you're done
+     * Turn on/off javascript, make sure to restore state to true after you're done
      */
     public static boolean setScriptingEnabled(boolean enabled) {
         boolean old = HttpUnitOptions.isScriptingEnabled();
