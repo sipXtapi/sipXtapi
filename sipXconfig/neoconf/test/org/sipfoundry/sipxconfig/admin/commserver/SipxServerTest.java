@@ -37,6 +37,9 @@ public class SipxServerTest extends TestCase {
         InputStream sipxpresence = getClass().getResourceAsStream("sipxpresence-config.test.in");
         TestHelper.copyStreamToDirectory(sipxpresence, TestHelper.getTestDirectory(),
                 "sipxpresence-config.in");
+        InputStream registrar = getClass().getResourceAsStream("registrar-config.test.in");
+        TestHelper.copyStreamToDirectory(registrar, TestHelper.getTestDirectory(),
+                "registrar-config");
         // we read server location from sipxpresence-config
         sipxpresence = getClass().getResourceAsStream("sipxpresence-config.test.in");
         TestHelper.copyStreamToDirectory(sipxpresence, TestHelper.getTestDirectory(),
@@ -49,50 +52,51 @@ public class SipxServerTest extends TestCase {
         assertNotNull(settings);
     }
 
-//    public void testDomainNameChange() {
-//        String newDomainName = "new-domain-name";
-//
-//        IMocksControl phoneDefaultsCtrl = org.easymock.classextension.EasyMock.createControl();
-//        DeviceDefaults deviceDefaults = phoneDefaultsCtrl.createMock(DeviceDefaults.class);
-//        deviceDefaults.setDomainName(newDomainName);
-//        phoneDefaultsCtrl.replay();
-//
-//        IMocksControl coreContextCtrl = EasyMock.createControl();
-//        CoreContext coreContext = coreContextCtrl.createMock(CoreContext.class);
-//        coreContext.getDomainName();
-//        coreContextCtrl.andReturn("old-domain-name").anyTimes();
-//        coreContext.setDomainName(newDomainName);
-//        coreContextCtrl.replay();
-//
-//        IMocksControl replicationContextCtrl = EasyMock.createControl();
-//        SipxReplicationContext replicationContext = replicationContextCtrl.createMock(
-//                SipxReplicationContext.class);
-//        replicationContext.generate(DataSet.ALIAS);
-//        replicationContext.generateAll();
-//        replicationContextCtrl.replay();
-//
-//        m_server.setPhoneDefaults(deviceDefaults);
-//        m_server.setCoreContext(coreContext);
-//        m_server.setSipxReplicationContext(replicationContext);
-//
-//        m_server.setSettingValue("domain/SIPXCHANGE_DOMAIN_NAME", newDomainName);
-//        m_server.applySettings();
-//
-//        replicationContextCtrl.verify();
-//        phoneDefaultsCtrl.verify();
-//        coreContextCtrl.verify();
-//    }
-    
+    // FIXME: uncomment or remove...
+    // public void testDomainNameChange() {
+    // String newDomainName = "new-domain-name";
+    //
+    // IMocksControl phoneDefaultsCtrl = org.easymock.classextension.EasyMock.createControl();
+    // DeviceDefaults deviceDefaults = phoneDefaultsCtrl.createMock(DeviceDefaults.class);
+    // deviceDefaults.setDomainName(newDomainName);
+    // phoneDefaultsCtrl.replay();
+    //
+    // IMocksControl coreContextCtrl = EasyMock.createControl();
+    // CoreContext coreContext = coreContextCtrl.createMock(CoreContext.class);
+    // coreContext.getDomainName();
+    // coreContextCtrl.andReturn("old-domain-name").anyTimes();
+    // coreContext.setDomainName(newDomainName);
+    // coreContextCtrl.replay();
+    //
+    // IMocksControl replicationContextCtrl = EasyMock.createControl();
+    // SipxReplicationContext replicationContext = replicationContextCtrl.createMock(
+    // SipxReplicationContext.class);
+    // replicationContext.generate(DataSet.ALIAS);
+    // replicationContext.generateAll();
+    // replicationContextCtrl.replay();
+    //
+    // m_server.setPhoneDefaults(deviceDefaults);
+    // m_server.setCoreContext(coreContext);
+    // m_server.setSipxReplicationContext(replicationContext);
+    //
+    // m_server.setSettingValue("domain/SIPXCHANGE_DOMAIN_NAME", newDomainName);
+    // m_server.applySettings();
+    //
+    // replicationContextCtrl.verify();
+    // phoneDefaultsCtrl.verify();
+    // coreContextCtrl.verify();
+    // }
+
     public void testGetAliasMappings() {
         IMocksControl coreContextCtrl = EasyMock.createControl();
         CoreContext coreContext = coreContextCtrl.createMock(CoreContext.class);
         coreContext.getDomainName();
-        coreContextCtrl.andReturn("domain.com").atLeastOnce(); 
+        coreContextCtrl.andReturn("domain.com").atLeastOnce();
         coreContextCtrl.replay();
 
         m_server.setCoreContext(coreContext);
         assertNotNull(m_server.getPresenceServerUri());
-        
+
         Collection aliasMappings = m_server.getAliasMappings();
 
         assertEquals(2, aliasMappings.size());
@@ -107,5 +111,10 @@ public class SipxServerTest extends TestCase {
 
     public void testGetPresenceServerUri() {
         assertEquals("sip:presence.server.com:5130", m_server.getPresenceServerUri());
+    }
+
+    public void testGetMusicOnHoldUri() {
+        m_server.setMohUser("moh");
+        assertEquals("sip:moh@10.2.3.4:5120", m_server.getMusicOnHoldUri());
     }
 }

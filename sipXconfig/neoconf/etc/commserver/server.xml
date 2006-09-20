@@ -333,9 +333,26 @@
       <type refid="enablestate" />
       <value>DISABLE</value>
       <description>
-        Compute call direction. Call direction labels calls as incoming, outgoing, or intra-network
-        based on whether the call came from a PSTN gateway, went to a PSTN gateway, or neither,
-        respectively.
+        Compute call direction. Call direction labels calls as incoming, outgoing, or
+        intra-network based on whether the call came from a PSTN gateway, went to a PSTN gateway,
+        or neither, respectively.
+      </description>
+    </setting>
+  </group>
+  <group name="park" hidden="yes">
+    <description>read only group to retrieve sipXpark parameters</description>
+    <setting name="SIP_PARK_DOMAIN_NAME">    
+      <profileName>sipxpark-config</profileName>
+    </setting>
+    <setting name="SIP_PARK_UDP_PORT">
+      <profileName>sipxpark-config</profileName>
+      <type refid="port-number"></type>
+    </setting>
+    <setting name="SIP_REGISTRAR_PARK_SERVER">
+      <profileName>registrar-config</profileName>
+      <description>
+        The address of the park server as seen by registrar. It would be better if we read this
+        value form park server configuration but park server does not know it's own location.
       </description>
     </setting>
   </group>
