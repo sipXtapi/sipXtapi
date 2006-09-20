@@ -55,6 +55,6 @@ DISTCLEANFILES = Makefile.in
 # debugging or when developing a new unittest. As courtesy remove all
 # unittests before checking in, although forgetting to has no ill
 # effects.
-sandbox_LDADD = $(testsuite_LDADD)
-sandbox_CXXFLAGS = $(testsuite_CXXFLAGS)
-sandbox_SOURCES = 
+# sandbox_LDADD = $(testsuite_LDADD)
+# sandbox_CXXFLAGS = $(testsuite_CXXFLAGS)
+# sandbox_SOURCES = 

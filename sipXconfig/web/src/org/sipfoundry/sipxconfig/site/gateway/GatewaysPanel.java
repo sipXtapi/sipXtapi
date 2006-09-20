@@ -106,13 +106,10 @@ public abstract class GatewaysPanel extends BaseComponent {
             // defer activating gateway page
             Runnable action = new Runnable() {
                 public void run() {
-                    EditGateway page = (EditGateway) cycle.getPage(EditGateway.PAGE);
                     DialingRule rule = getRule();
                     getDialPlanContext().storeRule(rule);
-                    page.setRuleId(rule.getId());
-                    page.setGatewayId(null);
-                    page.setReturnPage(cycle.getPage());
-                    page.setGatewayModel(m_model);
+                    EditGateway page = EditGateway.getAddPage(cycle, m_model, cycle.getPage(),
+                            rule.getId());
                     cycle.activate(page);
                 }
             };

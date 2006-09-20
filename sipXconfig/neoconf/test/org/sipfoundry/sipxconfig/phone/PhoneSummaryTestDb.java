@@ -28,7 +28,7 @@ public class PhoneSummaryTestDb extends SipxDatabaseTestCase {
     
     public void testLoad() throws Exception {        
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.insertFlat("common/TestUserSeed.xml");
+        TestHelper.insertFlat("common/TestUserSeed.db.xml");
         TestHelper.cleanInsertFlat("phone/PhoneSummarySeed.xml");
         
         Collection summaries = m_context.loadPhones();

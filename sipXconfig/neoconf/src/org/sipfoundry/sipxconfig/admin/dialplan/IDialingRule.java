@@ -46,4 +46,11 @@ public interface IDialingRule {
     public abstract boolean isInternal();
 
     public abstract String[] getTransformedPatterns(Gateway gateway);
+
+    /**
+     * List of host patterns for this rule, if empty rule will be appended to default host match
+     * 
+     * @return ip addresses, host names, or variables defined in config.defs
+     */
+    public abstract String[] getHostPatterns();
 }

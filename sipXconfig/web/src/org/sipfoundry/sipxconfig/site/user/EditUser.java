@@ -26,7 +26,7 @@ public abstract class EditUser extends PageWithCallback implements PageBeginRend
     public static final String PAGE = "EditUser";
 
     public abstract CoreContext getCoreContext();
-    
+
     public abstract SettingDao getSettingDao();
 
     public abstract Integer getUserId();

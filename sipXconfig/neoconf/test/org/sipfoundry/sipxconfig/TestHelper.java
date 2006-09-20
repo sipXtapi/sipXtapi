@@ -33,13 +33,17 @@ import org.dbunit.dataset.ReplacementDataSet;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.dataset.xml.XmlDataSet;
 import org.dbunit.operation.DatabaseOperation;
-import org.sipfoundry.sipxconfig.common.TestUtil;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
+import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.setting.ModelBuilder;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContextImpl;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.springframework.beans.factory.access.BeanFactoryLocator;
 import org.springframework.beans.factory.access.BeanFactoryReference;
 import org.springframework.context.ApplicationContext;
@@ -84,6 +88,16 @@ public final class TestHelper {
         }
 
         return s_appContext;
+    }
+    
+    public static DomainManager getTestDomainManager(String domain) {
+        Domain exampleDomain = new Domain(domain);
+        IMocksControl domainManagerControl = EasyMock.createControl();
+        DomainManager domainManager = domainManagerControl.createMock(DomainManager.class);
+        domainManager.getDomain();
+        domainManagerControl.andReturn(exampleDomain).anyTimes();
+        domainManagerControl.replay();        
+        return domainManager;
     }
 
     public static ModelFilesContext getModelFilesContext() {

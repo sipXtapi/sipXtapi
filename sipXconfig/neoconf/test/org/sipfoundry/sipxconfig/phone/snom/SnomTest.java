@@ -1,10 +1,7 @@
 package org.sipfoundry.sipxconfig.phone.snom;
 
-import java.io.StringWriter;
-
 import junit.framework.TestCase;
 
-import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 

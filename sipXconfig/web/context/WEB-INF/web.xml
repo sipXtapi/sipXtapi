@@ -39,6 +39,7 @@
       classpath:/org/sipfoundry/sipxconfig/upload/upload.beans.xml
       classpath:/org/sipfoundry/sipxconfig/presence/presence.beans.xml
       classpath:/org/sipfoundry/sipxconfig/admin/intercom/intercom.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/domain/domain.beans.xml
       classpath*:/sipxplugin.beans.xml
       classpath*:/org/sipfoundry/sipxconfig/**/*-models.beans.xml
       classpath:/dialplan/dialrules.beans.xml      

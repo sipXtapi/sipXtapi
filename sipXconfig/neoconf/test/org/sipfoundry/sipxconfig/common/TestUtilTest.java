@@ -14,6 +14,8 @@ package org.sipfoundry.sipxconfig.common;
 import java.io.File;
 import java.util.Properties;
 
+import org.sipfoundry.sipxconfig.test.TestUtil;
+
 import junit.framework.TestCase;
 
 

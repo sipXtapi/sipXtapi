@@ -40,12 +40,13 @@ public class LineTest extends TestCase {
 
     public void testNoUserGetUriAndDisplayLabel() {
         DeviceDefaults defaults = new DeviceDefaults();
+        defaults.setDomainManager(TestHelper.getTestDomainManager("sipfoundry.org"));
 
         IMocksControl phoneContextCtrl = EasyMock.createNiceControl();
         PhoneContext phoneContext = phoneContextCtrl.createMock(PhoneContext.class);
         phoneContext.getPhoneDefaults();
-        phoneContextCtrl.andReturn(defaults).times(1);
-        phoneContextCtrl.replay();
+        phoneContextCtrl.andReturn(defaults).anyTimes();
+        phoneContextCtrl.replay();        
 
         Phone phone = new AcmePhone();
         phone.setPhoneContext(phoneContext);
@@ -74,20 +75,5 @@ public class LineTest extends TestCase {
         u.setUserName("joe");
         line.setUser(u);
         assertEquals("joe", line.getDisplayLabel());
-    }
-
-    public void testGetLineInfo() {
-        Phone phone = new AcmePhone();
-        PhoneContext context = (PhoneContext) TestHelper.getApplicationContext().getBean(
-                PhoneContext.CONTEXT_BEAN_NAME);
-        phone.setPhoneContext(context);
-        phone.setModelFilesContext(TestHelper.getModelFilesContext());
-        phone.initialize();
-        Line line = phone.createLine();
-        User u = new User();
-        u.setUserName("turkey");
-        line.setUser(u);
-        phone.addLine(line);
-        assertEquals("turkey", line.getLineInfo().getUserId());
     }
 }

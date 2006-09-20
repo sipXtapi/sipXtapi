@@ -20,7 +20,6 @@
     <property name="sipPassword" />
     <property name="lastName" />
     <property name="userName" />
-    <property name="externalNumber" />
     <set name="aliases" table="user_alias">
       <key column="user_id" />
       <element type="string" column="alias" not-null="true" unique="true" />
@@ -81,9 +80,5 @@
   <query name="usersThatISupervise">
     <![CDATA[select distinct u from User u, Group g, User s where s.id = :supervisorId and s.supervisorForGroups.id = g.id 
       and g.id = u.groups.id order by u.userName]]>
-  </query>
-  
-  <query name="usersWithExternalNumbers">
-    <![CDATA[select u from User u where u.externalNumber is not null and u.externalNumber != '']]>
-  </query>
+  </query>  
 </hibernate-mapping>

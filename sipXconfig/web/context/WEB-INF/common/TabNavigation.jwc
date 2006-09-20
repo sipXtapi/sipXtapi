@@ -14,6 +14,7 @@
     <description>Internal names of the tabs.</description>
   </parameter>
   <parameter name="selectedTab" />
+  <parameter name="submit" default-value="false" required="no"/>
 
   <!--
     - P R O P E R T I E S
@@ -40,7 +41,15 @@
     <binding name="class" value="beans.tabs.getTabClass(currentTab)" />
     <binding name="id" value="'link:' + currentTab" />
   </component>
+  <component id="tabSubmitLink" type="LinkSubmit">
+    <binding name="action" value="listener:submitAndActivateTab" />
+    <binding name="parameters" value="currentTab" />
+    <binding name="class" value="beans.tabs.getTabClass(currentTab)" />
+    <binding name="id" value="'link:' + currentTab" />
+  </component>  
   <component id="tabLabel" type="InsertText">
     <binding name="value" value="container.messages.getMessage('tab.' + currentTab)" />
   </component>
+  <component id="tabSubmitLabel" copy-of="tabLabel" />
+  
 </component-specification>

@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.common;
+package org.sipfoundry.sipxconfig.test;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -146,12 +146,10 @@ public final class TestUtil {
         sysProps.setProperty("sysdir.log", outputDirectory);
         sysProps.setProperty("phoneDefaults.tftpServer", "tftp.sipfoundry.org");
         sysProps.setProperty("phoneDefaults.authorizationRealm", realm);
-        sysProps.setProperty("phoneDefaults.domainName", domainName);
         sysProps.setProperty("phoneDefaults.fullyQualifiedDomainName", "pbx." + domainName);
         sysProps.setProperty("dataSource.jdbcUrl", "jdbc:postgresql://localhost/SIPXCONFIG_TEST");
         sysProps.setProperty("adminContextImpl.backupDirectory", outputDirectory + "/backup");
         sysProps.setProperty("coreContextImpl.authorizationRealm", realm);
-        sysProps.setProperty("coreContextImpl.domainName", domainName);
         sysProps.setProperty("orbitsGenerator.audioDirectory", outputDirectory
                 + "/parkserver/music");
         sysProps.setProperty("replicationTrigger.replicateOnStartup", Boolean.toString(false));
@@ -175,5 +173,5 @@ public final class TestUtil {
         } catch (IOException e) {
             throw new RuntimeException("could not store system dir properties", e);
         }
-    }
+    }    
 }

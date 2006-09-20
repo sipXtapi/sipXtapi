@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.device;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.InternalRule;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 
 /**
  * Sets up phone and line objects with system defaults.
@@ -26,13 +27,13 @@ public class DeviceDefaults {
 
     private String m_profileRootUrl;
 
-    private String m_domainName;
-
     private String m_fullyQualifiedDomainName;
 
     private String m_authorizationRealm;
 
     private DialPlanContext m_dialPlanContext;
+    
+    private DomainManager m_domainManager;
 
     /** see config.defs PROXY_SERVER_ADDR */
     private String m_proxyServerAddr;
@@ -47,7 +48,7 @@ public class DeviceDefaults {
     }
 
     public String getDomainName() {
-        return m_domainName;
+        return m_domainManager.getDomain().getName();
     }
 
     public String getTftpServer() {
@@ -103,10 +104,6 @@ public class DeviceDefaults {
         m_tftpServer = tftpServer;
     }
 
-    public void setDomainName(String domainName) {
-        m_domainName = domainName;
-    }
-
     public String getAuthorizationRealm() {
         return m_authorizationRealm;
     }
@@ -141,5 +138,9 @@ public class DeviceDefaults {
     
     public void setDeviceTimeZone(DeviceTimeZone zone) {
         m_timeZone = zone;
+    }
+
+    public void setDomainManager(DomainManager domainManager) {
+        m_domainManager = domainManager;
     }
 }

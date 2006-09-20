@@ -89,11 +89,25 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
         m_context.storeGateway(g1);
         g1.setAddress("10.1.1.2");
         g1.setPrefix("33");
-        g1.setDefaultCallerAlias("3211231234");
+
+        GatewayCallerAliasInfo info = new GatewayCallerAliasInfo();
+        info.setDefaultCallerAlias("3211231234");
+        info.setAnonymous(true);
+        info.setKeepDigits(10);
+        info.setIgnoreUserInfo(true);
+        info.setTransformUserExtension(true);
+        info.setAddPrefix("4321");
+        g1.setCallerAliasInfo(info);
+
         m_context.storeGateway(g1);
         assertEquals("10.1.1.2", g1.getAddress());
         assertEquals("33", g1.getPrefix());
-        assertEquals("3211231234", g1.getDefaultCallerAlias());
+        assertEquals("3211231234", g1.getCallerAliasInfo().getDefaultCallerAlias());
+        assertEquals("4321", g1.getCallerAliasInfo().getAddPrefix());
+        assertEquals(10, g1.getCallerAliasInfo().getKeepDigits());
+        assertTrue(g1.getCallerAliasInfo().isAnonymous());
+        assertTrue(g1.getCallerAliasInfo().isIgnoreUserInfo());
+        assertTrue(g1.getCallerAliasInfo().isTransformUserExtension());
     }
 
     public void testSaveLoadUpdateGateway() throws Exception {
@@ -162,7 +176,7 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
     }
 
     public void testGetGatewaySettings() throws Exception {
-        TestHelper.cleanInsertFlat("gateway/SeedGateway.xml");
+        TestHelper.cleanInsertFlat("gateway/seed_gateway.db.xml");
         Gateway gateway = m_context.getGateway(new Integer(1001));
         assertNotNull(gateway.getTftpRoot());
     }

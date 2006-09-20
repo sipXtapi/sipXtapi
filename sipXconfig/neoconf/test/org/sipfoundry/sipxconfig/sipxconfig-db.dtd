@@ -125,6 +125,18 @@
     index CDATA #REQUIRED
 >
 
+<!ELEMENT domain EMPTY>
+<!ATTLIST domain
+    domain_id CDATA #REQUIRED
+    name CDATA #REQUIRED
+>
+
+<!ELEMENT domain_alias EMPTY>
+<!ATTLIST domain_alias
+    domain_id CDATA #REQUIRED
+    alias CDATA #REQUIRED
+>
+
 <!ELEMENT emergency_dialing_rule EMPTY>
 <!ATTLIST emergency_dialing_rule
     emergency_dialing_rule_id CDATA #REQUIRED
@@ -163,6 +175,11 @@
     device_version_id CDATA #IMPLIED
     prefix CDATA #IMPLIED
     default_caller_alias CDATA #IMPLIED
+    anonymous CDATA #REQUIRED
+    ignore_user_info CDATA #REQUIRED
+    transform_user_extension CDATA #REQUIRED
+    add_prefix CDATA #IMPLIED
+    keep_digits CDATA #REQUIRED
 >
 
 <!ELEMENT group_storage EMPTY>
@@ -454,7 +471,6 @@
     last_name CDATA #IMPLIED
     user_name CDATA #REQUIRED
     value_storage_id CDATA #IMPLIED
-    external_number CDATA #IMPLIED
 >
 
 <!ELEMENT value_storage EMPTY>

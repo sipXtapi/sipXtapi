@@ -22,7 +22,7 @@ import org.custommonkey.xmlunit.XMLUnit;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.parkorbit.BackgroundMusic;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit;
-import org.sipfoundry.sipxconfig.common.TestUtil;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class OrbitsTest extends XMLTestCase {
     private List<ParkOrbit> m_parkOrbits;

@@ -17,8 +17,8 @@
     </setting>
     <setting name="parkTimeout" advanced="yes">
       <label>Park time-out</label>
-      <type>
-        <integer min="30" max="300" />
+      <type required="yes">
+        <integer min="30" max="300" required="yes"/>
       </type>
       <value>120</value>
       <description>

@@ -141,7 +141,7 @@ AC_DEFUN([SFAC_SVN_VERSION],[
      then
        SVN_VERSION=`svnversion ${srcdir} \
          | perl -p \
-           -e 'm /(\d+)/ && do { $padded=sprintf( "%06d", $1 ); s/\d+/$padded/; };' \
+           -e 'm /(\d+)/ && do { $padded=sprintf( "%06d", [$][1] ); s/\d+/$padded/; };' \
            -e 's/:/./; s/M/.M/;'`
        elif test -r ${srcdir}/../SVN-VERSION
        then
@@ -571,7 +571,8 @@ AC_DEFUN([SFAC_DIST_DIR],
 
   # RPM based distros
   AC_PATH_PROG(RPM, rpm)
-  if test x"$RPM" != x
+  AM_CONDITIONAL(RPM_CAPABLE, [test "x$RPM" != "x"])
+  if test "x$RPM" != "x"
   then
     DEST_RPM="${DIST_DIR}/RPM"
     mkdir "${DEST_RPM}" 2>/dev/null
@@ -581,8 +582,9 @@ AC_DEFUN([SFAC_DIST_DIR],
     mkdir "${DEST_SRPM}"  2>/dev/null
     AC_SUBST([DEST_SRPM])
 
-    AC_SUBST([RPMBUILD_TOPDIR], [`rpm --eval '%{_topdir}'`])
-    AC_SUBST([RPM_TARGET_ARCH], [`rpm --eval '%{_target_cpu}'`])
+    DEST_ISO="${DIST_DIR}/ISO"
+    mkdir "${DEST_ISO}"  2>/dev/null
+    AC_SUBST([DEST_ISO])
   fi
 
 ])

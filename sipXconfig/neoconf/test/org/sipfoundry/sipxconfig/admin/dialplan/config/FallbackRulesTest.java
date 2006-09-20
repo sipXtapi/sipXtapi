@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
@@ -43,6 +44,8 @@ public class FallbackRulesTest extends XMLTestCase {
         IDialingRule rule = control.createMock(IDialingRule.class);
         rule.isInternal();
         control.andReturn(false);
+        rule.getHostPatterns();
+        control.andReturn(ArrayUtils.EMPTY_STRING_ARRAY);        
         rule.getName();
         control.andReturn("my test name");
         rule.getDescription();

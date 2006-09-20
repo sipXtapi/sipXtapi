@@ -86,8 +86,6 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
 
     public String getDomainName();
 
-    public void setDomainName(String domainName);
-
     public void clear();
 
     public List getGroups();
@@ -126,6 +124,4 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
     public List<User> getGroupSupervisors(Group group);
     
     public List<User> getUsersThatISupervise(User uservisor);
-    
-    public List<User> getUsersWithExternalNumbers();
 }

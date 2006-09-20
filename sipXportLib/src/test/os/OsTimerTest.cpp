@@ -88,7 +88,7 @@ void g_get_current_time(GTimeVal* curTime)
  * be off by this much before the test is considered a failure.  The
  * current value may be too high; see XPL-39.
  */
-#define OSTIMETOLERANCE 30
+#define OSTIMETOLERANCE 40
 
 #define REPORT_SKEW(x) printf x
 // #define REPORT_SKEW(x) /* x */

@@ -43,7 +43,7 @@ public class UserTestDb extends SipxDatabaseTestCase {
 
     public void testLoadUser() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.insertFlat("common/TestUserSeed.xml");
+        TestHelper.insertFlat("common/TestUserSeed.db.xml");
 
         User user = m_core.loadUser(userId);
         assertEquals(userId, user.getPrimaryKey());
@@ -61,7 +61,7 @@ public class UserTestDb extends SipxDatabaseTestCase {
         user.getAliases().add("1234");
         m_core.saveUser(user);
 
-        IDataSet expectedDs = TestHelper.loadDataSetFlat("common/SaveUserExpected.xml");
+        IDataSet expectedDs = TestHelper.loadDataSetFlat("common/SaveUserExpected.db.xml");
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         expectedRds.addReplacementObject("[user_id]", user.getId());
         expectedRds.addReplacementObject("[null]", null);
@@ -74,7 +74,7 @@ public class UserTestDb extends SipxDatabaseTestCase {
     }
 
     public void testUpdateUserName() throws Exception {
-        TestHelper.cleanInsertFlat("common/TestUserSeed.xml");
+        TestHelper.cleanInsertFlat("common/TestUserSeed.db.xml");
         Integer id = new Integer(1000);
         User user = m_core.loadUser(id);
         user.setUserName("foo");
@@ -91,7 +91,7 @@ public class UserTestDb extends SipxDatabaseTestCase {
     }
 
     public void testUpdateAliases() throws Exception {
-        TestHelper.cleanInsertFlat("common/TestUserSeed.xml");
+        TestHelper.cleanInsertFlat("common/TestUserSeed.db.xml");
         assertEquals(1, getConnection().getRowCount("user_alias", "where user_id = 1000"));
 
         Integer id = new Integer(1000);
@@ -99,12 +99,12 @@ public class UserTestDb extends SipxDatabaseTestCase {
         user.setAliasesString("bongo, kuku");
         m_core.saveUser(user);
 
-        assertEquals(2, getConnection().getRowCount("user_alias", "where user_id = 1000"));        
+        assertEquals(2, getConnection().getRowCount("user_alias", "where user_id = 1000"));
     }
 
     public void testUserGroups() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.insertFlat("common/UserGroupSeed.xml");
+        TestHelper.insertFlat("common/UserGroupSeed.db.xml");
         User user = m_core.loadUser(new Integer(1001));
         Set groups = user.getGroups();
         assertEquals(1, groups.size());
@@ -112,7 +112,7 @@ public class UserTestDb extends SipxDatabaseTestCase {
 
     public void testUserSettings() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.insertFlat("common/UserGroupSeed.xml");
+        TestHelper.insertFlat("common/UserGroupSeed.db.xml");
         User user = m_core.loadUser(new Integer(1001));
         Setting settings = user.getSettings();
         assertNotNull(settings);
@@ -120,7 +120,7 @@ public class UserTestDb extends SipxDatabaseTestCase {
 
     public void testGroupMembers() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.insertFlat("common/UserGroupSeed.xml");
+        TestHelper.insertFlat("common/UserGroupSeed.db.xml");
         Group group = m_settingDao.getGroup(new Integer(1001));
         Collection users = m_core.getGroupMembers(group);
         assertEquals(1, users.size());
@@ -131,7 +131,7 @@ public class UserTestDb extends SipxDatabaseTestCase {
 
     public void testGroupMembersNames() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.insertFlat("common/UserGroupSeed.xml");
+        TestHelper.insertFlat("common/UserGroupSeed.db.xml");
         Group group = m_settingDao.getGroup(new Integer(1001));
         Collection<String> users = m_core.getGroupMembersNames(group);
         assertEquals(1, users.size());
@@ -142,65 +142,77 @@ public class UserTestDb extends SipxDatabaseTestCase {
 
     public void testDeleteUserGroups() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.insertFlat("common/UserGroupSeed.xml");
+        TestHelper.insertFlat("common/UserGroupSeed.db.xml");
         m_settingDao.deleteGroups(Collections.singletonList(new Integer(1001)));
         // link table references removed
         ITable actual = TestHelper.getConnection().createDataSet().getTable("user_group");
         assertEquals(0, actual.getRowCount());
     }
-    
+
     public void testSupervisorSave() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.insertFlat("common/TestUserSeed.xml");
-        TestHelper.insertFlat("common/UserGroupSeed.xml");
+        TestHelper.insertFlat("common/TestUserSeed.db.xml");
+        TestHelper.insertFlat("common/UserGroupSeed.db.xml");
         Group group = m_settingDao.getGroup(1001);
         User user = m_core.loadUser(1000);
         assertTrue(user.getSupervisorForGroups().isEmpty());
-        
+
         user.addSupervisorForGroup(group);
-        
+
         m_core.saveUser(user);
-        
+
         IDataSet expectedDs = TestHelper.loadDataSetFlat("common/SaveSupervisorExpected.xml");
         ITable expected = expectedDs.getTable("supervisor");
         ITable actual = TestHelper.getConnection().createQueryTable("supervisor",
                 "select * from supervisor");
         Assertion.assertEquals(expected, actual);
     }
-    
+
     public void testSupervisorSaveNewGroup() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.insertFlat("common/TestUserSeed.xml");
+        TestHelper.insertFlat("common/TestUserSeed.db.xml");
         User user = m_core.loadUser(1000);
         Group group = new Group();
         group.setResource(User.GROUP_RESOURCE_ID);
         group.setName("new-supervised-group");
-        
+
         user.addSupervisorForGroup(group);
-        m_core.saveUser(user);                
+        m_core.saveUser(user);
     }
 
     public void testUserSaveNewGroup() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.insertFlat("common/TestUserSeed.xml");
+        TestHelper.insertFlat("common/TestUserSeed.db.xml");
         User user = m_core.loadUser(1000);
         Group group = new Group();
         group.setResource(User.GROUP_RESOURCE_ID);
         group.setName("new-supervised-group");
-        
+
         user.addGroup(group);
-        m_core.saveUser(user);                
+        m_core.saveUser(user);
     }
-    
+
     public void testDeleteGroupUpdateSupervisor() throws Exception {
         try {
             TestHelper.cleanInsert("ClearDb.xml");
-            TestHelper.insertFlat("common/GroupSupervisorSeed.db.xml");        
+            TestHelper.insertFlat("common/GroupSupervisorSeed.db.xml");
             m_settingDao.deleteGroups(Collections.singletonList(1001));
             assertEquals(0, TestHelper.getConnection().getRowCount("supervisor"));
             assertEquals(0, TestHelper.getConnection().getRowCount("group_storage"));
         } catch (DataIntegrityViolationException e) {
             fail();
         }
+    }
+
+    public void testIsSupervisor() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.insertFlat("common/GroupSupervisorSeed.db.xml");        
+        User supervisor = m_core.loadUser(1001);
+        assertTrue(supervisor.isSupervisor());
+
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.insertFlat("common/TestUserSeed.db.xml");        
+        User peon = m_core.loadUser(1000);
+        assertFalse(peon.isSupervisor());
     }
 }

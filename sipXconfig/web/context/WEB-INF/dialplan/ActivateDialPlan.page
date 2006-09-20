@@ -8,6 +8,7 @@
   <inject property="dialPlanContext" object="spring:dialPlanContext"/>
   <property name="selected">@org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType@MAPPING_RULES</property>
   <property name="showAdvanced" persist="session"  initial-value="false"/>
+  <property name="callback"  persist="session"/>
   <!--
      - B E A N S
      -->
@@ -30,8 +31,8 @@
     <binding name="listener" value="listener:activate"/>
     <binding name="value" value="message:button.ok"/>
   </component>
-  <component id="cancel" type="CancelButton">
-    <binding name="returnPageName" value="literal:EditFlexibleDialPlan"/>
+  <component id="cancel" type="Submit">
+    <binding name="listener" value="listener:cancel"/>
   </component>
   <component id="showAdvanced" type="ToggleLink">
     <binding name="toggle" value="showAdvanced"/>

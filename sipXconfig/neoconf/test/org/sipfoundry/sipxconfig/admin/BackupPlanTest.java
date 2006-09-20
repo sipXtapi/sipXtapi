@@ -21,7 +21,7 @@ import junit.framework.TestCase;
 import org.easymock.IMocksControl;
 import org.easymock.classextension.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.common.TestUtil;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class BackupPlanTest extends TestCase {
 

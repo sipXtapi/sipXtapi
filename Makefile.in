@@ -10,7 +10,10 @@ build:
 
 .PHONY: rpm
 rpm:
-	$(MAKE) recurse TARGETS="rpm install-rpms"
+	$(MAKE) recurse TARGETS="rpm install-rpm"
+
+uninstall-rpm:
+	$(MAKE) recurse TARGETS="uninstall-rpm" PROJECTS=$(PROJECTS_REVERSE)
 
 %:
 	$(MAKE) recurse TARGETS="$@"

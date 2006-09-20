@@ -97,4 +97,27 @@
       </setting>
     </group>
   </group>
+  <group name="caller-alias">
+    <label>Caller ID</label>
+    <setting name="external-number">
+      <label>External number</label>
+      <type>
+        <string maxLen="40">
+          <pattern>^[#*/d]*$</pattern>
+        </string>
+      </type>
+      <description>
+        Externally visible user Caller ID. If it is not specified gateway will create caller ID
+        based on caller extension and gateway parameters.
+      </description>
+    </setting>
+    <setting name="anonymous-caller-alias">
+      <label>Block Caller ID</label>
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+      <description>Block Caller ID for external calls.</description>
+    </setting>
+  </group>
 </model>

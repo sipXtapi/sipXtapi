@@ -36,6 +36,7 @@ public class ConfigGenerator {
     private MappingRules m_mappingRules;
     private AuthRules m_authRules;
     private FallbackRules m_fallbackRules;
+    private ForwardingRules m_forwardingRules;
     private DialingRuleProvider m_dialingRuleProvider;
     private List m_attendantScheduleFiles = new ArrayList();
     private Map m_files = new HashMap();
@@ -46,6 +47,16 @@ public class ConfigGenerator {
         setMappingRules(new MappingRules());
         setAuthRules(new AuthRules());
         setFallbackRules(new FallbackRules());
+        setForwardingRules(new ForwardingRules());
+    }
+    
+    public ForwardingRules getForwardingRules() {
+        return m_forwardingRules;
+    }
+
+    public void setForwardingRules(ForwardingRules forwardingRules) {
+        m_forwardingRules = forwardingRules;
+        m_files.put(m_forwardingRules.getType(), m_forwardingRules);
     }
 
     public void setAuthRules(AuthRules authRules) {
@@ -104,6 +115,7 @@ public class ConfigGenerator {
         m_mappingRules.begin();
         m_authRules.begin();
         m_fallbackRules.begin();
+        m_forwardingRules.begin();
 
         generate(er);
 
@@ -112,11 +124,13 @@ public class ConfigGenerator {
             m_mappingRules.generate(rule);
             m_authRules.generate(rule);
             m_fallbackRules.generate(rule);
+            m_forwardingRules.generate(rule);
         }
 
         m_mappingRules.end();
         m_authRules.end();
-        m_fallbackRules.end();         
+        m_fallbackRules.end();    
+        m_forwardingRules.end();
     }
     
     /**

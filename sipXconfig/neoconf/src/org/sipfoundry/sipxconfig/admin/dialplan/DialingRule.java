@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.DataCollectionItem;
@@ -176,5 +177,9 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule, Da
             throw new IllegalStateException("Permission manager not configured.");
         }
         return m_permissionManager.getPermission(name);
+    }
+    
+    public String[] getHostPatterns() {
+        return ArrayUtils.EMPTY_STRING_ARRAY;
     }
 }

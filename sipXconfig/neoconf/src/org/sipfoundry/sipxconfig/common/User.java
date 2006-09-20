@@ -64,8 +64,6 @@ public class User extends BeanWithGroups implements NamedObject {
     private String m_lastName;
 
     private String m_userName;
-    
-    private String m_externalNumber;
 
     private Set<String> m_aliases = new LinkedHashSet<String>(0);
 
@@ -142,14 +140,6 @@ public class User extends BeanWithGroups implements NamedObject {
         m_userName = userName;
     }
 
-    public String getExternalNumber() {
-        return m_externalNumber;
-    }
-    
-    public void setExternalNumber(String externalNumber) {
-        m_externalNumber = externalNumber;
-    }
-    
     public String getDisplayName() {
         Object[] names = {
             m_firstName, m_lastName
@@ -166,7 +156,7 @@ public class User extends BeanWithGroups implements NamedObject {
         m_aliases = aliases;
     }
 
-    public List<String> getNumericAliases() {
+    private List<String> getNumericAliases() {
         Set<String> aliases = getAliases();
         List<String> numeric = new ArrayList<String>(aliases.size());
         for (String alias : aliases) {
@@ -176,6 +166,44 @@ public class User extends BeanWithGroups implements NamedObject {
             }
         }
         return numeric;
+    }
+
+    /**
+     * Finds the shorted numeric alias for this user.
+     * 
+     * @return null if no numeric aliases, shortest numeric alias (if there more than one that
+     *         have equal lenght we can return any of them)
+     */
+    private String getShortestNumericAlias() {
+        List<String> numericAliases = getNumericAliases();
+        String shortestAlias = null;
+        int len = 0;
+        for (String alias : numericAliases) {
+            if (shortestAlias == null || alias.length() < len) {
+                shortestAlias = alias;
+                len = alias.length();
+            }
+        }
+        return shortestAlias;
+    }
+
+    public boolean hasNumericUsername() {
+        Matcher m = PATTERN_NUMERIC.matcher(m_userName);
+        return m.matches();
+    }
+
+    /**
+     * Get numeric extension for this user. Since we are trying to support many possible options
+     * we are going to try user name and then list of aliases. If user has more than a single
+     * numeric alias it's not going to work reliably.
+     * 
+     * @return String representing numeric extension for this user
+     */
+    public String getExtension(boolean considerUserName) {
+        if (considerUserName && hasNumericUsername()) {
+            return m_userName;
+        }
+        return getShortestNumericAlias();
     }
 
     /**
@@ -219,7 +247,7 @@ public class User extends BeanWithGroups implements NamedObject {
     public String getUri(String domainName) {
         return SipUri.format(this, domainName);
     }
-    
+
     @Override
     protected Setting loadSettings() {
         return m_permissionManager.getPermissionModel();

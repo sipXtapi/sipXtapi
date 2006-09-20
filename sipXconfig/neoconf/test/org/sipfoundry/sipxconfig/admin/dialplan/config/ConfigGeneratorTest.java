@@ -19,6 +19,7 @@ import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
 import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting;
@@ -47,6 +48,7 @@ public class ConfigGeneratorTest extends XMLTestCase {
 
         ConfigGenerator generator = new ConfigGenerator();
         generator.setDialingRuleProvider(dialingRuleProvider);
+        generator.getForwardingRules().setVelocityEngine(TestHelper.getVelocityEngine());
         generator.generate(dialPlanContext, er);
 
         AuthRules authRules = new AuthRules();

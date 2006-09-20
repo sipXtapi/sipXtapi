@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -51,7 +52,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     private static final String QUERY_PARAM_GROUP_ID = "groupId";
 
     private String m_authorizationRealm;
-    private String m_domainName;
+    private DomainManager m_domainManager;
     private SettingDao m_settingDao;
     private DaoEventPublisher m_daoEventPublisher;
     private AliasManager m_aliasManager;
@@ -80,11 +81,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     }
 
     public String getDomainName() {
-        return m_domainName;
-    }
-
-    public void setDomainName(String domainName) {
-        m_domainName = domainName;
+        return m_domainManager.getDomain().getName();
     }
 
     public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
@@ -416,7 +413,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     public Collection getAliasMappings() {
         List aliases = new ArrayList();
         for (User user : loadUsers()) {
-            aliases.addAll(user.getAliasMappings(m_domainName));
+            aliases.addAll(user.getAliasMappings(getDomainName()));
         }
         return aliases;
     }
@@ -512,9 +509,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         return objs;
     }
 
-    public List<User> getUsersWithExternalNumbers() {
-        List<User> objs = getHibernateTemplate().findByNamedQuery("usersWithExternalNumbers");
-        return objs;
+    public void setDomainManager(DomainManager domainManager) {
+        m_domainManager = domainManager;
     }
-
 }

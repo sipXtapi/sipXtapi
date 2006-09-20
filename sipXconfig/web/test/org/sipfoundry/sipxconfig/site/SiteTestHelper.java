@@ -28,9 +28,9 @@ import net.sourceforge.jwebunit.WebTester;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.sipfoundry.sipxconfig.common.TestUtil;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 

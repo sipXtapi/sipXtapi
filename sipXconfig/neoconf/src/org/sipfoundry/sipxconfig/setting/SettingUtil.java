@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.setting;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 
 public final class SettingUtil {
     private SettingUtil() {
@@ -41,11 +40,9 @@ public final class SettingUtil {
      *             }
      * </pre>
      */
-    public static Collection filter(SettingFilter filter, Setting root) {
+    public static Collection<Setting> filter(SettingFilter filter, Setting root) {
         FilterRunner runner = new FilterRunner(filter, root);
-        Iterator i = root.getValues().iterator();
-        while (i.hasNext()) {
-            Setting s = (Setting) i.next();
+        for (Setting s : root.getValues()) {
             s.acceptVisitor(runner);
         }
         return runner.m_collection;
@@ -116,7 +113,7 @@ public final class SettingUtil {
     }
 
     static class FilterRunner implements SettingVisitor {
-        private Collection m_collection = new ArrayList();
+        private Collection<Setting> m_collection = new ArrayList<Setting>();
 
         private SettingFilter m_filter;
 

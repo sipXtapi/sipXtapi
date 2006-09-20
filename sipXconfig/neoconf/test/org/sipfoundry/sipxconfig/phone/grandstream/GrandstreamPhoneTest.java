@@ -20,9 +20,9 @@ import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.easymock.EasyMock;
 import org.easymock.IArgumentMatcher;
-import org.sipfoundry.sipxconfig.common.TestUtil;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.phone.SipService;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class GrandstreamPhoneTest extends TestCase {
 

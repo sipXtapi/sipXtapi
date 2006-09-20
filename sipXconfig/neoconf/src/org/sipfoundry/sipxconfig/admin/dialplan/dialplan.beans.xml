@@ -125,6 +125,10 @@
   <bean id="mappingRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.MappingRules" />
   <bean id="fallbackRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.FallbackRules" />
   <bean id="authRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.AuthRules" />
+  <bean id="forwardingRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.ForwardingRules">
+    <property name="velocityEngine" ref="velocityEngine"/>
+  </bean>
+  
   <bean id="dialingRuleCollector"
     class="org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleCollector" />
 
@@ -139,6 +143,9 @@
     </property>
     <property name="authRules">
       <ref local="authRules" />
+    </property>
+    <property name="forwardingRules">
+      <ref local="forwardingRules"/>
     </property>
     <property name="dialingRuleProvider">
       <ref local="dialingRuleCollector" />

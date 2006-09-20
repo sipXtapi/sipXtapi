@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?><templates><template autoinsert="true" context="java" deleted="false" description="mock control creation" enabled="true" name="mc">MockControl ${name}Ctrl = MockControl.createControl(${type}.class);
-${type} ${name} = (${type}) ${name}Ctrl.getMock();
-${cursor}        
-${name}Ctrl.replay();
+<?xml version="1.0" encoding="UTF-8"?><templates><template autoinsert="true" context="java" deleted="false" description="mock control creation" enabled="true" name="mc">IMocksControl ${name}Control = EasyMock.createControl();
+${type} ${name} = ${name}Control.createMock(${type}.class);
+${cursor}                
+${name}Control.replay();
 
-${name}Ctrl.verify();
+${name}Control.verify();
 </template></templates>

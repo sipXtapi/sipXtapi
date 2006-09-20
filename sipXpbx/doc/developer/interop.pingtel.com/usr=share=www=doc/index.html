@@ -385,6 +385,25 @@ Extension: <input name='extension' size='4' maxlength='4' />
 <input type='submit' value='Analyze dialog event' />
 </form>
 
+<h2>ISN Dialing</h2>
+
+<p>
+This server now supports
+<a href="http://freenum.org/">ISN dialing</a>.
+It is reachable via ITAD 413 (for the time being), so for example, the
+auto-attendant can be reached at <code>100*413</code>.
+To contact an ISN destination, use the ISN as the user part of
+the SIP URI.  For example:
+</p>
+<dl>
+  <dt><code>100*413</code></dt>
+  <dd>This server's auto attendant</dd>
+  <dt><code>613*262</code></dt>
+  <dd>Free World Dialup echo test</dd>
+  <dt><code>2425*259</code><dt>
+  <dd>Tello echo test</dd>
+</dl>
+
 <hr />
 
 <h3><a name='config'>How this server is configured</a></h3>

@@ -91,6 +91,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <sys/types.h>
+#include <unistd.h>
 #endif /* WIN32 */
 
 #include <os/OsTask.h>
@@ -842,7 +844,7 @@ asm("rdtsc" : "=A" (tick));
 #elif defined (__SUNPRO_CC) || defined( __sparc__ )
         tick = gethrtime();
 #elif defined(__pingtel_on_posix__) || defined(_VXWORKS)
-	tick = pt_get_ticks();
+	tick = getpid();
 #else
 #     error Need some way to seed the random number generator
 #endif
