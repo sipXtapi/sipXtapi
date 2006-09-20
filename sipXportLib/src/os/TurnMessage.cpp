@@ -451,7 +451,6 @@ bool TurnMessage::isRequestOrNonErrorResponse()
         case MSG_TURN_ACTIVE_DESTINATION_ERROR_RESPONSE:
         case MSG_TURN_CONNECTION_STATUS_INDICATION:
         case MSG_TURN_CLOSE_BINDING_ERROR_RESPONSE:
-            break ;
             bRequestOrNonErrorResponse = false ;
             break ;
         default:
