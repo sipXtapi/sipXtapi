@@ -36,6 +36,7 @@ public class EmergencyRuleTest extends TestCase {
         g1.setAddress("sosgateway1.com");
         Gateway g2 = new Gateway();
         g2.setAddress("sosgateway2.com");
+        g2.setPrefix("4321");
         m_rule.setGateways(Arrays.asList(new Gateway[] {
             g1, g2
         }));
@@ -55,7 +56,7 @@ public class EmergencyRuleTest extends TestCase {
         UrlTransform emergencyTransform = (UrlTransform) transforms[0];
         assertEquals("<sip:911@sosgateway1.com>;q=0.933", emergencyTransform.getUrl());
         emergencyTransform = (UrlTransform) transforms[1];
-        assertEquals("<sip:911@sosgateway2.com>;q=0.867", emergencyTransform.getUrl());
+        assertEquals("<sip:4321911@sosgateway2.com>;q=0.867", emergencyTransform.getUrl());
     }
 
     public void testCallerSensitiveForwarding() {

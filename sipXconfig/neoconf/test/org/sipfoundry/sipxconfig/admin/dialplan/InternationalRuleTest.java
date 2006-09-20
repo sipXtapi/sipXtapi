@@ -37,6 +37,7 @@ public class InternationalRuleTest extends TestCase {
         list.add(g1);
         Gateway g2 = new Gateway();
         g2.setAddress("i2.gateway.com");
+        g2.setPrefix("4321");
         list.add(g2);
         m_rule.setGateways(list);
     }
@@ -54,7 +55,7 @@ public class InternationalRuleTest extends TestCase {
         assertEquals("011{vdigits}", transform.getUser());
         assertEquals("i1.gateway.com", transform.getHost());
         transform = (FullTransform) transforms[1];
-        assertEquals("011{vdigits}", transform.getUser());
+        assertEquals("4321011{vdigits}", transform.getUser());
         assertEquals("i2.gateway.com", transform.getHost());
     }
 

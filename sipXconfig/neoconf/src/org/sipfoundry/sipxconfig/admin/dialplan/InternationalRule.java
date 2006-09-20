@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
@@ -38,22 +37,20 @@ public class InternationalRule extends DialingRule {
         };
     }
 
-    public List getPermissions() {
-        List perms = Collections.singletonList(Permission.INTERNATIONAL_DIALING);
-        return perms;
+    public List<Permission> getPermissions() {
+        return Collections.singletonList(Permission.INTERNATIONAL_DIALING);
     }
 
     public Transform[] getTransforms() {
         CallPattern patternNormal = new CallPattern(m_internationalPrefix,
                 CallDigits.VARIABLE_DIGITS);
         String user = patternNormal.calculatePattern();
-        List gateways = getGateways();
-        List transforms = new ArrayList(gateways.size());
+        List<Gateway> gateways = getGateways();
+        List<Transform> transforms = new ArrayList<Transform>(gateways.size());
         ForkQueueValue q = new ForkQueueValue(gateways.size());
-        for (Iterator i = gateways.iterator(); i.hasNext();) {
-            Gateway gateway = (Gateway) i.next();
+        for (Gateway gateway : gateways) {
             FullTransform transform = new FullTransform();
-            transform.setUser(user);
+            transform.setUser(gateway.getCallPattern(user));
             transform.setHost(gateway.getAddress());
             String[] fieldParams = new String[] {
                 q.getSerial()
@@ -61,7 +58,7 @@ public class InternationalRule extends DialingRule {
             transform.setFieldParams(fieldParams);
             transforms.add(transform);
         }
-        return (Transform[]) transforms.toArray(new Transform[transforms.size()]);
+        return transforms.toArray(new Transform[transforms.size()]);
     }
 
     public DialingRuleType getType() {
