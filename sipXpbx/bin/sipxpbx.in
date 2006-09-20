@@ -459,7 +459,7 @@ EOF
         cat <<EOF >> ${steperrfile}
     SSL key and/or certificate not found (@SIPX_CONFDIR@/ssl/ssl.{key,crt})
 
-    See instructions in @datadir@/doc/sipxcommserverlib-@VERSION@/INSTALL.ssl
+    See instructions in @SIPX_DOCDIR@/INSTALL.ssl
 EOF
         ssl_status=1
     else
