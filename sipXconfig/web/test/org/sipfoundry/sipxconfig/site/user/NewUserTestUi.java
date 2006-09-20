@@ -121,9 +121,11 @@ public class NewUserTestUi extends WebTestCase {
         setFormElement("userId", "x");
         setFormElement("password", "1234");
         setFormElement("confirmPassword", "1234");
+        setFormElement("aliases", "aa bb cc");
         checkCheckbox("stay");        
         clickButton("form:ok");
         assertElementPresent("user:success");
+        assertFormElementEmpty("aliases");
         setFormElement("userId", "y");
         setFormElement("password", "1234");
         setFormElement("confirmPassword", "1234");
