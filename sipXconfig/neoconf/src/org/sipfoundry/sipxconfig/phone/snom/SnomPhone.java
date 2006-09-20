@@ -211,9 +211,7 @@ public class SnomPhone extends Phone {
             return getUserName();
         }
 
-        @SettingEntry(paths = {
-            USER_NAME, AUTH_NAME
-        })
+        @SettingEntry(paths = { USER_NAME, AUTH_NAME })
         public String getUserName() {
             String username = null;
             User user = m_line.getUser();
