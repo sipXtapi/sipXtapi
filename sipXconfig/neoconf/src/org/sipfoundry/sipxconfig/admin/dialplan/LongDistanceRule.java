@@ -46,22 +46,33 @@ public class LongDistanceRule extends DialingRule {
      * @return list of dial patterns objects
      */
     List<DialPattern> calculateDialPatterns(String areaCode) {
-        int variableLenght = m_externalLen - areaCode.length();
-        List<DialPattern> patterns = new ArrayList<DialPattern>();
+        String ac = areaCode;
+        int acLen = areaCode.length();
+        int variableLen = -1;
+        if (m_externalLen > 0) {
+            // someone specified external len - try to calculate variable len
+            variableLen = m_externalLen - acLen;
+            if (variableLen < 0) {
+                // area code is longer than external lenght - need to cut it
+                variableLen = 0;
+                ac = areaCode.substring(0, m_externalLen);
+            }
+        }
+        List<DialPattern> patterns = new ArrayList<DialPattern>(4);
         if (StringUtils.isNotBlank(m_pstnPrefix) && StringUtils.isNotBlank(m_longDistancePrefix)) {
-            String prefix = m_pstnPrefix + m_longDistancePrefix + areaCode;
-            patterns.add(new DialPattern(prefix, variableLenght));
+            String prefix = m_pstnPrefix + m_longDistancePrefix + ac;
+            patterns.add(new DialPattern(prefix, variableLen));
         }
         if (m_pstnPrefixOptional && StringUtils.isNotBlank(m_longDistancePrefix)) {
-            String prefix = m_longDistancePrefix + areaCode;
-            patterns.add(new DialPattern(prefix, variableLenght));
+            String prefix = m_longDistancePrefix + ac;
+            patterns.add(new DialPattern(prefix, variableLen));
         }
         if (StringUtils.isNotBlank(m_pstnPrefix) && m_longDistancePrefixOptional) {
-            String prefix = m_pstnPrefix + areaCode;
-            patterns.add(new DialPattern(prefix, variableLenght));
+            String prefix = m_pstnPrefix + ac;
+            patterns.add(new DialPattern(prefix, variableLen));
         }
         if (m_pstnPrefixOptional && m_longDistancePrefixOptional) {
-            patterns.add(new DialPattern(areaCode, variableLenght));
+            patterns.add(new DialPattern(ac, variableLen));
         }
         return patterns;
     }

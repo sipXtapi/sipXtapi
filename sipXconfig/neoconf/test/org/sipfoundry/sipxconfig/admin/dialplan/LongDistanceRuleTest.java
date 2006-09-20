@@ -95,7 +95,7 @@ public class LongDistanceRuleTest extends TestCase {
         assertEquals(1, permissions.size());
         assertEquals(Permission.LONG_DISTANCE_DIALING, permissions.get(0));
     }
-
+    
     public void testCalculateDialPatterns() {
         m_rule.setLongDistancePrefixOptional(true);
         List<DialPattern> list = m_rule.calculateDialPatterns("305");
@@ -104,6 +104,17 @@ public class LongDistanceRuleTest extends TestCase {
         assertEquals("1305xxxx", list.get(1).calculatePattern());
         assertEquals("9305xxxx", list.get(2).calculatePattern());
         assertEquals("305xxxx", list.get(3).calculatePattern());
+    }
+    
+    public void testCalculateDialPatternsLongAreaCode() {
+        m_rule.setLongDistancePrefixOptional(true);
+        m_rule.setExternalLen(4);
+        List<DialPattern> list = m_rule.calculateDialPatterns("305305305");
+        assertEquals(4, list.size());
+        assertEquals("913053", list.get(0).calculatePattern());
+        assertEquals("13053", list.get(1).calculatePattern());
+        assertEquals("93053", list.get(2).calculatePattern());
+        assertEquals("3053", list.get(3).calculatePattern());
     }
 
     public void testCalculateDialPatternsEmptyPrefixes() {
