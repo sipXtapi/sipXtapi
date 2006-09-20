@@ -315,6 +315,23 @@ finish_check() {
     echo ""
 }
 
+initialize_databases () {
+    ##
+    ## The installation process cannot create the postgres databases
+    ##   because (apparently) the network must be initialized first.
+    ## Since we have to have root privs for some of the setup operations,
+    ##   they must be done explicitly here rather than in the wrapper scripts
+    ##   (which are run as user @SIPXPBXUSER@)
+
+    # check to see if we need to do the initial database setup for sipxconfig
+    if test "${CONFIG_SERVER_DISABLED}" != "TRUE"
+    then
+        @bindir@/sipxconfig.sh --setup
+    fi
+    # and the cdr database setup for the proxies and call resolver
+    @bindir@/sipxconfig.sh --setup
+}
+
 ## High-level configtest function
 ## Verify that the prerequisites for running sipX are OK.
 do_check() {
@@ -330,6 +347,39 @@ do_check() {
     steperrfile=/tmp/sipxpbx_check_step.$$.log
     cat /dev/null > ${errfile}
     cat /dev/null > ${steperrfile}
+
+    ## Check to see that SSL is configured.- THIS SHOULD BE FIRST
+    start_check "TLS/SSL configuration"
+    if ! [ -e @SIPX_CONFDIR@/ssl/ssl.key -a -e @SIPX_CONFDIR@/ssl/ssl.crt ]
+    then
+        cat <<EOF >> ${steperrfile}
+    SSL key and/or certificate not found (@SIPX_CONFDIR@/ssl/ssl.{key,crt})
+
+    Run setup wizard or see the instructions in
+        @SIPX_DOCDIR@/INSTALL.ssl
+EOF
+        # if this has not been done, then lots of other stuff is going to fail
+        # in non-obvious ways.  Usually, this failure means that this is the first
+        # reboot after sipxpbx was activated, and the setup wizard has not been
+        # run yet.  Rather than let things go and appear to be partly working,
+        # just bail out now.
+        finish_check 1 # force error
+        cat ${steperrfile} 1>&2
+        exit 1
+    else
+        ## rehash certificate authorities certificates - if this fails, it will be caught below
+        @bindir@/ssl-cert/ca_rehash > /dev/null 2>&1
+
+        ## check certificate 
+        @bindir@/ssl-cert/check-cert.sh \
+            --name ${SIPXCHANGE_DOMAIN_NAME} --name ${MY_FULL_HOSTNAME} \
+            --fail 5 @SIPX_CONFDIR@/ssl/ssl.crt \
+            >> ${steperrfile} 2>&1
+        ssl_status=$?
+    fi
+    finish_check $ssl_status
+
+    initialize_databases
 
     ## Regenerate httpd configuration files from their .in's.
     @bindir@/httpd-sipxchange-config.sh
@@ -404,29 +454,6 @@ EOF
     rm -f ${badNames}
     finish_check ${localhostStatus}
 
-    ## Check to see that SSL is configured.
-    start_check "ssl configuration"
-    if ! [ -e @SIPX_CONFDIR@/ssl/ssl.key -a -e @SIPX_CONFDIR@/ssl/ssl.crt ]
-    then
-        cat <<EOF >> ${steperrfile}
-    SSL key and/or certificate not found (@SIPX_CONFDIR@/ssl/ssl.{key,crt})
-
-    See instructions in @datadir@/doc/sipxcommserverlib-@VERSION@/INSTALL.ssl
-EOF
-        ssl_status=1
-    else
-        ## rehash certificate authorities certificates - if this fails, it will be caught below
-        @bindir@/ssl-cert/ca_rehash > /dev/null 2>&1
-
-        ## check certificate 
-        @bindir@/ssl-cert/check-cert.sh \
-            --name ${SIPXCHANGE_DOMAIN_NAME} --name ${MY_FULL_HOSTNAME} \
-            --fail 5 @SIPX_CONFDIR@/ssl/ssl.crt \
-            >> ${steperrfile} 2>&1
-        ssl_status=$?
-    fi
-    finish_check $ssl_status
-
     # Iterate through the processes and let each shell script do its own checks 
     for process in ${sipxchange_processes[@]}
     do
@@ -435,12 +462,15 @@ EOF
         finish_check $?
     done
 
+    testdate=`date -u +%Y-%m-%dT%H:%M:%S`
     if [ ${STATUS} -ne 0 ]
     then
        (echo ""; echo "sipXpbx configuration problems found:"; echo""; cat ${errfile} ) \
            | logger -s -t sipXpbx -p daemon.err 
-       date -u +%Y-%m-%dT%H:%M:%S >> @SIPX_LOGDIR@/configtest.log
-       cat ${errfile}             >> @SIPX_LOGDIR@/configtest.log
+       echo "${testdate} sipXpbx configuration problems found:" >> @SIPX_LOGDIR@/configtest.log
+       cat ${errfile}                                           >> @SIPX_LOGDIR@/configtest.log
+    else
+        echo "${testdate} configtest passed"  >> @SIPX_LOGDIR@/configtest.log
     fi
     rm -f ${errfile} # clean up temporary results file
 
