@@ -52,6 +52,7 @@
   <component id="prefix" type="TextField">
     <binding name="value" value="intercom.prefix" />
     <binding name="validators" value="spring-validators:validSipUserId,required" />
+    <binding name="displayName" value="message:label.prefix" />
   </component>
   <component id="timeoutPanel" type="FieldPanel">
     <binding name="field" value="components.timeout" />
@@ -62,6 +63,7 @@
     <binding name="value" value="intercom.timeoutInSeconds" />
     <binding name="translator" value="translator:number,omitZero=false" />
     <binding name="validators" value="validators:required,min=0" />
+    <binding name="displayName" value="message:label.timeout" />
   </component>
   <component id="codePanel" type="FieldPanel">
     <binding name="field" value="components.code" />
@@ -71,6 +73,7 @@
   <component id="code" type="TextField">
     <binding name="value" value="intercom.code" />
     <binding name="validators" value="validators:required" />
+    <binding name="displayName" value="message:label.code" />
   </component>
   <component id="formActions" type="FormActions">
     <binding name="listener" value="listener:commit" />
