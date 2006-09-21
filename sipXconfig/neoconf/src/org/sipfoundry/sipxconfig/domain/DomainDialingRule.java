@@ -19,7 +19,6 @@ import org.dom4j.Element;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
-import org.sipfoundry.sipxconfig.permission.Permission;
 
 /**
  * Generate the following into the mappingrules.xml <code>
@@ -72,7 +71,8 @@ public class DomainDialingRule extends DialingRule {
         return null;
     }
 
-    public List<Permission> getPermissions() {
+    @Override
+    public List<String> getPermissionNames() {
         return Collections.emptyList();
     }
 

@@ -56,7 +56,7 @@ public class EmergencyRoutingTest extends TestCase {
         assertEquals(1, gateways.size());
         assertEquals(m_defaultGateway.getAddress(), ((Gateway) gateways.get(0)).getAddress());
 
-        assertTrue(rule.getPermissions().isEmpty());
+        assertTrue(rule.getPermissionNames().isEmpty());
 
         assertEquals(1, rule.getPatterns().length);
 
@@ -86,7 +86,7 @@ public class EmergencyRoutingTest extends TestCase {
 
             assertEquals(TEST_DATA[i][1], g.getAddress());
 
-            assertTrue(rule.getPermissions().isEmpty());
+            assertTrue(rule.getPermissionNames().isEmpty());
 
             assertEquals(1, rule.getPatterns().length);
 

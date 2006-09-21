@@ -21,6 +21,7 @@ import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
+import org.sipfoundry.sipxconfig.permission.PermissionManager;
 
 /**
  * EditDialRule
@@ -52,12 +53,15 @@ public abstract class EditDialRule extends BasePage implements PageBeginRenderLi
     public abstract DialingRuleType getRuleType();
 
     public abstract void setRuleType(DialingRuleType dialingType);
+    
+    public abstract PermissionManager getPermissionManager();
 
     public void pageBeginRender(PageEvent event_) {
         DialingRule rule = getRule();
         if (null != rule) {
             // FIXME: in custom rules: rule is persitent but rule type not...
             setRuleType(rule.getType());
+            rule.setPermissionManager(getPermissionManager());
             return;
         }
         Integer id = getRuleId();
@@ -67,6 +71,7 @@ public abstract class EditDialRule extends BasePage implements PageBeginRenderLi
             setRuleType(rule.getType());
         } else {
             rule = getRuleType().create();
+            rule.setPermissionManager(getPermissionManager());
         }
         setRule(rule);
 

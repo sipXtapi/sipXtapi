@@ -22,6 +22,8 @@ public interface PermissionManager extends DataObjectSource<Permission> {
 
     Permission getPermission(Object id);
 
+    Permission getPermissionByName(String permissionName);
+
     void addCallPermission(Permission permission);
 
     Collection<Permission> getCallPermissions();

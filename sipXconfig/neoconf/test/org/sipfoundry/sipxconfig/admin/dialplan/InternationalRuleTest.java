@@ -59,9 +59,9 @@ public class InternationalRuleTest extends TestCase {
         assertEquals("i2.gateway.com", transform.getHost());
     }
 
-    public void testGetPermissions() {
-        List permissions = m_rule.getPermissions();
+    public void testGetPermissionNames() {
+        List permissions = m_rule.getPermissionNames();
         assertEquals(1, permissions.size());
-        assertEquals(Permission.INTERNATIONAL_DIALING, permissions.get(0));
+        assertEquals(Permission.INTERNATIONAL_DIALING.getName(), permissions.get(0));
     }
 }

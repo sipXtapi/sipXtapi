@@ -67,7 +67,7 @@ public class AuthRules extends RulesXmlFile {
 
     public void generate(IDialingRule rule) {
         List<Gateway> gateways = rule.getGateways();
-        List<Permission> permissions = rule.getPermissions();
+        List<String> permissions = rule.getPermissionNames();
         if (gateways.size() == 0) {
             // nothing to generate
             return;
@@ -90,9 +90,9 @@ public class AuthRules extends RulesXmlFile {
             // even if no permission is specified (permission list is empty) we create empty
             // element
             Element permissionMatch = userMatch.addElement(PERMISSION_MATCH);
-            for (Permission permission : permissions) {
+            for (String permission : permissions) {
                 Element pelement = permissionMatch.addElement(PERMISSION);
-                pelement.setText(permission.getName());
+                pelement.setText(permission);
             }
         }
     }

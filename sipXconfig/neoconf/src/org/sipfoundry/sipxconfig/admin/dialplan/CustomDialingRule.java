@@ -28,7 +28,7 @@ import org.sipfoundry.sipxconfig.permission.Permission;
 public class CustomDialingRule extends DialingRule {
     private List<DialPattern> m_dialPatterns = new ArrayList<DialPattern>();
     private CallPattern m_callPattern = new CallPattern();
-    private List<Permission> m_permissions = new ArrayList<Permission>();
+    private List<String> m_permissionNames = new ArrayList<String>();
 
     public CustomDialingRule() {
         m_dialPatterns.add(new DialPattern());
@@ -36,7 +36,7 @@ public class CustomDialingRule extends DialingRule {
 
     protected Object clone() throws CloneNotSupportedException {
         CustomDialingRule clone = (CustomDialingRule) super.clone();
-        clone.m_permissions = new ArrayList(m_permissions);
+        clone.m_permissionNames = new ArrayList(m_permissionNames);
         clone.m_dialPatterns = new ArrayList(m_dialPatterns);
         return clone;
     }
@@ -100,20 +100,21 @@ public class CustomDialingRule extends DialingRule {
         return DialingRuleType.CUSTOM;
     }
 
-    public List<Permission> getPermissions() {
-        return m_permissions;
-    }
-
     public void setPermissions(List<Permission> permissions) {
-        m_permissions = permissions;
+        List<String> permissionNames = getPermissionNames();
+        permissionNames.clear();
+        for (Permission permission : permissions) {
+            permissionNames.add(permission.getName());
+        }
     }
 
-    public void setPermissionNames(List<String> names) {
-        List<Permission> permissions = new ArrayList<Permission>(names.size());
-        for (String name : names) {
-            permissions.add(getPermission(name));
-        }
-        setPermissions(permissions);
+    public void setPermissionNames(List<String> permissionNames) {
+        m_permissionNames = permissionNames;
+    }
+
+    @Override
+    public List<String> getPermissionNames() {
+        return m_permissionNames;
     }
 
     /**

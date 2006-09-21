@@ -70,7 +70,7 @@ public class InternalRuleTest extends TestCase {
 
         assertEquals(TEST_DESCRIPTION, vf.getDescription());
         assertEquals(".", vf.getPatterns()[0]);
-        assertEquals(Permission.VOICEMAIL, vf.getPermissions().get(0));
+        assertEquals(Permission.VOICEMAIL.getName(), vf.getPermissionNames().get(0));
         UrlTransform tvf = (UrlTransform) vf.getTransforms()[0];
         assertEquals(VOICEMAIL_FALLBACK_URL, tvf.getUrl());
     }

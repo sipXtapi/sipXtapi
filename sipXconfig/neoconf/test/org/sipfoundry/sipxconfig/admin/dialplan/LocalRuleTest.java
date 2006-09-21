@@ -53,10 +53,10 @@ public class LocalRuleTest extends TestCase {
         assertEquals("local.gateway.com", transform.getHost());
     }
 
-    public void testGetPermissions() {
-        List permissions = m_rule.getPermissions();
+    public void testGetPermissionNames() {
+        List<String> permissions = m_rule.getPermissionNames();
         assertEquals(1, permissions.size());
-        assertEquals(Permission.LOCAL_DIALING, permissions.get(0));
+        assertEquals(Permission.LOCAL_DIALING.getName(), permissions.get(0));
     }
     
     public void testGetTranformedPatters() throws Exception {

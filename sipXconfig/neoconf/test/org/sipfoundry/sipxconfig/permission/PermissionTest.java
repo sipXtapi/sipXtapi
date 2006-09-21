@@ -39,4 +39,11 @@ public class PermissionTest extends TestCase {
         assertEquals(-1, key);
         assertEquals("Voicemail", Permission.VOICEMAIL.getPrimaryKey());
     }
+
+    public void testEquals() {
+        Permission p1 = new Permission();
+        assertFalse(p1.equals(Permission.VOICEMAIL));
+        Permission p2 = new Permission(Permission.Type.CALL, Permission.VOICEMAIL.getName());
+        assertTrue(p2.equals(Permission.VOICEMAIL));
+    }
 }

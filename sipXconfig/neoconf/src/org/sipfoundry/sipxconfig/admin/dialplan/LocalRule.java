@@ -32,8 +32,8 @@ public class LocalRule extends DialingRule {
         // empty
     }
 
-    public List<Permission> getPermissions() {
-        List perms = Collections.singletonList(Permission.LOCAL_DIALING);
+    public List<String> getPermissionNames() {
+        List perms = Collections.singletonList(Permission.LOCAL_DIALING.getName());
         return perms;
     }
 

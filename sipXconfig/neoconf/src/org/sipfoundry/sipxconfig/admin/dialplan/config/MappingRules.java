@@ -11,14 +11,12 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
-import java.util.Iterator;
 import java.util.List;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.QName;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
-import org.sipfoundry.sipxconfig.permission.Permission;
 
 /**
  * Special type of mappingrules document with a single host match matching standard SIPx hosts
@@ -85,11 +83,10 @@ public class MappingRules extends RulesXmlFile {
         }
         Element permissionMatch = userMatch.addElement("permissionMatch");
         if (rule.isInternal()) {
-            List permissions = rule.getPermissions();
-            for (Iterator i = permissions.iterator(); i.hasNext();) {
-                Permission permission = (Permission) i.next();
+            List<String> permissions = rule.getPermissionNames();
+            for (String permission : permissions) {
                 Element permissionElement = permissionMatch.addElement("permission");
-                permissionElement.setText(permission.getName());
+                permissionElement.setText(permission);
             }
         }
         Transform[] transforms = rule.getTransforms();

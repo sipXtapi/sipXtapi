@@ -37,8 +37,8 @@ public class InternationalRule extends DialingRule {
         };
     }
 
-    public List<Permission> getPermissions() {
-        return Collections.singletonList(Permission.INTERNATIONAL_DIALING);
+    public List<String> getPermissionNames() {
+        return Collections.singletonList(Permission.INTERNATIONAL_DIALING.getName());
     }
 
     public Transform[] getTransforms() {

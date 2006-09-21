@@ -15,7 +15,6 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
-import org.sipfoundry.sipxconfig.permission.Permission;
 
 /**
  * IDialingRule
@@ -39,7 +38,7 @@ public interface IDialingRule {
 
     public abstract Transform[] getTransforms();
 
-    public abstract List<Permission> getPermissions();
+    public abstract List<String> getPermissionNames();
 
     public abstract Integer getId();
 

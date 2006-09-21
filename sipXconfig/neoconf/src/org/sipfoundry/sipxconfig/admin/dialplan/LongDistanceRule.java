@@ -12,7 +12,6 @@
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -29,7 +28,7 @@ public class LongDistanceRule extends DialingRule {
     private boolean m_longDistancePrefixOptional;
     private String m_areaCodes = StringUtils.EMPTY;
     private int m_externalLen;
-    private Permission m_permission = Permission.LONG_DISTANCE_DIALING;
+    private String m_permissionName = Permission.LONG_DISTANCE_DIALING.getName();
 
     public String[] getPatterns() {
         throw new UnsupportedOperationException("getPatterns not supported for LongDistance rule");
@@ -134,9 +133,10 @@ public class LongDistanceRule extends DialingRule {
         rule.setEnabled(isEnabled());
         rule.setGateways(getGateways());
         rule.setCallPattern(calculateCallPattern(areaCode));
-        rule.setDialPatterns(calculateDialPatterns(areaCode));
-        List perms = Collections.singletonList(getPermission());
-        rule.setPermissions(perms);
+        rule.setDialPatterns(calculateDialPatterns(areaCode));        
+        List<String> permNames = new ArrayList<String>(1);
+        permNames.add(getPermissionName());
+        rule.setPermissionNames(permNames);
         return rule;
     }
 
@@ -177,15 +177,19 @@ public class LongDistanceRule extends DialingRule {
     }
 
     public Permission getPermission() {
-        return m_permission;
+        return getPermission(m_permissionName);
     }
 
     public void setPermission(Permission permission) {
-        m_permission = permission;
+        m_permissionName = permission.getName();
     }
 
     public void setPermissionName(String permisisonName) {
-        setPermission(getPermission(permisisonName));
+        m_permissionName = permisisonName;
+    }
+
+    public String getPermissionName() {
+        return m_permissionName;
     }
 
     public boolean isPstnPrefixOptional() {

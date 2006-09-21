@@ -168,9 +168,9 @@ public class MappingRulesTest extends XMLTestCase {
         });
         rule.isInternal();
         control.andReturn(true);
-        rule.getPermissions();
-        control.andReturn(Arrays.asList(new Permission[] {
-            Permission.VOICEMAIL
+        rule.getPermissionNames();
+        control.andReturn(Arrays.asList(new String[] {
+            Permission.VOICEMAIL.getName()
         }));
         rule.getTransforms();
         control.andReturn(new Transform[] {
@@ -278,7 +278,7 @@ public class MappingRulesTest extends XMLTestCase {
         control.andReturn(new String[] {
             "dot"
         });
-        rule.getPermissions();
+        rule.getPermissionNames();
         control.andReturn(Collections.EMPTY_LIST);
         rule.getTransforms();
         control.andReturn(new Transform[0]);
