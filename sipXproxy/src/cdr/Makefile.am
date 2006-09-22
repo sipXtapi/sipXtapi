@@ -1,6 +1,5 @@
 include $(top_srcdir)/config/subdir.am
 
-INSTALL = @INSTALL@
 
 rake=$(RAKE) builddir="$$builddir"
 GEM_LIB_DIR=$(libdir)/ruby/gems/1.8
