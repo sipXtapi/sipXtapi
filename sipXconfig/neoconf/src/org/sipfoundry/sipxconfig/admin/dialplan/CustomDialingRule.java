@@ -12,7 +12,6 @@
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -41,7 +40,7 @@ public class CustomDialingRule extends DialingRule {
         return clone;
     }
 
-    public List getDialPatterns() {
+    public List<DialPattern> getDialPatterns() {
         return m_dialPatterns;
     }
 
@@ -126,14 +125,13 @@ public class CustomDialingRule extends DialingRule {
 
     @Override
     public String[] getTransformedPatterns(Gateway gateway) {
-        List dialPatterns = getDialPatterns();
-        Set transformedPatterns = new LinkedHashSet();
-        for (Iterator i = dialPatterns.iterator(); i.hasNext();) {
-            DialPattern dp = (DialPattern) i.next();
+        List<DialPattern> dialPatterns = getDialPatterns();
+        Set<String> transformedPatterns = new LinkedHashSet<String>();
+        for (DialPattern dp : dialPatterns) {
             DialPattern tdp = m_callPattern.transform(dp);
             String pattern = gateway.getCallPattern(tdp.calculatePattern());
             transformedPatterns.add(pattern);
         }
-        return (String[]) transformedPatterns.toArray(new String[transformedPatterns.size()]);
+        return transformedPatterns.toArray(new String[transformedPatterns.size()]);
     }
 }

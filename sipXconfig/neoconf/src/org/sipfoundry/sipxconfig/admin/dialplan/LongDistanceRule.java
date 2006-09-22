@@ -45,7 +45,7 @@ public class LongDistanceRule extends DialingRule {
      * @return list of dial patterns objects
      */
     List<DialPattern> calculateDialPatterns(String areaCode) {
-        String ac = areaCode;
+        String ac = StringUtils.defaultString(areaCode);
         int acLen = areaCode.length();
         int variableLen = -1;
         if (m_externalLen > 0) {
@@ -57,20 +57,24 @@ public class LongDistanceRule extends DialingRule {
                 ac = areaCode.substring(0, m_externalLen);
             }
         }
+
+        boolean pstnPrefixOptional = m_pstnPrefixOptional || StringUtils.isBlank(m_pstnPrefix);
+        boolean longDistancePrefixOptional = m_longDistancePrefixOptional
+                || StringUtils.isBlank(m_longDistancePrefix);
         List<DialPattern> patterns = new ArrayList<DialPattern>(4);
         if (StringUtils.isNotBlank(m_pstnPrefix) && StringUtils.isNotBlank(m_longDistancePrefix)) {
             String prefix = m_pstnPrefix + m_longDistancePrefix + ac;
             patterns.add(new DialPattern(prefix, variableLen));
         }
-        if (m_pstnPrefixOptional && StringUtils.isNotBlank(m_longDistancePrefix)) {
+        if (pstnPrefixOptional && StringUtils.isNotBlank(m_longDistancePrefix)) {
             String prefix = m_longDistancePrefix + ac;
             patterns.add(new DialPattern(prefix, variableLen));
         }
-        if (StringUtils.isNotBlank(m_pstnPrefix) && m_longDistancePrefixOptional) {
+        if (StringUtils.isNotBlank(m_pstnPrefix) && longDistancePrefixOptional) {
             String prefix = m_pstnPrefix + ac;
             patterns.add(new DialPattern(prefix, variableLen));
         }
-        if (m_pstnPrefixOptional && m_longDistancePrefixOptional) {
+        if (pstnPrefixOptional && longDistancePrefixOptional) {
             patterns.add(new DialPattern(ac, variableLen));
         }
         return patterns;
@@ -83,8 +87,14 @@ public class LongDistanceRule extends DialingRule {
      * @return a single call pattern
      */
     CallPattern calculateCallPattern(String areaCode) {
-        CallPattern callPattern = new CallPattern(m_longDistancePrefix + areaCode,
-                CallDigits.VARIABLE_DIGITS);
+        StringBuilder prefix = new StringBuilder();
+        if (m_longDistancePrefix != null) {
+            prefix.append(m_longDistancePrefix);
+        }
+        if (areaCode != null) {
+            prefix.append(areaCode);
+        }
+        CallPattern callPattern = new CallPattern(prefix.toString(), CallDigits.VARIABLE_DIGITS);
         return callPattern;
     }
 
