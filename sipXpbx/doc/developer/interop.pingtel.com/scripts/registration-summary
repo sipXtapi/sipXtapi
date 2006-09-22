@@ -59,9 +59,11 @@ if (open(LOG, "<$Log"))
 
                 # Extract the address of the contact and record the time.
 		$host = $1;
+                $host =~ s/:.*$//; # Remove any port number.
 		$HostSeen{$host}++;
 	        $HostFirstSeen{$host} = $displaytime unless exists $HostFirstSeen{$host};
 	        $HostLastSeen{$host} = $displaytime;
+print STDERR "$displaytime\t'$host'\n";
 	    }
         }
     }
