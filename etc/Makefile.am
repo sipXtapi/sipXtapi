@@ -1,9 +1,7 @@
+include $(top_srcdir)/config/subdir.am
 
 SUBDIRS = database
 
-INSTALL=@INSTALL@
-
-include $(top_srcdir)/config/subdir.am
 
 cfgfiles_IN = \
     authproxy-config.in \
@@ -13,10 +11,16 @@ cfgfiles_IN = \
     forwardingrules.xml.in
 
 EXTRA_DIST = \
+    sipproxy.process.xml.in \
+    sipauthproxy.process.xml.in \
     $(cfgfiles_IN)
 
-install-exec-hook : $(foreach file,$(cfgfiles_IN),$(DESTDIR)/$(sysconfdir)/sipxpbx/$(file)) \
-						  upgrade-auth-rules
+CFG_FILES = $(foreach file,$(cfgfiles_IN),$(DESTDIR)/$(sysconfdir)/sipxpbx/$(file))
+install-exec-hook : \
+	$(DESTDIR)$(SIPX_PROCDIR)/sipproxy.process.xml \
+	$(DESTDIR)$(SIPX_PROCDIR)/sipauthproxy.process.xml \
+	$(CFG_FILES) \
+        upgrade-auth-rules
 
 $(foreach file,$(cfgfiles_IN),$(DESTDIR)/$(sysconfdir)/sipxpbx/$(file)) : $(DESTDIR)/$(sysconfdir)/sipxpbx/% : %
 	if ! test -f $@; \

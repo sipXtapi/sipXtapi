@@ -1,5 +1,4 @@
 
-INSTALL=@INSTALL@
 
 include $(top_srcdir)/config/subdir.am
 
