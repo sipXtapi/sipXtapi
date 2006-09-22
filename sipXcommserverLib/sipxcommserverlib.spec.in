@@ -101,6 +101,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_datadir}/sipx/schema/urlmap.xsd
 %attr(755,root,root) %{_datadir}/sipx/schema/authrules.xsd
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/config.defs
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/process.d/keepalive.process.xml
 
 # These should match sipXlib.m4 or at least sent 
 # to configure script

@@ -10,6 +10,7 @@ SUBDIRS = \
 	bin \
 	include \
 	meta \
+	etc \
 	$(doc_SUBDIRS)
 
 EXTRA_DIST = \
@@ -19,18 +20,9 @@ EXTRA_DIST = \
     config/sipX-config.in \
     config/sipX-buildstamp.cpp.in \
     config/sipX-buildstamp.h.in \
-    etc/mediaserver-config.in.in \
     sipxvxml.spec
 
 install-data-hook :
-	$(LocalizeSipXconfig) $(srcdir)/etc/mediaserver-config.in.in > mediaserver-config.in ; \
-	if ! test -f $(DESTDIR)$(sysconfdir)/sipxpbx/mediaserver-config.in ; \
-	then \
-		echo ""; echo "Installing default $(sysconfdir)/sipxpbx/mediaserver-config.in"; \
-		$(INSTALL) -D -m 644 mediaserver-config.in $(DESTDIR)$(sysconfdir)/sipxpbx/mediaserver-config.in; \
-	else \
-		echo ""; echo "Using existing $(sysconfdir)/sipxpbx/mediaserver-config.in "; \
-	fi; \
 	$(mkinstalldirs) $(DESTDIR)@wwwdir@/conf
 
 # An alternative to this is to do svn export, but it's very handy to be able

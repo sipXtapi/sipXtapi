@@ -125,6 +125,9 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/voicemail.xml.in
 %config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/cbadmission.xml.in
 
+%config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/process.d/sipxpark.process.xml
+%config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/process.d/sipxpresence.process.xml
+
 %config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_bindir}/httpd-sipxchange-config.sh
 %config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/mime.types
 %config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/httpd-sipxchange-common-ssl.conf.in
@@ -162,6 +165,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/sipxdialog-config.in
 
 %attr(755,root,root) %{_datadir}/sipx/schema/watchdog.xsd
+%attr(755,root,root) %{_datadir}/sipx/schema/watchdogprocess.xsd
 %attr(755,root,root) %{_datadir}/sipx/schema/processdefinitions.xsd
 
 %attr(755,root,root) %{_bindir}/sipxpresence.sh

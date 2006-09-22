@@ -202,9 +202,9 @@
 
     <property name="process.dir" value="${dest.dir}${sipxpbx.conf.dir}/process.d"/>
     <mkdir dir="${process.dir}"/>
-    <copy file="etc/sipxconfig-process.xml.in" 
-      tofile="${process.dir}/sipxconfig-process.xml"/>
-    <replace file="${process.dir}/sipxconfig-process.xml" 
+    <copy file="etc/sipxconfig.process.xml.in" 
+      tofile="${process.dir}/sipxconfig.process.xml"/>
+    <replace file="${process.dir}/sipxconfig.process.xml" 
       propertyfile="${top.build.dir}/build.properties">
 
       <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir"/>

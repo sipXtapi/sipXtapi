@@ -63,6 +63,7 @@ AC_DEFUN([SFAC_INIT_FLAGS],
     AC_SUBST(SIPX_SCHEMADIR, [${datadir}/sipx/schema])
     AC_SUBST(SIPX_DOCDIR,  [${datadir}/doc/sipx])
     AC_SUBST(SIPX_VARDIR,  [${localstatedir}/sipxdata])
+    AC_SUBST(SIPX_PROCDIR, [${sysconfdir}/sipxpbx/process.d])
 
     # temporary - see http://track.sipfoundry.org/browse/XPB-33
     AC_SUBST(SIPX_VXMLDATADIR,[${localstatedir}/sipxdata/mediaserver/data])

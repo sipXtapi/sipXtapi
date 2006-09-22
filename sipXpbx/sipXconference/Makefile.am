@@ -18,7 +18,7 @@ editscripts :
 	done
 
 #EXTRA_DIST = \
-#    CONTRIBUTORS
+#    CONTRIBUTORS \
 #    sipxconference.spec
 
 SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)

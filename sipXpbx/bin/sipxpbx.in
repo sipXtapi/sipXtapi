@@ -95,18 +95,7 @@ fi
 
 # This should somehow be syncronized with what's in 
 # the ProcessDefinitions.xml and Watchdog.xml
-sipx_processes=(
-    watchdog
-    sipproxy
-    sipxconfig
-    sipXvxml
-    sipxpark
-    sipxpresence
-    sipstatus
-    sipregistrar
-    sipauthproxy
-    keepalive
-)
+sipx_processes="watchdog "`find @SIPX_PROCDIR@ -name '*.process.xml' -printf '%f ' | sed 's/.process.xml//g'`
 
 # Low-level start function.
 # Unfortunately, $? will never report failure as su will always succeed.

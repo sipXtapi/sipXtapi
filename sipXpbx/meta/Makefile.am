@@ -2,6 +2,7 @@ include $(top_srcdir)/config/subdir.am
 
 schemas = \
 	watchdog.xsd \
+	watchdogprocess.xsd \
 	processdefinitions.xsd
 
 EXTRA_DATA = $(foreach xsd,$(schemas),$(xsd).in)
