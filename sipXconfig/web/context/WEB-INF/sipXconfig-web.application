@@ -71,6 +71,7 @@
     <page name="ManagePhones" specification-path="phone/ManagePhones.page"/>
     <page name="ManagePresence" specification-path="user_portal/ManagePresence.page"/>
     <page name="ManageUsers" specification-path="user/ManageUsers.page"/> 
+    <page name="MusicOnHold" specification-path="admin/MusicOnHold.page"/>
     <page name="NewPhone" specification-path="phone/NewPhone.page"/>
     <page name="NewUser" specification-path="user/NewUser.page"/>
     <page name="PhoneGroups" specification-path="phone/PhoneGroups.page"/>    
@@ -134,7 +135,6 @@
     <component-type type="LdapObjectClassPanel" specification-path="admin/ldap/LdapObjectClassPanel.jwc"/>
     <component-type type="LineLabel" specification-path="line/LineLabel.jwc"/>
     <component-type type="LineNavigation" specification-path="line/LineNavigation.jwc"/>
-    <component-type type="MusicOnHoldForm" specification-path="admin/MusicOnHoldForm.jwc"/>
     <component-type type="OptionalElement" specification-path="common/OptionalElement.jwc"/>
     <component-type type="PatternsEditor" specification-path="dialplan/PatternsEditor.jwc"/>
     <component-type type="PhoneLabel" specification-path="phone/PhoneLabel.jwc"/>
