@@ -93,6 +93,7 @@ public class LongDistanceRule extends DialingRule {
                 "getTransforms not implemented for LongDistance rule");
     }
 
+    @Override
     public void appendToGenerationRules(List<DialingRule> rules) {
         if (!isEnabled()) {
             return;
@@ -133,9 +134,11 @@ public class LongDistanceRule extends DialingRule {
         rule.setEnabled(isEnabled());
         rule.setGateways(getGateways());
         rule.setCallPattern(calculateCallPattern(areaCode));
-        rule.setDialPatterns(calculateDialPatterns(areaCode));        
+        rule.setDialPatterns(calculateDialPatterns(areaCode));
         List<String> permNames = new ArrayList<String>(1);
-        permNames.add(getPermissionName());
+        if (m_permissionName != null) {
+            permNames.add(m_permissionName);
+        }
         rule.setPermissionNames(permNames);
         return rule;
     }
@@ -181,7 +184,11 @@ public class LongDistanceRule extends DialingRule {
     }
 
     public void setPermission(Permission permission) {
-        m_permissionName = permission.getName();
+        if (permission != null) {
+            m_permissionName = permission.getName();
+        } else {
+            m_permissionName = null;
+        }
     }
 
     public void setPermissionName(String permisisonName) {

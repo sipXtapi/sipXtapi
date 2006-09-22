@@ -29,11 +29,17 @@
     <set name="extraLabel" value="message:label.anyDigits" />
   </bean>
 
-  <bean name="permissionTypeModel"
-    class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel" lifecycle="page">
+  <bean name="barePermissionTypeModel"
+    class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel" lifecycle="request">
     <set name="collection" value="permissionManager.callPermissions" />
     <set name="labelExpression" value="literal:label" />
   </bean>
+  <bean name="permissionTypeModel"
+    class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator" lifecycle="request">
+    <set name="model" value="bean:barePermissionTypeModel" />
+    <set name="extraLabel" value="message:label.noPermission" />
+  </bean>
+
   <!--
     - C O M P O N E N T S
   -->

@@ -92,7 +92,17 @@ public class LongDistanceRuleTest extends TestCase {
         DialingRule rule = getGenerationRule(m_rule);
         List<String> permissions = rule.getPermissionNames();
         assertEquals(1, permissions.size());
-        assertEquals(Permission.LONG_DISTANCE_DIALING, Permission.Type.CALL.create(permissions.get(0)));
+        assertEquals(Permission.LONG_DISTANCE_DIALING, Permission.Type.CALL.create(permissions
+                .get(0)));
+    }
+
+    public void testNoPermissionRequired() {
+        m_rule.setPermission(Permission.INTERNATIONAL_DIALING);
+        DialingRule rule = getGenerationRule(m_rule);
+        assertEquals(1, rule.getPermissionNames().size());
+        m_rule.setPermission(null);
+        rule = getGenerationRule(m_rule);
+        assertEquals(0, rule.getPermissionNames().size());
     }
 
     public void testCalculateDialPatterns() {

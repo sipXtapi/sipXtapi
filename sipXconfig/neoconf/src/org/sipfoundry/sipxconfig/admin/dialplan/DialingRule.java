@@ -185,6 +185,9 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule, Da
     }
 
     protected Permission getPermission(String name) {
+        if (name == null) {
+            return null;
+        }
         if (m_permissionManager == null) {
             throw new IllegalStateException("Permission manager not configured.");
         }
