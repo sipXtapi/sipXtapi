@@ -26,6 +26,7 @@
 #include "net/NameValueTokenizer.h"
 #include "net/XmlRpcDispatch.h"
 #include "sipdb/RegistrationDB.h"
+#include "sipdb/DomainDB.h"
 #include "SipRegistrar.h"
 #include "registry/RegisterPlugin.h"
 #include "SipRedirectServer.h"
@@ -64,6 +65,7 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
    OsServerTask("SipRegistrarMain", NULL, SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE),
    mConfigDb(configDb),
    mRegistrationDB(RegistrationDB::getInstance()), // implicitly loads database
+   mDomainDB(DomainDB::getInstance()),
    mHttpServer(NULL),
    mXmlRpcDispatch(NULL),
    mReplicationConfigured(false),
@@ -321,7 +323,13 @@ bool SipRegistrar::isReplicationConfigured()
 RegistrationDB* SipRegistrar::getRegistrationDB()
 {
    return mRegistrationDB;
-}    
+}
+
+/// Get the DomainDB thread object
+DomainDB* SipRegistrar::getDomainDB()
+{
+   return mDomainDB;
+}
 
 /// Get the config DB
 OsConfigDb* SipRegistrar::getConfigDB()
@@ -387,6 +395,13 @@ SipRegistrar::~SipRegistrar()
     {
        mRegistrationDB->releaseInstance();
        mRegistrationDB = NULL;
+    }
+
+    // release the domain database instance
+    if (mDomainDB)
+    {
+       mDomainDB->releaseInstance();
+       mDomainDB = NULL;
     }
 }
 
@@ -642,9 +657,10 @@ SipRegistrar::isValidDomain(const Url& uri) const
 {
    bool isValid = false;
 
-   UtlString domain;
+   UtlString domain, domainport;
    uri.getHostAddress(domain);
    domain.toLower();
+   domainport = domain;
 
    int port = uri.getHostPort();
    if (port == PORT_NONE)
@@ -654,16 +670,29 @@ SipRegistrar::isValidDomain(const Url& uri) const
    char portNum[15];
    sprintf(portNum,"%d",port);
 
-   domain.append(":");
-   domain.append(portNum);
+   domainport.append(":");
+   domainport.append(portNum);
 
-   if ( mValidDomains.contains(&domain) )
+   if ( mValidDomains.contains(&domainport) )
    {
       isValid = true;
       OsSysLog::add(FAC_AUTH, PRI_DEBUG,
                     "SipRegistrar::isValidDomain(%s) VALID",
-                    domain.data()) ;
+                    domainport.data()) ;
    }
+
+   // Try matching with one of the configured virtual domains
+   if (!isValid && (mDomainDB != NULL))
+   {
+      if (mDomainDB->isDomain(domain) == TRUE)
+      {
+         isValid = true;
+         OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                       "SipRegistrar::isValidDomain(%s) VALID virtual domain",
+                       domain.data()) ;
+      }
+   }
+
    return isValid;
 }
 

@@ -32,6 +32,7 @@
 #include "sipdb/SIPDBManager.h"
 #include "sipdb/CredentialDB.h"
 #include "sipdb/RegistrationDB.h"
+#include "sipdb/DomainDB.h"
 #include "RegistrarPersist.h"
 #include "RegistrarSync.h"
 #include "SipRegistrar.h"
@@ -1077,7 +1078,7 @@ SipRegistrarServer::isAuthorized (
 
     UtlString identity;
     toUrl.getIdentity(identity);
-    
+
     if ( !mUseCredentialDB )
     {
         OsSysLog::add( FAC_AUTH, PRI_DEBUG, "SipRegistrarServer::isAuthorized() "
@@ -1086,6 +1087,24 @@ SipRegistrarServer::isAuthorized (
     }
     else
     {
+        // Get the domain from the To: header uri
+        UtlString domain, realm;
+        toUrl.getHostAddress(domain);
+
+        // Assume the domain is one of the configured virtual domains and
+        // use the realm associated with it.  If this fails, then fall back
+        // to the original behavior which is to use the default realm.
+        if (mRegistrar.getDomainDB()->getRealm(domain, realm) == TRUE)
+        {
+           OsSysLog::add( FAC_AUTH, PRI_DEBUG, "SipRegistrarServer::isAuthorized() "
+                         "found realm '%s' for virtual domain '%s'",
+                         realm.data(), domain.data());
+        }
+        else
+        {
+           realm = mRealm;
+        }
+
         // realm and auth type should be default for server!!!!!!!!!!
         // if URI not defined in DB, the user is not authorized to modify bindings - NOT DOING ANYMORE
         // check if we requested authentication and this is the req with
@@ -1093,7 +1112,7 @@ SipRegistrarServer::isAuthorized (
         OsSysLog::add( FAC_AUTH, PRI_DEBUG,
                       "SipRegistrarServer::isAuthorized()"
                       ": fromUri='%s', toUri='%s', realm='%s' ",
-                      fromUri.data(), toUrl.toString().data(), mRealm.data() );
+                      fromUri.data(), toUrl.toString().data(), realm.data() );
 
         UtlString requestNonce, requestRealm, requestUser, uriParam;
         int requestAuthIndex = 0;
@@ -1113,7 +1132,7 @@ SipRegistrarServer::isAuthorized (
            OsSysLog::add( FAC_AUTH, PRI_DEBUG, "Message Authorization received: "
                     "reqRealm='%s', reqUser='%s'", requestRealm.data() , requestUser.data());
 
-            if ( mRealm.compareTo(requestRealm) == 0 ) // case sensitive check that realm is correct
+           if ( realm.compareTo(requestRealm) == 0 ) // case sensitive check that realm is correct
             {
                 OsSysLog::add(FAC_AUTH, PRI_DEBUG,
                               "SipRegistrarServer::isAuthorized() Realm Matches");
@@ -1126,7 +1145,7 @@ SipRegistrarServer::isAuthorized (
 
                 // validate the nonce
                 if (mNonceDb.isNonceValid(requestNonce, callId, fromTag,
-                                          reqUri, mRealm, mNonceExpiration))
+                                          reqUri, realm, mNonceExpiration))
                 {
                     Url discardUriFromDB;
 
@@ -1162,7 +1181,7 @@ SipRegistrarServer::isAuthorized (
                     {
                         OsSysLog::add(FAC_AUTH, PRI_ERR,
                                       "Unable to get credentials for '%s'\nrealm='%s'\nuser='%s'",
-                                      identity.data(), mRealm.data(), requestUser.data());
+                                      identity.data(), realm.data(), requestUser.data());
                     }
                 }
                 else // nonce is not valid
@@ -1187,13 +1206,13 @@ SipRegistrarServer::isAuthorized (
             mNonceDb.createNewNonce(callId,
                                     fromTag,
                                     challangeRequestUri,
-                                    mRealm,
+                                    realm,
                                     newNonce);
 
-            responseMessage.setRequestUnauthorized ( &message, HTTP_DIGEST_AUTHENTICATION, mRealm,
+            responseMessage.setRequestUnauthorized ( &message, HTTP_DIGEST_AUTHENTICATION, realm,
                                                     newNonce, NULL // opaque
                                                     );
-            
+
         }
     }
     return isAuthorized;

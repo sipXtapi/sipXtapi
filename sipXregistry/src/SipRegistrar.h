@@ -44,6 +44,7 @@ class RegistrarInitialSync;
 class SipRedirectServer;
 class SipRegistrarServer;
 class UtlSListIterator;
+class DomainDB;
 
 /// Top Level sipXregistry thread
 /**
@@ -136,6 +137,9 @@ public:
     /// Get the RegistrationDB object
     RegistrationDB* getRegistrationDB();
 
+    /// Get the DomainDB object
+    DomainDB* getDomainDB();
+
     /// Get the config DB
     OsConfigDb* getConfigDB();
     
@@ -175,6 +179,7 @@ private:
    // so that they are initialized first.
    OsConfigDb* mConfigDb; ///< this is owned by the main routine - do not delete
    RegistrationDB* mRegistrationDB;
+   DomainDB* mDomainDB;
 
    int             mHttpPort;
    HttpServer*     mHttpServer;
