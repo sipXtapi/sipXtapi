@@ -26,6 +26,7 @@
 #endif
 
 #include <utl/UtlHashBagIterator.h>
+#include <utl/UtlSListIterator.h>
 #include <net/SipSrvLookup.h>
 #include <net/SipUserAgent.h>
 #include <net/SipSession.h>
@@ -3129,6 +3130,32 @@ void SipUserAgent::setHostAliases(UtlString& aliases)
         UtlString* newAlias = new UtlString(hostAlias);
         mMyHostAliases.insert(newAlias);
         aliasIndex++;
+    }
+}
+
+void SipUserAgent::setHostAliases(const UtlSList& aliases, int port)
+{
+    UtlSListIterator iterator(aliases);
+    UtlString* aliasString;
+    UtlString hostAlias;
+    int hostPort;
+    char portString[20];
+
+    while ((aliasString = (UtlString*)iterator()))
+    {
+      Url aliasUrl(*aliasString);
+      aliasUrl.getHostAddress(hostAlias);
+      hostPort = aliasUrl.getHostPort();
+
+      if (!portIsValid(hostPort))
+      {
+         hostPort = (portIsValid(port) ? port : 5060);
+      }
+      sprintf(portString, ":%d", hostPort);
+      hostAlias.append(portString);
+
+      UtlString* newAlias = new UtlString(hostAlias);
+      mMyHostAliases.insert(newAlias);
     }
 }
 

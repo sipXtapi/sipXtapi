@@ -15,6 +15,7 @@
 
 // APPLICATION INCLUDES
 #include <utl/UtlHashBag.h>
+#include <utl/UtlSList.h>
 #include <os/OsServerTask.h>
 #include <net/SipUserAgentBase.h>
 #include <net/SipMessage.h>
@@ -478,6 +479,19 @@ public:
      *        "sip:host:port" or "host:port"
      */
     void setHostAliases(UtlString& aliases);
+
+    //! Set other DNS names or IP addresses which are considered to
+    //! refer to this SipUserAgent.
+    /*! Optimized version of previous definition that accepts a
+     * UtlSList of aliases instead of a single space or comma
+     * delimited UtlString. Can be used to load a very large list
+     * of aliases.
+     * \param aliases - list of UtlString aliases of the format:
+     *        "sip:host:port" or "host:port" or "sip:host" or "host"
+     * \param port - port to assign to all aliases in the list
+     *        (supplying a port for each alias in aliases is optional)
+     */
+    void setHostAliases(const UtlSList& aliases, int port = 5060);
 
     //! Flag to recurse only one contact in a 300 response
     void setRecurseOnlyOne300Contact(UtlBoolean recurseOnlyOne);
