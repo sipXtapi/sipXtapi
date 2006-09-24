@@ -25,9 +25,14 @@
 #include <net/SipUserAgent.h>
 #include <net/NameValueTokenizer.h>
 #include <xmlparser/tinyxml.h>
+#include <utl/UtlSList.h>
+#include <utl/UtlSListIterator.h>
 
 #include <SipRouter.h>
 #include <ForwardRules.h>
+
+#include "sipdb/SIPDBManager.h"
+#include "sipdb/DomainDB.h"
 
 #include <ForkingProxyCseObserver.h>
 
@@ -98,6 +103,30 @@ extern "C" {
 
 // GLOBALS
 UtlBoolean gShutdownFlag = FALSE;
+UtlBoolean gClosingIMDB  = FALSE;
+OsMutex*   gpLockMutex = new OsMutex(OsMutex::Q_FIFO);
+
+/**
+ * Description:
+ * closes any open connections to the IMDB safely using a mutex lock
+ */
+void
+closeIMDBConnections ()
+{
+   // Critical Section here
+   OsLock lock( *gpLockMutex );
+
+   // now deregister this process's database references from the IMDB
+   // and also ensure that we do not cause this code recursively
+   // specifically SIGABRT or SIGSEGV could cause problems here
+   if ( !gClosingIMDB )
+   {
+      gClosingIMDB = TRUE;
+      // if deleting this causes another problem in this process
+      // the gClosingIMDB flag above will protect us
+      delete SIPDBManager::getInstance();
+   }
+}
 
 /**
  * Description:
@@ -148,6 +177,9 @@ sigHandler( int sig_num )
     }
     OsSysLog::add( LOG_FACILITY, PRI_CRIT, "sigHandler: closing IMDB connections" );
     OsSysLog::flush();
+
+    // Finally close the IMDB connections
+    closeIMDBConnections();
 }
 
 // Initialize the OsSysLog
@@ -394,7 +426,7 @@ main(int argc, char* argv[])
         configDb.set(CONFIG_SETTING_CALL_STATE_DB_HOST, CALL_STATE_DATABASE_HOST);
         configDb.set(CONFIG_SETTING_CALL_STATE_DB_NAME, CALL_STATE_DATABASE_NAME);
         configDb.set(CONFIG_SETTING_CALL_STATE_DB_USER, CALL_STATE_DATABASE_USER);
-        configDb.set(CONFIG_SETTING_CALL_STATE_DB_DRIVER, CALL_STATE_DATABASE_DRIVER);             
+        configDb.set(CONFIG_SETTING_CALL_STATE_DB_DRIVER, CALL_STATE_DATABASE_DRIVER);
 
         if(configDb.storeToFile(ConfigfileName) != OS_SUCCESS)
         {
@@ -557,6 +589,25 @@ main(int argc, char* argv[])
                   hostAliases.data());
     osPrintf("SIP_PROXY_HOST_ALIASES : %s\n", hostAliases.data());
 
+    // Get all of the virtual domains so that they can be added as host aliases
+    // in SipUserAgent. This is necessary because SipRouter::proxyMessage
+    // examines route headers to determine if the topmost route is to this
+    // proxy or not.  Without this, a route header that contains one of our
+    // virtual domains instead of our ip address will look like another
+    // server and will be incorrectly routed.
+    UtlSList vdomainsList;
+    DomainDB::getInstance()->getAllDomains(&vdomainsList);
+
+#ifdef TEST_PRINT
+    UtlSListIterator iterator(vdomainsList);
+    UtlString* domainString;
+
+    while ((domainString = (UtlString*)iterator()))
+    {
+       OsSysLog::add(FAC_SIP, PRI_INFO, "SipForkingProxyMain virtual domain %s", domainString->data());
+    }
+#endif
+
     UtlString enableCallStateObserverSetting;
     configDb.get(CONFIG_SETTING_CALL_STATE, enableCallStateObserverSetting);
 
@@ -657,8 +708,9 @@ main(int argc, char* argv[])
        }
        OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s",  CONFIG_SETTING_CALL_STATE_DB_DRIVER,
                      callStateDbDriver.data());                          
-    }    
-    
+    }
+
+
     // Select logging method - database takes priority over XML file
     if (enableCallStateLogObserver && enableCallStateDbObserver)
     {
@@ -828,8 +880,12 @@ main(int argc, char* argv[])
     sipUserAgent.setDefaultSerialExpiresSeconds(defaultSerialExpires);
     sipUserAgent.setMaxTcpSocketIdleTime(staleTcpTimeout);
     sipUserAgent.setHostAliases(hostAliases);
+    sipUserAgent.setHostAliases(vdomainsList, proxyUdpPort);  // add virtual domains as aliases
     sipUserAgent.setRecurseOnlyOne300Contact(recurseOnlyOne300);
     sipUserAgent.start();
+
+    // virtual domains list not needed anymore
+    vdomainsList.destroyAll();
 
     UtlString buffer;
 
@@ -920,6 +976,9 @@ main(int argc, char* argv[])
       else
          OsTask::delay(2000);
     }
+
+    // now deregister this process's database references from the IMDB
+    closeIMDBConnections();
 
     // flush and close the call state event log
     if (enableCallStateLogObserver || enableCallStateDbObserver)

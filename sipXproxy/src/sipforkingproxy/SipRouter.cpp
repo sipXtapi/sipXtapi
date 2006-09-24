@@ -99,9 +99,9 @@ SipRouter::~SipRouter()
 
 UtlBoolean SipRouter::handleMessage(OsMsg& eventMessage)
 {
-	if(OsMsg::PHONE_APP == eventMessage.getMsgType())
-	{
-		SipMessageEvent* sipMsgEvent = dynamic_cast<SipMessageEvent*>(&eventMessage);
+   if(OsMsg::PHONE_APP == eventMessage.getMsgType())
+   {
+      SipMessageEvent* sipMsgEvent = dynamic_cast<SipMessageEvent*>(&eventMessage);
 
       int messageType = sipMsgEvent->getMessageStatus();
       if(messageType == SipMessageEvent::TRANSPORT_ERROR)
@@ -109,8 +109,8 @@ UtlBoolean SipRouter::handleMessage(OsMsg& eventMessage)
          OsSysLog::add(FAC_SIP, PRI_CRIT,
                        "SipRouter::handleMessage received transport error message");
       }
-		else
-		{
+      else
+      {
          SipMessage* sipRequest = const_cast<SipMessage*>(sipMsgEvent->getMessage());
          if(sipRequest)
          {
@@ -145,7 +145,7 @@ UtlBoolean SipRouter::handleMessage(OsMsg& eventMessage)
 bool SipRouter::proxyMessage(SipMessage& sipRequest)
 {
    // TBD - [XPR-183] Check for loops here.
-   
+
    /*
     * Check the request URI and the topmost route
     *   - Detect and correct for any strict router upstream
@@ -155,7 +155,7 @@ bool SipRouter::proxyMessage(SipMessage& sipRequest)
    Url requestUri;
    sipRequest.normalizeProxyRoutes(mpSipUserAgent, requestUri);
    // requestUri is set to the target uri from the request line after normalization
-   
+
    UtlString topRouteValue;
    if (sipRequest.getRouteUri(0, &topRouteValue)) 
    {
@@ -169,8 +169,8 @@ bool SipRouter::proxyMessage(SipMessage& sipRequest)
    else // there is no Route header, so route on the Request URI
    {
       UtlString mappedTo;
-      UtlString routeType;               
-                  
+      UtlString routeType;
+
       // see if we have a mapping for the normalized request uri
       if (   mpForwardingRules 
           && (mpForwardingRules->getRoute(requestUri, sipRequest, mappedTo, routeType)==OS_SUCCESS)

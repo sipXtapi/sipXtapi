@@ -26,6 +26,7 @@
 #include "sipdb/CredentialDB.h"
 #include "sipdb/PermissionDB.h"
 #include "sipdb/AuthexceptionDB.h"
+#include "sipdb/DomainDB.h"
 #include "digitmaps/UrlMapping.h"
 #include "SipAaa.h"
 
@@ -699,6 +700,24 @@ UtlBoolean SipAaa::isAuthenticated(
     sipRequest.getFromUrl(fromUrl);
     fromUrl.getFieldParameter("tag", fromTag);
 
+    // Get the domain from the From: header uri
+    UtlString domain, realm;
+    fromUrl.getHostAddress(domain);
+
+    // Assume the domain is one of the configured virtual domains and
+    // use the realm associated with it.  If this fails, then fall back
+    // to the original behavior which is to use the default realm.
+    if (DomainDB::getInstance()->getRealm(domain, realm) == TRUE)
+    {
+       OsSysLog::add( FAC_AUTH, PRI_DEBUG, "SipAaa::isAuthenticated() "
+                     "found realm '%s' for virtual domain '%s'",
+                     realm.data(), domain.data());
+    }
+    else
+    {
+       realm = mRealm;
+    }
+
     // loop through all credentials in the request
     for ( ( authenticated = FALSE, requestAuthIndex = 0 );
           (   ! authenticated
@@ -714,14 +733,14 @@ UtlBoolean SipAaa::isAuthenticated(
           requestAuthIndex++
          )
     {
-        if ( mRealm.compareTo(requestRealm) == 0 ) // case sensitive
+        if ( realm.compareTo(requestRealm) == 0 ) // case sensitive
         {
             OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipAaa:isAuthenticated: checking user '%s'",
                    requestUser.data());
 
             // Ignore this credential if it is not a current valid nonce
             if (mNonceDb.isNonceValid(requestNonce, callId, fromTag,
-                                          requestUri, mRealm, nonceExpires))
+                                          requestUri, realm, nonceExpires))
             {
                Url userUrl;
                UtlString authTypeDB;
@@ -729,7 +748,7 @@ UtlBoolean SipAaa::isAuthenticated(
 
                // then get the credentials for this user and realm
                if(CredentialDB::getInstance()->getCredential(requestUser,
-                                                             mRealm,
+                                                             realm,
                                                              userUrl,
                                                              passTokenDB,
                                                              authTypeDB)
@@ -780,7 +799,7 @@ UtlBoolean SipAaa::isAuthenticated(
                               "Invalid NONCE: %s found "
                               "call-id: %s from tag: %s uri: %s realm: %s expiration: %ld",
                               requestNonce.data(), callId.data(), fromTag.data(),
-                              requestUri.data(), mRealm.data(), nonceExpires);
+                              requestUri.data(), realm.data(), nonceExpires);
             }
         }
         else
@@ -802,12 +821,12 @@ UtlBoolean SipAaa::isAuthenticated(
         mNonceDb.createNewNonce(callId,
                                 fromTag,
                                 challangeRequestUri,
-                                mRealm,
+                                realm,
                                 newNonce);
 
         authResponse.setRequestUnauthorized(&sipRequest,
                                             HTTP_DIGEST_AUTHENTICATION,
-                                            mRealm,
+                                            realm,
                                             newNonce, // nonce
                                             NULL, // opaque - not used
                                             HttpMessage::PROXY);

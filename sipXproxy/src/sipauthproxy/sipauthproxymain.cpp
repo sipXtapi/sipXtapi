@@ -30,7 +30,10 @@
 #include "os/OsTask.h"
 #include "net/SipUserAgent.h"
 #include "net/NameValueTokenizer.h"
+#include "utl/UtlSList.h"
+#include "utl/UtlSListIterator.h"
 #include "sipdb/SIPDBManager.h"
+#include "sipdb/DomainDB.h"
 #include "SipAaa.h"
 #include "AuthProxyCseObserver.h"
 
@@ -507,6 +510,25 @@ main( int argc, char* argv[] )
                   hostAliases.data());
     osPrintf("SIP_AUTHPROXY_HOST_ALIASES : %s\n", hostAliases.data());
 
+    // Get all of the virtual domains so that they can be added as host aliases
+    // in SipUserAgent. This is necessary because SipAaa::handleMessage
+    // examines route headers to determine if the topmost route is to this
+    // proxy or not.  Without this, a route header that contains one of our
+    // virtual domains instead of our ip address will look like another
+    // server and will be incorrectly routed.
+    UtlSList vdomainsList;
+    DomainDB::getInstance()->getAllDomains(&vdomainsList);
+
+#ifdef TEST_PRINT
+    UtlSListIterator iterator(vdomainsList);
+    UtlString* domainString;
+
+    while ((domainString = (UtlString*)iterator()))
+    {
+       OsSysLog::add(FAC_SIP, PRI_INFO, "SipAuthProxyMain virtual domain %s", domainString->data());
+    }
+#endif
+
     UtlString enableCallStateObserverSetting;
     configDb.get(CONFIG_SETTING_CALL_STATE, enableCallStateObserverSetting);
 
@@ -701,7 +723,11 @@ main( int argc, char* argv[] )
 
     sipUserAgent.setForking(FALSE);  // Disable forking
     sipUserAgent.setHostAliases(hostAliases);
+    sipUserAgent.setHostAliases(vdomainsList, proxyUdpPort);  // add virtual domains as aliases
     sipUserAgent.start();
+
+    // virtual domains list not needed anymore
+    vdomainsList.destroyAll();
 
     UtlString buffer;
 
