@@ -12,10 +12,12 @@ create table version_history(
  * For sipXconfig v3.0, the database version is 1.
  * For sipXconfig v3.2, the database version is 2.
  * For sipXconfig v3.3-r6543, the database version is 3.
+ * For sipXconfig v3.5-r7552, the database version is 4.
  */
 insert into version_history (version, applied) values (1, now());
 insert into version_history (version, applied) values (2, now());
 insert into version_history (version, applied) values (3, now());
+insert into version_history (version, applied) values (4, now());
 
 create table patch(
   name varchar(32) not null primary key
@@ -30,8 +32,10 @@ create table phone (
    bean_id varchar(255),
    value_storage_id int4,
    model_id varchar(64),
+   device_version_id varchar(32),
    primary key (phone_id)
 );
+
 create table dial_pattern (
    custom_dialing_rule_id int4 not null,
    element_prefix varchar(255),
@@ -88,6 +92,8 @@ create table park_orbit (
    name varchar(255) unique,
    extension varchar(255),
    description varchar(255),
+   value_storage_id int4,
+   group_id int4,
    primary key (park_orbit_id)
 );
 create table group_storage (
@@ -116,6 +122,14 @@ create table gateway (
    serial_number varchar(255),
    value_storage_id int4,
    model_id varchar(64),
+   device_version_id varchar(32),
+   prefix varchar(255),
+   default_caller_alias varchar(255),
+   anonymous boolean not null default false,
+   ignore_user_info boolean not null default false,
+   transform_user_extension boolean not null default false,
+   add_prefix varchar(255),
+   keep_digits integer not null default 0,
    primary key (gateway_id)
 );
 create table daily_backup_schedule (
@@ -248,6 +262,8 @@ create table long_distance_dialing_rule (
    long_distance_prefix varchar(255),
    permission varchar(255),
    pstn_prefix varchar(255),
+   pstn_prefix_optional bool,
+   long_distance_prefix_optional bool,
    primary key (international_dialing_rule_id)
 );
 create table initialization_task (
@@ -358,8 +374,133 @@ create table holiday_dates (
    primary key (attendant_dialing_rule_id, position)
 );
   
--- make sure that the rules are migrated to new tables
-insert into initialization_task (name) values ('dial_plan_migrate_attendant_rules');
+create table ldap_connection (
+    ldap_connection_id int4 not null,
+    host varchar(255),
+    port int4,
+    principal varchar(255),
+    secret varchar(255),
+    cron_schedule_id int4,
+    primary key (ldap_connection_id)
+);
+
+create table ldap_attr_map (
+    ldap_attr_map_id int4 not null,   
+    default_group_name varchar(255),
+    default_pin varchar(255),
+    search_base varchar(255),
+    object_class varchar(255),
+    filter varchar(255),
+    primary key (ldap_attr_map_id)
+);
+
+create table ldap_user_property_to_ldap_attr (
+    ldap_attr_map_id int4 not null,   
+    user_property varchar(255),
+    ldap_attr varchar(255),
+    primary key (ldap_attr_map_id, user_property)   
+);
+
+create table ldap_selected_object_classes (
+    ldap_attr_map_id int4 not null,
+    object_class varchar(255)
+);
+
+create table cron_schedule (
+    cron_schedule_id int4 not null,   
+    cron_string varchar(255),
+    primary key (cron_schedule_id)   
+);
+
+
+create table supervisor(
+   user_id int4 not null,
+   group_id int4 not null,
+   primary key (user_id, group_id)
+);  
+
+/*
+ * Intercom configuration:
+ *   prefix - the prefix for placing an intercom call
+ *   timeout (in milliseconds) - how long the phone rings before the call is automatically answered
+ *   code - a string sent to the phone that identifies the intercom configuration
+ */
+create table intercom (
+   intercom_id int4 not null,
+   enabled bool not null,
+   prefix varchar(255) not null unique,
+   timeout int4 not null,
+   code varchar(255) not null unique,
+   primary key (intercom_id)
+);
+
+/*
+ * intercom_phone_group is a join table that links an intercom configuration
+ * to one or more phone groups
+ */
+create table intercom_phone_group (
+   intercom_id int4 not null,
+   group_id int4 not null,
+   primary key (intercom_id, group_id)
+);
+
+create table permission (
+  permission_id int4 not null,
+  description varchar(255),
+  label varchar(255),
+  default_value boolean not null,
+  primary key (permission_id)
+);
+
+create table park_orbit_group (
+   park_orbit_id int4 not null,
+   group_id int4 not null,
+   primary key (park_orbit_id, group_id)
+);
+
+create table domain (
+   domain_id int4 not null,   
+   name varchar(255) not null,
+   primary key (domain_id)
+);
+
+create table domain_alias (
+   domain_id int4 not null,
+   alias varchar(255) not null,
+   primary key (domain_id, alias)   
+);
+
+/*
+ * Foreign key constraints
+ */
+ 
+alter table intercom_phone_group
+  add constraint intercom_phone_group_fk1
+  foreign key (intercom_id)
+  references intercom;
+  
+alter table intercom_phone_group
+  add constraint intercom_phone_group_fk2
+  foreign key (group_id)
+  references group_storage;
+
+alter table supervisor add constraint supervisor_fk1 foreign key (user_id) references users;
+alter table supervisor add constraint supervisor_fk2 foreign key (group_id) references group_storage;
+
+alter table ldap_connection
+	add constraint ldap_connection_cron_schedule
+	foreign key (cron_schedule_id)
+	references cron_schedule;
+
+alter table ldap_user_property_to_ldap_attr 
+    add constraint fk_ldap_user_property_to_ldap_attr_ldap_attr_map
+    foreign key (ldap_attr_map_id)
+    references ldap_attr_map;
+
+alter table ldap_selected_object_classes
+    add constraint fk_ldap_selected_object_classes_ldap_attr_map
+    foreign key (ldap_attr_map_id)
+    references ldap_attr_map;
 
 alter table upload add constraint upload_value_storage foreign key (value_storage_id) references value_storage;
 
@@ -448,10 +589,15 @@ create sequence backup_plan_seq;
 create sequence meetme_seq;
 create sequence extension_pool_seq;
 create sequence upload_seq;
+create sequence intercom_seq;
+create sequence domain_seq;
+-- used for native hibernate ids  
+create sequence hibernate_sequence;
 
-/* retro-add initialization items that used legacy interface */
+/* will trigger app event to execute java code before next startup to insert default data */
 insert into initialization_task (name) values ('dial-plans');
 insert into initialization_task (name) values ('default-phone-group');
-
 insert into initialization_task (name) values ('add_default_user_group');
 insert into initialization_task (name) values ('operator');
+insert into initialization_task (name) values ('initialize-domain');
+
