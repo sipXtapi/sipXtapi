@@ -34,8 +34,8 @@ public class SettingDaoTestDb extends SipxDatabaseTestCase {
     }
 
     public void testGetGroupsByString() throws Exception {
-        Group[] groups = (Group[]) dao.getGroupsByString("foo", " g0 g1   g2 \t g3 \n g4 ")
-                .toArray(new Group[0]);
+        Group[] groups = dao.getGroupsByString("foo", " g0 g1   g2 \t g3 \n g4 ").toArray(
+                new Group[0]);
         assertEquals(5, groups.length);
         assertEquals("g0", groups[0].getName());
         assertEquals("g4", groups[4].getName());

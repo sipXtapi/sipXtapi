@@ -15,7 +15,6 @@ import java.util.Arrays;
 import java.util.StringTokenizer;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -26,7 +25,7 @@ public class DialPattern {
     // Set the number of digits in the DialPattern to -1 (or any negative value) to
     // indicate that the number of digits is variable
     public static final int VARIABLE_DIGITS = -1;
-    
+
     private static final String SEPARATORS = " ,";
 
     private String m_prefix;
@@ -54,7 +53,7 @@ public class DialPattern {
     }
 
     public void setPrefix(String prefix) {
-        m_prefix = (String) ObjectUtils.defaultIfNull(prefix, StringUtils.EMPTY);
+        m_prefix = StringUtils.defaultString(prefix);
     }
 
     public String calculatePattern() {

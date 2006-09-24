@@ -12,21 +12,23 @@
 package org.sipfoundry.sipxconfig.site.dialplan;
 
 import org.apache.commons.lang.enums.Enum;
+import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.form.IPropertySelectionModel;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Process;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 import org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel;
+import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.site.admin.commserver.RestartReminderPanel;
 
 /**
  * ActivateDialPlan
  */
-public abstract class ActivateDialPlan extends BasePage {
+public abstract class ActivateDialPlan extends PageWithCallback {
     public static final Enum[] OPTIONS = {
-        ConfigFileType.MAPPING_RULES, ConfigFileType.FALLBACK_RULES, ConfigFileType.AUTH_RULES
+        ConfigFileType.MAPPING_RULES, ConfigFileType.FALLBACK_RULES, ConfigFileType.AUTH_RULES, 
+        ConfigFileType.FORWARDING_RULES
     };
 
     public static final String PAGE = "ActivateDialPlan";
@@ -57,12 +59,16 @@ public abstract class ActivateDialPlan extends BasePage {
         model.setOptions(OPTIONS);
         return model;
     }
+    
+    public void cancel(IRequestCycle cycle) {
+        getCallback().performCallback(cycle);        
+    }
 
-    public String activate() {
+    public void activate(IRequestCycle cycle) {
         DialPlanContext manager = getDialPlanContext();
         manager.activateDialPlan();
         RestartReminderPanel reminder = (RestartReminderPanel) getComponent("reminder");
         reminder.restart();
-        return EditFlexibleDialPlan.PAGE;
+        getCallback().performCallback(cycle);
     }
 }

@@ -1,7 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 include $(top_srcdir)/config/subdir.am
 
-INSTALL=@INSTALL@
 
 # Files to be installed if they do not already exist.
 # But if they already exist, the current contents may need to be edited.
@@ -10,7 +9,8 @@ editetc_IN = \
     mappingrules.xml.in \
     fallbackrules.xml.in
 
-EXTRA_DIST=\
+EXTRA_DIST = \
+  sipregistrar.process.xml.in \
   $(editetc_IN) 
 
 # Install files in $(editetc_IN), or if they already exist, edit
@@ -62,6 +62,6 @@ editetc :
 	  fi; \
 	done
 
-install-data-hook : editetc
-
-
+install-data-hook : \
+	editetc \
+	$(DESTDIR)$(SIPX_PROCDIR)/sipregistrar.process.xml

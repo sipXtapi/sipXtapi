@@ -89,6 +89,8 @@ public abstract class UserForm extends BaseComponent implements PageEndRenderLis
 
             // Set the user aliases from the aliases string
             user.setAliasesString(getAliasesString());
+            // XCF-1243 clean alias string on the screen
+            setAliasesString(null);
             
             // Make sure that the user ID and aliases don't collide with any other
             // user IDs or aliases.  Report an error if there is a collision.

@@ -238,6 +238,7 @@
   <path id="test.path">
     <pathelement location="${test.src.dir}"/>
     <pathelement location="${src.dir}"/>
+    <pathelement location="etc"/>
     <pathelement location="${clover.jar}"/> 
     <path refid="base.path"/>
     <pathelement location="${classes.dir}"/>

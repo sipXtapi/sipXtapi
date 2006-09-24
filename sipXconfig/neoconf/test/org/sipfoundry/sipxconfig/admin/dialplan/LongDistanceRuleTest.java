@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -80,6 +79,20 @@ public class LongDistanceRuleTest extends TestCase {
         assertEquals("5551xxxxxxx", patterns[0]);
     }
 
+    public void testGetTransformedPatternsNoPermission() {
+        Gateway gateway = new Gateway();
+        m_rule.setPstnPrefixOptional(false);
+        m_rule.setPstnPrefix(null);
+        m_rule.setLongDistancePrefix("011");
+        m_rule.setLongDistancePrefixOptional(false);
+        m_rule.setExternalLen(-1);
+        m_rule.setPermission(null);
+        DialingRule rule = getGenerationRule(m_rule);
+        String[] patterns = rule.getTransformedPatterns(gateway);
+        assertEquals(1, patterns.length);
+        assertEquals("011.", patterns[0]);
+    }
+
     public void testGetTransforms() {
         DialingRule rule = getGenerationRule(m_rule);
         Transform[] transforms = rule.getTransforms();
@@ -89,11 +102,21 @@ public class LongDistanceRuleTest extends TestCase {
         assertEquals("longdistance.gateway.com", transform.getHost());
     }
 
-    public void testGetPermissions() {
+    public void testGetPermissionNames() {
         DialingRule rule = getGenerationRule(m_rule);
-        List permissions = rule.getPermissions();
+        List<String> permissions = rule.getPermissionNames();
         assertEquals(1, permissions.size());
-        assertEquals(Permission.LONG_DISTANCE_DIALING, permissions.get(0));
+        assertEquals(Permission.LONG_DISTANCE_DIALING, Permission.Type.CALL.create(permissions
+                .get(0)));
+    }
+
+    public void testNoPermissionRequired() {
+        m_rule.setPermission(Permission.INTERNATIONAL_DIALING);
+        DialingRule rule = getGenerationRule(m_rule);
+        assertEquals(1, rule.getPermissionNames().size());
+        m_rule.setPermission(null);
+        rule = getGenerationRule(m_rule);
+        assertEquals(0, rule.getPermissionNames().size());
     }
 
     public void testCalculateDialPatterns() {
@@ -104,6 +127,17 @@ public class LongDistanceRuleTest extends TestCase {
         assertEquals("1305xxxx", list.get(1).calculatePattern());
         assertEquals("9305xxxx", list.get(2).calculatePattern());
         assertEquals("305xxxx", list.get(3).calculatePattern());
+    }
+
+    public void testCalculateDialPatternsLongAreaCode() {
+        m_rule.setLongDistancePrefixOptional(true);
+        m_rule.setExternalLen(4);
+        List<DialPattern> list = m_rule.calculateDialPatterns("305305305");
+        assertEquals(4, list.size());
+        assertEquals("913053", list.get(0).calculatePattern());
+        assertEquals("13053", list.get(1).calculatePattern());
+        assertEquals("93053", list.get(2).calculatePattern());
+        assertEquals("3053", list.get(3).calculatePattern());
     }
 
     public void testCalculateDialPatternsEmptyPrefixes() {
@@ -124,7 +158,9 @@ public class LongDistanceRuleTest extends TestCase {
         assertEquals("9305xxxx", list.get(1).calculatePattern());
         m_rule.setPstnPrefix(null);
         list = m_rule.calculateDialPatterns("305");
-        assertEquals(0, list.size());
+        assertEquals(2, list.size());
+        assertEquals("1305xxxx", list.get(0).calculatePattern());
+        assertEquals("305xxxx", list.get(1).calculatePattern());
     }
 
     public void testCalculateDialPatternsLongDistancePrefixRequired() {
@@ -135,7 +171,33 @@ public class LongDistanceRuleTest extends TestCase {
         assertEquals("1305xxxx", list.get(1).calculatePattern());
         m_rule.setLongDistancePrefix(null);
         list = m_rule.calculateDialPatterns("305");
-        assertEquals(0, list.size());
+        assertEquals(2, list.size());
+        assertEquals("9305xxxx", list.get(0).calculatePattern());
+        assertEquals("305xxxx", list.get(1).calculatePattern());
+    }
+
+    public void testCalculateEmptyPstnPrefix() {
+        m_rule.setLongDistancePrefixOptional(false);
+        m_rule.setLongDistancePrefix("011");
+        m_rule.setPstnPrefixOptional(false);
+        m_rule.setPstnPrefix(null);
+        m_rule.setExternalLen(-1);
+        assertEquals("011{vdigits}", m_rule.calculateCallPattern("").calculatePattern());
+        List<DialPattern> list = m_rule.calculateDialPatterns("");
+        assertEquals(1, list.size());
+        assertEquals("011.", list.get(0).calculatePattern());
+    }
+
+    public void testCalculateEmptyLongDistancePrefix() {
+        m_rule.setLongDistancePrefixOptional(false);
+        m_rule.setLongDistancePrefix(null);
+        m_rule.setPstnPrefixOptional(false);
+        m_rule.setPstnPrefix("1234");
+        m_rule.setExternalLen(-1);
+        assertEquals("{vdigits}", m_rule.calculateCallPattern("").calculatePattern());
+        List<DialPattern> list = m_rule.calculateDialPatterns("");
+        assertEquals(1, list.size());
+        assertEquals("1234.", list.get(0).calculatePattern());
     }
 
     public void testAnyNumberOfDigits() {
@@ -144,22 +206,21 @@ public class LongDistanceRuleTest extends TestCase {
         assertEquals(2, list.size());
         assertEquals("91305.", list.get(0).calculatePattern());
         assertEquals("1305.", list.get(1).calculatePattern());
-    }    
-    
+    }
+
     public void testCalculateCallPattern() {
         CallPattern callPattern = m_rule.calculateCallPattern("503");
         assertEquals("1503{vdigits}", callPattern.calculatePattern());
     }
-    
+
     public void testAreaCodes() {
         m_rule.setLongDistancePrefixOptional(true);
         m_rule.setAreaCodes("  305 411,222");
         m_rule.setDescription("testDescription");
-        List list = new ArrayList();
+        List<DialingRule> list = new ArrayList<DialingRule>();
         m_rule.appendToGenerationRules(list);
         assertEquals(3, list.size());
-        for (Iterator i = list.iterator(); i.hasNext();) {
-            CustomDialingRule r = (CustomDialingRule) i.next();
+        for (DialingRule r : list) {
             assertEquals("testDescription", r.getDescription());
             String[] patterns = r.getPatterns();
             assertEquals(4, patterns.length);
@@ -167,21 +228,21 @@ public class LongDistanceRuleTest extends TestCase {
             assertTrue(patterns[1].endsWith("xxxx"));
             assertTrue(patterns[2].endsWith("xxxx"));
             assertTrue(patterns[3].endsWith("xxxx"));
-            List permissions = r.getPermissions();
+            List<String> permissions = r.getPermissionNames();
             assertEquals(1, permissions.size());
-            assertEquals(Permission.LONG_DISTANCE_DIALING, permissions.get(0));
+            assertEquals(Permission.LONG_DISTANCE_DIALING.getName(), permissions.get(0));
             Transform[] transforms = r.getTransforms();
             assertEquals(1, transforms.length);
             FullTransform transform = (FullTransform) transforms[0];
             assertTrue(transform.getUser().endsWith("{vdigits}"));
             assertEquals("longdistance.gateway.com", transform.getHost());
         }
-    }        
+    }
 
     public void testTollFreeDialing() {
         m_rule.setPermission(Permission.TOLL_FREE_DIALING);
         DialingRule generationRule = getGenerationRule(m_rule);
-        List permissions = generationRule.getPermissions();
-        assertSame(Permission.TOLL_FREE_DIALING, permissions.get(0));
+        List<String> permissions = generationRule.getPermissionNames();
+        assertSame(Permission.TOLL_FREE_DIALING.getName(), permissions.get(0));
     }
 }

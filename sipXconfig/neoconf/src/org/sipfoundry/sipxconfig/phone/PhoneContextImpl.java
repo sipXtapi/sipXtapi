@@ -170,7 +170,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         return phone;
     }
 
-    public List getGroups() {
+    public List<Group> getGroups() {
         return m_settingDao.getGroups(GROUP_RESOURCE_ID);
     }
 

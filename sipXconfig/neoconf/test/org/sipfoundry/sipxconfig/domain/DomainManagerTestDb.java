@@ -20,7 +20,7 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.domain.DomainManager.DomainNotInitializedException;
 import org.springframework.context.ApplicationContext;
 
-public class DomainTestDb extends TestCase {
+public class DomainManagerTestDb extends TestCase {
     
     private DomainManager m_context;
 
@@ -51,33 +51,22 @@ public class DomainTestDb extends TestCase {
         Domain d = new Domain();
         d.setName("robin");
         m_context.saveDomain(d);
-        assertDomainEquals(d, "domain/DomainUpdateExpected.xml");
+        ReplacementDataSet ds = TestHelper.loadReplaceableDataSetFlat("domain/DomainUpdateExpected.xml");
+        ds.addReplacementObject("[domain_id]", d.getId());
+        ITable actual = ds.getTable("domain");
+        ITable expected = TestHelper.getConnection().createDataSet().getTable("domain");
+        Assertion.assertEquals(expected, actual);
     }
 
     public void testUpdateDomain() throws Exception {
         Domain domain = m_context.getDomain();
         domain.setName("robin");
         m_context.saveDomain(domain);        
-        assertDomainEquals(domain, "domain/DomainUpdateExpected.xml");
-    }
-    
-    public void testSaveAliases() throws Exception {
-        Domain domain = m_context.getDomain();
-        domain.addAlias("waxwing");
-        m_context.saveDomain(domain);
-
-        ReplacementDataSet ds = TestHelper.loadReplaceableDataSetFlat("domain/ExpectedDomainAliases.xml");
+        
+        ReplacementDataSet ds = TestHelper.loadReplaceableDataSetFlat("domain/DomainUpdateExpected.xml");
         ds.addReplacementObject("[domain_id]", domain.getId());
-        ITable expected = ds.getTable("domain_alias");
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("domain_alias");
-        Assertion.assertEquals(expected, actual);                      
-    }
-    
-    private void assertDomainEquals(Domain domain, String expectedFile) throws Exception {
-        ReplacementDataSet ds = TestHelper.loadReplaceableDataSetFlat(expectedFile);
-        ds.addReplacementObject("[domain_id]", domain.getId());
-        ITable expected = ds.getTable("domain");
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("domain");
-        Assertion.assertEquals(expected, actual);        
+        ITable actual = ds.getTable("domain");
+        ITable expected = TestHelper.getConnection().createDataSet().getTable("domain");
+        Assertion.assertEquals(expected, actual);
     }
 }

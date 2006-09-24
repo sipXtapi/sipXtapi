@@ -38,6 +38,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.WorkingHou
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
+import org.sipfoundry.sipxconfig.permission.Permission;
 import org.springframework.context.ApplicationContext;
 
 /**
@@ -57,14 +58,18 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
 
         DialingRule r1 = new CustomDialingRule();
         r1.setName("a1");
-        DialingRule r2 = new CustomDialingRule();
+        CustomDialingRule r2 = new CustomDialingRule();
         r2.setName("a2");
+        r2.setPermissions(Collections.singletonList(Permission.VOICEMAIL));
 
         m_context.storeRule(r1);
         m_context.storeRule(r1);
         assertEquals(1, m_context.getRules().size());
         m_context.storeRule(r2);
         assertEquals(2, m_context.getRules().size());
+
+        CustomDialingRule r = (CustomDialingRule) m_context.load(DialingRule.class, r2.getId());
+        assertEquals(r2.getPermissionNames().get(0), r.getPermissionNames().get(0));
 
         Integer id1 = r1.getId();
         m_context.deleteRules(Collections.singletonList(id1));

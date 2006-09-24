@@ -11,7 +11,7 @@
   <parameter name="applyListener" required="yes"  >
   </parameter>
   <parameter name="validator" required="yes"  />
-  <parameter name="isRequiredEnabled" required="no" default-value="true"/>
+  <parameter name="requiredEnabled" required="no" default-value="true"/>
   <property name="action" />
   <component id="settingsForm" type="Form">
     <binding name="delegate" value="validator"/>
@@ -22,7 +22,7 @@
   </component>
   <component id="settingsFieldset" type="SettingsFieldset">
     <binding name="settings" value="settings"/>
-    <binding name="isRequiredEnabled" value="isRequiredEnabled"/>
+    <binding name="requiredEnabled" value="requiredEnabled"/>
   </component>
   <component id="cancel" type="Submit">
     <binding name="selected" value="action"/>

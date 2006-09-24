@@ -9,6 +9,8 @@
     </property>
     <property name="coreContext" ref="coreContext" />
     <property name="sipxReplicationContext" ref="sipxReplicationContext" />
+    <!-- default music on hold user -->
+    <property name="mohUser" value="moh" />
   </bean>
 
   <bean id="sipxReplicationContextImpl" abstract="true"
@@ -85,6 +87,7 @@
   <bean id="caller-aliasDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.CallerAliases">
     <property name="gatewayContext" ref="gatewayContext" />
+    <property name="anonymousAlias" value="sip:anonymous@anonymous.invalid" />
   </bean>
 
   <bean id="replicationTrigger"

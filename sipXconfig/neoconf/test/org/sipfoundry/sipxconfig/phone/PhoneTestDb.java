@@ -67,7 +67,7 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
     
     public void testLoadAndDelete() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.insertFlat("common/TestUserSeed.xml");
+        TestHelper.insertFlat("common/TestUserSeed.db.xml");
         TestHelper.cleanInsertFlat("phone/EndpointLineSeed.xml");
         
         Phone p = context.loadPhone(new Integer(1000));
@@ -110,7 +110,7 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
     
     public void testAddGroup() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.insertFlat("common/TestUserSeed.xml");
+        TestHelper.insertFlat("common/TestUserSeed.db.xml");
         TestHelper.cleanInsertFlat("phone/EndpointSeed.xml");
         TestHelper.cleanInsertFlat("phone/SeedPhoneGroup.xml");
         
@@ -174,7 +174,7 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
 
     public void testClear() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.insertFlat("common/TestUserSeed.xml");
+        TestHelper.insertFlat("common/TestUserSeed.db.xml");
         TestHelper.cleanInsertFlat("phone/EndpointLineSeed.xml");
         context.clear();
     }
@@ -191,7 +191,7 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
     
     public void testPhonesByUserId() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsertFlat("common/TestUserSeed.xml");
+        TestHelper.cleanInsertFlat("common/TestUserSeed.db.xml");
         TestHelper.cleanInsertFlat("phone/EndpointLineSeed.xml");
         Collection phones = context.getPhonesByUserId(new Integer(1000));
         assertEquals(1, phones.size());
@@ -201,7 +201,7 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
     
     public void testDeleteUserRemoveLines() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsertFlat("common/TestUserSeed.xml");
+        TestHelper.cleanInsertFlat("common/TestUserSeed.db.xml");
         TestHelper.cleanInsertFlat("phone/EndpointLineSeed.xml");
         User testUser = core.loadUser(new Integer(1000));
         core.deleteUser(testUser);
@@ -212,7 +212,7 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
     
     public void testDeleteUserOnPhoneWithExternalLines() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsertFlat("common/TestUserSeed.xml");
+        TestHelper.cleanInsertFlat("common/TestUserSeed.db.xml");
         TestHelper.cleanInsertFlat("phone/ExternalLineSeed.xml");
         User testUser = core.loadUser(new Integer(1000));
         core.deleteUser(testUser);

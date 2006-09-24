@@ -50,11 +50,11 @@ public class CallerAliasesTest extends XMLTestCase {
 
     private Object[][] GATEWAY_DATA = {
         {
-            "example.org", "7832331111", true, false, "", -1
+            "example.org", "7832331111", true, false, "", -1, false
         }, {
-            "bongo.com", null, false, false, "", -1
+            "bongo.com", null, false, false, "", -1, false
         }, {
-            "kuku.net", "233", false, true, "+", 2
+            "kuku.net", "233", false, true, "+", 2, true
         }
     };
 
@@ -73,8 +73,8 @@ public class CallerAliasesTest extends XMLTestCase {
 
             user.setFirstName(ud[0]);
             user.setLastName(ud[1]);
-            user.setUserName(ud[2]);            
-            user.setSettingValue(UserCallerAliasInfo.EXTERNAL_NUMBER, ud[3]);            
+            user.setUserName(ud[2]);
+            user.setSettingValue(UserCallerAliasInfo.EXTERNAL_NUMBER, ud[3]);
             user.addAlias(ud[4]);
             m_users.add(user);
         }
@@ -86,9 +86,10 @@ public class CallerAliasesTest extends XMLTestCase {
             GatewayCallerAliasInfo info = new GatewayCallerAliasInfo();
             info.setDefaultCallerAlias((String) gd[1]);
             info.setIgnoreUserInfo((Boolean) gd[2]);
-            info.setTransformUserId((Boolean) gd[3]);
+            info.setTransformUserExtension((Boolean) gd[3]);
             info.setAddPrefix((String) gd[4]);
             info.setKeepDigits((Integer) gd[5]);
+            info.setAnonymous((Boolean) gd[6]);
             gateway.setCallerAliasInfo(info);
             m_gateways.add(gateway);
         }
@@ -122,6 +123,7 @@ public class CallerAliasesTest extends XMLTestCase {
     public void testGenerate() throws Exception {
         CallerAliases cas = new CallerAliases();
         cas.setSipDomain("example.org");
+        cas.setAnonymousAlias("sip:anonymous@anonymous.invalid");
 
         CoreContext coreContext = EasyMock.createMock(CoreContext.class);
         coreContext.loadUsers();
@@ -139,8 +141,6 @@ public class CallerAliasesTest extends XMLTestCase {
         Document document = cas.generate();
 
         String casXml = XmlUnitHelper.asString(document);
-        System.err.println(casXml);
-
         InputStream referenceXmlStream = AliasesTest.class
                 .getResourceAsStream("caller-alias.test.xml");
         assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(casXml));

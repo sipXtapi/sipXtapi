@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
@@ -27,6 +28,7 @@ import org.dom4j.Element;
 import org.dom4j.VisitorSupport;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
@@ -92,7 +94,7 @@ public class MappingRulesTest extends XMLTestCase {
 
         assertXpathExists("/mappings/hostMatch[2]/hostPattern", xml);
     }
-    
+
     public void testGetDocumentValidExternalsExtraSpaceInFilename() throws Exception {
         URL resource = getClass().getResource("external_mappingrules.test.xml");
 
@@ -112,7 +114,6 @@ public class MappingRulesTest extends XMLTestCase {
 
         assertXpathExists("/mappings/hostMatch[2]/hostPattern", xml);
     }
-    
 
     /**
      * This is mostly to demonstrate how complicated the XPatch expression becomes for a document
@@ -155,6 +156,8 @@ public class MappingRulesTest extends XMLTestCase {
         IDialingRule rule = control.createMock(IDialingRule.class);
         rule.isInternal();
         control.andReturn(true);
+        rule.getHostPatterns();
+        control.andReturn(ArrayUtils.EMPTY_STRING_ARRAY);
         rule.getName();
         control.andReturn(null);
         rule.getDescription();
@@ -165,9 +168,9 @@ public class MappingRulesTest extends XMLTestCase {
         });
         rule.isInternal();
         control.andReturn(true);
-        rule.getPermissions();
-        control.andReturn(Arrays.asList(new Permission[] {
-            Permission.VOICEMAIL
+        rule.getPermissionNames();
+        control.andReturn(Arrays.asList(new String[] {
+            Permission.VOICEMAIL.getName()
         }));
         rule.getTransforms();
         control.andReturn(new Transform[] {
@@ -239,6 +242,7 @@ public class MappingRulesTest extends XMLTestCase {
         controlPlan.replay();
 
         ConfigGenerator generator = new ConfigGenerator();
+        generator.getForwardingRules().setVelocityEngine(TestHelper.getVelocityEngine());
         generator.generate(plan, null);
 
         String generatedXml = generator.getFileContent(ConfigFileType.MAPPING_RULES);
@@ -259,5 +263,39 @@ public class MappingRulesTest extends XMLTestCase {
         assertEquals(f1.hashCode(), f2.hashCode());
         assertFalse(f1.equals(null));
         assertFalse(f1.equals(f3));
+    }
+
+    public void testHostPatternProvider() throws Exception {
+        IMocksControl control = EasyMock.createNiceControl();
+        IDialingRule rule = control.createMock(IDialingRule.class);
+        rule.isInternal();
+        control.andReturn(true).times(2);
+        rule.getHostPatterns();
+        control.andReturn(new String[] {
+            "gander"
+        });
+        rule.getPatterns();
+        control.andReturn(new String[] {
+            "dot"
+        });
+        rule.getPermissionNames();
+        control.andReturn(Collections.EMPTY_LIST);
+        rule.getTransforms();
+        control.andReturn(new Transform[0]);
+
+        control.replay();
+
+        MappingRules mappingRules = new MappingRules();
+        mappingRules.begin();
+        mappingRules.generate(rule);
+        mappingRules.end();
+
+        Document document = mappingRules.getDocument();
+        String domDoc = XmlUnitHelper.asString(document);
+
+        assertXpathExists("/mappings/hostMatch[2]/hostPattern", domDoc);
+        assertXpathExists("/mappings/hostMatch[2]/userMatch/userPattern", domDoc);
+
+        control.verify();
     }
 }

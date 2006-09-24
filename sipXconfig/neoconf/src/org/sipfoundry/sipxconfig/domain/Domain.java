@@ -41,6 +41,10 @@ public class Domain extends BeanWithId implements Cloneable {
     public void setName(String name) {
         m_name = name;
     }
+    
+    public boolean hasAliases() {
+        return m_aliases != null && m_aliases.size() > 0;
+    }
 
     /**
      * Addresses (potentially invalid or inaccessable to sipx) that sipx commservers will accept

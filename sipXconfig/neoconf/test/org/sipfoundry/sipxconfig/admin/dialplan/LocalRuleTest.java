@@ -34,6 +34,7 @@ public class LocalRuleTest extends TestCase {
         
         Gateway g = new Gateway();
         g.setAddress("local.gateway.com");
+        g.setPrefix("4321");
         m_rule.setGateways(Collections.singletonList(g));        
     }
 
@@ -48,14 +49,14 @@ public class LocalRuleTest extends TestCase {
         Transform[] transforms = m_rule.getTransforms();
         assertEquals(1,transforms.length);
         FullTransform transform = (FullTransform) transforms[0];
-        assertEquals("{vdigits}", transform.getUser());
+        assertEquals("4321{vdigits}", transform.getUser());
         assertEquals("local.gateway.com", transform.getHost());
     }
 
-    public void testGetPermissions() {
-        List permissions = m_rule.getPermissions();
+    public void testGetPermissionNames() {
+        List<String> permissions = m_rule.getPermissionNames();
         assertEquals(1, permissions.size());
-        assertEquals(Permission.LOCAL_DIALING, permissions.get(0));
+        assertEquals(Permission.LOCAL_DIALING.getName(), permissions.get(0));
     }
     
     public void testGetTranformedPatters() throws Exception {

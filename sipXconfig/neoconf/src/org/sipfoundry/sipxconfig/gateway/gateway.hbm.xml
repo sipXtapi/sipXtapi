@@ -26,6 +26,11 @@
 
     <component name="callerAliasInfo" class="GatewayCallerAliasInfo">
       <property name="defaultCallerAlias" />
+      <property name="anonymous" not-null="true" />
+      <property name="ignoreUserInfo" not-null="true" />
+      <property name="transformUserExtension" not-null="true" />
+      <property name="addPrefix" />
+      <property name="keepDigits" not-null="true" />
     </component>
 
   </class>

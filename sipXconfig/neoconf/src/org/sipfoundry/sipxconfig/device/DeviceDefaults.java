@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.device;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxServer;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.InternalRule;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
@@ -32,15 +33,17 @@ public class DeviceDefaults {
     private String m_authorizationRealm;
 
     private DialPlanContext m_dialPlanContext;
-    
+
     private DomainManager m_domainManager;
+
+    private SipxServer m_sipxServer;
 
     /** see config.defs PROXY_SERVER_ADDR */
     private String m_proxyServerAddr;
 
     /** see config.defs PROXY_SERVER_SIP_PORT */
     private String m_proxyServerSipPort;
-    
+
     private DeviceTimeZone m_timeZone = new DeviceTimeZone();
 
     public void setDialPlanContext(DialPlanContext dialPlanContext) {
@@ -131,16 +134,24 @@ public class DeviceDefaults {
     public void setFullyQualifiedDomainName(String fullyQualifiedDomainName) {
         m_fullyQualifiedDomainName = fullyQualifiedDomainName;
     }
-    
+
     public DeviceTimeZone getTimeZone() {
         return m_timeZone;
     }
-    
+
     public void setDeviceTimeZone(DeviceTimeZone zone) {
         m_timeZone = zone;
     }
 
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
+    }
+
+    public void setSipxServer(SipxServer sipxServer) {
+        m_sipxServer = sipxServer;
+    }
+
+    public SipxServer getSipxServer() {
+        return m_sipxServer;
     }
 }

@@ -11,7 +11,7 @@
     <description>
       If set to true, rule has been changed by this component and needs to be saved.
     </description>
-  </parameter>  
+  </parameter>
 
   <!-- P R O P E R T I E S -->
   <inject property="gatewayContext" object="spring:gatewayContext" />
@@ -25,7 +25,6 @@
   <component id="gatewayTable" type="GatewayTable">
     <binding name="gatewayCollection" value="rule.gateways" />
     <binding name="ruleId" value="rule.id" />
-    <binding name="editPageName" value="literal:EditGateway" />
   </component>
   <component id="gatewayActions" type="GroupActions">
     <binding name="actionModel" value="actionModel" />

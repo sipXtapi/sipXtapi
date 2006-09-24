@@ -1,9 +1,9 @@
-INSTALL=@INSTALL@
 
 EXTRA_DIST = \
+    sipxconference.process.xml.in \
     sipxconference-config.in
 
-install-data-hook :
+install-data-hook : $(DESTDIR)$(SIPX_PROCDIR)/sipxconference.process.xml
 	@for f in $(EXTRA_DIST); \
 	do \
 		if ! test -f $(DESTDIR)$(sysconfdir)/sipxpbx/$$f; \

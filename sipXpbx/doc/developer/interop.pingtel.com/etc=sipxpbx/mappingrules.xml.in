@@ -4,6 +4,16 @@
     <hostPattern>${SIPXCHANGE_DOMAIN_NAME}</hostPattern>
     <hostPattern>${MY_IP_ADDR}</hostPattern>
 
+    <!-- Support ISN dialing: match on "digits*digits" -->
+    <userMatch>
+      <userPattern>x.*x.</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>&lt;sip:{digits}@isn.tello.com&gt;</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
     <!-- 'operator', '0', or extension 100 goes to AutoAttendant -->
     <userMatch>
       <userPattern>operator</userPattern>
@@ -181,16 +191,6 @@
       <permissionMatch>
         <transform>
           <user>InfiniteLoop</user>
-        </transform>
-      </permissionMatch>
-    </userMatch>
-
-    <!-- Support ISN dialing: match on "digits*digits" -->
-    <userMatch>
-      <userPattern>x.\*x.</userPattern>
-      <permissionMatch>
-        <transform>
-          <url>&lt;sip:{digits}@isn.tello.com&gt;</url>
         </transform>
       </permissionMatch>
     </userMatch>

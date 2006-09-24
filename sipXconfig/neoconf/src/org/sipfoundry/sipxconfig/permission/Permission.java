@@ -185,14 +185,14 @@ public final class Permission implements Comparable<Permission>, PrimaryKeySourc
             return true;
         }
         Permission rhs = (Permission) obj;
-        // only compare name and type
-        return new EqualsBuilder().append(m_type, rhs.m_type).append(m_name, rhs.m_name)
+        // only compare name and type - make sure that you compare names using getName (and not m_name)        
+        return new EqualsBuilder().append(m_type, rhs.m_type).append(getName(), rhs.getName())
                 .isEquals();
 
     }
 
     public int hashCode() {
-        return new HashCodeBuilder().append(m_name).append(m_type).hashCode();
+        return new HashCodeBuilder().append(getName()).append(m_type).hashCode();
     }
 
     public int compareTo(Permission o) {

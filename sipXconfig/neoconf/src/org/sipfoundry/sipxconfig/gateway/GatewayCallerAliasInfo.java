@@ -14,7 +14,7 @@ package org.sipfoundry.sipxconfig.gateway;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.User;
 
-public class GatewayCallerAliasInfo {
+public class GatewayCallerAliasInfo implements Cloneable {
     private String m_defaultCallerAlias;
 
     private boolean m_anonymous;
@@ -38,7 +38,7 @@ public class GatewayCallerAliasInfo {
         if (!m_transformUserExtension) {
             return null;
         }
-        String extension = user.getExtension();
+        String extension = user.getExtension(true);
         if (extension == null) {
             // nothing to transform
             return null;
@@ -92,11 +92,15 @@ public class GatewayCallerAliasInfo {
         m_keepDigits = keepDigits;
     }
 
-    public boolean isTransformUserId() {
+    public boolean isTransformUserExtension() {
         return m_transformUserExtension;
     }
 
-    public void setTransformUserId(boolean transformUserId) {
-        m_transformUserExtension = transformUserId;
+    public void setTransformUserExtension(boolean transformUserExtension) {
+        m_transformUserExtension = transformUserExtension;
+    }
+
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }

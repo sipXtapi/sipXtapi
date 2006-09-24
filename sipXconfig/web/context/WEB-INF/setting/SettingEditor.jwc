@@ -6,7 +6,7 @@
   <parameter name="setting" required="yes"/>
   <parameter name="enabled" required="no" default-value="true">
   </parameter>
-  <parameter name="isRequiredEnabled" required="no" default-value="true"/>
+  <parameter name="requiredEnabled" required="yes"/>
   <component id="fieldPanel" type="FieldPanel">
     <binding name="field" value="formComponent"/>
     <binding name="label" value="setting.label"/>

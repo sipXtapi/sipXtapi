@@ -16,7 +16,7 @@
   </item>
   <item>
     <target_domain>kuku.net</target_domain>
-    <caller_alias>sip:233@example.org</caller_alias>
+    <caller_alias>sip:anonymous@anonymous.invalid</caller_alias>
   </item>
   <item>
     <identity>userName@example.org</identity>

@@ -1,7 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 include $(top_srcdir)/config/subdir.am
 
-INSTALL=@INSTALL@
 
 INCLUDES = -I$(top_srcdir)/include
 

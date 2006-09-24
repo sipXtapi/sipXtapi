@@ -19,6 +19,7 @@ import org.apache.commons.lang.enums.Enum;
  */
 public final class ConfigFileType extends Enum {
     public static final ConfigFileType MAPPING_RULES = new ConfigFileType("mappingrules.xml");
+    public static final ConfigFileType FORWARDING_RULES = new ConfigFileType("forwardingrules.xml");
     public static final ConfigFileType FALLBACK_RULES = new ConfigFileType("fallbackrules.xml");
     public static final ConfigFileType AUTH_RULES = new ConfigFileType("authrules.xml");
     public static final ConfigFileType ORBITS = new ConfigFileType("orbits.xml");

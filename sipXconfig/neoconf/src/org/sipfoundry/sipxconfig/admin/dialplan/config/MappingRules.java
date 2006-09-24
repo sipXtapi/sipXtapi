@@ -11,14 +11,12 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
-import java.util.Iterator;
 import java.util.List;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.QName;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
-import org.sipfoundry.sipxconfig.permission.Permission;
 
 /**
  * Special type of mappingrules document with a single host match matching standard SIPx hosts
@@ -46,20 +44,7 @@ public class MappingRules extends RulesXmlFile {
         QName mappingsName = FACTORY.createQName("mappings", m_namespace);
         Element mappings = m_doc.addElement(mappingsName);
         addExternalRules(mappings);
-        m_hostMatch = createFirstHostMatch(mappings);
-    }
-
-    /**
-     * @param mappings root element of the mappingrules document
-     */
-    private Element createFirstHostMatch(Element mappings) {
-        Element hostMatch1 = mappings.addElement("hostMatch");
-        for (int i = 0; i < HOSTS.length; i++) {
-            String host = HOSTS[i];
-            Element hostPattern = hostMatch1.addElement("hostPattern");
-            hostPattern.setText(host);
-        }
-        return hostMatch1;
+        m_hostMatch = addHostPatterns(HOSTS, mappings);
     }
 
     Element getFirstHostMatch() {
@@ -77,7 +62,16 @@ public class MappingRules extends RulesXmlFile {
     }
 
     protected final void generateRule(IDialingRule rule) {
+        String[] hostPatterns = rule.getHostPatterns();
         Element hostMatch = getFirstHostMatch();
+        if (hostPatterns.length > 0) {
+            Element root = getDocument().getRootElement();
+            hostMatch = addHostPatterns(hostPatterns, root);
+        }
+        generateRule(rule, hostMatch);
+    }
+
+    private void generateRule(IDialingRule rule, Element hostMatch) {
         Element userMatch = hostMatch.addElement("userMatch");
         addRuleNameComment(userMatch, rule);
         addRuleDescription(userMatch, rule);
@@ -89,11 +83,10 @@ public class MappingRules extends RulesXmlFile {
         }
         Element permissionMatch = userMatch.addElement("permissionMatch");
         if (rule.isInternal()) {
-            List permissions = rule.getPermissions();
-            for (Iterator i = permissions.iterator(); i.hasNext();) {
-                Permission permission = (Permission) i.next();
+            List<String> permissions = rule.getPermissionNames();
+            for (String permission : permissions) {
                 Element permissionElement = permissionMatch.addElement("permission");
-                permissionElement.setText(permission.getName());
+                permissionElement.setText(permission);
             }
         }
         Transform[] transforms = rule.getTransforms();
@@ -101,6 +94,15 @@ public class MappingRules extends RulesXmlFile {
             Transform transform = transforms[i];
             transform.addToParent(permissionMatch);
         }
+    }
+
+    protected Element addHostPatterns(String[] hostPatterns, Element mappings) {
+        Element hostMatch = mappings.addElement("hostMatch");
+        for (String hostPattern : hostPatterns) {
+            Element pattern = hostMatch.addElement("hostPattern");
+            pattern.setText(hostPattern);
+        }
+        return hostMatch;
     }
 
     public void end() {

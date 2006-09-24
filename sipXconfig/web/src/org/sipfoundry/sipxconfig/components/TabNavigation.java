@@ -19,4 +19,10 @@ public abstract class TabNavigation extends BaseComponent {
     public void activateTab(String tabName) {
         setSelectedTab(tabName);
     }
+
+    public void submitAndActivateTab(String tabName) {
+        if (TapestryUtils.isValid(this)) {
+            setSelectedTab(tabName);
+        }
+    }
 }

@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.DataCollectionItem;
@@ -39,7 +40,7 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule, Da
     private String m_description;
     private int m_position;
     private List<Gateway> m_gateways = new ArrayList<Gateway>();
-    private PermissionManager m_permissionManager;
+    private transient PermissionManager m_permissionManager;
 
     public abstract String[] getPatterns();
 
@@ -85,7 +86,19 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule, Da
         m_gateways = gateways;
     }
 
-    public List<Permission> getPermissions() {
+    public final List<Permission> getPermissions() {
+        List<String> permissionNames = getPermissionNames();
+        List<Permission> permissions = new ArrayList<Permission>(permissionNames.size());
+        for (String name : permissionNames) {
+            Permission permission = getPermission(name);
+            if (permission != null) {
+                permissions.add(permission);
+            }
+        }
+        return permissions;
+    }
+
+    public List<String> getPermissionNames() {
         return Collections.emptyList();
     }
 
@@ -172,9 +185,16 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule, Da
     }
 
     protected Permission getPermission(String name) {
+        if (name == null) {
+            return null;
+        }
         if (m_permissionManager == null) {
             throw new IllegalStateException("Permission manager not configured.");
         }
-        return m_permissionManager.getPermission(name);
+        return m_permissionManager.getPermissionByName(name);
+    }
+
+    public String[] getHostPatterns() {
+        return ArrayUtils.EMPTY_STRING_ARRAY;
     }
 }

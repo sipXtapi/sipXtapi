@@ -6,7 +6,6 @@ SCRIPT_TEMPLATES = \
 	check-cert.sh \
 	ca_rehash
 
-INSTALL=@INSTALL@
 
 EXTRA_DIST = \
 	$(foreach sipxScript,$(SCRIPT_TEMPLATES),$(sipxScript).in)

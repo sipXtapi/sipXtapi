@@ -4,7 +4,6 @@ include $(top_srcdir)/config/subdir.am
 
 unconditional_SUBDIRS = . src bin etc doc
 
-INSTALL = @INSTALL@
 
 editscripts_IN = \
     bin/sipxconference.sh.in
@@ -18,7 +17,7 @@ editscripts :
 	done
 
 #EXTRA_DIST = \
-#    CONTRIBUTORS
+#    CONTRIBUTORS \
 #    sipxconference.spec
 
 SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)

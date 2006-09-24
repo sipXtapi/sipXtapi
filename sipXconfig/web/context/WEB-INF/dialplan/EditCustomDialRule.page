@@ -15,7 +15,7 @@
     - B E A N S
   -->
   <bean name="permissionTypeModel"
-    class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel" lifecycle="page">
+    class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel" lifecycle="request">
     <set name="collection" value="permissionManager.callPermissions" />
     <set name="labelExpression" value="literal:label" />
   </bean>

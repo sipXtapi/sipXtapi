@@ -4,7 +4,6 @@ include $(top_srcdir)/config/subdir.am
 
 INCLUDES = -I$(top_srcdir)/include -I$(top_builddir)/config
 
-INSTALL = @INSTALL@
 
 bin_PROGRAMS = xsdvalid
 

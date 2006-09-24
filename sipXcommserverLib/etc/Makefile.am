@@ -2,11 +2,11 @@
 include $(top_srcdir)/config/subdir.am
 
 EXTRA_DIST = \
+    keepalive.process.xml.in \
     config.defs.in
 
-INSTALL=@INSTALL@
-
 install-data-hook : \
+		$(DESTDIR)$(SIPX_PROCDIR)/keepalive.process.xml \
 		$(DESTDIR)$(sysconfdir)/sipxpbx/config.defs
 
 $(DESTDIR)$(sysconfdir)/sipxpbx/config.defs: config.defs

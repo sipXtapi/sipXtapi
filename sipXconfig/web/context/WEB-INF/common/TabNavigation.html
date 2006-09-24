@@ -2,9 +2,16 @@
   <div id="settings-nav">
     <ul>
       <li jwcid="tabLinks" element="li">
-        <a href="#" jwcid="tabLink">
-          <span jwcid="tabLabel"/>
-        </a>
+        <span jwcid="@If" condition="ognl:submit" volatile="ognl:true">
+          <a href="#" jwcid="tabSubmitLink">
+            <span jwcid="tabSubmitLabel"/>
+          </a>        
+        </span>
+        <span jwcid="@Else" volatile="ognl:true">
+          <a href="#" jwcid="tabLink">
+            <span jwcid="tabLabel"/>
+          </a>        
+        </span>
       </li>
     </ul>
   </div>

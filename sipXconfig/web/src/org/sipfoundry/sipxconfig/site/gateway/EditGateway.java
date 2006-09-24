@@ -11,10 +11,12 @@
  */
 package org.sipfoundry.sipxconfig.site.gateway;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.tapestry.IPage;
+import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
@@ -40,9 +42,9 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
     public abstract Integer getRuleId();
 
     public abstract void setRuleId(Integer id);
-    
+
     public abstract void setGatewayModel(PhoneModel model);
-    
+
     public abstract PhoneModel getGatewayModel();
 
     public abstract DialPlanContext getDialPlanContext();
@@ -53,20 +55,15 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
 
     public abstract void setCurrentSettingSet(SettingSet currentSettingSet);
 
-    private boolean isValid() {
-        IValidationDelegate delegate = (IValidationDelegate) getBeans().getBean("validator");
-        return !delegate.getHasErrors();
-    }
-
-    public void apply() {
-        if (isValid()) {
-            saveGateway();
-        }
-    }
+    public abstract SettingSet getCurrentSettingSet();
 
     public void pageBeginRender(PageEvent event_) {
         Gateway gateway = getGateway();
-        if (null != gateway) {
+        // HACK: even if we have the gateway we need to check if gatewayID matches
+        // this is because edit page provider does not, clean persistent properties
+        if (null != gateway && ObjectUtils.equals(gateway.getId(), getGatewayId())) {
+            // still need to adjust settings - gateway is persisten, settings are not
+            setSettingProperties(gateway);
             return;
         }
         Integer id = getGatewayId();
@@ -77,22 +74,31 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
             gateway = gatewayContext.newGateway(getGatewayModel());
         }
         setGateway(gateway);
+        setSettingProperties(gateway);
 
-        // settings part
-        SettingSet root = (SettingSet) gateway.getSettings();
-        if (root != null) {
-            String currentSettingSetName = getCurrentSettingSetName();
-            SettingSet currentSettingSet;
-            if (StringUtils.isBlank(currentSettingSetName)) {
-                currentSettingSet = (SettingSet) root.getDefaultSetting(SettingSet.class);
-            } else {
-                currentSettingSet = (SettingSet) root.getSetting(currentSettingSetName);
-            }
-            setCurrentSettingSet(currentSettingSet);
-        }
     }
 
-    void saveGateway() {
+    private void setSettingProperties(Gateway gateway) {
+        if (getCurrentSettingSet() != null) {
+            // it's already set
+            return;
+        }
+        SettingSet root = (SettingSet) gateway.getSettings();
+        if (root == null) {
+            // no settings for this gateway
+            return;
+        }
+        String currentSettingSetName = getCurrentSettingSetName();
+        SettingSet currentSettingSet;
+        if (StringUtils.isBlank(currentSettingSetName)) {
+            currentSettingSet = (SettingSet) root.getDefaultSetting(SettingSet.class);
+        } else {
+            currentSettingSet = (SettingSet) root.getSetting(currentSettingSetName);
+        }
+        setCurrentSettingSet(currentSettingSet);
+    }
+
+    public void saveGateway() {
         Gateway gateway = getGateway();
         GatewayContext gatewayContext = getGatewayContext();
         gatewayContext.storeGateway(gateway);
@@ -109,5 +115,27 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
             setGatewayId(gateway.getId());
             setGateway(null);
         }
+    }
+
+    public static EditGateway getEditPage(IRequestCycle cycle, Integer gatewayId,
+            IPage returnPage, Integer ruleId) {
+        EditGateway page = (EditGateway) cycle.getPage(PAGE);
+        page.setGatewayModel(null);
+        page.setGatewayId(gatewayId);
+        page.setGateway(null);
+        page.setRuleId(ruleId);
+        page.setReturnPage(returnPage);
+        return page;
+    }
+
+    public static EditGateway getAddPage(IRequestCycle cycle, PhoneModel model, IPage returnPage,
+            Integer ruleId) {
+        EditGateway page = (EditGateway) cycle.getPage(PAGE);
+        page.setGatewayModel(model);
+        page.setGatewayId(null);
+        page.setGateway(null);
+        page.setRuleId(ruleId);
+        page.setReturnPage(returnPage);
+        return page;
     }
 }

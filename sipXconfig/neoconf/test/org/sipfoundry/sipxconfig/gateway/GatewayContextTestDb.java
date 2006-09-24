@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting;
 import org.sipfoundry.sipxconfig.admin.dialplan.InternationalRule;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.springframework.context.ApplicationContext;
 
@@ -60,6 +61,25 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
         assertTrue(m_context.getGateways().contains(g2));
     }
 
+    public void testAddDuplicateGatewayDuplicate() throws Exception {
+        Gateway g1 = new Gateway();
+        g1.setName("bongo");
+        Gateway g2 = new Gateway();
+        g2.setName("bongo");
+
+        // add g1
+        m_context.storeGateway(g1);
+
+        // add g2
+        try {
+            m_context.storeGateway(g2);
+            fail("Duplicate gateway names should not be possible.");
+        }
+        catch(UserException e) {
+            // ok
+        }
+    }
+
     public void testDeleteGateway() {
         Gateway g1 = new Gateway();
         Gateway g2 = new Gateway();
@@ -89,15 +109,25 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
         m_context.storeGateway(g1);
         g1.setAddress("10.1.1.2");
         g1.setPrefix("33");
-        
+
         GatewayCallerAliasInfo info = new GatewayCallerAliasInfo();
         info.setDefaultCallerAlias("3211231234");
+        info.setAnonymous(true);
+        info.setKeepDigits(10);
+        info.setIgnoreUserInfo(true);
+        info.setTransformUserExtension(true);
+        info.setAddPrefix("4321");
         g1.setCallerAliasInfo(info);
-        
+
         m_context.storeGateway(g1);
         assertEquals("10.1.1.2", g1.getAddress());
         assertEquals("33", g1.getPrefix());
         assertEquals("3211231234", g1.getCallerAliasInfo().getDefaultCallerAlias());
+        assertEquals("4321", g1.getCallerAliasInfo().getAddPrefix());
+        assertEquals(10, g1.getCallerAliasInfo().getKeepDigits());
+        assertTrue(g1.getCallerAliasInfo().isAnonymous());
+        assertTrue(g1.getCallerAliasInfo().isIgnoreUserInfo());
+        assertTrue(g1.getCallerAliasInfo().isTransformUserExtension());
     }
 
     public void testSaveLoadUpdateGateway() throws Exception {
@@ -166,8 +196,9 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
     }
 
     public void testGetGatewaySettings() throws Exception {
-        TestHelper.cleanInsertFlat("gateway/SeedGateway.xml");
+        TestHelper.cleanInsertFlat("gateway/seed_gateway.db.xml");
         Gateway gateway = m_context.getGateway(new Integer(1001));
         assertNotNull(gateway.getTftpRoot());
     }
+
 }

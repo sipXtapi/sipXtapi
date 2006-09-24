@@ -28,16 +28,17 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class SnomPhone extends Phone {
     public static final String BEAN_ID = "snom";
-    
+
     private static final String USER_HOST = "line/user_host";
     // suspiciously, no registration server port?
-    
+
     private static final String MAILBOX = "line/user_mailbox";
     private static final String OUTBOUND_PROXY = "sip/user_outbound";
     private static final String USER_NAME = "line/user_name";
     private static final String PASSWORD = "line/user_pass";
     private static final String AUTH_NAME = "line/user_pname";
     private static final String DISPLAY_NAME = "line/user_realname";
+
     private static final String TIMEZONE_SETTING = "network/utc_offset";
     private static final String CONFIG_URL = "update/setting_server";
     private static final String DST_SETTING = "network/dst";
@@ -57,28 +58,28 @@ public class SnomPhone extends Phone {
         setPhoneTemplate("snom/snom.vm");
     }
 
-    @Override    
+    @Override
     public void initialize() {
         SnomDefaults defaults = new SnomDefaults(getPhoneContext().getPhoneDefaults(), this);
         addDefaultBeanSettingHandler(defaults);
     }
 
-    @Override    
+    @Override
     public void initializeLine(Line line) {
         SnomLineDefaults defaults = new SnomLineDefaults(getPhoneContext().getPhoneDefaults(),
                 line);
         line.addDefaultBeanSettingHandler(defaults);
     }
-    
+
     @Override
     protected void setLineInfo(Line line, LineInfo externalLine) {
         line.setSettingValue(DISPLAY_NAME, externalLine.getDisplayName());
-        line.setSettingValue(USER_NAME, externalLine.getUserId());        
-        line.setSettingValue(PASSWORD, externalLine.getPassword());        
+        line.setSettingValue(USER_NAME, externalLine.getUserId());
+        line.setSettingValue(PASSWORD, externalLine.getPassword());
         line.setSettingValue(USER_HOST, externalLine.getRegistrationServer());
         line.setSettingValue(MAILBOX, externalLine.getVoiceMail());
     }
-    
+
     @Override
     protected LineInfo getLineInfo(Line line) {
         LineInfo lineInfo = new LineInfo();
@@ -125,7 +126,7 @@ public class SnomPhone extends Phone {
 
         return linesSettings;
     }
-    
+
     public static class SnomDefaults {
         private DeviceDefaults m_defaults;
         private SnomPhone m_phone;
@@ -140,7 +141,7 @@ public class SnomPhone extends Phone {
             String configUrl = m_defaults.getProfileRootUrl() + '/' + m_phone.getProfileName();
             return configUrl;
         }
-        
+
         @SettingEntry(path = TIMEZONE_SETTING)
         public String getTimeZoneOffset() {
             int tzsec = m_defaults.getTimeZone().getOffset();
@@ -160,13 +161,12 @@ public class SnomPhone extends Phone {
             }
 
             String dst = String.format("%d %02d.%02d.%02d %02d:00:00 %02d.%02d.%02d %02d:00:00",
-                    zone.getDstOffset(), zone.getStartMonth(), Math.min(
-                            zone.getStartWeek(), 5), (zone.getStartDayOfWeek() + 5) % 7 + 1,
-                            zone.getStartTime() / 3600, zone.getStopMonth(), Math.min(zone
-                            .getStopWeek(), 5), (zone.getStopDayOfWeek() + 5) % 7 + 1, zone
-                            .getStopTime() / 3600);
+                    zone.getDstOffset(), zone.getStartMonth(), Math.min(zone.getStartWeek(), 5),
+                    (zone.getStartDayOfWeek() + 5) % 7 + 1, zone.getStartTime() / 3600, zone
+                            .getStopMonth(), Math.min(zone.getStopWeek(), 5), (zone
+                            .getStopDayOfWeek() + 5) % 7 + 1, zone.getStopTime() / 3600);
             return dst;
-        }        
+        }
     }
 
     public static class SnomLineDefaults {
@@ -180,7 +180,7 @@ public class SnomPhone extends Phone {
 
         @SettingEntry(path = USER_HOST)
         public String getUserHost() {
-            String registrationUri = StringUtils.EMPTY; 
+            String registrationUri = StringUtils.EMPTY;
             User u = m_line.getUser();
             if (u != null) {
                 String domainName = m_defaults.getDomainName();
@@ -206,11 +206,11 @@ public class SnomPhone extends Phone {
         public String getMailbox() {
             // XCF-722 Setting this to the mailbox (e.g. 101) would fix issue
             // where mailbox button on phone calls voicemail server, but would
-            // break MWI subscription because SUBSCRIBE message fails 
+            // break MWI subscription because SUBSCRIBE message fails
             // authentication unless this value is user's username
             return getUserName();
         }
-        
+
         @SettingEntry(paths = { USER_NAME, AUTH_NAME })
         public String getUserName() {
             String username = null;
@@ -219,9 +219,9 @@ public class SnomPhone extends Phone {
                 username = user.getUserName();
             }
 
-            return username;            
+            return username;
         }
-        
+
         @SettingEntry(path = PASSWORD)
         public String getPassword() {
             String password = null;
@@ -230,9 +230,9 @@ public class SnomPhone extends Phone {
                 password = user.getSipPassword();
             }
 
-            return password;            
+            return password;
         }
-        
+
         @SettingEntry(path = DISPLAY_NAME)
         public String getDisplayName() {
             String displayName = null;
@@ -241,7 +241,12 @@ public class SnomPhone extends Phone {
                 displayName = user.getDisplayName();
             }
 
-            return displayName;            
+            return displayName;
+        }
+
+        @SettingEntry(path = "sip/user_moh")
+        public String getUserMoh() {
+            return m_defaults.getSipxServer().getMusicOnHoldUri();
         }
     }
 

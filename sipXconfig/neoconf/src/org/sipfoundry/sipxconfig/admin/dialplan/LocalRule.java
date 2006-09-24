@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -33,8 +32,8 @@ public class LocalRule extends DialingRule {
         // empty
     }
 
-    public List getPermissions() {
-        List perms = Collections.singletonList(Permission.LOCAL_DIALING);
+    public List<String> getPermissionNames() {
+        List perms = Collections.singletonList(Permission.LOCAL_DIALING.getName());
         return perms;
     }
 
@@ -57,13 +56,12 @@ public class LocalRule extends DialingRule {
     public Transform[] getTransforms() {
         CallPattern patternNormal = new CallPattern(StringUtils.EMPTY, CallDigits.VARIABLE_DIGITS);
         String user = patternNormal.calculatePattern();
-        List gateways = getGateways();
-        List transforms = new ArrayList(gateways.size());
+        List<Gateway> gateways = getGateways();
+        List<Transform> transforms = new ArrayList<Transform>(gateways.size());
         ForkQueueValue q = new ForkQueueValue(gateways.size());
-        for (Iterator i = gateways.iterator(); i.hasNext();) {
-            Gateway gateway = (Gateway) i.next();
+        for (Gateway gateway : gateways) {
             FullTransform transform = new FullTransform();
-            transform.setUser(user);
+            transform.setUser(gateway.getCallPattern(user));
             transform.setHost(gateway.getAddress());
             String[] fieldParams = new String[] {
                 q.getSerial()
@@ -71,7 +69,7 @@ public class LocalRule extends DialingRule {
             transform.setFieldParams(fieldParams);
             transforms.add(transform);
         }
-        return (Transform[]) transforms.toArray(new Transform[transforms.size()]);
+        return transforms.toArray(new Transform[transforms.size()]);
     }
 
     public DialingRuleType getType() {

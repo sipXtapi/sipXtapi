@@ -66,7 +66,7 @@ public class SipxHibernateDaoSupportTestDb extends SipxDatabaseTestCase {
     }
 
     public void testGetOriginalValue() throws Exception {
-        TestHelper.cleanInsertFlat("common/TestUserSeed.xml");
+        TestHelper.cleanInsertFlat("common/TestUserSeed.db.xml");
         Integer id = new Integer(1000);       
         User user = (User) m_dao.load(User.class, id);
         user.setUserName("goofy");
@@ -74,7 +74,7 @@ public class SipxHibernateDaoSupportTestDb extends SipxDatabaseTestCase {
     }    
 
     public void testGetOriginalValueIllegalProperty() throws Exception {
-        TestHelper.cleanInsertFlat("common/TestUserSeed.xml");
+        TestHelper.cleanInsertFlat("common/TestUserSeed.db.xml");
         Integer id = new Integer(1000);       
         User user = (User) m_dao.load(User.class, id);
         user.setUserName("goofy");
@@ -89,7 +89,7 @@ public class SipxHibernateDaoSupportTestDb extends SipxDatabaseTestCase {
     public void testIsBeanAvailable() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         assertFalse(m_dao.isBeanAvailable(User.class, 1000));
-        TestHelper.insertFlat("common/TestUserSeed.xml");
+        TestHelper.insertFlat("common/TestUserSeed.db.xml");
         assertTrue(m_dao.isBeanAvailable(User.class, 1000));        
     }
 }

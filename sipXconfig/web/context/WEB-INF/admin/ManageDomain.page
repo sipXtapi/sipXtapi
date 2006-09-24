@@ -8,10 +8,8 @@
   <property name="domain" initial-value="domainManager.domain"/>
   <property name="aliases" persist="session"/>
   <property name="action"/>
-  <property name="uneditedDomainName" initial-value="domainManager.domain.name" persist="client"/>
   <property name="index"/>
   <property name="callback" persist="session"/>
-  <property name="returnPage" persist="session"/>
   
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate" />
   <component id="form" type="Form">
@@ -19,9 +17,6 @@
     <binding name="listener" value="listener:submit"/>
   </component>
   <component id="errors" type="ErrorMsg" />
-  <component id="enableIntercom" type="Checkbox">
-    <binding name="value" value="intercom.enabled" />
-  </component>
   <component id="namePanel" type="FieldPanel">
     <binding name="field" value="components.name" />
     <binding name="label" value="message:label.name" />

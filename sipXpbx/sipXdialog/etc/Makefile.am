@@ -1,4 +1,3 @@
-INSTALL=@INSTALL@
 
 EXTRA_DIST = \
     sipxdialog-config.in

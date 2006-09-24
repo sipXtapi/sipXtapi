@@ -147,13 +147,18 @@ public class CustomDialingRuleTest extends TestCase {
     }
 
     public void testSetPermissionNames() throws Exception {
-        String[] names = {
+        Permission[] permissions = {
+            Permission.VOICEMAIL, Permission.LONG_DISTANCE_DIALING
+        };
+
+        String names[] = {
             "Voicemail", "LongDistanceDialing"
         };
-        CustomDialingRule rule = new CustomDialingRule();
 
+        CustomDialingRule rule = new CustomDialingRule();
         try {
-            rule.setPermissionNames(Arrays.asList(names));
+            rule.setPermissions(Arrays.asList(permissions));
+            rule.getPermissions();
             fail("Illegal state exception expected.");
         } catch (IllegalStateException e) {
             // ok
@@ -163,10 +168,10 @@ public class CustomDialingRuleTest extends TestCase {
         pm.setModelFilesContext(TestHelper.getModelFilesContext());
         rule.setPermissionManager(pm);
 
-        rule.setPermissionNames(Arrays.asList(names));
-        List<Permission> permissions = rule.getPermissions();
-        assertEquals(names.length, permissions.size());
-        assertTrue(permissions.contains(Permission.VOICEMAIL));
-        assertTrue(permissions.contains(Permission.LONG_DISTANCE_DIALING));
+        rule.setPermissions(Arrays.asList(permissions));
+        List<Permission> perms = rule.getPermissions();
+        assertEquals(names.length, perms.size());
+        assertTrue(perms.contains(Permission.VOICEMAIL));
+        assertTrue(perms.contains(Permission.LONG_DISTANCE_DIALING));
     }
 }

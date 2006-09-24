@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.intercom;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
@@ -19,6 +20,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.context.ApplicationContext;
 
 public class IntercomManagerImplTestDb extends SipxDatabaseTestCase {
@@ -27,6 +29,7 @@ public class IntercomManagerImplTestDb extends SipxDatabaseTestCase {
 
     private IntercomManager m_intercomManager;
     private PhoneContext m_phoneContext;
+    private SettingDao m_settingsDao;
 
     protected void setUp() throws Exception {
         ApplicationContext app = TestHelper.getApplicationContext();
@@ -34,6 +37,9 @@ public class IntercomManagerImplTestDb extends SipxDatabaseTestCase {
                 .getBean(IntercomManagerImpl.CONTEXT_BEAN_NAME);
         m_phoneContext = (PhoneContext) TestHelper.getApplicationContext().getBean(
                 PhoneContext.CONTEXT_BEAN_NAME);
+        m_settingsDao = (SettingDao) TestHelper.getApplicationContext().getBean(
+                SettingDao.CONTEXT_NAME);
+        
         TestHelper.cleanInsert("ClearDb.xml");
     }
 
@@ -88,6 +94,39 @@ public class IntercomManagerImplTestDb extends SipxDatabaseTestCase {
         groups = intercom.getGroupsAsList();
         assertEquals(2, groups.size());
     }
+    
+    public void testDeleteGroup() throws Exception {
+        TestHelper.insertFlat("phone/SeedPhoneGroup.xml");
+
+        // create the intercom
+        Intercom intercom = m_intercomManager.newIntercom();
+        final String PREFIX = "77";
+        intercom.setPrefix(PREFIX);
+        final int TIMEOUT = 123;
+        intercom.setTimeout(TIMEOUT);
+        final String CODE = "whatever";
+        intercom.setCode(CODE);
+
+        List<Group> groups = m_phoneContext.getGroups();
+        intercom.addGroup(groups.get(0));
+        intercom.addGroup(groups.get(1));
+
+        // save the intercom
+        m_intercomManager.saveIntercom(intercom);
+        
+        m_settingsDao.deleteGroups(Collections.singleton(groups.get(0).getId()));        
+        
+        // load it back up and check it
+        List intercoms = m_intercomManager.loadIntercoms();
+        assertEquals(1, intercoms.size());
+        intercom = (Intercom) intercoms.get(0);
+        assertEquals(PREFIX, intercom.getPrefix());
+        assertEquals(TIMEOUT, intercom.getTimeout());
+        assertEquals(CODE, intercom.getCode());
+        groups = intercom.getGroupsAsList();
+        assertEquals(1, groups.size());
+    }
+    
 
     public void testLoadIntercoms() throws Exception {
         // verify loading the sample data

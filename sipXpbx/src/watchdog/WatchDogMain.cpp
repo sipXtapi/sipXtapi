@@ -200,9 +200,9 @@ OsStatus createProcessList(TiXmlDocument &watchdogDoc, TiXmlDocument &processDoc
         TiXmlNode *monitorNode = rootElement->FirstChild( "monitor" );
         if ( monitorNode )
         {
-            for ( TiXmlNode *dbProcessNode = monitorNode->FirstChild( "process" );
+            for ( TiXmlNode *dbProcessNode = monitorNode->FirstChild( "monitor-process" );
                 dbProcessNode;
-                dbProcessNode = dbProcessNode->NextSibling( "process" ) )
+                dbProcessNode = dbProcessNode->NextSibling( "monitor-process" ) )
             {
 
                 TiXmlElement *nextProcessElement = dbProcessNode->ToElement();

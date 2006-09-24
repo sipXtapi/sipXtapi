@@ -123,7 +123,7 @@
       </type>
       <value/>
     </setting>
-    <setting name="user_moh">
+    <setting name="user_moh" advanced="yes">
       <label>Music on hold server</label>
       <type>
         <string/>

@@ -509,7 +509,7 @@ OsStatus
 MailboxManager::parseConfigFile ( const UtlString& configFileName )
 {
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                  "Entering MailboxManager::parseConfigFile('%s')\n",
+                  "Entering MailboxManager::parseConfigFile('%s')",
                   configFileName.data());
     OsStatus result = OS_FAILED;
 
@@ -1441,7 +1441,7 @@ MailboxManager::saveMessage (
                      // close the file handle before calling the status server
                      metaDataFile.close();
 
-                     // create an empty nextMessageID-000.sta
+                     // create an empty nextMessageID-00.sta
                      // the presence of this file indicates that
                      // the file has not been heard
                      OsFile heardStatusFile ( nameWithoutExtension + ".sta");
@@ -1490,7 +1490,7 @@ MailboxManager::saveMessage (
                            UtlString userId;
                            fromUrl.getUserId(userId);
 
-                           if (!from.isNull() && from.length() > 0)
+                           if (!from.isNull())
                               from += " - " + userId;
                            else
                               from = userId;
@@ -3606,7 +3606,7 @@ MailboxManager::forwardMessages (
                                                 UtlString userId;
                                                 fromUrl.getUserId(userId);
 
-                                                if (!from.isNull() && from.length() > 0)
+                                                if (!from.isNull())
                                                    from += " - " + userId;
                                                 else
                                                    from = userId;
@@ -4600,24 +4600,30 @@ MailboxManager::postMWIStatus ( const UtlString& mailboxIdentity ) const
 
             UtlString status;
             pResponse->getResponseStatusText(&status);
-            OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                          "postMWIEvent status = %s\n", status.data());
 
             if (status.compareTo("OK") == 0)
             {
               OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                            "postMWIEvent successful with status = %s\n", status.data());
+                            "postMWIEvent getResponseStatusText successful with status = %s",
+                            status.data());
               result = OS_SUCCESS;
             }
             else
             {
               OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                            "postMWIEvent failed with status = %s\n", status.data());
+                            "postMWIEvent getResponseStatusText failed with status = %s",
+                            status.data());
               result = OS_FAILED;
             }
 
             delete pResponse;
             delete pRequest;
+        }
+        else
+        {
+           OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
+                         "MailboxManager::postMWIEvent getMWINotifyText failed for '%s'",
+                         mailboxIdentity.data());
         }
     }
     return result;
@@ -5666,7 +5672,8 @@ MailboxManager::parseDistributionFile(const UtlString& distFile, const UtlString
     OsStatus result = OS_FAILED;
 
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                  "MailboxManager - parseDistributionFile:: start to parse the file = %s\n", distFile.data());
+                  "MailboxManager - parseDistributionFile:: start to parse file '%s'",
+                  distFile.data());
     TiXmlDocument doc(distFile);
 
     // Verify that we can load the file (i.e it must exist)
@@ -5695,7 +5702,8 @@ MailboxManager::parseDistributionFile(const UtlString& distFile, const UtlString
                    UtlString mailbox = (destNode->FirstChild())->Value();
                    destinations.insert( new UtlString (mailbox) );
                    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                                 "MailboxManager - parseDistributionFile:: Use the destination = %s\n", mailbox.data());
+                                 "MailboxManager - parseDistributionFile:: Use the destination = %s",
+                                 mailbox.data());
 
                 }
 
@@ -5740,7 +5748,7 @@ MailboxManager::setPassword (
 #endif
 
    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                 "Sending the new pin to Config server for user %s\n", userId.data());
+                 "Sending the new pin to Config server for user %s", userId.data());
 
    // Send to the config server
 #ifdef USE_SOAP   
@@ -5783,13 +5791,13 @@ MailboxManager::setPassword (
 
    pResponse->getResponseStatusText(&status);
    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                 "setPassword status = %s\n", status.data());
+                 "setPassword status = %s", status.data());
 
 
    if (status.compareTo("OK") == 0)
    {
       OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                    "setPassword successful with status = %s\n", status.data());
+                    "setPassword successful with status = %s", status.data());
 
       Url dataSetServiceUrl(m_configServerSecureUrl + "//pds/soap/services/urn:DataSetService");
       dataSetServiceUrl.setUserId("superadmin");
@@ -5834,14 +5842,14 @@ MailboxManager::setPassword (
       else
       {
          OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                      "resync dataset failed with status = %s\n", status.data());
+                      "resync dataset failed with status = %s", status.data());
          result = OS_FAILED;
       }
    }
    else
    {
       OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                    "setPassword failed with status = %s\n", status.data());
+                    "setPassword failed with status = %s", status.data());
       result = OS_FAILED;
    }
    
@@ -5884,19 +5892,19 @@ MailboxManager::setPassword (
 
    pResponse->getResponseStatusText(&status);
    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                 "setPassword status = %s\n", status.data());
+                 "setPassword status = %s", status.data());
 
 
    if (status.compareTo("OK") == 0)
    {
       OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                    "setPassword successful with status = %s\n", status.data());
+                    "setPassword successful with status = %s", status.data());
       result = OS_SUCCESS;
    }
    else
    {
       OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                    "setPassword failed with status = %s\n", status.data());
+                    "setPassword failed with status = %s", status.data());
       result = OS_FAILED;
    }
    

@@ -117,25 +117,12 @@
     <antcall target="park-orbit-settings"/>    
     <antcall target="caller-alias"/>    
     <antcall target="domain"/>    
+    <antcall target="caller-alias-2"/>
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="4" -->
   </target>
 
-  <!-- TEMP: Remove before freezing schema -->
-  <target name="drop-domain" if="domain">
-  	<sipx-sql>
-  	    drop table domain;
-  	    drop table domain_alias;
-        drop sequence domain_seq;
-  	    delete from patch where name = 'domain';
-  	    delete from initialization_task where name = 'initialize-domain';
-  	</sipx-sql>
-  </target>
-	
-  <!-- TEMP: activate this before freezing schema
-    target name="domain" unless="domain"
-  -->
-  <target name="domain" depends="drop-domain">
+  <target name="domain" unless="domain">
     <db-patch patch="domain"/>
   </target>
 
@@ -175,15 +162,7 @@
     <mark-patch-applied patch="gateway-prefix"/>
   </target>
   
-  <!-- TODO: remove when permission schema gets stable -->
-  <target name="drop-permission" if="permission">
-    <sipx-sql>
-        drop table permission;
-        delete from patch where name = 'permission';
-    </sipx-sql>
-  </target>
-
-  <target name="permission" depends="drop-permission">
+  <target name="permission" unless="permission">
     <db-patch patch="permission"/>
   </target>  
 
@@ -195,6 +174,10 @@
     <db-patch patch="caller-alias"/>
   </target>
   
+  <target name="caller-alias-2" unless="caller-alias-2">
+    <db-patch patch="caller-alias-2"/>
+  </target>
+
   <target name="attendant_defaults" unless="attendant_defaults">
     <!-- remove spaces to enable things like auto-completion -->
     <sipx-sql>
