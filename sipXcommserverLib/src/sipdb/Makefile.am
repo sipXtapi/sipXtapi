@@ -34,6 +34,7 @@ libsipdb_la_SOURCES =  \
 	CallerAliasDB.cpp \
    CredentialDB.cpp \
    DialByNameDB.cpp \
+   DomainDB.cpp \
    ExtensionDB.cpp \
    HuntgroupDB.cpp \
    RegistrationBinding.cpp \

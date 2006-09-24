@@ -23,8 +23,11 @@
 #include "sipdb/ResultSet.h"
 #include "sipdb/SIPDBManager.h"
 #include "sipdb/AliasDB.h"
+#include "sipdb/AuthexceptionDB.h"
 #include "sipdb/CallerAliasDB.h"
 #include "sipdb/CredentialDB.h"
+#include "sipdb/DialByNameDB.h"
+#include "sipdb/DomainDB.h"
 #include "sipdb/ExtensionDB.h"
 #include "sipdb/HuntgroupDB.h"
 #include "sipdb/PermissionDB.h"
@@ -810,14 +813,18 @@ SIPDBManager::preloadAllDatabase() const
     // If called first thing during startup, this code 
     // will force the xml files to be loaded into imdb.
 
-    CredentialDB*   pCredentialDB   = CredentialDB::getInstance();
-    SubscriptionDB* pSubscriptionDB = SubscriptionDB::getInstance();
-    RegistrationDB* pRegistrationDB = RegistrationDB::getInstance();
-    HuntgroupDB*    pHuntgroupDB    = HuntgroupDB::getInstance();
-    PermissionDB*   pPermissionDB   = PermissionDB::getInstance();
-    ExtensionDB*    pExtensionDB    = ExtensionDB::getInstance();
-    AliasDB*        pAliasDB        = AliasDB::getInstance();
-   
+    CredentialDB*    pCredentialDB    = CredentialDB::getInstance();
+    SubscriptionDB*  pSubscriptionDB  = SubscriptionDB::getInstance();
+    RegistrationDB*  pRegistrationDB  = RegistrationDB::getInstance();
+    HuntgroupDB*     pHuntgroupDB     = HuntgroupDB::getInstance();
+    PermissionDB*    pPermissionDB    = PermissionDB::getInstance();
+    ExtensionDB*     pExtensionDB     = ExtensionDB::getInstance();
+    AliasDB*         pAliasDB         = AliasDB::getInstance();
+    AuthexceptionDB* pAuthexceptionDB = AuthexceptionDB::getInstance();
+    CallerAliasDB*   pCallerAliasDB   = CallerAliasDB::getInstance();
+    DialByNameDB*    pDialByNameDB    = DialByNameDB::getInstance();
+    DomainDB*        pDomainDB        = DomainDB::getInstance();
+
     OsStatus res = OS_FAILED;
 
     if (pCredentialDB &&
@@ -826,7 +833,11 @@ SIPDBManager::preloadAllDatabase() const
     pHuntgroupDB &&
     pPermissionDB &&
     pExtensionDB &&
-    pAliasDB) res = OS_SUCCESS;
+    pAliasDB &&
+    pAuthexceptionDB &&
+    pCallerAliasDB &&
+    pDialByNameDB &&
+    pDomainDB) res = OS_SUCCESS;
 
     return res;
 }
@@ -841,6 +852,10 @@ SIPDBManager::releaseAllDatabase() const
     PermissionDB::releaseInstance();
     ExtensionDB::releaseInstance();
     AliasDB::releaseInstance();
+    AuthexceptionDB::releaseInstance();
+    CallerAliasDB::releaseInstance();
+    DialByNameDB::releaseInstance();
+    DomainDB::releaseInstance();
 
     return OS_SUCCESS;
 }

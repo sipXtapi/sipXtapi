@@ -1,48 +1,43 @@
-// 
-// 
-// Copyright (C) 2004 SIPfoundry Inc.
+//
+//
+// Copyright (C) 2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
+//
+// Copyright (C) 2006 Scott Zuk <szuk@telusplanet.net>
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
-//#include <...>
 
 // APPLICATION INCLUDES
 #include "os/OsLock.h"
-#include "os/OsDateTime.h"
 #include "os/OsFS.h"
 #include "os/OsSysLog.h"
-#include "net/Url.h"
 
 #include "fastdb/fastdb.h"
 #include "xmlparser/tinyxml.h"
 #include "sipdb/SIPDBManager.h"
-#include "sipdb/ResultSet.h"
-#include "sipdb/CallerAliasRow.h"
-#include "sipdb/CallerAliasDB.h"
+#include "sipdb/DomainDB.h"
+#include "sipdb/DomainRow.h"
 
-#define CALLERALIAS_XML_NAMESPACE_URL "http://www.sipfoundry.org/sipX/schema/xml/calleralias-00-00"
+#define DOMAIN_XML_NAMESPACE_URL "http://www.sipfoundry.org/sipX/schema/xml/domain-00-00"
 
-REGISTER( CallerAliasRow );
+REGISTER( DomainRow );
 
 // STATIC INITIALIZERS
-CallerAliasDB* CallerAliasDB::spInstance = NULL;
-OsMutex  CallerAliasDB::sLockMutex (OsMutex::Q_FIFO);
+DomainDB* DomainDB::spInstance = NULL;
+OsMutex   DomainDB::sLockMutex (OsMutex::Q_FIFO);
 
-const UtlString CallerAliasDB::IdentityKey("identity");
-const UtlString CallerAliasDB::DomainKey("domain");
-const UtlString CallerAliasDB::AliasKey("alias");
+const UtlString DomainDB::DbName("domain");
+const UtlString DomainDB::DomainNameKey("domainname");
+const UtlString DomainDB::RealmKey("realm");
 
-const UtlString CallerAliasDB::DbName("caller-alias");
 
 /* ============================ CREATORS ================================== */
 
-CallerAliasDB::CallerAliasDB( const UtlString& name )
+DomainDB::DomainDB( const UtlString& name )
 {
    // Access the shared table databse
    SIPDBManager* pSIPDBManager = SIPDBManager::getInstance();
@@ -58,13 +53,13 @@ CallerAliasDB::CallerAliasDB( const UtlString& name )
    }
 }
 
-CallerAliasDB::~CallerAliasDB()
+DomainDB::~DomainDB()
 {
-    OsSysLog::add(FAC_DB, PRI_DEBUG, "<><>## CallerAliasDB:: DESTRUCTOR");
+   OsSysLog::add(FAC_DB, PRI_DEBUG, "<><>## DomainDB:: DESTRUCTOR");
 }
 
-CallerAliasDB*
-CallerAliasDB::getInstance( const UtlString& name )
+DomainDB*
+DomainDB::getInstance( const UtlString& name )
 {
    // Critical Section here
    OsLock lock( sLockMutex );
@@ -74,15 +69,15 @@ CallerAliasDB::getInstance( const UtlString& name )
    if ( spInstance == NULL )
    {
       // Create the singleton class for clients to use
-      spInstance = new CallerAliasDB( name );
+      spInstance = new DomainDB( name );
    }
    return spInstance;
 }
 
 void
-CallerAliasDB::releaseInstance()
+DomainDB::releaseInstance()
 {
-   OsSysLog::add(FAC_DB, PRI_DEBUG, "<><>## CallerAliasDB:: releaseInstance() spInstance=%p", spInstance);
+   OsSysLog::add(FAC_DB, PRI_DEBUG, "<><>## DomainDB:: releaseInstance() spInstance=%p", spInstance);
 
    // Critical Section here
    OsLock lock( sLockMutex );
@@ -102,53 +97,46 @@ CallerAliasDB::releaseInstance()
 }
 
 // Add a single mapping to the database.
-void CallerAliasDB::insertRow(
-   const UtlString identity, ///< identity of caller in 'user@domain' form (no scheme) 
-   const UtlString domain,   /**< domain and optional port for target
-                              *  ( 'example.com' or 'example.com:5099' ) */
-   const UtlString alias     /// returned alias
-                              )
+void DomainDB::insertRow( const UtlString domainname, const UtlString realm )
 {
    /*
     * The identity value may be the null string; this is a wildcard entry that matches
     * any caller to the given domain.
     */
-   if ( !domain.isNull() && !alias.isNull() && (mpFastDB != NULL) )
+   if ( !domainname.isNull() && !realm.isNull() && (mpFastDB != NULL) )
    {
       // Thread Local Storage
       mpFastDB->attach();
 
       // Search for a matching row before deciding to update or insert
-      dbCursor< CallerAliasRow > cursor(dbCursorForUpdate);
+      dbCursor<DomainRow> cursor(dbCursorForUpdate);
 
-      CallerAliasRow row;
+      DomainRow row;
       dbQuery query;
 
-      // Primary Key is the urialias's identity
-      query="identity=",identity.data(), " and domain=", domain.data();
+      // Primary Key is the domain name
+      query="domainname=",domainname.data();
 
       if ( cursor.select( query ) > 0 )
       {
          // Should only be one row so update the contact
          do {
-            cursor->alias = alias.data();
+            cursor->realm = realm.data();
             cursor.update();
          } while ( cursor.next() );
       }
       else // Insert as the row does not exist
       {
          // Fill out the row columns
-         row.identity = identity.data();
-         row.domain = domain.data();
-         row.alias = alias.data();
+         row.domainname = domainname.data();
+         row.realm = realm.data();
          insert (row);
       }
 #     if VERBOSE_LOGGING
       OsSysLog::add(FAC_DB,PRI_DEBUG,
-                    "CallerAliasDB::insertRow "
-                    "identity='%s', domain='%s', alias='%s'",
-                    identity.data(), domain.data(), alias.data()
-                    );
+                    "DomainDB::insertRow "
+                    "domainname='%s', realm='%s'",
+                    domainname.data(), realm.data());
 #     endif
 
       // Commit rows to memory - multiprocess workaround
@@ -161,21 +149,21 @@ void CallerAliasDB::insertRow(
    else
    {
       OsSysLog::add(FAC_DB,PRI_CRIT,
-                    "CallerAliasDB::insertRow failed "
-                    "db=%p, domain='%s', alias='%s'",
-                    mpFastDB, domain.data(), alias.data()
+                    "DomainDB::insertRow failed "
+                    "db=%p, domainname='%s', realm='%s'",
+                    mpFastDB, domainname.data(), realm.data()
                     );
    }
 }
 
 OsStatus
-CallerAliasDB::load()
+DomainDB::load()
 {
    // Critical Section here
    OsLock lock( sLockMutex );
    OsStatus result = OS_SUCCESS;
 
-   if ( mpFastDB != NULL ) 
+   if ( mpFastDB != NULL )
    {
       // Clean out the existing DB rows before loading
       // a new set from persistent storage
@@ -187,7 +175,7 @@ CallerAliasDB::load()
          + DbName
          + ".xml";
 
-      OsSysLog::add(FAC_DB, PRI_DEBUG, "CallerAliasDB::load loading '%s'", fileName.data());
+      OsSysLog::add(FAC_DB, PRI_DEBUG, "DomainDB::load loading '%s'", fileName.data());
 
       TiXmlDocument doc ( fileName );
 
@@ -203,10 +191,9 @@ CallerAliasDB::load()
                  itemNode; 
                  itemNode = itemNode->NextSibling( "item" ) )
             {
-               UtlString identity;
-               UtlString domain;
-               UtlString alias;
-                   
+               UtlString domainname;
+               UtlString realm;
+
                for( TiXmlNode *elementNode = itemNode->FirstChild();
                     elementNode; 
                     elementNode = elementNode->NextSibling() )
@@ -217,17 +204,13 @@ CallerAliasDB::load()
                   {
                      UtlString column(elementNode->Value());
 
-                     if (column.compareTo(IdentityKey) == 0)
+                     if (column.compareTo(DomainNameKey) == 0)
                      {
-                        SIPDBManager::getAttributeValue(*itemNode, column, identity);
+                        SIPDBManager::getAttributeValue(*itemNode, column, domainname);
                      }
-                     else if (column.compareTo(DomainKey) == 0)
+                     else if (column.compareTo(RealmKey) == 0)
                      {
-                        SIPDBManager::getAttributeValue(*itemNode, column, domain);
-                     }
-                     else if (column.compareTo(AliasKey) == 0)
-                     {
-                        SIPDBManager::getAttributeValue(*itemNode, column, alias);
+                        SIPDBManager::getAttributeValue(*itemNode, column, realm);
                      }
                      else
                      {
@@ -239,26 +222,27 @@ CallerAliasDB::load()
                   }
                }
                // Insert the item row into the IMDB
-               insertRow (identity, domain, alias);
+               domainname.toLower();
+               insertRow (domainname, realm);
             }
          }
       }
       else 
       {
-         OsSysLog::add(FAC_DB, PRI_WARNING, "CallerAliasDB::load failed to load '%s'",
+         OsSysLog::add(FAC_DB, PRI_WARNING, "DomainDB::load failed to load '%s'",
                        fileName.data());
       }
    }
    else 
    {
-      OsSysLog::add(FAC_DB, PRI_ERR, "CallerAliasDB::load failed - no DB");
+      OsSysLog::add(FAC_DB, PRI_ERR, "DomainDB::load failed - no DB");
       result = OS_FAILED;
    }
    return result;
 }
 
 OsStatus
-CallerAliasDB::store()
+DomainDB::store()
 {
    UtlString fileName = 
       SIPDBManager::getInstance()->
@@ -274,7 +258,7 @@ CallerAliasDB::store()
    // Create the root node container
    TiXmlElement itemsElement ( "items" );
    itemsElement.SetAttribute( "type", DbName.data() );
-   itemsElement.SetAttribute( "xmlns", CALLERALIAS_XML_NAMESPACE_URL );
+   itemsElement.SetAttribute( "xmlns", DOMAIN_XML_NAMESPACE_URL );
 
    // Critical Section while actually opening and using the database
    {
@@ -286,7 +270,7 @@ CallerAliasDB::store()
          mpFastDB->attach();
 
          // Search our memory for rows
-         dbCursor< CallerAliasRow > cursor;
+         dbCursor<DomainRow> cursor;
 
          // Select everything in the IMDB and add as item elements if present
          int rowNumber;
@@ -299,23 +283,15 @@ CallerAliasDB::store()
             // Create an item container
             TiXmlElement itemElement ("item");
 
-            if ( *cursor->identity )
-            {
-               // Add an identity element and put the value in it
-               TiXmlElement identityElement(IdentityKey.data());
-               TiXmlText    identityValue(cursor->identity);
-               identityElement.InsertEndChild(identityValue);
-            }
-         
-            // add the domain element and put the value in it
-            TiXmlElement domainElement(DomainKey.data());
-            TiXmlText    domainValue(cursor->domain);
-            domainElement.InsertEndChild(domainValue);
+            // add the domain name element and put the value in it
+            TiXmlElement domainnameElement(DomainNameKey.data());
+            TiXmlText    domainnameValue(cursor->domainname);
+            domainnameElement.InsertEndChild(domainnameValue);
 
-            // add the alias element and put the value in it
-            TiXmlElement aliasElement(AliasKey.data());
-            TiXmlText    aliasValue(cursor->alias);
-            aliasElement.InsertEndChild(aliasValue);
+            // add the realm element and put the value in it
+            TiXmlElement realmElement(RealmKey.data());
+            TiXmlText    realmValue(cursor->realm);
+            realmElement.InsertEndChild(realmValue);
 
             // add this item (row) to the parent items container
             itemsElement.InsertEndChild ( itemElement );
@@ -325,7 +301,7 @@ CallerAliasDB::store()
          mpFastDB->detach(0);
       }
    } // release mutex around database use
-   
+
    // Attach the root node to the document
    document.InsertEndChild ( itemsElement );
    document.SaveFile ( fileName );
@@ -335,14 +311,14 @@ CallerAliasDB::store()
 
 
 void
-CallerAliasDB::removeAllRows ()
+DomainDB::removeAllRows ()
 {
    // Thread Local Storage
    if (mpFastDB != NULL) 
    {
       mpFastDB->attach();
 
-      dbCursor< CallerAliasRow > cursor(dbCursorForUpdate);
+      dbCursor<DomainRow> cursor(dbCursorForUpdate);
 
       if (cursor.select() > 0)
       {
@@ -357,46 +333,82 @@ CallerAliasDB::removeAllRows ()
    }
 }
 
-
-/// Get the caller alias for this combination of caller identity and target domain.
-bool CallerAliasDB::getCallerAlias (
-   const UtlString& identity, ///< identity of caller in 'user@domain' form (no scheme)
-   const UtlString& domain,   /**< domain and optional port for target
-                               *  ( 'example.com' or 'example.com:5099' ) */
-   UtlString& callerAlias     /// returned alias
-                     ) const
+UtlBoolean DomainDB::isDomain(const UtlString& domainname) const
 {
-   /*
-    * This first looks in the database for an exact match of identity and domain;
-    *   if this match is found, the resulting alias is returned in callerAlias.
-    * If no exact match is found, the database is then checked for a row containing
-    *   a null (empty string) identity and the domain; this is a domain wildcard entry
-    *   and it is returned in callerAlias.
-    * If neither match is found, callerAlias is set to the null string.
-    */
-   callerAlias.remove(0);
-   
-   if (mpFastDB)
+   UtlBoolean isDomain = FALSE;
+
+   if ( !domainname.isNull() && (mpFastDB != NULL) )
    {
       // Thread Local Storage
       mpFastDB->attach();
 
-      // Search to see if we have a row with this exact combination
-      dbQuery exactQuery;
-      exactQuery="identity=",identity.data()," and domain=",domain.data();
-      dbCursor< CallerAliasRow > exactCursor;
-      if (exactCursor.select(exactQuery))
+      // Match a all rows where the domain name matches
+      dbQuery query;
+      query="domainname=",domainname;
+
+      // Search to see if we have a Domain Row
+      dbCursor<DomainRow> cursor;
+
+      if ( cursor.select(query) > 0 )
       {
-         // found a match 
-         callerAlias.append(exactCursor->alias);
+         isDomain = TRUE;
       }
-        
+
       // Commit the rows to memory - multiprocess workaround
       mpFastDB->detach(0);
    }
-
-   // Returns true if an alias was found for this caller, false if not
-   return ! callerAlias.isNull();
+   return isDomain;
 }
 
+UtlBoolean DomainDB::getRealm(const UtlString& domainname, UtlString& rRealm) const
+{
+   UtlBoolean found = FALSE;
+
+   if ( !domainname.isNull() && (mpFastDB != NULL) )
+   {
+      // Thread Local Storage
+      mpFastDB->attach();
+
+      dbQuery query;
+
+      // Primary Key is the domain name
+      query="domainname=",domainname;
+
+      // Search to see if we have a Domain Row
+      dbCursor<DomainRow> cursor;
+
+      if ( cursor.select(query) > 0 )
+      {
+         // should only be one row
+         do {
+            rRealm = cursor->realm;
+         } while ( cursor.next() );
+         found = TRUE;
+      }
+      // Commit the rows to memory - multiprocess workaround
+      mpFastDB->detach(0);
+   }
+   return found;
+}
+
+void DomainDB::getAllDomains(UtlContainer* domains) const
+{
+   if ((mpFastDB != NULL) && (domains != NULL))
+   {
+      // must do this first to ensure process/tls integrity
+      mpFastDB->attach();
+
+      dbCursor<DomainRow> cursor;
+      if ( cursor.select() > 0 )
+      {
+         do {
+            UtlString* domain = new UtlString(cursor->domainname);
+            domain->toLower();
+            domains->insert(domain);
+         } while (cursor.next());
+      }
+      // commit rows and also ensure process/tls integrity
+      mpFastDB->detach(0);
+   }
+}
 
