@@ -46,24 +46,22 @@ StatusServerCGI::execute(UtlString* out)
 #endif
     UtlString notifyBodyText;
     OsStatus result =
-        MailboxManager::getInstance()->getMWINotifyText ( m_mailboxIdentity, notifyBodyText );
+       MailboxManager::getInstance()->getMWINotifyText ( m_mailboxIdentity, NULL, notifyBodyText );
     // send an OK back to the Status Server
     if (out)
     {
         // clear the response
         out->remove(0);
 
-        // set the http headers, note that apache screws up the line separators
-        // by automatically insserting \r's before each \n even in the body
-        // so make sure we handle this correctly by removing the \r's
+        // set the http headers
         char contentLengthHeader[40];
-        sprintf( contentLengthHeader, "Content-Length: %d\n", notifyBodyText.length() );
+        sprintf( contentLengthHeader, "Content-Length: %d\r\n", notifyBodyText.length() );
         out->append( (UtlString)contentLengthHeader );
-        out->append( "Content-Type: application/simple-message-summary\n" );
+        out->append( "Content-Type: application/simple-message-summary\r\n" );
 
 
         // Separate the headers from the body content (very important otherwise no body sent!)
-        out->append( "\n" );
+        out->append( "\r\n" );
         out->append( notifyBodyText.data() );
     }
     return result;

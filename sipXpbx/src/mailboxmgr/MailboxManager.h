@@ -592,8 +592,9 @@ public:
      * @return
      */
     OsStatus getMWINotifyText (
-        const UtlString& mailboxIdentity,
-        UtlString& rNotifyText
+        const UtlString& mailboxIdentity, ///< identity of mailbox owner
+        const UtlString* iMailboxPath,     ///< if specified, the path to the inbox 
+        UtlString& rNotifyText            ///< application/message-summary body
         ) const;
 
     /**
@@ -823,7 +824,7 @@ private:
      *
      * @return
      */
-    OsStatus postMWIStatus( const UtlString& mailboxIdentity ) const;
+    OsStatus postMWIStatus( const UtlString& mailboxIdentity, const UtlString& inboxPath ) const;
 
     /**
      * create the folder from scratch
@@ -834,20 +835,6 @@ private:
      */
     OsStatus createMailbox ( const UtlString& mailboxIdentity ) ;
 
-        /**
-     * create the folder summary file
-     *
-     * @param summaryFilePath   Fully qualified location of the summary file
-         * @param unheardCount          Number of unheard messages in that folder
-         * @param totalCount            Total number of messages in that folder.
-     *
-     * @return  OS_SUCCESS if file was created successfully.
-     */
-        OsStatus createSummaryFile(     const UtlString& summaryFilePath,
-                                                                const UtlString& unheardCount,
-                                                                const UtlString& totalCount
-                                                                ) const;
-
     /**
      * Reconst mailboxIdentity
      *
@@ -857,15 +844,24 @@ private:
      */
     OsStatus restoreMailbox ( const UtlString& mailboxIdentity ) const;
 
-        /** Reconstructs folder summary file.
-         *      @param summaryFileLocation      Full path to the folder
-         *      @param rUnheardCount    Number of unheard messages. Filled upon return.
-         *      @param rTotalCount              Total number of messages. Filled upon return.
-         */
-        OsStatus restoreSummaryFile(    const UtlString& summaryFileLocation,
-                                                                        UtlString& rUnheardCount,
-                                                                        UtlString& rTotalCount
-                                                                  ) const       ;
+    
+    /// Count the messages in a mailbox
+    void getMailboxCounts( const UtlString& mailboxPath,  ///< full path to the mailbox
+                          int&              rUnheardCount,///< output count of unheard messages
+                          int&              rTotalCount   ///< output count of all messages
+                          ) const;
+    
+    /// If there are any subscribers to this mailbox, send them an update
+    void updateMailboxStatus (
+       const UtlString& mailboxIdentity, ///< SIP identity of mailbox owner
+       const UtlString& mailboxPath      ///< path to the mailbox directory
+                              ) const;
+    /**<
+     * This may be called for any mailbox; only an inbox path actually sends any notification,
+     * so this determines whether or not the mailbox is an inbox before actually counting
+     * messages and generating a notice.
+     */
+    
     /**
      * Parses an XML file containing the settings for the mailboxmanager
      *
@@ -874,35 +870,6 @@ private:
      * @return
      */
     OsStatus parseConfigFile (const UtlString& configFileName );
-
-    /**
-     * Parses the summary XML file present in user's mailbox folders.
-     *
-     * @param configFile
-     * @param rUnheardCount
-     * @param rTotalCount
-     *
-     * @return
-     */
-    OsStatus parseMailboxFolderSummary (
-        const UtlString& summaryFileName,
-        UtlString& rUnheardCount,
-        UtlString& rTotalCount) const;
-
-    /**
-     * Writes to the summary XML file present in user's mailbox folders.
-     *
-     * @param summaryFileName the full pathname of the summary file
-     * @param iUnheardCount the unheard count
-     * @param iTotalCount   the total # messages for this folder
-     *
-     * @return SUCCESS or FAILED
-     */
-    OsStatus updateMailboxFolderSummary (
-        const UtlString& mailboxIdentity,
-        const UtlString& summaryFileName,
-        const int& iUnheardCount,
-        const int& iTotalCount) const;
 
     /**
      * Parses the message descriptor XML file associated with a message.
