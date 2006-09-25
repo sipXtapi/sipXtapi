@@ -1186,7 +1186,7 @@ bool StunMessage::encodeString(unsigned short type, const char* szString, char*&
                 STUN_MIN_CHAR_PAD ;
         memset(cPadding, 0x00, sizeof(cPadding)) ;
         if (    (nBytesLeft >= (nPaddedLength + sizeof(STUN_ATTRIBUTE_HEADER))) &&
-                encodeAttributeHeader(type, (short) nPaddedLength, pBuf, nBytesLeft) &&
+                encodeAttributeHeader(type, (short) nActualLength, pBuf, nBytesLeft) &&
                 encodeRaw(szString, nActualLength, pBuf, nBytesLeft) &&
                 encodeRaw(cPadding, nPaddedLength - nActualLength, pBuf, nBytesLeft))
         {
@@ -1431,7 +1431,7 @@ bool StunMessage::parseStringAttribute(char* pBuf, size_t nLength, char* pString
         {
             // Strip trailing spaces
             char* szEnd = pString + (strlen(pString) - 1) ;
-            while (szEnd > pString && *szEnd == 0x20)
+            while (szEnd >= pString && *szEnd == 0x20)
             {
                 *szEnd-- = 0 ;                
             }            
