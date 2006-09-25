@@ -488,6 +488,9 @@
     <exec executable="${ruby}" failonerror="true">
       <arg line="${webservice-unit-test-command}/UserServiceTestApi.rb"/>
     </exec>
+    <exec executable="${ruby}" failonerror="true">
+      <arg line="${webservice-unit-test-command}/SystemServiceTestApi.rb"/>
+    </exec>
   </target>
   
 </project>

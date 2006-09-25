@@ -34,6 +34,10 @@
 	<property name="settingDao" ref="settingDao"/>
 </bean>
 
+<bean id="SystemService" class="org.sipfoundry.sipxconfig.api.SystemServiceImpl">
+	<property name="domainManager" ref="domainManager"/>
+</bean>
+
 <bean id="callGroupBuilder" class="org.sipfoundry.sipxconfig.api.CallGroupBuilder">
  	<property name="coreContext" ref="coreContext"/>
 </bean>
