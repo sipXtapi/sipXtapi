@@ -143,14 +143,14 @@ LoginCGI::handleOpenVXIRequest( UtlString* out )
 
                 // Call the method on Mailbox Manager to get the mailbox status
                 result = pMailboxManager->getMailboxStatus( m_mailboxIdentity,
-                                                    "inbox",
-                                                    rUnheardCount,
-                                                    rTotalCount );
+                                                           "inbox",
+                                                           rUnheardCount,
+                                                           rTotalCount );
 
-                result = pMailboxManager->getMailboxStatus(     m_mailboxIdentity,
-                                                                                                        "saved",
-                                                                                                        rSavedUnheardCount,
-                                                                                                        rSavedCount );
+                result = pMailboxManager->getMailboxStatus( m_mailboxIdentity,
+                                                           "saved",
+                                                           rSavedUnheardCount,
+                                                           rSavedCount );
 
         // Check if this user has permission to record system prompts.
         Url mailboxUrl ( m_mailboxIdentity );

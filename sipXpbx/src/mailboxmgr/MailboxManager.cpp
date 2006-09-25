@@ -234,20 +234,6 @@ MailboxManager::createMailbox ( const UtlString& mailboxIdentity )
                 OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                               "MailboxManager::createMailbox: createDir('%s') = %d",
                               folderPath.data(), result);
-
-                // ensure all folders created successfully
-                if ( result == OS_SUCCESS )
-                {
-                    // Now create a summary file per folder indicating how
-                    // unheard and teh total message count
-                    OsPath summaryFilePath =
-                        folderPath + OsPathBase::separator + FOLDER_SUMMARY_FILE;
-
-                    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                                  "MailboxManager::createMailbox: calling createSummaryFile('%s', '0', '0')",
-                                  summaryFilePath.data());
-                    createSummaryFile(summaryFilePath, "0", "0" );
-                }
             }
 
             // Create the default greetings
@@ -292,217 +278,42 @@ MailboxManager::restoreMailbox ( const UtlString& mailbox ) const
     return result;
 }
 
-
-OsStatus
-MailboxManager::createSummaryFile(
-    const UtlString& summaryFilePath,
-    const UtlString& unheardCount,
-    const UtlString& totalCount ) const
+void
+MailboxManager::getMailboxCounts(
+    const UtlString& mailboxPath,
+    int& rUnheardCount,
+    int& rTotalCount
+                                 ) const
 {
-    UtlString summaryData =
-        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
-        "<foldersummary>\n"
-        "   <unheard-msg-count>" + unheardCount + "</unheard-msg-count>\n"
-        "   <total-msg-count>" + totalCount + "</total-msg-count>\n"
-        "</foldersummary>";
-
-    OsFile summaryFile ( summaryFilePath );
-    OsStatus result = summaryFile.open( OsFile::CREATE );
-    if ( result == OS_SUCCESS )
-    {
-        unsigned long bytes_written = 0;
-        result = summaryFile.write(
-            summaryData.data(),
-            summaryData.length(),
-            bytes_written );
-            
-        if ( result != OS_SUCCESS )
-        {
-           OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
-                         "MailboxManager::createSummaryFile: summaryFile write failed\n");
-        }
-         
-        summaryFile.close();
-    }
-    
-    return result;
-}
-
-OsStatus
-MailboxManager::restoreSummaryFile(
-    const UtlString& summaryFileLocation,
-    UtlString& rUnheardCount,
-    UtlString& rTotalCount ) const
-{
-    OsPath path( summaryFileLocation );
+    OsPath path( mailboxPath );
     OsFileIterator fi( path );
     OsPath entry;
-    int iUnheardCount = 0;
-    int iTotalCount = 0;
-
-    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_WARNING,
-                  "MailboxManager::restoreSummaryFile: we are crawling the entire directory to restore the summary file %s",
-                  summaryFileLocation.data());
+    rUnheardCount = 0;
+    rTotalCount = 0;
 
     // Get the count of all *-00.xml files (gives the total count )
-    OsStatus result = fi.findFirst( entry, "[0-9]-00.xml", OsFileIterator::FILES );
-    while ( result == OS_SUCCESS )
+    OsStatus result;
+    for ( result =  fi.findFirst( entry, "[0-9]-00.xml", OsFileIterator::FILES );
+          result == OS_SUCCESS;
+          result =  fi.findNext(entry)
+         )
     {
-        iTotalCount ++;
-        result = fi.findNext(entry);
+       rTotalCount ++;
     }
 
-    result = fi.findFirst( entry, "[0-9]-00.sta", OsFileIterator::FILES );
-    while ( result == OS_SUCCESS )
+    // Get the count of all *-00.sta files (gives the unheard count)
+    for ( result =  fi.findFirst( entry, "[0-9]-00.sta", OsFileIterator::FILES );
+          result == OS_SUCCESS;
+          result =  fi.findNext(entry)
+         )
+
     {
-        iUnheardCount ++;
-        result = fi.findNext(entry);
+       rUnheardCount ++;
     }
-
-    char temp[10];
-    sprintf(temp, "%d", iUnheardCount );
-    rUnheardCount = temp ;
-
-    sprintf(temp, "%d", iTotalCount );
-    rTotalCount = temp ;
-
-    UtlString summaryFilePath = summaryFileLocation + OsPathBase::separator + FOLDER_SUMMARY_FILE ;
-    result = createSummaryFile( summaryFilePath, rUnheardCount, rTotalCount );
-
-    return result ;
-}
-
-
-OsStatus
-MailboxManager::parseMailboxFolderSummary (
-    const UtlString& summaryFileName,
-    UtlString& rUnheardCount,
-    UtlString& rTotalCount) const
-{
-    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                 "MailboxManager::parseMailboxFolderSummary: start parsing the summary file %s\n",
-                  summaryFileName.data());
-
-    OsStatus result = OS_FAILED;
-    TiXmlDocument doc ( summaryFileName );
-
-    // Verify that we can load the file (i.e it must exist)
-    if( doc.LoadFile() )
-    {
-        TiXmlNode * rootNode = doc.FirstChild ("foldersummary");
-        if ( rootNode != NULL )
-        {
-            result = getConfigValue (*rootNode, "unheard-msg-count", rUnheardCount);
-            result = getConfigValue (*rootNode, "total-msg-count", rTotalCount);
-        }
-    }
-    else
-    {
-        int substrLength = summaryFileName.index( FOLDER_SUMMARY_FILE ) - 1;
-        UtlString summaryFileLocation = summaryFileName(0, substrLength );
-        result = restoreSummaryFile( summaryFileLocation, rUnheardCount, rTotalCount );
-    }
-    return result;
-}
-
-OsStatus
-MailboxManager::updateMailboxFolderSummary (
-    const UtlString& mailboxIdentity,
-    const UtlString& summaryFileName,
-    const int& iUnheardCount,
-    const int& iTotalCount ) const
-{
-    // Lock the file for update
-#if defined(__pingtel_on_posix__)
-    int substrLength = summaryFileName.index( FOLDER_SUMMARY_FILE ) - 1;
-    UtlString summaryFileLocation = summaryFileName(0, substrLength );
-    UtlString mailboxLock = summaryFileLocation + OsPathBase::separator + "update.lck";
-    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                  "MailboxManager::updateMailboxFolderSummary: set up the lock file %s",
-                  mailboxLock.data());
-    OsFileLinux lockFile(mailboxLock);
-    lockFile.open(OsFileBase::CREATE);
-    lockFile.filelock(OsFileBase::FSLOCK_WAIT);
-#endif
 
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                 "MailboxManager::updateMailboxFolderSummary: unheardCount = %d and totalCount = %d",
-                  iUnheardCount, iTotalCount);
-
-    OsStatus result = OS_FAILED;
-    int unheardCount = iUnheardCount;
-    int totalCount = iTotalCount;
-    UtlString strUnheardCount;
-    UtlString strTotalCount;
-
-    // Check the counts. They should never be negative numbers!!!
-    if( unheardCount < 0 || totalCount < 0 )
-    {
-       writeToLog( "UpdateMailboxFolderSummary",
-                   "Someone is messing around the summary file - " + summaryFileName + " and we need to restore it from the directory", PRI_ERR);
-       int substrLength = summaryFileName.index( FOLDER_SUMMARY_FILE ) - 1;
-       UtlString summaryFileLocation = summaryFileName(0, substrLength );
-       result = restoreSummaryFile(summaryFileLocation,
-                                   strUnheardCount,
-                                   strTotalCount);
-    }
-    else
-    {
-       // Convert msg count into strings.
-       char temp[32];
-
-       sprintf(temp, "%d", unheardCount);
-       strUnheardCount = temp;
-
-       sprintf(temp, "%d", totalCount);
-       strTotalCount = temp;
-
-       result = OS_SUCCESS;
-    }
-
-    if (result == OS_SUCCESS)
-    {
-       // Go ahead and update the summary file.
-       result = createSummaryFile(summaryFileName,
-                                  strUnheardCount,
-                                  strTotalCount );
-    }
-    else
-    {
-       writeToLog( "UpdateMailboxFolderSummary",
-                   "Contents of summary file could not be restored from the filesystem - " + summaryFileName + " and we will have to create a new one", PRI_ERR);
-
-
-       OsFile summaryfile( summaryFileName );
-       summaryfile.remove();
-
-       // The reason we are using "-2" is to hope in next update we can successfully restore the summary file from the directory
-       result = createSummaryFile(summaryFileName, "-2", "-2");
-    }
-
-#if defined(__pingtel_on_posix__)
-    // Unlock the file for update
-    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                  "MailboxManager::updateMailboxFolderSummary: unlock the lock file %s",
-                  summaryFileName.data());
-    lockFile.fileunlock();
-    lockFile.close();
-#endif
-
-    if ( summaryFileName.index( m_inboxFolder )  != UTL_NOT_FOUND )
-    {
-        // Adjust the MWI - MWI state only dependent on Inbox
-       OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                     "MailboxManager::updateMailboxFolderSummary: posting MWI status\n");
-       OsStatus ret = postMWIStatus ( mailboxIdentity );
-       if (ret != OS_SUCCESS)
-       {
-          OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
-                        "MailboxManager::updateMailboxFolderSummary: postMWIstatus return error\n");
-       }
-    }
-
-    return result;
+                  "MailboxManager::getMailboxCounts( '%s', %d, %d )",
+                  mailboxPath.data(), rUnheardCount, rTotalCount);
 }
 
 OsStatus
@@ -1252,15 +1063,7 @@ MailboxManager::addFolder(
         if (!foundExistingOne)
         {
             result = OsFileSystem::createDir ( folderPath );
-            if ( result == OS_SUCCESS )
-            {
-                UtlString summaryFilePath = folderPath + OsPathBase::separator + FOLDER_SUMMARY_FILE;
-                result = createSummaryFile(summaryFilePath, "0", "0" );
-
-                if( result != OS_SUCCESS )
-                    logContents = "Failed to create summary file : " + summaryFilePath ;
-            }
-            else
+            if ( result != OS_SUCCESS )
             {
                 logContents = "Failed to create folder: " + folderPath ;
             }
@@ -1448,98 +1251,40 @@ MailboxManager::saveMessage (
                      heardStatusFile.touch();
                      heardStatusFile.close();
 
-                     // update the summary file
-                     UtlString summaryFileName =
-                        saveFolder + OsPathBase::separator +
-                        FOLDER_SUMMARY_FILE;
+                     // Update any subscribers on the status of this mailbox
+                     updateMailboxStatus(mailboxIdentity, saveFolder);
 
-                     UtlString strUnheardCount, strTotalCount;
-                     int iUnheardCount, iTotalCount;
+                     UtlString from;
+                     fromUrl.getDisplayName(from);
 
-                     // Read the current contents of the summary file
-                     result = parseMailboxFolderSummary (
-                        summaryFileName,
-                        strUnheardCount,
-                        strTotalCount );
+                     UtlString userId;
+                     fromUrl.getUserId(userId);
 
-                     if( result == OS_SUCCESS )
-                     {
-                        iUnheardCount = atoi( strUnheardCount.data() ) + 1;
-                        iTotalCount = atoi( strTotalCount.data() ) + 1;
+                     if (!from.isNull() && from.length() > 0)
+                        from += " - " + userId;
+                     else
+                        from = userId;
 
-                        writeToLog(
-                           "SaveMessage", "Updating the summary file - " +
-                           summaryFileName, PRI_DEBUG);
-
-                        // Update the summary file.
-                        // note that this calls the status server with
-                        // a 20 sec timeout so be careful
-                        result = updateMailboxFolderSummary (
-                           mailboxIdentity,
-                           summaryFileName,
-                           iUnheardCount,
-                           iTotalCount );
-
-                        // Send email notification regardless where it comes from
-                        if ( result == OS_SUCCESS )
-                        {
-
-                           UtlString from;
-                           fromUrl.getDisplayName(from);
-
-                           UtlString userId;
-                           fromUrl.getUserId(userId);
-
-                           if (!from.isNull() && from.length() > 0)
-                              from += " - " + userId;
-                           else
-                              from = userId;
-
-                           UtlString wavFileName;
+                     UtlString wavFileName;
                            
-                           if (nextMessageID == "-1")
-                           {
-                              // Message from direct deposit
-                              wavFileName = messageid + "-00.wav";
-                           }
-                           else
-                           {
-                              // Message from forwarding
-                              wavFileName = messageid + "-FW.wav";
-                           }
-
-                           sendEmailNotification ( mailboxIdentity ,
-                                                   from,
-                                                   timestamp,
-                                                   duration,
-                                                   wavFileName,
-                                                   data,
-                                                   datasize);
-
-                        } else
-                        {
-                           // even if we failed to update the summary file,
-                           // return success as we have saved the voicemail.
-                           result = OS_SUCCESS;
-                           logContent = "Failed to update summary file " + summaryFileName ;
-                           writeToLog( "SaveMessage" , logContent, PRI_ERR) ;
-                           OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                                         "MailboxManager::saveMessage: updateMailboxFolderSummary('%s', '%s', %d, %d) failed",
-                                         mailboxIdentity.data(),
-                                         summaryFileName.data(),
-                                         iUnheardCount, iTotalCount );
-                        }
-                     } else
+                     if (nextMessageID == "-1")
                      {
-                        // even if we failed to update the summary file,
-                        // return success as we have saved the voicemail.
-                        result = OS_SUCCESS;
-                        logContent = "Failed to parse summary file " +
-                           summaryFileName ;
-                        OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
-                                      "MailboxManager::saveMessage: parseMailboxFolderSummary('%s') failed",
-                                      summaryFileName.data());
+                        // Message from direct deposit
+                        wavFileName = messageid + "-00.wav";
                      }
+                     else
+                     {
+                        // Message from forwarding
+                        wavFileName = messageid + "-FW.wav";
+                     }
+
+                     sendEmailNotification ( mailboxIdentity ,
+                                            from,
+                                            timestamp,
+                                            duration,
+                                            wavFileName,
+                                            data,
+                                            datasize);
 
                   } else
                   {
@@ -1579,8 +1324,6 @@ MailboxManager::saveMessage (
             // succesfully saved wav file close file
             close(file);
 
-            // Stub out call to notification manager
-            // m_notificationManager.notify()
          } else
          {
             logContent = "Unable to create file " + nameWithoutExtension + ".wav\n";
@@ -1762,41 +1505,38 @@ MailboxManager::doLogin (
 
 OsStatus
 MailboxManager::getMailboxStatus(
-    const UtlString& mailboxIdentity,
-    const UtlString& folderName,
-    UtlString& rUnheardCount,
-    UtlString& rTotalCount ) const
+   const UtlString& mailboxIdentity,
+   const UtlString& folderName,
+   UtlString& rUnheardCount,
+   UtlString& rTotalCount ) const
 {
-    OsStatus result = OS_SUCCESS;
-    UtlString mailboxPath, logContents;
-    result = getMailboxPath( mailboxIdentity, mailboxPath );
-    if ( result == OS_SUCCESS )
-    {
-        UtlString folderSummaryLocation  =
-            mailboxPath + OsPathBase::separator +
-            folderName + OsPathBase::separator +
-            FOLDER_SUMMARY_FILE;
+   OsStatus result = OS_SUCCESS;
+   UtlString mailboxPath, logContents;
+   result = getMailboxPath( mailboxIdentity, mailboxPath );
+   if ( result == OS_SUCCESS )
+   {
+      // Get the message counts
+      int unheardCount;
+      int totalCount;
 
-        // Parse the summary file.
-        result = parseMailboxFolderSummary(
-                    folderSummaryLocation,
-                    rUnheardCount,
-                    rTotalCount );
-        if ( result != OS_SUCCESS )
-        {
-            logContents = "Failed to parse summary file - " + folderSummaryLocation ;
-            writeToLog( "GetMailboxStatus", logContents, PRI_ERR );
-        }
-    }
+      UtlString folderPath;
+      folderPath = mailboxPath + OsPathBase::separator + folderName;
+      getMailboxCounts( folderPath, unheardCount, totalCount );
 
-    if( result != OS_SUCCESS )
-    {
-        rUnheardCount = "0";
-        rTotalCount = "0";
-        // Set the result to success anyway.
-        result = OS_SUCCESS ;
-    }
-    return result;
+      char count[10];
+      sprintf( count, "%d", unheardCount);
+      rUnheardCount = count;
+      sprintf( count, "%d", totalCount);
+      rTotalCount = count;
+   }
+   else
+   {
+      rUnheardCount = "0";
+      rTotalCount = "0";
+      // Set the result to success anyway.
+      result = OS_SUCCESS ;
+   }
+   return result;
 }
 
 OsStatus
@@ -3012,47 +2752,10 @@ MailboxManager::updateMessageStates(
       // Any error from here below sets result = OS_FAILURE and logContents.
       result = OS_SUCCESS;
 
-      // If any messages were updated, update the summary file.
+      // If any messages were updated, update any subscribers
       if (msgCount > 0)
       {
-         // Update the summary file with the latest 'unheard' count.
-         UtlString summaryFileName =
-            mailboxPath + OsPathBase::separator + FOLDER_SUMMARY_FILE;
-
-         UtlString strUnheardCount, strTotalCount;
-         int iUnheardCount, iTotalCount;
-
-         result = parseMailboxFolderSummary(
-            summaryFileName,
-            strUnheardCount,
-            strTotalCount);
-
-         if (result == OS_SUCCESS)
-         {
-            iUnheardCount = atoi(strUnheardCount.data()) - msgCount;
-            iTotalCount = atoi(strTotalCount.data());
-
-            writeToLog(
-               "MailboxManager::UpdateMessageStates" ,
-               "Updating the summary file - " + summaryFileName,
-               PRI_DEBUG);
-
-            // Update the summary file.
-            result = updateMailboxFolderSummary(
-               mailboxIdentity,
-               summaryFileName,
-               iUnheardCount,
-               iTotalCount);
-
-            if (result != OS_SUCCESS)
-            {
-               logContents = "Failed to update " + summaryFileName;
-            }
-         }
-         else
-         {
-            logContents = "Failed to parse " + summaryFileName;
-         }
+         updateMailboxStatus(mailboxIdentity, mailboxPath);
       }
 
       // If any messages could not be found, produce an error message.
@@ -3175,78 +2878,11 @@ MailboxManager::moveMessages(
 
             }
 
-            // Update the summary files in both the folders.
-            UtlString summaryFileName = fromFolderPath + OsPathBase::separator + FOLDER_SUMMARY_FILE;
-            UtlString strUnheardCount, strTotalCount;
-            int iUnheardCount, iTotalCount;
+            // Update any subscribers on the status of this mailbox
+            updateMailboxStatus(mailboxIdentity, fromFolderPath);
 
-            result = parseMailboxFolderSummary(
-                        summaryFileName,
-                        strUnheardCount,
-                        strTotalCount );
+            updateMailboxStatus(mailboxIdentity, toFolderPath);
 
-            if ( result == OS_SUCCESS )
-            {
-                iUnheardCount = atoi( strUnheardCount.data() ) - unheardMsgCount;
-                iTotalCount = atoi( strTotalCount.data() ) - totalMsgsMoved;
-
-                writeToLog( "MoveMessages" , "Updating the summary file - " + summaryFileName, PRI_DEBUG) ;
-
-                result = updateMailboxFolderSummary (
-                            mailboxIdentity,
-                            summaryFileName,
-                            iUnheardCount,
-                            iTotalCount );
-
-                if( result != OS_SUCCESS )
-                    logContents += "Failed to update " + summaryFileName ;
-            }
-            else
-            {
-                logContents += "Failed to parse " + summaryFileName ;
-            }
-
-            summaryFileName =
-                toFolderPath + OsPathBase::separator +
-                FOLDER_SUMMARY_FILE;
-
-            iUnheardCount = 0;
-            iTotalCount = 0;
-
-            if( maintainstatus == "no" )
-                unheardMsgCount = 0;
-
-            result = parseMailboxFolderSummary (
-                        summaryFileName,
-                        strUnheardCount,
-                        strTotalCount );
-
-            if( OS_SUCCESS == result )
-            {
-                iUnheardCount = atoi( strUnheardCount.data() ) + unheardMsgCount;
-                iTotalCount = atoi( strTotalCount.data() ) + totalMsgsMoved;
-
-                writeToLog(
-                    "MoveMessages" ,
-                    "Updating the summary file - " + summaryFileName,
-                    PRI_DEBUG) ;
-
-                result = updateMailboxFolderSummary(
-                            mailboxIdentity,
-                            summaryFileName,
-                            iUnheardCount,
-                            iTotalCount );
-
-                if( result != OS_SUCCESS )
-                    logContents += "Failed to update " + summaryFileName ;
-            } else
-            {
-                logContents += "Failed to parse " + summaryFileName ;
-            }
-
-            // TODO: Determine what action should be taken if result is OS_FAILED.
-            // At this point, messages have been moved successfully while the
-            // summary files have not been updated.
             result = OS_SUCCESS ;
 
 #if defined(__pingtel_on_posix__)
@@ -3291,8 +2927,6 @@ MailboxManager::recycleDeletedMessages( const UtlString& mailbox,
     {
         mailboxPath += OsPathBase::separator + m_deletedFolder;
 
-        UtlString summaryFileName = mailboxPath + OsPathBase::separator + FOLDER_SUMMARY_FILE ;
-
 #if defined(__pingtel_on_posix__)
         // Set up a lock in the mailbox so that multiple access can be prevented
         UtlString mailboxLock = mailboxPath + OsPathBase::separator + "retrieve.lck";
@@ -3310,23 +2944,17 @@ MailboxManager::recycleDeletedMessages( const UtlString& mailbox,
 
         if ( messageIds == "-1" )
         {
-        result = fi.findFirst(entry, "[0-9a-zA-Z]*", OsFileIterator::FILES);
-
-        while ( result == OS_SUCCESS )
-        {
-            // delete the file.
-            UtlString fileLocation = mailboxPath + OsPathBase::separator + entry.getFilename() + entry.getExt();
-            OsFile file(fileLocation);
-            file.remove();
-
-            // Get the next file
-            result = fi.findNext(entry);
-        }
-
-            if( result == OS_FILE_NOT_FOUND )
-                result = createSummaryFile(summaryFileName, "0", "0" );
-            else
-                result = OS_FAILED ;
+           for ( result = fi.findFirst(entry, "[0-9a-zA-Z]*", OsFileIterator::FILES);
+                 result == OS_SUCCESS;
+                 result = fi.findNext(entry)
+                )
+           {
+              // delete the file.
+              UtlString fileLocation =
+                 mailboxPath + OsPathBase::separator + entry.getFilename() + entry.getExt();
+              OsFile file(fileLocation);
+              file.remove();
+           }
         }
         else
         {
@@ -3340,44 +2968,21 @@ MailboxManager::recycleDeletedMessages( const UtlString& mailbox,
 
                 // Find all files starting with the given message id.
                 UtlString regExp = id + ".+\\.*";
-                result = fi.findFirst(entry, regExp, OsFileIterator::FILES);
 
-                while ( result == OS_SUCCESS )
+                for ( result = fi.findFirst(entry, regExp, OsFileIterator::FILES);
+                      result == OS_SUCCESS;
+                      result = fi.findNext(entry)
+                     )
                 {
                     // delete the file.
-                    UtlString fileLocation = mailboxPath + OsPathBase::separator + entry.getFilename() + entry.getExt();
+                    UtlString fileLocation =
+                       mailboxPath + OsPathBase::separator + entry.getFilename() + entry.getExt();
                     OsFile file(fileLocation);
                     file.remove();
-
-                    // Get the next file
-                    result = fi.findNext(entry);
                 }
             }
-
-            int totalmsgcount = 0 ;
-            int unheardmsgcount = 0;
-
-            // Get the count of all *-00.xml files (gives the total count )
-            result = fi.findFirst( entry, "[0-9]-00.xml", OsFileIterator::FILES );
-            while ( result == OS_SUCCESS )
-            {
-                totalmsgcount ++;
-                result = fi.findNext(entry);
-            }
-
-            // Get the number of unheard messages.
-            result = fi.findFirst( entry, "[0-9]-00.sta", OsFileIterator::FILES );
-            while ( result == OS_SUCCESS )
-            {
-                unheardmsgcount ++;
-                result = fi.findNext(entry);
-            }
-
-            if( result == OS_FILE_NOT_FOUND )
-                result = updateMailboxFolderSummary( mailbox, summaryFileName, unheardmsgcount, totalmsgcount );
-            else
-                result = OS_FAILED ;
         }
+        result = OS_SUCCESS;
 
 #if defined(__pingtel_on_posix__)
         // Unlock the lock file in the mailbox
@@ -3394,8 +2999,9 @@ MailboxManager::recycleDeletedMessages( const UtlString& mailbox,
     }
 
     if( result != OS_SUCCESS )
-        writeToLog( "Empty Deleted Folder", logContents, PRI_ERR );
-
+    {
+       writeToLog( "Empty Deleted Folder", logContents, PRI_ERR );
+    }
 
     return result;
 
@@ -4536,8 +4142,37 @@ MailboxManager::editMessage (
     return result ;
 }
 
+/// If there are any subscribers to this mailbox, send them an update
+void
+MailboxManager::updateMailboxStatus (
+   const UtlString& mailboxIdentity, ///< SIP identity of mailbox owner
+   const UtlString& mailboxPath      ///< path to the mailbox directory
+                                     ) const
+{
+   // Subscription is supported only for the inbox, so see if this mailox is the inbox
+   UtlString inboxPath( OsPathBase::separator + m_inboxFolder );
+   UtlString endPath
+      = mailboxPath(mailboxPath.length() - inboxPath.length(),inboxPath.length());
+
+   if ( endPath == inboxPath )
+   {
+      postMWIStatus( mailboxIdentity, mailboxPath );
+   }
+   else
+   {
+      OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
+                    "MailboxManager::updateMailboxStatus not an inbox: '%s'; no update",
+                    mailboxPath.data()
+                    );
+   }
+}
+
+
+
 OsStatus
-MailboxManager::postMWIStatus ( const UtlString& mailboxIdentity ) const
+MailboxManager::postMWIStatus (const UtlString& mailboxIdentity,
+                               const UtlString& inboxPath
+                               ) const
 {
     OsStatus result = OS_SUCCESS;
 
@@ -4545,7 +4180,7 @@ MailboxManager::postMWIStatus ( const UtlString& mailboxIdentity ) const
     if ( !m_mwiUrl.isNull() )
     {
         UtlString notifyBodyText;
-        result = getMWINotifyText( mailboxIdentity, notifyBodyText );
+        result = getMWINotifyText( mailboxIdentity, &inboxPath, notifyBodyText );
         if ( result == OS_SUCCESS )
         {
             // first, build a URL to send the message ids
@@ -4619,6 +4254,14 @@ MailboxManager::postMWIStatus ( const UtlString& mailboxIdentity ) const
             delete pResponse;
             delete pRequest;
         }
+        else
+        {
+           OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
+                         "MailboxManager::postMWIEvent failed for '%s' folder '%s'",
+                         mailboxIdentity.data(), inboxPath.data()
+                         );
+
+        }
     }
     return result;
 }
@@ -4626,6 +4269,7 @@ MailboxManager::postMWIStatus ( const UtlString& mailboxIdentity ) const
 OsStatus
 MailboxManager::getMWINotifyText (
     const UtlString& mailboxIdentity,
+    const UtlString* iMailboxPath,
     UtlString& rNotifyText
     ) const
 {
@@ -4635,57 +4279,62 @@ MailboxManager::getMWINotifyText (
     rNotifyText.remove(0);
 
     // only call the MWI if the URL is specified
-    UtlString unheardMessageCount, totalMessageCount, mailboxPath;
-    result = getMailboxPath( mailboxIdentity, mailboxPath );
-    if ( result == OS_SUCCESS )
+    int unheard = 0;
+    int total = 0;
+    UtlString inboxPathName;
+    
+    if ( iMailboxPath ) // caller provided the mailbox path
     {
-        // Check if the mailbox directory exists
-        OsDir mailboxDir ( mailboxPath.data() );
-        if ( !mailboxDir.exists() )
-        {
-            // as the mailbox directory does not exist, set the num messages to be 0.
-            // It is possible that the user has not yet accessed his mailbox
-            // or he does not have a voicemail permission. In the latter case, we
-            // need an IMDB lookup which is expensive and unnecessary.
-            unheardMessageCount = "0";
-            totalMessageCount = "0";
-        }
-        else
-        {
-            UtlString inboxSummaryFileName =
-                mailboxPath + OsPathBase::separator +
-                m_inboxFolder + OsPathBase::separator +
-                FOLDER_SUMMARY_FILE;
-
-            // get the unheard and total counts from the inbox
-            result = parseMailboxFolderSummary (
-                        inboxSummaryFileName,
-                        unheardMessageCount,
-                        totalMessageCount );
-
-            if ( result != OS_SUCCESS )
-            {
-                // 7/18/03 (rschaaf)
-                // If parseMailboxFolderSummary() does not return success, we
-                // assume that the mailbox either hasn't been created yet or has
-                // been deleted but the subscription has not yet expired.  In
-                // either case, we return unheardMessageCount = 0 and
-                // totalMessageCount = 0.
-                unheardMessageCount = "0";
-                totalMessageCount = "0";
-                result = OS_SUCCESS;
-            }
-        }
-
-        UtlString msgIndicator = static_cast<UtlString>( (unheardMessageCount != "0" )? "yes" : "no");
-
-        rNotifyText = "Messages-Waiting: " + msgIndicator +
-          "\r\nVoice-Message: " + unheardMessageCount + "/" +
-          totalMessageCount + " (0/0)";
-
-        // ensure that we separate the end of the body correctly from
-        rNotifyText.append("\r\n\r\n");
+       UtlString mailboxPath;
+       inboxPathName = *iMailboxPath;
+       result = OS_SUCCESS;
     }
+    else
+    {
+       UtlString mailboxPath;
+       
+       result = getMailboxPath( mailboxIdentity, mailboxPath );
+       if ( OS_SUCCESS == result )
+       {
+          inboxPathName = mailboxPath + OsPathBase::separator + m_inboxFolder;
+       }
+       else
+       {
+          OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
+                        "MailboxManager::getMWINotifyText no inbox path found for idenitiy '%s'",
+                        mailboxIdentity.data()
+                        );
+       }
+    }
+
+    if (!inboxPathName.isNull())
+    {
+       // get the unheard and total counts from the inbox
+       getMailboxCounts (inboxPathName, unheard, total );
+    
+       const char* messageSummaryFormat =
+          "Messages-Waiting: %s\r\n"
+          "Voice-Message: %d/%d (0/0)\r\n"
+          "\r\n";
+       char messageSummary[200];
+          sprintf(messageSummary, messageSummaryFormat, 
+                  unheard ? "yes" : "no", // messages-waiting value
+                  unheard, total
+                  );
+          rNotifyText = messageSummary;
+    }
+    else
+    {
+       // simplest to just give it a dummy answer.
+       rNotifyText = 
+          "Messages-Waiting: no\r\n"
+          "Voice-Message: 0/0 (0/0)\r\n"
+          "\r\n";
+
+       // could not find the inbox
+       result = OS_FAILED;
+    }
+    
     return result;
 }
 
