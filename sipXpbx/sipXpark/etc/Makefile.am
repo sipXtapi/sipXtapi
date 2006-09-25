@@ -1,10 +1,14 @@
-INSTALL=@INSTALL@
+include $(top_srcdir)/config/subdir.am
 
-EXTRA_DIST = \
+ETC_FILES = \
     sipxpark-config.in
 
-install-data-hook :
-	@for f in $(EXTRA_DIST); \
+EXTRA_DIST = \
+    $(ETC_FILES) \
+    sipxpark.process.xml.in
+
+install-data-hook : $(DESTDIR)$(SIPX_PROCDIR)/sipxpark.process.xml
+	@for f in $(ETC_FILES); \
 	do \
 		if ! test -f $(DESTDIR)$(sysconfdir)/sipxpbx/$$f; \
 		then \

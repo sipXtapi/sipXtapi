@@ -1,6 +1,5 @@
 include $(top_srcdir)/config/subdir.am
 
-INSTALL = @INSTALL@
 
 bin_SCRIPTS = \
 	${PACKAGE}-config \

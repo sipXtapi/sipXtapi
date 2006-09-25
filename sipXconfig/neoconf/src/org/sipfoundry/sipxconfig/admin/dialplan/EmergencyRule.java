@@ -13,11 +13,11 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
+import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 
 /**
@@ -41,21 +41,20 @@ public class EmergencyRule extends DialingRule {
     }
 
     public Transform[] getStandardTransforms() {
-        List gateways = getGateways();
+        List<Gateway> gateways = getGateways();
         if (gateways.size() <= 0) {
             return new Transform[0];
         }
-        List transforms = new ArrayList(gateways.size());
+        List<Transform> transforms = new ArrayList<Transform>(gateways.size());
         ForkQueueValue q = new ForkQueueValue(gateways.size());
-        for (Iterator i = gateways.iterator(); i.hasNext();) {
-            Gateway gateway = (Gateway) i.next();
-            String url = "<sip:" + m_emergencyNumber + "@" + gateway.getAddress() + ">;"
-                    + q.getSerial();
+        for (Gateway gateway : gateways) {
+            String user = gateway.getCallPattern(m_emergencyNumber);
+            String url = SipUri.format(user, gateway.getAddress(), true) + ";" + q.getSerial();
             UrlTransform transform = new UrlTransform();
             transform.setUrl(url);
             transforms.add(transform);
         }
-        return (Transform[]) transforms.toArray(new Transform[transforms.size()]);
+        return transforms.toArray(new Transform[transforms.size()]);
     }
 
     public Transform[] getMediaServerTransforms() {

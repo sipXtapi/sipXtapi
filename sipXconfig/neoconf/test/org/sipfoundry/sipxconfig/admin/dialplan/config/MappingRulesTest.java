@@ -48,6 +48,7 @@ public class MappingRulesTest extends XMLTestCase {
     public void testGetDocument() throws Exception {
         MappingRules mappingRules = new MappingRules();
         mappingRules.begin();
+        mappingRules.end();
         Document document = mappingRules.getDocument();
 
         String xml = XmlUnitHelper.asString(document);
@@ -65,6 +66,7 @@ public class MappingRulesTest extends XMLTestCase {
     public void testGetDocumentInvalidExternals() throws Exception {
         MappingRules mappingRules = new MappingRules();
         mappingRules.begin();
+        mappingRules.end();
         mappingRules.setExternalRulesFileName("/invalid/file/name");
         Document document = mappingRules.getDocument();
 
@@ -81,6 +83,7 @@ public class MappingRulesTest extends XMLTestCase {
         MappingRules mappingRules = new MappingRules();
         mappingRules.setExternalRulesFileName(resource.getFile());
         mappingRules.begin();
+        mappingRules.end();
         Document document = mappingRules.getDocument();
 
         String xml = XmlUnitHelper.asString(document);
@@ -101,6 +104,7 @@ public class MappingRulesTest extends XMLTestCase {
         MappingRules mappingRules = new MappingRules();
         mappingRules.setExternalRulesFileName(resource.getFile() + " ");
         mappingRules.begin();
+        mappingRules.end();
         Document document = mappingRules.getDocument();
 
         String xml = XmlUnitHelper.asString(document);
@@ -133,6 +137,7 @@ public class MappingRulesTest extends XMLTestCase {
     public void testGetHostMatch() throws Exception {
         MappingRules mappingRules = new MappingRules();
         mappingRules.begin();
+        mappingRules.end();
         Element hostMatch = mappingRules.getFirstHostMatch();
         Document document = mappingRules.getDocument();
         assertSame(document, hostMatch.getDocument());
@@ -168,9 +173,9 @@ public class MappingRulesTest extends XMLTestCase {
         });
         rule.isInternal();
         control.andReturn(true);
-        rule.getPermissions();
-        control.andReturn(Arrays.asList(new Permission[] {
-            Permission.VOICEMAIL
+        rule.getPermissionNames();
+        control.andReturn(Arrays.asList(new String[] {
+            Permission.VOICEMAIL.getName()
         }));
         rule.getTransforms();
         control.andReturn(new Transform[] {
@@ -278,7 +283,7 @@ public class MappingRulesTest extends XMLTestCase {
         control.andReturn(new String[] {
             "dot"
         });
-        rule.getPermissions();
+        rule.getPermissionNames();
         control.andReturn(Collections.EMPTY_LIST);
         rule.getTransforms();
         control.andReturn(new Transform[0]);
@@ -293,8 +298,8 @@ public class MappingRulesTest extends XMLTestCase {
         Document document = mappingRules.getDocument();
         String domDoc = XmlUnitHelper.asString(document);
 
-        assertXpathExists("/mappings/hostMatch[2]/hostPattern", domDoc);
-        assertXpathExists("/mappings/hostMatch[2]/userMatch/userPattern", domDoc);
+        assertXpathExists("/mappings/hostMatch[1]/hostPattern", domDoc);
+        assertXpathExists("/mappings/hostMatch[1]/userMatch/userPattern", domDoc);
 
         control.verify();
     }

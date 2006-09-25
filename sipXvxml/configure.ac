@@ -71,5 +71,6 @@ AC_CONFIG_FILES([src/tel/Makefile])
 AC_CONFIG_FILES([src/VXI/Makefile])
 AC_CONFIG_FILES([src/client/Makefile])
 AC_CONFIG_FILES([doc/Makefile])
+AC_CONFIG_FILES([etc/Makefile])
 AC_CONFIG_FILES([meta/Makefile])
 AC_OUTPUT

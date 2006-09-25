@@ -68,6 +68,16 @@ public class GatewaysTestUi extends WebTestCase {
         assertEquals(3, gatewaysTable.getRowCount());
         assertEquals("kukuDescription", gatewaysTable.getCellAsText(2, lastColumn));
     }
+    
+    public void testAddGatewaysDuplicateName() throws Exception {
+        clickLink("ListGateways");
+        selectOption("selectGatewayModel", "Unmanaged gateway"); // javascript submit
+        addGateway(getTester(), "dupname");
+        SiteTestHelper.assertNoException(tester);
+        selectOption("selectGatewayModel", "Unmanaged gateway"); // javascript submit
+        addGateway(getTester(), "dupname");
+        SiteTestHelper.assertUserError(tester);
+    }    
 
     public void testDeleteGateways() throws Exception {
         addTestGateways(getTester(), 10);

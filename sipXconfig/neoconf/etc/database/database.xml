@@ -69,7 +69,7 @@
   <target name="create" depends="createdb,schema"
     description="create database with schema"/>
 
-  <target name="upgrade-no-init" depends="patches,version1,version2,version3"/>
+  <target name="upgrade-no-init" depends="patches,version1,version2,version3,version4"/>
 	
   <target name="upgrade" description="applied all patches that need to be applied, and run initialization tasks"
     depends="upgrade-no-init,initialize"/>
@@ -118,9 +118,13 @@
     <antcall target="caller-alias"/>    
     <antcall target="domain"/>    
     <antcall target="caller-alias-2"/>
-    <!-- When freezing schema uncomment this line -->
-    <!-- sipx-version version="4" -->
+    <sipx-version version="4"/>
   </target>
+	
+  <target name="version4" description="upgrade from version 3" unless="version5">
+    <!-- When freezing schema uncomment this line -->
+    <!-- sipx-version version="5" -->
+  </target>	
 
   <target name="domain" unless="domain">
     <db-patch patch="domain"/>

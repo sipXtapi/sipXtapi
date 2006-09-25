@@ -31,13 +31,17 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
     private static final String PRESENCE_SERVER_SIP_PORT = "presence/PRESENCE_SERVER_SIP_PORT";
     // note: the name of the setting is misleading - this is actually full host name not just a
     // domain name
-    private static final String PRESENCE_SERVER_LOCATION = "presence/SIP_PRESENCE_DOMAIN_NAME";   
+    private static final String PRESENCE_SERVER_LOCATION = "presence/SIP_PRESENCE_DOMAIN_NAME";
     private static final String PRESENCE_API_PORT = "presence/SIP_PRESENCE_HTTP_PORT";
+
+    // alternative way of getting park server address
+    private static final String PARK_ADDRESS = "park/SIP_REGISTRAR_PARK_SERVER";
 
     private String m_configDirectory;
     private ConfigFileStorage m_storage;
     private SipxReplicationContext m_sipxReplicationContext;
     private CoreContext m_coreContext;
+    private String m_mohUser;
 
     public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
         m_sipxReplicationContext = sipxReplicationContext;
@@ -46,11 +50,15 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
-    
+
+    public void setMohUser(String mohUser) {
+        m_mohUser = mohUser;
+    }
+
     protected Setting loadSettings() {
         return getModelFilesContext().loadModelFile("server.xml", "commserver");
     }
-    
+
     /**
      * Still need to call <code>applySettings</code> save to send to disk
      */
@@ -97,8 +105,7 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
 
     public String getPresenceServiceUri() {
         Object[] params = new Object[] {
-            getPresenceServerLocation(), 
-            String.valueOf(getPresenceServerApiPort())
+            getPresenceServerLocation(), String.valueOf(getPresenceServerApiPort())
         };
         return MessageFormat.format("http://{0}:{1}/RPC2", params);
     }
@@ -108,13 +115,11 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
     }
 
     private int getPresenceServerApiPort() {
-        return ((Integer) getSettingTypedValue(PRESENCE_API_PORT))
-                .intValue();
+        return (Integer) getSettingTypedValue(PRESENCE_API_PORT);
     }
 
     private int getPresenceServerPort() {
-        return ((Integer) getSettingTypedValue(PRESENCE_SERVER_SIP_PORT))
-                .intValue();
+        return (Integer) getSettingTypedValue(PRESENCE_SERVER_SIP_PORT);
     }
 
     private AliasMapping createPresenceAliasMapping(String code, String domainName,
@@ -127,6 +132,11 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
 
     public String getPresenceServerUri() {
         return SipUri.format(getPresenceServerLocation(), getPresenceServerPort());
+    }
+
+    public String getMusicOnHoldUri() {
+        String parkAddress = (String) getSettingTypedValue(PARK_ADDRESS);
+        return SipUri.format(m_mohUser, parkAddress, false);
     }
 
     @Override

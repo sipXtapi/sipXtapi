@@ -14,7 +14,7 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.MessageFormat;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -119,7 +119,7 @@ public class MappingRule extends DialingRule {
         public Operator(AutoAttendant attendant, String extension, String[] aliases) {
             this(attendant.getName(), attendant.getDescription(), attendant.getSystemName(),
                     extension, aliases);
-        }        
+        }
 
         public Operator(String name, String description, String systemName, String extension,
                 String[] aliases) {
@@ -149,10 +149,8 @@ public class MappingRule extends DialingRule {
                     getMailboxParams(CallDigits.FIXED_DIGITS), ";q=0.1"));
         }
 
-        public List getPermissions() {
-            List perms = new ArrayList();
-            perms.add(Permission.VOICEMAIL);
-            return perms;
+        public List<String> getPermissionNames() {
+            return Collections.singletonList(Permission.VOICEMAIL.getName());
         }
     }
 

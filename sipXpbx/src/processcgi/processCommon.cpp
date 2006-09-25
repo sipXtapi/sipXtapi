@@ -907,7 +907,7 @@ OsStatus findSubDocs(OsPath &path, TiXmlDocument &rootDoc, ProcessSubDoc addSubD
 {
     OsFileIterator subdocs(path);
     OsPath subdocName;
-    OsStatus status = subdocs.findFirst(subdocName, "[.]xml$");
+    OsStatus status = subdocs.findFirst(subdocName, "[.]process[.]xml$");
     while (status == OS_SUCCESS && subdocName.length() > 0) {
         TiXmlDocument subdoc;
         OsPath pathCopy(path);
@@ -949,9 +949,9 @@ OsStatus addWatchDogSubDoc(TiXmlDocument &rWatchDogXMLDoc, TiXmlDocument &subdoc
                     if (monitor != NULL) 
                     {
                         // copy
-                        for (TiXmlNode *child = submonitor->FirstChild("process");
+                        for (TiXmlNode *child = submonitor->FirstChild("monitor-process");
                               child != NULL;
-                              child = child->NextSibling( "process" ) )
+                              child = child->NextSibling( "monitor-process" ) )
                         {
                             // according to tinyxml docs clone should be free'ed
                             // but watchdog doc is never free'ed so leave as is

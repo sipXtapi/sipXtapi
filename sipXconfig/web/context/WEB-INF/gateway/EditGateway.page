@@ -34,7 +34,7 @@
   </component>
 
   <component id="formActions" type="FormActions">
-    <binding name="listener" value="listener:apply" />
+    <binding name="listener" value="listener:saveGateway" />
     <binding name="callback" value="callback" />
   </component>
 

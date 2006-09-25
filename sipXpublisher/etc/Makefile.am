@@ -1,11 +1,15 @@
-INSTALL=@INSTALL@
+include $(top_srcdir)/config/subdir.am
 
-EXTRA_DIST = \
+ETC_FILES = \
     status-config.in \
     status-plugin.xml.in
 
-install-data-hook :
-	@for f in $(EXTRA_DIST); \
+EXTRA_DIST = \
+    $(ETC_FILES) \
+    sipstatus.process.xml.in
+
+install-data-hook : $(DESTDIR)$(SIPX_PROCDIR)/sipstatus.process.xml
+	@for f in $(ETC_FILES); \
 	do \
 		if ! test -f $(DESTDIR)$(sysconfdir)/sipxpbx/$$f; \
 		then \

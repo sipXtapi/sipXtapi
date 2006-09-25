@@ -58,7 +58,7 @@ public:
         CPPUNIT_ASSERT(success);
 
         OsPath subdocFile = OsPath(TEST_SRC_DIR) + OsPath::separator + "process.d" + 
-            OsPath::separator +  "app-process.xml";
+            OsPath::separator +  "app.process.xml";
         TiXmlDocument subdoc;
         success = subdoc.LoadFile(subdocFile);
         CPPUNIT_ASSERT(success);        
@@ -68,8 +68,8 @@ public:
 
         TiXmlElement *root = watchDogDoc.RootElement();
         TiXmlNode *monitor = root->FirstChild("monitor");
-        int count = countNodes(monitor, "process");
-        CPPUNIT_ASSERT_EQUAL(2, count);
+        int count = countNodes(monitor, "monitor-process");
+        CPPUNIT_ASSERT_EQUAL(1, count);
     }
 
     void testAddProcessDefSubDoc()
@@ -80,7 +80,7 @@ public:
         CPPUNIT_ASSERT(success);
 
         OsPath subdocFile = OsPath(TEST_SRC_DIR) + OsPath::separator + "process.d" + 
-            OsPath::separator +  "app-process.xml";
+            OsPath::separator +  "app.process.xml";
         TiXmlDocument subdoc;
         success = subdoc.LoadFile(subdocFile);
         CPPUNIT_ASSERT(success);        
@@ -90,7 +90,7 @@ public:
 
         TiXmlElement *root = processDefDoc.RootElement();
         int count = countNodes(root, "group");
-        CPPUNIT_ASSERT_EQUAL(2, count);
+        CPPUNIT_ASSERT_EQUAL(1, count);
     }
 
     int countNodes(TiXmlNode *node, const char *childName) 

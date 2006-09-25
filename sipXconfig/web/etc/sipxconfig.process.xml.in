@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<watchdog-process>
+<watchdog-process xmlns="http://www.sipfoundry.org/sipX/schema/xml/watchdogprocess-00-00">
   <process_definitions>
     <group name="ConfigServer">
         <process name="ConfigServer">
@@ -24,9 +24,9 @@
   </process_definitions>
   <watchdog>
    <monitor>
-      <process name="ConfigServer" restart="enable" max_restarts="3" report="enable" max_reports="3">
+      <monitor-process name="ConfigServer" restart="enable" max_restarts="3" report="enable" max_reports="3">
          <failure_contact method="email">@sipxpbx.user@@localhost</failure_contact>
-      </process>
+      </monitor-process>
    </monitor>
   </watchdog>
 </watchdog-process>

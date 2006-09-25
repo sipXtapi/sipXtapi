@@ -11,15 +11,13 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
-import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
-public abstract class MusicOnHoldForm extends BaseComponent implements PageBeginRenderListener {
-    public abstract boolean getCommitChanges();
-
+public abstract class MusicOnHold extends BasePage implements PageBeginRenderListener {
     public abstract ParkOrbitContext getParkOrbitContext();
 
     public abstract String getMusic();
@@ -34,19 +32,12 @@ public abstract class MusicOnHoldForm extends BaseComponent implements PageBegin
         }
     }
 
-    public void formSubmit() {
-        if (!getCommitChanges()) {
-            return;
-        }
-
+    public void saveValid() {
         if (TapestryUtils.isValid(this)) {
+            ParkOrbitContext context = getParkOrbitContext();
+            context.setDefaultMusicOnHold(getMusic());
+            context.activateParkOrbits();
             saveValid();
         }
-    }
-
-    private void saveValid() {
-        ParkOrbitContext context = getParkOrbitContext();
-        context.setDefaultMusicOnHold(getMusic());
-        context.activateParkOrbits();
     }
 }

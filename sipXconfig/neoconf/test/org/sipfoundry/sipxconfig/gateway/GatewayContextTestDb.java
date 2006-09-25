@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting;
 import org.sipfoundry.sipxconfig.admin.dialplan.InternationalRule;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.springframework.context.ApplicationContext;
 
@@ -58,6 +59,25 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
         assertEquals(2, m_context.getGateways().size());
         assertTrue(m_context.getGateways().contains(g1));
         assertTrue(m_context.getGateways().contains(g2));
+    }
+
+    public void testAddDuplicateGatewayDuplicate() throws Exception {
+        Gateway g1 = new Gateway();
+        g1.setName("bongo");
+        Gateway g2 = new Gateway();
+        g2.setName("bongo");
+
+        // add g1
+        m_context.storeGateway(g1);
+
+        // add g2
+        try {
+            m_context.storeGateway(g2);
+            fail("Duplicate gateway names should not be possible.");
+        }
+        catch(UserException e) {
+            // ok
+        }
     }
 
     public void testDeleteGateway() {
@@ -180,4 +200,5 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
         Gateway gateway = m_context.getGateway(new Integer(1001));
         assertNotNull(gateway.getTftpRoot());
     }
+
 }

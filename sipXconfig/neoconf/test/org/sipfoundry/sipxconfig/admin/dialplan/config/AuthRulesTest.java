@@ -62,9 +62,9 @@ public class AuthRulesTest extends XMLTestCase {
         control.andReturn(new String[] {
             "555", "666", "777"
         });
-        rule.getPermissions();
-        control.andReturn(Arrays.asList(new Permission[] {
-            Permission.VOICEMAIL
+        rule.getPermissionNames();
+        control.andReturn(Arrays.asList(new String[] {
+            Permission.VOICEMAIL.getName()
         }));
         rule.getGateways();
         control.andReturn(gateways);
@@ -120,9 +120,9 @@ public class AuthRulesTest extends XMLTestCase {
                 prefix + "555", prefix + "666", prefix + "777"
             });
         }
-        rule.getPermissions();
-        control.andReturn(Arrays.asList(new Permission[] {
-            Permission.VOICEMAIL
+        rule.getPermissionNames();
+        control.andReturn(Arrays.asList(new String[] {
+            Permission.VOICEMAIL.getName()
         }));
         control.replay();
 
@@ -183,8 +183,8 @@ public class AuthRulesTest extends XMLTestCase {
                 "555", "666", "777"
             });
         }
-        rule.getPermissions();
-        control.andReturn(Arrays.asList(new Permission[] {}));
+        rule.getPermissionNames();
+        control.andReturn(Arrays.asList(new String[] {}));
         rule.getGateways();
         control.andReturn(Arrays.asList(gateways));
         control.replay();

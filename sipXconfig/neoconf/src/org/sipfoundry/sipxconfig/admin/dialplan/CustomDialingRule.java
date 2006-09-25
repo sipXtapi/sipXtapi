@@ -12,7 +12,6 @@
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,7 +27,7 @@ import org.sipfoundry.sipxconfig.permission.Permission;
 public class CustomDialingRule extends DialingRule {
     private List<DialPattern> m_dialPatterns = new ArrayList<DialPattern>();
     private CallPattern m_callPattern = new CallPattern();
-    private List<Permission> m_permissions = new ArrayList<Permission>();
+    private List<String> m_permissionNames = new ArrayList<String>();
 
     public CustomDialingRule() {
         m_dialPatterns.add(new DialPattern());
@@ -36,12 +35,12 @@ public class CustomDialingRule extends DialingRule {
 
     protected Object clone() throws CloneNotSupportedException {
         CustomDialingRule clone = (CustomDialingRule) super.clone();
-        clone.m_permissions = new ArrayList(m_permissions);
+        clone.m_permissionNames = new ArrayList(m_permissionNames);
         clone.m_dialPatterns = new ArrayList(m_dialPatterns);
         return clone;
     }
 
-    public List getDialPatterns() {
+    public List<DialPattern> getDialPatterns() {
         return m_dialPatterns;
     }
 
@@ -100,20 +99,21 @@ public class CustomDialingRule extends DialingRule {
         return DialingRuleType.CUSTOM;
     }
 
-    public List<Permission> getPermissions() {
-        return m_permissions;
-    }
-
     public void setPermissions(List<Permission> permissions) {
-        m_permissions = permissions;
+        List<String> permissionNames = getPermissionNames();
+        permissionNames.clear();
+        for (Permission permission : permissions) {
+            permissionNames.add(permission.getName());
+        }
     }
 
-    public void setPermissionNames(List<String> names) {
-        List<Permission> permissions = new ArrayList<Permission>(names.size());
-        for (String name : names) {
-            permissions.add(getPermission(name));
-        }
-        setPermissions(permissions);
+    public void setPermissionNames(List<String> permissionNames) {
+        m_permissionNames = permissionNames;
+    }
+
+    @Override
+    public List<String> getPermissionNames() {
+        return m_permissionNames;
     }
 
     /**
@@ -125,14 +125,13 @@ public class CustomDialingRule extends DialingRule {
 
     @Override
     public String[] getTransformedPatterns(Gateway gateway) {
-        List dialPatterns = getDialPatterns();
-        Set transformedPatterns = new LinkedHashSet();
-        for (Iterator i = dialPatterns.iterator(); i.hasNext();) {
-            DialPattern dp = (DialPattern) i.next();
+        List<DialPattern> dialPatterns = getDialPatterns();
+        Set<String> transformedPatterns = new LinkedHashSet<String>();
+        for (DialPattern dp : dialPatterns) {
             DialPattern tdp = m_callPattern.transform(dp);
             String pattern = gateway.getCallPattern(tdp.calculatePattern());
             transformedPatterns.add(pattern);
         }
-        return (String[]) transformedPatterns.toArray(new String[transformedPatterns.size()]);
+        return transformedPatterns.toArray(new String[transformedPatterns.size()]);
     }
 }
