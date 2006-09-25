@@ -1155,22 +1155,43 @@ bool StunMessage::encodeXorAttributeAddress(unsigned short type, STUN_ATTRIBUTE_
 
 bool StunMessage::encodeString(unsigned short type, const char* szString, char*& pBuf, size_t& nBytesLeft)
 {
-    bool bRC = false ;
-    size_t nActualLength ;
-    size_t nPaddedLength ;
-    char cPadding[STUN_MIN_CHAR_PAD] ;
+    bool bRC = false ;    
 
-    nActualLength = strlen(szString) ;
-    nPaddedLength = ((nActualLength + (STUN_MIN_CHAR_PAD-1)) / STUN_MIN_CHAR_PAD) * \
-            STUN_MIN_CHAR_PAD ;
-    memset(cPadding, 0, sizeof(cPadding)) ;
-
-    if (    (nBytesLeft >= (nPaddedLength + sizeof(STUN_ATTRIBUTE_HEADER))) &&
-            encodeAttributeHeader(type, (short) nPaddedLength, pBuf, nBytesLeft) &&
-            encodeRaw(szString, nActualLength, pBuf, nBytesLeft) &&
-            encodeRaw(cPadding, nPaddedLength - nActualLength, pBuf, nBytesLeft))
+    if (mbLegacyMode)
     {
-        bRC = true ;
+        size_t nActualLength ;
+        size_t nPaddedLength ;
+        char cPadding[STUN_MIN_CHAR_PAD] ;
+
+        nActualLength = strlen(szString) ;
+        nPaddedLength = ((nActualLength + (STUN_MIN_CHAR_PAD-1)) / STUN_MIN_CHAR_PAD) * 
+                STUN_MIN_CHAR_PAD ;
+        memset(cPadding, 0x20, sizeof(cPadding)) ;
+        if (    (nBytesLeft >= (nPaddedLength + sizeof(STUN_ATTRIBUTE_HEADER))) &&
+                encodeAttributeHeader(type, (short) nPaddedLength, pBuf, nBytesLeft) &&
+                encodeRaw(szString, nActualLength, pBuf, nBytesLeft) &&
+                encodeRaw(cPadding, nPaddedLength - nActualLength, pBuf, nBytesLeft))
+        {
+            bRC = true ;
+        }
+    }
+    else
+    {
+        size_t nActualLength ;
+        size_t nPaddedLength ;
+        char cPadding[STUN_MIN_CHAR_PAD] ;
+
+        nActualLength = strlen(szString) ;
+        nPaddedLength = ((nActualLength + (STUN_MIN_CHAR_PAD-1)) / STUN_MIN_CHAR_PAD) * 
+                STUN_MIN_CHAR_PAD ;
+        memset(cPadding, 0x00, sizeof(cPadding)) ;
+        if (    (nBytesLeft >= (nPaddedLength + sizeof(STUN_ATTRIBUTE_HEADER))) &&
+                encodeAttributeHeader(type, (short) nPaddedLength, pBuf, nBytesLeft) &&
+                encodeRaw(szString, nActualLength, pBuf, nBytesLeft) &&
+                encodeRaw(cPadding, nPaddedLength - nActualLength, pBuf, nBytesLeft))
+        {
+            bRC = true ;
+        }
     }
 
     return bRC ;
@@ -1406,6 +1427,16 @@ bool StunMessage::parseStringAttribute(char* pBuf, size_t nLength, char* pString
     {
         memset(pString, 0, STUN_MAX_STRING_LENGTH+1) ;
         memcpy(pString, pBuf, MIN(nLength, STUN_MAX_STRING_LENGTH)) ;
+        if (mbLegacyMode && strlen(pString))
+        {
+            // Strip trailing spaces
+            char* szEnd = pString + (strlen(pString) - 1) ;
+            while (szEnd > pString && *szEnd == 0x20)
+            {
+                *szEnd-- = 0 ;                
+            }            
+        }
+        
         bValid = true ;
     }
 
