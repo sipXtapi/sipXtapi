@@ -1,10 +1,18 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-//
+// 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004-2006 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+//////////////////////////////////////////////////////////////////////////////
+
+// Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
 #ifndef _CpPhoneMediaInterface_h_
 #define _CpPhoneMediaInterface_h_
@@ -193,6 +201,24 @@ public:
    virtual OsStatus setVideoWindowDisplay(const void* hWnd);
    virtual const void* getVideoWindowDisplay();
 
+   //! Set a media property on the media interface
+   virtual OsStatus setMediaProperty(const UtlString& propertyName,
+                                     const UtlString& propertyValue);
+
+   //! Get a media property on the media interface
+   virtual OsStatus getMediaProperty(const UtlString& propertyName,
+                                     UtlString& propertyValue);
+
+   //! Set a media property associated with a connection
+   virtual OsStatus setMediaProperty(int connectionId,
+                                     const UtlString& propertyName,
+                                     const UtlString& propertyValue);
+
+   //! Get a media property associated with a connection
+   virtual OsStatus getMediaProperty(int connectionId,
+                                     const UtlString& propertyName,
+                                     UtlString& propertyValue);
+
    virtual OsStatus setVideoQuality(int quality);
    virtual OsStatus setVideoParameters(int bitRate, int frameRate);
 
@@ -224,6 +250,7 @@ private:
    int mExpeditedIpTos;
    UtlString mStunServer ;
    int mStunRefreshPeriodSecs ;
+   UtlHashMap mInterfaceProperties;
 
    // Disabled copy constructor
    CpPhoneMediaInterface(const CpPhoneMediaInterface& rCpPhoneMediaInterface);
