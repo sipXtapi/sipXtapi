@@ -8,8 +8,8 @@ REL = 2
 SRC = $(LIBSRC)/pcre/pcre-$(VER).tar.bz2
 
 RPMS = \
-	$(DEST_RPM)/pcre-$(VER)-$(REL).$(RPM_TARGET_ARCH).rpm \
-	$(DEST_RPM)/pcre-devel-$(VER)-$(REL).$(RPM_TARGET_ARCH).rpm
+	$(DEST_RPM)/pcre-$(VER)-$(REL).@RPM_TARGET_ARCH@.rpm \
+	$(DEST_RPM)/pcre-devel-$(VER)-$(REL).@RPM_TARGET_ARCH@.rpm
 
 all : $(SRC) $(RPMS)
 
@@ -18,9 +18,9 @@ $(SRC) :
 
 .PHONY: build-rpms
 build-rpms : $(SRC) $(srcdir)/pcre-3.9-libtool.patch $(srcdir)/pcre.spec
-	cp $(SRC) $(RPMBUILD_TOPDIR)/SOURCES
-	cp $(srcdir)/pcre-3.9-libtool.patch $(RPMBUILD_TOPDIR)/SOURCES
-	rpmbuild -bb --target $(RPM_TARGET_ARCH)-none-linux $(srcdir)/pcre.spec
+	cp $(SRC) @RPMBUILD_TOPDIR@/SOURCES
+	cp $(srcdir)/pcre-3.9-libtool.patch @RPMBUILD_TOPDIR@/SOURCES
+	rpmbuild -bb --target @RPM_TARGET_ARCH@-none-linux $(srcdir)/pcre.spec
 
 $(RPMS) : build-rpms
-	mv $(RPMBUILD_TOPDIR)/RPMS/$(RPM_TARGET_ARCH)/`basename $@` $@
+	mv @RPMBUILD_TOPDIR@/RPMS/@RPM_TARGET_ARCH@/`basename $@` $@

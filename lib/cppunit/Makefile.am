@@ -3,8 +3,8 @@
 VER = 1.10.2
 REL = 1
 
-RPMS = $(DEST_RPM)/cppunit-$(VER)-$(REL).$(RPM_TARGET_ARCH).rpm
-SRPM = $(RPMBUILD_TOPDIR)/SRPMS/cppunit-$(VER)-$(REL).src.rpm
+RPMS = $(DEST_RPM)/cppunit-$(VER)-$(REL).@RPM_TARGET_ARCH@.rpm
+SRPM = @RPMBUILD_TOPDIR@/SRPMS/cppunit-$(VER)-$(REL).src.rpm
 SRC = $(LIBSRC)/cppunit/cppunit-$(VER).tar.gz
 
 all: $(RPMS)
@@ -18,8 +18,8 @@ $(SRC) :
 build-rpms : $(SRC)
 	rpmbuild -ts $(SRC)
 	rpm -i $(SRPM)
-	patch -p0 $(RPMBUILD_TOPDIR)/SPECS/cppunit.spec < $(srcdir)/cppunit-sipx.patch
-	rpmbuild -ba $(RPMBUILD_TOPDIR)/SPECS/cppunit.spec
+	patch -p0 @RPMBUILD_TOPDIR@/SPECS/cppunit.spec < $(srcdir)/cppunit-sipx.patch
+	rpmbuild -ba @RPMBUILD_TOPDIR@/SPECS/cppunit.spec
 
 $(RPMS) : build-rpms
-	cp $(RPMBUILD_TOPDIR)/RPMS/$(RPM_TARGET_ARCH)/`basename $@` $@
+	cp @RPMBUILD_TOPDIR@/RPMS/@RPM_TARGET_ARCH@/`basename $@` $@

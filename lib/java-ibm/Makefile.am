@@ -32,13 +32,13 @@ $(NOSRC_RPM) :
 .PHONY:build-rpms
 build-rpms: $(NOSRC_RPM) $(SRC_ZIP)
 	rpm -i $(NOSRC_RPM)
-	cp $(SRC_ZIP) $(RPMBUILD_TOPDIR)/SOURCES
-	rpmbuild -ba $(RPMBUILD_TOPDIR)/SPECS/$(RPM_SPEC)
+	cp $(SRC_ZIP) @RPMBUILD_TOPDIR@/SOURCES
+	rpmbuild -ba @RPMBUILD_TOPDIR@/SPECS/$(RPM_SPEC)
 
 $(RPMS) : build-rpms
-	mv $(RPMBUILD_TOPDIR)/RPMS/i586/`basename $@` $@
+	mv @RPMBUILD_TOPDIR@/RPMS/i586/`basename $@` $@
 
 $(UNRESTRICTED_RPM) : $(UNRESTRICTED_SRC) $(srcdir)/java-ibm-unrestricted.spec
-	cp $(UNRESTRICTED_SRC) $(RPMBUILD_TOPDIR)/SOURCES
+	cp $(UNRESTRICTED_SRC) @RPMBUILD_TOPDIR@/SOURCES
 	rpmbuild --target noarch --quiet -ba $(srcdir)/java-ibm-unrestricted.spec
-	mv $(RPMBUILD_TOPDIR)/RPMS/noarch/`basename $@` $@
+	mv @RPMBUILD_TOPDIR@/RPMS/noarch/`basename $@` $@
