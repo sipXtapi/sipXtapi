@@ -1245,6 +1245,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MpRawAudioBuffer.cpp">
+			</File>
+			<File
 				RelativePath="src\mp\MprBridge.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -2514,6 +2517,9 @@
 			</File>
 			<File
 				RelativePath="include\mp\MpQueuePlayerListener.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpRawAudioBuffer.h">
 			</File>
 			<File
 				RelativePath="include\mp\MprBridge.h">
