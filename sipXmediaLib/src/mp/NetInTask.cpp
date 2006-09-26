@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -459,9 +462,17 @@ int NetInTask::run(void *pNotUsed)
             for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
               if (NULL != ppr->fwdTo) {
                 if (NULL != ppr->pRtpSocket)
-                  FD_SET((UINT)(ppr->pRtpSocket->getSocketDescriptor()), fds);
+                {
+                  int fd = ppr->pRtpSocket->getSocketDescriptor();
+                  if (fd > 0)
+                    FD_SET(fd, fds);
+                }
                 if (NULL != ppr->pRtcpSocket)
-                  FD_SET((UINT)(ppr->pRtcpSocket->getSocketDescriptor()), fds);
+                {
+                  int fd = ppr->pRtcpSocket->getSocketDescriptor();
+                  if (fd > 0)
+                    FD_SET(fd, fds);
+                }
               }
               ppr++;
             }

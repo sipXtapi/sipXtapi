@@ -39,7 +39,7 @@ public:
    enum tagStreamQueueMsgSubTypes
    {
       AudioFrame,
-      EndOfFrameMarker,
+      EndOfFrameMarker
    } ;
 
 /* ============================ CREATORS ================================== */

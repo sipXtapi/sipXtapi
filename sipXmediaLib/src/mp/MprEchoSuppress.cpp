@@ -371,7 +371,7 @@ UtlBoolean MprEchoSuppress::doProcessFrame(MpBufPtr inBufs[],
     in32 = NULL;
 #endif /* FLOWGRAPH_DOES_RESAMPLING ] */
 #else
-	
+in32=NULL;	
     
 #endif
     in8 = inBufs[0];
