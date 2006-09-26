@@ -34,7 +34,7 @@ MpStreamPlaylistPlayer::MpStreamPlaylistPlayer(OsMsgQ* pMsgQ, const char* pTarge
    : OsServerTask("PlaylistPlay-%d")
    , MpPlayer()
    , mSemStateChange(OsBSem::Q_PRIORITY, OsBSem::EMPTY)
-   , mSemWaitSync(OsBSem::Q_FIFO, OsBSem::EMPTY)
+   , mWaitEvent(0)
    , mRealizeTimeout(REALIZE_TIMEOUT, 0)
    , mPrefetchTimeout(PREFETCH_TIMEOUT, 0)
    , mPlayTimeout(PLAY_TIMEOUT, 0)
@@ -78,9 +78,6 @@ MpStreamPlaylistPlayer::MpStreamPlaylistPlayer(OsMsgQ* pMsgQ, const char* pTarge
 MpStreamPlaylistPlayer::~MpStreamPlaylistPlayer()
 {   
    reset();
-
-   // Wake up anyone waiting on this class
-   mSemWaitSync.release();
 
    if (mpQueueEvent != NULL)
    {
@@ -330,7 +327,7 @@ OsStatus MpStreamPlaylistPlayer::wait(const OsTime& rTimeout)
          || (mAggregateState == PlayerPlaying) 
          || (mAggregateState == PlayerPaused))
    {
-      status = mSemWaitSync.acquire(rTimeout);
+      status = mWaitEvent.wait(rTimeout);
       if (status != OS_SUCCESS)
          break;
    }
@@ -377,6 +374,12 @@ OsStatus MpStreamPlaylistPlayer::reset()
    mbAutoAdvance = FALSE;
    mAggregateState = PlayerUnrealized;
 
+   // Wake up anyone waiting on this class
+   mWaitEvent.signal(0);
+
+   // And set it up for the next time
+   mWaitEvent.reset() ;
+   
    return status;
 }
 
@@ -536,7 +539,7 @@ OsStatus MpStreamPlaylistPlayer::getState(PlayerState& state)
 // Copy constructor
 MpStreamPlaylistPlayer::MpStreamPlaylistPlayer(const MpStreamPlaylistPlayer& rMpStreamPlaylistPlayer)
    : mSemStateChange(OsBSem::Q_PRIORITY, OsBSem::EMPTY)
-   , mSemWaitSync(OsBSem::Q_FIFO, OsBSem::EMPTY)
+   , mWaitEvent(0)
 {
 }
 
@@ -1097,7 +1100,7 @@ void MpStreamPlaylistPlayer::handleStoppedState(int index, PlayerState oldState,
          mAggregateState = PlayerAborted;
          fireEvent(PlayerAborted);
          // Wake up anyone waiting on play completion.
-         mSemWaitSync.release();
+         mWaitEvent.signal(0);
       }
    }
    else
@@ -1115,7 +1118,7 @@ void MpStreamPlaylistPlayer::handleStoppedState(int index, PlayerState oldState,
             mAggregateState = PlayerStopped;
             fireEvent(PlayerStopped);
             // Wake up anyone waiting on play completion.
-            mSemWaitSync.release();
+            mWaitEvent.signal(0);
          }
       }
    }
@@ -1131,7 +1134,7 @@ void MpStreamPlaylistPlayer::handleFailedState(int index, PlayerState oldState, 
 #endif /* ] */
    mAggregateState = PlayerFailed;
    // Wake up anyone waiting on play completion.
-   mSemWaitSync.release();
+   mWaitEvent.signal(0);
 }
 
 

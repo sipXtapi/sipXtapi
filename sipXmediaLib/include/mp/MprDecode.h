@@ -90,13 +90,19 @@ private:
    enum AddlMsgTypes
    {
       SELECT_CODECS = MpFlowGraphMsg::RESOURCE_SPECIFIC_START,
-      DESELECT_CODECS,
+      DESELECT_CODECS
    };
 
    enum { MAX_RTP_FRAMES = 25};
 
-   unsigned int mTimeStampOffset;
-   int          mPreloading;
+   unsigned int mNextPullTimerCount;
+   int          mWaitTimeInFrames;
+   unsigned int sTimerCountIncrement;
+   int          mMissedFrames;
+   int saveDebug;
+
+   #define MAX_PAYLOAD_TYPES 128
+   MpBufPtr mSavedRtp[MAX_PAYLOAD_TYPES];
 
    MprDejitter* mpMyDJ;
 
@@ -121,9 +127,6 @@ private:
       MAX_MARKER_NOTICES = 5, // max messages per MARKER_WAIT_FRAMES interval
       MARKER_WAIT_FRAMES = (1*60*60*100) // 1 hour at 100 frames/second
    };
-   int   mNumMarkerNotices;
-   int   mFrameLastMarkerNotice;
-   int   mFrameCounter;
 
    enum {
       NUM_TRACKED_PACKETS = 128
@@ -162,7 +165,7 @@ private:
 
    MprDejitter* getMyDejitter(void);
 
-   void pushIntoJitterBuffer(MpBufPtr rtp, int packetLen);
+   void pushIntoCodecBuffer(MpBufPtr rtp, int packetLen);
 
 };
 

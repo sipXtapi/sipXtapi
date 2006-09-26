@@ -180,11 +180,6 @@ int MprToSpkr::spkrStats()
 }
 #endif /* DETECT_SPKR_OVERFLOW ] */
 
-#if defined(__pingtel_on_posix__) /* [ */
-int MpCodec_getVolume() { return 0;}
-int MpCodec_isBaseSpeakerOn() { return 0;}
-#endif /* __pingtel_on_posix__ ] */
-
 void MprToSpkr::setAttenuation(int finalDb, int framesPerStep)
 {
    assert((finalDb <= 0) && (finalDb >= ATTEN_QUIETEST));
@@ -411,7 +406,7 @@ UtlBoolean MprToSpkr::doProcessFrame(MpBufPtr inBufs[],
         while (MpMisc.pSpkQ && MpMisc.max_spkr_buffers < MpMisc.pSpkQ->numMsgs()) 
 		{
 			OsStatus  res;
-            res = MpMisc.pSpkQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT);
+            res = MpMisc.pSpkQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT_TIME);
             if (OS_SUCCESS == res) 
 			{
 				MpBuf_delRef(pFlush->getTag());
@@ -454,7 +449,7 @@ UtlBoolean MprToSpkr::doProcessFrame(MpBufPtr inBufs[],
         pMsg->setLen(MpBuf_getNumSamples(ob));
 
 
-        if (MpMisc.pSpkQ && OS_SUCCESS == MpMisc.pSpkQ->send(*pMsg, OsTime::NO_WAIT)) 
+        if (MpMisc.pSpkQ && OS_SUCCESS == MpMisc.pSpkQ->send(*pMsg, OsTime::NO_WAIT_TIME)) 
 		{
 			*inBufs = NULL;
 
@@ -467,7 +462,7 @@ UtlBoolean MprToSpkr::doProcessFrame(MpBufPtr inBufs[],
 		 
 		 MpBuf_addRef(ob) ;
 		 pAECMsg->setTag(ob) ;		 
-		 if (MpMisc.pEchoQ->numMsgs() >= MpMisc.pEchoQ->maxMsgs() ||  MpMisc.pEchoQ->send(*pAECMsg, OsTime::NO_WAIT) != OS_SUCCESS)
+		 if (MpMisc.pEchoQ->numMsgs() >= MpMisc.pEchoQ->maxMsgs() ||  MpMisc.pEchoQ->send(*pAECMsg, OsTime::NO_WAIT_TIME) != OS_SUCCESS)
 		 {
 			 pAECMsg->releaseMsg() ;
 			 MpBuf_delRef(ob) ;

@@ -532,7 +532,7 @@ OsStatus MpResource::postMessage(MpFlowGraphMsg& rMsg)
    }
    else
    {
-      return mpFlowGraph->postMessage(rMsg, OsTime::NO_WAIT);
+      return mpFlowGraph->postMessage(rMsg, OsTime::NO_WAIT_TIME);
    }
 }
 

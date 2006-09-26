@@ -260,7 +260,7 @@ bool CMsgQueue::Post(CMessage *poMessage)
 #ifdef RTCP_LINUX_DEBUG
     osPrintf("DEBUG: RTCP Message queue queueing message! (type %X)\n", poMessage->GetMsgType());
 #endif
-    if(m_pMsgQ->send(*(OsMsg *)poMessage, OsTime::NO_WAIT))
+    if(m_pMsgQ->send(*(OsMsg *)poMessage, OsTime::NO_WAIT_TIME))
         return(FALSE);
     poMessage->releaseMsg();
 #endif /* ] */
@@ -394,7 +394,7 @@ void CMsgQueue::FlushMessages(void)
 
     // Block Waiting for a new message to arrive on the FIFO
     while(ERROR != msgQReceive(m_ulMsgQID,
-        (char *)&poMessage, sizeof(CMessage *), NO_WAIT))
+        (char *)&poMessage, sizeof(CMessage *), NO_WAIT_TIME))
             delete poMessage;
 #elif defined(__pingtel_on_posix__)
     m_pMsgQ->flush();

@@ -70,6 +70,7 @@ nobase_include_HEADERS =  \
     mp/MpPlayerEvent.h \
     mp/MpPlayerListener.h \
     mp/MpQueuePlayerListener.h \
+    mp/MpRawAudioBuffer.h \
     mp/MprBridge.h \
     mp/MprDecode.h \
     mp/MprDejitter.h \

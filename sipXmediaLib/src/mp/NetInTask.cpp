@@ -478,6 +478,7 @@ int NetInTask::run(void *pNotUsed)
             }
             errno = 0;
             numReady = select(last+1, fds, NULL, NULL, NULL);
+            OutputDebugString("!") ;
             ostc = *pOsTC;
             selectCounter++;
             if (0 > numReady) {

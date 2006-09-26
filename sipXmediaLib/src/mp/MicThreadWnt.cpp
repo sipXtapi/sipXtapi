@@ -246,7 +246,7 @@ bool inPostUnprep(int n, int discard, DWORD bufLen, bool bFree)
             // if its full, flush one and send
             OsStatus  res;
             flushes++;
-            res = MpMisc.pMicQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT);
+            res = MpMisc.pMicQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT_TIME);
             if (OS_SUCCESS == res) {
                MpBuf_delRef(pFlush->getTag());
                pFlush->releaseMsg();
@@ -254,7 +254,7 @@ bool inPostUnprep(int n, int discard, DWORD bufLen, bool bFree)
                osPrintf("DmaTask: queue was full, now empty (3)!"
                   " (res=%d)\n", res);
             }
-            if (MpMisc.pMicQ && OS_SUCCESS != MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT))
+            if (MpMisc.pMicQ && OS_SUCCESS != MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT_TIME))
             {
                MpBuf_delRef(ob);
             }
@@ -263,7 +263,7 @@ bool inPostUnprep(int n, int discard, DWORD bufLen, bool bFree)
          {
              if (MpMisc.pMicQ)
              {
-                MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT);
+                MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT_TIME);
              }
          }
          if (!pMsg->isMsgReusable()) delete pMsg;

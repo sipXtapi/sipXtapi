@@ -28,12 +28,14 @@
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
 #include "os/OsSysLog.h"
+#include "mp/MpDecoderBase.h"
 #include "os/OsLock.h"
 #include "mp/MpMisc.h"
 #include "mp/MpBuf.h"
 #include "mp/MpConnection.h"
 #include "mp/MprDecode.h"
 #include "mp/MprDejitter.h"
+#include "mp/MpJitterBuffer.h"
 #include "mp/MpDecoderBase.h"
 #include "mp/NetInTask.h"
 #include "mp/dmaTask.h"
@@ -56,20 +58,18 @@
 MprDecode::MprDecode(const UtlString& rName, MpConnection* pConn,
                            int samplesPerFrame, int samplesPerSec)
 :  MpResource(rName, 1, 1, 1, 1, samplesPerFrame, samplesPerSec),
-   mPreloading(1),
    mpMyDJ(NULL),
    mpCurrentCodecs(NULL),
    mNumCurrentCodecs(0),
    mpPrevCodecs(NULL),
    mNumPrevCodecs(0),
    mpConnection(pConn),
-   mNumMarkerNotices(0),
-   mFrameLastMarkerNotice(0),
-   mFrameCounter(0),
    mLock(OsMutex::Q_PRIORITY|OsMutex::INVERSION_SAFE)
 {
-
-   // no work required
+   for(int i=0;i<MAX_PAYLOAD_TYPES;i++) 
+   {
+      mSavedRtp[i]=0;
+   }
 }
 
 // Destructor
@@ -205,10 +205,11 @@ static void showRtpPacket(MpBufPtr rtp)
 }
 #endif /* DEBUG ] */
 
-void MprDecode::pushIntoJitterBuffer(MpBufPtr pPacket, int packetLen)
+void MprDecode::pushIntoCodecBuffer(MpBufPtr pPacket, int packetLen)
 {
    int res;
-
+   // The JB_ stuff is defined in header files and change when the commercial GIPS library is used. 
+   // THIS JitterBuffer is NOT the same as MprDejitter! This is more of a Decode Buffer 
    JB_inst* pJBState = mpConnection->getJBinst();
    unsigned char* pHeader = (unsigned char*)MpBuf_getStorage(pPacket);
 
@@ -224,6 +225,7 @@ void MprDecode::pushIntoJitterBuffer(MpBufPtr pPacket, int packetLen)
    }
 }
 
+int iFramesSinceLastReport=0;
 UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
                                     MpBufPtr outBufs[],
                                     int inBufsSize,
@@ -246,48 +248,106 @@ static int numWarnings = 0;
 
    MpDecoderBase* pCurDec;
    Sample* pSamples;
-
-   mFrameCounter++;
-
+   //int iPacketOffered  = 0;
    if (0 == outBufsSize) return FALSE;
 
    if (!isEnabled) {
-      mPreloading = 1;
       *outBufs = MpBuf_getFgSilence();
       return TRUE;
    }
 
-   {
       MprDejitter* pDej = getMyDejitter();
       int packetLen;
-      int pt;
+   int ii;
 
-      while (NULL != (rtp = pDej->pullPacket())) {
-         pt = MprDejitter::getPayloadType(rtp);
+   // Get the decoder now so we can make decisions about what to pull from MprDejitter
+   for(ii = 0; ii < mNumCurrentCodecs; ii++) 
+   {
+      MpDecoderBase *mpd = mpCurrentCodecs[ii];
+      int pt = mpd->getPayloadType();
+      if(mSavedRtp[pt]==NULL) {
+         mSavedRtp[pt] = pDej->pullPacket(pt);
+      }
+   }
+   for(ii = 0; ii < mNumCurrentCodecs; ii++) 
+   {
+      MpDecoderBase *mpd = mpCurrentCodecs[ii];
+      int pt = mpd->getPayloadType();
+      int frameCallCount=0;
+      while(mSavedRtp[pt] != NULL) 
+      {
          pCurDec = mpConnection->mapPayloadType(pt);
-         if (NULL != pCurDec) {
+         if(pCurDec != NULL) 
+         {
+            // Inform the decoder that the next frame has happened. 
+            if(frameCallCount==0)
+            {
+               pCurDec->FrameIncrement();
+            }
+            frameCallCount++;
+            if(iFramesSinceLastReport >= 100) {
+               // One second has passed (internal clock is 10ms per frame)
+               // since time we reported the average number of packets
+               // in the jitter buffer
+				
+               int iAveLen = pDej->getAveBufferLength(pt);
+               int doAgain =  pCurDec->reportBufferLength(iAveLen);
+               if(doAgain <= 0) {
+                  iFramesSinceLastReport = 0;
+               }
+            }
+
+            rtp = mSavedRtp[pt];
+            // This call lets the codec decide if it wants this packet or not. If the codec rejects out-of-order packets, it will return a negative value.
+            // It may also (someday) dynamically adjust the size of the jitter buffer.
+            packetLen = pCurDec->decodeIn(rtp);
+            if (packetLen > 0) 
+            {
             unsigned char* pRtpH;
             pRtpH = ((unsigned char*) MpBuf_getStorage(rtp)) + 1;
-            if (0x80 == (0x80 & *pRtpH)) {
-               if ((mFrameLastMarkerNotice + MARKER_WAIT_FRAMES) <
-                         mFrameCounter) {
+               /*			Any idea what this next section is for?
+                 if (0x80 == (0x80 & *pRtpH)) 
+                 {
+                 if ((mFrameLastMarkerNotice + MARKER_WAIT_FRAMES) < mFrameCounter) 
+                 {
                   mNumMarkerNotices = 0;
                }
-               if (mNumMarkerNotices++ < MAX_MARKER_NOTICES) 
-               {
-                  // osPrintf("MprDecode: RTP marker bit ON\n");
+                 if (mNumMarkerNotices++ < MAX_MARKER_NOTICES) {
+                 osPrintf("MprDecode: RTP marker bit ON\n");
                   mFrameLastMarkerNotice = mFrameCounter;
                }
             }
-            packetLen = pCurDec->decodeIn(rtp);
-            if (packetLen > 0) {
-               pushIntoJitterBuffer(rtp, packetLen);
+               */
+               // The MpBuf at this point has data in the storage section. The codec processes it, and
+               // it will wind up in a Samples section of a new MpBuf (picked up later in this method)
+               // For internal codecs there really isn't any jitter buffering, although some codecs may
+               // may need to hold on to a packet or two in order to process properly (?)
+               pushIntoCodecBuffer(rtp, packetLen); 
+               mSavedRtp[pt] = NULL;
+               MpBuf_delRef(rtp);
+				 
+               mSavedRtp[pt] = pDej->pullPacket(pt);
+               // mSavedRtp can be NULL if there are no packets available
+            } else if (packetLen == 0) {
+               break;  // THe packet was not eaten by the codec, don't get any more now
+               // TKTK What would GIPS return for out-of-order packets? This or nothing? 
+            } else if (packetLen == -1) {
+               // packetLen < 0, this means that the codec wants us to discard the packet. Out of order packet.
+               //Same logic as when we consume a packet, except we don't put it into the codec buffer
+               mSavedRtp[pt] = NULL;
+               MpBuf_delRef(rtp);
+               mSavedRtp[pt] = pDej->pullPacket(pt);
             }
+         } else {
+            // The codec is null. Do not continue. NEED ERROR HANDLING HERE.
+            break;
          }
-         MpBuf_delRef(rtp);
       }
    }
-
+   iFramesSinceLastReport++;
+   // The pull phase creates a buffer on every processFrame, so even if there are no actual speech frames available,
+   // this next line makes sure there is something to pass on.
+   // The Pull Phase operates on 80-sample frames (8000 samples/second / 10 msec/sample)
    out = MpBuf_getBuf(MpMisc.UcbPool, samplesPerFrame, 0, MP_FMT_T12);
    if (out)
    {
@@ -427,6 +487,11 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
          }
       }
    }
+
+#ifndef HAVE_GIPS
+   JB_inst* pJBState = mpConnection->getJBinst();   
+   pJBState->SetCodecList(mpCurrentCodecs,numCodecs);
+#endif
 
    // Delete the list pCodecs.
    for (i=0; i<numCodecs; i++) {

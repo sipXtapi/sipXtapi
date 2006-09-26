@@ -22,6 +22,7 @@
 // DEFINES
 #define DEBUGGING_LATENCY
 #undef DEBUGGING_LATENCY
+#define MAX_CODECS 10
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -41,8 +42,9 @@ public:
 #ifdef DEBUGGING_LATENCY /* [ */
    enum { MAX_RTP_PACKETS = 64};  // MUST BE A POWER OF 2, AND SHOULD BE >3
         // 20 Apr 2001 (HZM): Increased from 16 to 64 for debugging purposes.
+		// 15 Dec 2004: This isn't the actual amount of buffer used, just the size of the container
 #else /* DEBUGGING_LATENCY ] [ */
-   enum { MAX_RTP_PACKETS = 16};  // MUST BE A POWER OF 2, AND SHOULD BE >3
+   enum { MAX_RTP_PACKETS = 64};  // MUST BE A POWER OF 2, AND SHOULD BE >3
 #endif /* DEBUGGING_LATENCY ] */
 
    enum { GET_ALL = 1 }; // get all packets, ignoring timestamps.  For NetEQ
@@ -62,8 +64,11 @@ public:
    OsStatus pushPacket(MpBufPtr pRtp);
      //:Add a buffer containing an incoming RTP packet to the dejitter pool
 
-   MpBufPtr pullPacket(void);
+   MpBufPtr pullPacket(int PayloadType);
      //:Submit all RTP packets to the Jitter Buffer.
+
+   int getAveBufferLength(int PayloadType);
+     //:Returns the average number of packets in the jitter buffer since the last call
 
    OsStatus getPacketsInfo(int& nPackets,
                            unsigned int& lowTimestamp);
@@ -85,10 +90,19 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   MpBufPtr      mpPackets[MAX_RTP_PACKETS];
+   MpBufPtr      mpPackets[MAX_CODECS][MAX_RTP_PACKETS];
+   int           mBufferLookup[256];   
    OsBSem        mRtpLock;
-   int           mNumPackets;
-   int           mNumDiscarded;
+   int           mNumPackets[MAX_CODECS];
+   int           mNumDiscarded[MAX_CODECS];
+   int           mFrameCount[MAX_CODECS];
+   int           mPacketCount[MAX_CODECS];
+//#define DEFAULT_REORDER_BUFFER_LENGTH 3
+   // This length is the initial setting for how many buffers we require before
+   // we start to pass the buffers on to the remaining processing elements. 
+   // For G711, 3 buffers is 20msec * 3 = 80msec.
+   // Must be less than MAX_RTP_PACKETS (defined above)
+   int			 mBufferLength[MAX_CODECS];
 
 #ifdef DEJITTER_DEBUG /* [ */
    // These are only used if DEJITTER_DEBUG is defined, but I am
@@ -100,7 +114,10 @@ private:
    int           mPrevNumPackets;
    int           mPrevPullTime;
 #endif /* DEJITTER_DEBUG ] */
-  
+  int mLastPulled[MAX_CODECS];
+  int mLastPushed[MAX_CODECS]; // As packets are added, we change this value to indicate where the
+     // buffer is wrapping
+  UtlBoolean bDataFlowing[MAX_CODECS];
    /* end of Dejitter handling variables */
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],

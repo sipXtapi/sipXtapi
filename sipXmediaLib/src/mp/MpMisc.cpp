@@ -327,7 +327,7 @@ int LoopBack(int on) {
    MpMisc.doLoopBack = on;
    while (0 < MpMisc.pLoopBackQ->numMsgs()) {
       if (OS_SUCCESS == MpMisc.pLoopBackQ->receive((OsMsg*&) pMsg,
-                                                    OsTime::NO_WAIT)) {
+                                                    OsTime::NO_WAIT_TIME)) {
          MpBuf_delRef(pMsg->getTag());
          MpBuf_delRef(pMsg->getTag(1));
          pMsg->releaseMsg();

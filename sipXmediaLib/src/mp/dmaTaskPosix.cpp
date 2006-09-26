@@ -63,6 +63,9 @@
 #define timediff(early, late) ((late.tv_sec-early.tv_sec)*1000000+(late.tv_usec-early.tv_usec))
 
 // STATIC VARIABLE INITIALIZATIONS
+const int DmaTask::DEF_DMA_TASK_OPTIONS = 0; // default task options
+const int DmaTask::DEF_DMA_TASK_PRIORITY = 128; // default task priority
+const int DmaTask::DEF_DMA_TASK_STACKSIZE = 16384; // default task stacksize
 UtlString DmaTask::mRingDeviceName = "" ;
 UtlString DmaTask::mCallDeviceName = "" ;
 UtlString DmaTask::mMicDeviceName = "" ;
@@ -118,7 +121,7 @@ static void * mediaSignaller(void * arg)
    struct sched_param realtime;
    int res;
 
-   if(geteuid() != 0)
+   if(geteuid() != 0 && getuid() != 0)
    {
       OsSysLog::add(FAC_MP, PRI_WARNING, "_REALTIME_LINUX_AUDIO_THREADS was defined but application does not have ROOT priv.");
    }
@@ -276,10 +279,10 @@ static void * soundCardReader(void * arg)
       pMsg->setBuf(MpBuf_getSamples(ob));
       pMsg->setLen(MpBuf_getNumSamples(ob));
 
-      if(MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT) != OS_SUCCESS)
+      if(MpMisc.pMicQ && MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT_TIME) != OS_SUCCESS)
       {
          OsStatus  res;
-         res = MpMisc.pMicQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT);
+         res = MpMisc.pMicQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT_TIME);
          if (OS_SUCCESS == res) {
             MpBuf_delRef(pFlush->getTag());
             pFlush->releaseMsg();
@@ -287,14 +290,14 @@ static void * soundCardReader(void * arg)
             osPrintf("DmaTask: queue was full, now empty (5)!"
                " (res=%d)\n", res);
          }
-         if(MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT) != OS_SUCCESS)
+         if(MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT_TIME) != OS_SUCCESS)
             MpBuf_delRef(ob);
       }
       if(!pMsg->isMsgReusable())
          delete pMsg;
    }
 
-   osPrintf(" ***********STOP MIC!**********\n");
+   osPrintf(" ***********STOP!**********\n");
    return NULL;
 }
 
@@ -346,7 +349,7 @@ static void * soundCardWriter(void * arg)
          }
       }
 
-      if(MpMisc.pSpkQ->receive((OsMsg*&) pMsg, OsTime::NO_WAIT) == OS_SUCCESS)
+      if(MpMisc.pSpkQ && MpMisc.pSpkQ->receive((OsMsg*&) pMsg, OsTime::NO_WAIT_TIME) == OS_SUCCESS)
       {
          ob = (MpBufPtr) pMsg->getTag();
          assert(ob != NULL);
@@ -398,7 +401,7 @@ static void * soundCardWriter(void * arg)
       }
    }
 
-   osPrintf(" ***********STOP SPKR!**********\n"); 
+   osPrintf(" ***********STOP!**********\n");
    return NULL;
 }
 
@@ -536,7 +539,7 @@ static int setupSoundCard(void)
 
 #include <sys/audio.h>
 
-int setupSoundCard(void)
+static int setupSoundCard(void)
 {
    int res, fd;
    audio_info_t info;
@@ -588,7 +591,7 @@ int setupSoundCard(void)
 #include <CoreAudio/CoreAudio.h>
 #include <AudioToolbox/AudioConverter.h>
 
-#define UPDATE_FREQUENCY 50
+#define UPDATE_FREQUENCY 20
 
 static AudioDeviceID CoreAudio_output_id;
 static AudioStreamBasicDescription CoreAudio_device_desc, CoreAudio_local_desc;
@@ -645,7 +648,6 @@ static OSStatus CoreAudio_io(AudioDeviceID CoreAudio_output_id, const AudioTimeS
    
    return kAudioHardwareNoError;
 }
-
 
 static int setupSoundCard(void)
 {
@@ -718,8 +720,6 @@ fail_socket:
 fail:
    return -1;
 }
-
-
 
 static int CoreAudio_shutdown(void)
 {
