@@ -13,6 +13,8 @@
 #include <stdio.h>
 #ifndef _WIN32
 #include <netinet/in.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
 #endif
 
 // APPLICATION INCLUDES
@@ -98,13 +100,14 @@ OsSocket* OsNatDatagramSocket::getSocket()
 
 int OsNatDatagramSocket::read(char* buffer, int bufferLength)
 {
-    bool bNatPacket ;
+    bool bNatPacket = FALSE ;
     int iRC ;
     UtlString receivedIp ;
     int iReceivedPort ;
 
     do
     {
+        bNatPacket = FALSE ;
         iRC = OsSocket::read(buffer, bufferLength, &receivedIp, &iReceivedPort) ;
         if (handleSturnData(buffer, iRC, receivedIp, iReceivedPort))
         {
