@@ -81,6 +81,10 @@ void sipXtapiTestSuite::testConfBasic1()
 
         // Setup first leg
         CPPUNIT_ASSERT_EQUAL(sipxConferenceCreate(g_hInst, &hConf), SIPX_RESULT_SUCCESS) ;
+
+        // Cannot set property on media interface until at least one call is in the conference
+        CPPUNIT_ASSERT(sipxConferenceSetMediaProperty(hConf, "foo", "bar") != SIPX_RESULT_SUCCESS);
+
 #ifdef TEST_PRINT
         UtlString confDumpString;
         sipxConfDataToString(hConf, confDumpString);
@@ -97,6 +101,8 @@ void sipXtapiTestSuite::testConfBasic1()
         printf("testConfBasic1 add first leg call:\n %s\n", callDumpString.data());
 #endif
 
+        CPPUNIT_ASSERT(sipxConferenceSetMediaProperty(hConf, "foo", "bar") == SIPX_RESULT_SUCCESS);
+
         // Validate Calling Side
         bRC = validatorCalling.waitForCallEvent(hLine, hCall1, CALLSTATE_DIALTONE, CALLSTATE_DIALTONE_CONFERENCE, true) ;
         CPPUNIT_ASSERT(bRC) ;
@@ -108,6 +114,8 @@ void sipXtapiTestSuite::testConfBasic1()
         CPPUNIT_ASSERT(bRC) ;
         bRC = validatorCalling.waitForCallEvent(hLine, hCall1, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_START, true) ;
         CPPUNIT_ASSERT(bRC) ;
+
+        CPPUNIT_ASSERT(sipxCallSetMediaProperty(hCall1, "connectionName", "connect1") == SIPX_RESULT_SUCCESS);
 
         // Validate Called Side
         bRC = validatorCalled1.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_NEWCALL, CALLSTATE_NEW_CALL_NORMAL, true) ;

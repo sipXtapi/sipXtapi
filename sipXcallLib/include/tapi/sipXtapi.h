@@ -964,6 +964,23 @@ SIPXTAPI_API SIPX_RESULT sipxCallPlayBufferStop(const SIPX_CALL hCall) ;
 
 
 /**
+ * Set a media property on the media interface connection associated with the
+ * given call.  The property names may be media subsystem specific.  This may
+ * be used to set stream specific properties assocated with a call.
+ *
+ * Note: the application should be aware of when the media interface connection
+ * is created.  A media connection is not created until after the call has been
+ * initiated.
+ *
+ * @param hCall Handle to a call (and implied assocated media connection).
+ * @param szPropertyName name of the media connection specific property to set.
+ * @param szPropertyValue new value to set on the media connection specific property.
+ */
+SIPXTAPI_API SIPX_RESULT sipxCallSetMediaProperty(const SIPX_CALL hCall,
+                                                  const char* szPropertyName,
+                                                  const char* szPropertyValue);
+
+/**
  * Subscribe for NOTIFY events which may be published by the other end-point of the Call.
  *
  * @param hCall The call handle of the call associated with the subscription.
@@ -1260,6 +1277,40 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceUnhold(const SIPX_CONF hConf);
  */ 
 SIPXTAPI_API SIPX_RESULT sipxConferenceDestroy(SIPX_CONF hConf) ;
 
+/**
+ * Set a media property on the media interface associated with the given conference.  
+ * The property names may be media subsystem specific.  This may be used to set 
+ * conference/media interface specific properties.  This interface is for media 
+ * interface implementations that support having seperate device, audio, video or other
+ * media properties for each conference or simple 2-way call.  The functions such  as
+ * sipxAudioSetCallInputDevice, sipxAudioSetRingerOutputDevice, sipxAudioEnableSpeaker,
+ * sipxAudioMute set media properties for the global media device for a sipX instance.
+ * On media implementations that support the concept of a media device for each conference
+ * or simple 2-way call sipxConferenceSetMediaProperty may be used.
+ * 
+ * Note: the application should be aware of when the media interfaces is created.  For
+ * a conference, the media interface is not created until the first call is joined or
+ * added.
+ *
+ * Media interfaces that wish to interoperate should implement the following properties
+ * and values:
+ *
+ * Property Name                  Property Values
+ * =======================        ===============
+ * "audioInput1.muteState"        "true", "false" for systems that may have a microphone for each conference or 2-way call
+ * "audioInput1.device"           same value as szDevice in sipxAudioSetCallInputDevice
+ * "audioOutput1.deviceType"      "speaker", "ringer" same as sipxAudioEnableSpeaker, but for specific conference or 2-way call
+ * "audioOutput1.ringerDevice"    same value as szDevice in sipxAudioSetRingerOutputDevice 
+ * "audioOutput1.speakerDevice"   same values as szDevice in sipxAudioSetCallOutputDevice
+ * "audioOutput1.volume"          string value of iLevel in sipxAudioSetVolume
+ *
+ * @param hConf Handle to a conference (and implied assocated media interface).
+ * @param szPropertyName name of the media interface specific property to set.
+ * @param szPropertyValue new value to set on the media interface specific property.
+ */
+SIPXTAPI_API SIPX_RESULT sipxConferenceSetMediaProperty(const SIPX_CONF hConf,
+                                                        const char* szPropertyName,
+                                                        const char* szPropertyValue);
 //@}
 
 /** @name Audio Methods */
@@ -1288,7 +1339,10 @@ SIPXTAPI_API SIPX_RESULT sipxAudioGetGain(const SIPX_INST hInst,
 
 
 /**
- * Mute or unmute the microphone.
+ * Mute or unmute the global microphone.  For media implementation that 
+ * have only a single microphone active at one time, this sets the mute state
+ * of the microphone.  For devices that may a microphone assocated with  each
+ * conference or simple 2-way call see: sipxConferenceSetMediaProperty
  *
  * @param hInst Instance pointer obtained by sipxInitialize.
  * @param bMute True if the microphone is to be muted and false if it 
@@ -1299,7 +1353,10 @@ SIPXTAPI_API SIPX_RESULT sipxAudioMute(const SIPX_INST hInst,
 
 
 /**
- * Gets the mute state of the microphone.
+ * Gets the mute state of the global microphone.  For media implementations that 
+ * have only a single microphone active at one time, this gets the mute state
+ * of the microphone.  For devices that may have a microphone associated with  
+ * each conference or simple 2-way call, see: sipxConferenceGetMediaProperty
  *
  * @param hInst Instance pointer obtained by sipxInitialize.
  * @param bMuted True if the microphone has been muted and false if it 
@@ -1310,7 +1367,11 @@ SIPXTAPI_API SIPX_RESULT sipxAudioIsMuted(const SIPX_INST hInst,
 
 
 /**
- * Enables one of the speaker outputs.
+ * Enables one of the speakers on the global output.  For media implementations that
+ * have only a single active speaker output active at one time, this enables the
+ * given speaker type.  For devices that may have a speaker output active for each
+ * conference or simple 2-way call see: sipxConferenceSetMediaProperty
+ * 
  *
  * @param hInst Instance pointer obtained by sipxInitialize.
  * @param type The type of the speaker either the logical ringer 
@@ -1322,7 +1383,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioEnableSpeaker(const SIPX_INST hInst,
 
 
 /**
- * Gets the enabled speaker selection.
+ * Gets the enabled speaker selection on the global output.
  *
  * @param hInst Instance pointer obtained by sipxInitialize.
  * @param type The type of the speaker either the logical ringer 
@@ -1334,8 +1395,10 @@ SIPXTAPI_API SIPX_RESULT sipxAudioGetEnabledSpeaker(const SIPX_INST hInst,
 
 
 /**
- * Sets the audio level for the designated speaker type.  If the speaker type
- * is enabled, the change it audio will be heard instantly.
+ * Sets the audio level for the designated global speaker type.  If the speaker type
+ * is enabled, the change it audio will be heard instantly.  If the media implementation
+ * supports a audio output for each conference or 2-way call, the application should
+ * use sipxConferenceSetMediaProperty.
  *
  * @param hInst Instance pointer obtained by sipxInitialize.
  * @param type The type of the speaker either the logical ringer 
@@ -1349,7 +1412,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetVolume(const SIPX_INST hInst,
 
 
 /**
- * Gets the audio level for the designated speaker type
+ * Gets the audio level for the designated global speaker type
  *
  * @param hInst Instance pointer obtained by sipxInitialize.
  * @param type The type of the speaker either the logical ringer 
@@ -1427,7 +1490,9 @@ SIPXTAPI_API SIPX_RESULT sipxAudioGetOutputDevice(const SIPX_INST hInst,
 
 
 /**
- * Get the Active name/identifier for output device
+ * Get the Active name/identifier for global output device.  For media
+ * implementations that support an output device for each conference or
+ * or two way call see: sipxConferenceSetMediaProperty
  *
  * @param hInst Instance pointer obtained by sipxInitialize.
  * @param szDevice Reference an character string pointer to receive 
@@ -1438,7 +1503,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioGetActiveOutputDevice(const SIPX_INST hInst,
 
 
 /**
- * Set the call input device (in-call microphone).  
+ * Set the global input device (in-call microphone).  
  *
  * @param hInst Instance pointer obtained by sipxInitialize.
  * @param szDevice Character string pointer to be set to
@@ -1448,7 +1513,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetCallInputDevice(const SIPX_INST hInst,
                                                      const char* szDevice) ;
 
 /**
- * Set the call ringer/alerting device.
+ * Set the global ringer/alerting device.
  * @param hInst Instance pointer obtained by sipxInitialize.
  * @param szDevice The call ringer/alerting device.
  */
@@ -1457,7 +1522,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetRingerOutputDevice(const SIPX_INST hInst,
 
 
 /**
- * Set the call output device (in-call speaker).
+ * Set the global output device (in-call speaker).
  * @param hInst Instance pointer obtained by sipxInitialize.
  * @param szDevice The call output device.
  */

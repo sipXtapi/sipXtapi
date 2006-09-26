@@ -175,6 +175,28 @@ public:
     virtual void bufferPlay(const char* callId, int audiobuf, int bufSize, int type, UtlBoolean repeat, UtlBoolean local, UtlBoolean remote);
     virtual void audioStop(const char* callId);
     virtual void stopPremiumSound(const char* callId);
+
+    //: Set a media property on the media interface for the given call
+    /*
+     * @param callId - call id string for the conference
+     * @param propertyName string id for the property to set
+     * @param propertyValue for the new value of the property
+     * Media interfaces that wish to interoperate should implement the following properties
+     * and values:
+     *
+     * Property Name                  Property Values
+     * =======================        ===============
+     * "audioInput1.muteState"        "true", "false" for systems that may have a microphone for each conference or 2-way call
+     * "audioInput1.device"           same value as szDevice in sipxAudioSetCallInputDevice
+     * "audioOutput1.deviceType"      "speaker", "ringer" same as sipxAudioEnableSpeaker, but for specific conference or 2-way call
+     * "audioOutput1.ringerDevice"    same value as szDevice in sipxAudioSetRingerOutputDevice 
+     * "audioOutput1.speakerDevice"   same values as szDevice in sipxAudioSetCallOutputDevice
+     * "audioOutput1.volume"          string value of iLevel in sipxAudioSetVolume
+     */
+    virtual OsStatus setCallMediaProperty(const char* callId,
+                                          const char* propertyName,
+                                          const char* propertyValue);
+
 #ifndef EXCLUDE_STREAMING
     virtual void createPlayer(const char* callid, MpStreamPlaylistPlayer** ppPlayer) ;
     virtual void createPlayer(int type, const char* callid, const char* szStream, int flags, MpStreamPlayer** ppPlayer) ;
@@ -305,6 +327,18 @@ public:
 
     virtual OsStatus stopRecording(const char* callId);
     //: tells media system stop stop a curretn recording
+
+    //: Set a media property on the media connection for the given call
+    /*
+     * @param callId - call id string for the conference or SIP dialog
+     * @param remoteAddress - address on the remote leg of the connection on which to set property
+     * @param propertyName string id for the property to set
+     * @param propertyValue for the new value of the property
+     */
+    virtual OsStatus setConnectionMediaProperty(const char* callId,
+                                                  const char* remoteAddress,
+                                                  const char* propertyName,
+                                                  const char* propertyValue);
 
     virtual void setMaxCalls(int maxCalls);
     //:Set the maximum number of calls to admit to the system.

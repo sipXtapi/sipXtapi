@@ -925,6 +925,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
         case CP_JOIN_CONNECTION:
         case CP_SEND_SIP_REQUEST:
         case CP_NEW_PASSERTED_ID:
+        case CP_SET_MEDIA_PROPERTY:
             // Forward the message to the call
             {
                 UtlString callId;
@@ -1552,6 +1553,18 @@ void CallManager::stopPremiumSound(const char* callId)
     postMessage(premiumSoundMessage);
 }
 
+OsStatus CallManager::setCallMediaProperty(const char* callId,
+                                           const char* propertyName,
+                                           const char* propertyValue)
+{
+    CpMultiStringMessage mediaPropertyMessage(CP_SET_MEDIA_PROPERTY,
+        callId,
+        NULL, // no remote address as this is to the general CpMediaInterface
+        propertyName,
+        propertyValue);
+    postMessage(mediaPropertyMessage);
+    return(OS_SUCCESS);  // For now now error checking
+}
 
 #ifndef EXCLUDE_STREAMING
 void CallManager::createPlayer(const char* callId,
@@ -2696,6 +2709,19 @@ void CallManager::removeToneListener(const char* callId, int pListener)
     postMessage(toneMessage);
 }
 
+OsStatus CallManager::setConnectionMediaProperty(const char* callId,
+                                                 const char* remoteAddress,
+                                                 const char* propertyName,
+                                                 const char* propertyValue)
+{
+    CpMultiStringMessage mediaPropertyMessage(CP_SET_MEDIA_PROPERTY,
+        callId,
+        remoteAddress,
+        propertyName,
+        propertyValue);
+    postMessage(mediaPropertyMessage);
+    return(OS_SUCCESS);  // For now now error checking
+}
 
 // Assignment operator
 CallManager&
