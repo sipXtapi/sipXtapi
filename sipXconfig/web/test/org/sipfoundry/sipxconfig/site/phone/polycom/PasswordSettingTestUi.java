@@ -39,9 +39,11 @@ public class PasswordSettingTestUi extends WebTestCase {
     
     public void testEditSipSetttings() {
         m_helper.seedLine(1);
+        SiteTestHelper.setScriptingEnabled(true);
         clickLink("ManagePhones");        
         clickLinkWithText(SiteTestHelper.TEST_USER);
         clickLinkWithText("Registration");
+        clickLink("setting:toggle");
         Element passwordField = getDialog().getElement("setting:auth.password");        
         assertEquals("password", passwordField.getAttribute("type"));
     }
