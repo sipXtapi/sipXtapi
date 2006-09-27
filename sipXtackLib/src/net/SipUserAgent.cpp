@@ -130,6 +130,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         , mMessageLogRMutex(OsRWMutex::Q_FIFO)
         , mMessageLogWMutex(OsRWMutex::Q_FIFO)
         , mpLineMgr(NULL)
+        , mIsUaTransactionByDefault(defaultToUaTransactions)
         , mbUseRport(FALSE)
         , mbIncludePlatformInUserAgentName(TRUE)
         , mDoUaMessageChecks(doUaMessageChecks)
@@ -308,9 +309,18 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         contact.eContactType = CONFIG;
         strcpy(contact.cIpAddress, publicAddress);
 
-        getContactAdapterName(szAdapter, defaultAddress);
-
-        strcpy(contact.cInterface, szAdapter);
+        if (getContactAdapterName(szAdapter, defaultSipAddress))
+        {
+           strcpy(contact.cInterface, szAdapter);
+        }
+        else
+        {
+           // If getContactAdapterName can't find an adapter.
+           OsSysLog::add(FAC_SIP, PRI_WARNING,
+                         "SipUserAgent::_ no adaptor found for address '%s'",
+                         defaultSipAddress.data());
+           strcpy(contact.cInterface, "(unknown)");
+        }
         contact.iPort = mUdpPort; // what about the tcp port?
         mContactDb.addContact(contact);
     }
@@ -402,8 +412,6 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
     OsTime time;
     OsDateTime::getCurTimeSinceBoot(time);
     mLastCleanUpTime = time.seconds();
-
-    mIsUaTransactionByDefault = defaultToUaTransactions;
 }
 
 // Copy constructor

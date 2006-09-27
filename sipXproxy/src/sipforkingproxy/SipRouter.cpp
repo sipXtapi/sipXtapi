@@ -93,6 +93,10 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
 // Destructor
 SipRouter::~SipRouter()
 {
+   // Remove our message observer from *mpSipUserAgent, as it may
+   // outlive us.
+   mpSipUserAgent->removeMessageObserver(*getMessageQueue(),
+                                         NULL);
 }
 
 /* ============================ MANIPULATORS ============================== */
