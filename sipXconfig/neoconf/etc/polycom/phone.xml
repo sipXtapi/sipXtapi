@@ -721,13 +721,13 @@
       <description>Address of the SNTP server.</description>
     </setting>
     <setting name="address.overrideDHCP">
-      <label>Address from DHCP</label>
+      <label>Ignore SNTP address from DHCP</label>
       <type>
         <boolean/>
       </type>
       <value>0</value>
       <description>
-        Obtain SNTP Server address from  DHCP         
+        Use the SNTP server address configured on the phone instead of an address found via DHCP
       </description>
     </setting>
     <setting name="gmtOffset">
