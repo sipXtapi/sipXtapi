@@ -24,15 +24,10 @@
 #include "os/OsQueuedEvent.h"
 #include "os/OsEventMsg.h"
 #include "os/OsSysLog.h"
+#include "os/OsDefs.h"
 
 #ifdef _VXWORKS
 #include "resparse/vxw/hd_string.h"
-#endif
-
-// DEFINES
-#ifdef WIN32
-#  define strcasecmp stricmp
-#  define strncasecmp strnicmp
 #endif
 
 // EXTERNAL FUNCTIONS

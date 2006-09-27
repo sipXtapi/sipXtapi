@@ -14,6 +14,8 @@
 #include "fastdb.h"
 #include "hashtab.h"
 
+#include <os/OsDefs.h>
+
 int const dbHashTable::keySize[] = {
     1,  // tpBool
     1,  // tpInt1
@@ -214,7 +216,7 @@ void dbHashTable::find(dbDatabase* db, oid_t hashId, dbSearchContext& sc)
 	    if ((sc.type == dbField::tpString
 		 && keylen == ((dbVarying*)(rec + sc.offs))->size - 1
 #ifdef IGNORE_CASE
-		 && stricmp(sc.firstKey, 
+		 && strcasecmp(sc.firstKey, 
 			    (char*)rec+((dbVarying*)(rec+sc.offs))->offs) == 0)
 #else
 		 && memcmp(sc.firstKey, rec+((dbVarying*)(rec+sc.offs))->offs, 

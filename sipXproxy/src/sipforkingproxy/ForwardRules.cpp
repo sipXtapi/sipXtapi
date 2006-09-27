@@ -15,16 +15,12 @@
 
 // APPLICATION INCLUDES
 #include "os/OsSysLog.h"
+#include "os/OsDefs.h"
 #include "utl/UtlRegex.h"
 #include "net/Url.h"
 #include "net/SipMessage.h"
 
 #include "ForwardRules.h"
-
-#ifdef WIN32
-#  define strcasecmp stricmp
-#  define strncasecmp strnicmp
-#endif
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

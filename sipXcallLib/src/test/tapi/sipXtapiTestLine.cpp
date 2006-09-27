@@ -7,6 +7,7 @@
 
 #include <string.h>
 
+#include <os/OsDefs.h>
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
@@ -140,11 +141,7 @@ void sipXtapiTestSuite::testLineAPI_Get()
         char cBuf[256] ;
         size_t nActual ;
         CPPUNIT_ASSERT_EQUAL(sipxLineGetURI(hLine, cBuf, sizeof(cBuf), nActual), SIPX_RESULT_SUCCESS) ;
-#ifdef _WIN32
-        CPPUNIT_ASSERT(stricmp(cBuf, szURI) == 0) ;
-#else
         CPPUNIT_ASSERT(strcasecmp(cBuf, szURI) == 0) ;
-#endif
         CPPUNIT_ASSERT_EQUAL(strlen(cBuf)+1, nActual) ;
 
       // Clean up
@@ -173,11 +170,7 @@ void sipXtapiTestSuite::testLineAPI_GetURI()
         char cBuf[256] ;
         size_t nActual ;
         CPPUNIT_ASSERT_EQUAL(sipxLineGetURI(hLine, cBuf, sizeof(cBuf), nActual), SIPX_RESULT_SUCCESS) ;
-#ifdef _WIN32
-        CPPUNIT_ASSERT(stricmp(cBuf, szURI) == 0) ;
-#else
         CPPUNIT_ASSERT(strcasecmp(cBuf, szURI) == 0) ;
-#endif
         CPPUNIT_ASSERT_EQUAL(strlen(cBuf)+1, nActual) ;
 
         // Ask for length
@@ -187,11 +180,7 @@ void sipXtapiTestSuite::testLineAPI_GetURI()
         // Small Buffer (doesn't stomp, etc)
         strcpy(cBuf, "1234567890") ;
         CPPUNIT_ASSERT_EQUAL(sipxLineGetURI(hLine, cBuf, 5, nActual), SIPX_RESULT_SUCCESS) ;
-#ifdef _WIN32
-        CPPUNIT_ASSERT(stricmp(cBuf, "sip:") == 0) ;
-#else
         CPPUNIT_ASSERT(strcasecmp(cBuf, "sip:") == 0) ;
-#endif
         CPPUNIT_ASSERT(cBuf[5] == '6') ;
 
         // Clean up

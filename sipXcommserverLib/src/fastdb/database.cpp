@@ -23,6 +23,28 @@
 #include "os/OsFS.h"
 #include "os/OsSysLog.h"
 
+// Define STRING_COMPARE to be the function that does comparisons the way we want.
+#ifdef USE_LOCALE_SETTINGS
+#ifdef IGNORE_CASE
+#define STRING_COMPARE(x, y) stricoll(x, y)
+#else
+#define STRING_COMPARE(x, y) strcoll(x, y)
+#endif
+#else
+#ifdef IGNORE_CASE
+#include <os/OsDefs.h>
+#define STRING_COMPARE(x, y) strcasecmp(x, y)
+#else
+#define STRING_COMPARE(x, y) strcmp(x, y)
+#endif
+#endif
+
+#ifdef IGNORE_CASE
+    #define GET_CHAR(c) toupper((byte)(c))
+#else
+    #define GET_CHAR(c) (c)
+#endif
+
 dbNullReference null;
 
 char const* const dbMetaTableName = "Metatable";
@@ -91,36 +113,14 @@ inline void concatenateStrings(dbInheritedAttribute&   iattr,
 inline int compareStringsForEquality(dbSynthesizedAttribute& sattr1,
                                      dbSynthesizedAttribute& sattr2)
 {
-#ifdef IGNORE_CASE
-    return stricmp(sattr1.array.base, sattr2.array.base);
-#else
-    return strcmp(sattr1.array.base, sattr2.array.base);
-#endif
+    return STRING_COMPARE(sattr1.array.base, sattr2.array.base);
 }
 
 inline int compareStrings(dbSynthesizedAttribute& sattr1,
                           dbSynthesizedAttribute& sattr2)
 {
-#ifdef USE_LOCALE_SETTINGS
-#ifdef IGNORE_CASE
-    return stricoll(sattr1.array.base, sattr2.array.base);
-#else
-    return strcoll(sattr1.array.base, sattr2.array.base);
-#endif
-#else
-#ifdef IGNORE_CASE
-    return stricmp(sattr1.array.base, sattr2.array.base);
-#else
-    return strcmp(sattr1.array.base, sattr2.array.base);
-#endif
-#endif
+    return STRING_COMPARE(sattr1.array.base, sattr2.array.base);
 }
-
-#ifdef IGNORE_CASE
-    #define GET_CHAR(c) toupper((byte)(c))
-#else
-    #define GET_CHAR(c) (c)
-#endif
 
 inline bool matchStrings(dbSynthesizedAttribute& sattr1,
                          dbSynthesizedAttribute& sattr2,

@@ -37,6 +37,7 @@
 #include <os/OsDateTime.h>
 #include <os/OsSysLog.h>
 #include <net/HttpBody.h>
+#include <os/OsDefs.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -45,11 +46,6 @@
 
 // STATIC VARIABLES
 SipMessage::SipMessageFieldProps* SipMessage::spSipMessageFieldProps = NULL ;
-
-#ifdef WIN32
-#  define strcasecmp stricmp
-#  define strncasecmp strnicmp
-#endif
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 

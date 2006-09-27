@@ -27,6 +27,7 @@
 #include <math.h>
 
 // APPLICATION INCLUDES
+#include "os/OsDefs.h"
 #include "tapi/sipXtapi.h"
 #include "tapi/sipXtapiEvents.h"
 #include "tapi/sipXtapiInternal.h"
@@ -64,9 +65,6 @@
 // DEFINES
 #define MP_SAMPLE_RATE          8000    // Sample rate (don't change)
 #define MP_SAMPLES_PER_FRAME    80      // Frames per second (don't change)
-#ifdef WIN32
-#define strcasecmp stricmp
-#endif
 
 // GLOBAL VARIABLES
 

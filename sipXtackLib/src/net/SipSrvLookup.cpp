@@ -66,7 +66,7 @@ extern struct __res_state _sip_res;
 #include "os/OsSocket.h"
 #include "os/OsLock.h"
 #include "net/SipSrvLookup.h"
-
+#include "os/OsDefs.h"
 #include "os/OsSysLog.h"
 #include "resparse/rr.h"
 
