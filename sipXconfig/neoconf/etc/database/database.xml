@@ -21,6 +21,7 @@
   <property name="sipxconfig.db.user" value="postgres"/>
   <property name="sipxconfig.db.password" value=""/>
   <property name="sql.dir" location="${basedir}"/>
+  <property name="sipxpbx.conf.dir" location="${basedir}/.."/>  
   <property name="sipxconfig.db.url" value="jdbc:postgresql://localhost/${sipxconfig.db.name}"/>
   <property name="dblink.sql" location="/usr/share/pgsql/contrib/dblink.sql"/>
   <property name="log.dir" value="${basedir}"/>
@@ -246,6 +247,25 @@
   </target>
   <target name="reset-superadmin" depends="reset-superadmin-initialization-task,upgrade"
       description="initialize superadmin user, administation group and resets password to blank"/>
+  
+  <target name="polycom-2.0" description="Migrate all polycom phones to generate 2.0 profiles">
+    <property name="polycom-from-id" value="1.6"/>
+    <property name="polycom-to-id" value="2.0"/>
+    <antcall target="migrate-polycom"/>
+  </target>
+  <target name="polycom-1.6" description="Migrate all polycom phones to generate 1.6 profiles">
+    <property name="polycom-from-id" value="2.0"/>
+    <property name="polycom-to-id" value="1.6"/>
+    <antcall target="migrate-polycom"/>
+  </target>
+  <target name="migrate-polycom">
+    <sipx-sql>
+      update phone set device_version_id = 'polycom${polycom-to-id}' where bean_id = 'polycom';
+    </sipx-sql>
+    <replace file="${sipxpbx.conf.dir}/sipxconfig.properties.in">
+      <replacefilter token="polycom.defaultVersionId=${polycom-from-id}" value="polycom.defaultVersionId=${polycom-to-id}" />
+    </replace>    
+  </target>
 
   <!-- 
      Migration Targets Legend
