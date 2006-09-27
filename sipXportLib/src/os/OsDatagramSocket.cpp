@@ -70,7 +70,9 @@
 OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
        const char* remoteHost, int localHostPortNum, const char* localHost) :
    mNumTotalWriteErrors(0),
-   mNumRecentWriteErrors(0)
+   mNumRecentWriteErrors(0),
+   mSimulatedConnect(FALSE)     // Simulated connection is off until
+                                // activated in doConnect.
 {
     OsSysLog::add(FAC_SIP, PRI_DEBUG, "OsDatagramSocket::_ attempt %s:%d"
                   ,remoteHost, remoteHostPortNum);

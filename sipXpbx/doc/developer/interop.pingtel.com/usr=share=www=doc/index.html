@@ -220,6 +220,13 @@ voicemail box directly by calling user
 to deposit voicemail.
 </p>
 
+<p>
+Voicemail can be retrieved by calling 101 from UAs registered as
+1<span class='group'>gg</span>1 and 1<span class='group'>gg</span>2.
+The voicemail PIN is the same as the SIP registration password for the AOR.
+The voicemail server interprets RFC 2833 DTMF packets.
+</p>
+
 <h2>Transfer</h2>
 
 <p>
@@ -403,6 +410,15 @@ the SIP URI.  For example:
   <dt><code>2425*259</code><dt>
   <dd>Tello echo test</dd>
 </dl>
+
+<h2>Music on Hold</h2>
+
+<p>
+User agents that provide "music on hold" via the technique of
+<a href="http://tools.ietf.org/wg/sipping/draft-ietf-sipping-service-examples/draft-ietf-sipping-service-examples-10.txt">draft-ietf-sipping-service-examples-10</a>
+can use the URI <code>sip:moh@interop.pingtel.com:5120</code> as an
+audio source.
+</p>
 
 <hr />
 

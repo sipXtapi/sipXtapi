@@ -291,6 +291,12 @@ AddNamespaceToProcessDefinitions () {
     fi
 }
 
+RemoveObsoleteVoicemailSummaryFiles () {
+    # the summary files are no longer used, so get rid of them
+    # (if the system is reverted, they will be recreated on the fly when needed)
+    find ${LocalStateDir}/sipxdata/mediaserver/data/mailstore -name summary.xml -print0 | xargs -0 rm -f > /dev/null 2>&1
+}
+
 ##########################
 ## Upgrade the PBX 
 ##########################
@@ -326,6 +332,7 @@ UpgradePbx() {
         *)
             AddNamespaceToWatchDog
             AddNamespaceToProcessDefinitions
+            RemoveObsoleteVoicemailSummaryFiles
             ;;
     esac
 }

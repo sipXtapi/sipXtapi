@@ -19,6 +19,7 @@
 #include "mp/MpBuf.h"
 #include "mp/MprToSpkr.h"
 #include "mp/MpMediaTask.h"
+#include "os/OsDefs.h"
 
 // DEFINES
 #undef OHISTORY
@@ -348,7 +349,8 @@ static int openSpeakerDevices(WAVEHDR*& pWH, HWAVEOUT& hOut)
 
 
     // If either the ringer or call device is set to NONE, don't engage any audio devices
-    if ((stricmp(DmaTask::getRingDevice(), "NONE") == 0) || (stricmp(DmaTask::getCallDevice(), "NONE") == 0))
+    if ((strcasecmp(DmaTask::getRingDevice(), "NONE") == 0) ||
+        (strcasecmp(DmaTask::getCallDevice(), "NONE") == 0))
     {
         ResumeThread(hMicThread);
         return 1;

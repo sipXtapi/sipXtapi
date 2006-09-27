@@ -13,16 +13,26 @@
 #include "fastdb.h"
 #include "ttree.h"
 
+// Define STRING_COMPARE to be the function that does comparisons the way we want.
 #ifdef USE_LOCALE_SETTINGS
 #ifdef IGNORE_CASE
-#define strcmp(x, y) stricoll(x, y)
+#define STRING_COMPARE(x, y) stricoll(x, y)
 #else
-#define strcmp(x, y) strcoll(x, y)
+#define STRING_COMPARE(x, y) strcoll(x, y)
 #endif
 #else
 #ifdef IGNORE_CASE
-#define strcmp(x, y) stricmp(x, y)
+#include <os/OsDefs.h>
+#define STRING_COMPARE(x, y) strcasecmp(x, y)
+#else
+#define STRING_COMPARE(x, y) strcmp(x, y)
 #endif
+#endif
+
+#ifdef IGNORE_CASE
+    #define GET_CHAR(c) toupper((byte)(c))
+#else
+    #define GET_CHAR(c) (c)
 #endif
 
 inline int keycmp(void* p, void* q, int type, int sizeofType, dbUDTComparator comparator)
@@ -175,10 +185,10 @@ bool dbTtreeNode::find(dbDatabase* db, dbSearchContext& sc)
     if (sc.type == dbField::tpString) { 
 	if (sc.firstKey != NULL) { 
 	    rec = (char*)db->getRow(item[0]);
-	    diff = strcmp(sc.firstKey, rec+((dbVarying*)(rec+sc.offs))->offs);
+	    diff = STRING_COMPARE(sc.firstKey, rec+((dbVarying*)(rec+sc.offs))->offs);
 	    if (diff >= sc.firstKeyInclusion) {	    
 		rec = (char*)db->getRow(item[n-1]);
-		diff = strcmp(sc.firstKey, 
+		diff = STRING_COMPARE(sc.firstKey, 
 			      rec+((dbVarying*)(rec+sc.offs))->offs);
 		if (diff >= sc.firstKeyInclusion) { 
 		    if (right != 0) { 
@@ -189,7 +199,7 @@ bool dbTtreeNode::find(dbDatabase* db, dbSearchContext& sc)
 		for (l = 0, r = n; l < r;) { 
 		    m = (l + r) >> 1;
 		    rec = (char*)db->getRow(item[m]);
-		    diff = strcmp(sc.firstKey, 
+		    diff = STRING_COMPARE(sc.firstKey, 
 				  rec + ((dbVarying*)(rec+sc.offs))->offs);
 		    if (diff >= sc.firstKeyInclusion) {
 			l = m+1;
@@ -200,7 +210,7 @@ bool dbTtreeNode::find(dbDatabase* db, dbSearchContext& sc)
 		while (r < n) { 
 		    rec = (char*)db->getRow(item[r]);
 		    if (sc.lastKey != NULL 
-			&& strcmp(rec + ((dbVarying*)(rec+sc.offs))->offs,
+			&& STRING_COMPARE(rec + ((dbVarying*)(rec+sc.offs))->offs,
 				  sc.lastKey) >= sc.lastKeyInclusion) 
 		    { 
 			return false;
@@ -228,7 +238,7 @@ bool dbTtreeNode::find(dbDatabase* db, dbSearchContext& sc)
 	for (l = 0; l < n; l++) { 
 	    rec = (char*)db->getRow(item[l]);
 	    if (sc.lastKey != NULL 
-		&& strcmp(rec + ((dbVarying*)(rec+sc.offs))->offs, 
+		&& STRING_COMPARE(rec + ((dbVarying*)(rec+sc.offs))->offs, 
 			  sc.lastKey) >= sc.lastKeyInclusion) 
 	    {
 		return false;
@@ -332,7 +342,7 @@ bool dbTtreeNode::insert(dbDatabase* db, oid_t& nodeId, oid_t recordId,
     char* rec = (char*)db->getRow(node->item[0]);
     int n = node->nItems;
     int diff = (type == dbField::tpString)
-	? strcmp((char*)key, rec + ((dbVarying*)(rec+offs))->offs)
+	? STRING_COMPARE((char*)key, rec + ((dbVarying*)(rec+offs))->offs)
 	: keycmp(key, rec+offs, type, sizeofType, comparator);
     
     if (diff <= 0) { 
@@ -391,7 +401,7 @@ bool dbTtreeNode::insert(dbDatabase* db, oid_t& nodeId, oid_t recordId,
     } 
     rec = (char*)db->getRow(node->item[n-1]);
     diff = (type == dbField::tpString)
-	? strcmp((char*)key, rec + ((dbVarying*)(rec+offs))->offs)
+	? STRING_COMPARE((char*)key, rec + ((dbVarying*)(rec+offs))->offs)
 	: keycmp(key, rec+offs, type, sizeofType, comparator);
     if (diff >= 0) { 
 	oid_t rightId = node->right;
@@ -451,7 +461,7 @@ bool dbTtreeNode::insert(dbDatabase* db, oid_t& nodeId, oid_t recordId,
 	while (l < r)  {
 	    int i = (l+r) >> 1;
 	    rec = (char*)db->getRow(node->item[i]);
-	    diff = strcmp((char*)key, rec + ((dbVarying*)(rec+offs))->offs);
+	    diff = STRING_COMPARE((char*)key, rec + ((dbVarying*)(rec+offs))->offs);
 	    if (diff > 0) { 
 		l = i + 1;
 	    } else { 
@@ -601,7 +611,7 @@ int dbTtreeNode::remove(dbDatabase* db, oid_t& nodeId, oid_t recordId,
     char* rec = (char*)db->getRow(node->item[0]);
     int n = node->nItems;
     int diff = (type == dbField::tpString)
-	     ? strcmp((char*)key, rec + ((dbVarying*)(rec+offs))->offs)
+	     ? STRING_COMPARE((char*)key, rec + ((dbVarying*)(rec+offs))->offs)
 	     : keycmp(key, rec+offs, type, sizeofType, comparator);
     if (diff <= 0) { 
 	oid_t leftId = node->left;
@@ -621,7 +631,7 @@ int dbTtreeNode::remove(dbDatabase* db, oid_t& nodeId, oid_t recordId,
     }
     rec = (char*)db->getRow(node->item[n-1]);
     diff = (type == dbField::tpString)
-	? strcmp((char*)key, rec + ((dbVarying*)(rec+offs))->offs)
+	? STRING_COMPARE((char*)key, rec + ((dbVarying*)(rec+offs))->offs)
 	: keycmp(key, rec+offs, type, sizeofType, comparator);
     if (diff <= 0) {	    
 	for (int i = 0; i < n; i++) { 

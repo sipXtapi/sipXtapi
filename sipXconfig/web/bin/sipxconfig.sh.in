@@ -31,7 +31,7 @@ Args=""
 : ${RunningUser:=@sipxpbx.user@}
 
 Database=SIPXCONFIG
-RequiredDatabaseVersion=3
+RequiredDatabaseVersion=4
 IndexDir=${TmpDir}/index
 
 # This function determines the correct service name for Postgres.

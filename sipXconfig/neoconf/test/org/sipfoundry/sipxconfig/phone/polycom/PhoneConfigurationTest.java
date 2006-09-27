@@ -37,11 +37,11 @@ public class PhoneConfigurationTest extends XMLTestCase {
     }
 
     public void testGenerateProfileVersion16() throws Exception {
+        phone.setDeviceVersion(PolycomModel.VER_1_6);
         assertExpectedProfile("expected-phone.cfg.xml");
     }
     
     public void testGenerateProfileVersion20() throws Exception {
-        phone.setDeviceVersion(PolycomModel.VER_2_0);
         assertExpectedProfile("expected-phone-2.0.cfg.xml");
     }
     

@@ -15,6 +15,8 @@
 #include "w32sock.h"
 #include "sync.h"
 
+#include <os/OsDefs.h>
+
 #define MAX_HOST_NAME         256
 #define MILLISECOND           1000
 
@@ -105,7 +107,7 @@ bool win_socket::open(int listen_queue_size)
     }
     struct sockaddr_in insock;
     insock.sin_family = AF_INET;
-    if (*hostname && stricmp(hostname, "localhost") != 0) {
+    if (*hostname && strcasecmp(hostname, "localhost") != 0) {
 	struct hostent* hp;  // entry in hosts table
 	if ((hp = gethostbyname(hostname)) == NULL 
 	    || hp->h_addrtype != AF_INET) 

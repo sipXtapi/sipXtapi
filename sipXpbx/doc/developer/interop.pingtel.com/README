@@ -23,6 +23,8 @@ we may need the single-digit groups as well.)  "1/9" means 1 through
 
 100	Auto-attendant
 
+101	Voicemail server
+
 1gg1/9	Addresses Of Record
 
 2gg1	Directly deposit voicemail for 1gg1

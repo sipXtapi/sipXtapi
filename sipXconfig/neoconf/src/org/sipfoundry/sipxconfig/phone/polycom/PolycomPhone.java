@@ -28,6 +28,7 @@ import org.dom4j.io.XMLWriter;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
+import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
@@ -57,22 +58,33 @@ public class PolycomPhone extends Phone {
     private String m_coreTemplate = m_phoneConfigDir + "/ipmid.cfg.vm";
 
     private String m_applicationTemplate = "polycom/mac-address.cfg.vm";
-
+    
     public PolycomPhone() {
         super(BEAN_ID);
-        constructorInitialize();
+        init();
     }
 
     public PolycomPhone(PolycomModel model) {
         super(model);
-        constructorInitialize();
+        init();
     }
     
-    private void constructorInitialize() {
-        // default version
-        setDeviceVersion(PolycomModel.VER_1_6);
+    private void init() {
+        setDeviceVersion(PolycomModel.VER_2_0);
     }
     
+    public String getDefaultVersionId() {
+        DeviceVersion version = getDeviceVersion();
+        return version != null ? version.getVersionId() : null;
+    }
+
+    /** 
+     * Default firmware version for polycom phones. Default is 1.6 right now 
+     * @param 1.6 or 2.0
+     */
+    public void setDefaultVersionId(String defaultVersionId) {
+        setDeviceVersion(DeviceVersion.getDeviceVersion(PolycomPhone.BEAN_ID + defaultVersionId));
+    }
     
     @Override
     public void initialize() {        

@@ -27,6 +27,7 @@
 #include <math.h>
 
 // APPLICATION INCLUDES
+#include "os/OsDefs.h"
 #include "tapi/sipXtapi.h"
 #include "tapi/sipXtapiEvents.h"
 #include "tapi/sipXtapiInternal.h"
@@ -64,9 +65,6 @@
 // DEFINES
 #define MP_SAMPLE_RATE          8000    // Sample rate (don't change)
 #define MP_SAMPLES_PER_FRAME    80      // Frames per second (don't change)
-#ifdef WIN32
-#define strcasecmp stricmp
-#endif
 
 // GLOBAL VARIABLES
 
@@ -1610,6 +1608,46 @@ SIPXTAPI_API SIPX_RESULT sipxCallPlayBufferStop(const SIPX_CALL hCall)
     return sr ;
 }
 
+SIPXTAPI_API SIPX_RESULT sipxCallSetMediaProperty(const SIPX_CALL hCall,
+                                                  const char* szPropertyName,
+                                                  const char* szPropertyValue)
+{
+    SIPX_RESULT sipXresult = SIPX_RESULT_FAILURE ;
+    
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "sipxCallSetMediaProperty hCall=%d szPropertyName=\"%s\" szPropertyValue=\"%s\"",
+        hCall,
+        szPropertyName,
+        szPropertyValue);
+
+
+    if (hCall)
+    {
+        SIPX_INSTANCE_DATA *pInst;
+        UtlString callId;
+        UtlString remoteAddress;
+        UtlString lineId;
+
+        if (sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, &lineId))
+        {
+            SIPX_CALL_DATA *pCallData = sipxCallLookup(hCall, SIPX_LOCK_WRITE);
+            if (pCallData)
+            {
+                if(pInst->pCallManager->setConnectionMediaProperty(callId,
+                                                                   remoteAddress,
+                                                                   szPropertyName,
+                                                                   szPropertyValue) ==
+                   OS_SUCCESS)
+                {
+                    sipXresult = SIPX_RESULT_SUCCESS;
+                }
+
+                sipxCallReleaseLock(pCallData, SIPX_LOCK_WRITE);
+            }
+        }
+    }
+    return(sipXresult);
+}
 
 SIPXTAPI_API SIPX_RESULT sipxCallSubscribe(const SIPX_CALL hCall,
                                            const char* szEventType,
@@ -2912,6 +2950,39 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceDestroy(SIPX_CONF hConf)
     return rc ;
 }
 
+SIPXTAPI_API SIPX_RESULT sipxConferenceSetMediaProperty(const SIPX_CONF hConf,
+                                                        const char* szPropertyName,
+                                                        const char* szPropertyValue)
+{
+    SIPX_RESULT sipXresult = SIPX_RESULT_FAILURE ;
+    
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "sipxConferenceSetMediaProperty hConf=%d szPropertyName=\"%s\" szPropertyValue=\"%s\"",
+        hConf,
+        szPropertyName,
+        szPropertyValue);
+
+
+    if (hConf)
+    {
+        SIPX_CONF_DATA* pData = sipxConfLookup(hConf, SIPX_LOCK_WRITE) ;
+        if (pData)
+        {
+            if(pData->strCallId && !pData->strCallId->isNull())
+            {
+                if(pData->pInst->pCallManager->setCallMediaProperty(pData->strCallId->data(),
+                                                                 szPropertyName,
+                                                                 szPropertyValue) ==
+                   OS_SUCCESS)
+                {
+                    sipXresult = SIPX_RESULT_SUCCESS;
+                }
+            }
+            sipxConfReleaseLock(pData, SIPX_LOCK_WRITE);
+        }
+    }
+    return(sipXresult);
+}
 
 /****************************************************************************
  * Audio Related Functions

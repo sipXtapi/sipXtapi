@@ -1836,6 +1836,42 @@ UtlBoolean CpPeerCall::handleChangeLocalIdentity(OsMsg* eventMessage)
     return(TRUE);
 }
 
+// Handles processing of a
+// CallManager::CP_SET_MEDIA_PROPERTY
+UtlBoolean CpPeerCall::handleSetMediaProperty(OsMsg* eventMessage)
+{
+    OsStatus returnCode = OS_FAILED;
+    int msgSubType = eventMessage->getMsgSubType();
+    addHistoryEvent(msgSubType, (CpMultiStringMessage*)eventMessage);
+    if(mpMediaInterface)
+    {
+        UtlString remoteAddress;
+        UtlString propertyName;
+        UtlString propertyValue;
+        // If this a property that is global to the flowgraph:
+        ((CpMultiStringMessage*)eventMessage)->getString2Data(remoteAddress);
+        ((CpMultiStringMessage*)eventMessage)->getString3Data(propertyName);
+        ((CpMultiStringMessage*)eventMessage)->getString4Data(propertyValue);
+        if(remoteAddress.isNull())
+        {
+            returnCode = mpMediaInterface->setMediaProperty(propertyName, propertyValue);
+        }
+        // Else this is a property that is specific to a media interface connection
+        else
+        {
+            // Find the SipConnection so we can get the media connection id
+            Connection* connection = findHandlingConnection(remoteAddress);
+            if(connection)
+            {
+                returnCode = mpMediaInterface->setMediaProperty(connection->getConnectionId(), 
+                                                                propertyName, 
+                                                                propertyValue);
+            }
+        }
+    }
+    return(TRUE);
+}
+
 // Handles the processing of a 
 // CallManager::CP_GET_TERMINALCONNECTIONSTATE message    
 UtlBoolean CpPeerCall::handleGetTerminalConnectionState(OsMsg* pEventMessage)
@@ -2375,6 +2411,10 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
     case CallManager::CP_NEW_PASSERTED_ID:
         handleChangeLocalIdentity(&eventMessage);
         break ;
+
+    case CallManager::CP_SET_MEDIA_PROPERTY:
+        handleSetMediaProperty(&eventMessage);
+        break;
 
     default:
         processedMessage = FALSE;

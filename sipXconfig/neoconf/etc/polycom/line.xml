@@ -7,7 +7,7 @@
   &types;
   <group name="reg">
     <label>Registration</label>
-    <setting name="displayName">
+    <setting name="displayName" advanced="yes">
       <type>
         <string/>
       </type>
@@ -15,7 +15,7 @@
       <description>Display name used for local user interface as well as SIP 
         signaling.</description>
     </setting>
-    <setting name="address">
+    <setting name="address" advanced="yes">
       <label>User Address</label>
       <type></type>
       <value/>
@@ -44,7 +44,7 @@
       <description>This field must match the Address value of the other registration which 
         makes up the bridged line. </description>
     </setting>
-    <setting name="auth.userId">
+    <setting name="auth.userId" advanced="yes">
       <type>
         <string/>
       </type>
@@ -53,7 +53,7 @@
         non-empty, will override the 'Reg User' parameter entered into the Authentication 
         submenu off of the Settings menu on the phone.</description>
     </setting>
-    <setting name="auth.password">
+    <setting name="auth.password" advanced="yes">
       <type>
         <string password="yes"/>
       </type>

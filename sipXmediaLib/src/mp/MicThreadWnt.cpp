@@ -20,6 +20,7 @@
 #include "mp/MprToSpkr.h"
 #include "mp/MpMediaTask.h"
 #include "os/OsMsgPool.h"
+#include "os/OsDefs.h"
 
 // DEFINES
 // EXTERNAL FUNCTIONS
@@ -301,7 +302,7 @@ int openMicDevice(bool& bRunning, WAVEHDR*& pWH)
     gMicDeviceId = WAVE_MAPPER;
 
     // If the mic device is set to NONE, don't engage
-    if (stricmp(DmaTask::getMicDevice(), "NONE") == 0)
+    if (strcasecmp(DmaTask::getMicDevice(), "NONE") == 0)
     {
         ResumeThread(hSpkrThread);
         return 1;
