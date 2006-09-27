@@ -14,7 +14,10 @@ RPMS = \
 	$(DEST_RPM)/ruby-mode-$(RUBY_VER)-$(RUBY_REL).c4.@RPM_TARGET_ARCH@.rpm \
 	$(DEST_RPM)/ruby-tcltk-$(RUBY_VER)-$(RUBY_REL).c4.@RPM_TARGET_ARCH@.rpm
 
-all : $(RPMS)
+ABI_RPM = \
+	$(DEST_RPM)/ruby-abi-$(RUBY_VER)-1.noarch.rpm
+
+all : $(RPMS) $(ABI_RPM)
 
 $(SRPM) :
 	$(DOWNLOAD_FILE) $@ $(RUBY_RPM_URL)/SRPMS/`basename $@`
@@ -22,6 +25,12 @@ $(SRPM) :
 .PHONY:build-rpms
 build-rpms : $(SRPM)
 	rpmbuild --rebuild $(SRPM)
+
+# Fullfills RUBY ABI requirement
+# http://mail.madstop.com/pipermail/puppet-dev/2006-August/001503.html
+$(ABI_RPM) : ruby-abi.spec
+	rpmbuild -ba $(srcdir)/$<
+	cp @RPMBUILD_TOPDIR@/RPMS/noarch/`basename $@` $@
 
 $(RPMS) : build-rpms
 	cp @RPMBUILD_TOPDIR@/RPMS/@RPM_TARGET_ARCH@/`basename $@` $@
