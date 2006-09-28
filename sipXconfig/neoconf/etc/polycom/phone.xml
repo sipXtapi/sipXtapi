@@ -771,7 +771,7 @@
     </setting>
     <setting name="daylightSavings.start.date">
       <type>
-        <integer min="1" max="31"/>
+        <integer min="0" max="31"/>
       </type>
       <value>1</value>
       <description>Day of the month to start DST.</description>
@@ -804,7 +804,7 @@
     </setting>
     <setting name="daylightSavings.stop.date">
       <type>
-        <integer min="1" max="31"/>
+        <integer min="0" max="31"/>
       </type>
       <value>1</value>
       <description>Day of the month to start DST.</description>
