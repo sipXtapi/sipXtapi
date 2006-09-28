@@ -28,19 +28,19 @@ AC_DEFUN([SFAC_INIT_FLAGS],
     	SF_CXX_WARNINGS="-Wall -Wformat -Wwrite-strings -Wpointer-arith"
     	CXXFLAGS="$CXXFLAGS $SF_CXX_C_FLAGS $SF_CXX_WARNINGS"
     	CFLAGS="$CFLAGS $SF_CXX_C_FLAGS $SF_CXX_WARNINGS -Wnested-externs -Wmissing-declarations -Wmissing-prototypes"
-     elif test x_"${ax_cv_c_compiler_vendor}" = x_sun
-     then
+    elif test x_"${ax_cv_c_compiler_vendor}" = x_sun
+    then
         SF_CXX_C_FLAGS="-D__pingtel_on_posix__ -D_REENTRANT -D_FILE_OFFSET_BITS=64 -mt -fast -v"
         SF_CXX_FLAGS="-D__pingtel_on_posix__ -D_REENTRANT -D_FILE_OFFSET_BITS=64 -mt -xlang=c99 -fast -v"
         SF_CXX_WARNINGS=""
         CXXFLAGS="$CXXFLAGS $SF_CXX_FLAGS $SF_CXX_WARNINGS"
         CFLAGS="$CFLAGS $SF_CXX_C_FLAGS $SF_CXX_WARNINGS"
-     else
+    else
         SF_CXX_C_FLAGS="-D__pingtel_on_posix__ -D_linux_ -D_REENTRANT -D_FILE_OFFSET_BITS=64"
         SF_CXX_WARNINGS=""
         CXXFLAGS="$CXXFLAGS $SF_CXX_C_FLAGS $SF_CXX_WARNINGS"
         CFLAGS="$CFLAGS $SF_CXX_C_FLAGS $SF_CXX_WARNINGS"
-     fi
+    fi
 
     ## set flag for gcc
     AM_CONDITIONAL(ISGCC, [test  x_"${GCC}" != x_])
