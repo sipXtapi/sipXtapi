@@ -16,6 +16,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
@@ -52,6 +54,8 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
 
     private ModelSource m_modelSource;
 
+    private SipxReplicationContext m_replicationContext;
+
     public GatewayContextImpl() {
         super();
     }
@@ -66,7 +70,6 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
 
     public Gateway getGateway(Integer id) {
         return (Gateway) getHibernateTemplate().load(Gateway.class, id);
-
     }
 
     public void storeGateway(Gateway gateway) {
@@ -80,6 +83,8 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
 
         // Store the updated gateway
         hibernate.saveOrUpdate(gateway);
+
+        m_replicationContext.generate(DataSet.CALLER_ALIAS);
     }
 
     public boolean deleteGateway(Integer id) {
@@ -147,5 +152,9 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
 
     public void setModelSource(ModelSource modelSource) {
         m_modelSource = modelSource;
+    }
+
+    public void setReplicationContext(SipxReplicationContext replicationContext) {
+        m_replicationContext = replicationContext;
     }
 }
