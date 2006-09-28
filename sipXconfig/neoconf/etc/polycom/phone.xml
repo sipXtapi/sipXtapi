@@ -765,11 +765,9 @@
         used.</description>
     </setting>
     <setting name="daylightSavings.start.month">
-      <type>
-        <integer min="1" max="12"/>
-      </type>
+      <type refid="monthOfYear"/>
       <value>4</value>
-      <description>Month to start DST. 1=Jan, 2=Feb, ..., 12=Dec</description>
+      <description>Month to start DST.</description>
     </setting>
     <setting name="daylightSavings.start.date">
       <type>
@@ -786,11 +784,9 @@
       <description>Time of day to start DST, in 24 hour clock. 2=2 am, 14=2 pm</description>
     </setting>
     <setting name="daylightSavings.start.dayOfWeek">
-      <type>
-        <integer min="1" max="7"/>
-      </type>
+      <type refid="dayOfWeek"/>
       <value>1</value>
-      <description>Day of week to apply DST. 1=Sun, 2=Mon, ..., 7=Sat</description>
+      <description>Day of week to apply DST.</description>
     </setting>
     <setting name="daylightSavings.start.dayOfWeek.lastInMonth">
       <type>
@@ -802,11 +798,9 @@
         month.</description>
     </setting>
     <setting name="daylightSavings.stop.month">
-      <type>
-        <integer min="1" max="12"/>
-      </type>
+      <type refid="monthOfYear"/>
       <value>10</value>
-      <description>Month to stop DST. 1=Jan, 2=Feb, ..., 12=Dec</description>
+      <description>Month to stop DST.</description>
     </setting>
     <setting name="daylightSavings.stop.date">
       <type>
@@ -823,11 +817,9 @@
       <description>Time of day to stop DST, in 24 hour clock. 2= 2 am, 14=2 pm</description>
     </setting>
     <setting name="daylightSavings.stop.dayOfWeek">
-      <type>
-        <integer min="1" max="7"/>
-      </type>
+      <type refid="dayOfWeek"/>
       <value>1</value>
-      <description>Day of week to stop DST. 1=Sun, 2=Mon, ..., 7=Sat</description>
+      <description>Day of week to stop DST.</description>
     </setting>
     <setting name="daylightSavings.stop.dayOfWeek.lastInMonth">
       <type>

@@ -320,7 +320,13 @@ public class PolycomPhone extends Phone {
         
         @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.start.dayOfWeek")
         public int getStartDayOfWeek() {
-            return isDstEnabled() ? getZone().getStartDayOfWeek() : 0;
+            return isDstEnabled() ? dayOfWeek(getZone().getStartDayOfWeek()) : 0;
+        }
+        
+        static int dayOfWeek(int dayOfWeek) {
+            // 1-based
+            int dayOfWeekStartingOnMonday = ((dayOfWeek + 1) % 7) + 1;
+            return dayOfWeekStartingOnMonday;
         }
 
         @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.start.month")
@@ -335,7 +341,7 @@ public class PolycomPhone extends Phone {
 
         @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.dayOfWeek")
         public int getStopDayOfWeek() {
-            return isDstEnabled() ? getZone().getStopDayOfWeek() : 0;
+            return isDstEnabled() ? dayOfWeek(getZone().getStopDayOfWeek()) : 0;
         }
 
         @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.month")
