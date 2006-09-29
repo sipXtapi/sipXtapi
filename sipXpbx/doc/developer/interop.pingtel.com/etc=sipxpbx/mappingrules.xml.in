@@ -9,7 +9,7 @@
       <userPattern>x.*x.</userPattern>
       <permissionMatch>
         <transform>
-          <url>&lt;sip:{digits}@isn.tello.com&gt;</url>
+          <url>&lt;sip:{digits}@freenum.org&gt;</url>
         </transform>
       </permissionMatch>
     </userMatch>
