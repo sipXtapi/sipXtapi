@@ -65,6 +65,7 @@
   <component id="firstName" type="TextField">
     <binding name="value" value="user.firstName" />
     <binding name="disabled" value="true" />
+    <binding name="displayName" value="message:label.firstName" />    
   </component>
 
   <component id="lastNamePanel" type="FieldPanel">
@@ -74,6 +75,7 @@
   <component id="lastName" type="TextField">
     <binding name="disabled" value="true" />
     <binding name="value" value="user.lastName" />
+    <binding name="displayName" value="message:label.lastName" />
   </component>
 
   <component id="userIdPanel" type="FieldPanel">
@@ -83,6 +85,7 @@
   <component id="userId" type="TextField">
     <binding name="value" value="user.userName" />
     <binding name="disabled" value="true" />
+    <binding name="displayName" value="message:label.userId" />
   </component>
 
   <component id="sipPasswordPanel" type="FieldPanel">
@@ -92,6 +95,7 @@
   <component id="sipPassword" type="TextField">
     <binding name="value" value="user.sipPassword" />
     <binding name="disabled" value="true" />
+    <binding name="displayName" value="message:label.sipPassword" />
   </component>
 
   <component id="groupsPanel" type="FieldPanel">
@@ -102,6 +106,7 @@
     <binding name="value" value="groupsString" />
     <binding name="size" value="50" />
     <binding name="disabled" value="true" />
+    <binding name="displayName" value="message:label.groups" />
   </component>
 
   <component id="aliasesPanel" type="FieldPanel">
@@ -112,6 +117,7 @@
     <binding name="value" value="user.aliasesString" />
     <binding name="size" value="50" />
     <binding name="disabled" value="true" />
+    <binding name="displayName" value="message:label.aliases" />
   </component>
 
 </page-specification>

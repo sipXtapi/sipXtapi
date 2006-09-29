@@ -67,6 +67,7 @@
   <component id="pstnPrefix" type="TextField">
     <binding name="value" value="rule.pstnPrefix" />
     <binding name="validators" value="spring-validators:validSipUserId" />
+    <binding name="displayName" value="message:label.pstnPrefix" />
   </component>
   <component id="pstnPrefixOptionalLabel" type="FieldPanel">
     <binding name="field" value="components.pstnPrefixOptional" />
@@ -84,6 +85,7 @@
   <component id="longDistancePrefix" type="TextField">
     <binding name="value" value="rule.longDistancePrefix" />
     <binding name="validators" value="spring-validators:validSipUserId" />
+    <binding name="displayName" value="message:label.longDistancePrefix" />
   </component>
   <component id="longDistancePrefixOptionalLabel" type="FieldPanel">
     <binding name="field" value="components.longDistancePrefixOptional" />
@@ -101,6 +103,7 @@
   <component id="areaCodes" type="TextField">
     <binding name="value" value="rule.areaCodes" />
     <binding name="validators" value="spring-validators:validPhoneSequence" />
+    <binding name="displayName" value="message:label.areaCodes" />
   </component>
   <component id="externalLenLabel" type="FieldPanel">
     <binding name="field" value="components.externalLen" />

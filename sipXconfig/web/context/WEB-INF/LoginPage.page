@@ -36,5 +36,6 @@
   <component id="password" type="TextField">
     <binding name="value" value="password"/>
     <binding name="hidden" value="true"/>
+    <binding name="displayName" value="message:label.password"/>
   </component>
 </page-specification>

@@ -25,6 +25,7 @@
   <component id="name" type="TextField">
     <binding name="value" value="domain.name" />
     <binding name="validators" value="spring-validators:validHostOrIp" />    
+    <binding name="displayName" value="message:label.name" />
   </component>  
   <component id="addAliasLink" type="LinkSubmit">
     <binding name="selected" value="action"/>
@@ -37,11 +38,12 @@
   </component>
   <component id="aliasLabel" type="FieldLabel">
     <binding name="field" value="components.alias"/>
-    <binding name="displayName" value="message:label.alias"/>
+    <binding name="label" value="message:label.alias"/>
   </component>
   <component id="alias" type="TextField">
     <binding name="value" value="alias" />
     <binding name="validators" value="spring-validators:validHostOrIp" />        
+    <binding name="displayName" value="message:label.alias"/>
   </component>
   <component id="removeAlias" type="DirectLink">
     <binding name="listener" value="listener:removeAlias"/>
