@@ -27,7 +27,7 @@ import org.sipfoundry.sipxconfig.site.admin.commserver.RestartReminderPanel;
  */
 public abstract class ActivateDialPlan extends PageWithCallback {
     public static final Enum[] OPTIONS = {
-        ConfigFileType.MAPPING_RULES, ConfigFileType.FALLBACK_RULES, ConfigFileType.AUTH_RULES, 
+        ConfigFileType.MAPPING_RULES, ConfigFileType.FALLBACK_RULES, ConfigFileType.AUTH_RULES,
         ConfigFileType.FORWARDING_RULES
     };
 
@@ -50,7 +50,7 @@ public abstract class ActivateDialPlan extends PageWithCallback {
 
     public Process[] getAffectedProcesses() {
         return new Process[] {
-            Process.REGISTRAR, Process.AUTH_PROXY
+            Process.REGISTRAR, Process.AUTH_PROXY, Process.PROXY
         };
     }
 
@@ -59,9 +59,9 @@ public abstract class ActivateDialPlan extends PageWithCallback {
         model.setOptions(OPTIONS);
         return model;
     }
-    
+
     public void cancel(IRequestCycle cycle) {
-        getCallback().performCallback(cycle);        
+        getCallback().performCallback(cycle);
     }
 
     public void activate(IRequestCycle cycle) {
