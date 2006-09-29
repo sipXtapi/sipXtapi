@@ -469,7 +469,7 @@ int main(int argc, char* argv[])
     subscribeServer.start();
 
     // Create the dialog event publisher
-    DialogEventPublisher dialogEvents(&callManager, &publisher);    
+    DialogEventPublisher dialogEvents(&callManager, &publisher);
     //callManager.addTaoListener(&dialogEvents);
     //dialogEvents.start();
 
