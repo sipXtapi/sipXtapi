@@ -19,6 +19,7 @@
 #include <mp/MpStreamPlayer.h>
 #include <os/OsDateTime.h>
 #include <utl/UtlSList.h>
+#include <os/OsTimer.h>
 
 // DEFINES
 // MACROS
@@ -28,6 +29,23 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
+class ParkedCallObject;
+
+// Subclass of OsNotifications to handle timeout of a parked call.
+class ParkedCallTimeoutNotification : public OsNotification
+{
+  public:
+
+   ParkedCallTimeoutNotification(ParkedCallObject* const parkedCall);
+
+   virtual ~ParkedCallTimeoutNotification();
+
+   virtual OsStatus signal(const int eventData);
+
+  protected:
+
+   ParkedCallObject* mpParkedCall;
+};
 
 //:Class short description which may consist of multiple lines (note the ':')
 // Class detailed description which may extend to multiple lines
@@ -63,6 +81,17 @@ public:
 
    OsStatus playAudio();
    
+   // Consider starting the time-out timer, which if it expires, will transfer
+   // the call back to the user that parked it.
+   void startEscapeTimer(UtlString& parker,
+                         int timeout);
+
+   // Stop the time-out timer.
+   void stopEscapeTimer();
+
+   // Do a blind transfer of this call to mParker.
+   void timeout();
+
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -87,6 +116,11 @@ private:
     bool mbPickup;             // Call is a retrieval call
     
     OsTime mParked;
+
+    // Members to support the timeout transfer feature.
+    UtlString mParker;          ///< The URI of the user that parked the call.
+    ParkedCallTimeoutNotification mTimeoutNotification;
+    OsTimer mTimeoutTimer;      ///< OsTimer to trigger the timeout.
 };
 
 /* ============================ INLINE METHODS ============================ */
