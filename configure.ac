@@ -41,16 +41,6 @@ then
   AC_CONFIG_SUBDIRS(bbridge)
 fi
 
-AC_ARG_ENABLE(phone, 
-  AC_HELP_STRING([--enable-phone], 
-    [build sipXphone, project is obsolete, see ezphone in sipXcallLib]), 
-    phone=yes)
-
-if test x$phone = xyes
-then
-  AC_CONFIG_SUBDIRS(sipXphone)
-fi
-
 SFAC_DIST_DIR
    
 AC_CONFIG_FILES([Makefile])
