@@ -116,15 +116,21 @@ protected:
     bool isCallRetrievalInvite(const char* callId, const char* address);
 
     // Set up the data structures for a new call that isn't a call-retrieval
-    // call.
-    void setUpParkedCall(const UtlString& callId,
-                         const UtlString& address,
-                         const UtlString& orbit,
-                         const UtlString& audio,
-                         int timeout,
-                         int keycode,
-                         int capacity,
-                         const TaoString& arg);
+    // call.  Triggered by CONNECTION_OFFERED.
+    void setUpParkedCallOffered(const UtlString& callId,
+                                const UtlString& address,
+                                const UtlString& orbit,
+                                const UtlString& audio,
+                                int timeout,
+                                int keycode,
+                                int capacity,
+                                const TaoString& arg);
+
+    // Set up the call state for a new call that isn't a call-retrieval
+    // call.  Triggered by CONNECTION_ESTABLISHED.
+    void setUpParkedCallEstablished(const UtlString& callId,
+                                    const UtlString& address,
+                                    const TaoString& arg);
 
     // Do the work for a call-retrieval call.
     void setUpRetrievalCall(const UtlString& callId,
@@ -139,16 +145,19 @@ private:
     OrbitListener& operator=(const OrbitListener& rOrbitListener);
      //:Assignment operator
      
-    ParkedCallObject* getOldestCallInOrbit(UtlString& orbit, UtlString& callId,
+    ParkedCallObject* getOldestCallInOrbit(const UtlString& orbit,
+                                           UtlString& callId,
                                            UtlString& address);
 
-    int getNumCallsInOrbit(UtlString& orbit);
+    int getNumCallsInOrbit(const UtlString& orbit);
 
     // Find the ParkedCallObject with a given mSeqNo, or return NULL.
     ParkedCallObject* findBySeqNo(int seqNo);
 
     CallManager* mpCallManager;
 
+    // Maps original call-Ids of parked calls (and the calls picking them up)
+    // to their ParkedCallObjects.
     UtlHashMap mCalls;
 
     // Object to manage reading and updating orbit file information.

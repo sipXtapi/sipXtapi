@@ -22,6 +22,7 @@
 #include <os/OsTimer.h>
 #include <os/OsMsgQ.h>
 #include <OrbitFileReader.h>
+#include <utl/UtlContainableAtomic.h>
 
 // DEFINES
 // MACROS
@@ -35,7 +36,7 @@
 
 //: Object to describe and control a parked call.
 //  All methods are executed by the thread of the owning OrbitListener.
-class ParkedCallObject
+class ParkedCallObject : public UtlContainableAtomic
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -53,29 +54,31 @@ public:
    ParkedCallObject(const UtlString& orbit,
                     CallManager* callManager,
                     const UtlString& callId, 
+                    const UtlString& address,
                     const UtlString& playFile,
                     bool bPickup,
                     OsMsgQ* listenerQ);
    ~ParkedCallObject();
 
-   void setAddress(UtlString address);
-   UtlString getAddress();
+   // Accessor/modifier functions for these fields.
+   // Note that most accessor functions return a const char*, which
+   // should not be stored longer than any operation which might
+   // change the Park Server state.
+
+   const char* getOriginalAddress();
+   void setCurrentAddress(const UtlString& address);
+   const char* getCurrentAddress();
    
-   // Get or set a callId that is the retrieving call
-   UtlString getPickupCallId();
-   void setPickupCallId(const char *callId);
+   const char* getOriginalCallId();
+   void setCurrentCallId(const UtlString& callId);
+   const char* getCurrentCallId();
    
-   // Get or set the new callId for the second leg of a transfer
-   UtlSList* getNewCallIds();
-   void setNewCallId(const char* callId);
+   void setPickupCallId(const UtlString& callId);
+   const char* getPickupCallId();
    
-   UtlString getOrbit();
+   const char* getOrbit();
    void getTimeParked(OsTime& parked);
-   void setOriginalAddress(UtlString& address);
-   UtlString getOriginalAddress();
-   
    bool isPickupCall();
-   bool hasNewCallIds();
 
    OsStatus playAudio();
    
@@ -126,7 +129,17 @@ public:
          return mSeqNo;
       };
 
+   // Set the CALL_ESTABLISHED flag.
+   void setEstablished();
+
+   // Get the CALL_ESTABLISHED flag.
+   bool getEstablished();
+
 /* ============================ INQUIRY =================================== */
+
+    virtual UtlContainableType getContainableType() const;
+
+    static const UtlContainableType TYPE;
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -145,22 +158,33 @@ private:
     static const int sSeqNoMask;
 
     CallManager* mpCallManager;
-    UtlString mCallId;
-    UtlString mAddress;
+
+    // Because the Call Manager reports events for later legs of a call
+    // that was replaced by another call using the call-Id of the original
+    // leg, we must keep track of both the original and current call-Id
+    // for a single logical call.
+    UtlString mOriginalCallId, mCurrentCallId;
+    // Call Manager events for the different legs are distinguished by
+    // the address-of-the-other-end field of its messages.
+    UtlString mOriginalAddress, mCurrentAddress;
     
     MpStreamPlayer* mpPlayer;
     UtlString mFile;
+    // The call-Id of the call which is picking up this call, if any.
+    // Needed so that if our attempt to transfer a parked call being retrieved
+    // fails, we can clear the pickup call as well.
     UtlString mPickupCallId;
-    UtlString mNewCallId;
+    // The orbit number for this call.
     UtlString mOrbit;
-    UtlString mOriginalAddress;
-    
-    // Remember all tranferred in calls in this list for clean-up
-    UtlSList mNewCallIds;    
     
     bool mbPickup;             // Call is a retrieval call
     
-    OsTime mParked;
+    bool mbEstablished;         /**< CALL_ESTABLISHED has been seen
+                                 *   for this call. */
+
+    OsTime mParked;             /**< When the ParkedCallObject was created,
+                                 *   which is when the call was parked.
+                                 */
 
     // Members to support the transfer back to parker feature.
     UtlString mParker;          ///< The URI of the user that parked the call.
@@ -176,5 +200,17 @@ private:
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+// Set the CALL_ESTABLISHED flag.
+inline void ParkedCallObject::setEstablished()
+{
+   mbEstablished = true;
+}
+
+// Get the CALL_ESTABLISHED flag.
+inline bool ParkedCallObject::getEstablished()
+{
+   return mbEstablished;
+}
 
 #endif  // _ParkedCallObject_h_

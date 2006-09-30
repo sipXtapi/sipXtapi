@@ -104,6 +104,7 @@ nobase_include_HEADERS = \
     utl/UtlBool.h \
     utl/UtlLink.h \
     utl/UtlContainable.h \
+    utl/UtlContainableAtomic.h \
     utl/UtlContainer.h \
     utl/UtlDateTime.h \
     utl/UtlDList.h \

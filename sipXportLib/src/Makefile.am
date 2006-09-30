@@ -53,6 +53,7 @@ libsipXport_la_SOURCES =  \
     utl/UtlInt.cpp \
     utl/UtlString.cpp \
     utl/UtlContainable.cpp \
+    utl/UtlContainableAtomic.cpp \
     utl/UtlContainer.cpp \
     utl/UtlIterator.cpp \
     utl/UtlList.cpp \
