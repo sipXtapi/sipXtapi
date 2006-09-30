@@ -130,10 +130,9 @@ AC_DEFUN([SFAC_CONFIGURE_OPTIONS],
 ])
 
 
-# Determine the svn repository revision number, useful to build stamps
 AC_DEFUN([SFAC_SVN_VERSION],[
    AC_MSG_CHECKING(codebase svn revision)
-   svnversion=${srcdir}/SVN_VERSION
+   svnversion=${srcdir}/SVN-VERSION
    if test -f $svnversion  
    then
      SVN_VERSION=`cat $svnversion`
@@ -144,9 +143,9 @@ AC_DEFUN([SFAC_SVN_VERSION],[
          | perl -p \
            -e 'm /(\d+)/ && do { $padded=sprintf( "%06d", [$][1] ); s/\d+/$padded/; };' \
            -e 's/:/./; s/M/.M/;'`
-       elif test -r ${srcdir}/../SVN_VERSION
+       elif test -r ${srcdir}/../SVN-VERSION
        then
-         SVN_VERSION=`cat ${srcdir}/../SVN_VERSION`
+         SVN_VERSION=`cat ${srcdir}/../SVN-VERSION`
        else
          SVN_VERSION="0.unknown"
      fi
@@ -155,7 +154,6 @@ AC_DEFUN([SFAC_SVN_VERSION],[
    AC_MSG_RESULT(${SVN_VERSION})
    AC_SUBST(SVN_VERSION)
 ])
-
 
 
 ## Check to see that we are using the minimum required version of automake

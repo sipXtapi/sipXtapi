@@ -17,7 +17,7 @@ EXTRA_DIST = \
     config/sipX-buildstamp.h.in \
     CONTRIBUTORS \
     LICENSE \
-    SVN_VERSION \
+    SVN-VERSION \
     BUILDSTAMP \
     sipxcalllib.spec
 
