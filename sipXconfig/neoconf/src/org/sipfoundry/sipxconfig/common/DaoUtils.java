@@ -49,28 +49,32 @@ public final class DaoUtils {
      * true.
      * 
      * @param hibernate spring hibernate template
-     * @param obj object to be checked
+     * @param beanClass klass of the entity bean, it's usually one of the base classes of the obj
+     *        and not obj.getClass()
+     * @param bean object to be checked
      * @param propName name of the property to be checked
      * @param exception exception to throw if query returns other object than passed in the query
      */
-    public static boolean checkDuplicates(final HibernateTemplate hibernate,
-            final BeanWithId obj, final String propName, UserException exception) {
-        Object propValue = getProperty_(obj, propName);
+    public static boolean checkDuplicates(HibernateTemplate hibernate,
+            Class< ? extends BeanWithId> beanClass, BeanWithId bean, String propName,
+            UserException exception) {
+        Object propValue = getProperty_(bean, propName);
         if (propValue == null) {
             return false;
         }
         final Criterion expression = Restrictions.eq(propName, propValue);
+        final Class klass = beanClass;
         HibernateCallback callback = new HibernateCallback() {
             public Object doInHibernate(Session session) {
-                Criteria criteria = session.createCriteria(obj.getClass()).add(expression)
-                        .setProjection(Projections.property(ID_PROPERTY_NAME));
+                Criteria criteria = session.createCriteria(klass).add(expression).setProjection(
+                        Projections.property(ID_PROPERTY_NAME));
                 return criteria.list();
             }
         };
         List objs = hibernate.executeFind(callback);
-        return checkDuplicates(obj, objs, exception);
+        return checkDuplicates(bean, objs, exception);
     }
-    
+
     /**
      * Return true if query returns objects other than obj. Used to check for duplicates. If
      * exception is non-null, then throw the exception instead of returning true.
@@ -178,14 +182,15 @@ public final class DaoUtils {
     /**
      * Returns array of beans loaded thru DataObjectSource
      */
-    public static Object[] loadBeansArrayByIds(DataObjectSource source, Class beanClass, Collection ids) {
+    public static Object[] loadBeansArrayByIds(DataObjectSource source, Class beanClass,
+            Collection ids) {
         Object[] beans = (Object[]) Array.newInstance(beanClass, ids.size());
         Iterator idsIterator = ids.iterator();
         for (int i = 0; idsIterator.hasNext(); i++) {
             Integer id = (Integer) idsIterator.next();
             beans[i] = source.load(beanClass, id);
         }
-        
+
         return beans;
     }
 

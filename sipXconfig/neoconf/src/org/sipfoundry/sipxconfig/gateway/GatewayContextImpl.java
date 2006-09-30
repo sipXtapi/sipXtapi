@@ -76,9 +76,9 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         // Before storing the gateway, make sure that it has a unique name.
         // Throw an exception if it doesn't.
         HibernateTemplate hibernate = getHibernateTemplate();
-        DaoUtils.checkDuplicates(hibernate, gateway, "name", new DuplicateNameException(gateway
-                .getName()));
-        DaoUtils.checkDuplicates(hibernate, gateway, "serialNumber",
+        DaoUtils.checkDuplicates(hibernate, Gateway.class, gateway, "name",
+                new DuplicateNameException(gateway.getName()));
+        DaoUtils.checkDuplicates(hibernate, Gateway.class, gateway, "serialNumber",
                 new DuplicateSerialNumberException(gateway.getSerialNumber()));
 
         // Store the updated gateway
