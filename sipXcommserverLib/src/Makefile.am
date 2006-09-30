@@ -39,10 +39,9 @@ libsipXcommserver_la_LIBADD = \
 	fastdb/libfastdb.la \
 	sipdb/libsipdb.la 
 
-libsipXcommserver_la_SOURCES = \
-    ./config/sipxcommserverlib-buildstamp.h \
-    ../config/sipxcommserverlib-buildstamp.cpp \
-    digitmaps/UrlMapping.cpp \
-    configrpc/ConfigRPC.cpp \
-    odbc/OdbcWrapper.cpp \
-    OrbitFileReader.cpp
+libsipXcommserver_la_SOURCES =  \
+	../config/sipxcommserverlib-buildstamp.h \
+	../config/sipxcommserverlib-buildstamp.cpp \
+   digitmaps/UrlMapping.cpp \
+   configrpc/ConfigRPC.cpp \
+   odbc/OdbcWrapper.cpp

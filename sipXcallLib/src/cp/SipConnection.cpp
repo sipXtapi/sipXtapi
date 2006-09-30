@@ -5390,16 +5390,6 @@ OsStatus SipConnection::getToField(UtlString* toField)
     return ret;
 }
 
-OsStatus SipConnection::getInvite(SipMessage* message)
-{
-    OsStatus ret = OS_SUCCESS;
-
-    // Copy inviteMsg to the destination.
-    *message = *inviteMsg;
-
-    return ret;
-}
-
 
 /* ============================ INQUIRY =================================== */
 

@@ -262,10 +262,6 @@ public:
                                   const char* address,
                                   SipDialog& dialog);
 
-    virtual OsStatus getInvite(const char* callId,
-                               const char* address,
-                               SipMessage& invite);
-
     //! Send a SIP request in the context of the dialog of the given call/session
     /*! The response gets queued to the optional response message queue.
      *  \param responseQueue - optional queue in which to put response(s) to request
@@ -281,7 +277,7 @@ public:
     virtual void unhold(const char* callId);
     virtual void dialString(const char* url);
 
-    virtual UtlBoolean disconnectConnection(const char* callId, const char* addressUrl);
+        virtual UtlBoolean disconnectConnection(const char* callId, const char* addressUrl);
 
     virtual void setTransferType(int type);
 

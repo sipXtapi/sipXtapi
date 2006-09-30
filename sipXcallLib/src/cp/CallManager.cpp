@@ -908,7 +908,6 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
         case CP_GET_CONNECTIONSTATE:
         case CP_GET_TERMINALCONNECTIONSTATE:
         case CP_GET_SESSION:
-        case CP_GET_INVITE:
         case CP_CANCEL_TIMER:
         case CP_GET_NEXT_CSEQ:
         case CP_ADD_TONE_LISTENER:
@@ -952,7 +951,6 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                         msgSubType == CP_GET_TERMINALCONNECTIONSTATE ||
                         msgSubType == CP_GET_NEXT_CSEQ ||
                         msgSubType == CP_GET_SESSION ||
-                        msgSubType == CP_GET_INVITE ||
                         msgSubType == CP_GET_CODEC_CPU_COST ||
                         msgSubType == CP_GET_CODEC_CPU_LIMIT ||
                         msgSubType == CP_CREATE_PLAYER ||
@@ -2086,7 +2084,7 @@ OsStatus CallManager::getSession(const char* callId,
     }
     else
     {
-        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::getSession TIMED OUT");
+        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::getSession TIMED OUT\n");
         // If the event has already been signalled, clean up
         if(OS_ALREADY_SIGNALED == getSessionEvent->signal(0))
         {
@@ -2110,7 +2108,7 @@ OsStatus CallManager::getSipDialog(const char* callId,
 {
     OsStatus returnCode = OS_SUCCESS;
 
-    // For now, this is only a wrapper for SipSession and we need to
+    // For now, this is only the warp for SipSession and we need to
     // re-implement it when SipSession is deprecated.
     SipSession ssn;
 
@@ -2150,64 +2148,6 @@ OsStatus CallManager::getSipDialog(const char* callId,
     }
     
     return(returnCode);
-}
-
-OsStatus CallManager::getInvite(const char* callId,
-                                const char* address,
-                                SipMessage& invite)
-{
-   OsSysLog::add(FAC_CP, PRI_DEBUG,
-                 "CallManager::getInvite callId = '%s', address = '%s'",
-                 callId, address);
-   SipMessage* messagePtr = new SipMessage;
-#ifdef TEST_PRINT
-   OsSysLog::add(FAC_CP, PRI_DEBUG,
-                 "CallManager::getInvite allocated message: 0x%x",
-                 messagePtr);
-#endif
-   OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
-   OsProtectedEvent* getMessageEvent = eventMgr->alloc();
-   getMessageEvent->setIntData((int) messagePtr);
-   OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
-   OsStatus returnCode = OS_WAIT_TIMEOUT;
-   CpMultiStringMessage getFieldMessage(CP_GET_INVITE, callId, address,
-                                        NULL, NULL, NULL,
-                                        (int)getMessageEvent);
-   postMessage(getFieldMessage);
-
-   // Wait until the call sets the number of connections
-   if(getMessageEvent->wait(0, maxEventTime) == OS_SUCCESS)
-   {
-      returnCode = OS_SUCCESS;
-
-      invite = *messagePtr;
-
-      OsSysLog::add(FAC_CP, PRI_DEBUG,
-                    "CallManager::getInvite deleting message: %p",
-                    messagePtr);
-
-      delete messagePtr;
-      messagePtr = NULL;
-      eventMgr->release(getMessageEvent);
-   }
-   else
-   {
-      OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::getInvite TIMED OUT");
-      // If the event has already been signalled, clean up.
-      if (OS_ALREADY_SIGNALED == getMessageEvent->signal(0))
-      {
-#ifdef TEST_PRINT
-         OsSysLog::add(FAC_CP, PRI_DEBUG,
-                       "CallManager::getInvite deleting timed out message: 0x%p",
-                       messagePtr);
-#endif
-         delete messagePtr;
-         messagePtr = NULL;
-
-         eventMgr->release(getMessageEvent);
-      }
-   }
-   return (returnCode);
 }
 
 UtlBoolean CallManager::sendInDialog(const char* callId,

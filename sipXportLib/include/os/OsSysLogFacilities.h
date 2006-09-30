@@ -54,8 +54,7 @@ enum tagOsSysLogFacility
    FAC_SIP_INCOMING_PARSED,// Incoming SIP messages after being parsed
    FAC_MEDIASERVER_CGI,    // Mediaserver CGIs
    FAC_MEDIASERVER_VXI,    // Mediaserver VXI engine
-   FAC_ACD,                // ACD related
-   FAC_PARK,               // Park Server related
+   FAC_ACD,                // Park Orbit / ACD related
    FAC_APACHE_AUTH,        // Apache Authentication Module
    FAC_UPGRADE,            // Update/Upgrade related
    FAC_LINE_MGR,           // SIP line manager related
@@ -107,8 +106,7 @@ enum tagOsSysLogFacility
   //!enumcode: FAC_SIP_INCOMING_PARSED - Incoming SIP messages after being parsed
   //!enumcode: FAC_MEDIASERVER_CGI - Mediaserver CGIs
   //!enumcode: FAC_MEDIASERVER_VXI - Mediaserver VXI engine
-  //!enumcode: FAC_ACD - ACD related
-  //!enumcode: FAC_PARK - Park Server related
+  //!enumcode: FAC_ACD - Park Orbit / ACD related
   //!enumcode: FAC_APACHE_AUTH - Apache Authentication Module
   //!enumcode: FAC_UPGRADE - Update/Upgrade related
   //!enumcode: FAC_PROCESSCGI - Process Management CGI (process.cgi)

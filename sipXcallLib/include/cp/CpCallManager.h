@@ -31,6 +31,7 @@
 #include "net/SipMessage.h"
 #include "net/SipContactDb.h"
 #include "net/SipDialog.h"
+#include "cp/Connection.h"
 
 // DEFINES
 // MACROS
@@ -158,8 +159,7 @@ public:
         CP_GET_CONNECTIONSTATE,
         CP_GET_TERMINALCONNECTIONSTATE,
         CP_GET_SESSION,
-        CP_GET_INVITE,                 //50
-        CP_HOLD_ALL_TERM_CONNECTIONS,
+        CP_HOLD_ALL_TERM_CONNECTIONS,  //50
         CP_UNHOLD_ALL_TERM_CONNECTIONS,
         CP_CANCEL_TIMER,
         CP_GET_NEXT_CSEQ,
@@ -168,8 +168,8 @@ public:
         CP_REMOVE_TONE_LISTENER,
         CP_ENABLE_DTMF_EVENT,
         CP_DISABLE_DTMF_EVENT,
-        CP_REMOVE_DTMF_EVENT,          //60
-        CP_EZRECORD,
+        CP_REMOVE_DTMF_EVENT,
+        CP_EZRECORD,                    //60
         CP_PLAY_BUFFER_TERM_CONNECTION,
         CP_CREATE_PLAYER,
         CP_DESTROY_PLAYER,
@@ -178,8 +178,8 @@ public:
         CP_CREATE_QUEUE_PLAYER,
         CP_DESTROY_QUEUE_PLAYER,
         CP_RENEGOTIATE_CODECS_CONNECTION,
-        CP_RENEGOTIATE_CODECS_ALL_CONNECTIONS,  //70
-        CP_SET_CODEC_CPU_LIMIT,
+        CP_RENEGOTIATE_CODECS_ALL_CONNECTIONS,
+        CP_SET_CODEC_CPU_LIMIT,  //70
         CP_GET_CODEC_CPU_COST,
         CP_GET_CODEC_CPU_LIMIT,
         CP_SET_INBOUND_CODEC_CPU_LIMIT,
@@ -188,8 +188,8 @@ public:
         CP_GET_LOCAL_CONTACTS,
         CP_OUTGOING_INFO,
         CP_GET_MEDIA_CONNECTION_ID,
-        CP_ENABLE_STUN,                //80
-        CP_GET_CAN_ADD_PARTY,
+        CP_ENABLE_STUN,
+        CP_GET_CAN_ADD_PARTY, //80
         CP_SPLIT_CONNECTION,
         CP_JOIN_CONNECTION,
         CP_CONSULT_TRANSFER_ADDRESS,
@@ -661,11 +661,6 @@ public:
     virtual OsStatus getSipDialog(const char* callId,
                                   const char* address,
                                   SipDialog& dialog) = 0;
-
-    //! Get the SipConnection for the specified terminal connection.
-    virtual OsStatus getInvite(const char* callId,
-                               const char* address,
-                               SipMessage& invite) = 0;
 
     //! Send a SIP request in the context of the dialog of the given call/session
     /*! The response gets queued to the optional response message queue

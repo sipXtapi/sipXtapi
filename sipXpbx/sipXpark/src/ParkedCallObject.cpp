@@ -15,7 +15,6 @@
 #include "ParkedCallObject.h"
 #include <net/Url.h>
 #include <os/OsFS.h>
-#include "OrbitFileReader.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -28,9 +27,7 @@
 
 // Constructor
 ParkedCallObject::ParkedCallObject(UtlString& orbit, CallManager* callManager, 
-                                   UtlString callId, UtlString playFile, bool bPickup) :
-   mTimeoutNotification(this),
-   mTimeoutTimer(mTimeoutNotification)
+                                   UtlString callId, UtlString playFile, bool bPickup)
 {
    mOrbit = orbit;
    mpCallManager = callManager;
@@ -45,11 +42,9 @@ ParkedCallObject::ParkedCallObject(UtlString& orbit, CallManager* callManager,
    OsDateTime::getCurTime(mParked);
 }
 
+
 ParkedCallObject::~ParkedCallObject()
 {
-   // Stop any timeout timer.
-   stopEscapeTimer();
-
    if (mpPlayer)
       mpCallManager->destroyPlayer(MpPlayer::STREAM_PLAYER, mCallId, mpPlayer);
 
@@ -73,7 +68,7 @@ OsStatus ParkedCallObject::playAudio()
 {
    OsStatus result = OS_SUCCESS;
 
-   OsSysLog::add(FAC_PARK, PRI_DEBUG,
+   OsSysLog::add(FAC_ACD, PRI_DEBUG,
                  "CallId %s is requesting to play the audio file",
                  mCallId.data());
 
@@ -82,7 +77,7 @@ OsStatus ParkedCallObject::playAudio()
 
    if (mpPlayer == NULL)
    {
-      OsSysLog::add(FAC_PARK, PRI_ERR, "CallId %s: Failed to create player", mCallId.data());
+      OsSysLog::add(FAC_ACD, PRI_ERR, "CallId %s: Failed to create player", mCallId.data());
       return OS_FAILED;
    }
 
@@ -90,22 +85,22 @@ OsStatus ParkedCallObject::playAudio()
 
    if (mpPlayer->realize(TRUE) != OS_SUCCESS)
    {
-      OsSysLog::add(FAC_PARK, PRI_ERR, "ParkedCallObject::playAudio - CallId %s: Failed to realize player", mCallId.data());
+      OsSysLog::add(FAC_ACD, PRI_ERR, "ParkedCallObject::playAudio - CallId %s: Failed to realize player", mCallId.data());
       return OS_FAILED;
    }
 
    if (mpPlayer->prefetch(TRUE) != OS_SUCCESS)
    {
-      OsSysLog::add(FAC_PARK, PRI_ERR, "ParkedCallObject::playAudio - CallId %s: Failed to prefetch player", mCallId.data());
+      OsSysLog::add(FAC_ACD, PRI_ERR, "ParkedCallObject::playAudio - CallId %s: Failed to prefetch player", mCallId.data());
       return OS_FAILED;
    }
 
    if (mpPlayer->play(FALSE) != OS_SUCCESS)
    {
-      OsSysLog::add(FAC_PARK, PRI_ERR, "ParkedCallObject::playAudio - CallId %s: Failed to play", mCallId.data());
+      OsSysLog::add(FAC_ACD, PRI_ERR, "ParkedCallObject::playAudio - CallId %s: Failed to play", mCallId.data());
       return OS_FAILED;
    }
-   OsSysLog::add(FAC_PARK, PRI_DEBUG, "ParkedCallObject::playAudio - Successful");
+   OsSysLog::add(FAC_ACD, PRI_DEBUG, "ParkedCallObject::playAudio - Successful");
 
    return result;
 }
@@ -160,70 +155,4 @@ UtlString ParkedCallObject::getOriginalAddress()
 bool ParkedCallObject::hasNewCallIds()
 {
    return !mNewCallIds.isEmpty();
-}
-
-// Consider starting the time-out timer, which if it expires, will transfer
-// the call back to the user that parked it.
-void ParkedCallObject::startEscapeTimer(UtlString& parker,
-                                        int timeout)
-{
-   OsSysLog::add(FAC_PARK, PRI_DEBUG,
-                 "ParkedCallObject::startEscapeTimer callId = '%s', parker = '%s', timeout = %d",
-                 mCallId.data(), parker.data(), timeout);
-
-   // First, validate the parker URI and timeout value.
-   if (parker.isNull())
-   {
-      return;
-   }
-   if (timeout == OrbitData::NO_TIMEOUT)
-   {
-      return;
-   }
-   // Here, we can insert further validation, such as that the parker URI
-   // is local.
-
-   // At this point, we have decided to activate the timeout for this call.
-
-   // Save the parker URI.
-   mParker = parker;
-   OsTime timeoutOsTime(timeout, 0);
-   mTimeoutTimer.oneshotAfter(timeoutOsTime);
-}
-
-// Consider starting the time-out timer, which if it expires, will transfer
-// the call back to the user that parked it.
-void ParkedCallObject::stopEscapeTimer()
-{
-   OsSysLog::add(FAC_PARK, PRI_DEBUG,
-                 "ParkedCallObject::stopEscapeTimer callId = '%s'",
-                 mCallId.data());
-}
-
-// Do a blind transfer of this call to mParker.
-void ParkedCallObject::timeout()
-{
-   OsSysLog::add(FAC_PARK, PRI_DEBUG,
-                 "ParkedCallObject::timeout callId = '%s', parker = '%s'",
-                 mCallId.data(), mParker.data());
-   mpCallManager->transfer_blind(mCallId, mParker, NULL, NULL);
-}
-
-// Constructor for ParkedCallTimeoutNotification.
-ParkedCallTimeoutNotification::ParkedCallTimeoutNotification(ParkedCallObject* const parkedCall) :
-   mpParkedCall(parkedCall)
-{
-}
-
-// Destructor for ParkedCallTimeoutNotification.
-ParkedCallTimeoutNotification::~ParkedCallTimeoutNotification()
-{
-}
-
-// Signal method.
-OsStatus ParkedCallTimeoutNotification::signal(const int eventData)
-{
-   // Call the ParkedCallObject to do the transfer.
-   mpParkedCall->timeout();
-   return OS_SUCCESS;
 }
