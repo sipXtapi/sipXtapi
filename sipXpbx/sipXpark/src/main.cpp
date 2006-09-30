@@ -419,6 +419,15 @@ int main(int argc, char* argv[])
     // Instantiate the call processing subsystem
     UtlString localAddress;
     OsSocket::getHostIp(&localAddress);
+    // Construct an address to be used in outgoing requests (primarily
+    // INVITEs stimulated by REFERs).
+    UtlString outgoingAddress;
+    {
+       char buffer[100];
+       sprintf(buffer, "sip:sipXpark@%s:%d", localAddress.data(),
+               portIsValid(UdpPort) ? UdpPort : TcpPort);
+       outgoingAddress = buffer;
+    }
     CallManager callManager(FALSE,
                            NULL,
                            TRUE,                              // early media in 180 ringing

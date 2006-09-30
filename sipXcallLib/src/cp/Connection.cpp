@@ -695,9 +695,7 @@ void Connection::postTaoListenerMessage(int state, int newCause, int isLocal)
 
 	case CONNECTION_ALERTING:
 		eventId = PtEvent::CONNECTION_ALERTING;
-//		if (!mRemoteIsCallee)
-			termEventId = PtEvent::TERMINAL_CONNECTION_RINGING;
-
+                termEventId = PtEvent::TERMINAL_CONNECTION_RINGING;
 		break;
 
 	case CONNECTION_ESTABLISHED:
@@ -779,10 +777,10 @@ void Connection::postTaoListenerMessage(int state, int newCause, int isLocal)
 		causeStr.append("CAUSE_CALL_CANCELLED");
 		break ;
 
-    case CONNECTION_CAUSE_TRANSFER:
-        cause = PtEvent::CAUSE_TRANSFER;
+        case CONNECTION_CAUSE_TRANSFER:
+                cause = PtEvent::CAUSE_TRANSFER;
 		causeStr.append("CAUSE_TRANSFER");
-        break;
+                break;
 	
 	default:
  	case CONNECTION_CAUSE_NORMAL:
@@ -803,9 +801,9 @@ void Connection::postTaoListenerMessage(int state, int newCause, int isLocal)
 
 		UtlString callId;			
 
-        mpCall->getCallId(callId);                          // arg[0], callId
-        if (callId.isNull())
-            getCallId(&callId);
+                mpCall->getCallId(callId);                          // arg[0], callId
+                if (callId.isNull())
+                   getCallId(&callId);
 
 		callId += TAOMESSAGE_DELIMITER + mLocalAddress;		// arg[1], localAddress
 
@@ -826,7 +824,7 @@ void Connection::postTaoListenerMessage(int state, int newCause, int isLocal)
 
 		if (mRemoteIsCallee)
 		{
-            remoteAddress.insert(0, "foreign-terminal-");
+                        remoteAddress.insert(0, "foreign-terminal-");
 			callId += TAOMESSAGE_DELIMITER + remoteAddress;	// arg[5], remote terminal name
 		}
 		else
@@ -873,12 +871,12 @@ void Connection::postTaoListenerMessage(int state, int newCause, int isLocal)
 		}
 
 		TaoMessage msg(TaoMessage::EVENT,
-						0,
-						0,
-						eventId,
-						0,
-						argCnt,
-						callId);
+                               0,
+                               0,
+                               eventId,
+                               0,
+                               argCnt,
+                               callId);
 
 		UtlString eventIdStr;
 		if (eventId != PtEvent::EVENT_INVALID)

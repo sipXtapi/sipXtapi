@@ -18,9 +18,10 @@
 #include <tao/TaoAdaptor.h>
 #include <ParkedCallObject.h>
 #include <utl/UtlHashMap.h>
+#include "OrbitFileReader.h"
 
 // DEFINES
-#define ORBIT_CONFIG_FILE     "orbits.xml"
+#define ORBIT_CONFIG_FILENAME     "orbits.xml"
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -31,6 +32,7 @@
 // FORWARD DECLARATIONS
 class CallManager;
 class TaoString;
+class OrbitData;
 
 //:Class short description which may consist of multiple lines (note the ':')
 // Class detailed description which may extend to multiple lines
@@ -67,7 +69,11 @@ protected:
     ParkedCallObject* findEntry(UtlString& rKey);
     void insertEntry(UtlString& callId, ParkedCallObject* call);
     ParkedCallObject* removeEntry(UtlString& callId);
-    unsigned int validateOrbitRequest(UtlString& callId, UtlString& address, UtlString& audio);
+    OsStatus validateOrbit(UtlString& callId,
+                           UtlString& address,
+                           UtlString& orbit,
+                           UtlString& audio,
+                           int& timeout);
     bool isCallRetrievalInvite(const char* callId, const char* address);
 
 
@@ -81,12 +87,19 @@ private:
     OrbitListener& operator=(const OrbitListener& rOrbitListener);
      //:Assignment operator
      
-    void getOrbit(UtlString& callId, UtlString& address, UtlString &orbit);
     ParkedCallObject* getOldestCallInOrbit(UtlString& orbit, UtlString& callId, UtlString& address);
+
+    int getNumCallsInOrbit(UtlString& orbit, UtlString& callId, UtlString& address);
 
     CallManager* mpCallManager;
 
     UtlHashMap mCalls;
+
+    // Object to manage reading and updating orbit file information.
+    OrbitFileReader mOrbitFileReader;
+
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
+
 };
 
 /* ============================ INLINE METHODS ============================ */

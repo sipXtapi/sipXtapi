@@ -149,6 +149,7 @@ libsipXport_la_SOURCES =  \
     os/linux/OsUtilLinux.cpp \
     os/linux/pt_csem.c \
     os/linux/pt_mutex.c \
+    xmlparser/ExtractContent.cpp \
     xmlparser/tinystr.cpp \
     xmlparser/tinyxml.cpp \
     xmlparser/tinyxmlerror.cpp \
