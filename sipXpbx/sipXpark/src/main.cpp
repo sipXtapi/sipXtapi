@@ -439,7 +439,7 @@ int main(int argc, char* argv[])
                            userAgent, 
                            0,                                 // sipSessionReinviteTimer
                            NULL,                              // mgcpStackTask
-                           NULL,                              // defaultCallExtension
+                           outgoingAddress,                   // defaultCallExtension
                            Connection::RING,                  // availableBehavior
                            NULL,                              // unconditionalForwardUrl
                            -1,                                // forwardOnNoAnswerSeconds
