@@ -102,11 +102,20 @@ class OrbitData : public UtlContainable
 public:
 
    // The length of time in seconds before a parked call should be transferred
-   // back to the parker.  -1 means do not time out.
+   // back to the parker.  NO_TIMEOUT means do not time out.
    int mTimeout;
 
    // The audio file to play for parked calls.
    UtlString mAudio;
+
+   // The keycode for escaping from a parking orbit.
+   // RFC 2833 code (as returned by enableDtmfEvent), or NO_KEYCODE
+   // for no keycode.
+   int mKeycode;
+
+   // The maximum number of calls to handle in the orbit, or UNLIMITED_CAPACITY
+   // if there is to be no limit.
+   int mCapacity;
 
    virtual UtlContainableType getContainableType() const
       {
@@ -139,6 +148,13 @@ public:
 
    // Negative value used to indicate no mTimeout value is present.
    static const int NO_TIMEOUT;
+
+   // Negative value used to indicate no mKeycode value is present.
+   static const int NO_KEYCODE;
+
+   // Very large positive value used to indicate there is no limit to
+   // the number of calls to be handled by the orbit.
+   static const int UNLIMITED_CAPACITY;
 };
 
 /* ============================ INLINE METHODS ============================ */

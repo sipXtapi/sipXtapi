@@ -20,6 +20,8 @@
 #include <os/OsDateTime.h>
 #include <utl/UtlSList.h>
 #include <os/OsTimer.h>
+#include <os/OsMsgQ.h>
+#include <OrbitFileReader.h>
 
 // DEFINES
 // MACROS
@@ -29,35 +31,31 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
-class ParkedCallObject;
 
-// Subclass of OsNotifications to handle timeout of a parked call.
-class ParkedCallTimeoutNotification : public OsNotification
-{
-  public:
 
-   ParkedCallTimeoutNotification(ParkedCallObject* const parkedCall);
-
-   virtual ~ParkedCallTimeoutNotification();
-
-   virtual OsStatus signal(const int eventData);
-
-  protected:
-
-   ParkedCallObject* mpParkedCall;
-};
-
-//:Class short description which may consist of multiple lines (note the ':')
-// Class detailed description which may extend to multiple lines
+//: Object to describe and control a parked call.
+//  All methods are executed by the thread of the owning OrbitListener.
 class ParkedCallObject
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
+    // Enum to differentiate NOTIFY messages.
+    // Max value must be less than sSeqNoIncrement.
+    enum notifyCodes
+       {
+          DTMF,
+          TIMEOUT
+       };
+
 /* ============================ CREATORS ================================== */
 
-   ParkedCallObject(UtlString& orbit, CallManager* callManager, UtlString callId, 
-                    UtlString playFile, bool bPickup=false);
+   ParkedCallObject(const UtlString& orbit,
+                    CallManager* callManager,
+                    const UtlString& callId, 
+                    const UtlString& playFile,
+                    bool bPickup,
+                    OsMsgQ* listenerQ);
    ~ParkedCallObject();
 
    void setAddress(UtlString address);
@@ -81,16 +79,52 @@ public:
 
    OsStatus playAudio();
    
-   // Consider starting the time-out timer, which if it expires, will transfer
-   // the call back to the user that parked it.
+   // Set up the "escape from parking orbit" mechanisms:
+   // If a parker URI and timeout are supplied, set a timer to trigger
+   // a transfer to the parker.
+   // If a parker URI and DTMF code are supplied, set a DTMF listener
+   // to allow the user to force a transfer to the parker.
    void startEscapeTimer(UtlString& parker,
-                         int timeout);
+                         ///< URI that parked this call, or "".
+                         int timeout,
+                         ///< seconds for timeout, or OrbitData::NO_TIMEOUT
+                         int keycode
+                         /**< RFC 2833 keycode to escape from park, or
+                          *   OrbitData::NO_KEYCODE for none.
+                          */
+      );
 
    // Stop the time-out timer.
+
+   // The escape mechanisms are usually cancelled automatically by the
+   // ParkedCallObject::~, and since their notifications are done via
+   // messages to the OrbitListener that contain only mSeqNo, race
+   // conditions are not a problem.  But when a dialog is replaced by
+   // another dialog, we need to stop the escape timer on the ParkedCallObject
+   // for the first dialog.
    void stopEscapeTimer();
 
-   // Do a blind transfer of this call to mParker.
-   void timeout();
+   // Initiate a blind transfer of this call to mParker.
+   void startTransfer();
+
+   // Signal that a transfer attempt for a call has ended.
+   void clearTransfer();
+
+   // Process a DTMF keycode.
+   void keypress(int keycode);
+
+   // Split a userData value into the seqNo and "enum notifyCodes".
+   static void splitUserData(int userData, int& seqNo, enum notifyCodes& type)
+      {
+         seqNo = userData & sSeqNoMask;
+         type = (enum notifyCodes) (userData & ~seqNo);
+      };
+
+   // Get the seqNo.
+   int getSeqNo()
+      {
+         return mSeqNo;
+      };
 
 /* ============================ INQUIRY =================================== */
 
@@ -99,6 +133,17 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+
+    // Sequence number of this ParkedCallObject.
+    int mSeqNo;
+    // Next seqNo to be assigned.
+    static int sNextSeqNo;
+    // Amount to increment successive seqNo's.
+    // Must be lowest 1 bit of seqNoMask.
+    static const int sSeqNoIncrement;
+    // Mask to cause seqNo's to wrap around.
+    static const int sSeqNoMask;
+
     CallManager* mpCallManager;
     UtlString mCallId;
     UtlString mAddress;
@@ -117,10 +162,17 @@ private:
     
     OsTime mParked;
 
-    // Members to support the timeout transfer feature.
+    // Members to support the transfer back to parker feature.
     UtlString mParker;          ///< The URI of the user that parked the call.
-    ParkedCallTimeoutNotification mTimeoutNotification;
     OsTimer mTimeoutTimer;      ///< OsTimer to trigger the timeout.
+    // Support for processing DTMF events.
+    OsQueuedEvent mDtmfEvent;
+    int mKeycode;               /**< keycode to transfer back, or
+                                 *   OrbitData::NO_KEYCODE */
+    /// Set to TRUE if a transfer to the parker is in progress.
+    //  Used to ensure that a transfer is not started if one is already
+    //  started.
+    UtlBoolean mTransferInProgress;
 };
 
 /* ============================ INLINE METHODS ============================ */

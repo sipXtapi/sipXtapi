@@ -31,7 +31,7 @@ public:
 
         virtual ~TaoString();
 
-        int getCnt() { return mCnt; };
+        int getCnt() const { return mCnt; };
 
    TaoString(const TaoString& rTaoString);
     //:Copy constructor (not implemented for this class)

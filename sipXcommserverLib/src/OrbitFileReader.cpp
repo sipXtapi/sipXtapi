@@ -30,6 +30,12 @@
 UtlContainableType OrbitData::TYPE = "OrbitData" ;
 
 const int OrbitData::NO_TIMEOUT = -1;
+const int OrbitData::NO_KEYCODE = -1;
+const int OrbitData::UNLIMITED_CAPACITY = 1000000;
+
+// String containing the characters used in the orbits.xml file to represent
+// the RFC 2833 keycodes in order by their RFC 2833 values.
+const static UtlString valid_keycodes = "0123456789*#";
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -275,12 +281,61 @@ OsStatus OrbitFileReader::parseOrbitFile(UtlString& fileName)
             char *endptr;
             timeout = strtol(temp.data(), &endptr, 10);
             if (temp.isNull() ||
-                endptr - temp.data() != temp.length())
+                endptr - temp.data() != temp.length() ||
+                timeout < 5)
             {
                // Timeout was null or unparsable.
                OsSysLog::add(FAC_PARK, PRI_ERR,
                              "OrbitFileReader::parseOrbitFile "
-                             "Timeout '%s' was null or unparsable for extension '%s'",
+                             "Timeout '%s' was null, unparsable, or less than 5 for extension '%s'",
+                             temp.data(), extension.data());
+               orbit_valid = false;
+            }
+         }
+
+         // Process the <keycode> element to set mKeycode.
+         int keycode = OrbitData::NO_KEYCODE;	// Assume no value present.
+         TiXmlNode* keycode_element =
+            orbit_element->FirstChild("keycode");
+         if (keycode_element)
+         {
+            UtlString temp;
+            textContentShallow(temp, keycode_element->ToElement());
+            if (temp.length() == 1 &&
+                (keycode = valid_keycodes.index(temp[0]),
+                 keycode != UTL_NOT_FOUND))
+            {
+               /* null */ ;
+            }
+            else
+            {
+               // Keycode was null or unparsable.
+               OsSysLog::add(FAC_PARK, PRI_ERR,
+                             "OrbitFileReader::parseOrbitFile "
+                             "Keycode '%s' was null or unparsable for extension '%s'",
+                             temp.data(), extension.data());
+               orbit_valid = false;
+            }
+         }
+
+         // Process the <capcity> element to set mCapacity.
+         int capacity = OrbitData::UNLIMITED_CAPACITY;	// Assume no value present.
+         TiXmlNode* capacity_element =
+            orbit_element->FirstChild("capacity");
+         if (capacity_element)
+         {
+            UtlString temp;
+            textContentShallow(temp, capacity_element->ToElement());
+            char *endptr;
+            capacity = strtol(temp.data(), &endptr, 10);
+            if (temp.isNull() ||
+                endptr - temp.data() != temp.length() ||
+                capacity < 0)
+            {
+               // Capacity was null or unparsable.
+               OsSysLog::add(FAC_PARK, PRI_ERR,
+                             "OrbitFileReader::parseOrbitFile "
+                             "Capacity '%s' was null, unparsable, or negative for extension '%s'",
                              temp.data(), extension.data());
                orbit_valid = false;
             }
@@ -296,6 +351,8 @@ OsStatus OrbitFileReader::parseOrbitFile(UtlString& fileName)
             OrbitData* orbit_data_heap = new OrbitData;
             orbit_data_heap->mTimeout = timeout;
             orbit_data_heap->mAudio = audio;
+            orbit_data_heap->mKeycode = keycode;
+            orbit_data_heap->mCapacity = capacity;
 
             // Attempt to insert the user into the orbit list.
             if (mOrbitList.insertKeyAndValue(extension_heap, orbit_data_heap))
@@ -328,13 +385,17 @@ OsStatus OrbitFileReader::parseOrbitFile(UtlString& fileName)
          UtlHashMapIterator itor(mOrbitList);
          while (itor())
          {
+            UtlString* key = dynamic_cast<UtlString*> (itor.key());
+            OrbitData* value = dynamic_cast<OrbitData*> (itor.value());
             OsSysLog::add(FAC_PARK, PRI_DEBUG,
                           "OrbitFileReader::parseOrbitFile "
-                          "Orbit '%s', mTimeout = %d, mAudio = '%s'",
-                          (dynamic_cast<UtlString*> (itor.key()))->data(),
-                          (dynamic_cast<OrbitData*> (itor.value()))->mTimeout,
-                          (dynamic_cast<OrbitData*> (itor.value()))->
-                            mAudio.data());
+                          "Orbit '%s', mTimeout = %d, mAudio = '%s', "
+                          "mKeycode = %d, mCapacity = %d",
+                          key->data(),
+                          value->mTimeout,
+                          value->mAudio.data(),
+                          value->mKeycode,
+                          value->mCapacity);
          }
          OsSysLog::add(FAC_PARK, PRI_DEBUG,
                        "OrbitFileReader::parseOrbitFile "
