@@ -130,15 +130,15 @@ number you have chosen is in use, check the
 User values that use that group number.   Each group consists of 9
 addresses that you can register:
 <pre>
-    1<span class='group'>gg</span>1@interop.pingtel.com
-    1<span class='group'>gg</span>2@interop.pingtel.com
-    1<span class='group'>gg</span>3@interop.pingtel.com
-    1<span class='group'>gg</span>4@interop.pingtel.com
-    1<span class='group'>gg</span>5@interop.pingtel.com
-    1<span class='group'>gg</span>6@interop.pingtel.com
-    1<span class='group'>gg</span>7@interop.pingtel.com
-    1<span class='group'>gg</span>8@interop.pingtel.com
-    1<span class='group'>gg</span>9@interop.pingtel.com
+    1<span class='group'>gg</span>1@SIPXCHANGE_DOMAIN_NAME
+    1<span class='group'>gg</span>2@SIPXCHANGE_DOMAIN_NAME
+    1<span class='group'>gg</span>3@SIPXCHANGE_DOMAIN_NAME
+    1<span class='group'>gg</span>4@SIPXCHANGE_DOMAIN_NAME
+    1<span class='group'>gg</span>5@SIPXCHANGE_DOMAIN_NAME
+    1<span class='group'>gg</span>6@SIPXCHANGE_DOMAIN_NAME
+    1<span class='group'>gg</span>7@SIPXCHANGE_DOMAIN_NAME
+    1<span class='group'>gg</span>8@SIPXCHANGE_DOMAIN_NAME
+    1<span class='group'>gg</span>9@SIPXCHANGE_DOMAIN_NAME
 </pre>
 
 <!-- REMOVED TEMPORARILY until we are sure that TCP is working right.
@@ -146,7 +146,7 @@ addresses that you can register:
 <h2>DNS SRV</h2>
 
 <p>
-The SRV records for <code>interop.pingtel.com</code> are set to prefer
+The SRV records for <code>SIPXCHANGE_DOMAIN_NAME</code> are set to prefer
 TCP; your user agent should choose TCP over UDP.
 </p>
 
@@ -159,7 +159,7 @@ The credentials for the test addresses are:
 </p>
 <dl>
   <dt>Address Of Record</dt>
-  <dd><code>1<span class='group'>gg</span>n@interop.pingtel.com</code>
+  <dd><code>1<span class='group'>gg</span>n@SIPXCHANGE_DOMAIN_NAME</code>
     <br />(for n= 1..9)
   </dd>
   <dt>User Name<dt>
@@ -167,7 +167,7 @@ The credentials for the test addresses are:
     <br />(The user part of the address)
   </dd>
   <dt>Realm<dt>
-  <dd><code>interop.pingtel.com</code></dd>
+  <dd><code>SIPXCHANGE_DOMAIN_NAME</code></dd>
   <dt>Password</dt>
   <dd><code>1234</code></dd>
 </dl>
@@ -230,7 +230,7 @@ The voicemail server interprets RFC 2833 DTMF packets.
 <h2>Transfer</h2>
 
 <p>
-A call to "<code>100@interop.pingtel.com</code>" will be answered by an
+A call to "<code>100@SIPXCHANGE_DOMAIN_NAME</code>" will be answered by an
 auto-attendant - when you enter a registered extension at the prompt,
 the auto-attendant will blind-transfer your call (REFER without Replaces).
 </p>
@@ -416,7 +416,7 @@ the SIP URI.  For example:
 <p>
 User agents that provide "music on hold" via the technique of
 <a href="http://tools.ietf.org/wg/sipping/draft-ietf-sipping-service-examples/draft-ietf-sipping-service-examples-10.txt">draft-ietf-sipping-service-examples-10</a>
-can use the URI <code>sip:moh@interop.pingtel.com:5120</code> as an
+can use the URI <code>sip:moh@SIPXCHANGE_DOMAIN_NAME:5120</code> as an
 audio source.
 </p>
 
