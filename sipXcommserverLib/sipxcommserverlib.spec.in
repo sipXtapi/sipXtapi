@@ -131,6 +131,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/testlib/*
 %{_includedir}/configrpc/*
 %{_includedir}/odbc/*
+%{_includedir}/odbc/*.h
 
 %pre
 # if needed, change old daemon user names to the new one
