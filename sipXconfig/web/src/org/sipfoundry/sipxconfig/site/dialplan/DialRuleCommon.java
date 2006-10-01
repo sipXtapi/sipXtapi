@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.site.dialplan;
 
+import java.util.Collection;
+
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IComponent;
 import org.apache.tapestry.callback.ICallback;
@@ -20,12 +22,15 @@ import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 
 /**
  * EditDialRule
  */
 public abstract class DialRuleCommon extends BaseComponent {
     public abstract DialPlanContext getDialPlanContext();
+
+    public abstract GatewayContext getGatewayContext();
 
     public abstract void setRuleId(Integer ruleId);
 
@@ -42,6 +47,10 @@ public abstract class DialRuleCommon extends BaseComponent {
     public abstract boolean isRenderGateways();
 
     public abstract boolean isRuleChanged();
+
+    public abstract void setRuleChanged(boolean ruleChanged);
+
+    public abstract Collection<Integer> getGatewaysToAdd();
 
     private boolean isValid() {
         IValidationDelegate delegate = TapestryUtils.getValidator(this);
@@ -66,15 +75,19 @@ public abstract class DialRuleCommon extends BaseComponent {
         DialingRule rule = getRule();
         getDialPlanContext().storeRule(rule);
         Integer id = getRule().getId();
+        Collection<Integer> gatewaysToAdd = getGatewaysToAdd();
+        if (gatewaysToAdd != null) {
+            getGatewayContext().addGatewaysToRule(id, gatewaysToAdd);
+            setRule(null);
+        }
         setRuleId(id);
     }
 
     public void formSubmit() {
         boolean renderGateways = isRenderGateways();
         boolean ruleChanged = isRuleChanged();
-        boolean valid = isValid();
-        if (valid && renderGateways && ruleChanged) {
-            saveValid();
+        if (renderGateways && ruleChanged) {
+            commit();
         }
     }
 }

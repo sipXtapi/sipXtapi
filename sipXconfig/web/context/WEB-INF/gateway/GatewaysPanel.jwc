@@ -13,6 +13,12 @@
     </description>
   </parameter>
 
+  <parameter name="gatewaysToAdd" required="yes">
+    <description>
+      List of gateways ids that should been selected by the user and should be added to the rule.
+    </description>
+  </parameter>
+
   <!-- P R O P E R T I E S -->
   <inject property="gatewayContext" object="spring:gatewayContext" />
   <inject property="dialPlanContext" object="spring:dialPlanContext" />

@@ -43,6 +43,10 @@ public interface GatewayContext {
      */
     Collection<Gateway> getAvailableGateways(Integer ruleId);
 
+    void addGatewaysToRule(Integer dialRuleIs, Collection<Integer> gatewaysIds);
+
+    void removeGatewaysFromRule(Integer dialRuleIs, Collection<Integer> gatewaysIds);
+
     Gateway newGateway(PhoneModel model);
 
     Collection<PhoneModel> getAvailableGatewayModels();

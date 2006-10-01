@@ -15,7 +15,6 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -32,7 +31,6 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.InitializationTask;
-import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -165,7 +163,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         }
     }
 
-    public List getRules() {
+    public List<DialingRule> getRules() {
         return getDialPlan().getRules();
     }
 
@@ -173,20 +171,18 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         return (DialingRule) getHibernateTemplate().load(DialingRule.class, id);
     }
 
-    public void deleteRules(Collection selectedRows) {
+    public void deleteRules(Collection<Integer> selectedRows) {
         DialPlan dialPlan = getDialPlan();
         dialPlan.removeRules(selectedRows);
         getHibernateTemplate().saveOrUpdate(dialPlan);
     }
 
-    public void duplicateRules(Collection selectedRows) {
+    public void duplicateRules(Collection<Integer> selectedRows) {
         DialPlan dialPlan = getDialPlan();
         List rules = dialPlan.getRules();
-        Collection selectedRules = DataCollectionUtil.findByPrimaryKey(rules, selectedRows
-                .toArray());
-        for (Iterator i = selectedRules.iterator(); i.hasNext();) {
-            DialingRule rule = (DialingRule) i.next();
-
+        Collection<DialingRule> selectedRules = DataCollectionUtil.findByPrimaryKey(rules,
+                selectedRows.toArray());
+        for (DialingRule rule : selectedRules) {
             // Create a copy of the rule with a unique name
             DialingRule ruleDup = (DialingRule) duplicateBean(rule,
                     DIALING_RULE_IDS_WITH_NAME_QUERY);
@@ -235,7 +231,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         m_beanFactory = beanFactory;
     }
 
-    public void moveRules(Collection selectedRows, int step) {
+    public void moveRules(Collection<Integer> selectedRows, int step) {
         DialPlan dialPlan = getDialPlan();
         dialPlan.moveRules(selectedRows, step);
         getHibernateTemplate().saveOrUpdate(dialPlan);
@@ -262,9 +258,9 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         return operator;
     }
 
-    public List getAutoAttendants() {
-        List gateways = getHibernateTemplate().loadAll(AutoAttendant.class);
-        return gateways;
+    public List<AutoAttendant> getAutoAttendants() {
+        List<AutoAttendant> aas = getHibernateTemplate().loadAll(AutoAttendant.class);
+        return aas;
     }
 
     public AutoAttendant getAutoAttendant(Integer id) {
@@ -272,9 +268,8 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
 
     }
 
-    public void deleteAutoAttendantsByIds(Collection attendantIds, String scriptsDir) {
-        for (Iterator i = attendantIds.iterator(); i.hasNext();) {
-            Integer id = (Integer) i.next();
+    public void deleteAutoAttendantsByIds(Collection<Integer> attendantIds, String scriptsDir) {
+        for (Integer id : attendantIds) {
             AutoAttendant aa = getAutoAttendant(id);
             deleteAutoAttendant(aa, scriptsDir);
         }
@@ -288,10 +283,10 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         attendant.setValueStorage(clearUnsavedValueStorage(attendant.getValueStorage()));
         getHibernateTemplate().refresh(attendant);
 
-        Collection attendantRules = getHibernateTemplate().loadAll(AttendantRule.class);
+        Collection<AttendantRule> attendantRules = getHibernateTemplate().loadAll(
+                AttendantRule.class);
         Collection affectedRules = new ArrayList();
-        for (Iterator i = attendantRules.iterator(); i.hasNext();) {
-            AttendantRule rule = (AttendantRule) i.next();
+        for (AttendantRule rule : attendantRules) {
             if (rule.checkAttendant(attendant)) {
                 affectedRules.add(rule);
             }
@@ -412,10 +407,9 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         return getDialPlan().getLikelyVoiceMailValue();
     }
 
-    public void removeGateways(Collection gatewayIds) {
-        List rules = getRules();
-        for (Iterator i = rules.iterator(); i.hasNext();) {
-            DialingRule rule = (DialingRule) i.next();
+    public void removeGateways(Collection<Integer> gatewayIds) {
+        List<DialingRule> rules = getRules();
+        for (DialingRule rule : rules) {
             rule.removeGateways(gatewayIds);
             storeRule(rule);
         }
@@ -466,12 +460,11 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
                 VALUE, alias);
     }
 
-    private Collection getBeanIdsOfRulesWithAutoAttendantAlias(String alias) {
-        Collection objs = getHibernateTemplate().findByNamedQuery(
+    private Collection<BeanId> getBeanIdsOfRulesWithAutoAttendantAlias(String alias) {
+        Collection<Object[]> objs = getHibernateTemplate().findByNamedQuery(
                 "attendantRuleIdsAndAttendantAliases");
-        Collection bids = new ArrayList();
-        for (Iterator iter = objs.iterator(); iter.hasNext();) {
-            Object[] idAndAliases = (Object[]) iter.next();
+        Collection<BeanId> bids = new ArrayList<BeanId>();
+        for (Object[] idAndAliases : objs) {
             Integer id = (Integer) idAndAliases[0];
             String aa = (String) idAndAliases[1];
             String[] aliases = AttendantRule.getAttendantAliasesAsArray(aa);
@@ -487,9 +480,9 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         // we can't query the DB for individual aliases. However, there will be so few
         // of these aliases (one string per internal dialing rule) that we can simply load
         // all such alias strings and check them in Java.
-        List aliasStrings = getHibernateTemplate().findByNamedQuery("aaAliases");
-        for (Iterator iter = SipxCollectionUtils.safeIterator(aliasStrings); iter.hasNext();) {
-            String[] aliases = AttendantRule.getAttendantAliasesAsArray((String) iter.next());
+        List<String> aliasStrings = getHibernateTemplate().findByNamedQuery("aaAliases");
+        for (String aliasString : aliasStrings) {
+            String[] aliases = AttendantRule.getAttendantAliasesAsArray(aliasString);
             if (ArrayUtils.contains(aliases, alias)) {
                 return true;
             }

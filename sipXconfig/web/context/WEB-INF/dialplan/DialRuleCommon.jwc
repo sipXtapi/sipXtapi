@@ -13,10 +13,12 @@
   <parameter name="renderGateways" required="no" default-value="true" />
 
   <inject property="dialPlanContext" object="spring:dialPlanContext" />
+  <inject property="gatewayContext" object="spring:gatewayContext" />
   <inject property="validRule" object="spring:validRule" />
   <inject property="tapestry" object="spring:tapestry" />
 
   <property name="ruleChanged" />
+  <property name="gatewaysToAdd" />
 
   <!--
     - B E A N S
@@ -46,6 +48,7 @@
   <component id="gatewaysPanel" type="GatewaysPanel">
     <inherited-binding name="rule" parameter-name="rule" />
     <binding name="ruleChanged" value="ruleChanged" />
+    <binding name="gatewaysToAdd" value="gatewaysToAdd" />
   </component>
   <component id="renderGateways" type="If">
     <binding name="condition" value="renderGateways" />

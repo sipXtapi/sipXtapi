@@ -126,6 +126,21 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         return rule.getAvailableGateways(allGateways);
     }
 
+    public void addGatewaysToRule(Integer dialRuleId, Collection<Integer> gatewaysIds) {
+        DialingRule rule = m_dialPlanContext.getRule(dialRuleId);
+        for (Integer gatewayId : gatewaysIds) {
+            Gateway gateway = getGateway(gatewayId);
+            rule.addGateway(gateway);
+        }
+        m_dialPlanContext.storeRule(rule);
+    }
+
+    public void removeGatewaysFromRule(Integer dialRuleId, Collection<Integer> gatewaysIds) {
+        DialingRule rule = m_dialPlanContext.getRule(dialRuleId);
+        rule.removeGateways(gatewaysIds);
+        m_dialPlanContext.storeRule(rule);
+    }
+
     public void clear() {
         List gateways = getHibernateTemplate().loadAll(Gateway.class);
         getHibernateTemplate().deleteAll(gateways);
