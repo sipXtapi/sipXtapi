@@ -21,8 +21,8 @@ bbridge_CXXFLAGS = \
 	@RESIPROCATE_CXXFLAGS@
 
 bbridge_SOURCES =  \
-    ../config/bbridge-buildstamp.h \
-    ../config/bbridge-buildstamp.cpp \
+    $(top_srcdir)/config/bbridge-buildstamp.h \
+    $(top_srcdir)/config/bbridge-buildstamp.cpp \
 	 bbridge.h \
 	 bbridge.cpp \
 	 Conference.cpp \

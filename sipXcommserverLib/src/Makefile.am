@@ -40,8 +40,8 @@ libsipXcommserver_la_LIBADD = \
 	sipdb/libsipdb.la 
 
 libsipXcommserver_la_SOURCES = \
-    ./config/sipxcommserverlib-buildstamp.h \
-    ../config/sipxcommserverlib-buildstamp.cpp \
+    $(top_srcdir)/config/sipxcommserverlib-buildstamp.h \
+    $(top_srcdir)/config/sipxcommserverlib-buildstamp.cpp \
     digitmaps/UrlMapping.cpp \
     configrpc/ConfigRPC.cpp \
     odbc/OdbcWrapper.cpp \
