@@ -16,7 +16,7 @@ SUBDIRS = \
 EXTRA_DIST = \
     CONTRIBUTORS \
     BUILDSTAMP \
-    SVN_VERSION \
+    SVN-VERSION \
     config/sipX-config.in \
     config/sipX-buildstamp.cpp.in \
     config/sipX-buildstamp.h.in \

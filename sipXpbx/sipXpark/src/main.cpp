@@ -419,6 +419,15 @@ int main(int argc, char* argv[])
     // Instantiate the call processing subsystem
     UtlString localAddress;
     OsSocket::getHostIp(&localAddress);
+    // Construct an address to be used in outgoing requests (primarily
+    // INVITEs stimulated by REFERs).
+    UtlString outgoingAddress;
+    {
+       char buffer[100];
+       sprintf(buffer, "sip:sipXpark@%s:%d", localAddress.data(),
+               portIsValid(UdpPort) ? UdpPort : TcpPort);
+       outgoingAddress = buffer;
+    }
     CallManager callManager(FALSE,
                            NULL,
                            TRUE,                              // early media in 180 ringing
@@ -430,7 +439,7 @@ int main(int argc, char* argv[])
                            userAgent, 
                            0,                                 // sipSessionReinviteTimer
                            NULL,                              // mgcpStackTask
-                           NULL,                              // defaultCallExtension
+                           outgoingAddress,                   // defaultCallExtension
                            Connection::RING,                  // availableBehavior
                            NULL,                              // unconditionalForwardUrl
                            -1,                                // forwardOnNoAnswerSeconds
@@ -469,7 +478,7 @@ int main(int argc, char* argv[])
     subscribeServer.start();
 
     // Create the dialog event publisher
-    DialogEventPublisher dialogEvents(&callManager, &publisher);    
+    DialogEventPublisher dialogEvents(&callManager, &publisher);
     //callManager.addTaoListener(&dialogEvents);
     //dialogEvents.start();
 

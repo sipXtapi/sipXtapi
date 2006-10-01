@@ -149,4 +149,95 @@
     </option>
   </enum>
 </type>
-
+<type id="dayOfWeek">
+  <enum>
+    <option>
+      <label>-- N/A --</label>
+      <value>0</value>
+    </option>    
+    <option>
+      <label>Monday</label>
+      <value>1</value>
+    </option>  
+    <option>
+      <label>Tuesday</label>
+      <value>2</value>
+    </option>  
+    <option>
+      <label>Wednesday</label>
+      <value>3</value>
+    </option>  
+    <option>
+      <label>Thursday</label>
+      <value>4</value>
+    </option>  
+    <option>
+      <label>Friday</label>
+      <value>5</value>
+    </option>  
+    <option>
+      <label>Saturday</label>
+      <value>6</value>
+    </option>  
+    <option>
+      <label>Sunday</label>
+      <value>7</value>
+    </option>  
+  </enum>
+</type>
+<type id="monthOfYear">
+  <enum>
+    <option>
+      <label>-- N/A --</label>
+      <value>0</value>
+    </option>    
+    <option>
+      <label>January</label>
+      <value>1</value>
+    </option>    
+    <option>
+      <label>February</label>
+      <value>2</value>
+    </option>    
+    <option>
+      <label>March</label>
+      <value>3</value>
+    </option>    
+    <option>
+      <label>April</label>
+      <value>4</value>
+    </option>    
+    <option>
+      <label>May</label>
+      <value>5</value>
+    </option>    
+    <option>
+      <label>June</label>
+      <value>6</value>
+    </option>    
+    <option>
+      <label>July</label>
+      <value>7</value>
+    </option>    
+    <option>
+      <label>August</label>
+      <value>8</value>
+    </option>    
+    <option>
+      <label>September</label>
+      <value>9</value>
+    </option>    
+    <option>
+      <label>October</label>
+      <value>10</value>
+    </option>    
+    <option>
+      <label>November</label>
+      <value>11</value>
+    </option>    
+    <option>
+      <label>December</label>
+      <value>12</value>
+    </option>    
+  </enum>
+</type>

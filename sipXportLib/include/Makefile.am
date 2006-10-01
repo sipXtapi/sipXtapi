@@ -97,12 +97,14 @@ nobase_include_HEADERS = \
     os/OsStunAgentTask.h \
     os/OsStunDatagramSocket.h \
     os/qsTypes.h \
+    xmlparser/ExtractContent.h \
     xmlparser/tinystr.h \
     xmlparser/tinyxml.h \
     xmlparser/TiXmlIterator.h \
     utl/UtlBool.h \
     utl/UtlLink.h \
     utl/UtlContainable.h \
+    utl/UtlContainableAtomic.h \
     utl/UtlContainer.h \
     utl/UtlDateTime.h \
     utl/UtlDList.h \

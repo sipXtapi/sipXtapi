@@ -98,4 +98,9 @@ public class PolycomPhoneTest extends TestCase {
         Reader actual = new StringReader(wtr.toString());
         IOUtils.contentEquals(expected, actual);
     }
+    
+    public void testDayOfWeek() {
+        assertEquals(2, PolycomPhone.PolycomPhoneDefaults.dayOfWeek(0));
+        assertEquals(1, PolycomPhone.PolycomPhoneDefaults.dayOfWeek(6));
+    }
 }

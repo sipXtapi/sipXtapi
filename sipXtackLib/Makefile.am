@@ -32,7 +32,7 @@ EXTRA_DIST = \
     CONTRIBUTORS \
     LICENSE \
     BUILDSTAMP \
-    SVN_VERSION \
+    SVN-VERSION \
     ant-targets.xml \
     ant-targets.am \
     sipxtacklib.spec \

@@ -8,7 +8,7 @@ EXTRA_DIST = \
     config/sipX-buildstamp.cpp.in \
     config/sipX-buildstamp.h.in \
     CONTRIBUTORS \
-    SVN_VERSION \
+    SVN-VERSION \
     BUILDSTAMP \
     sipxmediaadapterlib.spec
 

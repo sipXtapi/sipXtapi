@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.site.gateway;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
@@ -59,11 +58,7 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
 
     public void pageBeginRender(PageEvent event_) {
         Gateway gateway = getGateway();
-        // HACK: even if we have the gateway we need to check if gatewayID matches
-        // this is because edit page provider does not, clean persistent properties
-        if (null != gateway && ObjectUtils.equals(gateway.getId(), getGatewayId())) {
-            // still need to adjust settings - gateway is persisten, settings are not
-            setSettingProperties(gateway);
+        if (null != gateway) {
             return;
         }
         Integer id = getGatewayId();

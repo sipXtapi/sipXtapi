@@ -27,8 +27,8 @@ BUILDSTAMP:
 	    $(srcdir)/config/sipX-buildstamp.h.in \
 	> config/@PACKAGE@-buildstamp.h
 
-SVN_VERSION:
-	echo "$(RELEASE)" > SVN_VERSION
+SVN-VERSION:
+	echo "$(RELEASE)" > SVN-VERSION
 
 # automake doesn't like this inside the conditional
 .PHONY : doc

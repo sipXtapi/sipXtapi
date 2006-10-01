@@ -64,7 +64,7 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
     public void testAddDuplicateGatewayDuplicate() throws Exception {
         Gateway g1 = new Gateway();
         g1.setName("bongo");
-        Gateway g2 = new Gateway();
+        Gateway g2 = new SipTrunk();
         g2.setName("bongo");
 
         // add g1

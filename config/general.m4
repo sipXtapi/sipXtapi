@@ -1458,3 +1458,18 @@ AC_DEFUN([CHECK_MSG_NOSIGNAL],
     CPPFLAGS="$CPPFLAGS -DMSG_NOSIGNAL=0"
    ])
 ])
+
+# ============ REQUIRED RPM PKG ==============
+# Only useful for projects that are strictly rpm based, which should be
+# non-functional packaging based projects like making iso images for example
+AC_DEFUN([REQUIRE_RPM],
+[
+  required_rpm_pkg=[$1]
+  AC_MSG_CHECKING($required_rpm_pkg)
+  if ! rpm -q $required_rpm_pkg >/dev/null
+  then
+    AC_MSG_RESULT(no)
+    AC_MSG_ERROR([Required rpm pkg missing $required_rpm_pkg])    
+  fi
+  AC_MSG_RESULT(yes)
+])

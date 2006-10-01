@@ -34,8 +34,8 @@ libsipXmedia_la_LIBADD += -lstdc++
 endif
 
 libsipXmedia_la_SOURCES =  \
-    ../config/sipxmedialib-buildstamp.h \
-    ../config/sipxmedialib-buildstamp.cpp \
+    $(top_srcdir)/config/sipxmedialib-buildstamp.h \
+    $(top_srcdir)/config/sipxmedialib-buildstamp.cpp \
     mp/dft.cpp \
     mp/dmaTaskPosix.cpp \
     mp/DSPlib.cpp \

@@ -169,6 +169,8 @@ public:
 
     virtual OsStatus getToField(UtlString* toField);
 
+    virtual OsStatus getInvite(SipMessage* message);
+
     int getNextCseq();
 
     /* ============================ INQUIRY =================================== */

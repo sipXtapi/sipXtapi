@@ -4,7 +4,7 @@
   <!--
     - P R O P E R T I E S
   -->
-  <property name="gateway" persist="session" />
+  <property name="gateway" />
   <property name="gatewayId" persist="session" />
   <property name="ruleId" persist="session" />
   <property name="gatewayModel" persist="session" />
@@ -38,10 +38,13 @@
     <binding name="callback" value="callback" />
   </component>
 
+  <component id="renderTabs" type="If">
+    <binding name="condition" value="!gateway.isNew()" />
+  </component>
+
   <component id="tabs" type="TabNavigation">
     <binding name="tabNames" value="{ 'config', 'dialplan', 'gcai' }" />
     <binding name="selectedTab" value="tab" />
-    <binding name="submit" value="true" />
   </component>
   <component id="tabContent" type="RenderBlock">
     <binding name="block" value="components.get(tab + 'Block')" />
@@ -63,14 +66,14 @@
   </component>
 
   <component id="gatewayPrefixPanel" type="FieldPanel">
-    <binding name="field" value="components.gatewayPrefix"/>
-    <binding name="label" value="message:label.prefix"/>
-    <binding name="description" value="message:description.prefix"/>
+    <binding name="field" value="components.gatewayPrefix" />
+    <binding name="label" value="message:label.prefix" />
+    <binding name="description" value="message:description.prefix" />
   </component>
   <component id="gatewayPrefix" type="TextField">
-    <binding name="value" value="gateway.prefix"/>
-    <binding name="validators" value="spring-validators:validSipUserId"/>
-    <binding name="displayName" value="message:label.prefix"/>
+    <binding name="value" value="gateway.prefix" />
+    <binding name="validators" value="spring-validators:validSipUserId" />
+    <binding name="displayName" value="message:label.prefix" />
   </component>
-  
+
 </page-specification>

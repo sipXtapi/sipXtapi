@@ -34,6 +34,7 @@
   </component>
   <component id="query" type="TextField">
     <binding name="value" value="query"/>
+    <binding name="displayName" value="message:label.query"/>
   </component>
   <!-- advanced search -->
   <component id="firstNameLabel" type="FieldPanel">
@@ -42,6 +43,7 @@
   </component>
   <component id="firstName" type="TextField">
     <binding name="value" value="user.firstName"/>
+    <binding name="displayNames" value="message:label.firstName"/>
   </component>
   <component id="lastNameLabel" type="FieldPanel">
     <binding name="field" value="components.lastName"/>
@@ -49,6 +51,7 @@
   </component>
   <component id="lastName" type="TextField">
     <binding name="value" value="user.lastName"/>
+    <binding name="displayName" value="message:label.lastName"/>
   </component>
   <component id="userNameOrAliasLabel" type="FieldPanel">
     <binding name="field" value="components.userNameOrAlias"/>
@@ -58,6 +61,7 @@
     	 Feed this string to the page bean in user.userName. -->
   <component id="userNameOrAlias" type="TextField">
     <binding name="value" value="user.userName"/>
+    <binding name="displayName" value="message:label.userNameOrAlias"/>
   </component>
   <component id="search" type="Submit">
     <binding name="listener" value="listener:search"/>

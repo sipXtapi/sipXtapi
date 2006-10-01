@@ -29,7 +29,7 @@
   </component>
   <component id="label" type="TextField">
     <binding name="value" value="permission.label" />
-    <binding name="displaylabel" value="message:label.label" />
+    <binding name="displayName" value="message:label.label" />
     <binding name="validators" value="validators:required" />
     <binding name="disabled" value="permission.builtIn" />
   </component>
@@ -40,6 +40,7 @@
   </component>
   <component id="description" type="TextArea">
     <binding name="value" value="permission.description" />
+    <binding name="displayName" value="message:label.description" />
     <binding name="validators" value="validators:maxLength=255" />
     <binding name="disabled" value="permission.builtIn" />
   </component>

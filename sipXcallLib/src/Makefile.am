@@ -31,8 +31,8 @@ libsipXcall_la_CXXFLAGS = \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
 
 libsipXcall_la_SOURCES = \
-    ../config/sipxcalllib-buildstamp.h \
-    ../config/sipxcalllib-buildstamp.cpp \
+    $(top_srcdir)/config/sipxcalllib-buildstamp.h \
+    $(top_srcdir)/config/sipxcalllib-buildstamp.cpp \
     cp/CallManager.cpp \
     cp/Connection.cpp \
     cp/CpCall.cpp \

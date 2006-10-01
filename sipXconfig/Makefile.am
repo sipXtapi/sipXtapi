@@ -35,7 +35,7 @@ EXTRA_DIST = \
     subant-targets.xml \
     CONTRIBUTORS \
     BUILDSTAMP \
-    SVN_VERSION \
+    SVN-VERSION \
     LICENSE \
     build.properties.in \
     lib.properties \

@@ -1,9 +1,11 @@
 <div jwcid="@Border">
   <h2><span key="title">Gateway Details</span></h2>
   <span jwcid="@Insert" value="ognl:gateway.model.label"/>
-  <form jwcid="@Form" delegate="ognl:beans.validator" id="gateway">
+  <span jwcid="renderTabs">
     <span jwcid="tabs"/>
-    <div id="settings-content">
+  </span>      
+  <div id="settings-content">
+    <form jwcid="@Form" delegate="ognl:beans.validator" id="gateway">
       <div jwcid="configBlock@Block">
         <fieldset jwcid="gatewayForm"/>
         <span jwcid="renderSettings">
@@ -29,6 +31,6 @@
       <span jwcid="@ErrorMsg"/>
       <span jwcid="tabContent"/>
       <ul jwcid="formActions"/>
-    </div>
-  </form>    
+    </form>    
+  </div>
 </div>
