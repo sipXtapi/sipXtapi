@@ -27,16 +27,45 @@ public class DialingRuleTestUi extends WebTestCase {
 
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
-        SiteTestHelper.home(getTester());        
-        clickLink("resetDialPlans");        
+        SiteTestHelper.home(getTester());
+        clickLink("resetDialPlans");
     }
 
-    public void testAddExistingGateway() {
-        GatewaysTestUi.addTestGateways(getTester(), 3);
+    public void testAddExistingGatewayNewRule() {
+        String[] gatewayNames = GatewaysTestUi.addTestGateways(getTester(), 1);
         SiteTestHelper.home(getTester());
+        boolean scripting = SiteTestHelper.setScriptingEnabled(true);
+        clickLink("FlexibleDialPlan");
+        SiteTestHelper.assertNoException(getTester());
+        selectOption("ruleTypeSelection", "Custom");
+        assertEquals(1, SiteTestHelper.getRowCount(tester, "list:gateway"));
+
+        SiteTestHelper.assertNoException(tester);
+        setFormElement("name", "DialingRulesTestUi_custom");
+        // try adding existing gateways
+        selectOption("actionSelection", gatewayNames[0]);
+        SiteTestHelper.assertNoException(tester);
+        assertEquals(2, SiteTestHelper.getRowCount(tester, "list:gateway"));
+        SiteTestHelper.setScriptingEnabled(scripting);
+        clickButton("form:ok");
+        SiteTestHelper.assertNoException(tester);
+    }
+
+    public void testAddExistingGatewayExistingRule() {
+        String[] gatewayNames = GatewaysTestUi.addTestGateways(getTester(), 1);
+        SiteTestHelper.home(getTester());
+        boolean scripting = SiteTestHelper.setScriptingEnabled(true);
         clickLink("FlexibleDialPlan");
         SiteTestHelper.assertNoException(getTester());
         clickLinkWithText("Emergency");
+        SiteTestHelper.assertNoException(tester);
+        assertEquals(1, SiteTestHelper.getRowCount(tester, "list:gateway"));
+        // try adding existing gateways
+        selectOption("actionSelection", gatewayNames[0]);
+        SiteTestHelper.assertNoException(tester);
+        assertEquals(2, SiteTestHelper.getRowCount(tester, "list:gateway"));
+        SiteTestHelper.setScriptingEnabled(scripting);
+        clickButton("form:ok");
         SiteTestHelper.assertNoException(tester);
     }
     
@@ -47,10 +76,10 @@ public class DialingRuleTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(getTester());
         clickLinkWithText("Internal");
         SiteTestHelper.assertNoException(tester);
-        //it's a submit link: uses java script, does not have id
+        // it's a submit link: uses java script, does not have id
         setFormElement("name", "");
         clickButton("form:ok");
         // should fail with the error message
         SiteTestHelper.assertUserError(tester);
-    }    
+    }
 }

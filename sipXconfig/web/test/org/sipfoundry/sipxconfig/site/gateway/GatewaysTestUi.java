@@ -68,7 +68,7 @@ public class GatewaysTestUi extends WebTestCase {
         assertEquals(3, gatewaysTable.getRowCount());
         assertEquals("kukuDescription", gatewaysTable.getCellAsText(2, lastColumn));
     }
-    
+
     public void testAddGatewaysDuplicateName() throws Exception {
         clickLink("ListGateways");
         selectOption("selectGatewayModel", "Unmanaged gateway"); // javascript submit
@@ -77,7 +77,7 @@ public class GatewaysTestUi extends WebTestCase {
         selectOption("selectGatewayModel", "Unmanaged gateway"); // javascript submit
         addGateway(getTester(), "dupname");
         SiteTestHelper.assertUserError(tester);
-    }    
+    }
 
     public void testDeleteGateways() throws Exception {
         addTestGateways(getTester(), 10);
@@ -157,8 +157,9 @@ public class GatewaysTestUi extends WebTestCase {
      * 
      * @param counter number of gateways to add - names gateway0..gateway'count-1'
      */
-    public static void addTestGateways(WebTester tester, int counter) {
+    public static String[] addTestGateways(WebTester tester, int counter) {
         boolean scripting = SiteTestHelper.setScriptingEnabled(true);
+        String[] names = new String[counter];
 
         tester.clickLink("ListGateways");
 
@@ -167,10 +168,11 @@ public class GatewaysTestUi extends WebTestCase {
 
             // Give the new gateway a name that is extremely unlikely to collide
             // with any existing gateway names
-            String gatewayName = "gateway" + i + Long.toString(System.currentTimeMillis());
+            String name = "gateway" + i + Long.toString(System.currentTimeMillis());
 
-            addGateway(tester, gatewayName);
+            names[i] = addGateway(tester, name)[0];
         }
         SiteTestHelper.setScriptingEnabled(scripting);
+        return names;
     }
 }
