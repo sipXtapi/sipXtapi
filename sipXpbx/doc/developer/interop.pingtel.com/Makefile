@@ -6,6 +6,8 @@ SUDO=
 # The names of the destination directories.
 # These values are the defaults for RPM installation, but can be retargeted.
 # See http://www.sipfoundry.org/sipX/doc/filesystem.html.
+# Note that changing these values is not completely supported yet --
+# some of the installed files would need to be adjusted.
 SIPX_CONFDIR=/etc/sipxpbx
 SIPX_DBDIR=/var/sipxdata/sipdb
 HTTP_ROOTDIR=/usr/share/www/doc
