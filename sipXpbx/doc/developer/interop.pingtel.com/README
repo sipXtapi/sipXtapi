@@ -48,3 +48,5 @@ we may need the single-digit groups as well.)  "1/9" means 1 through
 *4xxxx	Call retrieve
 
 *78xxxx	Call pick-up
+
+xxx*xxx	ISN dialing string (one or more digits, *, one or more digits)
