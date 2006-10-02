@@ -36,21 +36,13 @@ libsipXresiprocateLib_la_CXXFLAGS = \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
 
 libsipXresiprocateLib_la_SOURCES =  \
-    $(top_builddir)/config/resiprocatelib-buildstamp.h \
-    $(top_builddir)/config/resiprocatelib-buildstamp.cpp \
+    ../config/resiprocatelib-buildstamp.h \
+    ../config/resiprocatelib-buildstamp.cpp \
 	sipXexternalLogger.cpp
 
-<<<<<<< .working
-$(top_srcdir)/config/resiprocatelib-buildstamp.cpp: $(top_srcdir)/config/resiprocatelib-buildstamp.h
-=======
-$(top_builddir)/config/resiprocatelib-buildstamp.cpp: $(top_builddir)/config/resiprocatelib-buildstamp.h
->>>>>>> .merge-right.r7350
+../config/resiprocatelib-buildstamp.cpp: ../config/resiprocatelib-buildstamp.h
 
-<<<<<<< .working
-$(top_srcdir)/config/resiprocatelib-buildstamp.h:
-=======
-$(top_builddir)/config/resiprocatelib-buildstamp.h:
->>>>>>> .merge-right.r7350
+../config/resiprocatelib-buildstamp.h:
 	$(MAKE) -C .. BUILDSTAMP
 
 DISTCLEANFILES = Makefile.in
