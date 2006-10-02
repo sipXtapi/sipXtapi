@@ -45,8 +45,8 @@ libsipXtack_la_LIBADD += -lstdc++
 endif
 
 libsipXtack_la_SOURCES =  \
-    $(top_srcdir)/config/sipxtacklib-buildstamp.h \
-    $(top_srcdir)/config/sipxtacklib-buildstamp.cpp \
+    $(top_builddir)/config/sipxtacklib-buildstamp.h \
+    $(top_builddir)/config/sipxtacklib-buildstamp.cpp \
     net/HttpBody.cpp \
     net/HttpConnection.cpp \
     net/HttpConnectionMap.cpp \
