@@ -11,7 +11,7 @@ Url:      http://www.sipfoundry.org/sipXregistry
 
 Source:   %name-%version.tar.gz
 
-Requires: sipxcommserverlib >= 3.5
+Requires: sipxcommserverlib >= 3.7
 Requires: ruby >= 1.8.1
 
 Prefix:    %_prefix
@@ -58,7 +58,7 @@ Requires: %name
 Group: Development/Libraries
 Vendor: SIPfoundry
 Summary: Internal documentation for %name 
-Requires: sipxcommserverlib-devel >= 3.5
+Requires: sipxcommserverlib-devel >= 3.7
 
 %description devel
 Internal class documentation for the proxy classes
