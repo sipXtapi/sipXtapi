@@ -11,12 +11,12 @@ Url: http://www.sipfoundry.org/sipXvxmlLib
 
 Source: %name-%version.tar.gz
 
-Requires: sipxcalllib >= 3.5
-Requires: sipxcommserverlib >= 3.5
-Requires: sipxmedialib >= 3.5
-Requires: sipxmediaadapterlib >= 3.5
-Requires: sipxtacklib >= 3.5
-Requires: sipxportlib >= 3.5
+Requires: sipxcalllib >= 3.6
+Requires: sipxcommserverlib >= 3.6
+Requires: sipxmedialib >= 3.6
+Requires: sipxmediaadapterlib >= 3.6
+Requires: sipxtacklib >= 3.6
+Requires: sipxportlib >= 3.6
 
 Requires: @LIBWWW_RPM@ >= 5.4.0
 
@@ -39,7 +39,7 @@ Requires: %name
 Group: Development/Libraries
 Vendor: SIPfoundry
 Summary: Internal documentation for %name 
-Requires: sipxcommserverlib-devel >= 3.5
+Requires: sipxcommserverlib-devel >= 3.6
 
 %description devel
 Internal class documentation for the sipXvxml classes

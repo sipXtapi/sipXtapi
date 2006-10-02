@@ -21,8 +21,8 @@ Url:      http://www.sipfoundry.org/
 
 Source: %name-%version.tar.gz
 
-Requires: sipxtacklib >= 3.5
-Requires: sipxcommserverlib >= 3.5
+Requires: sipxtacklib >= 3.6
+Requires: sipxcommserverlib >= 3.6
 Requires: postgresql-server >= 7.3
 Requires: ruby >= 1.8.4
 Requires: ruby-gems >= 0.8.11
