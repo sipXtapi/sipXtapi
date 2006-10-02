@@ -125,13 +125,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libsipXcommserverTest.la
 %{_libdir}/libsipXcommserverTest.a
 %doc %{_datadir}/doc/sipx/%name/*
+%{_includedir}/configrpc/*
 %{_includedir}/digitmaps/*
 %{_includedir}/fastdb/*
+%{_includedir}/filereader/*
+%{_includedir}/odbc/*
 %{_includedir}/sipdb/*
 %{_includedir}/testlib/*
-%{_includedir}/configrpc/*
-%{_includedir}/odbc/*
-%{_includedir}/*.h
 
 %pre
 # if needed, change old daemon user names to the new one

@@ -19,7 +19,7 @@
 #include "xmlparser/tinyxml.h"
 #include "xmlparser/ExtractContent.h"
 #include <utl/UtlHashMapIterator.h>
-#include "OrbitFileReader.h"
+#include "filereader/OrbitFileReader.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

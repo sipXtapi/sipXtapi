@@ -3,17 +3,17 @@ interop.pingtel.com.
 
 The subdirectories are:
 
-etc=sipxpbx
+sipx_confdir
    Configuration files to be unpacked into /etc/sipxpbx after a standard
    sipX installation.
 
 scripts
    Scripts that are run as cron jobs, and the crontab file that run them.
 
-usr=share=www=doc
+http_rootdir
    HTML files to be unpacked into /usr/share/www/doc for the custom web interface.
 
-var=sipxdata=sipdb
+sipx_dbdir
    Customized configuration databases to be put in /var/sipxdata/sipdb.
 
 The current number assignments are as follows.  "gg" is the group

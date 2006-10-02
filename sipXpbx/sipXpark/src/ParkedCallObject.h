@@ -21,7 +21,6 @@
 #include <utl/UtlSList.h>
 #include <os/OsTimer.h>
 #include <os/OsMsgQ.h>
-#include <OrbitFileReader.h>
 #include <utl/UtlContainableAtomic.h>
 
 // DEFINES

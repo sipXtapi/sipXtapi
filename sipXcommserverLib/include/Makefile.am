@@ -6,7 +6,7 @@ nobase_includeHEADERS_INSTALL = $(INSTALL) -D -p -c -m 644
 # fastdb header have to be installed because 
 # of compile dependencies in other sipX projects
 nobase_include_HEADERS =  \
-	 configrpc/ConfigRPC.h \
+    configrpc/ConfigRPC.h \
     sipdb/AliasDB.h \
     sipdb/AliasRow.h \
     sipdb/AuthexceptionDB.h \
@@ -66,8 +66,8 @@ nobase_include_HEADERS =  \
     fastdb/unisock.h \
     fastdb/w32sock.h \
     fastdb/wwwapi.h \
+    filereader/OrbitFileReader.h \
     odbc/OdbcWrapper.h \
     testlib/RegistrationDbTestContext.h \
     testlib/SipDbTestContext.h \
-    testlib/FileTestContext.h \
-    OrbitFileReader.h
+    testlib/FileTestContext.h

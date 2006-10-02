@@ -43,6 +43,6 @@ libsipXcommserver_la_SOURCES = \
     $(top_builddir)/config/sipxcommserverlib-buildstamp.h \
     $(top_builddir)/config/sipxcommserverlib-buildstamp.cpp \
     digitmaps/UrlMapping.cpp \
+    filereader/OrbitFileReader.cpp \
     configrpc/ConfigRPC.cpp \
-    odbc/OdbcWrapper.cpp \
-    OrbitFileReader.cpp
+    odbc/OdbcWrapper.cpp
