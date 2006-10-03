@@ -32,7 +32,7 @@ public class SystemServiceImpl implements SystemService {
         info.setDomain(apiDomain);
         Collection<String> aliases = domain.getAliases();
         if (aliases != null) {
-            apiDomain.setAliases((String[]) aliases.toArray(new String[aliases.size()]));
+            apiDomain.setAliases(aliases.toArray(new String[aliases.size()]));
         }
         
         return info;
