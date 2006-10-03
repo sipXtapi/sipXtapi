@@ -394,6 +394,25 @@ Extension: <input name='extension' size='4' maxlength='4' />
 
 <h2>ISN Dialing</h2>
 
+<!-- Generated using http://freenum.org/gotISN.cgi -->
+<!--START "GOT ISN?" WEB BADGE -->
+<div style="
+  border: medium outset ;
+  margin: 10px;
+  padding: 0.21em;
+  float: right;
+  background-color: #ffffff ;
+  font-size: 18pt" align="center">
+<a href="http://freenum.org/gotISN.cgi">
+  <img src="http://freenum.org/images/gotISN36.png" alt="got ISN?" border="no"></a><br><a style="text-decoration: none" href="isn:100*413">
+100<img border="none" src="http://freenum.org/images/isn_asterisk1.png" alt="*">413</a>
+<br>
+<a href="http://freenum.org/">
+  <font size=-1>freenum.org</font>
+</a>
+</div>
+<!--END "GOT ISN?" WEB BADGE -->
+
 <p>
 This server now supports
 <a href="http://freenum.org/">ISN dialing</a>.

@@ -29,8 +29,8 @@ libsipXregistry_la_LIBADD = \
 	@SIPXCOMMSERVER_LIBS@
 
 libsipXregistry_la_SOURCES = \
-    $(top_srcdir)/config/sipxregistry-buildstamp.h \
-    $(top_srcdir)/config/sipxregistry-buildstamp.cpp \
+    $(top_builddir)/config/sipxregistry-buildstamp.h \
+    $(top_builddir)/config/sipxregistry-buildstamp.cpp \
     RedirectPlugin.cpp \
     RedirectResumeMsg.cpp \
     RedirectResumeMsg.h \

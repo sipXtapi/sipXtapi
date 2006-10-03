@@ -13,8 +13,8 @@ sipauthproxy_LDADD = \
 	@SIPXCOMMSERVER_LIBS@
 
 sipauthproxy_SOURCES =  \
-	../../config/sipxproxy-buildstamp.h \
-	../../config/sipxproxy-buildstamp.cpp \
+   $(top_builddir)/config/sipxproxy-buildstamp.h \
+   $(top_builddir)/config/sipxproxy-buildstamp.cpp \
    sipauthproxymain.cpp \
    SipAaa.cpp \
 	SipAaa.h \

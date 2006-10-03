@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -24,13 +23,13 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 
 public class DialPlan extends BeanWithId {
-    private List m_rules = new ArrayList();
+    private List<DialingRule> m_rules = new ArrayList<DialingRule>();
 
-    public List getRules() {
+    public List<DialingRule> getRules() {
         return m_rules;
     }
 
-    public void setRules(List rules) {
+    public void setRules(List<DialingRule> rules) {
         m_rules = rules;
     }
 
@@ -63,14 +62,13 @@ public class DialPlan extends BeanWithId {
         m_rules.clear();
     }
 
-    public void moveRules(Collection selectedRows, int step) {
+    public void moveRules(Collection<Integer> selectedRows, int step) {
         DataCollectionUtil.moveByPrimaryKey(m_rules, selectedRows.toArray(), step);
     }
 
-    public List getGenerationRules() {
-        List generationRules = new ArrayList();
-        for (Iterator i = m_rules.iterator(); i.hasNext();) {
-            DialingRule rule = (DialingRule) i.next();
+    public List<DialingRule> getGenerationRules() {
+        List<DialingRule> generationRules = new ArrayList<DialingRule>();
+        for (DialingRule rule : getRules()) {
             rule.appendToGenerationRules(generationRules);
         }
         return generationRules;
@@ -116,15 +114,13 @@ public class DialPlan extends BeanWithId {
         return voicemail;
     }
 
-    static DialingRule[] getDialingRuleByType(List rulesCandidates, Class c) {
-        List rules = new ArrayList();
-        for (Iterator i = rulesCandidates.iterator(); i.hasNext();) {
-            DialingRule rule = (DialingRule) i.next();
+    static DialingRule[] getDialingRuleByType(List<DialingRule> rulesCandidates, Class c) {
+        List<DialingRule> rules = new ArrayList<DialingRule>();
+        for (DialingRule rule : rulesCandidates) {
             if (rule.getClass().isAssignableFrom(c)) {
                 rules.add(rule);
             }
         }
-
-        return (DialingRule[]) rules.toArray(new DialingRule[rules.size()]);
+        return rules.toArray(new DialingRule[rules.size()]);
     }
 }

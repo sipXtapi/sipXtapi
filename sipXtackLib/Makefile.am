@@ -16,6 +16,7 @@ SUBDIRS = \
 	bin \
 	meta \
 	examples \
+	dialogwatch \
 	syslog2siptrace \
 	siplog2siptrace \
 	siptest \

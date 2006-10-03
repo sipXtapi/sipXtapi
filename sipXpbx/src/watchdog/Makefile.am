@@ -11,8 +11,8 @@ watchdog_CXXFLAGS = \
 	-DSIPX_TMPDIR=\"@SIPX_TMPDIR@\"
 
 watchdog_SOURCES =  \
-	../../config/sipxpbx-buildstamp.h \
-	../../config/sipxpbx-buildstamp.cpp \
+	$(top_builddir)/config/sipxpbx-buildstamp.h \
+	$(top_builddir)/config/sipxpbx-buildstamp.cpp \
     EmailReporter.cpp \
     FailureReporterBase.cpp \
     WatchDogMain.cpp \

@@ -43,8 +43,8 @@ libsipXport_la_CXXFLAGS = \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
 
 libsipXport_la_SOURCES =  \
-    $(top_srcdir)/config/sipxportlib-buildstamp.h \
-    $(top_srcdir)/config/sipxportlib-buildstamp.cpp \
+    $(top_builddir)/config/sipxportlib-buildstamp.h \
+    $(top_builddir)/config/sipxportlib-buildstamp.cpp \
     utl/UtlBool.cpp \
     utl/UtlDateTime.cpp \
     utl/UtlLink.cpp \

@@ -74,8 +74,7 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
         try {
             m_context.storeGateway(g2);
             fail("Duplicate gateway names should not be possible.");
-        }
-        catch(UserException e) {
+        } catch (UserException e) {
             // ok
         }
     }
@@ -160,6 +159,31 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
         assertTrue(rule.getGateways().isEmpty());
     }
 
+    public void testGatewaysAndRule() throws Exception {
+        InternationalRule rule = new InternationalRule();
+        rule.setName("testRule");
+        rule.setInternationalPrefix("011");
+
+        TestHelper.cleanInsertFlat("gateway/seed_gateway.db.xml");
+
+        int gatewayId = 1001;
+        Gateway gateway = m_context.getGateway(gatewayId);
+
+        rule.addGateway(gateway);
+
+        m_dialPlanContext.storeRule(rule);
+
+        int ruleId = rule.getId();
+        m_context.removeGatewaysFromRule(ruleId, Collections.singleton(gatewayId));
+
+        rule = (InternationalRule) m_dialPlanContext.getRule(ruleId);
+        assertTrue(rule.getGateways().isEmpty());
+
+        m_context.addGatewaysToRule(ruleId, Collections.singleton(gatewayId));
+        rule = (InternationalRule) m_dialPlanContext.getRule(ruleId);
+        assertEquals(gateway, rule.getGateways().get(0));        
+    }
+
     public void testDeleteGatewayInUseByEmergencyRouting() {
         Gateway g1 = new Gateway();
         g1.setAddress("10.1.1.1");
@@ -197,7 +221,7 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
 
     public void testGetGatewaySettings() throws Exception {
         TestHelper.cleanInsertFlat("gateway/seed_gateway.db.xml");
-        Gateway gateway = m_context.getGateway(new Integer(1001));
+        Gateway gateway = m_context.getGateway(1001);
         assertNotNull(gateway.getTftpRoot());
     }
 

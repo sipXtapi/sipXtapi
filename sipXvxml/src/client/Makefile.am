@@ -17,8 +17,8 @@ libOSBclient_la_SOURCES = \
 bin_PROGRAMS = sipXvxml
 
 sipXvxml_SOURCES = \
-	../../config/sipxvxml-buildstamp.h \
-	../../config/sipxvxml-buildstamp.cpp \
+	$(top_builddir)/config/sipxvxml-buildstamp.h \
+	$(top_builddir)/config/sipxvxml-buildstamp.cpp \
 	ivr/ConfigFile.cpp \
 	ivr/IvrCallListener.cpp \
 	ivr/IvrDtmfListener.cpp \
