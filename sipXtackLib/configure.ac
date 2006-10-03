@@ -80,6 +80,7 @@ AC_CONFIG_FILES([
   siptest/include/Makefile 
   siptest/src/siptest/Makefile
   doc/Makefile  
+  dialogwatch/Makefile
 ])
 
 AC_OUTPUT
