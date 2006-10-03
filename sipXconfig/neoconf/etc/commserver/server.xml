@@ -70,7 +70,7 @@
       <type>
         <integer />
       </type>
-      <value></value>
+      <value>20</value>
       <description>
         Number of seconds that each phone in a sequential series is allowed to ring with no answer
         before the next alternative is tried. The most common case for this is a user with one
