@@ -25,6 +25,8 @@ we may need the single-digit groups as well.)  "1/9" means 1 through
 
 101	Voicemail server
 
+105/9	Forwarding prefixes for other PBXs
+
 1gg1/9	Addresses Of Record
 
 2gg1	Directly deposit voicemail for 1gg1
@@ -43,7 +45,9 @@ we may need the single-digit groups as well.)  "1/9" means 1 through
 
 8gg1/9	Merge fork
 
-9999	Too many hops test
+9999	Too many hops test (to be moved to 9000)
+
+9gg1/9	Forwarding prefixes for gateways
 
 *4xxxx	Call retrieve
 
