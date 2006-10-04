@@ -96,12 +96,25 @@ SipRedirectorISN::~SipRedirectorISN()
 // Read config information.
 void SipRedirectorISN::readConfig(OsConfigDb& configDb)
 {
-   if (configDb.get("WK_DOMAIN", mWKDomain) != OS_SUCCESS ||
-       mWKDomain.isNull())
+   if (configDb.get("BASE_DOMAIN", mBaseDomain) != OS_SUCCESS ||
+       mBaseDomain.isNull())
    {
       OsSysLog::add(FAC_SIP, PRI_CRIT,
                     "SipRedirectorISN::readConfig "
-                    "WK_DOMAIN parameter missing or empty");
+                    "BASE_DOMAIN parameter missing or empty");
+   }
+   if (configDb.get("PREFIX", mPrefix) != OS_SUCCESS ||
+       mPrefix.isNull())
+   {
+      OsSysLog::add(FAC_SIP, PRI_INFO,
+                    "SipRedirectorISN::readConfig "
+                    "dialing prefix is empty");
+   }
+   else
+   {
+      OsSysLog::add(FAC_SIP, PRI_INFO,
+                    "SipRedirectorISN::readConfig "
+                    "dialing prefix is '%s'", mPrefix.data());
    }
 }
 
@@ -138,18 +151,26 @@ SipRedirectorISN::lookUp(
    UtlString userId;
    requestUri.getUserId(userId);
 
-   // Test of the user part is in ISN format -- digits*digits
+   // Test if the user part is in the right format -- prefix followed by digits*digits
    const char* user = userId.data();
-   size_t i = strspn(user, "0123456789");
-   size_t j = 0;
-   if (i > 0)
+   int prefix_length = mPrefix.length();
+   // Compare the prefix.
+   if (strncmp(user, mPrefix.data(), prefix_length) == 0)
    {
-      if (user[i] == '*')
+      // Effectively delete the prefix from the user part.
+      user += prefix_length;
+      // Check the syntax of the remainder of the user.
+      size_t i = strspn(user, "0123456789");
+      size_t j = 0;
+      if (i > 0)
       {
-         j = strspn(user + i + 1, "0123456789");
-         if (user[i + 1 + j] == '\0')
+         if (user[i] == '*')
          {
-            status = true;
+            j = strspn(user + i + 1, "0123456789");
+            if (user[i + 1 + j] == '\0')
+            {
+               status = true;
+            }
          }
       }
    }
@@ -159,7 +180,7 @@ SipRedirectorISN::lookUp(
       // Format of user part is correct.  Look for NAPTR records.
 
       // Create the domain to look up.
-      char domain[2 * strlen(user) + mWKDomain.length()];
+      char domain[2 * strlen(user) + mBaseDomain.length()];
       {
          char* p = &domain[0];
          // Copy the extension, reversing it and following each digit with a period.
@@ -172,7 +193,7 @@ SipRedirectorISN::lookUp(
          strcpy(p, user + i + 1);
          strcat(p, ".");
          // Append the well-known ITAD root domain.
-         strcat(p, mWKDomain.data());
+         strcat(p, mBaseDomain.data());
       }
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "SipRedirectorISN::lookUp user '%s' has ISN format, domain is '%s'",

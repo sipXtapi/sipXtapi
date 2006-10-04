@@ -131,6 +131,7 @@ class RedirectPlugin : public Plugin
     * does not wish to process requests.  If it has detected an error,
     * it must output an error message on its own, as OS_FAILED per se isn't
     * an error signal.
+    * :TODO: The effect of OS_FAILED has not been implemented yet.
     */
    virtual OsStatus initialize(OsConfigDb& configDb,
                                SipUserAgent* pSipUserAgent,
