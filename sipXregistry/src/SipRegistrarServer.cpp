@@ -15,7 +15,6 @@
 // SYSTEM INCLUDES
 #include <stdlib.h>
 
-
 // APPLICATION INCLUDES
 #include "os/OsDateTime.h"
 #include "os/OsQueuedEvent.h"
@@ -380,6 +379,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                            // a NUL.
                            temp.append("sipX");
                            temp.append("\001");
+                           // The identifier of this domain, to ensure GRUUs aren't duplicated between domains.
                            temp.append(mRegistrar.defaultDomain());
                            temp.append("\001");
                            temp.append(toUrl.toString());
@@ -387,6 +387,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                            temp.append(instanceId);
                            UtlString hash;
                            encoder.encode(temp.data(), hash);
+                           // Use 8 bytes, to avoid collisions when there are less than 2^32 registrations.
                            hash.remove(16);
                            // Now construct the GRUU URI,
                            // "gruu~XXXXXXXXXXXXXXXX@[principal SIP domain]".
