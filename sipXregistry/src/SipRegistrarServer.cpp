@@ -332,12 +332,6 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                            longestRequested = expires;
                         }
 
-                        // See if the Contact field has a "gruu" URI field..
-                        // :TODO: Have to check whether the gruu URI parameter
-                        // is still favored.  And what exactly this check is about.
-                        UtlBoolean gruuPresent;
-                        UtlString gruuDummy;
-                        gruuPresent = registerContactURL.getUrlParameter( "gruu", gruuDummy );
                         OsSysLog::add( FAC_SIP, PRI_DEBUG,
                                        "SipRegistrarServer::applyRegisterToDirectory"
                                        " instance ID = '%s'",
@@ -367,10 +361,8 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                         UtlString* instanceIdKey = new UtlString( gInstanceIdKey );
                         UtlString* gruuKey = new UtlString( gGruuKey );
 
-                        // Calculate GRUU if gruu is in Supported, +sip.instance is provided, but
-                        // gruu is not a URI parameter.
+                        // Calculate GRUU if gruu is in Supported and +sip.instance is provided.
                         if (!instanceId.isNull() &&
-                            !gruuPresent &&
                             registerMessage.isInSupportedField("gruu"))
                         {
                            // Hash the GRUU base, the AOR, and IID to
