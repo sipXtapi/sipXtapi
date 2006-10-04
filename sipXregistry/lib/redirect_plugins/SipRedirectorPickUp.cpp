@@ -17,6 +17,7 @@
 #include <limits.h>
 
 // APPLICATION INCLUDES
+#include "cp/CpCallManager.h"
 #include "os/OsSysLog.h"
 #include "sipdb/SIPDBManager.h"
 #include "sipdb/ResultSet.h"
@@ -664,19 +665,11 @@ SipRedirectorPickUp::lookUpDialog(
          subscribeRequestUri.append(subscribeUser);
          subscribeRequestUri.append("@");
          subscribeRequestUri.append(mDomain);
-         // Construct a Call-Id on the plan:
-         //   Pickup-process-time-counter@domain
-         // The process number has at most 8 characters, the time has at most 8
-         // characters, and the counter has at most 8 characters, so 28 characters
-         // suffice for the buffer to assemble the "process-time-counter" part
-         // of the Call-Id..  (Using the time ensures that the Ids remain unique
-         // when the registrar is restarted.)
-         char buffer[32];
-         sprintf(buffer, "%x-%x-%x@", (unsigned int) OsProcess::getCurrentPID(),
-                 (unsigned int) OsDateTime::getSecsSinceEpoch(), mCSeq);
-         UtlString callId("Pickup-");
-         callId.append(buffer);
-         callId.append(mDomain);
+
+         // Construct a Call-Id for the SUBSCRIBE.
+         UtlString callId;
+         CpCallManager::getNewCallId("p", &callId);
+
          // Construct the From: value.
          UtlString fromUri;
          {
