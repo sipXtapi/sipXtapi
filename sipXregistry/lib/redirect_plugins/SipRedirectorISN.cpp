@@ -155,13 +155,14 @@ SipRedirectorISN::lookUp(
    const char* user = userId.data();
    int prefix_length = mPrefix.length();
    // Compare the prefix.
+   int i;                       // Length of the extension part.
    if (strncmp(user, mPrefix.data(), prefix_length) == 0)
    {
       // Effectively delete the prefix from the user part.
       user += prefix_length;
       // Check the syntax of the remainder of the user.
-      size_t i = strspn(user, "0123456789");
-      size_t j = 0;
+      i = strspn(user, "0123456789");
+      int j = 0;
       if (i > 0)
       {
          if (user[i] == '*')

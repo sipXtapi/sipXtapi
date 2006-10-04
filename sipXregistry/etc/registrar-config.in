@@ -43,7 +43,7 @@ SIP_REDIRECT.08-PICKUP.PICKUP_REVERSED_REPLACES : N
 SIP_REDIRECT.08-PICKUP.PICKUP_NO_EARLY_ONLY : Y
 # Uncomment these lines to activate outgoing ISN dialing.
 #SIP_REDIRECT_HOOK_LIBRARY.09-ISN : @SIPX_LIBDIR@/libRedirectorISN.so
-#SIP_REDIRECT.09-ISN.WK_DOMAIN : freenum.org
+#SIP_REDIRECT.09-ISN.BASE_DOMAIN : freenum.org
 
 # See HaSetup.pdf for how to use the following
 #SIP_REGISTRAR_XMLRPC_PORT : 5077

@@ -7,7 +7,9 @@ lib_LTLIBRARIES = \
 	libRedirectorHunt.la \
 	libRedirectorPickUp.la \
 	libRedirectorRegDB.la \
-	libRedirectorSubscribe.la
+	libRedirectorSubscribe.la \
+	\
+	libRedirectorISN.la
 
 INCLUDES = -I$(top_srcdir)/include
 
@@ -163,7 +165,8 @@ libRedirectorISN_la_LIBADD = \
 	@SIPXCOMMSERVER_LIBS@
 
 libRedirectorISN_la_CXXFLAGS = \
-	-I$(top_builddir)/config
+	-I$(top_builddir)/config \
+	-DRES_PARSE_NAPTR
 
 libRedirectorISN_la_SOURCES =  \
 	SipRedirectorISN.cpp \

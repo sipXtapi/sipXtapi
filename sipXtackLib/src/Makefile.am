@@ -36,6 +36,14 @@ libsipXtack_la_CXXFLAGS = \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
 	-DRES_PARSE_NAPTR
 
+# resparse uses .c files, so we need to define the CFLAGS also.
+libsipXtack_la_CFLAGS = \
+	@PCRE_CFLAGS@ \
+	@SSL_CFLAGS@ \
+	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
+	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
+	-DRES_PARSE_NAPTR
+
 libsipXtack_la_LIBADD = \
 	@SIPXPORT_LIBS@ \
 	@SSL_LIBS@ \
