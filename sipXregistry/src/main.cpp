@@ -447,3 +447,11 @@ main(int argc, char* argv[] )
 
    return 0;
 }
+
+
+// The infamous JNI_LightButton stub, to resolve the reference in libsipXcall.
+int JNI_LightButton(long)
+{
+   return 0;
+}
+

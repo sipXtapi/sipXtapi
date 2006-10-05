@@ -23,6 +23,10 @@ version_Revision=0
 #       increment if any interfaces have been added
 version_Age=0
 
+# Note that adding new @*_LIBS@ symbols to the *_LIBADD lists may require
+# adding SFAC_LIB_* macros (defined in ../../../config/sipXlib.m4)
+# to ../../configure.ac to establish the substitution for the @*_LIBS@ symbols.
+
 # SipRedirectorAliasDB
 
 libRedirectorAliasDB_la_LDFLAGS = \
@@ -94,6 +98,7 @@ libRedirectorPickUp_la_LDFLAGS = \
 	-version-info ${version_Current}:${version_Revision}:${version_Age}
 
 libRedirectorPickUp_la_LIBADD = \
+	@SIPXCALL_LIBS@ \
 	@SIPXCOMMSERVER_LIBS@
 
 libRedirectorPickUp_la_CXXFLAGS = \
