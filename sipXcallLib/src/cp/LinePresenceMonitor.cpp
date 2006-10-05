@@ -382,7 +382,9 @@ OsStatus LinePresenceMonitor::subscribePresence(LinePresenceBase* line)
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "LinePresenceMonitor::subscribePresence Sending out the SUBSCRIBE to contact %s",
                     resourceId.data());
-   
+                    
+      // Delay for 2 seconds because proxy might not be ready yet
+      OsTask::delay(2000);   
       
       UtlString toUrl;
       lineUrl->toString(toUrl);
