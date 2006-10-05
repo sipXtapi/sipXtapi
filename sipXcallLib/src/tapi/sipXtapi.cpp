@@ -411,6 +411,8 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST* phInst,
            localAddress = utlIdentity;
         }
 
+        OsConfigDb configDb;
+        configDb.set("PHONESET_MAX_ACTIVE_CALLS_ALLOWED", 2*maxConnections);
 
         // get the rtp end port
         int rtpPortEnd = rtpPortStart + (2*maxConnections);
@@ -441,8 +443,8 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST* phInst,
                                "",
                                CP_MAXIMUM_RINGING_EXPIRE_SECONDS,
                                QOS_LAYER3_LOW_DELAY_IP_TOS,
-                               10,
-                               sipXmediaFactoryFactory(NULL));
+                               maxConnections,
+                               sipXmediaFactoryFactory(&configDb));
 
         // Start up the call processing system
         pInst->pCallManager->setOutboundLine(localAddress) ;

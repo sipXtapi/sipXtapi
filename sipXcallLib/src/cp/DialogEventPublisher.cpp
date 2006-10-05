@@ -237,11 +237,14 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
             pThisCall->buildBody();
 
             // Send the content to the subscribe server.
-            // Make a copy, because mpSipPublishContentMgr will own it.
-            HttpBody* pHttpBody = new HttpBody(*(HttpBody*)pThisCall);
-            mpSipPublishContentMgr->publish(entity.data(),
-                                            DIALOG_EVENT_TYPE, DIALOG_EVENT_TYPE,
-                                            1, &pHttpBody);
+            {
+               // Make a copy, because mpSipPublishContentMgr will own it.
+               HttpBody* pHttpBody = new HttpBody(*(HttpBody*)pThisCall);
+               mpSipPublishContentMgr->publish(entity.data(),
+                                               DIALOG_EVENT_TYPE,
+                                               DIALOG_EVENT_TYPE,
+                                               1, &pHttpBody);
+            }
                         
             break;
 

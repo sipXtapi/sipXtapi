@@ -143,9 +143,7 @@ void SipPublishContentMgr::publish(const char* resourceId,
     {
         key = resourceId;
     }
-    // Insert a 1 byte so the eventTypeKey can be distinguished
-    // from the resourceId.
-    key.append("\001");
+
     if(eventTypeKey)
     {
        key.append(eventTypeKey);
@@ -232,9 +230,7 @@ void SipPublishContentMgr::publishDefault(const char* eventTypeKey,
 {
     // Construct the key to look up.
     UtlString key;
-    // Insert a 1 byte so the eventTypeKey can be distinguished
-    // from the resourceId.
-    key.append("\001");
+
     if(eventTypeKey)
     {
        key.append(eventTypeKey);
@@ -280,9 +276,7 @@ void SipPublishContentMgr::unpublish(const char* resourceId,
     {
         key = resourceId;
     }
-    // Insert a 1 byte so the eventTypeKey can be distinguished
-    // from the resourceId.
-    key.append("\001");
+
     if(eventTypeKey)
     {
        key.append(eventTypeKey);
@@ -438,9 +432,7 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
 
     UtlBoolean foundContent = FALSE;
     UtlString key(resourceId);
-    // Insert a 1 byte so the eventTypeKey can be distinguished
-    // from the resourceId.
-    key.append("\001");
+
     key.append(eventTypeKey);
     PublishContentContainer* container = NULL;
     UtlHashMap contentTypes;
@@ -458,8 +450,7 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
     if (container == NULL)
     {
        // Construct the key for the default data.
-       UtlString default_key("\001");
-       default_key.append(eventTypeKey);
+       UtlString default_key(eventTypeKey);
 
        // Look up the constructor.
        SipPublishContentMgrDefaultConstructor* constructor =
@@ -563,9 +554,7 @@ UtlBoolean SipPublishContentMgr::getPublished(const char* resourceId,
     {
         key = resourceId;
     }
-    // Insert a 1 byte so the eventTypeKey can be distinguished
-    // from the resourceId.
-    key.append("\001");
+
     if(eventTypeKey)
     {
        key.append(eventTypeKey);

@@ -176,6 +176,10 @@ UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId,
     // this content
     if(eventData)
     {
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+             "SipSubscribeServer::notifySubscribers received the request for sending out the notification for %s event type: %s ",
+              resourceId, eventType);
+              
         int numSubscriptions = 0;
         SipMessage** notifyArray = NULL;
         UtlString** acceptHeaderValuesArray = NULL;
@@ -185,6 +189,10 @@ UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId,
                                                                             numSubscriptions,
                                                                             acceptHeaderValuesArray,
                                                                             notifyArray);
+
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+             "SipSubscribeServer::notifySubscribers numSubscriptions for %s = %d",
+              resourceId, numSubscriptions);
 
         // Set up and send a NOTIFY for each subscription interested in
         // this resourcesId and eventTypeKey

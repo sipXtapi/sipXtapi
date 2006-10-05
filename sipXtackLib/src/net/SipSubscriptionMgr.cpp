@@ -272,6 +272,10 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
             lock();
             mSubscriptionStatesByDialogHandle.insert(state);
             mSubscriptionStateResourceIndex.insert(stateKey);
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                "SipSubscriptionMgr::updateDialogInfo insert a early subscription to the datebase %s",
+                stateKey->data());
+
             // Not safe to touch these after we unlock
             stateKey = NULL;
             state = NULL;
@@ -396,6 +400,10 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
                 stateKey->mpState = state;
                 mSubscriptionStatesByDialogHandle.insert(state);
                 mSubscriptionStateResourceIndex.insert(stateKey);
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                   "SipSubscriptionMgr::updateDialogInfo insert a new subscription to the datebase %s",
+                   stateKey->data());
+                   
                 // Not safe to touch these after we unlock
                 stateKey = NULL;
                 state = NULL;
@@ -480,6 +488,10 @@ UtlBoolean SipSubscriptionMgr::createNotifiesDialogInfo(const char* resourceId,
 {
     UtlString contentKey(resourceId);
     contentKey.append(eventTypeKey);
+
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipSubscriptionMgr::createNotifiesDialogInfo try to find contentKey %s in database (%d)",
+                 contentKey.data(), mSubscriptionStateResourceIndex.entries());
 
     lock();
     UtlHashBagIterator iterator(mSubscriptionStateResourceIndex, &contentKey);

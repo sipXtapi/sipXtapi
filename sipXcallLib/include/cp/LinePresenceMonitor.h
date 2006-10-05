@@ -43,7 +43,7 @@
  *
  */
 
-class LinePresenceMonitor : public StateChangeNotifier
+class LinePresenceMonitor : public StateChangeNotifier, public OsServerTask
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -66,7 +66,7 @@ public:
 /* ============================ ACCESSORS ================================= */
 
    /// Set the state value.
-   virtual bool setStatus(const Url& aor, const Status value);
+   bool setStatus(const Url& aor, const Status value);
 
    /// Subscribe the dialog on a specific line in the list
    OsStatus subscribeDialog(LinePresenceBase* line);
@@ -140,6 +140,21 @@ private:
                                     * is only one instance of this class
                                     */
                                     
+   /// Handle incomming IPC messages
+   UtlBoolean handleMessage(OsMsg& rMessage);
+
+   /// Subscribe the dialog on a specific line in the list
+   OsStatus subscribeDialogMessage(LinePresenceBase* line);
+
+   /// Unsubscribe the dialog on a specific line from the list
+   OsStatus unsubscribeDialogMessage(LinePresenceBase* line);
+   
+   /// Subscribe the presence on a specific line in the list
+   OsStatus subscribePresenceMessage(LinePresenceBase* line);
+
+   /// Unsubscribe the presence on a specific line from the list
+   OsStatus unsubscribePresenceMessage(LinePresenceBase* line);
+   
    /// Disabled copy constructor
    LinePresenceMonitor(const LinePresenceMonitor& rLinePresenceMonitor);
 

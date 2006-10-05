@@ -70,19 +70,9 @@ SipPresenceMonitor::SipPresenceMonitor(SipUserAgent* userAgent,
    UtlString localAddress;
    OsSocket::getHostIp(&localAddress);
 
-   // Enable PCMU, PCMA, Tones/RFC2833 codecs
-   SdpCodec::SdpCodecTypes codecs[3];
-    
-   codecs[0] = SdpCodecFactory::getCodecType(CODEC_G711_PCMU) ;
-   codecs[1] = SdpCodecFactory::getCodecType(CODEC_G711_PCMA) ;
-   codecs[2] = SdpCodecFactory::getCodecType(CODEC_DTMF_RFC2833) ;
+   OsConfigDb configDb;
+   configDb.set("PHONESET_MAX_ACTIVE_CALLS_ALLOWED", 2*MAX_CONNECTIONS);
 
-   mCodecFactory.buildSdpCodecFactory(3, codecs);
-
-   // Initialize and start up the media subsystem
-   OsConfigDb dummyDb;
-   mpStartUp(MP_SAMPLE_RATE, MP_SAMPLES_PER_FRAME, 6 * MAX_CONNECTIONS, &dummyDb);
-   MpMediaTask::getMediaTask(MAX_CONNECTIONS);
 #ifdef INCLUDE_RTCP
    CRTCManager::getRTCPControl();
 #endif //INCLUDE_RTCP
@@ -116,7 +106,7 @@ SipPresenceMonitor::SipPresenceMonitor(SipUserAgent* userAgent,
                                    CP_MAXIMUM_RINGING_EXPIRE_SECONDS, // inviteExpiresSeconds
                                    QOS_LAYER3_LOW_DELAY_IP_TOS,       // expeditedIpTos
                                    MAX_CONNECTIONS,                   // maxCalls
-                                   sipXmediaFactoryFactory(NULL));    // CpMediaInterfaceFactory
+                                   sipXmediaFactoryFactory(&configDb));    // CpMediaInterfaceFactory
 
    mpDialInServer = new PresenceDialInServer(mpCallManager, configFile);    
    mpCallManager->addTaoListener(mpDialInServer);

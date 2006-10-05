@@ -46,6 +46,7 @@ libsipXcall_la_SOURCES = \
     cp/SipConnection.cpp \
     cp/DialogEventPublisher.cpp \
     cp/LinePresenceMonitor.cpp \
+    cp/LinePresenceMonitorMsg.cpp \
     cp/PresenceDialInServer.cpp \
     cp/SipPresenceMonitor.cpp \
     ptapi/PtAddessCapabilities.cpp \

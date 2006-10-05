@@ -451,7 +451,6 @@ void SipDialogMonitor::notifyStateChange(UtlString& contact, SipDialogEvent* dia
    UtlVoidPtr* container;
    StateChangeNotifier* notifier;
    Url contactUrl(contact);
-   mLock.acquire();
    while ((listUri = dynamic_cast <UtlString *> (iterator())))
    {
       container = dynamic_cast <UtlVoidPtr *> (mStateChangeNotifiers.findValue(listUri));
@@ -491,6 +490,5 @@ void SipDialogMonitor::notifyStateChange(UtlString& contact, SipDialogEvent* dia
          }
       }
    }
-   mLock.release();
 }
 
