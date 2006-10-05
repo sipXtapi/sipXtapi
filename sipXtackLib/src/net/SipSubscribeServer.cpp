@@ -186,20 +186,21 @@ UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId,
                                                                             acceptHeaderValuesArray,
                                                                             notifyArray);
 
-        // Setup and send a NOTIFY for each subscription interested in
+        // Set up and send a NOTIFY for each subscription interested in
         // this resourcesId and eventTypeKey
         SipMessage* notify = NULL;
-        for(int notifyIndex = 0; 
-        notifyArray != NULL && 
-            notifyIndex < numSubscriptions && 
-            notifyArray[notifyIndex+1] != NULL; 
-        notifyIndex++)
+        for (int notifyIndex = 0; 
+             notifyArray != NULL && 
+                notifyIndex < numSubscriptions && 
+                notifyArray[notifyIndex] != NULL; 
+             notifyIndex++)
         {
             notify = notifyArray[notifyIndex];
 
             // Fill in the NOTIFY request body/content
             eventData->mpEventSpecificHandler->getNotifyContent(resourceId,
                                                                 eventTypeKey,
+                                                                eventType,
                                                                 *(eventData->mpEventSpecificContentMgr),
                                                                 *(acceptHeaderValuesArray[notifyIndex]),
                                                                 *notify);
@@ -491,14 +492,15 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
     {
         handledSubscribe = TRUE;
         UtlString resourceId;
-        UtlString eventTypeKey;
+        UtlString eventTypeKey, eventType;
         SipSubscribeServerEventHandler* handler =
             eventPackageInfo->mpEventSpecificHandler;
 
         // Get the keys used to identify the event state content
         handler->getKeys(subscribeRequest,
-                          resourceId,
-                          eventTypeKey);
+                         resourceId,
+                         eventTypeKey,
+                         eventType);
 
         SipMessage subscribeResponse;
 
@@ -545,6 +547,7 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
                  subscribeRequest.getAcceptField(acceptHeaderValue);
                  handler->getNotifyContent(resourceId, 
                                            eventTypeKey, 
+                                           eventType, 
                                            *(eventPackageInfo->mpEventSpecificContentMgr),
                                            acceptHeaderValue,
                                            notifyRequest);

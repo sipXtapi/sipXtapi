@@ -488,7 +488,7 @@ UtlBoolean SipSubscriptionMgr::createNotifiesDialogInfo(const char* resourceId,
     acceptHeaderValuesArray = NULL;
     notifyArray = NULL;
 
-        while(iterator())
+    while (iterator())
     {
         count++;
     }
@@ -718,4 +718,3 @@ void SipSubscriptionMgr::unlock()
 }
 
 /* ============================ FUNCTIONS ================================= */
-

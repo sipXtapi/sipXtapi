@@ -302,7 +302,8 @@ void SipDialogMonitor::addDialogEvent(UtlString& contact, SipDialogEvent* dialog
 }
 
 
-void SipDialogMonitor::publishContent(UtlString& contact, SipDialogEvent* dialogEvent)
+void SipDialogMonitor::publishContent(UtlString& contact,
+                                      SipDialogEvent* dialogEvent)
 {
    bool contentChanged;
    
@@ -317,7 +318,8 @@ void SipDialogMonitor::publishContent(UtlString& contact, SipDialogEvent* dialog
       contentChanged = false;
       
       list = dynamic_cast <SipResourceList *> (mMonitoredLists.findValue(listUri));
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::publishContent listUri %s list %p",
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipDialogMonitor::publishContent listUri %s list %p",
                     listUri->data(), list); 
 
       // Search for the contact in this list
@@ -353,19 +355,12 @@ void SipDialogMonitor::publishContent(UtlString& contact, SipDialogEvent* dialog
       
       if (contentChanged)
       {
-         int numOldContents;
-         HttpBody* oldContent[1];           
-   
          // Publish the content to the subscribe server
-         if (!mSipPublishContentMgr.publish(listUri->data(), DIALOG_EVENT_TYPE, DIALOG_EVENT_TYPE, 1, (HttpBody**)&list, 1, numOldContents, oldContent))
-         {
-            UtlString dialogContent;
-            int length;
-            
-            list->getBytes(&dialogContent, &length);
-            OsSysLog::add(FAC_SIP, PRI_ERR, "SipDialogMonitor::publishContent DialogEvent %s\n was not successfully published to the subscribe server",
-                          dialogContent.data());
-         }
+         // Make a copy, because mpSipPublishContentMgr will own it.
+         HttpBody* pHttpBody = new HttpBody(*(HttpBody*)list);
+         mSipPublishContentMgr.publish(listUri->data(), DIALOG_EVENT_TYPE,
+                                       DIALOG_EVENT_TYPE, 1,
+                                       &pHttpBody);
       }
    }
 }

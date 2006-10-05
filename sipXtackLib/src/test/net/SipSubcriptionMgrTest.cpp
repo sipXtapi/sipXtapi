@@ -140,12 +140,14 @@ Voice-Message: 0/0 (0/0)\r\n";
          SipSubscriptionMgr subMgr(dialogMgr);
          SipSubscribeServerEventHandler eventHandler;
          UtlString resourceId;
-         UtlString eventTypeKey;
+         UtlString eventTypeKey, eventType;
          eventHandler.getKeys(mwiSubWithAuthRequest, 
-                             resourceId,
-                             eventTypeKey);
+                              resourceId,
+                              eventTypeKey,
+                              eventType);
          ASSERT_STR_EQUAL(resourceId.data(), "111@example.com");
          ASSERT_STR_EQUAL(eventTypeKey.data(), "message-summary");
+         ASSERT_STR_EQUAL(eventType.data(), "message-summary");
 
          UtlString subscribeDialogHandle;
          UtlString earlyDialogHandle;

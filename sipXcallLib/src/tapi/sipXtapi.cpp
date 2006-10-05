@@ -623,7 +623,7 @@ SIPXTAPI_API SIPX_RESULT sipxUnInitialize(SIPX_INST hInst)
         else
         {
             OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
-                "Unable to shutdown busy SIPX_INST (0x%08X) nCalls=%d, nLines=%d, nConferences=%d",
+                "Unable to shut down busy SIPX_INST (%p) nCalls=%d, nLines=%d, nConferences=%d",
                         hInst, nCalls, nLines, nConferences) ;
             rc = SIPX_RESULT_BUSY ;
         }
@@ -887,7 +887,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallCreate(const SIPX_INST hInst,
         "sipxCallCreate hInst=%p hLine=%d phCall=%p",
         hInst, hLine, phCall);
         
-    SIPX_RESULT rc = sipxCallCreateHelper(hInst, hLine, NULL, phCall) ;
+    SIPX_RESULT rc = sipxCallCreateHelper(hInst, hLine, SIPX_CONF_NULL, phCall) ;
     if (rc == SIPX_RESULT_SUCCESS)
     {
         SIPX_CALL_DATA* pData = sipxCallLookup(*phCall, SIPX_LOCK_READ) ;
@@ -2035,6 +2035,7 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherCreate(const SIPX_INST hInst,
             {
                 publishMgr->getContent(szResourceId, 
                                        szEventType, 
+                                       szEventType, 
                                        szContentType,
                                        oldContentPtr, 
                                        isDefaultContent);
@@ -2083,9 +2084,9 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherCreate(const SIPX_INST hInst,
                 if(pData->pEventType)
                 {
                     // Create a new HttpBody to publish for the resourceId and eventType
-                    pData->pContent = 
+                    HttpBody* content = 
                         new HttpBody(pContent, nContentLength, szContentType);
-                    if(pData->pContent)
+                    if(content)
                     {
                         // Register the publisher handle
                         *phPub = gpPubHandleMap->allocHandle(pData);
@@ -2100,34 +2101,12 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherCreate(const SIPX_INST hInst,
                         }
 
                         // Publish the content
-                        publishMgr->publish(*pData->pResourceId,
-                                            *pData->pEventType,
-                                            *pData->pEventType,
+                        publishMgr->publish(pData->pResourceId->data(),
+                                            pData->pEventType->data(),
+                                            pData->pEventType->data(),
                                             1, // one content type for event
-                                            &pData->pContent,
-                                            1, // old content array size
-                                            oldContentCount,
-                                            &oldContentPtr);
+                                            &content);
                         sipXresult = SIPX_RESULT_SUCCESS;
-
-                        // There should not be any prior content for this 
-                        // resource and event type
-                        if(oldContentCount)
-                        {
-                            OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
-                                "sipxCreatePublisher: content already exists for resourceId: %s and eventType: %s",
-                                szResourceId ? szResourceId : "<null>",
-                                szEventType ? szEventType : "<null>");
-
-                            sipXresult = SIPX_RESULT_INVALID_ARGS;
-                            gpPubHandleMap->removeHandle(*phPub);
-                            phPub = NULL;
-                            delete pData->pEventType;
-                            delete pData->pResourceId;
-                            delete pData;
-                            pData = NULL;
-                        }
-
                     }
                     else
                     {
@@ -2184,8 +2163,6 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherUpdate(const SIPX_PUB hPub,
         pContent && *pContent && 
         pData)
     {
-        int oldContentCount = 0;
-        HttpBody* oldContentPtr = NULL;
         HttpBody* newContent = 
             new HttpBody(pContent, nContentLength, szContentType);
 
@@ -2194,14 +2171,11 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherUpdate(const SIPX_PUB hPub,
         if(publishMgr)
         {
             // Publish the state change
-            publishMgr->publish(*pData->pResourceId,
-                                *pData->pEventType,
-                                *pData->pEventType,
+            publishMgr->publish(pData->pResourceId->data(),
+                                pData->pEventType->data(),
+                                pData->pEventType->data(),
                                 1, // one content type for event
-                                &newContent,
-                                1, // old content array size
-                                oldContentCount,
-                                &oldContentPtr);
+                                &newContent);
             sipXresult = SIPX_RESULT_SUCCESS;
         }
         else
@@ -2210,22 +2184,6 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherUpdate(const SIPX_PUB hPub,
                 "sipxUpdatePublisher: no publisher for event type: %s",
                 pData->pEventType->data());
             sipXresult = SIPX_RESULT_FAILURE;
-        }
-
-        if(oldContentCount == 1)
-        {
-            if(oldContentPtr)
-            {
-                delete oldContentPtr;
-                oldContentPtr = NULL;
-            }
-        }
-        else if(oldContentCount > 1)
-        {
-            sipXresult = SIPX_RESULT_FAILURE;
-            OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
-                "sipxUpdatePublisher old content count: %d",
-                oldContentCount);
         }
     }
 
@@ -2283,39 +2241,14 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherDestroy(const SIPX_PUB hPub,
 
         if(unPublish)
         {
-            HttpBody* oldContent = NULL;
             SipPublishContentMgr* publishMgr = 
                 pData->pInst->pSubscribeServer->getPublishMgr(*pData->pEventType);
             if(publishMgr)
             {
                 // Publish the state change
-                int numOldContentTypes = 0;
                 publishMgr->unpublish(*pData->pResourceId, 
                                       *pData->pEventType,
-                                      *pData->pEventType,
-                                      1, // max published content types
-                                      numOldContentTypes,
-                                      &oldContent);
-
-                if(oldContent)
-                {
-                    if(pData->pContent == oldContent)
-                    {
-                        pData->pContent = NULL;
-                    }
-                    delete oldContent;
-                    oldContent = NULL;
-                }
-            }
-
-            // We cannot free up the pContent unless we
-            // unpublish it.  If it was unpublished it would
-            // have been freed above
-            if(pData->pContent)
-            {
-                OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
-                    "sipxDestroyPublisher: content did not match that which was unpublished %p != %p",
-                    oldContent, pData->pContent);
+                                      *pData->pEventType);
             }
 
             if(pData->pEventType)
@@ -3901,7 +3834,7 @@ SIPXTAPI_API SIPX_RESULT sipxLineAdd(const SIPX_INST hInst,
 SIPXTAPI_API SIPX_RESULT sipxLineAddAlias(const SIPX_LINE hLine, const char* szLineURL) 
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxLineAddAlias hLine=%d szLineURL=%d",
+        "sipxLineAddAlias hLine=%d szLineURL=%s",
         hLine, szLineURL);
 
     SIPX_RESULT sr = SIPX_RESULT_FAILURE ;

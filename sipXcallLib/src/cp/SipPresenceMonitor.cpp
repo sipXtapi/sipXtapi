@@ -293,19 +293,9 @@ bool SipPresenceMonitor::addPresenceEvent(UtlString& contact, SipPresenceEvent* 
          OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceMonitor::addPresenceEvent remove the presenceEvent %p for contact %s",
                        oldPresenceEvent, contact.data()); 
 
-         int numOldContents;
-         HttpBody* oldContent[1];           
-         
          // Unpublish the content to the subscribe server
-         if (!mSipPublishContentMgr.unpublish(contact.data(), PRESENCE_EVENT_TYPE, PRESENCE_EVENT_TYPE, 1, numOldContents, oldContent))
-         {
-            UtlString presenceContent;
-            int length;
-                 
-            oldPresenceEvent->getBytes(&presenceContent, &length);
-            OsSysLog::add(FAC_SIP, PRI_ERR, "SipPresenceMonitor::publishContent PresenceEvent %s\n was not successfully unpublished from the subscribe server",
-                          presenceContent.data());
-         }
+         mSipPublishContentMgr.unpublish(contact.data(),
+                                         PRESENCE_EVENT_TYPE, PRESENCE_EVENT_TYPE);
 
          if (oldPresenceEvent)
          {
@@ -409,19 +399,12 @@ void SipPresenceMonitor::publishContent(UtlString& contact, SipPresenceEvent* pr
    }
 #endif
 
-   int numOldContents;
-   HttpBody* oldContent[1];           
-   
    // Publish the content to the subscribe server
-   if (!mSipPublishContentMgr.publish(contact.data(), PRESENCE_EVENT_TYPE, PRESENCE_EVENT_TYPE, 1, (HttpBody**)&presenceEvent, 1, numOldContents, oldContent))
-   {
-      UtlString presenceContent;
-      int length;
-           
-      presenceEvent->getBytes(&presenceContent, &length);
-      OsSysLog::add(FAC_SIP, PRI_ERR, "SipPresenceMonitor::publishContent PresenceEvent %s\n was not successfully published to the subscribe server",
-                    presenceContent.data());
-   }
+   // Make a copy, because mpSipPublishContentMgr will own it.
+   HttpBody* pHttpBody = new HttpBody(*(HttpBody*)presenceEvent);
+   mSipPublishContentMgr.publish(contact.data(),
+                                 PRESENCE_EVENT_TYPE, PRESENCE_EVENT_TYPE,
+                                 1, &pHttpBody);
 }
 
 

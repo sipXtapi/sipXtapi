@@ -276,8 +276,8 @@ class SipDialogEvent : public HttpBody
    virtual int getLength() const;
 
    //! Get the serialized char representation of this dialog event.
-   /*! \param bytes - buffer space where the dialog event is written, null
-    *       terminated.
+   /*! \param bytes - pointer to the body text of the dialog event will
+    *       be placed here.
     *  \param length - the number of bytes written (not including the
     *       null terminator).
     */
@@ -285,13 +285,14 @@ class SipDialogEvent : public HttpBody
                          int* length) const;
 
    //! Get the serialized string representation of this dialog event.
-   /*! \param bytes - buffer space where the dialog event is written, null
-    *       terminated.
+   /*! \param bytes - UtlString into which the body text will be copied.
     *  \param length - the number of bytes written (not including the
     *       null terminator).
     */
    virtual void getBytes(UtlString* bytes,
                          int* length) const;
+   // Import HttpBody's getBytes methods, except as overridden here.
+   using HttpBody::getBytes;
 
    void setEntity(const char* entity);
 

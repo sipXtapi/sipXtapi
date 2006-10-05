@@ -354,9 +354,14 @@ HttpBody::BodyClassTypes HttpBody::getClassType() const
     return(mClassType);
 }
 
+const char* HttpBody::getBytes() const
+{
+   return mBody.data();
+}
+
 const char* HttpBody::getContentType() const
 {
-        return(data());
+   return(data());
 }
 
 UtlBoolean HttpBody::getMultipartBytes(int partIndex, const char** bytes, int* length) const

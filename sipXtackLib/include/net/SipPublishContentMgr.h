@@ -21,7 +21,7 @@
 #include <os/OsMutex.h>
 #include <utl/UtlDefs.h>
 #include <utl/UtlHashMap.h>
-
+#include <utl/UtlContainable.h>
 
 // DEFINES
 // MACROS
@@ -32,24 +32,44 @@
 // FORWARD DECLARATIONS
 class HttpBody;
 class UtlString;
+class SipPublishContentMgrDefaultConstructor;
 
 // TYPEDEFS
 
-//! Class for managing body content to be accepted via PUBLISH or provided in NOTIFY requests
-/*! This class is basically a database that is used to store and retrieve
- *  content (i.e. SIP Event state bodies).  This class does not actually
- *  touch or process SIP messages.  It is used by other classes and applications
- *  to store and retrieve content related to SIP SUBSCRIBE, NOTIFY and
- *  PUBLISH requests.  The resourceId and eventTypeKey have no symmantics.
- *  It is up to the application or event package to decide what the 
- *  resourceId and eventTypeKey look like.  A suggested default is to
- *  use:  <userId>@<hostname>[:port] as provided in the SUBSCRIBE or
- *  PUBLISH request URI.  It is suggested that host be the domainname
- *  not the specific IP address.  It is also suggested the SIP event
- *  type token be used (without any event header parameters) as the
- *  eventTypeKey.  Only in special cases where the content varies
- *  based upon an event parameter, should the parameter(s) be include
- *  included in the eventTypeKey.
+/** Class for managing body content to be accepted via PUBLISH or provided in NOTIFY requests
+ *
+ *  This class is a database that is used to store and retrieve
+ *  content (i.e. SIP Event state bodies).  This class does not
+ *  actually touch or process SIP messages.  It is used by other
+ *  classes and applications to store and retrieve content related to
+ *  SIP SUBSCRIBE, NOTIFY and PUBLISH requests.  The usual usage is to
+ *  have one instance that maintains state for an unlimited number of
+ *  resources and event types.
+ *
+ *  The resourceId and eventTypeKey have no semantics.  Syntactically,
+ *  they are restricted only by:  (1) resourceId may not be the null
+ *  string, and (2) eventTypeKey may not contain a byte with the value
+ *  1 (control-A), so that the concatenation of resourceId and
+ *  eventTypeKey can be split unambiguously.
+ *
+ *  It is up to the application or event package to decide what the
+ *  resourceId and eventTypeKey look like.  In addition, there is an
+ *  eventType that may provide a coarser classification than
+ *  eventTypeKey.  Callback functions are registered for eventTypes
+ *  rather than eventTypeKeys, so the set of eventTypeKeys is not
+ *  limited at compile time.
+ *  
+ *  A suggested convention for the resourceId
+ *  is to use:  <userId>@<hostname>[:port] as provided in the
+ *  SUBSCRIBE or PUBLISH request URI.  It is suggested that host be
+ *  the domainname not the specific IP address.
+ *
+ *  It is also suggested the SIP event type token be used (without any
+ *  event header parameters) as the eventTypeKey.  Only in special
+ *  cases where the content varies based upon an event parameter,
+ *  should the parameter(s) be include included in the eventTypeKey.
+ *  Usually, eventType is the same as eventTypeKey, or is the
+ *  SIP event type alone, if eventTypeKey contains parameters.
  *
  * \par Put Event State In
  *  Applications put Event state information for a specific resourceId
@@ -76,8 +96,8 @@ class SipPublishContentMgr
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-    //! Callback used to notify interested appliactions when content has changed
-    /*! Well behaved applications that register and implement this function
+    /** Callback used to notify interested applications when content has changed
+     *  Well behaved applications that register and implement this function
      *  should not block.  They should quickly return as failure to do so
      *  may hinder timely processing and system performance.  The memory
      *  for the content provided in the arguments should not be presumed to
@@ -96,27 +116,26 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-    //! Default publish container constructor
+    /// Default publish container constructor
     SipPublishContentMgr();
 
 
-    //! Destructor
+    /// Destructor
     virtual
     ~SipPublishContentMgr();
 
 
 /* ============================ MANIPULATORS ============================== */
 
-    //! Provide the default content for the given event type key
-    /*! If content cannot be found for a specific resourceId, then
-     *  the default content for a given eventTypeKey is provided.
+    /** Provide the default content for the given event type key
+     *
      *  \param eventTypeKey - a unique id for the event type, typically the
      *         SIP Event type token.  Usually this does not contain any of
      *         the SIP Event header parameters.  However it may contain 
      *         event header parameters if the parameter identifies different
      *         content.  If event parameters are included, they must be in
      *         a consistent order for all uses of eventTypeKey in this class.
-     *         There is no symantics enforced.  This is an opaque string used 
+     *         There is no semantics enforced.  This is an opaque string used 
      *         as part of the key.
      *  \param eventType - SIP event type token
      *  \param numContentTypes - the number of bodies (each having a unique
@@ -130,42 +149,49 @@ public:
      *         types match more than one of the mime types provided in the
      *         SUBSCRIBE Accepts header, the order of the bodies in the
      *         eventContent array indicates a preference.  The bodies are
-     *         NOT copied.  The application is expected to provide bodies
-     *         that will exist as long as they are contained in this class.
+     *         NOT copied, but their memory becomes owned by the
+     *         SipPublishContentMgr object and will be deleted by it when
+     *         they are no longer needed.
      */
-    virtual UtlBoolean publishDefault(const char* eventTypeKey,
-                                      const char* eventType,
-                                      int numContentTypes,
-                                      HttpBody* eventContent[],
-                                      int maxOldContentTypes,
-                                      int& numOldContentTypes,
-                                      HttpBody* oldEventContent[]);
+    virtual void publishDefault(const char* eventTypeKey,
+                                const char* eventType,
+                                int numContentTypes,
+                                HttpBody* eventContent[]);
 
-    //! Remove the default content for eventTypeKey, returning the old content
-    virtual UtlBoolean unpublishDefault(const char* eventTypeKey,
-                                        const char* eventType,
-                                      int maxOldContentTypes,
-                                      int& numOldContentTypes,
-                                      HttpBody* oldEventContent[]);
+    /** Add a default content constructor function.
+     *
+     *  \param *defaultConstructor becomes owned by the SipPublishContentMgr,
+     *         which will delete it when it is no longer needed.
+     */
+    virtual void publishDefault(const char* eventTypeKey,
+                                const char* eventType,
+                                SipPublishContentMgrDefaultConstructor*
+                                defaultConstructor);
 
-    //! Provide the given content for the resource and event type key
-    /*! An application provides content (i.e. SIP event state bodies)
+    /** Remove the default content and default content constructor for
+     *  eventTypeKey.
+     */
+    virtual void unpublishDefault(const char* eventTypeKey,
+                                  const char* eventType);
+
+    /** Provide the given content for the resource and event type key
+     *  An application provides content (i.e. SIP event state bodies)
      *  through this interface for the given resourceId and eventTypeKey.
      *  The resourceId and eventTypeKey together compose a unique key which
-     * identifies the provided content.  The resourceId is optained from
-     * the PUBLISH or SUBSCRIBE request URI.  The eventTypeKey is obtained
-     * from the SIP Event header field.
+     *  identifies the provided content.  The resourceId is optained from
+     *  the PUBLISH or SUBSCRIBE request URI.  The eventTypeKey is obtained
+     *  from the SIP Event header field.
      *  \param resourceId - a unique id for the resource, typically the
      *         identity or AOR for the event type content.  There is no
-     *         symantics enforces.  This is an opaque string used as part
+     *         semantics enforced.  This is an opaque string used as part
      *         of the key.
      *  \param eventTypeKey - a unique id for the event type, typically the
      *         SIP Event type token.  Usually this does not contain any of
      *         the SIP Event header parameters.  However it may contain 
      *         event header parameters if the parameter identifies different
      *         content.  If event parameters are included, they must be in
-     *         a consistent orderf for all uses of eventTypeKey in this class.
-     *         There is no symantics enforces.  This is an opaque string used 
+     *         a consistent order for all uses of eventTypeKey in this class.
+     *         There is no semantics enforced.  This is an opaque string used 
      *         as part of the key.
      *  \param eventType - SIP event type token
      *  \param numContentTypes - the number of bodies (each having a unique
@@ -179,24 +205,26 @@ public:
      *         types match more than one of the mime types provided in the
      *         SUBSCRIBE Accepts header, the order of the bodies in the
      *         eventContent array indicates a preference.  The bodies are
-     *         NOT copied.  The application is expected to provide bodies
-     *         that will exist as long as they are contained in this class.
+     *         NOT copied, but their memory becomes owned by the
+     *         SipPublishContentMgr object and will be deleted by it when
+     *         they are no longer needed.
+     *  \param noNotify - if TRUE, do not generate any NOTIFYs for this content
+     *         change.  This should only be used in generateDefaultContent
+     *         methods.
      */
-    virtual UtlBoolean publish(const char* resourceId,
-                               const char* eventTypeKey,
-                               const char* eventType,
-                               int numContentTypes,
-                               HttpBody* eventContent[],
-                               int maxOldContentTypes,
-                               int& numOldContentTypes,
-                               HttpBody* oldEventContent[]);
+    virtual void publish(const char* resourceId,
+                         const char* eventTypeKey,
+                         const char* eventType,
+                         int numContentTypes,
+                         HttpBody* eventContent[],
+                         UtlBoolean noNotify = FALSE);
 
-    //! Remove the content for the given resourceId and eventTypeKey
-    /*! The content bodies are given back so that the application can
+    /** Remove the content for the given resourceId and eventTypeKey
+     *  The content bodies are given back so that the application can
      *  release or delete the bodies.
      *  \param resourceId - a unique id for the resource, typically the
      *         identity or AOR for the event type content.  There is no
-     *         symantics enforces.  This is an opaque string used as part
+     *         semantics enforced.  This is an opaque string used as part
      *         of the key.
      *  \param eventTypeKey - a unique id for the event type, typically the
      *         SIP Event type token.  Usually this does not contain any of
@@ -204,38 +232,48 @@ public:
      *         event header parameters if the parameter identifies different
      *         content.  If event parameters are included, they must be in
      *         a consistent order for all uses of eventTypeKey in this class.
-     *         There is no symantics enforces.  This is an opaque string used 
+     *         There is no semantics enforced.  This is an opaque string used 
      *         as part of the key.
      *  \param eventType - SIP event type token
-     *  \param maxOldContentTypes - the maximum size of the given eventContent array.
-     *  \param numContentTypes - the number of bodies (each having a unique
-     *         content type) provided in the eventContent array.  Multiple
-     *         content types are published if the server wants to deliver
-     *         different content types based upon the SUBSCRIBE Accepts
-     *         header content types listed.
-     *  \param oldEventContent - the SIP Event state content which was provided
-     *         via a PUBLISH or requested via a SUBSCRIBE to be delivered
-     *         via a NOTIFY.  If multiple bodies are provided and the content 
-     *         types match more than one of the mime types provided in the
-     *         SUBSCRIBE Accepts header, the order of the bodies in the
-     *         eventContent array indicates a preference.  The bodies are
-     *         NOT copied.  The application is expected to provide bodies
-     *         that will exist as long as they are contained in this class.
      */
-    virtual UtlBoolean unpublish(const char* resourceId,
-                                const char* eventTypeKey,
-                                const char* eventType,
-                               int maxOldContentTypes,
-                               int& numOldContentTypes,
-                               HttpBody* oldEventContent[]);
+    virtual void unpublish(const char* resourceId,
+                           const char* eventTypeKey,
+                           const char* eventType);
 
-    //! Get the content for the given resourceId, eventTypeKey and contentTypes
-    /*! Retrieves the content type identified by the resourceID and eventTypeKey.
+    /** Fetch the published content for a given resourceId/eventTypeKey.
+     *  The content body pointers point to copies of the stored
+     *  bodies, and the caller is responsible for deleting them.
+     *  Returns TRUE unless maxContentTypes is too small to hold the
+     *  published content versions.
+     *  \param resourceId - a unique id for the resource, or NULL
+     *         to retrieve the default content for the eventTypeKey.
+     *  \param eventTypeKey - the unique id for the event type.
+     *  \param eventType - SIP event type token
+     *  \param maxContentTypes - the size of the provided
+     *         eventContent array.
+     *  \param numContentTypes - upon return, *numContentType is set
+     *         to the number of bodies (each having a unique
+     *         content type) set in the eventContent array.
+     *  \param eventContent - the SIP Event state content.
+     *  \param pDefaultConstructor - if not NULL, *pDefaultConstructor
+     *         is set to point to a copy of the defaultConstructor for
+     *         eventTypeKey (if one is set), or NULL.
+     */
+    virtual UtlBoolean getPublished(const char* resourceId,
+                                    const char* eventTypeKey,
+                                    int maxContentTypes,
+                                    int& numContentTypes,
+                                    HttpBody* eventContent[],
+                                    SipPublishContentMgrDefaultConstructor**
+                                    defaultConstructor);
+
+    /** Get the content for the given resourceId, eventTypeKey and contentTypes
+     *  Retrieves the content type identified by the resourceID and eventTypeKey.
      *  The given contentTypes indicates what content types are accepted (i.e.
      *  the mime types from the SUBSCRIBE Accept header).
      *  \param resourceId - a unique id for the resource, typically the
      *         identity or AOR for the event type content.  There is no
-     *         symantics enforces.  This is an opaque string used as part
+     *         semantics enforced.  This is an opaque string used as part
      *         of the key.
      *  \param eventTypeKey - a unique id for the event type, typically the
      *         SIP Event type token.  Usually this does not contain any of
@@ -243,8 +281,9 @@ public:
      *         event header parameters if the parameter identifies different
      *         content.  If event parameters are included, they must be in
      *         a consistent order for all uses of eventTypeKey in this class.
-     *         There is no symantics enforces.  This is an opaque string used 
+     *         There is no semantics enforced.  This is an opaque string used 
      *         as part of the key.
+     *  \param eventType - SIP event type token
      *  \param numContentTypes - the number of mime types in the contentTypes
      *         array.  numContentTypes is -1 and getContent returns FALSE if
      *         maxContentTypes is not big enough.
@@ -260,12 +299,13 @@ public:
      */
     virtual UtlBoolean getContent(const char* resourceId,
                                   const char* eventTypeKey,
+                                  const char* eventType,
                                   const char* acceptHeaderValue,
                                   HttpBody*& content,
                                   UtlBoolean& isDefaultContent);
 
-    //! Set the callback which gets invoked when ever the content changes
-    /*! Currently only one observer is allowed per eventTypeKey.  If
+    /** Set the callback which gets invoked whenever the content changes
+     *  Currently only one observer is allowed per eventTypeKey.  If
      *  a subsequent observer is set for the same eventTypeKey, it replaces
      *  the existing one.  The arguments of the callback function have
      *  the same meaning as getContent.
@@ -274,7 +314,7 @@ public:
      *  resourceId is NULL.  The application is responsible for knowing
      *  which resources do not have specific content (i.e. are observing
      *  the default content and may need to be notified).
-     *  \param eventType - SIP event type token
+     *  \param eventTypeKey - SIP event type key
      *  \param applicationData - application specific data that is to be
      *         passed back to the application in the callback function.
      *  Returns TRUE if the callback is set for the eventTypeKey.  Will
@@ -284,8 +324,8 @@ public:
                                                 void* applicationData,
                              SipPublisherContentChangeCallback callbackFunction);
 
-    //! Remove the current observer for the eventTypeKey
-    /*! If the given callbackFunction does not match the existing one,
+    /** Remove the current observer for the eventTypeKey
+     *  If the given callbackFunction does not match the existing one,
      *  this method returns FALSE and the existing observer(s) remain.
      */
     virtual UtlBoolean removeContentChangeObserver(const char* eventType,
@@ -295,10 +335,12 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
-    //! Get some debug information
+    /// Get some debug information
     void getStats(int& numDefaultContent,
-                    int& numResourceSpecificContent,
-                    int& numCallbacksRegistered);
+                  int& numDefaultConstructor,
+                  int& numResourceSpecificContent,
+                  int& numCallbacksRegistered);
+
 /* ============================ INQUIRY =================================== */
 
 
@@ -307,28 +349,71 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-    //! parse the accept header field and create a HashMap with a UtlString for each MIME type
+    /// parse the accept header field and create a HashMap with a UtlString for each MIME type
     UtlBoolean buildContentTypesContainer(const char* acceptHeaderValue, 
                                           UtlHashMap& contentTypes);
 
-    //! Copy constructor NOT ALLOWED
+    /// Copy constructor NOT ALLOWED
     SipPublishContentMgr(const SipPublishContentMgr& rSipPublishContentMgr);
 
-    //! Assignment operator NOT ALLOWED
+    /// Assignment operator NOT ALLOWED
     SipPublishContentMgr& operator=(const SipPublishContentMgr& rhs);
 
-
-
-    //! lock for single thread use
+    /// lock for single thread use
     void lock();
 
-    //! unlock for use
+    /// unlock for use
     void unlock();
 
     OsMutex mPublishMgrMutex;
+    // Indexed by strings "resourceId\001eventTypeKey".
     UtlHashMap mContentEntries; 
+    // Indexed by strings "\001eventTypeKey".
     UtlHashMap mDefaultContentEntries;
+    UtlHashMap mDefaultContentConstructors;
+    // Indexed by strings "eventType".
     UtlHashMap mEventContentCallbacks;
+};
+
+/**
+ * Helper class for SipPublishContentMgr.
+ *
+ * Each instance is a device for producing default content for a
+ * resource/event-type when generateDefaultContent is set but there is no
+ * content for the resource/event-type.
+ *
+ * SipPublicContentMgrDefaultConstructor is pure virtual.  Instances
+ * can only be created of subclasses that provide a getContent()
+ * method.
+ */
+class SipPublishContentMgrDefaultConstructor : public UtlContainable
+{
+  public:
+
+   /** Generate the content for a recource and event.
+    *  Called when getContent is called for a resourceId/eventTypeKey
+    *  that has no published content.  generateDefaultContent may set
+    *  content for that combination, or it can do nothing, which
+    *  forces getContent to use the default content (if any) for that
+    *  eventTypeKey.  If generateDefaultContent calls
+    *  contentMgr->publish(), it must provide noNotify = TRUE, because
+    *  the caller will generate NOTIFYs for this content.
+    */
+   void virtual generateDefaultContent(SipPublishContentMgr* contentMgr,
+                                       const char* resourceId,
+                                       const char* eventTypeKey,
+                                       const char* eventType) = 0;
+
+   /// Make a copy of this object according to its real type.
+   virtual SipPublishContentMgrDefaultConstructor* copy() = 0;
+
+   // Support functions for UtlContainable.
+
+   /// Calculate a hash of the object.
+   virtual unsigned int hash() const;
+
+   /// Compare to any other UtlContainable
+   virtual int compareTo(UtlContainable const *other) const;
 };
 
 /* ============================ INLINE METHODS ============================ */
