@@ -50,7 +50,7 @@ testsuite_SOURCES = \
     utl/UtlHashBagIterator.cpp \
     utl/UtlRegex.cpp \
     utl/UtlTokenizerTest.cpp \
-	 utl/XmlContentTest.cpp \
+    utl/XmlContentTest.cpp \
     os/OsTestUtilities.cpp \
     os/OsTestUtilities.h \
     os/OsNameDbTest.cpp \
@@ -72,8 +72,10 @@ testsuite_SOURCES = \
     os/OsProcessIteratorTest.cpp \
     os/OsProcessTest.cpp \
     os/OsProcessMgrTest.cpp \
-	 utl/TestPlugin.h \
-	 utl/PluginHooksTest.cpp
+    utl/TestPlugin.h \
+    utl/PluginHooksTest.cpp \
+    os/OsContactListTest.cpp  \
+    os/OsContactTest.cpp
 
 # :TODO: Removed because they depend on direct access to glib
 #    os/OsTimerTest.cpp

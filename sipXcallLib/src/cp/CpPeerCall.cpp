@@ -252,6 +252,7 @@ UtlBoolean CpPeerCall::handleDialString(OsMsg* pEventMessage)
     void* pSecurity = (void*) ((CpMultiStringMessage*)pEventMessage)->getInt3Data();
     int bandWidth = ((CpMultiStringMessage*)pEventMessage)->getInt4Data();
     SIPX_TRANSPORT_DATA* pTransport = (SIPX_TRANSPORT_DATA*)((CpMultiStringMessage*)pEventMessage)->getInt5Data();
+    SIPX_RTP_TRANSPORT rtpTransportOptions = (SIPX_RTP_TRANSPORT)((CpMultiStringMessage*)pEventMessage)->getInt6Data();
     const char* locationHeaderData = (locationHeader.length() == 0) ? NULL : locationHeader.data();
 
 #ifdef TEST_PRINT
@@ -287,13 +288,13 @@ UtlBoolean CpPeerCall::handleDialString(OsMsg* pEventMessage)
         {
             // Use supplied callId
             addParty(remoteHostName.data(), NULL, NULL, desiredCallId.data(), contactId, pDisplay, pSecurity, 
-                     locationHeaderData, bandWidth, false, NULL, pTransport);
+                     locationHeaderData, bandWidth, false, NULL, pTransport, rtpTransportOptions);
         }
         else
         {
             // Use default call id
             addParty(remoteHostName.data(), NULL, NULL, NULL, contactId, pDisplay, pSecurity,
-                     locationHeaderData, bandWidth, false, NULL, pTransport);
+                     locationHeaderData, bandWidth, false, NULL, pTransport, rtpTransportOptions);
         }        
     } 
 	delete pTransport;  // (SipConnection should have a copy of it)
@@ -542,7 +543,7 @@ UtlBoolean CpPeerCall::handleTransfereeConnection(OsMsg* pEventMessage)
     ((CpMultiStringMessage*)pEventMessage)->getString4Data(originalCallId);
     ((CpMultiStringMessage*)pEventMessage)->getString5Data(originalConnectionAddress);
     bool bOnHold = (bool) ((CpMultiStringMessage*)pEventMessage)->getInt1Data() ;
-    int contactId = ((CpMultiStringMessage*)pEventMessage)->getInt2Data() ;
+    SIPX_RTP_TRANSPORT rtpTransportOptions = (SIPX_RTP_TRANSPORT) ((CpMultiStringMessage*)pEventMessage)->getInt2Data() ;
 
 #ifdef TEST_PRINT
     osPrintf("%s-CpPeerCall::CP_TRANSFEREE_CONNECTION referTo: %s referredBy: \"%s\" originalCallId: %s originalConnectionAddress: %s\n",
@@ -571,7 +572,7 @@ UtlBoolean CpPeerCall::handleTransfereeConnection(OsMsg* pEventMessage)
 #ifdef TEST_PRINT
             osPrintf("%s-CpPeerCall:CP_TRANSFEREE_CONNECTION creating connection via addParty\n", mName.data());
 #endif
-            addParty(referTo, referredBy, originalConnectionAddress, NULL, contactId, 
+            addParty(referTo, referredBy, originalConnectionAddress, NULL, 0, 
                     NULL, NULL, FALSE, AUDIO_CODEC_BW_DEFAULT, bOnHold, originalCallId);
             // Note: The connection is added to the call in addParty
         }
@@ -633,6 +634,12 @@ UtlBoolean CpPeerCall::handleSipMessage(OsMsg* pEventMessage)
                 lineBusyBehavior, 
                 forwardOnBusy.data()                );
             ((SipConnection*)connection)->setSecurity(mpSecurity);
+            UtlString voiceQualityReportTarget;
+            if (mpManager->getVoiceQualityReportTarget(voiceQualityReportTarget))
+            {
+                ((SipConnection*)connection)->setVoiceQualityReportTarget(
+                        voiceQualityReportTarget) ;
+            }
             addConnection(connection);
             bAddedConnection = TRUE ;
             mDtmfEnabled = TRUE ;
@@ -3106,7 +3113,8 @@ Connection* CpPeerCall::addParty(const char* transferTargetAddress,
                                  const int bandWidth,
                                  UtlBoolean bOnHold,
 								 const char* originalCallId,
-                                 SIPX_TRANSPORT_DATA* pTransport)
+                                 SIPX_TRANSPORT_DATA* pTransport,
+                                 const SIPX_RTP_TRANSPORT rtpTransportOptions)
 {
     SipConnection* connection = NULL;
 
@@ -3133,6 +3141,12 @@ Connection* CpPeerCall::addParty(const char* transferTargetAddress,
     if (pSecurity)
     {
         connection->setSecurity((SIPXTACK_SECURITY_ATTRIBUTES*)pSecurity);
+    }
+    
+    UtlString voiceQualityReportTarget;
+    if (mpManager->getVoiceQualityReportTarget(voiceQualityReportTarget))
+    {
+        connection->setVoiceQualityReportTarget(voiceQualityReportTarget) ;
     }
     
     connection->setExternalTransport(pTransport);
@@ -3185,7 +3199,8 @@ Connection* CpPeerCall::addParty(const char* transferTargetAddress,
         locationHeader,
         bandWidth,
         bOnHold,
-		originalCallId); 
+        originalCallId,
+        rtpTransportOptions); 
 
     addToneListenersToConnection(connection) ;
 

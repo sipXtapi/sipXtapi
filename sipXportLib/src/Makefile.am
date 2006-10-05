@@ -71,9 +71,12 @@ libsipXport_la_SOURCES =  \
     utl/XmlContent.cpp \
     utl/UtlRandom.cpp \
     utl/PluginHooks.cpp \
+    os/NatMsg.cpp \
     os/OsAssert.c \
     os/OsCallback.cpp \
     os/OsConfigDb.cpp \
+    os/OsContact.cpp \
+    os/OsContactList.cpp \
     os/OsConnectionSocket.cpp \
     os/OsCSemBase.cpp \
     os/OsDatagramSocket.cpp \
@@ -95,6 +98,8 @@ libsipXport_la_SOURCES =  \
     os/OsNameDb.cpp \
     os/OsNatAgentTask.cpp \
     os/OsNatDatagramSocket.cpp \
+    os/OsNatConnectionSocket.cpp \
+    os/OsNatSocketBaseImpl.cpp \
     os/OsPathBase.cpp \
     os/osPrintf.cpp \
     os/OsProcessBase.cpp \
@@ -102,7 +107,7 @@ libsipXport_la_SOURCES =  \
     os/OsProcessMgr.cpp \
     os/OsProtectEvent.cpp \
     os/OsProtectEventMgr.cpp \
-	os/OsPtrMsg.cpp \
+    os/OsPtrMsg.cpp \
     os/OsQueuedEvent.cpp \
     os/OsRpcMsg.cpp \
     os/OsRWMutex.cpp \

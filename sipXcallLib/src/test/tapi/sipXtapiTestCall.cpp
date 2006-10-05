@@ -872,7 +872,7 @@ void sipXtapiTestSuite::testCallPlayAudioFile()
         {
             sipxConfigSetConnectionIdleTimeout(g_hInst2, 1);
             sipxCallAudioPlayFileStop(g_hAutoAnswerCallbackCall);
-            CPPUNIT_ASSERT_EQUAL(sipxCallAudioPlayFileStart(g_hAutoAnswerCallbackCall, "ringtone.raw",  true, true, false ), SIPX_RESULT_SUCCESS);
+            CPPUNIT_ASSERT_EQUAL(sipxCallAudioPlayFileStart(g_hAutoAnswerCallbackCall, "busy.wav",  true, true, false ), SIPX_RESULT_SUCCESS);
             sipxCallAudioPlayFileStop(g_hAutoAnswerCallbackCall);
             bRC = validatorCalled.waitForMediaEvent(MEDIA_PLAYFILE_START, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, true) ;
             bRC = validatorCalled.waitForMediaEvent(MEDIA_PLAYFILE_STOP, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, true) ;
@@ -882,7 +882,7 @@ void sipXtapiTestSuite::testCallPlayAudioFile()
             sipxCallAudioPlayFileStop(g_hAutoAnswerCallbackCall);
             sipxCallAudioPlayFileStop(g_hAutoAnswerCallbackCall);
             sipxCallAudioPlayFileStop(hCall);
-            CPPUNIT_ASSERT_EQUAL(sipxCallAudioPlayFileStart(hCall, "ringtone.raw",  true, true, false ), SIPX_RESULT_SUCCESS);
+            CPPUNIT_ASSERT_EQUAL(sipxCallAudioPlayFileStart(hCall, "busy.wav",  true, true, false ), SIPX_RESULT_SUCCESS);
             sipxCallAudioPlayFileStop(g_hAutoAnswerCallbackCall);
             sipxCallAudioPlayFileStop(hCall);
             bRC = validatorCalling.waitForMediaEvent(MEDIA_PLAYFILE_START, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, true) ;
@@ -1949,14 +1949,17 @@ void sipXtapiTestSuite::testSendInfoExternalTransport()
         SIPX_CONTACT_ADDRESS aAddress[32];
         memset(aAddress, 0, 32);
         sipxConfigGetLocalContacts(g_hInst, aAddress, 32, nDummy);
+
         for (int j = 0; j < nDummy; j++)
         {
             if (strcmp(aAddress[j].cCustomTransportName, "info-tunnel") == 0)
             {
+              sipxCallConnect(hCall, "sip:foo@127.0.0.1:9100", aAddress[j].id) ;
                 break;
             }
         }
-        sipxCallConnect(hCall, "sip:foo@127.0.0.1:9100", aAddress[j].id) ;
+        // If no match is found, sipxCallConnect will not be called,
+        // and the following tests will fail.
 
        // Validate Calling Side
         bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_DIALTONE, CALLSTATE_CAUSE_NORMAL, true) ;

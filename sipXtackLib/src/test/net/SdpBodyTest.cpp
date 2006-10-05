@@ -50,7 +50,9 @@ public:
             "t=2873397496 2873404696\r\n"
             "a=recvonly\r\n"
             "m=audio 49170 RTP/AVP 0\r\n"
+            "m=audio 59170 TCP/RTP/AVP 0\r\n"
             "m=video 51372 RTP/AVP 31\r\n"
+            "m=video 61372 TCP/RTP/AVP 31\r\n"
             "m=application 32416 udp wb\r\n"
             "a=orient:portrait\r\n"
             ;
@@ -95,7 +97,9 @@ public:
             "t=2873397496 2873404696\r\n"
             "a=recvonly\r\n"
             "m=audio 49170 RTP/AVP 0\r\n"
+            "m=audio 59170 TCP/RTP/AVP 0\r\n"
             "m=video 51372 RTP/AVP 31\r\n"
+            "m=video 61372 TCP/RTP/AVP 31\r\n"
             "m=application 32416 udp wb\r\n"
             "a=orient:portrait\r\n"
             ;
@@ -105,7 +109,7 @@ public:
         /* Why are there not accessors for version or other standard fields !?! */
 
         int fields = body.SdpBody::getFieldCount();
-        CPPUNIT_ASSERT(fields == 13);
+        CPPUNIT_ASSERT(fields == 15);
 
         UtlString name;
         UtlString value;
@@ -152,24 +156,32 @@ public:
 
         CPPUNIT_ASSERT(body.getValue(10, &name, &value));
         ASSERT_STR_EQUAL(name.data(), "m");
-        ASSERT_STR_EQUAL(value.data(), "video 51372 RTP/AVP 31");
+        ASSERT_STR_EQUAL(value.data(), "audio 59170 TCP/RTP/AVP 0");
 
         CPPUNIT_ASSERT(body.getValue(11, &name, &value));
         ASSERT_STR_EQUAL(name.data(), "m");
-        ASSERT_STR_EQUAL(value.data(), "application 32416 udp wb");
+        ASSERT_STR_EQUAL(value.data(), "video 51372 RTP/AVP 31");
 
         CPPUNIT_ASSERT(body.getValue(12, &name, &value));
+        ASSERT_STR_EQUAL(name.data(), "m");
+        ASSERT_STR_EQUAL(value.data(), "video 61372 TCP/RTP/AVP 31");
+
+        CPPUNIT_ASSERT(body.getValue(13, &name, &value));
+        ASSERT_STR_EQUAL(name.data(), "m");
+        ASSERT_STR_EQUAL(value.data(), "application 32416 udp wb");
+
+        CPPUNIT_ASSERT(body.getValue(14, &name, &value));
         ASSERT_STR_EQUAL(name.data(), "a");
         ASSERT_STR_EQUAL(value.data(), "orient:portrait");
 
-        CPPUNIT_ASSERT(!body.getValue(13, &name, &value));
+        CPPUNIT_ASSERT(!body.getValue(15, &name, &value));
         CPPUNIT_ASSERT(name.isNull());
         CPPUNIT_ASSERT(value.isNull());
 
         name = "foo";
         value = "notempty";
 
-        CPPUNIT_ASSERT(!body.getValue(15, &name, &value));
+        CPPUNIT_ASSERT(!body.getValue(16, &name, &value));
         CPPUNIT_ASSERT(name.isNull());
         CPPUNIT_ASSERT(value.isNull());
 
@@ -312,7 +324,9 @@ public:
             "t=2873397496 2873404696\r\n"
             "a=recvonly\r\n"
             "m=audio 49170 RTP/AVP 0\r\n"
+            "m=audio 59170 TCP/RTP/AVP 0\r\n"
             "m=video 51372 RTP/AVP 31\r\n"
+            "m=video 61372 TCP/RTP/AVP 31\r\n"
             "m=application 32416 udp wb\r\n"
             "a=orient:portrait\r\n"
             ;
@@ -338,7 +352,9 @@ public:
             "t=10000000 20000000\r\n"
             "a=recvonly\r\n"
             "m=audio 49170 RTP/AVP 0\r\n"
+            "m=audio 59170 TCP/RTP/AVP 0\r\n"
             "m=video 51372 RTP/AVP 31\r\n"
+            "m=video 61372 TCP/RTP/AVP 31\r\n"
             "m=application 32416 udp wb\r\n"
             "a=orient:portrait\r\n"
             ;
@@ -351,7 +367,9 @@ public:
             "s=SDP Seminar\r\n"
             "i=A Seminar on the session description protocol\r\n"
             "m=audio 49170 RTP/AVP 0\r\n"
+            "m=audio 59170 TCP/RTP/AVP 0\r\n"
             "m=video 51372 RTP/AVP 31\r\n"
+            "m=video 61372 TCP/RTP/AVP 31\r\n"
             "m=application 32416 udp wb\r\n"
             "a=orient:portrait\r\n"
             ;
@@ -369,7 +387,9 @@ public:
             "i=A Seminar on the session description protocol\r\n"
             "t=2208988800 2208988801\r\n"
             "m=audio 49170 RTP/AVP 0\r\n"
+            "m=audio 59170 TCP/RTP/AVP 0\r\n"
             "m=video 51372 RTP/AVP 31\r\n"
+            "m=video 61372 TCP/RTP/AVP 31\r\n"
             "m=application 32416 udp wb\r\n"
             "a=orient:portrait\r\n"
             ;
@@ -390,13 +410,18 @@ public:
             "t=2873397496 2873404696\r\n"
             "a=recvonly\r\n"
             "m=audio 49170 RTP/AVP 0\r\n"
+            "m=audio 59170 TCP/RTP/AVP 0\r\n"
             "m=video 51372 RTP/AVP 31\r\n"
+            "m=video 61372 TCP/RTP/AVP 31\r\n"
             "m=application 32416 udp wb\r\n"
             "a=orient:portrait\r\n"
             ;
         SdpBody body1(sdp1);
 
-        CPPUNIT_ASSERT(body1.getMediaSetCount() == 3);
+        UtlString sdpBodyString;
+        int bodlen;
+        body1.getBytes(&sdpBodyString, &bodlen);
+        CPPUNIT_ASSERT(body1.getMediaSetCount() == 5);
 
         const char *sdp2 = 
             "v=0\r\n"
@@ -433,7 +458,7 @@ public:
             ;
         SdpBody body3(sdp3);
 
-        CPPUNIT_ASSERT(body1.getMediaSetCount() == 3);
+        CPPUNIT_ASSERT(body3.getMediaSetCount() == 3);
     }
 
     void testGetMediaAddress()
@@ -451,7 +476,9 @@ public:
             "t=2873397496 2873404696\r\n"
             "a=recvonly\r\n"
             "m=audio 49170 RTP/AVP 0\r\n"
+            "m=audio 59170 TCP/RTP/AVP 0\r\n"
             "m=video 51372 RTP/AVP 31\r\n"
+            "m=video 61372 TCP/RTP/AVP 31\r\n"
             "m=application 32416 udp wb\r\n"
             "a=orient:portrait\r\n"
             ;
@@ -468,9 +495,15 @@ public:
         CPPUNIT_ASSERT(body1.getMediaAddress(2, &address));
         ASSERT_STR_EQUAL( address.data(), "224.2.17.12");
 
+        CPPUNIT_ASSERT(body1.getMediaAddress(3, &address));
+        ASSERT_STR_EQUAL( address.data(), "224.2.17.12");
+
+        CPPUNIT_ASSERT(body1.getMediaAddress(4, &address));
+        ASSERT_STR_EQUAL( address.data(), "224.2.17.12");
+
         address = "wrong";
 
-        CPPUNIT_ASSERT(!body1.getMediaAddress(3, &address));
+        CPPUNIT_ASSERT(!body1.getMediaAddress(5, &address));
         CPPUNIT_ASSERT(address.isNull());
 
         address = "wrong";
@@ -489,8 +522,11 @@ public:
             "t=2873397496 2873404696\r\n"
             "a=recvonly\r\n"
             "m=audio 49170 RTP/AVP 0\r\n"
+            "m=audio 59170 TCP/RTP/AVP 0\r\n"
             "m=video 51372 RTP/AVP 31\r\n"
             "c=IN IP4 224.2.17.15/127\r\n"
+            "m=video 61372 TCP/RTP/AVP 31\r\n"
+            "c=IN IP4 224.2.17.16/127\r\n"
             "m=application 32416 udp wb\r\n"
             "a=orient:portrait\r\n"
             ;
@@ -500,10 +536,18 @@ public:
         ASSERT_STR_EQUAL( address.data(), "224.2.17.12");
 
         CPPUNIT_ASSERT(body2.getMediaAddress(1, &address));
-        ASSERT_STR_EQUAL( address.data(), "224.2.17.15");
+        ASSERT_STR_EQUAL( address.data(), "224.2.17.12");
+
 
         CPPUNIT_ASSERT(body2.getMediaAddress(2, &address));
+        ASSERT_STR_EQUAL( address.data(), "224.2.17.15");
+
+        CPPUNIT_ASSERT(body2.getMediaAddress(3, &address));
+        ASSERT_STR_EQUAL( address.data(), "224.2.17.16");
+        
+        CPPUNIT_ASSERT(body2.getMediaAddress(4, &address));
         ASSERT_STR_EQUAL( address.data(), "224.2.17.12");
+        
     }
 
     void testCandidateParsing()
@@ -558,6 +602,13 @@ public:
             "a=candidate:0 tid1 UDP 0.4 10.1.1.102 9999\r\n"
             "a=candidate:1 tid2 UDP 0.5 10.1.1.102 10000\r\n"
             "a=candidate:2 tid3 UDP 0.6 10.1.1.103 9999\r\n" 
+            "m=audio 9778 TCP/RTP/AVP 0 8 96\r\n"
+            "a=rtpmap:0 pcmu/8000/1\r\n"
+            "a=rtpmap:8 pcma/8000/1\r\n"
+            "a=rtpmap:96 telephone-event/8000/1\r\n" 
+            "a=candidate:0 tid1 TCP 0.4 10.1.1.104 9999\r\n"
+            "a=candidate:1 tid2 TCP 0.5 10.1.1.104 10000\r\n"
+            "a=candidate:2 tid3 TCP 0.6 10.1.1.105 9999\r\n" 
             "m=video 1234 RTP/AVP 0 8 96\r\n"
             "a=rtpmap:0 pcmu/8000/1\r\n"
             "a=rtpmap:8 pcma/8000/1\r\n"
@@ -607,12 +658,45 @@ public:
                 transportType, qValue, candidateIp, candidatePort) ;
         CPPUNIT_ASSERT(bRC == FALSE) ;
 
+        bRC = body2.getCandidateAttribute(1, 0, candidateId, transportId, 
+                transportType, qValue, candidateIp, candidatePort) ;
+        CPPUNIT_ASSERT(bRC == TRUE) ;
+        CPPUNIT_ASSERT(candidateId == 0) ;
+        ASSERT_STR_EQUAL("tid1", transportId.data()) ;
+        ASSERT_STR_EQUAL("UDP", transportType.data()) ;
+        CPPUNIT_ASSERT(qValue == 0.4) ;
+        ASSERT_STR_EQUAL("10.1.1.104", candidateIp.data()) ;
+        CPPUNIT_ASSERT(candidatePort == 9999) ;
 
-        bRC = body2.getCandidateAttribute(1, -1, candidateId, transportId, 
+        bRC = body2.getCandidateAttribute(1, 1, candidateId, transportId, 
+                transportType, qValue, candidateIp, candidatePort) ;
+        CPPUNIT_ASSERT(bRC == TRUE) ;
+        CPPUNIT_ASSERT(candidateId == 1) ;
+        ASSERT_STR_EQUAL("tid2", transportId.data()) ;
+        ASSERT_STR_EQUAL("UDP", transportType.data()) ;
+        CPPUNIT_ASSERT(qValue == 0.5) ;
+        ASSERT_STR_EQUAL("10.1.1.104", candidateIp.data()) ;
+        CPPUNIT_ASSERT(candidatePort == 10000) ;
+
+        bRC = body2.getCandidateAttribute(1, 2, candidateId, transportId, 
+                transportType, qValue, candidateIp, candidatePort) ;
+        CPPUNIT_ASSERT(bRC == TRUE) ;
+        CPPUNIT_ASSERT(candidateId == 2) ;
+        ASSERT_STR_EQUAL("tid3", transportId.data()) ;
+        ASSERT_STR_EQUAL("UDP", transportType.data()) ;
+        CPPUNIT_ASSERT(qValue == 0.6) ;
+        ASSERT_STR_EQUAL("10.1.1.105", candidateIp.data()) ;
+        CPPUNIT_ASSERT(candidatePort == 9999) ;
+
+        bRC = body2.getCandidateAttribute(1, 3, candidateId, transportId, 
                 transportType, qValue, candidateIp, candidatePort) ;
         CPPUNIT_ASSERT(bRC == FALSE) ;
 
-        bRC = body2.getCandidateAttribute(1, 0, candidateId, transportId, 
+        bRC = body2.getCandidateAttribute(2, -1, candidateId, transportId, 
+                transportType, qValue, candidateIp, candidatePort) ;
+        CPPUNIT_ASSERT(bRC == FALSE) ;
+
+        bRC = body2.getCandidateAttribute(2, 0, candidateId, transportId, 
                 transportType, qValue, candidateIp, candidatePort) ;
         CPPUNIT_ASSERT(bRC == TRUE) ;
         CPPUNIT_ASSERT(candidateId == 0) ;
@@ -622,7 +706,7 @@ public:
         ASSERT_STR_EQUAL("10.1.1.102", candidateIp.data()) ;
         CPPUNIT_ASSERT(candidatePort == 9999) ;
 
-        bRC = body2.getCandidateAttribute(1, 1, candidateId, transportId, 
+        bRC = body2.getCandidateAttribute(2, 1, candidateId, transportId, 
                 transportType, qValue, candidateIp, candidatePort) ;
         CPPUNIT_ASSERT(bRC == TRUE) ;
         CPPUNIT_ASSERT(candidateId == 1) ;
@@ -632,7 +716,7 @@ public:
         ASSERT_STR_EQUAL("10.1.1.102", candidateIp.data()) ;
         CPPUNIT_ASSERT(candidatePort == 10000) ;
 
-        bRC = body2.getCandidateAttribute(1, 2, candidateId, transportId, 
+        bRC = body2.getCandidateAttribute(2, 2, candidateId, transportId, 
                 transportType, qValue, candidateIp, candidatePort) ;
         CPPUNIT_ASSERT(bRC == TRUE) ;
         CPPUNIT_ASSERT(candidateId == 2) ;
@@ -642,7 +726,7 @@ public:
         ASSERT_STR_EQUAL("10.1.1.103", candidateIp.data()) ;
         CPPUNIT_ASSERT(candidatePort == 9999) ;        
 
-        bRC = body2.getCandidateAttribute(1, 3, candidateId, transportId, 
+        bRC = body2.getCandidateAttribute(2, 3, candidateId, transportId, 
                 transportType, qValue, candidateIp, candidatePort) ;
         CPPUNIT_ASSERT(bRC == FALSE) ;
 
@@ -692,6 +776,17 @@ public:
         testBody.addAudioCodecs(1, hostAddresses, rtpAudioPorts, rtcpAudioPorts, 
                                 rtpVideoPorts, rtcpVideoPorts, 
                                 1, &pAudioCodec, testSrtp, 0, 0) ;
+                                
+                                
+        hostAddresses[0] = "10.1.1.30";
+        rtpAudioPorts[0] = 18700;
+        rtcpAudioPorts[0] = 18701;
+        rtpVideoPorts[0] = 0;
+        rtcpVideoPorts[0] = 0;
+        testBody.addAudioCodecs(1, hostAddresses, rtpAudioPorts, rtcpAudioPorts, 
+                                rtpVideoPorts, rtcpVideoPorts, 
+                                1, &pAudioCodec, testSrtp, 0, 0, OsSocket::TCP) ;
+                                
         hostAddresses[0] = "10.1.1.31";
         rtpAudioPorts[0] = 0;
         rtcpAudioPorts[0] = 0;
@@ -717,15 +812,18 @@ public:
             "t=0 0\r\n"
             "m=audio 8700 RTP/AVP 99\r\n"
             "a=rtpmap:99 superaudio/8000/1\r\n"
+            "m=audio 18700 TCP/RTP/AVP 99\r\n"
+            "c=IN IP4 10.1.1.30\r\n"
+            "a=rtpmap:99 superaudio/8000/1\r\n"
             "m=video 8801 RTP/AVP 100\r\n"
+            "c=IN IP4 10.1.1.31\r\n"
             "a=rtcp:8802\r\n"
             "a=rtpmap:100 supervideo/8000/1\r\n"
             "a=fmtp:100 size:QCIF\r\n"
-            "c=IN IP4 10.1.1.31\r\n"
             "m=audio 8900 RTP/AVP 101\r\n"
+            "c=IN IP4 10.1.1.32\r\n" 
             "a=rtcp:8999\r\n"
-            "a=rtpmap:101 superapp/8000/1\r\n"
-            "c=IN IP4 10.1.1.32\r\n" ;
+            "a=rtpmap:101 superapp/8000/1\r\n";
 
         UtlString address ;
         int port ;
@@ -736,7 +834,7 @@ public:
 
         SdpBody bodyCheck(testBodyExpected) ;
 
-        CPPUNIT_ASSERT(bodyCheck.getMediaSetCount() == 3) ;
+        CPPUNIT_ASSERT(bodyCheck.getMediaSetCount() == 4) ;
 
         bodyCheck.getMediaAddress(0, &address) ;
         ASSERT_STR_EQUAL("10.1.1.30", address.data()) ;
@@ -746,17 +844,24 @@ public:
         CPPUNIT_ASSERT(port == 8701) ;
 
         bodyCheck.getMediaAddress(1, &address) ;
-        ASSERT_STR_EQUAL("10.1.1.31", address.data()) ;
+        ASSERT_STR_EQUAL("10.1.1.30", address.data()) ;
         bodyCheck.getMediaPort(1, &port) ; 
-        CPPUNIT_ASSERT(port == 8801) ;
+        CPPUNIT_ASSERT(port == 18700) ;
         bodyCheck.getMediaRtcpPort(1, &port) ;
-        CPPUNIT_ASSERT(port == 8802) ;
+        CPPUNIT_ASSERT(port == 18701) ;
 
         bodyCheck.getMediaAddress(2, &address) ;
-        ASSERT_STR_EQUAL("10.1.1.32", address.data()) ;
+        ASSERT_STR_EQUAL("10.1.1.31", address.data()) ;
         bodyCheck.getMediaPort(2, &port) ; 
-        CPPUNIT_ASSERT(port == 8900) ;
+        CPPUNIT_ASSERT(port == 8801) ;
         bodyCheck.getMediaRtcpPort(2, &port) ;
+        CPPUNIT_ASSERT(port == 8802) ;
+
+        bodyCheck.getMediaAddress(3, &address) ;
+        ASSERT_STR_EQUAL("10.1.1.32", address.data()) ;
+        bodyCheck.getMediaPort(3, &port) ; 
+        CPPUNIT_ASSERT(port == 8900) ;
+        bodyCheck.getMediaRtcpPort(3, &port) ;
         CPPUNIT_ASSERT(port == 8999) ;
     }
 

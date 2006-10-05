@@ -334,7 +334,8 @@ public:
                              const void* pSecurity = NULL,
                              const char* locationHeader = NULL,
                              const int bandWidth=AUDIO_CODEC_BW_DEFAULT,
-                             SIPX_TRANSPORT_DATA* pTransportData = NULL) = 0;
+                             SIPX_TRANSPORT_DATA* pTransportData = NULL,
+                             const SIPX_RTP_TRANSPORT rtpTransportOptions = UDP_ONLY) = 0;
 
     //! Create a new call and associate it with an existing call.
     /*! This is usually done to create the consultative call as a
@@ -709,6 +710,12 @@ public:
                                     const char* remoteAddress,
                                     UtlString& userAgent) = 0;
 
+    /**
+     * Set the target sip url for voice quality reports
+     */
+    virtual void setVoiceQualityReportTarget(const char* szTargetSipUrl) ;
+
+
 /* ============================ ACCESSORS ================================= */
 
    /**
@@ -801,12 +808,20 @@ public:
 
     virtual UtlBoolean isIceEnabled() const ;
 
+    /**
+     * Get the target sip url for voice quality reports
+     */
+    virtual UtlBoolean getVoiceQualityReportTarget(UtlString& reportSipUrl) ;
+
 /* ============================ INQUIRY =================================== */
 
     UtlBoolean isCallStateLoggingEnabled();
 
 
     virtual void onCallDestroy(CpCall* pCall) = 0;
+    
+   virtual void yieldFocus(CpCall* call) = 0;
+    
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -876,6 +891,7 @@ private:
     UtlDList mCallList;
     int mLastMetaEventId;
     UtlBoolean mbEnableICE ;
+    UtlString mVoiceQualityReportTarget ;
 
     // Every CallManager shares the same call counter for generating Call-IDs.
     static intll mCallNum;

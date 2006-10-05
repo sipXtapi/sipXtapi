@@ -740,9 +740,6 @@ class SipMessageTest : public CppUnit::TestCase
                                  NULL,
                                  NULL,
                                  NULL,
-                                 0,
-                                 "PING",
-                                 NULL,
                                  SIP_DEFAULT_RTT,
                                  TRUE,
                                  -1,
@@ -777,7 +774,7 @@ class SipMessageTest : public CppUnit::TestCase
          // Figure out what the agent value should be.
          UtlString address;
          int port;
-         user_agent.getViaInfo(OsSocket::UDP, address, port);
+         user_agent.getViaInfo(OsSocket::UDP, address, port, NULL, NULL);
          char agent_expected[128];
          strcpy(agent_expected, address.data());
          if (port != 5060)      // PORT_NONE
@@ -1077,7 +1074,7 @@ class SipMessageTest : public CppUnit::TestCase
                             "sip:remotecontact@example.com", // farEndContact
                             "sip:contact@example.com", // contactUrl
                             "callid@example.com", // callId
-                            NULL, // rtpCodecs
+                            100, // sequenceNumber
                             17 // sessionReinviteTimer
             );
 

@@ -130,6 +130,9 @@ copy ..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1_dbg\lib\*.dll
 			<File
 				RelativePath=".\src\test\net\SipRefreshManagerTest.cpp">
 			</File>
+	                <File
+				RelativePath=".\src\test\net\SdpBodyTest.cpp">
+			</File>
 			<File
 				RelativePath="..\sipXportLib\src\test\sipxunit\TestMonitor.cpp">
 			</File>

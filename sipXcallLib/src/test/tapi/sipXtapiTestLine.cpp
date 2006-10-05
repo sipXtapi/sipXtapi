@@ -729,7 +729,6 @@ void sipXtapiTestSuite::testReRegistrationFailure()
 {
     for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
-    
         printf("\ntestReRegistrationFailure (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
         g_lineRecorder.clear() ;
 
@@ -744,25 +743,20 @@ void sipXtapiTestSuite::testReRegistrationFailure()
         CPPUNIT_ASSERT_EQUAL(sipxLineAddCredential(hLine, "mike", "1234", "TestRegistrar"), SIPX_RESULT_SUCCESS) ;
         CPPUNIT_ASSERT_EQUAL(sipxLineRegister(hLine, true), SIPX_RESULT_SUCCESS) ;
 
-        OsTask::delay(13000);
+        OsTask::delay(9000);
         g_lineRecorder.addCompareEvent(hLine, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL);
         g_lineRecorder.addCompareEvent(hLine, LINESTATE_REGISTERING, LINESTATE_REGISTERING_NORMAL);
         g_lineRecorder.addCompareEvent(hLine, LINESTATE_REGISTER_FAILED, LINESTATE_REGISTER_FAILED_TIMEOUT);
         g_lineRecorder.addCompareEvent(hLine, LINESTATE_REGISTERING, LINESTATE_REGISTERING_NORMAL);
-        g_lineRecorder.addCompareEvent(hLine, LINESTATE_REGISTER_FAILED, LINESTATE_REGISTER_FAILED_TIMEOUT);
-        CPPUNIT_ASSERT(g_lineRecorder.compare()) ;
-        
         TestRegistrar* pTestRegistrar = new TestRegistrar();
     
         pTestRegistrar->init();
         
 
-        g_lineRecorder.addCompareEvent(hLine, LINESTATE_REGISTERING, LINESTATE_REGISTERING_NORMAL);
         g_lineRecorder.addCompareEvent(hLine, LINESTATE_REGISTERED, LINESTATE_REGISTERED_NORMAL);
         g_lineRecorder.addCompareEvent(hLine, LINESTATE_REGISTERING, LINESTATE_REGISTERING_NORMAL);
         g_lineRecorder.addCompareEvent(hLine, LINESTATE_REGISTERED, LINESTATE_REGISTERED_NORMAL);
         OsTask::delay(8000);
-        CPPUNIT_ASSERT(g_lineRecorder.compare()) ;
         
 
         pTestRegistrar->pause(true);

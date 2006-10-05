@@ -207,17 +207,18 @@ public:
    virtual UtlBoolean dequeue(UtlBoolean callInFocus) = 0;
 
    virtual UtlBoolean dial(const char* dialString,
-						  const char* callerId,
-						  const char* callId,
-                          const char* callController = NULL,
-                          const char* originalCallConnection = NULL,
-                          UtlBoolean requestQueuedCall = FALSE,
-                          const void* pDisplay = NULL,
-                          const void* pSecurity = NULL,
-                          const char* locationHeader = NULL,
-                          const int bandWidth = AUDIO_MICODEC_BW_DEFAULT,
-                          UtlBoolean bOnHold = FALSE,
-						  const char* originalCallId = NULL) = 0;
+                           const char* callerId,
+                           const char* callId,
+                           const char* callController = NULL,
+                           const char* originalCallConnection = NULL,
+                           UtlBoolean requestQueuedCall = FALSE,
+                           const void* pDisplay = NULL,
+                           const void* pSecurity = NULL,
+                           const char* locationHeader = NULL,
+                           const int bandWidth = AUDIO_MICODEC_BW_DEFAULT,
+                           UtlBoolean bOnHold = FALSE,
+                           const char* originalCallId = NULL,
+                           const SIPX_RTP_TRANSPORT rtpTransportOptions = UDP_ONLY) = 0;
    //! param: requestQueuedCall - indicates that the caller wishes to have the callee queue the call if busy
 
    virtual UtlBoolean originalCallTransfer(UtlString& transferTargetAddress,
@@ -298,7 +299,6 @@ public:
     void fireSipXMediaEvent(SIPX_MEDIA_EVENT event, 
                             SIPX_MEDIA_CAUSE cause, 
                             SIPX_MEDIA_TYPE  type, 
-
                             void*            pEventData=NULL) ;
 
 /* ============================ ACCESSORS ================================= */
