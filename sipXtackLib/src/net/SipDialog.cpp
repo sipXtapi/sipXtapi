@@ -893,16 +893,16 @@ void SipDialog::getStateString(DialogState state,
         stateString = "DIALOG_UNKNOWN";
         break;
     case DIALOG_EARLY:
-        stateString = "DIALOG_UNKNOWN";
+        stateString = "DIALOG_EARLY";
         break;
     case DIALOG_ESTABLISHED:
-        stateString = "DIALOG_UNKNOWN";
+        stateString = "DIALOG_ESTABLISHED";
         break;
     case DIALOG_FAILED:
-        stateString = "DIALOG_UNKNOWN";
+        stateString = "DIALOG_FAILED";
         break;
     case DIALOG_TERMINATED:
-        stateString = "DIALOG_UNKNOWN";
+        stateString = "DIALOG_TERMINATED";
         break;
 
     // This should not happen

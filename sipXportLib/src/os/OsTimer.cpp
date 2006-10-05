@@ -43,9 +43,7 @@ OsTimer::OsTimer(OsMsgQ* pQueue, const int userData) :
    mBSem(OsBSem::Q_PRIORITY, OsBSem::FULL),
    mApplicationState(0),
    mTaskState(0),
-#ifndef NDEBUG
    mDeleting(FALSE),
-#endif
    mpNotifier(new OsQueuedEvent(*pQueue, userData)),
    mbManagedNotifier(TRUE),
    mOutstandingMessages(0),
@@ -64,9 +62,7 @@ OsTimer::OsTimer(OsNotification& rNotifier) :
    mBSem(OsBSem::Q_PRIORITY, OsBSem::FULL),
    mApplicationState(0),
    mTaskState(0),
-#ifndef NDEBUG
    mDeleting(FALSE),
-#endif
    mpNotifier(&rNotifier),
    mbManagedNotifier(FALSE),
    mOutstandingMessages(0),

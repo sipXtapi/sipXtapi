@@ -513,7 +513,6 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
     {
          OsSysLog::add(FAC_SIP, PRI_WARNING,
                   "SipPublishContentMgr::getContent no container is found\n");
-                  
     }
 
     unlock();

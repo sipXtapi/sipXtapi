@@ -246,7 +246,6 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
             // So we do not set a timer at the end of the subscription
             state->mpExpirationTimer = NULL;
 
-
             // Create the index by resourceId and eventTypeKey key
             SubscriptionServerStateIndex* stateKey = new SubscriptionServerStateIndex;
             *((UtlString*)stateKey) = resourceId;

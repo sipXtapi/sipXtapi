@@ -346,6 +346,18 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
 
     // Dump event
     char cBuf[1024] ;
+
+    // Print the timestamp if requested.
+    if (g_timestamp)
+    {
+       time_t t = time(NULL);
+       struct tm g;
+       gmtime_r(&t, &g);
+       printf("%04d-%02d-%02dT%02d:%02d:%02dZ ",
+              g.tm_year + 1900, g.tm_mon + 1, g.tm_mday,
+              g.tm_hour, g.tm_min, g.tm_sec);
+    }
+
     printf("%s\n", sipxEventToString(category, pInfo, cBuf, sizeof(cBuf))) ;    
 
     if (category == EVENT_CATEGORY_CALLSTATE)
@@ -360,7 +372,43 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
             break ;
         case CALLSTATE_ALERTING:
             clearLoopback() ;
-            sipxCallAnswer(pCallInfo->hCall) ;
+            {
+               // Determine the answering delay.
+               int delay;
+               if (g_callAnswerDelay == NULL || g_callAnswerDelay[0] == '\0')
+               {
+                  // No answer string is active, so delay is 0.
+                  delay = 0;
+               }
+               else
+               {
+                  // Get the delay to be used from the delay string.
+                  delay = atoi(g_callAnswerDelay);
+                  // Remove the first number, if there is a comma.
+                  char* p = strchr(g_callAnswerDelay, ',');
+                  if (p != NULL)
+                  {
+                     g_callAnswerDelay = p + 1;
+                  }
+               }
+               if (delay == 0)
+               {
+                  // If the delay is 0, answer immediately.
+                  sipxCallAnswer(pCallInfo->hCall);
+               }
+               else
+               {
+                  // The delay is non-0, so set the timer to answer.
+                  // Stop the timer in case it is running.
+                  callAnswerTimer.stop();
+                  // Record the call to be answered.
+                  callAnswerNotification.setHCall(pCallInfo->hCall);
+                  // Construct the delay to be used.
+                  OsTime d(delay, 0);
+                  // Start the timer.
+                  callAnswerTimer.oneshotAfter(d);
+               }
+            }
             break ;
         case CALLSTATE_CONNECTED:
             SLEEP(1000) ;   // BAD: Do not block the callback thread
