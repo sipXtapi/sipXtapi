@@ -74,15 +74,15 @@ SipDialogMonitor::SipDialogMonitor(SipUserAgent* userAgent,
 // Destructor
 SipDialogMonitor::~SipDialogMonitor()
 {
-   if (mpRefreshMgr)
-   {
-      delete mpRefreshMgr;
-   }
-   
    if (mpSipSubscribeClient)
    {
       mpSipSubscribeClient->endAllSubscriptions();
       delete mpSipSubscribeClient;
+   }
+   
+   if (mpRefreshMgr)
+   {
+      delete mpRefreshMgr;
    }
    
    if (mpSubscriptionMgr)
@@ -217,18 +217,27 @@ bool SipDialogMonitor::removeExtension(UtlString& groupName, Url& contactUrl)
       if (resource)
       {
          UtlString* dialogHandle = dynamic_cast <UtlString *> (mDialogHandleList.findValue(&resourceId));
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                       "SipDialogMonitor::removeExtension Calling endSubscription(%s)",
-                       dialogHandle->data());
-         UtlBoolean status = mpSipSubscribeClient->endSubscription(dialogHandle->data());
-                  
-         if (!status)
+         if (dialogHandle)
+         {
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipDialogMonitor::removeExtension Calling endSubscription(%s)",
+                          dialogHandle->data());
+            UtlBoolean status = mpSipSubscribeClient->endSubscription(dialogHandle->data());
+                     
+            if (!status)
+            {
+               OsSysLog::add(FAC_SIP, PRI_ERR,
+                             "SipDialogMonitor::removeExtension Unsubscription failed for %s.",
+                             resourceId.data());
+            }
+         }
+         else
          {
             OsSysLog::add(FAC_SIP, PRI_ERR,
-                          "SipDialogMonitor::removeExtension Unsubscription failed for %s.",
+                          "SipDialogMonitor::removeExtension no dialogHandle for %s.",
                           resourceId.data());
          }
-
+         
          mDialogHandleList.destroy(&resourceId);
          resource = list->removeResource(resource);
          delete resource;

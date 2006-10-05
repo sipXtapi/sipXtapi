@@ -93,26 +93,16 @@ LinePresenceMonitor::LinePresenceMonitor(int userAgentPort,
 // Destructor
 LinePresenceMonitor::~LinePresenceMonitor()
 {
-   if (mpRefreshMgr)
-   {
-      delete mpRefreshMgr;
-   }
-   
    if (mpSipSubscribeClient)
    {
       mpSipSubscribeClient->endAllSubscriptions();
       delete mpSipSubscribeClient;
    }
-
-   // Shut down the sipUserAgent
-   mpUserAgent->shutdown(FALSE);
-
-   while(!mpUserAgent->isShutdownDone())
+   
+   if (mpRefreshMgr)
    {
-      ;
+      delete mpRefreshMgr;
    }
-
-   delete mpUserAgent;
    
    if (mpDialogMonitor)
    {
@@ -131,6 +121,16 @@ LinePresenceMonitor::~LinePresenceMonitor()
    {
       mPresenceSubscribeList.destroyAll();
    }
+   
+   // Shut down the sipUserAgent
+   mpUserAgent->shutdown(FALSE);
+
+   while(!mpUserAgent->isShutdownDone())
+   {
+      ;
+   }
+
+   delete mpUserAgent;
 }
 
 /* ============================ MANIPULATORS ============================== */
