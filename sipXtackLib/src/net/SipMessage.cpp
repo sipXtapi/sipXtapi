@@ -60,7 +60,6 @@ SipMessage::SipMessage(const char* messageBytes,
    mpEventData(NULL),
    mbFromThisSide(true)
 {
-   mbUseShortNames = false ;
    mLocalIp = "";
    mpSipTransaction = NULL;
    replaceShortFieldNames();
@@ -84,8 +83,7 @@ SipMessage::SipMessage(OsSocket* inSocket,
 #ifdef TRACK_LIFE
    osPrintf("Created SipMessage @ address:%X\n",this);
 #endif
-   mbUseShortNames = false ;
-   mpSipTransaction = NULL;
+    mpSipTransaction = NULL;
    replaceShortFieldNames();
 }
 
@@ -107,7 +105,6 @@ SipMessage::SipMessage(const SipMessage& rSipMessage) :
    mpSipTransaction = rSipMessage.mpSipTransaction;
    mbFromThisSide = rSipMessage.mbFromThisSide;
    mCustomRouteId = rSipMessage.mCustomRouteId;
-   mbUseShortNames = rSipMessage.mbUseShortNames;
 }
 
 // Destructor
@@ -133,7 +130,6 @@ SipMessage::operator=(const SipMessage& rSipMessage)
       mpSipTransaction = rSipMessage.mpSipTransaction;
       mbFromThisSide = rSipMessage.mbFromThisSide;
       mCustomRouteId = rSipMessage.mCustomRouteId;
-      mbUseShortNames = rSipMessage.mbUseShortNames;
    }
    return *this;
 }
@@ -430,8 +426,7 @@ void SipMessage::addSdpBody(int nRtpContacts,
                             SdpSrtpParameters* srtpParams,
                             int videoBandwidth,
                             int videoFramerate,
-                            SipMessage* pRequest,
-                            SIPX_RTP_TRANSPORT rtpTransportOptions)
+                            SipMessage* pRequest)
 {
    if(numRtpCodecs > 0)
    {
@@ -444,13 +439,7 @@ void SipMessage::addSdpBody(int nRtpContacts,
                                        NULL,
                                        NULL,
                                        hostAddresses[0]); // Originator address
-      OsSocket::SocketProtocolTypes transport = OsSocket::UDP;
-      
-      if (rtpTransportOptions == TCP_ONLY)
-      {
-        transport = OsSocket::TCP;
-      }
-      
+
       if (pRequest && pRequest->getSdpBody())
       {
         sdpBody->addAudioCodecs(nRtpContacts,
@@ -464,8 +453,7 @@ void SipMessage::addSdpBody(int nRtpContacts,
                                 *srtpParams,
                                 videoBandwidth,
                                 videoFramerate,
-                                pRequest->getSdpBody(),
-                                transport) ;
+                                pRequest->getSdpBody()) ;
       }
       else
       {
@@ -479,8 +467,7 @@ void SipMessage::addSdpBody(int nRtpContacts,
                                 rtpCodecs,
                                 *srtpParams,
                                 videoBandwidth,
-                                videoFramerate,
-                                transport);
+                                videoFramerate);
       }
 
       setBody(sdpBody);
@@ -801,12 +788,7 @@ void SipMessage::setInviteBadCodecs(const SipMessage* inviteRequest,
    int port;
    // Get the address/port for UDP, since it's too hard to figure out what
    // protocol this message arrived on.
-
-   UtlString receivedFromAddress ;
-   int       receivedFromPort ;
-
-   inviteRequest->getSendAddress(&receivedFromAddress, &receivedFromPort) ;
-   ua->getViaInfo(OsSocket::UDP, address, port, receivedFromAddress.data(), &receivedFromPort) ;
+   ua->getViaInfo(OsSocket::UDP, address, port);
    warningField.append(address);
    if (port != 0)               // PORT_NONE
    {
@@ -1074,9 +1056,7 @@ void SipMessage::setNotifyData(const char* uri,
     }
     else
     {
-      // Force the caller to pass a valid subscription context -- add a default
-      // param if needed...
-      // setHeaderValue(SIP_SUBSCRIPTION_STATE_FIELD, SIP_SUBSCRIPTION_ACTIVE);
+      setHeaderValue(SIP_SUBSCRIPTION_STATE_FIELD, SIP_SUBSCRIPTION_ACTIVE);
     }
 
     setRouteField(routeField );
@@ -1773,14 +1753,13 @@ void SipMessage::setPublishData(const char* uri,
                                 const char* eventField,
                                 const char* id,
                                 const char* sipIfMatchField,
-                                int expiresInSeconds,
-                                const char* contact)
+                                int expiresInSeconds)
 {
     setRequestData(SIP_PUBLISH_METHOD, uri,
                    fromField, toField,
                    callId,
                    cseq,
-                   contact);
+                   NULL);
 
     // Set the event type
     if( eventField && *eventField )
@@ -1801,8 +1780,8 @@ void SipMessage::setPublishData(const char* uri,
        setSipIfMatchField(sipIfMatchField);
     }
     
-    // setExpires
-    setExpiresField(expiresInSeconds);
+   // setExpires
+   setExpiresField(expiresInSeconds);
 }
 
 
@@ -2185,14 +2164,11 @@ void SipMessage::setToField(const char* address, int port,
 
 void SipMessage::setExpiresField(int expiresInSeconds)
 {
-   if (expiresInSeconds >= 0)
-   {
-      char secondsString[MAXIMUM_INTEGER_STRING_LENGTH];
-      sprintf(secondsString, "%d", expiresInSeconds);
+   char secondsString[MAXIMUM_INTEGER_STRING_LENGTH];
+   sprintf(secondsString, "%d", expiresInSeconds);
 
-      // If the field exists change it, if does not exist create it
-      setHeaderValue(SIP_EXPIRES_FIELD, secondsString, 0);
-   }
+   // If the field exists change it, if does not exist create it
+   setHeaderValue(SIP_EXPIRES_FIELD, secondsString, 0);
 }
 
 void SipMessage::setMinExpiresField(int minimumExpiresInSeconds)
@@ -3036,15 +3012,15 @@ UtlBoolean SipMessage::getCSeqField(int* sequenceNum, UtlString* sequenceMethod)
         if(sequenceMethod)
         {
             *sequenceMethod = &value[numStringLen + valueStart];
-            NameValueTokenizer::frontBackTrim(sequenceMethod, SIP_SUBFIELD_SEPARATORS);           
+            NameValueTokenizer::frontBackTrim(sequenceMethod, SIP_SUBFIELD_SEPARATORS);
         }
 
-		if(numStringLen > MAXIMUM_INTEGER_STRING_LENGTH)
+        if(numStringLen > MAXIMUM_INTEGER_STRING_LENGTH)
         {
-			osPrintf("WARNING: SipMessage::getCSeqField CSeq number %d characters: %s.\nTruncating to %d\n",
-					numStringLen, &value[valueStart], MAXIMUM_INTEGER_STRING_LENGTH);
-			numStringLen = MAXIMUM_INTEGER_STRING_LENGTH;
-		}
+            osPrintf("WARNING: SipMessage::getCSeqField CSeq number %d characters: %s.\nTruncating to %d\n",
+                    numStringLen, &value[valueStart], MAXIMUM_INTEGER_STRING_LENGTH);
+            numStringLen = MAXIMUM_INTEGER_STRING_LENGTH;
+        }
 
         if(sequenceNum)
         {
@@ -3054,7 +3030,7 @@ UtlBoolean SipMessage::getCSeqField(int* sequenceNum, UtlString* sequenceMethod)
             numBuf[numStringLen] = '\0';
             *sequenceNum = atoi(numBuf);
         }
-   }
+    }
     else
     {
         if(sequenceNum)

@@ -88,9 +88,7 @@ public:
                                      void* videoWindowHandle, 
                                      void* const pSecurityAttributes = NULL,
                                      ISocketIdle* pIdleSink = NULL,
-                                     IMediaEventListener* pMediaEventListener = NULL,
-                                     const SIPX_RTP_TRANSPORT rtpTransportOptions = UDP_ONLY,
-                                     const RtpTcpRoles role=ACTPASS);
+                                     IMediaEventListener* pMediaEventListener = NULL) ;
    
    virtual OsStatus getCapabilities(int connectionId, 
                                     UtlString& rtpHostAddress, 
@@ -257,15 +255,6 @@ public:
                                                        int         iPriority,
                                                        const char* candidateIp, 
                                                        int         candidatePort) ;
-    
-    virtual void setConnectionTcpRole(const int connectionId, const RtpTcpRoles role)
-    {
-        // NOT IMPLEMENTED
-    }
-
-	virtual OsStatus generateVoiceQualityReport(int         connectiond,
-                                                const char* callId,
-                                                UtlString&  report) ;
 
 
 /* ============================ ACCESSORS ================================= */

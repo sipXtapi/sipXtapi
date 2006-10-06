@@ -1156,13 +1156,6 @@ UtlBoolean Url::isIncludeAngleBracketsSet() const
 
 void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
 {
-   // workaround for crash caused by a DoS attack,
-   // where the sip uri is a large, bogus string.
-   if (strlen(urlString) > 1024)
-   {
-       return;
-   }
-
    // If isAddrSpec:
    //                userinfo@hostport;uriParameters?headerParameters
    // If !isAddrSpec:

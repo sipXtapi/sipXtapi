@@ -214,8 +214,6 @@ void sipXtapiTestSuite::tearDown()
 
     suiteLock.release();
 
-
-
 #ifdef _WIN32
 #ifdef SIPX_TEST_FOR_MEMORY_LEAKS
     if (bFirstRun == false)

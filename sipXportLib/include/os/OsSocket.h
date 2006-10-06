@@ -13,11 +13,7 @@
 #define _OsSocket_h_
 
 // SYSTEM INCLUDES
-#if defined(__pingtel_on_posix__)
-// To get "struct sockaddr_in".
-#include <sys/socket.h>
-#include <netinet/in.h>
-#endif
+//#include <...>
 
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
@@ -100,16 +96,6 @@ public:
    static UtlBoolean socketInit();
    static unsigned long initDefaultAdapterID(UtlString &adapter_id);
 
-
-   virtual int write(const char* buffer,
-                                       int bufferLength,
-                                       const char* ipAddress,
-                                       int port)
-   {
-        // default implementation ignores ipAddress and port
-        return write(buffer, bufferLength);
-   }                                       
-                                        
    virtual int write(const char* buffer, int bufferLength);
    //:Blocking write to the socket
    // Write the characters in the given buffer to the socket.
@@ -187,7 +173,7 @@ public:
    virtual UtlBoolean reconnect() = 0;
    //:Set up the connection again, assuming the connection failed
 
-   virtual int getSocketDescriptor() const;
+   int getSocketDescriptor() const;
    //:Return the socket descriptor
    // Warning: Use of this method risks the creation of platform-dependent
    // code.

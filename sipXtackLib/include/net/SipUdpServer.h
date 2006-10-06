@@ -12,11 +12,11 @@
 #define _SipUdpServer_h_
 
 // SYSTEM INCLUDES
+//#include <...>
+
 // APPLICATION INCLUDES
 #include <net/SipProtocolServerBase.h>
-#include <os/OsNatKeepaliveListener.h>
-#include <utl/UtlSList.h>
-#include <os/OsRWMutex.h>
+
 
 // DEFINES
 // MACROS
@@ -29,26 +29,9 @@
 class SipUserAgent;
 class OsNatDatagramSocket ;
 class OsNotification ;
-class OsTimer;
 
-
-/**
- * The SipUdpServer is owner/container of the sockets used for UDP 
- * communications.  The SipUdpServer has a number of NAT APIs and
- * coordinates NAT detection/keepalives with the OsNatDatagramSocket / 
- * OsNatAgentTask.
- * 
- * The SipUdpServer may contain multiple sockets if being used in a multi-
- * home configuration.  This mostly works, but needs additional testing
- * and tweaking.
- *
- * Most of the NAT keepalives are delegated to the OsNatAgentTask.  The 
- * exception is the Sip keepalive.  For this, the SipUdpServer uses 
- * callbacks to send off the Sip messages (as opposed to introducing a 
- * OsMsgQueue).  The SipUdpServer never listens for responses, however, 
- * the SipUserAgent itself pays attention to rport results and notifies 
- * the OsNatAgentTask of local ip -> remote IP NAT bindings.
- */
+//:Class short description which may consist of multiple lines (note the ':')
+// Class detailed description which may extend to multiple lines
 class SipUdpServer : public SipProtocolServerBase
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -58,6 +41,9 @@ public:
 
    SipUdpServer(int sipPort = SIP_PORT,
        SipUserAgent* userAgent = NULL,
+       const char* natPingUrl = "",
+       int natPingFrequency = 0,
+       const char* natPingMethod = "PING",
        int udpReadBufferSize = -1,
        UtlBoolean bUseNextAvailablePort = FALSE,
        const char* szBoundIp = NULL);
@@ -87,11 +73,11 @@ public:
                      int port,
                      const char* szLocalSipIp = NULL);
 
+
     UtlBoolean addCrLfKeepAlive(const char* szLocalIp,
                                 const char* szRemoteIp,
                                 const int   remotePort,
-                                const int   keepAliveSecs,
-                                OsNatKeepaliveListener* pListener) ;
+                                const int   keepAliveSecs) ;
 
     UtlBoolean removeCrLfKeepAlive(const char* szLocalIp,
                                    const char* szRemoteIp,
@@ -100,37 +86,11 @@ public:
     UtlBoolean addStunKeepAlive(const char* szLocalIp,
                                 const char* szRemoteIp,
                                 const int   remotePort,
-                                const int   keepAliveSecs,
-                                OsNatKeepaliveListener* pListener) ;
+                                const int   keepAliveSecs) ;
 
     UtlBoolean removeStunKeepAlive(const char* szLocalIp,
                                    const char* szRemoteIp,
                                    const int   remotePort) ;
-
-    UtlBoolean addSipKeepAlive(const char* szLocalIp,
-                               const char* szRemoteIp,
-                               const int   remotePort,
-                               const char* szMethod,
-                               const int   keepAliveSecs,
-                               OsNatKeepaliveListener* pListener) ;
-
-    UtlBoolean removeSipKeepAlive(const char* szLocalIp,
-                                  const char* szRemoteIp,
-                                  const int   remotePort,
-                                  const char* szMethod) ;
-
-    void updateSipKeepAlive(const char* szLocalIp,
-                            const char* szMethod,
-                            const char* szRemoteIp,
-                            const int   remotePort,
-                            const char* szContactIp,
-                            const int   contactPort) ;
-
-
-    void sendSipKeepAlive(OsTimer* pTimer) ; 
-
-    static void SipKeepAliveCallback(const int userData, 
-                                     const int eventData) ;
 
 /* ============================ ACCESSORS ================================= */
 
@@ -141,17 +101,6 @@ public:
     UtlBoolean getStunAddress(UtlString* pIpAddress,
                               int* pPort,
                               const char* szLocalIp = NULL) ;
-
-    UtlBoolean addKeepAliveBinding(void* pBinding) ;
-    UtlBoolean removeKeepAliveBinding(void* pBinding) ;
-
-    void* findKeepAliveBinding(OsTimer* pTimer) ;
-
-    void* findKeepAliveBinding(OsSocket*   pSocket,
-                               const char* szRemoteIp,
-                               const int   remotePort,
-                               const char* szMethod) ;
-
 
 /* ============================ INQUIRY =================================== */
 
@@ -167,13 +116,12 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-
+    UtlString mNatPingUrl;
+    int mNatPingFrequencySeconds;
+    UtlString mNatPingMethod;
     UtlString mStunServer ;
     int mStunRefreshSecs ;
     int mStunPort ;
-    UtlSList mSipKeepAliveBindings ;
-    OsRWMutex mKeepAliveMutex ;
-
     OsStatus createServerSocket(const char* localIp,
                                  int& localPort,
                                  const UtlBoolean& bUseNextAvailablePort,

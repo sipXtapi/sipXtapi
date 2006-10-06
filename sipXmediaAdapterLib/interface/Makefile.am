@@ -8,8 +8,7 @@ nobase_include_HEADERS =  \
     mi/CpMediaInterface.h \
     mi/CpMediaInterfaceFactoryImpl.h \
     mi/CpMediaInterfaceFactoryFactory.h \
-    mi/CpMediaInterfaceFactory.h \
-    mi/IMediaSocket.h
+    mi/CpMediaInterfaceFactory.h
     
 noinst_LTLIBRARIES = libmediainterface.la
 

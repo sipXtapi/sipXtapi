@@ -28,7 +28,6 @@
 #ifdef SIP_TLS
 #include <net/SipTlsServer.h>
 #endif
-#include <os/OsNatKeepaliveListener.h>
 
 // DEFINES
 #define SIP_DEFAULT_RTT     500
@@ -168,8 +167,7 @@ public:
     enum EventSubTypes
     {
         UNSPECIFIED = 0,
-        SHUTDOWN_MESSAGE = 10,
-        KEEPALIVE_MESSAGE
+        SHUTDOWN_MESSAGE = 10
     };
 
 /* ============================ CREATORS ================================== */
@@ -206,6 +204,9 @@ public:
      *        application (as a result of locally generated 401 challenges
      * \param authorizeUserIds - depricated by the SipLineMgr
      * \param authorizePasswords - depricated by the SipLineMgr
+     * \param natPingUrl - unsupported
+     * \param natPingFrequency - unsupported
+     * \param natPingMethod - unsupported
      * \param lineMgr - SipLinMgr object which is container for user
      *        definitions and their credentials.  This is used to
      *        authenticate incoming requests to the UA application.
@@ -238,6 +239,9 @@ public:
                 OsConfigDb* authenticateDb = NULL,
                 OsConfigDb* authorizeUserIds = NULL,
                 OsConfigDb* authorizePasswords = NULL,
+                const char* natPingUrl = NULL,
+                int natPingFrequency = 0,
+                const char* natPingMethod = "PING",
                 SipLineMgr* lineMgr = NULL,
                 int sipFirstResendTimeout = SIP_DEFAULT_RTT,
                 UtlBoolean defaultToUaTransactions = TRUE,
@@ -382,8 +386,7 @@ public:
     UtlBoolean addCrLfKeepAlive(const char* szLocalIp,
                                 const char* szRemoteIp,
                                 const int   remotePort,
-                                const int   keepAliveSecs,
-                                OsNatKeepaliveListener* pListener) ;
+                                const int   keepAliveSecs) ;
 
     UtlBoolean removeCrLfKeepAlive(const char* szLocalIp,
                                    const char* szRemoteIp,
@@ -392,26 +395,13 @@ public:
     UtlBoolean addStunKeepAlive(const char* szLocalIp,
                                 const char* szRemoteIp,
                                 const int   remotePort,
-                                const int   keepAliveSecs,
-                                OsNatKeepaliveListener* pListener) ;
+                                const int   keepAliveSecs) ;
 
     UtlBoolean removeStunKeepAlive(const char* szLocalIp,
                                    const char* szRemoteIp,
                                    const int   remotePort) ;
 
     OsTimer* getTimer() { return mpTimer; }
-
-    UtlBoolean addSipKeepAlive(const char* szLocalIp,
-                               const char* szRemoteIp,
-                               const int   remotePort,
-                               const char* szMethod,
-                               const int   keepAliveSecs,
-                               OsNatKeepaliveListener* pListener) ;
-
-    UtlBoolean removeSipKeepAlive(const char* szLocalIp,
-                                  const char* szRemoteIp,
-                                  const int   remotePort,
-                                  const char* szMethod) ;
 
 /* ============================ ACCESSORS ================================= */
 
@@ -453,11 +443,9 @@ public:
 
     void getFromAddress(UtlString* address, int* port, UtlString* protocol);
 
-    void getViaInfo(int         protocol,
-                    UtlString&  address,
-                    int&        port,
-                    const char* pszTargetAddress,
-                    const int*  piTargetPort);
+    void getViaInfo(int protocol,
+                    UtlString& address,
+                    int& port);
 
     void getDirectoryServer(int index, UtlString* address,
                             int* port, UtlString* protocol);
@@ -610,13 +598,10 @@ public:
     //! Gets all contact addresses for this user agent
     void getContactAddresses(SIPX_CONTACT_ADDRESS* pContacts[], int &numContacts);
 
-    void prepareVia(SipMessage&          message,
-                    UtlString&           branchId, 
+    void prepareVia(SipMessage& message,
+                    UtlString&  branchId, 
                     OsSocket::SocketProtocolTypes& toProtocol,
-                    const char*          szTargetAddress, 
-                    const int*           piTargetPort,
-                    SIPX_TRANSPORT_DATA* pTransport = NULL) ;
-
+                    SIPX_TRANSPORT_DATA* pTransport = NULL);
 #ifdef SIP_TLS    
     SipTlsServer* getTlsServer() { return mSipTlsServer; }
     // ITlsSink implementation
@@ -630,10 +615,6 @@ public:
     
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-
-    void prepareContact(SipMessage& message, 
-                        const char* szTargetAddress, 
-                        const int*  piTargetPort) ;
 
     void getAllowedMethods(UtlString* allowedMethods);
 
@@ -669,9 +650,9 @@ protected:
                           const char* sendAddress, 
                           const int sendPort);                       
 
-    UtlBoolean sendSymmetricUdp(SipMessage& message,
+    UtlBoolean sendSymmetricUdp(const SipMessage& message,
                                 const char* serverAddress,
-                                int         port);
+                                int port);
 
     //! DNS SRV lookup for to address
     void lookupSRVSipAddress(UtlString protocol,
@@ -749,7 +730,11 @@ private:
     SipLineMgr* mpLineMgr;
     int mMaxMessageLogSize;
     UtlString mMessageLog;
+    UtlString mNatPingUrl;
+    UtlString mNatPingMethod;
     UtlString mLocationHeader;
+    int mNatPingPeriod;
+    UtlBoolean mPingLock;
     UtlBoolean mIsUaTransactionByDefault;
     UtlBoolean mForkingEnabled;
     int mMaxForwards;

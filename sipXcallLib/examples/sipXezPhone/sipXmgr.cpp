@@ -809,8 +809,6 @@ bool sipXmgr::placeCall(const char* szSipUrl,
     }
     else
     {
-        // options.rtpTransportOptions = TCP_ONLY;
-        options.rtpTransportOptions = UDP_ONLY;
 		if (thePhoneApp->getFrame().getVideoVisible())
 		{
 	        sipxCallConnect(m_hCall, szSipUrl, contactId, &display, NULL, true, &options);

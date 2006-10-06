@@ -185,7 +185,7 @@ void MainPanel::OnInitDialog(wxInitDialogEvent& event)
    if ("" == sipXezPhoneSettings::getInstance().getIdentity() ||
        "" == sipXezPhoneSettings::getInstance().getRealm() )
    {
-      sipXezPhoneSettingsDlg *pDlg = new sipXezPhoneSettingsDlg((wxWindow*)this, -1, "Configuration Settings", wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxVSCROLL );
+      sipXezPhoneSettingsDlg *pDlg = new sipXezPhoneSettingsDlg((wxWindow*)this, -1, "Configuration Settings");
       pDlg->ShowModal();
       delete pDlg;
    }

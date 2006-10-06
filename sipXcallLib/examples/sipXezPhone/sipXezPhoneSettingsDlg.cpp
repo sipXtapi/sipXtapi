@@ -42,8 +42,8 @@ sipXezPhoneSettingsDlg::sipXezPhoneSettingsDlg( wxWindow *parent, wxWindowID id,
     ::wxClientDisplayRect(&x, &y, &width, &height);
     GetSize(&pwidth, &pheight);
 
-    px = (width/6) - (pwidth/6);
-    py = (height/6) - (pheight/6);
+    px = (width/2) - (pwidth/2);
+    py = (height/2) - (pheight/2);
     Move(px, py);
     
     // WDR: dialog function sipXezPhoneSettingsDlgFunc for sipXezPhoneSettingsDlg

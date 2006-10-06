@@ -29,7 +29,6 @@
 #include "os/OsWriteLock.h"
 #include "os/OsSysLog.h"
 #include "os/OsMutex.h"
-#include "os/OsNatKeepaliveListener.h"
 
 // DEFINES
 /** sipXtapi can be configured to expire after a certain date */
@@ -51,7 +50,6 @@ class SipSubscribeClient;
 class CallManager ;
 class SipUserAgent ;
 class SipRefreshMgr ;
-class KeepaliveEventDispatcher;
 class SipXEventDispatcher;
 
 // STRUCTS
@@ -165,8 +163,6 @@ typedef struct SIPX_INSTANCE_DATA
     char             szAcceptLanguage[16]; /**< accept language to use in sip messages>*/
     char             szLocationHeader[256]; /**< location header */
     bool             bRtpOverTcp;   /**< allow RTP over TCP */
-
-    KeepaliveEventDispatcher* pKeepaliveDispatcher ;
 } SIPX_INSTANCE_DATA ;
 
 typedef enum SIPX_INTERNAL_CALLSTATE
@@ -460,19 +456,6 @@ void sipxFireMediaEvent(const void* pSrc,
                         SIPX_MEDIA_CAUSE cause,
                         SIPX_MEDIA_TYPE type,
                         void* pEventData = NULL) ;
-
-/**
- * Fires events to interested listener (keepalive events only)
- */
-void sipxFireKeepaliveEvent(const void*          pSrc,                                                        
-                            SIPX_KEEPALIVE_EVENT event,
-                            SIPX_KEEPALIVE_CAUSE cause,
-                            SIPX_KEEPALIVE_TYPE  type,
-                            const char*          szRemoteAddress,
-                            int                  remotePort,
-                            int                  keepAliveSecs,
-                            const char*          szMappedAddress,
-                            int                  mappedPort) ;
 
 /**
  * Fires a Line Event to the listeners.
@@ -825,57 +808,6 @@ public:
     void setDbPassword(SIPX_SECURITY_ATTRIBUTES& securityAttrib, const char* dbPassword);
     
 };
-
-class KeepaliveEventDispatcher : public OsNatKeepaliveListener
-{
-public:
-    KeepaliveEventDispatcher(void* pSrc) 
-        : OsNatKeepaliveListener()
-    {
-        m_pSrc = pSrc ;
-    } ;
-
-    virtual ~KeepaliveEventDispatcher() {} ;
-
-    virtual void OnKeepaliveStart(const OsNatKeepaliveEvent& event) 
-    {
-        sipxFireKeepaliveEvent(m_pSrc, KEEPALIVE_START, KEEPALIVE_CAUSE_NORMAL,
-                (SIPX_KEEPALIVE_TYPE) event.type, 
-                event.remoteAddress, event.remotePort,
-                event.keepAliveSecs,
-                event.mappedAddress, event.mappedPort) ;                
-    }
-
-    virtual void OnKeepaliveStop(const OsNatKeepaliveEvent& event) 
-    {
-        sipxFireKeepaliveEvent(m_pSrc, KEEPALIVE_STOP, KEEPALIVE_CAUSE_NORMAL,
-                (SIPX_KEEPALIVE_TYPE) event.type, 
-                event.remoteAddress, event.remotePort,
-                event.keepAliveSecs,
-                event.mappedAddress, event.mappedPort) ;                
-    }
-
-    virtual void OnKeepaliveFeedback(const OsNatKeepaliveEvent& event) 
-    {
-        sipxFireKeepaliveEvent(m_pSrc, KEEPALIVE_FEEDBACK, KEEPALIVE_CAUSE_NORMAL,
-                (SIPX_KEEPALIVE_TYPE) event.type, 
-                event.remoteAddress, event.remotePort,
-                event.keepAliveSecs,
-                event.mappedAddress, event.mappedPort) ;                
-    }
-
-    virtual void OnKeepaliveFailure(const OsNatKeepaliveEvent& event) 
-    {
-        sipxFireKeepaliveEvent(m_pSrc, KEEPALIVE_FAILURE, KEEPALIVE_CAUSE_NORMAL,
-                (SIPX_KEEPALIVE_TYPE) event.type, 
-                event.remoteAddress, event.remotePort,
-                event.keepAliveSecs,
-                event.mappedAddress, event.mappedPort) ;                
-    }
-
-protected:
-    void* m_pSrc ;
-} ;
 
 
 

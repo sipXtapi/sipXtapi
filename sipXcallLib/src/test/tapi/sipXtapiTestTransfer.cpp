@@ -115,9 +115,9 @@ void sipXtapiTestSuite::testBlindTransferSuccess()
         CPPUNIT_ASSERT(sipxRC == SIPX_RESULT_SUCCESS) ;
 
         // Validate Calling Side: Transfer Target
-        bRC = validatorTransferController.waitForCallEvent(hLine, hTransferee, CALLSTATE_BRIDGED, CALLSTATE_CAUSE_NORMAL, false) ;
-        CPPUNIT_ASSERT(bRC) ;
         bRC = validatorTransferController.waitForCallEvent(hLine, hTransferee, CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_INITIATED) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorTransferController.waitForCallEvent(hLine, hTransferee, CALLSTATE_BRIDGED, CALLSTATE_CAUSE_NORMAL, false) ;
         CPPUNIT_ASSERT(bRC) ;
         bRC = validatorTransferController.waitForCallEvent(hLine, hTransferee, CALLSTATE_HELD, CALLSTATE_CAUSE_NORMAL, false) ;
         CPPUNIT_ASSERT(bRC) ;
@@ -330,9 +330,9 @@ void sipXtapiTestSuite::testBlindTransferFailureBusy()
         CPPUNIT_ASSERT(sipxRC == SIPX_RESULT_SUCCESS) ;
 
         // Validate Calling Side: Transfer Target
-        bRC = validatorTransferController.waitForCallEvent(hLine, hTransferee, CALLSTATE_BRIDGED, CALLSTATE_CAUSE_NORMAL, false) ;
-        CPPUNIT_ASSERT(bRC) ;
         bRC = validatorTransferController.waitForCallEvent(hLine, hTransferee, CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_INITIATED) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorTransferController.waitForCallEvent(hLine, hTransferee, CALLSTATE_BRIDGED, CALLSTATE_CAUSE_NORMAL, false) ;
         CPPUNIT_ASSERT(bRC) ;
         bRC = validatorTransferController.waitForCallEvent(hLine, hTransferee, CALLSTATE_HELD, CALLSTATE_CAUSE_NORMAL, false) ;
         CPPUNIT_ASSERT(bRC) ;
@@ -572,15 +572,15 @@ void sipXtapiTestSuite::testTransferSuccess()
         validatorSource.setMaxLookhead(16) ;
 
         // Validate Calling Side
-        bRC = validatorSource.waitForCallEvent(hLine, hCallTarget, CALLSTATE_REMOTE_HELD, CALLSTATE_CAUSE_NORMAL, false) ;
-        CPPUNIT_ASSERT(bRC) ;
-        
         bRC = validatorSource.waitForCallEvent(hLine, hCallSource, CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_INITIATED, false) ;
         CPPUNIT_ASSERT(bRC) ;
 
         bRC = validatorSource.waitForCallEvent(hLine, hCallSource, CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_ACCEPTED, false) ;
         CPPUNIT_ASSERT(bRC) ;
         
+        bRC = validatorSource.waitForCallEvent(hLine, hCallTarget, CALLSTATE_REMOTE_HELD, CALLSTATE_CAUSE_NORMAL, false) ;
+        CPPUNIT_ASSERT(bRC) ;
+
         bRC = validatorSource.waitForCallEvent(hLine, hCallSource, CALLSTATE_HELD, CALLSTATE_CAUSE_NORMAL, false) ;
         CPPUNIT_ASSERT(bRC) ;
 
@@ -870,9 +870,9 @@ void sipXtapiTestSuite::testTransferConferenceSuccess()
 
         // Validate Calling Side
         validatorSource.setMaxLookhead(12) ;
-        bRC = validatorSource.waitForCallEvent(hLine, hCallSource, CALLSTATE_REMOTE_HELD, CALLSTATE_CAUSE_NORMAL, false) ;
-        CPPUNIT_ASSERT(bRC) ;
         bRC = validatorSource.waitForCallEvent(hLine, hCallSource, CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_INITIATED, false) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorSource.waitForCallEvent(hLine, hCallSource, CALLSTATE_REMOTE_HELD, CALLSTATE_CAUSE_NORMAL, false) ;
         CPPUNIT_ASSERT(bRC) ;
         bRC = validatorSource.waitForMediaEvent(MEDIA_LOCAL_STOP, MEDIA_CAUSE_HOLD, MEDIA_TYPE_AUDIO, false);
         CPPUNIT_ASSERT(bRC) ;
@@ -973,11 +973,11 @@ void sipXtapiTestSuite::testTransferConferenceSuccess()
         CPPUNIT_ASSERT(bRC) ;
 
         // Adapting test for new CALLSTATE_CAUSE_NORMAL_HELD event
-        bRC = validatorCalled2.waitForCallEvent(g_hAutoAnswerCallbackLine2, g_hAutoAnswerCallbackCall2Other, CALLSTATE_BRIDGED, CALLSTATE_CAUSE_NORMAL, false) ;
+        bRC = validatorCalled2.waitForCallEvent(g_hAutoAnswerCallbackLine2, g_hAutoAnswerCallbackCall2Other, CALLSTATE_BRIDGED, CALLSTATE_CAUSE_NORMAL) ;
         CPPUNIT_ASSERT(bRC) ;
-        bRC = validatorCalled2.waitForMediaEvent(MEDIA_LOCAL_STOP, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, false);
+        bRC = validatorCalled2.waitForMediaEvent(MEDIA_LOCAL_STOP, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, true);
         CPPUNIT_ASSERT(bRC) ;
-        bRC = validatorCalled2.waitForMediaEvent(MEDIA_REMOTE_STOP, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, false);
+        bRC = validatorCalled2.waitForMediaEvent(MEDIA_REMOTE_STOP, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, true);
         CPPUNIT_ASSERT(bRC) ;
         bRC = validatorCalled2.waitForCallEvent(g_hAutoAnswerCallbackLine2, g_hAutoAnswerCallbackCall2Other, CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;
         CPPUNIT_ASSERT(bRC) ;
@@ -1164,9 +1164,9 @@ void sipXtapiTestSuite::doConfTransfer(SIPX_INST hInstTC,           /**< Transfe
      * Validate Transfer Controller
      */ 
     // Transferee side
-    bRC = validatorTC.waitForCallEvent(hLineTC, hTC, CALLSTATE_REMOTE_HELD, CALLSTATE_CAUSE_NORMAL, false) ;
-    CPPUNIT_ASSERT(bRC) ;
     bRC = validatorTC.waitForCallEvent(hLineTC, hTC, CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_INITIATED, false) ;
+    CPPUNIT_ASSERT(bRC) ;
+    bRC = validatorTC.waitForCallEvent(hLineTC, hTC, CALLSTATE_REMOTE_HELD, CALLSTATE_CAUSE_NORMAL, false) ;
     CPPUNIT_ASSERT(bRC) ;
     bRC = validatorTC.waitForMediaEvent(MEDIA_LOCAL_STOP, MEDIA_CAUSE_HOLD, MEDIA_TYPE_AUDIO, false);
     CPPUNIT_ASSERT(bRC) ;

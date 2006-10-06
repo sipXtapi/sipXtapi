@@ -2625,28 +2625,16 @@
 			Name="NAT"
 			Filter="">
 			<File
-				RelativePath=".\include\os\IStunSocket.h">
-			</File>
-			<File
-				RelativePath=".\src\os\NatMsg.cpp">
-			</File>
-			<File
 				RelativePath=".\src\os\OsNatAgentTask.cpp">
 			</File>
 			<File
 				RelativePath=".\include\os\OsNatAgentTask.h">
 			</File>
 			<File
-				RelativePath=".\src\os\OsNatConnectionSocket.cpp">
-			</File>
-			<File
 				RelativePath=".\src\os\OsNatDatagramSocket.cpp">
 			</File>
 			<File
 				RelativePath=".\include\os\OsNatDatagramSocket.h">
-			</File>
-			<File
-				RelativePath=".\src\os\OsNatSocketBaseImpl.cpp">
 			</File>
 			<File
 				RelativePath=".\src\os\StunMessage.cpp">

@@ -478,11 +478,7 @@ void CpCallManager::getNewCallId(const char* callIdPrefix, UtlString* callId)
    static UtlBoolean initialized = FALSE;
 
    // Increment the call number.
-#ifdef USE_LONG_CALL_IDS
    mCallNum += 19560001;
-#else
-   mCallNum += 1201;
-#endif
     
    // callID prefix shouldn't contain an @.
    if (strchr(callIdPrefix, '@') != NULL)
@@ -517,13 +513,8 @@ void CpCallManager::getNewCallId(const char* callIdPrefix, UtlString* callId)
       // Hash them.
       NetMd5Codec encoder;
       encoder.encode(buffer, suffix);
-#ifdef USE_LONG_CALL_IDS
       // Truncate the hash to 16 characters.
       suffix.remove(16);
-#else
-      // Truncate the hash to 16 characters.
-      suffix.remove(12);
-#endif
 
       // Note initialization is done.
       initialized = TRUE;
@@ -718,13 +709,6 @@ void CpCallManager::enableIce(UtlBoolean bEnable)
     mbEnableICE = bEnable ;
 }
 
-
-void CpCallManager::setVoiceQualityReportTarget(const char* szTargetSipUrl) 
-{
-    mVoiceQualityReportTarget = szTargetSipUrl ;
-}
-
-
 /* ============================ ACCESSORS ================================= */
 
 int CpCallManager::getNewMetaEventId()
@@ -736,20 +720,6 @@ int CpCallManager::getNewMetaEventId()
 UtlBoolean CpCallManager::isIceEnabled() const
 {
     return mbEnableICE ;
-}
-
-
-UtlBoolean CpCallManager::getVoiceQualityReportTarget(UtlString& reportSipUrl) 
-{
-    UtlBoolean bRC = false ;
-
-    if (!mVoiceQualityReportTarget.isNull())
-    {
-        reportSipUrl = mVoiceQualityReportTarget ;
-        bRC = true ;
-    }
-
-    return bRC ;
 }
 
 

@@ -1,4 +1,4 @@
-
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -132,8 +132,7 @@ public:
                              const void* pSecurity = NULL,
                              const char* locationHeader = NULL,
                              const int bandWidth=AUDIO_CODEC_BW_DEFAULT,
-                             SIPX_TRANSPORT_DATA* pTransportData = NULL,
-                             const SIPX_RTP_TRANSPORT rtpTransportOptions = UDP_ONLY) ;
+                             SIPX_TRANSPORT_DATA* pTransportData = NULL) ;
 
     virtual PtStatus consult(const char* idleTargetCallId,
         const char* activeOriginalCallId, const char* originalCallControllerAddress,
@@ -438,7 +437,6 @@ public:
    int getTotalNumberIncomingCalls() { return mnTotalIncomingCalls;}
 
    virtual void onCallDestroy(CpCall* pCall);
-   virtual void yieldFocus(CpCall* call);
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -530,8 +528,7 @@ private:
                    const void* pSecurity = NULL,
                    const char* locationHeader = NULL,
                    const int bandWidth = AUDIO_CODEC_BW_DEFAULT,
-                   SIPX_TRANSPORT_DATA* pTransport = NULL,
-                   const SIPX_RTP_TRANSPORT rtpTransportOptions = UDP_ONLY) ;
+                   SIPX_TRANSPORT_DATA* pTransport = NULL) ;
 
     void doEnableStun(const UtlString& szStunServer, 
                       int              iServerPort,

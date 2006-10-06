@@ -19,7 +19,6 @@
 #include "cp/Connection.h"
 #include "cp/CSeqManager.h"
 #include "net/SipContactDb.h"
-#include "utl/UtlObservable.h"
 
 // DEFINES
 // MACROS
@@ -36,7 +35,7 @@ class SdpCodecFactory;
 
 //:Class short description which may consist of multiple lines (note the ':')
 // Class detailed description which may extend to multiple lines
-class SipConnection : public Connection, public ISocketIdle, public IMediaEventListener, public UtlObservable
+class SipConnection : public Connection, public ISocketIdle, public IMediaEventListener
 {
     /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -74,8 +73,7 @@ public:
     
     virtual UtlBoolean send(SipMessage& message,
                         OsMsgQ* responseListener = NULL,
-                            void* responseListenerData = NULL,
-                            bool bUseSendToTransportType = false);
+                        void* responseListenerData = NULL);
 
     virtual UtlBoolean dial(const char* dialString,
         const char* callerId,
@@ -88,8 +86,7 @@ public:
         const char* locationHeader = NULL,
         const int bandWidth = AUDIO_MICODEC_BW_DEFAULT,
         UtlBoolean bOnHold = FALSE,
-		const char* originalCallId = NULL,
-		const SIPX_RTP_TRANSPORT rtpTransportOptions = UDP_ONLY);
+		const char* originalCallId = NULL);
     //! param: requestQueuedCall - indicates that the caller wishes to have the callee queue the call if busy
 
     virtual UtlBoolean originalCallTransfer(UtlString& transferTargetAddress,
@@ -157,7 +154,7 @@ public:
 	void setExternalTransport(SIPX_TRANSPORT_DATA* pTransport) { if (pTransport) { mTransport = *pTransport; }}
 
     // ISocketIdle::onIdleNotify method
-    void onIdleNotify(IStunSocket* const pSocket,
+    void onIdleNotify(OsDatagramSocket* const pSocket,
                                  SocketPurpose purpose,
                                  const int millisecondsIdle);
 
@@ -168,9 +165,6 @@ public:
     virtual void onBufferStop(IMediaEvent_DeviceTypes type);
     virtual void onDeviceError(IMediaEvent_DeviceTypes type, IMediaEvent_DeviceErrors errCode);
     virtual void onListenerAddedToEmitter(IMediaEventEmitter* pEmitter);
-
-    void setVoiceQualityReportTarget(const char* szTargetSipUrl) ;
-    void sendVoiceQualityReport(const char* szTargetSipUrl) ;
 
     /* ============================ ACCESSORS ================================= */
 
@@ -205,26 +199,8 @@ public:
 
     virtual UtlBoolean isLocallyInitiatedRemoteHold() const ;
 
-    virtual void registerObserver(UtlObserver* observer);
-
-    /**
-     * Removes a listener of this observable.
-     */ 
-    virtual void removeObserver(UtlObserver* observer);
-    
-
-private:    
-    UtlSList mObservers;
-    
-
     /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-
-    /**
-     * The observable calls this to notify its
-     * observers of a change.
-     */ 
-    virtual void notify(int code, void *pUserData);
 
     bool prepareInviteSdpForSend(SipMessage* pMsg, int connectionId, const void* pSecurityAttribute) ;
 
@@ -238,13 +214,7 @@ protected:
     SIPX_CONTACT_TYPE selectCompatibleContactType(const SipMessage& request) ;
     //: Select a compatible contact given the URI
 
-    void updateContact(Url*              pContactUrl, 
-                       SIPX_CONTACT_TYPE eType, 
-                       Url*              pToUrl = NULL, 
-                       UtlString*        pRemoteHostOrIp = NULL,
-                       int*              pRemotePort = NULL) ;
-
-    void updateContactFromResponse(const SipMessage* pResponse) ;
+    void updateContact(Url* pContactUrl, SIPX_CONTACT_TYPE eType, Url *pToUrl = NULL) ;
 
     static UtlBoolean requestShouldCreateConnection(const SipMessage* sipMsg,
         SipUserAgent& sipUa,
@@ -321,8 +291,6 @@ protected:
 private:
 
     CSeqManager mCSeqMgr ;
-    int mRtpTransportOptions;
-    RtpTcpRoles mRtpTcpRole;
 
     bool mbByeAttempted;
     SipUserAgent* sipUserAgent;
@@ -363,7 +331,6 @@ private:
     UtlString mRemoteUserAgent;
     SIPX_TRANSPORT_DATA mTransport;
     UtlSList mMediaEventEmitters;
-    UtlString mVoiceQualityReportTarget;
 
     UtlBoolean getInitialSdpCodecs(const SipMessage* sdpMessage,
         SdpCodecFactory& supportedCodecsArray,

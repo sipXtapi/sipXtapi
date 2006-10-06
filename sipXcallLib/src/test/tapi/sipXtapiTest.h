@@ -220,7 +220,7 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
 #endif /* TEST_CONF ] */
 
 #if TEST_REG /* [ */
-    // CPPUNIT_TEST(testReRegistrationFailure);
+    CPPUNIT_TEST(testReRegistrationFailure);
     CPPUNIT_TEST(testRegistration);
     CPPUNIT_TEST(testReRegistration);
     CPPUNIT_TEST(testBadRegistrarRegistration);
@@ -271,11 +271,8 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
 #endif /* TEST_CONFIG ] */
 
 #if TEST_SUBSCRIBE /* [ */ 
-    CPPUNIT_TEST(testPublishAndSubscribeCall); 
+    // CPPUNIT_TEST(testPublishAndSubscribeCall); 
     CPPUNIT_TEST(testPublishAndSubscribeConfig); 
-    CPPUNIT_TEST(testPublishAndSubscribeCallCustom);
-    CPPUNIT_TEST(testPublishAndSubscribeConfigCustom);
-    
 #endif /* TEST_SUBSCRIBE ] */ 
 
 #if TEST_NAT /* [ */
@@ -520,11 +517,9 @@ public:
 
     void testConfigEnableShortNames();
     
-    void testPublishAndSubscribe(bool bCallContext, bool bCustomTransport, const char* szTestName);
+    void testPublishAndSubscribe(bool bCallContext, const char* szTestName);
     void testPublishAndSubscribeCall();
     void testPublishAndSubscribeConfig();
-    void testPublishAndSubscribeCallCustom();
-    void testPublishAndSubscribeConfigCustom();
 
     void testCallRapidCallAndHangup();
 

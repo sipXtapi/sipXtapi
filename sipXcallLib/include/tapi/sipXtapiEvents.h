@@ -94,18 +94,12 @@ typedef enum SIPX_EVENT_CATEGORY
     EVENT_CATEGORY_SECURITY,        /**< SECURITY events signify occurences in call security 
                                          processing.  These events are only sent when using
                                          S/MIME or TLS. */
-    EVENT_CATEGORY_MEDIA,           /**< MEDIA events signify changes in the audio state for
+    EVENT_CATEGORY_MEDIA            /**< MEDIA events signify changes in the audio state for
                                          sipXtapi or a particular call. */
-    EVENT_CATEGORY_KEEPALIVE        /**< KEEPALIVE events signal when a keepalive is 
-                                         started/stopped/fails.  A feedback event will
-                                         report back your NAT-mapped IP address in some 
-                                         cases.  @see SIPX_KEEPALIVE_TYPE for more 
-                                         information.*/
-
                                          
 } SIPX_EVENT_CATEGORY;
 
-#define VALID_SIPX_EVENT_CATEGORY(x) (((x) >= EVENT_CATEGORY_CALLSTATE) && ((x) <= EVENT_CATEGORY_KEEPALIVE))
+#define VALID_SIPX_EVENT_CATEGORY(x) (((x) >= EVENT_CATEGORY_CALLSTATE) && ((x) <= EVENT_CATEGORY_MEDIA))
 
 
 /**
@@ -295,19 +289,8 @@ typedef enum SIPX_CALLSTATE_CAUSE
                                    /**< Fired if a local S/MIME operation failed. 
                                         For more information, applications should 
                                         process the SECURITY event. */
-    CALLSTATE_CAUSE_SHUTDOWN,      /**< The even was fired as part of sipXtapi 
-                                        shutdown. */
-    CALLSTATE_CAUSE_BAD_REFER,     /**< An unusable refer was sent to this user-agent. */    
-    CALLSTATE_CAUSE_NO_KNOWN_INVITE, /**< This user-agent received a request or response, 
-                                          but there is no known matching invite. */  
-    CALLSTATE_CAUSE_BYE_DURING_IDLE, /**< A BYE message was received, however, the call is in
-                                          in an idle state. */       
-    CALLSTATE_CAUSE_UNKNOWN_STATUS_CODE, /**< A response was received with an unknown status code. */
-    CALLSTATE_CAUSE_BAD_REDIRECT,    /**< Receive a redirect with NO contact or a RANDOM redirect. */
-    CALLSTATE_CAUSE_TRANSACTION_DOES_NOT_EXIST, /**< No such transaction;  Accepting or Rejecting a call that
-                                                     is part of a transfer. */
-    CALLSTATE_CAUSE_CANCEL,        /**< The event was fired in response to a cancel
-                                        attempt from the remote party */
+    CALLSTATE_CAUSE_SHUTDOWN       /**< The even was fired as part of sipXtapi 
+                                        shutdown */
 } SIPX_CALLSTATE_CAUSE ;
 
 /**
@@ -514,67 +497,11 @@ typedef enum
     MEDIA_PLAYBUFFER_STOP,      /**< A buffer has completed playing or was
                                      aborted.*/
     MEDIA_REMOTE_DTMF,          /**< A dtmf tone was started/stopped, see the
-                                     cause codes for exact status */
+								     cause codes for exact status */
     MEDIA_DEVICE_FAILURE,       /**< Fired if the media device is not present or
                                      already in use. */
 } SIPX_MEDIA_EVENT ;
 
-
-/**
- * Enumeration of possible KEEPALIVE events (EVENT_CATEGORY_KEEPALIVE)
- */
-typedef enum
-{
-    KEEPALIVE_START,        /**< A keepalive attempt has been started.  The
-                                 developer is responsible for stopping all
-                                 keepalives.  In some cases, keepalives will
-                                 be automatically stopped -- however do not 
-                                 rely on that.*/
-    KEEPALIVE_FEEDBACK,     /**< The keepalive process has obtained information
-                                 regarding your NAT mapped address (or local 
-                                 address).  Feedback events are sent with the
-                                 mapped address from a STUN transaction or the 
-                                 rport results from a SIP transaction. */
-    KEEPALIVE_FAILURE,      /**< FAILURE events are only fired when the 
-                                 physical send fails.  The application 
-                                 developer should stop the keepalive or can monitor
-                                 the keepalive until the condition changes (lack of 
-                                 failure or feedback event). */
-    KEEPALIVE_STOP          /**< A keepalive process has been stopped. */
-} SIPX_KEEPALIVE_EVENT ;
-
-/**
- * Enumeration of possible KEEPALIVE cause codes (EVENT_CATEGORY_KEEPALIVE)
- */
-typedef enum
-{
-    KEEPALIVE_CAUSE_NORMAL,
-} SIPX_KEEPALIVE_CAUSE ;
-
-
-/**
- * Keepalive event information structure.   This information is passed as 
- * part of the sipXtapi callback mechanism.  Based on the 
- * SIPX_KEEPALIVE_CATEGORY, the application developer should cast the pInfo 
- * member of your callback to the appropriate structure.  
- *
- * @see SIPX_EVENT_CALLBACK_PROC
- * @see SIPX_EVENT_CATEGORY
- */
-typedef struct
-{
-    size_t                  nSize ;     /**< Size of the structure */
-    SIPX_KEEPALIVE_EVENT    event ;     /**< Keepalive event identifier. */
-    SIPX_KEEPALIVE_CAUSE    cause ;     /**< Keepalive cause  */
-    SIPX_KEEPALIVE_TYPE     type ;      /**< Keepalive type */
-    const char*             szRemoteAddress ;   /**< Target IP/host where you are sending the keepalives */
-    int                     remotePort ;        /**< Target port where you are sending the keepalives */
-    int                     keepAliveSecs ;     /**< How often keepalives are being sent */
-    const char*             szFeedbackAddress;  /**< This UA's IP address as seen by the remote side (only 
-                                                     valid in FEEDBACK events) */
-    int                     feedbackPort ;      /**< This UA's port as seen by the remote side (only valid 
-                                                     in FEEDBACK events) */
-} SIPX_KEEPALIVE_INFO ;
 
 /**
  * Enumeration of possible media event causes.
@@ -591,8 +518,8 @@ typedef enum
                                         (device was removed, already in use, etc). */
     MEDIA_CAUSE_INCOMPATIBLE,        /**< Incompatible destination -- We were unable
                                         to negotiate a codec */
-    MEDIA_CAUSE_DTMF_START,			 /**< A DTMF tone has started */
-    MEDIA_CAUSE_DTMF_STOP			 /**< A DTMF tone has stopped */
+	MEDIA_CAUSE_DTMF_START,			 /**< A DTMF tone has started */
+	MEDIA_CAUSE_DTMF_STOP			 /**< A DTMF tone has stopped */
 
 } SIPX_MEDIA_CAUSE ;
 
@@ -634,12 +561,12 @@ typedef struct
     int                 idleTime;   /**< Idle time (ms) for SILENT events; only 
                                          supplied on MEDIA_REMOTE_SILENT 
                                          events. */
-    SIPX_TONE_ID        toneId;	    /**< DTMF tone received from remote party;
-                                         only supplied on MEDIA_REMOTE_DTMF_START
-                                         and MEDIA_REMOTE_DTMF_STOP events).
-                                         Note: Only out-of-band DTMF is supported
-                                         (not in-band DTMF or dialtone detection, 
-                                         etc.)*/
+	SIPX_TONE_ID	    toneId;		/**< DTMF tone received from remote party;
+									     only supplied on MEDIA_REMOTE_DTMF_START
+										 and MEDIA_REMOTE_DTMF_STOP events).
+										 Note: Only out-of-band DTMF is supported
+										 (not in-band DTMF or dialtone detection, 
+										 etc.)*/
 } SIPX_MEDIA_INFO ;
 
 

@@ -21,7 +21,6 @@
 #include <os/OsDatagramSocket.h>
 #include <net/SipContactDb.h>
 #include <net/SdpBody.h>
-#include <os/IStunSocket.h>
 
 // DEFINES
 // MACROS
@@ -55,14 +54,13 @@ typedef enum SIPXMI_AUDIO_BANDWIDTH_ID
                                       sipxConferenceAdd */
 } SIPXMI_AUDIO_BANDWIDTH_ID;
 
-
 /**
  * Interface declaration for receiving socket idle notifications.
  */
 class ISocketIdle
 {
 public:
-    virtual void onIdleNotify(IStunSocket* const pSocket,
+    virtual void onIdleNotify(OsDatagramSocket* const pSocket,
                           SocketPurpose purpose,
                           const int millisecondsIdle) = 0;
     virtual ~ISocketIdle() { } ;
@@ -165,16 +163,14 @@ public:
     *        connection.
     * @param pSecurityAttributes Pointer to a SIPXVE_SECURITY_ATTRIBUTES
     *        object.  
-    * @param rtpTransportOptions UDP_ONLY, TCP_ONLY, or BOTH
     */ 
    virtual OsStatus createConnection(int& connectionId,
                                      const char* szLocalAddress,
                                      void* videoWindowHandle, 
                                      void* const pSecurityAttributes = NULL,
                                      ISocketIdle* pSocketIdleSink = NULL,
-                                     IMediaEventListener* pMediaEventListener = NULL,
-                                     const SIPX_RTP_TRANSPORT rtpTransportOptions=UDP_ONLY,
-                                     const RtpTcpRoles role=ACTPASS) = 0 ;
+                                     IMediaEventListener* pMediaEventListener = NULL
+                                     ) = 0 ;
    
 
 
@@ -480,13 +476,7 @@ public:
 
    virtual OsStatus setSecurityAttributes(const void* security) = 0;
 
-   virtual OsStatus generateVoiceQualityReport(int         connectionId,
-                                               const char* callId,
-                                               UtlString&  report) = 0 ;
 
-
-   virtual void setConnectionTcpRole(const int connectionId,
-                                     const RtpTcpRoles role) = 0;
 
 /* ============================ ACCESSORS ================================= */
 

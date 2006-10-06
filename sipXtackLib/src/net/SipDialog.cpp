@@ -333,8 +333,6 @@ void SipDialog::setRequestData(SipMessage& request, const char* method)
     }
     // The request URI should be the remote contact
     UtlString remoteContact;
-    mRemoteContact.removeAngleBrackets();
-    mRemoteContact.removeUrlParameters();
     mRemoteContact.toString(remoteContact);
     request.setSipRequestFirstHeaderLine(methodString, remoteContact);
 

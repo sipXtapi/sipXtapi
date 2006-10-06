@@ -39,10 +39,7 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   OsPtrMsg(const unsigned char msgType, 
-            const unsigned char msgSubType, 
-            void* pData, 
-            void* pData2 = NULL);
+   OsPtrMsg(const unsigned char msgType, const unsigned char msgSubType, void* pData);
      //:Constructor
 
    OsPtrMsg(const OsPtrMsg& rOsMsg);
@@ -59,7 +56,6 @@ public:
 
 /* ============================ ACCESSORS ================================= */
    void* getPtr();
-   void* getPtr2();
    
 
 /* ============================ INQUIRY =================================== */
@@ -68,7 +64,6 @@ public:
 protected:
    static const UtlContainableType TYPE ;    /** < Class type used for runtime checking */
    void* mpData;
-   void* mpData2;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

@@ -47,8 +47,6 @@ OsNatDatagramSocket::OsNatDatagramSocket(int remoteHostPortNum,
                                          OsNotification *pNotification) 
         : OsDatagramSocket(remoteHostPortNum, remoteHost, localHostPortNum, localHost)
 {    
-    miRecordTimes = ONDS_MARK_NONE ;
-
     // Init Stun state
     mStunState.bEnabled = false ;
     mStunState.status = NAT_STATUS_UNKNOWN ;
@@ -76,11 +74,6 @@ OsNatDatagramSocket::OsNatDatagramSocket(int remoteHostPortNum,
 // Destructor
 OsNatDatagramSocket::~OsNatDatagramSocket()
 {
-    destroy() ;
-}
-
-void OsNatDatagramSocket::destroy()
-{
     mpNatAgent->removeKeepAlives(this) ;
     mpNatAgent->removeStunProbes(this) ;
     disableStun() ;
@@ -91,12 +84,6 @@ void OsNatDatagramSocket::destroy()
 
 /* ============================ MANIPULATORS ============================== */
 
-OsSocket* OsNatDatagramSocket::getSocket()
-{
-    OsSocket* pSocket = dynamic_cast<OsSocket*>(this);
-    assert(pSocket);
-    return pSocket;
-}
 
 int OsNatDatagramSocket::read(char* buffer, int bufferLength)
 {
@@ -134,12 +121,6 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength)
             }
         }
     } while ((iRC >= 0) && bNatPacket) ;   
-
-    // Make read time for non-NAT packets
-    if (iRC > 0 && !bNatPacket)
-    {
-        markReadTime() ;
-    }
 
     return iRC ;
 }
@@ -190,12 +171,6 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength,
     if (port)
     {
         *port = iReceivedPort ;
-    }
-
-    // Make read time for non-NAT packets
-    if (iRC > 0 && !bNatPacket)
-    {
-        markReadTime() ;
     }
 
     return iRC ;
@@ -253,12 +228,6 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength,
         *port = iReceivedPort ;
     }
 
-    // Make read time for non-NAT packets
-    if (iRC > 0 && !bNatPacket)
-    {
-        markReadTime() ;
-    }
-
     return iRC ;
 }
 
@@ -307,12 +276,6 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength, long waitMilliseco
         }
     } while ((iRC >= 0) && bNatPacket) ;
 
-    // Make read time for non-NAT packets
-    if (iRC > 0 && !bNatPacket)
-    {
-        markReadTime() ;
-    }
-
     return iRC ;    
 }
 
@@ -320,8 +283,6 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength, long waitMilliseco
 int OsNatDatagramSocket::write(const char* buffer, int bufferLength)
 {
     int rc ;
-
-    markWriteTime() ;
 
     // Datagram sockets can be simulate a connection-oriented socket (in API) 
     // by allowing a connect().  This filters inbound packets from others (on 
@@ -355,16 +316,7 @@ int OsNatDatagramSocket::write(const char* buffer,
                                const char* ipAddress, 
                                int port)
 {
-    markWriteTime() ;
     return OsDatagramSocket::write(buffer, bufferLength, ipAddress, port) ;
-}
-
-
-int OsNatDatagramSocket::write(const char* buffer, int bufferLength, 
-                               long waitMilliseconds)
-{
-    markWriteTime() ;
-    return OsSocket::write(buffer, bufferLength, waitMilliseconds) ;
 }
 
 
@@ -472,11 +424,10 @@ void OsNatDatagramSocket::enableTransparentReads(bool bEnable)
 
 UtlBoolean OsNatDatagramSocket::addCrLfKeepAlive(const char* szRemoteIp,
                                                  const int   remotePort, 
-                                                 const int   keepAliveSecs,
-                                                 OsNatKeepaliveListener* pListener) 
+                                                 const int   keepAliveSecs) 
 {
     return mpNatAgent->addCrLfKeepAlive(this, szRemoteIp, remotePort, 
-            keepAliveSecs, pListener) ;
+            keepAliveSecs) ;
 }
 
 
@@ -488,11 +439,10 @@ UtlBoolean OsNatDatagramSocket::removeCrLfKeepAlive(const char* szRemoteIp,
 
 UtlBoolean OsNatDatagramSocket::addStunKeepAlive(const char* szRemoteIp, 
                                                  const int   remotePort, 
-                                                 const int   keepAliveSecs,
-                                                 OsNatKeepaliveListener* pListener) 
+                                                 const int   keepAliveSecs) 
 {
     return mpNatAgent->addStunKeepAlive(this, szRemoteIp, remotePort, 
-            keepAliveSecs, pListener) ;
+            keepAliveSecs) ;
 }
 
 
@@ -597,62 +547,6 @@ void OsNatDatagramSocket::setNotifier(OsNotification* pNotification)
 {
     mpNotification = pNotification ;
     mbNotified = false ;
-}
-
-
-bool OsNatDatagramSocket::getFirstReadTime(OsDateTime& time) 
-{
-    bool bRC = (miRecordTimes & ONDS_MARK_FIRST_READ) == 
-            ONDS_MARK_FIRST_READ ;
-
-    if (bRC)
-    {
-        time = mFirstRead ;
-    }
-
-    return bRC ;
-}
-
-
-bool OsNatDatagramSocket::getLastReadTime(OsDateTime& time)
-{
-    bool bRC = (miRecordTimes & ONDS_MARK_LAST_READ) == 
-            ONDS_MARK_LAST_READ ;
-
-    if (bRC)
-    {
-        time = mLastRead ;
-    }
-
-    return bRC ;
-}
-
-
-bool OsNatDatagramSocket::getFirstWriteTime(OsDateTime& time) 
-{
-    bool bRC = (miRecordTimes & ONDS_MARK_FIRST_WRITE) == 
-            ONDS_MARK_FIRST_WRITE ;
-
-    if (bRC)
-    {
-        time = mFirstWrite ;
-    }
-
-    return bRC ;
-}
-
-
-bool OsNatDatagramSocket::getLastWriteTime(OsDateTime& time) 
-{
-    bool bRC = (miRecordTimes & ONDS_MARK_LAST_WRITE) == 
-            ONDS_MARK_LAST_WRITE ;
-
-    if (bRC)
-    {
-        time = mLastWrite ;
-    }
-
-    return bRC ;
 }
 
 
@@ -787,10 +681,10 @@ UtlBoolean OsNatDatagramSocket::applyDestinationAddress(const char* szAddress, i
 
     // ::TODO:: The keepalive period should be configurable (taken from 
     // default stun keepalive setting)
-    if (!addStunKeepAlive(szAddress, iPort, DEFAULT_MEDIA_STUN_KEEPALIVE, NULL))
+    if (!addStunKeepAlive(szAddress, iPort, DEFAULT_MEDIA_STUN_KEEPALIVE))
     {
-        // Bob: [2006-06-13] The only way this fails right now is if the 
-        //      binding is already added.
+        OsSysLog::add(FAC_NET, PRI_ERR, "Unable to add stun keepalive to %s:%d\n",
+                szAddress, iPort) ;
     }
    
     if (mpNatAgent->setTurnDestination(this, szAddress, iPort))
@@ -834,35 +728,120 @@ void OsNatDatagramSocket::handleTurnMessage(char* pBuf,
 }
 
 
-void OsNatDatagramSocket::markReadTime()
-{
-    // Always mark last read
-    miRecordTimes |= ONDS_MARK_LAST_READ ;
-    OsDateTime::getCurTime(mLastRead) ;
-
-    // Mark first read if not already set
-    if ((miRecordTimes & ONDS_MARK_FIRST_READ) == 0)
-{
-        miRecordTimes |= ONDS_MARK_FIRST_READ ;
-        mFirstRead = mLastRead ;
-}
-}
-
-void OsNatDatagramSocket::markWriteTime()
-{
-    // Always mark last write
-    miRecordTimes |= ONDS_MARK_LAST_WRITE ;
-    OsDateTime::getCurTime(mLastWrite) ;
-
-    // Mark first write if not already set
-    if ((miRecordTimes & ONDS_MARK_FIRST_WRITE) == 0)
-{
-        miRecordTimes |= ONDS_MARK_FIRST_WRITE ;
-        mFirstWrite = mLastWrite ;
-}
-}
-
-
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
+
+/* ///////////////////////// HELPER CLASSES /////////////////////////////// */
+
+NatMsg::NatMsg(int                  type,
+               char*                szBuffer, 
+               int                  nLength, 
+               OsNatDatagramSocket* pSocket,
+               UtlString            receivedIp,
+               int                  iReceivedPort)
+    : OsMsg(NAT_MSG_TYPE, 0)
+{
+    miType = type ;
+    mBuffer = szBuffer ;    // Shallow copy
+    mLength = nLength ;
+    mpSocket = pSocket ;
+    mReceivedIp = receivedIp ;
+    miReceivedPort = iReceivedPort ;
+    mpContext = NULL ;
+}
+
+NatMsg::NatMsg(int   type,
+               void* pContext)
+    : OsMsg(NAT_MSG_TYPE, 0)
+{
+    miType = type ;
+    mBuffer = NULL ;
+    mLength = 0;
+    mpSocket = NULL ;
+    mReceivedIp.remove(0) ;
+    miReceivedPort = 0 ;
+    mpContext = pContext ;
+}
+
+
+NatMsg::NatMsg(const NatMsg& rNatMsg)
+    : OsMsg(NAT_MSG_TYPE, 0)
+{
+    miType = rNatMsg.miType ;
+    mBuffer = rNatMsg.mBuffer ;
+    mLength  = rNatMsg.mLength ;
+    mpSocket = rNatMsg.mpSocket ;
+    mReceivedIp = rNatMsg.mReceivedIp ;
+    miReceivedPort = rNatMsg.miReceivedPort ;
+    mpContext = rNatMsg.mpContext ;
+}
+
+
+OsMsg* NatMsg::createCopy(void) const
+{
+    return new NatMsg(*this);
+}
+
+
+NatMsg::~NatMsg()
+{
+
+}
+
+
+NatMsg& NatMsg::operator=(const NatMsg& rhs)
+{
+    if (this != &rhs)            // handle the assignment to self case
+    {
+        miType = rhs.miType ;
+        mBuffer = rhs.mBuffer ;
+        mLength = rhs.mLength ;
+        mpSocket = rhs.mpSocket ;
+        mReceivedIp = rhs.mReceivedIp ;
+        miReceivedPort = rhs.miReceivedPort ;
+        mpContext = rhs.mpContext ;
+    }
+
+    return *this ;
+}
+
+
+char* NatMsg::getBuffer() const
+{
+    return mBuffer ;
+}
+
+   
+int NatMsg::getLength() const
+{
+    return mLength ;
+}
+
+
+OsNatDatagramSocket* NatMsg::getSocket() const 
+{
+    return mpSocket ;
+}
+
+
+UtlString NatMsg::getReceivedIp() const 
+{
+    return mReceivedIp ;
+}
+
+
+int NatMsg::getReceivedPort() const 
+{
+    return miReceivedPort ;
+}
+
+int NatMsg::getType() const 
+{
+    return miType ;
+}
+
+void* NatMsg::getContext() const
+{
+    return mpContext ;
+}

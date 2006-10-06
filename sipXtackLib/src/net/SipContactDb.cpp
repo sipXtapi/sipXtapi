@@ -106,6 +106,8 @@ const bool SipContactDb::updateContact(SIPX_CONTACT_ADDRESS& contact)
     UtlString replacedAddress ;
     int replacedPort ;
 
+
+
     // Pass one: replace the exact match
     while (pKey = (UtlInt*)iterator())
     {

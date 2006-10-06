@@ -89,8 +89,6 @@ TransportTask::TransportTask(int id,
 
 TransportTask::~TransportTask()
 {
-    requestShutdown();
-    waitUntilShutDown();
 }
 
 int TransportTask::run(void* pArg)

@@ -95,9 +95,6 @@ static const char* convertEventCategoryToString(SIPX_EVENT_CATEGORY category)
         case EVENT_CATEGORY_MEDIA:
             str = "EVENT_CATEGORY_MEDIA" ;
             break ;
-        case EVENT_CATEGORY_KEEPALIVE:
-            str = "EVENT_CATEGORY_KEEPALIVE" ;
-            break ;
     }
 
     return str ;
@@ -225,26 +222,6 @@ static const char* convertCallstateCauseToString(SIPX_CALLSTATE_CAUSE eMinor)
         case CALLSTATE_CAUSE_SHUTDOWN:
             str = "CAUSE_SHUTDOWN";
             break;
-        case CALLSTATE_CAUSE_BAD_REFER:
-            str = "CALLSTATE_CAUSE_BAD_REFER";
-            break;
-        case CALLSTATE_CAUSE_NO_KNOWN_INVITE:
-            str = "CALLSTATE_CAUSE_NO_KNOWN_INVITE";
-            break;
-        case CALLSTATE_CAUSE_BYE_DURING_IDLE:
-            str = "CALLSTATE_CAUSE_BYE_DURING_IDLE";
-            break;
-        case CALLSTATE_CAUSE_UNKNOWN_STATUS_CODE:
-            str = "CALLSTATE_CAUSE_UNKNOWN_STATUS_CODE";
-            break;
-        case CALLSTATE_CAUSE_BAD_REDIRECT:
-            str = "CALLSTATE_CAUSE_BAD_REDIRECT";
-            break;
-        case CALLSTATE_CAUSE_TRANSACTION_DOES_NOT_EXIST:
-            str = "CALLSTATE_CAUSE_TRANSACTION_DOES_NOT_EXIST";
-            break;
-        case CALLSTATE_CAUSE_CANCEL:
-            str = "CAUSE_CANCEL";
         default:
             break ;
     }
@@ -288,7 +265,7 @@ static const char* convertMediaEventToString(SIPX_MEDIA_EVENT event)
             break ;
         case MEDIA_DEVICE_FAILURE:
             str = "MEDIA_DEVICE_FAILURE";
-            break ;
+			break ;
         default:
             break ;
     }
@@ -333,79 +310,21 @@ static const char* convertMediaCauseToString(SIPX_MEDIA_CAUSE cause)
         case MEDIA_CAUSE_DEVICE_UNAVAILABLE:
             str = "CAUSE_DEVICE_UNAVAILABLE";
             break;
-        case MEDIA_CAUSE_INCOMPATIBLE:
-            str = "CAUSE_DEVICE_UNAVAILABLE";
-            break ;
-	case MEDIA_CAUSE_DTMF_START:
-            str = "CAUSE_DTMF_START";
-            break ;
-	case MEDIA_CAUSE_DTMF_STOP:
-            str = "CAUSE_DTMF_STOP";
-            break ;
-        default:
+		case MEDIA_CAUSE_INCOMPATIBLE:
+			str = "CAUSE_DEVICE_UNAVAILABLE";
+			break ;
+		case MEDIA_CAUSE_DTMF_START:
+			str = "CAUSE_DTMF_START";
+			break ;
+		case MEDIA_CAUSE_DTMF_STOP:
+			str = "CAUSE_DTMF_STOP";
+			break ;
+
+		default:
             break ;
     }
     return str;
 }
-
-static const char* convertKeepaliveEventToString(SIPX_KEEPALIVE_EVENT event)
-{
-    const char* str = "Unknown" ;
-    switch (event)
-    {
-        case KEEPALIVE_START:
-            str = "KEEPALIVE_START" ;
-            break ;
-        case KEEPALIVE_FEEDBACK:
-            str = "KEEPALIVE_FEEDBACK" ;
-            break ;
-        case KEEPALIVE_FAILURE:
-            str = "KEEPALIVE_FAILURE" ;
-            break ;
-        case KEEPALIVE_STOP:
-            str = "KEEPALIVE_STOP" ;
-            break ;
-        default:
-            break ;
-    }
-    return str;
-}
-
-static const char* convertKeepaliveCauseToString(SIPX_KEEPALIVE_CAUSE event)
-{
-    const char* str = "Unknown" ;
-    switch (event)
-    {
-        case KEEPALIVE_CAUSE_NORMAL:
-            str = "KEEPALIVE_CAUSE_NORMAL" ;
-            break ;
-    }
-    return str;
-}
-
-static const char* convertKeepaliveTypeToString(SIPX_KEEPALIVE_TYPE type)
-{
-    const char* str = "Unknown" ;
-    switch (type)
-    {
-        case SIPX_KEEPALIVE_CRLF:
-            str = "SIPX_KEEPALIVE_CRLF" ;
-            break ;
-        case SIPX_KEEPALIVE_STUN:
-            str = "SIPX_KEEPALIVE_STUN" ;
-            break ;
-        case SIPX_KEEPALIVE_SIP_PING:
-            str = "SIPX_KEEPALIVE_SIP_PING" ;
-            break ;
-        case SIPX_KEEPALIVE_SIP_OPTIONS:
-            str = "SIPX_KEEPALIVE_SIP_OPTIONS" ;
-            break ;
-        default:
-            break ;
-    }
-    return str ;
-}
-
 
 static const char* convertInfoStatusEventToString(SIPX_INFOSTATUS_EVENT event)
 {
@@ -741,27 +660,6 @@ SIPXTAPI_API SIPX_RESULT sipxDuplicateEvent(SIPX_EVENT_CATEGORY category,
                     memcpy(&pInfo->codec, &pSourceInfo->codec, sizeof(SIPX_CODEC_INFO)) ;
                     pInfo->idleTime = pSourceInfo->idleTime ;
                     pInfo->toneId = pSourceInfo->toneId;
-                    *pEventCopy = pInfo ;
-
-                    rc = SIPX_RESULT_SUCCESS ;
-                }
-                break ;
-            case EVENT_CATEGORY_KEEPALIVE:
-                {
-                    SIPX_KEEPALIVE_INFO* pSourceInfo = (SIPX_KEEPALIVE_INFO*) pEventSource ;
-                    assert(pSourceInfo->nSize == sizeof(SIPX_KEEPALIVE_INFO)) ;
-
-                    SIPX_KEEPALIVE_INFO* pInfo = new SIPX_KEEPALIVE_INFO ;
-                    memset(pInfo, 0, sizeof(SIPX_KEEPALIVE_INFO)) ;                                                           
-                    pInfo->nSize = pSourceInfo->nSize ;                    
-                    pInfo->event = pSourceInfo->event ;
-                    pInfo->cause = pSourceInfo->cause ;
-                    pInfo->type = pSourceInfo->type ;
-                    pInfo->szRemoteAddress = SAFE_STRDUP(pSourceInfo->szRemoteAddress) ;
-                    pInfo->remotePort = pSourceInfo->remotePort ;
-                    pInfo->keepAliveSecs = pSourceInfo->keepAliveSecs ;
-                    pInfo->szFeedbackAddress = SAFE_STRDUP(pSourceInfo->szFeedbackAddress) ;
-                    pInfo->feedbackPort = pSourceInfo->feedbackPort ;
 
                     *pEventCopy = pInfo ;
 
@@ -921,21 +819,6 @@ SIPXTAPI_API SIPX_RESULT sipxFreeDuplicatedEvent(SIPX_EVENT_CATEGORY category,
                     rc = SIPX_RESULT_SUCCESS ;
                 }
                 break ;
-            case EVENT_CATEGORY_KEEPALIVE:
-                {
-                    SIPX_KEEPALIVE_INFO* pSourceInfo = (SIPX_KEEPALIVE_INFO*) pEventCopy ;
-                    if (pSourceInfo->szRemoteAddress)
-                    {
-                        free((void*) pSourceInfo->szRemoteAddress) ;
-                    }
-                    if (pSourceInfo->szFeedbackAddress)
-                    {
-                        free((void*) pSourceInfo->szFeedbackAddress) ;                    
-                    }
-                    delete pSourceInfo ;
-                    rc = SIPX_RESULT_SUCCESS ;
-                }
-                break ;
             default:
                 break;
         }
@@ -1060,17 +943,6 @@ SIPXTAPI_API char* sipxEventToString(const SIPX_EVENT_CATEGORY category,
                         convertMediaCauseToString(pEventData->cause)) ;
             }
             break ;
-        case EVENT_CATEGORY_KEEPALIVE:
-            {
-                SIPX_KEEPALIVE_INFO* pEventData = (SIPX_KEEPALIVE_INFO*)pEvent;
-                SNPRINTF(szBuffer, nBuffer, "%s::%s::%s::%s", 
-                        convertEventCategoryToString(category),
-                        convertKeepaliveEventToString(pEventData->event),
-                        convertKeepaliveTypeToString(pEventData->type),
-                        convertKeepaliveCauseToString(pEventData->cause)) ;
-            }
-            break ;
-
         default:
             break;
     }
@@ -1565,60 +1437,6 @@ void sipxFireMediaEvent(const void* pSrc,
         }
     }
 }
-
-void sipxFireKeepaliveEvent(const void*          pSrc,                                                        
-                            SIPX_KEEPALIVE_EVENT event,
-                            SIPX_KEEPALIVE_CAUSE cause,
-                            SIPX_KEEPALIVE_TYPE  type,
-                            const char*          szRemoteAddress,
-                            int                  remotePort,
-                            int                  keepAliveSecs,
-                            const char*          szFeedbackAddress,
-                            int                  feedbackPort)
-{
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-            "sipxFireKeepaliveEvent src=%p event=%s:%s type=%s remote=%s:%d keepalive=%ds mapped=%s:%d\n",
-            pSrc, 
-            convertKeepaliveEventToString(event), convertKeepaliveCauseToString(cause), 
-            convertKeepaliveTypeToString(type),
-            szRemoteAddress ? szRemoteAddress : "",
-            remotePort, 
-            keepAliveSecs,
-            szFeedbackAddress ? szFeedbackAddress : "",
-            feedbackPort) ;
-            
-           
-	OsLock eventLock(*g_pEventListenerLock) ;
-
-    if (g_bListenersEnabled)
-    {
-        UtlSListIterator eventListenerItor(*g_pEventListeners) ;
-        UtlVoidPtr* ptr = NULL;
-        while ((ptr = (UtlVoidPtr*) eventListenerItor()) != NULL)
-        {
-            EVENT_LISTENER_DATA *pData = (EVENT_LISTENER_DATA*) ptr->getValue();
-            if (pData->pInst->pCallManager == pSrc)
-            {
-                SIPX_KEEPALIVE_INFO keepaliveInfo ;
-
-                memset(&keepaliveInfo, 0, sizeof(SIPX_KEEPALIVE_INFO)) ;
-                
-                keepaliveInfo.nSize = sizeof(SIPX_KEEPALIVE_INFO) ;
-                keepaliveInfo.event = event ;
-                keepaliveInfo.cause = cause ;
-                keepaliveInfo.type = type ;
-                keepaliveInfo.szRemoteAddress = SAFE_STRDUP(szRemoteAddress) ;
-                keepaliveInfo.remotePort = remotePort ;
-                keepaliveInfo.keepAliveSecs = keepAliveSecs ;
-                keepaliveInfo.szFeedbackAddress = SAFE_STRDUP(szFeedbackAddress) ;
-                keepaliveInfo.feedbackPort = feedbackPort ;
-                                                
-                pData->pCallbackProc(EVENT_CATEGORY_KEEPALIVE, &keepaliveInfo, pData->pUserData);
-            }
-        }
-    }                           
-}
-
 
 SIPXTAPI_API SIPX_RESULT sipxEventListenerAdd(const SIPX_INST hInst,
                                               SIPX_EVENT_CALLBACK_PROC pCallbackProc,

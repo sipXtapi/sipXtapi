@@ -71,7 +71,7 @@ Connection::Connection(CpCallManager* callMgr,
        OsSysLog::add(FAC_CP, PRI_DEBUG, "Connection constructed: call is Null\n");
 #endif
 
-    mpDtmfQueuedEvent = new OsQueuedEvent(*call->getMessageQueue(), (int) this) ;
+	mpDtmfQueuedEvent = new OsQueuedEvent(*call->getMessageQueue(), (int) this) ;
     mOfferingDelay = offeringDelayMilliSeconds;
     mLineAvailableBehavior = availableBehavior;
     if(mLineAvailableBehavior == FORWARD_UNCONDITIONAL &&
@@ -162,8 +162,8 @@ Connection::~Connection()
 
    if (mpDtmfQueuedEvent)
    {
-       delete mpDtmfQueuedEvent ;
-       mpDtmfQueuedEvent = NULL ;
+		delete mpDtmfQueuedEvent ;
+		mpDtmfQueuedEvent = NULL ;
    }
 
 #ifdef TEST_PRINT 
@@ -199,7 +199,6 @@ void Connection::prepareForJoin(CpCall* pNewCall, const char* szLocalAddress, Cp
 
     // VIDEO: Need to include window handle!
     // SECURITY:  What about the security attributes?
-    // RTP-over-TCP:  What about rtp-over-tcp?
 }
 
 

@@ -33,33 +33,33 @@ public:
         SipContactDb* pDb = new SipContactDb();
         
         // test the inserting of records
-        SIPX_CONTACT_ADDRESS contact1;
-        memset((void*)&contact1, 0, sizeof(SIPX_CONTACT_ADDRESS));
+        CONTACT_ADDRESS contact1;
+        memset((void*)&contact1, 0, sizeof(CONTACT_ADDRESS));
         strcpy(contact1.cInterface, "eth0");
         strcpy(contact1.cIpAddress, "9.9.9.1");
-        contact1.eContactType = CONTACT_NAT_MAPPED;
+        contact1.eContactType = NAT_MAPPED;
         contact1.iPort = 9991;
         CPPUNIT_ASSERT(pDb->addContact(contact1));
         CPPUNIT_ASSERT(contact1.id == 1);
         
         // test the addition of a duplicate (same IP and port)
         // (should fail)
-        SIPX_CONTACT_ADDRESS contact2;
-        memset((void*)&contact2, 0, sizeof(SIPX_CONTACT_ADDRESS));
+        CONTACT_ADDRESS contact2;
+        memset((void*)&contact2, 0, sizeof(CONTACT_ADDRESS));
         strcpy(contact2.cInterface, "eth0");
         strcpy(contact2.cIpAddress, "9.9.9.1");
-        contact2.eContactType = CONTACT_LOCAL;
+        contact2.eContactType = LOCAL;
         contact2.iPort = 9991;
         CPPUNIT_ASSERT(pDb->addContact(contact2) == false);
         CPPUNIT_ASSERT(contact2.id == 1);
         
         // test the addition of same IP, different port
         // (should succeed)
-        SIPX_CONTACT_ADDRESS contact3;
-        memset((void*)&contact3, 0, sizeof(SIPX_CONTACT_ADDRESS));
+        CONTACT_ADDRESS contact3;
+        memset((void*)&contact3, 0, sizeof(CONTACT_ADDRESS));
         strcpy(contact3.cInterface, "eth0");
         strcpy(contact3.cIpAddress, "9.9.9.1");
-        contact3.eContactType = CONTACT_LOCAL;
+        contact3.eContactType = LOCAL;
         contact3.iPort = 9992;
         CPPUNIT_ASSERT(pDb->addContact(contact3) == true);
         CPPUNIT_ASSERT(contact3.id == 2);
@@ -67,11 +67,11 @@ public:
         // test the addition of differnt IP
         // same adapter
         // (should succeed)
-        SIPX_CONTACT_ADDRESS contact4;
-        memset((void*)&contact4, 0, sizeof(SIPX_CONTACT_ADDRESS));
+        CONTACT_ADDRESS contact4;
+        memset((void*)&contact4, 0, sizeof(CONTACT_ADDRESS));
         strcpy(contact4.cInterface, "eth0");
         strcpy(contact4.cIpAddress, "9.9.9.2");
-        contact4.eContactType = CONTACT_RELAY;
+        contact4.eContactType = RELAY;
         contact4.iPort = 9993;
         CPPUNIT_ASSERT(pDb->addContact(contact4) == true);
         CPPUNIT_ASSERT(contact4.id == 3);
@@ -79,17 +79,17 @@ public:
         // test the addition of differnt IP
         // same adapter
         // (should succeed)
-        SIPX_CONTACT_ADDRESS contact5;
-        memset((void*)&contact5, 0, sizeof(SIPX_CONTACT_ADDRESS));
+        CONTACT_ADDRESS contact5;
+        memset((void*)&contact5, 0, sizeof(CONTACT_ADDRESS));
         strcpy(contact5.cInterface, "eth1");
         strcpy(contact5.cIpAddress, "10.10.10.5");
-        contact5.eContactType = CONTACT_LOCAL;
+        contact5.eContactType = LOCAL;
         contact5.iPort = 9991;
         CPPUNIT_ASSERT(pDb->addContact(contact5) == true);
         CPPUNIT_ASSERT(contact5.id == 4);
 
         // now test the finding of the records
-        SIPX_CONTACT_ADDRESS* pFound = NULL;
+        CONTACT_ADDRESS* pFound = NULL;
         // search by ID - positive
         pFound = pDb->find(4);
         CPPUNIT_ASSERT(pFound != NULL);
@@ -103,22 +103,22 @@ public:
         CPPUNIT_ASSERT(pFound == NULL);
         
         // search by IP and port - positive
-        pFound = pDb->find("9.9.9.1", 9991, CONTACT_NAT_MAPPED);
+        pFound = pDb->find("9.9.9.1", 9991, NAT_MAPPED);
         CPPUNIT_ASSERT(pFound != NULL);
         CPPUNIT_ASSERT(pFound->id == 1);
         
         // search by IP and port - negative
         // bad IP
-        pFound = pDb->find("zaphod", 9991, CONTACT_NAT_MAPPED);
+        pFound = pDb->find("zaphod", 9991, NAT_MAPPED);
         CPPUNIT_ASSERT(pFound == NULL);
 
         // search by IP and port - negative
         // bad port
-        pFound = pDb->find("9.9.9.1", 42, CONTACT_NAT_MAPPED);
+        pFound = pDb->find("9.9.9.1", 42, NAT_MAPPED);
         CPPUNIT_ASSERT(pFound == NULL);
 
         // get All records
-        SIPX_CONTACT_ADDRESS* addresses[MAX_IP_ADDRESSES];
+        CONTACT_ADDRESS* addresses[MAX_IP_ADDRESSES];
         int num = 0;
         pDb->getAll(addresses, num);
         CPPUNIT_ASSERT(4 == num);

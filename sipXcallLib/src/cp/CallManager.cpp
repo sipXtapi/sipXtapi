@@ -108,7 +108,7 @@ CallManager::CallManager(UtlBoolean isRequredUserIdMatch,
                          int expeditedIpTos,
                          int maxCalls,
                          CpMediaInterfaceFactory* pMediaFactory) 
-                         : CpCallManager("CallManager-%d", "c",
+                         : CpCallManager("CallManager-%d", "call",
                          rtpPortStart, rtpPortEnd, localAddress, publicAddress)
                          , mIsEarlyMediaFor180(TRUE)
                          , mpMediaFactory(NULL)
@@ -559,7 +559,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                                 UtlString publicAddress;
                                 int publicPort;
                                 //always use sipUserAgent public address, not the mPublicAddress of this call manager.
-                                sipUserAgent->getViaInfo(OsSocket::UDP, publicAddress, publicPort, NULL, NULL);
+                                sipUserAgent->getViaInfo(OsSocket::UDP,publicAddress,publicPort);
 
                                 UtlString localAddress;
                                 int port;
@@ -708,7 +708,15 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
 
                 OsSysLog::add(FAC_CP, PRI_DEBUG, "Call YIELD FOCUS message received: %p\r\n", (void*)call);
                 OsSysLog::add(FAC_CP, PRI_DEBUG, "infocusCall: %p\r\n", infocusCall);
-                yieldFocus(call);
+                {
+                    OsWriteLock lock(mCallListMutex);
+                    if(infocusCall == call)
+                    {
+                        infocusCall->outOfFocus();
+                        pushCall(infocusCall);
+                        infocusCall = NULL;
+                    }
+                }
                 messageConsumed = TRUE;
                 messageProcessed = TRUE;
                 break;
@@ -825,12 +833,11 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                 void* pSecurity = (void*) ((CpMultiStringMessage&)eventMessage).getInt3Data();
                 int bandWidth = ((CpMultiStringMessage&)eventMessage).getInt4Data();
                 SIPX_TRANSPORT_DATA* pTransport = (SIPX_TRANSPORT_DATA*)((CpMultiStringMessage&)eventMessage).getInt5Data();
-                SIPX_RTP_TRANSPORT rtpTransportOptions = (SIPX_RTP_TRANSPORT)((CpMultiStringMessage&)eventMessage).getInt6Data();
 
                 const char* locationHeaderData = (locationHeader.length() == 0) ? NULL : locationHeader.data();
 
                 doConnect(callId.data(), addressUrl.data(), desiredConnectionCallId.data(), contactId, pDisplay, pSecurity, 
-                          locationHeaderData, bandWidth, pTransport, rtpTransportOptions) ;
+                          locationHeaderData, bandWidth, pTransport) ;
                 messageProcessed = TRUE;
                 break;
             }
@@ -1324,8 +1331,7 @@ PtStatus CallManager::connect(const char* callId,
                               const void* pSecurity,
                               const char* locationHeader,
                               const int bandWidth,
-                              SIPX_TRANSPORT_DATA* pTransportData,
-                              const SIPX_RTP_TRANSPORT rtpTransportOptions)
+                              SIPX_TRANSPORT_DATA* pTransportData)
 {
     UtlString toAddressUrl(toAddressString ? toAddressString : "");
     UtlString fromAddressUrl(fromAddressString ? fromAddressString : "");
@@ -1343,9 +1349,8 @@ PtStatus CallManager::connect(const char* callId,
     if(returnCode == PT_SUCCESS)
     {
         CpMultiStringMessage callMessage(CP_CONNECT, callId,
-            toAddressUrl, fromAddressUrl, desiredCallId, locationHeader,
-            contactId, (int)pDisplay, (int)pSecurity, 
-            (int)bandWidth, (int)pTransportDataCopy, rtpTransportOptions);
+            toAddressUrl, fromAddressUrl, desiredCallId, locationHeader, contactId, (int)pDisplay, (int)pSecurity, 
+            (int)bandWidth, (int)pTransportDataCopy);
         postMessage(callMessage);
     }
     return(returnCode);
@@ -4087,7 +4092,7 @@ void CallManager::doCreateCall(const char* callId,
             UtlString publicAddress;
             int publicPort;
             //always use sipUserAgent public address, not the mPublicAddress of this call manager.
-            sipUserAgent->getViaInfo(OsSocket::UDP, publicAddress, publicPort, NULL, NULL);
+            sipUserAgent->getViaInfo(OsSocket::UDP,publicAddress,publicPort);
 
             UtlString localAddress;
             int dummyPort;
@@ -4165,8 +4170,7 @@ void CallManager::doConnect(const char* callId,
                             const void* pSecurity,
                             const char* locationHeader,
                             const int bandWidth,
-                            SIPX_TRANSPORT_DATA* pTransport,
-                            const SIPX_RTP_TRANSPORT rtpTransportOptions)
+                            SIPX_TRANSPORT_DATA* pTransport)
 {
     OsWriteLock lock(mCallListMutex);
     CpCall* call = findHandlingCall(callId);
@@ -4178,8 +4182,8 @@ void CallManager::doConnect(const char* callId,
     else
     {
         // For now just send the call a dialString
-        CpMultiStringMessage dialStringMessage(CP_DIAL_STRING, addressUrl, desiredConnectionCallId, NULL, NULL, locationHeader,
-                                               contactId, (int)pDisplay, (int)pSecurity, bandWidth, (int) pTransport, rtpTransportOptions) ;
+        CpMultiStringMessage dialStringMessage(CP_DIAL_STRING, addressUrl, desiredConnectionCallId, NULL, NULL, locationHeader, contactId, 
+                                               (int)pDisplay, (int)pSecurity, bandWidth, (int) pTransport) ;
         call->postMessage(dialStringMessage);
         call->setLocalConnectionState(PtEvent::CONNECTION_ESTABLISHED);
         call->stopMetaEvent();
@@ -4341,14 +4345,4 @@ void CallManager::onCallDestroy(CpCall* call)
     }
 }
 
-void CallManager::yieldFocus(CpCall* call)
-{
-    OsWriteLock lock(mCallListMutex);
-    if(infocusCall == call)
-    {
-        infocusCall->outOfFocus();
-        pushCall(infocusCall);
-        infocusCall = NULL;
-    }
-}
 /* ============================ FUNCTIONS ================================= */

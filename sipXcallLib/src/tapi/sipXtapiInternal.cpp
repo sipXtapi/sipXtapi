@@ -261,8 +261,8 @@ SIPX_CALL sipxCallLookupHandle(const UtlString& callID, const void* pSrc)
 void sipxCallObjectFree(const SIPX_CALL hCall, const OsStackTraceLogger& oneBackInStack)
 {
     OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallObjectFree", oneBackInStack);
-
-    gpCallAccessLock->acquire();    
+    gpCallAccessLock->acquire();
+    
     SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_WRITE, logItem) ;
 
     if (pData)
