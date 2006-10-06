@@ -69,6 +69,11 @@ SipDialogMonitor::SipDialogMonitor(SipUserAgent* userAgent,
       mpSubscribeServer->enableEventType(DIALOG_EVENT_TYPE);
       mpSubscribeServer->start();
    }
+   else
+   {
+      mpSubscriptionMgr = NULL;
+      mpSubscribeServer = NULL;
+   }
 }
 
 // Destructor

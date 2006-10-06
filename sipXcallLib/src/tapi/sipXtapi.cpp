@@ -140,7 +140,7 @@ void destroyCallData(SIPX_CALL_DATA* pData)
 {
     if (pData != NULL)
     {
-        // Increment call count
+        // Decrement call count
         pData->pInst->pLock->acquire() ;
         pData->pInst->nCalls-- ;
         assert(pData->pInst->nCalls >= 0) ;
@@ -2297,25 +2297,23 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceCreate(const SIPX_INST hInst,
 
     if (phConference)
     {
-        *phConference = SIPX_CONF_NULL ;
+       *phConference = SIPX_CONF_NULL ;
 
-        SIPX_CONF_DATA* pData = new SIPX_CONF_DATA ;
-        assert(pData != NULL) ;
-        if (pData)
-        {
-            // Init conference data
-            memset(pData, 0, sizeof(SIPX_CONF_DATA)) ;
-            pData->pInst = (SIPX_INSTANCE_DATA*) hInst ;
+       SIPX_CONF_DATA* pData = new SIPX_CONF_DATA ;
+       assert(pData != NULL) ;
 
-            // Increment conference counter
-            pData->pInst->pLock->acquire() ;
-            pData->pInst->nConferences++ ;
-            pData->pInst->pLock->release() ;
+       // Init conference data
+       memset(pData, 0, sizeof(SIPX_CONF_DATA)) ;
+       pData->pInst = (SIPX_INSTANCE_DATA*) hInst ;
 
-            pData->pMutex = new OsRWMutex(OsRWMutex::Q_FIFO) ;
-            *phConference = gpConfHandleMap->allocHandle(pData) ;
-            rc = SIPX_RESULT_SUCCESS ;
-        }
+       // Increment conference counter
+       pData->pInst->pLock->acquire() ;
+       pData->pInst->nConferences++ ;
+       pData->pInst->pLock->release() ;
+
+       pData->pMutex = new OsRWMutex(OsRWMutex::Q_FIFO) ;
+       *phConference = gpConfHandleMap->allocHandle(pData) ;
+       rc = SIPX_RESULT_SUCCESS ;
     }
 
     return rc ;
@@ -2355,6 +2353,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceJoin(const SIPX_CONF hConf,
                         // This is a virgin conference; use the supplied call 
                         // as the conference shell (CpPeerCall).
                         pConfData->strCallId = new UtlString(*pCallData->callId) ;
+                        assert(hCall != SIPX_CALL_NULL);
                         pConfData->hCalls[pConfData->nCalls++] = hCall ;
                         pCallData->hConf = hConf ;                       
                     }
@@ -2396,6 +2395,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceJoin(const SIPX_CONF hConf,
                             // Update data structures
                             *pCallData->callId = targetCallId ;
                             pCallData->hConf = hConf ;
+                            assert(hCall != SIPX_CALL_NULL);
                             pConfData->hCalls[pConfData->nCalls++] = hCall ;
                         }
 
@@ -2599,6 +2599,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
                     pData->strCallId = new UtlString(pCallData->callId->data()) ;
 
                     // Add the call handle to the conference handle
+                    assert(hNewCall != SIPX_CALL_NULL);
                     pData->hCalls[pData->nCalls++] = hNewCall ;
                     *phNewCall = hNewCall ;
 
@@ -2657,6 +2658,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
                     pNewCallData->pMutex = new OsRWMutex(OsRWMutex::Q_FIFO) ;
 
                     SIPX_CALL hNewCall = gpCallHandleMap->allocHandle(pNewCallData) ;
+                    assert(hNewCall != SIPX_CALL_NULL);
                     pData->hCalls[pData->nCalls++] = hNewCall ;
                     *phNewCall = hNewCall ;
 
@@ -2734,7 +2736,10 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceRemove(const SIPX_CONF hConf,
         else
         {
             // Either the call or conf doesn't exist
-            rc = SIPX_RESULT_FAILURE ;
+           OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING,
+                         "sipxConferenceRemove hConf=%d hCall=%d Call or conference doesn't exist.",
+                         hConf, hCall);
+           rc = SIPX_RESULT_FAILURE ;
         }
 
         sipxConfReleaseLock(pConfData, SIPX_LOCK_WRITE) ;
@@ -2765,6 +2770,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceGetCalls(const SIPX_CONF hConf,
             size_t idx ;
             for (idx=0; (idx<pData->nCalls) && (idx < iMax); idx++)
             {
+               assert(pData->hCalls[idx] != SIPX_CALL_NULL);
                 hCalls[idx] = pData->hCalls[idx] ;
             }
             nActual = idx ;
@@ -2868,18 +2874,29 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceDestroy(SIPX_CONF hConf)
 
     if (hConf)
     {
-        // Get a snapshot of the calls, drop the connections, remove the conf handle,
-        // and THEN whack the call -- otherwise whacking the calls will force updates
-        // into SIPX_CONF_DATA structure (work that isn't needed).
-        sipxConferenceGetCalls(hConf, hCalls, CONF_MAX_CONNECTIONS, nCalls) ;
-        for (size_t idx=0; idx<nCalls; idx++)
-        {
-            sipxConferenceRemove(hConf, hCalls[idx]) ;
-        }
+       // Get a snapshot of the calls, drop the connections, remove the conf handle,
+       // and THEN whack the call -- otherwise whacking the calls will force updates
+       // into SIPX_CONF_DATA structure (work that isn't needed).
+       if (sipxConferenceGetCalls(hConf, hCalls, CONF_MAX_CONNECTIONS, nCalls) ==
+           SIPX_RESULT_SUCCESS)
+       {
+          for (size_t idx=0; idx<nCalls; idx++)
+          {
+             assert(hCalls[idx] != SIPX_CALL_NULL);
+             sipxConferenceRemove(hConf, hCalls[idx]) ;
+          }
+       }
+       else
+       {
+          OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING,
+                        "sipxConferenceDestroy hConf=%d does not exist",
+                        hConf);
+          assert(FALSE);
+       }
 
-        sipxConfFree(hConf) ;
+       sipxConfFree(hConf) ;
 
-        rc = SIPX_RESULT_SUCCESS ;
+       rc = SIPX_RESULT_SUCCESS ;
     }
 
     return rc ;
