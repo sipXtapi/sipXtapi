@@ -282,8 +282,13 @@ void SipTransaction::getNewBranchId(SipMessage& request,
 
     NetMd5Codec::encode(branchSeed.data(), branchUniqCode);
 
+#ifdef USE_LONG_CALL_IDS
     // MD5 component of branchId to 16 bytes
     branchUniqCode.remove(16) ;
+#else
+    // MD5 component of branchId to 12 bytes
+    branchUniqCode.remove(12) ;
+#endif
 
     branchId.append(branchUniqCode);
 }
@@ -575,15 +580,15 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
         if (SIPX_TRANSPORT_DATA::isCustomTransport(mpTransport))
         {
             protocol = OsSocket::CUSTOM;
-    }
+        }
 
         if (protocol == OsSocket::CUSTOM)
         {
            sendSucceeded = recurseDnsSrvChildren(userAgent, transactionList, mpTransport);
         }
-    else
-    {
-           sendSucceeded = recurseDnsSrvChildren(userAgent, transactionList, NULL);
+        else
+        {
+            sendSucceeded = recurseDnsSrvChildren(userAgent, transactionList, NULL);
         }
     }
 
@@ -608,27 +613,36 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
         
         // also, take the transport hint from the to-field and/or from-field.  If there is a transport= in it, 
         // and it is not tls, tcp, or udp, use custom and set mpTransport
-        UtlString fromField;
+        UtlString tempFromField;
+        UtlString tempToField;
 
-        message->getFromField(&fromField);
+        message->getFromField(&tempFromField);
+        message->getToField(&tempToField);
 
         UtlString transport;
-        Url tempFromUrl(fromField);
+        Url tempToUrl(tempToField);
+        Url tempFromUrl(tempFromField);
         
-        parsedUri.getUrlParameter("transport", transport, 0);
+        tempToUrl.getUrlParameter("transport", transport, 0);
         if (transport.length() < 1 ||
             transport.compareTo("udp") == 0 ||
             transport.compareTo("tls") == 0 ||
             transport.compareTo("tcp") == 0)
         {
             tempFromUrl.getUrlParameter("transport", transport, 0);
+            if (transport.compareTo("udp") == 0 ||
+                transport.compareTo("tls") == 0 ||
+                transport.compareTo("tcp") == 0)
+            {
+                transport = "";
+            }                
         }
         
         UtlString localIp;
         int dummy;
         
         userAgent.getLocalAddress(&localIp, &dummy);
-        if (!mpTransport)
+        if (!mpTransport && transport.length() > 0)
         {
             mpTransport = (SIPX_TRANSPORT_DATA*)userAgent.lookupExternalTransport(transport, localIp);
             if (mpTransport)
@@ -931,7 +945,7 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
             }
         }
 
-        //USE CONTACT OR RECORD ROUTE FIELDS FOR 200 OK responses
+        // USE CONTACT OR RECORD ROUTE FIELDS FOR 200 OK responses
         //check if ACK method and if it has contact field set
         //if contact field is set then it is a 200 OK response
         //therefore do not set sticky DNS prameters or DNS look up
@@ -1035,14 +1049,13 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
     // Requests:
     else
     {
-
         // This is the first send, save the address and port to which it get sent
         message.setSendAddress(toAddress.data(), port);
         message.setFirstSent();
         message.getRequestMethod(&method);
 
-        // Add a via to reques\ts, now that we know the protocol
-        userAgent.prepareVia(message, mBranchId, toProtocol, mpTransport);        
+        // Add a via to requests, now that we know the protocol
+        userAgent.prepareVia(message, mBranchId, toProtocol, toAddress.data(), &port, mpTransport);
     }
 
     if(toProtocol == OsSocket::TCP)

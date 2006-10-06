@@ -49,6 +49,8 @@ class SipUserAgent;
 #define SIP_REFER_METHOD "REFER"
 #define SIP_REGISTER_METHOD "REGISTER"
 #define SIP_SUBSCRIBE_METHOD "SUBSCRIBE"
+#define SIP_PING_METHOD         "PING"
+
 
 //Simple Methods
 #define SIP_MESSAGE_METHOD "MESSAGE"
@@ -274,6 +276,7 @@ class SipUserAgent;
 #define CONTENT_TYPE_MESSAGE_SIPFRAG        "message/sipfrag"
 #define CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY "application/simple-message-summary"
 #define CONTENT_TYPE_XPRESSA_SCRIPT         "text/xpressa-script"
+#define CONTENT_TYPE_VQ_RTCP_XR             "application/vq-rtcpxr"
 
 #define SIP_REFER_SUCCESS_STATUS "SIP/2.0 200 OK\r\n"
 #define SIP_REFER_FAILURE_STATUS "SIP/2.0 503 Service Unavailable\r\n"
@@ -336,6 +339,7 @@ public:
     void replaceShortFieldNames();
 
     void replaceLongFieldNames();
+
 /* ============================ ACCESSORS ================================= */
 
     //! @name SIP URL manipulators
@@ -539,7 +543,8 @@ public:
                          const char* eventField,
                          const char* id,
                          const char* sipIfMatchField,
-                         int expiresInSeconds);
+                         int expiresInSeconds,
+                         const char* contact);
 
     //@}
 
@@ -554,7 +559,8 @@ public:
                     SdpSrtpParameters* srtpParams,
                     int videoBandwidth,
                     int videoFramerate,
-                    SipMessage* pRequest = NULL);
+                    SipMessage* pRequest = NULL,
+                    const SIPX_RTP_TRANSPORT rtpTransportOptions = UDP_ONLY);
 
     void setSecurityAttributes(const SIPXTACK_SECURITY_ATTRIBUTES* const pSecurity);
     SIPXTACK_SECURITY_ATTRIBUTES* const getSecurityAttributes() const { return mpSecurity; } 
@@ -908,9 +914,9 @@ public:
 
     UtlBoolean getReferToField(UtlString& referToField) const;
 
-    void setReferredByField(const char* referToField);
+    void setReferredByField(const char* referredByField);
 
-    UtlBoolean getReferredByField(UtlString& referToField) const;
+    UtlBoolean getReferredByField(UtlString& referredByField) const;
 
     UtlBoolean getReferredByUrls(UtlString* referrerUrl = NULL,
                       UtlString* referredToUrl = NULL) const;
@@ -964,6 +970,12 @@ public:
     /*! \the to-field.  Also determines if it is a custom transport.
      */
     const UtlString getTransportName(bool& bCustom) const;       
+
+    void setUseShortFieldNames(UtlBoolean bUseShortNames)
+        { mbUseShortNames = bUseShortNames; } ; 
+
+    UtlBoolean getUseShortFieldNames() const
+        { return mbUseShortNames; } ;
 
 /* ============================ INQUIRY =================================== */
 
@@ -1027,6 +1039,7 @@ private:
 
     UtlString mLocalIp;
     bool mbFromThisSide;
+    UtlBoolean mbUseShortNames;
 
     //SDUA
     UtlString m_dnsProtocol ;

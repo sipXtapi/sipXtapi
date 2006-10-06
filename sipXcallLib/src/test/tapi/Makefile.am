@@ -22,6 +22,7 @@ testsuite_SOURCES = \
   sipXtapiTestConfig.cpp \
   sipXtapiTestLine.cpp \
   sipXtapiTestTransfer.cpp \
+  TestExternalTransport.cpp \
   TestRegistrar.cpp \
   TestRegistryCollection.cpp \
   TestRegistryData.cpp \

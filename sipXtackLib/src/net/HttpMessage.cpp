@@ -1299,6 +1299,11 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
                                     &remoteHost, &remotePort);
 
          setSendAddress(remoteHost.data(), remotePort);
+
+         if (bytesRead == 0)
+         {
+            return  0 ;
+         }
       }
 
       do

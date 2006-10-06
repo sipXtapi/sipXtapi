@@ -106,7 +106,8 @@ public:
         const int bandWidth = AUDIO_CODEC_BW_DEFAULT,
         UtlBoolean bOnHold = false,
 		const char* originalCallId = NULL,
-        SIPX_TRANSPORT_DATA* pTransport = NULL);
+        SIPX_TRANSPORT_DATA* pTransport = NULL,
+        const SIPX_RTP_TRANSPORT rtpTransportOptions = UDP_ONLY);
 
     Connection* stringDial(OsMsg& eventMessage, UtlString& dialString);
 
@@ -159,7 +160,7 @@ public:
     /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
     virtual UtlBoolean handleCallMessage(OsMsg& eventMessage);
-	virtual UtlBoolean handleNotifyMessage(OsEventMsg& eventMsg) ;
+    virtual UtlBoolean handleNotifyMessage(OsEventMsg& eventMsg) ;
     void addTaoListenerToConnection(Connection* connection);
     void addToneListenersToConnection(Connection* connection);
 
@@ -341,7 +342,7 @@ protected:
         UtlBoolean  strictCompare);
 
     void addConnection(Connection* connection);
-	void removeConnection(Connection* connection);
+    void removeConnection(Connection* connection);
     Connection* findQueuedConnection();
     UtlBoolean isConnectionLive(int* localConnectionState = NULL);
     void dropIfDead();

@@ -37,7 +37,7 @@
 
 wxSizer *sipXezPhoneSettingsDlgFunc( wxWindow *parent, bool call_fit, bool set_sizer )
 {
-    wxGridSizer *item0 = new wxGridSizer( 4, 0, 0 );
+    wxGridSizer *item0 = new wxGridSizer( 2, 0, 3 );
 
     wxStaticText *item1 = new wxStaticText( parent, ID_TEXT, wxT("Identity"), wxDefaultPosition, wxSize(100,-1), wxALIGN_RIGHT );
     item0->Add( item1, 0, wxALIGN_CENTER|wxALL, 5 );

@@ -26,9 +26,13 @@ const UtlContainableType OsPtrMsg::TYPE = "OsPtrMsg" ;
 /* ============================ CREATORS ================================== */
 
 // Constructor
-OsPtrMsg::OsPtrMsg(const unsigned char msgType, const unsigned char msgSubType, void* pData)
+OsPtrMsg::OsPtrMsg(const unsigned char msgType, 
+                   const unsigned char msgSubType, 
+                   void* pData, 
+                   void* pData2)
 : OsMsg(msgType, msgSubType),
-  mpData(pData)
+  mpData(pData),
+  mpData2(pData2)
 {
    // all of the required work is done by the initializers
 }
@@ -36,7 +40,8 @@ OsPtrMsg::OsPtrMsg(const unsigned char msgType, const unsigned char msgSubType, 
 // Copy constructor
 OsPtrMsg::OsPtrMsg(const OsPtrMsg& rOsMsg) :
     OsMsg(rOsMsg),
-    mpData(rOsMsg.mpData)
+    mpData(rOsMsg.mpData),
+    mpData2(rOsMsg.mpData2)
 {
 }
 
@@ -57,6 +62,7 @@ OsPtrMsg::operator=(const OsPtrMsg& rhs)
    {
       OsMsg::operator=(rhs);
       mpData = rhs.mpData;
+      mpData2 = rhs.mpData2;
    }
 
    return *this;
@@ -67,6 +73,11 @@ OsPtrMsg::operator=(const OsPtrMsg& rhs)
 void* OsPtrMsg::getPtr()
 {
     return mpData;
+}
+
+void* OsPtrMsg::getPtr2()
+{
+    return mpData2;
 }
 
 /* ============================ INQUIRY =================================== */

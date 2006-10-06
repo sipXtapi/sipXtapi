@@ -203,9 +203,6 @@ public:
                                                     ,NULL     // default authenticateDb
                                                     ,NULL     // default authorizeUserIds
                                                     ,NULL     // default authorizePasswords
-                                                    ,NULL     // default natPingUrl
-                                                    ,0        // default natPingFrequency
-                                                    ,"PING"   // natPingMethod
                                                     ,NULL //lineMgr
                                                    );
 
@@ -281,9 +278,6 @@ public:
                                                     ,NULL     // default authenticateDb
                                                     ,NULL     // default authorizeUserIds
                                                     ,NULL     // default authorizePasswords
-                                                    ,NULL     // default natPingUrl
-                                                    ,0        // default natPingFrequency
-                                                    ,"PING"   // natPingMethod
                                                     ,lineMgr
                                                    );
 
@@ -366,9 +360,6 @@ public:
                                                     ,NULL     // default authenticateDb
                                                     ,NULL     // default authorizeUserIds
                                                     ,NULL     // default authorizePasswords
-                                                    ,NULL     // default natPingUrl
-                                                    ,0        // default natPingFrequency
-                                                    ,"PING"   // natPingMethod
                                                     ,lineMgr
                                                    );
 
@@ -510,12 +501,16 @@ public:
        CpCallManager::getNewCallId("prefix1", &callId1);
        testGetNewCallId_validate(callId1, "prefix1", &counter, &suffix);
        char msg[1000];
+       // The hex suffix can be either 12 or 16 characters, depending
+       // on the USE_LONG_CALL_IDS in CpCallManager.cpp.
        sprintf(msg,
-               "Actual suffix '%s' is not 16 hex characters in call ID '%s'",
+               "Actual suffix '%s' is not 12/16 hex characters in call ID '%s'",
                suffix.data(), callId1.data());
        CPPUNIT_ASSERT_MESSAGE(msg,
-                              suffix.length() == 16 &&
-                              strspn(suffix.data(), "0123456789abcdef") == 16);
+                              (suffix.length() == 12 ||
+                               suffix.length() == 16) &&
+                              strspn(suffix.data(), "0123456789abcdef") ==
+                                suffix.length());
 
        testGetNewCallId_hose_stack();
        CpCallManager::getNewCallId("prefix2", &callId2);

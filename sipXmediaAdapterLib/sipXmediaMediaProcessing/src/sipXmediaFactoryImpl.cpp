@@ -84,8 +84,9 @@ extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigD
 extern "C" void sipxDestroyMediaFactoryFactory()
 {
     // TODO: Add locking
-    assert(siInstanceCount >= 0);
-    if (siInstanceCount > 0){
+
+    if (siInstanceCount > 0)
+    {
         siInstanceCount-- ;
         if (siInstanceCount == 0)
         {

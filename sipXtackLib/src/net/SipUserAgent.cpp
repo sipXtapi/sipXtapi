@@ -49,6 +49,7 @@
 #include <os/OsTimer.h>
 #include <os/OsTimerTask.h>
 #include <os/OsEventMsg.h>
+#include <os/OsPtrMsg.h>
 #include <os/OsRpcMsg.h>
 #include <os/OsConfigDb.h>
 #include <os/OsRWMutex.h>
@@ -63,6 +64,7 @@
 #include <os/OsFS.h>
 #include <utl/UtlTokenizer.h>
 #include <tapi/sipXtapiInternal.h>
+#include <os/OsNatAgentTask.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -114,9 +116,6 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
                            OsConfigDb* authenticateDb,
                            OsConfigDb* authorizeUserIds,
                            OsConfigDb* authorizePasswords,
-                           const char* natPingUrl,
-                           int natPingFrequency,
-                           const char* natPingMethod,
                            SipLineMgr* lineMgr,
                            int sipFirstResendTimeout,
                            UtlBoolean defaultToUaTransactions,
@@ -154,7 +153,6 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
     if (mUdpPort != PORT_NONE)
     {
         mSipUdpServer = new SipUdpServer(mUdpPort, this,
-                natPingUrl, natPingFrequency, natPingMethod,
                 readBufferSize, bUseNextAvailablePort, defaultAddress );
         mSipUdpServer->startListener();
         mUdpPort = mSipUdpServer->getServerPort() ;
@@ -372,18 +370,6 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
     // Initialize the transaction id seed
     SipTransaction::smBranchIdBase = mContactAddress;
 
-    mPingLock = FALSE;
-    if(natPingUrl && *natPingUrl && natPingFrequency > 0)
-    {
-        mPingLock = TRUE;
-        mSipUdpServer->start();
-        mNatPingUrl = natPingUrl;
-        mNatPingPeriod = natPingFrequency;
-        mNatPingMethod = natPingMethod ? natPingMethod : "";
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "UDP Server started URL: %s frequency: %d method: %s",
-                natPingUrl, natPingFrequency, natPingMethod ? natPingMethod : "");
-    }
-
     // Allow the default SIP methods
     allowMethod(SIP_INVITE_METHOD);
     allowMethod(SIP_ACK_METHOD);
@@ -391,6 +377,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
     allowMethod(SIP_BYE_METHOD);
     allowMethod(SIP_REFER_METHOD);
     allowMethod(SIP_OPTIONS_METHOD);
+    allowMethod(SIP_PING_METHOD);
 
     defaultUserAgentName.append( VENDOR "/" SIP_STACK_VERSION);
 
@@ -422,7 +409,6 @@ SipUserAgent::SipUserAgent(const SipUserAgent& rSipUserAgent) :
 // Destructor
 SipUserAgent::~SipUserAgent()
 {
-    mPingLock = TRUE;
     mpTimer->stop();
     delete mpTimer;
     mpTimer = NULL;
@@ -663,14 +649,6 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
    UtlBoolean isResponse = message.isResponse();
 
    mpLastSipMessage = &message;
-   // If we are trying to do a NAT ping for the first time
-   // hold off on all message sends until we have had time for
-   // the first ping response.
-   if(mPingLock)
-   {
-      OsTask::delay(5000);
-      mPingLock = FALSE;
-   }
 
    // ===========================================
 
@@ -688,34 +666,16 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
       message.setLocationField(mLocationHeader.data());
    }
 
+   // Make sure the message includes a contact if required and
+   // update it to the best possible known contact.
+   prepareContact(message, NULL, NULL) ;
+
+   // Get Method
    UtlString method;
    if(isResponse)
    {
-      // Add the authorization if the request required it
-      //addResponseAuthorization(&message);
-
       int num = 0;
       message.getCSeqField(&num , &method);
-
-      // All none failure responses need a contact
-      UtlString recordRouteField;
-      UtlString contactField;
-      if(message.getResponseStatusCode() < SIP_MULTI_CHOICE_CODE &&
-         ! message.getContactUri(0, &contactField) &&
-         ( method.compareTo(SIP_REGISTER_METHOD, UtlString::ignoreCase) != 0))
-      {
-         // Build a contact uri- sipIpAddress.data(),
-         // mUdpPort == SIP_PORT ? PORT_NONE : mUdpPort
-         UtlString contactUri;
-         SipMessage::buildSipUrl(&contactUri,
-                                 message.getLocalIp().data(),
-                                 mUdpPort == SIP_PORT ? PORT_NONE : mUdpPort,
-                                 NULL, // Unspecified transport protocol
-                                 defaultSipUser.data());
-         message.setContactField(contactUri.data());
-         contactUri.remove(0);
-      }
-
    }
    else
    {
@@ -727,7 +687,6 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
       {
          message.setMaxForwards(mMaxForwards);
       }
-
    }
 
    // ===========================================
@@ -935,8 +894,10 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
          }
 
          // Set the supported extensions if this is not
-         // an ACK request and the Supported field is not already set.
-         if(   method.compareTo(SIP_ACK_METHOD) != 0
+         // an ACK or NOTIFY request and the Supported field 
+         // is not already set.
+         if(   method.compareTo(SIP_ACK_METHOD) != 0 &&
+               method.compareTo(SIP_NOTIFY_METHOD) != 0
             && !message.getHeaderValue(0, SIP_SUPPORTED_FIELD)
             )
          {
@@ -945,40 +906,13 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
             if (supportedExtensions.length() > 0)
             {
                message.setSupportedField(supportedExtensions.data());
-               supportedExtensions.remove(0);
             }
-         }
-
-         // There seems to be a move to making contact mandatory in INVITE
-         // If this is an invite make sure there is a contact
-         UtlString contactField;
-         if(   (   method.compareTo(SIP_INVITE_METHOD) == 0
-                || method.compareTo(SIP_REFER_METHOD) == 0
-                || method.compareTo(SIP_SUBSCRIBE_METHOD) == 0
-                )
-            && ! message.getContactUri(0, &contactField)
-            )
-         {
-            OsSysLog::add(FAC_SIP, PRI_INFO,"SipUserAgent::send added Contact to '%s'",
-                          method.data());
-
-            // Build a contact uri - sipIpAddress.data(), mUdpPort == SIP_PORT ? 0 : mUdpPort
-            UtlString contactUri;
-            SipMessage::buildSipUrl(&contactUri,
-                                    sipIpAddress.data(),
-                                    mUdpPort == SIP_PORT ? PORT_NONE : mUdpPort,
-                                    NULL, // Unspecified transport protocol
-                                    defaultSipUser.data());
-
-            message.setContactField(contactUri.data());
-            contactUri.remove(0);
          }
       }
 
       // If this is the top most parent and it is a client transaction
       //  There is no server transaction, so cancel all of the children
-      if(   !isResponse
-         && (method.compareTo(SIP_CANCEL_METHOD) == 0)
+      if(   !isResponse         && (method.compareTo(SIP_CANCEL_METHOD) == 0)
          && transaction->getTopMostParent() == NULL
          && !transaction->isServerTransaction()
          )
@@ -1034,6 +968,8 @@ UtlBoolean SipUserAgent::sendUdp(SipMessage* message,
   UtlString messageStatusString = "SipUserAgent::sendUdp ";
   int timesSent = message->getTimesSent();
 
+  prepareContact(*message, serverAddress, &port) ;
+
   if(!isResponse)
     {
       message->getRequestMethod(&method);
@@ -1067,7 +1003,7 @@ UtlBoolean SipUserAgent::sendUdp(SipMessage* message,
     }
 
   // Send the message
-   if (mbShortNames)
+    if (mbShortNames || message->getUseShortFieldNames())
     {
         message->replaceLongFieldNames();
     }
@@ -1156,10 +1092,23 @@ UtlBoolean SipUserAgent::sendUdp(SipMessage* message,
   return(sentOk);
 }
 
-UtlBoolean SipUserAgent::sendSymmetricUdp(const SipMessage& message,
+UtlBoolean SipUserAgent::sendSymmetricUdp(SipMessage& message,
                                         const char* serverAddress,
                                         int port)
 {
+    prepareContact(message, serverAddress, &port) ;
+
+    // Update Via
+    int bestKnownPort;
+    UtlString bestKnownAddress;
+    getViaInfo(OsSocket::UDP, 
+            bestKnownAddress, bestKnownPort, 
+            serverAddress, &port) ;
+    message.removeLastVia() ;
+    message.addVia(bestKnownAddress, bestKnownPort, SIP_TRANSPORT_UDP);
+    message.setLastViaTag("", "rport");
+
+    // Send away
     UtlBoolean sentOk = mSipUdpServer->sendTo(message,
                                              serverAddress,
                                              port);
@@ -1309,7 +1258,11 @@ UtlBoolean SipUserAgent::sendStatelessRequest(SipMessage& request,
     // Get via info
     UtlString viaAddress;
     int viaPort;
-    getViaInfo(protocol, viaAddress, viaPort);
+    getViaInfo(protocol,
+               viaAddress,
+               viaPort,
+               address.data(),
+               &port);
 
     // Add the via field data
     request.addVia(viaAddress.data(),
@@ -1349,7 +1302,7 @@ UtlBoolean SipUserAgent::sendTcp(SipMessage* message,
     UtlString msgBytes;
     UtlString messageStatusString = "SipUserAgent::sendTcp ";
 
-    if (mbShortNames)
+    if (mbShortNames || message->getUseShortFieldNames())
     {
         message->replaceLongFieldNames();
     }
@@ -1428,7 +1381,7 @@ UtlBoolean SipUserAgent::sendTls(SipMessage* message,
    UtlString msgBytes;
    UtlString messageStatusString;
 
-    if (mbShortNames)
+    if (mbShortNames || message->getUseShortFieldNames())
     {
         message->replaceLongFieldNames();
     }
@@ -1528,6 +1481,52 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType, SIPX_TRANSPORT
       message->getBytes(&msgBytes, &len);
    }
 
+   if (isResponse)
+   {
+        UtlString viaAddr ;
+        int viaPort = -1 ;
+        int receivedPort = -1 ;
+        UtlString viaProtocol ;
+        UtlBoolean receivedSet = false ;
+        UtlBoolean maddrSet = false ;
+        UtlBoolean receivedPortSet = false ;
+
+        message->getLastVia(&viaAddr, &viaPort, &viaProtocol, &receivedPort, &receivedSet, &maddrSet, &receivedPortSet) ;
+        if (receivedSet || receivedPortSet)
+        {
+            UtlString sendAddress ;
+            int sendPort ;
+
+            if (receivedPortSet && portIsValid(receivedPort))
+            {
+                viaPort = receivedPort ;
+            }
+
+            // Inform NAT agent (used for lookups)
+            message->getSendAddress(&sendAddress, &sendPort) ;
+            OsNatAgentTask::getInstance()->addExternalBinding(NULL, 
+                    sendAddress, sendPort, viaAddr, viaPort) ;            
+
+            // Inform UDP server (used for events)
+            if (mSipUdpServer)
+            {
+                UtlString method ;
+                int cseq;           
+                message->getCSeqField(&cseq, &method);
+
+                mSipUdpServer->updateSipKeepAlive(message->getLocalIp(),
+                        method, sendAddress, sendPort, viaAddr, viaPort) ;
+            }
+        }
+        else
+        {
+            UtlString sendAddress ;
+            int sendPort ;
+            message->getSendAddress(&sendAddress, &sendPort) ;
+            OsNatAgentTask::getInstance()->clearExternalBinding(NULL, 
+                    sendAddress, sendPort, true) ;
+        }
+   }
 
    if(messageType == SipMessageEvent::APPLICATION)
    {
@@ -1568,40 +1567,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType, SIPX_TRANSPORT
                              transString.data());
             }
 #endif
-
-            UtlString callId;
-            message->getCallIdField(&callId);
-            // Check the call-id to see if this is the ping
-            // response
-            if(callId.index("-ping@") > 0)
-            {
-               UtlString natAddress;
-               int dummyPort;
-               UtlString dummyProtocol;
-               int natPort;
-               UtlBoolean receivedSet;
-               UtlBoolean maddrSet;
-               UtlBoolean receivedPortSet;
-               message->getLastVia(&natAddress, &dummyPort, &dummyProtocol,
-                                   &natPort, &receivedSet, &maddrSet, &receivedPortSet);
-               if(receivedSet && receivedPortSet)
-               {
-                  Url newContact;
-                  newContact.setHostAddress(natAddress.data());
-                  newContact.setHostPort(natPort);
-                  newContact.toString(mContactAddress);
-
-                  // Set the address and port for the via as
-                  // well
-                  sipIpAddress = natAddress;
-                  mSipPort = natPort;
-                  OsSysLog::add(FAC_SIP, PRI_DEBUG,"SipUserAgent:dispatch set new contact: %s",
-                                mContactAddress.data());
-               }
-               mPingLock = FALSE;
             }
-         }
-
          // New transaction for incoming request
          else
          {
@@ -2352,6 +2318,18 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
             mbShutdownDone = TRUE;
          }
       }
+      else if (msgSubType == SipUserAgent::KEEPALIVE_MESSAGE)
+      {
+          OsPtrMsg& msg = (OsPtrMsg&) eventMessage ;
+
+          SipUdpServer* pUdpServer = (SipUdpServer*) msg.getPtr() ;
+          OsTimer* pTimer = (OsTimer*) msg.getPtr2() ;
+
+          if (pUdpServer && pTimer)
+          {
+             pUdpServer->sendSipKeepAlive(pTimer) ;
+          }
+      } 
       else
       {
          SipMessage* sipMsg = (SipMessage*)((SipMessageEvent&)eventMessage).getMessage();
@@ -2751,14 +2729,15 @@ void SipUserAgent::garbageCollection()
 UtlBoolean SipUserAgent::addCrLfKeepAlive(const char* szLocalIp,
                                     const char* szRemoteIp,
                                     const int   remotePort,
-                                    const int   keepAliveSecs) 
+                                          const int   keepAliveSecs,
+                                          OsNatKeepaliveListener* pListener)
 {
     UtlBoolean bSuccess = false ;
 
     if (mSipUdpServer)
     {
         bSuccess = mSipUdpServer->addCrLfKeepAlive(szLocalIp, szRemoteIp, 
-                remotePort, keepAliveSecs) ;
+                remotePort, keepAliveSecs, pListener) ;
     }
 
     return bSuccess ;
@@ -2783,14 +2762,15 @@ UtlBoolean SipUserAgent::removeCrLfKeepAlive(const char* szLocalIp,
 UtlBoolean SipUserAgent::addStunKeepAlive(const char* szLocalIp,
                                           const char* szRemoteIp,
                                           const int   remotePort,
-                                          const int   keepAliveSecs) 
+                                          const int   keepAliveSecs,
+                                          OsNatKeepaliveListener* pListener)
 {
     UtlBoolean bSuccess = false ;
 
     if (mSipUdpServer)
     {
         bSuccess = mSipUdpServer->addStunKeepAlive(szLocalIp, szRemoteIp, 
-                remotePort, keepAliveSecs) ;
+                remotePort, keepAliveSecs, pListener) ;
     }
 
     return bSuccess ;
@@ -2811,6 +2791,40 @@ UtlBoolean SipUserAgent::removeStunKeepAlive(const char* szLocalIp,
     return bSuccess ;
 }
 
+
+UtlBoolean SipUserAgent::addSipKeepAlive(const char* szLocalIp,
+                                         const char* szRemoteIp,
+                                         const int   remotePort,
+                                         const char* szMethod,
+                                         const int   keepAliveSecs,
+                                         OsNatKeepaliveListener* pListener)
+{
+    UtlBoolean bSuccess = false ;
+
+    if (mSipUdpServer)
+    {
+        bSuccess = mSipUdpServer->addSipKeepAlive(szLocalIp, szRemoteIp, 
+                remotePort, szMethod, keepAliveSecs, pListener) ;
+    }
+
+    return bSuccess ;
+}
+
+UtlBoolean SipUserAgent::removeSipKeepAlive(const char* szLocalIp,
+                                            const char* szRemoteIp,
+                                            const int   remotePort,
+                                            const char* szMethod) 
+{
+    UtlBoolean bSuccess = false ;
+
+    if (mSipUdpServer)
+    {
+        bSuccess = mSipUdpServer->removeSipKeepAlive(szLocalIp, szRemoteIp, 
+                remotePort, szMethod) ;
+    }
+
+    return bSuccess ;
+}
 
 /* ============================ ACCESSORS ================================= */
 
@@ -3004,6 +3018,117 @@ void SipUserAgent::setForking(UtlBoolean enabled)
     mForkingEnabled = enabled;
 }
 
+void SipUserAgent::prepareContact(SipMessage& message,
+                                  const char* szTargetUdpAddress, 
+                                  const int*  piTargetUdpPort)
+
+{
+    // Add a default contact if none is present
+    //   AND To all requests -- except REGISTERs (server mode?)
+    //   OR all non-failure responses 
+    int num = 0;
+    UtlString method ;
+    message.getCSeqField(&num , &method);
+    UtlString contact ;
+    if (    !message.getContactUri(0, &contact) &&
+            ((!message.isResponse() && (method.compareTo(SIP_REGISTER_METHOD, UtlString::ignoreCase) != 0))
+            || (message.getResponseStatusCode() < SIP_MULTI_CHOICE_CODE)))
+    {
+        UtlString contactIp ;
+        if (message.isResponse())
+            contactIp = message.getLocalIp() ;            
+        if (contactIp.isNull())
+            contactIp = sipIpAddress ;
+
+        // TODO:: We need to figure out what the protocol SHOULD be if not 
+        // already pspecified.  For example, if we are sending via TCP 
+        // we should use a TCP contact -- the application layer and override
+        // if desired by passing a contact.
+
+        SipMessage::buildSipUrl(&contact,
+                contactIp,
+                mUdpPort == SIP_PORT ? PORT_NONE : mUdpPort,
+                NULL,
+                defaultSipUser.data());
+        message.setContactField(contact) ;
+    }
+
+    // Update contact if we know anything about the target and our NAT binding
+    if (message.getContactUri(0, &contact))
+    {
+        Url       urlContact(contact) ;        
+        UtlString contactIp ;
+        int       contactPort ;
+
+        // Init Contact Info
+        urlContact.getHostAddress(contactIp) ;
+        contactPort = urlContact.getHostPort() ;
+
+        // Try specified send to host:port
+        if (szTargetUdpAddress && piTargetUdpPort &&
+                (OsNatAgentTask::getInstance()->findContactAddress(
+                szTargetUdpAddress, *piTargetUdpPort, 
+                &contactIp, &contactPort)))
+        {
+            urlContact.setHostAddress(contactIp) ;
+            urlContact.setHostPort(contactPort) ;
+            message.removeHeader(SIP_CONTACT_FIELD, 0) ;
+            message.setContactField(urlContact.toString()) ;
+        }
+        else
+        {
+            // Otherwise dig out info from message -- also make sure this is 
+            // contact we should adjust 
+            UtlString sendProtocol ;        
+            if ((urlContact.getScheme() == Url::SipUrlScheme) && 
+                    ((urlContact.getUrlParameter("transport", sendProtocol) == false)
+                    || (sendProtocol.compareTo("udp", UtlString::ignoreCase) == 0)))
+            {               
+                if (message.isResponse())
+                {
+                    // Response: See if we have a better contact address to the 
+                    // remote party
+
+                    UtlString receivedFromAddress ;
+                    int       receivedFromPort ;
+
+                    message.getSendAddress(&receivedFromAddress, &receivedFromPort) ;
+                    if (OsNatAgentTask::getInstance()->findContactAddress(
+                            receivedFromAddress, receivedFromPort, 
+                            &contactIp, &contactPort))
+                    {
+                        urlContact.setHostAddress(contactIp) ;
+                        urlContact.setHostPort(contactPort) ;
+                        message.removeHeader(SIP_CONTACT_FIELD, 0) ;
+                        message.setContactField(urlContact.toString()) ;
+                    }
+                }
+                else
+                {               
+                    // Request: See if we have a better contact address to the 
+                    // remote party
+
+                    UtlString requestUriAddress ;
+                    int       requestUriPort ;
+                    UtlString requestUriProtocol ;  // ignored
+
+                    message.getUri(&requestUriAddress, &requestUriPort, &requestUriProtocol) ;
+
+                    if (OsNatAgentTask::getInstance()->findContactAddress(
+                            requestUriAddress, requestUriPort, 
+                            &contactIp, &contactPort))
+                    {
+                        urlContact.setHostAddress(contactIp) ;
+                        urlContact.setHostPort(contactPort) ;
+                        message.removeHeader(SIP_CONTACT_FIELD, 0) ;
+                        message.setContactField(urlContact.toString()) ;
+                    }
+                }
+            }
+        }
+    }    
+}
+
 void SipUserAgent::getAllowedMethods(UtlString* allowedMethods)
 {
         UtlDListIterator iterator(allowedSipMethods);
@@ -3025,8 +3150,12 @@ void SipUserAgent::getAllowedMethods(UtlString* allowedMethods)
 
 void SipUserAgent::getViaInfo(int protocol,
                               UtlString& address,
-                              int& port)
+                              int&        port,
+                              const char* pszTargetAddress,
+                              const int*  piTargetPort)
 {
+    address = sipIpAddress;
+
     if(protocol == OsSocket::TCP)
     {
         port = mTcpPort == SIP_PORT ? PORT_NONE : mTcpPort;
@@ -3051,9 +3180,13 @@ void SipUserAgent::getViaInfo(int protocol,
         {
             port = mUdpPort;
         }
-    }
 
-    address = sipIpAddress;
+        if (pszTargetAddress && piTargetPort)
+        {
+            OsNatAgentTask::getInstance()->findContactAddress(pszTargetAddress, *piTargetPort, 
+                    &address, &port) ;
+        }
+    }
 }
 
 void SipUserAgent::getFromAddress(UtlString* address, int* port, UtlString* protocol)
@@ -3475,23 +3608,20 @@ UtlBoolean SipUserAgent::isMessageLoggingEnabled()
 
 UtlBoolean SipUserAgent::isReady()
 {
-    return(isStarted() && !mPingLock);
+    return isStarted();
 }
 
 UtlBoolean SipUserAgent::waitUntilReady()
 {
     // Lazy hack, should be a semaphore or event
         int count = 0;
-    while(!isReady())
+    while(!isReady() && count < 5)
     {
         delay(500);
                 count++;
-                if ( count > 10)
-                {
-                        mPingLock = FALSE;
                 }
-    }
-        return(TRUE);
+
+    return isReady() ;
 }
 
 UtlBoolean SipUserAgent::isForkingEnabled()
@@ -3909,6 +4039,8 @@ void SipUserAgent::setHeaderOptions(const bool bAllowHeader,
 void SipUserAgent::prepareVia(SipMessage& message,
                               UtlString&  branchId, 
                               OsSocket::SocketProtocolTypes& toProtocol,
+                              const char* szTargetAddress, 
+                              const int*  piTargetPort,
                               SIPX_TRANSPORT_DATA* pTransport)
 {
     UtlString viaAddress;
@@ -3920,7 +4052,7 @@ void SipUserAgent::prepareVia(SipMessage& message,
     }
 
     int viaPort;
-    getViaInfo(toProtocol, viaAddress, viaPort);
+    getViaInfo(toProtocol, viaAddress, viaPort, szTargetAddress, piTargetPort);
 
     // if the viaAddress is a local address that
     // has a STUN or RELAY address associated with it,

@@ -244,7 +244,9 @@ OsStatus CpPhoneMediaInterface::createConnection(int& connectionId,
                                                  void* videoWindowHandle, 
                                                  void* const pSecurityAttributes,
                                                  ISocketIdle* pIdleSink,
-                                                 IMediaEventListener* pMediaEventListener )
+                                                 IMediaEventListener* pMediaEventListener,
+                                                 const SIPX_RTP_TRANSPORT rtpTransportOptions,
+                                                 const RtpTcpRoles role)
 {
     int localPort  ;
     OsStatus returnCode;
@@ -1481,6 +1483,13 @@ OsStatus CpPhoneMediaInterface::setConnectionFramerate(int connectionId, int fra
 OsStatus CpPhoneMediaInterface::setSecurityAttributes(const void* security) 
 {
     return OS_NOT_SUPPORTED ;
+}
+
+OsStatus CpPhoneMediaInterface::generateVoiceQualityReport(int         connectiond,
+                                                           const char* callId,
+                                                           UtlString&  report) 
+{
+	return OS_NOT_SUPPORTED ;
 }
 
 
