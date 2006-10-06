@@ -49,6 +49,7 @@ libsipXcall_la_SOURCES = \
     cp/LinePresenceMonitorMsg.cpp \
     cp/PresenceDialInServer.cpp \
     cp/SipPresenceMonitor.cpp \
+    cp/XmlRpcSignIn.cpp \
     ptapi/PtAddessCapabilities.cpp \
     ptapi/PtAddress.cpp \
     ptapi/PtAddressForwarding.cpp \

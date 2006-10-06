@@ -31,6 +31,7 @@
 #include <utl/UtlSList.h>
 #include <utl/UtlHashMap.h>
 #include <cp/CallManager.h>
+#include <cp/XmlRpcSignIn.h>
 #include <net/SdpCodecFactory.h>
 
 // DEFINES
@@ -80,6 +81,9 @@ class SipPresenceMonitor : public StateChangeNotifier
 
    /// Set the status value
    virtual bool setStatus(const Url& aor, const Status value);
+   
+   /// Get the state of the contact
+   void getState(const Url& aor, UtlString& status);
 
   protected:
 
@@ -109,6 +113,8 @@ class SipPresenceMonitor : public StateChangeNotifier
    SipSubscribeServerEventHandler mPolicyHolder;
    SipPublishContentMgr mSipPublishContentMgr;
    SipSubscribeServer* mpSubscribeServer;
+   
+   XmlRpcSignIn* mpXmlRpcSignIn;
 
    UtlHashMap mMonitoredLists;
    UtlHashMap mPresenceEventList;

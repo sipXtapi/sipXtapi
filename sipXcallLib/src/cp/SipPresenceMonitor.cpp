@@ -20,6 +20,7 @@
 #include <net/NetMd5Codec.h>
 #include <net/SipMessage.h>
 #include <cp/SipPresenceMonitor.h>
+#include <cp/XmlRpcSignIn.h>
 #include <mi/CpMediaInterfaceFactoryFactory.h>
 
 #ifndef EXCLUDE_STREAMING
@@ -33,14 +34,10 @@
 
 // DEFINES
 #define RTP_START_PORT          12000    // Starting RTP port
-
-#define CODEC_G711_PCMU         "258"   // ID for PCMU
-#define CODEC_G711_PCMA         "257"   // ID for PCMA
-#define CODEC_DTMF_RFC2833      "128"   // ID for RFC2833 DMTF 
-
 #define MAX_CONNECTIONS         200     // Max number of sim. conns
-#define MP_SAMPLE_RATE          8000    // Sample rate (don't change)
-#define MP_SAMPLES_PER_FRAME    80      // Frames per second (don't change)
+
+#define CONFIG_SETTING_HTTP_PORT              "SIP_PRESENCE_HTTP_PORT"
+#define PRESENCE_DEFAULT_HTTP_PORT            8111
 
 // The presence status we attribute to resources that we have no
 // information about.
@@ -209,6 +206,15 @@ SipPresenceMonitor::SipPresenceMonitor(SipUserAgent* userAgent,
       mpSubscribeServer->enableEventType(PRESENCE_EVENT_TYPE);
       mpSubscribeServer->start();
    }
+   
+   // Enable the xmlrpc sign-in/sign-out
+   int HttpPort;
+   if (configDb.get(CONFIG_SETTING_HTTP_PORT, HttpPort) != OS_SUCCESS)
+   {
+      HttpPort = PRESENCE_DEFAULT_HTTP_PORT;
+   }
+   
+   mpXmlRpcSignIn = new XmlRpcSignIn(this, HttpPort);   
 }
 
 // Destructor
@@ -240,6 +246,11 @@ SipPresenceMonitor::~SipPresenceMonitor()
    if (!mStateChangeNotifiers.isEmpty())
    {
       mStateChangeNotifiers.destroyAll();
+   }
+   
+   if (mpXmlRpcSignIn)
+   {
+      delete mpXmlRpcSignIn;
    }   
 }
 
@@ -537,6 +548,7 @@ bool SipPresenceMonitor::setStatus(const Url& aor, const Status value)
                      value == StateChangeNotifier::AWAY ? "AWAY" :
                      "UNKNOWN"));
    }
+
    bool result = false;
    
    UtlString contact;
@@ -568,4 +580,32 @@ bool SipPresenceMonitor::setStatus(const Url& aor, const Status value)
    result = addPresenceEvent(contact, sipPresenceEvent);
    
    return result;
-} 
+}
+
+
+void SipPresenceMonitor::getState(const Url& aor, UtlString& status)
+{
+   UtlString contact;
+   aor.getUserId(contact);
+   contact += mHostAndPort;
+
+   UtlContainable* foundValue;
+   foundValue = mPresenceEventList.findValue(&contact);
+   
+   if (foundValue)
+   {
+      SipPresenceEvent* presenceEvent = dynamic_cast <SipPresenceEvent *> (foundValue);
+      UtlString id;
+      NetMd5Codec::encode(contact, id);
+      presenceEvent->getTuple(id)->getStatus(status);
+      OsSysLog::add(FAC_SIP, PRI_ERR, "SipPresenceMonitor::getState contact %s state = %s",
+                    contact.data(), status.data());
+   }
+   else
+   {
+      OsSysLog::add(FAC_SIP, PRI_ERR, "SipPresenceMonitor::getState contact %s does not exist",
+                    contact.data());
+                    
+      status = STATUS_CLOSED;
+   }   
+}
