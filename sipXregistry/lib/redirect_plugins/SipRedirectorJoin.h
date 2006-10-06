@@ -52,10 +52,8 @@ class SipRedirectorJoin : public RedirectPlugin
 
    ~SipRedirectorJoin();
 
-   /**
-    * Uses the following parameters:
-    *
-    * PREFIX - dialing prefix
+   /** SipRedirectorJoin has several configuration parameters, listed at the
+    *  top of SipRedirectorJoin.cpp.
     */
    virtual void readConfig(OsConfigDb& configDb);
 
@@ -65,6 +63,9 @@ class SipRedirectorJoin : public RedirectPlugin
                                const UtlString& localDomainHost);
 
    virtual void finalize();
+
+   // Switch for the "1 second subscription" workaround.
+   UtlBoolean mOneSecondSubscription;
 
    virtual RedirectPlugin::LookUpStatus lookUp(
       const SipMessage& message,

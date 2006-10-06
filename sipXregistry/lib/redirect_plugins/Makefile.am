@@ -10,6 +10,7 @@ lib_LTLIBRARIES = \
 	libRedirectorSubscribe.la \
 	\
 	libRedirectorISN.la \
+	libRedirectorJoin.la \
 	libRedirectorTest.la
 
 INCLUDES = -I$(top_srcdir)/include
@@ -177,6 +178,23 @@ libRedirectorISN_la_CXXFLAGS = \
 libRedirectorISN_la_SOURCES =  \
 	SipRedirectorISN.cpp \
 	SipRedirectorISN.h
+
+# SipRedirectorJoin
+
+libRedirectorJoin_la_LDFLAGS = \
+	-module \
+	-version-info ${version_Current}:${version_Revision}:${version_Age}
+
+libRedirectorJoin_la_LIBADD = \
+	@SIPXCALL_LIBS@ \
+	@SIPXCOMMSERVER_LIBS@
+
+libRedirectorJoin_la_CXXFLAGS = \
+	-I$(top_builddir)/config
+
+libRedirectorJoin_la_SOURCES =  \
+	SipRedirectorJoin.cpp \
+	SipRedirectorJoin.h
 
 # SipRedirectorTest
 # Redirector to test request suspend/resume.

@@ -38,6 +38,7 @@ class SipRegInfoBody;        // for RFC 3680
 #define SIP_CALL_CONTROL_EXTENSION "sip-cc"
 #define SIP_SESSION_TIMER_EXTENSION "timer"
 #define SIP_REPLACES_EXTENSION "replaces"
+#define SIP_JOIN_EXTENSION "join"
 
 // SIP Methods
 #define SIP_INVITE_METHOD "INVITE"

@@ -27,6 +27,7 @@
 #include "net/NetMd5Codec.h"
 #include "net/Url.h"
 #include "registry/SipRedirectServer.h"
+#include "net/SipMessage.h"
 
 // DEFINES
 
@@ -570,9 +571,9 @@ SipRedirectorPickUp::lookUpDialog(
             {
                header_value.append(";early-only");
             }
-
             // Add a header parameter to specify the Replaces: header.
             contact_URI.setHeaderParameter("Replaces", header_value.data());
+
             // We add a header parameter to cause the redirection to
             // include a "Require: replaces" header.  Then if the caller
             // phone does not support INVITE/Replaces:, the pick-up will
@@ -585,18 +586,9 @@ SipRedirectorPickUp::lookUpDialog(
             // call to the calling phone.
             contact_URI.setHeaderParameter(SIP_REQUIRE_FIELD,
                                            SIP_REPLACES_EXTENSION);
+
             // Record the URI as a contact.
             addContact(response, requestString, contact_URI, "pick-up");            
-
-            // We do not add a header parameter to cause the redirection
-            // to include a "Require: replaces" header.  If we did, then
-            // if the caller phone did not support INVITE/Replaces:, the
-            // pick-up would fail entirely.  This way, if the caller
-            // phone does not support INVITE/Replaces:, the caller will
-            // get a simultaneous incoming call from the executing phone.
-
-            // Record the URI as a contact.
-            addContact(response, requestString, contact_URI, "pick-up");
 
             // If "reversed Replaces" is configured, also add a Replaces: with
             // the to-tag and from-tag reversed.
@@ -1402,7 +1394,7 @@ static UtlBoolean getYNconfig(OsConfigDb& configDb,
          // If the value starts with N or 0, set the result to FALSE.
          value = FALSE;
          break;
-      defuault:
+      default:
          // Ignore all other values.
          break;
       } 
