@@ -222,7 +222,6 @@ typedef struct
     SIPX_INSTANCE_DATA* pInst;
     UtlString* pResourceId;
     UtlString* pEventType;
-    HttpBody* pContent;
 } SIPX_PUBLISH_DATA;
 
 typedef struct

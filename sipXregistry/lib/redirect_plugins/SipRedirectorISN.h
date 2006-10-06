@@ -41,7 +41,7 @@ class SipRedirectorISN : public RedirectPlugin
    ~SipRedirectorISN();
 
    /**
-    * Uses the following parameter:
+    * Uses the following parameters:
     *
     * PREFIX - dialing prefix (optional)
     * BASE_DOMAIN - base well-known domain for doing NAPTR lookups (required)

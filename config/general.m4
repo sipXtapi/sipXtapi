@@ -773,6 +773,8 @@ AC_DEFUN([CHECK_LIBWWW],
         AC_SUBST(LIBWWW_CFLAGS)
         AC_SUBST(LIBWWW_CXXFLAGS)
 
+	# Several libraries appear in this list twice.  That is because there
+	# are circular dependencies between the libraries.
         LIBWWW_LIBS="-lwwwapp -lwwwfile -lwwwhttp -lwwwssl -lwwwcore";
         LIBWWW_LIBS="$LIBWWW_LIBS -lwwwinit -lwwwapp -lwwwhttp -lwwwcache -lwwwcore";
         LIBWWW_LIBS="$LIBWWW_LIBS -lwwwfile -lwwwutils -lwwwmime -lwwwstream -lmd5";

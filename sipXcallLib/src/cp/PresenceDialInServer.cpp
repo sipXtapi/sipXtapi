@@ -35,7 +35,7 @@
 #define TAO_OFFER_PARAM_ADDRESS            2
 #define TAO_OFFER_PARAM_LOCAL_CONNECTION   6
 
-#define SECONDS_DELAY 1
+#define SECONDS_DELAY 3
 
 #define CONFIG_SETTING_SIGN_IN_CODE        "SIP_PRESENCE_SIGN_IN_CODE"
 #define CONFIG_SETTING_SIGN_OUT_CODE       "SIP_PRESENCE_SIGN_OUT_CODE"
@@ -436,10 +436,14 @@ bool PresenceDialInServer::notifyStateChange(UtlString& contact, bool signIn)
       if (signIn)
       {
          result = notifier->setStatus(contactUrl, StateChangeNotifier::PRESENT);
+         OsSysLog::add(FAC_SIP, PRI_INFO, "PresenceDialInServer::notifyStateChange contact %s ==> SIGN_IN",
+                       contact.data());
       }
       else
       {
          result = notifier->setStatus(contactUrl, StateChangeNotifier::AWAY);
+         OsSysLog::add(FAC_SIP, PRI_INFO, "PresenceDialInServer::notifyStateChange contact %s ==> SIGN_OUT",
+                       contact.data());
       }
    }
    mLock.release();

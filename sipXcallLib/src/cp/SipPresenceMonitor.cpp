@@ -70,19 +70,9 @@ SipPresenceMonitor::SipPresenceMonitor(SipUserAgent* userAgent,
    UtlString localAddress;
    OsSocket::getHostIp(&localAddress);
 
-   // Enable PCMU, PCMA, Tones/RFC2833 codecs
-   SdpCodec::SdpCodecTypes codecs[3];
-    
-   codecs[0] = SdpCodecFactory::getCodecType(CODEC_G711_PCMU) ;
-   codecs[1] = SdpCodecFactory::getCodecType(CODEC_G711_PCMA) ;
-   codecs[2] = SdpCodecFactory::getCodecType(CODEC_DTMF_RFC2833) ;
+   OsConfigDb configDb;
+   configDb.set("PHONESET_MAX_ACTIVE_CALLS_ALLOWED", 2*MAX_CONNECTIONS);
 
-   mCodecFactory.buildSdpCodecFactory(3, codecs);
-
-   // Initialize and start up the media subsystem
-   OsConfigDb dummyDb;
-   mpStartUp(MP_SAMPLE_RATE, MP_SAMPLES_PER_FRAME, 6 * MAX_CONNECTIONS, &dummyDb);
-   MpMediaTask::getMediaTask(MAX_CONNECTIONS);
 #ifdef INCLUDE_RTCP
    CRTCManager::getRTCPControl();
 #endif //INCLUDE_RTCP
@@ -116,7 +106,7 @@ SipPresenceMonitor::SipPresenceMonitor(SipUserAgent* userAgent,
                                    CP_MAXIMUM_RINGING_EXPIRE_SECONDS, // inviteExpiresSeconds
                                    QOS_LAYER3_LOW_DELAY_IP_TOS,       // expeditedIpTos
                                    MAX_CONNECTIONS,                   // maxCalls
-                                   sipXmediaFactoryFactory(NULL));    // CpMediaInterfaceFactory
+                                   sipXmediaFactoryFactory(&configDb));    // CpMediaInterfaceFactory
 
    mpDialInServer = new PresenceDialInServer(mpCallManager, configFile);    
    mpCallManager->addTaoListener(mpDialInServer);
@@ -293,19 +283,9 @@ bool SipPresenceMonitor::addPresenceEvent(UtlString& contact, SipPresenceEvent* 
          OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceMonitor::addPresenceEvent remove the presenceEvent %p for contact %s",
                        oldPresenceEvent, contact.data()); 
 
-         int numOldContents;
-         HttpBody* oldContent[1];           
-         
          // Unpublish the content to the subscribe server
-         if (!mSipPublishContentMgr.unpublish(contact.data(), PRESENCE_EVENT_TYPE, PRESENCE_EVENT_TYPE, 1, numOldContents, oldContent))
-         {
-            UtlString presenceContent;
-            int length;
-                 
-            oldPresenceEvent->getBytes(&presenceContent, &length);
-            OsSysLog::add(FAC_SIP, PRI_ERR, "SipPresenceMonitor::publishContent PresenceEvent %s\n was not successfully unpublished from the subscribe server",
-                          presenceContent.data());
-         }
+         mSipPublishContentMgr.unpublish(contact.data(),
+                                         PRESENCE_EVENT_TYPE, PRESENCE_EVENT_TYPE);
 
          if (oldPresenceEvent)
          {
@@ -409,19 +389,12 @@ void SipPresenceMonitor::publishContent(UtlString& contact, SipPresenceEvent* pr
    }
 #endif
 
-   int numOldContents;
-   HttpBody* oldContent[1];           
-   
    // Publish the content to the subscribe server
-   if (!mSipPublishContentMgr.publish(contact.data(), PRESENCE_EVENT_TYPE, PRESENCE_EVENT_TYPE, 1, (HttpBody**)&presenceEvent, 1, numOldContents, oldContent))
-   {
-      UtlString presenceContent;
-      int length;
-           
-      presenceEvent->getBytes(&presenceContent, &length);
-      OsSysLog::add(FAC_SIP, PRI_ERR, "SipPresenceMonitor::publishContent PresenceEvent %s\n was not successfully published to the subscribe server",
-                    presenceContent.data());
-   }
+   // Make a copy, because mpSipPublishContentMgr will own it.
+   HttpBody* pHttpBody = new HttpBody(*(HttpBody*)presenceEvent);
+   mSipPublishContentMgr.publish(contact.data(),
+                                 PRESENCE_EVENT_TYPE, PRESENCE_EVENT_TYPE,
+                                 1, &pHttpBody);
 }
 
 

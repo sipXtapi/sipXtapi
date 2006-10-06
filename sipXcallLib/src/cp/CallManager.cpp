@@ -524,6 +524,9 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                                     (method.compareTo(SIP_ACK_METHOD,UtlString::ignoreCase) != 0) )
 
                                 {
+                                    OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager - number of current calls (%d) is exceeded max (%d)",
+                                                  getCallStackSize(), mMaxCalls);
+                                                  
                                     SipMessage busyHereResponse;
                                     busyHereResponse.setInviteBusyData(sipMsg);
                                     sipUserAgent->send(busyHereResponse);
@@ -2008,7 +2011,7 @@ OsStatus CallManager::getCallingAddresses(const char* callId, int maxConnections
     }
     else
     {
-        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::getCalledAddresses TIMED OUT");
+        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::getCallingAddresses TIMED OUT");
         // If the event has already been signalled, clean up
         if(OS_ALREADY_SIGNALED == numConnectionsSet->signal(0))
         {

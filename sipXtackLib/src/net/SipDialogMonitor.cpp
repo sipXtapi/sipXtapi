@@ -69,20 +69,25 @@ SipDialogMonitor::SipDialogMonitor(SipUserAgent* userAgent,
       mpSubscribeServer->enableEventType(DIALOG_EVENT_TYPE);
       mpSubscribeServer->start();
    }
+   else
+   {
+      mpSubscriptionMgr = NULL;
+      mpSubscribeServer = NULL;
+   }
 }
 
 // Destructor
 SipDialogMonitor::~SipDialogMonitor()
 {
-   if (mpRefreshMgr)
-   {
-      delete mpRefreshMgr;
-   }
-   
    if (mpSipSubscribeClient)
    {
       mpSipSubscribeClient->endAllSubscriptions();
       delete mpSipSubscribeClient;
+   }
+   
+   if (mpRefreshMgr)
+   {
+      delete mpRefreshMgr;
    }
    
    if (mpSubscriptionMgr)
@@ -217,18 +222,27 @@ bool SipDialogMonitor::removeExtension(UtlString& groupName, Url& contactUrl)
       if (resource)
       {
          UtlString* dialogHandle = dynamic_cast <UtlString *> (mDialogHandleList.findValue(&resourceId));
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                       "SipDialogMonitor::removeExtension Calling endSubscription(%s)",
-                       dialogHandle->data());
-         UtlBoolean status = mpSipSubscribeClient->endSubscription(dialogHandle->data());
-                  
-         if (!status)
+         if (dialogHandle)
+         {
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipDialogMonitor::removeExtension Calling endSubscription(%s)",
+                          dialogHandle->data());
+            UtlBoolean status = mpSipSubscribeClient->endSubscription(dialogHandle->data());
+                     
+            if (!status)
+            {
+               OsSysLog::add(FAC_SIP, PRI_ERR,
+                             "SipDialogMonitor::removeExtension Unsubscription failed for %s.",
+                             resourceId.data());
+            }
+         }
+         else
          {
             OsSysLog::add(FAC_SIP, PRI_ERR,
-                          "SipDialogMonitor::removeExtension Unsubscription failed for %s.",
+                          "SipDialogMonitor::removeExtension no dialogHandle for %s.",
                           resourceId.data());
          }
-
+         
          mDialogHandleList.destroy(&resourceId);
          resource = list->removeResource(resource);
          delete resource;
@@ -293,7 +307,8 @@ void SipDialogMonitor::addDialogEvent(UtlString& contact, SipDialogEvent* dialog
 }
 
 
-void SipDialogMonitor::publishContent(UtlString& contact, SipDialogEvent* dialogEvent)
+void SipDialogMonitor::publishContent(UtlString& contact,
+                                      SipDialogEvent* dialogEvent)
 {
    bool contentChanged;
    
@@ -308,7 +323,8 @@ void SipDialogMonitor::publishContent(UtlString& contact, SipDialogEvent* dialog
       contentChanged = false;
       
       list = dynamic_cast <SipResourceList *> (mMonitoredLists.findValue(listUri));
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::publishContent listUri %s list %p",
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipDialogMonitor::publishContent listUri %s list %p",
                     listUri->data(), list); 
 
       // Search for the contact in this list
@@ -344,19 +360,12 @@ void SipDialogMonitor::publishContent(UtlString& contact, SipDialogEvent* dialog
       
       if (contentChanged)
       {
-         int numOldContents;
-         HttpBody* oldContent[1];           
-   
          // Publish the content to the subscribe server
-         if (!mSipPublishContentMgr.publish(listUri->data(), DIALOG_EVENT_TYPE, DIALOG_EVENT_TYPE, 1, (HttpBody**)&list, 1, numOldContents, oldContent))
-         {
-            UtlString dialogContent;
-            int length;
-            
-            list->getBytes(&dialogContent, &length);
-            OsSysLog::add(FAC_SIP, PRI_ERR, "SipDialogMonitor::publishContent DialogEvent %s\n was not successfully published to the subscribe server",
-                          dialogContent.data());
-         }
+         // Make a copy, because mpSipPublishContentMgr will own it.
+         HttpBody* pHttpBody = new HttpBody(*(HttpBody*)list);
+	 mSipPublishContentMgr.publish(listUri->data(), DIALOG_EVENT_TYPE,
+                                       DIALOG_EVENT_TYPE, 1,
+                                       &pHttpBody);
       }
    }
 }
@@ -447,7 +456,6 @@ void SipDialogMonitor::notifyStateChange(UtlString& contact, SipDialogEvent* dia
    UtlVoidPtr* container;
    StateChangeNotifier* notifier;
    Url contactUrl(contact);
-   mLock.acquire();
    while ((listUri = dynamic_cast <UtlString *> (iterator())))
    {
       container = dynamic_cast <UtlVoidPtr *> (mStateChangeNotifiers.findValue(listUri));
@@ -487,6 +495,5 @@ void SipDialogMonitor::notifyStateChange(UtlString& contact, SipDialogEvent* dia
          }
       }
    }
-   mLock.release();
 }
 

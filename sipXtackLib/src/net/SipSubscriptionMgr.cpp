@@ -246,7 +246,6 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
             // So we do not set a timer at the end of the subscription
             state->mpExpirationTimer = NULL;
 
-
             // Create the index by resourceId and eventTypeKey key
             SubscriptionServerStateIndex* stateKey = new SubscriptionServerStateIndex;
             *((UtlString*)stateKey) = resourceId;
@@ -272,6 +271,10 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
             lock();
             mSubscriptionStatesByDialogHandle.insert(state);
             mSubscriptionStateResourceIndex.insert(stateKey);
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                "SipSubscriptionMgr::updateDialogInfo insert a early subscription to the datebase %s",
+                stateKey->data());
+
             // Not safe to touch these after we unlock
             stateKey = NULL;
             state = NULL;
@@ -396,6 +399,10 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
                 stateKey->mpState = state;
                 mSubscriptionStatesByDialogHandle.insert(state);
                 mSubscriptionStateResourceIndex.insert(stateKey);
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                   "SipSubscriptionMgr::updateDialogInfo insert a new subscription to the datebase %s",
+                   stateKey->data());
+                   
                 // Not safe to touch these after we unlock
                 stateKey = NULL;
                 state = NULL;
@@ -481,6 +488,10 @@ UtlBoolean SipSubscriptionMgr::createNotifiesDialogInfo(const char* resourceId,
     UtlString contentKey(resourceId);
     contentKey.append(eventTypeKey);
 
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipSubscriptionMgr::createNotifiesDialogInfo try to find contentKey %s in database (%d)",
+                 contentKey.data(), mSubscriptionStateResourceIndex.entries());
+
     lock();
     UtlHashBagIterator iterator(mSubscriptionStateResourceIndex, &contentKey);
     int count = 0;
@@ -488,7 +499,7 @@ UtlBoolean SipSubscriptionMgr::createNotifiesDialogInfo(const char* resourceId,
     acceptHeaderValuesArray = NULL;
     notifyArray = NULL;
 
-        while(iterator())
+    while (iterator())
     {
         count++;
     }
@@ -718,4 +729,3 @@ void SipSubscriptionMgr::unlock()
 }
 
 /* ============================ FUNCTIONS ================================= */
-

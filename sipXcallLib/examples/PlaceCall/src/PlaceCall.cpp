@@ -28,6 +28,8 @@ SIPX_INST g_hInst = NULL ;      // Handle to the sipXtapi instanance
 SIPX_LINE g_hLine = 0 ;         // Line Instance (id, auth, etc)
 SIPX_CALL g_hCall = 0 ;         // Handle to a call
 
+bool g_timestamp = 0;           // TRUE if events should be timestamped
+
 SIPX_CALLSTATE_EVENT    g_eRecordEvents[MAX_RECORD_EVENTS] ;    // List of last N events
 int                     g_iNextEvent ;      // Index for g_eRecordEvents ringer buffer
 
@@ -61,6 +63,7 @@ void usage(const char* szExecutable)
     printf("   -O call output device name\n");
     printf("   -C codec name\n");
     printf("   -L list all supported codecs\n");
+    printf("   -T timestamp events\n");
     printf("\n") ;
 }
 
@@ -85,7 +88,8 @@ bool parseArgs(int argc,
                char** pszInputDevice,
                char** pszOutputDevice,
                char** pszCodecName,
-               bool*  bCodecList)
+               bool*  bCodecList,
+               bool*  bTimestamp)
 {
     bool bRC = false ;
     char szBuffer[64];
@@ -109,6 +113,7 @@ bool parseArgs(int argc,
     *pszOutputDevice = NULL;
     *pszCodecName = NULL;
     *bCodecList = false;
+    *bTimestamp = false;
 
     for (int i=1; i<argc; i++)
     {
@@ -293,6 +298,10 @@ bool parseArgs(int argc,
                 break ; // Error
             }
         }
+        else if (strcmp(argv[i], "-T") == 0)
+        {
+            *bTimestamp = true;
+        }
         else
         {
             if ((i+1) == argc)
@@ -302,6 +311,7 @@ bool parseArgs(int argc,
             }
             else
             {
+                fprintf(stderr, "Unknown argument '%s'\n", argv[i]);
                 break ; // Error
             }
         }
@@ -314,20 +324,52 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
                    void* pUserData)
 {
     char cBuf[1024] ;
-    printf("%s\n", sipxEventToString(category, pInfo, cBuf, sizeof(cBuf))) ;    
+
+    // Print the timestamp if requested.
+    if (g_timestamp)
+    {
+       time_t t = time(NULL);
+       struct tm g;
+       gmtime_r(&t, &g);
+       printf("%04d-%02d-%02dT%02d:%02d:%02dZ ",
+              g.tm_year + 1900, g.tm_mon + 1, g.tm_mday,
+              g.tm_hour, g.tm_min, g.tm_sec);
+    }
+
+    printf("%s\n", sipxEventToString(category, pInfo, cBuf, sizeof(cBuf))) ;
 
     if (category == EVENT_CATEGORY_CALLSTATE)
     {
         SIPX_CALLSTATE_INFO* pCallInfo = static_cast<SIPX_CALLSTATE_INFO*>(pInfo);
         printf("    hCall=%d, hAssociatedCall=%d\n", pCallInfo->hCall, pCallInfo->hAssociatedCall) ;
 
-        if (pCallInfo->cause == CALLSTATE_AUDIO_START)
+        switch (pCallInfo->event)
         {
-            printf("* Negotiated codec: %s, payload type %d\n", pCallInfo->codecs.audioCodec.cName, pCallInfo->codecs.audioCodec.iPayloadType);
+        case REMOTE_OFFERING:
+           // Get and print the To: URI.
+        {
+            char remote[200];
+            sipxCallGetRemoteID(pCallInfo->hCall, remote, sizeof (remote));
+            printf("    To: %s\n", remote);
+        }
+            break ;
+        case CALLSTATE_AUDIO_EVENT:
+           if (pCallInfo->cause == CALLSTATE_AUDIO_START)
+           {
+              printf("* Negotiated codec: %s, payload type %d\n", pCallInfo->codecs.audioCodec.cName, pCallInfo->codecs.audioCodec.iPayloadType);
+           }
+           break;
+        default:
+           // There are many other events which we ignore.
+           break;
         }
         g_eRecordEvents[g_iNextEvent] = pCallInfo->event;
         g_iNextEvent = (g_iNextEvent + 1) % MAX_RECORD_EVENTS ;
     }
+
+    // Ensure the output is not delayed by buffering.
+    fflush(stdout);
+
     return true;
 }
 
@@ -400,6 +442,9 @@ void dumpLocalContacts(SIPX_CALL hCall)
                     break ;
                 case CONTACT_CONFIG:
                     szType = "CONFIG" ;
+                    break ;
+                case CONTACT_AUTO:
+                    szType = "AUTO" ;
                     break ;
             }
             printf("<-> Type %s, Interface: %s, Ip %s, Port %d\n",
@@ -559,8 +604,9 @@ int main(int argc, char* argv[])
 
     // Parse Arguments
     if (parseArgs(argc, argv, &iDuration, &iSipPort, &iRtpPort, &szPlayTones, &szFile, &szSipUrl,
-            &bUseRport, &szUsername, &szPassword, &szRealm, &szFromIdentity, &szStunServer, &szProxy, 
-            &iRepeatCount, &szInDevice, &szOutDevice, &szCodec, &bCList) 
+                  &bUseRport, &szUsername, &szPassword, &szRealm, &szFromIdentity, &szStunServer, &szProxy, 
+                  &iRepeatCount, &szInDevice, &szOutDevice, &szCodec, &bCList,
+                  &g_timestamp)
             && (iDuration > 0) && (portIsValid(iSipPort)) && (portIsValid(iRtpPort)))
     {
         // initialize sipx TAPI-like API
@@ -590,7 +636,7 @@ int main(int argc, char* argv[])
                     }
                     else
                     {
-                        printf("Error in retrieving audio codec #%d\n");
+                        printf("Error in retrieving audio codec #%d\n", index);
                     }
                 }
             }
@@ -609,7 +655,7 @@ int main(int argc, char* argv[])
                     }
                     else
                     {
-                        printf("Error in retrieving video codec #%d\n");
+                        printf("Error in retrieving video codec #%d\n", index);
                     }
                 }
             }
@@ -729,7 +775,6 @@ int main(int argc, char* argv[])
 // sipXcallLib from producing an error.
 void JNI_LightButton(long)
 {
-
 }
 
 #endif /* !defined(_WIN32) */

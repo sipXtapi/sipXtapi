@@ -38,6 +38,68 @@ void static contentChangeCallback(void* applicationData,
    mIsDefaultContent = isDefaultContent;
 }
 
+/* The default content constructor used by the testDefaultConstructor test. */
+class TestDefaultConstructorClass : public SipPublishContentMgrDefaultConstructor
+{
+public:
+
+   /** Generate the content for a resource and event.
+    */
+   virtual void generateDefaultContent(SipPublishContentMgr* contentMgr,
+                                       const char* resourceId,
+                                       const char* eventTypeKey,
+                                       const char* eventType);
+
+   /// Make a copy of this object according to its real type.
+   virtual SipPublishContentMgrDefaultConstructor* copy();
+
+   // Service routine for UtlContainable.
+   virtual const char* const getContainableType() const;
+
+protected:
+   static UtlContainableType TYPE;    /** < Class type used for runtime checking */
+};
+
+// Static identifier for the type.
+const UtlContainableType TestDefaultConstructorClass::TYPE = "TestDefaultConstructorClass";
+
+// Generate the default content for dialog status.
+// It generates default content for resourceId's that start with '1'.
+void TestDefaultConstructorClass::generateDefaultContent(SipPublishContentMgr* contentMgr,
+                                                         const char* resourceId,
+                                                         const char* eventTypeKey,
+                                                         const char* eventType)
+{
+   if (resourceId[0] == '1')
+   {
+      // Construct the body, an empty notice for the user.
+      UtlString content;
+      char buffer[100];
+      sprintf(buffer, "This is default content for the resource '%s'.",
+              resourceId);
+      content.append(buffer);
+
+      // Build an HttpBody.
+      HttpBody *body = new HttpBody(content, strlen(content), "text/plain");
+
+      // Install it for the resource.
+      contentMgr->publish(resourceId, eventTypeKey, eventType, 1, &body);
+   }
+}
+
+// Make a copy of this object according to its real type.
+SipPublishContentMgrDefaultConstructor* TestDefaultConstructorClass::copy()
+{
+   // Copying these objects is easy, since they have no member variables, etc.
+   return new TestDefaultConstructorClass;
+}
+
+// Get the ContainableType for a UtlContainable derived class.
+UtlContainableType TestDefaultConstructorClass::getContainableType() const
+{
+    return TestDefaultConstructorClass::TYPE;
+}
+
 /**
  * Unit test for SipPublishContentMgr
  */
@@ -45,6 +107,7 @@ class SipPublishContentMgrTest : public CppUnit::TestCase
 {
    CPPUNIT_TEST_SUITE(SipPublishContentMgrTest);
    CPPUNIT_TEST(testDefaultPublishContent);
+   CPPUNIT_TEST(testDefaultConstructor);
    CPPUNIT_TEST(testPublishContent);
    CPPUNIT_TEST(testGetContent);
    CPPUNIT_TEST(testContentChangeObserver);
@@ -101,19 +164,124 @@ public:
          int numOldContents;
          HttpBody *oldContents[2];
 
-         publisher.publishDefault("dialog", "dialog", 1, &body,
-                                  1, numOldContents, oldContents);
+         publisher.getPublished(NULL, "dialog", 1,
+                                numOldContents, oldContents, NULL);
 
          CPPUNIT_ASSERT_EQUAL_MESSAGE("number of contents should be zero",
                                       0, numOldContents);
 
-         publisher.unpublishDefault("dialog", "dialog",
-                                    1, numOldContents, oldContents);
+         publisher.publishDefault("dialog", "dialog", 1, &body);
+
+         publisher.getPublished(NULL, "dialog", 1,
+                                numOldContents, oldContents, NULL);
 
          CPPUNIT_ASSERT_EQUAL_MESSAGE("number of contents are not the same",
                                       1, numOldContents);
+         UtlString returned_contents;
+         int returned_length;
+         oldContents[0]->getBytes(&returned_contents, &returned_length);
+         CPPUNIT_ASSERT_MESSAGE("bad body",
+                                strcmp(returned_contents.data(),
+                                       content) == 0);
          
-         CPPUNIT_ASSERT_MESSAGE("bad body pointer", body == oldContents[0]);
+         publisher.unpublishDefault("dialog", "dialog");
+      }
+
+   void testDefaultConstructor()
+      {
+         // Exercise the default content constructor logic.
+
+         // The constructor will provide default content for every resource
+         // whose name starts with "1".
+
+         // The test event type.
+         const char *event_type = "testdefaultconstructor";
+
+         SipPublishContentMgr publisher;
+
+         // Register the default content constructor.
+
+         publisher.publishDefault(event_type, event_type,
+                                  new TestDefaultConstructorClass);
+         
+         // See if getPublished can retrieve it.
+
+         int numOldContents;
+         HttpBody *oldContents[2];
+         SipPublishContentMgrDefaultConstructor *constructor;
+
+         publisher.getPublished(NULL, "dialog", 1,
+                                numOldContents, oldContents, &constructor);
+
+         CPPUNIT_ASSERT_MESSAGE("constructor not returned by getPublished",
+                                constructor != NULL);
+
+         // Provide a string for default content also.
+
+         const char *default_content = "This is the default string.";
+         {
+            int bodyLength = strlen(default_content);
+            HttpBody *body = new HttpBody(default_content, bodyLength,
+                                          "text/plain");
+            publisher.publishDefault(event_type, event_type, 1, &body);
+         }
+
+         // Check to see if default content is produced for the right
+         // resources.
+
+         // Resource:
+         //    Name    Specific content?    Default from constr.? Default str.?
+         //    0       N                    N                     Y
+         //    1a      N                    Y                     Y
+         //    1b      Y                    Y                     Y
+         //    2       Y                    N                     Y
+         
+         const char *content_1b = "This is content for 1b.";
+         {
+            int bodyLength = strlen(content_1b);
+            HttpBody *body = new HttpBody(content_1b, bodyLength,
+                                          "text/plain");
+            publisher.publish("1b", event_type, event_type, 1, &body);
+         }
+         const char *content_2 = "This is content for 2.";
+         {
+            int bodyLength = strlen(content_2);
+            HttpBody *body = new HttpBody(content_2, bodyLength, "text/plain");
+            publisher.publish("2", event_type, event_type, 1, &body);
+         }
+
+         HttpBody *b;
+         UtlBoolean d;
+         const char *s;
+         int l;
+
+         publisher.getContent("0", event_type, event_type, "text/plain", b, d);
+         CPPUNIT_ASSERT_MESSAGE("Content for 0 should be default",
+                                d);
+         b->getBytes(&s, &l);
+         CPPUNIT_ASSERT_MESSAGE("Content for 0 is incorrect",
+                                strcmp(s, default_content) == 0);
+
+         publisher.getContent("1a", event_type, event_type, "text/plain", b, d);
+         CPPUNIT_ASSERT_MESSAGE("Content for 1a should be default",
+                                d);
+         b->getBytes(&s, &l);
+         CPPUNIT_ASSERT_MESSAGE("Content for 1a is incorrect",
+                                strcmp(s, "This is default content for the resource '1a'.") == 0);
+
+         publisher.getContent("1b", event_type, event_type, "text/plain", b, d);
+         CPPUNIT_ASSERT_MESSAGE("Content for 1b should not be default",
+                                !d);
+         b->getBytes(&s, &l);
+         CPPUNIT_ASSERT_MESSAGE("Content for 1b is incorrect",
+                                strcmp(s, content_1b) == 0);
+
+         publisher.getContent("2", event_type, event_type, "text/plain", b, d);
+         CPPUNIT_ASSERT_MESSAGE("Content for 2 should not be default",
+                                !d);
+         b->getBytes(&s, &l);
+         CPPUNIT_ASSERT_MESSAGE("Content for 2 is incorrect",
+                                strcmp(s, content_2) == 0);
       }
 
    void testPublishContent()
@@ -165,15 +333,18 @@ public:
          int numOldContents;
          HttpBody *oldContents[2];
 
-         publisher.publish("moh@pingtel.com", "dialog", "dialog", 1, &body,
-                           1, numOldContents, oldContents);
+         publisher.getPublished("moh@pingtel.com", "dialog",
+                                1, numOldContents, oldContents, NULL);
 
          CPPUNIT_ASSERT_EQUAL_MESSAGE("number of contents should be zero",
                                       0, numOldContents);
 
+         publisher.publish("moh@pingtel.com", "dialog", "dialog", 1, &body);
+
          SipSubscribeServerEventHandler eventHandler;
          SipMessage notifyRequest;
          CPPUNIT_ASSERT(eventHandler.getNotifyContent("moh@pingtel.com", 
+                                       "dialog",
                                        "dialog",
                                         publisher,
                                         "text/xml",
@@ -185,13 +356,19 @@ public:
          CPPUNIT_ASSERT(notifyBodyBytes);
          CPPUNIT_ASSERT(strcmp(content, notifyBodyBytes) == 0);
 
-         publisher.unpublish("moh@pingtel.com", "dialog", "dialog",
-                             1, numOldContents, oldContents);
+         publisher.getPublished("moh@pingtel.com", "dialog",
+                                1, numOldContents, oldContents, NULL);
 
          CPPUNIT_ASSERT_EQUAL_MESSAGE("number of contents are not the same",
                                       1, numOldContents);
+         UtlString returned_contents;
+         int returned_length;
+         oldContents[0]->getBytes(&returned_contents, &returned_length);
+         CPPUNIT_ASSERT_MESSAGE("bad body", 
+                                strcmp(returned_contents.data(),
+                                       content) == 0);
 
-         CPPUNIT_ASSERT_MESSAGE("bad body pointer", body == oldContents[0]);
+         publisher.unpublish("moh@pingtel.com", "dialog", "dialog");
       }
 
    void testGetContent()
@@ -243,13 +420,13 @@ public:
          int numOldContents;
          HttpBody *oldContents[2];
 
-         publisher.publish("moh@pingtel.com", "dialog", "dialog", 1, &body,
-                           1, numOldContents, oldContents);
+         publisher.publish("moh@pingtel.com", "dialog", "dialog", 1, &body);
 
          UtlBoolean foundContent;
          UtlBoolean isDefaultContent;
 
-         foundContent = publisher.getContent("moh@pingtel.com", "dialog", "application/dialog-info+xml",
+         foundContent = publisher.getContent("moh@pingtel.com", "dialog", "dialog",
+                                             "application/dialog-info+xml",
                                              oldContents[0], isDefaultContent);
 
          CPPUNIT_ASSERT(FALSE==isDefaultContent);
@@ -266,18 +443,26 @@ public:
 
          ASSERT_STR_EQUAL_MESSAGE("incorrect body value", content, contentBody);
 
-         foundContent = publisher.getContent("something-else@pingtel.com", "dialog", "application/dialog-info+xml",
+         foundContent = publisher.getContent("something-else@pingtel.com", "dialog", "dialog",
+                                             "application/dialog-info+xml",
                                              oldContents[0], isDefaultContent);
 
          CPPUNIT_ASSERT(FALSE==foundContent);
 
-         publisher.unpublish("moh@pingtel.com", "dialog", "dialog",
-                             1, numOldContents, oldContents);
+         publisher.getPublished("moh@pingtel.com", "dialog", 1,
+                                numOldContents, oldContents, NULL);
 
          CPPUNIT_ASSERT_EQUAL_MESSAGE("number of contents are not the same",
                                       1, numOldContents);
 
-         CPPUNIT_ASSERT_MESSAGE("bad body pointer", body == oldContents[0]);
+         publisher.unpublish("moh@pingtel.com", "dialog", "dialog");
+
+         UtlString returned_contents;
+         int returned_length;
+         oldContents[0]->getBytes(&returned_contents, &returned_length);
+         CPPUNIT_ASSERT_MESSAGE("bad body", 
+                                strcmp(returned_contents.data(),
+                                       content) == 0);
       }
 
    void testContentChangeObserver()
@@ -298,11 +483,7 @@ public:
          int bodyLength = strlen(content);
          HttpBody *body = new HttpBody(content, bodyLength, "text/xml");
 
-         int numOldContents;
-         HttpBody *oldContents[2];
-
-         publisher.publish(resourceId, eventType, eventType, 1, &body,
-                           1, numOldContents, oldContents);
+         publisher.publish(resourceId, eventType, eventType, 1, &body);
 
          CPPUNIT_ASSERT_MESSAGE("bad app data pointer", appData == mAppData);
          ASSERT_STR_EQUAL_MESSAGE("incorrect resource Id", resourceId, mResourceId.data());

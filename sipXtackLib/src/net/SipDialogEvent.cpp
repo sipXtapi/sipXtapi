@@ -268,7 +268,11 @@ SipDialogEvent::SipDialogEvent(const char* state, const char* entity)
    remove(0);
    append(DIALOG_EVENT_CONTENT_TYPE);
 
-   mVersion = 0;
+   // Generate the initial report with version 1, so we can generate
+   // the default report with version 0 in
+   // DialogDefaultConstructor::generateDefaultContent (in
+   // DialogEventPublisher.cpp).
+   mVersion = 1;
    mDialogState = state;
    mEntity = entity;
 }
@@ -285,7 +289,7 @@ SipDialogEvent::SipDialogEvent(const char* bodyBytes)
       parseBody(bodyBytes);
    }
    
-   ((SipDialogEvent*)this)->mBody = bodyBytes;   
+   mBody = bodyBytes;   
 }
 
 
@@ -623,8 +627,11 @@ void SipDialogEvent::buildBody() const
    dialogEvent += singleLine;
    dialogEvent.append(END_LINE);
  
-   // Dialog elements
+   // Take the lock (we will be modifying the state even though 'this'
+   // is read-only).
    ((SipDialogEvent*)this)->mLock.acquire();
+
+   // Dialog elements
    UtlHashMapIterator dialogIterator(mDialogs);
    Dialog* pDialog;
    while ((pDialog = (Dialog *) dialogIterator()))
@@ -762,27 +769,22 @@ void SipDialogEvent::buildBody() const
    // End of dialog-info element
    dialogEvent.append(END_DIALOG_INFO);  
    
-   ((SipDialogEvent*)this)->mLock.release();
-  
+   // Update body text and version number (even though 'this' is read-only).
    ((SipDialogEvent*)this)->mBody = dialogEvent;
    ((SipDialogEvent*)this)->bodyLength = dialogEvent.length();
+   ((SipDialogEvent*)this)->mVersion++;
+
+   ((SipDialogEvent*)this)->mLock.release();
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogEvent::buildBody Dialog content = \n%s", 
-                 dialogEvent.data());
-  
-   // Increment the version number
-   ((SipDialogEvent*)this)->mVersion++;
+                 mBody.data());
 }
 
 
 void SipDialogEvent::getBytes(const char** bytes, int* length) const
 {
-   UtlString tempBody;
-
-   getBytes(&tempBody, length);
-   ((SipDialogEvent*)this)->mBody = tempBody.data();
-
    *bytes = mBody.data();
+   *length = bodyLength;
 }
 
 
@@ -790,8 +792,8 @@ void SipDialogEvent::getBytes(UtlString* bytes, int* length) const
 {
    buildBody();
    
-   *bytes = ((SipDialogEvent*)this)->mBody;
-   *length = ((SipDialogEvent*)this)->bodyLength;
+   *bytes = mBody;
+   *length = bodyLength;
 }
 
 
