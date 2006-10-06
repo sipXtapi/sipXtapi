@@ -72,8 +72,6 @@ SipSubscribeServer* SipSubscribeServer::buildBasicServer(SipUserAgent& userAgent
 {
     SipSubscribeServer* newServer = NULL;
 
-    SipDialogMgr* dialogMgr = new SipDialogMgr();
-
     // Create a default publisher container
     SipPublishContentMgr* publishContent = new SipPublishContentMgr();
 
@@ -81,7 +79,7 @@ SipSubscribeServer* SipSubscribeServer::buildBasicServer(SipUserAgent& userAgent
     SipSubscribeServerEventHandler* eventHandler = new SipSubscribeServerEventHandler();
 
     // Create a default subscription mgr
-    SipSubscriptionMgr* subscriptionMgr = new SipSubscriptionMgr(*dialogMgr);
+    SipSubscriptionMgr* subscriptionMgr = new SipSubscriptionMgr();
 
     newServer = new SipSubscribeServer(userAgent, 
                                       *publishContent,

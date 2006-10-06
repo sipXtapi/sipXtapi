@@ -196,7 +196,7 @@ SipPresenceMonitor::SipPresenceMonitor(SipUserAgent* userAgent,
    if (mToBePublished)
    {
       // Create the SIP Subscribe Server
-      mpSubscriptionMgr = new SipSubscriptionMgr(mDialogMgr); // Component for holding the subscription data
+      mpSubscriptionMgr = new SipSubscriptionMgr(); // Component for holding the subscription data
    
       mpSubscribeServer = new SipSubscribeServer(*mpUserAgent, mSipPublishContentMgr,
                                                  *mpSubscriptionMgr, mPolicyHolder);

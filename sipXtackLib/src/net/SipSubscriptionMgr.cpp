@@ -110,10 +110,9 @@ SubscriptionServerStateIndex::~SubscriptionServerStateIndex()
 }
 
 // Constructor
-SipSubscriptionMgr::SipSubscriptionMgr(SipDialogMgr& dialogMgr)
+SipSubscriptionMgr::SipSubscriptionMgr()
 : mSubscriptionMgrMutex(OsMutex::Q_FIFO)
 {
-    mpDialogMgr = &dialogMgr;
     mEstablishedDialogCount = 0;
     mMinExpiration = 32;
     mDefaultExpiration = 3600;
@@ -131,12 +130,6 @@ SipSubscriptionMgr::SipSubscriptionMgr(const SipSubscriptionMgr& rSipSubscriptio
 // Destructor
 SipSubscriptionMgr::~SipSubscriptionMgr()
 {
-    // This crashed the SubscriptionMgrTest on Win32 but not
-    // deleting mpDialogMgr causes a memory leak.
-    // This is now causing a crash on Linux as well.  The whole thing
-    // needs more investigation.
-    //delete mpDialogMgr ;
-
     // Iterate through and delete all the dialogs
     // TODO:
 }
@@ -174,7 +167,7 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
     if(SipDialog::isEarlyDialog(dialogHandle))
     {
         UtlString establishedDialogHandle;
-        if(mpDialogMgr->getEstablishedDialogHandleFor(dialogHandle, establishedDialogHandle))
+        if(mDialogMgr.getEstablishedDialogHandleFor(dialogHandle, establishedDialogHandle))
         {
             OsSysLog::add(FAC_SIP, PRI_WARNING,
                 "Incoming early SUBSCRIBE dialog: %s matches established dialog: %s",
@@ -227,7 +220,7 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
             subscribeCopy->getDialogHandle(dialogHandle);
 
             // Create the dialog
-            mpDialogMgr->createDialog(*subscribeCopy, FALSE, dialogHandle);
+            mDialogMgr.createDialog(*subscribeCopy, FALSE, dialogHandle);
             isNew = TRUE;
 
             // Create a subscription state
@@ -329,7 +322,7 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
            expiration == 0)
         {
             // Update the dialog state
-            mpDialogMgr->updateDialog(subscribeRequest, dialogHandle);
+            mDialogMgr.updateDialog(subscribeRequest, dialogHandle);
 
             // Get the subscription state and update that
             // TODO:  This assumes that no one reuses the same dialog
@@ -375,7 +368,7 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
                 SipMessage* subscribeCopy = new SipMessage(subscribeRequest);
 
                 // Create the dialog
-                mpDialogMgr->createDialog(*subscribeCopy, FALSE, dialogHandle);
+                mDialogMgr.createDialog(*subscribeCopy, FALSE, dialogHandle);
                 isNew = TRUE;
 
                 // Create a subscription state
@@ -464,9 +457,9 @@ UtlBoolean SipSubscriptionMgr::getNotifyDialogInfo(const UtlString& subscribeDia
 
     if (state)
     {
-        notifyInfoSet = mpDialogMgr->setNextLocalTransactionInfo(notifyRequest, 
-                                                             SIP_NOTIFY_METHOD,
-                                                             subscribeDialogHandle);
+        notifyInfoSet = mDialogMgr.setNextLocalTransactionInfo(notifyRequest, 
+                                                               SIP_NOTIFY_METHOD,
+                                                               subscribeDialogHandle);
 
         // Set the event header, if we know what it is.
         if (state->mpLastSubscribeRequest)
@@ -548,7 +541,7 @@ UtlBoolean SipSubscriptionMgr::createNotifiesDialogInfo(const char* resourceId,
                     new UtlString(contentTypeIndex->mpState->mAcceptHeaderValue);
                 // Create the NOTIFY message.
                 notifyArray[index] = new SipMessage;
-                mpDialogMgr->setNextLocalTransactionInfo(*(notifyArray[index]),
+                mDialogMgr.setNextLocalTransactionInfo(*(notifyArray[index]),
                                                          SIP_NOTIFY_METHOD, 
                                                          *(contentTypeIndex->mpState));
 
@@ -651,7 +644,7 @@ UtlBoolean SipSubscriptionMgr::endSubscription(const UtlString& dialogHandle)
     unlock();
 
     // Remove the dialog
-    mpDialogMgr->deleteDialog(dialogHandle);
+    mDialogMgr.deleteDialog(dialogHandle);
 
     return(subscriptionFound);
 }
@@ -667,7 +660,7 @@ void SipSubscriptionMgr::removeOldSubscriptions(long oldEpochTimeSeconds)
         {
             if(stateIndex->mpState->mExpirationDate < oldEpochTimeSeconds)
             {
-                mpDialogMgr->deleteDialog(*(stateIndex->mpState));
+                mDialogMgr.deleteDialog(*(stateIndex->mpState));
                 mSubscriptionStatesByDialogHandle.removeReference(stateIndex->mpState);
                 delete stateIndex->mpState;
                 stateIndex->mpState = NULL;
@@ -692,7 +685,7 @@ void SipSubscriptionMgr::removeOldSubscriptions(long oldEpochTimeSeconds)
 
 SipDialogMgr* SipSubscriptionMgr::getDialogMgr()
 {
-    return(mpDialogMgr);
+    return &mDialogMgr;
 }
 
 /* ============================ INQUIRY =================================== */

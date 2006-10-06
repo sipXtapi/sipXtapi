@@ -108,7 +108,6 @@ class SipPresenceMonitor : public StateChangeNotifier
    
    OsBSem mLock;
    
-   SipDialogMgr mDialogMgr;
    SipSubscriptionMgr* mpSubscriptionMgr;
    SipSubscribeServerEventHandler mPolicyHolder;
    SipPublishContentMgr mSipPublishContentMgr;
