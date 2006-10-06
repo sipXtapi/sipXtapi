@@ -568,6 +568,7 @@ SipRedirectorPickUp::lookUpDialog(
 
             // Add a header parameter to specify the Replaces: header.
             contact_URI.setHeaderParameter("Replaces", header_value.data());
+
             // We add a header parameter to cause the redirection to
             // include a "Require: replaces" header.  Then if the caller
             // phone does not support INVITE/Replaces:, the pick-up will
@@ -580,6 +581,7 @@ SipRedirectorPickUp::lookUpDialog(
             // call to the calling phone.
             contact_URI.setHeaderParameter(SIP_REQUIRE_FIELD,
                                            SIP_REPLACES_EXTENSION);
+
             // Record the URI as a contact.
             addContact(response, requestString, contact_URI, "pick-up");            
 

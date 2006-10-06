@@ -2772,7 +2772,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceGetCalls(const SIPX_CONF hConf,
             for (idx=0; (idx<pData->nCalls) && (idx < iMax); idx++)
             {
                assert(pData->hCalls[idx] != SIPX_CALL_NULL);
-                hCalls[idx] = pData->hCalls[idx] ;
+               hCalls[idx] = pData->hCalls[idx];
             }
             nActual = idx ;
 

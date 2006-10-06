@@ -321,9 +321,9 @@ UtlBoolean SipSubscribeClient::endSubscription(const char* dialogHandle)
     else
     {
         // dialogHandle may be a handle to an early dialog.
-        // See if we can find the dialog matching and early dialog handle
+        // See if we can find the dialog matching an early dialog handle.
         // It is possible that there is more than one dialog that matches
-        // this early dialog handle
+        // this early dialog handle.
         UtlString earlyDialogHandle;
         while(mpDialogMgr->getEarlyDialogHandleFor(matchDialog, earlyDialogHandle))
         {
@@ -712,8 +712,15 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
 
     // Is there an established dialog?
     UtlBoolean foundDialog = mpDialogMgr->dialogExists(notifyDialogHandle);
+    // Is there an early dialog?
+    // Even if there is an established dialog, we still need
+    // the early dialog handle to pass to the callback
+    // routines.
     UtlString earlyDialogHandle;
-    UtlBoolean foundEarlyDialog = FALSE;
+    UtlBoolean foundEarlyDialog =
+       mpDialogMgr->getEarlyDialogHandleFor(notifyDialogHandle,
+                                            earlyDialogHandle);
+
     UtlBoolean subscriptionFound = FALSE;
     UtlBoolean newTransaction = FALSE;
 
@@ -736,9 +743,6 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
         // response to the initial SUBSCRIBE
         // Is there an early dialog for this NOTIFY which should
         // be an established dialog (i.e. From and To tags)?
-        foundEarlyDialog = 
-            mpDialogMgr->getEarlyDialogHandleFor(notifyDialogHandle,
-                                                 earlyDialogHandle);
 
         if(foundEarlyDialog)
         {
@@ -758,7 +762,7 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
         SubscribeClientState* clientState = NULL;
         lock();
 
-        if(foundEarlyDialog)
+        if(!foundDialog && foundEarlyDialog)
         {
             // Change the dialogHandle as we switched from an
             // early to an established dialog

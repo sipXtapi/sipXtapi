@@ -3014,7 +3014,7 @@ void SipConnection::processReferRequest(const SipMessage* request)
     // If there is not exactly one Refered-By
     // or not exactly one Refer-To header
     // or there is already a REFER in progress
-    else if(request->getHeaderValue(1, SIP_REFERRED_BY_FIELD) != NULL||
+    else if(request->getHeaderValue(1, SIP_REFERRED_BY_FIELD) != NULL ||
         request->getHeaderValue(1, SIP_REFER_TO_FIELD) != NULL ||
         mReferMessage)
     {

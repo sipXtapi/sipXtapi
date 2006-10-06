@@ -47,8 +47,10 @@ public:
             "</dialog-info>\n"
             ;
        
+         // Construct a SipDialogEvent from the XML.
          SipDialogEvent body(package);
 
+         // Convert it back to XML, and see if it is the same.
          UtlString bodyString;
          int bodyLength;
        
@@ -56,13 +58,18 @@ public:
        
          CPPUNIT_ASSERT(strcmp(bodyString.data(), package) == 0);
 
+         // Extract the Dialog, and see if its call-Id matches.
+         UtlSListIterator* itor = body.getDialogIterator();
+         Dialog* pDialog = dynamic_cast <Dialog*> ((*itor)());
+         delete itor;
+
          UtlString callId;
-         UtlString refCallId = "call-1116603513-890@10.1.1.153";
-         Dialog* pDialog = body.getDialog(refCallId);
          pDialog->getCallId(callId);
 
+         UtlString refCallId = "call-1116603513-890@10.1.1.153";
          CPPUNIT_ASSERT(strcmp(callId.data(), refCallId.data()) == 0);
 
+         // See that the reported event body length is right.
          int otherLength = body.getLength();
          CPPUNIT_ASSERT_EQUAL_MESSAGE("content length is not equal",
                                       bodyLength, otherLength);
@@ -86,8 +93,10 @@ public:
             "</dialog-info>\n"
             ;
        
+         // Construct a SipDialogEvent from the XML.
          SipDialogEvent body(package);
 
+         // Convert it back to XML, and see if it is the same.
          UtlString bodyString;
          int bodyLength;
        
@@ -95,13 +104,18 @@ public:
        
          CPPUNIT_ASSERT(strcmp(bodyString.data(), package) == 0);
 
+         // Extract the Dialog, and see if its call-Id matches.
+         UtlSListIterator* itor = body.getDialogIterator();
+         Dialog* pDialog = dynamic_cast <Dialog*> ((*itor)());
+         delete itor;
+
          UtlString callId;
-         UtlString refCallId = "62c3a00e-2f2662f8-53cfd2f7@10.1.20.231";
-         Dialog* pDialog = body.getDialog(refCallId);
          pDialog->getCallId(callId);
 
+         UtlString refCallId = "62c3a00e-2f2662f8-53cfd2f7@10.1.20.231";
          CPPUNIT_ASSERT(strcmp(callId.data(), refCallId.data()) == 0);
 
+         // See that the reported event body length is right.
          int otherLength = body.getLength();
          CPPUNIT_ASSERT_EQUAL_MESSAGE("content length is not equal",
                                       bodyLength, otherLength);

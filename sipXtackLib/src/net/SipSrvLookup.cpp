@@ -294,13 +294,9 @@ server_t* SipSrvLookup::servers(const char* domain,
 
    // Case 0: Eliminate contradictory combinations of service and type.
    
-   // 2006-08-18: bandreasen: This code was guarding against a sip: url
-   //     mixed with a socketType of SSL_SOCKET.  This is a prefectly
-   //     reasonable request <sip:foo@example.com;transport=tls>. 
-   //     This indicates that the next hop should use tls, however, tls
-   //     is not required for the entire path (proxy to proxy).
-   //
-   //     Check deleted and rest of the code has been adapted.
+   // While a sip: URI can be used with a socketType of SSL_SOCKET
+   // (e.g., <sip:foo@example.com;transport=tls>), a sips: URI must
+   // be used with TLS.
    if ((strcmp(service, "sips") == 0 &&
         (socketType == OsSocket::TCP || socketType == OsSocket::UDP)))
    {
