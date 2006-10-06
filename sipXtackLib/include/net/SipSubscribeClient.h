@@ -116,6 +116,7 @@ typedef void (*NotifyEventCallback) (const char* earlyDialogHandle,
      */
     UtlBoolean addSubscription(const char* resourceId,
                                const char* eventHeaderValue,
+                               const char* acceptHeaderValue,
                                const char* fromFieldValue,
                                const char* toFieldValue,
                                const char* contactFieldValue,

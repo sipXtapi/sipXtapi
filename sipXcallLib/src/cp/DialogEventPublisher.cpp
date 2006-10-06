@@ -17,6 +17,7 @@
 #include <tao/TaoString.h>
 #include <cp/CallManager.h>
 #include <net/SipDialog.h>
+#include <net/SipDialogEvent.h>
 #include <net/SipPublishContentMgr.h>
 #include <os/OsFS.h>
 #include <os/OsDateTime.h>
@@ -78,7 +79,8 @@ void DialogDefaultConstructor::generateDefaultContent(SipPublishContentMgr* cont
                   "</dialog-info>\r\n");
 
    // Build an HttpBody.
-   HttpBody* body = new HttpBody(content, strlen(content), "text/xml");
+   HttpBody* body = new HttpBody(content, strlen(content),
+                                 DIALOG_EVENT_CONTENT_TYPE);
 
    // Install it for the resource, but do not publish it, because our
    // caller will publish it.

@@ -164,6 +164,7 @@ bool SipDialogMonitor::addExtension(UtlString& groupName, Url& contactUrl)
             
       UtlBoolean status = mpSipSubscribeClient->addSubscription(resourceId.data(),
                                                                 DIALOG_EVENT_TYPE,
+                                                                DIALOG_EVENT_CONTENT_TYPE,
                                                                 fromUri.data(),
                                                                 toUrl.data(),
                                                                 mContact.data(),

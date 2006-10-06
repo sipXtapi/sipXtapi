@@ -16,7 +16,7 @@
 #include "mp/dtmflib.h"
 #include "mp/MpFlowGraphMsg.h"
 #include "mp/MpResource.h"
-
+#include "os/OsProtectEvent.h"
 
 // DEFINES
 // MACROS
@@ -59,7 +59,7 @@ public:
     // 0 = RAW
     // 1 = muLaw
     OsStatus playBuffer(const char* audioBuffer, unsigned long bufSize, 
-                                 int type, UtlBoolean repeat, OsNotification* notify);
+                                 int type, UtlBoolean repeat, OsProtectedEvent* notify);
      //: play sound from buffer w/ repeat option
      // TODO:
      //! param: repeat - TRUE/FALSE after the fromFile reaches the end of the

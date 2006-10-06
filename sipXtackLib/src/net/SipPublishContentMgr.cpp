@@ -134,6 +134,9 @@ void SipPublishContentMgr::publish(const char* resourceId,
     osPrintf("SipPublishContentMgr::publish(%s, %s, %s, %d, [%p], ...)\n",
         resourceId, eventTypeKey, eventType, numContentTypes, eventContent[0]);
 #endif
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipPublishContentMgr::publish resourceId '%s', eventTypeKey '%s', eventType '%s', numContentTypes %d",
+                  resourceId, eventTypeKey, eventType, numContentTypes);
 
     UtlBoolean resourceIdProvided = resourceId && *resourceId;
 
@@ -228,6 +231,9 @@ void SipPublishContentMgr::publishDefault(const char* eventTypeKey,
                                           SipPublishContentMgrDefaultConstructor*
                                           defaultConstructor)
 {
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipPublishContentMgr::publishDefault eventTypeKey '%s', eventType '%s', defaultConstructor %p",
+                  eventTypeKey, eventType, defaultConstructor);
     // Construct the key to look up.
     UtlString key;
 
@@ -244,7 +250,8 @@ void SipPublishContentMgr::publishDefault(const char* eventTypeKey,
        // Remove any old value first.
        mDefaultContentConstructors.destroy(&key);
        UtlString* key_heap = new UtlString(key);
-       mDefaultContentConstructors.insertKeyAndValue(key_heap, defaultConstructor);
+       mDefaultContentConstructors.insertKeyAndValue(key_heap,
+                                                     defaultConstructor);
     }
 
     // Call the observer for the content change, if any.
@@ -268,6 +275,9 @@ void SipPublishContentMgr::unpublish(const char* resourceId,
                                      const char* eventTypeKey,
                                      const char* eventType)
 {
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipPublishContentMgr::unpublish resourceId '%s', eventTypeKey '%s', eventType '%s'",
+                  resourceId, eventTypeKey, eventType);
     UtlBoolean resourceIdProvided = resourceId && *resourceId;
 
     // Construct the key to look up.
@@ -334,6 +344,9 @@ UtlBoolean SipPublishContentMgr::setContentChangeObserver(const char* eventType,
                                                           void* applicationData,
                                                           SipPublisherContentChangeCallback callbackFunction)
 {
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipPublishContentMgr::setContentChangeObserver eventType '%s', callbackFunction %p",
+                  eventType, callbackFunction);
     UtlBoolean callbackSet = FALSE;
     UtlString eventTypeString(eventType);
 
@@ -377,6 +390,9 @@ UtlBoolean SipPublishContentMgr::removeContentChangeObserver(const char* eventTy
                                                              void*& applicationData,
                                 SipPublisherContentChangeCallback& callbackFunction)
 {
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipPublishContentMgr::removeContentChangeObserver eventType '%s', callbackFunction %p",
+                  eventType, callbackFunction);
     UtlBoolean callbackRemoved = FALSE;
     UtlString eventTypeString(eventType);
     PublishCallbackContainer* callbackEntry = NULL;
@@ -453,6 +469,7 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
        UtlString default_key(eventTypeKey);
 
        // Look up the constructor.
+
        SipPublishContentMgrDefaultConstructor* constructor =
           dynamic_cast <SipPublishContentMgrDefaultConstructor*>
           (mDefaultContentConstructors.findValue(&default_key));
@@ -485,7 +502,7 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
        }
     }
 
-    if(container)
+    if (container)
     {
         HttpBody* bodyPtr = NULL;
         UtlSListIterator contentIterator(container->mEventContent);
@@ -511,8 +528,11 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
     }
     else
     {
-         OsSysLog::add(FAC_SIP, PRI_WARNING,
-                  "SipPublishContentMgr::getContent no container is found\n");
+       OsSysLog::add(FAC_SIP, PRI_WARNING,
+                     "SipPublishContentMgr::getContent no container is found for acceptHeaderValue '%s', resourceId '%s', eventTypeKey ='%s', eventType '%s'",
+                     acceptHeaderValue ? acceptHeaderValue : "[none]",
+                     resourceId ? resourceId : "[none]",
+                     eventTypeKey, eventType);
     }
 
     unlock();
@@ -598,13 +618,14 @@ UtlBoolean SipPublishContentMgr::getPublished(const char* resourceId,
     {
        UtlContainable* defaultConstructor =
           mDefaultContentConstructors.findValue(&key);
-       if (defaultConstructor)
-       {
-          // Make a copy of the constructor and return pointer to it.
-          *pDefaultConstructor =
-             dynamic_cast <SipPublishContentMgrDefaultConstructor*>
-             (defaultConstructor)->copy();
-       }
+       *pDefaultConstructor =
+          // Is there a default constructor?
+          defaultConstructor ?
+          // If so, make a copy of the constructor and return pointer to it.
+          (dynamic_cast <SipPublishContentMgrDefaultConstructor*>
+           (defaultConstructor))->copy() :
+          // Otherwise, return NULL.
+          NULL;
     }
 
     unlock();

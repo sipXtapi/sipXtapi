@@ -341,7 +341,8 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
                 mSubscriptionStatesByDialogHandle.find(&dialogHandle);
             if(state)
             {
-                state->mExpirationDate = expiration;
+                long now = OsDateTime::getSecsSinceEpoch();
+                state->mExpirationDate = now + expiration;
                 if(state->mpLastSubscribeRequest)
                 {
                     delete state->mpLastSubscribeRequest;
@@ -461,18 +462,28 @@ UtlBoolean SipSubscriptionMgr::getNotifyDialogInfo(const UtlString& subscribeDia
     SubscriptionServerState* state = (SubscriptionServerState*)
         mSubscriptionStatesByDialogHandle.find(&subscribeDialogHandle);
 
-    if(state)
+    if (state)
     {
         notifyInfoSet = mpDialogMgr->setNextLocalTransactionInfo(notifyRequest, 
                                                              SIP_NOTIFY_METHOD,
                                                              subscribeDialogHandle);
 
-        if(state->mpLastSubscribeRequest)
+        // Set the event header, if we know what it is.
+        if (state->mpLastSubscribeRequest)
         {
             UtlString eventHeader;
             state->mpLastSubscribeRequest->getEventField(eventHeader);
             notifyRequest.setEventField(eventHeader);
         }
+
+        // Set the subscription-state header.
+        long expires =
+           state->mExpirationDate - OsDateTime::getSecsSinceEpoch();
+        char buffer[30];
+        sprintf(buffer,
+                (expires > 0 ? "active;expires=%ld" : "terminated;reason=timeout"),
+                expires);
+        notifyRequest.setHeaderValue(SIP_SUBSCRIPTION_STATE_FIELD, buffer, 0);
     }
     unlock();
 
@@ -532,19 +543,29 @@ UtlBoolean SipSubscriptionMgr::createNotifiesDialogInfo(const char* resourceId,
             // If not expired yet
             else if(contentTypeIndex->mpState->mExpirationDate >= now)
             {
+                // Get the accept value.
                 acceptHeaderValuesArray[index] = 
                     new UtlString(contentTypeIndex->mpState->mAcceptHeaderValue);
+                // Create the NOTIFY message.
                 notifyArray[index] = new SipMessage;
                 mpDialogMgr->setNextLocalTransactionInfo(*(notifyArray[index]),
                                                          SIP_NOTIFY_METHOD, 
                                                          *(contentTypeIndex->mpState));
 
+                // Set the event header, if we know what it is.
                 UtlString eventHeader;
                 if(contentTypeIndex->mpState->mpLastSubscribeRequest)
                 {
                     contentTypeIndex->mpState->mpLastSubscribeRequest->getEventField(eventHeader);
                 }
-                (notifyArray[index])->setEventField(eventHeader);
+                notifyArray[index]->setEventField(eventHeader);
+
+                // Set the subscription-state header.
+                char buffer[30];
+                sprintf(buffer, "active;expires=%ld",
+                        contentTypeIndex->mpState->mExpirationDate - now);
+                notifyArray[index]->setHeaderValue(SIP_SUBSCRIPTION_STATE_FIELD,
+                                                   buffer, 0);
 
                 index++;
             }

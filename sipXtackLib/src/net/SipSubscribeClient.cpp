@@ -160,6 +160,7 @@ SipSubscribeClient::operator=(const SipSubscribeClient& rhs)
 
 UtlBoolean SipSubscribeClient::addSubscription(const char* resourceId,
                                const char* eventHeaderValue,
+                               const char* acceptHeaderValue,
                                const char* fromFieldValue,
                                const char* toFieldValue,
                                const char* contactFieldValue,
@@ -184,6 +185,7 @@ UtlBoolean SipSubscribeClient::addSubscription(const char* resourceId,
                                     callId,
                                     1, // cseq
                                     eventHeaderValue,
+                                    acceptHeaderValue,
                                     NULL, // Event header id parameter
                                     contactFieldValue,
                                     NULL, // initial request no routeField

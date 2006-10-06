@@ -277,7 +277,7 @@ public:
                                UtlBoolean repeat,
                                UtlBoolean local, 
                                UtlBoolean remote,
-                               OsNotification* event = NULL) = 0;
+                               OsProtectedEvent* event = NULL) = 0;
 
    /**
     * Stop playing any URLs or buffers

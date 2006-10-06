@@ -72,10 +72,10 @@ class SipPresenceMonitor : public StateChangeNotifier
    /// Remove an extension from a group to be monitored
    bool removeExtension(UtlString& groupName, Url& contactUrl); 
 
-   /// Registered a StateChangeNotifier
+   /// Register a StateChangeNotifier
    void addStateChangeNotifier(const char* fileUrl, StateChangeNotifier* notifier);
 
-   /// Unregistered a StateChangeNotifier
+   /// Unregister a StateChangeNotifier
    void removeStateChangeNotifier(const char* fileUrl);
 
    /// Set the status value

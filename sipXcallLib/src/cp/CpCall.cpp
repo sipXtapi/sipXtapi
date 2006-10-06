@@ -580,7 +580,7 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
                 stopRecord();
 
                 OsProtectedEvent* ev = (OsProtectedEvent*) ((CpMultiStringMessage&)eventMessage).getInt1Data();
-                if(OS_ALREADY_SIGNALED == ev->signal(0))
+                if (OS_ALREADY_SIGNALED == ev->signal(0))
                 {
                     OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
                     eventMgr->release(ev);

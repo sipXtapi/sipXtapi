@@ -998,7 +998,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
                 OsStatus rc = pInst->pCallManager->getCalledAddresses(
                         callId.data(), 1, numAddresses, &address) ;
                 OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
-                              "sipxCallConnect connected hCall=%d callId=%s, numAddr = %d, addr = %s",
+                              "sipxCallConnect connected hCall=%d callId=%s, numAddr = %d, addr = '%s'",
                               hCall, callId.data(), numAddresses, address.data());
                 if(rc == OS_SUCCESS)
                 {
@@ -1756,6 +1756,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallSubscribe(const SIPX_CALL hCall,
             if(sessionDataGood &&
                pInst->pSubscribeClient->addSubscription(resourceId, 
                                                         szEventType, 
+                                                        szAcceptType, 
                                                         fromField, 
                                                         toField, 
                                                         contactField, 

@@ -841,7 +841,7 @@ OsStatus CpPhoneMediaInterface::playBuffer(char* buf,
                                            UtlBoolean repeat,
                                            UtlBoolean local,
                                            UtlBoolean remote, 
-                                           OsNotification* event)
+                                           OsProtectedEvent* event)
 {
     OsStatus returnCode = OS_NOT_FOUND;
     if(mpFlowGraph && buf)

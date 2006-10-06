@@ -121,6 +121,7 @@ int main(int argc, char* argv[])
    UtlBoolean status =
       sipSubscribeClient.addSubscription(resourceId.data(),
                                          DIALOG_EVENT_TYPE,
+                                         DIALOG_EVENT_CONTENT_TYPE,
                                          fromUri.data(),
                                          toUri.data(),
                                          NULL,

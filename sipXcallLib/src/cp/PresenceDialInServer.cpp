@@ -435,15 +435,15 @@ bool PresenceDialInServer::notifyStateChange(UtlString& contact, bool signIn)
 
       if (signIn)
       {
-         result = notifier->setStatus(contactUrl, StateChangeNotifier::PRESENT);
          OsSysLog::add(FAC_SIP, PRI_INFO, "PresenceDialInServer::notifyStateChange contact %s ==> SIGN_IN",
                        contact.data());
+         result = notifier->setStatus(contactUrl, StateChangeNotifier::PRESENT);
       }
       else
       {
-         result = notifier->setStatus(contactUrl, StateChangeNotifier::AWAY);
          OsSysLog::add(FAC_SIP, PRI_INFO, "PresenceDialInServer::notifyStateChange contact %s ==> SIGN_OUT",
                        contact.data());
+         result = notifier->setStatus(contactUrl, StateChangeNotifier::AWAY);
       }
    }
    mLock.release();

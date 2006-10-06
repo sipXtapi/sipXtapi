@@ -391,7 +391,7 @@ void LinePresenceMonitor::handleNotifyMessage(const SipMessage* notifyMessage)
          tuple->getStatus(status);
       
          Url contactUrl(contact);
-         if (status.compareTo(STATUS_CLOSE) == 0)
+         if (status.compareTo(STATUS_CLOSED) == 0)
          {
             setStatus(contactUrl, StateChangeNotifier::SIGN_OUT);
          }
@@ -604,6 +604,7 @@ OsStatus LinePresenceMonitor::subscribePresenceMessage(LinePresenceBase* line)
                
       UtlBoolean status = mpSipSubscribeClient->addSubscription(resourceId.data(),
                                                                 PRESENCE_EVENT_TYPE,
+                                                                PRESENCE_EVENT_CONTENT_TYPE,
                                                                 fromUri.data(),
                                                                 toUrl.data(),
                                                                 mContact.data(),

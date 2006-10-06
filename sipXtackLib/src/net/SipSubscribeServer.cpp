@@ -165,6 +165,9 @@ UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId,
                                                  const char* eventType,
                                                  UtlBoolean isDefaultContent)
 {
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipSubscribeServer::notifySubscribers resourceId '%s', eventTypeKey '%s', eventType '%s', isDefaultContent %d",
+                 resourceId, eventTypeKey, eventType, isDefaultContent);
     UtlBoolean notifiedSubscribers = FALSE;
     UtlString eventName(eventType ? eventType : "");
 
@@ -174,21 +177,22 @@ UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId,
 
     // Get the event specific info to find subscriptions interested in
     // this content
-    if(eventData)
+    if (eventData)
     {
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
-             "SipSubscribeServer::notifySubscribers received the request for sending out the notification for %s event type: %s ",
+             "SipSubscribeServer::notifySubscribers received the request for sending out the notification for resourceId '%s', event type '%s'",
               resourceId, eventType);
               
         int numSubscriptions = 0;
         SipMessage** notifyArray = NULL;
         UtlString** acceptHeaderValuesArray = NULL;
 
-        eventData->mpEventSpecificSubscriptionMgr->createNotifiesDialogInfo(resourceId,
-                                                                            eventTypeKey,
-                                                                            numSubscriptions,
-                                                                            acceptHeaderValuesArray,
-                                                                            notifyArray);
+        eventData->mpEventSpecificSubscriptionMgr->
+           createNotifiesDialogInfo(resourceId,
+                                    eventTypeKey,
+                                    numSubscriptions,
+                                    acceptHeaderValuesArray,
+                                    notifyArray);
 
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
              "SipSubscribeServer::notifySubscribers numSubscriptions for %s = %d",
@@ -206,23 +210,23 @@ UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId,
             notify = notifyArray[notifyIndex];
 
             // Fill in the NOTIFY request body/content
-            eventData->mpEventSpecificHandler->getNotifyContent(resourceId,
-                                                                eventTypeKey,
-                                                                eventType,
-                                                                *(eventData->mpEventSpecificContentMgr),
-                                                                *(acceptHeaderValuesArray[notifyIndex]),
-                                                                *notify);
+            eventData->mpEventSpecificHandler->
+               getNotifyContent(resourceId,
+                                eventTypeKey,
+                                eventType,
+                                *(eventData->mpEventSpecificContentMgr),
+                                *(acceptHeaderValuesArray[notifyIndex]),
+                                *notify);
 
             // Send the NOTIFY request
             eventData->mpEventSpecificUserAgent->send(*notify);
-
-
         }
 
         // Free up the NOTIFY requests and accept header field values
-        eventData->mpEventSpecificSubscriptionMgr->freeNotifies(numSubscriptions, 
-                                                                acceptHeaderValuesArray,
-                                                                notifyArray);
+        eventData->mpEventSpecificSubscriptionMgr->
+           freeNotifies(numSubscriptions, 
+                        acceptHeaderValuesArray,
+                        notifyArray);
     }
 
     // event type not enabled
@@ -356,7 +360,7 @@ UtlBoolean SipSubscribeServer::handleMessage(OsMsg &eventMessage)
         if(subscribeDialogHandle)
         {
             // Check if the subscription really expired and send 
-            // the final notify if it did
+            // the final NOTIFY if it did.
             handleExpiration(subscribeDialogHandle, timer);
 
             // Delete the handle;
@@ -550,7 +554,7 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
                  eventPackageInfo->mpEventSpecificSubscriptionMgr->getNotifyDialogInfo(subscribeDialogHandle,
                                                                     notifyRequest);
 
-                 // Set the notify content
+                 // Set the NOTIFY content
                  UtlString acceptHeaderValue;
                  subscribeRequest.getAcceptField(acceptHeaderValue);
                  handler->getNotifyContent(resourceId, 
