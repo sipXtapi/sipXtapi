@@ -16,8 +16,8 @@
 //#include <...>
 
 // APPLICATION INCLUDES
-#include "os/OsTimer.h"
-#include "SipRedirector.h"
+#include <os/OsTimer.h>
+#include <registry/RedirectPlugin.h>
 
 // DEFINES
 // MACROS
@@ -29,22 +29,24 @@
 // FORWARD DECLARATIONS
 class SipMessage;
 
-class SipRedirectorTest : public SipRedirector
+class SipRedirectorTest : public RedirectPlugin
 {
 public:
 
-   SipRedirectorTest();
+   SipRedirectorTest(const UtlString& instanceName);
 
    ~SipRedirectorTest();
 
-   virtual OsStatus initialize(const UtlHashMap& configParameters,
-                               OsConfigDb& configDb,
+   virtual void readConfig(OsConfigDb& configDb);
+
+   virtual OsStatus initialize(OsConfigDb& configDb,
                                SipUserAgent* pSipUserAgent,
-                               int redirectorNo);
+                               int redirectorNo,
+                               const UtlString& localDomainHost);
 
    virtual void finalize();
 
-   virtual SipRedirector::LookUpStatus lookUp(
+   virtual RedirectPlugin::LookUpStatus lookUp(
       const SipMessage& message,
       const UtlString& requestString,
       const Url& requestUri,
@@ -64,15 +66,15 @@ class SipRedirectorTestNotification : public OsNotification
 {
   public:
 
-   SipRedirectorTestNotification::SipRedirectorTestNotification(
-      RequestSeqNo requestSeqNo,
+   SipRedirectorTestNotification(
+      RedirectPlugin::RequestSeqNo requestSeqNo,
       int redirectorNo);
 
    OsStatus signal(const int eventData);
 
   private:
 
-   RequestSeqNo mRequestSeqNo;
+   RedirectPlugin::RequestSeqNo mRequestSeqNo;
    int mRedirectorNo;
 };
 
@@ -81,12 +83,12 @@ class SipRedirectorPrivateStorageTest : public SipRedirectorPrivateStorage
   public:
    
    SipRedirectorPrivateStorageTest(const char *string,
-                                   RequestSeqNo requestSeqNo,
+                                   RedirectPlugin::RequestSeqNo requestSeqNo,
                                    int redirectorNo);
 
    virtual ~SipRedirectorPrivateStorageTest();
 
-   SipRedirector::LookUpStatus actOnString();
+   RedirectPlugin::LookUpStatus actOnString();
 
   private:
 

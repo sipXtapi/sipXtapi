@@ -13,13 +13,13 @@
 #include <stdlib.h>
 
 // APPLICATION INCLUDES
-#include "os/OsSysLog.h"
-#include "net/Url.h"
-#include "net/SipMessage.h"
-#include "sipdb/ResultSet.h"
-#include "registry/SipRegistrar.h"
-#include "SipRedirectorTest.h"
-#include "SipRedirectServer.h"
+#include <os/OsSysLog.h>
+#include <net/Url.h>
+#include <net/SipMessage.h>
+#include <sipdb/ResultSet.h>
+#include <registry/SipRegistrar.h>
+#include <SipRedirectorTest.h>
+#include <registry/SipRedirectServer.h>
 
 //*
 // Special test redirector.
@@ -49,8 +49,15 @@
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 
+// Static factory function.
+extern "C" RedirectPlugin* getRedirectPlugin(const UtlString& instanceName)
+{
+   return new SipRedirectorTest(instanceName);
+}
+
 // Constructor
-SipRedirectorTest::SipRedirectorTest()
+SipRedirectorTest::SipRedirectorTest(const UtlString& instanceName) :
+   RedirectPlugin(instanceName)
 {
 }
 
@@ -59,12 +66,17 @@ SipRedirectorTest::~SipRedirectorTest()
 {
 }
 
+// Read config information.
+void SipRedirectorTest::readConfig(OsConfigDb& configDb)
+{
+}
+
 // Initializer
 OsStatus
-SipRedirectorTest::initialize(const UtlHashMap& configParameters,
-                              OsConfigDb& configDb,
+SipRedirectorTest::initialize(OsConfigDb& configDb,
                               SipUserAgent* pSipUserAgent,
-                              int redirectorNo)
+                              int redirectorNo,
+                               const UtlString& localDomainHost)
 {
    return OS_SUCCESS;
 }
@@ -75,7 +87,7 @@ SipRedirectorTest::finalize()
 {
 }
 
-SipRedirector::LookUpStatus SipRedirectorPrivateStorageTest::actOnString()
+RedirectPlugin::LookUpStatus SipRedirectorPrivateStorageTest::actOnString()
 {
    // Check if we should return an error.
    if (mPtr[0] == '*')
@@ -85,7 +97,7 @@ SipRedirector::LookUpStatus SipRedirectorPrivateStorageTest::actOnString()
                     "LOOKUP_ERROR_REQUEST, from string '%s', remaining '%s'",
                     mString, mPtr);
       // We don't have to update anything, since we will not be called again.
-      return SipRedirector::LOOKUP_ERROR_REQUEST;
+      return RedirectPlugin::LOOKUP_ERROR_REQUEST;
    }
    if (mPtr[0] == '!')
    {
@@ -94,7 +106,7 @@ SipRedirector::LookUpStatus SipRedirectorPrivateStorageTest::actOnString()
                     "LOOKUP_ERROR_SERVER, from string '%s', remaining '%s'",
                     mString, mPtr);
       // We don't have to update anything, since we will not be called again.
-      return SipRedirector::LOOKUP_ERROR_SERVER;
+      return RedirectPlugin::LOOKUP_ERROR_SERVER;
    }
    // strtol will return 0 if mPtr[0] == / or NUL.
    int wait = strtol(mPtr, &mPtr, 10);
@@ -108,16 +120,16 @@ SipRedirector::LookUpStatus SipRedirectorPrivateStorageTest::actOnString()
    // 0 is not a valid wait time.
    if (wait == 0)
    {
-      return SipRedirector::LOOKUP_SUCCESS;
+      return RedirectPlugin::LOOKUP_SUCCESS;
    }
    else
    {
       mTimer.oneshotAfter(OsTime(wait, 0));
-      return SipRedirector::LOOKUP_SUSPEND;
+      return RedirectPlugin::LOOKUP_SUSPEND;
    }
 }
 
-SipRedirector::LookUpStatus
+RedirectPlugin::LookUpStatus
 SipRedirectorTest::lookUp(
    const SipMessage& message,
    const UtlString& requestString,
@@ -138,7 +150,7 @@ SipRedirectorTest::lookUp(
 
    if (!requestUri.getFieldParameter(parameter_name, parameter))
    {
-      return SipRedirector::LOOKUP_SUCCESS;
+      return RedirectPlugin::LOOKUP_SUCCESS;
    }
 
    if (!privateStorage)
@@ -157,7 +169,7 @@ SipRedirectorTest::lookUp(
 
 SipRedirectorPrivateStorageTest::SipRedirectorPrivateStorageTest(
    const char *string,
-   RequestSeqNo requestSeqNo,
+   RedirectPlugin::RequestSeqNo requestSeqNo,
    int redirectorNo) :
    mNotification(requestSeqNo, redirectorNo),
    mTimer(mNotification)
@@ -175,7 +187,7 @@ SipRedirectorPrivateStorageTest::~SipRedirectorPrivateStorageTest()
 }
 
 SipRedirectorTestNotification::SipRedirectorTestNotification(
-   RequestSeqNo requestSeqNo,
+   RedirectPlugin::RequestSeqNo requestSeqNo,
    int redirectorNo) :
    mRequestSeqNo(requestSeqNo),
    mRedirectorNo(redirectorNo)
