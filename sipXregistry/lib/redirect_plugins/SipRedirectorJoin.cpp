@@ -102,14 +102,14 @@ void SipRedirectorJoin::readConfig(OsConfigDb& configDb)
         OS_SUCCESS) ||
        mCallJoinCode.isNull())
    {
-      OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorJoin::initialize "
+      OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorJoin::readConfig "
                     "No call join feature code specified");
    }
    else
    {
       // Call join feature code is configured.
       // Initialize the system.
-      OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorJoin::initialize "
+      OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorJoin::readConfig "
                     "Call join feature code is '%s'",
                     mCallJoinCode.data());
       mRedirectorActive = OS_SUCCESS;
@@ -120,14 +120,67 @@ void SipRedirectorJoin::readConfig(OsConfigDb& configDb)
       mExcludedUser2 = mCallJoinCode;
       mExcludedUser2.append("#");
    }
+
+   // Get the wait time for NOTIFYs in response to our SUBSCRIBEs.
+   // Set the default value, to be overridden if the user specifies a valud
+   // value.
+   mWaitSecs = DEFAULT_WAIT_TIME_SECS;
+   mWaitUSecs = DEFAULT_WAIT_TIME_USECS;
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipRedirectorJoin::readConfig "
+                 "Default wait time is %d.%06d", mWaitSecs, mWaitUSecs);
+   // Fetch the parameter value.
+   UtlString waitUS;
+   float waitf;
+   if (configDb.get(CONFIG_SETTING_WAIT, waitUS) == OS_SUCCESS)
+   {
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipRedirectorJoin::readConfig "
+                    CONFIG_SETTING_WAIT " is '%s'",
+                    waitUS.data());
+      // Parse the value, checking for errors.
+      unsigned int char_count;
+      sscanf(waitUS.data(), " %f %n", &waitf, &char_count);
+      if (char_count != waitUS.length())
+      {
+         OsSysLog::add(FAC_SIP, PRI_ERR, "SipRedirectorJoin::readConfig "
+                       "Invalid format for "
+                       CONFIG_SETTING_WAIT
+                       " '%s'", 
+                       waitUS.data());
+      }
+      else if (
+         // Check that the value is in range.
+         !(waitf >= MIN_WAIT_TIME && waitf <= MAX_WAIT_TIME))
+      {
+         OsSysLog::add(FAC_SIP, PRI_ERR, "SipRedirectorJoin::readConfig "
+                       CONFIG_SETTING_WAIT
+                       " (%f) outside allowed range (%f to %f)",
+                       waitf, MIN_WAIT_TIME, MAX_WAIT_TIME);
+      }
+      else
+      {
+         // Extract the seconds and microseconds, being careful to round
+         // because the conversion from character data may have
+         // been inexact.
+         // Since waitf <= 100, usecs <= 100,000,000.
+         int usecs = (int)((waitf * 1000000) + 0.0000005);
+         mWaitSecs = usecs / 1000000;
+         mWaitUSecs = usecs % 1000000;
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "SipRedirectorJoin::readConfig "
+                       "Wait time is %d.%06d",
+                       mWaitSecs, mWaitUSecs);
+      }
+   }
 }
 
 // Initializer
 OsStatus
 SipRedirectorJoin::initialize(OsConfigDb& configDb,
-                                SipUserAgent* pSipUserAgent,
-                                int redirectorNo,
-                                const UtlString& localDomainHost)
+                              SipUserAgent* pSipUserAgent,
+                              int redirectorNo,
+                              const UtlString& localDomainHost)
 {
    // If any of the join redirections are active, set up the machinery
    // to execute them.
@@ -168,59 +221,6 @@ SipRedirectorJoin::initialize(OsConfigDb& configDb,
          FALSE // bUseNextAvailablePort
          );
       mpSipUserAgent->start();
-
-      // Get the wait time for NOTIFYs in response to our SUBSCRIBEs.
-      // Set the default value, to be overridden if the user specifies a valud
-      // value.
-      mWaitSecs = DEFAULT_WAIT_TIME_SECS;
-      mWaitUSecs = DEFAULT_WAIT_TIME_USECS;
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipRedirectorJoin::initialize "
-                    "Default wait time is %d.%06d", mWaitSecs, mWaitUSecs);
-      // Fetch the parameter value.
-      UtlString waitUS;
-      float waitf;
-      if (configDb.get(CONFIG_SETTING_WAIT, waitUS) == OS_SUCCESS)
-      {
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                       "SipRedirectorJoin::initialize "
-                       CONFIG_SETTING_WAIT " is '%s'",
-                       waitUS.data());
-         // Parse the value, checking for errors.
-         unsigned int char_count;
-         sscanf(waitUS.data(), " %f %n", &waitf, &char_count);
-         if (char_count != waitUS.length())
-         {
-            OsSysLog::add(FAC_SIP, PRI_ERR, "SipRedirectorJoin::initialize "
-                          "Invalid format for "
-                          CONFIG_SETTING_WAIT
-                          " '%s'", 
-                          waitUS.data());
-         }
-         else if (
-            // Check that the value is in range.
-            !(waitf >= MIN_WAIT_TIME && waitf <= MAX_WAIT_TIME))
-         {
-            OsSysLog::add(FAC_SIP, PRI_ERR, "SipRedirectorJoin::initialize "
-                          CONFIG_SETTING_WAIT
-                          " (%f) outside allowed range (%f to %f)",
-                          waitf, MIN_WAIT_TIME, MAX_WAIT_TIME);
-         }
-         else
-         {
-            // Extract the seconds and microseconds, being careful to round
-            // because the conversion from character data may have
-            // been inexact.
-            // Since waitf <= 100, usecs <= 100,000,000.
-            int usecs = (int)((waitf * 1000000) + 0.0000005);
-            mWaitSecs = usecs / 1000000;
-            mWaitUSecs = usecs % 1000000;
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipRedirectorJoin::initialize "
-                          "Wait time is %d.%06d",
-                          mWaitSecs, mWaitUSecs);
-         }
-      }
 
       // Initialize the CSeq counter to an arbitrary acceptable value.
       mCSeq = 14711;
