@@ -162,7 +162,7 @@ sigHandler( int sig_num )
     {
        OsSysLog::add( LOG_FACILITY, PRI_CRIT, "sigHandler: caught signal: %d", sig_num );
     }
-    OsSysLog::add( LOG_FACILITY, PRI_CRIT, "sigHandler: closing IMDB connections" );
+    OsSysLog::add( LOG_FACILITY, PRI_DEBUG, "sigHandler: closing IMDB connections" );
     OsSysLog::flush();
 
     closeIMDBConnectionsFromCGI(  );
@@ -375,15 +375,25 @@ insertRow (const UtlHashMap& nvPairs, const UtlString& type)
     } 
     
     else if ( type.compareTo(CALLER_ALIAS , UtlString::ignoreCase)==0 ) {
+       UtlString* optionalIdentity = dynamic_cast<UtlString*>(nvPairs.findValue(&identityKey));
+       UtlString nullIdentity;
+       OsSysLog::add(FAC_REPLICATION_CGI,PRI_DEBUG,"replication.cgi::insertRow caller-alias"
+                     " identity '%s' domain '%s' alias '%s'",
+                     optionalIdentity ? optionalIdentity->data() : nullIdentity.data(),
+                     dynamic_cast<UtlString*>(nvPairs.findValue(&domainKey))->data(),
+                     dynamic_cast<UtlString*>(nvPairs.findValue(&aliasKey))->data()
+                     );
+
        CallerAliasDB::getInstance()->
-          insertRow(*dynamic_cast<UtlString*>(nvPairs.findValue(&identityKey)),
+          insertRow(optionalIdentity ? *optionalIdentity : nullIdentity,
                     *dynamic_cast<UtlString*>(nvPairs.findValue(&domainKey)),
                     *dynamic_cast<UtlString*>(nvPairs.findValue(&aliasKey))
                     );
     } 
     
     else {
-        //cout << "unknown database type: " << type << endl;
+       OsSysLog::add(FAC_REPLICATION_CGI,PRI_ERR,"replication.cgi::insertRow"
+                     " unknown type '%s'",type.data());
     }
 }
 
@@ -459,11 +469,20 @@ OsStatus updateDB ( const char* pBuf, const UtlString& databaseName  )
                  // Insert the item row into the IMDB
                  insertRow ( nvPairs, type );
             }
-         }
+          }else
+          {
+             gstrError.append(" unexpected type '");
+             gstrError.append(type);
+             gstrError.append("' expected '");
+             gstrError.append(databaseName);
+             gstrError.append("'");
+             result = OS_FAILED;
+          }
+          
 
          if( iDataToUpdateDatabaseFound == 0 )
          {
-             gstrError.append(" payload row didn't contain data for  ");
+            gstrError.append(" payload row didn't contain data for  ");
              gstrError.append( databaseName.data() );
              gstrError.append(".\n");
              result = OS_FAILED;
@@ -1003,12 +1022,12 @@ void handleInput(const char* pBuf )
                      OsSysLog::add(FAC_REPLICATION_CGI,PRI_DEBUG,
                            "after cleaning %s database", mappedLocation.data());
 
-                     // If the payload data exceeds 5,000 characters, only print
+                     // If the payload data exceeds 500 characters, only print
                      // the first 5,000 characters and follow them with "...".
                      OsSysLog::add(FAC_REPLICATION_CGI,PRI_DEBUG,
-                                   "before updating %s database with '%.5000s%s'",
+                                   "before updating %s database with '%.500s%s'",
                                    mappedLocation.data(), pDecodedPayLoadData,
-                                   (iDecodedLength <= 5000 ? "" : "..."));
+                                   (iDecodedLength <= 500 ? "" : "..."));
 
                      // Load all rows from an external XML Script
                      OsStatus status = updateDB( pDecodedPayLoadData, mappedLocation );
@@ -1024,12 +1043,13 @@ void handleInput(const char* pBuf )
 
                         storeDatabase(mappedLocation);
 
-                        OsSysLog::add(FAC_REPLICATION_CGI,PRI_DEBUG,
-                              "after storing %s database to an xml file", mappedLocation.data());
-
+                        OsSysLog::add(FAC_REPLICATION_CGI,PRI_INFO,
+                                      "updated database: %s", mappedLocation.data());
+                     }else
+                     {
+                        OsSysLog::add(FAC_REPLICATION_CGI,PRI_ERR,
+                                      "failed to update database: %s", mappedLocation.data());
                      }
-
-
                  }else
                  {
                      gstrError = (" target data type is not understood\n");
@@ -1104,13 +1124,15 @@ main( int argc, char *argv[] )
 {
    UtlString logFilePath;
 
+   gstrError.remove(0);
+   
    if ( getLogFilePath ( logFilePath ) == OS_SUCCESS )
    {
       // Initialize the logger.
       OsSysLog::initialize(1024, "replicationcgi" );
       OsSysLog::setOutputFile(0, logFilePath );
       OsSysLog::setLoggingPriorityForFacility(FAC_REPLICATION_CGI, PRI_DEBUG);
-      OsSysLog::add(FAC_REPLICATION_CGI,PRI_ERR, "entered main() of replication.cgi");
+      OsSysLog::add(FAC_REPLICATION_CGI,PRI_INFO, "replication.cgi invoked");
       OsSysLog::flush();
 
       // Register Signal handlers to close IMDB
@@ -1212,7 +1234,13 @@ main( int argc, char *argv[] )
       // now deregister this process's database references from the IMDB
       closeIMDBConnectionsFromCGI ();
 
-      OsSysLog::add(FAC_REPLICATION_CGI,PRI_DEBUG, "exited main() of replication.cgi");
+      if (!gstrError.isNull())
+      {
+         OsSysLog::add(FAC_REPLICATION_CGI,PRI_ERR, "%s", gstrError.data());
+      }else
+      {
+         OsSysLog::add(FAC_REPLICATION_CGI,PRI_DEBUG, "exited main() of replication.cgi");
+      }
       OsSysLog::flush();
    }
    return 0;
