@@ -1,5 +1,6 @@
 <div jwcid="@Border" useDojo="true">
   <h2><span key="title">Domain</span></h2>
+  <span jwcid="@QuickHelp" value="message:domain.description" />  
   <span jwcid="errors"/>
   <form jwcid="form">
     <fieldset>
@@ -13,9 +14,7 @@
     </fieldset>
     <fieldset>
       <legend key="label.aliasSection">Domain Aliases</legend>
-      <p>All the folling domain names and IP addresses will be accepted as 
-      if they where the real domain name value and not get redirected 
-      to other servers.</p>
+      <p><span key="description.alias"/></p>
       <ul class="component-links">
         <li><a jwcid="addAliasLink" href="#">
           <span key="add.label">Add Alias</span></a>

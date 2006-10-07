@@ -135,7 +135,16 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         if (m_timer != null) {
             m_timer.cancel();
         }
-        LdapConnectionParams connectionParams = getConnectionParams();
+        
+        if (!schedule.isNew()) {
+            // XCF-1168 incoming schedule is probably an update to this schedule
+            // so add this schedule to cache preempt hibernate error about multiple
+            // objects with same ID in session. This is only true because schedule
+            // is managed by LdapConnectionParams object.
+            getHibernateTemplate().update(schedule);
+        }
+
+        LdapConnectionParams connectionParams = getConnectionParams();        
         connectionParams.setSchedule(schedule);
         TimerTask ldapImportTask = new LdapImportTask(m_ldapImportManager);
         m_timer = schedule.schedule(ldapImportTask);

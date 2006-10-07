@@ -4,8 +4,8 @@ CGICC_REL = 2
 SRC = $(LIBSRC)/cgicc/cgicc-$(CGICC_VER).tar.gz
 SRPM = $(DEST_SRPM)/cgicc-$(CGICC_VER)-$(CGICC_REL).src.rpm
 RPMS = \
-	$(DEST_RPM)/cgicc-$(CGICC_VER)-$(CGICC_REL).$(RPM_TARGET_ARCH).rpm \
-	$(DEST_RPM)/cgicc-devel-$(CGICC_VER)-$(CGICC_REL).$(RPM_TARGET_ARCH).rpm
+	$(DEST_RPM)/cgicc-$(CGICC_VER)-$(CGICC_REL).@RPM_TARGET_ARCH@.rpm \
+	$(DEST_RPM)/cgicc-devel-$(CGICC_VER)-$(CGICC_REL).@RPM_TARGET_ARCH@.rpm
 
 all : $(SRPM) $(RPMS)
 
@@ -15,11 +15,11 @@ $(SRC) :
 
 .PHONY: build-rpms
 build-rpms: $(SRC) $(srcdir)/cgicc.spec
-	cp $(SRC) $(RPMBUILD_TOPDIR)/SOURCES
-	rpmbuild -ba --target $(RPM_TARGET_ARCH)-none-linux $(srcdir)/cgicc.spec
+	cp $(SRC) @RPMBUILD_TOPDIR@/SOURCES
+	rpmbuild -ba --target @RPM_TARGET_ARCH@-none-linux $(srcdir)/cgicc.spec
 
 $(SRPM): build-rpms
-	mv $(RPMBUILD_TOPDIR)/SRPMS/`basename $@` $@
+	mv @RPMBUILD_TOPDIR@/SRPMS/`basename $@` $@
 
 $(RPMS): build-rpms
-	mv $(RPMBUILD_TOPDIR)/RPMS/$(RPM_TARGET_ARCH)/`basename $@` $@
+	mv @RPMBUILD_TOPDIR@/RPMS/@RPM_TARGET_ARCH@/`basename $@` $@

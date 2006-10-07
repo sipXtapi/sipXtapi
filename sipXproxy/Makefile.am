@@ -1,7 +1,8 @@
 ## Process this file with automake to produce Makefile.in
 include config/project.am
 
-RPMS = $(DEFAULT_RPMS)
+RPMS = $(DEFAULT_RPMS) \
+	$(DEST_RPM)/@PACKAGE@-cdr-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
 
 SUBDIRS = \
 	. \
@@ -14,7 +15,7 @@ SUBDIRS = \
 EXTRA_DIST = \
     CONTRIBUTORS \
     BUILDSTAMP \
-    SVN_VERSION \
+    SVN-VERSION \
     src/cdr \
     config/sipX-config.in \
     config/sipX-buildstamp.cpp.in \

@@ -1,10 +1,11 @@
 PGSQL_LIBSRC = $(LIBSRC)/ruby-postgres
 
 VER = 0.7.1
-REL = 4
+REL = 5
+DISTRO = fc6
 
-RPM = $(DEST_RPM)/ruby-postgres-$(VER)-$(REL).$(RPM_TARGET_ARCH).rpm
-SRPM = $(PGSQL_LIBSRC)/ruby-postgres-$(VER)-$(REL).src.rpm
+RPM = $(DEST_RPM)/ruby-postgres-$(VER)-$(REL).@RPM_TARGET_ARCH@.rpm
+SRPM = $(PGSQL_LIBSRC)/ruby-postgres-$(VER)-$(REL).$(DISTRO).src.rpm
 
 # Where rpmbuild will do its work.
 all : $(RPM)
@@ -14,4 +15,4 @@ $(SRPM) :
 
 $(RPM) : $(SRPM)
 	rpmbuild --rebuild $(SRPM)
-	cp $(RPMBUILD_TOPDIR)/RPMS/$(RPM_TARGET_ARCH)/`basename $@` $@
+	cp @RPMBUILD_TOPDIR@/RPMS/@RPM_TARGET_ARCH@/`basename $@` $@

@@ -28,6 +28,7 @@ import org.dom4j.io.XMLWriter;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
+import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
@@ -39,10 +40,10 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
  */
 public class PolycomPhone extends Phone {
     public static final String BEAN_ID = "polycom";
-    public static final String CALL = "call";    
+    public static final String CALL = "call";
     static final String REGISTRATION_PATH = "reg/server/1/address";
     static final String REGISTRATION_PORT_PATH = "reg/server/1/port";
-    private static final String CONTACT_MODE = "contact";    
+    private static final String CONTACT_MODE = "contact";
     private static final String DISPLAY_NAME_PATH = "reg/displayName";
     private static final String PASSWORD_PATH = "reg/auth.password";
     private static final String USER_ID_PATH = "reg/address";
@@ -60,32 +61,46 @@ public class PolycomPhone extends Phone {
 
     public PolycomPhone() {
         super(BEAN_ID);
-        constructorInitialize();
+        init();
     }
 
     public PolycomPhone(PolycomModel model) {
         super(model);
-        constructorInitialize();
+        init();
     }
-    
-    private void constructorInitialize() {
-        // default version
-        setDeviceVersion(PolycomModel.VER_1_6);
+
+    private void init() {
+        setDeviceVersion(PolycomModel.VER_2_0);
     }
-    
-    
+
+    public String getDefaultVersionId() {
+        DeviceVersion version = getDeviceVersion();
+        return version != null ? version.getVersionId() : null;
+    }
+
+    /**
+     * Default firmware version for polycom phones. Default is 1.6 right now
+     * 
+     * @param defaultVersionId 1.6 or 2.0
+     */
+    public void setDefaultVersionId(String defaultVersionId) {
+        setDeviceVersion(DeviceVersion.getDeviceVersion(PolycomPhone.BEAN_ID + defaultVersionId));
+    }
+
     @Override
-    public void initialize() {        
-        PolycomPhoneDefaults phoneDefaults = new PolycomPhoneDefaults(getPhoneContext().getPhoneDefaults());
+    public void initialize() {
+        PolycomPhoneDefaults phoneDefaults = new PolycomPhoneDefaults(getPhoneContext()
+                .getPhoneDefaults());
         addDefaultBeanSettingHandler(phoneDefaults);
-        
+
         PolycomIntercomDefaults intercomDefaults = new PolycomIntercomDefaults(this);
         addDefaultBeanSettingHandler(intercomDefaults);
     }
 
     @Override
     public void initializeLine(Line line) {
-        PolycomLineDefaults lineDefaults = new PolycomLineDefaults(getPhoneContext().getPhoneDefaults(), line);
+        PolycomLineDefaults lineDefaults = new PolycomLineDefaults(getPhoneContext()
+                .getPhoneDefaults(), line);
         line.addDefaultBeanSettingHandler(lineDefaults);
     }
 
@@ -160,7 +175,7 @@ public class PolycomPhone extends Phone {
             VelocityProfileGenerator.makeParentDirectory(f);
             Writer unformatted = new StringWriter();
             generateProfile(cfg, template, unformatted);
-            out = new FileWriter(f);            
+            out = new FileWriter(f);
             format(new StringReader(unformatted.toString()), out);
         } catch (IOException ioe) {
             throw new RuntimeException("Could not generate profile " + outputFile
@@ -171,9 +186,9 @@ public class PolycomPhone extends Phone {
             }
         }
     }
-    
+
     /**
-     * Polycom 430 1.6.5 would not read files w/being formatted first.  Unclear why.
+     * Polycom 430 1.6.5 would not read files w/being formatted first. Unclear why.
      */
     static void format(Reader in, Writer wtr) {
         SAXReader xmlReader = new SAXReader();
@@ -195,8 +210,8 @@ public class PolycomPhone extends Phone {
     @Override
     protected void setLineInfo(Line line, LineInfo externalLine) {
         line.setSettingValue(DISPLAY_NAME_PATH, externalLine.getDisplayName());
-        line.setSettingValue(USER_ID_PATH, externalLine.getUserId());        
-        line.setSettingValue(PASSWORD_PATH, externalLine.getPassword());        
+        line.setSettingValue(USER_ID_PATH, externalLine.getUserId());
+        line.setSettingValue(PASSWORD_PATH, externalLine.getPassword());
 
         // Both userId and authId are required, see XCF-914
         line.setSettingValue(AUTHORIZATION_ID_PATH, externalLine.getUserId());
@@ -204,7 +219,7 @@ public class PolycomPhone extends Phone {
         line.setSettingValue(REGISTRATION_PATH, externalLine.getRegistrationServer());
         line.setSettingValue(REGISTRATION_PORT_PATH, externalLine.getRegistrationServerPort());
     }
-    
+
     @Override
     protected LineInfo getLineInfo(Line line) {
         LineInfo lineInfo = new LineInfo();
@@ -215,37 +230,37 @@ public class PolycomPhone extends Phone {
         lineInfo.setRegistrationServerPort(line.getSettingValue(REGISTRATION_PORT_PATH));
         return lineInfo;
     }
-        
+
     // XCF-668 Removed setting outbound proxy defaults
-    // So by default, polycom phones will attempt to send sip traffic to server 
-    // it's registered with.  Setting an outbound proxy to domain would be redundant
+    // So by default, polycom phones will attempt to send sip traffic to server
+    // it's registered with. Setting an outbound proxy to domain would be redundant
     // therefore unnec. and could potentially cause issues.
     public static class PolycomPhoneDefaults {
         private DeviceDefaults m_defaults;
-        
+
         PolycomPhoneDefaults(DeviceDefaults defaults) {
             m_defaults = defaults;
         }
-        
+
         private DeviceTimeZone getZone() {
             return m_defaults.getTimeZone();
         }
-        
+
         @SettingEntry(path = "tcpIpApp.sntp/gmtOffset")
         public long getGmtOffset() {
             return getZone().getOffset();
         }
-        
+
         @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.enable")
         public boolean isDstEnabled() {
             return getZone().getDstOffset() != 0;
         }
-        
+
         @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.fixedDayEnable")
         public boolean isFixedDayEnabled() {
             return isDstEnabled() && getZone().getStartDay() > 0;
         }
-        
+
         @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.start.date")
         public int getStartDay() {
             if (!isDstEnabled()) {
@@ -257,10 +272,10 @@ public class PolycomPhone extends Phone {
             if (getZone().getStartWeek() == DeviceTimeZone.DST_LASTWEEK) {
                 return 1;
             }
-            
-            return getZone().getStartWeek();            
+
+            return getZone().getStartWeek();
         }
-        
+
         @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.start.dayOfWeek.lastInMonth")
         public boolean isStartLastInMonth() {
             if (!isDstEnabled()) {
@@ -272,10 +287,10 @@ public class PolycomPhone extends Phone {
             if (getZone().getStartWeek() == DeviceTimeZone.DST_LASTWEEK) {
                 return true;
             }
-            
-            return false;            
+
+            return false;
         }
-        
+
         @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.date")
         public int getStopDate() {
             if (!isDstEnabled()) {
@@ -287,10 +302,10 @@ public class PolycomPhone extends Phone {
             if (getZone().getStopWeek() == DeviceTimeZone.DST_LASTWEEK) {
                 return 1;
             }
-         
+
             return getZone().getStopWeek();
         }
-        
+
         @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.dayOfWeek.lastInMonth")
         public boolean isStopDayOfWeekLastInMonth() {
             if (!isDstEnabled()) {
@@ -298,17 +313,23 @@ public class PolycomPhone extends Phone {
             }
             if (isFixedDayEnabled()) {
                 return false;
-            }            
+            }
             if (getZone().getStopWeek() == DeviceTimeZone.DST_LASTWEEK) {
                 return true;
             }
-            
-            return false;            
+
+            return false;
         }
-        
+
         @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.start.dayOfWeek")
         public int getStartDayOfWeek() {
-            return isDstEnabled() ? getZone().getStartDayOfWeek() : 0;
+            return isDstEnabled() ? dayOfWeek(getZone().getStartDayOfWeek()) : 0;
+        }
+        
+        static int dayOfWeek(int dayOfWeek) {
+            // 1-based
+            int dayOfWeekStartingOnMonday = ((dayOfWeek + 1) % 7) + 1;
+            return dayOfWeekStartingOnMonday;
         }
 
         @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.start.month")
@@ -323,7 +344,7 @@ public class PolycomPhone extends Phone {
 
         @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.dayOfWeek")
         public int getStopDayOfWeek() {
-            return isDstEnabled() ? getZone().getStopDayOfWeek() : 0;
+            return isDstEnabled() ? dayOfWeek(getZone().getStopDayOfWeek()) : 0;
         }
 
         @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.month")
@@ -335,22 +356,23 @@ public class PolycomPhone extends Phone {
         public int getStopTime() {
             return isDstEnabled() ? getZone().getStopTime() / 3600 : 0;
         }
-        
+
         @SettingEntry(path = "voIpProt/server/1/address")
         public String getRegistrationServer() {
             return m_defaults.getDomainName();
-        }    
+        }
     }
-    
+
     public static class PolycomLineDefaults {
-            
+
         private DeviceDefaults m_defaults;
         private Line m_line;
+
         PolycomLineDefaults(DeviceDefaults defaults, Line line) {
             m_defaults = defaults;
             m_line = line;
         }
-        
+
         @SettingEntry(path = "msg.mwi/subscribe")
         public String getMwiSubscribe() {
             String uri = null;
@@ -358,10 +380,10 @@ public class PolycomPhone extends Phone {
             if (u != null) {
                 uri = u.getUserName() + '@' + m_defaults.getDomainName();
             }
-            
+
             return uri;
         }
-        
+
         @SettingEntry(path = "msg.mwi/callBack")
         public String getCallBack() {
             String uri = null;
@@ -369,10 +391,10 @@ public class PolycomPhone extends Phone {
             if (u != null) {
                 uri = m_defaults.getVoiceMail() + '@' + m_defaults.getDomainName();
             }
-            
-            return uri;                    
+
+            return uri;
         }
-        
+
         @SettingEntry(path = "msg.mwi/callBackMode")
         public String getCallBackMode() {
             String mode = "disabled";
@@ -380,52 +402,52 @@ public class PolycomPhone extends Phone {
             if (u != null) {
                 mode = CONTACT_MODE;
             }
-            
-            return mode;                                
+
+            return mode;
         }
-        
+
         @SettingEntry(path = AUTHORIZATION_ID_PATH)
         public String getAuthorizationId() {
             return getAddress();
         }
-        
+
         @SettingEntry(path = USER_ID_PATH)
         public String getAddress() {
             User u = m_line.getUser();
             if (u != null) {
                 return u.getUserName();
-            }        
+            }
             return null;
         }
-        
+
         @SettingEntry(path = PASSWORD_PATH)
         public String getAuthorizationPassword() {
             User u = m_line.getUser();
             if (u != null) {
                 return u.getSipPassword();
-            }        
-            return null;            
+            }
+            return null;
         }
-        
+
         @SettingEntry(path = DISPLAY_NAME_PATH)
         public String getDisplayName() {
             User u = m_line.getUser();
             if (u != null) {
                 return u.getDisplayName();
-            }        
-            return null;            
+            }
+            return null;
         }
-        
+
         @SettingEntry(path = REGISTRATION_PATH)
         public String getRegistrationServer() {
             User u = m_line.getUser();
-            if (u != null) {            
+            if (u != null) {
                 return m_line.getPhoneContext().getPhoneDefaults().getDomainName();
             }
             return null;
         }
     }
-    
+
     public void restart() {
         sendCheckSyncToFirstLine();
     }

@@ -1,6 +1,6 @@
 VERSION=1.5.0
 SUN_VERSION=1_5_0
-BUILD=07
+BUILD=09
 REL=1
 
 # Combine the SRC and NOSRC to create usable (non-free) rpm
@@ -30,8 +30,8 @@ $(NOSRC_RPM) :
 .PHONY: build-rpms
 build-rpms : $(NOSRC_RPM) $(SRC_ZIP) 
 	rpm -i $(NOSRC_RPM)
-	cp $(SRC_ZIP) $(RPMBUILD_TOPDIR)/SOURCES
-	rpmbuild -ba $(RPMBUILD_TOPDIR)/SPECS/$(RPM_SPEC)
+	cp $(SRC_ZIP) @RPMBUILD_TOPDIR@/SOURCES
+	rpmbuild -ba @RPMBUILD_TOPDIR@/SPECS/$(RPM_SPEC)
 
 $(RPMS) : build-rpms
-	mv $(RPMBUILD_TOPDIR)/RPMS/i586/`basename $@` $@
+	mv @RPMBUILD_TOPDIR@/RPMS/i586/`basename $@` $@

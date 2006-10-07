@@ -20,8 +20,13 @@ import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 
 public class RuleValidator extends BaseValidator {
 
-    public void validate(IFormComponent field, ValidationMessages messages, Object object) throws ValidatorException {
+    public void validate(IFormComponent field, ValidationMessages messages, Object object)
+        throws ValidatorException {
         IDialingRule rule = (IDialingRule) object;
+        if (rule == null) {
+            // no rule to validate at this time
+            return;
+        }
         if (!rule.isEnabled()) {
             // only validate enabled rules
             return;

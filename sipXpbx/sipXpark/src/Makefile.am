@@ -11,8 +11,9 @@ EXTRA_DIST = \
 	$(AUDIO_DIST)
 
 sipxpark_LDADD = \
-        @SIPXMEDIAADAPTER_LIBS@ \
-        @SIPXCALL_LIBS@
+	@SIPXCOMMSERVER_LIBS@ \
+	@SIPXCALL_LIBS@ \
+	@SIPXMEDIAADAPTER_LIBS@
 
 sipxpark_CXXFLAGS = \
         -I$(top_builddir)/config \

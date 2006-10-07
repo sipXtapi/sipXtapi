@@ -57,7 +57,7 @@ public:
      *
      * If the inserted key is already in the table, this method 
      * fails (returns NULL - note that this means if value is NULL,
-     * then you can't tell whether  there was an error or not).
+     * then you can't tell whether there was an error or not).
      * To replace the value for a given key, the old value must
      * be Removed before the new value is inserted.
      *
@@ -70,6 +70,8 @@ public:
      * Inserts the designated containable object into the list
      * with a NULL value (see note regarding use of NULL value
      * in insertKeyAndValue).
+     * If there is an equal key in the UtlHashMap already,
+     * the insert will fail.
      * 
      * @return the object if successful, otherwise NULL
      */
@@ -103,7 +105,7 @@ public:
 
     /**
      * Removes the designated key and its associated value from the map
-     * and frees the object by calling delete.
+     * and frees the key and the value (if not NULL) by calling delete.
      */ 
     virtual UtlBoolean destroy(UtlContainable* key);    
 

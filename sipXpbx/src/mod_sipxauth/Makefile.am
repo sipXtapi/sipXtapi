@@ -26,8 +26,8 @@ libmod_sipxauth_la_CXXFLAGS = \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\"
 
 libmod_sipxauth_la_SOURCES = \
-	../../config/sipxpbx-buildstamp.h \
-	../../config/sipxpbx-buildstamp.cpp \
+	$(top_builddir)/config/sipxpbx-buildstamp.h \
+	$(top_builddir)/config/sipxpbx-buildstamp.cpp \
     SIPXAuthHandler.cpp
 
 noinst_HEADERS = \

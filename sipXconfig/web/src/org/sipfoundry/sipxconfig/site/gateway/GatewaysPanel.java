@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.site.gateway;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IComponent;
@@ -49,6 +50,8 @@ public abstract class GatewaysPanel extends BaseComponent {
     public abstract void setGateway(Gateway gateway);
 
     public abstract void setRuleChanged(boolean changed);
+
+    public abstract void setGatewaysToAdd(Collection<Integer> gatewaysToAdd);
 
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
         super.renderComponent(writer, cycle);
@@ -132,28 +135,29 @@ public abstract class GatewaysPanel extends BaseComponent {
     }
 
     class AddExistingGatewayAction extends BulkGroupAction {
-        private Gateway m_gateway;
+        private Integer m_gatewayId;
+        private String m_label;
 
         AddExistingGatewayAction(Gateway gateway) {
             super(null);
-            m_gateway = gateway;
+            m_gatewayId = gateway.getId();
+            m_label = gateway.getName();
         }
 
         public String getLabel(Object option, int index) {
-            return m_gateway.getName();
+            return m_label;
         }
 
         public Object getValue(Object option, int index) {
-            return m_gateway;
+            return m_gatewayId;
         }
 
         public String squeezeOption(Object option, int index) {
-            return m_gateway.getId().toString();
+            return m_gatewayId.toString();
         }
 
         public void actionTriggered(IComponent component, IRequestCycle cycle) {
-            DialingRule rule = getRule();
-            rule.addGateway(m_gateway);
+            setGatewaysToAdd(Collections.singleton(m_gatewayId));
             setRuleChanged(true);
         }
     }

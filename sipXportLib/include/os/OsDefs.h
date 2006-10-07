@@ -32,6 +32,16 @@
 #ifdef WIN32
 #define snprintf _snprintf
 #endif
+
+// Handle the case-insensitive string comparison functions, by making the Posix names
+// strcasecmp and strncasecmp available on all platforms.
+// (On newer Windows environments, str(n)casecmp are built-in, along with the older
+// str(n)icmp, but on older ones, they are not.)
+#ifdef WIN32
+#define strcasecmp stricmp
+#define strncasecmp strnicmp
+#endif
+
 /* APPLICATION INCLUDES  */
 /* MACROS                */
 /* EXTERNAL FUNCTIONS    */
@@ -95,4 +105,3 @@ extern int getdomainname(char *, int);
 #endif
 
 #endif  /* _OsDefs_h_ */
-

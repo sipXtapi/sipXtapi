@@ -1535,7 +1535,7 @@ UtlBoolean CpPeerCall::handleGetSession(OsMsg* pEventMessage)
         ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
     getFieldEvent->getIntData((int&)sessionPtr);
 
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetSession session: 0x%x for callId %s address %s",
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetSession session: 0x%p for callId %s address %s",
                   sessionPtr, callId.data(), address.data());
 
     // Check whether the tag is set in addresses or not. If so, do not need to use callId
@@ -1565,7 +1565,7 @@ UtlBoolean CpPeerCall::handleGetSession(OsMsg* pEventMessage)
         {
             SipSession session;
             connection->getSession(session);
-            OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetSession copying session: 0x%x",
+            OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetSession copying session: 0x%p",
                           sessionPtr);
 
             *sessionPtr = SipSession(session);
@@ -1590,6 +1590,86 @@ UtlBoolean CpPeerCall::handleGetSession(OsMsg* pEventMessage)
 
     return TRUE ;
 }
+
+
+// Handles the processing of a CallManager::CP_GET_INVITE 
+// message
+UtlBoolean CpPeerCall::handleGetInvite(OsMsg* pEventMessage)
+{
+    UtlString address;
+    UtlString callId;
+    ((CpMultiStringMessage*)pEventMessage)->getString1Data(callId);
+    ((CpMultiStringMessage*)pEventMessage)->getString2Data(address);
+    SipMessage* messagePtr;
+    OsProtectedEvent* getFieldEvent = (OsProtectedEvent*) 
+        ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
+    getFieldEvent->getIntData((int&)messagePtr);
+
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetInvite message: 0x%p for callId %s address %s",
+                  messagePtr, callId.data(), address.data());
+
+    // Check whether the tag is set in addresses or not. If so, do not need to use callId
+    // for comparison.
+    UtlBoolean hasTag = checkForTag(address);
+
+    // Get the remote connection(s)/address(es)
+    Connection* connection = NULL;
+    UtlString localAddress;
+    UtlString remoteAddress;
+    UtlString connCallId;
+    OsReadLock lock(mConnectionMutex);
+    UtlDListIterator iterator(mConnections);
+    while ((connection = (Connection*) iterator()))
+    {
+        connection->getCallId(&connCallId);
+        connection->getLocalAddress(&localAddress);
+        connection->getRemoteAddress(&remoteAddress);
+
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetInvite looking for the INVITE for %s, %s, %s",
+                      connCallId.data(), localAddress.data(), remoteAddress.data());
+
+        if ((hasTag && (address.compareTo(localAddress) == 0)) ||
+            (hasTag && (address.compareTo(remoteAddress) == 0)) ||
+            (callId.compareTo(connCallId) == 0) &&
+            (address.compareTo(localAddress) == 0 || address.compareTo(remoteAddress) == 0))
+        {
+           // Have to cast the Connection* into a SipConnection*, because only
+           // SipConnection has an INVITE attached.
+           SipConnection* sipConnection =
+              dynamic_cast <SipConnection*> (connection);
+           // No action if the cast fails.
+           if (sipConnection)
+           {
+              // Copy the saved INVITE from the SipConnection into *messagePtr.
+              sipConnection->getInvite(messagePtr);
+
+              UtlString text;
+              int length;
+              messagePtr->getBytes(&text, &length);
+           }
+
+           // Signal the caller that we are done.
+           break;
+        }
+    }
+
+    // If the event has already been signalled, clean up
+    if(OS_ALREADY_SIGNALED == getFieldEvent->signal(1))
+    {
+        // The other end must have timed out on the wait
+        OsSysLog::add(FAC_CP, PRI_DEBUG,
+                      "CpPeerCall::handleGetInvite deleting message: %p",
+                      messagePtr);
+        delete messagePtr;
+        messagePtr = NULL;
+
+        OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
+        eventMgr->release(getFieldEvent);
+    }
+
+    return TRUE ;
+}
+
 
 // Handles CP_SEND_SIP_REQUEST
 UtlBoolean CpPeerCall::handleSendSipRequest(OsMsg* pEventMessage)
@@ -1677,6 +1757,7 @@ UtlBoolean CpPeerCall::handleSendSipRequest(OsMsg* pEventMessage)
     }
     return(TRUE);
 }
+
 
 // Handles the processing of a CallManager::CP_GET_CALLSTATE 
 // message
@@ -1836,6 +1917,42 @@ UtlBoolean CpPeerCall::handleChangeLocalIdentity(OsMsg* eventMessage)
     return(TRUE);
 }
 
+// Handles processing of a
+// CallManager::CP_SET_MEDIA_PROPERTY
+UtlBoolean CpPeerCall::handleSetMediaProperty(OsMsg* eventMessage)
+{
+    OsStatus returnCode = OS_FAILED;
+    int msgSubType = eventMessage->getMsgSubType();
+    addHistoryEvent(msgSubType, (CpMultiStringMessage*)eventMessage);
+    if(mpMediaInterface)
+    {
+        UtlString remoteAddress;
+        UtlString propertyName;
+        UtlString propertyValue;
+        // If this a property that is global to the flowgraph:
+        ((CpMultiStringMessage*)eventMessage)->getString2Data(remoteAddress);
+        ((CpMultiStringMessage*)eventMessage)->getString3Data(propertyName);
+        ((CpMultiStringMessage*)eventMessage)->getString4Data(propertyValue);
+        if(remoteAddress.isNull())
+        {
+            returnCode = mpMediaInterface->setMediaProperty(propertyName, propertyValue);
+        }
+        // Else this is a property that is specific to a media interface connection
+        else
+        {
+            // Find the SipConnection so we can get the media connection id
+            Connection* connection = findHandlingConnection(remoteAddress);
+            if(connection)
+            {
+                returnCode = mpMediaInterface->setMediaProperty(connection->getConnectionId(), 
+                                                                propertyName, 
+                                                                propertyValue);
+            }
+        }
+    }
+    return(TRUE);
+}
+
 // Handles the processing of a 
 // CallManager::CP_GET_TERMINALCONNECTIONSTATE message    
 UtlBoolean CpPeerCall::handleGetTerminalConnectionState(OsMsg* pEventMessage)
@@ -1870,7 +1987,6 @@ UtlBoolean CpPeerCall::handleGetTerminalConnectionState(OsMsg* pEventMessage)
 // message
 UtlBoolean CpPeerCall::handleIsLocalTerminalConnection(OsMsg* pEventMessage)
 {
-    mConnections.entries();
     UtlString terminalId;
     ((CpMultiStringMessage*)pEventMessage)->getString3Data(terminalId);
     OsProtectedEvent* getNumEvent = 
@@ -2197,7 +2313,7 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
         CpMultiStringMessage* pMessage = (CpMultiStringMessage*)&eventMessage;
         void* pDisplay = (void*) pMessage->getInt1Data();
         offHook(pDisplay);
-        delete pDisplay;
+        free((void*) pDisplay);
         break;
     }
     
@@ -2258,6 +2374,10 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
 
     case CallManager::CP_GET_SESSION:
         handleGetSession(&eventMessage);
+        break ;
+
+    case CallManager::CP_GET_INVITE:
+        handleGetInvite(&eventMessage);
         break ;
 
     case CallManager::CP_SEND_SIP_REQUEST:
@@ -2375,6 +2495,10 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
     case CallManager::CP_NEW_PASSERTED_ID:
         handleChangeLocalIdentity(&eventMessage);
         break ;
+
+    case CallManager::CP_SET_MEDIA_PROPERTY:
+        handleSetMediaProperty(&eventMessage);
+        break;
 
     default:
         processedMessage = FALSE;

@@ -17,9 +17,11 @@ nobase_include_HEADERS =  \
     cp/DialogEventPublisher.h \
     cp/LinePresenceBase.h \
     cp/LinePresenceMonitor.h \
+    cp/LinePresenceMonitorMsg.h \
     cp/PresenceDialInServer.h \
     cp/SipConnection.h \
     cp/SipPresenceMonitor.h \
+    cp/XmlRpcSignIn.h \
     ps/PsButtonId.h \
     ps/PsButtonInfo.h \
     ps/PsButtonTask.h \

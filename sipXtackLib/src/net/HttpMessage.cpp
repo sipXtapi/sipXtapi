@@ -40,6 +40,7 @@
 #endif /* HAVE_SSL */
 #include <os/OsSysLog.h>
 #include <os/OsTask.h>
+#include <os/OsDefs.h>
 #include <net/NetBase64Codec.h>
 #include <net/NetMd5Codec.h>
 #include <net/HttpConnectionMap.h>
@@ -68,10 +69,6 @@ int HttpMessage::smHttpMessageCount = 0;
 #define iswspace(a) ((((a) >= 0x09) && ((a) <= 0x0D)) || ((a) == 0x20))
 #endif
 
-#ifdef WIN32
-#  define strcasecmp stricmp
-#  define strncasecmp strnicmp
-#endif
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
@@ -1013,11 +1010,13 @@ int HttpMessage::readHeader(OsSocket* inSocket, UtlString& buffer)
 
    setSendProtocol(socketType);
 
-   // If there is no residual bytes in the buffer
-   if (inSocket->isOk() && ((socketType != OsSocket::TCP && socketType != OsSocket::SSL_SOCKET) ||
-            inSocket->isReadyToRead(HTTP_READ_TIMEOUT_MSECS)))
+   // If there are no residual bytes in the buffer
+   if (inSocket->isOk() &&
+       ((socketType != OsSocket::TCP && socketType != OsSocket::SSL_SOCKET) ||
+        inSocket->isReadyToRead(HTTP_READ_TIMEOUT_MSECS)))
    {
-      while (inSocket->isOk() && inSocket->isReadyToRead(HTTP_READ_TIMEOUT_MSECS))
+      while (inSocket->isOk() &&
+             inSocket->isReadyToRead(HTTP_READ_TIMEOUT_MSECS))
       {
          iRead = inSocket->read(&ch, 1, &remoteHost, &remotePort);
          if (iRead == 1)
@@ -1949,19 +1948,17 @@ NameValuePair* HttpMessage::getHeaderField(int index, const char* name) const
                 // Go to the next header field
                 if(name)
                 {
-            // Too slow and too much overhead (i.e. needs UtlContainable string
-            // to be constructed and destroyed)
-            // headerField = (NameValuePair*) iterator.findNext(&headerFieldName);
+                   // Too slow and too much overhead (i.e. needs UtlContainable string
+                   // to be constructed and destroyed)
+                   // headerField = (NameValuePair*) iterator.findNext(&headerFieldName);
 
-            // Find a header with a matching name
-            do
-            {
-                headerField = (NameValuePair*) iterator();
-            }
-            while(headerField &&
-                  strcasecmp(name, headerField->data()) != 0);
-                  //(nameLength != headerField->length() ||
-                  //strncasecmp(name, headerField->data(), nameLength) != 0));
+                   // Find a header with a matching name
+                   do
+                   {
+                      headerField = (NameValuePair*) iterator();
+                   }
+                   while(headerField &&
+                         strcasecmp(name, headerField->data()) != 0);
                 }
 
                 else

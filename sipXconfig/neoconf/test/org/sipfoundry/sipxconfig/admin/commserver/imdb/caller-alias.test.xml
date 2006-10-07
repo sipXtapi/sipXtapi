@@ -1,36 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <items type="caller-alias">
   <item>
-    <target_domain>example.org</target_domain>
-    <caller_alias>sip:7832331111@example.org</caller_alias>
+    <domain>example.org</domain>
+    <alias>sip:7832331111@example.org</alias>
   </item>
   <item>
     <identity>userName@example.org</identity>
-    <target_domain>bongo.com</target_domain>
-    <caller_alias>"first last"&lt;sip:1234@example.org&gt;</caller_alias>
+    <domain>bongo.com</domain>
+    <alias>"first last"&lt;sip:1234@example.org&gt;</alias>
   </item>
   <item>
     <identity>kuku@example.org</identity>
-    <target_domain>bongo.com</target_domain>
-    <caller_alias>sip:4321@example.org</caller_alias>
+    <domain>bongo.com</domain>
+    <alias>sip:4321@example.org</alias>
   </item>
   <item>
-    <target_domain>kuku.net</target_domain>
-    <caller_alias>sip:anonymous@anonymous.invalid</caller_alias>
+    <domain>kuku.net</domain>
+    <alias>sip:anonymous@anonymous.invalid</alias>
   </item>
   <item>
     <identity>userName@example.org</identity>
-    <target_domain>kuku.net</target_domain>
-    <caller_alias>"first last"&lt;sip:1234@example.org&gt;</caller_alias>
+    <domain>kuku.net</domain>
+    <alias>"first last"&lt;sip:1234@example.org&gt;</alias>
   </item>
   <item>
     <identity>kuku@example.org</identity>
-    <target_domain>kuku.net</target_domain>
-    <caller_alias>sip:+21@example.org</caller_alias>
+    <domain>kuku.net</domain>
+    <alias>sip:+21@example.org</alias>
   </item>  
   <item>
     <identity>number@example.org</identity>
-    <target_domain>kuku.net</target_domain>
-    <caller_alias>"user without"&lt;sip:+45@example.org&gt;</caller_alias>
+    <domain>kuku.net</domain>
+    <alias>"user without"&lt;sip:+45@example.org&gt;</alias>
   </item>  
 </items>

@@ -38,11 +38,11 @@ public class SipConfigurationTest  extends XMLTestCase {
     }
     
     public void testGenerateProfile16() throws Exception {
+        phone.setDeviceVersion(PolycomModel.VER_1_6);
         assertProfileEquals("expected-sip.cfg.xml");
     }
     
     public void testGenerateProfile20() throws Exception {
-        phone.setDeviceVersion(PolycomModel.VER_2_0);
         assertProfileEquals("expected-sip-2.0.cfg.xml");
     }
     

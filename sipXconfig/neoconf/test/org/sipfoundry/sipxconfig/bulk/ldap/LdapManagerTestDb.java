@@ -121,5 +121,9 @@ public class LdapManagerTestDb extends TestCaseDb {
         assertEquals(1, TestHelper.getConnection().getRowCount("cron_schedule",
                 "where cron_string = '0 15 * ? * *'"));
     }
-
+    
+    public void testGetSetSchedule() throws Exception {
+        CronSchedule schedule = m_context.getSchedule();
+        m_context.setSchedule(schedule);
+    }
 }

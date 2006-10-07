@@ -17,7 +17,8 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include <utl/UtlHashMap.h>
+#include <utl/UtlSList.h>
+#include <utl/UtlSListIterator.h>
 #include <net/HttpBody.h>
 #include <net/Url.h>
 #include <os/OsDateTime.h>
@@ -106,9 +107,6 @@ class Dialog : public UtlContainable
           const char* remoteTag, 
           const char* direction);
 
-   /// Copy constructor
-   Dialog(const Dialog& rDialog);
-
    /// Destructor
    ~Dialog();
 
@@ -189,6 +187,10 @@ class Dialog : public UtlContainable
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
    
+   // Set the unique identifier member by concatenating the call-id,
+   // to-tag, and from-tag.
+   void setIdentifier();
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:
 
@@ -198,6 +200,8 @@ class Dialog : public UtlContainable
    UtlString mLocalTag;
    UtlString mRemoteTag;
    UtlString mDirection;
+   // Unique identifier of the dialog
+   UtlString mIdentifier;
 
    // Variables for state element
    UtlString mState;
@@ -228,7 +232,10 @@ class Dialog : public UtlContainable
    UtlString mRemoteTarget;
    UtlString mRemoteSessionDescription;
 
-   //Assignment operator
+   // Disabled copy constructor
+   Dialog(const Dialog& rDialog);
+
+   // Disabled assignment operator
    Dialog& operator=(const Dialog& rhs);
 };
 
@@ -253,8 +260,7 @@ class SipDialogEvent : public HttpBody
    SipDialogEvent(const char* state,
                   const char* entity);
 
-
-   //! Construct from an existing dialog event package in the xml format
+   //! Construct from an existing dialog event package in XML format
    SipDialogEvent(const char* bodyBytes);
 
    //! Destructor that will free up the memory allocated for dialog contents if it is not being deleted
@@ -276,8 +282,8 @@ class SipDialogEvent : public HttpBody
    virtual int getLength() const;
 
    //! Get the serialized char representation of this dialog event.
-   /*! \param bytes - buffer space where the dialog event is written, null
-    *       terminated.
+   /*! \param bytes - pointer to the body text of the dialog event will
+    *       be placed here.
     *  \param length - the number of bytes written (not including the
     *       null terminator).
     */
@@ -285,13 +291,14 @@ class SipDialogEvent : public HttpBody
                          int* length) const;
 
    //! Get the serialized string representation of this dialog event.
-   /*! \param bytes - buffer space where the dialog event is written, null
-    *       terminated.
+   /*! \param bytes - UtlString into which the body text will be copied.
     *  \param length - the number of bytes written (not including the
     *       null terminator).
     */
    virtual void getBytes(UtlString* bytes,
                          int* length) const;
+   // Import HttpBody's getBytes methods, except as overridden here.
+   using HttpBody::getBytes;
 
    void setEntity(const char* entity);
 
@@ -300,7 +307,6 @@ class SipDialogEvent : public HttpBody
    void setState(const char* state);
 
    void getState(UtlString& state) const;
-
 
 ///@}
 
@@ -312,11 +318,15 @@ class SipDialogEvent : public HttpBody
  * @{
  */
 
-   //! Insert a Dialog object to a hash table
+   //! Insert a Dialog object
    void insertDialog(Dialog* dialog);
 
-   //! Get the Dialog object from the hash table based on the callId
-   Dialog* getDialog(UtlString& callId);
+   //! Get the Dialog object from the hash table based on the callId and tags.
+   // If the mRemoteTag is empty, then testing for match is only done on
+   // callId and localTag.  Otherwise, all three fields are used.
+   Dialog* getDialog(UtlString& callId,
+                     UtlString& localTag,
+                     UtlString& remoteTag);
 
    //! In the case where a empty SipDialog object is retrieved from the
    //DialogEventPublisher in handling a DISCONNECTED or FAILED message
@@ -324,17 +334,17 @@ class SipDialogEvent : public HttpBody
    //by the callId. Work-around for XCL-98.
    Dialog* getDialogByCallId(UtlString& callId);
    
-   //! Remove the Dialog object from the hash table
+   //! Remove a Dialog object
    Dialog* removeDialog(Dialog* dialog);
    
-   //! Check whether there is any dialog or not
+   //! Check whether there is are any dialogs or not
    UtlBoolean isEmpty();
 
-   //! Get the first dialog
-   Dialog* getFirstDialog();
-
-   //! Get all dialogs
-   void getAllDialogs(UtlHashMap &dialogs);
+   //! Return an iterator that will retrieve all dialogs in the event.
+   // This iterator is only valid as long as the SipDialogEvent is not
+   // modified, and must be deleted by the caller before the SipDialogEvent
+   // is deleted.
+   UtlSListIterator* getDialogIterator();
 
 ///@}
    
@@ -354,10 +364,10 @@ class SipDialogEvent : public HttpBody
    UtlString mEntity;
 
    //! Variables for dialog element
-   UtlHashMap mDialogs;
+   UtlSList mDialogs;
 
-    //! reader/writer lock for synchronization
-    OsBSem mLock;
+   //! reader/writer lock for synchronization
+   OsBSem mLock;
 
    //! Disabled copy constructor
    SipDialogEvent(const SipDialogEvent& rSipDialogEvent);

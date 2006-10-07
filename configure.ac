@@ -1,9 +1,13 @@
 AC_PREREQ(2.57)
 AC_INIT(sipX, 0.0.0, sipx-dev@list.sipfoundry.org)
+
 AC_CONFIG_AUX_DIR(config)
+
 m4_include([config/general.m4])
 m4_include([config/sipXlib.m4])
-AC_PREFIX_DEFAULT([/usr/local/sipx])
+
+SFAC_SIPX_INSTALL_PREFIX
+
 AM_INIT_AUTOMAKE(foreign)
 
 SFAC_SRCDIR_EXPAND
@@ -39,16 +43,6 @@ if test x$conference = xyes
 then
   AC_CONFIG_SUBDIRS(resiprocateLib)
   AC_CONFIG_SUBDIRS(bbridge)
-fi
-
-AC_ARG_ENABLE(phone, 
-  AC_HELP_STRING([--enable-phone], 
-    [build sipXphone, project is obsolete, see ezphone in sipXcallLib]), 
-    phone=yes)
-
-if test x$phone = xyes
-then
-  AC_CONFIG_SUBDIRS(sipXphone)
 fi
 
 SFAC_DIST_DIR

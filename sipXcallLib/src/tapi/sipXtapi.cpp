@@ -27,6 +27,7 @@
 #include <math.h>
 
 // APPLICATION INCLUDES
+#include "os/OsDefs.h"
 #include "tapi/sipXtapi.h"
 #include "tapi/sipXtapiEvents.h"
 #include "tapi/sipXtapiInternal.h"
@@ -64,9 +65,6 @@
 // DEFINES
 #define MP_SAMPLE_RATE          8000    // Sample rate (don't change)
 #define MP_SAMPLES_PER_FRAME    80      // Frames per second (don't change)
-#ifdef WIN32
-#define strcasecmp stricmp
-#endif
 
 // GLOBAL VARIABLES
 
@@ -142,7 +140,7 @@ void destroyCallData(SIPX_CALL_DATA* pData)
 {
     if (pData != NULL)
     {
-        // Increment call count
+        // Decrement call count
         pData->pInst->pLock->acquire() ;
         pData->pInst->nCalls-- ;
         assert(pData->pInst->nCalls >= 0) ;
@@ -413,6 +411,8 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST* phInst,
            localAddress = utlIdentity;
         }
 
+        OsConfigDb configDb;
+        configDb.set("PHONESET_MAX_ACTIVE_CALLS_ALLOWED", 2*maxConnections);
 
         // get the rtp end port
         int rtpPortEnd = rtpPortStart + (2*maxConnections);
@@ -443,8 +443,8 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST* phInst,
                                "",
                                CP_MAXIMUM_RINGING_EXPIRE_SECONDS,
                                QOS_LAYER3_LOW_DELAY_IP_TOS,
-                               10,
-                               sipXmediaFactoryFactory(NULL));
+                               maxConnections,
+                               sipXmediaFactoryFactory(&configDb));
 
         // Start up the call processing system
         pInst->pCallManager->setOutboundLine(localAddress) ;
@@ -625,7 +625,7 @@ SIPXTAPI_API SIPX_RESULT sipxUnInitialize(SIPX_INST hInst)
         else
         {
             OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
-                "Unable to shutdown busy SIPX_INST (0x%08X) nCalls=%d, nLines=%d, nConferences=%d",
+                "Unable to shut down busy SIPX_INST (%p) nCalls=%d, nLines=%d, nConferences=%d",
                         hInst, nCalls, nLines, nConferences) ;
             rc = SIPX_RESULT_BUSY ;
         }
@@ -889,7 +889,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallCreate(const SIPX_INST hInst,
         "sipxCallCreate hInst=%p hLine=%d phCall=%p",
         hInst, hLine, phCall);
         
-    SIPX_RESULT rc = sipxCallCreateHelper(hInst, hLine, NULL, phCall) ;
+    SIPX_RESULT rc = sipxCallCreateHelper(hInst, hLine, SIPX_CONF_NULL, phCall) ;
     if (rc == SIPX_RESULT_SUCCESS)
     {
         SIPX_CALL_DATA* pData = sipxCallLookup(*phCall, SIPX_LOCK_READ) ;
@@ -998,7 +998,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
                 OsStatus rc = pInst->pCallManager->getCalledAddresses(
                         callId.data(), 1, numAddresses, &address) ;
                 OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
-                              "sipxCallConnect connected hCall=%d callId=%s, numAddr = %d, addr = %s",
+                              "sipxCallConnect connected hCall=%d callId=%s, numAddr = %d, addr = '%s'",
                               hCall, callId.data(), numAddresses, address.data());
                 if(rc == OS_SUCCESS)
                 {
@@ -1610,6 +1610,46 @@ SIPXTAPI_API SIPX_RESULT sipxCallPlayBufferStop(const SIPX_CALL hCall)
     return sr ;
 }
 
+SIPXTAPI_API SIPX_RESULT sipxCallSetMediaProperty(const SIPX_CALL hCall,
+                                                  const char* szPropertyName,
+                                                  const char* szPropertyValue)
+{
+    SIPX_RESULT sipXresult = SIPX_RESULT_FAILURE ;
+    
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "sipxCallSetMediaProperty hCall=%d szPropertyName=\"%s\" szPropertyValue=\"%s\"",
+        hCall,
+        szPropertyName,
+        szPropertyValue);
+
+
+    if (hCall)
+    {
+        SIPX_INSTANCE_DATA *pInst;
+        UtlString callId;
+        UtlString remoteAddress;
+        UtlString lineId;
+
+        if (sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, &lineId))
+        {
+            SIPX_CALL_DATA *pCallData = sipxCallLookup(hCall, SIPX_LOCK_WRITE);
+            if (pCallData)
+            {
+                if(pInst->pCallManager->setConnectionMediaProperty(callId,
+                                                                   remoteAddress,
+                                                                   szPropertyName,
+                                                                   szPropertyValue) ==
+                   OS_SUCCESS)
+                {
+                    sipXresult = SIPX_RESULT_SUCCESS;
+                }
+
+                sipxCallReleaseLock(pCallData, SIPX_LOCK_WRITE);
+            }
+        }
+    }
+    return(sipXresult);
+}
 
 SIPXTAPI_API SIPX_RESULT sipxCallSubscribe(const SIPX_CALL hCall,
                                            const char* szEventType,
@@ -1716,6 +1756,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallSubscribe(const SIPX_CALL hCall,
             if(sessionDataGood &&
                pInst->pSubscribeClient->addSubscription(resourceId, 
                                                         szEventType, 
+                                                        szAcceptType, 
                                                         fromField, 
                                                         toField, 
                                                         contactField, 
@@ -1997,6 +2038,7 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherCreate(const SIPX_INST hInst,
             {
                 publishMgr->getContent(szResourceId, 
                                        szEventType, 
+                                       szEventType, 
                                        szContentType,
                                        oldContentPtr, 
                                        isDefaultContent);
@@ -2045,9 +2087,9 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherCreate(const SIPX_INST hInst,
                 if(pData->pEventType)
                 {
                     // Create a new HttpBody to publish for the resourceId and eventType
-                    pData->pContent = 
+                    HttpBody* content = 
                         new HttpBody(pContent, nContentLength, szContentType);
-                    if(pData->pContent)
+                    if(content)
                     {
                         // Register the publisher handle
                         *phPub = gpPubHandleMap->allocHandle(pData);
@@ -2062,34 +2104,12 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherCreate(const SIPX_INST hInst,
                         }
 
                         // Publish the content
-                        publishMgr->publish(*pData->pResourceId,
-                                            *pData->pEventType,
-                                            *pData->pEventType,
+                        publishMgr->publish(pData->pResourceId->data(),
+                                            pData->pEventType->data(),
+                                            pData->pEventType->data(),
                                             1, // one content type for event
-                                            &pData->pContent,
-                                            1, // old content array size
-                                            oldContentCount,
-                                            &oldContentPtr);
+                                            &content);
                         sipXresult = SIPX_RESULT_SUCCESS;
-
-                        // There should not be any prior content for this 
-                        // resource and event type
-                        if(oldContentCount)
-                        {
-                            OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
-                                "sipxCreatePublisher: content already exists for resourceId: %s and eventType: %s",
-                                szResourceId ? szResourceId : "<null>",
-                                szEventType ? szEventType : "<null>");
-
-                            sipXresult = SIPX_RESULT_INVALID_ARGS;
-                            gpPubHandleMap->removeHandle(*phPub);
-                            phPub = NULL;
-                            delete pData->pEventType;
-                            delete pData->pResourceId;
-                            delete pData;
-                            pData = NULL;
-                        }
-
                     }
                     else
                     {
@@ -2146,8 +2166,6 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherUpdate(const SIPX_PUB hPub,
         pContent && *pContent && 
         pData)
     {
-        int oldContentCount = 0;
-        HttpBody* oldContentPtr = NULL;
         HttpBody* newContent = 
             new HttpBody(pContent, nContentLength, szContentType);
 
@@ -2156,14 +2174,11 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherUpdate(const SIPX_PUB hPub,
         if(publishMgr)
         {
             // Publish the state change
-            publishMgr->publish(*pData->pResourceId,
-                                *pData->pEventType,
-                                *pData->pEventType,
+            publishMgr->publish(pData->pResourceId->data(),
+                                pData->pEventType->data(),
+                                pData->pEventType->data(),
                                 1, // one content type for event
-                                &newContent,
-                                1, // old content array size
-                                oldContentCount,
-                                &oldContentPtr);
+                                &newContent);
             sipXresult = SIPX_RESULT_SUCCESS;
         }
         else
@@ -2172,22 +2187,6 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherUpdate(const SIPX_PUB hPub,
                 "sipxUpdatePublisher: no publisher for event type: %s",
                 pData->pEventType->data());
             sipXresult = SIPX_RESULT_FAILURE;
-        }
-
-        if(oldContentCount == 1)
-        {
-            if(oldContentPtr)
-            {
-                delete oldContentPtr;
-                oldContentPtr = NULL;
-            }
-        }
-        else if(oldContentCount > 1)
-        {
-            sipXresult = SIPX_RESULT_FAILURE;
-            OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
-                "sipxUpdatePublisher old content count: %d",
-                oldContentCount);
         }
     }
 
@@ -2245,39 +2244,14 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherDestroy(const SIPX_PUB hPub,
 
         if(unPublish)
         {
-            HttpBody* oldContent = NULL;
             SipPublishContentMgr* publishMgr = 
                 pData->pInst->pSubscribeServer->getPublishMgr(*pData->pEventType);
             if(publishMgr)
             {
                 // Publish the state change
-                int numOldContentTypes = 0;
                 publishMgr->unpublish(*pData->pResourceId, 
                                       *pData->pEventType,
-                                      *pData->pEventType,
-                                      1, // max published content types
-                                      numOldContentTypes,
-                                      &oldContent);
-
-                if(oldContent)
-                {
-                    if(pData->pContent == oldContent)
-                    {
-                        pData->pContent = NULL;
-                    }
-                    delete oldContent;
-                    oldContent = NULL;
-                }
-            }
-
-            // We cannot free up the pContent unless we
-            // unpublish it.  If it was unpublished it would
-            // have been freed above
-            if(pData->pContent)
-            {
-                OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
-                    "sipxDestroyPublisher: content did not match that which was unpublished %p != %p",
-                    oldContent, pData->pContent);
+                                      *pData->pEventType);
             }
 
             if(pData->pEventType)
@@ -2324,25 +2298,23 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceCreate(const SIPX_INST hInst,
 
     if (phConference)
     {
-        *phConference = SIPX_CONF_NULL ;
+       *phConference = SIPX_CONF_NULL ;
 
-        SIPX_CONF_DATA* pData = new SIPX_CONF_DATA ;
-        assert(pData != NULL) ;
-        if (pData)
-        {
-            // Init conference data
-            memset(pData, 0, sizeof(SIPX_CONF_DATA)) ;
-            pData->pInst = (SIPX_INSTANCE_DATA*) hInst ;
+       SIPX_CONF_DATA* pData = new SIPX_CONF_DATA ;
+       assert(pData != NULL) ;
 
-            // Increment conference counter
-            pData->pInst->pLock->acquire() ;
-            pData->pInst->nConferences++ ;
-            pData->pInst->pLock->release() ;
+       // Init conference data
+       memset(pData, 0, sizeof(SIPX_CONF_DATA)) ;
+       pData->pInst = (SIPX_INSTANCE_DATA*) hInst ;
 
-            pData->pMutex = new OsRWMutex(OsRWMutex::Q_FIFO) ;
-            *phConference = gpConfHandleMap->allocHandle(pData) ;
-            rc = SIPX_RESULT_SUCCESS ;
-        }
+       // Increment conference counter
+       pData->pInst->pLock->acquire() ;
+       pData->pInst->nConferences++ ;
+       pData->pInst->pLock->release() ;
+
+       pData->pMutex = new OsRWMutex(OsRWMutex::Q_FIFO) ;
+       *phConference = gpConfHandleMap->allocHandle(pData) ;
+       rc = SIPX_RESULT_SUCCESS ;
     }
 
     return rc ;
@@ -2382,6 +2354,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceJoin(const SIPX_CONF hConf,
                         // This is a virgin conference; use the supplied call 
                         // as the conference shell (CpPeerCall).
                         pConfData->strCallId = new UtlString(*pCallData->callId) ;
+                        assert(hCall != SIPX_CALL_NULL);
                         pConfData->hCalls[pConfData->nCalls++] = hCall ;
                         pCallData->hConf = hConf ;                       
                     }
@@ -2423,6 +2396,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceJoin(const SIPX_CONF hConf,
                             // Update data structures
                             *pCallData->callId = targetCallId ;
                             pCallData->hConf = hConf ;
+                            assert(hCall != SIPX_CALL_NULL);
                             pConfData->hCalls[pConfData->nCalls++] = hCall ;
                         }
 
@@ -2626,6 +2600,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
                     pData->strCallId = new UtlString(pCallData->callId->data()) ;
 
                     // Add the call handle to the conference handle
+                    assert(hNewCall != SIPX_CALL_NULL);
                     pData->hCalls[pData->nCalls++] = hNewCall ;
                     *phNewCall = hNewCall ;
 
@@ -2684,6 +2659,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
                     pNewCallData->pMutex = new OsRWMutex(OsRWMutex::Q_FIFO) ;
 
                     SIPX_CALL hNewCall = gpCallHandleMap->allocHandle(pNewCallData) ;
+                    assert(hNewCall != SIPX_CALL_NULL);
                     pData->hCalls[pData->nCalls++] = hNewCall ;
                     *phNewCall = hNewCall ;
 
@@ -2761,7 +2737,10 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceRemove(const SIPX_CONF hConf,
         else
         {
             // Either the call or conf doesn't exist
-            rc = SIPX_RESULT_FAILURE ;
+           OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING,
+                         "sipxConferenceRemove hConf=%d hCall=%d Call or conference doesn't exist.",
+                         hConf, hCall);
+           rc = SIPX_RESULT_FAILURE ;
         }
 
         sipxConfReleaseLock(pConfData, SIPX_LOCK_WRITE) ;
@@ -2792,7 +2771,8 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceGetCalls(const SIPX_CONF hConf,
             size_t idx ;
             for (idx=0; (idx<pData->nCalls) && (idx < iMax); idx++)
             {
-                hCalls[idx] = pData->hCalls[idx] ;
+               assert(pData->hCalls[idx] != SIPX_CALL_NULL);
+               hCalls[idx] = pData->hCalls[idx];
             }
             nActual = idx ;
 
@@ -2895,23 +2875,67 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceDestroy(SIPX_CONF hConf)
 
     if (hConf)
     {
-        // Get a snapshot of the calls, drop the connections, remove the conf handle,
-        // and THEN whack the call -- otherwise whacking the calls will force updates
-        // into SIPX_CONF_DATA structure (work that isn't needed).
-        sipxConferenceGetCalls(hConf, hCalls, CONF_MAX_CONNECTIONS, nCalls) ;
-        for (size_t idx=0; idx<nCalls; idx++)
-        {
-            sipxConferenceRemove(hConf, hCalls[idx]) ;
-        }
+       // Get a snapshot of the calls, drop the connections, remove the conf handle,
+       // and THEN whack the call -- otherwise whacking the calls will force updates
+       // into SIPX_CONF_DATA structure (work that isn't needed).
+       if (sipxConferenceGetCalls(hConf, hCalls, CONF_MAX_CONNECTIONS, nCalls) ==
+           SIPX_RESULT_SUCCESS)
+       {
+          for (size_t idx=0; idx<nCalls; idx++)
+          {
+             assert(hCalls[idx] != SIPX_CALL_NULL);
+             sipxConferenceRemove(hConf, hCalls[idx]) ;
+          }
+       }
+       else
+       {
+          OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING,
+                        "sipxConferenceDestroy hConf=%d does not exist",
+                        hConf);
+          assert(FALSE);
+       }
 
-        sipxConfFree(hConf) ;
+       sipxConfFree(hConf) ;
 
-        rc = SIPX_RESULT_SUCCESS ;
+       rc = SIPX_RESULT_SUCCESS ;
     }
 
     return rc ;
 }
 
+SIPXTAPI_API SIPX_RESULT sipxConferenceSetMediaProperty(const SIPX_CONF hConf,
+                                                        const char* szPropertyName,
+                                                        const char* szPropertyValue)
+{
+    SIPX_RESULT sipXresult = SIPX_RESULT_FAILURE ;
+    
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "sipxConferenceSetMediaProperty hConf=%d szPropertyName=\"%s\" szPropertyValue=\"%s\"",
+        hConf,
+        szPropertyName,
+        szPropertyValue);
+
+
+    if (hConf)
+    {
+        SIPX_CONF_DATA* pData = sipxConfLookup(hConf, SIPX_LOCK_WRITE) ;
+        if (pData)
+        {
+            if(pData->strCallId && !pData->strCallId->isNull())
+            {
+                if(pData->pInst->pCallManager->setCallMediaProperty(pData->strCallId->data(),
+                                                                 szPropertyName,
+                                                                 szPropertyValue) ==
+                   OS_SUCCESS)
+                {
+                    sipXresult = SIPX_RESULT_SUCCESS;
+                }
+            }
+            sipxConfReleaseLock(pData, SIPX_LOCK_WRITE);
+        }
+    }
+    return(sipXresult);
+}
 
 /****************************************************************************
  * Audio Related Functions
@@ -3830,7 +3854,7 @@ SIPXTAPI_API SIPX_RESULT sipxLineAdd(const SIPX_INST hInst,
 SIPXTAPI_API SIPX_RESULT sipxLineAddAlias(const SIPX_LINE hLine, const char* szLineURL) 
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxLineAddAlias hLine=%d szLineURL=%d",
+        "sipxLineAddAlias hLine=%d szLineURL=%s",
         hLine, szLineURL);
 
     SIPX_RESULT sr = SIPX_RESULT_FAILURE ;

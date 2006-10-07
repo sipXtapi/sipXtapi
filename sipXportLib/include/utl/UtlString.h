@@ -209,7 +209,7 @@ public:
     UtlBoolean isNull() const;
 
     /// Compare this string to a null terminated string (case sensitive).
-    int compareTo(const char *) const;
+    virtual int compareTo(const char *) const;
     /**<
      * @returns 0 if equal, < 0 if less then and >0 if greater.
      */

@@ -37,6 +37,7 @@
   </component>
   <component id="firstName" type="TextField">
     <binding name="value" value="user.firstName"/>
+    <binding name="displayName" value="message:label.firstName"/>
   </component>
   <component id="lastNamePanel" type="FieldPanel">
     <binding name="field" value="components.lastName"/>
@@ -44,6 +45,7 @@
   </component>
   <component id="lastName" type="TextField">
     <binding name="value" value="user.lastName"/>
+    <binding name="displayName" value="message:label.lastName"/>
   </component>
   <component id="userIdPanel" type="FieldPanel">
     <binding name="field" value="components.userId"/>
@@ -70,6 +72,7 @@
   </component>
   <component id="sipPassword" type="TextField">
     <binding name="value" value="user.sipPassword"/>
+    <binding name="displayName" value="message:label.sipPassword"/>
   </component>
   <component id="groupsPanel" type="FieldPanel">
     <!-- Tacos/Tapestry Bug

@@ -17,6 +17,7 @@
 #include <net/SipDialog.h>
 #include <net/SipMessage.h>
 #include <utl/UtlHashMapIterator.h>
+#include <os/OsSysLog.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -339,8 +340,19 @@ void SipDialog::setRequestData(SipMessage& request, const char* method)
     // The request URI should be the remote contact
     UtlString remoteContact;
     mRemoteContact.toString(remoteContact);
-    request.setSipRequestFirstHeaderLine(methodString, remoteContact);
-
+    
+    // If the remote contact is empty, use the remote request uri
+    if (remoteContact.compareTo("sip:") == 0)
+    {
+         OsSysLog::add(FAC_ACD, PRI_DEBUG, "SipDialog::setRequestData - using remote request uri %s",
+                       msRemoteRequestUri.data());
+         request.setSipRequestFirstHeaderLine(methodString, msRemoteRequestUri);
+    }
+    else
+    {
+         request.setSipRequestFirstHeaderLine(methodString, remoteContact);     
+    }
+    
     // The local field is the From field
     UtlString fromField;
     mLocalField.toString(fromField);
@@ -881,16 +893,16 @@ void SipDialog::getStateString(DialogState state,
         stateString = "DIALOG_UNKNOWN";
         break;
     case DIALOG_EARLY:
-        stateString = "DIALOG_UNKNOWN";
+        stateString = "DIALOG_EARLY";
         break;
     case DIALOG_ESTABLISHED:
-        stateString = "DIALOG_UNKNOWN";
+        stateString = "DIALOG_ESTABLISHED";
         break;
     case DIALOG_FAILED:
-        stateString = "DIALOG_UNKNOWN";
+        stateString = "DIALOG_FAILED";
         break;
     case DIALOG_TERMINATED:
-        stateString = "DIALOG_UNKNOWN";
+        stateString = "DIALOG_TERMINATED";
         break;
 
     // This should not happen

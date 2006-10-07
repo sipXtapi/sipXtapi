@@ -1,10 +1,5 @@
 SUDO = sudo
 
-if RPM_CAPABLE
-RPMBUILD_TOPDIR = $(shell rpm --eval '%{_topdir}')
-RPM_TARGET_ARCH = $(shell rpm --eval '%{_target_cpu}')
-endif
-
 DIST_SRC=$(DEST_SRC)/$(distdir).tar.gz
 RPM=$(DEST_RPM)/@PACKAGE@-$(VERSION)-$(RELEASE).$(RPM_TARGET_ARCH).rpm 
 DEVEL_RPM=$(DEST_RPM)/@PACKAGE@-devel-$(VERSION)-$(RELEASE).$(RPM_TARGET_ARCH).rpm
@@ -34,10 +29,10 @@ build-rpm :
 	rpmbuild -ta --define="buildno $(RELEASE)" $(DIST_SRC)
 
 $(RPMS) : build-rpm
-	cp $(RPMBUILD_TOPDIR)/RPMS/$(RPM_TARGET_ARCH)/`basename $@` $@
+	cp @RPMBUILD_TOPDIR@/RPMS/$(RPM_TARGET_ARCH)/`basename $@` $@
 
 $(SRPM) : build-rpm
-	cp $(RPMBUILD_TOPDIR)/SRPMS/`basename $@` $@
+	cp @RPMBUILD_TOPDIR@/SRPMS/`basename $@` $@
 
 .PHONY : additional-package-files
 additional-package-files: \

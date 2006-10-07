@@ -17,6 +17,7 @@
 #include <tao/TaoString.h>
 #include <cp/CallManager.h>
 #include <net/SipDialog.h>
+#include <net/SipDialogEvent.h>
 #include <net/SipPublishContentMgr.h>
 #include <os/OsFS.h>
 #include <os/OsDateTime.h>
@@ -33,6 +34,73 @@
 
 // STATIC VARIABLE INITIALIZATIONS
 
+// Objects to construct default content for dialog events.
+
+class DialogDefaultConstructor : public SipPublishContentMgrDefaultConstructor
+{
+  public:
+
+   /** Generate the content for a resource and event.
+    */
+   virtual void generateDefaultContent(SipPublishContentMgr* contentMgr,
+                                       const char* resourceId,
+                                       const char* eventTypeKey,
+                                       const char* eventType);
+
+   /// Make a copy of this object according to its real type.
+   virtual SipPublishContentMgrDefaultConstructor* copy();
+
+   // Service routine for UtlContainable.
+   virtual const char* const getContainableType() const;
+
+protected:
+   static UtlContainableType TYPE;    /** < Class type used for runtime checking */
+};
+
+// Static identifier for the type.
+const UtlContainableType DialogDefaultConstructor::TYPE = "DialogDefaultConstructor";
+
+// Generate the default content for dialog status.
+void DialogDefaultConstructor::generateDefaultContent(SipPublishContentMgr* contentMgr,
+                                                      const char* resourceId,
+                                                      const char* eventTypeKey,
+                                                      const char* eventType)
+{
+   // Construct the body, an empty notice for the user.
+   UtlString content;
+   // Use version 0 for this notice, because we've arranged in
+   // SipDialogEvent:: that the first real notice will have version 1.
+   content.append("<?xml version=\"1.0\"?>\r\n"
+                  "<dialog-info xmlns=\"urn:ietf:params:xml:ns:dialog-info\" "
+                  "version=\"0\" notify-state=\"full\" entity=\"");
+   // Assume that the resourceId contains no characters that are special for XML.  (ugh)
+   content.append(resourceId);
+   content.append("\">\r\n"
+                  "</dialog-info>\r\n");
+
+   // Build an HttpBody.
+   HttpBody* body = new HttpBody(content, strlen(content),
+                                 DIALOG_EVENT_CONTENT_TYPE);
+
+   // Install it for the resource, but do not publish it, because our
+   // caller will publish it.
+   contentMgr->publish(resourceId, eventTypeKey, eventType, 1, &body, TRUE);
+}
+
+// Make a copy of this object according to its real type.
+SipPublishContentMgrDefaultConstructor* DialogDefaultConstructor::copy()
+{
+   // Copying these objects is easy, since they have no member variables, etc.
+   return new DialogDefaultConstructor;
+}
+
+// Get the ContainableType for a UtlContainable derived class.
+UtlContainableType DialogDefaultConstructor::getContainableType() const
+{
+    return DialogDefaultConstructor::TYPE;
+}
+
+
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
@@ -43,6 +111,9 @@ DialogEventPublisher::DialogEventPublisher(CallManager* callManager,
 {
    mpCallManager = callManager;
    mpSipPublishContentMgr = contentMgr;
+   // Arrange to generate default content for dialog events.
+   mpSipPublishContentMgr->publishDefault(DIALOG_EVENT_TYPE, DIALOG_EVENT_TYPE,
+                                          new DialogDefaultConstructor);
    mDialogId = 0;
 }
 
@@ -71,12 +142,9 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
    UtlString identity, displayName;
    UtlString failCallId;
    OsTime receivedTime;
-   int numOldContents;
-   HttpBody* oldContent[1];
    UtlString remoteRequestUri;
    UtlString temp;
 
-   int length;
    UtlString dialogEvent;
    
    // React to telephony events
@@ -158,10 +226,12 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
             pDialog->setRemoteIdentity(identity, displayName);
    
             sipDialog.getLocalContact(localTarget);
-            pDialog->setLocalTarget(localTarget.toString());
+            localTarget.getUri(temp);
+            pDialog->setLocalTarget(temp);
    
             sipDialog.getRemoteContact(remoteTarget);
-            pDialog->setRemoteTarget(remoteTarget.toString());
+            remoteTarget.getUri(temp);
+            pDialog->setRemoteTarget(temp);
                
             pDialog->setDuration(OsDateTime::getSecsSinceEpoch());
    
@@ -170,12 +240,14 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
             // Insert it into the active call list
             pThisCall->buildBody();
 
-            // Send the content to the subscribe server
-            if (!mpSipPublishContentMgr->publish(entity.data(), DIALOG_EVENT_TYPE, DIALOG_EVENT_TYPE, 1, (HttpBody**)&pThisCall, 1, numOldContents, oldContent))
+            // Send the content to the subscribe server.
             {
-               pThisCall->getBytes(&dialogEvent, &length);
-               OsSysLog::add(FAC_SIP, PRI_ERR, "DialogEventPublisher:: Call arrived - DialogEvent %s\n was not successfully published to the subscribe server",
-                             dialogEvent.data());
+               // Make a copy, because mpSipPublishContentMgr will own it.
+               HttpBody* pHttpBody = new HttpBody(*(HttpBody*)pThisCall);
+               mpSipPublishContentMgr->publish(entity.data(),
+                                               DIALOG_EVENT_TYPE,
+                                               DIALOG_EVENT_TYPE,
+                                               1, &pHttpBody);
             }
                         
             break;
@@ -220,42 +292,40 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                                 entity.data());
                }
                
-               // Get the new callId because it might be changed
+               // Get the new callId because it might have changed
                sipDialog.getCallId(callId);
+               sipDialog.getLocalField(localIdentity);
+               localIdentity.getFieldParameter("tag", localTag);
+               sipDialog.getRemoteField(remoteIdentity);
+               remoteIdentity.getFieldParameter("tag", remoteTag);
 
-               pDialog = pThisCall->getDialog(callId);
-               // Update the dialog content if exist
+               pDialog = pThisCall->getDialog(callId, localTag, remoteTag);
+               // Update the dialog content if it exists.
                if (pDialog)
                {
-                  sipDialog.getLocalField(localIdentity);
-                  localIdentity.getFieldParameter("tag", localTag);
-   
-                  sipDialog.getRemoteField(remoteIdentity);
-                  remoteIdentity.getFieldParameter("tag", remoteTag);
-               
+                  // This may be the establishment of a dialog for an 
+                  // INVITE we sent, so the remote tag may only be getting
+                  // set now.
                   pDialog->setTags(localTag, remoteTag);
    
                   sipDialog.getLocalContact(localTarget);
-                  pDialog->setLocalTarget(localTarget.toString());
+                  localTarget.getUri(temp);
+                  pDialog->setLocalTarget(temp);
    
                   sipDialog.getRemoteContact(remoteTarget);
-                  pDialog->setRemoteTarget(remoteTarget.toString());
+                  remoteTarget.getUri(temp);
+                  pDialog->setRemoteTarget(temp);
    
                   pDialog->setState(STATE_CONFIRMED, NULL, NULL);
                }
                else
                {
                   // Create a new dialog element
-                  sipDialog.getLocalField(localIdentity);
-                  localIdentity.getFieldParameter("tag", localTag);
-   
-                  sipDialog.getRemoteField(remoteIdentity);
-                  remoteIdentity.getFieldParameter("tag", remoteTag);
-               
                   sprintf(dialogId, "%ld", mDialogId);
                   mDialogId++;
    
-                  pDialog = new Dialog(dialogId, callId, localTag, remoteTag, "recipient");
+                  pDialog = new Dialog(dialogId, callId, localTag, remoteTag,
+                                       "recipient");
                   pDialog->setState(STATE_CONFIRMED, NULL, NULL);
    
                   localIdentity.getIdentity(identity);
@@ -267,10 +337,12 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                   pDialog->setRemoteIdentity(identity, displayName);
    
                   sipDialog.getLocalContact(localTarget);
-                  pDialog->setLocalTarget(localTarget.toString());
+                  localTarget.getUri(temp);
+                  pDialog->setLocalTarget(temp);
    
                   sipDialog.getRemoteContact(remoteTarget);
-                  pDialog->setRemoteTarget(remoteTarget.toString());
+                  remoteTarget.getUri(temp);
+                  pDialog->setRemoteTarget(temp);
    
                   pDialog->setDuration(OsDateTime::getSecsSinceEpoch());
    
@@ -279,13 +351,12 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                    
                pThisCall->buildBody();
 
-               // Publish the content to the subscribe server
-               if (!mpSipPublishContentMgr->publish(entity.data(), DIALOG_EVENT_TYPE, DIALOG_EVENT_TYPE, 1, (HttpBody**)&pThisCall, 1, numOldContents, oldContent))
-               {
-                  pThisCall->getBytes(&dialogEvent, &length);
-                  OsSysLog::add(FAC_SIP, PRI_ERR, "DialogEventPublisher:: Call connected - DialogEvent %s\n was not successfully published to the subscribe server",
-                                dialogEvent.data());
-               }
+               // Publish the content to the subscribe server.
+               // Make a copy, because mpSipPublishContentMgr will own it.
+               HttpBody* pHttpBody = new HttpBody(*(HttpBody*)pThisCall);
+               mpSipPublishContentMgr->publish(entity.data(),
+                                               DIALOG_EVENT_TYPE, DIALOG_EVENT_TYPE,
+                                               1, &pHttpBody);
             }
 
             break;
@@ -335,8 +406,12 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                requestUrl = Url(entity);
                requestUrl.getIdentity(entity);     
                          
-               // Get the new callId because it might be changed
+               // Get the new callId because it might have changed
                sipDialog.getCallId(callId);
+               sipDialog.getLocalField(localIdentity);
+               localIdentity.getFieldParameter("tag", localTag);
+               sipDialog.getRemoteField(remoteIdentity);
+               remoteIdentity.getFieldParameter("tag", remoteTag);
 
                sipDialog.getLocalField(localIdentity);
                localIdentity.getFieldParameter("tag", localTag);
@@ -364,7 +439,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                   }
                   else
                   {
-                     pDialog = pThisCall->getDialog(callId);
+                     pDialog = pThisCall->getDialog(callId, localTag, remoteTag);
                   }
                   if (pDialog)
                   {
@@ -372,39 +447,16 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                    
                      pThisCall->buildBody();
 
-                     // Publish the content to the subscribe server
-                     if (!mpSipPublishContentMgr->publish(entity.data(), DIALOG_EVENT_TYPE, DIALOG_EVENT_TYPE, 1, (HttpBody**)&pThisCall, 1, numOldContents, oldContent))
-                     {
-                        pThisCall->getBytes(&dialogEvent, &length);
-                        OsSysLog::add(FAC_SIP, PRI_ERR, "DialogEventPublisher:: Call dropped - DialogEvent %s\n was not successfully published to the subscribe server",
-                                      dialogEvent.data());
-                     }
+                     // Publish the content to the subscribe server.
+                     // Make a copy, because mpSipPublishContentMgr will own it.
+                     HttpBody* pHttpBody = new HttpBody(*(HttpBody*)pThisCall);
+                     mpSipPublishContentMgr->publish(entity.data(),
+                                                     DIALOG_EVENT_TYPE, DIALOG_EVENT_TYPE,
+                                                     1, &pHttpBody);
                        
                      // Remove the dialog from the dialog event package
                      pDialog = pThisCall->removeDialog(pDialog);
                      delete pDialog;
-                  }
-                  
-                  if (pThisCall->isEmpty())
-                  {
-                     // Unpublisher the content from the subscribe server
-                     if (!mpSipPublishContentMgr->unpublish(entity.data(), DIALOG_EVENT_TYPE, DIALOG_EVENT_TYPE, 1, numOldContents, oldContent))
-                     {
-                        pThisCall->getBytes(&dialogEvent, &length);
-                        OsSysLog::add(FAC_SIP, PRI_ERR, "DialogEventPublisher:: Call dropped - DialogEvent %s\n was not successfully unpublished to the subscribe server",
-                                      dialogEvent.data());
-                     }
-                     
-                     UtlContainable *foundValue;
-                     mCalls.removeKeyAndValue(pEntity, foundValue);
-                     if (foundValue)
-                     {
-                        OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher:: remove DialogEvent object %p from the list",
-                                      pThisCall);
-                        pThisCall = (SipDialogEvent *) foundValue;
-                        delete pThisCall;
-                        delete pEntity;
-                     }
                   }
                }
                else
@@ -521,4 +573,3 @@ bool DialogEventPublisher::findEntryByCallId(UtlString& callId, UtlString& entit
 /* ============================ TESTING =================================== */
 
 /* ============================ FUNCTIONS ================================= */
-

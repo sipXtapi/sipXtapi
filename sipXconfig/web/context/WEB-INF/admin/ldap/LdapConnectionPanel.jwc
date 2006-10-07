@@ -44,6 +44,7 @@
   <component id="principal" type="TextField">
     <binding name="value" value="lcp.principal"/>
     <binding name="validators" value="validators:maxLength=255"/>
+    <binding name="displayName" value="message:label.principal"/>
   </component>
 
   <component id="secret" type="ConfirmPassword">

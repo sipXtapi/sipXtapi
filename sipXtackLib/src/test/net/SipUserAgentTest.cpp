@@ -158,6 +158,11 @@ public:
          OsTimerTask::destroyTimerTask();
          OsStunAgentTask::releaseInstance();
 
+         // Test to see that all the threads created by the above operations
+         // get properly shut down.
+         // Since the threads do not shut down synchronously with the above
+         // calls, we have to wait before we know they will be cleared.
+         OsTask::delay(1000);   // 1 second
          int numThreads = getNumThreads(myPID);
          CPPUNIT_ASSERT(numThreads == 1);
       }
@@ -232,6 +237,11 @@ public:
          OsTimerTask::destroyTimerTask();
          OsStunAgentTask::releaseInstance();
 
+         // Test to see that all the threads created by the above operations
+         // get properly shut down.
+         // Since the threads do not shut down synchronously with the above
+         // calls, we have to wait before we know they will be cleared.
+         OsTask::delay(1000);   // 1 second
          int numThreads = getNumThreads(myPID);
          CPPUNIT_ASSERT(numThreads == 1);
       }

@@ -16,6 +16,7 @@ SUBDIRS = \
 	bin \
 	meta \
 	examples \
+	dialogwatch \
 	syslog2siptrace \
 	siplog2siptrace \
 	siptest \
@@ -32,7 +33,7 @@ EXTRA_DIST = \
     CONTRIBUTORS \
     LICENSE \
     BUILDSTAMP \
-    SVN_VERSION \
+    SVN-VERSION \
     ant-targets.xml \
     ant-targets.am \
     sipxtacklib.spec \

@@ -48,7 +48,7 @@
 
 
 #define STATUS_OPEN "open"
-#define STATUS_CLOSE "close"
+#define STATUS_CLOSED "closed"
 
 // STRUCTS
 // TYPEDEFS

@@ -17,5 +17,5 @@ mediaserver_cgi_CXXFLAGS = \
 
 mediaserver_cgi_SOURCES = \
 	main.cpp \
-	../../config/sipxpbx-buildstamp.h \
-	../../config/sipxpbx-buildstamp.cpp
+	$(top_builddir)/config/sipxpbx-buildstamp.h \
+	$(top_builddir)/config/sipxpbx-buildstamp.cpp

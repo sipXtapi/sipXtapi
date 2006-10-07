@@ -6,11 +6,11 @@ REL = 3
 
 SRC = $(W3C_LIBSRC)/w3c-libwww-$(VER).tgz
 
-SIPX_SRC = $(RPMBUILD_TOPDIR)/SOURCES/sipx-w3c-libwww-$(VER).tgz
+SIPX_SRC = @RPMBUILD_TOPDIR@/SOURCES/sipx-w3c-libwww-$(VER).tgz
 
 RPMS = \
-	$(DEST_RPM)/sipx-w3c-libwww-$(VER)-$(REL).$(RPM_TARGET_ARCH).rpm \
-	$(DEST_RPM)/sipx-w3c-libwww-devel-$(VER)-$(REL).$(RPM_TARGET_ARCH).rpm
+	$(DEST_RPM)/sipx-w3c-libwww-$(VER)-$(REL).@RPM_TARGET_ARCH@.rpm \
+	$(DEST_RPM)/sipx-w3c-libwww-devel-$(VER)-$(REL).@RPM_TARGET_ARCH@.rpm
 
 ORIG_RPM = $(subst sipx-w3c,w3c,`basename $@`)
 
@@ -33,4 +33,4 @@ build-rpms : $(SIPX_SRC) $(srcdir)/sipx-w3c-libwww.spec
 	rpmbuild -ba $(srcdir)/sipx-w3c-libwww.spec
 
 $(RPMS) : build-rpms
-	cp $(RPMBUILD_TOPDIR)/RPMS/$(RPM_TARGET_ARCH)/`basename $@` $@
+	cp @RPMBUILD_TOPDIR@/RPMS/@RPM_TARGET_ARCH@/`basename $@` $@

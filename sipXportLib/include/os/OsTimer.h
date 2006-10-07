@@ -254,9 +254,7 @@ class OsTimer : public UtlContainable
    unsigned int    mApplicationState;
    //< state as seen by application methods
    unsigned int    mTaskState; //< state as seen by the timer task
-#ifndef NDEBUG
    UtlBoolean      mDeleting;  //< TRUE if timer is being deleted
-#endif
 
    OsNotification* mpNotifier; //< used to signal timer expiration event
    UtlBoolean      mbManagedNotifier;
@@ -353,8 +351,15 @@ class OsTimer : public UtlContainable
    /// Compare two Time's.
    inline static int compareTimes(Time a, Time b)
    {
-      // Interpret a and b as long long int's and take their difference.
-      return (int)(a - b);
+      // We can't use the usual trick of returning (a - b), because
+      // that difference is a long long int, but the return type
+      // of compareTimes is int, and truncating may change the sign
+      // of the value.
+      Time difference = a - b;
+      return
+         difference < 0 ? -1 :
+         difference == 0 ? 0 :
+         1;
    }
    ///< Returns > 0, 0, or < 0 according to whether a > b, a == b, or a < b.
 

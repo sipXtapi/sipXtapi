@@ -43,8 +43,8 @@ libsipXport_la_CXXFLAGS = \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
 
 libsipXport_la_SOURCES =  \
-    ../config/sipxportlib-buildstamp.h \
-    ../config/sipxportlib-buildstamp.cpp \
+    $(top_builddir)/config/sipxportlib-buildstamp.h \
+    $(top_builddir)/config/sipxportlib-buildstamp.cpp \
     utl/UtlBool.cpp \
     utl/UtlDateTime.cpp \
     utl/UtlLink.cpp \
@@ -53,6 +53,7 @@ libsipXport_la_SOURCES =  \
     utl/UtlInt.cpp \
     utl/UtlString.cpp \
     utl/UtlContainable.cpp \
+    utl/UtlContainableAtomic.cpp \
     utl/UtlContainer.cpp \
     utl/UtlIterator.cpp \
     utl/UtlList.cpp \
@@ -149,6 +150,7 @@ libsipXport_la_SOURCES =  \
     os/linux/OsUtilLinux.cpp \
     os/linux/pt_csem.c \
     os/linux/pt_mutex.c \
+    xmlparser/ExtractContent.cpp \
     xmlparser/tinystr.cpp \
     xmlparser/tinyxml.cpp \
     xmlparser/tinyxmlerror.cpp \

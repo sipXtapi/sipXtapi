@@ -14,7 +14,6 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include <os/OsSysLog.h>
-#include <utl/UtlHashMapIterator.h>
 #include <utl/XmlContent.h>
 #include <net/SipDialogEvent.h>
 #include <net/NameValueTokenizer.h>
@@ -43,6 +42,7 @@ Dialog::Dialog(const char* dialogId,
    mLocalTag = localTag;
    mRemoteTag = remoteTag;
    mDirection = direction;
+   setIdentifier();
 }
 
 
@@ -53,27 +53,20 @@ Dialog::~Dialog()
 
 /* ============================ MANIPULATORS ============================== */
 
-// Assignment operator
-Dialog&
-Dialog::operator=(const Dialog& rhs)
+void Dialog::setIdentifier()
 {
-   if (this == &rhs)            // handle the assignment to self case
-      return *this;
-
-   return *this;
-}
-
-// Copy constructor
-Dialog::Dialog(const Dialog& rDialog)
-{
-   mId = rDialog.mId;
-   mCallId = rDialog.mCallId;
-   mLocalTag = rDialog.mLocalTag;
-   mRemoteTag = rDialog.mRemoteTag;
-   mDirection = rDialog.mDirection;
+   // Compose a unique identifier for the dialog by concatenating the
+   // call-id, to-tag, and from-tag.
+   mIdentifier.append(mCallId);
+   mIdentifier.append("\001");
+   mIdentifier.append(mLocalTag);
+   mIdentifier.append("\001");
+   mIdentifier.append(mRemoteTag);
 }
 
 /* ============================ ACCESSORS ================================= */
+
+
 void Dialog::getDialog(UtlString& dialogId,
                        UtlString& callId,
                        UtlString& localTag,
@@ -97,6 +90,7 @@ void Dialog::getCallId(UtlString& callId) const
 void Dialog::setDialogId(const char* dialogId)
 {
    mId = dialogId;
+   setIdentifier();
 }
 
 
@@ -121,6 +115,7 @@ void Dialog::setTags(const char* localTag,
 {
    mLocalTag = localTag;
    mRemoteTag = remoteTag;
+   setIdentifier();
 }
 
 
@@ -240,13 +235,13 @@ void Dialog::getRemoteTarget(UtlString& url) const
 
 int Dialog::compareTo(const UtlContainable *b) const
 {
-   return mCallId.compareTo(((Dialog *)b)->mCallId);
+   return mIdentifier.compareTo(((Dialog *) b)->mIdentifier);
 }
 
 
 unsigned int Dialog::hash() const
 {
-    return mCallId.hash();
+   return mIdentifier.hash();
 }
 
 
@@ -268,7 +263,11 @@ SipDialogEvent::SipDialogEvent(const char* state, const char* entity)
    remove(0);
    append(DIALOG_EVENT_CONTENT_TYPE);
 
-   mVersion = 0;
+   // Generate the initial report with version 1, so we can generate
+   // the default report with version 0 in
+   // DialogDefaultConstructor::generateDefaultContent (in
+   // DialogEventPublisher.cpp).
+   mVersion = 1;
    mDialogState = state;
    mEntity = entity;
 }
@@ -285,7 +284,7 @@ SipDialogEvent::SipDialogEvent(const char* bodyBytes)
       parseBody(bodyBytes);
    }
    
-   ((SipDialogEvent*)this)->mBody = bodyBytes;   
+   mBody = bodyBytes;   
 }
 
 
@@ -293,10 +292,7 @@ SipDialogEvent::SipDialogEvent(const char* bodyBytes)
 SipDialogEvent::~SipDialogEvent()
 {
    // Clean up all the dialog elements
-   if (!mDialogs.isEmpty())
-   {
-      mDialogs.destroyAll();
-   }
+   mDialogs.destroyAll();
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -376,7 +372,6 @@ void SipDialogEvent::parseBody(const char* bodyBytes)
                {
                   pDialog->setDuration(0);
                }
-                  
 
                // Get the local element
                UtlString identity, display, target;
@@ -447,7 +442,6 @@ void SipDialogEvent::parseBody(const char* bodyBytes)
    }
 }
 
-
 // Assignment operator
 SipDialogEvent&
 SipDialogEvent::operator=(const SipDialogEvent& rhs)
@@ -464,6 +458,7 @@ SipDialogEvent::operator=(const SipDialogEvent& rhs)
 
 
 /* ============================ ACCESSORS ================================= */
+
 void SipDialogEvent::insertDialog(Dialog* dialog)
 {
    mLock.acquire();
@@ -495,28 +490,41 @@ Dialog* SipDialogEvent::removeDialog(Dialog* dialog)
 }
 
 
-Dialog* SipDialogEvent::getDialog(UtlString& callId)
+Dialog* SipDialogEvent::getDialog(UtlString& callId,
+                                  UtlString& localTag,
+                                  UtlString& remoteTag)
 {
    mLock.acquire();
-   UtlHashMapIterator dialogIterator(mDialogs);
+   UtlSListIterator dialogIterator(mDialogs);
    Dialog* pDialog;
-   UtlString foundValue;
+   UtlString foundDialogId, foundCallId, foundLocalTag, foundRemoteTag,
+      foundDirection;
    while ((pDialog = (Dialog *) dialogIterator()))
    {
-      pDialog->getCallId(foundValue);
+      pDialog->getDialog(foundDialogId,
+                         foundCallId,
+                         foundLocalTag,
+                         foundRemoteTag,
+                         foundDirection);
       
-      if (foundValue.compareTo(callId) == 0)
+      if (foundCallId.compareTo(callId) == 0 &&
+          foundLocalTag.compareTo(localTag) &&
+          (foundRemoteTag.isNull() ||
+           foundRemoteTag.compareTo(remoteTag) == 0))
       {
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogEvent::getDialog found Dialog = %p for callId %s", 
-                       pDialog, callId.data());                 
-            
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "SipDialogEvent::getDialog found Dialog = %p for callId = '%s', local tag = '%s', remote tag = '%s'", 
+                       pDialog,
+                       callId.data(), localTag.data(), remoteTag.data());
+
          mLock.release();
          return pDialog;
       }
    }     
           
-   OsSysLog::add(FAC_SIP, PRI_WARNING, "SipDialogEvent::getDialog could not found the Dialog for callId = %s", 
-                 callId.data());                 
+   OsSysLog::add(FAC_SIP, PRI_WARNING,
+                 "SipDialogEvent::getDialog could not find the Dialog for callId = '%s', local tag = '%s', remote tag = '%s'", 
+                 callId.data(), localTag.data(), remoteTag.data());
    mLock.release();
    return NULL;
 }
@@ -525,7 +533,7 @@ Dialog* SipDialogEvent::getDialog(UtlString& callId)
 Dialog* SipDialogEvent::getDialogByCallId(UtlString& callId)
 {
    mLock.acquire();
-   UtlHashMapIterator dialogIterator(mDialogs);
+   UtlSListIterator dialogIterator(mDialogs);
    Dialog* pDialog;
    UtlString foundDialogId, foundCallId, foundLocalTag, foundRemoteTag,
       foundDirection;
@@ -573,24 +581,9 @@ int SipDialogEvent::getLength() const
 }
 
 
-Dialog* SipDialogEvent::getFirstDialog()
+UtlSListIterator* SipDialogEvent::getDialogIterator()
 {
-   mLock.acquire();
-   UtlHashMapIterator dialogIterator(mDialogs);
-   Dialog* pDialog = (Dialog *) dialogIterator();
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogEvent::getFirstDialog Dialog = %p", 
-                 pDialog);                 
-            
-   mLock.release();
-   return pDialog;
-}
-
-
-void SipDialogEvent::getAllDialogs(UtlHashMap& dialogs)
-{
-   mLock.acquire();
-   mDialogs.copyInto(dialogs);
-   mLock.release();
+   return new UtlSListIterator(mDialogs);
 }
 
 
@@ -623,9 +616,12 @@ void SipDialogEvent::buildBody() const
    dialogEvent += singleLine;
    dialogEvent.append(END_LINE);
  
-   // Dialog elements
+   // Take the lock (we will be modifying the state even though 'this'
+   // is read-only).
    ((SipDialogEvent*)this)->mLock.acquire();
-   UtlHashMapIterator dialogIterator(mDialogs);
+
+   // Dialog elements
+   UtlSListIterator dialogIterator(mDialogs);
    Dialog* pDialog;
    while ((pDialog = (Dialog *) dialogIterator()))
    {
@@ -762,27 +758,22 @@ void SipDialogEvent::buildBody() const
    // End of dialog-info element
    dialogEvent.append(END_DIALOG_INFO);  
    
-   ((SipDialogEvent*)this)->mLock.release();
-  
+   // Update body text and version number (even though 'this' is read-only).
    ((SipDialogEvent*)this)->mBody = dialogEvent;
    ((SipDialogEvent*)this)->bodyLength = dialogEvent.length();
+   ((SipDialogEvent*)this)->mVersion++;
+
+   ((SipDialogEvent*)this)->mLock.release();
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogEvent::buildBody Dialog content = \n%s", 
-                 dialogEvent.data());
-  
-   // Increment the version number
-   ((SipDialogEvent*)this)->mVersion++;
+                 mBody.data());
 }
 
 
 void SipDialogEvent::getBytes(const char** bytes, int* length) const
 {
-   UtlString tempBody;
-
-   getBytes(&tempBody, length);
-   ((SipDialogEvent*)this)->mBody = tempBody.data();
-
    *bytes = mBody.data();
+   *length = bodyLength;
 }
 
 
@@ -790,8 +781,8 @@ void SipDialogEvent::getBytes(UtlString* bytes, int* length) const
 {
    buildBody();
    
-   *bytes = ((SipDialogEvent*)this)->mBody;
-   *length = ((SipDialogEvent*)this)->bodyLength;
+   *bytes = mBody;
+   *length = bodyLength;
 }
 
 
@@ -827,4 +818,3 @@ void SipDialogEvent::getState(UtlString& state) const
 
 
 /* ============================ FUNCTIONS ================================= */
-

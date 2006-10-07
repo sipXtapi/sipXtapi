@@ -242,7 +242,7 @@ void SipPresenceEvent::insertTuple(Tuple* tuple)
    mLock.acquire();
    if (mTuples.insert(tuple) != NULL)   
    {                 
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceEvent::insertTuple Tuple = %p", 
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceEvent::insertTuple Tuple = %p succeeded", 
                     tuple);
    }
    else

@@ -16,6 +16,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
@@ -52,6 +54,8 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
 
     private ModelSource m_modelSource;
 
+    private SipxReplicationContext m_replicationContext;
+
     public GatewayContextImpl() {
         super();
     }
@@ -66,20 +70,21 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
 
     public Gateway getGateway(Integer id) {
         return (Gateway) getHibernateTemplate().load(Gateway.class, id);
-
     }
 
     public void storeGateway(Gateway gateway) {
         // Before storing the gateway, make sure that it has a unique name.
         // Throw an exception if it doesn't.
         HibernateTemplate hibernate = getHibernateTemplate();
-        DaoUtils.checkDuplicates(hibernate, gateway, "name", new DuplicateNameException(gateway
-                .getName()));
-        DaoUtils.checkDuplicates(hibernate, gateway, "serialNumber",
+        DaoUtils.checkDuplicates(hibernate, Gateway.class, gateway, "name",
+                new DuplicateNameException(gateway.getName()));
+        DaoUtils.checkDuplicates(hibernate, Gateway.class, gateway, "serialNumber",
                 new DuplicateSerialNumberException(gateway.getSerialNumber()));
 
         // Store the updated gateway
         hibernate.saveOrUpdate(gateway);
+
+        m_replicationContext.generate(DataSet.CALLER_ALIAS);
     }
 
     public boolean deleteGateway(Integer id) {
@@ -121,6 +126,21 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         return rule.getAvailableGateways(allGateways);
     }
 
+    public void addGatewaysToRule(Integer dialRuleId, Collection<Integer> gatewaysIds) {
+        DialingRule rule = m_dialPlanContext.getRule(dialRuleId);
+        for (Integer gatewayId : gatewaysIds) {
+            Gateway gateway = getGateway(gatewayId);
+            rule.addGateway(gateway);
+        }
+        m_dialPlanContext.storeRule(rule);
+    }
+
+    public void removeGatewaysFromRule(Integer dialRuleId, Collection<Integer> gatewaysIds) {
+        DialingRule rule = m_dialPlanContext.getRule(dialRuleId);
+        rule.removeGateways(gatewaysIds);
+        m_dialPlanContext.storeRule(rule);
+    }
+
     public void clear() {
         List gateways = getHibernateTemplate().loadAll(Gateway.class);
         getHibernateTemplate().deleteAll(gateways);
@@ -147,5 +167,9 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
 
     public void setModelSource(ModelSource modelSource) {
         m_modelSource = modelSource;
+    }
+
+    public void setReplicationContext(SipxReplicationContext replicationContext) {
+        m_replicationContext = replicationContext;
     }
 }

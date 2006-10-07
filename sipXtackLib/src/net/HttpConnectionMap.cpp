@@ -38,16 +38,12 @@
 #include <os/OsSysLog.h>
 #include <os/OsTask.h>
 #include <os/OsLock.h>
+#include <os/OsDefs.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
 #define HTTP_READ_TIMEOUT_MSECS  30000
-
-#ifdef WIN32
-#  define strcasecmp stricmp
-#  define strncasecmp strnicmp
-#endif
 
 HttpConnectionMap* HttpConnectionMap::pInstance = NULL;
 OsBSem HttpConnectionMap::mLock(OsBSem::Q_FIFO, OsBSem::FULL);    

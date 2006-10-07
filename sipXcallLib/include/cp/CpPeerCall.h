@@ -237,6 +237,9 @@ protected:
     //: Handles the processing of a CallManager::CP_GET_CONNECTIONS
     //: message
     UtlBoolean handleGetSession(OsMsg* pEventMessage);
+    // Handles the processing of a CallManager::CP_GET_INVITE 
+    // message
+    UtlBoolean handleGetInvite(OsMsg* pEventMessage);
     //: Handles the processing of a CallManager::CP_GET_SESSION
     //: message
 
@@ -296,6 +299,9 @@ protected:
 
     //: Handle the processing of a CP_NEW_PASSERTED_ID message
     UtlBoolean handleChangeLocalIdentity(OsMsg* pEventMessage);
+
+    //: Handle processing of a CP_SET_MEDIA_PROPERTY message
+    UtlBoolean handleSetMediaProperty(OsMsg* eventMessage);
 
     virtual UtlBoolean getConnectionState(const char* remoteAddress, int& state);
 

@@ -70,7 +70,7 @@
       <type>
         <integer />
       </type>
-      <value></value>
+      <value>20</value>
       <description>
         Number of seconds that each phone in a sequential series is allowed to ring with no answer
         before the next alternative is tried. The most common case for this is a user with one
@@ -195,6 +195,14 @@
       <type refid="port-number" />
       <value>5130</value>
       <description>The IP port on which the presence server listens to SIP messages.</description>
+    </setting>
+    <setting name="PRESENCE_SERVER_HTTP_PORT" advanced="yes">
+      <label>Http port</label>
+      <profileName>config.defs</profileName>
+      <type refid="port-number"/>
+      <value>8111</value>
+      <description>The http port that the special agent workstation will bind to for sending Xml-Rpc
+        sign-in and sign-out request, for example: 8111</description>
     </setting>
     <setting name="SIP_PRESENCE_DOMAIN_NAME" hidden="yes">
       <label>Presence server location</label>

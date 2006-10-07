@@ -134,7 +134,7 @@ public:
 
       // Rewrite the in-memory resolver configuration so it talks to
       // our private bind.
-      // Force the resolver to start.
+      // Force the resolver to initialize.
       res_init();
       _res.nscount = 1;
       inet_aton("127.0.0.1", &_res.nsaddr_list[0].sin_addr);

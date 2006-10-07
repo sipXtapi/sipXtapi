@@ -1,16 +1,25 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-//
+// 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004-2006 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
+// Author: Dan Petrie (dpetrie AT SIPez DOT com)
  
 // SYSTEM INCLUDES
 #include <assert.h>
 
 // APPLICATION INCLUDES
 #include <utl/UtlDListIterator.h>
+#include <utl/UtlHashMap.h>
 #include <os/OsDatagramSocket.h>
 #include <os/OsStunDatagramSocket.h>
 #include "include/CpPhoneMediaInterface.h"
@@ -105,7 +114,9 @@ public:
         {
             delete mpPrimaryCodec;
             mpPrimaryCodec = NULL; 
-        }              
+        }
+
+        mConnectionProperties.destroyAll();
     }
 
     OsStunDatagramSocket* mpRtpSocket;
@@ -121,6 +132,7 @@ public:
     SdpCodecFactory* mpCodecFactory;
     SdpCodec* mpPrimaryCodec;
     CONTACT_TYPE meContactType ;
+    UtlHashMap mConnectionProperties;
 };
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -258,6 +270,9 @@ CpPhoneMediaInterface::~CpPhoneMediaInterface()
         delete mpFlowGraph;
         mpFlowGraph = NULL;
     }
+
+    // Delete the properties and their values
+    mInterfaceProperties.destroyAll();
 }
 
 /**
@@ -294,7 +309,7 @@ OsStatus CpPhoneMediaInterface::createConnection(int& connectionId, void* videoW
         CpPhoneMediaConnection* mediaConnection = new CpPhoneMediaConnection();
         OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::createConnection creating a new connection %p",
                       mediaConnection);
-        *mediaConnection = connectionId;
+        *((UtlInt*)mediaConnection) = connectionId;
         mMediaConnections.append(mediaConnection);
 
         // Create the sockets
@@ -826,7 +841,7 @@ OsStatus CpPhoneMediaInterface::playBuffer(char* buf,
                                            UtlBoolean repeat,
                                            UtlBoolean local,
                                            UtlBoolean remote, 
-                                           OsNotification* event)
+                                           OsProtectedEvent* event)
 {
     OsStatus returnCode = OS_NOT_FOUND;
     if(mpFlowGraph && buf)
@@ -1351,7 +1366,110 @@ const void* CpPhoneMediaInterface::getVideoWindowDisplay()
     return NULL;
 }
 
+OsStatus CpPhoneMediaInterface::setMediaProperty(const UtlString& propertyName,
+                                                 const UtlString& propertyValue)
+{
+    OsSysLog::add(FAC_CP, PRI_ERR, 
+        "CpPhoneMediaInterface::setMediaProperty %p propertyName=\"%s\" propertyValue=\"%s\"",
+        this, propertyName.data(), propertyValue.data());
 
+    UtlString* oldProperty = (UtlString*)mInterfaceProperties.findValue(&propertyValue);
+    if(oldProperty)
+    {
+        // Update the old value
+        (*oldProperty) = propertyValue;
+    }
+    else
+    {
+        // No prior value for this property create copies for the map
+        mInterfaceProperties.insertKeyAndValue(new UtlString(propertyName),
+                                               new UtlString(propertyValue));
+    }
+    return OS_NOT_YET_IMPLEMENTED;
+}
+
+OsStatus CpPhoneMediaInterface::getMediaProperty(const UtlString& propertyName,
+                                                 UtlString& propertyValue)
+{
+    OsStatus returnCode = OS_NOT_FOUND;
+    OsSysLog::add(FAC_CP, PRI_ERR, 
+        "CpPhoneMediaInterface::getMediaProperty %p propertyName=\"%s\"",
+        this, propertyName.data());
+
+    UtlString* foundValue = (UtlString*)mInterfaceProperties.findValue(&propertyName);
+    if(foundValue)
+    {
+        propertyValue = *foundValue;
+        returnCode = OS_SUCCESS;
+    }
+    else
+    {
+        propertyValue = "";
+        returnCode = OS_NOT_FOUND;
+    }
+
+    returnCode = OS_NOT_YET_IMPLEMENTED;
+    return(returnCode);
+}
+
+OsStatus CpPhoneMediaInterface::setMediaProperty(int connectionId,
+                                                 const UtlString& propertyName,
+                                                 const UtlString& propertyValue)
+{
+    OsStatus returnCode = OS_NOT_YET_IMPLEMENTED;
+    OsSysLog::add(FAC_CP, PRI_ERR, 
+        "CpPhoneMediaInterface::setMediaProperty %p connectionId=%d propertyName=\"%s\" propertyValue=\"%s\"",
+        this, connectionId, propertyName.data(), propertyValue.data());
+
+    CpPhoneMediaConnection* mediaConnection = getMediaConnection(connectionId);
+    if(mediaConnection)
+    {
+        UtlString* oldProperty = (UtlString*)(mediaConnection->mConnectionProperties.findValue(&propertyValue));
+        if(oldProperty)
+        {
+            // Update the old value
+            (*oldProperty) = propertyValue;
+        }
+        else
+        {
+            // No prior value for this property create copies for the map
+            mediaConnection->mConnectionProperties.insertKeyAndValue(new UtlString(propertyName),
+                                                                     new UtlString(propertyValue));
+        }
+    }
+    else
+    {
+        returnCode = OS_NOT_FOUND;
+    }
+
+
+    return(returnCode);
+}
+
+OsStatus CpPhoneMediaInterface::getMediaProperty(int connectionId,
+                                                 const UtlString& propertyName,
+                                                 UtlString& propertyValue)
+{
+    OsStatus returnCode = OS_NOT_FOUND;
+    propertyValue = "";
+
+    OsSysLog::add(FAC_CP, PRI_ERR, 
+        "CpPhoneMediaInterface::getMediaProperty %p connectionId=%d propertyName=\"%s\"",
+        this, connectionId, propertyName.data());
+
+    CpPhoneMediaConnection* mediaConnection = getMediaConnection(connectionId);
+    if(mediaConnection)
+    {
+        UtlString* oldProperty = (UtlString*)(mediaConnection->mConnectionProperties.findValue(&propertyName));
+        if(oldProperty)
+        {
+            propertyValue = *oldProperty;
+            returnCode = OS_SUCCESS;
+        }
+    }
+
+    return OS_NOT_YET_IMPLEMENTED;//(returnCode);
+}
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

@@ -37,6 +37,7 @@
 #include <os/OsDateTime.h>
 #include <os/OsSysLog.h>
 #include <net/HttpBody.h>
+#include <os/OsDefs.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -45,11 +46,6 @@
 
 // STATIC VARIABLES
 SipMessage::SipMessageFieldProps* SipMessage::spSipMessageFieldProps = NULL ;
-
-#ifdef WIN32
-#  define strcasecmp stricmp
-#  define strncasecmp strnicmp
-#endif
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -1102,31 +1098,42 @@ void SipMessage::setSubscribeData(const char* uri,
                                 const char* callId,
                                 int cseq,
                                 const char* eventField,
+                                const char* acceptField,
                                 const char* id,
                                 const char* contact,
                                 const char* routeField,
                                 int expiresInSeconds)
 {
-    setRequestData(SIP_SUBSCRIBE_METHOD, uri,
-                     fromField, toField,
-                     callId,
-                     cseq,
-                     contact);
+   setRequestData(SIP_SUBSCRIBE_METHOD, uri,
+                  fromField, toField,
+                  callId,
+                  cseq,
+                  contact);
 
-    // Set the event type
-    if( eventField && *eventField )
-    {
-        UtlString eventHeaderValue(eventField);
-        if (id && *id)
-        {
-           eventHeaderValue.append(";id=");
-           eventHeaderValue.append(id);
-        }
-        setEventField(eventHeaderValue.data());
-        setHeaderValue(SIP_EVENT_FIELD, eventHeaderValue, 0);
-    }
+   // Set the event type, if any.
+   if (eventField && *eventField)
+   {
+      UtlString eventHeaderValue(eventField);
+      if (id && *id)
+      {
+         eventHeaderValue.append(";id=");
+         eventHeaderValue.append(id);
+      }
+      setEventField(eventHeaderValue.data());
+      setHeaderValue(SIP_EVENT_FIELD, eventHeaderValue, 0);
+   }
 
-    setRouteField(routeField);
+   // Set the content type, if any.
+   if (acceptField && *acceptField)
+   {
+      setHeaderValue(SIP_ACCEPT_FIELD, acceptField, 0);
+   }
+
+   // Set the route, if any.
+   if (routeField && *routeField)
+   {
+      setRouteField(routeField);
+   }
 
    //setExpires
    setExpiresField(expiresInSeconds);

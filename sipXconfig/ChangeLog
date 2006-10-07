@@ -3,6 +3,54 @@ SIPfoundry Issue Tracker at:
 
         http://track.sipfoundry.org/browse?XCF
 	
+Version 3.5.6
+
+** Bug
+    * [XCF-1109] - Description has to be changed in Configserver ui for Polycom phone ->SNTP
+    * [XCF-1143] - logic is reversed for Polycom's "SNTP Server | Address from DHCP" option
+    * [XCF-1165] - problem setting Time Zone for Grandstream Phone Group
+    * [XCF-1168] - NonUniqueObjectException while importing LDAP users to Configserver
+    * [XCF-1194] - Deleted Non-default permission is not getting removed from the list of pemissions in the dialing rules.
+    * [XCF-1211] - In Intercom, when few parameters are validated , displays error message with parameter name as "null"
+    * [XCF-1214] - custom permissions are sometimes not automatically visible in dial plan rules
+    * [XCF-1215] - there should be "no permission required" entry in drop-down on dial plan rule screen
+    * [XCF-1226] - Build numbers coming out 00000
+    * [XCF-1232] - internal error when adding existing gateway to newly created dialing rule
+    * [XCF-1234] - In Dial plan PSTN Prefix and Long distance prefix accepts blank value even if Treat PSTN/Long distance prefix as optional checkbox is disabled
+    * [XCF-1235] - In dial plan PSTN prefix and Long distance prefix accepts negative value without giving any error message
+    * [XCF-1236] - In International dialing rule, if area code is set larger than external number length, then it accepts any digit greater than area code
+    * [XCF-1237] - In dialplan settings some parameter settings gives an improper error messages
+    * [XCF-1240] - The pattern generated in the authrules doesnt fully support custom dialing rule with the variable prefix of the form 01[2-9].
+    * [XCF-1243] - Alias field in the add new user page should be left blank.
+    * [XCF-1244] - In Polycom phone, some of the SNTP parameters are set to zero which is an invalid value
+    * [XCF-1245] - gateway prefix should be added to emergency dialing rule transformation
+    * [XCF-1249] - Permission selected for the Custom dialing rule is getting deselected automatically.
+    * [XCF-1255] - Getting exception while adding the gateway with the  name which already exists.
+    * [XCF-1257] - proxy rpm needs to include ruby related gems in proxy spec file
+    * [XCF-1258] - startup error with SQL error on postgres 7.4
+    * [XCF-1262] - authorization user name is incorrect for renamed user
+    * [XCF-1264] - Classpath errors for OEM plugins likely on data initialization 
+    * [XCF-1266] - Domain alias added from the configserver is added after default Internal Dialing rule in mappingrules.xml file 
+    * [XCF-1269] - In Configserver, System->Domain page  "folling" should be changed to "following"
+    * [XCF-1271] - In Internet explorer, Caller ID and Dial plan links doesn't open the corresponding pages for the newly added gateway
+    * [XCF-1277] - Unable to add External number  for user/usergroup in Caller ID page
+    * [XCF-1279] - Improve explanation on Manage Domain page
+    * [XCF-1286] - Activating the dialplans do not restart sipproxy 
+    * [XCF-1287] - When Permission name is set to blank , displays error message with parameter name as "null"
+
+** New Feature
+    * [XCF-1263] - Add support for provisioning Hitachi-Cable WiFi Phones 
+
+** Task
+    * [XCF-1268] - Freeze DB schema for 3.6 release
+
+** Improvement
+    * [XCF-1241] - Make domain name available from SOAP API
+    * [XCF-1247] - Move all applications defined in process definitions and watchdog config files to separate files into process.d
+    * [XCF-1259] - enable music on hold support in sipXconfig
+    * [XCF-1281] - Allow setting the default polycom version from 1.6 or 2.0 on a global basis 
+
+
 Version 3.5.5
 
 ** Bug

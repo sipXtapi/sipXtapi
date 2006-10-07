@@ -11,7 +11,7 @@ Url:      http://www.sipfoundry.org/sipXregistry
 
 Source:   %name-%version.tar.gz
 
-Requires: sipxcommserverlib >= 3.5
+Requires: sipxcommserverlib >= 3.7
 Requires: ruby >= 1.8.1
 
 Prefix:    %_prefix
@@ -34,8 +34,17 @@ routing as well as parallel and serial forking. The auth proxy provides AAA
 services.
 
 %package cdr
+Requires: %name >= %version
 Requires: ruby >= 1.8.4
 Requires: ruby-gems >= 0.8.11
+Requires: ruby-gems-actionmailer >= 1.1.5
+Requires: ruby-gems-actionpack >= 1.11.2
+Requires: ruby-gems-activerecord >= 1.13.2
+Requires: ruby-gems-activesupport >= 1.2.5
+Requires: ruby-gems-rails >= 1.0.0
+Requires: ruby-gems-rake >= 0.7.0
+Requires: ruby-postgres >= 0.7.1
+Requires: unixODBC-devel >= 2.2
 Group:    Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
 Summary: CDR (Call Distribution Record) aggregration
@@ -49,7 +58,7 @@ Requires: %name
 Group: Development/Libraries
 Vendor: SIPfoundry
 Summary: Internal documentation for %name 
-Requires: sipxcommserverlib-devel >= 3.5
+Requires: sipxcommserverlib-devel >= 3.7
 
 %description devel
 Internal class documentation for the proxy classes

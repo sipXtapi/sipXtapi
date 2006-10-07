@@ -16,7 +16,7 @@ RPMS = $(DEFAULT_RPMS)
 
 EXTRA_DIST = \
     BUILDSTAMP \
-    SVN_VERSION \
+    SVN-VERSION \
     CONTRIBUTORS \
     LICENSE \
     bin/httpd-sipxchange-config.sh.in \

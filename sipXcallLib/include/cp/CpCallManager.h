@@ -31,7 +31,6 @@
 #include "net/SipMessage.h"
 #include "net/SipContactDb.h"
 #include "net/SipDialog.h"
-#include "cp/Connection.h"
 
 // DEFINES
 // MACROS
@@ -159,7 +158,8 @@ public:
         CP_GET_CONNECTIONSTATE,
         CP_GET_TERMINALCONNECTIONSTATE,
         CP_GET_SESSION,
-        CP_HOLD_ALL_TERM_CONNECTIONS,  //50
+        CP_GET_INVITE,                 //50
+        CP_HOLD_ALL_TERM_CONNECTIONS,
         CP_UNHOLD_ALL_TERM_CONNECTIONS,
         CP_CANCEL_TIMER,
         CP_GET_NEXT_CSEQ,
@@ -168,8 +168,8 @@ public:
         CP_REMOVE_TONE_LISTENER,
         CP_ENABLE_DTMF_EVENT,
         CP_DISABLE_DTMF_EVENT,
-        CP_REMOVE_DTMF_EVENT,
-        CP_EZRECORD,                    //60
+        CP_REMOVE_DTMF_EVENT,          //60
+        CP_EZRECORD,
         CP_PLAY_BUFFER_TERM_CONNECTION,
         CP_CREATE_PLAYER,
         CP_DESTROY_PLAYER,
@@ -178,8 +178,8 @@ public:
         CP_CREATE_QUEUE_PLAYER,
         CP_DESTROY_QUEUE_PLAYER,
         CP_RENEGOTIATE_CODECS_CONNECTION,
-        CP_RENEGOTIATE_CODECS_ALL_CONNECTIONS,
-        CP_SET_CODEC_CPU_LIMIT,  //70
+        CP_RENEGOTIATE_CODECS_ALL_CONNECTIONS,  //70
+        CP_SET_CODEC_CPU_LIMIT,
         CP_GET_CODEC_CPU_COST,
         CP_GET_CODEC_CPU_LIMIT,
         CP_SET_INBOUND_CODEC_CPU_LIMIT,
@@ -188,13 +188,14 @@ public:
         CP_GET_LOCAL_CONTACTS,
         CP_OUTGOING_INFO,
         CP_GET_MEDIA_CONNECTION_ID,
-        CP_ENABLE_STUN,
-        CP_GET_CAN_ADD_PARTY, //80
+        CP_ENABLE_STUN,                //80
+        CP_GET_CAN_ADD_PARTY,
         CP_SPLIT_CONNECTION,
         CP_JOIN_CONNECTION,
         CP_CONSULT_TRANSFER_ADDRESS,
         CP_SEND_SIP_REQUEST,
-        CP_NEW_PASSERTED_ID
+        CP_NEW_PASSERTED_ID,
+        CP_SET_MEDIA_PROPERTY
     };
 
 /*
@@ -395,6 +396,24 @@ public:
     //! For internal use
     virtual void stopPremiumSound(const char* callId) = 0;
 
+    //: Set a media property on the media interface for the given call
+    /*
+     * Media interfaces that wish to interoperate should implement the following properties
+     * and values:
+     *
+     * Property Name                  Property Values
+     * =======================        ===============
+     * "audioInput1.muteState"        "true", "false" for systems that may have a microphone for each conference or 2-way call
+     * "audioInput1.device"           same value as szDevice in sipxAudioSetCallInputDevice
+     * "audioOutput1.deviceType"      "speaker", "ringer" same as sipxAudioEnableSpeaker, but for specific conference or 2-way call
+     * "audioOutput1.ringerDevice"    same value as szDevice in sipxAudioSetRingerOutputDevice 
+     * "audioOutput1.speakerDevice"   same values as szDevice in sipxAudioSetCallOutputDevice
+     * "audioOutput1.volume"          string value of iLevel in sipxAudioSetVolume
+     */
+    virtual OsStatus setCallMediaProperty(const char* callId,
+                                          const char* propertyName,
+                                          const char* propertyValue) = 0;
+
 #ifndef EXCLUDE_STREAMING
     //! Create a MpStreamPlaylistPlayer media player associated with
     /*! the specified call. The media player can subsequently be used
@@ -523,6 +542,19 @@ public:
                                          int& numConnections,
                                          UtlString addresses[]) = 0;
 
+    //: Set a media property on the media connection for the given call
+    /*
+     * @param callId - call id string for the conference or SIP dialog
+     * @param remoteAddress - address on the remote leg of the connection on which to set property
+     * @param propertyName string id for the property to set
+     * @param propertyValue for the new value of the property
+     */
+    virtual OsStatus setConnectionMediaProperty(const char* callId,
+                                                  const char* remoteAddress,
+                                                  const char* propertyName,
+                                                  const char* propertyValue) = 0;
+
+
     //@}
 
     /** @name Call & Terminal Connection Operations
@@ -629,6 +661,11 @@ public:
     virtual OsStatus getSipDialog(const char* callId,
                                   const char* address,
                                   SipDialog& dialog) = 0;
+
+    //! Get the SipConnection for the specified terminal connection.
+    virtual OsStatus getInvite(const char* callId,
+                               const char* address,
+                               SipMessage& invite) = 0;
 
     //! Send a SIP request in the context of the dialog of the given call/session
     /*! The response gets queued to the optional response message queue

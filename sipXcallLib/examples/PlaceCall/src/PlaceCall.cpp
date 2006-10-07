@@ -316,6 +316,19 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
     char cBuf[1024] ;
     printf("%s\n", sipxEventToString(category, pInfo, cBuf, sizeof(cBuf))) ;    
 
+    // Print the timestamp if requested.
+    if (g_timestamp)
+    {
+       time_t t = time(NULL);
+       struct tm g;
+       gmtime_r(&t, &g);
+       printf("%04d-%02d-%02dT%02d:%02d:%02dZ ",
+              g.tm_year + 1900, g.tm_mon + 1, g.tm_mday,
+              g.tm_hour, g.tm_min, g.tm_sec);
+    }
+
+    printf("%s\n", sipxEventToString(category, pInfo, cBuf, sizeof(cBuf))) ;
+
     if (category == EVENT_CATEGORY_CALLSTATE)
     {
         SIPX_CALLSTATE_INFO* pCallInfo = static_cast<SIPX_CALLSTATE_INFO*>(pInfo);

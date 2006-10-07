@@ -28,8 +28,12 @@ dbSymbolTable::~dbSymbolTable() {
 	}
     }
 }
+
 #ifdef IGNORE_CASE
-#define strcmp(x,y) stricmp(x,y)
+#include <os/OsDefs.h>
+#define STRING_COMPARE(x, y) strcasecmp(x, y)
+#else
+#define STRING_COMPARE(x, y) strcmp(x, y)
 #endif
 
 int dbSymbolTable::add(char* &str, int tag, bool allocate) {
@@ -47,7 +51,7 @@ int dbSymbolTable::add(char* &str, int tag, bool allocate) {
     int index = hash % hashTableSize;
     HashTableItem *ip;
     for (ip = hashTable[index]; ip != NULL; ip = ip->next) { 
-	if (ip->hash == hash && strcmp(ip->str, str) == 0) { 
+	if (ip->hash == hash && STRING_COMPARE(ip->str, str) == 0) { 
 	    str = ip->str;
 	    return ip->tag;
 	}

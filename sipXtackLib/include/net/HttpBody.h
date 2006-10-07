@@ -98,11 +98,13 @@ public:
 
    virtual int getLength() const;
 
-   virtual void getBytes(const char** bytes, int* length) const;
-   virtual void getBytes(UtlString* bytes, int* length) const;
    // Note: for conveniece bytes is null terminated
    // However depending upon the content type, the body may
    // contain more than one null character.
+   // *bytes != NULL, even if *length == 0.
+   virtual void getBytes(const char** bytes, int* length) const;
+   virtual void getBytes(UtlString* bytes, int* length) const;
+   virtual const char* getBytes() const;
 
    UtlBoolean getMultipartBytes(int partIndex, 
        const char** bytes, int* length) const;

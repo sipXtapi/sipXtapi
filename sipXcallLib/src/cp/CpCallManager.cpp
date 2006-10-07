@@ -62,7 +62,6 @@ mCallListMutex(OsMutex::Q_FIFO),
 mCallIndices(),
 mAddressForwardMutex(OsMutex::Q_FIFO)
 {
-   mCallNum = 0;
     mpAddressForwards = 0;
     mDoNotDisturbFlag = FALSE;
     mMsgWaitingFlag = FALSE;

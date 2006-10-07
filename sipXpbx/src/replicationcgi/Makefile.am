@@ -18,6 +18,6 @@ replication_cgi_CXXFLAGS = \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
 
 replication_cgi_SOURCES = \
-	../../config/sipxpbx-buildstamp.h \
-	../../config/sipxpbx-buildstamp.cpp \
+	$(top_builddir)/config/sipxpbx-buildstamp.h \
+	$(top_builddir)/config/sipxpbx-buildstamp.cpp \
 	main.cpp

@@ -27,14 +27,13 @@
   <table name="international_dialing_rule"/>
   <table name="local_dialing_rule"/>
   <table name="custom_dialing_rule_permission"/>
-  <table name="dialing_rule_gateway"/>
   <table name="emergency_dialing_rule"/>
   <table name="internal_dialing_rule"/>
   <table name="long_distance_dialing_rule"/>
   <table name="attendant_dialing_rule"/>
   <table name="holiday_dates"/>
   <table name="attendant_working_hours"/>
-  
+
   <!-- park orbit -->
   <table name="park_orbit"/>  
   <table name="park_orbit_group"/>
@@ -58,6 +57,8 @@
   <table name="intercom"/>
   <table name="intercom_phone_group"/>
       
+  <table name="dialing_rule_gateway"/>
+        
   <!-- forwarding -->
   <table name="ring"/>
   

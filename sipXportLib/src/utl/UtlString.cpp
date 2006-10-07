@@ -850,15 +850,9 @@ size_t UtlString::index(const UtlString& searchString, size_t start, CompareCase
                  && foundPosition == UTLSTRING_NOT_FOUND;
                  pos++)
             {
-#ifdef WIN32
-                if (strnicmp(dataPtr + pos,
-                             searchString.data(),
-                             searchStrSize) == 0)
-#else
                 if(strncasecmp(dataPtr + pos,
                                searchString.data(),
                                searchStrSize) == 0)
-#endif
                 {
                     foundPosition = pos;
                 }
@@ -944,11 +938,7 @@ size_t UtlString::index(const char* searchStr, size_t start, CompareCase type) c
                  && foundPosition == UTLSTRING_NOT_FOUND;
                  pos++)
             {
-#ifdef WIN32
-                if (strnicmp(dataPtr + pos, searchStr, searchStrSize) == 0)
-#else
                 if(strncasecmp(dataPtr + pos, searchStr, searchStrSize) == 0)
-#endif
                 {
                     foundPosition = pos;
                 }
@@ -1192,11 +1182,7 @@ int UtlString::compareTo(UtlString const * compareStr, CompareCase type) const
             }
             else
             {
-#ifdef WIN32
-                compareFlag = stricmp(mpData ? mpData : "", compareStr->mpData);
-#else
                 compareFlag = strcasecmp(mpData ? mpData : "", compareStr->mpData);
-#endif
             }
         }
     }
@@ -1218,15 +1204,10 @@ int UtlString::compareTo(const char* compareStr, CompareCase type) const
                              compareStr ? compareStr : "");
     }
     else
-        {
-#ifdef WIN32
-      compareFlag = _stricmp(mpData ? mpData : "",
-                             compareStr ? compareStr : "");
-#else
-      compareFlag = strcasecmp(mpData ? mpData : "",
-                               compareStr ? compareStr : "");
-#endif
-        }
+    {
+       compareFlag = strcasecmp(mpData ? mpData : "",
+                                compareStr ? compareStr : "");
+    }
 
     return compareFlag;
 }

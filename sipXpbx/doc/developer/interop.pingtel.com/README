@@ -3,17 +3,17 @@ interop.pingtel.com.
 
 The subdirectories are:
 
-etc=sipxpbx
+sipx_confdir
    Configuration files to be unpacked into /etc/sipxpbx after a standard
    sipX installation.
 
 scripts
    Scripts that are run as cron jobs, and the crontab file that run them.
 
-usr=share=www=doc
+http_rootdir
    HTML files to be unpacked into /usr/share/www/doc for the custom web interface.
 
-var=sipxdata=sipdb
+sipx_dbdir
    Customized configuration databases to be put in /var/sipxdata/sipdb.
 
 The current number assignments are as follows.  "gg" is the group
@@ -22,6 +22,10 @@ we may need the single-digit groups as well.)  "1/9" means 1 through
 9, to shorten the table.
 
 100	Auto-attendant
+
+101	Voicemail server
+
+105/9	Forwarding prefixes for other PBXs
 
 1gg1/9	Addresses Of Record
 
@@ -41,8 +45,12 @@ we may need the single-digit groups as well.)  "1/9" means 1 through
 
 8gg1/9	Merge fork
 
-9999	Too many hops test
+9999	Too many hops test (to be moved to 9000)
+
+9gg1/9	Forwarding prefixes for gateways
 
 *4xxxx	Call retrieve
 
 *78xxxx	Call pick-up
+
+xxx*xxx	ISN dialing string (one or more digits, *, one or more digits)

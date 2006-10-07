@@ -8,7 +8,7 @@ EXTRA_DIST = \
     CONTRIBUTORS \
     LICENSE \
     BUILDSTAMP \
-    SVN_VERSION \
+    SVN-VERSION \
     sipxportlib.spec
 
 RPMS = $(DEFAULT_RPMS)

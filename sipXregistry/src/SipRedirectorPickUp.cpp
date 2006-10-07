@@ -27,6 +27,7 @@
 #include "os/OsProcess.h"
 #include "net/NetMd5Codec.h"
 #include "net/Url.h"
+#include <net/SipDialogEvent.h>
 
 // DEFINES
 
@@ -458,13 +459,10 @@ SipRedirectorPickUp::lookUp(
    {
       // Check if call retrieve is active, and this is a request for
       // call retrieve.
-      // We will want to use this later when we test for "Supported: replaces"
-      // before doing a retrieval for the UAC, but currently sipXtapi does not
-      // insert that header (even though it supports Replaces:), so we do not
-      // to that test.
       // Test for supports: replaces 
-      //bSupportsReplaces = message.isInSupportedField("replaces");
-      bSupportsReplaces = true;      
+      // sipXtapi now sends "Supported: replaces", so we can test for its
+      // presence and act on it, without causing a calling sipXtapi to fail.
+      bSupportsReplaces = message.isInSupportedField("replaces");
 
       // Extract the putative orbit number.
       UtlString orbit(userId.data() + mCallRetrieveCode.length());
@@ -547,7 +545,7 @@ SipRedirectorPickUp::lookUpDialog(
             // target URI is in addr-spec format; any parameters are URI
             // parameters.  (Field parameters have been broken out in
             // param elements.)
-            Url contact_URI(dialog_info->mTargetDialogRemoteURI, TRUE);            
+            Url contact_URI(dialog_info->mTargetDialogRemoteURI, TRUE);
 
             // Construct the Replaces: header value the caller should use.
             UtlString header_value(dialog_info->mTargetDialogCallId);
@@ -570,6 +568,7 @@ SipRedirectorPickUp::lookUpDialog(
 
             // Add a header parameter to specify the Replaces: header.
             contact_URI.setHeaderParameter("Replaces", header_value.data());
+
             // We add a header parameter to cause the redirection to
             // include a "Require: replaces" header.  Then if the caller
             // phone does not support INVITE/Replaces:, the pick-up will
@@ -582,18 +581,9 @@ SipRedirectorPickUp::lookUpDialog(
             // call to the calling phone.
             contact_URI.setHeaderParameter(SIP_REQUIRE_FIELD,
                                            SIP_REPLACES_EXTENSION);
+
             // Record the URI as a contact.
             addContact(response, requestString, contact_URI, "pick-up");            
-
-            // We do not add a header parameter to cause the redirection
-            // to include a "Require: replaces" header.  If we did, then
-            // if the caller phone did not support INVITE/Replaces:, the
-            // pick-up would fail entirely.  This way, if the caller
-            // phone does not support INVITE/Replaces:, the caller will
-            // get a simultaneous incoming call from the executing phone.
-
-            // Record the URI as a contact.
-            addContact(response, requestString, contact_URI, "pick-up");
 
             // If "reversed Replaces" is configured, also add a Replaces: with
             // the to-tag and from-tag reversed.
@@ -720,7 +710,7 @@ SipRedirectorPickUp::lookUpDialog(
          // Not strictly necessary (per the I-D), but it makes the SUBSCRIBE
          // more strictly compliant.
          subscribe.setHeaderValue(SIP_ACCEPT_FIELD,
-                                  "application/dialog-info+xml");
+	                          DIALOG_EVENT_CONTENT_TYPE);
    
          // Send the SUBSCRIBE.
          mpSipUserAgent->setUserAgentHeader(subscribe);
@@ -1210,7 +1200,8 @@ SipRedirectorPickUpTask::handleMessage(OsMsg& eventMessage)
                                       "NOTIFY for request %d, delay %d.%06d, "
                                       "body '%s'",
                                       itor.requestSeqNo(),
-                                      (int) delta.seconds(), (int) delta.usecs(),
+                                      (int) delta.seconds(),
+                                      (int) delta.usecs(),
                                       body);
                      }
                      // Parse this NOTICE and store the needed

@@ -44,31 +44,32 @@ public interface DialPlanContext extends DataObjectSource, AliasOwner {
 
     public abstract AutoAttendant getAutoAttendant(Integer id);
 
-    public abstract List getAutoAttendants();
+    public abstract List<AutoAttendant> getAutoAttendants();
 
-    public abstract void deleteAutoAttendantsByIds(Collection attendantsIds, String scriptsDir);
+    public abstract void deleteAutoAttendantsByIds(Collection<Integer> attendantsIds,
+            String scriptsDir);
 
     public abstract void specialAutoAttendantMode(boolean enabled, AutoAttendant attendant);
 
-    public abstract void removeGateways(Collection gatewaysIds);
+    public abstract void removeGateways(Collection<Integer> gatewaysIds);
 
     public void storeRule(DialingRule rule);
 
     public void addRule(int position, DialingRule rule);
 
-    public List getRules();
+    public List<DialingRule> getRules();
 
     public DialingRule getRule(Integer id);
 
-    public void deleteRules(Collection selectedRows);
+    public void deleteRules(Collection<Integer> selectedRows);
 
-    public void duplicateRules(Collection selectedRows);
+    public void duplicateRules(Collection<Integer> selectedRows);
 
-    public void moveRules(Collection selectedRows, int step);
+    public void moveRules(Collection<Integer> selectedRows, int step);
 
-    public List getGenerationRules();
+    public List<DialingRule> getGenerationRules();
 
-    public List getAttendantRules();
+    public List<AttendantRule> getAttendantRules();
 
     public void resetToFactoryDefault();
 
@@ -87,6 +88,6 @@ public interface DialPlanContext extends DataObjectSource, AliasOwner {
     public Group getDefaultAutoAttendantGroup();
 
     public AutoAttendant newAutoAttendantWithDefaultGroup();
-    
+
     public Setting getAttendantSettingModel();
 }

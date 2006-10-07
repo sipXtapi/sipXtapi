@@ -40,4 +40,12 @@ public final class DeviceVersion extends Enum {
             super(DeviceVersion.class);
         }
     }    
+    
+    /**
+     * Decode version string back into enum
+     */
+    public static DeviceVersion getDeviceVersion(String name) {
+        DeviceVersion version = (DeviceVersion) Enum.getEnum(DeviceVersion.class, name);
+        return version;
+    }
 }

@@ -297,6 +297,23 @@
         </xsd:complexType>
       </xsd:element>
 
+      <!-- S Y S T E M  I N F O -->
+      <xsd:complexType name="Domain">
+        <xsd:sequence>
+          <xsd:element name="name" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+          <xsd:element name="aliases" type="xsd:string" minOccurs="0"
+            maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:element name="SystemInfo">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="domain" type="tns:Domain" minOccurs="1"
+              maxOccurs="1"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+
       <!-- T E S T -->
       <xsd:element name="ResetServices">
         <xsd:complexType>
@@ -585,7 +602,7 @@
       <output message="tns:manageUserResponse"/>
     </operation>
   </portType>
-
+  
   <binding name="UserServiceSoapBinding" type="tns:UserService">
     <soapbind:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
     <operation name="addUser">      
@@ -608,6 +625,35 @@
     </operation>
     <operation name="manageUser">
       <soapbind:operation/>            
+       <input>
+        <soapbind:body use="literal"/>
+      </input>      
+      <output>
+        <soapbind:body use="literal"/>
+      </output>      
+    </operation>
+  </binding>
+
+  <!--  S Y S T E M   S E R V I C E -->
+  <message name="systemInfoResponse">
+    <part name="systemInfo" element="tns:SystemInfo"/>
+  </message>
+  <message name="systemInfoRequest"/>
+  
+  <portType name="SystemService">
+    <documentation> 
+      System related information and functions
+    </documentation>
+    <operation name="systemInfo">
+      <input message="tns:systemInfoRequest"/>
+      <output message="tns:systemInfoResponse"/>
+    </operation>
+  </portType>
+
+  <binding name="SystemServiceSoapBinding" type="tns:SystemService">
+    <soapbind:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <operation name="systemInfo">      
+      <soapbind:operation/>      
        <input>
         <soapbind:body use="literal"/>
       </input>      
@@ -642,6 +688,10 @@
     <port name="UserService" binding="tns:UserServiceSoapBinding">
       <soapbind:address 
         location="http://localhost:9999/sipxconfig/services/UserService"/>
+    </port>
+    <port name="SystemService" binding="tns:SystemServiceSoapBinding">
+      <soapbind:address 
+        location="http://localhost:9999/sipxconfig/services/SystemService"/>
     </port>
   </service>
   

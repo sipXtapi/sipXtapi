@@ -50,6 +50,7 @@
   </component>
   <component id="voiceMail" type="TextField">
     <binding name="value" value="lineInfo.voiceMail"/>
+    <binding name="displayName" value="message:label.voiceMail"/>
   </component>
   <component id="formActions" type="FormActions">
     <binding name="listener" value="listener:ok"/>

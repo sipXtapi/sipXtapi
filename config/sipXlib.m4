@@ -28,19 +28,19 @@ AC_DEFUN([SFAC_INIT_FLAGS],
     	SF_CXX_WARNINGS="-Wall -Wformat -Wwrite-strings -Wpointer-arith"
     	CXXFLAGS="$CXXFLAGS $SF_CXX_C_FLAGS $SF_CXX_WARNINGS"
     	CFLAGS="$CFLAGS $SF_CXX_C_FLAGS $SF_CXX_WARNINGS -Wnested-externs -Wmissing-declarations -Wmissing-prototypes"
-     elif test x_"${ax_cv_c_compiler_vendor}" = x_sun
-     then
+    elif test x_"${ax_cv_c_compiler_vendor}" = x_sun
+    then
         SF_CXX_C_FLAGS="-D__pingtel_on_posix__ -D_REENTRANT -D_FILE_OFFSET_BITS=64 -mt -fast -v"
         SF_CXX_FLAGS="-D__pingtel_on_posix__ -D_REENTRANT -D_FILE_OFFSET_BITS=64 -mt -xlang=c99 -fast -v"
         SF_CXX_WARNINGS=""
         CXXFLAGS="$CXXFLAGS $SF_CXX_FLAGS $SF_CXX_WARNINGS"
         CFLAGS="$CFLAGS $SF_CXX_C_FLAGS $SF_CXX_WARNINGS"
-     else
+    else
         SF_CXX_C_FLAGS="-D__pingtel_on_posix__ -D_linux_ -D_REENTRANT -D_FILE_OFFSET_BITS=64"
         SF_CXX_WARNINGS=""
         CXXFLAGS="$CXXFLAGS $SF_CXX_C_FLAGS $SF_CXX_WARNINGS"
         CFLAGS="$CFLAGS $SF_CXX_C_FLAGS $SF_CXX_WARNINGS"
-     fi
+    fi
 
     ## set flag for gcc
     AM_CONDITIONAL(ISGCC, [test  x_"${GCC}" != x_])
@@ -129,8 +129,11 @@ AC_DEFUN([SFAC_CONFIGURE_OPTIONS],
   AC_SUBST(CONFIGURE_OPTIONS, $CleanedArgs)
 ])
 
+AC_DEFUN([SFAC_SIPX_INSTALL_PREFIX],[
+   # set the install prefix
+   AC_PREFIX_DEFAULT(${SIPX_INSTALLDIR:-/usr/local/sipx})
+])
 
-# Determine the svn repository revision number, useful to build stamps
 AC_DEFUN([SFAC_SVN_VERSION],[
    AC_MSG_CHECKING(codebase svn revision)
    svnversion=${srcdir}/SVN-VERSION
@@ -155,7 +158,6 @@ AC_DEFUN([SFAC_SVN_VERSION],[
    AC_MSG_RESULT(${SVN_VERSION})
    AC_SUBST(SVN_VERSION)
 ])
-
 
 
 ## Check to see that we are using the minimum required version of automake
@@ -586,6 +588,10 @@ AC_DEFUN([SFAC_DIST_DIR],
     DEST_ISO="${DIST_DIR}/ISO"
     mkdir "${DEST_ISO}"  2>/dev/null
     AC_SUBST([DEST_ISO])
+    RPMBUILD_TOPDIR="\$(shell rpm --eval '%{_topdir}')"
+    AC_SUBST(RPMBUILD_TOPDIR)
+    RPM_TARGET_ARCH="\$(shell rpm --eval '%{_target_cpu}')"
+    AC_SUBST(RPM_TARGET_ARCH)
   fi
 
 ])

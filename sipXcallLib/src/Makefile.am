@@ -31,8 +31,8 @@ libsipXcall_la_CXXFLAGS = \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
 
 libsipXcall_la_SOURCES = \
-    ../config/sipxcalllib-buildstamp.h \
-    ../config/sipxcalllib-buildstamp.cpp \
+    $(top_builddir)/config/sipxcalllib-buildstamp.h \
+    $(top_builddir)/config/sipxcalllib-buildstamp.cpp \
     cp/CallManager.cpp \
     cp/Connection.cpp \
     cp/CpCall.cpp \
@@ -46,8 +46,10 @@ libsipXcall_la_SOURCES = \
     cp/SipConnection.cpp \
     cp/DialogEventPublisher.cpp \
     cp/LinePresenceMonitor.cpp \
+    cp/LinePresenceMonitorMsg.cpp \
     cp/PresenceDialInServer.cpp \
     cp/SipPresenceMonitor.cpp \
+    cp/XmlRpcSignIn.cpp \
     ptapi/PtAddessCapabilities.cpp \
     ptapi/PtAddress.cpp \
     ptapi/PtAddressForwarding.cpp \
