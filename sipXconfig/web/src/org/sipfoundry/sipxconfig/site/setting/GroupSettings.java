@@ -75,7 +75,7 @@ public abstract class GroupSettings extends BasePage implements PageBeginRenderL
 
         group = getSettingDao().getGroup(getGroupId());
         setGroup(group);
-        Setting settings = group.inherhitSettingsForEditing(getBean());
+        Setting settings = group.inherhitSettingsForEditing(getBean().getSettings());
         setSettings(settings);
         String currentSettingName = getParentSettingName();
         if (currentSettingName == null) {

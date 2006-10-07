@@ -18,7 +18,6 @@ import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.setting.BeanWithGroupsTest.BirdWithGroups;
 import org.springframework.context.ApplicationContext;
 
 public class GroupTestDb extends SipxDatabaseTestCase {
@@ -41,11 +40,7 @@ public class GroupTestDb extends SipxDatabaseTestCase {
         ms.setResource("unittest");
         ms.setName("food");
         
-        BeanWithGroups bean = new BirdWithGroups();
-        bean.setSettings(root);
-        
-        Setting settings = ms.inherhitSettingsForEditing(bean);
-        // bean.addGroup(ms);
+        Setting settings = ms.inherhitSettingsForEditing(root);
         
         settings.getSetting("fruit/apple").setValue("granny smith");
         settings.getSetting("vegetable/pea").setValue(null);
@@ -75,10 +70,8 @@ public class GroupTestDb extends SipxDatabaseTestCase {
         root.addSetting(new SettingSet("dairy")).addSetting(new SettingImpl("milk"));
 
         Group ms = m_dao.loadGroup(new Integer(1));
-        BeanWithGroups bean = new BirdWithGroups();
-        bean.setSettings(root);
         
-        Setting settings = ms.inherhitSettingsForEditing(bean);
+        Setting settings = ms.inherhitSettingsForEditing(root);
         // should make it disappear
         settings.getSetting("fruit/apple").setValue("granny smith");
 
