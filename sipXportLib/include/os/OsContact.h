@@ -81,7 +81,7 @@ public:
      */
     OsContact(UtlString address,
               int port,
-              OsSocket::SocketProtocolTypes protocol,
+              OsSocket::IpProtocolSocketType protocol,
               IpAddressType type);
                        
     /**
@@ -112,7 +112,7 @@ public:
     /**
      * Accessor for the protocol enum value.
      */
-    const OsSocket::SocketProtocolTypes getProtocol() const;
+    const OsSocket::IpProtocolSocketType getProtocol() const;
     
     /**
      * Accessor for the address type enum value.
@@ -170,7 +170,7 @@ private:
     
     UtlString mAddress;                      /** < String representation of the ip address. */
     int mPort ;                              /** < The port value for the contact. */ 
-    OsSocket::SocketProtocolTypes mProtocol; /**< The prefered protocol for this contact. */
+    OsSocket::IpProtocolSocketType mProtocol; /**< The prefered protocol for this contact. */
     IpAddressType mType;                     /**< The type of ip address. */
 
 } ;
