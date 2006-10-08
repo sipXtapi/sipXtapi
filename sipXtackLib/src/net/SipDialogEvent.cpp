@@ -515,7 +515,7 @@ Dialog* SipDialogEvent::getDialog(UtlString& callId,
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
                        "SipDialogEvent::getDialog found Dialog = %p for callId = '%s', local tag = '%s', remote tag = '%s'", 
                        pDialog,
-                       callId.data(), localTag.data(), remoteTag.data());
+                       callId.data(), localTag.data(), remoteTag ? remoteTag.data() : NULL);
 
          mLock.release();
          return pDialog;
@@ -524,7 +524,9 @@ Dialog* SipDialogEvent::getDialog(UtlString& callId,
           
    OsSysLog::add(FAC_SIP, PRI_WARNING,
                  "SipDialogEvent::getDialog could not find the Dialog for callId = '%s', local tag = '%s', remote tag = '%s'", 
-                 callId.data(), localTag.data(), remoteTag.data());
+                 callId.data(),
+                 localTag ? localTag.data() : NULL,
+                 remoteTag ? remoteTag.data() : NULL);
    mLock.release();
    return NULL;
 }

@@ -127,7 +127,7 @@ SipSubscribeClient::SipSubscribeClient(const SipSubscribeClient& rSipSubscribeCl
 // Destructor
 SipSubscribeClient::~SipSubscribeClient()
 {
-    // Do not delete mpUserAgent ,mpDialogMgr or mpRefreshMgr.  They
+    // Do not delete mpUserAgent, mpDialogMgr or mpRefreshMgr.  They
     // may be used else where and need to be deleted outside the
     // SipSubscribeClient.
 
