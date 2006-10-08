@@ -26,11 +26,6 @@
 //#define DEBUG_OUTPUT
 
 // DEFINES
-#ifdef __pingtel_on_posix__
-   #define PROCESS_MGR_DIR        SIPX_TMPDIR
-#else
-   #define PROCESS_MGR_DIR        ""
-#endif
 
 #define PROCESS_ALIAS_FILE        "processAlias.dat"
 #define PROCESS_ALIAS_LOCK_FILE   "locked.lck"
@@ -67,7 +62,7 @@ class OsProcessMgr
 public:
 
 /* ============================ CREATORS ================================== */
-   OsProcessMgr();
+   OsProcessMgr(const char* workingDirectory);
 
      //:Default constructor
 
@@ -95,11 +90,6 @@ public:
    //: Overrides the init file of processAlias.dat
    //: Working directory will be prepended.
 
-   void setWorkingDirectory(UtlString &rWorkPath);
-   //: Sets the working directory for the process filename and lock file.
-   //: Delfaults to ProccessMgr
-   //: Do not end your directory name with a \ or /
-
    void setAliasStopped(UtlString &rAlias);
     
    OsStatus setUserRequestState(UtlString &rAlias, int userRequestedState);
@@ -125,7 +115,7 @@ public:
    //: Retrieves the alias if you know the pid
    //: Returns OS_SUCCESS if found, or OS_FAILED if....failed.
 
-   static OsProcessMgr *getInstance();
+   static OsProcessMgr *getInstance(const char* workingDirectory);
    //: returns the one and only process manager
 
 

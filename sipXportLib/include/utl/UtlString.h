@@ -24,6 +24,19 @@
 
 // MACROS
 // EXTERNAL FUNCTIONS
+#if defined(_VXWORKS)
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+extern int strncasecmp( const char *s1, const char *s2, int N );
+
+#ifdef __cplusplus
+}
+#endif
+#endif
+
+
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STRUCTS

@@ -18,6 +18,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #endif
+#include <stdarg.h>
 
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
@@ -30,20 +31,24 @@
 #define MAX_ADAPTER_NAME_LENGTH 256
 
 //: constant indentifier indicating the maximum number of IP addresses on this host.
-#define OS_INVALID_SOCKET_DESCRIPTOR -1
+#define OS_INVALID_SOCKET_DESCRIPTOR (-1)
 
 #if defined(_WIN32)
 #   include <os/wnt/getWindowsDNSServers.h>
 #   include "os/wnt/WindowsAdapterInfo.h"
 #  define OsSocketGetERRNO() (WSAGetLastError())
 #  define OS_INVALID_INET_ADDRESS INADDR_NONE // 0xffffffff
+
 #elif defined(_VXWORKS)
+#  include <os/Vxw/OsAdapterInfoVxw.h>
 #  define OsSocketGetERRNO() (errno)
 #  define OS_INVALID_INET_ADDRESS 0xffffffff
+
 #elif defined(__pingtel_on_posix__)
 #  include "os/linux/AdapterInfo.h"
-#  define OsSocketGetERRNO() (h_errno)
+#  define OsSocketGetERRNO() (errno)
 #  define OS_INVALID_INET_ADDRESS 0xffffffff
+
 #else
 #  error Unsupported target platform.
 #endif
@@ -76,15 +81,15 @@ public:
 
    static UtlBoolean socketInitialized;
 
-   enum SocketProtocolTypes
+   typedef enum 
    {
-      UNKNOWN = -1,
-      TCP = 0,
-      UDP = 1,
-      MULTICAST = 2,
+      UNKNOWN    = -1,
+      TCP        = 0,
+      UDP        = 1,
+      MULTICAST  = 2,
       SSL_SOCKET = 3,
-	  CUSTOM = 4
-   };
+      CUSTOM     = 4
+   } IpProtocolSocketType ;
    //: Protocol Types
    
 /* ============================ CREATORS ================================== */
@@ -102,9 +107,9 @@ public:
 
 
    virtual int write(const char* buffer,
-                                       int bufferLength,
-                                       const char* ipAddress,
-                                       int port)
+                     int bufferLength,
+                     const char* ipAddress,
+                     int port)
    {
         // default implementation ignores ipAddress and port
         return write(buffer, bufferLength);
@@ -178,11 +183,11 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
-   virtual int getIpProtocol() const = 0;
+   virtual OsSocket::IpProtocolSocketType getIpProtocol() const = 0;
    //:Return the protocol type of this socket
 
    /// return the string representation of the SocketProtocolType 
-   const char* ipProtocolString() const;
+   static const char* ipProtocolString(OsSocket::IpProtocolSocketType);
    
    virtual UtlBoolean reconnect() = 0;
    //:Set up the connection again, assuming the connection failed
@@ -269,7 +274,7 @@ public:
 
    virtual UtlBoolean isReadyToRead(long waitMilliseconds = 0) const;
    //:Poll if there are bytes to read
-   // Returns TRUE if socket is read to read.
+   // Returns TRUE if socket is ready to read.
    // Returns FALSE if wait expires or socket error.
 
    virtual UtlBoolean isReadyToWrite(long waitMilliseconds = 0) const;
@@ -290,6 +295,11 @@ public:
 
    static void inet_ntoa_pt(struct in_addr input_address, UtlString& output_address);
    //:Convert in_addr input_address to dot ip address to avoid memory leak
+
+   static UtlBoolean isFramed(IpProtocolSocketType type);
+   //:Returns TRUE if the given IpProtocolSocketType is a framed message protocol
+   // (that is, every read returns exactly one message), and so the Content-Length
+   // header may be omitted.
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -323,6 +333,5 @@ private:
 };
 
 /* ============================ INLINE METHODS ============================ */
-
 
 #endif  // _OsSocket_h_

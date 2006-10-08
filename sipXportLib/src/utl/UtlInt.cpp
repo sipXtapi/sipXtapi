@@ -42,6 +42,34 @@ UtlInt::~UtlInt()
 {
 }
 
+/* ============================ OPERATORS ============================== */
+
+// Prefix increment operator
+UtlInt& UtlInt::operator++() {
+    mValue++;
+    return *this;
+}
+
+// Postfix increment operator
+UtlInt UtlInt::operator++(int) {
+    UtlInt temp = *this;
+    ++*this;
+    return temp;
+}
+
+// Prefix decrement operator
+UtlInt& UtlInt::operator--() {
+    mValue--;
+    return *this;
+}
+
+// Postfix decrement operator
+UtlInt UtlInt::operator--(int) {
+    UtlInt temp = *this;
+    --*this;
+    return temp;
+}
+
 /* ============================ MANIPULATORS ============================== */
 
 int UtlInt::setValue(int iValue)

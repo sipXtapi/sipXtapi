@@ -715,7 +715,7 @@ SIPXTAPI_API SIPX_RESULT sipxUnInitialize(SIPX_INST hInst,
             sipxDestroyMediaFactoryFactory() ;
 
             // Destroy the timer task to flush timers
-            OsTimerTask::destroyTimer() ;
+            OsTimerTask::destroyTimerTask() ;
             pInst->pCallManager = NULL;
 
             sipxDecSessionCount();
@@ -800,7 +800,7 @@ SIPXTAPI_API SIPX_RESULT sipxUnInitialize(SIPX_INST hInst,
 
             // Destroy the timer task once more -- some of the destructors (SipUserAgent)
             // mistakenly re-creates them when terminating.
-            OsTimerTask::destroyTimer() ;
+            OsTimerTask::destroyTimerTask() ;
 
             rc = SIPX_RESULT_SUCCESS ;
         }
@@ -7994,6 +7994,14 @@ SIPXTAPI_API SIPX_RESULT sipxConfigPrepareToHibernate(const SIPX_INST hInst)
         "sipxConfigPrepareToHibernate Inst=%p", hInst);
 
     SIPX_RESULT rc = SIPX_RESULT_FAILURE;
+
+
+/*
+    // As if 2006-10-06 -- The timer subsystem has been rewritten and no 
+    // longer supports the ability to restart timers -- work is needed
+    // to add this (not sure how much), but until then, disabling this
+    // functionality.
+
     OsTimer* pTimer;
     
     if (!gbHibernated)
@@ -8032,6 +8040,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigPrepareToHibernate(const SIPX_INST hInst)
         
         rc = SIPX_RESULT_SUCCESS;
     }
+    */
     return rc;
 }
 
@@ -8042,8 +8051,14 @@ SIPXTAPI_API SIPX_RESULT sipxConfigUnHibernate(const SIPX_INST hInst)
         "sipxConfigUnHibernate Inst=%p", hInst);
 
     SIPX_RESULT rc = SIPX_RESULT_FAILURE;
-    OsTimer* pTimer;   
-    
+
+/*
+    // As if 2006-10-06 -- The timer subsystem has been rewritten and no 
+    // longer supports the ability to restart timers -- work is needed
+    // to add this (not sure how much), but until then, disabling this
+    // functionality.
+
+    OsTimer* pTimer;       
     if (gbHibernated)
     {
         gbHibernated = false;
@@ -8083,6 +8098,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigUnHibernate(const SIPX_INST hInst)
         rc = SIPX_RESULT_SUCCESS;
     }
     
+*/
     return rc;
 }
 

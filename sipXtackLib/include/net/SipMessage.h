@@ -763,9 +763,9 @@ public:
                                      UtlString& protocol) const;
 
     static void convertProtocolStringToEnum(const char* protocolString,
-                        enum OsSocket::SocketProtocolTypes& protocolEnum);
+                        enum OsSocket::IpProtocolSocketType& protocolEnum);
 
-    static void convertProtocolEnumToString(enum OsSocket::SocketProtocolTypes protocolEnum,
+    static void convertProtocolEnumToString(enum OsSocket::IpProtocolSocketType protocolEnum,
                                             UtlString& protocolString);
 
     UtlBoolean getWarningCode(int* warningCode, int index = 0) const;

@@ -92,7 +92,7 @@ OsStatus OsUtilWnt::synchObjTryAcquire(const HANDLE synchObj)
 {
    OsStatus res;
 
-   res = OsUtilWnt::synchObjAcquire(synchObj, OsTime::NO_WAIT);
+   res = OsUtilWnt::synchObjAcquire(synchObj, OsTime::NO_WAIT_TIME);
 
    if (res == OS_WAIT_TIMEOUT)
       return OS_BUSY;

@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2005 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -19,6 +22,7 @@
 #include "os/OsBSem.h"
 #include "os/OsMutex.h"
 #include "os/OsConfigDb.h"
+#include <utl/UtlString.h>
 
 // APPLICATION INCLUDES
 
@@ -73,6 +77,12 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
+
+   //! Opens and reads the contents of the named file into the given UtlString
+   static long openAndRead(const char* filename, UtlString& fileContentsRead);
+
+   //! Opens and write the given UtlString to the named file 
+   static long openAndWrite(const char* filename, const UtlString& fileContentsToWrite);
 
    virtual OsStatus open(const int mode = READ_WRITE);
      //: Opens the specified file using the specified  mode

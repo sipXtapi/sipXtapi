@@ -127,7 +127,7 @@ OsStatus OsMsgQShared::sendUrgent(const OsMsg& rMsg,
 // sent using this method.
 OsStatus OsMsgQShared::sendFromISR(const OsMsg& rMsg)
 {
-   return doSend(rMsg, OsTime::NO_WAIT, FALSE, TRUE);
+   return doSend(rMsg, OsTime::NO_WAIT_TIME, FALSE, TRUE);
 }
 
 // Remove a message from the head of the queue
@@ -218,9 +218,10 @@ OsStatus OsMsgQShared::doSend(const OsMsg& rMsg, const OsTime& rTimeout,
    ret = mEmpty.acquire(rTimeout);   // wait for there to be room in the queue
    if (ret != OS_SUCCESS)
    {
-      OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+      // The caller should be responsible for logging this information
+      /*OsSysLog::add(FAC_KERNEL, PRI_CRIT,
                     "OsMsgQShared::doSend message send failed - no room, ret = %d",
-                    ret);
+                    ret);*/
       if (ret == OS_BUSY || ret == OS_WAIT_TIMEOUT)
          ret =  OS_WAIT_TIMEOUT;     // send timed out
    }

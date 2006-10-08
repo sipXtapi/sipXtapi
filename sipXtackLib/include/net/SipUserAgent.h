@@ -591,7 +591,7 @@ public:
 
     UtlBoolean recurseOnlyOne300Contact();
 
-    UtlBoolean isOk(OsSocket::SocketProtocolTypes socketType);
+    UtlBoolean isOk(OsSocket::IpProtocolSocketType socketType);
 
     //! Find out if SipUserAgent has finished shutting down.
     /*! Useful when using the non-blocking form of \ref shutdown.
@@ -612,7 +612,7 @@ public:
 
     void prepareVia(SipMessage&          message,
                     UtlString&           branchId, 
-                    OsSocket::SocketProtocolTypes& toProtocol,
+                    OsSocket::IpProtocolSocketType& toProtocol,
                     const char*          szTargetAddress, 
                     const int*           piTargetPort,
                     SIPX_TRANSPORT_DATA* pTransport = NULL) ;
@@ -649,7 +649,7 @@ protected:
     UtlBoolean sendStatelessRequest(SipMessage& request,
                                     UtlString& address,
                                     int port,
-                                    enum OsSocket::SocketProtocolTypes protocol,
+                                    enum OsSocket::IpProtocolSocketType protocol,
                                     UtlString& branchId);
 
     UtlBoolean sendTls(SipMessage* message,

@@ -1335,7 +1335,7 @@ void SdpBody::addAudioCodecs(int iNumAddresses,
                              SdpSrtpParameters& srtpParams,
                              int totalBandwidth,
                              int videoFramerate,
-                             OsSocket::SocketProtocolTypes transportType)
+                             OsSocket::IpProtocolSocketType transportType)
 {
     int codecArray[MAXIMUM_MEDIA_TYPES];
     int formatArray[MAXIMUM_MEDIA_TYPES];
@@ -1675,7 +1675,7 @@ void SdpBody::addAudioCodecs(int iNumAddresses,
                              int totalBandwidth,
                              int videoFramerate,
                              const SdpBody* sdpRequest,
-                             OsSocket::SocketProtocolTypes transportType)
+                             OsSocket::IpProtocolSocketType transportType)
 {
    int preExistingMedia = getMediaSetCount();
    int mediaIndex = 0;
@@ -2539,7 +2539,7 @@ UtlBoolean SdpBody::findValueInField(const char* pField, const char* pvalue) con
    return FALSE;
 }
 
-const bool SdpBody::isTransportAvailable(const OsSocket::SocketProtocolTypes protocol,
+const bool SdpBody::isTransportAvailable(const OsSocket::IpProtocolSocketType protocol,
                                          const SIPX_MEDIA_TYPE mediaType) const
 {
     bool bIsAvailable = false;

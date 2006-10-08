@@ -444,7 +444,7 @@ void SipMessage::addSdpBody(int nRtpContacts,
                                        NULL,
                                        NULL,
                                        hostAddresses[0]); // Originator address
-      OsSocket::SocketProtocolTypes transport = OsSocket::UDP;
+      OsSocket::IpProtocolSocketType transport = OsSocket::UDP;
       
       if (rtpTransportOptions == TCP_ONLY)
       {
@@ -2652,7 +2652,7 @@ UtlBoolean SipMessage::getResponseSendAddress(UtlString& address,
 }
 
 void SipMessage::convertProtocolStringToEnum(const char* protocolString,
-                        enum OsSocket::SocketProtocolTypes& protocolEnum)
+                        enum OsSocket::IpProtocolSocketType& protocolEnum)
 {
     if(strcasecmp(protocolString, SIP_TRANSPORT_UDP) == 0)
     {
@@ -2674,7 +2674,7 @@ void SipMessage::convertProtocolStringToEnum(const char* protocolString,
 
 }
 
-void SipMessage::convertProtocolEnumToString(enum OsSocket::SocketProtocolTypes protocolEnum,
+void SipMessage::convertProtocolEnumToString(enum OsSocket::IpProtocolSocketType protocolEnum,
                                             UtlString& protocolString)
 {
     switch(protocolEnum)

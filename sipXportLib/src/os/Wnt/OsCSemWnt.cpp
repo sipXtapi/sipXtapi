@@ -108,7 +108,7 @@ OsStatus OsCSemWnt::release(void)
                         &prevCount))  // previous value
       res = OS_SUCCESS;
    else
-      res = OS_UNSPECIFIED;
+      res = OS_BUSY;
 
 #ifdef OS_CSEM_DEBUG
    if (res == OS_SUCCESS)

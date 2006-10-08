@@ -29,6 +29,13 @@
 #include "os/OsSocket.h"
 
 // EXTERNAL FUNCTIONS
+#if defined(_VXWORKS)
+extern "C" char* strdup(const char* str);
+#else
+extern char* strdup(const char*) ;
+#endif
+
+
 // EXTERNAL VARIABLES
 // CONSTANTS
 #if defined(_WIN32)
@@ -37,6 +44,9 @@
 #elif defined(__pingtel_on_posix__)
      // Posix va_arg function takes a const
 #    define OS_VA_ARG_CONST const
+#elif _VXWORKS
+     // Vxworks va_arg function does not take a const 
+#    define OS_VA_ARG_CONST 
 #else
 #error Unsupported target platform.
 #endif

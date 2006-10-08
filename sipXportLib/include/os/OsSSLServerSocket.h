@@ -32,10 +32,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-//: Implements TCP server for accepting TCP connections
-// This class provides the implementation of the UDP datagram-based 
-// socket class which may be instantiated. 
-
+/// Implements Server for accepting TLS/SSL connections
 class OsSSLServerSocket : public OsServerSocket
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -84,7 +81,7 @@ public:
 
 /* ============================ INQUIRY =================================== */
 
-   virtual int getIpProtocol() const;
+   virtual OsSocket::IpProtocolSocketType getIpProtocol() const;
    //: Returns the protocol type of this socket
 
    virtual UtlBoolean isOk() const;

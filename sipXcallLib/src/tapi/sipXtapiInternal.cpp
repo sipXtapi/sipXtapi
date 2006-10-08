@@ -1480,7 +1480,7 @@ void sipxGetContactHostPort(SIPX_INSTANCE_DATA* pData,
     if (!bSet)
     {
         /*
-        OsSocket::SocketProtocolTypes protocol = OsSocket::UDP;
+        OsSocket::IpProtocolSocketType protocol = OsSocket::UDP;
         switch (sipx_protocol)
         {
             case TRANSPORT_UDP:

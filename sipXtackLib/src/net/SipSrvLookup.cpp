@@ -103,7 +103,7 @@ static void server_insert_addr(
    /// Components of the server_t.
    const char *host,
    ///< (copied)
-   OsSocket::SocketProtocolTypes type,
+   OsSocket::IpProtocolSocketType type,
    struct sockaddr_in sin,
    unsigned int priority,
    unsigned int weight);
@@ -125,7 +125,7 @@ static void server_insert(
    /// Components of the server_t.
    const char *host,
    ///< (copied)
-   OsSocket::SocketProtocolTypes type,
+   OsSocket::IpProtocolSocketType type,
    struct sockaddr_in sin,
    unsigned int priority,
    unsigned int weight);
@@ -143,7 +143,7 @@ static void lookup_SRV(server_t*& list,
                        ///< "sip" or "sips"
                        const char *proto_string,
                        ///< protocol string for DNS lookup
-                       OsSocket::SocketProtocolTypes proto_code,
+                       OsSocket::IpProtocolSocketType proto_code,
                        ///< protocol code for result list
                        const char* srcIp
    );
@@ -157,7 +157,7 @@ static void lookup_A(server_t*& list,
                      int& list_length_used,
                      const char *domain,
                      ///< domain name
-                     OsSocket::SocketProtocolTypes proto_code,
+                     OsSocket::IpProtocolSocketType proto_code,
                      /**< protocol code for result list
                       *   UNKNOWN means both UDP and TCP are acceptable
                       *   SSL must be set explicitly. */
@@ -262,7 +262,7 @@ server_t* SipSrvLookup::servers(const char* domain,
                                 ///< SIP domain name or host name
                                 const char* service,
                                 ///< "sip" or "sips"
-                                enum OsSocket::SocketProtocolTypes socketType,
+                                enum OsSocket::IpProtocolSocketType socketType,
                                 ///< types of transport
                                 int port,
                                 ///< port number from URI, or PORT_NONE
@@ -461,7 +461,7 @@ void server_insert_addr(server_t*& list,
                         int& list_length_allocated,
                         int& list_length_used,
                         const char* host,
-                        OsSocket::SocketProtocolTypes type,
+                        OsSocket::IpProtocolSocketType type,
                         struct sockaddr_in sin,
                         unsigned int priority,
                         unsigned int weight)
@@ -491,7 +491,7 @@ void server_insert(server_t*& list,
                    int& list_length_allocated,
                    int& list_length_used,
                    const char* host,
-                   OsSocket::SocketProtocolTypes type,
+                   OsSocket::IpProtocolSocketType type,
                    struct sockaddr_in sin,
                    unsigned int priority,
                    unsigned int weight)
@@ -561,7 +561,7 @@ void lookup_SRV(server_t*& list,
                 ///< "sip" or "sips"
                 const char* proto_string,
                 ///< protocol string for DNS lookup
-                OsSocket::SocketProtocolTypes proto_code,
+                OsSocket::IpProtocolSocketType proto_code,
                 ///< protocol code for result list
                 const char* srcIp
    )
@@ -656,7 +656,7 @@ void lookup_A(server_t*& list,
               int& list_length_used,
               const char* domain,
               ///< domain name
-              OsSocket::SocketProtocolTypes proto_code,
+              OsSocket::IpProtocolSocketType proto_code,
               ///< protocol code for result list
               res_response* in_response,
               ///< current DNS response, or NULL
@@ -1011,7 +1011,7 @@ unsigned int server_t::getPriorityFromServerT()
 }
 
 /// Accessor for protocol
-enum OsSocket::SocketProtocolTypes
+enum OsSocket::IpProtocolSocketType
 server_t::getProtocolFromServerT()
 {
    return type;

@@ -98,10 +98,16 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
-   virtual long seconds(void) const;
+   virtual long seconds(void) const
+   {
+      return mSeconds;
+   }
      //:Return the seconds portion of the time interval
 
-   virtual long usecs(void) const;
+   virtual long usecs(void) const
+   {
+      return mUsecs;
+   }
      //:Return the microseconds portion of the time interval
 
    virtual long cvtToMsecs(void) const;

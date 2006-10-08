@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2005 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -15,9 +18,9 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "os/OsDefs.h"
-#include "os/OsStatus.h"
-#include "os/OsPathBase.h"
+#include <os/OsDefs.h>
+#include <os/OsStatus.h>
+#include <os/OsPathBase.h>
 #include <utl/UtlRegex.h>
 
 // DEFINES
@@ -29,7 +32,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class OsFileInfoBase;
-class OsPathBase;
+class OsFileBase;
 
 //:Abstraction class to iterate through files and/or directories
 class OsFileIteratorBase

@@ -36,6 +36,13 @@
 #include "os/OsEvent.h"
 
 // EXTERNAL FUNCTIONS
+#if defined(_VXWORKS)
+extern "C" char* strdup(const char* str);
+#else
+extern char* strdup(const char*) ;
+#endif
+
+
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS

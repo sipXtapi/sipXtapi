@@ -16,10 +16,14 @@
 #include <utl/UtlString.h>
 #include <utl/UtlTokenizer.h>
 
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+#if defined(_VXWORKS)
+extern "C" char* strdup(const char*);
+#endif
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -28,7 +32,7 @@
 // Constructor
 UtlTokenizer::UtlTokenizer(const UtlString& tokens)
 {
-    m_tokens = strdup(tokens.data());
+    m_tokens = (char *)strdup(tokens.data());
     m_tokenPosition = 0;
 }
 

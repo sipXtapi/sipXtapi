@@ -63,6 +63,7 @@ class UtlIntTests : public CppUnit::TestCase
     CPPUNIT_TEST(testEquals_NonInteger) ; 
     CPPUNIT_TEST(testSetValue) ; 
     CPPUNIT_TEST(testGetContainableType) ; 
+    CPPUNIT_TEST(testOperators) ; 
     CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -375,6 +376,20 @@ public:
                                       string(actual)) ; 
         }
     } //testGetContainableType
+
+    void testOperators()
+    {
+        // test prefix and postfix operators
+        UtlInt testInt(1);
+        CPPUNIT_ASSERT((++testInt).getValue() == 2);
+        CPPUNIT_ASSERT((testInt++).getValue() == 2);
+        CPPUNIT_ASSERT((--testInt).getValue() == 2);
+        CPPUNIT_ASSERT((testInt--).getValue() == 2);
+
+        // test conversion operator
+        UtlInt testInt2(11);
+        CPPUNIT_ASSERT(testInt2 == 11);
+    } //testOperators
 };
 
 

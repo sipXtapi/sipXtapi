@@ -180,7 +180,7 @@ public:
 	void  SetUserData( void* user )			{ userData = user; }
 	void* GetUserData()						{ return userData; }
 
-	// Table that returs, for a given lead byte, the total number of bytes
+	// Table that returns, for a given lead byte, the total number of bytes
 	// in the UTF-8 sequence.
 	static const int utf8ByteTable[256];
 

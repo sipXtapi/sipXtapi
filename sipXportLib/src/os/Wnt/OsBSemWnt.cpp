@@ -35,7 +35,6 @@
 // Constructor
 OsBSemWnt::OsBSemWnt(const int queueOptions, const int initState)
 {
-   mTaskId = 0;
    mOptions = queueOptions;
    // Under Windows NT, we ignore the queueOptions argument
    //  no security attributes
@@ -45,8 +44,8 @@ OsBSemWnt::OsBSemWnt(const int queueOptions, const int initState)
    mSemImp = CreateSemaphore(NULL, initState, 1, NULL);
 
 #ifdef OS_SYNC_DEBUG
-   if (initState == EMPTY)
-      mTaskId = GetCurrentThreadId();
+   mTaskId = (initState == EMPTY) ? GetCurrentThreadId() : 0;
+   mLastId = 0;
 #endif
 }
 
@@ -58,7 +57,6 @@ OsBSemWnt::~OsBSemWnt()
     mSemImp = NULL;
 
         mOptions = 0;
-        mTaskId = 0;
 
         assert(res == TRUE);   // CloseHandle should always return TRUE
 }
@@ -75,7 +73,9 @@ OsStatus OsBSemWnt::acquire(const OsTime& rTimeout)
    retVal = OsUtilWnt::synchObjAcquire(mSemImp, rTimeout);
 #ifdef OS_SYNC_DEBUG
    if (retVal == OS_SUCCESS)
+   {
       mTaskId = GetCurrentThreadId();
+   }
 #endif
    return retVal;
 }
@@ -89,7 +89,9 @@ OsStatus OsBSemWnt::tryAcquire(void)
    retVal = OsUtilWnt::synchObjTryAcquire(mSemImp);
 #ifdef OS_SYNC_DEBUG
    if (retVal == OS_SUCCESS)
+   {
       mTaskId = GetCurrentThreadId();
+   }
 #endif
    return retVal;
 }
@@ -103,7 +105,16 @@ OsStatus OsBSemWnt::release(void)
    {
       ret = OS_TASK_NOT_STARTED;
    }
-   else if (!ReleaseSemaphore(mSemImp,
+   else
+   {
+#     ifdef OS_SYNC_DEBUG
+      // make this change while holding the lock
+      int previousLast = mLastId;
+      mLastId = GetCurrentThreadId();
+      mTaskId = 0;
+#     endif
+
+      if (!ReleaseSemaphore(mSemImp,
                         1,         // add one to the previous value
                         NULL))     // don't return the old value
    {
@@ -115,25 +126,14 @@ OsStatus OsBSemWnt::release(void)
          ret = OS_ALREADY_SIGNALED;
       } else {
          ret = OS_UNSPECIFIED;
-/*
-         char * lpMsgBuf;
-
-         FormatMessage(
-            FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-            NULL, lastErr,
-            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-            (LPTSTR) &lpMsgBuf, 0, NULL);
-         *(lpMsgBuf + strlen((char *) lpMsgBuf) - 2) = 0;
-         osPrintf("OsBSemWnt::rlse(): GetLastError = %d!\n  (%s)\n",
-            GetLastError(), lpMsgBuf);
-         LocalFree(lpMsgBuf); // Free the buffer.
-*/
-      }
    }
 #ifdef OS_SYNC_DEBUG
-   if (ret == OS_SUCCESS)
-      mTaskId = 0;
+         // still holding it, so reset the status
+         mTaskId = mLastId;
+         mLastId = previousLast;
 #endif
+      }
+   }
    return ret;
 }
 

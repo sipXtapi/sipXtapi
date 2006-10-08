@@ -30,11 +30,18 @@
 //:Mutual exclusion semaphore (mutex)
 // The mutual-exclusion semaphore is a specialized version of the binary
 // semaphore, designed to address issues inherent in mutual exclusion, such
-// as recursive access to resources, priority inversion, and deletion safety
+// as recursive access to resources, priority inversion, and deletion safety.
+
+
 // The fundamental behavior of the mutual-exclusion semaphore is identical to
-// that of a binary semaphore except for the following restrictions: it can
-// only be used for mutual exclusion and it can only be released by the task
-// that acquired it.
+// that of a binary semaphore except for:
+
+// - It can only be used for mutual exclusion and it can only be released by
+// the thread that acquired it.
+
+// - If a thread already holds the mutex, it may acquire it again without
+// first releasing it.  The thread must release the mutex as many times as it
+// has acquired it before the mutex is free to be acquired by another thread.
 
 class OsMutexBase : public OsSyncBase
 {

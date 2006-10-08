@@ -334,8 +334,8 @@ void OsDateTimeBase::getDayOfWeek(int year, int  month, int dayOfMonth, int& day
     // A copy of this page is also in:
     // \\Pingpdc\Software\Info\technology\calendar-math\node3.html
 
-    // The calculation below assumes a 1-based month -- internally, we used a 0-based number
-    // and the API docs ask for a 0-based month.
+    // Both VxWorks and Windows will set the mMonth to 0 based.
+    // Windows used 1 based month (doh) and VxWorks uses 0 based
     month++;
 
 //    osPrintf("getDayOfWeek (IN): year=%d, month=%d, dayofmonth=%d\n",year,month,dayOfMonth);
@@ -397,6 +397,17 @@ void OsDateTimeBase::getHttpTimeString(UtlString& dateString)
             mHour, mMinute, mSecond);
 
     dateString = dateBuffer;
+}
+
+/// Set the dateString to the time as UTC time in a Postgres compatible format:
+///   2002-08-26 19:21:32.000
+void OsDateTimeBase::getSqlTimeStringZ(UtlString& dateString)
+{
+   dateString.resize(24);
+   sprintf(const_cast<char*>(dateString.data()), "%4d-%02d-%02d %02d:%02d:%02d.%03d", 
+           mYear, mMonth+1, mDay, 
+           mHour, mMinute, mSecond, mMicrosecond/MICROSECS_PER_MILLISEC
+           );
 }
 
 /// Set the dateString to the time as UTC time in the following format:
@@ -489,6 +500,10 @@ void OsDateTimeBase::getLocalTimeString(UtlString& dateString)
 }
 
 // Return the current time as an OsTime value
+// Note that this method is overridden in both Linux and Windows with
+// methods that return time with microsecond resolution.  So don't be
+// deceived by this code that getCurTime only returns time with second
+// resolution.
 void OsDateTimeBase::getCurTime(OsTime& rTime)
 {
    OsTime curTime(time(NULL), 0);
