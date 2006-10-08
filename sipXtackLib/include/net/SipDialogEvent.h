@@ -321,9 +321,10 @@ class SipDialogEvent : public HttpBody
    //! Insert a Dialog object
    void insertDialog(Dialog* dialog);
 
-   //! Get the Dialog object from the hash table based on the callId and tags.
-   // If the mRemoteTag is empty, then testing for match is only done on
-   // callId and localTag.  Otherwise, all three fields are used.
+   //! Get the Dialog object from the hash table based on the callId
+   //and tags.  If the mRemoteTag of a Dialog object in the hash table
+   //is empty, then testing for match is only done on callId and
+   //localTag.  Otherwise, all three fields are used.
    Dialog* getDialog(UtlString& callId,
                      UtlString& localTag,
                      UtlString& remoteTag);

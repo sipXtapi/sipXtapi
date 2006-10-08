@@ -424,10 +424,19 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                          
                // Get the new callId because it might have changed
                sipDialog.getCallId(callId);
+
                sipDialog.getLocalField(localIdentity);
                localIdentity.getFieldParameter("tag", localTag);
                sipDialog.getRemoteField(remoteIdentity);
                remoteIdentity.getFieldParameter("tag", remoteTag);
+         
+               // If the SipDialog is empty we can't use the empty callId. Reassign the remembered callId.
+               if (callId.isNull() && !failCallId.isNull())
+               {
+                  OsSysLog::add(FAC_SIP, PRI_WARNING, "DialogEventPublisher::handleMessage callId is empty, using fail callId '%s'", 
+                                failCallId.data());
+                  callId = failCallId;
+               }
 
                sipDialog.getLocalField(localIdentity);
                localIdentity.getFieldParameter("tag", localTag);

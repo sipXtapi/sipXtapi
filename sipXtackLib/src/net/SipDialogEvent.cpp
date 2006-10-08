@@ -508,7 +508,7 @@ Dialog* SipDialogEvent::getDialog(UtlString& callId,
                          foundDirection);
       
       if (foundCallId.compareTo(callId) == 0 &&
-          foundLocalTag.compareTo(localTag) &&
+          foundLocalTag.compareTo(localTag) == 0 &&
           (foundRemoteTag.isNull() ||
            foundRemoteTag.compareTo(remoteTag) == 0))
       {
