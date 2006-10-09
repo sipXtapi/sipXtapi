@@ -130,13 +130,13 @@ void SipPublishContentMgr::publish(const char* resourceId,
                                    HttpBody* eventContent[],
                                    UtlBoolean noNotify)
 {
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipPublishContentMgr::publish resourceId '%s', eventTypeKey '%s', eventType '%s', numContentTypes %d",
+                  resourceId, eventTypeKey, eventType, numContentTypes);
 #ifdef TEST_PRINT
     osPrintf("SipPublishContentMgr::publish(%s, %s, %s, %d, [%p], ...)\n",
         resourceId, eventTypeKey, eventType, numContentTypes, eventContent[0]);
 #endif
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                  "SipPublishContentMgr::publish resourceId '%s', eventTypeKey '%s', eventType '%s', numContentTypes %d",
-                  resourceId, eventTypeKey, eventType, numContentTypes);
 
     UtlBoolean resourceIdProvided = resourceId && *resourceId;
 

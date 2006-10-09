@@ -18,7 +18,6 @@
 #include <net/SipDialogEvent.h>
 #include <net/NameValueTokenizer.h>
 #include <xmlparser/tinyxml.h>
-#include <utl/UtlHashMapIterator.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -67,7 +66,6 @@ void Dialog::setIdentifier()
 }
 
 /* ============================ ACCESSORS ================================= */
-
 
 void Dialog::getDialog(UtlString& dialogId,
                        UtlString& callId,
@@ -456,8 +454,6 @@ SipDialogEvent::operator=(const SipDialogEvent& rhs)
    return *this;
 }
 
-
-/* ============================ ACCESSORS ================================= */
 
 void SipDialogEvent::insertDialog(Dialog* dialog)
 {

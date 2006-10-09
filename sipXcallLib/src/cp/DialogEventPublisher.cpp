@@ -438,19 +438,6 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                   callId = failCallId;
                }
 
-               sipDialog.getLocalField(localIdentity);
-               localIdentity.getFieldParameter("tag", localTag);
-               sipDialog.getRemoteField(remoteIdentity);
-               remoteIdentity.getFieldParameter("tag", remoteTag);
-         
-               // If the SipDialog is empty we can't use the empty callId. Reassign the remembered callId.
-               if (callId.isNull() && !failCallId.isNull())
-               {
-                  OsSysLog::add(FAC_SIP, PRI_WARNING, "DialogEventPublisher::handleMessage callId is empty, using fail callId '%s'", 
-                                failCallId.data());
-                  callId = failCallId;
-               }
-
                // Remove the call from the pool and clean up the call
                OsSysLog::add(FAC_SIP, PRI_DEBUG, "Trying to find entity '%s'", entity.data());
                pThisCall = (SipDialogEvent *) mCalls.findValue(&entity);
