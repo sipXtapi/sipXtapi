@@ -68,6 +68,9 @@
 // CONSTANTS
 const int SipRedirectorPrivateStoragePickUp::TargetDialogDurationAbsent = -1;
 
+const UtlContainableType SipRedirectorPrivateStoragePickUp::TYPE =
+    "SipRedirectorPrivateStoragePickUp";
+
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
@@ -1394,10 +1397,16 @@ static UtlBoolean getYNconfig(OsConfigDb& configDb,
       case '0':
          // If the value starts with N or 0, set the result to FALSE.
          value = FALSE;
-        defuault:
+      default:
          // Ignore all other values.
          break;
       } 
    }
    return value;
+}
+
+// Get the ContainableType for a UtlContainable derived class.
+UtlContainableType SipRedirectorPrivateStoragePickUp::getContainableType() const
+{
+    return SipRedirectorPrivateStoragePickUp::TYPE;
 }

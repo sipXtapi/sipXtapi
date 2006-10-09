@@ -618,7 +618,7 @@ public:
      * This returns a unique type for UtlString
      */
 
-    static UtlContainableType TYPE;    ///< Class type used for runtime checking 
+    static const UtlContainableType TYPE;    ///< Class type used for runtime checking 
 
     /// Compare to any other UtlContainable
     virtual int compareTo(UtlContainable const *other) const;

@@ -25,6 +25,8 @@
 #define END_LINE ">\n"
 
 // STATIC VARIABLE INITIALIZATIONS
+const UtlContainableType Tuple::TYPE = "Tuple";
+
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -113,11 +115,9 @@ unsigned int Tuple::hash() const
 }
 
 
-static UtlContainableType DB_ENTRY_TYPE = "PresenceEvent";
-
 const UtlContainableType Tuple::getContainableType() const
 {
-    return DB_ENTRY_TYPE;
+    return TYPE;
 }
 
 

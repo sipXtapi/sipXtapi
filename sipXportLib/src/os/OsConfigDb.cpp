@@ -33,6 +33,7 @@
 
 // STATIC VARIABLE INITIALIZATIONS
 static OsConfigEncryption *gEncryption = NULL;
+const UtlContainableType DbEntry::TYPE = "DbEntry";
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -1017,11 +1018,9 @@ unsigned int DbEntry::hash() const
     return key.hash();
 }
 
-static UtlContainableType DB_ENTRY_TYPE = "DbEntry";
-
 const UtlContainableType DbEntry::getContainableType() const
 {
-    return DB_ENTRY_TYPE;
+    return TYPE;
 }
 
 /* ============================ FUNCTIONS ================================= */

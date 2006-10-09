@@ -674,17 +674,4 @@ void SipPublishContentMgr::unlock()
 
 // Support functions for SipPublishContentMgrDefaultConstructor.
 
-/// The hash is just the object's location.
-unsigned int SipPublishContentMgrDefaultConstructor::hash() const
-{
-   return (int) this;
-}
-
-int SipPublishContentMgrDefaultConstructor::compareTo(const UtlContainable* other) const
-{
-   UtlContainableType our_type = getContainableType();
-   UtlContainableType other_type = other->getContainableType();
-   return (our_type != other_type ?
-           (our_type < other_type ? -1 : 1) :
-           this < other ? -1 : 1);
-}
+// None.

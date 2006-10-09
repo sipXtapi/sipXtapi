@@ -25,6 +25,8 @@
 // CONSTANTS
 
 // STATIC VARIABLE INITIALIZATIONS
+const UtlContainableType Dialog::TYPE = "Dialog";
+
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -245,11 +247,9 @@ unsigned int Dialog::hash() const
 }
 
 
-static UtlContainableType DB_ENTRY_TYPE = "DialogEvent";
-
 const UtlContainableType Dialog::getContainableType() const
 {
-    return DB_ENTRY_TYPE;
+    return TYPE;
 }
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */

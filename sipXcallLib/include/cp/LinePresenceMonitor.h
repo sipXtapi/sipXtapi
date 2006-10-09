@@ -17,6 +17,7 @@
 // APPLICATION INCLUDES
 #include <os/OsStatus.h>
 #include <os/OsBSem.h>
+#include <os/OsEvent.h>
 #include <utl/UtlString.h>
 #include <utl/UtlHashMap.h>
 #include <net/StateChangeNotifier.h>
@@ -115,15 +116,15 @@ public:
     *  (busy/not-busy) of the URI in line->getUri().
     *  Status changes are reported with line->updateState().
     *  "*line" must not be deleted until "unsubscribeDialog(line)" has
-    *  been called and returned.
+    *  been called the event signalled
     */
    OsStatus subscribeDialog(LinePresenceBase* line);
 
    /** Instruct the LinePresenceMonitor to cease monitoring the dialog status
     *  of a URI.
-    *  Once this method has returned, "*line" may be deleted.
+    *  Once the event has been signaled, "*line" may be deleted.
     */
-   OsStatus unsubscribeDialog(LinePresenceBase* line);
+   OsStatus unsubscribeDialog(LinePresenceBase* line, OsEvent* e = NULL);
    
    /** Subscribe to the dialog status of the lines on a list.
     *  The line objects are subject to the same restrictions as from
@@ -131,22 +132,24 @@ public:
     */
    OsStatus subscribeDialog(UtlSList& list);
    
-   /// Subscribe to the dialog status of the lines on a list.
-   OsStatus unsubscribeDialog(UtlSList& list);
+   /** Unsubscribe to the dialog status of the lines on a list.
+    *  Once the event has been signaled, the lines in the list may be deleted.
+    */
+   OsStatus unsubscribeDialog(UtlSList& list, OsEvent* e = NULL);
 
    /** Instruct the LinePresenceMonitor to monitor the presence status
     *  of the URI in line->getUri().
     *  Status changes are reported with line->updateState().
     *  "*line" must not be deleted until "unsubscribeDialog(line)" has
-    *  been called and returned.
+    *  been called and the event signalled.
     */
    OsStatus subscribePresence(LinePresenceBase* line);
 
    /** Instruct the LinePresenceMonitor to cease monitoring the presence status
     *  of a URI.
-    *  Once this method has returned, "*line" may be deleted.
+    *  Once the event has been signalled, "*line" may be deleted.
     */
-   OsStatus unsubscribePresence(LinePresenceBase* line);
+   OsStatus unsubscribePresence(LinePresenceBase* line, OsEvent* e = NULL);
    
    /** Subscribe to the presence status of the lines on a list
     *  The line objects are subject to the same restrictions as from
@@ -154,8 +157,10 @@ public:
     */
    OsStatus subscribePresence(UtlSList& list);
    
-   /// Unsubscribe to the presence status of the lines on a list
-   OsStatus unsubscribePresence(UtlSList& list);
+   /** Unsubscribe to the presence status of the lines on a list
+    *  Once the event has been signaled, the lines in the list may be deleted.
+    */
+   OsStatus unsubscribePresence(UtlSList& list, OsEvent* e = NULL);
 
 /* ============================ INQUIRY =================================== */
 
@@ -236,15 +241,13 @@ private:
    OsStatus subscribeDialogMessage(LinePresenceBase* line);
 
    /// Unsubscribe the dialog on a specific line from the list
-   OsStatus unsubscribeDialogMessage(LinePresenceBase* line,
-                                     OsEvent* event);
+   OsStatus unsubscribeDialogMessage(LinePresenceBase* line);
    
    /// Subscribe the presence on a specific line in the list
    OsStatus subscribePresenceMessage(LinePresenceBase* line);
 
    /// Unsubscribe the presence on a specific line from the list
-   OsStatus unsubscribePresenceMessage(LinePresenceBase* line,
-                                       OsEvent* event);
+   OsStatus unsubscribePresenceMessage(LinePresenceBase* line);
    
    /** Perform the work of updating the status variables.
     *  This method does not take mLlock, but assumes that its caller

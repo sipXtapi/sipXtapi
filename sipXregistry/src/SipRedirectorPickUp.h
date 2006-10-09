@@ -250,6 +250,8 @@ class SipRedirectorPrivateStoragePickUp : public SipRedirectorPrivateStorage
 
    virtual ~SipRedirectorPrivateStoragePickUp();
 
+   virtual UtlContainableType getContainableType() const;
+
   protected:
 
    // CallId of the SUBSCRIBE we sent.
@@ -257,6 +259,8 @@ class SipRedirectorPrivateStoragePickUp : public SipRedirectorPrivateStorage
 
    // State filtering criteria.
    SipRedirectorPickUp::State mStateFilter;
+
+    static UtlContainableType TYPE;    /** < Class type used for runtime checking */
 
   private:
 

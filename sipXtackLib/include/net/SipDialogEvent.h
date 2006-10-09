@@ -112,6 +112,8 @@ class Dialog : public UtlContainable
 
    virtual UtlContainableType getContainableType() const;
 
+   static const UtlContainableType TYPE;
+
    virtual unsigned int hash() const;
 
    int compareTo(const UtlContainable *b) const;

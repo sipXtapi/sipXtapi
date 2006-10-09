@@ -70,7 +70,7 @@ public:
      * To use this, define your hash function as just:<pre>
      * unsigned int Foo::hash() const
      * {
-     * return directHash();
+     *    return directHash();
      * }
      * </pre>
      *
@@ -78,16 +78,12 @@ public:
      * use pointer comparison as the compareTo method:<pre>
      * int Foo::compareTo(UtlContainable const* inVal) const
      * {
-     *    int result ; 
+     *    int result;
      * 
-     *    if (inVal->isInstanceOf(Foo::TYPE))
-     *    {
-     *       result = ((unsigned) this) - ((unsigned) (Foo*) inVal);
-     *    }
-     *    else
-     *    {
-     *       result = -1; 
-     *    }
+     *    result =
+     *       this > other ? 1 :
+     *       this < other ? -1 :
+     *       0;
      *
      *    return result;
      * }
@@ -100,7 +96,7 @@ public:
      * To use this, define your hash function as just:<pre>
      * Foo hash()
      * {
-     * return stringHash(value);
+     *    return stringHash(value);
      * }
      * </pre>
      */
@@ -159,4 +155,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif    // _UtlContainable_h_
-

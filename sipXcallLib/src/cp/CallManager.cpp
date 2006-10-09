@@ -3048,7 +3048,14 @@ UtlBoolean CallManager::changeCallFocus(CpCall* callToTakeFocus)
 
 void CallManager::pushCall(CpCall* call)
 {
-    callStack.insertAt(0, new UtlInt((int) call));
+   UtlString callId = "";
+   if (call) {
+      call->getCallId(callId);
+      OsSysLog::add(FAC_CP, PRI_DEBUG,
+                  "CallManager::pushCall callStack: adding call %p, callId %s, entries = %d",
+                  call, callId.data(), callStack.entries());
+   }
+   callStack.insertAt(0, new UtlInt((int) call));
 #ifdef TEST_PRINT
     OsSysLog::add(FAC_CP, PRI_DEBUG,
                   "CallManager::pushCall callStack: adding call %p, entries = %d",
@@ -3076,6 +3083,13 @@ CpCall* CallManager::popCall()
 
 CpCall* CallManager::removeCall(CpCall* call)
 {
+    UtlString callId = "";
+    if (call) {
+      call->getCallId(callId);
+      OsSysLog::add(FAC_CP, PRI_DEBUG,
+                  "CallManager::removeCall callStack: removing call %p,callId %s, entries = %d",
+                  call, callId.data(), callStack.entries());
+    }
     UtlInt matchCall((int)call);
     UtlInt* callCollectable = (UtlInt*) callStack.remove(&matchCall);
     if(callCollectable)
