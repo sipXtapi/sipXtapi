@@ -48,6 +48,8 @@ public class SearchManagerImplTestDb extends TestCase {
         user.setFirstName("fIrst");
         user.setLastName("last");
         user.setUserName("boNGo");
+        user.setPintoken("e3e367205de83ab477cdf3449f000000");
+        user.setSipPassword("12345");
 
         m_coreContext.saveUser(user);
 
@@ -61,6 +63,14 @@ public class SearchManagerImplTestDb extends TestCase {
 
         collection = m_searchManager.search("firstName:bongo", m_identityToBean);
         assertEquals(0, collection.size());
+
+        // do not seach by PIN token or SIP password
+        collection = m_searchManager.search("12345", m_identityToBean);
+        assertEquals(0, collection.size());
+
+        collection = m_searchManager.search("e3e367*", m_identityToBean);
+        assertEquals(0, collection.size());
+        
 
         user.setUserName("kuku");
         // when changing username, must change PIN too
