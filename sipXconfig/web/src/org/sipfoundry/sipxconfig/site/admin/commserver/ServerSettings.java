@@ -39,14 +39,6 @@ public abstract class ServerSettings extends BasePage implements PageBeginRender
         setParentSetting(parent);
     }
 
-    /*
-     * private boolean isValid() { IValidationDelegate delegate =
-     * TapestryUtils.getValidator(this); return !delegate.getHasErrors(); }
-     * 
-     * public void formSubmit(IRequestCycle cycle_) { if (!isValid()) { return; }
-     * getServer().applySettings(); }
-     */
-
     public IPage apply(IRequestCycle cycle) {
         getServer().applySettings();
         RestartReminder restartPage = (RestartReminder) cycle.getPage(RestartReminder.PAGE);
@@ -55,6 +47,6 @@ public abstract class ServerSettings extends BasePage implements PageBeginRender
     }
 
     public void cancel() {
-        // do nothing
+        getServer().resetSettings();
     }
 }

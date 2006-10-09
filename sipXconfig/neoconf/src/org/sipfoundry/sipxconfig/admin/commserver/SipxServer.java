@@ -68,12 +68,16 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
 
     public void applySettings() {
         try {
-            handlePossiblePresenceServerChange();
             m_storage.flush();
+            handlePossiblePresenceServerChange();
         } catch (IOException e) {
             // TODO: catch and report as User Exception
             throw new RuntimeException(e);
         }
+    }
+
+    public void resetSettings() {
+        m_storage.reset();
     }
 
     private void handlePossiblePresenceServerChange() {
