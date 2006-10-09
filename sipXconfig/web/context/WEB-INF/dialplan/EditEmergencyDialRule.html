@@ -1,26 +1,22 @@
 <div jwcid="dialRuleCommon">
-  <div class="help">
-  <p>Please configure your phones to forward emergency goal to 
-     PSTN gateway directly.<br/>
-     If you enable caller sensitive routing you can configure a default gateway, and routing exceptions 
-     <a jwcid="emergencyRoutingLink" href="" title="Emergency Routing">here</a>.</p>
-  </div>
+  <span jwcid="@QuickHelp" value="message:help.text" />
   <fieldset>
     <table>
       <tbody>
-        <tr>
-          <td><label for="dialplan:pstnPrefix"> <span jwcid="pstnPrefixLabel">PSTN prefix</span></label></td>
-          <td><input jwcid="pstnPrefix" id="dialplan:pstnPrefix" maxlength="40" type="text" value="9" /></td>
+        <tr jwcid="pstnPrefixLabel" for="dialplan:pstnPrefix">
+          <input jwcid="pstnPrefix" id="dialplan:pstnPrefix" maxlength="40"/>
         </tr>
-        <tr>
-          <td><label for="dialplan:emergencyNumber"><span jwcid="emergencyNumberLabel">Emergency number</span></label>
+        <tr jwcid="emergencyNumberLabel" for="dialplan:emergencyNumber">
+          <input jwcid="emergencyNumber" id="dialplan:emergencyNumber" maxlength="40"/>
+        </tr>
+        <tr jwcid="callerSensitiveRoutingLabel" for="dialplan:callerSensitiveRouting">
+          <input jwcid="callerSensitiveRouting" id="dialplan:callerSensitiveRouting" />
+        </tr>
+        <tr jwcid="renderCallerSensistiveLink" element="tr">        
+          <td colspan="3">
+            <span key="prompt.callerSensitive" /> 
+            <a jwcid="emergencyRoutingLink"><span key="prompt.here">here</span></a>.
           </td>
-          <td><input jwcid="emergencyNumber" id="dialplan:emergencyNumber" maxlength="40" type="text" value="911" /></td>
-        </tr>
-        <tr>
-          <td><label for="dialplan:callerSensitiveRouting"><span jwcid="callerSensitiveRoutingLabel">Use
-          caller sensitive routing</span></label></td>
-          <td><input jwcid="callerSensitiveRouting" id="dialplan:callerSensitiveRouting" /></td>
         </tr>
       </tbody>
     </table>

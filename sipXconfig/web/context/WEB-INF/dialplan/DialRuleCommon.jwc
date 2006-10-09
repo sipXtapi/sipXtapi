@@ -52,6 +52,5 @@
   </component>
   <component id="renderGateways" type="If">
     <binding name="condition" value="renderGateways" />
-    <binding name="volatile" value="true" />
   </component>
 </component-specification>
