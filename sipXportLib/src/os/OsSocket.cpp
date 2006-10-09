@@ -344,7 +344,7 @@ int OsSocket::read(char* buffer, int bufferLength,
 
    if (NULL != fromAddress) fromAddress->remove(0);
 
-   bytesRead = read(buffer, bufferLength, &fromSockAddress, fromPort);
+   bytesRead = OsSocket::read(buffer, bufferLength, &fromSockAddress, fromPort);
    if(bytesRead != -1)
    {
       if (NULL != fromAddress)
@@ -359,7 +359,7 @@ int OsSocket::read(char* buffer, int bufferLength, long waitMilliseconds)
     int numBytes = 0;
     if(isReadyToRead(waitMilliseconds))
     {
-        numBytes = read(buffer, bufferLength);
+        numBytes = OsSocket::read(buffer, bufferLength);
     }
 
         return(numBytes);

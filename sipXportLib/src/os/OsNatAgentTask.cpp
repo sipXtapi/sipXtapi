@@ -385,15 +385,23 @@ UtlBoolean OsNatAgentTask::handleTurnMessage(NatMsg& rMsg)
                 sendMessage(&respMsg, pSocket, rMsg.getReceivedIp(), rMsg.getReceivedPort()) ;
                 break ;
             case MSG_TURN_SEND_RESPONSE:
+                printf("MSG_TURN_SEND_RESPONSE\n") ;
                 // Drop send response -- not much we can do right now.
                 break ;
             case MSG_TURN_SEND_ERROR_RESPONSE:
+                printf("MSG_TURN_SEND_ERROR_RESPONSE\n") ;
                 // Drop error response -- not much we can do right now.
                 break ;
             case MSG_TURN_DATA_INDICATION:
+                printf("MSG_TURN_DATA_INDICATION\n") ;
                 // Dropping data indication -- only locking onto a single 
                 // address for now
                 break ;
+            case MSG_TURN_ACTIVE_DESTINATION_RESPONSE:
+                break ;
+            case MSG_TURN_ACTIVE_DESTINATION_ERROR_RESPONSE:
+                break ;
+
             default:
                 // Unknown message type
                 assert(false) ;
@@ -1018,6 +1026,15 @@ void OsNatAgentTask::disableTurn(IStunSocket* pSocket)
                     msgSend.setType(MSG_TURN_ALLOCATE_REQUEST) ;
                     msgSend.setRequestXorOnly() ;
                     msgSend.setLifetime(0) ;
+                    if (!pBinding->username.isNull()) 
+                    {
+                        msgSend.setUsername(pBinding->username) ;    
+                    }
+    
+                    if (!pBinding->password.isNull()) 
+                    {
+                        msgSend.setPassword(pBinding->password) ;
+                    }  
 
                     sendMessage(&msgSend, pSocket, pBinding->serverAddress, pBinding->serverPort) ;
                 }
@@ -1696,7 +1713,7 @@ UtlBoolean OsNatAgentTask::sendMessage(StunMessage* pMsg,
     char cEncoded[10240] ;
     size_t length ;
 
-    pMsg->setServer("sipXtapi (www.sipfoundry.org)") ;
+//    pMsg->setServer("sipXtapi (www.sipfoundry.org)") ;
     if (pMsg->encode(cEncoded, sizeof(cEncoded), length))
     {
 
