@@ -58,7 +58,7 @@ public abstract class EditPhoneForm extends BaseComponent {
             String groupsString = getGroupsString();
             if (groupsString != null) {
                 List groups = getSettingDao().getGroupsByString(Phone.GROUP_RESOURCE_ID,
-                        groupsString);
+                        groupsString, false);
                 Phone phone = getPhone();
                 phone.setGroupsAsList(groups);
             }

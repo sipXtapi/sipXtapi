@@ -38,42 +38,47 @@ public abstract class SupervisorPermission extends PageWithCallback implements
     public abstract void setUser(User user);
 
     public abstract CoreContext getCoreContext();
+
     public abstract SettingDao getSettingDao();
 
-    public abstract String getSupervisorForGroupsString();    
+    public abstract String getSupervisorForGroupsString();
+
     public abstract void setSupervisorForGroupsString(String groups);
+
     public abstract Collection getGroupsCandidates();
+
     public abstract void setGroupCandidates(Collection groupsList);
-    
+
     public void buildGroupCandidates(String groupsString) {
         List allGroups = getCoreContext().getGroups();
         Collection candidates = TapestryUtils.getAutoCompleteCandidates(allGroups, groupsString);
-        setGroupCandidates(candidates);        
+        setGroupCandidates(candidates);
     }
-    
+
     public void pageBeginRender(PageEvent event_) {
         User user = getUser();
         if (user == null) {
             user = getCoreContext().loadUser(getUserId());
             setUser(user);
-            
+
             Set groups = user.getSupervisorForGroups();
-            String groupsString = BeanWithGroups.getGroupsAsString(groups); 
+            String groupsString = BeanWithGroups.getGroupsAsString(groups);
             setSupervisorForGroupsString(groupsString);
         }
     }
 
     public void commit() {
         User user = getUser();
-        
+
         String groupsString = getSupervisorForGroupsString();
         if (groupsString != null) {
-            List groups = getSettingDao().getGroupsByString(User.GROUP_RESOURCE_ID, groupsString);
-            for (Group group : (Collection<Group>) groups) {
+            List<Group> groups = getSettingDao().getGroupsByString(User.GROUP_RESOURCE_ID,
+                    groupsString, true);
+            for (Group group : groups) {
                 user.addSupervisorForGroup(group);
             }
         }
 
-        getCoreContext().saveUser(user);        
+        getCoreContext().saveUser(user);
     }
 }
