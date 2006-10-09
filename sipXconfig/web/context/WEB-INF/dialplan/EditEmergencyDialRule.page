@@ -21,31 +21,47 @@
     <binding name="ruleId" value="ruleId" />
     <binding name="rule" value="rule" />
     <binding name="callback" value="callback" />
+    <binding name="renderGateways" value="!rule.useMediaServer" />
   </component>
-  <component id="pstnPrefixLabel" type="FieldLabel">
+
+  <component id="pstnPrefixLabel" type="FieldPanel">
     <binding name="field" value="components.pstnPrefix" />
+    <binding name="label" value="message:label.pstnPrefix" />
+    <binding name="description" value="message:description.pstnPrefix" />
   </component>
   <component id="pstnPrefix" type="TextField">
     <binding name="value" value="rule.optionalPrefix" />
     <binding name="validators" value="spring-validators:validSipUserId" />
-    <binding name="displayName" value="literal:PSTN prefix" />
+    <binding name="displayName" value="message:label.pstnPrefix" />
   </component>
-  <component id="emergencyNumberLabel" type="FieldLabel">
+
+  <component id="emergencyNumberLabel" type="FieldPanel">
     <binding name="field" value="components.emergencyNumber" />
+    <binding name="label" value="message:label.number" />
+    <binding name="description" value="message:label.number" />
   </component>
+
   <component id="emergencyNumber" type="TextField">
     <binding name="value" value="rule.emergencyNumber" />
     <binding name="validators" value="spring-validators:validSipUserId,required" />
-    <binding name="displayName" value="literal:Emergency number" />
+    <binding name="displayName" value="message:label.number" />
   </component>
-  <component id="callerSensitiveRoutingLabel" type="FieldLabel">
+
+  <component id="callerSensitiveRoutingLabel" type="FieldPanel">
     <binding name="field" value="components.callerSensitiveRouting" />
-    <binding name="displayName" value="literal:Use caller sensitive forwarding" />
+    <binding name="label" value="message:label.callerSensitive" />
+    <binding name="description" value="message:description.callerSensitive" />
   </component>
   <component id="callerSensitiveRouting" type="Checkbox">
     <binding name="value" value="rule.useMediaServer" />
+    <binding name="onchange" value="literal:javascript:this.form.submit();" />
   </component>
-  <component id="emergencyRoutingLink" type="DirectLink">
-    <binding name="listener" value="listener:emergencyRouting" />
+
+  <component id="renderCallerSensistiveLink" type="If">
+    <binding name="condition" value="rule.useMediaServer" />
+  </component>
+
+  <component id="emergencyRoutingLink" type="LinkSubmit">
+    <binding name="action" value="listener:emergencyRouting" />
   </component>
 </page-specification>

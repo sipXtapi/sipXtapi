@@ -88,7 +88,7 @@ public abstract class IntercomPage extends BasePage implements PageBeginRenderLi
         String groupsString = getGroupsString();
         if (groupsString != null) {
             List groups = getSettingDao()
-                    .getGroupsByString(Phone.GROUP_RESOURCE_ID, groupsString);
+                    .getGroupsByString(Phone.GROUP_RESOURCE_ID, groupsString, true);
             intercom.setGroupsAsList(groups);
         }
 

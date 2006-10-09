@@ -32,89 +32,89 @@ import org.sipfoundry.sipxconfig.setting.SettingFilter;
 import org.sipfoundry.sipxconfig.setting.SettingUtil;
 
 public abstract class EditPhoneDefaults extends BasePage implements PageBeginRenderListener {
-    
-    public static final String PAGE = "EditPhoneDefaults";      
-    
+
+    public static final String PAGE = "EditPhoneDefaults";
+
     private static final int PHONE_SETTINGS = 0;
-    
+
     private static final int LINE_SETTITNGS = 1;
-    
+
     public abstract void setPhone(Phone phone);
-    
+
     public abstract Phone getPhone();
-    
+
     public abstract PhoneModel getPhoneModel();
-    
+
     public abstract void setPhoneModel(PhoneModel model);
-    
+
     public abstract Group getGroup();
-    
+
     public abstract void setGroup(Group group);
-    
+
     public abstract Integer getGroupId();
-    
+
     public abstract void setGroupId(Integer id);
 
     public abstract SettingDao getSettingDao();
-    
+
     public abstract PhoneContext getPhoneContext();
 
     public abstract Setting getCurrentNavigationSetting();
-    
+
     public abstract void setEditFormSetting(Setting setting);
-    
+
     public abstract void setEditFormSettings(Collection settings);
-    
+
     public abstract String getEditFormSettingName();
-    
+
     public abstract void setEditFormSettingName(String name);
 
     public abstract void setResourceId(int resource);
-    
+
     public abstract int getResourceId();
-    
+
     public abstract void setDeviceVersion(DeviceVersion version);
-    
+
     public abstract DeviceVersion getDeviceVersion();
-    
+
     /**
-     * Entry point for other pages to edit a phone model's default settings 
+     * Entry point for other pages to edit a phone model's default settings
      */
     public void editPhoneSettings(PhoneModel phoneModel, Integer groupId) {
         setPhoneModel(phoneModel);
         setEditFormSettingName(null);
         setGroupId(groupId);
-        DeviceVersion[] versions = phoneModel.getVersions(); 
+        DeviceVersion[] versions = phoneModel.getVersions();
         if (versions.length > 0) {
             setDeviceVersion(versions[0]);
         }
     }
-    
+
     public Collection getPhoneNavigationSettings() {
         return getPhone().getSettings().getValues();
     }
-    
+
     public Collection getLineNavigationSettings() {
-        return getPhone().getLine(0).getSettings().getValues();        
+        return getPhone().getLine(0).getSettings().getValues();
     }
-    
+
     public IPage editPhoneSettings(String settingName) {
         setResourceId(PHONE_SETTINGS);
         setEditFormSettingName(settingName);
-        return getPage();        
+        return getPage();
     }
-        
+
     public IPage editLineSettings(String settingName) {
         setResourceId(LINE_SETTITNGS);
         setEditFormSettingName(settingName);
-        return getPage();        
+        return getPage();
     }
-    
+
     public IPage ok(IRequestCycle cycle) {
         apply();
         return getReturnPage(cycle);
     }
-    
+
     public void apply() {
         getSettingDao().saveGroup(getGroup());
     }
@@ -122,45 +122,44 @@ public abstract class EditPhoneDefaults extends BasePage implements PageBeginRen
     public IPage cancel(IRequestCycle cycle) {
         return getReturnPage(cycle);
     }
-    
+
     private IPage getReturnPage(IRequestCycle cycle) {
         PhoneModels page = (PhoneModels) cycle.getPage(PhoneModels.PAGE);
         page.setGroupId(getGroupId());
         return page;
     }
-    
+
     public void changeVersion() {
         // clear current setting incase
     }
 
-    public void pageBeginRender(PageEvent event_) {        
+    public void pageBeginRender(PageEvent event_) {
         if (getPhoneModel() == null) {
             throw new IllegalArgumentException("phone factory id required");
         }
-        
+
         Group group = getGroup();
         group = getSettingDao().loadGroup(getGroupId());
         setGroup(group);
-        
-        Phone phone = getPhoneContext().newPhone(getPhoneModel());        
+
+        Phone phone = getPhoneContext().newPhone(getPhoneModel());
         phone.setDeviceVersion(getDeviceVersion());
         Line line = phone.createLine();
         phone.addLine(line);
         setPhone(phone);
-        
-        String editSettingsName = getEditFormSettingName(); 
+
+        String editSettingsName = getEditFormSettingName();
         if (editSettingsName == null) {
             setResourceId(PHONE_SETTINGS);
             Iterator nav = getPhoneNavigationSettings().iterator();
             setEditFormSettingName(((Setting) nav.next()).getName());
-        }        
-        
+        }
+
         editSettings();
     }
-    
+
     /**
-     * Based on current (persistent) page state, setup the settings data 
-     * for the setting edit form
+     * Based on current (persistent) page state, setup the settings data for the setting edit form
      */
     private void editSettings() {
         BeanWithSettings bean;
@@ -169,18 +168,18 @@ public abstract class EditPhoneDefaults extends BasePage implements PageBeginRen
         } else {
             bean = getPhone().getLine(0);
         }
-        
-        Setting settings = getGroup().inherhitSettingsForEditing(bean);        
+
+        Setting settings = getGroup().inherhitSettingsForEditing(bean.getSettings());
         Setting subset = settings.getSetting(getEditFormSettingName());
         if (subset == null) {
             // Only time this is true is if navigation on an item that doesn't
-            // exist anymore because a a new firmware version was selected. IMO 
+            // exist anymore because a a new firmware version was selected. IMO
             // resetting navigation each time you change version is an inconvience.
             subset = settings.getValues().iterator().next();
             setEditFormSettingName(subset.getName());
         }
         setEditFormSetting(subset);
-        
+
         setEditFormSettings(SettingUtil.filter(SettingFilter.ALL, subset));
-    }    
+    }
 }
