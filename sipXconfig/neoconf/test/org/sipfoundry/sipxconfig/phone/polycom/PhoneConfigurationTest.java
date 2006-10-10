@@ -32,7 +32,8 @@ public class PhoneConfigurationTest extends XMLTestCase {
     
     protected void setUp() {
         XMLUnit.setIgnoreWhitespace(true);
-        phone = new PolycomPhone(PolycomModel.MODEL_600);
+        phone = new PolycomPhone();
+        phone.getModel().setMaxLineCount(6);
         PhoneTestDriver.supplyTestData(phone);        
     }
 

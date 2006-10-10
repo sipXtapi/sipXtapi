@@ -40,7 +40,7 @@ public class EditPhoneTestUi extends WebTestCase {
         setFormElement("serialNumber", "a00000000001");
         clickButton("form:ok");
         String[][] table = new String[][] {
-            { "a00000000001", "", "Polycom SoundPoint IP 500" },                
+            { "a00000000001", "", "Acme" },                
         };
         assertTextInTable("phone:list", table[0]);        
     }

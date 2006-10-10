@@ -7,6 +7,6 @@
         description="unittest-sample phone1"
 		value_storage_id="[null]"
       device_version_id="[null]"
-      bean_id="acmePhone"
-      model_id=""/> 
+      bean_id="testPhone"
+      model_id="testPhoneModel"/> 
 </dataset>

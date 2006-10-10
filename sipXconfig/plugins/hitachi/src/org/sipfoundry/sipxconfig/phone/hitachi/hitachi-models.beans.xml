@@ -2,14 +2,18 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
   "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-  <bean id="org.sipfoundry.sipxconfig.phone.hitachi.HitachiModel.MODEL_3000"
-    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
-  <bean id="org.sipfoundry.sipxconfig.phone.hitachi.HitachiModel.MODEL_5000"
-    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
-  <bean id="org.sipfoundry.sipxconfig.phone.hitachi.HitachiModel.MODEL_5000A"
-    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
-  <!-- Hitachi phones -->
+  <!-- models -->
+  <bean id="hitachi3000" class="org.sipfoundry.sipxconfig.phone.hitachi.HitachiModel">
+    <property name="label" value="Hitachi Wireless IP 3000"/>
+  </bean>
+  <bean id="hitachi5000" class="org.sipfoundry.sipxconfig.phone.hitachi.HitachiModel">
+    <property name="label" value="Hitachi Wireless IP 5000"/>
+  </bean>
+  <bean id="hitachi5000A" class="org.sipfoundry.sipxconfig.phone.hitachi.HitachiModel">
+    <property name="label" value="Hitachi Wireless IP 5000A"/>
+  </bean>
+  <!-- implementation -->
   <bean id="hitachi" class="org.sipfoundry.sipxconfig.phone.hitachi.HitachiPhone"
-    singleton="false" parent="unmanagedPhone">
+    singleton="false" parent="abstractPhone">
   </bean>
 </beans>

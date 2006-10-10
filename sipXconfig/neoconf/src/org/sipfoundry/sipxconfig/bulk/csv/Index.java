@@ -28,8 +28,8 @@ public enum Index {
             "userGroupName", 6),
 
     // phone fields
-    SERIAL_NUMBER("serialNumber", 7), BEAN_ID("beanId", 8), MODEL_ID("modelId", 9), PHONE_GROUP(
-            "phoneGroupName", 10), PHONE_DESCRIPTION("description", 11);
+    SERIAL_NUMBER("serialNumber", 7), MODEL_ID("modelId", 8), PHONE_GROUP(
+            "phoneGroupName", 9), PHONE_DESCRIPTION("description", 10);
 
     private final String m_name;
     private final int m_value;

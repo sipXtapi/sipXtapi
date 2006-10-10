@@ -17,6 +17,7 @@ import java.io.StringWriter;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
 public class KPhoneTest extends TestCase {
@@ -37,5 +38,27 @@ public class KPhoneTest extends TestCase {
         // kphone does not store Display name directory, but uses it as part of URI
         // would need a URI parser to get it back.
         assertEquals(expected, actualWriter.toString());
+    }
+
+    public void testGenerateEmptyProfile() throws Exception {
+        KPhone phone = new KPhone();
+        phone.setVelocityEngine(TestHelper.getVelocityEngine());
+        phone.setModelFilesContext(TestHelper.getModelFilesContext());
+
+        // All phones in system have a unique id, this will be important for
+        // selecting which profile to download 
+        phone.setSerialNumber("000000000000");
+
+        // method to test
+        StringWriter actual = new StringWriter();
+        phone.generateProfile(actual);
+
+        // test output file is a copy of the basic template and located in same directory
+        // as this java source file
+        InputStream expectedProfile = getClass().getResourceAsStream("empty-kphonerc");
+        String expected = IOUtils.toString(expectedProfile);
+        expectedProfile.close();
+
+        assertEquals(expected, actual.toString());
     }
 }

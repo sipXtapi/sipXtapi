@@ -31,7 +31,11 @@ public class GrandstreamPhoneTest extends TestCase {
     PhoneTestDriver tester;
 
     protected void setUp() {
-        phone = new GrandstreamPhone(GrandstreamModel.MODEL_PHONEBT);
+        GrandstreamModel model = new GrandstreamModel();
+        model.setMaxLineCount(1);
+        model.setModelId("gsPhoneBt");
+        phone = new GrandstreamPhone();
+        phone.setModel(model);
         tester = PhoneTestDriver.supplyTestData(phone);
     }
 

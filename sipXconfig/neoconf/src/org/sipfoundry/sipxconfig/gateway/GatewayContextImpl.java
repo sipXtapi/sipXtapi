@@ -22,8 +22,6 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.device.ModelSource;
-import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -51,8 +49,6 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
     private DialPlanContext m_dialPlanContext;
 
     private BeanFactory m_beanFactory;
-
-    private ModelSource m_modelSource;
 
     private SipxReplicationContext m_replicationContext;
 
@@ -146,15 +142,11 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         getHibernateTemplate().deleteAll(gateways);
     }
 
-    public Gateway newGateway(PhoneModel model) {
+    public Gateway newGateway(GatewayModel model) {
         Gateway gateway = (Gateway) m_beanFactory.getBean(model.getBeanId(), Gateway.class);
         gateway.setBeanId(model.getBeanId());
         gateway.setModelId(model.getModelId());
         return gateway;
-    }
-
-    public Collection<PhoneModel> getAvailableGatewayModels() {
-        return m_modelSource.getModels();
     }
 
     public void setBeanFactory(BeanFactory beanFactory) {
@@ -163,10 +155,6 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
 
     public void setDialPlanContext(DialPlanContext dialPlanContext) {
         m_dialPlanContext = dialPlanContext;
-    }
-
-    public void setModelSource(ModelSource modelSource) {
-        m_modelSource = modelSource;
     }
 
     public void setReplicationContext(SipxReplicationContext replicationContext) {

@@ -14,8 +14,6 @@ package org.sipfoundry.sipxconfig.gateway;
 import java.util.Collection;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.phone.PhoneModel;
-
 public interface GatewayContext {
     public static final String CONTEXT_BEAN_NAME = "gatewayContext";
 
@@ -47,7 +45,5 @@ public interface GatewayContext {
 
     void removeGatewaysFromRule(Integer dialRuleIs, Collection<Integer> gatewaysIds);
 
-    Gateway newGateway(PhoneModel model);
-
-    Collection<PhoneModel> getAvailableGatewayModels();
+    Gateway newGateway(GatewayModel model);
 }

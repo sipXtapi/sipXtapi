@@ -60,12 +60,7 @@ public class PolycomPhone extends Phone {
     private String m_applicationTemplate = "polycom/mac-address.cfg.vm";
 
     public PolycomPhone() {
-        super(BEAN_ID);
-        init();
-    }
-
-    public PolycomPhone(PolycomModel model) {
-        super(model);
+        super(new PolycomModel());
         init();
     }
 

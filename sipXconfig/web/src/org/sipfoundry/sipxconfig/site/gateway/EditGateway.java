@@ -21,7 +21,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
-import org.sipfoundry.sipxconfig.phone.PhoneModel;
+import org.sipfoundry.sipxconfig.gateway.GatewayModel;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
 
 /**
@@ -42,9 +42,9 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
 
     public abstract void setRuleId(Integer id);
 
-    public abstract void setGatewayModel(PhoneModel model);
+    public abstract void setGatewayModel(GatewayModel model);
 
-    public abstract PhoneModel getGatewayModel();
+    public abstract GatewayModel getGatewayModel();
 
     public abstract DialPlanContext getDialPlanContext();
 
@@ -123,7 +123,7 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
         return page;
     }
 
-    public static EditGateway getAddPage(IRequestCycle cycle, PhoneModel model, IPage returnPage,
+    public static EditGateway getAddPage(IRequestCycle cycle, GatewayModel model, IPage returnPage,
             Integer ruleId) {
         EditGateway page = (EditGateway) cycle.getPage(PAGE);
         page.setGatewayModel(model);

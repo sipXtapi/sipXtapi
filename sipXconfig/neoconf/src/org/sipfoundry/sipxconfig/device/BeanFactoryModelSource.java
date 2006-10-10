@@ -11,10 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.device;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
+import java.util.TreeMap;
 
-import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -22,20 +22,23 @@ import org.springframework.beans.factory.ListableBeanFactory;
 /**
  * Loads phone models from bean factory BeanFactoryPhoneModelSource
  */
-public class BeanFactoryModelSource implements ModelSource, BeanFactoryAware {
+public class BeanFactoryModelSource<T extends DeviceDescriptor> implements ModelSource, BeanFactoryAware {
 
     private ListableBeanFactory m_beanFactory;
-    private Collection<PhoneModel> m_modelCache;
-    private String m_prefix;
-
-    public Collection<PhoneModel> getModels() {
-        if (m_modelCache == null) {
-            if (m_beanFactory == null) {
-                throw new IllegalStateException("Bean factory has to be initialized");
-            }
-            m_modelCache = loadModels();
+    private Map<String, T> m_modelCache;
+    /** T.class, but no such access at compile time */
+    private Class m_class;
+    
+    public BeanFactoryModelSource(String className) {
+        try {
+            m_class = Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            throw new IllegalArgumentException(e);
         }
-        return m_modelCache;
+    }
+
+    public Collection<T> getModels() {
+        return loadModels().values();
     }
 
     public void setBeanFactory(BeanFactory beanFactory) {
@@ -43,27 +46,29 @@ public class BeanFactoryModelSource implements ModelSource, BeanFactoryAware {
         // invalidate cache
         m_modelCache = null;
     }
-
-    /**
-     * Sets the prefix that will be used to locate interesting beans.
-     * 
-     * Gateway model prefix is "gm", phone model prefix is "org.sipfoundry.sipxconfig.phone.".
-     * TODO: change phone prefix to just "phone" or "pm"
-     * 
-     */
-    public void setPrefix(String prefix) {
-        m_prefix = prefix;
-    }
-
-    private Collection<PhoneModel> loadModels() {
-        String[] beanNames = m_beanFactory.getBeanNamesForType(PhoneModel.class);
-        Collection<PhoneModel> models = new ArrayList<PhoneModel>(beanNames.length);
-        for (String beanName : beanNames) {
-            if (beanName.startsWith(m_prefix)) {
-                PhoneModel bean = (PhoneModel) m_beanFactory.getBean(beanName);
-                models.add(bean);
-            }
+    
+    private Map<String, T> loadModels() {
+        if (m_modelCache != null) {
+            return m_modelCache;
         }
-        return models;
+        if (m_beanFactory == null) {
+            throw new IllegalStateException("Bean factory has to be initialized");
+        }
+        String[] beanNames = m_beanFactory.getBeanNamesForType(m_class);
+        m_modelCache = new TreeMap<String, T>();
+        for (String beanName : beanNames) {
+            T bean = (T) m_beanFactory.getBean(beanName);
+            bean.setModelId(beanName);
+            m_modelCache.put(beanName, bean);
+        }
+        return m_modelCache;
+    }
+    
+    public T getModel(String modelId) {
+        T model = loadModels().get(modelId);
+        if (model == null) {
+            throw new IllegalArgumentException("No such model with id '" + modelId + "'");
+        }
+        return model;
     }
 }

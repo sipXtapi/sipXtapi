@@ -16,6 +16,7 @@ import net.sourceforge.jwebunit.WebTester;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.phone.acme.AcmePhone;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 /**
@@ -46,7 +47,7 @@ public class PhoneTestHelper {
 	    SiteTestHelper.home(m_tester);
 	    endpoint = new Phone[count];
 	    for (int i = 0; i < endpoint.length; i++) {
-            endpoint[i] = new Phone();
+            endpoint[i] = new AcmePhone();
             String serNum = "000000000000" + i;
             endpoint[i].setSerialNumber(serNum.substring(serNum.length() - 12));
             m_tester.clickLink("NewPhone");

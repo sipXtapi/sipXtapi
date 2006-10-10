@@ -12,5 +12,13 @@
 package org.sipfoundry.sipxconfig.gateway;
 
 public class SipTrunk extends Gateway {
+    public static final String BEAN_ID = "gwSipTrunk";
+    
+    public SipTrunk() {        
+    }
+    
+    public SipTrunk(GatewayModel model) {
+        super(model);
+    }
 
 }

@@ -10,7 +10,7 @@ public class SnomTest extends TestCase {
     private Phone m_phone;
 
     protected void setUp() {
-        m_phone = new SnomPhone(SnomModel.MODEL_360);
+        m_phone = new SnomPhone();
         PhoneTestDriver.supplyTestData(m_phone);
     }
 
@@ -24,7 +24,7 @@ public class SnomTest extends TestCase {
   //  }
 
     public void testGetProfileName() {
-        Phone phone = new SnomPhone(SnomModel.MODEL_360);
+        Phone phone = new SnomPhone();
         phone.setWebDirectory("web");
         // it can be called without serial number
         //assertEquals("web/snom360.htm", phone.getPhoneFilename());

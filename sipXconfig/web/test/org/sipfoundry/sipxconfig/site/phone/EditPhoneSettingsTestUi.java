@@ -35,24 +35,23 @@ public class EditPhoneSettingsTestUi extends WebTestCase {
         super.tearDown();
     }
 
-    public void testEditSipSetttings() {
-        final String holdParamName = "booleanField";
+    public void testEditSettting() {
+        final String outboundProxyField = "stringField";
 
         m_helper.seedPhone(1);
         clickLink("ManagePhones");
         clickLinkWithText(m_helper.endpoint[0].getSerialNumber());
-        // NOTE: Polycom only setting
-        clickLinkWithText("Hold Reminder");
-        // check seed data
-        assertCheckboxNotSelected(holdParamName);
-        checkCheckbox(holdParamName);
+        // NOTE: AcmePhone only setting
+        clickLinkWithText("Servers");
+        String proxy = String.valueOf(System.currentTimeMillis());
+        setFormElement(outboundProxyField, proxy);
         clickButton("setting:ok");
 
         // verify setting sticks
         SiteTestHelper.home(tester);
         clickLink("ManagePhones");
         clickLinkWithText(m_helper.endpoint[0].getSerialNumber());
-        clickLinkWithText("Hold Reminder");
-        assertCheckboxSelected(holdParamName);
+        clickLinkWithText("Servers");
+        assertFormElementEquals(outboundProxyField, proxy);
     }
 }

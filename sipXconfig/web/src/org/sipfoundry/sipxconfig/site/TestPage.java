@@ -12,7 +12,6 @@
 package org.sipfoundry.sipxconfig.site;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -31,12 +30,12 @@ import org.sipfoundry.sipxconfig.bulk.ldap.LdapImportManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
+import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.job.JobContext;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
-import org.sipfoundry.sipxconfig.phone.polycom.PolycomModel;
 import org.sipfoundry.sipxconfig.search.IndexManager;
 import org.sipfoundry.sipxconfig.site.admin.commserver.ReplicationData;
 import org.sipfoundry.sipxconfig.site.admin.commserver.RestartReminder;
@@ -69,13 +68,15 @@ public abstract class TestPage extends BasePage {
     public static final String TEST_USER_PIN = "1234";
     public static final int MANY_USERS = 10000;
     
-    public static final PhoneModel TEST_PHONE_MODEL = PolycomModel.MODEL_500;
+    public static final String TEST_PHONE_MODEL_ID = "acmePhoneStandard";
 
     public abstract DialPlanContext getDialPlanContext();
 
     public abstract GatewayContext getGatewayContext();
 
     public abstract PhoneContext getPhoneContext();
+    
+    public abstract ModelSource<PhoneModel> getPhoneModelSource();
 
     public abstract CallGroupContext getCallGroupContext();
 
@@ -239,7 +240,8 @@ public abstract class TestPage extends BasePage {
     
     public IPage newPhone() {
         NewPhone newPhone = (NewPhone) getRequestCycle().getPage(NewPhone.PAGE);
-        newPhone.setPhoneModel(TEST_PHONE_MODEL);
+        PhoneModel model = getPhoneModelSource().getModel(TEST_PHONE_MODEL_ID);
+        newPhone.setPhoneModel(model);
         return newPhone;
     }
     
@@ -265,10 +267,8 @@ public abstract class TestPage extends BasePage {
         jobContext.failure(jobIds[JOBS - 1], "something bad happened", null);
     }
 
-    public void populatePhones() {
-        Collection availablePhoneModels = getPhoneContext().getAvailablePhoneModels();
-        for (Iterator i = availablePhoneModels.iterator(); i.hasNext();) {
-            PhoneModel model = (PhoneModel) i.next();
+    public void populatePhones() {        
+        for (PhoneModel model : getPhoneModelSource().getModels()) {
             Phone phone = getPhoneContext().newPhone(model);
             phone.setSerialNumber(RandomStringUtils.randomNumeric(SERIAL_NUM_LEN));
             getPhoneContext().storePhone(phone);

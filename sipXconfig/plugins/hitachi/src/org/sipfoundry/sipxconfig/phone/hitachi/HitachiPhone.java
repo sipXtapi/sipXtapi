@@ -19,10 +19,15 @@ import java.io.Writer;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.phone.Line;
+import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
 
 public class HitachiPhone extends Phone {
     public static final String BEAN_ID = "hitachi";
+    private static final String USER_ID_SETTING = "USER_ACCOUNT/User_ID";
+    private static final String DISPLAY_NAME_SETTING = "USER_ACCOUNT/Displayname";
+    private static final String PASSWORD_SETTING = "USER_ACCOUNT/User_Password";
+    private static final String REGISTRATION_SERVER_SETTING = "SERVER_SETTINGS/1st_Registrar";
 
     public HitachiPhone() {
         super(BEAN_ID);
@@ -86,5 +91,25 @@ public class HitachiPhone extends Phone {
         String serialNumber = getSerialNumber();
         String prefix = serialNumber.substring(6);
         return getTftpRoot() + "/" + prefix + "user.ini";
+    }
+
+    @Override
+    protected LineInfo getLineInfo(Line line) {
+        LineInfo info = new LineInfo();
+        info.setDisplayName(line.getSettingValue(DISPLAY_NAME_SETTING));
+        info.setUserId(line.getSettingValue(USER_ID_SETTING));
+        info.setPassword(line.getSettingValue(PASSWORD_SETTING));
+        // phone setting
+        info.setRegistrationServer(getSettingValue(REGISTRATION_SERVER_SETTING));
+        return info;
+    }
+
+    @Override
+    protected void setLineInfo(Line line, LineInfo lineInfo) {
+        line.setSettingValue(DISPLAY_NAME_SETTING, lineInfo.getDisplayName());
+        line.setSettingValue(USER_ID_SETTING, lineInfo.getUserId());
+        line.setSettingValue(PASSWORD_SETTING, lineInfo.getPassword());
+        // phone setting
+        setSettingValue(REGISTRATION_SERVER_SETTING, lineInfo.getRegistrationServer());
     }
 }

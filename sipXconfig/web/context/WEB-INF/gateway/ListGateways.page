@@ -6,7 +6,7 @@
   -->
   <inject property="gatewayContext" object="spring:gatewayContext" />
   <inject property="gatewayProfileManager" object="spring:gatewayProfileManager" />
-
+  <inject property="gatewayModelSource" object="spring:gatewayModelSource" />
   <property name="gatewaysToDelete" />
   <property name="gatewaysToPropagate" />
   <property name="gatewayModel" />
@@ -16,7 +16,7 @@
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate" />
   <bean name="rawGatewaySelectionModel"
     class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
-    <set name="collection" value="gatewayContext.availableGatewayModels" />
+    <set name="collection" value="gatewayModelSource.models"/>
     <set name="labelExpression" value="literal:label" />
   </bean>
   <bean name="gatewaySelectionModel"

@@ -16,13 +16,14 @@
   <inject property="profileManager" object="spring:profileManager"/>
   <inject property="restartManager" object="spring:restartManager"/>
   <inject property="searchManager" object="spring:searchManager"/>
+  <inject property="phoneModelSource" object="spring:phoneModelSource"/>
   <property name="actionModel" />
   <!--
 	  - B E A N S
 	  -->
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
   <bean name="rawPhoneSelectionModel" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
-    <set name="collection" value="phoneContext.availablePhoneModels"/>
+    <set name="collection" value="phoneModelSource.models"/>
     <set name="labelExpression" value="literal:label"/>
   </bean>
   <bean name="phoneSelectionModel" class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator">

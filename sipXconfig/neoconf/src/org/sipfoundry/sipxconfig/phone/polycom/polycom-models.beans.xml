@@ -2,22 +2,32 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
   "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-  <bean id="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.MODEL_300"
-    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
-  <bean id="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.MODEL_430"
-    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
-  <bean id="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.MODEL_500"
-    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
-  <bean id="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.MODEL_600"
-    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
-  <bean id="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.MODEL_650"
-    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
-  <bean id="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.MODEL_4000"
-    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
-    
-  <!-- POLYCOM -->
+  <bean id="polycom300" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel">
+    <property name="label" value="Polycom SoundPoint IP 300/301"/>
+    <property name="maxLineCount" value="2"/>
+  </bean>
+  <bean id="polycom430" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel">
+    <property name="label" value="Polycom SoundPoint IP 430"/>
+    <property name="maxLineCount" value="2"/>
+  </bean>
+  <bean id="polycom500" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel">
+    <property name="label" value="Polycom SoundPoint IP 500/501"/>
+    <property name="maxLineCount" value="3"/>
+  </bean>
+  <bean id="polycom600" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel">
+    <property name="label" value="Polycom SoundPoint IP 600/601"/>
+    <property name="maxLineCount" value="12"/>
+  </bean>
+  <bean id="polycom650" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel">
+    <property name="label" value="Polycom SoundPoint IP 650"/>
+    <property name="maxLineCount" value="12"/>
+  </bean>
+  <bean id="polycom4000" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel">
+    <property name="label" value="Polycom SoundPoint IP 4000"/>
+    <property name="maxLineCount" value="1"/>
+  </bean>
   <bean id="polycom" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone"
-    singleton="false" parent="unmanagedPhone">
+    singleton="false" parent="abstractPhone">
   </bean>
   <bean id="polycomFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
     <constructor-arg value="upload" />

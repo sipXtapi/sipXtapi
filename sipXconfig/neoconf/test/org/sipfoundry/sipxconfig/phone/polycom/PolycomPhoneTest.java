@@ -35,12 +35,12 @@ public class PolycomPhoneTest extends TestCase {
     private PhoneTestDriver m_tester;
 
     protected void setUp() {
-        m_phone = new PolycomPhone(PolycomModel.MODEL_600);
+        m_phone = new PolycomPhone();
         m_tester = PhoneTestDriver.supplyTestData(m_phone);
     }
     
     public void testVersionArray() {
-        assertSame(PolycomModel.MODEL_600.getVersions()[0], PolycomModel.VER_1_6);
+        assertSame(new PolycomModel().getVersions()[0], PolycomModel.VER_1_6);
     }
 
     public void testGenerateProfiles() throws Exception {

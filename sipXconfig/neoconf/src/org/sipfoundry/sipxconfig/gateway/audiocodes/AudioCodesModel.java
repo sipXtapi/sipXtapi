@@ -13,18 +13,17 @@ package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
 import java.io.File;
 
-import org.sipfoundry.sipxconfig.phone.PhoneModel;
+import org.sipfoundry.sipxconfig.gateway.GatewayModel;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 
-public class AudioCodesModel extends PhoneModel {
+public class AudioCodesModel extends GatewayModel {
     private String m_iniFileName;
     private String m_proxyNameSetting;
     private String m_proxyIpSetting;    
     private ModelFilesContext m_modelFilesContext;    
     
-    public AudioCodesModel(String beanId, String modelId, String label, String iniFileName) {
-        super(beanId, modelId, label, 0);
-        m_iniFileName = iniFileName;
+    public void setIniFileName(String iniFileName) {
+        m_iniFileName = iniFileName;        
     }
     
     public File getIniFileTemplate() {

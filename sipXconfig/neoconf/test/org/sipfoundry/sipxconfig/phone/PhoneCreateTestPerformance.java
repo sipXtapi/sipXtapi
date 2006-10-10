@@ -48,7 +48,7 @@ public class PhoneCreateTestPerformance  extends PerformanceTestCase {
     
     static void seedPhones(PhoneContext context, int count) {
         for (int i = 0; i < count; i++) {
-            Phone p = context.newPhone(Phone.MODEL);
+            Phone p = context.newPhone(new PhoneModel(TestPhone.BEAN_ID));
             p.setSerialNumber("ff00" + String.valueOf(i));
             p.addLine(p.createLine());
             context.storePhone(p);

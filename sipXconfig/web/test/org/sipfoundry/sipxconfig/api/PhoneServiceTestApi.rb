@@ -19,7 +19,7 @@ class PhoneServiceTestApi < ApiTestCase
   end
   
   def test_createPhone	    
-    expected = Phone.new('000000000000', 'acmePhone')
+    expected = Phone.new('000000000000', 'acmePhoneStandard')
     expected.groups = [ 'group1' ]
     @phone_service.addPhone(AddPhone.new(expected))
     
@@ -156,7 +156,7 @@ class PhoneServiceTestApi < ApiTestCase
   end
 
   def seedPhone
-    @seed = Phone.new('000000000000', 'acmePhone')
+    @seed = Phone.new('000000000000', 'acmePhoneStandard')
     addPhone = AddPhone.new(@seed)
     @phone_service.addPhone(addPhone)
   end

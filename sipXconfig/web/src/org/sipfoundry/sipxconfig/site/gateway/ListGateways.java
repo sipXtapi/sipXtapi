@@ -19,7 +19,7 @@ import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
-import org.sipfoundry.sipxconfig.phone.PhoneModel;
+import org.sipfoundry.sipxconfig.gateway.GatewayModel;
 
 /**
  * List all the gateways, allow adding and deleting gateways
@@ -35,7 +35,7 @@ public abstract class ListGateways extends BasePage {
 
     public abstract Collection getGatewaysToPropagate();
 
-    public abstract PhoneModel getGatewayModel();
+    public abstract GatewayModel getGatewayModel();
 
     /**
      * When user clicks on link to edit a gateway
@@ -49,7 +49,7 @@ public abstract class ListGateways extends BasePage {
         if (selectedRows != null) {
             propagateGateways(selectedRows);
         }
-        PhoneModel model = getGatewayModel();
+        GatewayModel model = getGatewayModel();
         if (model != null) {
             return EditGateway.getAddPage(cycle, model, this, null);
         }

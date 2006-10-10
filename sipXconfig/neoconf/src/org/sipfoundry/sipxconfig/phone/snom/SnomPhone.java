@@ -45,12 +45,7 @@ public class SnomPhone extends Phone {
     private static final String UDP_TRANSPORT_TAG = ";transport=udp";
 
     public SnomPhone() {
-        super(BEAN_ID);
-        init();
-    }
-
-    public SnomPhone(SnomModel model) {
-        super(model);
+        super(new SnomModel());
         init();
     }
 
