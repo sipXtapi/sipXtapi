@@ -26,7 +26,6 @@ public class Group extends ValueStorage implements Comparable, DataCollectionIte
     private String m_description;
     private String m_resource;
     private Integer m_weight;
-    private GroupSettingModel m_model;
 
     public String getName() {
         return m_name;
@@ -67,19 +66,19 @@ public class Group extends ValueStorage implements Comparable, DataCollectionIte
 
     public int compareTo(Object arg0) {
         Group b = (Group) arg0;
-        Integer w1 = defaultWeight(m_weight);
-        Integer w2 = defaultWeight(b.getWeight());
-        int cmp = w1.compareTo(w2);
-        if (cmp == 0) {
-            String s1 = StringUtils.defaultString(getName());
-            String s2 = StringUtils.defaultString(b.getName());
-            cmp = s1.compareTo(s2);
+        int w1 = defaultWeight(m_weight);
+        int w2 = defaultWeight(b.getWeight());
+        int cmp = w1 - w2;
+        if (cmp != 0) {
+            return cmp;
         }
-        return cmp;
+        String s1 = StringUtils.defaultString(getName());
+        String s2 = StringUtils.defaultString(b.getName());
+        return s1.compareTo(s2);
     }
 
-    private Integer defaultWeight(Integer weight) {
-        return weight != null ? weight : new Integer(-1);
+    private int defaultWeight(Integer weight) {
+        return weight != null ? weight : -1;
     }
 
     /**
@@ -98,67 +97,60 @@ public class Group extends ValueStorage implements Comparable, DataCollectionIte
     }
 
     /**
-     * When editing group settings, a group needs to inherhit the settings for a bean so it can
-     * save setting values for that bean.
+     * Creates a copy of settings that can be used to edit settings for this group.
      * 
-     * @param bean to inherit settings for
+     * We use the same group object for all types of groups (phone, lines, attendants etc.).
+     * Because of that group does not know which settings it supports. Use this function to pass
+     * settings that will become a base for this group.
+     * 
+     * @param beanSettings settings to inherit from, no model can be set for those settings
      * @return copy of settings to be edited
      */
-    public Setting inherhitSettingsForEditing(BeanWithSettings bean) {
-        Setting settings = bean.getSettings().copy();
-        m_model = new GroupSettingModel(this, bean);
-        settings.acceptVisitor(new InheritSettings(m_model));
+    public Setting inherhitSettingsForEditing(Setting beanSettings) {
+        // base settings for the group cannot have any model
+        Setting baseSettings = beanSettings.copy();
+        baseSettings.acceptVisitor(new BeanWithSettingsModel.SetModelReference(null));
+        
+        // settings have model constructed with baseSettings
+        Setting settings = beanSettings.copy();
+        SettingModel2 model = new GroupSettingModel(this, baseSettings);
+        settings.acceptVisitor(new BeanWithSettingsModel.SetModelReference(model));
         return settings;
     }
 
+    /**
+     * Delegate all functions with the exception of setSettingValue to base settings.
+     */
     static class GroupSettingModel implements SettingModel2 {
-        private BeanWithSettings m_bean;
         private Group m_group;
+        private Setting m_baseSetting;
 
-        public GroupSettingModel(Group group, BeanWithSettings bean) {
-            m_bean = bean;
+        public GroupSettingModel(Group group, Setting baseSetting) {
             m_group = group;
+            m_baseSetting = baseSetting;
         }
 
         public void setSettingValue(Setting setting, String value) {
-            SettingValue2 defaultValue = new SettingValueImpl(m_bean.getSettingValue(setting
-                    .getPath()));
-            m_group.setSettingValue(setting, new SettingValueImpl(value), defaultValue);
+            m_group.setSettingValue(setting, new SettingValueImpl(value),
+                    getDefaultSettingValue(setting));
         }
 
         public SettingValue2 getSettingValue(Setting setting) {
             SettingValue2 value = m_group.getSettingValue(setting);
-            if (value == null) {
-                value = m_bean.getSettingModel2().getSettingValue(setting);
+            if (value != null) {
+                return value;
             }
-
-            return value;
+            return getDefaultSettingValue(setting);
         }
 
         public SettingValue2 getDefaultSettingValue(Setting setting) {
-            // can delegate to bean, because settings still contains different setting model
-            SettingValue2 value = m_bean.getSettingModel2().getDefaultSettingValue(setting);
-            return value;
+            Setting baseSetting = m_baseSetting.getSetting(setting.getPath());
+            return new SettingValueImpl(baseSetting.getDefaultValue());
         }
 
         public SettingValue2 getProfileName(Setting setting) {
-            // can delegate to bean, because settings still contains different setting model
-            SettingValue2 value = m_bean.getSettingModel2().getProfileName(setting);
-            return value;
-        }
-    }
-
-    private static class InheritSettings extends AbstractSettingVisitor {
-        private SettingModel2 m_model;
-
-        public InheritSettings(SettingModel2 model) {
-            m_model = model;
-        }
-
-        @Override
-        public void visitSetting(Setting setting) {
-            SettingImpl impl = SettingUtil.getSettingImpl(setting);
-            impl.setModel(m_model);
+            Setting baseSetting = m_baseSetting.getSetting(setting.getPath());
+            return new SettingValueImpl(baseSetting.getProfileName());
         }
     }
 }

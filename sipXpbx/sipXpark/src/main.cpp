@@ -27,7 +27,6 @@
 #include <cp/DialogEventPublisher.h>
 #include <ptapi/PtProvider.h>
 #include <net/NameValueTokenizer.h>
-#include <net/SipDialogMgr.h>
 #include <net/SipPublishContentMgr.h>
 #include <net/SipSubscribeServerEventHandler.h>
 #include <net/SipSubscribeServer.h>
@@ -467,8 +466,7 @@ int main(int argc, char* argv[])
     listener.start();
 
     // Create the SIP Subscribe Server
-    SipDialogMgr dialogMgr; // Component for managing the SIP dialogs
-    SipSubscriptionMgr subscriptionMgr(dialogMgr); // Component for holding the subscription data
+    SipSubscriptionMgr subscriptionMgr; // Component for holding the subscription data
     SipSubscribeServerEventHandler policyHolder; // Component for granding the subscription rights
     SipPublishContentMgr publisher; // Component for publishing the event contents
 
@@ -479,8 +477,8 @@ int main(int argc, char* argv[])
 
     // Create the dialog event publisher
     DialogEventPublisher dialogEvents(&callManager, &publisher);
-    //callManager.addTaoListener(&dialogEvents);
-    //dialogEvents.start();
+    callManager.addTaoListener(&dialogEvents);
+    dialogEvents.start();
 
     // Startup the call processing system
     callManager.start();

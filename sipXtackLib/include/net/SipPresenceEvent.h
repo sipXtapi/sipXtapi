@@ -48,7 +48,7 @@
 
 
 #define STATUS_OPEN "open"
-#define STATUS_CLOSE "close"
+#define STATUS_CLOSED "closed"
 
 // STRUCTS
 // TYPEDEFS
@@ -80,6 +80,8 @@ class Tuple : public UtlContainable
    ~Tuple();
 
    virtual UtlContainableType getContainableType() const;
+
+   static const UtlContainableType TYPE;
 
    virtual unsigned int hash() const;
 

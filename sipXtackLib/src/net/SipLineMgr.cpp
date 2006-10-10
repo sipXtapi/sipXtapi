@@ -228,7 +228,7 @@ SipLineMgr::addLine(SipLine&   line,
         SipLineEvent lineEvent(&line, SipLineEvent::SIP_LINE_EVENT_LINE_ADDED);
         queueMessageToObservers(lineEvent);
 
-        syslog(FAC_LINE_MGR, PRI_INFO, "added line: %s",
+        syslog(FAC_LINE_MGR, PRI_INFO, "SipLineMgr::addLine added line: %s",
                 line.getIdentity().toString().data()) ;
     }
 
@@ -244,7 +244,7 @@ SipLineMgr::deleteLine(const Url& identity)
     line = sLineList.getLine(identity) ;
     if (line == NULL)
     {
-        syslog(FAC_LINE_MGR, PRI_ERR, "unable to delete line (not found): %s",
+        syslog(FAC_LINE_MGR, PRI_ERR, "SipLineMgr::deleteLine unable to delete line (not found): %s",
                 identity.toString().data()) ;
        return;
     }
@@ -265,7 +265,7 @@ SipLineMgr::deleteLine(const Url& identity)
     SipLineEvent lineEvent( line, SipLineEvent::SIP_LINE_EVENT_LINE_DELETED );
     queueMessageToObservers( lineEvent );
 
-    syslog(FAC_LINE_MGR, PRI_INFO, "deleted line: %s",
+    syslog(FAC_LINE_MGR, PRI_INFO, "SipLineMgr::deleteLine deleted line: %s",
             identity.toString().data()) ;
     
     if (pDeleteLine)
@@ -336,7 +336,7 @@ SipLineMgr::disableLine(
     line = sLineList.getLine(identity) ;
     if ( line == NULL)
     {
-        syslog(FAC_LINE_MGR, PRI_ERR, "unable to disable line (not found): %s",
+        syslog(FAC_LINE_MGR, PRI_ERR, "SipLineMgr::disableLine unable to disable line (not found): %s",
                 identity.toString().data()) ;
     }
     
@@ -349,7 +349,7 @@ SipLineMgr::disableLine(
     SipLineEvent lineEvent(line, SipLineEvent::SIP_LINE_EVENT_LINE_DISABLED);
     queueMessageToObservers(lineEvent);
 
-    syslog(FAC_LINE_MGR, PRI_INFO, "disabled line: %s",
+    syslog(FAC_LINE_MGR, PRI_INFO, "SipLineMgr::disableLine disabled line: %s",
             identity.toString().data()) ;
 
     line = NULL;

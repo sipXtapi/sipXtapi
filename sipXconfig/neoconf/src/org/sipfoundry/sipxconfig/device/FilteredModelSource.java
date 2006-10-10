@@ -16,13 +16,12 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
-import org.sipfoundry.sipxconfig.phone.PhoneModel;
 
-public class FilteredModelSource implements ModelSource {
+public class FilteredModelSource<T extends DeviceDescriptor> implements ModelSource {
 
     private Predicate m_filter;
 
-    private ModelSource m_modelSource;
+    private ModelSource<T> m_modelSource;
 
     public void setModelSource(ModelSource modelSource) {
         m_modelSource = modelSource;
@@ -40,8 +39,8 @@ public class FilteredModelSource implements ModelSource {
         m_filter = filter;
     }
 
-    public Collection<PhoneModel> getModels() {
-        Collection models = m_modelSource.getModels();
+    public Collection<T> getModels() {
+        Collection<T> models = m_modelSource.getModels();
         if (m_filter != null) {
             models = CollectionUtils.select(models, m_filter);
         }
@@ -56,8 +55,12 @@ public class FilteredModelSource implements ModelSource {
         }
 
         public boolean evaluate(Object object) {
-            PhoneModel model = (PhoneModel) object;
-            return m_pattern.matcher(model.getName()).matches();
+            DeviceDescriptor model = (DeviceDescriptor) object;
+            return m_pattern.matcher(model.getModelId()).matches();
         }
+    }
+
+    public T getModel(String modelId) {
+        return m_modelSource.getModel(modelId);
     }
 }

@@ -1,15 +1,13 @@
 Microsoft Visual Studio Solution File, Format Version 8.00
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXtackLib", "sipXtackLib.vcproj", "{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}"
-	ProjectSection(ProjectDependencies) = postProject
-		{EA6BC6BB-61CF-4BE5-8054-D9FFF9F8AF5E} = {EA6BC6BB-61CF-4BE5-8054-D9FFF9F8AF5E}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXtackLibTest", "sipXtackLibTest.vcproj", "{806B3CE3-4C40-4757-831C-338C6A83D459}"
 	ProjectSection(ProjectDependencies) = postProject
-		{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646} = {0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXportLib", "..\sipXportLib\sipXportLib.vcproj", "{EA6BC6BB-61CF-4BE5-8054-D9FFF9F8AF5E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXportLib", "..\sipXportLib\sipXportLib.vcproj", "{14631055-9D3F-47E5-B6A7-16BFC0CC8091}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXtackLib", "sipXtackLib.vcproj", "{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -19,18 +17,18 @@ Global
 		Release = Release
 	EndGlobalSection
 	GlobalSection(ProjectConfiguration) = postSolution
-		{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}.Debug.ActiveCfg = Debug|Win32
-		{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}.Debug.Build.0 = Debug|Win32
-		{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}.Release.ActiveCfg = Release|Win32
-		{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}.Release.Build.0 = Release|Win32
 		{806B3CE3-4C40-4757-831C-338C6A83D459}.Debug.ActiveCfg = Debug|Win32
 		{806B3CE3-4C40-4757-831C-338C6A83D459}.Debug.Build.0 = Debug|Win32
 		{806B3CE3-4C40-4757-831C-338C6A83D459}.Release.ActiveCfg = Release|Win32
 		{806B3CE3-4C40-4757-831C-338C6A83D459}.Release.Build.0 = Release|Win32
-		{EA6BC6BB-61CF-4BE5-8054-D9FFF9F8AF5E}.Debug.ActiveCfg = Debug|Win32
-		{EA6BC6BB-61CF-4BE5-8054-D9FFF9F8AF5E}.Debug.Build.0 = Debug|Win32
-		{EA6BC6BB-61CF-4BE5-8054-D9FFF9F8AF5E}.Release.ActiveCfg = Release|Win32
-		{EA6BC6BB-61CF-4BE5-8054-D9FFF9F8AF5E}.Release.Build.0 = Release|Win32
+		{14631055-9D3F-47E5-B6A7-16BFC0CC8091}.Debug.ActiveCfg = Debug|Win32
+		{14631055-9D3F-47E5-B6A7-16BFC0CC8091}.Debug.Build.0 = Debug|Win32
+		{14631055-9D3F-47E5-B6A7-16BFC0CC8091}.Release.ActiveCfg = Release|Win32
+		{14631055-9D3F-47E5-B6A7-16BFC0CC8091}.Release.Build.0 = Release|Win32
+		{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}.Debug.ActiveCfg = Debug|Win32
+		{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}.Debug.Build.0 = Debug|Win32
+		{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}.Release.ActiveCfg = Release|Win32
+		{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

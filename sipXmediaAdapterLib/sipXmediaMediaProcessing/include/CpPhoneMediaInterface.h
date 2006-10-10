@@ -136,7 +136,7 @@ public:
                               UtlBoolean repeat,
                               UtlBoolean local, 
                               UtlBoolean remote,
-                              OsNotification* event = NULL);
+                              OsProtectedEvent* event = NULL);
    virtual OsStatus stopAudio();
 
    virtual OsStatus createPlayer(MpStreamPlayer** ppPlayer, 

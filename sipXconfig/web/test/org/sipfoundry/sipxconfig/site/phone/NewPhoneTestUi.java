@@ -15,7 +15,6 @@ import junit.framework.Test;
 import net.sourceforge.jwebunit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-import org.sipfoundry.sipxconfig.site.TestPage;
 
 public class NewPhoneTestUi extends WebTestCase {
 
@@ -43,7 +42,7 @@ public class NewPhoneTestUi extends WebTestCase {
         clickButton("phone:ok");
         String[][] table = new String[][] {
             {
-                "000000000000", "", TestPage.TEST_PHONE_MODEL.getLabel()
+                "000000000000", "", "Acme"
             },
         };
         assertTextInTable("phone:list", table[0]);
@@ -61,7 +60,7 @@ public class NewPhoneTestUi extends WebTestCase {
         clickButton("phone:cancel");
         String[][] table = new String[][] {
             {
-                "000000000000", "", TestPage.TEST_PHONE_MODEL.getLabel()
+                "000000000000", "", "Acme"
             },
         };
         assertTextInTable("phone:list", table[0]);

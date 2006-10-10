@@ -16,6 +16,7 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -32,6 +33,8 @@ public abstract class PhoneModels extends BasePage implements PageBeginRenderLis
     public abstract void setGroup(Group group);
 
     public abstract SettingDao getSettingContext();
+    
+    public abstract ModelSource<PhoneModel> getPhoneModelSource();
 
     public IPage editGroup(IRequestCycle cycle) {
         EditGroup page = (EditGroup) cycle.getPage(EditGroup.PAGE);
@@ -39,8 +42,8 @@ public abstract class PhoneModels extends BasePage implements PageBeginRenderLis
         return page;
     }
 
-    public IPage editPhoneDefaults(IRequestCycle cycle, String name) {
-        PhoneModel model = PhoneModel.getModel(name);
+    public IPage editPhoneDefaults(IRequestCycle cycle, String modelId) {
+        PhoneModel model = getPhoneModelSource().getModel(modelId);
         EditPhoneDefaults page = (EditPhoneDefaults) cycle.getPage(EditPhoneDefaults.PAGE);
         page.editPhoneSettings(model, getGroupId());
         return page;

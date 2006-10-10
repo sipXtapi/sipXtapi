@@ -168,6 +168,25 @@ public class UserTestDb extends SipxDatabaseTestCase {
         Assertion.assertEquals(expected, actual);
     }
 
+    // see: http://track.sipfoundry.org/browse/XCF-1099
+    public void testSuperviseMyself() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.insertFlat("common/TestUserSeed.db.xml");
+        TestHelper.insertFlat("common/UserGroupSeed.db.xml");
+        Group group = m_settingDao.getGroup(1001);
+        User user = m_core.loadUser(1001);
+        assertTrue(user.getSupervisorForGroups().isEmpty());
+
+        user.addSupervisorForGroup(group);
+
+        m_core.saveUser(user);
+
+        ITable actual = TestHelper.getConnection().createQueryTable("supervisor",
+                "select * from supervisor where user_id = 1001");
+        assertEquals(1, actual.getRowCount());
+    }
+    
+
     public void testSupervisorSaveNewGroup() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/TestUserSeed.db.xml");
@@ -176,8 +195,13 @@ public class UserTestDb extends SipxDatabaseTestCase {
         group.setResource(User.GROUP_RESOURCE_ID);
         group.setName("new-supervised-group");
 
-        user.addSupervisorForGroup(group);
-        m_core.saveUser(user);
+        try {
+            user.addSupervisorForGroup(group);
+            fail();
+        }
+        catch(RuntimeException e) {
+            // ok
+        }
     }
 
     public void testUserSaveNewGroup() throws Exception {

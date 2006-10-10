@@ -8,6 +8,10 @@
 
 
 #include "os/OsDefs.h"
+#include "tapi/sipXtapi.h"
+#include "tapi/sipXtapiEvents.h"
+#include "os/OsDateTime.h"
+#include "utl/UtlString.h"
 
 #include <assert.h>
 
@@ -19,10 +23,6 @@
 #  define SLEEP(milliseconds) usleep((milliseconds)*1000)
 #endif
 
-#include "os/OsDefs.h"
-#include "tapi/sipXtapi.h"
-#include "tapi/sipXtapiEvents.h"
-
 #define SAMPLES_PER_FRAME   80          // Number of samples per frame time
 #define LOOPBACK_LENGTH     200         // Frames for loopback delay (10ms per frame)
 
@@ -30,6 +30,8 @@ static short* g_loopback_samples[LOOPBACK_LENGTH] ; // loopback buffer
 static short g_loopback_head = 0 ;      // index into loopback
 static char* g_szPlayTones = NULL ;     // tones to play on answer
 static char* g_szFile = NULL ;          // file to play on answer
+
+bool g_timestamp = 0;           // TRUE if events should be timestamped
 
 // Print usage message
 void usage(const char* szExecutable)
@@ -157,8 +159,6 @@ bool parseArgs(int argc,
         {
             *bLoopback = true ;
         }
-
-
         else if (strcmp(argv[i], "-i") == 0)
         {
             if ((i+1) < argc)
@@ -171,7 +171,6 @@ bool parseArgs(int argc,
                 break ; // Error
             }
         }
-
         else if (strcmp(argv[i], "-u") == 0)
         {
             if ((i+1) < argc)
@@ -184,7 +183,6 @@ bool parseArgs(int argc,
                 break ; // Error
             }
         }
-
         else if (strcmp(argv[i], "-a") == 0)
         {
             if ((i+1) < argc)
@@ -197,7 +195,6 @@ bool parseArgs(int argc,
                 break ; // Error
             }
         }
-
         else if (strcmp(argv[i], "-m") == 0)
         {
             if ((i+1) < argc)
@@ -210,7 +207,6 @@ bool parseArgs(int argc,
                 break ; // Error
             }
         }
-
         else if (strcmp(argv[i], "-S") == 0)
         {
             if ((i+1) < argc)
@@ -243,6 +239,7 @@ bool parseArgs(int argc,
         }
         else
         {
+            fprintf(stderr, "Unknown argument '%s'\n", argv[i]);
             bRC = false ;
             break ; // Error
         }
@@ -254,7 +251,6 @@ bool parseArgs(int argc,
 // Play a file (8000 samples/sec, 16 bit unsigned, mono PCM)
 bool playFile(char* szFile, SIPX_CALL hCall)
 {
-    bool bRC = false ;
     sipxCallPlayFile(hCall, g_szFile, true, true) ;
 
     return true ;
@@ -346,6 +342,17 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
 
     // Dump event
     char cBuf[1024] ;
+
+    // Print the timestamp if requested.
+    if (g_timestamp)
+    {
+       OsDateTime d;
+       OsDateTime::getCurTime(d);
+       UtlString s;
+       d.getIsoTimeStringZ(s);
+       printf("%s ", s.data());
+    }
+
     printf("%s\n", sipxEventToString(category, pInfo, cBuf, sizeof(cBuf))) ;    
 
     if (category == EVENT_CATEGORY_CALLSTATE)

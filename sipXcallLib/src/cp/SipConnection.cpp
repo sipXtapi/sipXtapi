@@ -3014,7 +3014,7 @@ void SipConnection::processReferRequest(const SipMessage* request)
     // If there is not exactly one Refered-By
     // or not exactly one Refer-To header
     // or there is already a REFER in progress
-    else if(request->getHeaderValue(1, SIP_REFERRED_BY_FIELD) != NULL||
+    else if(request->getHeaderValue(1, SIP_REFERRED_BY_FIELD) != NULL ||
         request->getHeaderValue(1, SIP_REFER_TO_FIELD) != NULL ||
         mReferMessage)
     {
@@ -3214,6 +3214,11 @@ void SipConnection::processNotifyRequest(const SipMessage* request)
                 state = CONNECTION_FAILED;
                 cause = CONNECTION_CAUSE_SERVICE_UNAVAILABLE;
                 fireSipXEvent(CALLSTATE_TRANSFER, CALLSTATE_TRANSFER_FAILURE) ;
+            }
+            else if (responseCode == SIP_TRYING_CODE)
+            {
+		// Do nothing !
+                ;
             }
             else
             {
@@ -4339,6 +4344,7 @@ void SipConnection::processInviteResponse(const SipMessage* response)
 
             if (mTerminalConnState == PtTerminalConnection::HELD)
             {
+                OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipConnection::processInviteResponse, CONNECTED_INACTIVE response for HOLD");
                 fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_INACTIVE);
             }
             else

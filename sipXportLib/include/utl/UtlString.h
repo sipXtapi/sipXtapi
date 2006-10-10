@@ -209,7 +209,7 @@ public:
     UtlBoolean isNull() const;
 
     /// Compare this string to a null terminated string (case sensitive).
-    int compareTo(const char *) const;
+    virtual int compareTo(const char *) const;
     /**<
      * @returns 0 if equal, < 0 if less then and >0 if greater.
      */
@@ -618,7 +618,7 @@ public:
      * This returns a unique type for UtlString
      */
 
-    static UtlContainableType TYPE;    ///< Class type used for runtime checking 
+    static const UtlContainableType TYPE;    ///< Class type used for runtime checking 
 
     /// Compare to any other UtlContainable
     virtual int compareTo(UtlContainable const *other) const;

@@ -48,7 +48,7 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/EndpointSeed.xml");
 
-        Phone p = m_context.newPhone(Phone.MODEL);
+        Phone p = m_context.newPhone(new TestPhoneModel());
         p.setSerialNumber("999123456");
 
         try {
@@ -91,12 +91,12 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
 
-        Collection page1 = m_context.loadPhonesByPage(null, 0, 4, new String[] { "modelId" }, true);
+        Collection page1 = m_context.loadPhonesByPage(null, 0, 4, new String[] { "serialNumber" }, true);
         Phone[] phones = (Phone[]) page1.toArray(new Phone[page1.size()]);
         assertEquals("00001", phones[0].getSerialNumber());
-        assertEquals("00003", phones[1].getSerialNumber());
-        assertEquals("aa00004", phones[2].getSerialNumber());
-        assertEquals("00002", phones[3].getSerialNumber());
+        assertEquals("00002", phones[1].getSerialNumber());
+        assertEquals("00003", phones[2].getSerialNumber());
+        assertEquals("aa00004", phones[3].getSerialNumber());
     }
     
     public void testLoadPhones() throws Exception {

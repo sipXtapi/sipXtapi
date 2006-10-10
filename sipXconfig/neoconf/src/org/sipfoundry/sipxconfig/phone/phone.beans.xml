@@ -2,18 +2,12 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-  <!--
-    - P H O N E  C O N T E X T   I M P L
-  -->
-  <!-- 
-    phone models defintion
-  -->
-  <bean id="org.sipfoundry.sipxconfig.phone.Phone.MODEL"
-    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
 
   <bean id="nakedPhoneModelSource"
     class="org.sipfoundry.sipxconfig.device.BeanFactoryModelSource">
-    <property name="prefix" value="org.sipfoundry.sipxconfig.phone." />
+    <constructor-arg>
+      <value>org.sipfoundry.sipxconfig.phone.PhoneModel</value>
+    </constructor-arg>
   </bean>
 
   <bean id="phoneModelSource" class="org.sipfoundry.sipxconfig.device.FilteredModelSource">
@@ -26,13 +20,9 @@
     <property name="coreContext" ref="coreContext" />
     <property name="systemDirectory" value="${sysdir.etc}" />
     <property name="phoneDefaults" ref="phoneDefaults" />
-    <property name="phoneModelSource" ref="phoneModelSource" />
     <property name="intercomManager" ref="intercomManager" />
   </bean>
 
-  <!--
-    - P H O N E  C O N T E X T
-  -->
   <bean id="phoneContext" class="org.springframework.aop.framework.ProxyFactoryBean"
     parent="abstractDao">
     <property name="proxyInterfaces">
@@ -76,9 +66,9 @@
     <property name="sleepInterval" value="5000" />
   </bean>
 
-  <!-- Define new phone models here, order is not important -->
-  <bean id="unmanagedPhone" class="org.sipfoundry.sipxconfig.phone.Phone" singleton="false"
-    parent="beanWithSettings">
+  <bean id="abstractPhone" class="org.sipfoundry.sipxconfig.phone.Phone" singleton="false"
+    parent="beanWithSettings" abstract="true">
+    <property name="phoneModelSource" ref="nakedPhoneModelSource" />
     <property name="phoneContext">
       <ref bean="phoneContext" />
     </property>
@@ -100,10 +90,7 @@
       <ref bean="sip" />
     </property>
   </bean>
-
-  <!-- S I P -->
   <bean id="sip" class="org.sipfoundry.sipxconfig.phone.SipServiceImpl" />
-  <!-- Line -->
   <bean id="line" class="org.sipfoundry.sipxconfig.phone.Line" singleton="false"
     parent="beanWithSettings" />
 </beans>

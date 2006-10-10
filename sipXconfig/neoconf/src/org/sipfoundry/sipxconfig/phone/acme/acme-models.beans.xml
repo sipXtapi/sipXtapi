@@ -2,10 +2,12 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
   "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-  <bean id="org.sipfoundry.sipxconfig.phone.acme.AcmePhone.MODEL_ACME"
-    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
-  <!-- A C M E  P H O N E -->
+  <bean id="acmePhoneStandard" class="org.sipfoundry.sipxconfig.phone.PhoneModel">
+    <property name="beanId" value="acmePhone"/>
+    <property name="label" value="Acme"/>
+    <property name="maxLineCount" value="3"/>
+  </bean>
   <bean id="acmePhone" class="org.sipfoundry.sipxconfig.phone.acme.AcmePhone" singleton="false"
-    parent="unmanagedPhone">
+    parent="abstractPhone">
   </bean>    
 </beans>

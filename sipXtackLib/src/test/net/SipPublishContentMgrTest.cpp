@@ -90,8 +90,12 @@ void TestDefaultConstructorClass::generateDefaultContent(SipPublishContentMgr* c
 // Make a copy of this object according to its real type.
 SipPublishContentMgrDefaultConstructor* TestDefaultConstructorClass::copy()
 {
-   // Copying these objects is easy, since they have no member variables, etc.
-   return new TestDefaultConstructorClass;
+   // We cheat on copying these objects by just duplicating the pointer to the
+   // original.  This is OK, because we never keep the result of copy() around
+   // longer than the life of the original.  It also makes it much easier to see
+   // if getPublished is returning a "copy" of the right object, as we can just
+   // check the pointer value.
+   return this;
 }
 
 // Get the ContainableType for a UtlContainable derived class.
@@ -199,22 +203,44 @@ public:
 
          SipPublishContentMgr publisher;
 
-         // Register the default content constructor.
-
-         publisher.publishDefault(event_type, event_type,
-                                  new TestDefaultConstructorClass);
-         
-         // See if getPublished can retrieve it.
+         // Verify that the default content constructor is null.
 
          int numOldContents;
          HttpBody *oldContents[2];
          SipPublishContentMgrDefaultConstructor *constructor;
 
+         publisher.getPublished(NULL, event_type, 1,
+                                numOldContents, oldContents, &constructor);
+
+         CPPUNIT_ASSERT_MESSAGE("getPublished should return 0 old contents",
+                                numOldContents == 0);
+         CPPUNIT_ASSERT_MESSAGE("getPublished should return NULL",
+                                constructor == NULL);
+
+         // Register the default content constructor.
+
+         TestDefaultConstructorClass* p = new TestDefaultConstructorClass;
+         publisher.publishDefault(event_type, event_type, p);
+         
+         // See if getPublished can retrieve it.
+
+         publisher.getPublished(NULL, event_type, 1,
+                                numOldContents, oldContents, &constructor);
+
+         CPPUNIT_ASSERT_MESSAGE("getPublished should return 0 old contents",
+                                numOldContents == 0);
+         CPPUNIT_ASSERT_MESSAGE("constructor not returned by getPublished",
+                                constructor == p);
+
+         // Ensure that it can't be retrieved for other event types.
+
          publisher.getPublished(NULL, "dialog", 1,
                                 numOldContents, oldContents, &constructor);
 
-         CPPUNIT_ASSERT_MESSAGE("constructor not returned by getPublished",
-                                constructor != NULL);
+         CPPUNIT_ASSERT_MESSAGE("getPublished should return 0 old contents",
+                                numOldContents == 0);
+         CPPUNIT_ASSERT_MESSAGE("getPublished should return NULL for 'dialog'",
+                                constructor == NULL);
 
          // Provide a string for default content also.
 
@@ -225,6 +251,24 @@ public:
                                           "text/plain");
             publisher.publishDefault(event_type, event_type, 1, &body);
          }
+
+         // See if getPublished returns the string.
+
+         publisher.getPublished(NULL, event_type, 1,
+                                numOldContents, oldContents, &constructor);
+
+         CPPUNIT_ASSERT_MESSAGE("getPublished should return 1 old contents",
+                                numOldContents == 1);
+         CPPUNIT_ASSERT_MESSAGE("getPublished should return default string",
+                                strcmp(oldContents[0]->getBytes(), default_content) == 0);
+
+         // Make sure getPublished does not return the string for other events.
+
+         publisher.getPublished(NULL, "dialog", 1,
+                                numOldContents, oldContents, &constructor);
+
+         CPPUNIT_ASSERT_MESSAGE("getPublished should return 0 old contents",
+                                numOldContents == 0);
 
          // Check to see if default content is produced for the right
          // resources.
@@ -282,6 +326,20 @@ public:
          b->getBytes(&s, &l);
          CPPUNIT_ASSERT_MESSAGE("Content for 2 is incorrect",
                                 strcmp(s, content_2) == 0);
+
+         // Remove the default content constructor.
+
+         publisher.unpublishDefault(event_type, event_type);
+         
+         // See if getPublished now returns NULL.
+
+         publisher.getPublished(NULL, event_type, 1,
+                                numOldContents, oldContents, &constructor);
+
+         CPPUNIT_ASSERT_MESSAGE("getPublished should return 0 old contents",
+                                numOldContents == 0);
+         CPPUNIT_ASSERT_MESSAGE("getPublished should return NULL for the default constructor",
+                                constructor == NULL);
       }
 
    void testPublishContent()
@@ -426,6 +484,11 @@ public:
          UtlBoolean isDefaultContent;
 
          foundContent = publisher.getContent("moh@pingtel.com", "dialog", "dialog",
+                                             // The content type is hard-coded
+                                             // here to check that the #define
+                                             // DIALOG_EVENT_CONTENT_TYPE,
+                                             // which is used everywhere in
+                                             // sipX, is right.
                                              "application/dialog-info+xml",
                                              oldContents[0], isDefaultContent);
 

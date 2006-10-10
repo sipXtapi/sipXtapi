@@ -952,7 +952,7 @@
       <description>The string sent to the server when the user selects the 'last call return' 
         action.</description>
     </setting>
-    <setting name="callsPerLineKey" unless="600">
+    <setting name="callsPerLineKey" unless="polycom600">
       <label>Calls Per Line Key</label>
       <type>
         <integer min="1" max="8"/>
@@ -961,7 +961,7 @@
       <description>The number of calls or conferences which may be active or on hold per line 
         key on the phone.</description>
     </setting>
-    <setting name="callsPerLineKey_600" if="600" copy-of="callsPerLineKey">
+    <setting name="callsPerLineKey_600" if="polycom600" copy-of="callsPerLineKey">
       <profileName>callsPerLineKey</profileName>
       <type>
         <integer min="1" max="24"/>

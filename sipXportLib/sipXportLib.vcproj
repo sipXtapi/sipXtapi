@@ -41,7 +41,7 @@
 				Name="VCLibrarianTool"
 				OutputFile=".\Debug\sipXportLib.lib"
 				SuppressStartupBanner="TRUE"
-				IgnoreDefaultLibraryNames="msvcprtd.lib"/>
+				IgnoreDefaultLibraryNames="msvcrt.lib"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool

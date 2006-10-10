@@ -3,7 +3,7 @@
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="org.sipfoundry.sipxconfig.phone" default-lazy="false">
   <!-- P H O N E -->
-  <class name="Phone" table="phone" discriminator-value="unmanagedPhone">
+  <class name="Phone" table="phone" discriminator-value="abstractPhone">
     <id name="id" column="phone_id" type="int" unsaved-value="-1">
       <generator class="sequence">
         <param name="sequence">phone_seq</param>

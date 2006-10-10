@@ -7,6 +7,7 @@
   <inject property="dialPlanContext" object="spring:dialPlanContext"/>
   <inject property="forwardingContext" object="spring:forwardingContext"/>
   <inject property="phoneContext" object="spring:phoneContext"/>
+  <inject property="phoneModelSource" object="spring:phoneModelSource"/>
   <inject property="callGroupContext" object="spring:callGroupContext"/>
   <inject property="parkOrbitContext" object="spring:parkOrbitContext"/>
   <inject property="gatewayContext" object="spring:gatewayContext"/>

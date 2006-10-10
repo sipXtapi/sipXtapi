@@ -10,6 +10,7 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
+
 // DEFINES
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -21,8 +22,16 @@
 class Url;
 
 /**
- * The LinePresenceBase class provides a set of pure virtual interfaces which
- * allow for the setting and retrieval line presence and state information.
+ * The LinePresenceBase class is a pure virtual class.
+ * Objects of subclasses can use this interface to receive notifications
+ * of changes of status of a URI.
+ * The subject URI is contained in the object, and can be retrieved with
+ * getUri().
+ * This interface can also be used to retrieve status information
+ * from the object.
+ *
+ * Status consists of three boolean values, "present", "on-hook", and
+ * "signed-in".
  */
 class LinePresenceBase {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -60,6 +69,7 @@ public:
     * @param state The state value to be updated.
     */
    virtual void updateState(ePresenceStateType type, bool state) = 0;
+   
 
 /* ============================ ACCESSORS ================================= */
    /**

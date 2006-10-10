@@ -302,18 +302,21 @@ CallerAliasDB::store()
                TiXmlElement identityElement(IdentityKey.data());
                TiXmlText    identityValue(cursor->identity);
                identityElement.InsertEndChild(identityValue);
+               itemElement.InsertEndChild(identityElement);
             }
          
             // add the domain element and put the value in it
             TiXmlElement domainElement(DomainKey.data());
             TiXmlText    domainValue(cursor->domain);
             domainElement.InsertEndChild(domainValue);
+            itemElement.InsertEndChild(domainElement);
 
             // add the alias element and put the value in it
             TiXmlElement aliasElement(AliasKey.data());
             TiXmlText    aliasValue(cursor->alias);
             aliasElement.InsertEndChild(aliasValue);
-
+            itemElement.InsertEndChild(aliasElement);
+            
             // add this item (row) to the parent items container
             itemsElement.InsertEndChild ( itemElement );
          }

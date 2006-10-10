@@ -14,7 +14,6 @@ package org.sipfoundry.sipxconfig.gateway;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import org.dbunit.dataset.ITable;
@@ -24,28 +23,37 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting;
 import org.sipfoundry.sipxconfig.admin.dialplan.InternationalRule;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.phone.PhoneModel;
+import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.springframework.context.ApplicationContext;
 
 public class GatewayContextTestDb extends SipxDatabaseTestCase {
 
     private GatewayContext m_context;
+    
+    private ModelSource<GatewayModel> m_modelSource;
 
     private DialPlanContext m_dialPlanContext;
 
     private ApplicationContext m_appContext;
+    
+    private GatewayModel m_genericModel;
+    
+    private GatewayModel m_genericSipTrunk;   
 
     protected void setUp() throws Exception {
         m_appContext = TestHelper.getApplicationContext();
         m_context = (GatewayContext) m_appContext.getBean(GatewayContext.CONTEXT_BEAN_NAME);
         m_dialPlanContext = (DialPlanContext) m_appContext
                 .getBean(DialPlanContext.CONTEXT_BEAN_NAME);
+        m_modelSource = (ModelSource<GatewayModel>) m_appContext.getBean("nakedGatewayModelSource");
+        m_genericModel = m_modelSource.getModel("genericGatewayStandard");
+        m_genericSipTrunk = m_modelSource.getModel("sipTrunkStandard");
         TestHelper.cleanInsert("ClearDb.xml");
     }
 
     public void testAddGateway() {
-        Gateway g1 = new Gateway();
-        Gateway g2 = new Gateway();
+        Gateway g1 = new Gateway(m_genericModel);
+        Gateway g2 = new Gateway(m_genericModel);
 
         // add g1
         m_context.storeGateway(g1);
@@ -62,9 +70,9 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
     }
 
     public void testAddDuplicateGatewayDuplicate() throws Exception {
-        Gateway g1 = new Gateway();
+        Gateway g1 = new Gateway(m_genericModel);
         g1.setName("bongo");
-        Gateway g2 = new SipTrunk();
+        Gateway g2 = new SipTrunk(m_genericSipTrunk);
         g2.setName("bongo");
 
         // add g1
@@ -80,9 +88,9 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
     }
 
     public void testDeleteGateway() {
-        Gateway g1 = new Gateway();
-        Gateway g2 = new Gateway();
-        Gateway g3 = new Gateway();
+        Gateway g1 = new Gateway(m_genericModel);
+        Gateway g2 = new Gateway(m_genericModel);
+        Gateway g3 = new Gateway(m_genericModel);
 
         // add all
         m_context.storeGateway(g1);
@@ -103,7 +111,7 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
     }
 
     public void testUpdateGateway() throws Exception {
-        Gateway g1 = new Gateway();
+        Gateway g1 = new Gateway(m_genericModel);
         g1.setAddress("10.1.1.1");
         m_context.storeGateway(g1);
         g1.setAddress("10.1.1.2");
@@ -130,7 +138,7 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
     }
 
     public void testSaveLoadUpdateGateway() throws Exception {
-        Gateway g1 = new Gateway();
+        Gateway g1 = new Gateway(m_genericModel);
         g1.setAddress("10.1.1.1");
         m_context.storeGateway(g1);
 
@@ -141,7 +149,7 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
     }
 
     public void testDeleteGatewayInUse() {
-        Gateway g1 = new Gateway();
+        Gateway g1 = new Gateway(m_genericModel);
         g1.setAddress("10.1.1.1");
         m_context.storeGateway(g1);
         InternationalRule rule = new InternationalRule();
@@ -185,7 +193,7 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
     }
 
     public void testDeleteGatewayInUseByEmergencyRouting() {
-        Gateway g1 = new Gateway();
+        Gateway g1 = new Gateway(m_genericModel);
         g1.setAddress("10.1.1.1");
         m_context.storeGateway(g1);
 
@@ -201,9 +209,8 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
     }
 
     public void testAllGateways() throws Exception {
-        Collection models = m_context.getAvailableGatewayModels();
-        for (Iterator i = models.iterator(); i.hasNext();) {
-            PhoneModel model = (PhoneModel) i.next();
+        Collection<GatewayModel> models = m_modelSource.getModels();
+        for (GatewayModel model : models) {
             Gateway gateway = m_context.newGateway(model);
             String beanId = model.getBeanId();
             assertEquals(gateway.getClass(), m_appContext.getBean(beanId).getClass());

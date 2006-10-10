@@ -129,6 +129,10 @@ AC_DEFUN([SFAC_CONFIGURE_OPTIONS],
   AC_SUBST(CONFIGURE_OPTIONS, $CleanedArgs)
 ])
 
+AC_DEFUN([SFAC_SIPX_INSTALL_PREFIX],[
+   # set the install prefix
+   AC_PREFIX_DEFAULT(${SIPX_INSTALLDIR:-/usr/local/sipx})
+])
 
 AC_DEFUN([SFAC_SVN_VERSION],[
    AC_MSG_CHECKING(codebase svn revision)

@@ -128,7 +128,6 @@ Messages-Waiting: no\r\n\
 Voice-Message: 0/0 (0/0)\r\n";
 
         // Set up some subscribe messages
-         SipDialogMgr dialogMgr;
          SipMessage mwiSubRequest(mwiSubscribe);
          SipMessage mwiSub401Response(mwiSubscribe401);
          SipMessage mwiSubWithAuthRequest(mwiSubscribeAuth);
@@ -137,7 +136,8 @@ Voice-Message: 0/0 (0/0)\r\n";
          //CPPUNIT_ASSERT(TRUE);
          //ASSERT_STR_EQUAL("a", "a");
 
-         SipSubscriptionMgr subMgr(dialogMgr);
+         SipSubscriptionMgr subMgr;
+         SipDialogMgr* dialogMgr = subMgr.getDialogMgr();
          SipSubscribeServerEventHandler eventHandler;
          UtlString resourceId;
          UtlString eventTypeKey, eventType;
@@ -176,11 +176,11 @@ Voice-Message: 0/0 (0/0)\r\n";
          ASSERT_STR_EQUAL(responseDialogHandle, subscribeDialogHandle);
          CPPUNIT_ASSERT(!SipDialog::isEarlyDialog(subscribeDialogHandle));
          CPPUNIT_ASSERT(!SipDialog::isEarlyDialog(responseDialogHandle));
-         CPPUNIT_ASSERT(dialogMgr.countDialogs() == 1);
+         CPPUNIT_ASSERT(dialogMgr->countDialogs() == 1);
          UtlString mgrEstablishedDialogHandle;
-         CPPUNIT_ASSERT(dialogMgr.getEstablishedDialogHandleFor(earlyDialogHandle,
+         CPPUNIT_ASSERT(dialogMgr->getEstablishedDialogHandleFor(earlyDialogHandle,
              mgrEstablishedDialogHandle));
-         CPPUNIT_ASSERT(dialogMgr.dialogExists(subscribeDialogHandle));
+         CPPUNIT_ASSERT(dialogMgr->dialogExists(subscribeDialogHandle));
          int expiration = 0;
          CPPUNIT_ASSERT(createdSubscribeResponse.getExpiresField(&expiration));
          CPPUNIT_ASSERT(expiration == 3600);
@@ -252,7 +252,7 @@ Voice-Message: 0/0 (0/0)\r\n";
 
          // End the dialog and subscription
          subMgr.endSubscription(subscribeDialogHandle);
-         CPPUNIT_ASSERT(dialogMgr.countDialogs() == 0);
+         CPPUNIT_ASSERT(dialogMgr->countDialogs() == 0);
          CPPUNIT_ASSERT(!subMgr.dialogExists(subscribeDialogHandle));
          CPPUNIT_ASSERT(subMgr.isExpired(subscribeDialogHandle));
 
@@ -265,12 +265,12 @@ Voice-Message: 0/0 (0/0)\r\n";
                                                 isNew,
                                                 isExpired,
                                                 createdSubscribeResponse));
-         CPPUNIT_ASSERT(dialogMgr.countDialogs() == 1);
+         CPPUNIT_ASSERT(dialogMgr->countDialogs() == 1);
 
          long now = OsDateTime::getSecsSinceEpoch();
          now+=3700;
          subMgr.removeOldSubscriptions(now);
-         CPPUNIT_ASSERT(dialogMgr.countDialogs() == 0);
+         CPPUNIT_ASSERT(dialogMgr->countDialogs() == 0);
          CPPUNIT_ASSERT(subMgr.isExpired(subscribeDialogHandle));
          CPPUNIT_ASSERT(!subMgr.dialogExists(subscribeDialogHandle));
 

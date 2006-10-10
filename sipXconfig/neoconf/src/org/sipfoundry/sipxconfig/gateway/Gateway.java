@@ -15,7 +15,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
-import org.sipfoundry.sipxconfig.phone.PhoneModel;
+import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -39,13 +39,23 @@ public class Gateway extends BeanWithSettings implements NamedObject {
 
     private String m_tftpRoot;
 
-    private PhoneModel m_model;
+    private GatewayModel m_model;
+    
+    private ModelSource<GatewayModel> m_modelSource;
 
     private DeviceVersion m_version;
 
     private VelocityEngine m_velocityEngine;
 
     private GatewayCallerAliasInfo m_callerAliasInfo = new GatewayCallerAliasInfo();
+    
+    public Gateway() {        
+        this(new GatewayModel("gwGeneric", "genericGatewayStandard"));
+    }
+    
+    public Gateway(GatewayModel model) {
+        setModel(model);
+    }
 
     @Override
     public void initialize() {
@@ -65,17 +75,6 @@ public class Gateway extends BeanWithSettings implements NamedObject {
 
     public void setDeviceVersion(DeviceVersion version) {
         m_version = version;
-    }
-
-    /**
-     * This is slightly unusual setter - used to initialed model variable TODO: replace with
-     * proper hibernate mappings
-     * 
-     * @param modelId
-     */
-    public void setModelId(String modelId) {
-        m_modelId = modelId;
-        m_model = PhoneModel.getModel(m_beanId, modelId);
     }
 
     public String getName() {
@@ -126,20 +125,35 @@ public class Gateway extends BeanWithSettings implements NamedObject {
         m_velocityEngine = velocityEngine;
     }
 
-    public PhoneModel getModel() {
-        return m_model;
-    }
-
-    public void setModel(PhoneModel model) {
-        m_model = model;
-    }
-
     public String getBeanId() {
         return m_beanId;
     }
 
     public void setBeanId(String beanId) {
         m_beanId = beanId;
+    }
+
+    public void setModelId(String modelId) {
+        m_modelId = modelId;
+    }
+    
+    public void setModel(GatewayModel model) {
+        m_model = model;
+        m_modelId = m_model.getModelId();
+    }
+    
+    public GatewayModel getModel() {
+        if (m_model != null) {
+            return m_model;
+        }
+        if (m_modelId == null) {
+            throw new IllegalStateException("Model ID not set");
+        }
+        if (m_modelSource == null) {
+            throw new IllegalStateException("ModelSource not set");
+        }
+        m_model = m_modelSource.getModel(m_modelId);
+        return m_model;
     }
 
     public String getModelId() {
@@ -181,5 +195,9 @@ public class Gateway extends BeanWithSettings implements NamedObject {
         Gateway clone = (Gateway) super.clone();
         clone.m_callerAliasInfo = (GatewayCallerAliasInfo) m_callerAliasInfo.clone();
         return clone;
+    }
+
+    public void setGatewayModelSource(ModelSource<GatewayModel> modelSource) {
+        m_modelSource = modelSource;
     }
 }

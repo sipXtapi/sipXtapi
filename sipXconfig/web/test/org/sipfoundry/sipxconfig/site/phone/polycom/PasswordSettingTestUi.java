@@ -42,9 +42,9 @@ public class PasswordSettingTestUi extends WebTestCase {
         SiteTestHelper.setScriptingEnabled(true);
         clickLink("ManagePhones");        
         clickLinkWithText(SiteTestHelper.TEST_USER);
-        clickLinkWithText("Registration");
+        clickLinkWithText("Credentials");
         clickLink("setting:toggle");
-        Element passwordField = getDialog().getElement("setting:auth.password");        
+        Element passwordField = getDialog().getElement("setting:password");        
         assertEquals("password", passwordField.getAttribute("type"));
     }
 }

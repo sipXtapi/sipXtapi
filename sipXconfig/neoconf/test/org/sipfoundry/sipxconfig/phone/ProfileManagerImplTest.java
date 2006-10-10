@@ -23,7 +23,7 @@ import org.sipfoundry.sipxconfig.job.JobContext;
 public class ProfileManagerImplTest extends TestCase {
     
     public void testNewPhone() {
-        new Phone();
+        new TestPhone();
     }
 
     public void testGenerateProfilesAndRestart() {

@@ -2,14 +2,19 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
   "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-  <bean id="org.sipfoundry.sipxconfig.phone.snom.SnomModel.MODEL_300"
-    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
-  <bean id="org.sipfoundry.sipxconfig.phone.snom.SnomModel.MODEL_320"
-    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
-  <bean id="org.sipfoundry.sipxconfig.phone.snom.SnomModel.MODEL_360"
-    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
-  <!-- Snom -->
+  <bean id="snom300" class="org.sipfoundry.sipxconfig.phone.snom.SnomModel">
+    <property name="label" value="Snom 300"/>
+    <property name="maxLineCount" value="4"/>
+  </bean>
+  <bean id="snom320" class="org.sipfoundry.sipxconfig.phone.snom.SnomModel">
+    <property name="label" value="Snom 320"/>
+    <property name="maxLineCount" value="12"/>
+  </bean>
+  <bean id="snom360" class="org.sipfoundry.sipxconfig.phone.snom.SnomModel">
+    <property name="label" value="Snom 360"/>
+    <property name="maxLineCount" value="12"/>
+  </bean>
   <bean id="snom" class="org.sipfoundry.sipxconfig.phone.snom.SnomPhone" singleton="false"
-    parent="unmanagedPhone">
+    parent="abstractPhone">
   </bean>
 </beans>

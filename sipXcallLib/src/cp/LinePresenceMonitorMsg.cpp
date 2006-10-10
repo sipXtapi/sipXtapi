@@ -35,12 +35,42 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-LinePresenceMonitorMsg::LinePresenceMonitorMsg(eLinePresenceMonitorMsgSubTypes type, LinePresenceBase* line)
-: OsMsg(USER_START, type)
+LinePresenceMonitorMsg::LinePresenceMonitorMsg(eLinePresenceMonitorMsgSubTypes type,
+                                               LinePresenceBase* line,
+                                               OsEvent* event)
+   : OsMsg(USER_START, type)
 {   
    mLine = line;
+   mEvent = event;
+   mContact = NULL;
+   mStateChange = StateChangeNotifier::PRESENT; // dummy value
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//  NAME:        LinePresenceMonitorMsg::LinePresenceMonitorMsg
+//
+//  SYNOPSIS:    
+//
+//  DESCRIPTION: Constructor for SET_STATE messages
+//
+//  RETURNS:     None.
+//
+//  ERRORS:      None.
+//
+//  CAVEATS:     None.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+LinePresenceMonitorMsg::LinePresenceMonitorMsg(const UtlString* contact,
+                                               StateChangeNotifier::Status value)
+   : OsMsg(USER_START, SET_STATUS)
+{   
+   mLine = NULL;
+   mEvent = NULL;
+   mContact = contact;
+   mStateChange = value;
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -62,6 +92,12 @@ LinePresenceMonitorMsg::LinePresenceMonitorMsg(const LinePresenceMonitorMsg& rLi
 : OsMsg(rLinePresenceMonitorMsg)
 {
    mLine = rLinePresenceMonitorMsg.mLine;
+   mStateChange = rLinePresenceMonitorMsg.mStateChange;
+   // The event and contact pointers are copied from the source.
+   // This means that one and only one of these LinePresenceMonitorMsgs should
+   // be sent to the message queue.
+   mEvent = rLinePresenceMonitorMsg.mEvent;
+   mContact = rLinePresenceMonitorMsg.mContact;
 }
 
 
@@ -85,7 +121,6 @@ OsMsg* LinePresenceMonitorMsg::createCopy(void) const
 {
    return new LinePresenceMonitorMsg(*this);
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //

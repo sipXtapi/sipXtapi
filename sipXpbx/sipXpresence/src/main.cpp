@@ -48,8 +48,8 @@
 
 #define LOG_FACILITY                  FAC_ACD
 
-#define PRESENCE_DEFAULT_UDP_PORT              5140       // Default UDP port
-#define PRESENCE_DEFAULT_TCP_PORT              5140       // Default TCP port
+#define PRESENCE_DEFAULT_UDP_PORT              5130       // Default UDP port
+#define PRESENCE_DEFAULT_TCP_PORT              5130       // Default TCP port
 
 // MACROS
 // EXTERNAL FUNCTIONS

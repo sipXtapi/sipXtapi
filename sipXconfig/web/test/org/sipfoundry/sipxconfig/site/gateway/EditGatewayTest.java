@@ -22,7 +22,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
-import org.sipfoundry.sipxconfig.phone.PhoneModel;
+import org.sipfoundry.sipxconfig.gateway.GatewayModel;
 
 /**
  * EditGatewayTest
@@ -93,7 +93,7 @@ public class EditGatewayTest extends TestCase {
 
     public void testPageBeginRenderAdd() {
         Gateway gateway = new Gateway();       
-        gateway.setModel(new PhoneModel("xxx", "xxx"));
+        gateway.setModel(new GatewayModel("xxx", "xxx"));
         
         IMocksControl contextControl = EasyMock.createStrictControl();
         GatewayContext context = contextControl.createMock(GatewayContext.class);

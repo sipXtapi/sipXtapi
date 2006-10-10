@@ -5,7 +5,7 @@
 
 int UtlContainableTestStub::cCount = 0 ;
 
-UtlContainableType UtlContainableTestStub::CONST_TYPE = "UtlContainableTestStub" ; 
+const UtlContainableType UtlContainableTestStub::TYPE = "UtlContainableTestStub" ; 
 UtlContainableTestStub::UtlContainableTestStub()
 {
     cCount++ ;
@@ -41,7 +41,7 @@ unsigned UtlContainableTestStub :: hash() const
 int UtlContainableTestStub :: compareTo(UtlContainable const* c) const
 {
     int cmp = 1 ;
-    if (c->getContainableType() == CONST_TYPE)
+    if (c->getContainableType() == TYPE)
     {
         UtlContainableTestStub* t = (UtlContainableTestStub*)c ;
         int inId = t -> id ;
@@ -52,7 +52,7 @@ int UtlContainableTestStub :: compareTo(UtlContainable const* c) const
 
 UtlContainableType UtlContainableTestStub::getContainableType() const
 {
-    return CONST_TYPE;
+    return TYPE;
 }
 
 int UtlContainableTestStub :: getCount()

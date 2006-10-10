@@ -120,7 +120,7 @@ public:
      */
     virtual UtlContainableType getContainableType() const;
 
-    static UtlContainableType TYPE ;    /**< Class type used for runtime checking */ 
+    static const UtlContainableType TYPE;    /**< Class type used for runtime checking */ 
 
 /* ============================ INQUIRY =================================== */
 

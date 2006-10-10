@@ -14,6 +14,8 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+const UtlContainableType TYPE = "ActiveCall";
+
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -50,12 +52,9 @@ unsigned int ActiveCall::hash() const
     return mCallId.hash();
 }
 
-
-static UtlContainableType DB_ENTRY_TYPE = "ActiveCall";
-
 const UtlContainableType ActiveCall::getContainableType() const
 {
-    return DB_ENTRY_TYPE;
+    return TYPE;
 }
 
 
@@ -72,4 +71,3 @@ const UtlContainableType ActiveCall::getContainableType() const
 /* ============================ TESTING =================================== */
 
 /* ============================ FUNCTIONS ================================= */
-

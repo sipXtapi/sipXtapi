@@ -52,7 +52,7 @@ public abstract class DialRuleCommon extends BaseComponent {
 
     public abstract Collection<Integer> getGatewaysToAdd();
 
-    private boolean isValid() {
+    boolean isValid() {
         IValidationDelegate delegate = TapestryUtils.getValidator(this);
         try {
             IComponent component = getComponent("common");
@@ -71,7 +71,7 @@ public abstract class DialRuleCommon extends BaseComponent {
         }
     }
 
-    private void saveValid() {
+    void saveValid() {
         DialingRule rule = getRule();
         getDialPlanContext().storeRule(rule);
         Integer id = getRule().getId();

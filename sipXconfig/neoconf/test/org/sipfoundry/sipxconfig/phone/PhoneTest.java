@@ -35,7 +35,7 @@ public class PhoneTest extends TestCase {
     }
 
     public void testGenerateAndRemoveProfiles() {
-        Phone phone = new Phone() {
+        Phone phone = new TestPhone() {
             private String m_name;
 
             public String getPhoneFilename() {
@@ -126,7 +126,8 @@ public class PhoneTest extends TestCase {
     
     static class LimitedPhone extends Phone {
         LimitedPhone() {
-            super(new LimitedLinePhoneModel());
+            super("beanId");
+            setModel(new LimitedLinePhoneModel());
         }
         @Override
         public void setLineInfo(Line line, LineInfo externalLine) {
@@ -148,7 +149,7 @@ public class PhoneTest extends TestCase {
     
     static class LimitedLinePhoneModel extends PhoneModel {
         LimitedLinePhoneModel() {
-            super("beanId", "modelId", "LimitedLinePhoneModel", 1);
+            setMaxLineCount(1);
         }
     }
 }

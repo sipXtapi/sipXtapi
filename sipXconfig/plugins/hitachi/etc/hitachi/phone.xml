@@ -47,7 +47,7 @@
 			</description>
 		</setting>
 		<setting name="Use_Advanced_Rate_Set" advanced="yes"
-			unless="3000">
+			unless="hitachi3000">
 			<label>Use Advanced Rate Set</label>
 			<type>
 				<boolean />
@@ -382,7 +382,7 @@
 		</group>
 		<group name="TOS_WMM">
 			<label>WMM Priorities (Disabled for model 5000)</label>
-			<setting name="Precedence_0" unless="5000">
+			<setting name="Precedence_0" unless="hitachi5000">
 				<label>Precedence 0</label>
 				<type>
 					<integer min="0" max="7" />
@@ -392,7 +392,7 @@
 					Set the WMM priority for Precedence0
 				</description>
 			</setting>
-			<setting name="Precedence_1" unless="5000">
+			<setting name="Precedence_1" unless="hitachi5000">
 				<label>Precedence 1</label>
 				<type>
 					<integer min="0" max="7" />
@@ -402,37 +402,37 @@
 					Set the WMM priority for Precedence1
 				</description>
 			</setting>
-			<setting name="Precedence_2" copy-of="Precedence_1"  unless="5000">
+			<setting name="Precedence_2" copy-of="Precedence_1"  unless="hitachi5000">
 				<label>Precedence 2</label>
 				<description>
 					Set the WMM priority for Precedence2
 				</description>
 			</setting>
-			<setting name="Precedence_3" copy-of="Precedence_1"  unless="5000">
+			<setting name="Precedence_3" copy-of="Precedence_1"  unless="hitachi5000">
 				<label>Precedence 3</label>
 				<description>
 					Set the WMM priority for Precedence3
 				</description>
 			</setting>
-			<setting name="Precedence_4" copy-of="Precedence_1" unless="5000">
+			<setting name="Precedence_4" copy-of="Precedence_1" unless="hitachi5000">
 				<label>Precedence 4</label>
 				<description>
 					Set the WMM priority for Precedence4
 				</description>
 			</setting>
-			<setting name="Precedence_5" copy-of="Precedence_1" unless="5000">
+			<setting name="Precedence_5" copy-of="Precedence_1" unless="hitachi5000">
 				<label>Precedence 5</label>
 				<description>
 					Set the WMM priority for Precedence5
 				</description>
 			</setting>
-			<setting name="Precedence_6" copy-of="Precedence_1" unless="5000">
+			<setting name="Precedence_6" copy-of="Precedence_1" unless="hitachi5000">
 				<label>Precedence 6</label>
 				<description>
 					Set the WMM priority for Precedence6
 				</description>
 			</setting>
-			<setting name="Precedence_7" copy-of="Precedence_1" unless="5000">
+			<setting name="Precedence_7" copy-of="Precedence_1" unless="hitachi5000">
 				<label>Precedence 7</label>
 				<description>
 					Set the WMM priority for Precedence7
@@ -646,7 +646,7 @@
 		</group>
 		<group name="WifiSecurity" advanced="yes">
 			<label>WiFi Security Settings</label>
-			<setting name="Enable_WEP" if="5000">
+			<setting name="Enable_WEP" if="hitachi5000">
 				<label>Enable WEP</label>
 				<type>
 					<boolean />
@@ -656,7 +656,7 @@
 					Enable Wireless Encryption Protocol
 				</description>
 			</setting>
-			<setting name="Security" unless="5000">
+			<setting name="Security" unless="hitachi5000">
 				<label>Security</label>
 				<type>
 					<enum>
@@ -679,7 +679,7 @@
 					Set the kind of security used on the WiFi network
 				</description>
 			</setting>
-			<setting name="WPA_PSK_Passphrase" unless="5000">
+			<setting name="WPA_PSK_Passphrase" unless="hitachi5000">
 				<label>WPA-PSK Passphrase</label>
 				<type>
 					<string maxLen="63" />
@@ -981,7 +981,7 @@
 				<value>0</value>
 				<description>RTP DSCP</description>
 			</setting>
-			<setting name="WMM" unless="5000">
+			<setting name="WMM" unless="hitachi5000">
 				<label>Enable WMM</label>
 				<type>
 					<boolean />
@@ -1198,7 +1198,7 @@
 		</group>
 		<group name="WifiSecurity" advanced="yes">
 			<label>WiFi Security Settings</label>
-			<setting name="Enable_WEP" if="5000">
+			<setting name="Enable_WEP" if="hitachi5000">
 				<label>Enable WEP</label>
 				<type>
 					<boolean />
@@ -1208,7 +1208,7 @@
 					Enable Wireless Encryption Protocol
 				</description>
 			</setting>
-			<setting name="Security" unless="5000">
+			<setting name="Security" unless="hitachi5000">
 				<label>Security</label>
 				<type>
 					<enum>
@@ -1231,7 +1231,7 @@
 					Set the kind of security used on the WiFi network
 				</description>
 			</setting>
-			<setting name="WPA_PSK_Passphrase" unless="5000">
+			<setting name="WPA_PSK_Passphrase" unless="hitachi5000">
 				<label>WPA-PSK Passphrase</label>
 				<type>
 					<string maxLen="63" />
@@ -1533,7 +1533,7 @@
 				<value>0</value>
 				<description>RTP DSCP</description>
 			</setting>
-			<setting name="WMM" unless="5000">
+			<setting name="WMM" unless="hitachi5000">
 				<label>Enable WMM</label>
 				<type>
 					<boolean />
@@ -1750,7 +1750,7 @@
 		</group>
 		<group name="WifiSecurity" advanced="yes">
 			<label>WiFi Security Settings</label>
-			<setting name="Enable_WEP" if="5000">
+			<setting name="Enable_WEP" if="hitachi5000">
 				<label>Enable WEP</label>
 				<type>
 					<boolean />
@@ -1760,7 +1760,7 @@
 					Enable Wireless Encryption Protocol
 				</description>
 			</setting>
-			<setting name="Security" unless="5000">
+			<setting name="Security" unless="hitachi5000">
 				<label>Security</label>
 				<type>
 					<enum>
@@ -1783,7 +1783,7 @@
 					Set the kind of security used on the WiFi network
 				</description>
 			</setting>
-			<setting name="WPA_PSK_Passphrase" unless="5000">
+			<setting name="WPA_PSK_Passphrase" unless="hitachi5000">
 				<label>WPA-PSK Passphrase</label>
 				<type>
 					<string maxLen="63" />
@@ -2085,7 +2085,7 @@
 				<value>0</value>
 				<description>RTP DSCP</description>
 			</setting>
-			<setting name="WMM" unless="5000">
+			<setting name="WMM" unless="hitachi5000">
 				<label>Enable WMM</label>
 				<type>
 					<boolean />
@@ -2302,7 +2302,7 @@
 		</group>
 		<group name="WifiSecurity" advanced="yes">
 			<label>WiFi Security Settings</label>
-			<setting name="Enable_WEP" if="5000">
+			<setting name="Enable_WEP" if="hitachi5000">
 				<label>Enable WEP</label>
 				<type>
 					<boolean />
@@ -2312,7 +2312,7 @@
 					Enable Wireless Encryption Protocol
 				</description>
 			</setting>
-			<setting name="Security" unless="5000">
+			<setting name="Security" unless="hitachi5000">
 				<label>Security</label>
 				<type>
 					<enum>
@@ -2335,7 +2335,7 @@
 					Set the kind of security used on the WiFi network
 				</description>
 			</setting>
-			<setting name="WPA_PSK_Passphrase" unless="5000">
+			<setting name="WPA_PSK_Passphrase" unless="hitachi5000">
 				<label>WPA-PSK Passphrase</label>
 				<type>
 					<string maxLen="63" />
@@ -2637,7 +2637,7 @@
 				<value>0</value>
 				<description>RTP DSCP</description>
 			</setting>
-			<setting name="WMM" unless="5000">
+			<setting name="WMM" unless="hitachi5000">
 				<label>Enable WMM</label>
 				<type>
 					<boolean />
@@ -2854,7 +2854,7 @@
 		</group>
 		<group name="WifiSecurity" advanced="yes">
 			<label>WiFi Security Settings</label>
-			<setting name="Enable_WEP" if="5000">
+			<setting name="Enable_WEP" if="hitachi5000">
 				<label>Enable WEP</label>
 				<type>
 					<boolean />
@@ -2864,7 +2864,7 @@
 					Enable Wireless Encryption Protocol
 				</description>
 			</setting>
-			<setting name="Security" unless="5000">
+			<setting name="Security" unless="hitachi5000">
 				<label>Security</label>
 				<type>
 					<enum>
@@ -2887,7 +2887,7 @@
 					Set the kind of security used on the WiFi network
 				</description>
 			</setting>
-			<setting name="WPA_PSK_Passphrase" unless="5000">
+			<setting name="WPA_PSK_Passphrase" unless="hitachi5000">
 				<label>WPA-PSK Passphrase</label>
 				<type>
 					<string maxLen="63" />
@@ -3189,7 +3189,7 @@
 				<value>0</value>
 				<description>RTP DSCP</description>
 			</setting>
-			<setting name="WMM" unless="5000">
+			<setting name="WMM" unless="hitachi5000">
 				<label>Enable WMM</label>
 				<type>
 					<boolean />
@@ -5213,7 +5213,7 @@
 			<value>0</value>
 			<description>Set the MESSAGE Content-Type</description>
 		</setting>
-		<setting name="Use_Unicode_On_SMS" unless="5000">
+		<setting name="Use_Unicode_On_SMS" unless="hitachi5000">
 			<label>Use Unicode On SMS</label>
 			<type>
 				<boolean />
@@ -5234,7 +5234,7 @@
 					sets the function to fix the TxRate for the handset
 				</description>
 			</setting>
-			<setting name="Dot11_Packet_TxRate" if="5000">
+			<setting name="Dot11_Packet_TxRate" if="hitachi5000">
 				<label>Dot11 Packet TxRate</label>
 				<value>0</value>
 			</setting>
@@ -5248,7 +5248,7 @@
 					Disable Power Saving Mode on the WiFi Interface
 				</description>
 			</setting>
-			<setting name="PowerSave_Wakeup_Period" if="5000">
+			<setting name="PowerSave_Wakeup_Period" if="hitachi5000">
 				<label>PowerSave Wakeup Period</label>
 				<type>
 					<integer min="0" max="3600" />
@@ -5259,7 +5259,7 @@
 					(Active mode). (Unit: seconds)
 				</description>
 			</setting>
-			<setting name="PowerSave_Awake_Interval" if="5000">
+			<setting name="PowerSave_Awake_Interval" if="hitachi5000">
 				<label>PowerSave Awake Interval</label>
 				<type>
 					<integer min="20" max="3600" />
@@ -5308,7 +5308,7 @@
 					Set the channel range for each country
 				</description>
 			</setting>
-			<setting name="Use_Statistics_Window" if="5000">
+			<setting name="Use_Statistics_Window" if="hitachi5000">
 				<label>Use Statistics Window</label>
 				<type>
 					<boolean />
@@ -5317,7 +5317,7 @@
 				<description>Enable the statistics Window</description>
 			</setting>
 			<setting name="Statistics_Window_Update_Interval"
-				if="5000">
+				if="hitachi5000">
 				<label>Statistics Window Update Interval</label>
 				<type>
 					<integer min="10" max="3600" />
@@ -5328,7 +5328,7 @@
 					Window. (Unit: seconds)
 				</description>
 			</setting>
-			<setting name="Use_Menu_Extension" if="5000">
+			<setting name="Use_Menu_Extension" if="hitachi5000">
 				<label>Use Meru Extension</label>
 				<type>
 					<boolean />
@@ -5399,7 +5399,7 @@
 				<label>Default Listen Interval</label>
 				<value>3</value>
 			</setting>
-			<setting name="RxLevel_Association_Threshold" if="5000">
+			<setting name="RxLevel_Association_Threshold" if="hitachi5000">
 				<label>RxLevel Association Threshold</label>
 				<type>
 					<integer min="-103" max="0" />
@@ -5414,21 +5414,21 @@
 					profile of Auto
 				</description>
 			</setting>
-			<setting name="Use_PowerSave_Monitor" if="5000">
+			<setting name="Use_PowerSave_Monitor" if="hitachi5000">
 				<label>Use PowerSave Monitor</label>
 				<type>
 					<boolean />
 				</type>
 				<value>1</value>
 			</setting>
-			<setting name="Use_Supported_Rates_By_AP" if="5000">
+			<setting name="Use_Supported_Rates_By_AP" if="hitachi5000">
 				<label>Use Supported Rates By AP</label>
 				<type>
 					<boolean />
 				</type>
 				<value>1</value>
 			</setting>
-			<setting name="802_11_Tx_Mode" unless="5000">
+			<setting name="802_11_Tx_Mode" unless="hitachi5000">
 				<label>802.11 Tx Mode</label>
 				<type>
 					<enum>
@@ -5445,7 +5445,7 @@
 				<value>1</value>
 				<description>Set 802.11 mode</description>
 			</setting>
-			<setting name="Use_WLAN_Watchdog" unless="5000">
+			<setting name="Use_WLAN_Watchdog" unless="hitachi5000">
 				<label>Use WLAN Warchdog</label>
 				<type>
 					<boolean />
@@ -5458,7 +5458,7 @@
 		</group>
 		<group name="WIFI_SCAN">
 			<label>WiFi Scan</label>
-			<setting name="Scan_Count" if="5000">
+			<setting name="Scan_Count" if="hitachi5000">
 				<label>Scan Count</label>
 				<type>
 					<integer max="255" />
@@ -5469,7 +5469,7 @@
 					channel)
 				</description>
 			</setting>
-			<setting name="Scan_Mode" unless="5000">
+			<setting name="Scan_Mode" unless="hitachi5000">
 				<label>Scan Mode</label>
 				<type>
 					<enum>
@@ -5499,7 +5499,7 @@
 		</group>
 		<group name="ROAMING">
 			<label>Roaming Settings</label>
-			<setting name="Try_Beacon_Signal_Level" unless="5000">
+			<setting name="Try_Beacon_Signal_Level" unless="hitachi5000">
 				<label>Try Beacon Signal Level</label>
 				<type>
 					<integer min="-103" max="0" />
@@ -5510,7 +5510,7 @@
 					reception level the processes AP scans. Unit(dBm)
 				</description>
 			</setting>
-			<setting name="Try_RxLevel" if="5000">
+			<setting name="Try_RxLevel" if="hitachi5000">
 				<label>Try RxLevel</label>
 				<type>
 					<integer min="-103" max="0" />
@@ -5523,7 +5523,7 @@
 					during call
 				</description>
 			</setting>
-			<setting name="Try_Rx_Signal_Level" unless="5000">
+			<setting name="Try_Rx_Signal_Level" unless="hitachi5000">
 				<label>Try Rx Signal Level</label>
 				<type>
 					<integer min="-103" max="0" />
@@ -5536,7 +5536,7 @@
 					during call
 				</description>
 			</setting>
-			<setting name="PreRoaming_Enable_RxLevel" if="5000">
+			<setting name="PreRoaming_Enable_RxLevel" if="hitachi5000">
 				<label>PreRoaming Enable RxLevel</label>
 				<type>
 					<integer min="-103" max="0" />
@@ -5566,7 +5566,7 @@
 					roaming are performed.
 				</description>
 			</setting>
-			<setting name="Try_Over_RxError_Count" if="5000">
+			<setting name="Try_Over_RxError_Count" if="hitachi5000">
 				<label>Try Over RxError Count</label>
 				<type>
 					<integer min="0" max="10000" />
@@ -5602,7 +5602,7 @@
 					values
 				</description>
 			</setting>
-			<setting name="Use_Refresh_PreRoaming" if="5000">
+			<setting name="Use_Refresh_PreRoaming" if="hitachi5000">
 				<label>Use Refresh PreRoaming</label>
 				<type>
 					<boolean />
@@ -5614,15 +5614,15 @@
 				</description>
 			</setting>
 			<setting name="Enable_PreRoaming_On_Association"
-				if="5000">
+				if="hitachi5000">
 				<label>Enable PreRoaming On Association</label>
 				<value>0</value>
 			</setting>
-			<setting name="PreRoaming_Mode" if="5000">
+			<setting name="PreRoaming_Mode" if="hitachi5000">
 				<label>PreRoaming Mode</label>
 				<value>0</value>
 			</setting>
-			<setting name="PreRoaming_Refresh_Interval" if="5000">
+			<setting name="PreRoaming_Refresh_Interval" if="hitachi5000">
 				<label>PreRoaming Refresh Interval</label>
 				<value>0</value>
 			</setting>

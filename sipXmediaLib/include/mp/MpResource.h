@@ -170,6 +170,7 @@ public:
     * Get the ContainableType for a UtlContainable derived class.
     */
    virtual UtlContainableType getContainableType() const ;
+   static const UtlContainableType TYPE;
 
 /* ============================ INQUIRY =================================== */
 

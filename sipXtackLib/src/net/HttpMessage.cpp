@@ -1010,11 +1010,13 @@ int HttpMessage::readHeader(OsSocket* inSocket, UtlString& buffer)
 
    setSendProtocol(socketType);
 
-   // If there is no residual bytes in the buffer
-   if (inSocket->isOk() && ((socketType != OsSocket::TCP && socketType != OsSocket::SSL_SOCKET) ||
-            inSocket->isReadyToRead(HTTP_READ_TIMEOUT_MSECS)))
+   // If there are no residual bytes in the buffer
+   if (inSocket->isOk() &&
+       ((socketType != OsSocket::TCP && socketType != OsSocket::SSL_SOCKET) ||
+        inSocket->isReadyToRead(HTTP_READ_TIMEOUT_MSECS)))
    {
-      while (inSocket->isOk() && inSocket->isReadyToRead(HTTP_READ_TIMEOUT_MSECS))
+      while (inSocket->isOk() &&
+             inSocket->isReadyToRead(HTTP_READ_TIMEOUT_MSECS))
       {
          iRead = inSocket->read(&ch, 1, &remoteHost, &remotePort);
          if (iRead == 1)

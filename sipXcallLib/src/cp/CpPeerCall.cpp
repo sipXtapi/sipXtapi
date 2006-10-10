@@ -1057,6 +1057,8 @@ UtlBoolean CpPeerCall::handleHoldTermConnection(OsMsg* pEventMessage)
         {
             connection->hold();
 
+#if 0
+Note: Should not bubble up the response until it is received from the far end. It is supposedly fixed in the PAX branch.
             if (mLocalHeld)
             {
                 connection->fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_INACTIVE) ;
@@ -1065,6 +1067,7 @@ UtlBoolean CpPeerCall::handleHoldTermConnection(OsMsg* pEventMessage)
             {
                 connection->fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE_HELD) ;
             }
+#endif
         }
         else
         {

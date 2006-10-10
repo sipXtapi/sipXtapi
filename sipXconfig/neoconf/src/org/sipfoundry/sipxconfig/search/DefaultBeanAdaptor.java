@@ -80,10 +80,18 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
 
     private static final String[] FIELDS;
 
+    /**
+     * Sensitive fields contains the list of fields names that should nover be indexed.
+     */
+    private static final String[] SENSITIVE_FIELDS = {
+        "pintoken", "sipPassword"
+    };
+
     static {
         String[] fields = (String[]) ArrayUtils.addAll(NAME_FIELDS, DESCRIPTION_FIELDS);
         FIELDS = (String[]) ArrayUtils.addAll(fields, OTHER_FIELDS);
         Arrays.sort(FIELDS);
+        Arrays.sort(SENSITIVE_FIELDS);
     }
 
     private Class[] m_indexedClasses = CLASSES;
@@ -120,9 +128,11 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
                     Field.Index.TOKENIZED));
             return true;
         } else if (type instanceof StringType) {
-            // index all strings
-            document.add(new Field(Indexer.DEFAULT_FIELD, (String) state, Field.Store.NO,
-                    Field.Index.TOKENIZED));
+            // index all strings with the exception of the fields explicitly listed as sensitive
+            if (Arrays.binarySearch(SENSITIVE_FIELDS, fieldName) < 0) {
+                document.add(new Field(Indexer.DEFAULT_FIELD, (String) state, Field.Store.NO,
+                        Field.Index.TOKENIZED));
+            }
             return true;
         } else if (fieldName.equals("aliases")) {
             Set aliases = (Set) state;
@@ -141,7 +151,8 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
         for (int i = 0; i < m_indexedClasses.length; i++) {
             Class klass = m_indexedClasses[i];
             if (klass.isAssignableFrom(beanClass)) {
-                doc.add(new Field(Indexer.CLASS_FIELD, klass.getName(), Field.Store.YES, Field.Index.UN_TOKENIZED));
+                doc.add(new Field(Indexer.CLASS_FIELD, klass.getName(), Field.Store.YES,
+                        Field.Index.UN_TOKENIZED));
                 return true;
             }
         }

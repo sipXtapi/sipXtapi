@@ -35,7 +35,7 @@
             </type>
             <value>0</value>
         </setting>
-        <setting name="P102" if="Phone.*">
+        <setting name="P102" if="gsPhone.*">
             <label>Date Display Format</label>
             <type>
                 <enum>
@@ -55,7 +55,7 @@
             </type>
             <value>0</value>
         </setting>
-        <setting name="P122" if="PhoneGxp">
+        <setting name="P122" if="gsPhoneGxp">
             <label>Time Display Format</label>
             <type>
                 <enum>
@@ -69,7 +69,7 @@
             </type>
             <value>0</value>
         </setting>
-        <setting name="P123" if="PhoneGxp">
+        <setting name="P123" if="gsPhoneGxp">
             <label>Display Clock</label>
             <type>
                 <boolean/>
@@ -77,7 +77,7 @@
             <value>0</value>
             <description>Display clock instead of date.</description>
         </setting>
-        <setting name="P322" if="PhoneGxp">
+        <setting name="P322" if="gsPhoneGxp">
             <label>LCD Backlight always on</label>
             <type>
                 <boolean/>
@@ -89,21 +89,21 @@
             <type refid="byte"/>
             <value>4</value>
         </setting>
-        <setting name="P50" if="Phone.*">
+        <setting name="P50" if="gsPhone.*">
             <label>Silence Suppression</label>
             <type>
                 <boolean/>
             </type>
             <value>0</value>
         </setting>
-        <setting name="P91" if="Phone.*">
+        <setting name="P91" if="gsPhone.*">
             <label>Disable Call-Waiting</label>
             <type>
                 <boolean/>
             </type>
             <value>1</value>
         </setting>
-        <setting name="P72" if="Phone.*">
+        <setting name="P72" if="gsPhone.*">
             <label>Use # as Dial Key</label>
             <type>
                 <boolean/>
@@ -111,7 +111,7 @@
             <value>1</value>
             <description>Use # as Dial Key (if checked, "#" will function as the "(Re-)Dial" key)</description>
         </setting>
-        <setting name="P105" if="Phone.*">
+        <setting name="P105" if="gsPhone.*">
             <label>Caller ID for ring tone 1</label>
             <type>
                 <string/>
@@ -119,7 +119,7 @@
             <value>0</value>
             <description>Use custom ring tone 1 if incoming caller ID is the following.</description>
         </setting>
-        <setting name="P106" if="Phone.*">
+        <setting name="P106" if="gsPhone.*">
             <label>Caller ID for ring tone 2</label>
             <type>
                 <string/>
@@ -127,7 +127,7 @@
             <value>0</value>
             <description>Use custom ring tone 2 if incoming caller ID is the following.</description>
         </setting>
-        <setting name="P107" if="Phone.*">
+        <setting name="P107" if="gsPhone.*">
             <label>Caller ID for ring tone 3</label>
             <type>
                 <string/>
@@ -135,7 +135,7 @@
             <value>0</value>
             <description>Use custom ring tone 3 if incoming caller ID is the following.</description>
         </setting>
-        <setting name="P86" if="Ht.*">
+        <setting name="P86" if="gsHt.*">
             <label>FXS Impedence</label>
             <type>
                 <enum>
@@ -175,7 +175,7 @@
             </type>
             <value>0</value>
         </setting>
-        <setting name="P200" if="Ht.*">
+        <setting name="P200" if="gsHt.*">
             <label>Caller ID Scheme</label>
             <type>
                 <enum>
@@ -199,14 +199,14 @@
             </type>
             <value>0</value>
         </setting>
-        <setting name="P205" if="Ht.*">
+        <setting name="P205" if="gsHt.*">
             <label>Enable Polarity Reversal</label>
             <type>
                 <boolean/>
             </type>
             <value>0</value>
         </setting>
-        <setting name="P206" if="Ht.*">
+        <setting name="P206" if="gsHt.*">
             <label>Onhook Voltage</label>
             <type>
                 <enum>
@@ -234,7 +234,7 @@
             </type>
             <value>2</value>
         </setting>
-        <setting name="P195" if="Ht386|Ht486">
+        <setting name="P195" if="gsHt386|gsHt486">
             <label>PSTN Access Code</label>
             <type>
                 <string/>
@@ -344,14 +344,14 @@
             </type>
             <value>0</value>
         </setting>
-        <setting name="P244" if="PhoneBt|Ht286|Ht486">
+        <setting name="P244" if="gsPhoneBt|gsHt286|gsHt486">
             <label>Override MTU Size</label>
             <type>
                 <integer/>
             </type>
             <value>0</value>
         </setting>
-        <setting name="P190" if="Ht4.*">
+        <setting name="P190" if="gsHt4.*">
             <label>WAN Side HTTP Access</label>
             <type>
                 <boolean/>
@@ -359,7 +359,7 @@
             <value>0</value>
             <description>Allow access to HTTP server from WAN side.</description>
         </setting>
-        <setting name="P189" if="Ht486">
+        <setting name="P189" if="gsHt486">
             <label>Reply to ICMP on WAN port</label>
             <type>
                 <boolean/>
@@ -389,14 +389,14 @@
             <value>0</value>
             <description>Layer 2 QoS. 802.1p priority value (0 - 7)</description>
         </setting>
-        <setting name="P229" if="Ht486">
+        <setting name="P229" if="gsHt486">
             <label>Layer 2 Qos (PC) 802.1Q/VLAN Tag</label>
             <type>
                 <string/>
             </type>
             <value></value>
         </setting>
-        <setting name="P230" if="Ht486">
+        <setting name="P230" if="gsHt486">
             <label>802.1p priority value</label>
             <type>
                 <integer min="0" max="7"/>
@@ -446,7 +446,7 @@
                 64.3.153.50.
             </description>
         </setting>
-        <setting name="P37" if="Phone.*">
+        <setting name="P37" if="gsPhone.*">
             <label>Voice Frames per TX</label>
             <type>
                 <integer min="0" max="64"/>
@@ -456,7 +456,7 @@
                 respectively)
             </description>
         </setting>
-        <setting name="P39" if="Phone.*">
+        <setting name="P39" if="gsPhone.*">
             <label>Local RTP port</label>
             <type>
                 <integer min="1024" max="65535"/>
@@ -464,12 +464,12 @@
             <value>5004</value>
             <description>Local RTP port (1024-65535, default 5004)</description>
         </setting>
-        <setting name="P79" if="Phone.*">
+        <setting name="P79" if="gsPhone.*">
             <label>DTMF Payload Type</label>
             <type refid="byte"/>
             <value>101</value>
         </setting>
-        <setting name="P239" if="PhoneBt|Ht286|Ht486">
+        <setting name="P239" if="gsPhoneBt|gsHt286|gsHt486">
             <label>SIP Register Expiration</label>
             <type>
                 <integer/>
@@ -477,7 +477,7 @@
             <value>3600</value>
             <description>in seconds (default 1 hour, max 45 days)</description>
         </setting>
-        <setting name="P243" if="PhoneBt|Ht286|Ht486">
+        <setting name="P243" if="gsPhoneBt|gsHt286|gsHt486">
             <label>Allow incoming SIP messages</label>
             <type>
                 <boolean/>
@@ -485,7 +485,7 @@
             <value>0</value>
             <description>from SIP proxy only.</description>
         </setting>
-        <setting name="P198.bt" if="PhoneBt">
+        <setting name="P198.bt" if="gsPhoneBt">
             <label>Special Feature</label>
             <profileName>P198</profileName>
             <type>
@@ -500,7 +500,7 @@
             </type>
             <value>100</value>
         </setting>
-        <setting name="P198.ht487" if="Ht486">
+        <setting name="P198.ht487" if="gsHt486">
             <label>Special feature</label>
             <profileName>P198</profileName>
             <type>
@@ -527,7 +527,7 @@
             </type>
             <value>100</value>
         </setting>
-        <setting name="P260" if="Ht486">
+        <setting name="P260" if="gsHt486">
             <label>Session Expiration</label>
             <type>
                 <integer/>
@@ -535,7 +535,7 @@
             <value>180</value>
             <description>sec</description>
         </setting>
-        <setting name="P261" if="Ht486">
+        <setting name="P261" if="gsHt486">
             <label>Min-SE</label>
             <type>
                 <integer min="90"/>
@@ -543,7 +543,7 @@
             <value>90</value>
             <description>sec, minimum = 90 sec</description>
         </setting>
-        <setting name="P262" if="Ht486">
+        <setting name="P262" if="gsHt486">
             <label>Caller Request Timer</label>
             <type>
                 <boolean/>
@@ -551,7 +551,7 @@
             <value>0</value>
             <description>Request for timer when making outbound calls.</description>
         </setting>
-        <setting name="P263" if="Ht486">
+        <setting name="P263" if="gsHt486">
             <label>Callee Request Timer</label>
             <type>
                 <boolean/>
@@ -559,7 +559,7 @@
             <value>0</value>
             <description>When caller supports timer but did not request one.</description>
         </setting>
-        <setting name="P264" if="Ht486">
+        <setting name="P264" if="gsHt486">
             <label>Force Timer</label>
             <type>
                 <boolean/>
@@ -567,7 +567,7 @@
             <value>0</value>
             <description>User timer even when remote party does not support.</description>
         </setting>
-        <setting name="P266" if="Ht486">
+        <setting name="P266" if="gsHt486">
             <label>UAC Specify Refresher</label>
             <type>
                 <enum>
@@ -584,7 +584,7 @@
             </type>
             <value>0</value>
         </setting>
-        <setting name="P267" if="Ht486">
+        <setting name="P267" if="gsHt486">
             <label>UAS Specify Refresher</label>
             <type>
                 <enum>
@@ -599,7 +599,7 @@
             <value>1</value>
             <description>When UAC did not specify refresher tag.</description>
         </setting>
-        <setting name="P265" if="Ht486">
+        <setting name="P265" if="gsHt486">
             <label>Force INVITE</label>
             <type>
                 <boolean/>
@@ -608,7 +608,7 @@
             <description>Always refresh with INVITE instead of UPDATE.</description>
         </setting>
     </group>
-    <group name="speeddial" if="PhoneGxp">
+    <group name="speeddial" if="gsPhoneGxp">
         <label>Speed Dial</label>
         <setting name="P302">
             <label>Speed Dial 1 Name</label>
@@ -744,7 +744,7 @@
             <value>0</value>
         </setting>
     </group>
-    <group name="wan" if="Ht4.*">
+    <group name="wan" if="gsHt4.*">
         <label>WAN</label>
         <setting name="P110">
             <label>LAN Subnet Mask</label>
@@ -1175,7 +1175,7 @@
             <value>0</value>
         </setting>
     </group>
-    <group name="pstn" if="Ht488">
+    <group name="pstn" if="gsHt488">
         <label>PSTN</label>
         <setting name="P195">
             <label>PSTN Access Code</label>
@@ -1509,7 +1509,7 @@
     </group>
     <group name="upgrade">
         <label>Upgrade</label>
-        <setting name="P212" if="Phone.*|Ht286|Ht486">
+        <setting name="P212" if="gsPhone.*|gsHt286|gsHt486">
             <label>Firmware Upgrade Type</label>
             <type>
                 <enum>
@@ -1523,14 +1523,14 @@
             </type>
             <value>0</value>
         </setting>
-        <setting name="P192" if="Phone.*|Ht286|Ht486">
+        <setting name="P192" if="gsPhone.*|gsHt286|gsHt486">
             <label>Firmware Server Path</label>
             <type>
                 <string/>
             </type>
             <value></value>
         </setting>
-        <setting name="__TFTPServer-213" if="PhoneGxp|Ht286">
+        <setting name="__TFTPServer-213" if="gsPhoneGxp|gsHt286">
             <label>TFTP server</label>
             <profileName>P213,P214,P215,P216</profileName>
             <type>
@@ -1539,7 +1539,7 @@
             <value></value>
             <description>TFTP Server address.</description>
         </setting>        
-        <setting name="__TFTPServerOld-41" if="Ht386|Ht488|Ht496">
+        <setting name="__TFTPServerOld-41" if="gsHt386|gsHt488|gsHt496">
             <label>TFTP server</label>
             <profileName>P41,P42,P43,P44</profileName>
             <type>
@@ -1547,7 +1547,7 @@
             </type>
             <value></value>
         </setting>
-        <setting name="P193" if="Phone.*|Ht286|Ht486">
+        <setting name="P193" if="gsPhone.*|gsHt286|gsHt486">
             <label>Automatic HTTP Upgrade</label>
             <type>
                 <boolean/>
@@ -1555,7 +1555,7 @@
             <value>0</value>
             <description>Checking every defined days.</description>
         </setting>
-        <setting name="P194" if="Phone.*|Ht286|Ht486">
+        <setting name="P194" if="gsPhone.*|gsHt286|gsHt486">
             <label>Check Interval</label>
             <type>
                 <integer/>
@@ -1563,42 +1563,42 @@
             <value>7</value>
             <description>Check for new firmware every x days</description>
         </setting>
-        <setting name="P232" if="PhoneBt|Ht486">
+        <setting name="P232" if="gsPhoneBt|gsHt486">
             <label>Firmware File Prefix</label>
             <type>
                 <string/>
             </type>
             <value></value>
         </setting>
-        <setting name="P233" if="PhoneBt|Ht486">
+        <setting name="P233" if="gsPhoneBt|gsHt486">
             <label>Firmware File Postfix</label>
             <type>
                 <string/>
             </type>
             <value></value>
         </setting>
-        <setting name="P234" if="PhoneBt|Ht486">
+        <setting name="P234" if="gsPhoneBt|gsHt486">
             <label>Config File Prefix</label>
             <type>
                 <string/>
             </type>
             <value></value>
         </setting>
-        <setting name="P235" if="PhoneBt|Ht486">
+        <setting name="P235" if="gsPhoneBt|gsHt486">
             <label>Config File Postfix</label>
             <type>
                 <string/>
             </type>
             <value></value>
         </setting>
-        <setting name="P237" if="PhoneBt|Ht486">
+        <setting name="P237" if="gsPhoneBt|gsHt486">
             <label>Config Server Path</label>
             <type>
                 <string/>
             </type>
             <value></value>
         </setting>
-        <setting name="P238" if="PhoneBt|Ht486">
+        <setting name="P238" if="gsPhoneBt|gsHt486">
             <label>Firmware Check</label>
             <type>
                 <enum>
@@ -1612,7 +1612,7 @@
             </type>
             <value>0</value>
         </setting>
-        <setting name="P240" if="PhoneBt|Ht286|Ht486">
+        <setting name="P240" if="gsPhoneBt|gsHt286|gsHt486">
             <label>Authenticate Conf File</label>
             <type>
                 <boolean/>
@@ -1620,7 +1620,7 @@
             <value>0</value>
             <description>Authenticate configuration file before acceptance.</description>
         </setting>
-        <setting name="P242" if="PhoneBt|Ht486">
+        <setting name="P242" if="gsPhoneBt|gsHt486">
             <label>Firmware Key</label>
             <type>
                 <string/>

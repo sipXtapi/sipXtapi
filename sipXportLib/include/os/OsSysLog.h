@@ -144,7 +144,7 @@ class OsSysLogTask;
 // Usage
 // =====
 //
-// Ideally, you should use the syslog method build ontop of OsTask.  This will
+// Ideally, you should use the syslog method build on top of OsTask.  This will
 // make sure that that task id, and task name are included as part of the
 // log entry.
 //

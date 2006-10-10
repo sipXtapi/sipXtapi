@@ -998,7 +998,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
                 OsStatus rc = pInst->pCallManager->getCalledAddresses(
                         callId.data(), 1, numAddresses, &address) ;
                 OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
-                              "sipxCallConnect connected hCall=%d callId=%s, numAddr = %d, addr = %s",
+                              "sipxCallConnect connected hCall=%d callId=%s, numAddr = %d, addr = '%s'",
                               hCall, callId.data(), numAddresses, address.data());
                 if(rc == OS_SUCCESS)
                 {
@@ -1350,15 +1350,23 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetRequestURI(const SIPX_CALL hCall,
             sipxCallReleaseLock(pData, SIPX_LOCK_READ) ;
 
             SipDialog sipDialog;
-            pCallManager->getSipDialog(callId, remoteAddress, sipDialog);
-            
-            UtlString uri;
-            sipDialog.getRemoteRequestUri(uri);
-            if (iMaxLength)
+            if (pCallManager->getSipDialog(callId, remoteAddress, sipDialog) ==
+                OS_SUCCESS)
             {
-                strncpy(szUri, uri.data(), iMaxLength) ;
-                szUri[iMaxLength-1] = 0 ;
-                sr = SIPX_RESULT_SUCCESS;
+               UtlString uri;
+               sipDialog.getRemoteRequestUri(uri);
+               if (iMaxLength)
+               {
+                  strncpy(szUri, uri.data(), iMaxLength) ;
+                  szUri[iMaxLength-1] = 0 ;
+                  sr = SIPX_RESULT_SUCCESS;
+               }
+            }
+            else
+            {
+               OsSysLog::add(FAC_ACD, PRI_ERR,
+                             "sipxCallGetRequestURI - Failed call to getSipDialog(%s, %s)",
+                             callId.data(), remoteAddress.data());
             }
         }
         else
@@ -1396,16 +1404,24 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetRemoteContact(const SIPX_CALL hCall,
             sipxCallReleaseLock(pData, SIPX_LOCK_READ) ;
 
             SipDialog sipDialog;
-            pCallManager->getSipDialog(callId, remoteAddress, sipDialog);
-            
-            Url contact;
-            sipDialog.getRemoteContact(contact);
-
-            if (iMaxLength)
+            if (pCallManager->getSipDialog(callId, remoteAddress, sipDialog) ==
+                OS_SUCCESS)
             {
-                strncpy(szContact, contact.toString().data(), iMaxLength) ;
-                szContact[iMaxLength-1] = 0 ;
-                sr = SIPX_RESULT_SUCCESS;
+               Url contact;
+               sipDialog.getRemoteContact(contact);
+
+               if (iMaxLength)
+               {
+                  strncpy(szContact, contact.toString().data(), iMaxLength) ;
+                  szContact[iMaxLength-1] = 0 ;
+                  sr = SIPX_RESULT_SUCCESS;
+               }
+            }
+            else
+            {
+               OsSysLog::add(FAC_ACD, PRI_ERR,
+                             "sipxCallGetRemoteContact - Failed call to getSipDialog(%s, %s)",
+                             callId.data(), remoteAddress.data());
             }
         }
         else
@@ -1756,6 +1772,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallSubscribe(const SIPX_CALL hCall,
             if(sessionDataGood &&
                pInst->pSubscribeClient->addSubscription(resourceId, 
                                                         szEventType, 
+                                                        szAcceptType, 
                                                         fromField, 
                                                         toField, 
                                                         contactField, 
@@ -2771,7 +2788,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceGetCalls(const SIPX_CONF hConf,
             for (idx=0; (idx<pData->nCalls) && (idx < iMax); idx++)
             {
                assert(pData->hCalls[idx] != SIPX_CALL_NULL);
-                hCalls[idx] = pData->hCalls[idx] ;
+               hCalls[idx] = pData->hCalls[idx];
             }
             nActual = idx ;
 

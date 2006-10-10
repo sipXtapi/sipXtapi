@@ -43,7 +43,7 @@ class Conference : public UtlContainable
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
   public:
 
-   static UtlContainableType TYPE ;    /** < Class type used for runtime checking */ 
+   static const UtlContainableType TYPE; /** < Class type used for runtime checking */ 
 
    UtlString mUserName;
 

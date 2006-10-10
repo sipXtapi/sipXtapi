@@ -54,12 +54,7 @@ public class GrandstreamPhone extends Phone {
     private boolean m_isTextFormatEnabled;
 
     public GrandstreamPhone() {
-        super(BEAN_ID);
-        init();
-    }
-
-    public GrandstreamPhone(GrandstreamModel model) {
-        super(model);
+        super(new GrandstreamModel());
         init();
     }
 

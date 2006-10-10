@@ -31,6 +31,7 @@
 #include <utl/UtlSList.h>
 #include <utl/UtlHashMap.h>
 #include <cp/CallManager.h>
+#include <cp/XmlRpcSignIn.h>
 #include <net/SdpCodecFactory.h>
 
 // DEFINES
@@ -72,14 +73,17 @@ class SipPresenceMonitor : public StateChangeNotifier
    /// Remove an extension from a group to be monitored
    bool removeExtension(UtlString& groupName, Url& contactUrl); 
 
-   /// Registered a StateChangeNotifier
+   /// Register a StateChangeNotifier
    void addStateChangeNotifier(const char* fileUrl, StateChangeNotifier* notifier);
 
-   /// Unregistered a StateChangeNotifier
+   /// Unregister a StateChangeNotifier
    void removeStateChangeNotifier(const char* fileUrl);
 
    /// Set the status value
    virtual bool setStatus(const Url& aor, const Status value);
+   
+   /// Get the state of the contact
+   void getState(const Url& aor, UtlString& status);
 
   protected:
 
@@ -104,11 +108,12 @@ class SipPresenceMonitor : public StateChangeNotifier
    
    OsBSem mLock;
    
-   SipDialogMgr mDialogMgr;
    SipSubscriptionMgr* mpSubscriptionMgr;
    SipSubscribeServerEventHandler mPolicyHolder;
    SipPublishContentMgr mSipPublishContentMgr;
    SipSubscribeServer* mpSubscribeServer;
+   
+   XmlRpcSignIn* mpXmlRpcSignIn;
 
    UtlHashMap mMonitoredLists;
    UtlHashMap mPresenceEventList;

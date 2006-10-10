@@ -20,6 +20,7 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+const UtlContainableType TYPE = "ResourceList";
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -105,11 +106,9 @@ unsigned int Resource::hash() const
 }
 
 
-static UtlContainableType DB_ENTRY_TYPE = "ResourceList";
-
 const UtlContainableType Resource::getContainableType() const
 {
-    return DB_ENTRY_TYPE;
+    return TYPE;
 }
 
 

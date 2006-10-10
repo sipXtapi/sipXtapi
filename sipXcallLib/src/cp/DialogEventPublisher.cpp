@@ -17,6 +17,7 @@
 #include <tao/TaoString.h>
 #include <cp/CallManager.h>
 #include <net/SipDialog.h>
+#include <net/SipDialogEvent.h>
 #include <net/SipPublishContentMgr.h>
 #include <os/OsFS.h>
 #include <os/OsDateTime.h>
@@ -78,7 +79,8 @@ void DialogDefaultConstructor::generateDefaultContent(SipPublishContentMgr* cont
                   "</dialog-info>\r\n");
 
    // Build an HttpBody.
-   HttpBody* body = new HttpBody(content, strlen(content), "text/xml");
+   HttpBody* body = new HttpBody(content, strlen(content),
+                                 DIALOG_EVENT_CONTENT_TYPE);
 
    // Install it for the resource, but do not publish it, because our
    // caller will publish it.
@@ -166,7 +168,15 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
       {
          case PtEvent::CONNECTION_OFFERED:
             OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage CONNECTION_OFFERED");
-            mpCallManager->getSipDialog(callId, address, sipDialog);
+            if (mpCallManager->getSipDialog(callId, address, sipDialog) !=
+                OS_SUCCESS)
+            {
+               OsSysLog::add(FAC_ACD, PRI_ERR,
+                             "DialogEventPublisher::handleMessage - CONNECTION_OFFERED - Failed call to getSipDialog(%s, %s)",
+                             callId.data(), address.data());
+               // Give up, since we can't get any information about this call.
+               break;
+            }
 #ifdef DEBUGGING            
             sipDialog.toString(sipDialogContent);
             OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage sipDialog = '%s'", 
@@ -224,10 +234,12 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
             pDialog->setRemoteIdentity(identity, displayName);
    
             sipDialog.getLocalContact(localTarget);
-            pDialog->setLocalTarget(localTarget.toString());
+            localTarget.getUri(temp);
+            pDialog->setLocalTarget(temp);
    
             sipDialog.getRemoteContact(remoteTarget);
-            pDialog->setRemoteTarget(remoteTarget.toString());
+            remoteTarget.getUri(temp);
+            pDialog->setRemoteTarget(temp);
                
             pDialog->setDuration(OsDateTime::getSecsSinceEpoch());
    
@@ -252,7 +264,15 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
             OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage CONNECTION_ESATBLISHED");         
             if (localConnection) 
             {
-               mpCallManager->getSipDialog(callId, address, sipDialog);
+               if (mpCallManager->getSipDialog(callId, address, sipDialog) !=
+                OS_SUCCESS)
+               {
+                  OsSysLog::add(FAC_ACD, PRI_ERR,
+                                "DialogEventPublisher::handleMessage - CONNECTION_ESTABLISHED - Failed call to getSipDialog(%s, %s)",
+                                callId.data(), address.data());
+                  // Give up, since we can't get any information about this call.
+                  break;
+               }
 #ifdef DEBUGGING            
                sipDialog.toString(sipDialogContent);
                OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage sipDialog = %s", 
@@ -288,42 +308,40 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                                 entity.data());
                }
                
-               // Get the new callId because it might be changed
+               // Get the new callId because it might have changed
                sipDialog.getCallId(callId);
+               sipDialog.getLocalField(localIdentity);
+               localIdentity.getFieldParameter("tag", localTag);
+               sipDialog.getRemoteField(remoteIdentity);
+               remoteIdentity.getFieldParameter("tag", remoteTag);
 
-               pDialog = pThisCall->getDialog(callId);
+               pDialog = pThisCall->getDialog(callId, localTag, remoteTag);
                // Update the dialog content if it exists.
                if (pDialog)
                {
-                  sipDialog.getLocalField(localIdentity);
-                  localIdentity.getFieldParameter("tag", localTag);
-   
-                  sipDialog.getRemoteField(remoteIdentity);
-                  remoteIdentity.getFieldParameter("tag", remoteTag);
-               
+                  // This may be the establishment of a dialog for an 
+                  // INVITE we sent, so the remote tag may only be getting
+                  // set now.
                   pDialog->setTags(localTag, remoteTag);
    
                   sipDialog.getLocalContact(localTarget);
-                  pDialog->setLocalTarget(localTarget.toString());
+                  localTarget.getUri(temp);
+                  pDialog->setLocalTarget(temp);
    
                   sipDialog.getRemoteContact(remoteTarget);
-                  pDialog->setRemoteTarget(remoteTarget.toString());
+                  remoteTarget.getUri(temp);
+                  pDialog->setRemoteTarget(temp);
    
                   pDialog->setState(STATE_CONFIRMED, NULL, NULL);
                }
                else
                {
                   // Create a new dialog element
-                  sipDialog.getLocalField(localIdentity);
-                  localIdentity.getFieldParameter("tag", localTag);
-   
-                  sipDialog.getRemoteField(remoteIdentity);
-                  remoteIdentity.getFieldParameter("tag", remoteTag);
-               
                   sprintf(dialogId, "%ld", mDialogId);
                   mDialogId++;
    
-                  pDialog = new Dialog(dialogId, callId, localTag, remoteTag, "recipient");
+                  pDialog = new Dialog(dialogId, callId, localTag, remoteTag,
+                                       "recipient");
                   pDialog->setState(STATE_CONFIRMED, NULL, NULL);
    
                   localIdentity.getIdentity(identity);
@@ -335,10 +353,12 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                   pDialog->setRemoteIdentity(identity, displayName);
    
                   sipDialog.getLocalContact(localTarget);
-                  pDialog->setLocalTarget(localTarget.toString());
+                  localTarget.getUri(temp);
+                  pDialog->setLocalTarget(temp);
    
                   sipDialog.getRemoteContact(remoteTarget);
-                  pDialog->setRemoteTarget(remoteTarget.toString());
+                  remoteTarget.getUri(temp);
+                  pDialog->setRemoteTarget(temp);
    
                   pDialog->setDuration(OsDateTime::getSecsSinceEpoch());
    
@@ -402,7 +422,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                requestUrl = Url(entity);
                requestUrl.getIdentity(entity);     
                          
-               // Get the new callId because it might be changed
+               // Get the new callId because it might have changed
                sipDialog.getCallId(callId);
 
                sipDialog.getLocalField(localIdentity);
@@ -431,7 +451,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                   }
                   else
                   {
-                     pDialog = pThisCall->getDialog(callId);
+                     pDialog = pThisCall->getDialog(callId, localTag, remoteTag);
                   }
                   if (pDialog)
                   {

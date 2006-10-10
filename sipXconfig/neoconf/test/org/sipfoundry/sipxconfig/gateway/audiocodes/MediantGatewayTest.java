@@ -30,11 +30,10 @@ public class MediantGatewayTest extends TestCase {
 
     protected void setUp() throws Exception {
         m_model = (AudioCodesModel) TestHelper.getApplicationContext().getBean(
-                "gmAudiocodesMP1X4_4_FXO");
+                "audiocodesMP1X4_4_FXO");
         m_gateway = (MediantGateway) TestHelper.getApplicationContext().getBean(
-                "gwAudiocodesMediant");
-        m_gateway.setBeanId(m_model.getBeanId());
-        m_gateway.setModelId(m_model.getModelId());
+                m_model.getBeanId());
+        m_gateway.setModel(m_model);
     }
 
     /**

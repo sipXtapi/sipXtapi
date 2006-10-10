@@ -19,6 +19,8 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+const UtlContainableType RedirectSuspend::TYPE = "RedirectSuspend";
+
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
@@ -49,19 +51,7 @@ RedirectSuspend::~RedirectSuspend()
    free(mRedirectors);
 }
 
-unsigned int RedirectSuspend::hash() const
-{
-  return 0;
-}
-
-static UtlContainableType TYPE = "UtlInt";
-
 const char* const RedirectSuspend::getContainableType() const
 {
   return TYPE;
-}
-
-int RedirectSuspend::compareTo(const UtlContainable*) const
-{
-  return TRUE;
 }
