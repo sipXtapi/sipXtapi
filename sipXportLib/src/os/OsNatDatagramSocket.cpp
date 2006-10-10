@@ -169,7 +169,7 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength,
     int iReceivedPort ;
     UtlString receivedIp ;
 
-    iRC = OsSocket::read(buffer, bufferLength, &receivedIp, &iReceivedPort) ;
+    iRC = read(buffer, bufferLength, &receivedIp, &iReceivedPort) ;
    
     if (ipAddress)
         ipAddress->s_addr = inet_addr(receivedIp) ;
