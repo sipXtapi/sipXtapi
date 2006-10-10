@@ -460,10 +460,16 @@ int NetInTask::run(void *pNotUsed)
             FD_SET((UINT) mpReadSocket->getSocketDescriptor(), fds);
             for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
               if (NULL != ppr->fwdTo) {
-                if (NULL != ppr->pRtpSocket)
-                  FD_SET((UINT)(ppr->pRtpSocket->getSocketDescriptor()), fds);
-                if (NULL != ppr->pRtcpSocket)
-                  FD_SET((UINT)(ppr->pRtcpSocket->getSocketDescriptor()), fds);
+                if (NULL != ppr->pRtpSocket) {
+                  int fd = ppr->pRtpSocket->getSocketDescriptor();
+                  if (fd > 0)
+                    FD_SET((UINT)(ppr->pRtpSocket->getSocketDescriptor()), fds);
+                }
+                if (NULL != ppr->pRtcpSocket) {
+                  int fd = ppr->pRtcpSocket->getSocketDescriptor();
+                  if (fd > 0)
+                    FD_SET((UINT)(ppr->pRtcpSocket->getSocketDescriptor()), fds);
+                }
               }
               ppr++;
             }

@@ -91,7 +91,7 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                         PlayerPrefetched,
                         PlayerPlaying,
                         PlayerStopped,
-                        -1,
+                        -1
                     } ;
 
                 UtlBoolean bMatches = pVerifier->matchesHistory((void*) i, expectedHistory) ;
@@ -181,7 +181,7 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                         PlayerPrefetched,
                         PlayerPlaying,
                         PlayerStopped,
-                        -1,
+                        -1
                     } ;
 
                 UtlBoolean bMatches = pVerifier->matchesHistory((void*) i, expectedHistory) ;
@@ -266,7 +266,7 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                         PlayerPrefetched,
                         PlayerPlaying,
                         PlayerStopped,
-                        -1,
+                        -1
                     } ;
 
                 UtlBoolean bMatches = pVerifier->matchesHistory((void*) i, expectedHistory) ;
@@ -347,7 +347,7 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                         PlayerPrefetched,
                         PlayerPlaying,
                         PlayerStopped,
-                        -1,
+                        -1
                     } ;
 
                 UtlBoolean bMatches = pVerifier->matchesHistory((void*) i, expectedHistory) ;
@@ -444,7 +444,7 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                         PlayerPrefetched,
                         PlayerPlaying,
                         PlayerStopped,
-                        -1,
+                        -1
                     } ;
 
                 UtlBoolean bMatches = pVerifier->matchesHistory((void*) i, expectedHistory) ;
@@ -524,7 +524,7 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                         PlayerPrefetched,
                         PlayerPlaying,
                         PlayerStopped,
-                        -1,
+                        -1
                     } ;
 
                 UtlBoolean bMatches = pVerifier->matchesHistory((void*) i, expectedHistory) ;
@@ -621,7 +621,7 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                         PlayerPaused,
                         PlayerPlaying,
                         PlayerStopped,
-                        -1,
+                        -1
                     } ;
 
                 UtlBoolean bMatches = pVerifier->matchesHistory((void*) i, expectedHistory) ;
@@ -719,7 +719,7 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                         PlayerPaused,
                         PlayerPlaying,
                         PlayerStopped,
-                        -1,
+                        -1
                     } ;
 
                 UtlBoolean bMatches = pVerifier->matchesHistory((void*) j, expectedHistory) ;

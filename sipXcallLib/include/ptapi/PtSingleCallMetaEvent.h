@@ -75,7 +75,7 @@ public:
         CALL_META_CALL_STARTING_STARTED         = 624,
         CALL_META_CALL_STARTING_ENDED           = 625,
         CALL_META_CALL_ENDING_STARTED           = 626,
-        CALL_META_CALL_ENDING_ENDED                     = 627,
+        CALL_META_CALL_ENDING_ENDED                     = 627
         };
     //!enumcode: SINGLECALL_META_PROGRESS_STARTED - event indicates that the current call in the telephony platform has changed state, and events will follow which indicate the changes to this call. <br>This constant indicates a specific event passed via a <CODE>SingleCallMetaEvent</CODE> event, and is reported on the <CODE>CallListener</CODE> interface.
     //!enumcode: SINGLECALL_META_PROGRESS_ENDED - event indicates that the current call in the telephony platform has changed state, and all the events that were associated with that change have now been reported.<p> This constant indicates a specific event passed via a <CODE>SingleCallMetaEvent</CODE> event, and is reported on the <CODE>CallListener</CODE> interface.

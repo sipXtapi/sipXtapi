@@ -2205,7 +2205,7 @@ void OsNatAgentTask::dumpContext(UtlString* pResults, NAT_AGENT_CONTEXT* pBindin
         "SENDING_ERROR",
         "RESENDING",
         "RESENDING_ERROR",
-        "FAILED",
+        "FAILED"
     } ;
 
     char cBuf[2048] ;

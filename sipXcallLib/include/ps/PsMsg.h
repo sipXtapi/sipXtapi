@@ -100,7 +100,7 @@ public:
 /* ----------------------------- TERMINAL --------------------------------- */
                 TERMINAL_GET_COMPONENT,
                 TERMINAL_GET_COMPONENTS,
-                TERMINAL_GET_COMPONENTGROUPS,
+                TERMINAL_GET_COMPONENTGROUPS
         };
 
 /* ============================ CREATORS ================================== */

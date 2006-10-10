@@ -51,7 +51,7 @@ public:
    typedef enum
    {
       SourceUrl,
-      SourceBuffer,
+      SourceBuffer
    } SourceType;
 
 /* ============================ CREATORS ================================== */

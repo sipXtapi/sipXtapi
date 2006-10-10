@@ -48,7 +48,7 @@ typedef enum
     STUN_PROBE,
     TURN_ALLOCATION,
     CRLF_KEEPALIVE,
-    STUN_KEEPALIVE,
+    STUN_KEEPALIVE
 } NAT_AGENT_BINDING_TYPE ;
 
 typedef enum
@@ -58,7 +58,7 @@ typedef enum
     SENDING_ERROR,
     RESENDING,
     RESENDING_ERROR,
-    FAILED,
+    FAILED
 } NAT_AGENT_STATUS ;
 
 

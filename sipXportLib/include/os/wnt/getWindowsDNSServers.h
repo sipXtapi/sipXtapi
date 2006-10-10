@@ -126,7 +126,7 @@ typedef enum {
     IpPrefixOriginManual,
     IpPrefixOriginWellKnown,
     IpPrefixOriginDhcp,
-    IpPrefixOriginRouterAdvertisement,
+    IpPrefixOriginRouterAdvertisement
 } IP_PREFIX_ORIGIN;
 
 typedef enum {
@@ -135,7 +135,7 @@ typedef enum {
     IpSuffixOriginWellKnown,
     IpSuffixOriginDhcp,
     IpSuffixOriginLinkLayerAddress,
-    IpSuffixOriginRandom,
+    IpSuffixOriginRandom
 } IP_SUFFIX_ORIGIN;
 
 typedef enum {
@@ -143,7 +143,7 @@ typedef enum {
     IpDadStateTentative,
     IpDadStateDuplicate,
     IpDadStateDeprecated,
-    IpDadStatePreferred,
+    IpDadStatePreferred
 } IP_DAD_STATE;
 
 typedef struct SOCKET_ADDRESS_XYZ {

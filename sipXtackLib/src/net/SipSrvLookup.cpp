@@ -252,7 +252,7 @@ int SipSrvLookup::options[OptionCodeLast+1] = {
    0,                           // OptionCodePrintAnswers
    DEFAULT_CNAME_LIMIT,         // OptionCodeCNAMELimit
    0,                           // OptionCodeNoDefaultTCP
-   0,                           // OptionCodeLast
+   0                            // OptionCodeLast
 };
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */

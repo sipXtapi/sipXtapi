@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2005-2006 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -39,7 +39,7 @@
 // EXTERNAL VARIABLES
 
 // CONSTANTS
-static const unsigned int MAXFILESIZE = 500000;
+static const unsigned int MAXFILESIZE = 50000000;
 static const unsigned int MINFILESIZE = 8000;
 static const int NO_WAIT = 0;
 extern int      samplesPerSecond;

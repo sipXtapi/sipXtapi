@@ -47,7 +47,7 @@ typedef enum
    PrefetchedState,
    RendereringState,
    StoppedState,
-   FailedState,
+   FailedState
 
 } FeederState ;
 

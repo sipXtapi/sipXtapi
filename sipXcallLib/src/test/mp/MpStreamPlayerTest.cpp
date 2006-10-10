@@ -202,7 +202,7 @@ class MpStreamPlayerTest : public CppUnit::TestCase
                         PlayerPrefetched,
                         PlayerPlaying,
                         PlayerStopped,
-                        -1,
+                        -1
                     } ;
 
                 UtlBoolean bMatches = pListener->matchesHistory((void*) i, expectedHistory) ;
@@ -277,7 +277,7 @@ class MpStreamPlayerTest : public CppUnit::TestCase
                         PlayerPrefetched,
                         PlayerPlaying,
                         PlayerStopped,
-                        -1,
+                        -1
                     } ;
 
                 UtlBoolean bMatches = pVerifier->matchesHistory((void*) i, expectedHistory) ;
@@ -375,7 +375,7 @@ class MpStreamPlayerTest : public CppUnit::TestCase
                         PlayerPrefetched,
                         PlayerPlaying,
                         PlayerStopped,
-                        -1,
+                        -1
                     } ;
 
                 UtlBoolean bMatches = pVerifier->matchesHistory((void*) i, expectedHistory) ;
@@ -454,7 +454,7 @@ class MpStreamPlayerTest : public CppUnit::TestCase
                         PlayerPrefetched,
                         PlayerPlaying,
                         PlayerAborted,
-                        -1,
+                        -1
                     } ;
 
                 UtlBoolean bMatches = pVerifier->matchesHistory((void*) i, expectedHistory) ;
@@ -554,7 +554,7 @@ class MpStreamPlayerTest : public CppUnit::TestCase
                         PlayerPaused,
                         PlayerPlaying,
                         PlayerAborted,
-                        -1,
+                        -1
                     } ;
 
                 UtlBoolean bMatches = pVerifier->matchesHistory((void*) i, expectedHistory) ;
@@ -634,7 +634,7 @@ class MpStreamPlayerTest : public CppUnit::TestCase
                         PlayerPrefetched,
                         PlayerPlaying,
                         PlayerAborted,
-                        -1,
+                        -1
                     } ;
 
                 UtlBoolean bMatches = pVerifier->matchesHistory((void*) i, expectedHistory) ;

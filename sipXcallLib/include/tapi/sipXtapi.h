@@ -483,7 +483,7 @@ typedef enum
 
     CONTACT_AUTO = -1,  /**< Automatic contact selection; used for API 
                              parameters */
-    CONTACT_ALL = -2,
+    CONTACT_ALL = -2
 } SIPX_CONTACT_TYPE ;
 
 typedef enum
@@ -491,7 +491,7 @@ typedef enum
     TRANSPORT_UDP = 1,  /**< Indicator for a UDP socket type. */
     TRANSPORT_TCP = 0,  /**< Indicator for a TCP socket type. */ 
     TRANSPORT_TLS = 3,  /**< Indicator for a TLS socket type. */
-    TRANSPORT_CUSTOM = 4,
+    TRANSPORT_CUSTOM = 4
 } SIPX_TRANSPORT_TYPE;
 
 /**

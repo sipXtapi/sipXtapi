@@ -88,7 +88,7 @@ const char* SchemeName[ Url::NUM_SUPPORTED_URL_SCHEMES ] =
    "https",
    "ftp",
    "file",
-   "mailto",
+   "mailto"
 };
 
 // UsernameAndPassword

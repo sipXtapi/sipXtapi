@@ -164,7 +164,7 @@ UtlBoolean MprRecorder::disable(Completion code)
       OsWriteLock lock(mEventMutex); 
       if (mpEvent != NULL)
       {
-         mpEvent = NULL;  // event may be released, do not signal the event any more, 
+         mpEvent = NULL;  // event may be released, do not signal the event any more
       }
 
       if (mFileDescriptor > -1) 

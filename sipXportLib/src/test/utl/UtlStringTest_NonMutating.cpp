@@ -377,7 +377,7 @@ public:
                // Then start + len == 2!
                ~(~((size_t) 0) >> 1) + 1,
                ~(~((size_t) 0) >> 1) + 1,
-               "" },
+               "" }
           }; 
 
        // Go through the table of tests.

@@ -162,7 +162,7 @@ private:
    {
       UNSPECIFIED = 0x0,      // not initialized
       ONESHOT     = 0x1,      // expire at the specified offset
-      PERIODIC    = 0x2,      // expire every period
+      PERIODIC    = 0x2       // expire every period
    };
 
    virtual void doStartTimer(void);

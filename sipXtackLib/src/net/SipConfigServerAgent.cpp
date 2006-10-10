@@ -364,7 +364,7 @@ void SipConfigServerAgent::initializeLog(OsConfigDb* pConfig)
       { "ERR",     PRI_ERR},
       { "CRIT",    PRI_CRIT},
       { "ALERT",   PRI_ALERT},
-      { "EMERG",   PRI_EMERG},
+      { "EMERG",   PRI_EMERG}
    };
    OsSysLog::initialize(0, "SDS");
 

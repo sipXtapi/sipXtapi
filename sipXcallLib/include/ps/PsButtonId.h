@@ -126,7 +126,7 @@ enum PsButtonId
 
    FKEY_SKEY_B1 = 0x2c0,        // soft key<n> below the display
    FKEY_SKEY_B2,
-   FKEY_SKEY_B3,
+   FKEY_SKEY_B3
 // FKEY_SKEY_B...
 
 };

@@ -1286,7 +1286,7 @@ public:
           "sip:foo@bar:5060",
           "sip:foo@bar:1",
           "sip:foo@bar:100",
-          "sip:foo@bar:65535",
+          "sip:foo@bar:65535"
        };
        Url urls[sizeof (strings) / sizeof (strings[0])];
        unsigned int i;
@@ -1338,7 +1338,7 @@ public:
           "sip:foo@bar:5060",
           "sip:foo@bar:1",
           "sip:foo@bar:100",
-          "sip:foo@bar:65535",
+          "sip:foo@bar:65535"
        };
        Url urls[sizeof (strings) / sizeof (strings[0])];
        const char* identities[sizeof (strings) / sizeof (strings[0])] = {
@@ -1346,7 +1346,7 @@ public:
           "foo@bar",
           "foo@bar:1",
           "foo@bar:100",
-          "foo@bar:65535",
+          "foo@bar:65535"
        };
 
        for (unsigned int i = 0; i < sizeof (strings) / sizeof (strings[0]);

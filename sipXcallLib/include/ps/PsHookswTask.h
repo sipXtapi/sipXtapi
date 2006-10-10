@@ -43,7 +43,7 @@ public:
    enum HookswitchState
    {
       ON_HOOK,        // The handset is on hook
-      OFF_HOOK,       // The handset is off hook
+      OFF_HOOK        // The handset is off hook
    };
 
 /* ============================ CREATORS ================================== */

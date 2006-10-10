@@ -39,7 +39,7 @@ public:
    typedef enum
    {
       AudioFrame,
-      EndOfFrameMarker,
+      EndOfFrameMarker
    } StreamQueueMsgSubTypes;
 
 /* ============================ CREATORS ================================== */

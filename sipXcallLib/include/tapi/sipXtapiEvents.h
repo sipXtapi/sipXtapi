@@ -548,7 +548,7 @@ typedef enum
  */
 typedef enum
 {
-    KEEPALIVE_CAUSE_NORMAL,
+    KEEPALIVE_CAUSE_NORMAL
 } SIPX_KEEPALIVE_CAUSE ;
 
 

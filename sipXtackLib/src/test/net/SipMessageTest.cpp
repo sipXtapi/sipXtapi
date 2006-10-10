@@ -202,7 +202,7 @@ class SipMessageTest : public CppUnit::TestCase
 	   { "sip:foo@bar:5060;rport=65535", 5060, 1, 65535 },
 	   { "sip:foo@bar:1;rport=65535", 1, 1, 65535 },
 	   { "sip:foo@bar:100;rport=65535", 100, 1, 65535 },
-	   { "sip:foo@bar:65535;rport=65535", 65535, 1, 65535 },
+	   { "sip:foo@bar:65535;rport=65535", 65535, 1, 65535 }
          };
 
          // Buffer to compose message.
@@ -472,7 +472,7 @@ class SipMessageTest : public CppUnit::TestCase
 	   { "sip:foo@bar:5060", 5060 },
 	   { "sip:foo@bar:1", 1 },
 	   { "sip:foo@bar:100", 100 },
-	   { "sip:foo@bar:65535", 65535 },
+	   { "sip:foo@bar:65535", 65535 }
          };
 
          UtlString address;
@@ -524,7 +524,7 @@ class SipMessageTest : public CppUnit::TestCase
 	   { "sip:foo@bar:5060", 5060 },
 	   { "sip:foo@bar:1", 1 },
 	   { "sip:foo@bar:100", 100 },
-	   { "sip:foo@bar:65535", 65535 },
+	   { "sip:foo@bar:65535", 65535 }
          };
 
          UtlString address;
@@ -615,7 +615,7 @@ class SipMessageTest : public CppUnit::TestCase
             { message_template2, "sip:foo@bar:0", 0 },
             { message_template2, "sip:foo@bar:100", 100 },
             { message_template2, "sip:foo@bar:5060", 5060 },
-            { message_template2, "sip:foo@bar:65535", 65535 },
+            { message_template2, "sip:foo@bar:65535", 65535 }
          };
 
          // Buffer to compose message.
@@ -653,7 +653,7 @@ class SipMessageTest : public CppUnit::TestCase
 	   { "sip:foo@bar:5060", 5060 },
 	   { "sip:foo@bar:1", 1 },
 	   { "sip:foo@bar:100", 100 },
-	   { "sip:foo@bar:65535", 65535 },
+	   { "sip:foo@bar:65535", 65535 }
          };
 
          UtlString address;
@@ -885,7 +885,7 @@ class SipMessageTest : public CppUnit::TestCase
             "Alert-Info",
             "Call-Info",
             SIP_WARNING_FIELD,
-            "Error-Info",
+            "Error-Info"
          };
 
       // For each field.
@@ -965,7 +965,7 @@ class SipMessageTest : public CppUnit::TestCase
       // message.
       const char* settable_unique_headers[] =
          {
-            SIP_EXPIRES_FIELD,
+            SIP_EXPIRES_FIELD
          };
 
       // For each field.
@@ -1051,7 +1051,7 @@ class SipMessageTest : public CppUnit::TestCase
             SIP_CSEQ_FIELD,
             SIP_VIA_FIELD,
             SIP_RECORD_ROUTE_FIELD,
-            SIP_ROUTE_FIELD,
+            SIP_ROUTE_FIELD
          };
 
       // For each field.

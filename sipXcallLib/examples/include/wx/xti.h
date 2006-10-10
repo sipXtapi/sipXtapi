@@ -921,7 +921,7 @@ enum {
     // this will only be streamed out and in as enum/set, the internal representation is still a long
     wxPROP_ENUM_STORE_LONG  = 0x00000004 ,
     // don't stream out this property, needed eg to avoid streaming out children that are always created by their parents
-    wxPROP_DONT_STREAM = 0x00000008 ,
+    wxPROP_DONT_STREAM = 0x00000008
 }  ;
 
 class WXDLLIMPEXP_BASE wxPropertyInfo

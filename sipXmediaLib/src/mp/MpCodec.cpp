@@ -2,7 +2,7 @@
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
-// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Copyright (C) 2004-2006 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
@@ -234,12 +234,24 @@ int MpCodec_getGain()
    return s_iGainLevel;
 }
 
+static int dummy_volume = 0;
+
 OsStatus MpCodec_setVolume(int level)
 {
    OsStatus ret = OS_SUCCESS;
+   dummy_volume = level;
    return ret;
 }
 
+int MpCodec_getVolume()
+{
+   return dummy_volume;
+}
+
+int MpCodec_isBaseSpeakerOn()
+{
+   return 0;
+}
 
 #endif /* ] */
 

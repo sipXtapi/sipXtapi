@@ -48,7 +48,7 @@ public:
    typedef enum       // Type of source data (url or buffer)
    {
       SourceUrl,
-      SourceBuffer,
+      SourceBuffer
    } SourceType;
 
 /* ============================ CREATORS ================================== */

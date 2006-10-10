@@ -42,7 +42,7 @@ typedef enum
    PlayerStopped,
    PlayerAborted,
    PlayerFailed,
-   PlayerDestroyed,   
+   PlayerDestroyed
 } PlayerState ;
 //!enumcode PlayerUnrealized - Data is unrealized (uninitialized) and no 
 //          resources have been allocated.
