@@ -5403,6 +5403,16 @@ OsStatus SipConnection::getInvite(SipMessage* message)
     // Copy inviteMsg to the destination.
     *message = *inviteMsg;
 
+    if (OsSysLog::willLog(FAC_CP, PRI_DEBUG))
+    {
+       UtlString text;
+       int length;
+       inviteMsg->getBytes(&text, &length);
+       OsSysLog::add(FAC_CP, PRI_DEBUG,
+                     "SipConnection::getInvite this = %p, inviteMsg = %p, message = '%s'",
+                     this, inviteMsg, text.data());
+    }
+
     return ret;
 }
 
