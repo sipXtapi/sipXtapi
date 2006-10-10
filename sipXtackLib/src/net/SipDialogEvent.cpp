@@ -440,6 +440,7 @@ void SipDialogEvent::parseBody(const char* bodyBytes)
    }
 }
 
+
 // Assignment operator
 SipDialogEvent&
 SipDialogEvent::operator=(const SipDialogEvent& rhs)
@@ -453,6 +454,7 @@ SipDialogEvent::operator=(const SipDialogEvent& rhs)
 
    return *this;
 }
+
 
 
 void SipDialogEvent::insertDialog(Dialog* dialog)
