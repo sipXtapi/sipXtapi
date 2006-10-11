@@ -233,6 +233,7 @@ cat > $Work.copy-files <<EOF
 @SIPX_DBDIR@/alias.xml
 @SIPX_DBDIR@/credential.xml
 @SIPX_DBDIR@/ext_alias.xml
+@SIPX_DBDIR@/caller-alias.xml
 @SIPX_DBDIR@/extension.xml
 @SIPX_DBDIR@/huntgroup.xml
 @SIPX_DBDIR@/permission.xml
@@ -249,12 +250,14 @@ EOF
 if [ ${SaveLogs} = YES ]
 then
   cat > $Work.delete-files <<EOF
+@SIPX_LOGDIR@/setup.log
 @SIPX_LOGDIR@/configtest.log
 @SIPX_LOGDIR@/dbmonitor.log
 @SIPX_LOGDIR@/httpd_access_log
 @SIPX_LOGDIR@/httpd_error_log
 @SIPX_LOGDIR@/mediaserver.log
 @SIPX_LOGDIR@/mediaserver_cgi.log
+@SIPX_LOGDIR@/replicationcgi.log
 @SIPX_LOGDIR@/sipauthproxy.log
 @SIPX_LOGDIR@/sipcallresolver.log
 @SIPX_LOGDIR@/sipproxy.log
