@@ -70,7 +70,7 @@
   <target name="create" depends="createdb,schema"
     description="create database with schema"/>
 
-  <target name="upgrade-no-init" depends="patches,version1,version2,version3,version4"/>
+  <target name="upgrade-no-init" depends="patches,version1,version2,version3,version4,version5"/>
 	
   <target name="upgrade" description="applied all patches that need to be applied, and run initialization tasks"
     depends="upgrade-no-init,initialize"/>
@@ -122,10 +122,15 @@
     <sipx-version version="4"/>
   </target>
 	
+  <!-- bumped up ver only to keep 3.6 from running incompat. 3.7 db versions -->
   <target name="version4" description="upgrade from version 3" unless="version5">
+    <sipx-version version="5"/>
+  </target>	
+
+  <target name="version5" description="upgrade from version 4" unless="version6">
     <antcall target="model-refactoring"/>
     <!-- When freezing schema uncomment this line -->
-    <!-- sipx-version version="5" -->
+    <!-- sipx-version version="6" -->
   </target>	
 
   <target name="model-refactoring" unless="model-refactoring">
