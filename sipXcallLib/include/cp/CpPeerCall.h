@@ -242,10 +242,8 @@ protected:
     UtlBoolean handleGetInvite(OsMsg* pEventMessage);
     //: Handles the processing of a CallManager::CP_GET_SESSION
     //: message
-
     UtlBoolean handleSendSipRequest(OsMsg* pEventMessage);
     //: Handles CallManager::CP_SEND_SIP_REQUEST
-
     UtlBoolean handleGetCallState(OsMsg* pEventMessage);
     //: Handles the processing of a CallManager::CP_GET_CALLSTATE
     //: message
@@ -374,7 +372,12 @@ private:
     CpPeerCall& operator=(const CpPeerCall& rhs);
     //:Assignment operator
 
-   UtlBoolean checkForTag(UtlString &address);
+    /** Test if address has a "tag" URI parameter.
+     *  If so, set address_without_tag to the URI with the "tag" parameter
+     *  removed.
+     */
+    static UtlBoolean checkForTag(const UtlString& address,
+                                  UtlString& address_without_tag);
 
 };
 
