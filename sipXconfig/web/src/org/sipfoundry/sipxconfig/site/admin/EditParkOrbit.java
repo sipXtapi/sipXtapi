@@ -76,6 +76,7 @@ public abstract class EditParkOrbit extends BasePage implements PageBeginRenderL
         ParkOrbitContext context = getParkOrbitContext();
         ParkOrbit orbit = getParkOrbit();
         context.storeParkOrbit(orbit);
+        context.activateParkOrbits();
         Integer id = getParkOrbit().getId();
         setParkOrbitId(id);
     }
