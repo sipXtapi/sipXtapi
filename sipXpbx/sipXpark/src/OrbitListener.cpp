@@ -445,6 +445,10 @@ OsStatus OrbitListener::validateOrbit(const UtlString& callId,
    // Get orbit from request Uri.
    Url requestUri(request, TRUE);
    requestUri.getUserId(orbit);
+   UtlString domain;
+   requestUri.getHostAddress(domain);
+   orbit.append('@');
+   orbit.append(domain);
    OsSysLog::add(FAC_PARK, PRI_DEBUG,
                  "OrbitListener::validateOrbit request URI '%s', orbit '%s'",
                  request.data(), orbit.data());

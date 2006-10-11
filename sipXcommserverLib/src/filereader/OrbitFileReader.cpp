@@ -243,6 +243,31 @@ OsStatus OrbitFileReader::parseOrbitFile(UtlString& fileName)
             orbit_valid = false;
          }
 
+         // Process the <domain> element.
+         TiXmlNode* domain_element =
+            orbit_element->FirstChild("domain");
+         UtlString domain;
+         if (domain_element)
+         {
+            textContentShallow(domain, domain_element->ToElement());
+            if (domain.isNull())
+            {
+               // Domain had zero length
+               OsSysLog::add(FAC_PARK, PRI_ERR,
+                             "OrbitFileReader::parseOrbitFile "
+                             "Domain was null.");
+               orbit_valid = false;
+            }
+         }
+         else
+         {
+            // Domain was missing.
+            OsSysLog::add(FAC_PARK, PRI_ERR,
+                          "OrbitFileReader::parseOrbitFile "
+                          "Domain was missing.");
+            orbit_valid = false;
+         }
+
          // Process the <background-audio> element.
          TiXmlNode* audio_element =
             orbit_element->FirstChild("background-audio");
@@ -348,6 +373,8 @@ OsStatus OrbitFileReader::parseOrbitFile(UtlString& fileName)
             // Allocate the objects and assign their values.
             UtlString* extension_heap = new UtlString;
             *extension_heap = extension;
+            extension_heap->append('@');
+            extension_heap->append(domain);
             OrbitData* orbit_data_heap = new OrbitData;
             orbit_data_heap->mTimeout = timeout;
             orbit_data_heap->mAudio = audio;

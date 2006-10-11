@@ -24,6 +24,7 @@
       <xs:sequence>
         <xs:element ref="name" />
         <xs:element ref="extension" />
+        <xs:element ref="domain" />
         <xs:element ref="background-audio" />
         <xs:element ref="time-out" minOccurs="0"/>
         <xs:element ref="capacity" minOccurs="0"/>
@@ -36,6 +37,7 @@
   <xs:element name="name" type="xs:string" />
   <xs:element name="background-audio" type="xs:string" />
   <xs:element name="extension" type="xs:integer" />
+  <xs:element name="domain" type="xs:string" />
   <xs:element name="time-out">
     <xs:annotation>
       <xs:documentation>

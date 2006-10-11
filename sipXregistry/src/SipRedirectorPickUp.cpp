@@ -362,10 +362,15 @@ SipRedirectorPickUp::lookUp(
    int redirectorNo,
    SipRedirectorPrivateStorage*& privateStorage)
 {
-   UtlString userId;
+   UtlString userId, domain, orbitName;
    bool bSupportsReplaces;
        
    requestUri.getUserId(userId);
+   requestUri.getHostAddress(domain);
+   // 'userId@domain' is the format used to lookup orbits
+   orbitName = userId;
+   orbitName.append('@');
+   orbitName.append(domain);
 
    if (!mCallPickUpCode.isNull() &&
        userId.length() > mCallPickUpCode.length() &&
@@ -444,14 +449,22 @@ SipRedirectorPickUp::lookUp(
       }
    }
    else if (!mCallRetrieveCode.isNull() &&
-            findInOrbitList(userId))
+            findInOrbitList(orbitName))
    {
       // Check if call retrieve is active, and this is a request for
       // an extension that is an orbit number.
 
       // Add the contact to the response.
-      UtlString contactStr = "<sip:" + userId + "@" + mParkServerDomain + ">";
-      Url contactUri(contactStr);
+      // Don't change the request Uri, just add a 'route' header parameter
+      // that contains the park server IP and port, the resulting contact
+      // will look like: <sip:userId@domain?route=w.x.y.z:p>. The forking
+      // proxy (actually the stack in general) can recognize this parameter
+      // and will add a new 'Route' header to direct the message to the park
+      // server. Doing it this way preserves the domain in the request line,
+      // which the park server needs to determine the orbit to place the call into.
+      Url contactUri(requestUri);
+      contactUri.setHeaderParameter("route", mParkServerDomain);
+
       addContact(response, requestString, contactUri, "orbit number");
 
       return SipRedirector::LOOKUP_SUCCESS;
@@ -469,11 +482,16 @@ SipRedirectorPickUp::lookUp(
 
       // Extract the putative orbit number.
       UtlString orbit(userId.data() + mCallRetrieveCode.length());
-      
+
+      // Create orbit name with retrieve prefix removed and domain appended
+      orbitName = orbit;
+      orbitName.append('@');
+      orbitName.append(domain);
+
       if (bSupportsReplaces)
       {      
          // Look it up in the orbit list.
-         if (findInOrbitList(orbit))
+         if (findInOrbitList(orbitName))
          {
             return lookUpDialog(requestString,
                                 response,
@@ -620,41 +638,40 @@ SipRedirectorPickUp::lookUpDialog(
    }
    else
    {
-      UtlString userId;
+      UtlString userId, domain;
       Url requestUri(requestString);
-      requestUri.getUserId(userId);      
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRedirectorPickUp::lookUpDialog userId '%s'", userId.data());
+      requestUri.getUserId(userId);
+      requestUri.getHostAddress(domain);
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRedirectorPickUp::lookUpDialog userId '%s' domain '%s'", userId.data(), domain.data());
       // Test to see if this is a call retrieval
       if (!mCallRetrieveCode.isNull() &&
           userId.length() > mCallRetrieveCode.length() &&
           userId.index(mCallRetrieveCode.data()) == 0)
       {
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRedirectorPickUp::lookUpDialog doing call retrieval");         
+         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRedirectorPickUp::lookUpDialog doing call retrieval");
 
-         // Construct the contact address for the call retrieval.
-         UtlString contactString("sip:");
+         // Preserve the domain from the original request uri by copying it.
+         Url contact_URI = requestUri;
          // The user of the request URI is our subscribeUser parameter.
-         contactString.append(subscribeUser);
-         contactString.append("@");
-         contactString.append(mParkServerDomain);
-         
-         Url contact_URI(contactString);
-         
-         contact_URI.setUrlParameter("operation", "retrieve");               
- 
-         addContact(response, requestString, contact_URI, "pick-up");            
+         contact_URI.setUserId(subscribeUser);
+
+         contact_URI.setUrlParameter("operation", "retrieve");
+         // Add park server IP and port as a header parameter
+         contact_URI.setHeaderParameter("route", mParkServerDomain);
+
+         addContact(response, requestString, contact_URI, "pick-up");
          // We do not need to suspend this time.*/
-         return SipRedirector::LOOKUP_SUCCESS;         
+         return SipRedirector::LOOKUP_SUCCESS;
       }
       else
       {
          // Construct the SUBSCRIBE for the call pickup.
          SipMessage subscribe;
-         UtlString subscribeRequestUri("sip:");
+         // Preserve the domain from the original request uri by copying it.
+         Url subscribeRequestUri = requestUri;
          // The user of the request URI is our subscribeUser parameter.
-         subscribeRequestUri.append(subscribeUser);
-         subscribeRequestUri.append("@");
-         subscribeRequestUri.append(mDomain);
+         subscribeRequestUri.setUserId(subscribeUser);
+
          // Construct a Call-Id on the plan:
          //   Pickup-process-time-counter@domain
          // The process number has at most 8 characters, the time has at most 8
@@ -667,7 +684,7 @@ SipRedirectorPickUp::lookUpDialog(
                  (unsigned int) OsDateTime::getSecsSinceEpoch(), mCSeq);
          UtlString callId("Pickup-");
          callId.append(buffer);
-         callId.append(mDomain);
+         callId.append(domain);
          // Construct the From: value.
          UtlString fromUri;
          {
@@ -694,9 +711,9 @@ SipRedirectorPickUp::lookUpDialog(
          // Allow the SipUserAgent to fill in Contact:.
          subscribe.setRequestData(
             SIP_SUBSCRIBE_METHOD,
-            subscribeRequestUri.data(), // request URI
+            subscribeRequestUri.toString().data(), // request URI
             fromUri, // From:
-            subscribeRequestUri.data(), // To:
+            subscribeRequestUri.toString().data(), // To:
             callId,
             mCSeq);
          // Increment CSeq and roll it over if necessary.
@@ -769,7 +786,9 @@ OsStatus SipRedirectorPickUp::parseOrbitFile(UtlString& fileName)
          // Process each <orbit> element.
          TiXmlNode* extension_element =
             orbit_element->FirstChild("extension");
-         if (extension_element)
+         TiXmlNode* domain_element =
+            orbit_element->FirstChild("domain");
+         if (extension_element && domain_element)
          {
             // Process the <extension> element.
             UtlString *user = new UtlString;
@@ -778,6 +797,14 @@ OsStatus SipRedirectorPickUp::parseOrbitFile(UtlString& fileName)
                extension_element->ToElement());
             if (user->length() > 0)
             {
+               // Process the <domain> element.
+               UtlString domain;
+               SipRedirectorPickUp::textContentShallow(domain, domain_element->ToElement());
+               if (domain.length() > 0)
+               {
+                  user->append('@');
+                  user->append(domain);
+               }
                // Insert the user into the orbit list (which now owns *user).
                if (!mOrbitList.insert(user))
                {
@@ -787,7 +814,7 @@ OsStatus SipRedirectorPickUp::parseOrbitFile(UtlString& fileName)
                                 "SipRedirectorPrivateStoragePickUp::parseOrbitFile "
                                 "Extension '%s' specified as an orbit twice?",
                                 user->data());
-                  free(user);
+                  delete user;
                }
             }
             else
@@ -796,7 +823,7 @@ OsStatus SipRedirectorPickUp::parseOrbitFile(UtlString& fileName)
                OsSysLog::add(FAC_SIP, PRI_ERR,
                              "SipRedirectorPrivateStoragePickUp::parseOrbitFile "
                              "Extension was null.");
-               free(user);
+               delete user;
             }
          }
          else
