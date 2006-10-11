@@ -1350,15 +1350,23 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetRequestURI(const SIPX_CALL hCall,
             sipxCallReleaseLock(pData, SIPX_LOCK_READ) ;
 
             SipDialog sipDialog;
-            pCallManager->getSipDialog(callId, remoteAddress, sipDialog);
-            
-            UtlString uri;
-            sipDialog.getRemoteRequestUri(uri);
-            if (iMaxLength)
+            if (pCallManager->getSipDialog(callId, remoteAddress, sipDialog) ==
+                OS_SUCCESS)
             {
-                strncpy(szUri, uri.data(), iMaxLength) ;
-                szUri[iMaxLength-1] = 0 ;
-                sr = SIPX_RESULT_SUCCESS;
+               UtlString uri;
+               sipDialog.getRemoteRequestUri(uri);
+               if (iMaxLength)
+               {
+                  strncpy(szUri, uri.data(), iMaxLength) ;
+                  szUri[iMaxLength-1] = 0 ;
+                  sr = SIPX_RESULT_SUCCESS;
+               }
+            }
+            else
+            {
+               OsSysLog::add(FAC_ACD, PRI_ERR,
+                             "sipxCallGetRequestURI - Failed call to getSipDialog(%s, %s)",
+                             callId.data(), remoteAddress.data());
             }
         }
         else
@@ -1396,16 +1404,24 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetRemoteContact(const SIPX_CALL hCall,
             sipxCallReleaseLock(pData, SIPX_LOCK_READ) ;
 
             SipDialog sipDialog;
-            pCallManager->getSipDialog(callId, remoteAddress, sipDialog);
-            
-            Url contact;
-            sipDialog.getRemoteContact(contact);
-
-            if (iMaxLength)
+            if (pCallManager->getSipDialog(callId, remoteAddress, sipDialog) ==
+                OS_SUCCESS)
             {
-                strncpy(szContact, contact.toString().data(), iMaxLength) ;
-                szContact[iMaxLength-1] = 0 ;
-                sr = SIPX_RESULT_SUCCESS;
+               Url contact;
+               sipDialog.getRemoteContact(contact);
+
+               if (iMaxLength)
+               {
+                  strncpy(szContact, contact.toString().data(), iMaxLength) ;
+                  szContact[iMaxLength-1] = 0 ;
+                  sr = SIPX_RESULT_SUCCESS;
+               }
+            }
+            else
+            {
+               OsSysLog::add(FAC_ACD, PRI_ERR,
+                             "sipxCallGetRemoteContact - Failed call to getSipDialog(%s, %s)",
+                             callId.data(), remoteAddress.data());
             }
         }
         else

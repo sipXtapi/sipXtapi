@@ -21,6 +21,7 @@
 #include "net/Url.h"
 #include "os/OsConfigDb.h"
 #include "net/SipUserAgent.h"
+#include "utl/UtlContainableAtomic.h"
 
 // DEFINES
 // MACROS
@@ -195,23 +196,17 @@ class SipRedirector
  * subclasses can be saved by redirectors on the master list of
  * suspended requests.
  *
- * SipRedirectorPrivateStorage is a subclass of UtlContainable, so
- * pointers to it can be returned by iterators.  But its hash and comparison
- * functions are dummies, and should be overridden if one wants to use
- * these objects as indexes.
+ * Its hash and comparison functions are inherited from UtlContainableAtomic,
+ * because these objects are treated as atomic.
  */
 
-class SipRedirectorPrivateStorage : public UtlContainable
+class SipRedirectorPrivateStorage : public UtlContainableAtomic
 {
   public:
    
    virtual ~SipRedirectorPrivateStorage();
 
-   unsigned int hash() const;
-
-   virtual const char* const getContainableType() const;
-
-   virtual int compareTo(const UtlContainable*) const;
+   virtual const char* const getContainableType() const = 0;
 };
 
 #endif // SIPREDIRECTOR_H

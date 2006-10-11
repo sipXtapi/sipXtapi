@@ -39,6 +39,7 @@ public:
    ~ActiveCall();
 
    virtual UtlContainableType getContainableType() const;
+   static const UtlContainableType TYPE;
 
    virtual unsigned int hash() const;
 

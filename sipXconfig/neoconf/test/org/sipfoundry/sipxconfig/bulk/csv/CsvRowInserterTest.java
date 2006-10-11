@@ -17,10 +17,12 @@ import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.phone.cisco.CiscoModel;
-import org.sipfoundry.sipxconfig.phone.polycom.PolycomModel;
+import org.sipfoundry.sipxconfig.phone.PhoneModel;
+import org.sipfoundry.sipxconfig.phone.TestPhone;
+import org.sipfoundry.sipxconfig.phone.TestPhoneModel;
 
 public class CsvRowInserterTest extends TestCase {
     public void testUserFromRow() {
@@ -71,11 +73,11 @@ public class CsvRowInserterTest extends TestCase {
     public void testCheckRowData() {
         CsvRowInserter impl = new CsvRowInserter();
         String[] row = {
-            "kuku", "", "", "", "", "", "", "001122334466", "polycom", "300", "yellow phone", ""
+            "kuku", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
         };
         assertTrue(impl.checkRowData(row));
         String[] rowShort = {
-            "kuku", "", "", "", "", "", "", "001122334466", "polycom", "300", "yellow phone"
+            "kuku", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone"
         };
         assertFalse(impl.checkRowData(rowShort));
         row[Index.USERNAME.getValue()] = "";
@@ -88,11 +90,11 @@ public class CsvRowInserterTest extends TestCase {
 
     public void testPhoneFromRowUpdate() {
         final String[] phoneRow = new String[] {
-            "", "", "", "", "", "", "", "001122334466", "polycom", "300", "yellow phone", ""
+            "", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
         };
 
         Integer phoneId = new Integer(5);
-        Phone phone = new Phone();
+        Phone phone = new TestPhone();
         phone.setSerialNumber("001122334466");
         phone.setDescription("old description");
 
@@ -119,41 +121,52 @@ public class CsvRowInserterTest extends TestCase {
 
     public void testPhoneFromRowNew() {
         final String[] phoneRow1 = new String[] {
-            "", "", "", "", "", "", "", "001122334455", "polycom", "500", "yellow phone",
+            "", "", "", "", "", "", "", "001122334455", "testPhoneModel", "yellow phone",
             "phone in John room"
         };
-
-        Phone phone = new Phone();
+        
+        Phone phone = new TestPhone();
+        PhoneModel model = new TestPhoneModel();
         phone.setDescription("old description");
-
+        
         IMocksControl phoneContextCtrl = EasyMock.createControl();
         PhoneContext phoneContext = phoneContextCtrl.createMock(PhoneContext.class);
 
         phoneContext.getPhoneIdBySerialNumber("001122334455");
         phoneContextCtrl.andReturn(null);
-        phoneContext.newPhone(PolycomModel.MODEL_500);
+        phoneContext.newPhone(model);
         phoneContextCtrl.andReturn(phone);
 
         phoneContextCtrl.replay();
+        
+        IMocksControl phoneModelSourceControl = EasyMock.createControl();
+        ModelSource<PhoneModel> phoneModelSource = phoneModelSourceControl.createMock(ModelSource.class);
+        phoneModelSource.getModel(model.getModelId());
+        phoneModelSourceControl.andReturn(model);
+        
+        phoneModelSourceControl.replay();
 
         CsvRowInserter impl = new CsvRowInserter();
         impl.setPhoneContext(phoneContext);
+        impl.setPhoneModelSource(phoneModelSource);
 
         // new phone
         Phone phone1 = impl.phoneFromRow(phoneRow1);
         assertEquals("phone in John room", phone1.getDescription());
         assertEquals("001122334455", phone1.getSerialNumber());
 
+        phoneModelSourceControl.verify();
         phoneContextCtrl.verify();
     }
 
     public void testPhoneFromRowSpaces() {
         final String[] phoneRow1 = new String[] {
-            "", "", "", "", "", "", "", "001122334455", "ciscoAta ", " 18x", "yellow phone",
+            "", "", "", "", "", "", "", "001122334455", "testPhoneModel", "yellow phone",
             "phone in John room"
         };
 
-        Phone phone = new Phone();
+        Phone phone = new TestPhone();
+        PhoneModel model = new TestPhoneModel();
         phone.setDescription("old description");
 
         IMocksControl phoneContextCtrl = EasyMock.createControl();
@@ -161,12 +174,20 @@ public class CsvRowInserterTest extends TestCase {
 
         phoneContext.getPhoneIdBySerialNumber("001122334455");
         phoneContextCtrl.andReturn(null);
-        phoneContext.newPhone(CiscoModel.MODEL_ATA18X);
+        phoneContext.newPhone(model);
         phoneContextCtrl.andReturn(phone);
 
         phoneContextCtrl.replay();
 
+        IMocksControl phoneModelSourceControl = EasyMock.createControl();
+        ModelSource<PhoneModel> phoneModelSource = phoneModelSourceControl.createMock(ModelSource.class);
+        phoneModelSource.getModel(model.getModelId());
+        phoneModelSourceControl.andReturn(model);
+        
+        phoneModelSourceControl.replay();
+
         CsvRowInserter impl = new CsvRowInserter();
+        impl.setPhoneModelSource(phoneModelSource);
         impl.setPhoneContext(phoneContext);
 
         // new phone
@@ -174,6 +195,7 @@ public class CsvRowInserterTest extends TestCase {
         assertEquals("phone in John room", phone1.getDescription());
         assertEquals("001122334455", phone1.getSerialNumber());
 
+        phoneModelSourceControl.verify();
         phoneContextCtrl.verify();
     }
 }

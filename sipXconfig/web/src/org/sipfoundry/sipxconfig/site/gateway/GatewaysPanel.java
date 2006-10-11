@@ -26,9 +26,10 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
 import org.sipfoundry.sipxconfig.components.selection.OptGroup;
+import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
-import org.sipfoundry.sipxconfig.phone.PhoneModel;
+import org.sipfoundry.sipxconfig.gateway.GatewayModel;
 import org.sipfoundry.sipxconfig.site.setting.BulkGroupAction;
 
 public abstract class GatewaysPanel extends BaseComponent {
@@ -44,6 +45,8 @@ public abstract class GatewaysPanel extends BaseComponent {
     public abstract GatewayContext getGatewayContext();
 
     public abstract DialPlanContext getDialPlanContext();
+    
+    public abstract ModelSource<GatewayModel> getGatewayModelSource();
 
     public abstract Gateway getGateway();
 
@@ -82,9 +85,9 @@ public abstract class GatewaysPanel extends BaseComponent {
             }
         }
 
-        Collection<PhoneModel> models = context.getAvailableGatewayModels();
+        Collection<GatewayModel> models = getGatewayModelSource().getModels();
         actions.add(new OptGroup(getMessages().getMessage("label.createGateway")));
-        for (PhoneModel model : models) {
+        for (GatewayModel model : models) {
             AddNewGatewayAction action = new AddNewGatewayAction(model);
             actions.add(action);
         }
@@ -95,9 +98,9 @@ public abstract class GatewaysPanel extends BaseComponent {
     }
 
     class AddNewGatewayAction extends BulkGroupAction {
-        private PhoneModel m_model;
+        private GatewayModel m_model;
 
-        AddNewGatewayAction(PhoneModel model) {
+        AddNewGatewayAction(GatewayModel model) {
             super(null);
             m_model = model;
         }

@@ -113,7 +113,7 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
         return (Group) DaoUtils.requireOneOrZero(groups, query);
     }
 
-    public List<Group> getGroupsByString(String resource, String groupString) {
+    public List<Group> getGroupsByString(String resource, String groupString, boolean saveNew) {
         if (StringUtils.isBlank(groupString)) {
             return new ArrayList(0);
         }
@@ -125,6 +125,9 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
                 g = new Group();
                 g.setResource(resource);
                 g.setName(groupNames[i]);
+                if (saveNew) {
+                    saveGroup(g);
+                }
             }
             groups.add(g);
         }

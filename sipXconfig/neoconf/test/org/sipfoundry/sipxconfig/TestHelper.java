@@ -108,6 +108,15 @@ public final class TestHelper {
         mfc.setModelBuilder(builder);
         return mfc;
     }
+    
+    public static XmlModelBuilder getModelBuilder() {
+        ModelFilesContextImpl mfc = new ModelFilesContextImpl();
+        String sysdir = getSettingModelContextRoot();
+        mfc.setConfigDirectory(sysdir);
+        XmlModelBuilder builder = new XmlModelBuilder(sysdir);
+        mfc.setModelBuilder(builder);
+        return builder;        
+    }
 
     public static String getSettingModelContextRoot() {
         String sysdir = getSysDirProperties().getProperty("sysdir.etc");

@@ -10,6 +10,7 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
+
 // DEFINES
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -68,6 +69,7 @@ public:
     * @param state The state value to be updated.
     */
    virtual void updateState(ePresenceStateType type, bool state) = 0;
+   
 
 /* ============================ ACCESSORS ================================= */
    /**

@@ -29,7 +29,6 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
-import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -61,18 +60,8 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
 
     private DeviceDefaults m_deviceDefaults;
 
-    private ModelSource m_modelSource;
-    
     private IntercomManager m_intercomManager;
     
-    public Collection getAvailablePhoneModels() {
-        return m_modelSource.getModels();
-    }
-
-    public void setPhoneModelSource(ModelSource modelSource) {
-        m_modelSource = modelSource;
-    }
-
     public void setSettingDao(SettingDao settingDao) {
         m_settingDao = settingDao;
     }
@@ -163,10 +152,10 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
                 QUERY_PHONE_ID_BY_SERIAL_NUMBER, "value", Phone.cleanSerialNumber(serialNumber));
         return (Integer) DaoUtils.requireOneOrZero(objs, QUERY_PHONE_ID_BY_SERIAL_NUMBER);
     }
-
+    
     public Phone newPhone(PhoneModel model) {
         Phone phone = (Phone) m_beanFactory.getBean(model.getBeanId());
-        phone.setModelId(model.getModelId());
+        phone.setModel(model);
         return phone;
     }
 

@@ -28,11 +28,10 @@ public class Tp260GatewayTest extends TestCase {
 
     protected void setUp() throws Exception {
         m_model = (AudioCodesModel) TestHelper.getApplicationContext().getBean(
-                "gmAudiocodesTP260_2_Span");
+                "audiocodesTP260_2_Span");
         m_gateway = (Tp260Gateway) TestHelper.getApplicationContext()
-                .getBean("gwAudiocodesTp260");
-        m_gateway.setBeanId(m_model.getBeanId());
-        m_gateway.setModelId(m_model.getModelId());
+                .getBean(m_model.getBeanId());
+        m_gateway.setModel(m_model);
     }
     
     /**

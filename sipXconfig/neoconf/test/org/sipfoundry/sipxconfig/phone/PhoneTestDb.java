@@ -23,7 +23,6 @@ import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.phone.acme.AcmePhone;
 import org.sipfoundry.sipxconfig.phone.polycom.PolycomModel;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -49,8 +48,7 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
     
     public void testSave() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        
-        Phone phone = context.newPhone(AcmePhone.MODEL_ACME);
+        Phone phone = context.newPhone(new TestPhoneModel());
         phone.setSerialNumber("999123456");
         phone.setDescription("unittest-sample phone1");
         context.storePhone(phone);
@@ -148,7 +146,7 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
     
     public void testPhoneSubclassSave() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        Phone subclass = context.newPhone(PolycomModel.MODEL_300);
+        Phone subclass = context.newPhone(new PolycomModel("polycom300"));
         subclass.setSerialNumber("000000000000");
         context.storePhone(subclass);
         

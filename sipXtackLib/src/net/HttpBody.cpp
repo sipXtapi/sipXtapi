@@ -43,7 +43,6 @@
 HttpBody::HttpBody(const char* bytes, int length, const char* contentType) :
     bodyLength(0)
 {
-
    mClassType = HTTP_BODY_CLASS;
    for(int partIndex = 0; partIndex < MAX_HTTP_BODY_PARTS; partIndex++)
    {
@@ -349,14 +348,14 @@ void HttpBody::getBytes(UtlString* bytes, int* length) const
     }
 }
 
-HttpBody::BodyClassTypes HttpBody::getClassType() const
-{
-    return(mClassType);
-}
-
 const char* HttpBody::getBytes() const
 {
    return mBody.data();
+}
+
+HttpBody::BodyClassTypes HttpBody::getClassType() const
+{
+    return(mClassType);
 }
 
 const char* HttpBody::getContentType() const

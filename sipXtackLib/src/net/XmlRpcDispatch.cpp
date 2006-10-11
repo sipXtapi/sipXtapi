@@ -33,6 +33,10 @@
 #include <net/HttpMessage.h>
 #include "net/XmlRpcDispatch.h"
 
+// STATIC VARIABLE DEFINITIONS
+const UtlContainableType XmlRpcMethodContainer::TYPE = "XmlRpcMethod";
+
+
 #undef TEST_HTTP /* turn on to log raw http messages */
 
 XmlRpcMethodContainer::XmlRpcMethodContainer()
@@ -58,11 +62,9 @@ unsigned int XmlRpcMethodContainer::hash() const
 }
 
 
-static UtlContainableType DB_ENTRY_TYPE = "XmlRpcMethod";
-
 const UtlContainableType XmlRpcMethodContainer::getContainableType() const
 {
-    return DB_ENTRY_TYPE;
+    return TYPE;
 }
 
 void XmlRpcMethodContainer::setData(XmlRpcMethod::Get* method, void* userData)

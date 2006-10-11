@@ -21,7 +21,7 @@
 #include <os/OsMutex.h>
 #include <utl/UtlDefs.h>
 #include <utl/UtlHashMap.h>
-#include <utl/UtlContainable.h>
+#include <utl/UtlContainableAtomic.h>
 
 // DEFINES
 // MACROS
@@ -386,7 +386,7 @@ private:
  * can only be created of subclasses that provide a getContent()
  * method.
  */
-class SipPublishContentMgrDefaultConstructor : public UtlContainable
+class SipPublishContentMgrDefaultConstructor : public UtlContainableAtomic
 {
   public:
 
@@ -406,14 +406,6 @@ class SipPublishContentMgrDefaultConstructor : public UtlContainable
 
    /// Make a copy of this object according to its real type.
    virtual SipPublishContentMgrDefaultConstructor* copy() = 0;
-
-   // Support functions for UtlContainable.
-
-   /// Calculate a hash of the object.
-   virtual unsigned int hash() const;
-
-   /// Compare to any other UtlContainable
-   virtual int compareTo(UtlContainable const *other) const;
 };
 
 /* ============================ INLINE METHODS ============================ */

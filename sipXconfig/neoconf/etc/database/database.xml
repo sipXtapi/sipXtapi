@@ -123,9 +123,14 @@
   </target>
 	
   <target name="version4" description="upgrade from version 3" unless="version5">
+    <antcall target="model-refactoring"/>
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="5" -->
   </target>	
+
+  <target name="model-refactoring" unless="model-refactoring">
+    <db-patch patch="model-refactoring"/>
+  </target>
 
   <target name="domain" unless="domain">
     <db-patch patch="domain"/>

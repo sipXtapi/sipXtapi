@@ -130,13 +130,13 @@ void SipPublishContentMgr::publish(const char* resourceId,
                                    HttpBody* eventContent[],
                                    UtlBoolean noNotify)
 {
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipPublishContentMgr::publish resourceId '%s', eventTypeKey '%s', eventType '%s', numContentTypes %d",
+                  resourceId, eventTypeKey, eventType, numContentTypes);
 #ifdef TEST_PRINT
     osPrintf("SipPublishContentMgr::publish(%s, %s, %s, %d, [%p], ...)\n",
         resourceId, eventTypeKey, eventType, numContentTypes, eventContent[0]);
 #endif
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                  "SipPublishContentMgr::publish resourceId '%s', eventTypeKey '%s', eventType '%s', numContentTypes %d",
-                  resourceId, eventTypeKey, eventType, numContentTypes);
 
     UtlBoolean resourceIdProvided = resourceId && *resourceId;
 
@@ -674,17 +674,4 @@ void SipPublishContentMgr::unlock()
 
 // Support functions for SipPublishContentMgrDefaultConstructor.
 
-/// The hash is just the object's location.
-unsigned int SipPublishContentMgrDefaultConstructor::hash() const
-{
-   return (int) this;
-}
-
-int SipPublishContentMgrDefaultConstructor::compareTo(const UtlContainable* other) const
-{
-   UtlContainableType our_type = getContainableType();
-   UtlContainableType other_type = other->getContainableType();
-   return (our_type != other_type ?
-           (our_type < other_type ? -1 : 1) :
-           this < other ? -1 : 1);
-}
+// None.

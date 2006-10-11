@@ -33,6 +33,9 @@
 #define CONFIG_SETTING_LOG_DIR        "SIP_AUTHPROXY_LOG_DIR"
 #define LOG_FACILITY                  FAC_SIP
 
+// The period of time in seconds that nonces are valid, in seconds.
+#define NONCE_EXPIRATION_PERIOD    (60 * 5)     // five minutes
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

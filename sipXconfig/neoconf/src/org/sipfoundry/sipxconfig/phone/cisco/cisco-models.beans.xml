@@ -2,20 +2,46 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
   "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-  <bean id="org.sipfoundry.sipxconfig.phone.cisco.CiscoModel.MODEL_ATA18X"
-    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
-  <bean id="org.sipfoundry.sipxconfig.phone.cisco.CiscoModel.MODEL_7905"
-    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
-  <bean id="org.sipfoundry.sipxconfig.phone.cisco.CiscoModel.MODEL_7912"
-    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
-  <bean id="org.sipfoundry.sipxconfig.phone.cisco.CiscoModel.MODEL_7940"
-    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
-  <bean id="org.sipfoundry.sipxconfig.phone.cisco.CiscoModel.MODEL_7960"
-    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+  <bean id="cisco7960" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoModel">
+    <property name="beanId" value="ciscoIp"/>
+    <property name="modelId" value="7960"/>
+    <property name="label" value="Cisco IP 7960"/>
+    <property name="maxLineCount" value="6"/>
+  </bean>
+  <bean id="cisco7940" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoModel">
+    <property name="beanId" value="ciscoIp"/>
+    <property name="modelId" value="7940"/>
+    <property name="label" value="Cisco IP 7940"/>
+    <property name="maxLineCount" value="2"/>
+  </bean>
+  <bean id="cisco7912" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoModel">
+    <property name="beanId" value="ciscoAta"/>
+    <property name="modelId" value="7912"/>
+    <property name="label" value="Cisco IP 7912"/>
+    <property name="maxLineCount" value="1"/>
+    <property name="cfgPrefix" value="gk"/>
+    <property name="upgCode" value="0x601,0x400,0x200"/>
+  </bean>
+  <bean id="cisco7905" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoModel">
+    <property name="beanId" value="ciscoAta"/>
+    <property name="modelId" value="7905"/>
+    <property name="label" value="Cisco IP 7905"/>
+    <property name="maxLineCount" value="1"/>
+    <property name="cfgPrefix" value="ld"/>
+    <property name="upgCode" value="0x501,0x400,0x200"/>
+  </bean>
+  <bean id="cisco18x" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoModel">
+    <property name="beanId" value="ciscoAta"/>
+    <property name="modelId" value="18x"/>
+    <property name="label" value="Cisco ATA 186/188"/>
+    <property name="maxLineCount" value="2"/>
+    <property name="cfgPrefix" value="ata"/>
+    <property name="upgCode" value="0x301,0x400,0x200"/>
+  </bean>
 
   <!-- Cisco 7940, 7960 -->
   <bean id="ciscoIp" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoIpPhone" singleton="false"
-    parent="unmanagedPhone">
+    parent="abstractPhone">
   </bean>
   <bean id="ciscoIpFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
     <constructor-arg value="upload" />
@@ -24,6 +50,6 @@
   </bean>
   <!-- CISCO ATA and low-end cisco phones -->
   <bean id="ciscoAta" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaPhone"
-    singleton="false" parent="unmanagedPhone">
+    singleton="false" parent="abstractPhone">
   </bean>
 </beans>

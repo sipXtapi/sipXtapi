@@ -27,8 +27,6 @@ public interface PhoneContext extends DataObjectSource {
 
     public static final String CONTEXT_BEAN_NAME = "phoneContext";
 
-    public Collection getAvailablePhoneModels();
-
     /**
      * Commits the transaction and performs a batch of SQL commands to database. Call this as high
      * in the application stack as possible for better performance and data integrity.
@@ -55,7 +53,7 @@ public interface PhoneContext extends DataObjectSource {
     public void deleteLine(Line line);
 
     public Line loadLine(Integer id);
-
+    
     public Phone newPhone(PhoneModel model);
 
     public Phone loadPhone(Integer id);

@@ -18,6 +18,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.bulk.RowInserter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
@@ -28,6 +29,12 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
     private CoreContext m_coreContext;
 
     private PhoneContext m_phoneContext;
+    
+    private ModelSource<PhoneModel> m_modelSource;
+
+    public void setPhoneModelSource(ModelSource<PhoneModel> modelSource) {
+        m_modelSource = modelSource;
+    }
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
@@ -108,9 +115,8 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
         if (phoneId != null) {
             phone = m_phoneContext.loadPhone(phoneId);
         } else {
-            String beanId = Index.BEAN_ID.get(row).trim();
             String modelId = Index.MODEL_ID.get(row).trim();
-            PhoneModel model = PhoneModel.getModel(beanId, modelId);
+            PhoneModel model = m_modelSource.getModel(modelId);
             phone = m_phoneContext.newPhone(model);
             phone.setSerialNumber(serialNo);
         }

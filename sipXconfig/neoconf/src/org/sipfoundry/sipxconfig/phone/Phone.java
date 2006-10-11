@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
+import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -34,11 +35,9 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 /**
  * Base class for managed phone subclasses
  */
-public class Phone extends BeanWithGroups {
+public abstract class Phone extends BeanWithGroups {
     // public because of checkstyle
     public static final String PHONE_CONSTANT = "phone";
-
-    public static final PhoneModel MODEL = new PhoneModel("unmanagedPhone", "Unmanaged phone");
 
     public static final String GROUP_RESOURCE_ID = PHONE_CONSTANT;
 
@@ -46,11 +45,11 @@ public class Phone extends BeanWithGroups {
 
     private String m_serialNumber;
 
-    private PhoneModel m_model;
-
     private List<Line> m_lines = Collections.EMPTY_LIST;
 
     private PhoneContext m_phoneContext;
+    
+    private ModelSource<PhoneModel> m_modelSource;
 
     private String m_tftpRoot;
 
@@ -64,19 +63,18 @@ public class Phone extends BeanWithGroups {
 
     private String m_beanId;
     
+    private String m_modelId;
+    
+    private PhoneModel m_model;
+    
     private DeviceVersion m_version;
-
-    public Phone() {
-        this(MODEL);
-    }
 
     protected Phone(String beanId) {
         m_beanId = beanId;
     }
 
     protected Phone(PhoneModel model) {
-        m_beanId = model.getBeanId();
-        m_model = model;
+        setModel(model);
     }
 
     @Override
@@ -84,14 +82,31 @@ public class Phone extends BeanWithGroups {
     }
 
     public String getModelLabel() {
-        return m_model.getLabel();
+        return getModel().getLabel();
     }
-
+    
     public void setModelId(String modelId) {
-        m_model = PhoneModel.getModel(getBeanId(), modelId);
+        m_modelId = modelId;
+        m_model = null;
+    }
+    
+    public void setModel(PhoneModel model) {
+        m_model = model;
+        m_modelId = model.getModelId();
+        m_beanId = model.getBeanId();
     }
 
     public PhoneModel getModel() {
+        if (m_model != null) {
+            return m_model;
+        }
+        if (m_modelId == null) {
+            throw new IllegalStateException("Model ID not set");
+        }
+        if (m_modelSource == null) {
+            throw new IllegalStateException("ModelSource not set");
+        }
+        m_model = m_modelSource.getModel(m_modelId);
         return m_model;
     }
 
@@ -137,16 +152,14 @@ public class Phone extends BeanWithGroups {
 
     protected Setting loadSettings() {
         Set defines = getModelDefinitions();
-        return getModelFilesContext().loadDynamicModelFile("phone.xml", getModel().getBeanId(),
-                defines);
+        return getModelFilesContext().loadDynamicModelFile("phone.xml", getBeanId(), defines);
     }
 
     protected Setting loadLineSettings() {
         Set defines = getModelDefinitions();
-        return getModelFilesContext().loadDynamicModelFile("line.xml", getModel().getBeanId(),
-                defines);
+        return getModelFilesContext().loadDynamicModelFile("line.xml", getBeanId(), defines);
     }
-    
+
     /**
      * When loading the settings model.
      * 
@@ -169,18 +182,13 @@ public class Phone extends BeanWithGroups {
      * Each subclass must decide how as much of this generic line information translates into its
      * own setting model.
      */
-    @SuppressWarnings("unused")
-    protected void setLineInfo(Line line, LineInfo lineInfo) {
-    }
+    protected abstract void setLineInfo(Line line, LineInfo lineInfo);
 
     /**
      * Each subclass must decide how as much of this generic line information can be contructed
      * from its own setting model.
      */
-    @SuppressWarnings("unused")
-    protected LineInfo getLineInfo(Line line) {
-        return null;
-    }
+    protected abstract LineInfo getLineInfo(Line line);
 
     /**
      * Overwrite to generate profiles
@@ -306,7 +314,7 @@ public class Phone extends BeanWithGroups {
     }
 
     public String getModelId() {
-        return m_model.getModelId();
+        return m_modelId;
     }
 
     public String getDescription() {
@@ -385,5 +393,9 @@ public class Phone extends BeanWithGroups {
         line.setPhone(this);
         line.setModelFilesContext(getModelFilesContext());
         return line;
+    }
+
+    public void setPhoneModelSource(ModelSource<PhoneModel> modelSource) {
+        m_modelSource = modelSource;
     }    
 }

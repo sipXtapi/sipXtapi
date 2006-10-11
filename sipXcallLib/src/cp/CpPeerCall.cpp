@@ -1057,6 +1057,8 @@ UtlBoolean CpPeerCall::handleHoldTermConnection(OsMsg* pEventMessage)
         {
             connection->hold();
 
+#if 0
+Note: Should not bubble up the response until it is received from the far end. It is supposedly fixed in the PAX branch.
             if (mLocalHeld)
             {
                 connection->fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_INACTIVE) ;
@@ -1065,6 +1067,7 @@ UtlBoolean CpPeerCall::handleHoldTermConnection(OsMsg* pEventMessage)
             {
                 connection->fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE_HELD) ;
             }
+#endif
         }
         else
         {
@@ -1535,12 +1538,13 @@ UtlBoolean CpPeerCall::handleGetSession(OsMsg* pEventMessage)
         ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
     getFieldEvent->getIntData((int&)sessionPtr);
 
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetSession session: 0x%p for callId %s address %s",
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetSession session: %p for callId %s address %s",
                   sessionPtr, callId.data(), address.data());
 
     // Check whether the tag is set in addresses or not. If so, do not need to use callId
     // for comparison.
-    UtlBoolean hasTag = checkForTag(address);
+    UtlString address_without_tag;
+    UtlBoolean hasTag = checkForTag(address, address_without_tag);
 
     // Get the remote connection(s)/address(es)
     Connection* connection = NULL;
@@ -1555,17 +1559,23 @@ UtlBoolean CpPeerCall::handleGetSession(OsMsg* pEventMessage)
         connection->getLocalAddress(&localAddress);
         connection->getRemoteAddress(&remoteAddress);
 
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetSession looking for the SipSession for %s, %s, %s",
-                      connCallId.data(), localAddress.data(), remoteAddress.data());
+        OsSysLog::add(FAC_CP, PRI_DEBUG,
+                      "CpPeerCall::handleGetSession looking at %s, %s, %s",
+                      connCallId.data(), localAddress.data(),
+                      remoteAddress.data());
 
-        if ((hasTag && (address.compareTo(localAddress) == 0)) ||
-            (hasTag && (address.compareTo(remoteAddress) == 0)) ||
-            (callId.compareTo(connCallId) == 0) &&
-            (address.compareTo(localAddress) == 0 || address.compareTo(remoteAddress) == 0))
+        // Compare the call-ID and the address, both with the tag parameter
+        // (as the address is stored after call establishment) and without
+        // (as the address is stored during call offering).
+        if (callId.compareTo(connCallId) == 0 &&
+            (address.compareTo(localAddress) == 0 ||
+             address.compareTo(remoteAddress) == 0 ||
+             (hasTag && address_without_tag.compareTo(localAddress) == 0) ||
+             (hasTag && address_without_tag.compareTo(remoteAddress) == 0)))
         {
             SipSession session;
             connection->getSession(session);
-            OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetSession copying session: 0x%p",
+            OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetSession copying session: %p",
                           sessionPtr);
 
             *sessionPtr = SipSession(session);
@@ -1605,12 +1615,13 @@ UtlBoolean CpPeerCall::handleGetInvite(OsMsg* pEventMessage)
         ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
     getFieldEvent->getIntData((int&)messagePtr);
 
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetInvite message: 0x%p for callId %s address %s",
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetInvite message: %p for callId %s address %s",
                   messagePtr, callId.data(), address.data());
 
     // Check whether the tag is set in addresses or not. If so, do not need to use callId
     // for comparison.
-    UtlBoolean hasTag = checkForTag(address);
+    UtlString address_without_tag;
+    UtlBoolean hasTag = checkForTag(address, address_without_tag);
 
     // Get the remote connection(s)/address(es)
     Connection* connection = NULL;
@@ -1625,13 +1636,19 @@ UtlBoolean CpPeerCall::handleGetInvite(OsMsg* pEventMessage)
         connection->getLocalAddress(&localAddress);
         connection->getRemoteAddress(&remoteAddress);
 
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetInvite looking for the INVITE for %s, %s, %s",
-                      connCallId.data(), localAddress.data(), remoteAddress.data());
+        OsSysLog::add(FAC_CP, PRI_DEBUG,
+                      "CpPeerCall::handleGetInvite looking at %s, %s, %s",
+                      connCallId.data(), localAddress.data(),
+                      remoteAddress.data());
 
-        if ((hasTag && (address.compareTo(localAddress) == 0)) ||
-            (hasTag && (address.compareTo(remoteAddress) == 0)) ||
-            (callId.compareTo(connCallId) == 0) &&
-            (address.compareTo(localAddress) == 0 || address.compareTo(remoteAddress) == 0))
+        // Compare the call-ID and the address, both with the tag parameter
+        // (as the address is stored after call establishment) and without
+        // (as the address is stored during call offering).
+        if (callId.compareTo(connCallId) == 0 &&
+            (address.compareTo(localAddress) == 0 ||
+             address.compareTo(remoteAddress) == 0 ||
+             (hasTag && address_without_tag.compareTo(localAddress) == 0) ||
+             (hasTag && address_without_tag.compareTo(remoteAddress) == 0)))
         {
            // Have to cast the Connection* into a SipConnection*, because only
            // SipConnection has an INVITE attached.
@@ -1642,10 +1659,22 @@ UtlBoolean CpPeerCall::handleGetInvite(OsMsg* pEventMessage)
            {
               // Copy the saved INVITE from the SipConnection into *messagePtr.
               sipConnection->getInvite(messagePtr);
-
-              UtlString text;
-              int length;
-              messagePtr->getBytes(&text, &length);
+              if (OsSysLog::willLog(FAC_CP, PRI_DEBUG))
+              {
+                 UtlString text;
+                 int length;
+                 messagePtr->getBytes(&text, &length);
+                 OsSysLog::add(FAC_CP, PRI_DEBUG,
+                               "CpPeerCall::handleGetInvite INVITE found '%s'",
+                               text.data());
+              }
+           }
+           else
+           {
+              // The connection should always be a SipConnection.
+              OsSysLog::add(FAC_CP, PRI_WARNING,
+                            "CpPeerCall::handleGetInvite could not cast Connection %p to SipConnection",
+                            connection);
            }
 
            // Signal the caller that we are done.
@@ -1695,12 +1724,13 @@ UtlBoolean CpPeerCall::handleSendSipRequest(OsMsg* pEventMessage)
         {
             // Find the SipConnection which had the dialog on which to
             // send this request.
-            OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleSendSipRequest request: 0x%x for callId %s address %s",
+            OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleSendSipRequest request: %p for callId %s address %s",
                           request, callId.data(), address.data());
 
             // Check whether the tag is set in addresses or not. If so, do not need to use callId
             // for comparison.
-            UtlBoolean hasTag = checkForTag(address);
+            UtlString address_without_tag;
+            UtlBoolean hasTag = checkForTag(address, address_without_tag);
 
             // Get the remote connection(s)/address(es)
             Connection* connection = NULL;
@@ -1729,9 +1759,8 @@ UtlBoolean CpPeerCall::handleSendSipRequest(OsMsg* pEventMessage)
                         connection->sendInDialog(*request, 
                                                  requestQueue,
                                                  requestListenerData);
-                    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleSendSipRequest sent request: 0x%x $s",
-                        request, 
-                        requestSent, requestSent ? "succeeded" : "failed");
+                    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleSendSipRequest sent request: %p $s",
+                        request, requestSent ? "succeeded" : "failed");
 
                     // Signal the caller that we are done.
                     break;
@@ -3765,13 +3794,16 @@ Connection* CpPeerCall::findQueuedConnection()
 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
-UtlBoolean CpPeerCall::checkForTag(UtlString &address)
+UtlBoolean CpPeerCall::checkForTag(const UtlString &address,
+                                   UtlString& address_without_tag)
 {
+   // If not a sip: URL, there is nothing complex to be done.
    if (address.compareTo("sip:") == 0)
    {
       return FALSE;
    }
 
+   // Parse into a URI and look for a "tag" URI parameter.
    UtlString tag;
    Url url(address);
    url.getFieldParameter("tag", tag);
@@ -3782,6 +3814,9 @@ UtlBoolean CpPeerCall::checkForTag(UtlString &address)
    }
    else
    {
+      // If the tag was seen, construct the form without the tag.
+      url.removeFieldParameter("tag");
+      url.toString(address_without_tag);
       return TRUE;
    }
 }

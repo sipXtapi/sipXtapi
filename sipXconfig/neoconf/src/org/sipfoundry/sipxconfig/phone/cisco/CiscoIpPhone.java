@@ -39,12 +39,7 @@ public class CiscoIpPhone extends CiscoPhone {
     private static final String MESSAGES_URI_PATH = "phone/messages_uri";
 
     public CiscoIpPhone() {
-        super(BEAN_ID);
-        init();
-    }
-
-    public CiscoIpPhone(CiscoModel model) {
-        super(model);
+        super(new CiscoModel(BEAN_ID));
         init();
     }
 

@@ -165,18 +165,14 @@ OsStatus LinePresenceMonitor::subscribeDialog(LinePresenceBase* line)
    return result;
 }
 
-OsStatus LinePresenceMonitor::unsubscribeDialog(LinePresenceBase* line)
+OsStatus LinePresenceMonitor::unsubscribeDialog(LinePresenceBase* line, OsEvent* e)
 {
    OsStatus result = OS_FAILED;
-   OsEvent e;
 
    LinePresenceMonitorMsg unsubscribeDialogMsg(LinePresenceMonitorMsg::UNSUBSCRIBE_DIALOG,
-                                               line, &e);
+                                               line, e);
    postMessage(unsubscribeDialogMsg);
-   // Wait until unsubscribeDialogMessage has deleted any record of "line".
-   // After that point, our caller is free to delete *line.
-   e.wait();
-
+ 
    return result;
 }
 
@@ -194,15 +190,16 @@ OsStatus LinePresenceMonitor::subscribeDialog(UtlSList& list)
    return result;
 }
 
-OsStatus LinePresenceMonitor::unsubscribeDialog(UtlSList& list)
+OsStatus LinePresenceMonitor::unsubscribeDialog(UtlSList& list, OsEvent* e)
 {
    OsStatus result = OS_FAILED;
    
    UtlSListIterator iterator(list);
    LinePresenceBase* line;
+   int n = list.entries() ;
    while ((line = dynamic_cast <LinePresenceBase *> (iterator())) != NULL)
    {
-      unsubscribeDialog(line);
+      unsubscribeDialog(line, (n-- == 1) ? e: NULL); // last message gets the event
    }
 
    return result;
@@ -218,18 +215,14 @@ OsStatus LinePresenceMonitor::subscribePresence(LinePresenceBase* line)
    return result;
 }
 
-OsStatus LinePresenceMonitor::unsubscribePresence(LinePresenceBase* line)
+OsStatus LinePresenceMonitor::unsubscribePresence(LinePresenceBase* line, OsEvent* e)
 {
    OsStatus result = OS_FAILED;
-   OsEvent e;
 
    LinePresenceMonitorMsg unsubscribePresenceMsg(LinePresenceMonitorMsg::UNSUBSCRIBE_PRESENCE,
-                                                 line, &e);
+                                                 line, e);
    postMessage(unsubscribePresenceMsg);
-   // Wait until unsubscribePresenceMessage has deleted any record of "line".
-   // After that point, our caller is free to delete *line.
-   e.wait();
-
+ 
    return result;
 }
 
@@ -247,15 +240,16 @@ OsStatus LinePresenceMonitor::subscribePresence(UtlSList& list)
    return result;
 }
 
-OsStatus LinePresenceMonitor::unsubscribePresence(UtlSList& list)
+OsStatus LinePresenceMonitor::unsubscribePresence(UtlSList& list, OsEvent* e)
 {
    OsStatus result = OS_FAILED;
 
    UtlSListIterator iterator(list);
    LinePresenceBase* line;
+   int n = list.entries() ;
    while ((line = dynamic_cast <LinePresenceBase *> (iterator())) != NULL)
    {
-      unsubscribePresence(line);
+      unsubscribePresence(line, (n-- == 1) ? e: NULL);   // last message gets the event
    }
 
    return result;
@@ -359,6 +353,10 @@ UtlBoolean LinePresenceMonitor::handleMessage(OsMsg& rMessage)
    LinePresenceMonitorMsg*    pMessage;
    LinePresenceBase*          pLine;
 
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+      "LinePresenceMonitor::handleMessage - MsgType: %d, MsgSubType: %d\n", 
+         rMessage.getMsgType(), rMessage.getMsgSubType());
+         
    if (rMessage.getMsgType() == OsMsg::USER_START)
    {
       // Seize the lock to process this message.
@@ -374,10 +372,16 @@ UtlBoolean LinePresenceMonitor::handleMessage(OsMsg& rMessage)
             break;
 
          case LinePresenceMonitorMsg::UNSUBSCRIBE_DIALOG:
+         {
             pMessage = (LinePresenceMonitorMsg*)&rMessage;
-            unsubscribeDialogMessage(pMessage->getLine(),
-                                     pMessage->getEvent());
+            unsubscribeDialogMessage(pMessage->getLine()) ;
+            OsEvent *event = pMessage->getEvent() ;
+            if (event)
+            {
+               event->signal(0); // Signal the unsubscribe is complete.
+            }
             break;
+         }
 
          case LinePresenceMonitorMsg::SUBSCRIBE_PRESENCE:
             pMessage = (LinePresenceMonitorMsg*)&rMessage;
@@ -387,10 +391,16 @@ UtlBoolean LinePresenceMonitor::handleMessage(OsMsg& rMessage)
             break;
 
          case LinePresenceMonitorMsg::UNSUBSCRIBE_PRESENCE:
+         {
             pMessage = (LinePresenceMonitorMsg*)&rMessage;
-            unsubscribePresenceMessage(pMessage->getLine(),
-                                       pMessage->getEvent());
+            unsubscribePresenceMessage(pMessage->getLine()) ;
+            OsEvent *event = pMessage->getEvent() ;
+            if (event)
+            {
+               event->signal(0); // Signal the unsubscribe is complete.
+            }
             break;
+         }
 
          case LinePresenceMonitorMsg::SET_STATUS:
             pMessage = (LinePresenceMonitorMsg*)&rMessage;
@@ -452,8 +462,7 @@ OsStatus LinePresenceMonitor::subscribeDialogMessage(LinePresenceBase* line)
    return result;
 }
 
-OsStatus LinePresenceMonitor::unsubscribeDialogMessage(LinePresenceBase* line,
-                                                       OsEvent* event)
+OsStatus LinePresenceMonitor::unsubscribeDialogMessage(LinePresenceBase* line)
 {
    OsStatus result = OS_FAILED;
 
@@ -469,10 +478,6 @@ OsStatus LinePresenceMonitor::unsubscribeDialogMessage(LinePresenceBase* line,
    UtlString contact;
    lineUrl.getUserId(contact);
    mDialogSubscribeList.destroy(&contact);
-   
-   // Now that we've removed the pointer to *list, our caller may
-   // continue.
-   event->signal(0);
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "LinePresenceMonitor::unsubscribeDialogMessage unsubscribing dialog for line %s",
@@ -550,6 +555,10 @@ OsStatus LinePresenceMonitor::subscribePresenceMessage(LinePresenceBase* line)
       else
       {
          mDialogHandleList.insertKeyAndValue(new UtlString(contactId), new UtlString(dialogHandle));
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            "LinePresenceMonitor::subscribePresenceMessage subscribed contact %s dialogHandle %s",
+               contactId.data(), dialogHandle.data());
+         
       }
    }
 
@@ -560,8 +569,7 @@ OsStatus LinePresenceMonitor::subscribePresenceMessage(LinePresenceBase* line)
    return result;
 }
 
-OsStatus LinePresenceMonitor::unsubscribePresenceMessage(LinePresenceBase* line,
-                                                         OsEvent* event)
+OsStatus LinePresenceMonitor::unsubscribePresenceMessage(LinePresenceBase* line)
 {
    OsStatus result = OS_FAILED;
 
@@ -577,22 +585,15 @@ OsStatus LinePresenceMonitor::unsubscribePresenceMessage(LinePresenceBase* line,
    UtlString contact;
    lineUrl.getUserId(contact);
    
-   // Remove it from the presence subscription list.
-   mPresenceSubscribeList.destroy(&contact);
-
    UtlString* dialogHandle = NULL;
    if (!mPresenceServer.isNull())
    {
       dialogHandle = dynamic_cast <UtlString *> (mDialogHandleList.findValue(&contact));
-      if (dialogHandle != NULL)
-      {
-         mDialogHandleList.destroy(&contact);
-      }
    }
 
-   // Now that we've removed the pointer to *list and finished
-   // changing member variables, our caller may continue.
-   event->signal(0);
+   // Remove it from the presence subscription list.
+   mPresenceSubscribeList.destroy(&contact);
+
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "LinePresenceMonitor::unsubscribePresenceMessage unsubscribing presence for line %s",
@@ -600,6 +601,10 @@ OsStatus LinePresenceMonitor::unsubscribePresenceMessage(LinePresenceBase* line,
                   
    if (dialogHandle != NULL)
    {
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         "LinePresenceMonitor::unsubscribePresenceMessage unsubscribing contact %s dialogHandle %s",
+            contact.data(), dialogHandle->data());
+    
       UtlBoolean status = mpSipSubscribeClient->endSubscription(dialogHandle->data());
                   
       if (!status)
@@ -608,6 +613,7 @@ OsStatus LinePresenceMonitor::unsubscribePresenceMessage(LinePresenceBase* line,
                        "LinePresenceMonitor::unsubscribePresenceMessage Unsubscription failed for %s.",
                        contact.data());
       }
+      mDialogHandleList.destroy(&contact);
    }
    
    return result;
@@ -620,7 +626,7 @@ OsStatus LinePresenceMonitor::setStatusMessage(const UtlString* contact,
 
    OsStatus result = OS_FAILED;
    
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "LinePresenceMonitor::setStatus set the value %d for %s",
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "LinePresenceMonitor::setStatusMessage set the value %d for %s",
                  value, contact->data());
    
    if (value == StateChangeNotifier::ON_HOOK ||

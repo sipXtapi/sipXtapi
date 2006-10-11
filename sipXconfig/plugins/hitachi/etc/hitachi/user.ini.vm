@@ -271,11 +271,11 @@ Long_Retry_Limit=$!wifiset.getSetting('Long_Retry_Limit').Value
 Preamble_Mode=$!wifiset.getSetting('Preamble_Mode').Value
 RTS_Threshold=$!wifiset.getSetting('RTS_Threshold').Value
 Default_Listen_Interval=$!wifiset.getSetting('Default_Listen_Interval').Value
-#if($myphone != "5000")
+#if($myphone != "hitachi5000")
 802_11_Tx_Mode=$!wifiset.getSetting('802_11_Tx_Mode').Value
 Use_WLAN_Watchdog=$!wifiset.getSetting('Use_WLAN_Watchdog').Value
 #end
-#if($myphone == "5000")
+#if($myphone == "hitachi5000")
 Dot11_Packet_TxRate=$!wifiset.getSetting('Dot11_Packet_TxRate').Value
 PowerSave_Wakeup_Period=$!wifiset.getSetting('PowerSave_Wakeup_Period').Value
 PowerSave_Awake_Interval=$!wifiset.getSetting('PowerSave_Awake_Interval').Value
@@ -289,7 +289,7 @@ Use_Supported_Rates_By_AP=$!wifiset.getSetting('Use_Supported_Rates_By_AP').Valu
 
 #set($wifiscan = $ps.getSetting('WiFiSettings').getSetting('WIFI_SCAN'))
 [WIFI_SCAN]
-#if($myphone == "5000")
+#if($myphone == "hitachi5000")
 Scan_Count=$!wifiscan.getSetting('Scan_Count').Value
 #else
 Scan_Mode=$!wifiscan.getSetting('Scan_Mode').Value
@@ -298,7 +298,7 @@ Scan_Channel_List=$!wifiscan.getSetting('Scan_Channel_List').Value
 
 #set($roam = $ps.getSetting('WiFiSettings').getSetting('ROAMING'))
 [ROAMING]
-#if($myphone == "5000")
+#if($myphone == "hitachi5000")
 Try_RxLevel=$!roam.getSetting('Try_RxLevel').Value
 PreRoaming_Enable_RxLevel=$!roam.getSetting('PreRoaming_Enable_RxLevel').Value
 Try_Over_RxError_Count=$!roam.getSetting('Try_Over_RxError_Count').Value
@@ -328,7 +328,7 @@ Gateway=$!net2Net.getSetting('Gateway').Value
 DNS1=$!net2Net.getSetting('DNS1').Value
 DNS2=$!net2Net.getSetting('DNS2').Value
 #set($net2Wifisec = $ps.getSetting('NETWORK2').getSetting('WifiSecurity'))
-#if ($myphone == "5000")
+#if ($myphone == "hitachi5000")
 Enable_WEP=$!net2Wifisec.getSetting('Enable_WEP').Value
 #else
 Security=$!net2Wifisec.getSetting('Security').Value
@@ -359,7 +359,7 @@ Static_NAT_Start_Port=$!net2Nat.getSetting('Static_NAT_Start_Port').Value
 STUN_Server=$!net2Nat.getSetting('STUN_Server').Value
 STUN_Port=$!net2Nat.getSetting('STUN_Port').Value
 #set($net2Qos = $ps.getSetting('NETWORK2').getSetting('QoS'))
-#if ($myphone != "5000")
+#if ($myphone != "hitachi5000")
 WMM=$!net2Qos.getSetting('WMM').Value
 #end
 DiffServ_Signal=$!net2Qos.getSetting('DiffServ_Signal').Value
@@ -383,7 +383,7 @@ Gateway=$!net2Net.getSetting('Gateway').Value
 DNS1=$!net2Net.getSetting('DNS1').Value
 DNS2=$!net2Net.getSetting('DNS2').Value
 #set($net2Wifisec = $ps.getSetting('NETWORK2').getSetting('WifiSecurity'))
-#if ($myphone == "5000")
+#if ($myphone == "hitachi5000")
 Enable_WEP=$!net2Wifisec.getSetting('Enable_WEP').Value
 #else
 Security=$!net2Wifisec.getSetting('Security').Value
@@ -414,7 +414,7 @@ Static_NAT_Start_Port=$!net2Nat.getSetting('Static_NAT_Start_Port').Value
 STUN_Server=$!net2Nat.getSetting('STUN_Server').Value
 STUN_Port=$!net2Nat.getSetting('STUN_Port').Value
 #set($net2Qos = $ps.getSetting('NETWORK2').getSetting('QoS'))
-#if ($myphone != "5000")
+#if ($myphone != "hitachi5000")
 WMM=$!net2Qos.getSetting('WMM').Value
 #end
 DiffServ_Signal=$!net2Qos.getSetting('DiffServ_Signal').Value
@@ -438,7 +438,7 @@ Gateway=$!net3Net.getSetting('Gateway').Value
 DNS1=$!net3Net.getSetting('DNS1').Value
 DNS2=$!net3Net.getSetting('DNS2').Value
 #set($net3Wifisec = $ps.getSetting('NETWORK3').getSetting('WifiSecurity'))
-#if ($myphone == "5000")
+#if ($myphone == "hitachi5000")
 Enable_WEP=$!net3Wifisec.getSetting('Enable_WEP').Value
 #else
 Security=$!net3Wifisec.getSetting('Security').Value
@@ -469,7 +469,7 @@ Static_NAT_Start_Port=$!net3Nat.getSetting('Static_NAT_Start_Port').Value
 STUN_Server=$!net3Nat.getSetting('STUN_Server').Value
 STUN_Port=$!net3Nat.getSetting('STUN_Port').Value
 #set($net3Qos = $ps.getSetting('NETWORK3').getSetting('QoS'))
-#if ($myphone != "5000")
+#if ($myphone != "hitachi5000")
 WMM=$!net3Qos.getSetting('WMM').Value
 #end
 DiffServ_Signal=$!net3Qos.getSetting('DiffServ_Signal').Value
@@ -493,7 +493,7 @@ Gateway=$!net4Net.getSetting('Gateway').Value
 DNS1=$!net4Net.getSetting('DNS1').Value
 DNS2=$!net4Net.getSetting('DNS2').Value
 #set($net4Wifisec = $ps.getSetting('NETWORK4').getSetting('WifiSecurity'))
-#if ($myphone == "5000")
+#if ($myphone == "hitachi5000")
 Enable_WEP=$!net4Wifisec.getSetting('Enable_WEP').Value
 #else
 Security=$!net4Wifisec.getSetting('Security').Value
@@ -524,7 +524,7 @@ Static_NAT_Start_Port=$!net4Nat.getSetting('Static_NAT_Start_Port').Value
 STUN_Server=$!net4Nat.getSetting('STUN_Server').Value
 STUN_Port=$!net4Nat.getSetting('STUN_Port').Value
 #set($net4Qos = $ps.getSetting('NETWORK4').getSetting('QoS'))
-#if ($myphone != "5000")
+#if ($myphone != "hitachi5000")
 WMM=$!net4Qos.getSetting('WMM').Value
 #end
 DiffServ_Signal=$!net4Qos.getSetting('DiffServ_Signal').Value
@@ -548,7 +548,7 @@ Gateway=$!net5Net.getSetting('Gateway').Value
 DNS1=$!net5Net.getSetting('DNS1').Value
 DNS2=$!net5Net.getSetting('DNS2').Value
 #set($net5Wifisec = $ps.getSetting('NETWORK5').getSetting('WifiSecurity'))
-#if ($myphone == "5000")
+#if ($myphone == "hitachi5000")
 Enable_WEP=$!net5Wifisec.getSetting('Enable_WEP').Value
 #else
 Security=$!net5Wifisec.getSetting('Security').Value
@@ -579,7 +579,7 @@ Static_NAT_Start_Port=$!net5Nat.getSetting('Static_NAT_Start_Port').Value
 STUN_Server=$!net5Nat.getSetting('STUN_Server').Value
 STUN_Port=$!net5Nat.getSetting('STUN_Port').Value
 #set($net5Qos = $ps.getSetting('NETWORK5').getSetting('QoS'))
-#if ($myphone != "5000")
+#if ($myphone != "hitachi5000")
 WMM=$!net5Qos.getSetting('WMM').Value
 #end
 DiffServ_Signal=$!net5Qos.getSetting('DiffServ_Signal').Value
@@ -613,7 +613,7 @@ Enable_Key_Lock=$!UI.getSetting('Enable_Key_Lock').Value
 Enable_Key_Lock_Password=$!UI.getSetting('Enable_Key_Lock_Password').Value
 Enable_Mannermode=$!UI.getSetting('Enable_Mannermode').Value
 Enable_Error_Indication=$!UI.getSetting('Enable_Error_Indication').Value
-#if($myphone != "3000")
+#if($myphone != "hitachi3000")
 Use_Advanced_Rate_Set=$!UI.getSetting('Use_Advanced_Rate_Set').Value
 #end
 Network_Setup_Menu_Location=$!UI.getSetting('Network_Setup_Menu_Location').Value
@@ -662,7 +662,7 @@ Use_SMS=$!sms.getSetting('Use_SMS').Value
 Message_Server=$!sms.getSetting('Message_Server').Value
 Messasge_Content_Type=$!sms.getSetting('Message_Content_Type').Value
 
-#if($myphone != "5000")
+#if($myphone != "hitachi5000")
 [TOS_WMM]
 Precedence_0=$!sysset.getSetting('TOS_WMM').getSetting('Precedence_0').Value
 Precedence_1=$!sysset.getSetting('TOS_WMM').getSetting('Precedence_1').Value
@@ -674,7 +674,7 @@ Precedence_6=$!sysset.getSetting('TOS_WMM').getSetting('Precedence_6').Value
 Precedence_7=$!sysset.getSetting('TOS_WMM').getSetting('Precedence_7').Value
 #end
 
-#if($myphone != "5000")
+#if($myphone != "hitachi5000")
 [UNICODE]
 Use_Unicode_On_SMS=$!sms.getSetting('Use_Unicode_On_SMS').Value
 #end

@@ -241,7 +241,7 @@ class OsTimer : public UtlContainable
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
 
-   static UtlContainableType TYPE;
+   static const UtlContainableType TYPE;
    /**< Class type used for runtime checking */
 
    /// type for absolute time

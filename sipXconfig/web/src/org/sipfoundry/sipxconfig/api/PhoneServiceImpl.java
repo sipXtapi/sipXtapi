@@ -21,6 +21,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
+import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.device.RestartManager;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
@@ -42,6 +43,8 @@ public class PhoneServiceImpl implements PhoneService {
     private CoreContext m_coreContext;
 
     private ProfileManager m_profileManager;
+    
+    private ModelSource<PhoneModel> m_phoneModelSource;
 
     private RestartManager m_restartManager;
 
@@ -112,7 +115,7 @@ public class PhoneServiceImpl implements PhoneService {
     }
 
     public PhoneModel requireModelId(String modelId) {
-        PhoneModel model = PhoneModel.getModel(modelId);
+        PhoneModel model = m_phoneModelSource.getModel(modelId);
         if (model == null) {
             throw new IllegalArgumentException("phone model doesn't exist: " + modelId);
         }
@@ -201,5 +204,9 @@ public class PhoneServiceImpl implements PhoneService {
                 }
             }
         }
+    }
+
+    public void setPhoneModelSource(ModelSource<PhoneModel> phoneModelSource) {
+        m_phoneModelSource = phoneModelSource;
     }
 }

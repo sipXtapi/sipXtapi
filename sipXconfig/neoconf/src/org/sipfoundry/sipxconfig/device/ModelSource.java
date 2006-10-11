@@ -13,8 +13,7 @@ package org.sipfoundry.sipxconfig.device;
 
 import java.util.Collection;
 
-import org.sipfoundry.sipxconfig.phone.PhoneModel;
-
-public interface ModelSource {
-    Collection<PhoneModel> getModels();
+public interface ModelSource<T extends DeviceDescriptor> {
+    Collection<T> getModels();
+    T getModel(String modelId);
 }

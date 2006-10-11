@@ -47,7 +47,7 @@ public class GroupTest extends TestCase {
     public void testInherhitSettingsForEditing() {
         BirdWithGroups bird = new BirdWithGroups();
         Group g = new Group();
-        Setting settings = g.inherhitSettingsForEditing(bird);
+        Setting settings = g.inherhitSettingsForEditing(bird.getSettings());
         settings.getSetting("towhee/canyon").setValue("12");
 
         // bird bean should remain untouched
@@ -59,13 +59,36 @@ public class GroupTest extends TestCase {
 
     public void testInherhitSettingsForEditingIgnoreMatchingDefaults() {
         BirdWithGroups bird = new BirdWithGroups();
-        assertEquals("0", bird.getSettingValue("pigeon/passenger"));
+        Setting originalSetting = bird.getSettings().getSetting("pigeon/passenger");
+        assertEquals("0", originalSetting.getValue());
 
         Group g = new Group();
-        Setting settings = g.inherhitSettingsForEditing(bird);
-        settings.getSetting("pigeon/passenger").setValue("0");
+        Setting settings = g.inherhitSettingsForEditing(bird.getSettings());
+        Setting inheritedSetting = settings.getSetting("pigeon/passenger");
 
+        inheritedSetting.setValue("1");
+
+        assertEquals(1, g.size());
+        assertEquals("1", inheritedSetting.getValue());
+        assertEquals("0", inheritedSetting.getDefaultValue());
+        assertEquals("0", originalSetting.getValue());
+        assertEquals("0", originalSetting.getDefaultValue());
+
+        bird.addGroup(g); 
+        // inherited setting did not change even after we added bird to the group
+        assertEquals("1", inheritedSetting.getValue());
+        assertEquals("0", inheritedSetting.getDefaultValue());
+        
+        // original setting now different - since we are in the group
+        assertEquals("1", originalSetting.getValue());
+        assertEquals("1", originalSetting.getDefaultValue());
+                
+        inheritedSetting.setValue("0");
         assertEquals(0, g.size());
+        assertEquals("0", inheritedSetting.getValue());
+        assertEquals("0", inheritedSetting.getDefaultValue());
+        assertEquals("0", originalSetting.getValue());
+        assertEquals("0", originalSetting.getDefaultValue());
     }
 
     public void testInherhitSettingsForEditingGetDefaultValue() {
@@ -73,7 +96,7 @@ public class GroupTest extends TestCase {
         assertEquals("0", bird.getSettingValue("woodpecker/ivory-billed"));
 
         Group g = new Group();
-        Setting settings = g.inherhitSettingsForEditing(bird);
+        Setting settings = g.inherhitSettingsForEditing(bird.getSettings());
         Setting ivoryBilled = settings.getSetting("woodpecker/ivory-billed");
 
         ivoryBilled.setValue("2");

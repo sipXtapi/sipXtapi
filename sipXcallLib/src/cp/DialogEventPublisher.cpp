@@ -168,7 +168,15 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
       {
          case PtEvent::CONNECTION_OFFERED:
             OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage CONNECTION_OFFERED");
-            mpCallManager->getSipDialog(callId, address, sipDialog);
+            if (mpCallManager->getSipDialog(callId, address, sipDialog) !=
+                OS_SUCCESS)
+            {
+               OsSysLog::add(FAC_ACD, PRI_ERR,
+                             "DialogEventPublisher::handleMessage - CONNECTION_OFFERED - Failed call to getSipDialog(%s, %s)",
+                             callId.data(), address.data());
+               // Give up, since we can't get any information about this call.
+               break;
+            }
 #ifdef DEBUGGING            
             sipDialog.toString(sipDialogContent);
             OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage sipDialog = '%s'", 
@@ -256,7 +264,15 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
             OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage CONNECTION_ESATBLISHED");         
             if (localConnection) 
             {
-               mpCallManager->getSipDialog(callId, address, sipDialog);
+               if (mpCallManager->getSipDialog(callId, address, sipDialog) !=
+                OS_SUCCESS)
+               {
+                  OsSysLog::add(FAC_ACD, PRI_ERR,
+                                "DialogEventPublisher::handleMessage - CONNECTION_ESTABLISHED - Failed call to getSipDialog(%s, %s)",
+                                callId.data(), address.data());
+                  // Give up, since we can't get any information about this call.
+                  break;
+               }
 #ifdef DEBUGGING            
                sipDialog.toString(sipDialogContent);
                OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage sipDialog = %s", 
@@ -408,10 +424,6 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                          
                // Get the new callId because it might have changed
                sipDialog.getCallId(callId);
-               sipDialog.getLocalField(localIdentity);
-               localIdentity.getFieldParameter("tag", localTag);
-               sipDialog.getRemoteField(remoteIdentity);
-               remoteIdentity.getFieldParameter("tag", remoteTag);
 
                sipDialog.getLocalField(localIdentity);
                localIdentity.getFieldParameter("tag", localTag);

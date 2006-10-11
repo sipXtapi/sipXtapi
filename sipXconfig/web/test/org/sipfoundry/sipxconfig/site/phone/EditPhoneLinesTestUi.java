@@ -64,7 +64,7 @@ public class EditPhoneLinesTestUi extends WebTestCase {
         clickLinkWithText(m_helper.endpoint[0].getSerialNumber());
         clickLinkWithText("Lines");
 
-        // based on the fact a polycom 500 can only understand 3 lines
+        // based on the fact a acme phone can only understand 3 lines
         SiteTestHelper.assertNoUserError(tester);
         clickLink("AddUser");
         SiteTestHelper.assertUserError(tester);

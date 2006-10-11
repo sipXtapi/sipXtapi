@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
+import java.util.List;
+
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.springframework.context.ApplicationContext;
@@ -34,16 +36,22 @@ public class SettingDaoTestDb extends SipxDatabaseTestCase {
     }
 
     public void testGetGroupsByString() throws Exception {
-        Group[] groups = dao.getGroupsByString("foo", " g0 g1   g2 \t g3 \n g4 ").toArray(
-                new Group[0]);
-        assertEquals(5, groups.length);
-        assertEquals("g0", groups[0].getName());
-        assertEquals("g4", groups[4].getName());
+        List<Group> groups = dao.getGroupsByString("foo", " g0 g1   g2 \t g3 \n g4 ", false);
+        assertEquals(5, groups.size());
+        assertEquals("g0", groups.get(0).getName());
+        assertEquals("g4", groups.get(4).getName());
+        assertEquals(0, TestHelper.getConnection().getRowCount("group_storage", "where resource='foo'"));
     }
 
+    public void testGetGroupsByStringAndSave() throws Exception {
+        List<Group> groups = dao.getGroupsByString("foo", " g0 g1   g2 \t g3 \n g4 ", true);
+        assertEquals(5, groups.size());
+        assertEquals(5, TestHelper.getConnection().getRowCount("group_storage", "where resource='foo'"));
+    }
+    
     public void testGetGroupsByEmptyString() throws Exception {
-        assertEquals(0, dao.getGroupsByString("foo", "").size());
-        assertEquals(0, dao.getGroupsByString("foo", "  ").size());
-        assertEquals(0, dao.getGroupsByString("foo", null).size());
+        assertEquals(0, dao.getGroupsByString("foo", "", false).size());
+        assertEquals(0, dao.getGroupsByString("foo", "  ", false).size());
+        assertEquals(0, dao.getGroupsByString("foo", null, false).size());
     }
 }

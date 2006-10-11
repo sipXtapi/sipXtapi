@@ -16,7 +16,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsMsg.h"
-#include "utl/UtlContainable.h"
+#include "utl/UtlContainableAtomic.h"
 #include "net/SipMessage.h"
 #include "SipRedirector.h"
 
@@ -25,7 +25,6 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-
 // STRUCTS
 struct redirector
 {
@@ -46,7 +45,7 @@ struct redirector
 // need to complete its processing and ultimately return the 302
 // response for it.
 
-class RedirectSuspend : public UtlContainable
+class RedirectSuspend : public UtlContainableAtomic
 {
 public:
 
@@ -74,12 +73,8 @@ public:
    // Pointer to an array of information kept for each redirector.
    struct redirector* mRedirectors;
 
-   // Pure virtual methods of UtlContainable we need to implement.
-   // The implementations of hash() and compareTo() are dummies, and
-   // we expect them to never be called.
-   virtual unsigned int hash() const;
    virtual const char* const getContainableType() const;
-   virtual int compareTo(const UtlContainable*) const;
+   static const UtlContainableType TYPE;
 };
 
 #endif /*  REDIRECTSUSPEND_H */

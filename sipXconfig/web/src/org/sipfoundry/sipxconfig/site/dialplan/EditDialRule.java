@@ -49,11 +49,11 @@ public abstract class EditDialRule extends BasePage implements PageBeginRenderLi
     public abstract ICallback getCallback();
 
     public abstract void setCallback(ICallback callback);
-    
+
     public abstract DialingRuleType getRuleType();
 
     public abstract void setRuleType(DialingRuleType dialingType);
-    
+
     public abstract PermissionManager getPermissionManager();
 
     public void pageBeginRender(PageEvent event_) {
@@ -85,6 +85,11 @@ public abstract class EditDialRule extends BasePage implements PageBeginRenderLi
      * EditEmergencyRouting rule
      */
     public IPage emergencyRouting(IRequestCycle cycle) {
+        DialRuleCommon dialRuleCommon = (DialRuleCommon) getComponent("dialRuleCommon");
+        if (!dialRuleCommon.isValid()) {
+            return null;
+        }
+        dialRuleCommon.saveValid();
         EditEmergencyRouting page = (EditEmergencyRouting) cycle
                 .getPage(EditEmergencyRouting.PAGE);
         PageCallback callback = new PageCallback(getPage());

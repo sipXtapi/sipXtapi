@@ -42,8 +42,8 @@ public class LineSettingsTestUi extends WebTestCase {
         
         clickLink("ManagePhones");        
         clickLinkWithText(SiteTestHelper.TEST_USER);
-        // NOTE: Polycom only setting 
-        clickLinkWithText("Registration");
+        // NOTE: AcmePhone only setting 
+        clickLinkWithText("Server");
         SiteTestHelper.assertNoException(tester);
     }
 }

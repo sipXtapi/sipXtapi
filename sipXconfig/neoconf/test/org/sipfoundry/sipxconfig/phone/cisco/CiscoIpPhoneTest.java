@@ -23,7 +23,12 @@ public class CiscoIpPhoneTest extends TestCase {
     private CiscoIpPhone m_phone;
 
     protected void setUp() {
-        m_phone = new CiscoIpPhone(CiscoModel.MODEL_7960);
+        CiscoModel model = new CiscoModel();
+        model.setBeanId(CiscoIpPhone.BEAN_ID);
+        model.setMaxLineCount(6);
+        model.setModelId("cisco7960");
+        m_phone = new CiscoIpPhone();
+        m_phone.setModel(model);
         PhoneTestDriver.supplyTestData(m_phone);
     }
 

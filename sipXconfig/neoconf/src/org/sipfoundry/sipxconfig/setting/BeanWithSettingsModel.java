@@ -11,10 +11,11 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
-import java.util.Stack;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BeanWithSettingsModel implements SettingModel2 {
-    private Stack<SettingValueHandler> m_defaultHandlers = new Stack();
+    private List<SettingValueHandler> m_defaultHandlers = new ArrayList<SettingValueHandler>();
     private SettingValueHandler m_defaultsHandler = new MulticastSettingValueHandler(
             m_defaultHandlers);
     private ProfileNameHandler m_defaultProfileNameHandler;
@@ -25,7 +26,7 @@ public class BeanWithSettingsModel implements SettingModel2 {
     }
 
     public void addDefaultsHandler(SettingValueHandler handler) {
-        m_defaultHandlers.push(handler);
+        m_defaultHandlers.add(handler);
     }
 
     public void setDefaultProfileNameHandler(ProfileNameHandler handler) {
@@ -73,7 +74,7 @@ public class BeanWithSettingsModel implements SettingModel2 {
     /**
      * not pretty, but need to populate setting model into every setting instance
      */
-    static class SetModelReference implements SettingVisitor {
+    static class SetModelReference extends AbstractSettingVisitor {
         private SettingModel2 m_model;
 
         public SetModelReference(SettingModel2 model) {
@@ -81,14 +82,7 @@ public class BeanWithSettingsModel implements SettingModel2 {
         }
 
         public void visitSetting(Setting setting) {
-            setReference(setting);
-        }
-
-        public void visitSettingGroup(Setting group) {
-        }
-
-        private void setReference(Setting s) {
-            SettingImpl impl = SettingUtil.getSettingImpl(s);
+            SettingImpl impl = SettingUtil.getSettingImpl(setting);
             impl.setModel(m_model);
         }
     }

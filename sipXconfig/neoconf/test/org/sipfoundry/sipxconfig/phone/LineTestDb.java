@@ -189,8 +189,7 @@ public class LineTestDb extends SipxDatabaseTestCase {
 
     public void testNoLinesButOtherPhonesHaveLines() throws Exception {
         TestHelper.cleanInsertFlat("phone/LineSeed.xml");
-
-        Phone newPhone = m_context.newPhone(AcmePhone.MODEL_ACME);
+        Phone newPhone = m_context.newPhone(new TestPhoneModel());
         newPhone.setSerialNumber("XXXX");
         m_context.storePhone(newPhone);
         Phone loadedPhone = m_context.loadPhone(newPhone.getId());

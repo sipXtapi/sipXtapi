@@ -8,8 +8,8 @@ check_PROGRAMS = testsuite
 
 testsuite_LDADD = \
     @SIPXUNIT_LIBS@ \
-    @SIPXMEDIAADAPTER_LIBS@ \
-    ../../libsipXcall.la
+    ../../libsipXcall.la \
+    @SIPXMEDIAADAPTER_LIBS@
 
 testsuite_SOURCES = \
   callbacks.h \

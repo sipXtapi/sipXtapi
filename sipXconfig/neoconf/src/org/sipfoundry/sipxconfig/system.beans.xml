@@ -141,7 +141,7 @@
     <property name="baseClassBeanIds">
       <list>
         <value>gwGeneric</value>
-        <value>unmanagedPhone</value>
+        <value>abstractPhone</value>
       </list>
     </property>
     

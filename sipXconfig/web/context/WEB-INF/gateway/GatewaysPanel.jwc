@@ -22,6 +22,7 @@
   <!-- P R O P E R T I E S -->
   <inject property="gatewayContext" object="spring:gatewayContext" />
   <inject property="dialPlanContext" object="spring:dialPlanContext" />
+  <inject property="gatewayModelSource" object="spring:gatewayModelSource" />
 
   <property name="rowsToDelete" />
   <property name="rowsToMoveUp" />

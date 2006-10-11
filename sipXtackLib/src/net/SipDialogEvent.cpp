@@ -18,13 +18,14 @@
 #include <net/SipDialogEvent.h>
 #include <net/NameValueTokenizer.h>
 #include <xmlparser/tinyxml.h>
-#include <utl/UtlHashMapIterator.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
 
 // STATIC VARIABLE INITIALIZATIONS
+const UtlContainableType Dialog::TYPE = "Dialog";
+
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -65,7 +66,6 @@ void Dialog::setIdentifier()
 }
 
 /* ============================ ACCESSORS ================================= */
-
 
 void Dialog::getDialog(UtlString& dialogId,
                        UtlString& callId,
@@ -245,11 +245,9 @@ unsigned int Dialog::hash() const
 }
 
 
-static UtlContainableType DB_ENTRY_TYPE = "DialogEvent";
-
 const UtlContainableType Dialog::getContainableType() const
 {
-    return DB_ENTRY_TYPE;
+    return TYPE;
 }
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -442,6 +440,7 @@ void SipDialogEvent::parseBody(const char* bodyBytes)
    }
 }
 
+
 // Assignment operator
 SipDialogEvent&
 SipDialogEvent::operator=(const SipDialogEvent& rhs)
@@ -457,7 +456,6 @@ SipDialogEvent::operator=(const SipDialogEvent& rhs)
 }
 
 
-/* ============================ ACCESSORS ================================= */
 
 void SipDialogEvent::insertDialog(Dialog* dialog)
 {
@@ -508,14 +506,14 @@ Dialog* SipDialogEvent::getDialog(UtlString& callId,
                          foundDirection);
       
       if (foundCallId.compareTo(callId) == 0 &&
-          foundLocalTag.compareTo(localTag) &&
+          foundLocalTag.compareTo(localTag) == 0 &&
           (foundRemoteTag.isNull() ||
            foundRemoteTag.compareTo(remoteTag) == 0))
       {
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
                        "SipDialogEvent::getDialog found Dialog = %p for callId = '%s', local tag = '%s', remote tag = '%s'", 
                        pDialog,
-                       callId.data(), localTag.data(), remoteTag.data());
+                       callId.data(), localTag.data(), remoteTag ? remoteTag.data() : NULL);
 
          mLock.release();
          return pDialog;
@@ -524,7 +522,9 @@ Dialog* SipDialogEvent::getDialog(UtlString& callId,
           
    OsSysLog::add(FAC_SIP, PRI_WARNING,
                  "SipDialogEvent::getDialog could not find the Dialog for callId = '%s', local tag = '%s', remote tag = '%s'", 
-                 callId.data(), localTag.data(), remoteTag.data());
+                 callId.data(),
+                 localTag ? localTag.data() : NULL,
+                 remoteTag ? remoteTag.data() : NULL);
    mLock.release();
    return NULL;
 }

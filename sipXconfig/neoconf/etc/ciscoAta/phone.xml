@@ -5,7 +5,7 @@
   ] >
 <model>
   &types;
-  <group name="caller" if="79.*">
+  <group name="caller" if="cisco79.*">
     <label>Caller Preferences</label>
     <setting name="ServicesUrl">
       <value>0</value>
@@ -347,7 +347,7 @@
         <description>Type of Service.</description>
       </setting>
     </group>
-    <group name="opflagsgroup.18x" if="18x" advanced="yes">
+    <group name="opflagsgroup.18x" if="cisco18x" advanced="yes">
       <label>OpFlags</label>
       <setting name="OpFlags" hidden="yes">
         <profileName>.BM.OpFlags</profileName>
@@ -492,7 +492,7 @@
         <description>Factory Reset and Local Upgrade protected by UIPassword also.</description>
       </setting>
     </group>
-    <group name="nattimergroup.18x" if="18x" advanced="yes">
+    <group name="nattimergroup.18x" if="cisco18x" advanced="yes">
       <label>NatTimer</label>
       <setting name="NatTimer" hidden="yes">
         <profileName>.BM.NatTimer</profileName>
@@ -575,7 +575,7 @@
         <description>To NatServer.</description>
       </setting>
     </group>
-    <group name="opflagsgroup.79" if="79.*" advanced="yes">
+    <group name="opflagsgroup.79" if="cisco79.*" advanced="yes">
       <label>OpFlags</label>
       <setting name="OpFlags" hidden="yes">
         <profileName>.BM.OpFlags</profileName>
@@ -674,7 +674,7 @@
         <description>Disable generation of UDP checksum in outgoing UDP packets.</description>
       </setting>
     </group>
-    <group name="nattimergroup.79" if="79.*" advanced="yes">
+    <group name="nattimergroup.79" if="cisco79.*" advanced="yes">
       <label>NatTimer</label>
       <setting name="NatTimer" hidden="yes">
         <profileName>.BM.NatTimer</profileName>
@@ -883,7 +883,7 @@
         <description>0 = default value (5 times)</description>
       </setting>
     </group>
-    <group name="sessiontimergroup.18x" if="18x" advanced="yes">
+    <group name="sessiontimergroup.18x" if="cisco18x" advanced="yes">
       <label>SessionTimer</label>
       <setting name="SessionTimer" hidden="yes">
         <profileName>.BM.SessionTimer</profileName>
@@ -927,7 +927,7 @@
   </group>
   <group name="audio">
     <label>Audio Parameters</label>
-    <setting name="RxCodec.18x" if="18x">
+    <setting name="RxCodec.18x" if="cisco18x">
       <label>RxCodec</label>
       <profileName>RxCodec</profileName>
       <type>
@@ -957,7 +957,7 @@
       <value>2</value>
       <description>Receiving-audio codec preference.</description>
     </setting>
-    <setting name="RxCodec.79" if="79.*">
+    <setting name="RxCodec.79" if="cisco79.*">
       <label>RxCodec</label>
       <profileName>RxCodec</profileName>
       <type>
@@ -979,7 +979,7 @@
       <value>2</value>
       <description>Receiving-audio codec preference.</description>
     </setting>
-    <setting name="TxCodec.18x" if="18x">
+    <setting name="TxCodec.18x" if="cisco18x">
       <label>TxCodec</label>
       <profileName>TxCodec</profileName>
       <type>
@@ -1009,7 +1009,7 @@
       <value>2</value>
       <description>Transmitting-audio codec preference.</description>
     </setting>
-    <setting name="TxCodec.79" if="79.*">
+    <setting name="TxCodec.79" if="cisco79.*">
       <label>TxCodec</label>
       <profileName>TxCodec</profileName>
       <type>
@@ -1038,7 +1038,7 @@
       <value>2</value>
       <description>Default RTP packet size in frames per packet.</description>
     </setting>
-    <setting name="LBRCodec" if="18x">
+    <setting name="LBRCodec" if="cisco18x">
       <type>
         <enum>
           <option>
@@ -1058,21 +1058,21 @@
       <value>0</value>
       <description>Available low-bit-rate codecs (see ATA administration guide).</description>
     </setting>
-    <setting name="FXSInputLevel" if="18x">
+    <setting name="FXSInputLevel" if="cisco18x">
       <type>
         <integer min="-9" max="2"/>
       </type>
       <value>-1</value>
       <description>Input level control of the FXS ports.</description>
     </setting>
-    <setting name="FXSOutputLevel" if="18x">
+    <setting name="FXSOutputLevel" if="cisco18x">
       <type>
         <integer min="-9" max="2"/>
       </type>
       <value>-4</value>
       <description>Output level control of the FXS ports.</description>
     </setting>
-    <group name="audiomodegroup.18x" if="18x">
+    <group name="audiomodegroup.18x" if="cisco18x">
       <label>AudioMode</label>
       <setting name="AudioMode" hidden="yes">
         <profileName>.BM.AudioMode</profileName>
@@ -1171,7 +1171,7 @@
         <value>1</value>
       </setting>
     </group>
-    <group name="audiomodegroup.79" if="79.*">
+    <group name="audiomodegroup.79" if="cisco79.*">
       <label>AudioMode</label>
       <setting name="AudioMode" hidden="yes">
         <profileName>.BM.AudioMode</profileName>
@@ -1397,22 +1397,22 @@
       <value>0</value>
       <description>Anonymous call rejection directory number.</description>
     </setting>
-    <setting name="CallFeatures" advanced="yes" if="18x">
+    <setting name="CallFeatures" advanced="yes" if="cisco18x">
       <type refid="bitmap"/>
       <value>0xffffffff</value>
       <description>Call feature settings (see ATA administration guide).</description>
     </setting>
-    <setting name="PaidFeatures" advanced="yes" if="18x">
+    <setting name="PaidFeatures" advanced="yes" if="cisco18x">
       <type refid="bitmap"/>
       <value>0xffffffff</value>
       <description>Call feature settings (see ATA administration guide).</description>
     </setting>
-    <setting name="Polarity" if="18x">
+    <setting name="Polarity" if="cisco18x">
       <type refid="bitmap"/>
       <value>0x00000000</value>
       <description>Line polarity of FXS ports (see ATA administration guide).</description>
     </setting>
-    <setting name="CallerIdMethod" if="18x">
+    <setting name="CallerIdMethod" if="cisco18x">
       <type>
         <enum>
           <option>
@@ -1448,7 +1448,7 @@
       <value>0x00019e60</value>
       <description>Setup Caller ID Signaling Method.</description>
     </setting>
-    <group name="connectmodegroup.18x" if="18x" advanced="yes">
+    <group name="connectmodegroup.18x" if="cisco18x" advanced="yes">
       <label>ConnectMode</label>
       <setting name="ConnectMode" hidden="yes">
         <profileName>.BM.ConnectMode</profileName>
@@ -1716,7 +1716,7 @@
         <description>Replace username with anonymous in the To header</description>
       </setting>
     </group>
-    <group name="connectmodegroup.79" if="79.*" advanced="yes">
+    <group name="connectmodegroup.79" if="cisco79.*" advanced="yes">
       <label>ConnectMode</label>
       <setting name="ConnectMode" hidden="yes">
         <profileName>.BM.ConnectMode</profileName>
@@ -1807,7 +1807,7 @@
         <value>0</value>
       </setting>
     </group>
-    <group name="featuretimergroup" if="18x" advanced="yes">
+    <group name="featuretimergroup" if="cisco18x" advanced="yes">
       <label>FeatureTimer</label>
       <setting name="FeatureTimer" hidden="yes">
         <profileName>.BM.FeatureTimer</profileName>
@@ -1866,7 +1866,7 @@
           sec.</description>
       </setting>
     </group>
-    <group name="featuretimer2group" if="18x" advanced="yes">
+    <group name="featuretimer2group" if="cisco18x" advanced="yes">
       <label>FeatureTimer2</label>
       <setting name="FeatureTimer2" hidden="yes">
         <profileName>.BM.FeatureTimer2</profileName>
@@ -1884,7 +1884,7 @@
         <description>In seconds, 0 to disable this feature</description>
       </setting>
     </group>
-    <group name="sigtimergroup.18x" if="18x" advanced="yes">
+    <group name="sigtimergroup.18x" if="cisco18x" advanced="yes">
       <label>SigTimer</label>
       <setting name="SigTimer" hidden="yes">
         <profileName>.BM.SigTimer</profileName>
@@ -1965,7 +1965,7 @@
         <description>0 = 1000 ms, 100 ms increment, range 1-15 = 100-1500 ms</description>
       </setting>
     </group>
-    <group name="sigtimergroup.79" if="79.*" advanced="yes">
+    <group name="sigtimergroup.79" if="cisco79.*" advanced="yes">
       <label>SigTimer</label>
       <setting name="SigTimer" hidden="yes">
         <profileName>.BM.SigTimer</profileName>
@@ -2070,42 +2070,42 @@
   </group>
   <group name="_upgrade">
     <label>Software Upgrade</label>
-    <setting name="upgradecode.ata" if="18x">
+    <setting name="upgradecode.ata" if="cisco18x">
       <label>Software image</label>
       <value>none</value>
       <description>Name of software image in TFTP directory.</description>
     </setting>
-    <setting name="imageid.ata" if="18x">
+    <setting name="imageid.ata" if="cisco18x">
       <label>Image ID</label>
       <value>0</value>
       <description>Image ID of software image in TFTP directory.</description>
     </setting>
-    <setting name="upgradecode.ld" if="7905">
+    <setting name="upgradecode.ld" if="cisco7905">
       <label>Software image</label>
       <value>none</value>
       <description>Name of software image in TFTP directory.</description>
     </setting>
-    <setting name="imageid.ld" if="7905">
+    <setting name="imageid.ld" if="cisco7905">
       <label>Image ID</label>
       <value>0</value>
       <description>Image ID of software image in TFTP directory.</description>
     </setting>
-    <setting name="upgradecode.gk" if="7912">
+    <setting name="upgradecode.gk" if="cisco7912">
       <label>Software image</label>
       <value>none</value>
       <description>Name of software image in TFTP directory.</description>
     </setting>
-    <setting name="imageid.gk" if="7912">
+    <setting name="imageid.gk" if="cisco7912">
       <label>Image ID</label>
       <value>0</value>
       <description>Image ID of software image in TFTP directory.</description>
     </setting>
-    <setting name="logofile" if="79.*">
+    <setting name="logofile" if="cisco79.*">
       <label>Logo filename</label>
       <value>none</value>
       <description>Name of logo file in TFTP directory.</description>
     </setting>
-    <setting name="logoid" if="79.*">
+    <setting name="logoid" if="cisco79.*">
       <label>Logo ID</label>
       <value>0</value>
       <description>Logo image version number.</description>
@@ -2130,7 +2130,7 @@
       <value>us</value>
       <description>Country specific tone settings</description>
     </setting>
-    <group name="_tone.us.ata" if="18x" advanced="yes">
+    <group name="_tone.us.ata" if="cisco18x" advanced="yes">
       <label>Tone Parameters - United States</label>
       <setting name="DialTone">
         <value>2,31538,30831,1380,1740,1,0,0,1000,0,0</value>
@@ -2166,7 +2166,7 @@
         <description>Ringer cadence pattern (see ATA administration guide).</description>
       </setting>
     </group>
-    <group name="_tone.fin.ata" if="18x" advanced="yes">
+    <group name="_tone.fin.ata" if="cisco18x" advanced="yes">
       <label>Tone Parameters - Finland</label>
       <setting name="DialTone">
         <value>1,30958,0,4952,0,1,0,0,0</value>
@@ -2202,7 +2202,7 @@
         <description>Ringer cadence pattern (see ATA administration guide).</description>
       </setting>
     </group>
-    <group name="_tone.us.79xx" if="79.*" advanced="yes">
+    <group name="_tone.us.79xx" if="cisco79.*" advanced="yes">
       <label>Tone Parameters - United States</label>
       <setting name="DialTone">
         <value>2,31538,814,30831,2032,0,0,0,0,0,0</value>
@@ -2233,7 +2233,7 @@
         <description>Ringer cadence pattern (see ATA administration guide).</description>
       </setting>
     </group>
-    <group name="_tone.fin.79xx" if="79.*"  advanced="yes">
+    <group name="_tone.fin.79xx" if="cisco79.*"  advanced="yes">
       <label>Tone Parameters - Finland</label>
       <setting name="DialTone">
         <value>1,30958,4952,0,0,0,0,0,0,0,0</value>

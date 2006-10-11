@@ -68,6 +68,9 @@
 // CONSTANTS
 const int SipRedirectorPrivateStoragePickUp::TargetDialogDurationAbsent = -1;
 
+const UtlContainableType SipRedirectorPrivateStoragePickUp::TYPE =
+    "SipRedirectorPrivateStoragePickUp";
+
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
@@ -583,7 +586,7 @@ SipRedirectorPickUp::lookUpDialog(
                                            SIP_REPLACES_EXTENSION);
 
             // Record the URI as a contact.
-            addContact(response, requestString, contact_URI, "pick-up");            
+            addContact(response, requestString, contact_URI, "pick-up");
 
             // If "reversed Replaces" is configured, also add a Replaces: with
             // the to-tag and from-tag reversed.
@@ -591,18 +594,18 @@ SipRedirectorPickUp::lookUpDialog(
             {
                Url c(dialog_info->mTargetDialogRemoteURI);
    
-               UtlString h(dialog_info->mTargetDialogCallId);
-               h.append(";to-tag=");
-               h.append(dialog_info->mTargetDialogLocalTag);
-               h.append(";from-tag=");
-               h.append(dialog_info->mTargetDialogRemoteTag);
+               UtlString header_value(dialog_info->mTargetDialogCallId);
+               header_value.append(";to-tag=");
+               header_value.append(dialog_info->mTargetDialogLocalTag);
+               header_value.append(";from-tag=");
+               header_value.append(dialog_info->mTargetDialogRemoteTag);
                if (dialog_info->mStateFilter == stateEarly &&
                    !mNoEarlyOnly)
                {
-                  h.append(";early-only");
+                  header_value.append(";early-only");
                }
    
-               c.setHeaderParameter("Replaces", h.data());
+               c.setHeaderParameter("Replaces", header_value.data());
                // Put this contact at a lower priority than the one in
                // the correct order.
                c.setFieldParameter("q", "0.9");
@@ -1394,10 +1397,16 @@ static UtlBoolean getYNconfig(OsConfigDb& configDb,
       case '0':
          // If the value starts with N or 0, set the result to FALSE.
          value = FALSE;
-        defuault:
+      default:
          // Ignore all other values.
          break;
       } 
    }
    return value;
+}
+
+// Get the ContainableType for a UtlContainable derived class.
+UtlContainableType SipRedirectorPrivateStoragePickUp::getContainableType() const
+{
+    return SipRedirectorPrivateStoragePickUp::TYPE;
 }

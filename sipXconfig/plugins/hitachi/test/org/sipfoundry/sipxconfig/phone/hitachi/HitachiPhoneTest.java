@@ -38,7 +38,7 @@ public class HitachiPhoneTest extends TestCase {
     }
 
     public void testGenerateTypicalProfile() throws Exception {
-        HitachiPhone phone = new HitachiPhone(HitachiModel.MODEL_5000);
+        HitachiPhone phone = new HitachiPhone(new HitachiModel("hitachi5000"));
 
         // call this to inject dummy data
         PhoneTestDriver.supplyTestData(phone);

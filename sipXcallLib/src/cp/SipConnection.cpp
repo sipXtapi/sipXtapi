@@ -3215,6 +3215,11 @@ void SipConnection::processNotifyRequest(const SipMessage* request)
                 cause = CONNECTION_CAUSE_SERVICE_UNAVAILABLE;
                 fireSipXEvent(CALLSTATE_TRANSFER, CALLSTATE_TRANSFER_FAILURE) ;
             }
+            else if (responseCode == SIP_TRYING_CODE)
+            {
+		// Do nothing !
+                ;
+            }
             else
             {
                 state = CONNECTION_FAILED;
@@ -4339,6 +4344,7 @@ void SipConnection::processInviteResponse(const SipMessage* response)
 
             if (mTerminalConnState == PtTerminalConnection::HELD)
             {
+                OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipConnection::processInviteResponse, CONNECTED_INACTIVE response for HOLD");
                 fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_INACTIVE);
             }
             else
@@ -5396,6 +5402,16 @@ OsStatus SipConnection::getInvite(SipMessage* message)
 
     // Copy inviteMsg to the destination.
     *message = *inviteMsg;
+
+    if (OsSysLog::willLog(FAC_CP, PRI_DEBUG))
+    {
+       UtlString text;
+       int length;
+       inviteMsg->getBytes(&text, &length);
+       OsSysLog::add(FAC_CP, PRI_DEBUG,
+                     "SipConnection::getInvite this = %p, inviteMsg = %p, message = '%s'",
+                     this, inviteMsg, text.data());
+    }
 
     return ret;
 }

@@ -10,23 +10,23 @@
 	<phone 
 		serial_number="00001" 
 		phone_id="1000" 
-		bean_id="unmanagedPhone"
-      model_id=""/>
+		bean_id="testPhone"
+      model_id="testPhoneModel"/>
 	<phone 
 		serial_number="00002" 
 		phone_id="1001" 
-		bean_id="polycom" 		
-        model_id="600"/>	
+		bean_id="testPhone" 		
+        model_id="testPhoneModel"/>	
 	<phone 
 		serial_number="00003" 
 		phone_id="1002" 
-		bean_id="polycom"
-        model_id="300"/>
+		bean_id="testPhone"
+        model_id="testPhoneModel"/>
 	<phone 
 		serial_number="aa00004" 
 		phone_id="1003" 
-		bean_id="polycom"
-        model_id="500"/>
+		bean_id="testPhone"
+        model_id="testPhoneModel"/>
 
 	<phone_group phone_id="1002" group_id="1001"/>
 	<phone_group phone_id="1000" group_id="1002"/>

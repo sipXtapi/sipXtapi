@@ -4,8 +4,8 @@
     <phone serial_number="999123456" 		
 		    phone_id="1000"
         description="unittest-sample phone1"
-        bean_id="unmanagedPhone"
-        model_id=""/>
+        bean_id="testPhone"
+        model_id="testPhoneModel"/>
     <line 
 		    line_id="1000" 
 		    phone_id="1000"

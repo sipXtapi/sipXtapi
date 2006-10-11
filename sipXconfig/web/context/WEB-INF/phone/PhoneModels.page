@@ -6,9 +6,10 @@
   <property name="groupId"  persist="session"/>
   <property name="currentPhoneModel" />
   <inject property="settingContext" object="spring:settingDao"/>
+  <inject property="phoneModelSource" object="spring:phoneModelSource"/>
   <property name="group" />
   <component id="phoneModels" type="For">
-    <binding name="source" value="phoneContext.availablePhoneModels"/>
+    <binding name="source" value="phoneModelSource.models"/>
     <binding name="value" value="currentPhoneModel"/>
   </component>
   <component id="isUnmanagedPhone" type="If">
@@ -23,7 +24,7 @@
   <component id="unmanagedPhoneModel" copy-of="phoneModel"/>
   <component id="phoneModelLink" type="DirectLink">
     <binding name="listener" value="listener:editPhoneDefaults"/>
-    <binding name="parameters" value="currentPhoneModel.name"/>
+    <binding name="parameters" value="currentPhoneModel.modelId"/>
   </component>
   <component id="editGroup" type="DirectLink">
     <binding name="listener" value="listener:editGroup"/>

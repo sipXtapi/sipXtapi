@@ -6,8 +6,6 @@
 ////////////////////////////////////////////////////////////////////////
 //////
 
-#include "os/OsDefs.h"
-
 #include <assert.h>
 
 #if defined(_WIN32)
@@ -19,6 +17,8 @@
 #endif
 
 #include "os/OsDefs.h"
+#include "utl/UtlString.h"
+#include "os/OsDateTime.h"
 #include "tapi/sipXtapi.h"
 #include "tapi/sipXtapiEvents.h"
 
@@ -319,12 +319,11 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
     // Print the timestamp if requested.
     if (g_timestamp)
     {
-       time_t t = time(NULL);
-       struct tm g;
-       gmtime_r(&t, &g);
-       printf("%04d-%02d-%02dT%02d:%02d:%02dZ ",
-              g.tm_year + 1900, g.tm_mon + 1, g.tm_mday,
-              g.tm_hour, g.tm_min, g.tm_sec);
+       OsDateTime d;
+       OsDateTime::getCurTime(d);
+       UtlString s;
+       d.getIsoTimeStringZ(s);
+       printf("%s ", s.data());
     }
 
     printf("%s\n", sipxEventToString(category, pInfo, cBuf, sizeof(cBuf))) ;
@@ -513,7 +512,6 @@ bool playTones(char* szPlayTones)
 // Play a file (8000 samples/sec, 16 bit unsigned, mono PCM)
 bool playFile(char* szFile)
 {
-    bool bRC = false ;
     sipxCallPlayFile(g_hCall, szFile, true, true) ;
 
     return true ;

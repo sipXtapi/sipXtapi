@@ -19,12 +19,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.collections.Predicate;
 import org.easymock.EasyMock;
-import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
-import org.sipfoundry.sipxconfig.phone.cisco.CiscoModel;
-import org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamModel;
-import org.sipfoundry.sipxconfig.phone.kphone.KPhone;
-import org.sipfoundry.sipxconfig.phone.polycom.PolycomModel;
 
 public class FilteredModelSourceTest extends TestCase {
 
@@ -34,8 +29,11 @@ public class FilteredModelSourceTest extends TestCase {
 
     protected void setUp() throws Exception {
         m_models = Arrays.asList(new PhoneModel[] {
-            Phone.MODEL, PolycomModel.MODEL_300, CiscoModel.MODEL_7960,
-            GrandstreamModel.MODEL_HT496, KPhone.MODEL_KPHONE
+            new PhoneModel("beanId", "falcon300"), 
+            new PhoneModel("beanId", "vulture7960"),
+            new PhoneModel("beanId", "sparrow420"),
+            new PhoneModel("beanId", "kestrel"),
+            new PhoneModel("beanId", "kestrel1000")
         });
         m_mockSource = EasyMock.createMock(ModelSource.class);
         m_mockSource.getModels();
@@ -55,30 +53,32 @@ public class FilteredModelSourceTest extends TestCase {
     }
 
     public void testGetCertifiedPhones() {
-        m_modelSource.setCertified("^(polycom.*)$");
+        m_modelSource.setCertified("^(falcon.*)$");
         Collection certified = m_modelSource.getModels();
         assertEquals(1, certified.size());
-        assertSame(PolycomModel.MODEL_300, certified.iterator().next());
+        assertSame(m_models.get(0), certified.iterator().next());
     }
 
     public void testRemoveUnCertifiedPhones() {
-        m_modelSource.setCertified("^(?!(grandstream|kphone)).*$");
+        m_modelSource.setCertified("^(?!(vulture|sparrow)).*$");
         Collection certified = m_modelSource.getModels();
         assertEquals(3, certified.size());
-        assertFalse(certified.contains(KPhone.MODEL_KPHONE));
-        assertFalse(certified.contains(GrandstreamModel.MODEL_HT496));
-        assertTrue(certified.contains(PolycomModel.MODEL_300));
+        assertTrue(certified.contains(m_models.get(0)));
+        assertFalse(certified.contains(m_models.get(1)));
+        assertFalse(certified.contains(m_models.get(2)));
+        assertTrue(certified.contains(m_models.get(3)));
+        assertTrue(certified.contains(m_models.get(4)));
     }
     
     public void testSetFilter() {
-        Predicate onlyKPhone = new Predicate() {
+        Predicate onlySparrow = new Predicate() {
             public boolean evaluate(Object object) {
-                return object.equals(KPhone.MODEL_KPHONE);
+                return object.equals(m_models.get(0));
             }
         };
-        m_modelSource.setFilter(onlyKPhone);
+        m_modelSource.setFilter(onlySparrow);
         Collection certified = m_modelSource.getModels();
         assertEquals(1, certified.size());
-        assertTrue(certified.contains(KPhone.MODEL_KPHONE));        
+        assertTrue(certified.contains(m_models.get(0)));        
     }
 }

@@ -123,7 +123,7 @@ SipAaa::SipAaa(SipUserAgent& sipUserAgent,
         NULL);   // observerData
 
     // The period of time in seconds that nonces are valid
-    mNonceExpiration = 60 * 5; // five minutes
+    mNonceExpiration = NONCE_EXPIRATION_PERIOD;
 
     // Set up a periodic timer for nonce garbage collection
     OsQueuedEvent* queuedEvent = new OsQueuedEvent(*queue, 0);

@@ -26,11 +26,11 @@
       <value></value>
       <description>Authentication ID if device setting UseLoginID = 1</description>
     </setting>
-    <setting name="ShortName" if="79.*">
+    <setting name="ShortName" if="cisco79.*">
       <value>0</value>
       <description>Display name for LCD screen</description>
     </setting>
-    <setting name="_Proxy.18x" if="18x">
+    <setting name="_Proxy.18x" if="cisco18x">
       <label>Proxy</label>
       <type>
         <string maxLen="31" />
@@ -41,7 +41,7 @@
         restriction.
       </description>
     </setting>
-    <setting name="_ProxyPort.18x" if="18x">
+    <setting name="_ProxyPort.18x" if="cisco18x">
       <label>ProxyPort</label>
       <type>
         <integer min="1" max="65535" />
@@ -52,7 +52,7 @@
         restriction.
       </description>
     </setting>
-    <setting name="_Proxy.79" if="79.*">
+    <setting name="_Proxy.79" if="cisco79.*">
       <label>Proxy</label>
       <type>
         <string maxLen="31" />
@@ -60,7 +60,7 @@
       <value>0</value>
       <description>Proxy or registrar address.</description>
     </setting>
-    <setting name="_ProxyPort.79" if="79.*">
+    <setting name="_ProxyPort.79" if="cisco79.*">
       <label>ProxyPort</label>
       <type>
         <integer min="1" max="65535" />

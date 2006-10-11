@@ -350,12 +350,11 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
     // Print the timestamp if requested.
     if (g_timestamp)
     {
-       time_t t = time(NULL);
-       struct tm g;
-       gmtime_r(&t, &g);
-       printf("%04d-%02d-%02dT%02d:%02d:%02dZ ",
-              g.tm_year + 1900, g.tm_mon + 1, g.tm_mday,
-              g.tm_hour, g.tm_min, g.tm_sec);
+       OsDateTime d;
+       OsDateTime::getCurTime(d);
+       UtlString s;
+       d.getIsoTimeStringZ(s);
+       printf("%s ", s.data());
     }
 
     printf("%s\n", sipxEventToString(category, pInfo, cBuf, sizeof(cBuf))) ;    

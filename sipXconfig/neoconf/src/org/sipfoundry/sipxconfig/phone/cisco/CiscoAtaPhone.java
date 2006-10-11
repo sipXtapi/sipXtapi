@@ -58,13 +58,9 @@ public class CiscoAtaPhone extends CiscoPhone {
     private String m_binDir;
 
     private boolean m_isTextFormatEnabled;
-
+    
     public CiscoAtaPhone() {
-        super(BEAN_ID);
-    }
-
-    public CiscoAtaPhone(CiscoModel model) {
-        super(model);
+        super(new CiscoModel(BEAN_ID));
     }
 
     @Override
@@ -99,7 +95,7 @@ public class CiscoAtaPhone extends CiscoPhone {
         LineInfo lineInfo = new LineInfo();
         lineInfo.setDisplayName(line.getSettingValue(DISPLAY_NAME_PATH));
         lineInfo.setUserId(line.getSettingValue(USER_ID_PATH));
-        if (getModel() == CiscoModel.MODEL_ATA18X) {
+        if (getCiscoModel().isAta()) {
             lineInfo.setRegistrationServer(line.getSettingValue(REGISTRATION_ATA_PATH));
             lineInfo.setRegistrationServerPort(line.getSettingValue(REGISTRATION_PORT_ATA_PATH));
         } else {
@@ -113,7 +109,7 @@ public class CiscoAtaPhone extends CiscoPhone {
     protected void setLineInfo(Line line, LineInfo lineInfo) {
         line.setSettingValue(DISPLAY_NAME_PATH, lineInfo.getDisplayName());
         line.setSettingValue(USER_ID_PATH, lineInfo.getUserId());
-        if (getModel() == CiscoModel.MODEL_ATA18X) {
+        if (getCiscoModel().isAta()) {
             line.setSettingValue(REGISTRATION_ATA_PATH, lineInfo.getRegistrationServer());
             line.setSettingValue(REGISTRATION_PORT_ATA_PATH, lineInfo
                             .getRegistrationServerPort());
