@@ -50,7 +50,8 @@ SipRedirectServer::SipRedirectServer(OsConfigDb*   pOsConfigDb,  ///< Configurat
    mIsStarted(FALSE),
    mpSipUserAgent(pSipUserAgent),
    mNextSeqNo(0),
-   mRedirectPlugins(RedirectPlugin::Factory, RedirectPlugin::Prefix)
+   mRedirectPlugins(RedirectPlugin::Factory, RedirectPlugin::Prefix),
+   mpActive(NULL)
 {
    spInstance = this;
    initialize(*pOsConfigDb);
@@ -76,10 +77,17 @@ SipRedirectServer::~SipRedirectServer()
    RedirectPlugin* redirector;
    while (redirector = static_cast <RedirectPlugin*> (iterator.next()))
    {
+      // A redirector is finalized even if mpActive[i] is FALSE.
       redirector->finalize();
    }
 
    spInstance = NULL;
+
+   if (mpActive)
+   {
+      delete[] mpActive;
+      mpActive = NULL;
+   }
 }
 
 // Get the unique instance, if it exists.  Will not create it, though.
@@ -105,16 +113,19 @@ SipRedirectServer::initialize(OsConfigDb& configDb
    
    // Load the list of redirect processors.
    mRedirectPlugins.readConfig(configDb);
+   mRedirectorCount = mRedirectPlugins.entries();
+
    // Call their ::initialize() methods.
+   mpActive = new UtlBoolean[mRedirectorCount];
    PluginIterator iterator(mRedirectPlugins);
    RedirectPlugin* redirector;
    int i;                       // Iterator sequence number.
    for (i = 0; redirector = static_cast <RedirectPlugin*> (iterator.next());
         i++)
    {
-      redirector->initialize(configDb, mpSipUserAgent, i, defaultDomain);
+      mpActive[i] =
+         redirector->initialize(configDb, mpSipUserAgent, i, defaultDomain);
    }
-   mRedirectorCount = i;
 
    return true;
 }
@@ -153,7 +164,8 @@ void SipRedirectServer::cancelRedirect(UtlInt& containableSeqNo,
    for (i = 0; redirector = static_cast <RedirectPlugin*> (iterator.next());
         i++)
    {
-      if (suspendObject->mRedirectors[i].needsCancel)
+      if (mpActive[i] &&
+          suspendObject->mRedirectors[i].needsCancel)
       {
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
                        "SipRedirectServer::cancelRedirect "
@@ -245,94 +257,97 @@ void SipRedirectServer::processRedirect(const SipMessage* message,
    for (i = 0; redirector = static_cast <RedirectPlugin*> (iterator.next());
         i++)
    {
-      // Place to store the private storage pointer.
-      SipRedirectorPrivateStorage* privateStorageP;
-      // Initialize it.
-      privateStorageP = (suspendObject ?
-                         suspendObject->mRedirectors[i].privateStorage :
-                         NULL);
-
-      // Call the redirector to process the request.
-      RedirectPlugin::LookUpStatus status =
-         redirector->lookUp(*message, stringUri, requestUri, method,
-                            response, seqNo, i, privateStorageP);
-
-      // Create the suspend object if it does not already exist and we need it.
-      if (!suspendObject &&
-          (status == RedirectPlugin::LOOKUP_SUSPEND || privateStorageP))
+      if (mpActive[i])
       {
-         suspendObject = new RedirectSuspend(mRedirectorCount);
-         // Insert it into mSuspendList, keyed by seqNo.
-         UtlInt* containableSeqNo = new UtlInt(seqNo);
-         mSuspendList.insertKeyAndValue(containableSeqNo, suspendObject);
-         // Save in it a copy of the message.  (*message is
-         // dependent on the OsMsg bringing the message to us, and
-         // will be freed when we are done with that OsMsg.)
-         suspendObject->mMessage = *message;
-         // Use the next sequence number for the next request.
-         if (seqNo == mNextSeqNo)
+         // Place to store the private storage pointer.
+         SipRedirectorPrivateStorage* privateStorageP;
+         // Initialize it.
+         privateStorageP = (suspendObject ?
+                            suspendObject->mRedirectors[i].privateStorage :
+                            NULL);
+
+         // Call the redirector to process the request.
+         RedirectPlugin::LookUpStatus status =
+            redirector->lookUp(*message, stringUri, requestUri, method,
+                               response, seqNo, i, privateStorageP);
+
+         // Create the suspend object if it does not already exist and we need it.
+         if (!suspendObject &&
+             (status == RedirectPlugin::LOOKUP_SUSPEND || privateStorageP))
          {
-            // Increment to the next value (and roll over if necessary).
-            mNextSeqNo++;
+            suspendObject = new RedirectSuspend(mRedirectorCount);
+            // Insert it into mSuspendList, keyed by seqNo.
+            UtlInt* containableSeqNo = new UtlInt(seqNo);
+            mSuspendList.insertKeyAndValue(containableSeqNo, suspendObject);
+            // Save in it a copy of the message.  (*message is
+            // dependent on the OsMsg bringing the message to us, and
+            // will be freed when we are done with that OsMsg.)
+            suspendObject->mMessage = *message;
+            // Use the next sequence number for the next request.
+            if (seqNo == mNextSeqNo)
+            {
+               // Increment to the next value (and roll over if necessary).
+               mNextSeqNo++;
+            }
          }
-      }
-      // Store the private storage pointer.
-      if (suspendObject)
-      {
-         suspendObject->mRedirectors[i].privateStorage = privateStorageP;
-      }
+         // Store the private storage pointer.
+         if (suspendObject)
+         {
+            suspendObject->mRedirectors[i].privateStorage = privateStorageP;
+         }
 
-      // Dispatch on status.
-      switch (status)
-      {
-      case RedirectPlugin::LOOKUP_SUCCESS:
-         // Processing was successful.
-         break;
+         // Dispatch on status.
+         switch (status)
+         {
+         case RedirectPlugin::LOOKUP_SUCCESS:
+            // Processing was successful.
+            break;
 
-      case RedirectPlugin::LOOKUP_ERROR_REQUEST:
-         // Processing detected an error.  Processing of this request
-         // should end immediately and a 403 Forbidden response returned.
-         OsSysLog::add(FAC_SIP, PRI_ERR,
-                       "SipRedirectServer::processRedirect "
-                       "LOOKUP_ERROR_REQUEST returned by redirector "
-                       "%d while processing method '%s' URI '%s'",
-                       status, method.data(), stringUri.data());
-         willError = TRUE;
-         responseCode = 403;
-         break;
+         case RedirectPlugin::LOOKUP_ERROR_REQUEST:
+            // Processing detected an error.  Processing of this request
+            // should end immediately and a 403 Forbidden response returned.
+            OsSysLog::add(FAC_SIP, PRI_ERR,
+                          "SipRedirectServer::processRedirect "
+                          "LOOKUP_ERROR_REQUEST returned by redirector "
+                          "%d while processing method '%s' URI '%s'",
+                          status, method.data(), stringUri.data());
+            willError = TRUE;
+            responseCode = 403;
+            break;
 
-      case RedirectPlugin::LOOKUP_ERROR_SERVER:
-         // Processing detected an error.  Processing of this request
-         // should end immediately and a 500 response returned.
-         OsSysLog::add(FAC_SIP, PRI_ERR,
-                       "SipRedirectServer::processRedirect "
-                       "LOOKUP_ERROR_SERVER returned by redirector "
-                       "%d while processing method '%s' URI '%s'",
-                       status, method.data(), stringUri.data());
-         willError = TRUE;
-         responseCode = 500;
-         break;
+         case RedirectPlugin::LOOKUP_ERROR_SERVER:
+            // Processing detected an error.  Processing of this request
+            // should end immediately and a 500 response returned.
+            OsSysLog::add(FAC_SIP, PRI_ERR,
+                          "SipRedirectServer::processRedirect "
+                          "LOOKUP_ERROR_SERVER returned by redirector "
+                          "%d while processing method '%s' URI '%s'",
+                          status, method.data(), stringUri.data());
+            willError = TRUE;
+            responseCode = 500;
+            break;
 
-      case RedirectPlugin::LOOKUP_SUSPEND:
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                       "SipRedirectServer::processRedirect "
-                       "LOOKUP_SUSPEND returned by redirector "
-                       "%d while processing method '%s' URI '%s'",
-                       i, method.data(), stringUri.data());
-         willSuspend = TRUE;
-         // Mark that this redirector has requested suspension.
-         suspendObject->mRedirectors[i].suspended = TRUE;
-         suspendObject->mRedirectors[i].needsCancel = TRUE;
-         suspendObject->mSuspendCount++;
-         break;
+         case RedirectPlugin::LOOKUP_SUSPEND:
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipRedirectServer::processRedirect "
+                          "LOOKUP_SUSPEND returned by redirector "
+                          "%d while processing method '%s' URI '%s'",
+                          i, method.data(), stringUri.data());
+            willSuspend = TRUE;
+            // Mark that this redirector has requested suspension.
+            suspendObject->mRedirectors[i].suspended = TRUE;
+            suspendObject->mRedirectors[i].needsCancel = TRUE;
+            suspendObject->mSuspendCount++;
+            break;
 
-      default:
-         OsSysLog::add(FAC_SIP, PRI_ERR,
-                       "SipRedirectServer::processRedirect "
-                       "Invalid status value %d returned by redirector "
-                       "%d while processing method '%s' URI '%s'",
-                       status, i, method.data(), stringUri.data());
-         break;
+         default:
+            OsSysLog::add(FAC_SIP, PRI_ERR,
+                          "SipRedirectServer::processRedirect "
+                          "Invalid status value %d returned by redirector "
+                          "%d while processing method '%s' URI '%s'",
+                          status, i, method.data(), stringUri.data());
+            break;
+         }
       }
    }
 

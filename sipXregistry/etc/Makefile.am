@@ -17,7 +17,8 @@ EXTRA_DIST = \
 # them to be compatible with the current code.
 .PHONY: editetc
 editetc :
-	@for f in $(editetc_IN); \
+	@ . @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1; \
+	for f in $(editetc_IN); \
 	do \
 	  target=`basename $$f`; \
 	  $(LocalizeSipXconfig) $(srcdir)/$$f > $$target.tmp; \
@@ -47,6 +48,47 @@ editetc :
 					echo " adding"; \
 					echo 'SIP_REGISTRAR_PROXY_PORT : $${PROXY_SERVER_SIP_PORT}' \
 					>> $(sysconfdir)/sipxpbx/$$target ; \
+				fi; \
+				echo -n "        Checking redirector configuration in $(sysconfdir)/sipxpbx/$$target ..."; \
+				if grep '^SIP_REDIRECT_HOOK_LIBRARY\.' $(sysconfdir)/sipxpbx/$$target > /dev/null; \
+				then \
+					echo " ok" ; \
+				else \
+					echo " adding"; \
+					grep -v 'SIP_REDIRECT.190-ISN\.BASE_DOMAIN' $(sysconfdir)/sipxpbx/$$target \
+						> $(sysconfdir)/sipxpbx/$$target.tmp ; \
+					mv $(sysconfdir)/sipxpbx/$$target.tmp $(sysconfdir)/sipxpbx/$$target ; \
+					( \
+					echo ''; \
+					echo '# Configure the redirectors.'; \
+					echo 'SIP_REDIRECT_HOOK_LIBRARY.110-REG : @SIPX_LIBDIR@/libRedirectorRegDB.so'; \
+					echo 'SIP_REDIRECT_HOOK_LIBRARY.120-ALIAS : @SIPX_LIBDIR@/libRedirectorAliasDB.so'; \
+					echo 'SIP_REDIRECT_HOOK_LIBRARY.130-SUBSCRIBE : @SIPX_LIBDIR@/libRedirectorSubscribe.so'; \
+					echo 'SIP_REDIRECT_HOOK_LIBRARY.140-MAPPING : @SIPX_LIBDIR@/libRedirectorMapping.so'; \
+					echo 'SIP_REDIRECT.140-MAPPING.MEDIA_SERVER : $${MEDIA_SERVER_SIP_SRV_OR_HOSTPORT}'; \
+					echo 'SIP_REDIRECT.140-MAPPING.VOICEMAIL_SERVER : https%3A%2F%2Flocalhost%3A$${VOICEMAIL_SERVER_HTTPS_PORT}'; \
+					echo 'SIP_REDIRECT.140-MAPPING.MAPPING_RULES_FILENAME : @SIPX_CONFDIR@/mappingrules.xml'; \
+					echo 'SIP_REDIRECT.140-MAPPING.FALLBACK : false'; \
+					echo 'SIP_REDIRECT_HOOK_LIBRARY.150-FALLBACK : @SIPX_LIBDIR@/libRedirectorMapping.so'; \
+					echo 'SIP_REDIRECT.150-FALLBACK.MEDIA_SERVER : $${MEDIA_SERVER_SIP_SRV_OR_HOSTPORT}'; \
+					echo 'SIP_REDIRECT.150-FALLBACK.VOICEMAIL_SERVER : https%3A%2F%2Flocalhost%3A$${VOICEMAIL_SERVER_HTTPS_PORT}'; \
+					echo 'SIP_REDIRECT.150-FALLBACK.MAPPING_RULES_FILENAME : @SIPX_CONFDIR@/fallbackrules.xml'; \
+					echo 'SIP_REDIRECT.150-FALLBACK.FALLBACK : true'; \
+					echo 'SIP_REDIRECT_HOOK_LIBRARY.160-HUNT : @SIPX_LIBDIR@/libRedirectorHunt.so'; \
+					echo 'SIP_REDIRECT_HOOK_LIBRARY.170-CALLERALIAS : @SIPX_LIBDIR@/libRedirectorCallerAlias.so'; \
+					echo 'SIP_REDIRECT_HOOK_LIBRARY.180-PICKUP : @SIPX_LIBDIR@/libRedirectorPickUp.so'; \
+					echo 'SIP_REDIRECT.180-PICKUP.PICKUP_1_SEC_SUBSCRIBE : Y'; \
+					echo 'SIP_REDIRECT.180-PICKUP.PICKUP_REVERSED_REPLACES : N'; \
+					echo 'SIP_REDIRECT.180-PICKUP.PICKUP_NO_EARLY_ONLY : Y'; \
+					echo 'SIP_REDIRECT.180-PICKUP.GLOBAL_CALL_PICKUP_CODE :' "`sipx_config_value @SIPX_CONFDIR@/registrar-config.in SIP_REGISTRAR_GLOBAL_CALL_PICKUP_CODE`"; \
+					echo 'SIP_REDIRECT.180-PICKUP.DIRECTED_CALL_PICKUP_CODE :' "`sipx_config_value @SIPX_CONFDIR@/registrar-config.in SIP_REGISTRAR_DIRECTED_CALL_PICKUP_CODE`"; \
+					echo 'SIP_REDIRECT.180-PICKUP.CALL_RETRIEVE_CODE :' "`sipx_config_value @SIPX_CONFDIR@/registrar-config.in SIP_REGISTRAR_CALL_RETRIEVE_CODE`"; \
+					echo 'SIP_REDIRECT.180-PICKUP.CALL_PICKUP_WAIT :' "`sipx_config_value @SIPX_CONFDIR@/registrar-config.in SIP_REGISTRAR_CALL_PICKUP_WAIT`"; \
+					echo 'SIP_REDIRECT.180-PICKUP.PARK_SERVER : $${ORBIT_SERVER_SIP_SRV_OR_HOSTPORT}'; \
+					echo 'SIP_REDIRECT.180-PICKUP.ORBIT_FILENAME : @SIPX_CONFDIR@/orbits.xml'; \
+					echo 'SIP_REDIRECT_HOOK_LIBRARY.190-ISN : @SIPX_LIBDIR@/libRedirectorISN.so'; \
+					echo 'SIP_REDIRECT.190-ISN.BASE_DOMAIN : '; \
+					) >> $(sysconfdir)/sipxpbx/$$target ; \
 				fi; \
 				;; \
 			fallbackrules.xml.in|mappingrules.xml.in) \

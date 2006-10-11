@@ -129,14 +129,14 @@ void SipRedirectorPickUp::readConfig(OsConfigDb& configDb)
         OS_SUCCESS) ||
        mCallPickUpCode.isNull())
    {
-      OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::initialize "
+      OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::readConfig "
                     "No call pick-up feature code specified");
    }
    else
    {
       // Call pick-up feature code is configured.
       // Initialize the system.
-      OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::initialize "
+      OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::readConfig "
                     "Call pick-up feature code is '%s'",
                     mCallPickUpCode.data());
       mRedirectorActive = OS_SUCCESS;
@@ -154,12 +154,12 @@ void SipRedirectorPickUp::readConfig(OsConfigDb& configDb)
         OS_SUCCESS) ||
        mGlobalPickUpCode.isNull())
    {
-      OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::initialize "
+      OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::readConfig "
                     "No global call pick-up code specified");
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::initialize "
+      OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::readConfig "
                     "Global call pick-up code is '%s'",
                     mGlobalPickUpCode.data());
       mRedirectorActive = OS_SUCCESS;
@@ -172,7 +172,7 @@ void SipRedirectorPickUp::readConfig(OsConfigDb& configDb)
         OS_SUCCESS) ||
        callRetrieveCode.isNull())
    {
-      OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::initialize "
+      OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::readConfig "
                     "No call retrieve code specified");
    }
    else
@@ -182,7 +182,7 @@ void SipRedirectorPickUp::readConfig(OsConfigDb& configDb)
            OS_SUCCESS) ||
           mOrbitFileName.length() == 0)
       {
-         OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::initialize "
+         OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::readConfig "
                        "No orbit file name specified");
       }
       else
@@ -194,12 +194,12 @@ void SipRedirectorPickUp::readConfig(OsConfigDb& configDb)
              OS_SUCCESS) ||
             mParkServerDomain.isNull())
          {
-            OsSysLog::add(FAC_SIP, PRI_CRIT, "SipRedirectorPickUp::initialize "
+            OsSysLog::add(FAC_SIP, PRI_CRIT, "SipRedirectorPickUp::readConfig "
                           "No park server address specified.");
          }
          else
          {
-            OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::initialize "
+            OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::readConfig "
                           "Call retrieve code is '%s', orbit file is '%s', "
                           "park server domain is '%s'",
                           callRetrieveCode.data(), mOrbitFileName.data(),
@@ -214,6 +214,59 @@ void SipRedirectorPickUp::readConfig(OsConfigDb& configDb)
             UtlString dummy("dummy value");
             findInOrbitList(dummy);
          }
+      }
+   }
+
+   // Get the wait time for NOTIFYs in response to our SUBSCRIBEs.
+   // Set the default value, to be overridden if the user specifies a valud
+   // value.
+   mWaitSecs = DEFAULT_WAIT_TIME_SECS;
+   mWaitUSecs = DEFAULT_WAIT_TIME_USECS;
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipRedirectorPickUp::readConfig "
+                 "Default wait time is %d.%06d", mWaitSecs, mWaitUSecs);
+   // Fetch the parameter value.
+   UtlString waitUS;
+   float waitf;
+   if (configDb.get(CONFIG_SETTING_WAIT, waitUS) == OS_SUCCESS)
+   {
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipRedirectorPickUp::readConfig "
+                    CONFIG_SETTING_WAIT " is '%s'",
+                    waitUS.data());
+      // Parse the value, checking for errors.
+      unsigned int char_count;
+      sscanf(waitUS.data(), " %f %n", &waitf, &char_count);
+      if (char_count != waitUS.length())
+      {
+         OsSysLog::add(FAC_SIP, PRI_ERR, "SipRedirectorPickUp::readConfig "
+                       "Invalid format for "
+                       CONFIG_SETTING_WAIT
+                       " '%s'", 
+                       waitUS.data());
+      }
+      else if (
+         // Check that the value is in range.
+         !(waitf >= MIN_WAIT_TIME && waitf <= MAX_WAIT_TIME))
+      {
+         OsSysLog::add(FAC_SIP, PRI_ERR, "SipRedirectorPickUp::readConfig "
+                       CONFIG_SETTING_WAIT
+                       " (%f) outside allowed range (%f to %f)",
+                       waitf, MIN_WAIT_TIME, MAX_WAIT_TIME);
+      }
+      else
+      {
+         // Extract the seconds and microseconds, being careful to round
+         // because the conversion from character data may have
+         // been inexact.
+         // Since waitf <= 100, usecs <= 100,000,000.
+         int usecs = (int)((waitf * 1000000) + 0.0000005);
+         mWaitSecs = usecs / 1000000;
+         mWaitUSecs = usecs % 1000000;
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "SipRedirectorPickUp::readConfig "
+                       "Wait time is %d.%06d",
+                       mWaitSecs, mWaitUSecs);
       }
    }
 }
@@ -264,59 +317,6 @@ SipRedirectorPickUp::initialize(OsConfigDb& configDb,
          FALSE // bUseNextAvailablePort
          );
       mpSipUserAgent->start();
-
-      // Get the wait time for NOTIFYs in response to our SUBSCRIBEs.
-      // Set the default value, to be overridden if the user specifies a valud
-      // value.
-      mWaitSecs = DEFAULT_WAIT_TIME_SECS;
-      mWaitUSecs = DEFAULT_WAIT_TIME_USECS;
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipRedirectorPickUp::initialize "
-                    "Default wait time is %d.%06d", mWaitSecs, mWaitUSecs);
-      // Fetch the parameter value.
-      UtlString waitUS;
-      float waitf;
-      if (configDb.get(CONFIG_SETTING_WAIT, waitUS) == OS_SUCCESS)
-      {
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                       "SipRedirectorPickUp::initialize "
-                       CONFIG_SETTING_WAIT " is '%s'",
-                       waitUS.data());
-         // Parse the value, checking for errors.
-         unsigned int char_count;
-         sscanf(waitUS.data(), " %f %n", &waitf, &char_count);
-         if (char_count != waitUS.length())
-         {
-            OsSysLog::add(FAC_SIP, PRI_ERR, "SipRedirectorPickUp::initialize "
-                          "Invalid format for "
-                          CONFIG_SETTING_WAIT
-                          " '%s'", 
-                          waitUS.data());
-         }
-         else if (
-            // Check that the value is in range.
-            !(waitf >= MIN_WAIT_TIME && waitf <= MAX_WAIT_TIME))
-         {
-            OsSysLog::add(FAC_SIP, PRI_ERR, "SipRedirectorPickUp::initialize "
-                          CONFIG_SETTING_WAIT
-                          " (%f) outside allowed range (%f to %f)",
-                          waitf, MIN_WAIT_TIME, MAX_WAIT_TIME);
-         }
-         else
-         {
-            // Extract the seconds and microseconds, being careful to round
-            // because the conversion from character data may have
-            // been inexact.
-            // Since waitf <= 100, usecs <= 100,000,000.
-            int usecs = (int)((waitf * 1000000) + 0.0000005);
-            mWaitSecs = usecs / 1000000;
-            mWaitUSecs = usecs % 1000000;
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipRedirectorPickUp::initialize "
-                          "Wait time is %d.%06d",
-                          mWaitSecs, mWaitUSecs);
-         }
-      }
 
       // Initialize the CSeq counter to an arbitrary acceptable value.
       mCSeq = 4711;

@@ -231,6 +231,11 @@ void PluginHooks::readConfig(OsConfigDb& configDb)
    existingHooks.destroyAll();
 }
 
+size_t PluginHooks::entries() const
+{
+   return mConfiguredHooks.entries();
+}
+
 PluginIterator::PluginIterator( const PluginHooks& pluginHooks ) :
    mConfiguredHooksIterator(pluginHooks.mConfiguredHooks)
 {

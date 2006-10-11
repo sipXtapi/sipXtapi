@@ -59,7 +59,7 @@ public:
 protected:
 
     // static bool indicating whether we have any huntgroups
-    static UtlBoolean sHuntGroupsDefined;
+    UtlBoolean mHuntGroupsDefined;
 
 private:
 

@@ -100,6 +100,44 @@ sipx-upgrade -p sipxregistry -c
 %post
 sipx-upgrade -p sipxregistry -u --sdir %{_localstatedir} --cdir %{_sysconfdir}
 
+if ! grep '^SIP_REDIRECT_HOOK_LIBRARY\.' %{_sysconfdir}/sipxpbx/$target > /dev/null
+then
+	grep -v 'SIP_REDIRECT.190-ISN\.BASE_DOMAIN' %{_sysconfdir}/sipxpbx/$target
+		> %{_sysconfdir}/sipxpbx/$target.tmp
+	mv %{_sysconfdir}/sipxpbx/$target.tmp %{_sysconfdir}/sipxpbx/$target
+	(
+	echo ''
+	echo '# Configure the redirectors.'
+	echo 'SIP_REDIRECT_HOOK_LIBRARY.110-REG : %{_libdir}/libRedirectorRegDB.so'
+	echo 'SIP_REDIRECT_HOOK_LIBRARY.120-ALIAS : %{_libdir}/libRedirectorAliasDB.so'
+	echo 'SIP_REDIRECT_HOOK_LIBRARY.130-SUBSCRIBE : %{_libdir}/libRedirectorSubscribe.so'
+	echo 'SIP_REDIRECT_HOOK_LIBRARY.140-MAPPING : %{_libdir}/libRedirectorMapping.so'
+	echo 'SIP_REDIRECT.140-MAPPING.MEDIA_SERVER : ${MEDIA_SERVER_SIP_SRV_OR_HOSTPORT}'
+	echo 'SIP_REDIRECT.140-MAPPING.VOICEMAIL_SERVER : https%3A%2F%2Flocalhost%3A${VOICEMAIL_SERVER_HTTPS_PORT}'
+	echo 'SIP_REDIRECT.140-MAPPING.MAPPING_RULES_FILENAME : %{_sysconfdir}/sipxpbx/mappingrules.xml'
+	echo 'SIP_REDIRECT.140-MAPPING.FALLBACK : false'
+	echo 'SIP_REDIRECT_HOOK_LIBRARY.150-FALLBACK : %{_libdir}/libRedirectorMapping.so'
+	echo 'SIP_REDIRECT.150-FALLBACK.MEDIA_SERVER : ${MEDIA_SERVER_SIP_SRV_OR_HOSTPORT}'
+	echo 'SIP_REDIRECT.150-FALLBACK.VOICEMAIL_SERVER : https%3A%2F%2Flocalhost%3A${VOICEMAIL_SERVER_HTTPS_PORT}'
+	echo 'SIP_REDIRECT.150-FALLBACK.MAPPING_RULES_FILENAME : %{_sysconfdir}/sipxpbx/fallbackrules.xml'
+	echo 'SIP_REDIRECT.150-FALLBACK.FALLBACK : true'
+	echo 'SIP_REDIRECT_HOOK_LIBRARY.160-HUNT : %{_libdir}/libRedirectorHunt.so'
+	echo 'SIP_REDIRECT_HOOK_LIBRARY.170-CALLERALIAS : %{_libdir}/libRedirectorCallerAlias.so'
+	echo 'SIP_REDIRECT_HOOK_LIBRARY.180-PICKUP : %{_libdir}/libRedirectorPickUp.so'
+	echo 'SIP_REDIRECT.180-PICKUP.PICKUP_1_SEC_SUBSCRIBE : Y'
+	echo 'SIP_REDIRECT.180-PICKUP.PICKUP_REVERSED_REPLACES : N'
+	echo 'SIP_REDIRECT.180-PICKUP.PICKUP_NO_EARLY_ONLY : Y'
+	echo 'SIP_REDIRECT.180-PICKUP.GLOBAL_CALL_PICKUP_CODE :' "`sipx_config_value %{_sysconfdir}/sipxpbx/registrar-config.in SIP_REGISTRAR_GLOBAL_CALL_PICKUP_CODE`"
+	echo 'SIP_REDIRECT.180-PICKUP.DIRECTED_CALL_PICKUP_CODE :' "`sipx_config_value %{_sysconfdir}/sipxpbx/registrar-config.in SIP_REGISTRAR_DIRECTED_CALL_PICKUP_CODE`"
+	echo 'SIP_REDIRECT.180-PICKUP.CALL_RETRIEVE_CODE :' "`sipx_config_value %{_sysconfdir}/sipxpbx/registrar-config.in SIP_REGISTRAR_CALL_RETRIEVE_CODE`"
+	echo 'SIP_REDIRECT.180-PICKUP.CALL_PICKUP_WAIT :' "`sipx_config_value %{_sysconfdir}/sipxpbx/registrar-config.in SIP_REGISTRAR_CALL_PICKUP_WAIT`"
+	echo 'SIP_REDIRECT.180-PICKUP.PARK_SERVER : ${ORBIT_SERVER_SIP_SRV_OR_HOSTPORT}'
+	echo 'SIP_REDIRECT.180-PICKUP.ORBIT_FILENAME : %{_sysconfdir}/sipxpbx/orbits.xml'
+	echo 'SIP_REDIRECT_HOOK_LIBRARY.190-ISN : %{_libdir}/libRedirectorISN.so'
+	echo 'SIP_REDIRECT.190-ISN.BASE_DOMAIN : '
+	) >> %{_sysconfdir}/sipxpbx/$target
+fi
+
 %define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
 %define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz
 if [ -f %{current_archive} ]; then

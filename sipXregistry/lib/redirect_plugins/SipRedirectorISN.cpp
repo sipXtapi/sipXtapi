@@ -121,11 +121,11 @@ void SipRedirectorISN::readConfig(OsConfigDb& configDb)
 // Initializer
 OsStatus
 SipRedirectorISN::initialize(OsConfigDb& configDb,
-                               SipUserAgent* pSipUserAgent,
-                               int redirectorNo,
-                               const UtlString& localDomainHost)
+                             SipUserAgent* pSipUserAgent,
+                             int redirectorNo,
+                             const UtlString& localDomainHost)
 {
-   return OS_SUCCESS;
+   return mBaseDomain.isNull() ? OS_FAILED : OS_SUCCESS;
 }
 
 // Finalizer
