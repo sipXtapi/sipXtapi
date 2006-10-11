@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -34,7 +33,7 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
  * Backup various parts of the system to a fixed backup directory.
  */
 public class BackupPlan extends BeanWithId {
-    
+
     private static final Log LOG = LogFactory.getLog(BackupPlan.class);
 
     private static final String MAILSTORE = "mailstore.tar.gz";
@@ -46,29 +45,32 @@ public class BackupPlan extends BeanWithId {
 
     private static final String SCRIPT_SUFFIX = ".sh";
     private static final String OPTIONS = "--non-interactive";
-    
+
+    private static final int SUCCESS = 0;
+
     private String m_backupConfigScript = BACKUP_CONFIGS + SCRIPT_SUFFIX;
     private String m_backupMailstoreScript = BACKUP_MAILSTORE + SCRIPT_SUFFIX;
 
     private boolean m_voicemail = true;
     private boolean m_database = true;
-    private boolean m_configs = true;    
+    private boolean m_configs = true;
     private Integer m_limitedCount;
     private Date m_backupTime;
-    
-    private Collection m_schedules = new ArrayList(0);
-    
+
+    private Collection<DailyBackupSchedule> m_schedules = new ArrayList<DailyBackupSchedule>(0);
+
     public File[] perform(String rootBackupPath, String binPath) {
         String errorMsg = "Errors when creating backup.";
-        try {            
+        try {
             File rootBackupDir = new File(rootBackupPath);
             File backupDir = getNextBackupDir(rootBackupDir);
             if (!backupDir.isDirectory()) {
                 backupDir.mkdirs();
             }
             File binDir = new File(binPath);
-            perform(backupDir, binDir);
-            return getBackupFiles(backupDir);
+            if (SUCCESS == perform(backupDir, binDir)) {
+                return getBackupFiles(backupDir);
+            }
         } catch (IOException e) {
             LOG.error(errorMsg, e);
         } catch (InterruptedException e) {
@@ -76,12 +78,12 @@ public class BackupPlan extends BeanWithId {
         }
         return null;
     }
-    
+
     File getNextBackupDir(File rootBackupDir) {
         m_backupTime = new Date();
         DateFormat fmt = new SimpleDateFormat("yyyyMMddHHmm");
         File nextDir = new File(rootBackupDir, fmt.format(m_backupTime));
-        
+
         String purgeable = getOldestPurgableBackup(rootBackupDir.list());
         if (purgeable != null) {
             try {
@@ -90,27 +92,27 @@ public class BackupPlan extends BeanWithId {
                 LOG.error("Could not limit backup count", nonfatal);
             }
         }
-        
+
         return nextDir;
     }
-    
+
     String getOldestPurgableBackup(String[] filelist) {
         if (m_limitedCount == null || filelist == null) {
             return null;
         }
-        
-        if (filelist.length < m_limitedCount.intValue()) {
+
+        if (filelist.length < m_limitedCount) {
             return null;
         }
-        
+
         Arrays.sort(filelist);
-        return filelist[0];        
+        return filelist[0];
     }
-    
+
     void setConfigsScript(String script) {
         m_backupConfigScript = script;
     }
-    
+
     void setMailstoreScript(String script) {
         m_backupMailstoreScript = script;
     }
@@ -129,7 +131,7 @@ public class BackupPlan extends BeanWithId {
     }
 
     private int perform(File workingDir, File binDir) throws IOException, InterruptedException {
-        List processes = new ArrayList();
+        List<Process> processes = new ArrayList<Process>();
         if (isConfigs() || isDatabase()) {
             String cmdLine = buildExecName(binDir, m_backupConfigScript);
             processes.add(exec(cmdLine, workingDir));
@@ -140,15 +142,16 @@ public class BackupPlan extends BeanWithId {
             processes.add(exec(cmdLine, workingDir));
 
         }
-        int exitCode = 0;
-        for (Iterator i = processes.iterator(); i.hasNext();) {
-            Process proc = (Process) i.next();
+        for (Process proc : processes) {
             int code = proc.waitFor();
-            if (code != 0) {
-                exitCode = code;
+            if (code != SUCCESS) {
+                String errorMsg = String.format("Backup operation failed. Exit code: %d", code);
+                LOG.error(errorMsg);
+                // does not make sense to wait for everything if one of the operations failed
+                return code;
             }
         }
-        return exitCode;
+        return SUCCESS;
     }
 
     File[] getBackupFiles(File backupDir) {
@@ -170,17 +173,17 @@ public class BackupPlan extends BeanWithId {
         }
         return (File[]) files.toArray(new File[files.size()]);
     }
-    
+
     public void addSchedule(DailyBackupSchedule dailySchedule) {
         m_schedules.add(dailySchedule);
         dailySchedule.setBackupPlan(this);
     }
-    
-    public Collection getSchedules() {
+
+    public Collection<DailyBackupSchedule> getSchedules() {
         return m_schedules;
     }
-    
-    public void setSchedules(Collection schedules) {
+
+    public void setSchedules(Collection<DailyBackupSchedule> schedules) {
         m_schedules = schedules;
     }
 
@@ -195,55 +198,53 @@ public class BackupPlan extends BeanWithId {
     public boolean isConfigs() {
         return m_configs;
     }
-    
+
     public void setConfigs(boolean configs) {
         m_configs = configs;
     }
-    
+
     public boolean isDatabase() {
         return m_database;
     }
-    
+
     public void setDatabase(boolean database) {
         m_database = database;
     }
-    
+
     public boolean isVoicemail() {
         return m_voicemail;
     }
-    
+
     public void setVoicemail(boolean voicemail) {
         m_voicemail = voicemail;
     }
-    
+
     public void schedule(Timer timer, String rootBackupPath, String binPath) {
         schedule(timer, getTask(rootBackupPath, binPath));
     }
-    
+
     void schedule(Timer timer, TimerTask task) {
-        Iterator i = getSchedules().iterator();
-        while (i.hasNext()) {
-            DailyBackupSchedule schedule = (DailyBackupSchedule) i.next();
+        for (DailyBackupSchedule schedule : getSchedules()) {
             schedule.schedule(timer, task);
         }
-    }    
-    
+    }
+
     TimerTask getTask(String rootBackupPath, String binPath) {
         return new BackupTask(rootBackupPath, binPath);
     }
-    
+
     class BackupTask extends TimerTask {
         private String m_rootBackupPath;
-        
+
         private String m_binPath;
-        
+
         BackupTask(String rootBackupPath, String binPath) {
             m_rootBackupPath = rootBackupPath;
             m_binPath = binPath;
         }
-        
+
         public void run() {
             BackupPlan.this.perform(m_rootBackupPath, m_binPath);
-        }        
+        }
     }
 }
