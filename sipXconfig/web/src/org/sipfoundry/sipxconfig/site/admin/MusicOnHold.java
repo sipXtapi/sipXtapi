@@ -33,11 +33,11 @@ public abstract class MusicOnHold extends BasePage implements PageBeginRenderLis
     }
 
     public void saveValid() {
-        if (TapestryUtils.isValid(this)) {
-            ParkOrbitContext context = getParkOrbitContext();
-            context.setDefaultMusicOnHold(getMusic());
-            context.activateParkOrbits();
-            saveValid();
+        if (!TapestryUtils.isValid(this)) {
+            return;
         }
+        ParkOrbitContext context = getParkOrbitContext();
+        context.setDefaultMusicOnHold(getMusic());
+        context.activateParkOrbits();
     }
 }
