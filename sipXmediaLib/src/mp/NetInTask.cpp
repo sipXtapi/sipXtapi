@@ -684,6 +684,10 @@ NetInTask* NetInTask::getNetInTask()
    {
       isStarted = spInstance->start();
       assert(isStarted);
+
+      // Give the NetInTask the ability to start -- we really need some 
+      // synchronization.
+      OsTask::yield();
    }
    sLock.releaseRead();
    return spInstance;

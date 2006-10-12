@@ -1,4 +1,7 @@
-//
+// 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -6,7 +9,9 @@
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+// Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
 #ifndef _CpMediaInterface_h_
 #define _CpMediaInterface_h_
@@ -122,7 +127,7 @@ class CpMediaInterfaceFactoryImpl ;
  * This abstract class must be sub-classed and implemented to
  * replace the default media sub-system.
  */
-class CpMediaInterface
+class CpMediaInterface : public UtlInt
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -582,6 +587,41 @@ public:
    {
        return OS_NOT_SUPPORTED; 
    };
+
+
+   //! Set a media property on the media interface
+    /*
+     * Media interfaces that wish to interoperate should implement the following properties
+     * and values:
+     *
+     * Property Name                  Property Values
+     * =======================        ===============
+     * "audioInput1.muteState"        "true", "false" for systems that may have a microphone for each conference or 2-way call
+     * "audioInput1.device"           same value as szDevice in sipxAudioSetCallInputDevice
+     * "audioOutput1.deviceType"      "speaker", "ringer" same as sipxAudioEnableSpeaker, but for specific conference or 2-way call
+     * "audioOutput1.ringerDevice"    same value as szDevice in sipxAudioSetRingerOutputDevice 
+     * "audioOutput1.speakerDevice"   same values as szDevice in sipxAudioSetCallOutputDevice
+     * "audioOutput1.volume"          string value of iLevel in sipxAudioSetVolume
+     */
+   virtual OsStatus setMediaProperty(const UtlString& propertyName,
+                                     const UtlString& propertyValue) = 0;
+
+   //! Get a media property on the media interface
+   virtual OsStatus getMediaProperty(const UtlString& propertyName,
+                                     UtlString& propertyValue) = 0;
+
+   //! Set a media property associated with a connection
+   virtual OsStatus setMediaProperty(int connectionId,
+                                     const UtlString& propertyName,
+                                     const UtlString& propertyValue) = 0;
+
+   //! Get a media property associated with a connection
+   virtual OsStatus getMediaProperty(int connectionId,
+                                     const UtlString& propertyName,
+                                     UtlString& propertyValue) = 0;
+
+
+
 
 /* ============================ INQUIRY =================================== */
 
