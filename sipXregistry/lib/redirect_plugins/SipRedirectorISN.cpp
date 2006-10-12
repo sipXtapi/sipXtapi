@@ -279,12 +279,14 @@ SipRedirectorISN::lookUp(
                   // NAPTR matches can have only 9 substitutions.
                   regmatch_t pmatch[9];
                   // regexec returns 0 for success.
-                  // Though RFC 2915 and the ISN Cookbook don't say, it appears
+                  // Though RFC 3761 and the ISN Cookbook don't say, it appears
                   // that the regexp is matched against the user-part of the SIP URI.
-                  if (regexec(&reg, userId, 9, pmatch, 0) == 0)
+                  if (regexec(&reg, user, 9, pmatch, 0) == 0)
                   {
                      // Match was successful.  Construct the replacement string.
-                     char* result = res_naptr_replace(replace, delim, pmatch, userId);
+                     // Current usage is that the replacement string is the resulting URI,
+                     // not the replacement into the original application-string.
+                     char* result = res_naptr_replace(replace, delim, pmatch, userId, 0);
                      OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                    "SipRedirectorISN::LookUp result = '%s'",
                                    result);

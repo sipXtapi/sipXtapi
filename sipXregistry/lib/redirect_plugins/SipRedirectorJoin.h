@@ -64,9 +64,6 @@ class SipRedirectorJoin : public RedirectPlugin
 
    virtual void finalize();
 
-   // Switch for the "1 second subscription" workaround.
-   UtlBoolean mOneSecondSubscription;
-
    virtual RedirectPlugin::LookUpStatus lookUp(
       const SipMessage& message,
       const UtlString& requestString,
@@ -133,6 +130,9 @@ class SipRedirectorJoin : public RedirectPlugin
    // Counter for CSeq for SUBSCRIBES.
    unsigned int mCSeq;
 
+   // Switch for the "1 second subscription" workaround.
+   UtlBoolean mOneSecondSubscription;
+
    // Support functions.
    RedirectPlugin::LookUpStatus lookUpDialog(
       const UtlString& requestString,
@@ -191,7 +191,7 @@ class SipRedirectorJoinNotification : public OsNotification
 };
 
 /**
- * Private storage for pick-up suspensions.
+ * Private storage for call-join suspensions.
  */
 class SipRedirectorPrivateStorageJoin : public SipRedirectorPrivateStorage
 {

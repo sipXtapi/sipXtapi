@@ -76,6 +76,12 @@ extern struct __res_state _sip_res;
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
+// Function to get a boolean configuration setting based on the Y/N value of
+// a configuration parameter.
+static UtlBoolean getYNconfig(OsConfigDb& configDb,
+                              const char* parameterName,
+                              UtlBoolean defaultValue);
+
 // Static factory function.
 extern "C" RedirectPlugin* getRedirectPlugin(const UtlString& instanceName)
 {
@@ -103,6 +109,7 @@ void SipRedirectorENUM::readConfig(OsConfigDb& configDb)
                     "SipRedirectorENUM::readConfig "
                     "BASE_DOMAIN parameter missing or empty");
    }
+
    if (configDb.get("PREFIX", mPrefix) != OS_SUCCESS ||
        mPrefix.isNull())
    {
@@ -116,6 +123,11 @@ void SipRedirectorENUM::readConfig(OsConfigDb& configDb)
                     "SipRedirectorENUM::readConfig "
                     "dialing prefix is '%s'", mPrefix.data());
    }
+
+   mPrefixPlus = getYNconfig(configDb, "PREFIX_PLUS", FALSE);
+   OsSysLog::add(FAC_SIP, PRI_INFO,
+                 "SipRedirectorENUM::readConfig "
+                 "mPrefixPlus is %d", mPrefixPlus);
 }
 
 // Initializer
@@ -125,7 +137,7 @@ SipRedirectorENUM::initialize(OsConfigDb& configDb,
                                int redirectorNo,
                                const UtlString& localDomainHost)
 {
-   return OS_SUCCESS;
+   return mBaseDomain.isNull() ? OS_FAILED : OS_SUCCESS;
 }
 
 // Finalizer
@@ -268,12 +280,24 @@ SipRedirectorENUM::lookUp(
                   // NAPTR matches can have only 9 substitutions.
                   regmatch_t pmatch[9];
                   // regexec returns 0 for success.
-                  // Though RFC 2915 and the ENUM Cookbook don't say, it appears
-                  // that the regexp is matched against the user-part of the SIP URI.
-                  if (regexec(&reg, userId, 9, pmatch, 0) == 0)
+                  // RFC 3761 specifies that the regexp is matched
+                  // against "+" followed by the user-part of the SIP
+                  // URI (for real ENUM), or just the user-part (for private
+                  // ENUM).
+                  char application_string[strlen(user) + 2];
+                  if (mPrefixPlus)
+                  {
+                     strcpy(application_string, "+");
+                  }
+                  else
+                  {
+                     strcpy(application_string, "");
+                  }
+                  strcat(application_string, user);
+                  if (regexec(&reg, application_string, 9, pmatch, 0) == 0)
                   {
                      // Match was successful.  Perform replacement.
-                     char* result = res_naptr_replace(replace, delim, pmatch, userId);
+                     char* result = res_naptr_replace(replace, delim, pmatch, userId, 1);
                      OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                    "SipRedirectorENUM::LookUp result = '%s'",
                                    result);
@@ -358,4 +382,45 @@ SipRedirectorENUM::lookUp(
    }
 
    return RedirectPlugin::LOOKUP_SUCCESS;
+}
+
+// Function to get a boolean configuration setting based on the Y/N value of
+// a configuration parameter.
+static UtlBoolean getYNconfig(OsConfigDb& configDb,
+                              const char* parameterName,
+                              UtlBoolean defaultValue)
+{
+   // Start with the default value.
+   UtlBoolean value = defaultValue;
+   UtlString temp;
+   // If we can get the parameter from the configDb, and if its value is
+   // not null...
+   if (configDb.get(parameterName, temp) == OS_SUCCESS &&
+       !temp.isNull())
+   {
+      // Examine the first character.
+      switch (temp(0))
+      {
+      case 'y':
+      case 'Y':
+      case 'T':
+      case 't':
+      case '1':
+         // If the value starts with Y or 1, set the result to TRUE.
+         value = TRUE;
+         break;
+      case 'n':
+      case 'N':
+      case 'F':
+      case 'f':
+      case '0':
+         // If the value starts with N or 0, set the result to FALSE.
+         value = FALSE;
+         break;
+      default:
+         // Ignore all other values.
+         break;
+      } 
+   }
+   return value;
 }

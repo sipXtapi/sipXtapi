@@ -178,13 +178,29 @@ int             res_naptr_split_regexp(const char *field,
 char             *res_naptr_replace(const char *replace,
                                     char       delim,
                                     regmatch_t *match,
-                                    const char *original)
+                                    const char *original,
+                                    int        keep_context)
 {
    /* Set up string to write to. */
    int allocated_size = 10;
    char *string = malloc(allocated_size);
    int used_size = 0;
 
+   /* If requested, copy the portion of the original string before the match. */
+   if (keep_context)
+   {
+      int len = match[0].rm_so;
+      if (used_size + len > allocated_size)
+      {
+         allocated_size *= 2;
+         allocated_size += len;
+         string = realloc(string, allocated_size);
+      }
+      strncpy(&string[used_size], &original[0], len);
+      used_size += len;
+   }
+
+   /* Scan the replacement string, appending to the output string. */
    const char *p = replace;
    while (1)
    {
@@ -261,6 +277,21 @@ char             *res_naptr_replace(const char *replace,
       }
    }
   done:;
+
+   /* If requested, copy the portion of the original string after the match. */
+   if (keep_context)
+   {
+      int len = strlen(original) - match[0].rm_eo;
+      if (used_size + len > allocated_size)
+      {
+         allocated_size *= 2;
+         allocated_size += len;
+         string = realloc(string, allocated_size);
+      }
+      strncpy(&string[used_size], &original[match[0].rm_eo], len);
+      used_size += len;
+   }
+
    /* We are done constructing the replacement string.
     * Or an error occurred, which should not happen, as the
     * replacement string was syntax-checked by res_naptr_split_regexp.

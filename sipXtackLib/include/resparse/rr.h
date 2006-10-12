@@ -308,7 +308,8 @@ extern  int             res_naptr_split_regexp(const char *field,
 extern  char             *res_naptr_replace(const char *replace,
                                             char       delim,
                                             regmatch_t *match,
-                                            const char *original);
+                                            const char *original,
+                                            int        keep_context);
 
 #endif /* RES_PARSE_NAPTR */
 

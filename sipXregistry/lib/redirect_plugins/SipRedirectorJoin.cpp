@@ -39,7 +39,7 @@
     "CALL_JOIN_WAIT"
 // The parameter for activating the "1 second subscription" workaround.
 #define CONFIG_SETTING_1_SEC \
-    "PICKUP_1_SEC_SUBSCRIBE"
+    "JOIN_1_SEC_SUBSCRIBE"
 // The default call join wait time, in seconds and microseconds.
 #define DEFAULT_WAIT_TIME_SECS        1
 #define DEFAULT_WAIT_TIME_USECS       0
@@ -182,8 +182,8 @@ SipRedirectorJoin::initialize(OsConfigDb& configDb,
                               int redirectorNo,
                               const UtlString& localDomainHost)
 {
-   // If any of the join redirections are active, set up the machinery
-   // to execute them.
+   // If the join redirection is active, set up the machinery
+   // to execute it.
    if (mRedirectorActive == OS_SUCCESS)
    {
       // Get and save our domain name.
@@ -324,46 +324,42 @@ SipRedirectorJoin::lookUpDialog(
       if (dialog_info->mTargetDialogDuration !=
           SipRedirectorPrivateStorageJoin::TargetDialogDurationAbsent)
       {
-         // For call join, execute the original 302 with a Join parameter
-         if (dialog_info->mStateFilter == stateEarly)
-         {         
-            // A dialog has been recorded.  Construct a contact for it.
-            // Beware that as recorded in the dialog event notice, the
-            // target URI is in addr-spec format; any parameters are URI
-            // parameters.  (Field parameters have been broken out in
-            // param elements.)
-            Url contact_URI(dialog_info->mTargetDialogRemoteURI, TRUE);            
+         // A dialog has been recorded.  Construct a contact for it.
+         // Beware that as recorded in the dialog event notice, the
+         // target URI is in addr-spec format; any parameters are URI
+         // parameters.  (Field parameters have been broken out in
+         // param elements.)
+         Url contact_URI(dialog_info->mTargetDialogLocalURI, TRUE);
 
-            // Construct the Join: header value the caller should use.
-            UtlString header_value(dialog_info->mTargetDialogCallId);
-            // Note that according to RFC 3891, the to-tag parameter is
-            // the local tag at the destination of the INVITE/Join.
-            // But the INVITE/Join goes to the end of the call that
-            // we queried with SUBSCRIBE, so the to-tag in the
-            // Join: header is the *local* tag from the NOTIFY.
-            header_value.append(";to-tag=");
-            header_value.append(dialog_info->mTargetDialogLocalTag);
-            header_value.append(";from-tag=");
-            header_value.append(dialog_info->mTargetDialogRemoteTag);
-            // Add a header parameter to specify the Join: header.
-            contact_URI.setHeaderParameter("Join", header_value.data());
+         // Construct the Join: header value the caller should use.
+         UtlString header_value(dialog_info->mTargetDialogCallId);
+         // Note that according to RFC 3891, the to-tag parameter is
+         // the local tag at the destination of the INVITE/Join.
+         // But the INVITE/Join goes to the end of the call that
+         // we queried with SUBSCRIBE, so the to-tag in the
+         // Join: header is the *local* tag from the NOTIFY.
+         header_value.append(";to-tag=");
+         header_value.append(dialog_info->mTargetDialogLocalTag);
+         header_value.append(";from-tag=");
+         header_value.append(dialog_info->mTargetDialogRemoteTag);
+         // Add a header parameter to specify the Join: header.
+         contact_URI.setHeaderParameter("Join", header_value.data());
 
-            // We add a header parameter to cause the redirection to
-            // include a "Require: join" header.  Then if the caller
-            // phone does not support INVITE/Join:, the pick-up will
-            // fail entirely.  Without it, if the caller phone does not
-            // support INVITE/Join, the caller will get a
-            // simultaneous incoming call from the executing phone.
-            // Previously, we thought the latter behavior was better, but
-            // it is not -- Consider if the device is a gateway from the
-            // PSTN.  Then the INVITE/Join will generate an outgoing
-            // call to the calling phone.
-            contact_URI.setHeaderParameter(SIP_REQUIRE_FIELD,
-                                           SIP_JOIN_EXTENSION);
+         // We add a header parameter to cause the redirection to
+         // include a "Require: join" header.  Then if the caller
+         // phone does not support INVITE/Join:, the pick-up will
+         // fail entirely.  Without it, if the caller phone does not
+         // support INVITE/Join, the caller will get a
+         // simultaneous incoming call from the executing phone.
+         // Previously, we thought the latter behavior was better, but
+         // it is not -- Consider if the device is a gateway from the
+         // PSTN.  Then the INVITE/Join will generate an outgoing
+         // call to the calling phone.
+         contact_URI.setHeaderParameter(SIP_REQUIRE_FIELD,
+                                        SIP_JOIN_EXTENSION);
 
-            // Record the URI as a contact.
-            addContact(response, requestString, contact_URI, "pick-up");            
-         }
+         // Record the URI as a contact.
+         addContact(response, requestString, contact_URI, "pick-up");            
       }
 
       // We do not need to suspend this time.

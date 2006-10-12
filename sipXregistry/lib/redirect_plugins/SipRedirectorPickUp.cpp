@@ -165,7 +165,7 @@ void SipRedirectorPickUp::readConfig(OsConfigDb& configDb)
       mRedirectorActive = OS_SUCCESS;
    }
 
-   // Fetch the call retrieve username from the config file.
+   // Fetch the call retrieve prefix from the config file.
    // If it is null, it doesn't count.
    UtlString callRetrieveCode;
    if ((configDb.get(CONFIG_SETTING_RETRIEVE_CODE, callRetrieveCode) !=
@@ -543,77 +543,73 @@ SipRedirectorPickUp::lookUpDialog(
       if (dialog_info->mTargetDialogDuration !=
           SipRedirectorPrivateStoragePickUp::TargetDialogDurationAbsent)
       {
-         // For call pickup execute the original 302 with a Replaces parameter
-         if (dialog_info->mStateFilter == stateEarly)
-         {         
-            // A dialog has been recorded.  Construct a contact for it.
-            // Beware that as recorded in the dialog event notice, the
-            // target URI is in addr-spec format; any parameters are URI
-            // parameters.  (Field parameters have been broken out in
-            // param elements.)
-            Url contact_URI(dialog_info->mTargetDialogRemoteURI, TRUE);            
+         // A dialog has been recorded.  Construct a contact for it.
+         // Beware that as recorded in the dialog event notice, the
+         // target URI is in addr-spec format; any parameters are URI
+         // parameters.  (Field parameters have been broken out in
+         // param elements.)
+         Url contact_URI(dialog_info->mTargetDialogRemoteURI, TRUE);
 
-            // Construct the Replaces: header value the caller should use.
-            UtlString header_value(dialog_info->mTargetDialogCallId);
-            // Note that according to RFC 3891, the to-tag parameter is
-            // the local tag at the destination of the INVITE/Replaces.
-            // But the INVITE/Replaces goes to the other end of the call from
-            // the one we queried with SUBSCRIBE, so the to-tag in the
-            // Replaces: header is the *remote* tag from the NOTIFY.
-            header_value.append(";to-tag=");
-            header_value.append(dialog_info->mTargetDialogRemoteTag);
-            header_value.append(";from-tag=");
-            header_value.append(dialog_info->mTargetDialogLocalTag);
-            // If the state filtering is "early", add "early-only", so we
-            // don't pick up a call that has just been answered.
+         // Construct the Replaces: header value the caller should use.
+         UtlString header_value(dialog_info->mTargetDialogCallId);
+         // Note that according to RFC 3891, the to-tag parameter is
+         // the local tag at the destination of the INVITE/Replaces.
+         // But the INVITE/Replaces goes to the other end of the call from
+         // the one we queried with SUBSCRIBE, so the to-tag in the
+         // Replaces: header is the *remote* tag from the NOTIFY.
+         header_value.append(";to-tag=");
+         header_value.append(dialog_info->mTargetDialogRemoteTag);
+         header_value.append(";from-tag=");
+         header_value.append(dialog_info->mTargetDialogLocalTag);
+         // If the state filtering is "early", add "early-only", so we
+         // don't pick up a call that has just been answered.
+         if (dialog_info->mStateFilter == stateEarly &&
+             !mNoEarlyOnly)
+         {
+            header_value.append(";early-only");
+         }
+         // Add a header parameter to specify the Replaces: header.
+         contact_URI.setHeaderParameter("Replaces", header_value.data());
+
+         // We add a header parameter to cause the redirection to
+         // include a "Require: replaces" header.  Then if the caller
+         // phone does not support INVITE/Replaces:, the pick-up will
+         // fail entirely.  Without it, if the caller phone does not
+         // support INVITE/Replaces, the caller will get a
+         // simultaneous incoming call from the executing phone.
+         // Previously, we thought the latter behavior was better, but
+         // it is not -- Consider if the device is a gateway from the
+         // PSTN.  Then the INVITE/Replaces will generate an outgoing
+         // call to the calling phone.
+         contact_URI.setHeaderParameter(SIP_REQUIRE_FIELD,
+                                        SIP_REPLACES_EXTENSION);
+
+         // Record the URI as a contact.
+         addContact(response, requestString, contact_URI, "pick-up");            
+
+         // If "reversed Replaces" is configured, also add a Replaces: with
+         // the to-tag and from-tag reversed.
+         if (mReversedReplaces)
+         {
+            Url c(dialog_info->mTargetDialogRemoteURI);
+   
+            UtlString h(dialog_info->mTargetDialogCallId);
+            h.append(";to-tag=");
+            h.append(dialog_info->mTargetDialogLocalTag);
+            h.append(";from-tag=");
+            h.append(dialog_info->mTargetDialogRemoteTag);
             if (dialog_info->mStateFilter == stateEarly &&
                 !mNoEarlyOnly)
             {
-               header_value.append(";early-only");
+               h.append(";early-only");
             }
-            // Add a header parameter to specify the Replaces: header.
-            contact_URI.setHeaderParameter("Replaces", header_value.data());
-
-            // We add a header parameter to cause the redirection to
-            // include a "Require: replaces" header.  Then if the caller
-            // phone does not support INVITE/Replaces:, the pick-up will
-            // fail entirely.  Without it, if the caller phone does not
-            // support INVITE/Replaces, the caller will get a
-            // simultaneous incoming call from the executing phone.
-            // Previously, we thought the latter behavior was better, but
-            // it is not -- Consider if the device is a gateway from the
-            // PSTN.  Then the INVITE/Replaces will generate an outgoing
-            // call to the calling phone.
-            contact_URI.setHeaderParameter(SIP_REQUIRE_FIELD,
-                                           SIP_REPLACES_EXTENSION);
-
-            // Record the URI as a contact.
-            addContact(response, requestString, contact_URI, "pick-up");            
-
-            // If "reversed Replaces" is configured, also add a Replaces: with
-            // the to-tag and from-tag reversed.
-            if (mReversedReplaces)
-            {
-               Url c(dialog_info->mTargetDialogRemoteURI);
    
-               UtlString h(dialog_info->mTargetDialogCallId);
-               h.append(";to-tag=");
-               h.append(dialog_info->mTargetDialogLocalTag);
-               h.append(";from-tag=");
-               h.append(dialog_info->mTargetDialogRemoteTag);
-               if (dialog_info->mStateFilter == stateEarly &&
-                   !mNoEarlyOnly)
-               {
-                  h.append(";early-only");
-               }
+            c.setHeaderParameter("Replaces", h.data());
+            // Put this contact at a lower priority than the one in
+            // the correct order.
+            c.setFieldParameter("q", "0.9");
    
-               c.setHeaderParameter("Replaces", h.data());
-               // Put this contact at a lower priority than the one in
-               // the correct order.
-               c.setFieldParameter("q", "0.9");
-   
-               addContact(response, requestString, c, "pick-up");
-            }
+            addContact(response, requestString, c, "pick-up");
          }
       }
 
