@@ -21,6 +21,7 @@
   </component>
   <component id="settingDescription" type="Insert">
     <binding name="value" value="description"/>
+    <binding name="raw" value="true"/>
   </component>
   <component id="ifRenderDefault" type="If">
     <binding name="condition" value="defaultValue != null"/>

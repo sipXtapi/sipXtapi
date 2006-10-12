@@ -45,6 +45,7 @@
     <page name="EditLine" specification-path="line/EditLine.page"/>    
     <page name="EditLocalDialRule" specification-path="dialplan/EditLocalDialRule.page"/>
     <page name="EditLongDistanceDialRule" specification-path="dialplan/EditLongDistanceDialRule.page"/>
+    <page name="EditPhonebook" specification-path="phonebook/EditPhonebook.page"/>
     <page name="EditPhoneDefaults" specification-path="phone/EditPhoneDefaults.page"/>
     <page name="EditGateway" specification-path="gateway/EditGateway.page"/>
     <page name="EditParkOrbit" specification-path="admin/EditParkOrbit.page"/>
