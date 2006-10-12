@@ -124,7 +124,8 @@ SipRedirectServer::initialize(OsConfigDb& configDb
         i++)
    {
       mpActive[i] =
-         redirector->initialize(configDb, mpSipUserAgent, i, defaultDomain);
+         redirector->initialize(configDb, mpSipUserAgent, i, defaultDomain) ==
+         OS_SUCCESS;
    }
 
    return true;
