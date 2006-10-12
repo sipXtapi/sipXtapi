@@ -109,6 +109,12 @@ void SipRedirectorENUM::readConfig(OsConfigDb& configDb)
                     "SipRedirectorENUM::readConfig "
                     "BASE_DOMAIN parameter missing or empty");
    }
+   else
+   {
+      OsSysLog::add(FAC_SIP, PRI_INFO,
+                    "SipRedirectorENUM::readConfig "
+                    "BASE_DOMAIN is '%s'", mBaseDomain.data());
+   }
 
    if (configDb.get("PREFIX", mPrefix) != OS_SUCCESS ||
        mPrefix.isNull())
@@ -297,7 +303,8 @@ SipRedirectorENUM::lookUp(
                   if (regexec(&reg, application_string, 9, pmatch, 0) == 0)
                   {
                      // Match was successful.  Perform replacement.
-                     char* result = res_naptr_replace(replace, delim, pmatch, userId, 1);
+                     char* result = res_naptr_replace(replace, delim, pmatch,
+                                                      application_string, 1);
                      OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                    "SipRedirectorENUM::LookUp result = '%s'",
                                    result);

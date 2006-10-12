@@ -103,6 +103,13 @@ void SipRedirectorISN::readConfig(OsConfigDb& configDb)
                     "SipRedirectorISN::readConfig "
                     "BASE_DOMAIN parameter missing or empty");
    }
+   else
+   {
+      OsSysLog::add(FAC_SIP, PRI_INFO,
+                    "SipRedirectorISN::readConfig "
+                    "BASE_DOMAIN is '%s'", mBaseDomain.data());
+   }
+
    if (configDb.get("PREFIX", mPrefix) != OS_SUCCESS ||
        mPrefix.isNull())
    {
@@ -286,7 +293,7 @@ SipRedirectorISN::lookUp(
                      // Match was successful.  Construct the replacement string.
                      // Current usage is that the replacement string is the resulting URI,
                      // not the replacement into the original application-string.
-                     char* result = res_naptr_replace(replace, delim, pmatch, userId, 0);
+                     char* result = res_naptr_replace(replace, delim, pmatch, user, 0);
                      OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                    "SipRedirectorISN::LookUp result = '%s'",
                                    result);
