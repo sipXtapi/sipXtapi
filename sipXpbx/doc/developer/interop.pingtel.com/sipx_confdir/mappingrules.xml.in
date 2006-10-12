@@ -4,20 +4,20 @@
     <hostPattern>${SIPXCHANGE_DOMAIN_NAME}</hostPattern>
     <hostPattern>${MY_IP_ADDR}</hostPattern>
 
-    <!-- Support ISN dialing: match on "digits*digits" -->
+    <!-- Support ISN dialing: match on "*1digits*digits" -->
     <userMatch>
-      <userPattern>x.*x.</userPattern>
+      <userPattern>*1x.*x.</userPattern>
       <permissionMatch>
         <transform>
-          <url>&lt;sip:{digits}@freenum.org&gt;</url>
+          <url>&lt;sip:{vdigits}@freenum.org&gt;</url>
         </transform>
       </permissionMatch>
     </userMatch>
 
-    <!-- Sample mapping rule for 105 forwarding prefix -->
-    <!-- Forwards 105xxx to sip:xxx@example.com -->
+    <!-- Sample mapping rule for *90 forwarding prefix -->
+    <!-- Forwards *90xxx to sip:xxx@example.com -->
     <userMatch>
-      <userPattern>105x.</userPattern>
+      <userPattern>*90x.</userPattern>
       <permissionMatch>
         <transform>
           <url>&lt;sip:{vdigits}@example.com&gt;</url>

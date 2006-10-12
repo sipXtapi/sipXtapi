@@ -84,10 +84,6 @@ public abstract class EditPhoneDefaults extends BasePage implements PageBeginRen
         setPhoneModel(phoneModel);
         setEditFormSettingName(null);
         setGroupId(groupId);
-        DeviceVersion[] versions = phoneModel.getVersions();
-        if (versions.length > 0) {
-            setDeviceVersion(versions[0]);
-        }
     }
 
     public Collection getPhoneNavigationSettings() {
@@ -129,10 +125,6 @@ public abstract class EditPhoneDefaults extends BasePage implements PageBeginRen
         return page;
     }
 
-    public void changeVersion() {
-        // clear current setting incase
-    }
-
     public void pageBeginRender(PageEvent event_) {
         if (getPhoneModel() == null) {
             throw new IllegalArgumentException("phone factory id required");
@@ -142,11 +134,18 @@ public abstract class EditPhoneDefaults extends BasePage implements PageBeginRen
         group = getSettingDao().loadGroup(getGroupId());
         setGroup(group);
 
-        Phone phone = getPhoneContext().newPhone(getPhoneModel());
-        phone.setDeviceVersion(getDeviceVersion());
+        Phone phone = getPhone();
+        phone = getPhoneContext().newPhone(getPhoneModel());
         Line line = phone.createLine();
         phone.addLine(line);
         setPhone(phone);
+        
+        DeviceVersion deviceVersion = getDeviceVersion();
+        if (deviceVersion == null) {
+            setDeviceVersion(phone.getDeviceVersion());
+        } else {
+            phone.setDeviceVersion(deviceVersion);
+        }
 
         String editSettingsName = getEditFormSettingName();
         if (editSettingsName == null) {

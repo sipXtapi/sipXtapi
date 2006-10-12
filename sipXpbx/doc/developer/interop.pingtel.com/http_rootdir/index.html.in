@@ -419,15 +419,16 @@ This server now supports
 <a href="http://freenum.org/">ISN dialing</a>.
 It is reachable via ITAD 413 (for the time being), so for example, the
 auto-attendant can be reached at <code>100*413</code>.
-To contact an ISN destination, use the ISN as the user part of
-the SIP URI.  For example:
+To contact an ISN destination from this server, the user-part of the URI
+should be <code>*1</code> followed by the ISN dial string.
+For example:
 </p>
 <dl>
-  <dt><code>100*413</code></dt>
+  <dt><code>*1 100*413</code></dt>
   <dd>This server's auto attendant</dd>
-  <dt><code>613*262</code></dt>
+  <dt><code>*1 613*262</code></dt>
   <dd>Free World Dialup echo test</dd>
-  <dt><code>2425*259</code><dt>
+  <dt><code>*1 2425*259</code><dt>
   <dd>Tello echo test</dd>
 </dl>
 

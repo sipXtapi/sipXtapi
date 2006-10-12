@@ -63,10 +63,6 @@ public abstract class ListParkOrbits extends BasePage implements PageBeginRender
         delete();
     }
 
-    public void activate() {
-        getParkOrbitContext().activateParkOrbits();
-    }
-
     /**
      * Deletes all selected rows (on this screen deletes call groups).
      */

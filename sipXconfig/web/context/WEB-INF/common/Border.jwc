@@ -25,7 +25,8 @@
   <component id="shell" type="Shell">
     <binding name="stylesheets" value="skin.stylesheetAssets"/>
     <binding name="title" value="message:title"/>
-    <!-- binding name="delegate" value="bean:ajaxDelegate" / -->    
+    <binding name="renderBaseTag" value="!useDojo"/>
+    <!-- binding name="delegate" value="bean:ajaxDelegate" / -->        
   </component>
   <component id="wrapped" type="RenderBody"/>
   <component id="renderNavigation" type="If">

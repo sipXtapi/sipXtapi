@@ -83,6 +83,16 @@ public class ConfigFileStorageTest extends TestCase {
         }
         assertTrue("Setting not found", found);
     }
+    
+    public void testReset() throws Exception {
+        String newValue = "99.999";        
+        m_storage.setValue(m_andorra, newValue);
+        assertEquals(newValue, m_storage.getValue(m_andorra));
+        
+        m_storage.reset();
+        assertEquals(DEFAULT_VALUE, m_storage.getValue(m_andorra));
+    }
+    
 
     public void testRemove() throws Exception {
         // remove should reset the setting to default value

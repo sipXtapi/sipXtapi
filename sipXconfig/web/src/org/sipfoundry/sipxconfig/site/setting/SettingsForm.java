@@ -39,7 +39,11 @@ public abstract class SettingsForm extends BaseComponent {
             delegate.clear();
             return;
         }
-        if (action == getCancelListener() || !delegate.getHasErrors()) {
+        if (action == getCancelListener()) {
+            // clear errors before calling cancel
+            delegate.clear();
+        }
+        if (!delegate.getHasErrors()) {
             action.actionTriggered(this, cycle);
         }
     }

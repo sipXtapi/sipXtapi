@@ -10,7 +10,6 @@
   <property name="editFormSettingName" persist="session" />
   <property name="resourceId" persist="session" />
   <property name="groupId"  persist="session"/>
-  <property name="deviceVersion" persist="session"/>
   <!-- Transient -->
   <inject property="settingDao" object="spring:settingDao"/>
   <inject property="phoneContext" object="spring:phoneContext"/>
@@ -20,6 +19,7 @@
   <property name="group" />
   <property name="editFormSetting" />
   <property name="editFormSettings" />
+  <property name="deviceVersion" persist="client"/>
   <!-- B E A N S -->
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
   <bean name="versions" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">

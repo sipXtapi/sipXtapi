@@ -2232,7 +2232,7 @@ OsStatus CallManager::getInvite(const char* callId,
       {
 #ifdef TEST_PRINT
          OsSysLog::add(FAC_CP, PRI_DEBUG,
-                       "CallManager::getInvite deleting timed out message: 0x%p",
+                       "CallManager::getInvite deleting timed out message: %p",
                        messagePtr);
 #endif
          delete messagePtr;

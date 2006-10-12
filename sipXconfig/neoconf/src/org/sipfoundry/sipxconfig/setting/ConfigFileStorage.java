@@ -15,7 +15,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
@@ -29,13 +28,13 @@ import org.apache.commons.logging.LogFactory;
  * configuration file Files are read using standard java Properties and written by
  * ConfigFileStorage
  * 
- * @see ConfigFileStorage
+ * @see ConfigFileWriter
  */
 public class ConfigFileStorage implements Storage {
     private static final Log LOG = LogFactory.getLog(ConfigFileStorage.class);
-    private Map m_file2properties = new HashMap();
+    private Map<String, Properties> m_file2properties = new HashMap<String, Properties>();
     private String m_configDirectory;
-        
+
     public ConfigFileStorage(String configDirectory) {
         m_configDirectory = configDirectory;
     }
@@ -87,7 +86,7 @@ public class ConfigFileStorage implements Storage {
 
     private Properties loadForFile(Setting setting) throws IOException {
         String filename = setting.getProfileName();
-        Properties properties = (Properties) m_file2properties.get(filename);
+        Properties properties = m_file2properties.get(filename);
         if (null != properties) {
             return properties;
         }
@@ -101,13 +100,16 @@ public class ConfigFileStorage implements Storage {
     }
 
     public void flush() throws IOException {
-        for (Iterator i = m_file2properties.entrySet().iterator(); i.hasNext();) {
-            Map.Entry entry = (Map.Entry) i.next();
-            String fileName = (String) entry.getKey();
-            Properties props = (Properties) entry.getValue();
+        for (Map.Entry<String, Properties> entry : m_file2properties.entrySet()) {
+            String fileName = entry.getKey();
+            Properties props = entry.getValue();
             File file = new File(m_configDirectory, fileName);
             ConfigFileWriter writer = new ConfigFileWriter(file);
             writer.store(props);
         }
+    }
+
+    public void reset() {
+        m_file2properties.clear();
     }
 }
