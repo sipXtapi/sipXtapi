@@ -28,6 +28,7 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
+class SipRedirectorGateway;
 
 // Task type to write the mappings file to disk when needed.
 class GatewayWriterTask : public OsTask {
@@ -36,6 +37,9 @@ class GatewayWriterTask : public OsTask {
    GatewayWriterTask(void* pArg);
 
    virtual int run(void* pArg);
+
+  protected:
+   SipRedirectorGateway* mpRedirector;
 };
 
 /**
@@ -62,10 +66,10 @@ class SipRedirectorGateway : public RedirectPlugin
     * DIGITS - number of digits in variable portion of routing prefix
     * PORT - HTTP listening port
     */
-   virtual OsStatus initialize(const UtlHashMap& configParameters,
-                               OsConfigDb& configDb,
+   virtual OsStatus initialize(OsConfigDb& configDb,
                                SipUserAgent* pSipUserAgent,
-                               int redirectorNo);
+                               int redirectorNo,
+                               const UtlString& localDomainHost);
 
    virtual void finalize();
 
@@ -79,8 +83,20 @@ class SipRedirectorGateway : public RedirectPlugin
       int redirectorNo,
       SipRedirectorPrivateStorage*& privateStorage);
 
+   // Dialing prefix - fixed portion of routing prefix.
+   UtlString mPrefix;
+
+   // Number of digits in variable portion of routing prefix.
+   int mDigits;
+
    // File to read/write mappings to.
    UtlString mMappingFileName;
+
+   // Return value for ::initialize().
+   OsStatus mReturn;
+
+   // Port for HTTP server.
+   int mPort;
 
    // Semaphore to lock addess to the maps.
    OsBSem mMapLock;
@@ -97,14 +113,11 @@ class SipRedirectorGateway : public RedirectPlugin
    // HTTP server for creating further mappings.
    HttpServer* mpServer;
 
-   // File to read/write the mappings.
-   UtlString configFileName;
-
    // Host name for this redirector.
    UtlString mDomainName;
 
    // Helper task to write the mappings back to disk periodically.
-   GatewayWriterTask writerTask;
+   GatewayWriterTask mWriterTask;
 
    void loadMappings(UtlString* file_name,
                      UtlHashMap* mapUserToContacts,
@@ -121,11 +134,11 @@ class SipRedirectorGateway : public RedirectPlugin
    static void processForm(const HttpRequestContext& requestContext,
                            const HttpMessage& request,
                            HttpMessage*& response);
-   static UtlBoolean addMappings(const char* value,
-                                 int length,
-                                 UtlString*& user,
-                                 const char*& error_msg,
-                                 int& location);
+   UtlBoolean addMappings(const char* value,
+                          int length,
+                          UtlString*& user,
+                          const char*& error_msg,
+                          int& location);
 };
 
 #endif // SIPREDIRECTORGATEWAY_H

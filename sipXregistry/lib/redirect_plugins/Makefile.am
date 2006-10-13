@@ -10,6 +10,7 @@ lib_LTLIBRARIES = \
 	libRedirectorSubscribe.la \
 	\
 	libRedirectorENUM.la \
+	libRedirectorGateway.la \
 	libRedirectorISN.la \
 	libRedirectorJoin.la \
 	libRedirectorTest.la
@@ -179,6 +180,24 @@ libRedirectorENUM_la_CXXFLAGS = \
 libRedirectorENUM_la_SOURCES =  \
 	SipRedirectorENUM.cpp \
 	SipRedirectorENUM.h
+
+# SipRedirectorGateway
+# Experimental redirector to allow configuring gateway routing prefixes.
+
+libRedirectorGateway_la_LDFLAGS = \
+	-module \
+	-version-info ${version_Current}:${version_Revision}:${version_Age}
+
+libRedirectorGateway_la_LIBADD = \
+	@SIPXCOMMSERVER_LIBS@
+
+libRedirectorGateway_la_CXXFLAGS = \
+	-I$(top_builddir)/config \
+	-DRES_PARSE_NAPTR
+
+libRedirectorGateway_la_SOURCES =  \
+	SipRedirectorGateway.cpp \
+	SipRedirectorGateway.h
 
 # SipRedirectorISN
 # Experimental redirector to implement ISN dialing.

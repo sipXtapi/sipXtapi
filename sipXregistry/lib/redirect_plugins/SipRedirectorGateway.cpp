@@ -44,9 +44,9 @@ extern "C" RedirectPlugin* getRedirectPlugin(const UtlString& instanceName)
 // Constructor
 SipRedirectorGateway::SipRedirectorGateway(const UtlString& instanceName) :
    RedirectPlugin(instanceName),
+   mPrefix(""),
    mMapLock(OsBSem::Q_FIFO, OsBSem::FULL),
-   mWriterTask(this),
-   mPrefix("")
+   mWriterTask(this)
 {
 }
 
@@ -56,14 +56,15 @@ SipRedirectorGateway::~SipRedirectorGateway()
 }
 
 // Read config information.
-void SipRedirectorRegDB::readConfig(OsConfigDb& configDb)
+void SipRedirectorGateway::readConfig(OsConfigDb& configDb)
 {
    UtlString string;
+   char *endptr;
 
    mReturn = OS_SUCCESS;
 
-   if (configDb.get("MAPPING_FILE", mBaseDomain) != OS_SUCCESS ||
-       mMappingFile.isNull())
+   if (configDb.get("MAPPING_FILE", mMappingFileName) != OS_SUCCESS ||
+       mMappingFileName.isNull())
    {
       OsSysLog::add(FAC_SIP, PRI_CRIT,
                     "SipRedirectorGateway::readConfig "
@@ -74,7 +75,7 @@ void SipRedirectorRegDB::readConfig(OsConfigDb& configDb)
    {
       OsSysLog::add(FAC_SIP, PRI_INFO,
                     "SipRedirectorGateway::readConfig "
-                    "MAPPING_FILE is '%s'", mMappingFile.data());
+                    "MAPPING_FILE is '%s'", mMappingFileName.data());
    }
 
    if (configDb.get("PREFIX", mPrefix) != OS_SUCCESS ||
@@ -93,7 +94,8 @@ void SipRedirectorRegDB::readConfig(OsConfigDb& configDb)
 
    if (configDb.get("DIGITS", string) == OS_SUCCESS &&
        !string.isNull() &&
-       (mDigits = strtol(temp.data(), &endptr, 10),
+       (mDigits = strtol(string.data(), &endptr, 10),
+        endptr - string.data() == string.length() &&
         mDigits >= 1 && mDigits <= 10))
    {
       OsSysLog::add(FAC_SIP, PRI_INFO,
@@ -111,7 +113,8 @@ void SipRedirectorRegDB::readConfig(OsConfigDb& configDb)
 
    if (configDb.get("PORT", string) == OS_SUCCESS &&
        !string.isNull() &&
-       (mPort = strtol(temp.data(), &endptr, 10),
+       (mPort = strtol(string.data(), &endptr, 10),
+        endptr - string.data() == string.length() &&
         mPort >= 1 && mPort <= 65535))
    {
       OsSysLog::add(FAC_SIP, PRI_INFO,
@@ -131,12 +134,10 @@ void SipRedirectorRegDB::readConfig(OsConfigDb& configDb)
 // Initialize
 OsStatus
 SipRedirectorGateway::initialize(OsConfigDb& configDb,
-                             SipUserAgent* pSipUserAgent,
-                             int redirectorNo,
-                             const UtlString& localDomainHost)
+                                 SipUserAgent* pSipUserAgent,
+                                 int redirectorNo,
+                                 const UtlString& localDomainHost)
 {
-   OsStatus ret;
-
    mDomainName = localDomainHost;
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipRedirectorGateway::SipRedirectorGateway domainName = '%s'",
@@ -148,9 +149,6 @@ SipRedirectorGateway::initialize(OsConfigDb& configDb,
                     "SipRedirectorGateway::SipRedirectorGateway Loading mappings from '%s'",
                     mMappingFileName.data());
       loadMappings(&mMappingFileName, &mMapUserToContacts, &mMapContactsToUser);
-
-      // Set up the static pointer to the unique instance.
-      Gatewayredirector = this;
 
       // Set up the HTTP server on socket mPort.
       OsServerSocket* socket = new OsServerSocket(50, mPort);
@@ -170,10 +168,12 @@ SipRedirectorGateway::initialize(OsConfigDb& configDb,
 void
 SipRedirectorGateway::finalize()
 {
-   mWriterTask.stop();
+   mWriterTask.requestShutdown();
+   // Wait 1 second for writer to shut down.
+   OsTask::delay(1000);
 }
 
-SipRedirector::LookUpStatus
+RedirectPlugin::LookUpStatus
 SipRedirectorGateway::lookUp(
    const SipMessage& message,
    const UtlString& requestString,
@@ -210,15 +210,17 @@ SipRedirectorGateway::lookUp(
 
          mMapLock.release();
 
-         // Add the contact.
-         UtlString contact("sip:");
-         contact += &userId.data()[prefix_length + mDigits];
-         contact += "@";
-         contact += hostpart;
-         // Construct a Url of this contact.
-         Url url(contact.data(), FALSE);
-         // Add the contact.
-         addContact(response, requestString, url, "Gateway");
+         if (!hostpart.isNull())
+         {            
+            // Add the contact.
+            UtlString s("sip:");
+            s.append(hostpart);
+            Url uri(s);
+            // The remainder of userId becomes the userId to the gateway.
+            uri.setUserId(&userId.data()[prefix_length + mDigits]);
+            // Add the contact.
+            addContact(response, requestString, uri, "Gateway");
+         }
       }
       else
       {
@@ -226,7 +228,7 @@ SipRedirectorGateway::lookUp(
       }
    }
 
-   return SipRedirector::LOOKUP_SUCCESS;
+   return RedirectPlugin::LOOKUP_SUCCESS;
 }
 
 void SipRedirectorGateway::loadMappings(UtlString* file_name,
@@ -448,18 +450,20 @@ UtlString* SipRedirectorGateway::addMapping(const char* contacts,
 const char* form =
 "<http>\n"
 "<head>\n"
-"<title>Gateway Server - Create a redirection</title>\n"
+"<title>Gateway Server - Configure a gateway prefix</title>\n"
 "</head>\n"
 "<body>\n"
-"<h1>Gateway Server - Create a redirection</h1>\n"
+"<h1>Gateway Server - Configure a gateway prefix</h1>\n"
 "%s\n"
 "<form action='/map.html' method=post enctype='multipart/form-data'>\n"
-"<textarea name=t cols=60 rows=10>%s</textarea><br />\n"
-"<input type=submit value='Create redirection' />\n"
+"Routing prefix: "
+"<input type=string size=4></input> "
+"(format is '9ggx', where 'gg' is your group number and 'x' is 1 to 9)<br />\n"
+"<input type=submit name=get value='Get gateway' /><br />\n"
+"Gateway hostport: "
+"<input type=string size=30></input> "
+"<input type=submit name=set value='Set gateway' />\n"
 "</form>\n"
-"<br />\n"
-"<br />\n"
-"<i>For assistance, contact <a href=\"mailto:dworley@pingtel.com\">Dale Worley at Pingtel</a>.<i>\n"
 "</body>\n"
 "</html>\n";
 
@@ -486,11 +490,8 @@ SipRedirectorGateway::displayForm(const HttpRequestContext& requestContext,
       response->setResponseFirstHeaderLine(HTTP_PROTOCOL_VERSION,
                                            HTTP_OK_CODE,
                                            HTTP_OK_TEXT);
-      // Construct the HTML.
-      char buffer[FORM_SIZE];
-      sprintf(buffer, form, "", "Enter SIP URIs separated by newlines.");
       // Insert the HTML into the response.
-      HttpBody* body = new HttpBody(buffer, -1, CONTENT_TYPE_TEXT_HTML);
+      HttpBody* body = new HttpBody(form, -1, CONTENT_TYPE_TEXT_HTML);
       response->setBody(body);
    }
 }
@@ -509,7 +510,13 @@ SipRedirectorGateway::processForm(const HttpRequestContext& requestContext,
    // Get the body of the request.
    const HttpBody* request_body = request.getBody();
 
-   // Get the value from the form.
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipRedirectorGateway::processForm A *** request body is '%s'",
+                 request_body->getBytes());
+
+   // Get the values from the form.
+
+#if 0
    // This is quite a chore, because getMultipartBytes gets the entire
    // multipart section, including the trailing delimiter, rather than just
    // the body, which is what we need.
@@ -551,8 +558,7 @@ SipRedirectorGateway::processForm(const HttpRequestContext& requestContext,
    const char* error_msg;
    int error_location;
    UtlBoolean success =
-      Gatewayredirector->addMappings(value, length, user, error_msg,
-                                 error_location);
+      addMappings(value, length, user, error_msg, error_location);
 
    // Construct the response.
 
@@ -642,10 +648,10 @@ SipRedirectorGateway::processForm(const HttpRequestContext& requestContext,
       }
    }
    *p++ = '\0';
-   char buffer[FORM_SIZE];
-   sprintf(buffer, form, buffer1, buffer2);
+#endif
+
    // Insert the HTML into the response.
-   HttpBody* response_body = new HttpBody(buffer, -1, CONTENT_TYPE_TEXT_HTML);
+   HttpBody* response_body = new HttpBody(form, -1, CONTENT_TYPE_TEXT_HTML);
    response->setBody(response_body);
 }
 
@@ -708,7 +714,7 @@ SipRedirectorGateway::addMappings(const char* value,
             return FALSE;
          }
          // Insert the addresses into the map and get the assigned user name.
-         UtlString* user = Gatewayredirector->addMapping(open+1, p - (open+1));
+         UtlString* user = addMapping(open+1, p - (open+1));
          // Truncate off the sub-redirection.
          p = open;
          // Append the resulting user name.
@@ -746,13 +752,13 @@ SipRedirectorGateway::addMappings(const char* value,
       return FALSE;
    }
    // Insert the addresses into the map and return the assigned user name.
-   user = Gatewayredirector->addMapping(buffer, p - buffer);
+   user = addMapping(buffer, p - buffer);
    return TRUE;
 }
 
 // Constructor for the writer task.
 GatewayWriterTask::GatewayWriterTask(void* pArg) :
-   OsTask("RedirectorGateway-Writer", pArg, OsTask::DEF_PRIO,
+   OsTask("GatewayWriter", pArg, OsTask::DEF_PRIO,
           OsTask::DEF_OPTIONS, OsTask::DEF_STACKSIZE)
 {
 }
@@ -761,24 +767,24 @@ GatewayWriterTask::GatewayWriterTask(void* pArg) :
 int GatewayWriterTask::run(void* arg)
 {
    // Get the pointer to the redirector.
-   mRedirector = (SipRedirectorGateway*) (arg);
+   mpRedirector = (SipRedirectorGateway*) (arg);
 
    // Loop forever.
-   while (1)
+   while (!isShuttingDown())
    {
-      // Wait 5 seconds between iterations.
-      delay(5000);
+      // Wait 1 second between iterations.
+      delay(1000);
 
       // Check whether the maps need to be written out.
-      mRedirector->mMapLock.acquire();
-      UtlBoolean must_write = redirector->mMapsModified;
-      mRedirector->mMapLock.release();
+      mpRedirector->mMapLock.acquire();
+      UtlBoolean must_write = mpRedirector->mMapsModified;
+      mpRedirector->mMapLock.release();
 
       if (must_write)
       {
          // writeMappings seizes the lock itself.
-         mRedirector->writeMappings(&redirector->configFileName,
-                                    &redirector->mMapUserToContacts);
+         mpRedirector->writeMappings(&mpRedirector->mMappingFileName,
+                                     &mpRedirector->mMapUserToContacts);
       }
    }
    return 0;
