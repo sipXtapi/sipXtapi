@@ -90,7 +90,10 @@ extern "C" RedirectPlugin* getRedirectPlugin(const UtlString& instanceName)
 
 // Constructor
 SipRedirectorENUM::SipRedirectorENUM(const UtlString& instanceName) :
-   RedirectPlugin(instanceName)
+   RedirectPlugin(instanceName),
+   mPrefix(""),
+   mPrefixPlus(FALSE),
+   mBaseDomain("")
 {
 }
 

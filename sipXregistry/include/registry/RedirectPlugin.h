@@ -163,7 +163,10 @@ class RedirectPlugin : public Plugin
    /**
     * @return the LookUpStatus indication showing the outcome of processing
     *
-    * If it returns LOOKUP_ERROR, the redirector should most likely have
+    * LOOKUP_SUCCESS is used in all non-error situations, even if the
+    * redirector added no contacts.  Generation of 404 responses is done
+    * by SipRedirectServer after all redirectors have executed.
+    * If it returns LOOKUP_ERROR_*, the redirector should most likely have
     * logged message(s) at ERR level giving the details of the problem.
     *
     * The SipRedirectServer will be holding mMutex while lookUp is called.
