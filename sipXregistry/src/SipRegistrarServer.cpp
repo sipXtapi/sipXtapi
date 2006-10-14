@@ -378,6 +378,25 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                            // get the variable part of the GRUU.
                            NetMd5Codec encoder;
                            UtlString temp;
+
+                           // Get the domain from the To: header uri
+                           UtlString domain;
+                           toUrl.getHostAddress(domain);
+
+                           // Assume the domain is one of the configured virtual domains and
+                           // try to use it. If this fails, then fall back to the original
+                           // behavior which is to use the default domain of the registrar
+                           // when generating the GRUU.
+                           if (mRegistrar.getDomainDB()->isDomain(domain) == TRUE)
+                           {
+                              OsSysLog::add( FAC_AUTH, PRI_DEBUG, "SipRegistrarServer::applyRegisterToDirectory "
+                                 "using virtual domain '%s' for gruu", domain.data() );
+                           }
+                           else
+                           {
+                              domain = mRegistrar.defaultDomain();
+                           }
+
                            // Use the trick that the MD5 of a series
                            // of delimiter separated strings is
                            // effectively a unique function of all of
@@ -389,7 +408,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                            // a NUL.
                            temp.append("sipX");
                            temp.append("\001");
-                           temp.append(mRegistrar.defaultDomain());
+                           temp.append(domain);
                            temp.append("\001");
                            temp.append(toUrl.toString());
                            temp.append("\001");
@@ -406,7 +425,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                            gruuValue = new UtlString(GRUU_PREFIX);
                            gruuValue->append(hash);
                            gruuValue->append("@");
-                           gruuValue->append(mRegistrar.defaultDomain());
+                           gruuValue->append(domain);
                            OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                          "SipRegistrarServer::applyRegisterToDirectory "
                                          "temp = '%s' gruu = '%s'",
