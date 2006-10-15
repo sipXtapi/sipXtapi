@@ -230,6 +230,16 @@ cat > $Work.copy-files <<EOF
 @SIPX_CONFDIR@/topology.xml
 @SIPX_CONFDIR@/voicemail.xml
 @SIPX_CONFDIR@/voicemail.xml.in
+@SIPX_CONFDIR@/process.d/keepalive.process.xml
+@SIPX_CONFDIR@/process.d/sipauthproxy.process.xml
+@SIPX_CONFDIR@/process.d/sipproxy.process.xml
+@SIPX_CONFDIR@/process.d/sipregistrar.process.xml
+@SIPX_CONFDIR@/process.d/sipstatus.process.xml
+@SIPX_CONFDIR@/process.d/sipxacd.process.xml
+@SIPX_CONFDIR@/process.d/sipxconfig.process.xml
+@SIPX_CONFDIR@/process.d/sipxpark.process.xml
+@SIPX_CONFDIR@/process.d/sipxpresence.process.xml
+@SIPX_CONFDIR@/process.d/sipXvxml.process.xml
 @SIPX_DBDIR@/alias.xml
 @SIPX_DBDIR@/credential.xml
 @SIPX_DBDIR@/ext_alias.xml
