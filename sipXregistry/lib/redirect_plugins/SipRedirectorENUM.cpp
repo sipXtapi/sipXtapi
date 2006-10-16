@@ -204,7 +204,7 @@ SipRedirectorENUM::lookUp(
             *p++ = '.';
          }
          // Append the ENUM root domain.
-         strcat(p, mBaseDomain.data());
+         strcpy(p, mBaseDomain.data());
       }
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "SipRedirectorENUM::lookUp user '%s' has ENUM format, domain is '%s'",
