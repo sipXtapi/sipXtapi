@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I "include" /I "..\sipXportLib\include" /I "..\sipXportLib\include\test" /I "..\sipXportLib\include\glib" /I "..\sipXtackLib\include" /I "..\sipXmediaLib\include" /I "..\gips" /D "NDEBUG" /D "_CONSOLE" /D "DISABLE_MEM_POOLS" /D "DONT_USE_LONG_LONG" /D "WIN32" /D "_MBCS" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GR /GX /O1 /I "..\sipXcallLib\include" /I "..\sipXmediaAdapterLib\interface" /I "..\sipXportLib\include" /I "include" /I "..\sipXtackLib\include" /I "..\sipXmediaLib\include" /D "NDEBUG" /D "SIPXTAPI_STATIC" /D "_CONSOLE" /D "WIN32" /D "_MBCS" /YX /FD /c
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -51,7 +51,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 msvcrt.lib MSVCPRT.lib sipXtackLib.lib sipXportLib.lib sipXtapi.lib cppunit.lib Advapi32.lib wsock32.lib libpcre.a winmm.lib /nologo /subsystem:console /machine:I386 /out:".\sipXtapi\Release/sipXtapiTest.exe" /libpath:"sipXtapi\Release\\" /libpath:"..\sipXtackLib\Release" /libpath:"..\sipXportLib\Release" /libpath:"..\gips"
+# ADD LINK32 winmm.lib sipXtackLib.lib sipXportLib.lib sipXmediaLib.lib sipXmediaAdapterLib.lib sipXcallLib.lib cppunit_dll.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib libpcre.a libeay32.lib ssleay32.lib wsock32.lib /nologo /subsystem:console /machine:I386 /out:".\sipXtapi\Release/sipXtapiTest.exe" /libpath:"sipXtapi\Release\\" /libpath:"..\sipXtackLib\Release" /libpath:"..\sipXportLib\Release" /libpath:"..\sipXcallLib\Release" /libpath:"..\sipXmediaLib\Release" /libpath:"..\sipXmediaAdapterLib\Release"
 # SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "sipXtapiTest - Win32 Debug"
@@ -68,7 +68,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "..\sipXportLib\include" /I "..\sipXcallLib\include" /I "include" /I "..\sipXportLib\include\glib" /I "..\sipXtackLib\include" /I "..\sipXmediaLib\include" /I "..\sipXmediaAdapterLib\interface" /I "..\gips" /D "_DEBUG" /D "_CONSOLE" /D "DONT_USE_LONG_LONG" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /FR /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "..\sipXcallLib\include" /I "..\sipXmediaAdapterLib\interface" /I "..\sipXportLib\include" /I "include" /I "..\sipXtackLib\include" /I "..\sipXmediaLib\include" /D "_DEBUG" /D "SIPXTAPI_STATIC" /D "_CONSOLE" /D "WIN32" /D "_MBCS" /FR /YX /FD /GZ /c
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -94,7 +94,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "include" /I "..\sipXportLib\include" /I "..\sipXportLib\include\glib" /I "..\sipXtackLib\include" /I "..\sipXmediaLib\include" /I "..\..\sipXportLib\include" /I "..\..\sipXcallLib\include" /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "DISABLE_MEM_POOLS" /FR /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "..\sipXportLib\include" /I "..\sipXportLib\include\test" /I "..\sipXcallLib\include" /I "include" /I "..\sipXportLib\include\glib" /I "..\sipXtackLib\include" /I "..\sipXmediaLib\include" /I "..\gips" /D "_DEBUG" /D "_CONSOLE" /D "DISABLE_MEM_POOLS" /D "DONT_USE_LONG_LONG" /D "WIN32" /D "_MBCS" /FR /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "..\sipXportLib\include\test" /I "..\sipXcallLib\include" /I "..\sipXportLib\include" /I "include" /I "..\sipXtackLib\include" /I "..\sipXmediaLib\include" /D "_DEBUG" /D "DISABLE_MEM_POOLS" /D "_CONSOLE" /D "WIN32" /D "_MBCS" /FR /YX /FD /GZ /c
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
