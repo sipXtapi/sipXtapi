@@ -503,7 +503,11 @@ void CpCallManager::getNewCallId(const char* callIdPrefix, UtlString* callId)
    }
 
    // Compose the new Call-Id.
-   sprintf(buffer, "%s/%lld/%s", callIdPrefix, mCallNum, suffix.data());
+   int highNum = mCallNum / 1000000000;
+   int lowNum = mCallNum % 1000000000;
+   // Break the 64 bit int into two ints as this seems to be more portable
+   // and the callId just needs to be unique.
+   sprintf(buffer, "%s/%ld%ld/%s", callIdPrefix, highNum, lowNum, suffix.data());
 
    // Copy it to the destination.
    *callId = buffer;
