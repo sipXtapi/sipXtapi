@@ -41,8 +41,8 @@ $(HTTP_ROOTDIR)/index.html: $(HTTP_ROOTDIR)/index.html.in $(SIPX_CONFDIR)/config
 	. $(SIPX_CONFDIR)/config.defs ;\
 	$(SUDO) sh -c \
 		"sed \
-			-e 's/@SIPXCHANGE_DOMAIN_NAME@/$$SIPXCHANGE_DOMAIN_NAME/g' \
-			-e 's/@SIPX_CONFDIR@/$SIPX_CONFDIR/g' \
-			-e 's/@SIPX_DBDIR@/$SIPX_DBDIR/g' \
-			-e 's/@HTTP_ROOTDIR@/$HTTP_ROOTDIR/g' \
+			-e 's!@SIPXCHANGE_DOMAIN_NAME@!$$SIPXCHANGE_DOMAIN_NAME!g' \
+			-e 's!@SIPX_CONFDIR@!$(SIPX_CONFDIR)!g' \
+			-e 's!@SIPX_DBDIR@!$(SIPX_DBDIR)!g' \
+			-e 's!@HTTP_ROOTDIR@!$(HTTP_ROOTDIR)!g' \
 		<$< >$@"

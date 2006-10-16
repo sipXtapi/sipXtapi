@@ -17,54 +17,60 @@ my($registration_file) = "$Prefix/var/sipxdata/sipdb/registration.xml";
 # Read and process the registrar log files.
 my(%user_agent);
 # Read at least 24 hours of log data in chronological order.
-&process_log_file("$Prefix/var/log/sipxpbx/sipregistrar.log.1");
-&process_log_file("$Prefix/var/log/sipxpbx/sipregistrar.log");
+# sipregistrar.log.1 need not exist, but sipregistrar.log must exist,
+# as it will be generated immediately when sipX starts.
+&process_log_file("$Prefix/var/log/sipxpbx/sipregistrar.log.1", 0);
+&process_log_file("$Prefix/var/log/sipxpbx/sipregistrar.log", 1);
 
-# Read and parse the registrations file.
-my($parser) = new XML::Parser(Style => 'Tree');
-my($tree) = $parser->parsefile($registration_file);
-
-# Extract the information about the registrations.
 my @registrations;
-if ($tree->[0] eq 'items') {
-    my $c = $tree->[1];
-    my $i;
-    my($timestamp) = time;
-    for ($i = 1; $i < $#$c; $i += 2) {
-        if ($c->[$i] eq 'item') {
-            my($d) = $c->[$i+1];
-            my($i);
-            # Create the hash to contain the information about this
-            # registration.
-            my($registration) = {};
-            for ($i = 1; $i < $#$d; $i += 2) {
-                my($e) = $d->[$i];
-                my($f) = $d->[$i+1];
-                if ($e eq 'callid') {
-                    $registration->{'callid'} = &text($f);
-                } elsif ($e eq 'cseq') {
-                    $registration->{'cseq'} = &text($f);
-                } elsif ($e eq 'uri') {
-                    $registration->{'AOR'} = &text($f);
-                } elsif ($e eq 'contact') {
-                    $registration->{'contact'} = &text($f);
-                } elsif ($e eq 'qvalue') {
-                    $registration->{'q'} = &text($f);
-                } elsif ($e eq 'expires') {
-                    $registration->{'expires'} = (&text($f) - $timestamp) . '';
-                } elsif ($e eq 'instance_id') {
-                    $registration->{'instance_id'} = &text($f);
-                } elsif ($e eq 'gruu') {
-                    $registration->{'gruu'} = &text($f);
-                }
-            }
-            # Add to the array of registrations.
-            push(@registrations, $registration);
-        }
+if (-e $registration_file) {
+
+    # Read and parse the registrations file.
+    my($parser) = new XML::Parser(Style => 'Tree');
+    my($tree) = $parser->parsefile($registration_file);
+
+    # Extract the information about the registrations.
+    if ($tree->[0] eq 'items') {
+	my $c = $tree->[1];
+	my $i;
+	my($timestamp) = time;
+	for ($i = 1; $i < $#$c; $i += 2) {
+	    if ($c->[$i] eq 'item') {
+		my($d) = $c->[$i+1];
+		my($i);
+		# Create the hash to contain the information about this
+		# registration.
+		my($registration) = {};
+		for ($i = 1; $i < $#$d; $i += 2) {
+		    my($e) = $d->[$i];
+		    my($f) = $d->[$i+1];
+		    if ($e eq 'callid') {
+			$registration->{'callid'} = &text($f);
+		    } elsif ($e eq 'cseq') {
+			$registration->{'cseq'} = &text($f);
+		    } elsif ($e eq 'uri') {
+			$registration->{'AOR'} = &text($f);
+		    } elsif ($e eq 'contact') {
+			$registration->{'contact'} = &text($f);
+		    } elsif ($e eq 'qvalue') {
+			$registration->{'q'} = &text($f);
+		    } elsif ($e eq 'expires') {
+			$registration->{'expires'} = (&text($f) - $timestamp) . '';
+		    } elsif ($e eq 'instance_id') {
+			$registration->{'instance_id'} = &text($f);
+		    } elsif ($e eq 'gruu') {
+			$registration->{'gruu'} = &text($f);
+		    }
+		}
+		# Add to the array of registrations.
+		push(@registrations, $registration);
+	    }
+	}
+    } else {
+	# Crash if the registrations file is unparsable.
+	exit 1;
     }
-} else {
-    # Crash if the registrations file is unparsable.
-    exit 1;
+
 }
 
 # Generate the table body in order by extension.
@@ -203,8 +209,11 @@ sub registration_cmp {
 
 # Extract the user-agent info from a log file.
 sub process_log_file {
-    my($log_file) = @_;
+    my($log_file, $must_exist) = @_;
     my($callid, $user_agent);
+
+    # Skip processing if the file does not exist and that's OK.
+    return if ! -e $log_file && !$must_exist;
 
     # Read through the log file and find all the REGISTERs.
     my($log_line) = '';
