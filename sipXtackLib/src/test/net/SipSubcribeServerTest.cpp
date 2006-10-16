@@ -223,22 +223,22 @@ Voice-Message: 0/0 (0/0)\r\n";
                            strlen(mwiStateString), 
                            mwiMimeType);
        HttpBody* newMwiBodyPtr = &newMwiBody;
-       HttpBody* oldMwiBody = NULL;
-       int numOldContent;
+       //HttpBody* oldMwiBody = NULL;
+       //int numOldContent;
        SipPublishContentMgr* publishMgr = subServer->getPublishMgr(eventName);
        CPPUNIT_ASSERT(publishMgr);
-       CPPUNIT_ASSERT(publishMgr->publish(resourceId, 
+       /*CPPUNIT_ASSERT(*/publishMgr->publish(resourceId, 
                                           eventName, 
                                           eventName, 
                                           1, 
-                                          &newMwiBodyPtr,
-                                          1, // max
-                                          numOldContent, 
-                                          &oldMwiBody));
+                                          &newMwiBodyPtr);
+                                          //1, // max
+                                          //numOldContent, 
+                                          //&oldMwiBody));
 
        // Should be no prior content for this resource or eventTypeKey
-       CPPUNIT_ASSERT(numOldContent == 0);
-       CPPUNIT_ASSERT(oldMwiBody == NULL);
+       //CPPUNIT_ASSERT(numOldContent == 0);
+       //CPPUNIT_ASSERT(oldMwiBody == NULL);
 
 
        // SHould get a NOFITY queued up

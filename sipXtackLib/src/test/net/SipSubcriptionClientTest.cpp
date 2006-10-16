@@ -216,15 +216,22 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
                                     NULL);
 
         // Should not be any pre-existing content
-        CPPUNIT_ASSERT(!contentMgr->getContent(resourceId, eventTypeKey, NULL, preexistingBodyPtr, 
-            isDefaultContent));
+        CPPUNIT_ASSERT(!contentMgr->getContent(resourceId, 
+                                               eventTypeKey, 
+                                               eventType, 
+                                               NULL, 
+                                               preexistingBodyPtr, 
+                                               isDefaultContent));
         int numDefaultContent = -1;
+        int numDefaultConstructor = -1;
         int numResourceSpecificContent = -1;
         int numCallbacksRegistered = -1;
         contentMgr->getStats(numDefaultContent,
+                             numDefaultConstructor,
                              numResourceSpecificContent,
                              numCallbacksRegistered);
         CPPUNIT_ASSERT(numDefaultContent == 0);
+        CPPUNIT_ASSERT(numDefaultConstructor == 0);
         CPPUNIT_ASSERT(numResourceSpecificContent == 0);
         CPPUNIT_ASSERT(numCallbacksRegistered == 1);
 
@@ -232,6 +239,7 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
         UtlString earlyDialogHandle;
         CPPUNIT_ASSERT(subClient->addSubscription(resourceId,
                                                   eventType,
+                                                  NULL,
                                                   from,
                                                   to,
                                                   contact,
@@ -243,9 +251,11 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
 
 
         contentMgr->getStats(numDefaultContent,
+                             numDefaultConstructor,
                              numResourceSpecificContent,
                              numCallbacksRegistered);
         CPPUNIT_ASSERT(numDefaultContent == 0);
+        CPPUNIT_ASSERT(numDefaultConstructor = 0);
         CPPUNIT_ASSERT(numResourceSpecificContent == 0);
         CPPUNIT_ASSERT(numCallbacksRegistered == 1);
 
