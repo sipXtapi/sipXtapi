@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name="basic">
+    <setting name='use_sipauth'>
+      <value>0</value>
+      <description>1 - enable SIP authentication 0 - disable sip authentication</description>
+    </setting>
+    <setting name='sip_username'>
+      <value>peter</value>
+      <description>sip authentication username</description>
+    </setting>
+    <setting name='sip_password'>
+      <value>lala</value>
+      <description>sip authentication password</description>
+    </setting>
+    <setting name='sip_proxy_enable'>
+      <value>0</value>
+      <description>1 - enable 0 - disable</description>
+    </setting>
+    <setting name='sip_proxy_server'>
+      <value>10.201.0.1</value>
+      <description>sip proxy server IP, hostname or FQDN</description>
+    </setting>
+    <setting name='sip_proxy_port'>
+      <value>5060</value>
+      <description>sip proxy server port</description>
+    </setting>
+    <setting name='outbound_sip_proxy_enable'>
+      <value>0</value>
+      <description>1 - enable 0 - disable</description>
+    </setting>
+    <setting name='outbound_sip_proxy'>
+      <value>10.201.0.1</value>
+      <description>sip outbound proxy IP, hostname or FQDN</description>
+    </setting>
+    <setting name='outbound_proxy_port'>
+      <value>5060</value>
+      <description>sip outbound proxy port</description>
+    </setting>
+    <setting name='sip_register_timeout'>
+      <value>3600</value>
+      <description>sip registration timeout in seconds</description>
+    </setting>
+    <setting name='sip_transport'>
+      <value>0</value>
+      <description>sip transport: 0 - udp or 1 - tcp</description>
+    </setting>
+    <setting name='sip_udp_port'>
+      <value>5060</value>
+      <description>sip udp port</description>
+    </setting>
+    <setting name='sip_tcp_port'>
+      <value>5060</value>
+      <description>sip tcp port</description>
+    </setting>
+    <setting name='dtmf_relay_enable'>
+      <value>1</value>
+      <description>1 - enable inband dtmf relay 0 - disable</description>
+    </setting>
+    <setting name='dtmf_relay_payload'>
+      <value>96</value>
+      <description>dtmf relay payload - 96 to 127</description>
+    </setting>
+    <setting name='vad_enable'>
+      <value>1</value>
+      <description>1 - enable voice activity detection 0 - disable</description>
+    </setting>
+    <setting name='adaptive_vad'>
+      <value>1</value>
+      <description>1 - enable adaptive vad 0 - disable</description>
+    </setting>
+    <setting name='vad_thresh'>
+      <value>-20</value>
+      <description>vad threshold -20 to +10</description>
+    </setting>
+    <setting name='vad_noise_match'>
+      <value>none</value>
+      <description>vad noise matching none, level, g711a2</description>
+    </setting>
+    <setting name='vad_noise_order'>
+      <value>0</value>
+      <description>vad noise order 0 to 10</description>
+    </setting>
+    <setting name='g711ulaw_priority'>
+      <value>255</value>
+      <description>g.711ulaw codec priority 1(lowest) to 255(highest)</description>
+    </setting>
+    <setting name='g711Alaw_priority'>
+      <value>254</value>
+      <description>g.711Alaw codec priority 1(lowest) to 255(highest)</description>
+    </setting>
+    <setting name='g729ab_priority'>
+      <value>250</value>
+      <description>g.729A/B codec priority 1(lowest) to 255(highest)</description>
+    </setting>
+    <setting name='g7231_53_priority'>
+      <value>240</value>
+      <description>g.723.1 lowrate priority 1(lowest) to 255(highest)</description>
+    </setting>
+    <setting name='g7231_63_priority'>
+      <value>245</value>
+      <description>g.723.1 highrate priority 1(lowest) to 255(highest)</description>
+    </setting>
+    <setting name='agc_enable'>
+      <value>0</value>
+      <description>AGC enable (1) disable (0)</description>
+    </setting>
+    <setting name='alc_enable'>
+      <value>0</value>
+      <description>ALC enable (1) disable (0)</description>
+    </setting>
+    <setting name='vlan_enable'>
+      <value>0</value>
+      <description>VLAN enable (1) disable (0)</description>
+    </setting>
+    <setting name='vlan_priority'>
+      <value>0</value>
+      <description>VLAN priority 0-7</description>
+    </setting>
+    <setting name='qos_precedence'>
+      <value>2</value>
+      <description>Diffserv Code Point index (0 - 7), custom (8)</description>
+    </setting>
+    <setting name='qos_custom_dscp'>
+      <value>0x32</value>
+      <description>Custom DSCP hex value (0x00 - 0x3F)</description>
+    </setting>
+  </group>
+</model>

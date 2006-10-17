@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd" [
+  <!ENTITY types SYSTEM "types.xml">
+  ]>
+<model>
+  <group name='basic'>
+    <setting name='username'>
+      <value>admin</value>
+      <description>web login id</description>
+    </setting>
+    <setting name='password'>
+      <value>clearone</value>
+      <description>web login password</description>
+    </setting>
+    <setting name='ringtone'>
+      <value>1</value>
+      <description>ringtone index 1 to 5</description>
+    </setting>
+    <setting name='localnum'>
+      <value>1234</value>
+      <description>Local telephone number</description>
+    </setting>
+    <setting name='conference_num'>
+      <value>6625</value>
+      <description>Conference number</description>
+    </setting>
+    <setting name='helpline_num'>
+      <value>6356</value>
+      <description>helpline number</description>
+    </setting>
+    <setting name='allow_reboot_in_call'>
+      <value>0</value>
+      <description>1 - allow reboot during a call 0 - wait till call complete</description>
+    </setting>
+    <setting name='mute_ringtone'>
+      <value>0</value>
+      <description>1 - mute ringer on incoming call 0 - disable mute</description>
+    </setting>
+    <setting name='dialplan'>
+      <value>C1EngDialPlan.txt</value>
+      <description>File describing MAX Dialplan - TFTPed from server</description>
+    </setting>
+    <setting name='timezone'>
+      <value>5</value>
+      <description>0 - GMT-12:00 (International Date Line West)</description>
+    </setting>
+    <setting name='SNTP_server_1'>
+      <value>0.0.0.0</value>
+      <description>SNTP 1 IP address</description>
+    </setting>
+    <setting name='SNTP_server_2'>
+      <value>0.0.0.0</value>
+      <description>SNTP 2 IP address</description>
+    </setting>
+    <setting name='speed_dial_0'>
+      <value></value>
+      <description>Speed dial 0</description>
+    </setting>
+    <setting name='speed_dial_1'>
+      <value></value>
+      <description>Speed dial 1</description>
+    </setting>
+    <setting name='speed_dial_2'>
+      <value></value>
+      <description>Speed dial 2</description>
+    </setting>
+    <setting name='speed_dial_3'>
+      <value></value>
+      <description>Speed dial 3</description>
+    </setting>
+    <setting name='speed_dial_4'>
+      <value></value>
+      <description>Speed dial 4</description>
+    </setting>
+    <setting name='speed_dial_5'>
+      <value></value>
+      <description>Speed dial 5</description>
+    </setting>
+    <setting name='speed_dial_6'>
+      <value></value>
+      <description>Speed dial 6</description>
+    </setting>
+    <setting name='speed_dial_7'>
+      <value></value>
+      <description>Speed dial 7</description>
+    </setting>
+    <setting name='speed_dial_8'>
+      <value></value>
+      <description>Speed dial 8</description>
+    </setting>
+    <setting name='speed_dial_9'>
+      <value></value>
+      <description>Speed dial 9</description>
+    </setting>
+    <setting name='adjust_dst'>
+      <value>1</value>
+      <description>1 - adjust for daylight savings time 0 - disable</description>
+    </setting>
+  </group>
+</model>

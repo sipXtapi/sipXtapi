@@ -1,0 +1,14 @@
+<C1MAXSIPCONFIG>
+#foreach ($group in $phone.Settings.Values)
+#foreach ($setting in $group.Values)
+  <${setting.ProfileName}> $!{setting.Value} </${setting.ProfileName}>  <!-- $!{setting.Description} -->
+#end
+#end
+#foreach ($line in $phone.lines)
+#foreach ($group in $line.Settings.Values)
+#foreach ($setting in $group.Values)
+  <${setting.ProfileName}> $!{setting.Value} </${setting.ProfileName}>  <!-- $!{setting.Description} -->
+#end
+#end
+#end
+</C1MAXSIPCONFIG>

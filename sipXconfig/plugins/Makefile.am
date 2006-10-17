@@ -1,4 +1,5 @@
 SUBDIRS = \
+	clearone \
 	hitachi
 
 EXTRA_DIST = \
