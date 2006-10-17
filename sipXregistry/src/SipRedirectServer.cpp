@@ -26,6 +26,7 @@
 #include "SipRedirectServer.h"
 #include "SipRedirectorRegDB.h"
 #include "SipRedirectorAliasDB.h"
+#include "SipRedirectorAuthRouter.h"
 #include "SipRedirectorCallerAlias.h"
 #include "SipRedirectorMapping.h"
 #include "SipRedirectorHunt.h"
@@ -179,6 +180,11 @@ SipRedirectServer::initialize(OsConfigDb& configDb    ///< Configuration paramet
    UtlString v8 = ORBIT_CONFIG_FILENAME;
    configParameters.insertKeyAndValue(&k8, &v8);
    mRedirectors[rNum] = new SipRedirectorPickUp;
+   mRedirectors[rNum]->initialize(configParameters, configDb, mpSipUserAgent, rNum);
+   rNum++;
+
+   // Create and initialize the authproxy route redirector.
+   mRedirectors[rNum] = new SipRedirectorAuthRouter;
    mRedirectors[rNum]->initialize(configParameters, configDb, mpSipUserAgent, rNum);
    rNum++;
 
