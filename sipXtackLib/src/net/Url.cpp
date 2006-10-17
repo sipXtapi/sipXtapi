@@ -461,8 +461,9 @@ void Url::getHostWithPort(UtlString& domain) const
    getHostAddress(domain);
    if (mHostPort != PORT_NONE)
    {
-      domain.capacity(domain.capacity() + 6 /* length(":65535") */ );
-      sprintf(const_cast<char*>(domain.data())+domain.length(), ":%d", mHostPort);
+      char portNum[7];
+      sprintf(portNum, ":%d", mHostPort);
+      domain.append(portNum);
    }
 }
 

@@ -766,6 +766,14 @@ public:
         ASSERT_STR_EQUAL("Changed Name<sip:u@host;u1=uv1?h1=hv1&h1=hv2&expires=20>;f1=fv1;f1=fv2",
                          toString(url));
         
+        url.setHeaderParameter("route", "rt1");
+        ASSERT_STR_EQUAL("Changed Name<sip:u@host;u1=uv1?h1=hv1&h1=hv2&expires=20&route=rt1>;f1=fv1;f1=fv2",
+                         toString(url));
+        
+        url.setHeaderParameter("ROUTE", "rt2,rt1");
+        ASSERT_STR_EQUAL("Changed Name<sip:u@host;u1=uv1?h1=hv1&h1=hv2&expires=20&ROUTE=rt2%2Crt1>;f1=fv1;f1=fv2",
+                         toString(url));
+        
 
 
         // Only the changed attributes should actually changed

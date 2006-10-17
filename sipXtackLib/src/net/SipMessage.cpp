@@ -1974,20 +1974,47 @@ void SipMessage::applyTargetUriHeaderParams()
          {
             /*
              * The Route header requires special handling
-             * - we need to have a defined ordering.
-             *   For now, we choose to push the route (make it the topmost route)
+             *   Examine each redirected route and ensure that it is a loose route
              */
-            Url newRouteUrl(hdrValue.data());
-            UtlString unusedValue;
-            if ( ! newRouteUrl.getUrlParameter("lr", unusedValue, 0))
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipMessage::applyTargetUriHeaderParams found route header '%s'",
+                          hdrValue.data()
+                          );
+
+            UtlString routeParams;
+            int route;
+            UtlString thisRoute;
+            for (route=0;
+                 NameValueTokenizer::getSubField(hdrValue.data(), route,
+                                                 SIP_MULTIFIELD_SEPARATOR, &thisRoute);
+                 thisRoute.remove(0), route++
+                 )
             {
-               newRouteUrl.setUrlParameter("lr",""); // force a loose route
+               Url newRouteUrl(thisRoute.data());
+               UtlString unusedValue;
+               if ( ! newRouteUrl.getUrlParameter("lr", unusedValue, 0))
+               {
+                  newRouteUrl.setUrlParameter("lr",NULL); // force a loose route
+               }
+            
+               UtlString newRoute;
+               newRouteUrl.toString(newRoute);
+               if (!routeParams.isNull())
+               {
+                  routeParams.append(SIP_MULTIFIELD_SEPARATOR);
+               }
+               routeParams.append(newRoute);
+            }
+            // If we found any routes, push them onto the route set
+            if (!routeParams.isNull())
+            {
+               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                             "SipMessage::applyTargetUriHeaderParams adding route(s) '%s'",
+                             routeParams.data()
+                             );
+               addRouteUri(routeParams.data());
             }
             
-            UtlString newRoute;
-            newRouteUrl.toString(newRoute);
-            
-            addRouteUri(newRoute.data());
          }
          else if (isUrlHeaderUnique(hdrName.data()))
          {
@@ -3400,6 +3427,12 @@ UtlBoolean SipMessage::getRequireExtension(int extensionIndex,
                                 UtlString* extension) const
 {
    return(getFieldSubfield(SIP_REQUIRE_FIELD, extensionIndex, extension));
+}
+
+UtlBoolean SipMessage::getProxyRequireExtension(int extensionIndex,
+                                                UtlString* extension) const
+{
+   return(getFieldSubfield(SIP_PROXY_REQUIRE_FIELD, extensionIndex, extension));
 }
 
 void SipMessage::addRequireExtension(const char* extension)
@@ -5219,6 +5252,7 @@ void SipMessage::SipMessageFieldProps::initUniqueUrlHeaders()
    // parameter overrides the existing header in the message.
 
    mUniqueUrlHeaders.insert(new UtlString(SIP_EXPIRES_FIELD));
+   mUniqueUrlHeaders.insert(new UtlString(SIP_ROUTE_FIELD));
 }
 
 void SipMessage::normalizeProxyRoutes(const SipUserAgent* sipUA,

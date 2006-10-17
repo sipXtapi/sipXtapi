@@ -41,6 +41,7 @@ libsipXregistry_la_SOURCES = \
     RegistrarPeer.h \
     RegistrarPeer.cpp \
     SipRedirectorAliasDB.cpp \
+    SipRedirectorAuthRouter.cpp \
     SipRedirectorCallerAlias.cpp \
     SipRedirectorHunt.cpp \
     SipRedirectorMapping.cpp \
@@ -55,6 +56,7 @@ libsipXregistry_la_SOURCES = \
     RedirectResumeMsg.h \
     RedirectSuspend.h \
     SipRedirectorAliasDB.h \
+    SipRedirectorAuthRouter.h \
     SipRedirectorCallerAlias.h \
     SipRedirectorHunt.h \
     SipRedirectorMapping.h \
