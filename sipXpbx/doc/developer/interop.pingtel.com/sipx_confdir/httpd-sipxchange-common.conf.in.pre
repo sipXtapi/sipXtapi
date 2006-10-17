@@ -6,7 +6,7 @@ Listen 8090
 # Core files will not appear unless "ulimit -c unlimited" (or whatever
 # is appropriate) is in effect, which is usually controlled by the
 # ulimit command in .../etc/init.d/sipxpbx.in.
-CoreDumpDirectory /var/log/sipxpbx 
+CoreDumpDirectory @SIPX_LOGDIR@
 
 # This is only available to the default (*:8090) port if there is no SSL
 #<IfDefine !SSL>

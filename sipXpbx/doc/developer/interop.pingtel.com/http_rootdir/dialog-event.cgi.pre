@@ -7,7 +7,7 @@ use strict;
 # This must be the redirector's log, since the NOTIFY is in-dialog and bypasses
 # the proxy.
 my($log_file) = '@SIPX_LOGDIR@/sipregistrar.log';
-my($registration_file) = '@SIPX_DBDIR@/registration.xml';
+my($registration_file) = '@SIPX_DATADIR@/sipdb/registration.xml';
 
 # The SIP domain of this server.
 my($sip_domain) = '@SIPXCHANGE_DOMAIN_NAME@';

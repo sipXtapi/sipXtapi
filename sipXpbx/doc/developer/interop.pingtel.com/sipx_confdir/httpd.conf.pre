@@ -48,7 +48,7 @@
 # Do NOT add a slash at the end of the directory path.
 #
 # this should not be used because use all full paths, but...
-ServerRoot "/etc/sipxpbx"
+ServerRoot "@SIPX_CONFDIR@"
 
 #
 # The accept serialization lock file MUST BE STORED ON A LOCAL DISK.
@@ -79,7 +79,7 @@ ServerRoot "/etc/sipxpbx"
 # identification number when it starts.
 #
 <IfModule !mpm_netware.c>
-PidFile /var/run/sipxpbx/httpd.pid
+PidFile @SIPX_RUNDIR@/httpd.pid
 </IfModule>
 
 #
@@ -338,7 +338,7 @@ UseCanonicalName Off
 # documents. By default, all requests are taken from this directory, but
 # symbolic links and aliases may be used to point to other locations.
 #
-DocumentRoot "/usr/share/www/doc"
+DocumentRoot "@HTTP_ROOTDIR@"
 
 #
 # Each directory to which Apache has access can be configured with respect
@@ -363,7 +363,7 @@ DocumentRoot "/usr/share/www/doc"
 #
 # This should be changed to whatever you set DocumentRoot to.
 #
-<Directory "/usr/share/www/doc">
+<Directory "@HTTP_ROOTDIR@">
 
 #
 # Possible values for the Options directive are "None", "All",
@@ -505,7 +505,7 @@ HostnameLookups Off
 # logged here.  If you *do* define an error logfile for a <VirtualHost>
 # container, that host's errors will be logged there and not here.
 #
-ErrorLog /var/log/sipxpbx/httpd_error_log
+ErrorLog @SIPX_LOGDIR@/httpd_error_log
 
 #
 # LogLevel: Control the number of messages logged to the error_log.
@@ -533,7 +533,7 @@ LogFormat "%{User-agent}i" agent
 # define per-<VirtualHost> access logfiles, transactions will be
 # logged therein and *not* in this file.
 #
-CustomLog /var/log/sipxpbx/httpd_access_log common
+CustomLog @SIPX_LOGDIR@/httpd_access_log common
 
 #
 # If you would like to have agent and referer logfiles, uncomment the
@@ -1046,7 +1046,7 @@ BrowserMatch "^gnome-vfs" redirect-carefully
 # Bring in additional module-specific configurations
 #
 <IfModule mod_ssl.c>
-    Include /etc/sipxpbx/httpd-sipxchange-common-ssl.conf
+    Include @SIPX_CONFDIR@/httpd-sipxchange-common-ssl.conf
 </IfModule>
 
 
@@ -1084,7 +1084,5 @@ BrowserMatch "^gnome-vfs" redirect-carefully
 #</VirtualHost>
 
 # sipX configuration includes
-Include /etc/sipxpbx/httpd-sipxchange-common.conf
-Include /etc/sipxpbx/httpd-sipxchange-configserver.conf
-
-
+Include @SIPX_CONFDIR@/httpd-sipxchange-common.conf
+Include @SIPX_CONFDIR@/httpd-sipxchange-configserver.conf

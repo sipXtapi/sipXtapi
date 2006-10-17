@@ -10,15 +10,13 @@ my(%unescape) = ("r", "\r",
 		 "\"", "\"",
 		 "\\", "\\");
 
-##my($registration_file) = $ARGV[0] || '/var/sipxdata/sipdb/registration.xml';
-
 # Read and process the registrar log files.
 my(@registrations);
 my(%contacts_seen);
 my(%gruu);
 # Read at least 24 hours of log data in chronological order.
-&process_log_file('/var/log/sipxpbx/sipregistrar.log.1');
-&process_log_file('/var/log/sipxpbx/sipregistrar.log');
+&process_log_file('@SIPX_LOGDIR@/sipregistrar.log.1');
+&process_log_file('@SIPX_LOGDIR@/sipregistrar.log');
 
 # Generate the table body in order by extension.
 my($table_body) = '';
