@@ -205,7 +205,7 @@
       <userPattern>*70xx</userPattern>
       <permissionMatch>
         <transform>
-          <url>&lt;sip:1{vdigits}1@@SIPXCHANGE_DOMAIN_NAME@?Method=REFER&Refer-To=1{vdigits}%40@SIPXCHANGE_DOMAIN_NAME@&gt;</url>
+          <url>&lt;sip:1{vdigits}1@@SIPXCHANGE_DOMAIN_NAME@?Method=REFER&amp;Refer-To=1{vdigits}%40@SIPXCHANGE_DOMAIN_NAME@&gt;</url>
         </transform>
       </permissionMatch>
     </userMatch>

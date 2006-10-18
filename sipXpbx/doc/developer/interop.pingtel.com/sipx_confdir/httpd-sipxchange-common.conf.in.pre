@@ -18,8 +18,8 @@ CoreDumpDirectory @SIPX_LOGDIR@
 # - LoadCPPHandler loads the specified handler shared object
 # - AddCPPHandler associates a particular handler with a directory spec
 #
-LoadModule cplusplus_module /etc/httpd/modules/libmod_cplusplus.so
-LoadCPPHandler mod_sipxauth /etc/httpd/modules/libmod_sipxauth.so
+LoadModule cplusplus_module @HTTP_MODULEDIR@/libmod_cplusplus.so
+LoadCPPHandler mod_sipxauth @HTTP_MODULEDIR@/libmod_sipxauth.so
 
 # protect the sipxchange cgi-bin directory from unauthorized access
 <Directory "/usr/share/www/cgi-bin">
@@ -96,4 +96,4 @@ LoadCPPHandler mod_sipxauth /etc/httpd/modules/libmod_sipxauth.so
 #    Satisfy any
 #</Directory>
 
-Include /etc/sipxpbx/httpd-sipxchange-mediaserver.conf
+Include @SIPX_CONFDIR@/httpd-sipxchange-mediaserver.conf

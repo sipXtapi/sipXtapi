@@ -8,6 +8,7 @@ SUDO=
 # See http://www.sipfoundry.org/sipX/doc/filesystem.html.
 # Note that changing these values is not completely supported yet --
 # some of the installed files would need to be adjusted.
+SIPX_USER=sipx
 SIPX_BINDIR=/usr/bin
 SIPX_CONFDIR=/etc/sipxpbx
 SIPX_DATADIR=/var/sipxdata
@@ -15,6 +16,7 @@ SIPX_LIBDIR=/usr/lib
 SIPX_LOGDIR=/var/log/sipxpbx
 SIPX_RUNDIR=/var/run/sipxpbx
 HTTP_ROOTDIR=/usr/share/www/doc
+HTTP_MODULEDIR=/etc/httpd/modules
 
 # The names of all the installed files, derived from the files in
 # the install subdirectories.
@@ -48,6 +50,7 @@ $(SIPDB_FILES): $(SIPX_DATADIR)/sipdb/%: sipx_dbdir/%
 $(SIPX_CONFDIR)/config.defs: $(SIPX_CONFDIR)/config.defs.in
 	$(SUDO) sh -c \
 		"sed \
+			-e 's!@SIPX_USER@!$(SIPX_USER)!g' \
 			-e 's!@SIPX_BINDIR@!$(SIPX_BINDIR)!g' \
 			-e 's!@SIPX_CONFDIR@!$(SIPX_CONFDIR)!g' \
 			-e 's!@SIPX_DATADIR@!$(SIPX_DATADIR)!g' \
@@ -55,6 +58,7 @@ $(SIPX_CONFDIR)/config.defs: $(SIPX_CONFDIR)/config.defs.in
 			-e 's!@SIPX_LOGDIR@!$(SIPX_LOGDIR)!g' \
 			-e 's!@SIPX_RUNDIR@!$(SIPX_RUNDIR)!g' \
 			-e 's!@HTTP_ROOTDIR@!$(HTTP_ROOTDIR)!g' \
+			-e 's!@HTTP_MODULEDIR@!$(HTTP_MODULEDIR)!g' \
 		<$< >$@"
 
 $(CONFIG_FILES_EDITED) $(DOC_FILES_EDITED) $(SIPDB_FILES_EDITED): %: %.pre $(SIPX_CONFDIR)/config.defs
@@ -62,6 +66,8 @@ $(CONFIG_FILES_EDITED) $(DOC_FILES_EDITED) $(SIPDB_FILES_EDITED): %: %.pre $(SIP
 	$(SUDO) sh -c \
 		"sed \
 			-e 's!@SIPXCHANGE_DOMAIN_NAME@!$$SIPXCHANGE_DOMAIN_NAME!g' \
+			-e 's!@HOSTNAME@!$$MY_FULL_HOSTNAME!g' \
+			-e 's!@SIPX_USER@!$(SIPX_USER)!g' \
 			-e 's!@SIPX_BINDIR@!$(SIPX_BINDIR)!g' \
 			-e 's!@SIPX_CONFDIR@!$(SIPX_CONFDIR)!g' \
 			-e 's!@SIPX_DATADIR@!$(SIPX_DATADIR)!g' \
@@ -69,42 +75,8 @@ $(CONFIG_FILES_EDITED) $(DOC_FILES_EDITED) $(SIPDB_FILES_EDITED): %: %.pre $(SIP
 			-e 's!@SIPX_LOGDIR@!$(SIPX_LOGDIR)!g' \
 			-e 's!@SIPX_RUNDIR@!$(SIPX_RUNDIR)!g' \
 			-e 's!@HTTP_ROOTDIR@!$(HTTP_ROOTDIR)!g' \
-			-e 's!@HOSTNAME@!$$MY_FULL_HOSTNAME!g' \
+			-e 's!@HTTP_MODULEDIR@!$(HTTP_MODULEDIR)!g' \
 		<$< >$@"
-
-
-
-# The special rule to perform substitutions in index.html.in to create
-# index.html.  This rule is done in the destination directory rather than
-# in the source directory (1) so multiple installations can be done from
-# one source directory, and (2) so if SIPXCHANGE_DOMAIN_NAME in config.defs
-# needs to be changed after installation, re-running "make" will correct
-# index.html.
-#$(HTTP_ROOTDIR)/index.html: $(HTTP_ROOTDIR)/index.html.pre $(SIPX_CONFDIR)/config.defs
-#	. $(SIPX_CONFDIR)/config.defs ;\
-#	HOSTNAME=`hostname -f` ;\
-#	$(SUDO) sh -c \
-#		"sed \
-#			-e 's!@SIPXCHANGE_DOMAIN_NAME@!$$SIPXCHANGE_DOMAIN_NAME!g' \
-#			-e 's!@SIPX_BINDIR@!$(SIPX_BINDIR)!g' \
-#			-e 's!@SIPX_CONFDIR@!$(SIPX_CONFDIR)!g' \
-#			-e 's!@SIPX_DBDIR@!$(SIPX_DBDIR)!g' \
-#			-e 's!@SIPX_LIBDIR@!$(SIPX_LIBDIR)!g' \
-#			-e 's!@HTTP_ROOTDIR@!$(HTTP_ROOTDIR)!g' \
-#			-e 's!@HOSTNAME@!$$HOSTNAME!g' \
-#		<$< >$@"
-#
-#$(SIPX_CONFDIR)/registrar-config.in: $(SIPX_CONFDIR)/registrar-config.in.pre $(SIPX_CONFDIR)/config.defs
-#	. $(SIPX_CONFDIR)/config.defs ;\
-#	$(SUDO) sh -c \
-#		"sed \
-#			-e 's!@SIPXCHANGE_DOMAIN_NAME@!$$SIPXCHANGE_DOMAIN_NAME!g' \
-#			-e 's!@SIPX_BINDIR@!$(SIPX_BINDIR)!g' \
-#			-e 's!@SIPX_CONFDIR@!$(SIPX_CONFDIR)!g' \
-#			-e 's!@SIPX_DBDIR@!$(SIPX_DBDIR)!g' \
-#			-e 's!@SIPX_LIBDIR@!$(SIPX_LIBDIR)!g' \
-#			-e 's!@HTTP_ROOTDIR@!$(HTTP_ROOTDIR)!g' \
-#		<$< >$@"
 
 $(SIPX_DATADIR)/sipdb/credential.xml: $(SIPX_DATADIR)/sipdb/credential.xml.in
 	$(SUDO) sh -c \
