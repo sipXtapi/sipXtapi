@@ -4,16 +4,26 @@
   <!ENTITY types SYSTEM "types.xml">
   ]>
 <model>
-  <group name='basic'>
+  <group name='admin'>
+    <label>Administration</label>
     <setting name='username'>
       <value>admin</value>
       <description>web login id</description>
     </setting>
     <setting name='password'>
+      <type>
+        <string password="yes"></string>
+      </type>
       <value>clearone</value>
       <description>web login password</description>
     </setting>
+  </group>
+  <group name='basic'>
+    <label>Settings</label>
     <setting name='ringtone'>
+      <type>
+        <integer min="1" max="5" />
+      </type>
       <value>1</value>
       <description>ringtone index 1 to 5</description>
     </setting>
@@ -30,21 +40,26 @@
       <description>helpline number</description>
     </setting>
     <setting name='allow_reboot_in_call'>
+      <type>
+        <boolean />
+      </type>
       <value>0</value>
       <description>1 - allow reboot during a call 0 - wait till call complete</description>
     </setting>
     <setting name='mute_ringtone'>
+      <type>
+        <boolean />
+      </type>
       <value>0</value>
       <description>1 - mute ringer on incoming call 0 - disable mute</description>
     </setting>
-    <setting name='dialplan'>
+    <setting name='dialplan' hidden="yes">
       <value>C1EngDialPlan.txt</value>
       <description>File describing MAX Dialplan - TFTPed from server</description>
     </setting>
-    <setting name='timezone'>
-      <value>5</value>
-      <description>0 - GMT-12:00 (International Date Line West)</description>
-    </setting>
+  </group>
+  <group name="time">
+    <label>Time</label>
     <setting name='SNTP_server_1'>
       <value>0.0.0.0</value>
       <description>SNTP 1 IP address</description>
@@ -53,6 +68,23 @@
       <value>0.0.0.0</value>
       <description>SNTP 2 IP address</description>
     </setting>
+    <setting name='timezone'>
+      <type>
+        <integer max="32"/>
+      </type>
+      <value>5</value>
+      <description>Timezone offset</description>
+    </setting>
+    <setting name='adjust_dst'>
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+      <description>1 - adjust for daylight savings time 0 - disable</description>
+    </setting>
+  </group>
+  <group name="speed_dial">
+    <label>Speed dial</label>
     <setting name='speed_dial_0'>
       <value></value>
       <description>Speed dial 0</description>
@@ -92,10 +124,6 @@
     <setting name='speed_dial_9'>
       <value></value>
       <description>Speed dial 9</description>
-    </setting>
-    <setting name='adjust_dst'>
-      <value>1</value>
-      <description>1 - adjust for daylight savings time 0 - disable</description>
     </setting>
   </group>
 </model>

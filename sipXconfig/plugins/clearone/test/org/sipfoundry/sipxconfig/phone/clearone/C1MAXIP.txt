@@ -8,9 +8,10 @@
    <allow_reboot_in_call> 0  </allow_reboot_in_call> <!-- 1 - allow reboot during a call 0 - wait till call complete -->
    <mute_ringtone> 0 </mute_ringtone>                <!-- 1 - mute ringer on incoming call 0 - disable mute -->
    <dialplan> C1EngDialPlan.txt </dialplan>          <!-- File describing MAX Dialplan - TFTPed from server -->
-   <timezone> 5 </timezone>                          <!-- 0 - GMT-12:00 (International Date Line West) -->
    <SNTP_server_1> 0.0.0.0 </SNTP_server_1>          <!-- SNTP 1 IP address -->
    <SNTP_server_2> 0.0.0.0 </SNTP_server_2>          <!-- SNTP 2 IP address -->
+   <timezone> 7 </timezone>                          <!-- Timezone offset -->
+   <adjust_dst> 0 </adjust_dst>                      <!-- 1 - adjust for daylight savings time 0 - disable -->
    <speed_dial_0> </speed_dial_0>                    <!-- Speed dial 0 -->
    <speed_dial_1> </speed_dial_1>                    <!-- Speed dial 1 -->
    <speed_dial_2> </speed_dial_2>                    <!-- Speed dial 2 -->
@@ -21,22 +22,21 @@
    <speed_dial_7> </speed_dial_7>                    <!-- Speed dial 7 -->
    <speed_dial_8> </speed_dial_8>                    <!-- Speed dial 8 -->
    <speed_dial_9> </speed_dial_9>                    <!-- Speed dial 9 -->
-   <adjust_dst> 1 </adjust_dst>                      <!-- 1 - adjust for daylight savings time 0 - disable -->
-   <use_sipauth> 0 </use_sipauth>                    <!-- 1 - enable SIP authentication 0 - disable sip authentication -->
-   <sip_username> peter </sip_username>              <!-- sip authentication username -->
-   <sip_password> lala </sip_password>               <!-- sip authentication password -->
-   <sip_proxy_enable> 0 </sip_proxy_enable>          <!-- 1 - enable 0 - disable -->
-   <sip_proxy_server> 10.201.0.1 </sip_proxy_server> <!-- sip proxy server IP, hostname or FQDN -->
-   <sip_proxy_port> 5060 </sip_proxy_port>           <!-- sip proxy server port -->
-   <outbound_sip_proxy_enable> 0 </outbound_sip_proxy_enable>   <!-- 1 - enable 0 - disable -->
-   <outbound_sip_proxy> 10.201.0.1 </outbound_sip_proxy> <!-- sip outbound proxy IP, hostname or FQDN -->
-   <outbound_proxy_port> 5060 </outbound_proxy_port> <!-- sip outbound proxy port -->
-   <sip_register_timeout> 3600 </sip_register_timeout> <!-- sip registration timeout in seconds -->
-   <sip_transport> 0 </sip_transport>                <!-- sip transport: 0 - udp or 1 - tcp -->
-   <sip_udp_port> 5060 </sip_udp_port>               <!-- sip udp port -->
-   <sip_tcp_port> 5060 </sip_tcp_port>               <!-- sip tcp port -->
-   <dtmf_relay_enable> 1 </dtmf_relay_enable>        <!-- 1 - enable inband dtmf relay 0 - disable -->
-   <dtmf_relay_payload> 96 </dtmf_relay_payload>     <!-- dtmf relay payload - 96 to 127 -->
+   <use_sipauth> 1 </use_sipauth>                    <!-- -->
+   <sip_username> juser </sip_username>              <!-- SIP authentication username -->
+   <sip_password> 1234 </sip_password>               <!-- SIP authentication password -->
+   <sip_proxy_enable> 1 </sip_proxy_enable>          <!-- -->
+   <sip_proxy_server> sipfoundry.org </sip_proxy_server> <!-- SIP proxy server IP, hostname or FQDN -->
+   <sip_proxy_port> 5555 </sip_proxy_port>           <!-- -->
+   <outbound_sip_proxy_enable> 0 </outbound_sip_proxy_enable>   <!-- -->
+   <outbound_sip_proxy> outbound.sipfoundry.org </outbound_sip_proxy> <!-- SIP outbound proxy IP, hostname or FQDN -->
+   <outbound_proxy_port> 5555 </outbound_proxy_port> <!-- -->
+   <sip_register_timeout> 3600 </sip_register_timeout> <!-- SIP registration timeout in seconds -->
+   <sip_transport> 0 </sip_transport>                <!-- -->
+   <sip_udp_port> 5060 </sip_udp_port>               <!-- -->
+   <sip_tcp_port> 5060 </sip_tcp_port>               <!-- -->
+   <dtmf_relay_enable> 1 </dtmf_relay_enable>        <!-- -->
+   <dtmf_relay_payload> 96 </dtmf_relay_payload>     <!-- -->
    <vad_enable> 1 </vad_enable>                      <!-- 1 - enable voice activity detection 0 - disable -->
    <adaptive_vad> 1 </adaptive_vad>                  <!-- 1 - enable adaptive vad 0 - disable -->
    <vad_thresh> -20 </vad_thresh>                    <!-- vad threshold -20 to +10 -->

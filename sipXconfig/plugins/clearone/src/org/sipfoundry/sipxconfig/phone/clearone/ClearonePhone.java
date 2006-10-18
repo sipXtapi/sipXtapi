@@ -33,7 +33,8 @@ public class ClearonePhone extends Phone {
 
     @Override
     public void initializeLine(Line line) {
-        ClearoneLineDefaults defaults = new ClearoneLineDefaults(line);
+        ClearoneLineDefaults defaults = new ClearoneLineDefaults(line, getPhoneContext()
+                .getPhoneDefaults());
         line.addDefaultBeanSettingHandler(defaults);
     }
 

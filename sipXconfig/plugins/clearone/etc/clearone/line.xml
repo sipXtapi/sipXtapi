@@ -2,116 +2,209 @@
 <!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
   "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
 <model>
-  <group name="basic">
-    <setting name='use_sipauth'>
-      <value>0</value>
-      <description>1 - enable SIP authentication 0 - disable sip authentication</description>
+  <type id="port-number">
+    <integer required="yes" min="1024" max="65534" />
+  </type>
+  <group name="sip">
+    <label>SIP</label>
+    <setting name='use_sipauth' advanced="yes">
+      <label>Use SIP Authentication</label>
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
     </setting>
-    <setting name='sip_username'>
-      <value>peter</value>
-      <description>sip authentication username</description>
+    <setting name='sip_username' advanced="yes">
+      <label>Username</label>
+      <description>SIP authentication username</description>
     </setting>
-    <setting name='sip_password'>
-      <value>lala</value>
-      <description>sip authentication password</description>
+    <setting name='sip_password' advanced="yes">
+      <label>Password</label>
+      <type>
+        <string password="yes" />
+      </type>
+      <description>SIP authentication password</description>
     </setting>
-    <setting name='sip_proxy_enable'>
-      <value>0</value>
-      <description>1 - enable 0 - disable</description>
+    <setting name='sip_proxy_enable' advanced="yes">
+      <label>Use SIP proxy</label>
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
     </setting>
-    <setting name='sip_proxy_server'>
-      <value>10.201.0.1</value>
-      <description>sip proxy server IP, hostname or FQDN</description>
+    <setting name='sip_proxy_server' advanced="yes">
+      <label>SIP Proxy Server</label>
+      <description>SIP proxy server IP, hostname or FQDN</description>
     </setting>
-    <setting name='sip_proxy_port'>
+    <setting name='sip_proxy_port' advanced="yes">
+      <label>SIP proxy server port</label>
+      <type refid="port-number" />
       <value>5060</value>
-      <description>sip proxy server port</description>
     </setting>
-    <setting name='outbound_sip_proxy_enable'>
+    <setting name='outbound_sip_proxy_enable' advanced="yes">
+      <label>Use Outband Proxy</label>
+      <type></type>
       <value>0</value>
-      <description>1 - enable 0 - disable</description>
     </setting>
-    <setting name='outbound_sip_proxy'>
+    <setting name='outbound_sip_proxy' advanced="yes">
+      <label>SIP outband proxy</label>
       <value>10.201.0.1</value>
-      <description>sip outbound proxy IP, hostname or FQDN</description>
+      <description>SIP outbound proxy IP, hostname or FQDN</description>
     </setting>
-    <setting name='outbound_proxy_port'>
+    <setting name='outbound_proxy_port' advanced="yes">
+      <label>SIP outbound proxy port</label>
+      <type refid="port-number" />
       <value>5060</value>
-      <description>sip outbound proxy port</description>
     </setting>
     <setting name='sip_register_timeout'>
+      <label>Registration timeout</label>
+      <type>
+        <integer />
+      </type>
       <value>3600</value>
-      <description>sip registration timeout in seconds</description>
+      <description>SIP registration timeout in seconds</description>
     </setting>
     <setting name='sip_transport'>
+      <label>Transport</label>
+      <type>
+        <enum>
+          <option>
+            <label>UDP</label>
+            <value>0</value>
+          </option>
+          <option>
+            <label>TCP</label>
+            <value>1</value>
+          </option>
+        </enum>
+      </type>
       <value>0</value>
-      <description>sip transport: 0 - udp or 1 - tcp</description>
     </setting>
-    <setting name='sip_udp_port'>
+    <setting name='sip_udp_port' advanced="yes">
+      <label>UDP port</label>
+      <type refid="port-number" />
       <value>5060</value>
-      <description>sip udp port</description>
     </setting>
-    <setting name='sip_tcp_port'>
+    <setting name='sip_tcp_port' advanced="yes">
+      <label>TCP port</label>
+      <type refid="port-number" />
       <value>5060</value>
-      <description>sip tcp port</description>
     </setting>
+  </group>
+  <group name="voice">
+    <label>Voice</label>
     <setting name='dtmf_relay_enable'>
+      <label>Inband DTMF</label>
+      <type>
+        <boolean />
+      </type>
       <value>1</value>
-      <description>1 - enable inband dtmf relay 0 - disable</description>
     </setting>
     <setting name='dtmf_relay_payload'>
+      <label>DTMF relay payload</label>
+      <type>
+        <integer max="127" min="96" />
+      </type>
       <value>96</value>
-      <description>dtmf relay payload - 96 to 127</description>
     </setting>
     <setting name='vad_enable'>
+      <type>
+        <boolean/>
+      </type>
       <value>1</value>
       <description>1 - enable voice activity detection 0 - disable</description>
     </setting>
     <setting name='adaptive_vad'>
+      <type>
+        <boolean/>
+      </type>
       <value>1</value>
       <description>1 - enable adaptive vad 0 - disable</description>
     </setting>
     <setting name='vad_thresh'>
+      <type>
+        <integer min="-20" max="10" />
+      </type>
       <value>-20</value>
       <description>vad threshold -20 to +10</description>
     </setting>
     <setting name='vad_noise_match'>
+      <type>
+        <enum>
+          <option>
+            <value>none</value>
+          </option>
+          <option>
+            <value>level</value>
+          </option>
+          <option>
+            <value>g711a2</value>
+          </option>
+        </enum>
+      </type>
       <value>none</value>
       <description>vad noise matching none, level, g711a2</description>
     </setting>
     <setting name='vad_noise_order'>
+      <type>
+        <integer max="10" />
+      </type>
       <value>0</value>
       <description>vad noise order 0 to 10</description>
     </setting>
     <setting name='g711ulaw_priority'>
+      <type>
+        <integer min="1" max="255" />
+      </type>
       <value>255</value>
       <description>g.711ulaw codec priority 1(lowest) to 255(highest)</description>
     </setting>
     <setting name='g711Alaw_priority'>
+      <type>
+        <integer min="1" max="255" />
+      </type>
       <value>254</value>
       <description>g.711Alaw codec priority 1(lowest) to 255(highest)</description>
     </setting>
     <setting name='g729ab_priority'>
+      <type>
+        <integer min="1" max="255" />
+      </type>
       <value>250</value>
       <description>g.729A/B codec priority 1(lowest) to 255(highest)</description>
     </setting>
     <setting name='g7231_53_priority'>
+      <type>
+        <integer min="1" max="255" />
+      </type>
       <value>240</value>
       <description>g.723.1 lowrate priority 1(lowest) to 255(highest)</description>
     </setting>
     <setting name='g7231_63_priority'>
+      <type>
+        <integer min="1" max="255" />
+      </type>
       <value>245</value>
       <description>g.723.1 highrate priority 1(lowest) to 255(highest)</description>
     </setting>
     <setting name='agc_enable'>
+      <type>
+        <boolean />
+      </type>
       <value>0</value>
       <description>AGC enable (1) disable (0)</description>
     </setting>
     <setting name='alc_enable'>
+      <type>
+        <boolean />
+      </type>
       <value>0</value>
       <description>ALC enable (1) disable (0)</description>
     </setting>
     <setting name='vlan_enable'>
+      <type>
+        <boolean />
+      </type>
       <value>0</value>
       <description>VLAN enable (1) disable (0)</description>
     </setting>
