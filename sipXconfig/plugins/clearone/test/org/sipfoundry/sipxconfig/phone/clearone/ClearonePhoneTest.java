@@ -17,15 +17,16 @@ import java.io.StringWriter;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
 public class ClearonePhoneTest extends TestCase {
-    public void testFactoryRegistered() {
-//        PhoneContext pc = (PhoneContext) TestHelper.getApplicationContext().getBean(
-//                PhoneContext.CONTEXT_BEAN_NAME);
-//        assertNotNull(pc.newPhone(new ClearoneModel()));
+    public void _testFactoryRegistered() {
+        PhoneContext pc = (PhoneContext) TestHelper.getApplicationContext().getBean(
+                PhoneContext.CONTEXT_BEAN_NAME);
+        assertNotNull(pc.newPhone(new ClearoneModel()));
     }
 
     public void testGetFileName() throws Exception {
@@ -50,9 +51,12 @@ public class ClearonePhoneTest extends TestCase {
 
         String actual = actualWriter.toString();
         
-        expected = expected.replaceAll(" +", " ");
-        actual = actual.replaceAll(" +", " ");
-        assertEquals(expected, actual);
+        String expectedLines[] = StringUtils.split(expected.replaceAll(" +", " "), "\n");
+        String actualLines[] = StringUtils.split(actual.replaceAll(" +", " "), "\n");
 
+        assertEquals(expectedLines.length, actualLines.length);
+        for (int i = 0; i < actualLines.length; i++) {
+            assertEquals(expectedLines[i], actualLines[i]);
+        }
     }
 }
