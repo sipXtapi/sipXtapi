@@ -196,19 +196,5 @@
       </permissionMatch>
     </userMatch>
 
-    <!-- Implement *70gg for testing out-of-dialog REFERs.
-      - INVITE *70gg will be transformed into a REFER that directs 1gg1
-      - to contact 1gg2.  (This will leave the dialing phone thinking
-      - it has an established dialog.)
-      -->
-    <userMatch>
-      <userPattern>*70xx</userPattern>
-      <permissionMatch>
-        <transform>
-          <url>&lt;sip:1{vdigits}1@@SIPXCHANGE_DOMAIN_NAME@?Method=REFER&amp;Refer-To=1{vdigits}%40@SIPXCHANGE_DOMAIN_NAME@&gt;</url>
-        </transform>
-      </permissionMatch>
-    </userMatch>
-
   </hostMatch>
 </mappings>

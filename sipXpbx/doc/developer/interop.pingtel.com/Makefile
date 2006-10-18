@@ -28,15 +28,15 @@ CONFIG_FILES_EDITED=$(subst .pre,,$(subst sipx_confdir,$(SIPX_CONFDIR),$(filter-
 DOC_FILES_EDITED=$(subst .pre,,$(subst http_rootdir,$(HTTP_ROOTDIR),$(filter-out %~,$(wildcard http_rootdir/*.pre))))
 SIPDB_FILES_EDITED=$(subst .pre,,$(subst sipx_dbdir,$(SIPX_DATADIR)/sipdb,$(filter-out %~,$(wildcard sipx_dbdir/*.pre))))
 
-install: debug $(CONFIG_FILES) $(DOC_FILES) $(SIPDB_FILES) $(CONFIG_FILES_EDITED) $(DOC_FILES_EDITED) $(SIBDB_FILES_EDITED) $(SIPX_CONFDIR)/registrar-config.in
+install: debug $(CONFIG_FILES) $(DOC_FILES) $(SIPDB_FILES) $(CONFIG_FILES_EDITED) $(DOC_FILES_EDITED) $(SIBDB_FILES_EDITED) $(SIPX_DATADIR)/sipdb/credential.xml
 
 debug:
-	@echo CONFIG_FILES=$(CONFIG_FILES)
-	@echo DOC_FILES=$(DOC_FILES)
-	@echo SIPDB_FILES=$(SIPDB_FILES)
-	@echo DOC_FILES_EDITED=$(DOC_FILES_EDITED) 
-	@echo CONFIG_FILES_EDITED=$(CONFIG_FILES_EDITED)
-	@echo SIPDB_FILES_EDITED=$(SIPDB_FILES_EDITED)
+	@ : echo CONFIG_FILES=$(CONFIG_FILES)
+	@ : echo DOC_FILES=$(DOC_FILES)
+	@ : echo SIPDB_FILES=$(SIPDB_FILES)
+	@ : echo DOC_FILES_EDITED=$(DOC_FILES_EDITED) 
+	@ : echo CONFIG_FILES_EDITED=$(CONFIG_FILES_EDITED)
+	@ : echo SIPDB_FILES_EDITED=$(SIPDB_FILES_EDITED)
 
 $(CONFIG_FILES): $(SIPX_CONFDIR)/%: sipx_confdir/%
 	$(SUDO) cp $< $@
@@ -78,6 +78,6 @@ $(CONFIG_FILES_EDITED) $(DOC_FILES_EDITED) $(SIPDB_FILES_EDITED): %: %.pre $(SIP
 			-e 's!@HTTP_MODULEDIR@!$(HTTP_MODULEDIR)!g' \
 		<$< >$@"
 
-$(SIPX_DATADIR)/sipdb/credential.xml: $(SIPX_DATADIR)/sipdb/credential.xml.in
+$(SIPX_DATADIR)/sipdb/credential.xml: $(SIPX_DATADIR)/sipdb/credential.xml.in $(SIPX_CONFDIR)/config.defs
 	$(SUDO) sh -c \
-		"yes 1234 | update-passtokens $< $@"
+		"yes 1234 | ../../../../sipXcommserverLib/doc/update-passtokens $< $@"
