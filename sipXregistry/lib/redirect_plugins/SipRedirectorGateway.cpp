@@ -68,7 +68,8 @@ void SipRedirectorGateway::readConfig(OsConfigDb& configDb)
    {
       OsSysLog::add(FAC_SIP, PRI_CRIT,
                     "SipRedirectorGateway::readConfig "
-                    "MAPPING_FILE parameter missing or empty");
+                    "MAPPING_FILE parameter '%s' missing or empty",
+                    mMappingFileName.data());
       mReturn = OS_FAILED;
    }
    else

@@ -118,10 +118,16 @@ void SipRedirectorPickUp::readConfig(OsConfigDb& configDb)
    
    // No early-only.
    mNoEarlyOnly = getYNconfig(configDb, CONFIG_SETTING_NEO, TRUE);
+   OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::readConfig "
+                 "mNoEarlyOnly = %d", mNoEarlyOnly);
    // Reversed Replaces.
    mReversedReplaces = getYNconfig(configDb, CONFIG_SETTING_RR, FALSE);
+   OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::readConfig "
+                 "mReversedReplaces = %d", mReversedReplaces);
    // One-second subscriptions.
    mOneSecondSubscription = getYNconfig(configDb, CONFIG_SETTING_1_SEC, TRUE);
+   OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::readConfig "
+                 "mOneSecondSubscription = %d", mOneSecondSubscription);
 
    // Fetch the call pick-up festure code from the config file.
    // If it is null, it doesn't count.
@@ -916,8 +922,8 @@ void SipRedirectorPrivateStoragePickUp::processNotifyDialogElement(
          UtlString duration_s;
          SipRedirectorPickUp::textContentShallow(duration_s, child->ToElement());
          const char* startptr = duration_s.data();
-         char** endptr = NULL;
-         long int temp = strtol(startptr, endptr, 10);
+         char* endptr = NULL;
+         long int temp = strtol(startptr, &endptr, 10);
          // If the duration value passes sanity checks, use it.
          if (((const char*) endptr) == startptr + duration_s.length() &&
              temp >= 0 &&
