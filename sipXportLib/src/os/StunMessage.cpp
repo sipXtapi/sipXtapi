@@ -147,6 +147,10 @@ bool StunMessage::parse(const char* pBuf, size_t nBufLength)
         mMsgHeader.type = ntohs(mMsgHeader.type) ;
         mMsgHeader.length = ntohs(mMsgHeader.length) ;
         mMsgHeader.magicId.id = ntohl(mMsgHeader.magicId.id) ;
+        if (mMsgHeader.magicId.id == STUN_MAGIC_COOKIE)
+        {
+            mbLegacyMode = false ;
+        }
 
         // Validate Header / Sanity
         if (    (nBufLength == (sizeof(STUN_MESSAGE_HEADER) + mMsgHeader.length)) && 

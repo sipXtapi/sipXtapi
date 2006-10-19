@@ -423,6 +423,7 @@ bool TurnMessage::isTurnMessage(const char*    pBuf,
                 case MSG_TURN_CLOSE_BINDING_ERROR_RESPONSE:
 
                     // Validate Magic Cookie
+/*
                     pTraverse += sizeof(STUN_MESSAGE_HEADER) ;
                     memcpy(&attrHeader, pTraverse, sizeof(STUN_ATTRIBUTE_HEADER)) ;
                     attrHeader.type = ntohs(attrHeader.type) ;
@@ -434,13 +435,16 @@ bool TurnMessage::isTurnMessage(const char*    pBuf,
                     if (    (attrHeader.type == ATTR_TURN_MAGIC_COOKIE) &&
                             (attrHeader.length == sizeof(unsigned long)) &&
                             (magicCookie == ATTR_MAGIC_COOKIE)  )
-                    {                                        
+                    {                    
+*/
                         bValid = true ;
 
                         if (pbDataIndication)
                             *pbDataIndication = (header.type == 
                                     MSG_TURN_DATA_INDICATION) ;
+/*
                     }
+*/                  
                     break ;
                 default:
                     break ;
@@ -538,6 +542,9 @@ bool TurnMessage::parseAttribute(STUN_ATTRIBUTE_HEADER* pHeader, char* pBuf)
         case ATTR_TURN_RELAY_ADDRESS:
             bValid = parseAddressAttribute(pBuf, pHeader->length, &mRelayAddress) ;
             mbRelayAddressValid = bValid ;
+            break ;
+        case ATTR_TURN_REQUESTED_PORT:
+            bValid = true ;
             break ;
         case ATTR_TURN_REQUESTED_TRANSPORT:
             bValid = parseLongAttribute(pBuf, pHeader->length, &mTransport) ;
