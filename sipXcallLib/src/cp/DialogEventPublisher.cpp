@@ -72,7 +72,7 @@ void DialogDefaultConstructor::generateDefaultContent(SipPublishContentMgr* cont
    // SipDialogEvent:: that the first real notice will have version 1.
    content.append("<?xml version=\"1.0\"?>\r\n"
                   "<dialog-info xmlns=\"urn:ietf:params:xml:ns:dialog-info\" "
-                  "version=\"0\" notify-state=\"full\" entity=\"");
+                  "version=\"0\" state=\"full\" entity=\"");
    // Assume that the resourceId contains no characters that are special for XML.  (ugh)
    content.append(resourceId);
    content.append("\">\r\n"
