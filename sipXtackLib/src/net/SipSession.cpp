@@ -282,7 +282,6 @@ void SipSession::setRemoteContact(const Url& remoteContact)
     mRemoteContact = remoteContact;
 }
 
-
 void SipSession::getLocalContact(Url& localContact)
 {
     localContact = mLocalContact;
