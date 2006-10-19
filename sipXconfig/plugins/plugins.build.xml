@@ -34,6 +34,7 @@
     <pathelement location="${neoconf.tests.classes}" />
     <pathelement location="${dbunit.jar}" />
     <pathelement location="${xerces.jar}" />
+    <pathelement location="${xmlunit.jar}" />
     
     <!-- required by neoconf -->    
     <pathelement location="${aopalliance.jar}" />
