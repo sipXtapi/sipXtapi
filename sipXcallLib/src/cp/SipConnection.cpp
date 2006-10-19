@@ -4527,7 +4527,6 @@ void SipConnection::processInviteResponse(const SipMessage* response)
 #ifdef TEST_PRINT
             osPrintf("no SDP BYE route: %s\n", mRouteField.data());
 #endif
-            UtlString localContact ;
             sipByeRequest.setByeData(inviteMsg,
                 mRemoteContact,
                 inviteFromThisSide,
@@ -5269,8 +5268,8 @@ UtlBoolean SipConnection::getSession(SipSession& session)
     ssn.setLastToCseq(lastRemoteSequenceNumber);
     ssn.setFromUrl(mFromUrl);
     ssn.setToUrl(mToUrl);
-    UtlString localContact;
     ssn.setLocalContact(Url(mLocalContact.data(), FALSE));
+    ssn.setRemoteContact(Url(mRemoteContact.data(), FALSE));
 
     if (!mRemoteUriStr.isNull())
         ssn.setRemoteRequestUri(mRemoteUriStr);
