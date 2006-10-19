@@ -54,7 +54,7 @@ public class ClearonePhone extends Phone {
     @Override
     public String getPhoneFilename() {
         String serialNumber = getSerialNumber();
-        return getTftpRoot() + "/C1MAXIP_" + serialNumber + ".txt";
+        return getTftpRoot() + "/C1MAXIP_" + serialNumber.toUpperCase() + ".txt";
     }
 
     @Override

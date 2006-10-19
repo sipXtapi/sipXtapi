@@ -42,12 +42,12 @@
       <value>5060</value>
     </setting>
     <setting name='outbound_sip_proxy_enable' advanced="yes">
-      <label>Use Outband Proxy</label>
+      <label>Use Outbound Proxy</label>
       <type></type>
       <value>0</value>
     </setting>
     <setting name='outbound_sip_proxy' advanced="yes">
-      <label>SIP outband proxy</label>
+      <label>SIP outbound proxy</label>
       <value>10.201.0.1</value>
       <description>SIP outbound proxy IP, hostname or FQDN</description>
     </setting>

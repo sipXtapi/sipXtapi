@@ -31,9 +31,9 @@ public class ClearonePhoneTest extends TestCase {
 
     public void testGetFileName() throws Exception {
         ClearonePhone phone = new ClearonePhone();
-        phone.setSerialNumber("001122334455");
+        phone.setSerialNumber("0011aabb4455");
         phone.setTftpRoot("abc");
-        assertEquals("abc/C1MAXIP_001122334455.txt", phone.getPhoneFilename());
+        assertEquals("abc/C1MAXIP_0011AABB4455.txt", phone.getPhoneFilename());
     }
 
     public void testGenerateTypicalProfile() throws Exception {
