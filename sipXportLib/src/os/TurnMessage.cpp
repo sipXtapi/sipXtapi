@@ -45,7 +45,29 @@ TurnMessage::TurnMessage(TurnMessage* pRequest,
     : StunMessage(pRequest, bLegacyMode)
 {
     mszTurnData = NULL ;
-    reset() ;
+
+    mLifetime = 0 ;
+    mbLifetimeValid = false ;
+    mBandwidth = 0 ;
+    mbBandwidthValid = false ;
+    memset(&mDestinationAddress, 0, sizeof(STUN_ATTRIBUTE_ADDRESS)) ;
+    mbDestinationAddressValid = false ;
+    memset(&mTurnRemoteAddress, 0, sizeof(STUN_ATTRIBUTE_ADDRESS)) ;
+    mbTurnRemoteAddressValid = false ;
+    if (mszTurnData)
+    {
+        free(mszTurnData) ;
+    }
+    mszTurnData = NULL ;
+    mnTurnData = 0 ;
+    mbTurnDataValid = false ;
+    memset(&mRelayAddress, 0, sizeof(STUN_ATTRIBUTE_ADDRESS)) ;
+    mbRelayAddressValid = false ;
+    mTransport = 0 ;
+    mbTransportValid = false ;
+    memset(&mRequestedIp, 0, sizeof(STUN_ATTRIBUTE_ADDRESS)) ;
+    mbRequestedIpValid = false ;
+    setIncludeMessageIntegrity(true) ;
 }
 
 // Destructor
