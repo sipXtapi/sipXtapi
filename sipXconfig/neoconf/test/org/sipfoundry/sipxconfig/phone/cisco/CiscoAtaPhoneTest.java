@@ -48,7 +48,7 @@ public class CiscoAtaPhoneTest extends TestCase {
         phone.setCfgfmtUtility(testDir + "/cfgfmt");
         phone.setPtagDat(testDir + "/ptag.dat");
         StringWriter profile = new StringWriter();
-        phone.generateProfile(profile);
+        phone.generateProfile(phone.getPhoneTemplate(), profile);
         String expected = IOUtils.toString(this.getClass().getResourceAsStream(
                 expectedFile));
         assertNotNull(expected);

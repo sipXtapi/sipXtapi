@@ -29,7 +29,7 @@ public class KPhoneTest extends TestCase {
         PhoneTestDriver.supplyTestData(phone);
         
         StringWriter actualWriter = new StringWriter();
-        phone.generateProfile(actualWriter);
+        phone.generateProfile(phone.getPhoneTemplate(), actualWriter);
         InputStream expectedProfile = getClass().getResourceAsStream("default-kphonerc");
         String expected = IOUtils.toString(expectedProfile);
         expectedProfile.close();
@@ -51,7 +51,7 @@ public class KPhoneTest extends TestCase {
 
         // method to test
         StringWriter actual = new StringWriter();
-        phone.generateProfile(actual);
+        phone.generateProfile(phone.getPhoneTemplate(), actual);
 
         // test output file is a copy of the basic template and located in same directory
         // as this java source file

@@ -44,7 +44,7 @@ public class HitachiPhoneTest extends TestCase {
         PhoneTestDriver.supplyTestData(phone);
 
         StringWriter actualWriter = new StringWriter();
-        phone.generateProfile(actualWriter);
+        phone.generateProfile(phone.getPhoneTemplate(), actualWriter);
         InputStream expectedProfile = getClass().getResourceAsStream("test.user.ini");
         assertNotNull(expectedProfile);
         String expected = IOUtils.toString(expectedProfile);

@@ -43,7 +43,7 @@ public class ClearonePhoneTest extends TestCase {
         PhoneTestDriver.supplyTestData(phone);
 
         StringWriter actualWriter = new StringWriter();
-        phone.generateProfile(actualWriter);
+        phone.generateProfile(phone.getPhoneTemplate(), actualWriter);
         InputStream expectedProfile = getClass().getResourceAsStream("C1MAXIP.txt");
         assertNotNull(expectedProfile);
         String expected = IOUtils.toString(expectedProfile);
@@ -52,11 +52,36 @@ public class ClearonePhoneTest extends TestCase {
         String actual = actualWriter.toString();
         
         String expectedLines[] = StringUtils.split(expected.replaceAll(" +", " "), "\n");
-        String actualLines[] = StringUtils.split(actual.replaceAll(" +", " "), "\n");
+        String actualLines[] = StringUtils.split(actual.replaceAll(" +", " "), "\n");                
 
         assertEquals(expectedLines.length, actualLines.length);
         for (int i = 0; i < actualLines.length; i++) {
             assertEquals(expectedLines[i], actualLines[i]);
         }
     }
+    
+    public void testGenerateTypicalDialplan() throws Exception {
+        ClearonePhone phone = new ClearonePhone(new ClearoneModel());
+
+        // call this to inject dummy data
+        PhoneTestDriver.supplyTestData(phone);
+
+        StringWriter actualWriter = new StringWriter();
+        phone.generateProfile(phone.getDialplanTemplate(), actualWriter);
+        InputStream expectedProfile = getClass().getResourceAsStream("c1dialplan.txt");
+        assertNotNull(expectedProfile);
+        String expected = IOUtils.toString(expectedProfile);
+        expectedProfile.close();
+
+        String actual = actualWriter.toString();
+        
+        String expectedLines[] = StringUtils.split(expected.replaceAll(" +", " "), "\n");
+        String actualLines[] = StringUtils.split(actual.replaceAll(" +", " "), "\n");                
+
+        assertEquals(expectedLines.length, actualLines.length);
+        for (int i = 0; i < actualLines.length; i++) {
+            assertEquals(expectedLines[i], actualLines[i]);
+        }
+    }
+    
 }

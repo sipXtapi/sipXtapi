@@ -17,9 +17,11 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
 public class ClearonePhoneDefaults {
 
     private DeviceDefaults m_defaults;
+    private String m_dialPlanName;
 
-    public ClearonePhoneDefaults(DeviceDefaults defaults) {
+    public ClearonePhoneDefaults(DeviceDefaults defaults, String dialplanName) {
         m_defaults = defaults;
+        m_dialPlanName = dialplanName;
     }
 
     @SettingEntry(path = "time/timezone")
@@ -32,5 +34,10 @@ public class ClearonePhoneDefaults {
     @SettingEntry(path = "time/adjust_dst")
     public boolean getAdjustDst() {
         return m_defaults.getTimeZone().getDstActive();
+    }
+
+    @SettingEntry(path = "basic/dialplan")
+    public String getDialPlanName() {
+        return m_dialPlanName;
     }
 }

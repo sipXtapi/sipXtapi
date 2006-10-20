@@ -42,13 +42,12 @@ public class MitelPhoneTest extends XMLTestCase {
         PhoneTestDriver.supplyTestData(phone);
 
         StringWriter actualWriter = new StringWriter();
-        phone.generateProfile(actualWriter);
+        phone.generateProfile(phone.getPhoneTemplate(), actualWriter);
         InputStream expectedProfile = getClass().getResourceAsStream("mn.txt");
         assertNotNull(expectedProfile);
         String expected = IOUtils.toString(expectedProfile);
         expectedProfile.close();
 
-        
         String actual = actualWriter.toString();
         System.err.println(actual);
 

@@ -28,7 +28,7 @@ public class AcmePhoneTest extends TestCase {
         PhoneTestDriver.supplyTestData(phone);
         
         StringWriter actualWriter = new StringWriter();
-        phone.generateProfile(actualWriter);
+        phone.generateProfile(phone.getPhoneTemplate(), actualWriter);
         InputStream expectedProfile = getClass().getResourceAsStream("expected-config");
         String expected = IOUtils.toString(expectedProfile);
         expectedProfile.close();

@@ -160,10 +160,7 @@ public class PolycomPhone extends Phone {
         VelocityProfileGenerator.removeProfileFiles(files);
     }
 
-    /**
-     * HACK: should be private, avoiding checkstyle error
-     */
-    void generateProfile(VelocityProfileGenerator cfg, String template, String outputFile) {
+    private void generateProfile(VelocityProfileGenerator cfg, String template, String outputFile) {
         FileWriter out = null;
         try {
             File f = new File(getTftpRoot(), outputFile);
