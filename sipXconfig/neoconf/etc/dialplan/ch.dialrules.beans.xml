@@ -20,15 +20,15 @@
 
   <!-- properties: optionalPrefix, emergencyNumber -->
   <bean id="emergencyRule" parent="defaultEmergencyRule" singleton="false">
-    <property name="name" value="Police" />
+    <property name="name" value="Polizei" />
     <property name="emergencyNumber" value="114" />
   </bean>
   <bean id="fireEmergencyRule" parent="defaultEmergencyRule" singleton="false">
-    <property name="name" value="Fire department" />
+    <property name="name" value="Feuerwehr" />
     <property name="emergencyNumber" value="118" />
   </bean>
   <bean id="ambulanceEmergencyRule" parent="defaultEmergencyRule" singleton="false">
-    <property name="name" value="Ambulance" />
+    <property name="name" value="Ambulanz" />
     <property name="emergencyNumber" value="144" />
   </bean>
 
@@ -44,29 +44,29 @@
   </bean>
 
   <bean id="tollFreeRule" parent="longDistanceRule" singleton="false">
-    <property name="name" value="Toll free" />
-    <property name="description" value="Toll free dialing" />
+    <property name="name" value="Gratisnummern" />
+    <property name="description" value="W\u00E4hlen von Gratisnummern" />
     <property name="areaCodes" value="800, 842, 844, 848" />
     <property name="permissionName" value="TollFree" />
   </bean>
 
   <bean id="restrictedRule" parent="longDistanceRule" singleton="false">
-    <property name="name" value="Restricted" />
-    <property name="description" value="Restricted dialing" />
+    <property name="name" value="Mehrwertdienste" />
+    <property name="description" value="Zuschlagpflichtige Nummern" />
     <property name="areaCodes" value="900, 901, 906" />
     <property name="permissionName" value="900Dialing" />
   </bean>
 
   <bean id="mobileRule" parent="longDistanceRule" singleton="false">
-    <property name="name" value="Mobile" />
-    <property name="description" value="Mobile numbers" />
+    <property name="name" value="Mobiltelefone" />
+    <property name="description" value="W\u00E4hlen von Mobilteilnehmern" />
     <property name="areaCodes" value="76, 78, 79" />
     <property name="permissionName" value="Mobile" />
   </bean>
 
   <bean id="internationalRule" parent="longDistanceRule" singleton="false">
     <property name="name" value="International" />
-    <property name="description" value="International dialing" />
+    <property name="description" value="W\u00E4hlen von internationalen Nummern" />
     <property name="longDistancePrefix" value="00" />
     <property name="externalLen" value="-1" />
     <property name="permissionName" value="InternationalDialing" />
@@ -74,8 +74,8 @@
 
   <!-- no difference between long-distance and local - probably not needed -->
   <bean id="localRule" parent="longDistanceRule" singleton="false">
-    <property name="name" value="Local" />
-    <property name="description" value="Local dialing" />
+    <property name="name" value="Lokal" />
+    <property name="description" value="W\u00E4hlen von Lokalnummern" />
     <property name="permissionName" value="LocalDialing" />
   </bean>
 
