@@ -8,33 +8,42 @@
 
   <!-- properties: voiceMail, voiceMailPrefix -->
   <bean id="internalRule" parent="defaultInternalRule" singleton="false">
+    <property name="name" value="Interne Nummern" />
+    <property name="description" value="Definition des internen Wählplans" />
     <property name="voiceMail" value="101" />
     <property name="voiceMailPrefix" value="8" />
   </bean>
 
   <!-- properties: extension, attendantAliases -->
   <bean id="attendantRule" parent="defaultAttendantRule" singleton="false">
+    <property name="name" value="Automatisches Antwortsystem" />
+    <property name="description" value="Wählplan für das automatische Antwortsystem" />
     <property name="extension" value="100" />
     <property name="attendantAliases" value="operator 0" />
   </bean>
 
   <!-- properties: optionalPrefix, emergencyNumber -->
   <bean id="emergencyRule" parent="defaultEmergencyRule" singleton="false">
-    <property name="name" value="Police" />
+    <property name="name" value="Polizei" />
+    <property name="description" value="Polizei Notfallnummer" />
     <property name="emergencyNumber" value="110" />
   </bean>
   <bean id="fireEmergencyRule" parent="defaultEmergencyRule" singleton="false">
-    <property name="name" value="Fire department" />
+    <property name="name" value="Feuerwehr" />
+    <property name="description" value="Feuer Notfallnummer" />
     <property name="emergencyNumber" value="112" />
   </bean>
   <bean id="ambulanceEmergencyRule" parent="defaultEmergencyRule" singleton="false">
-    <property name="name" value="Ambulance" />
+    <property name="name" value="Ambulanz" />
+    <property name="description" value="Artzt Notfallnummer" />
     <property name="emergencyNumber" value="19222" />
   </bean>
 
   <!-- properties for all long distance rules:  pstnPrefixOptional, pstnPrefix, 
     longDistancePrefixOptional, longDistancePrefix, externalLen, permissionName -->
   <bean id="longDistanceRule" parent="defaultLongDistanceRule" singleton="false">
+    <property name="name" value="Ferngespräche" />
+    <property name="description" value="Wählplan für Ferngespräche" />
     <property name="pstnPrefixOptional" value="false" />
     <property name="pstnPrefix" value="9" />
     <property name="longDistancePrefixOptional" value="false" />
@@ -44,38 +53,38 @@
   </bean>
 
   <bean id="tollFreeRule" parent="longDistanceRule" singleton="false">
-    <property name="name" value="Toll free" />
-    <property name="description" value="Toll free dialing" />
+    <property name="name" value="Gratisnummern" />
+    <property name="description" value="Wählen von Gratisnummern" />
     <property name="areaCodes" value="800, 130, 842, 844, 848" />
     <property name="permissionName" value="TollFree" />
   </bean>
 
   <bean id="restrictedRule" parent="longDistanceRule" singleton="false">
   <!--  not sure how to treat ITSP numbers with prefix 32 -->
-    <property name="name" value="Restricted" />
-    <property name="description" value="Restricted dialing" />
+    <property name="name" value="Mehrwertdienste" />
+    <property name="description" value="Zuschlagspflichtige Nummern" />
     <property name="areaCodes" value="10, 11, 12, 137, 138, 1801, 1802, 1803, 1804, 1805, 181, 182, 183, 184, 185, 186, 187, 188, 189, 19, 32, 500, 501, 900, 901, 902, 903, 904, 905, 906" />
     <property name="permissionName" value="900Dialing" />
   </bean>
   
   <bean id="infolineRule" parent="longDistanceRule" singleton="false">
-    <property name="name" value="Infolines" />
-    <property name="description" value="Infolines, number information, Credit card blocking, etc which do not use a longdistance prefix" />
+    <property name="name" value="Informationsdienste" />
+    <property name="description" value="Telefoninformationsdienste, welche keine Vorwahl benötigen" />
     <property name="areaCodes" value="118, 116" />
     <property name="longDistancePrefix" value="" />
     <property name="permissionName" value="900Dialing" />
   </bean>
 
   <bean id="mobileRule" parent="longDistanceRule" singleton="false">
-    <property name="name" value="Mobile" />
-    <property name="description" value="Mobile numbers" />
+    <property name="name" value="Mobiltelefone" />
+    <property name="description" value="Wählen von Mobilteilnehmern" />
     <property name="areaCodes" value="15, 16, 17" />
     <property name="permissionName" value="Mobile" />
   </bean>
 
   <bean id="internationalRule" parent="longDistanceRule" singleton="false">
     <property name="name" value="International" />
-    <property name="description" value="International dialing" />
+    <property name="description" value="Wählen von internationalen Nummern" />
     <property name="longDistancePrefix" value="00" />
     <property name="externalLen" value="-1" />
     <property name="permissionName" value="InternationalDialing" />
@@ -83,8 +92,8 @@
 
   <!-- no difference between long-distance and local - probably not needed -->
   <bean id="localRule" parent="longDistanceRule" singleton="false">
-    <property name="name" value="Local" />
-    <property name="description" value="Local dialing" />
+    <property name="name" value="Lokal" />
+    <property name="description" value="Wählen von Lokalnummern" />
     <property name="permissionName" value="LocalDialing" />
   </bean>
 
