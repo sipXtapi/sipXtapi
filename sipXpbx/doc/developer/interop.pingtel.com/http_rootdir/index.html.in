@@ -367,6 +367,10 @@ If there are several calls parked on the same orbit, the one that was
 parked there first is retrieved.
 </p>
 
+<p>
+You can subscribe to the call park extensions to get their dialog events.
+</p>
+
 <h2>Dialog Event Package</h2>
 
 <p>
@@ -392,6 +396,10 @@ Violations of the guidelines are marked in the analysis in
 Extension: <input name='extension' size='4' maxlength='4' />
 <input type='submit' value='Analyze dialog event' />
 </form>
+
+<p>
+You can subscribe to the call park extensions to get their dialog events.
+</p>
 
 <h2>ISN Dialing</h2>
 
