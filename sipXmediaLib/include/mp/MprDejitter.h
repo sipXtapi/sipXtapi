@@ -20,9 +20,6 @@
 #include "mp/MprFromNet.h"
 
 // DEFINES
-#define DEBUGGING_LATENCY
-#undef DEBUGGING_LATENCY
-
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -38,14 +35,15 @@ class MprDejitter : public MpAudioResource
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-#ifdef DEBUGGING_LATENCY /* [ */
-   enum { MAX_RTP_PACKETS = 64};  ///< MUST BE A POWER OF 2, AND SHOULD BE >3
+   enum {
+      MAX_RTP_PACKETS = 64,  ///< MUST BE A POWER OF 2, AND SHOULD BE >3
         // 20 Apr 2001 (HZM): Increased from 16 to 64 for debugging purposes.
-#else /* DEBUGGING_LATENCY ] [ */
-   enum { MAX_RTP_PACKETS = 16};  ///< MUST BE A POWER OF 2, AND SHOULD BE >3
-#endif /* DEBUGGING_LATENCY ] */
+        // 15 Dec 2004: This isn't the actual amount of buffer used, just the size of the container
 
-   enum { GET_ALL = 1 }; ///< get all packets, ignoring timestamps.  For NetEQ
+      MAX_CODECS = 10, ///< Maximum number of codecs in incoming RTP streams.
+
+      GET_ALL = 1    ///< get all packets, ignoring timestamps.  For NetEQ
+   };
 
 /* ============================ CREATORS ================================== */
 ///@name Creators
@@ -67,21 +65,44 @@ public:
 
      /// Add a buffer containing an incoming RTP packet to the dejitter pool
    OsStatus pushPacket(const MpRtpBufPtr &pRtp);
+     /**<
+     *  This method places the packet to the pool depending the modulo division
+     *  value.
+     *
+     *  @return OS_SUCCESS on success
+     *  @return OS_LIMIT_REACHED if too many codecs used in incoming RTP packets
+     */
 
-     /// Submit all RTP packets to the Jitter Buffer.
-   MpRtpBufPtr pullPacket();
-
-     /// Return status info on current backlog.
-   OsStatus getPacketsInfo(int& nPackets,
-                           unsigned int& lowTimestamp);
-
-   void dumpState();
+     /// Get a pointer to the next RTP packet, or NULL if none is available.
+   MpRtpBufPtr pullPacket(int payloadType);
+     /**<
+     *  @note Significant change is that the downstream puller may NOT pull all
+     *        the available packets at once. Instead it is paced according to
+     *        the needs of the RTP payload type.
+     *
+     *  This buffer is the primary dejitter/reorder buffer for the internal
+     *  codecs. Some codecs may do their own dejitter stuff too. But we can't
+     *  eliminate this buffer because then out-of-order packets would just be
+     *  dumped on the ground.
+     *
+     *  This buffer does NOT substitute silence packets. That is done in MpJitterBuffer called from MprDecode.
+     *
+     *  If packets arrive out of order, and the newer packet has already been
+     *  pulled due to the size of the jitter buffer set by the codec, this
+     *  buffer will NOT discard the out-of-order packet, but send it along
+     *  anyway it is up to the codec to discard the packets it cannot use. This
+     *  allows this JB to be a no-op buffer for when the commercial library is
+     *  used.
+     */
 
 //@}
 
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
 //@{
+
+     // Return number of packets in buffer for given payload type.
+   int getBufferLength(int payload);
 
 //@}
 
@@ -97,10 +118,33 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   MpRtpBufPtr   mpPackets[MAX_RTP_PACKETS];
+                  /// Mutual exclusion lock for internal data
    OsBSem        mRtpLock;
-   int           mNumPackets;
-   int           mNumDiscarded;
+
+                  /// Buffer for incoming RTP packets
+   MpRtpBufPtr   mpPackets[MAX_CODECS][MAX_RTP_PACKETS];
+
+                  /// Mapping of payload type to internal codec index
+   int           mBufferLookup[256];
+
+                  /// Number of packets in buffer
+   int           mNumPackets[MAX_CODECS];
+
+                  /// Number of packets overwritten with newly came packets.
+   int           mNumDiscarded[MAX_CODECS];
+                  /**<
+                  *  If this value is not zero, then jitter buffer length
+                  *  is not enough, or there are clock skew.
+                  *   
+                  *  Used for only debug purposes for now.
+                  */
+
+                  /// Index of the last inserted packet.
+   int           mLastPushed[MAX_CODECS];
+                  /**<
+                  *  As packets are added, we change this value to indicate
+                  *  where the buffer is wrapping.
+                  */
 
    /* end of Dejitter handling variables */
 

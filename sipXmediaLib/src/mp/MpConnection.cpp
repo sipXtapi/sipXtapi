@@ -380,7 +380,7 @@ void MpConnection::addPayloadType(int payloadType, MpDecoderBase* decoder)
       OsSysLog::add(FAC_MP, PRI_ERR,
                     "MpConnection::addPayloadType Attempting to add an invalid payload type %d", payloadType);
    }
-   // Check to see if we already have a decoder for this paylod type.
+   // Check to see if we already have a decoder for this payload type.
    else if (!(NULL == mpPayloadMap[payloadType]))
    {
       // This condition probably indicates that the sender of SDP specified

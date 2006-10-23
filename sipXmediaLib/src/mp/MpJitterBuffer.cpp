@@ -32,7 +32,6 @@ MpJitterBuffer::MpJitterBuffer()
    for (int i=0; i<JbPayloadMapSize; i++)
       payloadMap[i] = NULL;
 
-   JbQWait = JbLatencyInit;
    JbQCount = 0;
    JbQIn = 0;
    JbQOut = 0;
@@ -47,102 +46,71 @@ MpJitterBuffer::~MpJitterBuffer()
 
 /* ============================ MANIPULATORS ============================== */
 
-int MpJitterBuffer::ReceivePacket(MpRtpBufPtr &rtpPacket)
+int MpJitterBuffer::pushPacket(MpRtpBufPtr &rtpPacket)
 {
-   int numSamples = 0;
+   unsigned decodedSamples; // number of samples, returned from decoder
+   UCHAR payloadType;       // RTP packet payload type
+   MpDecoderBase* decoder;  // decoder for the packet
 
-   switch (rtpPacket->getRtpPayloadType()) {
-   case CODEC_TYPE_PCMU: // G.711 u-Law
-   case CODEC_TYPE_PCMA: // G.711 a-Law
-      numSamples = rtpPacket->getPayloadSize();
-      break;
+   payloadType = rtpPacket->getRtpPayloadType();
 
-#ifdef HAVE_SPEEX // [
-   case CODEC_TYPE_SPEEX: //Speex
-   case CODEC_TYPE_SPEEX_5: //Speex
-   case CODEC_TYPE_SPEEX_15: //Speex
-   case CODEC_TYPE_SPEEX_24: //Speex
-      numSamples = 160;
-      break;
-#endif // HAVE_SPEEX ]
-
-   default:
+   // Ignore illegal payload types
+   if (payloadType >= JbPayloadMapSize)
       return 0;
-   }
 
-   if (JbQWait > 0) 
-   {
-      JbQWait--;
-   }
+   // Get decoder
+   decoder = payloadMap[payloadType];
+   if (decoder == NULL)
+      return 0; // If we can't decode it, we must ignore it?
 
-   if (JbQueueSize == JbQCount) 
-   { 
-      // discard some data...
-      JbQOut = JbQIn + numSamples;
-      JbQCount -= numSamples;
-   }
+   // Decode packet
+   decodedSamples = decoder->decode(rtpPacket, JbQueueSize-JbQCount, JbQ+JbQIn);
 
-   switch (rtpPacket->getRtpPayloadType())
-   {
-   case 0: // G.711 u-Law
-      G711U_Decoder(numSamples, (const JB_uchar*)rtpPacket->getDataPtr(), JbQ+JbQIn);
-      break;
-   case 8: // G.711 a-Law
-      G711A_Decoder(numSamples, (const JB_uchar*)rtpPacket->getDataPtr(), JbQ+JbQIn);
-      break;
+   // Update buffer state
+   JbQCount += decodedSamples;
+   JbQIn += decodedSamples;
+   if (JbQIn >= JbQueueSize)
+      JbQIn -= JbQueueSize;
+   // This will blow up if Samples Per Frame is not an exact multiple of 80
 
-#ifdef HAVE_SPEEX // [
-   case CODEC_TYPE_SPEEX: //Speex
-   case CODEC_TYPE_SPEEX_5: //Speex
-   case CODEC_TYPE_SPEEX_15: //Speex
-   case CODEC_TYPE_SPEEX_24: //Speex
-      MpdSipxSpeex::decode(numSamples, (const JB_uchar*)rtpPacket->getDataPtr(),
-                           JbQ+JbQIn);
-      break;
-#endif // HAVE_SPEEX ]
-
-   default:
-      break;
-   }
-
-   JbQCount += numSamples;
-   JbQIn += numSamples;
-
-   if (JbQIn >= JbQueueSize) 
-   {
-       JbQIn -= JbQueueSize;
-   }
    return 0;
 }
 
-int MpJitterBuffer::GetSamples(MpAudioSample *voiceSamples, JB_size *pLength)
+int MpJitterBuffer::getSamples(MpAudioSample *samplesBuffer, JB_size samplesNumber)
 {
-    int numSamples = 80;
+   // Check does we have available decoded data
+   if (JbQCount != 0) {
+      // We could not return more then we have
+      samplesNumber = min(samplesNumber,JbQCount);
 
-    if (JbQCount == 0) 
-    {
-        JbQWait = JbLatencyInit; // No data, prime the buffer (again).
-        memset((char*) voiceSamples, 0x00, numSamples * sizeof(MpAudioSample));
-    }
-    else
-    {
-        memcpy(voiceSamples, JbQ+JbQOut, numSamples * sizeof(MpAudioSample));
+      memcpy(samplesBuffer, JbQ+JbQOut, samplesNumber * sizeof(MpAudioSample));
 
-        JbQCount -= numSamples;
-        JbQOut += numSamples;
-        if (JbQOut >= JbQueueSize) 
-        {
-            JbQOut -= JbQueueSize;
-        }
-    }
+      JbQCount -= samplesNumber;
+      JbQOut += samplesNumber;
+      if (JbQOut >= JbQueueSize)
+         JbQOut -= JbQueueSize;
+   }
 
-    *pLength = numSamples;
-    return 0;
+   return samplesNumber;
 }
 
-int MpJitterBuffer::SetCodepoint(const JB_char* codec, JB_size sampleRate,
+int MpJitterBuffer::setCodepoint(const JB_char* codec, JB_size sampleRate,
    JB_code codepoint)
 {
+   return 0;
+}
+
+int MpJitterBuffer::setCodecList(MpDecoderBase** codecList, int codecCount)
+{
+	// For every payload type, load in a codec pointer, or a NULL if it isn't there
+	for(int i=0; i<codecCount; i++)
+   {
+		int payloadType = codecList[i]->getPayloadType();
+		if(payloadType < JbPayloadMapSize) {
+			payloadMap[payloadType] = codecList[i];
+		}
+	}
+
    return 0;
 }
 
@@ -153,20 +121,21 @@ JB_ret JB_initCodepoint(JB_inst *JB_inst,
                         JB_size sampleRate,
                         JB_code codepoint)
 {
-   return JB_inst->SetCodepoint(codec, sampleRate, codepoint);
+   return JB_inst->setCodepoint(codec, sampleRate, codepoint);
 }
 
 JB_ret JB_RecIn(JB_inst *JB_inst,
                 MpRtpBufPtr &rtpPacket)
 {
-   return JB_inst->ReceivePacket(rtpPacket);
+   return JB_inst->pushPacket(rtpPacket);
 }
 
 JB_ret JB_RecOut(JB_inst *JB_inst,
                  MpAudioSample *voiceSamples,
                  JB_size *pLength)
 {
-   return JB_inst->GetSamples(voiceSamples, pLength);
+   *pLength = JB_inst->getSamples(voiceSamples, *pLength);
+   return 0;
 }
 
 JB_ret JB_create(JB_inst **pJB)

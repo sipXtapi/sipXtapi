@@ -71,10 +71,14 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
-   /// Here we do real decode.
-   static int decode(int numSamples,
-                     const JB_uchar *encoded,
-                     MpAudioSample *decoded);
+     /// Decode incoming RTP packet
+   virtual int decode(const MpRtpBufPtr &pPacket, ///< (in) Pointer to a media buffer
+                      unsigned decodedBufferLength, ///< (in) Length of the samplesBuffer (in samples)
+                      MpAudioSample *samplesBuffer ///< (out) Buffer for decoded samples
+                     );
+     /**<
+     *  @return Number of decoded samples.
+     */
 
 ///@name Manipulators
 //@{
@@ -97,11 +101,10 @@ public:
 
 private:
    static const MpCodecInfo smCodecInfo;  ///< static information about the codec
-   JB_inst* pJBState;
-   static void *smpDecoderState;
-   static SpeexBits decbits;
-   static spx_int16_t decbuffer[160];
-
+   JB_inst     *mpJBState;
+   void        *mpDecoderState;
+   SpeexBits    mDecbits;
+   unsigned     mNumSamplesPerFrame;
 };
 
 #endif /* HAVE_SPEEX ] */

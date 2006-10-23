@@ -54,6 +54,12 @@ public:
       unsigned    maxPacketBits,  ///< maximum number of bits in an encoded frame
       unsigned    numSamplesPerFrame, ///< number of PCM samples per input frame
                                       ///< for this codec
+      unsigned    preCodecJitterBufferSize = 0, ///< requested length of jitter
+                                  ///< buffer that the flowgraph should apply to
+                                  ///< the stream prior to getting packets for
+                                  ///< the codec. If set to 0, then there is NO
+                                  ///< jitter buffer, which implies that the
+                                  ///< codec itself is doing the JB function.
       UtlBoolean  signalingCodec = FALSE,
       UtlBoolean  doesVadCng = FALSE);
 
@@ -116,6 +122,14 @@ public:
      /// Returns the maximum number of bits in an encoded frame
    unsigned getMaxPacketBits(void) const;
 
+     /// @brief Returns the length of the jitter buffer that the flowgraph should
+     /// apply to the stream prior to getting packets for the codec.
+   unsigned getPreCodecJitterBufferSize(void) const;
+     /**<
+     *  If set to 0, then there is NO jitter buffer, which implies that the codec
+     *  itself is doing the JB function.
+     */
+
 //@}
 
 /* ============================ INQUIRY =================================== */
@@ -150,6 +164,7 @@ private:
    unsigned    mMinPacketBits;
    unsigned    mAvgPacketBits;
    unsigned    mMaxPacketBits;
+   unsigned    mPreCodecJitterBufferSize;
    UtlBoolean   mIsSignalingCodec;
    UtlBoolean   mDoesVadCng;
 

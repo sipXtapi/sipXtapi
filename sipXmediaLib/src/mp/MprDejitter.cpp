@@ -60,85 +60,131 @@ extern volatile int* pOsTC;
 MprDejitter::MprDejitter(const UtlString& rName, MpConnection* pConn,
                          int samplesPerFrame, int samplesPerSec)
 :  MpAudioResource(rName, 1, 1, 1, 1, samplesPerFrame, samplesPerSec),
-   mRtpLock(OsBSem::Q_FIFO, OsBSem::FULL),
-   mNumPackets(0),
-   mNumDiscarded(0)
+   mRtpLock(OsBSem::Q_FIFO, OsBSem::FULL)
 {
+   memset(mBufferLookup, -1, 256 * sizeof(int));
+   memset(mNumPackets, 0, MAX_CODECS * sizeof(int));
+   memset(mNumDiscarded, 0, MAX_CODECS * sizeof(int));
 }
 
 // Destructor
 MprDejitter::~MprDejitter()
 {
 }
+
 /* ============================ MANIPULATORS ============================== */
 
-//Add a buffer containing an incoming RTP packet to the dejitter pool
+// Add a buffer containing an incoming RTP packet to the dejitter pool.
+// This method places the packet to the pool depending the modulo division value.
 OsStatus MprDejitter::pushPacket(const MpRtpBufPtr &pRtp)
 {
    int index;
-   OsLock locker(mRtpLock);
+   int payloadType;
+   int codecIndex;
 
-   index = pRtp->getRtpSequenceNumber() % MAX_RTP_PACKETS;
-   if (mpPackets[index].isValid()) {
-      mNumDiscarded++;
-#ifdef MP_STREAM_DEBUG /* [ */
-      if (mNumDiscarded < 40) {
-         osPrintf("Dej: discard#%d Seq: %d -> %d at 0x%X\n",
-            mNumDiscarded,
-            mpPackets[index]->getRtpSequenceNumber(),
-            pRtp->getRtpSequenceNumber(),
-            *pOsTC);
-      }
-#endif /* MP_STREAM_DEBUG ] */
-      mNumPackets--;
+   OsLock lock(mRtpLock);
+
+   // Get codec index for incoming packet and allocate new, if it does not have
+   // one already.
+   payloadType = pRtp->getRtpPayloadType();
+   codecIndex = mBufferLookup[payloadType];
+   if (codecIndex < 0)
+   {
+      // Search for maximum allocated codec index
+      int maxCodecIndex = -1;
+      for (int i=0; i<256; i++)
+         maxCodecIndex = max(maxCodecIndex,mBufferLookup[i]);
+      maxCodecIndex++;
+
+      // Codecs limit reached
+      if (maxCodecIndex > MAX_CODECS)
+         return OS_LIMIT_REACHED;
+
+      // Store new codec index
+      mBufferLookup[payloadType]=maxCodecIndex;
+      codecIndex = maxCodecIndex;
    }
-   mpPackets[index] = pRtp;
-   mNumPackets++;
+
+   // Find place for incoming packet
+   index = pRtp->getRtpSequenceNumber() % MAX_RTP_PACKETS;
+
+   // Place packet to the buffer
+   if (mpPackets[codecIndex][index] != NULL)
+   {
+      // Check for packets already in the buffer. Overwrite them if 
+      // the just-arriving packet is newer than the existing packet
+      // Don't overwrite if the just-arriving packet is older
+      int iBufSeqNo = mpPackets[codecIndex][index]->getRtpSequenceNumber();
+      int iNewSeqNo = pRtp->getRtpSequenceNumber();
+
+      if (iNewSeqNo > iBufSeqNo) 
+      {
+         // Insert the new packet over the old packet
+         mNumDiscarded[codecIndex]++;
+         if (mNumDiscarded[codecIndex] < 40) 
+         {
+            osPrintf("Dej: discard#%d Seq: %d -> %d\n",
+               mNumDiscarded[codecIndex], iBufSeqNo, iNewSeqNo);
+         }
+         mpPackets[codecIndex][index] = pRtp;
+         mLastPushed[codecIndex] = index;  
+         // mNumPackets remain unchanged, since we discarded a packet, and added one
+      } else {
+         // Don't insert the new packet - it is a old delayed packet
+      }
+   } else {
+      mLastPushed[codecIndex] = index;
+      mpPackets[codecIndex][index] = pRtp;
+      mNumPackets[codecIndex]++;
+   }
 
    return OS_SUCCESS;
 }
 
 // Get a pointer to the next RTP packet, or NULL if none is available.
-
-MpRtpBufPtr MprDejitter::pullPacket()
+MpRtpBufPtr MprDejitter::pullPacket(int payloadType)
 {
-   MpRtpBufPtr found;
-   int curSeq ;
-   int first = -1; 
-   int firstSeq ;
-   int i;
    OsLock locker(mRtpLock);
 
+   MpRtpBufPtr found; ///< RTP packet we will return
 
-   // Find smallest seq number
-   for (i=0;i<MAX_RTP_PACKETS; i++)
-   {
-       if (mpPackets[i].isValid()) 
-       {
-           curSeq = mpPackets[i]->getRtpSequenceNumber();
-           if (first == -1)
-           {
-               first = i ;
-               firstSeq = curSeq ;
-           }
-           else if (curSeq < firstSeq)
-           {
-               first = i ;
-               firstSeq = curSeq ;
-           }
-       }
-   }
+   // Get codec index for incoming packet. Return none if we have not seen this
+   // payload type before
+   int codecIndex = mBufferLookup[payloadType];
+   if (codecIndex < 0)
+      return MpRtpBufPtr();
 
-   if (first != -1)
+   // Return none if there are no packets
+   if (mNumPackets[codecIndex]==0)
+      return MpRtpBufPtr();
+
+   // We find a packet by starting to look in the JB just AFTER where the latest
+   // push was done, and loop around until we found valid packet or reach last
+   // pushed packet.
+   for (int iNextPull = mLastPushed[codecIndex] + 1;
+        (iNextPull != mLastPushed[codecIndex]) && !found.isValid();
+        iNextPull++)
    {
-      found.swap(mpPackets[first]);
-      mNumPackets--;
+      // Wrap iNextPull counter if we reach end of buffer
+      if (iNextPull >= MAX_RTP_PACKETS)
+         iNextPull = 0;
+
+      // If we reach valid packet, move it out of the buffer
+      if (mpPackets[codecIndex][iNextPull].isValid()) {
+         found.swap(mpPackets[codecIndex][iNextPull]);
+         mNumPackets[codecIndex]--;
+      }
    }
 
    return found;
 }
 
 /* ============================ ACCESSORS ================================= */
+
+int MprDejitter::getBufferLength(int payload)
+{
+   return mNumPackets[payload];
+}
 
 /* ============================ INQUIRY =================================== */
 

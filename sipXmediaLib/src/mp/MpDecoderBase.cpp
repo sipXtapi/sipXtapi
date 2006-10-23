@@ -29,9 +29,19 @@ MpDecoderBase::~MpDecoderBase()
 
 /* ============================ MANIPULATORS ============================== */
 
-int MpDecoderBase::decodeIn(MpRtpBufPtr &pPacket)
+int MpDecoderBase::decodeIn(const MpRtpBufPtr &pPacket)
 {
    return pPacket->getPayloadSize();
+}
+
+int MpDecoderBase::reportBufferLength(int iAvePackets)
+{
+	return 0;
+}
+
+void MpDecoderBase::frameIncrement()
+{
+	return;
 }
 
 /* ============================ ACCESSORS ================================= */

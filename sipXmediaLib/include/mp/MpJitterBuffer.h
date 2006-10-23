@@ -23,16 +23,15 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 
-   static const int JbLatencyInit = 5 ;
    static const int JbPayloadMapSize = 128;
-   static const int JbQueueSize = (16 * (2 * 80)); // 16 packets, 20 mS each
+   static const int JbQueueSize = (8 * (2 * 80)); // 16 packets, 20 mS each
 
 // STRUCTS
 // TYPEDEFS
 
 // FORWARD DECLARATIONS
 
-class MpSipxDecoder;
+class MpDecoderBase;
 
 /// Class for managing dejitter/decode of incoming RTP.
 class MpJitterBuffer
@@ -57,12 +56,38 @@ public:
 ///@name Manipulators
 //@{
 
-   int ReceivePacket(MpRtpBufPtr &rtpPacket);
+     /// Push packet into jitter buffer.
+   int pushPacket(MpRtpBufPtr &rtpPacket);
+     /**<
+     *  Packet will be decoded and decoded data will be copied to internal buffer.
+     *  If no decoder is available for this packet's payload type packet will be
+     *  ignored.
+     *
+     *  @note This implementation does not check packets sequence number in any
+     *  manner. So it behave very bad if packets come reordered or if some
+     *  packets are missed.
+     */
 
-   int GetSamples(MpAudioSample *voiceSamples, JB_size *pLength);
+     /// Get samples from jitter buffer
+   int getSamples(MpAudioSample *samplesBuffer, JB_size samplesNumber);
+     /**<
+     *  @param voiceSamples - (out) buffer for audio samples
+     *  @param samplesNumber - (in) number of samples to write
+     *  
+     *  @return Number of samples written to samplesBuffer
+     */
 
-   int SetCodepoint(const JB_char* codec, JB_size sampleRate,
+   int setCodepoint(const JB_char* codec, JB_size sampleRate,
                     JB_code codepoint);
+   
+     /// Set available decoders.
+   int setCodecList(MpDecoderBase** codecList, int codecCount);
+     /**<
+     *  This function iterates through the provided list of decoders and fills
+     *  internal payload type to decoder mapping. See payloadMap.
+     *  
+     *  @returns Always return 0 for now.
+     */
 
 //@}
 
@@ -89,13 +114,13 @@ private:
      /// Assignment operator
    MpJitterBuffer& operator=(const MpJitterBuffer& rhs);
 
-   int JbQWait;  ///< Fixed latency delay control.
+   int JbPacketsAvail;
    int JbQCount;
    int JbQIn;
    int JbQOut;
    MpAudioSample JbQ[JbQueueSize];
 
-   MpSipxDecoder* payloadMap[JbPayloadMapSize];
+   MpDecoderBase* payloadMap[JbPayloadMapSize];
 };
 
 /* ============================ INLINE METHODS ============================ */

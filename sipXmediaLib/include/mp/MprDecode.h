@@ -112,10 +112,18 @@ private:
       DESELECT_CODECS
    } AddlMsgTypes;
 
-   enum { MAX_RTP_FRAMES = 25};
+   enum {
+      MAX_RTP_FRAMES = 25,
+      MAX_PAYLOAD_TYPES = 128,
+      NUM_TRACKED_PACKETS = 128
+   };
 
-   unsigned int mTimeStampOffset;
-   int          mPreloading;
+   unsigned int mNextPullTimerCount;
+   int          mWaitTimeInFrames;
+   unsigned int   sTimerCountIncrement;
+   int          mMissedFrames;
+   int            saveDebug;
+//   MpRtpBufPtr  mSavedRtp[MAX_PAYLOAD_TYPES];
 
    MprDejitter* mpMyDJ;
 
@@ -138,10 +146,6 @@ private:
    int             mNumPrevCodecs; ///< Length of mpPrevCodecs array.
 
    MpConnection*   mpConnection;   ///< Link to the parent Connection.
-
-   enum {
-      NUM_TRACKED_PACKETS = 128
-   };
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
                                      MpBufPtr outBufs[],
@@ -179,8 +183,6 @@ private:
    MprDecode& operator=(const MprDecode& rhs);
 
    MprDejitter* getMyDejitter(void);
-
-   void pushIntoJitterBuffer(MpRtpBufPtr &rtp, int packetLen);
 
 };
 

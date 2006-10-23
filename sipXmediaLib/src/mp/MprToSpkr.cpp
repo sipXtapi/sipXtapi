@@ -156,11 +156,6 @@ int MprToSpkr::spkrStats()
 }
 #endif /* DETECT_SPKR_OVERFLOW ] */
 
-#if defined(__pingtel_on_posix__) /* [ */
-int MpCodec_getVolume() { return 0;}
-int MpCodec_isBaseSpeakerOn() { return 0;}
-#endif /* __pingtel_on_posix__ ] */
-
 
 /* ============================ ACCESSORS ================================= */
 

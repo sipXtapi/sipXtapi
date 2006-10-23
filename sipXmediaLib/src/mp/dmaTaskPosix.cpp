@@ -118,7 +118,7 @@ static void * mediaSignaller(void * arg)
    struct sched_param realtime;
    int res;
 
-   if(geteuid() != 0)
+   if(geteuid() != 0 && getuid() != 0)
    {
       OsSysLog::add(FAC_MP, PRI_WARNING, "_REALTIME_LINUX_AUDIO_THREADS was defined but application does not have ROOT priv.");
    }
@@ -345,7 +345,7 @@ static void * soundCardWriter(void * arg)
          }
       }
 
-      if(MpMisc.pSpkQ->receive((OsMsg*&) pMsg, OsTime::NO_WAIT) == OS_SUCCESS)
+      if(MpMisc.pSpkQ && MpMisc.pSpkQ->receive((OsMsg*&) pMsg, OsTime::NO_WAIT) == OS_SUCCESS)
       {
          MpAudioBufPtr ob = pMsg->getBuffer();
          assert(ob != NULL);
@@ -586,7 +586,7 @@ int setupSoundCard(void)
 #include <CoreAudio/CoreAudio.h>
 #include <AudioToolbox/AudioConverter.h>
 
-#define UPDATE_FREQUENCY 50
+#define UPDATE_FREQUENCY 20
 
 static AudioDeviceID CoreAudio_output_id;
 static AudioStreamBasicDescription CoreAudio_device_desc, CoreAudio_local_desc;

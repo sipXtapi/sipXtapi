@@ -20,77 +20,87 @@
 #include "os/OsSysLogFacilities.h"
 
 
-void* MpdSipxSpeex::smpDecoderState = NULL;
-SpeexBits MpdSipxSpeex::decbits;
-spx_int16_t MpdSipxSpeex::decbuffer[160];
-
 const MpCodecInfo MpdSipxSpeex::smCodecInfo(
          SdpCodec::SDP_CODEC_SPEEX,    // codecType
          "Speex codec",                // codecVersion
          false,                        // usesNetEq
          8000,                         // samplingRate
-         80,                           // numBitsPerSample (not used)
+         8,                            // numBitsPerSample (not used)
          1,                            // numChannels
          38,                           // interleaveBlockSize
          15000,                        // bitRate
          1*8,                          // minPacketBits
          38*8,                         // avgPacketBits
          63*8,                         // maxPacketBits
-         160);                         // numSamplesPerFrame
+         160,                          // numSamplesPerFrame
+         5);                           // preCodecJitterBufferSize (should be adjusted)
 
               
 
 MpdSipxSpeex::MpdSipxSpeex(int payloadType)
 : MpDecoderBase(payloadType, &smCodecInfo)
-, pJBState(NULL)
+, mpJBState(NULL)
+, mpDecoderState(NULL)
+, mDecbits()
+, mNumSamplesPerFrame(0)
 {   
-   int tmp = 1;
-
-   if (smpDecoderState == NULL) {
-      smpDecoderState = speex_decoder_init(&speex_nb_mode);   
-
-      // It makes the decoded speech deviate further from the original,
-      // but it sounds subjectively better.
-      speex_decoder_ctl(smpDecoderState,SPEEX_SET_ENH,&tmp);
-      speex_bits_init(&decbits);
-   }
 }
 
 MpdSipxSpeex::~MpdSipxSpeex()
 {
-   freeDecode();
 }
 
 OsStatus MpdSipxSpeex::initDecode(MpConnection* pConnection)
 {
-   pJBState = pConnection->getJBinst();
+   mpJBState = pConnection->getJBinst();
 
-   JB_initCodepoint(pJBState, "SPEEX", 8000, getPayloadType());
+   JB_initCodepoint(mpJBState, "SPEEX", 8000, getPayloadType());
+
+   if (mpDecoderState == NULL) {
+      int tmp;
    
+      // Init decoder
+      mpDecoderState = speex_decoder_init(&speex_nb_mode);   
+
+      // It makes the decoded speech deviate further from the original,
+      // but it sounds subjectively better.
+      tmp = 1;
+      speex_decoder_ctl(mpDecoderState,SPEEX_SET_ENH,&tmp);
+
+      // Get number of samples in one frame
+      speex_decoder_ctl(mpDecoderState,SPEEX_GET_FRAME_SIZE,&mNumSamplesPerFrame);
+
+      speex_bits_init(&mDecbits);
+   }
+
    return OS_SUCCESS;
 }
 
 OsStatus MpdSipxSpeex::freeDecode(void)
 {
-   if (smpDecoderState != NULL) {
-      speex_decoder_destroy(smpDecoderState);
-      smpDecoderState = NULL;
+   if (mpDecoderState != NULL) {
+      speex_decoder_destroy(mpDecoderState);
+      mpDecoderState = NULL;
 
-      speex_bits_destroy(&decbits);
+      speex_bits_destroy(&mDecbits);
    }
 
    return OS_SUCCESS;
 }
 
-int MpdSipxSpeex::decode(int numSamples, const JB_uchar *encoded, MpAudioSample *decoded) 
+int MpdSipxSpeex::decode(const MpRtpBufPtr &pPacket, unsigned decodedBufferLength, MpAudioSample *samplesBuffer)
 {
-   speex_bits_read_from(&decbits,(char*)encoded,numSamples);
-   speex_decode_int(smpDecoderState,&decbits,decbuffer);   
+   // Check for enough space in output buffer
+   if (decodedBufferLength < mNumSamplesPerFrame)
+      return 0;
 
-   // Copy decoded data to provided buffer.
-   memcpy(decoded, decbuffer, numSamples*sizeof(MpAudioSample));
+   // Prepare data for Speex decoder
+   speex_bits_read_from(&mDecbits,(char*)pPacket->getDataPtr(),pPacket->getPayloadSize());
 
-   return 0;
+   // Decode frame
+   speex_decode_int(mpDecoderState,&mDecbits,samplesBuffer);   
+
+   return mNumSamplesPerFrame;
 }
 
 #endif /* HAVE_SPEEX ] */

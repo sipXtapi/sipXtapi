@@ -35,11 +35,13 @@ public:
 /* ============================ CREATORS ================================== */
 
      /// Constructor
-   MpdSipxPcmu(int payloadType ///< (in) RTP payload type associated with this decoder
-              );
+   MpdSipxPcmu(int payloadType);
+     /**<
+     *  @param payloadType - (in) RTP payload type associated with this decoder
+     */
 
      /// Destructor
-   virtual ~MpdSipxPcmu(void);
+   virtual ~MpdSipxPcmu();
 
      /// Initializes a codec data structure for use as a decoder
    virtual OsStatus initDecode(MpConnection* pConnection);
@@ -51,7 +53,7 @@ public:
      */
 
      /// Frees all memory allocated to the decoder by <i>initDecode</i>
-   virtual OsStatus freeDecode(void);
+   virtual OsStatus freeDecode();
      /**<
      *  @returns <b>OS_SUCCESS</b> - Success
      *  @returns <b>OS_DELETED</b> - Object has already been deleted
@@ -62,6 +64,34 @@ public:
 /* ============================ MANIPULATORS ============================== */
 ///@name Manipulators
 //@{
+
+     /// Receive a packet of RTP data
+   virtual int decodeIn(const MpRtpBufPtr &pPacket ///< (in) Pointer to a media buffer
+                       );
+     /**<
+     *  @note This method can be called more than one time per frame interval.
+     *
+     *  @returns >0 - length of packet to hand to jitter buffer.
+     *  @returns 0  - decoder don't want more packets.
+     *  @returns -1 - discard packet (e.g. out of order packet).
+     */
+
+     /// Decode incoming RTP packet
+   virtual int decode(const MpRtpBufPtr &pPacket, ///< (in) Pointer to a media buffer
+                      unsigned decodedBufferLength, ///< (in) Length of the samplesBuffer (in samples)
+                      MpAudioSample *samplesBuffer ///< (out) Buffer for decoded samples
+                     );
+     /**<
+     *  @return Number of decoded samples.
+     */
+
+     /// @brief This method allows a codec to take action based on the length of
+     /// the jitter buffer since last asked.
+   virtual int reportBufferLength(int iAvePackets);
+
+     /// DOCME
+   virtual void frameIncrement();
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -78,6 +108,13 @@ public:
 private:
    static const MpCodecInfo smCodecInfo;  ///< Static information about the codec
    JB_inst* pJBState;
+   unsigned int mNextPullTimerCount;
+   unsigned mWaitTimeInFrames;
+   int mUnderflowCount;
+   int mLastSeqNo;           ///< Keep track of the last sequence number so that
+                             ///< we don't take out-of-order packets.
+   bool mClockDrift;         ///< True, if clock drift detected.
+   int mLastReportSize;
 };
 
 #endif  // _MpdSipxPcmu_h_
