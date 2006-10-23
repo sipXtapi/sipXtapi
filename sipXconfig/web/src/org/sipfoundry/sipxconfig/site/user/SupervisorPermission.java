@@ -44,9 +44,7 @@ public abstract class SupervisorPermission extends PageWithCallback implements
     public abstract String getSupervisorForGroupsString();
 
     public abstract void setSupervisorForGroupsString(String groups);
-
-    public abstract Collection getGroupsCandidates();
-
+    
     public abstract void setGroupCandidates(Collection groupsList);
 
     public void buildGroupCandidates(String groupsString) {

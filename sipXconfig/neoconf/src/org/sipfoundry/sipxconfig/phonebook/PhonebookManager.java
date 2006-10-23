@@ -11,11 +11,18 @@
  */
 package org.sipfoundry.sipxconfig.phonebook;
 
+
 public interface PhonebookManager  {
     public static final String CONTEXT_BEAN_NAME = "phonebookManager";
     
-    public Phonebook getPhonebook();
+    /**
+     * May go away when we support multiple phonebooks
+     */
+    public Phonebook getGlobalPhonebook();
+    
+    public Phonebook getPhonebook(Integer phonebookId);
     
     public void savePhonebook(Phonebook phonebook);
 
+    public String getExternalUsersDirectory();
 }

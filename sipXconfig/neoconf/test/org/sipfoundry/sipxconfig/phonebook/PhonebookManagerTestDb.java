@@ -11,12 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.phonebook;
 
-import junit.framework.TestCase;
-
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.springframework.context.ApplicationContext;
 
-public class PhonebookManagerTestDb extends TestCase {
+public class PhonebookManagerTestDb extends TestHelper.TestCaseDb {
 
     private PhonebookManager m_context;
 
@@ -28,12 +26,20 @@ public class PhonebookManagerTestDb extends TestCase {
         TestHelper.cleanInsert("ClearDb.xml");        
     }
     
-    public void testGetPhonebook() throws Exception {
-        Phonebook p1 = m_context.getPhonebook();
-        assertNull(p1);        
+    public void testGetGlobalPhonebook() throws Exception {
+        Phonebook p1 = m_context.getGlobalPhonebook();
+        assertNull(p1);
+
         TestHelper.insertFlat("phonebook/PhonebookSeed.db.xml");
         
-        Phonebook p2 = m_context.getPhonebook();
+        Phonebook p2 = m_context.getGlobalPhonebook();
+        assertNotNull(p2);
+        assertEquals(1, p2.getUserMembers().size());
+    }
+    
+    public void testGetPhonebook() throws Exception {
+        TestHelper.insertFlat("phonebook/PhonebookSeed.db.xml");        
+        Phonebook p2 = m_context.getPhonebook(1001);
         assertEquals(1, p2.getUserMembers().size());
     }
     

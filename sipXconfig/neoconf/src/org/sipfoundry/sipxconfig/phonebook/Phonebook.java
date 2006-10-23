@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.phonebook;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.common.BeanWithId;
@@ -31,5 +32,11 @@ public class Phonebook extends BeanWithId {
     }
     public void setUserMembers(Set<Group> userGroups) {
         m_userMembers = userGroups;
+    }
+    public void addMemberGroup(Group userGroup) {
+        if (m_userMembers == null) {
+            m_userMembers = new HashSet<Group>();
+        }
+        m_userMembers.add(userGroup);
     }
 }
