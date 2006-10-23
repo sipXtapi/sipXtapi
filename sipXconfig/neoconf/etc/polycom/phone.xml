@@ -249,23 +249,7 @@
     <group name="codecPref">
       <label>Codec Preference Order</label>
       <setting name="G711Mu">
-        <type>
-          <enum>
-            <option>
-              <value>1</value>
-            </option>
-            <option>
-              <value>2</value>
-            </option>
-            <option>
-              <value>3</value>
-            </option>
-            <option>
-              <label>do not use</label>
-              <value>Null</value>
-            </option>
-          </enum>
-        </type>
+        <type refid="codecPref"/>
         <value>1</value>
         <description>Specifies the codec preference. 1=highest 3=lowest Null=do not use Give 
           each codec a unique priority, this will dictate the order used in SDP negotiations. 
@@ -273,23 +257,7 @@
           G711Mu and G711A with default parameters.</description>
       </setting>
       <setting name="G711A">
-        <type>
-          <enum>
-            <option>
-              <value>1</value>
-            </option>
-            <option>
-              <value>2</value>
-            </option>
-            <option>
-              <value>3</value>
-            </option>
-            <option>
-              <label>do not use</label>
-              <value>Null</value>
-            </option>
-          </enum>
-        </type>
+        <type refid="codecPref"/>
         <value>2</value>
         <description>Specifies the codec preference. 1=highest 3=lowest Null=do not use Give 
           each codec a unique priority, this will dictate the order used in SDP negotiations. 
@@ -297,29 +265,30 @@
           G711Mu and G711A with default parameters.</description>
       </setting>
       <setting name="G729AB">
-        <type>
-          <enum>
-            <option>
-              <value>1</value>
-            </option>
-            <option>
-              <value>2</value>
-            </option>
-            <option>
-              <value>3</value>
-            </option>
-            <option>
-              <label>do not use</label>
-              <value>Null</value>
-            </option>
-          </enum>
-        </type>
+        <type refid="codecPref"/>
         <value>3</value>
         <description>Specifies the codec preference. 1=highest 3=lowest Null=do not use Give 
           each codec a unique priority, this will dictate the order used in SDP negotiations. 
           Note: If less than two codecs are specified, SoundPoint(R) IP will automatically use 
           G711Mu and G711A with default parameters.</description>
       </setting>
+      <setting name="IP_650.G722">
+        <type refid="codecPref"/>
+        <value>1</value>
+        <description>Specifies the codec preference. 1=highest 3=lowest Null=do not use Give 
+          each codec a unique priority, this will dictate the order used in SDP negotiations. 
+          Note: If less than two codecs are specified, SoundPoint(R) IP will automatically use 
+          G711Mu and G711A with default parameters.</description>
+       </setting>
+       <setting name="IP_650.G711Mu" copy-of="G711Mu">
+          <value>2</value>
+       </setting>
+       <setting name="IP_650.G711A" copy-of="G711A">
+          <value>3</value>
+       </setting>
+       <setting name="IP_650.G729AB" copy-of="G729AB">
+          <value>4</value>
+       </setting>
     </group>
     <group name="audioProfile">
       <group name="G711Mu">
@@ -448,6 +417,55 @@
         <setting name="jitterBufferShrink">
           <type>
             <!-- 10, 20, 30, ... (multiple of 10) -->
+            <integer min="10"/>
+          </type>
+          <value>500</value>
+          <description>The absolute minimum duration time (in milliseconds) of RTP packet Rx 
+            with no packet loss between jitter buffer size shrinks. Use smaller values (1000 
+            ms) to minimize the delay on known good networks. Use larger values to minimize 
+            packet loss on networks with large jitter (3000 ms).</description>
+        </setting>
+        <setting name="jitterBufferMax">
+          <!--  greater than jitterBufferMin, multiple of 10, less than or =500 for IP 500 and IP 600, less than or =
+	          160 for IP 300 -->
+          <type>
+            <integer min="10" max="500"></integer>
+          </type>
+          <value>160</value>
+          <description>The largest jitter buffer depth to be supported (in milliseconds). 
+            Jitter above this size will always cause lost packets. This parameter should be set 
+            to the smallest possible value that will support the expected network 
+            jitter</description>
+        </setting>
+      </group>
+      <group name="G722">
+        <label>G722</label>
+        <setting name="payloadSize">
+          <type>
+            <!-- 10, 20, 30, ...80 -->
+            <integer min="10" max="80"/>
+          </type>
+          <value>20</value>
+          <description>Preferred Tx payload size in milliseconds to be provided in SDP offers 
+            and used in the absence of ptime negotiations. This is also the range of supported 
+            Rx payload sizes.</description>
+        </setting>
+        <setting name="jitterBufferMin">
+          <!-- 40, 50, 60, ... (multiple of 10) -->
+          <type>
+            <integer min="40"/>
+          </type>
+          <value>40</value>
+          <description>The smallest jitter buffer depth (in milliseconds) that must be achieved 
+            before play out begins for the first time. Once this depth has been achieved 
+            initially, the depth may fall below this point and play out will still continue. 
+            This parameter should be set to the smallest possible value which is at least two 
+            packet payloads, and larger than the expected short term average 
+            jitter.</description>
+        </setting>
+        <setting name="jitterBufferShrink">
+          <!--10, 20, 30, ... (multiple of 10) -->
+          <type>
             <integer min="10"/>
           </type>
           <value>500</value>
