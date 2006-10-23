@@ -446,7 +446,11 @@ audio source.
 <h3><a name='config'>How this server is configured</a></h3>
 
 <p>
-This server uses a special test configuration of the 
+<a href='sipx-version.cgi'>Display the sipX version running on this server</a>
+</p>
+<p>
+This server uses a
+<a href='https://scm.sipfoundry.org/rep/sipX/main/sipXpbx/doc/developer/interop.pingtel.com'>special test configuration</a> of the 
 <a href='http://www.sipfoundry.org/sipXpbx/'>sipXpbx Open Source
 PBX Project</a>.
 (It would not make a very friendly configuration in a real PBX :-).)
