@@ -380,9 +380,9 @@
 				</description>
 			</setting>
 		</group>
-		<group name="TOS_WMM">
+		<group name="TOS_WMM" unless="5000">
 			<label>WMM Priorities (Disabled for model 5000)</label>
-			<setting name="Precedence_0" unless="5000">
+			<setting name="Precedence_0">
 				<label>Precedence 0</label>
 				<type>
 					<integer min="0" max="7" />
@@ -392,7 +392,7 @@
 					Set the WMM priority for Precedence0
 				</description>
 			</setting>
-			<setting name="Precedence_1" unless="5000">
+			<setting name="Precedence_1">
 				<label>Precedence 1</label>
 				<type>
 					<integer min="0" max="7" />
@@ -402,37 +402,37 @@
 					Set the WMM priority for Precedence1
 				</description>
 			</setting>
-			<setting name="Precedence_2" copy-of="Precedence_1"  unless="5000">
+			<setting name="Precedence_2" copy-of="Precedence_1">
 				<label>Precedence 2</label>
 				<description>
 					Set the WMM priority for Precedence2
 				</description>
 			</setting>
-			<setting name="Precedence_3" copy-of="Precedence_1"  unless="5000">
+			<setting name="Precedence_3" copy-of="Precedence_1">
 				<label>Precedence 3</label>
 				<description>
 					Set the WMM priority for Precedence3
 				</description>
 			</setting>
-			<setting name="Precedence_4" copy-of="Precedence_1" unless="5000">
+			<setting name="Precedence_4" copy-of="Precedence_1">
 				<label>Precedence 4</label>
 				<description>
 					Set the WMM priority for Precedence4
 				</description>
 			</setting>
-			<setting name="Precedence_5" copy-of="Precedence_1" unless="5000">
+			<setting name="Precedence_5" copy-of="Precedence_1">
 				<label>Precedence 5</label>
 				<description>
 					Set the WMM priority for Precedence5
 				</description>
 			</setting>
-			<setting name="Precedence_6" copy-of="Precedence_1" unless="5000">
+			<setting name="Precedence_6" copy-of="Precedence_1">
 				<label>Precedence 6</label>
 				<description>
 					Set the WMM priority for Precedence6
 				</description>
 			</setting>
-			<setting name="Precedence_7" copy-of="Precedence_1" unless="5000">
+			<setting name="Precedence_7" copy-of="Precedence_1">
 				<label>Precedence 7</label>
 				<description>
 					Set the WMM priority for Precedence7

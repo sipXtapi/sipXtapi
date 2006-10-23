@@ -1,3 +1,11 @@
+## params macro emits a parameter per line
+## setting - reference to a setting group
+## param_list - list of parameter names
+#macro(params $setting $param_list)
+#foreach($p in $param_list)
+$p=$!setting.getSetting($p).Value
+#end
+#end
 #set($ps = $phone.Settings)
 #set($myphone = $phone.Model.modelId.trim())
 ##set($ls = $phone.Lines.get(0).Settings)
@@ -314,281 +322,30 @@ Try_Over_TxError_Count=$!roam.getSetting('Try_Over_TxError_Count').Value
 Level_Diff_Higher_Than_Curr_Site=$!roam.getSetting('Level_Diff_Higher_Than_Curr_Site').Value
 Clear_Blacklist_Interval=$!roam.getSetting('Clear_Blacklist_Interval').Value
 
-#set($net2 = $ps.getSetting('NETWORK2'))
-[NETWORK2]
-Name=$!net2.getSetting('Name').Value
-Enable=$!net2.getSetting('Enable').Value
-Join_Method=$!net2.getSetting('Join_Method').Value
-SSID=$!net2.getSetting('SSID').Value
-#set($net2Net = $net2.getSetting('NetworkSettings'))
-Enable_DHCP=$!net2Net.getSetting('Enable_DHCP').Value
-Address=$!net2Net.getSetting('Address').Value
-Netmask=$!net2Net.getSetting('Netmask').Value
-Gateway=$!net2Net.getSetting('Gateway').Value
-DNS1=$!net2Net.getSetting('DNS1').Value
-DNS2=$!net2Net.getSetting('DNS2').Value
-#set($net2Wifisec = $ps.getSetting('NETWORK2').getSetting('WifiSecurity'))
+#macro(network $net)
+#params($net ['Name', 'Enable', 'Join_Method', 'SSID'])
+#params($net.getSetting('NetworkSettings') ['Enable_DHCP', 'Address', 'Netmask', 'Gateway', 'DNS1', 'DNS2'])
 #if ($myphone == "5000")
-Enable_WEP=$!net2Wifisec.getSetting('Enable_WEP').Value
+#params($net.getSetting('WifiSecurity') ['Enable_WEP'])
 #else
-Security=$!net2Wifisec.getSetting('Security').Value
-WPA_PSK_Passphrase=$!net2Wifisec.getSetting('WPA_PSK_Passphrase').Value
+#params($net.getSetting('WifiSecurity') ['Security', 'WPA_PSK_Passphrase'])
 #end
-WEP_Bits=$!net2Wifisec.getSetting('WEP_Bits').Value
-Default_WEP_Key=$!net2Wifisec.getSetting('Default_WEP_Key').Value
-WEP_Key1=$!net2Wifisec.getSetting('WEP_Key1').Value
-WEP_Key2=$!net2Wifisec.getSetting('WEP_Key2').Value
-WEP_Key3=$!net2Wifisec.getSetting('WEP_Key3').Value
-WEP_Key4=$!net2Wifisec.getSetting('WEP_Key4').Value
-Authentication_Algorithm=$!net2Wifisec.getSetting('Authentication_Algorithm').Value
-#set($net2Postauth = $ps.getSetting('NETWORK2').getSetting('PostAuthentication'))
-Post_Authentication_Mode=$!net2Postauth.getSetting('Post_Authentication_Mode').Value
-8021X_Name=$!net2Postauth.getSetting('8021X_Name').Value
-8021X_Password=$!net2Postauth.getSetting('8021X_Password').Value
-UAM_Use_Manual=$!net2Postauth.getSetting('UAM_Use_Manual').Value
-UAM_Login_URL=$!net2Postauth.getSetting('UAM_Login_URL').Value
-UAM_IDTag_Name=$!net2Postauth.getSetting('UAM_IDTag_Name').Value
-UAM_PWTag_Name=$!net2Postauth.getSetting('UAM_PWTag_Name').Value
-UAM_URL=$!net2Postauth.getSetting('UAM_URL').Value
-UAM_ID=$!net2Postauth.getSetting('UAM_ID').Value
-UAM_Password=$!net2Postauth.getSetting('UAM_Password').Value
-#set($net2Nat = $ps.getSetting('NETWORK2').getSetting('NAT'))
-NAT_Traversal_Mode=$!net2Nat.getSetting('NAT_Traversal_Mode').Value
-Static_NAT_External_IP=$!net2Nat.getSetting('Static_NAT_External_IP').Value
-Static_NAT_Start_Port=$!net2Nat.getSetting('Static_NAT_Start_Port').Value
-STUN_Server=$!net2Nat.getSetting('STUN_Server').Value
-STUN_Port=$!net2Nat.getSetting('STUN_Port').Value
-#set($net2Qos = $ps.getSetting('NETWORK2').getSetting('QoS'))
+#params($net.getSetting('WifiSecurity') ['WEP_Bits', 'Default_WEP_Key', 'WEP_Key1', 'WEP_Key2', 'WEP_Key3', 'WEP_Key4', 'Authentication_Algorithm'])
+#params($net.getSetting('PostAuthentication') ['Post_Authentication_Mode', '8021X_Name', '8021X_Password', 'UAM_Use_Manual', 'UAM_Login_URL', 'UAM_IDTag_Name', 'UAM_PWTag_Name', 'UAM_URL', 'UAM_ID', 'UAM_Password']) 
+#params($net.getSetting('NAT') ['NAT_Traversal_Mode', 'Static_NAT_External_IP', 'Static_NAT_Start_Port', 'STUN_Server', 'STUN_Port' ])
+#set($net2Qos = $net.getSetting('QoS'))
 #if ($myphone != "5000")
-WMM=$!net2Qos.getSetting('WMM').Value
+#params($net2Qos ['WMM'])
 #end
-DiffServ_Signal=$!net2Qos.getSetting('DiffServ_Signal').Value
-DiffServ_Media=$!net2Qos.getSetting('DiffServ_Media').Value
-#set($net2Voip = $ps.getSetting('NETWORK2').getSetting('VoIP'))
-Jitter_Buffer_Size=$!net2Voip.getSetting('Jitter_Buffer_Size').Value
-Payload_Type=$!net2Voip.getSetting('Payload_Type').Value
-Multiframe=$!net2Voip.getSetting('Multiframe').Value
+#params($net2Qos ['DiffServ_Signal', 'DiffServ_Media'])
+#params($net.getSetting('VoIP') ['Jitter_Buffer_Size', 'Payload_Type', 'Multiframe'])
+#end
+## generate params for Networks 1 - 5
+#foreach($i in [1..5])
+[NETWORK$i]
+#network($ps.getSetting("NETWORK$i"))
 
-#set($net2 = $ps.getSetting('NETWORK2'))
-[NETWORK2]
-Name=$!net2.getSetting('Name').Value
-Enable=$!net2.getSetting('Enable').Value
-Join_Method=$!net2.getSetting('Join_Method').Value
-SSID=$!net2.getSetting('SSID').Value
-#set($net2Net = $net2.getSetting('NetworkSettings'))
-Enable_DHCP=$!net2Net.getSetting('Enable_DHCP').Value
-Address=$!net2Net.getSetting('Address').Value
-Netmask=$!net2Net.getSetting('Netmask').Value
-Gateway=$!net2Net.getSetting('Gateway').Value
-DNS1=$!net2Net.getSetting('DNS1').Value
-DNS2=$!net2Net.getSetting('DNS2').Value
-#set($net2Wifisec = $ps.getSetting('NETWORK2').getSetting('WifiSecurity'))
-#if ($myphone == "5000")
-Enable_WEP=$!net2Wifisec.getSetting('Enable_WEP').Value
-#else
-Security=$!net2Wifisec.getSetting('Security').Value
-WPA_PSK_Passphrase=$!net2Wifisec.getSetting('WPA_PSK_Passphrase').Value
 #end
-WEP_Bits=$!net2Wifisec.getSetting('WEP_Bits').Value
-Default_WEP_Key=$!net2Wifisec.getSetting('Default_WEP_Key').Value
-WEP_Key1=$!net2Wifisec.getSetting('WEP_Key1').Value
-WEP_Key2=$!net2Wifisec.getSetting('WEP_Key2').Value
-WEP_Key3=$!net2Wifisec.getSetting('WEP_Key3').Value
-WEP_Key4=$!net2Wifisec.getSetting('WEP_Key4').Value
-Authentication_Algorithm=$!net2Wifisec.getSetting('Authentication_Algorithm').Value
-#set($net2Postauth = $ps.getSetting('NETWORK2').getSetting('PostAuthentication'))
-Post_Authentication_Mode=$!net2Postauth.getSetting('Post_Authentication_Mode').Value
-8021X_Name=$!net2Postauth.getSetting('8021X_Name').Value
-8021X_Password=$!net2Postauth.getSetting('8021X_Password').Value
-UAM_Use_Manual=$!net2Postauth.getSetting('UAM_Use_Manual').Value
-UAM_Login_URL=$!net2Postauth.getSetting('UAM_Login_URL').Value
-UAM_IDTag_Name=$!net2Postauth.getSetting('UAM_IDTag_Name').Value
-UAM_PWTag_Name=$!net2Postauth.getSetting('UAM_PWTag_Name').Value
-UAM_URL=$!net2Postauth.getSetting('UAM_URL').Value
-UAM_ID=$!net2Postauth.getSetting('UAM_ID').Value
-UAM_Password=$!net2Postauth.getSetting('UAM_Password').Value
-#set($net2Nat = $ps.getSetting('NETWORK2').getSetting('NAT'))
-NAT_Traversal_Mode=$!net2Nat.getSetting('NAT_Traversal_Mode').Value
-Static_NAT_External_IP=$!net2Nat.getSetting('Static_NAT_External_IP').Value
-Static_NAT_Start_Port=$!net2Nat.getSetting('Static_NAT_Start_Port').Value
-STUN_Server=$!net2Nat.getSetting('STUN_Server').Value
-STUN_Port=$!net2Nat.getSetting('STUN_Port').Value
-#set($net2Qos = $ps.getSetting('NETWORK2').getSetting('QoS'))
-#if ($myphone != "5000")
-WMM=$!net2Qos.getSetting('WMM').Value
-#end
-DiffServ_Signal=$!net2Qos.getSetting('DiffServ_Signal').Value
-DiffServ_Media=$!net2Qos.getSetting('DiffServ_Media').Value
-#set($net2Voip = $ps.getSetting('NETWORK2').getSetting('VoIP'))
-Jitter_Buffer_Size=$!net2Voip.getSetting('Jitter_Buffer_Size').Value
-Payload_Type=$!net2Voip.getSetting('Payload_Type').Value
-Multiframe=$!net2Voip.getSetting('Multiframe').Value
-
-#set($net3 = $ps.getSetting('NETWORK3'))
-[NETWORK3]
-Name=$!net3.getSetting('Name').Value
-Enable=$!net3.getSetting('Enable').Value
-Join_Method=$!net3.getSetting('Join_Method').Value
-SSID=$!net3.getSetting('SSID').Value
-#set($net3Net = $net3.getSetting('NetworkSettings'))
-Enable_DHCP=$!net3Net.getSetting('Enable_DHCP').Value
-Address=$!net3Net.getSetting('Address').Value
-Netmask=$!net3Net.getSetting('Netmask').Value
-Gateway=$!net3Net.getSetting('Gateway').Value
-DNS1=$!net3Net.getSetting('DNS1').Value
-DNS2=$!net3Net.getSetting('DNS2').Value
-#set($net3Wifisec = $ps.getSetting('NETWORK3').getSetting('WifiSecurity'))
-#if ($myphone == "5000")
-Enable_WEP=$!net3Wifisec.getSetting('Enable_WEP').Value
-#else
-Security=$!net3Wifisec.getSetting('Security').Value
-WPA_PSK_Passphrase=$!net3Wifisec.getSetting('WPA_PSK_Passphrase').Value
-#end
-WEP_Bits=$!net3Wifisec.getSetting('WEP_Bits').Value
-Default_WEP_Key=$!net3Wifisec.getSetting('Default_WEP_Key').Value
-WEP_Key1=$!net3Wifisec.getSetting('WEP_Key1').Value
-WEP_Key2=$!net3Wifisec.getSetting('WEP_Key2').Value
-WEP_Key3=$!net3Wifisec.getSetting('WEP_Key3').Value
-WEP_Key4=$!net3Wifisec.getSetting('WEP_Key4').Value
-Authentication_Algorithm=$!net3Wifisec.getSetting('Authentication_Algorithm').Value
-#set($net3Postauth = $ps.getSetting('NETWORK3').getSetting('PostAuthentication'))
-Post_Authentication_Mode=$!net3Postauth.getSetting('Post_Authentication_Mode').Value
-8021X_Name=$!net3Postauth.getSetting('8021X_Name').Value
-8021X_Password=$!net3Postauth.getSetting('8021X_Password').Value
-UAM_Use_Manual=$!net3Postauth.getSetting('UAM_Use_Manual').Value
-UAM_Login_URL=$!net3Postauth.getSetting('UAM_Login_URL').Value
-UAM_IDTag_Name=$!net3Postauth.getSetting('UAM_IDTag_Name').Value
-UAM_PWTag_Name=$!net3Postauth.getSetting('UAM_PWTag_Name').Value
-UAM_URL=$!net3Postauth.getSetting('UAM_URL').Value
-UAM_ID=$!net3Postauth.getSetting('UAM_ID').Value
-UAM_Password=$!net3Postauth.getSetting('UAM_Password').Value
-#set($net3Nat = $ps.getSetting('NETWORK3').getSetting('NAT'))
-NAT_Traversal_Mode=$!net3Nat.getSetting('NAT_Traversal_Mode').Value
-Static_NAT_External_IP=$!net3Nat.getSetting('Static_NAT_External_IP').Value
-Static_NAT_Start_Port=$!net3Nat.getSetting('Static_NAT_Start_Port').Value
-STUN_Server=$!net3Nat.getSetting('STUN_Server').Value
-STUN_Port=$!net3Nat.getSetting('STUN_Port').Value
-#set($net3Qos = $ps.getSetting('NETWORK3').getSetting('QoS'))
-#if ($myphone != "5000")
-WMM=$!net3Qos.getSetting('WMM').Value
-#end
-DiffServ_Signal=$!net3Qos.getSetting('DiffServ_Signal').Value
-DiffServ_Media=$!net3Qos.getSetting('DiffServ_Media').Value
-#set($net3Voip = $ps.getSetting('NETWORK3').getSetting('VoIP'))
-Jitter_Buffer_Size=$!net3Voip.getSetting('Jitter_Buffer_Size').Value
-Payload_Type=$!net3Voip.getSetting('Payload_Type').Value
-Multiframe=$!net3Voip.getSetting('Multiframe').Value
-
-#set($net4 = $ps.getSetting('NETWORK4'))
-[NETWORK4]
-Name=$!net4.getSetting('Name').Value
-Enable=$!net4.getSetting('Enable').Value
-Join_Method=$!net4.getSetting('Join_Method').Value
-SSID=$!net4.getSetting('SSID').Value
-#set($net4Net = $net4.getSetting('NetworkSettings'))
-Enable_DHCP=$!net4Net.getSetting('Enable_DHCP').Value
-Address=$!net4Net.getSetting('Address').Value
-Netmask=$!net4Net.getSetting('Netmask').Value
-Gateway=$!net4Net.getSetting('Gateway').Value
-DNS1=$!net4Net.getSetting('DNS1').Value
-DNS2=$!net4Net.getSetting('DNS2').Value
-#set($net4Wifisec = $ps.getSetting('NETWORK4').getSetting('WifiSecurity'))
-#if ($myphone == "5000")
-Enable_WEP=$!net4Wifisec.getSetting('Enable_WEP').Value
-#else
-Security=$!net4Wifisec.getSetting('Security').Value
-WPA_PSK_Passphrase=$!net4Wifisec.getSetting('WPA_PSK_Passphrase').Value
-#end
-WEP_Bits=$!net4Wifisec.getSetting('WEP_Bits').Value
-Default_WEP_Key=$!net4Wifisec.getSetting('Default_WEP_Key').Value
-WEP_Key1=$!net4Wifisec.getSetting('WEP_Key1').Value
-WEP_Key2=$!net4Wifisec.getSetting('WEP_Key2').Value
-WEP_Key3=$!net4Wifisec.getSetting('WEP_Key3').Value
-WEP_Key4=$!net4Wifisec.getSetting('WEP_Key4').Value
-Authentication_Algorithm=$!net4Wifisec.getSetting('Authentication_Algorithm').Value
-#set($net4Postauth = $ps.getSetting('NETWORK4').getSetting('PostAuthentication'))
-Post_Authentication_Mode=$!net4Postauth.getSetting('Post_Authentication_Mode').Value
-8021X_Name=$!net4Postauth.getSetting('8021X_Name').Value
-8021X_Password=$!net4Postauth.getSetting('8021X_Password').Value
-UAM_Use_Manual=$!net4Postauth.getSetting('UAM_Use_Manual').Value
-UAM_Login_URL=$!net4Postauth.getSetting('UAM_Login_URL').Value
-UAM_IDTag_Name=$!net4Postauth.getSetting('UAM_IDTag_Name').Value
-UAM_PWTag_Name=$!net4Postauth.getSetting('UAM_PWTag_Name').Value
-UAM_URL=$!net4Postauth.getSetting('UAM_URL').Value
-UAM_ID=$!net4Postauth.getSetting('UAM_ID').Value
-UAM_Password=$!net4Postauth.getSetting('UAM_Password').Value
-#set($net4Nat = $ps.getSetting('NETWORK4').getSetting('NAT'))
-NAT_Traversal_Mode=$!net4Nat.getSetting('NAT_Traversal_Mode').Value
-Static_NAT_External_IP=$!net4Nat.getSetting('Static_NAT_External_IP').Value
-Static_NAT_Start_Port=$!net4Nat.getSetting('Static_NAT_Start_Port').Value
-STUN_Server=$!net4Nat.getSetting('STUN_Server').Value
-STUN_Port=$!net4Nat.getSetting('STUN_Port').Value
-#set($net4Qos = $ps.getSetting('NETWORK4').getSetting('QoS'))
-#if ($myphone != "5000")
-WMM=$!net4Qos.getSetting('WMM').Value
-#end
-DiffServ_Signal=$!net4Qos.getSetting('DiffServ_Signal').Value
-DiffServ_Media=$!net4Qos.getSetting('DiffServ_Media').Value
-#set($net4Voip = $ps.getSetting('NETWORK4').getSetting('VoIP'))
-Jitter_Buffer_Size=$!net4Voip.getSetting('Jitter_Buffer_Size').Value
-Payload_Type=$!net4Voip.getSetting('Payload_Type').Value
-Multiframe=$!net4Voip.getSetting('Multiframe').Value
-
-#set($net5 = $ps.getSetting('NETWORK5'))
-[NETWORK5]
-Name=$!net5.getSetting('Name').Value
-Enable=$!net5.getSetting('Enable').Value
-Join_Method=$!net5.getSetting('Join_Method').Value
-SSID=$!net5.getSetting('SSID').Value
-#set($net5Net = $net5.getSetting('NetworkSettings'))
-Enable_DHCP=$!net5Net.getSetting('Enable_DHCP').Value
-Address=$!net5Net.getSetting('Address').Value
-Netmask=$!net5Net.getSetting('Netmask').Value
-Gateway=$!net5Net.getSetting('Gateway').Value
-DNS1=$!net5Net.getSetting('DNS1').Value
-DNS2=$!net5Net.getSetting('DNS2').Value
-#set($net5Wifisec = $ps.getSetting('NETWORK5').getSetting('WifiSecurity'))
-#if ($myphone == "5000")
-Enable_WEP=$!net5Wifisec.getSetting('Enable_WEP').Value
-#else
-Security=$!net5Wifisec.getSetting('Security').Value
-WPA_PSK_Passphrase=$!net5Wifisec.getSetting('WPA_PSK_Passphrase').Value
-#end
-WEP_Bits=$!net5Wifisec.getSetting('WEP_Bits').Value
-Default_WEP_Key=$!net5Wifisec.getSetting('Default_WEP_Key').Value
-WEP_Key1=$!net5Wifisec.getSetting('WEP_Key1').Value
-WEP_Key2=$!net5Wifisec.getSetting('WEP_Key2').Value
-WEP_Key3=$!net5Wifisec.getSetting('WEP_Key3').Value
-WEP_Key4=$!net5Wifisec.getSetting('WEP_Key4').Value
-Authentication_Algorithm=$!net5Wifisec.getSetting('Authentication_Algorithm').Value
-#set($net5Postauth = $ps.getSetting('NETWORK5').getSetting('PostAuthentication'))
-Post_Authentication_Mode=$!net5Postauth.getSetting('Post_Authentication_Mode').Value
-8021X_Name=$!net5Postauth.getSetting('8021X_Name').Value
-8021X_Password=$!net5Postauth.getSetting('8021X_Password').Value
-UAM_Use_Manual=$!net5Postauth.getSetting('UAM_Use_Manual').Value
-UAM_Login_URL=$!net5Postauth.getSetting('UAM_Login_URL').Value
-UAM_IDTag_Name=$!net5Postauth.getSetting('UAM_IDTag_Name').Value
-UAM_PWTag_Name=$!net5Postauth.getSetting('UAM_PWTag_Name').Value
-UAM_URL=$!net5Postauth.getSetting('UAM_URL').Value
-UAM_ID=$!net5Postauth.getSetting('UAM_ID').Value
-UAM_Password=$!net5Postauth.getSetting('UAM_Password').Value
-#set($net5Nat = $ps.getSetting('NETWORK5').getSetting('NAT'))
-NAT_Traversal_Mode=$!net5Nat.getSetting('NAT_Traversal_Mode').Value
-Static_NAT_External_IP=$!net5Nat.getSetting('Static_NAT_External_IP').Value
-Static_NAT_Start_Port=$!net5Nat.getSetting('Static_NAT_Start_Port').Value
-STUN_Server=$!net5Nat.getSetting('STUN_Server').Value
-STUN_Port=$!net5Nat.getSetting('STUN_Port').Value
-#set($net5Qos = $ps.getSetting('NETWORK5').getSetting('QoS'))
-#if ($myphone != "5000")
-WMM=$!net5Qos.getSetting('WMM').Value
-#end
-DiffServ_Signal=$!net5Qos.getSetting('DiffServ_Signal').Value
-DiffServ_Media=$!net5Qos.getSetting('DiffServ_Media').Value
-#set($net5Voip = $ps.getSetting('NETWORK5').getSetting('VoIP'))
-Jitter_Buffer_Size=$!net5Voip.getSetting('Jitter_Buffer_Size').Value
-Payload_Type=$!net5Voip.getSetting('Payload_Type').Value
-Multiframe=$!net5Voip.getSetting('Multiframe').Value
-
 #set($dtmf = $ps.getSetting('CallSettings').getSetting('DTMF'))
 [DTMF]
 Mode=$!dtmf.getSetting('Mode').Value
