@@ -7,21 +7,12 @@
 #
 ##############################################################################
 
-# system requires
-require 'rubygems'            # Ruby packaging and installation framework
-require_gem 'activerecord'    # object-relational mapping layer for Rails
 require 'logger'              # writes log messages to a file or stream
 require 'observer'            # for Observer pattern a.k.a Publish/Subscribe
 
-# set up the load path
-thisdir = File.dirname(__FILE__)
-$:.unshift(thisdir)
-$:.unshift(File.join(thisdir, "app", "models"))
-
-# application requires
 require 'call_resolver_configure'
-require 'call_state_event'
-require 'cdr'
+require 'app/models/call_state_event'
+require 'app/models/cdr'
 require 'configure'
 require 'database_url'
 require 'database_utils'

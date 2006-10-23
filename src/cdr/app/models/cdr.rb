@@ -7,7 +7,7 @@
 #
 ##############################################################################
 
-class Cdr < ActiveRecord::Base
+class Cdr
   
   # Constants representing termination codes
   CALL_REQUESTED_TERM   = 'R'
@@ -19,23 +19,16 @@ public
 
   # Make caller_contact and callee_contact available during call resolution,
   # but don't persist them.
-  attr_accessor :caller_contact, :callee_contact
+  attr_accessor :caller_contact, :callee_contact, :termination
   
   # Return true if the CDR is complete, false otherwise.
   def complete?
-    is_complete = false
-    termination = self.termination
-    if termination
-      is_complete = (termination == CALL_COMPLETED_TERM) ||
-                    (termination == CALL_FAILED_TERM)
-    end
-    is_complete
+    @termination == CALL_COMPLETED_TERM || @termination == CALL_FAILED_TERM
   end
   
   # Return a text description of the termination status for this CDR.
   def termination_text
-    return nil if !termination
-    text = TERMINATION_NAMES[termination]    
+    TERMINATION_NAMES[@termination] if @termination
   end
   
 private

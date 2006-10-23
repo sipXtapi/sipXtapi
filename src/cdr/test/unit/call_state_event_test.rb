@@ -7,22 +7,13 @@
 #
 ##############################################################################
 
-# set up the load path
-$thisdir = File.dirname(__FILE__)
-$:.unshift($thisdir)
-$:.unshift(File.join($thisdir, ".."))
-$:.unshift(File.join($thisdir, "..", ".."))
+$:.unshift(File.join(File.dirname(__FILE__), "..", ".."))
 
-# system requires
-require File.join('test_helper')
-
-# application requires
-require 'call_state_event'
+require 'test/test_helper'
+require 'app/models/call_state_event'
 
 
 class CallStateEventTest < Test::Unit::TestCase
-  fixtures :call_state_events
-
   def setup
     simple_success_event_names =
       [:testSimpleSuccess_1, :testSimpleSuccess_2, :testSimpleSuccess_3]

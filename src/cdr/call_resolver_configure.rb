@@ -8,6 +8,7 @@
 ##############################################################################
 
 # Application requires.  Assume that the load path has been set up for us.
+require 'time'
 require 'configure'
 require 'database_url'
 require 'exceptions'
@@ -361,20 +362,10 @@ private
   # cron job always runs at a fixed time.
   def set_daily_start_time_config(config)
     # Always start the time window at the time the resolver runs
-    daily_start = DAILY_RUN_TIME
-    
-    # Turn the start time into a date/time.
-    # Get today's date, cut out the date and paste our start time into
-    # a time string.
-    today = Time.now
-    todayString = today.strftime("%m/%d/%YT")
-    startString = todayString + daily_start
-    
+    @daily_end_time = Time.parse(DAILY_RUN_TIME)
     # Convert to time, start same time yesterday
-    @daily_start_time = Time.parse(startString)
-    #log.debug("set_daily_start_time_config: String #{startString}, time #{@daily_start_time}")    
-    @daily_end_time = @daily_start_time
-    @daily_start_time -= SECONDS_IN_A_DAY   # 24 hours
+    @daily_start_time = @daily_end_time - SECONDS_IN_A_DAY   # 24 hours
+    return @daily_start_time
   end
   
   # Enable/disable the daily run from the configuration.

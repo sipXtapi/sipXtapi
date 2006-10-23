@@ -7,25 +7,20 @@
 #
 ##############################################################################
 
-$SOURCE_DIR = File.dirname(__FILE__)    # directory in which this file is located
-
 # system requirements
 require 'parsedate'
-require File.join($SOURCE_DIR, '..', 'test_helper')
 
 # application requirements
-$:.unshift(File.join($SOURCE_DIR, '..', '..'))
+$:.unshift(File.join(File.dirname(__FILE__), "..", ".."))
 require 'call_resolver'
+require 'call_direction_plugin'
 
-
-class CallDirectionPluginTest < Test::Unit::TestCase
-  fixtures :call_state_events, :cdrs
- 
+class CallDirectionPluginTest < Test::Unit::TestCase 
 public
 
   def setup
     # Create the CallResolver, giving it the location of the test config file.
-    @resolver = CallResolver.new(File.join($SOURCE_DIR, 'data/callresolver-config'))
+    @resolver = CallResolver.new(File.join(File.dirname(__FILE__), 'data/callresolver-config'))
     @plugin = CallDirectionPlugin.new(@resolver)
   end
 

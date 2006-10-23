@@ -7,10 +7,14 @@
 #
 ##############################################################################
 
+require "dbi"
+
+
 # Application requires.  Assume that the load path has been set up for us.
 require 'call_resolver'
 require 'configure'
 require 'exceptions'
+require 'app/models/gateway'
 
 
 # CallDirectionPlugin computes call direction for a CDR, a customer-specific
@@ -19,9 +23,6 @@ class CallDirectionPlugin
   
 public
 
-  SIPXCONFIG_DATABASE = 'SIPXCONFIG'
-  GATEWAY_TABLE_NAME = 'gateway'
-  
   # Configuration parameters
   CALL_DIRECTION = 'SIP_CALLRESOLVER_CALL_DIRECTION'
   CALL_DIRECTION_DEFAULT = Configure::DISABLE
@@ -35,19 +36,7 @@ public
   def initialize(resolver)
     @resolver = resolver
 
-    # Gateways are stored in the SIPXCONFIG database. Connect to that database.
-    # Reuse an existing open connection if one is open. The hitch is that we
-    # can't simply use the SIPXCDR connection inherited from ActiveRecord::Base,
-    # we need a SIPXCONFIG connection. Reuse the open connection only if it has
-    # a gateway table, which indicates a connection to a SIPXCONFIG database.
-    if !Gateway.connected? or
-       !Gateway.connection.tables.find {|table| table == GATEWAY_TABLE_NAME}
-      Gateway.establish_connection(
-        :adapter  => "postgresql",
-        :host     => "localhost",
-        :username => "postgres",
-        :database => SIPXCONFIG_DATABASE)
-    end
+    # FIXME: we should not be connecting to SIPXCONFIG datavase, it's better to use SOAP or somehow find out from proxy
     load_and_resolve_gateways    
   end
   
@@ -118,14 +107,12 @@ private
     # Find the gateways.  For gateways configured with domain names, resolve the
     # names to IP addresses so we have a canonical format for address matching.
     # Return array of resolved IP addresses.
-    @gateways = Gateway.find(:all)
+    @gateways = Gateway.find_all
     @gateway_addresses = []
-    gateway = nil
 
     # Build a gateway IP list
-    @gateways.each do |g|
-      gateway = g
-      ip_addresses = g.ip_addresses
+    @gateways.each do |gateway|
+      ip_addresses = gateway.ip_addresses
       if ip_addresses.length == 0
         log.error("Unable to resolve the domain name \"#{gateway.address}\" for the " +
         "gateway named \"#{gateway.name}\".  This gateway will not be used " +

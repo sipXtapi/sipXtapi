@@ -8,14 +8,10 @@
 ##############################################################################
 
 # set up the load path
-$thisdir = File.dirname(__FILE__)
-$:.unshift($thisdir)
-$:.unshift(File.join($thisdir, ".."))
-$:.unshift(File.join($thisdir, "..", ".."))
-TEST_CONFIG_FILE = File.join($thisdir, "..", 'functional', 'data', 'callresolver-config')
+$:.unshift(File.join(File.dirname(__FILE__), "..", ".."))
 
 # system requires
-require 'test_helper'
+require 'test/test_helper'
 
 # application requires
 require 'call_resolver_configure'
@@ -120,19 +116,10 @@ class CallResolverConfigureTest < Test::Unit::TestCase
   end
 
   def test_set_daily_start_time_config
-    # Get today's date, cut out the date and paste our start time into
-    # a time string
-    today = Time.now
-    todayString = today.strftime("%m/%d/%YT")
-    startString = todayString + CallResolverConfigure::DAILY_RUN_TIME
-    # Convert to time, start same time yesterday
-    daily_start_time = Time.parse(startString)
-    daily_end_time = daily_start_time
-    daily_start_time -= SECONDS_IN_A_DAY   # subtract one day's worth of seconds
-
     # Pass in an empty config, should get the default value always since this
     # parameter is not configurable
-    assert(daily_start_time == @config.send(:set_daily_start_time_config, {}))
+    # fixed to start at 4
+    assert_equal(4, @config.send(:set_daily_start_time_config, {}).hour)
   end
 
   def test_set_purge_config

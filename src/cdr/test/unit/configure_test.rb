@@ -7,14 +7,10 @@
 #
 ##############################################################################
 
-# set up the load path
-$thisdir = File.dirname(__FILE__)
-$:.unshift($thisdir)
-$:.unshift(File.join($thisdir, ".."))
-$:.unshift(File.join($thisdir, "..", ".."))
+$:.unshift(File.join(File.dirname(__FILE__), "..", ".."))
 
 # system requires
-require 'test_helper'
+require 'test/test_helper'
 
 # application requires
 require 'configure'
@@ -41,7 +37,7 @@ class ConfigureTest < Test::Unit::TestCase
   # Given the name of a config_file in the data directory, return the path
   # to it.
   def config_file_path(config_file)
-    File.join($thisdir, "data", config_file)
+    File.join(File.dirname(__FILE__), "data", config_file)
   end
   
 end

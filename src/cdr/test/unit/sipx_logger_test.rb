@@ -8,20 +8,11 @@
 ##############################################################################
 
 # set up the load path
-$thisdir = File.dirname(__FILE__)
-$:.unshift($thisdir)
-$:.unshift(File.join($thisdir, ".."))
-$:.unshift(File.join($thisdir, "..", ".."))
+$:.unshift(File.join(File.dirname(__FILE__), "..", ".."))
 
-# System requires
-
-# Load ActiveRecord so we'll test with the changes it makes to Logger
-require 'rubygems'            # Ruby packaging and installation framework
-require_gem 'activerecord'    # object-relational mapping layer for Rails
 require 'tempfile'
-require 'test_helper'
+require 'test/test_helper'
 
-# Application requires.  Assume that the load path has been set up for us.
 require 'sipx_logger'
 
 

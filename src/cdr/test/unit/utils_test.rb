@@ -7,14 +7,10 @@
 #
 ##############################################################################
 
-# set up the load path
-$thisdir = File.dirname(__FILE__)
-$:.unshift($thisdir)
-$:.unshift(File.join($thisdir, ".."))
-$:.unshift(File.join($thisdir, "..", ".."))
+$:.unshift(File.join(File.dirname(__FILE__), "..", ".."))
 
 # application requires
-require 'test_helper'
+require 'test/test_helper'
 require 'utils'
 require 'exceptions'
 

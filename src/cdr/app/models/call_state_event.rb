@@ -11,7 +11,7 @@
 require 'utils'
 
 
-class CallStateEvent < ActiveRecord::Base
+class CallStateEvent
 
 public
   

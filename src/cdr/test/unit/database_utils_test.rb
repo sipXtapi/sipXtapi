@@ -7,14 +7,10 @@
 #
 ##############################################################################
 
-# set up the load path
-thisdir = File.dirname(__FILE__)
-$:.unshift(File.join(thisdir, ".."))
-$:.unshift(File.join(thisdir, "..", ".."))
+$:.unshift(File.join(File.dirname(__FILE__), "..", ".."))
 
-require 'test_helper'
+require 'test/test_helper'
 require 'database_utils'
-
 
 class DatabaseUtilsTest < Test::Unit::TestCase
   def test_exec_sql

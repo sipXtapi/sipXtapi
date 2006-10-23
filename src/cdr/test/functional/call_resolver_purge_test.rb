@@ -7,20 +7,14 @@
 #
 ##############################################################################
 
-$SOURCE_DIR = File.dirname(__FILE__)    # directory in which this file is located
+$:.unshift(File.join(File.dirname(__FILE__), "..", ".."))
 
-# system requirements
+require 'test/test_helper'
 require 'parsedate'
-require 'rubygems'            # Ruby packaging and installation framework
-require_gem 'activerecord'    # object-relational mapping layer for Rails
-require File.join($SOURCE_DIR, '..', 'test_helper')
+require 'call_resolver'
 
-# application requirements
-require File.join($SOURCE_DIR, '..', '..', 'call_resolver')
-
-# loading Call Resolver sets up the load path for these remaining files
-require 'call_state_event'
-require 'cdr'
+require 'app/models/call_state_event'
+require 'app/models/cdr'
 
 
 # :TODO: Make it easy to run all the unit tests, possibly via Rakefile, for build loop.

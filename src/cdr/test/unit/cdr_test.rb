@@ -7,11 +7,12 @@
 #
 ##############################################################################
 
-require File.join(File.dirname(__FILE__), '..', 'test_helper')
+$:.unshift(File.join(File.dirname(__FILE__), "..", ".."))
 
+require 'test/test_helper'
+require 'app/models/cdr'
 
 class CdrTest < Test::Unit::TestCase
-  fixtures :cdrs
   
   def test_load_cdrs
     cdr = cdrs(:first)

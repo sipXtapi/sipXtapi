@@ -8,6 +8,7 @@
 ##############################################################################
 
 # System requires
+require 'dbi'
 require 'ipaddr'
 
 # Application requires.  Assume that the load path includes this file's dir.
@@ -16,31 +17,26 @@ require 'sipx_ipsocket'
 require 'socket_utils'
 require 'utils'
 
+SIPXCONFIG_DATABASE = 'SIPXCONFIG'
+
 
 # The Gateway class models a gateway defined in the sipXconfig database. Gateways in the
 # database can be given addresses that are either domain names or IP addresses.
 # Resolve domain names to IP addresses so that the address will be in a
 # canonical form for matching. Assume that the gateway address will not change
 # while this process is running, so we can cache the DNS lookup.
-class Gateway < ActiveRecord::Base
-  # The ActiveRecord convention is that the ID column is always named "id".
-  # The sipXconfig convention is that the ID is named tablename_id.  So we
-  # need to tell ActiveRecord the primary key name.
-  set_primary_key('gateway_id')
-
-  # Tell ActiveRecord that the Gateway class maps to the 'gateway' DB table.
-  # ActiveRecord figures that out automatically for tables that follow the
-  # ActiveRecord naming convention of having a plural noun as the table name,
-  # but the sipXconfig convention is to have singular nouns as table names.
-  set_table_name('gateway')
-
-public
+class Gateway
+  public
+  
+  def initialize(address)
+    @address = address
+  end
   
   def ip_addresses
     if !@ip_addresses
       # If the gateway address is a domain name, then resolve it to an IP addr.
       @ip_addresses = []
-      addr = self.address
+      addr = @address
       if addr
         # Strip a possible port number off the IPv4 address
         # LATER - handle IPv6
@@ -63,9 +59,30 @@ public
     @ip_addresses
   end
   
+  class << self
+    def find_all
+      begin
+        gateways = []
+        # connect to the MySQL server
+        dbh = DBI.connect("dbi:Pg:#{SIPXCONFIG_DATABASE}:localhost", "postgres")
+        # get server version string and display it
+        sth = dbh.execute("SELECT address FROM gateway")
+        sth.each do |row|
+          gateways << Gateway.new(row[0])
+        end
+        sth.finish
+        return gateways
+      rescue DBI::DatabaseError => e
+        puts "An error occurred"
+        puts "Error code: #{e.err}"
+        puts "Error message: #{e.errstr}"
+      ensure
+        # disconnect from server
+        dbh.disconnect if dbh
+      end    
+    end
+    
+    
+  end
+  
 end
-
-
-
-
-
