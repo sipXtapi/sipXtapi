@@ -22,7 +22,7 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 const int MICROSECS_PER_SEC = 1000000;
-static double sSecondsSinceBoot = 0; // First call to get seconds since boot and store the number here.
+static double sSecondsSinceBoot = -1; // First call to get seconds since boot and store the number here.
 static double sSecondsFirstCall = 0; // Store the seconds since Epoch at first call to get seconds since boot
                                       // and just call time() to calculate the seconds since boot, rather than
                                       // to read the /proc/ everytime.
@@ -214,14 +214,12 @@ double OsDateTimeLinux::secondsSinceBoot(void)
    double seconds = 0;   // default to 0 if we can't open the file
    OsTime curTime(time(NULL), 0);
 
-   if (sSecondsSinceBoot != 0)
-   {
+   if (sSecondsSinceBoot >= 0)
         seconds = curTime.seconds() - sSecondsFirstCall + sSecondsSinceBoot;
-   }
    else
    {
-        sSecondsFirstCall = curTime.seconds();
         FILE * proc;
+        sSecondsFirstCall = curTime.seconds();
         proc = fopen("/proc/uptime","r");
         if(proc != NULL)
         {

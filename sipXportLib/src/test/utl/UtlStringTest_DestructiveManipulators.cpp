@@ -398,26 +398,29 @@ public:
 
         // We need a string which has both leading and
         // trailing spaces.
-        string longStr("         ") ; 
+        UtlString longStr("         ") ; 
         longStr.append(longAlphaString) ; 
         longStr.append("        ") ; 
 
         // To evaluate the expected string resulting out of a strip(trail), 
         // construct a string with only the longAlphaString and leading) spaces
-        string tmpStringForTrailing("         ") ; 
+        UtlString tmpStringForTrailing("         ") ; 
         tmpStringForTrailing.append(longAlphaString) ; 
+        int tmpStrTrailLen = strlen( tmpStringForTrailing.data() );
         
         // To evaluate the expected string resulting out of a strip(leading), 
         // construct a string with only the longAlphaString and trailing spaces
-        string tmpStringForLeading(longAlphaString) ; 
+        UtlString tmpStringForLeading(longAlphaString) ; 
         tmpStringForLeading.append("        ") ;
+        int tmpStrLeadLen = strlen( tmpStringForLeading.data() );
+
         
         const char* expectedForLeading = tmpStringForLeading.data() ; 
         const char* expectedForTrailing = tmpStringForTrailing.data() ; 
         // If both sides are striped then  the expected
         // string would just be longAlphaString
         const char* expectedForBoth = longAlphaString ; 
-        
+        int tmpStrBothLen = strlen( expectedForBoth ) ;
 
         const TestStripDataStructure testData[] = { \
                { "empty char*", "", ' ', \
@@ -441,7 +444,7 @@ public:
         } ;
 
         // create the first part of the message based on the type of striping to be done!
-        string prefix("Test the strip(")  ; 
+        UtlString prefix("Test the strip(")  ; 
         if (specifyStripType)
         {
             switch(sType)
@@ -455,6 +458,10 @@ public:
                 case UtlString::both :
                     prefix.append("both") ; 
                     break ; 
+                default:
+                   printf("\n Invalid sType: %d\n", sType );
+                   CPPUNIT_ASSERT_MESSAGE( "Invalid sType", 0 );
+                   break ; 
             }
         }   
         if (specifyChar) 
@@ -467,6 +474,19 @@ public:
         for (int i = 0 ; i < testCount; i++)
         {
             UtlString testString(testData[i].input) ;
+
+
+            int datalength = strlen( testData[i].input );
+            int utlTestStrLen = testString.length();
+            int utlTestCharLen = strlen( testString.data() );
+
+
+           CPPUNIT_ASSERT_EQUAL_MESSAGE("Test dataLen Not equal UtlString::Length", \
+                 datalength, utlTestStrLen ) ;
+
+           CPPUNIT_ASSERT_EQUAL_MESSAGE("Test UtlString::Length Not equal UtlString::data length", \
+                 utlTestStrLen, utlTestCharLen ) ;
+
             UtlString returnString ;
             string Message ; 
             if (specifyStripType)
@@ -502,6 +522,18 @@ public:
             TestUtilities::createMessage(2, &Message, prefix.data(), \
                             testData[i].testDescription) ; 
             
+            if (strcmp(expectedValue, returnString.data()))
+            {
+               int expStrlen = strlen( expectedValue );
+               int actStrlen = strlen( returnString.data() );
+
+               printf("\nNon-matching strings[%d]:\n", i );               
+               printf("[%d]%s\n", expStrlen, expectedValue );               
+               printf("[%d]%s\n", actStrlen, returnString.data() );                             
+               printf("\n----------------\n");
+               printf("\n");
+            }
+
             CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), \
                         string(expectedValue), \
                         string(returnString.data())) ;

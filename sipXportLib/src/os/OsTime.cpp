@@ -229,18 +229,6 @@ bool OsTime::operator<=(const OsTime& rhs)
 
 /* ============================ ACCESSORS ================================= */
 
-// Return the seconds portion of the time interval
-long OsTime::seconds(void) const
-{
-   return mSeconds;
-}
-
-// Return the microseconds portion of the time interval
-long OsTime::usecs(void) const
-{
-   return mUsecs;
-}
-
 // Convert the time interval to milliseconds
 long OsTime::cvtToMsecs(void) const
 {
@@ -263,7 +251,7 @@ UtlBoolean OsTime::isInfinite(void) const
 // Return TRUE if the time interval is zero (no wait)
 UtlBoolean OsTime::isNoWait(void) const
 {
-   if (this == &NO_WAIT ||
+   if (this == &NO_WAIT_TIME || 
        (seconds() == 0 && usecs() == 0))
       return TRUE;
    else

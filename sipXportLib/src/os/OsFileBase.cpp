@@ -27,6 +27,7 @@
 const unsigned long CopyBufLen = 32768;
 const unsigned long OsFileLockTimeout = 1000;
 const int INVALID_PID = 0;
+#define READ_BUFFER_SIZE 1024
 
 //needed this so vxworks macros will find OK for the stdio funcs
 #ifdef _VXWORKS
@@ -111,6 +112,58 @@ OsFileBase::~OsFileBase()
 }
 
 /* ============================ MANIPULATORS ============================== */
+
+long OsFileBase::openAndRead(const char* filename, UtlString& fileContentsRead)
+{
+    fileContentsRead.remove(0);
+    OsFile fileToRead(filename);
+
+    long totalBytesRead = -1;
+    if(OS_SUCCESS == fileToRead.open(READ_ONLY))
+    {
+        char buffer[READ_BUFFER_SIZE];
+        unsigned long bytesRead = 0;
+
+        while(fileToRead.read(buffer, READ_BUFFER_SIZE, bytesRead) == OS_SUCCESS &&
+            bytesRead > 0)
+        {
+            fileContentsRead.append(buffer, bytesRead);
+        }
+        totalBytesRead = fileContentsRead.length();
+
+        fileToRead.close();
+    }
+    else
+    {
+        OsSysLog::add(FAC_SIP, PRI_WARNING,
+            "unable to open file: \"%s\" for read", 
+            filename ? filename : "<null>");
+    }
+    return(totalBytesRead);
+}
+
+long OsFileBase::openAndWrite(const char* filename, const UtlString& fileContentsToWrite)
+{
+    OsFile fileToWrite(filename);
+
+    long totalBytesWritten = -1;
+    unsigned long bytesWritten = 0;
+    if(OS_SUCCESS == fileToWrite.open(WRITE_ONLY) &&
+       OS_SUCCESS == fileToWrite.write(fileContentsToWrite.data(),
+       fileContentsToWrite.length(), bytesWritten))
+    {
+    }
+    else
+    {
+        OsSysLog::add(FAC_SIP, PRI_WARNING,
+            "unable to open file: \"%s\" for write", 
+            filename ? filename : "<null>");
+    }
+
+    fileToWrite.close();
+    return(totalBytesWritten);
+}
+
 OsStatus OsFileBase::setReadOnly(UtlBoolean isReadOnly)
 {
 #ifdef DEBUG_FS
@@ -466,8 +519,26 @@ OsStatus OsFileBase::rename(const OsPathBase& rNewFilename)
 
     int err = ::rename(mFilename.data(),rNewFilename.data());
     if (err != -1)
+    {
         ret = OS_SUCCESS;
+    }
+    else
+    {
+        // Rename failed, if there is a file that already exists having
+        // the new name, try removing it first
+        OsFile fileInPlace(rNewFilename);
+        if(fileInPlace.exists())
+        {
+            fileInPlace.remove(TRUE);
 
+            // Try the move again
+            int err2 = ::rename(mFilename.data(),rNewFilename.data());
+            if (err != -1)
+            {
+                ret = OS_SUCCESS;
+            }
+        }
+    }
 #ifdef DEBUG_FS
    OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::rename EXIT threadid=%d\n", nTaskId);
 #endif

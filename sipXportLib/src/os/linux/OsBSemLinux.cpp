@@ -19,6 +19,10 @@
 #include "os/OsSysLog.h"
 #include "os/OsTask.h"
 
+#ifdef OS_SYNC_DEBUG
+#  include "os/OsDateTime.h"
+#endif
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -33,13 +37,17 @@ OsBSemLinux::OsBSemLinux(const int queueOptions, const int initState)
 {
    int res;
 
-   mTaskId = 0;
    mOptions = queueOptions;
    res = pt_sem_init(&mSemImp, 1, initState);
    assert(res == POSIX_OK);
+   
 #ifdef OS_SYNC_DEBUG
-   if (initState == EMPTY)
-      mTaskId = pthread_self();
+   int me = pthread_self();
+   mSyncCrumbs.dropCrumb(me, crumbCreated);
+   if (EMPTY == initState)
+   {
+      mSyncCrumbs.dropCrumb(me, crumbAcquired);
+   }
 #endif
 }
 
@@ -49,16 +57,17 @@ OsBSemLinux::~OsBSemLinux()
    int res;
    res = pt_sem_destroy(&mSemImp);
 
-   mOptions = 0;
-   mTaskId = 0;
-
-   //assert(res == POSIX_OK);        // pt_sem_destroy should always return TRUE
    if (res != POSIX_OK)
    {
       OsSysLog::add(FAC_KERNEL, PRI_ERR,
-                    "OsBSemLinux::~OsBSemLinux OsBemLinx object %p could not be destroyed in task %s with res = %d\n", this,
-                    OsTask::getCurrentTask()->getName().data(), res);
+                    "OsBSemLinux::~OsBSemLinux pt_sem_destroy returned %d in task %u",
+                    res, (unsigned int)pthread_self()
+                    );
    }
+#  ifdef OS_SYNC_DEBUG
+   mSyncCrumbs.dropCrumb(pthread_self(), crumbDeleted);
+#  endif
+
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -71,18 +80,34 @@ OsStatus OsBSemLinux::acquire(const OsTime& rTimeout)
    OsStatus retVal;
    struct timespec timeout;
 
+#  ifdef OS_SYNC_DEBUG
+   OsTime waitingSince;
+   OsDateTime::getCurTime(waitingSince);
+#  endif
+
    if(rTimeout.isInfinite())
+   {
       retVal = (pt_sem_wait(&mSemImp) == POSIX_OK) ? OS_SUCCESS : OS_BUSY;
+   }
    else if(rTimeout.isNoWait())
+   {
       retVal = (pt_sem_trywait(&mSemImp) == POSIX_OK) ? OS_SUCCESS : OS_BUSY;
+   }
    else
    {
       OsUtilLinux::cvtOsTimeToTimespec(rTimeout, &timeout);
       retVal = (pt_sem_timedwait(&mSemImp, &timeout) == POSIX_OK) ? OS_SUCCESS : OS_WAIT_TIMEOUT;
    }
 #ifdef OS_SYNC_DEBUG
-   if (retVal == OS_SUCCESS)
-      mTaskId = pthread_self();
+   if (OS_SUCCESS == retVal)
+   {
+      mSyncCrumbs.dropCrumb(pthread_self(), crumbAcquired);
+      /* use the waitingSince to keep the compiler from optimizing it away */
+      if ( 0 == waitingSince.cvtToMsecs() )// should never be true
+      {
+         retVal = OS_SUCCESS;
+      }
+   }
 #endif
    return retVal;
 }
@@ -96,7 +121,9 @@ OsStatus OsBSemLinux::tryAcquire(void)
    retVal = (pt_sem_trywait(&mSemImp) == POSIX_OK) ? OS_SUCCESS : OS_BUSY;
 #ifdef OS_SYNC_DEBUG
    if (retVal == OS_SUCCESS)
-      mTaskId = pthread_self();
+   {
+      mSyncCrumbs.dropCrumb(pthread_self(), crumbAcquired);
+   }
 #endif
    return retVal;
 }
@@ -106,11 +133,13 @@ OsStatus OsBSemLinux::release(void)
 {
    OsStatus retVal;
 
-   retVal = (pt_sem_post(&mSemImp) == POSIX_OK) ? OS_SUCCESS : OS_ALREADY_SIGNALED;
 #ifdef OS_SYNC_DEBUG
-   if (retVal == OS_SUCCESS)
-      mTaskId = 0;
+   // change these while still holding the lock...
+   mSyncCrumbs.dropCrumb(pthread_self(), crumbReleased);
 #endif
+
+   retVal = (pt_sem_post(&mSemImp) == POSIX_OK) ? OS_SUCCESS : OS_ALREADY_SIGNALED;
+
    return retVal;
 }
 
@@ -119,35 +148,7 @@ OsStatus OsBSemLinux::release(void)
 // Print semaphore information to the console
 void OsBSemLinux::OsBSemShow(void)
 {
-   const char *pOptionStr;
-   const char *pSemState;
-   const char *pTaskName;
-
-   switch (mOptions)
-   {
-   case Q_FIFO:
-      pOptionStr = "Q_FIFO";
-      break;
-   case Q_PRIORITY:
-      pOptionStr = "Q_PRIORITY";
-      break;
-   default:
-      pOptionStr = "UNKNOWN";
-      break;
-   }
-
-#ifdef OS_SYNC_DEBUG
-   pSemState = (mTaskId == 0) ? "AVAILABLE" : "TAKEN";
-   pTaskName = (mTaskId == 0) ? "N/A" : "FIXME"; /*taskName(mTaskId);*/ // FIXME?
-#else
-   pSemState = "UNKNOWN";
-   pTaskName = "UNKNOWN";
-#endif
-
-   osPrintf("OsBSem object %p, semOptions=%s, state=%s, heldBy=%s\n",
-            (void *) this, pOptionStr, pSemState, pTaskName);
-   //semShow(mSemImp, 1);
-   //I don't think there's such a function under Linux. - Mike
+   // don't need this
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

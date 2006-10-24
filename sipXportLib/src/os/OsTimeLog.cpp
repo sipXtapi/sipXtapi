@@ -19,9 +19,6 @@
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
-#ifdef _VXWORKS
-extern volatile int* pOsTC;  // pointer to the high resolution timer
-#endif
 
 // CONSTANTS
 #ifdef _VXWORKS
@@ -166,14 +163,10 @@ OsTimeLog::operator=(const OsTimeLog& rhs)
 void OsTimeLog::addEvent(const char* eventName)
 {
 #ifdef _VXWORKS
-   double scaleFactor;
-   unsigned long microSecs;
 
-   scaleFactor = 1 / 3.6864;  /* clock runs a 3.6864 MHz */
-   microSecs = (unsigned long) ((*pOsTC) * scaleFactor);
+   OsTime* now = new OsTime();
+   OsDateTimeVxw::highResTime( *now );
 
-   OsTime* now = new OsTime(microSecs / MICROSECS_PER_SEC,
-         microSecs % MICROSECS_PER_SEC);
 #else
    OsTime* now = new OsTime();
    OsDateTime::getCurTime(*now);

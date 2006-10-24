@@ -134,7 +134,7 @@ public:
 
 /* ============================ INQUIRY =================================== */
 
-   virtual int getIpProtocol() const;
+   virtual OsSocket::IpProtocolSocketType getIpProtocol() const;
    //: Returns the protocol type of this socket
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

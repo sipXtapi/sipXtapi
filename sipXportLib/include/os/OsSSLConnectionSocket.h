@@ -110,8 +110,27 @@ public:
 
 /* ============================ INQUIRY =================================== */
 
-   virtual int getIpProtocol() const;
+   virtual OsSocket::IpProtocolSocketType getIpProtocol() const;
    //: Returns the protocol type of this socket
+
+   /// Is this connection encrypted using TLS/SSL?
+   virtual bool isEncrypted() const;
+   
+   /// Get any authenticated peer host names.
+   virtual bool peerIdentity( UtlSList* altNames /**< UtlStrings for verfied subjectAltNames
+                                                  *   are added to this - caller must free them.
+                                                  */
+                             ,UtlString* commonName ///< the Subject name is returned here
+                             ) const;
+   /**<
+    * Usually, the names in the altNames will be easier to parse and use than commonName
+    * Either or both of altNames or commonName may be NULL, in which case no names are returned;
+    * the return value still indicates the trust relationship with the peer certificate.
+    * @returns
+    * - true if the connection is TLS/SSL and the peer has presented
+    *        a certificate signed by a trusted certificate authority
+    * - false if not
+    */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

@@ -585,7 +585,7 @@ int main()
    pTimer = new OsTimer(*pNotifier);
    cout << "  Oneshot timer 1 armed at " <<
            OsDateTime::getSecsSinceEpoch() << " secs" << endl;
-   pTimer->oneshotAfter(OsTime::NO_WAIT);
+   pTimer->oneshotAfter(OsTime::NO_WAIT_TIME);
    delete pTimer;
    delete pNotifier;
 
@@ -645,10 +645,10 @@ int main()
    pTimer2 = new OsTimer(*pNotifier2);
    cout << "  Periodic timer 7 armed at " <<
            OsDateTime::getSecsSinceEpoch() << " secs" << endl;
-   pTimer->periodicEvery(OsTime::NO_WAIT, oneSecond);
+   pTimer->periodicEvery(OsTime::NO_WAIT_TIME, oneSecond);
    cout << "  Periodic timer 8 armed at " <<
            OsDateTime::getSecsSinceEpoch() << " secs" << endl;
-   pTimer2->periodicEvery(OsTime::NO_WAIT, twoSeconds);
+   pTimer2->periodicEvery(OsTime::NO_WAIT_TIME, twoSeconds);
    OsTask::delay(4500);  // sleep for 4.5 seconds
    pTimer->stop();
    pTimer2->stop();
@@ -685,7 +685,7 @@ int main()
            OsDateTime::getSecsSinceEpoch() << " secs" << endl;
    pTimer->oneshotAfter(tenYears);
    pTimer->stop();
-   pTimer->periodicEvery(OsTime::NO_WAIT, tenYears);
+   pTimer->periodicEvery(OsTime::NO_WAIT_TIME, tenYears);
    pTimer->stop();
    delete pTimer;
    delete pNotifier;
@@ -696,7 +696,7 @@ int main()
    pTimer = new OsTimer(*pNotifier);
    cout << "  Rapid-fire timer armed at " <<
            OsDateTime::getSecsSinceEpoch() << " secs" << endl;
-   pTimer->periodicEvery(OsTime::NO_WAIT, tenMsec);
+   pTimer->periodicEvery(OsTime::NO_WAIT_TIME, tenMsec);
    OsTask::delay(2000);
    pTimer->stop();
    cout << "  Rapid-fire timer stopped at " <<

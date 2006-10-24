@@ -19,103 +19,125 @@
 
 #include <pthread.h>
 #include <errno.h>
+#include <assert.h>
 #include "os/linux/pt_mutex.h"
 
 int pt_mutex_init(pt_mutex_t *mutex)
 {
         mutex->count=0;
-        return pthread_mutex_init(&mutex->mutex,NULL) | pthread_cond_init(&mutex->cond,NULL);
+        assert(0 == (pthread_mutex_init(&mutex->mutex,NULL) | pthread_cond_init(&mutex->cond,NULL)));
+        return 0;
 }
 
 int pt_mutex_lock(pt_mutex_t *mutex)
 {
+        int retval = 0 ;
         pthread_mutex_lock(&mutex->mutex);
-        if(!mutex->count)
-        {
-                mutex->count=1;
-                mutex->thread=pthread_self();
-                pthread_mutex_unlock(&mutex->mutex);
-                return 0;
-        }
-        else if(mutex->thread==pthread_self())
+        if( mutex->count && mutex->thread==pthread_self())
         {
                 mutex->count++;
-                pthread_mutex_unlock(&mutex->mutex);
-                return 0;
         }
-        while(mutex->count)
-                pthread_cond_wait(&mutex->cond,&mutex->mutex);
+        else
+        {
+           // wait for count to be 0, or error
+           while(retval == 0 && mutex->count)
+           {
+              retval = pthread_cond_wait(&mutex->cond,&mutex->mutex);
+        }
+           switch ( retval )
+           {
+           case 0: // retval and count are 0, we now own the mutex
         mutex->count=1;
         mutex->thread=pthread_self();
+              break;
+
+           default: // all error cases
+              assert(0) ;  // something is amiss
+              /*NOTREACHED*/
+              errno = retval;
+              retval = -1;
+              break;
+           }
+        }
         pthread_mutex_unlock(&mutex->mutex);
-        return 0;
+        
+        return retval;
 }
 
 int pt_mutex_timedlock(pt_mutex_t *mutex,const struct timespec *timeout)
 {
+        int retval = 0 ;
         pthread_mutex_lock(&mutex->mutex);
-        if(!mutex->count)
-        {
-                mutex->count=1;
-                mutex->thread=pthread_self();
-                pthread_mutex_unlock(&mutex->mutex);
-                return 0;
-        }
-        else if(mutex->thread==pthread_self())
+        if(mutex->count && mutex->thread==pthread_self()) // allow recursive locks
         {
                 mutex->count++;
-                pthread_mutex_unlock(&mutex->mutex);
-                return 0;
         }
-        pthread_cond_timedwait(&mutex->cond,&mutex->mutex,timeout);
-        if(!mutex->count)
+        else
         {
+           // wait for count to be 0, or error
+           while(0 == retval && mutex->count)
+           {
+              retval = pthread_cond_timedwait(&mutex->cond,&mutex->mutex,timeout);
+        }
+           switch ( retval )
+        {
+           case 0: // retval and count are 0, we now own the mutex
                 mutex->count=1;
                 mutex->thread=pthread_self();
-                pthread_mutex_unlock(&mutex->mutex);
-                return 0;
-        }
+              break;
+
+           case ETIMEDOUT:  // timed out waiting for count to be 0
         errno=EAGAIN;
+              retval = -1;
+              break;
+
+           default: // all error cases
+              assert(0) ;  // if something is amiss, drop core please.
+              /*NOTREACHED*/
+              errno = retval;
+              retval = -1;
+              break;
+           }
+        }
+           
         pthread_mutex_unlock(&mutex->mutex);
-        return -1;
+        return retval;
 }
 
 int pt_mutex_trylock(pt_mutex_t *mutex)
 {
+        int retval = 0;
         pthread_mutex_lock(&mutex->mutex);
         if(!mutex->count)
         {
                 mutex->count=1;
                 mutex->thread=pthread_self();
-                pthread_mutex_unlock(&mutex->mutex);
-                return 0;
         }
         else if(mutex->thread==pthread_self())
         {
                 mutex->count++;
-                pthread_mutex_unlock(&mutex->mutex);
-                return 0;
         }
+        else
+        {
         errno=EAGAIN;
+           retval = -1;
+        }
+
         pthread_mutex_unlock(&mutex->mutex);
-        return -1;
+        return retval;
 }
 
 int pt_mutex_unlock(pt_mutex_t *mutex)
 {
         pthread_mutex_lock(&mutex->mutex);
-/*      if(mutex->thread!=pthread_self())
-        {
-                errno=EPERM;
-                return -1;
-        }*/
+
         if(mutex->count)
         {
                 mutex->count--;
                 if(!mutex->count)
-                        pthread_cond_signal(&mutex->cond);
-                pthread_mutex_unlock(&mutex->mutex);
-                return 0;
+                {
+                   pthread_cond_broadcast(&mutex->cond);
+                }
         }
         pthread_mutex_unlock(&mutex->mutex);
         return 0;
@@ -128,5 +150,6 @@ int pt_mutex_destroy(pt_mutex_t *mutex)
                 errno=EBUSY;
                 return -1;
         }
-        return pthread_mutex_destroy(&mutex->mutex) | pthread_cond_destroy(&mutex->cond);
+        assert(0 == (pthread_mutex_destroy(&mutex->mutex) | pthread_cond_destroy(&mutex->cond)));
+        return 0;
 }

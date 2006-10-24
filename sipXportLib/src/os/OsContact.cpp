@@ -29,7 +29,7 @@ UtlContainableType OsContact::TYPE = "OsContact" ;
 // Constructor.
 OsContact::OsContact(UtlString address,
                        int port,
-                       OsSocket::SocketProtocolTypes protocol,
+                       OsSocket::IpProtocolSocketType protocol,
                        IpAddressType type)
 {
     mAddress = address;
@@ -62,7 +62,7 @@ const int OsContact::getPort() const
     return mPort;
 }
 
-const OsSocket::SocketProtocolTypes OsContact::getProtocol() const
+const OsSocket::IpProtocolSocketType OsContact::getProtocol() const
 {
     return mProtocol;
 }

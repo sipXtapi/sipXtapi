@@ -42,6 +42,7 @@ libsipXport_la_CXXFLAGS = \
 libsipXport_la_SOURCES =  \
     ../config/sipxportlib-buildstamp.h \
     ../config/sipxportlib-buildstamp.cpp \
+    utl/UtlLongLongInt.cpp \
     utl/UtlBool.cpp \
     utl/UtlCrc32.cpp \
     utl/UtlDateTime.cpp \
@@ -122,7 +123,6 @@ libsipXport_la_SOURCES =  \
     os/OsSysLogFacilities.cpp \
     os/OsSysLogMsg.cpp \
     os/OsSysLogTask.cpp \
-    os/OsSysTimer.cpp \
     os/OsTask.cpp \
     os/OsTime.cpp \
     os/OsTimeLog.cpp \
@@ -138,7 +138,6 @@ libsipXport_la_SOURCES =  \
     os/StunUtils.cpp \
     os/TurnMessage.cpp \
     os/shared/OsMsgQShared.cpp \
-    os/shared/OsSysSoftTimer.cpp \
     os/shared/OsTimerMessage.cpp \
     os/linux/clock_gettime.c \
     os/linux/host_address.c \
@@ -164,6 +163,7 @@ libsipXport_la_SOURCES =  \
     xmlparser/tinyxmlerror.cpp \
     xmlparser/tinyxmlparser.cpp \
     xmlparser/TiXmlIterator.cpp \
+    xmlparser/ExtractContent.cpp \
     hmac-sha1/hmac-sha1.c \
     hmac-sha1/sha1.c 
 
@@ -182,7 +182,6 @@ EXTRA_DIST= \
     os/Wnt/OsProcessIteratorWnt.cpp \
     os/Wnt/OsProcessWnt.cpp \
     os/Wnt/OsSharedLibMgrWnt.cpp \
-    os/Wnt/OsSysSoftTimer.cpp \
     os/Wnt/OsTaskWnt.cpp \
     os/Wnt/OsTimerMessage.cpp \
     os/Wnt/OsUtilWnt.cpp \

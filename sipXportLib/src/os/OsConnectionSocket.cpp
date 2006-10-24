@@ -33,6 +33,7 @@
 // APPLICATION INCLUDES
 #include <os/OsConnectionSocket.h>
 #include "os/OsUtil.h"
+#include "utl/UtlSList.h"
 #include <os/OsSysLog.h>
 
 // EXTERNAL FUNCTIONS
@@ -96,6 +97,13 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
    }
 #elif defined(_VXWORKS)
    if(error == EWOULDBLOCK &&
+      !blockingConnect)
+   {
+      error = 0;
+      connectReturn = 0;
+   }
+#elif defined(__pingtel_on_posix__)
+   if(error == EINPROGRESS &&
       !blockingConnect)
    {
       error = 0;
@@ -335,11 +343,40 @@ int OsConnectionSocket::read(char* buffer,
 }
 
 /* ============================ ACCESSORS ================================= */
-int OsConnectionSocket::getIpProtocol() const
+OsSocket::IpProtocolSocketType OsConnectionSocket::getIpProtocol() const
 {
         return(TCP);
 }
 /* ============================ INQUIRY =================================== */
+
+/// Is this connection encrypted using TLS/SSL?
+bool OsConnectionSocket::isEncrypted() const
+{
+   return false;
+}
+
+   
+/// Get any authenticated peer host names.
+bool OsConnectionSocket::peerIdentity( UtlSList* altNames
+                                      ,UtlString* commonName
+                                      ) const
+{
+   /*
+    * @returns
+    * - true if the connection is TLS/SSL and the peer has presented
+    *        a certificate signed by a trusted certificate authority
+    * - false if not
+    */
+   if (altNames)
+   {
+      altNames->destroyAll();
+   }
+   if (commonName)
+   {
+      commonName->remove(0);
+   }
+   return false; // an OsSSLServerSocket might return true...
+}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 

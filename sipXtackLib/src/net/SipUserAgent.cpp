@@ -1247,7 +1247,7 @@ UtlBoolean SipUserAgent::sendStatelessResponse(SipMessage& rresponse)
 UtlBoolean SipUserAgent::sendStatelessRequest(SipMessage& request,
                            UtlString& address,
                            int port,
-                           enum OsSocket::SocketProtocolTypes protocol,
+                           enum OsSocket::IpProtocolSocketType protocol,
                            UtlString& branchId)
 {
     // Convert the enum to a protocol string
@@ -3658,7 +3658,7 @@ UtlBoolean SipUserAgent::recurseOnlyOne300Contact()
 }
 
 
-UtlBoolean SipUserAgent::isOk(OsSocket::SocketProtocolTypes socketType)
+UtlBoolean SipUserAgent::isOk(OsSocket::IpProtocolSocketType socketType)
 {
     UtlBoolean retval = FALSE;
     switch(socketType)
@@ -3870,7 +3870,7 @@ UtlBoolean SipUserAgent::resendWithAuthorization(SipMessage* response,
 
 void SipUserAgent::lookupSRVSipAddress(UtlString protocol, UtlString& sipAddress, int& port, UtlString& srcIp)
 {
-    enum OsSocket::SocketProtocolTypes transport = OsSocket::UNKNOWN;
+    enum OsSocket::IpProtocolSocketType transport = OsSocket::UNKNOWN;
 
     if (sipIpAddress != "127.0.0.1")
     {
@@ -4038,7 +4038,7 @@ void SipUserAgent::setHeaderOptions(const bool bAllowHeader,
 
 void SipUserAgent::prepareVia(SipMessage& message,
                               UtlString&  branchId, 
-                              OsSocket::SocketProtocolTypes& toProtocol,
+                              OsSocket::IpProtocolSocketType& toProtocol,
                               const char* szTargetAddress, 
                               const int*  piTargetPort,
                               SIPX_TRANSPORT_DATA* pTransport)

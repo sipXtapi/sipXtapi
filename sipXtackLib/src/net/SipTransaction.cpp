@@ -469,7 +469,7 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
     UtlBoolean addressRequiresDnsSrvLookup(FALSE);
     UtlString toAddress;
     int port = PORT_NONE;
-    enum OsSocket::SocketProtocolTypes protocol = OsSocket::UNKNOWN;
+    enum OsSocket::IpProtocolSocketType protocol = OsSocket::UNKNOWN;
 
     if(isResponse)
     {
@@ -670,7 +670,7 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
                                            UtlBoolean& addressRequiresDnsSrvLookup,
                                            UtlString& toAddress,
                                            int& port,
-                                           enum OsSocket::SocketProtocolTypes& toProtocol)
+                                           enum OsSocket::IpProtocolSocketType& toProtocol)
 {
     UtlString protocol;
 
@@ -987,7 +987,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
                                       SipUserAgent& userAgent,
                                       UtlString& toAddress,
                                       int& port,
-                                      enum OsSocket::SocketProtocolTypes& toProtocol,
+                                      enum OsSocket::IpProtocolSocketType& toProtocol,
                                       SIPX_TRANSPORT_DATA* pTransport)
 {
     if (!mpTransport) mpTransport = pTransport;
@@ -997,8 +997,8 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
     UtlString seqMethod;
     int responseCode = -1;
 
-    enum OsSocket::SocketProtocolTypes lastSentProtocol =
-        (enum OsSocket::SocketProtocolTypes) message.getSendProtocol();
+    enum OsSocket::IpProtocolSocketType lastSentProtocol =
+        (enum OsSocket::IpProtocolSocketType) message.getSendProtocol();
     int resendDuration;
     int resendTime;
 
@@ -4008,10 +4008,17 @@ void SipTransaction::startTimers()
     UtlSListIterator iterator(mTimers);
     OsTimer* timer = NULL;
 
+/*
+    // As if 2006-10-06 -- The timer subsystem has been rewritten and no 
+    // longer supports the ability to restart timers -- work is needed
+    // to add this (not sure how much), but until then, disabling this
+    // functionality.
+
     while ((timer = (OsTimer*)iterator()))
     {
         timer->start();
     }
+*/
 }
 
 void SipTransaction::cancel(SipUserAgent& userAgent,

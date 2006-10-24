@@ -191,7 +191,7 @@ class SdpBody : public HttpBody
                        SdpSrtpParameters& srtpParams,
                        int videoBandwidth,
                        int videoFramerate,
-                       OsSocket::SocketProtocolTypes transportType = OsSocket::UDP
+                       OsSocket::IpProtocolSocketType transportType = OsSocket::UDP
                        );
 
    /**<
@@ -212,7 +212,7 @@ class SdpBody : public HttpBody
                        int videoBandwidth,
                        int videoFramerate,
                        const SdpBody* sdpRequest, ///< Sdp we are responding to
-                       OsSocket::SocketProtocolTypes transportType);
+                       OsSocket::IpProtocolSocketType transportType);
    /**<
     * This method is for building a SdpBody which is in response
     * to a SdpBody send from the other side
@@ -312,7 +312,7 @@ class SdpBody : public HttpBody
 
    /// Inspects whether the given transport type and media type combination is specified 
    /// as an m-line in the sdp
-   const bool isTransportAvailable(const OsSocket::SocketProtocolTypes protocol,
+   const bool isTransportAvailable(const OsSocket::IpProtocolSocketType protocol,
                                    const SIPX_MEDIA_TYPE mediaType) const;
                                    
    /// Read whether the media network type is IP4 or IP6.

@@ -105,7 +105,7 @@ public:
 
     /**
      * Removes the designated key and its associated value from the map
-     * and frees the object by calling delete.
+     * and frees the key and the value (if not NULL) by calling delete.
      */ 
     virtual UtlBoolean destroy(UtlContainable* key);    
 

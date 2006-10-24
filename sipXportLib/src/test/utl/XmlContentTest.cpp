@@ -14,6 +14,7 @@
 
 #include "utl/UtlString.h"
 #include "utl/XmlContent.h"
+#include "xmlparser/tinyxml.h"
 #include <sipxunit/TestUtilities.h>
 
 using namespace std ; 
@@ -25,6 +26,7 @@ class XmlContentTest : public CppUnit::TestCase
     CPPUNIT_TEST(testNumericEnt);
     CPPUNIT_TEST(testUnNamedEnt);
     CPPUNIT_TEST(testUnNumericEnt);
+    CPPUNIT_TEST(testStringNoNewline);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -144,7 +146,18 @@ public:
          UNESCAPE("&#x03;&#x03;zig&#x03;&#x03;zag&#x03;&#x03;","\x03\x03zig\x03\x03zag\x03\x03");
       }
 
+   // Test that TiXmlDocument::Parse works on a string that does not end with newline.
+   void testStringNoNewline()
+      {
+         const char* test_string = "<document-info>\n</document-info>";
+
+         TiXmlDocument doc;
+
+         const char* result = doc.Parse(test_string);
+
+         CPPUNIT_ASSERT_MESSAGE("Parse of test_string failed.", result != 0);
+      }
+
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(XmlContentTest);
-

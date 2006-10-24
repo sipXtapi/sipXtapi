@@ -16,7 +16,6 @@
 // APPLICATION INCLUDES                      
 #include "os/OsBSem.h"
 #include "os/OsSysLog.h"
-#include "utl/UtlString.h"
 #include "openssl/ssl.h"
 
 // DEFINES
@@ -27,6 +26,8 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
+class UtlString;
+class UtlSList;
 
 /// Wrapper for the OpenSSL SSL_CTX context structure.
 /// This class is responsible for all global policy initialization and
@@ -65,6 +66,22 @@ class OsSSL
 
    /// Release an SSL session handle
    void releaseConnection(SSL*& connection);
+
+   /// Get the validated names for the connection peer.
+   static bool peerIdentity( SSL*       connection ///< SSL context from connection to be described
+                            ,UtlSList*  altNames   /**< UtlStrings for verfied subjectAltNames
+                                                    *   are added to this - caller must free them.
+                                                    */
+                            ,UtlString* commonName ///< the Subject name is returned here
+                            );
+   /**<
+    * Usually, the names in the altNames will be easier to parse and use than commonName
+    * Either or both of altNames or commonName may be NULL, in which case no names are returned;
+    * the return value still indicates the trust relationship with the peer certificate.
+    * @returns
+    * - true if the connection peer is validated by a trusted authority
+    * - false if not, in which case no names are returned.
+    */
 
    /// Log SSL connection information
    static void logConnectParams(const OsSysLogFacility facility, ///< callers facility

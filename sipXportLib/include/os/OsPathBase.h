@@ -78,7 +78,7 @@ public:
 
 /* ============================ ACCESSORS ================================= */
     UtlString getVolume() const;
-      //: Returns just the volme of this object (eg. for DOS c:,d: etc...)
+      //: Returns just the volume of this object (eg. for DOS c:,d: etc...)
 
     UtlString getDirName() const;
       //: Returns just the path of this object (without volume or filename)
@@ -90,7 +90,7 @@ public:
       //: Returns just the extension part of this object 
 
     OsStatus getNativePath(OsPathBase &rFullPath) const;
-      //: Returns TRUE the full path for the specified platform was
+      //: Returns TRUE if the full path for the specified platform was
       //: found to be valid. Returns the full path in rFullPath.
 
     static UtlString getSeparator() ;

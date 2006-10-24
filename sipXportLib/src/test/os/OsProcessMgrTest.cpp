@@ -17,6 +17,14 @@
 
 #include <sipxunit/TestUtilities.h>
 
+#ifndef TEST_DIR
+#ifdef WIN32
+#define TEST_DIR "C:\\windows\\temp\\"
+#else
+#define TEST_DIR "/tmp/"
+#endif
+#endif
+
 class OsProcessMgrTest : public CppUnit::TestCase
 {
     CPPUNIT_TEST_SUITE(OsProcessMgrTest);
@@ -29,7 +37,7 @@ public:
     void testManager()
     {
         OsStatus stat;
-        OsProcessMgr processManager;
+        OsProcessMgr processManager(TEST_DIR);
 
         UtlString alias = "MyPing1";
 
@@ -49,11 +57,8 @@ public:
         
         UtlString MyPing1("MyPing1");
         UtlString MyPing2("MyPing2");
-#ifdef _WIN32
-        OsPath startupDir = "";
-#else
         OsPath startupDir = ".";
-#endif
+
         stat = processManager.startProcess(MyPing1, appName, params, startupDir);
         CPPUNIT_ASSERT_MESSAGE("Started first proccess", stat == OS_SUCCESS);
 

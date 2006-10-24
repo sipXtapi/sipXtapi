@@ -34,7 +34,11 @@ public:
      */
     void testWriteMsg()
     {
+#if defined(_VXWORKS)
+        OsSocket* s = new OsDatagramSocket(8020, "127.0.0.1");  // wdn - DNS not enabled !!
+#else
         OsSocket* s = new OsDatagramSocket(8020, "localhost");
+#endif
         const char* msg = "hello\n";
         int len = strlen(msg);
         int bytesWritten = s->write(msg, len);

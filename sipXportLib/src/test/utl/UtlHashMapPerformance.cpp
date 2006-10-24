@@ -144,7 +144,7 @@ void doHashMapOperations()
    UtlHashMapIterator iterate(testHash);
    UtlString* strValue = NULL;
    UtlString* entry;
-   while (entry = dynamic_cast<UtlString*>(iterate()))
+   while ((entry = dynamic_cast<UtlString*>(iterate())))
    {
       strValue = dynamic_cast<UtlString*>(testHash.findValue(entry));
    }
