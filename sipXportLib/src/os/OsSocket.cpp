@@ -298,7 +298,14 @@ int OsSocket::read(char* buffer, int bufferLength,
       // 10038 WSAENOTSOCK not a valid socket descriptor
       if(error)
       {
+#ifdef _WIN32
+         if (error != WSAECONNRESET)
+         {
+            close();
+         }
+#else
          close();
+#endif
          // perror("OsSocket::read call to recvfrom failed\n");
          osPrintf("recvfrom call failed with error: %d\n", error);
       }

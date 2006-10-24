@@ -382,14 +382,10 @@ OsStatus sipXmediaFactoryImpl::getSpeakerVolume(int& iVolume) const
     OsStatus rc = OS_SUCCESS ;
 
     iVolume = MpCodec_getVolume() ;
-<<<<<<< .working
     if (iVolume==-1) {
         rc = OS_FAILED;
         iVolume = 0;
     }
-//#endif
-=======
->>>>>>> .merge-right.r7749
     return rc ;
 }
 
