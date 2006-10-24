@@ -27,6 +27,7 @@ public class DomainManagerTest extends TestCase {
         IMocksControl serverControl = org.easymock.classextension.EasyMock.createControl();
         SipxServer server = serverControl.createMock(SipxServer.class);
         server.setDomainName("goose");
+        server.setRegistrarDomainAliases(null);
         server.applySettings();
         serverControl.replay();
         
@@ -50,6 +51,7 @@ public class DomainManagerTest extends TestCase {
         domain.setUniqueId(); // isNew!
         serverControl.reset();
         server.setDomainName("goose");
+        server.setRegistrarDomainAliases(null);
         server.applySettings();        
         serverControl.replay();
         

@@ -241,3 +241,23 @@
     </option>    
   </enum>
 </type>
+<type id="codecPref">
+  <enum>
+    <option>
+      <value>1</value>
+    </option>
+    <option>
+      <value>2</value>
+    </option>
+    <option>
+      <value>3</value>
+    </option>
+    <option>
+      <value>4</value>
+    </option>
+    <option>
+       <label>do not use</label>
+      <value>Null</value>
+    </option>  
+  </enum>
+</type>

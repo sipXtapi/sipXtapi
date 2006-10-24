@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -45,47 +46,15 @@ public class SipxServerTest extends TestCase {
         TestHelper.copyStreamToDirectory(sipxpresence, TestHelper.getTestDirectory(),
                 "sipxpresence-config");
         m_server.setModelFilesContext(TestHelper.getModelFilesContext());
+        registrar = getClass().getResourceAsStream("registrar-config.test.in");
+        TestHelper.copyStreamToDirectory(registrar, TestHelper.getTestDirectory(),
+                "registrar-config.in");
     }
 
     public void testGetSetting() {
         Setting settings = m_server.getSettings();
         assertNotNull(settings);
     }
-
-    // FIXME: uncomment or remove...
-    // public void testDomainNameChange() {
-    // String newDomainName = "new-domain-name";
-    //
-    // IMocksControl phoneDefaultsCtrl = org.easymock.classextension.EasyMock.createControl();
-    // DeviceDefaults deviceDefaults = phoneDefaultsCtrl.createMock(DeviceDefaults.class);
-    // deviceDefaults.setDomainName(newDomainName);
-    // phoneDefaultsCtrl.replay();
-    //
-    // IMocksControl coreContextCtrl = EasyMock.createControl();
-    // CoreContext coreContext = coreContextCtrl.createMock(CoreContext.class);
-    // coreContext.getDomainName();
-    // coreContextCtrl.andReturn("old-domain-name").anyTimes();
-    // coreContext.setDomainName(newDomainName);
-    // coreContextCtrl.replay();
-    //
-    // IMocksControl replicationContextCtrl = EasyMock.createControl();
-    // SipxReplicationContext replicationContext = replicationContextCtrl.createMock(
-    // SipxReplicationContext.class);
-    // replicationContext.generate(DataSet.ALIAS);
-    // replicationContext.generateAll();
-    // replicationContextCtrl.replay();
-    //
-    // m_server.setPhoneDefaults(deviceDefaults);
-    // m_server.setCoreContext(coreContext);
-    // m_server.setSipxReplicationContext(replicationContext);
-    //
-    // m_server.setSettingValue("domain/SIPXCHANGE_DOMAIN_NAME", newDomainName);
-    // m_server.applySettings();
-    //
-    // replicationContextCtrl.verify();
-    // phoneDefaultsCtrl.verify();
-    // coreContextCtrl.verify();
-    // }
 
     public void testGetAliasMappings() {
         IMocksControl coreContextCtrl = EasyMock.createControl();
@@ -116,5 +85,17 @@ public class SipxServerTest extends TestCase {
     public void testGetMusicOnHoldUri() {
         m_server.setMohUser("moh");
         assertEquals("sip:moh@10.2.3.4:5120", m_server.getMusicOnHoldUri());
+    }
+
+    public void testSetRegistrarDomainAliases() {
+        String[] aliases = {
+            "example.com", "example.org"
+        };
+        m_server.setRegistrarDomainAliases(Arrays.asList(aliases));
+        assertEquals("${MY_FULL_HOSTNAME} ${MY_IP_ADDR} example.com example.org", m_server
+                .getSettingValue("domain/SIP_REGISTRAR_DOMAIN_ALIASES"));
+        m_server.setRegistrarDomainAliases(null);
+        assertEquals("${MY_FULL_HOSTNAME} ${MY_IP_ADDR}", m_server
+                .getSettingValue("domain/SIP_REGISTRAR_DOMAIN_ALIASES"));
     }
 }

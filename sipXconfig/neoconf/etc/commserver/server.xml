@@ -90,6 +90,11 @@
         request is returned with an error.
       </description>
     </setting>
+    <setting name="SIP_REGISTRAR_DOMAIN_ALIASES" hidden="yes">
+      <profileName>registrar-config.in</profileName>      
+      <value>${MY_FULL_HOSTNAME} ${MY_IP_ADDR}</value>
+      <description>Manipulated automatically by sipXconfig Domain Manager</description>
+    </setting>
   </group>
   <group name="voice-mail">
     <label>Voice Mail</label>
