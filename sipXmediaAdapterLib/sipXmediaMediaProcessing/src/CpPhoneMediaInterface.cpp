@@ -1,4 +1,7 @@
-//
+// 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,12 +11,14 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+// Author: Dan Petrie (dpetrie AT SIPez DOT com)
  
 // SYSTEM INCLUDES
 #include <assert.h>
 
 // APPLICATION INCLUDES
 #include <utl/UtlDListIterator.h>
+#include <utl/UtlHashMap.h>
 #include <os/OsDatagramSocket.h>
 #include <os/OsNatDatagramSocket.h>
 #include <os/OsProtectEventMgr.h>
@@ -85,6 +90,7 @@ public:
             delete mpRtpAudioSocket;
             mpRtpAudioSocket = NULL;
         }
+
         if(mpRtcpAudioSocket)
         {
 #ifdef TEST_PRINT
@@ -95,8 +101,12 @@ public:
             delete mpRtcpAudioSocket;
             mpRtcpAudioSocket = NULL;
         }
+
         if(mpCodecFactory)
         {
+            OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                "~CpPhoneMediaConnection deleting SdpCodecFactory %p",
+                mpCodecFactory);
             delete mpCodecFactory;
             mpCodecFactory = NULL;
         }
@@ -106,6 +116,8 @@ public:
             delete mpPrimaryCodec;
             mpPrimaryCodec = NULL; 
         }              
+
+        mConnectionProperties.destroyAll();
     }
 
     OsNatDatagramSocket* mpRtpAudioSocket;
@@ -123,6 +135,7 @@ public:
     SIPX_CONTACT_TYPE mContactType ;
     UtlString mLocalAddress ;
     UtlBoolean mbAlternateDestinations ;
+    UtlHashMap mConnectionProperties;
 };
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -148,7 +161,12 @@ CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFacto
                                              bool mbEnableICE)
     : CpMediaInterface(pFactoryImpl)
 {
+   OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::CpPhoneMediaInterface creating a new CpMediaInterface %p",
+                 this);
    mpFlowGraph = new MpCallFlowGraph(locale);
+
+   OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::CpPhoneMediaInterface creating a new MpCallFlowGraph %p",
+                 mpFlowGraph);
    
    mStunServer = szStunServer ;
    mStunPort = iStunPort ;
@@ -172,10 +190,61 @@ CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFacto
 
    if(sdpCodecArray && numCodecs > 0)
    {
+#ifdef CODEC_VALIDATION
+       /* 
+        * 2006-10-12/Bob: These checks are now disabled -- I don't believe
+        *     the CpPhoneMediaInterface should need to know about ALL the 
+        *     possible codecs types.  Our goal is have dynamic pluggable 
+        *     codec support.  The getCapabilities function should validate
+        *     the codec list -- not this class.
+        */
+       UtlString codecList("");
+       // Test plausibility of passed in codecs, don't add any that media system
+       // does not support - the media system knows best.
+       for (int i=0; i<numCodecs && sdpCodecArray[i]; i++)
+       {
+          SdpCodec::SdpCodecTypes cType = sdpCodecArray[i]->getCodecType();
+          
+          switch (cType)
+          {
+          case SdpCodec::SDP_CODEC_TONES:
+             codecList.append("telephone-event ");
+             break;
+          case SdpCodec::SDP_CODEC_GIPS_PCMU:
+             codecList.append("pcmu ");
+             break;
+          case SdpCodec::SDP_CODEC_GIPS_PCMA:
+             codecList.append("pcma ");
+             break;
+#ifdef HAVE_GIPS
+          case SdpCodec::SDP_CODEC_GIPS_IPCMU:
+             codecList.append("eg711u ");
+             break;
+          case SdpCodec::SDP_CODEC_GIPS_IPCMA:
+             codecList.append("eg711a ");
+             break;
+#endif /* HAVE_GIPS */
+          default:
+              OsSysLog::add(FAC_CP, PRI_WARNING, 
+                            "CpPhoneMediaInterface::CpPhoneMediaInterface dropping codec type %d as not supported",
+                            cType);
+              break;
+          }  
+       }
+       mSupportedCodecs.buildSdpCodecFactory(codecList);
+       
+       OsSysLog::add(FAC_CP, PRI_DEBUG,
+                     "CpPhoneMediaInterface::CpPhoneMediaInterface creating codec factory with %s",
+                     codecList.data());
+
+       // Assign any unset payload types
+       mSupportedCodecs.bindPayloadTypes();
+#else
        mSupportedCodecs.addCodecs(numCodecs, sdpCodecArray);
 
        // Assign any unset payload types
        mSupportedCodecs.bindPayloadTypes();
+#endif
    }
    else
    {
@@ -190,6 +259,8 @@ CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFacto
                           "SPEEX SPEEX_5 SPEEX_15 SPEEX_24 "
 #endif // HAVE_SPEEX ]
                           "PCMU PCMA TELEPHONE-EVENT";
+       OsSysLog::add(FAC_CP, PRI_WARNING, "CpPhoneMediaInterface::CpPhoneMediaInterface hard-coded codec factory %s ...",
+                     codecs.data());
        mSupportedCodecs.buildSdpCodecFactory(codecs);
    }
 
@@ -200,6 +271,9 @@ CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFacto
 // Destructor
 CpPhoneMediaInterface::~CpPhoneMediaInterface()
 {
+   OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::~CpPhoneMediaInterface deleting the CpMediaInterface %p",
+                 this);
+
     CpPhoneMediaConnection* mediaConnection = NULL;
     while ((mediaConnection = (CpPhoneMediaConnection*) mMediaConnections.get()))
     {
@@ -224,9 +298,15 @@ CpPhoneMediaInterface::~CpPhoneMediaInterface()
         {
             mediaTask->setFocus(NULL);
         }
+
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::~CpPhoneMediaInterface deleting the MpCallFlowGraph %p",
+                      mpFlowGraph);
         delete mpFlowGraph;
         mpFlowGraph = NULL;
     }
+
+    // Delete the properties and their values
+    mInterfaceProperties.destroyAll();
 }
 
 /**
@@ -257,6 +337,8 @@ OsStatus CpPhoneMediaInterface::createConnection(int& connectionId,
         int iNextRtpPort = localPort ;
 
         CpPhoneMediaConnection* mediaConnection = new CpPhoneMediaConnection();
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::createConnection creating a new connection %p",
+                      mediaConnection);
         mediaConnection->setValue(connectionId) ;
         mMediaConnections.append(mediaConnection);
 
@@ -374,6 +456,16 @@ OsStatus CpPhoneMediaInterface::createConnection(int& connectionId,
         mediaConnection->mRtcpAudioReceivePort = rtcpSocket->getLocalHostPort() ;
         mediaConnection->mpCodecFactory = new SdpCodecFactory(mSupportedCodecs);
         mediaConnection->mpCodecFactory->bindPayloadTypes();
+
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                "CpPhoneMediaInterface::createConnection creating a new RTP socket: %p descriptor: %d",
+                mediaConnection->mpRtpAudioSocket, mediaConnection->mpRtpAudioSocket->getSocketDescriptor());
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                "CpPhoneMediaInterface::createConnection creating a new RTCP socket: %p descriptor: %d",
+                mediaConnection->mpRtcpAudioSocket, mediaConnection->mpRtcpAudioSocket->getSocketDescriptor());
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                "CpPhoneMediaInterface::createConnection creating a new SdpCodecFactory %p",
+                mediaConnection->mpCodecFactory);
 
         returnCode = OS_SUCCESS;
     }
@@ -997,6 +1089,9 @@ OsStatus CpPhoneMediaInterface::doDeleteConnection(CpPhoneMediaConnection* media
    OsStatus returnCode = OS_NOT_FOUND;
    if(mediaConnection)
    {
+      OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::deleteConnection deleting the connection %p",
+                    mediaConnection);
+                 
       returnCode = OS_SUCCESS;
       mediaConnection->mDestinationSet = FALSE;
 #ifdef TEST_PRINT
@@ -2223,6 +2318,112 @@ void CpPhoneMediaInterface::applyAlternateDestinations(int connectionId)
 #endif
     }
 }
+
+OsStatus CpPhoneMediaInterface::setMediaProperty(const UtlString& propertyName,
+                                                 const UtlString& propertyValue)
+{
+    OsSysLog::add(FAC_CP, PRI_ERR, 
+        "CpPhoneMediaInterface::setMediaProperty %p propertyName=\"%s\" propertyValue=\"%s\"",
+        this, propertyName.data(), propertyValue.data());
+
+    UtlString* oldProperty = (UtlString*)mInterfaceProperties.findValue(&propertyValue);
+    if(oldProperty)
+    {
+        // Update the old value
+        (*oldProperty) = propertyValue;
+    }
+    else
+    {
+        // No prior value for this property create copies for the map
+        mInterfaceProperties.insertKeyAndValue(new UtlString(propertyName),
+                                               new UtlString(propertyValue));
+    }
+    return OS_NOT_YET_IMPLEMENTED;
+}
+
+OsStatus CpPhoneMediaInterface::getMediaProperty(const UtlString& propertyName,
+                                                 UtlString& propertyValue)
+{
+    OsStatus returnCode = OS_NOT_FOUND;
+    OsSysLog::add(FAC_CP, PRI_ERR, 
+        "CpPhoneMediaInterface::getMediaProperty %p propertyName=\"%s\"",
+        this, propertyName.data());
+
+    UtlString* foundValue = (UtlString*)mInterfaceProperties.findValue(&propertyName);
+    if(foundValue)
+    {
+        propertyValue = *foundValue;
+        returnCode = OS_SUCCESS;
+    }
+    else
+    {
+        propertyValue = "";
+        returnCode = OS_NOT_FOUND;
+    }
+
+    returnCode = OS_NOT_YET_IMPLEMENTED;
+    return(returnCode);
+}
+
+OsStatus CpPhoneMediaInterface::setMediaProperty(int connectionId,
+                                                 const UtlString& propertyName,
+                                                 const UtlString& propertyValue)
+{
+    OsStatus returnCode = OS_NOT_YET_IMPLEMENTED;
+    OsSysLog::add(FAC_CP, PRI_ERR, 
+        "CpPhoneMediaInterface::setMediaProperty %p connectionId=%d propertyName=\"%s\" propertyValue=\"%s\"",
+        this, connectionId, propertyName.data(), propertyValue.data());
+
+    CpPhoneMediaConnection* mediaConnection = getMediaConnection(connectionId);
+    if(mediaConnection)
+    {
+        UtlString* oldProperty = (UtlString*)(mediaConnection->mConnectionProperties.findValue(&propertyValue));
+        if(oldProperty)
+        {
+            // Update the old value
+            (*oldProperty) = propertyValue;
+        }
+        else
+        {
+            // No prior value for this property create copies for the map
+            mediaConnection->mConnectionProperties.insertKeyAndValue(new UtlString(propertyName),
+                                                                     new UtlString(propertyValue));
+        }
+    }
+    else
+    {
+        returnCode = OS_NOT_FOUND;
+    }
+
+
+    return(returnCode);
+}
+
+OsStatus CpPhoneMediaInterface::getMediaProperty(int connectionId,
+                                                 const UtlString& propertyName,
+                                                 UtlString& propertyValue)
+{
+    OsStatus returnCode = OS_NOT_FOUND;
+    propertyValue = "";
+
+    OsSysLog::add(FAC_CP, PRI_ERR, 
+        "CpPhoneMediaInterface::getMediaProperty %p connectionId=%d propertyName=\"%s\"",
+        this, connectionId, propertyName.data());
+
+    CpPhoneMediaConnection* mediaConnection = getMediaConnection(connectionId);
+    if(mediaConnection)
+    {
+        UtlString* oldProperty = (UtlString*)(mediaConnection->mConnectionProperties.findValue(&propertyName));
+        if(oldProperty)
+        {
+            propertyValue = *oldProperty;
+            returnCode = OS_SUCCESS;
+        }
+    }
+
+    return OS_NOT_YET_IMPLEMENTED;//(returnCode);
+}
+/* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 

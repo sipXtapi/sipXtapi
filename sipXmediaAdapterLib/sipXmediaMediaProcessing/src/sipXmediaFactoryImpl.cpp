@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -116,6 +119,9 @@ sipXmediaFactoryImpl::sipXmediaFactoryImpl(OsConfigDb* pConfigDb)
         pConfigDb->get(CONFIG_PHONESET_SEND_INBAND_DTMF, strInBandDTMF) ;
         strInBandDTMF.toUpper() ;
 
+        OsSysLog::add(FAC_MP, PRI_DEBUG, 
+                      "sipXmediaFactoryImpl::sipXmediaFactoryImpl maxFlowGraph = %d",
+                      maxFlowGraph);
     }
 
     // Max Flow graphs
@@ -199,9 +205,7 @@ CpMediaInterface* sipXmediaFactoryImpl::createMediaInterface( const char* public
 OsStatus sipXmediaFactoryImpl::setSpeakerVolume(int iVolume) 
 {
     OsStatus rc = OS_SUCCESS ;
-//#ifdef WIN32
     MpCodec_setVolume(iVolume) ;
-//#endif
 
     return rc ;
 }
@@ -209,9 +213,7 @@ OsStatus sipXmediaFactoryImpl::setSpeakerVolume(int iVolume)
 OsStatus sipXmediaFactoryImpl::setSpeakerDevice(const UtlString& device) 
 {
     OsStatus rc = OS_SUCCESS ;
-#ifdef WIN32
     DmaTask::setCallDevice(device.data()) ;
-#endif
     return rc ;    
 }
 
@@ -220,19 +222,15 @@ OsStatus sipXmediaFactoryImpl::setMicrophoneGain(int iGain)
     OsStatus rc ;
 
     miGain = iGain ;
-#   ifdef WIN32
     rc = MpCodec_setGain(miGain) ;
-#   else
-    rc = OS_FAILED;
-#   endif
     return rc ;
 }
 
 OsStatus sipXmediaFactoryImpl::setMicrophoneDevice(const UtlString& device) 
 {
     OsStatus rc = OS_SUCCESS ;
-#ifdef WIN32
     DmaTask::setInputDevice(device.data()) ;
+#ifdef WIN32
     dmaSignalMicDeviceChange();
 #endif
     return rc ;    
@@ -240,7 +238,6 @@ OsStatus sipXmediaFactoryImpl::setMicrophoneDevice(const UtlString& device)
 
 OsStatus sipXmediaFactoryImpl::muteMicrophone(UtlBoolean bMute) 
 {
-//#ifdef WIN32
     if (bMute)
     {
         MpCodec_setGain(0) ;
@@ -249,7 +246,6 @@ OsStatus sipXmediaFactoryImpl::muteMicrophone(UtlBoolean bMute)
     {
         MpCodec_setGain(miGain) ;
     }
-//#endif
     return OS_SUCCESS ;
 }
 
@@ -335,7 +331,8 @@ OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory,
             pFactory->getCodecs(numCodecs, codecsArray);
             
             UtlString preferences;
-            for (int i = 0; i < numCodecs; i++)
+            int i;
+            for (i = 0; i < numCodecs; i++)
             {
                 if (getCodecNameByType(codecsArray[i]->getCodecType(), codecName) == OS_SUCCESS)
                 {
@@ -350,7 +347,7 @@ OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory,
                           preferences.data(), *iRejected);
                           
             // Free up the codecs and the array
-            for (int i = 0; i < numCodecs; i++)
+            for (i = 0; i < numCodecs; i++)
             {
                 delete codecsArray[i];
                 codecsArray[i] = NULL;
@@ -384,13 +381,15 @@ OsStatus sipXmediaFactoryImpl::getSpeakerVolume(int& iVolume) const
 {
     OsStatus rc = OS_SUCCESS ;
 
-//#ifdef WIN32
     iVolume = MpCodec_getVolume() ;
+<<<<<<< .working
     if (iVolume==-1) {
         rc = OS_FAILED;
         iVolume = 0;
     }
 //#endif
+=======
+>>>>>>> .merge-right.r7749
     return rc ;
 }
 
@@ -398,9 +397,7 @@ OsStatus sipXmediaFactoryImpl::getSpeakerDevice(UtlString& device) const
 {
     OsStatus rc = OS_SUCCESS ;
 
-#ifdef WIN32
     device = DmaTask::getCallDevice() ;
-#endif
     return rc ;
 }
 
@@ -409,9 +406,7 @@ OsStatus sipXmediaFactoryImpl::getMicrophoneGain(int& iGain) const
 {
     OsStatus rc = OS_SUCCESS ;
 
-#ifdef WIN32
     iGain = MpCodec_getGain() ;
-#endif
     return rc ;
 }
 
@@ -420,9 +415,7 @@ OsStatus sipXmediaFactoryImpl::getMicrophoneDevice(UtlString& device) const
 {
     OsStatus rc = OS_SUCCESS ;
 
-#ifdef WIN32
     device = DmaTask::getMicDevice() ;
-#endif   
     return rc ;
 }
 
