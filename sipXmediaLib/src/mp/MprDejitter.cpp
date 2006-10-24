@@ -183,7 +183,11 @@ MpRtpBufPtr MprDejitter::pullPacket(int payloadType)
 
 int MprDejitter::getBufferLength(int payload)
 {
-   return mNumPackets[payload];
+   int codecIndex = mBufferLookup[payload];
+   if (codecIndex < 0)
+      return 0;
+
+   return mNumPackets[codecIndex];
 }
 
 /* ============================ INQUIRY =================================== */
