@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -250,6 +253,14 @@ void OsServerSocket::close()
 }
 
 /* ============================ ACCESSORS ================================= */
+
+// Returns the socket descriptor
+// Warning: use of this method risks the creation of platform
+// dependent code.
+int OsServerSocket::getSocketDescriptor() const
+{
+        return(socketDescriptor);
+}
 
 int OsServerSocket::getLocalHostPort() const
 {

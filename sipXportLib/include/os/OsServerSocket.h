@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -73,6 +76,11 @@ public:
    //: Close down the server
 
 /* ============================ ACCESSORS ================================= */
+
+   virtual int getSocketDescriptor() const;
+   //:Return the socket descriptor
+   // Warning: Use of this method risks the creation of platform-dependent
+   // code.
 
    virtual int getLocalHostPort() const;
    //:Return the local port number
