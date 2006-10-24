@@ -64,13 +64,14 @@
     <service name="download" object="service:Download"/>
   </contribution>
   <service-point interface="org.apache.tapestry.engine.IEngineService" id="Download">
-    <invoke-factory>
+    <invoke-factory model="threaded">
       <construct class="components.DownloadService">
         <set-object property="response" value="service:tapestry.globals.WebResponse"/>
         <set-object property="linkFactory" value="infrastructure:linkFactory"/>
+        <set-object property="stateManager" value="infrastructure:applicationStateManager"/>
       </construct>
     </invoke-factory>
-  </service-point>
+  </service-point>  
   <!-- 
   - Logout copied from Vlib example, also see
   - http://thread.gmane.org/gmane.comp.java.tapestry.user/31641
