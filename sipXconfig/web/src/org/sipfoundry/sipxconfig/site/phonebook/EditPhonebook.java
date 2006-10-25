@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.site.phonebook;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -46,16 +47,14 @@ public abstract class EditPhonebook extends PageWithCallback implements PageBegi
         if (groupsString != null) {
             List<Group> groups = getSettingDao().getGroupsByString(User.GROUP_RESOURCE_ID,
                     groupsString, true);
-            for (Group group : groups) {
-                phonebook.addMemberGroup(group);
-            }
+            phonebook.replaceMembers(new HashSet<Group>(groups));
         }
 
         getPhonebookManager().savePhonebook(phonebook);
     }
     
     public File getPhonebookFile() {
-        String assetFilename = getPhonebook().getExternalUsersFilename();
+        String assetFilename = getPhonebook().getMembersCsvFilename();
         if (assetFilename == null) {
             return null;
         }
@@ -63,7 +62,7 @@ public abstract class EditPhonebook extends PageWithCallback implements PageBegi
     }
     
     public void setPhonebookFile(File phonebook) {
-        getPhonebook().setExternalUsersFilename(phonebook.getName());
+        getPhonebook().setMembersCsvFilename(phonebook.getName());
     }
     
     public File getPhonebookDirectory() {
@@ -86,7 +85,7 @@ public abstract class EditPhonebook extends PageWithCallback implements PageBegi
             }
             setPhonebook(phonebook);            
 
-            Set<Group> groups = phonebook.getUserMembers();
+            Set<Group> groups = phonebook.getMembers();
             String groupsString = BeanWithGroups.getGroupsAsString(groups);
             setMemberGroupsString(groupsString);                
         }

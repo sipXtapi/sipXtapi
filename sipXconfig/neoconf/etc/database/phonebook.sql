@@ -1,6 +1,6 @@
 create table phonebook (
    phonebook_id int4 not null,      
-   external_users_filename varchar(255),
+   members_csv_filename varchar(255),
    primary key (phonebook_id)
 );
 

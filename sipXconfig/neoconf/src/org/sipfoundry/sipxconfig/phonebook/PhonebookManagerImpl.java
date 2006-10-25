@@ -14,12 +14,18 @@ package org.sipfoundry.sipxconfig.phonebook;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.setting.Group;
 
 public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> implements PhonebookManager {
     private String m_externalUsersDirectory;
+    private CoreContext m_coreContext;
 
     public Phonebook getGlobalPhonebook() {
         Collection books = getHibernateTemplate().loadAll(Phonebook.class);
@@ -34,6 +40,14 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
     public void savePhonebook(Phonebook phonebook) {
         getHibernateTemplate().saveOrUpdate(phonebook);
+    }
+
+    public CoreContext getCoreContext() {
+        return m_coreContext;
+    }
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
     }
 
     /**
@@ -58,4 +72,38 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     public void setExternalUsersDirectory(String externalUsersDirectory) {
         m_externalUsersDirectory = externalUsersDirectory;
     }
+    
+    public Collection<PhonebookEntry> getRows(Phonebook phonebook) {
+        Map<String, PhonebookEntry> entries = new HashMap();
+        Collection<Group> members = phonebook.getMembers();
+        if (members != null) {
+            for (Group group : members) {
+                for (User user : m_coreContext.getGroupMembers(group)) {
+                    PhonebookEntry entry = new UserPhonebookEntry(user);
+                    entries.put(entry.getNumber(), entry); 
+                }
+            }
+        }
+        return entries.values();
+    }
+    
+    public static class UserPhonebookEntry implements PhonebookEntry {
+        private User m_user;
+        UserPhonebookEntry(User user) {
+            m_user = user;
+        }
+        
+        public String getFirstName() {
+            return m_user.getFirstName();
+        }
+        
+        public String getLastName() {
+            return m_user.getLastName();
+        }
+        
+        public String getNumber() {
+            return m_user.getUserName();
+        }
+    }
+
 }

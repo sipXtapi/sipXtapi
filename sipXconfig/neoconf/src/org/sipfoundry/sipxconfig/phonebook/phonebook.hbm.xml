@@ -9,8 +9,8 @@
         <param name="sequence">phonebook_seq</param>
       </generator>
     </id>
-    <property name="externalUsersFilename"/>
-    <set name="userMembers" inverse="true" table="phonebook_member">
+    <property name="membersCsvFilename"/>
+    <set name="members" table="phonebook_member">
       <key column="phonebook_id"/>
       <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group" />
     </set>    

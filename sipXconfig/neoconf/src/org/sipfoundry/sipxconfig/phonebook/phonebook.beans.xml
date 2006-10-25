@@ -16,6 +16,7 @@
   <bean id="phonebookManagerImpl"
     class="org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl">
     <property name="sessionFactory" ref="sessionFactory"/>
+	<property name="coreContext" ref="coreContext"/>
   </bean>
 
 </beans>

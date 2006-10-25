@@ -30,7 +30,7 @@
     <binding name="description" value="message:description.phonebookFile"/>
   </component>
   <component id="phonebookFile" type="AssetSelector">
-    <binding name="asset" value="phonebook.externalUsersFilename" />
+    <binding name="asset" value="phonebook.membersCsvFilename" />
     <binding name="assetDir" value="phonebookDirectory" />
     <binding name="errorMsg" value="message:error.select" />
     <binding name="contentType" value="literal:text/csv" />

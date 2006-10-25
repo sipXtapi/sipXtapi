@@ -11,32 +11,35 @@
  */
 package org.sipfoundry.sipxconfig.phonebook;
 
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.setting.Group;
 
 public class Phonebook extends BeanWithId {
-    private String m_externalUsersFilename;
-    private Set<Group> m_userMembers;
+    private String m_membersCsvFilename;
+    private Set<Group> m_members = new TreeSet<Group>();
     
-    public String getExternalUsersFilename() {
-        return m_externalUsersFilename;
+    public String getMembersCsvFilename() {
+        return m_membersCsvFilename;
     }
-    public void setExternalUsersFilename(String externalUsersFilename) {
-        m_externalUsersFilename = externalUsersFilename;
+    
+    public void setMembersCsvFilename(String externalUsersFilename) {
+        m_membersCsvFilename = externalUsersFilename;
     }
-    public Set<Group> getUserMembers() {
-        return m_userMembers;
+    
+    public Set<Group> getMembers() {
+        return m_members;
     }
-    public void setUserMembers(Set<Group> userGroups) {
-        m_userMembers = userGroups;
+    
+    public void setMembers(Set<Group> members) {
+        m_members = members;
     }
-    public void addMemberGroup(Group userGroup) {
-        if (m_userMembers == null) {
-            m_userMembers = new HashSet<Group>();
-        }
-        m_userMembers.add(userGroup);
-    }
+    
+    public void replaceMembers(Collection<Group> groups) {
+        m_members.clear();
+        m_members.addAll(groups);
+    }    
 }

@@ -400,7 +400,7 @@
 <!ELEMENT phonebook EMPTY>
 <!ATTLIST phonebook
     phonebook_id CDATA #REQUIRED
-    external_users_filename CDATA #IMPLIED
+    members_csv_filename CDATA #IMPLIED
 >
 
 <!ELEMENT phonebook_member EMPTY>
