@@ -12,8 +12,6 @@
 # operator.  This class is generic, it is not specifically for Call Resolver.
 # We would have used the name "Config" for this class, but "Config" is the name
 # of an existing Ruby module.
-# There is also a config subdirectory of this project.  That contains Rails
-# code that is only used for unit testing.
 
 # system requires
 require 'logger'              # writes log messages to a file or stream

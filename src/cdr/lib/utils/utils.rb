@@ -11,9 +11,9 @@
 require 'ipaddr'
 
 # application requires
-require 'exceptions'
-require 'sipx_ipsocket'
-require 'socket_utils'
+require 'utils/exceptions'
+require 'utils/sipx_ipsocket'
+require 'utils/socket_utils'
 
 
 class Utils
@@ -29,22 +29,25 @@ public
   HOSTNAME = "(#{DOMAINLABEL}\\.)*#{TOPLABEL}"    
   HOST = "(#{IPADDRV4}|#{HOSTNAME})"
   HOSTPORT = "#{HOST}(:\\d+)?"
-  SIPURI = ".*:(.+@)?(#{HOST})"
   CONTACT = "(\\<?.*:(.+@)?#{HOSTPORT}).*\\>?"
   EMBEDDEDQUOTES = '(\\\".*\\\")'
-  QUOTEDSTRING = "(\".*\")\s*(\\<.*:.*)"
+  
+  #patterns
+  SIPURI = Regexp.new(".*:(.+@)?(#{HOST})")  
+  QUOTEDSTRING = Regexp.new("(\".*\")\s*(\\<.*:.*)")
+  
 
   # Take a contact string like "Jorma Kaukonen"<sip:187@10.1.1.170:1234>;tag=1c32681
   # and extract just the host part, in this case "10.1.1.170".  The "@" is optional,
   # could be just "sip:10.1.1.170" for example.
   def Utils.contact_host(contact)
     # Use regular expression to extract the hostport part
-    if contact =~ Regexp.new(QUOTEDSTRING)
+    if contact =~ QUOTEDSTRING
       sip_uri = $2
     else
       sip_uri = contact
     end
-    if sip_uri =~ Regexp.new(SIPURI)
+    if sip_uri =~ SIPURI
       $2
     else   
       raise(BadContactException.new(contact),
@@ -69,7 +72,7 @@ public
   def Utils.get_aor_from_header(header, is_tag_required = true)
     aor = nil
    # Strip quoted display name 
-   if header =~ Regexp.new(QUOTEDSTRING)
+   if header =~ QUOTEDSTRING
       sip_uri = $2
     else
       sip_uri = header
@@ -108,7 +111,7 @@ public
   # matching a '<' at the beginning.  If so then leave it in place.
   # :LATER: Use regex here, much simpler
   def Utils.contact_without_params(contact)
-    if contact =~ Regexp.new(QUOTEDSTRING)
+    if contact =~ QUOTEDSTRING
       sip_uri = $2
     else
       sip_uri = contact

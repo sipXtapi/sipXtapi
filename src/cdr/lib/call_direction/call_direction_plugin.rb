@@ -42,14 +42,8 @@ public
   
   # When CallResolver tells us that a new CDR has been created, then compute
   # call direction for that CDR.
-  def update(event_type,    # Call Resolver event type
-             cdr)           # New CDR, not yet saved to DB
-    # The "new CDR" event is the only event type handled by this plugin
-    if event_type == CallResolver::EVENT_NEW_CDR
-      set_call_direction(cdr)
-    else
-      log.error("CallDirectionPlugin#update: unrecognized event type #{event_type}")
-    end
+  def update(cdr)
+    set_call_direction(cdr)
   end
   
   # Return true if call direction is enabled, false otherwise, based on the config.

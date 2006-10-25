@@ -7,12 +7,11 @@
 #
 ##############################################################################
 
-$:.unshift(File.join(File.dirname(__FILE__), "..", ".."))
+require 'test/unit'
 
-# application requires
-require 'test/test_helper'
-require 'utils'
-require 'exceptions'
+$:.unshift File.join(File.dirname(__FILE__), "..", "..", "lib")
+require 'utils/utils'
+require 'utils/exceptions'
 
 
 class UtilsTest < Test::Unit::TestCase

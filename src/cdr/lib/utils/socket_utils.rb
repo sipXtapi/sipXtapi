@@ -8,7 +8,8 @@
 ##############################################################################
 
 require 'resolv'
-require 'sipx_ipsocket'
+
+require 'utils/sipx_ipsocket'
 
 class SocketUtils
   

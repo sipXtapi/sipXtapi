@@ -153,9 +153,8 @@ private
   # is the default database for all models.  Because there is only one CDR
   # database, the caller doesn't need to provide an URL.
   def connect_to_cdr_database
-    unless ActiveRecord::Base.connected?
-      ActiveRecord::Base.establish_connection(cdr_database_url.to_hash)
-    end
+    log.debug{"connect_to_cdr_database: #{db_url}"}
+    Cdr.establish_connection(cdr_database_url.to_hash)
   end
 
   # Connect the CallStateEvent class to the CSE database at the specified URL.
