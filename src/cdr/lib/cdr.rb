@@ -119,6 +119,10 @@ class Cdr
     @termination == CALL_COMPLETED_TERM || @termination == CALL_FAILED_TERM
   end
   
+  def terminated?
+    @termination == CALL_COMPLETED_TERM
+  end
+  
   # Return a text description of the termination status for this CDR.
   def termination_text
     TERMINATION_NAMES[@termination] if @termination
