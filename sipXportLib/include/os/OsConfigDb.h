@@ -35,6 +35,7 @@ class UtlSList;
 class DbEntry : public UtlContainable
 {
  public:
+
     DbEntry(const UtlString &key);
 
     DbEntry(const UtlString &key, const UtlString &value);
@@ -52,7 +53,6 @@ class DbEntry : public UtlContainable
     UtlString key;
 
     UtlString value;
-
 };
 
 
@@ -62,13 +62,13 @@ class DbEntry : public UtlContainable
  */
 class OsConfigDb
 {
+   friend class OsConfigDbTest;
 
 public:
 
     OsConfigDb();
 
     virtual ~OsConfigDb();
-
 
     virtual OsStatus loadFromFile(FILE* fp);
 
@@ -106,7 +106,7 @@ public:
      * return OS_SUCCESS if one key or more keys were found in the database,
      * return OS_NOT_FOUND otherwise
      */
-    OsStatus removeByPrefix(const UtlString& rPrefix) ;
+    OsStatus removeByPrefix(const UtlString& rPrefix);
  
     /**
      * Insert the key/value pair into the config database If the
@@ -120,26 +120,26 @@ public:
      * database already contains an entry for this key, then set the
      * value for the existing entry to iNewValue.
      */
-    void set(const UtlString& rKey, const int iNewValue) ;
+    void set(const UtlString& rKey, const int iNewValue);
 
     /**
      * Sets rValue to the value in the database associated with rKey.
      * If rKey is found in the database, returns OS_SUCCESS.  Otherwise,
      * returns OS_NOT_FOUND and sets rValue to the empty string.
      */
-    virtual OsStatus get(const UtlString& rKey, UtlString& rValue);
+    virtual OsStatus get(const UtlString& rKey, UtlString& rValue) const;
 
     /**
      * Sets rValue to the value in the database associated with rKey.
      * If rKey is found in the database, returns OS_SUCCESS.  Otherwise,
      * returns OS_NOT_FOUND and sets rValue to -1.
      */
-    virtual OsStatus get(const UtlString& rKey, int& rValue);
+    virtual OsStatus get(const UtlString& rKey, int& rValue) const;
 
     /**
      * Filename, URI, or what helps identify the contents of this config
      */
-    virtual const char *getIdentityLabel();
+    virtual const char *getIdentityLabel() const;
 
     /**
      * Filename, URI, or what helps identify the contents of this config
@@ -151,7 +151,7 @@ public:
      * support, !NULL then there's a possiblity that actual contents of
      * config will be encrypted or decrypted from/to io source.
      */
-    OsConfigEncryption *getEncryption();
+    OsConfigEncryption *getEncryption() const;
 
     /**
      * Set the default encryption support for all OsConfig instances
@@ -173,23 +173,23 @@ public:
      * Store all contents into a buffer, call calculateBufferSize to
      * get safe size. Call strlen to get actual size
      */
-    void storeToBuffer(char *buff);
+    void storeToBuffer(char *buff) const;
 
     /**
      * Return gauronteed to be large enough, (unless values are
      * changed) when storing into a buffer
      */
-    int calculateBufferSize();
+    int calculateBufferSize() const;
 
     /**
      * Return TRUE if the database is empty, otherwise FALSE
     */
-    virtual UtlBoolean isEmpty(void);
+    virtual UtlBoolean isEmpty(void) const;
 
     /**
      * Return the number of entries in the config database
      */
-    virtual int numEntries(void);
+    virtual int numEntries(void) const;
 
     /**
      * Get a hash of name value pairs with the given key prefix
@@ -198,7 +198,7 @@ public:
                                                                * which are copied into the given rSubDb. The key in the
                                                                * sub-OsConfigDb have the prefix removed.
                                                                */
-                                OsConfigDb& rSubDb);
+                                OsConfigDb& rSubDb) const;
 
     /**
      * Relative to <i>rKey</i>, return the key and value associated
@@ -213,7 +213,7 @@ public:
      * @return OS_NO_MORE_DATA if there is no "next" entry.
      */
     virtual OsStatus getNext(const UtlString& rKey,
-                            UtlString& rNextKey, UtlString& rNextValue);
+                            UtlString& rNextKey, UtlString& rNextValue) const;
 
 
     /**
@@ -234,7 +234,7 @@ public:
      * @param rList List of UtlString values.
      */
     virtual void addList(const UtlString& rPrefix,
-                         UtlSList& rList) ;
+                         UtlSList& rList);
 
     /**
      * Loads a list of strings from the configuration datadase using the 
@@ -247,7 +247,7 @@ public:
      * @see addList
      */
     virtual int loadList(const UtlString& rPrefix,
-                         UtlSList& rList) ;
+                         UtlSList& rList) const;
 
 
     /**
@@ -265,12 +265,12 @@ public:
      *
      * @param szKey Key file to lookup.
      */
-    int getPort(const char* szKey) ;
+    int getPort(const char* szKey) const;
 
  protected:
 
     /** reader/writer lock for synchronization */
-    OsRWMutex mRWMutex;
+    mutable OsRWMutex mRWMutex;
 
     /** sorted storage of key/values */
     UtlSortedList mDb;
@@ -301,7 +301,7 @@ public:
         virtual OsStatus storeToFile(FILE* fp);
 
     /**
-     * Parse "key : value" and subsequenty add to dictionary
+     * Parse "key : value" and add to dictionary.
      */
     void insertEntry(const char* line);
 
