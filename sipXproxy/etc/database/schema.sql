@@ -11,6 +11,7 @@
  * Call Detail Records (CDR).
  */
 
+SET client_min_messages TO 'error';
 
 ---------------------------------- Versioning ----------------------------------
 /*
