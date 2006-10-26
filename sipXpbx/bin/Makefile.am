@@ -5,8 +5,7 @@ bin_SCRIPTS = \
 	${PACKAGE}-config \
     autodel \
     blat \
-    check-fqdn \
-    sipx-uninstall
+    check-fqdn
 
 $(top_builddir)/BUILDSTAMP:
 	${MAKE} -C $(top_builddir) BUILDSTAMP
