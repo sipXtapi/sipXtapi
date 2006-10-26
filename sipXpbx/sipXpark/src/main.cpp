@@ -502,4 +502,3 @@ int JNI_LightButton(long)
 {
    return 0;
 }
-

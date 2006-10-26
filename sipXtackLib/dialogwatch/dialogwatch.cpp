@@ -46,6 +46,11 @@ void subscriptionStateCallback(SipSubscribeClient::SubscriptionState newState,
    fprintf(stderr,
            "subscriptionStateCallback is called with responseCode = %d (%s)\n",
            responseCode, responseText); 
+   // If an error reponse, terminate.
+   if (!(responseCode >= 100 && responseCode <= 299))
+   {
+      exit(0);
+   }
 }                                            
 
 

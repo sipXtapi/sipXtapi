@@ -48,6 +48,7 @@ HttpBody::HttpBody(const char* bytes, int length, const char* contentType) :
    {
        mpBodyParts[partIndex] = NULL;
    }
+   mBodyPartCount = 0;
 
         if (contentType)
         {
@@ -133,8 +134,12 @@ HttpBody::HttpBody(const char* bytes, int length, const char* contentType) :
                     //int bytesLeft = parser.getProcessedIndex() - partLength;
 
                                 if (partLength > 0)
+                                {
                                         mpBodyParts[partIndex] = new MimeBodyPart(this, partBytes - parentBodyBytes,
                                                                 partLength);
+                                        // Save the number of body parts.
+                                        mBodyPartCount = partIndex + 1;
+                                }
                                 else
                                         mpBodyParts[partIndex] = NULL;
                 }
@@ -167,6 +172,7 @@ HttpBody::HttpBody(const HttpBody& rHttpBody)
 
     mMultipartBoundary = rHttpBody.mMultipartBoundary;
 
+    mBodyPartCount = rHttpBody.mBodyPartCount;
     for(int partIndex = 0; partIndex < MAX_HTTP_BODY_PARTS; partIndex++)
     {
         if (rHttpBody.mpBodyParts[partIndex])
@@ -213,6 +219,7 @@ HttpBody::operator=(const HttpBody& rhs)
 
     mMultipartBoundary = rhs.mMultipartBoundary;
 
+    mBodyPartCount = rhs.mBodyPartCount;
     for(int partIndex = 0; partIndex < MAX_HTTP_BODY_PARTS; partIndex++)
     {
        if(mpBodyParts[partIndex]) delete mpBodyParts[partIndex];
@@ -365,8 +372,6 @@ const char* HttpBody::getContentType() const
 
 UtlBoolean HttpBody::getMultipartBytes(int partIndex, const char** bytes, int* length) const
 {
-
-
     UtlBoolean partFound = FALSE;
     if(!mMultipartBoundary.isNull())
     {
@@ -426,6 +431,11 @@ const MimeBodyPart* HttpBody::getMultipart(int index) const
         bodyPart = mpBodyParts[index];
     }
     return(bodyPart);
+}
+
+int HttpBody::getMultipartCount() const
+{
+   return mBodyPartCount;
 }
 
 /* ============================ INQUIRY =================================== */

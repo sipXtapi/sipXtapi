@@ -201,7 +201,7 @@ public:
      * \param natPingUrl - unsupported
      * \param natPingFrequency - unsupported
      * \param natPingMethod - unsupported
-     * \param lineMgr - SipLinMgr object which is container for user
+     * \param lineMgr - SipLineMgr object which is container for user
      *        definitions and their credentials.  This is used to
      *        authenticate incoming requests to the UA application.
      * \param sipFirstResendTimeout - T1 in RFC 3261
