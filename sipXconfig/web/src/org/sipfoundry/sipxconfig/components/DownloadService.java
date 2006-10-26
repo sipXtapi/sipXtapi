@@ -19,14 +19,18 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.engine.IEngineService;
 import org.apache.tapestry.engine.ILink;
+import org.apache.tapestry.engine.state.ApplicationStateManager;
 import org.apache.tapestry.services.LinkFactory;
 import org.apache.tapestry.services.ServiceConstants;
 import org.apache.tapestry.util.ContentType;
 import org.apache.tapestry.web.WebResponse;
+import org.sipfoundry.sipxconfig.site.UserSession;
 
 public class DownloadService implements IEngineService {
     public static final String SERVICE_NAME = "download";
@@ -35,12 +39,26 @@ public class DownloadService implements IEngineService {
 
     private static final String PARAM_CONTENT_TYPE = "contentType";
 
+    private static final String PARAM_DIGEST = "digest";
+
     private LinkFactory m_linkFactory;
+
+    private FileDigestSource m_digestSource = new FileDigestSource();
 
     private WebResponse m_response;
 
+    private ApplicationStateManager m_stateManager;
+
     public String getName() {
         return SERVICE_NAME;
+    }
+
+    public Integer getUserId() {
+        if (m_stateManager.exists(UserSession.SESSION_NAME)) {
+            UserSession userSession = (UserSession) m_stateManager.get(UserSession.SESSION_NAME);
+            return userSession.getUserId();
+        }
+        return null;
     }
 
     /**
@@ -48,7 +66,21 @@ public class DownloadService implements IEngineService {
      */
     public void service(IRequestCycle cycle) throws IOException {
         File file = getFile(cycle);
+        Integer userId = getUserId();
+        if (userId == null) {
+            m_response.sendError(HttpServletResponse.SC_UNAUTHORIZED, file.getPath());
+            return;
+        }
+
         if (!file.canRead()) {
+            m_response.sendError(HttpServletResponse.SC_NOT_FOUND, file.getPath());
+            return;
+        }
+
+        String expectedMd5Digest = cycle.getParameter(PARAM_DIGEST);
+        String actualMd5Digest = m_digestSource.getDigestForResource(userId, file.getPath());
+        if (!actualMd5Digest.equals(expectedMd5Digest)) {
+            m_response.sendError(HttpServletResponse.SC_FORBIDDEN, file.getPath());
             return;
         }
 
@@ -86,6 +118,10 @@ public class DownloadService implements IEngineService {
     }
 
     public ILink getLink(boolean post, Object parameter) {
+        Integer userId = getUserId();
+        if (userId == null) {
+            throw new RuntimeException("You have to be logged in to generate download links.");
+        }
         DownloadLink.Info info = (DownloadLink.Info) parameter;
 
         Map parameters = new HashMap();
@@ -93,6 +129,8 @@ public class DownloadService implements IEngineService {
         parameters.put(ServiceConstants.SERVICE, getName());
         parameters.put(PARAM_PATH, info.getPath());
         parameters.put(PARAM_CONTENT_TYPE, info.getContentType());
+        String digest = m_digestSource.getDigestForResource(userId, info.getPath());
+        parameters.put(PARAM_DIGEST, digest);
 
         return m_linkFactory.constructLink(this, post, parameters, false);
     }
@@ -103,5 +141,9 @@ public class DownloadService implements IEngineService {
 
     public void setResponse(WebResponse response) {
         m_response = response;
+    }
+
+    public void setStateManager(ApplicationStateManager stateManager) {
+        m_stateManager = stateManager;
     }
 }
