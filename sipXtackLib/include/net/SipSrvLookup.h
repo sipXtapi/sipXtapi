@@ -37,6 +37,8 @@
 
 // FORWARD DECLARATIONS
 class server_t;
+typedef struct s_res_response
+    res_response;
 
 /**
  * A class (with no members) whose 'servers' method implements the RFC
@@ -148,6 +150,37 @@ public:
       );
    ///< Defaults are: timeout = 5, retries = 4.
 
+   /// Perform a DNS query and parse the results.  Follows CNAME records.
+   static void res_query_and_parse(const char* in_name,
+                                   ///< domain name to look up
+                                   int type,
+                                   ///< RR type to look up
+                                   res_response* in_response,
+                                   /**< response structure to
+                                    *   look in before calling
+                                    *   res_query, or NULL */
+                                   const char*& out_name,
+                                   ///< canonical name for in_name
+                                   res_response*& out_response
+                                   ///< response structure containing RRs
+      );
+   /**<
+    * Performs a DNS query for a particular type of RR on a given name,
+    * doing all the work to follow CNAMEs.  The 'in_name' and 'type'
+    * arguments specify the RRs to look for.  If 'in_response' is not NULL,
+    * it is the results of some previous search for the same name, for
+    * a different type of RR, which might contain RRs for this search.
+    *
+    * @return out_response is a pointer to a response structure, or NULL.
+    * If non-NULL, the RRs of the required type (if any) are in out_response
+    * (in either the answer section or the additional section), under the name
+    * out_name.
+    *
+    * The caller is responsible for freeing out_name if it is non-NULL
+    * and != in_name.  The caller is responsible for freeing out_response if it
+    * is non-NULL and != in_response.
+    */
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
@@ -182,7 +215,6 @@ class server_t {
    /// Initializer for server_t
    server_t();
    static UtlBoolean mDnsSrvResolveEnabled;
-   
 
    /// Copy constructor for server_t
    server_t(const server_t& rserver_t);
