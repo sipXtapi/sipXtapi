@@ -10,7 +10,6 @@ lib_LTLIBRARIES = \
 	libRedirectorSubscribe.la \
 	\
 	libRedirectorENUM.la \
-	libRedirectorGateway.la \
 	libRedirectorISN.la \
 	libRedirectorJoin.la \
 	libRedirectorTest.la

@@ -83,6 +83,12 @@ class SipRedirectorGateway : public RedirectPlugin
       int redirectorNo,
       SipRedirectorPrivateStorage*& privateStorage);
 
+
+   /** Return TRUE if p is a valid prefix for this redirector. */
+   UtlBoolean prefixIsValid(UtlString& p);
+
+  protected:
+
    // Dialing prefix - fixed portion of routing prefix.
    UtlString mPrefix;
 
