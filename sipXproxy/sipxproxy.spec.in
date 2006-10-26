@@ -45,6 +45,7 @@ Requires: ruby-gems-rails >= 1.0.0
 Requires: ruby-gems-rake >= 0.7.0
 Requires: ruby-postgres >= 0.7.1
 Requires: unixODBC-devel >= 2.2
+Requires: sipxcommserverlib >= %version
 Group:    Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
 Summary: CDR (Call Distribution Record) aggregration
