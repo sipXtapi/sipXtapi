@@ -24,7 +24,8 @@
 // CONSTANTS
 
    static const int JbPayloadMapSize = 128;
-   static const int JbQueueSize = (8 * (2 * 80)); // 16 packets, 20 mS each
+   static const int JbQueueSize = (9 * (2 * 80)); // 9 packets, 20 mS each
+                                                  // or 3 packets 60 mS each.
 
 // STRUCTS
 // TYPEDEFS

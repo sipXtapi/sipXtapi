@@ -69,9 +69,9 @@ int MpJitterBuffer::pushPacket(MpRtpBufPtr &rtpPacket)
    // Update buffer state
    JbQCount += decodedSamples;
    JbQIn += decodedSamples;
+   // Reset write pointer if we reach end of buffer
    if (JbQIn >= JbQueueSize)
-      JbQIn -= JbQueueSize;
-   // This will blow up if Samples Per Frame is not an exact multiple of 80
+      JbQIn = 0;
 
    return 0;
 }
