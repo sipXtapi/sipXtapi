@@ -200,4 +200,23 @@ class CdrTest < Test::Unit::TestCase
     assert_nil cdr.accept(cse)    
   end
   
+  def test_complete?
+    cdr = Cdr.new('call_ui')
+    
+    # No termination code => CDR is not complete
+    assert(!cdr.complete?)
+    
+    # Termination code of completion or failure implies complete CDR
+    cdr.termination = Cdr::CALL_COMPLETED_TERM
+    assert(cdr.complete?)
+    cdr.termination = Cdr::CALL_FAILED_TERM
+    assert(cdr.complete?)
+    
+    # Termination code of request or in progress implies incomplete CDR
+    cdr.termination = Cdr::CALL_REQUESTED_TERM
+    assert(!cdr.complete?)
+    cdr.termination = Cdr::CALL_IN_PROGRESS_TERM
+    assert(!cdr.complete?)
+  end
+  
 end

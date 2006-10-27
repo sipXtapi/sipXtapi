@@ -7,10 +7,11 @@
 #
 ##############################################################################
 
-$:.unshift(File.join(File.dirname(__FILE__), "..", ".."))
+require 'test/unit'
 
-require 'test/test_helper'
-require 'database_utils'
+$:.unshift(File.join(File.dirname(__FILE__), '..', '..', 'lib'))
+
+require 'db/database_utils'
 
 class DatabaseUtilsTest < Test::Unit::TestCase
   def test_exec_sql

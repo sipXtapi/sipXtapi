@@ -17,7 +17,7 @@
 require 'logger'              # writes log messages to a file or stream
 
 # application requires
-require 'exceptions'
+require 'utils/exceptions'
 
 
 class Configure

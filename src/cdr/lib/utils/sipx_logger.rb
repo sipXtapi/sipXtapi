@@ -10,6 +10,20 @@
 require 'logger'
 
 
+
+class SipxFormatter
+  
+  def call(severity, time, progname, msg)
+    puts severity
+    puts severity.inspect
+    sipx_severity = SipxLogger::LOG_LEVEL_LOGGER_TO_SIPX[severity]
+    puts sipx_severity
+    "#{sipx_severity}: #{msg}\n"
+  end
+  
+end
+
+
 # Subclass the Logger to add richer logging.  The longer-term solution is likely
 # to be switching to log4r.
 #
@@ -49,46 +63,14 @@ class SipxLogger < Logger
     ERROR => SIPX_ERR, 
     FATAL => SIPX_CRIT
   }
-
-public
-
+  
   # Initializer takes any args and passes them through to Logger
   def initialize(*args)
     super
   end
-
-  # Override Logger::add to print the severity at the front of the message
-  def add(severity, message = nil, progname = nil, &block)
-    # Compute the log message.  This code is unfortunately copied directly from
-    # the Logger implementation -- I don't know a better way to do this.
-    severity ||= UNKNOWN
-    if @logdev.nil? or severity < @level
-      return true             # early returns are bad style, but let it go
-    end
-    progname ||= @progname
-    if message.nil?
-      if block_given?
-        message = yield
-      else
-        message = progname
-        progname = @progname
-      end
-    end
-    
-    # Put the sipX log level in front of the message
-    message = "#{log_level_logger_to_sipx(severity)}: " + message
-    
-    # Let the base class do the rest. Since we have already evaluated the block
-    # above (if present), we don't need it here.
-    super(severity, message, progname)
-  end
-
-private
-
+  
   # Given a Logger log level, return the matching sipX log level, or
   # nil if the name is not recognized.
-  def log_level_logger_to_sipx(name)
-    LOG_LEVEL_LOGGER_TO_SIPX[name]
-  end
+  
   
 end

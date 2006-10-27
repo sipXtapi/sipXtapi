@@ -7,11 +7,12 @@
 #
 ##############################################################################
 
-$:.unshift(File.join(File.dirname(__FILE__), "..", ".."))
+require 'test/unit'
+
+$:.unshift(File.join(File.dirname(__FILE__), '..', '..', 'lib'))
 
 # application requires
-require 'test/test_helper'
-require 'socket_utils'
+require 'utils/socket_utils'
 
 
 class SocketUtilsTest < Test::Unit::TestCase

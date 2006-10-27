@@ -30,6 +30,7 @@ EOF
 end
 
 Rake::GemPackageTask.new(spec) do |pkg|
+  pkg.version = :noversion
   pkg.need_zip = true
   pkg.need_tar = true 
   pkg.package_dir = "#{ENV['builddir']}/pkg" if ENV['builddir']

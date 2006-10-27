@@ -9,10 +9,11 @@
 
 # Application requires.  Assume that the load path has been set up for us.
 require 'time'
-require 'configure'
-require 'database_url'
-require 'exceptions'
-require 'sipx_logger'
+
+require 'db/database_url'
+require 'utils/configure'
+require 'utils/exceptions'
+require 'utils/sipx_logger'
 
 
 class CallResolverConfigure
@@ -139,7 +140,6 @@ public
   #-----------------------------------------------------------------------------
   # Private methods
 
-private
 
   attr_accessor :config
     
@@ -147,6 +147,8 @@ private
   # message sending.
   
   attr_writer :cse_database_urls
+
+private
   
   def host_port_list=(host_port_list)
     @host_port_list = host_port_list

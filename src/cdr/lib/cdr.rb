@@ -14,6 +14,9 @@ class CallLeg
   
   def initialize(to_tag)
     @to_tag = to_tag
+    @status = nil
+    @connect_time = nil
+    @end_time = nil
   end
   
   attr_accessor :connect_time, :end_time, :status, :to_tag, :callee_contact
@@ -108,6 +111,7 @@ class Cdr
     @call_id = call_id
     @got_original = false
     @legs = CallLegs.new
+    @termination = nil
   end
   
   # Make caller_contact and callee_contact available during call resolution,

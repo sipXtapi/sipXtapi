@@ -12,10 +12,10 @@ require 'dbi'
 require 'ipaddr'
 
 # Application requires.  Assume that the load path includes this file's dir.
-require 'exceptions'
-require 'sipx_ipsocket'
-require 'socket_utils'
-require 'utils'
+require 'utils/exceptions'
+require 'utils/sipx_ipsocket'
+require 'utils/socket_utils'
+require 'utils/utils'
 
 SIPXCONFIG_DATABASE = 'SIPXCONFIG'
 

@@ -7,20 +7,19 @@
 #
 ##############################################################################
 
-# set up the load path
-$:.unshift(File.join(File.dirname(__FILE__), "..", ".."))
-
 require 'tempfile'
-require 'test/test_helper'
+require 'test/unit'
 
-require 'sipx_logger'
+$:.unshift File.join(File.dirname(__FILE__), '..', '..', 'lib')
 
+require 'utils/sipx_logger'
 
 class SipxLoggerTest < Test::Unit::TestCase
   
   def setup
     @tempfile = Tempfile.new("SipxLoggerTest")
-    @log = SipxLogger.new(@tempfile)    
+    @log = SipxLogger.new(@tempfile) 
+    @log.formatter = SipxFormatter.new   
   end
   
   # Log a message.  The logged message should have the severity prefixed.

@@ -7,23 +7,32 @@
 #
 ##############################################################################
 
-$:.unshift(File.join(File.dirname(__FILE__), "..", ".."))
+require 'test/unit'
 
-# system requires
-require 'test/test_helper'
+$:.unshift File.join(File.dirname(__FILE__), '..', '..', 'lib')
 
-# application requires
-require 'configure'
-
+require 'utils/configure'
 
 class ConfigureTest < Test::Unit::TestCase
-
-  def test_config
+  
+  def test_missing
     # Trying to open a nonexisting config file should fail
-    assert_raise(Errno::ENOENT) {Configure.new('nonexistent_config_file')}
-    
+    assert_raise(Errno::ENOENT) {
+      Configure.new('nonexistent_config_file')
+    }
+  end
+  
+  
+  def test_bad_format
     # Trying to open a misformatted config file should fail
-    assert_raise(ConfigException) {Configure.new(config_file_path('bad_config_missing_colon.txt'))}
+    assert_raise(ConfigException) {
+      file = config_file_path('bad_config_missing_colon.txt')
+      Configure.new(file)
+    }
+  end
+  
+  def test_config
+    
     
     # Load a valid config file and check the results
     config = Configure.new(config_file_path('config.txt'))
@@ -37,7 +46,7 @@ class ConfigureTest < Test::Unit::TestCase
   # Given the name of a config_file in the data directory, return the path
   # to it.
   def config_file_path(config_file)
-    File.join(File.dirname(__FILE__), "data", config_file)
+    File.join(File.dirname(__FILE__), '..', 'data', config_file)
   end
   
 end

@@ -11,8 +11,8 @@
 require 'ipaddr'
 
 # application requires
-require 'database_url'
-require 'exceptions'
+require 'db/database_url'
+require 'utils/exceptions'
 
 
 # DatabaseUtils contains utility methods that are primarily for test support.

@@ -7,10 +7,11 @@
 #
 ##############################################################################
 
-$:.unshift(File.join(File.dirname(__FILE__), "..", ".."))
+require 'test/unit'
 
-require 'test/test_helper'
-require 'database_url'
+$:.unshift(File.join(File.dirname(__FILE__), '..', '..', 'lib'))
+
+require 'db/database_url'
 
 
 class DatabaseUrlTest < Test::Unit::TestCase
