@@ -13,10 +13,9 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.text.MessageFormat;
 import java.util.Collections;
+import java.util.Formatter;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -60,7 +59,7 @@ import org.sipfoundry.sipxconfig.permission.Permission;
  * 
  */
 public class MappingRule extends DialingRule {
-    protected static final String PREFIX = "sip:'{'{0}'}'@'{'mediaserver'}';play='{'voicemail'}'";
+    protected static final String PREFIX = "sip:{%s}@{mediaserver};voicexml={voicemail}";
     protected static final String SUFFIX = "/cgi-bin/voicemail/mediaserver.cgi?action=";
     protected static final String VMAIL_DEPOSIT = "deposit";
     protected static final String VMAIL_RETRIEVE = "retrieve";
@@ -175,7 +174,7 @@ public class MappingRule extends DialingRule {
         }
     }
 
-    static String buildUrl(CallDigits digits, String action, Map params) {
+    static String buildUrl(CallDigits digits, String action, Map<String, String> params) {
         return buildUrl(digits, action, params, null);
     }
 
@@ -188,17 +187,17 @@ public class MappingRule extends DialingRule {
      * @param sipParams - any additional SIP params (can be null or empty)
      * @return String representign the URL
      */
-    static String buildUrl(CallDigits digits, String action, Map params, String sipParams) {
+    static String buildUrl(CallDigits digits, String action, Map<String, String> params,
+            String sipParams) {
         try {
-            StringBuffer url = new StringBuffer("<");
+            StringBuilder url = new StringBuilder("<");
             String suffix = URLEncoder.encode(SUFFIX, "UTF-8");
-            MessageFormat f = new MessageFormat(PREFIX + suffix + "{1}");
-            f.format(new Object[] {
-                digits.getName(), action
-            }, url, null);
+            Formatter f = new Formatter(url);
+            f.format(PREFIX, digits.getName());
+            url.append(suffix);
+            url.append(action);
             if (null != params) {
-                for (Iterator i = params.entrySet().iterator(); i.hasNext();) {
-                    Map.Entry entry = (Map.Entry) i.next();
+                for (Map.Entry<String, String> entry : params.entrySet()) {
                     url.append("%26"); // & - URL encoded
                     url.append(entry.getKey());
                     url.append("%3D"); // = - URL encoded
@@ -215,9 +214,9 @@ public class MappingRule extends DialingRule {
         }
     }
 
-    protected Map getMailboxParams(CallDigits digits) {
-        Map map = new HashMap();
-        map.put("mailbox", "{" + digits.getName() + "}");
+    protected Map<String, String> getMailboxParams(CallDigits digits) {
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("mailbox", String.format("{%s}", digits.getEscapedName()));
         return map;
     }
 }

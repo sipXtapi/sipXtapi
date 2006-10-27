@@ -295,10 +295,20 @@ void IvrCallListener::handleStartVXISession(TaoMessage& rMsg, TaoString& arg)
    UtlString userId;
    UtlString vxmlDoc;
 
-   requestUrl.getFieldParameter("play", vxmlDoc);
+   // voicexml parameter is RFC-4240 
+   // try that first
+   requestUrl.getFieldParameter("voicexml", vxmlDoc);
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
-                 "IvrCallListener::handleStartVXISession vxmlDoc = '%s'",
+              "IvrCallListener::handleStartVXISession voicexml vxmlDoc = '%s'",
+              vxmlDoc.data());
+   if (vxmlDoc.isNull())
+   {
+      // Didn't find it.  Try play parameter (older, proprietary)
+      requestUrl.getFieldParameter("play", vxmlDoc);
+      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
+                 "IvrCallListener::handleStartVXISession play vxmlDoc = '%s'",
                  vxmlDoc.data());
+   }
 
    requestUrl.getFieldParameter("user", userId);
    requestUrl.getFieldParameter("domain", domain);
@@ -336,7 +346,7 @@ void IvrCallListener::handleStartVXISession(TaoMessage& rMsg, TaoString& arg)
          HttpMessage::escape(callerAddress);
          vxmlDoc += "&from=" + callerAddress;
       }
-      UtlString tobeEscaped("@");
+      UtlString tobeEscaped("@+");
       HttpMessage::escapeChars(vxmlDoc, tobeEscaped);
    }
 

@@ -65,7 +65,7 @@ public class EmergencyRuleTest extends TestCase {
         assertEquals(1, transforms.length);
         UrlTransform emergencyTransform = (UrlTransform) transforms[0];
         assertEquals(
-                "<sip:{digits}@{mediaserver};play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dsos>",
+                "<sip:{digits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dsos>",
                 emergencyTransform.getUrl());
     }
 

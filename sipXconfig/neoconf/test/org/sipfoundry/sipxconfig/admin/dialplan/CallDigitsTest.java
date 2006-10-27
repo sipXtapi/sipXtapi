@@ -11,9 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
-import junit.framework.TestCase;
-
 import static org.sipfoundry.sipxconfig.admin.dialplan.CallDigits.findFirstNonEscapedSpecialChar;
+import junit.framework.TestCase;
 
 public class CallDigitsTest extends TestCase {
 
@@ -23,5 +22,10 @@ public class CallDigitsTest extends TestCase {
         assertEquals(-1, findFirstNonEscapedSpecialChar("abcd", "zx", 'c'));
         assertEquals(-1, findFirstNonEscapedSpecialChar("abcd", "de", 'c'));
         assertEquals(4, findFirstNonEscapedSpecialChar("abccd", "de", 'c'));
+    }
+
+    public void testGetEscapedName() {
+        assertEquals("digits-escaped", CallDigits.FIXED_DIGITS.getEscapedName());
+        assertEquals("vdigits-escaped", CallDigits.VARIABLE_DIGITS.getEscapedName());
     }
 }

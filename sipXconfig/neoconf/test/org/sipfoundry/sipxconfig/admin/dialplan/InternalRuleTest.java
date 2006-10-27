@@ -27,13 +27,13 @@ import org.sipfoundry.sipxconfig.permission.Permission;
  */
 public class InternalRuleTest extends TestCase {
 
-    private static final String URL_PARAMS = ";play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3D";
+    private static final String URL_PARAMS = ";voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3D";
     private static final String VOICEMAIL_URL = "<sip:{digits}@{mediaserver}" + URL_PARAMS
             + "retrieve>";
     private static final String VOICEMAIL_FALLBACK_URL = "<sip:{digits}@{mediaserver}"
-            + URL_PARAMS + "deposit%26mailbox%3D{digits}>;q=0.1";
+            + URL_PARAMS + "deposit%26mailbox%3D{digits-escaped}>;q=0.1";
     private static final String VOICEMAIL_TRANSFER_URL = "<sip:{vdigits}@{mediaserver}"
-            + URL_PARAMS + "deposit%26mailbox%3D{vdigits}>";
+            + URL_PARAMS + "deposit%26mailbox%3D{vdigits-escaped}>";
 
     private static final String TEST_DESCRIPTION = "kuku description";
     private static final String TEST_NAME = "kuku name";

@@ -21,6 +21,8 @@ public class CallDigits extends Enum {
     public static final CallDigits VARIABLE_DIGITS = new CallDigits("vdigits");
     public static final CallDigits FIXED_DIGITS = new CallDigits("digits");
 
+    public static final String ESCAPED_SUFFIX = "-escaped";
+
     /** Characters that can start dial pattern regex */
     static final String START_REGEX_CHARS = "[.x";
     static final char ESCAPE = '\\';
@@ -68,6 +70,14 @@ public class CallDigits extends Enum {
             return 0;
         }
         return digits;
+    }
+
+    /**
+     * When used in URL transforms for media server tell media server that parameter has been URL
+     * escaped.
+     */
+    public String getEscapedName() {
+        return getName() + ESCAPED_SUFFIX;
     }
 
     /**
