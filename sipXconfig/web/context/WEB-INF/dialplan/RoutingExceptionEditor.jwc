@@ -19,7 +19,7 @@
   </component>
   <component id="callersLabel" type="FieldLabel">
     <binding name="field" value="components.callers"/>
-    <binding name="displayName" value="literal:Numbers list"/>
+    <binding name="displayName" value="message:numbers"/>
   </component>
   <component id="callers" type="TextArea">
     <binding name="value" value="exception.callers"/>
@@ -30,11 +30,11 @@
   <component id="externalNumber" type="TextField">
     <binding name="value" value="exception.externalNumber"/>
     <binding name="validators" value="spring-validators:validSipUserId,required"/>
-    <binding name="displayName" value="literal:External emergency number"/>
+    <binding name="displayName" value="message:externalEmergency"/>
   </component>
   <component id="gatewaysLabel" type="FieldLabel">
     <binding name="field" value="components.gateways"/>
-    <binding name="displayName" value="literal:Gateway"/>
+    <binding name="displayName" value="message:gateway"/>
   </component>
   <component id="gateways" type="PropertySelection">
     <binding name="value" value="exception.gateway"/>

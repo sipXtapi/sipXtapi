@@ -18,14 +18,14 @@
   </component>
   <component id="enabledLabel" type="FieldPanel">
     <binding name="field" value="components.enabled"/>
-    <binding name="label" value="literal:Enabled"/>
+    <binding name="label" value="message:enabled"/>
   </component>
   <component id="enabled" type="Checkbox">
     <binding name="value" value="item.enabled"/>
   </component>
   <component id="nameLabel" type="FieldPanel">
     <binding name="field" value="components.name"/>
-    <binding name="label" value="literal:Name"/>
+    <binding name="label" value="message:name"/>
   </component>
   <component id="name" type="TextField">
     <binding name="value" value="item.name"/>
@@ -38,7 +38,7 @@
   </component>
   <component id="extensionLabel" type="FieldPanel">
     <binding name="field" value="components.extension"/>
-    <binding name="label" value="literal:Extension"/>
+    <binding name="label" value="message:extension"/>
   </component>
   <component id="extension" type="TextField">
     <binding name="value" value="item.extension"/>
@@ -47,7 +47,7 @@
   </component>
   <component id="descriptionLabel" type="FieldPanel">
     <binding name="field" value="components.description"/>
-    <binding name="label" value="literal:Description"/>
+    <binding name="label" value="message:description"/>
   </component>
   <component id="description" type="TextArea">
     <binding name="value" value="item.description"/>
