@@ -88,12 +88,19 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
-/* ============================ ACCESSORS ================================= */
     OsStatus loadMappings(
-        const UtlString configFileName,
-        const UtlString mediaserver = "",
+        const UtlString& configFileName,
+        const UtlString& mediaserver = "",
         const UtlString& voicemail = "",
         const UtlString& localhost = "");
+
+    OsStatus loadMappingsString(
+        const UtlString& contents,
+        const UtlString& mediaserver = "",
+        const UtlString& voicemail = "",
+        const UtlString& localhost = "");
+
+/* ============================ ACCESSORS ================================= */
 
     OsStatus getPermissionRequired(
         const Url& requestUri,

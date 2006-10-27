@@ -53,10 +53,12 @@ UrlMapping::~UrlMapping()
 {
 
 }
+
 /* ============================ MANIPULATORS ============================== */
+
 OsStatus
-UrlMapping::loadMappings(const UtlString configFileName,
-                         const UtlString mediaserver,
+UrlMapping::loadMappings(const UtlString& configFileName,
+                         const UtlString& mediaserver,
                          const UtlString& voicemail,
                          const UtlString& localhost)
 {
@@ -94,6 +96,49 @@ UrlMapping::loadMappings(const UtlString configFileName,
 
     return currentStatus;
 }
+
+OsStatus
+UrlMapping::loadMappingsString(const UtlString& contents,
+                               const UtlString& mediaserver,
+                               const UtlString& voicemail,
+                               const UtlString& localhost)
+{
+    OsStatus currentStatus = OS_SUCCESS;
+
+    mDoc = new TiXmlDocument();
+    if (mDoc->Parse(contents.data()))
+    {
+       OsSysLog::add(FAC_SIP, PRI_INFO, "UrlMapping::loadMappingsString - "
+                     "loaded");
+
+       currentStatus = OS_SUCCESS;
+
+       if(!voicemail.isNull())
+       {
+          mVoicemail.append(voicemail);
+       }
+       
+       if(!localhost.isNull())
+       {
+          mLocalhost.append(localhost);
+       }
+
+       if(!mediaserver.isNull())
+       {
+          mMediaServer.append(mediaserver);
+       }
+    }
+    else
+    {
+       OsSysLog::add( FAC_SIP, PRI_ERR, "UrlMapping::loadMappingsString - "
+                     "failed to load" );
+       currentStatus = OS_NOT_FOUND;
+    }
+
+    return currentStatus;
+}
+
+/* ============================ ACCESSORS ================================= */
 
 OsStatus
 UrlMapping::getPermissionRequired(const Url& requestUri,
