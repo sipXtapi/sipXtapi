@@ -25,7 +25,7 @@
   </component>
   <component id="phoneDescriptionLabel" type="FieldLabel">
     <binding name="field" value="components.phoneDescription"/>
-    <binding name="displayName" value="messasge:description"/>
+    <binding name="displayName" value="message:description"/>
   </component>
   <component id="phoneDescription" type="TextArea">
     <binding name="value" value="phone.description"/>
