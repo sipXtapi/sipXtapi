@@ -22,7 +22,7 @@
   <bean name="gatewaySelectionModel"
     class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator">
     <set name="model" value="bean:rawGatewaySelectionModel" />
-    <set name="extraLabel" value="literal:Add new gateway..." />
+    <set name="extraLabel" value="message:addNewGateway" />
     <set name="extraOption" value="null" />
   </bean>
   <!--

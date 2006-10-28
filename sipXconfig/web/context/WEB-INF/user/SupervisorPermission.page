@@ -36,6 +36,6 @@
   <component id="editUserNavigation" type="UserNavigation">
     <binding name="user" value="user"/>
     <binding name="tab" value="SupervisorPermission"/>
-    <binding name="heading" value="literal:Supervisor Permission"/>
+    <binding name="heading" value="message:supervisorPermission"/>
   </component>
 </page-specification>

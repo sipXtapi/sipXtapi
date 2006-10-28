@@ -22,6 +22,6 @@
   <component id="editUserNavigation" type="UserNavigation">
     <binding name="user" value="user"/>
     <binding name="tab" value="EditUser"/>
-    <binding name="heading" value="literal:Identification"/>
+    <binding name="heading" value="message:title"/>
   </component>
 </page-specification>
