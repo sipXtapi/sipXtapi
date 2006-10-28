@@ -152,7 +152,7 @@ class Cdr
     return if(@got_original && !orginal) 
     
     # continue if we are original or if we are older 
-    if((!@got_orginal && original) || !@start_time || @start_time > cse.event_time)
+    if((!@got_original && original) || !@start_time || @start_time > cse.event_time)
       
       @from_tag = cse.from_tag
       @caller_aor = cse.caller_aor

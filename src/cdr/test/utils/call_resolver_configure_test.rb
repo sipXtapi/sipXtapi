@@ -7,17 +7,15 @@
 #
 ##############################################################################
 
+require 'test/unit'
+
 # set up the load path
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..', 'lib'))
 
-# system requires
-
-# application requires
 require 'utils/call_resolver_configure'
 require 'utils/exceptions'
 require 'utils/sipx_logger'
 require 'utils/utils'
-
 
 class CallResolverConfigureTest < Test::Unit::TestCase
 

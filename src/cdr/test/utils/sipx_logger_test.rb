@@ -19,7 +19,6 @@ class SipxLoggerTest < Test::Unit::TestCase
   def setup
     @tempfile = Tempfile.new("SipxLoggerTest")
     @log = SipxLogger.new(@tempfile) 
-    @log.formatter = SipxFormatter.new   
   end
   
   # Log a message.  The logged message should have the severity prefixed.

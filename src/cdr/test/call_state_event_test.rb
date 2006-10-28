@@ -9,35 +9,34 @@
 
 require 'test/unit'
 
-$:.unshift(File.join(File.dirname(__FILE__), "..", "..", "lib"))
+$:.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 
 require 'call_state_event'
+require 'utils/exceptions'
 
 class CallStateEventTest < Test::Unit::TestCase
-  def setup
-#    simple_success_event_names =
-#      [:testSimpleSuccess_1, :testSimpleSuccess_2, :testSimpleSuccess_3]
-#    @simple_success_events =
-#      simple_success_event_names.collect {|name| call_state_events(name)}
+  
+  def test_caller_aor
+    cse = CallStateEvent.new
+    cse.from_url = 'sip:alice@example.com'
+    assert_raise(BadSipHeaderException) { cse.caller_aor }
+    cse.from_url = 'sip:alice@example.com; tag=f'
+    assert_equal('sip:alice@example.com', cse.caller_aor)
   end
 
-#  FIXME: loading call state events does not work
-#  def test_load_call_state_events
-#    @simple_success_events.each do |event|
-#      assert_kind_of(CallStateEvent, event)
-#    end
-#  end
-#
-#  def test_caller_aor
-#    @simple_success_events.each do |event|
-#      assert_equal('sip:alice@example.com', event.caller_aor)
-#    end
-#  end
-#
-#  def test_callee_aor
-#    @simple_success_events.each do |event|
-#      assert_equal('sip:bob@example.com', event.callee_aor)
-#    end
-#  end
+  def test_callee_aor
+    cse = CallStateEvent.new
+    cse.event_type = CallStateEvent::CALL_SETUP_TYPE
+    cse.to_url = 'sip:bob@example.com'
+    assert_raise(BadSipHeaderException) { cse.callee_aor }
+    cse.to_url = 'sip:bob@example.com; tag=t'
+    assert_equal('sip:bob@example.com', cse.callee_aor)
 
+    cse.event_type = CallStateEvent::CALL_REQUEST_TYPE
+    cse.to_url = 'sip:bob@example.com'
+    assert_equal('sip:bob@example.com', cse.callee_aor)
+    cse.to_url = 'sip:bob@example.com; tag=t'
+    assert_equal('sip:bob@example.com', cse.callee_aor)
+  end
+  
 end

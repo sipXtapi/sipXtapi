@@ -9,26 +9,8 @@
 
 require 'logger'
 
-
-
-class SipxFormatter
-  
-  def call(severity, time, progname, msg)
-    puts severity
-    puts severity.inspect
-    sipx_severity = SipxLogger::LOG_LEVEL_LOGGER_TO_SIPX[severity]
-    puts sipx_severity
-    "#{sipx_severity}: #{msg}\n"
-  end
-  
-end
-
-
 # Subclass the Logger to add richer logging.  The longer-term solution is likely
 # to be switching to log4r.
-#
-# Rails somehow modifies the default logging format so that all you get is the
-# message text.  This class assumes that the modification is in effect.
 class SipxLogger < Logger
   
   # Sipx log levels
@@ -54,23 +36,31 @@ class SipxLogger < Logger
     SIPX_EMERG   => FATAL
   }
   
-  # Map from Logger log levels to sipX log levels.  Because there are fewer
-  # Logger log levels, this mapping loses information.
+  # Map from Logger log levels to sipX log levels
   LOG_LEVEL_LOGGER_TO_SIPX = {
-    DEBUG => SIPX_DEBUG, 
-    INFO  => SIPX_INFO, 
-    WARN  => SIPX_WARNING,
-    ERROR => SIPX_ERR, 
-    FATAL => SIPX_CRIT
+    'DEBUG' => SIPX_DEBUG, 
+    'INFO'  => SIPX_INFO, 
+    'WARN'  => SIPX_WARNING,
+    'ERROR' => SIPX_ERR, 
+    'FATAL' => SIPX_CRIT
   }
+  
   
   # Initializer takes any args and passes them through to Logger
   def initialize(*args)
     super
+    @formatter = SipxFormatter.new    
   end
   
-  # Given a Logger log level, return the matching sipX log level, or
-  # nil if the name is not recognized.
   
+  class SipxFormatter
+    
+    # FIXME: Not really sure why we do not want to log time here, but that's what unit test says...
+    def call(severity, time, progname, msg)
+      sipx_severity = LOG_LEVEL_LOGGER_TO_SIPX[severity]
+      "#{sipx_severity}: #{msg}\n"
+    end
+    
+  end
   
 end
