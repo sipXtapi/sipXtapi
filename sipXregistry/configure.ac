@@ -32,7 +32,7 @@ CHECK_CPPUNIT
 # Checks for typedefs, structures, and compiler characteristics.
 # Checks for library functions.
 
-
+SFAC_LIB_CALL
 SFAC_LIB_COMMSERVER
 
 SFAC_FEATURE_SIP_TLS
