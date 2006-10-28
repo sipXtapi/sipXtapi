@@ -784,7 +784,7 @@ OsStatus SipRedirectorPickUp::parseOrbitFile(UtlString& fileName)
                   // Insertion failed, presumably because the extension was
                   // already in there.
                   OsSysLog::add(FAC_SIP, PRI_ERR,
-                                "SipRedirectorPrivateStoragePickUp::parseOrbitFile "
+                                "SipRedirectorPickUp::parseOrbitFile "
                                 "Extension '%s' specified as an orbit twice?",
                                 user->data());
                   free(user);
@@ -794,7 +794,7 @@ OsStatus SipRedirectorPickUp::parseOrbitFile(UtlString& fileName)
             {
                // Extension had zero length
                OsSysLog::add(FAC_SIP, PRI_ERR,
-                             "SipRedirectorPrivateStoragePickUp::parseOrbitFile "
+                             "SipRedirectorPickUp::parseOrbitFile "
                              "Extension was null.");
                free(user);
             }
@@ -803,7 +803,7 @@ OsStatus SipRedirectorPickUp::parseOrbitFile(UtlString& fileName)
          {
             // No <extension> child of <orbit>.
             OsSysLog::add(FAC_SIP, PRI_ERR,
-                          "SipRedirectorPrivateStoragePickUp::parseOrbitFile "
+                          "SipRedirectorPickUp::parseOrbitFile "
                           "<orbit> element did not have <extension>.");
          }
       }
@@ -812,18 +812,18 @@ OsStatus SipRedirectorPickUp::parseOrbitFile(UtlString& fileName)
       {
          // Output the list of orbits.
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                       "SipRedirectorPrivateStoragePickUp::parseOrbitFile "
+                       "SipRedirectorPickUp::parseOrbitFile "
                        "Valid orbits are:");
          UtlHashMapIterator itor(mOrbitList);
          while (itor())
          {
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipRedirectorPrivateStoragePickUp::parseOrbitFile "
+                          "SipRedirectorPickUp::parseOrbitFile "
                           "Orbit '%s'",
                           (dynamic_cast<UtlString*> (itor.key()))->data());
          }
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                       "SipRedirectorPrivateStoragePickUp::parseOrbitFile "
+                       "SipRedirectorPickUp::parseOrbitFile "
                        "End of list");
       }
 
@@ -834,7 +834,7 @@ OsStatus SipRedirectorPickUp::parseOrbitFile(UtlString& fileName)
    {
       // Report error parsing file.
       OsSysLog::add(FAC_SIP, PRI_CRIT,
-                    "SipRedirectorPrivateStoragePickUp::parseOrbitFile "
+                    "SipRedirectorPickUp::parseOrbitFile "
                     "Orbit file '%s' could not be parsed.", fileName.data());
       // No hope of doing call retrieval.
       return OS_FAILED;
@@ -853,6 +853,12 @@ SipRedirectorPrivateStoragePickUp::SipRedirectorPrivateStoragePickUp(
 
 SipRedirectorPrivateStoragePickUp::~SipRedirectorPrivateStoragePickUp()
 {
+}
+
+const char* const
+SipRedirectorPrivateStoragePickUp::getContainableType() const
+{
+   return SipRedirectorPrivateStoragePickUp::TYPE;
 }
 
 void SipRedirectorPrivateStoragePickUp::processNotify(const char* body)
@@ -1403,10 +1409,4 @@ static UtlBoolean getYNconfig(OsConfigDb& configDb,
       } 
    }
    return value;
-}
-
-// Get the ContainableType for a UtlContainable derived class.
-UtlContainableType SipRedirectorPrivateStoragePickUp::getContainableType() const
-{
-    return SipRedirectorPrivateStoragePickUp::TYPE;
 }

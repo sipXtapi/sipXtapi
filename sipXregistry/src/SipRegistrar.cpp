@@ -89,8 +89,6 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
                     " SIP_REGISTRAR_XMLRPC_PORT == PORT_NONE :"
                     " peer synchronization disabled"
                     );
-
-
    }
    else // HTTP/RPC port is configured
    {

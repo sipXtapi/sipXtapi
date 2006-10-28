@@ -537,11 +537,11 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                                 // whose cseq is lower than the one that unregistered it,
                                 // which, if we had actually removed the entry would not
                                 // be there to compare the out-of-order message to.
-                                expirationTime = timeNow-1;
+                                expirationTime = timeNow - 1;
 
                                 OsSysLog::add( FAC_SIP, PRI_DEBUG,
                                               "SipRegistrarServer::applyRegisterToDirectory"
-                                              " - Expiring map %s->%s",
+                                              "- Expiring map '%s'->'%s'",
                                               registerToStr.data(), contact.data()
                                               );
                             }
@@ -553,10 +553,12 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                                                   : spreadExpirationTime
                                                   ) + timeNow;
 
-                                OsSysLog::add( FAC_SIP, PRI_DEBUG,
-                                              "SipRegistrarServer::applyRegisterToDirectory"
-                                              " - Adding map %s->%s",
-                                              registerToStr.data(), contact.data() );
+                                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                              "SipRegistrarServer::applyRegisterToDirectory - "
+                                              "Adding map '%s'->'%s' "
+                                              "expires %d (now+%d)",
+                                              registerToStr.data(), contact.data(),
+                                              expirationTime, expires);
                             }
 
                             UtlString qvalue(*(UtlString*)record.findValue(&gQvalueKey));
@@ -619,7 +621,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
     else
     {
         OsSysLog::add( FAC_SIP, PRI_WARNING,
-                      "SipRegistrarServer::applyRegisterToDirectory request out of order\n"
+                      "SipRegistrarServer::applyRegisterToDirectory request out of order"
                       "  To: '%s'\n"
                       "  Call-Id: '%s'\n"
                       "  Cseq: %d",

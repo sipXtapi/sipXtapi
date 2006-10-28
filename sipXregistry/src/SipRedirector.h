@@ -194,7 +194,7 @@ class SipRedirector
 /**
  * SipRedirectorPrivateStorage is a virtual class.  Instances of its
  * subclasses can be saved by redirectors on the master list of
- * suspended requests.
+ * suspended requests.  Subclasses must implement getContainableType.
  *
  * Its hash and comparison functions are inherited from UtlContainableAtomic,
  * because these objects are treated as atomic.

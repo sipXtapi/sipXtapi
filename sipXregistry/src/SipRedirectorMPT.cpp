@@ -83,6 +83,7 @@ SipRedirectorMPT::initialize(const UtlHashMap& configParameters,
    mpServer = new HttpServer(socket, NULL, NULL, NULL);
    mpServer->allowFileAccess(false);
    mpServer->addRequestProcessor("/map.html", &displayForm);
+   mpServer->allowFileAccess(FALSE);
    mpServer->start();
 
    // Start the writer task.
