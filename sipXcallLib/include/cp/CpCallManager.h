@@ -881,7 +881,7 @@ private:
     UtlDList mCallList;
     int mLastMetaEventId;
     // Every CallManager shares the same call counter for generating Call-IDs.
-    static INT64 mCallNum;
+    static unsigned int mCallNum;
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

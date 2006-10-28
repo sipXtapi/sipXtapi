@@ -42,7 +42,7 @@ const int    CpCallManager::CALLMANAGER_MAX_REQUEST_MSGS = 6000;
 const int    CpCallManager::CALLMANAGER_MAX_REQUEST_MSGS = 1000;
 #endif  
 
-INT64 CpCallManager::mCallNum = 0;
+unsigned int CpCallManager::mCallNum = 0;
 OsMutex CpCallManager::mCallNumMutex(OsMutex::Q_FIFO);
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -397,7 +397,7 @@ void CpCallManager::getNewSessionId(UtlString* callId)
 //
 // The Call-ID is composed of several fields:
 // - a prefix supplied by the caller
-// - a counter
+// - a counter (in hexadecimal)
 // - the Process ID
 // - a start time, to microsecond resolution
 //   (when getNewCallId was first called)
@@ -418,7 +418,7 @@ void CpCallManager::getNewSessionId(UtlString* callId)
 // (64 bits) should ensure no collisions until the number of
 // concurrent calls reaches 2^32.
 //
-// The sections of the Call-ID are separated with "/" because those
+// The sections of the Call-ID are separated with "/" because "/"
 // cannot otherwise appear in the final components, and so a generated
 // Call-ID can be unambiguously parsed into its components from back
 // to front, regardless of the user-supplied prefix, which ensures
@@ -436,12 +436,20 @@ void CpCallManager::getNewSessionId(UtlString* callId)
 // replaced it with "_", but I do not see why, as ":" is a "word"
 // character.  This version does not.
 //
-// The counter mCallNum is incremented by 19560001 rather than 1 so
+// The counter mCallNum is incremented by 0x23450001 rather than 1 so
 // that successive Call-IDs differ in more than 1 character, and so
 // hash better.  This does not reduce the cycle time of the counter,
-// since 19560001 is relatively prime to the limit of a long-long-int,
-// 2^64.  Because the increment ends in "0001", the final four digits
+// since 0x23450001 is relatively prime to the limit of an int,
+// 2^32, so we can generate 2^32 Call-IDs before repeating.
+// Because the increment ends in "0001", the final four hex digits
 // of this field of the Call-ID count in a human-readable way.
+// And because five digits of the hexadecimal representation change with
+// every Call-ID, even weak hash functions should not have excessive
+// collisions when hashing them.
+//
+// Unlike previous versions of this code, this version uses only int's and not
+// long-long-int's, which are supported differently by different compilers,
+// and cause much portability hassle.
 //
 // Ideally, Call-IDs would have crypto-quality randomness (as
 // recommended in RFC 3261 section 8.1.1.4), but the previous version
@@ -461,7 +469,7 @@ void CpCallManager::getNewCallId(const char* callIdPrefix, UtlString* callId)
    static UtlBoolean initialized = FALSE;
 
    // Increment the call number.
-   mCallNum += 19560001;
+   mCallNum += 0x23450001;
     
    // callID prefix shouldn't contain an @.
    if (strchr(callIdPrefix, '@') != NULL)
@@ -503,11 +511,7 @@ void CpCallManager::getNewCallId(const char* callIdPrefix, UtlString* callId)
    }
 
    // Compose the new Call-Id.
-   int highNum = mCallNum / 1000000000;
-   int lowNum = mCallNum % 1000000000;
-   // Break the 64 bit int into two ints as this seems to be more portable
-   // and the callId just needs to be unique.
-   sprintf(buffer, "%s/%ld%ld/%s", callIdPrefix, highNum, lowNum, suffix.data());
+   sprintf(buffer, "%s/%x/%s", callIdPrefix, mCallNum, suffix.data());
 
    // Copy it to the destination.
    *callId = buffer;
@@ -744,4 +748,3 @@ void CpCallManager::releaseCallIndex(int callIndex)
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-
