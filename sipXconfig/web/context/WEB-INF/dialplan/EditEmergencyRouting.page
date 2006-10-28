@@ -32,7 +32,7 @@
   </component>
   <component id="gatewaysLabel" type="FieldLabel">
     <binding name="field" value="components.gateways"/>
-    <binding name="displayName" value="literal:Gateway"/>
+    <binding name="displayName" value="message:gateway"/>
   </component>
   <component id="gateways" type="PropertySelection">
     <binding name="value" value="emergencyRouting.defaultGateway"/>
@@ -45,7 +45,7 @@
   <component id="externalNumber" type="TextField">
     <binding name="value" value="emergencyRouting.externalNumber"/>
     <binding name="validators" value="spring-validators:validSipUserId,required"/>
-    <binding name="displayName" value="literal:External emergency number"/>
+    <binding name="displayName" value="message:externalEmergencyNumber"/>
   </component>
   <component id="exceptions" type="ListEdit">
     <binding name="source" value="exceptionsMap.keys"/>
