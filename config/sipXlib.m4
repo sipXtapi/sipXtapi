@@ -612,5 +612,6 @@ AC_DEFUN([SFAC_DOWNLOAD_DEPENDENCIES],
   #AC_SUBST(CPPUNIT_URL, ftp://download.fedora.redhat.com/pub/fedora/linux/extras/3/SRPMS)
   AC_SUBST(CPPUNIT_URL, http://umn.dl.sourceforge.net/sourceforge/cppunit)
   AC_SUBST(GRAPHVIZ_URL, ftp://194.199.20.114/linux/SuSE-Linux/i386/9.3/suse/src)
+  AC_SUBST(CENTOS_URL, http://mirrors.easynews.com/linux/centos)
   AC_SUBST(DOWNLOAD_FILE, ${srcdir}/config/download-file)
 ])

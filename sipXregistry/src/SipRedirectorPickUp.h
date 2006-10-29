@@ -23,6 +23,7 @@
 #include "os/OsServerTask.h"
 #include "os/OsTimer.h"
 #include "xmlparser/tinyxml.h"
+#include "filereader/OrbitFileReader.h"
 
 // DEFINES
 #define ALL_CREDENTIALS_USER "*allcredentials"
@@ -101,16 +102,6 @@ class SipRedirectorPickUp : public SipRedirector
       stateConfirmed
    } State;
 
-   // Get the top-level text content of an XML element.
-   static void textContentShallow(UtlString& string,
-                                  TiXmlElement *element);
-   // Get the complete text content of an XML element (including sub-elements).
-   static void textContentDeep(UtlString& string,
-                               TiXmlElement *element);
-   // Service function for textContentDeep.
-   static void textContentDeepRecursive(UtlString& string,
-                                        TiXmlElement *element);
-
   protected:
 
    // The SIP user agent to send SUBSCRIBEs and receive NOTIFYs.
@@ -136,20 +127,8 @@ class SipRedirectorPickUp : public SipRedirector
    // The SIP domain of the park server.
    UtlString mParkServerDomain;
 
-   // The full name of the orbit.xml file, or "" if there is none,
-   // or if some other problem (e.g., no domain name for the park
-   // server is specified) diables orbit recognition.
-   UtlString mOrbitFileName;
-
-   // A hash map that has as keys all the call parking orbit users.
-   UtlHashMap mOrbitList;
-
-   // The last time we checked the modification time of mOrbitFileName.
-   unsigned long mOrbitFileLastModTimeCheck;
-
-   // The last known modification time of mOrbitFileName, or OS_INFINITY
-   // if it did not exist.
-   OsTime mOrbitFileModTime;
+   // OrbitFileReader object to read and store information in orbits.xml.
+   OrbitFileReader mOrbitFileReader;
 
    // The SIP domain we are operating in.
    UtlString mDomain;
@@ -179,14 +158,6 @@ class SipRedirectorPickUp : public SipRedirector
       SipRedirectorPrivateStorage*& privateStorage,
       const char* subscribeUser,
       State stateFilter);
-
-   // Read and parse the call parking orbit description file.
-   OsStatus parseOrbitFile(UtlString& fileName);
-
-   // Return TRUE if the argument is an orbit name listed in the orbits.xml file.
-   // (This function takes some care to avoid re-reading orbits.xml when it has
-   // not changed since the last call.)
-   UtlBoolean findInOrbitList(UtlString&);
 };
 
 /**
