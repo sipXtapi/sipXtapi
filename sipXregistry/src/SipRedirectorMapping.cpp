@@ -243,7 +243,10 @@ SipRedirectorMapping::lookUp(
                           "contactUri = '%s'", contactUri.toString().data());
 
             // prevent recursive loops
-            if (!contactUri.isUserHostPortEqual(requestUri))
+            UtlString routeHeaderParam;
+            if (!contactUri.isUserHostPortEqual(requestUri) ||
+                contactUri.getHeaderParameter("route", routeHeaderParam)
+               )
             {
                // Add the contact.
                addContact(response, requestString, contactUri, mName.data());
