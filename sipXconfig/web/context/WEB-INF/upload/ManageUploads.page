@@ -16,7 +16,7 @@
   </bean>
   <bean name="specificationSelection" class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator">
     <set name="model" value="beans.specifications"/>
-    <set name="extraLabel" value="literal:Add files..."/>
+    <set name="extraLabel" value="message:addFiles"/>
     <set name="extraOption" value="null"/>
   </bean>
   <component id="uploadManagement" type="Form">

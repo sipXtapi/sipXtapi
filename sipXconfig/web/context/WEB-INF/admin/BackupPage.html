@@ -7,26 +7,29 @@
 	</head>
 	<body jwcid="$content$">
 		<div jwcid="@Border">
-			<h2>Backup</h2>
-			<p jwcid="ifInitialDescription">To backup the system configuration 
-				select backup options and press <em>Backup Now</em> button. You 
+			<h2><span key="title">Backup</span></h2>
+			<p jwcid="ifInitialDescription"><span key="description">To backup the system configuration 
+				select desired backup options and press the <em>Backup Now</em> button. You 
 				can perform a partial backup by leaving some options 
-				unselected.<br/> Backup files are available for download once 
-				backup is completed.<br/></p>
-			<p jwcid="ifResultsPresent"> Backup completed successfully. Please 
-				download archived data by clicking on the links below.                 
+				unselected.<br/> Backup files will be available for download once the 
+				backup is completed.<br/></span></p>
+			<p jwcid="ifResultsPresent"><span key="backupCompleted"> Backup completed successfully. Please 
+				download archived data by clicking on the links below.</span>
+                                                 
 
-                <div class="help"> <p>Click on each link to download all the 
+                <div class="help"> <p key="helpText">Click on each link to download the 
 				files.<br/> Backup files should be stored on media or a machine 
-				other than the sipX server.</p> <p>In order to restore the 
-				data, transfer the backup files to the sipX server and put them 
-				in the relative folder, either backup-configs or 
-				backup-mailstore.<br/> To restore the configuration and 
+				other than the sipX server.<br/><br/>
+                                <strong>Restoring the data:</strong><br/>
+                                In order to restore from backup you need access to a Linux console on your sipX host. Transfer
+                                the backup files back to the sipX host. Login as root and create two directories in
+                                root's home directory: <em>backup-configs</em> and <em>backup-mailstore</em>.<br/><br/>
+                                The files <em>fs.tar.gz</em> and <em>pds.tar.gz</em> go into the directory <em>backup-configs</em>. The file
+                                <em>mailstore.tar.gz</em> goes into the directory <em>backup-mailstore</em>.<br/>
+                                To restore the configuration and 
 				database information type <strong>restore-configs.sh</strong> 
-				at a command line prompt, restoring files from the fs.tar.gz 
-				and pds.tar.gz files.<br/> To restore voicemail data type 
-				<strong>restore-mailstore.sh</strong> at a command line prompt, 
-				restoring files from the previous mailstore.tar.gz file.</p> 
+				at a command line prompt.<br/> To restore voicemail data type 
+				<strong>restore-mailstore.sh</strong> at a command line prompt.</p> 
 				</div>                 
                 <ul> 
                     <li jwcid="results"> 
