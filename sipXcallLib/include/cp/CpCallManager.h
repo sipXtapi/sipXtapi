@@ -340,9 +340,10 @@ public:
 
     //! Blind transfer
     virtual PtStatus transfer_blind(const char* callId,
-                              const char* transferToUrl,
-                              UtlString* targetCallId,
-                              UtlString* targetConnectionAddress = NULL) = 0;
+                                    const char* transferToUrl,
+                                    UtlString* targetCallId,
+                                    UtlString* targetConnectionAddress = NULL,
+                                    bool       remoteHoldBeforeTransfer = false) = 0;
 
     //! Consultative transfer
     /*! This transfer method is used to perform the transfer after

@@ -937,7 +937,9 @@ void OrbitListener::setUpRetrievalCall(const UtlString& callId,
                     +  callId.data(), address.data());
                                                      
       mpCallManager->transfer(retrievedCallId, retrievedAddress,
-                              callId, address);
+                              callId, address,
+                              false /* do not hold before transfer */
+                              );
       // Add this call to the park list so it can be cleaned up correctly, mark it as
       // a call retrieval,
       ParkedCallObject *pExecutingCall =

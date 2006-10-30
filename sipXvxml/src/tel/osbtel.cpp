@@ -403,7 +403,13 @@ VXItelResult OSBtelTransferBlind(VXItelInterface * vxip,
             OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "OSBtelTransferBlind from = '%s'", from.data());
             if (impl->live == 1) 
             {
-                if (PT_SUCCESS == impl->pCallMgr->transfer_blind((char*)impl->callId, from.data(), 0, 0))
+                if (PT_SUCCESS == impl->pCallMgr->transfer_blind((char*)impl->callId,
+                                                                 from.data(), // to url
+                                                                 0, // target call id
+                                                                 0, // target connect addr
+                                                                 false // no remote hold first
+                                                                 )
+                    )
                 {
                         impl->transferred = 0;
                         int state = 0;
