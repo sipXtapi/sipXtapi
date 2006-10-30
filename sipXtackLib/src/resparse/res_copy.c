@@ -226,28 +226,28 @@ copy_rr(oldr)
                 break;
 
         case T_NAPTR:
-                nrd->srv.order = ord->srv.order;
-                nrd->srv.preference = ord->srv.preference;
-                if ((nrd->srv.flags = (char *)malloc(strlen(ord->srv.flags)+1)) == NULL ) {
+                nrd->naptr.order = ord->naptr.order;
+                nrd->naptr.preference = ord->naptr.preference;
+                if ((nrd->naptr.flags = (char *)malloc(strlen(ord->naptr.flags)+1)) == NULL ) {
                         free_rr(newr);
                         return(NULL);
                 }
-                strcpy(nrd->srv.services, ord->srv.services);
-                if ((nrd->srv.services = (char *)malloc(strlen(ord->srv.services)+1)) == NULL ) {
+                strcpy(nrd->naptr.services, ord->naptr.services);
+                if ((nrd->naptr.services = (char *)malloc(strlen(ord->naptr.services)+1)) == NULL ) {
                         free_rr(newr);
                         return(NULL);
                 }
-                strcpy(nrd->srv.regexp, ord->srv.regexp);
-                if ((nrd->srv.regexp = (char *)malloc(strlen(ord->srv.regexp)+1)) == NULL ) {
+                strcpy(nrd->naptr.regexp, ord->naptr.regexp);
+                if ((nrd->naptr.regexp = (char *)malloc(strlen(ord->naptr.regexp)+1)) == NULL ) {
                         free_rr(newr);
                         return(NULL);
                 }
-                strcpy(nrd->srv.regexp, ord->srv.regexp);
-                if ((nrd->srv.replacement = (char *)malloc(strlen(ord->srv.replacement)+1)) == NULL ) {
+                strcpy(nrd->naptr.regexp, ord->naptr.regexp);
+                if ((nrd->naptr.replacement = (char *)malloc(strlen(ord->naptr.replacement)+1)) == NULL ) {
                         free_rr(newr);
                         return(NULL);
                 }
-                strcpy(nrd->srv.replacement, ord->srv.replacement);
+                strcpy(nrd->naptr.replacement, ord->naptr.replacement);
                 break;
 
         case T_TXT:                             /* Text string */
