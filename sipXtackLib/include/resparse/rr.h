@@ -71,6 +71,9 @@ extern "C" {
 #ifndef T_SRV
 #define T_SRV   33
 #endif
+#ifndef T_NAPTR
+#define T_NAPTR 35
+#endif
 
         /* additional RFC 1183 types */
 #ifndef T_RP
