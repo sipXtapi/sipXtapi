@@ -50,7 +50,6 @@ public class Gateway extends BeanWithSettings implements NamedObject {
     private GatewayCallerAliasInfo m_callerAliasInfo = new GatewayCallerAliasInfo();
     
     public Gateway() {        
-        this(new GatewayModel("gwGeneric", "genericGatewayStandard"));
     }
     
     public Gateway(GatewayModel model) {

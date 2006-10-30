@@ -11,68 +11,52 @@
  */
 package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
-import java.io.File;
 import java.io.StringWriter;
 import java.io.Writer;
 
 import junit.framework.TestCase;
 
-import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.device.BeanFactoryModelSource;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.gateway.GatewayModel;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
 
-public class MediantGatewayTest extends TestCase {
+public class Tp260GatewayTestDb extends TestCase {
     private AudioCodesModel m_model;
-    private MediantGateway m_gateway;
+    private Tp260Gateway m_gateway;
 
     protected void setUp() throws Exception {
-        m_model = (AudioCodesModel) TestHelper.getApplicationContext().getBean(
-                "audiocodesMP1X4_4_FXO");
-        m_gateway = (MediantGateway) TestHelper.getApplicationContext().getBean(
-                m_model.getBeanId());
-        m_gateway.setModel(m_model);
+        BeanFactoryModelSource<GatewayModel> modelSource = (BeanFactoryModelSource<GatewayModel>) TestHelper
+                .getApplicationContext().getBean("nakedGatewayModelSource");
+        m_model = (AudioCodesModel) modelSource.getModel("audiocodesTP260_2_Span");
+        m_gateway = (Tp260Gateway) TestHelper.getApplicationContext()
+                .getBean(m_model.getBeanId());
+        m_gateway.setModelId(m_model.getModelId());
     }
-
-    /**
-     * Every test case must have 1 test 
-     */
-    public void testOnlyExistsBecauseAllOtherTestsDisabled() {        
-    }
-
+    
     /**
      * Disabled because hits the database
      */
-    public void DISABLED_testGenerateProfiles() throws Exception {
+    public void testGenerateProfiles() throws Exception {
         assertSame(m_model, m_gateway.getModel());
 
         Writer writer = new StringWriter();
         m_gateway.generateProfiles(writer);
 
         // cursory check for now
-        assertTrue(writer.toString().indexOf("MAXDIGITS") >= 0);
+        assertTrue(writer.toString().indexOf("VoiceVolume") >= 0);
     }
 
     /**
      * Disabled because hits the database
      */
-    public void DISABLED_testGenerateAndRemoveProfiles() throws Exception {
-        File file = m_gateway.getIniFile();
-        m_gateway.generateProfiles();
-        assertTrue(file.exists());
-        m_gateway.removeProfiles();
-        assertFalse(file.exists());
-    }
-
-    /**
-     * Disabled because hits the database
-     */
-    public void DISABLED_testPrepareSettings() throws Exception {
+    public void testPrepareSettings() throws Exception {
         assertSame(m_model, m_gateway.getModel());
 
-        IMocksControl defaultsCtrl = EasyMock.createControl();
+        IMocksControl defaultsCtrl = org.easymock.classextension.EasyMock.createControl();
         DeviceDefaults defaults = defaultsCtrl.createMock(DeviceDefaults.class);
         defaults.getDomainName();
         defaultsCtrl.andReturn("mysipdomain.com").anyTimes();
@@ -91,13 +75,10 @@ public class MediantGatewayTest extends TestCase {
 
     /**
      * Disabled because hits the database
-     */
-    public void DISABLED_testGetSettings() throws Exception {
+     */    
+    public void testGetSettings() throws Exception {
         Setting settings = m_gateway.getSettings();
-        assertEquals("15", settings.getSetting("SIP_Params/MAXDIGITS").getValue());
+        assertEquals(new Integer(0), settings.getSetting("SIPgw/FramingMethod").getTypedValue());
         assertTrue(settings instanceof SettingSet);
-        SettingSet root = (SettingSet) settings;
-        SettingSet currentSettingSet = (SettingSet) root.getSetting("SIP_Params");
-        assertEquals("15", currentSettingSet.getSetting("MAXDIGITS").getValue());
     }
 }
