@@ -89,14 +89,17 @@ public:
         const void* pDisplay = NULL);
     //! param: requestQueuedCall - indicates that the caller wishes to have the callee queue the call if busy
 
-    virtual UtlBoolean originalCallTransfer(UtlString& transferTargetAddress,
-        const char* transferControllerAddress,
-        const char* targetCallId);
-    // Initiate transfer on transfer controller connection in
-    // the original call.
-    // If fromAddress or toAddress are NULL it is assumed to
-    // be a blind transfer.
-
+    /// Initiate transfer on transfer controller connection in the original call.
+    virtual UtlBoolean originalCallTransfer(
+       UtlString&  transferTargetAddress,
+       const char* transferControllerAddress,
+       const char* targetCallId,
+       bool        holdBeforeTransfer = true
+                                            );
+    /**
+     * If fromAddress or toAddress are NULL it is assumed to be a blind transfer.
+     */
+    
     virtual UtlBoolean targetCallBlindTransfer(const char* transferTargetAddress,
         const char* transferControllerAddress);
     // Communicate blind transfer on transfer controller connection in

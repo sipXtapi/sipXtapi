@@ -1381,15 +1381,19 @@ PtStatus CallManager::transfer(const char* targetCallId, const char* originalCal
 PtStatus CallManager::transfer(const char* sourceCallId, 
                                const char* sourceAddress, 
                                const char* targetCallId,
-                               const char* targetAddress) 
+                               const char* targetAddress,
+                               bool        remoteHoldBeforeTransfer) 
 {
     PtStatus returnCode =  PT_SUCCESS;
 
     // Place connections on hold
-    CpMultiStringMessage sourceHold(CP_HOLD_TERM_CONNECTION, sourceCallId, sourceAddress);
-    postMessage(sourceHold);
-    CpMultiStringMessage targetHold(CP_HOLD_TERM_CONNECTION, targetCallId, targetAddress);
-    postMessage(targetHold);
+    if (remoteHoldBeforeTransfer)
+    {
+       CpMultiStringMessage sourceHold(CP_HOLD_TERM_CONNECTION, sourceCallId, sourceAddress);
+       postMessage(sourceHold);
+       CpMultiStringMessage targetHold(CP_HOLD_TERM_CONNECTION, targetCallId, targetAddress);
+       postMessage(targetHold);
+    }
     
     // Construct the replaces header info
     // SIP alert: this is SIP specific and should not be in CallManager
@@ -1409,7 +1413,12 @@ PtStatus CallManager::transfer(const char* sourceCallId,
 
     // Tell the original call to complete the consultative transfer
     CpMultiStringMessage consultTransfer(CP_CONSULT_TRANSFER_ADDRESS,
-    sourceCallId, sourceAddress, targetCallId, targetAddress, transferTargetUrlString);
+                                         sourceCallId, sourceAddress,
+                                         targetCallId, targetAddress,
+                                         transferTargetUrlString,
+                                         NULL,
+                                         /* int2 */ remoteHoldBeforeTransfer
+                                         );
 
     postMessage(consultTransfer);
 
@@ -1469,8 +1478,10 @@ PtStatus CallManager::split(const char* szSourceCallId,
 
 // Blind transfer?
 PtStatus CallManager::transfer_blind(const char* callId, const char* transferToUrl,
-                               UtlString* targetConnectionCallId,
-                               UtlString* targetConnectionAddress)
+                                     UtlString* targetConnectionCallId,
+                                     UtlString* targetConnectionAddress,
+                                     bool       remoteHoldBeforeTransfer
+                                     )
 {
     UtlString transferTargetUrl(transferToUrl ? transferToUrl : "");
 
@@ -1492,8 +1503,13 @@ PtStatus CallManager::transfer_blind(const char* callId, const char* transferToU
 
         // CP_BLIND_TRANSFER (i.e. two call blind transfer)
         CpMultiStringMessage transferMessage(CP_BLIND_TRANSFER,
-            callId, transferTargetUrl, targetCallId.data(), NULL, NULL,
-            getNewMetaEventId());
+                                             callId,
+                                             transferTargetUrl,
+                                             targetCallId.data(),
+                                             NULL,
+                                             NULL,
+                                             /* int1 */ getNewMetaEventId(),
+                                             /* int2 */ remoteHoldBeforeTransfer);
 
         postMessage(transferMessage);
     }
