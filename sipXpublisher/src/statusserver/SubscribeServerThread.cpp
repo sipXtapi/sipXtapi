@@ -436,8 +436,8 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
             UtlString finalMessageStr;
             int finalMessageLen;
             finalResponse.getBytes(&finalMessageStr, &finalMessageLen);
-            syslog(FAC_SIP, PRI_DEBUG, "\n----------------------------------\n"
-                "Sending final response\n%s\n",finalMessageStr.data());
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, "\n----------------------------------\n"
+                "Sending final response\n%s",finalMessageStr.data());
             mpSipUserAgent->setUserAgentHeader( finalResponse );
             mpSipUserAgent->send( finalResponse );
         } 
@@ -533,29 +533,29 @@ SubscribeServerThread::isAuthorized (
                 // after going thru all permissions find out if all matched or not
                 if( nextPermissionMatched )
                 {
-                    syslog(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthorized() -"
-                        " All permissions matched - request is AUTHORIZED\n");
+                   OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthorized() -"
+                        " All permissions matched - request is AUTHORIZED");
                     isAuthorized = TRUE;
                 }
                 else
                 {
-                    syslog(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthorized() -"
-                        " One or more Permissions did not match - request is UNAUTHORIZED\n");
+                    OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthorized() -"
+                        " One or more Permissions did not match - request is UNAUTHORIZED");
                     isAuthorized = FALSE;
                 }
             }
             else
             {
                 // one or more permissions needed by plugin and none in IMDB => UNAUTHORIZED
-                syslog(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthorized() -"
-                    " No Permissions in IMDB - request is UNAUTHORIZED\n");
+                OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthorized() -"
+                    " No Permissions in IMDB - request is UNAUTHORIZED");
                 isAuthorized = FALSE;
             }
         }
         else
         {
-            syslog(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthorized() -"
-                " No Permissions required - request is always AUTHORIZED\n");
+            OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthorized() -"
+                " No Permissions required - request is always AUTHORIZED");
             isAuthorized = TRUE;
         }
     }
@@ -579,14 +579,14 @@ SubscribeServerThread::isAuthenticated (
     // if we are not using a database we must assume authenticated
     if ( !mIsCredentialDB )
     {
-        syslog(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated() "
-            ":: No Credential DB - request is always AUTHENTICATED\n");
+        OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated() "
+            ":: No Credential DB - request is always AUTHENTICATED");
         isAuthorized = TRUE;
     } else
     {
         // realm and auth type should be default for server
         // if URI not defined in DB, the user is not authorized to modify bindings -
-        syslog( FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated():TRUE realm=\"%s\" \n",
+        OsSysLog::add( FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated():TRUE realm=\"%s\" ",
                 mRealm.data());
 
         UtlString requestNonce;
@@ -606,15 +606,15 @@ SubscribeServerThread::isAuthenticated (
                 HttpMessage::SERVER,
                 requestAuthIndex) )
         {
-            syslog(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated() "
+            OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated() "
                    "- Authorization header set in message, validate it.\n"
-                   "- reqRealm=\"%s\", reqUser=\"%s\"\n", requestRealm.data(), requestUser.data());
+                   "- reqRealm=\"%s\", reqUser=\"%s\"", requestRealm.data(), requestUser.data());
 
             // case sensitive comparison of realm
             if ( mRealm.compareTo( requestRealm ) == 0 )
             {
-                syslog(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated()"
-                    "- Realm matches, now validate userid/password\n");
+                OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated()"
+                    "- Realm matches, now validate userid/password");
 
                 // See if the nonce is valid - see net/SipNonceDb.cpp
                 UtlString reqUri;
@@ -655,8 +655,8 @@ SubscribeServerThread::isAuthenticated (
                         {
                             // can have multiple credentials for same realm so only break out
                             // when we have a positive match
-                            syslog(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated() "
-                                "- request is AUTHENTICATED\n");
+                            OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated() "
+                                "- request is AUTHENTICATED");
                             // copy the authenticated user/realm for subsequent authorization
                             authenticatedUser = requestUser;
                             authenticatedRealm = requestRealm;
@@ -664,14 +664,14 @@ SubscribeServerThread::isAuthenticated (
                         }
                         else
                         {
-                            syslog(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated() "
-                                "- digest authorization failed\n");
+                            OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated() "
+                                "- digest authorization failed");
                         }
                     }
                     else
                     {
-                        syslog(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated() "
-                            "- No Credentials for mailboxUrl=\"%s\", reqRealm=\"%s\", reqUser=\"%s\"\n",
+                        OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated() "
+                            "- No Credentials for mailboxUrl=\"%s\", reqRealm=\"%s\", reqUser=\"%s\"",
                             mailboxUrl.toString().data(),
                             requestRealm.data(),
                             requestUser.data());
@@ -679,8 +679,8 @@ SubscribeServerThread::isAuthenticated (
                 }
                 else
                 {
-                    syslog(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated() "
-                           "- Invalid nonce \"%s\" for mailboxUrl=\"%s\", reqRealm=\"%s\", reqUser=\"%s\"\n",
+                    OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated() "
+                           "- Invalid nonce \"%s\" for mailboxUrl=\"%s\", reqRealm=\"%s\", reqUser=\"%s\"",
                            requestNonce.data(),
                            mailboxUrl.toString().data(),
                            requestRealm.data(),
@@ -743,10 +743,10 @@ SubscribeServerThread::isValidDomain(
            (address.compareTo(mDefaultDomainHostFQDN.data(), UtlString::ignoreCase) == 0) )
          && ( (mDefaultDomainPort == PORT_NONE) || (port == mDefaultDomainPort) ) )
     {
-        syslog(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isValidDomain() - VALID Domain\n") ;
+        OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isValidDomain() - VALID Domain") ;
         return TRUE;
     }
-    syslog(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isValidDomain() - INVALID Domain\n") ;
+    OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isValidDomain() - INVALID Domain") ;
     return FALSE;
 }
 
@@ -887,7 +887,7 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
     
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "SubscribeServerThread::addSubscription -"
-                  " Adding Subscription for url %s event %s duration %d to %s",
+                  " Adding Subscription for url '%s' event %s duration %d to '%s'",
                   toUrl.toString().data(), eventType.data(), grantedExpirationTime, contactEntry.data());
 
     // trim the contact to just the uri

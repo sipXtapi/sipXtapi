@@ -261,7 +261,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
               contactIndexCount++
              )
         {
-           OsSysLog::add( FAC_SIP, PRI_WARNING,
+           OsSysLog::add( FAC_SIP, PRI_DEBUG,
                           "SipRegistrarServer::applyRegisterToDirectory - processing '%s'",
                           registerContactStr.data()
                                );

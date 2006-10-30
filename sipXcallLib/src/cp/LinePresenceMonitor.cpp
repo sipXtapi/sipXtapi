@@ -133,7 +133,7 @@ LinePresenceMonitor::~LinePresenceMonitor()
       /* null */ ;
    }
 
-   // Delete the UserAgent.
+   // Delete the SipUserAgent.
    delete mpUserAgent;
 }
 
