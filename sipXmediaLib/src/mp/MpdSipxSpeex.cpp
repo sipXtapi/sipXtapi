@@ -60,7 +60,7 @@ OsStatus MpdSipxSpeex::initDecode(MpConnection* pConnection)
       int tmp;
    
       // Init decoder
-      mpDecoderState = speex_decoder_init(&speex_nb_mode);   
+      mpDecoderState = speex_decoder_init(speex_lib_get_mode(SPEEX_MODEID_NB));   
 
       // It makes the decoded speech deviate further from the original,
       // but it sounds subjectively better.

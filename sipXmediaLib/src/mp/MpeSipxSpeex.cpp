@@ -90,7 +90,7 @@ MpeSipxSpeex::~MpeSipxSpeex()
 
 OsStatus MpeSipxSpeex::initEncode(void)
 {
-   mpEncoderState = speex_encoder_init(&speex_nb_mode);
+   mpEncoderState = speex_encoder_init(speex_lib_get_mode(SPEEX_MODEID_NB));
    speex_encoder_ctl(mpEncoderState, SPEEX_SET_MODE,&mMode);
    speex_encoder_ctl(mpEncoderState, SPEEX_SET_SAMPLING_RATE, &mSampleRate);
 
