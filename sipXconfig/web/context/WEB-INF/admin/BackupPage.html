@@ -1,111 +1,83 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-	<head>
-		<title>sipXconfig</title>
-		<link rel="stylesheet" type="text/css" href="../sipxconfig.css"/>
-	</head>
-	<body jwcid="$content$">
-		<div jwcid="@Border">
-			<h2><span key="title">Backup</span></h2>
-			<p jwcid="ifInitialDescription"><span key="description">To backup the system configuration 
-				select desired backup options and press the <em>Backup Now</em> button. You 
-				can perform a partial backup by leaving some options 
-				unselected.<br/> Backup files will be available for download once the 
-				backup is completed.<br/></span></p>
-			<p jwcid="ifResultsPresent"><span key="backupCompleted"> Backup completed successfully. Please 
-				download archived data by clicking on the links below.</span>
-                                                 
-
-                <div class="help"> <p key="helpText">Click on each link to download the 
-				files.<br/> Backup files should be stored on media or a machine 
-				other than the sipX server.<br/><br/>
-                                <strong>Restoring the data:</strong><br/>
-                                In order to restore from backup you need access to a Linux console on your sipX host. Transfer
-                                the backup files back to the sipX host. Login as root and create two directories in
-                                root's home directory: <em>backup-configs</em> and <em>backup-mailstore</em>.<br/><br/>
-                                The files <em>fs.tar.gz</em> and <em>pds.tar.gz</em> go into the directory <em>backup-configs</em>. The file
-                                <em>mailstore.tar.gz</em> goes into the directory <em>backup-mailstore</em>.<br/>
-                                To restore the configuration and 
-				database information type <strong>restore-configs.sh</strong> 
-				at a command line prompt.<br/> To restore voicemail data type 
-				<strong>restore-mailstore.sh</strong> at a command line prompt.</p> 
-				</div>                 
-                <ul> 
-                    <li jwcid="results"> 
-                        <span jwcid="link"><span jwcid="linkText"/></span> 
-                    </li> 
-                </ul>
-                </p>
-			<span jwcid="errors"/>
-			<form jwcid="form">
-				<fieldset>
-					<legend>Files</legend>
-					<table>
-						<tbody>
-							<tr>
-								<td>
-									<input jwcid="checkConfigs" type="checkbox" 
-										id="backup:check:configs" 
-										checked="checked"/>
-									<label for="backup:check:configs"> 
-										Configuration files</label>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<input jwcid="checkDatabase" 
-										type="checkbox" 
-										id="backup:check:database" 
-										checked="checked"/>
-									<label for="backup:check:database">Profiles 
-										database</label>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<input jwcid="checkVoicemail" 
-										type="checkbox" 
-										id="backup:check:voicemail" 
-										checked="checked"/>
-									<label for="backup:check:voicemail"> 
-										Voicemail</label>
-								</td>
-							</tr>
-							<tr>
-								<td>Number of backups to keep: 
-                                    <select jwcid="limitCount"/> <br/> 
-                                <span class="settingDescription">After the limit is 
-									reached, the oldest backup will be deleted 
-									as each new backup is performed.</span> 
-									</td>
-							</tr>
-						</tbody>
-					</table>
-				</fieldset>
-				<ul class="form-actions">
-					<li>
-						<input jwcid="backup" id="backup:now" type="button" 
-							name="save" value="Backup Now"/>
-					</li>
-				</ul>
-				<fieldset>
-					<legend>Schedule</legend>
-                    <p>Backups are stored in "/var/sipxdata/backups" in a subdirectory 
-                        whose name corresponds to the date and time the backup was made. 
-                        We recommend that you use NFS or a similar mechanism to mount this 
-                        directory to a different machine on your network, or at least
-                        have the "/var" directory on a different hard disk partition.</p>
-                            <span jwcid="schedules">
-									<input jwcid="dailyScheduleEnabled" type="checkbox"/>
-									<select jwcid="dailyScheduledDay"/>
-									<input jwcid="dailyScheduledTime"/>
-                                    </span>
-    <ul class="form-actions">
-	    <li><input jwcid="ok" id="backup:ok" type="submit" value="OK"/></li>
-    </ul>
-				</fieldset>
-			</form>
-		</div>
-	</body>
-</html>
+<div jwcid="@Border">
+	<h2><span key="title">Backup</span></h2>
+	<span jwcid="ifInitialDescription">
+      <p><span jwcid="@Insert" value="message:description" raw="true"/></p>
+    </span>
+	<p jwcid="ifResultsPresent"><span key="backupCompleted">Success...</span>
+      <div jwcid="@QuickHelp" value="message:helpText" />
+        <ul> 
+            <li jwcid="results"> 
+                <span jwcid="link"><span jwcid="linkText"/></span> 
+            </li> 
+        </ul>
+    </p>
+	<span jwcid="errors"/>
+	<form jwcid="form">
+		<fieldset>
+			<legend>Files</legend>
+			<table>
+				<tbody>
+					<tr>
+						<td>
+							<input jwcid="checkConfigs" type="checkbox" 
+								id="backup:check:configs" 
+								checked="checked"/>
+							<label for="backup:check:configs"> 
+								Configuration files</label>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<input jwcid="checkDatabase" 
+								type="checkbox" 
+								id="backup:check:database" 
+								checked="checked"/>
+							<label for="backup:check:database">Profiles 
+								database</label>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<input jwcid="checkVoicemail" 
+								type="checkbox" 
+								id="backup:check:voicemail" 
+								checked="checked"/>
+							<label for="backup:check:voicemail"> 
+								Voicemail</label>
+						</td>
+					</tr>
+					<tr>
+						<td>Number of backups to keep: 
+                                <select jwcid="limitCount"/> <br/> 
+                            <span class="settingDescription">After the limit is 
+							reached, the oldest backup will be deleted 
+							as each new backup is performed.</span> 
+							</td>
+					</tr>
+				</tbody>
+			</table>
+		</fieldset>
+		<ul class="form-actions">
+			<li>
+				<input jwcid="backup" id="backup:now" type="button" 
+					name="save" value="Backup Now"/>
+			</li>
+		</ul>
+		<fieldset>
+			<legend>Schedule</legend>
+                <p>Backups are stored in "/var/sipxdata/backups" in a subdirectory 
+                    whose name corresponds to the date and time the backup was made. 
+                    We recommend that you use NFS or a similar mechanism to mount this 
+                    directory to a different machine on your network, or at least
+                    have the "/var" directory on a different hard disk partition.</p>
+                        <span jwcid="schedules">
+							<input jwcid="dailyScheduleEnabled" type="checkbox"/>
+							<select jwcid="dailyScheduledDay"/>
+							<input jwcid="dailyScheduledTime"/>
+                                </span>
+            <ul class="form-actions">
+              <li><input jwcid="ok" id="backup:ok" type="submit" value="OK"/></li>
+            </ul>
+		</fieldset>
+	</form>
+</div>
