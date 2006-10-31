@@ -17,6 +17,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsSysLog.h"
+#include "os/OsDefs.h"
 #include "SipRedirectorISN.h"
 #include "net/SipSrvLookup.h"
 #include "net/Url.h"
