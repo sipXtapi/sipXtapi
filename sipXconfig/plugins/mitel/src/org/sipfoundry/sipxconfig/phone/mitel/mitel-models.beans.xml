@@ -3,9 +3,8 @@
   "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
   <!-- models -->
-  <bean id="mitelMax" class="org.sipfoundry.sipxconfig.phone.mitel.MitelModel">
+  <bean id="mitel5224" class="org.sipfoundry.sipxconfig.phone.mitel.MitelModel">
     <property name="label" value="Mitel 5224" />
-    <property name="modelId" value="mitel5224"></property>
   </bean>
   <!-- implementation -->
   <bean id="mitel" class="org.sipfoundry.sipxconfig.phone.mitel.MitelPhone"

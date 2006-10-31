@@ -5,7 +5,6 @@
   <!-- models -->
   <bean id="clearoneMax" class="org.sipfoundry.sipxconfig.phone.clearone.ClearoneModel">
     <property name="label" value="ClearOne MAX IP" />
-    <property name="modelId" value="clearoneMaxIp"></property>
   </bean>
   <!-- implementation -->
   <bean id="clearone" class="org.sipfoundry.sipxconfig.phone.clearone.ClearonePhone"

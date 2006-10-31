@@ -4,19 +4,16 @@
 <beans>
   <bean id="cisco7960" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoModel">
     <property name="beanId" value="ciscoIp"/>
-    <property name="modelId" value="7960"/>
     <property name="label" value="Cisco IP 7960"/>
     <property name="maxLineCount" value="6"/>
   </bean>
   <bean id="cisco7940" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoModel">
     <property name="beanId" value="ciscoIp"/>
-    <property name="modelId" value="7940"/>
     <property name="label" value="Cisco IP 7940"/>
     <property name="maxLineCount" value="2"/>
   </bean>
   <bean id="cisco7912" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoModel">
     <property name="beanId" value="ciscoAta"/>
-    <property name="modelId" value="7912"/>
     <property name="label" value="Cisco IP 7912"/>
     <property name="maxLineCount" value="1"/>
     <property name="cfgPrefix" value="gk"/>
@@ -24,7 +21,6 @@
   </bean>
   <bean id="cisco7905" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoModel">
     <property name="beanId" value="ciscoAta"/>
-    <property name="modelId" value="7905"/>
     <property name="label" value="Cisco IP 7905"/>
     <property name="maxLineCount" value="1"/>
     <property name="cfgPrefix" value="ld"/>
@@ -32,7 +28,6 @@
   </bean>
   <bean id="cisco18x" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoModel">
     <property name="beanId" value="ciscoAta"/>
-    <property name="modelId" value="18x"/>
     <property name="label" value="Cisco ATA 186/188"/>
     <property name="maxLineCount" value="2"/>
     <property name="cfgPrefix" value="ata"/>
