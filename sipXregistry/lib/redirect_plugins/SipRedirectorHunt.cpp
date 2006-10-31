@@ -26,7 +26,6 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
-UtlBoolean   SipRedirectorHunt::sHuntGroupsDefined (FALSE);
 
 /* Hunt group q values are in the range 0.400 <= q < 0.600 */
 #define HUNT_GROUP_MAX_Q 600
@@ -41,7 +40,8 @@ extern "C" RedirectPlugin* getRedirectPlugin(const UtlString& instanceName)
 
 // Constructor
 SipRedirectorHunt::SipRedirectorHunt(const UtlString& instanceName) :
-   RedirectPlugin(instanceName)
+   RedirectPlugin(instanceName),
+   mHuntGroupsDefined(FALSE)
 {
 }
 
@@ -60,16 +60,16 @@ OsStatus
 SipRedirectorHunt::initialize(OsConfigDb& configDb,
                               SipUserAgent* pSipUserAgent,
                               int redirectorNo,
-                               const UtlString& localDomainHost)
+                              const UtlString& localDomainHost)
 {
    // Determine whether we have huntgroup supported
    // if the XML file contains 0 rows or the file
    // does not exist then disable huntgroup support
    ResultSet resultSet;
    HuntgroupDB::getInstance()->getAllRows(resultSet);
-   sHuntGroupsDefined = (resultSet.getSize() > 0);
+   mHuntGroupsDefined = resultSet.getSize() > 0;
 
-   return OS_SUCCESS;
+   return mHuntGroupsDefined ? OS_SUCCESS : OS_FAILED;
 }
 
 // Finalizer
@@ -89,12 +89,6 @@ SipRedirectorHunt::lookUp(
    int redirectorNo,
    SipRedirectorPrivateStorage*& privateStorage)
 {
-   // Avoid doing any work if there are no hunt groups defined.
-   if (!sHuntGroupsDefined)
-   {
-      return RedirectPlugin::LOOKUP_SUCCESS;
-   }
-
    // Return immediately if the method is SUBSCRIBE, as the q values will
    // be stripped later anyway.
    if (method.compareTo(SIP_SUBSCRIBE_METHOD, UtlString::ignoreCase) == 0)

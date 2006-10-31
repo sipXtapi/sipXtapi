@@ -32,7 +32,8 @@ extern "C" RedirectPlugin* getRedirectPlugin(const UtlString& instanceName)
 
 // Constructor
 SipRedirectorCallerAlias::SipRedirectorCallerAlias(const UtlString& instanceName) :
-   RedirectPlugin(instanceName)
+   RedirectPlugin(instanceName),
+   mpCallerAliasDB(NULL)
 {
 }
 
@@ -53,18 +54,21 @@ SipRedirectorCallerAlias::initialize(OsConfigDb& configDb,
                                      int redirectorNo,
                                      const UtlString& localDomainHost)
 {
+   OsStatus ret;
    mpCallerAliasDB = CallerAliasDB::getInstance();
 
    if (mpCallerAliasDB)
    {
       OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorCallerAlias initialized");
+      ret = OS_SUCCESS;
    }
    else
    {
       OsSysLog::add(FAC_SIP, PRI_WARNING, "SipRedirectorCallerAlias - no CallerAliasDB");
+      ret = OS_FAILED;
    }
    
-   return OS_SUCCESS;
+   return ret;
 }
 
 // Finalizer

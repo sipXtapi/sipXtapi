@@ -131,7 +131,7 @@ class SipRedirectorPickUp : public RedirectPlugin
    // The SIP username for global pick-up.
    UtlString mGlobalPickUpCode;
 
-   // The SIP username for call retrieval.
+   // The SIP username prefix for call retrieval.
    UtlString mCallRetrieveCode;
 
    // The SIP domain of the park server.

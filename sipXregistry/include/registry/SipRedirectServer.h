@@ -132,6 +132,11 @@ class SipRedirectServer : public OsServerTask
    PluginHooks mRedirectPlugins;
    // The number of redirectors.
    int mRedirectorCount;
+
+   /** Pointer to an array of UtlBoolean's that record whether redirectors
+    *  are active, based on the return values of ::initialize().
+    */
+   UtlBoolean* mpActive;
 };
 
 /**

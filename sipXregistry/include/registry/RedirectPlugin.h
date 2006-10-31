@@ -112,15 +112,16 @@ class RedirectPlugin : public Plugin
    virtual ~RedirectPlugin();
 
    /**
-    * All initialization should be done in ::initialize() in preference
-    * to in the constructor, so that we have finer control over when
+    * Initialization will be done by the PluginHooks object calling
+    * the ::readConfig() method, then ::initialize() will be called.
+    * All initialization should be done in one of these methods, rather
+    * than the constructor, so that we have finer control over when
     * it happens.
     *
-    * configParameters is a UtlHashMap that gives various
-    * configuration parameters that ::initialize() may want to use.
-    *
-    * configDb is the OsConfigDb containing the configuration
-    * parameters from the file registrar-config.
+    * In ::readConfig(), configDb is the subset of the configuration
+    * parameters tagged for this plugin.  In ::initialize(),
+    * configDb is a UtlHashMap that gives the complete
+    * configuration parameters. 
     *
     * pSipUserAgent is a pointer to the SipUserAgent to use for
     * communication.
@@ -131,8 +132,8 @@ class RedirectPlugin : public Plugin
     * initialized and wishes to process requests, and OS_FAILED if it
     * does not wish to process requests.  If it has detected an error,
     * it must output an error message on its own, as OS_FAILED per se isn't
-    * an error signal.
-    * :TODO: The effect of OS_FAILED has not been implemented yet.
+    * an error signal.  Regardless of the return value, ::finalize()
+    * will be called before the destructor is called.
     */
    virtual OsStatus initialize(OsConfigDb& configDb,
                                SipUserAgent* pSipUserAgent,
@@ -163,7 +164,10 @@ class RedirectPlugin : public Plugin
    /**
     * @return the LookUpStatus indication showing the outcome of processing
     *
-    * If it returns LOOKUP_ERROR, the redirector should most likely have
+    * LOOKUP_SUCCESS is used in all non-error situations, even if the
+    * redirector added no contacts.  Generation of 404 responses is done
+    * by SipRedirectServer after all redirectors have executed.
+    * If it returns LOOKUP_ERROR_*, the redirector should most likely have
     * logged message(s) at ERR level giving the details of the problem.
     *
     * The SipRedirectServer will be holding mMutex while lookUp is called.
