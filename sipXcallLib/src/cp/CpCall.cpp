@@ -643,10 +643,8 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
                         {
                             OsWriteLock lock(mDtmfQMutex);
 
-                            //#ifdef TEST_PRINT
                             OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - received dtmf event 0x%08x QLen=%d\n",
                                 mCallId.data(), eventData, mDtmfQLen);
-                            //#endif
 
                             for (i = 0; i < mDtmfQLen; i++)
                             {
@@ -659,19 +657,16 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
 
                                 if (mDtmfEvents[i].ignoreKeyUp && (eventData & 0x80000000))
                                 {
-                                    //#ifdef TEST_PRINT
                                     OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - ignore KEYUP event 0x%08x\n",
                                         mCallId.data(), eventData);
-                                    //#endif
                                     continue; // ignore keyup event
                                 }
 
-                                if (eventData & 0x0000ffff)
+                                if ((eventData & 0x80000000) == 0 &&
+                                    (eventData & 0x0000ffff))
                                 {
-                                    //#ifdef TEST_PRINT
                                     OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - ignore KEYDOWN event 0x%08x\n",
                                         mCallId.data(), eventData);
-                                    //#endif
                                     continue; // previous key still down, ignore long key event
                                 }
                                 OsQueuedEvent* dtmfEvent = (OsQueuedEvent*)(mDtmfEvents[i].event);
@@ -680,7 +675,7 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
                                     OsStatus res = dtmfEvent->signal((eventData & 0xfffffff0));
                                     // There could be a race condition in media server
                                     // where the receiving msgq can be processing an event from the
-                                    // playerlistener and this event is signaled before the q is reset,
+                                    // playerlistener and this event is signaled before the queue is reset,
                                     // so we'll try to send a few more times until success.
                                     int tries = 0;
                                     while ((tries++ < 10) && (res != OS_SUCCESS))
