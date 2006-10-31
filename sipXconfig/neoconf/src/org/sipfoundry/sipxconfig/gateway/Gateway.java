@@ -40,7 +40,7 @@ public class Gateway extends BeanWithSettings implements NamedObject {
     private String m_tftpRoot;
 
     private GatewayModel m_model;
-    
+
     private ModelSource<GatewayModel> m_modelSource;
 
     private DeviceVersion m_version;
@@ -48,10 +48,10 @@ public class Gateway extends BeanWithSettings implements NamedObject {
     private VelocityEngine m_velocityEngine;
 
     private GatewayCallerAliasInfo m_callerAliasInfo = new GatewayCallerAliasInfo();
-    
-    public Gateway() {        
+
+    public Gateway() {
     }
-    
+
     public Gateway(GatewayModel model) {
         setModel(model);
     }
@@ -135,12 +135,12 @@ public class Gateway extends BeanWithSettings implements NamedObject {
     public void setModelId(String modelId) {
         m_modelId = modelId;
     }
-    
+
     public void setModel(GatewayModel model) {
         m_model = model;
         m_modelId = m_model.getModelId();
     }
-    
+
     public GatewayModel getModel() {
         if (m_model != null) {
             return m_model;
@@ -165,6 +165,14 @@ public class Gateway extends BeanWithSettings implements NamedObject {
 
     public void setPrefix(String prefix) {
         m_prefix = prefix;
+    }
+
+    /**
+     * Used to set header parameter route in fallback rules when generating rules for this
+     * gateway.
+     */
+    public String getRoute() {
+        return null;
     }
 
     public GatewayCallerAliasInfo getCallerAliasInfo() {

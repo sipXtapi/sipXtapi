@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model 
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+
+<model>
+  <group name="trunk">
+    <label>SIP Trunk</label>
+    <setting name="route">
+      <label>Route</label>
+      <description>
+        Address of Session Border Controller, firewall or proxy that will process calls directed
+        to this gateway.
+      </description>
+    </setting>
+  </group>
+</model>

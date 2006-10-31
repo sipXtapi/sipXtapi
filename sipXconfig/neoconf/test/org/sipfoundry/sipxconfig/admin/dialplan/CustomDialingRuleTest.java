@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -80,9 +81,24 @@ public class CustomDialingRuleTest extends TestCase {
             assertTrue(transforms[i] instanceof FullTransform);
             FullTransform full = (FullTransform) transforms[i];
             assertTrue(full.getFieldParams()[0].startsWith("q="));
+            assertNull(full.getHeaderParams());
             assertEquals(GATEWAYS[i], full.getHost());
             assertTrue(full.getUser().startsWith(StringUtils.defaultString(PREFIXES[i]) + "999"));
         }
+    }
+
+    public void testGetRouteHeader() {
+        Gateway g = new Gateway() {
+            public String getRoute() {
+                return "bongo.example.org";
+            }
+        };
+        m_rule.setGateways(Collections.singletonList(g));
+        Transform[] transforms = m_rule.getTransforms();
+        assertEquals(1, transforms.length);
+        FullTransform full = (FullTransform) transforms[0];
+        assertEquals(1, full.getHeaderParams().length);
+        assertEquals("route=bongo.example.org", full.getHeaderParams()[0]);
     }
 
     public void testNoGateways() {

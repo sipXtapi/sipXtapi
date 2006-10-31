@@ -21,6 +21,7 @@
 
   <bean id="gwSipTrunk" class="org.sipfoundry.sipxconfig.gateway.SipTrunk" singleton="false"
     parent="gwGeneric">
+    <property name="modelFilesContext" ref="modelFilesContext" />    
   </bean>
 
   <bean id="nakedGatewayModelSource"
