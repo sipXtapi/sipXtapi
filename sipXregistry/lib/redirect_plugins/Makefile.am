@@ -1,4 +1,3 @@
-
 SUBDIRS = 
 
 lib_LTLIBRARIES = \
@@ -152,3 +151,20 @@ libRedirectorMPT_la_CXXFLAGS = \
 libRedirectorMPT_la_SOURCES =  \
 	SipRedirectorMPT.cpp \
 	SipRedirectorMPT.h
+
+# SipRedirectorISN
+# Experimental redirector to implement ISN dialing.
+
+libRedirectorISN_la_LDFLAGS = \
+	-module \
+	-version-info ${version_Current}:${version_Revision}:${version_Age}
+
+libRedirectorISN_la_LIBADD = \
+	@SIPXCOMMSERVER_LIBS@
+
+libRedirectorISN_la_CXXFLAGS = \
+	-I$(top_builddir)/config
+
+libRedirectorISN_la_SOURCES =  \
+	SipRedirectorISN.cpp \
+	SipRedirectorISN.h
