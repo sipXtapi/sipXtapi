@@ -28,6 +28,7 @@
 #include "utl/PluginHooks.h"
 
 // DEFINES
+#define MREDIRECTORCOUNT        9
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

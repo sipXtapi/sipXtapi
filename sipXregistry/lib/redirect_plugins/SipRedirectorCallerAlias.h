@@ -15,7 +15,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "SipRedirector.h"
+#include "registry/RedirectPlugin.h"
 #include "sipdb/CallerAliasDB.h"
 
 // DEFINES
@@ -27,22 +27,24 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-class SipRedirectorCallerAlias : public SipRedirector
+class SipRedirectorCallerAlias : public RedirectPlugin
 {
 public:
 
-   SipRedirectorCallerAlias();
+   SipRedirectorCallerAlias(const UtlString& instanceName);
 
    ~SipRedirectorCallerAlias();
 
-   virtual OsStatus initialize(const UtlHashMap& configParameters,
-                               OsConfigDb& configDb,
+   virtual void readConfig(OsConfigDb& configDb);
+
+   virtual OsStatus initialize(OsConfigDb& configDb,
                                SipUserAgent* pSipUserAgent,
-                               int redirectorNo);
+                               int redirectorNo,
+                               const UtlString& localDomainHost);
 
    virtual void finalize();
 
-   virtual SipRedirector::LookUpStatus lookUp(
+   virtual RedirectPlugin::LookUpStatus lookUp(
       const SipMessage& message,
       const UtlString& requestString,
       const Url& requestUri,

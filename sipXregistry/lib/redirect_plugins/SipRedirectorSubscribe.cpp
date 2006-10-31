@@ -17,7 +17,6 @@
 #include "net/Url.h"
 #include "net/SipMessage.h"
 #include "sipdb/ResultSet.h"
-#include "SipRegistrar.h"
 #include "SipRedirectorSubscribe.h"
 
 // EXTERNAL FUNCTIONS

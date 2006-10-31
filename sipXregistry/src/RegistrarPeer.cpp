@@ -14,7 +14,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include "os/OsLock.h"
-#include "SipRegistrar.h"
+#include "registry/SipRegistrar.h"
 #include "RegistrarTest.h"
 #include "RegistrarSync.h"
 #include "RegistrarPeer.h"

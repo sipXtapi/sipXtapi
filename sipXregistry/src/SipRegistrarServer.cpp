@@ -34,7 +34,7 @@
 #include "sipdb/RegistrationDB.h"
 #include "RegistrarPersist.h"
 #include "RegistrarSync.h"
-#include "SipRegistrar.h"
+#include "registry/SipRegistrar.h"
 #include "SipRegistrarServer.h"
 #include "SyncRpc.h"
 #include "registry/RegisterPlugin.h"

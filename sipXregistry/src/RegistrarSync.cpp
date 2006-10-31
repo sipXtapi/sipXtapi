@@ -36,7 +36,7 @@ using std::auto_ptr;
 #include "utl/UtlSListIterator.h"
 #include "RegistrarPeer.h"
 #include "RegistrarSync.h"
-#include "SipRegistrar.h"
+#include "registry/SipRegistrar.h"
 #include "SipRegistrarServer.h"
 #include "SyncRpc.h"
 

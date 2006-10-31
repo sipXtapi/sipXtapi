@@ -3,6 +3,7 @@ SUBDIRS =
 
 lib_LTLIBRARIES = \
 	libRedirectorAliasDB.la \
+	libRedirectorCallerAlias.la \
 	libRedirectorMapping.la \
 	libRedirectorHunt.la \
 	libRedirectorPickUp.la \
@@ -36,6 +37,22 @@ libRedirectorAliasDB_la_CXXFLAGS = \
 libRedirectorAliasDB_la_SOURCES =  \
 	SipRedirectorAliasDB.cpp \
 	SipRedirectorAliasDB.h
+
+# SipRedirectorCallerAlias
+
+libRedirectorCallerAlias_la_LDFLAGS = \
+	-module \
+	-version-info ${version_Current}:${version_Revision}:${version_Age}
+
+libRedirectorCallerAlias_la_LIBADD = \
+	@SIPXCOMMSERVER_LIBS@
+
+libRedirectorCallerAlias_la_CXXFLAGS = \
+	-I$(top_builddir)/config
+
+libRedirectorCallerAlias_la_SOURCES =  \
+	SipRedirectorCallerAlias.cpp \
+	SipRedirectorCallerAlias.h
 
 # SipRedirectorMapping
 
@@ -117,6 +134,8 @@ libRedirectorRegDB_la_SOURCES =  \
 	SipRedirectorRegDB.cpp \
 	SipRedirectorRegDB.h
 
+# Experimental redirectors
+
 # SipRedirectorMPT
 # Experimental redirector for multi-party testing.
 
@@ -133,4 +152,3 @@ libRedirectorMPT_la_CXXFLAGS = \
 libRedirectorMPT_la_SOURCES =  \
 	SipRedirectorMPT.cpp \
 	SipRedirectorMPT.h
-
