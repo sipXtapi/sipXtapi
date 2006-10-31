@@ -43,6 +43,18 @@ then
        @bindir@/configpp --defs "${CONFIG_DEFS}" --in "${i}.in" --out "$i"
     fi
   done
+
+
+  # run the config preprocessor over the voicexml scripts
+  for cfgfile in @wwwdir@/doc/aa_vxml/*.in @wwwdir@/doc/vm_vxml/*.in 
+  do
+    if [ -f ${cfgfile} ]
+    then
+       genfile=`basename ${cfgfile} .in`
+       gendir=`dirname ${cfgfile}`
+       @bindir@/configpp --defs "${CONFIG_DEFS}" --in "${cfgfile}" --out "${gendir}/${genfile}"
+    fi
+  done
 fi
 
 case ${Action} in
