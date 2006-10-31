@@ -29,10 +29,7 @@ public class SpecialAutoAttendantMode extends XmlFile {
         Element op = document.addElement("organizationprefs");
         op.addElement("specialoperation").setText(Boolean.toString(m_enabled));
         Element aa = op.addElement("autoattendant");
-        if (m_enabled) {
-            aa.setText(m_attendant.getSystemName());
-        }
-
+        aa.setText(m_attendant.getSystemName());
         return document;
     }
 

@@ -28,8 +28,11 @@ public class SpecialAutoAttendantModeTest extends XMLTestCase {
     }
 
     public void testGetDocumentDisabled() throws Exception {
-        SpecialAutoAttendantMode file = new SpecialAutoAttendantMode(false, null);
-        String expected = "<organizationprefs><specialoperation>false</specialoperation><autoattendant/></organizationprefs>";
+        AutoAttendant aa = new AutoAttendant();
+        aa.setSystemId("abc");
+
+        SpecialAutoAttendantMode file = new SpecialAutoAttendantMode(false, aa);
+        String expected = "<organizationprefs><specialoperation>false</specialoperation><autoattendant>abc</autoattendant></organizationprefs>";
 
         assertXMLEqual(expected, file.getFileContent());
     }

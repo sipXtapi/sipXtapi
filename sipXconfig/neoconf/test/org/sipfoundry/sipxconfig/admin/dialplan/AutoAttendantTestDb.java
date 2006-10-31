@@ -145,6 +145,13 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
         } catch (AttendantInUseException e) {
             assertTrue(true);
         }
+        aa = m_context.getAutoAttendant(new Integer(1001));
+        try {
+            m_context.deleteAutoAttendant(aa, "");
+            fail();
+        } catch (AttendantInUseException e) {
+            assertTrue(true);
+        }
     }
     
     public void testSaveNameThatIsDuplicateAlias() throws Exception {
