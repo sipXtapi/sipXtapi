@@ -18,7 +18,7 @@ CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
 # fully resolved configuration file.
 if [ -f "$CONFIG_DEFS" ]
 then
-  for cfgfile in @SIPX_CONFDIR@/http*.in @wwwdir@/doc/aa_vxml/*.in @wwwdir@/doc/vm_vxml/*.in 
+  for cfgfile in @SIPX_CONFDIR@/http*.in
   do
     if [ -f ${cfgfile} ]
     then
