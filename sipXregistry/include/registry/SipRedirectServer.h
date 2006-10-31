@@ -28,7 +28,6 @@
 #include "utl/PluginHooks.h"
 
 // DEFINES
-#define MREDIRECTORCOUNT        9
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -131,6 +130,8 @@ class SipRedirectServer : public OsServerTask
 
    // The PluginHooks object for managing the list of redirector plugins.
    PluginHooks mRedirectPlugins;
+   // The number of redirectors.
+   int mRedirectorCount;
 };
 
 /**

@@ -10,6 +10,7 @@ lib_LTLIBRARIES = \
 	libRedirectorSubscribe.la \
 	\
 	libRedirectorISN.la \
+	libRedirectorJoin.la \
 	libRedirectorTest.la
 
 INCLUDES = -I$(top_srcdir)/include

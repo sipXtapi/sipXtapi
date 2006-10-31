@@ -114,6 +114,7 @@ SipRedirectServer::initialize(OsConfigDb& configDb
    {
       redirector->initialize(configDb, mpSipUserAgent, i, defaultDomain);
    }
+   mRedirectorCount = i;
 
    return true;
 }
@@ -260,7 +261,7 @@ void SipRedirectServer::processRedirect(const SipMessage* message,
       if (!suspendObject &&
           (status == RedirectPlugin::LOOKUP_SUSPEND || privateStorageP))
       {
-         suspendObject = new RedirectSuspend(MREDIRECTORCOUNT);
+         suspendObject = new RedirectSuspend(mRedirectorCount);
          // Insert it into mSuspendList, keyed by seqNo.
          UtlInt* containableSeqNo = new UtlInt(seqNo);
          mSuspendList.insertKeyAndValue(containableSeqNo, suspendObject);
@@ -564,7 +565,7 @@ SipRedirectServer::handleMessage(OsMsg& eventMessage)
       }
 
       // Check that this redirector is suspended.
-      if (redirectorNo < 0 || redirectorNo >= MREDIRECTORCOUNT)
+      if (redirectorNo < 0 || redirectorNo >= mRedirectorCount)
       {
          OsSysLog::add(FAC_SIP, PRI_ERR,
                        "SipRedirectServer::handleMessage "
