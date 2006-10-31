@@ -41,9 +41,10 @@ class SipRedirectorISN : public RedirectPlugin
    ~SipRedirectorISN();
 
    /**
-    * Requires the following parameter:
+    * Uses the following parameter:
     *
-    * WK_DOMAIN - base well-known domain for doing NAPTR lookups
+    * PREFIX - dialing prefix (optional)
+    * BASE_DOMAIN - base well-known domain for doing NAPTR lookups (required)
     */
    virtual void readConfig(OsConfigDb& configDb);
 
@@ -66,7 +67,8 @@ class SipRedirectorISN : public RedirectPlugin
 
   protected:
 
-   UtlString mWKDomain;
+   UtlString mPrefix;
+   UtlString mBaseDomain;
 };
 
 #endif // SIPREDIRECTORREGDB_H
