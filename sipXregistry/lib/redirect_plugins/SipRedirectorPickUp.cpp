@@ -29,6 +29,7 @@
 #include "registry/SipRedirectServer.h"
 #include <net/SipDialogEvent.h>
 #include "xmlparser/ExtractContent.h"
+#include "net/SipMessage.h"
 
 // DEFINES
 
@@ -567,7 +568,6 @@ SipRedirectorPickUp::lookUpDialog(
             {
                header_value.append(";early-only");
             }
-
             // Add a header parameter to specify the Replaces: header.
             contact_URI.setHeaderParameter("Replaces", header_value.data());
 
