@@ -88,12 +88,6 @@ SipRedirectorPrivateStorage::~SipRedirectorPrivateStorage()
 {
 }
 
-// Dummy implementation.
-unsigned int SipRedirectorPrivateStorage::hash() const
-{
-   return 0;
-}
-
 static UtlContainableType SipRedirectorPrivateStorageTYPE =
        "SipRedirectorPrivateStorage";
 
@@ -101,11 +95,4 @@ const char* const
 SipRedirectorPrivateStorage::getContainableType() const
 {
    return SipRedirectorPrivateStorageTYPE;
-}
-
-// Dummy implementation.
-int
-SipRedirectorPrivateStorage::compareTo(const UtlContainable*) const
-{
-   return TRUE;
 }

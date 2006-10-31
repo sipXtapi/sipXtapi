@@ -7,13 +7,14 @@ TESTS = testsuite
 check_PROGRAMS = testsuite
 
 testsuite_LDADD = \
-   @SIPXUNIT_LIBS@ \
+	@SIPXUNIT_LIBS@ \
 	@SIPXCOMMSERVER_LIBS@
 
 
 testsuite_CXXFLAGS = \
 	-I$(top_srcdir)/include \
-	@PCRE_CFLAGS@ @CPPUNIT_CFLAGS@ \
+	@PCRE_CFLAGS@ \
+	@CPPUNIT_CFLAGS@ \
 	-DTEST_DIR=\"@abs_builddir@\" \
 	-fno-gcse -O0
 
