@@ -1,23 +1,22 @@
 // 
 // 
-// Copyright (C) 2004 SIPfoundry Inc.
+// Copyright (C) 2005 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
-// Copyright (C) 2004 Pingtel Corp.
+// Copyright (C) 2005 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef SIPREDIRECTORHUNT_H
-#define SIPREDIRECTORHUNT_H
+#ifndef SIPREDIRECTORALIASDB_H
+#define SIPREDIRECTORALIASDB_H
 
 // SYSTEM INCLUDES
 //#include <...>
 
 // APPLICATION INCLUDES
-#include "SipRedirector.h"
-#include "os/OsMutex.h"
+#include "registry/RedirectPlugin.h"
 
 // DEFINES
 // MACROS
@@ -27,24 +26,30 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
-class SipMessage;
 
-class SipRedirectorHunt : public SipRedirector
+/**
+ * SipRedirectorAliasDB is singleton class whose object adds contacts that are
+ * listed in the registration database.
+ */
+
+class SipRedirectorAliasDB : public RedirectPlugin
 {
-public:
+  public:
 
-   SipRedirectorHunt();
+   SipRedirectorAliasDB(const UtlString& instanceName);
 
-   ~SipRedirectorHunt();
+   ~SipRedirectorAliasDB();
 
-   virtual OsStatus initialize(const UtlHashMap& configParameters,
-                               OsConfigDb& configDb,
+   virtual void readConfig(OsConfigDb& configDb);
+
+   virtual OsStatus initialize(OsConfigDb& configDb,
                                SipUserAgent* pSipUserAgent,
-                               int redirectorNo);
+                               int redirectorNo,
+                               const UtlString& localDomainHost);
 
    virtual void finalize();
 
-   virtual SipRedirector::LookUpStatus lookUp(
+   virtual RedirectPlugin::LookUpStatus lookUp(
       const SipMessage& message,
       const UtlString& requestString,
       const Url& requestUri,
@@ -54,13 +59,7 @@ public:
       int redirectorNo,
       SipRedirectorPrivateStorage*& privateStorage);
 
-protected:
-
-    // static bool indicating whether we have any huntgroups
-    static UtlBoolean sHuntGroupsDefined;
-
-private:
-
+  protected:
 };
 
-#endif // SIPREDIRECTORHUNT_H
+#endif // SIPREDIRECTORALIASDB_H

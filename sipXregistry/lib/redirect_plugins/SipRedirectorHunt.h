@@ -1,22 +1,23 @@
 // 
 // 
-// Copyright (C) 2005 SIPfoundry Inc.
+// Copyright (C) 2004 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
-// Copyright (C) 2005 Pingtel Corp.
+// Copyright (C) 2004 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef SIPREDIRECTORSUBSCRIBE_H
-#define SIPREDIRECTORSUBSCRIBE_H
+#ifndef SIPREDIRECTORHUNT_H
+#define SIPREDIRECTORHUNT_H
 
 // SYSTEM INCLUDES
 //#include <...>
 
 // APPLICATION INCLUDES
-#include "SipRedirector.h"
+#include "registry/RedirectPlugin.h"
+#include "os/OsMutex.h"
 
 // DEFINES
 // MACROS
@@ -28,22 +29,24 @@
 // FORWARD DECLARATIONS
 class SipMessage;
 
-class SipRedirectorSubscribe : public SipRedirector
+class SipRedirectorHunt : public RedirectPlugin
 {
 public:
 
-   SipRedirectorSubscribe();
+   SipRedirectorHunt(const UtlString& instanceName);
 
-   ~SipRedirectorSubscribe();
+   ~SipRedirectorHunt();
 
-   virtual OsStatus initialize(const UtlHashMap& configParameters,
-                               OsConfigDb& configDb,
+   virtual void readConfig(OsConfigDb& configDb);
+
+   virtual OsStatus initialize(OsConfigDb& configDb,
                                SipUserAgent* pSipUserAgent,
-                               int redirectorNo);
+                               int redirectorNo,
+                               const UtlString& localDomainHost);
 
    virtual void finalize();
 
-   virtual SipRedirector::LookUpStatus lookUp(
+   virtual RedirectPlugin::LookUpStatus lookUp(
       const SipMessage& message,
       const UtlString& requestString,
       const Url& requestUri,
@@ -55,8 +58,11 @@ public:
 
 protected:
 
+    // static bool indicating whether we have any huntgroups
+    static UtlBoolean sHuntGroupsDefined;
+
 private:
 
 };
 
-#endif // SIPREDIRECTORSUBSCRIBE_H
+#endif // SIPREDIRECTORHUNT_H

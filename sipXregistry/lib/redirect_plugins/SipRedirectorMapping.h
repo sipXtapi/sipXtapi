@@ -16,7 +16,7 @@
 //#include <...>
 
 // APPLICATION INCLUDES
-#include "SipRedirector.h"
+#include "registry/RedirectPlugin.h"
 #include "digitmaps/UrlMapping.h"
 
 // DEFINES
@@ -36,34 +36,37 @@
  * mappingrules.xml and one for fallbackrules.xml.
  */
 
-class SipRedirectorMapping : public SipRedirector
+class SipRedirectorMapping : public RedirectPlugin
 {
   public:
 
-   SipRedirectorMapping();
+   SipRedirectorMapping(const UtlString& instanceName);
 
    ~SipRedirectorMapping();
 
    /**
-    * Requires the following parameters:
+    * Requires the following config parameters:
     *
-    * mediaServer - the URI of the Media Server.
+    * MEDIA_SERVER - the URI of the Media Server.
     *
-    * voicemailServer - the URI of the voicemail server.
+    * VOICEMAIL_SERVER - the URI of the voicemail server.
     *
-    * localDomainHost - the SIP domain name
-    *
-    * mappingRulesFilename - the base name of the mapping rules file
+    * MAPPING_RULES_FILENAME - full filename of the mapping rules file
     * to load (e.g., "mappingrules.xml")
+    *
+    * FALLBACK - "true" if fallback rules, that is, no contacts should
+    * be added if there are already contacts in the set.
     */
-   virtual OsStatus initialize(const UtlHashMap& configParameters,
-                               OsConfigDb& configDb,
+   virtual void readConfig(OsConfigDb& configDb);
+
+   virtual OsStatus initialize(OsConfigDb& configDb,
                                SipUserAgent* pSipUserAgent,
-                               int redirectorNo);
+                               int redirectorNo,
+                               const UtlString& localDomainHost);
 
    virtual void finalize();
 
-   virtual SipRedirector::LookUpStatus lookUp(
+   virtual RedirectPlugin::LookUpStatus lookUp(
       const SipMessage& message,
       const UtlString& requestString,
       const Url& requestUri,
@@ -95,6 +98,21 @@ class SipRedirectorMapping : public SipRedirector
     * be added if there are already contacts in the set.
     */
    UtlBoolean mFallback;
+
+   /**
+    * SIP URI to access the Media Server.
+    */
+   UtlString mMediaServer;
+
+   /**
+    * HTTP URL to access the Voicemail Server.
+    */
+   UtlString mVoicemailServer;
+
+   /**
+    * Full name of file containing the mapping rules.
+    */
+   UtlString mFileName;
 };
 
 #endif // SIPREDIRECTORMAPPING_H

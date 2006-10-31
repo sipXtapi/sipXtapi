@@ -18,6 +18,9 @@ sipregistrar_SOURCES =  \
 sipregistrar_LDADD = \
 	libsipXregistry.la
 
+sipregistrar_LDFLAGS = \
+	-rdynamic
+
 noinst_LTLIBRARIES = libsipXregistry.la
 
 libsipXregistry_la_CXXFLAGS = $(sipregistrar_CXXFLAGS)

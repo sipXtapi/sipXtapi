@@ -22,11 +22,10 @@
 #include "sipdb/ResultSet.h"
 #include "sipdb/CredentialDB.h"
 #include "SipRedirectorPickUp.h"
-#include "SipRedirectServer.h"
-#include "SipRedirector.h"
 #include "os/OsProcess.h"
 #include "net/NetMd5Codec.h"
 #include "net/Url.h"
+#include "registry/SipRedirectServer.h"
 #include <net/SipDialogEvent.h>
 #include "xmlparser/ExtractContent.h"
 
@@ -34,28 +33,31 @@
 
 // The parameter giving the directed call pick-up feature code.
 #define CONFIG_SETTING_DIRECTED_CODE \
-    "SIP_REGISTRAR_DIRECTED_CALL_PICKUP_CODE"
+    "DIRECTED_CALL_PICKUP_CODE"
 // The parameter giving the global call pick-up feature code.
 #define CONFIG_SETTING_GLOBAL_CODE \
-    "SIP_REGISTRAR_GLOBAL_CALL_PICKUP_CODE"
+    "GLOBAL_CALL_PICKUP_CODE"
 // The parameter giving the call retrieve feature code.
 #define CONFIG_SETTING_RETRIEVE_CODE \
-    "SIP_REGISTRAR_CALL_RETRIEVE_CODE"
+    "CALL_RETRIEVE_CODE"
 // The parameter giving the SIP address of the park server.
 #define CONFIG_SETTING_PARK_SERVER \
-    "SIP_REGISTRAR_PARK_SERVER"
+    "PARK_SERVER"
 // The parameter giving the call pick-up wait time.
 #define CONFIG_SETTING_WAIT \
-    "SIP_REGISTRAR_CALL_PICKUP_WAIT"
+    "CALL_PICKUP_WAIT"
 // The parameter for activating the "no early-only" workaround.
 #define CONFIG_SETTING_NEO \
-    "SIP_REGISTRAR_PICKUP_NO_EARLY_ONLY"
+    "PICKUP_NO_EARLY_ONLY"
 // The parameter for activating the "reversed Replaces" workaround.
 #define CONFIG_SETTING_RR \
-    "SIP_REGISTRAR_PICKUP_REVERSED_REPLACES"
+    "PICKUP_REVERSED_REPLACES"
 // The parameter for activating the "1 second subscription" workaround.
 #define CONFIG_SETTING_1_SEC \
-    "SIP_REGISTRAR_PICKUP_1_SEC_SUBSCRIBE"
+    "PICKUP_1_SEC_SUBSCRIBE"
+// The parameter that specifies the file containing the parking orbits.
+#define CONFIG_SETTING_ORBIT_FILENAME \
+    "ORBIT_FILENAME"
 // The default call pick-up wait time, in seconds and microseconds.
 #define DEFAULT_WAIT_TIME_SECS        1
 #define DEFAULT_WAIT_TIME_USECS       0
@@ -82,8 +84,15 @@ static UtlBoolean getYNconfig(OsConfigDb& configDb,
                               const char* parameterName,
                               UtlBoolean defaultValue);
 
+// Static factory function.
+extern "C" RedirectPlugin* getRedirectPlugin(const UtlString& instanceName)
+{
+   return new SipRedirectorPickUp(instanceName);
+}
+
 // Constructor
-SipRedirectorPickUp::SipRedirectorPickUp() :
+SipRedirectorPickUp::SipRedirectorPickUp(const UtlString& instanceName) :
+   RedirectPlugin(instanceName),
    mpSipUserAgent(NULL),
    mTask(NULL)
 {
@@ -94,17 +103,13 @@ SipRedirectorPickUp::~SipRedirectorPickUp()
 {
 }
 
-// Initializer
-OsStatus
-SipRedirectorPickUp::initialize(const UtlHashMap& configParameters,
-                                OsConfigDb& configDb,
-                                SipUserAgent* pSipUserAgent,
-                                int redirectorNo)
+// Read config information.
+void SipRedirectorPickUp::readConfig(OsConfigDb& configDb)
 {
    // The return status.
    // It will be OS_SUCCESS if this redirector is configured to do any work,
    // and OS_FAILED if not.
-   OsStatus r = OS_FAILED;
+   mRedirectorActive = OS_FAILED;
 
    // Fetch the configuration parameters for the workaround features.
    // Defaults are set to match the previous behavior of the code.
@@ -132,7 +137,7 @@ SipRedirectorPickUp::initialize(const UtlHashMap& configParameters,
       OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::initialize "
                     "Call pick-up feature code is '%s'",
                     mCallPickUpCode.data());
-      r = OS_SUCCESS;
+      mRedirectorActive = OS_SUCCESS;
 
       // Record the two user-names that are excluded as being pick-up requests.
       mExcludedUser1 = mCallPickUpCode;
@@ -155,7 +160,7 @@ SipRedirectorPickUp::initialize(const UtlHashMap& configParameters,
       OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::initialize "
                     "Global call pick-up code is '%s'",
                     mGlobalPickUpCode.data());
-      r = OS_SUCCESS;
+      mRedirectorActive = OS_SUCCESS;
    }
 
    // Fetch the call retrieve username from the config file.
@@ -170,23 +175,17 @@ SipRedirectorPickUp::initialize(const UtlHashMap& configParameters,
    }
    else
    {
-      UtlString s;
-      s = "orbitConfigFilename";
-      const UtlString* orbitConfigFilename =
-         dynamic_cast<UtlString*> (configParameters.findValue(&s));
       // Check that an orbit description file exists.
-      if (orbitConfigFilename == NULL ||
-          orbitConfigFilename->length() == 0)
+      UtlString orbitFileName;
+      if ((configDb.get(CONFIG_SETTING_ORBIT_FILENAME, orbitFileName) !=
+           OS_SUCCESS) ||
+          orbitFileName.length() == 0)
       {
          OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::initialize "
                        "No orbit file name specified");
       }
       else
       {
-         // Assemble the full file name.
-         UtlString fileName =
-            SIPX_CONFDIR + OsPathBase::separator + *orbitConfigFilename;
-
          if (
             // Get the park server's SIP domain so we can forward its
             // addresses to it.
@@ -199,28 +198,34 @@ SipRedirectorPickUp::initialize(const UtlHashMap& configParameters,
          }
          else
          {
-            mOrbitFileReader.setFileName(fileName);
+            mOrbitFileReader.setFileName(orbitFileName);
             OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::initialize "
                           "Call retrieve code is '%s', orbit file is '%s', "
                           "park server domain is '%s'",
-                          callRetrieveCode.data(), fileName.data(),
+                          callRetrieveCode.data(), orbitFileName.data(),
                           mParkServerDomain.data());
-            r = OS_SUCCESS;
+            mRedirectorActive = OS_SUCCESS;
             // All needed information for call retrieval is present,
             // so set mCallRetrieveCode to activate it.
             mCallRetrieveCode = callRetrieveCode;
          }
       }
    }
+}
 
+// Initializer
+OsStatus
+SipRedirectorPickUp::initialize(OsConfigDb& configDb,
+                                SipUserAgent* pSipUserAgent,
+                                int redirectorNo,
+                                const UtlString& localDomainHost)
+{
    // If any of the pick-up redirections are active, set up the machinery
    // to execute them.
-   if (r == OS_SUCCESS)
+   if (mRedirectorActive == OS_SUCCESS)
    {
       // Get and save our domain name.
-      UtlString temp("localDomainHost");
-      mDomain =
-         *(dynamic_cast<UtlString*> (configParameters.findValue(&temp)));
+      mDomain = localDomainHost;
 
       // Create a SIP user agent to generate SUBSCRIBEs and receive NOTIFYs,
       // and save a pointer to it.
@@ -317,7 +322,7 @@ SipRedirectorPickUp::initialize(const UtlHashMap& configParameters,
       mTask->start();
    }
 
-   return r;
+   return mRedirectorActive;
 }
 
 // Finalizer
@@ -342,14 +347,14 @@ SipRedirectorPickUp::finalize()
    }
 }
 
-SipRedirector::LookUpStatus
+RedirectPlugin::LookUpStatus
 SipRedirectorPickUp::lookUp(
    const SipMessage& message,
    const UtlString& requestString,
    const Url& requestUri,
    const UtlString& method,
    SipMessage& response,
-   RequestSeqNo requestSeqNo,
+   RedirectPlugin::RequestSeqNo requestSeqNo,
    int redirectorNo,
    SipRedirectorPrivateStorage*& privateStorage)
 {
@@ -427,11 +432,11 @@ SipRedirectorPickUp::lookUp(
                           "global call pick-up");
             }
          }
-         return SipRedirector::LOOKUP_SUCCESS;
+         return RedirectPlugin::LOOKUP_SUCCESS;
       }
       else
       {
-         return SipRedirector::LOOKUP_ERROR_REQUEST;
+         return RedirectPlugin::LOOKUP_ERROR_REQUEST;
       }
    }
    else if (!mCallRetrieveCode.isNull() &&
@@ -445,7 +450,7 @@ SipRedirectorPickUp::lookUp(
       Url contactUri(contactStr);
       addContact(response, requestString, contactUri, "orbit number");
 
-      return SipRedirector::LOOKUP_SUCCESS;
+      return RedirectPlugin::LOOKUP_SUCCESS;
    }
    else if (!mCallRetrieveCode.isNull() &&
             userId.length() > mCallRetrieveCode.length() &&
@@ -457,6 +462,7 @@ SipRedirectorPickUp::lookUp(
       // sipXtapi now sends "Supported: replaces", so we can test for its
       // presence and act on it, without causing a calling sipXtapi to fail.
       bSupportsReplaces = message.isInSupportedField("replaces");
+
 
       // Extract the putative orbit number.
       UtlString orbit(userId.data() + mCallRetrieveCode.length());
@@ -483,7 +489,7 @@ SipRedirectorPickUp::lookUp(
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SipRedirectorPickUp::lookUp Invalid orbit number '%s'",
                           orbit.data());
-            return SipRedirector::LOOKUP_ERROR_REQUEST;
+            return RedirectPlugin::LOOKUP_ERROR_REQUEST;
          }
       }
       else
@@ -491,21 +497,21 @@ SipRedirectorPickUp::lookUp(
          // The park retrieve failed because the UA does not support INVITE/Replaces
          OsSysLog::add(FAC_SIP, PRI_ERR,
                        "SipRedirectorPickUp::lookUp Executor does not support INVITE/Replaces");
-         return SipRedirector::LOOKUP_ERROR_REQUEST;                       
+         return RedirectPlugin::LOOKUP_ERROR_REQUEST;                       
       }
    }
    else
    {
       // We do not recognize the user, so we do nothing.
-      return SipRedirector::LOOKUP_SUCCESS;
+      return RedirectPlugin::LOOKUP_SUCCESS;
    }
 }
 
-SipRedirector::LookUpStatus
+RedirectPlugin::LookUpStatus
 SipRedirectorPickUp::lookUpDialog(
    const UtlString& requestString,
    SipMessage& response,
-   RequestSeqNo requestSeqNo,
+   RedirectPlugin::RequestSeqNo requestSeqNo,
    int redirectorNo,
    SipRedirectorPrivateStorage*& privateStorage,
    const char* subscribeUser,
@@ -540,6 +546,7 @@ SipRedirectorPickUp::lookUpDialog(
             // parameters.  (Field parameters have been broken out in
             // param elements.)
             Url contact_URI(dialog_info->mTargetDialogRemoteURI, TRUE);
+
 
             // Construct the Replaces: header value the caller should use.
             UtlString header_value(dialog_info->mTargetDialogCallId);
@@ -599,6 +606,8 @@ SipRedirectorPickUp::lookUpDialog(
                c.setHeaderParameter("Replaces", header_value.data());
                // Put this contact at a lower priority than the one in
                // the correct order.
+               // Put this contact at a lower priority than the one in
+               // the correct order.
                c.setFieldParameter("q", "0.9");
    
                addContact(response, requestString, c, "pick-up");
@@ -607,7 +616,7 @@ SipRedirectorPickUp::lookUpDialog(
       }
 
       // We do not need to suspend this time.
-      return SipRedirector::LOOKUP_SUCCESS;
+      return RedirectPlugin::LOOKUP_SUCCESS;
    }
    else
    {
@@ -635,7 +644,7 @@ SipRedirectorPickUp::lookUpDialog(
  
          addContact(response, requestString, contact_URI, "pick-up");            
          // We do not need to suspend this time.*/
-         return SipRedirector::LOOKUP_SUCCESS;         
+         return RedirectPlugin::LOOKUP_SUCCESS;         
       }
       else
       {
@@ -733,14 +742,14 @@ SipRedirectorPickUp::lookUpDialog(
          storage->mTimer.oneshotAfter(OsTime(mWaitSecs, mWaitUSecs));
    
          // Suspend processing the request.
-         return SipRedirector::LOOKUP_SUSPEND;
+         return RedirectPlugin::LOOKUP_SUSPEND;
       }
    }
 }
 
 
 SipRedirectorPrivateStoragePickUp::SipRedirectorPrivateStoragePickUp(
-   RequestSeqNo requestSeqNo,
+   RedirectPlugin::RequestSeqNo requestSeqNo,
    int redirectorNo) :
    mNotification(requestSeqNo, redirectorNo),
    mTimer(mNotification),
@@ -992,7 +1001,7 @@ void SipRedirectorPrivateStoragePickUp::processNotifyLocalRemoteElement(
 }
 
 SipRedirectorPickUpNotification::SipRedirectorPickUpNotification(
-   RequestSeqNo requestSeqNo,
+   RedirectPlugin::RequestSeqNo requestSeqNo,
    int redirectorNo) :
    mRequestSeqNo(requestSeqNo),
    mRedirectorNo(redirectorNo)
@@ -1171,7 +1180,7 @@ static UtlBoolean getYNconfig(OsConfigDb& configDb,
          // If the value starts with N or 0, set the result to FALSE.
          value = FALSE;
          break;
-      defuault:
+      default:
          // Ignore all other values.
          break;
       } 

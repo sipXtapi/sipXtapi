@@ -16,7 +16,7 @@
 //#include <...>
 
 // APPLICATION INCLUDES
-#include "SipRedirector.h"
+#include "registry/RedirectPlugin.h"
 #include "digitmaps/UrlMapping.h"
 #include "net/HttpServer.h"
 
@@ -43,25 +43,20 @@ class MPTWriterTask : public OsTask {
  * Multi-Party Test system.
  */
 
-class SipRedirectorMPT : public SipRedirector
+class SipRedirectorMPT : public RedirectPlugin
 {
   public:
 
-   SipRedirectorMPT();
+   SipRedirectorMPT(const UtlString& instanceName);
 
    ~SipRedirectorMPT();
+
+   virtual void readConfig(OsConfigDb& configDb);
 
    /**
     * Requires the following parameters:
     *
-    * mediaServer - the URI of the Media Server.
-    *
-    * voicemailServer - the URI of the voicemail server.
-    *
-    * localDomainHost - the SIP domain name
-    *
-    * mappingRulesFilename - the base name of the mapping rules file
-    * to load (e.g., "mappingrules.xml")
+    * MAPPING_FILE - full file name containing the mappings.
     */
    virtual OsStatus initialize(const UtlHashMap& configParameters,
                                OsConfigDb& configDb,
@@ -70,7 +65,7 @@ class SipRedirectorMPT : public SipRedirector
 
    virtual void finalize();
 
-   virtual SipRedirector::LookUpStatus lookUp(
+   virtual RedirectPlugin::LookUpStatus lookUp(
       const SipMessage& message,
       const UtlString& requestString,
       const Url& requestUri,
@@ -79,6 +74,9 @@ class SipRedirectorMPT : public SipRedirector
       RequestSeqNo requestSeqNo,
       int redirectorNo,
       SipRedirectorPrivateStorage*& privateStorage);
+
+   // File to read/write mappings to.
+   UtlString mMappingFileName;
 
    // Semaphore to lock addess to the maps.
    OsBSem mMapLock;

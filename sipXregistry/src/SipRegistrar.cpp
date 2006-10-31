@@ -28,7 +28,7 @@
 #include "sipdb/RegistrationDB.h"
 #include "SipRegistrar.h"
 #include "registry/RegisterPlugin.h"
-#include "SipRedirectServer.h"
+#include "registry/SipRedirectServer.h"
 #include "SipRegistrarServer.h"
 #include "RegistrarPeer.h"
 #include "RegistrarPersist.h"

@@ -40,8 +40,15 @@
 // Static pointer to the unique SipRedirectorMPT object.
 SipRedirectorMPT* MPTredirector;
 
+// Static factory function.
+extern "C" RedirectPlugin* getRedirectPlugin(const UtlString& instanceName)
+{
+   return new SipRedirectorMPT(instanceName);
+}
+
 // Constructor
-SipRedirectorMPT::SipRedirectorMPT() :
+SipRedirectorMPT::SipRedirectorMPT(const UtlString& instanceName) :
+   RedirectPlugin(instanceName),
    mMapLock(OsBSem::Q_FIFO, OsBSem::FULL),
    writerTask(this)
 {
@@ -52,28 +59,28 @@ SipRedirectorMPT::~SipRedirectorMPT()
 {
 }
 
+// Read config information.
+void SipRedirectorRegDB::readConfig(OsConfigDb& configDb)
+{
+   configDb.get("MAPPING_FILE", mMappingFileName);
+}
+
 // Initialize
 OsStatus
-SipRedirectorMPT::initialize(const UtlHashMap& configParameters,
-                                 OsConfigDb& configDb,
-                                 SipUserAgent* pSipUserAgent,
-                                 int redirectorNo)
+SipRedirectorMPT::initialize(OsConfigDb& configDb,
+                             SipUserAgent* pSipUserAgent,
+                             int redirectorNo,
+                             const UtlString& localDomainHost)
 {
-   UtlString s;
-
-   s = "localDomainHost";
-   mDomainName =
-      *dynamic_cast<UtlString*> (configParameters.findValue(&s));
+   mDomainName = localDomainHost;
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipRedirectorMPT::SipRedirectorMPT domainName = '%s'",
                  mDomainName.data());
 
-   configFileName =
-      SIPX_CONFDIR + OsPathBase::separator + MPT_FILE_NAME;
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipRedirectorMPT::SipRedirectorMPT Loading mappings from '%s'",
-                 configFileName.data());
-   loadMappings(&configFileName, &mMapUserToContacts, &mMapContactsToUser);
+                 mMappingFileName.data());
+   loadMappings(&mMappingFileName, &mMapUserToContacts, &mMapContactsToUser);
 
    // Set up the static pointer to the unique instance.
    MPTredirector = this;

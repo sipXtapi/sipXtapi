@@ -20,7 +20,6 @@
 #include "net/SipMessage.h"
 #include "sipdb/HuntgroupDB.h"
 #include "sipdb/ResultSet.h"
-#include "SipRegistrar.h"
 #include "SipRedirectorHunt.h"
 
 // EXTERNAL FUNCTIONS
@@ -34,8 +33,15 @@ UtlBoolean   SipRedirectorHunt::sHuntGroupsDefined (FALSE);
 #define HUNT_RANGE_SIZE  200
 #define HUNT_GROUP_MAX_CONTACTS 40
 
+// Static factory function.
+extern "C" RedirectPlugin* getRedirectPlugin(const UtlString& instanceName)
+{
+   return new SipRedirectorHunt(instanceName);
+}
+
 // Constructor
-SipRedirectorHunt::SipRedirectorHunt()
+SipRedirectorHunt::SipRedirectorHunt(const UtlString& instanceName) :
+   RedirectPlugin(instanceName)
 {
 }
 
@@ -44,12 +50,17 @@ SipRedirectorHunt::~SipRedirectorHunt()
 {
 }
 
+// Read config information.
+void SipRedirectorHunt::readConfig(OsConfigDb& configDb)
+{
+}
+
 // Initializer
 OsStatus
-SipRedirectorHunt::initialize(const UtlHashMap& configParameters,
-                              OsConfigDb& configDb,
+SipRedirectorHunt::initialize(OsConfigDb& configDb,
                               SipUserAgent* pSipUserAgent,
-                              int redirectorNo)
+                              int redirectorNo,
+                               const UtlString& localDomainHost)
 {
    // Determine whether we have huntgroup supported
    // if the XML file contains 0 rows or the file
@@ -67,7 +78,7 @@ SipRedirectorHunt::finalize()
 {
 }
 
-SipRedirector::LookUpStatus
+RedirectPlugin::LookUpStatus
 SipRedirectorHunt::lookUp(
    const SipMessage& message,
    const UtlString& requestString,
@@ -81,20 +92,20 @@ SipRedirectorHunt::lookUp(
    // Avoid doing any work if there are no hunt groups defined.
    if (!sHuntGroupsDefined)
    {
-      return SipRedirector::LOOKUP_SUCCESS;
+      return RedirectPlugin::LOOKUP_SUCCESS;
    }
 
    // Return immediately if the method is SUBSCRIBE, as the q values will
    // be stripped later anyway.
    if (method.compareTo(SIP_SUBSCRIBE_METHOD, UtlString::ignoreCase) == 0)
    {
-      return SipRedirector::LOOKUP_SUCCESS;
+      return RedirectPlugin::LOOKUP_SUCCESS;
    }
 
    // Avoid doing any work if the request URI is not a hunt group.
    if (!HuntgroupDB::getInstance()->isHuntGroup(requestUri))
    {
-      return SipRedirector::LOOKUP_SUCCESS;
+      return RedirectPlugin::LOOKUP_SUCCESS;
    }
 
    int numContacts = response.getCountHeaderFields(SIP_CONTACT_FIELD);
@@ -174,5 +185,5 @@ SipRedirectorHunt::lookUp(
 
    delete[] qDeltas;
 
-   return SipRedirector::LOOKUP_SUCCESS;
+   return RedirectPlugin::LOOKUP_SUCCESS;
 }

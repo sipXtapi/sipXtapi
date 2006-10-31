@@ -30,6 +30,12 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
+// Static factory function.
+extern "C" RedirectPlugin* getRedirectPlugin(const UtlString& instanceName)
+{
+   return new SipRedirectorRegDB(instanceName);
+}
+
 // Constructor
 SipRedirectorRegDB::SipRedirectorRegDB(const UtlString& instanceName) :
    RedirectPlugin(instanceName)
@@ -38,6 +44,11 @@ SipRedirectorRegDB::SipRedirectorRegDB(const UtlString& instanceName) :
 
 // Destructor
 SipRedirectorRegDB::~SipRedirectorRegDB()
+{
+}
+
+// Read config information.
+void SipRedirectorRegDB::readConfig(OsConfigDb& configDb)
 {
 }
 

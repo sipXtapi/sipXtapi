@@ -19,7 +19,7 @@
 //#include <sys/time.h>
 
 // APPLICATION INCLUDES
-#include "SipRedirector.h"
+#include "registry/RedirectPlugin.h"
 #include "os/OsServerTask.h"
 #include "os/OsTimer.h"
 #include "xmlparser/tinyxml.h"
@@ -62,22 +62,27 @@ class SipRedirectorPickUpTask;
  * ../doc/Redirection.txt.
  */
 
-class SipRedirectorPickUp : public SipRedirector
+class SipRedirectorPickUp : public RedirectPlugin
 {
   public:
 
-   SipRedirectorPickUp();
+   SipRedirectorPickUp(const UtlString& instanceName);
 
    ~SipRedirectorPickUp();
 
-   virtual OsStatus initialize(const UtlHashMap& configParameters,
-                               OsConfigDb& configDb,
+   /** SipRedirectorPickUp has many configuration parameters, listed at the
+    *  top of SipRedirectorPickUp.cpp.
+    */
+   virtual void readConfig(OsConfigDb& configDb);
+
+   virtual OsStatus initialize(OsConfigDb& configDb,
                                SipUserAgent* pSipUserAgent,
-                               int redirectorNo);
+                               int redirectorNo,
+                               const UtlString& localDomainHost);
 
    virtual void finalize();
 
-   virtual SipRedirector::LookUpStatus lookUp(
+   virtual RedirectPlugin::LookUpStatus lookUp(
       const SipMessage& message,
       const UtlString& requestString,
       const Url& requestUri,
@@ -103,6 +108,11 @@ class SipRedirectorPickUp : public SipRedirector
    } State;
 
   protected:
+
+   /** OS_SUCCESS if this redirector is configured to do any work,
+    * and OS_FAILED if not.
+    */
+   OsStatus mRedirectorActive;
 
    // The SIP user agent to send SUBSCRIBEs and receive NOTIFYs.
    SipUserAgent* mpSipUserAgent;
@@ -150,7 +160,7 @@ class SipRedirectorPickUp : public SipRedirector
    UtlBoolean mOneSecondSubscription;
 
    // Support functions.
-   SipRedirector::LookUpStatus lookUpDialog(
+   RedirectPlugin::LookUpStatus lookUpDialog(
       const UtlString& requestString,
       SipMessage& response,
       RequestSeqNo requestSeqNo,
@@ -195,14 +205,14 @@ class SipRedirectorPickUpNotification : public OsNotification
   public:
 
    SipRedirectorPickUpNotification(
-      RequestSeqNo requestSeqNo,
+      RedirectPlugin::RequestSeqNo requestSeqNo,
       int redirectorNo);
 
    OsStatus signal(const int eventData);
 
   private:
 
-   RequestSeqNo mRequestSeqNo;
+   RedirectPlugin::RequestSeqNo mRequestSeqNo;
    int mRedirectorNo;
 };
 
@@ -216,7 +226,7 @@ class SipRedirectorPrivateStoragePickUp : public SipRedirectorPrivateStorage
 
   public:
    
-   SipRedirectorPrivateStoragePickUp(RequestSeqNo requestSeqNo,
+   SipRedirectorPrivateStoragePickUp(RedirectPlugin::RequestSeqNo requestSeqNo,
                                      int redirectorNo);
 
    virtual ~SipRedirectorPrivateStoragePickUp();
