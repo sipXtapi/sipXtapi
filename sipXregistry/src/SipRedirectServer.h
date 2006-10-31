@@ -20,11 +20,12 @@
 #include "digitmaps/UrlMapping.h"
 #include "os/OsConfigDb.h"
 #include "utl/UtlHashMap.h"
-#include "SipRedirector.h"
+#include "registry/RedirectPlugin.h"
 #include "RedirectSuspend.h"
 #include "net/SipUserAgent.h"
 #include "utl/UtlHashMapIterator.h"
 #include "os/OsMutex.h"
+#include "utl/PluginHooks.h"
 
 // DEFINES
 #define MREDIRECTORCOUNT        9
@@ -54,8 +55,9 @@ class SipRedirectServer : public OsServerTask
    static SipRedirectServer* spInstance;
 
    /// Read in the configuration for the redirect server.
-   UtlBoolean initialize( OsConfigDb& configDb    ///< Configuration parameters
-                         );
+   UtlBoolean initialize(OsConfigDb& configDb
+                         ///< Configuration parameters
+      );
 
    /**
     * Used by redirector asynchronous processing to request that
@@ -68,7 +70,7 @@ class SipRedirectServer : public OsServerTask
     * redirectorNo - the number of this redirector
     */
    void resumeRequest(
-      RequestSeqNo requestSeqNo,
+      RedirectPlugin::RequestSeqNo requestSeqNo,
       int redirectorNo);
 
    /**
@@ -86,7 +88,7 @@ class SipRedirectServer : public OsServerTask
     * redirector, or NULL.
     */
    SipRedirectorPrivateStorage* getPrivateStorage(
-      RequestSeqNo requestSeqNo,
+      RedirectPlugin::RequestSeqNo requestSeqNo,
       int redirectorNo);
 
    /**
@@ -110,11 +112,8 @@ class SipRedirectServer : public OsServerTask
    // functions
    UtlBoolean handleMessage(OsMsg& eventMessage);
 
-   // The list of redirect processors.
-   SipRedirector* (mRedirectors[MREDIRECTORCOUNT]);
-
    // The sequence number for the next request.
-   RequestSeqNo mNextSeqNo;
+   RedirectPlugin::RequestSeqNo mNextSeqNo;
 
    // The list of all requests that have been suspended.
    UtlHashMap mSuspendList;
@@ -122,11 +121,16 @@ class SipRedirectServer : public OsServerTask
    // Service functions.
    void processRedirect(const SipMessage* message,
                         UtlString& method,
-                        RequestSeqNo seqNo,
+                        RedirectPlugin::RequestSeqNo seqNo,
                         RedirectSuspend* suspendObject);
 
    void cancelRedirect(UtlInt& containableSeqNo,
                        RedirectSuspend* suspendObject);
+
+   // Members to manage the set of redirector plugins.
+
+   // The PluginHooks object for managing the list of redirector plugins.
+   PluginHooks mRedirectPlugins;
 };
 
 /**
@@ -196,7 +200,7 @@ class SipRedirectServerPrivateStorageIterator : protected UtlHashMapIterator
     * @return The request sequence number of the suspended redirection
     * request that the iterator has just returned.
     */
-   RequestSeqNo requestSeqNo() const;
+   RedirectPlugin::RequestSeqNo requestSeqNo() const;
 
 /* ============================ INQUIRY =================================== */
 

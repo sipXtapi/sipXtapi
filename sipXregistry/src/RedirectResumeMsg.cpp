@@ -26,7 +26,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-RedirectResumeMsg::RedirectResumeMsg(RequestSeqNo seqNo,
+RedirectResumeMsg::RedirectResumeMsg(RedirectPlugin::RequestSeqNo seqNo,
                                      int redirectorNo) :
    OsMsg(REDIRECT_RESTART, 0),
    mSeqNo(seqNo),

@@ -1,2 +1,2 @@
 
-SUBDIRS = plugin
+SUBDIRS = register_plugins redirect_plugins

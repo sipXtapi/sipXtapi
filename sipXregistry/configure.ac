@@ -46,8 +46,9 @@ AC_CONFIG_FILES([meta/Makefile])
 AC_CONFIG_FILES([etc/Makefile])
 AC_CONFIG_FILES([include/Makefile])
 AC_CONFIG_FILES([lib/Makefile])
-AC_CONFIG_FILES([lib/plugin/Makefile])
-AC_CONFIG_FILES([lib/plugin/mwi/Makefile])
-AC_CONFIG_FILES([lib/plugin/mwi/test/Makefile])
+AC_CONFIG_FILES([lib/redirect_plugins/Makefile])
+AC_CONFIG_FILES([lib/register_plugins/Makefile])
+AC_CONFIG_FILES([lib/register_plugins/mwi/Makefile])
+AC_CONFIG_FILES([lib/register_plugins/mwi/test/Makefile])
 
 AC_OUTPUT

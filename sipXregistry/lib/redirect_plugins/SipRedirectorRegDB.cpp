@@ -31,7 +31,8 @@
 // FORWARD DECLARATIONS
 
 // Constructor
-SipRedirectorRegDB::SipRedirectorRegDB()
+SipRedirectorRegDB::SipRedirectorRegDB(const UtlString& instanceName) :
+   RedirectPlugin(instanceName)
 {
 }
 
@@ -42,10 +43,10 @@ SipRedirectorRegDB::~SipRedirectorRegDB()
 
 // Initializer
 OsStatus
-SipRedirectorRegDB::initialize(const UtlHashMap& configParameters,
-                               OsConfigDb& configDb,
+SipRedirectorRegDB::initialize(OsConfigDb& configDb,
                                SipUserAgent* pSipUserAgent,
-                               int redirectorNo)
+                               int redirectorNo,
+                               const UtlString& localDomainHost)
 {
    return OS_SUCCESS;
 }
@@ -56,7 +57,7 @@ SipRedirectorRegDB::finalize()
 {
 }
 
-SipRedirector::LookUpStatus
+RedirectPlugin::LookUpStatus
 SipRedirectorRegDB::lookUp(
    const SipMessage& message,
    const UtlString& requestString,
@@ -149,5 +150,5 @@ SipRedirectorRegDB::lookUp(
       }
    }
 
-   return SipRedirector::LOOKUP_SUCCESS;
+   return RedirectPlugin::LOOKUP_SUCCESS;
 }

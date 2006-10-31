@@ -18,7 +18,7 @@
 #include "os/OsMsg.h"
 #include "utl/UtlContainableAtomic.h"
 #include "net/SipMessage.h"
-#include "SipRedirector.h"
+#include "registry/RedirectPlugin.h"
 
 // DEFINES
 // MACROS
