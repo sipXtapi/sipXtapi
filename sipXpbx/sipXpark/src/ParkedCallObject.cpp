@@ -241,8 +241,9 @@ void ParkedCallObject::startEscapeTimer(UtlString& parker,
    {
       // Register the DTMF listener.
       // The "interdigit timeout" time of 1 is just a guess.
+      // Enable keyup events, as those are the ones we will act on.
       mpCallManager->enableDtmfEvent(mOriginalCallId.data(), 1,
-                                     &mDtmfEvent, true);
+                                     &mDtmfEvent, false);
    }
 }
 
@@ -275,7 +276,10 @@ void ParkedCallObject::startTransfer()
                     "ParkedCallObject::startTransfer starting transfer "
                     "callId = '%s', parker = '%s'",
                     mOriginalCallId.data(), mParker.data());
-      mpCallManager->transfer_blind(mOriginalCallId, mParker, NULL, NULL);
+      // Set remoteHoldBeforeTransfer = FALSE, because Polycom phones
+      // do not handle re-INVITE well while a DTMF key is down.
+      mpCallManager->transfer_blind(mOriginalCallId, mParker, NULL, NULL,
+                                    FALSE);
    }
    else
    {
