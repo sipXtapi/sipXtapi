@@ -12,7 +12,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "RedirectSuspend.h"
+#include "registry/RedirectSuspend.h"
 
 // DEFINES
 // MACROS

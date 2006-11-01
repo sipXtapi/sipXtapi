@@ -15,7 +15,7 @@
 #include "os/OsTime.h"
 #include "os/OsLock.h"
 #include "utl/UtlSListIterator.h"
-#include "SipRegistrar.h"
+#include "registry/SipRegistrar.h"
 #include "SyncRpc.h"
 #include "RegistrarPeer.h"
 #include "RegistrarTest.h"

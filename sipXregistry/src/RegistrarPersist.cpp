@@ -16,7 +16,7 @@
 #include "os/OsTime.h"
 #include "os/OsLock.h"
 #include "RegistrarPersist.h"
-#include "SipRegistrar.h"
+#include "registry/SipRegistrar.h"
 #include "SipRegistrarServer.h"
 
 // DEFINES

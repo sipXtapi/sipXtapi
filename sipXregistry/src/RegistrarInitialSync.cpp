@@ -19,7 +19,7 @@ using std::auto_ptr;
 #include "sipdb/RegistrationBinding.h"
 #include "os/OsDateTime.h"
 #include "utl/UtlSListIterator.h"
-#include "SipRegistrar.h"
+#include "registry/SipRegistrar.h"
 #include "SipRegistrarServer.h"
 #include "RegistrarInitialSync.h"
 #include "SyncRpc.h"

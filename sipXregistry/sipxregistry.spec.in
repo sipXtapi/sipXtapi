@@ -69,6 +69,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %doc CONTRIBUTORS %name.configlog
 %docdir doc
+%attr(755,root,root) %{_bindir}/registrar-config-upgrade
 %attr(755,root,root) %{_bindir}/sipregistrar.sh
 %attr(755,root,root) %{_bindir}/sipregistrar
 %attr(755,root,root) %{_bindir}/%name-config
@@ -99,6 +100,8 @@ sipx-upgrade -p sipxregistry -c
 
 %post
 sipx-upgrade -p sipxregistry -u --sdir %{_localstatedir} --cdir %{_sysconfdir}
+
+registrar-config-upgrade
 
 %define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
 %define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz

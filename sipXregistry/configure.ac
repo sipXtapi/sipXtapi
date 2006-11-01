@@ -12,7 +12,6 @@ SFAC_SIPX_INSTALL_PREFIX
 AM_INIT_AUTOMAKE(foreign)
 SFAC_AUTOMAKE_VERSION([1.6])
 
-AC_CONFIG_SRCDIR([src/SipRegistrar.h])
 AM_CONFIG_HEADER([config.h])
 AC_PROG_LIBTOOL
 
@@ -46,8 +45,9 @@ AC_CONFIG_FILES([meta/Makefile])
 AC_CONFIG_FILES([etc/Makefile])
 AC_CONFIG_FILES([include/Makefile])
 AC_CONFIG_FILES([lib/Makefile])
-AC_CONFIG_FILES([lib/plugin/Makefile])
-AC_CONFIG_FILES([lib/plugin/mwi/Makefile])
-AC_CONFIG_FILES([lib/plugin/mwi/test/Makefile])
+AC_CONFIG_FILES([lib/redirect_plugins/Makefile])
+AC_CONFIG_FILES([lib/register_plugins/Makefile])
+AC_CONFIG_FILES([lib/register_plugins/mwi/Makefile])
+AC_CONFIG_FILES([lib/register_plugins/mwi/test/Makefile])
 
 AC_OUTPUT

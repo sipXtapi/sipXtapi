@@ -132,7 +132,7 @@
   </group>
   <group name="call-pick-up">
     <label>Call Pickup</label>
-    <setting name="SIP_REGISTRAR_GLOBAL_CALL_PICKUP_CODE">
+    <setting name="SIP_REDIRECT.180-PICKUP.GLOBAL_CALL_PICKUP_CODE">
       <label>Global call pickup code</label>
       <profileName>registrar-config.in</profileName>
       <type refid="feature-code" />
@@ -142,7 +142,7 @@
         call pickup.
       </description>
     </setting>
-    <setting name="SIP_REGISTRAR_DIRECTED_CALL_PICKUP_CODE">
+    <setting name="SIP_REDIRECT.180-PICKUP.DIRECTED_CALL_PICKUP_CODE">
       <label>Directed call pickup code</label>
       <profileName>registrar-config.in</profileName>
       <type refid="feature-code" />
@@ -152,7 +152,7 @@
         this code followed by 123.
       </description>
     </setting>
-    <setting name="SIP_REGISTRAR_CALL_RETRIEVE_CODE">
+    <setting name="SIP_REDIRECT.180-PICKUP.CALL_RETRIEVE_CODE">
       <label>Call park retrieve code</label>
       <profileName>registrar-config.in</profileName>
       <type>
@@ -166,7 +166,7 @@
         to pick up a parked call.
       </description>
     </setting>
-    <setting name="SIP_REGISTRAR_CALL_PICKUP_WAIT" advanced="yes">
+    <setting name="SIP_REDIRECT.180-PICKUP.CALL_PICKUP_WAIT" advanced="yes">
       <label>Call pickup timeout</label>
       <profileName>registrar-config.in</profileName>
       <type>
