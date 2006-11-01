@@ -10,7 +10,7 @@ my(%unescape) = ("r", "\r",
                  "\"", "\"",
                  "\\", "\\");
 
-my($registration_file) = "@SIPX_DBDIR@/registration.xml";
+my($registration_file) = "@SIPX_DATADIR@/sipdb/registration.xml";
 
 # Read and process the registrar log files.
 my(%user_agent);

@@ -10,19 +10,21 @@ SUDO=
 # some of the installed files would need to be adjusted.
 SIPX_BINDIR=/usr/bin
 SIPX_CONFDIR=/etc/sipxpbx
-SIPX_DBDIR=/var/sipxdata/sipdb
+SIPX_DATADIR=/var/sipxdata
 SIPX_LIBDIR=/usr/lib
+SIPX_LOGDIR=/var/log/sipxpbx
+SIPX_RUNDIR=/var/run/sipxpbx
 HTTP_ROOTDIR=/usr/share/www/doc
 
 # The names of all the installed files, derived from the files in
 # the install subdirectories.
 CONFIG_FILES=$(subst sipx_confdir,$(SIPX_CONFDIR),$(filter-out %~,$(wildcard sipx_confdir/*)))
 DOC_FILES=$(subst http_rootdir,$(HTTP_ROOTDIR),$(filter-out %~,$(wildcard http_rootdir/*)))
-SIPDB_FILES=$(subst sipx_dbdir,$(SIPX_DBDIR),$(filter-out %~,$(wildcard sipx_dbdir/*)))
+SIPDB_FILES=$(subst sipx_dbdir,$(SIPX_DATADIR)/sipdb,$(filter-out %~,$(wildcard sipx_dbdir/*)))
 
 CONFIG_FILES_EDITED=$(subst .pre,,$(subst sipx_confdir,$(SIPX_CONFDIR),$(filter-out %~,$(wildcard sipx_confdir/*.pre))))
 DOC_FILES_EDITED=$(subst .pre,,$(subst http_rootdir,$(HTTP_ROOTDIR),$(filter-out %~,$(wildcard http_rootdir/*.pre))))
-SIPDB_FILES_EDITED=$(subst .pre,,$(subst sipx_dbdir,$(SIPX_DBDIR),$(filter-out %~,$(wildcard sipx_dbdir/*.pre))))
+SIPDB_FILES_EDITED=$(subst .pre,,$(subst sipx_dbdir,$(SIPX_DATADIR)/sipdb,$(filter-out %~,$(wildcard sipx_dbdir/*.pre))))
 
 install: debug $(CONFIG_FILES) $(DOC_FILES) $(SIPDB_FILES) $(CONFIG_FILES_EDITED) $(DOC_FILES_EDITED) $(SIBDB_FILES_EDITED) $(SIPX_CONFDIR)/registrar-config.in
 
@@ -40,7 +42,7 @@ $(CONFIG_FILES): $(SIPX_CONFDIR)/%: sipx_confdir/%
 $(DOC_FILES): $(HTTP_ROOTDIR)/%: http_rootdir/%
 	$(SUDO) cp $< $@
 
-$(SIPDB_FILES): $(SIPX_DBDIR)/%: sipx_dbdir/%
+$(SIPDB_FILES): $(SIPX_DATADIR)/sipdb/%: sipx_dbdir/%
 	$(SUDO) cp $< $@
 
 $(SIPX_CONFDIR)/config.defs: $(SIPX_CONFDIR)/config.defs.in
@@ -48,52 +50,28 @@ $(SIPX_CONFDIR)/config.defs: $(SIPX_CONFDIR)/config.defs.in
 		"sed \
 			-e 's!@SIPX_BINDIR@!$(SIPX_BINDIR)!g' \
 			-e 's!@SIPX_CONFDIR@!$(SIPX_CONFDIR)!g' \
-			-e 's!@SIPX_DBDIR@!$(SIPX_DBDIR)!g' \
+			-e 's!@SIPX_DATADIR@!$(SIPX_DATADIR)!g' \
 			-e 's!@SIPX_LIBDIR@!$(SIPX_LIBDIR)!g' \
+			-e 's!@SIPX_LOGDIR@!$(SIPX_LOGDIR)!g' \
+			-e 's!@SIPX_RUNDIR@!$(SIPX_RUNDIR)!g' \
 			-e 's!@HTTP_ROOTDIR@!$(HTTP_ROOTDIR)!g' \
 		<$< >$@"
 
-$(CONFIG_FILES_EDITED): %: %.pre $(SIPX_CONFDIR)/config.defs
+$(CONFIG_FILES_EDITED) $(DOC_FILES_EDITED) $(SIPDB_FILES_EDITED): %: %.pre $(SIPX_CONFDIR)/config.defs
 	. $(SIPX_CONFDIR)/config.defs ;\
-	HOSTNAME=`hostname -f` ;\
 	$(SUDO) sh -c \
 		"sed \
 			-e 's!@SIPXCHANGE_DOMAIN_NAME@!$$SIPXCHANGE_DOMAIN_NAME!g' \
 			-e 's!@SIPX_BINDIR@!$(SIPX_BINDIR)!g' \
 			-e 's!@SIPX_CONFDIR@!$(SIPX_CONFDIR)!g' \
-			-e 's!@SIPX_DBDIR@!$(SIPX_DBDIR)!g' \
+			-e 's!@SIPX_DATADIR@!$(SIPX_DATADIR)!g' \
 			-e 's!@SIPX_LIBDIR@!$(SIPX_LIBDIR)!g' \
+			-e 's!@SIPX_LOGDIR@!$(SIPX_LOGDIR)!g' \
+			-e 's!@SIPX_RUNDIR@!$(SIPX_RUNDIR)!g' \
 			-e 's!@HTTP_ROOTDIR@!$(HTTP_ROOTDIR)!g' \
-			-e 's!@HOSTNAME@!$$HOSTNAME!g' \
+			-e 's!@HOSTNAME@!$$MY_FULL_HOSTNAME!g' \
 		<$< >$@"
 
-$(DOC_FILES_EDITED): %: %.pre $(SIPX_CONFDIR)/config.defs
-	. $(SIPX_CONFDIR)/config.defs ;\
-	HOSTNAME=`hostname -f` ;\
-	$(SUDO) sh -c \
-		"sed \
-			-e 's!@SIPXCHANGE_DOMAIN_NAME@!$$SIPXCHANGE_DOMAIN_NAME!g' \
-			-e 's!@SIPX_BINDIR@!$(SIPX_BINDIR)!g' \
-			-e 's!@SIPX_CONFDIR@!$(SIPX_CONFDIR)!g' \
-			-e 's!@SIPX_DBDIR@!$(SIPX_DBDIR)!g' \
-			-e 's!@SIPX_LIBDIR@!$(SIPX_LIBDIR)!g' \
-			-e 's!@HTTP_ROOTDIR@!$(HTTP_ROOTDIR)!g' \
-			-e 's!@HOSTNAME@!$$HOSTNAME!g' \
-		<$< >$@"
-
-$(SIPDB_FILES_EDITED): %: %.pre $(SIPX_CONFDIR)/config.defs
-	. $(SIPX_CONFDIR)/config.defs ;\
-	HOSTNAME=`hostname -f` ;\
-	$(SUDO) sh -c \
-		"sed \
-			-e 's!@SIPXCHANGE_DOMAIN_NAME@!$$SIPXCHANGE_DOMAIN_NAME!g' \
-			-e 's!@SIPX_BINDIR@!$(SIPX_BINDIR)!g' \
-			-e 's!@SIPX_CONFDIR@!$(SIPX_CONFDIR)!g' \
-			-e 's!@SIPX_DBDIR@!$(SIPX_DBDIR)!g' \
-			-e 's!@SIPX_LIBDIR@!$(SIPX_LIBDIR)!g' \
-			-e 's!@HTTP_ROOTDIR@!$(HTTP_ROOTDIR)!g' \
-			-e 's!@HOSTNAME@!$$HOSTNAME!g' \
-		<$< >$@"
 
 
 # The special rule to perform substitutions in index.html.in to create
@@ -128,6 +106,6 @@ $(SIPDB_FILES_EDITED): %: %.pre $(SIPX_CONFDIR)/config.defs
 #			-e 's!@HTTP_ROOTDIR@!$(HTTP_ROOTDIR)!g' \
 #		<$< >$@"
 
-$(SIPX_DBDIR)/credential.xml: $(SIPX_DBDIR)/credential.xml.in
+$(SIPX_DATADIR)/sipdb/credential.xml: $(SIPX_DATADIR)/sipdb/credential.xml.in
 	$(SUDO) sh -c \
 		"yes 1234 | update-passtokens $< $@"
