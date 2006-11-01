@@ -471,9 +471,9 @@ It is implemented using an INVITE with the Join header.
 
 <p>
 Any call to <code>*79xxxx</code> will be turned into an
-INVITE-with-Join to the call that is active 
+INVITE-with-Join to the call that is active on the
 UA at <code>xxxx</code>, which sets up an ad-hoc conference of the new
-caller with the existing participants of the call on xxxx.
+caller with the existing participants of the call on <code>xxxx</code>.
 To use this feature:
 </p>
 
