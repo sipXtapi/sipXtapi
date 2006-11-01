@@ -27,6 +27,7 @@
 #include "sipdb/AliasDB.h"
 #include "sipdb/ExtensionDB.h"
 #include "sipdb/CredentialDB.h"
+#include "sipdb/DomainDB.h"
 #include "sipdb/PermissionDB.h"
 #include "sipdb/SIPDBManager.h"
 #include "sipdb/SIPXAuthHelper.h"
@@ -201,7 +202,7 @@ MailboxManager::createMailbox ( const UtlString& mailboxIdentity )
                   mailboxIdentity.data(), mailboxPath.data(), result);
     if( result == OS_SUCCESS )
     {
-        result = OsFileSystem::createDir( mailboxPath );
+        result = OsFileSystem::createDir( mailboxPath, TRUE );
         OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                       "MailboxManager::createMailbox: createDir('%s') = %d",
                       mailboxPath.data(), result);
@@ -1473,29 +1474,42 @@ MailboxManager::doLogin (
         rMailboxIdentity,
         rExtension );
 
-        if (result == OS_SUCCESS)
+    if (result == OS_SUCCESS)
     {
-                // Common security library algorithm used in AuthModule and also here
+        // Get the domain from the login string and try to find
+        // the realm associated with it or use the defaults if not found.
+        Url userUrl(loginString);
+        UtlString domain, realm;
+        userUrl.getHostAddress(domain);
+
+        if (DomainDB::getInstance()->getRealm(domain, realm) == FALSE)
+        {
+           domain = m_defaultDomain;
+           realm = m_defaultRealm;
+        }
+
+        // Common security library algorithm used in AuthModule and also here
         if ( !SIPXAuthHelper::getInstance()->isAuthorizedUser (
                     loginString,        // userid/extension with/without domain
                     loginPassToken,     // password (numeric PIN here)
-                    m_defaultRealm,     // realm
-                    m_defaultDomain,    // domain
+                    realm,              // realm
+                    domain,             // domain
                     TRUE,               // check permissions also
                     dummyContactUserID, // only used in auth module
                     dummyContactDomain, // only used in auth module
                     logContent) )       // error logging info
-            {
-                logContent =
-                    "User : " + loginString +
-                    " Password : " + loginPassToken +
-                    " not authorized for realm : " + m_defaultRealm;
-                result = OS_FAILED;
-            }
-        } else
         {
-            logContent = "Could not validate/create mailbox: " + loginString;
+            logContent =
+                "User : " + loginString +
+                " Password : " + loginPassToken +
+                " not authorized for realm : " + realm;
+            result = OS_FAILED;
         }
+    }
+    else
+    {
+        logContent = "Could not validate/create mailbox: " + loginString;
+    }
 
     if( result != OS_SUCCESS )
         writeToLog( "doLogin", logContent, PRI_INFO);
@@ -1679,25 +1693,21 @@ MailboxManager::validateMailbox (
     unsigned int sipIndex = userOrExtensionAtOptDomain.index("sip:");
     if ( sipIndex  != UTL_NOT_FOUND )
     {
-        // see if we're being passed in a full URL in which
-        // case strip it down to its identity, discarding the display name
-        if ( sipIndex > 0 )
-        {
-            // Hack debugging info
-            logContent = "detected full SIP uri, converting " +
-                userOrExtensionAtOptDomain +
-                " to sip identity\n";
-            Url loginUrl ( userOrExtensionAtOptDomain );
-            loginUrl.getIdentity( userOrExtensionAtOptDomain );
-            logContent = "changed userOrExtensionAtOptDomain to " +
-                userOrExtensionAtOptDomain + "\n";
-            writeToLog( "validateMailbox", logContent, PRI_DEBUG );
-        } else
-        {
-            // sip: is in first position
-            userOrExtensionAtOptDomain =
-                userOrExtensionAtOptDomain( 4, userOrExtensionAtOptDomain.length() - 4 );
-        }
+        // Hack debugging info
+        logContent = "detected full SIP uri, converting " +
+           userOrExtensionAtOptDomain + " to sip identity\n";
+
+        Url loginUrl(userOrExtensionAtOptDomain);
+        UtlString userId, domain;
+
+        loginUrl.getUserId(userId);
+        loginUrl.getHostAddress(domain);
+        userOrExtensionAtOptDomain = userId;
+        userOrExtensionAtOptDomain.append('@');
+        userOrExtensionAtOptDomain.append(domain);
+
+        logContent = "changed userOrExtensionAtOptDomain to " + userOrExtensionAtOptDomain + "\n";
+        writeToLog( "validateMailbox", logContent, PRI_DEBUG );
     }
 
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
@@ -1784,7 +1794,7 @@ MailboxManager::validateMailbox (
                     validated = TRUE;
                     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                                   "MailboxManager::validateMailbox: did not check permissions");
-            }
+                }
 
                 // it is possible that even though there is an uri defined
                 // for the user logging in, they may not have the persmission set
@@ -1799,17 +1809,19 @@ MailboxManager::validateMailbox (
                     writeToLog( "validateMailbox",
                                 (UtlString)"Voicemail Enabled for - " + mailboxUrl.toString(),
                                 PRI_DEBUG);
-                    UtlString mailboxId;
+                    UtlString mailboxId, domain;
                     mailboxUrl.getUserId(mailboxId);
+                    mailboxUrl.getHostAddress(domain);
                     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                                  "MailboxManager::validateMailbox: mailboxId = '%s'", mailboxId.data());
+                                  "MailboxManager::validateMailbox: mailboxId = '%s' domain = '%s'", mailboxId.data(),
+                                  domain.data());
                     // Make sure we have a userid
                     if ( !mailboxId.isNull() )
                     {
                         UtlString mailboxDirName =
                             m_mailstoreRoot + OsPathBase::separator +
                             MAILBOX_DIR + OsPathBase::separator +
-                            mailboxId;
+                            domain + OsPathBase::separator + mailboxId;
                         OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                                       "MailboxManager::validateMailbox: mailboxDirName = '%s'",
                                       mailboxDirName.data());
@@ -3982,10 +3994,11 @@ MailboxManager::getMailboxPath(
     OsStatus result = OS_FAILED;
     // "mailbox" is a fully qualified SIP URL.
     // For example, mailbox = sip:hari@pingtel.com.
-    // Retrieve the userid from it.
+    // Retrieve the userid and domain from it.
     Url mailboxUrl ( mailbox );
-    UtlString mailboxId ;
+    UtlString mailboxId, domain;
     mailboxUrl.getUserId(mailboxId);
+    mailboxUrl.getHostAddress(domain);
 
     // Ensure the mailbox id parameter is valid
     if ( !mailboxId.isNull() )
@@ -3995,7 +4008,7 @@ MailboxManager::getMailboxPath(
             // Construct the physical path to the mailbox directory.
             mailboxPath = m_mailstoreRoot + OsPathBase::separator +
                           MAILBOX_DIR + OsPathBase::separator +
-                          mailboxId ;
+                          domain + OsPathBase::separator + mailboxId ;
             result = OS_SUCCESS;
         }
         else
@@ -4019,10 +4032,11 @@ MailboxManager::getMailboxURL (
 {
    // the mailbox parameter is is a fully qualified SIP URL.
    // For example, mailbox = sip:hari@pingtel.com.
-   // Retrieve the userid from it.
+   // Retrieve the userid and domain from it.
    Url url ( mailbox );
-   UtlString mailboxId;
+   UtlString mailboxId, domain;
    url.getUserId( mailboxId );
+   url.getHostAddress(domain);
 
    // Ensure the mailbox id parameter is valid
    if ( mailboxId.isNull() )
@@ -4030,14 +4044,14 @@ MailboxManager::getMailboxURL (
 
    // Construct the base URL for the mailbox.
    // If mailbox = hari@pingtel.com,
-   // mailboxUrl will be like http://mediaserver:8090/mailboxes/mailstore/hari
+   // mailboxUrl will be like http://mediaserver:8090/mailboxes/mailstore/pingtel.com/hari
    if( isFromWeb )
    {
       getMediaserverURLForWeb( mailboxUrl );
       mailboxUrl += UtlString( URL_SEPARATOR ) +
          MEDIASERVER_ROOT_ALIAS + URL_SEPARATOR +
          MAILBOX_DIR + URL_SEPARATOR +
-         mailboxId;
+         domain + URL_SEPARATOR + mailboxId;
    }
    else
    {
@@ -4051,7 +4065,7 @@ MailboxManager::getMailboxURL (
          mailboxUrl += UtlString( URL_SEPARATOR ) +
             MEDIASERVER_ROOT_ALIAS + URL_SEPARATOR +
             MAILBOX_DIR + URL_SEPARATOR +
-            mailboxId;
+            domain + URL_SEPARATOR + mailboxId;
       }
       else
       {
@@ -4059,7 +4073,7 @@ MailboxManager::getMailboxURL (
          mailboxUrl += m_mailstoreRoot;
          mailboxUrl += UtlString( URL_SEPARATOR ) +
             MAILBOX_DIR + URL_SEPARATOR +
-            mailboxId;
+            domain + URL_SEPARATOR + mailboxId;
       }
    }
 

@@ -83,7 +83,7 @@
         </record>
 
         <!-- Prompt users to confirm that they are satisfied with their recording -->
-        <field name="confirm" cond="data != 'undefined'">
+        <field name="confirm" cond="data != undefined">
             <grammar>1 | 2 | 3 |*</grammar>
             <prompt cond="greetingtype=='name'" timeout="11s">
                 <audio expr="mediaserverurl + promptsalias + 'name_record_options.wav'" />

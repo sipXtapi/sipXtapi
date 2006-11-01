@@ -28,15 +28,17 @@
 // FORWARD DECLARATIONS
 
 /* ============================ CREATORS ================================== */
-ValidateMailboxCGIHelper::ValidateMailboxCGIHelper( const UtlString& identityOrExtension ) :
+ValidateMailboxCGIHelper::ValidateMailboxCGIHelper( const UtlString& identityOrExtension,
+                                                    const UtlString& domain ) :
     m_identityOrExtension (identityOrExtension),
     m_mailboxIdentity (""),
     m_extension (""),
-    m_isValidated (false)
+    m_isValidated (false),
+    m_domain (domain)
 {
    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                 "ValidateMailboxCGIHelper::ValidateMailboxCGIHelper('%s') called",
-                 m_identityOrExtension.data());
+                 "ValidateMailboxCGIHelper::ValidateMailboxCGIHelper('%s') called, domain '%s'",
+                 m_identityOrExtension.data(), m_domain.data());
 }
 
 ValidateMailboxCGIHelper::~ValidateMailboxCGIHelper()
@@ -83,11 +85,27 @@ ValidateMailboxCGIHelper::validateIdentityAndGetExtension (
     const UtlBoolean& checkPermissions)
 {
     OsStatus result = OS_SUCCESS;
+
+    bool domainsMatch = true;
+    Url loginUrl(m_identityOrExtension);
+    UtlString identityDomain;
+    loginUrl.getHostAddress(identityDomain);
+
+    if (!m_domain.isNull() && (identityDomain != m_domain))
+    {
+       domainsMatch = false;
+       result = OS_FAILED;
+       OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
+                      "ValidateMailboxCGIHelper::validateIdentityAndGetExtension: domain of identity ('%s') "
+                      "does not match called domain ('%s'), skipping mailbox validate",
+                      identityDomain.data(), m_domain.data());
+    }
+
     // look up the identity and extension from the IMDB
     // @JC TODO during refactoring this will be a special IMDB
     // utility class and not the mailbox manager
     // Check to see whether we have already validated the mailbox
-    if ( !m_isValidated )
+    if ( !m_isValidated && domainsMatch )
     {
         result = MailboxManager::getInstance()->
                     validateMailbox (
@@ -121,6 +139,12 @@ void
 ValidateMailboxCGIHelper::getMailboxIdentity ( UtlString& mailboxIdentity ) const
 {
     mailboxIdentity = m_mailboxIdentity;
+}
+
+void
+ValidateMailboxCGIHelper::getDomain ( UtlString& domain ) const
+{
+    domain = m_domain;
 }
 
 UtlBoolean

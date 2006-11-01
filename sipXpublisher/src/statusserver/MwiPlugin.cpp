@@ -101,8 +101,10 @@ MwiPlugin::handleSubscribeRequest (
         mailboxUrl = authenticatedUser;
     } else
     {
-        mailboxUrl.setUserId( userOrExtensionAtOptionalDomain );
-        mailboxUrl.setHostAddress( domain );
+        UtlString requestUser, requestDomain;
+        message.getUri(&requestDomain, NULL, NULL, &requestUser);
+        mailboxUrl.setUserId(requestUser);
+        mailboxUrl.setHostAddress(requestDomain);
     }
 
     OsSysLog::add(FAC_SIP, PRI_DEBUG, "MwiPlugin::handleSubscribeRequest() -"
@@ -134,7 +136,7 @@ MwiPlugin::handleSubscribeRequest (
             int rspLength;
             httpResponse.getBytes( &rspMsg, &rspLength );
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "MwiPlugin::handleEvent() - voicemailCGI response:\n%s"
+                          "MwiPlugin::handleSubscribeRequest() - voicemailCGI response:\n%s"
                           ,rspMsg.data()
                           );
           }
@@ -203,7 +205,7 @@ MwiPlugin::handleSubscribeRequest (
                 else
                   {
                     OsSysLog::add(FAC_SIP, PRI_WARNING,
-                                  "MwiPlugin::handleEvent() - voicemailCGI response not valid: %s"
+                                  "MwiPlugin::handleSubscribeRequest() - voicemailCGI response not valid: %s"
                                   ,buffer.data()
                                   );
                   }
@@ -211,21 +213,21 @@ MwiPlugin::handleSubscribeRequest (
             else
               {
                 OsSysLog::add(FAC_SIP, PRI_WARNING,
-                              "MwiPlugin::handleEvent() - voicemailCGI response has no body"
+                              "MwiPlugin::handleSubscribeRequest() - voicemailCGI response has no body"
                               );
               }
           }
         else
           {
             OsSysLog::add(FAC_SIP, PRI_WARNING,
-                          "MwiPlugin::handleEvent() - voicemailCGI response wrong type"
+                          "MwiPlugin::handleSubscribeRequest() - voicemailCGI response wrong type"
                           );
           }
       }
     else
       {
         OsSysLog::add(FAC_SIP, PRI_WARNING,
-                      "MwiPlugin::handleEvent() - voicemailCGI GET failed with %d."
+                      "MwiPlugin::handleSubscribeRequest() - voicemailCGI GET failed with %d."
                       ,httpStatus
                       );
       }

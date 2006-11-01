@@ -34,8 +34,9 @@ public:
     /**
      * Ctor
      */
-    RetrieveCGI (       const UtlBoolean& requestIsFromWebUI,
-                                        const UtlString& from );
+    RetrieveCGI ( const UtlBoolean& requestIsFromWebUI,
+                  const UtlString& from,
+                  const UtlString& domain );
 
     /**
      * Virtual Dtor
@@ -45,16 +46,18 @@ public:
     /** This does the work */
     virtual OsStatus execute (UtlString* out = NULL);
 
-        OsStatus handleWebRequest( UtlString* out ) ;
+    OsStatus handleWebRequest( UtlString* out ) ;
 
-        OsStatus handleOpenVXIRequest( UtlString* out ) ;
+    OsStatus handleOpenVXIRequest( UtlString* out ) ;
 
 protected:
 
 private:
     const UtlString m_from;
 
-        const UtlBoolean m_fromWebUI;
+    const UtlBoolean m_fromWebUI;
+
+    const UtlString m_domain;
 };
 
 #endif //RETRIEVECGI_H

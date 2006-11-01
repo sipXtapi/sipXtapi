@@ -474,11 +474,19 @@ main(int argc, char* argv[])
                              "Mediaserver CGI - For Retrieve, using mailbox '%s'",
                              sRetrieveMailbox);
 
+               const char* sDomainCGIVar = gValues->valueOf ("domain");
+               UtlString domain;
+               if (sDomainCGIVar)
+               {
+                  domain = sDomainCGIVar;
+                  OsSysLog::add( LOG_FACILITY, PRI_INFO, "Mediaserver CGI - domain = '%s'\n", domain.data());
+               }
+
                if ( sRetrieveMailbox )
                {
                   UtlString retrieveMailbox( sRetrieveMailbox );
 
-                  cmd = new RetrieveCGI( requestIsFromWebUI, retrieveMailbox );
+                  cmd = new RetrieveCGI( requestIsFromWebUI, retrieveMailbox, domain );
                }
             } else if ( action == "autoattendant" )
             {

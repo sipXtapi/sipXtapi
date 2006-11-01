@@ -35,9 +35,11 @@
 
 RetrieveCGI::RetrieveCGI ( 
    const UtlBoolean& requestIsFromWebUI,
-   const UtlString& from ) :
+   const UtlString& from,
+   const UtlString& domain ) :
    m_from ( from ),
-   m_fromWebUI( requestIsFromWebUI )
+   m_fromWebUI( requestIsFromWebUI ),
+   m_domain( domain )
 {}
 
 RetrieveCGI::~RetrieveCGI()
@@ -171,7 +173,7 @@ RetrieveCGI::handleOpenVXIRequest( UtlString* out )
 
 
    // Check if the call or login came from known mailbox user
-   ValidateMailboxCGIHelper validateMailboxHelper( m_from );
+   ValidateMailboxCGIHelper validateMailboxHelper( m_from, m_domain );
    OsStatus result = validateMailboxHelper.execute( out );
    UtlString fromIdentity;
    if( result == OS_SUCCESS )
@@ -188,6 +190,7 @@ RetrieveCGI::handleOpenVXIRequest( UtlString* out )
       "<subdialog name=\"send_msg\" src=\"" + mediaserverUrl + "/vm_vxml/login.vxml\">\n" \
       "<param name=\"extn\" value=\"" + fromIdentity + "\"/>\n" \
       "<param name=\"from\" value=\"" + vxmlFriendlyFrom + "\"/>\n" \
+      "<param name=\"domain\" value=\"" + m_domain + "\"/>\n" \
       "<param name=\"mediaserverurl\" value=\"" + ivrPromptUrl + "\"/>\n" \
       "<param name=\"securemediaserverurl\" value=\"" + secureMediaserverUrl + "\"/>\n" \
       "</subdialog>";

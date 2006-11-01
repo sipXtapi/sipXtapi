@@ -23,6 +23,7 @@
 #include "sipdb/CredentialDB.h"
 #include "sipdb/PermissionDB.h"
 #include "sipdb/SubscriptionDB.h"
+#include "sipdb/DomainDB.h"
 #include "statusserver/Notifier.h"
 #include "statusserver/PluginXmlParser.h"
 #include "statusserver/StatusServer.h"
@@ -479,11 +480,11 @@ SubscribeServerThread::isAuthorized (
     StatusPluginReference* pluginContainer)
 {
     UtlBoolean isAuthorized = FALSE;
-    UtlString  requestUser;
+    UtlString  requestUser, requestDomain;
     Url       identityUrl;
-    message->getUri(NULL, NULL, NULL, &requestUser);
+    message->getUri(&requestDomain, NULL, NULL, &requestUser);
     identityUrl.setUserId(requestUser);
-    identityUrl.setHostAddress(mDefaultDomain);
+    identityUrl.setHostAddress(requestDomain);
 
     if( pluginContainer )
     {
@@ -534,13 +535,15 @@ SubscribeServerThread::isAuthorized (
                 if( nextPermissionMatched )
                 {
                     syslog(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthorized() -"
-                        " All permissions matched - request is AUTHORIZED\n");
+                        " All permissions matched - request is AUTHORIZED for identity '%s'\n",
+                        identityUrl.toString().data());
                     isAuthorized = TRUE;
                 }
                 else
                 {
                     syslog(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthorized() -"
-                        " One or more Permissions did not match - request is UNAUTHORIZED\n");
+                        " One or more Permissions did not match - request is UNAUTHORIZED for identity '%s'\n",
+                        identityUrl.toString().data());
                     isAuthorized = FALSE;
                 }
             }
@@ -548,7 +551,8 @@ SubscribeServerThread::isAuthorized (
             {
                 // one or more permissions needed by plugin and none in IMDB => UNAUTHORIZED
                 syslog(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthorized() -"
-                    " No Permissions in IMDB - request is UNAUTHORIZED\n");
+                    " No Permissions in IMDB - request is UNAUTHORIZED for identity '%s'\n",
+                    identityUrl.toString().data());
                 isAuthorized = FALSE;
             }
         }
@@ -584,10 +588,30 @@ SubscribeServerThread::isAuthenticated (
         isAuthorized = TRUE;
     } else
     {
+        UtlString reqUri;
+        UtlString domain, realm;
+        message->getRequestUri(&reqUri);
+        Url reqUrl(reqUri);
+        reqUrl.getHostAddress(domain);
+
+        // Assume the domain is one of the configured virtual domains and
+        // use the realm associated with it.  If this fails, then fall back
+        // to the original behavior which is to use the default realm.
+        if (DomainDB::getInstance()->getRealm(domain, realm) == TRUE)
+        {
+           syslog(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated() "
+                  "found realm '%s' for virtual domain '%s'",
+                  realm.data(), domain.data());
+        }
+        else
+        {
+           realm = mRealm;
+        }
+
         // realm and auth type should be default for server
         // if URI not defined in DB, the user is not authorized to modify bindings -
         syslog( FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated():TRUE realm=\"%s\" \n",
-                mRealm.data());
+                realm.data());
 
         UtlString requestNonce;
         UtlString requestRealm;
@@ -611,14 +635,12 @@ SubscribeServerThread::isAuthenticated (
                    "- reqRealm=\"%s\", reqUser=\"%s\"\n", requestRealm.data(), requestUser.data());
 
             // case sensitive comparison of realm
-            if ( mRealm.compareTo( requestRealm ) == 0 )
+            if ( realm.compareTo( requestRealm ) == 0 )
             {
                 syslog(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated()"
                     "- Realm matches, now validate userid/password\n");
 
                 // See if the nonce is valid - see net/SipNonceDb.cpp
-                UtlString reqUri;
-                message->getRequestUri(&reqUri);
                 Url mailboxUrl (reqUri);
 
                 UtlString authTypeDB;
@@ -634,13 +656,13 @@ SubscribeServerThread::isAuthenticated (
                 message->getCallIdField(&callId);
 
                 if (mNonceDb.isNonceValid(requestNonce, callId, fromTag,
-                                          reqUri, mRealm, nonceExpires))
+                                          reqUri, realm, nonceExpires))
                 {
                     // then get the credentials for this realm
                     if ( CredentialDB::getInstance()->
                         getCredentialByUserid (
                         mailboxUrl,
-                        mRealm,
+                        realm,
                         requestUser,
                         passTokenDB,
                         authTypeDB) )
@@ -711,13 +733,13 @@ SubscribeServerThread::isAuthenticated (
             mNonceDb.createNewNonce(callId,
                                     fromTag,
                                     challangeRequestUri,
-                                    mRealm,
+                                    realm,
                                     newNonce);
 
             responseMessage->setRequestUnauthorized (
                 message,
                 "DIGEST",
-                mRealm,
+                realm,
                 newNonce,
                 "change4");  // opaque :TBD: eliminate?
         }
@@ -730,6 +752,7 @@ SubscribeServerThread::isValidDomain(
     const SipMessage* message,
     SipMessage* responseMessage )
 {
+    UtlBoolean isValid = FALSE;
     UtlString address;
     UtlString requestUri;
     message->getRequestUri(&requestUri);
@@ -743,11 +766,29 @@ SubscribeServerThread::isValidDomain(
            (address.compareTo(mDefaultDomainHostFQDN.data(), UtlString::ignoreCase) == 0) )
          && ( (mDefaultDomainPort == PORT_NONE) || (port == mDefaultDomainPort) ) )
     {
-        syslog(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isValidDomain() - VALID Domain\n") ;
-        return TRUE;
+        syslog(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isValidDomain() - VALID Domain '%s'\n",
+               address.data());
+        isValid = TRUE;
     }
-    syslog(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isValidDomain() - INVALID Domain\n") ;
-    return FALSE;
+
+    // Try matching with one of the configured virtual domains
+    if (!isValid)
+    {
+       if (DomainDB::getInstance()->isDomain(address) == TRUE)
+       {
+          syslog(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isValidDomain() VALID virtual domain '%s'\n",
+                 address.data());
+          isValid = TRUE;
+       }
+    }
+
+    if (!isValid)
+    {
+       syslog(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isValidDomain() - INVALID Domain '%s'\n",
+              address.data());
+    }
+
+    return isValid;
 }
 
 
@@ -772,12 +813,12 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
     Url identity;
 
     //  Construct the identity
-    UtlString uriUser, requestUri;
-    subscribeMessage->getUri( NULL, NULL, NULL, &uriUser );
+    UtlString uriUser, uriDomain, requestUri;
+    subscribeMessage->getUri( &uriDomain, NULL, NULL, &uriUser );
     subscribeMessage->getRequestUri( &requestUri );
     identity.setUserId( uriUser );
     identity.setUrlType( "sip" );
-    identity.setHostAddress( domain );
+    identity.setHostAddress(uriDomain);
 
     subscribeMessage->getToField(&to);
     subscribeMessage->getFromField(&from);

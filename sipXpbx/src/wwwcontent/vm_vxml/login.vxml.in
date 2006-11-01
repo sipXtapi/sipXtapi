@@ -13,6 +13,7 @@
         <var name="mailbox" />
         <var name="extn" />
         <var name="from" />
+        <var name="domain" />
         <var name="mediaserverurl" />
         <var name="securemediaserverurl" />
     
@@ -30,7 +31,7 @@
         </block>
 
         <block>
-            <if cond="extn == '-1' || extn == '' || extn =='undefined'">
+            <if cond="extn == '-1' || extn == '' || extn == undefined">
                 <clear namelist="extension"/>
                 <goto nextitem="extension" />
             <else />
@@ -67,7 +68,7 @@
         </field>
 
         <!-- Get pin -->
-        <field name="pin" cond="extension != 'undefined'" type="digits?minlength=1">
+        <field name="pin" cond="extension != undefined" type="digits?minlength=1">
             <prompt>
                 <audio expr="mediaserverurl + promptsalias + 'dial_pin.wav'"/>
             </prompt>
@@ -81,6 +82,9 @@
                     </prompt>
                     <goto next="root.vxml#operator" />
                 <else/>
+                    <if cond="domain != '' &amp;&amp; domain != undefined">
+                        <assign name="extension" expr="extension + '@' + domain" />
+                    </if>
                     <goto nextitem="login"/>
                 </if>
             </filled>
@@ -93,7 +97,7 @@
         </field>
 
         <!-- Call the CGI to do the login (to look up IMDB database, create mailbox folders if necessary, etc ) -->
-        <subdialog name="login" cond="pin != 'undefined'" method="get" srcexpr="securemediaserverurl + cgiurl" namelist="action extension pin">
+        <subdialog name="login" cond="pin != undefined" method="get" srcexpr="securemediaserverurl + cgiurl" namelist="action extension pin domain">
             <filled>
                 <if cond="login.result == 'success'">
                     <assign name="mailbox" expr="login.mailboxid" />

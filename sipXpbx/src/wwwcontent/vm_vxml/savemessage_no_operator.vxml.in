@@ -176,7 +176,7 @@
         </record>
     
         <!-- Prompt user's to confirm that their message can be sent -->
-        <field name="confirm"  cond="vm != 'undefined'" type="digits?minlength=1;maxlength=1">
+        <field name="confirm"  cond="vm != undefined" type="digits?minlength=1;maxlength=1">
             <prompt>
                 <audio expr="mediaserverurl + promptsalias + 'deposit_options.wav'" />
                 <audio expr="mediaserverurl + promptsalias + 'to_cancel_press_star.wav'" />

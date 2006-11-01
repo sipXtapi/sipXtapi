@@ -39,7 +39,8 @@ public:
     /**
      * Ctor
      */
-    ValidateMailboxCGIHelper ( const UtlString& identityOrExtension );
+    ValidateMailboxCGIHelper ( const UtlString& identityOrExtension,
+                               const UtlString& domain = "");
 
     /**
      * Virtual Destructor
@@ -59,6 +60,9 @@ public:
 
     /** Getter for the extension */
     void getExtension( UtlString& extension ) const;
+
+    /** Getter for the domain */
+    void getDomain( UtlString& domain ) const;
 
     /** updates m_mailboxIdentity & m_extension and verifies validity */
     OsStatus validateIdentityAndGetExtension  ( 
@@ -86,6 +90,8 @@ private:
 
     // flag indicating whether we need to lazy create/validate 
     bool m_isValidated;
+
+    const UtlString m_domain;
 };
 
 #endif //VALIDATEMAILBOXCGIHELPER_H
