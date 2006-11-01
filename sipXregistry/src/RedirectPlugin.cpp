@@ -87,12 +87,3 @@ RedirectPlugin::removeAllContacts(SipMessage& response)
 SipRedirectorPrivateStorage::~SipRedirectorPrivateStorage()
 {
 }
-
-static UtlContainableType SipRedirectorPrivateStorageTYPE =
-       "SipRedirectorPrivateStorage";
-
-const char* const
-SipRedirectorPrivateStorage::getContainableType() const
-{
-   return SipRedirectorPrivateStorageTYPE;
-}

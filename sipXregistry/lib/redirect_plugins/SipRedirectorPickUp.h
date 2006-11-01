@@ -235,7 +235,7 @@ class SipRedirectorPrivateStoragePickUp : public SipRedirectorPrivateStorage
 
   protected:
 
-   static UtlContainableType TYPE;    /** < Class type used for runtime checking */
+   static const UtlContainableType TYPE;    /** < Class type used for runtime checking */
 
    // CallId of the SUBSCRIBE we sent.
    UtlString mSubscribeCallId;

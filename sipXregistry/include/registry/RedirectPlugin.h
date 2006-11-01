@@ -278,6 +278,8 @@ class SipRedirectorPrivateStorage : public UtlContainableAtomic
    virtual ~SipRedirectorPrivateStorage();
 
    virtual const char* const getContainableType() const = 0;
+
+   // TYPE is not defined because this class is abstract.
 };
 
 #endif // _REDIRECTPLUGIN_H_
