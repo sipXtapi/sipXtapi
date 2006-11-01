@@ -231,39 +231,39 @@ Listen 80
 # Example:
 # LoadModule foo_module /etc/httpd/modules/mod_foo.so
 #
-LoadModule ssl_module /etc/httpd/modules/mod_ssl.so
-#LoadModule authz_host_module /etc/httpd/modules/authz_host_module.so
-LoadModule auth_digest_module /etc/httpd/modules/mod_auth_digest.so
-LoadModule include_module /etc/httpd/modules/mod_include.so
-LoadModule log_config_module /etc/httpd/modules/mod_log_config.so
-LoadModule env_module /etc/httpd/modules/mod_env.so
-LoadModule mime_magic_module /etc/httpd/modules/mod_mime_magic.so
-LoadModule expires_module /etc/httpd/modules/mod_expires.so
-LoadModule deflate_module /etc/httpd/modules/mod_deflate.so
-LoadModule headers_module /etc/httpd/modules/mod_headers.so
-LoadModule usertrack_module /etc/httpd/modules/mod_usertrack.so
-LoadModule unique_id_module /etc/httpd/modules/mod_unique_id.so
-LoadModule setenvif_module /etc/httpd/modules/mod_setenvif.so
-LoadModule mime_module /etc/httpd/modules/mod_mime.so
-LoadModule dav_module /etc/httpd/modules/mod_dav.so
-LoadModule status_module /etc/httpd/modules/mod_status.so
-LoadModule autoindex_module /etc/httpd/modules/mod_autoindex.so
-LoadModule info_module /etc/httpd/modules/mod_info.so
-LoadModule dav_fs_module /etc/httpd/modules/mod_dav_fs.so
-LoadModule vhost_alias_module /etc/httpd/modules/mod_vhost_alias.so
-LoadModule negotiation_module /etc/httpd/modules/mod_negotiation.so
-LoadModule dir_module /etc/httpd/modules/mod_dir.so
-LoadModule actions_module /etc/httpd/modules/mod_actions.so
-LoadModule speling_module /etc/httpd/modules/mod_speling.so
-LoadModule userdir_module /etc/httpd/modules/mod_userdir.so
-LoadModule alias_module /etc/httpd/modules/mod_alias.so
-LoadModule rewrite_module /etc/httpd/modules/mod_rewrite.so
-LoadModule cache_module /etc/httpd/modules/mod_cache.so
-LoadModule suexec_module /etc/httpd/modules/mod_suexec.so
-LoadModule disk_cache_module /etc/httpd/modules/mod_disk_cache.so
-LoadModule file_cache_module /etc/httpd/modules/mod_file_cache.so
-LoadModule mem_cache_module /etc/httpd/modules/mod_mem_cache.so
-LoadModule cgi_module /etc/httpd/modules/mod_cgi.so
+LoadModule ssl_module @HTTP_MODULEDIR@/mod_ssl.so
+LoadModule authz_host_module @HTTP_MODULEDIR@/mod_authz_host.so
+LoadModule auth_digest_module @HTTP_MODULEDIR@/mod_auth_digest.so
+LoadModule include_module @HTTP_MODULEDIR@/mod_include.so
+LoadModule log_config_module @HTTP_MODULEDIR@/mod_log_config.so
+LoadModule env_module @HTTP_MODULEDIR@/mod_env.so
+LoadModule mime_magic_module @HTTP_MODULEDIR@/mod_mime_magic.so
+LoadModule expires_module @HTTP_MODULEDIR@/mod_expires.so
+LoadModule deflate_module @HTTP_MODULEDIR@/mod_deflate.so
+LoadModule headers_module @HTTP_MODULEDIR@/mod_headers.so
+LoadModule usertrack_module @HTTP_MODULEDIR@/mod_usertrack.so
+LoadModule unique_id_module @HTTP_MODULEDIR@/mod_unique_id.so
+LoadModule setenvif_module @HTTP_MODULEDIR@/mod_setenvif.so
+LoadModule mime_module @HTTP_MODULEDIR@/mod_mime.so
+LoadModule dav_module @HTTP_MODULEDIR@/mod_dav.so
+LoadModule status_module @HTTP_MODULEDIR@/mod_status.so
+LoadModule autoindex_module @HTTP_MODULEDIR@/mod_autoindex.so
+LoadModule info_module @HTTP_MODULEDIR@/mod_info.so
+LoadModule dav_fs_module @HTTP_MODULEDIR@/mod_dav_fs.so
+LoadModule vhost_alias_module @HTTP_MODULEDIR@/mod_vhost_alias.so
+LoadModule negotiation_module @HTTP_MODULEDIR@/mod_negotiation.so
+LoadModule dir_module @HTTP_MODULEDIR@/mod_dir.so
+LoadModule actions_module @HTTP_MODULEDIR@/mod_actions.so
+LoadModule speling_module @HTTP_MODULEDIR@/mod_speling.so
+LoadModule userdir_module @HTTP_MODULEDIR@/mod_userdir.so
+LoadModule alias_module @HTTP_MODULEDIR@/mod_alias.so
+LoadModule rewrite_module @HTTP_MODULEDIR@/mod_rewrite.so
+LoadModule cache_module @HTTP_MODULEDIR@/mod_cache.so
+LoadModule suexec_module @HTTP_MODULEDIR@/mod_suexec.so
+LoadModule disk_cache_module @HTTP_MODULEDIR@/mod_disk_cache.so
+LoadModule file_cache_module @HTTP_MODULEDIR@/mod_file_cache.so
+LoadModule mem_cache_module @HTTP_MODULEDIR@/mod_mem_cache.so
+LoadModule cgi_module @HTTP_MODULEDIR@/mod_cgi.so
 
 #
 # ExtendedStatus controls whether Apache will generate "full" status
@@ -298,7 +298,7 @@ LoadModule cgi_module /etc/httpd/modules/mod_cgi.so
 #  when the value of (unsigned)Group is above 60000; 
 #  don't use Group #-1 on these systems!
 #
-User sipx
+User @SIPX_USER@
 Group #-1
 </IfModule>
 </IfModule>
@@ -308,7 +308,7 @@ Group #-1
 # e-mailed.  This address appears on some server-generated pages, such
 # as error documents.  e.g. admin@your-domain.com
 #
-ServerAdmin sipx
+ServerAdmin @SIPX_USER@
 
 #
 # ServerName gives the name and port that the server uses to identify itself.
@@ -447,7 +447,7 @@ AccessFileName .htaccess
 # TypesConfig describes where the mime.types file (or equivalent) is
 # to be found.
 #
-TypesConfig /etc/sipxpbx/mime.types
+TypesConfig @SIPX_CONFDIR@/mime.types
 
 #
 # DefaultType is the default MIME type the server will use for a document

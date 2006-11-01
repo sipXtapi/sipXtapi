@@ -3,7 +3,7 @@
    <settings>
       <health check_period="15" />
       <processxmlpath location="/etc/sipxpbx" />
-      <email execute="blat - -from &quot;sipx@pingtel.com&quot; -name &quot;sipx@pingtel.com&quot; -to &quot;%CONTACT%&quot; -subject &quot;Watchdog Notification&quot; -body &quot;%BODY%&quot;  "/>
+      <email execute="blat - -from &quot;@SIPX_USER@@pingtel.com&quot; -name &quot;@SIPX_USER@@pingtel.com&quot; -to &quot;%CONTACT%&quot; -subject &quot;Watchdog Notification&quot; -body &quot;%BODY%&quot;  "/>
    </settings>
 
    <monitor> <!-- describes the processes to be run -->
@@ -13,7 +13,7 @@
         -  or any httpd that uses the sipx authentication module
        -->
       <process name="KeepAlive" restart="enable" max_restarts="3" report="enable" max_reports="3">
-         <failure_contact method="email">sipx@localhost</failure_contact>
+         <failure_contact method="email">@SIPX_USER@@localhost</failure_contact>
       </process>
 
       <!-- Start of Communications Server Processes -->
@@ -21,51 +21,51 @@
       <!-- Registry/Redirect server -->
       <process name="SIPRegistrar"
          restart="enable" max_restarts="3" report="enable" max_reports="3">
-         <failure_contact method="email">sipx@localhost</failure_contact>
+         <failure_contact method="email">@SIPX_USER@@localhost</failure_contact>
       </process>
 
       <!-- Forking proxy (all requests enter through this) -->
       <process name="SIPProxy"
          restart="enable" max_restarts="3" report="enable" max_reports="3">
-         <failure_contact method="email">sipx@localhost</failure_contact>
+         <failure_contact method="email">@SIPX_USER@@localhost</failure_contact>
       </process>
 
       <!-- Authorization proxy (all requests exit through this) -->
       <process name="SIPAuthProxy"
          restart="enable" max_restarts="3" report="enable" max_reports="3">
-         <failure_contact method="email">sipx@localhost</failure_contact>
+         <failure_contact method="email">@SIPX_USER@@localhost</failure_contact>
       </process>
 
       <!-- Subscribe/Notify event package server (includes message-waiting package) -->
       <process name="SIPStatus"
          restart="enable" max_restarts="3" report="enable" max_reports="3">
-         <failure_contact method="email">sipx@localhost</failure_contact>
+         <failure_contact method="email">@SIPX_USER@@localhost</failure_contact>
       </process>
 
       <!-- Configuration Server - Web admin UI -->
       <process name="ConfigServer" restart="enable" max_restarts="3" report="enable" max_reports="3">
-         <failure_contact method="email">sipx@localhost</failure_contact>
+         <failure_contact method="email">@SIPX_USER@@localhost</failure_contact>
       </process>
 
       <!-- VXML voicemail and autoattendant applications -->
       <process name="MediaServer" restart="enable" max_restarts="3" report="enable" max_reports="3">
-         <failure_contact method="email">sipx@localhost</failure_contact>
+         <failure_contact method="email">@SIPX_USER@@localhost</failure_contact>
       </process>
 
       <!-- Parking Orbit and Music-on-hold applications -->
       <process name="ParkServer" restart="enable" max_restarts="3" report="enable" max_reports="3">
-         <failure_contact method="email">sipx@localhost</failure_contact>
+         <failure_contact method="email">@SIPX_USER@@localhost</failure_contact>
       </process>
 
       <!-- Presence Server application -->
       <process name="PresenceServer" restart="enable" max_restarts="3" report="enable" max_reports="3">
-         <failure_contact method="email">sipx@localhost</failure_contact>
+         <failure_contact method="email">@SIPX_USER@@localhost</failure_contact>
       </process>
 
       <!-- Conference Bridge application -->
 <!-- Not implemented yet.
       <process name="ConferenceBridge" restart="enable" max_restarts="3" report="enable" max_reports="3">
-         <failure_contact method="email">sipx@localhost</failure_contact>
+         <failure_contact method="email">@SIPX_USER@@localhost</failure_contact>
       </process>
 -->
 
