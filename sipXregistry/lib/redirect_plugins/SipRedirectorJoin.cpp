@@ -100,6 +100,8 @@ void SipRedirectorJoin::readConfig(OsConfigDb& configDb)
    
    // One-second subscriptions.
    mOneSecondSubscription = getYNconfig(configDb, CONFIG_SETTING_1_SEC, TRUE);
+   OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorJoin::readConfig "
+                 "mOneSecondSubscription = %d", mOneSecondSubscription);
 
    // Fetch the call join festure code from the config file.
    // If it is null, it doesn't count.
@@ -558,8 +560,8 @@ void SipRedirectorPrivateStorageJoin::processNotifyDialogElement(
          UtlString duration_s;
          SipRedirectorJoin::textContentShallow(duration_s, child->ToElement());
          const char* startptr = duration_s.data();
-         char** endptr = NULL;
-         long int temp = strtol(startptr, endptr, 10);
+         char* endptr = NULL;
+         long int temp = strtol(startptr, &endptr, 10);
          // If the duration value passes sanity checks, use it.
          if (((const char*) endptr) == startptr + duration_s.length() &&
              temp >= 0 &&
@@ -651,10 +653,9 @@ void SipRedirectorPrivateStorageJoin::processNotifyDialogElement(
    }
 
    // Check whether this is a dialog that qualifies for our consideration:
-   //   direction is incoming, and
    //   state matches mStateFilter, and
    //   its duration is > the duration of the currently recorded dialog
-   if (!(incoming &&
+   if (!(
          // Currently, for the state to match, it must be the same as
          // mStateFilter, or mStateFilter is stateDontCare.
          (mStateFilter == SipRedirectorJoin::stateDontCare ||

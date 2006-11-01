@@ -230,6 +230,7 @@ class SipRedirectorPrivateStorageJoin : public SipRedirectorPrivateStorage
 
    // Process a NOTIFY body and record the calls as appropriate.
    void processNotify(const char* body);
+   // Not quite the same as SipRedirectorPickUp::processNotifyDialogElement.
    void processNotifyDialogElement(TiXmlElement* dialog);
    void processNotifyLocalRemoteElement(TiXmlElement* element,
                                         UtlString& identity,

@@ -81,3 +81,4 @@ $(CONFIG_FILES_EDITED) $(DOC_FILES_EDITED) $(SIPDB_FILES_EDITED): %: %.pre $(SIP
 $(SIPX_DATADIR)/sipdb/credential.xml: $(SIPX_DATADIR)/sipdb/credential.xml.in $(SIPX_CONFDIR)/config.defs
 	$(SUDO) sh -c \
 		"yes 1234 | ../../../../sipXcommserverLib/doc/update-passtokens $< $@"
+	@echo

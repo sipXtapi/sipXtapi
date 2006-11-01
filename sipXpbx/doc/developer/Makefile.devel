@@ -281,14 +281,14 @@ search-unsubstituted:
 	! grep -rE --binary-files=without-match '@[A-Za-z]+@' /usr/local/sipx | \
 	grep '.'
 
-# Copy the Apache modules to $PREFIX/$ARCH/lib/httpd/modules so this sandbox can have
+# Copy the Apache modules to $PREFIX/lib/httpd/modules so this sandbox can have
 # a custom version.
 # Must be executed before configuring and building the software.
 # Unfortunately, we have to guess where the modules are installed, since
 # this makefile isn't customized by ./configure.
 create-local-modules:
-	mkdir -p $(PREFIX)/$(ARCH)/lib/httpd/modules
-	cp /usr/lib/httpd/modules/* $(PREFIX)/$(ARCH)/lib/httpd/modules
+	mkdir -p $(PREFIX)/lib/httpd/modules
+	cp /usr/lib/httpd/modules/* $(PREFIX)/lib/httpd/modules
 
 # Display the value of a variable as 'make' has it set up.
 show.%:

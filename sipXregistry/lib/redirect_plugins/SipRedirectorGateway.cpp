@@ -10,6 +10,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
+#include <string.h>
 
 // APPLICATION INCLUDES
 #include <utl/UtlRegex.h>
@@ -22,6 +23,8 @@
 #include "SipRedirectorGateway.h"
 #include "utl/UtlHashMapIterator.h"
 #include "utl/XmlContent.h"
+#include "net/HttpBody.h"
+#include "net/MimeBodyPart.h"
 
 // DEFINES
 // How big the forms on the Web page can get.
@@ -68,7 +71,8 @@ void SipRedirectorGateway::readConfig(OsConfigDb& configDb)
    {
       OsSysLog::add(FAC_SIP, PRI_CRIT,
                     "SipRedirectorGateway::readConfig "
-                    "MAPPING_FILE parameter missing or empty");
+                    "MAPPING_FILE parameter '%s' missing or empty",
+                    mMappingFileName.data());
       mReturn = OS_FAILED;
    }
    else
@@ -125,8 +129,9 @@ void SipRedirectorGateway::readConfig(OsConfigDb& configDb)
    {
       OsSysLog::add(FAC_SIP, PRI_CRIT,
                     "SipRedirectorGateway::readConfig "
-                    "listening port is missing, empty, "
-                    "or out of range (1 to 65535)");
+                    "listening port '%s' is missing, empty, "
+                    "or out of range (1 to 65535)",
+                    string.data());
       mReturn = OS_FAILED;
    }
 }
@@ -457,11 +462,11 @@ const char* form =
 "%s\n"
 "<form action='/map.html' method=post enctype='multipart/form-data'>\n"
 "Routing prefix: "
-"<input type=string size=4></input> "
+"<input name=prefix type=string size=4></input> "
 "(format is '9ggx', where 'gg' is your group number and 'x' is 1 to 9)<br />\n"
 "<input type=submit name=get value='Get gateway' /><br />\n"
 "Gateway hostport: "
-"<input type=string size=30></input> "
+"<input name=destination type=string size=30></input> "
 "<input type=submit name=set value='Set gateway' />\n"
 "</form>\n"
 "</body>\n"
@@ -501,6 +506,11 @@ SipRedirectorGateway::processForm(const HttpRequestContext& requestContext,
                               const HttpMessage& request,
                               HttpMessage*& response)
 {
+   UtlString string_get("get");
+   UtlString string_set("set");
+   UtlString string_prefix("prefix");
+   UtlString string_destination("destination");
+
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipRedirectorGateway::processForm entered");
    UtlString* user;
@@ -515,6 +525,96 @@ SipRedirectorGateway::processForm(const HttpRequestContext& requestContext,
                  request_body->getBytes());
 
    // Get the values from the form.
+   if (request_body->isMultipart())
+   {
+      // Extract the values from the form data.
+      UtlHashMap values;
+      int c = request_body->getMultipartCount();
+      for (int i = 0; i < c; i++)
+      {
+         UtlString* name = new UtlString;
+         if (request_body->getMultipart(i)->getPartHeaderValue("name", *name))
+         {
+            const char* v;
+            int l;
+            request_body->getMultipartBytes(i, &v, &l);
+            // Strip leading and trailing whitespace from values.
+            UtlString* value = new UtlString(v, l);
+            value->strip(UtlString::both);
+            OsSysLog::add(FAC_SIP, PRI_CRIT,
+                          "SipRedirectorGateway::processForm "
+                          "form value '%s' = '%s'",
+                          name->data(), value->data());
+            // 'name' and 'value' are now owned by 'values'.
+            values.insertKeyAndValue(name, value);
+         }
+         else
+         {
+            // 'name' is not owned by 'values' and we have to delete it.
+            delete name;
+         }
+      }
+
+      if (values.findValue(&string_get))
+      {
+         // This is a "get gateway" request.
+
+         // Insert the HTML into the response.
+         HttpBody* response_body = new HttpBody(form, -1, CONTENT_TYPE_TEXT_HTML);
+         response->setBody(response_body);
+      }
+      else if (values.findValue(&string_set))
+      {
+         // This is a "set gateway" request.
+
+         // Validate the routing prefix.
+         UtlString* prefix =
+            dynamic_cast <UtlString*> (values.findValue(&string_prefix));
+         if (prefixIsValid(*prefix))
+         {
+            // Validate the destination.
+            UtlString* destination =
+               dynamic_cast <UtlString*>
+                   (values.findValue(&string_destination));
+            if (destination_is_valid(destination))
+            {
+               OsSysLog::add(FAC_SIP, PRI_CRIT,
+                             "SipRedirectorGateway::processForm "
+                             "add mapping '%s' -> '%s'",
+                             prefix->data(), destination->data());
+
+               mMapLock.acquire();
+               // Insert the mapping.
+               mMapUserToContacts.insertKeyAndValue(prefix, destination);
+               mMapContactsToUser.insertKeyAndValue(destination, prefix);
+               mMapLock.release();
+
+               writeMappings();
+            }
+         }
+         // Insert the HTML into the response.
+         HttpBody* response_body = new HttpBody(form, -1, CONTENT_TYPE_TEXT_HTML);
+         response->setBody(response_body);
+      }
+      else
+      {
+         // Incomprehensible request.
+
+         // Insert the HTML into the response.
+         HttpBody* response_body = new HttpBody(form, -1, CONTENT_TYPE_TEXT_HTML);
+         response->setBody(response_body);
+      }
+   }
+   else
+   {
+      // Incomprehensible request.
+
+      // Insert the default HTML into the response.
+      HttpBody* response_body = new HttpBody(form, -1, CONTENT_TYPE_TEXT_HTML);
+      response->setBody(response_body);
+   }
+   
+#if 0
 
 #if 0
    // This is quite a chore, because getMultipartBytes gets the entire
@@ -650,9 +750,8 @@ SipRedirectorGateway::processForm(const HttpRequestContext& requestContext,
    *p++ = '\0';
 #endif
 
-   // Insert the HTML into the response.
-   HttpBody* response_body = new HttpBody(form, -1, CONTENT_TYPE_TEXT_HTML);
-   response->setBody(response_body);
+#endif
+
 }
 
 // Construct mappings from an input string.
@@ -788,4 +887,21 @@ int GatewayWriterTask::run(void* arg)
       }
    }
    return 0;
+}
+
+UtlBoolean SipRedirectorGateway::prefixIsValid(UtlString& p)
+{
+   int len, digits;
+   char last;
+
+   return
+      (len = mPrefix.length(),
+       // Initial 'len' chars must be the prefix.
+       strncmp(p.data(), mPrefix.data(), len) == 0 &&
+       (digits = strspn(p.data() + len, "0123456789"),
+        // Remaining chars must be digits.
+        p.length() == len + digits &&
+        (last = p.length(len - 1),
+         // Last digit must be 1-9.
+         last >= 1)));
 }
