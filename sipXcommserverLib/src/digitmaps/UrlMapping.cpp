@@ -856,16 +856,22 @@ UrlMapping::replaceAll(const UtlString& originalString ,
     }
 }
 
-/*#define XML_SYMBOL_USER           "{user}"
+/*
+#define XML_SYMBOL_USER             "{user}"
+#define XML_SYMBOL_USER_ESCAPED     "{user-escaped}"
 #define XML_SYMBOL_DIGITS           "{digits}"
+#define XML_SYMBOL_DIGITS_ESCAPED   "{digits-escaped}"
 #define XML_SYMBOL_HOST             "{host}"
 #define XML_SYMBOL_HEADERPARAMS     "{headerparams}"
 #define XML_SYMBOL_URLPARAMS        "{urlparams}"
 #define XML_SYMBOL_URI              "{uri}"
 #define XML_SYMBOL_LOCALHOST        "{localhost}"
+#define XML_SYMBOL_MEDIASERVER      "{mediaserver}"
 #define XML_SYMBOL_VOICEMAIL        "{voicemail}"
 #define XML_SYMBOL_VDIGITS          "{vdigits}"
+#define XML_SYMBOL_VDIGITS_ESCAPED  "{vdigits-escaped}"
 */
+
 void UrlMapping::replaceSymbols(const UtlString &string,
                                 const Url& requestUri,
                                 const UtlString& vdigits,
@@ -889,6 +895,10 @@ void UrlMapping::replaceSymbols(const UtlString &string,
     //get user
     UtlString user;
     requestUri.getUserId(user);
+    UtlString user_escaped = user;
+    HttpMessage::escape(user_escaped) ;
+    UtlString vdigits_escaped = vdigits ;
+    HttpMessage::escape(vdigits_escaped);
 
     // Figure how many Url parameter entries
     int iEntries = 0 ;
@@ -943,7 +953,19 @@ void UrlMapping::replaceSymbols(const UtlString &string,
     tempString.append(modifiedString);
     modifiedString.remove(0);
 
+    replaceAll( tempString, modifiedString , XML_SYMBOL_USER_ESCAPED , 
+                user_escaped );
+    tempString.remove(0);
+    tempString.append(modifiedString);
+    modifiedString.remove(0);
+
     replaceAll( tempString, modifiedString, XML_SYMBOL_DIGITS , user);
+    tempString.remove(0);
+    tempString.append(modifiedString);
+    modifiedString.remove(0);
+
+    replaceAll( tempString, modifiedString, XML_SYMBOL_DIGITS_ESCAPED , 
+                user_escaped);
     tempString.remove(0);
     tempString.append(modifiedString);
     modifiedString.remove(0);
@@ -979,6 +1001,12 @@ void UrlMapping::replaceSymbols(const UtlString &string,
     modifiedString.remove(0);
 
     replaceAll( tempString, modifiedString, XML_SYMBOL_VDIGITS , vdigits);
+    tempString.remove(0);
+    tempString.append(modifiedString);
+    modifiedString.remove(0);
+
+    replaceAll( tempString, modifiedString, XML_SYMBOL_VDIGITS_ESCAPED , 
+                vdigits_escaped);
     tempString.remove(0);
     tempString.append(modifiedString);
     modifiedString.remove(0);

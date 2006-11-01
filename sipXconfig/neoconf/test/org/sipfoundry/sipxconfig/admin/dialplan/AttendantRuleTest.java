@@ -23,7 +23,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
 
 public class AttendantRuleTest extends TestCase {
-    private static final String URL_PARAMS = ";play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3D";
+    private static final String URL_PARAMS = ";voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3D";
     private static final String OPERATOR_URL = "<sip:{digits}@{mediaserver}" + URL_PARAMS
             + "autoattendant%26name%3Daa_-1>";    
     

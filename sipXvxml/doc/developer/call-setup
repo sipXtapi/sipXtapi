@@ -6,7 +6,7 @@ the caller can record a message in the voicemailbox of the callee.
 The SIP router sends the call to the media server due to a forwarding
 rule in sipXregistry/main/etc/mappingrules.xml.in:
 
-    <url>&lt;sip:{digits}@{mediaserver};play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{digits}&gt;;q=0.1</url>
+    <url>&lt;sip:{digits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{digits-escaped}&gt;;q=0.1</url>
 
 This line is processed thusly:
 
@@ -17,26 +17,25 @@ parameters.
 When the XML is parsed, XML character entities are substituted,
 resulting in the mapping result:
 
-    <sip:{digits}@{mediaserver};play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{digits}>;q=0.1
+    <sip:{digits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{digits-escaped}>;q=0.1
 
 This specifies that the url sip:...{digits} has preference value 0.1
 (a low value), so it will be tested after higher preference
 destinations have failed.
 
 Once the router decides to use this URL, the {...} references are
-replaced with their values.  'digits' is the destination extenstion
+replaced with their values.  'digits' is the destination extension
 number, 'mediaserver' is the IP address of the media server,
 'voicemail' is the base URL of the voicemail URL space on the media
-server.
+server.  'digits-escaped' is the destination extension number HTTP escaped,
+in case odd characters (such as a plus sign) are in the user part.
 
 This SIP URL is dissected to generate a SIP INITIATE request.  The
-stuff after "play=" is a SIP URL parameter [see RFC 3261, section
-19.1.1], but its function seems to not be addressed by RFC 3261.  But
-the usages in RFC 3087 suggest that this URL parameter will be
-maintained as a suffix to the SIP URL where it appears in the SIP
-INITIATE request.
+stuff after "voicexml=" is a SIP URL parameter [see RFC 3261, section
+19.1.1], and is used to trigger a voicexml script on the media server,
+ala RFC 4240, section 4. 
 
-A later stage of processing will extract the value of the "play"
+A later stage of processing will extract the value of the "voicexml="
 parameter and reverse the %-encoding of special characters to generate
 a URL
 "<voicemail>/cgi-bin/voicemail/mediaserver.cgi?action=deposit&mailbox=<digits>".
@@ -212,7 +211,7 @@ IvrCallListener::handleStartVXISession.
 
 IvrCallListener::handleStartVXISession
 
-Extract the play parameter from the SIP requestUrl.  Append
+Extract the voicexml parameter from the SIP requestUrl.  Append
 "&from=<caller address>".  Probably leavs an appended parameter which
 is the original extension number that was called.  Call VXIProcessUrl.
 

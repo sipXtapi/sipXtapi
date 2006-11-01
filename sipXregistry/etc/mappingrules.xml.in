@@ -31,7 +31,7 @@
       <userPattern>0</userPattern>
       <permissionMatch>
         <transform>
-          <url>&lt;sip:{digits}@{mediaserver};play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dautoattendant%26name%3Doperator&gt;</url>
+          <url>&lt;sip:{digits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dautoattendant%26name%3Doperator&gt;</url>
         </transform>
       </permissionMatch>
     </userMatch>
@@ -42,7 +42,7 @@
       <userPattern>101</userPattern>
       <permissionMatch>
         <transform>
-          <url>&lt;sip:{digits}@{mediaserver};play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dretrieve&gt;</url>
+          <url>&lt;sip:{digits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dretrieve&gt;</url>
         </transform>
       </permissionMatch>
     </userMatch>
@@ -53,7 +53,7 @@
       <userPattern>2xxx</userPattern>
       <permissionMatch>
         <transform>
-          <url>&lt;sip:{vdigits}@{mediaserver};play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{vdigits}&gt;</url>
+          <url>&lt;sip:{vdigits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{vdigits-escaped}&gt;</url>
         </transform>
       </permissionMatch>
     </userMatch>
@@ -68,7 +68,7 @@
       <permissionMatch>
         <permission>Voicemail</permission>
         <transform>
-          <url>&lt;sip:{digits}@{mediaserver};play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{digits}&gt;;q=0.1</url>
+          <url>&lt;sip:{digits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{digits-escaped}&gt;;q=0.1</url>
         </transform>
       </permissionMatch>
     </userMatch>
