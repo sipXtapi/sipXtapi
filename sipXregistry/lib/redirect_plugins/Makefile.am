@@ -2,6 +2,7 @@ SUBDIRS =
 
 lib_LTLIBRARIES = \
 	libRedirectorAliasDB.la \
+	libRedirectorAuthRouter.la \
 	libRedirectorCallerAlias.la \
 	libRedirectorMapping.la \
 	libRedirectorHunt.la \
@@ -45,6 +46,22 @@ libRedirectorAliasDB_la_CXXFLAGS = \
 libRedirectorAliasDB_la_SOURCES =  \
 	SipRedirectorAliasDB.cpp \
 	SipRedirectorAliasDB.h
+
+# SipRedirectorAuthRouter
+
+libRedirectorAuthRouter_la_LDFLAGS = \
+	-module \
+	-version-info ${version_Current}:${version_Revision}:${version_Age}
+
+libRedirectorAuthRouter_la_LIBADD = \
+	@SIPXCOMMSERVER_LIBS@
+
+libRedirectorAuthRouter_la_CXXFLAGS = \
+	-I$(top_builddir)/config
+
+libRedirectorAuthRouter_la_SOURCES =  \
+	SipRedirectorAuthRouter.cpp \
+	SipRedirectorAuthRouter.h
 
 # SipRedirectorCallerAlias
 

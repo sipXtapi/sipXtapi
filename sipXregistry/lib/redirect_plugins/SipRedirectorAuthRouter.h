@@ -15,7 +15,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "SipRedirector.h"
+#include "registry/RedirectPlugin.h"
 
 // DEFINES
 // MACROS
@@ -26,22 +26,24 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-class SipRedirectorAuthRouter : public SipRedirector
+class SipRedirectorAuthRouter : public RedirectPlugin
 {
 public:
 
-   SipRedirectorAuthRouter();
+   SipRedirectorAuthRouter(const UtlString& instanceName);
 
    ~SipRedirectorAuthRouter();
 
-   virtual OsStatus initialize(const UtlHashMap& configParameters,
-                               OsConfigDb& configDb,
+   virtual void readConfig(OsConfigDb& configDb);
+
+   virtual OsStatus initialize(OsConfigDb& configDb,
                                SipUserAgent* pSipUserAgent,
-                               int redirectorNo);
+                               int redirectorNo,
+                               const UtlString& localDomainHost);
 
    virtual void finalize();
 
-   virtual SipRedirector::LookUpStatus lookUp(
+   virtual RedirectPlugin::LookUpStatus lookUp(
       const SipMessage& message,
       const UtlString& requestString,
       const Url& requestUri,

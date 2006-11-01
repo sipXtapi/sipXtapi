@@ -16,18 +16,24 @@
 #include "os/OsSysLog.h"
 #include "net/Url.h"
 #include "net/SipMessage.h"
-#include "SipRegistrar.h"
 #include "SipRedirectorAuthRouter.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-#define CONFIG_SETTING_AUTH_PROXY "SIP_REGISTRAR_AUTH_PROXY"
+#define CONFIG_SETTING_AUTH_PROXY "AUTH_PROXY"
 
 // STATIC VARIABLE INITIALIZATIONS
 
+// Static factory function.
+extern "C" RedirectPlugin* getRedirectPlugin(const UtlString& instanceName)
+{
+   return new SipRedirectorAuthRouter(instanceName);
+}
+
 // Constructor
-SipRedirectorAuthRouter::SipRedirectorAuthRouter()
+SipRedirectorAuthRouter::SipRedirectorAuthRouter(const UtlString& instanceName) :
+   RedirectPlugin(instanceName)
 {
 }
 
@@ -36,12 +42,8 @@ SipRedirectorAuthRouter::~SipRedirectorAuthRouter()
 {
 }
 
-// Initializer
-OsStatus
-SipRedirectorAuthRouter::initialize(const UtlHashMap& configParameters,
-                                    OsConfigDb& configDb,
-                                    SipUserAgent* pSipUserAgent,
-                                    int redirectorNo)
+// Read config information.
+void SipRedirectorAuthRouter::readConfig(OsConfigDb& configDb)
 {
    UtlString authProxyConfig;
    if (   (OS_SUCCESS == configDb.get(CONFIG_SETTING_AUTH_PROXY, authProxyConfig) )
@@ -62,22 +64,30 @@ SipRedirectorAuthRouter::initialize(const UtlHashMap& configParameters,
          OsSysLog::add(FAC_SIP,
                        (authProxyConfig.compareTo(mAuthUrl, UtlString::ignoreCase)
                         ? PRI_INFO : PRI_NOTICE ),
-                       "SipRedirectorAuthRouter::initialize "
+                       "SipRedirectorAuthRouter::readConfig "
                        "authorization proxy route '%s'", mAuthUrl.data()
                        );
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR, "SipRedirectorAuthRouter::initialize "
+         OsSysLog::add(FAC_SIP, PRI_ERR, "SipRedirectorAuthRouter::readConfig "
                        "invalid route '%s'", authProxyConfig.data());
       }
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorAuthRouter::initialize "
+      OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorAuthRouter::readConfig "
                     "No authorization proxy specified");
    }
+}
 
+// Initializer
+OsStatus
+SipRedirectorAuthRouter::initialize(OsConfigDb& configDb,
+                                    SipUserAgent* pSipUserAgent,
+                                    int redirectorNo,
+                                    const UtlString& localDomainHost)
+{
    return OS_SUCCESS;
 }
 
@@ -87,7 +97,7 @@ SipRedirectorAuthRouter::finalize()
 {
 }
 
-SipRedirector::LookUpStatus SipRedirectorAuthRouter::lookUp(
+RedirectPlugin::LookUpStatus SipRedirectorAuthRouter::lookUp(
    const SipMessage& message,
    const UtlString& requestString,
    const Url& requestUri,
@@ -97,7 +107,7 @@ SipRedirector::LookUpStatus SipRedirectorAuthRouter::lookUp(
    int redirectorNo,
    SipRedirectorPrivateStorage*& privateStorage)
 {
-   SipRedirector::LookUpStatus lookupStatus = SipRedirector::LOOKUP_SUCCESS; // always, so far
+   RedirectPlugin::LookUpStatus lookupStatus = RedirectPlugin::LOOKUP_SUCCESS; // always, so far
    
    // Do the cheap global tests first
    //   Is there an authorization proxy route?

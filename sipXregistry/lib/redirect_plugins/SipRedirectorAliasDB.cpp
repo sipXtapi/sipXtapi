@@ -57,7 +57,7 @@ OsStatus
 SipRedirectorAliasDB::initialize(OsConfigDb& configDb,
                                  SipUserAgent* pSipUserAgent,
                                  int redirectorNo,
-                               const UtlString& localDomainHost)
+                                 const UtlString& localDomainHost)
 {
    return OS_SUCCESS;
 }
