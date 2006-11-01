@@ -437,22 +437,22 @@ OsStatus sipXmediaFactoryImpl::getCodec(int iCodec, UtlString& codec, int &bandW
         break;
 
 #ifdef HAVE_GIPS /* [ */
-    case GIPS_CODECS_BEGIN+1: codec = (const char*) SdpCodec::SDP_CODEC_GIPS_IPCMU;
+    case GIPS_CODECS_BEGIN+0: codec = (const char*) SdpCodec::SDP_CODEC_GIPS_IPCMU;
         break;
-    case GIPS_CODECS_BEGIN+2: codec = (const char*) SdpCodec::SDP_CODEC_GIPS_IPCMA;
+    case GIPS_CODECS_BEGIN+1: codec = (const char*) SdpCodec::SDP_CODEC_GIPS_IPCMA;
         break;
-    case GIPS_CODECS_BEGIN+3: codec = (const char*) SdpCodec::SDP_CODEC_GIPS_IPCMWB;
+    case GIPS_CODECS_BEGIN+2: codec = (const char*) SdpCodec::SDP_CODEC_GIPS_IPCMWB;
         break;
 #endif /* HAVE_GIPS ] */
 
 #ifdef HAVE_SPEEX /* [ */
-    case SPEEX_CODECS_BEGIN+1: codec = (const char*) SdpCodec::SDP_CODEC_SPEEX;
+    case SPEEX_CODECS_BEGIN+0: codec = (const char*) SdpCodec::SDP_CODEC_SPEEX;
         break;
-    case SPEEX_CODECS_BEGIN+2: codec = (const char*) SdpCodec::SDP_CODEC_SPEEX_5;
+    case SPEEX_CODECS_BEGIN+1: codec = (const char*) SdpCodec::SDP_CODEC_SPEEX_5;
         break;
-    case SPEEX_CODECS_BEGIN+3: codec = (const char*) SdpCodec::SDP_CODEC_SPEEX_15;
+    case SPEEX_CODECS_BEGIN+2: codec = (const char*) SdpCodec::SDP_CODEC_SPEEX_15;
         break;
-    case SPEEX_CODECS_BEGIN+4: codec = (const char*) SdpCodec::SDP_CODEC_SPEEX_24;
+    case SPEEX_CODECS_BEGIN+3: codec = (const char*) SdpCodec::SDP_CODEC_SPEEX_24;
         break;
 #endif /* HAVE_SPEEX ] */
 
