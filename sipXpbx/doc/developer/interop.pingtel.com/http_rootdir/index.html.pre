@@ -423,7 +423,7 @@ You can subscribe to the call park extensions to get their dialog events.
 <!--END "GOT ISN?" WEB BADGE -->
 
 <p>
-This server now supports
+This server supports
 <a href="http://freenum.org/">ISN dialing</a>.
 It is reachable via ITAD 413 (for the time being), so for example, the
 auto-attendant can be reached at <code>100*413</code>.
@@ -448,6 +448,67 @@ User agents that provide "music on hold" via the technique of
 can use the URI <code>sip:moh@@SIPXCHANGE_DOMAIN_NAME@:5120</code> as an
 audio source.
 </p>
+
+<h2>ENUM Dialing</h2>
+
+<p>
+This server supports ENUM dialing.
+To contact an ENUM destination from this server, the user-part of the URI
+should be <code>*2</code> followed by the ENUM dial string.
+For example:
+</p>
+<dl>
+  <dt><code>*2 1 800 555 1234</code>
+  <dd>Routes to the ENUM for the E.164 number +1 800 555 1234.</dd>
+</dl>
+
+<h2>Ad-hoc Conferencing</h2>
+
+<p>
+Ad-hoc conferencing is useful in call-control applications.
+It is implemented using an INVITE with the Join header.
+</p>
+
+<p>
+Any call to <code>*79xxxx</code> will be turned into an
+INVITE-with-Join to the call that is active 
+UA at <code>xxxx</code>, which sets up an ad-hoc conference of the new
+caller with the existing participants of the call on xxxx.
+To use this feature:
+</p>
+
+<ol>
+<li>From one UA, call a second UA via <code>1<span
+class='group'>gg</span>n</code>.</li>
+<li>Answer the call.</li>
+<li>From a third UA, call <code>*791<span
+class='group'>gg</span>n</code>.</li>
+<li>The the three UAs should all be conferenced together.</li>
+</ol>
+
+<p>
+This test should work whether or not the first or third UAs are
+registered to the test server.
+</p>
+
+<p>
+This test checks that the first UA correctly handles INVITE with Join,
+and whether the second UA generates
+dialog event notices with usable endpoint identification.
+</p>
+
+<!--
+<h2>Out-of-dialog REFER</h2>
+
+<p>
+Out-of-dialog REFERs are useful in call-control applications.
+</p>
+
+<p>
+Any call to <code>*70gg</code> will be turned into an out-of-dialog
+REFER sent to 1gg1 that directs it to call 1gg2.
+</p>
+-->
 
 <hr />
 

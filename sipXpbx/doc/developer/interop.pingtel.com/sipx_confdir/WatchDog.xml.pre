@@ -2,7 +2,7 @@
 <watchdog xmlns="http://www.sipfoundry.org/sipX/schema/xml/watchdog-00-00">
    <settings>
       <health check_period="15" />
-      <processxmlpath location="/etc/sipxpbx" />
+      <processxmlpath location="@SIPX_CONFDIR@" />
       <email execute="blat - -from &quot;@SIPX_USER@@pingtel.com&quot; -name &quot;@SIPX_USER@@pingtel.com&quot; -to &quot;%CONTACT%&quot; -subject &quot;Watchdog Notification&quot; -body &quot;%BODY%&quot;  "/>
    </settings>
 
@@ -70,5 +70,5 @@
 -->
 
    </monitor>
-   <logfile level="notice">/var/log/sipxpbx/watchdog.log</logfile>
+   <logfile level="notice">@SIPX_LOGDIR@/watchdog.log</logfile>
 </watchdog>
