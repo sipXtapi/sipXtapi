@@ -312,7 +312,7 @@ when the called phone answers.
 <h2>Hop Limit Exceeded</h2>
 
 <p>
-Any call to <code>9999</code> will return a 483 Too Many Hops.  As a
+Any call to <code>9000</code> will return a 483 Too Many Hops.  As a
 diagnostic aid, this software returns part of the failed request in
 the body of the 483 response.  This allows you to test whether or not
 your user interface conveys the reason for the failure (and is not

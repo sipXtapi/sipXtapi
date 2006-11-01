@@ -46,7 +46,7 @@ we may need the single-digit groups as well.)  "n" means 1 through
 
 8ggn	Merge fork
 
-9999	Too many hops test (to be moved to 9000)
+9000	Too many hops test
 
 9ggn	Forwarding prefixes for gateways
 

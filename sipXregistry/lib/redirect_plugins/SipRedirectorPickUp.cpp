@@ -27,7 +27,6 @@
 #include "net/NetMd5Codec.h"
 #include "net/Url.h"
 #include "registry/SipRedirectServer.h"
-#include <net/SipDialogEvent.h>
 #include "xmlparser/ExtractContent.h"
 #include "net/SipMessage.h"
 
@@ -171,7 +170,7 @@ void SipRedirectorPickUp::readConfig(OsConfigDb& configDb)
       mRedirectorActive = OS_SUCCESS;
    }
 
-   // Fetch the call retrieve username from the config file.
+   // Fetch the call retrieve prefix from the config file.
    // If it is null, it doesn't count.
    UtlString callRetrieveCode;
    if ((configDb.get(CONFIG_SETTING_RETRIEVE_CODE, callRetrieveCode) !=

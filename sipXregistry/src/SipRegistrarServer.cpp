@@ -533,7 +533,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                                 expirationTime = timeNow - 1;
 
                                 OsSysLog::add( FAC_SIP, PRI_DEBUG,
-                                              "SipRegistrarServer::applyRegisterToDirectory"
+                                              "SipRegistrarServer::applyRegisterToDirectory "
                                               "- Expiring map '%s'->'%s'",
                                               registerToStr.data(), contact.data()
                                               );

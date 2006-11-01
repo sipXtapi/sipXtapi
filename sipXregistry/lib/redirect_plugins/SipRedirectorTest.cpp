@@ -48,6 +48,8 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+UtlContainableType SipRedirectorPrivateStorageTest::TYPE =
+    "SipRedirectorPrivateStorageTest";
 
 // Static factory function.
 extern "C" RedirectPlugin* getRedirectPlugin(const UtlString& instanceName)
@@ -184,6 +186,11 @@ SipRedirectorPrivateStorageTest::SipRedirectorPrivateStorageTest(
 SipRedirectorPrivateStorageTest::~SipRedirectorPrivateStorageTest()
 {
    free(mString);
+}
+
+UtlContainableType SipRedirectorPrivateStorageTest::getContainableType() const
+{
+    return SipRedirectorPrivateStorageTest::TYPE;
 }
 
 SipRedirectorTestNotification::SipRedirectorTestNotification(
