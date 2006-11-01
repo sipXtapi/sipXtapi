@@ -4,23 +4,21 @@ use CGI qw/:standard/;
 use XML::Parser;
 use strict;
 
-my($Prefix) = $ARGV[0];
-
 # The un-escape table for backslash escapes.
 my(%unescape) = ("r", "\r",
                  "n", "\n",
                  "\"", "\"",
                  "\\", "\\");
 
-my($registration_file) = "$Prefix/var/sipxdata/sipdb/registration.xml";
+my($registration_file) = "@SIPX_DBDIR@/registration.xml";
 
 # Read and process the registrar log files.
 my(%user_agent);
 # Read at least 24 hours of log data in chronological order.
 # sipregistrar.log.1 need not exist, but sipregistrar.log must exist,
 # as it will be generated immediately when sipX starts.
-&process_log_file("$Prefix/var/log/sipxpbx/sipregistrar.log.1", 0);
-&process_log_file("$Prefix/var/log/sipxpbx/sipregistrar.log", 1);
+&process_log_file("@SIPX_LOGDIR@/sipregistrar.log.1", 0);
+&process_log_file("@SIPX_LOGDIR@/sipregistrar.log", 1);
 
 my @registrations;
 if (-e $registration_file) {

@@ -23,7 +23,7 @@ SIPXCHANGE_REALM=${SIPXCHANGE_DOMAIN_NAME}
 ##### Information about this server #####
 MY_FULL_HOSTNAME=`hostname -f`
 MY_HOSTNAME=`hostname -s`
-MY_IP_ADDR=`/usr/bin/get_def_addr`
+MY_IP_ADDR=`@SIPX_BINDIR@/get_def_addr`
 SMTP_SERVER="mail.pingtel.com"
 
 ##### Service addresses and ports #####
