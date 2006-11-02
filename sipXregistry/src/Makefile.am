@@ -48,10 +48,6 @@ libsipXregistry_la_SOURCES = \
     SipRegistrar.cpp \
     SipRegistrarServer.cpp \
     RedirectResumeMsg.h \
-    RedirectSuspend.h \
-    SipRedirectServer.h \
-    SipRegistrar.h \
     SipRegistrarServer.h \
-    SipRedirector.h \
     SyncRpc.h \
     SyncRpc.cpp
