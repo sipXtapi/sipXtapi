@@ -12,16 +12,27 @@
 package org.sipfoundry.sipxconfig.phonebook;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.Closure;
+import org.sipfoundry.sipxconfig.bulk.csv.CsvParser;
+import org.sipfoundry.sipxconfig.bulk.csv.CsvParserImpl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.setting.Group;
+import static org.apache.commons.lang.StringUtils.defaultString;
 
 public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> implements PhonebookManager {
     private String m_externalUsersDirectory;
@@ -80,13 +91,90 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
             for (Group group : members) {
                 for (User user : m_coreContext.getGroupMembers(group)) {
                     PhonebookEntry entry = new UserPhonebookEntry(user);
-                    entries.put(entry.getNumber(), entry); 
+                    String number = entry.getNumber();
+                    entries.put(number, entry); 
                 }
             }
         }
-        return entries.values();
+        
+        String csvFilename = phonebook.getMembersCsvFilename();
+        if (csvFilename != null) {
+            File f = new File(new File(m_externalUsersDirectory), csvFilename);
+            CsvParser parser = new CsvParserImpl();
+            try {
+                parser.parse(new FileReader(f), new CsvPhonebookEntryMaker(entries));
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        
+        List<PhonebookEntry> finalList = new ArrayList(entries.values());
+        Collections.sort(finalList, new PhoneEntryComparator());
+        return finalList;
     }
     
+    static class PhoneEntryComparator implements Comparator {
+        public int compare(Object arg0, Object arg1) {
+            PhonebookEntry a = (PhonebookEntry) arg0;
+            PhonebookEntry b = (PhonebookEntry) arg1;
+            int cmp = defaultString(a.getLastName()).compareTo(defaultString(b.getLastName()));
+            if (cmp == 0) {
+                cmp = defaultString(a.getFirstName()).compareTo(defaultString(b.getFirstName()));
+                if (cmp == 0) {
+                    cmp = a.getNumber().compareTo(b.getNumber());
+                }
+            }
+            return cmp;
+        }        
+    }
+    
+    static class CsvPhonebookEntryMaker implements Closure {
+        private Map<String, PhonebookEntry> m_entries; 
+        CsvPhonebookEntryMaker(Map entries) {
+            m_entries = entries;            
+        }
+        public void execute(Object input) {
+            String[] row = (String[]) input;
+            PhonebookEntry entry = new StringArrayPhonebookEntry(row); 
+            m_entries.put(entry.getNumber(), entry);
+        }
+        
+    }
+    
+    /**
+     * public for Velocity doesn't reject object
+     */
+    public static class StringArrayPhonebookEntry implements PhonebookEntry {
+        private String[] m_row;
+        
+        StringArrayPhonebookEntry(String[] row) {
+            if (row.length < 3) {
+                throw new CsvFileFormatError();
+            }
+            m_row = row;
+        }
+        public String getFirstName() {
+            return m_row[0];
+        }
+        
+        public String getLastName() {
+            return m_row[1];
+        }
+        
+        public String getNumber() {
+            return m_row[2];
+        }
+    }
+    
+    static class CsvFileFormatError extends UserException {
+        public CsvFileFormatError() {
+            super("Too few columns. required columns First name, Last name, Number");
+        }
+    }
+    
+    /**
+     * public for Velocity doesn't reject object
+     */
     public static class UserPhonebookEntry implements PhonebookEntry {
         private User m_user;
         UserPhonebookEntry(User user) {

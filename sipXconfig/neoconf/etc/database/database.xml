@@ -134,15 +134,7 @@
     <!-- sipx-version version="6" -->
   </target>	
 
-  <target name="drop-phonebook" if="phonebook">
-    <sipx-sql>
-	    drop table phonebook;
-	    drop table phonebook_member;
-	    drop sequence phonebook_seq;
-		delete from patch where name='phonebook';
-    </sipx-sql>  		  
-  </target>	
-  <target name="phonebook" depends="drop-phonebook">
+  <target name="phonebook" unless="phonebook">
     <db-patch patch="phonebook"/>
   </target>
 

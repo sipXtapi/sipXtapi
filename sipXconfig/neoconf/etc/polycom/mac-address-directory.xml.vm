@@ -6,7 +6,7 @@
        <ln>$!{row.LastName}</ln>
        <fn>$!{row.FirstName}</fn>
        <ct>${row.Contact}</ct>
-       <sd>${velocityCount}</sd>
+       <sd />
        <rt>1</rt>
        <dc />
        <ad>0</ad>

@@ -21,7 +21,11 @@ import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.CsvFileFormatError;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.PhoneEntryComparator;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.StringArrayPhonebookEntry;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class PhonebookManagerTest extends TestCase {
     
@@ -60,5 +64,86 @@ public class PhonebookManagerTest extends TestCase {
         assertEquals("Tweety", entry.getFirstName());
         
         coreContextControl.verify();
+    }
+    
+    public void testPhoneEntryComparator() {
+        PhoneEntryComparator c = new PhoneEntryComparator();
+        IMocksControl phonebookEntryControl = EasyMock.createControl();
+        PhonebookEntry a = phonebookEntryControl.createMock(PhonebookEntry.class);
+        PhonebookEntry b = phonebookEntryControl.createMock(PhonebookEntry.class);
+
+        a.getLastName();
+        phonebookEntryControl.andReturn("Avocet");
+        b.getLastName();
+        phonebookEntryControl.andReturn("Vireo");
+        phonebookEntryControl.replay();
+
+        assertTrue(c.compare(a, b) < 0);
+        
+        phonebookEntryControl.reset();
+        a.getLastName();
+        phonebookEntryControl.andReturn("Avocet");
+        a.getFirstName();
+        phonebookEntryControl.andReturn("Southern");
+        b.getLastName();
+        phonebookEntryControl.andReturn("Avocet");
+        b.getFirstName();
+        phonebookEntryControl.andReturn("Northern");
+        phonebookEntryControl.replay();
+        
+        assertTrue(c.compare(a, b) > 0);
+
+        phonebookEntryControl.reset();
+        a.getLastName();
+        phonebookEntryControl.andReturn("Avocet");
+        a.getFirstName();
+        phonebookEntryControl.andReturn("Northern");
+        a.getNumber();
+        phonebookEntryControl.andReturn("1234");
+        
+        b.getLastName();
+        phonebookEntryControl.andReturn("Avocet");
+        b.getFirstName();
+        phonebookEntryControl.andReturn("Northern");
+        b.getNumber();
+        phonebookEntryControl.andReturn("abc");
+        phonebookEntryControl.replay();
+        
+        assertTrue(c.compare(a, b) < 0);
+
+        phonebookEntryControl.verify();        
+    }
+    
+    public void testStringArrayPhonebookEntry() {
+        try {
+            new StringArrayPhonebookEntry(new String[2]);
+            fail();
+        } catch (CsvFileFormatError e) {
+            assertTrue(true);
+        }
+    }
+
+    public void testStringArrayPhonebookEntryOk() {
+        new StringArrayPhonebookEntry(new String[3]);
+    }
+    
+    
+    public void testGetCsvFile() {
+        PhonebookManagerImpl context = new PhonebookManagerImpl();
+        String dir = TestUtil.getTestSourceDirectory(getClass());
+        context.setExternalUsersDirectory(dir);
+        
+        Phonebook phonebook = new Phonebook();
+        phonebook.setMembersCsvFilename("bogus.csv");
+        try {
+            context.getRows(phonebook);
+            fail();
+        } catch (RuntimeException expected) {
+            assertTrue(true);
+        }
+        
+        phonebook.setMembersCsvFilename("phonebook.csv");
+        Collection<PhonebookEntry> entries = context.getRows(phonebook);
+        assertEquals(1, entries.size());
     }
 }
