@@ -91,9 +91,38 @@
       </description>
     </setting>
     <setting name="SIP_REGISTRAR_DOMAIN_ALIASES" hidden="yes">
-      <profileName>registrar-config.in</profileName>      
+      <profileName>registrar-config.in</profileName>
       <value>${MY_FULL_HOSTNAME} ${MY_IP_ADDR}</value>
       <description>Manipulated automatically by sipXconfig Domain Manager</description>
+    </setting>
+    <setting name="SIP_REDIRECT.190-ISN.BASE_DOMAIN">
+      <label>ISN dialing</label>
+      <profileName>registrar-config.in</profileName>
+      <type>
+        <boolean>
+          <true>
+            <value>freenum.org</value>
+          </true>
+          <false>
+            <value></value>
+          </false>
+        </boolean>
+      </type>
+      <value></value>
+      <description>
+        Enable ISN (ITAD Subscriber Numbers) dialing to provide support for domain-based,
+        "Internet-style" number. To reach subscriber 1234 in ITAD 256 you can dial 1234*256.
+      </description>
+    </setting>
+    <setting name="SIP_REDIRECT.190-ISN.PREFIX" advanced="yes">
+      <label>ISN prefix</label>
+      <profileName>registrar-config.in</profileName>
+      <type>
+        <string>
+          <pattern>[0-9*#]+</pattern>
+        </string>
+      </type>
+      <description>Optional prefix for ISN numbers.</description>
     </setting>
   </group>
   <group name="voice-mail">
@@ -204,10 +233,12 @@
     <setting name="PRESENCE_SERVER_HTTP_PORT" advanced="yes">
       <label>Http port</label>
       <profileName>config.defs</profileName>
-      <type refid="port-number"/>
+      <type refid="port-number" />
       <value>8111</value>
-      <description>The http port that the special agent workstation will bind to for sending Xml-Rpc
-        sign-in and sign-out request, for example: 8111</description>
+      <description>
+        The http port that the special agent workstation will bind to for sending Xml-Rpc sign-in
+        and sign-out request, for example: 8111
+      </description>
     </setting>
     <setting name="SIP_PRESENCE_DOMAIN_NAME" hidden="yes">
       <label>Presence server location</label>
@@ -354,7 +385,7 @@
   </group>
   <group name="park" hidden="yes">
     <description>read only group to retrieve sipXpark parameters</description>
-    <setting name="SIP_PARK_DOMAIN_NAME">    
+    <setting name="SIP_PARK_DOMAIN_NAME">
       <profileName>sipxpark-config</profileName>
     </setting>
     <setting name="SIP_PARK_UDP_PORT">
