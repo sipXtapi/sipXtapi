@@ -3,6 +3,12 @@
 # read this Makefile before using it, but often set to "sudo".
 SUDO=
 
+# The name by which the update-passtokens script can be executed.
+# This will probably have to be specified, as update-passtokens is not
+# usually installed.
+# It is available in the source as sipXcommserverLib/doc/update-passtokens.
+UPDATE_PASSTOKENS=update-passtokens
+
 # The names of the destination directories.
 # These values are the defaults for RPM installation, but can be retargeted.
 # See http://www.sipfoundry.org/sipX/doc/filesystem.html.
@@ -80,5 +86,5 @@ $(CONFIG_FILES_EDITED) $(DOC_FILES_EDITED) $(SIPDB_FILES_EDITED): %: %.pre $(SIP
 
 $(SIPX_DATADIR)/sipdb/credential.xml: $(SIPX_DATADIR)/sipdb/credential.xml.in $(SIPX_CONFDIR)/config.defs
 	$(SUDO) sh -c \
-		"yes 1234 | ../../../../sipXcommserverLib/doc/update-passtokens $< $@"
+		"yes 1234 | $(UPDATE_PASSTOKENS) $< $@"
 	@echo
