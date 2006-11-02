@@ -3,7 +3,7 @@
    <settings>
       <health check_period="15" />
       <processxmlpath location="@SIPX_CONFDIR@" />
-      <email execute="blat - -from &quot;@SIPX_USER@@pingtel.com&quot; -name &quot;@SIPX_USER@@pingtel.com&quot; -to &quot;%CONTACT%&quot; -subject &quot;Watchdog Notification&quot; -body &quot;%BODY%&quot;  "/>
+      <email execute="blat - -from &quot;@SIPX_USER@@localhost&quot; -name &quot;@SIPX_USER@@localhost&quot; -to &quot;%CONTACT%&quot; -subject &quot;Watchdog Notification&quot; -body &quot;%BODY%&quot;  "/>
    </settings>
 
    <monitor> <!-- describes the processes to be run -->

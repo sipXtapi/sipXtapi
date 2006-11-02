@@ -24,7 +24,7 @@ SIPXCHANGE_REALM=${SIPXCHANGE_DOMAIN_NAME}
 MY_FULL_HOSTNAME=`hostname -f`
 MY_HOSTNAME=`hostname -s`
 MY_IP_ADDR=`@SIPX_BINDIR@/get_def_addr`
-SMTP_SERVER="mail.pingtel.com"
+SMTP_SERVER="localhost"
 
 ##### Service addresses and ports #####
 # For service addresses, use IP addresses (recommended) or host names
