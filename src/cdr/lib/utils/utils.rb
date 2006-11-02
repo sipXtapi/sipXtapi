@@ -42,10 +42,10 @@ public
   # could be just "sip:10.1.1.170" for example.
   def Utils.contact_host(contact)
     # Use regular expression to extract the hostport part
-    if contact =~ QUOTEDSTRING
-      sip_uri = $2
+    sip_uri = if contact =~ QUOTEDSTRING
+      $2
     else
-      sip_uri = contact
+      contact
     end
     if sip_uri =~ SIPURI
       $2

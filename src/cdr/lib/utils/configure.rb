@@ -33,7 +33,7 @@ class Configure
   #   log - Logger instance to log to
   def initialize(config_file = nil, log = nil)
     @config_file = config_file
-        
+    
     if log
       @log = log
     else
@@ -51,6 +51,17 @@ class Configure
   # Return the value for the named parameter, or nil if no such parameter exists
   def [](param_name)
     return @map[param_name]
+  end
+  
+  
+  def enabled?(param_name, default = nil)
+    value = @map.fetch(param_name, default)
+    raise ConfigException, "No value for #{param_name}" unless value
+    case value.upcase
+      when ENABLE: true
+      when DISABLE: false
+      else raise ConfigException, %Q/Unrecognized value "#{value}" for "#{param_name}"./
+    end
   end
   
   attr_reader :config_file

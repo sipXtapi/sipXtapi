@@ -9,9 +9,12 @@
 
 require 'test/unit'
 
-$:.unshift File.join(File.dirname(__FILE__), "..", "lib")
+$:.unshift File.join(File.dirname(__FILE__), '..', 'lib')
 require 'state'
 
+$:.unshift File.join(File.dirname(__FILE__), '..', 'test')
+require 'test_util'
+include TestUtil
 
 class StateTest < Test::Unit::TestCase
   
@@ -32,21 +35,7 @@ class StateTest < Test::Unit::TestCase
       true
     end    
   end
-  
-  
-  class DummyObserver
-    attr_reader :counter, :last_cdr
     
-    def initialize()
-      @counter = 0
-    end
-    
-    def update(cdr)
-      @last_cdr = cdr
-      @counter += 1
-    end
-  end
-  
   class DummyCse
     attr_reader :call_id
     
@@ -56,11 +45,11 @@ class StateTest < Test::Unit::TestCase
   end
   
   def test_accept
-    observer = DummyObserver.new
+    observer = DummyQueue.new
     cse1 = DummyCse.new('id1')
     cse2 = DummyCse.new('id2')
     
-    state = State.new([], [ observer ], DummyCdr )
+    state = State.new([], observer, DummyCdr )
     
     state.accept(cse1)    
     assert_equal(0, observer.counter)
@@ -75,63 +64,47 @@ class StateTest < Test::Unit::TestCase
     assert_equal(2, observer.counter)    
   end
   
-  def test_accept_many_observers
-    observer1 = DummyObserver.new
-    observer2 = DummyObserver.new
-    cse1 = DummyCse.new('id1')
-    
-    state = State.new([], [ observer1, observer2 ], DummyCdr )
-    
-    state.accept(cse1)
-    assert_equal(0, observer1.counter)
-    assert_equal(0, observer2.counter)
-    
-    state.accept(cse1)
-    assert_equal(1, observer1.counter)
-    assert_equal(1, observer2.counter)
-  end
-  
   def test_retired
-    observer = DummyObserver.new
+    observer = DummyQueue.new
     cse1 = DummyCse.new('id1')
     
-    state = State.new([], [ observer ], DummyCdr )
+    state = State.new([], observer, DummyCdr )
     state.accept(cse1)    
     state.accept(cse1)    
     assert_equal(1, observer.counter)
-    assert_equal(2, observer.last_cdr.counter)
+    assert_equal(2, observer.last.counter)
     
     state.accept(cse1)
     state.accept(cse1)
     # still only 1 since CDR was retired
     assert_equal(1, observer.counter)
-    assert_equal(2, observer.last_cdr.counter)
+    assert_equal(2, observer.last.counter)
     
     state.flush_retired(0)
     state.accept(cse1)
     state.accept(cse1)
     # we should be notified again
     assert_equal(2, observer.counter)
-    assert_equal(2, observer.last_cdr.counter)
+    assert_equal(2, observer.last.counter)
   end
   
   def test_retired_with_age
-    observer = DummyObserver.new
+    observer = DummyQueue.new
     cse1 = DummyCse.new('id1')
     cse2 = DummyCse.new('id2')
     
-    state = State.new([], [ observer ], DummyCdr )
+    state = State.new([], observer, DummyCdr )
     state.accept(cse1)    
     state.accept(cse1)    
     assert_equal(1, observer.counter)
-    assert_equal(2, observer.last_cdr.counter)
+    assert_equal(2, observer.last.counter)
     # generation == 2
     
     state.accept(cse1)
     state.accept(cse1)
     # still only 1 since CDR was retired
     assert_equal(1, observer.counter)
-    assert_equal(2, observer.last_cdr.counter)
+    assert_equal(2, observer.last.counter)
     # generation == 4
 
     state.flush_retired(3) # it's only 2 generations old at his point
@@ -168,12 +141,12 @@ class StateTest < Test::Unit::TestCase
   end
   
   def test_failed
-    observer = DummyObserver.new
+    observer = DummyQueue.new
     cse1 = DummyCse.new('id1')
     
     # results of calls to accept and terminated?
     MockCdr.results( true, false )
-    state = State.new([], [ observer ], MockCdr )
+    state = State.new([], observer, MockCdr )
     
     state.accept(cse1)
     assert_equal(0, observer.counter)
@@ -192,12 +165,12 @@ class StateTest < Test::Unit::TestCase
   
   
   def test_failed_and_then_succeeded
-    observer = DummyObserver.new
+    observer = DummyQueue.new
     cse1 = DummyCse.new('id1')
     
     # results of calls to accept and terminated?
     MockCdr.results( true, false, true, true )
-    state = State.new([], [ observer ], MockCdr )
+    state = State.new([], observer, MockCdr )
     
     state.accept(cse1)
     assert_equal(0, observer.counter)

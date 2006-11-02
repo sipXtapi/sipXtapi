@@ -7,6 +7,8 @@
 #
 ##############################################################################
 
+require 'test/unit'
+
 require 'rubygems'
 
 # set up the load path

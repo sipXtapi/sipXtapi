@@ -13,16 +13,14 @@ $:.unshift File.join(File.dirname(__FILE__), '..', '..', 'lib')
 
 require 'utils/configure'
 
+$:.unshift File.join(File.dirname(__FILE__), "..", "..", "test")
+require 'test_util'
+include TestUtil
+
+
 class ConfigureTest < Test::Unit::TestCase
-  
-  class NullLog
-    def error(*args)
-    end
-    
-    def debug(*args)
-    end
-  end
-  
+
+  include TestUtil
   
   def test_missing
     # Trying to open a nonexisting config file should fail
@@ -49,15 +47,21 @@ class ConfigureTest < Test::Unit::TestCase
     assert_nil(config['EMPTY_PARAM'], 'Params that are in the file but empty must have nil values')
     assert_nil(config['NOT_THERE_PARAM'], 'Params that are not in the file must have nil values')
   end
+
+  def test_enabled?
+    # Load a valid config file and check the results
+    config = Configure.new(config_file_path('config.txt'), NullLog.new)
+    assert_raise(ConfigException) do 
+      config.enabled?('SIP_CALLRESOLVER_LOG_DIR')
+    end      
+    assert(config.enabled?('ABC'))
+    assert(!config.enabled?('DEF'), 'ENABLE')
+    assert(config.enabled?('NOT_THERE_PARAM', 'ENABLE'))
+  end
   
   # Given the name of a config_file in the data directory, return the path
   # to it.
   def config_file_path(config_file)
     File.join(File.dirname(__FILE__), '..', 'data', config_file)
-  end
-  
-  
-  def test_splits
-    
-  end
+  end  
 end

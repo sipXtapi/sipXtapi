@@ -116,7 +116,7 @@ class Cdr
   
   # Make caller_contact and callee_contact available during call resolution,
   # but don't persist them.
-  attr_accessor :caller_contact, :callee_contact, :termination
+  attr_accessor :call_id, :call_direction, :caller_contact, :callee_contact, :termination
   
   # Return true if the CDR is complete, false otherwise.
   def complete?

@@ -28,35 +28,47 @@ SIPXCONFIG_DATABASE = 'SIPXCONFIG'
 class Gateway
   public
   
-  def initialize(address)
+  def initialize(name, address)
+    @name = name
     @address = address
   end
   
-  def ip_addresses
-    if !@ip_addresses
-      # If the gateway address is a domain name, then resolve it to an IP addr.
-      @ip_addresses = []
-      addr = @address
-      if addr
-        # Strip a possible port number off the IPv4 address
-        # LATER - handle IPv6
-        addr = SocketUtils.strip_v4_port(addr)
-        if SipxIPSocket.valid_ipaddr?(addr)
-          # The gateway address is an IP address.
-          @ip_addresses << addr
-        else
-          # Strip a possible port number from domain name
-          if /\A(.+):\d+\Z/ =~ addr
-            addr = $1
-          end          
-          # The gateway address is not an IP address, so it must be a domain name.
-          # Try to resolve it.
-          @ip_addresses.concat(SocketUtils.getaddresses(addr))
-        end
-      end
-    end
+  # Find ip_addresses for this gateway and log the errors
+  def ip_addresses(log)
+    addresses = extract_ip_addresses
+    if !@address
+      log.error("Gateway #{@name} does not have IP address")
+    elsif addresses.length == 0
+      log.error(%Q/Unable to resolve the domain name "#{gateway.address}" \
+        for the gateway "#{gateway.name}. \
+        This gateway will not be used when computing call direction./)
+    else
+      log.debug("#{self} addresses: #{addresses.to_s}")
+    end      
+    return addresses
+  end
+  
+  def to_s
+    "Gateway: #{@name}, address: #{address}"
+  end
+  
+  # If the gateway address is a domain name, then resolve it to an IP addr.
+  # Return nil if cannot resolve, return array of addresses if can resolve.
+  def extract_ip_addresses
+    return unless @address
     
-    @ip_addresses
+    # Strip a possible port number off the IPv4 address
+    addr = SocketUtils.strip_v4_port(@address)
+    
+    # return address if it's a valid IP address    
+    return [addr] if SipxIPSocket.valid_ipaddr?(addr)
+    
+    # Strip a possible port number from domain name
+    addr = $1 if /\A(.+):\d+\Z/ =~ addr
+    
+    # The gateway address is not an IP address, so it must be a domain name.
+    # Try to resolve it.
+    addrs = SocketUtils.getaddresses(addr)
   end
   
   class << self
@@ -66,9 +78,9 @@ class Gateway
         # connect to the MySQL server
         dbh = DBI.connect("dbi:Pg:#{SIPXCONFIG_DATABASE}:localhost", "postgres")
         # get server version string and display it
-        sth = dbh.execute("SELECT address FROM gateway")
+        sth = dbh.execute("SELECT name, address FROM gateway")
         sth.each do |row|
-          gateways << Gateway.new(row[0])
+          gateways << Gateway.new(row[0], row[1])
         end
         sth.finish
         return gateways
@@ -81,8 +93,6 @@ class Gateway
         dbh.disconnect if dbh
       end    
     end
-    
-    
   end
   
 end

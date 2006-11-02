@@ -14,6 +14,9 @@ $:.unshift File.join(File.dirname(__FILE__), "..", "lib")
 require 'cdr'
 require 'call_state_event'
 
+$:.unshift File.join(File.dirname(__FILE__), "..", "test")
+require 'test_util'
+include TestUtil
 
 class CallLegTest < Test::Unit::TestCase
   def test_has_duration?
