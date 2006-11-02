@@ -40,6 +40,9 @@ extern "C" RedirectPlugin* getRedirectPlugin(const UtlString& instanceName)
 SipRedirectorAliasDB::SipRedirectorAliasDB(const UtlString& instanceName) :
    RedirectPlugin(instanceName)
 {
+   mLogName.append("[");
+   mLogName.append(instanceName);
+   mLogName.append("] SipRedirectorAliasDB");
 }
 
 // Destructor
@@ -82,16 +85,17 @@ SipRedirectorAliasDB::lookUp(
    UtlString requestIdentity;
    requestUri.getIdentity(requestIdentity);
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRedirectorAliasDB::lookUp "
-                 "identity '%s'", requestIdentity.data());
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookUp identity '%s'",
+                 mLogName.data(), requestIdentity.data());
 
    ResultSet aliases;
    AliasDB::getInstance()->getContacts(requestUri, aliases);
    int numAliasContacts = aliases.getSize();
    if (numAliasContacts > 0)
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRedirectorAliasDB::lookUp "
-                     "got %d AliasDB contacts", numAliasContacts);
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookUp "
+                    "got %d AliasDB contacts", mLogName.data(),
+                    numAliasContacts);
 
       for (int i = 0; i < numAliasContacts; i++)
       {
@@ -104,7 +108,8 @@ SipRedirectorAliasDB::lookUp(
             Url contactUri(contact);
 
             // Add the contact.
-            addContact(response, requestString, contactUri, "alias");
+            addContact(response, requestString, contactUri,
+                       mLogName.data());
          }
       }
    }
