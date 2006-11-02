@@ -75,6 +75,30 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/%name-config
 %attr(755,root,root) %{_libdir}/libRegistrarImpliedMWI.la
 %attr(755,root,root) %{_libdir}/libRegistrarImpliedMWI.so*
+%attr(755,root,root) %{_libdir}/libRedirectorAliasDB.la
+%attr(755,root,root) %{_libdir}/libRedirectorAliasDB.so*
+%attr(755,root,root) %{_libdir}/libRedirectorAuthRouter.la
+%attr(755,root,root) %{_libdir}/libRedirectorAuthRouter.so*
+%attr(755,root,root) %{_libdir}/libRedirectorCallerAlias.la
+%attr(755,root,root) %{_libdir}/libRedirectorCallerAlias.so*
+%attr(755,root,root) %{_libdir}/libRedirectorENUM.la
+%attr(755,root,root) %{_libdir}/libRedirectorENUM.so*
+%attr(755,root,root) %{_libdir}/libRedirectorHunt.la
+%attr(755,root,root) %{_libdir}/libRedirectorHunt.so*
+%attr(755,root,root) %{_libdir}/libRedirectorISN.la
+%attr(755,root,root) %{_libdir}/libRedirectorISN.so*
+%attr(755,root,root) %{_libdir}/libRedirectorJoin.la
+%attr(755,root,root) %{_libdir}/libRedirectorJoin.so*
+%attr(755,root,root) %{_libdir}/libRedirectorMapping.la
+%attr(755,root,root) %{_libdir}/libRedirectorMapping.so*
+%attr(755,root,root) %{_libdir}/libRedirectorPickUp.la
+%attr(755,root,root) %{_libdir}/libRedirectorPickUp.so*
+%attr(755,root,root) %{_libdir}/libRedirectorRegDB.la
+%attr(755,root,root) %{_libdir}/libRedirectorRegDB.so*
+%attr(755,root,root) %{_libdir}/libRedirectorSubscribe.la
+%attr(755,root,root) %{_libdir}/libRedirectorSubscribe.so*
+%attr(755,root,root) %{_libdir}/libRedirectorTest.la
+%attr(755,root,root) %{_libdir}/libRedirectorTest.so*
 %attr(755,root,root) %{_datadir}/sipx/schema/alias.xsd
 %attr(755,root,root) %{_datadir}/sipx/schema/caller-alias.xsd
 %attr(755,root,root) %{_datadir}/sipx/schema/huntgroup.xsd
@@ -93,6 +117,18 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc %{_datadir}/doc/sipx/%name/*
 %attr(755,root,root) %{_libdir}/libRegistrarImpliedMWI.a
+%attr(755,root,root) %{_libdir}/libRedirectorAliasDB.a
+%attr(755,root,root) %{_libdir}/libRedirectorAuthRouter.a
+%attr(755,root,root) %{_libdir}/libRedirectorCallerAlias.a
+%attr(755,root,root) %{_libdir}/libRedirectorENUM.a
+%attr(755,root,root) %{_libdir}/libRedirectorHunt.a
+%attr(755,root,root) %{_libdir}/libRedirectorISN.a
+%attr(755,root,root) %{_libdir}/libRedirectorJoin.a
+%attr(755,root,root) %{_libdir}/libRedirectorMapping.a
+%attr(755,root,root) %{_libdir}/libRedirectorPickUp.a
+%attr(755,root,root) %{_libdir}/libRedirectorRegDB.a
+%attr(755,root,root) %{_libdir}/libRedirectorSubscribe.a
+%attr(755,root,root) %{_libdir}/libRedirectorTest.a
 %{_includedir}/registry/*
 
 %pre
