@@ -825,7 +825,7 @@
         <integer min="0" max="31"/>
       </type>
       <value>1</value>
-      <description>Day of the month to start DST.</description>
+      <description>Day of the month to stop DST.</description>
     </setting>
     <setting name="daylightSavings.stop.time">
       <type>
