@@ -740,6 +740,10 @@ unsigned int __stdcall SpkrThread(LPVOID Unused)
         sLastRingerEnabled = DmaTask::isRingerEnabled();
     }
 
+    // Stop heartbeat timer if it exist
+    if (timerId>0)
+        timeKillEvent(timerId);
+
     closeSpeakerDevices() ;
 
     bRunning = false ;
