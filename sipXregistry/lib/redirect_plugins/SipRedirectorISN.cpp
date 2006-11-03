@@ -201,7 +201,7 @@ SipRedirectorISN::lookUp(
          strcpy(p, user + i + 1);
          strcat(p, ".");
          // Append the ITAD root domain.
-         strcpy(p, mBaseDomain.data());
+         strcat(p, mBaseDomain.data());
       }
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "SipRedirectorISN::lookUp user '%s' has ISN format, domain is '%s'",
