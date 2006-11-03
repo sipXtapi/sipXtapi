@@ -916,7 +916,18 @@ OsStatus findSubDocs(OsPath &path, TiXmlDocument &rootDoc, ProcessSubDoc addSubD
         if (!success) {
             status = OS_FAILED;
         } else {
-            status = (*addSubDoc)(rootDoc, subdoc);
+            TiXmlElement *subroot = subdoc.RootElement();
+            if (subroot != NULL) {
+               // Only deal with enabled files
+               // Non-enabled files are skipped as if they don't exist
+               const char *enableString = subroot->Attribute("enable");
+               if (enableString == NULL || strcmp(enableString, "true")==0)
+               {
+                  status = (*addSubDoc)(rootDoc, subdoc);
+               }
+            } else {
+               status = OS_FAILED;
+            }
             if (status == OS_SUCCESS) 
             {
 	        status = subdocs.findNext(subdocName);

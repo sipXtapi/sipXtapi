@@ -4,7 +4,7 @@
   - include on any system running any communications server 
   - or any httpd that uses the sipx authentication module
   -->
-<watchdog-process xmlns="http://www.sipfoundry.org/sipX/schema/xml/watchdogprocess-00-00">
+<watchdog-process enable="true" xmlns="http://www.sipfoundry.org/sipX/schema/xml/watchdogprocess-00-01">
   <process_definitions>
     <group name="Misc" >
         <process name="KeepAlive">
