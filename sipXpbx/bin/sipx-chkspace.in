@@ -106,7 +106,10 @@ function ExtractThresholdPartitions() {
       Percent=$Field
     fi
     if [ -n "$Percent" ]; then
-      if [[ $Percent > $1 ]]; then
+      # The following comparison must be numeric (as the arguments have
+      # a variable number of digits), but the trailing '%'s have to be stripped
+      # first.
+      if [[ ${Percent%'%'} -gt ${1%'%'} ]]; then
         Report="$Report $Percent ($PrevField available)"
       fi
     fi
