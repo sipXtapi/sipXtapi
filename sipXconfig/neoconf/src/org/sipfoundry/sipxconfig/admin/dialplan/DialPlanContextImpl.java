@@ -222,7 +222,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         getHibernateTemplate().flush();
 
         dialPlan = (DialPlan) m_beanFactory.getBean("dialPlan");
-        AutoAttendant operator = getOperator();
+        AutoAttendant operator = getAttendant(AutoAttendant.OPERATOR_ID);
         dialPlan.setOperator(operator);
         getHibernateTemplate().saveOrUpdate(dialPlan);
     }
@@ -248,14 +248,15 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     }
 
     public AutoAttendant getOperator() {
+        return getAttendant(AutoAttendant.OPERATOR_ID);
+    }
+
+    private AutoAttendant getAttendant(String attendantId) {
         String operatorQuery = "from AutoAttendant a where a.systemId = :operator";
         List operatorList = getHibernateTemplate().findByNamedParam(operatorQuery,
-                OPERATOR_CONSTANT, AutoAttendant.OPERATOR_ID);
+                OPERATOR_CONSTANT, attendantId);
 
-        AutoAttendant operator = (AutoAttendant) DaoUtils.requireOneOrZero(operatorList,
-                operatorQuery);
-
-        return operator;
+        return (AutoAttendant) DaoUtils.requireOneOrZero(operatorList, operatorQuery);
     }
 
     public List<AutoAttendant> getAutoAttendants() {
@@ -265,7 +266,6 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
 
     public AutoAttendant getAutoAttendant(Integer id) {
         return (AutoAttendant) getHibernateTemplate().load(AutoAttendant.class, id);
-
     }
 
     public void deleteAutoAttendantsByIds(Collection<Integer> attendantIds, String scriptsDir) {
@@ -276,7 +276,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     }
 
     public void deleteAutoAttendant(AutoAttendant attendant, String scriptsDir) {
-        if (attendant.isOperator()) {
+        if (attendant.isPermanent()) {
             throw new AttendantInUseException();
         }
 
@@ -306,7 +306,10 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         if (enabled && attendant == null) {
             throw new UserException("Select special auto attendant to be used.");
         }
-        m_sipxReplicationContext.replicate(new SpecialAutoAttendantMode(enabled, attendant));
+        AutoAttendant aa = attendant != null ? attendant
+                : getAttendant(AutoAttendant.AFTERHOUR_ID);
+        SpecialAutoAttendantMode mode = new SpecialAutoAttendantMode(enabled, aa);
+        m_sipxReplicationContext.replicate(mode);
     }
 
     /**
@@ -383,22 +386,27 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof InitializationTask) {
             InitializationTask dbEvent = (InitializationTask) event;
-            if (dbEvent.getTask().equals("dial-plans")) {
+            String task = dbEvent.getTask();
+            if (task.equals("dial-plans")) {
                 resetToFactoryDefault();
-            } else if (dbEvent.getTask().equals(OPERATOR_CONSTANT)) {
-                createOperator();
+            } else if (task.equals(AutoAttendant.OPERATOR_ID)
+                    || task.equals(AutoAttendant.AFTERHOUR_ID)) {
+                createOperator(task);
             }
         }
     }
 
-    void createOperator() {
-        AutoAttendant operator = getOperator();
-        if (operator == null) {
-            operator = AutoAttendant.createOperator();
-            operator.addGroup(getDefaultAutoAttendantGroup());
-            storeAutoAttendant(operator);
+    void createOperator(String attendantId) {
+        AutoAttendant attendant = getAttendant(attendantId);
+        if (attendant != null) {
+            return;
+        }
+        attendant = AutoAttendant.createOperator(attendantId);
+        attendant.addGroup(getDefaultAutoAttendantGroup());
+        storeAutoAttendant(attendant);
+        if (attendant.isOperator()) {
             DialPlan dialPlan = getDialPlan();
-            dialPlan.setOperator(operator);
+            dialPlan.setOperator(attendant);
             getHibernateTemplate().saveOrUpdate(dialPlan);
         }
     }

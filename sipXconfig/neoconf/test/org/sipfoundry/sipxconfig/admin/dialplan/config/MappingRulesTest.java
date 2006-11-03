@@ -230,7 +230,7 @@ public class MappingRulesTest extends XMLTestCase {
     public void testInternalRules() throws Exception {
         int extension = 3;
         List rules = new ArrayList();
-        AutoAttendant aa = AutoAttendant.createOperator();
+        AutoAttendant aa = AutoAttendant.createOperator(AutoAttendant.OPERATOR_ID);
         rules.add(new MappingRule.Operator(aa, "100", new String[] {
             "operator", "0"
         }));

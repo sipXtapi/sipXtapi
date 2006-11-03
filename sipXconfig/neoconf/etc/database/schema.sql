@@ -13,11 +13,13 @@ create table version_history(
  * For sipXconfig v3.2, the database version is 2.
  * For sipXconfig v3.3-r6543, the database version is 3.
  * For sipXconfig v3.5-r7552, the database version is 4.
+ * For sipXconfig v3.7-r7934, the database version is 5.
  */
 insert into version_history (version, applied) values (1, now());
 insert into version_history (version, applied) values (2, now());
 insert into version_history (version, applied) values (3, now());
 insert into version_history (version, applied) values (4, now());
+insert into version_history (version, applied) values (5, now());
 
 create table patch(
   name varchar(32) not null primary key
@@ -600,4 +602,4 @@ insert into initialization_task (name) values ('default-phone-group');
 insert into initialization_task (name) values ('add_default_user_group');
 insert into initialization_task (name) values ('operator');
 insert into initialization_task (name) values ('initialize-domain');
-
+insert into initialization_task (name) values ('afterhour');

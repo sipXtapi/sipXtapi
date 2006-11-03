@@ -124,6 +124,7 @@
 	
   <!-- bumped up ver only to keep 3.6 from running incompat. 3.7 db versions -->
   <target name="version4" description="upgrade from version 3" unless="version5">
+    <antcall target="afterhour"/>
     <sipx-version version="5"/>
   </target>	
 
@@ -142,6 +143,14 @@
     <db-patch patch="model-refactoring"/>
   </target>
 
+  <target name="afterhour" unless="afterhour">
+    <!-- add default afterhour attendant -->
+    <sipx-sql>
+      insert into initialization_task (name) values ('afterhour');
+    </sipx-sql>
+    <mark-patch-applied patch="afterhour"/>
+  </target>
+	
   <target name="domain" unless="domain">
     <db-patch patch="domain"/>
   </target>

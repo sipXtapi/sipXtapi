@@ -11,22 +11,39 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.DialPad;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class AutoAttendant extends BeanWithGroups implements NamedObject {
+    public static final Log LOG = LogFactory.getLog(AutoAttendant.class);
+
     public static final String BEAN_NAME = "autoAttendant";
 
     public static final String OPERATOR_ID = "operator";
 
+    public static final String AFTERHOUR_ID = "afterhour";
+
     private static final String SYSTEM_NAME_PREFIX = "xcf";
 
-    private static final String OPERATOR_DEFAULT_PROMPT = "welcome.wav";
+    private static final Map<String, String[]> AA_DATA = new HashMap<String, String[]>(2);
+
+    // TODO: localize attendant names
+    static {
+        AA_DATA.put(AFTERHOUR_ID, new String[] {
+            "After hours", "afterhours.wav"
+        });
+        AA_DATA.put(OPERATOR_ID, new String[] {
+            "Operator", "welcome.wav"
+        });
+    }
 
     private String m_name;
 
@@ -38,20 +55,25 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject {
 
     private String m_systemId;
 
-    public static AutoAttendant createOperator() {
-        AutoAttendant operator = new AutoAttendant();
-        operator.setSystemId(OPERATOR_ID);
-        operator.setName("Operator");
-        operator.setPrompt(OPERATOR_DEFAULT_PROMPT);
-        operator.resetToFactoryDefault();
+    public static AutoAttendant createOperator(String attendantId) {
+        String[] data = AA_DATA.get(attendantId);
+        if (data == null) {
+            throw new IllegalArgumentException("Unknown system attendant id: " + attendantId);
+        }
 
-        return operator;
+        AutoAttendant a = new AutoAttendant();
+        a.setSystemId(attendantId);
+
+        a.setName(data[0]);
+        a.setPrompt(data[1]);
+        a.resetToFactoryDefault();
+        return a;
     }
-    
+
     @Override
-    public void initialize() {        
+    public void initialize() {
     }
-    
+
     @Override
     protected Setting loadSettings() {
         return getModelFilesContext().loadModelFile("sipxvxml/autoattendant.xml");
@@ -83,6 +105,21 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject {
 
     public boolean isOperator() {
         return OPERATOR_ID.equals(getSystemId());
+    }
+
+    public boolean isAfterhour() {
+        return AFTERHOUR_ID.equals(getSystemId());
+    }
+
+    /**
+     * Check is this is a permanent attendant.
+     * 
+     * You cannot delete operator or afterhour attendant.
+     * 
+     * @return true for operator or afterhour, false otherwise
+     */
+    public boolean isPermanent() {
+        return isOperator() || isAfterhour();
     }
 
     public String getDescription() {
@@ -138,7 +175,7 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject {
             m_menuItems.clear();
         }
         setDescription(null);
-        if (isOperator()) {
+        if (isPermanent()) {
             addMenuItem(DialPad.NUM_0, new AttendantMenuItem(AttendantMenuAction.OPERATOR));
             addMenuItem(DialPad.NUM_9, new AttendantMenuItem(AttendantMenuAction.DIAL_BY_NAME));
             addMenuItem(DialPad.STAR, new AttendantMenuItem(AttendantMenuAction.REPEAT_PROMPT));
@@ -148,5 +185,4 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject {
             addMenuItem(DialPad.STAR, new AttendantMenuItem(AttendantMenuAction.REPEAT_PROMPT));
         }
     }
-
 }
