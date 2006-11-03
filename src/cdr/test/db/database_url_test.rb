@@ -16,49 +16,54 @@ require 'db/database_url'
 
 class DatabaseUrlTest < Test::Unit::TestCase
   
-  def setup
-    @u1 = DatabaseUrl.new('a', 'b', 'c', 'd', 'e')
-    @u2 = DatabaseUrl.new('a', 'b', 'c', 'd', 'e')
-    @u3 = DatabaseUrl.new('z', 'b', 'c', 'd', 'e')
-    @u4 = DatabaseUrl.new(nil, 'b', 'c', 'd', 'e')    
-    @u5 = DatabaseUrl.new('a', 'b', 'c', 'd', 'z')    
-  end
-  
-  def test_create_url
-    url = DatabaseUrl.new('database', 'port', 'host', 'adapter', 'username')
-    assert_equal('database', url.database)
-    assert_equal('port', url.port)
-    assert_equal('host', url.host)
-    assert_equal('adapter', url.adapter)
-    assert_equal('username', url.username)
+  def test_defaults
+    url = DatabaseUrl.new()
     
-    h = url.to_hash
-    assert_equal(5, h.size());
-    assert_equal('database', h[:database])
-    assert_equal('port', h[:port])
-    assert_equal('host', h[:host])
-    assert_equal('adapter', h[:adapter])
-    assert_equal('username', h[:username])
+    assert_equal('SIPXCDR', url.database)
+    assert_equal(5432, url.port)
+    assert_equal('localhost', url.host)
+    assert_equal('postgresql', url.adapter)
+    assert_equal('postgres', url.username)    
+    
+    url = DatabaseUrl.new(:host => "sipx.example.org")
+    
+    assert_equal('SIPXCDR', url.database)
+    assert_equal(5432, url.port)
+    assert_equal('sipx.example.org', url.host)
+    assert_equal('postgresql', url.adapter)
+    assert_equal('postgres', url.username)    
   end
   
   def test_equality
-    assert_equal(@u1, @u2)
-    assert(@u1.eql?(@u2))
-    assert_not_equal(@u1, @u3)
-    assert_not_equal(@u1, @u4)
-    assert_not_equal(@u1, @u5)
-    assert_not_equal(@u2, @u5)
-    assert_not_equal(@u4, @u3)
+    data = {:database => 'a', :port => 1024, :host => 'host', :username => 'abc' }
+    
+    u1 = DatabaseUrl.new(data)
+    u2 = DatabaseUrl.new(data)
+    
+    data[:database] = 'z'    
+    
+    u3 = DatabaseUrl.new(data)
+    
+    data[:database] = nil
+    
+    u4 = DatabaseUrl.new(data)
+    
+    data[:database] = 'a'
+    data[:username] = 'z'
+    
+    u5 = DatabaseUrl.new(data) 
+    
+    assert_equal(u1, u2)
+    assert(u1.eql?(u2))
+    assert_not_equal(u1, u3)
+    assert_not_equal(u1, u4)
+    assert_not_equal(u1, u5)
+    assert_not_equal(u2, u5)
+    assert_not_equal(u4, u3)
   end
   
-  def test_hash
-    assert_equal('a'.hash + 'b'.hash + 'c'.hash + 'd'.hash + 'e'.hash,
-                 @u1.hash)
-    assert_equal(@u1.hash, @u2.hash)
-    assert_not_equal(@u1.hash, @u3.hash)
-    assert_not_equal(@u1.hash, @u4.hash)
-    assert_not_equal(@u1.hash, @u5.hash)
-    assert_not_equal(@u2.hash, @u5.hash)
-    assert_not_equal(@u4.hash, @u3.hash)    
+  def test_to_dbi
+    url = DatabaseUrl.new(:database => 'SIPXCDR', :host => 'localhost')
+    assert_equal("dbi:Pg:SIPXCDR:localhost", url.to_dbi)
   end
 end

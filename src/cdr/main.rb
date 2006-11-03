@@ -14,16 +14,13 @@ require 'parsedate'
 
 # application requires
 require 'call_resolver'
-require 'call_direction_plugin'
-require 'stunnel_connection'
+require 'utils/stunnel_connection'
 
 
 # Create a Call Resolver
 resolver = CallResolver.new
 
-if resolver.log.debug?
-  resolver.log.debug("main called with these args: #{ARGV.join(' ')}")
-end
+resolver.log.debug("main arguments : #{ARGV.to_s}")
 
 # Parse command-line options
 #   start: date/time from which to start analyzing call events
@@ -96,12 +93,6 @@ puts("Logging to #{resolver.log_device == STDOUT ? 'the console' : resolver.log_
 begin
   stunnel_connection.open(resolver.config)
 
-  # Add the Call Direction Plugin as an observer so that it can compute call direction
-  if CallDirectionPlugin.call_direction?(resolver.config)
-    resolver.log.info("Call direction is enabled")
-    resolver.add_observer(CallDirectionPlugin.new(resolver))
-  end
-
   if daily_flag
     resolver.daily_run
   else
@@ -119,7 +110,4 @@ rescue
                 
 ensure
   stunnel_connection.close
-                    
 end  
-
-

@@ -11,11 +11,11 @@
 require 'utils/utils'
 
 class CallStateEvent
+
+  FIELDS = [:id, :observer, :event_seq, :event_time, :event_type, :cseq, :call_id, :from_tag, :to_tag,
+    :from_url, :to_url, :contact, :refer_to, :referred_by, :failure_status, :failure_reason, :request_uri]
   
-  attr_accessor :id, :observer, :event_seq, :event_time, :event_type, :cseq, :call_id, :from_tag, :to_tag,
-    :from_url, :to_url, :contact, :refer_to, :referred_by, :failure_status, :failure_reason, :request_uri
-  
-  public
+  attr_accessor(*FIELDS)
   
   # Constants representing event types
   CALL_REQUEST_TYPE =  'R'

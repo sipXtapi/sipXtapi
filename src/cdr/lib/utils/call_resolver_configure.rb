@@ -71,11 +71,6 @@ class CallResolverConfigure
   # Specify this string as the config_file to get a completely default config 
   DEFAULT_CONFIG = 'default_config'
 
-  #-----------------------------------------------------------------------------
-  # Public methods
-
-public
-
   def initialize(config_file = nil)
     # If the config_file arg is nil, then find the config file in the default location
     @config_file = apply_config_file_default(config_file)
@@ -110,8 +105,7 @@ public
                   :host_list, :host_url_list, :host_port_list,
                   :log, :log_device,
                   :purge_start_time_cdr, :purge_start_time_cse]
-  ALL_PARAMS = BOOL_PARAMS + OTHER_PARAMS
-
+  
   # Return true if daily runs of the call resolver are enabled, false otherwise
   def daily_run?
     @daily_run
@@ -137,19 +131,11 @@ public
     config[param]
   end
 
-  #-----------------------------------------------------------------------------
-  # Private methods
-
-
   attr_accessor :config
     
-  # For testing purposes only.  Test code calls these methods using low-level
-  # message sending.
-  
+  # test only
   attr_writer :cse_database_urls
 
-private
-  
   def host_port_list=(host_port_list)
     @host_port_list = host_port_list
     
@@ -329,7 +315,7 @@ private
       # each URL is 'localhost:<port>'.  Stunnel takes care of forwarding the
       # local port to the database on a remote host.
       @host_port_list.each do |port|
-        url = DatabaseUrl.new(DatabaseUrl::DATABASE_DEFAULT, port)
+        url = DatabaseUrl.new(:port => port)
         @cse_database_urls << url
       end
     else

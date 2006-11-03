@@ -8,6 +8,7 @@
 ##############################################################################
 
 require 'test/unit'
+require 'thread'
 
 $:.unshift File.join(File.dirname(__FILE__), '..', 'lib')
 require 'state'
@@ -33,7 +34,7 @@ class StateTest < Test::Unit::TestCase
     
     def terminated?
       true
-    end    
+    end
   end
     
   class DummyCse
@@ -42,6 +43,14 @@ class StateTest < Test::Unit::TestCase
     def initialize(call_id)
       @call_id = call_id
     end 
+  end
+
+  def test_empty
+    q1 = Queue.new
+    q2 = Queue.new
+    t = Thread.new(State.new(q1, q2)) { | s | s.run }    
+    q1.enq(nil)
+    t.join
   end
   
   def test_accept

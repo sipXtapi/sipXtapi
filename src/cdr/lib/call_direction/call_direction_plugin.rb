@@ -75,19 +75,7 @@ class CallDirectionPlugin
     # Return true if call direction is enabled, false otherwise, based on the config.
     def call_direction?(config)
       config.enabled?(CALL_DIRECTION, CALL_DIRECTION_DEFAULT)
-    end
-    
-    # Find the gateways.  For gateways configured with domain names, resolve the
-    # names to IP addresses so we have a canonical format for address matching.
-    # Return array of resolved IP addresses.
-    # FIXME: we should not be connecting to SIPXCONFIG database, it's better to use SOAP or somehow find out from proxy
-    def load_and_resolve_gateways
-      # Build a gateway IP list
-      Gateway.find_all.inject([]) do | addresses, gateway |
-        ip_addresses = gateway.ip_addresses
-        addresses.concat(ip_addresses) if ip_addresses
-      end
-    end
+    end    
   end
     
 end

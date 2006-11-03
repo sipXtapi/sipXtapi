@@ -7,20 +7,19 @@
 #
 ##############################################################################
 
-# Application requires.  Assume that the load path has been set up for us.
-require 'call_resolver_configure'
-require 'configure'
-require 'database_url'
-require 'exceptions'
-require 'utils'
+require 'utils/call_resolver_configure'
+require 'utils/configure'
+require 'db/database_url'
+require 'utils/exceptions'
+require 'utils/utils'
 
-# StunnelConnection attempts to open stunnel connections to all configured
-# distributed machines.
+# Attempts to open stunnel connections to all configured distributed machines.
 class StunnelConnection
+
+  attr_reader :log
 
   # Constants
   LOCALHOST = 'localhost'
-  SIPX_PREFIX = 'SIPX_PREFIX'
   
   STUNNEL_CONFIG_FILE = 'stunnel-config.tmp'
   STUNNEL_EXEC = '/usr/sbin/stunnel'
@@ -41,10 +40,10 @@ class StunnelConnection
   
 public
 
-  def initialize(resolver)
-    @resolver = resolver
+  def initialize(log)
+    @log = log
     @connection_established = false
-    @prefix = ENV[SIPX_PREFIX]
+    @prefix = ENV['SIPX_PREFIX']
   end
 
   def open(config)
@@ -193,11 +192,6 @@ private
     running
   end
 
-  # Use the Call Resolver's Logger
-  def log
-    @resolver.log
-  end
-  
   def raise_exception(err_msg, klass = CallResolverException)
     puts "Error: #{err_msg}"
     Utils.raise_exception(err_msg, klass)

@@ -7,9 +7,8 @@
 #
 ##############################################################################
 
-# DatabaseUrl holds the params needed to connect to a database, the same params
-# needed for ActiveRecord::Base.establish_connection.
-class DatabaseUrl
+# Holds the params needed to connect to a database
+class DatabaseUrl < Struct.new(:database, :port, :host, :adapter, :username)
   
   DATABASE_DEFAULT = 'SIPXCDR'
   DATABASE_PORT_DEFAULT = 5432                # Default port used by PostgreSQL
@@ -17,63 +16,19 @@ class DatabaseUrl
   ADAPTER_DEFAULT  = 'postgresql'
   USERNAME_DEFAULT = 'postgres'
   
-public
-
-  attr_accessor :database, :port, :host, :adapter, :username 
-  
-  def initialize(database = DATABASE_DEFAULT,
-                 port     = DATABASE_PORT_DEFAULT,
-                 host     = HOST_DEFAULT,
-                 adapter  = ADAPTER_DEFAULT,
-                 username = USERNAME_DEFAULT)
-    @database = database
-    @port = port if port
-    @host = host
-    @adapter = adapter
-    @username = username
+  def initialize(args = nil)
+    super()
+    args.each do |field, value| 
+        self[field] = value
+    end if args
+    self[:database] ||= DATABASE_DEFAULT
+    self[:port] ||= DATABASE_PORT_DEFAULT
+    self[:host] ||= HOST_DEFAULT
+    self[:adapter] ||= ADAPTER_DEFAULT
+    self[:username] ||= USERNAME_DEFAULT
   end
   
-  # Return the params in a hash.  Intended for use with
-  # ActiveRecord::Base.establish_connection, which takes a hash as input.
-  def to_hash
-    h = {:database => database,
-         :port => port,
-         :host => host,
-         :adapter => adapter,
-         :username => username}
-    h 
+  def to_dbi
+    "dbi:Pg:#{database}:#{host}"
   end
-  
-  def ==(url)
-    (database ? (url.database and database == url.database) : !url.database) and
-    (port ? (url.port and port == url.port) : !url.port) and
-    (host ? (url.host and host == url.host) : !url.host) and
-    (adapter ? (url.adapter and adapter == url.adapter) : !url.adapter) and
-    (username ? (url.username and username == url.username) : !url.username)  
-  end
-  
-  def eql?(url)
-    self == url
-  end
-  
-  def hash
-    haash = 0
-    haash += database.hash if database
-    haash += port.hash if port
-    haash += host.hash if host
-    haash += adapter.hash if adapter
-    haash += username.hash if username
-    haash
-  end
-  
-  # Print a descriptive string for the database.  Since the adapter and username
-  # are currently always the same, don't print them.
-  def to_s
-    _database = database or '<default database>'
-    _host = host or '<default host>'
-    str = "#{_database} at #{_host}"
-    str += ":#{port}" if port
-    str
-  end
-  
 end
