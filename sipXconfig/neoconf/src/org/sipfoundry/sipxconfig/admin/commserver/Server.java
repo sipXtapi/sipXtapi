@@ -18,5 +18,13 @@ public interface Server {
     
     String getPresenceServerUri();
     
+    /**
+     * Saves settings to permanent storage (config files)
+     */
     void applySettings();
+    
+    /**
+     * Clears unapplied values, does not resets everything to default.
+     */
+    void resetSettings();
 }

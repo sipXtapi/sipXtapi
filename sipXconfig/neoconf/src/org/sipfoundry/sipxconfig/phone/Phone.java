@@ -48,7 +48,7 @@ public abstract class Phone extends BeanWithGroups {
     private List<Line> m_lines = Collections.EMPTY_LIST;
 
     private PhoneContext m_phoneContext;
-    
+
     private ModelSource<PhoneModel> m_modelSource;
 
     private String m_tftpRoot;
@@ -62,11 +62,11 @@ public abstract class Phone extends BeanWithGroups {
     private String m_webDirectory;
 
     private String m_beanId;
-    
+
     private String m_modelId;
-    
+
     private PhoneModel m_model;
-    
+
     private DeviceVersion m_version;
 
     protected Phone(String beanId) {
@@ -84,12 +84,12 @@ public abstract class Phone extends BeanWithGroups {
     public String getModelLabel() {
         return getModel().getLabel();
     }
-    
+
     public void setModelId(String modelId) {
         m_modelId = modelId;
         m_model = null;
     }
-    
+
     public void setModel(PhoneModel model) {
         m_model = model;
         m_modelId = model.getModelId();
@@ -163,10 +163,10 @@ public abstract class Phone extends BeanWithGroups {
     /**
      * When loading the settings model.
      * 
-     * Example If you can add "not-extinct" the following setting will not
-     * be loaded. Phone model id and version are added by default.
-     *
-     *  &lt;setting name="dinosaur" unless="not-extinct"/&gt;
+     * Example If you can add "not-extinct" the following setting will not be loaded. Phone model
+     * id and version are added by default.
+     * 
+     * &lt;setting name="dinosaur" unless="not-extinct"/&gt;
      */
     protected Set getModelDefinitions() {
         Set definitions = new HashSet();
@@ -174,7 +174,7 @@ public abstract class Phone extends BeanWithGroups {
         definitions.add(model.getModelId());
         if (getDeviceVersion() != null) {
             definitions.add(getDeviceVersion().getVersionId());
-        }        
+        }
         return definitions;
     }
 
@@ -201,6 +201,11 @@ public abstract class Phone extends BeanWithGroups {
 
     public void generateProfiles() {
         String profileFileName = getPhoneFilename();
+        String phoneTemplate = getPhoneTemplate();
+        generateFile(profileFileName, phoneTemplate);
+    }
+
+    protected void generateFile(String profileFileName, String phoneTemplate) {
         if (profileFileName == null) {
             return;
         }
@@ -210,7 +215,7 @@ public abstract class Phone extends BeanWithGroups {
             File file = new File(profileFileName);
             VelocityProfileGenerator.makeParentDirectory(file);
             wtr = new FileWriter(file);
-            generateProfile(wtr);
+            generateProfile(phoneTemplate, wtr);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
@@ -264,17 +269,17 @@ public abstract class Phone extends BeanWithGroups {
         m_phoneTemplate = phoneTemplate;
     }
 
-    public void generateProfile(Writer out) {
-        if (getPhoneTemplate() == null) {
+    public void generateProfile(String phoneTemplate, Writer out) {
+        if (phoneTemplate == null) {
             return;
         }
-        VelocityProfileGenerator profile = new VelocityProfileGenerator(this);
-        generateProfile(profile, getPhoneTemplate(), out);
+        VelocityProfileGenerator generator = new VelocityProfileGenerator(this);
+        generateProfile(generator, phoneTemplate, out);
     }
 
-    protected void generateProfile(VelocityProfileGenerator cfg, String template, Writer out) {
-        cfg.setVelocityEngine(getVelocityEngine());
-        cfg.generateProfile(template, out);
+    protected void generateProfile(VelocityProfileGenerator generator, String template, Writer out) {
+        generator.setVelocityEngine(getVelocityEngine());
+        generator.generateProfile(template, out);
     }
 
     /**
@@ -397,5 +402,5 @@ public abstract class Phone extends BeanWithGroups {
 
     public void setPhoneModelSource(ModelSource<PhoneModel> modelSource) {
         m_modelSource = modelSource;
-    }    
+    }
 }

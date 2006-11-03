@@ -38,7 +38,7 @@ public class CiscoIpPhoneTest extends TestCase {
 
     public void testGenerate7960Profiles() throws Exception {
         StringWriter profile = new StringWriter();
-        m_phone.generateProfile(profile);
+        m_phone.generateProfile(m_phone.getPhoneTemplate(), profile);
         String expected = IOUtils.toString(this.getClass().getResourceAsStream(
                 "expected-7960.cfg"));
         assertEquals(expected, profile.toString());

@@ -26,7 +26,7 @@
 #include "sipdb/CallerAliasRow.h"
 #include "sipdb/CallerAliasDB.h"
 
-#define CALLERALIAS_XML_NAMESPACE_URL "http://www.sipfoundry.org/sipX/schema/xml/calleralias-00-00"
+#define CALLERALIAS_XML_NAMESPACE_URL "http://www.sipfoundry.org/sipX/schema/xml/caller-alias-00-00"
 
 REGISTER( CallerAliasRow );
 

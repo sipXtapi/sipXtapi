@@ -143,8 +143,10 @@ public:
         UtlString& targetCallControllerAddress, UtlString& targetCallConsultAddress);
     virtual void drop(const char* callId);
     virtual PtStatus transfer_blind(const char* callId, const char* transferToUrl,
-                          UtlString* targetCallId,
-                          UtlString* targetConnectionAddress = NULL);
+                                    UtlString* targetCallId,
+                                    UtlString* targetConnectionAddress = NULL,
+                                    bool       remoteHoldBeforeTransfer = true
+                                    );
     // Blind transfer
 
     virtual PtStatus transfer(const char* targetCallId, const char* originalCallId);
@@ -156,7 +158,9 @@ public:
     PtStatus transfer(const char* sourceCallId, 
                       const char* sourceAddress, 
                       const char* targetCallId,
-                      const char* targetAddress) ;
+                      const char* targetAddress,
+                      bool        remoteHoldBeforeTransfer = true
+                      ) ;
     //: Transfer an individual participant from one end point to another using 
     //: REFER w/replaces.
 

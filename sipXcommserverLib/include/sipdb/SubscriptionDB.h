@@ -83,7 +83,7 @@ public:
         const UtlString& key,
         const UtlString& eventType,
         const int& timeNow,
-        ResultSet& rResultSet ) const;
+        ResultSet& rResultSet );
 
     void updateUnexpiredSubscription (
         const UtlString& to,
@@ -106,6 +106,9 @@ protected:
     // to a template version of the code
     UtlBoolean insertRow ( const UtlHashMap& nvPairs );
 
+    /// Clean out any expired rows
+    void removeExpired( const int timeNow );
+    
     // There is only one singleton in this design
     static SubscriptionDB* spInstance;
 

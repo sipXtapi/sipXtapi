@@ -843,9 +843,6 @@ main(int argc, char* argv[])
     }
 #endif // TEST_PRINT
 
-
-    //initRoutes(fileName, proxyUdpPort, mapRulesDb);
-
     // Start the sip stack
     SipUserAgent sipUserAgent(proxyTcpPort, 
         proxyUdpPort,

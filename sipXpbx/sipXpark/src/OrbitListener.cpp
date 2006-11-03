@@ -377,21 +377,29 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
             int keycode;
             pEventMsg->getEventData(keycode);
             keycode >>= 16;
-            keycode &= 0xFFFF;
 
-            OsSysLog::add(FAC_PARK, PRI_DEBUG,
-                          "OrbitListener::handleMessage DTMF "
-                          "keycode %d, ParkedCallObject = %p",
-                          keycode, pParkedCallObject);
+            // Check that it is a keyup event.
+            if ((keycode & 0x8000) != 0)
+            {
+               keycode &= 0x7FFF;
+               OsSysLog::add(FAC_PARK, PRI_DEBUG,
+                             "OrbitListener::handleMessage DTMF keyup "
+                             "keycode %d, ParkedCallObject = %p",
+                             keycode, pParkedCallObject);
 
-            // :WORKAROUND:  Delay 1/2 second to allow the user time to let up on the
-            // key.  This avoids a bug in Polycom ver 2.0 which is triggered when a key
-            // is down and the other end puts the call on hold and takes it off.
-            OsTask::delay(500);
-
-            // Call the ParkedCallObject to process the keycode, which may
-            // start a transfer..
-            pParkedCallObject->keypress(keycode);
+               // Call the ParkedCallObject to process the keycode, which may
+               // start a transfer..
+               pParkedCallObject->keypress(keycode);
+            }
+            else
+            {
+               keycode &= 0x7FFF;
+               OsSysLog::add(FAC_PARK, PRI_DEBUG,
+                             "OrbitListener::handleMessage DTMF keydown (ignored) "
+                             "keycode %d",
+                             keycode);
+               // Ignore it.
+            }
          }
          break;
 
@@ -941,7 +949,9 @@ void OrbitListener::setUpRetrievalCall(const UtlString& callId,
                     +  callId.data(), address.data());
                                                      
       mpCallManager->transfer(retrievedCallId, retrievedAddress,
-                              callId, address);
+                              callId, address,
+                              false /* do not hold before transfer */
+                              );
       // Add this call to the park list so it can be cleaned up correctly, mark it as
       // a call retrieval,
       ParkedCallObject *pExecutingCall =

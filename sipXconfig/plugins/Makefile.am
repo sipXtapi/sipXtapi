@@ -1,5 +1,7 @@
 SUBDIRS = \
-	hitachi
+	clearone \
+	hitachi \
+	mitel
 
 EXTRA_DIST = \
 	$(SUBDIRS) \

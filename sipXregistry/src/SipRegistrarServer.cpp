@@ -15,7 +15,6 @@
 // SYSTEM INCLUDES
 #include <stdlib.h>
 
-
 // APPLICATION INCLUDES
 #include "os/OsDateTime.h"
 #include "os/OsQueuedEvent.h"
@@ -35,7 +34,7 @@
 #include "sipdb/DomainDB.h"
 #include "RegistrarPersist.h"
 #include "RegistrarSync.h"
-#include "SipRegistrar.h"
+#include "registry/SipRegistrar.h"
 #include "SipRegistrarServer.h"
 #include "SyncRpc.h"
 #include "registry/RegisterPlugin.h"
@@ -262,7 +261,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
               contactIndexCount++
              )
         {
-           OsSysLog::add( FAC_SIP, PRI_WARNING,
+           OsSysLog::add( FAC_SIP, PRI_DEBUG,
                           "SipRegistrarServer::applyRegisterToDirectory - processing '%s'",
                           registerContactStr.data()
                                );
@@ -333,12 +332,6 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                            longestRequested = expires;
                         }
 
-                        // See if the Contact field has a "gruu" URI field..
-                        // :TODO: Have to check whether the gruu URI parameter
-                        // is still favored.  And what exactly this check is about.
-                        UtlBoolean gruuPresent;
-                        UtlString gruuDummy;
-                        gruuPresent = registerContactURL.getUrlParameter( "gruu", gruuDummy );
                         OsSysLog::add( FAC_SIP, PRI_DEBUG,
                                        "SipRegistrarServer::applyRegisterToDirectory"
                                        " instance ID = '%s'",
@@ -368,10 +361,8 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                         UtlString* instanceIdKey = new UtlString( gInstanceIdKey );
                         UtlString* gruuKey = new UtlString( gGruuKey );
 
-                        // Calculate GRUU if gruu is in Supported, +sip.instance is provided, but
-                        // gruu is not a URI parameter.
+                        // Calculate GRUU if gruu is in Supported and +sip.instance is provided.
                         if (!instanceId.isNull() &&
-                            !gruuPresent &&
                             registerMessage.isInSupportedField("gruu"))
                         {
                            // Hash the GRUU base, the AOR, and IID to
@@ -408,6 +399,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                            // a NUL.
                            temp.append("sipX");
                            temp.append("\001");
+                           // The identifier of this domain, to ensure GRUUs aren't duplicated between domains.
                            temp.append(domain);
                            temp.append("\001");
                            temp.append(toUrl.toString());
@@ -415,6 +407,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                            temp.append(instanceId);
                            UtlString hash;
                            encoder.encode(temp.data(), hash);
+                           // Use 8 bytes, to avoid collisions when there are less than 2^32 registrations.
                            hash.remove(16);
                            // Now construct the GRUU URI,
                            // "gruu~XXXXXXXXXXXXXXXX@[principal SIP domain]".
@@ -557,11 +550,11 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                                 // whose cseq is lower than the one that unregistered it,
                                 // which, if we had actually removed the entry would not
                                 // be there to compare the out-of-order message to.
-                                expirationTime = timeNow-1;
+                                expirationTime = timeNow - 1;
 
                                 OsSysLog::add( FAC_SIP, PRI_DEBUG,
-                                              "SipRegistrarServer::applyRegisterToDirectory"
-                                              " - Expiring map %s->%s",
+                                              "SipRegistrarServer::applyRegisterToDirectory "
+                                              "- Expiring map '%s'->'%s'",
                                               registerToStr.data(), contact.data()
                                               );
                             }
@@ -573,10 +566,12 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                                                   : spreadExpirationTime
                                                   ) + timeNow;
 
-                                OsSysLog::add( FAC_SIP, PRI_DEBUG,
-                                              "SipRegistrarServer::applyRegisterToDirectory"
-                                              " - Adding map %s->%s",
-                                              registerToStr.data(), contact.data() );
+                                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                              "SipRegistrarServer::applyRegisterToDirectory - "
+                                              "Adding map '%s'->'%s' "
+                                              "expires %d (now+%d)",
+                                              registerToStr.data(), contact.data(),
+                                              expirationTime, expires);
                             }
 
                             UtlString qvalue(*(UtlString*)record.findValue(&gQvalueKey));
@@ -639,7 +634,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
     else
     {
         OsSysLog::add( FAC_SIP, PRI_WARNING,
-                      "SipRegistrarServer::applyRegisterToDirectory request out of order\n"
+                      "SipRegistrarServer::applyRegisterToDirectory request out of order"
                       "  To: '%s'\n"
                       "  Call-Id: '%s'\n"
                       "  Cseq: %d",

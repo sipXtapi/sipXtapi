@@ -3,10 +3,10 @@
   "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
 
-  <bean id="permissionManagerImpl"
-    class="org.sipfoundry.sipxconfig.permission.PermissionManagerImpl">
+  <bean id="permissionManagerImpl" class="org.sipfoundry.sipxconfig.permission.PermissionManagerImpl">
     <property name="modelFilesContext" ref="modelFilesContext" />
     <property name="sessionFactory" ref="sessionFactory" />
+    <property name="replicationContext" ref="sipxReplicationContext" />
   </bean>
 
   <bean id="permissionManager" class="org.springframework.aop.framework.ProxyFactoryBean"
@@ -18,5 +18,5 @@
       <ref local="permissionManagerImpl" />
     </property>
   </bean>
-  
+
 </beans>

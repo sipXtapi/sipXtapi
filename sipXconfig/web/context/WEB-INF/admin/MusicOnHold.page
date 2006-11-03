@@ -28,8 +28,7 @@
     <binding name="contentType" value="literal:audio/x-wav" />
     <binding name="selectable" value="true" />
   </component>
-  <component id="onSave" type="Submit">
-    <binding name="action" value="listener:saveValid" />
-    <binding name="value" value="message:button.save" />
+  <component id="formActions" type="FormActions">
+    <binding name="listener" value="listener:saveValid" />
   </component>
 </page-specification>

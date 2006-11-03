@@ -83,8 +83,9 @@ UtlBoolean CpGhostConnection::dial(const char* dialString,
 }
 
 UtlBoolean CpGhostConnection::originalCallTransfer(UtlString& transferTargetAddress,
-                                                       const char* transferControllerAddress,
-                               const char* targetCallId)
+                                                   const char* transferControllerAddress,
+                                                   const char* targetCallId,
+                                                   bool        remoteHoldBeforeTransfer)
 {
     unimplemented("CpGhostConnection::originalCallBlindTransfer");
     return(FALSE);

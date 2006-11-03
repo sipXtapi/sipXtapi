@@ -39,14 +39,17 @@
   <component id="delete" type="Submit">
     <binding name="selected" value="rowsToDelete" />
     <binding name="tag" value="components.gatewayTable.selections.allSelected" />
+    <binding name="value" value="message:button.remove" />
   </component>
   <component id="moveUp" type="Submit">
     <binding name="selected" value="rowsToMoveUp" />
     <binding name="tag" value="components.gatewayTable.selections.allSelected" />
+    <binding name="value" value="message:button.moveUp" />
   </component>
   <component id="moveDown" type="Submit">
     <binding name="selected" value="rowsToMoveDown" />
     <binding name="tag" value="components.gatewayTable.selections.allSelected" />
+    <binding name="value" value="message:button.moveDown" />
   </component>
   <!-- C O M P O N E N T S -->
 </component-specification>

@@ -41,7 +41,7 @@ RSC=rc.exe
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I "include" /I "include\glib" /D "NDEBUG" /D "_LIB" /D "DISABLE_MEM_POOLS" /D "DONT_USE_LONG_LONG" /D "WIN32" /D "_MBCS" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GR /GX /O1 /I "include" /I "..\..\sipXportLib\include" /D "NDEBUG" /D "_LIB" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /YX /FD /c
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -64,7 +64,7 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "include" /I "..\..\sipXportLib\include" /D "_DEBUG" /D "_LIB" /D "DISABLE_MEM_POOLS" /D "DONT_USE_LONG_LONG" /D "WIN32" /D "_MBCS" /FR /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "include" /I "..\..\sipXportLib\include" /D "_DEBUG" /D "_LIB" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /FR /YX /FD /GZ /c
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -406,6 +406,10 @@ SOURCE=.\src\utl\UtlBool.cpp
 # Begin Source File
 
 SOURCE=.\src\utl\UtlContainable.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\utl\UtlContainableAtomic.cpp
 # End Source File
 # Begin Source File
 
@@ -849,6 +853,14 @@ SOURCE=.\include\os\OsWriteLock.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\utl\Plugin.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\utl\PluginHooks.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\utl\PtTest.h
 # End Source File
 # Begin Source File
@@ -877,7 +889,15 @@ SOURCE=.\include\utl\UtlContainable.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\utl\UtlContainableAtomic.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\utl\UtlContainer.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\utl\UtlDateTime.h
 # End Source File
 # Begin Source File
 
@@ -909,11 +929,19 @@ SOURCE=.\include\utl\UtlHashMapIterator.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\utl\UtlHistogram.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\utl\UtlInt.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\include\utl\UtlIterator.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\utl\UtlLink.h
 # End Source File
 # Begin Source File
 
@@ -965,11 +993,19 @@ SOURCE=.\include\utl\UtlString.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\utl\UtlTokenizer.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\utl\UtlVoidPtr.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\include\os\wnt\WIndowsAdapterInfo.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\utl\XmlContent.h
 # End Source File
 # End Group
 # End Target

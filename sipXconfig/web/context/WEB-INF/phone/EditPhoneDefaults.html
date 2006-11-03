@@ -5,7 +5,7 @@
         <span jwcid="groupLabel"/></p>
       <p><strong>Model:</strong>
         <span jwcid="modelLabel"/></p>
-      <form jwcid="@Form" listener="listener:changeVersion">
+      <form jwcid="@Form">
       <p jwcid="@If" condition="ognl:phoneModel.versions.length > 0" element="p">
         <strong>Firmware Version:</strong>
         <span jwcid="selectVersion"/></p>

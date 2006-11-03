@@ -63,6 +63,12 @@ public:
           UtlString& routeName);
      //:Default constructor
 
+   SipAaa(SipUserAgent& sipUserAgent,
+          const char* authenticationRealm,
+          const UtlString& routeName,
+          const char* authRules);
+     //: Test constructor
+
    SipAaa(const SipAaa& rSipAaa);
      //:Copy constructor
 
@@ -74,6 +80,10 @@ public:
 
    virtual UtlBoolean handleMessage(OsMsg& rMsg);
 
+   /// Modify the message as needed to be proxied
+   bool proxyMessage(SipMessage& sipRequest);
+   ///< @returns true if message should be sent, false if not
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
@@ -82,10 +92,17 @@ private:
     // Empty constructor, for use by unit tests only
     SipAaa() {}
 
+    /**
+     * Check the credentials in sipRequest for valid credentials for a
+     * user in mRealm.
+     * If valid credentials found, put the user in authUser and return TRUE.
+     * If not, compose a suitable authentication challenge response in
+     * authResponse and return FALSE.
+     */
     UtlBoolean isAuthenticated(
         const SipMessage& sipRequest,
         UtlString& authUser,
-        SipMessage& authResponse );
+        SipMessage& authResponse);
 
     /**
      * Compare the permissions required for the user (requiredPermissions) with the
@@ -110,6 +127,14 @@ private:
        UtlString& matchedPermission,
        UtlString& unmatchedPermissions);
 
+    /**
+     * Similar to the previous form of isAuthorized(), but takes the user
+     * authUser and looks up all his permissions.  These are then fed to the
+     * previous form of isAuthorized as the grantedPermissions.
+     * If it returns TRUE, this method copies matchedPermission and returns TRUE.
+     * If it returns FALSE, this method constructs an appropriate authorization
+     * challenge in authResponse and returns FALSE.
+     */
     UtlBoolean isAuthorized(
         const SipMessage& sipRequest,
         const ResultSet& requiredPermissions, 
@@ -118,9 +143,9 @@ private:
         UtlString& matchedPermission);
 
     void calcRouteSignature(UtlString& matchedPermission,
-                           UtlString& callId, 
-                           UtlString& fromTag,
-                           UtlString& signature);
+                            UtlString& callId, 
+                            UtlString& fromTag,
+                            UtlString& signature);
 
     SipUserAgent* mpSipUserAgent;
     UrlMapping* mpAuthorizationRules;

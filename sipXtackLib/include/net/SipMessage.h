@@ -38,6 +38,7 @@ class SipRegInfoBody;        // for RFC 3680
 #define SIP_CALL_CONTROL_EXTENSION "sip-cc"
 #define SIP_SESSION_TIMER_EXTENSION "timer"
 #define SIP_REPLACES_EXTENSION "replaces"
+#define SIP_JOIN_EXTENSION "join"
 
 // SIP Methods
 #define SIP_INVITE_METHOD "INVITE"
@@ -96,6 +97,7 @@ class SipRegInfoBody;        // for RFC 3680
 #define SIP_REQUEST_DISPOSITION_FIELD "REQUEST-DISPOSITION"
 #define SIP_REQUESTED_BY_FIELD "REQUESTED-BY"
 #define SIP_REQUIRE_FIELD "REQUIRE"
+#define SIP_PROXY_REQUIRE_FIELD "PROXY-REQUIRE"
 #define SIP_ROUTE_FIELD "ROUTE"
 #define SIP_SERVER_FIELD "SERVER"
 #define SIP_SESSION_EXPIRES_FIELD "SESSION-EXPIRES"
@@ -931,6 +933,8 @@ public:
     UtlBoolean getCSeqField(int* sequenceNum, UtlString* sequenceMethod) const;
 
     UtlBoolean getRequireExtension(int extensionIndex, UtlString* extension) const;
+
+    UtlBoolean getProxyRequireExtension(int extensionIndex, UtlString* extension) const;
 
     void addRequireExtension(const char* extension);
 

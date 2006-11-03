@@ -51,7 +51,9 @@
 #define XML_TAG_HEADERPARAMS        "headerparams"
 
 #define XML_SYMBOL_USER             "{user}"
+#define XML_SYMBOL_USER_ESCAPED     "{user-escaped}"
 #define XML_SYMBOL_DIGITS           "{digits}"
+#define XML_SYMBOL_DIGITS_ESCAPED   "{digits-escaped}"
 #define XML_SYMBOL_HOST             "{host}"
 #define XML_SYMBOL_HEADERPARAMS     "{headerparams}"
 #define XML_SYMBOL_URLPARAMS        "{urlparams}"
@@ -60,6 +62,7 @@
 #define XML_SYMBOL_MEDIASERVER      "{mediaserver}"
 #define XML_SYMBOL_VOICEMAIL        "{voicemail}"
 #define XML_SYMBOL_VDIGITS          "{vdigits}"
+#define XML_SYMBOL_VDIGITS_ESCAPED  "{vdigits-escaped}"
 
 class TiXmlNode;
 class Url;
@@ -88,12 +91,19 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
-/* ============================ ACCESSORS ================================= */
     OsStatus loadMappings(
-        const UtlString configFileName,
-        const UtlString mediaserver = "",
+        const UtlString& configFileName,
+        const UtlString& mediaserver = "",
         const UtlString& voicemail = "",
         const UtlString& localhost = "");
+
+    OsStatus loadMappingsString(
+        const UtlString& contents,
+        const UtlString& mediaserver = "",
+        const UtlString& voicemail = "",
+        const UtlString& localhost = "");
+
+/* ============================ ACCESSORS ================================= */
 
     OsStatus getPermissionRequired(
         const Url& requestUri,

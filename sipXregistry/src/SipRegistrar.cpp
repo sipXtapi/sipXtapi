@@ -27,9 +27,9 @@
 #include "net/XmlRpcDispatch.h"
 #include "sipdb/RegistrationDB.h"
 #include "sipdb/DomainDB.h"
-#include "SipRegistrar.h"
+#include "registry/SipRegistrar.h"
 #include "registry/RegisterPlugin.h"
-#include "SipRedirectServer.h"
+#include "registry/SipRedirectServer.h"
 #include "SipRegistrarServer.h"
 #include "RegistrarPeer.h"
 #include "RegistrarPersist.h"
@@ -91,8 +91,6 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
                     " SIP_REGISTRAR_XMLRPC_PORT == PORT_NONE :"
                     " peer synchronization disabled"
                     );
-
-
    }
    else // HTTP/RPC port is configured
    {

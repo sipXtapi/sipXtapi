@@ -461,6 +461,21 @@ class UrlMappingTest : public CppUnit::TestCase, public UrlMapping
                          , actual );
          registrations.destroyAll();
 
+         // Check for plus sign in the URL
+         // the plus should be escaped in the mailbox parameter
+         // and NOT in the user part
+         urlmap->getContactList( Url("+9663@thisdomain")
+                                ,registrations, isPSTNnumber, permissions
+                                );
+         CPPUNIT_ASSERT( permissions.getSize() == 0 );
+         CPPUNIT_ASSERT( registrations.getSize() == 1 );
+         getResult( registrations, 0, "contact"
+                                  , actual
+                        );
+         ASSERT_STR_EQUAL("<sip:+9663@" MS ";play=" VM "mailbox%3D%2B9663>;q=0.1"
+                         , actual );
+         registrations.destroyAll();
+
 
          urlmap->getContactList( Url("918001234567@thisdomain")
                                 ,registrations, isPSTNnumber, permissions

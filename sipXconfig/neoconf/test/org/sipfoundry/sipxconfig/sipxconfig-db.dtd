@@ -171,7 +171,7 @@
     description CDATA #IMPLIED
     serial_number CDATA #IMPLIED
     value_storage_id CDATA #IMPLIED
-    model_id CDATA #IMPLIED
+    model_id CDATA #REQUIRED
     device_version_id CDATA #IMPLIED
     prefix CDATA #IMPLIED
     default_caller_alias CDATA #IMPLIED
@@ -387,13 +387,25 @@
     serial_number CDATA #REQUIRED
     bean_id CDATA #IMPLIED
     value_storage_id CDATA #IMPLIED
-    model_id CDATA #IMPLIED
+    model_id CDATA #REQUIRED
     device_version_id CDATA #IMPLIED
 >
 
 <!ELEMENT phone_group EMPTY>
 <!ATTLIST phone_group
     phone_id CDATA #REQUIRED
+    group_id CDATA #REQUIRED
+>
+
+<!ELEMENT phonebook EMPTY>
+<!ATTLIST phonebook
+    phonebook_id CDATA #REQUIRED
+    members_csv_filename CDATA #IMPLIED
+>
+
+<!ELEMENT phonebook_member EMPTY>
+<!ATTLIST phonebook_member
+    phonebook_id CDATA #REQUIRED
     group_id CDATA #REQUIRED
 >
 

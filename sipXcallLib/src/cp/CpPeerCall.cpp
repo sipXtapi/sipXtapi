@@ -338,6 +338,7 @@ UtlBoolean CpPeerCall::handleTransfer(OsMsg* pEventMessage)
         setCallType(CP_TRANSFER_CONTROLLER_ORIGINAL_CALL);
 
         int metaEventId = ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
+        bool remoteHoldBeforeTransfer = ((CpMultiStringMessage*)pEventMessage)->getInt2Data();
         UtlString targetCallId;
         ((CpMultiStringMessage*)pEventMessage)->getString3Data(targetCallId);
         setTargetCallId(targetCallId.data());
@@ -380,9 +381,10 @@ UtlBoolean CpPeerCall::handleTransfer(OsMsg* pEventMessage)
         while ((connection = (Connection*) iterator()))
         {
             // Do the transfer operation on each connection in this call
-            UtlBoolean isOk = connection->originalCallTransfer(transferTargetAddress, 
-                NULL, targetCallId.data());
-
+            UtlBoolean isOk = connection->originalCallTransfer(transferTargetAddress, NULL,
+                                                               targetCallId.data(),
+                                                               remoteHoldBeforeTransfer
+                                                               );
             if (!isOk)
             {
                 UtlString targetCallId;

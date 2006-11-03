@@ -15,7 +15,9 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -26,6 +28,7 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class SipxServer extends BeanWithSettings implements Server, AliasProvider {
     private static final String DOMAIN_NAME = "domain/SIPXCHANGE_DOMAIN_NAME";
+    private static final String SIP_REGISTRAR_DOMAIN_ALIASES = "domain/SIP_REGISTRAR_DOMAIN_ALIASES";
     private static final String PRESENCE_SIGN_IN_CODE = "presence/SIP_PRESENCE_SIGN_IN_CODE";
     private static final String PRESENCE_SIGN_OUT_CODE = "presence/SIP_PRESENCE_SIGN_OUT_CODE";
     private static final String PRESENCE_SERVER_SIP_PORT = "presence/PRESENCE_SERVER_SIP_PORT";
@@ -68,12 +71,16 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
 
     public void applySettings() {
         try {
-            handlePossiblePresenceServerChange();
             m_storage.flush();
+            handlePossiblePresenceServerChange();
         } catch (IOException e) {
             // TODO: catch and report as User Exception
             throw new RuntimeException(e);
         }
+    }
+
+    public void resetSettings() {
+        m_storage.reset();
     }
 
     private void handlePossiblePresenceServerChange() {
@@ -137,6 +144,17 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
     public String getMusicOnHoldUri() {
         String parkAddress = (String) getSettingTypedValue(PARK_ADDRESS);
         return SipUri.format(m_mohUser, parkAddress, false);
+    }
+
+    public void setRegistrarDomainAliases(Collection<String> aliases) {
+        Setting setting = getSettings().getSetting(SIP_REGISTRAR_DOMAIN_ALIASES);
+        List<String> allAliases = new ArrayList<String>();
+        allAliases.add(setting.getDefaultValue());
+        if (aliases != null) {
+            allAliases.addAll(aliases);
+        }
+        String aliasesString = StringUtils.join(allAliases.iterator(), ' ');
+        setting.setValue(aliasesString);
     }
 
     @Override

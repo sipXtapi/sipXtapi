@@ -18,6 +18,9 @@ sipregistrar_SOURCES =  \
 sipregistrar_LDADD = \
 	libsipXregistry.la
 
+sipregistrar_LDFLAGS = \
+	-rdynamic
+
 noinst_LTLIBRARIES = libsipXregistry.la
 
 libsipXregistry_la_CXXFLAGS = $(sipregistrar_CXXFLAGS)
@@ -28,6 +31,7 @@ libsipXregistry_la_LIBADD = \
 libsipXregistry_la_SOURCES = \
     $(top_builddir)/config/sipxregistry-buildstamp.h \
     $(top_builddir)/config/sipxregistry-buildstamp.cpp \
+    RedirectPlugin.cpp \
     RedirectResumeMsg.cpp \
     RedirectSuspend.cpp \
     RegistrarInitialSync.h \
@@ -40,31 +44,10 @@ libsipXregistry_la_SOURCES = \
     RegistrarSync.cpp \
     RegistrarPeer.h \
     RegistrarPeer.cpp \
-    SipRedirectorAliasDB.cpp \
-    SipRedirectorCallerAlias.cpp \
-    SipRedirectorHunt.cpp \
-    SipRedirectorMapping.cpp \
-    SipRedirectorMPT.cpp \
-    SipRedirectorPickUp.cpp \
-    SipRedirectorRegDB.cpp \
-    SipRedirectorSubscribe.cpp \
     SipRedirectServer.cpp \
-    SipRedirector.cpp \
     SipRegistrar.cpp \
     SipRegistrarServer.cpp \
     RedirectResumeMsg.h \
-    RedirectSuspend.h \
-    SipRedirectorAliasDB.h \
-    SipRedirectorCallerAlias.h \
-    SipRedirectorHunt.h \
-    SipRedirectorMapping.h \
-    SipRedirectorMPT.h \
-    SipRedirectorPickUp.h \
-    SipRedirectorRegDB.h \
-    SipRedirectorSubscribe.h \
-    SipRedirectServer.h \
-    SipRegistrar.h \
     SipRegistrarServer.h \
-    SipRedirector.h \
     SyncRpc.h \
     SyncRpc.cpp

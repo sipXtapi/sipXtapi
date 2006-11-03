@@ -17,7 +17,7 @@
 #include "os/OsConfigDb.h"
 #include "testlib/RegistrationDbTestContext.h"
 #include "utl/UtlSListIterator.h"
-#include "SipRegistrar.h"
+#include "registry/SipRegistrar.h"
 #include "RegistrarPeer.h"
 
 // DEFINES

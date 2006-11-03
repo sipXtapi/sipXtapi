@@ -132,14 +132,14 @@ public class SettingSet extends AbstractSetting implements Cloneable, Serializab
     }
 
     public String getDefaultValue() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(getPath());
     }
 
     public String getValue() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(getPath());
     }
 
     public void setValue(String value) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(getPath());
     }
 }

@@ -55,6 +55,7 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
         getHibernateTemplate().saveOrUpdate(domain);
         
         getServer().setDomainName(domain.getName());
+        getServer().setRegistrarDomainAliases(domain.getAliases());
         getServer().applySettings();
     }
     

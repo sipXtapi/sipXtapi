@@ -33,6 +33,7 @@
   </component>
   <component id="cancel" type="Submit">
     <binding name="listener" value="listener:cancel"/>
+    <binding name="value" value="message:button.cancel"/>
   </component>
   <component id="showAdvanced" type="ToggleLink">
     <binding name="toggle" value="showAdvanced"/>

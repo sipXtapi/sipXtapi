@@ -3,4 +3,8 @@
 nobase_includeHEADERS_INSTALL = $(INSTALL) -D -p -c -m 644
 
 nobase_include_HEADERS =  \
-	registry/RegisterPlugin.h
+	registry/RedirectPlugin.h \
+	registry/RedirectSuspend.h \
+	registry/RegisterPlugin.h \
+	registry/SipRedirectServer.h \
+	registry/SipRegistrar.h

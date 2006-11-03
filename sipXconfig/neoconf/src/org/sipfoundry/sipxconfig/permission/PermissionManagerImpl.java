@@ -19,6 +19,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -27,9 +29,11 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
         PermissionManager {
 
     private ModelFilesContext m_modelFilesContext;
+    private SipxReplicationContext m_replicationContext;
 
     public void addCallPermission(Permission permission) {
         getHibernateTemplate().saveOrUpdate(permission);
+        m_replicationContext.generate(DataSet.PERMISSION);
     }
 
     public Collection<Permission> getCallPermissions() {
@@ -38,6 +42,7 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
 
     public void removeCallPermissions(Collection<Integer> permissionIds) {
         removeAll(Permission.class, permissionIds);
+        m_replicationContext.generate(DataSet.PERMISSION);        
     }
 
     public Permission getPermission(Object id) {
@@ -65,10 +70,6 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
             return builtInPermissions.get(id);
         }
         return super.load(c, id);
-    }
-
-    public void setModelFilesContext(ModelFilesContext modelFilesContext) {
-        m_modelFilesContext = modelFilesContext;
     }
 
     /**
@@ -119,5 +120,13 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
 
     private Setting loadSettings() {
         return m_modelFilesContext.loadModelFile("user-settings.xml");
+    }
+    
+    public void setReplicationContext(SipxReplicationContext replicationContext) {
+        m_replicationContext = replicationContext;
+    }
+    
+    public void setModelFilesContext(ModelFilesContext modelFilesContext) {
+        m_modelFilesContext = modelFilesContext;
     }
 }

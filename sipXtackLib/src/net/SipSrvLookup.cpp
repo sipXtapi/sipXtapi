@@ -184,37 +184,6 @@ static void lookup_A(server_t*& list,
  * @returns TRUE if one or more addresses were added to the list.
  */
 
-/// Perform a DNS query and parse the results.  Follows CNAME records.
-static void res_query_and_parse(const char* in_name,
-                                ///< domain name to look up
-                                int type,
-                                ///< RR type to look up
-                                res_response* in_response,
-                                /**< response structure to
-                                 *   look in before calling
-                                 *   res_query, or NULL */
-                                const char*& out_name,
-                                ///< canonical name for in_name
-                                res_response*& out_response
-                                ///< response structure containing RRs
-   );
-/**<
- * Performs a DNS query for a particular type of RR on a given name,
- * doing all the work to follow CNAMEs.  The 'in_name' and 'type'
- * arguments specify the RRs to look for.  If 'in_response' is not NULL,
- * it is the results of some previous search for the same name, for
- * a different type of RR, which might contain RRs for this search.
- *
- * @return out_response is a pointer to a response structure, or NULL.
- * If non-NULL, the RRs of the required type (if any) are in out_response
- * (in either the answer section or the additional section), under the name
- * out_name.
- *
- * The caller is responsible for freeing out_name if it is non-NULL
- * and != in_name.  The caller is responsible for freeing out_response if it
- * is non-NULL and != in_response.
- */
-
 /**
  * Search for an RR with 'name' and 'type' in the answer and additional
  * sections of a DNS response.
@@ -590,7 +559,8 @@ void lookup_SRV(server_t*& list,
    sprintf(lookup_name, "_%s._%s.%s", service, proto_string, domain);
 
    // Make the query and parse the response.
-   res_query_and_parse(lookup_name, T_SRV, NULL, canonical_name, response);
+   SipSrvLookup::res_query_and_parse(lookup_name, T_SRV, NULL, canonical_name,
+                                     response);
    if (response != NULL)
    {
        unsigned int i;
@@ -676,7 +646,8 @@ void lookup_A(server_t*& list,
    const char* canonical_name;
 
    // Make the query and parse the response.
-   res_query_and_parse(domain, T_A, in_response, canonical_name, response);
+   SipSrvLookup::res_query_and_parse(domain, T_A, in_response, canonical_name,
+                                     response);
 
    // Search the list of RRs.
    // For each answer that is an SRV record for this domain name.
@@ -737,11 +708,11 @@ void lookup_A(server_t*& list,
 }
 
 // Perform a DNS query and parse the results.  Follows CNAME records.
-void res_query_and_parse(const char* in_name,
-                         int type,
-                         res_response* in_response,
-                         const char*& out_name,
-                         res_response*& out_response
+void SipSrvLookup::res_query_and_parse(const char* in_name,
+                                       int type,
+                                       res_response* in_response,
+                                       const char*& out_name,
+                                       res_response*& out_response
    )
 {
    // The number of CNAMEs we have followed.

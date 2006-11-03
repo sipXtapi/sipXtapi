@@ -218,8 +218,10 @@ public:
    //! param: requestQueuedCall - indicates that the caller wishes to have the callee queue the call if busy
 
    virtual UtlBoolean originalCallTransfer(UtlString& transferTargetAddress,
-						           const char* transferControllerAddress,
-                                   const char* targetCallId) = 0;
+                                           const char* transferControllerAddress,
+                                           const char* targetCallId,
+                                           bool       remoteHoldBeforeTransfer = true
+                                           ) = 0;
    // Initiate transfer on transfer controller connection in 
    // the original call.
    // If fromAddress or toAddress are NULL it is assumed to

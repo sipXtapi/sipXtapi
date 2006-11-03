@@ -16,6 +16,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
@@ -25,6 +26,8 @@ import org.sipfoundry.sipxconfig.permission.Permission;
  * CustomDialingRule
  */
 public class CustomDialingRule extends DialingRule {
+    private static final String ROUTE_PATTERN = "route=%s";
+
     private List<DialPattern> m_dialPatterns = new ArrayList<DialPattern>();
     private CallPattern m_callPattern = new CallPattern();
     private List<String> m_permissionNames = new ArrayList<String>();
@@ -68,12 +71,12 @@ public class CustomDialingRule extends DialingRule {
 
     @Override
     public Transform[] getTransforms() {
-        final String calculatePattern = getCallPattern().calculatePattern();
-        List gateways = getGateways();
+        final String outPattern = getCallPattern().calculatePattern();
+        List<Gateway> gateways = getGateways();
         Transform[] transforms;
         if (gateways.isEmpty()) {
             FullTransform transform = new FullTransform();
-            transform.setUser(calculatePattern);
+            transform.setUser(outPattern);
             transforms = new Transform[] {
                 transform
             };
@@ -81,18 +84,28 @@ public class CustomDialingRule extends DialingRule {
             transforms = new Transform[gateways.size()];
             ForkQueueValue q = new ForkQueueValue(gateways.size());
             for (int i = 0; i < transforms.length; i++) {
-                Gateway g = (Gateway) gateways.get(i);
-                FullTransform transform = new FullTransform();
-                transform.setHost(g.getAddress());
-                transform.setUser(g.getCallPattern(calculatePattern));
-                String[] fieldParams = new String[] {
-                    q.getSerial()
-                };
-                transform.setFieldParams(fieldParams);
-                transforms[i] = transform;
+                transforms[i] = getGatewayTransform(gateways.get(i), outPattern, q);
             }
         }
         return transforms;
+    }
+
+    private FullTransform getGatewayTransform(Gateway g, String pattern, ForkQueueValue q) {
+        FullTransform transform = new FullTransform();
+        transform.setHost(g.getAddress());
+        transform.setUser(g.getCallPattern(pattern));
+        String[] fieldParams = {
+            q.getSerial()
+        };
+        transform.setFieldParams(fieldParams);
+        String route = g.getRoute();
+        if (StringUtils.isNotBlank(route)) {
+            String[] headerParams = {
+                String.format(ROUTE_PATTERN, route)
+            };
+            transform.setHeaderParams(headerParams);
+        }
+        return transform;
     }
 
     public DialingRuleType getType() {

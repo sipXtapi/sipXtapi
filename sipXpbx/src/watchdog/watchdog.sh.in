@@ -36,6 +36,11 @@ case ${Action} in
         Status=$(($Status+$?))
         @SIPX_BINDIR@/sipx-validate-xml @SIPX_CONFDIR@/ProcessDefinitions.xml
         Status=$(($Status+$?))
+        for procspec in @SIPX_CONFDIR@/process.d/*.process.xml
+        do
+          @SIPX_BINDIR@/sipx-validate-xml $procspec
+          Status=$(($Status+$?))
+        done
         ;;
 esac
 

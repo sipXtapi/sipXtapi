@@ -1410,7 +1410,9 @@ UtlBoolean SipConnection::doOffHold(UtlBoolean forceReInvite)
 
 UtlBoolean SipConnection::originalCallTransfer(UtlString& dialString,
                                                const char* transferControllerAddress,
-                                               const char* targetCallId)
+                                               const char* targetCallId,
+                                               bool        holdBeforeTransfer
+                                               )
 {
     UtlBoolean ret = FALSE;
 
@@ -1447,12 +1449,13 @@ UtlBoolean SipConnection::originalCallTransfer(UtlString& dialString,
 
             mTargetCallConnectionAddress = dialString;
             mTargetCallId = targetCallId;
-
-            // If the connection is not already on hold, do a hold
-            // first and then do the REFER transfer
-            if(mFarEndHoldState == TERMCONNECTION_TALKING ||
-                mFarEndHoldState == TERMCONNECTION_NONE)
+            if (    holdBeforeTransfer
+                && (   mFarEndHoldState == TERMCONNECTION_TALKING
+                    || mFarEndHoldState == TERMCONNECTION_NONE
+                    ))
             {
+               // If the connection is not already on hold, do a hold
+               // first and then do the REFER transfer
                 mHoldCompleteAction = CpCallManager::CP_BLIND_TRANSFER;
                 //need to do a remote hold first
                 // Then after that is complete do the REFER
@@ -4527,7 +4530,6 @@ void SipConnection::processInviteResponse(const SipMessage* response)
 #ifdef TEST_PRINT
             osPrintf("no SDP BYE route: %s\n", mRouteField.data());
 #endif
-            UtlString localContact ;
             sipByeRequest.setByeData(inviteMsg,
                 mRemoteContact,
                 inviteFromThisSide,
@@ -5269,8 +5271,8 @@ UtlBoolean SipConnection::getSession(SipSession& session)
     ssn.setLastToCseq(lastRemoteSequenceNumber);
     ssn.setFromUrl(mFromUrl);
     ssn.setToUrl(mToUrl);
-    UtlString localContact;
     ssn.setLocalContact(Url(mLocalContact.data(), FALSE));
+    ssn.setRemoteContact(Url(mRemoteContact.data(), FALSE));
 
     if (!mRemoteUriStr.isNull())
         ssn.setRemoteRequestUri(mRemoteUriStr);

@@ -28,7 +28,7 @@
       <userPattern>101</userPattern>
       <permissionMatch>
         <transform>
-          <url>&lt;sip:{digits}@{mediaserver};play={voicemail}mailbox%3D{digits}&gt;</url>
+          <url>&lt;sip:{digits}@{mediaserver};play={voicemail}mailbox%3D{digits-escaped}&gt;</url>
         </transform>
       </permissionMatch>
     </userMatch>
@@ -37,7 +37,7 @@
       <userPattern>2xxx</userPattern>
       <permissionMatch>
         <transform>
-          <url>&lt;sip:{vdigits}@{mediaserver};play={voicemail}mailbox%3D{vdigits}&gt;</url>
+          <url>&lt;sip:{vdigits}@{mediaserver};play={voicemail}mailbox%3D{vdigits-escaped}&gt;</url>
         </transform>
       </permissionMatch>
     </userMatch>
@@ -60,6 +60,18 @@
         <transform>
           <user>011{vdigits}</user>
           <host>GW-INTL-DIALING-ADDR</host>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <!-- Fall back to voicemail if call to a phone does not succeed
+      -  for any called number that has Voicemail permission; making
+      -  it conditional is accomplished by adding the ';q=0.1' at the end.
+      -->
+    <userMatch>
+      <userPattern>xxxxx</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>&lt;sip:{digits}@{mediaserver};play={voicemail}mailbox%3D{digits-escaped}&gt;;q=0.1</url>
         </transform>
       </permissionMatch>
     </userMatch>

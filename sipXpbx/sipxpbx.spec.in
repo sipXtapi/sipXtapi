@@ -104,7 +104,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/backup-mailstore.sh
 %attr(755,root,root) %{_bindir}/restore-configs.sh
 %attr(755,root,root) %{_bindir}/restore-mailstore.sh
-%attr(755,root,root) %{_bindir}/sipx-uninstall
 
 %attr(755,root,root) %{apache2_mod}/libmod_sipxauth.so
 

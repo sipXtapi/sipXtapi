@@ -340,9 +340,10 @@ public:
 
     //! Blind transfer
     virtual PtStatus transfer_blind(const char* callId,
-                              const char* transferToUrl,
-                              UtlString* targetCallId,
-                              UtlString* targetConnectionAddress = NULL) = 0;
+                                    const char* transferToUrl,
+                                    UtlString* targetCallId,
+                                    UtlString* targetConnectionAddress = NULL,
+                                    bool       remoteHoldBeforeTransfer = false) = 0;
 
     //! Consultative transfer
     /*! This transfer method is used to perform the transfer after
@@ -881,7 +882,7 @@ private:
     UtlDList mCallList;
     int mLastMetaEventId;
     // Every CallManager shares the same call counter for generating Call-IDs.
-    static INT64 mCallNum;
+    static unsigned int mCallNum;
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

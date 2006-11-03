@@ -128,6 +128,7 @@
         <value>org/sipfoundry/sipxconfig/setting/setting.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/upload/upload.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/domain/domain.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/phonebook/phonebook.hbm.xml</value>
       </list>
     </property>
     <property name="hibernateProperties">

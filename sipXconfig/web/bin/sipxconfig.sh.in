@@ -31,7 +31,7 @@ Args=""
 : ${RunningUser:=@sipxpbx.user@}
 
 Database=SIPXCONFIG
-RequiredDatabaseVersion=4
+RequiredDatabaseVersion=5
 IndexDir=${TmpDir}/index
 
 # This function determines the correct service name for Postgres.
@@ -120,8 +120,11 @@ databaseCommand() {
     Classpath=`classpath \
         @sipxpbx.conf.dir@ \
         ${LibDir}/*.jar`
-
-    $JavaCmd \
+        
+    # XCF-1275 - Do not want to suppress output if there is an error
+    # however want to be quiet if everything is ok for clean rpm install
+    # output
+    CmdOut=`$JavaCmd \
         -Djava.net.preferIPv4Stack=true \
         -classpath $Classpath \
         org.apache.tools.ant.launch.Launcher \
@@ -131,8 +134,10 @@ databaseCommand() {
         -Dlog.dir=${LogDir} \
         -Dtmp.dir=${TmpDir} \
         -f ${DatabaseProject} \
-        $@ \
-        > /dev/null 2>&1
+        $@`
+    if [ $? != "0" ]; then
+       echo "$CmdOut" | grep -v '^Unable to locate tools.jar' > /dev/stderr
+    fi       
 }
 
 runningUserCheck() {

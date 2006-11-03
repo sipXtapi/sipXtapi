@@ -100,7 +100,7 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
      */
     public Group getGroupByName(String userGroupName, boolean createIfNotFound);
 
-    public Collection getGroupMembers(Group group);
+    public Collection<User> getGroupMembers(Group group);
     
     public Collection<String> getGroupMembersNames(Group group);
 

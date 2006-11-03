@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<directory>
+  <item_list>
+#foreach($row in $cfg.Rows)
+     <item>
+       <ln>$!{row.LastName}</ln>
+       <fn>$!{row.FirstName}</fn>
+       <ct>${row.Contact}</ct>
+       <sd />
+       <rt>1</rt>
+       <dc />
+       <ad>0</ad>
+       <ar>0</ar>
+       <bw>0</bw>
+       <bb>0</bb>
+     </item>
+#end     
+  </item_list>
+</directory>

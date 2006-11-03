@@ -59,8 +59,12 @@
             -
             - In this element only, the value must be escaped as it would be when
             - transmitted in a SIP message.
+            -
+            - {digits-escaped} is the same substitution as above but HTTP
+            - escaped (mainly for plus sign, so +5551212 comes through as
+            - a http URL parameter correctly)
             -->
-          <url>&lt;sip:{digits}@{mediaserver};play={voicemail}%2Fsipx-cgi%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{digits}&gt;;q=0.1</url>
+          <url>&lt;sip:{digits}@{mediaserver};voicexml={voicemail}%2Fsipx-cgi%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{digits-escaped}&gt;;q=0.1</url>
         </transform>
 
       </permissionMatch>

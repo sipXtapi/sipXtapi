@@ -23,7 +23,7 @@
   <component id="editPhoneNavigation" type="PhoneNavigation">
     <binding name="phone" value="phone"/>
     <binding name="tab" value="literal:EditPhone"/>
-    <binding name="heading" value="literal:Identification"/>
+    <binding name="heading" value="message:title"/>
   </component>
   <component id="editPhoneForm" type="EditPhoneForm">
     <binding name="phone" value="phone"/>

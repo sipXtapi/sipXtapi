@@ -12,7 +12,6 @@
 package org.sipfoundry.sipxconfig.phone.cisco;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -58,7 +57,7 @@ public class CiscoAtaPhone extends CiscoPhone {
     private String m_binDir;
 
     private boolean m_isTextFormatEnabled;
-    
+
     public CiscoAtaPhone() {
         super(new CiscoModel(BEAN_ID));
     }
@@ -111,9 +110,10 @@ public class CiscoAtaPhone extends CiscoPhone {
         line.setSettingValue(USER_ID_PATH, lineInfo.getUserId());
         if (getCiscoModel().isAta()) {
             line.setSettingValue(REGISTRATION_ATA_PATH, lineInfo.getRegistrationServer());
-            line.setSettingValue(REGISTRATION_PORT_ATA_PATH, lineInfo
+            line
+                    .setSettingValue(REGISTRATION_PORT_ATA_PATH, lineInfo
                             .getRegistrationServerPort());
-        } else {            
+        } else {
             line.setSettingValue(REGISTRATION_PATH, lineInfo.getRegistrationServer());
             line.setSettingValue(REGISTRATION_PORT_PATH, lineInfo.getRegistrationServerPort());
         }
@@ -168,7 +168,7 @@ public class CiscoAtaPhone extends CiscoPhone {
         m_binDir = binDir;
     }
 
-    public void generateProfile(Writer wtr) {
+    public void generateProfile(String phoneTemplate, Writer wtr) {
         CiscoAtaProfileWriter pwtr = new CiscoAtaProfileWriter(wtr);
         pwtr.write(this);
     }
@@ -176,16 +176,8 @@ public class CiscoAtaPhone extends CiscoPhone {
     public void generateProfiles() {
         String outputfile = getPhoneFilename();
         String outputTxtfile = outputfile + ".txt";
-        FileWriter wtr = null;
 
-        try {
-            wtr = new FileWriter(outputTxtfile);
-            generateProfile(wtr);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            IOUtils.closeQuietly(wtr);
-        }
+        generateFile(outputTxtfile, getPhoneTemplate());
 
         requireFile(getCfgfmtUtility());
         requireFile(getPtagDat());
@@ -239,10 +231,7 @@ public class CiscoAtaPhone extends CiscoPhone {
             m_line = line;
         }
 
-        @SettingEntry(
-            paths = {
-                USER_ID_PATH, LOGIN_ID_PATH
-                })
+        @SettingEntry(paths = { USER_ID_PATH, LOGIN_ID_PATH })
         public String getUserName() {
             String userId = null;
             User u = m_line.getUser();
@@ -272,10 +261,7 @@ public class CiscoAtaPhone extends CiscoPhone {
             return displayName;
         }
 
-        @SettingEntry(
-            paths = {
-                REGISTRATION_PATH, REGISTRATION_ATA_PATH
-                })
+        @SettingEntry(paths = { REGISTRATION_PATH, REGISTRATION_ATA_PATH })
         public String getRegistrationServer() {
             return m_line.getPhoneContext().getPhoneDefaults().getDomainName();
         }
@@ -336,11 +322,8 @@ public class CiscoAtaPhone extends CiscoPhone {
 
     public static class StubAtaLine {
 
-        @SettingEntry(
-            paths = {
-                DISPLAY_NAME_PATH, USER_ID_PATH, LOGIN_ID_PATH, USER_ID_PATH, PASSWORD_PATH
-                })
-        public String getZero() {
+        @SettingEntry(paths = { DISPLAY_NAME_PATH, USER_ID_PATH, LOGIN_ID_PATH, USER_ID_PATH, PASSWORD_PATH })
+        public String getZero() { 
             return ZERO;
         }
     }

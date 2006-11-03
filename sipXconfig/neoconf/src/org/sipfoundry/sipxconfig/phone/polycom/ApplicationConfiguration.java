@@ -120,6 +120,12 @@ public class ApplicationConfiguration extends VelocityProfileGenerator {
         return getDirectory() + "/phone.cfg";        
     }
     
+    public String getDirectoryFilename() {
+        // do not put this in getDirectory() because w/FTP it's not nec. anymore. 
+        // getDirectory() and respective code should removed 
+        return ((PolycomPhone) getDevice()).getSerialNumber() + "-directory.xml";
+    }
+    
     public void deleteStaleDirectories() {
         try {
             PolycomPhone polycomPhone = (PolycomPhone) getDevice();

@@ -38,7 +38,7 @@
   </component>
   <component id="backup" type="Submit">
     <binding name="listener" value="listener:backup"/>
-    <binding name="value" value="literal:Backup Now"/>
+    <binding name="value" value="message:backupNow"/>
   </component>
   <component id="ifResultsPresent" type="If">
     <binding name="condition" value="!backupFiles.empty"/>

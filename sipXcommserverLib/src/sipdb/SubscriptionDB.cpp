@@ -31,6 +31,8 @@
 REGISTER( SubscriptionRow );
 
 // MACROS
+//#define TEST_DEBUG /* enable to turn on detailed database logs */
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -218,7 +220,7 @@ SubscriptionDB::store()
         if ( rows > 0 )
         {
             OsSysLog::add( FAC_SIP, PRI_DEBUG
-                          ,"SubscriptionDB::store writing %d rows\n"
+                          ,"SubscriptionDB::store writing %d rows"
                           ,rows
                           );
 
@@ -353,46 +355,87 @@ SubscriptionDB::insertRow (
     UtlBoolean result = FALSE;
     if ( !uri.isNull() && ( m_pFastDB != NULL ) )
     {
+       int timeNow = OsDateTime::getSecsSinceEpoch();
+
         // Thread Local Storage
         m_pFastDB->attach();
 
-        // Search for a matching row before deciding to update or insert
-        dbCursor< SubscriptionRow > cursor( dbCursorForUpdate );
-        dbQuery query;
-
-        // Firstly purge all expired field entries from the DB that are expired for this identity
-        // we can not purge all rows because a Notify should be to user
-        int timeNow = OsDateTime::getSecsSinceEpoch();
-        query = "expires <", static_cast<const int&>(timeNow);
-
-        if ( cursor.select( query ) > 0 ) {
-            cursor.removeAllSelected();
-        }
-
+        // get rid of any expired subscriptions before searching
+        removeExpired( timeNow );
+        
+        // Search for a matching row before deciding to update or insert        
         // query all sessions (should only be one here)
-        query="to=",to,
+        dbQuery existingQuery;
+        
+#       ifdef TEST_DEBUG
+        OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::insertRow <<<<<<<<<<<< query:\n"
+                      "  to='%s'\n"
+                      "  from='%s'\n"
+                      "  callid='%s'\n"
+                      "  eventtype='%s'\n"
+                      "  id='%s'",
+                      to.data(),
+                      from.data(),
+                      callid.data(),
+                      eventType.data(),
+                      ( id.isNull() ? SPECIAL_IMDB_NULL_VALUE : id.data())
+                      );
+#       endif
+        
+        existingQuery =
+              "to=",to,
               "and from=",from,
               "and callid=",callid,
-	      "and eventtype=",eventType,
+              "and eventtype=",eventType,
               "and id=",( id.isNull() ? SPECIAL_IMDB_NULL_VALUE : id.data() );
-        if ( cursor.select( query ) > 0 )
+        dbCursor< SubscriptionRow > existingCursor( dbCursorForUpdate );
+        int existing = existingCursor.select( existingQuery );
+        if ( existing > 0 )
         {
+#          ifdef TEST_DEBUG
+           UtlString matchRows;
+#          endif
             // Should only be one row, only updating this
             do 
             {
+#               ifdef TEST_DEBUG
+                matchRows.append(" callid '");
+                matchRows.append(existingCursor->callid);
+                matchRows.append("' cseq ");
+                char logCseq[10];
+                sprintf(logCseq, "%d", existingCursor->subscribecseq);
+                matchRows.append(logCseq);
+                matchRows.append(" contact '");
+                matchRows.append(existingCursor->contact);
+                matchRows.append("'"); // :TODO: 
+#               endif
                 // only update the row if the subscribe is newer 
                 // than the last IMDB update
-                if ( cursor->subscribecseq < subscribeCseq ) 
+                if ( existingCursor->subscribecseq < subscribeCseq ) 
                 { // refreshing subscribe request
-                    cursor->uri = uri;
-                    cursor->expires = static_cast<const int&>(expires);
-                    cursor->subscribecseq = subscribeCseq;
-                    cursor->recordroute = recordRoute;
-                    cursor->contact = contact;
-                    cursor.update();
+                    existingCursor->uri = uri;
+                    existingCursor->expires = static_cast<const int&>(expires);
+                    existingCursor->subscribecseq = subscribeCseq;
+                    existingCursor->recordroute = recordRoute;
+                    existingCursor->contact = contact;
+                    existingCursor.update();
+#                   ifdef TEST_DEBUG
+                    matchRows.append(" UPDATED");
+#                   endif
                 } // do nothing as the the input cseq is <= the db cseq
-            } while ( cursor.nextAvailable() );
-        } else
+            } while ( existingCursor.nextAvailable() );
+
+            OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::insertRow found %d rows"
+#                         ifdef TEST_DEBUG
+                          ": %s",
+#                         endif
+                          ,existing
+#                         ifdef TEST_DEBUG
+                          ,matchRows.data()
+#                         endif
+                          );
+        }
+        else
         {
             // Insert new row
             SubscriptionRow row;
@@ -403,12 +446,27 @@ SubscriptionDB::insertRow (
             row.subscribecseq = subscribeCseq;
             row.notifycseq = notifyCseq;
             row.eventtype = eventType;
-            row.id = id;
+            row.id = ( id.isNull() ? SPECIAL_IMDB_NULL_VALUE : id.data() );
             row.from = from;
             row.key = key;
             row.to = to;
             row.recordroute = recordRoute;
             insert (row);
+
+#           ifdef TEST_DEBUG
+            OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::insertRow <<<<<<<<<<<< added:\n"
+                          "  to='%s'\n"
+                          "  from='%s'\n"
+                          "  callid='%s'\n"
+                          "  eventtype='%s'\n"
+                          "  id='%s'",
+                          to.data(),
+                          from.data(),
+                          callid.data(),
+                          eventType.data(),
+                          ( id.isNull() ? SPECIAL_IMDB_NULL_VALUE : id.data())
+                          );
+#           endif
         }
         // Either did an insert or an update
         // Commit rows to memory - multiprocess workaround
@@ -454,8 +512,7 @@ SubscriptionDB::removeRow (
         else
         {
            OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::removeRow row not found:\n"
-                         "to='%s' from='%s' callid='%s'\n"
-                         "cseq='%d'",
+                         "to='%s' from='%s' callid='%s' cseq=%d",
                          to.data(), from.data(), callid.data(),
                          subscribeCseq
                          );
@@ -485,12 +542,29 @@ SubscriptionDB::removeErrorRow (
          "and callid=",callid;
       if (cursor.select(query) > 0)
       {
+#if 1 // :TODO: remove debug trace
+         UtlString errorRows;
+         do
+         {
+            errorRows.append("\n to '");
+            errorRows.append(cursor->to);
+            errorRows.append("' from '");
+            errorRows.append(cursor->from);
+            errorRows.append("' callid '");
+            errorRows.append(cursor->callid);
+            errorRows.append("'");
+         } while (cursor.next());
+         
+         OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::removeErrorRow rows: %s",
+                       errorRows.data()
+                       );
          cursor.removeAllSelected();
+#endif  // :TODO: remove debug trace
       }
       else
       {
          OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::removeErrorRow row not found:\n"
-                       "to='%s' from='%s' callid='%s'\n",
+                       "to='%s' from='%s' callid='%s'",
                        to.data(), from.data(), callid.data()
                        );
       }
@@ -685,7 +759,7 @@ SubscriptionDB::getUnexpiredSubscriptions (
     const UtlString& key,
     const UtlString& eventType,
     const int& timeNow,
-    ResultSet& rResultSet ) const
+    ResultSet& rResultSet )
 {
     // Clear the results
     rResultSet.destroyAll();
@@ -695,19 +769,15 @@ SubscriptionDB::getUnexpiredSubscriptions (
         // Thread Local Storage
         m_pFastDB->attach();
 
-        // Create an update cursor to purge the DB
-        // of all expired contacts. 
-        // This should be eventually done via a daemon thread
+        // remove all expired subscriptions
+        removeExpired(timeNow);
+        
+        // Now select the remaining current events
         dbCursor< SubscriptionRow > cursor( dbCursorForUpdate );
         dbQuery query;
-        query="expires <",timeNow;
-        if ( cursor.select( query ) > 0 ) {
-            cursor.removeAllSelected();
-        }
-
-        // Now select the remaining current events
         query="key=",key,"and eventtype=",eventType;
-        if ( cursor.select(query) > 0 )
+        int foundRows = cursor.select(query);
+        if ( foundRows > 0 )
         {
             do {
                 UtlHashMap record;
@@ -785,6 +855,27 @@ SubscriptionDB::getUnexpiredSubscriptions (
         m_pFastDB->detach(0);
     }
 }
+
+/// Clean out any expired rows -- caller must hold lock and have db attached.
+void SubscriptionDB::removeExpired( const int timeNow )
+{
+   dbCursor< SubscriptionRow > expireCursor( dbCursorForUpdate );
+   dbQuery expireQuery;
+
+   // Firstly purge all expired field entries from the DB that are expired for this identity
+   // we can not purge all rows because a Notify should be to user
+   expireQuery = "expires <", static_cast<const int>(timeNow);
+   int expiring = expireCursor.select( expireQuery );
+   if ( expiring > 0 )
+   {
+      OsSysLog::add(FAC_DB, PRI_DEBUG,
+                    "SubscriptionDB::removeExpired removing %d expired subscriptions",
+                    expiring
+                    );
+      
+      expireCursor.removeAllSelected();
+   }
+}    
 
 SubscriptionDB*
 SubscriptionDB::getInstance( const UtlString& name )

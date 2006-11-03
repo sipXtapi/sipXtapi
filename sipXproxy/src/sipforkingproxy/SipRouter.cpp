@@ -148,8 +148,39 @@ UtlBoolean SipRouter::handleMessage(OsMsg& eventMessage)
 
 bool SipRouter::proxyMessage(SipMessage& sipRequest)
 {
-   // TBD - [XPR-183] Check for loops here.
+   bool proxyMessage = false;
 
+   // TODO - [XPR-183] Check for loops here.
+
+   /*
+    * Check for a Proxy-Require header containing unsupported extensions
+    */
+   UtlString extension;
+   UtlString disallowedExtensions;
+   for (int extensionIndex = 0;
+        sipRequest.getProxyRequireExtension(extensionIndex, &extension);
+        extensionIndex++
+        )
+   {
+      if(!mpSipUserAgent->isExtensionAllowed(extension.data()))
+      {
+         if(!disallowedExtensions.isNull())
+         {
+            disallowedExtensions.append(SIP_MULTIFIELD_SEPARATOR);
+            disallowedExtensions.append(SIP_SINGLE_SPACE);
+         }
+         disallowedExtensions.append(extension.data());
+      }
+   }
+   if (!disallowedExtensions.isNull())
+   {
+      SipMessage* response = new SipMessage();
+      response->setRequestBadExtension(&sipRequest, disallowedExtensions.data());
+      mpSipUserAgent->setServerHeader(*response);
+      mpSipUserAgent->send(*response);
+   }
+   else
+   {
    /*
     * Check the request URI and the topmost route
     *   - Detect and correct for any strict router upstream
@@ -215,9 +246,12 @@ bool SipRouter::proxyMessage(SipMessage& sipRequest)
    {
       maxForwards = mpSipUserAgent->getMaxForwards();
    }
-   sipRequest.setMaxForwards(maxForwards);
 
-   return true;
+   sipRequest.setMaxForwards(maxForwards);
+   proxyMessage = true;
+   }
+   
+   return proxyMessage;
 }
 
 void SipRouter::addAuthRoute(SipMessage& request)

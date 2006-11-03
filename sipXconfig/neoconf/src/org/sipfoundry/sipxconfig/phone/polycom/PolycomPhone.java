@@ -33,6 +33,8 @@ import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.phonebook.Phonebook;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 /**
@@ -48,15 +50,12 @@ public class PolycomPhone extends Phone {
     private static final String PASSWORD_PATH = "reg/auth.password";
     private static final String USER_ID_PATH = "reg/address";
     private static final String AUTHORIZATION_ID_PATH = "reg/auth.userId";
-
+    private PhonebookManager m_phonebookManager;
     private String m_phoneConfigDir = "polycom/mac-address.d";
-
     private String m_phoneTemplate = m_phoneConfigDir + "/phone.cfg.vm";
-
     private String m_sipTemplate = m_phoneConfigDir + "/sip-%s.cfg.vm";
-
     private String m_coreTemplate = m_phoneConfigDir + "/ipmid.cfg.vm";
-
+    private String m_directoryTemplate = "polycom/mac-address-directory.xml.vm";
     private String m_applicationTemplate = "polycom/mac-address.cfg.vm";
 
     public PolycomPhone() {
@@ -139,9 +138,15 @@ public class PolycomPhone extends Phone {
         generateProfile(sip, getSipTemplate(), app.getSipFilename());
 
         PhoneConfiguration phone = new PhoneConfiguration(this);
-        generateProfile(phone, getPhoneTemplate(), app.getPhoneFilename());
+        generateProfile(phone, getPhoneTemplate(), app.getPhoneFilename());        
 
         app.deleteStaleDirectories();
+
+        Phonebook phonebook = m_phonebookManager.getGlobalPhonebook();
+        if (phonebook != null) {
+            DirectoryConfiguration dir = new DirectoryConfiguration(this, m_phonebookManager, phonebook);
+            generateProfile(dir, getDirectoryTemplate(), app.getDirectoryFilename());        
+        }
     }
 
     public void removeProfiles() {
@@ -160,10 +165,7 @@ public class PolycomPhone extends Phone {
         VelocityProfileGenerator.removeProfileFiles(files);
     }
 
-    /**
-     * HACK: should be private, avoiding checkstyle error
-     */
-    void generateProfile(VelocityProfileGenerator cfg, String template, String outputFile) {
+    private void generateProfile(VelocityProfileGenerator cfg, String template, String outputFile) {
         FileWriter out = null;
         try {
             File f = new File(getTftpRoot(), outputFile);
@@ -445,5 +447,17 @@ public class PolycomPhone extends Phone {
 
     public void restart() {
         sendCheckSyncToFirstLine();
+    }
+
+    public void setPhonebookManager(PhonebookManager phonebookManager) {
+        m_phonebookManager = phonebookManager;
+    }
+
+    public String getDirectoryTemplate() {
+        return m_directoryTemplate;
+    }
+
+    public void setDirectoryTemplate(String directoryTemplate) {
+        m_directoryTemplate = directoryTemplate;
     }
 }

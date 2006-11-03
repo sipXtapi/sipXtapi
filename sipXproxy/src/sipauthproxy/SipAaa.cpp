@@ -32,6 +32,12 @@
 
 // DEFINES
 //#define TEST_PRINT 1
+
+// Define AUTHENTICATE_IN_DIALOG to activate the route-signing mechanism
+// and require authentication of in-dialog requests.
+// This code is probably buggy -- see XPR-197 and related issues.
+//#define AUTHENTICATE_IN_DIALOG
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -133,6 +139,54 @@ SipAaa::SipAaa(SipUserAgent& sipUserAgent,
     timer->periodicEvery(lapseTime, lapseTime);
 }
 
+// Test constructor
+SipAaa::SipAaa(SipUserAgent& sipUserAgent,
+               const char* authenticationRealm,
+               const UtlString& routeName,
+               const char* authRules
+               ) :
+   OsServerTask("SipAaa-%d", NULL, 2000)
+{
+    mpSipUserAgent = &sipUserAgent;
+    mRealm = authenticationRealm ? authenticationRealm : "";
+
+    // Initialize the outbound authorization rules
+    mpAuthorizationRules = new UrlMapping();
+
+    // The name to appear in the route header for the authproxy
+    mRouteName = routeName;
+
+    // Set a fixed signature secret.
+    mSignatureSecret = "1234";
+
+    // Load the auth ruels from the provided string.
+    mpAuthorizationRules->loadMappingsString(authRules);
+
+    // Register to get incoming requests
+    OsMsgQ* queue = getMessageQueue();
+
+    sipUserAgent.addMessageObserver(
+        *queue,
+        "",      // All methods
+        TRUE,    // Requests,
+        FALSE,   // Responses,
+        TRUE,    // Incoming,
+        FALSE,   // OutGoing,
+        "",      // eventName,
+        NULL,    // SipSession* pSession,
+        NULL);   // observerData
+
+    // The period of time in seconds that nonces are valid
+    mNonceExpiration = 60 * 5; // five minutes
+
+    // Set up a periodic timer for nonce garbage collection
+    OsQueuedEvent* queuedEvent = new OsQueuedEvent(*queue, 0);
+    OsTimer* timer = new OsTimer(*queuedEvent);
+    // Once a minute
+    OsTime lapseTime(60,0);
+    timer->periodicEvery(lapseTime, lapseTime);
+}
+
 // Copy constructor
 SipAaa::SipAaa(const SipAaa& rSipAaa)
 {}
@@ -183,474 +237,14 @@ SipAaa::handleMessage( OsMsg& eventMessage )
             }
             else
             {
-                UtlString callId;
-                sipRequest->getCallIdField(&callId);
-                UtlString myRouteUri;
-                UtlString targetUri;
-                UtlBoolean isNextHop = FALSE;
-                UtlString nextHopUri;
-                UtlString firstRouteUri;
-                UtlBoolean routeExists = sipRequest->getRouteUri(0, &firstRouteUri);
-                // If there is a route header just send it on its way
-                if ( routeExists )
-                {
-#                   ifdef TEST_PRINT
-                    osPrintf("SipAaa::handleMessage found a route\n");
-#                   endif
-
-                    // Check the URI.  If the URI has lr the
-                    // previous proxy was a strict router
-                    UtlString requestUri;
-                    sipRequest->getRequestUri(&requestUri);
-                    Url routeUrlParser(requestUri, TRUE);
-                    UtlString dummyValue;
-                    UtlBoolean previousHopStrictRoutes =
-                        routeUrlParser.getUrlParameter( "lr", dummyValue, 0 );
-                    UtlBoolean uriIsMe = mpSipUserAgent->isMyHostAlias(routeUrlParser);
-                    Url firstRouteUriUrl(firstRouteUri);
-                    UtlBoolean firstRouteIsMe = mpSipUserAgent->isMyHostAlias(firstRouteUriUrl);
-
-                    // If the URI is not this server and the
-                    // URI is not marked as a loose route and
-                    // the first route is not this server then
-                    // this server was not in the routes and we
-                    // really do not know if the route set is
-                    // set up as loose or strict routing.  We
-                    // have to assume that it is strict routing.
-                    if(   !previousHopStrictRoutes
-                       && !uriIsMe
-                       && !firstRouteIsMe
-                       )
-                    {
-                        previousHopStrictRoutes = TRUE;
-                    }
-
-                    // If the URI does not have the loose route
-                    // tag and the URI is pointed to this server
-                    // we assume the previous hop strict routed
-                    else if(!previousHopStrictRoutes && uriIsMe)
-                    {
-                        previousHopStrictRoutes = TRUE;
-                    }
-
-                    if ( previousHopStrictRoutes )
-                    {
-#                       ifdef TEST_PRINT
-                        osPrintf("SipAaa::handleMessage previous hop strict routed\n");
-#                       endif
-
-                        // If this is NOT my host and port in the URI
-                        if(! uriIsMe)
-                        {
-                            OsSysLog::add(FAC_SIP, PRI_WARNING,
-                                          "SipAaa::handleMessage Strict route: %s not to this server",
-                                          requestUri.data());
-                            // Put the route back on as this URI is
-                            // not this server.
-                            sipRequest->addRouteUri(requestUri);
-
-                            myRouteUri = "";
-                        }
-                        else
-                        {
-                            myRouteUri = requestUri;
-                        }
-
-                        // We have to pop the last route and put it in the URI
-                        UtlString contactUri;
-                        int lastRouteIndex;
-                        sipRequest->getLastRouteUri(contactUri, lastRouteIndex);
-
-#                       ifdef TEST_PRINT
-                        osPrintf("SipAaa::handleMessage setting new URI: %s\n",
-                                 contactUri.data());
-#                       endif
-
-                        sipRequest->removeRouteUri(lastRouteIndex, &contactUri);
-
-#                       ifdef TEST_PRINT
-                        osPrintf("SipAaa::handleMessage route removed: %s\n",
-                                 contactUri.data());
-#                       endif
-
-                        // Put the last route in a the URI
-                        Url newUri(contactUri);
-                        newUri.getUri(contactUri);
-                        sipRequest->changeRequestUri(contactUri);
-
-#                       ifdef TEST_PRINT
-                        UtlString bytes;
-                        int len;
-                        sipRequest->getBytes(&bytes, &len);
-                        osPrintf("SipAaa: \nStrict\n%s\nNow Loose\n",
-                                 bytes.data());
-
-                        // Where are we going?
-                        // These are used for authorization
-                        targetUri = contactUri;
-                        isNextHop = sipRequest->getRouteUri(0, &nextHopUri);
-                        if ( !isNextHop )
-                        {
-                           nextHopUri = "";
-                        }
-#                       endif
-                    }
-                    else
-                    {
-#                       ifdef TEST_PRINT
-                        osPrintf("SipAaa::handleMessage previous hop loose routed\n");
-#                       endif
-
-                        // If this route is to me, pop it off
-                        if(firstRouteIsMe)
-                        {
-                            // THis is a loose router pop my route off
-                            UtlString dummyUri;
-                            sipRequest->removeRouteUri(0, &dummyUri);
-                            myRouteUri = firstRouteUri;
-                        }
-                        else
-                        {
-                            myRouteUri = "";
-                            OsSysLog::add(FAC_SIP, PRI_WARNING, "SipAaa::handleMessage Loose route: %s not to this server",
-                                firstRouteUri.data());
-                        }
-
-                        // Where are we going?
-                        // These are used for authorization
-                        targetUri = requestUri;
-                        isNextHop = sipRequest->getRouteUri(0, &nextHopUri);
-                        if ( !isNextHop )
-                            nextHopUri = "";
-                    }
-                } else
-                {
-                    // There is no route check if it is mapped to something local
-                    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipAaa::handleMessage no route found") ;
-
-                    UtlString uri;
-                    sipRequest->getRequestUri(&uri);
-
-                    // Where are we going?
-                    // These are used for authorization
-                    myRouteUri = "";
-                    targetUri = uri;
-                    isNextHop = FALSE;
-                    nextHopUri = "";
-                }
-
-                // Get some info about the request
-                // (method, to, from & tags)
-                UtlString method;
-                sipRequest->getRequestMethod(&method);
-                Url fromUrl;
-                Url toUrl;
-                sipRequest->getFromUrl(fromUrl);
-                sipRequest->getToUrl(toUrl);
-                UtlString fromTag;
-                UtlString toTag;
-                fromUrl.getFieldParameter("tag", fromTag);
-                toUrl.getFieldParameter("tag", toTag);
-
-                // If there is a route to me and this is not
-                // the inital call setup (e.g. to tag is set)
-                UtlBoolean routeSignatureIsValid = FALSE;
-                UtlBoolean toMatches = FALSE;
-                UtlBoolean fromMatches = FALSE;
-                UtlString routePermission;
-                UtlString routeTag;
-                UtlString routeSignature;
-                if(!myRouteUri.isNull() && !toTag.isNull())
-                {
-                    Url myRouteUrl(myRouteUri);
-
-                    myRouteUrl.getUrlParameter("a", routePermission);
-                    myRouteUrl.getUrlParameter("t", routeTag);
-                    myRouteUrl.getUrlParameter("s", routeSignature);
-
-                    // The authentication and authorization only applies
-                    // to one direction.
-                    UtlString validRouteSignature;
-                    if(toTag.compareTo(routeTag) == 0)
-                    {
-                        toMatches = TRUE;
-                        calcRouteSignature(routePermission,
-                                           callId,
-                                           toTag,
-                                           validRouteSignature);
-                    }
-                    else if(fromTag.compareTo(routeTag) == 0)
-                    {
-                        fromMatches = TRUE;
-                        calcRouteSignature(routePermission,
-                                           callId,
-                                           fromTag,
-                                           validRouteSignature);
-                    }
-
-                    // If the calculated signature and the one in the route
-                    // match, the route and permission are valid
-                    if(validRouteSignature.compareTo(routeSignature) == 0)
-                    {
-                        routeSignatureIsValid = TRUE;
-                        OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                      "SipAaa::handleMessage Authorized by route signature call-id: %s signature a: %s t: %s s: %s",
-                                      callId.data(), routePermission.data(),
-                                      routeTag.data(), routeSignature.data()
-                                      );
-                    }
-                    else
-                    {
-                        OsSysLog::add(FAC_SIP, PRI_WARNING,
-                                      "SipAaa::handleMessage Invalid route signature call-id: %s signature a: %s t: %s s: %s",
-                                      callId.data(), routePermission.data(),
-                                      routeTag.data(), routeSignature.data()
-                                      );
-                    }
-                }
-
-                // Check if we need to authenticate and authorize the originator.
-                ResultSet permissions;
-                UtlBoolean isPstnNumber;
-
-                if (   mpAuthorizationRules // there are authrules configured
-                    && method.compareTo(SIP_ACK_METHOD) != 0 // We do not authenticate ACKs
-                    )
-                {
-                    // We have a valid route with a signature
-                    if(routeSignatureIsValid)
-                    {
-                        // We can use the permission from the route field.
-
-                        // Request from the caller that required authorization
-                        if(fromMatches && !routePermission.isNull())
-                        {
-                            // Need to authenticate
-                            UtlHashMap record;
-                            UtlString* permissionKey = new UtlString("permission");
-                            UtlString* permissionValue = new UtlString(routePermission);
-
-                            record.insertKeyAndValue(permissionKey,permissionValue);
-
-                            permissions.addValue(record);
-                        }
-
-                        // Request from the original callee
-                        // or Request from the caller that requires
-                        // no authentication
-                        else // if(toMatches) or no permissions
-                        {
-                           // No authentication or authorization
-                           // required
-                           if (!fromMatches)
-                           {
-                              OsSysLog::add(
-                                 FAC_SIP, PRI_INFO,
-                                 "SipAaa::handleMessage upstream request call-id: %s, not authenticating",
-                                 callId.data());
-                           }
-                           else if(routePermission.isNull())
-                           {
-                              OsSysLog::add(
-                                 FAC_SIP, PRI_INFO,
-                                 "SipAaa::handleMessage signed route call-id: %s with no authentication required",
-                                 callId.data());
-                           }
-                           else
-                           {
-                              OsSysLog::add(
-                                 FAC_SIP, PRI_INFO,
-                                 "SipAaa::handleMessage request call-id %s to unrestricted entity with signed route",
-                                 callId.data());
-                           }
-                        }
-                    }
-                    else // route signature is not valid
-                    {
-                        Url targetUrl(targetUri);
-                        mpAuthorizationRules->getPermissionRequired(
-                            targetUrl, isPstnNumber, permissions);
-
-                        // There was no authorization required for contact
-                        // Try the next hop as well
-                        if ( isNextHop && permissions.getSize()==0 )
-                        {
-                            Url nextHopUrl( nextHopUri );
-                            mpAuthorizationRules->getPermissionRequired (
-                                nextHopUrl, isPstnNumber, permissions );
-                        }
-                    }
-                }
-
-                UtlBoolean needsAuthentication;
-                // We always have to route now so that we can sign
-                // the route
-                UtlBoolean needsRecordRouting = TRUE;
-                if(permissions.getSize() > 0)
-                {
-                    needsRecordRouting = TRUE;
-                    UtlString rulePermission;
-                    if(permissions.getSize() == 1)
-                    {
-                        UtlString permissionKey("permission");
-                        UtlHashMap record;
-                        permissions.getIndex(0, record);
-                        rulePermission = *((UtlString*)record.findValue(&permissionKey));
-                    }
-
-                    // If exactly one permission is required and it is
-                    // RecordRoute, there is no need to authenticate.
-                    if(rulePermission.compareTo("RecordRoute", UtlString::ignoreCase) == 0)
-                    {
-                        needsAuthentication = FALSE;
-                    }
-                    else
-                    {
-                        // Forwarding calls to the PSTN gateway workaround
-                        // if incoming calls (fromUrl) match a an entry in the
-                        // AuthexceptionDB then we do not require authentication
-                        UtlString requestUri;
-                        sipRequest->getRequestUri( &requestUri );
-                        Url requestUrl ( requestUri, TRUE );
-                        UtlString userid;
-                        requestUrl.getUserId(userid);
-                        if ( AuthexceptionDB::getInstance()->isException( userid ) )
-                        {
-                            needsAuthentication = FALSE;
-                        }
-                        else
-                        {
-                            needsAuthentication = TRUE;
-                        }
-                    }
-                }
-                else
-                {
-                    needsAuthentication = FALSE;
-                }
-
-                // Authenticate if we need to
-                SipMessage authResponse;
-                UtlString authUser;
-                UtlString matchedPermission;
-
-                if (   needsAuthentication
-                    && (   !isAuthenticated(*sipRequest, authUser, authResponse)
-                        || !isAuthorized( *sipRequest, permissions, authUser,
-                                         authResponse, matchedPermission )
-                        )
-                    )
-                {   // Either not authenticated or not authorized
-                    mpSipUserAgent->setServerHeader(authResponse);
-                    mpSipUserAgent->send(authResponse);
-                }
-                else
-                {
-                   // Otherwise route it on Record route if authenticated
-                    if ( needsRecordRouting )
-                    {
-                        Url routeUrl(mRouteName);
-                        if(mRouteName.isNull())
-                        {
-                            UtlString uriString;
-                            int port;
-
-                            mpSipUserAgent->getViaInfo(OsSocket::UDP, uriString, port );
-
-#                           ifdef TEST_PRINT
-                            osPrintf("SipAaa:handleMessage Record-Route address: %s port: %d\n",
-                                     uriString.data(), port);
-#                           endif
-
-                            routeUrl.setHostAddress(uriString.data());
-                            routeUrl.setHostPort(port);
-                        }
-#                       ifdef TEST_PRINT
-                        else
-                        {
-                            osPrintf("SipAaa:handleMessage Record-Route mRouteName: %s\n",
-                                mRouteName.data());
-                        }
-#                       endif
-
-                        routeUrl.setUrlParameter("lr", "");
-                        UtlString signature;
-
-                        // Preserve the signature if it is valid
-                        if(routeSignatureIsValid)
-                        {
-                            routeUrl.setUrlParameter("a", routePermission);
-                            routeUrl.setUrlParameter("t", routeTag);
-                            routeUrl.setUrlParameter("s", routeSignature);
-                        }
-
-                        // We only add the signature on the initial dialog request
-                        else if(toTag.isNull() && !matchedPermission.isNull())
-                        {
-                            calcRouteSignature(matchedPermission,
-                                               callId,
-                                               fromTag,
-                                               signature);
-                            routeUrl.setUrlParameter("a", matchedPermission);
-                            routeUrl.setUrlParameter("t", fromTag);
-                            routeUrl.setUrlParameter("s", signature);
-                        }
-
-                        // Check to see if we have already added a record-route
-                        // This is a minor optimization.  It avoids the spiral
-                        // on the mid-dialog transactions and keeps the message
-                        // a little smaller.
-                        UtlString previousRRoute;
-                        UtlBoolean newRRouteIsUnique = TRUE;
-                        if(sipRequest->getRecordRouteUri(0, &previousRRoute))
-                        {
-                            // If the host, port and user ID are the same the
-                            // record-route to be added and the top most record-route
-                            // already in the request.
-                            Url prevRRouteUrl(previousRRoute);
-                            if(prevRRouteUrl.isUserHostPortEqual(routeUrl)) 
-                            {
-                                UtlString prevPermission;
-                                UtlString prevFromTag;
-                                UtlString prevSignature;
-                                // If the permission, from tag and signature
-                                // of the existing record-route matches the one
-                                // to be added, mark it as not unique so that
-                                // we do not add it again
-                                if(prevRRouteUrl.getUrlParameter("a", prevPermission) &&
-                                   prevPermission.compareTo(matchedPermission) == 0 &&
-                                   prevRRouteUrl.getUrlParameter("t", prevFromTag) &&
-                                   prevFromTag.compareTo(fromTag) == 0 &&
-                                   prevRRouteUrl.getUrlParameter("s", prevSignature) &&
-                                   prevSignature.compareTo(signature) == 0)
-                                {
-                                    newRRouteIsUnique = FALSE;
-                                }
-                            }
-                        }
-
-                        if(newRRouteIsUnique)
-                        {
-                            //routeUrl.setAngleBrackets();
-                            UtlString recordRoute = routeUrl.toString();
-                            sipRequest->addRecordRouteUri(recordRoute);
-                        }
-                    }
-
-                    // Decrement max forwards
-                    int maxForwards;
-                    if ( sipRequest->getMaxForwards(maxForwards) )
-                    {
-                        maxForwards--;
-                    } else
-                    {
-                        maxForwards = mpSipUserAgent->getMaxForwards();
-                    }
-                    sipRequest->setMaxForwards(maxForwards);
-
-                    sipRequest->resetTransport();
-                    mpSipUserAgent->send(*sipRequest);
-                }
+               if (proxyMessage(*sipRequest))
+               {
+                  // sipRequest may have been rewritten entirely by proxyMessage().
+                  // clear timestamps, protocol, and port information
+                  // so send will recalculate it
+                  sipRequest->resetTransport();
+                  mpSipUserAgent->send(*sipRequest);
+               }
             }
         }
     }
@@ -658,14 +252,473 @@ SipAaa::handleMessage( OsMsg& eventMessage )
     return(TRUE);
 }
 
-// Assignment operator
-SipAaa&
-SipAaa::operator=(const SipAaa& rhs)
+bool SipAaa::proxyMessage(SipMessage& sipRequest)
 {
-    if ( this == &rhs )            // handle the assignment to self case
-        return *this;
+   UtlString callId;
+   sipRequest.getCallIdField(&callId);
+   UtlString myRouteUri;
+   UtlString targetUri;
+   UtlBoolean isNextHop = FALSE;
+   UtlString nextHopUri;
+   UtlString firstRouteUri;
+   UtlBoolean routeExists = sipRequest.getRouteUri(0, &firstRouteUri);
+   // If there is a route header just send it on its way
+   if ( routeExists )
+   {
+#                   ifdef TEST_PRINT
+      osPrintf("SipAaa::handleMessage found a route\n");
+#                   endif
 
-    return *this;
+      // Check the URI.  If the URI has lr the
+      // previous proxy was a strict router
+      UtlString requestUri;
+      sipRequest.getRequestUri(&requestUri);
+      Url routeUrlParser(requestUri, TRUE);
+      UtlString dummyValue;
+      UtlBoolean previousHopStrictRoutes =
+         routeUrlParser.getUrlParameter( "lr", dummyValue, 0 );
+      UtlBoolean uriIsMe = mpSipUserAgent->isMyHostAlias(routeUrlParser);
+      Url firstRouteUriUrl(firstRouteUri);
+      UtlBoolean firstRouteIsMe = mpSipUserAgent->isMyHostAlias(firstRouteUriUrl);
+
+      // If the URI is not this server and the
+      // URI is not marked as a loose route and
+      // the first route is not this server then
+      // this server was not in the routes and we
+      // really do not know if the route set is
+      // set up as loose or strict routing.  We
+      // have to assume that it is strict routing.
+      if(   !previousHopStrictRoutes
+            && !uriIsMe
+            && !firstRouteIsMe
+         )
+      {
+         previousHopStrictRoutes = TRUE;
+      }
+
+      // If the URI does not have the loose route
+      // tag and the URI is pointed to this server
+      // we assume the previous hop strict routed
+      else if(!previousHopStrictRoutes && uriIsMe)
+      {
+         previousHopStrictRoutes = TRUE;
+      }
+
+      if ( previousHopStrictRoutes )
+      {
+#                       ifdef TEST_PRINT
+         osPrintf("SipAaa::handleMessage previous hop strict routed\n");
+#                       endif
+
+         // If this is NOT my host and port in the URI
+         if(! uriIsMe)
+         {
+            OsSysLog::add(FAC_SIP, PRI_WARNING,
+                          "SipAaa::handleMessage Strict route: %s not to this server",
+                          requestUri.data());
+            // Put the route back on as this URI is
+            // not this server.
+            sipRequest.addRouteUri(requestUri);
+
+            myRouteUri = "";
+         }
+         else
+         {
+            myRouteUri = requestUri;
+         }
+
+         // We have to pop the last route and put it in the URI
+         UtlString contactUri;
+         int lastRouteIndex;
+         sipRequest.getLastRouteUri(contactUri, lastRouteIndex);
+
+#                       ifdef TEST_PRINT
+         osPrintf("SipAaa::handleMessage setting new URI: %s\n",
+                  contactUri.data());
+#                       endif
+
+         sipRequest.removeRouteUri(lastRouteIndex, &contactUri);
+
+#                       ifdef TEST_PRINT
+         osPrintf("SipAaa::handleMessage route removed: %s\n",
+                  contactUri.data());
+#                       endif
+
+         // Put the last route in a the URI
+         Url newUri(contactUri);
+         newUri.getUri(contactUri);
+         sipRequest.changeRequestUri(contactUri);
+
+#                       ifdef TEST_PRINT
+         UtlString bytes;
+         int len;
+         sipRequest.getBytes(&bytes, &len);
+         osPrintf("SipAaa: \nStrict\n%s\nNow Loose\n",
+                  bytes.data());
+
+         // Where are we going?
+         // These are used for authorization
+         targetUri = contactUri;
+         isNextHop = sipRequest.getRouteUri(0, &nextHopUri);
+         if ( !isNextHop )
+         {
+            nextHopUri = "";
+         }
+#                       endif
+      }
+      else
+      {
+#                       ifdef TEST_PRINT
+         osPrintf("SipAaa::handleMessage previous hop loose routed\n");
+#                       endif
+
+         // If this route is to me, pop it off
+         if(firstRouteIsMe)
+         {
+            // THis is a loose router pop my route off
+            UtlString dummyUri;
+            sipRequest.removeRouteUri(0, &dummyUri);
+            myRouteUri = firstRouteUri;
+         }
+         else
+         {
+            myRouteUri = "";
+            OsSysLog::add(FAC_SIP, PRI_WARNING, "SipAaa::handleMessage Loose route: %s not to this server",
+                          firstRouteUri.data());
+         }
+
+         // Where are we going?
+         // These are used for authorization
+         targetUri = requestUri;
+         isNextHop = sipRequest.getRouteUri(0, &nextHopUri);
+         if ( !isNextHop )
+            nextHopUri = "";
+      }
+   } else
+   {
+      // There is no route check if it is mapped to something local
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipAaa::handleMessage no route found") ;
+
+      UtlString uri;
+      sipRequest.getRequestUri(&uri);
+
+      // Where are we going?
+      // These are used for authorization
+      myRouteUri = "";
+      targetUri = uri;
+      isNextHop = FALSE;
+      nextHopUri = "";
+   }
+
+   // Get some info about the request
+   // (method, to, from & tags)
+   UtlString method;
+   sipRequest.getRequestMethod(&method);
+   Url fromUrl;
+   Url toUrl;
+   sipRequest.getFromUrl(fromUrl);
+   sipRequest.getToUrl(toUrl);
+   UtlString fromTag;
+   UtlString toTag;
+   fromUrl.getFieldParameter("tag", fromTag);
+   toUrl.getFieldParameter("tag", toTag);
+
+#ifdef AUTHENTICATE_IN_DIALOG
+   // If there is a route to me and this is not
+   // the inital call setup (e.g. to tag is set)
+   UtlBoolean routeSignatureIsValid = FALSE;
+   UtlBoolean toMatches = FALSE;
+   UtlBoolean fromMatches = FALSE;
+   UtlString routePermission;
+   UtlString routeTag;
+   UtlString routeSignature;
+   if(!myRouteUri.isNull() && !toTag.isNull())
+   {
+      Url myRouteUrl(myRouteUri);
+
+      myRouteUrl.getUrlParameter("a", routePermission);
+      myRouteUrl.getUrlParameter("t", routeTag);
+      myRouteUrl.getUrlParameter("s", routeSignature);
+
+      // If the "a" and "s" parameters are present, check them.
+      if (!routePermission.isNull() && !routeSignature.isNull())
+      {
+         // The authentication and authorization only applies
+         // to one direction.
+         UtlString validRouteSignature;
+         if(toTag.compareTo(routeTag) == 0)
+         {
+            toMatches = TRUE;
+            calcRouteSignature(routePermission,
+                               callId,
+                               toTag,
+                               validRouteSignature);
+         }
+         else if(fromTag.compareTo(routeTag) == 0)
+         {
+            fromMatches = TRUE;
+            calcRouteSignature(routePermission,
+                               callId,
+                               fromTag,
+                               validRouteSignature);
+         }
+
+         // If the calculated signature and the one in the route
+         // match, the route and permission are valid
+         if(validRouteSignature.compareTo(routeSignature) == 0)
+         {
+            routeSignatureIsValid = TRUE;
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipAaa::handleMessage Authorized by route signature call-id: %s signature a: %s s: %s",
+                          callId.data(), routePermission.data(),
+                          routeSignature.data()
+               );
+         }
+         else
+         {
+            OsSysLog::add(FAC_SIP, PRI_WARNING,
+                          "SipAaa::handleMessage Invalid route signature call-id: %s signature a: %s s: %s",
+                          callId.data(), routePermission.data(),
+                          routeSignature.data()
+               );
+         }
+      }
+   }
+#endif /* AUTHENTICATE_IN_DIALOG */
+
+   // Check if we need to authenticate and authorize the originator.
+   ResultSet permissions;
+
+   if (   mpAuthorizationRules // there are authrules configured
+          && method.compareTo(SIP_ACK_METHOD) != 0 // We do not authenticate ACKs
+#ifdef AUTHENTICATE_IN_DIALOG
+          && toTag.isNull()
+#endif /* AUTHENTICATE_IN_DIALOG */
+      )
+   {
+#ifdef AUTHENTICATE_IN_DIALOG
+      // We have a valid route with a signature
+      if(routeSignatureIsValid)
+      {
+         // We can use the permission from the route field.
+
+         // Requests from the caller require authentication
+         if(fromMatches && !routePermission.isNull())
+         {
+            // Check that the permission that was used to establish
+            // the dialog is still granted to the authenticated user.
+            UtlHashMap record;
+            UtlString* permissionKey = new UtlString("permission");
+            UtlString* permissionValue = new UtlString(routePermission);
+
+            record.insertKeyAndValue(permissionKey,permissionValue);
+
+            permissions.addValue(record);
+         }
+      }
+      else // route signature is not valid
+#endif /* AUTHENTICATE_IN_DIALOG */
+      {
+         Url targetUrl(targetUri);
+         UtlBoolean isPstnNumber; // write-only variable
+         mpAuthorizationRules->getPermissionRequired(
+            targetUrl, isPstnNumber, permissions);
+
+         // There was no authorization required for contact
+         // Try the next hop as well
+         if ( isNextHop && permissions.getSize()==0 )
+         {
+            Url nextHopUrl( nextHopUri );
+            mpAuthorizationRules->getPermissionRequired (
+               nextHopUrl, isPstnNumber, permissions );
+         }
+      }
+   }
+
+   UtlBoolean needsAuthentication;
+   // The authproxy always Record-Routes itself, so that CDRs can be
+   // generated, etc.  The exception is if the previous Record-Route
+   // is for this autproxy as well.  That case is tested for below.
+   UtlBoolean needsRecordRouting = toTag.isNull();
+   if(
+#ifndef AUTHENTICATE_IN_DIALOG
+      // In-dialog requests are not authenticated at all unless
+      // AUTHENTICATE_IN_DIALOG is #defined.
+      toTag.isNull() &&
+#endif /* AUTHENTICATE_IN_DIALOG */
+      permissions.getSize() > 0)
+   {
+      UtlString rulePermission;
+      if(permissions.getSize() == 1)
+      {
+         UtlString permissionKey("permission");
+         UtlHashMap record;
+         permissions.getIndex(0, record);
+         rulePermission = *((UtlString*)record.findValue(&permissionKey));
+      }
+
+      // If exactly one permission is required and it is
+      // RecordRoute, there is no need to authenticate.
+      if(rulePermission.compareTo("RecordRoute", UtlString::ignoreCase) == 0)
+      {
+         needsAuthentication = FALSE;
+      }
+      else
+      {
+         // Forwarding calls to the PSTN gateway workaround
+         // if incoming calls (fromUrl) match a an entry in the
+         // AuthexceptionDB then we do not require authentication
+         UtlString requestUri;
+         sipRequest.getRequestUri( &requestUri );
+         Url requestUrl ( requestUri, TRUE );
+         UtlString userid;
+         requestUrl.getUserId(userid);
+         if ( AuthexceptionDB::getInstance()->isException( userid ) )
+         {
+            needsAuthentication = FALSE;
+         }
+         else
+         {
+            needsAuthentication = TRUE;
+         }
+      }
+   }
+   else
+   {
+      needsAuthentication = FALSE;
+   }
+
+   // Authenticate if we need to
+   SipMessage authResponse;
+   UtlString authUser;
+   UtlString matchedPermission;
+
+   if (needsAuthentication
+       && !(    isAuthenticated(sipRequest, authUser, authResponse)
+             && isAuthorized(sipRequest, permissions, authUser,
+                             authResponse, matchedPermission)
+           )
+      )
+   {   // Either not authenticated or not authorized
+      mpSipUserAgent->setServerHeader(authResponse);
+      // Rewrite sipRequest as the authorization-needed response so our caller
+      // can send it.
+      sipRequest = authResponse;
+   }
+   else
+   {
+      // Otherwise route it on Record route if authenticated
+      if ( needsRecordRouting )
+      {
+         Url routeUrl(mRouteName);
+         if(mRouteName.isNull())
+         {
+            UtlString uriString;
+            int port;
+
+            mpSipUserAgent->getViaInfo(OsSocket::UDP, uriString, port );
+
+#                           ifdef TEST_PRINT
+            osPrintf("SipAaa:handleMessage Record-Route address: %s port: %d\n",
+                     uriString.data(), port);
+#                           endif
+
+            routeUrl.setHostAddress(uriString.data());
+            routeUrl.setHostPort(port);
+         }
+#                       ifdef TEST_PRINT
+         else
+         {
+            osPrintf("SipAaa:handleMessage Record-Route mRouteName: %s\n",
+                     mRouteName.data());
+         }
+#                       endif
+
+         routeUrl.setUrlParameter("lr", "");
+         UtlString signature;
+
+#ifdef AUTHENTICATE_IN_DIALOG
+         // Preserve the signature if it is valid
+         if(routeSignatureIsValid)
+         {
+            routeUrl.setUrlParameter("a", routePermission);
+            routeUrl.setUrlParameter("t", routeTag);
+            routeUrl.setUrlParameter("s", routeSignature);
+         }
+
+         // We only add the signature on the initial
+         // dialog request.
+         else if(toTag.isNull())
+         {
+            calcRouteSignature(matchedPermission,
+                               callId,
+                               fromTag,
+                               signature);
+            routeUrl.setUrlParameter("a", matchedPermission);
+            routeUrl.setUrlParameter("t", fromTag);
+            routeUrl.setUrlParameter("s", signature);
+         }
+#endif /* AUTHENTICATE_IN_DIALOG */
+
+         // Check to see if we have already added a record-route
+         // This is a minor optimization.  It avoids the spiral
+         // on the mid-dialog transactions and keeps the message
+         // a little smaller.
+         UtlString previousRRoute;
+         UtlBoolean newRRouteIsUnique = TRUE;
+         if(sipRequest.getRecordRouteUri(0, &previousRRoute))
+         {
+            // If the host, port and user ID are the same the
+            // record-route to be added and the top most record-route
+            // already in the request.
+            Url prevRRouteUrl(previousRRoute);
+            if(prevRRouteUrl.isUserHostPortEqual(routeUrl)) 
+            {
+               UtlString prevPermission;
+               UtlString prevFromTag;
+               UtlString prevSignature;
+#ifdef AUTHENTICATE_IN_DIALOG
+               // If the permission, from tag and signature
+               // of the existing record-route matches the one
+               // to be added, mark it as not unique so that
+               // we do not add it again
+               if(prevRRouteUrl.getUrlParameter("a", prevPermission) &&
+                  prevPermission.compareTo(matchedPermission) == 0 &&
+                  prevRRouteUrl.getUrlParameter("t", prevFromTag) &&
+                  prevFromTag.compareTo(fromTag) == 0 &&
+                  prevRRouteUrl.getUrlParameter("s", prevSignature) &&
+                  prevSignature.compareTo(signature) == 0)
+#endif /* AUTHENTICATE_IN_DIALOG */
+               {
+                  newRRouteIsUnique = FALSE;
+               }
+            }
+         }
+
+         if(newRRouteIsUnique)
+         {
+            //routeUrl.setAngleBrackets();
+            UtlString recordRoute = routeUrl.toString();
+            sipRequest.addRecordRouteUri(recordRoute);
+         }
+      }
+
+      // Decrement max forwards
+      int maxForwards;
+      if ( sipRequest.getMaxForwards(maxForwards) )
+      {
+         maxForwards--;
+      } else
+      {
+         maxForwards = mpSipUserAgent->getMaxForwards();
+      }
+      sipRequest.setMaxForwards(maxForwards);
+      // Now the request is ready to be forwarded.
+   }
+
+   // Either the request should be sent onward, or we have constructed an
+   // authentication challenge response to send.
+   return TRUE;
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -755,7 +808,7 @@ UtlBoolean SipAaa::isAuthenticated(
                   )
                 {
 #                   ifdef TEST_PRINT
-                     // THIS SHOULD NOTE BE LOGGED IN PRODUCTION
+                     // THIS SHOULD NOT BE LOGGED IN PRODUCTION
                      // For security reasons we do not want to put passtokens
                      // into the log.
                     OsSysLog::add(FAC_AUTH, PRI_DEBUG,
@@ -811,8 +864,22 @@ UtlBoolean SipAaa::isAuthenticated(
     if ( !authenticated )
     {
         OsSysLog::add(FAC_AUTH, PRI_INFO,
-              "SipAaa::isAuthenticated() Request not authenticated for user: '%s'",
-              requestUser.data());
+                      "SipAaa::isAuthenticated() Request not authenticated.");
+        for (requestAuthIndex = 0;
+             sipRequest.getDigestAuthorizationData(&requestUser,
+                                                   &requestRealm,
+                                                   &requestNonce,
+                                                   NULL,
+                                                   NULL,
+                                                   &requestUri,
+                                                   HttpMessage::PROXY,
+                                                   requestAuthIndex);
+             requestAuthIndex++)
+        {
+           OsSysLog::add(FAC_AUTH, PRI_INFO,
+                         "SipAaa::isAuthenticated() Unacceptable credentials seen for user '%s'.",
+                         requestUser.data());
+        }
 
         UtlString newNonce;
         UtlString challangeRequestUri;
@@ -962,9 +1029,9 @@ SipAaa::isAuthorized (
 }
 
 void SipAaa::calcRouteSignature(UtlString& matchedPermission,
-                               UtlString& callId,
-                               UtlString& fromTag,
-                               UtlString& signature)
+                                UtlString& callId,
+                                UtlString& fromTag,
+                                UtlString& signature)
 {
     UtlString signatureData(mSignatureSecret);
     signatureData.append(":");
@@ -978,4 +1045,3 @@ void SipAaa::calcRouteSignature(UtlString& matchedPermission,
 }
 
 /* ============================ FUNCTIONS ================================= */
-

@@ -64,10 +64,11 @@ $HELP = <<HELP;
            'Route' header value
         --expires <-expires>
            'Expires' header value
-        --event <-event>
+        --event <-event> <value>
            'Event' header value
-        ---header <--header>
+        ---header <--header> <header line>
            Arbitrary header string (do not use for those specified above)
+           <header line> probably has to be quoted in the shell.
         ---use-via-name
            Use the system name in the via, not the IP address
 

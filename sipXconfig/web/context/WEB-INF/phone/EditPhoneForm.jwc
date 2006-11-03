@@ -25,7 +25,7 @@
   </component>
   <component id="phoneDescriptionLabel" type="FieldLabel">
     <binding name="field" value="components.phoneDescription"/>
-    <binding name="displayName" value="literal:Description"/>
+    <binding name="displayName" value="message:description"/>
   </component>
   <component id="phoneDescription" type="TextArea">
     <binding name="value" value="phone.description"/>
@@ -38,7 +38,7 @@
     <binding name="value" value="phone.serialNumber"/>
     <binding name="validators" value="spring-validators:validSerialNumber,required"/>
     <binding name="translator" value="hivemind:spring:cleanSerialNumber"/>
-    <binding name="displayName" value="literal:Serial number"/>
+    <binding name="displayName" value="message:serialNumber"/>
   </component>
   <component id="versionLabel" type="FieldLabel">
     <binding name="field" value="components.selectVersion"/>
@@ -46,7 +46,7 @@
   <component id="selectVersion" type="PropertySelection">
     <binding name="model" value="bean:versions"/>
     <binding name="value" value="phone.deviceVersion"/>
-    <binding name="displayName" value="literal:Firmware Version"/>
+    <binding name="displayName" value="message:firmwareVersion"/>
   </component>
   <component id="groupsPanel" type="FieldPanel">
     <!-- Bug, give the right value for field, and autocomplete renders double -->

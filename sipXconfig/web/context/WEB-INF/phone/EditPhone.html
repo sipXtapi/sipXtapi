@@ -6,17 +6,17 @@
 		<div jwcid="@Border" useDojo="true">
       <span id="phone:edit"><!-- non-empty to avoid IE JS error --></span>
 			<div class="help">
-				<b>Quick Links</b>
+				<b><span key="label.quickLinks">Quick Links</span></b>
 				<ul>
 					<li>
-						<a href="#" id="AddLine" jwcid="addLine">Add Line</a>
+						<a href="#" id="AddLine" jwcid="addLine"><span key="add.line">Add Line</span></a>
 					</li>
 				</ul>
 			</div>
       <span jwcid="@GroupCloud" groups="ognl:phoneContext.groups"/>
-      <h2>Edit Phone</h2>
-			<span jwcid="editPhoneNavigation">The serial number is a unique ID for 
-				this phone. Usually it's the phone's MAC address. </span>
+      <h2><span key="heading">Edit Phone</span></h2>
+			<span jwcid="editPhoneNavigation"><span key="serial">The serial number is a unique ID for 
+				this phone. Usually it's the phone's MAC address. </span></span>
 			<div id="settings-content">
 				<form jwcid="form">
 					<span jwcid="editPhoneForm"/>

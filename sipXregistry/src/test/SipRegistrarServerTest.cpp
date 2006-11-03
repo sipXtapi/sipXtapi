@@ -22,7 +22,7 @@
 #include "os/OsFS.h"
 #include "os/OsProcess.h"
 #include "testlib/RegistrationDbTestContext.h"
-#include "SipRegistrar.h"
+#include "registry/SipRegistrar.h"
 #include "SipRegistrarServer.h"
 
 using namespace std;

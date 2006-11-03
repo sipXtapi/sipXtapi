@@ -24,6 +24,7 @@ conferenceConference.admissionScriptServer=${MEDIA_SERVER_ADDR}:${MEDIA_SERVER_H
 upload.uploadRootDirectory=@sipxconfig.upload.dir@
 upload.destinationDirectory=@sipxconfig.phone.dir@/profile/tftproot
 domainInitializer.initialDomain=${SIPXCHANGE_DOMAIN_NAME}
+phonebookManagerImpl.externalUsersDirectory=@sipxconfig.phonebook.dir@
 
 # external aliases
 externalAliases.addinsDirectory=@sipxpbx.data.dir@

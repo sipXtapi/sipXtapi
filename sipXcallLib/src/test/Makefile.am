@@ -18,6 +18,7 @@ testsuite_SOURCES = \
     cp/CpTestSupport.cpp \
     cp/CpTestSupport.h \
     cp/CallManagerTest.cpp \
+    cp/CpCallManagerTest.cpp \
     ptapi/PtAddressForwardingTest.cpp \
     ptapi/PtAddressTest.cpp \
     ptapi/PtAudioCodecTest.cpp \

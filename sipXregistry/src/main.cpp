@@ -31,7 +31,7 @@
 #include "net/NameValueTokenizer.h"
 #include "sipdb/SIPDBManager.h"
 #include "sipdb/ExtensionDB.h"
-#include "SipRegistrar.h"
+#include "registry/SipRegistrar.h"
 
 // DEFINES
 #define CONFIG_SETTINGS_FILE  "registrar-config"
@@ -447,3 +447,11 @@ main(int argc, char* argv[] )
 
    return 0;
 }
+
+
+// The infamous JNI_LightButton stub, to resolve the reference in libsipXcall.
+int JNI_LightButton(long)
+{
+   return 0;
+}
+

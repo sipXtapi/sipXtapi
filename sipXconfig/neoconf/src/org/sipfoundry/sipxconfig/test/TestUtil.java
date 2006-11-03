@@ -157,7 +157,8 @@ public final class TestUtil {
         sysProps.setProperty("indexTrigger.enabled", Boolean.toString(false));
         sysProps.setProperty("upload.uploadRootDirectory", outputDirectory + "/upload");
         sysProps.setProperty("upload.destinationDirectory", outputDirectory + "/tftproot");
-    }
+        sysProps.setProperty("phonebookManagerImpl.externalUsersDirectory", outputDirectory + "/phonebook");
+    }       
 
     public static void saveSysDirProperties(Properties sysProps, String classpathDirectory) {
 
