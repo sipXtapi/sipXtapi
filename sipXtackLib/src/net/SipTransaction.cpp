@@ -469,7 +469,7 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
     UtlBoolean addressRequiresDnsSrvLookup(FALSE);
     UtlString toAddress;
     int port = PORT_NONE;
-    enum OsSocket::IpProtocolSocketType protocol = OsSocket::UNKNOWN;
+    OsSocket::IpProtocolSocketType protocol = OsSocket::UNKNOWN;
 
     if(isResponse)
     {
@@ -670,7 +670,7 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
                                            UtlBoolean& addressRequiresDnsSrvLookup,
                                            UtlString& toAddress,
                                            int& port,
-                                           enum OsSocket::IpProtocolSocketType& toProtocol)
+                                           OsSocket::IpProtocolSocketType& toProtocol)
 {
     UtlString protocol;
 
@@ -987,7 +987,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
                                       SipUserAgent& userAgent,
                                       UtlString& toAddress,
                                       int& port,
-                                      enum OsSocket::IpProtocolSocketType& toProtocol,
+                                      OsSocket::IpProtocolSocketType& toProtocol,
                                       SIPX_TRANSPORT_DATA* pTransport)
 {
     if (!mpTransport) mpTransport = pTransport;
@@ -997,8 +997,8 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
     UtlString seqMethod;
     int responseCode = -1;
 
-    enum OsSocket::IpProtocolSocketType lastSentProtocol =
-        (enum OsSocket::IpProtocolSocketType) message.getSendProtocol();
+    OsSocket::IpProtocolSocketType lastSentProtocol =
+        (OsSocket::IpProtocolSocketType) message.getSendProtocol();
     int resendDuration;
     int resendTime;
 

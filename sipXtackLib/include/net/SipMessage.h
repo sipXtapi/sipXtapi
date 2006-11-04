@@ -18,7 +18,7 @@
 
 // APPLICATION INCLUDES
 #include <utl/UtlHashBag.h>
-
+#include <os/OsSocket.h>
 #include <net/HttpMessage.h>
 #include <net/SdpBody.h>
 #include <net/SdpCodec.h>
@@ -763,9 +763,9 @@ public:
                                      UtlString& protocol) const;
 
     static void convertProtocolStringToEnum(const char* protocolString,
-                        enum OsSocket::IpProtocolSocketType& protocolEnum);
+                        OsSocket::IpProtocolSocketType& protocolEnum);
 
-    static void convertProtocolEnumToString(enum OsSocket::IpProtocolSocketType protocolEnum,
+    static void convertProtocolEnumToString(OsSocket::IpProtocolSocketType protocolEnum,
                                             UtlString& protocolString);
 
     UtlBoolean getWarningCode(int* warningCode, int index = 0) const;

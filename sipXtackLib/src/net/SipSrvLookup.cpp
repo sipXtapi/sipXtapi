@@ -262,7 +262,7 @@ server_t* SipSrvLookup::servers(const char* domain,
                                 ///< SIP domain name or host name
                                 const char* service,
                                 ///< "sip" or "sips"
-                                enum OsSocket::IpProtocolSocketType socketType,
+                                OsSocket::IpProtocolSocketType socketType,
                                 ///< types of transport
                                 int port,
                                 ///< port number from URI, or PORT_NONE
@@ -1011,7 +1011,7 @@ unsigned int server_t::getPriorityFromServerT()
 }
 
 /// Accessor for protocol
-enum OsSocket::IpProtocolSocketType
+OsSocket::IpProtocolSocketType
 server_t::getProtocolFromServerT()
 {
    return type;
