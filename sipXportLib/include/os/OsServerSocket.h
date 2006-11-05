@@ -86,6 +86,9 @@ public:
    //:Return the local port number
    // Returns the port to which this socket is bound on this host.
 
+   virtual void getBindIp(UtlString& ip) const ;
+   //:Gets the bind ip (could be 0.0.0.0)
+
 /* ============================ INQUIRY =================================== */
    virtual UtlBoolean isOk() const;
    //: Server socket is in ready to accept incoming conection requests.
