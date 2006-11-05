@@ -41,8 +41,9 @@ class CallDirectionPlugin
   def run
     while cdr = @cdrin.deq
       set_call_direction(cdr)
-      @cdrout.enq(cdr)
+      @cdrout << cdr
     end
+    @cdrout << nil
   end
   
   # Compute and set call direction for the CDR.

@@ -15,9 +15,9 @@ require 'utils/utils'
 
 # Attempts to open stunnel connections to all configured distributed machines.
 class StunnelConnection
-
+  
   attr_reader :log
-
+  
   # Constants
   LOCALHOST = 'localhost'
   
@@ -25,7 +25,7 @@ class StunnelConnection
   STUNNEL_EXEC = '/usr/sbin/stunnel'
   
   ERROR_OUT = "Error: "
- 
+  
   CSE_STUNNEL_DEBUG_LEVEL = 'SIP_CALLRESOLVER_STUNNEL_DEBUG'
   
   # Default debug level NOTICE  
@@ -38,14 +38,14 @@ class StunnelConnection
   SIGNAL_SIGQUIT = 3
   SIPXPBX_SSLPATH = 'etc/sipxpbx/ssl'
   
-public
-
+  public
+  
   def initialize(log)
     @log = log
-    @connection_established = false
     @prefix = ENV['SIPX_PREFIX']
+    @pid = nil
   end
-
+  
   def open(config)
     # Look up the config param and generate the stunnel config file.
     # Set the @ha_enabled variable depending on if any distributed
@@ -53,36 +53,31 @@ public
     get_stunnel_config(config)
     
     # Open stunnel connection if HA is enabled
-    if @ha_enabled
-      if ! check_stunnel_running
-        fork do exec("#{STUNNEL_EXEC} #{STUNNEL_CONFIG_FILE}") end
-        # Give stunnel time to start up
-        sleep 1
-        # Get the Pid of the process we just started (stored as instance variable),
-        # also check if it really started
-        if ! check_stunnel_running
-          raise_exception("stunnel could not be started.")
-        else
-          @connection_established = true
-        end
-      else
-        raise_exception("An instance of stunnel is already running with Pid #{@pid}. It must be shut " +
+    return unless @ha_enabled
+    
+    @pid = check_stunnel_running
+    
+    if @pid    
+      raise_exception("An instance of stunnel is already running with Pid #{@pid}. It must be shut " +
                         " down before restarting the call resolver.")
-      end
-    end
+    end                        
+    fork do exec("#{STUNNEL_EXEC} #{STUNNEL_CONFIG_FILE}") end
+    # Give stunnel time to start up
+    sleep 1
+    @pid = check_stunnel_running
+    
+    raise_exception("stunnel could not be started.") unless @pid
   end
   
   def close
-    # Only do something if connection was established
-    if @connection_established
-      log.debug {"StunnelConnection.close: Killing pid #{@pid}"}
-      Process.kill(SIGNAL_SIGQUIT, @pid.to_i)
-      File.delete("#{STUNNEL_CONFIG_FILE}")
-    end
+    return unless @pid
+    log.debug {"StunnelConnection.close: Killing pid #{@pid}"}
+    Process.kill(SIGNAL_SIGQUIT, @pid.to_i)
+    File.delete("#{STUNNEL_CONFIG_FILE}")
   end
-
-private
-
+  
+  private
+  
   # Get possible distributed CSE hosts from configuration file. Generate
   # an stunnel configuration script and return an array of ports.
   def get_stunnel_config(config)
@@ -181,17 +176,12 @@ private
   
   def check_stunnel_running()
     shellReturn = `ps -fC stunnel | grep #{STUNNEL_EXEC}`
-    shellReturn = shellReturn.strip
+    shellReturn.strip!
     if /\A\D+\s+(\d+)\s+.*stunnel.*/ =~ shellReturn
-      @pid = $1
-      running = true
-    else
-      @pid = '0'
-      running = false
-    end
-    running
+      $1
+    end      
   end
-
+  
   def raise_exception(err_msg, klass = CallResolverException)
     puts "Error: #{err_msg}"
     Utils.raise_exception(err_msg, klass)

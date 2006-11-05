@@ -7,23 +7,57 @@
 #
 ##############################################################################
 
+require 'cdr'
 
 # Writes CDRs to the database
 class CdrWriter
   
-  # cdr_queue - queue from which we will get CDRs to be written to the database
-  def initialize(queue)
+  def initialize(queue, database_url)
     @queue = queue
+    @connection = database_url.to_dbi
+    @username = database_url.username    
   end
   
+  def connect(&block)
+    DBI.connect(@connection, @username, &block)
+  end  
   
   def run
-    while cdr = @queue.deq
-      p cdr
-    end    
+    connect do | dbh |
+      sql = CdrWriter.insert_sql
+      dbh.prepare(sql) do | sth |
+        while cdr = @queue.shift
+          row = CdrWriter.row_from_cdr(cdr)
+          sth.execute(*row)
+        end
+      end
+    end  
   end
   
   def purge(start_time_cdr)
-    # FIXME: implement purging
-  end  
+    connect do | dbn |
+      sql = CdrWriter.delete_sql
+      dbh.prepare(sql) do | sth |
+        sth.execute(start_time_cdr)
+      end  
+    end    
+  end
+  
+  class << self
+    def row_from_cdr(cdr)
+      Cdr::FIELDS.collect { | f | cdr.send(f) }
+    end
+    
+    def insert_sql()
+      field_names = Cdr::FIELDS.collect { | f | f.to_s }
+      field_str = field_names.join(', ')
+      value_str = (['?'] * field_names.size).join(', ')
+      sql = "INSERT INTO cdrs ( #{field_str} ) VALUES ( #{value_str} )"
+    end        
+    
+    def delete_sql
+      sql  = "DELETE FROM cdrs WHERE ? < start_time"
+    end
+  end
+  
 end

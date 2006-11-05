@@ -45,7 +45,8 @@ class CallStateEvent
     
     # Create and return a human-readable description of the event
     "#<#{event_type_name} from #{from_url} to #{to_url} " +
-      "at #{event_time} call_id=#{call_id} cseq=#{cseq}>"    
+      "call_id=#{call_id} cseq=#{cseq}>"    
+#      "at #{event_time} call_id=#{call_id} cseq=#{cseq}>"    
   end
   
   # Return the AOR part of the from_url, or nil if there is no from_url.

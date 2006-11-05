@@ -10,16 +10,17 @@
 require 'utils/utils'
 
 class CallLeg
-  include Comparable
+  attr_reader :id, :connect_time, :end_time, :status, :to_tag, :failure_status, :failure_reason, :callee_contact
   
-  def initialize(to_tag)
-    @to_tag = to_tag
+  def initialize(id)
+    @id = id
     @status = nil
     @connect_time = nil
     @end_time = nil
+    @failure_status = nil
+    @failure_reason = nil
   end
   
-  attr_accessor :connect_time, :end_time, :status, :to_tag, :callee_contact
   def has_duration?
     @connect_time && @end_time
   end
@@ -33,11 +34,64 @@ class CallLeg
     @end_time - @connect_time
   end
   
-  def <=>(anOther)
-    return 1 if completed? && !anOther.completed?
-    return -1 if !completed? && anOther.completed?
-    return duration <=> anOther.duration
+  def accept_setup(cse)
+    @connect_time = cse.event_time
+    @status ||= Cdr::CALL_IN_PROGRESS_TERM
+    @to_tag = cse.to_tag
+    @callee_contact = Utils.contact_without_params(cse.contact)
+  end
+  
+  def accept_end(cse)
+    @end_time = cse.event_time
+    @status = if cse.call_end? 
+      Cdr::CALL_COMPLETED_TERM 
+    else 
+      @failure_reason = cse.failure_reason
+      @failure_status = cse.failure_status
+      Cdr::CALL_FAILED_TERM 
+    end
+    @to_tag ||= cse.to_tag
   end  
+  
+  include Comparable
+  def <=>(other)
+    # leg that has duration is always better than the one that does now
+    return 1 if has_duration? && !other.has_duration?
+    return -1 if !has_duration? && other.has_duration?
+    if has_duration? and other.has_duration? 
+      if @status == other.status 
+        return duration <=> other.duration
+      else
+        # different status
+        return  completed? ? 1 : -1
+      end
+    end
+    
+    # if we are here none has duration
+    if @status == other.status
+      # the same status
+      return other.connect_time <=> @connect_time if @status == Cdr::CALL_IN_PROGRESS_TERM
+      return @end_time <=> other.end_time
+    else
+      # different status
+      return 1 if completed?
+      return -1 if other.completed?
+      return @status == Cdr::CALL_FAILED_TERM ? 1 : -1
+    end
+  end
+  
+  class << self
+    # Compute call leg ID from 'from' and 'to' tags
+    def leg_id(cse)
+      from = cse.from_tag
+      to = cse.to_tag
+      if from < to
+        "#{from}<>#{to}"
+      else
+        "#{to}<>#{from}"
+      end        
+    end    
+  end
 end
 
 
@@ -50,36 +104,32 @@ class CallLegs
   end
   
   def accept_setup(cse)
-    leg = get_leg(cse.to_tag)
-    leg.callee_contact = Utils.contact_without_params(cse.contact)
-    leg.connect_time = cse.event_time
-    leg.status = Cdr::CALL_IN_PROGRESS_TERM unless leg.status
+    leg = get_leg(cse)
+    leg.accept_setup(cse)
     check_best_leg(leg)
   end
   
   def accept_end(cse)
-    leg = get_leg(cse.to_tag)
-    leg.end_time = cse.event_time
-    leg.status = if cse.call_end? then Cdr::CALL_COMPLETED_TERM else Cdr::CALL_FAILED_TERM end
+    leg = get_leg(cse)
+    leg.accept_end(cse)
     check_best_leg(leg)
   end
   
   def check_best_leg(leg)
-    return unless leg.has_duration?
-    @legs.delete(leg.to_tag)
     if !@best_leg || @best_leg < leg
       @best_leg = leg                
-    end    
+    end
+    return @best_leg
   end
   
   def done?
-    return false unless @best_leg
-    return @legs.empty? || @best_leg.completed?
+    @best_leg && @best_leg.status != Cdr::CALL_IN_PROGRESS_TERM
   end
   
   private
-  def get_leg(to_tag)
-    @legs[to_tag] ||= CallLeg.new(to_tag)
+  def get_leg(cse)
+    id = CallLeg.leg_id(cse)
+    @legs[id] ||= CallLeg.new(id)
   end
 end
 
@@ -105,18 +155,34 @@ class Cdr
   CALL_COMPLETED_TERM   = 'C'
   CALL_FAILED_TERM      = 'F'
   
-  public  
-  
   def initialize(call_id)
     @call_id = call_id
+    @from_tag = nil
+    @to_tag = nil
+    @start_time = nil
+    @connect_time = nil
+    @end_time = nil    
+    @termination = nil
+    @failure_status = nil
+    @failure_reason = nil
+    @call_direction = nil
+    
     @got_original = false
     @legs = CallLegs.new
-    @termination = nil
+    
+    @callee_contact = nil
+    @caller_contact = nil
   end
   
-  # Make caller_contact and callee_contact available during call resolution,
-  # but don't persist them.
-  attr_accessor :call_id, :call_direction, :caller_contact, :callee_contact, :termination
+  FIELDS = [:call_id, :from_tag, :to_tag, :caller_aor, :callee_aor, 
+  :start_time, :connect_time, :end_time,    
+  :termination, :failure_status, :failure_reason, 
+  :call_direction]
+  
+  attr_accessor(*FIELDS)
+  
+  # used to compute call direction
+  attr_accessor :callee_contact, :caller_contact
   
   # Return true if the CDR is complete, false otherwise.
   def complete?
@@ -140,7 +206,20 @@ class Cdr
       accept_call_setup(cse)
     when cse.call_end?, cse.call_failure?
       accept_call_end(cse)
+    else
+      p cse
+      nil
     end
+  end
+  
+  # called when we are done with processing of this CDR
+  # cleans temporry data structures
+  def retire
+    @legs = nil
+  end
+  
+  def to_s
+    "CDR: #{@call_id}, from #{@caller_aor} to #{@callee_aor} status #{@termination}"
   end
   
   private
@@ -157,10 +236,10 @@ class Cdr
       @from_tag = cse.from_tag
       @caller_aor = cse.caller_aor
       @callee_aor = cse.callee_aor
-      @start_time = cse.event_time
-      @caller_contact = Utils.contact_without_params(cse.contact)
-      
+      @start_time = cse.event_time      
       @termination = CALL_REQUESTED_TERM unless @termination
+      
+      @caller_contact = Utils.contact_without_params(cse.contact)
       
       @got_original ||= !cse.to_tag      
     end
@@ -176,15 +255,18 @@ class Cdr
     leg = @legs.accept_end(cse)
     finish
   end
-    
+  
   def finish
     return unless @legs.done?
-    leg = legs.best_leg
+    leg = @legs.best_leg
     @to_tag = leg.to_tag
-    @callee_contact = leg.callee_contact
     @connect_time = leg.connect_time
     @end_time = leg.end_time
-    return self    
+    @termination = leg.status
+    @failure_reason = leg.failure_reason
+    @failure_status = leg.failure_status
+    @callee_contact = leg.callee_contact
+    return self
   end
   
   # Map termination codes to human-readable strings

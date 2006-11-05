@@ -16,10 +16,12 @@ module TestUtil
       @counter = 0
     end
     
-    def enq(x)
+    def <<(x)
       @last = x 
       @counter += 1
     end
+    
+    alias enq <<    
   end
   
   class NullLog

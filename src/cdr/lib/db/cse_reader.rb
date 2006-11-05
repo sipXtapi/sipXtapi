@@ -11,6 +11,24 @@ require 'dbi'
 
 require 'call_state_event'
 
+
+module DBI
+  class Timestamp
+    include Comparable
+    
+    def <=>(other)
+      result = to_time <=> other.to_time
+      return result unless result == 0
+      return fraction <=> other.fraction
+    end
+    
+    def -(other)
+      return to_time <=> other.to_time
+    end
+    
+  end
+end
+
 # Obtains CSEs from and puts them into CSE queue
 class CseReader
   
@@ -20,11 +38,14 @@ class CseReader
     @username = database_url.username
   end
   
-  
   def connect(&block)
     DBI.connect(@connection, @username, &block)
-  end
+  end  
   
+  # Another way of fetching the row
+  #        while row = sth.fetch_scroll(DBI::SQL_FETCH_NEXT)
+  #          @cse_queue << CseReader.cse_from_row(row)
+  #        end  
   def run(start_time, stop_time)    
     connect do | dbh |
       sql = CseReader.select_sql(start_time, stop_time)
@@ -32,8 +53,7 @@ class CseReader
       dbh.prepare(sql) do | sth |
         sth.execute(*params)
         sth.fetch do |row|
-          cse = CseReader.cse_from_row(row)   
-          @cse_queue.enq(cse)
+          @cse_queue << CseReader.cse_from_row(row)
         end
       end
     end

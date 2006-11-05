@@ -15,13 +15,10 @@ require 'utils/exceptions'
 require 'utils/sipx_ipsocket'
 require 'utils/socket_utils'
 
-
 class Utils
   # Utils has only class methods, so don't allow instantiation.
   private_class_method :new
-
-public
-
+  
   # LATER: Add IPv6 matching
   IPADDRV4 = '(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'
   DOMAINLABEL = '[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?'
@@ -36,7 +33,7 @@ public
   SIPURI = Regexp.new(".*:(.+@)?(#{HOST})")  
   QUOTEDSTRING = Regexp.new("(\".*\")\s*(\\<.*:.*)")
   
-
+  
   # Take a contact string like "Jorma Kaukonen"<sip:187@10.1.1.170:1234>;tag=1c32681
   # and extract just the host part, in this case "10.1.1.170".  The "@" is optional,
   # could be just "sip:10.1.1.170" for example.
@@ -54,7 +51,7 @@ public
             "Bad contact, can't extract address: \"#{contact}\"")
     end
   end
- 
+  
   # Look for the char in the str.  If found, then remove that char and everything
   # after it.  Return the str.
   def Utils.remove_part_of_str_beginning_with_char(str, char)
@@ -64,15 +61,15 @@ public
     end
     str
   end
-
+  
   # Return just the AOR part of a SIP From or To header, stripping the tag if
   # one is present.
   # If there is no tag then raise BadSipHeaderException if is_tag_required is true.
   # :LATER: Use regex here, much simpler
   def Utils.get_aor_from_header(header, is_tag_required = true)
     aor = nil
-   # Strip quoted display name 
-   if header =~ QUOTEDSTRING
+    # Strip quoted display name 
+    if header =~ QUOTEDSTRING
       sip_uri = $2
     else
       sip_uri = header
@@ -83,7 +80,7 @@ public
     
     # find the semicolon preceding the tag
     semi = sip_uri.index(';')
-
+    
     # extract the AOR
     if semi
       # Add the length we originally stripped off
@@ -93,7 +90,7 @@ public
       if is_tag_required
         raise(BadSipHeaderException. new(header),
               'Tag missing from SIP header',
-              caller)
+        caller)
       end
       aor = header
     end
@@ -105,7 +102,7 @@ public
     
     aor
   end
-
+  
   # Given a contact URL with params, like <sip:101@10.1.20.3:5100;play=https%3A%2F%2Flocalhost>,
   # remove the params, which are preceded by semicolons.  Usually there is a '>' at the end
   # matching a '<' at the beginning.  If so then leave it in place.
@@ -132,11 +129,11 @@ public
   def Utils.raise_exception(msg, klass = CallResolverException)
     raise(klass, msg, caller)
   end
-
+  
   # Given an events array, return a string that displays one event per line,
   # with preceding newlines.  Used for debugging.
   def Utils.events_to_s(events)
     events.inject('') {|str, event| str + "\n" + event.to_s}
   end
-
+  
 end

@@ -8,7 +8,6 @@
 ##############################################################################
 
 require 'test/unit'
-require 'rubygems'
 
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..', 'lib'))
 
@@ -55,28 +54,4 @@ class CseReaderTest < Test::Unit::TestCase
       "WHERE event_time >= ? AND event_time <= ?", sql)    
   end
   
-  class MockQueue
-    attr_reader :i
-    
-    def initialize
-      @i = 0
-    end
-    
-    def enq(cse)    
-      if @i % 500 == 0
-        p cse.event_time                
-      end
-      @i += 1
-    end
-  end
-  
-  # this one connects to real database for now
-  def _test_DB
-    url = DatabaseUrl.new()
-    p url
-    q = MockQueue.new
-    reader = CseReader.new(q, url)
-    reader.run(nil, nil)
-    p q.i    
-  end
 end

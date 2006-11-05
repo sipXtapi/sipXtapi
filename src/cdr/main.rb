@@ -16,23 +16,18 @@ require 'parsedate'
 require 'call_resolver'
 require 'utils/stunnel_connection'
 
-
-# Create a Call Resolver
 resolver = CallResolver.new
-
-resolver.log.debug("main arguments : #{ARGV.to_s}")
 
 # Parse command-line options
 #   start: date/time from which to start analyzing call events
 #   end:   date/time at which to end the analysis (defaults to 1 day later)
 #   daily: perform daily processing based on the configuration -- resolve
 #          calls and/or purge old data
-# :TODO: Print out a helpful message if the caller enters no options or screws up
 opts = GetoptLong.new(
-  [ "--start", "-s", GetoptLong::OPTIONAL_ARGUMENT ],
-  [ "--end",   "-e", GetoptLong::OPTIONAL_ARGUMENT ],
-  [ "--daily", "-d", GetoptLong::NO_ARGUMENT ],
-  [ "--help",  "-h", GetoptLong::NO_ARGUMENT ]
+                      [ "--start", "-s", GetoptLong::OPTIONAL_ARGUMENT ],
+[ "--end",   "-e", GetoptLong::OPTIONAL_ARGUMENT ],
+[ "--daily", "-d", GetoptLong::NO_ARGUMENT ],
+[ "--help",  "-h", GetoptLong::NO_ARGUMENT ]
 )
 
 # Init options
@@ -45,18 +40,51 @@ daily_flag = false
 # Convert start and end strings to date/time values.
 opts.each do |opt, arg|
   case opt
-
+    
   when "--start"
     start_time = Time.parse(arg)
-
+    
   when "--end"
     end_time = Time.parse(arg)
-
+    
   when "--daily"
     daily_flag = true
- 
-  when "--help"
-    print <<EOT
+    
+  else
+    usage
+  end
+end 
+
+stunnel_connection = StunnelConnection.new(resolver.log)
+
+begin
+  stunnel_connection.open(resolver.config)
+  
+  if daily_flag
+    resolver.daily_run
+  elsif start_time && end_time
+    resolver.resolve(start_time, end_time)
+  else
+    usage    
+  end  
+  
+rescue
+  # Backstop exception handler: don't let any exceptions propagate back
+  # to the caller.  
+  # Embed "\n" for syslogviewer.
+  resolver.log.error do
+    start_line = "\n  from "    # start each backtrace line with this
+    msg = %Q<Exiting because of error: "#{$!}" > + start_line
+    $!.backtrace.inject(msg) {|trace, line| trace + start_line + line}
+  end
+  
+ensure
+  stunnel_connection.close
+end  
+
+
+def usage
+  print <<EOT
 usage: sipxcallresolver.sh [--start "time" [--end "time"]] [--daily] [--help]
 
   --start "time"  Specifies the start time of the window in which calls are to 
@@ -70,44 +98,5 @@ usage: sipxcallresolver.sh [--start "time" [--end "time"]] [--daily] [--help]
                   parameter SIP_CALLRESOLVER_PURGE_AGE_CDR (units are days).
                   In daily mode, the "start" and "end" args are not used.
 EOT
-    exit
-
-  end
-end 
-
-# Print out the location of the config file for troubleshooting.
-# We can't just log it, because if the config is messed up then it may be hard
-# to find the log file.
-config_file = resolver.config.config_file
-if config_file
-  puts("Reading config from #{config_file}")
-else
-  puts("Unable to locate config file, using default settings")
+  exit 1
 end
-
-
-stunnel_connection = StunnelConnection.new(resolver)
-
-puts("Logging to #{resolver.log_device == STDOUT ? 'the console' : resolver.log_device}")
-
-begin
-  stunnel_connection.open(resolver.config)
-
-  if daily_flag
-    resolver.daily_run
-  else
-    # Resolve calls that occurred during the specified time window
-    resolver.resolve(start_time, end_time)
-  end  
-  
-rescue
-  # Backstop exception handler: don't let any exceptions propagate back
-  # to the caller.  Log the error and the stack trace.  The log message has to
-  # go on a single line, unfortunately.  Embed "\n" for syslogviewer.
-  start_line = "\n        from "    # start each backtrace line with this
-  resolver.log.error"Exiting because of error: \"#{$!}\"" + start_line +
-                    $!.backtrace.inject{|trace, line| trace + start_line + line}
-                
-ensure
-  stunnel_connection.close
-end  

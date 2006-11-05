@@ -35,6 +35,8 @@ class StateTest < Test::Unit::TestCase
     def terminated?
       true
     end
+    
+    def retire; end
   end
     
   class DummyCse
@@ -42,7 +44,7 @@ class StateTest < Test::Unit::TestCase
     
     def initialize(call_id)
       @call_id = call_id
-    end 
+    end
   end
 
   def test_empty
@@ -136,6 +138,8 @@ class StateTest < Test::Unit::TestCase
       self if @@results.shift
     end
     
+    def retire; end
+    
     def terminated?
       @@results.shift 
     end
@@ -146,7 +150,7 @@ class StateTest < Test::Unit::TestCase
     
     def MockCdr.results(*arg)
       @@results = arg
-    end    
+    end        
   end
   
   def test_failed
@@ -191,4 +195,24 @@ class StateTest < Test::Unit::TestCase
     # still only one - nothing flushed
     assert_equal(1, observer.counter)
   end  
+  
+  
+  def test_run
+    out_queue = []
+    
+    cse1 = DummyCse.new('id1')    
+    in_queue = [
+      cse1, cse1, [:flush_failed, 0]
+    ]
+    
+    # results of calls to accept and terminated?
+    MockCdr.results( true, false, true, true )
+    state = State.new(in_queue, out_queue, MockCdr )
+    state.run
+    
+    # still only one - nothing flushed, and nil as the second
+    assert_equal(2, out_queue.size)
+    assert_nil(out_queue[1])
+  end  
+  
 end

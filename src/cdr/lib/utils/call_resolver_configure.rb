@@ -17,26 +17,26 @@ require 'utils/sipx_logger'
 
 
 class CallResolverConfigure
-
+  
   # Default config file path
   DEFAULT_CONFIG_FILE = '/etc/sipxpbx/callresolver-config'
   
   # If set, then this becomes a prefix to the default config file path
   SIPX_PREFIX = 'SIPX_PREFIX'
-
+  
   # If the daily run is enabled, then it happens at 4 AM, always
   DAILY_RUN_TIME = '04:00'
-
+  
   LOCALHOST = 'localhost'
-
+  
   # How many seconds are there in a day
   SECONDS_IN_A_DAY = 86400
-
+  
   # Max integer in a Fixnum, on a 32-bit machine
   INT_MAX = 2147483647
-
+  
   # Configuration parameters and defaults
-
+  
   # Whether console logging is enabled or disabled.  Legal values are "ENABLE"
   # or "DISABLE".  Comparison is case-insensitive with this and other values.
   LOG_CONSOLE_CONFIG = 'SIP_CALLRESOLVER_LOG_CONSOLE'
@@ -52,7 +52,7 @@ class CallResolverConfigure
   LOG_LEVEL_CONFIG_DEFAULT = 'NOTICE'
   
   LOG_FILE_NAME = 'sipcallresolver.log'
-
+  
   DAILY_RUN = 'SIP_CALLRESOLVER_DAILY_RUN'
   DAILY_RUN_DEFAULT = Configure::DISABLE
   
@@ -67,23 +67,24 @@ class CallResolverConfigure
   
   CSE_HOSTS = 'SIP_CALLRESOLVER_CSE_HOSTS'
   CSE_HOSTS_DEFAULT = "#{LOCALHOST}:#{DatabaseUrl::DATABASE_PORT_DEFAULT}"
-
+  
   # Specify this string as the config_file to get a completely default config 
   DEFAULT_CONFIG = 'default_config'
-
-  def initialize(config_file = nil)
+  
+  def initialize(config_file = nil)  
     # If the config_file arg is nil, then find the config file in the default location
     @config_file = apply_config_file_default(config_file)
-
+    
     # Set up a generic Configure object that just knows how to parse a config
     # file with param:value lines.
     if @config_file == DEFAULT_CONFIG
       @config = Configure.new()
     else
       if File.exists?(@config_file)
+        $stderr.puts("Reading config from #{@config_file}")        
         @config = Configure.new(@config_file)
       else
-        puts("Config file #{@config_file} not found, using default settings")
+        $stderr.puts("Config file #{@config_file} not found, using default settings")
         @config = Configure.new()
       end
     end
@@ -95,67 +96,71 @@ class CallResolverConfigure
     # Finish setting up the config
     finish_config
   end
-
+  
   #-----------------------------------------------------------------------------
   # Public configuration
-
+  
   BOOL_PARAMS = [:daily_run?, :ha?, :purge?]
   OTHER_PARAMS = [:cdr_database_url, :cse_database_urls, :config_file,
-                  :daily_start_time, :daily_end_time,
-                  :host_list, :host_url_list, :host_port_list,
-                  :log, :log_device,
-                  :purge_start_time_cdr, :purge_start_time_cse]
+  :daily_start_time, :daily_end_time,
+  :host_list, :host_url_list, :host_port_list,
+  :log, :log_device,
+  :purge_start_time_cdr, :purge_start_time_cse]
   
   # Return true if daily runs of the call resolver are enabled, false otherwise
   def daily_run?
     @daily_run
   end
-
+  
   # Return true if High Availability (HA) is enabled, false otherwise
   def ha?
     @ha
   end
-
+  
   # Return true if database purging is enabled, false otherwise
   def purge?
     @purge
   end
-
+  
   # Define a reader for each of the other params
   OTHER_PARAMS.each {|sym| attr_reader(sym)}
-
+  
   # Access the config as an array.  Use this method *only* for plugin config
   # params that are unknown to the call resolver.  All known params should be
   # retrieved using the above accessors.
   def [](param)
     config[param]
   end
-
+  
+  def enabled?(param, default = nil)
+    config.enabled?(param, default)
+  end
+  
   attr_accessor :config
-    
+  
   # test only
   attr_writer :cse_database_urls
-
+  
   def host_port_list=(host_port_list)
     @host_port_list = host_port_list
     
     # Recompute the CSE DB urls, since the host port list changed
     set_cse_database_urls_config(config)
   end
-
+  
   #-----------------------------------------------------------------------------
   # Logging configuration
-    
+  
   # Set up logging.  Return the Logger.
   def init_logging
     @log_device = nil
     @log = nil
-
+    
     # Read the logging config
     set_log_console_config(@config)
     set_log_dir_config(@config)
     set_log_level_config(@config)
-
+    
     # If console logging was specified, then do that.  Otherwise log to a file.
     if @log_console
       @log_device = STDOUT
@@ -185,10 +190,10 @@ class CallResolverConfigure
       end
     end
     @log = SipxLogger.new(@log_device)
-
+    
     # Set the log level from the configuration
     @log.level = @log_level
-
+    
     # Override the log level to DEBUG if $DEBUG is set.
     # :TODO: figure out why this isn't working.
     if $DEBUG then
@@ -206,7 +211,7 @@ class CallResolverConfigure
     
     # Apply the default if the param was not specified
     @log_console ||= LOG_CONSOLE_CONFIG_DEFAULT
-
+    
     # Convert to a boolean
     if @log_console.casecmp(Configure::ENABLE) == 0
       @log_console = true
@@ -256,13 +261,13 @@ class CallResolverConfigure
     
     @log_level
   end
-
+  
   # Given the name of a sipX log level, return the Logger log level value, or
   # nil if the name is not recognized.
   def log_level_sipx_to_logger(name)
     SipxLogger::LOG_LEVEL_SIPX_TO_LOGGER[name]
   end
-
+  
   #-----------------------------------------------------------------------------
   
   # Finish setting up the config.  Logging has already been set up before this,
@@ -297,7 +302,7 @@ class CallResolverConfigure
     
     config_file
   end
-
+  
   def set_cdr_database_url_config(config)
     # :TODO: read CDR database URL params from the Call Resolver config file
     # rather than just hardwiring default values.
@@ -333,7 +338,7 @@ class CallResolverConfigure
     
     # Apply the default if the param was not specified
     @daily_run ||= DAILY_RUN_DEFAULT
-
+    
     # Convert to a boolean
     if @daily_run.casecmp(Configure::ENABLE) == 0
       @daily_run = true
@@ -344,7 +349,7 @@ class CallResolverConfigure
             "#{DAILY_RUN}.  Must be ENABLE or DISABLE.")
     end
   end
-
+  
   # Compute the start time of the daily call resolver run.
   # We decided not to make this configurable.  Too complicated given that the
   # cron job always runs at a fixed time.
@@ -364,7 +369,7 @@ class CallResolverConfigure
     
     # Apply the default if the param was not specified
     @purge ||= PURGE_DEFAULT
-
+    
     # Convert to a boolean
     if @purge.casecmp(Configure::ENABLE) == 0
       @purge = true
@@ -379,25 +384,25 @@ class CallResolverConfigure
   # Compute start time of CDR records to be purged from configuration
   def set_purge_start_time_cdr_config(config)
     purge_age = parse_int_param(config, PURGE_AGE_CDR, PURGE_AGE_CDR_DEFAULT, 1)
-
+    
     # Get today's date
     today = Time.now
     
     # Set the start time of the purge to be purge_age days ago
     @purge_start_time_cdr = today - (SECONDS_IN_A_DAY * purge_age)
   end    
-    
+  
   # Compute start time of CSE records to be purged from configuration
   def set_purge_start_time_cse_config(config)
     purge_age = parse_int_param(config, PURGE_AGE_CSE, PURGE_AGE_CSE_DEFAULT, 1)
-
+    
     # Get today's date
     today = Time.now
     
     # Set the start time of the purge to be purge_age days ago
     @purge_start_time_cse = today - (SECONDS_IN_A_DAY * purge_age)
   end
-
+  
   # Get distributed CSE hosts from the configuration. Initialize @host_url_list
   # to a list of hostnames and @host_port_list to the corresponding list of
   # ports. Call resolver connects to each of these ports on 'localhost' via the
@@ -425,7 +430,7 @@ class CallResolverConfigure
           Utils.raise_exception(
             "No port specified for host \"#{host_elements[0]}\". " +
             "A port number for hosts other than  \"localhost\" must be specified.",
-            ConfigException)
+          ConfigException)
         end
       else
         # Strip whitespace from port
@@ -446,7 +451,7 @@ class CallResolverConfigure
     end
     @host_port_list
   end  
-
+  
   # Read the named param from the config.  Convert it to an integer and return
   # the value.  If the param is not defined, then use the default.  Validate
   # that the param is between the min and max and raise a ConfigException if not.
@@ -469,7 +474,7 @@ class CallResolverConfigure
         "The value of the configuration parameter #{param_name}, #{param_value}, "+
         "is not an integer")
     end
-
+    
     param_value
   end
   

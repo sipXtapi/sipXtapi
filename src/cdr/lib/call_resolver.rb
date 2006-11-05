@@ -9,11 +9,11 @@
 
 require 'logger'
 
-require 'call_state_event'
-require 'cdr'
-require 'utils/configure'
-require 'utils/exceptions'
 require 'utils/call_resolver_configure'
+require 'call_direction/call_direction_plugin'
+require 'db/cse_reader'
+require 'db/cdr_writer'
+require 'state'
 
 
 # The CallResolver analyzes call state events (CSEs) and computes call detail 
@@ -22,14 +22,14 @@ require 'utils/call_resolver_configure'
 # :TODO: log the number of calls analyzed and how many succeeded vs. dups or
 #        failures, also termination status
 class CallResolver
-  attr_reader :log
+  attr_reader :log, :config
   
   # How many seconds are there in a day
   SECONDS_IN_A_DAY = 86400
   
-  def initialize(log = SipxLogger.new, config_file = nil)
-    @config = CallResolverConfigure.new(config_file)    
-    @log = log
+  def initialize(config_file = nil)
+    @config =  CallResolverConfigure.new(config_file)
+    @log = config.log
   end
     
   # Run daily processing, including purging and/or call resolution
@@ -80,34 +80,40 @@ class CallResolver
   # Resolve CSEs to CDRs
   def resolve(start_time, end_time)
     cse_queue = Queue.new
+    urls = @config.cse_database_urls
     
     # readers put events in CSE queue
-    @readears = @config.cse_database_urls.collect do | url |
+    @readers = urls.collect do | url |
       CseReader.new( cse_queue, url )
     end
     
-    raw_cdr_queue = Queue.new
+    cdr_queue = Queue.new
     
-    # state copies from CSE queue to CDR queue
-    @state = State.new(cse_queue, raw_cdr_queue)
     
-    cdr_queue = start_plugins(raw_queue)
+    #cdr_queue = start_plugins(cdr_queue)
         
-    @writer = CdrWriter.new(cdr_queue)
+    @writer = CdrWriter.new(cdr_queue, @config.cdr_database_url)
+    
+    
+    # start everything
+
+    writer_thread = Thread.new( @writer ) { | w | w.run }
     
     
     reader_threads = @readers.collect do | reader |
       Thread.new(reader) { |r| r.run(start_time, end_time) }
     end
-    
-    Thread.new( @state ) { | s | s.run }
-    
-    writer_thread = Thread.new( @writer ) { | w | w.run }
+
+    Thread.new( cse_queue, cdr_queue ) { | inq, outq | 
+      # state copies from CSE queue to CDR queue
+      s = State.new( cse_queue, cdr_queue )
+      s.run
+    }
     
     reader_threads.each{ |thread| thread.join }
     
-    # send sentinel event, it'll stop plugins and state
-    raw_queue.enq(nil)
+    # send sentinel event, it will stop plugins and state
+    cse_queue.enq(nil)
     
     # wait for writer before exiting
     writer_thread.join

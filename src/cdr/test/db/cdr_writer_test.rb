@@ -16,11 +16,12 @@ require 'db/cdr_writer'
 
 class CdrWriterTest < Test::Unit::TestCase
   
-  def test_empty
-    q = Queue.new
-    t = Thread.new(CdrWriter.new(q)) { | w | w.run }    
-    q.enq(nil)
-    t.join
+  def test_insert_sql
+    sql = CdrWriter.insert_sql
+    assert_equal("INSERT INTO cdrs ( call_id, from_tag, to_tag, caller_aor, callee_aor, " +
+      "start_time, connect_time, end_time, " +
+      "termination, failure_status, failure_reason, " +
+      "call_direction ) " +
+      "VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", sql)
   end
-  
 end
