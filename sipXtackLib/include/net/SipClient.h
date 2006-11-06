@@ -107,12 +107,15 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
+    // Test whether the socket is ready to read.  (Does not block.)
         UtlBoolean isReadyToRead();
+    // Wait until the socket is ready to read (or has an error).
+    UtlBoolean waitForReadyToRead();
 
-
-        OsSocket* clientSocket;
-        SipUserAgentBase* sipUserAgent;
-        UtlString mRemoteHostName;
+    OsSocket* clientSocket;
+    OsSocket::IpProtocolSocketType mSocketType;
+    SipUserAgentBase* sipUserAgent;
+    UtlString mRemoteHostName;
     UtlString mRemoteViaAddress;
     UtlString mRemoteSocketAddress;
     UtlString mReceivedAddress;

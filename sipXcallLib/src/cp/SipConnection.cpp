@@ -3376,12 +3376,15 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         SIPX_RTP_TRANSPORT rtpTransportOptions = UDP_ONLY;
         RtpTcpRoles role = ACTPASS;
         
-        bool bTcpAvailable = pSdpBody->isTransportAvailable(OsSocket::TCP, MEDIA_TYPE_AUDIO);
-        bool bUdpAvailable = pSdpBody->isTransportAvailable(OsSocket::UDP, MEDIA_TYPE_AUDIO);
-        if (!bUdpAvailable && bTcpAvailable)
+        if (pSdpBody)
         {
-            rtpTransportOptions = TCP_ONLY;
-            mRtpTransportOptions = TCP_ONLY;
+            bool bTcpAvailable = pSdpBody->isTransportAvailable(OsSocket::TCP, MEDIA_TYPE_AUDIO);
+            bool bUdpAvailable = pSdpBody->isTransportAvailable(OsSocket::UDP, MEDIA_TYPE_AUDIO);
+            if (!bUdpAvailable && bTcpAvailable)
+            {
+                rtpTransportOptions = TCP_ONLY;
+                mRtpTransportOptions = TCP_ONLY;
+            }
         }
         createdConnection = mpMediaInterface->createConnection(
                 mConnectionId, 

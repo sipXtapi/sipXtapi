@@ -98,6 +98,9 @@ nobase_include_HEADERS =  \
     net/XmlRpcMethod.h \
     net/XmlRpcRequest.h \
     net/XmlRpcResponse.h \
+    net/HttpConnection.h \
+    net/HttpConnectionMap.h \
+    net/PidfBody.h \
     resparse/bzero.h \
     resparse/ns_name.h \
     resparse/poll.h \

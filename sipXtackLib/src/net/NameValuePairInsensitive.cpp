@@ -55,7 +55,7 @@ NameValuePairInsensitive::~NameValuePairInsensitive()
 NameValuePairInsensitive&
 NameValuePairInsensitive::operator=(const NameValuePairInsensitive& rhs)
 {
-   ((NameValuePair) *this) = (const NameValuePair) rhs;
+   ((NameValuePair&) *this) = (const NameValuePair) rhs;
 
    return *this;
 }

@@ -60,6 +60,7 @@ static OsMutex sSessionLock(OsMutex::Q_FIFO) ;
 SdpBody::SdpBody(const char* bodyBytes, int byteCount)
  : HttpBody(bodyBytes, byteCount)
 {
+   mClassType = SDP_BODY_CLASS;
    remove(0);
    append(SDP_CONTENT_TYPE);
 
@@ -92,6 +93,7 @@ SdpBody::SdpBody(const char* bodyBytes, int byteCount)
 SdpBody::SdpBody(const SdpBody& rSdpBody) :
    HttpBody(rSdpBody)
 {
+   mClassType = SDP_BODY_CLASS;
    if(rSdpBody.sdpFields)
    {
       sdpFields = new UtlSList();
@@ -191,6 +193,8 @@ SdpBody::operator=(const SdpBody& rhs)
       }
    }
 
+   // Set the class type just to play it safe
+   mClassType = SDP_BODY_CLASS;
    return *this;
 }
 

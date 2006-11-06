@@ -168,7 +168,7 @@ public:
     enum SdpCodecCPUCost
     {
        SDP_CODEC_CPU_LOW = 0,
-       SDP_CODEC_CPU_HIGH = 1,
+       SDP_CODEC_CPU_HIGH = 1
     };
 
 

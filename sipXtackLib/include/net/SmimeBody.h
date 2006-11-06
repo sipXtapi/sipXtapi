@@ -330,16 +330,39 @@ public:
      *         data.
      */
     static UtlBoolean nssSmimeDecrypt(const char* derPkcs12,
-                                       int derPkcs12Length,
-                                       const char* pkcs12Password,
-                                       const char* certDbPassword,
-                                       const char* signerCertDER,
-                                       int signerCertDERLength,                      
-                                       UtlBoolean dataIsInBase64Format,
-                                       const char* dataToDecrypt,
-                                       int dataToDecryptLength,
-                                       UtlString& decryptedData,
-                                       ISmimeNotifySink* pSink = NULL);
+                                      int derPkcs12Length,
+                                      const char* pkcs12Password,
+                                      const char* certDbPassword,
+                                      const char* signerCertDER,
+                                      int signerCertDERLength,                      
+                                      UtlBoolean dataIsInBase64Format,
+                                      const char* dataToDecrypt,
+                                      int dataToDecryptLength,
+                                      UtlString& decryptedData,
+                                      ISmimeNotifySink* pSmimeSink);
+
+    // Lower level utility to do S/MIME encryption using the NSS library.
+    /*! Encrypts the given data for the recipients represented by the
+     *  array of certificates containing the public keys.
+     *  \param numRecipientCerts the number of recipient certificates in
+     *         the derPublicKeyCerts array.
+     *  \param derPublicKeyCerts - array containing DER format certificates.
+     *  \param derPublicKeyCertLengths - array containing the length of the
+     *         corresponding certificate DER data.
+     *  \param dataToEncrypt - raw data to encrypt using PKCS7 S/MIME format
+     *  \param dataToEncryptLength length in bytes of dataToEncrypt
+     *  \param encryptedDataInBase64Format - TRUE: output encrypted data in
+     *         base64 format, FALSE: output data in raw binary format.  Typically
+     *         for SIP one should send in binary format.
+     *  \param encryptedData - string containing the encrypted result.
+     */
+    static UtlBoolean opensslSmimeEncrypt(int numRecipientCerts,
+                                          const char* derPublicKeyCerts[], 
+                                          int derPublicKeyCertLengths[],
+                                          const char* dataToEncrypt,
+                                          int dataToEncryptLength,
+                                          UtlBoolean encryptedDataInBase64Format,
+                                          UtlString& encryptedData);
 
     // Lower level utility to do S/MIME decryption using the OpenSSL library
     /*! Decrypts this body using the derPkcs12PrivateKey.

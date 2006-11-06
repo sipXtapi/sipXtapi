@@ -647,16 +647,16 @@ loser:
 #endif
 
 UtlBoolean SmimeBody::nssSmimeDecrypt(const char* derPkcs12,
-                               int derPkcs12Length,
-                               const char* pkcs12Password,
-                               const char* certDbPassword,
-                               const char* signerCertDER,
-                               int signerCertDERLength,                      
-                               UtlBoolean dataIsInBase64Format,
-                               const char* dataToDecrypt,
-                               int dataToDecryptLength,
-                               UtlString& decryptedData,
-                               ISmimeNotifySink* pSmimeSink)
+                                      int derPkcs12Length,
+                                      const char* pkcs12Password,
+                                      const char* certDbPassword,
+                                      const char* signerCertDER,
+                                      int signerCertDERLength,                      
+                                      UtlBoolean dataIsInBase64Format,
+                                      const char* dataToDecrypt,
+                                      int dataToDecryptLength,
+                                      UtlString& decryptedData,
+                                      ISmimeNotifySink* pSmimeSink)
 {
     UtlBoolean decryptSucceeded = FALSE;
 #ifdef HAVE_NSS

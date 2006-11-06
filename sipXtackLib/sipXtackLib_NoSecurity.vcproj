@@ -177,6 +177,12 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\net\HttpConnection.cpp">
+			</File>
+			<File
+				RelativePath=".\src\net\HttpConnectionMap.cpp">
+			</File>
+			<File
 				RelativePath="src\net\HttpMessage.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -454,6 +460,9 @@
 						BasicRuntimeChecks="3"
 						BrowseInformation="1"/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\net\PidfBody.cpp">
 			</File>
 			<File
 				RelativePath=".\src\net\pk12wrapper.cpp">
