@@ -11,6 +11,10 @@
 # system requires
 require 'getoptlong'
 require 'parsedate'
+require 'rubygems'
+
+# FIXME: that should not be required if gems are used properly
+$:.unshift(File.dirname(__FILE__))
 
 # application requires
 require 'call_resolver'

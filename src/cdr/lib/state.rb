@@ -48,8 +48,6 @@ class State
         end            
       end
       flush_failed
-      dump_state
-      dump_waiting
       @cdr_queue << nil
     rescue 
       p $!
@@ -70,10 +68,12 @@ class State
   # Analyze CSE, add CDR to queue if completed
   def accept(cse)
     @generation += 1
+    
     call_id = cse.call_id
     
     # ignore if we already notified world about this cdr
     return if @retired_calls[call_id]
+    flush_retired(100) if 0 == @generation % 200
     
     # check if this is a message for call that we suspect might be failed
     failed_cdr = @failed_calls.delete(call_id)
@@ -94,7 +94,7 @@ class State
       end
     end
   end
-  
+    
   # Strictly speaking this function does not have to be called.
   # Since it is possible that we receive notifications after we already 
   # notified about the CDR we need to maintain a list of CD for which we are going to ignore all notifications.

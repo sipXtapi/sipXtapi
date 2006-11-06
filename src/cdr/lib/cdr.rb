@@ -206,9 +206,6 @@ class Cdr
       accept_call_setup(cse)
     when cse.call_end?, cse.call_failure?
       accept_call_end(cse)
-    else
-      p cse
-      nil
     end
   end
   

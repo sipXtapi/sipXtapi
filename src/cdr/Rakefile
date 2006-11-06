@@ -1,6 +1,8 @@
 require 'rake'
 require 'rake/testtask'
 
+CALLRESOLVER_VERSION = ENV['callresolver_version'] || "2.0.0"
+
 task :default => [:test_units]
 
 TEST_FILES = 'test/**/*_test.rb'
@@ -12,6 +14,12 @@ Rake::TestTask.new("test_units") { |t|
   t.warning = true
 }
 
+desc "Run DB tests"
+Rake::TestTask.new("test_db") { |t|
+  t.pattern = 'test/**/*_test_db.rb'
+  t.warning = true
+}
+
 require 'rubygems'
 require 'rake/gempackagetask'
 
@@ -19,10 +27,10 @@ spec = Gem::Specification.new do |s|
   s.platform = Gem::Platform::RUBY
   s.summary = "sipxcallresolver provides CDR generation from logged call state events"
   s.name = 'sipxcallresolver'
-  s.version = ENV['callresolver_version']
+  s.version = CALLRESOLVER_VERSION
   s.requirements << 'none'
   s.require_path = 'lib'
-  s.files = FileList["*.rb", "{app,config,test}/**/*"].to_a
+  s.files = FileList["{lib,test,system-test}/**/*"].to_a
   s.test_files = FileList[TEST_FILES].to_a
   s.description = <<EOF
 sipxcallresolver implements call resolution from logged call state events
@@ -30,7 +38,6 @@ EOF
 end
 
 Rake::GemPackageTask.new(spec) do |pkg|
-  pkg.version = :noversion
   pkg.need_zip = true
   pkg.need_tar = true 
   pkg.package_dir = "#{ENV['builddir']}/pkg" if ENV['builddir']
