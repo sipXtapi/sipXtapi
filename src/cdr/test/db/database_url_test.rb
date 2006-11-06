@@ -64,6 +64,6 @@ class DatabaseUrlTest < Test::Unit::TestCase
   
   def test_to_dbi
     url = DatabaseUrl.new(:database => 'SIPXCDR', :host => 'localhost')
-    assert_equal("dbi:Pg:SIPXCDR:localhost", url.to_dbi)
+    assert_equal("dbi:Pg:database=SIPXCDR;host=localhost;port=5432", url.to_dbi)
   end
 end

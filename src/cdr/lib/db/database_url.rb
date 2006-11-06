@@ -29,6 +29,6 @@ class DatabaseUrl < Struct.new(:database, :port, :host, :adapter, :username)
   end
   
   def to_dbi
-    "dbi:Pg:#{database}:#{host}"
+    "dbi:Pg:database=#{database};host=#{host};port=#{port}"
   end
 end
