@@ -69,6 +69,7 @@
     <page name="ListPermissions" specification-path="permission/ListPermissions.page"/>
     <page name="ManageAttendants" specification-path="dialplan/ManageAttendants.page"/>    
     <page name="ManageDomain" specification-path="admin/ManageDomain.page"/>
+    <page name="ManagePhonebooks" specification-path="phonebook/ManagePhonebooks.page"/>
     <page name="ManagePhones" specification-path="phone/ManagePhones.page"/>
     <page name="ManagePresence" specification-path="user_portal/ManagePresence.page"/>
     <page name="ManageUsers" specification-path="user/ManageUsers.page"/> 
