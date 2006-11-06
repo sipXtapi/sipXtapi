@@ -150,6 +150,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\os\NatMsg.cpp">
+			</File>
+			<File
 				RelativePath="src\os\OsAssert.c">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -253,6 +256,12 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\os\OsContact.cpp">
+			</File>
+			<File
+				RelativePath=".\src\os\OsContactList.cpp">
 			</File>
 			<File
 				RelativePath="src\os\OsCSemBase.cpp">
@@ -820,6 +829,12 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\os\OsNatConnectionSocket.cpp">
+			</File>
+			<File
+				RelativePath=".\src\os\OsNatSocketBaseImpl.cpp">
 			</File>
 			<File
 				RelativePath="src\os\OsPathBase.cpp">
@@ -2230,6 +2245,15 @@
 				RelativePath="include\os\wnt\getWindowsDNSServers.h">
 			</File>
 			<File
+				RelativePath=".\include\os\HostAdapterAddress.h">
+			</File>
+			<File
+				RelativePath=".\include\os\IStunSocket.h">
+			</File>
+			<File
+				RelativePath=".\include\os\NatMsg.h">
+			</File>
+			<File
 				RelativePath="include\os\OsAssert.h">
 			</File>
 			<File
@@ -2249,6 +2273,12 @@
 			</File>
 			<File
 				RelativePath="include\os\OsConnectionSocket.h">
+			</File>
+			<File
+				RelativePath=".\include\os\OsContact.h">
+			</File>
+			<File
+				RelativePath=".\include\os\OsContactList.h">
 			</File>
 			<File
 				RelativePath="include\os\OsCSem.h">
@@ -2341,6 +2371,15 @@
 				RelativePath="include\os\OsNameDb.h">
 			</File>
 			<File
+				RelativePath=".\include\os\OsNatConnectionSocket.h">
+			</File>
+			<File
+				RelativePath=".\include\os\OsNatKeepaliveListener.h">
+			</File>
+			<File
+				RelativePath=".\include\os\OsNatSocketBaseImpl.h">
+			</File>
+			<File
 				RelativePath="include\os\OsNotification.h">
 			</File>
 			<File
@@ -2399,6 +2438,9 @@
 			</File>
 			<File
 				RelativePath="include\os\OsSocket.h">
+			</File>
+			<File
+				RelativePath=".\include\os\OsSSL.h">
 			</File>
 			<File
 				RelativePath="include\os\OsSSLConnectionSocket.h">
@@ -2477,6 +2519,9 @@
 			</File>
 			<File
 				RelativePath="include\utl\PtTest.h">
+			</File>
+			<File
+				RelativePath=".\include\os\qsTypes.h">
 			</File>
 			<File
 				RelativePath="include\xmlparser\tinystr.h">
