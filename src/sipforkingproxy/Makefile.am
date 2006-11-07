@@ -15,9 +15,9 @@ sipproxy_LDADD = \
 sipproxy_SOURCES =  \
 	$(top_builddir)/config/sipxproxy-buildstamp.h \
 	$(top_builddir)/config/sipxproxy-buildstamp.cpp \
-   SipRouter.cpp \
-   ForwardRules.cpp \
-   SipForkingProxyMain.cpp \
+	SipRouter.cpp \
+	ForwardRules.cpp \
+	SipForkingProxyMain.cpp \
 	SipRouter.h \
 	ForwardRules.h \
 	ForkingProxyCseObserver.h \
