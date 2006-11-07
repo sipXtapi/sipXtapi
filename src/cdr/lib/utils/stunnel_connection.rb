@@ -81,65 +81,32 @@ class StunnelConnection
   # Get possible distributed CSE hosts from configuration file. Generate
   # an stunnel configuration script and return an array of ports.
   def get_stunnel_config(config)
-    host_list = config.host_list
-    host_url_list = []
-    host_port_list = []
-    @ha_enabled = false
-    # Split host list into separate host:port names, then build two
-    # arrays of URLs and ports.
-    host_array = host_list.split(',')
-    host_array.each do |host_string|
-      host_elements = host_string.split(':')
-      # Strip leading and trailing whitespace
-      host_elements[0] = host_elements[0].strip
-      # Test if port was specified      
-      if host_elements.length == 1
-        # Supply default port for localhost
-        if host_elements[0] == LOCALHOST
-          host_elements[1] = DatabaseUrl::DATABASE_PORT_DEFAULT.to_s
-        else
-          Utils.raise_exception(
-            "No port specified for host \"#{host_elements[0]}\" in #{CSE_HOSTS}. " +
-            "A port number for hosts other than  \"localhost\" must be specified.",
-          ConfigException)
-        end
-      else
-        # Strip whitespace from port
-        host_elements[1] = host_elements[1].strip
-      end
-      host_url_list << host_elements[0]
-      host_port_list << host_elements[1]
-      log.debug {"get_stunnel_config: host name #{host_elements[0]}, host port: #{host_elements[1]}"}
-      # If at least one of the hosts != 'localhost' we are HA enabled
-      if host_elements[0] != 'localhost' && ! @ha_enabled
-        @ha_enabled = true
-        log.debug {"get_stunnel_config: Found host other than localhost - enable HA"}
-      end
-    end
-    # Check if we are HA enabled
-    if @ha_enabled
-      # get the name of the CA file - no defaults here, must be specified
-      ca_file = config[CSE_CA]
-      err_msg = "No CA file name specified. If hosts other than \"localhost\" " +
+    @ha_enabled = config.ha?
+    # Nothing to do if not HA
+    return if !@ha_enabled
+    
+    # get the name of the CA file - no defaults here, must be specified
+    ca_file = config[CSE_CA]
+    err_msg = "No CA file name specified. If hosts other than \"localhost\" " +
                 "are specified in #{CallResolverConfigure::CSE_HOSTS}, then the " +
                 "parameter #{CSE_CA} must be set to the CA file name."
-      if ca_file == nil
-        raise_exception(err_msg, ConfigException)
-      else
-        ca_file = ca_file.strip       
-        if ca_file.length == 0
-          raise_exception(err_msg, ConfigException)
-        end
-      end
-      # Test if file exists
-      if ! test(?e, "#{@prefix}/#{SIPXPBX_SSLPATH}/authorities/#{ca_file}")
-        err_msg = "CA file \"#{@prefix}/#{SIPXPBX_SSLPATH}/authorities/#{ca_file}\" does not exist."
+    if ca_file == nil
+      raise_exception(err_msg, ConfigException)
+    else
+      ca_file = ca_file.strip       
+      if ca_file.length == 0
         raise_exception(err_msg, ConfigException)
       end
-      debug_level = config[CSE_STUNNEL_DEBUG_LEVEL]
-      debug_level ||= CSE_STUNNEL_DEBUG_LEVEL_DEFAULT      
-      generate_stunnel_config(host_url_list, host_port_list, ca_file, debug_level)
     end
+    
+    # Test if file exists
+    if ! test(?e, "#{@prefix}/#{SIPXPBX_SSLPATH}/authorities/#{ca_file}")
+      err_msg = "CA file \"#{@prefix}/#{SIPXPBX_SSLPATH}/authorities/#{ca_file}\" does not exist."
+      raise_exception(err_msg, ConfigException)
+    end
+    
+    debug_level = config[CSE_STUNNEL_DEBUG_LEVEL] || CSE_STUNNEL_DEBUG_LEVEL_DEFAULT
+    generate_stunnel_config(config.host_list, config.host_port_list, ca_file, debug_level)
   end
   
   # Generate the stunnel configuration based on the call resolver configuration  

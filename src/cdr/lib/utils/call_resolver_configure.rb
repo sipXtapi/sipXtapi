@@ -7,7 +7,6 @@
 #
 ##############################################################################
 
-# Application requires.  Assume that the load path has been set up for us.
 require 'time'
 
 require 'db/database_url'
@@ -71,27 +70,50 @@ class CallResolverConfigure
   # Specify this string as the config_file to get a completely default config 
   DEFAULT_CONFIG = 'default_config'
   
-  def initialize(config_file = nil)  
-    # If the config_file arg is nil, then find the config file in the default location
-    @config_file = apply_config_file_default(config_file)
-    
-    # Set up a generic Configure object that just knows how to parse a config
-    # file with param:value lines.
-    if @config_file == DEFAULT_CONFIG
-      @config = Configure.new()
-    else
-      if File.exists?(@config_file)
-        $stderr.puts("Reading config from #{@config_file}")        
-        @config = Configure.new(@config_file)
+  class << self
+    def from_file(config_file = nil)
+      # If the config_file arg is nil, then find the config file in the default location
+      config_file = apply_config_file_default(config_file)
+      
+      # Set up a generic Configure object that just knows how to parse a config
+      # file with param:value lines.
+      configure = if config_file == DEFAULT_CONFIG
+        Configure.new()
       else
-        $stderr.puts("Config file #{@config_file} not found, using default settings")
-        @config = Configure.new()
+        if File.exists?(config_file)
+          $stderr.puts("Reading config from #{config_file}")        
+          Configure.from_file(config_file)
+        else
+          $stderr.puts("Config file #{config_file} not found, using default settings")
+          Configure.new()
+        end
       end
+      
+      CallResolverConfigure.new(configure)
     end
+    
+    # Given a config_file name, if it is non-nil then just return it.
+    # If it's nil then return the default config file path, prepending
+    # $SIPX_PREFIX if that has been set.
+    def apply_config_file_default(config_file)
+      return config_file if config_file
+      
+      prefix = ENV[SIPX_PREFIX]
+      if prefix 
+        return File.join(prefix, DEFAULT_CONFIG_FILE)
+      else
+        return DEFAULT_CONFIG_FILE
+      end                  
+    end
+    
+  end
+  
+  def initialize(config)  
+    @config = config
     
     # Read logging config and initialize logging.  Do this before initializing
     # the rest of the config so we can use logging there.
-    init_logging
+    @log = init_logging
     
     # Finish setting up the config
     finish_config
@@ -100,16 +122,16 @@ class CallResolverConfigure
   #-----------------------------------------------------------------------------
   # Public configuration
   
-  BOOL_PARAMS = [:daily_run?, :ha?, :purge?]
-  OTHER_PARAMS = [:cdr_database_url, :cse_database_urls, :config_file,
+  OTHER_PARAMS = [:cdr_database_url, :cse_database_urls, 
   :daily_start_time, :daily_end_time,
-  :host_list, :host_url_list, :host_port_list,
-  :log, :log_device,
+  :host_list, :host_port_list, :log,
   :purge_start_time_cdr, :purge_start_time_cse]
+  # Define a reader for each of the other params
+  attr_reader(*OTHER_PARAMS)
   
   # Return true if daily runs of the call resolver are enabled, false otherwise
   def daily_run?
-    @daily_run
+    @config.enabled?(DAILY_RUN, DAILY_RUN_DEFAULT)
   end
   
   # Return true if High Availability (HA) is enabled, false otherwise
@@ -119,11 +141,9 @@ class CallResolverConfigure
   
   # Return true if database purging is enabled, false otherwise
   def purge?
-    @purge
+    @config.enabled?(PURGE, PURGE_DEFAULT)
   end
   
-  # Define a reader for each of the other params
-  OTHER_PARAMS.each {|sym| attr_reader(sym)}
   
   # Access the config as an array.  Use this method *only* for plugin config
   # params that are unknown to the call resolver.  All known params should be
@@ -136,234 +156,129 @@ class CallResolverConfigure
     config.enabled?(param, default)
   end
   
-  attr_accessor :config
-  
-  # test only
-  attr_writer :cse_database_urls
-  
-  def host_port_list=(host_port_list)
-    @host_port_list = host_port_list
-    
-    # Recompute the CSE DB urls, since the host port list changed
-    set_cse_database_urls_config(config)
-  end
-  
-  #-----------------------------------------------------------------------------
-  # Logging configuration
-  
   # Set up logging.  Return the Logger.
-  def init_logging
-    @log_device = nil
-    @log = nil
-    
-    # Read the logging config
-    set_log_console_config(@config)
-    set_log_dir_config(@config)
-    set_log_level_config(@config)
-    
+  def init_logging    
     # If console logging was specified, then do that.  Otherwise log to a file.
-    if @log_console
-      @log_device = STDOUT
+    if @config.enabled?(LOG_CONSOLE_CONFIG, LOG_CONSOLE_CONFIG_DEFAULT)
+      log_device = STDOUT
     else
-      if File.exists?(@log_dir)
-        log_file = File.join(@log_dir, LOG_FILE_NAME)
-        @log_device = log_file
+      log_dir = get_log_dir_config
+      if File.exists?(log_dir)
+        log_device = File.join(log_dir, LOG_FILE_NAME)
         # If the file exists, then it must be writable. If it doesn't exist,
         # then the directory must be writable.
-        if File.exists?(log_file)
-          if !File.writable?(log_file)
-            puts("init_logging: Log file \"#{log_file}\" exists but is not writable. " +
-                 "Log messages will go to the console.")
-            @log_device = STDOUT
+        if File.exists?(log_device)
+          if !File.writable?(log_device)
+            $stderr.puts("init_logging: Log file '#{log_file}' exists but is not writable. " +
+                 "Log messages will go to the console.") if $DEBUG 
+            log_device = STDOUT
           end
         else
-          if !File.writable?(@log_dir)
-            puts("init_logging: Log directory \"#{@log_dir}\" is not writable. " +
-                 "Log messages will go to the console.")
-            @log_device = STDOUT
+          if !File.writable?(log_dir)
+            $stderr.puts("init_logging: Log directory '#{@log_dir}' is not writable. " +
+                 "Log messages will go to the console.") if $DEBUG 
+            log_device = STDOUT
           end
         end
       else
-        puts("Unable to open log file, log directory \"#{@log_dir}\" does not " +
-             "exist.  Log messages will go to the console.")
-        @log_device = STDOUT
+        $stderr.puts("Unable to open log file, log directory '#{@log_dir}' does not " +
+             "exist.  Log messages will go to the console.") if $DEBUG 
+        log_device = STDOUT
       end
     end
-    @log = SipxLogger.new(@log_device)
+    log = SipxLogger.new(log_device)
     
     # Set the log level from the configuration
-    @log.level = @log_level
+    log.level = get_log_level_config(@config)
     
     # Override the log level to DEBUG if $DEBUG is set.
     # :TODO: figure out why this isn't working.
     if $DEBUG then
-      @log.level = Logger::DEBUG
+      log.level = Logger::DEBUG
     end
     
-    @log
-  end
-  
-  # Set the console logging from the configuration.
-  # Return the console logging boolean.
-  def set_log_console_config(config)
-    # Look up the config param
-    @log_console = config[LOG_CONSOLE_CONFIG]
-    
-    # Apply the default if the param was not specified
-    @log_console ||= LOG_CONSOLE_CONFIG_DEFAULT
-    
-    # Convert to a boolean
-    if @log_console.casecmp(Configure::ENABLE) == 0
-      @log_console = true
-    elsif @log_console.casecmp(Configure::DISABLE) == 0
-      @log_console = false
-    else
-      raise(ConfigException, "Unrecognized value \"#{@log_console}\" for " +
-            "#{LOG_CONSOLE_CONFIG}.  Must be ENABLE or DISABLE.")
-    end
+    return log
   end
   
   # Set the log directory from the configuration.  Return the log directory.
-  def set_log_dir_config(config)
+  def get_log_dir_config
     # Look up the config param
-    @log_dir = config[LOG_DIR_CONFIG]
+    log_dir = @config[LOG_DIR_CONFIG]
+    return log_dir if log_dir
     
-    # Apply the default if the param was not specified
-    if !@log_dir
-      @log_dir = LOG_DIR_CONFIG_DEFAULT
-      
-      # Prepend the prefix dir if $SIPX_PREFIX is defined
-      prefix = ENV[SIPX_PREFIX]
-      if prefix
-        @log_dir = File.join(prefix, @log_dir)
-      end      
+    # Prepend the prefix dir if $SIPX_PREFIX is defined
+    prefix = ENV[SIPX_PREFIX]
+    if prefix
+      File.join(prefix, LOG_DIR_CONFIG_DEFAULT)
+    else
+      LOG_DIR_CONFIG_DEFAULT
     end
-    
-    @log_dir
   end
   
   # Set the log level from the configuration.  Return the log level.
-  def set_log_level_config(config)
+  def get_log_level_config(config)
     # Look up the config param
-    log_level_name = config[LOG_LEVEL_CONFIG]
-    
-    # Apply the default if the param was not specified
-    log_level_name ||= LOG_LEVEL_CONFIG_DEFAULT
+    log_level_name = config[LOG_LEVEL_CONFIG] || LOG_LEVEL_CONFIG_DEFAULT
     
     # Convert the log level name to a Logger log level
-    @log_level = log_level_sipx_to_logger(log_level_name)
-    
-    # If we don't recognize the name, then refuse to run.  Would be nice to
-    # log a warning and continue, but there is no log yet!
-    if !@log_level
-      raise(CallResolverException, "Unknown log level: #{log_level_name}")   
-    end
-    
-    @log_level
-  end
-  
-  # Given the name of a sipX log level, return the Logger log level value, or
-  # nil if the name is not recognized.
-  def log_level_sipx_to_logger(name)
-    SipxLogger::LOG_LEVEL_SIPX_TO_LOGGER[name]
+    SipxLogger::LOG_LEVEL_SIPX_TO_LOGGER.fetch(log_level_name) { | name |
+      # If we don't recognize the name, then refuse to run.  Would be nice to
+      # log a warning and continue, but there is no log yet!    
+      raise CallResolverException, "Unknown log level: #{name}"
+    } 
   end
   
   #-----------------------------------------------------------------------------
   
   # Finish setting up the config.  Logging has already been set up before this,
   # so we can log messages in the methods that are called here.
-  def finish_config
-    # Read config params, applying defaults
-    
-    set_cdr_database_url_config(@config)
-    
-    # These two methods must get called in this order
-    set_cse_hosts_config(@config)
-    set_cse_database_urls_config(@config)
-    
-    set_daily_run_config(@config)
-    set_daily_start_time_config(@config)
-    set_purge_config(@config)
-    set_purge_start_time_cdr_config(@config)
-    set_purge_start_time_cse_config(@config)
-  end
-  
-  # Given a config_file name, if it is non-nil then just return it.
-  # If it's nil then return the default config file path, prepending
-  # $SIPX_PREFIX if that has been set.
-  def apply_config_file_default(config_file)
-    if !config_file
-      config_file = DEFAULT_CONFIG_FILE
-      prefix = ENV[SIPX_PREFIX]
-      if prefix
-        config_file = File.join(prefix, config_file)
-      end
-    end
-    
-    config_file
-  end
-  
-  def set_cdr_database_url_config(config)
+  # Read config params, applying defaults
+  def finish_config    
     # :TODO: read CDR database URL params from the Call Resolver config file
     # rather than just hardwiring default values.
     @cdr_database_url = DatabaseUrl.new
+    
+    # These two methods must get called in this order
+    @host_list, @host_port_list, @ha = get_cse_hosts_config
+    @cse_database_urls = get_cse_database_urls_config(@host_port_list)
+    
+    @daily_start_time, @daily_end_time = get_daily_start_time_config
+    @purge_start_time_cdr = get_purge_start_time_cdr_config
+    @purge_start_time_cse = get_purge_start_time_cse_config
   end
+  
   
   # Return an array of CSE database URLs.  With an HA configuration, there are
   # multiple CSE databases.  Note that usually one of these URLs is identical
   # to the CDR database URL, since a standard master server runs both the
   # proxies and the call resolver, which share the SIPXCDR database.
-  def set_cse_database_urls_config(config)
-    @cse_database_urls = []
-    if @host_port_list and (@host_port_list.size > 0)
+  def get_cse_database_urls_config(host_port_list)
+    if host_port_list.empty?
+      [ cdr_database_url ] 
+    else      
       # Build the list of CSE DB URLs.  From Call Resolver's point of view,
       # each URL is 'localhost:<port>'.  Stunnel takes care of forwarding the
       # local port to the database on a remote host.
-      @host_port_list.each do |port|
-        url = DatabaseUrl.new(:port => port)
-        @cse_database_urls << url
+      host_port_list.collect do |port|
+        DatabaseUrl.new(:port => port)
       end
-    else
-      @cse_database_urls << cdr_database_url
-    end
-    
-    @cse_database_urls
-  end
-  
-  # Enable/disable the daily run from the configuration.
-  # Return true if daily runs are enabled, false otherwise.
-  def set_daily_run_config(config)
-    # Look up the config param
-    @daily_run = config[DAILY_RUN]
-    
-    # Apply the default if the param was not specified
-    @daily_run ||= DAILY_RUN_DEFAULT
-    
-    # Convert to a boolean
-    if @daily_run.casecmp(Configure::ENABLE) == 0
-      @daily_run = true
-    elsif @daily_run.casecmp(Configure::DISABLE) == 0
-      @daily_run = false
-    else
-      raise(ConfigException, "Unrecognized value \"#{@daily_run}\" for " +
-            "#{DAILY_RUN}.  Must be ENABLE or DISABLE.")
-    end
+    end     
   end
   
   # Compute the start time of the daily call resolver run.
-  # We decided not to make this configurable.  Too complicated given that the
-  # cron job always runs at a fixed time.
-  def set_daily_start_time_config(config)
+  # It is not configurable: cron job always runs at a fixed time.
+  def get_daily_start_time_config
     # Always start the time window at the time the resolver runs
-    @daily_end_time = Time.parse(DAILY_RUN_TIME)
+    daily_end_time = Time.parse(DAILY_RUN_TIME)
     # Convert to time, start same time yesterday
-    @daily_start_time = @daily_end_time - SECONDS_IN_A_DAY   # 24 hours
-    return @daily_start_time
+    daily_start_time = daily_end_time - SECONDS_IN_A_DAY   # 24 hours
+    return daily_start_time, daily_end_time
   end
   
   # Enable/disable the daily run from the configuration.
   # Return true if purging is enabled, false otherwise.
   def set_purge_config(config)
+    
     # Look up the config param
     @purge = config[PURGE]
     
@@ -382,74 +297,65 @@ class CallResolverConfigure
   end  
   
   # Compute start time of CDR records to be purged from configuration
-  def set_purge_start_time_cdr_config(config)
-    purge_age = parse_int_param(config, PURGE_AGE_CDR, PURGE_AGE_CDR_DEFAULT, 1)
-    
-    # Get today's date
-    today = Time.now
+  def get_purge_start_time_cdr_config
+    purge_age = parse_int_param(@config, PURGE_AGE_CDR, PURGE_AGE_CDR_DEFAULT, 1)
     
     # Set the start time of the purge to be purge_age days ago
-    @purge_start_time_cdr = today - (SECONDS_IN_A_DAY * purge_age)
+    return Time.now - (SECONDS_IN_A_DAY * purge_age)
   end    
   
   # Compute start time of CSE records to be purged from configuration
-  def set_purge_start_time_cse_config(config)
-    purge_age = parse_int_param(config, PURGE_AGE_CSE, PURGE_AGE_CSE_DEFAULT, 1)
-    
-    # Get today's date
-    today = Time.now
+  def get_purge_start_time_cse_config
+    purge_age = parse_int_param(@config, PURGE_AGE_CSE, PURGE_AGE_CSE_DEFAULT, 1)
     
     # Set the start time of the purge to be purge_age days ago
-    @purge_start_time_cse = today - (SECONDS_IN_A_DAY * purge_age)
+    return Time.now - (SECONDS_IN_A_DAY * purge_age)
   end
   
-  # Get distributed CSE hosts from the configuration. Initialize @host_url_list
-  # to a list of hostnames and @host_port_list to the corresponding list of
-  # ports. Call resolver connects to each of these ports on 'localhost' via the
+  # Get distributed CSE hosts from the configuration. 
+  # 
+  # Return two arrays host_list, host_port_list
+  # 
+  # Call resolver connects to each of these ports on 'localhost' via the
   # magic of stunnel, so it doesn't ever use the hostnames.
-  def set_cse_hosts_config(config)
-    @host_list = config[CSE_HOSTS]    
-    @host_list ||= CSE_HOSTS_DEFAULT
+  def get_cse_hosts_config
+    host_list = @config[CSE_HOSTS] || CSE_HOSTS_DEFAULT
     
-    @host_url_list = []
-    @host_port_list = []
-    @ha = false
+    host_port_list = []
+    ha = false
     # Split host list into separate host:port names, then build two
     # arrays of URLs and ports.
-    host_array = @host_list.split(',')
+    host_array = host_list.split(',')
     host_array.each do |host_string|
-      host_elements = host_string.split(':')
+      host, port = host_string.split(':')
       # Strip leading and trailing whitespace
-      host_elements[0] = host_elements[0].strip
+      host.strip!
       # Test if port was specified      
-      if host_elements.length == 1
-        # Supply default port for localhost
-        if host_elements[0] == LOCALHOST
-          host_elements[1] = DatabaseUrl::DATABASE_PORT_DEFAULT
-        else
-          Utils.raise_exception(
-            "No port specified for host \"#{host_elements[0]}\". " +
-            "A port number for hosts other than  \"localhost\" must be specified.",
-          ConfigException)
-        end
-      else
+      if port
         # Strip whitespace from port
-        host_elements[1] = host_elements[1].strip
+        port.strip!        
+      else
+        # Supply default port for localhost
+        if host == LOCALHOST
+          port = DatabaseUrl::DATABASE_PORT_DEFAULT
+        else
+          raise ConfigException, "No port specified for host '#{host}'. " +
+            "A port number for hosts other than  'localhost' must be specified."
+        end
       end
-      @host_url_list << host_elements[0]
-      host_port = host_elements[1].to_i
+      host_port = port.to_i
       if host_port == 0
-        raise(ConfigException, "Port for #{host_elements[0]} is invalid.")
+        raise ConfigException, "Port for #{host} is invalid."
       end
-      @host_port_list << host_port
-      log.debug("set_cse_hosts_config: host name #{host_elements[0]}, host port: #{host_elements[1]}")
+      host_port_list << host_port
+      log.debug("set_cse_hosts_config: host name #{host}, host port: #{port}")
       # If at least one of the hosts != 'localhost' we are HA enabled
-      if host_elements[0] != 'localhost' && ! @ha
-        @ha = true
+      if host != 'localhost' && !ha
+        ha = true
         log.debug("get_cse_host: Found host other than localhost - enable HA")
       end
     end
-    @host_port_list
+    return host_array, host_port_list, ha
   end  
   
   # Read the named param from the config.  Convert it to an integer and return
@@ -460,26 +366,15 @@ class CallResolverConfigure
     begin
       value = config[param_name]
       param_value = Integer(value) if value
-      if param_value < min
-        raise_config_exception(
-          "The value of the configuration parameter #{param_name}, #{param_value}, "+
-          "is less than the minimum value allowed, #{min}")
-      elsif param_value > max
-        raise_config_exception(
-          "The value of the configuration parameter #{param_name}, #{param_value}, "+
-          "is greater than the maximum value allowed, #{max}")
+      if !(min..max).include?(param_value)
+        raise ConfigException, "The value of the configuration parameter #{param_name}, #{param_value}, "+
+          "must be in #{min}..#{max} range."
       end
     rescue ArgumentError
-      raise_config_exception(
-        "The value of the configuration parameter #{param_name}, #{param_value}, "+
-        "is not an integer")
+      raise ConfigException, "The value of the configuration parameter #{param_name}, #{param_value}, "+
+        "is not an integer"
     end
     
     param_value
   end
-  
-  def raise_config_exception(message)
-    Utils.raise_exception(message, ConfigException)
-  end
-  
 end

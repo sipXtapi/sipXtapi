@@ -28,7 +28,7 @@ class CallResolver
   SECONDS_IN_A_DAY = 86400
   
   def initialize(config_file = nil)
-    @config =  CallResolverConfigure.new(config_file)
+    @config =  CallResolverConfigure.from_file(config_file)
     @log = config.log
   end
     
