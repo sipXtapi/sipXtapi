@@ -47,6 +47,7 @@ if test x$enable_cdr = xyes
 then
   CHECK_RUBY([1.8.2])
   CHECK_RAKE([0.5.3])
+  CHECK_GEM([0.8.11])
 fi
 AM_CONDITIONAL(ENABLE_CDR, test x$enable_cdr = xyes)
 

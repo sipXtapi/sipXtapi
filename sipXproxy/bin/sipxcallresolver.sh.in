@@ -35,6 +35,7 @@ resolverArgs=""
 : ${DbVersion:=2}
 : ${DbPatchDir:=@SIPX_CONFDIR@/cdr}
 : ${DbPatchLog:=@SIPX_LOGDIR@/sipcdrpatch.log}
+: ${CallResolverMain:=@GEM_LIB_DIR@/sipxcallresolver-2.0.0/lib/main.rb}
 
 Database=SIPXCDR
 Today=`date`
@@ -400,12 +401,12 @@ configCheck() {
          echo "  call resolver configuration ok"
       fi   
    
-      echo -n "Checking for @GEM_LIB_DIR@/sipxcallresolver-1.0.0/main.rb..."
-      if [ -f @GEM_LIB_DIR@/sipxcallresolver-1.0.0/main.rb ]; then
+      echo -n "${CallResolverMain}..."
+      if [ -f ${CallResolverMain} ]; then
          echo " ok"
       else
          echo
-         echo "  Error: @GEM_LIB_DIR@/sipxcallresolver-1.0.0/main.rb not found."
+         echo "  Error: ${CallResolverMain} not found."
          echo
          Status=0
       fi   
@@ -481,7 +482,7 @@ onStartup() {
        exit 1
     fi
     databasePatch    
-    ruby @GEM_LIB_DIR@/sipxcallresolver-1.0.0/main.rb ${resolverArgs}
+    ruby ${CallResolverMain} ${resolverArgs}
 }
 
 # simple diagnostics
