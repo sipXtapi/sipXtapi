@@ -70,9 +70,11 @@ class SipRedirectorENUM : public RedirectPlugin
   protected:
 
    // Dialing prefix.
-   UtlString mPrefix;
+   UtlString mDialPrefix;
    // Whether to include "+" in the application-specific-string.
    UtlBoolean mPrefixPlus;
+   // Digits to prefix to dialed digits to product E.164 number.
+   UtlString mE164Prefix;
    // Base domain for DNS lookup.
    UtlString mBaseDomain;
 };

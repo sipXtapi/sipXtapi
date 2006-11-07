@@ -91,8 +91,9 @@ extern "C" RedirectPlugin* getRedirectPlugin(const UtlString& instanceName)
 // Constructor
 SipRedirectorENUM::SipRedirectorENUM(const UtlString& instanceName) :
    RedirectPlugin(instanceName),
-   mPrefix(""),
+   mDialPrefix(""),
    mPrefixPlus(FALSE),
+   mE164Prefix(""),
    mBaseDomain("")
 {
 }
@@ -119,8 +120,8 @@ void SipRedirectorENUM::readConfig(OsConfigDb& configDb)
                     "BASE_DOMAIN is '%s'", mBaseDomain.data());
    }
 
-   if (configDb.get("PREFIX", mPrefix) != OS_SUCCESS ||
-       mPrefix.isNull())
+   if (configDb.get("DIAL_PREFIX", mDialPrefix) != OS_SUCCESS ||
+       mDialPrefix.isNull())
    {
       OsSysLog::add(FAC_SIP, PRI_INFO,
                     "SipRedirectorENUM::readConfig "
@@ -130,13 +131,27 @@ void SipRedirectorENUM::readConfig(OsConfigDb& configDb)
    {
       OsSysLog::add(FAC_SIP, PRI_INFO,
                     "SipRedirectorENUM::readConfig "
-                    "dialing prefix is '%s'", mPrefix.data());
+                    "dialing prefix is '%s'", mDialPrefix.data());
    }
 
    mPrefixPlus = getYNconfig(configDb, "PREFIX_PLUS", FALSE);
    OsSysLog::add(FAC_SIP, PRI_INFO,
                  "SipRedirectorENUM::readConfig "
                  "mPrefixPlus is %d", mPrefixPlus);
+
+   if (configDb.get("E164_PREFIX", mDialPrefix) != OS_SUCCESS ||
+       mDialPrefix.isNull())
+   {
+      OsSysLog::add(FAC_SIP, PRI_INFO,
+                    "SipRedirectorENUM::readConfig "
+                    "E.164 prefix is empty");
+   }
+   else
+   {
+      OsSysLog::add(FAC_SIP, PRI_INFO,
+                    "SipRedirectorENUM::readConfig "
+                    "E.164 prefix is '%s'", mDialPrefix.data());
+   }
 }
 
 // Initializer
@@ -172,12 +187,13 @@ SipRedirectorENUM::lookUp(
    UtlString userId;
    requestUri.getUserId(userId);
 
-   // Test if the user part is in the right format -- prefix followed by digits.
+   // Test if the user part is in the right format -- dialing prefix
+   // followed by digits.
    const char* user = userId.data();
-   int prefix_length = mPrefix.length();
+   int prefix_length = mDialPrefix.length();
    // Compare the prefix.
    int i;                       // Length of the extension part.
-   if (strncmp(user, mPrefix.data(), prefix_length) == 0)
+   if (strncmp(user, mDialPrefix.data(), prefix_length) == 0)
    {
       // Effectively delete the prefix from the user part.
       user += prefix_length;
@@ -194,13 +210,23 @@ SipRedirectorENUM::lookUp(
       // Format of user part is correct.  Look for NAPTR records.
 
       // Create the domain to look up.
-      char domain[2 * strlen(user) + mBaseDomain.length()];
+      char domain[2 * mE164Prefix.length() +
+                  2 * strlen(user) +
+                  mBaseDomain.length()];
       {
          char* p = &domain[0];
-         // Copy the extension, reversing it and following each digit with a period.
+         // Copy the extension, reversing it and following each digit
+         // with a period.
          for (int k = i; --k >= 0; )
          {
             *p++ = user[k];
+            *p++ = '.';
+         }
+         // Copy the E.164 prefix, reversing it and following each
+         // digit with a period.
+         for (int k = mE164Prefix.length(); --k >= 0; )
+         {
+            *p++ = mE164Prefix(k);
             *p++ = '.';
          }
          // Append the ENUM root domain.
@@ -293,7 +319,8 @@ SipRedirectorENUM::lookUp(
                   // against "+" followed by the user-part of the SIP
                   // URI (for real ENUM), or just the user-part (for private
                   // ENUM).
-                  char application_string[strlen(user) + 2];
+                  char application_string[mE164Prefix.length() +
+                                          strlen(user) + 2];
                   if (mPrefixPlus)
                   {
                      strcpy(application_string, "+");
@@ -302,6 +329,7 @@ SipRedirectorENUM::lookUp(
                   {
                      strcpy(application_string, "");
                   }
+                  strcat(application_string, mE164Prefix.data());
                   strcat(application_string, user);
                   if (regexec(&reg, application_string, 9, pmatch, 0) == 0)
                   {
