@@ -124,6 +124,17 @@ class PhoneServiceTestApi < ApiTestCase
     # this just excersizes code. does not verify restart message was sent	
   end
   
+  def test_phoneDeviceVersion
+    @seed = Phone.new('000000000000', 'polycom300')
+    @seed.deviceVersion = 'polycom1.6'
+    addPhone = AddPhone.new(@seed)
+    @phone_service.addPhone(addPhone)
+    
+    search = PhoneSearch.new(@seed.serialNumber)
+    phone = @phone_service.findPhone(FindPhone.new(search)).phones[0]
+    assert_equal('polycom1.6', phone.deviceVersion)
+  end
+  
   def test_phoneSearch
     seedPhone()
     all = @phone_service.findPhone(FindPhone.new()).phones

@@ -56,6 +56,9 @@ public final class ScheduledDay extends Enum {
     }
 
     public static ScheduledDay getScheduledDay(int calendarDayOfWeek) {
+        if (calendarDayOfWeek == 0) {
+            return ScheduledDay.EVERYDAY;
+        }
         if (calendarDayOfWeek < 1 || calendarDayOfWeek > DAYS_OF_WEEK.length) {
             throw new IllegalArgumentException("Pass Calendar.MONDAY, Calendar.TUESDAY etc.");
         }
