@@ -76,7 +76,7 @@ public:
     * "sips" service.
     *
     * The 'socketType' restricts the search to that sort of transport,
-    * and may have the values (within enum SocketProtocolTypes):
+    * and may have the values (within IpProtocolSocketType):
     *    TCP
     *    UDP
     *    SSL_SOCKET
@@ -106,7 +106,7 @@ public:
       OptionCodeCNAMELimit,     ///< Max. number of CNAMEs to follow.
       OptionCodeNoDefaultTCP,   /**< If 1, do not add TCP contacts by default,
                                  *   for better RFC 3263 conformance. */
-      OptionCodeLast,           ///< End of range
+      OptionCodeLast           ///< End of range
    };
    /**<
     * All options have a code name in this enumeration.  All codes are in the

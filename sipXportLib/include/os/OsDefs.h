@@ -27,6 +27,13 @@
 #include "os/linux/OsLinuxDefs.h"
 #endif /* __pingtel_on_posix__ */
 
+#if defined(_VXWORKS)
+#  define IS_INET_RETURN_OK( x )    (x == 0)  /* wdn - OK == 0 defined in vxWorks.h but has issues ??? */
+#else
+#  define IS_INET_RETURN_OK( x )    (x > 0)
+#endif
+
+
 #ifdef WIN32
 #define snprintf _snprintf
 #endif
