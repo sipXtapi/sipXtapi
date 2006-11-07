@@ -62,6 +62,9 @@ int MpdSipxPcmu::decode(const MpRtpBufPtr &pPacket,
                         unsigned decodedBufferLength,
                         MpAudioSample *samplesBuffer) 
 {
+   // Assert that available buffer size is enough for the packet.
+   assert(pPacket->getPayloadSize() <= decodedBufferLength);
+
    int samples = min(pPacket->getPayloadSize(), decodedBufferLength);
    G711U_Decoder(samples,
                  (const JB_uchar*)pPacket->getDataPtr(),

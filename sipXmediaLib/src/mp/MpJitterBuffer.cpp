@@ -48,6 +48,7 @@ MpJitterBuffer::~MpJitterBuffer()
 
 int MpJitterBuffer::pushPacket(MpRtpBufPtr &rtpPacket)
 {
+   int bufferSize;          // number of samples could be written to decoded buffer
    unsigned decodedSamples; // number of samples, returned from decoder
    UCHAR payloadType;       // RTP packet payload type
    MpDecoderBase* decoder;  // decoder for the packet
@@ -63,8 +64,20 @@ int MpJitterBuffer::pushPacket(MpRtpBufPtr &rtpPacket)
    if (decoder == NULL)
       return 0; // If we can't decode it, we must ignore it?
 
+   // Calculate space available for decoded samples
+   if (JbQIn > JbQOut || JbQCount == 0)
+   {
+      bufferSize = JbQueueSize-JbQIn;
+   } else {
+      bufferSize = JbQOut-JbQIn;
+   }
    // Decode packet
-   decodedSamples = decoder->decode(rtpPacket, JbQueueSize-JbQCount, JbQ+JbQIn);
+   decodedSamples = decoder->decode(rtpPacket, bufferSize, JbQ+JbQIn);
+   // TODO:: If packet jitter buffer size is not integer multiple of decoded size,
+   //        then part of the packet will be lost here. We should consider one of
+   //        two ways: set JB size on creation depending on packet size, reported 
+   //        by codec, OR push packet into decoder and then pull decoded data in
+   //        chunks.
 
    // Update buffer state
    JbQCount += decodedSamples;
