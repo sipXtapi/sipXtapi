@@ -91,7 +91,7 @@ OsStatus MpdSipxSpeex::freeDecode(void)
 int MpdSipxSpeex::decode(const MpRtpBufPtr &pPacket, unsigned decodedBufferLength, MpAudioSample *samplesBuffer)
 {
    // Assert that available buffer size is enough for the packet.
-   assert(pPacket->getPayloadSize() <= decodedBufferLength);
+   assert(mNumSamplesPerFrame <= decodedBufferLength);
 
    // Prepare data for Speex decoder
    speex_bits_read_from(&mDecbits,(char*)pPacket->getDataPtr(),pPacket->getPayloadSize());
