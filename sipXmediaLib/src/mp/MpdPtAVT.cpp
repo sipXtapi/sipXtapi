@@ -119,7 +119,7 @@ void dumpRawAvtPacket(const MpRtpBufPtr &pRtp, int pThis)
 }
 
 
-int MpdPtAVT::decodeIn(MpRtpBufPtr &pPacket)
+int MpdPtAVT::decodeIn(const MpRtpBufPtr &pPacket)
 {
    const struct AvtPacket* pAvt;
    unsigned int samples;

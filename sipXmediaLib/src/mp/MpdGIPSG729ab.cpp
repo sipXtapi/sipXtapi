@@ -159,7 +159,7 @@ OsStatus MpdGIPSG729ab::createDecoder()
    return OS_SUCCESS;
 }
 
-int MpdGIPSG729ab::decodeIn(MpBufPtr pPacket)
+int MpdGIPSG729ab::decodeIn(const MpBufPtr pPacket)
 {
    int thisLen;
 

@@ -76,7 +76,7 @@ static int invalidLen(int l, unsigned char* p)
    return (160 == l) ? 0 : (l % 80);
 }
 
-int MpdGIPSPCMU::decodeIn(MpBufPtr pPacket)
+int MpdGIPSPCMU::decodeIn(const MpBufPtr pPacket)
 {
    int thisLen;
    unsigned char* pHeader;

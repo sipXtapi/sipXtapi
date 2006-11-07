@@ -71,7 +71,7 @@ public:
 #ifdef OLD_GIPS /* [ */
 
      /// Receive a packet of RTP data
-   virtual int decodeIn(MpRtpBufPtr &pPacket ///< (in) Pointer to a media buffer
+   virtual int decodeIn(const MpRtpBufPtr &pPacket ///< (in) Pointer to a media buffer
                        );
      /**<
      *  @returns length of packet to hand to jitter buffer, 0 means don't.

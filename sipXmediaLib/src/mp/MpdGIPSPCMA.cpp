@@ -69,7 +69,7 @@ static int invalidLen(int l, unsigned char* p)
 }
 
 
-int MpdGIPSPCMA::decodeIn(MpBufPtr pPacket)
+int MpdGIPSPCMA::decodeIn(const MpBufPtr pPacket)
 {
    int thisLen;
    unsigned char* pHeader;
