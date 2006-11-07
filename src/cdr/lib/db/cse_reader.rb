@@ -10,50 +10,27 @@
 require 'dbi'
 
 require 'call_state_event'
-
-
-module DBI
-  class Timestamp
-    include Comparable
-    
-    def <=>(other)
-      result = to_time <=> other.to_time
-      return result unless result == 0
-      return fraction <=> other.fraction
-    end
-    
-    def -(other)
-      return to_time <=> other.to_time
-    end
-    
-  end
-end
+require 'db/dao'
 
 # Obtains CSEs from and puts them into CSE queue
-class CseReader
+class CseReader < Dao
   
-  def initialize(cse_queue, database_url)
-    @cse_queue = cse_queue
-    @connection = database_url.to_dbi
-    @username = database_url.username
+  def initialize(database_url, log = nil)
+    super
   end
-  
-  def connect(&block)
-    DBI.connect(@connection, @username, &block)
-  end  
   
   # Another way of fetching the row
   #        while row = sth.fetch_scroll(DBI::SQL_FETCH_NEXT)
-  #          @cse_queue << CseReader.cse_from_row(row)
+  #          cse_queue << CseReader.cse_from_row(row)
   #        end  
-  def run(start_time, stop_time)    
+  def run(cse_queue, start_time, stop_time)    
     connect do | dbh |
       sql = CseReader.select_sql(start_time, stop_time)
       params = [start_time, stop_time].find_all { | i | i }
       dbh.prepare(sql) do | sth |
         sth.execute(*params)
         sth.fetch do |row|
-          @cse_queue << CseReader.cse_from_row(row)
+          cse_queue << CseReader.cse_from_row(row)
         end
       end
     end
@@ -61,7 +38,7 @@ class CseReader
   
   # purge records in CSE table
   def purge(start_time_cse)
-    connect do | dbn |
+    connect do | dbh |
       sql = CseReader.delete_sql(nil, start_time_cse)
       dbh.prepare(sql) do | sth |
         sth.execute(start_time_cse)

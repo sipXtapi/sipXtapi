@@ -9,51 +9,34 @@
 
 require 'dbi'
 
-class Dao
-  def Dao.establish_connection(url)
-    @@dbh = DBI.connect(url, "postgres")        
-  end
-  
-  def Dao.find(where = nil, order = nil)
-    result = []
-    query = select_query(where, order)
-    sth = @@dbh.execute(query)
-    sth.each do |row|
-      result << row_to_object(row)
+module DBI
+  class Timestamp
+    include Comparable
+    
+    def <=>(other)
+      result = to_time <=> other.to_time
+      return result unless result == 0
+      return fraction <=> other.fraction
     end
-    sth.finish
-    return result
-  end
-  
-  def Dao.find_first(where = nil, order = nil)
-    query = select_query(where, order)
-    sth = @@dbh.execute(query)
-    result = row_to_object(sth)
-    sth.finish
-    return result
-  end
-  
-  def Dao.save(object)
     
+    def -(other)
+      return to_time <=> other.to_time
+    end
     
   end
+end
+
+
+class Dao
+  attr_reader :log
   
-  def Dao.update(object)
-    
+  def initialize(database_url, log)
+    @connection = database_url.to_dbi
+    @username = database_url.username
+    @log = log
   end
   
-  def Dao.close_connection()
-    @@dbh.close()    
-  end
-  
-  def select_query(where, order)
-    sql = "SELECT * FROM #{table()}" 
-    sql += "WHERE #where" if where
-    sql += "ORDER BY #order" if order    
-    return sql  
-  end
-  
-  def row_to_object() pass end
-  def object_to_row() pass end
-  def table() pass end  
+  def connect(&block)
+    DBI.connect(@connection, @username, &block)
+  end  
 end

@@ -23,4 +23,9 @@ class CallResolverTest < Test::Unit::TestCase
     #resolver.resolve(nil, Time.parse("10/26"))
     resolver.resolve(nil, nil)
   end  
+  
+  def test_daily
+    resolver = CallResolver.new()
+    resolver.daily_run
+  end
 end

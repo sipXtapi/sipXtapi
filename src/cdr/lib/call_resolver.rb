@@ -30,8 +30,14 @@ class CallResolver
   def initialize(config_file = nil)
     @config =  CallResolverConfigure.from_file(config_file)
     @log = config.log
+    urls = @config.cse_database_urls    
+    # readers put events in CSE queue
+    @readers = urls.collect do | url |
+      CseReader.new(url, @config.log)
+    end
+    @writer = CdrWriter.new(@config.cdr_database_url, @config.log)
   end
-    
+  
   # Run daily processing, including purging and/or call resolution
   def daily_run(purge_flag = false, purge_time = 0)
     run_resolver
@@ -43,26 +49,27 @@ class CallResolver
       log.error("resolve: the --daily_flag is set, but the daily run is disabled in the configuration");
       return
     end
-    
     start_time, end_time = get_daily_start_time
-    
-    begin
-      log.debug{"Daily run - resolve start: #{start_time}, end: #{end_time}"}
-      log.info("Resolving calls from #{start_time.to_s} to #{end_time.to_s}")
-      resolve(start_time, end_time)
-      log.info("resolve: Done at #{end_run}.  Analysis took #{Time.now - start_run} seconds.")
-    rescue
-      # FIXME: check if we can remove it or at least rethrow exception
-      # Log the error and the stack trace.  The log message has to
-      # go on a single line.  
-      # Embed "\n" for syslogviewer.
-      start_line = "\n        from "    # start each backtrace line with this
-      log.error("Exiting because of error: \"#{$!}\"" + start_line +
-      $!.backtrace.inject{|trace, line| trace + start_line + line})            
-    end      
+    resolve(start_time, end_time)
+  rescue
+    # FIXME: check if we can remove it or at least rethrow exception
+    # Log the error and the stack trace.  The log message has to
+    # go on a single line.  
+    # Embed "\n" for syslogviewer.
+    start_line = "\n        from "    # start each backtrace line with this
+    log.error("Exiting because of error: \"#{$!}\"" + start_line +
+    $!.backtrace.inject{|trace, line| trace + start_line + line})            
   end
   
-  def run_purge()
+  def get_daily_start_time
+    start_time = @writer.last_cdr_start_time
+    if start_time == nil
+      start_time = Time.now - SECONDS_IN_A_DAY
+    end
+    return start_time, Time.now
+  end
+  
+  def run_purge(purge_time)
     # Was a purge age explicitly set?
     if purge_time != 0
       log.info("Purge override")
@@ -73,42 +80,32 @@ class CallResolver
       log.info("Normal purge")
     end 
     log.info("Start CSE: : #{start_cse}, Start CDRs: #{start_cdr}")
-    @readers.each{ |r| r.purge_cse(start_cse) }
-    @writer.purge_cdr(start_cdr)
+    @readers.each{ |r| r.purge(start_cse) }
+    @writer.purge(start_cdr)
   end
   
   # Resolve CSEs to CDRs
   def resolve(start_time, end_time)
-    cse_queue = Queue.new
-    urls = @config.cse_database_urls
+    start_run = Time.now
+    log.info("Resolving calls from #{start_time.to_s} to #{end_time.to_s}")
     
-    # readers put events in CSE queue
-    @readers = urls.collect do | url |
-      CseReader.new( cse_queue, url )
-    end
+    # start everything    
     
     cdr_queue = Queue.new
-    
-    
-    #cdr_queue = start_plugins(cdr_queue)
-        
-    @writer = CdrWriter.new(cdr_queue, @config.cdr_database_url)
-    
-    
-    # start everything
-
-    writer_thread = Thread.new( @writer ) { | w | w.run }
-    
+    cse_queue = Queue.new    
     
     reader_threads = @readers.collect do | reader |
-      Thread.new(reader) { |r| r.run(start_time, end_time) }
+      Thread.new(reader, cse_queue) { |r, q| r.run(q, start_time, end_time) }
     end
-
+    
     Thread.new( cse_queue, cdr_queue ) { | inq, outq | 
       # state copies from CSE queue to CDR queue
-      s = State.new( cse_queue, cdr_queue )
-      s.run
+      State.new( cse_queue, cdr_queue ).run
     }
+    
+    #cdr_queue = start_plugins(cdr_queue)
+    
+    writer_thread = Thread.new( @writer, cdr_queue ) { | w, q | w.run(q) }    
     
     reader_threads.each{ |thread| thread.join }
     
@@ -117,9 +114,10 @@ class CallResolver
     
     # wait for writer before exiting
     writer_thread.join
+    log.info("resolve: Done. Analysis took #{Time.now - start_run} seconds.")
   end
   
-
+  
   def start_plugins(raw_queue)
     return raw_queue unless CallDirectionPlugin.call_direction?(@config)    
     processed_queue = Queue.new

@@ -9,33 +9,39 @@
 
 require 'cdr'
 
+require 'db/dao'
+
 # Writes CDRs to the database
-class CdrWriter
+class CdrWriter < Dao
   
-  def initialize(queue, database_url)
-    @queue = queue
-    @connection = database_url.to_dbi
-    @username = database_url.username    
+  def initialize(database_url, log = nil)
+    super
   end
   
-  def connect(&block)
-    DBI.connect(@connection, @username, &block)
-  end  
-  
-  def run
+  def run(queue)
     connect do | dbh |
       sql = CdrWriter.insert_sql
       dbh.prepare(sql) do | sth |
-        while cdr = @queue.shift
+        while cdr = queue.shift
           row = CdrWriter.row_from_cdr(cdr)
           sth.execute(*row)
         end
       end
-    end  
+    end
+  rescue DBI::DatabaseError => e
+    log.error("#{e.err}, #{e.errstr}")
+    retry        
+  end
+  
+  def last_cdr_start_time
+    connect do | dbh |
+      return dbh.select_one(CdrWriter.last_cdr_sql)
+    end
+    return nil    
   end
   
   def purge(start_time_cdr)
-    connect do | dbn |
+    connect do | dbh |
       sql = CdrWriter.delete_sql
       dbh.prepare(sql) do | sth |
         sth.execute(start_time_cdr)
@@ -52,12 +58,15 @@ class CdrWriter
       field_names = Cdr::FIELDS.collect { | f | f.to_s }
       field_str = field_names.join(', ')
       value_str = (['?'] * field_names.size).join(', ')
-      sql = "INSERT INTO cdrs ( #{field_str} ) VALUES ( #{value_str} )"
+      "INSERT INTO cdrs ( #{field_str} ) VALUES ( #{value_str} )"
     end        
     
     def delete_sql
-      sql  = "DELETE FROM cdrs WHERE ? < start_time"
+      "DELETE FROM cdrs WHERE ? < start_time"
     end
-  end
-  
+    
+    def last_cdr_sql
+      "SELECT start_time FROM cdrs ORDER BY start_time DESC LIMIT 1"
+    end
+  end  
 end
