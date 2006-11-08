@@ -1642,6 +1642,9 @@
 				RelativePath="include\net\HttpServer.h">
 			</File>
 			<File
+				RelativePath=".\include\net\HttpService.h">
+			</File>
+			<File
 				RelativePath="include\resparse\wnt\netinet\in.h">
 			</File>
 			<File

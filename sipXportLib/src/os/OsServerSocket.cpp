@@ -267,6 +267,11 @@ int OsServerSocket::getLocalHostPort() const
    return(localHostPort);
 }
 
+void OsServerSocket::getBindIp(UtlString& ip) const
+{
+   ip = mLocalIp ;
+}
+
 /* ============================ INQUIRY =================================== */
 
 UtlBoolean OsServerSocket::isOk() const

@@ -649,7 +649,7 @@ protected:
     UtlBoolean sendStatelessRequest(SipMessage& request,
                                     UtlString& address,
                                     int port,
-                                    enum OsSocket::IpProtocolSocketType protocol,
+                                    OsSocket::IpProtocolSocketType protocol,
                                     UtlString& branchId);
 
     UtlBoolean sendTls(SipMessage* message,
