@@ -168,6 +168,12 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\net\HttpConnection.cpp">
+			</File>
+			<File
+				RelativePath=".\src\net\HttpConnectionMap.cpp">
+			</File>
+			<File
 				RelativePath="src\net\HttpMessage.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -445,6 +451,9 @@
 						BasicRuntimeChecks="3"
 						BrowseInformation="1"/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\net\PidfBody.cpp">
 			</File>
 			<File
 				RelativePath=".\src\net\pk12wrapper.cpp">
@@ -1624,6 +1633,12 @@
 				RelativePath="include\net\HttpBody.h">
 			</File>
 			<File
+				RelativePath=".\include\net\HttpConnection.h">
+			</File>
+			<File
+				RelativePath=".\include\net\HttpConnectionMap.h">
+			</File>
+			<File
 				RelativePath="include\net\HttpMessage.h">
 			</File>
 			<File
@@ -1673,6 +1688,9 @@
 			</File>
 			<File
 				RelativePath="include\resparse\wnt\sys\param.h">
+			</File>
+			<File
+				RelativePath=".\include\net\PidfBody.h">
 			</File>
 			<File
 				RelativePath="include\resparse\poll.h">

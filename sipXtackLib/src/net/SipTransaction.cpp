@@ -3262,7 +3262,7 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
     // Find out how many times we have tried
     nextTimeout = 0;
     int numTries = resendMessage.getTimesSent();
-    int protocol = resendMessage.getSendProtocol();
+    OsSocket::IpProtocolSocketType protocol = resendMessage.getSendProtocol();
     int lastTimeout = resendMessage.getResendDuration();
     UtlString sendAddress;
 
