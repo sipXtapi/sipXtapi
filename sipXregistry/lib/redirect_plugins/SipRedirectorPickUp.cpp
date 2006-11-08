@@ -97,6 +97,18 @@ SipRedirectorPickUp::SipRedirectorPickUp(const UtlString& instanceName) :
    mpSipUserAgent(NULL),
    mTask(NULL)
 {
+   mLogName.append("[");
+   mLogName.append(instanceName);
+   mLogName.append("] SipRedirectorPickUp");
+
+   mLogNameGlobalPickUp = mLogName;
+   mLogNameGlobalPickUp.append(" global call pick-up");
+   mLogNameOrbit = mLogName;
+   mLogNameOrbit.append(" orbit number");
+   mLogNamePickUp = mLogName;
+   mLogNamePickUp.append(" call pick-up");
+   mLogNameRetrieve = mLogName;
+   mLogNameRetrieve.append(" call retrieve");
 }
 
 // Destructor
@@ -117,16 +129,19 @@ void SipRedirectorPickUp::readConfig(OsConfigDb& configDb)
    
    // No early-only.
    mNoEarlyOnly = getYNconfig(configDb, CONFIG_SETTING_NEO, TRUE);
-   OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::readConfig "
-                 "mNoEarlyOnly = %d", mNoEarlyOnly);
+   OsSysLog::add(FAC_SIP, PRI_INFO,
+                 "%s::readConfig mNoEarlyOnly = %d",
+                 mLogName.data(), mNoEarlyOnly);
    // Reversed Replaces.
    mReversedReplaces = getYNconfig(configDb, CONFIG_SETTING_RR, FALSE);
-   OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::readConfig "
-                 "mReversedReplaces = %d", mReversedReplaces);
+   OsSysLog::add(FAC_SIP, PRI_INFO,
+                 "%s::readConfig mReversedReplaces = %d",
+                 mLogName.data(), mReversedReplaces);
    // One-second subscriptions.
    mOneSecondSubscription = getYNconfig(configDb, CONFIG_SETTING_1_SEC, TRUE);
-   OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::readConfig "
-                 "mOneSecondSubscription = %d", mOneSecondSubscription);
+   OsSysLog::add(FAC_SIP, PRI_INFO,
+                 "%s::readConfig mOneSecondSubscription = %d",
+                 mLogName.data(), mOneSecondSubscription);
 
    // Fetch the call pick-up festure code from the config file.
    // If it is null, it doesn't count.
@@ -134,16 +149,17 @@ void SipRedirectorPickUp::readConfig(OsConfigDb& configDb)
         OS_SUCCESS) ||
        mCallPickUpCode.isNull())
    {
-      OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::readConfig "
-                    "No call pick-up feature code specified");
+      OsSysLog::add(FAC_SIP, PRI_INFO,
+                    "%s::readConfig No call pick-up feature code specified",
+                    mLogName.data());
    }
    else
    {
       // Call pick-up feature code is configured.
       // Initialize the system.
-      OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::readConfig "
-                    "Call pick-up feature code is '%s'",
-                    mCallPickUpCode.data());
+      OsSysLog::add(FAC_SIP, PRI_INFO,
+                    "%s::readConfig Call pick-up feature code is '%s'",
+                    mLogName.data(), mCallPickUpCode.data());
       mRedirectorActive = OS_SUCCESS;
 
       // Record the two user-names that are excluded as being pick-up requests.
@@ -159,14 +175,15 @@ void SipRedirectorPickUp::readConfig(OsConfigDb& configDb)
         OS_SUCCESS) ||
        mGlobalPickUpCode.isNull())
    {
-      OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::readConfig "
-                    "No global call pick-up code specified");
+      OsSysLog::add(FAC_SIP, PRI_INFO,
+                    "%s::readConfig No global call pick-up code specified",
+                    mLogName.data());
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::readConfig "
-                    "Global call pick-up code is '%s'",
-                    mGlobalPickUpCode.data());
+      OsSysLog::add(FAC_SIP, PRI_INFO,
+                    "%s::readConfig Global call pick-up code is '%s'",
+                    mLogName.data(), mGlobalPickUpCode.data());
       mRedirectorActive = OS_SUCCESS;
    }
 
@@ -177,8 +194,9 @@ void SipRedirectorPickUp::readConfig(OsConfigDb& configDb)
         OS_SUCCESS) ||
        callRetrieveCode.isNull())
    {
-      OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::readConfig "
-                    "No call retrieve code specified");
+      OsSysLog::add(FAC_SIP, PRI_INFO,
+                    "%s::readConfig No call retrieve code specified",
+                    mLogName.data());
    }
    else
    {
@@ -188,8 +206,9 @@ void SipRedirectorPickUp::readConfig(OsConfigDb& configDb)
            OS_SUCCESS) ||
           orbitFileName.length() == 0)
       {
-         OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::readConfig "
-                       "No orbit file name specified");
+         OsSysLog::add(FAC_SIP, PRI_INFO,
+                       "%s::readConfig No orbit file name specified",
+                       mLogName.data());
       }
       else
       {
@@ -200,15 +219,17 @@ void SipRedirectorPickUp::readConfig(OsConfigDb& configDb)
              OS_SUCCESS) ||
             mParkServerDomain.isNull())
          {
-            OsSysLog::add(FAC_SIP, PRI_CRIT, "SipRedirectorPickUp::readConfig "
-                          "No park server address specified.");
+            OsSysLog::add(FAC_SIP, PRI_CRIT,
+                          "%s::readConfig No park server address specified.",
+                          mLogName.data());
          }
          else
          {
             mOrbitFileReader.setFileName(orbitFileName);
-            OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::readConfig "
+            OsSysLog::add(FAC_SIP, PRI_INFO, "%s::readConfig "
                           "Call retrieve code is '%s', orbit file is '%s', "
                           "park server domain is '%s'",
+                          mLogName.data(),
                           callRetrieveCode.data(), orbitFileName.data(),
                           mParkServerDomain.data());
             mRedirectorActive = OS_SUCCESS;
@@ -225,36 +246,34 @@ void SipRedirectorPickUp::readConfig(OsConfigDb& configDb)
    mWaitSecs = DEFAULT_WAIT_TIME_SECS;
    mWaitUSecs = DEFAULT_WAIT_TIME_USECS;
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipRedirectorPickUp::readConfig "
-                 "Default wait time is %d.%06d", mWaitSecs, mWaitUSecs);
+                 "%s::readConfig Default wait time is %d.%06d",
+                 mLogName.data(), mWaitSecs, mWaitUSecs);
    // Fetch the parameter value.
    UtlString waitUS;
    float waitf;
    if (configDb.get(CONFIG_SETTING_WAIT, waitUS) == OS_SUCCESS)
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipRedirectorPickUp::readConfig "
-                    CONFIG_SETTING_WAIT " is '%s'",
-                    waitUS.data());
+                    "%s::readConfig " CONFIG_SETTING_WAIT " is '%s'",
+                    mLogName.data(), waitUS.data());
       // Parse the value, checking for errors.
       unsigned int char_count;
       sscanf(waitUS.data(), " %f %n", &waitf, &char_count);
       if (char_count != waitUS.length())
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR, "SipRedirectorPickUp::readConfig "
-                       "Invalid format for "
-                       CONFIG_SETTING_WAIT
-                       " '%s'", 
-                       waitUS.data());
+         OsSysLog::add(FAC_SIP, PRI_ERR,
+                       "%s::readConfig Invalid format for "
+                       CONFIG_SETTING_WAIT " '%s'", 
+                       mLogName.data(), waitUS.data());
       }
       else if (
          // Check that the value is in range.
          !(waitf >= MIN_WAIT_TIME && waitf <= MAX_WAIT_TIME))
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR, "SipRedirectorPickUp::readConfig "
-                       CONFIG_SETTING_WAIT
+         OsSysLog::add(FAC_SIP, PRI_ERR,
+                       "%s::readConfig " CONFIG_SETTING_WAIT
                        " (%f) outside allowed range (%f to %f)",
-                       waitf, MIN_WAIT_TIME, MAX_WAIT_TIME);
+                       mLogName.data(), waitf, MIN_WAIT_TIME, MAX_WAIT_TIME);
       }
       else
       {
@@ -266,9 +285,8 @@ void SipRedirectorPickUp::readConfig(OsConfigDb& configDb)
          mWaitSecs = usecs / 1000000;
          mWaitUSecs = usecs % 1000000;
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                       "SipRedirectorPickUp::readConfig "
-                       "Wait time is %d.%06d",
-                       mWaitSecs, mWaitUSecs);
+                       "%s::readConfig Wait time is %d.%06d",
+                       mLogName.data(), mWaitSecs, mWaitUSecs);
       }
    }
 }
@@ -436,7 +454,7 @@ SipRedirectorPickUp::lookUp(
 
                // Add the contact to the response.
                addContact(response, requestString, contactUri,
-                          "global call pick-up");
+                          mLogNameGlobalPickUp.data());
             }
          }
          return RedirectPlugin::LOOKUP_SUCCESS;
@@ -455,7 +473,7 @@ SipRedirectorPickUp::lookUp(
       // Add the contact to the response.
       UtlString contactStr = "<sip:" + userId + "@" + mParkServerDomain + ">";
       Url contactUri(contactStr);
-      addContact(response, requestString, contactUri, "orbit number");
+      addContact(response, requestString, contactUri, mLogNameOrbit.data());
 
       return RedirectPlugin::LOOKUP_SUCCESS;
    }
@@ -493,8 +511,8 @@ SipRedirectorPickUp::lookUp(
             // It appears to be a call retrieve, but the orbit number is invalid.
             // Return LOOKUP_ERROR_REQUEST.
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipRedirectorPickUp::lookUp Invalid orbit number '%s'",
-                          orbit.data());
+                          "%s::lookUp Invalid orbit number '%s'",
+                          mLogName.data(), orbit.data());
             return RedirectPlugin::LOOKUP_ERROR_REQUEST;
          }
       }
@@ -502,7 +520,8 @@ SipRedirectorPickUp::lookUp(
       {
          // The park retrieve failed because the UA does not support INVITE/Replaces
          OsSysLog::add(FAC_SIP, PRI_ERR,
-                       "SipRedirectorPickUp::lookUp Executor does not support INVITE/Replaces");
+                       "%s::lookUp Executor does not support INVITE/Replaces",
+                       mLogName.data());
          return RedirectPlugin::LOOKUP_ERROR_REQUEST;                       
       }
    }
@@ -524,9 +543,10 @@ SipRedirectorPickUp::lookUpDialog(
    State stateFilter)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipRedirectorPickUp::lookUpDialog requestString = '%s', "
+                 "%s::lookUpDialog requestString = '%s', "
                  "requestSeqNo = %d, redirectorNo = %d, privateStorage = %p, "
                  "subscribeUser = '%s', stateFilter = %d",
+                 mLogName.data(),
                  requestString.data(), requestSeqNo, redirectorNo,
                  privateStorage, subscribeUser, stateFilter);
 
@@ -588,7 +608,7 @@ SipRedirectorPickUp::lookUpDialog(
                                            SIP_REPLACES_EXTENSION);
 
             // Record the URI as a contact.
-            addContact(response, requestString, contact_URI, "pick-up");
+            addContact(response, requestString, contact_URI, mLogNamePickUp);
 
             // If "reversed Replaces" is configured, also add a Replaces: with
             // the to-tag and from-tag reversed.
@@ -612,7 +632,7 @@ SipRedirectorPickUp::lookUpDialog(
                // the correct order.
                c.setFieldParameter("q", "0.9");
    
-               addContact(response, requestString, c, "pick-up");
+               addContact(response, requestString, c, mLogNamePickUp);
             }
          }
       }
@@ -625,13 +645,17 @@ SipRedirectorPickUp::lookUpDialog(
       UtlString userId;
       Url requestUri(requestString);
       requestUri.getUserId(userId);      
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRedirectorPickUp::lookUpDialog userId '%s'", userId.data());
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "%s::lookUpDialog userId '%s'",
+                    mLogName.data(), userId.data());
       // Test to see if this is a call retrieval
       if (!mCallRetrieveCode.isNull() &&
           userId.length() > mCallRetrieveCode.length() &&
           userId.index(mCallRetrieveCode.data()) == 0)
       {
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRedirectorPickUp::lookUpDialog doing call retrieval");         
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "%s::lookUpDialog doing call retrieval",
+                       mLogName.data());
 
          // Construct the contact address for the call retrieval.
          UtlString contactString("sip:");
@@ -644,7 +668,8 @@ SipRedirectorPickUp::lookUpDialog(
          
          contact_URI.setUrlParameter("operation", "retrieve");               
  
-         addContact(response, requestString, contact_URI, "pick-up");            
+         addContact(response, requestString, contact_URI,
+                    mLogNameRetrieve.data());
          // We do not need to suspend this time.*/
          return RedirectPlugin::LOOKUP_SUCCESS;         
       }

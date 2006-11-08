@@ -78,6 +78,10 @@ class SipRedirectorMapping : public RedirectPlugin
 
   protected:
 
+   // String to use in place of class name in log messages:
+   // "[instance] class".
+   UtlString mLogName;
+
    /**
     * Set to OS_SUCCESS once the file of mapping rules is loaded into memory.
     */

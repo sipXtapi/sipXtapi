@@ -69,6 +69,10 @@ class SipRedirectorENUM : public RedirectPlugin
 
   protected:
 
+   // String to use in place of class name in log messages:
+   // "[instance] class".
+   UtlString mLogName;
+   
    // Dialing prefix.
    UtlString mDialPrefix;
    // Whether to include "+" in the application-specific-string.

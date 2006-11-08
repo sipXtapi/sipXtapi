@@ -89,6 +89,10 @@ class SipRedirectorGateway : public RedirectPlugin
 
   protected:
 
+   // String to use in place of class name in log messages:
+   // "[instance] class".
+   UtlString mLogName;
+   
    // Dialing prefix - fixed portion of routing prefix.
    UtlString mPrefix;
 

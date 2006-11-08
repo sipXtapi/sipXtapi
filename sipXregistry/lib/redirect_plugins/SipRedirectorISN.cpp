@@ -86,6 +86,9 @@ extern "C" RedirectPlugin* getRedirectPlugin(const UtlString& instanceName)
 SipRedirectorISN::SipRedirectorISN(const UtlString& instanceName) :
    RedirectPlugin(instanceName)
 {
+   mLogName.append("[");
+   mLogName.append(instanceName);
+   mLogName.append("] SipRedirectorISN");
 }
 
 // Destructor
@@ -100,28 +103,29 @@ void SipRedirectorISN::readConfig(OsConfigDb& configDb)
        mBaseDomain.isNull())
    {
       OsSysLog::add(FAC_SIP, PRI_CRIT,
-                    "SipRedirectorISN::readConfig "
-                    "BASE_DOMAIN parameter missing or empty");
+                    "%s::readConfig "
+                    "BASE_DOMAIN parameter missing or empty",
+                    mLogName.data());
    }
    else
    {
       OsSysLog::add(FAC_SIP, PRI_INFO,
-                    "SipRedirectorISN::readConfig "
-                    "BASE_DOMAIN is '%s'", mBaseDomain.data());
+                    "%s::readConfig "
+                    "BASE_DOMAIN is '%s'", mLogName.data(), mBaseDomain.data());
    }
 
    if (configDb.get("PREFIX", mPrefix) != OS_SUCCESS ||
        mPrefix.isNull())
    {
       OsSysLog::add(FAC_SIP, PRI_INFO,
-                    "SipRedirectorISN::readConfig "
-                    "dialing prefix is empty");
+                    "%s::readConfig "
+                    "dialing prefix is empty", mLogName.data());
    }
    else
    {
       OsSysLog::add(FAC_SIP, PRI_INFO,
-                    "SipRedirectorISN::readConfig "
-                    "dialing prefix is '%s'", mPrefix.data());
+                    "%s::readConfig "
+                    "dialing prefix is '%s'", mLogName.data(), mPrefix.data());
    }
 }
 
@@ -204,8 +208,8 @@ SipRedirectorISN::lookUp(
          strcat(p, mBaseDomain.data());
       }
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipRedirectorISN::lookUp user '%s' has ISN format, domain is '%s'",
-                    user, domain);
+                    "%s::lookUp user '%s' has ISN format, domain is '%s'",
+                    mLogName.data(), user, domain);
 
       // To hold the return of res_query_and_parse.
       res_response* dns_response;
@@ -230,8 +234,9 @@ SipRedirectorISN::lookUp(
             {
                // A NAPTR record has been found.
                OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                             "SipRedirectorISN::LookUp "
+                             "%s::LookUp "
                              "NAPTR record found '%s' %d %d %d %d '%s' '%s' '%s' '%s'",
+                             mLogName.data(),
                              dns_response->answer[i]->name,
                              dns_response->answer[i]->rclass,
                              dns_response->answer[i]->type,
@@ -265,8 +270,8 @@ SipRedirectorISN::lookUp(
          {
             char* p = dns_response->answer[best_response]->rdata.naptr.regexp;
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipRedirectorISN::LookUp Using NAPTR rewrite '%s' for '%s'",
-                          p, domain);
+                          "%s::LookUp Using NAPTR rewrite '%s' for '%s'",
+                          mLogName.data(), p, domain);
             // Enough space for the 'match' part of the regexp field.
             char match[strlen(p) + 1];
             // Pointer to the 'replace' part of the regexp field.
@@ -276,8 +281,8 @@ SipRedirectorISN::lookUp(
             if (res_naptr_split_regexp(p, &delim, match, &replace, &i_flag))
             {
                OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                             "SipRedirectorISN::LookUp match = '%s', replace = '%s', i_flag = %d",
-                             match, replace, i_flag);
+                             "%s::LookUp match = '%s', replace = '%s', i_flag = %d",
+                             mLogName.data(), match, replace, i_flag);
                // Split operation was successful.  Try to match.
                regex_t reg;
                int ret = regcomp(&reg, match, REG_EXTENDED | (i_flag ? REG_ICASE : 0));
@@ -295,8 +300,8 @@ SipRedirectorISN::lookUp(
                      // not the replacement into the original application-string.
                      char* result = res_naptr_replace(replace, delim, pmatch, user, 0);
                      OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                   "SipRedirectorISN::LookUp result = '%s'",
-                                   result);
+                                   "%s::LookUp result = '%s'",
+                                   mLogName.data(), result);
                      // Note that the replacement string is not
                      // substituted back into the original string, but used
                      // alone as the destination URI.
@@ -313,16 +318,16 @@ SipRedirectorISN::lookUp(
                      if (contact.getScheme() != Url::UnknownUrlScheme && !h.isNull())
                      {
                         RedirectPlugin::addContact(response, requestString,
-                                                   contact, "ISN");
+                                                   contact, mLogName.data());
 
                      }
                      else
                      {
                         OsSysLog::add(FAC_SIP, PRI_ERR,
-                                      "SipRedirectorISN::LookUp Bad result string '%s' - "
+                                      "%s::LookUp Bad result string '%s' - "
                                       "could not identify URI scheme and/or host name is null - "
                                       "for ISN translation of '%s'",
-                                      result, requestString.data());
+                                      mLogName.data(), result, requestString.data());
                      }
                      // Free the result string.
                      free(result);
@@ -330,9 +335,9 @@ SipRedirectorISN::lookUp(
                   else
                   {
                      OsSysLog::add(FAC_SIP, PRI_WARNING,
-                                   "SipRedirectorISN::LookUp NAPTR regexp '%s' does not match "
+                                   "%s::LookUp NAPTR regexp '%s' does not match "
                                    "for ISN translation of '%s' - no contact generated",
-                                   match, requestString.data());
+                                   mLogName.data(), match, requestString.data());
                   }
                   // Free the parsed regexp structure.
                   regfree(&reg);
@@ -340,33 +345,33 @@ SipRedirectorISN::lookUp(
                else
                {
                   OsSysLog::add(FAC_SIP, PRI_WARNING,
-                                "SipRedirectorISN::LookUp NAPTR regexp '%s' is syntactially invalid "
+                                "%s::LookUp NAPTR regexp '%s' is syntactially invalid "
                                    "for ISN translation of '%s'",
-                                match, requestString.data());
+                                mLogName.data(), match, requestString.data());
                }
             }
             else
             {
                OsSysLog::add(FAC_SIP, PRI_ERR,
-                             "SipRedirectorISN::LookUp cannot parse NAPTR regexp field '%s' "
+                             "%s::LookUp cannot parse NAPTR regexp field '%s' "
                              "for ISN translation of '%s'",
-                             p, requestString.data());
+                             mLogName.data(), p, requestString.data());
             }
          }
          else
          {
             OsSysLog::add(FAC_SIP, PRI_WARNING,
-                          "SipRedirectorISN::LookUp No usable NAPTR found for '%s'"
+                          "%s::LookUp No usable NAPTR found for '%s'"
                           "for ISN translation of '%s'",
-                          domain, requestString.data());
+                          mLogName.data(), domain, requestString.data());
          }            
       }
       else
       {
          OsSysLog::add(FAC_SIP, PRI_WARNING,
-                       "SipRedirectorISN::LookUp no NAPTR record found for domain '%s' "
+                       "%s::LookUp no NAPTR record found for domain '%s' "
                        "for ISN translation of '%s'",
-                       domain, requestString.data());
+                       mLogName.data(), domain, requestString.data());
       }
    
       // Free the result of res_parse if necessary.

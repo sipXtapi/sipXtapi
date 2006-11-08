@@ -35,6 +35,9 @@ extern "C" RedirectPlugin* getRedirectPlugin(const UtlString& instanceName)
 SipRedirectorAuthRouter::SipRedirectorAuthRouter(const UtlString& instanceName) :
    RedirectPlugin(instanceName)
 {
+   mLogName.append("[");
+   mLogName.append(instanceName);
+   mLogName.append("] SipRedirectorAuthRouter");
 }
 
 // Destructor
@@ -63,21 +66,21 @@ void SipRedirectorAuthRouter::readConfig(OsConfigDb& configDb)
          
          OsSysLog::add(FAC_SIP,
                        (authProxyConfig.compareTo(mAuthUrl, UtlString::ignoreCase)
-                        ? PRI_INFO : PRI_NOTICE ),
-                       "SipRedirectorAuthRouter::readConfig "
-                       "authorization proxy route '%s'", mAuthUrl.data()
+                        ? PRI_INFO : PRI_NOTICE),
+                       "%s::readConfig authorization proxy route '%s'",
+                       mLogName.data(), mAuthUrl.data()
                        );
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR, "SipRedirectorAuthRouter::readConfig "
-                       "invalid route '%s'", authProxyConfig.data());
+         OsSysLog::add(FAC_SIP, PRI_ERR, "%s::readConfig "
+                       "invalid route '%s'", mLogName.data(), authProxyConfig.data());
       }
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorAuthRouter::readConfig "
-                    "No authorization proxy specified");
+      OsSysLog::add(FAC_SIP, PRI_INFO, "%s::readConfig "
+                    "No authorization proxy specified", mLogName.data());
    }
 }
 
@@ -121,8 +124,8 @@ RedirectPlugin::LookUpStatus SipRedirectorAuthRouter::lookUp(
           )
       {
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                       "SipRedirectorAuthRouter::lookUp "
-                       "checking for To tag"
+                       "%s::lookUp checking for To tag",
+                       mLogName.data()
                        );
          
          /*
@@ -138,9 +141,8 @@ RedirectPlugin::LookUpStatus SipRedirectorAuthRouter::lookUp(
             Url contactUri(contact);
             
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipRedirectorAuthRouter::lookUp "
-                          "\n  contact %d '%s'",
-                          contactNumber, contact.data()
+                          "%s::lookUp contact %d '%s'",
+                          mLogName.data(), contactNumber, contact.data()
                           );
 
             // is there a route header parameter in the contact?
@@ -162,11 +164,12 @@ RedirectPlugin::LookUpStatus SipRedirectorAuthRouter::lookUp(
                response.setContactField(modifiedContact, contactNumber);
 
                OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                             "SipRedirectorAuthRouter::lookUp modified:\n"
+                             "%s::lookUp modified:\n"
                              "   '%s'\n"
                              "in '%s'\n"
                              "to '%s'\n"
                              "in '%s'\n",
+                             mLogName.data(),
                              routeValue.data(), contact.data(),
                              checkedRoute.data(), modifiedContact.data()
                              );
@@ -177,15 +180,16 @@ RedirectPlugin::LookUpStatus SipRedirectorAuthRouter::lookUp(
       {
          // request is not an INVITE, or no Contact headers in the response
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                       "SipRedirectorAuthRouter::lookUp "
+                       "%s::lookUp "
                        "'%s' request is not an INVITE or has no response contacts (%d) - ignored.",
-                       method.data(), contacts
+                       mLogName.data(), method.data(), contacts
                        );
       }
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRedirectorAuthRouter::lookup No authproxy configured");
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookup No authproxy configured",
+                    mLogName.data());
    }
 
    return lookupStatus;

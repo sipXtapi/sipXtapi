@@ -96,6 +96,9 @@ SipRedirectorENUM::SipRedirectorENUM(const UtlString& instanceName) :
    mE164Prefix(""),
    mBaseDomain("")
 {
+   mLogName.append("[");
+   mLogName.append(instanceName);
+   mLogName.append("] SipRedirectorENUM");
 }
 
 // Destructor
@@ -110,47 +113,49 @@ void SipRedirectorENUM::readConfig(OsConfigDb& configDb)
        mBaseDomain.isNull())
    {
       OsSysLog::add(FAC_SIP, PRI_CRIT,
-                    "SipRedirectorENUM::readConfig "
-                    "BASE_DOMAIN parameter missing or empty");
+                    "%s::readConfig "
+                    "BASE_DOMAIN parameter missing or empty",
+                    mLogName.data());
    }
    else
    {
       OsSysLog::add(FAC_SIP, PRI_INFO,
-                    "SipRedirectorENUM::readConfig "
-                    "BASE_DOMAIN is '%s'", mBaseDomain.data());
+                    "%s::readConfig "
+                    "BASE_DOMAIN is '%s'", mLogName.data(), mBaseDomain.data());
    }
 
    if (configDb.get("DIAL_PREFIX", mDialPrefix) != OS_SUCCESS ||
        mDialPrefix.isNull())
    {
       OsSysLog::add(FAC_SIP, PRI_INFO,
-                    "SipRedirectorENUM::readConfig "
-                    "dialing prefix is empty");
+                    "%s::readConfig "
+                    "dialing prefix is empty", mLogName.data());
    }
    else
    {
       OsSysLog::add(FAC_SIP, PRI_INFO,
-                    "SipRedirectorENUM::readConfig "
-                    "dialing prefix is '%s'", mDialPrefix.data());
+                    "%s::readConfig dialing prefix is '%s'",
+                    mLogName.data(), mDialPrefix.data());
    }
 
    mPrefixPlus = getYNconfig(configDb, "PREFIX_PLUS", FALSE);
    OsSysLog::add(FAC_SIP, PRI_INFO,
-                 "SipRedirectorENUM::readConfig "
-                 "mPrefixPlus is %d", mPrefixPlus);
+                 "%s::readConfig "
+                 "mPrefixPlus is %d", mLogName.data(), mPrefixPlus);
 
    if (configDb.get("E164_PREFIX", mDialPrefix) != OS_SUCCESS ||
        mDialPrefix.isNull())
    {
       OsSysLog::add(FAC_SIP, PRI_INFO,
-                    "SipRedirectorENUM::readConfig "
-                    "E.164 prefix is empty");
+                    "%s::readConfig "
+                    "E.164 prefix is empty", mLogName.data());
    }
    else
    {
       OsSysLog::add(FAC_SIP, PRI_INFO,
-                    "SipRedirectorENUM::readConfig "
-                    "E.164 prefix is '%s'", mDialPrefix.data());
+                    "%s::readConfig "
+                    "E.164 prefix is '%s'",
+                    mLogName.data(), mDialPrefix.data());
    }
 }
 
@@ -233,8 +238,8 @@ SipRedirectorENUM::lookUp(
          strcpy(p, mBaseDomain.data());
       }
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipRedirectorENUM::lookUp user '%s' has ENUM format, domain is '%s'",
-                    user, domain);
+                    "%s::lookUp user '%s' has ENUM format, domain is '%s'",
+                    mLogName.data(), user, domain);
 
       // To hold the return of res_query_and_parse.
       res_response* dns_response;
@@ -259,8 +264,9 @@ SipRedirectorENUM::lookUp(
             {
                // A NAPTR record has been found.
                OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                             "SipRedirectorENUM::LookUp "
+                             "%s::LookUp "
                              "NAPTR record found '%s' %d %d %d %d '%s' '%s' '%s' '%s'",
+                             mLogName.data(),
                              dns_response->answer[i]->name,
                              dns_response->answer[i]->rclass,
                              dns_response->answer[i]->type,
@@ -294,8 +300,8 @@ SipRedirectorENUM::lookUp(
          {
             char* p = dns_response->answer[best_response]->rdata.naptr.regexp;
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipRedirectorENUM::LookUp Using NAPTR rewrite '%s' for '%s'",
-                          p, domain);
+                          "%s::LookUp Using NAPTR rewrite '%s' for '%s'",
+                          mLogName.data(), p, domain);
             // Enough space for the 'match' part of the regexp field.
             char match[strlen(p) + 1];
             // Pointer to the 'replace' part of the regexp field.
@@ -305,8 +311,8 @@ SipRedirectorENUM::lookUp(
             if (res_naptr_split_regexp(p, &delim, match, &replace, &i_flag))
             {
                OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                             "SipRedirectorENUM::LookUp match = '%s', replace = '%s', i_flag = %d",
-                             match, replace, i_flag);
+                             "%s::LookUp match = '%s', replace = '%s', i_flag = %d",
+                             mLogName.data(), match, replace, i_flag);
                // Split operation was successful.  Try to match.
                regex_t reg;
                int ret = regcomp(&reg, match, REG_EXTENDED | (i_flag ? REG_ICASE : 0));
@@ -337,8 +343,8 @@ SipRedirectorENUM::lookUp(
                      char* result = res_naptr_replace(replace, delim, pmatch,
                                                       application_string, 1);
                      OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                   "SipRedirectorENUM::LookUp result = '%s'",
-                                   result);
+                                   "%s::LookUp result = '%s'",
+                                   mLogName.data(), result);
                      // Parse result string into URI.
                      Url contact(result, TRUE);
                      // Almost all strings are parsable as SIP URIs with a sufficient
@@ -352,16 +358,16 @@ SipRedirectorENUM::lookUp(
                      if (contact.getScheme() != Url::UnknownUrlScheme && !h.isNull())
                      {
                         RedirectPlugin::addContact(response, requestString,
-                                                   contact, "ENUM");
+                                                   contact, mLogName.data());
 
                      }
                      else
                      {
                         OsSysLog::add(FAC_SIP, PRI_ERR,
-                                      "SipRedirectorENUM::LookUp Bad result string '%s' - "
+                                      "%s::LookUp Bad result string '%s' - "
                                       "could not identify URI scheme and/or host name is null - "
                                       "for ENUM translation of '%s'",
-                                      result, requestString.data());
+                                      mLogName.data(), result, requestString.data());
                      }
                      // Free the result string.
                      free(result);
@@ -369,9 +375,9 @@ SipRedirectorENUM::lookUp(
                   else
                   {
                      OsSysLog::add(FAC_SIP, PRI_WARNING,
-                                   "SipRedirectorENUM::LookUp NAPTR regexp '%s' does not match "
+                                   "%s::LookUp NAPTR regexp '%s' does not match "
                                    "for ENUM translation of '%s' - no contact generated",
-                                   match, requestString.data());
+                                   mLogName.data(), match, requestString.data());
                   }
                   // Free the parsed regexp structure.
                   regfree(&reg);
@@ -379,33 +385,33 @@ SipRedirectorENUM::lookUp(
                else
                {
                   OsSysLog::add(FAC_SIP, PRI_WARNING,
-                                "SipRedirectorENUM::LookUp NAPTR regexp '%s' is syntactially invalid "
+                                "%s::LookUp NAPTR regexp '%s' is syntactially invalid "
                                    "for ENUM translation of '%s'",
-                                match, requestString.data());
+                                mLogName.data(), match, requestString.data());
                }
             }
             else
             {
                OsSysLog::add(FAC_SIP, PRI_ERR,
-                             "SipRedirectorENUM::LookUp cannot parse NAPTR regexp field '%s' "
+                             "%s::LookUp cannot parse NAPTR regexp field '%s' "
                              "for ENUM translation of '%s'",
-                             p, requestString.data());
+                             mLogName.data(), p, requestString.data());
             }
          }
          else
          {
             OsSysLog::add(FAC_SIP, PRI_WARNING,
-                          "SipRedirectorENUM::LookUp No usable NAPTR found for '%s'"
+                          "%s::LookUp No usable NAPTR found for '%s'"
                           "for ENUM translation of '%s'",
-                          domain, requestString.data());
+                          mLogName.data(), domain, requestString.data());
          }            
       }
       else
       {
          OsSysLog::add(FAC_SIP, PRI_WARNING,
-                       "SipRedirectorENUM::LookUp no NAPTR record found for domain '%s' "
+                       "%s::LookUp no NAPTR record found for domain '%s' "
                        "for ENUM translation of '%s'",
-                       domain, requestString.data());
+                       mLogName.data(), domain, requestString.data());
       }
    
       // Free the result of res_parse if necessary.
