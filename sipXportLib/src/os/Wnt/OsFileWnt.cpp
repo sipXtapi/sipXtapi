@@ -88,7 +88,7 @@ OsStatus OsFileWnt::getFileInfo(OsFileInfoBase& fileinfo) const
     OsStatus ret = OS_INVALID;
 
     //  JEP - TODO - implement this...
-#if 0
+#ifndef WINCE
     struct stat stats;
     if (stat(mFilename,&stats) == 0)
     {
