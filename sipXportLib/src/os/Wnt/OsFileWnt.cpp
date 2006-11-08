@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -84,6 +87,8 @@ OsStatus OsFileWnt::getFileInfo(OsFileInfoBase& fileinfo) const
 {
     OsStatus ret = OS_INVALID;
 
+    //  JEP - TODO - implement this...
+#if 0
     struct stat stats;
     if (stat(mFilename,&stats) == 0)
     {
@@ -101,7 +106,7 @@ OsStatus OsFileWnt::getFileInfo(OsFileInfoBase& fileinfo) const
         
         fileinfo.mSize = stats.st_size;
     }
-
+#endif
 
 
     return ret;

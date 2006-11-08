@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -438,8 +441,7 @@ void OsDateTimeBase::getLocalTimeString(UtlString& dateString)
     char ampm[] = "AM";
     time_t ltime;
     struct tm *today;
-#ifndef _VXWORKS
-
+#if !defined(_VXWORKS) && !defined(WINCE)
     /* Set time zone from TZ environment variable. If TZ is not set,
      * the operating system is queried to obtain the default value 
      * for the variable. 
@@ -460,7 +462,7 @@ void OsDateTimeBase::getLocalTimeString(UtlString& dateString)
        today->tm_hour = 12;
 
     char tz[4] = {"   "};
-#ifndef _VXWORKS
+#if !defined(_VXWORKS) && !defined(WINCE)
     UtlString timezone = tzname[0];
 
     if (today->tm_isdst == 1)

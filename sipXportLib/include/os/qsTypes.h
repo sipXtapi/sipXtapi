@@ -61,8 +61,9 @@ typedef long long int INT64;
 #endif /* WIN32 */
 
 /* 128 bit integers; unsigned is not defined since it is not likely needed */
+#ifndef WINCE
 typedef struct {
     unsigned char octet[16];
 } UINT128;
-
+#endif
 #endif /* LOCALTYPES__H__ */

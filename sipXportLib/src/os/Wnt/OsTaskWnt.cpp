@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -19,7 +22,9 @@
 #include "os/OsDateTime.h"
 #include "os/Wnt/OsTaskWnt.h"
 #include "os/Wnt/OsUtilWnt.h"
-#include <process.h>
+#ifndef WINCE
+#   include <process.h>
+#endif
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -443,6 +448,8 @@ UtlBoolean OsTaskWnt::isSuspended(void)
 // The mDataGuard lock should be held upon entry into this method.
 UtlBoolean OsTaskWnt::doWntCreateTask(void)
 {
+#ifndef WINCE
+   //  JEP - TODO - implement this...
    char  idString[15];
    unsigned int threadId;
 
@@ -475,6 +482,7 @@ UtlBoolean OsTaskWnt::doWntCreateTask(void)
       return TRUE;
    }
    else
+#endif
       return FALSE;
 }
 

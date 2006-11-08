@@ -25,7 +25,7 @@
 // DEFINES
 // MACROS
 
-#ifdef WIN32 
+#if defined( WIN32 ) && !defined( WINCE )
 #define strtoll _strtoui64
 #else
 // Borrow this from the gcc include file "limits.h".

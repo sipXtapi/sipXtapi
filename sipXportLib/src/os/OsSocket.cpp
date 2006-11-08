@@ -14,7 +14,9 @@
 // SYSTEM INCLUDES
 #include <assert.h>
 #include <stdio.h>
-#include <fcntl.h>
+#ifndef WINCE
+#   include <fcntl.h>
+#endif
 
 //uncomment and recompile to make the socket layer fail after 20 calls.
 //after that, every 10 calls

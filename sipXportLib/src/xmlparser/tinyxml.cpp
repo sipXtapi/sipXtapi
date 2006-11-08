@@ -24,7 +24,9 @@ distribution.
 
 #include <ctype.h>
 #ifdef _WIN32
-#   include <io.h>
+#   ifndef WINCE
+#       include <io.h>
+#   endif
 #else
 #   include <unistd.h>
 #endif
