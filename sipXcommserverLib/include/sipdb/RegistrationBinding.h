@@ -87,8 +87,8 @@ public:
    const UtlString* getPrimary() const;
    void       setPrimary(const UtlString& primary);
    
-   INT64      getUpdateNumber() const;
-   void       setUpdateNumber(INT64 updateNumber);
+   Int64      getUpdateNumber() const;
+   void       setUpdateNumber(Int64 updateNumber);
    void       setUpdateNumber(const UtlString& updateNumber);
 
 /* ========================= UtlContainable interface======================== */
@@ -120,7 +120,7 @@ private:
    int        mCseq;
    int        mExpires;
    UtlString* mPrimary;
-   INT64      mUpdateNumber;
+   Int64      mUpdateNumber;
 
    /// no copy constructor
    RegistrationBinding(const RegistrationBinding& nocopy);

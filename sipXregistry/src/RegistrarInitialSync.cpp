@@ -82,7 +82,7 @@ void RegistrarInitialSync::restorePeerUpdateNumbers()
       
       // Set the last received update number for the peer to the max update number
       // for the peer that we see in the registration DB
-      INT64 maxUpdateNumber = getRegistrarServer().getMaxUpdateNumberForRegistrar(name);
+      Int64 maxUpdateNumber = getRegistrarServer().getMaxUpdateNumberForRegistrar(name);
       peer->setReceivedFrom(maxUpdateNumber);
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "RegistrarInitialSync::restorePeerUpdateNumbers "
@@ -115,7 +115,7 @@ void RegistrarInitialSync::pullLocalUpdatesFromPeers()
 
          // Pulling updates changes maxUpdateNumber, so fetch it on each iteration
          const char* primaryName = getPrimaryName();
-         INT64 maxUpdateNumber = getRegistrarServer().getDbUpdateNumber();
+         Int64 maxUpdateNumber = getRegistrarServer().getDbUpdateNumber();
          UtlSList bindings;
          state = SyncRpcPullUpdates::invoke(
             peer,            // the peer we're contacting

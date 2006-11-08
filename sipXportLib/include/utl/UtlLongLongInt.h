@@ -69,7 +69,7 @@ public:
     /**
      * Constructor accepting an optional default value.
      */
-    UtlLongLongInt(INT64 initialValue = 0) ;
+    UtlLongLongInt(Int64 initialValue = 0) ;
       
     /**
      * Destructor
@@ -87,7 +87,7 @@ public:
     UtlLongLongInt operator--(int);     // Postfix decrement operator
 
     // Conversion to long long int
-    operator INT64() { return mValue; }
+    operator Int64() { return mValue; }
 
 /* ============================ MANIPULATORS ============================== */
 
@@ -96,17 +96,17 @@ public:
      *
      * @returns the old value
      */
-    INT64 setValue(INT64 iValue);
+    Int64 setValue(Int64 iValue);
 
     //! Convert a ascii string rep. to long long int
-    static INT64 stringToLongLong(const char* longLongString);
+    static Int64 stringToLongLong(const char* longLongString);
 
 /* ============================ ACCESSORS ================================= */
 
     /**
      * Get the long long int wrapped by this object.
      */
-    INT64 getValue() const ;    
+    Int64 getValue() const ;    
 
     /**
      * Calculate a unique hash code for this object.  If the equals
@@ -143,7 +143,7 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-    INT64 mValue ;    /** < The long long int wrapped by this object */ 
+    Int64 mValue ;    /** < The long long int wrapped by this object */ 
 
 } ;
 

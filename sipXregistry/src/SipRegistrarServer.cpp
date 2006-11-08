@@ -172,7 +172,7 @@ SipRegistrarServer::initialize(
 
 int SipRegistrarServer::pullUpdates(
    const UtlString& registrarName,
-   INT64            updateNumber,
+   Int64            updateNumber,
    UtlSList&        updates)
 {
    // Critical Section here
@@ -184,7 +184,7 @@ int SipRegistrarServer::pullUpdates(
 }
 
 /// Set the largest update number in the local database for this registrar as primary
-void SipRegistrarServer::setDbUpdateNumber(INT64 dbUpdateNumber)
+void SipRegistrarServer::setDbUpdateNumber(Int64 dbUpdateNumber)
 {
    mDbUpdateNumber = dbUpdateNumber;
 
@@ -628,7 +628,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
 }
     
 
-INT64
+Int64
 SipRegistrarServer::applyUpdatesToDirectory(
    int timeNow,                   ///< current epoch time
    const UtlSList& updates,       ///< list of updates to apply
@@ -650,12 +650,12 @@ SipRegistrarServer::applyUpdatesToDirectory(
    UtlString emptyPrimary;
    UtlString myPrimary(mRegistrar.primaryName());
    RegistrarPeer* peer = NULL;    // peer registrar, or NULL if it's our local registrar
-   INT64 maxUpdateNumber = 0;     // max update number for these updates
+   Int64 maxUpdateNumber = 0;     // max update number for these updates
 
    while ((reg = dynamic_cast<RegistrationBinding*>(updateIter())) &&
           (maxUpdateNumber >= 0)) // max update number is negative if there's an error
    {
-      INT64 updateNumber = reg->getUpdateNumber();
+      Int64 updateNumber = reg->getUpdateNumber();
       if (maxUpdateNumber == 0)   // if this is the first time through the loop
       {
          if (reg->getPrimary() != NULL)
@@ -712,7 +712,7 @@ SipRegistrarServer::applyUpdatesToDirectory(
 }
 
 
-INT64 SipRegistrarServer::updateOneBinding(
+Int64 SipRegistrarServer::updateOneBinding(
    RegistrationBinding* reg,
    RegistrarPeer* peer,    // NULL if it's the local registrar
    RegistrationDB* imdb)
@@ -736,17 +736,17 @@ INT64 SipRegistrarServer::updateOneBinding(
 
    // Update the registrar state and the binding
 
-   INT64 updateNumber = reg->getUpdateNumber();
+   Int64 updateNumber = reg->getUpdateNumber();
    assert(updateNumber > 0);
 
    // The return value is the max update number that we have seen for this registrar.
-   INT64 maxUpdateNumber = updateNumber;
+   Int64 maxUpdateNumber = updateNumber;
 
    if (peer != NULL)
    {
       // This update is for a peer.  If the updateNumber is bigger than previous
       // updateNumbers, then increase peerReceivedDbUpdateNumber accordingly.
-      INT64 receivedFrom = peer->receivedFrom();
+      Int64 receivedFrom = peer->receivedFrom();
       if (updateNumber > receivedFrom)
       {
          peer->setReceivedFrom(updateNumber);
@@ -1200,7 +1200,7 @@ const UtlString& SipRegistrarServer::primaryName() const
    return mRegistrar.primaryName();
 }
 
-INT64 SipRegistrarServer::getMaxUpdateNumberForRegistrar(const char* primaryName) const
+Int64 SipRegistrarServer::getMaxUpdateNumberForRegistrar(const char* primaryName) const
 {
    // If replication is not configured, then the primaryName will be empty, but it
    // should never be null.
@@ -1224,7 +1224,7 @@ bool SipRegistrarServer::getNextUpdateToSend(RegistrarPeer *peer,
    // Critical Section here
    OsLock lock(sLockMutex);
 
-   INT64 peerSentDbUpdateNumber = peer->sentTo();
+   Int64 peerSentDbUpdateNumber = peer->sentTo();
 
    // This method must not be called until the peer's sentTo value has been initialized
    assert(peerSentDbUpdateNumber >= 0);
@@ -1268,7 +1268,7 @@ void SipRegistrarServer::cleanAndPersist()
 }
 
 /// Get the largest update number in the local database for this registrar as primary
-INT64 SipRegistrarServer::getDbUpdateNumber() const
+Int64 SipRegistrarServer::getDbUpdateNumber() const
 {
    // Critical Section here
    OsLock lock(sLockMutex);
@@ -1280,7 +1280,7 @@ INT64 SipRegistrarServer::getDbUpdateNumber() const
 void SipRegistrarServer::resetDbUpdateNumberEpoch()
 {
    int timeNow = OsDateTime::getSecsSinceEpoch();
-   INT64 newEpoch;
+   Int64 newEpoch;
    newEpoch = timeNow;
    newEpoch <<= 32;
 

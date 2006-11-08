@@ -826,7 +826,7 @@ int OsStunQueryAgent::randomInt ()
     {
         init = true;
 
-        UINT64 tick;
+        UInt64 tick;
 
 #if defined(WIN32)
         volatile unsigned int lowtick=0,hightick=0;
