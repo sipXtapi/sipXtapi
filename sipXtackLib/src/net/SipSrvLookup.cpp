@@ -5,6 +5,9 @@
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
+// Rewritten based on DomainSearch by Christian Zahl, and SipSrvLookup
+// by Henning Schulzrinne.
+//
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -18,8 +21,10 @@ extern "C" {
 #       include "resparse/wnt/inet_aton.h"       
 }
 #elif defined(_VXWORKS)
+#       include <stdio.h>
 #       include <netdb.h>
 #       include <netinet/in.h>
+#       include <vxWorks.h>
 /* Use local lnameser.h for info missing from VxWorks version --GAT */
 /* lnameser.h is a subset of resparse/wnt/arpa/nameser.h                */
 #       include <resolv/nameser.h>
@@ -42,6 +47,9 @@ extern "C" {
 #       error Unsupported target platform.
 #endif
 
+#ifndef __pingtel_on_posix__
+extern struct __res_state _sip_res;
+#endif
 #include <sys/types.h>
 
 // Standard C includes.
@@ -57,7 +65,7 @@ extern "C" {
 #include "os/OsSocket.h"
 #include "os/OsLock.h"
 #include "net/SipSrvLookup.h"
-
+#include "os/OsDefs.h"
 #include "os/OsSysLog.h"
 #include "resparse/rr.h"
 
@@ -277,8 +285,8 @@ server_t* SipSrvLookup::servers(const char* domain,
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipSrvLookup::servers domain = '%s', service = '%s', "
-                 "socketType = %d, port = %d srcIp = %s",
-                 domain, service, socketType, port, srcIp);
+                 "socketType = %s, port = %d",
+                 domain, service, OsSocket::ipProtocolString(socketType), port);
 
    // Initialize the list of servers.
    server_list_initialize(list, list_length_allocated, list_length_used);
@@ -288,13 +296,9 @@ server_t* SipSrvLookup::servers(const char* domain,
 
    // Case 0: Eliminate contradictory combinations of service and type.
    
-   // 2006-08-18: bandreasen: This code was guarding against a sip: url
-   //     mixed with a socketType of SSL_SOCKET.  This is a prefectly
-   //     reasonable request <sip:foo@example.com;transport=tls>. 
-   //     This indicates that the next hop should use tls, however, tls
-   //     is not required for the entire path (proxy to proxy).
-   //
-   //     Check deleted and rest of the code has been adapted.
+   // While a sip: URI can be used with a socketType of SSL_SOCKET
+   // (e.g., <sip:foo@example.com;transport=tls>), a sips: URI must
+   // be used with TLS.
    if ((strcmp(service, "sips") == 0 &&
         (socketType == OsSocket::TCP || socketType == OsSocket::UDP)))
    {
@@ -306,7 +310,7 @@ server_t* SipSrvLookup::servers(const char* domain,
    }
    else
    // Case 1: Domain name is a numeric IP address.
-   if (inet_aton(domain, &in.sin_addr))
+   if ( IS_INET_RETURN_OK( inet_aton((char *)domain, &in.sin_addr)) )
    {
       in.sin_family = AF_INET;
       // Set up the port number.
@@ -400,13 +404,14 @@ server_t* SipSrvLookup::servers(const char* domain,
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SipSrvLookup::servers host = '%s', IP addr = '%s', "
                           "port = %d, weight = %u, score = %f, "
-                          "priority = %u, proto = %d",
+                          "priority = %u, proto = %s",
                           host.data(), ip_addr.data(),
                           list[j].getPortFromServerT(),
                           list[j].getWeightFromServerT(),
                           list[j].getScoreFromServerT(),
                           list[j].getPriorityFromServerT(),
-                          list[j].getProtocolFromServerT());
+                          OsSocket::ipProtocolString(list[j].getProtocolFromServerT())
+                          );
          }
       }
    }
@@ -427,12 +432,20 @@ void SipSrvLookup::setDnsSrvTimeouts(int initialTimeoutInSecs, int retries)
 {
    if (initialTimeoutInSecs > 0)
    {
+#if defined(__pingtel_on_posix__)
       _res.retrans = initialTimeoutInSecs;
+#else
+      _sip_res.retrans = initialTimeoutInSecs;
+#endif
    }
 
    if (retries > 0)
    {
+#if defined(__pingtel_on_posix__)
       _res.retry = retries;
+#else
+      _sip_res.retry = retries;
+#endif
    }
 }
 
@@ -1011,8 +1024,7 @@ unsigned int server_t::getPriorityFromServerT()
 }
 
 /// Accessor for protocol
-OsSocket::IpProtocolSocketType
-server_t::getProtocolFromServerT()
+OsSocket::IpProtocolSocketType server_t::getProtocolFromServerT()
 {
    return type;
 }

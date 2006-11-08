@@ -76,7 +76,7 @@ public:
     * "sips" service.
     *
     * The 'socketType' restricts the search to that sort of transport,
-    * and may have the values (within enum SocketProtocolTypes):
+    * and may have the values (within IpProtocolSocketType):
     *    TCP
     *    UDP
     *    SSL_SOCKET
