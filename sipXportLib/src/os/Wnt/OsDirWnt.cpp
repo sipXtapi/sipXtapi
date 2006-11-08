@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -10,9 +13,13 @@
 
 // SYSTEM INCLUDES
 #include <stdio.h>
-#include <direct.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+#ifdef WINCE
+#   include <types.h>
+#else
+#   include <direct.h>
+#   include <sys/types.h>
+#   include <sys/stat.h>
+#endif
 
 // APPLICATION INCLUDES
 #include "os/OsFS.h"

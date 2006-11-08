@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -10,16 +13,22 @@
 
 // SYSTEM INCLUDES
 #include <os/OsDefs.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+#ifdef WINCE
+#   include <types.h>
+#else
+#   include <sys/types.h>
+#   include <sys/stat.h>
+#endif
 
 #ifdef __posix_under_pingtel__
 #include <unistd.h>
 #endif
 
 #ifdef _WIN32
-#include <io.h>
-#include <direct.h>
+#   ifndef WINCE
+#       include <io.h>
+#       include <direct.h>
+#   endif
 #endif
 
 #ifdef TEST
@@ -80,6 +89,7 @@ OsStatus OsFileSystem::setReadOnly(const OsPath& rPath, UtlBoolean isReadOnly)
 #ifdef _VXWORKS
 
 #else
+#ifndef WINCE
     int mode = S_IREAD;
 
     if (!isReadOnly)
@@ -87,6 +97,7 @@ OsStatus OsFileSystem::setReadOnly(const OsPath& rPath, UtlBoolean isReadOnly)
 
     if (chmod(rPath.data(),mode) != -1)
         retval = OS_SUCCESS;
+#endif
 #endif
 
     return retval;
