@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,6 +11,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#if defined(HAVE_SSL)
 // SYSTEM INCLUDES
 #include <assert.h>
 #include <stdio.h>
@@ -332,3 +336,4 @@ void OsSSLConnectionSocket::SSLInitSocket(int socket, long timeoutInSecs)
     }
 }
 /* ============================ FUNCTIONS ================================= */
+#endif // HAVE_SSL

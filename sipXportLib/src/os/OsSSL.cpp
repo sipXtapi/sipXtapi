@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -7,6 +10,9 @@
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
+
+#if defined(HAVE_SSL)
+#define _OsSSL_h_
 
 // SYSTEM INCLUDES
 #include <openssl/rand.h>
@@ -550,3 +556,5 @@ int OsSSL::verifyCallback(int valid,            // validity so far from openssl
 
    return valid;
 }
+
+#endif // HAVE_SSL
