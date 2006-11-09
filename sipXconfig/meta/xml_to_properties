@@ -1,0 +1,112 @@
+#!/usr/bin/env ruby
+
+require 'rexml/document'
+include REXML
+
+class XmlToProperies
+  def initialize(xml, props)
+    @xml = xml
+    @props = props    
+  end
+  
+  def run
+    params = { :compress_whitespace => %w{ description }, :ignore_whitespace_nodes => :all }
+    model = Document.new(@xml, params).root
+    parse_group('', model)    
+  end
+  
+  def parse_group(prefix, node)
+    node.each_element('group|setting') do | x |
+      name = name(x)
+      key = if prefix.empty?
+        name
+      else
+        "#{prefix}.#{name}"
+      end
+      parse_setting(key, x)
+      @props.puts "\n"
+      parse_group(key, x) if x.name == 'group'
+    end
+  end
+  
+  def parse_setting(key, node)
+    label_text = text(node, 'label')
+    description_text = text(node, 'description')    
+    @props.puts "#{key}.label=#{label_text}"
+    @props.puts "#{key}.description=#{description_text}"        
+  end
+  
+  def text(parent, element_name)
+    element = parent.elements[element_name]
+    return '' unless element
+    text = element.text
+    return '' unless text
+    return text.strip.gsub("\n", " \\\n")
+  end
+  
+  def name(node)
+    return node.attributes['name']
+  end
+end
+
+
+def props_name(file_name)
+  return unless file_name
+  File.join(File.dirname(file_name), File.basename(file_name, ".xml") + ".properties")
+end
+
+def usage_exit
+  usage = <<__EOU__
+  Usage:
+    #{ $0 } [-file phone.xml]
+  Create properties file from label and description information contained in xml file.
+  If file name is provided properties file is created wuth the same base name and in the 
+  same directory as xml file.
+  
+  Options:
+   -f,--file                  name of the xml file
+__EOU__
+  
+  STDERR << usage
+  exit 1    
+end
+
+if __FILE__ == $0
+  
+  require 'getoptlong'
+  
+  OptSet = [
+    ['--file','-f', GetoptLong::REQUIRED_ARGUMENT],
+    ['--help','-h', GetoptLong::NO_ARGUMENT],
+  ]
+  
+  opts = GetoptLong.new(*OptSet)
+  
+  file_name = nil
+  
+  begin
+    opts.each do |name, arg|
+      case name
+      when "--file"
+        file_name = arg
+      else
+        usage_exit
+      end
+    end
+  rescue
+    usage_exit
+  end  
+  
+  usage_exit if opts.error? 
+  
+  begin
+    xml = file_name ? File.open(file_name, 'r') : STDIN
+    props_file_name = props_name(file_name)
+    props = props_file_name ? File.open(props_file_name, 'w'): STDOUT
+    $stderr.puts "Processing #{file_name} to #{props_file_name}..." if file_name
+    XmlToProperies.new(xml, props).run    
+  ensure
+    xml.close if xml && file_name
+    props.close if props && file_name
+  end
+end

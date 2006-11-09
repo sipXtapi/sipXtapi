@@ -19,8 +19,8 @@ public class CopyFromCacheInterceptorTest extends TestCase {
     
     public void testCache() {
         ModelFilesContext mfc = (ModelFilesContext) TestHelper.getApplicationContext().getBean("modelFilesContext");
-        Setting userSettings1 = mfc.loadModelFile("user-settings.xml");
-        Setting userSettings2 = mfc.loadModelFile("user-settings.xml");
+        Setting userSettings1 = mfc.loadModelFile("commserver/user-settings.xml");
+        Setting userSettings2 = mfc.loadModelFile("commserver/user-settings.xml");
         // 2nd should be a copy. if this fails, cacheoncopy is failing
         assertNotSame(userSettings1, userSettings2);                
     }

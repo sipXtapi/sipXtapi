@@ -31,7 +31,7 @@ public class PinTokenChangeServletTest extends TestCase {
     protected void setUp() {
         m_servlet = new PinTokenChangeServlet();
         m_user = new User();
-        Setting settings = SiteTestHelper.loadSettings("user-settings.xml");
+        Setting settings = SiteTestHelper.loadSettings("commserver/user-settings.xml");
         m_user.setSettings(settings);
         m_user.initialize();
         m_user.setUserName("joe");
