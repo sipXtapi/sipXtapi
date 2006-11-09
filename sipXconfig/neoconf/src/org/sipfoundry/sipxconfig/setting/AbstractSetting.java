@@ -11,12 +11,18 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 import org.sipfoundry.sipxconfig.setting.type.StringSetting;
+import org.springframework.context.MessageSource;
 
 public abstract class AbstractSetting implements Setting, NamedObject {
+    private static final char KEY_SEPARATOR = '.';
+
     private static final SettingValue2 NULL = new SettingValueImpl(null);
 
     private String m_label;
@@ -58,24 +64,11 @@ public abstract class AbstractSetting implements Setting, NamedObject {
     }
 
     public String getPath() {
-        Setting parent = getParent();
-        if (parent == null) {
-            return StringUtils.EMPTY;
-        }
-
-        if (parent.getParent() == null) {
-            return getName();
-        }
-
-        return parent.getPath() + PATH_DELIM + getName();
+        return getPath(PATH_DELIM, false);
     }
 
     public String getProfilePath() {
-        Setting parent = getParent();
-        if (parent == null) {
-            return getProfileName();
-        }
-        return parent.getProfilePath() + PATH_DELIM + getProfileName();
+        return getPath(PATH_DELIM, true);
     }
 
     /**
@@ -181,5 +174,42 @@ public abstract class AbstractSetting implements Setting, NamedObject {
 
     public void setValue(String value) {
         m_value = new SettingValueImpl(value);
+    }
+
+    /**
+     * Builds setting path by iterating through the list of parents
+     * 
+     * @param separator string used to separate path components
+     * @param addThis if true this setting name will be also added to path
+     * @param useProfile if true build path from profile names
+     * @return path created by joining components with a separator
+     */
+    private String getPath(char separator, boolean useProfile) {
+        List<String> names = new LinkedList<String>();
+        String name = useProfile ? getProfileName() : getName();
+        names.add(0, name);
+        for (Setting p = getParent(); p != null && p.getParent() != null; p = p.getParent()) {
+            String item = useProfile ? p.getProfileName() : p.getName();
+            names.add(0, item);
+        }
+        return StringUtils.join(names.iterator(), separator);
+    }
+
+    public String getDescriptionKey() {
+        return getPath(KEY_SEPARATOR, false) + ".description";
+    }
+
+    public String getLabelKey() {
+        return getPath(KEY_SEPARATOR, false) + ".label";
+    }
+
+    public MessageSource getMessageSource() {
+        for (Setting p = getParent(); p != null; p = p.getParent()) {
+            MessageSource messageSource = p.getMessageSource();
+            if (messageSource != null) {
+                return messageSource;
+            }
+        }
+        return null;
     }
 }

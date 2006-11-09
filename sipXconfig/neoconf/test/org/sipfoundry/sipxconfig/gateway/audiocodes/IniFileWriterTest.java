@@ -32,10 +32,10 @@ public class IniFileWriterTest extends TestCase {
     private Setting m_setting;
 
     protected void setUp() throws Exception {
-        ModelBuilder builder = new XmlModelBuilder(TestHelper.getSysDirProperties()
-                .getProperty("sysdir.etc"));
+        ModelBuilder builder = new XmlModelBuilder(TestHelper.getSysDirProperties().getProperty(
+                "sysdir.etc"));
         InputStream stream = getClass().getResourceAsStream("IniFileWriter.test.xml");
-        m_setting = builder.buildModel(stream, null).copy();
+        m_setting = builder.buildModel(stream).copy();
         stream.close();
     }
 
@@ -59,7 +59,7 @@ public class IniFileWriterTest extends TestCase {
             expectedLine = expected.readLine();
             resultLine = result.readLine();
             assertEquals(expectedLine, resultLine);
-        } while(expectedLine != null || resultLine != null);
+        } while (expectedLine != null || resultLine != null);
 
         expected.close();
         result.close();
@@ -85,7 +85,7 @@ public class IniFileWriterTest extends TestCase {
         first.acceptVisitor(iniWriter); // without new line
         iniWriter.setGroupNameSuffix(" XXX");
         second.acceptVisitor(iniWriter); // with new line
-        String actual = TestUtil.cleanEndOfLines("[first]\n\n\n[second XXX]\n\n");        
+        String actual = TestUtil.cleanEndOfLines("[first]\n\n\n[second XXX]\n\n");
         assertEquals(actual, writer.toString());
     }
 }

@@ -132,7 +132,7 @@ public final class TestHelper {
         ModelBuilder builder = new XmlModelBuilder("etc");
         SettingSet root;
         try {
-            root = builder.buildModel(in, null);
+            root = builder.buildModel(in);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

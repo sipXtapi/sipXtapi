@@ -30,24 +30,33 @@ public class XmlModelBuilderTest extends TestCase {
         m_builder = new XmlModelBuilder("etc");
     }
 
-    public void testSettingPropertySetters() throws IOException {
+    @Deprecated
+    public void testSettingPropertySettersDeprecated() throws IOException {
         InputStream in = getClass().getResourceAsStream("simplemodel.xml");
-        SettingSet root = m_builder.buildModel(in, null);
+        SettingSet root = m_builder.buildModel(in);
         Setting group = root.getSetting("group");
-        assertEquals("Group Profile Name", group.getProfileName());
         assertEquals("Group Label", group.getLabel());
         assertEquals("Group Description", group.getDescription());
 
         Setting setting = group.getSetting("setting");
-        assertEquals("Setting Profile Name", setting.getProfileName());
         assertEquals("Setting Label", setting.getLabel());
         assertEquals("Setting Description", setting.getDescription());
+    }
+
+    public void testSettingPropertySetters() throws IOException {
+        InputStream in = getClass().getResourceAsStream("simplemodel.xml");
+        SettingSet root = m_builder.buildModel(in);
+        Setting group = root.getSetting("group");
+        assertEquals("Group Profile Name", group.getProfileName());
+
+        Setting setting = group.getSetting("setting");
+        assertEquals("Setting Profile Name", setting.getProfileName());
         assertSame(StringSetting.DEFAULT, setting.getType());
     }
 
     public void testReadingGames() throws IOException {
         InputStream in = getClass().getResourceAsStream("games.xml");
-        SettingSet games = m_builder.buildModel(in, null);
+        SettingSet games = m_builder.buildModel(in);
         assertEquals("", games.getName());
         assertEquals(2, games.getValues().size());
 
@@ -84,7 +93,7 @@ public class XmlModelBuilderTest extends TestCase {
      */
     public void testIteration() throws IOException {
         InputStream in = getClass().getResourceAsStream("games.xml");
-        SettingSet games = m_builder.buildModel(in, null);
+        SettingSet games = m_builder.buildModel(in);
 
         Iterator i = games.getValues().iterator();
         while (i.hasNext()) {
@@ -92,26 +101,38 @@ public class XmlModelBuilderTest extends TestCase {
         }
     }
 
-    public void testInheritance() throws IOException {
+    @Deprecated
+    public void testInheritanceDeprecated() throws IOException {
         InputStream in = getClass().getResourceAsStream("genders.xml");
-        SettingSet root = m_builder.buildModel(in, null);
+        SettingSet root = m_builder.buildModel(in);
 
         Setting human = root.getSetting("human");
         assertEquals("Human", human.getLabel());
         assertEquals("Earthlings", human.getDescription());
-        assertNotNull(human.getSetting("eat").getSetting("fruit").getSetting("apple"));
-        assertNull(human.getSetting("giveBirth"));
 
         Setting man = root.getSetting("man");
         assertEquals("Man", man.getLabel());
         assertEquals("Earthlings", man.getDescription());
+
+        Setting woman = root.getSetting("woman");
+        assertEquals("Woman", woman.getLabel());
+        assertEquals("Earthlings", woman.getDescription());
+    }
+
+    public void testInheritance() throws IOException {
+        InputStream in = getClass().getResourceAsStream("genders.xml");
+        SettingSet root = m_builder.buildModel(in);
+
+        Setting human = root.getSetting("human");
+        assertNotNull(human.getSetting("eat").getSetting("fruit").getSetting("apple"));
+        assertNull(human.getSetting("giveBirth"));
+
+        Setting man = root.getSetting("man");
         assertNotNull(man.getSetting("eat").getSetting("fruit").getSetting("apple"));
         assertEquals("face", man.getSetting("shave").getValue());
         assertNull(man.getSetting("giveBirth"));
 
         Setting woman = root.getSetting("woman");
-        assertEquals("Woman", woman.getLabel());
-        assertEquals("Earthlings", woman.getDescription());
         assertNotNull(woman.getSetting("eat").getSetting("fruit").getSetting("apple"));
         assertEquals("legs", woman.getSetting("shave").getValue());
         assertNotNull(woman.getSetting("giveBirth"));
@@ -124,7 +145,7 @@ public class XmlModelBuilderTest extends TestCase {
 
     public void testFlags() throws Exception {
         InputStream in = getClass().getResourceAsStream("genders.xml");
-        SettingSet root = m_builder.buildModel(in, null);
+        SettingSet root = m_builder.buildModel(in);
         Setting reason = root.getSetting("man/reason");
         assertFalse(reason.isAdvanced());
         assertTrue(reason.isHidden());
@@ -132,22 +153,22 @@ public class XmlModelBuilderTest extends TestCase {
         assertTrue(giveBirth.isAdvanced());
         assertFalse(giveBirth.isHidden());
     }
-    
+
     public void testNullValue() throws Exception {
         InputStream in = getClass().getResourceAsStream("simplemodel.xml");
-        SettingSet root = m_builder.buildModel(in, null);
+        SettingSet root = m_builder.buildModel(in);
         assertNull(root.getSetting("group/setting").getValue());
     }
-    
+
     public void testLoadModelFileWithDetails() throws Exception {
         InputStream inBase = getClass().getResourceAsStream("basename.xml");
-        SettingSet base = m_builder.buildModel(inBase, null);
+        SettingSet base = m_builder.buildModel(inBase);
         IOUtils.closeQuietly(inBase);
-        
+
         InputStream inModel = getClass().getResourceAsStream("basename_model.xml");
         SettingSet model = m_builder.buildModel(inModel, base);
         IOUtils.closeQuietly(inModel);
-        
+
         assertNotNull(model.getSetting("car/color"));
         assertNotNull(model.getSetting("car/model"));
 

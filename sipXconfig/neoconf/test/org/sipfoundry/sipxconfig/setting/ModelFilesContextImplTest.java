@@ -39,7 +39,7 @@ public class ModelFilesContextImplTest extends TestCase {
 
         IMocksControl control = EasyMock.createControl();
         ModelBuilder builder = control.createMock(ModelBuilder.class);
-        builder.buildModel(getFile("aa", "bb"), null);
+        builder.buildModel(getFile("aa", "bb"));
         control.andReturn(setting);
         control.replay();
 

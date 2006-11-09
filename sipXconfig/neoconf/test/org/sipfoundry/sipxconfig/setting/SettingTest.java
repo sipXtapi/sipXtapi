@@ -33,6 +33,8 @@ public class SettingTest extends TestCase {
     public void testDefaultValue() {
         seedSimpleSettingGroup();
         assertEquals("fruit/apple", m_apple.getPath());
+        assertEquals("fruit.apple.label", m_apple.getLabelKey());
+        assertEquals("fruit.apple.description", m_apple.getDescriptionKey());
         m_apple.setValue("granny smith");
         assertEquals("granny smith", m_apple.getValue());
         assertEquals("granny smith", m_apple.getDefaultValue());
@@ -73,6 +75,8 @@ public class SettingTest extends TestCase {
         birds.setProfileName("BIRDS");
         AbstractSetting bird = new SettingImpl("bluejay");
         bird.setParent(birds);
+        AbstractSetting root = new SettingSet();
+        root.addSetting(birds);
 
         assertEquals("BIRDS", birds.getProfilePath());
         assertEquals("BIRDS/bluejay", bird.getProfilePath());

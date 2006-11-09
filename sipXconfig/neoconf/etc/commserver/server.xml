@@ -65,30 +65,18 @@
       </description>
     </setting>
     <setting name="SIP_PROXY_DEFAULT_SERIAL_EXPIRES" advanced="yes">
-      <label>Default Serial Fork Expiration</label>
       <profileName>proxy-config.in</profileName>
       <type>
         <integer />
       </type>
       <value>20</value>
-      <description>
-        Number of seconds that each phone in a sequential series is allowed to ring with no answer
-        before the next alternative is tried. The most common case for this is a user with one
-        phone and a voice mailbox - the phone will ring for this many seconds and then roll over
-        to voice mail.
-      </description>
     </setting>
     <setting name="SIP_PROXY_DEFAULT_EXPIRES" advanced="yes">
-      <label>Default Expiration</label>
       <profileName>proxy-config.in</profileName>
       <type>
         <integer />
       </type>
       <value>180</value>
-      <description>
-        Number of seconds a call is allowed to go unanswered; if this many seconds pass, the call
-        request is returned with an error.
-      </description>
     </setting>
     <setting name="SIP_REGISTRAR_DOMAIN_ALIASES" hidden="yes">
       <profileName>registrar-config.in</profileName>
