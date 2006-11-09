@@ -495,6 +495,7 @@ private:
     OsStackTraceLogger& operator=(const OsStackTraceLogger& ref)
     {
         // should never get here
+        return((OsStackTraceLogger&)ref);
     }
     
     UtlString mMethodName;
