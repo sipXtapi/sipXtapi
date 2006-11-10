@@ -19,9 +19,7 @@
 
 #include "mp/JB/JB_API.h"
 #include "mp/MpJitterBuffer.h"
-#include "mp/MpSipxDecoders.h" // for G.711 decoder
-#include "mp/MpdSipxSpeex.h"   // for Speex decoder
-#include "mp/NetInTask.h"      // for definition of RTP packet
+#include "mp/MpDecoderBase.h"
 
 static int debugCount = 0;
 
