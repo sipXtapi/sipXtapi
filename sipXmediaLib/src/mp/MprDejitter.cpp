@@ -109,7 +109,7 @@ OsStatus MprDejitter::pushPacket(const MpRtpBufPtr &pRtp)
    index = pRtp->getRtpSequenceNumber() % MAX_RTP_PACKETS;
 
    // Place packet to the buffer
-   if (mpPackets[codecIndex][index] != NULL)
+   if (mpPackets[codecIndex][index].isValid())
    {
       // Check for packets already in the buffer. Overwrite them if 
       // the just-arriving packet is newer than the existing packet
