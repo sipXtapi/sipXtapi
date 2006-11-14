@@ -23,18 +23,16 @@ class SipxLoggerTest < Test::Unit::TestCase
   
   # Log a message.  The logged message should have the severity prefixed.
   def test_log
-    msg = 'message in a keg'
-    @log.info(msg)
+    @log.info('message in a keg')
     file = @tempfile.open
-    assert_equal(SipxLogger::SIPX_INFO + ": " + msg + "\n", file.readline)
+    assert_match(/".*":INFO:message in a keg\n/, file.readline)
   end
   
   # Log a message using a block.  The logged message should have the severity prefixed.
   def test_log_with_block
-    msg = 'message in a klein bottle'
-    @log.fatal {msg}
+    @log.fatal {'message in a klein bottle'}
     file = @tempfile.open
-    assert_equal(SipxLogger::SIPX_CRIT + ": " + msg + "\n", file.readline)
+    assert_match(/".*":CRIT:message in a klein bottle\n/, file.readline)
   end
   
 end

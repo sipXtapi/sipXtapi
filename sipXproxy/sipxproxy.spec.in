@@ -36,7 +36,7 @@ services.
 %package cdr
 Requires: %name >= %version
 Requires: ruby >= 1.8.4
-Requires: ruby-gems >= 0.8.11
+Requires: ruby-libs >= 1.8.4
 Requires: ruby-postgres >= 0.7.1
 Requires: sipxcommserverlib >= %version
 Group:    Productivity/Telephony/SIP/Servers

@@ -8,7 +8,6 @@
 ##############################################################################
 
 require 'test/unit'
-require 'rubygems'
 
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..', 'lib'))
 
@@ -30,6 +29,8 @@ class CseReaderTest < Test::Unit::TestCase
       end
       @i += 1
     end
+    
+    alias :<< :enq
   end
   
   # this one connects to real database for now
@@ -37,8 +38,8 @@ class CseReaderTest < Test::Unit::TestCase
     url = DatabaseUrl.new()
     p url
     q = MockQueue.new
-    reader = CseReader.new(q, url)
-    reader.run(nil, nil)
+    reader = CseReader.new(url)
+    reader.run(q, nil, nil)
     p q.i    
   end
 end

@@ -8,24 +8,28 @@
 ##############################################################################
 
 require 'test/unit'
-require 'rubygems'
+
 
 $:.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 
 require 'call_resolver'
+require 'utils/call_resolver_configure'
 
 class CallResolverTest < Test::Unit::TestCase
+  def setup
+    @config = CallResolverConfigure.from_file()
+  end
 
   
   def test_resolve()
-    resolver = CallResolver.new()
+    resolver = CallResolver.new(@config)
     
     #resolver.resolve(nil, Time.parse("10/26"))
     resolver.resolve(nil, nil)
   end  
   
-  def test_daily
-    resolver = CallResolver.new()
+  def _test_daily
+    resolver = CallResolver.new(@config)
     resolver.daily_run
   end
 end

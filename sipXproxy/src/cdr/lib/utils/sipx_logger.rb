@@ -53,14 +53,15 @@ class SipxLogger < Logger
   end
   
   
+  # trying to imitate sipx log file format
   class SipxFormatter
-    
-    # FIXME: Not really sure why we do not want to log time here, but that's what unit test says...
+  
     def call(severity, time, progname, msg)
       sipx_severity = LOG_LEVEL_LOGGER_TO_SIPX[severity]
-      "#{sipx_severity}: #{msg}\n"
+      time_str = time.strftime("%Y-%m-%dT%H:%M:%S.") << "%06d " % time.usec
+      %Q<"#{time_str}":#{sipx_severity}:#{msg}\n>
     end
-    
+
   end
   
 end

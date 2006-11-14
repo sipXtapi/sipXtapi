@@ -9,7 +9,6 @@
 
 require 'logger'
 
-require 'utils/call_resolver_configure'
 require 'call_direction/call_direction_plugin'
 require 'db/cse_reader'
 require 'db/cdr_writer'
@@ -22,30 +21,30 @@ require 'state'
 # :TODO: log the number of calls analyzed and how many succeeded vs. dups or
 #        failures, also termination status
 class CallResolver
-  attr_reader :log, :config
+  attr_reader :log
   
   # How many seconds are there in a day
   SECONDS_IN_A_DAY = 86400
   
-  def initialize(config_file = nil)
-    @config =  CallResolverConfigure.from_file(config_file)
+  def initialize(config)
+    @config =  config
     @log = config.log
     urls = @config.cse_database_urls    
     # readers put events in CSE queue
     @readers = urls.collect do | url |
-      CseReader.new(url, @config.log)
+      CseReader.new(url, log)
     end
-    @writer = CdrWriter.new(@config.cdr_database_url, @config.log)
+    @writer = CdrWriter.new(@config.cdr_database_url, log)
   end
   
   # Run daily processing, including purging and/or call resolution
   def daily_run(purge_flag = false, purge_time = 0)
     run_resolver
-    run_purge(purge_time) if purge_flag || config.purge?
+    run_purge(purge_time) if purge_flag || @config.purge?
   end
   
   def run_resolver
-    if !config.daily_run?
+    if !@config.daily_run?
       log.error("resolve: the --daily_flag is set, but the daily run is disabled in the configuration");
       return
     end
@@ -75,8 +74,8 @@ class CallResolver
       log.info("Purge override")
       start_cse = start_cdr = Time.now() - (SECONDS_IN_A_DAY * purge_time)
     else
-      start_cse = config.purge_start_time_cse
-      start_cdr = config.purge_start_time_cdr
+      start_cse = @config.purge_start_time_cse
+      start_cdr = @config.purge_start_time_cdr
       log.info("Normal purge")
     end 
     log.info("Start CSE: : #{start_cse}, Start CDRs: #{start_cdr}")

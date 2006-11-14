@@ -9,8 +9,6 @@
 
 require 'test/unit'
 
-require 'rubygems'
-
 # set up the load path
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..', 'lib'))
 
