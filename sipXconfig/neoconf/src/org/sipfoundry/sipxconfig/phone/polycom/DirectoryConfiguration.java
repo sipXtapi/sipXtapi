@@ -42,12 +42,12 @@ public class DirectoryConfiguration extends VelocityProfileGenerator {
         Collection<PhonebookEntry> phonebookEntries = m_phonebookManager.getRows(m_phonebook);
         return transformRows(phonebookEntries);
     }
-    
+
     Collection<PolycomPhonebookEntry> transformRows(Collection<PhonebookEntry> phonebookEntries) {
         Transformer toPolycomEntries = new PolycomPhonebookEntryAdapter();
-        Collection<PolycomPhonebookEntry> polycomEntries = (Collection<PolycomPhonebookEntry>) CollectionUtils
-                .collect(phonebookEntries, toPolycomEntries);
-        return polycomEntries;        
+        Collection<PolycomPhonebookEntry> polycomEntries = CollectionUtils.collect(
+                phonebookEntries, toPolycomEntries);
+        return polycomEntries;
     }
 
     static class PolycomPhonebookEntryAdapter implements Transformer {
@@ -63,11 +63,8 @@ public class DirectoryConfiguration extends VelocityProfileGenerator {
             m_entry = entry;
         }
 
-        /**
-         * @return 
-         */
         public String getFirstName() {
-            // username if first and last name are null.  Otherwise it creates a
+            // username if first and last name are null. Otherwise it creates a
             // contact entry with no display label which is useless on polycom.
             String firstName = m_entry.getFirstName();
             if (firstName == null && m_entry.getLastName() == null) {

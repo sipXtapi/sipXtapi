@@ -20,6 +20,7 @@ import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 /**
@@ -29,7 +30,7 @@ public class DialPlanContextImplTest extends TestCase {
 
     public void testActivateDialPlan() throws Exception {
         IMocksControl bfCtrl = EasyMock.createControl();
-        BeanFactory bf = bfCtrl.createMock(BeanFactory.class);
+        BeanFactory bf = bfCtrl.createMock(ListableBeanFactory.class);
         bf.getBean(ConfigGenerator.BEAN_NAME, ConfigGenerator.class);
         bfCtrl.andReturn(createConfigGenerator());
         bfCtrl.andReturn(createConfigGenerator());

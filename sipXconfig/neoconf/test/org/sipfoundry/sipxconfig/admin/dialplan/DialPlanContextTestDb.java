@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.FilteredDataSet;
@@ -309,5 +310,14 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
             // this is expected
             assertTrue(e.getMessage().indexOf("operator") > 0);
         }
+    }
+
+    public void testGet() {
+        String[] dialPlanBeans = m_context.getDialPlanBeans();
+        for (String name : dialPlanBeans) {
+            System.err.println(name);
+        }
+        assertTrue(dialPlanBeans.length > 1);
+        assertTrue(ArrayUtils.contains(dialPlanBeans, "us.dialPlan"));
     }
 }

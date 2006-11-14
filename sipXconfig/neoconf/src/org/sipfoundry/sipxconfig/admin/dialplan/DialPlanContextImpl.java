@@ -38,6 +38,7 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
@@ -60,13 +61,15 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
 
     private AliasManager m_aliasManager;
 
-    private BeanFactory m_beanFactory;
+    private ListableBeanFactory m_beanFactory;
 
     private SipxReplicationContext m_sipxReplicationContext;
 
     private SettingDao m_settingDao;
 
     private String m_scriptsDirectory;
+
+    private String m_defaultDialPlanId;
 
     /**
      * Loads dial plan, creates a new one if none exist
@@ -208,7 +211,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
      * 
      * Loads default rules definition from bean factory file.
      */
-    public void resetToFactoryDefault() {
+    public void resetToFactoryDefault(String dialPlanBeanName) {
         getHibernateTemplate().delete(getEmergencyRouting());
 
         DialPlan dialPlan = getDialPlan();
@@ -221,14 +224,25 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         // collisions would go away as soon as the session was flushed.
         getHibernateTemplate().flush();
 
-        dialPlan = (DialPlan) m_beanFactory.getBean("dialPlan");
+        dialPlan = (DialPlan) m_beanFactory.getBean(dialPlanBeanName);
         AutoAttendant operator = getAttendant(AutoAttendant.OPERATOR_ID);
         dialPlan.setOperator(operator);
         getHibernateTemplate().saveOrUpdate(dialPlan);
     }
 
+    /**
+     * Reverts to default dial plan.
+     */
+    public void resetToFactoryDefault() {
+        resetToFactoryDefault("us.dialPlan");
+    }
+
+    public String[] getDialPlanBeans() {
+        return m_beanFactory.getBeanNamesForType(DialPlan.class, true, false);
+    }
+
     public void setBeanFactory(BeanFactory beanFactory) {
-        m_beanFactory = beanFactory;
+        m_beanFactory = (ListableBeanFactory) beanFactory;
     }
 
     public void moveRules(Collection<Integer> selectedRows, int step) {
@@ -383,12 +397,20 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         m_scriptsDirectory = scriptsDirectory;
     }
 
+    public void setDefaultDialPlanId(String defaultDialPlanId) {
+        m_defaultDialPlanId = defaultDialPlanId;
+    }
+    
+    public String getDefaultDialPlanId() {
+        return m_defaultDialPlanId;
+    }
+
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof InitializationTask) {
             InitializationTask dbEvent = (InitializationTask) event;
             String task = dbEvent.getTask();
             if (task.equals("dial-plans")) {
-                resetToFactoryDefault();
+                resetToFactoryDefault(m_defaultDialPlanId);
             } else if (task.equals(AutoAttendant.OPERATOR_ID)
                     || task.equals(AutoAttendant.AFTERHOUR_ID)) {
                 createOperator(task);

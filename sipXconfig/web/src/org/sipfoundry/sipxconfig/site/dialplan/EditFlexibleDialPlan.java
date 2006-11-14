@@ -66,17 +66,18 @@ public abstract class EditFlexibleDialPlan extends BasePage {
         manager.moveRules(rows, step);
     }
 
-    public void activate(IRequestCycle cycle) {
+    public IPage activate(IRequestCycle cycle) {
         DialPlanContext manager = getDialPlanContext();
         manager.generateDialPlan();
         ActivateDialPlan activate = (ActivateDialPlan) cycle.getPage(ActivateDialPlan.PAGE);
         activate.setReturnPage(PAGE);
-        cycle.activate(activate);
+        return activate;
     }
 
-    public void revert() {
-        DialPlanContext manager = getDialPlanContext();
-        manager.resetToFactoryDefault();
+    public IPage revert(IRequestCycle cycle) {
+        ResetDialPlan reset = (ResetDialPlan) cycle.getPage(ResetDialPlan.PAGE);
+        reset.setReturnPage(PAGE);
+        return reset;
     }
 
     /**
