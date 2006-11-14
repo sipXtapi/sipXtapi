@@ -39,6 +39,7 @@ class UtlHashMap : public UtlContainer
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
+    static const UtlContainableType TYPE;
 
 /* ============================ CREATORS ================================== */
 
@@ -205,8 +206,6 @@ protected:
 
     static    UtlChainPool* spPairPool; ///< pool of available UtlPair objects.
     
-    static const UtlContainableType TYPE;
-
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 

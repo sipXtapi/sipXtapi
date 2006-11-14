@@ -13,6 +13,7 @@
 
 // APPLICATION INCLUDES
 #include <net/XmlRpcMethod.h>
+#include <net/XmlRpcDispatch.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -29,11 +30,6 @@ XmlRpcMethod* XmlRpcMethod::get()
    return NULL;
 }
 
-// Copy constructor
-XmlRpcMethod::XmlRpcMethod(const XmlRpcMethod& rXmlRpcMethod)
-{
-}
-
 // Destructor
 XmlRpcMethod::~XmlRpcMethod()
 {
@@ -41,14 +37,6 @@ XmlRpcMethod::~XmlRpcMethod()
 
 /* ============================ MANIPULATORS ============================== */
 
-
-// Assignment operator
-XmlRpcMethod&
-XmlRpcMethod::operator=(const XmlRpcMethod& rhs)
-{
-   if (this == &rhs)            // handle the assignment to self case
-      return *this;
-}
 
 /* ============================ ACCESSORS ================================= */
 

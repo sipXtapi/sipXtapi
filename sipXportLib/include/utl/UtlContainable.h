@@ -36,6 +36,8 @@ class UtlContainable
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
+    static const UtlContainableType TYPE ;    /** < Class type used for runtime checking */
+
 /* ============================ CREATORS ================================== */
 
     /**
@@ -150,7 +152,6 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-    static const UtlContainableType TYPE ;    /** < Class type used for runtime checking */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

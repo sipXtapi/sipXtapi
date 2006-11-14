@@ -47,7 +47,7 @@
 
 
 #define STATUS_OPEN "open"
-#define STATUS_CLOSE "close"
+#define STATUS_CLOSED "closed"
 
 // STRUCTS
 // TYPEDEFS
@@ -110,6 +110,7 @@ class Tuple : public UtlContainable
    
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
+   static UtlContainableType TYPE ;    /** < Class type used for runtime checking */ 
    
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:

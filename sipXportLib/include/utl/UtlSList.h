@@ -48,6 +48,7 @@ class UtlSList : public UtlList
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
+    static const UtlContainableType TYPE;
 
 /* ============================ CREATORS ================================== */
 
@@ -134,9 +135,6 @@ protected:
      */
     virtual UtlContainable* insertAfter(UtlLink* afterNode, UtlContainable* object);
     
-
-    static const UtlContainableType TYPE;
-
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
         

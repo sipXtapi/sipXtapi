@@ -1,5 +1,8 @@
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2005 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -16,6 +19,7 @@
 #include <net/HttpMessage.h>
 #include <net/SdpBody.h>
 #include <net/SdpCodecFactory.h>
+#include <net/NetBase64Codec.h>
 
 
 /**
@@ -32,6 +36,7 @@ class SdpBodyTest : public CppUnit::TestCase
     CPPUNIT_TEST(testGetMediaAddress);
     //CPPUNIT_TEST(testCandidateParsing);
     CPPUNIT_TEST(testRtcpPortParsing);
+    // CPPUNIT_TEST(testCryptoParsing);
     CPPUNIT_TEST(testVideoCodecSelection);
     CPPUNIT_TEST_SUITE_END();
 
@@ -864,6 +869,54 @@ public:
         bodyCheck.getMediaRtcpPort(3, &port) ;
         CPPUNIT_ASSERT(port == 8999) ;
     }
+#if 0
+    void testCryptoParsing()
+    {
+        // The following SDP came from a SNOM phone
+        const char* cryptoSdpBodyString = 
+"v=0\r\n\
+o=root 1686017605 1686017605 IN IP4 192.168.0.122\r\n\
+s=call\r\n\
+c=IN IP4 192.168.0.122\r\n\
+t=0 0\r\n\
+m=audio 50370 RTP/SAVP 0 8 9 2 3 18 4 101\r\n\
+a=crypto:1 AES_CM_128_HMAC_SHA1_32 inline:exg2ZMzbqFK92aWGIkLUw8qsESrMVVlCUo5dNhZb\r\n\
+a=rtpmap:0 pcmu/8000\r\n\
+a=rtpmap:8 pcma/8000\r\n\
+a=rtpmap:9 g722/8000\r\n\
+a=rtpmap:2 g726-32/8000\r\n\
+a=rtpmap:3 gsm/8000\r\n\
+a=rtpmap:18 g729/8000\r\n\
+a=rtpmap:4 g723/8000\r\n\
+a=rtpmap:101 telephone-event/8000\r\n\
+a=fmtp:101 0-15\r\n\
+a=ptime:20\r\n\
+a=encryption:optional\r\n\
+a=sendrecv\r\n\n";
+
+        SdpBody cryptoSdpBody(cryptoSdpBodyString);
+
+        SdpSrtpParameters srtpParameters;
+        // Look after the first m field for the first
+        // srtp crypto parameter
+        int mLineIndex = 0;
+        int cryptoIndex = 1;
+        //CPPUNIT_ASSERT
+            (cryptoSdpBody.getSrtpCryptoField(mLineIndex, cryptoIndex, srtpParameters));
+
+        CPPUNIT_ASSERT(srtpParameters.cipherType == AES_CM_128_HMAC_SHA1_32);
+
+        const char* uuencodedKey = "exg2ZMzbqFK92aWGIkLUw8qsESrMVVlCUo5dNhZb";
+        int decodedLength = NetBase64Codec::decodedSize(strlen(uuencodedKey), uuencodedKey);
+        char* srtpKey = new char[decodedLength + 1];
+        int size;
+        NetBase64Codec::decode(strlen(uuencodedKey), uuencodedKey, size, srtpKey);
+        UtlString referenceKey(srtpKey, size);
+        UtlString parsedKey(((const char*)&(srtpParameters.masterKey[0])), SRTP_KEY_LENGTH);
+        CPPUNIT_ASSERT(referenceKey.compareTo(parsedKey) == 0);
+
+    }
+#endif
 
     void testVideoCodecSelection()
     {

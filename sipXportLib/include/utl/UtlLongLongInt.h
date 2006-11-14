@@ -64,6 +64,7 @@ class UtlLongLongInt : public UtlContainable
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
+    static UtlContainableType TYPE ;    /**< Class type used for runtime checking */ 
 
 /* ============================ CREATORS ================================== */
 
@@ -120,8 +121,6 @@ public:
      * Get the ContainableType for a UtlContainable derived class.
      */
     virtual UtlContainableType getContainableType() const;
-
-    static UtlContainableType TYPE ;    /**< Class type used for runtime checking */ 
 
 /* ============================ INQUIRY =================================== */
 

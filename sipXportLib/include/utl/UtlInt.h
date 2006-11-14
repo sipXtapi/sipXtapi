@@ -33,6 +33,7 @@ class UtlInt : public UtlContainable
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
+    static UtlContainableType TYPE ;    /** < Class type used for runtime checking */ 
 
 /* ============================ CREATORS ================================== */
 
@@ -105,7 +106,6 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-    static UtlContainableType TYPE ;    /** < Class type used for runtime checking */ 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

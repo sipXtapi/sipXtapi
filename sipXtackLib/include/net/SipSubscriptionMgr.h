@@ -22,6 +22,7 @@
 #include <utl/UtlDefs.h>
 #include <utl/UtlHashMap.h>
 #include <utl/UtlHashBag.h>
+#include <net/SipDialogMgr.h>
 
 // DEFINES
 // MACROS
@@ -51,13 +52,11 @@ public:
 /* ============================ CREATORS ================================== */
 
     //! Default constructor
-    SipSubscriptionMgr(SipDialogMgr& dialogMgr);
-
+    SipSubscriptionMgr();
 
     //! Destructor
     virtual
     ~SipSubscriptionMgr();
-
 
 /* ============================ MANIPULATORS ============================== */
 
@@ -144,7 +143,7 @@ private:
 
     int mEstablishedDialogCount;
     OsMutex mSubscriptionMgrMutex;
-    SipDialogMgr* mpDialogMgr;
+    SipDialogMgr mDialogMgr;
     int mMinExpiration;
     int mDefaultExpiration;
     int mMaxExpiration;

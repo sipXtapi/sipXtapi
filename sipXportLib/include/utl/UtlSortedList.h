@@ -45,6 +45,7 @@ class UtlSortedList : public UtlList
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
+    static const UtlContainableType TYPE;
 
 /* ============================ CREATORS ================================== */
 
@@ -109,8 +110,6 @@ protected:
      * The caller must hold the mContainerLock
      */
     UtlLink* findNode(UtlLink* starting, MatchType match, const UtlContainable* obj) const;
-
-    static const UtlContainableType TYPE;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

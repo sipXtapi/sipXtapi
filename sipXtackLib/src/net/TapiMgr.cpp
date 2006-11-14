@@ -63,12 +63,13 @@ void TapiMgr::setTapiCallback(sipxEventCallbackFn fp)
 }
 
 void TapiMgr::fireCallEvent(const void*          pSrc,
-                            const char*		     szCallId,
+                            const char*		 szCallId,
                             SipSession*          pSession,
-				            const char*          szRemoteAddress,                   
-				            SIPX_CALLSTATE_EVENT event,
-				            SIPX_CALLSTATE_CAUSE cause,
-                            void*                pEventData)
+                            const char*          szRemoteAddress,                   
+                            SIPX_CALLSTATE_EVENT event,
+                            SIPX_CALLSTATE_CAUSE cause,
+                            void*                pEventData,
+                            const char*          remoteAssertedIdentity)
 {
     static SIPX_CALLSTATE_EVENT lastEvent = CALLSTATE_UNKNOWN;
     static SIPX_CALLSTATE_CAUSE lastCause = CALLSTATE_CAUSE_UNKNOWN;
@@ -88,7 +89,8 @@ void TapiMgr::fireCallEvent(const void*          pSrc,
         else
         {
             (*sipxCallEventCallbackPtr)(pSrc, szCallId, pSession, szRemoteAddress,
-                                        event, cause, pEventData);
+                                        event, cause, pEventData,
+                                        remoteAssertedIdentity);
             lastEvent = event;
             lastCause = cause;
             strncpy(szLastCallId, szCallId, sizeof(szLastCallId));
@@ -146,11 +148,16 @@ void TapiMgr::fireMediaEvent(const void*         pSrc,
 void TapiMgr::fireLineEvent(const void* pSrc,
                         const char* szLineIdentifier,
                         SIPX_LINESTATE_EVENT event,
-                        SIPX_LINESTATE_CAUSE cause)
+                        SIPX_LINESTATE_CAUSE cause,
+                        const char *bodyBytes )
 {
     if (sipxLineEventCallbackPtr)
     {
-        (*sipxLineEventCallbackPtr)(pSrc, szLineIdentifier, event, cause);
+        (*sipxLineEventCallbackPtr)(pSrc, 
+                szLineIdentifier, 
+                event, 
+                cause,
+                bodyBytes);
     }
 }
 

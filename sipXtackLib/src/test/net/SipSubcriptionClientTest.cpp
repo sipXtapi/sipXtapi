@@ -142,22 +142,27 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
         smNumClientSubResponsesReceived = 0;
         smLastClientSubResponseReceived = NULL;
 
+        UtlString hostPort;
+        OsSocket::getHostIp(&hostPort);
+        hostPort.append(':');
+        char portText[20];
+        sprintf(portText, "%d", UNIT_TEST_SIP_PORT);
+        hostPort.append(portText);
 
-        UtlString resourceId("111@127.0.0.1:");
+        UtlString resourceId("111@");
         UtlString eventTypeKey("message-summary");
         UtlString eventType(eventTypeKey);
-        UtlString from("Frida<sip:111@localhost:");
-        UtlString to("Tia<sip:222@localhost:");
-        UtlString contact("sip:111@127.0.0.1:");
-        char portString[20];
-        sprintf(portString, "%d", UNIT_TEST_SIP_PORT);
-        resourceId.append(portString);
-        from.append(portString);
+        UtlString from("Frida<sip:111@");
+        UtlString to("Tia<sip:222@");
+        UtlString contact("sip:111@");
+
+        resourceId.append(hostPort);
+        from.append(hostPort);
         from.append('>');
-        to.append(portString);
+        to.append(hostPort);
         to.append('>');
-        contact.append(portString);
-        SipUserAgent* userAgent = new SipUserAgent(UNIT_TEST_SIP_PORT, UNIT_TEST_SIP_PORT, 0, NULL, NULL, "127.0.0.1");
+        contact.append(hostPort);
+        SipUserAgent* userAgent = new SipUserAgent(UNIT_TEST_SIP_PORT, UNIT_TEST_SIP_PORT);
         userAgent->start();
 
         // Set up the subscribe client
@@ -210,15 +215,22 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
                                     NULL);
 
         // Should not be any pre-existing content
-        CPPUNIT_ASSERT(!contentMgr->getContent(resourceId, eventTypeKey, NULL, preexistingBodyPtr, 
-            isDefaultContent));
+        CPPUNIT_ASSERT(!contentMgr->getContent(resourceId, 
+                                               eventTypeKey, 
+                                               eventType, 
+                                               NULL, 
+                                               preexistingBodyPtr, 
+                                               isDefaultContent));
         int numDefaultContent = -1;
+        int numDefaultConstructor = -1;
         int numResourceSpecificContent = -1;
         int numCallbacksRegistered = -1;
         contentMgr->getStats(numDefaultContent,
+                             numDefaultConstructor,
                              numResourceSpecificContent,
                              numCallbacksRegistered);
         CPPUNIT_ASSERT(numDefaultContent == 0);
+        CPPUNIT_ASSERT(numDefaultConstructor == 0);
         CPPUNIT_ASSERT(numResourceSpecificContent == 0);
         CPPUNIT_ASSERT(numCallbacksRegistered == 1);
 
@@ -238,9 +250,11 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
 
 
         contentMgr->getStats(numDefaultContent,
+                             numDefaultConstructor,
                              numResourceSpecificContent,
                              numCallbacksRegistered);
         CPPUNIT_ASSERT(numDefaultContent == 0);
+        CPPUNIT_ASSERT(numDefaultConstructor == 0);
         CPPUNIT_ASSERT(numResourceSpecificContent == 0);
         CPPUNIT_ASSERT(numCallbacksRegistered == 1);
 
@@ -382,6 +396,11 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
        //       subResponseDump.data());
 
         CPPUNIT_ASSERT(secondNotifyRequest);
+/*
+        // bandreasen/2006-10-14: The latest SipSubscribeClient does not send 
+        // status updates when state has not changed -- we will need to assume
+        // that the sub response checks above are enough to validate resends.
+
         CPPUNIT_ASSERT(secondSubResponse);
         int secondSubCseq = -1;
         int secondNotifyCseq = -1;
@@ -391,7 +410,7 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
         secondNotifyRequest->getCSeqField(&secondNotifyCseq, NULL);
         CPPUNIT_ASSERT(firstSubCseq < secondSubCseq);
         CPPUNIT_ASSERT(firstNotifyCseq < secondNotifyCseq);
-
+*/
         // Unregister the queues so we stop receiving messages on them
         userAgent->removeMessageObserver(incomingServerMsgQueue);
         userAgent->removeMessageObserver(incomingClientMsgQueue);

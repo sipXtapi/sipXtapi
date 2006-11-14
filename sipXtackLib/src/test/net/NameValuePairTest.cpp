@@ -14,9 +14,9 @@
 
 #include <net/NameValuePair.h>
 
-class TestTemplate : public CppUnit::TestCase
+class NameValuePairTest : public CppUnit::TestCase
 {
-    CPPUNIT_TEST_SUITE(TestTemplate);
+    CPPUNIT_TEST_SUITE(NameValuePairTest);
     CPPUNIT_TEST(testAccessors);
     CPPUNIT_TEST_SUITE_END();
 
@@ -47,8 +47,9 @@ public:
         CPPUNIT_ASSERT_MESSAGE("nv should be != nv_different_case",
                                nv->compareTo(nv_different_case) != 0);
 
-        delete nv, nv_different_case;
+        delete nv;
+        delete nv_different_case;
     }
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION(TestTemplate);
+CPPUNIT_TEST_SUITE_REGISTRATION(NameValuePairTest);

@@ -233,7 +233,7 @@ SipUdpServer::~SipUdpServer()
     UtlVoidPtr* pServerContainer = NULL;
     UtlString* pKey = NULL;
     
-    while (pKey = (UtlString*)iterator())
+    while ((pKey = (UtlString*)iterator()))
     {
         pServerContainer = (UtlVoidPtr*)iterator.value();
         if (pServerContainer)
@@ -444,7 +444,7 @@ void SipUdpServer::shutdownListener()
     UtlVoidPtr* pServerContainer = NULL;
     UtlString* pKey = NULL;
     
-    while (pKey = (UtlString*)iterator())
+    while ((pKey = (UtlString*)iterator()))
     {
         pServerContainer = (UtlVoidPtr*) iterator.value();
         pServer = (SipClient*)pServerContainer->getValue();
@@ -825,7 +825,7 @@ void SipUdpServer::printStatus()
     UtlVoidPtr* pServerContainer = NULL;
     UtlString* pKey = NULL;
     
-    while (pKey = (UtlString*)iterator())
+    while ((pKey = (UtlString*)iterator()))
     {
         pServerContainer = (UtlVoidPtr*) iterator.value();
         if (pServerContainer)

@@ -1738,6 +1738,9 @@
 				RelativePath="include\net\SipDialog.h">
 			</File>
 			<File
+				RelativePath=".\include\net\SipDialogEvent.h">
+			</File>
+			<File
 				RelativePath="include\net\SipDialogMgr.h">
 			</File>
 			<File
@@ -1775,6 +1778,9 @@
 			</File>
 			<File
 				RelativePath="include\net\SipPimClient.h">
+			</File>
+			<File
+				RelativePath=".\include\net\SipPresenceEvent.h">
 			</File>
 			<File
 				RelativePath="include\net\SipProtocolServerBase.h">

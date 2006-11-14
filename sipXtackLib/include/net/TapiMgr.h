@@ -71,10 +71,11 @@ public:
     void fireCallEvent(const void*          pSrc,
                        const char*		    szCallId,
                        SipSession*          pSession,
-				       const char*          szRemoteAddress,                   
-				       SIPX_CALLSTATE_EVENT event,
-				       SIPX_CALLSTATE_CAUSE cause,
-                       void*                pEventData) ;
+                       const char*          szRemoteAddress,                   
+                       SIPX_CALLSTATE_EVENT event,
+                       SIPX_CALLSTATE_CAUSE cause,
+                       void*                pEventData,
+                       const char*          remoteAssertedIdentity = NULL);
 
     /** 
      * This method calls the media event callback using the function pointer.
@@ -94,7 +95,8 @@ public:
     void fireLineEvent(const void* pSrc,
                         const char* szLineIdentifier,
                         SIPX_LINESTATE_EVENT event,
-                        SIPX_LINESTATE_CAUSE cause);	
+                        SIPX_LINESTATE_CAUSE cause,
+                        const char *bodyBytes= NULL );	
                         
     /** 
      * This method calls the new "unified callback" procedure in sipXtapi.

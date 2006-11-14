@@ -35,7 +35,7 @@
 typedef enum LINE_CONTACT_TYPE
 {
     LINE_CONTACT_LOCAL,          /**< Use the local IP address */
-    LINE_CONTACT_NAT_MAPPED,     /**< Use the NAT-derived IP address */
+    LINE_CONTACT_NAT_MAPPED     /**< Use the NAT-derived IP address */
 
 } LINE_CONTACT_TYPE ;
 
