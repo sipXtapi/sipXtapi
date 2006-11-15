@@ -134,6 +134,16 @@
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="6" -->
   </target>	
+	
+  <!-- only temporary user/developer convenience until 3.8 ships -->
+  <target name="reset-old-phonebook">
+    <sipx-sql>
+      drop table phonebook_member;
+      drop table phonebook;
+      drop sequence phonebook_seq;
+      delete from patch where name = 'phonebook'
+    </sipx-sql>
+  </target>
 
   <target name="phonebook" unless="phonebook">
     <db-patch patch="phonebook"/>

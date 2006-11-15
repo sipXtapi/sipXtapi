@@ -11,8 +11,22 @@
  */
 package org.sipfoundry.sipxconfig.site.phonebook;
 
+import org.apache.tapestry.IPage;
+import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
 
 public class ManagePhonebooks extends BasePage {
-
+    
+    public IPage edit(IRequestCycle cycle, Integer phonebookId) {
+        EditPhonebook page = (EditPhonebook) cycle.getPage(EditPhonebook.PAGE);
+        page.setPhonebookId(phonebookId);
+        page.setReturnPage(this);
+        return page;        
+    }
+    
+    public IPage addPhonebook(IRequestCycle cycle) {
+        EditPhonebook page = (EditPhonebook) cycle.getPage(EditPhonebook.PAGE);
+        page.setReturnPage(this);
+        return page;        
+    }
 }

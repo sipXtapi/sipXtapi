@@ -32,16 +32,17 @@ import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.setting.Group;
+
+// auto packaging messes this import up
 import static org.apache.commons.lang.StringUtils.defaultString;
 
 public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> implements PhonebookManager {
     private String m_externalUsersDirectory;
     private CoreContext m_coreContext;
 
-    public Phonebook getGlobalPhonebook() {
-        Collection books = getHibernateTemplate().loadAll(Phonebook.class);
-        Phonebook phonebook = (Phonebook) DaoUtils.requireOneOrZero(books, Phonebook.class.getName());
-        return phonebook;
+    public Collection<Phonebook> getPhonebooks() {
+        Collection<Phonebook> books = getHibernateTemplate().loadAll(Phonebook.class);
+        return books;
     }
     
     public Phonebook getPhonebook(Integer id) {
@@ -50,7 +51,15 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     }
 
     public void savePhonebook(Phonebook phonebook) {
+        DaoUtils.checkDuplicates(getHibernateTemplate(), Phonebook.class, phonebook, "name", 
+                new DuplicatePhonebookName());
         getHibernateTemplate().saveOrUpdate(phonebook);
+    }
+    
+    class DuplicatePhonebookName extends UserException {
+        DuplicatePhonebookName() {
+            super("A phonebook already exitst with that name");
+        }
     }
 
     public CoreContext getCoreContext() {
@@ -82,6 +91,11 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
     public void setExternalUsersDirectory(String externalUsersDirectory) {
         m_externalUsersDirectory = externalUsersDirectory;
+    }
+    
+    public Collection<PhonebookEntry> getRows(User consumer) {
+        // TODO
+        return (Collection<PhonebookEntry>) Collections.EMPTY_LIST;
     }
     
     public Collection<PhonebookEntry> getRows(Phonebook phonebook) {

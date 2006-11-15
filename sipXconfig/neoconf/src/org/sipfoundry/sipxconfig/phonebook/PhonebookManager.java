@@ -13,15 +13,14 @@ package org.sipfoundry.sipxconfig.phonebook;
 
 import java.util.Collection;
 
+import org.sipfoundry.sipxconfig.common.User;
+
 
 public interface PhonebookManager  {
     public static final String CONTEXT_BEAN_NAME = "phonebookManager";
     
-    /**
-     * May go away when we support multiple phonebooks
-     */
-    public Phonebook getGlobalPhonebook();
-    
+    public Collection<Phonebook> getPhonebooks();
+
     public Phonebook getPhonebook(Integer phonebookId);
     
     public void savePhonebook(Phonebook phonebook);
@@ -29,5 +28,7 @@ public interface PhonebookManager  {
     public String getExternalUsersDirectory();
     
     public Collection<PhonebookEntry> getRows(Phonebook phonebook);
+
+    public Collection<PhonebookEntry> getRows(User consumer);
     
 }

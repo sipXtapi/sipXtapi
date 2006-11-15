@@ -18,6 +18,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Collection;
 
 import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
@@ -33,7 +34,7 @@ import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.phonebook.Phonebook;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
@@ -142,10 +143,16 @@ public class PolycomPhone extends Phone {
 
         app.deleteStaleDirectories();
 
-        Phonebook phonebook = m_phonebookManager.getGlobalPhonebook();
-        if (phonebook != null) {
-            DirectoryConfiguration dir = new DirectoryConfiguration(this, m_phonebookManager, phonebook);
-            generateProfile(dir, getDirectoryTemplate(), app.getDirectoryFilename());        
+        Line initialLine = getLine(0);
+        if (initialLine != null) {
+            User user = initialLine.getUser();
+            if (user != null) {
+                Collection<PhonebookEntry>entries = m_phonebookManager.getRows(user);
+                if (entries != null && entries.size() > 0) {
+                    DirectoryConfiguration dir = new DirectoryConfiguration(this, entries);
+                    generateProfile(dir, getDirectoryTemplate(), app.getDirectoryFilename());
+                }
+            }
         }
     }
 

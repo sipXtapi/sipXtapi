@@ -21,6 +21,7 @@
     <property name="systemDirectory" value="${sysdir.etc}" />
     <property name="phoneDefaults" ref="phoneDefaults" />
     <property name="intercomManager" ref="intercomManager" />
+    <property name="phonebookManager" ref="phonebookManager" />
   </bean>
 
   <bean id="phoneContext" class="org.springframework.aop.framework.ProxyFactoryBean"

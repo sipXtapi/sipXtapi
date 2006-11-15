@@ -10,6 +10,12 @@
       </generator>
     </id>
     <property name="membersCsvFilename"/>
+	<property name="name"/>
+	<property name="description"/>	  
+    <set name="consumers" table="phonebook_consumer">
+      <key column="phonebook_id"/>
+      <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group" />
+    </set>    
     <set name="members" table="phonebook_member">
       <key column="phonebook_id"/>
       <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group" />

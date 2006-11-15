@@ -29,7 +29,6 @@ import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.phone.polycom.DirectoryConfiguration.PolycomPhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
-import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 
 public class DirectoryConfigurationTest extends XMLTestCase {
     PolycomPhone m_phone;
@@ -48,7 +47,7 @@ public class DirectoryConfigurationTest extends XMLTestCase {
         phonebookEntryControl.andReturn("Dora");
         phonebookEntryControl.replay();
         
-        DirectoryConfiguration dir = new DirectoryConfiguration(null, null, null);
+        DirectoryConfiguration dir = new DirectoryConfiguration(null, null);
         Collection<PolycomPhonebookEntry> collection = dir.transformRows(Collections.singleton(phonebookEntry));
         assertEquals("Dora", collection.iterator().next().getFirstName());
         
@@ -67,13 +66,8 @@ public class DirectoryConfigurationTest extends XMLTestCase {
         phonebookEntryControl.andReturn("210");
         phonebookEntryControl.replay();
 
-        IMocksControl phonebookManagerControl = EasyMock.createControl();
-        PhonebookManager phonebookManager = phonebookManagerControl.createMock(PhonebookManager.class);
-        phonebookManager.getRows(m_phonebook);
-        phonebookManagerControl.andReturn(Collections.singleton(phonebookEntry));
-        phonebookManagerControl.replay();
-
-        DirectoryConfiguration dir = new DirectoryConfiguration(m_phone, phonebookManager, m_phonebook);
+        Collection<PhonebookEntry> entries = (Collection<PhonebookEntry>) Collections.singleton(phonebookEntry);
+        DirectoryConfiguration dir = new DirectoryConfiguration(m_phone, entries);
         dir.setVelocityEngine(TestHelper.getVelocityEngine());
         
         CharArrayWriter out = new CharArrayWriter();
@@ -95,7 +89,6 @@ public class DirectoryConfigurationTest extends XMLTestCase {
         assertXMLEqual(phoneDiff, true);
         expectedPhoneStream.close();        
 
-        phonebookManagerControl.verify();
         phonebookEntryControl.verify();
     }
 }

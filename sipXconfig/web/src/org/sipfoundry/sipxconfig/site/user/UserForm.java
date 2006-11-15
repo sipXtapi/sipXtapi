@@ -12,7 +12,6 @@
 package org.sipfoundry.sipxconfig.site.user;
 
 import java.text.MessageFormat;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -53,14 +52,6 @@ public abstract class UserForm extends BaseComponent implements PageEndRenderLis
     
     public abstract String getGroupsString();    
     public abstract void setGroupsString(String groups);
-    public abstract Collection getGroupsCandidates();
-    public abstract void setGroupCandidates(Collection groupsList);
-    
-    public void buildGroupCandidates(String groupsString) {
-        List allGroups = getCoreContext().getGroups();
-        Collection candidates = TapestryUtils.getAutoCompleteCandidates(allGroups, groupsString);
-        setGroupCandidates(candidates);        
-    }
     
     // Update the User object if input data is valid
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {

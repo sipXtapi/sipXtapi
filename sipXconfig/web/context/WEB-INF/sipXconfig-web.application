@@ -130,6 +130,7 @@
     <component-type type="GroupFilter" specification-path="setting/GroupFilter.jwc"/>
     <component-type type="GroupLabel" specification-path="setting/GroupLabel.jwc"/>
     <component-type type="GroupSelect" specification-path="setting/GroupSelect.jwc"/>
+    <component-type type="GroupMultiSelect" specification-path="common/GroupMultiSelect.jwc"/>
     <component-type type="GroupTable" specification-path="setting/GroupTable.jwc"/>
     <component-type type="HolidaysEditor" specification-path="dialplan/HolidaysEditor.jwc"/>
     <component-type type="ItemCommon" specification-path="common/ItemCommon.jwc"/>

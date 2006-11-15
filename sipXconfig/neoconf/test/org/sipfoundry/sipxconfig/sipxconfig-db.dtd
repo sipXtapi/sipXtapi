@@ -401,6 +401,14 @@
 <!ATTLIST phonebook
     phonebook_id CDATA #REQUIRED
     members_csv_filename CDATA #IMPLIED
+    name CDATA #REQUIRED
+    description CDATA #IMPLIED
+>
+
+<!ELEMENT phonebook_consumer EMPTY>
+<!ATTLIST phonebook_consumer
+    phonebook_id CDATA #REQUIRED
+    group_id CDATA #REQUIRED
 >
 
 <!ELEMENT phonebook_member EMPTY>

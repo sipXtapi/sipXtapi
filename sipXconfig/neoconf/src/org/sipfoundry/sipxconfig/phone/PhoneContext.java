@@ -18,6 +18,7 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.admin.intercom.Intercom;
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.setting.Group;
 
 /**
@@ -101,5 +102,11 @@ public interface PhoneContext extends DataObjectSource {
      * There should be at most one intercom for any phone. If there is more than
      * one, then return the first intercom found.
      */
-    public Intercom getIntercomForPhone(Phone phone);    
+    public Intercom getIntercomForPhone(Phone phone);
+    
+    /**
+     * Phonebook/Directory/Speedial entries for this phone
+     * @return empty collection of no entries 
+     */
+    public Collection<PhonebookEntry> getPhonebookEntries(Phone phone);
 }

@@ -31,17 +31,6 @@ public class PhonebookManagerTestDb extends TestHelper.TestCaseDb {
         TestHelper.cleanInsert("ClearDb.xml");        
     }
     
-    public void testGetGlobalPhonebook() throws Exception {
-        Phonebook p1 = m_context.getGlobalPhonebook();
-        assertNull(p1);
-
-        TestHelper.insertFlat("phonebook/PhonebookSeed.db.xml");
-        
-        Phonebook p2 = m_context.getGlobalPhonebook();
-        assertNotNull(p2);
-        assertEquals(1, p2.getMembers().size());
-    }
-    
     public void testGetPhonebook() throws Exception {
         TestHelper.insertFlat("phonebook/PhonebookSeed.db.xml");        
         Phonebook p2 = m_context.getPhonebook(1001);
@@ -50,16 +39,19 @@ public class PhonebookManagerTestDb extends TestHelper.TestCaseDb {
     
     public void testSavePhonebook() throws Exception {
         Phonebook p = new Phonebook();
-        m_context.savePhonebook(p);
-        
+        p.setName("test-save");
+        m_context.savePhonebook(p);       
     }
     
-    public void testUpdatePhonebookWithMemberGroups() throws Exception {
+    public void testUpdatePhonebookWithMemberAndConsumerGroups() throws Exception {
         Phonebook p = new Phonebook();
+        p.setName("update-with-groups-test");
         List<Group> groups = m_settingDao.getGroupsByString(User.GROUP_RESOURCE_ID,
                 "phonebook-users", true);
         p.replaceMembers(groups);
+        p.replaceConsumers(groups);
         m_context.savePhonebook(p);
         assertEquals(1, TestHelper.getConnection().getRowCount("phonebook_member"));
+        assertEquals(1, TestHelper.getConnection().getRowCount("phonebook_consumer"));
     }
 }

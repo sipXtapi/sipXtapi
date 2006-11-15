@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.phone;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -29,6 +30,8 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -62,6 +65,16 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
 
     private IntercomManager m_intercomManager;
     
+    private PhonebookManager m_phonebookManager;
+    
+    public PhonebookManager getPhonebookManager() {
+        return m_phonebookManager;
+    }
+
+    public void setPhonebookManager(PhonebookManager phonebookManager) {
+        m_phonebookManager = phonebookManager;
+    }
+
     public void setSettingDao(SettingDao settingDao) {
         m_settingDao = settingDao;
     }
@@ -304,5 +317,18 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
      */
     public Intercom getIntercomForPhone(Phone phone) {
         return m_intercomManager.getIntercomForPhone(phone);
+    }
+
+    public Collection<PhonebookEntry> getPhonebookEntries(Phone phone) {
+        Collection<PhonebookEntry> entries = (Collection<PhonebookEntry>) Collections.EMPTY_LIST;
+        Line initialLine = phone.getLine(0);
+        if (initialLine != null) {
+            User user = initialLine.getUser();
+            if (user != null) {
+                entries = getPhonebookManager().getRows(user);
+            }
+        }
+
+        return entries;
     }
 }
