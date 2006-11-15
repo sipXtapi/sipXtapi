@@ -12,6 +12,7 @@ cgicc=yes
 mod_cplusplus=yes
 xerces_c=yes
 ruby_gems=yes
+ruby_dbi=yes
 ruby_rails=yes
 ruby_postgres=yes
 
@@ -71,6 +72,11 @@ AC_ARG_ENABLE(ruby,
 	AC_HELP_STRING([--enable-ruby], [Build ruby dependency]),
 	[ ruby=${enableval} ])
 test x$ruby = xyes && AC_CONFIG_SUBDIRS(ruby)
+
+AC_ARG_ENABLE(ruby-dbi,
+	AC_HELP_STRING([--enable-ruby-dbi], [Build ruby dbi dependency]),
+	[ ruby_dbi=${enableval} ])
+test x$ruby_dbi = xyes && AC_CONFIG_SUBDIRS(ruby-dbi)
 
 AC_ARG_ENABLE(ruby-gems,
 	AC_HELP_STRING([--enable-ruby-gems], [Build ruby gems dependency]),
