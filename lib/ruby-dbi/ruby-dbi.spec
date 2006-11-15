@@ -4,7 +4,7 @@
 
 Name: ruby-dbi
 Version: 0.1.1
-Release: 1
+Release: 2
 
 License: BSD
 Group: Development/Languages/Ruby
@@ -28,6 +28,7 @@ Ruby/DBI develops a database independent interface for accessing databases - sim
 
 %build
 ruby setup.rb config \
+    --rb-dir=%{_libdir}/ruby/%{rb_ver} \
     --without="dbd_sybase,dbd_sqlite" \
     --with="dbi,dbd_proxy,dbd_mysql,dbd_pg,dbd_frontbase,dbd_db2,dbd_oracle,dbd_odbc,dbd_ado,dbd_msql,dbd_interbase,dbd_sqlrelay"
 ruby setup.rb setup
@@ -42,13 +43,16 @@ DESTDIR="%{buildroot}" ruby setup.rb install
 %defattr(-,root,root,-)
 %{_bindir}/proxyserver.rb
 %{_bindir}/sqlsh.rb
-%{_libdir}/ruby/site_ruby/%{rb_ver}/DBD/
-%{_libdir}/ruby/site_ruby/%{rb_ver}/dbi/
-%{_libdir}/ruby/site_ruby/%{rb_ver}/dbi.rb
+%{_libdir}/ruby/%{rb_ver}/DBD/
+%{_libdir}/ruby/%{rb_ver}/dbi/
+%{_libdir}/ruby/%{rb_ver}/dbi.rb
 %doc README LICENSE ChangeLog doc/*
 %doc examples/ test/
 
 %changelog
+* Tue Nov 15 2006 Damian Krzeminski <damian@pingtel.com> - dbi-2
+- Install in ruby lib directory and not in site_ruby directory.
+
 * Tue Nov 14 2006 Douglas Hubler <dhubler@penguin.pingtel.com> - dbi-1
 - Initial build.
 
