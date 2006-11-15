@@ -13,14 +13,12 @@ mod_cplusplus=yes
 xerces_c=yes
 ruby_gems=yes
 ruby_dbi=yes
-ruby_rails=yes
-ruby_postgres=yes
 
 AC_ARG_ENABLE(fc4,
 	AC_HELP_STRING([--enable-fc4], [Enable dependencies for Fedora Core 4]),
 	[ 
           java_sun=yes
-echo "Got Here" > /tmp/delme
+          ruby_postgres=yes
         ])
 
 AC_ARG_ENABLE(fc5,
@@ -29,13 +27,19 @@ AC_ARG_ENABLE(fc5,
           java_sun=yes
         ])
 
+AC_ARG_ENABLE(fc6,
+	AC_HELP_STRING([--enable-fc6], [Enable dependencies for Fedora Core 6]),
+	[ 
+          java_sun=yes
+        ])
+
 AC_ARG_ENABLE(rhe4,
 	AC_HELP_STRING([--enable-rhe4], [Enable dependencies for RHE4 and Centos4]),
 	[ 
           java_sun=yes
-          ruby=yes
           w3c_libwww=yes
           cppunit=yes
+          ruby_postgres=yes
         ])
 
 AC_ARG_ENABLE(cgicc,

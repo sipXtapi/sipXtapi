@@ -15,7 +15,7 @@ Requires: xerces-c >= 2.6.0
 Requires: sipxportlib >= 3.7
 Requires: sipxtacklib >= 3.7
 Requires: unixODBC >= 2.2
-Requires: ruby >= 1.8.4
+Requires: ruby
 
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
