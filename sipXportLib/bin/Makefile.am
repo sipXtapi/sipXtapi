@@ -1,6 +1,7 @@
 include $(top_builddir)/config/sipXcommon.mak
 
-TESTS = sipx-upgrade-testsuite
+
+# TESTS = sipx-upgrade-testsuite
 
 bin_SCRIPTS = \
    ${PACKAGE}-config \
