@@ -60,6 +60,7 @@ class UtlList : public UtlContainer, public UtlChain
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
+    static UtlContainableType TYPE ;    /** < Class type used for runtime checking */
 
 /* ============================ CREATORS ================================== */
 
@@ -219,7 +220,6 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-    static UtlContainableType TYPE ;    /** < Class type used for runtime checking */
 } ;
 
 /* ============================ INLINE METHODS ============================ */

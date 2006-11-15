@@ -1111,7 +1111,8 @@ void sipxFireCallEvent(const void* pSrc,
                        const char* szRemoteAddress,
                        SIPX_CALLSTATE_EVENT event,
                        SIPX_CALLSTATE_CAUSE cause,
-                       void* pEventData)
+                       void* pEventData,
+                       const char* szRemoteAssertedIdentity)
 {
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxFireCallEvent");
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
@@ -2103,7 +2104,8 @@ SIPXTAPI_API char* sipxSubStatusCauseToString(const SIPX_SUBSCRIPTION_CAUSE caus
 void sipxFireLineEvent(const void* pSrc,
                        const char* szLineIdentifier,
                        SIPX_LINESTATE_EVENT event,
-                       SIPX_LINESTATE_CAUSE cause)
+                       SIPX_LINESTATE_CAUSE cause,
+                       const char *bodyBytes)
 {
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxFireLineEvent");
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,

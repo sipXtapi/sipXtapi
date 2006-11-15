@@ -1619,6 +1619,21 @@
 						BrowseInformation="1"/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\src\net\XmlRpcBody.cpp">
+			</File>
+			<File
+				RelativePath=".\src\net\XmlRpcDispatch.cpp">
+			</File>
+			<File
+				RelativePath=".\src\net\XmlRpcMethod.cpp">
+			</File>
+			<File
+				RelativePath=".\src\net\XmlRpcRequest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\net\XmlRpcResponse.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -1859,6 +1874,21 @@
 			</File>
 			<File
 				RelativePath="include\net\version.h">
+			</File>
+			<File
+				RelativePath=".\include\net\XmlRpcBody.h">
+			</File>
+			<File
+				RelativePath=".\include\net\XmlRpcDispatch.h">
+			</File>
+			<File
+				RelativePath=".\include\net\XmlRpcMethod.h">
+			</File>
+			<File
+				RelativePath=".\include\net\XmlRpcRequest.h">
+			</File>
+			<File
+				RelativePath=".\include\net\XmlRpcResponse.h">
 			</File>
 		</Filter>
 	</Files>

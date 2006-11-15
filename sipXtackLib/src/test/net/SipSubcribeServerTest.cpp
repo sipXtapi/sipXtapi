@@ -33,16 +33,20 @@
 class SipSubscribeServerTest : public CppUnit::TestCase
 {
       CPPUNIT_TEST_SUITE(SipSubscribeServerTest);
-      //CPPUNIT_TEST(subscriptionTest);
+      CPPUNIT_TEST(subscriptionTest);
       CPPUNIT_TEST_SUITE_END();
 
       public:
 
    void subscriptionTest()
    {
+       UtlString hostIp;
+       OsSocket::getHostIp(&hostIp);
 
         // Test MWI messages
-        char* mwiSubscribe="SUBSCRIBE sip:111@localhost SIP/2.0\r\n\
+        UtlString mwiSubscribe="SUBSCRIBE sip:111@";
+        mwiSubscribe.append(hostIp);
+        mwiSubscribe.append(" SIP/2.0\r\n\
 From: \"Dan Petrie\"<sip:111@example.com>;tag=1612c1612\r\n\
 To: \"Dan Petrie\"<sip:111@example.com>\r\n\
 Call-Id: e2aab34a72a0eb18300fbec445d5d665\r\n\
@@ -56,14 +60,15 @@ User-Agent: Pingtel/2.2.0 (VxWorks)\r\n\
 Accept-Language: en\r\n\
 Supported: sip-cc, sip-cc-01, timer, replaces\r\n\
 Content-Length: 0\r\n\
-\r\n";
+\r\n");
 
         const char* mwiStateString = "Messages-Waiting: no\r\n\
 Voice-Message: 0/0 (0/0)\r\n";
 
+
        UtlString eventName("message-summary");
        UtlString mwiMimeType("application/simple-message-summary");
-       SipUserAgent* userAgent = new SipUserAgent(UNIT_TEST_SIP_PORT, UNIT_TEST_SIP_PORT, 0, 0, NULL, "127.0.0.1" );
+       SipUserAgent* userAgent = new SipUserAgent(UNIT_TEST_SIP_PORT, UNIT_TEST_SIP_PORT, 0, 0, hostIp );
        userAgent->start();
        SipSubscribeServer* subServer = 
            SipSubscribeServer::buildBasicServer(*userAgent, 
@@ -120,10 +125,10 @@ Voice-Message: 0/0 (0/0)\r\n";
 
 
        // Send a subscribe to ourselves
-       UtlString resourceId("111@localhost");
+       UtlString resourceId("111@");
+       resourceId.append(hostIp);
        char portString[20];
-       sprintf(portString, "%d", UNIT_TEST_SIP_PORT);
-       resourceId.append(':');
+       sprintf(portString, ":%d", UNIT_TEST_SIP_PORT);
        resourceId.append(portString);
        UtlString aor("sip:");
        aor.append(resourceId);
@@ -217,22 +222,22 @@ Voice-Message: 0/0 (0/0)\r\n";
                            strlen(mwiStateString), 
                            mwiMimeType);
        HttpBody* newMwiBodyPtr = &newMwiBody;
-       HttpBody* oldMwiBody = NULL;
-       int numOldContent;
+       //HttpBody* oldMwiBody = NULL;
+       //int numOldContent;
        SipPublishContentMgr* publishMgr = subServer->getPublishMgr(eventName);
        CPPUNIT_ASSERT(publishMgr);
-       CPPUNIT_ASSERT(publishMgr->publish(resourceId, 
+       /*CPPUNIT_ASSERT(*/publishMgr->publish(resourceId, 
                                           eventName, 
                                           eventName, 
                                           1, 
-                                          &newMwiBodyPtr,
-                                          1, // max
-                                          numOldContent, 
-                                          &oldMwiBody));
+                                          &newMwiBodyPtr);
+                                          //1, // max
+                                          //numOldContent, 
+                                          //&oldMwiBody));
 
        // Should be no prior content for this resource or eventTypeKey
-       CPPUNIT_ASSERT(numOldContent == 0);
-       CPPUNIT_ASSERT(oldMwiBody == NULL);
+       //CPPUNIT_ASSERT(numOldContent == 0);
+       //CPPUNIT_ASSERT(oldMwiBody == NULL);
 
 
        // SHould get a NOFITY queued up
@@ -261,7 +266,7 @@ Voice-Message: 0/0 (0/0)\r\n";
        secondNotifyBody->getBytes(&notifyBodyBytes, &notifyBodySize);
        CPPUNIT_ASSERT(notifyBodyBytes);
        ASSERT_STR_EQUAL(mwiStateString, notifyBodyBytes);
-       CPPUNIT_ASSERT(notifyBodySize == strlen(mwiStateString));
+       CPPUNIT_ASSERT(notifyBodySize == (int)strlen(mwiStateString));
        CPPUNIT_ASSERT(notifyBodySize > 10);  // just to make sure both aren't null
        UtlString secondNotifyDialogHandle;
        secondNotify->getDialogHandle(secondNotifyDialogHandle);

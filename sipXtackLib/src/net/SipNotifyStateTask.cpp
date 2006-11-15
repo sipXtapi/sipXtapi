@@ -26,18 +26,10 @@
 #include "os/OsQueuedEvent.h"
 #include "os/OsEventMsg.h"
 #include "os/OsSysLog.h"
+#include "os/OsDefs.h"
 
 #ifdef _VXWORKS
-#include "pingerjni/JXAPI.h"
-#include "cmd/VersionCatalog.h"
-#include "cmd/CommandSecurityPolicy.h"
 #include "resparse/vxw/hd_string.h"
-#endif
-
-// DEFINES
-#ifdef WIN32
-#  define strcasecmp stricmp
-#  define strncasecmp strnicmp
 #endif
 
 // EXTERNAL FUNCTIONS
@@ -52,9 +44,6 @@
 struct tagRunScriptInfo
 {
    UtlString*              pContent ;
-#ifdef _VXWORKS
-   CommandSecurityPolicy* pPolicy ;
-#endif
 } ;   // Used to package data through the OsEvent/queue mechanism
 
 
@@ -552,11 +541,7 @@ UtlBoolean SipNotifyStateTask::handleMessage(OsMsg& eventMessage)
             if (pInfo != NULL)
             {
 // Ideally remove this dependency on phone library
-#ifdef _VXWORKS
-                doRunScript(pInfo->pContent, pInfo->pPolicy) ;
-#else
                 assert("OPENDEV PORT: Unexpected code path for softphone");
-#endif
                 delete pInfo ;
             }
         }
@@ -641,26 +626,8 @@ OsStatus SipNotifyStateTask::handleCheckSyncEvent(const SipMessage* source)
          (pContent != NULL))
    {
 #ifdef _VXWORKS
-      //
-      // Execute upgrade script
-      //
-      CommandSecurityPolicy *pPolicy = new CommandSecurityPolicy();
 
-      pPolicy->setPolicy(CommandSecurityPolicy::CPT_RESTRICTIVE) ;
-      pPolicy->permitCommand("reboot") ;
-      pPolicy->permitCommand("confirm") ;
-      pPolicy->permitCommand("factoryDefaults") ;
-      pPolicy->permitCommand("rm", "/flash0/cache.ser") ;
-      pPolicy->permitCommand("rm", "/flash0/app-config") ;
-      pPolicy->permitCommand("rm", "/flash0/user-config") ;
-      pPolicy->permitCommand("rm", "/flash0/pinger-config") ;
-      pPolicy->permitCommand("rm", "/flash0/config-config") ;
-      pPolicy->permitCommand("rm", "/flash0/local-config") ;
-      pPolicy->permitCommand("rm", "/flash0/upgrade-log") ;
-      pPolicy->permitCommand("rm", "/flash0/syslog.txt") ;
 
-      // Schedule the script to run immediately.
-      scheduleRunScript(pContent, pPolicy, 0) ;
       pContent = NULL ; // null out pContent so that we don't delete it now.
 #endif
    }
@@ -699,81 +666,6 @@ OsStatus SipNotifyStateTask::handleCheckSyncEvent(const SipMessage* source)
 
    return status ;
 }
-
-// Ideally remove this dependency for hardphone too
-#ifdef _VXWORKS
-
-// Schedule a restart sometime in the future
-UtlBoolean SipNotifyStateTask::scheduleRunScript(UtlString* pContent, CommandSecurityPolicy *pPolicy, int seconds)
-{
-   // Free the restart timer and event
-   if (mpRunScriptTimer != NULL)
-   {
-      mpRunScriptTimer->stop() ;
-      delete mpRunScriptTimer ;
-      mpRunScriptTimer = NULL ;
-   }
-   if (mpRunScriptEvent != NULL)
-   {
-      delete mpRunScriptEvent ;
-      mpRunScriptEvent = NULL ;
-   }
-
-   // Create a temp data structure to communicate with the handler
-   struct tagRunScriptInfo* pInfo = new struct tagRunScriptInfo ;
-   pInfo->pContent = pContent ;
-   pInfo->pPolicy = pPolicy ;
-
-   // Create the event/timer
-   mpRunScriptEvent = new OsQueuedEvent(*getMessageQueue(), 0) ;
-   mpRunScriptEvent->setUserData((int) pInfo) ;
-   mpRunScriptTimer = new OsTimer(*mpRunScriptEvent) ;
-
-   // Force a min of 1 seconds
-   if (seconds <= 0)
-      seconds = 1 ;
-
-   // Finally, set the timer
-   mpRunScriptTimer->oneshotAfter(OsTime(seconds, 0)) ;
-
-   return OS_SUCCESS ;
-}
-
-
-OsStatus SipNotifyStateTask::doRunScript(UtlString* pContent, CommandSecurityPolicy *pPolicy)
-{
-   OsStatus status ;
-
-   if (JXAPI_IsPhoneBusy())
-   {
-      syslog(FAC_UPGRADE, PRI_INFO,
-            "Phone busy; rescheduling check-sync script execution in %s seconds", RUN_SCRIPT_BUSY_DELAY) ;
-
-      // The phone is busy; reschedule the script until later
-      scheduleRunScript(pContent, pPolicy, RUN_SCRIPT_BUSY_DELAY) ;
-      status = OS_BUSY ;
-   }
-   else
-   {
-      syslog(FAC_UPGRADE, PRI_NOTICE,
-            "Executing check-sync script under resticted security policy") ;
-
-      // Perform the upgrade (this is blocking)
-#ifdef _VXWORKS
-      OsStatus status = VersionCatalog::installScript(*pContent, pPolicy) ;
-#else
-      assert("OPENDEV PORT:Unexpected code path");
-#endif
-
-      // Clean up
-      delete pContent ;
-      delete pPolicy ;
-   }
-
-   return status ;
-}
-
-#endif
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 UtlBoolean SipNotifyStateTask::getStatusTotalUrgent(const char* status,

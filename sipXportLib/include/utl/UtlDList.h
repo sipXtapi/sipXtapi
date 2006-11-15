@@ -37,6 +37,7 @@ class UtlDList : public UtlSList
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
+   static UtlContainableType TYPE ;    /** < Class type used for runtime checking */ 
    
    /**
     * Constructor
@@ -67,7 +68,6 @@ public:
    
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-   static UtlContainableType TYPE ;    /** < Class type used for runtime checking */ 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

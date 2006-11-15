@@ -167,7 +167,7 @@ UtlBoolean SipProtocolServerBase::startListener()
     UtlHashMapIterator iter(mServerSocketMap);
     UtlVoidPtr* pSocketContainer = NULL;
     UtlString* pKey;
-    while (pKey =(UtlString*)iter())
+    while ((pKey =(UtlString*)iter()))
     {
         OsSocket* pSocket = NULL;
         SipClient* pServer = NULL;
@@ -341,7 +341,7 @@ int SipProtocolServerBase::isOk()
     UtlVoidPtr* pServerContainer = NULL;
     UtlString* pKey = NULL;
     
-    while (pKey = (UtlString*)iterator())
+    while ((pKey = (UtlString*)iterator()))
     {
         pServerContainer = (UtlVoidPtr*)iterator.value();
         if (pServerContainer)
@@ -527,16 +527,18 @@ void SipProtocolServerBase::deleteClient(SipClient* sipClient)
     }
     mClientList.releaseIteratorHandle(iteratorHandle);
 
-        // Delete the client outside the lock on the list as
-        // it can create a deadlock.  If the client is doing
-        // an operation that requires the locking list, the
-        // client gets blocked from shutting down.  We then
-        // block here trying to delete the client forever.
-        if(client)
-        {
+    // Delete the client outside the lock on the list as
+    // it can create a deadlock.  If the client is doing
+    // an operation that requires the locking list, the
+    // client gets blocked from shutting down.  We then
+    // block here trying to delete the client forever.
+    if(client)
+    {
+         OsSysLog::add(FAC_SIP, PRI_DEBUG, "Sip%sServer::deleteClient(%p) done",
+                      mProtocolString.data(), sipClient);
                 delete client;
         client = NULL;
-        }
+    }
 
 #ifdef TEST_PRINT
     OsSysLog::add(FAC_SIP, PRI_DEBUG, "Sip%sServer::deleteClient(%p) done",
@@ -556,10 +558,7 @@ void SipProtocolServerBase::removeOldClients(long oldTime)
     SipClient** deleteClientArray = NULL;
 
 
-#ifdef TEST_PRINT
     UtlString clientNames;
-#endif
-
     while ((client = (SipClient*)mClientList.next(iteratorHandle)))
     {
         if(client->isInUseForWrite()) numBusy++;
@@ -572,21 +571,20 @@ void SipProtocolServerBase::removeOldClients(long oldTime)
         // opened as servers for requests from the remote side are
         // explicitly closed on this side when the final response is
         // sent.
-        if(!client->isInUseForWrite() &&
-            (!client->isOk()
-           || client->getLastTouchedTime() < oldTime))
+        if(   ! client->isInUseForWrite() // can't remove it if writing to it...
+           && (   ! client->isOk() // socket is bad
+               || client->getLastTouchedTime() < oldTime // idle for long enough
+               )
+           )
         {
-#ifdef TEST_PRINT
             client->getClientNames(clientNames);
+#ifdef TEST_PRINT
             osPrintf("Removing %s client names:\n%s\r\n",
                 mProtocolString.data(), clientNames.data());
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "Removing %s client names:\n%s\r",
-                mProtocolString.data(), clientNames.data());
-            int isBusy = client->isInUseForWrite();
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                        "Sip%sServerBase::removeOldClients %p isInUseForWrite %d",
-                        mProtocolString.data(), client, isBusy);
 #endif
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, "Sip%sServer::Removing old client %p:\n%s\r",
+                          mProtocolString.data(), client, clientNames.data());
+
             mClientList.remove(iteratorHandle);
             // Delete the clients after releasing the lock
             if(!deleteClientArray) deleteClientArray =
@@ -599,10 +597,12 @@ void SipProtocolServerBase::removeOldClients(long oldTime)
         }
         else
         {
+#           ifdef TEST_PRINT
             UtlString names;
             client->getClientNames(names);
             OsSysLog::add(FAC_SIP, PRI_DEBUG, "Sip%sServer::removeOldClients leaving client:\n%s",
                 mProtocolString.data(), names.data());
+#           endif
         }
     }
     mClientList.releaseIteratorHandle(iteratorHandle);

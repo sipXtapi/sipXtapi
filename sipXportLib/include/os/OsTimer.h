@@ -110,6 +110,8 @@ public:
          STARTED                 ///< timer is running and will fire.
    };
 
+   static UtlContainableType TYPE;  /**< Class type used for runtime checking */
+
 /* ============================ CREATORS ================================== */
 
    /** @name Constructors
@@ -239,9 +241,6 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-
-   static UtlContainableType TYPE;
-   /**< Class type used for runtime checking */
 
    /// type for absolute time
    typedef INT64 Time;

@@ -20,6 +20,7 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+const UtlContainableType TYPE = "ResourceList";
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -105,11 +106,9 @@ unsigned int Resource::hash() const
 }
 
 
-static UtlContainableType DB_ENTRY_TYPE = "ResourceList";
-
 const UtlContainableType Resource::getContainableType() const
 {
-    return DB_ENTRY_TYPE;
+    return TYPE;
 }
 
 
@@ -243,7 +242,7 @@ Resource* SipResourceList::getResource(UtlString& resourceUri)
    UtlHashMapIterator resourceIterator(mResources);
    Resource* pResource;
    UtlString foundValue;
-   while (pResource = (Resource *) resourceIterator())
+   while ((pResource = (Resource *) resourceIterator()))
    {
       pResource->getResourceUri(foundValue);
       
@@ -354,7 +353,7 @@ void SipResourceList::buildBody() const
    ((SipResourceList*)this)->mLock.acquire();
    UtlHashMapIterator resourceIterator(mResources);
    Resource* pResource;
-   while (pResource = (Resource *) resourceIterator())
+   while ((pResource = (Resource *) resourceIterator()))
    {
       UtlString uriStr;
       pResource->getResourceUri(uriStr);

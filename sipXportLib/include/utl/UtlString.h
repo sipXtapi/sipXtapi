@@ -58,6 +58,8 @@ class UtlString : public UtlContainable
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
+    static UtlContainableType TYPE;    /** < Class type used for runtime checking */
+
     static const char* ssNull;
 
     static const size_t UTLSTRING_NOT_FOUND; ///< Returned from a search that failed.
@@ -650,7 +652,6 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-    static UtlContainableType TYPE;    /** < Class type used for runtime checking */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

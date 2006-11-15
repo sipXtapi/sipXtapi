@@ -379,7 +379,8 @@ typedef void (*sipxCallEventCallbackFn)(const void* pSrc,
                                         const char* szRemoteAddress,
                                         SIPX_CALLSTATE_EVENT event,
                                         SIPX_CALLSTATE_CAUSE cause,
-                                        void* pEventData);
+                                        void* pEventData,
+                                        const char* assertedIdentity);
 
 typedef void (*sipxMediaCallbackFn)(const void*      pSrc,
                                     const char*      szCallId,
@@ -392,7 +393,8 @@ typedef void (*sipxMediaCallbackFn)(const void*      pSrc,
 typedef void (*sipxLineEventCallbackFn)(const void* pSrc,
                                         const char* szLineIdentifier,
                                         SIPX_LINESTATE_EVENT event,
-                                        SIPX_LINESTATE_CAUSE cause);	
+                                        SIPX_LINESTATE_CAUSE cause,
+                                        const char *bodyBytes);	
 
 
 typedef bool (*sipxEventCallbackFn)(const void* pSrc,
@@ -448,7 +450,8 @@ void sipxFireCallEvent(const void* pSrc,
                        const char* szRemoteAddress,
                        SIPX_CALLSTATE_EVENT event,
                        SIPX_CALLSTATE_CAUSE cause,
-                       void* pEventData=NULL) ;
+                       void* pEventData=NULL,
+                       const char* szRemoteAssertedIdentity = NULL) ;
 
 /**
  * Fires events to interested listener (media events only)
@@ -480,7 +483,8 @@ void sipxFireKeepaliveEvent(const void*          pSrc,
 void sipxFireLineEvent(const void* pSrc,
                        const char* szLineIdentifier,
                        SIPX_LINESTATE_EVENT event,
-                       SIPX_LINESTATE_CAUSE cause);
+                       SIPX_LINESTATE_CAUSE cause,
+                       const char *bodyBytes = NULL);
 
 /**
  * Bubbles up all non-line and non-call events to the application layer

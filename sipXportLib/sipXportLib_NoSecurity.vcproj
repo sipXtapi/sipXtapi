@@ -1690,6 +1690,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\utl\UtlContainableAtomic.cpp">
+			</File>
+			<File
 				RelativePath="src\utl\UtlContainer.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -2206,25 +2209,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\utl\XmlContent.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
+				RelativePath=".\src\utl\XmlContent.cpp">
 			</File>
 		</Filter>
 		<Filter

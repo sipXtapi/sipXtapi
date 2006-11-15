@@ -23,7 +23,7 @@
 #include <os/OsMsgQ.h>
 #include <net/Url.h>
 #include <net/SipSrvLookup.h>
-
+#include <utl/UtlSList.h>
 
 // DEFINES
 // MACROS
@@ -337,7 +337,7 @@ private:
                           UtlString& toAddress,
                           int& port,
                           OsSocket::IpProtocolSocketType& toProtocol,
-                          SIPX_TRANSPORT_DATA* pTransport = NULL);
+                          SIPX_TRANSPORT_DATA* pTransport);
 
     void prepareRequestForSend(SipMessage& request,
                                SipUserAgent& userAgent,
