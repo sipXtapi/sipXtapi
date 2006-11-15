@@ -43,10 +43,6 @@ libsipXcall_la_SOURCES = \
     cp/CpPeerCall.cpp \
     cp/CpStringMessage.cpp \
     cp/SipConnection.cpp \
-    cp/DialogEventPublisher.cpp \
-    cp/LinePresenceMonitor.cpp \
-    cp/PresenceDialInServer.cpp \
-    cp/SipPresenceMonitor.cpp \
     ptapi/PtAddessCapabilities.cpp \
     ptapi/PtAddress.cpp \
     ptapi/PtAddressForwarding.cpp \
