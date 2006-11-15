@@ -4176,6 +4176,9 @@
 				RelativePath=".\include\cp\CSeqManager.h">
 			</File>
 			<File
+				RelativePath=".\include\cp\DialogEventPublisher.h">
+			</File>
+			<File
 				RelativePath="include\ps\PsButtonId.h">
 			</File>
 			<File
