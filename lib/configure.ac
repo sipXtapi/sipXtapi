@@ -72,11 +72,6 @@ AC_ARG_ENABLE(pcre,
 	[ pcre=${enableval} ])
 test x$pcre = xyes && AC_CONFIG_SUBDIRS(pcre)
 
-AC_ARG_ENABLE(ruby,
-	AC_HELP_STRING([--enable-ruby], [Build ruby dependency]),
-	[ ruby=${enableval} ])
-test x$ruby = xyes && AC_CONFIG_SUBDIRS(ruby)
-
 AC_ARG_ENABLE(ruby-dbi,
 	AC_HELP_STRING([--enable-ruby-dbi], [Build ruby dbi dependency]),
 	[ ruby_dbi=${enableval} ])
@@ -91,11 +86,6 @@ AC_ARG_ENABLE(ruby-postgres,
 	AC_HELP_STRING([--enable-ruby-postgres], [Build ruby postgres dependency]),
 	[ ruby_postgres=${enableval} ])
 test x$ruby_postgres = xyes && AC_CONFIG_SUBDIRS(ruby-postgres)
-
-AC_ARG_ENABLE(ruby-rails,
-	AC_HELP_STRING([--enable-ruby-rails], [Build ruby rails dependency]),
-	[ ruby_rails=${enableval} ])
-test x$ruby_rails = xyes && AC_CONFIG_SUBDIRS(ruby-rails)
 
 AC_ARG_ENABLE(w3c-libwww,
 	AC_HELP_STRING([--enable-w3c-libwww], [Build w3c-libwww w/ssl dependency]),
