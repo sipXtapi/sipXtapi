@@ -59,17 +59,17 @@
   #define TEST_UTILS              0
   #define TEST_PROBLEMATIC_CASES  0  
 #else
-  #define TEST_AUDIO              0
-  #define TEST_LINE               0
-  #define TEST_CALL               0
-  #define TEST_CALL_HOLD          0
-  #define TEST_CONF               0
-  #define TEST_REG                0
-  #define TEST_TRANSFER           0
-  #define TEST_TRANSFER_ADVANCED  0
-  #define TEST_CONFIG             0
+  #define TEST_AUDIO              1
+  #define TEST_LINE               1
+  #define TEST_CALL               1
+  #define TEST_CALL_HOLD          1
+  #define TEST_CONF               1
+  #define TEST_REG                1
+  #define TEST_TRANSFER           1
+  #define TEST_TRANSFER_ADVANCED  1
+  #define TEST_CONFIG             1
   #define TEST_SUBSCRIBE          0
-  #define TEST_NAT                0
+  #define TEST_NAT                1
   #define TEST_UTILS              1  
   #define TEST_PROBLEMATIC_CASES  0
 #endif /* _WIN32 */
@@ -249,7 +249,9 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
     CPPUNIT_TEST(testConfigOutOfBand) ;
 #endif
 #endif
+#ifdef _WIN32
     CPPUNIT_TEST(testConfigLog) ;
+#endif
     CPPUNIT_TEST(testConfigEnableShortNames);
     CPPUNIT_TEST(testTeardown);
     CPPUNIT_TEST(testTeardown);

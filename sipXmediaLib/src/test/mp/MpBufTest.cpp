@@ -65,22 +65,22 @@ public:
       // Allocate (BUFFER_NUM+1) buffers. First BUFFER_NUM must be valid, other
       // must not be valid.
 
-      MpBufPtr p1 = mpPool->obtainBuffer();
+      MpBufPtr p1 = mpPool->getBuffer();
       CPPUNIT_ASSERT(p1.isValid());
 
-      MpBufPtr p2 = mpPool->obtainBuffer();
+      MpBufPtr p2 = mpPool->getBuffer();
       CPPUNIT_ASSERT(p2.isValid());
 
-      MpBufPtr p3 = mpPool->obtainBuffer();
+      MpBufPtr p3 = mpPool->getBuffer();
       CPPUNIT_ASSERT(p3.isValid());
 
-      MpBufPtr p4 = mpPool->obtainBuffer();
+      MpBufPtr p4 = mpPool->getBuffer();
       CPPUNIT_ASSERT(p4.isValid());
 
-      MpBufPtr p5 = mpPool->obtainBuffer();
+      MpBufPtr p5 = mpPool->getBuffer();
       CPPUNIT_ASSERT(p5.isValid());
 
-      MpBufPtr p6 = mpPool->obtainBuffer();
+      MpBufPtr p6 = mpPool->getBuffer();
       CPPUNIT_ASSERT(!p6.isValid());
    }
 
@@ -91,7 +91,7 @@ public:
       MpAudioSample *pSamples;
 
       // Create buffer 1
-      MpAudioBufPtr buf1 = mpPool->obtainBuffer();
+      MpAudioBufPtr buf1 = mpPool->getBuffer();
       CPPUNIT_ASSERT(buf1.isValid());
 
       // Fill buffer 1
@@ -101,7 +101,7 @@ public:
       }
 
       // Create buffer 2
-      MpAudioBufPtr buf2 = mpPool->obtainBuffer();
+      MpAudioBufPtr buf2 = mpPool->getBuffer();
       CPPUNIT_ASSERT(buf2.isValid());
 
       // Fill buffer 2
@@ -128,9 +128,9 @@ public:
       // Allocate two data buffers and exchange data between them.
 
       // Create buffers
-      MpDataBufPtr buf1 = mpPool->obtainBuffer();
+      MpDataBufPtr buf1 = mpPool->getBuffer();
       CPPUNIT_ASSERT(buf1.isValid());
-      MpDataBufPtr buf2 = mpPool->obtainBuffer();
+      MpDataBufPtr buf2 = mpPool->getBuffer();
       CPPUNIT_ASSERT(buf2.isValid());
 
       // Copy data from one to other:
@@ -145,9 +145,9 @@ public:
       // Allocate two data buffers and assign one to other.
 
       // Create buffers
-      MpDataBufPtr buf1 = mpPool->obtainBuffer();
+      MpDataBufPtr buf1 = mpPool->getBuffer();
       CPPUNIT_ASSERT(buf1.isValid());
-      MpDataBufPtr buf2 = mpPool->obtainBuffer();
+      MpDataBufPtr buf2 = mpPool->getBuffer();
       CPPUNIT_ASSERT(buf2.isValid());
 
       // Check assignment operator
@@ -164,7 +164,7 @@ public:
       MpBufPtr parent;
 
       // Create buffer 1
-      MpAudioBufPtr buf1 = mpPool->obtainBuffer();
+      MpAudioBufPtr buf1 = mpPool->getBuffer();
       CPPUNIT_ASSERT(buf1.isValid());
 
       MpBufPtr parentCopy(buf1);
@@ -193,12 +193,12 @@ public:
 
       // Create clone of invalid pointer
       CPPUNIT_ASSERT(!buf1.isValid());
-      buf2 = buf1.makeClone();
+      buf2 = buf1.clone();
       CPPUNIT_ASSERT(!buf1.isValid());
       CPPUNIT_ASSERT(!buf2.isValid());
 
       // Get real buffer
-      buf1 = mpPool->obtainBuffer();
+      buf1 = mpPool->getBuffer();
       CPPUNIT_ASSERT(buf1.isValid());
 
       // Fill buffer 1
@@ -208,7 +208,7 @@ public:
       }
 
       // Clone buffer 1 to buffer 2
-      buf2 = buf1.makeClone();
+      buf2 = buf1.clone();
       CPPUNIT_ASSERT(buf2.isValid());
 
       // Clone must be located in different buffer.
@@ -233,7 +233,7 @@ public:
       CPPUNIT_ASSERT(!buf1.requestWrite());
 
       // Get real buffer
-      buf1 = mpPool->obtainBuffer();
+      buf1 = mpPool->getBuffer();
       CPPUNIT_ASSERT(buf1.isValid());
 
       // With only one reference requestWrite() should just return true.

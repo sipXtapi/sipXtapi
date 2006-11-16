@@ -42,10 +42,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="sipXtapi.lib odbc32.lib odbccp32.lib"
-				OutputFile=".\Release/CheckVMail.exe"
+				OutputFile="..\bin\CheckVMail.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="..\..\sipxTapi\Release\"
+				AdditionalLibraryDirectories="..\lib"
 				ProgramDatabaseFile=".\Release/CheckVMail.pdb"
 				SubSystem="1"
 				TargetMachine="1"/>
@@ -105,7 +105,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="sipXtapid.lib odbc32.lib odbccp32.lib"
-				OutputFile=".\Debug/CheckVMail.exe"
+				OutputFile="..\bin\CheckVMail.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\lib"

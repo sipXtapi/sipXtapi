@@ -214,22 +214,23 @@ public:
        pMsg->setMsgSubType(MpBufferMsg::AUD_RECORDED);
 
        // Fill message with buffer. Set audio type to muted.
-       pBuf = MpMisc.UcbPool->obtainBuffer();
+       pBuf = MpMisc.RawAudioPool->getBuffer();
        CPPUNIT_ASSERT(pBuf.isValid());
        memset(pBuf->getSamples(), 0,
               pBuf->getSamplesNumber()*sizeof(MpAudioSample));
        pBuf->setSpeechType(MpAudioBuf::MP_SPEECH_UNKNOWN);
-       pMsg->setTag(pBuf);
+       pMsg->setBuffer(pBuf);
 
        // Send message to queue. MprFromMic should receive it.
-       res = pMsgQ->send(*pMsg, OsTime::NO_WAIT);
+       res = pMsgQ->send(*pMsg, OsTime::OS_INFINITY);
        CPPUNIT_ASSERT(res == OS_SUCCESS);
 
        res = mpFlowGraph->processNextFrame();
        CPPUNIT_ASSERT(res == OS_SUCCESS);
 
        // Buffer is read from queue
-       CPPUNIT_ASSERT(mpSinkResource->mLastDoProcessArgs.inBufs[0] == pBuf);
+       CPPUNIT_ASSERT(mpSinkResource->mLastDoProcessArgs.inBufs[0].isValid());
+       CPPUNIT_ASSERT(pMsgQ->isEmpty());
 
        // Free message and buffer
        if (!pMsg->isMsgReusable())
@@ -248,22 +249,23 @@ public:
        pMsg->setMsgSubType(MpBufferMsg::AUD_RECORDED);
 
        // Fill message with buffer. Set audio type to muted.
-       pBuf = MpMisc.UcbPool->obtainBuffer();
+       pBuf = MpMisc.RawAudioPool->getBuffer();
        CPPUNIT_ASSERT(pBuf.isValid());
        memset(pBuf->getSamples(), 0,
               pBuf->getSamplesNumber()*sizeof(MpAudioSample));
        pBuf->setSpeechType(MpAudioBuf::MP_SPEECH_UNKNOWN);
-       pMsg->setTag(pBuf);
+       pMsg->setBuffer(pBuf);
 
        // Send message to queue. MprFromMic should receive it.
-       res = pMsgQ->send(*pMsg, OsTime::NO_WAIT);
+       res = pMsgQ->send(*pMsg, OsTime::OS_INFINITY);
        CPPUNIT_ASSERT(res == OS_SUCCESS);
 
        res = mpFlowGraph->processNextFrame();
        CPPUNIT_ASSERT(res == OS_SUCCESS);
 
        // Buffer is read from queue
-       CPPUNIT_ASSERT(mpSinkResource->mLastDoProcessArgs.inBufs[0] == pBuf);
+       CPPUNIT_ASSERT(mpSinkResource->mLastDoProcessArgs.inBufs[0].isValid());
+       CPPUNIT_ASSERT(pMsgQ->isEmpty());
 
        // Free message and buffer
        if (!pMsg->isMsgReusable())

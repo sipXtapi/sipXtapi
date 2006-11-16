@@ -212,10 +212,10 @@ public:
        res = mpFlowGraph->processNextFrame();
        CPPUNIT_ASSERT(res == OS_SUCCESS);
 
-       // Get messages from the queues
-       res = pSpkQ->receive((OsMsg*&)pSpkMsg, OsTime::NO_WAIT);
+       // Get messages from the queues (wait for 1 second)
+       res = pSpkQ->receive((OsMsg*&)pSpkMsg, OsTime(1000));
        CPPUNIT_ASSERT(res == OS_SUCCESS);
-       res = pEchoQ->receive((OsMsg*&)pEchoMsg, OsTime::NO_WAIT);
+       res = pEchoQ->receive((OsMsg*&)pEchoMsg, OsTime(1000));
        CPPUNIT_ASSERT(res == OS_SUCCESS);
 
        // Store output buffer for convenience
@@ -223,8 +223,8 @@ public:
 
        // Buffer is sent to queues and to output
        CPPUNIT_ASSERT(  (mpSinkResource->mLastDoProcessArgs.inBufs[0] == pBuf)
-                     && (pSpkMsg->getTag() == pBuf)
-                     && (pEchoMsg->getTag() == pBuf)
+                     && (pSpkMsg->getBuffer().isValid())
+                     && (pEchoMsg->getBuffer() == pBuf)
                      );
 
        // Free received message and stored buffer
@@ -282,9 +282,9 @@ public:
        CPPUNIT_ASSERT(res == OS_SUCCESS);
 
        // Get messages from the queues
-       res = pSpkQ->receive((OsMsg*&)pSpkMsg, OsTime::NO_WAIT);
+       res = pSpkQ->receive((OsMsg*&)pSpkMsg, OsTime(1000));
        CPPUNIT_ASSERT(res == OS_SUCCESS);
-       res = pEchoQ->receive((OsMsg*&)pEchoMsg, OsTime::NO_WAIT);
+       res = pEchoQ->receive((OsMsg*&)pEchoMsg, OsTime(1000));
        CPPUNIT_ASSERT(res == OS_SUCCESS);
 
        // Store output buffer for convenience
@@ -292,8 +292,8 @@ public:
 
        // Buffer is failed to send to queues, but appears on the output
        CPPUNIT_ASSERT(  (mpSinkResource->mLastDoProcessArgs.inBufs[0] == pBuf[1])
-                     && (pSpkMsg->getTag() == pBuf[0])
-                     && (pEchoMsg->getTag() == pBuf[0])
+                     && (pSpkMsg->getBuffer().isValid())
+                     && (pEchoMsg->getBuffer() == pBuf[0])
                      );
 
        // Free received message and stored buffer

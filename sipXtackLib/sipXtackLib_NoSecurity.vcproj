@@ -1628,6 +1628,21 @@
 						BrowseInformation="1"/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\src\net\XmlRpcBody.cpp">
+			</File>
+			<File
+				RelativePath=".\src\net\XmlRpcDispatch.cpp">
+			</File>
+			<File
+				RelativePath=".\src\net\XmlRpcMethod.cpp">
+			</File>
+			<File
+				RelativePath=".\src\net\XmlRpcRequest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\net\XmlRpcResponse.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

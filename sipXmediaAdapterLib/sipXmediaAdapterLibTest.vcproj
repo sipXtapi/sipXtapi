@@ -23,7 +23,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\sipXportLib\src\test,..\sipXportLib\include,..\sipXportLib\include\glib,include,..\sipXcallLib\include"
+				AdditionalIncludeDirectories="..\sipXportLib\src\test;..\sipXportLib\include;..\sipXcallLib\include;..\sipXportLib\include\glib;include;..\CPPUnit\include"
 				PreprocessorDefinitions="NDEBUG;DONT_USE_LONG_LONG;WIN32;_CONSOLE;DISABLE_MEM_POOLS"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -40,10 +40,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\sipXportLib\Release\sipXportLib.lib Release\sipXtackLib.lib zlib.lib odbc32.lib odbccp32.lib wsock32.lib libpcre.a cppunitd_dll.lib"
+				AdditionalDependencies="sipXportLib.lib sipXtackLib.lib sipXmediaLib.lib sipXmediaMediaProcessing.lib cppunit.lib zlib.lib odbc32.lib odbccp32.lib wsock32.lib pcre.lib libspeex.lib"
 				OutputFile=".\Release/sipXmediaAdapterLibTest.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories="..\sipXportLib\Release\;..\sipXtackLib\Release\;..\sipXmediaLib\Release\;sipXmediaMediaProcessing\Release\;..\CPPUnit\lib;..\Speex\lib"
 				IgnoreDefaultLibraryNames="LIBCMTD.lib,LIBCMT.lib,MSVCRT"
 				ProgramDatabaseFile=".\Release/sipXmediaAdapterLibTest.pdb"
 				SubSystem="1"
@@ -84,7 +85,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\sipXportLib\src\test,..\sipXportLib\include,..\sipXportLib\include\glib,interface,include,..\sipXtackLib\include"
+				AdditionalIncludeDirectories="..\sipXportLib\src\test;..\sipXportLib\include;..\sipXcallLib\include;..\sipXportLib\include\glib;interface;include;..\sipXtackLib\include;..\CPPUnit\include"
 				PreprocessorDefinitions="_DEBUG;DONT_USE_LONG_LONG;WIN32;_CONSOLE;DISABLE_MEM_POOLS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -101,10 +102,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\sipXportLib\Debug\sipXportLib.lib ..\sipXtackLib\Debug\sipXtackLib.lib ..\sipXmediaLib\Debug\sipXmediaLib.lib sipXmediaMediaProcessing\Debug\sipXmediaMediaProcessing.lib cppunitd.lib wsock32.lib libpcre.a winmm.lib"
+				AdditionalDependencies="sipXportLib.lib sipXtackLib.lib sipXmediaLib.lib sipXmediaMediaProcessing.lib cppunitd.lib wsock32.lib pcre.lib winmm.lib libspeex.lib"
 				OutputFile=".\Debug/sipXmediaAdapterLibTest.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories="..\sipXportLib\Debug\;..\sipXtackLib\Debug\;..\sipXmediaLib\Debug\;sipXmediaMediaProcessing\Debug\;..\CPPUnit\lib;..\Speex\lib"
 				IgnoreDefaultLibraryNames="LIBCMTD.lib,LIBCMT.lib,MSVCRT"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile=".\Debug/sipXmediaAdapterLibTest.pdb"
