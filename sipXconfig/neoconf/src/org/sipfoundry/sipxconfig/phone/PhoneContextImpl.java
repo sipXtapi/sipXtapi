@@ -320,7 +320,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     }
 
     public Collection<PhonebookEntry> getPhonebookEntries(Phone phone) {
-        Collection<PhonebookEntry> entries = (Collection<PhonebookEntry>) Collections.EMPTY_LIST;
+        Collection<PhonebookEntry> entries = Collections.emptyList();
         Line initialLine = phone.getLine(0);
         if (initialLine != null) {
             User user = initialLine.getUser();

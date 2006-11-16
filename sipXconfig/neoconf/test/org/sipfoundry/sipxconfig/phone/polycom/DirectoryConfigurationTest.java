@@ -66,7 +66,7 @@ public class DirectoryConfigurationTest extends XMLTestCase {
         phonebookEntryControl.andReturn("210");
         phonebookEntryControl.replay();
 
-        Collection<PhonebookEntry> entries = (Collection<PhonebookEntry>) Collections.singleton(phonebookEntry);
+        Collection<PhonebookEntry> entries = Collections.singleton(phonebookEntry);
         DirectoryConfiguration dir = new DirectoryConfiguration(m_phone, entries);
         dir.setVelocityEngine(TestHelper.getVelocityEngine());
         
@@ -78,7 +78,7 @@ public class DirectoryConfigurationTest extends XMLTestCase {
         Reader generatedXml = new CharArrayReader(out.toCharArray());
 
         // helpful debug
-        System.out.println(new String(out.toCharArray()));
+        // System.out.println(new String(out.toCharArray()));
 
         // also helpful
         // Writer w = new FileWriter("/tmp/delme");

@@ -94,7 +94,7 @@ public abstract class EditPhonebook extends PageWithCallback implements PageBegi
             
             Set<Group> consumers = phonebook.getConsumers();
             String consumersString = BeanWithGroups.getGroupsAsString(consumers);
-            setMemberGroupsString(consumersString);    
+            setConsumerGroupsString(consumersString);    
         }
     }
 }

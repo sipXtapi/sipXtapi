@@ -94,8 +94,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     }
     
     public Collection<PhonebookEntry> getRows(User consumer) {
-        // TODO
-        return (Collection<PhonebookEntry>) Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
     
     public Collection<PhonebookEntry> getRows(Phonebook phonebook) {
