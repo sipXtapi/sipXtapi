@@ -22,13 +22,10 @@ import java.io.Writer;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
-import org.easymock.EasyMock;
-import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.phone.RestartException;
-import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class PolycomPhoneTest extends TestCase {
@@ -47,12 +44,7 @@ public class PolycomPhoneTest extends TestCase {
     }
 
     public void testGenerateProfiles() throws Exception {
-        IMocksControl phonebookManagerControl = EasyMock.createNiceControl();
-        PhonebookManager phonebookManager = phonebookManagerControl.createMock(PhonebookManager.class);        
-        phonebookManagerControl.replay();
-
         m_phone.setVelocityEngine(TestHelper.getVelocityEngine());
-        m_phone.setPhonebookManager(phonebookManager);
         ApplicationConfiguration cfg = new ApplicationConfiguration(m_phone);
         m_phone.generateProfiles();
 
@@ -62,8 +54,6 @@ public class PolycomPhoneTest extends TestCase {
 
         m_phone.removeProfiles();
         assertFalse(file.exists());
-
-        phonebookManagerControl.verify();
     }
 
     public void testRestartFailureNoLine() throws Exception {

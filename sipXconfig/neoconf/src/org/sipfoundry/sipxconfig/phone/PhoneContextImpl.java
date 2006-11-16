@@ -30,6 +30,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -325,7 +326,8 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         if (initialLine != null) {
             User user = initialLine.getUser();
             if (user != null) {
-                entries = getPhonebookManager().getRows(user);
+                Collection<Phonebook> books = getPhonebookManager().getPhonebooksByUser(user); 
+                entries = getPhonebookManager().getRows(books);                
             }
         }
 

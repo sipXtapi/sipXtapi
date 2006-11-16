@@ -21,14 +21,15 @@ public interface PhonebookManager  {
     
     public Collection<Phonebook> getPhonebooks();
 
+    public Collection<Phonebook> getPhonebooksByUser(User user);
+    
     public Phonebook getPhonebook(Integer phonebookId);
     
     public void savePhonebook(Phonebook phonebook);
 
     public String getExternalUsersDirectory();
     
-    public Collection<PhonebookEntry> getRows(Phonebook phonebook);
+    public Collection<PhonebookEntry> getRows(Collection<Phonebook> phonebook);
 
-    public Collection<PhonebookEntry> getRows(User consumer);
-    
+    public Collection<PhonebookEntry> getRows(Phonebook phonebook);
 }

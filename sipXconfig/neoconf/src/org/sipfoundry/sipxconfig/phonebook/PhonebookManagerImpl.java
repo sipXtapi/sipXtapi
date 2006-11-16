@@ -19,9 +19,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.commons.collections.Closure;
 import org.sipfoundry.sipxconfig.bulk.csv.CsvParser;
@@ -33,7 +33,6 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.setting.Group;
 
-// auto packaging messes this import up
 import static org.apache.commons.lang.StringUtils.defaultString;
 
 public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> implements PhonebookManager {
@@ -93,19 +92,33 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         m_externalUsersDirectory = externalUsersDirectory;
     }
     
-    public Collection<PhonebookEntry> getRows(User consumer) {
-        return Collections.emptyList();
+    public Collection<Phonebook> getPhonebooksByUser(User consumer) {
+        Collection<Phonebook> books = getHibernateTemplate().findByNamedQueryAndNamedParam("phoneBooksByUser", 
+                "userId", consumer.getId());
+        return books;
+    }
+    
+    public Collection<PhonebookEntry> getRows(Collection<Phonebook> phonebooks) {
+        if (phonebooks.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, PhonebookEntry> entries = new TreeMap();
+        for (Phonebook phonebook : phonebooks) {
+            for (PhonebookEntry entry : getRows(phonebook)) {
+                entries.put(entry.getNumber(), entry);
+            }
+        }
+        return entries.values();
     }
     
     public Collection<PhonebookEntry> getRows(Phonebook phonebook) {
-        Map<String, PhonebookEntry> entries = new HashMap();
+        Map<String, PhonebookEntry> entries = new TreeMap();
         Collection<Group> members = phonebook.getMembers();
         if (members != null) {
             for (Group group : members) {
                 for (User user : m_coreContext.getGroupMembers(group)) {
                     PhonebookEntry entry = new UserPhonebookEntry(user);
-                    String number = entry.getNumber();
-                    entries.put(number, entry); 
+                    entries.put(entry.getNumber(), entry); 
                 }
             }
         }

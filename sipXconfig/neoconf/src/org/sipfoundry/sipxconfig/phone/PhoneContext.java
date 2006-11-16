@@ -105,7 +105,10 @@ public interface PhoneContext extends DataObjectSource {
     public Intercom getIntercomForPhone(Phone phone);
     
     /**
-     * Phonebook/Directory/Speedial entries for this phone
+     * Phonebook/Directory/Speedial entries for this phone.  Current algorithm is to find the user
+     * associated with the first line, find the groups for that user and see if they are in any
+     * of the phone book consumer user groups. 
+     * 
      * @return empty collection of no entries 
      */
     public Collection<PhonebookEntry> getPhonebookEntries(Phone phone);

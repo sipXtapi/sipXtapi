@@ -35,7 +35,6 @@ import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
-import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 /**
@@ -51,7 +50,6 @@ public class PolycomPhone extends Phone {
     private static final String PASSWORD_PATH = "reg/auth.password";
     private static final String USER_ID_PATH = "reg/address";
     private static final String AUTHORIZATION_ID_PATH = "reg/auth.userId";
-    private PhonebookManager m_phonebookManager;
     private String m_phoneConfigDir = "polycom/mac-address.d";
     private String m_phoneTemplate = m_phoneConfigDir + "/phone.cfg.vm";
     private String m_sipTemplate = m_phoneConfigDir + "/sip-%s.cfg.vm";
@@ -143,16 +141,10 @@ public class PolycomPhone extends Phone {
 
         app.deleteStaleDirectories();
 
-        Line initialLine = getLine(0);
-        if (initialLine != null) {
-            User user = initialLine.getUser();
-            if (user != null) {
-                Collection<PhonebookEntry>entries = m_phonebookManager.getRows(user);
-                if (entries != null && entries.size() > 0) {
-                    DirectoryConfiguration dir = new DirectoryConfiguration(this, entries);
-                    generateProfile(dir, getDirectoryTemplate(), app.getDirectoryFilename());
-                }
-            }
+        Collection<PhonebookEntry> entries = getPhoneContext().getPhonebookEntries(this);
+        if (entries != null && entries.size() > 0) {
+            DirectoryConfiguration dir = new DirectoryConfiguration(this, entries);
+            generateProfile(dir, getDirectoryTemplate(), app.getDirectoryFilename());
         }
     }
 
@@ -454,10 +446,6 @@ public class PolycomPhone extends Phone {
 
     public void restart() {
         sendCheckSyncToFirstLine();
-    }
-
-    public void setPhonebookManager(PhonebookManager phonebookManager) {
-        m_phonebookManager = phonebookManager;
     }
 
     public String getDirectoryTemplate() {

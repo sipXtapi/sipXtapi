@@ -20,5 +20,8 @@
       <key column="phonebook_id"/>
       <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group" />
     </set>    
-  </class>
+  </class>	
+	<query name="phoneBooksByUser">
+    <![CDATA[select pb from Phonebook pb, User u where pb.consumers.id = u.groups.id and u.id = :userId]]>	
+	</query>
 </hibernate-mapping>
