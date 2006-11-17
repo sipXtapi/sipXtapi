@@ -108,6 +108,8 @@ private:
     static OsBSem*                  mpSingletonLock;
     static SipImpliedSubscriptions* mpSingleton;
 
+    // String to use in place of class name in log messages:
+    // "[instance] class".
     UtlString mLogName;
     
     /**

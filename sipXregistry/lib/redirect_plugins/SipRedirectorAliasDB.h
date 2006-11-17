@@ -59,6 +59,12 @@ class SipRedirectorAliasDB : public RedirectPlugin
       int redirectorNo,
       SipRedirectorPrivateStorage*& privateStorage);
 
+  private:
+
+   // String to use in place of class name in log messages:
+   // "[instance] class".
+   UtlString mLogName;
+
   protected:
 };
 

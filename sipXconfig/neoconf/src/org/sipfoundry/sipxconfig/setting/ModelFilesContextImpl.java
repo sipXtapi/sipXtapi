@@ -22,7 +22,7 @@ public class ModelFilesContextImpl implements ModelFilesContext {
     // AOP NOTE: methods matching loadModelFile are cacheable    
     public Setting loadModelFile(String basename) {
         File modelFile = getModelFile(basename, null);
-        SettingSet model = m_modelBuilder.buildModel(modelFile, null);
+        SettingSet model = m_modelBuilder.buildModel(modelFile);
         return model.copy();
     }
 
@@ -37,7 +37,7 @@ public class ModelFilesContextImpl implements ModelFilesContext {
     // AOP NOTE: methods matching loadModelFile are cacheable    
     public Setting loadModelFile(String basename, String manufacturer) {
         File modelFile = getModelFile(basename, manufacturer);
-        Setting model = m_modelBuilder.buildModel(modelFile, null);
+        Setting model = m_modelBuilder.buildModel(modelFile);
         return model;
     }
 

@@ -60,6 +60,10 @@ class SipRedirectorRegDB : public RedirectPlugin
       SipRedirectorPrivateStorage*& privateStorage);
 
   protected:
+
+   // String to use in place of class name in log messages:
+   // "[instance] class".
+   UtlString mLogName;
 };
 
 #endif // SIPREDIRECTORREGDB_H

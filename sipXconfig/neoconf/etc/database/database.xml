@@ -124,6 +124,7 @@
 	
   <!-- bumped up ver only to keep 3.6 from running incompat. 3.7 db versions -->
   <target name="version4" description="upgrade from version 3" unless="version5">
+    <antcall target="afterhour"/>
     <sipx-version version="5"/>
   </target>	
 
@@ -133,6 +134,16 @@
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="6" -->
   </target>	
+	
+  <!-- only temporary user/developer convenience until 3.8 ships -->
+  <target name="reset-old-phonebook">
+    <sipx-sql>
+      drop table phonebook_member;
+      drop table phonebook;
+      drop sequence phonebook_seq;
+      delete from patch where name = 'phonebook'
+    </sipx-sql>
+  </target>
 
   <target name="phonebook" unless="phonebook">
     <db-patch patch="phonebook"/>
@@ -142,6 +153,14 @@
     <db-patch patch="model-refactoring"/>
   </target>
 
+  <target name="afterhour" unless="afterhour">
+    <!-- add default afterhour attendant -->
+    <sipx-sql>
+      insert into initialization_task (name) values ('afterhour');
+    </sipx-sql>
+    <mark-patch-applied patch="afterhour"/>
+  </target>
+	
   <target name="domain" unless="domain">
     <db-patch patch="domain"/>
   </target>

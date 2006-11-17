@@ -67,6 +67,10 @@ class SipRedirectorISN : public RedirectPlugin
 
   protected:
 
+   // String to use in place of class name in log messages:
+   // "[instance] class".
+   UtlString mLogName;
+   
    UtlString mPrefix;
    UtlString mBaseDomain;
 };

@@ -67,18 +67,18 @@ public:
     void getAllRows ( ResultSet& rResultSet ) const;
 
     /// Return the max update number for primaryRegistrar, or zero if there are no such updates
-    INT64 getMaxUpdateNumberForRegistrar(const UtlString& primaryRegistrar) const;
+    Int64 getMaxUpdateNumberForRegistrar(const UtlString& primaryRegistrar) const;
 
     /// Return the next updateNumber for the primaryRegistrar after the specified updateNumber
-    INT64 getNextUpdateNumberForRegistrar(const UtlString& primaryRegistrar,
-                                          INT64            updateNumber) const;
+    Int64 getNextUpdateNumberForRegistrar(const UtlString& primaryRegistrar,
+                                          Int64            updateNumber) const;
     /**<
      * If there are no such updates, then return 0
      */
     
     /// Get the next update for primaryRegistrar with an update number > updateNumber.
     int getNextUpdateForRegistrar( const UtlString& primaryRegistrar,
-                                   INT64           updateNumber,
+                                   Int64           updateNumber,
                                    UtlSList&       bindings ) const;
     /**<
      * Fill in the bindings arg with the bindings, objects of type RegistrationBinding.
@@ -88,7 +88,7 @@ public:
 
     /// Get all updates for primaryRegistrar with an update number > updateNumber.
     int getNewUpdatesForRegistrar( const UtlString& primaryRegistrar,
-                                   INT64           updateNumber,
+                                   Int64           updateNumber,
                                    UtlSList&       bindings ) const;
     /**<
      * Fill in the bindings arg with the bindings, objects of type RegistrationBinding.
@@ -114,7 +114,7 @@ public:
                        ,const UtlString& instance_id
                        ,const UtlString& gruu
                        ,const UtlString& primary
-                       ,const INT64& update_number
+                       ,const Int64& update_number
                        );
 
     /// expireAllBindings for this URI as of 1 second before timeNow
@@ -123,7 +123,7 @@ public:
                            ,const int& cseq
                            ,const int& timeNow
                            ,const UtlString& primary
-                           ,const INT64& update_number
+                           ,const Int64& update_number
                            );
 
     /// expireOldBindings for this callid and older cseq values.
@@ -132,7 +132,7 @@ public:
                            ,const int& cseq
                            ,const int& timeNow
                            ,const UtlString& primary
-                           ,const INT64& update_number
+                           ,const Int64& update_number
                            );
 
     void removeAllRows ();

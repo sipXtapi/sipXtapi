@@ -73,6 +73,12 @@ public interface DialPlanContext extends DataObjectSource, AliasOwner {
 
     public void resetToFactoryDefault();
 
+    public void resetToFactoryDefault(String dialPlanBeanName);
+
+    public String[] getDialPlanBeans();
+
+    public String getDefaultDialPlanId();
+
     public boolean isDialPlanEmpty();
 
     public String getVoiceMail();

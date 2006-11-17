@@ -91,4 +91,5 @@
   <table name="domain_alias"/>
   <table name="phonebook"/>
   <table name="phonebook_member"/>
+  <table name="phonebook_consumer"/>
 </dataset>

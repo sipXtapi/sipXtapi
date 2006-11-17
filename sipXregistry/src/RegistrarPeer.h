@@ -127,14 +127,14 @@ public:
 ///@{
 
    /// The update number of the oldest update successfully sent to this peer.
-   INT64 sentTo();
+   Int64 sentTo();
 
    /// The update number of the last update received from this peer.
-   INT64 receivedFrom();
+   Int64 receivedFrom();
 
-   void setSentTo(INT64 updateNumber);
+   void setSentTo(Int64 updateNumber);
 
-   void setReceivedFrom(INT64 updateNumber);
+   void setReceivedFrom(Int64 updateNumber);
    
 
 ///@}
@@ -148,8 +148,8 @@ protected:
 
    OsBSem               mLock;       ///< must be held to access to other member variables.
    SynchronizationState mSyncState; 
-   INT64                mSentTo;
-   INT64                mReceivedFrom;
+   Int64                mSentTo;
+   Int64                mReceivedFrom;
    Url                  mUrl;        ///< XML RPC URL
    SipRegistrar*        mRegistrar;
 

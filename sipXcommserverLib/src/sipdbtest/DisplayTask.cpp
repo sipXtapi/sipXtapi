@@ -222,7 +222,7 @@ void DisplayTask::showRegistrations(ResultSet& resultSet) const
       int cseq           = *((UtlInt*)record.findValue(&cseqKey));
       int expires        = *((UtlInt*)record.findValue(&expiresKey));
       UtlString primary  = *((UtlString*)record.findValue(&primaryKey));
-      INT64 updateNumber = *((UtlLongLongInt*)record.findValue(&updateNumberKey));
+      Int64 updateNumber = *((UtlLongLongInt*)record.findValue(&updateNumberKey));
 
       cout << "Registration Row" << endl \
            << "================" << endl \

@@ -368,7 +368,7 @@ RegistrationDB::insertRow (const UtlHashMap& nvPairs)
     UtlString qvalue = *((UtlString*)nvPairs.findValue(&gQvalueKey));
 
     UtlString* updateNumberStr = dynamic_cast<UtlString*>(nvPairs.findValue(&gUpdateNumberKey));
-    INT64 updateNumber = (updateNumberStr ? UtlLongLongInt::stringToLongLong(updateNumberStr->data()) : 0);
+    Int64 updateNumber = (updateNumberStr ? UtlLongLongInt::stringToLongLong(updateNumberStr->data()) : 0);
 
     // Get the remaining fields so that we can substitute the null string
     // if the fetched value is 0 (the null pointer) because the field
@@ -421,7 +421,7 @@ RegistrationDB::updateBinding( const Url& uri
                               ,const UtlString& instance_id
                               ,const UtlString& gruu
                               ,const UtlString& primary
-                              ,const INT64& update_number
+                              ,const Int64& update_number
                               )
 {
     UtlString identity;
@@ -499,7 +499,7 @@ RegistrationDB::expireOldBindings( const Url& uri
                                   ,const int& cseq
                                   ,const int& timeNow
                                   ,const UtlString& primary
-                                  ,const INT64& update_number
+                                  ,const Int64& update_number
                                   )
 {
     UtlString identity;
@@ -538,7 +538,7 @@ void RegistrationDB::expireAllBindings( const Url& uri
                                        ,const int& cseq
                                        ,const int& timeNow
                                        ,const UtlString& primary
-                                       ,const INT64& update_number
+                                       ,const Int64& update_number
                                        )
 {
     UtlString identity;
@@ -663,10 +663,10 @@ RegistrationDB::getAllRows ( ResultSet& rResultSet ) const
     }
 }
 
-INT64
+Int64
 RegistrationDB::getMaxUpdateNumberForRegistrar(const UtlString& primaryRegistrar) const
 {
-   INT64 maxUpdateForPrimary = 0;
+   Int64 maxUpdateForPrimary = 0;
 
    if ( m_pFastDB != NULL )
    {
@@ -689,11 +689,11 @@ RegistrationDB::getMaxUpdateNumberForRegistrar(const UtlString& primaryRegistrar
    return maxUpdateForPrimary;
 }
 
-INT64
+Int64
 RegistrationDB::getNextUpdateNumberForRegistrar(const UtlString& primaryRegistrar,
-                                                INT64            updateNumber) const
+                                                Int64            updateNumber) const
 {
-   INT64 nextUpdateNumber = 0;
+   Int64 nextUpdateNumber = 0;
 
    if ( m_pFastDB != NULL )
    {
@@ -720,11 +720,11 @@ RegistrationDB::getNextUpdateNumberForRegistrar(const UtlString& primaryRegistra
 
 int 
 RegistrationDB::getNextUpdateForRegistrar(const UtlString& primaryRegistrar,
-                                          INT64            updateNumber,
+                                          Int64            updateNumber,
                                           UtlSList&        bindings) const
 {
    int numRows = 0;
-   INT64 nextUpdateNumber = getNextUpdateNumberForRegistrar(primaryRegistrar, updateNumber);
+   Int64 nextUpdateNumber = getNextUpdateNumberForRegistrar(primaryRegistrar, updateNumber);
    if (nextUpdateNumber > 0)
    {
       dbQuery query;
@@ -748,7 +748,7 @@ RegistrationDB::getNextUpdateForRegistrar(const UtlString& primaryRegistrar,
 
 int
 RegistrationDB::getNewUpdatesForRegistrar(const UtlString& primaryRegistrar,
-                                          INT64            updateNumber,
+                                          Int64            updateNumber,
                                           UtlSList&        bindings) const
 {
    dbQuery query;

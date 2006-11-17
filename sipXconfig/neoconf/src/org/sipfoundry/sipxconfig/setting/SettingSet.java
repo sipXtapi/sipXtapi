@@ -19,6 +19,7 @@ import java.util.LinkedHashMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.context.MessageSource;
 
 /**
  * Meta information about a group of settings, can contain nested SettingModels. Order is
@@ -29,6 +30,8 @@ public class SettingSet extends AbstractSetting implements Cloneable, Serializab
     public static final Log LOG = LogFactory.getLog(SettingSet.class);
 
     private LinkedHashMap<String, Setting> m_children = new LinkedHashMap<String, Setting>();
+
+    private MessageSource m_messageSource;
 
     /**
      * Root setting group and bean access only
@@ -141,5 +144,16 @@ public class SettingSet extends AbstractSetting implements Cloneable, Serializab
 
     public void setValue(String value) {
         throw new UnsupportedOperationException(getPath());
+    }
+
+    public void setMessageSource(MessageSource messageSource) {
+        m_messageSource = messageSource;
+    }
+
+    public MessageSource getMessageSource() {
+        if (m_messageSource != null) {
+            return m_messageSource;
+        }
+        return super.getMessageSource();
     }
 }

@@ -75,7 +75,9 @@ public class DialPlanEditTestUi extends WebTestCase {
         WebTable rulesTable = getDialog().getWebTableBySummaryOrId("dialplan:list");
         assertEquals(1, rulesTable.getRowCount());
         // test revert
-        clickButton("dialplan:revert");
+        clickLink("dialplan:revert");
+        SiteTestHelper.assertNoException(tester);
+        clickButton("form:ok");
         assertTableRowsEqual("dialplan:list", 1, DEFAULTS);
     }
 
@@ -171,7 +173,9 @@ public class DialPlanEditTestUi extends WebTestCase {
     }
 
     public void testMove() {
-        clickButton("dialplan:revert");
+        clickLink("dialplan:revert");
+        SiteTestHelper.assertNoException(tester);
+        clickButton("form:ok");        
         SiteTestHelper.selectRow(tester, 0, true);
         clickButton("dialplan:move:up");
         // no changes

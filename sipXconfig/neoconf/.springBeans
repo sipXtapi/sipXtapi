@@ -6,8 +6,8 @@
 	<configs>
 		<config>src/org/sipfoundry/sipxconfig/admin/forwarding/forwarding.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/admin/parkorbit/parkorbit.beans.xml</config>
-		<config>src/org/sipfoundry/sipxconfig/phone/phone.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/bulk/csv/csv.beans.xml</config>
+		<config>src/org/sipfoundry/sipxconfig/phone/phone.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/setting/setting.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/domain/domain.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/admin/intercom/intercom.beans.xml</config>
@@ -21,9 +21,9 @@
 		<config>src/org/sipfoundry/sipxconfig/system.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/alias/alias.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/conference/conference.beans.xml</config>
-		<config>etc/dialplan/dialrules.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/search/search.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/upload/upload.beans.xml</config>
+		<config>src/org/sipfoundry/sipxconfig/phonebook/phonebook.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/bulk/bulk.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/job/job.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/admin/dialplan/dialplan.beans.xml</config>
@@ -57,8 +57,8 @@
 				<config>src/org/sipfoundry/sipxconfig/bulk/csv/csv.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/admin/intercom/intercom.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/permission/permission.beans.xml</config>
-				<config>etc/dialplan/dialrules.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/domain/domain.beans.xml</config>
+				<config>src/org/sipfoundry/sipxconfig/phonebook/phonebook.beans.xml</config>
 			</configs>
 		</configSet>
 	</configSets>

@@ -35,6 +35,9 @@ SipRedirectorCallerAlias::SipRedirectorCallerAlias(const UtlString& instanceName
    RedirectPlugin(instanceName),
    mpCallerAliasDB(NULL)
 {
+   mLogName.append("[");
+   mLogName.append(instanceName);
+   mLogName.append("] SipRedirectorCallerAlias");
 }
 
 // Destructor
@@ -59,12 +62,13 @@ SipRedirectorCallerAlias::initialize(OsConfigDb& configDb,
 
    if (mpCallerAliasDB)
    {
-      OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorCallerAlias initialized");
+      OsSysLog::add(FAC_SIP, PRI_INFO, "%s initialized", mLogName.data());
       ret = OS_SUCCESS;
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_WARNING, "SipRedirectorCallerAlias - no CallerAliasDB");
+      OsSysLog::add(FAC_SIP, PRI_WARNING, "%s - no CallerAliasDB",
+                    mLogName.data());
       ret = OS_FAILED;
    }
    
@@ -106,8 +110,8 @@ RedirectPlugin::LookUpStatus SipRedirectorCallerAlias::lookUp(
           )
       {
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                       "SipRedirectorCallerAlias::lookUp "
-                       "checking for To tag"
+                       "%s::lookUp checking for To tag",
+                       mLogName.data()
                        );
          
          // see if there is a To tag to decide if this is a new dialog
@@ -148,8 +152,9 @@ RedirectPlugin::LookUpStatus SipRedirectorCallerAlias::lookUp(
             default:
                // for all other schemes, treat identity as null
                OsSysLog::add(FAC_SIP, PRI_WARNING,
-                             "SipRedirectorCallerAlias::lookUp From uses unsupported scheme '%s'"
+                             "%s::lookUp From uses unsupported scheme '%s'"
                              " - using null identity",
+                             mLogName.data(),
                              fromUrl.schemeName(fromUrlScheme)
                              );
                break;
@@ -162,9 +167,9 @@ RedirectPlugin::LookUpStatus SipRedirectorCallerAlias::lookUp(
             // now we have callerIdentity set; use for looking up each contact.
             
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipRedirectorCallerAlias::lookUp "
+                          "%s::lookUp "
                           "\n  caller '%s' %s",
-                          callerIdentity.data(),
+                          mLogName.data(), callerIdentity.data(),
                           identityIsLocal ? "is local" : "is not local"
                           );
 
@@ -181,9 +186,9 @@ RedirectPlugin::LookUpStatus SipRedirectorCallerAlias::lookUp(
                Url contactUri(contact);
             
                OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                             "SipRedirectorCallerAlias::lookUp "
+                             "%s::lookUp "
                              "\n  contact %d '%s'",
-                             contactNumber, contact.data()
+                             mLogName.data(), contactNumber, contact.data()
                              );
 
                // is there already a From header parameter on this?
@@ -213,9 +218,10 @@ RedirectPlugin::LookUpStatus SipRedirectorCallerAlias::lookUp(
                      response.setContactField(contactWithFrom, contactNumber);
 
                      OsSysLog::add( FAC_SIP, PRI_DEBUG,
-                                   "SipRedirectorCallerAlias::lookUp set caller alias "
-                                   "'%s' for caller '%s' to '%s'\n",
-                                   callerAlias.data(), callerIdentity.data(), contactDomain.data()
+                                    "%s::lookUp set caller alias "
+                                    "'%s' for caller '%s' to '%s'\n",
+                                    mLogName.data(),
+                                    callerAlias.data(), callerIdentity.data(), contactDomain.data()
                                    );
                   }
                }
@@ -223,9 +229,9 @@ RedirectPlugin::LookUpStatus SipRedirectorCallerAlias::lookUp(
                {
                   // this contact had a From header parameter set - do not modify it.
                   OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                "SipRedirectorCallerAlias::lookUp "
+                                "%s::lookUp "
                                 "using existing From header '%s'",
-                                ignoreValue.data()
+                                mLogName.data(), ignoreValue.data()
                                 );
 
                }
@@ -235,9 +241,9 @@ RedirectPlugin::LookUpStatus SipRedirectorCallerAlias::lookUp(
          {
             // there is a To tag, so this is a reINVITE; do not alias it.
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipRedirectorCallerAlias::lookUp "
+                          "%s::lookUp "
                           "found To tag '%s' - not rewriting",
-                          ignoreValue.data()                          
+                          mLogName.data(), ignoreValue.data()                          
                           );
          
          }
@@ -246,15 +252,16 @@ RedirectPlugin::LookUpStatus SipRedirectorCallerAlias::lookUp(
       {
          // request is not an INVITE, or no Contact headers in the response
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                       "SipRedirectorCallerAlias::lookUp "
+                       "%s::lookUp "
                        "'%s' request is not an INVITE or has no response contacts (%d) - ignored.",
-                       method.data(), contacts
+                       mLogName.data(), method.data(), contacts
                        );
       }
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRedirectorCallerAlias::lookup No CallerAliasDB");
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookup No CallerAliasDB",
+                    mLogName.data());
    }
 
    return lookupStatus;

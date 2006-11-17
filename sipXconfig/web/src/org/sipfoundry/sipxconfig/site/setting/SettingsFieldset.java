@@ -15,9 +15,11 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.IRequestCycle;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
 import org.sipfoundry.sipxconfig.setting.SettingUtil;
+import org.springframework.context.MessageSource;
 
 public abstract class SettingsFieldset extends BaseComponent {
     public abstract Setting getCurrentSetting();
@@ -25,9 +27,13 @@ public abstract class SettingsFieldset extends BaseComponent {
     public abstract Setting getSettings();
 
     public abstract void setSettings(Setting setting);
-    
+
+    public abstract MessageSource getMessageSource();
+
+    public abstract void setMessageSource(MessageSource setting);
+
     public abstract boolean getRenderGroupTitle();
-    
+
     public abstract void setRenderGroupTitle(boolean render);
 
     public Collection getFlattenedSettings() {
@@ -56,8 +62,8 @@ public abstract class SettingsFieldset extends BaseComponent {
     }
 
     /**
-     * Render group if it's not advanced (hidden) or if show advanced is set
-     * and group title rendering is allowed
+     * Render group if it's not advanced (hidden) or if show advanced is set and group title
+     * rendering is allowed
      * 
      * @param setting
      * @return true if setting should be rendered
@@ -67,7 +73,7 @@ public abstract class SettingsFieldset extends BaseComponent {
             // group title rendering not allowed
             return false;
         }
-                
+
         return showSetting(setting);
     }
 
@@ -80,13 +86,13 @@ public abstract class SettingsFieldset extends BaseComponent {
     public boolean renderSetting(Setting setting) {
         return showSetting(setting);
     }
-    
+
     boolean showSetting(Setting setting) {
         if (setting.isHidden()) {
             // do not render hidden seetings
             return false;
         }
-        boolean isAdvanced = SettingUtil.isAdvancedIncludingParents(getSettings(), setting); 
+        boolean isAdvanced = SettingUtil.isAdvancedIncludingParents(getSettings(), setting);
         return !isAdvanced || getShowAdvanced();
     }
 
@@ -98,7 +104,16 @@ public abstract class SettingsFieldset extends BaseComponent {
      * @return true if setting is not rendered (is advanced and advanced settings are not shown)
      */
     public boolean renderSettingPlaceholder(Setting setting) {
-        boolean isAdvanced = SettingUtil.isAdvancedIncludingParents(getSettings(), setting); 
+        boolean isAdvanced = SettingUtil.isAdvancedIncludingParents(getSettings(), setting);
         return isAdvanced && !getShowAdvanced();
+    }
+
+    protected void prepareForRender(IRequestCycle cycle) {
+        super.prepareForRender(cycle);
+        // set message source only once and save it into property so that we do not have to
+        // compute it every time
+        if (getMessageSource() == null) {
+            setMessageSource(getSettings().getMessageSource());
+        }
     }
 }

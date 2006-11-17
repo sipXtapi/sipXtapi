@@ -192,7 +192,7 @@ const char* RegistrarPeer::getStateName()
 }
 
 /// The oldest update successfully sent to this peer.
-INT64 RegistrarPeer::sentTo()
+Int64 RegistrarPeer::sentTo()
 {
    OsLock mutex(mLock);
    
@@ -200,21 +200,21 @@ INT64 RegistrarPeer::sentTo()
 }
 
 /// The last update received from this peer.
-INT64 RegistrarPeer::receivedFrom()
+Int64 RegistrarPeer::receivedFrom()
 {
    OsLock mutex(mLock);
    
    return mReceivedFrom;
 }
 
-void RegistrarPeer::setSentTo(INT64 updateNumber)
+void RegistrarPeer::setSentTo(Int64 updateNumber)
 {
    OsLock mutex(mLock);
    
    mSentTo = updateNumber;
 }
 
-void RegistrarPeer::setReceivedFrom(INT64 updateNumber)
+void RegistrarPeer::setReceivedFrom(Int64 updateNumber)
 {
    OsLock mutex(mLock);
    

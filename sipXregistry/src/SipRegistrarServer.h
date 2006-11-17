@@ -78,7 +78,7 @@ public:
     /// Retrieve all updates for registrarName whose update number is greater than updateNumber
     int pullUpdates(
        const UtlString& registrarName,
-       INT64            updateNumber,
+       Int64            updateNumber,
        UtlSList&        updates);
     /**<
      * Retrieve all updates for registrarName whose update number is greater than updateNumber.
@@ -89,7 +89,7 @@ public:
      */
 
     /// Apply registry updates for a single registrar (local or peer) to the database
-    INT64 applyUpdatesToDirectory(
+    Int64 applyUpdatesToDirectory(
        int timeNow,                         ///< current epoch time
        const UtlSList& updates,             ///< list of updates to apply
        UtlString*      errorMsg = NULL);    ///< fill in the error message on failure
@@ -99,7 +99,7 @@ public:
      */
 
     /// Get the largest update number in the local database for this registrar as primary
-    INT64 getDbUpdateNumber() const;
+    Int64 getDbUpdateNumber() const;
 
     /// Schedule garbage collection and persistence of the registration database
     void scheduleCleanAndPersist();
@@ -118,7 +118,7 @@ public:
     void restoreDbUpdateNumber();
 
     /// Return the max update number for primaryRegistrar, or zero if there are no such updates
-    INT64 getMaxUpdateNumberForRegistrar(const char* primaryName) const;
+    Int64 getMaxUpdateNumberForRegistrar(const char* primaryName) const;
 
     /// Return true if there is a new update to send to the peer registrar and fill in bindings
     bool getNextUpdateToSend(RegistrarPeer *peer,       ///< peer to send the update to
@@ -146,7 +146,7 @@ protected:
     static OsMutex sLockMutex;
 
     /// Set the largest update number in the local database for this registrar as primary
-    void setDbUpdateNumber(INT64 dbUpdateNumber);
+    void setDbUpdateNumber(Int64 dbUpdateNumber);
 
     /// Validate bindings, and if all are OK then apply them to the registry db
     RegisterStatus applyRegisterToDirectory(
@@ -155,7 +155,7 @@ protected:
         const SipMessage& registerMessage); ///< message containing bindings
     
     /// Update one binding for a peer registrar, or the local registrar (if peer is NULL)
-    INT64 updateOneBinding(RegistrationBinding* update,
+    Int64 updateOneBinding(RegistrationBinding* update,
                            RegistrarPeer* peer,
                            RegistrationDB* imdb);
     /**<

@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.setting;
 import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
+import org.springframework.context.MessageSource;
 
 /**
  * Base class for all items describing and using setting.
@@ -21,7 +22,7 @@ import org.sipfoundry.sipxconfig.setting.type.SettingType;
 public interface Setting extends Cloneable {
 
     // public static final String NULL_VALUE = StringUtils.EMPTY;
-    
+
     public static final char PATH_DELIM = '/';
 
     public Setting getParent();
@@ -34,16 +35,20 @@ public interface Setting extends Cloneable {
 
     public Setting getSetting(String name);
 
+    @Deprecated
     public String getLabel();
+
+    public String getLabelKey();
 
     public String getName();
 
     public void setName(String name);
 
     public String getProfileName();
-    
+
     /**
-     * Full profile path of the setting - including profile names of all parents and profile name of this setting
+     * Full profile path of the setting - including profile names of all parents and profile name
+     * of this setting
      */
     public String getProfilePath();
 
@@ -60,7 +65,7 @@ public interface Setting extends Cloneable {
      * @return the value of this setting coerced to the proper type
      */
     public Object getTypedValue();
-    
+
     public void setTypedValue(Object value);
 
     public void setValue(String value);
@@ -69,7 +74,10 @@ public interface Setting extends Cloneable {
 
     public void setType(SettingType type);
 
+    @Deprecated
     public String getDescription();
+
+    public String getDescriptionKey();
 
     public Collection<Setting> getValues();
 
@@ -80,4 +88,6 @@ public interface Setting extends Cloneable {
     public boolean isHidden();
 
     public Setting copy();
+
+    public MessageSource getMessageSource();
 }

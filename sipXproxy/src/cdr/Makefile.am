@@ -20,14 +20,14 @@ install : $(INSTALL_GEM)
 .PHONY: package-gem
 package-gem :
 	builddir=`pwd`; \
-	cd $(srcdir) && $(rake) callresolver_version=1.0.0 package && cd $(builddir)
+	cd $(srcdir) && $(rake) callresolver_version=2.0.0 package 
 
 .PHONY: install-gem 
 install-gem : package-gem
 	$(mkdir_p) $(GEM_LIB_DIR)
 	$(GEM) install \
 	  --install-dir $(GEM_LIB_DIR) \
-	  --local $(srcdir)/pkg/sipxcallresolver
+	  --local pkg/sipxcallresolver
 
 # gems are copied into installation and will be installed on host machine
 # later

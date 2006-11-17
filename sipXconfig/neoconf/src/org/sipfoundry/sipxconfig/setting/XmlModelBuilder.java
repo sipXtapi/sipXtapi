@@ -57,14 +57,13 @@ public class XmlModelBuilder implements ModelBuilder {
     }
 
     public SettingSet buildModel(File modelFile) {
-        return buildModel(modelFile, null);
-    }
-
-    public SettingSet buildModel(File modelFile, Setting parent) {
         FileInputStream is = null;
         try {
             is = new FileInputStream(modelFile);
-            return buildModel(is, parent, modelFile.getParentFile());
+            SettingSet model = buildModel(is, null, modelFile.getParentFile());
+            ModelMessageSource messageSource = new ModelMessageSource(modelFile);
+            model.setMessageSource(messageSource);
+            return model;
 
         } catch (IOException e) {
             throw new RuntimeException("Cannot parse model definitions file "
@@ -74,22 +73,21 @@ public class XmlModelBuilder implements ModelBuilder {
         }
     }
 
+    public SettingSet buildModel(InputStream is) throws IOException {
+        return buildModel(is, null, null);
+    }
+
     public SettingSet buildModel(InputStream is, Setting parent) throws IOException {
         return buildModel(is, parent, null);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.sipfoundry.sipxconfig.setting.ModelBuilder#buildModel(java.io.InputStream)
-     */
     public SettingSet buildModel(InputStream is, Setting parent, File baseSystemId)
         throws IOException {
         Digester digester = new Digester();
 
         // setting classloader ensures classes are searched for in this classloader
         // instead of parent's classloader is digister was loaded there.
-        digester.setClassLoader(this.getClass().getClassLoader());
+        digester.setClassLoader(getClass().getClassLoader());
         digester.setValidating(false);
         EntityResolver entityResolver = new ModelEntityResolver(m_configDirectory, baseSystemId);
         digester.setEntityResolver(entityResolver);

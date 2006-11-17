@@ -43,7 +43,7 @@
       classpath:/org/sipfoundry/sipxconfig/phonebook/phonebook.beans.xml
       classpath*:/sipxplugin.beans.xml
       classpath*:/org/sipfoundry/sipxconfig/**/*-models.beans.xml
-      classpath:/dialplan/dialrules.beans.xml 
+      classpath*:/dialplan/*.dialrules.beans.xml 
     </param-value>
   </context-param>
 	

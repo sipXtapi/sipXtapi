@@ -51,6 +51,9 @@ SipRedirectorGateway::SipRedirectorGateway(const UtlString& instanceName) :
    mMapLock(OsBSem::Q_FIFO, OsBSem::FULL),
    mWriterTask(this)
 {
+   mLogName.append("[");
+   mLogName.append(instanceName);
+   mLogName.append("] SipRedirectorGateway");
 }
 
 // Destructor
@@ -70,30 +73,31 @@ void SipRedirectorGateway::readConfig(OsConfigDb& configDb)
        mMappingFileName.isNull())
    {
       OsSysLog::add(FAC_SIP, PRI_CRIT,
-                    "SipRedirectorGateway::readConfig "
+                    "%s::readConfig "
                     "MAPPING_FILE parameter '%s' missing or empty",
-                    mMappingFileName.data());
+                    mLogName.data(), mMappingFileName.data());
       mReturn = OS_FAILED;
    }
    else
    {
       OsSysLog::add(FAC_SIP, PRI_INFO,
-                    "SipRedirectorGateway::readConfig "
-                    "MAPPING_FILE is '%s'", mMappingFileName.data());
+                    "%s::readConfig "
+                    "MAPPING_FILE is '%s'",
+                    mLogName.data(), mMappingFileName.data());
    }
 
    if (configDb.get("PREFIX", mPrefix) != OS_SUCCESS ||
        mPrefix.isNull())
    {
       OsSysLog::add(FAC_SIP, PRI_INFO,
-                    "SipRedirectorGateway::readConfig "
-                    "dialing prefix is empty");
+                    "%s::readConfig "
+                    "dialing prefix is empty", mLogName.data());
    }
    else
    {
       OsSysLog::add(FAC_SIP, PRI_INFO,
-                    "SipRedirectorGateway::readConfig "
-                    "dialing prefix is '%s'", mPrefix.data());
+                    "%s::readConfig "
+                    "dialing prefix is '%s'", mLogName.data(), mPrefix.data());
    }
 
    if (configDb.get("DIGITS", string) == OS_SUCCESS &&
@@ -103,15 +107,16 @@ void SipRedirectorGateway::readConfig(OsConfigDb& configDb)
         mDigits >= 1 && mDigits <= 10))
    {
       OsSysLog::add(FAC_SIP, PRI_INFO,
-                    "SipRedirectorGateway::readConfig "
-                    "variable digit count is %d", mDigits);
+                    "%s::readConfig "
+                    "variable digit count is %d", mLogName.data(), mDigits);
    }
    else
    {
       OsSysLog::add(FAC_SIP, PRI_CRIT,
-                    "SipRedirectorGateway::readConfig "
+                    "%s::readConfig "
                     "variable digit count is missing, empty, "
-                    "or out of range (1 to 10)");
+                    "or out of range (1 to 10)",
+                    mLogName.data());
       mReturn = OS_FAILED;
    }
 
@@ -122,16 +127,16 @@ void SipRedirectorGateway::readConfig(OsConfigDb& configDb)
         mPort >= 1 && mPort <= 65535))
    {
       OsSysLog::add(FAC_SIP, PRI_INFO,
-                    "SipRedirectorGateway::readConfig "
-                    "listening port is %d", mPort);
+                    "%s::readConfig "
+                    "listening port is %d", mLogName.data(), mPort);
    }
    else
    {
       OsSysLog::add(FAC_SIP, PRI_CRIT,
-                    "SipRedirectorGateway::readConfig "
+                    "%s::readConfig "
                     "listening port '%s' is missing, empty, "
                     "or out of range (1 to 65535)",
-                    string.data());
+                    mLogName.data(), string.data());
       mReturn = OS_FAILED;
    }
 }
@@ -145,14 +150,14 @@ SipRedirectorGateway::initialize(OsConfigDb& configDb,
 {
    mDomainName = localDomainHost;
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipRedirectorGateway::SipRedirectorGateway domainName = '%s'",
-                 mDomainName.data());
+                 "%s::SipRedirectorGateway domainName = '%s'",
+                 mLogName.data(), mDomainName.data());
 
    if (mReturn == OS_SUCCESS)
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipRedirectorGateway::SipRedirectorGateway Loading mappings from '%s'",
-                    mMappingFileName.data());
+                    "%s::SipRedirectorGateway Loading mappings from '%s'",
+                    mLogName.data(), mMappingFileName.data());
       loadMappings(&mMappingFileName, &mMapUserToContacts, &mMapContactsToUser);
 
       // Set up the HTTP server on socket mPort.
@@ -191,9 +196,9 @@ SipRedirectorGateway::lookUp(
 {
    UtlString userId;
    requestUri.getUserId(userId);
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRedirectorGateway::lookUp "
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookUp "
                  "userId = '%s'",
-                 userId.data());
+                 mLogName.data(), userId.data());
 
    // Test for the presence of the prefix.
    const char* user = userId.data();
@@ -224,7 +229,7 @@ SipRedirectorGateway::lookUp(
             // The remainder of userId becomes the userId to the gateway.
             uri.setUserId(&userId.data()[prefix_length + mDigits]);
             // Add the contact.
-            addContact(response, requestString, uri, "Gateway");
+            addContact(response, requestString, uri, mLogName.data());
          }
       }
       else
@@ -259,7 +264,8 @@ void SipRedirectorGateway::loadMappings(UtlString* file_name,
              if (!c1)
              {
                 OsSysLog::add(FAC_SIP, PRI_ERR,
-                              "SipRedirectorGateway::loadMappings cannot find <prefix> child");
+                              "%s::loadMappings cannot find <prefix> child",
+                              mLogName.data());
              }
              else
              {
@@ -267,7 +273,8 @@ void SipRedirectorGateway::loadMappings(UtlString* file_name,
                 if (!c2)
                 {
                    OsSysLog::add(FAC_SIP, PRI_ERR,
-                                 "SipRedirectorGateway::loadMappings cannot find text child of <prefix>");
+                                 "%s::loadMappings cannot find text child of <prefix>",
+                                 mLogName.data());
                 }
                 else
                 {
@@ -275,7 +282,8 @@ void SipRedirectorGateway::loadMappings(UtlString* file_name,
                    if (prefix == NULL || *prefix == '\0')
                    {
                       OsSysLog::add(FAC_SIP, PRI_ERR,
-                                    "SipRedirectorGateway::loadMappings text of <prefix> is null");
+                                    "%s::loadMappings text of <prefix> is null",
+                                    mLogName.data());
                    }
                    else
                    {
@@ -283,7 +291,8 @@ void SipRedirectorGateway::loadMappings(UtlString* file_name,
                       if (!c3)
                       {
                          OsSysLog::add(FAC_SIP, PRI_ERR,
-                                       "SipRedirectorGateway::loadMappings cannot find <hostpart> child");
+                                       "%s::loadMappings cannot find <hostpart> child",
+                                       mLogName.data());
                       }
                       else
                       {
@@ -291,7 +300,8 @@ void SipRedirectorGateway::loadMappings(UtlString* file_name,
                          if (!c4)
                          {
                             OsSysLog::add(FAC_SIP, PRI_ERR,
-                                          "SipRedirectorGateway::loadMappings cannot find text child of <hostpart>");
+                                          "%s::loadMappings cannot find text child of <hostpart>",
+                                          mLogName.data());
                          }
                          else
                          {
@@ -299,14 +309,15 @@ void SipRedirectorGateway::loadMappings(UtlString* file_name,
                             if (hostpart == NULL || *hostpart == '\0')
                             {
                                OsSysLog::add(FAC_SIP, PRI_ERR,
-                                             "SipRedirectorGateway::loadMappings text of <hostpart> is null");
+                                             "%s::loadMappings text of <hostpart> is null",
+                                             mLogName.data());
                             }
                             else
                             {
                                // Load the mapping into the maps.
                                OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                             "SipRedirectorGateway::loadMappings added '%s' -> '%s'",
-                                             prefix, hostpart);
+                                             "%s::loadMappings added '%s' -> '%s'",
+                                             mLogName.data(), prefix, hostpart);
                                UtlString* prefix_string = new UtlString(prefix);
                                UtlString* hostpart_string = new UtlString(hostpart);
                                mapUserToContacts->insertKeyAndValue(prefix_string,
@@ -326,19 +337,20 @@ void SipRedirectorGateway::loadMappings(UtlString* file_name,
           mMapLock.release();
 
           OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                        "SipRedirectorGateway::loadMappings done loading mappings");
+                        "%s::loadMappings done loading mappings", mLogName.data());
        }
        else
        {
           OsSysLog::add(FAC_SIP, PRI_CRIT,
-                        "SipRedirectorGateway::loadMappings unable to extract Gateway element");
+                        "%s::loadMappings unable to extract Gateway element",
+                        mLogName.data());
        }
 
     }
     else
     {
        OsSysLog::add(FAC_SIP, PRI_CRIT,
-                     "SipRedirectorGateway::loadMappings LoadFile() failed");
+                     "%s::loadMappings LoadFile() failed", mLogName.data());
     }
 }
 
@@ -354,8 +366,8 @@ void SipRedirectorGateway::writeMappings(UtlString* file_name,
    if (f == NULL)
    {
       OsSysLog::add(FAC_SIP, PRI_CRIT,
-                    "SipRedirectorGateway::writeMappings fopen('%s') failed, errno = %d",
-                    temp_file_name.data(), errno);
+                    "%s::writeMappings fopen('%s') failed, errno = %d",
+                    mLogName.data(), temp_file_name.data(), errno);
    }
    else
    {
@@ -386,8 +398,8 @@ void SipRedirectorGateway::writeMappings(UtlString* file_name,
       if (rename(temp_file_name.data(), file_name->data()) != 0)
       {
          OsSysLog::add(FAC_SIP, PRI_CRIT,
-                       "SipRedirectorGateway::writeMappings rename('%s', '%s') failed, errno = %d",
-                       temp_file_name.data(), file_name->data(), errno);
+                       "%s::writeMappings rename('%s', '%s') failed, errno = %d",
+                       mLogName.data(), temp_file_name.data(), file_name->data(), errno);
       }
    }
 }
@@ -398,8 +410,8 @@ UtlString* SipRedirectorGateway::addMapping(const char* contacts,
    // Make the contact UtlString.
    UtlString* contactString = new UtlString(contacts, length);
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipRedirectorGateway::addMapping inserting '%s'",
-                 contactString->data());
+                 "%s::addMapping inserting '%s'",
+                 mLogName.data(), contactString->data());
    // Get its hash.
    unsigned hash = contactString->hash();
    // Keys are 24 bits, and the starting key is the lower 24 bits of the hash.
@@ -426,8 +438,8 @@ UtlString* SipRedirectorGateway::addMapping(const char* contacts,
          sprintf(buffer, "=Gateway=%03x-%03x", (hash >> 12) & 0xFFF, hash & 0xFFF);
          userString = new UtlString(buffer);
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                       "SipRedirectorGateway::addMapping trying '%s'",
-                       buffer);
+                       "%s::addMapping trying '%s'",
+                       mLogName.data(), buffer);
          if (mMapUserToContacts.findValue(userString) == NULL)
          {
             break;
@@ -446,8 +458,8 @@ UtlString* SipRedirectorGateway::addMapping(const char* contacts,
    mMapLock.release();
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipRedirectorGateway::addMapping using '%s'",
-                 userString->data());
+                 "%s::addMapping using '%s'",
+                 mLogName.data(), userString->data());
 
    return userString;
 }
@@ -478,7 +490,7 @@ SipRedirectorGateway::displayForm(const HttpRequestContext& requestContext,
                               HttpMessage*& response)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipRedirectorGateway::displayForm entered");
+                 "%s::displayForm entered", mLogName.data());
 
    UtlString method;
    request.getRequestMethod(&method);
@@ -512,7 +524,7 @@ SipRedirectorGateway::processForm(const HttpRequestContext& requestContext,
    UtlString string_destination("destination");
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipRedirectorGateway::processForm entered");
+                 "%s::processForm entered", mLogName.data());
    UtlString* user;
 
    // Process the request.
@@ -521,8 +533,8 @@ SipRedirectorGateway::processForm(const HttpRequestContext& requestContext,
    const HttpBody* request_body = request.getBody();
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipRedirectorGateway::processForm A *** request body is '%s'",
-                 request_body->getBytes());
+                 "%s::processForm A *** request body is '%s'",
+                 mLogName.data(), request_body->getBytes());
 
    // Get the values from the form.
    if (request_body->isMultipart())
@@ -542,9 +554,9 @@ SipRedirectorGateway::processForm(const HttpRequestContext& requestContext,
             UtlString* value = new UtlString(v, l);
             value->strip(UtlString::both);
             OsSysLog::add(FAC_SIP, PRI_CRIT,
-                          "SipRedirectorGateway::processForm "
+                          "%s::processForm "
                           "form value '%s' = '%s'",
-                          name->data(), value->data());
+                          mLogName.data(), name->data(), value->data());
             // 'name' and 'value' are now owned by 'values'.
             values.insertKeyAndValue(name, value);
          }
@@ -579,9 +591,9 @@ SipRedirectorGateway::processForm(const HttpRequestContext& requestContext,
             if (destination_is_valid(destination))
             {
                OsSysLog::add(FAC_SIP, PRI_CRIT,
-                             "SipRedirectorGateway::processForm "
+                             "%s::processForm "
                              "add mapping '%s' -> '%s'",
-                             prefix->data(), destination->data());
+                             mLogName.data(), prefix->data(), destination->data());
 
                mMapLock.acquire();
                // Insert the mapping.
@@ -625,7 +637,7 @@ SipRedirectorGateway::processForm(const HttpRequestContext& requestContext,
    request_body->getMultipartBytes(0, &value, &length);
 #if 0
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipRedirectorGateway::processForm A *** seeing '%.*s'", length, value);
+                 "%s::processForm A *** seeing '%.*s'", mLogName.data(), length, value);
 #endif
    // Advance 'value' over the first \r\n\r\n, which ends the headers.
    const char* s = strstr(value, "\r\n\r\n");
@@ -636,7 +648,7 @@ SipRedirectorGateway::processForm(const HttpRequestContext& requestContext,
       value = s;
    }
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipRedirectorGateway::processForm B *** seeing '%.*s'", length, value);
+                 "%s::processForm B *** seeing '%.*s'", mLogName.data(), length, value);
 #if 0
    // Search backward for the last \r, excepting the one in the second-to-last
    // position, which marks the end of the contents.
@@ -651,7 +663,7 @@ SipRedirectorGateway::processForm(const HttpRequestContext& requestContext,
       length = s - value;
    }
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipRedirectorGateway::processForm seeing '%.*s'", length, value);
+                 "%s::processForm seeing '%.*s'", mLogName.data(), length, value);
 #endif
 
    // Add the mappings.
@@ -672,22 +684,22 @@ SipRedirectorGateway::processForm(const HttpRequestContext& requestContext,
    char buffer1[100];
 #if 0
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipRedirectorGateway::processForm *** domain '%s'",
-                 Gatewayredirector->mDomainName.data());
+                 "%s::processForm *** domain '%s'",
+                 mLogName.data(), Gatewayredirector->mDomainName.data());
 #endif
    if (success)
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipRedirectorGateway::processForm success user '%s'",
-                    user->data());
+                    "%s::processForm success user '%s'",
+                    mLogName.data(), user->data());
       sprintf(buffer1, "<code>sip:<font size=\"+1\">%s</font>@%s:65070</code> redirects to:<br />",
               user->data(), Gatewayredirector->mDomainName.data());
    }
    else
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipRedirectorGateway::processForm failure error_msg '%s', error_location %d",
-                    error_msg, error_location);
+                    "%s::processForm failure error_msg '%s', error_location %d",
+                    mLogName.data(), error_msg, error_location);
       strcpy(buffer1, "<i>Error:</i>");
    }
    // Transcribe the input value into buffer2.

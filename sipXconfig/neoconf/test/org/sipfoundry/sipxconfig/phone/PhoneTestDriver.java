@@ -11,12 +11,15 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import java.util.Collections;
+
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContextImpl;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 
@@ -62,7 +65,13 @@ public class PhoneTestDriver {
         phoneContext.getSystemDirectory();
         phoneContextControl.andReturn(sysdir).anyTimes();
         phoneContext.getPhoneDefaults();
-        phoneContextControl.andReturn(defaults).anyTimes();
+        phoneContextControl.andReturn(defaults).anyTimes();      
+        phoneContext.getPhonebookEntries(phone);
+        
+        // put sample user in phonebook
+        IMocksControl entryContextControl = EasyMock.createNiceControl();
+        PhonebookEntry entry = entryContextControl.createMock(PhonebookEntry.class); 
+        phoneContextControl.andReturn(Collections.singleton(entry)).anyTimes();      
                 
         phoneContextControl.replay();
 

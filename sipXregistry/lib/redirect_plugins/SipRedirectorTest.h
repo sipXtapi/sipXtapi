@@ -58,6 +58,13 @@ public:
 
 protected:
 
+   // String to use in place of class name in log messages:
+   // "[instance] class".
+   UtlString mLogName;
+
+   // URI parameter to look for.
+   char mParameterName[50];
+
 private:
 
 };

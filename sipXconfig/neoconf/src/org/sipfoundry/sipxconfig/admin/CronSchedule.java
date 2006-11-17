@@ -138,7 +138,7 @@ public class CronSchedule extends BeanWithId {
 
         if (ANY.equals(dowString)) {
             setType(Type.DAILY);
-            setDayOfWeek(0);
+            setScheduledDay(ScheduledDay.EVERYDAY);
         } else {
             setType(Type.WEEKLY);
             setDayOfWeek(Integer.parseInt(dowString));

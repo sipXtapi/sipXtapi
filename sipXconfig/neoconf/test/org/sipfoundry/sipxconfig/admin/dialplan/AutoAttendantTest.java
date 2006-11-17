@@ -41,9 +41,21 @@ public class AutoAttendantTest extends XMLTestCase {
     public void testGetSystemName() {
         AutoAttendant aa = new AutoAttendant();
         assertEquals("xcf-1", aa.getSystemName());
+        assertFalse(aa.isAfterhour());
+        assertFalse(aa.isOperator());
+        assertFalse(aa.isPermanent());
 
-        AutoAttendant operator = AutoAttendant.createOperator();
+        AutoAttendant operator = AutoAttendant.createOperator(AutoAttendant.OPERATOR_ID);
         assertEquals("operator", operator.getSystemName());
+        assertFalse(operator.isAfterhour());
+        assertTrue(operator.isOperator());
+        assertTrue(operator.isPermanent());
+
+        AutoAttendant afterhour = AutoAttendant.createOperator(AutoAttendant.AFTERHOUR_ID);
+        assertEquals("afterhour", afterhour.getSystemName());
+        assertTrue(afterhour.isAfterhour());
+        assertFalse(afterhour.isOperator());
+        assertTrue(afterhour.isPermanent());
     }
 
     // TODO: fix the test after autoattendant.vm has been changed
@@ -53,12 +65,12 @@ public class AutoAttendantTest extends XMLTestCase {
         AutoAttendant aa = new AutoAttendant();
         aa.initialize();
         aa.setSettings(TestHelper.loadSettings("sipxvxml/autoattendant.xml"));
-        aa.setPrompt("prompt.wav");        
+        aa.setPrompt("prompt.wav");
         aa.addMenuItem(DialPad.NUM_0, new AttendantMenuItem(AttendantMenuAction.OPERATOR));
         aa.addMenuItem(DialPad.NUM_1, new AttendantMenuItem(AttendantMenuAction.DISCONNECT));
         aa.setSettingValue("onfail/transfer", "1");
         aa.setSettingValue("onfail/transfer-extension", "999");
-        
+
         StringWriter actualXml = new StringWriter();
         m_vxml.generate(aa, actualXml);
         assertVxmlEquals("expected-autoattendant.xml", actualXml.toString());

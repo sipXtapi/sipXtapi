@@ -29,6 +29,13 @@
 
 
 // DEFINES
+
+// Macro to check that 'x' is an OsTimer* by testing its
+// getContainableType value.  This is to catch misuses of the OsTimer
+// methods.
+#define CHECK_VALIDITY(x) \
+            assert((x)->getContainableType() == OsTimer::TYPE)
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -245,9 +252,9 @@ class OsTimer : public UtlContainable
    /**< Class type used for runtime checking */
 
    /// type for absolute time
-   typedef INT64 Time;
+   typedef Int64 Time;
    /// type for time interval
-   typedef INT64 Interval;
+   typedef Int64 Interval;
 
    OsBSem          mBSem;      //< semaphore to lock access to members
 

@@ -119,7 +119,7 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
     }
 
     private Setting loadSettings() {
-        return m_modelFilesContext.loadModelFile("user-settings.xml");
+        return m_modelFilesContext.loadModelFile("commserver/user-settings.xml");
     }
     
     public void setReplicationContext(SipxReplicationContext replicationContext) {

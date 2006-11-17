@@ -1011,8 +1011,8 @@ SipAaa::isAuthorized (
     UtlBoolean authorized =
        isAuthorized(requiredPermissions, grantedPermissions, matchedPermission, unmatchedPermissions);
 
-    OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipAaa::isAuthorized user: %s %s for %s",
-                  authUser && *authUser ? authUser : "none",
+    OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipAaa::isAuthorized user '%s' is %s for permission '%s'",
+                  authUser && *authUser ? authUser : "[none]",
                   authorized ? "authorized" : "not authorized",
                   matchedPermission.data());
 

@@ -19,9 +19,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.commons.collections.Closure;
 import org.sipfoundry.sipxconfig.bulk.csv.CsvParser;
@@ -32,16 +32,16 @@ import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.setting.Group;
+
 import static org.apache.commons.lang.StringUtils.defaultString;
 
 public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> implements PhonebookManager {
     private String m_externalUsersDirectory;
     private CoreContext m_coreContext;
 
-    public Phonebook getGlobalPhonebook() {
-        Collection books = getHibernateTemplate().loadAll(Phonebook.class);
-        Phonebook phonebook = (Phonebook) DaoUtils.requireOneOrZero(books, Phonebook.class.getName());
-        return phonebook;
+    public Collection<Phonebook> getPhonebooks() {
+        Collection<Phonebook> books = getHibernateTemplate().loadAll(Phonebook.class);
+        return books;
     }
     
     public Phonebook getPhonebook(Integer id) {
@@ -50,7 +50,15 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     }
 
     public void savePhonebook(Phonebook phonebook) {
+        DaoUtils.checkDuplicates(getHibernateTemplate(), Phonebook.class, phonebook, "name", 
+                new DuplicatePhonebookName());
         getHibernateTemplate().saveOrUpdate(phonebook);
+    }
+    
+    class DuplicatePhonebookName extends UserException {
+        DuplicatePhonebookName() {
+            super("A phonebook already exitst with that name");
+        }
     }
 
     public CoreContext getCoreContext() {
@@ -84,15 +92,33 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         m_externalUsersDirectory = externalUsersDirectory;
     }
     
+    public Collection<Phonebook> getPhonebooksByUser(User consumer) {
+        Collection<Phonebook> books = getHibernateTemplate().findByNamedQueryAndNamedParam("phoneBooksByUser", 
+                "userId", consumer.getId());
+        return books;
+    }
+    
+    public Collection<PhonebookEntry> getRows(Collection<Phonebook> phonebooks) {
+        if (phonebooks.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, PhonebookEntry> entries = new TreeMap();
+        for (Phonebook phonebook : phonebooks) {
+            for (PhonebookEntry entry : getRows(phonebook)) {
+                entries.put(entry.getNumber(), entry);
+            }
+        }
+        return entries.values();
+    }
+    
     public Collection<PhonebookEntry> getRows(Phonebook phonebook) {
-        Map<String, PhonebookEntry> entries = new HashMap();
+        Map<String, PhonebookEntry> entries = new TreeMap();
         Collection<Group> members = phonebook.getMembers();
         if (members != null) {
             for (Group group : members) {
                 for (User user : m_coreContext.getGroupMembers(group)) {
                     PhonebookEntry entry = new UserPhonebookEntry(user);
-                    String number = entry.getNumber();
-                    entries.put(number, entry); 
+                    entries.put(entry.getNumber(), entry); 
                 }
             }
         }

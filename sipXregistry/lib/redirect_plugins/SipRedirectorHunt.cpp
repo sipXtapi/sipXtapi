@@ -43,6 +43,9 @@ SipRedirectorHunt::SipRedirectorHunt(const UtlString& instanceName) :
    RedirectPlugin(instanceName),
    mHuntGroupsDefined(FALSE)
 {
+   mLogName.append("[");
+   mLogName.append(instanceName);
+   mLogName.append("] SipRedirectorHunt");
 }
 
 // Destructor
@@ -153,9 +156,9 @@ SipRedirectorHunt::lookUp(
                   response.setContactField(contactUri.toString(), contactNum);
 
                   OsSysLog::add( FAC_SIP, PRI_INFO,
-                                 "SipRedirectorHunt::lookUp set q-value "
+                                 "%s::lookUp set q-value "
                                  "'%s' on '%s'\n",
-                                 temp, thisContact.data());
+                                 mLogName.data(), temp, thisContact.data());
                }
             } while(duplicate);
          }
@@ -166,9 +169,9 @@ SipRedirectorHunt::lookUp(
             contactUri.setFieldParameter(SIP_Q_FIELD, "0.0");
             response.setContactField(contactUri.toString(), contactNum);
             OsSysLog::add( FAC_SIP, PRI_WARNING,
-                           "SipRedirectorHunt::lookUp overflow - "
+                           "%s::lookUp overflow - "
                            "set q=0.0 on '%s'\n",
-                           thisContact.data());
+                           mLogName.data(), thisContact.data());
          }
       }
       else

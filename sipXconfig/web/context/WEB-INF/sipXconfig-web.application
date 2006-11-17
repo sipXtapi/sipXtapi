@@ -69,6 +69,7 @@
     <page name="ListPermissions" specification-path="permission/ListPermissions.page"/>
     <page name="ManageAttendants" specification-path="dialplan/ManageAttendants.page"/>    
     <page name="ManageDomain" specification-path="admin/ManageDomain.page"/>
+    <page name="ManagePhonebooks" specification-path="phonebook/ManagePhonebooks.page"/>
     <page name="ManagePhones" specification-path="phone/ManagePhones.page"/>
     <page name="ManagePresence" specification-path="user_portal/ManagePresence.page"/>
     <page name="ManageUsers" specification-path="user/ManageUsers.page"/> 
@@ -81,6 +82,7 @@
     <page name="PhoneSettings" specification-path="phone/PhoneSettings.page"/>
     <page name="Registrations" specification-path="admin/commserver/Registrations.page"/>
     <page name="ReplicationData" specification-path="admin/commserver/ReplicationData.page"/>
+    <page name="ResetDialPlan" specification-path="dialplan/ResetDialPlan.page"/>
     <page name="RestartReminder" specification-path="admin/commserver/RestartReminder.page"/>
     <page name="SelectGateways" specification-path="gateway/SelectGateways.page"/>
     <page name="SelectUsers" specification-path="user/SelectUsers.page"/>
@@ -128,6 +130,7 @@
     <component-type type="GroupFilter" specification-path="setting/GroupFilter.jwc"/>
     <component-type type="GroupLabel" specification-path="setting/GroupLabel.jwc"/>
     <component-type type="GroupSelect" specification-path="setting/GroupSelect.jwc"/>
+    <component-type type="GroupMultiSelect" specification-path="common/GroupMultiSelect.jwc"/>
     <component-type type="GroupTable" specification-path="setting/GroupTable.jwc"/>
     <component-type type="HolidaysEditor" specification-path="dialplan/HolidaysEditor.jwc"/>
     <component-type type="ItemCommon" specification-path="common/ItemCommon.jwc"/>

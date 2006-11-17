@@ -58,8 +58,12 @@ public:
 
 protected:
 
-    // static bool indicating whether we have any huntgroups
-    UtlBoolean mHuntGroupsDefined;
+   // String to use in place of class name in log messages:
+   // "[instance] class".
+   UtlString mLogName;
+   
+   // static bool indicating whether we have any huntgroups
+   UtlBoolean mHuntGroupsDefined;
 
 private:
 

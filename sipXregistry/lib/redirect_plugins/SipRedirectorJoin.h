@@ -101,6 +101,10 @@ class SipRedirectorJoin : public RedirectPlugin
 
   protected:
 
+   // String to use in place of class name in log messages:
+   // "[instance] class".
+   UtlString mLogName;
+
    /** OS_SUCCESS if this redirector is configured to do any work,
     * and OS_FAILED if not.
     */

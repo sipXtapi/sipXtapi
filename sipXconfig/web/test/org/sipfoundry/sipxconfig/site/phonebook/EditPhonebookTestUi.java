@@ -32,5 +32,9 @@ public class EditPhonebookTestUi extends WebTestCase {
         clickLink("link:phonebook");
         SiteTestHelper.assertNoException(tester);
         assertElementPresent("phonebookForm");
+        // TODO: uncomment these
+        //clickButton("form:apply");
+        //SiteTestHelper.assertNoException(tester);
+        //SiteTestHelper.assertUserError(tester);
     }
 }

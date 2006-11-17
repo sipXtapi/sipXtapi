@@ -28,7 +28,6 @@
   </bean>
   <bean id="polycom" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone"
     singleton="false" parent="abstractPhone">
-	  <property name="phonebookManager" ref="phonebookManager"/>
   </bean>
   <bean id="polycomFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
     <constructor-arg value="upload" />

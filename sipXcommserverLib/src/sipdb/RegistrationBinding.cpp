@@ -361,11 +361,11 @@ void RegistrationBinding::setPrimary(const UtlString& primary)
    }
 }
 
-INT64 RegistrationBinding::getUpdateNumber() const
+Int64 RegistrationBinding::getUpdateNumber() const
 {
    return mUpdateNumber;
 }
-void RegistrationBinding::setUpdateNumber(INT64 updateNumber)
+void RegistrationBinding::setUpdateNumber(Int64 updateNumber)
 {
    mUpdateNumber = updateNumber;
 }

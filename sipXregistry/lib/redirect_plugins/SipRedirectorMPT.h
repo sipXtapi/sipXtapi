@@ -122,6 +122,12 @@ class SipRedirectorMPT : public RedirectPlugin
                                  UtlString*& user,
                                  const char*& error_msg,
                                  int& location);
+
+  protected:
+
+   // String to use in place of class name in log messages:
+   // "[instance] class".
+   UtlString mLogName;
 };
 
 #endif // SIPREDIRECTORMPT_H

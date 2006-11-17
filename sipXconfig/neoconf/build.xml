@@ -261,7 +261,6 @@
       </fileset>
       <fileset dir="etc/sipxconference" includes="**/*.xml">
       </fileset>
-      <fileset file="etc/user-settings.xml" />
       <dtd publicid="-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
            location="etc/setting.dtd" />
     </xmlvalidate>

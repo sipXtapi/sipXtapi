@@ -12,7 +12,6 @@ Url:      http://www.sipfoundry.org/sipXregistry
 Source:   %name-%version.tar.gz
 
 Requires: sipxcommserverlib >= 3.7
-Requires: ruby >= 1.8.1
 
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
@@ -35,16 +34,9 @@ services.
 
 %package cdr
 Requires: %name >= %version
-Requires: ruby >= 1.8.4
-Requires: ruby-gems >= 0.8.11
-Requires: ruby-gems-actionmailer >= 1.1.5
-Requires: ruby-gems-actionpack >= 1.11.2
-Requires: ruby-gems-activerecord >= 1.13.2
-Requires: ruby-gems-activesupport >= 1.2.5
-Requires: ruby-gems-rails >= 1.0.0
-Requires: ruby-gems-rake >= 0.7.0
+Requires: ruby
+Requires: ruby-libs
 Requires: ruby-postgres >= 0.7.1
-Requires: unixODBC-devel >= 2.2
 Requires: sipxcommserverlib >= %version
 Group:    Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
@@ -141,7 +133,7 @@ pkg-upgrade --previous %{previous_archive} --current %{current_archive}
 %config %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/cdr/*
 
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/cdr
-%attr(755,root,root) %{sipxcallresolverdir}/sipxcallresolver-1.0.0.gem
+%attr(755,root,root) %{sipxcallresolverdir}/sipxcallresolver-2.0.0.gem
 %attr(755,root,root) %{_bindir}/sipxcallresolver.sh
 
 %post cdr

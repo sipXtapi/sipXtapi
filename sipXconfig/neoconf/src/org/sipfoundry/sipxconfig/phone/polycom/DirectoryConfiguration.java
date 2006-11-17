@@ -17,20 +17,15 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
-import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
-import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 
 public class DirectoryConfiguration extends VelocityProfileGenerator {
-    private PhonebookManager m_phonebookManager;
-    private Phonebook m_phonebook;
+    private Collection<PhonebookEntry> m_entries;
 
-    public DirectoryConfiguration(BeanWithSettings phone, PhonebookManager phonebookManager,
-            Phonebook phonebook) {
+    public DirectoryConfiguration(BeanWithSettings phone, Collection<PhonebookEntry> entries) {
         super(phone);
-        m_phonebook = phonebook;
-        m_phonebookManager = phonebookManager;
+        m_entries = entries;
     }
 
     @Override
@@ -39,15 +34,14 @@ public class DirectoryConfiguration extends VelocityProfileGenerator {
     }
 
     public Collection<PolycomPhonebookEntry> getRows() {
-        Collection<PhonebookEntry> phonebookEntries = m_phonebookManager.getRows(m_phonebook);
-        return transformRows(phonebookEntries);
+        return transformRows(m_entries);
     }
-    
+
     Collection<PolycomPhonebookEntry> transformRows(Collection<PhonebookEntry> phonebookEntries) {
         Transformer toPolycomEntries = new PolycomPhonebookEntryAdapter();
-        Collection<PolycomPhonebookEntry> polycomEntries = (Collection<PolycomPhonebookEntry>) CollectionUtils
-                .collect(phonebookEntries, toPolycomEntries);
-        return polycomEntries;        
+        Collection<PolycomPhonebookEntry> polycomEntries = CollectionUtils.collect(
+                phonebookEntries, toPolycomEntries);
+        return polycomEntries;
     }
 
     static class PolycomPhonebookEntryAdapter implements Transformer {
@@ -63,11 +57,8 @@ public class DirectoryConfiguration extends VelocityProfileGenerator {
             m_entry = entry;
         }
 
-        /**
-         * @return 
-         */
         public String getFirstName() {
-            // username if first and last name are null.  Otherwise it creates a
+            // username if first and last name are null. Otherwise it creates a
             // contact entry with no display label which is useless on polycom.
             String firstName = m_entry.getFirstName();
             if (firstName == null && m_entry.getLastName() == null) {

@@ -12,14 +12,13 @@ cgicc=yes
 mod_cplusplus=yes
 xerces_c=yes
 ruby_gems=yes
-ruby_rails=yes
-ruby_postgres=yes
+ruby_dbi=yes
 
 AC_ARG_ENABLE(fc4,
 	AC_HELP_STRING([--enable-fc4], [Enable dependencies for Fedora Core 4]),
 	[ 
           java_sun=yes
-echo "Got Here" > /tmp/delme
+          ruby_postgres=yes
         ])
 
 AC_ARG_ENABLE(fc5,
@@ -28,13 +27,19 @@ AC_ARG_ENABLE(fc5,
           java_sun=yes
         ])
 
+AC_ARG_ENABLE(fc6,
+	AC_HELP_STRING([--enable-fc6], [Enable dependencies for Fedora Core 6]),
+	[ 
+          java_sun=yes
+        ])
+
 AC_ARG_ENABLE(rhe4,
 	AC_HELP_STRING([--enable-rhe4], [Enable dependencies for RHE4 and Centos4]),
 	[ 
           java_sun=yes
-          ruby=yes
           w3c_libwww=yes
           cppunit=yes
+          ruby_postgres=yes
         ])
 
 AC_ARG_ENABLE(cgicc,
@@ -67,10 +72,10 @@ AC_ARG_ENABLE(pcre,
 	[ pcre=${enableval} ])
 test x$pcre = xyes && AC_CONFIG_SUBDIRS(pcre)
 
-AC_ARG_ENABLE(ruby,
-	AC_HELP_STRING([--enable-ruby], [Build ruby dependency]),
-	[ ruby=${enableval} ])
-test x$ruby = xyes && AC_CONFIG_SUBDIRS(ruby)
+AC_ARG_ENABLE(ruby-dbi,
+	AC_HELP_STRING([--enable-ruby-dbi], [Build ruby dbi dependency]),
+	[ ruby_dbi=${enableval} ])
+test x$ruby_dbi = xyes && AC_CONFIG_SUBDIRS(ruby-dbi)
 
 AC_ARG_ENABLE(ruby-gems,
 	AC_HELP_STRING([--enable-ruby-gems], [Build ruby gems dependency]),
@@ -81,11 +86,6 @@ AC_ARG_ENABLE(ruby-postgres,
 	AC_HELP_STRING([--enable-ruby-postgres], [Build ruby postgres dependency]),
 	[ ruby_postgres=${enableval} ])
 test x$ruby_postgres = xyes && AC_CONFIG_SUBDIRS(ruby-postgres)
-
-AC_ARG_ENABLE(ruby-rails,
-	AC_HELP_STRING([--enable-ruby-rails], [Build ruby rails dependency]),
-	[ ruby_rails=${enableval} ])
-test x$ruby_rails = xyes && AC_CONFIG_SUBDIRS(ruby-rails)
 
 AC_ARG_ENABLE(w3c-libwww,
 	AC_HELP_STRING([--enable-w3c-libwww], [Build w3c-libwww w/ssl dependency]),

@@ -52,6 +52,9 @@ SipRedirectorMPT::SipRedirectorMPT(const UtlString& instanceName) :
    mMapLock(OsBSem::Q_FIFO, OsBSem::FULL),
    writerTask(this)
 {
+   mLogName.append("[");
+   mLogName.append(instanceName);
+   mLogName.append("] SipRedirectorMPT);
 }
 
 // Destructor
@@ -74,11 +77,11 @@ SipRedirectorMPT::initialize(OsConfigDb& configDb,
 {
    mDomainName = localDomainHost;
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipRedirectorMPT::SipRedirectorMPT domainName = '%s'",
+                 "%s::SipRedirectorMPT domainName = '%s'", mLogName.data(),
                  mDomainName.data());
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipRedirectorMPT::SipRedirectorMPT Loading mappings from '%s'",
+                 "%s::SipRedirectorMPT Loading mappings from '%s'", mLogName.data(),
                  mMappingFileName.data());
    loadMappings(&mMappingFileName, &mMapUserToContacts, &mMapContactsToUser);
 
@@ -118,8 +121,8 @@ SipRedirectorMPT::lookUp(
 {
    UtlString userId;
    requestUri.getUserId(userId);
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRedirectorMPT::lookUp "
-                 "userId = '%s'",
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookUp "
+                 "userId = '%s'", mLogName.data(),
                  userId.data());
 
    // Look up the user ID in the map.
@@ -151,7 +154,7 @@ SipRedirectorMPT::lookUp(
             // Construct a Url of this contact.
             Url url(c.data(), FALSE);
             // Add the contact.
-            addContact(response, requestString, url, "Multi-Party Testing");
+            addContact(response, requestString, url, mLogName.data());
          }
       }
    }
@@ -182,7 +185,7 @@ void SipRedirectorMPT::loadMappings(UtlString* file_name,
              if (!c1)
              {
                 OsSysLog::add(FAC_SIP, PRI_ERR,
-                              "SipRedirectorMPT::loadMappings cannot find <user> child");
+                              "%s::loadMappings cannot find <user> child", mLogName.data());
              }
              else
              {
@@ -190,7 +193,7 @@ void SipRedirectorMPT::loadMappings(UtlString* file_name,
                 if (!c2)
                 {
                    OsSysLog::add(FAC_SIP, PRI_ERR,
-                                 "SipRedirectorMPT::loadMappings cannot find text child of <user>");
+                                 "%s::loadMappings cannot find text child of <user>", mLogName.data());
                 }
                 else
                 {
@@ -198,7 +201,7 @@ void SipRedirectorMPT::loadMappings(UtlString* file_name,
                    if (user == NULL || *user == '\0')
                    {
                       OsSysLog::add(FAC_SIP, PRI_ERR,
-                                    "SipRedirectorMPT::loadMappings text of <user> is null");
+                                    "%s::loadMappings text of <user> is null", mLogName.data());
                    }
                    else
                    {
@@ -206,7 +209,7 @@ void SipRedirectorMPT::loadMappings(UtlString* file_name,
                       if (!c3)
                       {
                          OsSysLog::add(FAC_SIP, PRI_ERR,
-                                       "SipRedirectorMPT::loadMappings cannot find <contacts> child");
+                                       "%s::loadMappings cannot find <contacts> child", mLogName.data());
                       }
                       else
                       {
@@ -214,7 +217,7 @@ void SipRedirectorMPT::loadMappings(UtlString* file_name,
                          if (!c4)
                          {
                             OsSysLog::add(FAC_SIP, PRI_ERR,
-                                          "SipRedirectorMPT::loadMappings cannot find text child of <contacts>");
+                                          "%s::loadMappings cannot find text child of <contacts>", mLogName.data());
                          }
                          else
                          {
@@ -222,13 +225,13 @@ void SipRedirectorMPT::loadMappings(UtlString* file_name,
                             if (contact == NULL || *contact == '\0')
                             {
                                OsSysLog::add(FAC_SIP, PRI_ERR,
-                                             "SipRedirectorMPT::loadMappings text of <contacts> is null");
+                                             "%s::loadMappings text of <contacts> is null", mLogName.data());
                             }
                             else
                             {
                                // Load the mapping into the maps.
                                OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                             "SipRedirectorMPT::loadMappings added '%s' -> '%s'",
+                                             "%s::loadMappings added '%s' -> '%s'", mLogName.data(),
                                              user, contact);
                                UtlString* user_string = new UtlString(user);
                                UtlString* contact_string = new UtlString(contact);
@@ -249,19 +252,19 @@ void SipRedirectorMPT::loadMappings(UtlString* file_name,
           mMapLock.release();
 
           OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                        "SipRedirectorMPT::loadMappings done loading mappings");
+                        "%s::loadMappings done loading mappings", mLogName.data());
        }
        else
        {
           OsSysLog::add(FAC_SIP, PRI_CRIT,
-                        "SipRedirectorMPT::loadMappings unable to extract MPT element");
+                        "%s::loadMappings unable to extract MPT element", mLogName.data());
        }
 
     }
     else
     {
        OsSysLog::add(FAC_SIP, PRI_CRIT,
-                     "SipRedirectorMPT::loadMappings LoadFile() failed");
+                     "%s::loadMappings LoadFile() failed", mLogName.data());
     }
 }
 
@@ -277,7 +280,7 @@ void SipRedirectorMPT::writeMappings(UtlString* file_name,
    if (f == NULL)
    {
       OsSysLog::add(FAC_SIP, PRI_CRIT,
-                    "SipRedirectorMPT::writeMappings fopen('%s') failed, errno = %d",
+                    "%s::writeMappings fopen('%s') failed, errno = %d", mLogName.data(),
                     temp_file_name.data(), errno);
    }
    else
@@ -309,7 +312,7 @@ void SipRedirectorMPT::writeMappings(UtlString* file_name,
       if (rename(temp_file_name.data(), file_name->data()) != 0)
       {
          OsSysLog::add(FAC_SIP, PRI_CRIT,
-                       "SipRedirectorMPT::writeMappings rename('%s', '%s') failed, errno = %d",
+                       "%s::writeMappings rename('%s', '%s') failed, errno = %d", mLogName.data(),
                        temp_file_name.data(), file_name->data(), errno);
       }
    }
@@ -321,7 +324,7 @@ UtlString* SipRedirectorMPT::addMapping(const char* contacts,
    // Make the contact UtlString.
    UtlString* contactString = new UtlString(contacts, length);
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipRedirectorMPT::addMapping inserting '%s'",
+                 "%s::addMapping inserting '%s'", mLogName.data(),
                  contactString->data());
    // Get its hash.
    unsigned hash = contactString->hash();
@@ -349,7 +352,7 @@ UtlString* SipRedirectorMPT::addMapping(const char* contacts,
          sprintf(buffer, "=MPT=%03x-%03x", (hash >> 12) & 0xFFF, hash & 0xFFF);
          userString = new UtlString(buffer);
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                       "SipRedirectorMPT::addMapping trying '%s'",
+                       "%s::addMapping trying '%s'", mLogName.data(),
                        buffer);
          if (mMapUserToContacts.findValue(userString) == NULL)
          {
@@ -369,7 +372,7 @@ UtlString* SipRedirectorMPT::addMapping(const char* contacts,
    mMapLock.release();
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipRedirectorMPT::addMapping using '%s'",
+                 "%s::addMapping using '%s'", mLogName.data(),
                  userString->data());
 
    return userString;
@@ -399,7 +402,7 @@ SipRedirectorMPT::displayForm(const HttpRequestContext& requestContext,
                               HttpMessage*& response)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipRedirectorMPT::displayForm entered");
+                 "%s::displayForm entered", mLogName.data());
 
    UtlString method;
    request.getRequestMethod(&method);
@@ -431,7 +434,7 @@ SipRedirectorMPT::processForm(const HttpRequestContext& requestContext,
                               HttpMessage*& response)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipRedirectorMPT::processForm entered");
+                 "%s::processForm entered", mLogName.data());
    UtlString* user;
 
    // Process the request.
@@ -448,7 +451,7 @@ SipRedirectorMPT::processForm(const HttpRequestContext& requestContext,
    request_body->getMultipartBytes(0, &value, &length);
 #if 0
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipRedirectorMPT::processForm A *** seeing '%.*s'", length, value);
+                 "%s::processForm A *** seeing '%.*s'", mLogName.data(), length, value);
 #endif
    // Advance 'value' over the first \r\n\r\n, which ends the headers.
    const char* s = strstr(value, "\r\n\r\n");
@@ -459,7 +462,7 @@ SipRedirectorMPT::processForm(const HttpRequestContext& requestContext,
       value = s;
    }
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipRedirectorMPT::processForm B *** seeing '%.*s'", length, value);
+                 "%s::processForm B *** seeing '%.*s'", mLogName.data(), length, value);
 #if 0
    // Search backward for the last \r, excepting the one in the second-to-last
    // position, which marks the end of the contents.
@@ -474,7 +477,7 @@ SipRedirectorMPT::processForm(const HttpRequestContext& requestContext,
       length = s - value;
    }
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipRedirectorMPT::processForm seeing '%.*s'", length, value);
+                 "%s::processForm seeing '%.*s'", mLogName.data(), length, value);
 #endif
 
    // Add the mappings.
@@ -496,13 +499,13 @@ SipRedirectorMPT::processForm(const HttpRequestContext& requestContext,
    char buffer1[100];
 #if 0
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipRedirectorMPT::processForm *** domain '%s'",
+                 "%s::processForm *** domain '%s'", mLogName.data(),
                  MPTredirector->mDomainName.data());
 #endif
    if (success)
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipRedirectorMPT::processForm success user '%s'",
+                    "%s::processForm success user '%s'", mLogName.data(),
                     user->data());
       sprintf(buffer1, "<code>sip:<font size=\"+1\">%s</font>@%s:65070</code> redirects to:<br />",
               user->data(), MPTredirector->mDomainName.data());
@@ -510,7 +513,7 @@ SipRedirectorMPT::processForm(const HttpRequestContext& requestContext,
    else
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipRedirectorMPT::processForm failure error_msg '%s', error_location %d",
+                    "%s::processForm failure error_msg '%s', error_location %d", mLogName.data(),
                     error_msg, error_location);
       strcpy(buffer1, "<i>Error:</i>");
    }

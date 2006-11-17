@@ -78,6 +78,10 @@ OsTimer::OsTimer(OsNotification& rNotifier) :
 // Destructor
 OsTimer::~OsTimer()
 {
+#ifndef NDEBUG
+   CHECK_VALIDITY(this);
+#endif
+
    // Update members and determine whether we need to send an UPDATE_SYNC
    // to stop the timer or ensure that the timer task has no queued message
    // about this timer.
@@ -124,6 +128,10 @@ OsTimer::~OsTimer()
 // Non-blocking asynchronous delete operation
 void OsTimer::deleteAsync(OsTimer* timer)
 {
+#ifndef NDEBUG
+   CHECK_VALIDITY(timer);
+#endif
+
    // Update members.
    {
       OsLock lock(mBSem);
@@ -180,6 +188,10 @@ OsStatus OsTimer::periodicEvery(OsTime offset, OsTime period)
 // Disarm the timer
 OsStatus OsTimer::stop(UtlBoolean synchronous)
 {
+#ifndef NDEBUG
+   CHECK_VALIDITY(this);
+#endif
+
    OsStatus result;
    UtlBoolean sendMessage = FALSE;
 
@@ -301,6 +313,10 @@ OsStatus OsTimer::startTimer(Time start,
                              UtlBoolean periodic,
                              Interval period)
 {
+#ifndef NDEBUG
+   CHECK_VALIDITY(this);
+#endif
+
    OsStatus result;
    UtlBoolean sendMessage = FALSE;
 

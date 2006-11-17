@@ -80,6 +80,9 @@ SipRedirectorJoin::SipRedirectorJoin(const UtlString& instanceName) :
    mpSipUserAgent(NULL),
    mTask(NULL)
 {
+   mLogName.append("[");
+   mLogName.append(instanceName);
+   mLogName.append("] SipRedirectorJoin");
 }
 
 // Destructor
@@ -100,8 +103,9 @@ void SipRedirectorJoin::readConfig(OsConfigDb& configDb)
    
    // One-second subscriptions.
    mOneSecondSubscription = getYNconfig(configDb, CONFIG_SETTING_1_SEC, TRUE);
-   OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorJoin::readConfig "
-                 "mOneSecondSubscription = %d", mOneSecondSubscription);
+   OsSysLog::add(FAC_SIP, PRI_INFO,
+                 "%s::readConfig mOneSecondSubscription = %d",
+                 mLogName.data(), mOneSecondSubscription);
 
    // Fetch the call join festure code from the config file.
    // If it is null, it doesn't count.
@@ -109,16 +113,17 @@ void SipRedirectorJoin::readConfig(OsConfigDb& configDb)
         OS_SUCCESS) ||
        mCallJoinCode.isNull())
    {
-      OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorJoin::readConfig "
-                    "No call join feature code specified");
+      OsSysLog::add(FAC_SIP, PRI_INFO,
+                    "%s::readConfig No call join feature code specified",
+                    mLogName.data());
    }
    else
    {
       // Call join feature code is configured.
       // Initialize the system.
-      OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorJoin::readConfig "
-                    "Call join feature code is '%s'",
-                    mCallJoinCode.data());
+      OsSysLog::add(FAC_SIP, PRI_INFO,
+                    "%s::readConfig Call join feature code is '%s'",
+                    mLogName.data(), mCallJoinCode.data());
       mRedirectorActive = OS_SUCCESS;
 
       // Record the two user-names that are excluded as being pick-up requests.
@@ -134,36 +139,34 @@ void SipRedirectorJoin::readConfig(OsConfigDb& configDb)
    mWaitSecs = DEFAULT_WAIT_TIME_SECS;
    mWaitUSecs = DEFAULT_WAIT_TIME_USECS;
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipRedirectorJoin::readConfig "
-                 "Default wait time is %d.%06d", mWaitSecs, mWaitUSecs);
+                 "%s::readConfig Default wait time is %d.%06d",
+                 mLogName.data(), mWaitSecs, mWaitUSecs);
    // Fetch the parameter value.
    UtlString waitUS;
    float waitf;
    if (configDb.get(CONFIG_SETTING_WAIT, waitUS) == OS_SUCCESS)
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipRedirectorJoin::readConfig "
-                    CONFIG_SETTING_WAIT " is '%s'",
-                    waitUS.data());
+                    "%s::readConfig " CONFIG_SETTING_WAIT " is '%s'",
+                    mLogName.data(), waitUS.data());
       // Parse the value, checking for errors.
       unsigned int char_count;
       sscanf(waitUS.data(), " %f %n", &waitf, &char_count);
       if (char_count != waitUS.length())
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR, "SipRedirectorJoin::readConfig "
-                       "Invalid format for "
-                       CONFIG_SETTING_WAIT
-                       " '%s'", 
-                       waitUS.data());
+         OsSysLog::add(FAC_SIP, PRI_ERR,
+                       "%s::readConfig Invalid format for "
+                       CONFIG_SETTING_WAIT " '%s'", 
+                       mLogName.data(), waitUS.data());
       }
       else if (
          // Check that the value is in range.
          !(waitf >= MIN_WAIT_TIME && waitf <= MAX_WAIT_TIME))
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR, "SipRedirectorJoin::readConfig "
-                       CONFIG_SETTING_WAIT
+         OsSysLog::add(FAC_SIP, PRI_ERR,
+                       "%s::readConfig " CONFIG_SETTING_WAIT
                        " (%f) outside allowed range (%f to %f)",
-                       waitf, MIN_WAIT_TIME, MAX_WAIT_TIME);
+                       mLogName.data(), waitf, MIN_WAIT_TIME, MAX_WAIT_TIME);
       }
       else
       {
@@ -175,9 +178,8 @@ void SipRedirectorJoin::readConfig(OsConfigDb& configDb)
          mWaitSecs = usecs / 1000000;
          mWaitUSecs = usecs % 1000000;
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                       "SipRedirectorJoin::readConfig "
-                       "Wait time is %d.%06d",
-                       mWaitSecs, mWaitUSecs);
+                       "%s::readConfig Wait time is %d.%06d",
+                       mLogName.data(), mWaitSecs, mWaitUSecs);
       }
    }
 }
@@ -312,9 +314,10 @@ SipRedirectorJoin::lookUpDialog(
    State stateFilter)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipRedirectorJoin::lookUpDialog requestString = '%s', "
+                 "%s::lookUpDialog requestString = '%s', "
                  "requestSeqNo = %d, redirectorNo = %d, privateStorage = %p, "
                  "subscribeUser = '%s', stateFilter = %d",
+                 mLogName.data(),
                  requestString.data(), requestSeqNo, redirectorNo,
                  privateStorage, subscribeUser, stateFilter);
 
@@ -366,7 +369,7 @@ SipRedirectorJoin::lookUpDialog(
                                         SIP_JOIN_EXTENSION);
 
          // Record the URI as a contact.
-         addContact(response, requestString, contact_URI, "pick-up");            
+         addContact(response, requestString, contact_URI, mLogName.data());
       }
 
       // We do not need to suspend this time.
@@ -377,7 +380,9 @@ SipRedirectorJoin::lookUpDialog(
       UtlString userId;
       Url requestUri(requestString);
       requestUri.getUserId(userId);      
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRedirectorJoin::lookUpDialog userId '%s'", userId.data());
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "%s::lookUpDialog userId '%s'",
+                    mLogName.data(), userId.data());
 
       // Construct the SUBSCRIBE for the call pickup.
       SipMessage subscribe;

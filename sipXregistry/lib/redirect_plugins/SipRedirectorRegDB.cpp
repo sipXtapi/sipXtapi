@@ -40,6 +40,9 @@ extern "C" RedirectPlugin* getRedirectPlugin(const UtlString& instanceName)
 SipRedirectorRegDB::SipRedirectorRegDB(const UtlString& instanceName) :
    RedirectPlugin(instanceName)
 {
+   mLogName.append("[");
+   mLogName.append(instanceName);
+   mLogName.append("] SipRedirectorRegDB");
 }
 
 // Destructor
@@ -97,10 +100,10 @@ SipRedirectorRegDB::lookUp(
       UtlString temp;
       requestUriCopy.getUri(temp);
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipRedirectorRegDB::lookUp "
-                    "gridPresent = %d, gridParameter = '%s', "
+                    "%s::lookUp gridPresent = %d, gridParameter = '%s', "
                     "requestUriCopy after removing grid = '%s'",
-                    gridPresent, gridParameter.data(), temp.data());
+                    mLogName.data(), gridPresent, gridParameter.data(),
+                    temp.data());
    }
 
    // Note that getUnexpiredContacts will reduce the requestUri to its
@@ -114,8 +117,8 @@ SipRedirectorRegDB::lookUp(
    int numUnexpiredContacts = registrations.getSize();
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipRedirectorRegDB::lookUp "
-                 "got %d unexpired contacts", numUnexpiredContacts);
+                 "%s::lookUp got %d unexpired contacts",
+                 mLogName.data(), numUnexpiredContacts);
 
    for (int i = 0; i < numUnexpiredContacts; i++)
    {
@@ -128,9 +131,8 @@ SipRedirectorRegDB::lookUp(
       UtlString contact = *((UtlString*) record.findValue(&contactKey));
       UtlString qvalue  = *((UtlString*) record.findValue(&qvalueKey));
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipRedirectorRegDB::lookUp "
-                    "contact = '%s', qvalue = '%s'", contact.data(),
-                    qvalue.data());
+                    "%s::lookUp contact = '%s', qvalue = '%s'",
+                    mLogName.data(), contact.data(), qvalue.data());
       Url contactUri(contact);
 
       // If the contact URI is the same as the request URI, ignore it.
@@ -157,7 +159,7 @@ SipRedirectorRegDB::lookUp(
          }
 
          // Add the contact.
-         addContact(response, requestString, contactUri, "registration");
+         addContact(response, requestString, contactUri, mLogName.data());
       }
    }
 

@@ -24,7 +24,7 @@
 //*
 // Special test redirector.
 //
-// Looks for a parameter named "t<redirector-number>".  If it is
+// Looks for a parameter named "t<instance-name>".  If it is
 // present, the redirector will execute a series of suspensions.  The
 // string is a set of fields separated by slashes, which are processed
 // one for each cycle of redirector processing in the request.  An
@@ -32,11 +32,11 @@
 // a non-empty field means to request suspension and then request
 // resume after that number of seconds.  A field of '*' means to return
 // LOOKUP_ERROR_REQUEST on that cycle, and "!" means to return
-// LOOKUP_ERROR_SERVER.
+// LOOKUP_ERROR_SERVER.  The redirector will never add a contact to the call.
 //
 // E.g., "t1=10" means to suspend for 10 seconds.
-// "t1=10;t2=5" means that redirector 1 will suspend for 10 seconds
-// and redirector 2 will suspend for 5 seconds.  (And the reprocessing
+// "t1=10;t2=5" means that redirector "1" will suspend for 10 seconds
+// and redirector "2" will suspend for 5 seconds.  (And the reprocessing
 // will begin at 10 seconds.)
 // "t1=10/;t2=/10" means that redirector 1 will request a 10 second
 // suspension, and upon reprocessing, redirector 2 will request a 10
@@ -61,6 +61,12 @@ extern "C" RedirectPlugin* getRedirectPlugin(const UtlString& instanceName)
 SipRedirectorTest::SipRedirectorTest(const UtlString& instanceName) :
    RedirectPlugin(instanceName)
 {
+   mLogName.append("[");
+   mLogName.append(instanceName);
+   mLogName.append("] SipRedirectorTest");
+
+   strcpy(mParameterName, "t");
+   strcat(mParameterName, mLogName.data());
 }
 
 // Destructor
@@ -143,14 +149,12 @@ SipRedirectorTest::lookUp(
    SipRedirectorPrivateStorage*& privateStorage)
 {
    UtlString parameter;
-   char parameter_name[10];
-   sprintf(parameter_name, "t%d", redirectorNo);
 
    //OsSysLog::add(FAC_SIP, PRI_DEBUG,
-   //              "SipRedirectorTest::LookUp redirectorNo %d, parameter_name '%s'",
-   //              redirectorNo, parameter_name);
+   //              "%s::LookUp redirectorNo %d, mParameterName '%s'",
+   //              mLogName.data(), redirectorNo, mParameterName);
 
-   if (!requestUri.getFieldParameter(parameter_name, parameter))
+   if (!requestUri.getFieldParameter(mParameterName, parameter))
    {
       return RedirectPlugin::LOOKUP_SUCCESS;
    }
@@ -158,7 +162,8 @@ SipRedirectorTest::lookUp(
    if (!privateStorage)
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipRedirectorTest::LookUp Creating storage for parameter '%s', requestSeqNo %d, redirectorNo %d",
+                    "%s::LookUp Creating storage for parameter '%s', requestSeqNo %d, redirectorNo %d",
+                    mLogName.data(),
                     parameter.data(), requestSeqNo, redirectorNo);
       SipRedirectorPrivateStorageTest *storage =
          new SipRedirectorPrivateStorageTest(parameter, requestSeqNo,

@@ -34,6 +34,9 @@ extern "C" RedirectPlugin* getRedirectPlugin(const UtlString& instanceName)
 SipRedirectorSubscribe::SipRedirectorSubscribe(const UtlString& instanceName) :
    RedirectPlugin(instanceName)
 {
+   mLogName.append("[");
+   mLogName.append(instanceName);
+   mLogName.append("] SipRedirectorSubscribe");
 }
 
 // Destructor
@@ -91,9 +94,8 @@ SipRedirectorSubscribe::lookUp(
          response.setContactField(contactUriString, contactNum);
 
          OsSysLog::add(FAC_SIP, PRI_NOTICE,
-                       "SipRedirectorSubscribe::lookUp Remove q value "
-                       "'%s' from '%s'",
-                       qValue.data(), contactUriString.data());
+                       "%s::lookUp Remove q value '%s' from '%s'",
+                       mLogName.data(), qValue.data(), contactUriString.data());
       }
    } // for all contacts
 

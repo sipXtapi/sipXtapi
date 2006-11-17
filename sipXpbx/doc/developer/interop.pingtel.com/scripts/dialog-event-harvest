@@ -1,0 +1,119 @@
+#!/usr/bin/perl
+
+use English;
+
+# Set default log file.
+$RegistrarLog = $ARGV[0] || '/var/log/sipxpbx/sipregistrar.log';
+$RegistrarLog = "/home/dworley/temp/aastra/logs/sipregistrar.log";
+
+if (open(REGISTRAR_LOG, "<$RegistrarLog"))
+{
+    while(<REGISTRAR_LOG>)
+    {
+        # Get the date and time stamp
+        ($date, $time) = /^"(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/; # "
+	$displaytime = substr($date, 8, 2) . 'T' . $time;
+
+        # Extract the OUTGOING lines that are 200's for REGISTER requests.
+	if ( m!:OUTGOING:.*----Remote Host:.+---- Port: \d+----\\nsip/2\.0 +200 .*\\r\\ncseq *:[ \d]+register!i )
+        {
+	    # Find all the Contact headers.
+	    split(/\\r\\n/);
+	    foreach $line (@_)
+	    {
+		next unless $line =~ /^ *contact *:\s*([^<;]*(<[^>]*>\s*)?)(;|$)/i;
+
+                # Extract the address of the contact and record the time.
+		$contact = $1;
+		# Unwrap the URI part.
+#print "E $contact\n";
+		$contact = $1 if $contact =~ /<(.*)>/;
+#print "C $contact\n";
+		$ContactSeen{$contact}++;
+	        $ContactLastSeen{$contact} = $displaytime;
+	    }
+        }
+    }
+    close REGISTRAR_LOG;
+}
+else
+{
+    # failed to open log file
+    print "Failed to open '$RegistrarLog':\n\t$!\n";
+}
+
+# Set default log file.
+$ProxyLog = $ARGV[0] || '/var/log/sipxpbx/sipproxy.log';
+$ProxyLog = "/home/dworley/temp/aastra/logs/sipproxy.log";
+
+if (open(PROXY_LOG, "<$ProxyLog"))
+{
+    while(<PROXY_LOG>)
+    {
+        # Get the date and time stamp
+        ($date, $time) = /^"(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/; # "
+	$displaytime = substr($date, 8, 2) . 'T' . $time;
+
+        # Extract the INCOMING lines that are INVITE requests or 200 responses
+	# to INVITE requests.
+	if ( m!:INCOMING:.*----Remote Host:.+---- Port: \d+----\\nINVITE !i ||
+	     m!:INCOMING:.*----Remote Host:.+---- Port: \d+----\\nSIP/2\.0 +200 .*\\r\\ncseq *:[ \d]+INVITE!i )
+        {
+#print "G $_";
+	    # Find the Contact headers.
+	    split(/\\r\\n/);
+	    foreach $line (@_)
+	    {
+#print "F ", $line, "\n" if $line =~ /^contact/i;
+		next unless $line =~ /^ *contact *:\s*([^<;]*(<[^>]*>\s*)?)(;|$)/i;
+
+                # Extract the address of the contact and record the time.
+		$contact = $1;
+		# Unwrap the URI part.
+		$contact = $1 if $contact =~ /<(.*)>/;
+#print "D $contact\n";
+		$ContactLastActivity{$contact} = $displaytime;
+	    }
+        }
+    }
+    close PROXY_LOG;
+}
+else
+{
+    # failed to open log file
+    print "Failed to open '$ProxyLog':\n\t$!\n";
+}
+
+# The current time, minus 1 hour.
+$idlecutoff = `date -u -d '1 hour ago' +%Y-%m-%dT%H:%M:%S`;
+
+$from_uri = "sip:dialog-event-harvest@" + `hostname`;
+
+# Find all contacts that are still registered but idle over 1 hour.
+foreach $contact (keys %ContactSeen) {
+#	print "A $contact\n";
+    if ($ContactLastSeen{$contact} lt $idlecutoff) {
+	print "B $contact\n";
+if (0) {
+	# Send a dialog subscription request to the UA while a call
+	# is ringing on it.
+	# Place call to UA.
+        $f = fork();
+	if (!defined($f)) {
+	    die "Error in fork: $!\n";
+	} elsif ($f > 0) {
+	    # This is the parent process.
+	} else {
+	    # This is the child process.
+	    exec("PlaceCall -d 30 -p 11234 -r 11235 sip:$contact");
+	    exit(1);
+	}
+	# Wait 10 seconds.
+	sleep(10);
+	# Request dialog event
+	system("sipsend.pl --from $from_uri --to $contact --event dialog ---header "Expires: 0" localhost SUBSCRIBE $contact");
+	# Wait for PlaceCall to end.
+	waitpid($f);
+}
+    }
+}

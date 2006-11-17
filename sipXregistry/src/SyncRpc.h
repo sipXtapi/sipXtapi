@@ -209,7 +209,7 @@ class SyncRpcReset : public SyncRpcMethod
  *  Inputs:
  *             string        callingRegistrar        Calling registrar name
  *             string        primaryRegistrar        Primary registrar name
- *             INT64         updateNumber
+ *             Int64         updateNumber
  *  Outputs:
  *             struct
  *               int         numUpdates
@@ -224,7 +224,7 @@ class SyncRpcReset : public SyncRpcMethod
  *                   string  instanceId
  *                   string  gruu
  *                   string  primary
- *                   INT64   updateNumber
+ *                   Int64   updateNumber
  */
 class SyncRpcPullUpdates : public SyncRpcMethod
 {
@@ -246,7 +246,7 @@ public:
       invoke(RegistrarPeer* source,       ///< peer to pull from
              const char*    myName,       ///< name of this registrar
              const char*    primaryName,  ///< name of registrar whose updates we want
-             INT64          updateNumber, ///< pull updates starting after this number
+             Int64          updateNumber, ///< pull updates starting after this number
              UtlSList*      bindings      ///< list of RegistrationBinding 
              );
    /**<
@@ -300,9 +300,9 @@ private:
  *                 string  instanceId
  *                 string  gruu
  *                 string  primary
- *                 INT64   updateNumber
+ *                 Int64   updateNumber
  *  Outputs:
- *             INT64       updateNumber
+ *             Int64       updateNumber
  */
 class SyncRpcPushUpdates : public SyncRpcMethod
 {
@@ -352,7 +352,7 @@ protected:
 
 private:
    /// Check lastSentUpdateNumber <= PeerReceivedDbUpdateNumber, otherwise updates are missing
-   void checkLastSentUpdateNumber(INT64 lastSentUpdateNumber,
+   void checkLastSentUpdateNumber(Int64 lastSentUpdateNumber,
                                   RegistrarPeer& peer,
                                   XmlRpcResponse& response,
                                   ExecutionStatus& status);
@@ -365,7 +365,7 @@ private:
    // Return true if they match and false if they don't.
    // If there is a mismatch, then set up fault info in the RPC reponse.
    bool checkUpdateNumber(const RegistrationBinding& reg,
-                          INT64                      updateNumber,
+                          Int64                      updateNumber,
                           RegistrarPeer&             peer,
                           XmlRpcResponse&            response,
                           ExecutionStatus&           status);

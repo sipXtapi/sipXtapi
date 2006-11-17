@@ -366,7 +366,7 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
    RegistrarPeer* source,       ///< peer to pull from
    const char*    myName,       ///< primary name of this registrar
    const char*    primaryName,  ///< name of registrar whose updates we want
-   INT64          updateNumber, ///< pull updates starting after this number
+   Int64          updateNumber, ///< pull updates starting after this number
    UtlSList*      bindings      ///< list of RegistrationBinding 
                                                                )
 {
@@ -749,7 +749,7 @@ bool SyncRpcPushUpdates::applyPushedUpdates(UtlSList&        updateMaps,
    UtlSListIterator updateIter(updateMaps);
 
    // Iterate over the updates and convert RPC params to RegistrationBindings
-   INT64 updateNumber = 0;
+   Int64 updateNumber = 0;
    UtlHashMap* update;
    UtlSList updateList;    // collect all the updates
    status = XmlRpcMethod::OK;
@@ -809,12 +809,12 @@ bool SyncRpcPushUpdates::applyPushedUpdates(UtlSList&        updateMaps,
 // Check lastSentUpdateNumber <= peerReceivedDbUpdateNumber, otherwise updates are missing
 // If everything is OK, set status to XmlRpcMethod::OK.
 // Otherwise mark the response and set status to an error.
-void SyncRpcPushUpdates::checkLastSentUpdateNumber(INT64 lastSentUpdateNumber,
+void SyncRpcPushUpdates::checkLastSentUpdateNumber(Int64 lastSentUpdateNumber,
                                                    RegistrarPeer& peer,
                                                    XmlRpcResponse& response,
                                                    ExecutionStatus& status)
 {
-   INT64 peerReceivedDbUpdateNumber = peer.receivedFrom();
+   Int64 peerReceivedDbUpdateNumber = peer.receivedFrom();
    if (lastSentUpdateNumber <= peerReceivedDbUpdateNumber)
    {
       status = XmlRpcMethod::OK;
@@ -841,7 +841,7 @@ void SyncRpcPushUpdates::checkLastSentUpdateNumber(INT64 lastSentUpdateNumber,
 // If there is a mismatch, then set up fault info in the RPC reponse.
 bool SyncRpcPushUpdates::checkUpdateNumber(
    const RegistrationBinding& reg,
-   INT64 updateNumber,
+   Int64 updateNumber,
    RegistrarPeer& peer,
    XmlRpcResponse& response,
    ExecutionStatus& status
