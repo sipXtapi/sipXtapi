@@ -56,7 +56,7 @@ public:
    virtual const char* const getContainableType() const;
 
 public:
-   static UtlContainableType TYPE;    /** < Class type used for runtime checking */
+   static const UtlContainableType TYPE;    /** < Class type used for runtime checking */
 };
 
 // Static identifier for the type.

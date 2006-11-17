@@ -45,11 +45,6 @@
 // STATIC VARIABLES
 SipMessage::SipMessageFieldProps* SipMessage::spSipMessageFieldProps = NULL ;
 
-#ifdef WIN32
-#  define strcasecmp stricmp
-#  define strncasecmp strnicmp
-#endif
-
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */

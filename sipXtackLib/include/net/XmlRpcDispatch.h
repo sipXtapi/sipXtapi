@@ -34,7 +34,7 @@
 class XmlRpcMethodContainer : public UtlContainable
 {
 public:
-   static UtlContainableType TYPE ;    /** < Class type used for runtime checking */ 
+   static const UtlContainableType TYPE ;    /** < Class type used for runtime checking */ 
 
    XmlRpcMethodContainer();
 
