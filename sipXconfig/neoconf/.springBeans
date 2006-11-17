@@ -16,12 +16,13 @@
 		<config>src/org/sipfoundry/sipxconfig/login/login.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/device/device.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/gateway/gateway.beans.xml</config>
-		<config>src/org/sipfoundry/sipxconfig/admin/callgroup/callgroup.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/permission/permission.beans.xml</config>
+		<config>src/org/sipfoundry/sipxconfig/admin/callgroup/callgroup.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/system.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/alias/alias.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/conference/conference.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/search/search.beans.xml</config>
+		<config>src/org/sipfoundry/sipxconfig/cdr/cdr.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/upload/upload.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/phonebook/phonebook.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/bulk/bulk.beans.xml</config>
@@ -59,6 +60,7 @@
 				<config>src/org/sipfoundry/sipxconfig/permission/permission.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/domain/domain.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/phonebook/phonebook.beans.xml</config>
+				<config>src/org/sipfoundry/sipxconfig/cdr/cdr.beans.xml</config>
 			</configs>
 		</configSet>
 	</configSets>

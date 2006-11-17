@@ -17,6 +17,7 @@
         <value>classpath:/org/sipfoundry/sipxconfig/bulk/bulk.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/bulk/csv/csv.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/bulk/ldap/ldap.beans.xml</value>
+        <value>classpath:/org/sipfoundry/sipxconfig/cdr/cdr.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/conference/conference.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/device/device.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/job/job.beans.xml</value>

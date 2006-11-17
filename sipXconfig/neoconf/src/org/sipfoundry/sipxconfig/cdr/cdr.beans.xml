@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="cdr.dataSource" parent="dataSource">
+    <property name="jdbcUrl" value="jdbc:postgresql://localhost/SIPXCDR" />
+  </bean>
+
+  <bean id="cdrManagerImpl" class="org.sipfoundry.sipxconfig.cdr.CdrManagerImpl">
+    <property name="dataSource" ref="cdr.dataSource" />
+  </bean>
+
+  <!-- We probably do not need to proxy this -->
+  <alias alias="cdrManager" name="cdrManagerImpl" />
+
+</beans>
