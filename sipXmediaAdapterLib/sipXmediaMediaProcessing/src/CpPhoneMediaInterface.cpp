@@ -1186,7 +1186,7 @@ OsStatus CpPhoneMediaInterface::playBuffer(char* buf,
                                            UtlBoolean repeat,
                                            UtlBoolean local,
                                            UtlBoolean remote, 
-                                           OsNotification* pEvent,
+                                           OsProtectedEvent* pEvent,
                                            UtlBoolean mixWithMic,
                                            int downScaling)
 {

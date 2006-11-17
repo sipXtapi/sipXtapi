@@ -377,7 +377,7 @@ public:
                                UtlBoolean repeat,
                                UtlBoolean local, 
                                UtlBoolean remote,
-                               OsNotification* event = NULL,
+                               OsProtectedEvent* event = NULL,
                                UtlBoolean mixWithMic = false,
                                int downScaling = 100) = 0 ;
 
