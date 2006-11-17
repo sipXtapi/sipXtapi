@@ -439,7 +439,8 @@ UtlBoolean OsSocket::isReadyToReadEx(long waitMilliseconds,UtlBoolean &rSocketEr
         {
             numReady = -1;
             OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                "OsSocket::isReadyToRead poll %d POLLIN: %d POLLPRI: %d POLLERR: %d POLLHUP: %d POLLNVAL: %d\n",
+                          "OsSocket::isReadyToRead polllState.revents = %d: "
+                          "POLLIN: %d POLLPRI: %d POLLERR: %d POLLHUP: %d POLLNVAL: %d\n",
                 pollState.revents, POLLSET(POLLIN), POLLSET(POLLPRI), POLLSET(POLLERR), POLLSET(POLLHUP), POLLSET(POLLNVAL));
         }
         else if(resCode > 0 && POLLSET(POLLIN))

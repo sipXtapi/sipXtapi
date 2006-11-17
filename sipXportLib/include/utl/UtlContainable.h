@@ -82,14 +82,10 @@ public:
      * {
      *    int result ; 
      * 
-     *    if (inVal->isInstanceOf(Foo::TYPE))
-     *    {
-     *       result = ((unsigned) this) - ((unsigned) (Foo*) inVal);
-     *    }
-     *    else
-     *    {
-     *       result = -1; 
-     *    }
+     *    result =
+     *       this > other ? 1 :
+     *       this < other ? -1 :
+     *       0;
      *
      *    return result;
      * }
@@ -161,4 +157,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif    // _UtlContainable_h_
-

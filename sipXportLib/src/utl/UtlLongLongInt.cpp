@@ -32,7 +32,7 @@ UtlContainableType UtlLongLongInt::TYPE = "UtlLongLongInt" ;
 /* ============================ CREATORS ================================== */
 
 // Constructor accepting an optional default value.
-UtlLongLongInt::UtlLongLongInt(INT64 value)
+UtlLongLongInt::UtlLongLongInt(Int64 value)
 {
     mValue = value ;
 } 
@@ -77,22 +77,22 @@ UtlLongLongInt UtlLongLongInt::operator--(int) {
 
 /* ============================ MANIPULATORS ============================== */
 
-INT64 UtlLongLongInt::setValue(INT64 iValue)
+Int64 UtlLongLongInt::setValue(Int64 iValue)
 {
-    INT64 iOldValue = mValue ;
+    Int64 iOldValue = mValue ;
     mValue = iValue ;
 
     return iOldValue ;
 }
 
-INT64 UtlLongLongInt::stringToLongLong(const char* longLongString)
+Int64 UtlLongLongInt::stringToLongLong(const char* longLongString)
 {
 #if defined(_WIN32)
     return(_atoi64(longLongString));
 #elif defined(_VXWORKS)
 
     int numDigits = strlen(longLongString);
-    INT64 sum = -1;
+    Int64 sum = -1;
 
     if(numDigits <= 9)
     {
@@ -101,8 +101,8 @@ INT64 UtlLongLongInt::stringToLongLong(const char* longLongString)
 
     else if(numDigits > 9)
     {
-        INT64 billions = 0;
-        INT64 first9digits = strtol(&longLongString[numDigits - 9], 0, 0);
+        Int64 billions = 0;
+        Int64 first9digits = strtol(&longLongString[numDigits - 9], 0, 0);
         char digitBuffer[10];
 
         if(numDigits <= 18)
@@ -123,7 +123,7 @@ INT64 UtlLongLongInt::stringToLongLong(const char* longLongString)
 
         else //(numDigits > 18)
         {
-            INT64 gazillions = 0;
+            Int64 gazillions = 0;
             // Billions digits
             memcpy(digitBuffer, &longLongString[numDigits - 18], 9);
             digitBuffer[9] = '\0';
@@ -155,7 +155,7 @@ INT64 UtlLongLongInt::stringToLongLong(const char* longLongString)
 
 /* ============================ ACCESSORS ================================= */
 
-INT64 UtlLongLongInt::getValue() const 
+Int64 UtlLongLongInt::getValue() const 
 {
     return mValue ; 
 }
@@ -181,7 +181,7 @@ int UtlLongLongInt::compareTo(UtlContainable const * inVal) const
    if (inVal->isInstanceOf(UtlLongLongInt::TYPE))
     {
         UtlLongLongInt* temp = (UtlLongLongInt*)inVal ; 
-        INT64 inIntll = temp -> getValue() ;
+        Int64 inIntll = temp -> getValue() ;
         if (mValue > inIntll) {
         	result = 1 ;
         }

@@ -73,6 +73,8 @@ public:
      * Inserts the designated containable object into the list
      * with a NULL value (see note regarding use of NULL value
      * in insertKeyAndValue).
+     * If there is an equal key in the UtlHashMap already,
+     * the insert will fail.
      * 
      * @return the object if successful, otherwise NULL
      */
