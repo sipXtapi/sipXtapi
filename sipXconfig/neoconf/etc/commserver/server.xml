@@ -120,7 +120,7 @@
         been entered.
       </description>
     </setting>
-    <setting name="SMTP_SERVER">
+    <setting name="SMTP_SERVER" hidden="yes">
       <label>SMTP server</label>
       <profileName>config.defs</profileName>
       <type></type>
