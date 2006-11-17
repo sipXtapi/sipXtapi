@@ -1025,7 +1025,7 @@ OsStatus MpCallFlowGraph::playBuffer(char* audioBuf,
                                      int type, 
                                      UtlBoolean repeat,
                                      int toneOptions, 
-                                     OsNotification* event)
+                                     OsProtectedEvent* event)
 {
    OsStatus  res;
 
