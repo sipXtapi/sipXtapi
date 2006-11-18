@@ -112,11 +112,62 @@ int     errno						= 1;
 char	*_tzname[ 2 ] = {"DST","STD"};
 
 
+// wWinMain is not defined in winbase.h.
+//extern "C" int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nShowCmd);
+
+int main( int, char* argv[] );
+
+//****************************************************************
+int
+WINAPI
+WinMain(
+		HINSTANCE hInstance,
+		HINSTANCE hPrevInstance,
+//#ifdef UNDER_CE
+//    LPWSTR lpCmdLine,
+//#else
+		LPSTR lpCmdLine,
+//#endif
+		int nShowCmd
+	   )
+{
+	printf( "entering WinMain( ) - lpCmdLine is *%s*\n", lpCmdLine );
+	wchar_t	wBuf[ 301 ];
+	wchar_t	*pW			= NULL;
+	int		iRet		= 1;
+
+
+	iRet = main( 0, NULL );
+
+	printf( "  main( ) returned %d\n", iRet );
+	return iRet;
+
+#if 0
+	if( lpCmdLine )
+	{
+		iRet = MultiByteToWideChar( CP_ACP, 0, lpCmdLine, strlen( lpCmdLine ), wBuf, 300 );
+//	printf( "  after MultiByteToWideChar( ) - it returned %d\n", iRet );
+//	printf( "  wBuf is *%S*\n", wBuf );
+		pW = wBuf;
+	}
+	if( iRet )
+	{
+		return wWinMain( hInstance, hPrevInstance, pW, nShowCmd );
+	}
+	else
+		return 0;
+#endif
+}
+
+
+//****************************************************************
 BOOL GetVersionExA( LPOSVERSIONINFOA lpVerInfo )
 {
+	printf( "GetVersionExA( ) NOT IMPLEMENTED\n" );
 	return FALSE;
 }
 
+//****************************************************************
 BOOL CreateProcessB( char *pName,
 					   char *pCmdLine,
 					   LPSECURITY_ATTRIBUTES lpsaProcess,
@@ -128,46 +179,109 @@ BOOL CreateProcessB( char *pName,
 					   LPSTARTUPINFO lpStartUpInfo,
 					   LPPROCESS_INFORMATION lpProcInfo )
 {
+	printf( "CreateProcessB( ) NOT IMPLEMENTED\n" );
 	return NULL;
 }
 
 
+//****************************************************************
 HANDLE CreateSemaphoreB( LPSECURITY_ATTRIBUTES lpSemaphoreAttr, LONG lInitialCount, LONG lMaxCount, char *pName )
 {
-	return NULL;
+//	printf( "entering CreateSemaphoreB( )\n" );
+//	printf( "  pName = *%s*", pName );
+
+	wchar_t	wBuf[ MAX_PATH + 1 ];
+	wchar_t	*pW			= NULL;
+	int		iRet		= 1;
+	if( pName )
+	{
+		iRet = MultiByteToWideChar( CP_ACP, 0, pName, strlen( pName ), wBuf, MAX_PATH );
+//	printf( "  after MultiByteToWideChar( ) - it returned %d\n", iRet );
+//	printf( "  wBuf is *%S*\n", wBuf );
+		pW = wBuf;
+	}
+	if( iRet )
+	{
+		return CreateSemaphoreW( lpSemaphoreAttr, lInitialCount, lMaxCount, pW );
+	}
+	else
+		return NULL;
 }
 
 
-HANDLE CreateMutexB( LPSECURITY_ATTRIBUTES lpMutexAttr, BOOL bInitialOwner, char *pNme )
+//****************************************************************
+HANDLE CreateMutexB( LPSECURITY_ATTRIBUTES lpMutexAttr, BOOL bInitialOwner, char *pName )
 {
-	return NULL;
+//	printf( "CreateMutexB( ) NOT IMPLEMENTED\n" );
+//	printf( "entering CreateMutexB( ) - pName is *%s*\n", pName );
+
+	wchar_t	wBuf[ MAX_PATH + 1 ];
+	wchar_t	*pW			= NULL;
+	int		iRet		= 1;
+	if( pName )
+	{
+		iRet = MultiByteToWideChar( CP_ACP, 0, pName, strlen( pName ), wBuf, MAX_PATH );
+//	printf( "  after MultiByteToWideChar( ) - it returned %d\n", iRet );
+//	printf( "  wBuf is *%S*\n", wBuf );
+		pW = wBuf;
+	}
+	if( iRet )
+	{
+		return CreateMutexW( lpMutexAttr, bInitialOwner, pW );
+	}
+	else
+		return NULL;
 }
 
 
+//****************************************************************
 HANDLE CreateFileB( const char *pFileName, DWORD dwDesiredAccess, DWORD dwShareMode,
 					LPSECURITY_ATTRIBUTES lpSecAttr, DWORD dwCreationDisp, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile )
 {
+	printf( "CreateFileB( ) NOT IMPLEMENTED\n" );
 	return NULL;
 }
 
+
+//****************************************************************
 DWORD FormatMessageB( DWORD dwFlags, void *lpVoid, DWORD dwMessageID, DWORD dwLangID, char *pBuffer, DWORD dwSize, va_list *Args )
 {
+	printf( "FormatMessageB( ) NOT IMPLEMENTED\n" );
 	return 0;
 }
 
+
+//****************************************************************
 struct tm * __cdecl localtime( const time_t *timer )
 {
-	static struct tm staticTM;
-	return &staticTM;
+	printf( "localtime( ) NOT IMPLEMENTED\n" );
+	static struct tm staticTMlocalTime;
+	return &staticTMlocalTime;
 }
 
-int time( int iIn )
+
+//****************************************************************
+struct tm * __cdecl gmtime( const time_t *timer )
 {
-	return 0;
+	printf( "gmtime( ) NOT IMPLEMENTED\n" );
+	static struct tm staticTMgmtime;
+	return &staticTMgmtime;
 }
 
-int _time( int iIn )
+
+//****************************************************************
+time_t __cdecl time(time_t *)
 {
+	int iRet = (int) (GetTickCount( ) / 1000);
+	printf( "time( ) is * * * PARTIALLY * * * IMPLEMENTED - returning %d\n", iRet );
+	return iRet;
+}
+
+
+//****************************************************************
+size_t __cdecl strftime( char *strDest, size_t maxSize, const char *pformat, const struct tm *timeptr )
+{
+	printf( "strftime( ) NOT IMPLEMENTED\n" );
 	return 0;
 }
 
@@ -175,6 +289,7 @@ int _time( int iIn )
 //****************************************************************
 long RegQueryValueExB( HKEY hKey, const char *lpName, DWORD *lpReserved, DWORD *lpType, unsigned char *lpData, DWORD *lpcbData )
 {
+	printf( "RegQueryValueExB( ) NOT IMPLEMENTED\n" );
 	return 0;
 }
 
@@ -182,6 +297,7 @@ long RegQueryValueExB( HKEY hKey, const char *lpName, DWORD *lpReserved, DWORD *
 //****************************************************************
 long RegOpenKeyExA( HKEY hKey, const char *pSub, DWORD dwOptions, REGSAM samDesired, PHKEY phkResults )
 {
+	printf( "RegOpenKeyExA( ) NOT IMPLEMENTED\n" );
 	return NULL;
 }
 
@@ -189,6 +305,7 @@ long RegOpenKeyExA( HKEY hKey, const char *pSub, DWORD dwOptions, REGSAM samDesi
 //****************************************************************
 HINSTANCE LoadLibraryExA( const char *pIn, HANDLE hIn, DWORD dwIn )
 {
+	printf( "LoadLibraryExA( ) NOT IMPLEMENTED\n" );
 	return NULL;
 }
 
@@ -197,6 +314,7 @@ HINSTANCE LoadLibraryExA( const char *pIn, HANDLE hIn, DWORD dwIn )
 //****************************************************************
 HINSTANCE LoadLibraryA( const char *pIn )
 {
+	printf( "LoadLibraryA( ) NOT IMPLEMENTED\n" );
 	return NULL;
 }
 
@@ -205,6 +323,7 @@ HINSTANCE LoadLibraryA( const char *pIn )
 //****************************************************************
 HMODULE GetModuleHandleA( const char *pIn )
 {
+	printf( "GetModuleHandleA( ) NOT IMPLEMENTED\n" );
 	return NULL;
 }
 
@@ -212,8 +331,9 @@ HMODULE GetModuleHandleA( const char *pIn )
 //****************************************************************
 void OutputDebugStringB( const char *pC )
 {
-	printf( "OutputDebugStringA( ) NOT IMPLEMENTED\n" );
-	assert( 0 );
+	printf( pC );
+//	printf( "OutputDebugStringA( ) NOT IMPLEMENTED\n" );
+//	assert( 0 );
 }
 
 
@@ -229,7 +349,7 @@ void OutputDebugStringB( const char *pC )
 int rmdir( const char * dirname )
 {
 	printf( "rmdir( ) NOT IMPLEMENTED\n" );
-	assert( 0 );
+//	assert( 0 );
 	return -1;
 }
 
@@ -238,7 +358,7 @@ int rmdir( const char * dirname )
 char * getcwd( char *buffer, int maxlen )
 {
 	printf( "getcwd( ) NOT IMPLEMENTED\n" );
-	assert( 0 );
+//	assert( 0 );
 	return NULL;
 }
 
@@ -247,7 +367,7 @@ char * getcwd( char *buffer, int maxlen )
 unsigned int GetSystemDirectory( char *cP, unsigned int uSize )
 {
 	printf( "GetSystemDirectory( ) NOT IMPLEMENTED\n" );
-	assert( 0 );
+//	assert( 0 );
 	return 0;
 }
 
@@ -255,13 +375,14 @@ unsigned int GetSystemDirectory( char *cP, unsigned int uSize )
 void GetSystemTimeAsFileTime( LPFILETIME pFT )
 {
 	printf( "GetSystemTimeAsFileTime( ) NOT IMPLEMENTED\n" );
-	assert( 0 );
+//	assert( 0 );
 }
 
 
 //****************************************************************
 void WINAPI perror( char *pC )
 {
+	printf( "perror( ) NOT IMPLEMENTED\n" );
 	//  Just a stub...
 }
 
@@ -269,6 +390,7 @@ void WINAPI perror( char *pC )
 //****************************************************************
 int SetErrorMode( int iUnused )
 {
+	printf( "SetErrorMode( ) NOT IMPLEMENTED\n" );
 	//  Just a stub...
 	return 0;
 }
@@ -277,6 +399,7 @@ int SetErrorMode( int iUnused )
 //****************************************************************
 char * WINAPI strerror( int iErrNo )
 {
+	printf( "strerror( ) NOT IMPLEMENTED\n" );
 	//  Just a stub...
 	static char cErrMsg[ 100 ] = { 0 };
 
@@ -291,7 +414,7 @@ char * WINAPI strerror( int iErrNo )
 int _chdir( const char *p1 )
 {
 	printf( "_chdir( ) NOT IMPLEMENTED\n" );
-	assert( 0 );
+//	assert( 0 );
 	return 0;
 }
 
@@ -300,7 +423,7 @@ int _chdir( const char *p1 )
 int _mkdir( const char *p1 )
 {
 	printf( "_mkdir( ) NOT IMPLEMENTED\n" );
-	assert( 0 );
+//	assert( 0 );
 	return 0;
 }
 
@@ -309,7 +432,7 @@ int _mkdir( const char *p1 )
 int rename( const char *p1, const char *p2 )
 {
 	printf( "rename( ) NOT IMPLEMENTED\n" );
-	assert( 0 );
+//	assert( 0 );
 	return 0;
 }
 
@@ -318,7 +441,7 @@ int rename( const char *p1, const char *p2 )
 int remove( const char *p1 )
 {
 	printf( "remove( ) NOT IMPLEMENTED\n" );
-	assert( 0 );
+//	assert( 0 );
 	return 0;
 }
 
@@ -331,14 +454,35 @@ int remove( const char *p1 )
 //#define _O_TRUNC		0x0200
 //#define _O_EXCL		0x0400
 
+//int _wopen( const wchar_t *filename, int oflag );
 
 
 //****************************************************************
 int _open( const char *filename, int oflag )
 {
 	printf( "_open( ) NOT IMPLEMENTED\n" );
-	assert( 0 );
 	return -1;
+
+#if 0
+	printf( "entering _open( ) - filename is *%s*\n", filename );
+
+	wchar_t	wBuf[ MAX_PATH + 1 ];
+	wchar_t	*pW			= NULL;
+	int		iRet		= 1;
+	if( filename )
+	{
+		iRet = MultiByteToWideChar( CP_ACP, 0, filename, strlen( filename ), wBuf, MAX_PATH );
+//	printf( "  after MultiByteToWideChar( ) - it returned %d\n", iRet );
+//	printf( "  wBuf is *%S*\n", wBuf );
+		pW = wBuf;
+	}
+	if( iRet )
+	{
+		return _wopen( pW, oflag );
+	}
+	else
+		return -1;
+#endif
 }
 
 
@@ -346,7 +490,7 @@ int _open( const char *filename, int oflag )
 int _close( int fd )
 {
 	printf( "_close( ) NOT IMPLEMENTED\n" );
-	assert( 0 );
+//	assert( 0 );
 	return -1;
 }
 
@@ -360,7 +504,7 @@ int _close( int fd )
 void * _findclose( long hFile )
 {
 	printf( "_findclose( ) NOT IMPLEMENTED\n" );
-	assert( 0 );
+//	assert( 0 );
 	return NULL;
 }
 
@@ -369,8 +513,8 @@ void * _findclose( long hFile )
 intptr_t _findnext( long hFile, struct _finddata_t *pFD )
 {
 	printf( "_findnext( ) NOT IMPLEMENTED\n" );
-	assert( 0 );
-	return NULL;
+//	assert( 0 );
+	return -1;
 }
 
 
@@ -379,8 +523,8 @@ intptr_t _findnext( long hFile, struct _finddata_t *pFD )
 intptr_t _findfirst( const char *pName, struct _finddata_t *pFD )
 {
 	printf( "_findfirst( ) NOT IMPLEMENTED\n" );
-	assert( 0 );
-	return NULL;
+//	assert( 0 );
+	return -1;
 }
 
 
@@ -389,7 +533,7 @@ intptr_t _findfirst( const char *pName, struct _finddata_t *pFD )
 HANDLE GetStdHandle( int nStdHandle )
 {
 	printf( "GetStdHandle( ) NOT IMPLEMENTED\n" );
-	assert( 0 );
+//	assert( 0 );
 	return INVALID_HANDLE_VALUE;
 }
 
@@ -398,7 +542,7 @@ HANDLE GetStdHandle( int nStdHandle )
 int _putenv( const char *pIn )
 {
 	printf( "_putenv( ) NOT IMPLEMENTED\n" );
-	assert( 0 );
+//	assert( 0 );
 	return -1;
 }
 
