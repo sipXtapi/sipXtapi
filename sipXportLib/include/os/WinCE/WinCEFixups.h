@@ -111,7 +111,7 @@ typedef struct _xFILETIME {
 int     errno						= 1;
 char	*_tzname[ 2 ] = {"DST","STD"};
 
-
+#ifndef _LIB  // Don't want to include this if we're building as a lib.
 // wWinMain is not defined in winbase.h.
 //extern "C" int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nShowCmd);
 
@@ -158,7 +158,7 @@ WinMain(
 		return 0;
 #endif
 }
-
+#endif
 
 //****************************************************************
 BOOL GetVersionExA( LPOSVERSIONINFOA lpVerInfo )
