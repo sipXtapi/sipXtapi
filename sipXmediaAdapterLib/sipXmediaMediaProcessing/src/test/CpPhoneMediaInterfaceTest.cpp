@@ -180,7 +180,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         mediaInterface->giveFocus() ;
 
         mediaInterface->playAudio("record_prompt.wav", false, true, false) ;
-        Sleep(3500) ;
+        OsTask::delay(3500) ;
         mediaInterface->stopAudio() ;
         
         mediaInterface->startTone(0, true, false) ;
@@ -196,11 +196,11 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         mediaInterface->stopTone() ;
 
         mediaInterface->playAudio("playback_prompt.wav", false, true, false) ;
-        Sleep(2500) ;
+        OsTask::delay(2500) ;
         mediaInterface->stopAudio() ;
 
         mediaInterface->playAudio("record.tmp.wav", false, true, false) ;
-        Sleep(10000) ;
+        OsTask::delay(10000) ;
         mediaInterface->stopAudio() ;
 
         mediaInterface->startTone(0, true, false) ;
