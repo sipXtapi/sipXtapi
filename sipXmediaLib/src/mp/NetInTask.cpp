@@ -411,7 +411,7 @@ int NetInTask::run(void *pNotUsed)
         int     ostc;
 
         while (NetInWait) {
-         ;
+           OsTask::yield() ;
         }
         pBindSocket = new OsServerSocket(1);
         mCmdPort = pBindSocket->getLocalHostPort();
@@ -687,7 +687,7 @@ NetInTask* NetInTask::getNetInTask()
 
       // Give the NetInTask the ability to start -- we really need some 
       // synchronization.
-      OsTask::yield();
+      OsTask::delay(20) ;
    }
    sLock.releaseRead();
    return spInstance;
@@ -719,6 +719,7 @@ NetInTask::NetInTask(int prio, int options, int stack)
    mpWriteSocket(NULL),
    mpReadSocket(NULL)
 {
+    mCmdPort = -1;
 }
 
 // Destructor

@@ -137,6 +137,9 @@ sipXmediaFactoryImpl::sipXmediaFactoryImpl(OsConfigDb* pConfigDb)
 
     miGain = 7 ;
     ++miInstanceCount;
+
+    // We are missing synchronization -- give the tasks time to start
+    OsTask::delay(100) ;
 }
 
 

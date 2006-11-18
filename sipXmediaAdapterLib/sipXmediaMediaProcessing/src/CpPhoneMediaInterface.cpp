@@ -1489,6 +1489,18 @@ OsStatus CpPhoneMediaInterface::stopRecording()
    return ret;
 }
 
+OsStatus CpPhoneMediaInterface::recordMic(int ms,
+                                          int silenceLength,
+                                          const char* fileName)
+{
+    OsStatus ret = OS_UNSPECIFIED;
+    if (mpFlowGraph && fileName)
+    {
+        ret = mpFlowGraph->recordMic(ms, silenceLength, fileName);
+    }
+    return ret ;
+}
+
 
 OsStatus CpPhoneMediaInterface::ezRecord(int ms, 
                                          int silenceLength, 
