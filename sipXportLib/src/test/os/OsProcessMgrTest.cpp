@@ -17,13 +17,15 @@
 
 #include <sipxunit/TestUtilities.h>
 
-#ifndef TEST_DIR
+// Short circuit the autotools config as the path will most likely not work
+// for cross compile test runs off the machine the unit tests were built on.
+//#ifndef TEST_DIR
 #ifdef WIN32
 #define TEST_DIR "C:\\windows\\temp\\"
 #else
 #define TEST_DIR "/tmp/"
 #endif
-#endif
+//#endif
 
 class OsProcessMgrTest : public CppUnit::TestCase
 {
@@ -37,6 +39,7 @@ public:
     void testManager()
     {
         OsStatus stat;
+        printf("Creating process lock file in dir: %s\n", TEST_DIR);
         OsProcessMgr processManager(TEST_DIR);
 
         UtlString alias = "MyPing1";
