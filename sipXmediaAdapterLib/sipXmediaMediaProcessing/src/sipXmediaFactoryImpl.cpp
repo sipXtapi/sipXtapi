@@ -248,7 +248,14 @@ CpMediaInterface* sipXmediaFactoryImpl::createMediaInterface( const char* public
         pCaptureDevice->setFPS(10);
 
         // Open capture device
-        pCaptureDevice->initialize();
+        if (pCaptureDevice->initialize() != OS_SUCCESS)
+        {
+           // Something goes wrong. May be we specify wrong device, or pass
+           // unsupported capture parameters. Anyway, we could not use such
+           // device. Lets free it.
+           delete pCaptureDevice;
+           pCaptureDevice = NULL;
+        }
     }
 #endif // SIPX_VIDEO ]
 

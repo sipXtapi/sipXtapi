@@ -282,17 +282,17 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
    // disable the from file
    boolRes = mpFromFile->disable();     assert(boolRes);
 
-#ifndef DISABLE_LOCAL_AUDIO
+#ifndef DISABLE_LOCAL_AUDIO // [
    // disable the FromMic, EchoCancel, PreProcess and ToSpkr -- we cannot have focus yet...
    boolRes = mpFromMic->disable();                assert(boolRes);
-#ifdef DOING_ECHO_CANCELATION /* [ */
+#ifdef DOING_ECHO_CANCELATION // [
    boolRes = mpEchoCancel->disable();             assert(boolRes);
-#endif /* DOING_ECHO_CANCELATION ] */
+#endif // DOING_ECHO_CANCELATION ]
 #ifdef HAVE_SPEEX // [
    boolRes = mpSpeexPreProcess->disable();        assert(boolRes);
 #endif // HAVE_SPEEX ]
    boolRes = mpToSpkr->disable();                 assert(boolRes);
-#endif
+#endif // DISABLE_LOCAL_AUDIO ]
 
    // The next group of settings turns the mixers into 2-to-1 multiplexors.
    // When disabled, mixers default to passing input 0 to output, and with
@@ -1696,7 +1696,7 @@ UtlBoolean MpCallFlowGraph::handleRemoveConnection(MpFlowGraphMsg& rMsg)
    if ((NULL == pConnection) || (((MpAudioConnection*) -1) == pConnection))
       return TRUE;
 
-   // now remove syncrhonous resources from flowgraph
+   // now remove synchronous resources from flow graph
    res = handleRemoveResource(pConnection->mpDecode);
    assert(res);
 

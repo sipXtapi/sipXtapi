@@ -68,7 +68,7 @@ int MpdSipxPcmu::decode(const MpRtpBufPtr &pPacket,
       return 0;
 
    // Assert that available buffer size is enough for the packet.
-//   assert(payloadSize <= decodedBufferLength);
+   assert(payloadSize <= decodedBufferLength);
 
    int samples = min(payloadSize, decodedBufferLength);
    G711U_Decoder(samples,

@@ -1113,7 +1113,7 @@ OsStatus CpPhoneMediaInterface::startRtpSend(int connectionId,
            delete mediaConnection->mpVideoCodec ;
            mediaConnection->mpVideoCodec = NULL ;
        }
-       if (audioCodec != NULL)
+       if (videoCodec != NULL)
        {
            mediaConnection->mpVideoCodec = new SdpCodec();
            *mediaConnection->mpVideoCodec = *videoCodec ;

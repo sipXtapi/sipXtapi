@@ -315,6 +315,7 @@ public:
 
    MpAudioConnection* getConnectionPtr(MpConnectionID id);
 #ifdef INCLUDE_RTCP /* [ */
+     /// Returns the RTCP Session interface pointer associated with this call's flow graph.
    IRTCPSession* getRTCPSessionPtr(void);
 #endif /* INCLUDE_RTCP ] */
 
@@ -626,31 +627,9 @@ private:
 
 /* ============================ INLINE METHODS ============================ */
 #ifdef INCLUDE_RTCP /* [ */
-/**
- *
- * Method Name: getRTCPSessionPtr
- *
- *
- * Inputs:      None
- *                                                 
- * Outputs:     None
- *
- * Returns:     IRTCPSession *   - RTCP Session interface pointer associated
- *                               with this flow graph and call.
- *              
- * Description: Returns the RTCP Session interface pointer associated with
- *              this call's flow graph.
- *
- *               
- * Usage Notes: 
- *
- *
- */
 inline IRTCPSession *MpCallFlowGraph::getRTCPSessionPtr(void)
 {
-
     return(mpiRTCPSession);
-
 }
 
 
