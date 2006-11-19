@@ -302,7 +302,7 @@ public:
      */
     virtual OsStatus getLocalAudioConnectionId(int& connectionId) const = 0;
 
-#ifdef VIDEO
+#ifdef SIPX_VIDEO
     /*
      * Gets a list of UtlStrings representing available video capture devices.
      */
@@ -360,8 +360,11 @@ public:
     /* 
      * Get cpu usage
      */  
-    virtual OsStatus getVideoCpuValue(int& cpuValue) const = 0;
-#endif // VIDEO
+    virtual OsStatus getVideoCpuValue(int& cpuValue) const
+    {
+       return OS_NOT_SUPPORTED ;
+    }
+#endif // SIPX_VIDEO
     /*
      * Get the connection idle timeout
      */

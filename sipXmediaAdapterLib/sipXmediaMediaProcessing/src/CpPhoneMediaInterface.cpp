@@ -31,8 +31,11 @@
 #include <mp/MpStreamQueuePlayer.h>
 #include <mp/dtmflib.h>
 
-#include <net/SdpCodec.h>
+#ifdef SIPX_VIDEO // [
+#include <mp/video/MpVideoCallFlowGraph.h>
+#endif // SIPX_VIDEO ]
 
+#include <net/SdpCodec.h>
 
 #if defined(_VXWORKS)
 #   include <socket.h>
@@ -59,22 +62,34 @@ class CpPhoneMediaConnection : public UtlInt
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
-    CpPhoneMediaConnection(int connectionId = -1) :
-      UtlInt(connectionId)
+    CpPhoneMediaConnection(int connectionId = -1)
+    : UtlInt(connectionId)
+    , mRtpSendHostAddress()
+    , mDestinationSet(FALSE)
+    , mpRtpAudioSocket(NULL)
+    , mpRtcpAudioSocket(NULL)
+    , mRtpAudioSendHostPort(0)
+    , mRtcpAudioSendHostPort(0)
+    , mRtpAudioReceivePort(0)
+    , mRtcpAudioReceivePort(0)
+    , mRtpAudioSending(FALSE)
+    , mRtpAudioReceiving(FALSE)
+    , mpAudioCodec(NULL)
+#ifdef SIPX_VIDEO // [
+    , mpRtpVideoSocket(NULL)
+    , mpRtcpVideoSocket(NULL)
+    , mRtpVideoSendHostPort(0)
+    , mRtcpVideoSendHostPort(0)
+    , mRtpVideoReceivePort(0)
+    , mRtcpVideoReceivePort(0)
+    , mRtpVideoSending(FALSE)
+    , mRtpVideoReceiving(FALSE)
+    , mpVideoCodec(NULL)
+#endif // SIPX_VIDEO ]
+    , mpCodecFactory(NULL)
+    , mContactType(CONTACT_AUTO)
+    , mbAlternateDestinations(FALSE)
     {
-        mpRtpAudioSocket = NULL;
-        mpRtcpAudioSocket = NULL;
-        mRtpAudioSendHostPort = 0;
-        mRtcpAudioSendHostPort = 0;
-        mRtpAudioReceivePort = 0;
-        mRtcpAudioReceivePort = 0;
-        mDestinationSet = FALSE;       
-        mRtpAudioSending = FALSE;
-        mRtpAudioReceiving = FALSE;
-        mpCodecFactory = NULL;
-        mpPrimaryCodec = NULL;
-        mContactType = CONTACT_AUTO ;
-        mbAlternateDestinations = FALSE ;
     };
 
     virtual ~CpPhoneMediaConnection()
@@ -102,6 +117,31 @@ public:
             mpRtcpAudioSocket = NULL;
         }
 
+#ifdef SIPX_VIDEO // [
+        if(mpRtpVideoSocket)
+        {
+
+#ifdef TEST_PRINT
+            OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                "~CpPhoneMediaConnection deleting RTP socket: %p descriptor: %d",
+                mpRtpVideoSocket, mpRtpVideoSocket->getSocketDescriptor());
+#endif
+            delete mpRtpVideoSocket;
+            mpRtpVideoSocket = NULL;
+        }
+
+        if(mpRtcpVideoSocket)
+        {
+#ifdef TEST_PRINT
+            OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                "~CpPhoneMediaConnection deleting RTCP socket: %p descriptor: %d",
+                mpRtcpVideoSocket, mpRtcpVideoSocket->getSocketDescriptor());
+#endif
+            delete mpRtcpVideoSocket;
+            mpRtcpVideoSocket = NULL;
+        }
+#endif // SIPX_VIDEO ]
+
         if(mpCodecFactory)
         {
             OsSysLog::add(FAC_CP, PRI_DEBUG, 
@@ -111,27 +151,42 @@ public:
             mpCodecFactory = NULL;
         }
 
-        if (mpPrimaryCodec)
+        if (mpAudioCodec)
         {
-            delete mpPrimaryCodec;
-            mpPrimaryCodec = NULL; 
+            delete mpAudioCodec;
+            mpAudioCodec = NULL; 
         }              
 
         mConnectionProperties.destroyAll();
     }
 
+    UtlString mRtpSendHostAddress;
+    UtlBoolean mDestinationSet;
+
     OsNatDatagramSocket* mpRtpAudioSocket;
     OsNatDatagramSocket* mpRtcpAudioSocket;
-    UtlString mRtpSendHostAddress;
     int mRtpAudioSendHostPort;
     int mRtcpAudioSendHostPort;
     int mRtpAudioReceivePort;
     int mRtcpAudioReceivePort;
-    UtlBoolean mDestinationSet;
     UtlBoolean mRtpAudioSending;
     UtlBoolean mRtpAudioReceiving;
+    SdpCodec* mpAudioCodec;
+
+#ifdef SIPX_VIDEO // [
+    OsNatDatagramSocket* mpRtpVideoSocket;
+    OsNatDatagramSocket* mpRtcpVideoSocket;
+    int mRtpVideoSendHostPort;
+    int mRtcpVideoSendHostPort;
+    int mRtpVideoReceivePort;
+    int mRtcpVideoReceivePort;
+    UtlBoolean mRtpVideoSending;
+    UtlBoolean mRtpVideoReceiving;
+    SdpCodec* mpVideoCodec;
+#endif // SIPX_VIDEO ]
+
+
     SdpCodecFactory* mpCodecFactory;
-    SdpCodec* mpPrimaryCodec;
     SIPX_CONTACT_TYPE mContactType ;
     UtlString mLocalAddress ;
     UtlBoolean mbAlternateDestinations ;
@@ -158,15 +213,22 @@ CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFacto
                                              const char* szTurnUsername,
                                              const char* szTurnPassword,
                                              int iTurnKeepAlivePeriodSecs,
-                                             bool mbEnableICE)
-    : CpMediaInterface(pFactoryImpl)
+                                             bool mbEnableICE,
+                                             MpCaptureDeviceBase *pCaptureDevice)
+: CpMediaInterface(pFactoryImpl)
 {
    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::CpPhoneMediaInterface creating a new CpMediaInterface %p",
                  this);
-   mpFlowGraph = new MpCallFlowGraph(locale);
 
+   mpFlowGraph = new MpCallFlowGraph(locale);
    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::CpPhoneMediaInterface creating a new MpCallFlowGraph %p",
                  mpFlowGraph);
+
+#ifdef SIPX_VIDEO // [
+   mpVideoFlowGraph = new MpVideoCallFlowGraph(pCaptureDevice);
+   OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::CpPhoneMediaInterface creating a new MpVideoCallFlowGraph %p",
+                 mpVideoFlowGraph);
+#endif // SIPX_VIDEO ]
    
    mStunServer = szStunServer ;
    mStunPort = iStunPort ;
@@ -258,6 +320,9 @@ CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFacto
 #ifdef HAVE_SPEEX // [
                           "SPEEX SPEEX_5 SPEEX_15 SPEEX_24 "
 #endif // HAVE_SPEEX ]
+#ifdef SIPX_VIDEO // [
+                          "H264-CIF H264-QCIF H264-SQCIF H264-QVGA "
+#endif // HAVE_SPEEX ]
                           "PCMU PCMA TELEPHONE-EVENT";
        OsSysLog::add(FAC_CP, PRI_WARNING, "CpPhoneMediaInterface::CpPhoneMediaInterface hard-coded codec factory %s ...",
                      codecs.data());
@@ -305,6 +370,16 @@ CpPhoneMediaInterface::~CpPhoneMediaInterface()
         mpFlowGraph = NULL;
     }
 
+#ifdef SIPX_VIDEO // [
+    if (mpVideoFlowGraph)
+    {
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::~CpPhoneMediaInterface deleting the MpVideoCallFlowGraph %p",
+                      mpVideoFlowGraph);
+        delete mpVideoFlowGraph;
+        mpVideoFlowGraph = NULL;
+    }
+#endif // SIPX_VIDEO ]
+
     // Delete the properties and their values
     mInterfaceProperties.destroyAll();
 }
@@ -328,149 +403,75 @@ OsStatus CpPhoneMediaInterface::createConnection(int& connectionId,
                                                  const SIPX_RTP_TRANSPORT rtpTransportOptions,
                                                  const RtpTcpRoles role)
 {
-    int localPort  ;
-    OsStatus returnCode;
-    {
-        connectionId = mpFlowGraph->createConnection();
-        mpFactoryImpl->getNextRtpPort(localPort);
+   CpPhoneMediaConnection* mediaConnection=NULL;
 
-        int iNextRtpPort = localPort ;
+   connectionId = mpFlowGraph->createConnection();
 
-        CpPhoneMediaConnection* mediaConnection = new CpPhoneMediaConnection();
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::createConnection creating a new connection %p",
-                      mediaConnection);
-        mediaConnection->setValue(connectionId) ;
-        mMediaConnections.append(mediaConnection);
+   mediaConnection = new CpPhoneMediaConnection();
+   OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::createConnection creating a new connection %p",
+                  mediaConnection);
+   mediaConnection->setValue(connectionId) ;
+   mMediaConnections.append(mediaConnection);
 
-        // Set Local address
-        if (szLocalAddress && strlen(szLocalAddress))
-        {
-            mediaConnection->mLocalAddress = szLocalAddress ;
-        }
-        else
-        {
-            mediaConnection->mLocalAddress = mLocalAddress ;
-        }
+   // Set Local address
+   if (szLocalAddress && strlen(szLocalAddress))
+   {
+      mediaConnection->mLocalAddress = szLocalAddress ;
+   }
+   else
+   {
+      mediaConnection->mLocalAddress = mLocalAddress ;
+   }
 
-        // Create the sockets
-        // Eventually this should use a specified address as this
-        // host may be multi-homed
-        OsNatDatagramSocket* rtpSocket = new OsNatDatagramSocket(0, NULL,
-            localPort, mediaConnection->mLocalAddress, NULL);
-        rtpSocket->enableTransparentReads(false);        
+   // Create the sockets for audio stream
+   createRtpSocketPair(mediaConnection->mLocalAddress, mediaConnection->mContactType,
+                       mediaConnection->mpRtpAudioSocket, mediaConnection->mpRtcpAudioSocket);
 
-        OsNatDatagramSocket* rtcpSocket = new OsNatDatagramSocket(0, NULL,
-            localPort == 0 ? 0 : localPort + 1, mediaConnection->mLocalAddress, NULL);
-        rtcpSocket->enableTransparentReads(false);
+   // Start the audio packet pump
+   mpFlowGraph->startReceiveRtp(NULL, 0,
+                                *mediaConnection->mpRtpAudioSocket,
+                                *mediaConnection->mpRtcpAudioSocket,
+                                connectionId);
 
-        // Validate local port is not auto-selecting.
-        if (localPort != 0)
-        {
-            // If either of the sockets are bad (e.g. already in use) or
-            // if either have stuff on them to read (e.g. someone is
-            // sending junk to the ports, look for another port pair
-            while(!rtpSocket->isOk() || !rtcpSocket->isOk() ||
-                   rtcpSocket->isReadyToRead() ||
-                   rtpSocket->isReadyToRead(60))
-            {
-                localPort +=2;
-                // This should use mLastRtpPort instead of some
-                // hardcoded MAX, but I do not think mLastRtpPort
-                // is set correctly in all of the products.
-                if(localPort > iNextRtpPort + MAX_RTP_PORTS) 
-                {
-                    OsSysLog::add(FAC_CP, PRI_ERR, 
-                        "No available ports for RTP and RTCP in range %d - %d",
-                        iNextRtpPort, iNextRtpPort + MAX_RTP_PORTS);
-                    break;  // time to give up
-                }
+   // Store audio stream settings
+   mediaConnection->mRtpAudioReceivePort = mediaConnection->mpRtpAudioSocket->getLocalHostPort() ;
+   mediaConnection->mRtcpAudioReceivePort = mediaConnection->mpRtcpAudioSocket->getLocalHostPort() ;
 
-                delete rtpSocket;
-                delete rtcpSocket;
-                rtpSocket = new OsNatDatagramSocket(0, NULL, localPort,
-                   mLocalAddress.data(), NULL) ;
-                rtcpSocket = new OsNatDatagramSocket(0, NULL, localPort + 1,
-                   mLocalAddress.data(), NULL);
-            }
-        }
+   OsSysLog::add(FAC_CP, PRI_DEBUG, 
+            "CpPhoneMediaInterface::createConnection creating a new RTP socket: %p descriptor: %d",
+            mediaConnection->mpRtpAudioSocket, mediaConnection->mpRtpAudioSocket->getSocketDescriptor());
+   OsSysLog::add(FAC_CP, PRI_DEBUG, 
+            "CpPhoneMediaInterface::createConnection creating a new RTCP socket: %p descriptor: %d",
+            mediaConnection->mpRtcpAudioSocket, mediaConnection->mpRtcpAudioSocket->getSocketDescriptor());
 
-        // Set a maximum on the buffers for the sockets so
-        // that the network stack does not get swamped by early media
-        // from the other side;
-        {
-            int sRtp, sRtcp, oRtp, oRtcp, optlen;
+#ifdef SIPX_VIDEO // [
+   // TODO:: sometimes this code should be generalized and used extracted to
+   //        external function and use for audio and video and etc.
 
-            sRtp = rtpSocket->getSocketDescriptor();
-            sRtcp = rtcpSocket->getSocketDescriptor();
+   // Create the sockets for video stream
+   createRtpSocketPair(mediaConnection->mLocalAddress, mediaConnection->mContactType,
+                       mediaConnection->mpRtpVideoSocket, mediaConnection->mpRtcpVideoSocket);
 
-            optlen = sizeof(int);
-            oRtp = 2000;
-            setsockopt(sRtp, SOL_SOCKET, SO_RCVBUF, (char *) (&oRtp), optlen);
-            oRtcp = 500;
-            setsockopt(sRtcp, SOL_SOCKET, SO_RCVBUF, (char *) (&oRtcp), optlen);
+   // Store video stream settings
+   mediaConnection->mRtpVideoReceivePort = mediaConnection->mpRtpVideoSocket->getLocalHostPort() ;
+   mediaConnection->mRtcpVideoReceivePort = mediaConnection->mpRtcpVideoSocket->getLocalHostPort() ;
 
-            // Set the type of service (DiffServ code point) to low delay
-            int tos = mExpeditedIpTos;
-            
-            setsockopt (sRtp, IPPROTO_IP, IP_TOS, (char *)&tos, sizeof(int));
-            setsockopt (sRtcp, IPPROTO_IP, IP_TOS, (char *)&tos, sizeof(int));
-        }
+   OsSysLog::add(FAC_CP, PRI_DEBUG, 
+            "CpPhoneMediaInterface::createConnection creating a new RTP socket: %p descriptor: %d",
+            mediaConnection->mpRtpVideoSocket, mediaConnection->mpRtpVideoSocket->getSocketDescriptor());
+   OsSysLog::add(FAC_CP, PRI_DEBUG, 
+            "CpPhoneMediaInterface::createConnection creating a new RTCP socket: %p descriptor: %d",
+            mediaConnection->mpRtcpVideoSocket, mediaConnection->mpRtcpVideoSocket->getSocketDescriptor());
+#endif // SIPX_VIDEO ]
 
-        // Start the packet pump
-        mpFlowGraph->startReceiveRtp(NULL, 0, *rtpSocket, *rtcpSocket, connectionId) ;
+   // Set codec factory
+   mediaConnection->mpCodecFactory = new SdpCodecFactory(mSupportedCodecs);
+   mediaConnection->mpCodecFactory->bindPayloadTypes();
+   OsSysLog::add(FAC_CP, PRI_DEBUG, 
+            "CpPhoneMediaInterface::createConnection creating a new SdpCodecFactory %p",
+            mediaConnection->mpCodecFactory);
 
-        // Enable Stun if we have a stun server and either non-local contact type or 
-        // ICE is enabled.
-        if ((mStunServer.length() != 0) && ((mediaConnection->mContactType != CONTACT_LOCAL) || mbEnableICE))
-        {
-            rtpSocket->enableStun(mStunServer, mStunPort, mStunRefreshPeriodSecs, 0, false) ;
-        }
-
-        // Enable Turn if we have a stun server and either non-local contact type or 
-        // ICE is enabled.
-        if ((mTurnServer.length() != 0) && ((mediaConnection->mContactType != CONTACT_LOCAL) || mbEnableICE))
-        {
-            rtpSocket->enableTurn(mTurnServer, mTurnPort, 
-                    mTurnRefreshPeriodSecs, mTurnUsername, mTurnPassword, false) ;
-        }
-
-        // Enable Stun if we have a stun server and either non-local contact type or 
-        // ICE is enabled.
-        if ((mStunServer.length() != 0) && ((mediaConnection->mContactType != CONTACT_LOCAL) || mbEnableICE))
-        {
-            rtcpSocket->enableStun(mStunServer, mStunPort, mStunRefreshPeriodSecs, 0, false) ;
-        }
-
-        // Enable Turn if we have a stun server and either non-local contact type or 
-        // ICE is enabled.
-        if ((mTurnServer.length() != 0) && ((mediaConnection->mContactType != CONTACT_LOCAL) || mbEnableICE))
-        {
-            rtcpSocket->enableTurn(mTurnServer, mTurnPort, 
-                    mTurnRefreshPeriodSecs, mTurnUsername, mTurnPassword, false) ;
-        }
-
-        // Store settings
-        mediaConnection->mpRtpAudioSocket = rtpSocket;
-        mediaConnection->mpRtcpAudioSocket = rtcpSocket;
-        mediaConnection->mRtpAudioReceivePort = rtpSocket->getLocalHostPort() ;
-        mediaConnection->mRtcpAudioReceivePort = rtcpSocket->getLocalHostPort() ;
-        mediaConnection->mpCodecFactory = new SdpCodecFactory(mSupportedCodecs);
-        mediaConnection->mpCodecFactory->bindPayloadTypes();
-
-        OsSysLog::add(FAC_CP, PRI_DEBUG, 
-                "CpPhoneMediaInterface::createConnection creating a new RTP socket: %p descriptor: %d",
-                mediaConnection->mpRtpAudioSocket, mediaConnection->mpRtpAudioSocket->getSocketDescriptor());
-        OsSysLog::add(FAC_CP, PRI_DEBUG, 
-                "CpPhoneMediaInterface::createConnection creating a new RTCP socket: %p descriptor: %d",
-                mediaConnection->mpRtcpAudioSocket, mediaConnection->mpRtcpAudioSocket->getSocketDescriptor());
-        OsSysLog::add(FAC_CP, PRI_DEBUG, 
-                "CpPhoneMediaInterface::createConnection creating a new SdpCodecFactory %p",
-                mediaConnection->mpCodecFactory);
-
-        returnCode = OS_SUCCESS;
-    }
-
-    return(returnCode);
+    return OS_SUCCESS;
 }
 
 
@@ -487,7 +488,6 @@ OsStatus CpPhoneMediaInterface::getCapabilities(int connectionId,
                                                 int& videoFramerate)
 {
     OsStatus rc = OS_FAILED ;
-    UtlString ignored ;    
     CpPhoneMediaConnection* pMediaConn = getMediaConnection(connectionId);
     rtpAudioPort = 0 ;
     rtcpAudioPort = 0 ;
@@ -503,8 +503,8 @@ OsStatus CpPhoneMediaInterface::getCapabilities(int connectionId,
             // Audio RTP
             if (pMediaConn->mpRtpAudioSocket)
             {
-                // The "rtpHostAddress" is used for the rtp stream -- others 
-                // are ignored.  They *SHOULD* be the same as the first.  
+                // The "rtpHostAddress" is used for the first RTP stream -- 
+                // others are ignored.  They *SHOULD* be the same as the first.  
                 // Possible exceptions: STUN worked for the first, but not the
                 // others.  Not sure how to handle/recover from that case.
                 if (pMediaConn->mContactType == CONTACT_RELAY)
@@ -545,31 +545,32 @@ OsStatus CpPhoneMediaInterface::getCapabilities(int connectionId,
             {
                 if (pMediaConn->mContactType == CONTACT_RELAY)
                 {
-                    if (!pMediaConn->mpRtcpAudioSocket->getRelayIp(&ignored, &rtcpAudioPort))
+                    UtlString tempHostAddress;
+                    if (!pMediaConn->mpRtcpAudioSocket->getRelayIp(&tempHostAddress, &rtcpAudioPort))
                     {
                         rtcpAudioPort = pMediaConn->mRtcpAudioReceivePort ;
                     }
                     else
                     {
                         // External address should match that of Audio RTP
-                        assert(ignored.compareTo(rtpHostAddress) == 0) ;
+                        assert(tempHostAddress.compareTo(rtpHostAddress) == 0) ;
                     }
                 }
                 else if (pMediaConn->mContactType == CONTACT_AUTO || pMediaConn->mContactType == CONTACT_NAT_MAPPED)
                 {
-                    if (!pMediaConn->mpRtcpAudioSocket->getMappedIp(&ignored, &rtcpAudioPort))
+                    UtlString tempHostAddress;
+                    if (!pMediaConn->mpRtcpAudioSocket->getMappedIp(&tempHostAddress, &rtcpAudioPort))
                     {
                         rtcpAudioPort = pMediaConn->mRtcpAudioReceivePort ;
                     }
                     else
                     {
                         // External address should match that of Audio RTP
-                        assert(ignored.compareTo(rtpHostAddress) == 0) ;
+                        assert(tempHostAddress.compareTo(rtpHostAddress) == 0) ;
                     }
                 }
                 else if (pMediaConn->mContactType == CONTACT_LOCAL)
                 {
-                    ignored = pMediaConn->mpRtcpAudioSocket->getLocalIp();
                     rtcpAudioPort = pMediaConn->mpRtcpAudioSocket->getLocalHostPort();
                     if (rtcpAudioPort <= 0)
                     {
@@ -581,12 +582,104 @@ OsStatus CpPhoneMediaInterface::getCapabilities(int connectionId,
                     assert(0);
                 }
             }
+
+#ifdef SIPX_VIDEO // [
+            // Video RTP
+            if (pMediaConn->mpRtpVideoSocket)
+            {
+                if (pMediaConn->mContactType == CONTACT_RELAY)
+                {
+                    UtlString tempHostAddress;
+                    if (!pMediaConn->mpRtpVideoSocket->getRelayIp(&tempHostAddress, &rtpVideoPort))
+                    {
+                        rtpVideoPort = pMediaConn->mRtpVideoReceivePort ;
+                    }
+                    else
+                    {
+                        // External address should match that of audio RTP stream
+                        assert(tempHostAddress.compareTo(rtpHostAddress) == 0) ;
+                    }
+                }
+                else if (pMediaConn->mContactType == CONTACT_AUTO || pMediaConn->mContactType == CONTACT_NAT_MAPPED)
+                {
+                    UtlString tempHostAddress;
+                    if (!pMediaConn->mpRtpVideoSocket->getMappedIp(&tempHostAddress, &rtpVideoPort))
+                    {
+                        rtpVideoPort = pMediaConn->mRtpVideoReceivePort ;
+                    }
+                    else
+                    {
+                        // External address should match that of audio RTP stream
+                        assert(tempHostAddress.compareTo(rtpHostAddress) == 0) ;
+                    }
+                }
+                else if (pMediaConn->mContactType == CONTACT_LOCAL)
+                {
+                    rtpVideoPort = pMediaConn->mpRtpVideoSocket->getLocalHostPort();
+                    if (rtpVideoPort <= 0)
+                    {
+                        rtpVideoPort = pMediaConn->mRtpVideoReceivePort ;
+                    }
+                }
+                else
+                {
+                    assert(0);
+                }               
+            }
+
+            // Video RTCP
+            if (pMediaConn->mpRtcpVideoSocket)
+            {
+                if (pMediaConn->mContactType == CONTACT_RELAY)
+                {
+                    UtlString tempHostAddress;
+                    if (!pMediaConn->mpRtcpVideoSocket->getRelayIp(&tempHostAddress, &rtcpVideoPort))
+                    {
+                        rtcpVideoPort = pMediaConn->mRtcpVideoReceivePort ;
+                    }
+                    else
+                    {
+                        // External address should match that of audio RTP stream
+                        assert(tempHostAddress.compareTo(rtpHostAddress) == 0) ;
+                    }
+                }
+                else if (pMediaConn->mContactType == CONTACT_AUTO || pMediaConn->mContactType == CONTACT_NAT_MAPPED)
+                {
+                    UtlString tempHostAddress;
+                    if (!pMediaConn->mpRtcpVideoSocket->getMappedIp(&tempHostAddress, &rtcpVideoPort))
+                    {
+                        rtcpVideoPort = pMediaConn->mRtcpVideoReceivePort ;
+                    }
+                    else
+                    {
+                        // External address should match that of audio RTP stream
+                        assert(tempHostAddress.compareTo(rtpHostAddress) == 0) ;
+                    }
+                }
+                else if (pMediaConn->mContactType == CONTACT_LOCAL)
+                {
+                    rtcpVideoPort = pMediaConn->mpRtcpVideoSocket->getLocalHostPort();
+                    if (rtcpVideoPort <= 0)
+                    {
+                        rtcpVideoPort = pMediaConn->mRtcpVideoReceivePort ;
+                    }
+                }                
+                else
+                {
+                    assert(0);
+                }
+            }
+#endif // SIPX_VIDEO ]
         }
         else
         {
             rtpHostAddress = mRtpReceiveHostAddress ;
             rtpAudioPort = pMediaConn->mRtpAudioReceivePort ;
             rtcpAudioPort = pMediaConn->mRtcpAudioReceivePort ;
+#ifdef SIPX_VIDEO // [
+            rtpVideoPort = pMediaConn->mRtpVideoReceivePort ;
+            rtcpVideoPort = pMediaConn->mRtcpVideoReceivePort ;
+#endif // SIPX_VIDEO ]
         }
 
         // Codecs
@@ -733,14 +826,14 @@ OsStatus CpPhoneMediaInterface::setConnectionDestination(int connectionId,
         /*
          * Video Setup
          */
-#ifdef VIDEO
+#ifdef SIPX_VIDEO // [
         if (pMediaConnection->mpRtpVideoSocket)
         {
             pMediaConnection->mRtpVideoSendHostPort = remoteVideoRtpPort ;                   
             pMediaConnection->mpRtpVideoSocket->readyDestination(remoteRtpHostAddress, remoteVideoRtpPort) ;
             pMediaConnection->mpRtpVideoSocket->applyDestinationAddress(remoteRtpHostAddress, remoteVideoRtpPort) ;
 
-            if(mediaConnection->mpRtcpVideoSocket && (remoteVideoRtcpPort > 0))
+            if(pMediaConnection->mpRtcpVideoSocket && (remoteVideoRtcpPort > 0))
             {
                 pMediaConnection->mRtcpVideoSendHostPort = remoteVideoRtcpPort ;               
                 pMediaConnection->mpRtcpVideoSocket->readyDestination(remoteRtpHostAddress, remoteVideoRtcpPort) ;
@@ -756,7 +849,7 @@ OsStatus CpPhoneMediaInterface::setConnectionDestination(int connectionId,
             pMediaConnection->mRtpVideoSendHostPort = 0 ;
             pMediaConnection->mRtcpVideoSendHostPort = 0 ;
         }        
-#endif
+#endif // SIPX_VIDEO ]
     }
 
    return(returnCode);
@@ -834,7 +927,7 @@ OsStatus CpPhoneMediaInterface::addVideoRtpConnectionDestination(int         con
                                                                  int         candidatePort) 
 {
     OsStatus returnCode = OS_NOT_FOUND;
-#ifdef VIDEO
+#ifdef SIPX_VIDEO
     CpPhoneMediaConnection* mediaConnection = getMediaConnection(connectionId);
     if (mediaConnection) 
     {        
@@ -867,7 +960,7 @@ OsStatus CpPhoneMediaInterface::addVideoRtcpConnectionDestination(int         co
                                                                   int         candidatePort) 
 {
     OsStatus returnCode = OS_NOT_FOUND;
-#ifdef VIDEO
+#ifdef SIPX_VIDEO
     CpPhoneMediaConnection* mediaConnection = getMediaConnection(connectionId);
     if (mediaConnection) 
     {        
@@ -902,57 +995,81 @@ OsStatus CpPhoneMediaInterface::startRtpSend(int connectionId,
    // need to set default payload types in get capabilities
 
    int i;
-   SdpCodec* primaryCodec = NULL;
+   SdpCodec* audioCodec = NULL;
    SdpCodec* dtmfCodec = NULL;
+   SdpCodec* videoCodec = NULL;
    OsStatus returnCode = OS_NOT_FOUND;
    CpPhoneMediaConnection* mediaConnection = getMediaConnection(connectionId);
 
+   if (mediaConnection == NULL)
+      return returnCode;
+
+   // Find primary audio, DTMF and video codecs
    for (i=0; i<numCodecs; i++) {
       if (SdpCodec::SDP_CODEC_TONES == sendCodecs[i]->getValue()) {
          if (NULL == dtmfCodec) {
             dtmfCodec = sendCodecs[i];
          }
-      } else if (NULL == primaryCodec) {
-         primaryCodec = sendCodecs[i];
+         continue;
+      }
+
+      UtlString codecMediaType;
+      sendCodecs[i]->getMediaType(codecMediaType);
+
+      if (codecMediaType == "audio" && audioCodec == NULL) {
+         audioCodec = sendCodecs[i];
+      }
+      else if (codecMediaType == "video" && videoCodec == NULL)
+      {
+         videoCodec = sendCodecs[i];
       }
    }
-   if(mpFlowGraph && mediaConnection)
+
+   // If we haven't set a destination and we have set alternate destinations
+   if (!mediaConnection->mDestinationSet && mediaConnection->mbAlternateDestinations)
+   {
+      applyAlternateDestinations(connectionId) ;
+   }
+
+   // Make sure we use the same payload types as the remote
+   // side.  Its the friendly thing to do.
+   if (mediaConnection->mpCodecFactory)
+   {
+      mediaConnection->mpCodecFactory->copyPayloadTypes(numCodecs,
+                                                         sendCodecs);
+   }
+
+   if (mpFlowGraph)
    {
 #ifdef TEST_PRINT
        OsSysLog::add(FAC_CP, PRI_DEBUG, "Start Sending RTP/RTCP codec: %d sockets: %p/%p descriptors: %d/%d\n",
-           primaryCodec ? primaryCodec->getCodecType() : -2,
+           audioCodec ? audioCodec->getCodecType() : -2,
            (mediaConnection->mpRtpAudioSocket), (mediaConnection->mpRtcpAudioSocket),
            mediaConnection->mpRtpAudioSocket->getSocketDescriptor(),
            mediaConnection->mpRtcpAudioSocket->getSocketDescriptor());
 #endif
 
-        // If we haven't set a destination and we have set alternate destinations
-        if (!mediaConnection->mDestinationSet && mediaConnection->mbAlternateDestinations)
-        {
-            applyAlternateDestinations(connectionId) ;
-        }
-
        // Store the primary codec for cost calculations later
-       if (mediaConnection->mpPrimaryCodec != NULL)
+       if (mediaConnection->mpAudioCodec != NULL)
        {
-           delete mediaConnection->mpPrimaryCodec ;
-           mediaConnection->mpPrimaryCodec = NULL ;
+           delete mediaConnection->mpAudioCodec ;
+           mediaConnection->mpAudioCodec = NULL ;
        }
-       if (primaryCodec != NULL)
+       if (audioCodec != NULL)
        {
-           mediaConnection->mpPrimaryCodec = new SdpCodec();
-           *mediaConnection->mpPrimaryCodec = *primaryCodec ;
+           mediaConnection->mpAudioCodec = new SdpCodec();
+           *mediaConnection->mpAudioCodec = *audioCodec ;
        }
 
        // Make sure we use the same payload types as the remote
        // side.  Its the friendly thing to do.
-       if(mediaConnection->mpCodecFactory)
+       if (mediaConnection->mpCodecFactory)
        {
            mediaConnection->mpCodecFactory->copyPayloadTypes(numCodecs,
                                                             sendCodecs);
        }
 
-       if(mediaConnection->mRtpAudioSending)
+       if (mediaConnection->mRtpAudioSending)
        {
            mpFlowGraph->stopSendRtp(connectionId);
        }
@@ -971,7 +1088,7 @@ OsStatus CpPhoneMediaInterface::startRtpSend(int connectionId,
          mpFlowGraph->startSendRtp(*(mediaConnection->mpRtpAudioSocket),
                                    *(mediaConnection->mpRtcpAudioSocket),
                                    connectionId,
-                                   primaryCodec,
+                                   audioCodec,
                                    dtmfCodec,
                                    NULL); // no redundant codecs
 
@@ -979,7 +1096,49 @@ OsStatus CpPhoneMediaInterface::startRtpSend(int connectionId,
       }
       returnCode = OS_SUCCESS;
    }
-   return(returnCode);
+
+#ifdef SIPX_VIDEO // [
+   if (mpVideoFlowGraph)
+   {
+#ifdef TEST_PRINT
+       OsSysLog::add(FAC_CP, PRI_DEBUG, "Start Sending RTP/RTCP codec: %d sockets: %p/%p descriptors: %d/%d\n",
+           videoCodec ? videoCodec->getCodecType() : -2,
+           (mediaConnection->mpRtpVideoSocket), (mediaConnection->mpRtcpVideoSocket),
+           mediaConnection->mpRtpVideoSocket->getSocketDescriptor(),
+           mediaConnection->mpRtcpVideoSocket->getSocketDescriptor());
+#endif
+       // Store the primary codec for cost calculations later
+       if (mediaConnection->mpVideoCodec != NULL)
+       {
+           delete mediaConnection->mpVideoCodec ;
+           mediaConnection->mpVideoCodec = NULL ;
+       }
+       if (audioCodec != NULL)
+       {
+           mediaConnection->mpVideoCodec = new SdpCodec();
+           *mediaConnection->mpVideoCodec = *videoCodec ;
+       }
+
+       if (mediaConnection->mRtpVideoSending)
+       {
+           mpVideoFlowGraph->stopSendRtp();
+       }
+
+      if (!mediaConnection->mRtpSendHostAddress.isNull() && mediaConnection->mRtpSendHostAddress.compareTo("0.0.0.0"))
+      {
+         // This is the new interface for parallel codecs
+         mpVideoFlowGraph->startSendRtp(*videoCodec,
+                                        *(mediaConnection->mpRtpVideoSocket),
+                                        *(mediaConnection->mpRtcpVideoSocket));
+
+         mediaConnection->mRtpVideoSending = TRUE;
+      }
+
+      returnCode = OS_SUCCESS;
+   }
+#endif // SIPX_VIDEO ]
+
+   return returnCode;
 }
 
 
@@ -1042,13 +1201,24 @@ OsStatus CpPhoneMediaInterface::stopRtpSend(int connectionId)
    CpPhoneMediaConnection* mediaConnection =
        getMediaConnection(connectionId);
 
-   if(mpFlowGraph && mediaConnection &&
+   if (mpFlowGraph && mediaConnection &&
        mediaConnection->mRtpAudioSending)
    {
       mpFlowGraph->stopSendRtp(connectionId);
       mediaConnection->mRtpAudioSending = FALSE;
       returnCode = OS_SUCCESS;
    }
+
+#ifdef SIPX_VIDEO // [
+   if (mpVideoFlowGraph && mediaConnection &&
+       mediaConnection->mRtpVideoSending)
+   {
+      mpVideoFlowGraph->stopSendRtp();
+      mediaConnection->mRtpVideoSending = FALSE;
+      returnCode = OS_SUCCESS;
+   }
+#endif // SIPX_VIDEO ]
+
    return(returnCode);
 }
 
@@ -1087,68 +1257,114 @@ OsStatus CpPhoneMediaInterface::deleteConnection(int connectionId)
 OsStatus CpPhoneMediaInterface::doDeleteConnection(CpPhoneMediaConnection* mediaConnection)
 {
    OsStatus returnCode = OS_NOT_FOUND;
-   if(mediaConnection)
+
+   if(mediaConnection == NULL)
    {
-      OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::deleteConnection deleting the connection %p",
-                    mediaConnection);
-                 
-      returnCode = OS_SUCCESS;
-      mediaConnection->mDestinationSet = FALSE;
-#ifdef TEST_PRINT
-      if (mediaConnection && mediaConnection->mpRtpAudioSocket && mediaConnection->mpRtcpAudioSocket)
-    OsSysLog::add(FAC_CP, PRI_DEBUG, 
-                "stopping RTP/RTCP send & receive sockets %p/%p descriptors: %d/%d",
-                mediaConnection->mpRtpAudioSocket,
-                mediaConnection->mpRtcpAudioSocket,
-                mediaConnection->mpRtpAudioSocket->getSocketDescriptor(),
-                mediaConnection->mpRtcpAudioSocket->getSocketDescriptor());
-     else if (!mediaConnection)
-    OsSysLog::add(FAC_CP, PRI_DEBUG, 
-                "CpPhoneMediaInterface::doDeleteConnection mediaConnection is NULL!");
-     else 
-    OsSysLog::add(FAC_CP, PRI_DEBUG, 
-                "CpPhoneMediaInterface::doDeleteConnection NULL socket: mpRtpAudioSocket=0x%08x, mpRtpAudioSocket=0x%08x",
-                mediaConnection->mpRtpAudioSocket,
-                                mediaConnection->mpRtcpAudioSocket);
-#endif
-
-      returnCode = stopRtpSend(mediaConnection->getValue());
-      returnCode = stopRtpReceive(mediaConnection->getValue());
-
-      if(mediaConnection->getValue() >= 0)
-      {
-          mpFlowGraph->deleteConnection(mediaConnection->getValue());
-          mediaConnection->setValue(-1);
-          mpFlowGraph->synchronize();
-      }
-
-      mpFactoryImpl->releaseRtpPort(mediaConnection->mRtpAudioReceivePort) ;
-
-      if(mediaConnection->mpRtpAudioSocket)
-      {
-#ifdef TEST_PRINT
-            OsSysLog::add(FAC_CP, PRI_DEBUG, "deleting RTP socket: %p descriptor: %d",
-                mediaConnection->mpRtpAudioSocket,
-                mediaConnection->mpRtpAudioSocket->getSocketDescriptor());
-#endif
-
-         delete mediaConnection->mpRtpAudioSocket;
-         mediaConnection->mpRtpAudioSocket = NULL;
-      }
-      if(mediaConnection->mpRtcpAudioSocket)
-      {
-#ifdef TEST_PRINT
-            OsSysLog::add(FAC_CP, PRI_DEBUG, "deleting RTCP socket: %p descriptor: %d",
-                mediaConnection->mpRtcpAudioSocket,
-                mediaConnection->mpRtcpAudioSocket->getSocketDescriptor());
-#endif
-
-         delete mediaConnection->mpRtcpAudioSocket;
-         mediaConnection->mpRtcpAudioSocket = NULL;
-      }
-
-
+      OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                  "CpPhoneMediaInterface::doDeleteConnection mediaConnection is NULL!");
+      return OS_NOT_FOUND;
    }
+
+   OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::deleteConnection deleting the connection %p",
+      mediaConnection);
+
+   returnCode = OS_SUCCESS;
+   mediaConnection->mDestinationSet = FALSE;
+#ifdef TEST_PRINT
+   if (mediaConnection && mediaConnection->mpRtpAudioSocket && mediaConnection->mpRtcpAudioSocket)
+      OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                    "stopping RTP/RTCP send & receive sockets %p/%p descriptors: %d/%d",
+                    mediaConnection->mpRtpAudioSocket,
+                    mediaConnection->mpRtcpAudioSocket,
+                    mediaConnection->mpRtpAudioSocket->getSocketDescriptor(),
+                    mediaConnection->mpRtcpAudioSocket->getSocketDescriptor());
+   else 
+      OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                    "CpPhoneMediaInterface::doDeleteConnection NULL socket: mpRtpAudioSocket=0x%08x, mpRtpAudioSocket=0x%08x",
+                    mediaConnection->mpRtpAudioSocket,
+                    mediaConnection->mpRtcpAudioSocket);
+#endif
+
+   returnCode = stopRtpSend(mediaConnection->getValue());
+   returnCode = stopRtpReceive(mediaConnection->getValue());
+
+   // TODO:: Stop video RTP stream here.
+
+   if(mediaConnection->getValue() >= 0)
+   {
+      mpFlowGraph->deleteConnection(mediaConnection->getValue());
+      mediaConnection->setValue(-1);
+      mpFlowGraph->synchronize();
+   }
+
+   mpFactoryImpl->releaseRtpPort(mediaConnection->mRtpAudioReceivePort) ;
+
+   if(mediaConnection->mpRtpAudioSocket)
+   {
+#ifdef TEST_PRINT
+      OsSysLog::add(FAC_CP, PRI_DEBUG, "deleting RTP socket: %p descriptor: %d",
+         mediaConnection->mpRtpAudioSocket,
+         mediaConnection->mpRtpAudioSocket->getSocketDescriptor());
+#endif
+
+      delete mediaConnection->mpRtpAudioSocket;
+      mediaConnection->mpRtpAudioSocket = NULL;
+   }
+   if(mediaConnection->mpRtcpAudioSocket)
+   {
+#ifdef TEST_PRINT
+      OsSysLog::add(FAC_CP, PRI_DEBUG, "deleting RTCP socket: %p descriptor: %d",
+         mediaConnection->mpRtcpAudioSocket,
+         mediaConnection->mpRtcpAudioSocket->getSocketDescriptor());
+#endif
+
+      delete mediaConnection->mpRtcpAudioSocket;
+      mediaConnection->mpRtcpAudioSocket = NULL;
+   }
+
+#ifdef SIPX_VIDEO // [
+   // Delete video RTP sockets
+
+#ifdef TEST_PRINT
+   if (mediaConnection && mediaConnection->mpRtpVideoSocket && mediaConnection->mpRtcpVideoSocket)
+      OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                    "stopping RTP/RTCP send & receive sockets %p/%p descriptors: %d/%d",
+                    mediaConnection->mpRtpVideoSocket,
+                    mediaConnection->mpRtcpVideoSocket,
+                    mediaConnection->mpRtpVideoSocket->getSocketDescriptor(),
+                    mediaConnection->mpRtcpVideoSocket->getSocketDescriptor());
+   else 
+      OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                    "CpPhoneMediaInterface::doDeleteConnection NULL socket: mpRtpVideoSocket=0x%08x, mpRtpVideoSocket=0x%08x",
+                    mediaConnection->mpRtpVideoSocket,
+                    mediaConnection->mpRtcpVideoSocket);
+#endif
+   mpFactoryImpl->releaseRtpPort(mediaConnection->mRtpVideoReceivePort) ;
+
+   if(mediaConnection->mpRtpVideoSocket)
+   {
+#ifdef TEST_PRINT
+      OsSysLog::add(FAC_CP, PRI_DEBUG, "deleting RTP socket: %p descriptor: %d",
+                    mediaConnection->mpRtpVideoSocket,
+                    mediaConnection->mpRtpVideoSocket->getSocketDescriptor());
+#endif
+
+      delete mediaConnection->mpRtpVideoSocket;
+      mediaConnection->mpRtpVideoSocket = NULL;
+   }
+   if(mediaConnection->mpRtcpVideoSocket)
+   {
+#ifdef TEST_PRINT
+      OsSysLog::add(FAC_CP, PRI_DEBUG, "deleting RTCP socket: %p descriptor: %d",
+         mediaConnection->mpRtcpVideoSocket,
+         mediaConnection->mpRtcpVideoSocket->getSocketDescriptor());
+#endif
+
+      delete mediaConnection->mpRtcpVideoSocket;
+      mediaConnection->mpRtcpVideoSocket = NULL;
+   }
+#endif // SIPX_VIDEO ]
+
    return(returnCode);
 }
 
@@ -1571,6 +1787,7 @@ OsStatus CpPhoneMediaInterface::setConnectionBitrate(int connectionId, int bitra
 
 OsStatus CpPhoneMediaInterface::setConnectionFramerate(int connectionId, int framerate) 
 {
+    // TODO:: setConnectionFramerate()
     return OS_NOT_SUPPORTED ;
 }
 
@@ -1608,11 +1825,13 @@ void CpPhoneMediaInterface::setPremiumSound(UtlBoolean enabled)
 
 OsStatus CpPhoneMediaInterface::setVideoQuality(int quality)
 {
+   // TODO:: setVideoQuality()
    return OS_SUCCESS;
 }
 
 OsStatus CpPhoneMediaInterface::setVideoParameters(int bitRate, int frameRate)
 {
+   // TODO:: setVideoParameters()
    return OS_SUCCESS;
 }
 
@@ -1631,9 +1850,9 @@ int CpPhoneMediaInterface::getCodecCPUCost()
       while ((mediaConnection = (CpPhoneMediaConnection*) connectionIterator()))
       {
          // If the codec is null, assume LOW.
-         if (mediaConnection->mpPrimaryCodec != NULL)
+         if (mediaConnection->mpAudioCodec != NULL)
          {
-            int iCodecCost = mediaConnection->mpPrimaryCodec->getCPUCost();
+            int iCodecCost = mediaConnection->mpAudioCodec->getCPUCost();
             if (iCodecCost > iCost)
                iCost = iCodecCost;
          }
@@ -1720,31 +1939,38 @@ OsStatus CpPhoneMediaInterface::getPrimaryCodec(int connectionId,
                                                 bool& isEncrypted)
 {
     UtlString codecType;
-    SdpCodec* mpPrimaryCodec = getMediaConnection(connectionId)->mpPrimaryCodec;
+    CpPhoneMediaConnection* pConnection = getMediaConnection(connectionId);
 
-    mpPrimaryCodec->getMediaType(codecType);
-    if (codecType == "audio") {
-        mpPrimaryCodec->getEncodingName(audioCodec);
-        //mpPrimaryCodec->toString(audioCodec);
-        *audioPayloadType = mpPrimaryCodec->getCodecPayloadFormat();
-        *videoPayloadType = 0;
-    } else if (codecType == "video") {
-        mpPrimaryCodec->getEncodingName(videoCodec);
-        //mpPrimaryCodec->toString(videoCodec);
-        *audioPayloadType = 0;
-        *videoPayloadType = mpPrimaryCodec->getCodecPayloadFormat();
+    if (pConnection->mpAudioCodec != NULL)
+    {
+        pConnection->mpAudioCodec->getEncodingName(audioCodec);
+        *audioPayloadType = pConnection->mpAudioCodec->getCodecPayloadFormat();
     }
-    return OS_SUCCESS;
+
+#ifdef SIPX_VIDEO // [
+    if (pConnection->mpVideoCodec != NULL)
+    {
+        pConnection->mpVideoCodec->getEncodingName(videoCodec);
+        *videoPayloadType = pConnection->mpVideoCodec->getCodecPayloadFormat();
+    }
+#else // SIPX_VIDEO ][
+    videoCodec="";
+    *videoPayloadType=0;
+#endif // SIPX_VIDEO ]
+
+   return OS_SUCCESS;
 }
 
 OsStatus CpPhoneMediaInterface::getVideoQuality(int& quality)
 {
+   // TODO:: getVideoQuality()
    quality = 0;
    return OS_SUCCESS;
 }
 
 OsStatus CpPhoneMediaInterface::getVideoBitRate(int& bitRate)
 {
+   // TODO:: getVideoBitRate()
    bitRate = 0;
    return OS_SUCCESS;
 }
@@ -1752,6 +1978,7 @@ OsStatus CpPhoneMediaInterface::getVideoBitRate(int& bitRate)
 
 OsStatus CpPhoneMediaInterface::getVideoFrameRate(int& frameRate)
 {
+   // TODO:: getVideoFrameRate()
    frameRate = 0;
    return OS_SUCCESS;
 }
@@ -1768,7 +1995,7 @@ UtlBoolean CpPhoneMediaInterface::isSendingRtpAudio(int connectionId)
    }
    else
    {
-       osPrintf("CpPhoneMediaInterface::isSendingRtp invalid connectionId: %d\n",
+       osPrintf("CpPhoneMediaInterface::isSendingRtpAudio invalid connectionId: %d\n",
           connectionId);
    }
 
@@ -1786,7 +2013,7 @@ UtlBoolean CpPhoneMediaInterface::isReceivingRtpAudio(int connectionId)
    }
    else
    {
-       osPrintf("CpPhoneMediaInterface::isReceivingRtp invalid connectionId: %d\n",
+       osPrintf("CpPhoneMediaInterface::isReceivingRtpAudio invalid connectionId: %d\n",
           connectionId);
    }
    return(receiving);
@@ -1796,12 +2023,40 @@ UtlBoolean CpPhoneMediaInterface::isSendingRtpVideo(int connectionId)
 {
    UtlBoolean sending = FALSE;
 
+#ifdef SIPX_VIDEO // [
+   CpPhoneMediaConnection* mediaConnection = getMediaConnection(connectionId);
+
+   if(mediaConnection)
+   {
+       sending = mediaConnection->mRtpVideoSending;
+   }
+   else
+   {
+       osPrintf("CpPhoneMediaInterface::isSendingRtpVideo invalid connectionId: %d\n",
+          connectionId);
+   }
+#endif // SIPX_VIDEO ]
+
    return(sending);
 }
 
 UtlBoolean CpPhoneMediaInterface::isReceivingRtpVideo(int connectionId)
 {
    UtlBoolean receiving = FALSE;
+
+#ifdef SIPX_VIDEO // [
+   CpPhoneMediaConnection* mediaConnection = getMediaConnection(connectionId);
+
+   if(mediaConnection)
+   {
+      receiving = mediaConnection->mRtpVideoReceiving;
+   }
+   else
+   {
+       osPrintf("CpPhoneMediaInterface::isReceivingRtpVideo invalid connectionId: %d\n",
+          connectionId);
+   }
+#endif // SIPX_VIDEO ]
 
    return(receiving);
 }
@@ -1832,6 +2087,7 @@ UtlBoolean CpPhoneMediaInterface::canAddParty()
 
 bool CpPhoneMediaInterface::isVideoInitialized(int connectionId)
 {
+    // TODO:: isVideoInitialized()
     return false ;
 }
 
@@ -1847,11 +2103,13 @@ bool CpPhoneMediaInterface::isAudioAvailable()
 
 OsStatus CpPhoneMediaInterface::setVideoWindowDisplay(const void* hWnd)
 {
+    // TODO:: setVideoWindowDisplay()
     return OS_NOT_YET_IMPLEMENTED;
     
 }
 const void* CpPhoneMediaInterface::getVideoWindowDisplay()
 {
+    // TODO:: getVideoWindowDisplay()
     return NULL;
 }
 
@@ -1894,7 +2152,7 @@ bool CpPhoneMediaInterface::getLocalAddresses(int connectionId,
             }        
         }
 
-#ifdef VIDEO
+#ifdef SIPX_VIDEO
         // Video rtp port (optional)
         if (pMediaConn->mpRtpVideoSocket && bRC)
         {
@@ -1962,7 +2220,7 @@ bool CpPhoneMediaInterface::getNatedAddresses(int connectionId,
             }
         }
 
-#ifdef VIDEO
+#ifdef SIPX_VIDEO
         // Video rtp port (optional)
         if (pMediaConn->mpRtpVideoSocket && bRC)
         {
@@ -1977,7 +2235,7 @@ bool CpPhoneMediaInterface::getNatedAddresses(int connectionId,
                 }
 
                 // Video rtcp port (optional)
-                if (pMediaConn->mpRtcpAudioSocket)
+                if (pMediaConn->mpRtcpVideoSocket)
                 {
                     if (pMediaConn->mpRtcpVideoSocket->getMappedIp(&host, &port))
                     {
@@ -2048,7 +2306,7 @@ bool CpPhoneMediaInterface::getRelayAddresses(int connectionId,
             }
         }
 
-#ifdef VIDEO
+#ifdef SIPX_VIDEO
         // Video rtp port (optional)
         if (pMediaConn->mpRtpVideoSocket && bRC)
         {
@@ -2063,7 +2321,7 @@ bool CpPhoneMediaInterface::getRelayAddresses(int connectionId,
                 }
 
                 // Video rtcp port (optional)
-                if (pMediaConn->mpRtcpAudioSocket)
+                if (pMediaConn->mpRtcpVideoSocket)
                 {
                     if (pMediaConn->mpRtcpVideoSocket->getRelayIp(&host, &port))
                     {
@@ -2260,7 +2518,7 @@ void CpPhoneMediaInterface::applyAlternateDestinations(int connectionId)
         pMediaConnection->mRtpSendHostAddress.remove(0) ;
         pMediaConnection->mRtpAudioSendHostPort = 0 ;
         pMediaConnection->mRtcpAudioSendHostPort = 0 ;
-#ifdef VIDEO
+#ifdef SIPX_VIDEO
         pMediaConnection->mRtpVideoSendHostPort = 0 ;
         pMediaConnection->mRtcpVideoSendHostPort = 0 ;
 #endif
@@ -2293,7 +2551,7 @@ void CpPhoneMediaInterface::applyAlternateDestinations(int connectionId)
 
         // TODO:: Enable/Disable RTCP
 
-#ifdef VIDEO
+#ifdef SIPX_VIDEO
         // Connect RTP Video Socket
         if (pMediaConnection->mpRtpVideoSocket)
         {
@@ -2424,6 +2682,111 @@ OsStatus CpPhoneMediaInterface::getMediaProperty(int connectionId,
     return OS_NOT_YET_IMPLEMENTED;//(returnCode);
 }
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
+
+void CpPhoneMediaInterface::createRtpSocketPair(UtlString localAddress,
+                                                SIPX_CONTACT_TYPE contactType,
+                                                OsNatDatagramSocket* &rtpSocket,
+                                                OsNatDatagramSocket* &rtcpSocket)
+{
+   int localPort;
+   int firstRtpPort;
+
+   mpFactoryImpl->getNextRtpPort(localPort);
+   firstRtpPort = localPort;
+
+   // Eventually this should use a specified address as this
+   // host may be multi-homed
+   rtpSocket = new OsNatDatagramSocket(0, NULL, localPort, localAddress, NULL);
+   rtpSocket->enableTransparentReads(false);
+
+   rtcpSocket = new OsNatDatagramSocket(0, NULL,localPort == 0 ? 0 : localPort+1,
+                                        localAddress, NULL);
+   rtcpSocket->enableTransparentReads(false);
+
+   // Validate local port is not auto-selecting.
+   if (localPort != 0)
+   {
+      // If either of the sockets are bad (e.g. already in use) or
+      // if either have stuff on them to read (e.g. someone is
+      // sending junk to the ports, look for another port pair
+      while(!rtpSocket->isOk() ||
+            !rtcpSocket->isOk() ||
+             rtcpSocket->isReadyToRead() ||
+             rtpSocket->isReadyToRead(60))
+      {
+            localPort +=2;
+            // This should use mLastRtpPort instead of some
+            // hardcoded MAX, but I do not think mLastRtpPort
+            // is set correctly in all of the products.
+            if(localPort > firstRtpPort + MAX_RTP_PORTS) 
+            {
+               OsSysLog::add(FAC_CP, PRI_ERR, 
+                  "No available ports for RTP and RTCP in range %d - %d",
+                  firstRtpPort, firstRtpPort + MAX_RTP_PORTS);
+               break;  // time to give up
+            }
+
+            delete rtpSocket;
+            delete rtcpSocket;
+            rtpSocket = new OsNatDatagramSocket(0, NULL, localPort,
+               mLocalAddress.data(), NULL);
+            rtcpSocket = new OsNatDatagramSocket(0, NULL, localPort + 1,
+               mLocalAddress.data(), NULL);
+      }
+   }
+
+   // Set a maximum on the buffers for the sockets so
+   // that the network stack does not get swamped by early media
+   // from the other side;
+   {
+      int sRtp, sRtcp, oRtp, oRtcp, optlen;
+
+      sRtp = rtpSocket->getSocketDescriptor();
+      sRtcp = rtcpSocket->getSocketDescriptor();
+
+      optlen = sizeof(int);
+      oRtp = 2000;
+      setsockopt(sRtp, SOL_SOCKET, SO_RCVBUF, (char *) (&oRtp), optlen);
+      oRtcp = 500;
+      setsockopt(sRtcp, SOL_SOCKET, SO_RCVBUF, (char *) (&oRtcp), optlen);
+
+      // Set the type of service (DiffServ code point) to low delay
+      int tos = mExpeditedIpTos;
+      
+      setsockopt (sRtp, IPPROTO_IP, IP_TOS, (char *)&tos, sizeof(int));
+      setsockopt (sRtcp, IPPROTO_IP, IP_TOS, (char *)&tos, sizeof(int));
+   }
+
+   // Enable Stun if we have a stun server and either non-local contact type or 
+   // ICE is enabled.
+   if ((mStunServer.length() != 0) && ((contactType != CONTACT_LOCAL) || mbEnableICE))
+   {
+      rtpSocket->enableStun(mStunServer, mStunPort, mStunRefreshPeriodSecs, 0, false) ;
+   }
+
+   // Enable Turn if we have a stun server and either non-local contact type or 
+   // ICE is enabled.
+   if ((mTurnServer.length() != 0) && ((contactType != CONTACT_LOCAL) || mbEnableICE))
+   {
+      rtpSocket->enableTurn(mTurnServer, mTurnPort, 
+               mTurnRefreshPeriodSecs, mTurnUsername, mTurnPassword, false) ;
+   }
+
+   // Enable Stun if we have a stun server and either non-local contact type or 
+   // ICE is enabled.
+   if ((mStunServer.length() != 0) && ((contactType != CONTACT_LOCAL) || mbEnableICE))
+   {
+      rtcpSocket->enableStun(mStunServer, mStunPort, mStunRefreshPeriodSecs, 0, false) ;
+   }
+
+   // Enable Turn if we have a stun server and either non-local contact type or 
+   // ICE is enabled.
+   if ((mTurnServer.length() != 0) && ((contactType != CONTACT_LOCAL) || mbEnableICE))
+   {
+      rtcpSocket->enableTurn(mTurnServer, mTurnPort, 
+               mTurnRefreshPeriodSecs, mTurnUsername, mTurnPassword, false) ;
+   }
+}
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 

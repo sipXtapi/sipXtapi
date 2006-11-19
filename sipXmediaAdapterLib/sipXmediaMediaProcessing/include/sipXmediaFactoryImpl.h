@@ -33,6 +33,10 @@
 #define SIPX_CODEC_ID_SPEEX_5   "SPEEX_5"
 #define SIPX_CODEC_ID_SPEEX_15  "SPEEX_15"
 #define SIPX_CODEC_ID_SPEEX_24  "SPEEX_24"
+#define SIPX_CODEC_ID_H264_SQCIF  "H264-SQCIF"
+#define SIPX_CODEC_ID_H264_QCIF   "H264-QCIF"
+#define SIPX_CODEC_ID_H264_CIF    "H264-CIF"
+#define SIPX_CODEC_ID_H264_QVGA   "H264-QVGA"
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -46,6 +50,7 @@ class OsConfigDb ;
 #ifdef INCLUDE_RTCP /* [ */
 struct IRTCPControl ;
 #endif /* INCLUDE_RTCP ] */
+class MpCaptureDeviceManagerBase;
 
 
 /**
@@ -109,6 +114,7 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
      */ 
     virtual OsStatus setVideoPreviewDisplay(void* pDisplay);
 
+
     virtual OsStatus setVideoQuality(int quality);
     virtual OsStatus setVideoParameters(int bitRate, int frameRate);
     
@@ -139,6 +145,11 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
 #ifdef INCLUDE_RTCP /* [ */
     IRTCPControl*   mpiRTCPControl;   /**< Realtime Control Interface */
 #endif /* INCLUDE_RTCP ] */
+
+    MpCaptureDeviceManagerBase *mpCaptureDeviceManager;
+                                ///< Device manager for video capture devices.
+    UtlString mpDefaultCaptureDevice;
+                                ///< Default video capture device name.
 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
