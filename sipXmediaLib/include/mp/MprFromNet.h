@@ -24,10 +24,8 @@
 class MprDejitter;
 class MpConnection;
 
-// #include "os/OsMsgQ.h"
 #include "os/OsDefs.h"
 #include "os/OsSocket.h"
-#include "mp/MpAudioResource.h"
 #include "mp/NetInTask.h"
 #include "mp/MpUdpBuf.h"
 #include "mp/MpRtpBuf.h"
@@ -46,7 +44,7 @@ class MpConnection;
 // FORWARD DECLARATIONS
 
 /// The "From Network" media processing resource
-class MprFromNet : public MpAudioResource
+class MprFromNet
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -56,8 +54,7 @@ public:
 //@{
 
      /// Constructor
-   MprFromNet(const UtlString& rName, MpConnection* pConn,
-                                 int samplesPerFrame, int samplesPerSec);
+   MprFromNet(MpConnection* pConn);
 
      /// Destructor
    virtual ~MprFromNet();
@@ -68,18 +65,16 @@ public:
 ///@name Manipulators
 //@{
 
-     /// @brief Sends a SET_SOCKETS message to this resource to set the inbound 
-     /// RTP and RTCP sockets.
+     /// @brief Set the inbound RTP and RTCP sockets.
    OsStatus setSockets(OsSocket& rRtpSocket, OsSocket& rRtcpSocket);
-     /** @returns OS_SUCCESS, unless unable to queue message. */
+     /** @returns Always OS_SUCCESS for now. */
 
-     /// @brief Sends a RESET_SOCKETS message to this resource to deregister the
-     /// inbound RTP and RTCP sockets.
+     /// @brief Deregister the inbound RTP and RTCP sockets.
    OsStatus resetSockets();
-     /** @returns OS_SUCCESS, unless unable to queue message. */
+     /** @returns Always OS_SUCCESS for now. */
 
      /// Take in a buffer from the NetIn task
-   OsStatus pushPacket(const MpUdpBufPtr &buf, int rtpOrRtcp);
+   OsStatus pushPacket(const MpUdpBufPtr &buf, bool isRtcp);
 
      /// Inform this object of its sibling dejitter object.
    void setMyDejitter(MprDejitter* newDJ);
@@ -117,7 +112,7 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
    OsMutex          mMutex;
-   UtlBoolean        mRegistered;
+   UtlBoolean       mRegistered;
    MprDejitter*     mpDejitter;
    MpConnection*    mpConnection;
 #ifdef INCLUDE_RTCP /* [ */
@@ -147,23 +142,16 @@ private:
    UtlBoolean mRtpOtherSsrcValid;
    static const int SSRC_SWITCH_MISMATCH_COUNT;
 
-
-   virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
-                                     MpBufPtr outBufs[],
-                                     int inBufsSize,
-                                     int outBufsSize,
-                                     UtlBoolean isEnabled,
-                                     int samplesPerFrame=80,
-                                     int samplesPerSecond=8000);
-
      /// Copy constructor (not implemented for this class)
    MprFromNet(const MprFromNet& rMprFromNet);
 
      /// Assignment operator (not implemented for this class)
    MprFromNet& operator=(const MprFromNet& rhs);
 
+#ifndef INCLUDE_RTCP /* [ */
      /// Update the RR info for the current incoming packet
    OsStatus rtcpStats(struct RtpHeader *h);
+#endif /* INCLUDE_RTCP ] */
 
    MprDejitter* getMyDejitter(void);
 

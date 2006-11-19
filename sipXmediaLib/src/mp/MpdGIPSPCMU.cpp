@@ -11,7 +11,7 @@
 #ifdef HAVE_GIPS /* [ */
 
 // APPLICATION INCLUDES
-#include "mp/MpConnection.h"
+#include "mp/MpAudioConnection.h"
 #include "mp/MpdGIPSPCMU.h"
 #include "mp/GIPS/GIPS_API.h"
 #include "mp/MprDejitter.h"
@@ -37,7 +37,7 @@ MpdGIPSPCMU::~MpdGIPSPCMU()
    freeDecode();
 }
 
-OsStatus MpdGIPSPCMU::initDecode(MpConnection* pConnection)
+OsStatus MpdGIPSPCMU::initDecode(MpAudioConnection* pConnection)
 {
    //Get NetEq pointer
    mpJBState = pConnection->getJBinst();

@@ -11,13 +11,11 @@
 #ifndef _MprDejitter_h_
 #define _MprDejitter_h_
 
-#include "mp/MpMisc.h"
-
 // SYSTEM INCLUDES
-
 // APPLICATION INCLUDES
-#include "mp/MpAudioResource.h"
-#include "mp/MprFromNet.h"
+#include "os/OsStatus.h"
+#include "os/OsBSem.h"
+#include "mp/MpRtpBuf.h"
 
 // DEFINES
 // MACROS
@@ -27,10 +25,9 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
-class MpConnection;
 
 /// The "Dejitter" media processing resource
-class MprDejitter : public MpAudioResource
+class MprDejitter
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -50,8 +47,7 @@ public:
 //@{
 
      /// Constructor
-   MprDejitter(const UtlString& rName, MpConnection* pConn,
-      int samplesPerFrame, int samplesPerSec);
+   MprDejitter();
 
      /// Destructor
    virtual
@@ -147,14 +143,6 @@ private:
                   */
 
    /* end of Dejitter handling variables */
-
-   virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
-                                     MpBufPtr outBufs[],
-                                     int inBufsSize,
-                                     int outBufsSize,
-                                     UtlBoolean isEnabled,
-                                     int samplesPerFrame=80,
-                                     int samplesPerSecond=8000);
 
      /// Copy constructor (not implemented for this class)
    MprDejitter(const MprDejitter& rMprDejitter);

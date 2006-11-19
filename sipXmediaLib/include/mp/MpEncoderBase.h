@@ -25,9 +25,7 @@
 // CONSTANTS
 // STRUCTS
 // TYPEDEFS
-
 // FORWARD DECLARATIONS
-class MpConnection;
 
 /// Base class for all media processing encoders.
 class MpEncoderBase

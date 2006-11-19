@@ -34,7 +34,7 @@
 #include "os/OsLock.h"
 #include "mp/MpMisc.h"
 #include "mp/MpBuf.h"
-#include "mp/MpConnection.h"
+#include "mp/MpAudioConnection.h"
 #include "mp/MprDecode.h"
 #include "mp/MprDejitter.h"
 #include "mp/MpDecoderBase.h"
@@ -59,9 +59,9 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MprDecode::MprDecode(const UtlString& rName, MpConnection* pConn,
-                           int samplesPerFrame, int samplesPerSec)
-:  MpAudioResource(rName, 1, 1, 1, 1, samplesPerFrame, samplesPerSec),
+MprDecode::MprDecode(const UtlString& rName, MpAudioConnection* pConn,
+                     int samplesPerFrame, int samplesPerSec)
+:  MpAudioResource(rName, 0, 0, 1, 1, samplesPerFrame, samplesPerSec),
    mpMyDJ(NULL),
    mpCurrentCodecs(NULL),
    mNumCurrentCodecs(0),
@@ -101,16 +101,24 @@ OsStatus MprDecode::selectCodecs(SdpCodec* codecs[], int numCodecs)
    OsStatus ret = OS_SUCCESS;
    SdpCodec** codecArray;
    int i;
+   int audioCodecsNum=0;
+   UtlString codecMediaType;
    MpFlowGraphMsg msg(SELECT_CODECS, this, NULL, NULL, 0, 0);
 
    codecArray = new SdpCodec*[numCodecs];
 
+   // Copy all audio codecs to new array
    for (i=0; i<numCodecs; i++) {
-      codecArray[i] = new SdpCodec(*codecs[i]);
+      codecs[i]->getMediaType(codecMediaType);
+      if (codecMediaType.compareTo("audio") == 0)
+      {
+         codecArray[audioCodecsNum] = new SdpCodec(*codecs[i]);
+         audioCodecsNum++;
+      }
    }
 
    msg.setPtr1(codecArray);
-   msg.setInt1(numCodecs);
+   msg.setInt1(audioCodecsNum);
    ret = postMessage(msg);
 
    return ret;

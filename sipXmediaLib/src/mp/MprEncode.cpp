@@ -52,7 +52,7 @@ static const int NO_WAIT = 0;
 // Constructor
 MprEncode::MprEncode(const UtlString& rName,
                            int samplesPerFrame, int samplesPerSec)
-:  MpAudioResource(rName, 1, 1, 1, 1, samplesPerFrame, samplesPerSec),
+:  MpAudioResource(rName, 1, 1, 0, 0, samplesPerFrame, samplesPerSec),
    mpPrimaryCodec(NULL),
    mpPacket1Buffer(NULL),
    mpPacket1Payload(NULL),

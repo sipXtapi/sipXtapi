@@ -30,26 +30,14 @@
 
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
-#include "mp/MpMisc.h"
+#include "os/OsLock.h"
 #include "mp/MpBuf.h"
 #include "mp/MpConnection.h"
 #include "mp/MprDejitter.h"
-#include "mp/MprFromNet.h"
-#include "mp/NetInTask.h"
-/* for dejitter handling purpose */
-#include "mp/dmaTask.h"
-#include "mp/MpMediaTask.h"
-
-//===========================================================
-// Clock tick: for packet detaining period calculation
-extern volatile int* pOsTC;
-//===========================================================
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
-
 // CONSTANTS
-
 // STATIC VARIABLE INITIALIZATIONS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -57,10 +45,8 @@ extern volatile int* pOsTC;
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MprDejitter::MprDejitter(const UtlString& rName, MpConnection* pConn,
-                         int samplesPerFrame, int samplesPerSec)
-:  MpAudioResource(rName, 1, 1, 1, 1, samplesPerFrame, samplesPerSec),
-   mRtpLock(OsBSem::Q_FIFO, OsBSem::FULL)
+MprDejitter::MprDejitter()
+: mRtpLock(OsBSem::Q_FIFO, OsBSem::FULL)
 {
    memset(mBufferLookup, -1, 256 * sizeof(int));
    memset(mNumPackets, 0, MAX_CODECS * sizeof(int));
@@ -162,19 +148,23 @@ MpRtpBufPtr MprDejitter::pullPacket(int payloadType)
    // push was done, and loop around until we found valid packet or reach last
    // pushed packet.
    for (int iNextPull = mLastPushed[codecIndex] + 1;
-        (iNextPull != mLastPushed[codecIndex]) && !found.isValid();
+        iNextPull != mLastPushed[codecIndex];
         iNextPull++)
    {
       // Wrap iNextPull counter if we reach end of buffer
       if (iNextPull >= MAX_RTP_PACKETS)
          iNextPull = 0;
 
-      // If we reach valid packet, move it out of the buffer
+      // If we reach valid packet, move it out of the buffer and break search loop
       if (mpPackets[codecIndex][iNextPull].isValid()) {
          found.swap(mpPackets[codecIndex][iNextPull]);
          mNumPackets[codecIndex]--;
+         break;
       }
    }
+
+   // Make sure we does not have copy of this buffer left in other threads.
+   found.requestWrite();
 
    return found;
 }
@@ -195,25 +185,5 @@ int MprDejitter::getBufferLength(int payload)
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
-
-UtlBoolean MprDejitter::doProcessFrame(MpBufPtr inBufs[],
-                                       MpBufPtr outBufs[],
-                                       int inBufsSize,
-                                       int outBufsSize,
-                                       UtlBoolean isEnabled,
-                                       int samplesPerFrame,
-                                       int samplesPerSecond)
-{
-   UtlBoolean ret = FALSE;
-
-   if (!isEnabled)
-      return TRUE;
-
-   if ((1 != inBufsSize) || (1 != outBufsSize))
-      return FALSE;
-
-   outBufs[0].swap(inBufs[0]);
-   return TRUE;
-}
 
 /* ============================ FUNCTIONS ================================= */

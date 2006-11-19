@@ -14,7 +14,7 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #endif /* __pingtel_on_posix__ ] */
-#include "mp/MpConnection.h"
+#include "mp/MpAudioConnection.h"
 #include "mp/MpdPtAVT.h"
 #include "mp/MprDejitter.h"
 #include "mp/NetInTask.h"
@@ -56,7 +56,7 @@ MpdPtAVT::~MpdPtAVT()
    freeDecode();
 }
 
-OsStatus MpdPtAVT::initDecode(MpConnection* pConnection)
+OsStatus MpdPtAVT::initDecode(MpAudioConnection* pConnection)
 {
    int res = 0;
    debugCtr = 0;

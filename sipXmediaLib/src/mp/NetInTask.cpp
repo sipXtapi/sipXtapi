@@ -219,7 +219,7 @@ OsConnectionSocket* NetInTask::getReadSocket()
 
 /************************************************************************/
 
-static OsStatus get1Msg(OsSocket* pRxpSkt, MprFromNet* fwdTo, int rtpOrRtcp,
+static OsStatus get1Msg(OsSocket* pRxpSkt, MprFromNet* fwdTo, bool isRtcp,
     int ostc)
 {
         MpUdpBufPtr ib;
@@ -261,7 +261,7 @@ static  int flushedLimit = 125;
 
             if (nRead > 0) 
             {
-                fwdTo->pushPacket(ib, rtpOrRtcp);
+                fwdTo->pushPacket(ib, isRtcp);
             } 
             else 
             {
@@ -617,7 +617,7 @@ int NetInTask::run(void *pNotUsed)
                 if ((NULL != ppr->pRtpSocket) &&
                   (FD_ISSET(ppr->pRtpSocket->getSocketDescriptor(), fds))) {
                     stat = get1Msg(ppr->pRtpSocket, ppr->fwdTo,
-                       MpBufferMsg::AUD_RTP_RECV, ostc);
+                       false, ostc);
                     if (OS_SUCCESS != stat) {
                         Zprintf(" *** NetInTask: removing RTP#%d pSkt=0x%x due"
                             " to read error.\n", ppr-pairs,
@@ -632,7 +632,7 @@ int NetInTask::run(void *pNotUsed)
                 if ((NULL != ppr->pRtcpSocket) &&
                   (FD_ISSET(ppr->pRtcpSocket->getSocketDescriptor(), fds))) {
                     stat = get1Msg(ppr->pRtcpSocket, ppr->fwdTo,
-                       MpBufferMsg::AUD_RTCP_RECV, ostc);
+                       true, ostc);
                     if (OS_SUCCESS != stat) {
                         Zprintf(" *** NetInTask: removing RTCP#%d pSkt=0x%x due"
                             " to read error.\n", ppr-pairs,
@@ -860,11 +860,6 @@ static  UINT last_timer = 0x12345678;
 #endif /* _WIN32 || __pingtel_on_posix__ ] */
 }
 
-struct rtcpSession {
-        int dir;
-        OsSocket* socket;
-};
-
 #define RTP_DIR_NEW 4
 
 rtpHandle StartRtpSession(OsSocket* socket, int direction, char type)
@@ -894,58 +889,7 @@ rtpHandle StartRtpSession(OsSocket* socket, int direction, char type)
         return ret;
 }
 
-rtcpHandle StartRtcpSession(int direction)
-{
-        struct rtcpSession *ret;
-        USHORT rseq;
-
-        rseq = 0xFFFF & rand_timer32();
-
-        ret = (struct rtcpSession *) malloc(sizeof(struct rtcpSession));
-        if (ret) {
-                ret->dir = direction | RTP_DIR_NEW;
-                ret->socket = NULL;
-        }
-        return ret;
-}
-
-OsStatus setRtpType(rtpHandle h, int type)
-{
-        h->mpt = ((0<<7) | (type & 0x7f));
-        return OS_SUCCESS;
-}
-
-OsStatus setRtpSocket(rtpHandle h, OsSocket* socket)
-{
-        h->socket = socket;
-        return OS_SUCCESS;
-}
-
-OsSocket* getRtpSocket(rtpHandle h)
-{
-        return h->socket;
-}
-
-OsStatus setRtcpSocket(rtcpHandle h, OsSocket* socket)
-{
-        h->socket = socket;
-        return OS_SUCCESS;
-}
-
-OsSocket* getRtcpSocket(rtcpHandle h)
-{
-        return h->socket;
-}
-
 void FinishRtpSession(rtpHandle h)
-{
-        if (NULL != h) {
-            h->socket = NULL;
-            free(h);
-        }
-}
-
-void FinishRtcpSession(rtcpHandle h)
 {
         if (NULL != h) {
             h->socket = NULL;

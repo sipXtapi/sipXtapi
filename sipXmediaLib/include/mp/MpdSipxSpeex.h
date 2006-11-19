@@ -17,6 +17,7 @@
 
 // APPLICATION INCLUDES
 #include "mp/MpDecoderBase.h"
+#include "mp/JB/JB_API.h"
 #include <speex/speex.h>
 #include <speex/speex_header.h>
 #include <speex/speex_stereo.h>
@@ -26,8 +27,6 @@
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
-
-
 // CONSTANTS
 // STRUCTS
 // TYPEDEFS
@@ -53,9 +52,9 @@ public:
    ~MpdSipxSpeex();
 
      /// Initializes a codec data structure for use as a decoder
-   virtual OsStatus initDecode(MpConnection* pConnection);
+   virtual OsStatus initDecode(MpAudioConnection* pConnection);
      /**<
-     *  @param pConnection - (in) Pointer to the MpConnection container
+     *  @param pConnection - (in) Pointer to the MpAudioConnection container
      *  @returns <b>OS_SUCCESS</b> - Success
      *  @returns <b>OS_NO_MEMORY</b> - Memory allocation failure
      */

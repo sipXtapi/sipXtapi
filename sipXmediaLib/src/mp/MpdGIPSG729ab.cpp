@@ -65,7 +65,7 @@ GIPS_Word16 G729FIX_GIPS_decode(G729_decinst_t *G729dec_inst,
 // APPLICATION INCLUDES
 #include "mp/MpdGIPSG729ab.h"
 #include "mp/MprDejitter.h"
-#include "mp/MpConnection.h"
+#include "mp/MpAudioConnection.h"
 #include "mp/GIPS/G729Interface.h"
 #include "mp/GIPS/GIPS_API.h"
 
@@ -112,7 +112,7 @@ MpdGIPSG729ab::~MpdGIPSG729ab()
    freeDecode();
 }
 
-OsStatus MpdGIPSG729ab::initDecode(MpConnection* pConnection)
+OsStatus MpdGIPSG729ab::initDecode(MpAudioConnection* pConnection)
 {
    int res;
 

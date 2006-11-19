@@ -34,7 +34,7 @@ public:
 
    virtual OsStatus initEncode(void);
      //:Initializes a codec data structure for use as an encoder
-     //!param: pConnection - (in) Pointer to the MpConnection container
+     //!param: pConnection - (in) Pointer to the MpAudioConnection container
      //!retcode: OS_SUCCESS - Success
      //!retcode: OS_NO_MEMORY - Memory allocation failure
 

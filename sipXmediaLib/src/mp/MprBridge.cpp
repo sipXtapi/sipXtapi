@@ -20,6 +20,7 @@
 // #include "mp/MpMisc.h"
 #include "mp/MpBuf.h"
 #include "mp/MprBridge.h"
+#include "mp/MpMisc.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

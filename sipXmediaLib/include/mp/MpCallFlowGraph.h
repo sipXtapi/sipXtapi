@@ -22,7 +22,7 @@
 // APPLICATION INCLUDES
 #include "mp/MpMisc.h"
 #include "mp/MpFlowGraphBase.h"
-#include "mp/MpConnection.h"
+#include "mp/MpAudioConnection.h"
 #include "mp/StreamDefs.h"
 #include "mp/MpStreamMsg.h"
 #include "os/OsProtectEvent.h"
@@ -251,7 +251,7 @@ public:
      *  @returns  OS_SUCCESS, always
      */
 
-     /// Creates a new MpConnection; returns -1 if failure.
+     /// Creates a new MpAudioConnection; returns -1 if failure.
    MpConnectionID createConnection(void);
 
      /// enables hearing audio data from a source
@@ -266,11 +266,11 @@ public:
      /// disables sending audio data to a remote party
    UtlBoolean muteOutput(MpConnectionID connID);
 
-     /// Removes an MpConnection and deletes it and all its resources.
+     /// Removes an MpAudioConnection and deletes it and all its resources.
    OsStatus deleteConnection(MpConnectionID connID);
 
      /// Disables or enables the GIPS premium sound.
-   void setPremiumSound(MpConnection::PremiumSoundOptions op);
+   void setPremiumSound(MpAudioConnection::PremiumSoundOptions op);
 
      /// Disables the GIPS premium sound.
    void disablePremiumSound(void);
@@ -313,7 +313,7 @@ public:
 ///@name Accessors
 //@{
 
-   MpConnection* getConnectionPtr(MpConnectionID id);
+   MpAudioConnection* getConnectionPtr(MpConnectionID id);
 #ifdef INCLUDE_RTCP /* [ */
    IRTCPSession* getRTCPSessionPtr(void);
 #endif /* INCLUDE_RTCP ] */
@@ -467,8 +467,8 @@ private:
    MprToSpkr*    mpToSpkr;
    MprToneGen*   mpToneGen;
    OsBSem        mConnTableLock;
-   UtlBoolean     mToneIsGlobal;
-   MpConnection* mpConnections[MAX_CONNECTIONS];
+   UtlBoolean    mToneIsGlobal;
+   MpAudioConnection* mpConnections[MAX_CONNECTIONS];
    UtlBoolean     mToneGenDefocused; ///< disabled during defocused state flag
 #ifdef INCLUDE_RTCP /* [ */
    IRTCPSession* mpiRTCPSession;

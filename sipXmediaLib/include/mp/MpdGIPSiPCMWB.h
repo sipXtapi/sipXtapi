@@ -42,9 +42,9 @@ public:
    virtual ~MpdGIPSiPCMWB(void);
      //:Destructor
 
-   virtual OsStatus initDecode(MpConnection* pConnection);
+   virtual OsStatus initDecode(MpAudioConnection* pConnection);
      //:Initializes a codec data structure for use as a decoder
-     //!param: pConnection - (in) Pointer to the MpConnection container
+     //!param: pConnection - (in) Pointer to the MpAudioConnection container
      //!retcode: OS_SUCCESS - Success
      //!retcode: OS_NO_MEMORY - Memory allocation failure
 

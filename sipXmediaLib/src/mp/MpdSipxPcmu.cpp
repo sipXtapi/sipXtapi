@@ -13,7 +13,7 @@
 #ifndef HAVE_GIPS /* [ */
 
 // APPLICATION INCLUDES
-#include "mp/MpConnection.h"
+#include "mp/MpAudioConnection.h"
 #include "mp/MpdSipxPcmu.h"
 #include "mp/JB/JB_API.h"
 #include "mp/MprDejitter.h"
@@ -39,7 +39,7 @@ MpdSipxPcmu::~MpdSipxPcmu()
    freeDecode();
 }
 
-OsStatus MpdSipxPcmu::initDecode(MpConnection* pConnection)
+OsStatus MpdSipxPcmu::initDecode(MpAudioConnection* pConnection)
 {
    if (pConnection == NULL)
       return OS_SUCCESS;
@@ -62,10 +62,15 @@ int MpdSipxPcmu::decode(const MpRtpBufPtr &pPacket,
                         unsigned decodedBufferLength,
                         MpAudioSample *samplesBuffer) 
 {
-   // Assert that available buffer size is enough for the packet.
-   assert(pPacket->getPayloadSize() <= decodedBufferLength);
+   int payloadSize = pPacket->getPayloadSize();
 
-   int samples = min(pPacket->getPayloadSize(), decodedBufferLength);
+   if (decodedBufferLength == 0)
+      return 0;
+
+   // Assert that available buffer size is enough for the packet.
+//   assert(payloadSize <= decodedBufferLength);
+
+   int samples = min(payloadSize, decodedBufferLength);
    G711U_Decoder(samples,
                  (const JB_uchar*)pPacket->getDataPtr(),
                  samplesBuffer);

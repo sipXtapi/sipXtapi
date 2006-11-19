@@ -10,7 +10,6 @@
 
 #include <assert.h>
 #include "mp/MpDecoderBase.h"
-#include "mp/MpConnection.h"
 
 // Constructor
 // Returns a new decoder object.

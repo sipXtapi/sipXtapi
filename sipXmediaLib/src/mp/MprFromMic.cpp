@@ -133,7 +133,7 @@ UtlBoolean MprFromMic::doProcessFrame(MpBufPtr inBufs[],
             pMsg->releaseMsg();
          }
       }
-        else
+      else
       {
 //         osPrintf("MprFromMic: No data available (total frames=%d)\n", 
 //               mNumFrames);

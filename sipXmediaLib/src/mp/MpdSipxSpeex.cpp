@@ -12,9 +12,8 @@
 
 
 // APPLICATION INCLUDES
-#include "mp/MpConnection.h"
+#include "mp/MpAudioConnection.h"
 #include "mp/MpdSipxSpeex.h"
-#include "mp/JB/JB_API.h"
 #include "mp/MprDejitter.h"
 #include "os/OsSysLog.h"
 #include "os/OsSysLogFacilities.h"
@@ -50,7 +49,7 @@ MpdSipxSpeex::~MpdSipxSpeex()
 {
 }
 
-OsStatus MpdSipxSpeex::initDecode(MpConnection* pConnection)
+OsStatus MpdSipxSpeex::initDecode(MpAudioConnection* pConnection)
 {
    mpJBState = pConnection->getJBinst();
 

@@ -12,7 +12,7 @@
 
 #include "assert.h"
 // APPLICATION INCLUDES
-#include "mp/MpConnection.h"
+#include "mp/MpAudioConnection.h"
 #include "mp/MpdGIPSiPCMA.h"
 #include "mp/GIPS/GIPS_API.h"
 #include "mp/MprDejitter.h"
@@ -31,7 +31,7 @@ MpdGIPSiPCMA::~MpdGIPSiPCMA()
    freeDecode();
 }
 
-OsStatus MpdGIPSiPCMA::initDecode(MpConnection* pConnection)
+OsStatus MpdGIPSiPCMA::initDecode(MpAudioConnection* pConnection)
 {
    int res = 0;
 

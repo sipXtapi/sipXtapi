@@ -273,7 +273,7 @@ static void * soundCardReader(void * arg)
 
       pMsg->setMsgSubType(MpBufferMsg::AUD_RECORDED);
       
-      // Pass buffer to mesage. Buffer will be invalid after this!
+      // Pass buffer to message. Buffer will be invalid after this!
       pMsg->ownBuffer(ob);
 
       if(MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT) != OS_SUCCESS)
@@ -446,6 +446,9 @@ static void stopAudioSupport(void)
       close(soundCard);
       soundCard = -1;
    }
+
+   if (DmaMsgPool != NULL)
+      delete DmaMsgPool;
 }
 
 

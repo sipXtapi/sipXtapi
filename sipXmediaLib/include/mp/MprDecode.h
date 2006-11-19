@@ -31,7 +31,7 @@
 // TYPEDEFS
 
 // FORWARD DECLARATIONS
-class MpConnection;
+class MpAudioConnection;
 class MpDecoderBase;
 class MprRecorder;
 
@@ -41,7 +41,7 @@ class MprDecode : public MpAudioResource
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   friend class MpConnection;
+   friend class MpAudioConnection;
 
 #ifdef _DEPRECATED_IPSE_
    /* This was 3 in the past, which is probably far too pessimistic most of
@@ -58,7 +58,7 @@ public:
 //@{
 
      /// Constructor
-   MprDecode(const UtlString& rName, MpConnection* pConn,
+   MprDecode(const UtlString& rName, MpAudioConnection* pConn,
              int samplesPerFrame, int samplesPerSec);
 
      /// Destructor
@@ -145,7 +145,7 @@ private:
    MpDecoderBase** mpPrevCodecs;
    int             mNumPrevCodecs; ///< Length of mpPrevCodecs array.
 
-   MpConnection*   mpConnection;   ///< Link to the parent Connection.
+   MpAudioConnection*   mpConnection;   ///< Link to the parent Connection.
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
                                      MpBufPtr outBufs[],

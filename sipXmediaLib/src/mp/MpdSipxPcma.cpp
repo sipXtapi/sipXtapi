@@ -13,7 +13,7 @@
 #ifndef HAVE_GIPS /* [ */
 
 // APPLICATION INCLUDES
-#include "mp/MpConnection.h"
+#include "mp/MpAudioConnection.h"
 #include "mp/MpdSipxPcma.h"
 #include "mp/JB/JB_API.h"
 #include "mp/MprDejitter.h"
@@ -39,7 +39,7 @@ MpdSipxPcma::~MpdSipxPcma()
    freeDecode();
 }
 
-OsStatus MpdSipxPcma::initDecode(MpConnection* pConnection)
+OsStatus MpdSipxPcma::initDecode(MpAudioConnection* pConnection)
 {
    if (pConnection == NULL)
       return OS_SUCCESS;

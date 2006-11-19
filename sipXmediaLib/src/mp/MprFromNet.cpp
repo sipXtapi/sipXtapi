@@ -30,13 +30,11 @@
 
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
-#include "os/OsMsgQ.h"
 #include "mp/MpMisc.h"
 #include "mp/MpBuf.h"
 #include "mp/MpConnection.h"
 #include "mp/MprFromNet.h"
 #include "mp/MprDejitter.h"
-#include "mp/MpBufferMsg.h"
 #ifdef INCLUDE_RTCP /* [ */
 #include "rtcp/RTPHeader.h"
 #endif /* INCLUDE_RTCP ] */
@@ -56,10 +54,8 @@ const int MprFromNet::SSRC_SWITCH_MISMATCH_COUNT = 8;
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MprFromNet::MprFromNet(const UtlString& rName,
-               MpConnection* pConn, int samplesPerFrame, int samplesPerSec)
-:  MpAudioResource(rName, 0, 0, 1, 1, samplesPerFrame, samplesPerSec),
-   mMutex(OsMutex::Q_PRIORITY|OsMutex::INVERSION_SAFE),
+MprFromNet::MprFromNet(MpConnection* pConn)
+:  mMutex(OsMutex::Q_PRIORITY|OsMutex::INVERSION_SAFE),
    mRegistered(FALSE),
    mpDejitter(NULL),
    mpConnection(pConn),
@@ -112,9 +108,7 @@ MprFromNet::~MprFromNet()
 
 /* ============================ MANIPULATORS ============================== */
 
-// Handles a SET_SOCKETS message sent to this resource, to set the inbound
-// RTP and RTCP sockets.
-// Returns the result of attempting to queue the message to the NetInTask
+// Set the inbound RTP and RTCP sockets.
 OsStatus MprFromNet::setSockets(OsSocket& rRtpSocket, OsSocket& rRtcpSocket)
 {
    OsStatus res;
@@ -132,9 +126,7 @@ OsStatus MprFromNet::setSockets(OsSocket& rRtpSocket, OsSocket& rRtcpSocket)
    return OS_SUCCESS;
 }
 
-// Handles a RESET_SOCKETS message sent to this resource, to deregister
-// the inbound RTP and RTCP sockets.
-// Returns the result of attempting to queue the message to the NetInTask
+// Deregister the inbound RTP and RTCP sockets.
 OsStatus MprFromNet::resetSockets(void)
 {
    mMutex.acquire();
@@ -288,7 +280,7 @@ int FR() {return ForwardRtcp(1);}
 /**************************************************************************/
 
 // Take in a buffer from the NetIn task
-OsStatus MprFromNet::pushPacket(const MpUdpBufPtr &udpBuf, int rtpOrRtcp)
+OsStatus MprFromNet::pushPacket(const MpUdpBufPtr &udpBuf, bool isRtcp)
 {
     MpRtpBufPtr rtpBuf;
     OsStatus ret = OS_SUCCESS;
@@ -301,19 +293,24 @@ OsStatus MprFromNet::pushPacket(const MpUdpBufPtr &udpBuf, int rtpOrRtcp)
     mNumPushed++;
     if (0 == (mNumPushed & ((1<<11)-1))) mNumWarnings = 0; // every 2048
 
-    if (rtpOrRtcp == MpBufferMsg::AUD_RTP_RECV)
+    if (isRtcp == false)
     {
         rtpBuf = parseRtpPacket(udpBuf);
 
+// Ipse: Disabled this check when separating MpAudioConnection from MpConnection.
+//       We could not do this check with new MpConnection, cause it does not
+//       know anything about decoding - it just receive/send RTP and RTCP streams.
+#if 0
         // Check if we can decode this packet
         if (mpConnection->mapPayloadType(rtpBuf->getRtpPayloadType()) == NULL) {
             // just ignore it!
             return ret;
         }
+#endif
 
         thisSsrc = rtpBuf->getRtpSSRC();
 
-        // Update preffered SSRC if it is not valid
+        // Update preferred SSRC if it is not valid
         if (!mPrefSsrcValid) {
             setPrefSsrc(thisSsrc);
         }
@@ -484,17 +481,6 @@ int MprFromNet::setPrefSsrc(int newSsrc)
    mRtpDestMatchIpOnlySsrcValid = FALSE;
    mRtpOtherSsrcValid = FALSE;
    return 0;
-}
-
-UtlBoolean MprFromNet::doProcessFrame(MpBufPtr inBufs[],
-                                      MpBufPtr outBufs[],
-                                      int inBufsSize,
-                                      int outBufsSize,
-                                      UtlBoolean isEnabled,
-                                      int samplesPerFrame,
-                                      int samplesPerSecond)
-{
-   return TRUE;
 }
 
 /* ============================ FUNCTIONS ================================= */

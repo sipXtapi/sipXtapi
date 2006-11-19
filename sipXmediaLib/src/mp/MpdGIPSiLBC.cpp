@@ -15,7 +15,7 @@
 
 #include "assert.h"
 // APPLICATION INCLUDES
-#include "mp/MpConnection.h"
+#include "mp/MpAudioConnection.h"
 #include "mp/MpdGIPSiLBC.h"
 #include "mp/GIPS/GIPS_API.h"
 #include "mp/MprDejitter.h"
@@ -37,7 +37,7 @@ MpdGIPSiLBC::~MpdGIPSiLBC()
    freeDecode();
 }
 
-OsStatus MpdGIPSiLBC::initDecode(MpConnection* pConnection)
+OsStatus MpdGIPSiLBC::initDecode(MpAudioConnection* pConnection)
 {
    int res = 0;
 

@@ -83,21 +83,13 @@ typedef struct __MprRtcpStats* MprRtcpStatsPtr;
 #endif /* INCLUDE_RTCP ] */
 
 typedef struct rtpSession *rtpHandle;
-typedef struct rtcpSession *rtcpHandle;
 
 // FORWARD DECLARATIONS
 class MprFromNet;
 
 extern UINT rand_timer32(void);
 extern rtpHandle StartRtpSession(OsSocket* socket, int direction, char type);
-extern OsStatus setRtpType(rtpHandle h, int codecType);
-extern OsStatus setRtpSocket(rtpHandle h, OsSocket* socket);
-extern OsSocket* getRtpSocket(rtpHandle h);
 extern void FinishRtpSession(rtpHandle h);
-extern rtcpHandle StartRtcpSession(int direction);
-extern OsStatus setRtcpSocket(rtcpHandle h, OsSocket* socket);
-extern OsSocket* getRtcpSocket(rtcpHandle h);
-extern void FinishRtcpSession(rtcpHandle h);
 
 extern OsStatus startNetInTask();
 extern OsStatus shutdownNetInTask();

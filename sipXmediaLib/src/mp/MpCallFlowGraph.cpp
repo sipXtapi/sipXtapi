@@ -37,7 +37,7 @@
 #include "os/OsProtectEventMgr.h"
 #include "os/OsProtectEvent.h"
 #include "os/OsFS.h"
-#include "mp/MpConnection.h"
+#include "mp/MpAudioConnection.h"
 #include "mp/MpCallFlowGraph.h"
 #include "mp/MpMediaTask.h"
 #include "mp/MpStreamMsg.h"
@@ -1108,12 +1108,12 @@ MpConnectionID MpCallFlowGraph::createConnection()
    int            bridgePort;
    MpResource*    pBridgeSink;
    MpResource*    pBridgeSource;
-   MpConnection*  pConnection;
+   MpAudioConnection*  pConnection;
 
    mConnTableLock.acquire();
    for (i=1; i<MAX_CONNECTIONS; i++) {
       if (NULL == mpConnections[i]) {
-         mpConnections[i] = (MpConnection*) -1;
+         mpConnections[i] = (MpAudioConnection*) -1;
          found = i;
          i = MAX_CONNECTIONS;
       }
@@ -1124,7 +1124,7 @@ MpConnectionID MpCallFlowGraph::createConnection()
       return -1;
    }
    
-   mpConnections[found] = new MpConnection(this, found,
+   mpConnections[found] = new MpAudioConnection(found, this,
                  getSamplesPerFrame(), getSamplesPerSec());
 
    pConnection = mpConnections[found];
@@ -1165,7 +1165,7 @@ OsStatus MpCallFlowGraph::deleteConnection(MpConnectionID connID)
    assert((0 < connID) && (connID < MAX_CONNECTIONS));
 
    if ((NULL == mpConnections[connID]) || 
-      (((MpConnection*) -1) == mpConnections[connID]))
+      (((MpAudioConnection*) -1) == mpConnections[connID]))
          return OS_INVALID_ARGUMENT;
 
    MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_REMOVE_CONNECTION, NULL,
@@ -1187,7 +1187,7 @@ OsStatus MpCallFlowGraph::deleteConnection(MpConnectionID connID)
       return OS_UNSPECIFIED;
 }
 
-void MpCallFlowGraph::setPremiumSound(MpConnection::PremiumSoundOptions op)
+void MpCallFlowGraph::setPremiumSound(MpAudioConnection::PremiumSoundOptions op)
 {
    OsStatus  res;
    MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_SET_PREMIUM_SOUND,
@@ -1211,7 +1211,7 @@ void MpCallFlowGraph::disablePremiumSound(void)
    }
 #endif /* DEBUG_GIPS_PREMIUM_SOUND ] */
 #endif /* _VXWORKS ] */
-   setPremiumSound(MpConnection::DisablePremiumSound);
+   setPremiumSound(MpAudioConnection::DisablePremiumSound);
 }
 
 void MpCallFlowGraph::enablePremiumSound(void)
@@ -1226,7 +1226,7 @@ void MpCallFlowGraph::enablePremiumSound(void)
    }
 #endif /* DEBUG_GIPS_PREMIUM_SOUND ] */
 #endif /* _VXWORKS ] */
-   setPremiumSound(MpConnection::EnablePremiumSound);
+   setPremiumSound(MpAudioConnection::EnablePremiumSound);
 }
 
 // Start sending RTP and RTCP packets.
@@ -1684,7 +1684,7 @@ UtlBoolean MpCallFlowGraph::handleMessage(OsMsg& rMsg)
 UtlBoolean MpCallFlowGraph::handleRemoveConnection(MpFlowGraphMsg& rMsg)
 {
    MpConnectionID connID = rMsg.getInt1();
-   MpConnection* pConnection;
+   MpAudioConnection* pConnection;
    UtlBoolean    res;
 
    mpBridge->disconnectPort(connID);
@@ -1693,37 +1693,15 @@ UtlBoolean MpCallFlowGraph::handleRemoveConnection(MpFlowGraphMsg& rMsg)
    mpConnections[connID] = NULL;
    mConnTableLock.release();
 
-   if ((NULL == pConnection) || (((MpConnection*) -1) == pConnection))
+   if ((NULL == pConnection) || (((MpAudioConnection*) -1) == pConnection))
       return TRUE;
 
-   // remove the links between the resources
-   res = handleRemoveLink((MpResource*) pConnection->mpEncode, 0);
-   assert(res);
-   res = handleRemoveLink((MpResource*) pConnection->mpFromNet, 0);
-   assert(res);
-   res = handleRemoveLink((MpResource*) pConnection->mpDejitter, 0);
+   // now remove syncrhonous resources from flowgraph
+   res = handleRemoveResource(pConnection->mpDecode);
    assert(res);
 
-   // now remove (and destroy) the resources
-   res = handleRemoveResource((MpResource*) pConnection->mpDecode);
+   res = handleRemoveResource(pConnection->mpEncode);
    assert(res);
-   delete pConnection->mpDecode;
-
-   res = handleRemoveResource((MpResource*) pConnection->mpDejitter);
-   assert(res);
-   delete pConnection->mpDejitter;
-
-   res = handleRemoveResource((MpResource*) pConnection->mpEncode);
-   assert(res);
-   delete pConnection->mpEncode;
-
-   res = handleRemoveResource((MpResource*) pConnection->mpFromNet);
-   assert(res);
-   delete pConnection->mpFromNet;
-
-   res = handleRemoveResource((MpResource*) pConnection->mpToNet);
-   assert(res);
-   delete pConnection->mpToNet;
    
    delete pConnection;
    return TRUE;
@@ -1864,11 +1842,11 @@ UtlBoolean MpCallFlowGraph::handleSynchronize(MpFlowGraphMsg& rMsg)
 UtlBoolean MpCallFlowGraph::handleSetPremiumSound(MpFlowGraphMsg& rMsg)
 {
    UtlBoolean save = mPremiumSoundEnabled;
-   MpConnection::PremiumSoundOptions op =
-                        (MpConnection::PremiumSoundOptions) rMsg.getInt1();
+   MpAudioConnection::PremiumSoundOptions op =
+                        (MpAudioConnection::PremiumSoundOptions) rMsg.getInt1();
    int i;
 
-   mPremiumSoundEnabled = (op == MpConnection::EnablePremiumSound);
+   mPremiumSoundEnabled = (op == MpAudioConnection::EnablePremiumSound);
    if (save != mPremiumSoundEnabled) {
 /*
       osPrintf("MpCallFlowGraph(%p): Premium sound %sABLED\n",

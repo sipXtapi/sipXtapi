@@ -16,7 +16,7 @@
 
 // APPLICATION INCLUDES
 #include "mp/MpAudioResource.h"
-#include "mp/MpConnection.h"
+#include "mp/MpAudioConnection.h"
 
 // DEFINES
 // MACROS
@@ -64,10 +64,10 @@ public:
 ///@name Manipulators
 //@{
 
-     /// Attach MpConnection to an available port.
+     /// Attach MpAudioConnection to an available port.
    int connectPort(MpConnectionID connID);
 
-     /// Disconnect MpConnection from its port.
+     /// Disconnect MpAudioConnection from its port.
    OsStatus disconnectPort(MpConnectionID connID);
 
 //@}

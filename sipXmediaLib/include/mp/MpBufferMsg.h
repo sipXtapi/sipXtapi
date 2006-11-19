@@ -38,11 +38,12 @@ public:
    /// Phone set message types
    typedef enum
    {
-      AUD_RECORDED,
+      AUD_RECORDED,  ///< Captured audio frame.
       AUD_RTP_RECV,
       AUD_RTCP_RECV,
       AUD_PLAY,
-      ACK_EOSTREAM
+      ACK_EOSTREAM,
+      VIDEO_FRAME    ///< Captured video frame.
    } MpBufferMsgType;
 
 /* ============================ CREATORS ================================== */

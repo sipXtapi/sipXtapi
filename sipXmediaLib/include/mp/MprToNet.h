@@ -23,10 +23,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsSocket.h"
-#include "mp/MpFlowGraphMsg.h"
-#include "mp/MpAudioResource.h"
 #include "mp/NetInTask.h"
-#include "mp/MprFromNet.h"
 #ifdef INCLUDE_RTCP /* [ */
 #include "rtcp/ISetSenderStatistics.h"
 #endif /* INCLUDE_RTCP ] */
@@ -39,11 +36,12 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
+class MprFromNet;
 
 /**
-*  @brief The "To Network" media processing resource
+*  @brief The RTP writer
 */
-class MprToNet : public MpAudioResource
+class MprToNet
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -67,7 +65,7 @@ public:
 //@{
 
      /// Constructor
-   MprToNet(const UtlString& rName, int samplesPerFrame, int samplesPerSec);
+   MprToNet();
 
      /// Destructor
    virtual
@@ -79,25 +77,20 @@ public:
 ///@name Manipulators
 //@{
 
-     /// @brief Sends a @link MprToNet::SET_SOCKETS SET_SOCKETS @endlink message
-     /// to this resource to set the outbound RTP and RTCP sockets.
+      /// Set the outbound RTP and RTCP sockets.
    OsStatus setSockets(OsSocket& rRtpSocket, OsSocket& rRtcpSocket);
      /**<
-     *  @returns the result of attempting to queue the message to this resource.
+     *  @returns Always OS_SUCCESS for now.
      */
 
-     /// @brief Sends a @link MprToNet::RESET_SOCKETS RESET_SOCKETS @endlink
-     /// message to this resource to stop sending RTP and RTCP sockets.
+     /// Clear the outbound RTP and RTCP sockets.
    OsStatus resetSockets();
      /**<
-     *  @returns OS_SUCCESS, unless unable to queue message.
+     *  @returns Always OS_SUCCESS for now.
      */
 
      /// Connect us to our corresponding FromNet, for RTCP stats.
    OsStatus setRtpPal(MprFromNet* pal);
-
-     /// Time to send an RTCP message
-   OsStatus sendRtcpPacket(void);
 
    int writeRtp(int payloadType, UtlBoolean markerState,
       unsigned char* payloadData, int payloadOctets, unsigned int timestamp,
@@ -128,19 +121,14 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   typedef enum
-   {
-      SET_SOCKETS = MpFlowGraphMsg::RESOURCE_SPECIFIC_START,
-      RESET_SOCKETS
-   } AddlMsgTypes;
 
-#ifdef DEBUG /* [ */
-   unsigned int mRtpSampleCounter;
-#endif /* DEBUG ] */
    MprFromNet*  mpFromNetPal;
    int          mRtcpPackets;
    int          mRtcpFrameCount;
    int          mRtcpFrameLimit;
+#ifdef DEBUG /* [ */
+   unsigned int mRtpSampleCounter;
+#endif /* DEBUG ] */
 
    // RTP State
    unsigned int mTimestampDelta;
@@ -160,24 +148,11 @@ private:
    ISetSenderStatistics *mpiRTPAccumulator;
 #endif /* INCLUDE_RTCP ] */
 
-   virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
-                                    MpBufPtr outBufs[],
-                                    int inBufsSize,
-                                    int outBufsSize,
-                                    UtlBoolean isEnabled,
-                                    int samplesPerFrame=80,
-                                    int samplesPerSecond=8000);
-
-     /// Handle messages for this resource.
-   virtual UtlBoolean handleMessage(MpFlowGraphMsg& rMsg);
-
      /// Copy constructor (not implemented for this class)
    MprToNet(const MprToNet& rMprToNet);
 
      /// Assignment operator (not implemented for this class)
    MprToNet& operator=(const MprToNet& rhs);
-
-   void sentRtcpPacket(void);
 
 };
 

@@ -51,9 +51,9 @@ public:
    virtual ~MpdPtAVT(void);
 
      /// Initializes a codec data structure for use as a decoder
-   virtual OsStatus initDecode(MpConnection* pConnection);
+   virtual OsStatus initDecode(MpAudioConnection* pConnection);
      /**<
-     *  @param pConnection - (in) Pointer to the MpConnection container
+     *  @param pConnection - (in) Pointer to the MpAudioConnection container
      *  @returns <b>OS_SUCCESS</b> - Success
      *  @returns <b>OS_NO_MEMORY</b> - Memory allocation failure
      */

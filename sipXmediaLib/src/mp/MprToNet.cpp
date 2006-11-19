@@ -43,11 +43,7 @@
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
-extern volatile int* pOsTC;
-
 // CONSTANTS
-static const int NO_WAIT = 0;
-
 // STATIC VARIABLE INITIALIZATIONS
 
 #ifdef ENABLE_PACKET_HACKING /* [ */
@@ -87,16 +83,14 @@ int NPR() {return DoPadRtp(0);}
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MprToNet::MprToNet(const UtlString& rName,
-                           int samplesPerFrame, int samplesPerSec)
-:  MpAudioResource(rName, 1, 1, 0, 0, samplesPerFrame, samplesPerSec)
-#ifdef DEBUG /* [ */
-,  mRtpSampleCounter(0)
-#endif /* DEBUG ] */
-,  mpFromNetPal(NULL)
+MprToNet::MprToNet()
+:  mpFromNetPal(NULL)
 ,  mRtcpPackets(0)
 ,  mRtcpFrameCount(0)
 ,  mRtcpFrameLimit(500)
+#ifdef DEBUG /* [ */
+,  mRtpSampleCounter(0)
+#endif /* DEBUG ] */
 ,  mSSRC(0)
 ,  mpRtpSocket(NULL)
 ,  mpRtcpSocket(NULL)
@@ -131,28 +125,22 @@ MprToNet::~MprToNet()
 
 /* ============================ MANIPULATORS ============================== */
 
-// Sends a SET_SOCKETS message to this resource to set the outbound
-// RTP and RTCP sockets.
-// Returns the result of attempting to queue the message to this resource.
+// Set the outbound RTP and RTCP sockets.
 OsStatus MprToNet::setSockets(OsSocket& rRtpSocket, OsSocket& rRtcpSocket)
 {
-   MpFlowGraphMsg msg(SET_SOCKETS, this, &rRtpSocket, &rRtcpSocket, 0, 0);
-   OsStatus       res;
+   mpRtpSocket  = &rRtpSocket;
+   mpRtcpSocket = &rRtcpSocket;
 
-   res = postMessage(msg);
-   return res;
+   return OS_SUCCESS;
 }
 
-// Sends a RESET_SOCKETS message to this resource to clear the outbound
-// RTP and RTCP sockets.
-// Returns the result of attempting to queue the message to this resource.
+// Clear the outbound RTP and RTCP sockets.
 OsStatus MprToNet::resetSockets(void)
 {
-   MpFlowGraphMsg msg(RESET_SOCKETS, this, NULL, NULL, 0, 0);
-   OsStatus       res;
+   mpRtpSocket  = NULL;
+   mpRtcpSocket = NULL;
 
-   res = postMessage(msg);
-   return res;
+   return OS_SUCCESS;
 }
 
 void MprToNet::setSSRC(int iSSRC)
@@ -367,36 +355,5 @@ void MprToNet::adjustRtpPacket(struct RtpHeader* rp)
    memcpy((char *) rp, (char *) &rh, sizeof(struct RtpHeader));
 }
 #endif /* ENABLE_PACKET_HACKING ] */
-
-UtlBoolean MprToNet::doProcessFrame(MpBufPtr inBufs[],
-                                    MpBufPtr outBufs[],
-                                    int inBufsSize,
-                                    int outBufsSize,
-                                    UtlBoolean isEnabled,
-                                    int samplesPerFrame,
-                                    int samplesPerSecond)
-{
-   return TRUE;
-}
-
-// Handle messages for this resource.
-UtlBoolean MprToNet::handleMessage(MpFlowGraphMsg& rMsg)
-{
-
-   if (rMsg.getMsg() == SET_SOCKETS)
-   {
-      mpRtpSocket  = (OsSocket*) rMsg.getPtr1();
-      mpRtcpSocket = (OsSocket*) rMsg.getPtr2();
-      return TRUE;
-   }
-   if (rMsg.getMsg() == RESET_SOCKETS)
-   {
-      mpRtpSocket  = NULL;
-      mpRtcpSocket = NULL;
-      return TRUE;
-   }
-   else
-      return MpAudioResource::handleMessage(rMsg);
-}
 
 /* ============================ FUNCTIONS ================================= */
