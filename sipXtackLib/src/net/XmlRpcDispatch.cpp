@@ -25,7 +25,7 @@
 #include <utl/UtlSListIterator.h>
 #include <os/OsServerSocket.h>
 #ifdef HAVE_SSL
-#include <os/OsSSLServerSocket.h>
+#   include <os/OsSSLServerSocket.h>
 #endif
 #include <net/HttpServer.h>
 #include <net/HttpRequestContext.h>
