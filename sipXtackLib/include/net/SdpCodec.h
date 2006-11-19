@@ -46,6 +46,7 @@
 #define MIME_SUBTYPE_I420 "I420"
 #define MIME_SUBTYPE_RGB24 "RGB24"
 #define MIME_SUBTYPE_H263 "H263"
+#define MIME_SUBTYPE_H264 "H264"
 
 // Bandwidth requirements for SDP Codecs
 #define SDP_CODEC_BANDWIDTH_VARIABLE 0
@@ -125,12 +126,12 @@ public:
         SDP_CODEC_L16_STEREO = 10, ///< PCM 16 bit/sample 44100 samples/sec.
         SDP_CODEC_L16_MONO = 11,   ///< PCM 16 bit/sample 44100 samples/sec.
         SDP_CODEC_G729 = 18,       ///< G.729, with or without Annexes A or B
-        SDP_CODEC_H263 = 34,
+        SDP_CODEC_H263 = 34,       ///< H.263 video codec
         SDP_CODEC_MAXIMUM_STATIC_CODEC = 95,
         SDP_CODEC_SPEEX = 110,     ///< Speex, mono 8bits 8000samples/sec
-        SDP_CODEC_SPEEX_5 = 111,   ///< Profile 1
-        SDP_CODEC_SPEEX_15 = 112,  ///< Profile 2
-        SDP_CODEC_SPEEX_24 = 113,  ///< Profile 3
+        SDP_CODEC_SPEEX_5 = 111,   ///< Speex Profile 1
+        SDP_CODEC_SPEEX_15 = 112,  ///< Speex Profile 2
+        SDP_CODEC_SPEEX_24 = 113,  ///< Speex Profile 3
         SDP_CODEC_TONES = 128,     ///< AVT/DTMF Tones, RFC 2833
         SDP_CODEC_G729A = 129,
         SDP_CODEC_G7221 = 130,     ///< Siren
@@ -138,6 +139,8 @@ public:
         SDP_CODEC_L16_8K = 132,    ///< Mono PCM 16 bit/sample 8000 samples/sec.
         SDP_CODEC_G729AB = 133,
         SDP_CODEC_G729ACISCO7960 = 134,
+
+        SDP_CODEC_H264 = 135,      ///< H.264 video codec.
 
          // Range for 3rd party add in codec types
         SDP_CODEC_3RD_PARTY_START = 256,
@@ -168,6 +171,10 @@ public:
         SDP_CODEC_H263_QCIF = 281,
         SDP_CODEC_H263_SQCIF = 282,
         SDP_CODEC_H263_QVGA = 283,
+        SDP_CODEC_H264_CIF = 284,
+        SDP_CODEC_H264_QCIF = 285,
+        SDP_CODEC_H264_SQCIF = 286,
+        SDP_CODEC_H264_QVGA = 287,
         SDP_CODEC_3RD_PARTY_END = 511
     };
 

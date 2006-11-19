@@ -332,6 +332,18 @@ SdpCodec::SdpCodecTypes SdpCodecFactory::getCodecType(const char* pCodecName)
     if (strcmp(compareString,"H263-QVGA") == 0)
         retType = SdpCodec::SDP_CODEC_H263_QVGA;
    else
+    if (strcmp(compareString,"H264-CIF") == 0)
+        retType = SdpCodec::SDP_CODEC_H264_CIF;
+   else
+    if (strcmp(compareString,"H264-QCIF") == 0)
+        retType = SdpCodec::SDP_CODEC_H264_QCIF;
+   else
+    if (strcmp(compareString,"H264-SQCIF") == 0)
+        retType = SdpCodec::SDP_CODEC_H264_SQCIF;
+   else
+    if (strcmp(compareString,"H264-QVGA") == 0)
+        retType = SdpCodec::SDP_CODEC_H264_QVGA;
+   else
     if (strcmp(compareString,"RGB24-CIF") == 0)
         retType = SdpCodec::SDP_CODEC_RGB24_CIF;
    else
@@ -1130,6 +1142,82 @@ int SdpCodecFactory::buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecType
                             1,
                             "",
                             SdpCodec::SDP_CODEC_CPU_LOW,
+                            SDP_CODEC_BANDWIDTH_HIGH,
+                            SDP_VIDEO_FORMAT_QVGA);
+            addCodec(aCodec);
+            aCodec.getMediaType(codecMediaType);
+            aCodec.getEncodingName(codecEncodingName);
+         }
+         break;
+
+      case SdpCodec::SDP_CODEC_H264_CIF:
+         {
+            SdpCodec aCodec(SdpCodec::SDP_CODEC_H264_CIF,
+                            SdpCodec::SDP_CODEC_H264,
+                            MIME_TYPE_VIDEO,
+                            MIME_SUBTYPE_H264,
+                            90000,
+                            20000,
+                            1,
+                            "",
+                            SdpCodec::SDP_CODEC_CPU_HIGH,
+                            SDP_CODEC_BANDWIDTH_NORMAL,
+                            SDP_VIDEO_FORMAT_CIF);
+            addCodec(aCodec);
+            aCodec.getMediaType(codecMediaType);
+            aCodec.getEncodingName(codecEncodingName);
+         }
+         break;
+
+      case SdpCodec::SDP_CODEC_H264_QCIF:
+         {
+            SdpCodec aCodec(SdpCodec::SDP_CODEC_H264_QCIF,
+                            SdpCodec::SDP_CODEC_H264,
+                            MIME_TYPE_VIDEO,
+                            MIME_SUBTYPE_H264,
+                            90000,
+                            20000,
+                            1,
+                            "",
+                            SdpCodec::SDP_CODEC_CPU_HIGH,
+                            SDP_CODEC_BANDWIDTH_NORMAL,
+                            SDP_VIDEO_FORMAT_QCIF);
+            addCodec(aCodec);
+            aCodec.getMediaType(codecMediaType);
+            aCodec.getEncodingName(codecEncodingName);
+         }
+         break;
+
+      case SdpCodec::SDP_CODEC_H264_SQCIF:
+         {
+            SdpCodec aCodec(SdpCodec::SDP_CODEC_H264_SQCIF,
+                            SdpCodec::SDP_CODEC_H264,
+                            MIME_TYPE_VIDEO,
+                            MIME_SUBTYPE_H264,
+                            90000,
+                            20000,
+                            1,
+                            "",
+                            SdpCodec::SDP_CODEC_CPU_HIGH,
+                            SDP_CODEC_BANDWIDTH_NORMAL,
+                            SDP_VIDEO_FORMAT_SQCIF);
+            addCodec(aCodec);
+            aCodec.getMediaType(codecMediaType);
+            aCodec.getEncodingName(codecEncodingName);
+         }
+         break;
+
+      case SdpCodec::SDP_CODEC_H264_QVGA:
+         {
+            SdpCodec aCodec(SdpCodec::SDP_CODEC_H264_QVGA,
+                            SdpCodec::SDP_CODEC_H264,
+                            MIME_TYPE_VIDEO,
+                            MIME_SUBTYPE_H264,
+                            90000,
+                            20000,
+                            1,
+                            "",
+                            SdpCodec::SDP_CODEC_CPU_HIGH,
                             SDP_CODEC_BANDWIDTH_HIGH,
                             SDP_VIDEO_FORMAT_QVGA);
             addCodec(aCodec);
