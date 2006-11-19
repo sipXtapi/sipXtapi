@@ -6600,7 +6600,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetAudioCodec(const SIPX_INST hInst,
 SIPXTAPI_API SIPX_RESULT sipxConfigGetVideoCodecPreferences(const SIPX_INST hInst, 
                                                             SIPX_VIDEO_BANDWIDTH_ID *pBandWidth)
 {
-#ifdef VIDEO
+#ifdef SIPX_VIDEO
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxConfigGetVideoCodecPreferences");
 
     SIPX_RESULT rc = SIPX_RESULT_FAILURE;
@@ -6626,7 +6626,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetVideoCodecPreferences(const SIPX_INST hIns
 SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoBandwidth(const SIPX_INST hInst, 
                                                      SIPX_VIDEO_BANDWIDTH_ID bandWidth)
 {
-#ifdef VIDEO
+#ifdef SIPX_VIDEO
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxConfigSetVideoBandwidth");
 
     SIPX_RESULT rc = SIPX_RESULT_FAILURE;
@@ -6643,7 +6643,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoBandwidth(const SIPX_INST hInst,
         {
             pInst->pCodecFactory->getCodecs(pInst->videoCodecSetting.numCodecs,
                                             pInst->videoCodecSetting.sdpCodecArray,
-                                                        "video");
+                                            "video");
             pInst->videoCodecSetting.bInitialized = true;
         }
         // Check if bandwidth is legal, do not allow variable bandwidth
@@ -6682,7 +6682,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetVideoCaptureDevices(const SIPX_INST hInst,
                                                           int nDeviceStringLength,
                                                           int nArrayLength)
 {
-#ifdef VIDEO
+#ifdef SIPX_VIDEO
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxConfigGetVideoCaptureDevices");
     SIPX_RESULT rc = SIPX_RESULT_FAILURE;
 
@@ -6737,7 +6737,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetVideoCaptureDevice(const SIPX_INST hInst,
                                                          char* szCaptureDevice,
                                                          int   nLength)
 {
-#ifdef VIDEO
+#ifdef SIPX_VIDEO
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxConfigGetVideoCaptureDevice");
 
     SIPX_RESULT rc = SIPX_RESULT_FAILURE;
@@ -6774,7 +6774,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetVideoCaptureDevice(const SIPX_INST hInst,
 SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoCaptureDevice(const SIPX_INST hInst,
                                                          const char* szCaptureDevice)
 {
-#ifdef VIDEO
+#ifdef SIPX_VIDEO
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxConfigSetVideoCaptureDevice");
 
     SIPX_RESULT rc = SIPX_RESULT_FAILURE;
@@ -6807,7 +6807,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoCaptureDevice(const SIPX_INST hInst,
 SIPXTAPI_API SIPX_RESULT sipxConfigGetNumVideoCodecs(const SIPX_INST hInst, 
                                                      int* pNumCodecs)
 {
-#ifdef VIDEO
+#ifdef SIPX_VIDEO
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxConfigGetNumVideoCodecs");
 
     SIPX_RESULT rc = SIPX_RESULT_FAILURE;
@@ -6842,7 +6842,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetVideoCodec(const SIPX_INST hInst,
                                                  const int index, 
                                                  SIPX_VIDEO_CODEC* pCodec)
 {
-#ifdef VIDEO
+#ifdef SIPX_VIDEO
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxConfigGetVideoCodec");
 
     SIPX_RESULT rc = SIPX_RESULT_FAILURE;
@@ -6886,7 +6886,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetVideoCodec(const SIPX_INST hInst,
 SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoCodecByName(const SIPX_INST hInst, 
                                                        const char* szCodecName)
 {
-#ifdef VIDEO
+#ifdef SIPX_VIDEO
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxConfigSetVideoCodecByName");
 
     SIPX_RESULT rc = SIPX_RESULT_FAILURE;
@@ -6914,7 +6914,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoCodecByName(const SIPX_INST hInst,
                 {
                     int codecIndex;
 
-                    // Free up the previuosly allocated codecs and the array
+                    // Free up the previously allocated codecs and the array
                     for (codecIndex = 0; codecIndex < pInst->videoCodecSetting.numCodecs; codecIndex++)
                     {
                         if (pInst->videoCodecSetting.sdpCodecArray[codecIndex])
@@ -6964,7 +6964,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoCodecByName(const SIPX_INST hInst,
 
 SIPXTAPI_API SIPX_RESULT sipxConfigResetVideoCodecs(const SIPX_INST hInst)
 {
-#ifdef VIDEO
+#ifdef SIPX_VIDEO
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxConfigResetVideoCodecs");
     SIPX_RESULT rc = SIPX_RESULT_FAILURE;
     SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;   
@@ -6986,7 +6986,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigResetVideoCodecs(const SIPX_INST hInst)
             {
                 int codecIndex;
 
-                // Free up the previuosly allocated codecs and the array
+                // Free up the previously allocated codecs and the array
                 for (codecIndex = 0; codecIndex < pInst->videoCodecSetting.numCodecs; codecIndex++)
                 {
                     if (pInst->videoCodecSetting.sdpCodecArray[codecIndex])
@@ -7032,7 +7032,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigResetVideoCodecs(const SIPX_INST hInst)
 SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoFormat(const SIPX_INST hInst,
                                                   SIPX_VIDEO_FORMAT videoFormat)
 {
-#ifdef VIDEO
+#ifdef SIPX_VIDEO
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxConfigSetVideoFormat");
 
     SIPX_RESULT rc = SIPX_RESULT_FAILURE;
@@ -7388,7 +7388,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetAllLocalNetworkIps(const char* arrAddresse
 
 SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoPreviewDisplay(const SIPX_INST hInst, SIPX_VIDEO_DISPLAY* const pDisplay)
 {
-#ifdef VIDEO
+#ifdef SIPX_VIDEO
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxConfigSetVideoPreviewDisplay");
 
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
@@ -7410,14 +7410,14 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoPreviewDisplay(const SIPX_INST hInst,
 
 SIPXTAPI_API SIPX_RESULT sipxConfigUpdatePreviewWindow(const SIPX_INST hInst, const SIPX_WINDOW_HANDLE hWnd)
 {
-#ifdef VIDEO
+#ifdef SIPX_VIDEO
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxConfigUpdatePreviewWindow");
 
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigUpdatePreviewWindow hInst=%p, hWnd=%p",
         hInst, hWnd);
         
-#ifdef _WIN32
+#ifdef HAVE_GIPS
     #include <windows.h>
 	PAINTSTRUCT ps;
 	HDC hdc = BeginPaint((HWND)hWnd, &ps);
@@ -7434,7 +7434,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigUpdatePreviewWindow(const SIPX_INST hInst, co
 
 SIPXTAPI_API SIPX_RESULT sipxCallResizeWindow(const SIPX_CALL hCall, const SIPX_WINDOW_HANDLE hWnd)
 {
-#ifdef VIDEO
+#ifdef SIPX_VIDEO
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallResizeWindow");
 
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
@@ -7446,7 +7446,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallResizeWindow(const SIPX_CALL hCall, const SIPX_
     UtlString callId ;
     UtlString remoteAddress ;
         
-#ifdef _WIN32
+#ifdef HAVE_GIPS
         #include <windows.h>
 
         if (sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, NULL))
@@ -7468,7 +7468,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallResizeWindow(const SIPX_CALL hCall, const SIPX_
 
 SIPXTAPI_API SIPX_RESULT sipxCallUpdateVideoWindow(const SIPX_CALL hCall, const SIPX_WINDOW_HANDLE hWnd)
 {
-#ifdef VIDEO
+#ifdef SIPX_VIDEO
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallUpdateVideoWindow");
 
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
@@ -7494,7 +7494,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallUpdateVideoWindow(const SIPX_CALL hCall, const 
 
 SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoQuality(const SIPX_INST hInst, const SIPX_VIDEO_QUALITY_ID quality)
 {
-#ifdef VIDEO
+#ifdef SIPX_VIDEO
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxConfigSetVideoQuality");
 
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
@@ -7527,7 +7527,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoParameters(const SIPX_INST hInst,
                                                       const int bitRate,
                                                       const int frameRate)
 {
-#ifdef VIDEO
+#ifdef SIPX_VIDEO
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxConfigSetVideoParameters");
 
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
@@ -7565,7 +7565,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoParameters(const SIPX_INST hInst,
 SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoCpuUsage(const SIPX_INST hInst, 
                                                     const int cpuUsage)
 {
-#ifdef VIDEO
+#ifdef SIPX_VIDEO
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxConfigSetVideoCpuUsage");
 
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
@@ -7588,7 +7588,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoCpuUsage(const SIPX_INST hInst,
 SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoBitrate(const SIPX_INST hInst, 
                                                    const int bitRate)
 {
-#ifdef VIDEO
+#ifdef SIPX_VIDEO
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxConfigSetVideoBitrate");
 
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
@@ -7611,7 +7611,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoBitrate(const SIPX_INST hInst,
 SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoFramerate(const SIPX_INST hInst, 
                                                      const int frameRate)
 {
-#ifdef VIDEO
+#ifdef SIPX_VIDEO
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxConfigSetVideoFramerate");
 
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,

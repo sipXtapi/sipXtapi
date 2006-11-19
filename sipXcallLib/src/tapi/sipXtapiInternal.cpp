@@ -1809,7 +1809,7 @@ SIPXTAPI_API SIPX_RESULT sipxDestroyLocalAudioConnection(const SIPX_INST hInst)
 }
 
 
-#ifdef _WIN32
+#if defined(_WIN32) && defined(HAVE_GIPS)
 SIPXTAPI_API GIPSAECTuningWizard* sipxConfigGetVoiceEngineAudioWizard()
 {
     GIPSAECTuningWizard& wizard = GetGIPSAECTuningWizard();
@@ -1818,7 +1818,7 @@ SIPXTAPI_API GIPSAECTuningWizard* sipxConfigGetVoiceEngineAudioWizard()
 }
 #endif
 
-#ifdef VIDEO
+#if defined(VIDEO) && defined(HAVE_GIPS)
 SIPXTAPI_API GipsVideoEnginePlatform* sipxConfigGetVideoEnginePtr(const SIPX_INST hInst)
 {
     GipsVideoEnginePlatform* ptr = NULL;

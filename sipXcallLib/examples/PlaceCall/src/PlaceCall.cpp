@@ -36,8 +36,6 @@ DWORD WINAPI ConsoleStart(LPVOID lpParameter);
 SIPX_INST g_hInst = NULL ;      // Handle to the sipXtapi instanance
 SIPX_LINE g_hLine = 0 ;         // Line Instance (id, auth, etc)
 SIPX_CALL g_hCall = 0 ;         // Handle to a call
-SIPX_VIDEO_DISPLAY gDisplay;
-SIPX_VIDEO_DISPLAY gPreviewDisplay;
 bool bUseCustomTransportReliable = false;
 bool bUseCustomTransportUnreliable = false;
 SIPX_TRANSPORT ghTransport = SIPX_TRANSPORT_NULL;
@@ -45,11 +43,13 @@ SIPX_TRANSPORT ghTransport = SIPX_TRANSPORT_NULL;
 SIPX_CALLSTATE_EVENT    g_eRecordEvents[MAX_RECORD_EVENTS] ;    // List of last N events
 int                     g_iNextEvent ;      // Index for g_eRecordEvents ringer buffer
 #if defined(_WIN32) && defined(VIDEO)
+SIPX_VIDEO_DISPLAY gDisplay;
+SIPX_VIDEO_DISPLAY gPreviewDisplay;
 extern HWND ghPreview;
 extern HWND ghVideo;
 extern HWND hMain;
-#endif
 static bool bVideo = false;
+#endif
 
 
 void startTribbleListener(const char* szIp);
@@ -380,10 +380,12 @@ bool parseArgs(int argc,
                 break ; // Error
             }
         }
+#ifdef VIDEO
         else if (strcmp(argv[i], "-V") == 0)
         {
             bVideo = true;
         }
+#endif
         else if (strcmp(argv[i], "-aec") == 0)
         {
             *bAEC = true;
@@ -597,15 +599,15 @@ bool placeCall(char* szSipUrl, char* szFromIdentity, char* szUsername, char* szP
         gContactId = lookupContactId(address.cIpAddress, "flibble", ghTransport);
     }
 
+#if defined(_WIN32) && defined(VIDEO)
     if (bVideo)
     {
-#if defined(_WIN32) && defined(VIDEO)
         gDisplay.type = SIPX_WINDOW_HANDLE_TYPE;
         gDisplay.handle = ghVideo;
         sipxCallConnect(g_hCall, szSipUrl, gContactId, &gDisplay, NULL);
-#endif
     }
     else
+#endif
     {
         sipxCallConnect(g_hCall, szSipUrl, gContactId);
     }
@@ -830,7 +832,7 @@ int local_main(int argc, char* argv[])
             {
                 printf("Error in retrieving number of audio codecs\n");
             }
-#if defined(_WIN32) && defined(VIDEO)
+#ifdef SIPX_VIDEO
             printf("Video codecs:\n");
             if (sipxConfigGetNumVideoCodecs(g_hInst, &numVideoCodecs) == SIPX_RESULT_SUCCESS)
             {
