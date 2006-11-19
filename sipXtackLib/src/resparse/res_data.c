@@ -56,7 +56,7 @@ static char rcsid[] = "";
 
 #include "resparse/res_config.h"
 
-#ifndef __pingtel_on_posix__
+#if !defined(__pingtel_on_posix__) || defined(INCLUDE_SIPX_RESPARSE)
 const char *_res_opcodes[] = {
         "QUERY",
         "IQUERY",
