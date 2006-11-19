@@ -559,10 +559,10 @@ int local_main(int argc, char* argv[])
             initLoopback() ;
         }
 
-        // initialize sipx TAPI-like API
+        // Initialize sipX TAPI-like API
         sipxConfigSetLogLevel(LOG_LEVEL_DEBUG) ;
         sipxConfigSetLogFile("ReceiveCall.log");
-        if (sipxInitialize(&hInst, iSipPort, iSipPort, 5061, iRtpPort, 16, szIdentity, "10.22.48.1") == SIPX_RESULT_SUCCESS)
+        if (sipxInitialize(&hInst, iSipPort, iSipPort, 5061, iRtpPort, 16, szIdentity) == SIPX_RESULT_SUCCESS)
         {            
             g_hInst = hInst;
             if (szProxy)
