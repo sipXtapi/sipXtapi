@@ -125,6 +125,7 @@ OsDirBase::operator=(const OsDirBase& rhs)
   {
     OsStatus ret = OS_INVALID;
 
+	printf( "JEP - TODO in OsDirBase::getFileInfo( )\n" );
 #ifndef WINCE
 	//  JEP - TODO - implement this...
     struct stat stats;

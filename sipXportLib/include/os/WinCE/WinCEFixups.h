@@ -29,6 +29,17 @@
 
 typedef long intptr_t;
 
+struct _timeb
+{
+	time_t			time;
+	unsigned short	millitm;
+	short			timezone;
+	short			dstflag;
+};
+
+#define strcasecmp _stricmp
+#define strncasecmp _strnicmp
+
 #undef RegQueryValueEx
 #define RegQueryValueEx(x,y,z,a,b,c)		RegQueryValueExB(x,y,z,a,b,c)
 #undef FormatMessage
@@ -132,7 +143,6 @@ WinMain(
 	   )
 {
 	printf( "entering WinMain( ) - lpCmdLine is *%s*\n", lpCmdLine );
-	wchar_t	wBuf[ 301 ];
 	wchar_t	*pW			= NULL;
 	int		iRet		= 1;
 
@@ -143,6 +153,7 @@ WinMain(
 	return iRet;
 
 #if 0
+	wchar_t	wBuf[ 301 ];
 	if( lpCmdLine )
 	{
 		iRet = MultiByteToWideChar( CP_ACP, 0, lpCmdLine, strlen( lpCmdLine ), wBuf, 300 );
@@ -270,11 +281,121 @@ struct tm * __cdecl gmtime( const time_t *timer )
 
 
 //****************************************************************
-time_t __cdecl time(time_t *)
+void UnixTimeToFileTime(time_t t, LPFILETIME pft)
 {
-	int iRet = (int) (GetTickCount( ) / 1000);
-	printf( "time( ) is * * * PARTIALLY * * * IMPLEMENTED - returning %d\n", iRet );
+	 // Note that LONGLONG is a 64-bit value
+	LONGLONG ll;
+
+	ll = Int32x32To64(t, 10000000) + 116444736000000000;
+	pft->dwLowDateTime = (DWORD)ll;
+	pft->dwHighDateTime = ll >> 32;
+}
+
+
+//****************************************************************
+time_t FileTimeToUnixTime( LPFILETIME pft, int *pMillisecs = NULL )
+{
+	// Note that LONGLONG is a 64-bit value
+	LONGLONG ll;
+	time_t	ttRet;
+
+	ll = pft->dwHighDateTime;
+	ll = ll << 32;
+	ll += pft->dwLowDateTime;
+	ll -= 116444736000000000;
+	if( pMillisecs )
+	{
+		int		iT;
+		iT = (int) ( ll / 10000 );
+		printf( "in FileTimeToUnixTime( ) - RAW number of milliseconds is %d\n", iT );
+		iT = iT % 1000;
+		printf( "                         - final number of milliseconds is %d\n", iT );
+		*pMillisecs = iT % 1000;
+	}
+	ll /= 10000000;
+	ttRet = ll;
+	return ttRet;
+}
+
+
+//****************************************************************
+time_t __cdecl time( time_t *ptt )
+{
+	BOOL		fRet;
+	int			iRet;
+	FILETIME	ft;
+	SYSTEMTIME	st;
+	//  get SYSTEMTIME
+	GetSystemTime( &st );
+	//  convert SYSTEMTIME to FILETIME
+	fRet = SystemTimeToFileTime( &st, &ft );
+	//  convert FILETIME to UnixTime
+	iRet = FileTimeToUnixTime( &ft );
+//	printf( "time( ) is about to return %d\n", iRet );
+	if( ptt )
+		*ptt = iRet;
 	return iRet;
+}
+
+
+//****************************************************************
+void _ftime( struct _timeb *pTb )
+{
+	static int	iSavedTime	= 0;
+	static int	iSavedTicks	= 0;
+	static int	iLastTicks	= 0;
+
+//	static int	iArr[ 10 ] ;
+//	static int	iIdx		= 0;
+
+	int			iTicks;
+	int			iSecs;
+
+//	BOOL		fRet;
+//	int			iMilli;
+//	FILETIME	ft;
+//	SYSTEMTIME	st;
+
+	if( iSavedTime  ==  0 )
+	{
+		Sleep( 0 );		//  give up the remainder of our current timeslice so we (hopefully)
+						//	won't get interrupted between the next two function calls.
+		iSavedTime = time( NULL );
+		iSavedTicks = GetTickCount( );
+	}
+
+	iTicks = GetTickCount( );
+	if( iTicks  <  iLastTicks )
+	{
+		//  GetTickCount( ) wrapped!!
+		//  Determine number of seconds that have elapsed during the last 2^32 milliseconds and add that to iSavedTime
+		//  Reset iSavedTicks to zero and continue
+	}
+
+	iTicks -= iSavedTicks;
+	iSecs = iTicks / 1000;
+	pTb->time = iSavedTime + iSecs;
+	pTb->millitm = iTicks - (iSecs * 1000);
+	iLastTicks = iTicks;
+//	iArr[ iIdx++ ] = pTb->millitm;
+//	if( iIdx  >=  20 )
+//	{
+//		printf( "_ftime( ) last 20 millitm are\n%3.3d %3.3d %3.3d %3.3d %3.3d %3.3d %3.3d %3.3d %3.3d %3.3d\n%3.3d %3.3d %3.3d %3.3d %3.3d %3.3d %3.3d %3.3d %3.3d %3.3d\n",
+//				iArr[ 0 ], iArr[ 1 ], iArr[ 2 ], iArr[ 3 ], iArr[ 4 ], iArr[ 5 ], iArr[ 6 ], iArr[ 7 ], iArr[ 8 ], iArr[ 9 ],
+//				iArr[ 10 ], iArr[ 11 ], iArr[ 12 ], iArr[ 13 ], iArr[ 14 ], iArr[ 15 ], iArr[ 16 ], iArr[ 17 ], iArr[ 18 ], iArr[ 19 ] );
+//		iIdx = 0;
+//	}
+
+	
+//	//  get SYSTEMTIME
+//	GetSystemTime( &st );
+//	printf( "GetSystemTime( ) returned milliseconds of %d\n", st.wMilliseconds );
+//	//  convert SYSTEMTIME to FILETIME
+//	fRet = SystemTimeToFileTime( &st, &ft );
+//	//  convert FILETIME to UnixTime
+//	pTb->time = FileTimeToUnixTime( &ft, &iMilli );
+//	pTb->millitm = iMilli;
+////	printf( "_ftime( ) is about to return %d - - -  millitm is %d\n", pTb->time, pTb->millitm );
 }
 
 
@@ -374,8 +495,12 @@ unsigned int GetSystemDirectory( char *cP, unsigned int uSize )
 //****************************************************************
 void GetSystemTimeAsFileTime( LPFILETIME pFT )
 {
-	printf( "GetSystemTimeAsFileTime( ) NOT IMPLEMENTED\n" );
-//	assert( 0 );
+//	printf( "GetSystemTimeAsFileTime( ) NOT IMPLEMENTED\n" );
+	SYSTEMTIME	st;
+	//  get SYSTEMTIME
+	GetSystemTime( &st );
+	//  convert SYSTEMTIME to FILETIME
+	SystemTimeToFileTime( &st, pFT );
 }
 
 
@@ -574,6 +699,7 @@ HINSTANCE		LoadLibraryA( const char *pIn );
 int				rmdir( const char * dirname );
 char			* getcwd( char *buffer, int maxlen );
 unsigned int	GetSystemDirectory( char *cP, unsigned int uSize );
+void			_ftime( struct _timeb *);
 void			GetSystemTimeAsFileTime( LPFILETIME pFT );
 void			OutputDebugStringB( const char *pC );
 //void WINAPI		OutputDebugStringW( char *pC );

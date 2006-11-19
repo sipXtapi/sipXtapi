@@ -87,6 +87,7 @@ OsStatus OsFileWnt::getFileInfo(OsFileInfoBase& fileinfo) const
 {
     OsStatus ret = OS_INVALID;
 
+	printf( "JEP - TODO in OsFileWnt::getFileInfo( )\n" );
     //  JEP - TODO - implement this...
 #ifndef WINCE
     struct stat stats;

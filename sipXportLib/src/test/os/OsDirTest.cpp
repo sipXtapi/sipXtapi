@@ -89,5 +89,8 @@ public:
 
 };
 
+#ifdef WINCE
+#pragma message( "OsDirTest disabled undef Win CE" )
+#else
 CPPUNIT_TEST_SUITE_REGISTRATION(OsDirTest);
-
+#endif

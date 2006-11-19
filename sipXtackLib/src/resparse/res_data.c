@@ -19,7 +19,12 @@
 static char rcsid[] = "";
 #endif /* LIBC_SCCS and not lint */
 
-#include <sys/types.h>
+#ifdef WINCE
+#   include <types.h>
+#else
+#   include <sys/types.h>
+#endif
+
 #include <time.h>
 
 /* Reordered includes and separated into win/vx --GAT */

@@ -79,7 +79,12 @@ static char rcsid[] = "";
  * Send query to name server and wait for reply.
  */
 
-#include <sys/types.h>
+#ifdef WINCE
+#   include <types.h>
+#else
+#   include <sys/types.h>
+#endif
+
 #include <stdio.h>
 #include "resparse/types.h" /* added to pick up NFDBITS and fd_mask --GAT */
 #include <errno.h>

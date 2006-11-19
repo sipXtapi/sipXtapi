@@ -55,13 +55,11 @@ typedef struct timeval GTimeVal;
 #   endif
 void g_get_current_time(GTimeVal* curTime)
 {
-#ifndef WINCE
     struct _timeb timeVal;
     _ftime( &timeVal );
-    printf("sec: %ld %msec: %ld\n", timeVal.time, timeVal.millitm);
+//    printf("sec: %ld %msec: %ld\n", timeVal.time, timeVal.millitm);
     curTime->tv_sec = timeVal.time;
     curTime->tv_usec = (timeVal.millitm) * 1000;
-#endif
 }
 
 #elif defined(_VXWORKS)

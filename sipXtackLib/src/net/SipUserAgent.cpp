@@ -395,7 +395,9 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
     allowMethod(SIP_OPTIONS_METHOD);
     allowMethod(SIP_PING_METHOD);
 
-    defaultUserAgentName.append( VENDOR "/" SIP_STACK_VERSION);
+    defaultUserAgentName.append( VENDOR );
+    defaultUserAgentName.append( "/" );
+    defaultUserAgentName.append( SIP_STACK_VERSION );
 
     OsMsgQ* incomingQ = getMessageQueue();
     mpTimer = new OsTimer(incomingQ, 0);

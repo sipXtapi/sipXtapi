@@ -39,7 +39,11 @@
 static char sccsid[] = "@(#)memset.c    8.1 (Berkeley) 6/4/93";
 #endif /* LIBC_SCCS and not lint */
 
-#include <sys/types.h>
+#ifdef WINCE
+#	include <types.h>
+#else
+#	include <sys/types.h>
+#endif
 
 #include <limits.h>
 #include <string.h>

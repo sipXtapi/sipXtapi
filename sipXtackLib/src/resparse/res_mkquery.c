@@ -75,7 +75,11 @@ static char orig_rcsid[] = "From: Id: res_mkquery.c,v 8.9 1997/04/24 22:22:36 vi
 static char rcsid[] = "";
 #endif /* LIBC_SCCS and not lint */
 
-#include <sys/types.h>
+#ifdef WINCE
+#   include <types.h>
+#else
+#   include <sys/types.h>
+#endif
 /* Reordered includes and separated into win/vx --GAT */
 #if defined(_WIN32)
 #       include <resparse/wnt/sys/param.h>
