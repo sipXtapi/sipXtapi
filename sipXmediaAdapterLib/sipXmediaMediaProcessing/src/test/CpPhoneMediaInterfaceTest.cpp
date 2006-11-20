@@ -30,19 +30,26 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
     public:
 
+    CpMediaInterfaceFactory* mpMediaFactory;
+
     CpPhoneMediaInterfaceTest()
     {
-        mpMediaFactory = sipXmediaFactoryFactory(NULL);
-        OsTask::delay(1000) ;        
     };
 
-    CpMediaInterfaceFactory* mpMediaFactory;
+    virtual void setUp()
+    {
+        mpMediaFactory = sipXmediaFactoryFactory(NULL);
+    } 
+
+    virtual void tearDown()
+    {
+        sipxDestroyMediaFactoryFactory() ;
+        mpMediaFactory = NULL ;
+    }
 
     void testProperties()
     {
         CPPUNIT_ASSERT(mpMediaFactory);
-        //CPPUNIT_ASSERT_MESSAGE("error message", 
-        //    a == b);
 
         SdpCodecFactory* codecFactory = new SdpCodecFactory();
         CPPUNIT_ASSERT(codecFactory);
@@ -126,7 +133,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         CPPUNIT_ASSERT(getPropertyValue.isNull());
 
         mediaInterface->deleteConnection(connectionId) ;
-        delete mpMediaFactory ;
+        // delete mpMediaFactory ;
         delete codecFactory ;
     }
 

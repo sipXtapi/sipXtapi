@@ -684,12 +684,14 @@ NetInTask* NetInTask::getNetInTask()
    {
       isStarted = spInstance->start();
       assert(isStarted);
-
-      // Give the NetInTask the ability to start -- we really need some 
-      // synchronization.
-      OsTask::delay(20) ;
    }
    sLock.releaseRead();
+
+   // Synchronize with NetInTask starutp
+   while (spInstance->mCmdPort == -1)
+   {
+       OsTask::delay(20) ;
+   }
    return spInstance;
 }
 
