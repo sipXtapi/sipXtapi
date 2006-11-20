@@ -236,8 +236,8 @@ CpMediaInterface* sipXmediaFactoryImpl::createMediaInterface( const char* public
     pCaptureDevice = mpCaptureDeviceManager->getDeviceByName(mpDefaultCaptureDevice);
     if (pCaptureDevice == NULL)
     {
-       OsSysLog::add(FAC_CP, PRI_WARNING, "sipXmediaFactoryImpl::createMediaInterface no such device: %s",
-                     mpDefaultCaptureDevice);
+       OsSysLog::add(FAC_CP, PRI_WARNING, "sipXmediaFactoryImpl::createMediaInterface no such capture device: %s",
+                     mpDefaultCaptureDevice.data());
     }
     else
     {
@@ -250,6 +250,9 @@ CpMediaInterface* sipXmediaFactoryImpl::createMediaInterface( const char* public
         // Open capture device
         if (pCaptureDevice->initialize() != OS_SUCCESS)
         {
+           OsSysLog::add(FAC_CP, PRI_WARNING, "sipXmediaFactoryImpl::createMediaInterface cannot open capture device: %s",
+                         pCaptureDevice->getDeviceName().data());
+
            // Something goes wrong. May be we specify wrong device, or pass
            // unsupported capture parameters. Anyway, we could not use such
            // device. Lets free it.

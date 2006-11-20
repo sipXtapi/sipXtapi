@@ -728,7 +728,7 @@ SIPXTAPI_API SIPX_RESULT sipxUnInitialize(SIPX_INST hInst,
             // Did we previously allocate an audio codecs array and store it in our codec settings?
             if (pInst->audioCodecSetting.bInitialized)
             {
-                // Free up the previuosly allocated codecs and the array
+                // Free up the previously allocated codecs and the array
                 for (codecIndex = 0; codecIndex < pInst->audioCodecSetting.numCodecs; codecIndex++)
                 {
                     if (pInst->audioCodecSetting.sdpCodecArray[codecIndex])
