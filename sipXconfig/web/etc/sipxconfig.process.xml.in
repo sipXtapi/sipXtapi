@@ -13,12 +13,8 @@
                          parameters=""
                          defaultdir="@sipxpbx.log.dir@" />
             </start>
-
-            <!-- If no execute, then kill -->
-            <stop control="false" />
-
-            <!-- If no execute, then stop-start -->
-            <restart control="false" />
+            <stop control="true" />
+            <restart control="true" />
         </process>
     </group>
   </process_definitions>
