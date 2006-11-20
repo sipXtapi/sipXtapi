@@ -45,6 +45,15 @@ then
   AC_CONFIG_SUBDIRS(bbridge)
 fi
 
+AC_ARG_ENABLE(tools,
+  AC_HELP_STRING([--disable-tools],
+    [sipXpbx tools]),
+      tools=no)
+if ! test x$tools = xno
+then
+  AC_CONFIG_SUBDIRS(sipXtools)
+fi
+
 SFAC_DIST_DIR
    
 AC_CONFIG_FILES([Makefile])
