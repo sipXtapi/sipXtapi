@@ -37,8 +37,7 @@ public final class DataCollectionUtil {
      * 
      * @param c items must implement DataCollectionItem
      */
-    public static Collection removeByPrimaryKey(Collection c, Object[] primaryKeys) {
-
+    public static Collection removeByPrimaryKey(Collection c, Object... primaryKeys) {
         Collection removed = findByPrimaryKey(c, primaryKeys);
         Iterator remove = removed.iterator();
         while (remove.hasNext()) {

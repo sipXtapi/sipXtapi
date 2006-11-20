@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.phonebook;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -71,5 +72,14 @@ public class PhonebookManagerTestDb extends TestHelper.TestCaseDb {
         assertEquals("pintail", entries.next().getNumber());
         assertEquals("yellowthroat", entries.next().getNumber());
         assertFalse(entries.hasNext());
+    }
+    
+    public void testUpdateOnGroupDelete() throws Exception {
+        TestHelper.insertFlat("phonebook/PhonebookMembersAndConsumersSeed.db.xml");
+        Group g = m_coreContext.getGroupByName("warblers", false);
+        assertNotNull(g);
+        m_settingDao.deleteGroups(Collections.singleton(g.getId()));
+        assertEquals(1, TestHelper.getConnection().getRowCount("phonebook_member"));
+        assertEquals(0, TestHelper.getConnection().getRowCount("phonebook_consumer"));        
     }
 }

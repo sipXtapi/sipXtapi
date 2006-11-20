@@ -28,14 +28,17 @@ import org.sipfoundry.sipxconfig.bulk.csv.CsvParser;
 import org.sipfoundry.sipxconfig.bulk.csv.CsvParserImpl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
+import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.setting.Group;
 
 import static org.apache.commons.lang.StringUtils.defaultString;
 
-public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> implements PhonebookManager {
+public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> implements PhonebookManager, 
+        DaoEventListener {
     private String m_externalUsersDirectory;
     private CoreContext m_coreContext;
 
@@ -220,4 +223,20 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         }
     }
 
+    public void onDelete(Object entity) {
+        if (entity instanceof Group) {
+            Group group = (Group) entity;
+            getHibernateTemplate().update(group);
+            if (User.GROUP_RESOURCE_ID.equals(group.getResource())) {
+                for (Phonebook book : getPhonebooks()) {
+                    DataCollectionUtil.removeByPrimaryKey(book.getConsumers(), group.getPrimaryKey());
+                    DataCollectionUtil.removeByPrimaryKey(book.getMembers(), group.getPrimaryKey());
+                    savePhonebook(book);
+                }
+            }
+        }
+    }
+
+    public void onSave(Object entity) {
+    }
 }

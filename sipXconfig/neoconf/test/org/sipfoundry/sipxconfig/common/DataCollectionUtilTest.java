@@ -26,7 +26,7 @@ public class DataCollectionUtilTest extends TestCase {
 
     private List m_items;
 
-    private Integer[] m_primaryKeys;
+    private Object[] m_primaryKeys;
 
     private int m_originalSize;
 
