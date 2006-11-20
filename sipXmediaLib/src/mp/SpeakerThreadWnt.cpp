@@ -11,7 +11,9 @@
 
 // SYSTEM INCLUDES
 #include <windows.h>
-#include <process.h>
+#ifndef WINCE
+#   include <process.h>
+#endif
 #include <mmsystem.h>
 #include <assert.h>
 

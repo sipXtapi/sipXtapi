@@ -24,7 +24,9 @@
 
 #ifdef WIN32 /* [ */
 #include <winsock2.h>
-#include <io.h>
+#   ifndef WINCE
+#       include <io.h>
+#   endif
 #endif /* WIN32 ] */
 
 #ifdef __pingtel_on_posix__ /* [ */
@@ -248,7 +250,9 @@ int MprToNet::writeRtp(int payloadType, UtlBoolean markerState,
 
 #ifdef DEBUG /* [ */
         if (NumberOfRtpWrites++ < 10)
+        {
             Zprintf("rW: %d, %d, %d\n", len, ts, h->mpt, 0,0,0);
+        }
 #endif /* DEBUG ] */
 
         ph->vpxcc = 2<<6; // h->vpxcc;

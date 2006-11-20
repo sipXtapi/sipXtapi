@@ -20,10 +20,10 @@
 // SYSTEM INCLUDES
 #include <assert.h>
 
-#ifdef WIN32 /* [ */
-#include <io.h>
-#include <fcntl.h>
-#endif /* WIN32 ] */
+#if defined(WIN32) && !defined(WINCE) /* [ */
+#   include <io.h>
+#   include <fcntl.h>
+#endif /* WIN32 && !WINCE ] */
 
 #ifdef __pingtel_on_posix__
 #include <unistd.h>

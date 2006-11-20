@@ -30,7 +30,9 @@
 #endif /* _VXWORKS ] */
 
 #ifdef WIN32 /* [ */
-#include <io.h>
+#   ifndef WINCE
+#       include <io.h>
+#   endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>

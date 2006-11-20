@@ -91,7 +91,9 @@ static char rcsid[] = "";
 #       include <resparse/wnt/arpa/inet.h>
 #       include <resparse/wnt/arpa/nameser.h>
 #       include <resparse/wnt/resolv/resolv.h>
+#ifndef WINCE
 #       include <process.h>
+#endif
 #       include "resparse/wnt/inet_aton.h"
 #       include "os/wnt/getWindowsDNSServers.h"
 //#     include <iphlpapi.h>

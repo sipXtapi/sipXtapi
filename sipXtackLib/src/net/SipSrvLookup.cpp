@@ -50,8 +50,11 @@ extern "C" {
 #ifndef __pingtel_on_posix__
 extern struct __res_state _sip_res;
 #endif
-#include <sys/types.h>
-
+#ifdef WINCE
+#   include <types.h>
+#else
+#   include <sys/types.h>
+#endif
 // Standard C includes.
 #include <stdlib.h>
 #include <assert.h>

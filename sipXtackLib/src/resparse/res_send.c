@@ -100,7 +100,9 @@ static char rcsid[] = "";
 #   include <resparse/wnt/resolv/resolv.h>
 #   include "resparse/wnt/nterrno.h"  /* Additional errors not in errno.h --GAT */
 #   include <resparse/wnt/sys/uio.h>
+#ifndef WINCE
 #   include <io.h>
+#endif
 #   include "resparse/wnt/res_signal.h"
 #elif defined(_VXWORKS)
 #   include <netdb.h>
@@ -410,7 +412,7 @@ res_send(buf, buflen, ans, anssiz)
 
     HEADER *hp = (HEADER *) buf;
     HEADER *anhp = (HEADER *) ans;
-    int gotsomewhere, connreset, terrno, try, v_circuit, resplen, ns, n;
+    int gotsomewhere, connreset, terrno, itry, v_circuit, resplen, ns, n;
     u_int badns; /* XXX NSMAX can't exceed #/bits in this variable */
 
     if ((_sip_res.options & RES_INIT) == 0 && res_init() == -1) {
@@ -432,7 +434,7 @@ res_send(buf, buflen, ans, anssiz)
     /*
      * Send request, RETRY times, or until successful
      */
-    for (try = 0; try < _sip_res.retry; try++) {
+    for (itry = 0; itry < _sip_res.retry; itry++) {
         for (ns = 0; ns < _sip_res.nscount; ns++) {
         struct sockaddr_in *nsap = &_sip_res.nsaddr_list[ns];
     same_ns:
@@ -485,7 +487,7 @@ res_send(buf, buflen, ans, anssiz)
              * Use virtual circuit;
              * at most one attempt per server.
              */
-            try = _sip_res.retry;
+            itry = _sip_res.retry;
             truncated = 0;
             if (s < 0 || !vc || hp->opcode == ns_o_update) {
                 if (s >= 0)
@@ -674,7 +676,7 @@ read_len:
 			 * as we wish to receive answers from the first
 			 * server to respond.
 			 */
-			if (_sip_res.nscount == 1 || (try == 0 && ns == 0)) {
+			if (_sip_res.nscount == 1 || (itry == 0 && ns == 0)) {
 				/*
 				 * Connect only if we are sure we won't
 				 * receive a response from another server.
@@ -754,15 +756,15 @@ read_len:
 #ifndef NOPOLL
     othersyscall:
 			if (use_poll) {
-				msec = (_sip_res.retrans << try) * 1000;
-				if (try > 0)
+				msec = (_sip_res.retrans << itry) * 1000;
+				if (itry > 0)
 					msec /= _sip_res.nscount;
 				if (msec <= 0)
 					msec = 1000;
 			} else {
 #endif
-				timeout.tv_sec = (_sip_res.retrans << try);
-				if (try > 0)
+				timeout.tv_sec = (_sip_res.retrans << itry);
+				if (itry > 0)
 					timeout.tv_sec /= _sip_res.nscount;
 				if ((long) timeout.tv_sec <= 0)
 					timeout.tv_sec = 1;

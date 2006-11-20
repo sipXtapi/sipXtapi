@@ -516,8 +516,8 @@ void FilterBank::DoFilterBank(short mic[], short ldspkr[])
 	int i,flag;
 	static int stage = 0;   // DEBUG!!!!! Feb 1, 2005
 	static int micbuf[40000];
-	long sum;
-	int DCoffset;
+//	long sum;
+//	int DCoffset;
 
 	for (i=0; i<TWOM; i++)
 		ldspkr[i] = 0;

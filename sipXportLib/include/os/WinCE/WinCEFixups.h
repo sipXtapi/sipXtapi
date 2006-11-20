@@ -37,6 +37,7 @@ struct _timeb
 	short			dstflag;
 };
 
+#define stricmp(x, y )						_stricmp( (x), (y) )
 #define strcasecmp _stricmp
 #define strncasecmp _strnicmp
 
@@ -69,6 +70,11 @@ struct _timeb
 
 //#define OutputDebugstringW(x)		OutputDebugStringA(x)
 #define GetProcAddressW(x, y)		GetProcAddressA(x, y)
+
+//  for the file res_query.c
+#define BUFSIZ		2048
+#define	EINVAL		1234
+#define EINTR		1235
 
 struct _finddata_t
 {
@@ -104,12 +110,47 @@ typedef struct _xFILETIME {
 #define O_TRUNC		0x0200
 #define O_EXCL		0x0400
 
+#define O_TEXT		0x4000  /* file mode is text (translated) */
+#define O_BINARY	0x8000  /* file mode is binary (untranslated) */
+
+#define _S_IFMT		0x0001	// mask type
+#define _S_IFDIR	0x0002	// directory
+#define _S_IFCHR	0x0004	// Character special (indicates a device if set)
+#define _S_IFREG	0x0008	// Regular
+#define _S_IREAD	0x0010	// Read permission, owner
+#define _S_IWRITE	0x0020	// Write permission, owner
+#define _S_IEXEC	0x0040	// Execute/serach permission, owner
+
+#define S_IFMT		0x0001	// mask type
+#define S_IFDIR		0x0002	// directory
+#define S_IFCHR		0x0004	// Character special (indicates a device if set)
+#define S_IFREG		0x0008	// Regular
+#define S_IREAD		0x0010	// Read permission, owner
+#define S_IWRITE	0x0020	// Write permission, owner
+#define S_IEXEC		0x0040	// Execute/serach permission, owner
+
+struct stat
+{
+	int	st_atime;
+	int	st_ctime;
+	int	st_dev;
+	int	st_mode;
+	int	st_mtime;
+	int	st_nlink;
+	int	st_rdev;
+	int	st_size;
+};
+
+
+
 #define STARTF_USESTDHANDLES		0x00000100
+
 
 //#define INVALID_HANDLE_VALUE	-1
 #define STD_INPUT_HANDLE		-10
 #define STD_OUTPUT_HANDLE		-11
 #define STD_ERROR_HANDLE		-12
+
 
 //
 //  To avoid the 2000+ warning messages at link time 
@@ -122,54 +163,136 @@ typedef struct _xFILETIME {
 int     errno						= 1;
 char	*_tzname[ 2 ] = {"DST","STD"};
 
-#ifndef _LIB  // Don't want to include this if we're building as a lib.
-// wWinMain is not defined in winbase.h.
-//extern "C" int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nShowCmd);
-
-int main( int, char* argv[] );
 
 //****************************************************************
-int
-WINAPI
-WinMain(
-		HINSTANCE hInstance,
-		HINSTANCE hPrevInstance,
-//#ifdef UNDER_CE
-//    LPWSTR lpCmdLine,
-//#else
-		LPSTR lpCmdLine,
-//#endif
-		int nShowCmd
-	   )
+int	write( int fd, const void *buffer, unsigned int count )
 {
-	printf( "entering WinMain( ) - lpCmdLine is *%s*\n", lpCmdLine );
+	BOOL	fRet		= 0;
+	if( fd  &&  fd != -1 )
+	{
+		DWORD		dwNumWritten;
+		fRet = WriteFile( (HANDLE) fd, buffer, count, &dwNumWritten, NULL );
+		if( fRet )
+			return (int) dwNumWritten;
+	}
+
+	return -1;
+}
+
+
+//****************************************************************
+int	read( int fd, void *buffer, unsigned int count )
+{
+	BOOL	fRet;
+	if( fd  &&  fd != -1 )
+	{
+		DWORD		dwNumRead;
+		fRet = ReadFile( (HANDLE) fd, buffer, count, &dwNumRead, NULL );
+		if( fRet  ==  0 )
+			return -1;
+		else
+			return (int) dwNumRead;
+	}
+	return -1;
+}
+
+
+//****************************************************************
+HANDLE CreateFileB( const char *pFileName, DWORD dwDesiredAccess, DWORD dwShareMode,
+					LPSECURITY_ATTRIBUTES lpSecAttr, DWORD dwCreationDisp, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile )
+{
+//	printf( "CreateFileB( ) NOT IMPLEMENTED\n" );
+
+	wchar_t	wBuf[ MAX_PATH + 1 ];
 	wchar_t	*pW			= NULL;
 	int		iRet		= 1;
-
-
-	iRet = main( 0, NULL );
-
-	printf( "  main( ) returned %d\n", iRet );
-	return iRet;
-
-#if 0
-	wchar_t	wBuf[ 301 ];
-	if( lpCmdLine )
+	if( pFileName )
 	{
-		iRet = MultiByteToWideChar( CP_ACP, 0, lpCmdLine, strlen( lpCmdLine ), wBuf, 300 );
+		iRet = MultiByteToWideChar( CP_ACP, 0, pFileName, strlen( pFileName ), wBuf, MAX_PATH );
 //	printf( "  after MultiByteToWideChar( ) - it returned %d\n", iRet );
 //	printf( "  wBuf is *%S*\n", wBuf );
 		pW = wBuf;
 	}
 	if( iRet )
 	{
-		return wWinMain( hInstance, hPrevInstance, pW, nShowCmd );
+		return CreateFileW( pW, dwDesiredAccess, dwShareMode,
+							lpSecAttr, dwCreationDisp, dwFlagsAndAttributes, hTemplateFile );
 	}
 	else
-		return 0;
-#endif
+		return NULL;
 }
-#endif
+
+
+//****************************************************************
+int open( const char *filename, int oflag, int pmode = 0 )
+{
+	//	oflag may be:
+	//		_O_APPEND  _O_BINARY  _O_CREAT  _O_RDONLY  _O_RDWR  _O_WRONLY
+	//  pmode used only if oflag == _O_CREAT
+	//		_S_IREAD  _S_IWRITE
+	DWORD	dwAccess;
+	if( oflag & O_RDONLY )
+		dwAccess = GENERIC_READ;
+	else if( oflag & O_WRONLY )
+		dwAccess = GENERIC_WRITE;
+	else if( oflag & O_RDWR )
+		dwAccess = GENERIC_WRITE | GENERIC_READ;;
+
+	HANDLE	hRet;
+	hRet = CreateFile( filename, dwAccess, 0, NULL, OPEN_ALWAYS, 0, NULL );
+	if( INVALID_HANDLE_VALUE == hRet )
+		return -1;
+	else
+		return (int) hRet;
+}
+
+
+//****************************************************************
+int open( const char *filename, int oflag )
+{
+//	printf( "open( fname, oflag ) NOT IMPLEMENTED\n" );
+	return open( filename, oflag, 0 );
+}
+
+
+//****************************************************************
+int close( int fd )
+{
+	if( fd  &&  fd != -1 )
+		if( CloseHandle( (HANDLE) fd ) )
+			return 0;
+	return -1;
+}
+
+
+//****************************************************************
+long lseek( int fd, long offset, int origin )
+{
+	DWORD	dwRet;
+	if( fd  &&  fd != -1 )
+	{
+		LONG	lHigh;
+		DWORD	dwType;
+		if( origin == SEEK_SET )
+			dwType = FILE_BEGIN;		//beginning of file
+		else if( origin == SEEK_CUR )
+			dwType = FILE_CURRENT;		//current locbeginning of file
+		else if( origin == SEEK_END )
+			dwType = FILE_END;			//end of file
+		dwRet = SetFilePointer( (HANDLE) fd, offset, &lHigh, dwType );
+	}
+
+	return dwRet;
+}
+
+
+//****************************************************************
+int fstat( int fd, struct stat *buffer )
+{
+	printf( "fstat( ) NOT IMPLEMENTED\n" );
+	return -1;
+}
+
 
 //****************************************************************
 BOOL GetVersionExA( LPOSVERSIONINFOA lpVerInfo )
@@ -242,15 +365,6 @@ HANDLE CreateMutexB( LPSECURITY_ATTRIBUTES lpMutexAttr, BOOL bInitialOwner, char
 	}
 	else
 		return NULL;
-}
-
-
-//****************************************************************
-HANDLE CreateFileB( const char *pFileName, DWORD dwDesiredAccess, DWORD dwShareMode,
-					LPSECURITY_ATTRIBUTES lpSecAttr, DWORD dwCreationDisp, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile )
-{
-	printf( "CreateFileB( ) NOT IMPLEMENTED\n" );
-	return NULL;
 }
 
 
@@ -717,6 +831,15 @@ intptr_t		_findnext( long hFile, struct _finddata_t *pFD );
 intptr_t		_findfirst( const char *pName, struct _finddata_t *pFD );
 HANDLE			GetStdHandle( int nStdHandle );
 int				_putenv( const char *pIn );
+int				write( int fd, const void *buffer, unsigned int count );
+int				open( const char *filename, int oflag );
+#pragma warning( disable : 4031 )
+int				open( const char *filename, int oflag, int pmode );
+#pragma warning( default : 4031 )
+int				close( int fd );
+long			lseek( int fd, long offset, int origin );
+int				fstat( int fd, struct stat *buffer );
+int				read( int fd, void *buffer, unsigned int count );
 
 
 #endif

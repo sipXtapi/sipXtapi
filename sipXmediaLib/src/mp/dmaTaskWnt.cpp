@@ -11,7 +11,9 @@
 
 // SYSTEM INCLUDES
 #include <windows.h>
-#include <process.h>
+#ifndef WINCE
+#   include <process.h>
+#endif
 #include <mmsystem.h>
 #include <stdio.h>
 #include <string.h>
@@ -198,26 +200,28 @@ OsStatus dmaStartup(int samplesPerFrame)
 
     // start a thread to receive microphone input
     // mic thread will prime the device input queue
-    hMicThread = (void *)_beginthreadex(
+//    hMicThread = (void *)_beginthreadex(
+	hMicThread = (void *)CreateThread(
             NULL,             // pointer to thread security attributes
             16000,            // initial thread stack size, in bytes
-            MicThread,        // pointer to thread function
+            (LPTHREAD_START_ROUTINE) MicThread,        // pointer to thread function
             (LPVOID) 0,       // argument for new thread
             CREATE_SUSPENDED, // creation flags
-            (unsigned*)&dwMicThreadID    // pointer to returned thread identifier
+            (unsigned long *)&dwMicThreadID    // pointer to returned thread identifier
     );
 
     assert(NULL != hMicThread);
 
     // start a thread to send audio out to the speaker
     // speaker thread will prime the device output queue
-    hSpkrThread = (void *)_beginthreadex(
+//	hSpkrThread = (void *)_beginthreadex(
+	hSpkrThread = (void *)CreateThread(
             NULL,             // pointer to thread security attributes
             16000,            // initial thread stack size, in bytes
-            SpkrThread,       // pointer to thread function
+            (LPTHREAD_START_ROUTINE) SpkrThread,       // pointer to thread function
             (LPVOID) 0,       // argument for new thread
             CREATE_SUSPENDED, // creation flags
-            (unsigned*)&dwSpkrThreadID    // pointer to returned thread identifier
+            (unsigned long *)&dwSpkrThreadID    // pointer to returned thread identifier
     );
 
     assert(NULL != hSpkrThread);
