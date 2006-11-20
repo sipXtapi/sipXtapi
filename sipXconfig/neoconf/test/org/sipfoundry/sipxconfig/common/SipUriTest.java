@@ -105,6 +105,7 @@ public class SipUriTest extends TestCase {
         assertEquals("name", SipUri.extractFullUser("name@sipfoundry@.org"));
         
         assertEquals("first last - name", SipUri.extractFullUser("\"first last\"<sip:name@sipfoundry.org>"));        
+        assertEquals("Alice Smith - 180", SipUri.extractFullUser("\"Alice Smith\" <sip:180@example.com> "));        
     }
     
 

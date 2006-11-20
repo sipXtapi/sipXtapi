@@ -11,8 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.cdr;
 
-import java.sql.Date;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.util.List;
 
 import org.easymock.EasyMock;
@@ -42,12 +42,12 @@ public class CdrManagerImplTest extends SipxDatabaseTestCase {
         rs.getString("callee_aor");
         rsControl.andReturn("callee");
         
-        rs.getDate("start_time");
-        rsControl.andReturn(new Date(0));
-        rs.getDate("connect_time");
-        rsControl.andReturn(new Date(1));
-        rs.getDate("end_time");
-        rsControl.andReturn(new Date(2));
+        rs.getTimestamp("start_time");
+        rsControl.andReturn(new Timestamp(0));
+        rs.getTimestamp("connect_time");
+        rsControl.andReturn(new Timestamp(1));
+        rs.getTimestamp("end_time");
+        rsControl.andReturn(new Timestamp(2));
         
         rs.getInt("failure_status");
         rsControl.andReturn(404);

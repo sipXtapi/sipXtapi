@@ -97,6 +97,9 @@ public final class SipUri {
     }
 
     public static String extractUser(String uri) {
+        if (uri == null) {
+            return null;
+        }
         Matcher full = EXTRACT_FULL_USER_RE.matcher(uri);
         if (full.matches()) {
             return full.group(2);
@@ -122,6 +125,9 @@ public final class SipUri {
      * 
      */
     public static String extractFullUser(String uri) {
+        if (uri == null) {
+            return null;
+        }
         Matcher matcher = EXTRACT_FULL_USER_RE.matcher(uri);
         if (!matcher.matches()) {
             return null;

@@ -13,6 +13,8 @@ package org.sipfoundry.sipxconfig.cdr;
 
 import java.util.Date;
 
+import org.sipfoundry.sipxconfig.common.SipUri;
+
 public class Cdr {
     enum Termination {
         UNKNOWN, REQUESTED, IN_PROGRESS, COMPLETED, FAILED;
@@ -43,20 +45,34 @@ public class Cdr {
     private Termination m_termination;
     private int m_failureStatus;
 
+    private String m_caller;
+
+    private String m_callee;
+
     public String getCalleeAor() {
         return m_calleeAor;
     }
 
+    public String getCallee() {
+        return m_callee;
+    }
+
     public void setCalleeAor(String calleeAor) {
         m_calleeAor = calleeAor;
+        m_callee = SipUri.extractUser(calleeAor);
     }
 
     public String getCallerAor() {
         return m_callerAor;
     }
 
+    public String getCaller() {
+        return m_caller;
+    }
+
     public void setCallerAor(String callerAor) {
         m_callerAor = callerAor;
+        m_caller = SipUri.extractFullUser(callerAor);
     }
 
     public Date getConnectTime() {

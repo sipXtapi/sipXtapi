@@ -21,6 +21,7 @@
       -->
     <page name="AddExternalLine" specification-path="line/AddExternalLine.page"/>
     <page name="BulkImport" specification-path="admin/BulkImport.page"/>
+    <page name="CdrPage" specification-path="cdr/CdrPage.page"/>    
     <page name="EditUpload" specification-path="upload/EditUpload.page"/>    
     <page name="ManageUploads" specification-path="upload/ManageUploads.page"/>    
     <page name="SearchPage" specification-path="search/SearchPage.page"/>    
@@ -111,6 +112,7 @@
     <component-type type="BridgesPanel" specification-path="conference/BridgesPanel.jwc"/>
     <component-type type="CallPatternEditor" specification-path="dialplan/CallPatternEditor.jwc"/>
 	<component-type type="CancelButton" specification-path="common/CancelButton.jwc"/>
+    <component-type type="CdrStatsPanel" specification-path="cdr/CdrStatsPanel.jwc"/>  
     <component-type type="ConferencesPanel" specification-path="conference/ConferencesPanel.jwc"/>
     <component-type type="ConfirmPassword" specification-path="user/ConfirmPassword.jwc"/>
     <component-type type="DialRuleCommon" specification-path="dialplan/DialRuleCommon.jwc"/>

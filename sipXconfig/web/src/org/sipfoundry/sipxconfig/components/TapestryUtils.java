@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hivemind.Messages;
@@ -232,11 +233,11 @@ public final class TapestryUtils {
      * @return newly create column model
      */
     public static ITableColumn createDateColumn(String columnName, Messages messages,
-            ExpressionEvaluator expressionEvaluator) {
+            ExpressionEvaluator expressionEvaluator, Locale locale) {
         String columnTitle = messages.getMessage(columnName);
         IAdvancedTableColumn column = new ExpressionTableColumn(columnName, columnTitle,
                 columnName, true, expressionEvaluator);
-        column.setValueRendererSource(new DateTableRendererSource());
+        column.setValueRendererSource(new DateTableRendererSource(locale));
         return column;
     }
 

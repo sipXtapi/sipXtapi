@@ -31,10 +31,12 @@ public abstract class JobStatusPage extends BasePage {
     }
 
     public ITableColumn getStartColumn() {
-        return TapestryUtils.createDateColumn("start", getMessages(), getExpressionEvaluator());
+        return TapestryUtils.createDateColumn("start", getMessages(), getExpressionEvaluator(),
+                getPage().getLocale());
     }
 
     public ITableColumn getStopColumn() {
-        return TapestryUtils.createDateColumn("stop", getMessages(), getExpressionEvaluator());
+        return TapestryUtils.createDateColumn("stop", getMessages(), getExpressionEvaluator(),
+                getPage().getLocale());
     }
 }
