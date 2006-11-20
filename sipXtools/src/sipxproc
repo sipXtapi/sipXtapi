@@ -38,7 +38,7 @@ class SipxProcess
         #
         # puts response.body
         
-        puts response.body if command == 'status'
+        puts response.body if command == 'status' || verbose
       }
     }
   end
