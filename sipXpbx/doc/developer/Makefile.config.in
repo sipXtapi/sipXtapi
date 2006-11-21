@@ -85,7 +85,8 @@ install-test-config:
 	done
 	for file in orbits.xml ; \
 	do \
-	install sipXpbx/doc/developer/test-config/etc=sipxpbx/$$file @SIPX_CONFDIR@/$$file ; \
+	sed -e "s#\[prefix]#${prefix}#" <sipXpbx/doc/developer/test-config/etc=sipxpbx/$$file >$$file.tmp ; \
+	install $$file.tmp @SIPX_CONFDIR@/$$file ; \
 	done
 	grep -q '^replicationTrigger.replicateOnStartup=false' \
 		@SIPX_CONFDIR@/sipxconfig.properties.in || \

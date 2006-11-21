@@ -30,10 +30,12 @@ in the case of seizing a free OsBSem.
 - mApplicationState (AT)
 - mTaskState (T)
 
-These two members describe the state of the timer.  mApplicationState is the
-state as seen and updated by the application methods, and so is updated
-immediately by the application methods.  E.g., mApplicationState determines
-whether a start or stop method will succeed or not.
+These two members describe the state of the timer.  mApplicationState
+is the state as seen and updated by the application methods, and so is
+updated immediately by the application methods.  E.g.,
+mApplicationState determines whether a start or stop method will
+succeed or not.  (Note that OsTimerTask can advance mApplicationState
+to a stopped state when the timer fires and advances mTaskState.)
 
 mTaskState is the state as seen by the timer task, and may lag behind
 mApplicationState.  The timer is in the active timer queue when
@@ -415,11 +417,17 @@ loop(determine difference between current time and firing time of next timer;
 	    // timer has been stopped since we were informed that it started.
 	    report = mTaskState == mApplicationState
 
-	    // If this firing should be reported, and this is a one-shot
-	    // timer, stop the timer:
-	    // advance both mTaskState and mApplicationState
-	    if (report && !mQueuedPeriodic) {
-	        mTaskState = mApplicationState = mApplicationState + 1;
+	    if (!report) {
+		// If this firing is after the timer has been stopped by
+		// the application, advance mTaskState to a stopped state
+		// to recognize that the timer has been removed from
+		// the timer queue.
+		mTaskState++;
+            } else if (report && !mQueuedPeriodic) {
+		// If this firing should be reported, and this is a one-shot
+		// timer, stop the timer:
+		// advance both mTaskState and mApplicationState
+	        mTaskState = mApplicationState = mTaskState + 1;
             }
 	}
 

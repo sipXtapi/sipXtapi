@@ -43,6 +43,7 @@ OsTimer::OsTimer(OsMsgQ* pQueue, const int userData) :
    mBSem(OsBSem::Q_PRIORITY, OsBSem::FULL),
    mApplicationState(0),
    mTaskState(0),
+   // Always initialize mDeleting, as we may print its value.
    mDeleting(FALSE),
    mpNotifier(new OsQueuedEvent(*pQueue, userData)),
    mbManagedNotifier(TRUE),
@@ -62,6 +63,7 @@ OsTimer::OsTimer(OsNotification& rNotifier) :
    mBSem(OsBSem::Q_PRIORITY, OsBSem::FULL),
    mApplicationState(0),
    mTaskState(0),
+   // Always initialize mDeleting, as we may print its value.
    mDeleting(FALSE),
    mpNotifier(&rNotifier),
    mbManagedNotifier(FALSE),
@@ -89,9 +91,9 @@ OsTimer::~OsTimer()
    {
       OsLock lock(mBSem);
 
+#ifndef NDEBUG
       assert(!mDeleting);
       // Lock out all further application methods.
-#ifndef NDEBUG
       mDeleting = TRUE;
 #endif
 
@@ -136,9 +138,9 @@ void OsTimer::deleteAsync(OsTimer* timer)
    {
       OsLock lock(mBSem);
 
+#ifndef NDEBUG
       assert(!mDeleting);
       // Lock out all further application methods.
-#ifndef NDEBUG
       mDeleting = TRUE;
 #endif
 
@@ -199,7 +201,9 @@ OsStatus OsTimer::stop(UtlBoolean synchronous)
    {
       OsLock lock(mBSem);
 
+#ifndef NDEBUG
       assert(!mDeleting);
+#endif
 
       // Determine whether the call is successful.
       if (isStarted(mApplicationState))
@@ -324,7 +328,9 @@ OsStatus OsTimer::startTimer(Time start,
    {
       OsLock lock(mBSem);
 
+#ifndef NDEBUG
       assert(!mDeleting);
+#endif
 
       // Determine whether the call is successful.
       if (isStopped(mApplicationState))
