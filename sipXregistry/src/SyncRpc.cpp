@@ -304,8 +304,8 @@ SyncRpcReset::invoke(const char*    myName, ///< primary name of the caller
                        " %s marked incompatible for replication",
                        peer.name()
                        );
-         assert(false); // bad xmlrpc response
          resultState = RegistrarPeer::Incompatible;
+         peer.markIncompatible();
       }
    }
    else
@@ -442,7 +442,6 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
                                    responseUpdates->entries(),
                                    source->name()
                                    );
-                     assert(false); // bad xmlrpc response
                      resultState = RegistrarPeer::Incompatible;
                      source->markIncompatible();
                   }
@@ -454,7 +453,6 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
                                 " %s marked incompatible for replication",
                                 source->name()
                                 );
-                  assert(false); // bad xmlrpc response
                   resultState = RegistrarPeer::Incompatible;
                   source->markIncompatible();
                }
@@ -475,7 +473,6 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
                           " %s marked incompatible for replication",
                           source->name()
                           );
-            assert(false); // bad xmlrpc response
             resultState = RegistrarPeer::Incompatible;
             source->markIncompatible();
          }
@@ -487,7 +484,6 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
                        " %s marked incompatible for replication",
                        source->name()
                        );
-         assert(false); // bad xmlrpc response
          resultState = RegistrarPeer::Incompatible;
          source->markIncompatible();
       }
@@ -618,7 +614,6 @@ void SyncRpcMethod::handleMissingExecuteParam(const char* methodName,
    }
    response.setFault(SyncRpcMethod::InvalidParameter, faultMsg);
    OsSysLog::add(FAC_SIP, PRI_CRIT, faultMsg);
-   assert(false);    // bad XML-RPC response
 }
 
 
@@ -854,11 +849,11 @@ bool SyncRpcPushUpdates::checkUpdateNumber(
          "a registry update contains multiple update numbers: %0#16llx and %0#16llx";
       char buf[1024];
       int msgLen = sprintf(buf, msg, updateNumber, reg.getUpdateNumber());
-      assert(msgLen > 0);
+
       peer.markIncompatible();    // this peer is confused, don't talk to him
       response.setFault(SyncRpcMethod::MixedUpdateNumbers, buf);
       status = XmlRpcMethod::FAILED;
-      assert(false);              // should never happen
+
       return false;
    }
    else
@@ -941,8 +936,9 @@ SyncRpcPushUpdates::invoke(RegistrarPeer* peer,       ///< peer to push to
                        " %s marked incompatible for replication",
                        peer->name()
                        );
-         assert(false);    // bad XML-RPC response
+
          resultState = RegistrarPeer::Incompatible;
+         peer->markIncompatible();
       }
    }
    else

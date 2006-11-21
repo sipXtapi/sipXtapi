@@ -105,10 +105,11 @@ void RegistrarPeer::markUnReachable()
    if (notifyTestThread)
    {
       RegistrarTest* registrarTestThread = mRegistrar->getRegistrarTest();
-      assert(registrarTestThread);
-
-      // Tell the RegistrarTest thread to start polling
-      registrarTestThread->check();
+      if (registrarTestThread) // might not be true during initialization
+      {
+         // Tell the RegistrarTest thread to start polling
+         registrarTestThread->check();
+      }
    }
 }
 

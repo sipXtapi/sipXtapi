@@ -8,7 +8,6 @@
 
 
 // SYSTEM INCLUDES
-#include <assert.h>
 #include <stdio.h>
 
 #if defined(_WIN32)
