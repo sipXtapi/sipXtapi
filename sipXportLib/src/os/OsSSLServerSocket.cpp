@@ -6,7 +6,6 @@
 ////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
-#include <assert.h>
 #include <stdio.h>
 
 #define OsSS_CONST
@@ -50,15 +49,13 @@
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
-/* Make these what you want for cert & key files */
-
 /* ============================ CREATORS ================================== */
 
 // Constructor
 OsSSLServerSocket::OsSSLServerSocket(int connectionQueueSize, int serverPort)
    : OsServerSocket(connectionQueueSize,serverPort)
 {
-
+   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSSLServerSocket::_ %p", this );
 }
 
 // Destructor
@@ -81,7 +78,7 @@ OsSSLServerSocket::operator=(const OsSSLServerSocket& rhs)
 
 OsConnectionSocket* OsSSLServerSocket::accept()
 {
-   OsConnectionSocket* newSocket = NULL;
+   OsSSLConnectionSocket* newSocket = NULL;
    
    if (socketDescriptor == OS_INVALID_SOCKET_DESCRIPTOR)
    {
@@ -130,6 +127,13 @@ OsConnectionSocket* OsSSLServerSocket::accept()
                   OsSSL::logConnectParams(FAC_KERNEL, PRI_DEBUG
                                           ,"OsSSLServerSocket::accept"
                                           ,pSSL);
+
+                  OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                                "OsSSLServerSocket::accept connection %p",
+                                this
+                                );
+                  // test and cache the peer identity
+                  newSocket->peerIdentity(NULL, NULL);
                }
                else
                {
