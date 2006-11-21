@@ -53,6 +53,13 @@ public:
     void testWriteMsg()
     {
         OsSocket* s = new OsDatagramSocket(8020, mLocalHost);
+        if(!s->isOk() || s->getSocketDescriptor() < 0)
+        {
+            printf("socket descripter not valid: %d\n", s->getSocketDescriptor());
+        }
+
+        CPPUNIT_ASSERT(s->getSocketDescriptor() >= 0);
+        CPPUNIT_ASSERT(s->isOk());
         const char* msg = "hello\n";
         int len = strlen(msg);
         int bytesWritten = s->write(msg, len);
