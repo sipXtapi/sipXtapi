@@ -403,6 +403,7 @@ char *
 hostalias(name)
     const char *name;
 {
+#ifndef WINCE
     register char *cp1, *cp2;
     FILE *fp;
     char *file;
@@ -438,6 +439,7 @@ hostalias(name)
 		}
 	}
 	fclose(fp);
+#endif
 	return (NULL);
 }
 #endif /* __pingtel_on_posix__ */

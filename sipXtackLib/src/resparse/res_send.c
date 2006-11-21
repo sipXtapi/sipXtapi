@@ -190,7 +190,7 @@ static res_send_rhook Rhook = NULL;
     struct sockaddr_in address;
     {
         int save = errno;
-
+#ifndef WINCE
         if (_sip_res.options & RES_DEBUG) {
             fprintf(file, "res_send: %s ([%s].%u): %s\n",
 			string,
@@ -198,6 +198,7 @@ static res_send_rhook Rhook = NULL;
 			ntohs(address.sin_port),
 			strerror(error));
 	}
+#endif
 	errno = save;
     }
     static void
@@ -207,11 +208,12 @@ static res_send_rhook Rhook = NULL;
     int error;
     {
         int save = errno;
-
+#ifndef WINCE
     if (_sip_res.options & RES_DEBUG) {
         fprintf(file, "res_send: %s: %s\n",
             string, strerror(error));
     }
+#endif
     errno = save;
     }
 #endif
@@ -532,7 +534,7 @@ res_send(buf, buflen, ans, anssiz)
 read_len:
 			cp = ans;
 			len = INT16SZ;
-			while ((n = read(s, (char *)cp, (int)len)) > 0) {
+			while ((n = recv(s, (char *)cp, (int)len, 0)) > 0) {
 				cp += n;
 				if ((len -= n) <= 0)
 					break;
@@ -580,7 +582,7 @@ read_len:
 			}
 			cp = ans;
 			while (len != 0 &&
-			       (n = read(s, (char *)cp, (int)len)) > 0) {
+			       (n = recv(s, (char *)cp, (int)len, 0)) > 0) {
 				cp += n;
 				len -= n;
 			}
@@ -603,7 +605,7 @@ read_len:
 					n = (len > sizeof(junk)
 					     ? sizeof(junk)
 					     : len);
-					if ((n = read(s, junk, n)) > 0)
+					if ((n = recv(s, junk, n, 0)) > 0)
 						len -= n;
 					else
 						break;

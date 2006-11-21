@@ -334,6 +334,7 @@ int res_init_ip(const char* localIp)
                 }
         }
         /* Allow user to override the local domain definition */
+#if !defined(WINCE)
         if (/*issetugid() == 0 && */(cp = getenv("LOCALDOMAIN")) != NULL) {
 		(void)strncpy(_sip_res.defdname, cp, sizeof(_sip_res.defdname) - 1);
 		_sip_res.defdname[sizeof(_sip_res.defdname) - 1] = '\0';
@@ -367,7 +368,7 @@ int res_init_ip(const char* localIp)
                 *cp = '\0';
                 *pp++ = 0;
         }
-
+#endif
 #define MATCH(line, name) \
         (!strncmp(line, name, sizeof(name) - 1) && \
         (line[sizeof(name) - 1] == ' ' || \
@@ -541,8 +542,11 @@ int res_init_ip(const char* localIp)
 
 /*      if (issetugid())
 		_sip_res.options |= RES_NOALIASES;
-        else */if ((cp = getenv("RES_OPTIONS")) != NULL)
+        else */
+#ifndef WINCE
+		if ((cp = getenv("RES_OPTIONS")) != NULL)
                 res_setoptions(cp, "env");
+#endif
 	_sip_res.options |= RES_INIT;
         return (0);
 }

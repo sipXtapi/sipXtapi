@@ -160,7 +160,8 @@ struct stat
 //
 #ifdef PLUGIN_HOOKS
 
-int     errno						= 1;
+extern "C" int     errno	= 1;
+
 char	*_tzname[ 2 ] = {"DST","STD"};
 
 
@@ -785,11 +786,20 @@ int _putenv( const char *pIn )
 	return -1;
 }
 
+extern "C" int _getpid()
+{
+	return 1;
+}
 
 #else
 
 extern char		*_tzname[ 2 ];
-extern int		errno;
+
+#ifdef __cplusplus
+extern "C" int	errno;
+#else
+int	errno;
+#endif
 
 long			RegQueryValueExB( HKEY hKey, const char *lpName, DWORD *lpReserved, DWORD *lpType, unsigned char *lpData, DWORD *lpcbData );
 HANDLE			CreateMutexB( LPSECURITY_ATTRIBUTES lpMutexAttr, BOOL bInitialOwner, char *pNme );
@@ -841,6 +851,7 @@ long			lseek( int fd, long offset, int origin );
 int				fstat( int fd, struct stat *buffer );
 int				read( int fd, void *buffer, unsigned int count );
 
+extern int _getpid();
 
 #endif
 
