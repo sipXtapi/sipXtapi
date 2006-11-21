@@ -73,7 +73,7 @@ WINAPI
 WinMain(
 		HINSTANCE hInstance,
 		HINSTANCE hPrevInstance,
-		LPSTR lpCmdLine,
+		LPWSTR lpCmdLine,
 		int nShowCmd
 	   )
 {
