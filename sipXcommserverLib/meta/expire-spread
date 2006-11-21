@@ -1,12 +1,13 @@
 #!/usr/bin/perl
 use Getopt::Long;
 
-$sampleSize = 10;
+$sampleSize = 60;
 $prefix = '/';
 
 $Usage = <<HELP;
 
 expire-spread  [ { --db <database.xml> | { --prefix | -p } <database-dir-root> } ]
+                 [ { --real | -r } ] 
                  [ { --summary | -s } ] 
                  [ --sample <seconds> ]
 
@@ -20,17 +21,22 @@ expire-spread  [ { --db <database.xml> | { --prefix | -p } <database-dir-root> }
    and the registration and subscription databases are read from that 
    directory.
 
+   --real      use the actual current time to determine whether or not
+               a registration or subscription has expired.  If this is 
+               not specified, the timestamp in the database is used.
+
    --summary   limit the report to the number active and the peak rate
                (in expirations/second), without showing data for each
                interval.
 
-   --sample    specify the interval size in seconds (default is 10).
+   --sample    specify the interval size in seconds (default is $sampleSize).
 
 HELP
 
 GetOptions( 'help|h' => \$Help,
             'db=s' => \$Db,
             'prefix|p=s' => \$prefix,
+            'real|r' => \$UseRealTime,
             'summary|s' => \$Summary,
             'sample=i' => \$sampleSize,
             )
@@ -54,15 +60,11 @@ else
     push @Db, $prefix . 'var/sipxdata/sipdb/subscription.xml';
 }
 
-format STDOUT_HEAD =
-
+format SUMMARY_TOP =
 ===============================================================
- @<<<<<<<<<<<<<<<<<< @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-&asDate($BaseTime), $DbName
-  Start        Stop    Total   Rate
 .
-    ;
-format STDOUT_SUMMARY =
+
+format SUMMARY =
 
 Database:  @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 $DbName
@@ -72,17 +74,36 @@ Earliest:  @<<<<<<<<<<<<<<<<<<
 &asTime($Earliest)
 Latest:    @<<<<<<<<<<<<<<<<<<
 &asTime($Latest)
-Total:     @#####
+Expired:   @#####
+$Expired
+Live:      @#####
 $Live
+Total:     @#####
+$Total
+FirstPeak: @<<<<<<<<<<<<<<<<<<
+&asTime($PeakTime)
+PeakCount: @#####  
+$InSample{$PeakTime}
 PeakRate:  @###.#  
-$peakRate
-EarlyPeak: @<<<<<<<<<<<<<<<<<<
-&asTime($peakTime)
+$PerSecond{$PeakTime}
+
 .
     ;
-format STDOUT =
+format SERVER =
+Dist: @##### @##% @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+$AtServer{$_}, ($AtServer{$_}*100) / $Total,  $_
+.
+    ;
+
+format HISTO_TOP =
+
+  from   ->    to      count   rate  expirations
+--------------------   -----  ------ ------------------------------------------------------------
+.
+    ;
+format HISTO =
 @<<<<<<< -> @<<<<<<<   @####  @###.# @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-&asTime($tick), &asTime($toTick), $inSample, $perSecond, $graph
+&asTime($tick), &asTime($toTick), $InSample{$tick}, $PerSecond{$tick}, $graph
 .
     ;
 
@@ -91,18 +112,18 @@ $= = 100000;
 foreach $Db (@Db)
 {
     
-    ( $DbName = $Db ) =~ s|(.*/)?([^/]+)\.xml|\2|;
+    ( $DbName = $Db ) =~ s|(.*/)?([^/]+)\.xml|$2|;
     if ( open( DB, "<$Db" ) )
     {
-        $~ = STDOUT_HEAD;
         $- = 0;
 
         %ExpirationsAt = ();
+        %AtServer = ();
         $BaseTime = time();
         $Live = 0;
+        $Expired = 0;
         $Latest = 0;
         $Earliest = 0xffffffff;
-        write unless $Summary;
 
         $~ = STDOUT;
 
@@ -110,8 +131,7 @@ foreach $Db (@Db)
         {
             if ( m|timestamp="(\d+)"| )
             {
-                $BaseTime = $1;
-                $base = asDate($BaseTime);
+                $BaseTime = $1 unless $UseRealTime;
             }
             if ( m|<expires>(\d+)</expires>| )
             {
@@ -127,37 +147,69 @@ foreach $Db (@Db)
 
                     $Live++;
                 }
+                else
+                {
+                    $Expired++;
+                }
+            }
+            elsif ( m|<primary>(.+)</primary>| )
+            {
+                $AtServer{$1}++;
             }
         }
+
+        $Total = $Live + $Expired;
 
         for ( $tick = $BaseTime; $tick <= $Latest; $tick+=$sampleSize )
         {
-            $inSample = 0;
+            $InSample{$tick} = 0;
             $toTick = $tick+$sampleSize;
             for ( $sampleTick = $tick; $sampleTick < $toTick; $sampleTick++ )
             {
-                $inSample += $ExpirationsAt{$sampleTick};
+                $InSample{$tick} += $ExpirationsAt{$sampleTick};
             }
-            if ( $inSample > 60 )
+            $PerSecond{$tick} = $InSample{$tick}/$sampleSize;
+            if ($PerSecond{$tick} > $peakRate)
             {
-                $graph = ('#' x 55) . '>>>>>';
+                $peakRate = $PerSecond{$tick};
+                $PeakTime = $tick;
             }
-            else
-            {
-                $graph = '#' x $inSample;
-            }
-            $perSecond = $inSample/$sampleSize;
-            if ($perSecond > $peakRate)
-            {
-                $peakRate = $perSecond;
-                $peakTime = $tick;
-            }
-            write unless $Summary;
         }
 
-        $~ = STDOUT_SUMMARY;
+        $^ = SUMMARY_TOP;
+        $~ = SUMMARY;
         $- = 0;
         write;
+
+        if ( $Total && scalar keys %AtServer )
+        {
+            $~ = SERVER;
+            foreach ( sort keys %AtServer )
+            {
+                write;
+            }
+        }
+
+
+        $^ = HISTO_TOP;
+        $~ = HISTO;
+        $- = 0;
+        if ( ! $Summary )
+        {
+            for ( $tick = $BaseTime; $tick <= $Latest; $tick+=$sampleSize )
+            {
+                $toTick = $tick+$sampleSize;
+                if ( $InSample{$tick} > 60 )
+                {
+                    $graph = ('#' x 55) . '>>>>>';
+                }
+                else
+                {
+                    $graph = '#' x $InSample{$tick};
+                }
+                write;
+            }
+        }
     }
     else
     {
