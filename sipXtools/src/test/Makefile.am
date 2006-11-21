@@ -4,7 +4,8 @@ EXTRA_DIST = \
 
 TESTS = \
 	sipxcar_test.rb \
-	sipxproc_test.rb
+	sipxproc_test.rb \
+	polycom_config_test.rb
 
 TESTDATA = \
 	sipxproc_empty.txt \
@@ -12,5 +13,6 @@ TESTDATA = \
 	birds.tgz \
 	different.txt \
 	same1.txt \
-	same2.txt
+	same2.txt \
+	polycom-config.cfg
 

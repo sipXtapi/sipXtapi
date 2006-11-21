@@ -1,4 +1,11 @@
 #!/usr/bin/env ruby
+
+# Copyright (C) 2006 SIPfoundry Inc.
+# Licensed by SIPfoundry under the LGPL license.
+# 
+# Copyright (C) 2006 Pingtel Corp.
+# Licensed to SIPfoundry under a Contributor Agreement.
+
 DIR = File.dirname(__FILE__)
 $:.unshift File.join(DIR, "..")
 require 'test/unit'

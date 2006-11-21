@@ -1,4 +1,11 @@
 #!/usr/bin/env ruby
+
+# Copyright (C) 2006 SIPfoundry Inc.
+# Licensed by SIPfoundry under the LGPL license.
+# 
+# Copyright (C) 2006 Pingtel Corp.
+# Licensed to SIPfoundry under a Contributor Agreement.
+
 $:.unshift File.join(File.dirname(__FILE__), "..")
 require 'test/unit'
 

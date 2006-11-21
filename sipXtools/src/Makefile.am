@@ -5,4 +5,5 @@ SUBDIRS = \
 
 dist_bin_SCRIPTS = \
 	sipxcar \
-	sipxproc
+	sipxproc \
+	polycom-config
