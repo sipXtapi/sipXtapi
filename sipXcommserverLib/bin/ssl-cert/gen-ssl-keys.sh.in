@@ -175,7 +175,22 @@ function seedRand()
 ## Get the certificate values for where the subject is.
 function getLocality()
 {
-    askfor countryName            "Country Name (2 letter code)" ""
+    countryNameValid=NO
+    countryNameAttempts=0
+    while [ ${countryNameValid} = NO -a ${countryNameAttempts} -lt 3 ]
+    do
+      askfor countryName            "Country Name (2 letter code)" ""
+      if [ -l "${countryName}" -eq 2 ]
+      then
+          countryNameValid=YES
+      else
+          echo "Country Name must be the two letter ISO country code" 1>&2
+          countryName=""
+          countryNameAttempts=$((${countryNameAttempts}+1))
+      fi
+    done
+    test ${countryNameValid} = YES || exit 1
+
     askfor stateOrProvinceName    "State or Province Name (full name)" ""
     askfor localityName           "Locality Name (eg, city)" ""
     askfor organizationName       "Organization Name (eg, company)" ""
