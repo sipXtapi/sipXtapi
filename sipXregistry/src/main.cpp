@@ -277,7 +277,7 @@ main(int argc, char* argv[] )
    // Register Signal handlers to close IMDB
    pt_signal(SIGINT,   sigHandler);    // Trap Ctrl-C on NT
    pt_signal(SIGILL,   sigHandler);
-   pt_signal(SIGABRT,  sigHandler);    // Abort signal 6
+   // do not catch SIGABRT - allow assert() to core dump
    pt_signal(SIGFPE,   sigHandler);    // Floading Point Exception
    pt_signal(SIGSEGV,  sigHandler);    // Address access violations signal 11
    pt_signal(SIGTERM,  sigHandler);    // Trap kill -15 on UNIX

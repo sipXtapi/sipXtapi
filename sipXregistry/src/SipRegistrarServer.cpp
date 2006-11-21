@@ -762,24 +762,11 @@ intll SipRegistrarServer::updateOneBinding(
    assert(reg);
    assert(imdb);
 
-   // Check callId/cseq and accept only updates that are in sequence.
    // Don't require updateNumbers to be in order because when pulling updates, 
    // updateNumber order is not guaranteed.
-   if (imdb->isOutOfSequence(*reg->getUri(), *reg->getCallId(), reg->getCseq()))
-   {
-      OsSysLog::add(FAC_SIP, PRI_WARNING,
-                    "SipRegistrarServer::updateOneBinding request out of order\n"
-                    "  To: '%s'\n"
-                    "  Call-Id: '%s'\n"
-                    "  Cseq: %d",
-                    (*reg->getUri()).toString().data(), (*reg->getCallId()).data(), reg->getCseq());
-      return -1;
-   }
 
    // Update the registrar state and the binding
-
    intll updateNumber = reg->getUpdateNumber();
-   assert(updateNumber > 0);
 
    // The return value is the max update number that we have seen for this registrar.
    intll maxUpdateNumber = updateNumber;
@@ -812,7 +799,23 @@ intll SipRegistrarServer::updateOneBinding(
       }
    }
 
-   imdb->updateBinding(*reg);
+   // Check callId/cseq and accept only updates that are in sequence.
+   if (imdb->isOutOfSequence(*reg->getUri(), *reg->getCallId(), reg->getCseq()))
+   {
+      // this can happen in an HA configuration when the peer didn't get the
+      // update and tries to sync an old registration.
+      OsSysLog::add(FAC_SIP, PRI_WARNING,
+                    "SipRegistrarServer::updateOneBinding request out of order\n"
+                    "  To: '%s'\n"
+                    "  Call-Id: '%s'\n"
+                    "  Cseq: %d",
+                    (*reg->getUri()).toString().data(), (*reg->getCallId()).data(), reg->getCseq());
+   }
+   else // registration is newer than what we have, so store it
+   {
+      imdb->updateBinding(*reg);
+   }
+
    return maxUpdateNumber;
 }
 

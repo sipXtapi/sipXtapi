@@ -12,6 +12,7 @@
 
 #include "stdtp.h"
 #include "sync.h"
+#include "os/OsSysLog.h"
 
 #ifndef _WIN32
 
@@ -113,8 +114,9 @@ int sem_init(int& sem, char const* name, unsigned init_value)
 	fd = open(path, O_WRONLY|O_CREAT, 0777);
 	if (fd < 0) {
 	    PRINT_ERROR("open");
-	    fprintf(stderr, "Error attempting to open '%s' for writing.\n",
-		    path);
+       OsSysLog::add(FAC_DB, PRI_ERR,
+                     "Error attempting to open '%s' for writing.",
+                     path);
 	    if (path != name) { 
 		delete[] path;
 	    }
@@ -388,7 +390,7 @@ dbInitializationMutex::initialize(char const* name)
     int fd = open(path, O_WRONLY|O_CREAT, 0777);
     if (fd < 0) {
 	PRINT_ERROR("open");
-        fprintf(stderr, "Error attempting to open '%s' for writing.\n", path);
+   OsSysLog::add(FAC_DB, PRI_ERR, "Error attempting to open '%s' for writing.\n", path);
 	if (path != name) { 
 	    delete[] path;
 	}
