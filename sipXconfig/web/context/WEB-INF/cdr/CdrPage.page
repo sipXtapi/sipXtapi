@@ -4,8 +4,9 @@
 
   <property name="startTime" persist="session" />
   <property name="endTime" persist="session" />
+  <property name="cdrSearch" persist="session" />
 
-  <component id="cdrFilter" type="cdr/CdrFilter">
+  <component id="cdrDates" type="cdr/CdrDates">
     <binding name="startTime" value="startTime" />
     <binding name="endTime" value="endTime" />
   </component>
@@ -13,6 +14,7 @@
   <component id="cdrStatsPanel" type="cdr/CdrStatsPanel">
     <binding name="startTime" value="startTime" />
     <binding name="endTime" value="endTime" />
+    <binding name="cdrSearch" value="cdrSearch" />
   </component>
 
 </page-specification>

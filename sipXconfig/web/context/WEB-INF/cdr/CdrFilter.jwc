@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
-
+<!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
 <component-specification allow-body="no" allow-informal-parameters="no">
-  <description>Table that displays CDRs</description>
 
-  <!-- P A R A M E T E R S -->
-  <parameter name="startTime" />
-  <parameter name="endTime" />
+  <description>Drop-down box for filtering and searching CDRs</description>
 
-  <!-- P R O P E R T I E S -->
+  <parameter name="cdrSearch" required="yes" />
 
-  <!--  B E A N S -->
-  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate" />
+  <inject property="tapestry" object="spring:tapestry" />
 
-  <!-- C O M P O N E N T S -->
-  <component id="startTime" type="DateTimeEditor">
-    <binding name="datetime" value="startTime" />
-    <binding name="label" value="message:startTime" />
+  <bean name="propertyRenderer"
+    class="org.sipfoundry.sipxconfig.components.selection.OptGroupPropertySelectionRenderer" />
+
+  <component id="filter" type="FlexiblePropertySelection">
+    <binding name="value" value="cdrSearch.mode" />
+    <binding name="model" value="selectionModel" />
+    <binding name="onchange" value="literal:javascript:this.form.submit();" />
+    <binding name="renderer" value="bean:propertyRenderer" />
   </component>
-
-  <component id="endTime" type="DateTimeEditor">
-    <binding name="datetime" value="endTime" />
-    <binding name="label" value="message:endTime" />
+  <component id="queryText" type="TextField">
+    <binding name="value" value="cdrSearch.term" />
   </component>
-
-  <component id="apply" type="Submit">
-    <binding name="value" value="message:button.apply" />
+  <component id="searchButton" type="Submit">
+    <binding name="value" value="message:button.search" />
+  </component>
+  <component id="renderQuery" type="If">
+    <binding name="condition" value="cdrSearch.search" />
   </component>
 </component-specification>

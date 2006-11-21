@@ -22,7 +22,8 @@ public interface CdrManager {
      * 
      * @param from date of first CDR retrieved, pass null for oldest
      * @param to date of the last CDR retrieved, pass null for latest
+     * @param search specification - enumeration representing columns and string to search for
      * @return list of CDR objects
      */
-    List<Cdr> getCdrs(Date from, Date to);
+    List<Cdr> getCdrs(Date from, Date to, CdrSearch search);
 }

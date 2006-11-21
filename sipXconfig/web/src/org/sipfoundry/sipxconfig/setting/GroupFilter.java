@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.apache.hivemind.Messages;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
@@ -52,8 +53,8 @@ public abstract class GroupFilter extends BaseComponent {
     public IPropertySelectionModel getSelectionModel() {
         Collection actions = new ArrayList();
 
-        actions.add(new LabelOptionAdapter(ALL_SELECTED));
-        actions.add(new LabelOptionAdapter(SEARCH_SELECTED));
+        actions.add(new LabelOptionAdapter(getMessages(), ALL_SELECTED));
+        actions.add(new LabelOptionAdapter(getMessages(), SEARCH_SELECTED));
 
         Collection groups = getGroups();
         if (!groups.isEmpty()) {
@@ -98,10 +99,12 @@ public abstract class GroupFilter extends BaseComponent {
     /**
      * LabelOptionAdapter
      */
-    private class LabelOptionAdapter implements OptionAdapter {
+    private static class LabelOptionAdapter implements OptionAdapter {
         private String m_label;
+        private Messages m_messages;
 
-        public LabelOptionAdapter(String label) {
+        public LabelOptionAdapter(Messages messages, String label) {
+            m_messages = messages;
             m_label = label;
         }
 
@@ -110,7 +113,7 @@ public abstract class GroupFilter extends BaseComponent {
         }
 
         public String getLabel(Object option_, int index_) {
-            return getMessages().getMessage(m_label);
+            return m_messages.getMessage(m_label);
         }
 
         public String squeezeOption(Object option_, int index_) {

@@ -7,6 +7,7 @@
   <!-- P A R A M E T E R S -->
   <parameter name="startTime" />
   <parameter name="endTime" />
+  <parameter name="cdrSearch" />  
 
   <!-- P R O P E R T I E S -->
   <inject property="cdrManager" object="spring:cdrManager" />
@@ -27,8 +28,12 @@
   </bean>
 
   <!-- C O M P O N E N T S -->
+  <component id="filter" type="cdr/CdrFilter">
+    <binding name="cdrSearch" value="cdrSearch" />
+  </component>
+  
   <component id="tableView" type="StatsTable">
-    <binding name="source" value="cdrManager.getCdrs(startTime, endTime)" />
+    <binding name="source" value="cdrManager.getCdrs(startTime, endTime, cdrSearch)" />
     <binding name="columns" value="literal:caller, callee, =startTimeColumn, duration, termination" />
     <binding name="row" value="row" />
     <binding name="usePager" value="true" />

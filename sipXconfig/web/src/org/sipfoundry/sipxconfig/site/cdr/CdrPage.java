@@ -18,6 +18,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.cdr.CdrSearch;
 
 public abstract class CdrPage extends BasePage implements PageBeginRenderListener {
     public abstract Date getStartTime();
@@ -27,6 +28,10 @@ public abstract class CdrPage extends BasePage implements PageBeginRenderListene
     public abstract Date getEndTime();
 
     public abstract void setEndTime(Date endTime);
+
+    public abstract CdrSearch getCdrSearch();
+
+    public abstract void setCdrSearch(CdrSearch cdrSearch);
 
     public void pageBeginRender(PageEvent event_) {
         if (getEndTime() == null) {
@@ -39,6 +44,10 @@ public abstract class CdrPage extends BasePage implements PageBeginRenderListene
             then.setTime(getEndTime());
             then.add(Calendar.DAY_OF_MONTH, -1);
             setStartTime(then.getTime());
+        }
+
+        if (getCdrSearch() == null) {
+            setCdrSearch(new CdrSearch());
         }
     }
 
