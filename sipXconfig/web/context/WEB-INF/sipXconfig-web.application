@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE application
-      PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
-      "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+      PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN"
+      "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
 
 <application name="sipXconfig-web">
     <description>sipXconfig Application</description>
+    
+    <meta key="org.apache.tapestry.page-class-packages" value="org.sipfoundry.sipxconfig.site"/>
+    <meta key="org.apache.tapestry.component-class-packages" value="org.sipfoundry.sipxconfig.site"/>
     
     <library id="contrib" specification-path="/org/apache/tapestry/contrib/Contrib.library"/>
 	<library id="tacos" specification-path="/net/sf/tacos/Tacos.library"/>
@@ -21,7 +24,6 @@
       -->
     <page name="AddExternalLine" specification-path="line/AddExternalLine.page"/>
     <page name="BulkImport" specification-path="admin/BulkImport.page"/>
-    <page name="CdrPage" specification-path="cdr/CdrPage.page"/>    
     <page name="EditUpload" specification-path="upload/EditUpload.page"/>    
     <page name="ManageUploads" specification-path="upload/ManageUploads.page"/>    
     <page name="SearchPage" specification-path="search/SearchPage.page"/>    
@@ -112,9 +114,9 @@
     <component-type type="BridgesPanel" specification-path="conference/BridgesPanel.jwc"/>
     <component-type type="CallPatternEditor" specification-path="dialplan/CallPatternEditor.jwc"/>
 	<component-type type="CancelButton" specification-path="common/CancelButton.jwc"/>
-    <component-type type="CdrStatsPanel" specification-path="cdr/CdrStatsPanel.jwc"/>  
     <component-type type="ConferencesPanel" specification-path="conference/ConferencesPanel.jwc"/>
     <component-type type="ConfirmPassword" specification-path="user/ConfirmPassword.jwc"/>
+    <component-type type="DateTimeEditor" specification-path="common/DateTimeEditor.jwc"/>
     <component-type type="DialRuleCommon" specification-path="dialplan/DialRuleCommon.jwc"/>
     <component-type type="DownloadLink" specification-path="common/DownloadLink.jwc"/>
     <component-type type="EditPhoneForm" specification-path="phone/EditPhoneForm.jwc"/>
