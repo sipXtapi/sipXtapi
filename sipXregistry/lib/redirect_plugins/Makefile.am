@@ -162,23 +162,6 @@ libRedirectorRegDB_la_SOURCES =  \
 
 # Experimental redirectors
 
-# SipRedirectorMPT
-# Experimental redirector for multi-party testing.
-
-libRedirectorMPT_la_LDFLAGS = \
-	-module \
-	-version-info ${version_Current}:${version_Revision}:${version_Age}
-
-libRedirectorMPT_la_LIBADD = \
-	@SIPXCOMMSERVER_LIBS@
-
-libRedirectorMPT_la_CXXFLAGS = \
-	-I$(top_builddir)/config
-
-libRedirectorMPT_la_SOURCES =  \
-	SipRedirectorMPT.cpp \
-	SipRedirectorMPT.h
-
 # SipRedirectorENUM
 # Experimental redirector to implement ENUM dialing.
 
@@ -196,24 +179,6 @@ libRedirectorENUM_la_CXXFLAGS = \
 libRedirectorENUM_la_SOURCES =  \
 	SipRedirectorENUM.cpp \
 	SipRedirectorENUM.h
-
-# SipRedirectorGateway
-# Experimental redirector to allow configuring gateway routing prefixes.
-
-libRedirectorGateway_la_LDFLAGS = \
-	-module \
-	-version-info ${version_Current}:${version_Revision}:${version_Age}
-
-libRedirectorGateway_la_LIBADD = \
-	@SIPXCOMMSERVER_LIBS@
-
-libRedirectorGateway_la_CXXFLAGS = \
-	-I$(top_builddir)/config \
-	-DRES_PARSE_NAPTR
-
-libRedirectorGateway_la_SOURCES =  \
-	SipRedirectorGateway.cpp \
-	SipRedirectorGateway.h
 
 # SipRedirectorISN
 # Experimental redirector to implement ISN dialing.
@@ -267,3 +232,40 @@ libRedirectorTest_la_CXXFLAGS = \
 libRedirectorTest_la_SOURCES =  \
 	SipRedirectorTest.cpp \
 	SipRedirectorTest.h
+
+# Incomplete redirectors
+
+# # SipRedirectorGateway
+# # Experimental redirector to allow configuring gateway routing prefixes.
+# 
+# libRedirectorGateway_la_LDFLAGS = \
+# 	-module \
+# 	-version-info ${version_Current}:${version_Revision}:${version_Age}
+# 
+# libRedirectorGateway_la_LIBADD = \
+# 	@SIPXCOMMSERVER_LIBS@
+# 
+# libRedirectorGateway_la_CXXFLAGS = \
+# 	-I$(top_builddir)/config \
+# 	-DRES_PARSE_NAPTR
+# 
+# libRedirectorGateway_la_SOURCES =  \
+# 	SipRedirectorGateway.cpp \
+# 	SipRedirectorGateway.h
+# 
+# # SipRedirectorMPT
+# # Experimental redirector for multi-party testing.
+# 
+# libRedirectorMPT_la_LDFLAGS = \
+# 	-module \
+# 	-version-info ${version_Current}:${version_Revision}:${version_Age}
+# 
+# libRedirectorMPT_la_LIBADD = \
+# 	@SIPXCOMMSERVER_LIBS@
+# 
+# libRedirectorMPT_la_CXXFLAGS = \
+# 	-I$(top_builddir)/config
+# 
+# libRedirectorMPT_la_SOURCES =  \
+# 	SipRedirectorMPT.cpp \
+# 	SipRedirectorMPT.h
