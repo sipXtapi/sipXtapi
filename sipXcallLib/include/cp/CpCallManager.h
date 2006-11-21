@@ -335,7 +335,7 @@ public:
                              const char* locationHeader = NULL,
                              const int bandWidth=AUDIO_CODEC_BW_DEFAULT,
                              SIPX_TRANSPORT_DATA* pTransportData = NULL,
-                             const SIPX_RTP_TRANSPORT rtpTransportOptions = UDP_ONLY) = 0;
+                             const RTP_TRANSPORT rtpTransportOptions = RTP_TRANSPORT_UDP) = 0;
 
     //! Create a new call and associate it with an existing call.
     /*! This is usually done to create the consultative call as a
@@ -812,6 +812,11 @@ public:
      * Get the target sip url for voice quality reports
      */
     virtual UtlBoolean getVoiceQualityReportTarget(UtlString& reportSipUrl) ;
+
+    /**
+     * Get the configured local address
+     */
+    virtual void getLocalAddress(UtlString& address) ;
 
 /* ============================ INQUIRY =================================== */
 

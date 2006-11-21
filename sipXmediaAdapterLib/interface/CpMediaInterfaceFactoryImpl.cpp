@@ -68,7 +68,7 @@ void CpMediaInterfaceFactoryImpl::setRtpPortRange(int startRtpPort, int lastRtpP
     miNextRtpPort = miStartRtpPort ;
 }
 
-#define MAX_PORT_CHECK_ATTEMPTS     4
+#define MAX_PORT_CHECK_ATTEMPTS     miLastRtpPort - miStartRtpPort
 #define MAX_PORT_CHECK_WAIT_MS      50
 OsStatus CpMediaInterfaceFactoryImpl::getNextRtpPort(int &rtpPort) 
 {
@@ -135,8 +135,12 @@ OsStatus CpMediaInterfaceFactoryImpl::releaseRtpPort(const int rtpPort)
     // port)
     if (miNextRtpPort != 0)
     {
-        // Release port to head of list (generally want to reuse ports)
-        mlistFreePorts.insert(new UtlInt(rtpPort)) ;
+        // if it is not already in the list...
+        if (!mlistFreePorts.find(new UtlInt(rtpPort)))
+        {
+            // Release port to head of list (generally want to reuse ports)
+            mlistFreePorts.insert(new UtlInt(rtpPort)) ;
+        }
     }
 
     return OS_SUCCESS ;

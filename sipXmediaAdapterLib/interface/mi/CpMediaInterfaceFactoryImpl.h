@@ -182,7 +182,13 @@ public:
         return OS_NOT_SUPPORTED ;
     }
 
-  	 
+    /** 
+     * Set name send as part of RTCP reports.
+     */
+    virtual OsStatus setRTCPName(const char* szName)
+    {
+        return OS_NOT_SUPPORTED ;
+    }
 
     /**
      * Populate the codec factory, return number of rejected codecs

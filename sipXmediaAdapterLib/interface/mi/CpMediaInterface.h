@@ -64,13 +64,17 @@ typedef enum SIPXMI_AUDIO_BANDWIDTH_ID
 /**
  * Interface declaration for receiving socket idle notifications.
  */
-class ISocketIdle
+class ISocketEvent
 {
 public:
     virtual void onIdleNotify(IStunSocket* const pSocket,
                           SocketPurpose purpose,
                           const int millisecondsIdle) = 0;
-    virtual ~ISocketIdle() { } ;
+
+    virtual void onReadData(IStunSocket* const pSocket,
+                            SocketPurpose purpose) = 0;
+
+    virtual ~ISocketEvent() { } ;
 };
 
 class IMediaEventEmitter
@@ -170,16 +174,15 @@ public:
     *        connection.
     * @param pSecurityAttributes Pointer to a SIPXVE_SECURITY_ATTRIBUTES
     *        object.  
-    * @param rtpTransportOptions UDP_ONLY, TCP_ONLY, or BOTH
+    * @param rtpTransportOptions RTP_TRANSPORT_UDP, RTP_TRANSPORT_TCP, or BOTH
     */ 
    virtual OsStatus createConnection(int& connectionId,
                                      const char* szLocalAddress,
                                      void* videoWindowHandle, 
                                      void* const pSecurityAttributes = NULL,
-                                     ISocketIdle* pSocketIdleSink = NULL,
+                                     ISocketEvent* pSocketIdleSink = NULL,
                                      IMediaEventListener* pMediaEventListener = NULL,
-                                     const SIPX_RTP_TRANSPORT rtpTransportOptions=UDP_ONLY,
-                                     const RtpTcpRoles role=ACTPASS) = 0 ;
+                                     const RtpTransportOptions rtpTransportOptions=RTP_TRANSPORT_UDP) = 0 ;
    
 
 
@@ -271,6 +274,16 @@ public:
    virtual OsStatus startRtpReceive(int connectionId,
                                     int numCodecs,
                                     SdpCodec* sendCodec[]) = 0;
+
+   /**
+    * Enables read notification through the ISocketEvent listener passed in 
+    * via createConnection.  This should be enabled immediately after calling
+    * startRtpReceive.  It is automatically disabled as part of 
+    * stopRtpReceive.
+    */ 
+   virtual OsStatus enableRtpReadNotification(int connectionId,
+                                              bool bEnable = true) 
+       { return OS_NOT_SUPPORTED ;} ;
 
 
    /**
@@ -532,6 +545,7 @@ public:
                                       int rtcpAudioPorts[],
                                       int rtpVideoPorts[],
                                       int rtcpVideoPorts[],
+                                      RTP_TRANSPORT transportTypes[],
                                       int& nActualAddresses,
                                       SdpCodecFactory& supportedCodecs,
                                       SdpSrtpParameters& srtpParameters,

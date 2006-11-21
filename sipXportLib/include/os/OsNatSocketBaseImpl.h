@@ -10,7 +10,9 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
+#include "os/OsMutex.h"
 #include "os/IStunSocket.h"
+#include "os/OsNotification.h"
 
 // The follow defines are used to keep track of what has been recorded for
 // various time-based metrics.
@@ -27,7 +29,15 @@ public:
     OsNatSocketBaseImpl() ;
     virtual ~OsNatSocketBaseImpl() ;
 
+    /**
+     * Set a notification object to be signaled when the first the data 
+     * packet is received from the socket.  Once this is signaled, the 
+     * notification object is discarded.
+     */
+    virtual void setReadNotification(OsNotification* pNotification) ;
+    
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
+protected:
     void markReadTime() ;
     void markWriteTime() ;
 
@@ -82,12 +92,17 @@ public:
                                  UtlString& receivedIp,
                                  int&       receivedPort) ; 
 
+    virtual OsSocket* getSocket();                                 
+
 protected:
     unsigned int          miRecordTimes ;   // Bitmask populated w/ ONDS_MARK_*
     OsDateTime            mFirstRead ;
     OsDateTime            mLastRead ;
     OsDateTime            mFirstWrite ;
     OsDateTime            mLastWrite ;
+    OsMutex               mReadNotificationLock ;
+    OsNotification*       mpReadNotification ;
+    
 };
 
 /* ============================ INLINE METHODS ============================ */

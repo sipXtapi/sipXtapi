@@ -713,12 +713,22 @@ typedef struct
     bool bIsEncrypted;               /**< SRTP enabled */
 } SIPX_CODEC_INFO;
 
-typedef enum 
+/**
+ * Possible roles that a Media connection can have.
+ */
+ typedef enum SIPX_RTP_TRANSPORT
 {
-    UDP_ONLY,
-    TCP_ONLY,
-    BOTH
-} SIPX_RTP_TRANSPORT;
+   SIPX_RTP_TRANSPORT_UNKNOWN = 0x00000000,
+   SIPX_RTP_TRANSPORT_UDP = 0x00000001,
+   SIPX_RTP_TRANSPORT_TCP = 0x00000002,
+   SIPX_RTP_TCP_ROLE_ACTIVE = 0x00000004,
+   SIPX_RTP_TCP_ROLE_PASSIVE = 0x00000008,
+   SIPX_RTP_TCP_ROLE_ACTPASS = 0x00000010,
+   SIPX_RTP_TCP_ROLE_CONNECTION = 0x00000020,
+};
+
+typedef int SipxtapiRtpTransportOptions;
+typedef int SipxtapiRtpTcpRoles;
 
 /**
  * This structure gets passed into sipxCallConnect, sipxCallAccept, and
@@ -731,7 +741,7 @@ typedef struct
     bool sendLocation;                   /**< True sends location header */
     SIPX_CONTACT_ID contactId;           /**< desired contactId (only used for 
                                               sipxCallAccept at this moment) */
-    SIPX_RTP_TRANSPORT rtpTransportOptions; /**< true if media to be sent over tcp. */
+    SIPX_RTP_TRANSPORT rtpTransportFlags; /**< specifies protocols(s)/role for media. */
 
     /*
      * NOTE: When adding new data to this structure, please always add it to
@@ -3720,6 +3730,17 @@ SIPXTAPI_API SIPX_RESULT sipxConfigExternalTransportAdd(SIPX_INST const         
  */
 SIPXTAPI_API SIPX_RESULT sipxConfigExternalTransportRemove(const SIPX_TRANSPORT hTransport);
 
+/**
+ * The external transport mechanism can be configured to route by user or by 
+ * destination ip/port.  User is the default.
+ *
+ * @param hTransport Handle to the external transport object.  Obtained via a 
+ *        call to sipxConfigExternalTransportAdd 
+ * @param bRouteByUser true to route by user (default), false to route by 
+ *        destination ip/port.
+ */
+SIPXTAPI_API SIPX_RESULT sipxConfigExternalTransportRouteByUser(const SIPX_TRANSPORT hTransport,
+                                                                bool                 bRouteByUser) ;
 
 /**
  * Called by the application when it receives a complete SIP message via

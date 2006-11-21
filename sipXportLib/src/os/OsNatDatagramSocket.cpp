@@ -25,6 +25,7 @@
 #include "os/OsLock.h"
 #include "os/OsSysLog.h"
 #include "os/OsEvent.h"
+#include "os/OsNotification.h"
 #include "tapi/sipXtapi.h"
 
 // EXTERNAL FUNCTIONS
@@ -49,6 +50,9 @@ OsNatDatagramSocket::OsNatDatagramSocket(int remoteHostPortNum,
                                          OsNotification *pNotification) 
         : OsDatagramSocket(remoteHostPortNum, remoteHost, localHostPortNum, localHost)
 {    
+    miRecordTimes = ONDS_MARK_NONE ;
+    mpReadNotification = NULL ;
+
     // Init Stun state
     mStunState.bEnabled = false ;
     mStunState.status = NAT_STATUS_UNKNOWN ;
@@ -100,7 +104,7 @@ OsSocket* OsNatDatagramSocket::getSocket()
 
 int OsNatDatagramSocket::read(char* buffer, int bufferLength)
 {
-    bool bNatPacket = FALSE ;
+    bool bNatPacket ;
     int iRC ;
     UtlString receivedIp ;
     int iReceivedPort ;
@@ -173,7 +177,6 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength,
     UtlString receivedIp ;
 
     iRC = read(buffer, bufferLength, &receivedIp, &iReceivedPort) ;
-   
     if (ipAddress)
         ipAddress->s_addr = inet_addr(receivedIp) ;
 
@@ -186,16 +189,16 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength,
 
 int OsNatDatagramSocket::read(char* buffer, int bufferLength, long waitMilliseconds)
 {        
-    bool bNatPacket = FALSE ;
+    bool bNatPacket ;
     int iRC = 0 ;
     UtlString receivedIp ;
     int iReceivedPort ;
 
     do
     {
+        bNatPacket = FALSE ;
         if (isReadyToRead(waitMilliseconds))
         {
-            bNatPacket = FALSE ;
             iRC = OsSocket::read(buffer, bufferLength, &receivedIp, &iReceivedPort) ;            
             if (handleSturnData(buffer, iRC, receivedIp, iReceivedPort))
             {
@@ -220,6 +223,16 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength, long waitMilliseco
     return iRC ;    
 }
 
+int OsNatDatagramSocket::socketWrite(const char* buffer, int bufferLength,
+                               const char* ipAddress, int port, PacketType packetType)
+{
+    if (packetType == MEDIA_PACKET)
+    {
+        markWriteTime() ;
+    }
+
+    return OsDatagramSocket::write(buffer, bufferLength, ipAddress, port) ;
+}
 
 int OsNatDatagramSocket::write(const char* buffer, int bufferLength)
 {
@@ -231,7 +244,6 @@ int OsNatDatagramSocket::write(const char* buffer, int bufferLength)
     // by allowing a connect().  This filters inbound packets from others (on 
     // Win32 -- not sure if this is the case for all platforms) and breaks 
     // ICE.
-
     if (mIsConnected)
     {
         rc = OsDatagramSocket::write(buffer, bufferLength) ;
@@ -263,15 +275,12 @@ int OsNatDatagramSocket::write(const char* buffer,
     return OsDatagramSocket::write(buffer, bufferLength, ipAddress, port) ;
 }
 
-
 int OsNatDatagramSocket::write(const char* buffer, int bufferLength, 
                                long waitMilliseconds)
 {
     markWriteTime() ;
     return OsSocket::write(buffer, bufferLength, waitMilliseconds) ;
 }
-
-
 
 void OsNatDatagramSocket::enableStun(const char* szStunServer, int stunPort, int iKeepAlive,  int iStunOptions, bool bReadFromSocket) 
 {    
@@ -487,6 +496,15 @@ void OsNatDatagramSocket::addAlternateDestination(const char* szAddress, int iPo
 {
     mpNatAgent->sendStunProbe(this, szAddress, iPort, priority) ;
 }
+
+
+void OsNatDatagramSocket::setReadNotification(OsNotification* pNotification)
+{
+    OsLock lock(mReadNotificationLock) ;
+
+    mpReadNotification = pNotification ;
+}
+
 
 void OsNatDatagramSocket::readyDestination(const char* szAddress, int iPort) 
 {

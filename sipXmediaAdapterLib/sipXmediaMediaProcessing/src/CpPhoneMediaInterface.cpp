@@ -319,10 +319,9 @@ OsStatus CpPhoneMediaInterface::createConnection(int& connectionId,
                                                  const char* szLocalAddress,
                                                  void* videoWindowHandle, 
                                                  void* const pSecurityAttributes,
-                                                 ISocketIdle* pIdleSink,
+                                                 ISocketEvent* pIdleEvent,
                                                  IMediaEventListener* pMediaEventListener,
-                                                 const SIPX_RTP_TRANSPORT rtpTransportOptions,
-                                                 const RtpTcpRoles role)
+                                                 const RtpTransportOptions rtpTransportOptions)
 {
     int localPort  ;
     OsStatus returnCode;
@@ -610,6 +609,7 @@ OsStatus CpPhoneMediaInterface::getCapabilitiesEx(int connectionId,
                                                   int rtcpAudioPorts[],
                                                   int rtpVideoPorts[],
                                                   int rtcpVideoPorts[],
+                                                  RTP_TRANSPORT transportTypes[],
                                                   int& nActualAddresses,
                                                   SdpCodecFactory& supportedCodecs,
                                                   SdpSrtpParameters& srtpParameters,
@@ -674,6 +674,12 @@ OsStatus CpPhoneMediaInterface::getCapabilitiesEx(int connectionId,
         if (nActualAddresses > 0)
         {
             rc = OS_SUCCESS ;
+        }
+
+        // TODO: Need to get real transport types
+        for (int i=0; i<nActualAddresses; i++)
+        {
+            transportTypes[i] = RTP_TRANSPORT_UDP ;
         }
     }
 

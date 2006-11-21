@@ -395,7 +395,7 @@ private:
                                 * Note only a parent tx should have a waiting list */
     SIPX_TRANSPORT_DATA* mpTransport; 
     //: An optional external transport mechanism pointer.  If this value is non-null, the
-    //: transaction will use teh SipUserAgent::sendCustom method, instead of sendUdp, sendTcp, etc.
+    //: transaction will use the SipUserAgent::sendCustom method, instead of sendUdp, sendTcp, etc.
 
 };
 

@@ -184,18 +184,19 @@ class SdpBody : public HttpBody
  */
 
    /// Create a set of media codec and address entries
-   void addAudioCodecs(int iNumAddresses,
+   void addCodecsOffer(int iNumAddresses,
                        UtlString mediaAddresses[],
                        int rtpAudioPorts[],
                        int rtcpAudioPorts[],
                        int rtpVideoPorts[],
                        int rtcpVideoPorts[],
+                       RTP_TRANSPORT transportTypes[],
                        int numRtpCodecs,
                        SdpCodec* rtpCodecs[],
                        SdpSrtpParameters& srtpParams,
                        int videoBandwidth,
                        int videoFramerate,
-                       OsSocket::IpProtocolSocketType transportType = OsSocket::UDP
+                       RTP_TRANSPORT transportOffering
                        );
 
    /**<
@@ -204,19 +205,20 @@ class SdpBody : public HttpBody
     */
 
    /// Create a response to a set of media codec and address entries.
-   void addAudioCodecs(int iNumAddresses,
+   void addCodecsAnswer(int iNumAddresses,
                        UtlString mediaAddresses[],
                        int rtpAudioPorts[],
                        int rtcpAudioPorts[],
                        int rtpVideoPorts[],
                        int rtcpVideoPorts[],
+                       RTP_TRANSPORT transportTypes[],
                        int numRtpCodecs, 
                        SdpCodec* rtpCodecs[],
                        SdpSrtpParameters& srtpParams,
                        int videoBandwidth,
                        int videoFramerate,
-                       const SdpBody* sdpRequest, ///< Sdp we are responding to
-                       OsSocket::IpProtocolSocketType transportType);
+                       const SdpBody* sdpRequest  ///< Sdp we are responding to
+                       ); 
    /**<
     * This method is for building a SdpBody which is in response
     * to a SdpBody send from the other side
@@ -253,6 +255,19 @@ class SdpBody : public HttpBody
      */
 
    void addConnectionAddress(const char* networkType, ///< network type - should be "IN"
+                       const char* addressType, ///< address type - should be "IP4"
+                       const char* ipAddress    ///< IP address
+                       );
+
+   /// Set address.
+   void setConnectionAddress(const char* ipAddress /**< for IP4 this is of the format:
+                                              * nnn.nnn.nnn.nnn where nnn is 0 to 255 */
+                       );
+    /**<
+     * Set address for SDP message header or specific media set if called
+     * after addAddressData.
+     */
+   void setConnectionAddress(const char* networkType, ///< network type - should be "IN"
                        const char* addressType, ///< address type - should be "IP4"
                        const char* ipAddress    ///< IP address
                        );

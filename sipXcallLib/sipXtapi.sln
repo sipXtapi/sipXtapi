@@ -4,11 +4,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXtapiTest", "sipXtapiTes
 		{85CAC56D-4E3A-4712-91A5-AE724B11AE25} = {85CAC56D-4E3A-4712-91A5-AE724B11AE25}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaMediaProcessing", "..\sipXmediaAdapterLib\sipXmediaMediaProcessing\sipXmediaMediaProcessing.vcproj", "{0E229E54-9234-44DC-8B74-8C6BA553D3C5}"
-	ProjectSection(ProjectDependencies) = postProject
-		{0EC8287A-481E-45DC-8F95-BAD940AE1038} = {0EC8287A-481E-45DC-8F95-BAD940AE1038}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXtackLib", "..\sipXtackLib\sipXtackLib_NoSecurity.vcproj", "{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}"
 	ProjectSection(ProjectDependencies) = postProject
 		{14631055-9D3F-47E5-B6A7-16BFC0CC8091} = {14631055-9D3F-47E5-B6A7-16BFC0CC8091}
@@ -20,7 +15,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXportLib", "..\sipXportL
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXcallLib", "sipXcallLib.vcproj", "{0EADF7C3-7D48-45BF-A00D-ECB94DC912EA}"
 	ProjectSection(ProjectDependencies) = postProject
-		{0E229E54-9234-44DC-8B74-8C6BA553D3C5} = {0E229E54-9234-44DC-8B74-8C6BA553D3C5}
 		{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646} = {0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}
 	EndProjectSection
 EndProject
@@ -54,6 +48,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaLib", "..\sipXmedi
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaMediaProcessing", "..\sipXmediaAdapterLib\sipXmediaMediaProcessing\sipXmediaMediaProcessing.vcproj", "{0E229E54-9234-44DC-8B74-8C6BA553D3C5}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -72,14 +70,6 @@ Global
 		{9021B9D9-54AA-4A84-89EA-1A2B88D7202E}.Release.Build.0 = Release|Win32
 		{9021B9D9-54AA-4A84-89EA-1A2B88D7202E}.Release_NoVideo.ActiveCfg = Release|Win32
 		{9021B9D9-54AA-4A84-89EA-1A2B88D7202E}.Release_NoVideo.Build.0 = Release|Win32
-		{0E229E54-9234-44DC-8B74-8C6BA553D3C5}.Debug.ActiveCfg = Debug|Win32
-		{0E229E54-9234-44DC-8B74-8C6BA553D3C5}.Debug.Build.0 = Debug|Win32
-		{0E229E54-9234-44DC-8B74-8C6BA553D3C5}.Debug_NoVideo.ActiveCfg = Debug|Win32
-		{0E229E54-9234-44DC-8B74-8C6BA553D3C5}.Debug_NoVideo.Build.0 = Debug|Win32
-		{0E229E54-9234-44DC-8B74-8C6BA553D3C5}.Release.ActiveCfg = Release|Win32
-		{0E229E54-9234-44DC-8B74-8C6BA553D3C5}.Release.Build.0 = Release|Win32
-		{0E229E54-9234-44DC-8B74-8C6BA553D3C5}.Release_NoVideo.ActiveCfg = Release|Win32
-		{0E229E54-9234-44DC-8B74-8C6BA553D3C5}.Release_NoVideo.Build.0 = Release|Win32
 		{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}.Debug.ActiveCfg = Debug|Win32
 		{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}.Debug.Build.0 = Debug|Win32
 		{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}.Debug_NoVideo.ActiveCfg = Debug|Win32
@@ -152,6 +142,14 @@ Global
 		{0EC8287A-481E-45DC-8F95-BAD940AE1038}.Release.Build.0 = Release|Win32
 		{0EC8287A-481E-45DC-8F95-BAD940AE1038}.Release_NoVideo.ActiveCfg = Release|Win32
 		{0EC8287A-481E-45DC-8F95-BAD940AE1038}.Release_NoVideo.Build.0 = Release|Win32
+		{0E229E54-9234-44DC-8B74-8C6BA553D3C5}.Debug.ActiveCfg = Debug|Win32
+		{0E229E54-9234-44DC-8B74-8C6BA553D3C5}.Debug.Build.0 = Debug|Win32
+		{0E229E54-9234-44DC-8B74-8C6BA553D3C5}.Debug_NoVideo.ActiveCfg = Debug|Win32
+		{0E229E54-9234-44DC-8B74-8C6BA553D3C5}.Debug_NoVideo.Build.0 = Debug|Win32
+		{0E229E54-9234-44DC-8B74-8C6BA553D3C5}.Release.ActiveCfg = Release|Win32
+		{0E229E54-9234-44DC-8B74-8C6BA553D3C5}.Release.Build.0 = Release|Win32
+		{0E229E54-9234-44DC-8B74-8C6BA553D3C5}.Release_NoVideo.ActiveCfg = Release|Win32
+		{0E229E54-9234-44DC-8B74-8C6BA553D3C5}.Release_NoVideo.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionItems) = postSolution
 	EndGlobalSection

@@ -8,6 +8,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#include "sipXtapiTest.h"
 #include "EventValidator.h"
 #include "tapi/sipXtapi.h"
 #include "tapi/sipXtapiEvents.h"
@@ -372,6 +373,11 @@ bool EventValidator::waitForMediaEvent(SIPX_MEDIA_EVENT event,
 {
     bool bFound = true ;
 
+#ifndef HAS_MEDIA_ACTIVE_EVENT
+    if (event == MEDIA_REMOTE_ACTIVE)
+        return true ;
+#endif
+
     if (!isIgnoredCateogry(EVENT_CATEGORY_MEDIA))
     {
         UtlString* pString = allocMediaEvent(event, cause, type) ;
@@ -630,13 +636,13 @@ void EventValidator::addEvent(SIPX_EVENT_CATEGORY category, void* pInfo)
             case EVENT_CATEGORY_MEDIA:
                 {
                     SIPX_MEDIA_INFO* pMediaInfo = (SIPX_MEDIA_INFO*) pInfo;
+
                     UtlString* pString = allocMediaEvent(pMediaInfo->event,
                                                          pMediaInfo->cause,
                                                          pMediaInfo->mediaType) ;
 
                     m_unprocessedEvents.append(pString) ; 
                     m_semUnprocessed.release() ;
-
                 }
         }
     }

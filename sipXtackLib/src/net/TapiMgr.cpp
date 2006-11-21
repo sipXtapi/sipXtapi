@@ -111,36 +111,11 @@ void TapiMgr::fireMediaEvent(const void*         pSrc,
                              SIPX_MEDIA_TYPE     type,
                              void*               pEventData) 
 {
-    static void* lastSrc;
-    static char lastCallId[256];
-    static char lastRemoteAddress[256];
-    static SIPX_MEDIA_EVENT lastEvent;
-    static SIPX_MEDIA_CAUSE lastCause;
-    static SIPX_MEDIA_TYPE lastType;
-    static void* lastEventData;
-
     if (sipxMediaCallbackPtr)
     {
-        // Commenting out for now - detection of duplicate events is handled in tapi layer
-        /*if (lastSrc != pSrc ||
-            strcmp(lastCallId, szCallId) != 0 ||
-            strcmp(lastRemoteAddress, szRemoteAddress) != 0 ||
-            lastEvent != event ||
-            lastCause != cause ||
-            lastType != type ||
-            lastEventData != pEventData)
-        {*/
             (*sipxMediaCallbackPtr)(pSrc, szCallId, szRemoteAddress, event, 
                     cause, type, pEventData);
 
-            lastSrc = (void*)pSrc;
-            strncpy(lastCallId, szCallId, sizeof(lastCallId));
-            strncpy(lastRemoteAddress, szRemoteAddress, sizeof(lastRemoteAddress));
-            lastEvent = event;
-            lastCause = cause;
-            lastType = type;
-            lastEventData = pEventData;
-        //}
     }
 }
     

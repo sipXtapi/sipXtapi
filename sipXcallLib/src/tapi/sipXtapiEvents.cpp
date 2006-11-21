@@ -289,6 +289,9 @@ static const char* convertMediaEventToString(SIPX_MEDIA_EVENT event)
         case MEDIA_DEVICE_FAILURE:
             str = "MEDIA_DEVICE_FAILURE";
             break ;
+        case MEDIA_REMOTE_ACTIVE:
+            str = "MEDIA_REMOTE_ACTIVE" ;
+            break ;
         default:
             break ;
     }
@@ -1352,7 +1355,8 @@ void sipxFireCallEvent(const void* pSrc,
         }
 
         if ((pCallData->lastRemoteMediaAudioEvent == MEDIA_REMOTE_START) || 
-            (pCallData->lastRemoteMediaAudioEvent == MEDIA_REMOTE_SILENT))
+            (pCallData->lastRemoteMediaAudioEvent == MEDIA_REMOTE_SILENT) ||
+            (pCallData->lastRemoteMediaAudioEvent == MEDIA_REMOTE_ACTIVE))
         {
             sipxFireMediaEvent(pSrc, szCallId, szRemoteAddress, 
                     MEDIA_REMOTE_STOP, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO,
@@ -1360,7 +1364,8 @@ void sipxFireCallEvent(const void* pSrc,
         }
 
         if ((pCallData->lastRemoteMediaVideoEvent == MEDIA_REMOTE_START) || 
-            (pCallData->lastRemoteMediaVideoEvent == MEDIA_REMOTE_SILENT))
+            (pCallData->lastRemoteMediaVideoEvent == MEDIA_REMOTE_SILENT) ||
+            (pCallData->lastRemoteMediaVideoEvent == MEDIA_REMOTE_ACTIVE))
         {
             sipxFireMediaEvent(pSrc, szCallId, szRemoteAddress, 
                     MEDIA_REMOTE_STOP, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_VIDEO,
@@ -1431,68 +1436,60 @@ void sipxFireMediaEvent(const void* pSrc,
             switch (type)
             {
                 case MEDIA_TYPE_AUDIO:
-                    if (event == MEDIA_LOCAL_STOP)
-                    {
-                        if ((lastLocalMediaAudioEvent == MEDIA_UNKNOWN) || 
-                                (lastLocalMediaAudioEvent == event))
-                        {
-                            bDuplicateEvent = true ;
-                        }
-                    }
-                    else if (event == MEDIA_REMOTE_STOP)
-                    {
-                        if ((lastRemoteMediaAudioEvent == MEDIA_UNKNOWN) || 
-                                (lastRemoteMediaAudioEvent == event))
-                        {
-                            bDuplicateEvent = true ;
-                        }
-                    }
-                    else if ((event == MEDIA_LOCAL_START) || (event == MEDIA_LOCAL_STOP))
+                    if ((event == MEDIA_LOCAL_START) || (event == MEDIA_LOCAL_STOP))
                     {
                         if (event == lastLocalMediaAudioEvent)
                         {
                             bDuplicateEvent = true ;
                         }
+                        else if (event == MEDIA_LOCAL_STOP && lastLocalMediaAudioEvent == MEDIA_UNKNOWN)
+                        {
+                            // Invalid state change
+                            bDuplicateEvent = true ;
+                        }
                     } 
-                    else if ((event == MEDIA_REMOTE_START) || (event == MEDIA_REMOTE_STOP) || (event == MEDIA_REMOTE_SILENT))
+                    else if ((event == MEDIA_REMOTE_START) || 
+                            (event == MEDIA_REMOTE_STOP) || 
+                            (event == MEDIA_REMOTE_SILENT))
                     {
                         if (event == lastRemoteMediaAudioEvent)
                         {
                             bDuplicateEvent = true ;
                         }
+                        else if (event == MEDIA_REMOTE_STOP && lastRemoteMediaAudioEvent == MEDIA_UNKNOWN)
+                        {
+                            // Invalid state change
+                            bDuplicateEvent = true ;
+                        }
                     }
                     break ;
                 case MEDIA_TYPE_VIDEO:
-                    if (event == MEDIA_LOCAL_STOP)
-                    {
-                        if ((lastLocalMediaVideoEvent == MEDIA_UNKNOWN) || 
-                                (lastLocalMediaVideoEvent == event))
-                        {
-                            bDuplicateEvent = true ;
-                        }
-                    }
-                    else if (event == MEDIA_REMOTE_STOP)
-                    {
-                        if ((lastRemoteMediaVideoEvent == MEDIA_UNKNOWN) || 
-                                (lastRemoteMediaVideoEvent == event))
-                        {
-                            bDuplicateEvent = true ;
-                        }
-                    }
-                    else if ((event == MEDIA_LOCAL_START) || (event == MEDIA_LOCAL_STOP))
+                    if ((event == MEDIA_LOCAL_START) || (event == MEDIA_LOCAL_STOP))
                     {
                         if (event == lastLocalMediaVideoEvent)
                         {
                             bDuplicateEvent = true ;
                         }
+                        else if (event == MEDIA_LOCAL_STOP && lastLocalMediaVideoEvent == MEDIA_UNKNOWN)
+                        {
+                            // Invalid state change
+                            bDuplicateEvent = true ;
+                        }
                     } 
-                    else if ((event == MEDIA_REMOTE_START) || (event == MEDIA_REMOTE_STOP) || (event == MEDIA_REMOTE_SILENT))
+                    else if ((event == MEDIA_REMOTE_START) || 
+                            (event == MEDIA_REMOTE_STOP) || 
+                            (event == MEDIA_REMOTE_SILENT))
                     {
                         if (event == lastRemoteMediaVideoEvent)
                         {
                             bDuplicateEvent = true ;
                         }
-                    }
+                       else if (event == MEDIA_REMOTE_STOP && lastRemoteMediaVideoEvent == MEDIA_UNKNOWN)
+                        {
+                            // Invalid state change
+                            bDuplicateEvent = true ;
+                        }
+                     }
                     break ;
             }
         }
@@ -1921,6 +1918,11 @@ SIPXTAPI_API char* sipxMediaEventToString(SIPX_MEDIA_EVENT event,
         case MEDIA_UNKNOWN:
             SNPRINTF(szBuffer, nBuffer, "MEDIA_UNKNOWN");
             break ;
+
+        case MEDIA_REMOTE_ACTIVE:
+            SNPRINTF(szBuffer, nBuffer, "MEDIA_REMOTE_ACTIVE");
+            break ;
+
     }
     return szBuffer;
 }

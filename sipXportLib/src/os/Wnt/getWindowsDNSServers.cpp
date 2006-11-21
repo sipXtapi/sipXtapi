@@ -107,7 +107,7 @@ static int getWindowsVersion()
 //loads the iphlpapi.dll and sets any func pointers we may need
 static HMODULE loadIPHelperAPI()
 {
-    char caFullDLLPath[256];
+    char caFullDLLPath[_MAX_PATH];
 
     if (hIpHelperModule == NULL)
     {

@@ -252,7 +252,7 @@ UtlBoolean CpPeerCall::handleDialString(OsMsg* pEventMessage)
     void* pSecurity = (void*) ((CpMultiStringMessage*)pEventMessage)->getInt3Data();
     int bandWidth = ((CpMultiStringMessage*)pEventMessage)->getInt4Data();
     SIPX_TRANSPORT_DATA* pTransport = (SIPX_TRANSPORT_DATA*)((CpMultiStringMessage*)pEventMessage)->getInt5Data();
-    SIPX_RTP_TRANSPORT rtpTransportOptions = (SIPX_RTP_TRANSPORT)((CpMultiStringMessage*)pEventMessage)->getInt6Data();
+    RTP_TRANSPORT rtpTransportOptions = (RTP_TRANSPORT)((CpMultiStringMessage*)pEventMessage)->getInt6Data();
     const char* locationHeaderData = (locationHeader.length() == 0) ? NULL : locationHeader.data();
 
 #ifdef TEST_PRINT
@@ -543,7 +543,7 @@ UtlBoolean CpPeerCall::handleTransfereeConnection(OsMsg* pEventMessage)
     ((CpMultiStringMessage*)pEventMessage)->getString4Data(originalCallId);
     ((CpMultiStringMessage*)pEventMessage)->getString5Data(originalConnectionAddress);
     bool bOnHold = (bool) ((CpMultiStringMessage*)pEventMessage)->getInt1Data() ;
-    SIPX_RTP_TRANSPORT rtpTransportOptions = (SIPX_RTP_TRANSPORT) ((CpMultiStringMessage*)pEventMessage)->getInt2Data() ;
+    RTP_TRANSPORT rtpTransportOptions = (RTP_TRANSPORT) ((CpMultiStringMessage*)pEventMessage)->getInt2Data() ;
 
 #ifdef TEST_PRINT
     osPrintf("%s-CpPeerCall::CP_TRANSFEREE_CONNECTION referTo: %s referredBy: \"%s\" originalCallId: %s originalConnectionAddress: %s\n",
@@ -2366,7 +2366,8 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
             }     
             else if (mpMediaInterface)
             {
-                mpMediaInterface->playAudio(url, repeat, local, remote);
+                mpMediaInterface->playAudio(url, repeat, local, remote, 
+                        mixWithMic, downScaling);
             }
 
         }
@@ -3114,7 +3115,7 @@ Connection* CpPeerCall::addParty(const char* transferTargetAddress,
                                  UtlBoolean bOnHold,
 								 const char* originalCallId,
                                  SIPX_TRANSPORT_DATA* pTransport,
-                                 const SIPX_RTP_TRANSPORT rtpTransportOptions)
+                                 const RTP_TRANSPORT rtpTransportOptions)
 {
     SipConnection* connection = NULL;
 
@@ -3358,7 +3359,7 @@ void CpPeerCall::outOfFocus()
             postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::TERMINAL_CONNECTION_HELD, TERMINAL_CONNECTION_STATE, PtEvent::CAUSE_NORMAL, remoteIsCallee, remoteAddress);
         }
 
-        if (!connection->isHoldInProgress())
+        if (!connection->isHoldInProgress() && !mDropping)
         {
             if (connection->isHeld())
             {

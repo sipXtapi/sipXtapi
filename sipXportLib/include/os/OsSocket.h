@@ -64,7 +64,7 @@ extern "C" unsigned long osSocketGetDefaultBindAddress();
 // STRUCTS
 
 // TYPEDEFS
-
+// ENUMS
 // FORWARD DECLARATIONS
 
 //: Abstract Socket class
@@ -211,23 +211,23 @@ public:
    static void getHostIp(UtlString* hostAddress);
    //:Get this host's IP address
 
-   void getLocalHostName(UtlString* localHostName) const;
+//   virtual void getLocalHostName(UtlString* localHostName) const;
    //:Return this host's name
    // Returns a string containing the name of the host on which this socket
    // resides.  This may be the local name, a fully qualified domain name or
    // anything in between. This name may vary on the same host if it is
    // multi-homed, depending upon which NIC the Socket is associated with.
 
-   void getLocalHostIp(UtlString* localHostAddress) const;
+   virtual void getLocalHostIp(UtlString* localHostAddress) const;
    //:Return this host's ip address
    // Returns the ip address for this host on which this socket is communicating
    // On multi-homed machines, this is the address to the NIC over which the
    // socket communicates. The format is of the form: xx.x.xxx.x
    
-   const UtlString& getLocalIp() const;
+   virtual const UtlString& getLocalIp() const;
    //:Return this socket's Local Ip Address
    
-   void setLocalIp(const UtlString& localIp) { mLocalIp = localIp; }
+   virtual void setLocalIp(const UtlString& localIp) { mLocalIp = localIp; }
    
    virtual int getLocalHostPort() const;
    //:Return the local port number

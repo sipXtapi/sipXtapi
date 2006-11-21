@@ -284,7 +284,7 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
                 if(mpMediaInterface)
                 {
                     mpMediaInterface->playAudio(url.data(), repeat,
-                        local, remote);
+                        local, remote, mixWithMic, downScaling) ;
                 }
             }
             break;

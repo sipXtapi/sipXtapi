@@ -36,7 +36,7 @@ class SdpCodecFactory;
 
 //:Class short description which may consist of multiple lines (note the ':')
 // Class detailed description which may extend to multiple lines
-class SipConnection : public Connection, public ISocketIdle, public IMediaEventListener, public UtlObservable
+class SipConnection : public Connection, public ISocketEvent, public IMediaEventListener, public UtlObservable
 {
     /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -88,8 +88,8 @@ public:
         const char* locationHeader = NULL,
         const int bandWidth = AUDIO_MICODEC_BW_DEFAULT,
         UtlBoolean bOnHold = FALSE,
-		const char* originalCallId = NULL,
-		const SIPX_RTP_TRANSPORT rtpTransportOptions = UDP_ONLY);
+        const char* originalCallId = NULL,
+        const RTP_TRANSPORT rtpTransportOptions = RTP_TRANSPORT_UDP);
     //! param: requestQueuedCall - indicates that the caller wishes to have the callee queue the call if busy
 
     virtual UtlBoolean originalCallTransfer(UtlString& transferTargetAddress,
@@ -156,10 +156,14 @@ public:
 
 	void setExternalTransport(SIPX_TRANSPORT_DATA* pTransport) { if (pTransport) { mTransport = *pTransport; }}
 
-    // ISocketIdle::onIdleNotify method
+    // ISocketEvent::onIdleNotify method
     void onIdleNotify(IStunSocket* const pSocket,
                                  SocketPurpose purpose,
                                  const int millisecondsIdle);
+
+    // ISocketEvent::onReadData method
+    virtual void onReadData(IStunSocket* const pSocket,
+                            SocketPurpose purpose);
 
     // IMediaEventListener::methods
     virtual void onFileStart(IMediaEvent_DeviceTypes type);
@@ -321,8 +325,8 @@ protected:
 private:
 
     CSeqManager mCSeqMgr ;
-    int mRtpTransportOptions;
-    RtpTcpRoles mRtpTcpRole;
+    int mRtpTransport;
+    int mRtpTcpRole;
 
     bool mbByeAttempted;
     SipUserAgent* sipUserAgent;

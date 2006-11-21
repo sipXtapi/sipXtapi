@@ -25,7 +25,7 @@
 #include <net/SipLineMgr.h>
 #include <net/SipRefreshMgr.h>
 
-#define SHUTDOWN_TEST_ITERATIONS 2
+#define SHUTDOWN_TEST_ITERATIONS 3
 
 /**
  * Unittest for SipUserAgent
