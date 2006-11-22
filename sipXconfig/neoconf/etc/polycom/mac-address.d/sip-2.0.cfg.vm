@@ -122,7 +122,8 @@
 ##
 	<localization>
 		<multilingual>
-			<language lcl.ml.lang="">
+#set ($setting = $cfg.EndpointSettings.getSetting('localization/language'))
+			<language lcl.ml.lang="$!{setting.Value}">
 				<menu lcl.ml.lang.menu.1="Chinese_China" 
 					lcl.ml.lang.menu.2="Danish_Denmark" 
 					lcl.ml.lang.menu.3="Dutch_Netherlands" 

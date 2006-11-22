@@ -1902,6 +1902,86 @@
       </group>
     </group>
   </group>
+  <group name="localization">
+    <label>Localization</label>
+    <setting name="language">
+    <label>Language</label>
+    <type>
+      <enum>
+        <option>
+          <label>Chinese China</label>
+          <value>1</value>
+        </option>
+        <option>
+          <label>Danish Denmark</label>
+          <value>2</value>
+        </option>
+        <option>
+          <label>Dutch Netherlands</label>
+          <value>3</value>
+        </option>
+        <option>
+          <label>English Canada</label>
+          <value>4</value>
+        </option>
+        <option>
+          <label>English United Kingdom</label>
+          <value>5</value>
+        </option>
+        <option>
+          <label>US English</label>
+          <value />
+        </option>
+        <!--
+          - no need to list US english twice as empty and 6 unless 
+          - polycom has an undocumented difference
+          -->
+        <option>
+          <label>Frech France</label>
+          <value>7</value>
+        </option>
+        <option>
+          <label>German Germany</label>
+          <value>8</value>
+        </option>
+        <option>
+          <label>Italian Italy</label>
+          <value>9</value>
+        </option>
+        <option>
+          <label>Japanese Japan</label>
+          <value>10</value>
+        </option>
+        <option>
+          <label>Korean Korea</label>
+          <value>11</value>
+        </option>
+        <option>
+          <label>Norwegian Norway</label>
+          <value>12</value>
+        </option>
+        <option>
+          <label>Portuguese Portugal</label>
+          <value>13</value>
+        </option>
+        <option>
+          <label>Russian Russia</label>
+          <value>14</value>
+        </option>
+        <option>
+          <label>Spanish Spain</label>
+          <value>15</value>
+        </option>
+        <option>
+          <label>Swedish Sweden</label>
+          <value>16</value>
+        </option>
+      </enum>
+    </type>  
+    <value/>  
+    <description>Select the default language the phone interface. Setting is harmless but ignored by Polycom 301s and only 601/650s can show Asian Languages. YOU MUST HAVE UPLOADED FIRMWARE TO SUPPORT DIFFERENT LANGUAGES. Navigate to Device/Files in administration console.</description>
+    </setting>
+  </group>
   <group name="msg">
     <label>Messaging</label>
     <description>SoundPoint(R) IP supports message-waiting indication on a per-registration 
