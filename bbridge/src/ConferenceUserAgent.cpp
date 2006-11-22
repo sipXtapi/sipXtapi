@@ -559,7 +559,7 @@ bool ConferenceUserAgent::hasDefaultExpires() const
    return true;
 }
 
-int ConferenceUserAgent::getDefaultExpires() const
+UInt32 ConferenceUserAgent::getDefaultExpires() const
 {
    return 3600;
 }

@@ -38,8 +38,12 @@
 // (On newer Windows environments, str(n)casecmp are built-in, along with the older
 // str(n)icmp, but on older ones, they are not.)
 #ifdef WIN32
+#ifndef strcasecmp
 #define strcasecmp stricmp
+#endif
+#ifndef strncasecmp
 #define strncasecmp strnicmp
+#endif
 #endif
 
 /* APPLICATION INCLUDES  */

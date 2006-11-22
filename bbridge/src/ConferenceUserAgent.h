@@ -128,7 +128,7 @@ class ConferenceUserAgent : public resip::InviteSessionHandler,
       virtual void onExpired(resip::ServerSubscriptionHandle,
                              resip::SipMessage& notify);
       virtual bool hasDefaultExpires() const;
-      virtual int getDefaultExpires() const;
+      virtual UInt32 getDefaultExpires() const;
       const resip::Mimes& getSupportedMimeTypes() const;
 
    private:
