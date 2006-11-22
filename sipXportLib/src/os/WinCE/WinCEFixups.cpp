@@ -102,8 +102,15 @@ int close( int fd )
 			return 0;
 	return -1;
 }
-
-
+//****************************************************************
+int PostThreadMessageA(unsigned long idThread,unsigned int Msg,
+                      unsigned int wParam,
+                      long lParam) 
+{
+	
+	//	printf( "open( fname, oflag ) NOT IMPLEMENTED\n" );
+	return 0;
+}
 //****************************************************************
 long lseek( int fd, long offset, int origin )
 {

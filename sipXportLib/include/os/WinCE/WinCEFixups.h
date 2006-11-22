@@ -222,6 +222,10 @@ int				fstat( int fd, struct stat *buffer );
 int				read( int fd, void *buffer, unsigned int count );
 
 extern "C" int _getpid();
+// Have to build stuff not just from WinBase but also from WinUser.h
 
+int PostThreadMessageA(unsigned long idThread,unsigned int Msg,
+                      unsigned int wParam,
+                      long lParam);
 #endif // _WINCEFIXUPS_H_
 
