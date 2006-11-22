@@ -14,7 +14,7 @@ package org.sipfoundry.sipxconfig.components;
 import junit.framework.TestCase;
 
 public class NewEnumPropertySelectionModelTest extends TestCase {
-    
+
     private NewEnumPropertySelectionModel<Numbers> m_model;
 
     enum Numbers {
@@ -22,7 +22,8 @@ public class NewEnumPropertySelectionModelTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
-        m_model = new NewEnumPropertySelectionModel<Numbers>(Numbers.class);        
+        m_model = new NewEnumPropertySelectionModel<Numbers>();
+        m_model.setEnumType(Numbers.class);
     }
 
     public void testGetOptionCount() {

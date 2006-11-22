@@ -14,17 +14,18 @@ package org.sipfoundry.sipxconfig.components;
 import org.apache.tapestry.form.IPropertySelectionModel;
 
 /**
- * Property selection model for Java 1.5 enums 
+ * Property selection model for Java 1.5 enums
  */
 public class NewEnumPropertySelectionModel<E extends Enum<E>> implements IPropertySelectionModel {
 
     private E[] m_options;
-    
-    private Class<E> m_elementType;
-    
-    public NewEnumPropertySelectionModel(Class<E> elementType) {
-        m_elementType = elementType;
-        m_options = m_elementType.getEnumConstants();
+
+    public void setOptions(E[] options) {
+        m_options = options;
+    }
+
+    public void setEnumType(Class<E> elementType) {
+        m_options = elementType.getEnumConstants();
     }
 
     public int getOptionCount() {

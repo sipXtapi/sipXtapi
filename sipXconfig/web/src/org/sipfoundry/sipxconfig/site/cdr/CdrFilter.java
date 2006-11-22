@@ -12,8 +12,10 @@
 package org.sipfoundry.sipxconfig.site.cdr;
 
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.form.IPropertySelectionModel;
-import org.sipfoundry.sipxconfig.cdr.CdrSearch;
+import org.sipfoundry.sipxconfig.cdr.CdrSearch.Mode;
+import org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator;
 import org.sipfoundry.sipxconfig.components.NewEnumPropertySelectionModel;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
 
@@ -23,11 +25,22 @@ public abstract class CdrFilter extends BaseComponent {
 
     public abstract TapestryContext getTapestry();
 
-    public IPropertySelectionModel getSelectionModel() {
-        NewEnumPropertySelectionModel model = new NewEnumPropertySelectionModel(CdrSearch.Mode.class);
+    public abstract void setSelectionModel(IPropertySelectionModel model);
 
-        String label = getMessages().getMessage("label.filter");
-        return getTapestry().addExtraOption(model, label);
+    public abstract IPropertySelectionModel getSelectionModel();
+
+    protected void prepareForRender(IRequestCycle cycle) {
+        if (getSelectionModel() == null) {
+            NewEnumPropertySelectionModel model = new NewEnumPropertySelectionModel();
+            model.setEnumType(Mode.class);
+
+            LocalizedOptionModelDecorator decoratedModel = new LocalizedOptionModelDecorator();
+            decoratedModel.setMessages(getMessages());
+            decoratedModel.setModel(model);
+            decoratedModel.setResourcePrefix("filter.");
+
+            String label = getMessages().getMessage("label.filter");
+            setSelectionModel(getTapestry().addExtraOption(decoratedModel, label));
+        }
     }
-
 }

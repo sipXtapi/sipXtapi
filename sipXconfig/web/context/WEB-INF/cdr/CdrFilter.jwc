@@ -15,7 +15,11 @@
   <component id="filter" type="FlexiblePropertySelection">
     <binding name="value" value="cdrSearch.mode" />
     <binding name="model" value="selectionModel" />
-    <binding name="onchange" value="literal:javascript:this.form.submit();" />
+    <!-- FIXME: hardcoded 'refresh' button ID - 
+      if it stops working can be replaced with this.form.submit(); 
+      there should be a better way to trigger aynchronous Submit
+    -->
+    <binding name="onchange" value="literal:javascript:dojo.byId('refresh').click();" />
     <binding name="renderer" value="bean:propertyRenderer" />
   </component>
   <component id="queryText" type="TextField">

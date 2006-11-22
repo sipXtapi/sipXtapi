@@ -31,8 +31,9 @@ public abstract class ScheduleEditor extends BaseComponent {
     protected void prepareForRender(IRequestCycle cycle) {
         super.prepareForRender(cycle);
         if (getTypeModel() == null) {
-            NewEnumPropertySelectionModel<CronSchedule.Type> typeModel = 
-                new NewEnumPropertySelectionModel<CronSchedule.Type>(CronSchedule.Type.class);
+            NewEnumPropertySelectionModel typeModel = new NewEnumPropertySelectionModel();
+            typeModel.setEnumType(CronSchedule.Type.class);
+            
             LocalizedOptionModelDecorator decoratedModel = new LocalizedOptionModelDecorator();
             decoratedModel.setMessages(getMessages());
             decoratedModel.setModel(typeModel);
