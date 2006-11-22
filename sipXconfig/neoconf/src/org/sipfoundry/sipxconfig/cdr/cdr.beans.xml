@@ -2,12 +2,12 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
   "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-  <bean id="cdr.dataSource" parent="dataSource">
+  <bean id="cdrDataSource" parent="dataSource">
     <property name="jdbcUrl" value="jdbc:postgresql://localhost/SIPXCDR" />
   </bean>
 
   <bean id="cdrManagerImpl" class="org.sipfoundry.sipxconfig.cdr.CdrManagerImpl">
-    <property name="dataSource" ref="cdr.dataSource" />
+    <property name="dataSource" ref="cdrDataSource" />
   </bean>
 
   <!-- We probably do not need to proxy this -->

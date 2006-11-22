@@ -97,7 +97,7 @@
     - H I B E R N A T E   F A C T O R Y
   -->
 
-  <bean id="common.sessionFactory" abstract="true">
+  <bean id="commonSessionFactory" abstract="true">
     <description>Parent bean for all sipX hibernate session factories.</description>
     <property name="hibernateProperties">
       <props>
@@ -113,7 +113,7 @@
   </bean>
 
   <bean id="sessionFactory" class="org.sipfoundry.sipxconfig.common.DynamicSessionFactoryBean"
-    parent="common.sessionFactory">
+    parent="commonSessionFactory">
     <property name="dataSource">
       <ref local="dataSource" />
     </property>
