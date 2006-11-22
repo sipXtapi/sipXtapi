@@ -5,7 +5,8 @@ EXTRA_DIST = \
 man_MANS = \
 	sipxcar.1 \
 	sipxproc.1 \
-	polycom-config.1
+	polycom-config.1 \
+	sipdb-dump.1
 
 MAN_FILES = $(subst .1,.txt2man,$(man_MANS))
 
