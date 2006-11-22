@@ -166,9 +166,9 @@ struct stat
 extern char		*_tzname[ 2 ];
 
 #ifdef __cplusplus
-extern "C" int	errno;
+	extern "C" int errno;
 #else
-int	errno;
+	extern int errno;
 #endif
 
 long			RegQueryValueExB( HKEY hKey, const char *lpName, DWORD *lpReserved, DWORD *lpType, unsigned char *lpData, DWORD *lpcbData );
@@ -221,7 +221,12 @@ long			lseek( int fd, long offset, int origin );
 int				fstat( int fd, struct stat *buffer );
 int				read( int fd, void *buffer, unsigned int count );
 
-extern "C" int _getpid();
+#ifdef __cplusplus
+	extern "C" int _getpid();
+#else
+	extern int  _getpid();
+#endif
+
 // Have to build stuff not just from WinBase but also from WinUser.h
 
 int PostThreadMessageA(unsigned long idThread,unsigned int Msg,

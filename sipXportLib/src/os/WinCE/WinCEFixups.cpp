@@ -1,4 +1,9 @@
-extern "C" int     errno	= 1;
+
+#ifdef __cplusplus
+extern "C" int errno = 1;
+#else
+extern int errno;
+#endif
 
 char	*_tzname[ 2 ] = {"DST","STD"};
 
@@ -647,7 +652,11 @@ int _putenv( const char *pIn )
 	return -1;
 }
 
+#ifdef __cplusplus
 extern "C" int _getpid()
+#else
+extern int  _getpid();
+#endif
 {
 	return 1;
 }
