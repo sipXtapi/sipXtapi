@@ -550,8 +550,23 @@ HINSTANCE LoadLibraryExA( const char *pIn, HANDLE hIn, DWORD dwIn )
 //****************************************************************
 HINSTANCE LoadLibraryA( const char *pIn )
 {
-	printf( "LoadLibraryA( ) NOT IMPLEMENTED\n" );
-	return NULL;
+	wchar_t	wBuf[ MAX_PATH + 1 ];
+	wchar_t	*pW			= NULL;
+	int		iRet		= 1;
+	if( pIn )
+	{
+		iRet = MultiByteToWideChar( CP_ACP, 0, pIn, strlen( pIn ), wBuf, MAX_PATH );
+//	printf( "  after MultiByteToWideChar( ) - it returned %d\n", iRet );
+//	printf( "  wBuf is *%S*\n", wBuf );
+		pW = wBuf;
+	}
+	if( iRet )
+	{
+		return LoadLibraryW( pW );
+	}
+	else
+		return NULL;
+	
 }
 
 
@@ -602,8 +617,9 @@ char * getcwd( char *buffer, int maxlen )
 //****************************************************************
 unsigned int GetSystemDirectory( char *cP, unsigned int uSize )
 {
-	printf( "GetSystemDirectory( ) NOT IMPLEMENTED\n" );
-//	assert( 0 );
+	//printf( "GetSystemDirectory( ) NOT IMPLEMENTED\n" );
+    //assert( 0 );
+	strcpy(cP,"\\\\Windows");
 	return 0;
 }
 
