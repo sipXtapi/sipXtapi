@@ -111,7 +111,9 @@ static HMODULE loadIPHelperAPI()
     if (hIpHelperModule == NULL)
     {
         //first try loading it using the systems path
-        hIpHelperModule = LoadLibrary("iphlpapi.dll");
+		char* ipHlpModCStr = "iphlpapi.dll";
+        hIpHelperModule = LoadLibrary(ipHlpModCStr);
+		hIpHelperModule = GetModuleHandle(ipHlpModCStr);  // <-- KTK - Not fully tested
         
 		if (!hIpHelperModule)
 		{

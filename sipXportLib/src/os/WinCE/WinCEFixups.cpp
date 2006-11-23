@@ -385,7 +385,7 @@ HINSTANCE LoadLibraryExA( const char *pIn, HANDLE hIn, DWORD dwIn )
 
 
 //****************************************************************
-HINSTANCE LoadLibraryA( const char *pIn )
+HINSTANCE LoadLibraryA( LPCSTR pIn )
 {
 	wchar_t	wBuf[ MAX_PATH + 1 ];
 	wchar_t	*pW			= NULL;
@@ -409,11 +409,27 @@ HINSTANCE LoadLibraryA( const char *pIn )
 
 
 //****************************************************************
-HMODULE GetModuleHandleA( const char *pIn )
+HINSTANCE GetModuleHandleA( LPCSTR pIn )
 {
-	printf( "GetModuleHandleA( ) NOT IMPLEMENTED\n" );
-	return NULL;
+	wchar_t	wBuf[ MAX_PATH + 1 ];
+	wchar_t	*pW			= NULL;
+	int		iRet		= 1;
+	if( pIn )
+	{
+		iRet = MultiByteToWideChar( CP_ACP, 0, pIn, strlen( pIn ), wBuf, MAX_PATH );
+//	printf( "  after MultiByteToWideChar( ) - it returned %d\n", iRet );
+//	printf( "  wBuf is *%S*\n", wBuf );
+		pW = wBuf;
+	}
+	if( iRet )
+	{
+		return GetModuleHandleW( pW );
+	}
+	else
+		return NULL;
+	
 }
+
 
 
 //****************************************************************

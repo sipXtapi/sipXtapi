@@ -188,7 +188,8 @@ BOOL			CreateProcessB( char *pName,
 					   LPSTARTUPINFO lpStartUpInfo,
 					   LPPROCESS_INFORMATION lpProcInfo );
 
-HINSTANCE		LoadLibraryA( const char *pIn );
+HINSTANCE  LoadLibraryA( LPCSTR pIn );
+WINBASEAPI HMODULE WINAPI    GetModuleHandleA( LPCSTR pIn );
 
 int				rmdir( const char * dirname );
 char			* getcwd( char *buffer, int maxlen );
