@@ -1234,11 +1234,10 @@ void MpCallFlowGraph::startSendRtp(OsSocket& rRtpSocket,
                                     OsSocket& rRtcpSocket,
                                     MpConnectionID connID,
                                     SdpCodec* pPrimaryCodec,
-                                    SdpCodec* pDtmfCodec,
-                                    SdpCodec* pSecondaryCodec)
+                                    SdpCodec* pDtmfCodec)
 {
    mpConnections[connID]->startSendRtp(rRtpSocket, rRtcpSocket,
-      pPrimaryCodec, pDtmfCodec, pSecondaryCodec);
+      pPrimaryCodec, pDtmfCodec);
 }
 
 // (old style call...)
@@ -1247,7 +1246,7 @@ void MpCallFlowGraph::startSendRtp(SdpCodec& rPrimaryCodec,
                                     OsSocket& rRtcpSocket,
                                     MpConnectionID connID)
 {
-   startSendRtp(rRtpSocket, rRtcpSocket, connID, &rPrimaryCodec, NULL, NULL);
+   startSendRtp(rRtpSocket, rRtcpSocket, connID, &rPrimaryCodec, NULL);
 }
 
 // Stop sending RTP and RTCP packets.

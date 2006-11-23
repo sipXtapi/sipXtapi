@@ -94,7 +94,7 @@ public:
 
      /// Starts sending RTP and RTCP packets.
    void startSendRtp(OsSocket& rRtpSocket, OsSocket& rRtcpSocket,
-                     SdpCodec* pPrimary, SdpCodec* pDtmf, SdpCodec* pSecondary);
+                     SdpCodec* pPrimary, SdpCodec* pDtmf);
 
      /// Starts sending RTP and RTCP packets.
    void startSendRtp(SdpCodec& rCodec,

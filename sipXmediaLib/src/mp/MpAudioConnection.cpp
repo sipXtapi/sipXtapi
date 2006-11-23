@@ -144,8 +144,7 @@ OsStatus MpAudioConnection::enableOut()
 void MpAudioConnection::startSendRtp(OsSocket& rRtpSocket,
                                      OsSocket& rRtcpSocket,
                                      SdpCodec* pPrimaryCodec,
-                                     SdpCodec* pDtmfCodec,
-                                     SdpCodec* pSecondaryCodec)
+                                     SdpCodec* pDtmfCodec)
 {
    prepareStartSendRtp(rRtpSocket, rRtcpSocket);
 

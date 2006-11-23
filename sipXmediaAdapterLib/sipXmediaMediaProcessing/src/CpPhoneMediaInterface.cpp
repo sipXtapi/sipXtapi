@@ -1094,8 +1094,7 @@ OsStatus CpPhoneMediaInterface::startRtpSend(int connectionId,
                                    *(mediaConnection->mpRtcpAudioSocket),
                                    connectionId,
                                    audioCodec,
-                                   dtmfCodec,
-                                   NULL); // no redundant codecs
+                                   dtmfCodec);
 
          mediaConnection->mRtpAudioSending = TRUE;
       }
