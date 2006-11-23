@@ -45,6 +45,8 @@ typedef enum {
       MP_BUF_DATA,        ///< Begin of the MpDataBuf type
         MP_BUF_AUDIO,     ///< Begin of the MpAudioBuf type
         MP_BUF_AUDIO_END, ///< End of the MpAudioBuf type
+        MP_BUF_VIDEO,     ///< Begin of the MpVideoBuf type
+        MP_BUF_VIDEO_END, ///< End of the MpVideoBuf type
         MP_BUF_RTP,       ///< Begin of the MpRtpBuf type
         MP_BUF_RTP_END,   ///< End of the MpRtpBuf type
         MP_BUF_UDP,       ///< Begin of the MpUdpBuf type

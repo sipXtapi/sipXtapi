@@ -11,6 +11,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include "mp/MpVideoBuf.h"
+#include "ccvt.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -33,12 +34,15 @@ unsigned MpVideoBuf::getColospacePixelDepth(ColorSpace colorspace)
 
    case MP_COLORSPACE_RGB24:
    case MP_COLORSPACE_BGR24:
+/*
    case MP_COLORSPACE_YUV:
    case MP_COLORSPACE_RGB24p:
    case MP_COLORSPACE_BGR24p:
    case MP_COLORSPACE_YUVp:
+*/
       return 24;
 
+/*
    case MP_COLORSPACE_RGB555:   // We assume one pixel unused in this mode
    case MP_COLORSPACE_RGB565:
    case MP_COLORSPACE_BGR555:   // We assume one pixel unused in this mode
@@ -50,11 +54,14 @@ unsigned MpVideoBuf::getColospacePixelDepth(ColorSpace colorspace)
    case MP_COLORSPACE_YUV411:
    case MP_COLORSPACE_YUV411p:
    case MP_COLORSPACE_YUV420:
+*/
    case MP_COLORSPACE_YUV420p:
       return 12;
 
+/*
    case MP_COLORSPACE_GRAY:
       return 8;
+*/
    }
 
    // Unknown colorspace. Something wrong...
@@ -65,13 +72,13 @@ unsigned MpVideoBuf::getColospacePixelDepth(ColorSpace colorspace)
 unsigned MpVideoBuf::getColospaceNumPlanes(ColorSpace colorspace)
 {
    if (isPlanar(colorspace)) {
-      // Interleaved or grayscale
-      return 1;
-   } else {
       // Current version support only three planes in planar mode.
       // We does not support neither YUV colorspaces with UV packed into one
       // plane, nor RGBA colorspace with four planes.
       return 3;
+   } else {
+      // Interleaved or grayscale
+      return 1;
    }
 }
 
@@ -80,30 +87,38 @@ unsigned MpVideoBuf::getColospaceUVWidthDivider(ColorSpace colorspace)
    switch(colorspace) {
    case MP_COLORSPACE_RGB24:
    case MP_COLORSPACE_RGB32:
-   case MP_COLORSPACE_RGB555:
-   case MP_COLORSPACE_RGB565:
    case MP_COLORSPACE_BGR24:
    case MP_COLORSPACE_BGR32:
+/*
+   case MP_COLORSPACE_RGB555:
+   case MP_COLORSPACE_RGB565:
    case MP_COLORSPACE_BGR555:
    case MP_COLORSPACE_BGR565:
    case MP_COLORSPACE_GRAY:
    case MP_COLORSPACE_RGB24p:
    case MP_COLORSPACE_BGR24p:
+*/
       return 1;
 
+/*
    case MP_COLORSPACE_YUV:
    case MP_COLORSPACE_YUVp:
       return 1;
+*/
 
+/*
    case MP_COLORSPACE_YUV420:
-   case MP_COLORSPACE_YUV420p:
    case MP_COLORSPACE_YUV422:
    case MP_COLORSPACE_YUV422p:
+*/
+   case MP_COLORSPACE_YUV420p:
       return 2;
 
+/*
    case MP_COLORSPACE_YUV411:
    case MP_COLORSPACE_YUV411p:
       return 4;
+*/
    }
 
    // Unknown colorspace. Something wrong...
@@ -114,19 +129,22 @@ unsigned MpVideoBuf::getColospaceUVWidthDivider(ColorSpace colorspace)
 unsigned MpVideoBuf::getColospaceUVHeightDivider(ColorSpace colorspace)
 {
    switch(colorspace) {
-   case MP_COLORSPACE_RGB24:
-   case MP_COLORSPACE_RGB32:
+/*
    case MP_COLORSPACE_RGB555:
    case MP_COLORSPACE_RGB565:
-   case MP_COLORSPACE_BGR24:
-   case MP_COLORSPACE_BGR32:
    case MP_COLORSPACE_BGR555:
    case MP_COLORSPACE_BGR565:
    case MP_COLORSPACE_GRAY:
    case MP_COLORSPACE_RGB24p:
    case MP_COLORSPACE_BGR24p:
+*/
+   case MP_COLORSPACE_RGB24:
+   case MP_COLORSPACE_RGB32:
+   case MP_COLORSPACE_BGR24:
+   case MP_COLORSPACE_BGR32:
       return 1;
 
+/*
    case MP_COLORSPACE_YUV:
    case MP_COLORSPACE_YUVp:
    case MP_COLORSPACE_YUV422:
@@ -134,8 +152,9 @@ unsigned MpVideoBuf::getColospaceUVHeightDivider(ColorSpace colorspace)
    case MP_COLORSPACE_YUV411:
    case MP_COLORSPACE_YUV411p:
       return 1;
+*/
 
-   case MP_COLORSPACE_YUV420:
+//   case MP_COLORSPACE_YUV420:
    case MP_COLORSPACE_YUV420p:
       return 2;
    }
@@ -144,6 +163,44 @@ unsigned MpVideoBuf::getColospaceUVHeightDivider(ColorSpace colorspace)
    assert(false);
    return 1;
 }
+
+#ifdef DO_COLORSPACE_CONERSATION // [
+OsStatus MpVideoBuf::convertColorSpace(MpVideoBuf::ColorSpace colorspace, char *pBuffer)
+{
+   switch (mColorspace)
+   {
+   case MP_COLORSPACE_YUV420p:
+      switch (colorspace)
+      {
+//      case MP_COLORSPACE_YUV420p:
+//         return 
+      case MP_COLORSPACE_RGB24:
+         {
+            ccvt_420p_rgb24(mWidth, mHeight, getDataPtr(), pBuffer);
+            return OS_SUCCESS;
+         }
+      case MP_COLORSPACE_RGB32:
+         {
+            ccvt_420p_rgb32(mWidth, mHeight, getDataPtr(), pBuffer);
+            return OS_SUCCESS;
+         }
+      case MP_COLORSPACE_BGR24:
+         {
+            ccvt_420p_bgr24(mWidth, mHeight, getDataPtr(), pBuffer);
+            return OS_SUCCESS;
+         }
+      case MP_COLORSPACE_BGR32:
+         {
+            ccvt_420p_bgr32(mWidth, mHeight, getDataPtr(), pBuffer);
+            return OS_SUCCESS;
+         }
+      }
+      break;
+   }
+
+   return OS_FAILED;
+}
+#endif // DO_COLORSPACE_CONERSATION ]
 
 /* ============================ MANIPULATORS ============================== */
 
@@ -177,12 +234,9 @@ void MpVideoBuf::resetPlaneParameters()
    // Set start of planes.
    mpPlaneParameters[0].mpBeginPointer = getWriteDataPtr();
    switch(mColorspace) {
-   case MP_COLORSPACE_RGB24:
-   case MP_COLORSPACE_RGB32:
+/*
    case MP_COLORSPACE_RGB555:
    case MP_COLORSPACE_RGB565:
-   case MP_COLORSPACE_BGR24:
-   case MP_COLORSPACE_BGR32:
    case MP_COLORSPACE_BGR555:
    case MP_COLORSPACE_BGR565:
    case MP_COLORSPACE_YUV:
@@ -190,8 +244,14 @@ void MpVideoBuf::resetPlaneParameters()
    case MP_COLORSPACE_YUV422:
    case MP_COLORSPACE_YUV411:
    case MP_COLORSPACE_YUV420:
+*/
+   case MP_COLORSPACE_RGB24:
+   case MP_COLORSPACE_RGB32:
+   case MP_COLORSPACE_BGR24:
+   case MP_COLORSPACE_BGR32:
       break;
 
+/*
    case MP_COLORSPACE_RGB24p:
    case MP_COLORSPACE_BGR24p:
    case MP_COLORSPACE_YUVp:
@@ -200,19 +260,24 @@ void MpVideoBuf::resetPlaneParameters()
       mpPlaneParameters[2].mpBeginPointer = mpPlaneParameters[1].mpBeginPointer
                                           + mpPlaneParameters[1].mpStep * mHeight;
       break;
+*/
 
-   case MP_COLORSPACE_YUV422p:
+//   case MP_COLORSPACE_YUV422p:
    case MP_COLORSPACE_YUV420p:
+      mpPlaneParameters[1].mpStep /= getUVWidthDivider();
+      mpPlaneParameters[2].mpStep /= getUVWidthDivider();
       mpPlaneParameters[1].mpBeginPointer = mpPlaneParameters[0].mpBeginPointer
-                                          + mpPlaneParameters[0].mpStep * mWidth;
+                                          + mpPlaneParameters[0].mpStep * mHeight;
       mpPlaneParameters[2].mpBeginPointer = mpPlaneParameters[1].mpBeginPointer
-                                          + mpPlaneParameters[1].mpStep / 2;
+                                          + mpPlaneParameters[1].mpStep * mHeight / getUVHeightDivider();
       break;
 
+/*
    case MP_COLORSPACE_YUV411p:
       // Ipse: I do not know how this is arranged...
       assert(false);
       break;
+*/
 
    default:
       // Unknown colorspace. Something wrong...

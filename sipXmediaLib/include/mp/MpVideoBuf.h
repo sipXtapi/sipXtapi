@@ -17,6 +17,9 @@
 #include "mp/MpTypes.h"
 
 // DEFINES
+/// This enable color space conversations using CCVT library.
+#define DO_COLORSPACE_CONERSATION
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -44,39 +47,35 @@ public:
        MP_COLORSPACE_PACKED_BEGIN,  // interleaved, pixel-oriented
        MP_COLORSPACE_RGB24,
        MP_COLORSPACE_RGB32,
-       MP_COLORSPACE_RGB555,
-       MP_COLORSPACE_RGB565,
+//       MP_COLORSPACE_RGB555,
+//       MP_COLORSPACE_RGB565,
 
        MP_COLORSPACE_BGR24,
        MP_COLORSPACE_BGR32,
-       MP_COLORSPACE_BGR555,
-       MP_COLORSPACE_BGR565,
+//       MP_COLORSPACE_BGR555,
+//       MP_COLORSPACE_BGR565,
 
-       MP_COLORSPACE_YUV,
-       MP_COLORSPACE_YUV420,
-       MP_COLORSPACE_YUV411,
-       MP_COLORSPACE_YUV422,  // YUYV, YUY2
+//       MP_COLORSPACE_YUV,
+//       MP_COLORSPACE_YUV420,
+//       MP_COLORSPACE_YUV411,
+//       MP_COLORSPACE_YUV422,  // YUYV, YUY2
 
-       MP_COLORSPACE_GRAY,
+//       MP_COLORSPACE_GRAY,
 
        MP_COLORSPACE_PLANAR_BEGIN, // plane-oriented
 
-       MP_COLORSPACE_RGB24p   = MP_COLORSPACE_PLANAR_BEGIN + MP_COLORSPACE_RGB24,
-       // MP_COLORSPACE_RGB32p   = MP_COLORSPACE_PLANAR_BEGIN + MP_COLORSPACE_RGB32,
-       // MP_COLORSPACE_RGB555p  = MP_COLORSPACE_PLANAR_BEGIN + MP_COLORSPACE_RGB555,
-       // MP_COLORSPACE_RGB565p  = MP_COLORSPACE_PLANAR_BEGIN + MP_COLORSPACE_RGB565,
+//       MP_COLORSPACE_RGB24p,
+       // MP_COLORSPACE_RGB32p,
 
-       MP_COLORSPACE_BGR24p   = MP_COLORSPACE_PLANAR_BEGIN + MP_COLORSPACE_BGR24,
-       // MP_COLORSPACE_BGR32p   = MP_COLORSPACE_PLANAR_BEGIN + MP_COLORSPACE_BGR32,
-       // MP_COLORSPACE_BGR555p  = MP_COLORSPACE_PLANAR_BEGIN + MP_COLORSPACE_BGR555,
-       // MP_COLORSPACE_BGR565p  = MP_COLORSPACE_PLANAR_BEGIN + MP_COLORSPACE_BGR565,
+//       MP_COLORSPACE_BGR24p,
+       // MP_COLORSPACE_BGR32p,
 
-       MP_COLORSPACE_YUVp     = MP_COLORSPACE_PLANAR_BEGIN + MP_COLORSPACE_YUV,
-       MP_COLORSPACE_YUV420p  = MP_COLORSPACE_PLANAR_BEGIN + MP_COLORSPACE_YUV420,
-       MP_COLORSPACE_YUV411p  = MP_COLORSPACE_PLANAR_BEGIN + MP_COLORSPACE_YUV411,
-       MP_COLORSPACE_YUV422p  = MP_COLORSPACE_PLANAR_BEGIN + MP_COLORSPACE_YUV422
+//       MP_COLORSPACE_YUVp,
+       MP_COLORSPACE_YUV420p,
+//       MP_COLORSPACE_YUV411p,
+//       MP_COLORSPACE_YUV422p,
 
-       // MP_COLORSPACE_GRAYp    = MP_COLORSPACE_PLANAR_BEGIN + MP_COLORSPACE_GRAY
+       MP_COLORSPACE_END
     } ColorSpace;
 
     enum {
@@ -85,9 +84,8 @@ public:
 
     struct PlaneParameters {
        char     *mpBeginPointer; ///< Pointer to begin of plane data.
-       unsigned  mpStep;         ///< Distance in bytes between starts of
-                                 ///<  consecutive lines in the source image
-                                 ///<  (in bytes).
+       unsigned  mpStep;         ///< Distance between beginnings of consecutive
+                                 ///< lines in the source image (in bytes).
     };
 
     static MpBufPool *smpDefaultPool; ///< Default pool for this type of buffer
@@ -105,15 +103,15 @@ public:
     static
     unsigned getColospacePixelDepth(ColorSpace colorspace);
 
-    /// Get number of color planes for given colospace.
+    /// Get number of color planes for given colorspace.
     static
     unsigned getColospaceNumPlanes(ColorSpace colorspace);
 
-    /// Get U and V planes width divider for given colospace.
+    /// Get U and V planes width divider for given colorspace.
     static
     unsigned getColospaceUVWidthDivider(ColorSpace colorspace);
 
-    /// Get U and V planes height divider for given colospace.
+    /// Get U and V planes height divider for given colorspace.
     static
     unsigned getColospaceUVHeightDivider(ColorSpace colorspace);
 
@@ -146,6 +144,10 @@ public:
        }
     }
 
+#ifdef DO_COLORSPACE_CONERSATION // [
+   OsStatus convertColorSpace(MpVideoBuf::ColorSpace colorspace, char *pBuffer);
+#endif // DO_COLORSPACE_CONERSATION ]
+
 /* ============================ MANIPULATORS ============================== */
 ///@name Manipulators
 //@{
@@ -158,6 +160,8 @@ public:
     /**<
     *  This function set colorspace and adjusts number of planes, pixel depth.
     *  If planar colorspace is used number of planes will be set to 1.
+    *
+    *  @NOTE Frame width and height MUST be set before calling this function.
     */
 
     /// Set width of the frame (in pixels)
@@ -182,12 +186,14 @@ public:
     /// Resets line steps and pointers for planes to original values.
     /**
     *  May be useful to undo crop operations.
+    *
+    *  @NOTE Frame width and height MUST be set before calling this function.
     */
     void resetPlaneParameters();
 
-    /// Move begining of the frame.
+    /// Move beginning of the frame.
     /**
-    *  Begining of the frame will be moved x pixels left and y pixels down.
+    *  Beginning of the frame will be moved x pixels left and y pixels down.
     *  Width and height will remain unchanged.
     *
     *  @warning You should manually adjust frame width and height!
@@ -251,14 +257,14 @@ public:
     }
 
     /// Get line step for the given plane.
-    unsigned getPlaneStep(unsigned plane)
+    unsigned getPlaneStep(unsigned plane) const
     {
        assert(plane<mNumPlanes);
        return mpPlaneParameters[plane].mpStep;
     }
 
     /// Get pointer to begin of the given plane.
-    void *getPlanePointer(unsigned plane)
+    const void *getPlanePointer(unsigned plane) const
     {
        assert(plane<mNumPlanes);
        return mpPlaneParameters[plane].mpBeginPointer;
@@ -343,10 +349,10 @@ public:
     MPBUF_DEFAULT_CONSTRUCTOR(MpVideoBuf)
 
     /// This constructor owns MpBuf object.
-    MPBUFDATA_FROM_BASE_CONSTRUCTOR(MpVideoBuf, MP_BUF_AUDIO, MpDataBuf)
+    MPBUFDATA_FROM_BASE_CONSTRUCTOR(MpVideoBuf, MP_BUF_VIDEO, MpDataBuf)
 
     /// Copy object from base type with type check.
-    MPBUF_TYPECHECKED_COPY(MpVideoBuf, MP_BUF_AUDIO, MpDataBuf)
+    MPBUF_TYPECHECKED_COPY(MpVideoBuf, MP_BUF_VIDEO, MpDataBuf)
 
 //@}
 
@@ -364,7 +370,7 @@ public:
     /// Return pointer to MpVideoBuf.
     MPBUF_MEMBER_ACCESS_OPERATOR(MpVideoBuf)
 
-    /// Return readonly pointer to MpVideoBuf.
+    /// Return read only pointer to MpVideoBuf.
     MPBUF_CONST_MEMBER_ACCESS_OPERATOR(MpVideoBuf)
 
 //@}
