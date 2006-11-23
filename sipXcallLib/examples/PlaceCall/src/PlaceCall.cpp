@@ -832,7 +832,7 @@ int local_main(int argc, char* argv[])
             {
                 printf("Error in retrieving number of audio codecs\n");
             }
-#ifdef SIPX_VIDEO
+#ifdef VIDEO
             printf("Video codecs:\n");
             if (sipxConfigGetNumVideoCodecs(g_hInst, &numVideoCodecs) == SIPX_RESULT_SUCCESS)
             {
