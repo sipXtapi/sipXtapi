@@ -16,7 +16,13 @@
 HINSTANCE hinst; 
 HWND hMain = NULL;
 // Function prototypes. 
- 
+
+static const int sPreviewWidth=320;
+static const int sPreviewHeight=240;
+static const int sRemoteVideoWidth=320;
+static const int sRemoteVideoHeight=240;
+static const int sMargin=5;
+
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int); 
 InitApplication(HINSTANCE); 
 InitInstance(HINSTANCE, int); 
@@ -28,17 +34,17 @@ HWND ghPreview = NULL;
 HWND createVideoWindow(HWND hParent)
 {
     HWND hWnd = CreateWindow( 
-        "PlaceCallVideoClass",        // name of window class 
-        "",            // title-bar string 
-        WS_CHILD,      // 
-        170,       // default horizontal position 
-        0,       // default vertical position 
-        320,       // default width 
-        240,       // default height 
-        hParent,         // no owner window 
-        (HMENU) NULL,        // use class menu 
-        hinst,           // handle to application instance 
-        (LPVOID) NULL);      // no window-creation data 
+        "PlaceCallVideoClass",   // name of window class 
+        "",                      // title-bar string 
+        WS_CHILD,                // window type
+        sPreviewWidth+sMargin*2, // default horizontal position 
+        sMargin,                 // default vertical position 
+        sRemoteVideoWidth,       // default width 
+        sRemoteVideoHeight,      // default height 
+        hParent,                 // owner window 
+        (HMENU) NULL,            // no class menu 
+        hinst,                   // handle to application instance 
+        (LPVOID) NULL);          // no window-creation data 
     ghVideo = hWnd;
     ShowWindow(hWnd, true); 
     UpdateWindow(hWnd); 
@@ -48,17 +54,17 @@ HWND createVideoWindow(HWND hParent)
 HWND createPreviewWindow(HWND hParent)
 {
     HWND hWnd = CreateWindow( 
-        "PlaceCallVideoClass",        // name of window class 
-        "",            // title-bar string 
-        WS_CHILD,      // 
-        0,       // default horizontal position 
-        0,       // default vertical position 
-        160,       // default width 
-        120,       // default height 
-        hParent,         // no owner window 
-        (HMENU) NULL,        // use class menu 
-        hinst,           // handle to application instance 
-        (LPVOID) NULL);      // no window-creation data 
+        "PlaceCallVideoClass",   // name of window class 
+        "",                      // title-bar string 
+        WS_CHILD,                // window type
+        sMargin,                 // default horizontal position 
+        sMargin,                 // default vertical position 
+        sPreviewWidth,           // default width 
+        sPreviewHeight,          // default height 
+        hParent,                 // owner window 
+        (HMENU) NULL,            // no class menu 
+        hinst,                   // handle to application instance 
+        (LPVOID) NULL);          // no window-creation data 
 
     ghPreview = hWnd;
     ShowWindow(hWnd, true); 
@@ -86,7 +92,7 @@ int CreateWindows()
     wcx.lpfnWndProc = MainWndProc;     // points to window procedure 
     wcx.cbClsExtra = 0;                // no extra class memory 
     wcx.cbWndExtra = 0;                // no extra window memory 
-    wcx.hInstance = NULL;         // handle to instance 
+    wcx.hInstance = NULL;              // handle to instance 
     wcx.hIcon = LoadIcon(NULL, 
         IDI_APPLICATION);              // predefined app. icon 
     wcx.hCursor = LoadCursor(NULL, 
@@ -141,10 +147,13 @@ BOOL InitApplication(HINSTANCE hinstance)
 BOOL InitInstance(HINSTANCE hinstance, int nCmdShow) 
 { 
     HWND hwnd; 
+    int windowBorderSizeX = GetSystemMetrics(SM_CXSIZEFRAME);
+    int windowBorderSizeY = GetSystemMetrics(SM_CYSIZEFRAME);
+    int windowCaptioinSize = GetSystemMetrics(SM_CYCAPTION);
  
     // Save the application-instance handle. 
  
-    hinst = hinstance; 
+    hinst = hinstance;
  
     // Create the main window. 
  
@@ -154,10 +163,12 @@ BOOL InitInstance(HINSTANCE hinstance, int nCmdShow)
         WS_OVERLAPPEDWINDOW, // top-level window 
         CW_USEDEFAULT,       // default horizontal position 
         CW_USEDEFAULT,       // default vertical position 
-        500,       // default width 
-        360,       // default height 
+        sPreviewWidth + sRemoteVideoWidth + sMargin*3
+           + windowBorderSizeX*2,                         // default width 
+        max(sPreviewHeight,sRemoteVideoHeight)+sMargin*2
+           + windowBorderSizeY*2 + windowCaptioinSize,    // default height 
         (HWND) NULL,         // no owner window 
-        (HMENU) NULL,        // use class menu 
+        (HMENU) NULL,        // no class menu 
         hinstance,           // handle to application instance 
         (LPVOID) NULL);      // no window-creation data 
  
@@ -171,7 +182,6 @@ BOOL InitInstance(HINSTANCE hinstance, int nCmdShow)
     UpdateWindow(hwnd); 
     hMain = hwnd;
     return TRUE; 
- 
 }
 
 LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
