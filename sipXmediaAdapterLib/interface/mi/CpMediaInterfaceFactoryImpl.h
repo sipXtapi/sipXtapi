@@ -196,10 +196,7 @@ public:
     /**
      * Set the global video preview window 
      */ 
-    virtual OsStatus setVideoPreviewDisplay(void* pDisplay) 
-    {
-        return OS_NOT_SUPPORTED ;
-    }
+    virtual OsStatus setVideoPreviewDisplay(void* pDisplay) =0;
 
 
     /**

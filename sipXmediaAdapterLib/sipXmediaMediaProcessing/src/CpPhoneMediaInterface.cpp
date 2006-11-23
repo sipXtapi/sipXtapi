@@ -452,6 +452,11 @@ OsStatus CpPhoneMediaInterface::createConnection(int& connectionId,
    createRtpSocketPair(mediaConnection->mLocalAddress, mediaConnection->mContactType,
                        mediaConnection->mpRtpVideoSocket, mediaConnection->mpRtcpVideoSocket);
 
+   // Start the audio packet pump
+   mpVideoFlowGraph->startReceiveRtp(NULL, 0,
+                                    *mediaConnection->mpRtpAudioSocket,
+                                    *mediaConnection->mpRtcpAudioSocket);
+
    // Store video stream settings
    mediaConnection->mRtpVideoReceivePort = mediaConnection->mpRtpVideoSocket->getLocalHostPort() ;
    mediaConnection->mRtcpVideoReceivePort = mediaConnection->mpRtcpVideoSocket->getLocalHostPort() ;
@@ -1126,12 +1131,17 @@ OsStatus CpPhoneMediaInterface::startRtpSend(int connectionId,
 
       if (!mediaConnection->mRtpSendHostAddress.isNull() && mediaConnection->mRtpSendHostAddress.compareTo("0.0.0.0"))
       {
-         // This is the new interface for parallel codecs
-         mpVideoFlowGraph->startSendRtp(*videoCodec,
-                                        *(mediaConnection->mpRtpVideoSocket),
-                                        *(mediaConnection->mpRtcpVideoSocket));
-
-         mediaConnection->mRtpVideoSending = TRUE;
+         if (mpVideoFlowGraph->startSendRtp(*videoCodec,
+                                            *(mediaConnection->mpRtpVideoSocket),
+                                            *(mediaConnection->mpRtcpVideoSocket))
+             == OS_SUCCESS)
+         {
+            mediaConnection->mRtpVideoSending = TRUE;
+         }
+         else
+         {
+            mediaConnection->mRtpVideoSending = FALSE;
+         }
       }
 
       returnCode = OS_SUCCESS;
@@ -1150,7 +1160,19 @@ OsStatus CpPhoneMediaInterface::startRtpReceive(int connectionId,
 
    CpPhoneMediaConnection* mediaConnection = getMediaConnection(connectionId);
 
-   if(mpFlowGraph && mediaConnection)
+   if (mediaConnection == NULL)
+      return OS_NOT_FOUND;
+
+
+   // Make sure we use the same payload types as the remote
+   // side.  It's the friendly thing to do.
+   if (mediaConnection->mpCodecFactory)
+   {
+         mediaConnection->mpCodecFactory->copyPayloadTypes(numCodecs,
+                                                           receiveCodecs);
+   }
+
+   if (mpFlowGraph)
    {
 #ifdef TEST_PRINT
       int i;
@@ -1168,14 +1190,6 @@ OsStatus CpPhoneMediaInterface::startRtpReceive(int connectionId,
       }
 #endif
 
-      // Make sure we use the same payload types as the remote
-      // side.  It's the friendly thing to do.
-      if(mediaConnection->mpCodecFactory)
-      {
-          mediaConnection->mpCodecFactory->copyPayloadTypes(numCodecs,
-                                                           receiveCodecs);
-      }
-
       if(mediaConnection->mRtpAudioReceiving)
       {
          // This is not supposed to be necessary and may be
@@ -1188,11 +1202,49 @@ OsStatus CpPhoneMediaInterface::startRtpReceive(int connectionId,
            connectionId);
       mediaConnection->mRtpAudioReceiving = TRUE;
 
+      returnCode = OS_SUCCESS;
+   }
 
+#ifdef SIPX_VIDEO // [
+   if (mpVideoFlowGraph)
+   {
+#ifdef TEST_PRINT
+      int i;
+
+      OsSysLog::add(FAC_CP, PRI_DEBUG, "Start Receiving RTP/RTCP, %d codec%s; sockets: %p/%p descriptors: %d/%d\n",
+           numCodecs, ((1==numCodecs)?"":"s"),
+           (mediaConnection->mpRtpVideoSocket),
+           (mediaConnection->mpRtcpVideoSocket),
+           mediaConnection->mpRtpVideoSocket->getSocketDescriptor(),
+           mediaConnection->mpRtcpVideoSocket->getSocketDescriptor());
+      for (i=0; i<numCodecs; i++) {
+          osPrintf("   %d:  i:%d .. x:%d\n", i+1,
+                   receiveCodecs[i]->getCodecType(),
+                   receiveCodecs[i]->getCodecPayloadFormat());
+      }
+#endif
+
+      if (mediaConnection->mRtpVideoReceiving)
+      {
+         // This is not supposed to be necessary and may be
+         // causing an audible glitch when codecs are changed
+         mpVideoFlowGraph->stopReceiveRtp();
+         mediaConnection->mRtpVideoReceiving = FALSE;
+      }
+
+      if (mpVideoFlowGraph->startReceiveRtp(receiveCodecs, numCodecs,
+                                            *(mediaConnection->mpRtpVideoSocket),
+                                            *(mediaConnection->mpRtcpVideoSocket))
+          == OS_SUCCESS)
+      {
+         mediaConnection->mRtpVideoReceiving = TRUE;
+      }
 
       returnCode = OS_SUCCESS;
    }
-   return(returnCode);
+#endif // SIPX_VIDEO ]
+
+   return returnCode;
 }
 
 OsStatus CpPhoneMediaInterface::stopRtpSend(int connectionId)
@@ -1228,14 +1280,25 @@ OsStatus CpPhoneMediaInterface::stopRtpReceive(int connectionId)
    CpPhoneMediaConnection* mediaConnection =
        getMediaConnection(connectionId);
 
-   if(mpFlowGraph && mediaConnection &&
+   if (mpFlowGraph && mediaConnection &&
        mediaConnection->mRtpAudioReceiving)
    {
       mpFlowGraph->stopReceiveRtp(connectionId);
       mediaConnection->mRtpAudioReceiving = FALSE;
       returnCode = OS_SUCCESS;
    }
-   return(returnCode);
+
+#ifdef SIPX_VIDEO // [
+   if (mpVideoFlowGraph && mediaConnection &&
+       mediaConnection->mRtpVideoReceiving)
+   {
+      mpVideoFlowGraph->stopReceiveRtp();
+      mediaConnection->mRtpVideoReceiving = FALSE;
+      returnCode = OS_SUCCESS;
+   }
+#endif // SIPX_VIDEO ]
+
+   return returnCode;
 }
 
 OsStatus CpPhoneMediaInterface::deleteConnection(int connectionId)
@@ -2103,14 +2166,21 @@ bool CpPhoneMediaInterface::isAudioAvailable()
 
 OsStatus CpPhoneMediaInterface::setVideoWindowDisplay(const void* hWnd)
 {
-    // TODO:: setVideoWindowDisplay()
-    return OS_NOT_YET_IMPLEMENTED;
-    
+#ifdef SIPX_VIDEO // [
+   mpVideoFlowGraph->setVideoWindow(hWnd);
+   return OS_SUCCESS;
+#else // SIPX_VIDEO ][
+   return OS_NOT_YET_IMPLEMENTED;
+#endif // SIPX_VIDEO ]
 }
+
 const void* CpPhoneMediaInterface::getVideoWindowDisplay()
 {
-    // TODO:: getVideoWindowDisplay()
-    return NULL;
+#ifdef SIPX_VIDEO // [
+   return mpVideoFlowGraph->getVideoWindow();
+#else // SIPX_VIDEO ][
+   return NULL;
+#endif // SIPX_VIDEO ]
 }
 
 
