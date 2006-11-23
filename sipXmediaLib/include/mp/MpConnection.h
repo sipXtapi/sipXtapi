@@ -156,6 +156,18 @@ public:
 ///@name Accessors
 //@{
 
+     /// Return pointer to RTP writer component of connection.
+   MprToNet *getRtpWriter() const {return mpToNet;}
+     /**<
+     *  This component should be used to send RTP packets to remote party.
+     */
+
+     /// Return pointer to dejitter component of connection
+   MprDejitter *getDejitter() const {return mpDejitter;}
+     /**<
+     *  This component should be used to receive RTP packets from remote party.
+     */
+
 #ifdef INCLUDE_RTCP /* [ */
      /// Retrieve the RTCP Connection interface associated with this MpConnection
    IRTCPConnection *getRTCPConnection(void);
