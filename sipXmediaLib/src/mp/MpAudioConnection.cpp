@@ -176,7 +176,7 @@ void MpAudioConnection::startSendRtp(OsSocket& rRtpSocket,
    }
 #endif
 
-   mpEncode->selectCodecs(pPrimaryCodec, pDtmfCodec, pSecondaryCodec);
+   mpEncode->selectCodecs(pPrimaryCodec, pDtmfCodec);
    mpFlowGraph->synchronize();
    mpEncode->enable();
 }

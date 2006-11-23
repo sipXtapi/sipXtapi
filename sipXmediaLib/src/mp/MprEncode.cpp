@@ -73,16 +73,6 @@ MprEncode::MprEncode(const UtlString& rName,
    mTotalTime(0),
    mNewTone(0),
 
-   mpSecondaryCodec(NULL),
-   mpPacket3Buffer(NULL),
-   mpPacket3Payload(NULL),
-   mPacket3PayloadBytes(0),
-   mActiveAudio3(FALSE),
-   mMarkNext3(FALSE),
-   mConsecutiveInactive3(0),
-   mConsecutiveActive3(0),
-   mConsecutiveUnsentFrames3(0),
-
    mpToNet(NULL)
 {
    mPacket1PayloadUsed = 0;
@@ -99,10 +89,6 @@ MprEncode::~MprEncode()
       delete[] mpPacket2Buffer;
       mpPacket2Buffer = NULL;
    }
-   if (NULL != mpPacket3Buffer) {
-      delete[] mpPacket3Buffer;
-      mpPacket3Buffer = NULL;
-   }
    if (NULL != mpPrimaryCodec) {
       delete mpPrimaryCodec;
       mpPrimaryCodec = NULL;
@@ -110,10 +96,6 @@ MprEncode::~MprEncode()
    if (NULL != mpDtmfCodec) {
       delete mpDtmfCodec;
       mpDtmfCodec = NULL;
-   }
-   if (NULL != mpSecondaryCodec) {
-      delete mpSecondaryCodec;
-      mpSecondaryCodec = NULL;
    }
    mpToNet = NULL;
 }
@@ -152,8 +134,7 @@ OsStatus MprEncode::deselectCodecs(void)
    return postMessage(msg);
 }
 
-OsStatus MprEncode::selectCodecs(SdpCodec* pPrimary, SdpCodec* pDtmf,
-   SdpCodec* pSecondary)
+OsStatus MprEncode::selectCodecs(SdpCodec* pPrimary, SdpCodec* pDtmf)
 {
    OsStatus res = OS_SUCCESS;
    MpFlowGraphMsg msg(SELECT_CODECS, this, NULL, NULL, 3, 0);
@@ -163,7 +144,6 @@ OsStatus MprEncode::selectCodecs(SdpCodec* pPrimary, SdpCodec* pDtmf,
    newCodecs[0] = newCodecs[1] = newCodecs[2] = NULL;
    if (NULL != pPrimary)   newCodecs[0] = new SdpCodec(*pPrimary);
    if (NULL != pDtmf)      newCodecs[1] = new SdpCodec(*pDtmf);
-   if (NULL != pSecondary) newCodecs[2] = new SdpCodec(*pSecondary);
    msg.setPtr1(newCodecs);
    res = postMessage(msg);
 
@@ -238,16 +218,6 @@ void MprEncode::handleDeselectCodecs(void)
          mPacket2PayloadBytes = 0;
       }
    }
-   if (NULL != mpSecondaryCodec) {
-      delete mpSecondaryCodec;
-      mpSecondaryCodec = NULL;
-      if (NULL != mpPacket3Buffer) {
-         delete[] mpPacket3Buffer;
-         mpPacket3Buffer = NULL;
-         mpPacket3Payload = NULL;
-         mPacket3PayloadBytes = 0;
-      }
-   }
 }
 
 static int sbAllowAvtCodec = 1;
@@ -265,7 +235,6 @@ void MprEncode::handleSelectCodecs(MpFlowGraphMsg& rMsg)
    SdpCodec** newCodecs;
    SdpCodec* pPrimary;
    SdpCodec* pDtmf;
-   SdpCodec* pSecondary;
    MpEncoderBase* pNewEncoder;
    MpCodecFactory* pFactory = MpCodecFactory::getMpCodecFactory();
    SdpCodec::SdpCodecTypes ourCodec;
@@ -275,7 +244,6 @@ void MprEncode::handleSelectCodecs(MpFlowGraphMsg& rMsg)
    newCodecs = (SdpCodec**) rMsg.getPtr1();
    pPrimary = newCodecs[0];
    pDtmf = newCodecs[1];
-   pSecondary = newCodecs[2];
 
    handleDeselectCodecs();  // cleanup the old ones, if any
 
@@ -306,18 +274,6 @@ void MprEncode::handleSelectCodecs(MpFlowGraphMsg& rMsg)
                        "sbAllowAvtCodec = %d, pDtmf = %p",
                        sbAllowAvtCodec, pDtmf);
       }
-      if (NULL != pSecondary) {
-         OsSysLog::add(FAC_MP, PRI_DEBUG,
-                       "MprEncode::handleSelectCodecs "
-                       "pSecondary->getCodecType() = %d, "
-                       "pSecondary->getCodecPayloadFormat() = %d",
-                       pSecondary->getCodecType(),
-                       pSecondary->getCodecPayloadFormat());
-      } else {
-         OsSysLog::add(FAC_MP, PRI_DEBUG,
-                       "MprEncode::handleSelectCodecs "
-                       "pSecondary == NULL");
-      }
    }
 
    if (NULL != pPrimary) {
@@ -347,23 +303,9 @@ void MprEncode::handleSelectCodecs(MpFlowGraphMsg& rMsg)
       }
    }
 
-   if (NULL != pSecondary) {
-      ourCodec = pSecondary->getCodecType();
-      payload = pSecondary->getCodecPayloadFormat();
-      ret = pFactory->createEncoder(ourCodec, payload, pNewEncoder);
-      assert(OS_SUCCESS == ret);
-      assert(NULL != pNewEncoder);
-      pNewEncoder->initEncode();
-      mpSecondaryCodec = pNewEncoder;
-      mDoesVad3 = (pNewEncoder->getInfo())->doesVadCng();
-      allocPacketBuffer(*mpSecondaryCodec, mpPacket3Buffer,
-         mpPacket3Payload, mPacket3PayloadBytes, mPacket3PayloadUsed);
-   }
-
    // delete any SdpCodec objects that we did not keep pointers to.
    if (NULL != pPrimary)   delete pPrimary;
    if (NULL != pDtmf)      delete pDtmf;
-   if (NULL != pSecondary) delete pSecondary;
 
    // free the array we were sent
    delete[] newCodecs;
@@ -620,11 +562,6 @@ void MprEncode::doDtmfCodec(unsigned int startTs, int samplesPerFrame,
    }
 }
 
-void MprEncode::doSecondaryCodec(MpAudioBufPtr in, unsigned int startTs)
-{
-   assert(FALSE);
-}
-
 UtlBoolean MprEncode::doProcessFrame(MpBufPtr inBufs[],
                                      MpBufPtr outBufs[],
                                      int inBufsSize,
@@ -637,7 +574,6 @@ UtlBoolean MprEncode::doProcessFrame(MpBufPtr inBufs[],
    unsigned int startTs;
 
    mConsecutiveUnsentFrames1++;
-   mConsecutiveUnsentFrames3++;
 
    if (0 == inBufsSize) return FALSE;
 
@@ -653,10 +589,6 @@ UtlBoolean MprEncode::doProcessFrame(MpBufPtr inBufs[],
 
    if (NULL != mpDtmfCodec) {
       doDtmfCodec(startTs, samplesPerFrame, samplesPerSecond);
-   }
-
-   if (NULL != mpSecondaryCodec) {
-      doSecondaryCodec(in, startTs);
    }
 
    // mLastTimestamp = startTs;  // Unused?

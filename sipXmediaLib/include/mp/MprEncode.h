@@ -58,8 +58,7 @@ public:
 //@{
 
    OsStatus selectCodecs(SdpCodec* pPrimaryCodec,
-                          SdpCodec* pDtmfCodec,
-                          SdpCodec* pSecondaryCodec);
+                          SdpCodec* pDtmfCodec);
 
    OsStatus deselectCodecs(void);
 
@@ -129,19 +128,6 @@ private:
    int   mTotalTime;    ///< # samples tone was active, set when tone stops
    int   mNewTone;      ///< set when tone starts
 
-   MpEncoderBase* mpSecondaryCodec;
-   unsigned char* mpPacket3Buffer;  ///< packet buffer for secondary RTP stream
-   unsigned char* mpPacket3Payload;
-   int   mPacket3PayloadBytes;
-   int   mPacket3PayloadUsed;
-   unsigned int   mStartTimestamp3;
-   UtlBoolean mActiveAudio3;
-   UtlBoolean mMarkNext3;
-   int   mConsecutiveInactive3;
-   int   mConsecutiveActive3;
-   int   mConsecutiveUnsentFrames3;
-   UtlBoolean mDoesVad3;
-
    unsigned int   mLastTimestamp;
 
    MprToNet* mpToNet;
@@ -180,8 +166,6 @@ private:
    void doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs);
 
    void doDtmfCodec(unsigned int startTs, int sPFrame, int sPSec);
-
-   void doSecondaryCodec(MpAudioBufPtr in, unsigned int startTs);
 
      /// Copy constructor (not implemented for this class)
    MprEncode(const MprEncode& rMprEncode);
