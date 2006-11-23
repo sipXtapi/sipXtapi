@@ -137,11 +137,11 @@ OsStatus MprEncode::deselectCodecs(void)
 OsStatus MprEncode::selectCodecs(SdpCodec* pPrimary, SdpCodec* pDtmf)
 {
    OsStatus res = OS_SUCCESS;
-   MpFlowGraphMsg msg(SELECT_CODECS, this, NULL, NULL, 3, 0);
+   MpFlowGraphMsg msg(SELECT_CODECS, this, NULL, NULL, 2, 0);
    SdpCodec** newCodecs;
 
-   newCodecs = new SdpCodec*[3];
-   newCodecs[0] = newCodecs[1] = newCodecs[2] = NULL;
+   newCodecs = new SdpCodec*[2];
+   newCodecs[0] = newCodecs[1] = NULL;
    if (NULL != pPrimary)   newCodecs[0] = new SdpCodec(*pPrimary);
    if (NULL != pDtmf)      newCodecs[1] = new SdpCodec(*pDtmf);
    msg.setPtr1(newCodecs);
