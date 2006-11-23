@@ -213,7 +213,7 @@ CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFacto
                                              const char* szTurnUsername,
                                              const char* szTurnPassword,
                                              int iTurnKeepAlivePeriodSecs,
-                                             bool mbEnableICE,
+                                             bool bEnableICE,
                                              MpCaptureDeviceBase *pCaptureDevice)
 : CpMediaInterface(pFactoryImpl)
 {
@@ -238,7 +238,7 @@ CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFacto
    mTurnRefreshPeriodSecs = iTurnKeepAlivePeriodSecs ;
    mTurnUsername = szTurnUsername ;
    mTurnPassword = szTurnPassword ;
-   mbEnableICE = mbEnableICE ;
+   mbEnableICE = bEnableICE ;
 
    if(localAddress && *localAddress)
    {
@@ -2002,6 +2002,8 @@ OsStatus CpPhoneMediaInterface::getPrimaryCodec(int connectionId,
 {
     UtlString codecType;
     CpPhoneMediaConnection* pConnection = getMediaConnection(connectionId);
+    if (pConnection == NULL)
+       return OS_NOT_FOUND;
 
     if (pConnection->mpAudioCodec != NULL)
     {

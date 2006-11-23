@@ -73,7 +73,7 @@ public:
                          const char* szTurnUsername = NULL,
                          const char* szTurnPassword = NULL,
                          int iTurnKeepAlivePeriodSecs = 28,
-                         bool mbEnableICE = false,
+                         bool bEnableICE = false,
                          MpCaptureDeviceBase *pCaptureDevice=NULL);
      //:Default constructor
 
