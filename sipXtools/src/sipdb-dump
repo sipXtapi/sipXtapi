@@ -13,6 +13,8 @@ class SipDbDumper
 
   def initialize(out = STDOUT)
     @out = out
+    @record_delim = "\n"
+    @field_delim = "\t"
   end
 
   def dump(*files)
@@ -40,7 +42,7 @@ class SipDbDumper
           end
         end
       }
-      sinc.write "\n"
+      sinc.write @record_delim
     }
   end
   
@@ -48,7 +50,7 @@ class SipDbDumper
     sinc.write name
     sinc.write '='
     sinc.write text
-    sinc.write '\n'
+    sinc.write @field_delim
   end
   
   # To add a new custom field, all you need to do is use this convention
@@ -66,7 +68,7 @@ class SipDbDumper
   #
   def dump_contact(sinc, name, text)
     dump_item(sinc, name, text)
-    host = text.match(/@([^;>]*)/)[1]
+    host = text.match(/@([^;&>:]*)/)[1]
     dump_item(sinc, "contact_host", host)    
   end
   
@@ -91,7 +93,7 @@ Usage:
   
 __EOU__
 
-      STDERR << usage
+      (error_code == 0 ? STDOUT : STDERR) << usage
       exit error_code
 end
 
@@ -101,7 +103,7 @@ if __FILE__ == $0
     ['--verbose','-v', GetoptLong::NO_ARGUMENT],    
   ]
 
-  car = SipDbDumper.new
+  dumper = SipDbDumper.new
   opts = GetoptLong.new(*OptSet)
   action = 'dump'
   begin
@@ -110,7 +112,7 @@ if __FILE__ == $0
         when '--help'
           usage_exit 0
         when '--verbose'
-          car.verbose = true
+          dumper.verbose = true
         else
           usage_exit
         end
@@ -122,7 +124,7 @@ if __FILE__ == $0
   end
 
   begin
-    car.send(action, *ARGV)
+    dumper.send(action, *ARGV)
   end
 end
 
