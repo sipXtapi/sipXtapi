@@ -107,15 +107,7 @@ int close( int fd )
 			return 0;
 	return -1;
 }
-//****************************************************************
-int PostThreadMessageA(unsigned long idThread,unsigned int Msg,
-                      unsigned int wParam,
-                      long lParam) 
-{
-	
-	//	printf( "open( fname, oflag ) NOT IMPLEMENTED\n" );
-	return 0;
-}
+
 //****************************************************************
 long lseek( int fd, long offset, int origin )
 {
@@ -380,12 +372,7 @@ long RegQueryValueExB( HKEY hKey, const char *lpName, DWORD *lpReserved, DWORD *
 }
 
 
-//****************************************************************
-long RegOpenKeyExA( HKEY hKey, const char *pSub, DWORD dwOptions, REGSAM samDesired, PHKEY phkResults )
-{
-	printf( "RegOpenKeyExA( ) NOT IMPLEMENTED\n" );
-	return NULL;
-}
+
 
 
 //****************************************************************
@@ -651,6 +638,67 @@ int _putenv( const char *pIn )
 //	assert( 0 );
 	return -1;
 }
+
+// Have to build stuff not just from WinBase but also from WinUser.h
+
+//****************************************************************
+int PostThreadMessageA(unsigned long idThread,unsigned int Msg,
+                      unsigned int wParam,
+                      long lParam) 
+{
+	
+	//	printf( "open( fname, oflag ) NOT IMPLEMENTED\n" );
+	return 0;
+}
+//***************************************************************
+int GetMessageA(LPMSG lpMsg,HWND hWnd,unsigned int wMsgFilterMin,unsigned int wMsgFilterMax) 
+{
+	//	printf( "open( fname, oflag ) NOT IMPLEMENTED\n" );
+	return -1;	
+};
+
+
+
+/**
+  CreateEventA Redefined
+
+  The header redefines this ison purpose and the code will not work
+  for other librariesif this is not done.
+  #undef CreateEventA
+  #define CreateEventA CE_CreateEventA
+
+**/
+
+HANDLE CE_CreateEventA(
+					  LPSECURITY_ATTRIBUTES lpEventAttributes, 
+					  BOOL bManualReset, 
+					  BOOL bInitialState, 
+					  LPTSTR lpName) 
+{
+	//	printf( "open( fname, oflag ) NOT IMPLEMENTED\n" );
+	return 0;
+}; 
+
+/**
+  RegOpenKeyExA Redefined
+
+  The header redefines this ison purpose and the code will not work
+  for other librariesif this is not done.
+  #undef  RegOpenKeyExA
+  #define RegOpenKeyExA CE_RegOpenKeyExA
+
+**/
+long CE_RegOpenKeyExA (	 HKEY hKey,
+						 LPCSTR lpSubKey,
+						 DWORD ulOptions,
+						 REGSAM samDesired,
+						 PHKEY phkResult
+						)
+{
+	printf( "RegOpenKeyExA( ) NOT IMPLEMENTED\n" );
+	return NULL;
+}
+
 
 #ifdef __cplusplus
 extern "C" int _getpid()

@@ -232,5 +232,27 @@ int				read( int fd, void *buffer, unsigned int count );
 int PostThreadMessageA(unsigned long idThread,unsigned int Msg,
                       unsigned int wParam,
                       long lParam);
+int GetMessageA(LPMSG lpMsg,HWND hWnd,unsigned int wMsgFilterMin,unsigned int wMsgFilterMax) ;
+
+
+/* The following functions have to tobe deffed and undefed this is not a mistake */
+
+#undef CreateEventA
+#define CreateEventA CE_CreateEventA
+HANDLE CE_CreateEventA(
+					  LPSECURITY_ATTRIBUTES lpEventAttributes, 
+					  BOOL bManualReset, 
+					  BOOL bInitialState, 
+					  LPTSTR lpName) ;
+
+#undef  RegOpenKeyExA
+#define RegOpenKeyExA CE_RegOpenKeyExA
+long CE_RegOpenKeyExA (	 HKEY hKey,
+						 LPCSTR lpSubKey,
+						 DWORD ulOptions,
+						 REGSAM samDesired,
+						 PHKEY phkResult
+						);
+
 #endif // _WINCEFIXUPS_H_
 
