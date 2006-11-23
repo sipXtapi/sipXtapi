@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.cdr;
 
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.List;
@@ -34,6 +36,14 @@ public class CdrManagerImplTest extends SipxDatabaseTestCase {
         assertTrue(cdrs.size() > 0);
     }
 
+    public void _testGetCsv() throws Exception {
+        ApplicationContext app = TestHelper.getApplicationContext();
+        CdrManager cdrManager = (CdrManager) app.getBean(CdrManager.CONTEXT_BEAN_NAME);
+        Writer writer = new OutputStreamWriter(System.err);
+        cdrManager.dumpCdrs(writer, null, null, new CdrSearch());
+        writer.flush();
+    }
+    
     public void _testGetCdrsSearch() {
         ApplicationContext app = TestHelper.getApplicationContext();
         CdrManager cdrManager = (CdrManager) app.getBean(CdrManager.CONTEXT_BEAN_NAME);

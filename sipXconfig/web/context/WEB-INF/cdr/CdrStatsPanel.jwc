@@ -7,11 +7,12 @@
   <!-- P A R A M E T E R S -->
   <parameter name="startTime" />
   <parameter name="endTime" />
-  <parameter name="cdrSearch" />  
+  <parameter name="cdrSearch" />
 
   <!-- P R O P E R T I E S -->
   <inject property="cdrManager" object="spring:cdrManager" />
   <inject property="expressionEvaluator" object="service:tapestry.ognl.ExpressionEvaluator" />
+  <inject property="response" object="service:tapestry.globals.WebResponse" />
 
   <property name="row" />
 
@@ -31,7 +32,7 @@
   <component id="filter" type="cdr/CdrFilter">
     <binding name="cdrSearch" value="cdrSearch" />
   </component>
-  
+
   <component id="tableView" type="StatsTable">
     <binding name="source" value="cdrManager.getCdrs(startTime, endTime, cdrSearch)" />
     <binding name="columns" value="literal:caller, callee, =startTimeColumn, duration, termination" />
@@ -46,6 +47,10 @@
   <component id="termination" type="Insert">
     <binding name="value" value="row.termination" />
     <binding name="format" value="bean:terminationFormat" />
+  </component>
+
+  <component id="export" type="ExportLink">
+    <binding name="listener" value="listener:export" />
   </component>
 
 </component-specification>

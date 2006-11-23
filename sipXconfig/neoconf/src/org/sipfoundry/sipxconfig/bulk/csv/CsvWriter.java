@@ -44,4 +44,15 @@ public class CsvWriter {
         }
         m_writer.write(line.toString());
     }
+
+    /**
+     * Similar to write but translates exceptions to UserException
+     */
+    public void optimisticWrite(String[] fields, boolean quote) {
+        try {
+            write(fields, quote);
+        } catch (IOException e) {
+            new RuntimeException(e);
+        }
+    }
 }
