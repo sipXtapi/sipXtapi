@@ -52,7 +52,7 @@
 #include "mp/MprEchoSuppress.h"
 #endif
 
-#include "mp/MprSpeexPreprocess.h"
+#include "mp/MprSpeexPreProcess.h"
 #include "mp/MprMixer.h"
 #include "mp/MprSplitter.h"
 #include "mp/MprToSpkr.h"
