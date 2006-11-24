@@ -58,7 +58,7 @@ public:
 //@{
 
    OsStatus selectCodecs(SdpCodec* pPrimaryCodec,
-                          SdpCodec* pDtmfCodec);
+                         SdpCodec* pDtmfCodec);
 
    OsStatus deselectCodecs(void);
 
@@ -103,8 +103,7 @@ private:
    static const int RTP_KEEP_ALIVE_FRAME_INTERVAL;
 
    MpEncoderBase* mpPrimaryCodec;
-   unsigned char* mpPacket1Buffer;  ///< packet buffer for primary RTP stream
-   unsigned char* mpPacket1Payload;
+   unsigned char* mpPacket1Payload; ///< packet buffer for primary RTP stream
    int   mPacket1PayloadBytes;
    int   mPacket1PayloadUsed;
    unsigned int mStartTimestamp1;
@@ -116,8 +115,7 @@ private:
    UtlBoolean mDoesVad1;
 
    MpEncoderBase* mpDtmfCodec;
-   unsigned char* mpPacket2Buffer;  ///< packet buffer for DTMF event RTP stream
-   unsigned char* mpPacket2Payload;
+   unsigned char* mpPacket2Payload; ///< packet buffer for DTMF event RTP stream
    int   mPacket2PayloadBytes;      ///< 4
    int   mPacket2PayloadUsed;       ///< not really needed
    unsigned int   mStartTimestamp2; ///< sample time when tone starts
@@ -148,10 +146,8 @@ private:
    int payloadByteLength(MpEncoderBase& rEncoder);
 
    OsStatus allocPacketBuffer(MpEncoderBase& rEncoder,
-                              unsigned char*& rpPacketBuffer,
                               unsigned char*& rpPacketPayload,
-                              int& rPacketPayloadBytes,
-                              int& rPacketPayloadUsed);
+                              int& rPacketPayloadBytes);
 
    void handleSelectCodecs(MpFlowGraphMsg& rMsg);
 

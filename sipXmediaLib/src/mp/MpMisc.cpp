@@ -73,8 +73,6 @@
 #define ABSOLUTE_MAX_LOG_MSG_LEN 2048
 #endif /* _VXWORKS ] */
 
-#define RTP_BUFS 16
-#undef  RTP_BUFS
 #define RTP_BUFS 250
 #define RTCP_BUFS 16
 #define UDP_BUFS 10
@@ -468,22 +466,6 @@ int mpSetLowLatency()
     return mpSetLatency(1, 1, 1);
 }
 
-#ifdef _DEPRECATED_IPSE_
-int mpStartSawTooth()
-{
-    int save = MpMisc.micSawTooth;
-    MpMisc.micSawTooth = 1;
-    return save;
-}
-
-int mpStopSawTooth()
-{
-    int save = MpMisc.micSawTooth;
-    MpMisc.micSawTooth = 0;
-    return save;
-}
-#endif
-
 extern void doFrameLoop(int sampleRate, int frame_samples);
 extern STATUS netStartup();
 
@@ -504,9 +486,6 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
         samplesPerFrame = min(samplesPerFrame, FRAME_SAMPS);
 
         showMpMisc(TRUE);
-#ifdef _DEPRECATED_IPSE_
-        MpMisc.micMuteStatus = MpMisc.spkrMuteStatus = 0;
-#endif
 
 #ifdef _VXWORKS /* [ */
         /* Rashly assumes page size is a power of two */
@@ -589,7 +568,7 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
         }
 
         // Create buffer for RTP packets
-        MpMisc.RtpPool = new MpBufPool( NETWORK_MTU+MpArrayBuf::getHeaderSize()
+        MpMisc.RtpPool = new MpBufPool( RTP_MTU+MpArrayBuf::getHeaderSize()
                                       , RTP_BUFS);
         Nprintf("mpStartUp: MpMisc.RtpPool = 0x%X\n",
                 (int) MpMisc.RtpPool, 0,0,0,0,0);
@@ -600,7 +579,7 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
         }
 
         // Create buffer for RTCP packets
-        MpMisc.RtcpPool = new MpBufPool( NETWORK_MTU+MpArrayBuf::getHeaderSize()
+        MpMisc.RtcpPool = new MpBufPool( RTCP_MTU+MpArrayBuf::getHeaderSize()
                                        , RTCP_BUFS);
         Nprintf("mpStartUp: MpMisc.RtcpPool = 0x%X\n",
                 (int) MpMisc.RtcpPool, 0,0,0,0,0);

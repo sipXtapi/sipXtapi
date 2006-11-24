@@ -29,6 +29,8 @@ class OsNotification;
 
 // DEFINES
 #define NETWORK_MTU 1500
+#define RTP_MTU  (NETWORK_MTU-12)   /// Network MTU minus RTP header size.
+#define RTCP_MTU (NETWORK_MTU)
 
 #define CODEC_TYPE_PCMU 0
 #define CODEC_TYPE_PCMA 8

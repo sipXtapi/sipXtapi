@@ -56,28 +56,6 @@ int MprToNet::sDebug5 = 0;
 
 static int doPadRtp = 1;
 
-#ifdef _VXWORKS /* [ */
-
-extern "C" {
-extern int PadRtp();
-extern int PR();
-extern int NoPadRtp();
-extern int NPR();
-}
-
-static int DoPadRtp(int flag)
-{
-   int save = doPadRtp;
-   doPadRtp = flag;
-   return save;
-}
-
-int PadRtp() {return DoPadRtp(1);}
-int PR() {return DoPadRtp(1);}
-int NoPadRtp() {return DoPadRtp(0);}
-int NPR() {return DoPadRtp(0);}
-#endif /* _VXWORKS ] */
-
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
@@ -162,42 +140,7 @@ void MprToNet::setRTPAccumulator(ISetSenderStatistics *piRTPAccumulator)
 
 #endif /* INCLUDE_RTCP ] */
 
-#ifdef DEBUG /* [ */
-static int NumberOfPuts = 0;
-#endif /* DEBUG ] */
-
-#ifdef DEBUG /* [ */
-int NumberOfRtpWrites = 0;
-#endif /* DEBUG ] */
-
-#define RTP_BAD_DIRECTION 0x12300001
-
-struct __rtpPacket {
-        struct RtpHeader s;
-        char b[1];
-};
-typedef struct __rtpPacket rtpPacket;
-typedef struct __rtpPacket *rtpPacketPtr;
-
-#undef DEBUG_TIMESTAMP
-#ifdef DEBUG_TIMESTAMP /* [ */
-static int startTimeStamp = 0;
-
-UINT hack_timer32(void)
-{
-   return startTimeStamp;
-}
-
-int setTimeStamp(int x) {
-   int save = hack_timer32();
-   startTimeStamp = x;
-   return save;
-}
-
-#define rand_timer32 hack_timer32
-#endif /* DEBUG_TIMESTAMP ] */
-
-#ifdef DROP_SOME_PACKETS /* [ */
+#ifdef DROP_SOME_PACKETS // [
 static int dropLimit = 1<<30;
 static int dropCount = 0;
 
@@ -215,96 +158,127 @@ int dropEvery(int limit)
    }
    return save;
 }
-#endif /* DROP_SOME_PACKETS ] */
+#endif // DROP_SOME_PACKETS ]
 
 int MprToNet::writeRtp(int payloadType, UtlBoolean markerState,
                        unsigned char* payloadData, int payloadOctets,
                        unsigned int timestamp, void* csrcList)
 {
-        struct RtpHeader* ph;
-        int pad, l;
-        int sendret;
-        int len;
+   MpRtpBufPtr pRtpPacket;
+   char paddingLength;
 
-        ph = (struct RtpHeader*) (payloadData - sizeof(struct RtpHeader));//$$$
-               //$$$ Line above will need to adjust for CSRC list someday...
-        len = payloadOctets;
-        Lprintf("Enter rW: %d, %d\n", len, timestamp, 0,0,0,0);
+   // Nothing to do when no socket specified.
+   if (mpRtpSocket == NULL)
+      return 0;
 
-        if (NULL == mpRtpSocket) {return 0;}
-        mSeqNum++;
+   // Allocate new RTP packet.
+   pRtpPacket = MpMisc.RtpPool->getBuffer();
 
-#ifdef DEBUG /* [ */
-        if (NumberOfRtpWrites++ < 10)
-            Zprintf("rW: %d, %d, %d\n", len, ts, h->mpt, 0,0,0);
-#endif /* DEBUG ] */
+   // Get rid of packet sequence number.
+   mSeqNum++;
 
-        ph->vpxcc = 2<<6; // h->vpxcc;
-        ph->mpt = (payloadType & 0x7f) | (markerState ? 0x80 : 0);
-        ph->seq = htons(0xffff&mSeqNum);
-        ph->timestamp = htonl(mTimestampDelta + timestamp);
-        ph->ssrc = mSSRC;
+   // Fill packet RTP header.
+   pRtpPacket->setRtpVersion(2);
+   pRtpPacket->setRtpPayloadType(payloadType);
+   pRtpPacket->setPayloadSize(payloadOctets);
+   if (markerState)
+      pRtpPacket->enableRtpMarker();
+   else
+      pRtpPacket->disableRtpMarker();
+   pRtpPacket->disableRtpExtension();
+   pRtpPacket->setRtpSequenceNumber(mSeqNum);
+   pRtpPacket->setRtpTimestamp(mTimestampDelta + timestamp);
+   pRtpPacket->setRtpSSRC(mSSRC);
+   pRtpPacket->setRtpCSRCCount(0);
 
 #ifdef ENABLE_PACKET_HACKING /* [ */
-        adjustRtpPacket(ph);
+   adjustRtpPacket(pRtpPacket->getRtpHeader());
 #endif /* ENABLE_PACKET_HACKING ] */
 
-        pad = doPadRtp ? ((4 - (3 & len)) & 3) : 0;
+   // Calculate number of padding bytes
+   paddingLength = doPadRtp ? ((4 - (payloadOctets & 3))&3) : 0;
 
-        switch (pad) {
-        case 3:
-                payloadData[len+1] = 0;         /* fall through */
-        case 2:
-                payloadData[len] = 0;           /* fall through */
-        case 1:
-                payloadData[len+pad-1] = pad;
-                ph->vpxcc |= (1<<5);
-                Lprintf("writeRtp: adding %d pad bytes\n", pad, 0,0,0,0,0);
-                                                  /* fall through */
-        case 0:
-                break;
-        }
+   if (paddingLength>0)
+      pRtpPacket->enableRtpPadding();
+   else
+      pRtpPacket->disableRtpPadding();
+
+   if (csrcList != NULL)
+   {
+      // TODO:: implement CSRC list.
+      assert(false);
+   }
+
+   //////////////////////////////////////////////////////
+   // Next part of code should separated from previous //
+   //////////////////////////////////////////////////////
+
+   char *pBuf;
+   int numBytesSent;
+   MpUdpBufPtr pUdpPacket;
+
+   // Allocate UDP packet
+   pUdpPacket = MpMisc.UdpPool->getBuffer();
+   pBuf = pUdpPacket->getWriteDataPtr();
+
+   // Set size of data to send
+   assert(pUdpPacket->getMaximumPacketSize() >= sizeof(RtpHeader)+payloadOctets+paddingLength);
+   pUdpPacket->setPacketSize(sizeof(RtpHeader)+payloadOctets+paddingLength);
+
+   // Copy RTP header to UDP packet
+   memcpy(pBuf, &pRtpPacket->getRtpHeader(), sizeof(RtpHeader));
+   pBuf += sizeof(RtpHeader);
+
+   // TODO:: Copy CSRC list here.
+
+   // Copy payload to UDP packet
+   memcpy(pBuf, payloadData, payloadOctets);
+   pBuf += payloadOctets;
+
+   // Fill padding
+   switch (paddingLength) {
+   case 3:
+      pBuf[1] = 0;           // fall through
+   case 2:
+      pBuf[0] = 0;           // fall through
+   case 1:
+      pBuf[paddingLength-1] = paddingLength;  // fall through
+   case 0:
+      break;
+   }
 
 #ifdef INCLUDE_RTCP /* [ */
-// Update the Accumulated statistics kept for an inbound RTP packet.
-// These statistics comprise a Sender Report that is sent out periodically
-// to the originating site
-        mpiRTPAccumulator->IncrementCounts(len);
+   // Update the Accumulated statistics kept for an inbound RTP packet.
+   // These statistics comprise a Sender Report that is sent out periodically
+   // to the originating site
+   mpiRTPAccumulator->IncrementCounts(payloadOctets);
 #endif /* INCLUDE_RTCP ] */
 
-        l = sizeof(struct RtpHeader) + len + pad;
-
 #ifdef DROP_SOME_PACKETS /* [ */
-        if (dropCount++ == dropLimit) {
-            dropCount = 0;
-            sendret = l;
-        } else {
-            sendret = mpRtpSocket->write((char *) ph, l);
-        }
+   if (dropCount++ == dropLimit) {
+      dropCount = 0;
+      numBytesSent = pUdpPacket->getPacketSize();
+   } else {
+      numBytesSent = mpRtpSocket->write(pUdpPacket->getDataPtr(), pUdpPacket->getPacketSize());
+   }
 #else /* DROP_SOME_PACKETS ] [*/
-        sendret = mpRtpSocket->write((char *) ph, l);
+   numBytesSent = mpRtpSocket->write(pUdpPacket->getDataPtr(), pUdpPacket->getPacketSize());
 #endif /* DROP_SOME_PACKETS ] */
 
-        if (l != sendret) {
-            if (5 > mNumRtpWriteErrors++) {
-                Zprintf("Exit rW: send(0x%X 0x%X %d) returned %d,"
-                    " errno=%d (at %d)\n",
-                    (int) mpRtpSocket, (int) ph, l, sendret, errno, *pOsTC);
-            }
-
-            switch (errno) {
-            /* insert other benign errno values here */
+   if (numBytesSent != pUdpPacket->getPacketSize()) {
+      switch (errno) {
+         /* insert other benign errno values here */
             case 0:
             case 55: // Network disconnected, continue and hope it comes back
-                break;
+               break;
             default:
-                // close(fd);  MAYBE: mpRtpSocket->close() ?
-                // mpRtpSocket = NULL;
-                break;
-            }
+               // close(fd);  MAYBE: mpRtpSocket->close() ?
+               // mpRtpSocket = NULL;
+               break;
+      }
 
-        }
-        return (l == sendret) ? len : sendret;
+   }
+   return (pUdpPacket->getPacketSize() == numBytesSent) ? pUdpPacket->getPacketSize() : numBytesSent;
 }
 
 #ifdef ENABLE_PACKET_HACKING /* [ */

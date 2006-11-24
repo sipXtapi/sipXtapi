@@ -54,7 +54,6 @@ MprEncode::MprEncode(const UtlString& rName,
                            int samplesPerFrame, int samplesPerSec)
 :  MpAudioResource(rName, 1, 1, 0, 0, samplesPerFrame, samplesPerSec),
    mpPrimaryCodec(NULL),
-   mpPacket1Buffer(NULL),
    mpPacket1Payload(NULL),
    mPacket1PayloadBytes(0),
    mActiveAudio1(FALSE),
@@ -64,7 +63,6 @@ MprEncode::MprEncode(const UtlString& rName,
    mConsecutiveUnsentFrames1(0),
 
    mpDtmfCodec(NULL),
-   mpPacket2Buffer(NULL),
    mpPacket2Payload(NULL),
    mPacket2PayloadBytes(0),
 
@@ -81,13 +79,13 @@ MprEncode::MprEncode(const UtlString& rName,
 // Destructor
 MprEncode::~MprEncode()
 {
-   if (NULL != mpPacket1Buffer) {
-      delete[] mpPacket1Buffer;
-      mpPacket1Buffer = NULL;
+   if (NULL != mpPacket1Payload) {
+      delete[] mpPacket1Payload;
+      mpPacket1Payload = NULL;
    }
-   if (NULL != mpPacket2Buffer) {
-      delete[] mpPacket2Buffer;
-      mpPacket2Buffer = NULL;
+   if (NULL != mpPacket2Payload) {
+      delete[] mpPacket2Payload;
+      mpPacket2Payload = NULL;
    }
    if (NULL != mpPrimaryCodec) {
       delete mpPrimaryCodec;
@@ -162,37 +160,23 @@ int MprEncode::payloadByteLength(MpEncoderBase& rEncoder)
 }
 
 OsStatus MprEncode::allocPacketBuffer(MpEncoderBase& rEncoder,
-                                      unsigned char*& rpPacketBuffer,
                                       unsigned char*& rpPacketPayload,
-                                      int& rPacketPayloadBytes,
-                                      int& rPacketPayloadUsed)
+                                      int& rPacketPayloadBytes)
 {
    OsStatus ret = OS_SUCCESS;
 
    // Estimate packet size
    rPacketPayloadBytes = payloadByteLength(rEncoder);
-   int packetBytes =
-         MprToNet::RESERVED_RTP_PACKET_HEADER_BYTES + rPacketPayloadBytes;
 
    // Allocate buffer for RTP packet data
-   rpPacketBuffer = new unsigned char[packetBytes+26];
-   if (rpPacketBuffer != NULL ) {
-
-      // Set payload pointer
-      rpPacketPayload = rpPacketBuffer +
-                              MprToNet::RESERVED_RTP_PACKET_HEADER_BYTES;
-
-      // Clear buffer
-      memset(rpPacketBuffer, 0, packetBytes+26);
-      memcpy(rpPacketBuffer+packetBytes, "DON'T TOUCH!!!!!!!!!!!!!!", 26);
-   } else {
-
+   rpPacketPayload = new unsigned char[rPacketPayloadBytes];
+   if (rpPacketPayload == NULL )
+   {
       // No free memory. Return error.
       ret = OS_NO_MEMORY;
       rpPacketPayload = NULL;
    }
 
-   rPacketPayloadUsed = 0;
    return ret;
 }
 
@@ -201,9 +185,8 @@ void MprEncode::handleDeselectCodecs(void)
    if (NULL != mpPrimaryCodec) {
       delete mpPrimaryCodec;
       mpPrimaryCodec = NULL;
-      if (NULL != mpPacket1Buffer) {
-         delete[] mpPacket1Buffer;
-         mpPacket1Buffer = NULL;
+      if (NULL != mpPacket1Payload) {
+         delete[] mpPacket1Payload;
          mpPacket1Payload = NULL;
          mPacket1PayloadBytes = 0;
       }
@@ -211,23 +194,12 @@ void MprEncode::handleDeselectCodecs(void)
    if (NULL != mpDtmfCodec) {
       delete mpDtmfCodec;
       mpDtmfCodec = NULL;
-      if (NULL != mpPacket2Buffer) {
-         delete[] mpPacket2Buffer;
-         mpPacket2Buffer = NULL;
+      if (NULL != mpPacket2Payload) {
+         delete[] mpPacket2Payload;
          mpPacket2Payload = NULL;
          mPacket2PayloadBytes = 0;
       }
    }
-}
-
-static int sbAllowAvtCodec = 1;
-extern "C" {
-   extern int allowAvt(int flag);
-}
-int allowAvt(int flag) {
-   int save = sbAllowAvtCodec;
-   sbAllowAvtCodec = (flag ? 1 : 0);
-   return save;
 }
 
 void MprEncode::handleSelectCodecs(MpFlowGraphMsg& rMsg)
@@ -261,18 +233,13 @@ void MprEncode::handleSelectCodecs(MpFlowGraphMsg& rMsg)
                        "MprEncode::handleSelectCodecs "
                        "pPrimary == NULL");
       }
-      if (sbAllowAvtCodec && NULL != pDtmf) {
+      if (NULL != pDtmf) {
          OsSysLog::add(FAC_MP, PRI_DEBUG,
                        "MprEncode::handleSelectCodecs "
                        "pDtmf->getCodecType() = %d, "
                        "pDtmf->getCodecPayloadFormat() = %d",
                        pDtmf->getCodecType(),
                        pDtmf->getCodecPayloadFormat());
-      } else {
-         OsSysLog::add(FAC_MP, PRI_DEBUG,
-                       "MprEncode::handleSelectCodecs "
-                       "sbAllowAvtCodec = %d, pDtmf = %p",
-                       sbAllowAvtCodec, pDtmf);
       }
    }
 
@@ -285,22 +252,20 @@ void MprEncode::handleSelectCodecs(MpFlowGraphMsg& rMsg)
       pNewEncoder->initEncode();
       mpPrimaryCodec = pNewEncoder;
       mDoesVad1 = (pNewEncoder->getInfo())->doesVadCng();
-      allocPacketBuffer(*mpPrimaryCodec, mpPacket1Buffer,
-         mpPacket1Payload, mPacket1PayloadBytes, mPacket1PayloadUsed);
+      allocPacketBuffer(*mpPrimaryCodec, mpPacket1Payload, mPacket1PayloadBytes);
+      mPacket1PayloadUsed = 0;
    }
 
-   if (sbAllowAvtCodec) {
-      if (NULL != pDtmf) {
-         ourCodec = pDtmf->getCodecType();
-         payload = pDtmf->getCodecPayloadFormat();
-         ret = pFactory->createEncoder(ourCodec, payload, pNewEncoder);
-         assert(OS_SUCCESS == ret);
-         assert(NULL != pNewEncoder);
-         pNewEncoder->initEncode();
-         mpDtmfCodec = pNewEncoder;
-         allocPacketBuffer(*mpDtmfCodec, mpPacket2Buffer,
-            mpPacket2Payload, mPacket2PayloadBytes, mPacket2PayloadUsed);
-      }
+   if (NULL != pDtmf) {
+      ourCodec = pDtmf->getCodecType();
+      payload = pDtmf->getCodecPayloadFormat();
+      ret = pFactory->createEncoder(ourCodec, payload, pNewEncoder);
+      assert(OS_SUCCESS == ret);
+      assert(NULL != pNewEncoder);
+      pNewEncoder->initEncode();
+      mpDtmfCodec = pNewEncoder;
+      allocPacketBuffer(*mpDtmfCodec, mpPacket2Payload, mPacket2PayloadBytes);
+      mPacket2PayloadUsed = 0;
    }
 
    // delete any SdpCodec objects that we did not keep pointers to.
@@ -396,10 +361,6 @@ int MprEncode::lookupTone(int toneId)
    return ret;
 }
 
-#ifdef DEBUG /* [ */
-static int NumberOfEncodes = 0;
-#endif /* DEBUG ] */
-
 void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
 {
    int numSamplesIn;
@@ -485,9 +446,6 @@ void MprEncode::doDtmfCodec(unsigned int startTs, int samplesPerFrame,
                             int samplesPerSecond)
 {
    int numSampleTimes;
-#ifdef _VXWORKS /* [ */
-   extern volatile int* pOsTC;
-#endif /* _VXWORKS ] */
 #ifdef DEBUG_DTMF_SEND /* [ */
    int skipped;
 #endif /* DEBUG_DTMF_SEND ] */
