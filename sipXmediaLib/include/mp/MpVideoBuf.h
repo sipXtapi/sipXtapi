@@ -17,8 +17,10 @@
 #include "mp/MpTypes.h"
 
 // DEFINES
+#ifdef SIPX_VIDEO // [
 /// This enable color space conversations using CCVT library.
 #define DO_COLORSPACE_CONERSATION
+#endif // SIPX_VIDEO ]
 
 // MACROS
 // EXTERNAL FUNCTIONS
