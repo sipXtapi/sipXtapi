@@ -11,7 +11,9 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include "mp/MpVideoBuf.h"
+#ifdef SIPX_VIDEO // [
 #include "ccvt.h"
+#endif // SIPX_VIDEO ]
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
