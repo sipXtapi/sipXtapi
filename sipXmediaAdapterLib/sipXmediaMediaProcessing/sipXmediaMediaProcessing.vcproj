@@ -4,6 +4,7 @@
 	Version="7.10"
 	Name="sipXmediaMediaProcessing"
 	ProjectGUID="{0E229E54-9234-44DC-8B74-8C6BA553D3C5}"
+	RootNamespace="sipXmediaMediaProcessing"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -32,8 +33,7 @@
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/sipXmediaMediaProcessing.lib"/>
+				Name="VCLibrarianTool"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -72,8 +72,7 @@
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/sipXmediaMediaProcessing.lib"/>
+				Name="VCLibrarianTool"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -115,8 +114,7 @@
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/sipXmediaMediaProcessing.lib"/>
+				Name="VCLibrarianTool"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -155,8 +153,7 @@
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/sipXmediaMediaProcessing.lib"/>
+				Name="VCLibrarianTool"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
