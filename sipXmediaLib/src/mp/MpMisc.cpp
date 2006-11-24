@@ -604,7 +604,7 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
         MpRtpBuf::smpDefaultPool = MpMisc.RtpHeadersPool;
 
         // Create buffer for UDP packets
-        MpMisc.UdpPool = new MpBufPool( NETWORK_MTU+MpArrayBuf::getHeaderSize()
+        MpMisc.UdpPool = new MpBufPool( UDP_MTU+MpArrayBuf::getHeaderSize()
                                       , UDP_BUFS);
         Nprintf("mpStartUp: MpMisc.UdpPool = 0x%X\n",
                 (int) MpMisc.UdpPool, 0,0,0,0,0);

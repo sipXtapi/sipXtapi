@@ -28,9 +28,13 @@
 class OsNotification;
 
 // DEFINES
-#define NETWORK_MTU 1500
-#define RTP_MTU  (NETWORK_MTU-12)   /// Network MTU minus RTP header size.
-#define RTCP_MTU (NETWORK_MTU)
+#define IP_HEADER_SIZE  20    ///< Size of IP packet header
+#define UDP_HEADER_SIZE 8     ///< Size of UDP packet header
+#define ETHERNET_MTU    1500  ///< Maximum Transmission Unit for Ethernet frame
+#define UDP_MTU  (ETHERNET_MTU - IP_HEADER_SIZE - UDP_HEADER_SIZE)
+                              ///< Maximum Transmission Unit for UDP packet.
+#define RTP_MTU  (UDP_MTU-12) ///< Maximum Transmission Unit for RTP packet.
+#define RTCP_MTU (UDP_MTU-12)
 
 #define CODEC_TYPE_PCMU 0
 #define CODEC_TYPE_PCMA 8

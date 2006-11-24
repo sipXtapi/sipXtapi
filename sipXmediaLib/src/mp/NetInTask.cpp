@@ -274,8 +274,8 @@ static  int flushedLimit = 125;
             }
         } else {
             // Flush packet if could not get buffer for it.
-            char buffer[NETWORK_MTU];
-            nRead = pRxpSkt->read(buffer, NETWORK_MTU, &fromIP, &fromPort);
+            char buffer[UDP_MTU];
+            nRead = pRxpSkt->read(buffer, UDP_MTU, &fromIP, &fromPort);
             if (numFlushed++ < 10) {
                 Zprintf("get1Msg: flushing a packet! (%d, %d, %d)"
                     " (after %d DMA frames).\n",
