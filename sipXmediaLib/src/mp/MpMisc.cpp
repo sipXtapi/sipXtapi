@@ -45,6 +45,7 @@
 #include "mp/dmaTask.h"
 #include "mp/MpBuf.h"
 #include "mp/MpAudioBuf.h"
+#include "mp/MpVideoBuf.h"
 #include "mp/MpRtpBuf.h"
 #include "mp/MpUdpBuf.h"
 #include "mp/MpBufferMsg.h"
@@ -73,6 +74,9 @@
 #define ABSOLUTE_MAX_LOG_MSG_LEN 2048
 #endif /* _VXWORKS ] */
 
+#define MAX_VIDEO_BUF_SIZE (352*288*3)  ///< RGB pixels with maximum supported (CIF) resolution.
+
+#define VIDEO_BUFS 50
 #define RTP_BUFS 250
 #define RTCP_BUFS 16
 #define UDP_BUFS 10
@@ -567,6 +571,27 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
                     (int) MpMisc.comfortNoise, 0,0,0,0,0);
         }
 
+        // Create buffers for video frames
+        MpMisc.VideoFramesPool = new MpBufPool( MAX_VIDEO_BUF_SIZE
+                                                +MpArrayBuf::getHeaderSize()
+                                              , VIDEO_BUFS);
+        Nprintf( "mpStartUp: MpMisc.VideoFramesPool = 0x%X\n"
+               , (int) MpMisc.VideoFramesPool, 0,0,0,0,0);
+        if (NULL == MpMisc.VideoFramesPool) {
+            return OS_NO_MEMORY;
+        }
+
+        // Create buffer for MpVideoBuf headers
+        int videoBuffers  = MpMisc.VideoFramesPool->getNumBlocks();
+        MpMisc.VideoFramesHeadersPool = new MpBufPool(sizeof(MpVideoBuf), videoBuffers);
+        Nprintf( "mpStartUp: MpMisc.VideoFramesHeadersPool = 0x%X\n"
+               , (int) MpMisc.VideoFramesHeadersPool, 0,0,0,0,0);
+        if (NULL == MpMisc.VideoFramesHeadersPool) {
+            // TODO:: Think about proper resource deallocation on fail in mpStartUp()
+            return OS_NO_MEMORY;
+        }
+        MpVideoBuf::smpDefaultPool = MpMisc.VideoFramesHeadersPool;
+
         // Create buffer for RTP packets
         MpMisc.RtpPool = new MpBufPool( RTP_MTU+MpArrayBuf::getHeaderSize()
                                       , RTP_BUFS);
@@ -782,6 +807,16 @@ OsStatus mpShutdown(void)
         if (NULL != MpMisc.RtcpPool) {
             delete MpMisc.RtcpPool;
             MpMisc.RtcpPool = NULL;
+        }
+
+        if (NULL != MpMisc.VideoFramesHeadersPool) {
+            delete MpMisc.VideoFramesHeadersPool;
+            MpMisc.VideoFramesHeadersPool = NULL;
+        }
+
+        if (NULL != MpMisc.VideoFramesPool) {
+            delete MpMisc.VideoFramesPool;
+            MpMisc.VideoFramesPool = NULL;
         }
 
         if (NULL != MpMisc.AudioHeadersPool) {

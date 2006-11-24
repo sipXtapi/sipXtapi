@@ -73,6 +73,8 @@ struct __MpGlobals {
         MpBufPool *RawAudioPool;     ///< Memory pool for raw audio data buffers
         MpBufPool *AudioHeadersPool; ///< Memory pool for headers of raw audio
                                      ///<  data buffers
+        MpBufPool *VideoFramesPool;        ///< Memory pool for raw video frames
+        MpBufPool *VideoFramesHeadersPool; ///< Memory pool for MpVideoBuf headers
         MpBufPool *RtpPool;          ///< Memory pool for RTP data buffers
         MpBufPool *RtcpPool;         ///< Memory pool for RTCP data buffers
         MpBufPool *RtpHeadersPool;   ///< Memory pool for headers of RTP and
