@@ -33,7 +33,7 @@
 *  MpBuf::mpPool to store pointer to next buffer.
 */
 struct MpBufList : public MpBuf {
-    friend MpBufPool;
+    friend class MpBufPool;
 public:
 
     /// Get buffer next to current.
