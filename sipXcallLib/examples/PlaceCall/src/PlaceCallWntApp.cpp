@@ -159,7 +159,7 @@ BOOL InitInstance(HINSTANCE hinstance, int nCmdShow)
  
     hwnd = CreateWindow( 
         "MainWClass",        // name of window class 
-        "PlaceCall",            // title-bar string 
+        "PlaceCall",         // title-bar string 
         WS_OVERLAPPEDWINDOW, // top-level window 
         CW_USEDEFAULT,       // default horizontal position 
         CW_USEDEFAULT,       // default vertical position 
