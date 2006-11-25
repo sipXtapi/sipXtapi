@@ -279,7 +279,7 @@ void OsNatDatagramSocket::enableStun(const char* szStunServer, int stunPort, int
     {
         mStunState.bEnabled = true ;
 
-        bool bRC = mpNatAgent->enableStun(this, szStunServer, stunPort, iStunOptions, iKeepAlive) ;
+        bool bRC = mpNatAgent->enableStun(this, szStunServer, stunPort, iStunOptions, iKeepAlive) != 0;
         if (bRC)
         {
             if (bReadFromSocket)
@@ -330,7 +330,7 @@ void OsNatDatagramSocket::enableTurn(const char* szTurnSever,
     {
         mTurnState.bEnabled = true ;
     
-        bool bRC = mpNatAgent->enableTurn(this, szTurnSever, turnPort, iKeepAlive, username, password) ;
+        bool bRC = mpNatAgent->enableTurn(this, szTurnSever, turnPort, iKeepAlive, username, password) != 0;
         if (bRC)
         { 
             if (bReadFromSocket)

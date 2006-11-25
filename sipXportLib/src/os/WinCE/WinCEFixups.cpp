@@ -245,7 +245,7 @@ void UnixTimeToFileTime(time_t t, LPFILETIME pft)
 
 	ll = Int32x32To64(t, 10000000) + 116444736000000000;
 	pft->dwLowDateTime = (DWORD)ll;
-	pft->dwHighDateTime = ll >> 32;
+	pft->dwHighDateTime = (DWORD)(ll >> 32);
 }
 
 
@@ -270,7 +270,7 @@ time_t FileTimeToUnixTime( LPFILETIME pft, int *pMillisecs = NULL )
 		*pMillisecs = iT % 1000;
 	}
 	ll /= 10000000;
-	ttRet = ll;
+	ttRet = (time_t)ll;
 	return ttRet;
 }
 
@@ -374,9 +374,10 @@ long RegQueryValueExB( HKEY hKey, const char *lpName, DWORD *lpReserved, DWORD *
 
 
 
-
 //****************************************************************
-HINSTANCE LoadLibraryExA( const char *pIn, HANDLE hIn, DWORD dwIn )
+HMODULE
+WINAPI
+LoadLibraryExA( const char *pIn, HANDLE hIn, DWORD dwIn )
 {
 	printf( "LoadLibraryExA( ) NOT IMPLEMENTED\n" );
 	return NULL;
@@ -385,7 +386,8 @@ HINSTANCE LoadLibraryExA( const char *pIn, HANDLE hIn, DWORD dwIn )
 
 
 //****************************************************************
-HINSTANCE LoadLibraryA( LPCSTR pIn )
+HINSTANCE
+LoadLibraryA( LPCSTR pIn )
 {
 	wchar_t	wBuf[ MAX_PATH + 1 ];
 	wchar_t	*pW			= NULL;
@@ -409,7 +411,9 @@ HINSTANCE LoadLibraryA( LPCSTR pIn )
 
 
 //****************************************************************
-HINSTANCE GetModuleHandleA( LPCSTR pIn )
+HMODULE
+WINAPI
+GetModuleHandleA( LPCSTR pIn )
 {
 	wchar_t	wBuf[ MAX_PATH + 1 ];
 	wchar_t	*pW			= NULL;
@@ -714,6 +718,15 @@ long CE_RegOpenKeyExA (	 HKEY hKey,
 	printf( "RegOpenKeyExA( ) NOT IMPLEMENTED\n" );
 	return NULL;
 }
+
+/* Came from mmsystem.h */
+
+MMRESULT WINAPI timeSetEvent(UINT uDelay, UINT uResolution,
+    LPTIMECALLBACK fptc, DWORD dwUser, UINT fuEvent)
+{
+   printf( "timeSetEvent( ) NOT IMPLEMENTED\n" );
+   return 0;	
+};
 
 
 #ifdef __cplusplus

@@ -84,10 +84,10 @@ OsDateTimeWnt::OsDateTimeWnt(const OsTime& toTime)
    // and last, SYSTEMTIME to OsDateTime
    mYear        = sysTime.wYear;
    mMonth       = sysTime.wMonth - 1; // windows is 1-based
-   mDay         = sysTime.wDay;
-   mHour        = sysTime.wHour;
-   mMinute      = sysTime.wMinute;
-   mSecond      = sysTime.wSecond;
+   mDay         = (unsigned char)sysTime.wDay;
+   mHour        = (unsigned char)sysTime.wHour;
+   mMinute      = (unsigned char)sysTime.wMinute;
+   mSecond      = (unsigned char)sysTime.wSecond;
    mMicrosecond = sysTime.wMilliseconds * MICROSECS_PER_MILLISEC;
 }
 

@@ -254,6 +254,9 @@ long CE_RegOpenKeyExA (	 HKEY hKey,
 						 REGSAM samDesired,
 						 PHKEY phkResult
 						);
+/* Came from mmsystem.h */
 
+WINMMAPI MMRESULT WINAPI timeSetEvent(UINT uDelay, UINT uResolution,
+    LPTIMECALLBACK fptc, DWORD dwUser, UINT fuEvent);
 #endif // _WINCEFIXUPS_H_
 

@@ -39,7 +39,7 @@ UtlRandom::UtlRandom()
     OsTask::getCurrentTaskId(iTaskId) ;      
     OsDateTime::getCurTime(now) ;
 
-    seed = (now.cvtToMsecs() ^ (now.usecs() + now.usecs() << 16) ^ 
+    seed = (now.cvtToMsecs() ^ (now.usecs() + (now.usecs() << 16)) ^ 
             iTaskId) + siCounter++ ;
 
     srand(seed) ;
