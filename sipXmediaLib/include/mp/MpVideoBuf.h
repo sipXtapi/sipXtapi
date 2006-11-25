@@ -272,6 +272,13 @@ public:
        return mpPlaneParameters[plane].mpBeginPointer;
     }
 
+    /// Get pointer to begin of the given plane.
+    void *getWritePlanePointer(unsigned plane)
+    {
+       assert(plane<mNumPlanes);
+       return mpPlaneParameters[plane].mpBeginPointer;
+    }
+
 //@}
 
 /* ============================ INQUIRY =================================== */
