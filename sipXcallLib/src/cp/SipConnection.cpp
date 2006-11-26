@@ -807,7 +807,7 @@ UtlBoolean SipConnection::dial(const char* dialString,
         if (!bAudioAvailable || 
             mpMediaInterface->createConnection(mConnectionId,
                                                localAddress,
-                                               (void*)pDisplay, 
+                                               ((SIPX_VIDEO_DISPLAY*)pDisplay)->handle,
                                                (void*)pSecurity, 
                                                this, 
                                                dynamic_cast<IMediaEventListener*>(this),
@@ -1123,7 +1123,7 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
         int numMatchingCodecs = 0;
         SdpCodec** matchingCodecs = NULL;
 
-        mpMediaInterface->setVideoWindowDisplay(pDisplay);
+        mpMediaInterface->setVideoWindowDisplay(((SIPX_VIDEO_DISPLAY*)pDisplay)->handle);
         // Get supported codecs
         
         mpMediaInterface->setSecurityAttributes(mpSecurity);

@@ -842,13 +842,14 @@ UtlBoolean CpPeerCall::handleAcceptConnection(OsMsg* pEventMessage)
     ((CpMultiStringMessage*)pEventMessage)->getString2Data(remoteAddress);
     ((CpMultiStringMessage*)pEventMessage)->getString5Data(locationHeader);
     SIPX_CONTACT_ID contactId = (SIPX_CONTACT_ID) ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
-    void* hWnd = (void*) ((CpMultiStringMessage*)pEventMessage)->getInt2Data();
+    SIPX_VIDEO_DISPLAY* pDisplay = (SIPX_VIDEO_DISPLAY*) ((CpMultiStringMessage*)pEventMessage)->getInt2Data();
     void* security = (void*) ((CpMultiStringMessage*)pEventMessage)->getInt3Data();
     int bandWidth = ((CpMultiStringMessage*)pEventMessage)->getInt4Data();
     const char* locationHeaderData = (locationHeader.length() == 0) ? NULL : locationHeader.data();
     
-    if (hWnd && mpMediaInterface)
+    if (pDisplay && mpMediaInterface)
     {
+        SIPX_WINDOW_HANDLE hWnd = pDisplay->handle;
         mpMediaInterface->setVideoWindowDisplay(hWnd);
         if (security)
         {
