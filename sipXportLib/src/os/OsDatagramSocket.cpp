@@ -67,7 +67,8 @@ OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
        const char* remoteHost, int localHostPortNum, const char* localHost) :
    mNumTotalWriteErrors(0),
    mNumRecentWriteErrors(0),
-   mSimulatedConnect(FALSE)
+   mSimulatedConnect(FALSE)     // Simulated connection is off until
+                                // activated in doConnect.
 {
     int                error = 0;
     UtlBoolean         isIp = FALSE;

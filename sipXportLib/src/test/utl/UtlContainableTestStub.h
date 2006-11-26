@@ -8,7 +8,7 @@ class UtlContainableTestStub : public UtlContainable
 private:
         int id ; 
         static int cCount ; 
-        static UtlContainableType CONST_TYPE;
+        static const UtlContainableType TYPE;
         // Nobody should ever be calling the no arg constructor
         UtlContainableTestStub() ; 
 

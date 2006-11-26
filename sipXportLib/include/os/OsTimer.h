@@ -110,7 +110,7 @@ public:
          STARTED                 ///< timer is running and will fire.
    };
 
-   static UtlContainableType TYPE;  /**< Class type used for runtime checking */
+   static const UtlContainableType TYPE;  /**< Class type used for runtime checking */
 
 /* ============================ CREATORS ================================== */
 
@@ -243,9 +243,9 @@ public:
 protected:
 
    /// type for absolute time
-   typedef INT64 Time;
+   typedef Int64 Time;
    /// type for time interval
-   typedef INT64 Interval;
+   typedef Int64 Interval;
 
    OsBSem          mBSem;      //< semaphore to lock access to members
 
