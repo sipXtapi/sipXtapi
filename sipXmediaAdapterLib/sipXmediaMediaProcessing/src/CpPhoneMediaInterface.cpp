@@ -448,25 +448,31 @@ OsStatus CpPhoneMediaInterface::createConnection(int& connectionId,
    // TODO:: sometimes this code should be generalized and used extracted to
    //        external function and use for audio and video and etc.
 
-   // Create the sockets for video stream
+   // Create the sockets for outgoing video stream
    createRtpSocketPair(mediaConnection->mLocalAddress, mediaConnection->mContactType,
                        mediaConnection->mpRtpVideoSocket, mediaConnection->mpRtcpVideoSocket);
 
-   // Start the audio packet pump
-   mpVideoFlowGraph->startReceiveRtp(NULL, 0,
-                                    *mediaConnection->mpRtpAudioSocket,
-                                    *mediaConnection->mpRtcpAudioSocket);
+   if (videoWindowHandle != NULL)
+   {
+      // Set window for remote video
+      setVideoWindowDisplay(videoWindowHandle);
 
-   // Store video stream settings
-   mediaConnection->mRtpVideoReceivePort = mediaConnection->mpRtpVideoSocket->getLocalHostPort() ;
-   mediaConnection->mRtcpVideoReceivePort = mediaConnection->mpRtcpVideoSocket->getLocalHostPort() ;
+      // Start the audio packet pump
+      mpVideoFlowGraph->startReceiveRtp(NULL, 0,
+                                       *mediaConnection->mpRtpAudioSocket,
+                                       *mediaConnection->mpRtcpAudioSocket);
 
-   OsSysLog::add(FAC_CP, PRI_DEBUG, 
-            "CpPhoneMediaInterface::createConnection creating a new RTP socket: %p descriptor: %d",
-            mediaConnection->mpRtpVideoSocket, mediaConnection->mpRtpVideoSocket->getSocketDescriptor());
-   OsSysLog::add(FAC_CP, PRI_DEBUG, 
-            "CpPhoneMediaInterface::createConnection creating a new RTCP socket: %p descriptor: %d",
-            mediaConnection->mpRtcpVideoSocket, mediaConnection->mpRtcpVideoSocket->getSocketDescriptor());
+      // Store video stream settings
+      mediaConnection->mRtpVideoReceivePort = mediaConnection->mpRtpVideoSocket->getLocalHostPort() ;
+      mediaConnection->mRtcpVideoReceivePort = mediaConnection->mpRtcpVideoSocket->getLocalHostPort() ;
+
+      OsSysLog::add(FAC_CP, PRI_DEBUG, 
+               "CpPhoneMediaInterface::createConnection creating a new RTP socket: %p descriptor: %d",
+               mediaConnection->mpRtpVideoSocket, mediaConnection->mpRtpVideoSocket->getSocketDescriptor());
+      OsSysLog::add(FAC_CP, PRI_DEBUG, 
+               "CpPhoneMediaInterface::createConnection creating a new RTCP socket: %p descriptor: %d",
+               mediaConnection->mpRtcpVideoSocket, mediaConnection->mpRtcpVideoSocket->getSocketDescriptor());
+   }
 #endif // SIPX_VIDEO ]
 
    // Set codec factory
@@ -2152,7 +2158,11 @@ UtlBoolean CpPhoneMediaInterface::canAddParty()
 bool CpPhoneMediaInterface::isVideoInitialized(int connectionId)
 {
     // TODO:: isVideoInitialized()
-    return false ;
+#ifdef SIPX_VIDEO // [
+   return true ;
+#else // SIPX_VIDEO ][
+   return false ;
+#endif // SIPX_VIDEO ]
 }
 
 bool CpPhoneMediaInterface::isAudioInitialized(int connectionId) 
