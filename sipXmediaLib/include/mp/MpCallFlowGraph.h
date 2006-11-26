@@ -187,7 +187,7 @@ public:
                   int type, 
                   UtlBoolean repeat,
                   int toneOptions, 
-                  OsNotification* event = NULL);
+                  OsProtectedEvent* event = NULL);
 
      /// Start playing audio from a file
    OsStatus playFile( const char* audioFileName ///< name of the audio file

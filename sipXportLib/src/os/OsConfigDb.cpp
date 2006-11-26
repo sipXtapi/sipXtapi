@@ -631,6 +631,19 @@ int OsConfigDb::getPort(const char* szKey) const
     return port ;
 }
 
+// Delete all entries from the configuration database
+void OsConfigDb::clear() 
+{
+   OsReadLock lock(mRWMutex);
+   
+    while (mDb.entries() > 0)   
+    {
+        DbEntry *e = (DbEntry *)mDb.at(0);
+        mDb.removeAt(0) ;
+        delete e ;
+    }
+}
+
 /* ============================ INQUIRY =================================== */
 
 // Return TRUE if the database is empty, otherwise FALSE.

@@ -24,6 +24,8 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+const UtlContainableType MpResource::TYPE = "MpResource";
+
 // STATIC VARIABLE INITIALIZATIONS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -275,7 +277,7 @@ unsigned MpResource::hash() const
 // Get the ContainableType for a UtlContainable derived class.
 UtlContainableType MpResource::getContainableType() const
 {
-    return "MpResource" ;
+    return TYPE;
 }
 
 /* ============================ INQUIRY =================================== */

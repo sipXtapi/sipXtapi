@@ -63,6 +63,7 @@ public:
       FINISHED
    } VisitState;
 
+static const UtlContainableType TYPE;
 
 /* ============================ CREATORS ================================== */
 ///@name Creators
