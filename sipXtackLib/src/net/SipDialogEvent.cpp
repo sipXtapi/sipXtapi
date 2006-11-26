@@ -818,4 +818,3 @@ void SipDialogEvent::getState(UtlString& state) const
 
 
 /* ============================ FUNCTIONS ================================= */
-

@@ -471,7 +471,7 @@ UtlBoolean HttpServer::isRequestAuthorized(const HttpMessage& request,
                 // Passwords stored as digest in user-config.
                 // Must convert passwords to encrypted ones also
                 UtlString digestPassword ;
-                UtlString realm(PASSWORD_SECRET) ;
+                UtlString realm(mRealm) ;
                 HttpMessage::buildMd5UserPasswordDigest((const char*) user.data(),
                                                                                         (const char*) realm.data(),
                                                                                         (const char*) msgPassword.data(),

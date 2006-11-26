@@ -80,6 +80,8 @@ class Tuple : public UtlContainable
 
    virtual UtlContainableType getContainableType() const;
 
+   static const UtlContainableType TYPE;
+
    virtual unsigned int hash() const;
 
    int compareTo(const UtlContainable *b) const;
@@ -110,7 +112,6 @@ class Tuple : public UtlContainable
    
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
-   static UtlContainableType TYPE ;    /** < Class type used for runtime checking */ 
    
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:

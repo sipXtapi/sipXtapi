@@ -110,6 +110,8 @@ public:
 
    const MimeBodyPart* getMultipart(int partIndex) const;
 
+   int getMultipartCount() const;
+
    BodyClassTypes getClassType() const;
 
    const char*  getContentType() const;
@@ -123,6 +125,7 @@ protected:
    int bodyLength;
    UtlString mBody;
    UtlString  mMultipartBoundary;
+   int mBodyPartCount;
    MimeBodyPart* mpBodyParts[MAX_HTTP_BODY_PARTS];
    BodyClassTypes mClassType;
 

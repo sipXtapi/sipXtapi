@@ -40,7 +40,6 @@
 #ifdef HAVE_SSL
 #include <os/OsSSLConnectionSocket.h>
 #endif /* HAVE_SSL */
-
 #include <os/OsSysLog.h>
 #include <os/OsTask.h>
 #include <os/OsDefs.h>
