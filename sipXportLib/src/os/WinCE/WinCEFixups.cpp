@@ -53,6 +53,7 @@ HANDLE CreateFileB( const char *pFileName, DWORD dwDesiredAccess, DWORD dwShareM
 	if( pFileName )
 	{
 		iRet = MultiByteToWideChar( CP_ACP, 0, pFileName, strlen( pFileName ), wBuf, MAX_PATH );
+		wBuf[ iRet ] = 0;
 //	printf( "  after MultiByteToWideChar( ) - it returned %d\n", iRet );
 //	printf( "  wBuf is *%S*\n", wBuf );
 		pW = wBuf;
@@ -173,6 +174,7 @@ HANDLE CreateSemaphoreB( LPSECURITY_ATTRIBUTES lpSemaphoreAttr, LONG lInitialCou
 	if( pName )
 	{
 		iRet = MultiByteToWideChar( CP_ACP, 0, pName, strlen( pName ), wBuf, MAX_PATH );
+		wBuf[ iRet ] = 0;
 //	printf( "  after MultiByteToWideChar( ) - it returned %d\n", iRet );
 //	printf( "  wBuf is *%S*\n", wBuf );
 		pW = wBuf;
@@ -198,6 +200,7 @@ HANDLE CreateMutexB( LPSECURITY_ATTRIBUTES lpMutexAttr, BOOL bInitialOwner, char
 	if( pName )
 	{
 		iRet = MultiByteToWideChar( CP_ACP, 0, pName, strlen( pName ), wBuf, MAX_PATH );
+		wBuf[ iRet ] = 0;
 //	printf( "  after MultiByteToWideChar( ) - it returned %d\n", iRet );
 //	printf( "  wBuf is *%S*\n", wBuf );
 		pW = wBuf;
@@ -379,7 +382,7 @@ HMODULE
 WINAPI
 LoadLibraryExA( const char *pIn, HANDLE hIn, DWORD dwIn )
 {
-	printf( "LoadLibraryExA( ) NOT IMPLEMENTED\n" );
+	printf( "LoadLibraryExA( ) NOT IMPLEMENTED - <filename> is *%s*\n", pIn );
 	return NULL;
 }
 
@@ -394,18 +397,29 @@ LoadLibraryA( LPCSTR pIn )
 	int		iRet		= 1;
 	if( pIn )
 	{
+		printf( "entering LoadLibraryA( *%s* )\n", pIn );
 		iRet = MultiByteToWideChar( CP_ACP, 0, pIn, strlen( pIn ), wBuf, MAX_PATH );
+		wBuf[ iRet ] = 0;
 //	printf( "  after MultiByteToWideChar( ) - it returned %d\n", iRet );
 //	printf( "  wBuf is *%S*\n", wBuf );
 		pW = wBuf;
-	}
-	if( iRet )
-	{
-		return LoadLibraryW( pW );
+		printf( "  Unicode version of name is (upper S) *%S*\n", pW );
 	}
 	else
+		printf( "entering LoadLibraryA( <NULL> )\n" );
+
+	if( iRet )
+	{
+		HINSTANCE hRet;
+		hRet = LoadLibraryW( pW );
+		printf( "   LoadLibraryA( )returning %8.8X\n", hRet );
+		return hRet;
+	}
+	else
+	{
+		printf( "   LoadLibraryA( )returning NULL\n" );
 		return NULL;
-	
+	}
 }
 
 
@@ -421,6 +435,7 @@ GetModuleHandleA( LPCSTR pIn )
 	if( pIn )
 	{
 		iRet = MultiByteToWideChar( CP_ACP, 0, pIn, strlen( pIn ), wBuf, MAX_PATH );
+		wBuf[ iRet ] = 0;
 //	printf( "  after MultiByteToWideChar( ) - it returned %d\n", iRet );
 //	printf( "  wBuf is *%S*\n", wBuf );
 		pW = wBuf;
@@ -585,6 +600,7 @@ int _open( const char *filename, int oflag )
 	if( filename )
 	{
 		iRet = MultiByteToWideChar( CP_ACP, 0, filename, strlen( filename ), wBuf, MAX_PATH );
+		wBuf[ iRet ] = 0;
 //	printf( "  after MultiByteToWideChar( ) - it returned %d\n", iRet );
 //	printf( "  wBuf is *%S*\n", wBuf );
 		pW = wBuf;
@@ -666,14 +682,15 @@ int PostThreadMessageA(unsigned long idThread,unsigned int Msg,
                       unsigned int wParam,
                       long lParam) 
 {
-	
-	//	printf( "open( fname, oflag ) NOT IMPLEMENTED\n" );
+	printf( "PostThreadMessageA( ) NOT IMPLEMENTED\n" );
 	return 0;
 }
+
+
 //***************************************************************
 int GetMessageA(LPMSG lpMsg,HWND hWnd,unsigned int wMsgFilterMin,unsigned int wMsgFilterMax) 
 {
-	//	printf( "open( fname, oflag ) NOT IMPLEMENTED\n" );
+	printf( "GetMessageA( ) NOT IMPLEMENTED\n" );
 	return -1;	
 };
 
@@ -695,9 +712,10 @@ HANDLE CE_CreateEventA(
 					  BOOL bInitialState, 
 					  LPTSTR lpName) 
 {
-	//	printf( "open( fname, oflag ) NOT IMPLEMENTED\n" );
+	printf( "CE_CreateEventA( ) NOT IMPLEMENTED\n" );
 	return 0;
 }; 
+
 
 /**
   RegOpenKeyExA Redefined
@@ -715,19 +733,22 @@ long CE_RegOpenKeyExA (	 HKEY hKey,
 						 PHKEY phkResult
 						)
 {
-	printf( "RegOpenKeyExA( ) NOT IMPLEMENTED\n" );
+	printf( "CE_RegOpenKeyExA( ) NOT IMPLEMENTED\n" );
 	return NULL;
 }
 
+
 /* Came from mmsystem.h */
-
-MMRESULT WINAPI timeSetEvent(UINT uDelay, UINT uResolution,
-    LPTIMECALLBACK fptc, DWORD dwUser, UINT fuEvent)
+MMRESULT WINAPI timeSetEvent( UINT           uDelay,      
+                              UINT           uResolution, 
+                              LPTIMECALLBACK lpTimeProc,  
+                              DWORD_PTR      dwUser,      
+                              UINT           fuEvent      
+                            )
 {
-   printf( "timeSetEvent( ) NOT IMPLEMENTED\n" );
-   return 0;	
-};
-
+	printf( "timeSetEvent( ) NOT IMPLEMENTED\n" );
+	return NULL;
+}
 
 #ifdef __cplusplus
 extern "C" int _getpid()
