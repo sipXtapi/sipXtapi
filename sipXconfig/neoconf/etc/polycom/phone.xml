@@ -272,13 +272,32 @@
           Note: If less than two codecs are specified, SoundPoint(R) IP will automatically use 
           G711Mu and G711A with default parameters.</description>
       </setting>
+	  <setting name="IP_300.G711Mu" copy-of="G711Mu">
+          <value>1</value>
+		  <description>Control for IP 300s only, other codec preferences are ignored</description>
+      </setting>
+	  <setting name="IP_300.G711A" copy-of="G711A">
+          <value>2</value>
+      </setting>
+	  <setting name="IP_300.G729AB" copy-of="G729AB">
+          <value>3</value>
+      </setting>
+	  <setting name="IP_4000.G711Mu" copy-of="G711Mu">
+          <value>1</value>
+		  <description>Control for IP 4000s only, other codec preferences are ignored</description>
+      </setting>
+	  <setting name="IP_4000.G711A" copy-of="G711A">
+          <value>2</value>
+      </setting>
+	  <setting name="IP_4000.G729AB" copy-of="G729AB">
+          <value>Null</value>
+		  <description>4000 does support G729 but default is to not make it an option consistent w/default
+			  configuration templates from Polycom</description>
+      </setting>
       <setting name="IP_650.G722">
         <type refid="codecPref"/>
         <value>1</value>
-        <description>Specifies the codec preference. 1=highest 3=lowest Null=do not use Give 
-          each codec a unique priority, this will dictate the order used in SDP negotiations. 
-          Note: If less than two codecs are specified, SoundPoint(R) IP will automatically use 
-          G711Mu and G711A with default parameters.</description>
+    	<description>Control for IP 650s only, other codec preferences are ignored</description>
        </setting>
        <setting name="IP_650.G711Mu" copy-of="G711Mu">
           <value>2</value>

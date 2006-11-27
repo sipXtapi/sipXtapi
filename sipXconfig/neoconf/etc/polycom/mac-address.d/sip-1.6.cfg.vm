@@ -1641,13 +1641,7 @@
 #foreach ($setting in $cfg.getSettings($group))
         voice.codecPref.${setting.ProfileName}="$!{setting.Value}"
 #end
-## All profiles seem to have this
-        voice.codecPref.IP_300.G711Mu="1" 
-        voice.codecPref.IP_300.G711A="2" 
-        voice.codecPref.IP_300.G729AB="3" 
-        voice.codecPref.IP_4000.G711Mu="1" 
-        voice.codecPref.IP_4000.G711A="2" 
-        voice.codecPref.IP_4000.G729AB=""/>
+           />
 			<profiles 
 #set ($group = $cfg.EndpointSettings.getSetting('voice').getSetting('audioProfile'))
 #foreach ($subgroup in $group.Values)
