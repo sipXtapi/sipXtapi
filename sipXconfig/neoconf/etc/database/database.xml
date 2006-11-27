@@ -131,6 +131,7 @@
   <target name="version5" description="upgrade from version 4" unless="version6">
     <antcall target="model-refactoring"/>
     <antcall target="phonebook"/>
+    <antcall target="clear-uploads"/>
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="6" -->
   </target>	
@@ -145,6 +146,10 @@
     </sipx-sql>
   </target>
 
+  <target name="clear-uploads" unless="clear-uploads">
+    <db-patch patch="clear-uploads"/>    
+  </target>
+  
   <target name="phonebook" unless="phonebook">
     <db-patch patch="phonebook"/>
   </target>

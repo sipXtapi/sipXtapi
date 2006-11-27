@@ -8,6 +8,7 @@
   <inject property="forwardingContext" object="spring:forwardingContext"/>
   <inject property="phoneContext" object="spring:phoneContext"/>
   <inject property="phoneModelSource" object="spring:phoneModelSource"/>
+  <inject property="uploadSpecificationSource" object="spring:uploadSpecificationSource"/>
   <inject property="callGroupContext" object="spring:callGroupContext"/>
   <inject property="parkOrbitContext" object="spring:parkOrbitContext"/>
   <inject property="gatewayContext" object="spring:gatewayContext"/>

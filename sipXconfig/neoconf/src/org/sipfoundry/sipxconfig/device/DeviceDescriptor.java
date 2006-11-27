@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.device;
 
+
+
 public abstract class DeviceDescriptor {
 
     private String m_beanId;
@@ -78,6 +80,5 @@ public abstract class DeviceDescriptor {
     
     public DeviceVersion[] getVersions() {
         return m_versions;
-    }
-
+    }    
 }

@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.upload;
 
+import java.util.Iterator;
+
 import org.dbunit.Assertion;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
@@ -21,8 +23,7 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
 
 public class UploadTestDb extends SipxDatabaseTestCase {
-
-    private UploadManager m_manager;
+    private UploadManager m_manager;    
     
     protected void setUp() throws Exception {
         m_manager = (UploadManager) TestHelper.getApplicationContext().getBean(
@@ -30,17 +31,17 @@ public class UploadTestDb extends SipxDatabaseTestCase {
     }
     
     public void testLoadSettings() throws Exception {
-        Upload f = m_manager.newUpload(UploadSpecification.getSpecificationById("uploadpolycom"));
+        Upload f = m_manager.newUpload(UploadTest.UNMANAGED);
         f.getSettings();
     }
     
     public void testSave() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        Upload f = m_manager.newUpload(UploadSpecification.UNMANAGED);
+        Upload f = m_manager.newUpload(UploadTest.UNMANAGED);
         f.setName("bezerk");
         m_manager.saveUpload(f);
         
-        IDataSet expectedDs = TestHelper.loadDataSetFlat("upload/SaveUploadExpected.xml");
+        IDataSet expectedDs = TestHelper.loadDataSetFlat("upload/SaveUploadExpected.db.xml");
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         expectedRds.addReplacementObject("[null]", null);
         expectedRds.addReplacementObject("[upload_id]", f.getPrimaryKey());
@@ -52,10 +53,10 @@ public class UploadTestDb extends SipxDatabaseTestCase {
     
     public void testLoadAndDelete() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsertFlat("upload/UploadSeed.xml");
+        TestHelper.cleanInsertFlat("upload/UploadSeed.db.xml");
         Upload f = m_manager.loadUpload(new Integer(1000));
         assertEquals("test upload", f.getName());
-        assertSame(UploadSpecification.UNMANAGED, f.getSpecification());
+        assertEquals(UploadTest.UNMANAGED.getSpecificationId(), f.getSpecification().getSpecificationId());
         
         Integer id = f.getId();        
         m_manager.deleteUpload(f);
@@ -72,17 +73,17 @@ public class UploadTestDb extends SipxDatabaseTestCase {
     
     public void testUndeploy() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsertFlat("upload/GetUploadSeed.xml");
-        Upload upload = (Upload) m_manager.getUpload().toArray(new Upload[0])[0];
+        TestHelper.cleanInsertFlat("upload/GetUploadSeed.db.xml");
+        Upload upload = m_manager.getUpload().iterator().next();
         m_manager.undeploy(upload);
-        Upload fresh = (Upload) m_manager.getUpload().toArray(new Upload[0])[0];
+        Upload fresh = m_manager.getUpload().iterator().next();
         assertFalse(fresh.isDeployed());
     }
     
     public void testGetUpload() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsertFlat("upload/GetUploadSeed.xml");
-        Upload[] f = (Upload[]) m_manager.getUpload().toArray(new Upload[0]);
+        TestHelper.cleanInsertFlat("upload/GetUploadSeed.db.xml");
+        Upload[] f = m_manager.getUpload().toArray(new Upload[0]);
         assertEquals(2, f.length);
         assertEquals("harriot", f[0].getName());        
         assertEquals("ozzie", f[1].getName());
@@ -90,9 +91,9 @@ public class UploadTestDb extends SipxDatabaseTestCase {
     
     public void testRestrictDuplicateUploadTypes() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsertFlat("upload/GetUploadSeed.xml");
-        Upload[] existing = (Upload[]) m_manager.getUpload().toArray(new Upload[0]);
-        Upload upload = m_manager.newUpload(UploadSpecification.UNMANAGED);
+        TestHelper.cleanInsertFlat("upload/GetUploadSeed.db.xml");
+        Upload[] existing = m_manager.getUpload().toArray(new Upload[0]);
+        Upload upload = m_manager.newUpload(UploadTest.UNMANAGED);
         upload.setName("monk parakeet");
         
         try {
@@ -113,5 +114,12 @@ public class UploadTestDb extends SipxDatabaseTestCase {
         m_manager.undeploy(existing[1]);
         m_manager.deploy(upload);
         assertTrue(upload.isDeployed());
+    }
+    
+    public void testLoadSubclass() throws Exception {
+        TestHelper.cleanInsertFlat("upload/ZipUploadSeed.db.xml");
+        Iterator<Upload> existing = m_manager.getUpload().iterator();
+        assertTrue(existing.next() instanceof ZipUpload);
+        assertFalse(existing.hasNext());
     }
 }

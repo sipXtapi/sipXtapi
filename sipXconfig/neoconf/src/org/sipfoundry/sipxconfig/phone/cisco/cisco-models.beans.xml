@@ -39,9 +39,9 @@
     parent="abstractPhone">
   </bean>
   <bean id="ciscoIpFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
-    <constructor-arg value="upload" />
-    <constructor-arg value="ciscoIp" />
-    <constructor-arg value="Cisco 7940/60" />
+    <property name="beanId" value="upload" />
+    <property name="modelFilePath" value="ciscoIp/upload.xml"/>
+    <property name="label" value="Cisco 7940/60" />
   </bean>
   <!-- CISCO ATA and low-end cisco phones -->
   <bean id="ciscoAta" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaPhone"

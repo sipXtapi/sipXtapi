@@ -18,11 +18,15 @@ import junit.framework.TestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 
 public class UploadTest extends TestCase {
-    
     private Upload m_upload;
-    
+    // should match what is in upload.beans.xml
+    final static UploadSpecification UNMANAGED = new UploadSpecification("upload", "unmanagedUpload");
+    static {
+        UNMANAGED.setModelFilePath("unmanagedPhone/upload.xml");
+    }
+
     protected void setUp() {
-        m_upload = new Upload(UploadSpecification.UNMANAGED);
+        m_upload = new Upload(UNMANAGED);
         m_upload.setDirectoryId(String.valueOf(System.currentTimeMillis()));
         m_upload.setModelFilesContext(TestHelper.getModelFilesContext());
         m_upload.setUploadRootDirectory(TestHelper.getTestDirectory() + "/upload");

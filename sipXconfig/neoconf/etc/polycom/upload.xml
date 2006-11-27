@@ -2,57 +2,24 @@
 <!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
   "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
 <model>
-  <type id="required-binary">
-    <file required="yes">
-      <contentType>application/binary</contentType>
-    </file>
-  </type>
-  <type id="binary">
+  <type id="zip">
     <file>
-      <contentType>application/binary</contentType>
-    </file>
-  </type>
-  <type id="xml">
-    <file>
-      <contentType>text/xml</contentType>
+      <contentType>application/zip</contentType>
     </file>
   </type>
   <group name="firmware">
-    <label>Firmware</label>
+    <label>Application Archive</label>
     <description>Polycom Support only distributes firmware upgrades to certified resellers.</description>
-    <setting name="sip.ld">
-      <label>sip.ld</label>
-      <type refid="required-binary"/>
-      <description>SIP Firmware. Avoid version 1.6.1. Versions 1.5.3 or 1.6.2 are 
-        fine.</description>
+    <setting name="sip.zip">
+      <label>SIP Application (zip)</label>
+      <type refid="zip"/>
+      <description>SIP Firmware. Example file name : SoundPoint IP SIP 2.0.2 rts2 B devel sig.zip</description>
     </setting>
-    <setting name="sip.ver">
-      <label>sip.ver</label>
-      <type refid="required-binary"/>
-      <description>Required file that accompanies the sip.ld file.</description>
-    </setting>
-    <setting name="bootrom.ld">
-      <label>bootrom.ld</label>
-      <type refid="binary"/>
-      <description>bootrom.ld file. The new BootROM 3.x supports HTTP, HTTPS, and FTPS boot 
-        server protocols, but once upgraded to this release the phone cannot be downgraded 
-        again to prior versions. If you do not require these additional boot protocols, do not 
-        upgrade but instead stay with BootROM 2.6.1 or 2.6.2. </description>
-    </setting>
-    <setting name="bootrom.ver">
-      <label>bootrom.ver</label>
-      <type refid="binary"/>
-      <description>If using BootROM version prior to 2.6.1 you will also need the file 
-        bootrom.ver.</description>
-    </setting>
-  </group>
-  <group name="dialing">
-    <label>Dialing</label>
-    <setting name="000000000000-directory.xml">
-      <label>directory.xml</label>
-      <type refid="xml"/>
-      <description>Directory of common numbers to dial. See Polycom manual for file format
-        details.</description>
+    <setting name="bootrom">
+      <label>Bootrom (zip)</label>
+      <type refid="zip"/>
+      <description>Bootrom is updated less frequently and many time unnec. It also commonly not downgradable so
+        be aware before upgrading. Example file name : spip_ssip_bootrom_3_2_1_sig.zip</description>
     </setting>
   </group>
 </model>

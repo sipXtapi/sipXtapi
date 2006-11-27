@@ -24,7 +24,7 @@
   </query>
   
   <query name="deployedUploadBySpecification">
-    <![CDATA[from Upload u where u.deployed = 't' and u.beanId || u.specificationId = :spec]]>
+    <![CDATA[from Upload u where u.deployed = 't' and u.specificationId = :spec]]>
   </query>
   
 </hibernate-mapping>

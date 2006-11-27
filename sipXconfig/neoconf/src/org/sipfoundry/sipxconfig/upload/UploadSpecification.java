@@ -10,44 +10,42 @@
  * $
  */
 package org.sipfoundry.sipxconfig.upload;
-import java.util.List;
 
-import org.apache.commons.lang.enums.Enum;
-import org.sipfoundry.sipxconfig.common.BeanEnum;
-import org.sipfoundry.sipxconfig.common.EnumUserType;
+import org.sipfoundry.sipxconfig.device.DeviceDescriptor;
 
 
 /**
  * One UploadSpecification instance for all types of uploads
  */
-public class UploadSpecification extends BeanEnum {
+public class UploadSpecification extends DeviceDescriptor {
+    private String m_modelFilePath;
 
-    public static final UploadSpecification UNMANAGED = new UploadSpecification("upload", 
-            "unmanagedPhone", "Unmanaged TFTP");
-    
-    public UploadSpecification(String beanId, String label) {
-        super(beanId, label);
+    public UploadSpecification() {
+    }
+
+    public UploadSpecification(String beanId) {
+        super(beanId);
     }
     
-    public UploadSpecification(String beanId, String specificationId, String label) {
-        super(beanId, specificationId, label);
+    public UploadSpecification(String beanId, String specificationId) {
+        super(beanId, specificationId);
     }
     
+    /**
+     * @return getModelId()
+     */
     public String getSpecificationId() {
-        return getEnumId();
+        return getModelId();
     }
-    
-    public static class UserType extends EnumUserType {
-        public UserType() {
-            super(UploadSpecification.class);
-        }
+
+    /**
+     * @return File name with upload settings describing files to upload.  Relative to /etc/sipxpbx
+     */
+    public String getModelFilePath() {
+        return m_modelFilePath;
     }
-    
-    public static UploadSpecification getSpecificationById(String id) {
-        return (UploadSpecification) Enum.getEnum(UploadSpecification.class, id);
-    }
-    
-    public static List getSpecifications() {
-        return Enum.getEnumList(UploadSpecification.class);
+
+    public void setModelFilePath(String modelFilePath) {
+        m_modelFilePath = modelFilePath;
     }
 }

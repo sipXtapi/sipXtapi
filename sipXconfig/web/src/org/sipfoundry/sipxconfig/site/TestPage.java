@@ -78,6 +78,8 @@ public abstract class TestPage extends BasePage {
     
     public abstract ModelSource<PhoneModel> getPhoneModelSource();
 
+    public abstract ModelSource<UploadSpecification> getUploadSpecificationSource();
+
     public abstract CallGroupContext getCallGroupContext();
 
     public abstract ParkOrbitContext getParkOrbitContext();
@@ -297,7 +299,8 @@ public abstract class TestPage extends BasePage {
     public IPage newUpload(IRequestCycle cycle) {
         EditUpload page = (EditUpload) cycle.getPage(EditUpload.PAGE);
         page.setUploadId(null);
-        page.setUploadSpecification(UploadSpecification.UNMANAGED);
+        // get first specification, any should do
+        page.setUploadSpecification(getUploadSpecificationSource().getModels().iterator().next());
         page.setReturnPage(PAGE);
         return page;
     }

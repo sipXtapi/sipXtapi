@@ -30,8 +30,8 @@
     singleton="false" parent="abstractPhone">
   </bean>
   <bean id="polycomFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
-    <constructor-arg value="upload" />
-    <constructor-arg value="polycom" />
-    <constructor-arg value="Polycom Soundpoint" />
+    <property name="beanId" value="zipUpload"/>
+    <property name="modelFilePath" value="polycom/upload.xml"/>
+    <property name="label" value="Polycom Soundpoint" />
   </bean>    
 </beans>

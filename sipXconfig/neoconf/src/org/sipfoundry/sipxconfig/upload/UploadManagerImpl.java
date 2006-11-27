@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.upload;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
@@ -47,11 +48,7 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport implements BeanFa
         getHibernateTemplate().delete(upload);
     }
     
-    public List getUploadSpecifications() {
-        return UploadSpecification.getSpecifications();
-    }
-    
-    public List getUpload() {
+    public Collection<Upload> getUpload() {
         return getHibernateTemplate().findByNamedQuery("upload");
     }
         
@@ -73,7 +70,7 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport implements BeanFa
         
         UploadSpecification spec = upload.getSpecification();
         List existing = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "deployedUploadBySpecification", "spec", spec.getName());
+                "deployedUploadBySpecification", "spec", spec.getSpecificationId());
         // should never happen
         if (existing.size() > 1) {
             throw new AlreadyDeployedException("There are already " + existing.size() 

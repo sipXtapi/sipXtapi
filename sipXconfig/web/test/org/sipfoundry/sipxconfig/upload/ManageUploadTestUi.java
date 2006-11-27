@@ -64,19 +64,14 @@ public class ManageUploadTestUi extends WebTestCase {
         // activate
         SiteTestHelper.enableCheckbox(tester, "checkbox", 0, true);
         clickButton("upload:activate");
-        String[][] expectedData = {
-                // [] Name Active Description
-                {
-                    "manage uploads seed", "true", "Unmanaged TFTP",  ""
-                }
-            };
-        assertTableRowsEqual("upload:list", 1, expectedData);
+        String[][] sparseTableCellValues = getDialog().getSparseTableBySummaryOrId("upload:list");
+        assertEquals(sparseTableCellValues[1][1], "true");
 
         // inactivate
         SiteTestHelper.enableCheckbox(tester, "checkbox", 0, true);
         clickButton("upload:inactivate");
-        expectedData[0][1] = "false";
-        assertTableRowsEqual("upload:list", 1, expectedData);        
+        sparseTableCellValues = getDialog().getSparseTableBySummaryOrId("upload:list");
+        assertEquals(sparseTableCellValues[1][1], "false");
     }
     
     private void seedUpload() throws Exception {

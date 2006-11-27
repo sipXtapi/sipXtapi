@@ -7,11 +7,12 @@
   <property name="currentRow" />
   <property name="selections"  initial-value="new org.sipfoundry.sipxconfig.components.SelectMap()"/>
   <inject property="uploadManager" object="spring:uploadManager"/>
+  <inject property="uploadSpecificationSource" object="spring:uploadSpecificationSource"/>
   <property name="upload" />
   <property name="selectedSpecification" />
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
   <bean name="specifications" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
-    <set name="collection" value="uploadManager.uploadSpecifications"/>
+    <set name="collection" value="uploadSpecificationSource.models"/>
     <set name="labelExpression" value="literal:label"/>
   </bean>
   <bean name="specificationSelection" class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator">

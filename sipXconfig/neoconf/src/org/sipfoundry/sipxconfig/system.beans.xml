@@ -143,6 +143,7 @@
       <list>
         <value>gwGeneric</value>
         <value>abstractPhone</value>
+        <value>upload</value>
       </list>
     </property>
   </bean>

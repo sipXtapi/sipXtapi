@@ -20,9 +20,9 @@ import java.io.OutputStream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -37,21 +37,22 @@ public class Upload extends BeanWithSettings {
     private String m_name;
     private String m_description;
     private UploadSpecification m_specification;
+    private String m_specificationId;
     private String m_beanId;
     private String m_uploadRootDirectory;
     private String m_destinationDirectory;
     private boolean m_deployed;
     private String m_directoryId;
+    private ModelSource<UploadSpecification> m_specificationSource;
 
     public Upload() {
-        this(UploadSpecification.UNMANAGED);
     }
 
     protected Upload(String beanId) {
         m_beanId = beanId;
     }
 
-    protected Upload(UploadSpecification specification) {
+    public Upload(UploadSpecification specification) {
         m_beanId = specification.getBeanId();
         m_specification = specification;
     }
@@ -73,13 +74,23 @@ public class Upload extends BeanWithSettings {
     }
 
     /**
-     * @deprecated Not deprecated, but should only be called by DB marshalling. See deploy and undeploy 
+     * Should only be called by DB marshalling and subclasses. See deploy and undeploy 
      */
-    public void setDeployed(boolean enabled) {
-        m_deployed = enabled;
+    public void setDeployed(boolean deployed) {
+        m_deployed = deployed;        
     }
 
     public UploadSpecification getSpecification() {
+        if (m_specification != null) {
+            return m_specification;
+        }
+        if (m_specificationId == null) {
+            throw new IllegalStateException("Model ID not set");
+        }
+        if (m_specificationSource == null) {
+            throw new IllegalStateException("ModelSource not set");
+        }
+        m_specification = m_specificationSource.getModel(m_specificationId);
         return m_specification;
     }
 
@@ -99,18 +110,18 @@ public class Upload extends BeanWithSettings {
     }
 
     public String getSpecificationId() {
-        return m_specification.getSpecificationId();
+        return m_specificationId;
     }
     
-    public void setSpecificationId(String specificationId) {
-        m_specification = UploadSpecification.getSpecificationById(getBeanId() 
-                + StringUtils.defaultString(specificationId));
+    public void setSpecificationId(String specificationId) {        
+        m_specificationId = specificationId;
+        m_specification = null;
     }
 
     @Override
     protected Setting loadSettings() {
-        String id = m_specification.getSpecificationId();
-        Setting settings = getModelFilesContext().loadModelFile("upload.xml", id);
+        String modelFile = getSpecification().getModelFilePath();
+        Setting settings = getModelFilesContext().loadModelFile(modelFile);
 
         // Hack, bean id should be valid 
         settings.acceptVisitor(new UploadDirectorySetter());        
@@ -220,5 +231,13 @@ public class Upload extends BeanWithSettings {
     public void undeploy() {
         getSettings().acceptVisitor(new FileUndeployer());        
         m_deployed = false;
+    }
+
+    public ModelSource<UploadSpecification> getUploadSpecificationSource() {
+        return m_specificationSource;
+    }
+
+    public void setUploadSpecificationSource(ModelSource<UploadSpecification> specificationSource) {
+        m_specificationSource = specificationSource;
     }
 }

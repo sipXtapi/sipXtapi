@@ -11,7 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.upload;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
 
@@ -25,9 +25,7 @@ public interface UploadManager extends DataObjectSource {
     
     public void deleteUpload(Upload upload);
     
-    public List getUploadSpecifications();
-
-    public List getUpload();
+    public Collection<Upload> getUpload();
     
     public Upload newUpload(UploadSpecification manufacturer);
     
