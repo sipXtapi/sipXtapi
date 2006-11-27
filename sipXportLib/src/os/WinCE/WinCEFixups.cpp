@@ -234,8 +234,21 @@ struct tm * __cdecl localtime( const time_t *timer )
 //****************************************************************
 struct tm * __cdecl gmtime( const time_t *timer )
 {
-	printf( "gmtime( ) NOT IMPLEMENTED\n" );
 	static struct tm staticTMgmtime;
+
+	SYSTEMTIME st ;
+	GetSystemTime(&st) ;
+
+	staticTMgmtime.tm_sec = st.wSecond;
+	staticTMgmtime.tm_min = st.wMinute;
+	staticTMgmtime.tm_hour = st.wHour;
+	staticTMgmtime.tm_mday = st.wDay;
+	staticTMgmtime.tm_mon = st.wMonth - 1;
+	staticTMgmtime.tm_year = st.wYear - 1900;
+	staticTMgmtime.tm_wday = st.wDayOfWeek;
+	staticTMgmtime.tm_yday = 1;			// Not implemented
+	staticTMgmtime.tm_isdst = 0;		// Not implemented 
+
 	return &staticTMgmtime;
 }
 

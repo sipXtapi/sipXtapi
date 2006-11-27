@@ -50,16 +50,45 @@ typedef struct timeval GTimeVal;
 
 #if defined(WIN32)
 
-#   ifndef WINCE
-#       include <sys/timeb.h>
-#   endif
 void g_get_current_time(GTimeVal* curTime)
 {
-    struct _timeb timeVal;
-    _ftime( &timeVal );
-//    printf("sec: %ld %msec: %ld\n", timeVal.time, timeVal.millitm);
-    curTime->tv_sec = timeVal.time;
-    curTime->tv_usec = (timeVal.millitm) * 1000;
+    typedef union 
+    {
+        FILETIME         ft ;
+        unsigned __int64 int64 ;    
+    } g_FILETIME ;
+
+    unsigned __int64 ticks ;
+    unsigned __int64 freq ;
+    static bool       sbInitialized = false ;
+    static g_FILETIME sOsFileTime ;
+    static unsigned __int64 sLastTicks = 0 ;
+    static unsigned __int64 sResetTime = 0 ;
+
+    QueryPerformanceCounter((LARGE_INTEGER*) &ticks) ;
+    QueryPerformanceFrequency((LARGE_INTEGER*) &freq) ;
+
+    if (!sbInitialized || sOsFileTime.int64 > sResetTime)
+    {
+        sbInitialized = true ;
+        GetSystemTimeAsFileTime(&sOsFileTime.ft);
+        sResetTime = -1 ; // sOsFileTime.int64 + (freq - 1) ;
+        sLastTicks = ticks ;
+    }
+    else
+    {
+        unsigned __int64 delta = ticks - sLastTicks ;
+
+        sLastTicks = ticks ;
+        sOsFileTime.int64 = sOsFileTime.int64 + 
+                (((unsigned __int64) 10000000) * (delta / freq)) + 
+                (((unsigned __int64) 10000000) * (delta % freq)) / freq ;    
+        
+        SYSTEMTIME si ;
+        FileTimeToSystemTime(&sOsFileTime.ft, &si) ;
+    }
+    curTime->tv_sec = (long)  ((sOsFileTime.int64 - ((unsigned __int64) 116444736000000000)) / ((unsigned __int64) 10000000));
+    curTime->tv_usec = (long) ((sOsFileTime.int64 / ((unsigned __int64) 10)) % ((unsigned __int64) 1000000));
 }
 
 #elif defined(_VXWORKS)
@@ -91,7 +120,7 @@ void g_get_current_time(GTimeVal* curTime)
 #define OSTIMETOLERANCE 40
 
 #define REPORT_SKEW(x) printf x
-// #define REPORT_SKEW(x) /* x */
+//#define REPORT_SKEW(x) /* x */
 
 using namespace std ; 
 
