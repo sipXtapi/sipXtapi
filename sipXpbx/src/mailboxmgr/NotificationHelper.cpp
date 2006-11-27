@@ -205,6 +205,10 @@ NotificationHelper::send (
         {
             response = "Notification Helper: " + response ;
             OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR, response.data());
+            OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_CRIT,
+                          "Error sending e-mail to '%s' via SMTP server '%s' - "
+                          "E-mail notification failed.",
+                          rContact.data(), rSMTPServer.data());
             OsSysLog::flush();
         }
     }
