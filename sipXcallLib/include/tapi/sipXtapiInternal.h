@@ -289,7 +289,8 @@ public:
         pFnWriteProc(NULL),
         pMutex(NULL),
         hTransport(0),
-        pUserData(NULL)
+        pUserData(NULL),
+        bRouteByUser(TRUE)
     {
         memset(szLocalIp, 0, sizeof(szLocalIp));
         memset(szTransport, 0, sizeof(szTransport));
@@ -323,6 +324,7 @@ public:
         iLocalPort = ref.iLocalPort;
         pFnWriteProc = ref.pFnWriteProc;
         pUserData = ref.pUserData ;        
+        bRouteByUser = ref.bRouteByUser;
         return *this;
     }
 
@@ -349,6 +351,7 @@ public:
     OsRWMutex*                pMutex;
     const void*               pUserData;
     char                      cRoutingId[64] ;
+    bool                      bRouteByUser;
 } ;
 
 /**
@@ -632,6 +635,11 @@ SIPX_TRANSPORT_DATA* sipxTransportLookup(const SIPX_TRANSPORT hTransport, SIPX_L
  * @param type Type of lock (read or write)
  */
 void sipxTransportReleaseLock(SIPX_TRANSPORT_DATA* pData, SIPX_LOCK_TYPE type);
+
+/**
+ * Destroy all external transports for a given instance
+ */
+void sipxTransportDestroyAll(const SIPX_INST hInst) ;
 
 /**
  * Adds a log entry to the system log - made necessary to add logging

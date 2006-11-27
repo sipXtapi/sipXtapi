@@ -825,12 +825,12 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                 void* pSecurity = (void*) ((CpMultiStringMessage&)eventMessage).getInt3Data();
                 int bandWidth = ((CpMultiStringMessage&)eventMessage).getInt4Data();
                 SIPX_TRANSPORT_DATA* pTransport = (SIPX_TRANSPORT_DATA*)((CpMultiStringMessage&)eventMessage).getInt5Data();
-                SIPX_RTP_TRANSPORT rtpTransportOptions = (SIPX_RTP_TRANSPORT)((CpMultiStringMessage&)eventMessage).getInt6Data();
+                RtpTransportOptions rtpTransportFlags = (RtpTransportOptions)((CpMultiStringMessage&)eventMessage).getInt6Data();
 
                 const char* locationHeaderData = (locationHeader.length() == 0) ? NULL : locationHeader.data();
 
                 doConnect(callId.data(), addressUrl.data(), desiredConnectionCallId.data(), contactId, pDisplay, pSecurity, 
-                          locationHeaderData, bandWidth, pTransport, rtpTransportOptions) ;
+                          locationHeaderData, bandWidth, pTransport, rtpTransportFlags) ;
                 messageProcessed = TRUE;
                 break;
             }
@@ -1003,7 +1003,8 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                         msgSubType == CP_GET_CAN_ADD_PARTY ||
                         msgSubType == CP_RECORD_AUDIO_CONNECTION_START ||
                         msgSubType == CP_RECORD_AUDIO_CONNECTION_STOP ||
-                        msgSubType == CP_OUTGOING_INFO)
+                        msgSubType == CP_OUTGOING_INFO ||
+                        msgSubType == CP_GET_USERAGENT)
                     {
                         // Get the OsProtectedEvent and signal it to go away
                         OsProtectedEvent* eventWithoutCall = (OsProtectedEvent*)
@@ -1325,7 +1326,7 @@ PtStatus CallManager::connect(const char* callId,
                               const char* locationHeader,
                               const int bandWidth,
                               SIPX_TRANSPORT_DATA* pTransportData,
-                              const SIPX_RTP_TRANSPORT rtpTransportOptions)
+                              const RTP_TRANSPORT rtpTransportOptions)
 {
     UtlString toAddressUrl(toAddressString ? toAddressString : "");
     UtlString fromAddressUrl(fromAddressString ? fromAddressString : "");
@@ -2149,7 +2150,7 @@ OsStatus CallManager::getCalledAddresses(const char* callId, int maxConnections,
     UtlSList* addressList = new UtlSList;
     OsProtectedEvent* numConnectionsSet = eventMgr->alloc();
     numConnectionsSet->setIntData((int) addressList);
-    OsTime maxEventTime(20, 0);
+    OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
     OsStatus returnCode = OS_WAIT_TIMEOUT;
     CpMultiStringMessage getNumMessage(CP_GET_CALLED_ADDRESSES, callId, NULL,
         NULL, NULL, NULL,
@@ -4166,7 +4167,7 @@ void CallManager::doConnect(const char* callId,
                             const char* locationHeader,
                             const int bandWidth,
                             SIPX_TRANSPORT_DATA* pTransport,
-                            const SIPX_RTP_TRANSPORT rtpTransportOptions)
+                            const RtpTransportOptions rtpTransportOptions)
 {
     OsWriteLock lock(mCallListMutex);
     CpCall* call = findHandlingCall(callId);

@@ -425,13 +425,14 @@ void SipMessage::addSdpBody(int nRtpContacts,
                             int rtcpAudioPorts[],
                             int rtpVideoPorts[], 
                             int rtcpVideoPorts[],
+                            RTP_TRANSPORT transportTypes[],
                             int numRtpCodecs, 
                             SdpCodec* rtpCodecs[],
                             SdpSrtpParameters* srtpParams,
                             int videoBandwidth,
                             int videoFramerate,
                             SipMessage* pRequest,
-                            SIPX_RTP_TRANSPORT rtpTransportOptions)
+                            RTP_TRANSPORT rtpTransportOptions)
 {
    if(numRtpCodecs > 0)
    {
@@ -444,43 +445,38 @@ void SipMessage::addSdpBody(int nRtpContacts,
                                        NULL,
                                        NULL,
                                        hostAddresses[0]); // Originator address
-      OsSocket::IpProtocolSocketType transport = OsSocket::UDP;
-      
-      if (rtpTransportOptions == TCP_ONLY)
-      {
-        transport = OsSocket::TCP;
-      }
       
       if (pRequest && pRequest->getSdpBody())
       {
-        sdpBody->addAudioCodecs(nRtpContacts,
+        sdpBody->addCodecsAnswer(nRtpContacts,
                                 hostAddresses, 
                                 rtpAudioPorts, 
                                 rtcpAudioPorts, 
                                 rtpVideoPorts, 
                                 rtcpVideoPorts,
+                                transportTypes,
                                 numRtpCodecs, 
                                 rtpCodecs,
                                 *srtpParams,
                                 videoBandwidth,
                                 videoFramerate,
-                                pRequest->getSdpBody(),
-                                transport) ;
+                                pRequest->getSdpBody());
       }
       else
       {
-        sdpBody->addAudioCodecs(nRtpContacts,
+        sdpBody->addCodecsOffer(nRtpContacts,
                                 hostAddresses, 
                                 rtpAudioPorts, 
                                 rtcpAudioPorts, 
                                 rtpVideoPorts, 
                                 rtcpVideoPorts,
+                                transportTypes,
                                 numRtpCodecs, 
                                 rtpCodecs,
                                 *srtpParams,
                                 videoBandwidth,
                                 videoFramerate,
-                                transport);
+                                rtpTransportOptions);
       }
 
       setBody(sdpBody);
@@ -1529,6 +1525,9 @@ void SipMessage::setAckData(const SipMessage* inviteResponse,
    {
       if( inviteRequest->getContactUri(0, &requestContact))
       {
+         Url contactUrl(requestContact, true) ;
+         contactUrl.includeAngleBrackets() ;
+         contactUrl.toString(requestContact) ;
          setContactField(requestContact);
       }
    }
@@ -1854,14 +1853,15 @@ void SipMessage::setByeErrorData(const SipMessage* byeRequest)
 
 void SipMessage::setCancelData(const char* fromField, const char* toField,
                const char* callId,
-               int sequenceNumber)
+               int sequenceNumber, const char* localContact)
 {
    setRequestData(SIP_CANCEL_METHOD, toField,
                      fromField, toField,
-                     callId, sequenceNumber);
+                     callId, sequenceNumber, localContact);
 }
 
-void SipMessage::setCancelData(const SipMessage* inviteRequest)
+void SipMessage::setCancelData(const SipMessage* inviteRequest,
+                               const char* localContact)
 {
     UtlString uri;
    UtlString fromField;
@@ -1878,10 +1878,9 @@ void SipMessage::setCancelData(const SipMessage* inviteRequest)
    inviteRequest->getCSeqField(&sequenceNum, &sequenceMethod);
     inviteRequest->getRequestUri(&uri);
 
-   //setCancelData(fromField.data(), toField.data(), callId, sequenceNum);
     setRequestData(SIP_CANCEL_METHOD, uri,
                   fromField, toField,
-                  callId, sequenceNum);
+                  callId, sequenceNum, localContact);
 }
 
 
@@ -2393,11 +2392,14 @@ void SipMessage::setToField(const char* address, int port,
 
 void SipMessage::setExpiresField(int expiresInSeconds)
 {
-    char secondsString[MAXIMUM_INTEGER_STRING_LENGTH];
-    sprintf(secondsString, "%d", expiresInSeconds);
+   if (expiresInSeconds >= 0)
+   {
+      char secondsString[MAXIMUM_INTEGER_STRING_LENGTH];
+      sprintf(secondsString, "%d", expiresInSeconds);
 
-    // If the field exists change it, if does not exist create it
-    setHeaderValue(SIP_EXPIRES_FIELD, secondsString, 0);
+       // If the field exists change it, if does not exist create it
+       setHeaderValue(SIP_EXPIRES_FIELD, secondsString, 0);
+   }
 }
 
 void SipMessage::setMinExpiresField(int minimumExpiresInSeconds)
@@ -4985,16 +4987,25 @@ SipTransaction* SipMessage::getSipTransaction() const
 const UtlString SipMessage::getTransportName(bool& bCustom) const
 {
     UtlString transport;
+
     UtlString toField;
     getToField(&toField);
     Url toUrl(toField);
+    UtlString topRoute ;
+    getRouteUri(0, &topRoute) ;
+    Url route(topRoute) ;
     
+    route.getUrlParameter("transport", transport);
+    if (transport.isNull())
+    {
     toUrl.getUrlParameter("transport", transport);
-    if (transport.length() < 1)
+        if (transport.isNull())
     {
         bCustom = false;
     }
-    else if ("UDP" == transport ||
+    }
+
+    if ("UDP" == transport ||
         "TCP" == transport ||
         "TLS" == transport)
     {
@@ -5004,6 +5015,7 @@ const UtlString SipMessage::getTransportName(bool& bCustom) const
     {
         bCustom = true;
     }
+
     return transport;
 
 }

@@ -517,6 +517,8 @@ typedef enum
                                      cause codes for exact status */
     MEDIA_DEVICE_FAILURE,       /**< Fired if the media device is not present or
                                      already in use. */
+    MEDIA_REMOTE_ACTIVE,        /**< Media has been received */
+
 } SIPX_MEDIA_EVENT ;
 
 

@@ -1200,9 +1200,10 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
 
          setSendAddress(remoteHost.data(), remotePort);
 
-         if (bytesRead == 0)
+         if (bytesRead <= 0)
          {
-            return  0 ;
+            delete[] buffer;
+            return bytesRead;
          }
       }
 

@@ -40,6 +40,7 @@ class SdpCodec;
 class OsDatagramSocket;
 class CpPhoneMediaConnection;
 class MpCaptureDeviceBase;
+class ISocketEvent;
 
 //:Class short description which may consist of multiple lines (note the ':')
 // Class detailed description which may extend to multiple lines
@@ -95,10 +96,9 @@ public:
                                      const char* szLocalAddress,
                                      void* videoWindowHandle, 
                                      void* const pSecurityAttributes = NULL,
-                                     ISocketIdle* pIdleSink = NULL,
+                                     ISocketEvent* pIdleEvent = NULL,
                                      IMediaEventListener* pMediaEventListener = NULL,
-                                     const SIPX_RTP_TRANSPORT rtpTransportOptions = UDP_ONLY,
-                                     const RtpTcpRoles role=ACTPASS);
+                                     const RtpTransportOptions rtpTransportOptions=RTP_TRANSPORT_UDP);
    
    virtual OsStatus getCapabilities(int connectionId, 
                                     UtlString& rtpHostAddress, 
@@ -119,6 +119,7 @@ public:
                                       int rtcpAudioPorts[],
                                       int rtpVideoPorts[],
                                       int rtcpVideoPorts[],
+                                      RTP_TRANSPORT transportTypes[],
                                       int& nActualAddresses,
                                       SdpCodecFactory& supportedCodecs,
                                       SdpSrtpParameters& srtpParameters,

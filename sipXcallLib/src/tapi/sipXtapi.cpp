@@ -506,6 +506,10 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
     {
         OsSysLog::add(FAC_SIPXTAPI, PRI_ERR, "Unable to create global media interface") ;
     }
+    else if (szIdentity)
+    {
+        pInterface->setRTCPName(szIdentity) ;
+    }
 
     sipxConfigSetAudioCodecPreferences(pInst, AUDIO_CODEC_BW_NORMAL);
     sipxConfigSetVideoBandwidth(pInst, VIDEO_CODEC_BW_NORMAL);
@@ -675,7 +679,7 @@ SIPXTAPI_API SIPX_RESULT sipxUnInitialize(SIPX_INST hInst,
             {
                 break ;
             }
-        } while (iAttempts < 5) ;
+        } while (iAttempts < 10) ;
 
         if ( bForceShutdown || (nCalls == 0) && (nConferences == 0) && 
                 (nLines == 0) && (nCallManagerCalls == 0) )
@@ -793,10 +797,14 @@ SIPXTAPI_API SIPX_RESULT sipxUnInitialize(SIPX_INST hInst,
                 delete pInst->pEventDispatcher;
             }
 
+            sipxTransportDestroyAll(pInst) ;
+
             delete pInst->pLock ;
             delete pInst->pKeepaliveDispatcher ;
             delete pInst;
             pInst = NULL;
+
+            OsSysLog::shutdown() ;
 
             // Destroy the timer task once more -- some of the destructors (SipUserAgent)
             // mistakenly re-creates them when terminating.
@@ -819,8 +827,6 @@ SIPXTAPI_API SIPX_RESULT sipxUnInitialize(SIPX_INST hInst,
         sipxDestroyMediaFactoryFactory() ;
     }
     
-    OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, "leaving sipxUninitialize");
-
     return rc ;
 }
 /****************************************************************************
@@ -1235,7 +1241,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallConnect");
     SIPX_TRANSPORT hTransport = SIPX_TRANSPORT_NULL;
     bool bEnableLocationHeader=false;
-    SIPX_RTP_TRANSPORT rtpTransportOptions = UDP_ONLY;
+    RTP_TRANSPORT rtpTransportOptions = RTP_TRANSPORT_UDP;
     int bandWidth=AUDIO_CODEC_BW_DEFAULT;
 
     if (options != NULL && options->cbSize)
@@ -1245,12 +1251,12 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
 
         if (options->cbSize == sizeof(SIPX_CALL_OPTIONS))
         {
-            rtpTransportOptions = options->rtpTransportOptions;
+            rtpTransportOptions = (RTP_TRANSPORT)options->rtpTransportFlags;
         }
         else
         {
             // try to provide some drop-in compability.
-            rtpTransportOptions = UDP_ONLY;
+            rtpTransportOptions = RTP_TRANSPORT_UDP;
         }
     }
 
@@ -3479,7 +3485,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
     bool bEnableLocationHeader=false;
     SIPX_TRANSPORT hTransport = SIPX_TRANSPORT_NULL;    
     int bandWidth=AUDIO_CODEC_BW_DEFAULT;
-    SIPX_RTP_TRANSPORT rtpTransportOptions = UDP_ONLY;
+    RTP_TRANSPORT rtpTransportOptions = RTP_TRANSPORT_UDP;
 
     if (options != NULL && options->cbSize)
     {
@@ -3488,12 +3494,12 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
 
         if (options->cbSize == sizeof(SIPX_CALL_OPTIONS))
         {
-            rtpTransportOptions = options->rtpTransportOptions;
+            rtpTransportOptions = (RTP_TRANSPORT)options->rtpTransportFlags;
         }
         else
         {
             // try to provide some drop-in compability.
-            rtpTransportOptions = UDP_ONLY;
+            rtpTransportOptions = RTP_TRANSPORT_UDP;
         }
     }
 
@@ -7286,6 +7292,11 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalContacts(const SIPX_INST hInst,
         for (unsigned int i = 0; (i < (unsigned int)numContacts) && (i < nMaxAddresses); i++)
         {
             *pOutAddress = *contacts[i];
+            if (pOutAddress->eTransportType > TRANSPORT_CUSTOM)
+            {
+                pOutAddress->eTransportType = TRANSPORT_CUSTOM ;
+            }
+
             if (pOutAddress->cbSize)
             {
                 pOutAddress = (SIPX_CONTACT_ADDRESS*) 
@@ -7806,6 +7817,15 @@ SIPXTAPI_API SIPX_RESULT sipxConfigExternalTransportAdd(SIPX_INST const         
     assert(szTransport[0] != '\0');
     assert(writeProc);
 
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+            "sipxConfigExternalTransportAdd hInst=%p, reliable=%d, transport=%s, localIp=%s, localPort=%d, routingId=%s",
+            hInst, bIsReliable, 
+            szTransport ? szTransport : "<NULL>",
+            szLocalIp ? szLocalIp : "<NULL>",
+            iLocalPort,
+            szLocalRoutingId ? szLocalRoutingId : "<NULL>") ;
+
+
     if (hInst)
     {
         pData->pInst = (SIPX_INSTANCE_DATA*) hInst;
@@ -7839,6 +7859,9 @@ SIPXTAPI_API SIPX_RESULT sipxConfigExternalTransportRemove(const SIPX_TRANSPORT 
 {
     SIPX_RESULT rc = SIPX_RESULT_FAILURE;
 
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO, 
+            "sipxConfigExternalTransportRemove") ;
+
     assert(hTransport);
 
     SIPX_TRANSPORT_DATA* pData = sipxTransportLookup(hTransport, SIPX_LOCK_READ);
@@ -7856,6 +7879,23 @@ SIPXTAPI_API SIPX_RESULT sipxConfigExternalTransportRemove(const SIPX_TRANSPORT 
 
     return rc;
 }
+
+
+SIPXTAPI_API SIPX_RESULT sipxConfigExternalTransportRouteByUser(const SIPX_TRANSPORT hTransport,
+                                                                bool                 bRouteByUser) 
+{
+    SIPX_RESULT rc = SIPX_RESULT_FAILURE;
+    SIPX_TRANSPORT_DATA* pTransportData = sipxTransportLookup(hTransport, SIPX_LOCK_WRITE);
+    if (pTransportData)
+    {                 
+        pTransportData->bRouteByUser = bRouteByUser ;
+        rc = SIPX_RESULT_SUCCESS;
+    }
+    sipxTransportReleaseLock(pTransportData, SIPX_LOCK_WRITE) ;
+
+    return rc ;
+}
+
 
 SIPXTAPI_API SIPX_RESULT sipxConfigExternalTransportHandleMessage(const SIPX_TRANSPORT hTransport,
                                                                   const char*  szSourceIP,
@@ -7894,8 +7934,16 @@ SIPXTAPI_API SIPX_RESULT sipxConfigExternalTransportHandleMessage(const SIPX_TRA
     if (pTransportData && pTransportData->pInst && pTransportData->pInst->pSipUserAgent)
     {                       
         // have the user-agent dispatch it
+
+        if (OsSysLog::willLog(FAC_SIP_CUSTOM, PRI_DEBUG))
+        {
+            UtlString data((const char*) pData, nData) ;
+            OsSysLog::add(FAC_SIP_CUSTOM, PRI_DEBUG, "[Received] From: %s To: %s \r\n%s\r\n", 
+                    szSourceIP, szLocalIP, data.data()) ;
+        }
+
         pTransportData->pInst->pSipUserAgent->dispatch(message, SipMessageEvent::APPLICATION, pTransportData);
-        rc = SIPX_RESULT_SUCCESS;;
+        rc = SIPX_RESULT_SUCCESS;
     }
     sipxTransportReleaseLock(pTransportData, SIPX_LOCK_READ) ;
 

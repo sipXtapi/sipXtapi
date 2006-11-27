@@ -33,6 +33,7 @@ class NatMsg ;
 class OsEvent ;
 class OsNatAgentTask;
 class OsNatKeepaliveListener;
+class OsNotification;
 
 
 /**
@@ -154,6 +155,12 @@ public:
      */
     virtual int write(const char* buffer, int bufferLength);
 
+    /**
+     * Standard write - used to invoke the base class write,
+     * without timestamping.
+     */
+    virtual int socketWrite(const char* buffer, int bufferLength,
+                      const char* ipAddress, int port, PacketType packetType=UNKNOWN_PACKET);
 
     /**
      * Standard write, see OsDatagramSocket for details.
@@ -241,6 +248,14 @@ public:
      *        indicates a higher priority.
      */
     virtual void addAlternateDestination(const char* szAddress, int iPort, int priority) ;
+
+
+    /**
+     * Set a notification object to be signaled when the first the data 
+     * packet is received from the socket.  Once this is signaled, the 
+     * notification object is discarded.
+     */
+    virtual void setReadNotification(OsNotification* pNotification) ;
 
 
     /**

@@ -107,7 +107,7 @@ public:
         UtlBoolean bOnHold = false,
 		const char* originalCallId = NULL,
         SIPX_TRANSPORT_DATA* pTransport = NULL,
-        const SIPX_RTP_TRANSPORT rtpTransportOptions = UDP_ONLY);
+        const RTP_TRANSPORT rtpTransportOptions = RTP_TRANSPORT_UDP);
 
     Connection* stringDial(OsMsg& eventMessage, UtlString& dialString);
 

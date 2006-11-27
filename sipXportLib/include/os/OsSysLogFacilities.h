@@ -75,7 +75,8 @@ enum tagOsSysLogFacility
    FAC_CDR,                // CDR generating related
    FAC_VOICEENGINE,        // GIPS VoiceEngine-specific logging
    FAC_VIDEOENGINE,        // GIPS VideoEngine-specific logging
-   FAC_APP,				   // Generic application facility
+   FAC_APP,                // Generic application facility
+   FAC_SIP_CUSTOM,         // Custom transport messages 
    FAC_MAX_FACILITY        // Last Facility (used to for length)
 
    //
@@ -124,6 +125,8 @@ enum tagOsSysLogFacility
   //!enumcode: FAC_VOICEENGINE - GIPS VoiceEngine related
   //!enumcode: FAC_VIDEOENGINE - GIPS VideoEngine related
   //!enumcode: FAC_APP - Generic application messages
+  //!enumcode: FAC_SIP_CUSTOM - custom transport message (in/out)
+
 
 // TYPEDEFS
 typedef enum tagOsSysLogFacility OsSysLogFacility ;

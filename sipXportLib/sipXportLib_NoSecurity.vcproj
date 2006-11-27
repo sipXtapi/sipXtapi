@@ -2609,6 +2609,12 @@
 				RelativePath=".\include\os\OsNatDatagramSocket.h">
 			</File>
 			<File
+				RelativePath=".\src\os\OsNatServerSocket.cpp">
+			</File>
+			<File
+				RelativePath=".\include\os\OsNatServerSocket.h">
+			</File>
+			<File
 				RelativePath=".\src\os\OsNatSocketBaseImpl.cpp">
 			</File>
 			<File

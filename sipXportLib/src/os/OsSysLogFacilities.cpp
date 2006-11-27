@@ -68,6 +68,7 @@ const char* OsSysLog::sFacilityNames[] =
    "VOICEENGINE",
    "VIDEOENGINE",
    "APP",
+   "SIP_CUSTOM",
    "UNKNOWN"
 } ;
 

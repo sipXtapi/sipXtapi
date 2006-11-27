@@ -133,7 +133,7 @@ public:
                              const char* locationHeader = NULL,
                              const int bandWidth=AUDIO_CODEC_BW_DEFAULT,
                              SIPX_TRANSPORT_DATA* pTransportData = NULL,
-                             const SIPX_RTP_TRANSPORT rtpTransportOptions = UDP_ONLY) ;
+                             const RTP_TRANSPORT rtpTransportOptions = RTP_TRANSPORT_UDP) ;
 
     virtual PtStatus consult(const char* idleTargetCallId,
         const char* activeOriginalCallId, const char* originalCallControllerAddress,
@@ -530,8 +530,8 @@ private:
                    const void* pSecurity = NULL,
                    const char* locationHeader = NULL,
                    const int bandWidth = AUDIO_CODEC_BW_DEFAULT,
-                   SIPX_TRANSPORT_DATA* pTransport = NULL,
-                   const SIPX_RTP_TRANSPORT rtpTransportOptions = UDP_ONLY) ;
+                   SIPX_TRANSPORT_DATA* pTransport = SIPX_TRANSPORT_NULL,
+                   const RtpTransportOptions rtpTransportOptions = RTP_TRANSPORT_UDP) ;
 
     void doEnableStun(const UtlString& szStunServer, 
                       int              iServerPort,

@@ -1185,14 +1185,86 @@ UtlBoolean SipUserAgent::sendCustom(SIPX_TRANSPORT_DATA* pTransport,
     }    
     if (pTransport)
     {
-        bSent = pTransport->pFnWriteProc(pTransport->hTransport,
-                                        sendAddress,
-                                        sendPort,
-                                        pTransport->szLocalIp,
-                                        pTransport->iLocalPort,
-                                        (void*)bytes.data(),
-                                        length,
-                                        pTransport->pUserData);
+        if (pTransport->bRouteByUser)
+        {
+            UtlString from, to ;
+            Url fromUrl, toUrl ;
+            UtlString temp ;
+
+            /*
+             * Routing by "user" mode is a bit odd.  Ideally, we return the
+             * identity of the user (user@domain) without a port value.  
+             * However, if we only have hostname, we will return just that 
+             * (as opposed to "@hostname" which getIndentity returns).
+             */           
+            message->getFromUrl(message->isResponse() ? toUrl : fromUrl) ;
+            message->getToUrl(message->isResponse() ? fromUrl : toUrl) ;
+
+            // Parse From routing id
+            fromUrl.setHostPort(-1) ;
+            fromUrl.getUserId(temp) ;
+            if (temp.isNull())
+                fromUrl.getHostAddress(from) ;
+            else
+            {
+                fromUrl.getUserId(from) ;
+            }
+
+            // Parse To routing it
+            toUrl.setHostPort(-1) ;
+            toUrl.getUserId(temp) ;
+            if (temp.isNull())
+                toUrl.getHostAddress(to) ;
+            else
+            {
+                toUrl.getHostAddress(temp) ;
+                if (temp.compareTo("aol.com", UtlString::ignoreCase) == 0)
+                    toUrl.getUserId(to) ;
+                else
+                    toUrl.getIdentity(to) ;
+            }
+
+            if (OsSysLog::willLog(FAC_SIP_CUSTOM, PRI_DEBUG))
+            {
+                UtlString data((const char*) bytes.data(), length) ;
+                OsSysLog::add(FAC_SIP_CUSTOM, PRI_DEBUG, "[Sent] From: %s To: %s\r\n%s\r\n", 
+                        from.data(),
+                        to.data(),
+                        data.data()) ;
+            }
+
+            bSent = pTransport->pFnWriteProc(pTransport->hTransport,
+                                             to.data(),
+                                             -1,
+                                             from.data(),
+                                             -1,
+                                             (void*)bytes.data(),
+                                             length,
+                                             pTransport->pUserData);
+           
+        }
+        else
+        {
+
+            if (OsSysLog::willLog(FAC_SIP_CUSTOM, PRI_DEBUG))
+            {
+                UtlString data((const char*) bytes.data(), length) ;
+                OsSysLog::add(FAC_SIP_CUSTOM, PRI_DEBUG, "[Sent] From: %s To: %s\r\n%s\r\n", 
+                        pTransport->szLocalIp,
+                        sendAddress,
+                        data.data()) ;
+            }
+
+
+            bSent = pTransport->pFnWriteProc(pTransport->hTransport,
+                                             sendAddress,
+                                             sendPort,
+                                             pTransport->szLocalIp,
+                                             pTransport->iLocalPort,
+                                             (void*)bytes.data(),
+                                             length,
+                                             pTransport->pUserData);
+        }
     }
     else
     {

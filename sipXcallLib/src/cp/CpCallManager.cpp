@@ -752,6 +752,12 @@ UtlBoolean CpCallManager::getVoiceQualityReportTarget(UtlString& reportSipUrl)
     return bRC ;
 }
 
+void CpCallManager::getLocalAddress(UtlString& address) 
+{
+    address = mLocalAddress ;
+}
+
+
 
 /* ============================ INQUIRY =================================== */
 UtlBoolean CpCallManager::isCallStateLoggingEnabled()
