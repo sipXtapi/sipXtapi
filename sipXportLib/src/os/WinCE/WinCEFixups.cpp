@@ -377,6 +377,7 @@ long RegQueryValueExB( HKEY hKey, const char *lpName, DWORD *lpReserved, DWORD *
 
 
 
+
 //****************************************************************
 HMODULE
 WINAPI
@@ -682,16 +683,34 @@ int PostThreadMessageA(unsigned long idThread,unsigned int Msg,
                       unsigned int wParam,
                       long lParam) 
 {
-	printf( "PostThreadMessageA( ) NOT IMPLEMENTED\n" );
+	int	iRet;
+
+	if( wParam  ==  NULL )
+	{
+		iRet = PostThreadMessageW( idThread, Msg, wParam, lParam );
+		printf( "PostThreadMessageA( ) - nothing to translate - PostThreadMessageW( ) returned %d\n", iRet );
+		return iRet;
+	}
+	else
+	{
+		printf( "PostThreadMessageA( ) - Msg is 0x%8.8X,  wParam is 0x%8.8X,  *wParam = 0x%8.8X\n", Msg, wParam, *((DWORD *)wParam) );
+		iRet = PostThreadMessageW( idThread, Msg, wParam, lParam );
+		printf( "PostThreadMessageA( ) - PostThreadMessageW( ) returned %d\n\n", iRet );
+		return iRet;
+	}
+
 	return 0;
 }
 
 
 //***************************************************************
-int GetMessageA(LPMSG lpMsg,HWND hWnd,unsigned int wMsgFilterMin,unsigned int wMsgFilterMax) 
+int GetMessageA( LPMSG lpMsg, HWND hWnd, unsigned int wMsgFilterMin, unsigned int wMsgFilterMax ) 
 {
-	printf( "GetMessageA( ) NOT IMPLEMENTED\n" );
-	return -1;	
+//	printf( "GetMessageA( ) NOT IMPLEMENTED\n" );
+    int iRet;
+    iRet = GetMessageW( lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax );
+    printf( "GetMessageW( ) just returned %d\n", iRet );
+    return iRet;
 };
 
 
@@ -712,9 +731,32 @@ HANDLE CE_CreateEventA(
 					  BOOL bInitialState, 
 					  LPTSTR lpName) 
 {
-	printf( "CE_CreateEventA( ) NOT IMPLEMENTED\n" );
-	return 0;
-}; 
+//	printf( "CE_CreateEventA( ) NOT IMPLEMENTED\n" );
+    wchar_t wBuf[ MAX_PATH + 1 ];
+   	wchar_t	*pW  = NULL;
+    int     iRet = 1;
+    if( lpName )
+    {
+        iRet = MultiByteToWideChar( CP_ACP, 0, lpName, strlen( lpName ), wBuf, MAX_PATH );
+        wBuf[ iRet ] = 0;
+//  printf( "  after MultiByteToWideChar( ) - it returned %d\n", iRet );
+//  printf( "  wBuf is *%S*\n", wBuf );
+        pW = wBuf;
+    }
+    if( iRet )
+    {
+        HANDLE hRet;
+        hRet = CreateEventW( lpEventAttributes, bManualReset, bInitialState, pW );
+        printf( "CE_CreateEventA( *%S* ) returned %8.8X\n", pW, hRet );
+        return hRet;
+    }
+    else
+    {
+        printf( "CE_CreateEventA( *%S* ) returned NULL\n", pW );
+        return NULL;
+    }
+    return NULL;
+}
 
 
 /**
