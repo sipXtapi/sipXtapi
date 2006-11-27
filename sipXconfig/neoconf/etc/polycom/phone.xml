@@ -290,7 +290,7 @@
           <value>2</value>
       </setting>
 	  <setting name="IP_4000.G729AB" copy-of="G729AB">
-          <value>Null</value>
+          <value/>
 		  <description>4000 does support G729 but default is to not make it an option consistent w/default
 			  configuration templates from Polycom</description>
       </setting>

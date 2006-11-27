@@ -257,7 +257,7 @@
     </option>
     <option>
        <label>do not use</label>
-      <value>Null</value>
+       <value/>
     </option>  
   </enum>
 </type>
