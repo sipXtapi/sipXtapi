@@ -704,7 +704,8 @@ public:
             calls = 2;
             g_get_current_time(&tStart) ; 
             g_get_current_time(&tNow) ; 
-            while ((tNow.tv_usec - tStart.tv_usec) < 1000) {
+            while ((tNow.tv_usec - tStart.tv_usec) < 1000 && 
+                    (tNow.tv_usec - tStart.tv_usec) >= 0) {
                 g_get_current_time(&tNow) ; 
                 calls++;
             }
