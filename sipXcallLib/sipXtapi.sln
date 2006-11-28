@@ -50,6 +50,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaLib", "..\sipXmedi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaMediaProcessing", "..\sipXmediaAdapterLib\sipXmediaMediaProcessing\sipXmediaMediaProcessing.vcproj", "{0E229E54-9234-44DC-8B74-8C6BA553D3C5}"
 	ProjectSection(ProjectDependencies) = postProject
+		{0EC8287A-481E-45DC-8F95-BAD940AE1038} = {0EC8287A-481E-45DC-8F95-BAD940AE1038}
 	EndProjectSection
 EndProject
 Global
@@ -58,8 +59,6 @@ Global
 		Debug_NoVideo = Debug_NoVideo
 		Release = Release
 		Release_NoVideo = Release_NoVideo
-	EndGlobalSection
-	GlobalSection(ProjectDependencies) = postSolution
 	EndGlobalSection
 	GlobalSection(ProjectConfiguration) = postSolution
 		{9021B9D9-54AA-4A84-89EA-1A2B88D7202E}.Debug.ActiveCfg = Debug|Win32

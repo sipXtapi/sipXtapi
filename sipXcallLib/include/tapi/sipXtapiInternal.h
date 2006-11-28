@@ -62,14 +62,14 @@ typedef struct MIC_SETTING
         bool bInitialized ;     /**< Is the data valid */
         bool bMuted ;           /**< Muted state (regain gain) */
         int  iGain ;            /**< Gain setting (GAIN_MIN-GAIN_MAX) */
-        UtlString device;       /**< Desired auto device */
+        char device[MAX_VIDEO_DEVICE_LENGTH]; /**< Desired auto device */
 } MIC_SETTING ;
 
 typedef struct SPEAKER_SETTING
 {
         bool bInitialized ;     /**< Is the data valid */
         int  iVol ;             /**< Gain setting (VOLUME_MIN-VOLUME_MAX) */
-        UtlString device;       /**< Desired auto device */
+        char device[MAX_VIDEO_DEVICE_LENGTH];       /**< Desired auto device */
 } SPEAKER_SETTING ;
 
 typedef struct AEC_SETTING
@@ -94,12 +94,12 @@ typedef struct NOISE_REDUCTION_SETTING
 
 typedef struct AUDIO_CODEC_PREFERENCES
 {
-    bool              bInitialized;  /**< Is the data valid */
-    int               numCodecs;     /**< Number of codecs */
+    bool              bInitialized;     /**< Is the data valid */
+    int               numCodecs;       /**< Number of codecs */
     SIPX_AUDIO_BANDWIDTH_ID codecPref; /**< Numeric Id of codec preference */
     SIPX_AUDIO_BANDWIDTH_ID fallBack;  /**< Fallback id if codec setting fails */
-    UtlString         sPreferences;  /**< List of preferred codecs */
-    SdpCodec**        sdpCodecArray; /**< Pointer to an array of codecs */
+    UtlString*        pPreferences;    /**< List of preferred codecs */
+    SdpCodec**        sdpCodecArray;   /**< Pointer to an array of codecs */
 } AUDIO_CODEC_PREFERENCES;
 
 typedef struct VIDEO_CODEC_PREFERENCES
@@ -108,7 +108,7 @@ typedef struct VIDEO_CODEC_PREFERENCES
     int               numCodecs;       /**< Number of codecs */
     SIPX_VIDEO_BANDWIDTH_ID codecPref; /**< Numeric Id of codec preference */
     SIPX_VIDEO_BANDWIDTH_ID fallBack;  /**< Fallback id if codec setting fails */
-    UtlString         sPreferences;    /**< List of preferred codecs */
+    UtlString*        pPreferences;    /**< List of preferred codecs */
     SdpCodec**        sdpCodecArray;   /**< Pointer to an array of codecs */
 } VIDEO_CODEC_PREFERENCES;
 
