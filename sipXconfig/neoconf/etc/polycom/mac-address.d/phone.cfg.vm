@@ -14,7 +14,8 @@
 #end	
 />
 	<call>
-		<donotdisturb call.donotdisturb.perReg="0"/>
+#set ($dndPerReg = $cfg.EndpointSettings.getSetting('call/donotdisturb.perReg'))
+              <donotdisturb call.donotdisturb.perReg="$!{dndPerReg.Value}"/> 
 		<autoOffHook 
 #foreach ($line in $lines)
   #set ($i = $velocityCount)
