@@ -24,8 +24,8 @@ static const int sRemoteVideoHeight=240;
 static const int sMargin=5;
  
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int); 
-InitApplication(HINSTANCE); 
-InitInstance(HINSTANCE, int); 
+BOOL InitApplication(HINSTANCE); 
+BOOL InitInstance(HINSTANCE, int); 
 LRESULT CALLBACK MainWndProc(HWND, UINT, WPARAM, LPARAM); 
 
 HWND ghVideo = NULL;
