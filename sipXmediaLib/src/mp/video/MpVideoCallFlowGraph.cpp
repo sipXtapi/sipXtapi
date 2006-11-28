@@ -173,7 +173,7 @@ void MpVideoCallFlowGraph::stopSendRtp()
 {
    printf(">>> Stop send check\n"); fflush(stdout);
 
-   if (!mSending && mpCaptureDevice != NULL)
+   if (mSending && mpCaptureDevice != NULL)
    {
       printf(">>> Stop send begin\n"); fflush(stdout);
 
