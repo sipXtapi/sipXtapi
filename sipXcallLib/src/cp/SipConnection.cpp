@@ -776,6 +776,7 @@ UtlBoolean SipConnection::dial(const char* dialString,
     mBandwidthId = bandWidth;
     mbLocallyInitiatedRemoteHold = bOnHold ;
     int iCSeq ;
+    SIPX_WINDOW_HANDLE pDisplayHandle=NULL;
 
     mRtpTransport = (RTP_TRANSPORT_UDP | RTP_TRANSPORT_TCP) & rtpTransportOptions;
     mRtpTcpRole = (RTP_TCP_ROLE_ACTIVE |  RTP_TCP_ROLE_PASSIVE |  RTP_TCP_ROLE_ACTPASS) & rtpTransportOptions;
@@ -805,12 +806,18 @@ UtlBoolean SipConnection::dial(const char* dialString,
 
         // The local address is always set
         mFromUrl.toString(fromAddress);                
+
+        // Extract handle from SIPX_VIDEO_DISPLAY structure
+        if (pDisplay != NULL)
+        {
+           pDisplayHandle = ((SIPX_VIDEO_DISPLAY*)pDisplay)->handle;
+        }
         
         // Create a new connection in the media flowgraph
         if (!bAudioAvailable || 
             mpMediaInterface->createConnection(mConnectionId,
                                                localAddress,
-                                               ((SIPX_VIDEO_DISPLAY*)pDisplay)->handle,
+                                               pDisplayHandle,
                                                (void*)pSecurity, 
                                                this, 
                                                dynamic_cast<IMediaEventListener*>(this),
@@ -1099,6 +1106,7 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
     SdpCodecFactory supportedCodecs;
     SdpSrtpParameters srtpParams;
     SdpSrtpParameters matchingSrtpParams;
+    SIPX_WINDOW_HANDLE pDisplayHandle = NULL;
 
     memset(&srtpParams, 0, sizeof(srtpParams));
     memset(&matchingSrtpParams, 0, sizeof(matchingSrtpParams));
@@ -1114,7 +1122,14 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
         int numMatchingCodecs = 0;
         SdpCodec** matchingCodecs = NULL;
 
-        mpMediaInterface->setVideoWindowDisplay(((SIPX_VIDEO_DISPLAY*)pDisplay)->handle);
+        // Extract handle from SIPX_VIDEO_DISPLAY structure
+        if (pDisplay != NULL)
+        {
+           pDisplayHandle = ((SIPX_VIDEO_DISPLAY*)pDisplay)->handle;
+        }
+
+        mpMediaInterface->setVideoWindowDisplay(pDisplayHandle);
+
         // Get supported codecs
         
         mpMediaInterface->setSecurityAttributes(mpSecurity);

@@ -847,10 +847,9 @@ UtlBoolean CpPeerCall::handleAcceptConnection(OsMsg* pEventMessage)
     int bandWidth = ((CpMultiStringMessage*)pEventMessage)->getInt4Data();
     const char* locationHeaderData = (locationHeader.length() == 0) ? NULL : locationHeader.data();
     
-    if (pDisplay && mpMediaInterface)
+    if (pDisplay != NULL && pDisplay->handle != NULL && mpMediaInterface != NULL)
     {
-        SIPX_WINDOW_HANDLE hWnd = pDisplay->handle;
-        mpMediaInterface->setVideoWindowDisplay(hWnd);
+        mpMediaInterface->setVideoWindowDisplay(pDisplay->handle);
         if (security)
         {
             mpSecurity = (SIPXTACK_SECURITY_ATTRIBUTES*)security;
