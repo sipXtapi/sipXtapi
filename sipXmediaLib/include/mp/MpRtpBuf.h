@@ -135,7 +135,7 @@ public:
     *  @see See isRtpMarker() for details.
     */
     void enableRtpMarker()
-    { mRtpHeader.vpxcc |= 1<<RTP_M_SHIFT;}
+    { mRtpHeader.mpt |= 1<<RTP_M_SHIFT;}
 
 
     /// Clear marker bit it RTP header.
