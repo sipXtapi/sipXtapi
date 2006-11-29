@@ -530,7 +530,7 @@ private:
                    const void* pSecurity = NULL,
                    const char* locationHeader = NULL,
                    const int bandWidth = AUDIO_CODEC_BW_DEFAULT,
-                   SIPX_TRANSPORT_DATA* pTransport = SIPX_TRANSPORT_NULL,
+                   SIPX_TRANSPORT_DATA* pTransport = NULL,
                    const RtpTransportOptions rtpTransportOptions = RTP_TRANSPORT_UDP) ;
 
     void doEnableStun(const UtlString& szStunServer, 

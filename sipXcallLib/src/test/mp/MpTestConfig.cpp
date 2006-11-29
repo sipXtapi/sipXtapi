@@ -83,14 +83,14 @@ void MpTestConfig::initializeMediaSystem()
    mpStartUp(8000, 80, 64, &configDb);
 
    mMediaTask = MpMediaTask::getMediaTask(16); OsTask::delay(150) ;
-   mPhoneTask = PsPhoneTask::getPhoneTask();   OsTask::delay(150) ;
+//   mPhoneTask = PsPhoneTask::getPhoneTask();   OsTask::delay(150) ;
 
    mpStartTasks() ;      OsTask::delay(150) ;
 
    mFlowGraph = new MpCallFlowGraph();
 
    mMediaTask->setFocus(getFlowGraph());
-   mPhoneTask->activateGroup(PtComponentGroup::SOUND);
+//   mPhoneTask->activateGroup(PtComponentGroup::SOUND);
 
    OsTask::delay(1000) ;
 }
