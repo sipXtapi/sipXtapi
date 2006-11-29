@@ -61,7 +61,7 @@ public class AutoAttendantTest extends XMLTestCase {
     // TODO: fix the test after autoattendant.vm has been changed
     // see: http://paradise.pingtel.com/viewsvn/sipX?view=rev&rev=6846
     // test should not depend on real autoattendant.vm
-    public void _testActivateDefaultAttendant() throws Exception {
+    public void testActivateDefaultAttendant() throws Exception {
         AutoAttendant aa = new AutoAttendant();
         aa.initialize();
         aa.setSettings(TestHelper.loadSettings("sipxvxml/autoattendant.xml"));
@@ -85,7 +85,10 @@ public class AutoAttendantTest extends XMLTestCase {
         StringWriter expected = new StringWriter();
         XmlUnitHelper.style(getReader("autoattendant.xsl"), expectedRdr, expected, null);
 
+        System.out.println(expected.toString());
+        
         System.out.println(actual.toString());
+
         XMLAssert.assertXMLEqual(expected.toString(), actual.toString());
     }
 

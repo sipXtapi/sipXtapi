@@ -56,15 +56,18 @@
 	  <goto nextitem="menuaction"/>
 	</if>
       </filled>
-      <noinput count="1">
+#set( $reprompt = ${onfail.getSetting('reprompt').TypedValue} )
+#if( $reprompt > 0 )
+#foreach($i in [1..$reprompt])
+      <noinput count="$i">
 	<reprompt/>
       </noinput>
-      <noinput count="2">
-	<reprompt/>
-      </noinput>
-      <noinput count="3">
+#end
+#end
+#set( $giveup = $reprompt + 1 )
+      <noinput count="$giveup">
         <goto nextitem="giveup" />
-      </noinput>
+      </noinput>      
     </field>
 
     <block name="menuaction">

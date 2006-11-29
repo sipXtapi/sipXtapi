@@ -21,9 +21,7 @@
 				</if>
 			</filled>
       <noinput count="3">
-        <if cond="failedoption == '0'">
-          <assign name="extension" expr="'999'" />
-        </if>
+          <goto nextitem="giveup" />
       </noinput>
 		</field>
 	</form>
