@@ -123,7 +123,7 @@ public class UserTest extends TestCase {
         assertEquals(2, aliasMappings.size());
         AliasMapping alias = (AliasMapping) aliasMappings.get(0);
         assertEquals("mambo@sipfoundry.org", alias.getIdentity());
-        
+
         final String CONTACT = "sip:username@sipfoundry.org";
         assertEquals(CONTACT, alias.getContact());
         alias = (AliasMapping) aliasMappings.get(1);
@@ -169,7 +169,7 @@ public class UserTest extends TestCase {
         assertNull(user.getExtension(true));
 
         user.addAliases(new String[] {
-            "oooi", "333", "xyz"
+            "5a", "oooi", "333", "xyz", "4444"
         });
         assertEquals("333", user.getExtension(true));
         assertFalse(user.hasNumericUsername());
@@ -177,15 +177,19 @@ public class UserTest extends TestCase {
         user.addAlias("2344");
         assertEquals("333", user.getExtension(true));
 
-        user.addAlias("23");
-        assertEquals("23", user.getExtension(true));
+        user.addAlias("01");
+        assertEquals("01", user.getExtension(true));
 
         user.setUserName("12345");
         assertEquals("12345", user.getExtension(true));
         assertTrue(user.hasNumericUsername());
 
         user.setUserName("12345");
-        assertEquals("23", user.getExtension(false));
+        assertEquals("01", user.getExtension(false));
+
+        // make sure 0 is ignored as possible extension
+        user.addAlias("0");
+        assertEquals("01", user.getExtension(false));
     }
 
     private String getPintoken(String username, String pin) {
