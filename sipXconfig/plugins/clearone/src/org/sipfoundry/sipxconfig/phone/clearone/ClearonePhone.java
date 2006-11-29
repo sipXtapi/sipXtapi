@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.phone.clearone;
 
 import java.io.File;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -21,7 +22,7 @@ public class ClearonePhone extends Phone {
     public static final String BEAN_ID = "clearone";
     public static final String CONFIG_FILE = "C1MAXIP_%s.txt";
     public static final String DIALPLAN_FILE = "c1dialplan_%s.txt";
-    
+
     public ClearonePhone() {
         super(BEAN_ID);
     }
@@ -70,27 +71,19 @@ public class ClearonePhone extends Phone {
     }
 
     private String formatName(String format) {
-        String serialNumber = getSerialNumber().toUpperCase();
+        // HACK: in some cases this function is called before serial number is assigned, it needs
+        // to work with 'null' serial number
+        String serialNumber = StringUtils.defaultString(getSerialNumber()).toUpperCase();
         return String.format(format, serialNumber);
     }
 
     @Override
     protected LineInfo getLineInfo(Line line) {
-        LineInfo info = new LineInfo();
-        info.setDisplayName(line.getSettingValue(ClearoneLineDefaults.DISPLAY_NAME_SETTING));
-        info.setUserId(line.getSettingValue(ClearoneLineDefaults.USER_ID_SETTING));
-        info.setPassword(line.getSettingValue(ClearoneLineDefaults.PASSWORD_SETTING));
-        // phone setting
-        info.setRegistrationServer(getSettingValue(ClearoneLineDefaults.REGISTRATION_SERVER_SETTING));
-        return info;
+        return ClearoneLineDefaults.getLineInfo(this, line);
     }
 
     @Override
     protected void setLineInfo(Line line, LineInfo lineInfo) {
-        line.setSettingValue(ClearoneLineDefaults.DISPLAY_NAME_SETTING, lineInfo.getDisplayName());
-        line.setSettingValue(ClearoneLineDefaults.USER_ID_SETTING, lineInfo.getUserId());
-        line.setSettingValue(ClearoneLineDefaults.PASSWORD_SETTING, lineInfo.getPassword());
-        // phone setting
-        setSettingValue(ClearoneLineDefaults.REGISTRATION_SERVER_SETTING, lineInfo.getRegistrationServer());
+        ClearoneLineDefaults.setLineInfo(this, line, lineInfo);
     }
 }
