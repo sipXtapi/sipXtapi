@@ -305,70 +305,12 @@ TaoStatus TaoAddressAdaptor::addressAddCallListener(TaoMessage& rMsg)
 
 TaoStatus TaoAddressAdaptor::addressCancelAllForward(TaoMessage& rMsg)
 {
-        mpCallMgr->cancelAddressForwarding(0, 0);
-
-        TaoObjHandle clientSocket = rMsg.getSocket();
-        TaoObjHandle objId = rMsg.getTaoObjHandle();
-
-        TaoMessage*     pMsg = new TaoMessage(TaoMessage::RESPONSE_ADDRESS,
-                                                                        TaoMessage::CANCEL_ALL_FORWARDING,
-                                                                        rMsg.getMsgID(),
-                                                                        objId,
-                                                                        clientSocket,
-                                                                        0,
-                                                                        "");
-
-        if (mpSvrTransport->postMessage(*pMsg))
-        {
-                delete pMsg;
-                return TAO_SUCCESS;
-        }
-
-        return TAO_FAILURE;
+    return TAO_FAILURE;
 }
 
 TaoStatus TaoAddressAdaptor::addressCancelForward(TaoMessage& rMsg)
 {
-        TaoString        argList(rMsg.getArgList(), TAOMESSAGE_DELIMITER);
-
-        int size = atoi(argList[0]);
-
-        PtAddressForwarding *pAddressForwards = new PtAddressForwarding[size];
-
-        for (int i = 0, j = 1; i < size; i++)
-        {
-                int type = atoi(argList[j]);
-                int filterType = atoi(argList[j + 1]);
-                int noAnswerTimeout = atoi(argList[j + 4]);
-                pAddressForwards[i] = PtAddressForwarding(argList[j + 2],
-                                                                                                        type,
-                                                                                                        filterType,
-                                                                                                        argList[j + 3],
-                                                                                                        noAnswerTimeout);
-                j += 5;
-        }
-
-        mpCallMgr->cancelAddressForwarding(size, pAddressForwards);
-
-        TaoObjHandle clientSocket = rMsg.getSocket();
-        TaoObjHandle objId = rMsg.getTaoObjHandle();
-
-        TaoMessage*     pMsg = new TaoMessage(TaoMessage::RESPONSE_ADDRESS,
-                                                                        TaoMessage::CANCEL_FORWARDING,
-                                                                        rMsg.getMsgID(),
-                                                                        objId,
-                                                                        clientSocket,
-                                                                        0,
-                                                                        "");
-
-        delete[] pAddressForwards;
-        if (mpSvrTransport->postMessage(*pMsg))
-        {
-                delete pMsg;
-                return TAO_SUCCESS;
-        }
-
-        return TAO_FAILURE;
+    return TAO_FAILURE;
 }
 
 TaoStatus TaoAddressAdaptor::addressGetAddrListeners(TaoMessage& rMsg)
@@ -944,46 +886,7 @@ TaoStatus TaoAddressAdaptor::addressSetDoNotDisturb(TaoMessage& rMsg)
 
 TaoStatus TaoAddressAdaptor::addressSetForwarding(TaoMessage& rMsg)
 {
-        TaoString        argList(rMsg.getArgList(), TAOMESSAGE_DELIMITER);
-
-        int size = atoi(argList[0]);
-
-        PtAddressForwarding *pAddressForwards = new PtAddressForwarding[size];
-
-        for (int i = 0, j = 1; i < size; i++)
-        {
-                int type = atoi(argList[j]);
-                int filterType = atoi(argList[j + 1]);
-                int noAnswerTimeout = atoi(argList[j + 4]);
-                pAddressForwards[i] = PtAddressForwarding(argList[j + 2],
-                                                                                                        type,
-                                                                                                        filterType,
-                                                                                                        argList[j + 3],
-                                                                                                        noAnswerTimeout);
-                j += 5;
-        }
-
-        mpCallMgr->setAddressForwarding(size, pAddressForwards);
-
-        TaoObjHandle clientSocket = rMsg.getSocket();
-        TaoObjHandle objId = rMsg.getTaoObjHandle();
-
-        TaoMessage*     pMsg = new TaoMessage(TaoMessage::RESPONSE_ADDRESS,
-                                                                        TaoMessage::SET_FORWARDING,
-                                                                        rMsg.getMsgID(),
-                                                                        objId,
-                                                                        clientSocket,
-                                                                        0,
-                                                                        "");
-
-        delete[] pAddressForwards;
-        if (mpSvrTransport->postMessage(*pMsg))
-        {
-                delete pMsg;
-                return TAO_SUCCESS;
-        }
-
-        return TAO_FAILURE;
+    return TAO_FAILURE;
 }
 
 TaoStatus TaoAddressAdaptor::addressSetMsgWaiting(TaoMessage& rMsg)

@@ -1402,7 +1402,7 @@ void CpCall::postTaoListenerMessage(int responseCode,
                                     int isRemote,
                                     UtlString targetCallId)
 {
-    if (type == CONNECTION_STATE && !PtEvent::isStateTransitionAllowed(eventId, mLocalConnectionState))
+    if (type == CONNECTION_STATE /* && !PtEvent::isStateTransitionAllowed(eventId, mLocalConnectionState) */)
     {
         osPrintf("Connection state change from %d to %d is illegal\n", mLocalConnectionState, eventId);
         return;
