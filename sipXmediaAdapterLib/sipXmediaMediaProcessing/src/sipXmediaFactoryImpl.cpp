@@ -34,6 +34,7 @@
 #ifdef SIPX_VIDEO // [
 #include "mp/video/MpDShowCaptureDeviceManager.h"
 #include "mp/video/MpCaptureDeviceBase.h"
+#include "mp/video/MpVideoCallFlowGraph.h"
 #endif // SIPX_VIDEO ]
 
 #ifdef INCLUDE_RTCP /* [ */
@@ -605,9 +606,7 @@ OsStatus sipXmediaFactoryImpl::getCodec(int iCodec, UtlString& codec, int &bandW
 
 OsStatus sipXmediaFactoryImpl::setVideoPreviewDisplay(void* pDisplay)
 {
-    // TODO:: sipXmediaFactoryImpl::setVideoPreviewDisplay
-    // TODO:: set{Default}VideoDevice
-    return OS_NOT_YET_IMPLEMENTED;
+    return MpVideoCallFlowGraph::setVideoPreviewWindow(pDisplay);
 }
 
 OsStatus sipXmediaFactoryImpl::setVideoQuality(int quality)

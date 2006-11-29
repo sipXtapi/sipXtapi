@@ -18,12 +18,10 @@
 #include "mp/MpVideoBuf.h"
 #include "mp/video/MpvoGdi.h"
 #include "mp/video/MpeH264.h"
-
-#include "mp/video/MpRemoteVideoTask.h"
+#include "mp/video/MpVideoCallFlowGraph.h"  ///< For MpVideoCallFlowGraph::smpPreviewWindow
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
-extern void *ghVideo;
 
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
@@ -103,7 +101,7 @@ int MpCaptureTask::run(void*)
             mpEncoder->encode(pFrame);
          }
 
-         videoOutput.setWindow((HWND)ghVideo);
+         videoOutput.setWindow((HWND)MpVideoCallFlowGraph::getVideoPreviewWindow());
          videoOutput.render(pFrame);
       }
    }

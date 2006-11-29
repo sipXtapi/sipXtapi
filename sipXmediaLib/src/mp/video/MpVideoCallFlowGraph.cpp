@@ -26,6 +26,7 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+void *MpVideoCallFlowGraph::smpPreviewWindow=NULL;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -128,8 +129,6 @@ OsStatus MpVideoCallFlowGraph::startSendRtp(SdpCodec& rPrimaryCodec,
 {
    OsStatus status;
 
-   printf(">>> Start send check\n"); fflush(stdout);
-
    if (mSending)
    {
       return OS_SUCCESS;
@@ -139,8 +138,6 @@ OsStatus MpVideoCallFlowGraph::startSendRtp(SdpCodec& rPrimaryCodec,
    {
       return OS_FAILED;
    }
-
-   printf(">>> Start send begin\n"); fflush(stdout);
 
    // Prepare RTP session.
    mpConnection->prepareStartSendRtp(rRtpSocket, rRtcpSocket);
@@ -164,19 +161,13 @@ OsStatus MpVideoCallFlowGraph::startSendRtp(SdpCodec& rPrimaryCodec,
 
    mSending = true;
 
-   printf(">>> Start send end\n"); fflush(stdout);
-
    return OS_SUCCESS;
 }
 
 void MpVideoCallFlowGraph::stopSendRtp()
 {
-   printf(">>> Stop send check\n"); fflush(stdout);
-
    if (mSending && mpCaptureDevice != NULL)
    {
-      printf(">>> Stop send begin\n"); fflush(stdout);
-
       // Stop producing video frames
       mpCaptureDevice->stopCapture();
 
@@ -187,16 +178,12 @@ void MpVideoCallFlowGraph::stopSendRtp()
       mpConnection->prepareStopSendRtp();
 
       mSending = false;
-
-      printf(">>> Stop send end\n"); fflush(stdout);
    }
 }
 
 OsStatus MpVideoCallFlowGraph::startReceiveRtp(SdpCodec* pCodecs[], int numCodecs,
                                                OsSocket& rRtpSocket, OsSocket& rRtcpSocket)
 {
-   printf(">>> Start receive check\n"); fflush(stdout);
-
    if (mReceiving)
    {
       return OS_SUCCESS;
@@ -204,8 +191,6 @@ OsStatus MpVideoCallFlowGraph::startReceiveRtp(SdpCodec* pCodecs[], int numCodec
 
    if (mpConnection != NULL)
    {
-      printf(">>> Start receive begin\n"); fflush(stdout);
-
       mpConnection->prepareStartReceiveRtp(rRtpSocket, rRtcpSocket);
 
       if (  (mpRemoteVideoTask != NULL)
@@ -217,18 +202,14 @@ OsStatus MpVideoCallFlowGraph::startReceiveRtp(SdpCodec* pCodecs[], int numCodec
          return OS_SUCCESS;
       }
    }
-
-   printf(">>> Start receive fail\n"); fflush(stdout);
+   
    return OS_FAILED;
 }
 
 void MpVideoCallFlowGraph::stopReceiveRtp()
 {
-   printf(">>> Stop receive check\n"); fflush(stdout);
-
    if (mReceiving)
    {
-      printf(">>> Stop receive begin\n"); fflush(stdout);
       if (mpRemoteVideoTask != NULL)
       {
          mpRemoteVideoTask->stop();
@@ -240,8 +221,6 @@ void MpVideoCallFlowGraph::stopReceiveRtp()
          mReceiving = false;
       }
    }
-
-   printf(">>> Stop receive end\n"); fflush(stdout);
 }
 
 void MpVideoCallFlowGraph::setVideoWindow(const void *hWnd)
@@ -250,6 +229,13 @@ void MpVideoCallFlowGraph::setVideoWindow(const void *hWnd)
    {
       mpRemoteVideoTask->setRemoteVideoWindow(hWnd);
    }
+}
+
+OsStatus MpVideoCallFlowGraph::setVideoPreviewWindow(void *hWnd)
+{
+   smpPreviewWindow = hWnd;
+
+   return OS_SUCCESS;
 }
 
 /* ============================ ACCESSORS ================================= */

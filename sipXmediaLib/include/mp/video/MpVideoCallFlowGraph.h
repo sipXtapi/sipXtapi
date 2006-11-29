@@ -88,13 +88,22 @@ public:
 
 //@}
 
+     /// Set handle for window to which we output local preview video (global for all calls).
+   static
+   OsStatus setVideoPreviewWindow(void *hWnd);
+
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
 //@{
 
+     /// Get handle for window to which we output remote video.
    void *getVideoWindow() const;
 
 //@}
+
+     /// Get handle for window to which we output local preview video (global for all calls).
+   static
+   void* getVideoPreviewWindow() {return smpPreviewWindow;}
 
 /* ============================ INQUIRY =================================== */
 ///@name Inquiry
@@ -158,6 +167,8 @@ DECLARE_IBASE_M
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+
+   static void         *smpPreviewWindow;
 
    MpCaptureDeviceBase *mpCaptureDevice; ///< Video capture device we use in this call.
    MpConnection        *mpConnection;    ///< RTP input/output part.
