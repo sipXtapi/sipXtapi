@@ -1951,6 +1951,12 @@ SIPXTAPI_API char* sipxMediaCauseToString(SIPX_MEDIA_CAUSE cause,
         case MEDIA_CAUSE_INCOMPATIBLE:
             SNPRINTF(szBuffer, nBuffer, "MEDIA_CAUSE_INCOMPATIBLE");
             break ;
+	case MEDIA_CAUSE_DTMF_START:
+            SNPRINTF(szBuffer, nBuffer, "MEDIA_CAUSE_DTMF_START");
+	    break ;
+	case MEDIA_CAUSE_DTMF_STOP:
+            SNPRINTF(szBuffer, nBuffer, "MEDIA_CAUSE_DTMF_STOP");
+	    break ;
     }
     return szBuffer;
 }

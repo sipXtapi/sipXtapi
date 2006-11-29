@@ -598,7 +598,6 @@ SIPXTAPI_API SIPX_RESULT sipxReInitialize(SIPX_INST*  phInst,
             
     if (phInst)
     {
-        SIPX_INST hOldInst = *phInst ;
         SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) *phInst ;
 
         if (pInst)
@@ -1291,7 +1290,6 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
     UtlString lineId ;
     bool bSetFocus = false ;
     char* pLocationHeader = NULL;
-    SIPX_TRANSPORT_DATA* pTransportData = NULL;
 
     assert(szAddress != NULL) ;
 
@@ -3002,7 +3000,6 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherCreate(const SIPX_INST hInst,
 
     // Verify that no content has been previously published for this
     // resourceID and eventType
-    int oldContentCount = 0;
     HttpBody* oldContentPtr = NULL;
     UtlBoolean isDefaultContent;
     SipPublishContentMgr* publishMgr = NULL;
@@ -8283,3 +8280,4 @@ SIPXTAPI_API SIPX_RESULT sipxUtilUrlGetUrlParam(const char* szUrl,
 
     return rc ;
 }
+

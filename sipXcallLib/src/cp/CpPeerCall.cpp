@@ -422,7 +422,6 @@ UtlBoolean CpPeerCall::handleTransfer(OsMsg* pEventMessage)
 UtlBoolean CpPeerCall::handleTransferAddress(OsMsg* pEventMessage)
 {
     CpMultiStringMessage* pMessage = (CpMultiStringMessage*) pEventMessage ;
-    int msgSubType = pEventMessage->getMsgSubType() ;
 
     UtlString sourceCallId ;
     UtlString sourceAddress ;
@@ -1499,7 +1498,7 @@ UtlBoolean CpPeerCall::handleGetSession(OsMsg* pEventMessage)
         ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
     getFieldEvent->getIntData((int&)sessionPtr);
 
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetSession session: 0x%x for callId %s address %s",
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetSession session: %p for callId %s address %s",
                   sessionPtr, callId.data(), address.data());
 
     // Check whether the tag is set in addresses or not. If so, do not need to use callId
@@ -1529,7 +1528,7 @@ UtlBoolean CpPeerCall::handleGetSession(OsMsg* pEventMessage)
         {
             SipSession session;
             connection->getSession(session);
-            OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetSession copying session: 0x%x",
+            OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetSession copying session: %p",
                           sessionPtr);
 
             *sessionPtr = SipSession(session);
@@ -1586,14 +1585,10 @@ UtlBoolean CpPeerCall::handleGetUserAgent(OsMsg* pEventMessage)
 
     CpMultiStringMessage* pMultiMessage = (CpMultiStringMessage*) pEventMessage;
         
-    UtlString callId;
     UtlString remoteAddress;
     
-    pMultiMessage->getString1Data(callId);
     pMultiMessage->getString2Data(remoteAddress);
 
-    void* pInstData = NULL;
-    
     Connection* connection = NULL;
     OsReadLock lock(mConnectionMutex);
     UtlDListIterator iterator(mConnections);
@@ -2124,7 +2119,6 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
         CpMultiStringMessage* pMessage = (CpMultiStringMessage*)&eventMessage;
         const void* pDisplay = (void*) pMessage->getInt1Data();
         offHook(pDisplay);
-        delete pDisplay;
         break;
     }
     
@@ -2503,7 +2497,7 @@ UtlBoolean CpPeerCall::handleNotifyMessage(OsEventMsg& eventMsg)
 		{	
             bool bButtonUp = ((eventData & 0x80000000) == 0x80000000) ;
 			SIPX_TONE_ID id = (SIPX_TONE_ID) (eventData  >> 16) ;
-            int iDuration = (eventData & 0xFFFF) ;	// not used
+            // int iDuration = (eventData & 0xFFFF) ;	// not used
 
 			pConnection->fireSipXMediaEvent(
 					MEDIA_REMOTE_DTMF,
@@ -3337,7 +3331,7 @@ void CpPeerCall::outOfFocus()
     UtlDListIterator iterator(mConnections);
     Connection* connection = NULL;
 
-    while (connection = (Connection*)iterator())
+    while ((connection = (Connection*)iterator()))
     {
         if(connection->isHeld())
         {

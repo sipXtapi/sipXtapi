@@ -145,7 +145,7 @@ void sipxConferenceDestroyAll(const SIPX_INST hInst)
     UtlVoidPtr* pValue ;
     SIPX_CONF hConf ;
         
-    while (pKey = (UtlInt*) pubIter())
+    while ((pKey = (UtlInt*) pubIter()))
     {
         pValue = (UtlVoidPtr*) gpConfHandleMap->findValue(pKey) ;
         hConf = (SIPX_CONF) pValue->getValue();
@@ -184,7 +184,7 @@ void sipxPublisherDestroyAll(const SIPX_INST hInst)
     UtlVoidPtr* pValue ;
     SIPX_PUB hPub;        
 
-    while (pKey = (UtlInt*) pubIter())
+    while ((pKey = (UtlInt*) pubIter()))
     {
         pValue = (UtlVoidPtr*) gpPubHandleMap->findValue(pKey) ;
         hPub = (SIPX_PUB)pValue->getValue();
@@ -208,7 +208,7 @@ void sipxSubscribeDestroyAll(const SIPX_INST hInst)
     UtlVoidPtr* pValue ;
     SIPX_SUB hSub;
         
-    while (pKey = (UtlInt*) iter())
+    while ((pKey = (UtlInt*) iter()))
     {
         pValue = (UtlVoidPtr*) gpSubHandleMap->findValue(pKey) ;
         hSub = (SIPX_SUB)pValue->getValue();
@@ -1080,7 +1080,7 @@ void sipxTransportDestroyAll(const SIPX_INST hInst)
     UtlVoidPtr*        pValue ;
     SIPX_TRANSPORT     hTransport ;
 
-    while (pKey = (UtlInt*) transportIterator())
+    while ((pKey = (UtlInt*) transportIterator()))
     {
         pValue = (UtlVoidPtr*) gpTransportHandleMap->findValue(pKey) ;
         hTransport = (SIPX_TRANSPORT) pValue->getValue();
