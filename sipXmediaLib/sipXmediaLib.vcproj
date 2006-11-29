@@ -4665,9 +4665,6 @@
 					RelativePath=".\src\mp\video\MpCaptureTask.cpp">
 				</File>
 				<File
-					RelativePath=".\src\mp\video\MpDShowCaptureDevice.cpp">
-				</File>
-				<File
 					RelativePath=".\src\mp\video\MpDShowCaptureDeviceManager.cpp">
 				</File>
 				<File
@@ -4691,9 +4688,6 @@
 				</File>
 				<File
 					RelativePath=".\include\mp\video\MpCaptureTask.h">
-				</File>
-				<File
-					RelativePath=".\include\mp\video\MpDShowCaptureDevice.h">
 				</File>
 				<File
 					RelativePath=".\include\mp\video\MpDShowCaptureDeviceManager.h">
