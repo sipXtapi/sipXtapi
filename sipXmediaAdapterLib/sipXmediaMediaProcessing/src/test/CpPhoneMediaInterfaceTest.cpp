@@ -31,6 +31,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
     public:
 
     CpMediaInterfaceFactory* mpMediaFactory;
+    int mInitialized;
 
     CpPhoneMediaInterfaceTest()
     {
@@ -38,13 +39,17 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
     virtual void setUp()
     {
-        mpMediaFactory = sipXmediaFactoryFactory(NULL);
+        if(mInitialized != 1234567890)
+        {
+            mInitialized = 1234567890;
+            mpMediaFactory = sipXmediaFactoryFactory(NULL);
+        }
     } 
 
     virtual void tearDown()
     {
-        sipxDestroyMediaFactoryFactory() ;
-        mpMediaFactory = NULL ;
+        //sipxDestroyMediaFactoryFactory() ;
+        //mpMediaFactory = NULL ;
     }
 
     void testProperties()
@@ -186,6 +191,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         mediaInterface->giveFocus() ;
 
+        printf("Play record_prompt.wav\n");
         mediaInterface->playAudio("record_prompt.wav", false, true, false) ;
         OsTask::delay(3500) ;
         mediaInterface->stopAudio() ;
@@ -195,6 +201,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         mediaInterface->stopTone() ;
         OsTask::delay(100) ;
 
+        printf("Record record.tmp.wav\n");
         mediaInterface->recordMic(10000, 10000, "record.tmp.wav") ;
         mediaInterface->stopRecording() ;
         OsTask::delay(100) ;
@@ -202,10 +209,12 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         OsTask::delay(100) ;
         mediaInterface->stopTone() ;
 
+        printf("Play playback_prompt.wav\n");
         mediaInterface->playAudio("playback_prompt.wav", false, true, false) ;
         OsTask::delay(2500) ;
         mediaInterface->stopAudio() ;
 
+        printf("Play record.tmp.wav\n");
         mediaInterface->playAudio("record.tmp.wav", false, true, false) ;
         OsTask::delay(10000) ;
         mediaInterface->stopAudio() ;
@@ -214,6 +223,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         OsTask::delay(100) ;
         mediaInterface->stopTone() ;
 
+        printf("Play all done\n");
         OsTask::delay(500) ;
 
         mediaInterface->deleteConnection(connectionId) ;
@@ -268,24 +278,29 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         CPPUNIT_ASSERT(connectionId > 0);
 
         mediaInterface->giveFocus() ;
-        
+
+        printf("first tone set\n");        
         mediaInterface->startTone(6, true, false) ;OsTask::delay(250) ;mediaInterface->stopTone() ;OsTask::delay(250) ;
         mediaInterface->startTone(8, true, false) ;OsTask::delay(250) ;mediaInterface->stopTone() ;OsTask::delay(250) ;
         mediaInterface->startTone(4, true, false) ;OsTask::delay(250) ;mediaInterface->stopTone() ;OsTask::delay(250) ;
+        printf("second tone set\n");        
         OsTask::delay(500) ;
         mediaInterface->startTone(6, true, false) ;OsTask::delay(250) ;mediaInterface->stopTone() ;OsTask::delay(250) ;
         mediaInterface->startTone(8, true, false) ;OsTask::delay(250) ;mediaInterface->stopTone() ;OsTask::delay(250) ;
         mediaInterface->startTone(4, true, false) ;OsTask::delay(250) ;mediaInterface->stopTone() ;OsTask::delay(250) ;
+        printf("third tone set\n");        
         OsTask::delay(500) ;
         mediaInterface->startTone(9, true, false) ;OsTask::delay(250) ;mediaInterface->stopTone() ;OsTask::delay(250) ;
         mediaInterface->startTone(5, true, false) ;OsTask::delay(250) ;mediaInterface->stopTone() ;OsTask::delay(250) ;
         mediaInterface->startTone(5, true, false) ;OsTask::delay(250) ;mediaInterface->stopTone() ;OsTask::delay(250) ;
         mediaInterface->startTone(4, true, false) ;OsTask::delay(250) ;mediaInterface->stopTone() ;OsTask::delay(250) ;
+        printf("fourth tone set\n");        
         OsTask::delay(500) ;
         mediaInterface->startTone(9, true, false) ;OsTask::delay(250) ;mediaInterface->stopTone() ;OsTask::delay(250) ;
         mediaInterface->startTone(5, true, false) ;OsTask::delay(250) ;mediaInterface->stopTone() ;OsTask::delay(250) ;
         mediaInterface->startTone(5, true, false) ;OsTask::delay(250) ;mediaInterface->stopTone() ;OsTask::delay(250) ;
         mediaInterface->startTone(4, true, false) ;OsTask::delay(250) ;mediaInterface->stopTone() ;OsTask::delay(250) ;
+        printf("tone set done\n");        
         OsTask::delay(1000) ;
 
         mediaInterface->deleteConnection(connectionId) ;

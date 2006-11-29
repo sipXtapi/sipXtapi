@@ -162,43 +162,54 @@ int NetInTaskHelper::run(void* pInst)
 /************************************************************************/
 void NetInTask::openWriteFD()
 {
-    mpWriteSocket = new OsConnectionSocket(mCmdPort, NULL);
+    printf("NetInTask::openWriteFD mpWriteSocket: %p\n", mpWriteSocket);
+    mpWriteSocket = new OsConnectionSocket(mCmdPort, "127.0.0.1");
+    printf("openWriteFD mpWriteSocket: %p\n", mpWriteSocket);
 }
 
 int NetInTask::getWriteFD()
 {
-    if (NULL != mpWriteSocket) {
-        return mpWriteSocket->getSocketDescriptor();
+    int writeSocketDescriptor = -1;
+    if (NULL != mpWriteSocket)
+    {
+        writeSocketDescriptor = mpWriteSocket->getSocketDescriptor();
     }
 
-    // connect to the socket
-    sLock.acquireRead();
-    if (NULL != mpWriteSocket) {
-        sLock.releaseWrite();
-        return mpWriteSocket->getSocketDescriptor();
-    }
-
-    if (OsTask::getCurrentTask() == NetInTask::spInstance) {
-        OsEvent* pNotify;
-        NetInTaskHelper* pHelper;
-
-        // Start our helper thread to go open the socket
-        pNotify = new OsEvent;
-        pHelper = new NetInTaskHelper(this, pNotify);
-        if (!pHelper->isStarted()) {
-            pHelper->start();
+    else
+    {
+        // connect to the socket
+        sLock.acquireWrite();
+        if (NULL != mpWriteSocket) 
+        {
+            // We lost a race for the lock, don't need to do anything
         }
-        pNotify->wait();
-        delete pHelper;
-        delete pNotify;
-    } else {
-        // we are in a different thread already, go do it ourselves.
-        osPrintf("Not NetInTask: opening connection directly\n");
-        OsSysLog::add(FAC_MP, PRI_DEBUG, "Not NetInTask: opening connection directly\n");
-        openWriteFD();
+
+        else if (OsTask::getCurrentTask() == NetInTask::spInstance) 
+        {
+            OsEvent* pNotify;
+            NetInTaskHelper* pHelper;
+
+            // Start our helper thread to go open the socket
+            pNotify = new OsEvent;
+            pHelper = new NetInTaskHelper(this, pNotify);
+            if (!pHelper->isStarted()) {
+                pHelper->start();
+            }
+            pNotify->wait();
+            delete pHelper;
+            delete pNotify;
+        } 
+        else 
+        {
+            // we are in a different thread already, go do it ourselves.
+            osPrintf("Not NetInTask: opening connection directly\n");
+            OsSysLog::add(FAC_MP, PRI_DEBUG, "Not NetInTask: opening connection directly\n");
+            openWriteFD();
+        }
+        writeSocketDescriptor = mpWriteSocket->getSocketDescriptor();
+        sLock.releaseWrite();
     }
-    sLock.releaseRead();
-    return mpWriteSocket->getSocketDescriptor();
+    return(writeSocketDescriptor);
 }
 
 OsConnectionSocket* NetInTask::getWriteSocket()
@@ -206,6 +217,7 @@ OsConnectionSocket* NetInTask::getWriteSocket()
     if (NULL == mpWriteSocket) {
         getWriteFD();
     }
+    printf("NetInTask::getWriteSocket mpWriteSocket: %p\n", mpWriteSocket);
     return mpWriteSocket;
 }
 
@@ -690,10 +702,14 @@ NetInTask* NetInTask::getNetInTask()
    sLock.releaseRead();
 
    // Synchronize with NetInTask starutp
+   int numDelays = 0;
    while (spInstance->mCmdPort == -1)
    {
        OsTask::delay(20) ;
+       numDelays++;
+       if((numDelays % 50) == 0) printf("NetInTask::getNetInTask %d delays\n", numDelays);
    }
+   printf("NetInTask::getNetInTask mCmdPort: %d\n", spInstance->mCmdPort);
    return spInstance;
 }
 
@@ -768,6 +784,7 @@ OsStatus shutdownNetInTask()
 OsStatus addNetInputSources(OsSocket* pRtpSocket, OsSocket* pRtcpSocket,
       MprFromNet* fwdTo, OsNotification* notify)
 {
+    printf("addNetInputSources\n");
         netInTaskMsg msg;
         int wrote = 0;
         NetInTask* pInst = NetInTask::getNetInTask();
@@ -783,12 +800,20 @@ OsStatus addNetInputSources(OsSocket* pRtpSocket, OsSocket* pRtcpSocket,
             msg.notify = notify;
 
             wrote = writeSocket->write((char *) &msg, NET_TASK_MAX_MSG_LEN);
+            printf("descriptor: %d length: %d wrote: %d\n", 
+                    writeSocket->getSocketDescriptor(),
+                    NET_TASK_MAX_MSG_LEN, wrote);
             if (wrote != NET_TASK_MAX_MSG_LEN)
             {
-                OsSysLog::add(FAC_MP, PRI_ERR,
+                //OsSysLog::add(FAC_MP, PRI_ERR,
+                printf(
                     "addNetInputSources - writeSocket error: 0x%08x,%d wrote %d",
                 (int)writeSocket, writeSocket->getSocketDescriptor(), wrote);
             }
+        }
+        else
+        {
+            printf("fwdTo NULL\n");
         }
         return ((NET_TASK_MAX_MSG_LEN == wrote) ? OS_SUCCESS : OS_BUSY);
 }
