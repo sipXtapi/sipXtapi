@@ -120,10 +120,6 @@ void sipXtapiTestSuite::testPublishAndSubscribe(bool bCallContext,
         validatorSubscribe2.waitForLineEvent(hLine3, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL) ;        
         
         UtlString publisherUrl1("foo@127.0.0.1:8000");
-        if (bCustomTransport)
-        {
-            //publisherUrl1.append(";transport=sub-tunnel");
-        }        
 
         rc = sipxPublisherCreate(g_hInst, &hPub_coffee, publisherUrl1.data(), "coffee", "application/coffeeStuff", "java ready", 10);
         CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == rc);
@@ -358,14 +354,14 @@ void sipXtapiTestSuite::testPublishAndSubscribe(bool bCallContext,
 
                 hTemp = hCall2;
                 sipxCallDestroy(hCall2);
-                validatorSubscribe2.waitForCallEvent(hLine3, hTemp, CALLSTATE_HELD, CALLSTATE_CAUSE_NORMAL, false);
+                // validatorSubscribe2.waitForCallEvent(hLine3, hTemp, CALLSTATE_HELD, CALLSTATE_CAUSE_NORMAL, false);
                 validatorSubscribe2.waitForCallEvent(hLine3, hTemp, CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL, false);
                 validatorSubscribe2.waitForCallEvent(hLine3, hTemp, CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL, false);
             }
             
             hTemp = hCall1;
             sipxCallDestroy(hCall1);
-            validatorSubscribe1.waitForCallEvent(hLine2, hTemp, CALLSTATE_HELD, CALLSTATE_CAUSE_NORMAL, false);
+            //validatorSubscribe1.waitForCallEvent(hLine2, hTemp, CALLSTATE_HELD, CALLSTATE_CAUSE_NORMAL, false);
             validatorSubscribe1.waitForCallEvent(hLine2, hTemp, CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL, false);
             validatorSubscribe1.waitForCallEvent(hLine2, hTemp, CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL, false);
 

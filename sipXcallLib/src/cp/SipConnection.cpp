@@ -6745,7 +6745,6 @@ UtlBoolean SipConnection::send(SipMessage& message,
             sipUserAgent->getLocalAddress(&localIp, &port, protocol);        
             message.setLocalIp(localIp);
         }
-        SIPX_TRANSPORT_DATA* pTransport = NULL;
         if (false == SIPX_TRANSPORT_DATA::isCustomTransport(&mTransport))
         {
             bool bDummy;
