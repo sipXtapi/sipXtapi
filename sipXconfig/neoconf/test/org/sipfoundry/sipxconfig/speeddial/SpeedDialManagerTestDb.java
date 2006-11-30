@@ -11,23 +11,28 @@
  */
 package org.sipfoundry.sipxconfig.speeddial;
 
+import java.util.Collections;
+
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.springframework.context.ApplicationContext;
 
 public class SpeedDialManagerTestDb extends SipxDatabaseTestCase {
 
-    private SpeedDialManager m_context;
+    private SpeedDialManager m_sdm;
+    private CoreContext m_coreContext;
 
     protected void setUp() throws Exception {
         ApplicationContext appContext = TestHelper.getApplicationContext();
-        m_context = (SpeedDialManager) appContext.getBean(SpeedDialManager.CONTEXT_BEAN_NAME);
+        m_sdm = (SpeedDialManager) appContext.getBean(SpeedDialManager.CONTEXT_BEAN_NAME);
+        m_coreContext = (CoreContext) appContext.getBean(CoreContext.CONTEXT_BEAN_NAME);
         TestHelper.cleanInsert("ClearDb.xml");
     }
 
     public void testGetSpeedDialForUser() throws Exception {
         TestHelper.insertFlat("speeddial/speeddial.db.xml");
-        SpeedDial speedDial = m_context.getSpeedDialForUserId(1001);
+        SpeedDial speedDial = m_sdm.getSpeedDialForUserId(1001);
         assertNotNull(speedDial);
         assertEquals(3, speedDial.getButtons().size());
         assertEquals("222", speedDial.getButtons().get(2).getNumber());
@@ -35,14 +40,14 @@ public class SpeedDialManagerTestDb extends SipxDatabaseTestCase {
 
     public void testGetNewSpeedDialForUser() throws Exception {
         TestHelper.insertFlat("speeddial/speeddial.db.xml");
-        SpeedDial speedDial = m_context.getSpeedDialForUserId(1002);
+        SpeedDial speedDial = m_sdm.getSpeedDialForUserId(1002);
         assertNotNull(speedDial);
         assertEquals(0, speedDial.getButtons().size());
     }
 
     public void testSaveSpeedDialForUser() throws Exception {
         TestHelper.insertFlat("speeddial/speeddial.db.xml");
-        SpeedDial speedDial = m_context.getSpeedDialForUserId(1002);
+        SpeedDial speedDial = m_sdm.getSpeedDialForUserId(1002);
 
         final int buttonCount = 5;
         for (int i = 0; i < buttonCount; i++) {
@@ -52,8 +57,18 @@ public class SpeedDialManagerTestDb extends SipxDatabaseTestCase {
             speedDial.getButtons().add(b);
         }
 
-        m_context.saveSpeedDial(speedDial);
+        m_sdm.saveSpeedDial(speedDial);
         assertEquals(buttonCount, getConnection().getRowCount("speeddial_button",
                 "WHERE label = 'testSave'"));
     }
+
+    public void testOnDeleteUser() throws Exception {
+        TestHelper.insertFlat("speeddial/speeddial.db.xml");        
+        assertEquals(3, getConnection().getRowCount("speeddial_button"));
+        assertEquals(1, getConnection().getRowCount("speeddial"));
+        m_coreContext.deleteUsers(Collections.singleton(1001));
+        assertEquals(0, getConnection().getRowCount("speeddial_button"));
+        assertEquals(0, getConnection().getRowCount("speeddial"));
+    }
+
 }
