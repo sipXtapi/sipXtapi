@@ -400,9 +400,9 @@
 <!ELEMENT phonebook EMPTY>
 <!ATTLIST phonebook
     phonebook_id CDATA #REQUIRED
-    members_csv_filename CDATA #IMPLIED
     name CDATA #REQUIRED
     description CDATA #IMPLIED
+    members_csv_filename CDATA #IMPLIED
 >
 
 <!ELEMENT phonebook_consumer EMPTY>
@@ -441,6 +441,20 @@
     value_storage_id CDATA #REQUIRED
     value CDATA #REQUIRED
     path CDATA #REQUIRED
+>
+
+<!ELEMENT speeddial EMPTY>
+<!ATTLIST speeddial
+    speeddial_id CDATA #REQUIRED
+    user_id CDATA #REQUIRED
+>
+
+<!ELEMENT speeddial_button EMPTY>
+<!ATTLIST speeddial_button
+    sppeddial_id CDATA #REQUIRED
+    label CDATA #IMPLIED
+    number CDATA #IMPLIED
+    position CDATA #REQUIRED
 >
 
 <!ELEMENT supervisor EMPTY>

@@ -92,4 +92,7 @@
   <table name="phonebook"/>
   <table name="phonebook_member"/>
   <table name="phonebook_consumer"/>
+  
+  <table name="speeddial"/>
+  <table name="speeddial_button"/>
 </dataset>

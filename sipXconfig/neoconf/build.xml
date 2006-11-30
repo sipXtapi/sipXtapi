@@ -303,8 +303,9 @@
       </classpath>
       <configuration propertyFile="${top.dir}/meta/hibernate.properties">
         <fileset dir="${src.dir}" id="id">
-          <include name="**/admin.hbm.xml" />
-          <include name="**/permission.hbm.xml" />
+          <include name="**/common.hbm.xml" />
+          <include name="**/setting.hbm.xml" />		
+          <include name="**/speeddial.hbm.xml" />
         </fileset>
       </configuration>
 

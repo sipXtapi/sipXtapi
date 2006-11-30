@@ -132,6 +132,7 @@
     <antcall target="model-refactoring"/>
     <antcall target="phonebook"/>
     <antcall target="clear-uploads"/>
+    <antcall target="speeddial"/>
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="6" -->
   </target>	
@@ -146,6 +147,10 @@
     </sipx-sql>
   </target>
 
+  <target name="speeddial" unless="speeddial">
+    <db-patch patch="speeddial"/>
+  </target>
+	
   <target name="clear-uploads" unless="clear-uploads">
     <db-patch patch="clear-uploads"/>    
   </target>
