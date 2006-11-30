@@ -607,7 +607,14 @@ OsStatus sipXmediaFactoryImpl::getCodec(int iCodec, UtlString& codec, int &bandW
 OsStatus sipXmediaFactoryImpl::setVideoPreviewDisplay(void* pDisplay)
 {
 #ifdef SIPX_VIDEO // [
-    return MpVideoCallFlowGraph::setVideoPreviewWindow(pDisplay);
+    if (pDisplay == NULL)
+    {
+       return MpVideoCallFlowGraph::setVideoPreviewWindow(NULL);
+    }
+    else
+    {
+       return MpVideoCallFlowGraph::setVideoPreviewWindow(((SIPX_VIDEO_DISPLAY*)pDisplay)->handle);
+    }
 #else // SIPX_VIDEO ][
     return OS_NOT_YET_IMPLEMENTED;
 #endif // SIPX_VIDEO ]
