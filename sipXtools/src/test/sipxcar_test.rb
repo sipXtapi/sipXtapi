@@ -84,5 +84,11 @@ class SipxConfigArchiveReaderTest < Test::Unit::TestCase
   def test_apply
       @car.apply
   end
+  
+  def test_ignore?
+      assert ! @car.ignore?("any-file")
+      assert @car.ignore?("/etc/httpd/modules/libmod_sipxauth.so")
+      assert @car.ignore?("sipxregistry-3.6.0.tgz")
+  end
 
 end

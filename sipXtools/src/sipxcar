@@ -10,7 +10,7 @@ require 'getoptlong'
 require 'tempfile'
 
 # shouldn't have been in archive
-IGNORED_FILES = /.*sipxregistry-.*.tgz$/
+IGNORED_FILES = [ /.*sipxregistry-.*.tgz$/, /.*libmod_sipxauth.so.*/ ]
 
 class SipxConfigArchiveReader
   attr_accessor :verbose
@@ -38,8 +38,15 @@ class SipxConfigArchiveReader
     }
   end
   
+  def ignore?(file)
+    IGNORED_FILES.each {|ignore|
+      return true if ignore.match(file)
+    }
+    return false
+  end
+  
   def modified_line(archive, file)
-    return nil if IGNORED_FILES.match(file)
+    return nil if ignore?(file)
 
     installed_file = installed_file(file)
    
@@ -90,7 +97,7 @@ class SipxConfigArchiveReader
 
   def get_differences(archive, file)
  	 installed_file = installed_file(file)
- 	 return nil if IGNORED_FILES.match(file)
+     return nil if ignore?(file)
  	 
  	 # would like to report entire contents as diff but not clear how
  	 return nil if ! File.exists?(installed_file)
