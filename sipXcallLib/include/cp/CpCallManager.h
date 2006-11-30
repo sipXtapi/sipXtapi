@@ -39,7 +39,6 @@
 // FORWARD DECLARATIONS
 class CpCall;
 class CpMediaInterface;
-class PtAddressForwarding;
 class SipSession;
 class SipDialog;
 class MpStreamPlayer;
@@ -682,11 +681,6 @@ public:
     //@}
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-        //! address forwarding
-        virtual void setAddressForwarding(int size, PtAddressForwarding *pForwards);
-
-        virtual void cancelAddressForwarding(int size, PtAddressForwarding *pForwards);
-
         //! do-not-disturb flag
         virtual void setDoNotDisturb(int flag);
 
@@ -869,10 +863,6 @@ protected:
    int mInviteExpireSeconds;  // The PHONESET_CP_RINGING_EXPIRE_SECONDS parameter,
                               // it is used to set the ringing expired timer if there
                               // is no Expires header field from an incoming INVITE
-
-    OsRWMutex mAddressForwardMutex;
-        int mAddressForwardingCnt;
-        PtAddressForwarding *mpAddressForwards;
 
         UtlBoolean mCallStateLogEnabled;
         // If true, the call state log is written to the log file
