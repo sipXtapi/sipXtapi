@@ -145,7 +145,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %attr(755,root,@SIPXPBXUSER@) %{_datadir}/www/doc/stdprompts
 %config(noreplace) %attr(755,root,@SIPXPBXUSER@) %{_datadir}/www/doc/style
 %config(noreplace) %attr(755,root,@SIPXPBXUSER@) %{_datadir}/www/doc/userui
-%config(noreplace) %attr(755,root,@SIPXPBXUSER@) %{_datadir}/www/doc/vm_vxml
+%config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_datadir}/www/doc/vm_vxml
 %config(noreplace) %attr(755,root,@SIPXPBXUSER@) %{_datadir}/www/doc/cb_vxml
 
 %config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/sipxdata/mediaserver
