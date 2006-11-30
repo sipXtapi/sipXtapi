@@ -197,8 +197,6 @@ OsStatus MpVideoCallFlowGraph::startReceiveRtp(SdpCodec* pCodecs[], int numCodec
          && (mpRemoteVideoTask->isStarted() || mpRemoteVideoTask->start()) )
       {
          mReceiving = true;
-
-         printf(">>> Start receive success\n"); fflush(stdout);
          return OS_SUCCESS;
       }
    }
