@@ -275,8 +275,8 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
 #if TEST_SUBSCRIBE /* [ */ 
     CPPUNIT_TEST(testPublishAndSubscribeCall); 
     CPPUNIT_TEST(testPublishAndSubscribeConfig); 
-    //CPPUNIT_TEST(testPublishAndSubscribeCallCustom);         // hold w/ external transports is broken
-    //CPPUNIT_TEST(testPublishAndSubscribeConfigCustom);       // hold w/ external transports is broken
+    // CPPUNIT_TEST(testPublishAndSubscribeCallCustom); // notifies are broken -- unclear why
+    CPPUNIT_TEST(testPublishAndSubscribeConfigCustom);
 #endif /* TEST_SUBSCRIBE ] */ 
 
 #if TEST_NAT /* [ */
