@@ -1289,7 +1289,6 @@ void CallManager::getRemoteUserAgent(const char* callId, const char* remoteAddre
     OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
     OsProtectedEvent* agentSet = eventMgr->alloc();
     OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
-    OsStatus returnCode = OS_WAIT_TIMEOUT;
     UtlString* pUserAgent = new UtlString;
     agentSet->setIntData((int) pUserAgent);
     CpMultiStringMessage getAgentMessage(CP_GET_USERAGENT, callId, remoteAddress, NULL,

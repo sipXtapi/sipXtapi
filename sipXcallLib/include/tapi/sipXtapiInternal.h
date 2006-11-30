@@ -282,16 +282,16 @@ typedef struct
 class SIPX_TRANSPORT_DATA
 {
 public:
-    SIPX_TRANSPORT_DATA() :
-        pInst(NULL),
-        bIsReliable(false),
-        iLocalPort(-1),
-        pFnWriteProc(NULL),
-        pMutex(NULL),
-        hTransport(0),
-        pUserData(NULL),
-        bRouteByUser(TRUE)
+    SIPX_TRANSPORT_DATA() 
     {
+        pInst = NULL;
+        bIsReliable = false;
+        iLocalPort = -1;
+        pFnWriteProc = NULL;
+        pMutex = NULL;
+        hTransport = 0;
+        pUserData = NULL;
+        bRouteByUser = true;
         memset(szLocalIp, 0, sizeof(szLocalIp));
         memset(szTransport, 0, sizeof(szTransport));
         memset(cRoutingId, 0, sizeof(cRoutingId)) ;

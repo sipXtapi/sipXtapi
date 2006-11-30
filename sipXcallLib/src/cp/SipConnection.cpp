@@ -76,14 +76,14 @@ SipConnection::SipConnection(const char* outboundLineAddress,
                              : Connection(callMgr, call, mediaInterface, offeringDelayMilliSeconds,
                              availableBehavior, forwardUnconditionalUrl,
                              busyBehavior, forwardOnBusyUrl)
-                             , inviteFromThisSide(0)
-                             , mIsEarlyMediaFor180(TRUE)
-                             , mContactId(0)
-                             , mpSecurity(0)
-                             , mbByeAttempted(false)
-                             , mRtpTransport(RTP_TRANSPORT_UDP)
-                             , mRtpTcpRole(RTP_TCP_ROLE_ACTPASS)
 {
+    inviteFromThisSide = 0 ;
+    mIsEarlyMediaFor180 = true ;
+    mContactId = 0 ;
+    mpSecurity = 0 ;
+    mbByeAttempted = false ;
+    mRtpTransport = RTP_TRANSPORT_UDP ;
+    mRtpTcpRole = RTP_TCP_ROLE_ACTPASS ;
     sipUserAgent = sipUA;
     inviteMsg = NULL;
     mReferMessage = NULL;
@@ -195,7 +195,7 @@ SipConnection::~SipConnection()
     UtlSListIterator iterator(mMediaEventEmitters);
     UtlInt* pEmitterContainer;
     IMediaEventEmitter* pEmitter;
-    while (pEmitterContainer = (UtlInt*)iterator())
+    while ((pEmitterContainer = (UtlInt*)iterator()))
     {
         pEmitter = (IMediaEventEmitter*)pEmitterContainer->getValue();
         pEmitter->onListenerRemoved();
@@ -3725,8 +3725,8 @@ void SipConnection::processNotifyRequest(const SipMessage* request)
 
             SipMessage response(bytes, numBytes);
 
-            int state;
-            int cause;
+            int state = -1 ;
+            int cause = -1 ;
             int responseCode = response.getResponseStatusCode();
             mResponseCode = responseCode;
             response.getResponseStatusText(&mResponseText);
@@ -5172,8 +5172,6 @@ void SipConnection::processInviteResponseNormal(const SipMessage* response)
 
 void SipConnection::processInviteResponseRedirect(const SipMessage* response)
 {
-    int previousState = getState();
-
     // NOTE: ACK gets sent by the SipUserAgent for error responses
 
     // If the call has not already failed
@@ -5263,7 +5261,6 @@ void SipConnection::processInviteResponseRedirect(const SipMessage* response)
 void SipConnection::processInviteResponseUnknown(const SipMessage* response)
 {
     int responseCode = response->getResponseStatusCode();
-    int previousState = getState();
 
     if (responseCode >= SIP_OK_CODE || mIsReferSent)
     {
@@ -6372,8 +6369,8 @@ bool SipConnection::prepareInviteSdpForSend(SipMessage* pMsg,
     {
         pMsg->setEventData(mpCallManager);
         mpSecurity = (SIPXTACK_SECURITY_ATTRIBUTES*)pSecurityAttributes;
-        int rc = -1;
 #ifdef HAVE_NSS
+        int rc = -1;
         rc = P12Wrapper_Init((char*)mpSecurity->getCertDbLocation(), "");
 #endif
         pMsg->setSecurityAttributes((SIPXTACK_SECURITY_ATTRIBUTES*)pSecurityAttributes);
@@ -6885,7 +6882,8 @@ void SipConnection::onDeviceError(IMediaEvent_DeviceTypes type, IMediaEvent_Devi
 
 void SipConnection::onListenerAddedToEmitter(IMediaEventEmitter *pEmitter)
 {
-    mMediaEventEmitters.insert(&UtlInt((int)pEmitter));
+    UtlInt value((int) pEmitter) ;
+    mMediaEventEmitters.insert(&value);
 }
 
 
@@ -6902,7 +6900,8 @@ void SipConnection::registerObserver(UtlObserver* observer)
 */ 
 void SipConnection::removeObserver(UtlObserver* observer)
 {
-    mObservers.destroy(&UtlInt((int) observer));
+    UtlInt value((int) observer) ;
+    mObservers.destroy(&value);
 }    
 
 /**
@@ -6914,7 +6913,7 @@ void SipConnection::notify(int code, void *pUserData)
     UtlSListIterator iterator(mObservers);
     UtlObserver* pObserver = NULL;
     UtlInt* pContainer = NULL;
-    while (pContainer = (UtlInt*)iterator())
+    while ((pContainer = (UtlInt*)iterator()))
     {
         pObserver = (UtlObserver*)pContainer->getValue();
         pObserver->onNotify(this, code, pUserData);
