@@ -18,6 +18,8 @@ SET SOURCE_BASE=".."
   mkdir staging\bin\res
 
 :POPULATE_STAGING
+  copy %SOURCE_BASE%\..\..\LICENSE.txt .\staging\
+  IF NOT "%ERRORLEVEL%"=="0" GOTO ERROR_EXIT
   copy %SOURCE_BASE%\Release\sipXtapi.dll .\staging\bin\
   IF NOT "%ERRORLEVEL%"=="0" GOTO ERROR_EXIT
   copy %SOURCE_BASE%\Debug\sipXtapid.dll .\staging\bin\
@@ -48,7 +50,7 @@ SET SOURCE_BASE=".."
   copy \windows\system32\msvcr71.dll .\staging\bin
   IF NOT "%ERRORLEVEL%"=="0" GOTO ERROR_EXIT
 
-  copy %SOURCE_BASE%\..\examples\sipXezPhone\sipXezPhone.exe .\staging\bin
+  copy %SOURCE_BASE%\..\examples\sipXezPhone\Release\sipXezPhone.exe .\staging\bin
   IF NOT "%ERRORLEVEL%"=="0" GOTO ERROR_EXIT
 
   copy %SOURCE_BASE%\..\examples\sipXezPhone\res\*.* .\staging\bin\res
