@@ -24,7 +24,7 @@
 
 #define MAX_RTP_BYTES 4096
 
-typedef enum PacketType
+typedef enum
 {
     UNKNOWN_PACKET,
     MEDIA_PACKET,
@@ -34,12 +34,12 @@ typedef enum PacketType
     CRLF_KEEPALIVE_PACKET,
     STUN_KEEPALIVE_PACKET,
     OTHER_PACKET
-};
+} PacketType ;
 
 /**
  * Possible roles that a Media connection can have.
  */
- typedef enum RTP_TRANSPORT
+ typedef enum 
  {
    RTP_TRANSPORT_UNKNOWN = 0x00000000,
    RTP_TRANSPORT_UDP = 0x00000001,
@@ -48,7 +48,7 @@ typedef enum PacketType
    RTP_TCP_ROLE_PASSIVE = 0x00000008,
    RTP_TCP_ROLE_ACTPASS = 0x00000010,
    RTP_TCP_ROLE_CONNECTION = 0x00000020,
-};
+} RTP_TRANSPORT ;
 
 typedef int RtpTransportOptions;
 typedef int RtpTcpRoles;
@@ -56,11 +56,11 @@ typedef int RtpTcpRoles;
 class OsSocket;
 class OsNotification; 
 
-enum TURN_FRAMING_TYPE
+typedef enum 
 {
     STUN = 0x02,
     DATA = 0x03
-};
+} TURN_FRAMING_TYPE;
 
 /**
  * Generic interface representing a media transport object.

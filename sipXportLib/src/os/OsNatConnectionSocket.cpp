@@ -12,10 +12,14 @@
 #include <assert.h>
 #include <stdio.h>
 #ifndef _WIN32
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>     
 #endif
 
 // APPLICATION INCLUDES
+#include "os/OsSocket.h"
 #include "os/OsNatConnectionSocket.h"
 #include "os/OsNatAgentTask.h"
 #include "os/OsLock.h"
@@ -756,8 +760,9 @@ void OsNatConnectionSocket::handleFramedStream(       char* pData,
     bool bNatPacket = false;
     
     int iRC = buffSize;
+    int receivedPort ;
     UtlString sReceivedIp(receivedIp);
-    bool bHandled = handleSturnData((char*)buff, iRC, sReceivedIp, (int)port);
+    bool bHandled = handleSturnData((char*)buff, iRC, sReceivedIp, receivedPort);
     if (iRC)
     {
         if (!mbTransparentReads)
