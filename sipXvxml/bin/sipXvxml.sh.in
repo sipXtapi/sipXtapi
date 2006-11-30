@@ -52,7 +52,9 @@ then
     then
        genfile=`basename ${cfgfile} .in`
        gendir=`dirname ${cfgfile}`
-       @bindir@/configpp --defs "${CONFIG_DEFS}" --in "${cfgfile}" --out "${gendir}/${genfile}"
+       genout="${gendir}/${genfile}"
+       rm -f ${genout}
+       @bindir@/configpp --defs "${CONFIG_DEFS}" --in "${cfgfile}" --out "${genout}"
     fi
   done
 fi
