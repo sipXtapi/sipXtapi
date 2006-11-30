@@ -365,6 +365,8 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
 
     SIPX_INSTANCE_DATA* pInst = new SIPX_INSTANCE_DATA;
     memset(pInst, 0, sizeof(SIPX_INSTANCE_DATA)) ;
+    pInst->audioCodecSetting.pPreferences = new UtlString() ;
+    pInst->videoCodecSetting.pPreferences = new UtlString() ;
 
     // Create Line and Refersh Manager
     pInst->pLineManager = new SipLineMgr() ;
@@ -800,6 +802,10 @@ SIPXTAPI_API SIPX_RESULT sipxUnInitialize(SIPX_INST hInst,
 
             delete pInst->pLock ;
             delete pInst->pKeepaliveDispatcher ;
+
+            delete pInst->audioCodecSetting.pPreferences ;
+            delete pInst->videoCodecSetting.pPreferences ;
+
             delete pInst;
             pInst = NULL;
 
@@ -4210,7 +4216,7 @@ static void initMicSettings(MIC_SETTING* pMicSetting)
     pMicSetting->bInitialized = TRUE ;
     pMicSetting->bMuted = FALSE ;
     pMicSetting->iGain = GAIN_DEFAULT ;
-    pMicSetting->device.remove(0) ;
+    memset(pMicSetting->device, 0, sizeof(pMicSetting->device)) ;
 }
 
 static void initSpeakerSettings(SPEAKER_SETTING* pSpeakerSetting)
@@ -4221,7 +4227,8 @@ static void initSpeakerSettings(SPEAKER_SETTING* pSpeakerSetting)
         
     pSpeakerSetting->bInitialized = TRUE ;
     pSpeakerSetting->iVol = VOLUME_DEFAULT ;
-    pSpeakerSetting->device.remove(0) ;
+
+    memset(pSpeakerSetting->device, 0, sizeof(pSpeakerSetting->device)) ;
 }
 
 
@@ -4464,7 +4471,8 @@ SIPXTAPI_API SIPX_RESULT sipxAudioEnableSpeaker(const SIPX_INST hInst,
                     case RINGER:
                         pInterface->setSpeakerDevice(pInst->speakerSettings[type].device) ;                        
                         pInterface->getSpeakerDevice(checkDevice) ;
-                        pInst->speakerSettings[type].device = checkDevice;
+                        strncpy(pInst->speakerSettings[type].device, checkDevice, 
+                                sizeof(pInst->speakerSettings[type].device)-1) ;
                         break ;                    
                     default:
                         assert(FALSE) ;
@@ -4983,7 +4991,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetCallInputDevice(const SIPX_INST hInst,
 
         if (strcasecmp(szDevice, "NONE") == 0)
         {
-            pInst->micSetting.device = "NONE" ;
+            strcpy(pInst->micSetting.device, "NONE") ;
             status = pInterface->setMicrophoneDevice(pInst->micSetting.device) ;            
             assert(status == OS_SUCCESS) ;
             rc = SIPX_RESULT_SUCCESS ;
@@ -4999,7 +5007,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetCallInputDevice(const SIPX_INST hInst,
                         // Match
                         if (strcmp(szDevice, oldDevice) != 0)
                         {
-                            pInst->micSetting.device = szDevice ;
+                            strncpy(pInst->micSetting.device, szDevice, sizeof(pInst->micSetting.device)-1) ;
                             status = pInterface->setMicrophoneDevice(pInst->micSetting.device) ;
                             // GIPS returns -1 on the call to set audio input device, no matter what
                             //assert(status == OS_SUCCESS) ;
@@ -5046,7 +5054,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetRingerOutputDevice(const SIPX_INST hInst,
 
         if (strcasecmp(szDevice, "NONE") == 0)
         {
-            pInst->speakerSettings[RINGER].device = "NONE" ;
+            strcpy(pInst->speakerSettings[RINGER].device, "NONE") ;
             rc = SIPX_RESULT_SUCCESS ;
         }
         else
@@ -5058,7 +5066,8 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetRingerOutputDevice(const SIPX_INST hInst,
                     if (strcmp(szDevice, pInst->outputAudioDevices[i]) == 0)
                     {
                         oldDevice = pInst->speakerSettings[RINGER].device ;
-                        pInst->speakerSettings[RINGER].device = szDevice ;
+                        strncpy(pInst->speakerSettings[RINGER].device, szDevice,
+                            sizeof(pInst->speakerSettings[RINGER].device)-1) ;
                         rc = SIPX_RESULT_SUCCESS ;
                         break ;
                     }
@@ -5073,7 +5082,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetRingerOutputDevice(const SIPX_INST hInst,
 
         // Set the device if it changed and this is the active device group
         if ((pInst->enabledSpeaker == RINGER) && 
-                (pInst->speakerSettings[RINGER].device.compareTo(oldDevice) != 0))
+                (oldDevice.compareTo(pInst->speakerSettings[RINGER].device) != 0))
         {
             if (pInterface->setSpeakerDevice(pInst->speakerSettings[RINGER].device) == OS_FAILED)
             {
@@ -5112,7 +5121,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetCallOutputDevice(const SIPX_INST hInst,
 
         if (strcasecmp(szDevice, "NONE") == 0)
         {
-            pInst->speakerSettings[SPEAKER].device = "NONE" ;
+            strcpy(pInst->speakerSettings[SPEAKER].device, "NONE") ;
             rc = SIPX_RESULT_SUCCESS ;
         }
         else
@@ -5124,7 +5133,8 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetCallOutputDevice(const SIPX_INST hInst,
                     if (strcmp(szDevice, pInst->outputAudioDevices[i]) == 0)
                     {
                         oldDevice = pInst->speakerSettings[SPEAKER].device ;
-                        pInst->speakerSettings[SPEAKER].device = szDevice ;
+                        strncpy(pInst->speakerSettings[SPEAKER].device, szDevice, 
+                                sizeof(pInst->speakerSettings[SPEAKER].device)-1) ;
                         rc = SIPX_RESULT_SUCCESS ;
                         break ;
                     }
@@ -5139,7 +5149,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetCallOutputDevice(const SIPX_INST hInst,
 
         // Set the device if it changed and this is the active device group
         if ((pInst->enabledSpeaker == SPEAKER) && 
-                (pInst->speakerSettings[SPEAKER].device.compareTo(oldDevice) != 0))
+                (oldDevice.compareTo(pInst->speakerSettings[SPEAKER].device) != 0))
         {
             if (pInterface->setSpeakerDevice(pInst->speakerSettings[SPEAKER].device) == OS_FAILED)
             {
@@ -6332,7 +6342,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetAudioCodecPreferences(const SIPX_INST hIns
             CpMediaInterfaceFactoryImpl* pInterface = 
                     pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation();
 
-            pInst->audioCodecSetting.sPreferences = "";
+            *pInst->audioCodecSetting.pPreferences = "";
 
             if (pInterface)
             {
@@ -6345,7 +6355,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetAudioCodecPreferences(const SIPX_INST hIns
                 */
                 pInterface->buildCodecFactory(pInst->pCodecFactory, 
                                               "", // No audio preferences
-                                              pInst->videoCodecSetting.sPreferences, // Keep video prefs
+                                              *pInst->videoCodecSetting.pPreferences, // Keep video prefs
                                               -1, // Allow all formats
                                               &iRejected);
 
@@ -6362,15 +6372,15 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetAudioCodecPreferences(const SIPX_INST hIns
                     {
                         if (pInterface->getCodecNameByType(codecsArray[i]->getCodecType(), codecName) == OS_SUCCESS)
                         {
-                            pInst->audioCodecSetting.sPreferences = 
-                                pInst->audioCodecSetting.sPreferences + " " + codecName;
+                            *pInst->audioCodecSetting.pPreferences = 
+                                *pInst->audioCodecSetting.pPreferences + " " + codecName;
                         }
                     }
                 }
                 OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
-                        "sipxConfigSetAudioCodecPreferences: %s", pInst->audioCodecSetting.sPreferences.data());
+                        "sipxConfigSetAudioCodecPreferences: %s", pInst->audioCodecSetting.pPreferences->data());
 
-                if (pInst->audioCodecSetting.sPreferences.length() != 0)
+                if (pInst->audioCodecSetting.pPreferences->length() != 0)
                 {
                     // Did we previously allocate a codecs array and store it in our settings?
                     if (pInst->audioCodecSetting.bInitialized)
@@ -6388,8 +6398,8 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetAudioCodecPreferences(const SIPX_INST hIns
                         pInst->audioCodecSetting.sdpCodecArray = NULL;
                     }
                     pInterface->buildCodecFactory(pInst->pCodecFactory, 
-                                                  pInst->audioCodecSetting.sPreferences,
-                                                  pInst->videoCodecSetting.sPreferences,
+                                                  *pInst->audioCodecSetting.pPreferences,
+                                                  *pInst->videoCodecSetting.pPreferences,
                                                   -1, // Allow all formats
                                                   &iRejected);
 
@@ -6451,12 +6461,12 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetAudioCodecByName(const SIPX_INST hInst,
         CpMediaInterfaceFactoryImpl* pInterface = 
                 pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation();
 
-        pInst->audioCodecSetting.sPreferences = szCodecName;
-        pInst->audioCodecSetting.sPreferences += " audio/telephone-event";
+        *pInst->audioCodecSetting.pPreferences = szCodecName;
+        *pInst->audioCodecSetting.pPreferences += " audio/telephone-event";
 
         if (pInterface)
         {
-            if (pInst->audioCodecSetting.sPreferences.length() != 0)
+            if (pInst->audioCodecSetting.pPreferences->length() != 0)
             {
                 // Did we previously allocate a codecs array and store it in our settings?
                 if (pInst->audioCodecSetting.bInitialized)
@@ -6476,8 +6486,8 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetAudioCodecByName(const SIPX_INST hInst,
                     pInst->audioCodecSetting.sdpCodecArray = NULL;
                 }
                 pInterface->buildCodecFactory(pInst->pCodecFactory, 
-                                              pInst->audioCodecSetting.sPreferences,
-                                              pInst->videoCodecSetting.sPreferences,
+                                              *pInst->audioCodecSetting.pPreferences,
+                                              *pInst->videoCodecSetting.pPreferences,
                                               -1, // Allow all formats
                                               &iRejected);
 
@@ -6906,11 +6916,11 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoCodecByName(const SIPX_INST hInst,
         CpMediaInterfaceFactoryImpl* pInterface = 
                 pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation();
 
-        pInst->videoCodecSetting.sPreferences = szCodecName;
+        pInst->videoCodecSetting.pPreferences = szCodecName;
 
         if (pInterface)
         {
-            if (pInst->videoCodecSetting.sPreferences.length() != 0)
+            if (pInst->videoCodecSetting.sPreferences->length() != 0)
             {
                 // Did we previously allocate a codecs array and store it in our settings?
                 if (pInst->videoCodecSetting.bInitialized)
@@ -6930,8 +6940,8 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoCodecByName(const SIPX_INST hInst,
                     pInst->videoCodecSetting.sdpCodecArray = NULL;
                 }
                 pInterface->buildCodecFactory(pInst->pCodecFactory, 
-                                              pInst->audioCodecSetting.sPreferences,
-                                              pInst->videoCodecSetting.sPreferences,
+                                              pInst->audioCodecSetting.pPreferences,
+                                              pInst->videoCodecSetting.pPreferences,
                                               -1, // Allow all formats
                                               &iRejected);
 
@@ -7003,7 +7013,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigResetVideoCodecs(const SIPX_INST hInst)
             }
             // Rebuild with all video codecs
             pInterface->buildCodecFactory(pInst->pCodecFactory, 
-                                          pInst->audioCodecSetting.sPreferences,
+                                          *pInst->audioCodecSetting.pPreferences,
                                           "",
                                           -1, // Allow all formats
                                           &iRejected);
@@ -7070,7 +7080,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoFormat(const SIPX_INST hInst,
             }
             // Rebuild with limited video format
             pInterface->buildCodecFactory(pInst->pCodecFactory, 
-                                          pInst->audioCodecSetting.sPreferences,
+                                          *pInst->audioCodecSetting.pPreferences,
                                           "",
                                           videoFormat,
                                           &iRejected);
