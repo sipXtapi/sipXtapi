@@ -70,17 +70,40 @@ void MpRemoteVideoTask::step()
    if (mpDejitter != NULL)
    {
       MpRtpBufPtr pRtpPacket = mpDejitter->pullPacket(CODEC_TYPE_H264);
+      bool packetConsumed;
 
-      if (  pRtpPacket.isValid()
-         && (mpDecoder != NULL) )
+      if (mpDecoder != NULL)
       {
-         // TODO:: We need loop here!!!!!
-
-         MpVideoBufPtr pFrame = mpDecoder->decode(pRtpPacket);
-
-         if ( (pFrame.isValid()) && (mpVideoOut != NULL) )
+         while (pRtpPacket.isValid())
          {
-            mpVideoOut->render(pFrame);
+            // TODO:: We need loop here!!!!!
+
+//#define FILE_DEBUG
+#ifdef FILE_DEBUG // [
+            {
+               static int packetNum = 0;
+               char fname[1024];
+               snprintf(fname, sizeof(fname), "dbg\\packet %03d %05d.rtp", packetNum, pRtpPacket->getRtpSequenceNumber());
+               FILE *file = fopen(fname, "wb");
+//               char header[] = "P5\n320 360\n255\n";
+//               fwrite(header, 1, sizeof(header), file);
+               fwrite(pRtpPacket->getDataPtr(), 1, pRtpPacket->getPayloadSize(), file);
+               fclose(file);
+               packetNum++;
+            }
+#endif // FILE_DEBUG ]
+
+            MpVideoBufPtr pFrame = mpDecoder->decode(pRtpPacket, packetConsumed);
+
+            if (packetConsumed)
+            {
+               pRtpPacket.release();
+            }
+
+            if ( (pFrame.isValid()) && (mpVideoOut != NULL) )
+            {
+               mpVideoOut->render(pFrame);
+            }
          }
       }
    }

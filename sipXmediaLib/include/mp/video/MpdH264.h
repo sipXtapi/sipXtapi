@@ -31,7 +31,15 @@ struct AVCodecContext;
 struct AVCodec;
 struct AVFrame;
 
-/// H.264 video stream decoder (use FFMpeg).
+/// H.264 video stream decoder and RTP depacketizer.
+/**
+*  This class is aimed to restore H.264 frames from RTP packets (RTP
+*  depacketization) and then decode them using FFMpeg library. So H.264 decoder
+*  features are the same as FFMpeg H.264 decoder have. RTP depacketization
+*  is compliant with RTP 3984 (RTP Payload Format for H.264 Video) and
+*  support Single NAL Unit Mode and Non-Interleaved Mode. Interleaved Mode
+*  is not supported - seems like it does not make big sense for video telephony.
+*/
 class MpdH264
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -73,6 +81,8 @@ public:
 
      /// Decode incoming RTP packet
    virtual MpVideoBufPtr decode(const MpRtpBufPtr &pPacket ///< (in) Pointer to a media buffer
+                               , bool &packetConsumed ///< (out) Is packet consumed by decoder
+                                                      ///< or should be passed to next call to decoder.
                                );
      /**<
      *  @return Number of decoded samples.
@@ -101,6 +111,18 @@ protected:
    AVCodec        *mpCodec;
    AVCodecContext *mpCodecContext;
    AVFrame        *mpPicture;
+
+   enum {
+      ENCODED_BUFFER_SIZE=(352*288*3) ///< Initial size of mpFrameBuf.
+   };
+
+   // Depacketizer variables.
+   UCHAR   *mpFrameBuf;
+   UCHAR   *mpFrameBufEnd;
+   UCHAR   *mpDecFrameBuf;
+   int      mDecFrameBufSize;
+   int      mNALuOctet;
+   int      mFrameFBit;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

@@ -24,8 +24,12 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
-
-#define TIMESTAMP_FREQ 90000
+// DEFINITIONS
+#define H264_NAL_TYPE_MASK     0x1f  ///< 00011111
+#define H264_NAL_REF_IDC_MASK  0x60  ///< 01100000
+#define H264_FU_A_HEADER_SIZE     2  ///< Size of FU-A header in bytes
+#define H264_TIMESTAMP_FREQ   90000  ///< H.264 RTP Timestamp frequency is 90KHz
+                                     ///< according to RFC 3984.
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -79,7 +83,7 @@ OsStatus MpeH264::initEncode()
    }
 
    // put sample parameters
-   mpCodecContext->bit_rate = 50000;
+   mpCodecContext->bit_rate = 70000;
    // frames per second
    mpCodecContext->time_base.num = 1;
    mpCodecContext->time_base.den = 10;
@@ -136,6 +140,9 @@ OsStatus MpeH264::encode(const MpVideoBufPtr &pFrame)
    int     encodedFrameSize; ///< Encoded frame size returned by codec
    UCHAR  *pEncodedData;     ///< Pointer to not packetized encoded data
    int     encodedDataSize;  ///< Size of data available in pEncodedData
+   int     nalUnitType;      ///< NAL Unit Type
+   int     nalRefIdc;        ///< NAL Reference Indicator
+   UCHAR   packetData[RTP_MTU];     ///< Current packet data
 
    assert(mpCodecContext != NULL);
    assert(mpPicture != NULL);
@@ -173,18 +180,73 @@ OsStatus MpeH264::encode(const MpVideoBufPtr &pFrame)
 
    pEncodedData=mpEncodedBuffer;
    encodedDataSize=encodedFrameSize;
-   while (encodedDataSize>0)
+
+   while ( ( encodedDataSize>5 ) &&
+          !( (pEncodedData[0] == 0x00) && (pEncodedData[1] == 0x00) && (pEncodedData[2] == 0x01) &&
+             ((pEncodedData[3]&H264_NAL_TYPE_MASK) >= 1) && ((pEncodedData[3]&H264_NAL_TYPE_MASK) <= 23 )  ) )
    {
-      int maxPacketSize = min(RTP_MTU, encodedDataSize);
-      unsigned int timestamp = mpCodecContext->frame_number
-                             * mpCodecContext->time_base.num 
-                             * (TIMESTAMP_FREQ / mpCodecContext->time_base.den);
+      pEncodedData++;
+      encodedDataSize--;
+   }
+
+   if (encodedDataSize < 5)
+      return OS_SUCCESS;
+
+   // Skip startcode
+   pEncodedData    += 3;
+   encodedDataSize -= 3;
+
+   nalUnitType = pEncodedData[0]&H264_NAL_TYPE_MASK;
+   nalRefIdc   = pEncodedData[0]&H264_NAL_REF_IDC_MASK;
+
+   // TODO: skip nalTypes 7 and 8?
+
+   unsigned int timestamp = mpCodecContext->frame_number
+      * mpCodecContext->time_base.num 
+      * (H264_TIMESTAMP_FREQ / mpCodecContext->time_base.den);
+
+   if (encodedDataSize <= RTP_MTU)
+   {
+      // Single NAL unit mode
+
+      int payloadSize = min(RTP_MTU, encodedDataSize);
+
+      // We could just pass pEncodedData pointer directly to RtpWriter and not
+      // copy it to intermediate buffer, so comment this:
+//      memcpy(packetData, pEncodedData, payloadSize);
 
       // Copy encoded data to buffer payload. Other fields will be filled later.
-      mpRtpWriter->writeRtp(mPayloadType, FALSE, pEncodedData, maxPacketSize,
-                            timestamp, NULL);
-      pEncodedData+=maxPacketSize;
-      encodedDataSize-=maxPacketSize;
+      mpRtpWriter->writeRtp(mPayloadType, TRUE, pEncodedData, payloadSize, timestamp, NULL);
+   }
+   else
+   {
+      // Non-interleaved mode
+
+      // Skip NAL Unit Octet
+      pEncodedData++;
+      encodedDataSize--;
+
+      int startBit = 1;
+      int endBit   = 0;
+      while (!endBit)
+      {
+         int payloadSize = min(RTP_MTU-H264_FU_A_HEADER_SIZE, encodedDataSize);
+         if (payloadSize==encodedDataSize)
+            endBit = 1;
+
+         packetData[0] = nalRefIdc|28; // FU Indicator. 28 - FU-A payload type
+         packetData[1] = (startBit<<7)|(endBit<<6)|nalUnitType; // FU Header
+
+         memcpy(&packetData[H264_FU_A_HEADER_SIZE], pEncodedData, payloadSize);
+
+         startBit = 0;
+         pEncodedData += payloadSize;
+         encodedDataSize -= payloadSize;
+
+         // Copy encoded data to buffer payload. Other fields will be filled later.
+         mpRtpWriter->writeRtp(mPayloadType, endBit, packetData, payloadSize+H264_FU_A_HEADER_SIZE, timestamp, NULL);
+      }
+
    }
 
    return OS_SUCCESS;

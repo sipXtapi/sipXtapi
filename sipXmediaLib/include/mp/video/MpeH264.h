@@ -31,7 +31,15 @@ struct AVCodecContext;
 struct AVCodec;
 struct AVFrame;
 
-/// H.264 video stream encoder (use x264).
+/// H.264 video stream encoder and RTP packetizer.
+/**
+*  This class is aimed to encode raw video frames to H.264 and then pack them
+*  to RTP packets (RTP packetization). We use x264, wrapped to FFMpeg library,
+*  so H.264 encoder features are the same as x264 decoder have. RTP packetization
+*  is compliant with RTP 3984 (RTP Payload Format for H.264 Video) and
+*  support Single NAL Unit Mode and Non-Interleaved Mode. Interleaved Mode
+*  is not supported - seems like it does not make big sense for video telephony.
+*/
 class MpeH264
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -106,7 +114,7 @@ protected:
    int             mEncodedBufferSize; ///< Size of mpEncodedBuffer.
 
    enum {
-      ENCODED_BUFFER_SIZE=(320*240*3) ///< Initial size of mpEncodedBuffer.
+      ENCODED_BUFFER_SIZE=(352*288*3) ///< Initial size of mpEncodedBuffer.
    };
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
