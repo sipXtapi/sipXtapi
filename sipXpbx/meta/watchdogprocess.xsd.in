@@ -7,8 +7,8 @@
 - implementation.  
 -->
 <schema
-    xmlns:h='http://www.sipfoundry.org/sipX/schema/xml/watchdogprocess-00-00'
-    targetNamespace='http://www.sipfoundry.org/sipX/schema/xml/watchdogprocess-00-00'
+    xmlns:h='http://www.sipfoundry.org/sipX/schema/xml/watchdogprocess-00-01'
+    targetNamespace='http://www.sipfoundry.org/sipX/schema/xml/watchdogprocess-00-01'
     xmlns='http://www.w3.org/2001/XMLSchema'
     >
 
@@ -25,6 +25,13 @@
         <element ref='h:process_definitions'/>
         <element ref='h:watchdog'/>
       </sequence>
+      <attribute name="enable" type="boolean">
+        <annotation>
+          <documentation>
+            Ignore this document if not enabled.
+          </documentation>
+        </annotation>
+      </attribute>
     </complexType>
   </element>
 
@@ -167,7 +174,7 @@
       <attribute name="control" type="boolean">
         <annotation>
           <documentation>
-            Whether or not to start the process
+            Whether or not to stop the process
           </documentation>
         </annotation>
       </attribute>
@@ -241,7 +248,7 @@
           <documentation>
             Whether or not to attempt to restart this process if it fails;
             note that this does not control whether or not the process is
-            started initially.
+            started initially.  See attribute "start" for that.
           </documentation>
         </annotation>
       </attribute>
