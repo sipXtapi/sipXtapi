@@ -96,7 +96,6 @@ public:
     *        connection.
     */ 
    virtual OsStatus createConnection(int& connectionId, void* videoWindowHandle) = 0 ;
-   
 
    /**
     * Get the port, address, and codec capabilities for the specified media 
@@ -360,6 +359,11 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
+   /**
+    * Provide an invalid connectionId
+    */
+   static int getInvalidConnectionId();
+
    //! For internal use only
    virtual void setPremiumSound(UtlBoolean enabled) = 0;
 
@@ -417,6 +421,11 @@ public:
 
 /* ============================ INQUIRY =================================== */
 
+   /**
+    * Query if connectionId is valid
+    */
+   virtual UtlBoolean isConnectionIdValid(int connectionId);
+
    //! Query whether the specified media connection is enabled for 
    //! sending RTP.
    virtual UtlBoolean isSendingRtpAudio(int connectionId) = 0 ;
@@ -452,6 +461,7 @@ private:
    //! Copy constructor disabled
    CpMediaInterface(const CpMediaInterface& rCpMediaInterface);
 
+   static int sInvalidConnectionId;
 };
 
 /* ============================ INLINE METHODS ============================ */

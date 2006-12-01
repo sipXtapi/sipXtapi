@@ -8,59 +8,63 @@
 
 @set doClean=
 if "%1" == "clean" set doClean="/CLEAN"
+@set releaseType=Debug
+@set libPrefix=d
+@echo set releaseType=Release
+@echo set libPrefix
 
 @msdev /? > nul
 @rem error level: %ERRORLEVEL%
 @if %ERRORLEVEL% GTR 0 vcvars32
 
 cd sipXportLib
-del Debug\sipXportLibd.lib
-msdev sipXportLib.dsp /MAKE "sipXportLib - Win32 Debug" %doClean%
+del %releaseType%\sipXportLib%libPrefix%.lib
+msdev sipXportLib.dsp /MAKE "sipXportLib - Win32 %releaseType%" %doClean%
 cd ..
 
 cd sipXportLib
-del Debug\sipXportLibTest.exe
-msdev sipXportLibTest.dsp /MAKE "sipXportLibTest - Win32 Debug" %doClean%
+del %releaseType%\sipXportLibTest.exe
+msdev sipXportLibTest.dsp /MAKE "sipXportLibTest - Win32 %releaseType%" %doClean%
 cd ..
 
 cd sipXtackLib
-del Debug\sipXtackLibd.lib
-msdev sipXtackLib.dsp /MAKE "sipXtackLib - Win32 Debug" %doClean%
+del %releaseType%\sipXtackLib%libPrefix%.lib
+msdev sipXtackLib.dsp /MAKE "sipXtackLib - Win32 %releaseType%" %doClean%
 cd ..
 
 cd sipXtackLib
-del Debug\sipXtackLibTest.exe
-msdev sipXtackLibTest.dsp /MAKE "sipXtackLibTest - Win32 Debug" %doClean%
+del %releaseType%\sipXtackLibTest.exe
+msdev sipXtackLibTest.dsp /MAKE "sipXtackLibTest - Win32 %releaseType%" %doClean%
 cd ..
 
 cd sipXmediaLib
-del Debug\sipXmediaLibd.lib
-msdev sipXmediaLib.dsp /MAKE "sipXmediaLib - Win32 Debug" %doClean%
+del %releaseType%\sipXmediaLib%libPrefix%.lib
+msdev sipXmediaLib.dsp /MAKE "sipXmediaLib - Win32 %releaseType%" %doClean%
 cd ..
 
 cd sipXmediaAdapterLib
-del Debug\sipXmediaAdapterLibd.lib
-msdev sipXmediaAdapterLib.dsp /MAKE "sipXmediaAdapterLib - Win32 Debug" %doClean%
+del %releaseType%\sipXmediaAdapterLib%libPrefix%.lib
+msdev sipXmediaAdapterLib.dsp /MAKE "sipXmediaAdapterLib - Win32 %releaseType%" %doClean%
 cd ..
 
 cd sipXmediaAdapterLib
-del Debug\sipXmediaAdapterLibTest.exe
-msdev sipXmediaAdapterLibTest.dsp /MAKE "sipXmediaAdapterLibTest - Win32 Debug" %doClean%
+del %releaseType%\sipXmediaAdapterLibTest.exe
+msdev sipXmediaAdapterLibTest.dsp /MAKE "sipXmediaAdapterLibTest - Win32 %releaseType%" %doClean%
 cd ..
 
 cd sipXcallLib 
-del Debug\sipXcallLibd.lib
-msdev sipXcallLib.dsp /MAKE "sipXcallLib - Win32 Debug" %doClean%
+del %releaseType%\sipXcallLib%libPrefix%.lib
+msdev sipXcallLib.dsp /MAKE "sipXcallLib - Win32 %releaseType%" %doClean%
 cd ..
 
 cd sipXcallLib 
-del Debug\sipXcallLibTest.exe
-msdev sipXcallLibTest.dsp /MAKE "sipXcallLibTest - Win32 Debug" %doClean%
+del %releaseType%\sipXcallLibTest.exe
+msdev sipXcallLibTest.dsp /MAKE "sipXcallLibTest - Win32 %releaseType%" %doClean%
 cd ..
 
 cd sipXcallLib 
-del sipXtapi\Debug\sipXtapiTest.exe
-msdev sipXtapiTest.dsp /MAKE "sipXtapiTest - Win32 Debug" %doClean%
+del sipXtapi\%releaseType%\sipXtapiTest.exe
+msdev sipXtapiTest.dsp /MAKE "sipXtapiTest - Win32 %releaseType%" %doClean%
 cd ..
 
 goto end

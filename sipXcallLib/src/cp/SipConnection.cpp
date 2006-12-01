@@ -183,11 +183,12 @@ SipConnection::~SipConnection()
         OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving SipConnection destructor: call is Null\n");
 #endif
 
-    if ((mpMediaInterface) && (mConnectionId != -1))
+    if ((mpMediaInterface) && 
+        mpMediaInterface->isConnectionIdValid(mConnectionId))
     {
        mpMediaInterface->deleteConnection( mConnectionId );       
     }
-    mConnectionId = -1;
+    mConnectionId = CpMediaInterface::getInvalidConnectionId();
 
 }
 
@@ -821,6 +822,14 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
         int numMatchingCodecs = 0;
         SdpCodec** matchingCodecs = NULL;
 
+        // Create a media connection if there is none already
+        if(!mpMediaInterface->isConnectionIdValid(mConnectionId))
+        {
+            // Create a new connection in the media flowgraph
+            mpMediaInterface->createConnection(mConnectionId, (void*)pDisplay);
+            mpMediaInterface->setContactType(mConnectionId, mContactType);
+        }
+
         mpMediaInterface->setVideoWindowDisplay(pDisplay);
         // Get supported codecs
         mpMediaInterface->getCapabilities(mConnectionId,
@@ -1046,6 +1055,13 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds)
         }
         else
         {
+            // Need to create a media connection if we do not have one yet
+            if(!mpMediaInterface->isConnectionIdValid(mConnectionId))
+            {
+                mpMediaInterface->createConnection(mConnectionId, NULL /*display*/);
+                mpMediaInterface->setContactType(mConnectionId, mContactType);
+            }
+
             mpMediaInterface->getCapabilities(mConnectionId,
                 rtpAddress,
                 receiveRtpPort,
@@ -1214,6 +1230,15 @@ UtlBoolean SipConnection::hold()
         int receiveVideoRtpPort;
         int receiveVideoRtcpPort;
         SdpCodecFactory supportedCodecs;
+
+        // Should have already created a media connection
+        if(!mpMediaInterface->isConnectionIdValid(mConnectionId))
+        {
+            OsSysLog::add(FAC_CP, PRI_ERR,
+                "SipConnection::hold invalid connectionId %s",
+                mRemoteContact.data());
+        }
+
         mpMediaInterface->getCapabilities(mConnectionId,
             rtpAddress,
             receiveRtpPort,
@@ -1325,6 +1350,14 @@ UtlBoolean SipConnection::doOffHold(UtlBoolean forceReInvite)
         int receiveVideoRtpPort;
         int receiveVideoRtcpPort;
         SdpCodecFactory supportedCodecs;
+
+        // Should have already created a media connection
+        if(!mpMediaInterface->isConnectionIdValid(mConnectionId))
+        {
+            OsSysLog::add(FAC_CP, PRI_ERR,
+                "SipConnection::doOffHold invalid connectionId %s",
+                mRemoteContact.data());
+        }
         mpMediaInterface->getCapabilities(mConnectionId,
             rtpAddress,
             receiveRtpPort,
@@ -2223,13 +2256,6 @@ void SipConnection::processInviteRequest(const SipMessage* request)
     setLocalAddress(request->getLocalIp().data());
     request->getCSeqField(&requestSequenceNum, &requestSeqMethod);
 
-    // Create a media connection if one does not yet exist
-    if(mConnectionId < 0 && mpMediaInterface != NULL)
-    {
-        // Create a new connection in the flow graph
-        mpMediaInterface->createConnection(mConnectionId, NULL /* VIDEO: WINDOW HANDLE */);
-    }
-
     // It is safer to always set the To field tag regardless
     // of whether there are more than 1 via's
     // If there are more than 1 via's we are suppose to put
@@ -2348,7 +2374,8 @@ void SipConnection::processInviteRequest(const SipMessage* request)
     }
     // Proceed to offering state
     else if((getState() == CONNECTION_IDLE && // New call
-        mConnectionId > -1 && // Media resources available
+        mpMediaInterface && // Media resources available
+        // mpMediaInterface->isConnectionIdValid(mConnectionId) && delay connection creation
         (mLineAvailableBehavior == RING || // really not busy
         mLineAvailableBehavior == RING_SILENT || // pretend to ring
         mLineAvailableBehavior == FORWARD_ON_NO_ANSWER ||
@@ -2614,6 +2641,15 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         int receiveVideoRtcpPort;
         SdpCodecFactory supportedCodecs;
         SdpSrtpParameters srtpParams;
+
+        // This is a reINVITE so we should have already created
+        // a media connection
+        if(!mpMediaInterface->isConnectionIdValid(mConnectionId))
+        {
+            OsSysLog::add(FAC_CP, PRI_ERR,
+                "SipConnection::processInviteRequest reINVITE invalid connectionId %s",
+                mRemoteContact.data());
+        }
         mpMediaInterface->getCapabilities(mConnectionId,
             rtpAddress,
             receiveRtpPort,
@@ -2858,30 +2894,34 @@ void SipConnection::processInviteRequest(const SipMessage* request)
 #endif
 
         // Get the capabilities to figure out the matching codecs
-        UtlString rtpAddress;
-        int receiveRtpPort;
-        int receiveRtcpPort;
-        int receiveVideoRtpPort;
-        int receiveVideoRtcpPort;
+        //UtlString rtpAddress;
+        //int receiveRtpPort;
+        //int receiveRtcpPort;
+        //int receiveVideoRtpPort;
+        //int receiveVideoRtcpPort;
 
-        SdpCodecFactory supportedCodecs;
-        SdpSrtpParameters srtpParams;
-        mpMediaInterface->getCapabilities(mConnectionId,
-            rtpAddress,
-            receiveRtpPort,
-            receiveRtcpPort,
-            receiveVideoRtpPort,        // VIDEO: TODO
-            receiveVideoRtcpPort,
-            supportedCodecs,
-            srtpParams);
+        //SdpCodecFactory supportedCodecs;
+        //SdpSrtpParameters srtpParams;
+
+        // It is possible that there is no media connection yet at this
+        // point, but I do not know if we care.  We really do not need
+        // the media connection yet.
+        //mpMediaInterface->getCapabilities(mConnectionId,
+        //    rtpAddress,
+        //    receiveRtpPort,
+        //    receiveRtcpPort,
+        //    receiveVideoRtpPort,        // VIDEO: TODO
+        //    receiveVideoRtcpPort,
+        //    supportedCodecs,
+        //    srtpParams);
 
         // Get the codecs
-        int numMatchingCodecs = 0;
-        SdpCodec** matchingCodecs = NULL;
-        getInitialSdpCodecs(request,
-            supportedCodecs,
-            numMatchingCodecs, matchingCodecs,
-            remoteRtpAddress, remoteRtpPort, remoteRtcpPort);
+        //int numMatchingCodecs = 0;
+        //SdpCodec** matchingCodecs = NULL;
+        //getInitialSdpCodecs(request,
+        //    supportedCodecs,
+        //    numMatchingCodecs, matchingCodecs,
+        //    remoteRtpAddress, remoteRtpPort, remoteRtcpPort);
 
         // We are not suppose to go into offering state before, after
         // or at all when queuing a call.
@@ -2904,13 +2944,13 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         /** SIPXTAPI: TBD **/
 
         // Free up the codec copies and array
-        for(int codecIndex = 0; codecIndex < numMatchingCodecs; codecIndex++)
-        {
-            delete matchingCodecs[codecIndex];
-            matchingCodecs[codecIndex] = NULL;
-        }
-        delete[] matchingCodecs;
-        matchingCodecs = NULL;
+        //for(int codecIndex = 0; codecIndex < numMatchingCodecs; codecIndex++)
+        //{
+        //    delete matchingCodecs[codecIndex];
+        //    matchingCodecs[codecIndex] = NULL;
+        //}
+        //delete[] matchingCodecs;
+        //matchingCodecs = NULL;
     }
     // Forward on busy
     else if(getState() == CONNECTION_IDLE &&
@@ -3220,8 +3260,7 @@ void SipConnection::processNotifyRequest(const SipMessage* request)
             }
             else if (responseCode == SIP_TRYING_CODE)
             {
-		// Do nothing !
-                ;
+		        // Do nothing !
             }
             else
             {
@@ -3296,6 +3335,15 @@ void SipConnection::processAckRequest(const SipMessage* request)
         int receiveVideoRtcpPort;
         SdpCodecFactory supportedCodecs;
         SdpSrtpParameters srtpParams;
+
+        // Media connection is supposed to be created when we accept or
+        // answer an INVITE.
+        if(!mpMediaInterface->isConnectionIdValid(mConnectionId))
+        {
+            OsSysLog::add(FAC_CP, PRI_ERR,
+                "SipConnection::processAckRequest invalid connectionId %s",
+                mRemoteContact.data());
+        }
         mpMediaInterface->getCapabilities(mConnectionId,
             rtpAddress,
             receiveRtpPort,
@@ -3446,6 +3494,10 @@ void SipConnection::processByeRequest(const SipMessage* request)
         if (mpMediaInterface != NULL)
         {
             mpMediaInterface->stopRtpSend(mConnectionId);
+            mpMediaInterface->stopRtpReceive(mConnectionId);
+            int tempMediaId = mConnectionId;
+            mConnectionId = -1;
+            mpMediaInterface->deleteConnection(tempMediaId);
             fireSipXEvent(CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_STOP);
         }
 
@@ -3916,8 +3968,12 @@ void SipConnection::processInviteResponse(const SipMessage* response)
 
         // Check to see if there is a tag set in the To field that
         // should be remembered for future messages.
-        inviteMsg->getToAddress(&toAddr, &toPort, &toProto,
-            NULL, NULL, &inviteTag);
+        inviteMsg->getToAddress( &toAddr, 
+                                 &toPort, 
+                                 &toProto,
+           	                     NULL,
+               		             NULL,
+                                 &inviteTag);
 
         // Do not save the tag unless it is a final response
         // This is the stupid/simple thing to do until we need
@@ -3979,6 +4035,15 @@ void SipConnection::processInviteResponse(const SipMessage* response)
                 int receiveVideoRtcpPort;
                 SdpCodecFactory supportedCodecs;
                 SdpSrtpParameters srtpParams;
+                // We should have created a media connection before sending
+                // the INVITE.
+                if(!mpMediaInterface->isConnectionIdValid(mConnectionId))
+                {
+                    //OsSysLog::add(FAC_CP, PRI_ERR,
+                    printf(
+                        "SipConnection::processInviteResponse ringing invalid connectionId %s",
+                        mRemoteContact.data());
+                }
                 mpMediaInterface->getCapabilities(mConnectionId,
                     rtpAddress,
                     receiveRtpPort,
@@ -4357,6 +4422,14 @@ void SipConnection::processInviteResponse(const SipMessage* response)
 
             if (mpMediaInterface != NULL)
             {
+                // We should have created a media connection before sending
+                // the INVITE.
+                if(!mpMediaInterface->isConnectionIdValid(mConnectionId))
+                {
+                    OsSysLog::add(FAC_CP, PRI_ERR,
+                        "SipConnection::processInviteResponse OK TERMCONNECTION_HOLDING invalid connectionId %s",
+                        mRemoteContact.data());
+                }
                 mpMediaInterface->stopRtpSend(mConnectionId);
                 fireSipXEvent(CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_STOP);
             }
@@ -4399,6 +4472,14 @@ void SipConnection::processInviteResponse(const SipMessage* response)
 
         if (mpMediaInterface != NULL)
         {
+            // We should have created a media connection before sending
+            // the INVITE.
+            if(!mpMediaInterface->isConnectionIdValid(mConnectionId))
+            {
+                OsSysLog::add(FAC_CP, PRI_ERR,
+                    "SipConnection::processInviteResponse OK invalid connectionId %s",
+                    mRemoteContact.data());
+            }
             mpMediaInterface->getCapabilities(mConnectionId,
                     rtpAddress,
                     receiveRtpPort,
@@ -5177,8 +5258,16 @@ void SipConnection::setContactType(CONTACT_TYPE eType)
     else
     {
        int port;
-       sipUserAgent->getLocalAddress(&localContact, &port);
-       Url contactUrl(localContact);
+       UtlString localHost;
+
+	   // We have to build our own contact so use the AOR and set the host an port
+       // to the those thet the user agent thinks are the local address and port
+       // TODO: fix for TLS or other cases where the ports differ
+       sipUserAgent->getLocalAddress(&localHost, &port);
+       Url contactUrl(mLocalContact);
+
+       contactUrl.setHostAddress(localHost);
+
        contactUrl.setHostPort(port);
        contactUrl.toString(localContact);
     }
