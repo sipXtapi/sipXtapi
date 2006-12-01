@@ -6916,11 +6916,11 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoCodecByName(const SIPX_INST hInst,
         CpMediaInterfaceFactoryImpl* pInterface = 
                 pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation();
 
-        pInst->videoCodecSetting.pPreferences = szCodecName;
+        *pInst->videoCodecSetting.pPreferences = szCodecName;
 
         if (pInterface)
         {
-            if (pInst->videoCodecSetting.sPreferences->length() != 0)
+            if (pInst->videoCodecSetting.pPreferences->length() != 0)
             {
                 // Did we previously allocate a codecs array and store it in our settings?
                 if (pInst->videoCodecSetting.bInitialized)
@@ -6940,8 +6940,8 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoCodecByName(const SIPX_INST hInst,
                     pInst->videoCodecSetting.sdpCodecArray = NULL;
                 }
                 pInterface->buildCodecFactory(pInst->pCodecFactory, 
-                                              pInst->audioCodecSetting.pPreferences,
-                                              pInst->videoCodecSetting.pPreferences,
+                                              *pInst->audioCodecSetting.pPreferences,
+                                              *pInst->videoCodecSetting.pPreferences,
                                               -1, // Allow all formats
                                               &iRejected);
 
