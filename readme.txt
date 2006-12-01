@@ -112,5 +112,36 @@ make
 
 PlaceCall and ReceiveCall are known to build/work with this source tree.
 
+
+WinCE EVC4 Build Hints
+======================
+Please see the instructions in the INSTALL doc in sipXportLib for all the
+required 3rd party dependencies, and setting up EVC to find those
+dependencies. Once dependencies are set, exit out of EVC, and do the
+following:
+
+* In a DOS shell that you'll build from, set environment variables:
+	WCEROOT=<directory where EVC was installed> - you don't need
+		to touch this if you've installed EVC to the default path. 
+        Defaults to "C:\Program Files\Microsoft eMbedded C++ 4.0"
+	SDKROOT=<directory where wince SDKs get installed> - you don't need
+		to touch this if you've installed to the default path. 
+        Defaults to "C:\Program Files\Windows CE Tools"
+	PLATFORM=<your Windows CE target platform> - this is used to find platform
+        includes, libraries, etc.
+		You can figure out what this is by going to %SDKROOT%\WCE500 and
+		finding your platform directory name -- that will be the value of
+		PLATFORM.
+		Defaults to "STANDARDSDK_500"
+	CC=<compiler exe name>
+	    Defaults to "cl.exe" - for ARM, you'll want to set this to "clarm.exe"
+	TARGETCPU=<CPU you are targetting>
+		Defaults to "emulator" - for ARM, you'll want "ARMV4I" most likely -
+		other choices for ARM are "ARMV4" and "ARMV4T"
+	* NOTE: Upon launching this, you'll see hundreds of messages like:
+        ...\STLPORT\config\stl_apple.h(21): Could not find the file ConditionalMacros.h.
+        These are expected, if annoying -- it's warning that files that aren't 
+        even used (#ifdef'ed out) don't exist.
+
 ---
 rjandreasen@gmail.com
