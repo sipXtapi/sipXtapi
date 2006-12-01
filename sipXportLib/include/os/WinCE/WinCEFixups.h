@@ -230,9 +230,9 @@ int				read( int fd, void *buffer, unsigned int count );
 
 // Have to build stuff not just from WinBase but also from WinUser.h
 
-int PostThreadMessageA(unsigned long idThread,unsigned int Msg,
-                      unsigned int wParam,
-                      long lParam);
+BOOL PostThreadMessageA(DWORD idThread, UINT Msg,
+                      WPARAM wParam,
+                      LPARAM lParam);
 int GetMessageA(LPMSG lpMsg,HWND hWnd,unsigned int wMsgFilterMin,unsigned int wMsgFilterMax) ;
 
 
@@ -258,5 +258,19 @@ long CE_RegOpenKeyExA (	 HKEY hKey,
 
 WINMMAPI MMRESULT WINAPI timeSetEvent(UINT uDelay, UINT uResolution,
     LPTIMECALLBACK fptc, DWORD dwUser, UINT fuEvent);
+
+/* waveform input device capabilities structure */
+typedef struct tagWAVEINCAPS_W {
+    WORD    wMid;                    /* manufacturer ID */
+    WORD    wPid;                    /* product ID */
+    MMVERSION vDriverVersion;        /* version of the driver */
+    WCHAR   szPname[MAXPNAMELEN];    /* product name (NULL terminated string) */
+    DWORD   dwFormats;               /* formats supported */
+    WORD    wChannels;               /* number of channels supported */
+    WORD    wReserved1;              /* structure packing */
+} WAVEINCAPS_W;
+
+
+
 #endif // _WINCEFIXUPS_H_
 

@@ -115,7 +115,7 @@ long lseek( int fd, long offset, int origin )
 	DWORD	dwRet;
 	if( fd  &&  fd != -1 )
 	{
-		LONG	lHigh;
+		LONG	lHigh = 0;
 		DWORD	dwType;
 		if( origin == SEEK_SET )
 			dwType = FILE_BEGIN;		//beginning of file
@@ -692,23 +692,23 @@ int _putenv( const char *pIn )
 // Have to build stuff not just from WinBase but also from WinUser.h
 
 //****************************************************************
-int PostThreadMessageA(unsigned long idThread,unsigned int Msg,
-                      unsigned int wParam,
-                      long lParam) 
+BOOL PostThreadMessageA(DWORD idThread, UINT Msg,
+                      WPARAM wParam,
+                      LPARAM lParam) 
 {
 	int	iRet;
 
 	if( wParam  ==  NULL )
 	{
 		iRet = PostThreadMessageW( idThread, Msg, wParam, lParam );
-		printf( "PostThreadMessageA( ) - nothing to translate - PostThreadMessageW( ) returned %d\n", iRet );
+		//printf( "PostThreadMessageA( ) - nothing to translate - PostThreadMessageW( ) returned %d\n", iRet );
 		return iRet;
 	}
 	else
 	{
-		printf( "PostThreadMessageA( ) - Msg is 0x%8.8X,  wParam is 0x%8.8X,  *wParam = 0x%8.8X\n", Msg, wParam, *((DWORD *)wParam) );
+		//printf( "PostThreadMessageA( ) - Msg is 0x%8.8X,  wParam is 0x%8.8X,  *wParam = 0x%8.8X\n", Msg, wParam, *((DWORD *)wParam) );
 		iRet = PostThreadMessageW( idThread, Msg, wParam, lParam );
-		printf( "PostThreadMessageA( ) - PostThreadMessageW( ) returned %d\n\n", iRet );
+		//printf( "PostThreadMessageA( ) - PostThreadMessageW( ) returned %d\n\n", iRet );
 		return iRet;
 	}
 
@@ -722,7 +722,7 @@ int GetMessageA( LPMSG lpMsg, HWND hWnd, unsigned int wMsgFilterMin, unsigned in
 //	printf( "GetMessageA( ) NOT IMPLEMENTED\n" );
     int iRet;
     iRet = GetMessageW( lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax );
-    printf( "GetMessageW( ) just returned %d\n", iRet );
+    //printf( "GetMessageW( ) just returned %d\n", iRet );
     return iRet;
 };
 
@@ -813,3 +813,4 @@ extern int  _getpid();
 {
 	return 1;
 }
+
