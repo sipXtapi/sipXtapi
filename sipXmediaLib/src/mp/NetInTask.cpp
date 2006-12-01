@@ -427,7 +427,7 @@ int NetInTask::run(void *pNotUsed)
         while (NetInWait) {
            OsTask::yield() ;
         }
-        pBindSocket = new OsServerSocket(1);
+        pBindSocket = new OsServerSocket(1, PORT_DEFAULT, "127.0.0.1");
         mCmdPort = pBindSocket->getLocalHostPort();
         // osPrintf("\n NetInTask: local comm port is %d\n\n", mCmdPort);
         assert(-1 != mCmdPort);
