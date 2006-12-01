@@ -1109,8 +1109,8 @@ OsStatus CpPhoneMediaInterface::startRtpSend(int connectionId,
                                    dtmfCodec);
 
          mediaConnection->mRtpAudioSending = TRUE;
+         returnCode = OS_SUCCESS;
       }
-      returnCode = OS_SUCCESS;
    }
 
 #ifdef SIPX_VIDEO // [
@@ -1140,22 +1140,26 @@ OsStatus CpPhoneMediaInterface::startRtpSend(int connectionId,
            mpVideoFlowGraph->stopSendRtp();
        }
 
-      if (!mediaConnection->mRtpSendHostAddress.isNull() && mediaConnection->mRtpSendHostAddress.compareTo("0.0.0.0"))
+      if ( !mediaConnection->mRtpSendHostAddress.isNull()
+         && mediaConnection->mRtpSendHostAddress.compareTo("0.0.0.0")
+         && mediaConnection->mpRtpVideoSocket != NULL
+         && mediaConnection->mpRtcpVideoSocket != NULL
+         && mediaConnection->mpVideoCodec != NULL
+         )
       {
-         if (mpVideoFlowGraph->startSendRtp(*videoCodec,
+         if (mpVideoFlowGraph->startSendRtp(*(mediaConnection->mpVideoCodec),
                                             *(mediaConnection->mpRtpVideoSocket),
                                             *(mediaConnection->mpRtcpVideoSocket))
              == OS_SUCCESS)
          {
             mediaConnection->mRtpVideoSending = TRUE;
+            returnCode = OS_SUCCESS;
          }
          else
          {
             mediaConnection->mRtpVideoSending = FALSE;
          }
       }
-
-      returnCode = OS_SUCCESS;
    }
 #endif // SIPX_VIDEO ]
 

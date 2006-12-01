@@ -139,6 +139,11 @@ OsStatus MpVideoCallFlowGraph::startSendRtp(SdpCodec& rPrimaryCodec,
       return OS_FAILED;
    }
 
+   if (rRtpSocket.getRemoteHostPort() == 0 && rRtcpSocket.getRemoteHostPort() == 0)
+   {
+      return OS_FAILED;
+   }
+
    // Prepare RTP session.
    mpConnection->prepareStartSendRtp(rRtpSocket, rRtcpSocket);
 
