@@ -11,10 +11,12 @@
  */
 package org.sipfoundry.sipxconfig.speeddial;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-public class Button {
+public class Button implements Serializable {
     private String m_label;
     private String m_number;
 

@@ -1,0 +1,15 @@
+<div jwcid="@Border" restricted="false">
+  <span jwcid="@QuickHelp" value="message:quick.help" /> 
+  <div jwcid="@If" condition="ognl:userSession.admin"> 
+    <span jwcid="userNavigation" /> 
+  </div> 
+  <span jwcid="@Else">
+    <h2><span key="title">Speed Dial</span></h2>    
+  </span><span jwcid="@ErrorMsg"/>
+  <div jwcid="@OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
+    <form jwcid="@Form" delegate="bean:validator">
+      <fieldset jwcid="@speeddial/SpeedDialPanel" buttons="ognl:buttons"/>
+      <fieldset jwcid="@FormActions" listener="listener:onApply" callback="ognl:callback"/>
+    </form>
+  </div>
+</div>

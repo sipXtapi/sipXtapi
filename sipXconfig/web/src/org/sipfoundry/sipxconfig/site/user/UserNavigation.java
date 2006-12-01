@@ -21,6 +21,7 @@ import org.apache.tapestry.callback.PageCallback;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.site.speeddial.SpeedDialPage;
 import org.sipfoundry.sipxconfig.site.user_portal.UserCallForwarding;
 
 public abstract class UserNavigation extends BaseComponent {
@@ -44,6 +45,12 @@ public abstract class UserNavigation extends BaseComponent {
         UserCallForwarding page = (UserCallForwarding) cycle.getPage(UserCallForwarding.PAGE);
         page.setUserId(userId);
         page.setRings(null);
+        return page;
+    }
+
+    public IPage editSpeedDial(IRequestCycle cycle, Integer userId) {
+        SpeedDialPage page = (SpeedDialPage) cycle.getPage(SpeedDialPage.PAGE);
+        page.setUserId(userId);
         return page;
     }
 

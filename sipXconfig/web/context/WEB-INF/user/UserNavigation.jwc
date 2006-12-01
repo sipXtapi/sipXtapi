@@ -27,6 +27,10 @@
     <binding name="listener" value="listener:editCallForwarding" />
     <binding name="parameters" value="user.id" />
   </component>
+  <component id="speedDialLink" type="DirectLink">
+    <binding name="listener" value="listener:editSpeedDial" />
+    <binding name="parameters" value="user.id" />
+  </component>
   <component id="editUserLink" type="DirectLink">
     <binding name="listener" value="listener:editUser" />
     <binding name="parameters" value="user.id" />
