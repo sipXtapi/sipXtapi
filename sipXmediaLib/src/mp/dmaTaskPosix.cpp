@@ -274,7 +274,7 @@ static int setupSoundCard(void);
 int defaultAudioMicRead(Sample *readBufferSamples, int numSamples)
 {
    int justRead;
-   int recorded;
+   int recorded = 0;
    while(recorded < N_SAMPLES)
    {
       justRead = read(soundCard, &readBufferSamples[recorded], BUFLEN - (recorded * sizeof(Sample)));

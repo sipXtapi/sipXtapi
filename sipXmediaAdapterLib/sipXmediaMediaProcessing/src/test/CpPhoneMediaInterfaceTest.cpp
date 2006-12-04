@@ -17,6 +17,7 @@
 #include <mi/CpMediaInterfaceFactoryFactory.h>
 #include <mi/CpMediaInterface.h>
 #include <os/OsTask.h>
+//#define DISABLE_RECORDING
 #define EMBED_PROMPTS
 #ifdef EMBED_PROMPTS
 #  include "playback_prompt.h"
@@ -199,12 +200,12 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         int taskId;
         OsTask::getCurrentTaskId(taskId);
      
-#ifdef EMBED_PROMTS
+#ifdef EMBED_PROMPTS
         printf("Playing record_prompt from RAM bytes: %d samples: %d frames: %d\n",
                 sizeof(record_prompt),
                 sizeof(record_prompt) / 2,
                 sizeof(record_prompt) / 2 / 80);
-        mediaInterface->playBuffer(record_prompt, sizeof(record_prompt), 
+        mediaInterface->playBuffer((char*)record_prompt, sizeof(record_prompt), 
                                    0, // type (does not need conversion to raw)
                                    false, //repeat
                                    true, // local
@@ -224,24 +225,24 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         mediaInterface->stopTone() ;
         OsTask::delay(100) ;
 
-#ifdef EMBED_PROMPTS
+#ifdef DISABLE_RECORDING
+        printf("recording disabled\n");
+#else
         printf("Record record.tmp.wav\n");
         mediaInterface->recordMic(10000, 10000, "record.tmp.wav") ;
         mediaInterface->stopRecording() ;
-#else
-        printf("recording disabled\n");
 #endif
         OsTask::delay(100) ;
         mediaInterface->startTone(0, true, false) ;
         OsTask::delay(100) ;
         mediaInterface->stopTone() ;
 
-#ifdef EMBED_PROMTS
+#ifdef EMBED_PROMPTS
         printf("Playing playback_prompt from RAM bytes: %d samples: %d frames: %d\n",
                 sizeof(playback_prompt),
                 sizeof(playback_prompt) / 2,
                 sizeof(playback_prompt) / 2 / 80);
-        mediaInterface->playBuffer(playback_prompt, sizeof(playback_prompt), 
+        mediaInterface->playBuffer((char*)playback_prompt, sizeof(playback_prompt), 
                                    0, // type (does not need conversion to raw)
                                    false, //repeat
                                    true, // local
@@ -252,7 +253,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 #endif
         OsTask::delay(2500) ;
         mediaInterface->stopAudio() ;
-#ifdef EMBED_PROMPTS
+#ifdef DISABLE_RECORDING
         printf("record disabled so no play back of recorded message\n");
 #else
         printf("Play record.tmp.wav\n");

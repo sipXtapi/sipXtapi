@@ -23,6 +23,7 @@ testsuite_CPPFLAGS = @CPPUNIT_CFLAGS@
 testsuite_LDADD = \
     @SIPXUNIT_LIBS@ \
     $(CPPUNIT_LIBS) \
+    @SIPXPORT_LIBS@ \
     ../libsipXtack.la
 
 testsuite_SOURCES = \

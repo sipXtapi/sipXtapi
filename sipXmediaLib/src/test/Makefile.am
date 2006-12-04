@@ -7,6 +7,7 @@ check_PROGRAMS = testsuite sandbox
 testsuite_LDADD = \
     @SIPXUNIT_LIBS@ \
     $(CPPUNIT_LIBS) \
+    @SIPXPORT_LIBS@ \
     ../libsipXmedia.la \
     $(GIPS_OBJS)
 
