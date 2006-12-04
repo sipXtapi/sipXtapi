@@ -20,13 +20,14 @@ import org.sipfoundry.sipxconfig.common.DataObjectSource;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
 /**
  * Context for entire sipXconfig framework. Holder for service layer bean factories.
  */
 public interface PhoneContext extends DataObjectSource {
 
-    public static final String CONTEXT_BEAN_NAME = "phoneContext";
+    static final String CONTEXT_BEAN_NAME = "phoneContext";
 
     /**
      * Commits the transaction and performs a batch of SQL commands to database. Call this as high
@@ -36,38 +37,38 @@ public interface PhoneContext extends DataObjectSource {
      * call to flush. Not unreasonable, most times you don't delete and object before it's
      * created, but happens a lot in unittests.
      */
-    public void flush();
+    void flush();
 
-    public int getPhonesCount();
+    int getPhonesCount();
 
-    public int getPhonesInGroupCount(Integer groupId);
+    int getPhonesInGroupCount(Integer groupId);
 
-    public List loadPhonesByPage(Integer groupId, int page, int pageSize, String[] orderBy,
+    List loadPhonesByPage(Integer groupId, int page, int pageSize, String[] orderBy,
             boolean orderAscending);
 
-    public Collection loadPhones();
+    Collection loadPhones();
 
-    public Collection getAllPhoneIds();
-    
-    public void storeLine(Line line);
+    Collection getAllPhoneIds();
 
-    public void deleteLine(Line line);
+    void storeLine(Line line);
 
-    public Line loadLine(Integer id);
-    
-    public Phone newPhone(PhoneModel model);
+    void deleteLine(Line line);
 
-    public Phone loadPhone(Integer id);
+    Line loadLine(Integer id);
 
-    public Integer getPhoneIdBySerialNumber(String serialNumber);
+    Phone newPhone(PhoneModel model);
 
-    public Object load(Class c, Serializable id);
+    Phone loadPhone(Integer id);
 
-    public void storePhone(Phone phone);
+    Integer getPhoneIdBySerialNumber(String serialNumber);
 
-    public void deletePhone(Phone phone);
+    Object load(Class c, Serializable id);
 
-    public List<Group> getGroups();
+    void storePhone(Phone phone);
+
+    void deletePhone(Phone phone);
+
+    List<Group> getGroups();
 
     /**
      * Retrieves phone group by name.
@@ -77,39 +78,40 @@ public interface PhoneContext extends DataObjectSource {
      *        is returned if group with a phoneGroupName is not found
      * @return phone group or null if group not found and createIfNotFound is false
      */
-    public Group getGroupByName(String phoneGroupName, boolean createIfNotFound);
+    Group getGroupByName(String phoneGroupName, boolean createIfNotFound);
 
     /** unittesting only */
-    public void clear();
+    void clear();
 
-    public String getSystemDirectory();
+    String getSystemDirectory();
 
-    public DeviceDefaults getPhoneDefaults();
+    DeviceDefaults getPhoneDefaults();
 
-    public Collection getPhonesByGroupId(Integer groupId);
+    Collection getPhonesByGroupId(Integer groupId);
 
-    public Collection getPhonesByUserId(Integer userId);
+    Collection getPhonesByUserId(Integer userId);
 
-    public void addToGroup(Integer groupId, Collection ids);
+    void addToGroup(Integer groupId, Collection ids);
 
-    public void removeFromGroup(Integer groupId, Collection ids);
+    void removeFromGroup(Integer groupId, Collection ids);
 
-    public void addUsersToPhone(Integer phoneId, Collection ids);
-    
+    void addUsersToPhone(Integer phoneId, Collection ids);
+
     /**
-     * Return the intercom associated with a phone, through the groups the phone
-     * belongs to, or null if there is no intercom for the phone.
-     * There should be at most one intercom for any phone. If there is more than
-     * one, then return the first intercom found.
+     * Return the intercom associated with a phone, through the groups the phone belongs to, or
+     * null if there is no intercom for the phone. There should be at most one intercom for any
+     * phone. If there is more than one, then return the first intercom found.
      */
-    public Intercom getIntercomForPhone(Phone phone);
-    
+    Intercom getIntercomForPhone(Phone phone);
+
     /**
-     * Phonebook/Directory/Speedial entries for this phone.  Current algorithm is to find the user
-     * associated with the first line, find the groups for that user and see if they are in any
-     * of the phone book consumer user groups. 
+     * Phonebook/Directory/Speedial entries for this phone. Current algorithm is to find the user
+     * associated with the first line, find the groups for that user and see if they are in any of
+     * the phone book consumer user groups.
      * 
-     * @return empty collection of no entries 
+     * @return empty collection of no entries
      */
-    public Collection<PhonebookEntry> getPhonebookEntries(Phone phone);
+    Collection<PhonebookEntry> getPhonebookEntries(Phone phone);
+
+    SpeedDial getSpeedDial(Phone phone);
 }

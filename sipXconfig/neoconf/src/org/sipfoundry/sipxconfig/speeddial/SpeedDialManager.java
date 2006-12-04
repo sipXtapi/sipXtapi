@@ -14,7 +14,7 @@ package org.sipfoundry.sipxconfig.speeddial;
 public interface SpeedDialManager {
     String CONTEXT_BEAN_NAME = "speedDialManager";
 
-    SpeedDial getSpeedDialForUserId(Integer userId);
+    SpeedDial getSpeedDialForUserId(Integer userId, boolean create);
 
     void saveSpeedDial(SpeedDial speedDial);
 }

@@ -42,7 +42,7 @@ public abstract class SpeedDialPage extends UserBasePage {
             return;
         }
 
-        SpeedDial speedDial = getSpeedDialManager().getSpeedDialForUserId(userId);
+        SpeedDial speedDial = getSpeedDialManager().getSpeedDialForUserId(userId, true);
         setSpeedDial(speedDial);
         setSavedUserId(userId);
     }

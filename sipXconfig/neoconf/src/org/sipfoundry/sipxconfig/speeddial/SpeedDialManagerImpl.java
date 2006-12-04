@@ -23,10 +23,13 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport<SpeedDial> imp
 
     private CoreContext m_coreContext;
 
-    public SpeedDial getSpeedDialForUserId(Integer userId) {
+    public SpeedDial getSpeedDialForUserId(Integer userId, boolean create) {
         List<SpeedDial> speeddials = findSpeedDialForUserId(userId);
         if (!speeddials.isEmpty()) {
             return speeddials.get(0);
+        }
+        if (!create) {
+            return null;
         }
         SpeedDial speedDial = new SpeedDial();
         speedDial.setUser(m_coreContext.loadUser(userId));

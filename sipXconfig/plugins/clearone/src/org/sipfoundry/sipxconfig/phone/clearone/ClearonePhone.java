@@ -17,6 +17,8 @@ import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
 public class ClearonePhone extends Phone {
     public static final String BEAN_ID = "clearone";
@@ -49,13 +51,20 @@ public class ClearonePhone extends Phone {
 
     @Override
     public void initialize() {
-        ClearonePhoneDefaults defaults = new ClearonePhoneDefaults(getPhoneContext()
+        PhoneContext phoneContext = getPhoneContext();
+        ClearonePhoneDefaults defaults = new ClearonePhoneDefaults(phoneContext
                 .getPhoneDefaults(), formatName(DIALPLAN_FILE));
         addDefaultBeanSettingHandler(defaults);
     }
 
     @Override
     public void generateProfiles() {
+        PhoneContext phoneContext = getPhoneContext();
+        SpeedDial speedDial = phoneContext.getSpeedDial(this);
+        if (speedDial != null) {
+            ClearonePhoneSpeedDial phoneSpeedDial = new ClearonePhoneSpeedDial(speedDial);
+            addDefaultSettingHandler(phoneSpeedDial);
+        }
         super.generateProfiles();
         // generate some other files
         generateFile(getDialplanTemplate(), getDialplanFileName());

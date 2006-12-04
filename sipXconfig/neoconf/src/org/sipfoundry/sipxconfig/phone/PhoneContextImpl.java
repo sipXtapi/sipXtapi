@@ -37,6 +37,8 @@ import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
+import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
+import org.sipfoundry.sipxconfig.speeddial.SpeedDialManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.context.ApplicationEvent;
@@ -65,9 +67,11 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     private DeviceDefaults m_deviceDefaults;
 
     private IntercomManager m_intercomManager;
-    
+
     private PhonebookManager m_phonebookManager;
-    
+
+    private SpeedDialManager m_speedDialManager;
+
     public PhonebookManager getPhonebookManager() {
         return m_phonebookManager;
     }
@@ -87,7 +91,11 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     public void setIntercomManager(IntercomManager intercomManager) {
         m_intercomManager = intercomManager;
     }
-    
+
+    public void setSpeedDialManager(SpeedDialManager speedDialManager) {
+        m_speedDialManager = speedDialManager;
+    }
+
     /**
      * Callback that supplies the owning factory to a bean instance.
      */
@@ -166,7 +174,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
                 QUERY_PHONE_ID_BY_SERIAL_NUMBER, "value", Phone.cleanSerialNumber(serialNumber));
         return (Integer) DaoUtils.requireOneOrZero(objs, QUERY_PHONE_ID_BY_SERIAL_NUMBER);
     }
-    
+
     public Phone newPhone(PhoneModel model) {
         Phone phone = (Phone) m_beanFactory.getBean(model.getBeanId());
         phone.setModel(model);
@@ -309,28 +317,30 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         }
         storePhone(phone);
     }
-    
+
     /**
-     * Return the intercom associated with a phone, through the groups the phone
-     * belongs to, or null if there is no intercom for the phone.
-     * There should be at most one intercom for any phone. If there is more than
-     * one, then return the first intercom found.
+     * Return the intercom associated with a phone, through the groups the phone belongs to, or
+     * null if there is no intercom for the phone. There should be at most one intercom for any
+     * phone. If there is more than one, then return the first intercom found.
      */
     public Intercom getIntercomForPhone(Phone phone) {
         return m_intercomManager.getIntercomForPhone(phone);
     }
 
     public Collection<PhonebookEntry> getPhonebookEntries(Phone phone) {
-        Collection<PhonebookEntry> entries = Collections.emptyList();
-        Line initialLine = phone.getLine(0);
-        if (initialLine != null) {
-            User user = initialLine.getUser();
-            if (user != null) {
-                Collection<Phonebook> books = getPhonebookManager().getPhonebooksByUser(user); 
-                entries = getPhonebookManager().getRows(books);                
-            }
+        User user = phone.getPrimaryUser();
+        if (user != null) {
+            Collection<Phonebook> books = getPhonebookManager().getPhonebooksByUser(user);
+            return getPhonebookManager().getRows(books);
         }
+        return Collections.emptyList();
+    }
 
-        return entries;
+    public SpeedDial getSpeedDial(Phone phone) {
+        User user = phone.getPrimaryUser();
+        if (user != null) {
+            return m_speedDialManager.getSpeedDialForUserId(user.getId(), false);
+        }
+        return null;
     }
 }

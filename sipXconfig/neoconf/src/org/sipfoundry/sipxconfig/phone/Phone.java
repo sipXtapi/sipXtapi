@@ -403,4 +403,16 @@ public abstract class Phone extends BeanWithGroups {
     public void setPhoneModelSource(ModelSource<PhoneModel> modelSource) {
         m_modelSource = modelSource;
     }
+
+    /**
+     * Find a phone user. By convention phone user is a user associated with the phone first line.
+     * 
+     */
+    public User getPrimaryUser() {
+        List<Line> lines = getLines();
+        if (lines.isEmpty()) {
+            return null;
+        }
+        return lines.get(0).getUser();
+    }
 }

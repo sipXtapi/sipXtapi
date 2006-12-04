@@ -32,7 +32,7 @@ public class SpeedDialManagerTestDb extends SipxDatabaseTestCase {
 
     public void testGetSpeedDialForUser() throws Exception {
         TestHelper.insertFlat("speeddial/speeddial.db.xml");
-        SpeedDial speedDial = m_sdm.getSpeedDialForUserId(1001);
+        SpeedDial speedDial = m_sdm.getSpeedDialForUserId(1001, true);
         assertNotNull(speedDial);
         assertEquals(3, speedDial.getButtons().size());
         assertEquals("222", speedDial.getButtons().get(2).getNumber());
@@ -40,14 +40,16 @@ public class SpeedDialManagerTestDb extends SipxDatabaseTestCase {
 
     public void testGetNewSpeedDialForUser() throws Exception {
         TestHelper.insertFlat("speeddial/speeddial.db.xml");
-        SpeedDial speedDial = m_sdm.getSpeedDialForUserId(1002);
+        SpeedDial speedDial = m_sdm.getSpeedDialForUserId(1002, false);
+        assertNull(speedDial);
+        speedDial = m_sdm.getSpeedDialForUserId(1002, true);
         assertNotNull(speedDial);
         assertEquals(0, speedDial.getButtons().size());
     }
 
     public void testSaveSpeedDialForUser() throws Exception {
         TestHelper.insertFlat("speeddial/speeddial.db.xml");
-        SpeedDial speedDial = m_sdm.getSpeedDialForUserId(1002);
+        SpeedDial speedDial = m_sdm.getSpeedDialForUserId(1002, true);
 
         final int buttonCount = 5;
         for (int i = 0; i < buttonCount; i++) {

@@ -3,8 +3,7 @@
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
 
-  <bean id="nakedPhoneModelSource"
-    class="org.sipfoundry.sipxconfig.device.BeanFactoryModelSource">
+  <bean id="nakedPhoneModelSource" class="org.sipfoundry.sipxconfig.device.BeanFactoryModelSource">
     <constructor-arg>
       <value>org.sipfoundry.sipxconfig.phone.PhoneModel</value>
     </constructor-arg>
@@ -22,10 +21,10 @@
     <property name="phoneDefaults" ref="phoneDefaults" />
     <property name="intercomManager" ref="intercomManager" />
     <property name="phonebookManager" ref="phonebookManager" />
+    <property name="speedDialManager" ref="speedDialManager" />
   </bean>
 
-  <bean id="phoneContext" class="org.springframework.aop.framework.ProxyFactoryBean"
-    parent="abstractDao">
+  <bean id="phoneContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces">
       <value>org.sipfoundry.sipxconfig.phone.PhoneContext</value>
     </property>
@@ -92,7 +91,6 @@
     </property>
   </bean>
   <bean id="sip" class="org.sipfoundry.sipxconfig.phone.SipServiceImpl" />
-  <bean id="line" class="org.sipfoundry.sipxconfig.phone.Line" singleton="false"
-    parent="beanWithSettings" />
+  <bean id="line" class="org.sipfoundry.sipxconfig.phone.Line" singleton="false" parent="beanWithSettings" />
 </beans>
 
