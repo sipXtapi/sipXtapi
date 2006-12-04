@@ -21,4 +21,9 @@ public abstract class ButtonEditor extends BaseComponent {
     @Parameter(required = true)
     public abstract Button getButton();
 
+    @Parameter(required = true)
+    public abstract int getIndex();
+
+    @Parameter(required = true)
+    public abstract int getRemoveIndex();
 }

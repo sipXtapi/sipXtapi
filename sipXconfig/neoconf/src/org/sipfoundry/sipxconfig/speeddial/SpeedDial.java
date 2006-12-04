@@ -24,7 +24,7 @@ public class SpeedDial extends BeanWithId {
     private User m_user;
 
     private List<Button> m_buttons = new ArrayList<Button>();
-    
+
     public List<Button> getButtons() {
         return m_buttons;
     }
@@ -39,5 +39,10 @@ public class SpeedDial extends BeanWithId {
 
     public void setUser(User user) {
         m_user = user;
+    }
+
+    public void replaceButtons(List<Button> buttons) {
+        m_buttons.clear();
+        m_buttons.addAll(buttons);
     }
 }

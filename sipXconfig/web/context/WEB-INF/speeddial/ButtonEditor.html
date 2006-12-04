@@ -1,5 +1,7 @@
 <tr>
-  <td><span jwcid="@TextField" value="ognl:button.label" validators="validators:required" /></td>
-  <td><span jwcid="@TextField" value="ognl:button.number"
+  <td><span jwcid="label@TextField" value="ognl:button.label" validators="validators:required" /></td>
+  <td><span jwcid="number@TextField" value="ognl:button.number"
     validators="spring-validators:validPhoneOrAor,required" /></td>
+  <td><a jwcid="linkDelete@LinkSubmit" selected="ognl:removeIndex" tag="ognl:index"><span
+    key="button.delete">Delete</span></a></td>
 </tr>

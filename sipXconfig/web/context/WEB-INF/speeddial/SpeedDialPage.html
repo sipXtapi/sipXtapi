@@ -1,4 +1,4 @@
-<div jwcid="@Border" restricted="false">
+<div jwcid="@Border" restricted="false" useDojo="true">
   <span jwcid="@QuickHelp" value="message:quick.help" /> 
   <div jwcid="@If" condition="ognl:userSession.admin"> 
     <span jwcid="userNavigation" /> 
@@ -7,8 +7,9 @@
     <h2><span key="title">Speed Dial</span></h2>    
   </span><span jwcid="@ErrorMsg"/>
   <div jwcid="@OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
+    <!--  form jwcid="@tacos:AjaxForm" delegate="bean:validator" -->
     <form jwcid="@Form" delegate="bean:validator">
-      <fieldset jwcid="@speeddial/SpeedDialPanel" buttons="ognl:buttons"/>
+      <fieldset jwcid="@speeddial/SpeedDialPanel" speedDial="ognl:speedDial"/>
       <fieldset jwcid="@FormActions" listener="listener:onApply" callback="ognl:callback"/>
     </form>
   </div>
