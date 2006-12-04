@@ -366,7 +366,7 @@ initialize_databases () {
         @bindir@/sipxconfig.sh --setup
     fi
     # and the cdr database setup for the proxies and call resolver
-    @bindir@/sipxconfig.sh --setup
+    @bindir@/sipxcallresolver.sh --setup
 }
 
 ## High-level configtest function
