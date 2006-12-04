@@ -11,8 +11,11 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include "mp/MpVideoBuf.h"
-#ifdef SIPX_VIDEO // [
-#include "ccvt.h"
+#ifdef DO_COLORSPACE_CONVERSION // [
+#  ifdef WIN32 // [
+#     define EMULATE_INTTYPES
+#  endif // WIN32 ]
+#  include <avcodec.h>
 #endif // SIPX_VIDEO ]
 
 // EXTERNAL FUNCTIONS
@@ -44,15 +47,16 @@ unsigned MpVideoBuf::getColospacePixelDepth(ColorSpace colorspace)
 */
       return 24;
 
-/*
    case MP_COLORSPACE_RGB555:   // We assume one pixel unused in this mode
    case MP_COLORSPACE_RGB565:
    case MP_COLORSPACE_BGR555:   // We assume one pixel unused in this mode
    case MP_COLORSPACE_BGR565:
-   case MP_COLORSPACE_YUV422:
+/*   case MP_COLORSPACE_YUV422:
    case MP_COLORSPACE_YUV422p:
+*/
       return 16;
 
+/*
    case MP_COLORSPACE_YUV411:
    case MP_COLORSPACE_YUV411p:
    case MP_COLORSPACE_YUV420:
@@ -91,11 +95,11 @@ unsigned MpVideoBuf::getColospaceUVWidthDivider(ColorSpace colorspace)
    case MP_COLORSPACE_RGB32:
    case MP_COLORSPACE_BGR24:
    case MP_COLORSPACE_BGR32:
-/*
    case MP_COLORSPACE_RGB555:
    case MP_COLORSPACE_RGB565:
    case MP_COLORSPACE_BGR555:
    case MP_COLORSPACE_BGR565:
+/*
    case MP_COLORSPACE_GRAY:
    case MP_COLORSPACE_RGB24p:
    case MP_COLORSPACE_BGR24p:
@@ -131,11 +135,11 @@ unsigned MpVideoBuf::getColospaceUVWidthDivider(ColorSpace colorspace)
 unsigned MpVideoBuf::getColospaceUVHeightDivider(ColorSpace colorspace)
 {
    switch(colorspace) {
-/*
    case MP_COLORSPACE_RGB555:
    case MP_COLORSPACE_RGB565:
    case MP_COLORSPACE_BGR555:
    case MP_COLORSPACE_BGR565:
+/*
    case MP_COLORSPACE_GRAY:
    case MP_COLORSPACE_RGB24p:
    case MP_COLORSPACE_BGR24p:
@@ -166,43 +170,100 @@ unsigned MpVideoBuf::getColospaceUVHeightDivider(ColorSpace colorspace)
    return 1;
 }
 
-#ifdef DO_COLORSPACE_CONERSATION // [
-OsStatus MpVideoBuf::convertColorSpace(MpVideoBuf::ColorSpace colorspace, char *pBuffer)
+#ifdef DO_COLORSPACE_CONVERSION // [
+
+int MpVideoBuf::getFFMpegColorspace(MpVideoBuf::ColorSpace colorspace)
 {
-   switch (mColorspace)
+   switch (colorspace)
    {
+   case MP_COLORSPACE_RGB555:
+      return PIX_FMT_RGB555;
+   case MP_COLORSPACE_RGB565:
+      return PIX_FMT_RGB565;
+   case MP_COLORSPACE_BGR555:
+      return PIX_FMT_BGR555;
+   case MP_COLORSPACE_BGR565:
+      return PIX_FMT_BGR565;
+/*
+   case MP_COLORSPACE_GRAY:
+      return PIX_FMT_GRAY8;
+   case MP_COLORSPACE_RGB24p:
+   case MP_COLORSPACE_BGR24p:
+*/
+   case MP_COLORSPACE_RGB24:
+      return PIX_FMT_RGB24;
+   case MP_COLORSPACE_RGB32:
+      return PIX_FMT_RGBA;
+   case MP_COLORSPACE_BGR24:
+      return PIX_FMT_BGR24;
+   case MP_COLORSPACE_BGR32:
+      return PIX_FMT_BGRA;
+
+/*
+   case MP_COLORSPACE_YUV:
+   case MP_COLORSPACE_YUVp:
+   case MP_COLORSPACE_YUV422:
+   case MP_COLORSPACE_YUV422p:
+   case MP_COLORSPACE_YUV411:
+   case MP_COLORSPACE_YUV411p:
+      return 1;
+*/
+
+//   case MP_COLORSPACE_YUV420:
    case MP_COLORSPACE_YUV420p:
-      switch (colorspace)
-      {
-//      case MP_COLORSPACE_YUV420p:
-//         return 
-      case MP_COLORSPACE_RGB24:
-         {
-            ccvt_420p_rgb24(mWidth, mHeight, getDataPtr(), pBuffer);
-            return OS_SUCCESS;
-         }
-      case MP_COLORSPACE_RGB32:
-         {
-            ccvt_420p_rgb32(mWidth, mHeight, getDataPtr(), pBuffer);
-            return OS_SUCCESS;
-         }
-      case MP_COLORSPACE_BGR24:
-         {
-            ccvt_420p_bgr24(mWidth, mHeight, getDataPtr(), pBuffer);
-            return OS_SUCCESS;
-         }
-      case MP_COLORSPACE_BGR32:
-         {
-            ccvt_420p_bgr32(mWidth, mHeight, getDataPtr(), pBuffer);
-            return OS_SUCCESS;
-         }
-      }
-      break;
+      return PIX_FMT_YUV420P;
    }
 
-   return OS_FAILED;
+   // Unknown colorspace. Something wrong...
+   assert(false);
+   return 0;
 }
-#endif // DO_COLORSPACE_CONERSATION ]
+
+OsStatus MpVideoBuf::convertColorSpace(MpVideoBuf::ColorSpace colorspace, char *pBuffer, int bufSize)
+{
+   OsStatus retcode = OS_FAILED;
+   int srcPixFmt;
+   int dstPixFmt;
+   unsigned width;
+   unsigned height;
+
+   width = getFrameWidth();
+   height = getFrameHeight();
+   srcPixFmt = getFFMpegColorspace(mColorspace);
+   dstPixFmt = getFFMpegColorspace(colorspace);
+
+   if (avpicture_get_size(dstPixFmt, width, height) > bufSize)
+   {
+      return OS_FAILED;
+   }
+
+   // If colorspaces are equal we could simply copy frame data to output buffer.
+   if (mColorspace == colorspace)
+   {
+      memcpy(pBuffer, getWriteDataPtr(), avpicture_get_size(srcPixFmt, width, height));
+      retcode =  OS_SUCCESS;
+   }
+   else
+   {
+      AVPicture srcPicture;
+      AVPicture dstPicture;
+
+      // Setup srcPicture and dstPicture internal pointers
+      avpicture_fill(&srcPicture, (uint8_t*)getWriteDataPtr(), srcPixFmt, width, height);
+      avpicture_fill(&dstPicture, (uint8_t*)pBuffer, dstPixFmt, width, height);
+
+      // Do convert
+      if (img_convert(&dstPicture, dstPixFmt,
+                      &srcPicture, srcPixFmt,
+                      width, height) >= 0)
+      {
+         retcode =  OS_SUCCESS;
+      }
+   }
+
+   return retcode;
+}
+#endif // DO_COLORSPACE_CONVERSION ]
 
 /* ============================ MANIPULATORS ============================== */
 
@@ -236,11 +297,11 @@ void MpVideoBuf::resetPlaneParameters()
    // Set start of planes.
    mpPlaneParameters[0].mpBeginPointer = getWriteDataPtr();
    switch(mColorspace) {
-/*
    case MP_COLORSPACE_RGB555:
    case MP_COLORSPACE_RGB565:
    case MP_COLORSPACE_BGR555:
    case MP_COLORSPACE_BGR565:
+/*
    case MP_COLORSPACE_YUV:
    case MP_COLORSPACE_GRAY:
    case MP_COLORSPACE_YUV422:

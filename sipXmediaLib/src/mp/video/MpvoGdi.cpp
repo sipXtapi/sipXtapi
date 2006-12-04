@@ -65,7 +65,33 @@ OsStatus MpvoGdi::render(MpVideoBufPtr pFrame)
                                   (void**)&pDibBuffer, NULL, 0 );
  
    // Convert frame to screen color format and copy it to windows bitmap
-   pFrame->convertColorSpace(MpVideoBuf::MP_COLORSPACE_BGR32, (char*)pDibBuffer);
+   switch (p_header->biBitCount)
+   {
+   case 32:
+      pFrame->convertColorSpace(MpVideoBuf::MP_COLORSPACE_BGR32,
+                                (char*)pDibBuffer,
+                                p_header->biWidth*p_header->biHeight*32/8);
+      break;
+   case 24:
+      pFrame->convertColorSpace(MpVideoBuf::MP_COLORSPACE_BGR24,
+                                (char*)pDibBuffer,
+                                p_header->biWidth*p_header->biHeight*24/8);
+      break;
+   case 16:
+      pFrame->convertColorSpace(MpVideoBuf::MP_COLORSPACE_BGR565,
+                                (char*)pDibBuffer,
+                                p_header->biWidth*p_header->biHeight*16/8);
+      break;
+   case 15:
+      pFrame->convertColorSpace(MpVideoBuf::MP_COLORSPACE_BGR555,
+                                (char*)pDibBuffer,
+                                p_header->biWidth*p_header->biHeight*16/8);
+      break;
+   default:
+      osPrintf( "screen depth %i not supported", p_header->biBitCount );
+      return OS_FAILED;
+      break;
+   }
 
    SelectObject( off_dc, off_bitmap );
 
@@ -73,12 +99,6 @@ OsStatus MpvoGdi::render(MpVideoBufPtr pFrame)
                p_header->biWidth, p_header->biHeight,
                off_dc, 0, p_header->biHeight,
                p_header->biWidth, -p_header->biHeight, SRCCOPY );
-/*
-//   BitBlt( hdc, 0, p_header->biHeight, p_header->biWidth, -p_header->biHeight,
-//           off_dc, 0, p_header->biHeight, SRCCOPY );
-   BitBlt( hdc, 0, 0, p_header->biWidth, p_header->biHeight,
-           off_dc, 0, 0, SRCCOPY|NOMIRRORBITMAP );
-*/
 
    ReleaseDC( mHwnd, hdc );
 

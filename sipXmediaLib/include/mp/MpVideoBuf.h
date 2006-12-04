@@ -18,8 +18,8 @@
 
 // DEFINES
 #ifdef SIPX_VIDEO // [
-/// This enable color space conversations using CCVT library.
-#define DO_COLORSPACE_CONERSATION
+/// This enable color space conversations using FFMpeg's conversion routines.
+#define DO_COLORSPACE_CONVERSION
 #endif // SIPX_VIDEO ]
 
 // MACROS
@@ -49,13 +49,13 @@ public:
        MP_COLORSPACE_PACKED_BEGIN,  // interleaved, pixel-oriented
        MP_COLORSPACE_RGB24,
        MP_COLORSPACE_RGB32,
-//       MP_COLORSPACE_RGB555,
-//       MP_COLORSPACE_RGB565,
+       MP_COLORSPACE_RGB555,
+       MP_COLORSPACE_RGB565,
 
        MP_COLORSPACE_BGR24,
        MP_COLORSPACE_BGR32,
-//       MP_COLORSPACE_BGR555,
-//       MP_COLORSPACE_BGR565,
+       MP_COLORSPACE_BGR555,
+       MP_COLORSPACE_BGR565,
 
 //       MP_COLORSPACE_YUV,
 //       MP_COLORSPACE_YUV420,
@@ -146,9 +146,23 @@ public:
        }
     }
 
-#ifdef DO_COLORSPACE_CONERSATION // [
-   OsStatus convertColorSpace(MpVideoBuf::ColorSpace colorspace, char *pBuffer);
-#endif // DO_COLORSPACE_CONERSATION ]
+#ifdef DO_COLORSPACE_CONVERSION // [
+
+     /// Get FFMpeg colorspace for given MpVideoBuf colorspace.
+   static
+   int getFFMpegColorspace(MpVideoBuf::ColorSpace colorspace);
+
+     /// Convert this frame to other colorspace
+   OsStatus convertColorSpace(MpVideoBuf::ColorSpace colorspace, char *pBuffer, int bufSize);
+   /**<
+   *  convertColorSpace convert this frame to provided buffer.
+   *  
+   *  @param colorspace - (in) Colorspace to convert to.
+   *  @param pBuffer - (in) Buffer for converted data.
+   *  @param bufSize - (in) Size of buffer pointed by pBuffer.
+   */
+
+#endif // DO_COLORSPACE_CONVERSION ]
 
 /* ============================ MANIPULATORS ============================== */
 ///@name Manipulators

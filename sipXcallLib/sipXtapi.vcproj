@@ -36,7 +36,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcrtd.lib msvcprtd.lib Ws2_32.lib sipXportLib.lib sipXtackLib.lib sipXcallLib.lib pcre.lib sipXmediaLib.lib winmm.lib sipXmediaMediaProcessing.lib libspeex.lib ccvt.lib avcodec-51.lib avutil-49.lib"
+				AdditionalDependencies="msvcrtd.lib msvcprtd.lib Ws2_32.lib sipXportLib.lib sipXtackLib.lib sipXcallLib.lib pcre.lib sipXmediaLib.lib winmm.lib sipXmediaMediaProcessing.lib libspeex.lib avcodec-51.lib avutil-49.lib"
 				OutputFile="bin\sipXtapid.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -120,7 +120,7 @@ copy include\tapi\sipXtapiEvents.h examples\include\tapi
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcrt.lib msvcprt.lib winmm.lib Ws2_32.lib sipXportLib.lib sipXtackLib.lib sipXcallLib.lib pcre.lib sipXmediaLib.lib sipXmediaMediaProcessing.lib libspeex.lib ccvt.lib avcodec-51.lib avutil-49.lib"
+				AdditionalDependencies="msvcrt.lib msvcprt.lib winmm.lib Ws2_32.lib sipXportLib.lib sipXtackLib.lib sipXcallLib.lib pcre.lib sipXmediaLib.lib sipXmediaMediaProcessing.lib libspeex.lib avcodec-51.lib avutil-49.lib"
 				OutputFile="bin\sipXtapi.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
