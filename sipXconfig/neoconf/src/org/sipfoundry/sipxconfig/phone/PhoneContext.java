@@ -27,7 +27,7 @@ import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
  */
 public interface PhoneContext extends DataObjectSource {
 
-    static final String CONTEXT_BEAN_NAME = "phoneContext";
+    String CONTEXT_BEAN_NAME = "phoneContext";
 
     /**
      * Commits the transaction and performs a batch of SQL commands to database. Call this as high
@@ -43,12 +43,12 @@ public interface PhoneContext extends DataObjectSource {
 
     int getPhonesInGroupCount(Integer groupId);
 
-    List loadPhonesByPage(Integer groupId, int page, int pageSize, String[] orderBy,
+    List<Phone> loadPhonesByPage(Integer groupId, int page, int pageSize, String[] orderBy,
             boolean orderAscending);
 
-    Collection loadPhones();
+    List<Phone> loadPhones();
 
-    Collection getAllPhoneIds();
+    List<Integer> getAllPhoneIds();
 
     void storeLine(Line line);
 
@@ -87,15 +87,15 @@ public interface PhoneContext extends DataObjectSource {
 
     DeviceDefaults getPhoneDefaults();
 
-    Collection getPhonesByGroupId(Integer groupId);
+    Collection<Phone> getPhonesByGroupId(Integer groupId);
 
-    Collection getPhonesByUserId(Integer userId);
+    Collection<Phone> getPhonesByUserId(Integer userId);
 
-    void addToGroup(Integer groupId, Collection ids);
+    void addToGroup(Integer groupId, Collection<Integer> ids);
 
-    void removeFromGroup(Integer groupId, Collection ids);
+    void removeFromGroup(Integer groupId, Collection<Integer> ids);
 
-    void addUsersToPhone(Integer phoneId, Collection ids);
+    void addUsersToPhone(Integer phoneId, Collection<Integer> ids);
 
     /**
      * Return the intercom associated with a phone, through the groups the phone belongs to, or

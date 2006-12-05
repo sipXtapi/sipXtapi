@@ -16,7 +16,6 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -27,7 +26,6 @@ import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
 import org.sipfoundry.sipxconfig.components.selection.OptGroup;
-import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.device.RestartManager;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -35,7 +33,6 @@ import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.search.SearchManager;
 import org.sipfoundry.sipxconfig.setting.Group;
-import org.sipfoundry.sipxconfig.site.line.EditLine;
 
 /**
  * List all the phones/phones for management and details drill-down
@@ -67,10 +64,10 @@ public abstract class ManagePhones extends BasePage implements PageBeginRenderLi
     public abstract boolean getSearchMode();
 
     public abstract SearchManager getSearchManager();
-    
+
     public abstract PhoneModel getPhoneModel();
-    
-    public abstract Phone getCurrentRow(); 
+
+    public abstract Phone getCurrentRow();
 
     public IBasicTableModel getTableModel() {
         String queryText = getQueryText();
@@ -78,22 +75,6 @@ public abstract class ManagePhones extends BasePage implements PageBeginRenderLi
             return new PhoneTableModel(getPhoneContext(), getGroupId());
         }
         return new SearchPhoneTableModel(getSearchManager(), queryText, getPhoneContext());
-    }
-
-    /**
-     * When user clicks on link to edit a phone/phone
-     */
-    public IPage editPhone(IRequestCycle cycle, Integer phoneId) {
-        EditPhone page = (EditPhone) cycle.getPage(EditPhone.PAGE);
-        page.setPhoneId(phoneId);
-        page.setReturnPage(PAGE);
-        return page;
-    }
-
-    public IPage editLine(IRequestCycle cycle, Integer lineId) {
-        EditLine page = (EditLine) cycle.getPage(EditLine.PAGE);
-        page.setLineId(lineId);
-        return page;
     }
 
     public void deletePhone() {
@@ -149,7 +130,7 @@ public abstract class ManagePhones extends BasePage implements PageBeginRenderLi
         }
         initActionsModel();
     }
-    
+
     public void formSubmit(IRequestCycle cycle) {
         PhoneModel model = getPhoneModel();
         if (model != null) {
@@ -181,18 +162,9 @@ public abstract class ManagePhones extends BasePage implements PageBeginRenderLi
             actions.add(new OptGroup(getMessages().getMessage("label.removeFrom")));
             actions.add(new RemoveFromPhoneGroupAction(removeFromGroup, getPhoneContext()));
         }
-        
+
         AdaptedSelectionModel model = new AdaptedSelectionModel();
         model.setCollection(actions);
         setActionModel(model);
-    }
-    
-    public String getCurrentDeviceVersion() {
-        DeviceVersion ver = getCurrentRow().getDeviceVersion();
-        if (ver == null) {
-            return null;           
-        }
-        
-        return "v" + ver.getVersionId();
     }
 }

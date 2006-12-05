@@ -12,8 +12,8 @@
 package org.sipfoundry.sipxconfig.phone;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
@@ -77,11 +77,12 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/GroupMemberCountSeed.xml");
 
-        Map counts = m_settingContext.getGroupMemberCountIndexedByGroupId(Phone.class);
+        Map<Integer, Integer> counts = m_settingContext
+                .getGroupMemberCountIndexedByGroupId(Phone.class);
         assertEquals(2, counts.size());
-        assertEquals(new Integer(2), counts.get(new Integer(1001)));
-        assertEquals(new Integer(1), counts.get(new Integer(1002)));
-        assertNull(counts.get(new Integer(1003)));
+        assertEquals(2, counts.get(1001).intValue());
+        assertEquals(1, counts.get(1002).intValue());
+        assertNull(counts.get(1003));
     }
 
     /**
@@ -91,36 +92,35 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
 
-        Collection page1 = m_context.loadPhonesByPage(null, 0, 4, new String[] { "serialNumber" }, true);
-        Phone[] phones = (Phone[]) page1.toArray(new Phone[page1.size()]);
-        assertEquals("00001", phones[0].getSerialNumber());
-        assertEquals("00002", phones[1].getSerialNumber());
-        assertEquals("00003", phones[2].getSerialNumber());
-        assertEquals("aa00004", phones[3].getSerialNumber());
+        List<Phone> page1 = m_context.loadPhonesByPage(null, 0, 4, new String[] {
+            "serialNumber"
+        }, true);
+        assertEquals("00001", page1.get(0).getSerialNumber());
+        assertEquals("00002", page1.get(1).getSerialNumber());
+        assertEquals("00003", page1.get(2).getSerialNumber());
+        assertEquals("aa00004", page1.get(3).getSerialNumber());
     }
-    
+
     public void testLoadPhones() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
 
-        Collection page1 = m_context.loadPhones();
+        List<Phone> page1 = m_context.loadPhones();
         assertEquals(4, page1.size());
-        Phone[] phones = (Phone[]) page1.toArray(new Phone[page1.size()]);
-        assertEquals("00001", phones[0].getSerialNumber());
-        assertEquals("00002", phones[1].getSerialNumber());
-        assertEquals("00003", phones[2].getSerialNumber());
-        assertEquals("aa00004", phones[3].getSerialNumber());
+        assertEquals("00001", page1.get(0).getSerialNumber());
+        assertEquals("00002", page1.get(1).getSerialNumber());
+        assertEquals("00003", page1.get(2).getSerialNumber());
+        assertEquals("aa00004", page1.get(3).getSerialNumber());
     }
 
     public void testGetAllPhoneIds() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
 
-        Collection result = m_context.getAllPhoneIds();
+        List<Integer> result = m_context.getAllPhoneIds();
         assertEquals(4, result.size());
-        Integer[] ids = (Integer[]) result.toArray(new Integer[result.size()]);
-        for (int i = 0; i < ids.length; i++) {
-            assertEquals(new Integer(1000 + i), ids[i]);
+        for (int i = 0; i < result.size(); i++) {
+            assertEquals(1000 + i, result.get(i).intValue());
         }
     }
 
@@ -141,11 +141,11 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
     public void testGetGroupByName() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
-        
+
         Group g1 = m_context.getGroupByName("phone group 1", false);
         assertNotNull(g1);
         assertEquals("phone group 1", g1.getName());
-        
+
         Group g2 = m_context.getGroupByName("bongo", false);
         assertNull(g2);
         assertEquals(2, getConnection().getRowCount("group_storage"));
@@ -153,10 +153,10 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
         g2 = m_context.getGroupByName("bongo", true);
         assertNotNull(g2);
         assertEquals("bongo", g2.getName());
-        
+
         assertEquals(3, getConnection().getRowCount("group_storage"));
-    }    
-    
+    }
+
     public void testCountPhonesInGroup() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
@@ -171,7 +171,7 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
         assertEquals(0, TestHelper.getConnection().getRowCount("phone_group",
                 "where phone_id = 1001 AND group_id = 1002"));
 
-        m_context.addToGroup(new Integer(1002), Collections.singleton(new Integer(1001)));
+        m_context.addToGroup(1002, Collections.singleton(1001));
 
         assertEquals(1, TestHelper.getConnection().getRowCount("phone_group",
                 "where phone_id = 1001 AND group_id = 1002"));
@@ -182,13 +182,13 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
         TestHelper.cleanInsertFlat("phone/GroupMemberCountSeed.xml");
 
         Integer[] ids = {
-            new Integer(1001), new Integer(1002)
+            1001, 1002
         };
 
         assertEquals(2, TestHelper.getConnection().getRowCount("phone_group",
                 "where phone_group.group_id = 1001"));
 
-        m_context.removeFromGroup(new Integer(1001), Arrays.asList(ids));
+        m_context.removeFromGroup(1001, Arrays.asList(ids));
 
         assertEquals(0, TestHelper.getConnection().getRowCount("phone_group",
                 "where phone_group.group_id = 1001"));

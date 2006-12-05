@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -119,9 +118,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     public void deletePhone(Phone phone) {
         phone.removeProfiles();
         phone.setValueStorage(clearUnsavedValueStorage(phone.getValueStorage()));
-        Iterator i = phone.getLines().iterator();
-        while (i.hasNext()) {
-            Line line = (Line) i.next();
+        for (Line line : phone.getLines()) {
             line.setValueStorage(clearUnsavedValueStorage(line.getValueStorage()));
         }
         getHibernateTemplate().delete(phone);
@@ -150,16 +147,16 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         return getBeansInGroupCount(Phone.class, groupId);
     }
 
-    public List loadPhonesByPage(Integer groupId, int firstRow, int pageSize, String[] orderBy,
-            boolean orderAscending) {
+    public List<Phone> loadPhonesByPage(Integer groupId, int firstRow, int pageSize,
+            String[] orderBy, boolean orderAscending) {
         return loadBeansByPage(Phone.class, groupId, firstRow, pageSize, orderBy, orderAscending);
     }
 
-    public Collection loadPhones() {
+    public List<Phone> loadPhones() {
         return getHibernateTemplate().loadAll(Phone.class);
     }
 
-    public Collection getAllPhoneIds() {
+    public List<Integer> getAllPhoneIds() {
         return getHibernateTemplate().findByNamedQuery("phoneIds");
     }
 
@@ -256,10 +253,8 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
             Group group = (Group) entity;
             getHibernateTemplate().update(group);
             if (Phone.GROUP_RESOURCE_ID.equals(group.getResource())) {
-                Collection phones = getPhonesByGroupId(group.getId());
-                Iterator iphones = phones.iterator();
-                while (iphones.hasNext()) {
-                    Phone phone = (Phone) iphones.next();
+                Collection<Phone> phones = getPhonesByGroupId(group.getId());
+                for (Phone phone : phones) {
                     Object[] ids = new Object[] {
                         group.getId()
                     };
@@ -269,15 +264,11 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
             }
         } else if (User.class.equals(c)) {
             User user = (User) entity;
-            Collection phones = getPhonesByUserId(user.getId());
-            Iterator iphones = phones.iterator();
-            while (iphones.hasNext()) {
-                Phone phone = (Phone) iphones.next();
-                Collection lines = phone.getLines();
-                Iterator ilines = lines.iterator();
-                List ids = new ArrayList();
-                while (ilines.hasNext()) {
-                    Line line = (Line) ilines.next();
+            Collection<Phone> phones = getPhonesByUserId(user.getId());
+            for (Phone phone : phones) {
+                List<Integer> ids = new ArrayList<Integer>();
+                Collection<Line> lines = phone.getLines();
+                for (Line line : lines) {
                     User lineUser = line.getUser();
                     if (lineUser != null && lineUser.getId().equals(user.getId())) {
                         ids.add(line.getId());
@@ -292,24 +283,22 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     public void onSave(Object entity_) {
     }
 
-    public Collection getPhonesByUserId(Integer userId) {
-        Collection users = getHibernateTemplate().findByNamedQueryAndNamedParam("phonesByUserId",
-                "userId", userId);
-        return users;
+    public Collection<Phone> getPhonesByUserId(Integer userId) {
+        return getHibernateTemplate().findByNamedQueryAndNamedParam("phonesByUserId", "userId",
+                userId);
     }
 
-    public void addToGroup(Integer groupId, Collection ids) {
+    public void addToGroup(Integer groupId, Collection<Integer> ids) {
         DaoUtils.addToGroup(getHibernateTemplate(), groupId, Phone.class, ids);
     }
 
-    public void removeFromGroup(Integer groupId, Collection ids) {
+    public void removeFromGroup(Integer groupId, Collection<Integer> ids) {
         DaoUtils.removeFromGroup(getHibernateTemplate(), groupId, Phone.class, ids);
     }
 
-    public void addUsersToPhone(Integer phoneId, Collection ids) {
+    public void addUsersToPhone(Integer phoneId, Collection<Integer> ids) {
         Phone phone = loadPhone(phoneId);
-        for (Iterator i = ids.iterator(); i.hasNext();) {
-            Integer userId = (Integer) i.next();
+        for (Integer userId : ids) {
             User user = m_coreContext.loadUser(userId);
             Line line = phone.createLine();
             line.setUser(user);
@@ -318,11 +307,6 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         storePhone(phone);
     }
 
-    /**
-     * Return the intercom associated with a phone, through the groups the phone belongs to, or
-     * null if there is no intercom for the phone. There should be at most one intercom for any
-     * phone. If there is more than one, then return the first intercom found.
-     */
     public Intercom getIntercomForPhone(Phone phone) {
         return m_intercomManager.getIntercomForPhone(phone);
     }
