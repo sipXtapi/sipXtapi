@@ -35,11 +35,12 @@
 #define STRESS_FACTOR   3       /**< How many times to repeat each test case */
 #define TEST_DELAY      4000    /**< Time to delay between each test */
 
-#define TEST_AUDIO              1
-#define TEST_LINE               1
-#define TEST_CALL               1
+// See XCL-112 as to why these are disabled
+#define TEST_AUDIO              0
+#define TEST_LINE               0
+#define TEST_CALL               0
 #define TEST_CONF               0
-#define TEST_REG                1
+#define TEST_REG                0
 #define TEST_TRANSFER           0
 #define TEST_CONFIG             0
 
