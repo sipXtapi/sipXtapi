@@ -542,12 +542,14 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[], int &num
             {
                 sprintf(szAdapterId, "eth%u", adapterId);
                 PIP_ADDR_STRING pNextAddress = &pNextInfoRecord->IpAddressList;
-                while (pNextAddress)
+                while (pNextAddress && (numAddresses<maxAddresses))
                 {
                     const char *szAddr = pNextAddress->IpAddress.String;
                     // ignore the loopback address
-                    if (!( strcmp(szAddr, "127.0.0.1") == 0 || strcmp(szAddr, "0.0.0.0") == 0 ||
-						   strncmp("169.154", szAddr, 7) == 0 || strncmp("0.", szAddr, 2) == 0) )
+                    if (  strncmp(szAddr, "127.0.0.1", 9) != 0
+                       && strncmp(szAddr, "169.154", 7) != 0
+                       && strncmp(szAddr, "0.", 2) != 0
+                       )
                     {
                         localHostAddresses[numAddresses] = new HostAdapterAddress(szAdapterId, szAddr);
                         numAddresses++;
