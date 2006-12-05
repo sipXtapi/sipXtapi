@@ -1,29 +1,38 @@
 PROJECTS ?= @subdirs@
 
-# Useful for uninstalling targets
-PROJECTS_REVERSE := $(shell x=""; for i in $(PROJECTS); do x="$$i $$x"; done; echo $$x)
+PROJECTS_ORDERED := $(shell MAKEFLAGS= $(MAKE) -s -f @TOP_SRCDIR@/dependencies.mak  $(PROJECTS))
 
+# Useful for uninstalling targets
+PROJECTS_REVERSE := $(shell x=""; for i in $(PROJECTS_ORDERED); do x="$$i $$x"; done; echo $$x)
+
+.PHONY: recurse
 recurse:
 	@failcom='exit 1'; \
-	for f in x $$MAKEFLAGS; do \
+	fail=''; \
+	for f in $(MAKEFLAGS); do \
 	  case $$f in \
-	    -k) failcom='fail=yes';; \
+	    -k) failcom='fail=failed';; \
 	  esac; \
 	done; \
-	target="$(TARGETS)`echo $@ | sed -e s/recurse//`"; \
-	list='$(PROJECTS)'; for subdir in $$list; do \
+	target="`echo $(TARGETS) | sed -e s/recurse//`"; \
+	for subdir in $(PROJECTS_ORDERED); do \
 	  echo "Making $$target in $$subdir"; \
-	  (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) $$target) \
+	  $(MAKE) -C $$subdir $(AM_MAKEFLAGS) $$target \
 	  || eval $$failcom; \
-	done;
+	done; \
+	test -z "$$fail"
 
 # simply list projects in correct build order
 .PHONY: list
 list:
-	@echo $(PROJECTS)
+	@echo $(PROJECTS_ORDERED)
 
 .PHONY: repo
 repo: @TOP_SRCDIR@/config/local.repo.in
 	cd @DEST_RPM@ && createrepo .
 	sed -e 's,@DEST_RPM\@,@DEST_RPM@,g' \
 	$< > local.repo
+
+.PHONY: $(PROJECTS)
+$(foreach project,$(PROJECTS),$(project)) : %:
+	$(MAKE) -C $@ 
