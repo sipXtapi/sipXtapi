@@ -205,7 +205,6 @@ public class LineTestDb extends SipxDatabaseTestCase {
                 PhoneContext.CONTEXT_BEAN_NAME);
         phone.setPhoneContext(context);
         phone.setModelFilesContext(TestHelper.getModelFilesContext());
-        phone.initialize();
         Line line = phone.createLine();
         User u = new User();
         u.setUserName("turkey");

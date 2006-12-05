@@ -23,6 +23,7 @@ import org.custommonkey.xmlunit.XMLUnit;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.common.DialPad;
+import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class AutoAttendantTest extends XMLTestCase {
 
@@ -62,9 +63,11 @@ public class AutoAttendantTest extends XMLTestCase {
     // see: http://paradise.pingtel.com/viewsvn/sipX?view=rev&rev=6846
     // test should not depend on real autoattendant.vm
     public void testActivateDefaultAttendant() throws Exception {
-        AutoAttendant aa = new AutoAttendant();
-        aa.initialize();
-        aa.setSettings(TestHelper.loadSettings("sipxvxml/autoattendant.xml"));
+        AutoAttendant aa = new AutoAttendant() {
+            protected Setting loadSettings() {
+                return TestHelper.loadSettings("sipxvxml/autoattendant.xml");
+            }
+        };
         aa.setPrompt("prompt.wav");
         aa.addMenuItem(DialPad.NUM_0, new AttendantMenuItem(AttendantMenuAction.OPERATOR));
         aa.addMenuItem(DialPad.NUM_1, new AttendantMenuItem(AttendantMenuAction.DISCONNECT));
@@ -84,10 +87,6 @@ public class AutoAttendantTest extends XMLTestCase {
         Reader expectedRdr = getReader(expectedFile);
         StringWriter expected = new StringWriter();
         XmlUnitHelper.style(getReader("autoattendant.xsl"), expectedRdr, expected, null);
-
-        System.out.println(expected.toString());
-        
-        System.out.println(actual.toString());
 
         XMLAssert.assertXMLEqual(expected.toString(), actual.toString());
     }

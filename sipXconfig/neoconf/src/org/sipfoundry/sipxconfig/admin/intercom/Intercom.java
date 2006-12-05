@@ -28,10 +28,6 @@ public class Intercom extends BeanWithGroups {
     private String m_code;    
     
     @Override
-    public void initialize() {
-    }
-
-    @Override
     protected Setting loadSettings() {
         return null;
     }

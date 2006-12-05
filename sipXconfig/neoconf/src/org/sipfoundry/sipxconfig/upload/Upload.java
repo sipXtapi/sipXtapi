@@ -57,10 +57,6 @@ public class Upload extends BeanWithSettings {
         m_specification = specification;
     }
     
-    @Override
-    public void initialize() {
-    }    
-    
     void setDirectoryId(String directory) {
         m_directoryId = directory;
     }

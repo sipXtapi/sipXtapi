@@ -38,12 +38,6 @@ public class BackgroundMusic extends BeanWithGroups {
     }
 
     @Override
-    public void initialize() {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
     protected Setting loadSettings() {
         // no settings for Background music
         return null;

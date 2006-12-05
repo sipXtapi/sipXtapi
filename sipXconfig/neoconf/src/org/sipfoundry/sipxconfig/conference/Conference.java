@@ -62,14 +62,14 @@ public class Conference extends BeanWithSettings implements NamedObject {
 
     /** location - host:port of the conference scripts that admission server needs to retrieve */
     private String m_admissionScriptServer;
-    
+
     private ConferenceAorDefaults m_defaults;
-    
+
     public Conference() {
-    }
-    
-    public void initialize() {
         m_defaults = new ConferenceAorDefaults(this);
+    }
+
+    public void initialize() {
         addDefaultBeanSettingHandler(m_defaults);
         getSettingModel2().setDefaultProfileNameHandler(new ConferenceProfileName(this));
     }
@@ -149,7 +149,7 @@ public class Conference extends BeanWithSettings implements NamedObject {
     public void setAdmissionScriptServer(String admissionScriptServer) {
         m_admissionScriptServer = admissionScriptServer;
     }
-    
+
     @Override
     public void setSettingValue(String path, String value) {
         if (AOR_RECORD.equals(path)) {
@@ -157,33 +157,33 @@ public class Conference extends BeanWithSettings implements NamedObject {
         }
         super.setSettingValue(path, value);
     }
-    
-    public static class ConferenceAorDefaults {       
+
+    public static class ConferenceAorDefaults {
         private Conference m_conference;
         private String m_participantCode;
         private String m_organizerCode;
         private String m_remoteSecretAgent;
-        
+
         ConferenceAorDefaults(Conference conference) {
             m_conference = conference;
         }
-        
+
         void generateRemoteAdmitSecret() {
             m_remoteSecretAgent = RandomStringUtils.randomAlphanumeric(SECRET_LEN);
         }
-        
+
         void generateAccessCodes() {
             m_organizerCode = RandomStringUtils.randomNumeric(CODE_LEN);
-            m_participantCode = RandomStringUtils.randomNumeric(CODE_LEN);            
+            m_participantCode = RandomStringUtils.randomNumeric(CODE_LEN);
         }
 
         @SettingEntry(path = AOR_RECORD)
         public String getAorRecord() {
             String user = m_conference.getName();
             String host = m_conference.getBridge().getHost();
-            return SipUri.format(user, host, false);            
+            return SipUri.format(user, host, false);
         }
-        
+
         @SettingEntry(path = PARTICIPANT_CODE)
         public String getParticipantCode() {
             return m_participantCode;
@@ -193,7 +193,7 @@ public class Conference extends BeanWithSettings implements NamedObject {
         public String getOrganizerCode() {
             return m_organizerCode;
         }
-        
+
         @SettingEntry(path = REMOTE_ADMIT_SECRET)
         public String getRemoteAdmitSecret() {
             return m_remoteSecretAgent;
@@ -205,9 +205,9 @@ public class Conference extends BeanWithSettings implements NamedObject {
         private final Conference m_conference;
 
         ConferenceProfileName(Conference conference) {
-            m_conference = conference;            
+            m_conference = conference;
         }
-        
+
         public SettingValue2 getProfileName(Setting setting) {
             String nameToken = SEPARATOR + m_conference.getName();
             String profileName = setting.getProfileName();
@@ -218,8 +218,8 @@ public class Conference extends BeanWithSettings implements NamedObject {
             } else {
                 buffer.append(nameToken);
             }
-            
-            return new SettingValueImpl(buffer.toString());                        
+
+            return new SettingValueImpl(buffer.toString());
         }
     }
 

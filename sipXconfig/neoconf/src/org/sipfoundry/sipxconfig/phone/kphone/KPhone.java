@@ -36,10 +36,6 @@ public class KPhone extends Phone {
     }    
     
     @Override
-    public void initialize() {        
-    }
-
-    @Override
     public void initializeLine(Line line) {
         line.addDefaultBeanSettingHandler(new KPhoneLineDefaults(line));
     }

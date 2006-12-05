@@ -77,10 +77,6 @@ public abstract class Phone extends BeanWithGroups {
         setModel(model);
     }
 
-    @Override
-    public void initialize() {
-    }
-
     public String getModelLabel() {
         return getModel().getLabel();
     }
@@ -390,7 +386,6 @@ public abstract class Phone extends BeanWithGroups {
 
     public void setPhoneContext(PhoneContext phoneContext) {
         m_phoneContext = phoneContext;
-        initialize();
     }
 
     public Line createLine() {

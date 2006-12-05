@@ -18,7 +18,7 @@ import junit.framework.TestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 
 public class BeanWithSettingTest extends TestCase {
-    
+
     public void testGetSettingValue() throws Exception {
         BeanWithSettings bean = new BirdWithSettings();
         assertNull(bean.getSettingValue("towhee/rufous-sided"));
@@ -32,12 +32,8 @@ public class BeanWithSettingTest extends TestCase {
 
     static class BirdWithSettings extends BeanWithSettings {
         protected Setting loadSettings() {
-            InputStream in = getClass().getResourceAsStream("birds.xml");            
+            InputStream in = getClass().getResourceAsStream("birds.xml");
             return TestHelper.loadSettings(in);
-        }            
-
-        @Override
-        public void initialize() {            
         }
     }
 }

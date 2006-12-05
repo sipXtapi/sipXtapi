@@ -93,8 +93,6 @@ public class PhoneTestDriver {
         _phone.setPhoneContext(phoneContext);        
         _phone.setVelocityEngine(TestHelper.getVelocityEngine());
         
-        _phone.initialize();
-
         line = _phone.createLine();
         line.setPhone(_phone);
         line.setUser(user);

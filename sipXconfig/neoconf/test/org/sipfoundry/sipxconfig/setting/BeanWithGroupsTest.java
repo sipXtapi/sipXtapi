@@ -30,10 +30,6 @@ public class BeanWithGroupsTest extends TestCase {
             InputStream in = getClass().getResourceAsStream("birds.xml");
             return TestHelper.loadSettings(in);
         }
-
-        @Override
-        public void initialize() {
-        }
     }
 
     public void testGetSettingValueOneGroup() {

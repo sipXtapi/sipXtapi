@@ -23,17 +23,18 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class PinTokenChangeServletTest extends TestCase {
-    
+
     PinTokenChangeServlet m_servlet;
-    
+
     User m_user;
-    
+
     protected void setUp() {
         m_servlet = new PinTokenChangeServlet();
-        m_user = new User();
-        Setting settings = SiteTestHelper.loadSettings("commserver/user-settings.xml");
-        m_user.setSettings(settings);
-        m_user.initialize();
+        m_user = new User() {
+            protected Setting loadSettings() {
+                return SiteTestHelper.loadSettings("commserver/user-settings.xml");
+            }
+        };
         m_user.setUserName("joe");
         m_user.setPintoken("oldpintoken");
     }
@@ -53,8 +54,7 @@ public class PinTokenChangeServletTest extends TestCase {
             assertTrue(true);
         }
     }
-    
-    
+
     public void testNoUser() {
         IMocksControl coreContextCtrl = EasyMock.createControl();
         CoreContext coreContext = coreContextCtrl.createMock(CoreContext.class);
@@ -68,29 +68,29 @@ public class PinTokenChangeServletTest extends TestCase {
         } catch (PinTokenChangeServlet.ChangePinException expected) {
             assertTrue(true);
         }
-        
+
         coreContextCtrl.verify();
     }
-    
-    public void testChangePin() {        
+
+    public void testChangePin() {
         IMocksControl coreContextCtrl = EasyMock.createControl();
         CoreContext coreContext = coreContextCtrl.createMock(CoreContext.class);
         coreContext.loadUserByUserName("joe");
         coreContextCtrl.andReturn(m_user);
         coreContext.saveUser(m_user);
         coreContextCtrl.replay();
-        
+
         m_servlet.changePin(coreContext, "joe;oldpintoken;newpintoken");
-         
+
         coreContextCtrl.verify();
         assertEquals("newpintoken", m_user.getPintoken());
     }
-    
+
     public void testNotProviledgedToChangePin() {
         Group g = new Group();
         m_user.addGroup(g);
         Permission.TUI_CHANGE_PIN.setEnabled(g, false);
-        
+
         IMocksControl coreContextCtrl = EasyMock.createControl();
         CoreContext coreContext = coreContextCtrl.createMock(CoreContext.class);
         coreContext.loadUserByUserName("joe");

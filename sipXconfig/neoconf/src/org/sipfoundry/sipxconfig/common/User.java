@@ -69,10 +69,6 @@ public class User extends BeanWithGroups implements NamedObject {
 
     private Set m_supervisorForGroups;
 
-    @Override
-    public void initialize() {
-    }
-
     /**
      * Return the pintoken, which is the hash of the user's PIN. The PIN itself is private to the
      * user. To keep the PIN secure, we don't store it.

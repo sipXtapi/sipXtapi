@@ -139,10 +139,6 @@ public class PhoneTest extends TestCase {
         }        
         
         @Override
-        public void initialize() {            
-        }
-
-        @Override
         public void initializeLine(Line l) {            
         }
     }

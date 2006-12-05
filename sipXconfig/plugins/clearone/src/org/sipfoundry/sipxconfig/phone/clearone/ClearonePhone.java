@@ -52,6 +52,11 @@ public class ClearonePhone extends Phone {
     @Override
     public void initialize() {
         PhoneContext phoneContext = getPhoneContext();
+        SpeedDial speedDial = phoneContext.getSpeedDial(this);
+        if (speedDial != null) {
+            ClearonePhoneSpeedDial phoneSpeedDial = new ClearonePhoneSpeedDial(speedDial);
+            addDefaultSettingHandler(phoneSpeedDial);
+        }
         ClearonePhoneDefaults defaults = new ClearonePhoneDefaults(phoneContext
                 .getPhoneDefaults(), formatName(DIALPLAN_FILE));
         addDefaultBeanSettingHandler(defaults);
@@ -59,15 +64,9 @@ public class ClearonePhone extends Phone {
 
     @Override
     public void generateProfiles() {
-        PhoneContext phoneContext = getPhoneContext();
-        SpeedDial speedDial = phoneContext.getSpeedDial(this);
-        if (speedDial != null) {
-            ClearonePhoneSpeedDial phoneSpeedDial = new ClearonePhoneSpeedDial(speedDial);
-            addDefaultSettingHandler(phoneSpeedDial);
-        }
         super.generateProfiles();
         // generate some other files
-        generateFile(getDialplanTemplate(), getDialplanFileName());
+        generateFile(getDialplanFileName(), getDialplanTemplate());
     }
 
     @Override

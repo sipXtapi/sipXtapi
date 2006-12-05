@@ -156,8 +156,4 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
         String aliasesString = StringUtils.join(allAliases.iterator(), ' ');
         setting.setValue(aliasesString);
     }
-
-    @Override
-    public void initialize() {
-    }
 }

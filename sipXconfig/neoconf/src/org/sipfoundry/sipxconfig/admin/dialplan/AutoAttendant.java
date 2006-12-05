@@ -71,10 +71,6 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject {
     }
 
     @Override
-    public void initialize() {
-    }
-
-    @Override
     protected Setting loadSettings() {
         return getModelFilesContext().loadModelFile("sipxvxml/autoattendant.xml");
     }
