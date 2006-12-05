@@ -1,3 +1,6 @@
+#include <utl/UtlHashMap.h>  // for mapping file HANDLEs to "file descriptors"
+#include <utl/UtlInt.h>
+#include <utl/UtlVoidPtr.h>
 
 #ifdef __cplusplus
 extern "C" int errno = 1;
@@ -5,7 +8,52 @@ extern "C" int errno = 1;
 extern int errno;
 #endif
 
+// Initialize the handle to "file descriptor" map.
+static UtlHashMap sFDtoHandleMap;
+
 char	*_tzname[ 2 ] = {"DST","STD"};
+
+//*******************
+int destroyFD(int fd)
+{
+	return *(UtlBoolean*)sFDtoHandleMap.destroy(&UtlInt(fd));
+}
+
+//****************
+int findUnusedFD()
+{
+	int found = 1;
+	for(int possFD = 3; // skip 0 since it's an error val of hashmap, 1 stdout, 2 stderr
+	    sFDtoHandleMap.contains(&UtlInt(possFD));
+		possFD++) {}
+
+	printf("findUnusedFD: returning %d\n", possFD);
+	return possFD;
+}
+
+//**********************
+int createFD(HANDLE hnd)
+{
+	int fd = *(UtlInt*)sFDtoHandleMap.insertKeyAndValue(new UtlInt(findUnusedFD()), new UtlVoidPtr(hnd));
+
+	// If we had a problem adding to the map, set the FD to this functions error return value.
+	if(fd == 0) 
+		fd = -1; 
+	
+	return fd;
+}
+
+HANDLE getFHandle(int fd)
+{
+	HANDLE hnd;
+	hnd = (HANDLE)((UtlVoidPtr*)sFDtoHandleMap.findValue(&UtlInt(fd)))->getValue();
+	if (hnd == NULL)
+		hnd = INVALID_HANDLE_VALUE;
+
+	return hnd;
+}
+
+
 
 
 //****************************************************************
@@ -14,8 +62,11 @@ int	write( int fd, const void *buffer, unsigned int count )
 	BOOL	fRet		= 0;
 	if( fd  &&  fd != -1 )
 	{
+		// Convert the fd to a handle.
+		HANDLE hnd = getFHandle(fd);
+
 		DWORD		dwNumWritten;
-		fRet = WriteFile( (HANDLE) fd, buffer, count, &dwNumWritten, NULL );
+		fRet = WriteFile( hnd, buffer, count, &dwNumWritten, NULL );
 		if( fRet )
 			return (int) dwNumWritten;
 	}
@@ -30,8 +81,11 @@ int	read( int fd, void *buffer, unsigned int count )
 	BOOL	fRet;
 	if( fd  &&  fd != -1 )
 	{
+		// Convert the fd to a handle.
+		HANDLE hnd = getFHandle(fd);
+
 		DWORD		dwNumRead;
-		fRet = ReadFile( (HANDLE) fd, buffer, count, &dwNumRead, NULL );
+		fRet = ReadFile( hnd, buffer, count, &dwNumRead, NULL );
 		if( fRet  ==  0 )
 			return -1;
 		else
@@ -68,6 +122,8 @@ HANDLE CreateFileB( const char *pFileName, DWORD dwDesiredAccess, DWORD dwShareM
 }
 
 
+
+
 //****************************************************************
 int open( const char *filename, int oflag, int pmode = 0 )
 {
@@ -85,10 +141,15 @@ int open( const char *filename, int oflag, int pmode = 0 )
 
 	HANDLE	hRet;
 	hRet = CreateFile( filename, dwAccess, 0, NULL, OPEN_ALWAYS, 0, NULL );
+
+	// Add a mapping from a new "file descriptor" to this HANDLE.
+	int fd = createFD(hRet);
+
+
 	if( INVALID_HANDLE_VALUE == hRet )
 		return -1;
 	else
-		return (int) hRet;
+		return fd;
 }
 
 
@@ -104,8 +165,16 @@ int open( const char *filename, int oflag )
 int close( int fd )
 {
 	if( fd  &&  fd != -1 )
-		if( CloseHandle( (HANDLE) fd ) )
+	{
+		// Convert the fd to a handle.
+		HANDLE hnd = getFHandle(fd);
+
+		if( CloseHandle( hnd ) )
 			return 0;
+		
+		// Cleanup our "File descriptor"
+		destroyFD(fd);
+	}
 	return -1;
 }
 
@@ -115,6 +184,9 @@ long lseek( int fd, long offset, int origin )
 	DWORD	dwRet;
 	if( fd  &&  fd != -1 )
 	{
+		// Convert the fd to a handle.
+		HANDLE hnd = getFHandle(fd);
+
 		LONG	lHigh = 0;
 		DWORD	dwType;
 		if( origin == SEEK_SET )
@@ -123,7 +195,7 @@ long lseek( int fd, long offset, int origin )
 			dwType = FILE_CURRENT;		//current locbeginning of file
 		else if( origin == SEEK_END )
 			dwType = FILE_END;			//end of file
-		dwRet = SetFilePointer( (HANDLE) fd, offset, &lHigh, dwType );
+		dwRet = SetFilePointer( hnd, offset, &lHigh, dwType );
 	}
 
 	return dwRet;
