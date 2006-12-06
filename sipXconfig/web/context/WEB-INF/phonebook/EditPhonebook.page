@@ -7,7 +7,6 @@
   <property name="consumerGroupsString"/>
   <property name="phonebook"/>
   <property name="phonebookId" persist="client"/>
-  <property name="callback"  persist="session"/>
   <inject property="phonebookManager" object="spring:phonebookManager" />
   <inject property="coreContext" object="spring:coreContext" />  
   <inject property="settingDao" object="spring:settingDao" />  

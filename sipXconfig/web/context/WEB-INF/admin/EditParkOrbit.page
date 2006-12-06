@@ -12,7 +12,6 @@
   <property name="parkOrbit"  persist="session"/>
   <property name="parkOrbitId"  persist="session"/>
   <property name="commitChanges"  initial-value="false"/>
-  <property name="callback"  persist="session"/>
   <!--
      - B E A N S
      -->

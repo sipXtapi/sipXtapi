@@ -14,16 +14,14 @@ package org.sipfoundry.sipxconfig.site.setting;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.apache.tapestry.callback.ICallback;
-import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 
-public abstract class EditGroup extends BasePage implements PageBeginRenderListener {
+public abstract class EditGroup extends PageWithCallback implements PageBeginRenderListener {
 
     public static final String PAGE = "EditGroup";
 
@@ -40,8 +38,6 @@ public abstract class EditGroup extends BasePage implements PageBeginRenderListe
     public abstract void setGroupId(Integer groupId);
 
     public abstract SettingDao getSettingContext();
-
-    public abstract void setCallback(ICallback callback);
 
     public static void saveGroups(SettingDao dao, Collection groups) {
         for (Iterator i = groups.iterator(); i.hasNext();) {
@@ -67,13 +63,13 @@ public abstract class EditGroup extends BasePage implements PageBeginRenderListe
     public void newGroup(String resourceId, String returnPage) {
         setResource(resourceId);
         setGroupId(null);
-        setCallback(new PageCallback(returnPage));
+        setReturnPage(returnPage);
     }
 
     public void editGroup(Integer groupId, String returnPage) {
         setResource(null);
         setGroupId(groupId);
-        setCallback(new PageCallback(returnPage));
+        setReturnPage(returnPage);
     }
 
     /*

@@ -17,8 +17,6 @@ import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.PageRedirectException;
-import org.apache.tapestry.callback.ICallback;
-import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.engine.IEngineService;
 import org.apache.tapestry.engine.ILink;
 import org.apache.tapestry.event.PageEvent;
@@ -36,25 +34,25 @@ public abstract class Border extends BaseComponent implements PageValidateListen
     private VersionInfo m_version = new VersionInfo();
 
     public abstract CoreContext getCoreContext();
-    
+
     public abstract SkinControl getSkin();
-    
+
     /**
      * When true - page does not require login
      */
     public abstract boolean isLoginRequired();
-    
+
     public abstract UserSession getUserSession();
-    
+
     public abstract ApplicationLifecycle getApplicationLifecycle();
-    
+
     /**
      * When true - only SUPER can see the pages, when false END_USER is accepted as well as admin
      */
     public abstract boolean isRestricted();
 
     public abstract IEngineService getRestartService();
-    
+
     public void pageValidate(PageEvent event_) {
         if (!isLoginRequired()) {
             return;
@@ -63,38 +61,36 @@ public abstract class Border extends BaseComponent implements PageValidateListen
         // If there are no users, then we need to create the first user
         if (getCoreContext().getUsersCount() == 0) {
             throw new PageRedirectException(FirstUser.PAGE);
-        }            
+        }
 
         // If there are users, but no one is logged in, then force a login
         UserSession user = getUserSession();
         if (!user.isLoggedIn()) {
             redirectToLogin(getPage());
         }
-        
-        // If the logged-in user is not an admin, and this page is restricted, then 
+
+        // If the logged-in user is not an admin, and this page is restricted, then
         // redirect the user to the home page since they are not worthy.
         // (We should probably use an error page instead of just tossing them home.)
         if (!user.isAdmin() && isRestricted()) {
             throw new PageRedirectException(Home.PAGE);
         }
     }
-    
+
     public ILink logout(IRequestCycle cycle) {
         getApplicationLifecycle().logout();
         return new StaticLink(cycle.getAbsoluteURL("/"));
     }
-    
+
     protected void redirectToLogin(IPage page) {
-        ICallback callback = new PageCallback(page.getPageName());
         LoginPage loginPage = (LoginPage) page.getRequestCycle().getPage(LoginPage.PAGE);
-        loginPage.setCallback(callback);
         throw new PageRedirectException(loginPage);
     }
-    
+
     public VersionInfo getVersionInfo() {
         return m_version;
     }
-    
+
     public String getHelpLink() {
         String help = getSkin().getHelpLink();
         if (help == null) {

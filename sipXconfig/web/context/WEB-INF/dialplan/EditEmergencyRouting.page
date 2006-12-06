@@ -9,7 +9,6 @@
   <property name="emergencyRouting"/>
   <property name="exceptionsMap"/>
   <property name="exceptionItem"/>
-  <property name="callback" persist="session"/>
   <!--
   - B E A N S
   -->

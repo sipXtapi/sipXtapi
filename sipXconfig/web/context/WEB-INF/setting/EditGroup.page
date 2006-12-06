@@ -7,7 +7,6 @@
   <property name="groupId"  persist="session"/>
   <property name="group" />
   <inject property="settingContext" object="spring:settingDao"/>
-  <property name="callback"  persist="session"/>
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
   <component id="errorMsg" type="ErrorMsg">
     <binding name="validator" value="bean:validator"/>

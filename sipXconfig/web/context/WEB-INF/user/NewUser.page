@@ -8,7 +8,6 @@
   <property name="user" />
   <inject property="settingDao" object="spring:settingDao"/>
   <inject property="coreContext" object="spring:coreContext"/>
-  <property name="callback"  persist="session"/>
   <property name="stay" />
   <property name="buttonPressed" />
   <!--

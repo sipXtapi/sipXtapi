@@ -11,17 +11,15 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
-import org.apache.tapestry.callback.ICallback;
-import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
+import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
-public abstract class EditParkOrbit extends BasePage implements PageBeginRenderListener {
+public abstract class EditParkOrbit extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "EditParkOrbit";
 
     public abstract ParkOrbitContext getParkOrbitContext();
@@ -33,10 +31,6 @@ public abstract class EditParkOrbit extends BasePage implements PageBeginRenderL
     public abstract ParkOrbit getParkOrbit();
 
     public abstract void setParkOrbit(ParkOrbit parkOrbit);
-
-    public abstract ICallback getCallback();
-
-    public abstract void setCallback(ICallback callback);
 
     public void pageBeginRender(PageEvent event_) {
         ParkOrbit orbit = getParkOrbit();
@@ -55,7 +49,7 @@ public abstract class EditParkOrbit extends BasePage implements PageBeginRenderL
         // If no callback was set before navigating to this page, then by
         // default, go back to the ListParkOrbits page
         if (getCallback() == null) {
-            setCallback(new PageCallback(ListParkOrbits.PAGE));
+            setReturnPage(ListParkOrbits.PAGE);
         }
     }
 

@@ -18,22 +18,20 @@ import java.util.List;
 import org.apache.tapestry.AbstractPage;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.callback.ICallback;
-import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
+import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.user.SelectUsers;
 import org.sipfoundry.sipxconfig.site.user.SelectUsersCallback;
 
-public abstract class EditCallGroup extends BasePage implements PageBeginRenderListener {
+public abstract class EditCallGroup extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "EditCallGroup";
 
     public abstract CallGroupContext getCallGroupContext();
@@ -45,10 +43,6 @@ public abstract class EditCallGroup extends BasePage implements PageBeginRenderL
     public abstract CallGroup getCallGroup();
 
     public abstract void setCallGroup(CallGroup callGroup);
-
-    public abstract ICallback getCallback();
-
-    public abstract void setCallback(ICallback callback);
 
     public abstract Collection getNewUsersIds();
 
@@ -69,7 +63,7 @@ public abstract class EditCallGroup extends BasePage implements PageBeginRenderL
         }
         setCallGroup(callGroup);
         if (null == getCallback()) {
-            setCallback(new PageCallback(ListCallGroups.PAGE));
+            setReturnPage(ListCallGroups.PAGE);
         }
     }
 

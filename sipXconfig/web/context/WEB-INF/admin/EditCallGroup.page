@@ -12,7 +12,6 @@
   <property name="callGroupId"  persist="session"/>
   <property name="newUsersIds" />
   <property name="commitChanges"  initial-value="false"/>
-  <property name="callback" />
   <!--
      - B E A N S
      -->

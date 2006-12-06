@@ -12,7 +12,6 @@
   <property name="index" />
 
   <property name="rings" persist="session" />
-  <property name="callback" persist="session" />
 
   <!--
     - B E A N S

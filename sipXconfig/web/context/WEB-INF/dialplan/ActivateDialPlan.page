@@ -8,7 +8,6 @@
   <inject property="dialPlanContext" object="spring:dialPlanContext"/>
   <property name="selected">@org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType@MAPPING_RULES</property>
   <property name="showAdvanced" persist="session"  initial-value="false"/>
-  <property name="callback"  persist="session"/>
   <!--
      - B E A N S
      -->

@@ -12,7 +12,6 @@
   <inject property="dialPlanContext" object="spring:dialPlanContext" />
   <inject property="gatewayContext" object="spring:gatewayContext" />
 
-  <property name="callback" persist="session" />
   <property name="currentSettingSetName" persist="session" />
   <property name="currentSettingSet" />
 

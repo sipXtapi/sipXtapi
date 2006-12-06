@@ -10,7 +10,6 @@
 
   <property name="permissionId" persist="session" />
   <property name="permission" />
-  <property name="callback" persist="session" />
   <!--
     - B E A N S
   -->

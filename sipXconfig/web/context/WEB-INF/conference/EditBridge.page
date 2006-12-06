@@ -7,7 +7,6 @@
   <inject property="conferenceBridgeContext" object="spring:conferenceBridgeContext"/>
   
   <property name="bridgeId" persist="session"/>
-  <property name="callback" persist="session"/>
   <property name="bridge"/>
   <property name="changed"/>
   <!--

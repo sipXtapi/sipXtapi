@@ -9,7 +9,6 @@
       -->
   <inject property="extensionPoolContext" object="spring:extensionPoolContext"/>
   <property name="userExtensionPool" initial-value="extensionPoolContext.userExtensionPool"/>
-  <property name="callback" persist="session"/>
   <!--
       - B E A N S 
       -->

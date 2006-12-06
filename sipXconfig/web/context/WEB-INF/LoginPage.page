@@ -6,7 +6,6 @@
   <inject property="loginContext" object="spring:loginContext"/>
   <inject property="userSession" type="state" object="userSession"/>
   <inject property="skin" object="spring:skin"/>
-  <property name="callback"  persist="session"/>
   <property name="userName" />
   <property name="password" />
   <!-- B E A N S -->

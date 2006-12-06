@@ -8,7 +8,6 @@
   <property name="domain" initial-value="domainManager.domain" />
   <property name="aliases" persist="session" />
   <property name="index" />
-  <property name="callback" persist="session" />
 
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate" />
   <component id="form" type="Form">

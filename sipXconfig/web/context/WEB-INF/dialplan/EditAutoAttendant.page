@@ -15,7 +15,6 @@
   <property name="currentDialPad" />
   <property name="addMenuItemDialPad" />
   <property name="addMenuItemAction" />
-  <property name="callback"  persist="session"/>
   <property name="menuItems"/>
   
   <!--

@@ -9,7 +9,6 @@
   <inject property="phoneContext" object="spring:phoneContext"/>
   <inject property="settingDao" object="spring:settingDao"/>
   <inject property="profileManager" object="spring:profileManager"/>
-  <property name="callback"  persist="session"/>
   <!--
       - B E A N S
       -->

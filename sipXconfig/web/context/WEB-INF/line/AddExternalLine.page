@@ -5,7 +5,6 @@
 
 <page-specification class="org.sipfoundry.sipxconfig.site.line.AddExternalLine">
   <description>add a description</description>
-  <property name="callback"  persist="session"/>
   <property name="phoneId"  persist="session"/>
   <property name="lineInfo" initial-value="new org.sipfoundry.sipxconfig.phone.LineInfo()"/>
   <property name="phone" />

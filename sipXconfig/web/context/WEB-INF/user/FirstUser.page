@@ -8,7 +8,6 @@
       -->
   <inject property="coreContext" object="spring:coreContext"/>
   <inject property="skin" object="spring:skin"/>
-  <property name="callback"  persist="session"/>
   <property name="pin" />
   <!--
       - B E A N S 
@@ -32,7 +31,6 @@
     <binding name="passwordValidator" value="spring-validators:validPin,required"/>
   </component>
   <component id="formActions" type="FormActions">
-    <binding name="callback" value="callback"/>
     <binding name="listener" value="listener:commit"/>
   </component>
 </page-specification>
