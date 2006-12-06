@@ -37,6 +37,7 @@ class OsNotification;
 #define RTCP_MTU (UDP_MTU-12)
 
 #define CODEC_TYPE_PCMU 0
+#define CODEC_TYPE_GSM  3
 #define CODEC_TYPE_PCMA 8
 #define CODEC_TYPE_L16  11
 #define CODEC_TYPE_SPEEX    110

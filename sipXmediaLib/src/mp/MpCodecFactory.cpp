@@ -77,6 +77,11 @@
 #include "mp/MpdSipxSpeex.h"
 #endif // HAVE_SPEEX ]
 
+#ifdef HAVE_GSM // [
+#include "mp/MpdSipxGSM.h"
+#include "mp/MpeSipxGSM.h"
+#endif // HAVE_GSM ]
+
 MpCodecFactory* MpCodecFactory::spInstance = NULL;
 OsBSem MpCodecFactory::sLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
 
@@ -198,6 +203,12 @@ OsStatus MpCodecFactory::createDecoder(SdpCodec::SdpCodecTypes internalCodecId,
 
 #endif // HAVE_SPEEX ]
 
+#ifdef HAVE_GSM // [
+   case (SdpCodec::SDP_CODEC_GSM):
+      rpDecoder = new MpdSipxGSM(payloadType);
+      break;
+#endif // HAVE_GSM ]
+
    default:
       OsSysLog::add(FAC_MP, PRI_WARNING, 
                     "MpCodecFactory::createDecoder unknown codec type "
@@ -295,6 +306,12 @@ OsStatus MpCodecFactory::createEncoder(SdpCodec::SdpCodecTypes internalCodecId,
       rpEncoder = new MpeSipxSpeex(payloadType);
       break;
 #endif // HAVE_SPEEX ]
+
+#ifdef HAVE_GSM // [
+   case (SdpCodec::SDP_CODEC_GSM):
+      rpEncoder = new MpeSipxGSM(payloadType);
+      break;
+#endif // HAVE_GSM ]
 
    default:
       OsSysLog::add(FAC_MP, PRI_WARNING, 

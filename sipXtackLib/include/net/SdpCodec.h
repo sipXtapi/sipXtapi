@@ -120,7 +120,7 @@ public:
     {
         SDP_CODEC_UNKNOWN = -1,
         SDP_CODEC_PCMU = 0,        ///< G.711 mu-law
-        SDP_CODEC_GSM = 3,
+        SDP_CODEC_GSM = 3,         ///< GSM codec
         SDP_CODEC_G723 = 4,
         SDP_CODEC_PCMA = 8,        ///< G.711 a-law
         SDP_CODEC_L16_STEREO = 10, ///< PCM 16 bit/sample 44100 samples/sec.

@@ -68,16 +68,23 @@
 #define SPEEX_AUDIO_CODECS_NUM 0
 #endif /* HAVE_SPEEX ] */
 
-#define TOTAL_AUDIO_CODECS_NUM (SPEEX_AUDIO_CODECS_BEGIN + SPEEX_AUDIO_CODECS_NUM)
+#define GSM_AUDIO_CODECS_BEGIN  (SPEEX_AUDIO_CODECS_BEGIN+SPEEX_AUDIO_CODECS_NUM)
+#ifdef HAVE_GSM /* [ */
+#define GSM_AUDIO_CODECS_NUM 1
+#else /* HAVE_GSM ] [ */
+#define GSM_AUDIO_CODECS_NUM 0
+#endif /* HAVE_GSM ] */
+
+#define TOTAL_AUDIO_CODECS_NUM (GSM_AUDIO_CODECS_BEGIN + GSM_AUDIO_CODECS_NUM)
 
 // Video codecs  number calculation:
 
 #define H264_VIDEO_CODECS_BEGIN  TOTAL_AUDIO_CODECS_NUM
 #ifdef SIPX_VIDEO /* [ */
 #define H264_VIDEO_CODECS_NUM 4
-#else /* HAVE_SPEEX ] [ */
+#else /* SIPX_VIDEO ] [ */
 #define H264_VIDEO_CODECS_NUM 0
-#endif /* HAVE_SPEEX ] */
+#endif /* SIPX_VIDEO ] */
 
 #define TOTAL_VIDEO_CODECS_NUM (H264_VIDEO_CODECS_BEGIN + H264_VIDEO_CODECS_NUM - TOTAL_AUDIO_CODECS_NUM)
 
@@ -388,6 +395,10 @@ OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory,
     codecs[SPEEX_AUDIO_CODECS_BEGIN+3] = SdpCodec::SDP_CODEC_SPEEX_24;
 #endif /* HAVE_SPEEX ] */
 
+#ifdef HAVE_GSM /* [ */
+    codecs[GSM_AUDIO_CODECS_BEGIN+0] = SdpCodec::SDP_CODEC_GSM;
+#endif /* HAVE_GSM ] */
+
 #ifdef SIPX_VIDEO // [
     codecs[H264_VIDEO_CODECS_BEGIN+0] = SdpCodec::SDP_CODEC_H264_SQCIF;
     codecs[H264_VIDEO_CODECS_BEGIN+1] = SdpCodec::SDP_CODEC_H264_QCIF;
@@ -587,6 +598,11 @@ OsStatus sipXmediaFactoryImpl::getCodec(int iCodec, UtlString& codec, int &bandW
         break;
 #endif /* HAVE_SPEEX ] */
 
+#ifdef HAVE_GSM /* [ */
+    case GSM_AUDIO_CODECS_BEGIN+0: codec = (const char*) SdpCodec::SDP_CODEC_GSM;
+        break;
+#endif /* HAVE_GSM ] */
+
 #ifdef SIPX_VIDEO /* [ */
     case H264_VIDEO_CODECS_BEGIN+0: codec = (const char*) SdpCodec::SDP_CODEC_H264_SQCIF;
         break;
@@ -696,6 +712,9 @@ OsStatus sipXmediaFactoryImpl::getCodecNameByType(SdpCodec::SdpCodecTypes type, 
         break;
     case SdpCodec::SDP_CODEC_SPEEX_24:
         codecName = SIPX_CODEC_ID_SPEEX_24;
+        break;
+    case SdpCodec::SDP_CODEC_GSM:
+        codecName = SIPX_CODEC_ID_GSM;
         break;
     case SdpCodec::SDP_CODEC_H264_SQCIF:
         codecName = SIPX_CODEC_ID_H264_SQCIF;

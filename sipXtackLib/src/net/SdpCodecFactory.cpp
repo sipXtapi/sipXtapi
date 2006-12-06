@@ -283,6 +283,11 @@ SdpCodec::SdpCodecTypes SdpCodecFactory::getCodecType(const char* pCodecName)
       if (strcmp(compareString,"SPEEX_24") == 0)
          retType = SdpCodec::SDP_CODEC_SPEEX_24;
 #endif // HAVE_SPEEX ]
+#ifdef HAVE_GSM // [
+   else 
+      if (strcmp(compareString,"GSM") == 0)
+         retType = SdpCodec::SDP_CODEC_GSM;
+#endif // HAVE_GSM ]
    else
     if (strcmp(compareString,"VP71-CIF") == 0)
         retType = SdpCodec::SDP_CODEC_VP71_CIF;
@@ -660,7 +665,7 @@ int SdpCodecFactory::buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecType
             aCodec.getEncodingName(codecEncodingName);
          }
          break;
-
+#ifdef HAVE_GSM // [
       case SdpCodec::SDP_CODEC_GSM:
          {
             SdpCodec aCodec(SdpCodec::SDP_CODEC_GSM,
@@ -678,7 +683,7 @@ int SdpCodecFactory::buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecType
             aCodec.getEncodingName(codecEncodingName);
          }
          break;
-
+#endif // HAVE_GSM ]
       case SdpCodec::SDP_CODEC_G723:
          {
             SdpCodec aCodec(SdpCodec::SDP_CODEC_G723,

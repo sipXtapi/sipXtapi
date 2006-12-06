@@ -22,8 +22,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXtackLib\include;..\Speex\include;src\ccvt;..\FFmpeg\include\ffmpeg"
-				PreprocessorDefinitions="SIPX_VIDEO;HAVE_SPEEX;_DEBUG;WIN32;_LIB"
+				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXtackLib\include;..\Speex\include;src\ccvt;..\FFmpeg\include\ffmpeg;..\libgsm\inc"
+				PreprocessorDefinitions="SIPX_VIDEO;HAVE_GSM;HAVE_SPEEX;_DEBUG;WIN32;_LIB"
 				StringPooling="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -73,8 +73,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXtackLib\include;..\Speex\include;src\ccvt;..\FFmpeg\include\ffmpeg"
-				PreprocessorDefinitions="SIPX_VIDEO;HAVE_SPEEX;NDEBUG;WIN32;_LIB"
+				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXtackLib\include;..\Speex\include;src\ccvt;..\FFmpeg\include\ffmpeg;..\libgsm\inc"
+				PreprocessorDefinitions="SIPX_VIDEO;HAVE_GSM;HAVE_SPEEX;NDEBUG;WIN32;_LIB"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
@@ -122,8 +122,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXtackLib\include;..\Speex\include"
-				PreprocessorDefinitions="HAVE_SPEEX;_DEBUG;WIN32;_LIB"
+				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXtackLib\include;..\Speex\include;..\libgsm\inc"
+				PreprocessorDefinitions="HAVE_GSM;HAVE_SPEEX;_DEBUG;WIN32;_LIB"
 				StringPooling="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -173,8 +173,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXtackLib\include;..\Speex\include"
-				PreprocessorDefinitions="HAVE_SPEEX;NDEBUG;WIN32;_LIB"
+				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXtackLib\include;..\Speex\include;..\libgsm\inc"
+				PreprocessorDefinitions="HAVE_GSM;HAVE_SPEEX;NDEBUG;WIN32;_LIB"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
@@ -1495,6 +1495,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MpdSipxGSM.cpp">
+			</File>
+			<File
 				RelativePath="src\mp\MpdSipxPcma.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -1903,6 +1906,9 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpeSipxGSM.cpp">
 			</File>
 			<File
 				RelativePath="src\mp\MpeSipxPcma.cpp">
@@ -4397,6 +4403,9 @@
 				RelativePath="include\mp\MpdPtAVT.h">
 			</File>
 			<File
+				RelativePath=".\include\mp\MpdSipxGSM.h">
+			</File>
+			<File
 				RelativePath="include\mp\MpdSipxPcma.h">
 			</File>
 			<File
@@ -4431,6 +4440,9 @@
 			</File>
 			<File
 				RelativePath="include\mp\MpePtAVT.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpeSipxGSM.h">
 			</File>
 			<File
 				RelativePath="include\mp\MpeSipxPcma.h">
