@@ -47,7 +47,7 @@ struct RtpHeader {
 #define RTP_CC_SHIFT 0      ///< Shift for CCSRC bits in RtpHeader::vpxcc
 
 #define RTP_M_MASK   0x80   ///< Mask for Marker bit in RtpHeader::mpt
-#define RTP_M_SHIFT  6      ///< Shift for Marker bit in RtpHeader::mpt
+#define RTP_M_SHIFT  7      ///< Shift for Marker bit in RtpHeader::mpt
 #define RTP_PT_MASK  0x7F   ///< Mask for Payload Type bits in RtpHeader::mpt
 #define RTP_PT_SHIFT 0      ///< Shift for Payload Type bits in RtpHeader::mpt
 
