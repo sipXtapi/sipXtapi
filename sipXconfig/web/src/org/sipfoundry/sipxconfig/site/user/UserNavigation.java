@@ -17,6 +17,7 @@ import java.util.Collection;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.callback.PageCallback;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -41,35 +42,49 @@ public abstract class UserNavigation extends BaseComponent {
 
     public abstract CoreContext getCoreContext();
 
-    public IPage editCallForwarding(IRequestCycle cycle, Integer userId) {
-        UserCallForwarding page = (UserCallForwarding) cycle.getPage(UserCallForwarding.PAGE);
+    @InjectPage(value = SpeedDialPage.PAGE)
+    public abstract SpeedDialPage getSpeedDialPage();
+
+    @InjectPage(value = UserCallForwarding.PAGE)
+    public abstract UserCallForwarding getUserCallForwardingPage();
+
+    @InjectPage(value = EditUser.PAGE)
+    public abstract EditUser getEditUserPage();
+
+    @InjectPage(value = UserSettings.PAGE)
+    public abstract UserSettings getUserSettingsPage();
+
+    @InjectPage(value = SupervisorPermission.PAGE)
+    public abstract SupervisorPermission getSupervisorPermissionPage();
+
+    public IPage editCallForwarding(Integer userId) {
+        UserCallForwarding page = getUserCallForwardingPage();
         page.setUserId(userId);
         page.setRings(null);
         return page;
     }
 
-    public IPage editSpeedDial(IRequestCycle cycle, Integer userId) {
-        SpeedDialPage page = (SpeedDialPage) cycle.getPage(SpeedDialPage.PAGE);
+    public IPage editSpeedDial(Integer userId) {
+        SpeedDialPage page = getSpeedDialPage();
         page.setUserId(userId);
         return page;
     }
 
-    public IPage editUser(IRequestCycle cycle, Integer userId) {
-        EditUser page = (EditUser) cycle.getPage(EditUser.PAGE);
+    public IPage editUser(Integer userId) {
+        EditUser page = getEditUserPage();
         page.setUserId(userId);
         return page;
     }
 
-    public IPage editSettings(IRequestCycle cycle, Integer userId, String path) {
-        UserSettings page = (UserSettings) cycle.getPage(UserSettings.PAGE);
+    public IPage editSettings(Integer userId, String path) {
+        UserSettings page = getUserSettingsPage();
         page.setUserId(userId);
         page.setParentSettingName(path);
         return page;
     }
 
-    public IPage editSupervisorPermission(IRequestCycle cycle, Integer userId) {
-        SupervisorPermission page = (SupervisorPermission) cycle
-                .getPage(SupervisorPermission.PAGE);
+    public IPage editSupervisorPermission(Integer userId) {
+        SupervisorPermission page = getSupervisorPermissionPage();
         page.setUserId(userId);
         page.setCallback(new PageCallback(ManageUsers.PAGE));
         return page;
