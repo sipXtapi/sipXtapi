@@ -17,8 +17,9 @@ import java.util.Collection;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
-import org.apache.tapestry.callback.PageCallback;
+import org.apache.tapestry.annotations.Parameter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -27,7 +28,7 @@ import org.sipfoundry.sipxconfig.site.user_portal.UserCallForwarding;
 
 public abstract class UserNavigation extends BaseComponent {
 
-    /** REQUIRED PARAMETER */
+    @Parameter(required = true)
     public abstract void setUser(User user);
 
     public abstract User getUser();
@@ -40,6 +41,7 @@ public abstract class UserNavigation extends BaseComponent {
 
     public abstract Setting getCurrentSetting();
 
+    @InjectObject(value = "spring:coreContext")
     public abstract CoreContext getCoreContext();
 
     @InjectPage(value = SpeedDialPage.PAGE)
@@ -57,16 +59,21 @@ public abstract class UserNavigation extends BaseComponent {
     @InjectPage(value = SupervisorPermission.PAGE)
     public abstract SupervisorPermission getSupervisorPermissionPage();
 
+    @InjectPage(value = UserPhones.PAGE)
+    public abstract UserPhones getUserPhonesPage();
+
     public IPage editCallForwarding(Integer userId) {
         UserCallForwarding page = getUserCallForwardingPage();
         page.setUserId(userId);
         page.setRings(null);
+        page.setReturnPage(ManageUsers.PAGE);
         return page;
     }
 
     public IPage editSpeedDial(Integer userId) {
         SpeedDialPage page = getSpeedDialPage();
         page.setUserId(userId);
+        page.setReturnPage(ManageUsers.PAGE);
         return page;
     }
 
@@ -86,7 +93,14 @@ public abstract class UserNavigation extends BaseComponent {
     public IPage editSupervisorPermission(Integer userId) {
         SupervisorPermission page = getSupervisorPermissionPage();
         page.setUserId(userId);
-        page.setCallback(new PageCallback(ManageUsers.PAGE));
+        page.setReturnPage(ManageUsers.PAGE);
+        return page;
+    }
+
+    public IPage editUserPhones(Integer userId) {
+        UserPhones page = getUserPhonesPage();
+        page.setUserId(userId);
+        page.setReturnPage(ManageUsers.PAGE);
         return page;
     }
 
