@@ -14,10 +14,12 @@ package org.sipfoundry.sipxconfig.site.phone;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.Message;
+import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator;
 import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
@@ -26,7 +28,15 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 
+@ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class ModelSelector extends BaseComponent {
+
+    /**
+     * User ID of the user for which we are adding the phone. If set the line for this user will
+     * be created on a new phone.
+     */
+    @Parameter(required = false)
+    public abstract Integer getUserId();
 
     @InjectObject(value = "spring:phoneModelSource")
     public abstract ModelSource<PhoneModel> getPhoneModelSource();
@@ -57,6 +67,8 @@ public abstract class ModelSelector extends BaseComponent {
         if (model != null) {
             NewPhone newPhone = getNewPhonePage();
             newPhone.setPhoneModel(model);
+            newPhone.setUserId(getUserId());
+            newPhone.setReturnPage(getPage());
             cycle.activate(newPhone);
         }
     }

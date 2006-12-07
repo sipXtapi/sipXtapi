@@ -39,7 +39,7 @@ public class NewPhoneTestUi extends WebTestCase {
     public void testAddPhone() {
         clickLink("NewPhone");
         setFormElement("serialNumber", "000000000000");
-        clickButton("phone:ok");
+        clickButton("form:ok");
         String[][] table = new String[][] {
             {
                 "000000000000", "", "Acme"
@@ -52,12 +52,12 @@ public class NewPhoneTestUi extends WebTestCase {
         clickLink("NewPhone");
         setFormElement("serialNumber", "000000000000");
         checkCheckbox("stay");
-        clickButton("phone:ok");
+        clickButton("form:ok");
         assertCheckboxSelected("stay");
         // should clear the form
         assertEquals("", getDialog().getFormParameterValue("serialNumber"));
 
-        clickButton("phone:cancel");
+        clickButton("form:cancel");
         String[][] table = new String[][] {
             {
                 "000000000000", "", "Acme"
@@ -70,29 +70,29 @@ public class NewPhoneTestUi extends WebTestCase {
         clickLink("NewPhone");
 
         // no digits
-        clickButton("phone:ok");
+        clickButton("form:ok");
         SiteTestHelper.assertUserError(tester);
 
         // wrong chars and wrong number
         setFormElement("serialNumber", "x");
-        clickButton("phone:ok");
+        clickButton("form:ok");
         SiteTestHelper.assertUserError(tester);
 
         // 12 digits, but not valid chars
         setFormElement("serialNumber", "123456789abx");
-        clickButton("phone:ok");
+        clickButton("form:ok");
         SiteTestHelper.assertUserError(tester);
 
         // 16 correct digits - is OK - we accept 12 or more now
         setFormElement("serialNumber", "123456789abcdef");
-        clickButton("phone:ok");
+        clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
 
         SiteTestHelper.home(getTester());
         clickLink("NewPhone");
         // finally got it right
         setFormElement("serialNumber", "123456789abc");
-        clickButton("phone:ok");
+        clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
     }
 }

@@ -17,21 +17,32 @@ import java.util.List;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.ComponentClass;
+import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.Parameter;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 
+@ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class EditPhoneForm extends BaseComponent {
+    @Parameter(required = true)
     public abstract Phone getPhone();
+
+    @Parameter(required = true)
+    public abstract SipxValidationDelegate getValidator();
+
+    @InjectObject(value = "spring:phoneContext")
+    public abstract PhoneContext getPhoneContext();
+
+    @InjectObject(value = "spring:settingDao")
+    public abstract SettingDao getSettingDao();
 
     public abstract String getGroupsString();
 
     public abstract void setGroupsString(String groupsString);
-
-    public abstract PhoneContext getPhoneContext();
-
-    public abstract SettingDao getSettingDao();
 
     public abstract Collection getGroupsCandidates();
 

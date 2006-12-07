@@ -52,7 +52,7 @@ public class PhoneTestHelper {
             endpoint[i].setSerialNumber(serNum.substring(serNum.length() - 12));
             m_tester.clickLink("NewPhone");
             m_tester.setFormElement("serialNumber", endpoint[i].getSerialNumber());
-            m_tester.clickButton("phone:ok");
+            m_tester.clickButton("form:ok");
             SiteTestHelper.home(m_tester);
 	    }
     }

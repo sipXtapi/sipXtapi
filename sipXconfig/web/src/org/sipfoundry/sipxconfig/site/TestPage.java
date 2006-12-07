@@ -39,6 +39,7 @@ import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.search.IndexManager;
 import org.sipfoundry.sipxconfig.site.admin.commserver.ReplicationData;
 import org.sipfoundry.sipxconfig.site.admin.commserver.RestartReminder;
+import org.sipfoundry.sipxconfig.site.phone.ManagePhones;
 import org.sipfoundry.sipxconfig.site.phone.NewPhone;
 import org.sipfoundry.sipxconfig.site.search.EnumEditPageProvider;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
@@ -67,7 +68,7 @@ public abstract class TestPage extends BasePage {
     public static final String TEST_USER_ALIASES = TEST_USER_ALIAS1 + " " + TEST_USER_ALIAS2;
     public static final String TEST_USER_PIN = "1234";
     public static final int MANY_USERS = 10000;
-    
+
     public static final String TEST_PHONE_MODEL_ID = "acmePhoneStandard";
 
     public abstract DialPlanContext getDialPlanContext();
@@ -75,7 +76,7 @@ public abstract class TestPage extends BasePage {
     public abstract GatewayContext getGatewayContext();
 
     public abstract PhoneContext getPhoneContext();
-    
+
     public abstract ModelSource<PhoneModel> getPhoneModelSource();
 
     public abstract ModelSource<UploadSpecification> getUploadSpecificationSource();
@@ -97,7 +98,7 @@ public abstract class TestPage extends BasePage {
     public abstract JobContext getJobContext();
 
     public abstract IndexManager getIndexManager();
-    
+
     public abstract LdapImportManager getLdapImportManager();
 
     public abstract ApplicationLifecycle getApplicationLifecycle();
@@ -239,14 +240,15 @@ public abstract class TestPage extends BasePage {
             getCoreContext().deleteUser(user);
         }
     }
-    
+
     public IPage newPhone() {
         NewPhone newPhone = (NewPhone) getRequestCycle().getPage(NewPhone.PAGE);
+        newPhone.setReturnPage(ManagePhones.PAGE);
         PhoneModel model = getPhoneModelSource().getModel(TEST_PHONE_MODEL_ID);
         newPhone.setPhoneModel(model);
         return newPhone;
     }
-    
+
     public void importLdap() {
         getLdapImportManager().insert();
     }
@@ -269,7 +271,7 @@ public abstract class TestPage extends BasePage {
         jobContext.failure(jobIds[JOBS - 1], "something bad happened", null);
     }
 
-    public void populatePhones() {        
+    public void populatePhones() {
         for (PhoneModel model : getPhoneModelSource().getModels()) {
             Phone phone = getPhoneContext().newPhone(model);
             phone.setSerialNumber(RandomStringUtils.randomNumeric(SERIAL_NUM_LEN));
@@ -308,7 +310,7 @@ public abstract class TestPage extends BasePage {
     public void resetUploadManager() {
         getUploadManager().clear();
     }
-    
+
     public IPage showDataSet(IRequestCycle cycle, String setName) {
         ReplicationData page = (ReplicationData) cycle.getPage(ReplicationData.PAGE);
         page.setDataSetName(setName);
