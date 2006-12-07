@@ -20,24 +20,7 @@
         <span jwcid="selectPhoneModel"/>
       </li>
     </ul>
-    <table jwcid="@phone/PhoneTable" selections="ognl:selections" source="ognl:tableModel"/>
-    <ul class="component-submit">
-      <li>
-        <input id="phone:sendProfiles" jwcid="sendProfiles" value="Send Profiles"/>
-      </li>
-      <li>
-        <input id="phone:sendProfiles" jwcid="sendAllProfiles" value="Send All Profiles"/>
-      </li>
-      <li>
-        <input id="phone:restart" jwcid="restart" value="Restart"/>
-      </li>
-      <li>
-        <input id="phone:delete" jwcid="delete" value="Delete"
-          onclick="return confirm('Are you sure you want to delete selected phones?')"/>
-      </li>
-      <li>
-        <span jwcid="groupActions"></span>
-      </li>
-    </ul>
+    <table jwcid="@phone/PhoneTable" selections="bean:selections" source="ognl:tableModel"/>
+    <ul jwcid="@phone/PhoneTableActions" selections="bean:selections" actionModel="ognl:actionModel"/>
   </form>
 </div>

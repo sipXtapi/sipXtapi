@@ -15,7 +15,6 @@ import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectState;
 import org.apache.tapestry.annotations.Persist;
-import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -92,7 +91,7 @@ public abstract class UserBasePage extends PageWithCallback implements PageBegin
 
     public void pageBeginRender(PageEvent event_) {
         if (getCallback() == null && getUserSession().isAdmin()) {
-            setCallback(new PageCallback(ManageUsers.PAGE));
+            setReturnPage(ManageUsers.PAGE);
         }
 
         Integer userId = getActiveUserId();

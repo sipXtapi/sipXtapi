@@ -1,4 +1,10 @@
-<div jwcid="@Border" restricted="false" useDojo="true">
+<div jwcid="@Border">
+  <div class="help"> 
+    <b><span key="label.quickLinks">Quick Links</span></b>
+    <ul>
+      <li><a jwcid="@PageLink" page="JobStatusPage">Job Status</a></li>
+    </ul>
+  </div>
   <span jwcid="@QuickHelp" value="message:quick.help" /> 
   <div jwcid="@If" condition="ognl:userSession.admin"> 
     <span jwcid="@UserNavigation" 
@@ -12,6 +18,7 @@
   <div jwcid="@OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
     <form jwcid="@Form" delegate="bean:validator">
       <table jwcid="@phone/PhoneTable" selections="bean:selections" source="ognl:phones"/>
+      <ul jwcid="@phone/PhoneTableActions" selections="bean:selections" userOnly="ognl:true"/>      
     </form>
   </div>
 </div>

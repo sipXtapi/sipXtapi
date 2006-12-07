@@ -13,22 +13,19 @@ package org.sipfoundry.sipxconfig.site.phone;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.SelectMap;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
 import org.sipfoundry.sipxconfig.components.selection.OptGroup;
-import org.sipfoundry.sipxconfig.device.ProfileManager;
-import org.sipfoundry.sipxconfig.device.RestartManager;
-import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.search.SearchManager;
@@ -40,16 +37,14 @@ import org.sipfoundry.sipxconfig.setting.Group;
 public abstract class ManagePhones extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "ManagePhones";
 
-    /** model of the table */
+    @Bean
     public abstract SelectMap getSelections();
 
-    public abstract void setSelections(SelectMap selected);
-
+    @InjectObject(value = "spring:phoneContext")
     public abstract PhoneContext getPhoneContext();
 
-    public abstract RestartManager getRestartManager();
-
-    public abstract ProfileManager getProfileManager();
+    @InjectObject(value = "spring:searchManager")
+    public abstract SearchManager getSearchManager();
 
     public abstract Integer getGroupId();
 
@@ -63,11 +58,7 @@ public abstract class ManagePhones extends BasePage implements PageBeginRenderLi
 
     public abstract boolean getSearchMode();
 
-    public abstract SearchManager getSearchManager();
-
     public abstract PhoneModel getPhoneModel();
-
-    public abstract Phone getCurrentRow();
 
     public IBasicTableModel getTableModel() {
         String queryText = getQueryText();
@@ -77,57 +68,10 @@ public abstract class ManagePhones extends BasePage implements PageBeginRenderLi
         return new SearchPhoneTableModel(getSearchManager(), queryText, getPhoneContext());
     }
 
-    public void deletePhone() {
-        PhoneContext context = getPhoneContext();
-
-        Collection ids = getSelections().getAllSelected();
-        if (ids.isEmpty()) {
-            return;
-        }
-
-        for (Iterator i = ids.iterator(); i.hasNext();) {
-            Integer phoneId = (Integer) i.next();
-            Phone phone = context.loadPhone(phoneId);
-            context.deletePhone(phone);
-        }
-
-        String msg = getMessages().format("msg.success.delete", Integer.toString(ids.size()));
-        TapestryUtils.recordSuccess(this, msg);
-    }
-
-    public void generateProfiles() {
-        Collection phoneIds = getSelections().getAllSelected();
-        generateProfiles(phoneIds);
-    }
-
-    public void generateAllProfiles() {
-        Collection phoneIds = getPhoneContext().getAllPhoneIds();
-        generateProfiles(phoneIds);
-    }
-
-    private void generateProfiles(Collection phoneIds) {
-        getProfileManager().generateProfilesAndRestart(phoneIds);
-        String msg = getMessages().format("msg.success.profiles",
-                Integer.toString(phoneIds.size()));
-        TapestryUtils.recordSuccess(this, msg);
-    }
-
-    public void restart() {
-        Collection phoneIds = getSelections().getAllSelected();
-        getRestartManager().restart(phoneIds);
-        String msg = getMessages().format("msg.success.restart",
-                Integer.toString(phoneIds.size()));
-        TapestryUtils.recordSuccess(this, msg);
-    }
-
     /**
      * called before page is drawn
      */
     public void pageBeginRender(PageEvent event_) {
-        // Generate the list of phone items
-        if (getSelections() == null) {
-            setSelections(new SelectMap());
-        }
         initActionsModel();
     }
 
@@ -141,12 +85,11 @@ public abstract class ManagePhones extends BasePage implements PageBeginRenderLi
     }
 
     private void initActionsModel() {
-        Collection groups = getPhoneContext().getGroups();
+        Collection<Group> groups = getPhoneContext().getGroups();
         Collection actions = new ArrayList(groups.size());
 
         Group removeFromGroup = null;
-        for (Iterator i = groups.iterator(); i.hasNext();) {
-            Group g = (Group) i.next();
+        for (Group g : groups) {
             if (g.getId().equals(getGroupId())) {
                 // do not add the "remove from" group...
                 removeFromGroup = g;
