@@ -255,11 +255,14 @@ MpVideoBufPtr MpdH264::decode(const MpRtpBufPtr &pPacket, bool &packetConsumed)
 
    // Decoder
    gotPicture=FALSE;
-   if (mpDecFrameBuf != NULL) {
-      while (mDecFrameBufSize > 0 && !gotPicture) {
+   if (mpDecFrameBuf != NULL)
+   {
+      while (mDecFrameBufSize > 0 && !gotPicture)
+      {
          int decodedLen = avcodec_decode_video(mpCodecContext, mpPicture,
                                              &gotPicture, mpDecFrameBuf, mDecFrameBufSize);
-         if (decodedLen < 0) {
+         if (decodedLen < 0)
+         {
             mDecFrameBufSize=0;
             osPrintf("MpdH264::decode: Error while decoding frame %d\n",
                      mpCodecContext->frame_number);
@@ -277,7 +280,8 @@ MpVideoBufPtr MpdH264::decode(const MpRtpBufPtr &pPacket, bool &packetConsumed)
       }
    }
 
-   if (gotPicture) {
+   if (gotPicture)
+   {
       // Get buffer for captured data
       pFrame = mpVideoBufPool->getBuffer();
       assert(pFrame.isValid());
