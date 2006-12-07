@@ -60,11 +60,13 @@
 #define CONFIG_SETTING_RTP_PORT       "SIP_PARK_RTP_PORT"
 #define CONFIG_SETTING_CODECS         "SIP_PARK_CODEC_LIST"
 #define CONFIG_SETTING_MAX_SESSIONS   "SIP_PARK_MAX_SESSIONS"
+#define CONFIG_SETTING_LIFETIME       "SIP_PARK_LIFETIME"
+#define CONFIG_SETTING_BLIND_WAIT     "SIP_PARK_BLIND_XFER_WAIT"
 
 #define LOG_FACILITY                  FAC_ACD
 
-#define PARK_DEFAULT_UDP_PORT              5120       // Default UDP port
-#define PARK_DEFAULT_TCP_PORT              5120       // Default TCP port
+#define PARK_DEFAULT_UDP_PORT         5120       // Default UDP port
+#define PARK_DEFAULT_TCP_PORT         5120       // Default TCP port
 #define DEFAULT_RTP_PORT              8000       // Starting RTP port
 
 #define DEFAULT_CODEC_LIST            "pcmu pcma telephone-event"
@@ -73,6 +75,16 @@
 #define MP_SAMPLE_RATE                8000       // Sample rate (don't change)
 #define MP_SAMPLES_PER_FRAME          80         // Frames per second (don't change)
 
+#define DEFAULT_LIFETIME              86400      // Default max. lifetime for parked,
+                                                 // call, 24 hours.
+#define DEFAULT_BLIND_WAIT            60         // Default time to wait for a
+                                                 // blind transfer to succeed or
+                                                 // fail, 60 seconds.
+#define CONS_XFER_WAIT                1          // Time to wait for a cons. transfer
+                                                 // to succeed or fail, 1 second.
+                                                 // This is not configurable via
+                                                 // sipxpark-config, as a cons. xfer.
+                                                 // should succeed or fail immediately.
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -396,6 +408,19 @@ int main(int argc, char* argv[])
     if (configDb.get(CONFIG_SETTING_MAX_SESSIONS, MaxSessions) != OS_SUCCESS)
         MaxSessions = DEFAULT_MAX_SESSIONS;
 
+    // Read Park Server parameters from the config file.
+    int Lifetime, BlindXferWait, ConsXferWait;
+    if (configDb.get(CONFIG_SETTING_LIFETIME, Lifetime) != OS_SUCCESS)
+    {
+       Lifetime = DEFAULT_LIFETIME;
+    }
+    if (configDb.get(CONFIG_SETTING_BLIND_WAIT, BlindXferWait) != OS_SUCCESS)
+    {
+       BlindXferWait = DEFAULT_BLIND_WAIT;
+    }
+    // This is not configurable, as consultative transfers should
+    // succeed or fail immediately.
+    ConsXferWait = CONS_XFER_WAIT;
 
     // Bind the SIP user agent to a port and start it up
     SipUserAgent* userAgent = new SipUserAgent(TcpPort, UdpPort);
@@ -460,7 +485,7 @@ int main(int argc, char* argv[])
 
     // Create a listener (application) to deal with call
     // processing events (e.g. incoming call and hang ups)
-    OrbitListener listener(&callManager);    
+    OrbitListener listener(&callManager, Lifetime, BlindXferWait, ConsXferWait);
 
     callManager.addTaoListener(&listener);
     listener.start();

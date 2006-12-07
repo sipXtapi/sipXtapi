@@ -25,8 +25,8 @@ const UtlContainableType ParkedCallObject::TYPE = "ParkedCallObject";
 // STATIC VARIABLE INITIALIZATIONS
 
 int ParkedCallObject::sNextSeqNo = 0;
-const int ParkedCallObject::sSeqNoIncrement = 2;
-const int ParkedCallObject::sSeqNoMask = 0x3FFFFFFE;
+const int ParkedCallObject::sSeqNoIncrement = 4;
+const int ParkedCallObject::sSeqNoMask = 0x3FFFFFFC;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -39,7 +39,9 @@ ParkedCallObject::ParkedCallObject(const UtlString& orbit,
                                    const UtlString& address,
                                    const UtlString& playFile,
                                    bool bPickup,
-                                   OsMsgQ* listenerQ) :
+                                   OsMsgQ* listenerQ,
+                                   const OsTime& lifetime,
+                                   const OsTime& blindXferWait) :
    mSeqNo(sNextSeqNo),
    mpCallManager(callManager),
    mOriginalCallId(callId),
@@ -48,11 +50,12 @@ ParkedCallObject::ParkedCallObject(const UtlString& orbit,
    mCurrentAddress(address),
    mpPlayer(NULL),
    mFile(playFile),
-   mPickupCallId(NULL),
    mOrbit(orbit),
    mbPickup(bPickup),
    mbEstablished(false),
-   mTimeoutTimer(listenerQ, mSeqNo + TIMEOUT),
+   mTimeoutTimer(listenerQ, mSeqNo + PARKER_TIMEOUT),
+   mMaximumTimer(listenerQ, mSeqNo + MAXIMUM_TIMEOUT),
+   mTransferTimer(listenerQ, mSeqNo + TRANSFER_TIMEOUT),
    // Create the OsQueuedEvent to handle DTMF events.
    // This would ordinarily be an allocated object, because
    // removeDtmfEvent will delete it asynchronously.
@@ -63,11 +66,14 @@ ParkedCallObject::ParkedCallObject(const UtlString& orbit,
    // torn down.
    mDtmfEvent(*listenerQ, mSeqNo + DTMF),
    mKeycode(OrbitData::NO_KEYCODE),
-   mTransferInProgress(FALSE)
+   mTransferInProgress(FALSE),
+   mBlindXferWait(blindXferWait)
 {
    OsDateTime::getCurTime(mParked);
    // Update sNextSeqNo.
    sNextSeqNo = (sNextSeqNo + sSeqNoIncrement) & sSeqNoMask;
+   // Start the maximum timer.
+   mMaximumTimer.oneshotAfter(lifetime);
 }
 
 ParkedCallObject::~ParkedCallObject()
@@ -113,18 +119,6 @@ void ParkedCallObject::setCurrentCallId(const UtlString& callId)
 const char* ParkedCallObject::getCurrentCallId()
 {
    return mCurrentCallId.data();
-}
-
-
-void ParkedCallObject::setPickupCallId(const UtlString& callId)
-{
-   mPickupCallId = callId;
-}
-
-
-const char* ParkedCallObject::getPickupCallId()
-{
-   return mPickupCallId.data();
 }
 
 
@@ -267,27 +261,46 @@ void ParkedCallObject::stopEscapeTimer()
 
 
 // Do a blind transfer of this call to mParker.
-void ParkedCallObject::startTransfer()
+void ParkedCallObject::startBlindTransfer()
 {
    if (!mTransferInProgress)
    {
-      mTransferInProgress = TRUE;
       OsSysLog::add(FAC_PARK, PRI_DEBUG,
-                    "ParkedCallObject::startTransfer starting transfer "
+                    "ParkedCallObject::startBlindTransfer starting transfer "
                     "callId = '%s', parker = '%s'",
                     mOriginalCallId.data(), mParker.data());
-      // Set remoteHoldBeforeTransfer = FALSE, because Polycom phones
-      // do not handle re-INVITE well while a DTMF key is down.
+      // Start the timer to detect if the blind transfer fails.
+      markTransfer(mBlindXferWait);
+      // Put the parked caller on hold while we attempt the transfer.
+      // This gives the caller feedback on the progress of his transfer attempt.
+      // We work around the bug in Polycom 2.0.0 by only transferring on
+      // key-up events, so the key is never down when we send the phone
+      // a re-INVITE.
       mpCallManager->transfer_blind(mOriginalCallId, mParker, NULL, NULL,
-                                    FALSE);
+                                    TRUE);
    }
    else
    {
       OsSysLog::add(FAC_PARK, PRI_DEBUG,
-                    "ParkedCallObject::startTransfer transfer already in "
+                    "ParkedCallObject::startBlindTransfer transfer already in "
                     "progress callId = '%s', parker = '%s'",
                     mOriginalCallId.data(), mParker.data());
    }
+}
+
+
+// Start the transfer deadman timer, and set mTransferInProgress.
+void ParkedCallObject::markTransfer(const OsTime &timeOut)
+{
+   // Mark that a transfer is in progress (and so the call is not
+   // available for other transfer attempts).
+   mTransferInProgress = TRUE;
+   // Start the timer to detect failed transfer attempts.
+   mTransferTimer.oneshotAfter(timeOut);
+   OsSysLog::add(FAC_PARK, PRI_DEBUG,
+                 "ParkedCallObject::markTransfer transfer timer started "
+                 "callId = '%s', time = %d.%06d",
+                 mOriginalCallId.data(), timeOut.seconds(), timeOut.usecs());
 }
 
 
@@ -297,6 +310,8 @@ void ParkedCallObject::startTransfer()
 // transfers.
 void ParkedCallObject::clearTransfer()
 {
+   // Stop the deadman timer.
+   mTransferTimer.stop();
    mTransferInProgress = FALSE;
    OsSysLog::add(FAC_PARK, PRI_DEBUG,
                  "ParkedCallObject::clearTransfer transfer cleared "
@@ -316,7 +331,9 @@ void ParkedCallObject::keypress(int keycode)
        keycode == mKeycode &&
        !mParker.isNull())
    {
-      mpCallManager->transfer_blind(mOriginalCallId, mParker, NULL, NULL);
+      // Call startBlindTransfer, which will check if a transfer is
+      // already in progress, and if not, start a blind transfer.
+      startBlindTransfer();
    }
 }
 

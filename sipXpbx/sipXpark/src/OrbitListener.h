@@ -82,7 +82,11 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   OrbitListener(CallManager* callManager = NULL);
+   OrbitListener(CallManager* callManager, ///< Call Manager for signaling
+                 int lifetime,             ///< Max. parked call lifetime in secs.
+                 int blindXferWait,        ///< Max. time for blind xfer. in secs.
+                 int consXferWait          ///< Max. time for cons. xfer. in secs.
+      );
    //:Default constructor
 
    ~OrbitListener();
@@ -145,16 +149,29 @@ private:
     OrbitListener& operator=(const OrbitListener& rOrbitListener);
      //:Assignment operator
      
+    // The Call Manager to use for signaling.
+    CallManager* mpCallManager;
+
+    // The maximum lifetime to allow for parked calls.
+    OsTime mLifetime;
+
+    // The time to allow for a blind transfer.
+    OsTime mBlindXferWait;
+
+    // The time to allow for a consultative transfer.
+    OsTime mConsXferWait;
+
     ParkedCallObject* getOldestCallInOrbit(const UtlString& orbit,
                                            UtlString& callId,
                                            UtlString& address);
 
-    int getNumCallsInOrbit(const UtlString& orbit);
+    // Get the number of calls in an orbit.
+    // If onlyAvailable, then do not count calls that have a transfer in progress.
+    int getNumCallsInOrbit(const UtlString& orbit,
+                           UtlBoolean onlyAvailable);
 
     // Find the ParkedCallObject with a given mSeqNo, or return NULL.
     ParkedCallObject* findBySeqNo(int seqNo);
-
-    CallManager* mpCallManager;
 
     // Maps original call-Ids of parked calls (and the calls picking them up)
     // to their ParkedCallObjects.
@@ -165,6 +182,10 @@ private:
 
     // Dummy DTMF listener.
     DummyListener mListener;
+
+    // Map from the call-IDs of transfer pseudo-calls to the call-IDs of the
+    // real calls they are reporting on.
+    UtlHashMap mTransferCalls;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 

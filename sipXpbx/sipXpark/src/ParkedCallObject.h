@@ -44,8 +44,14 @@ public:
     // Max value must be less than sSeqNoIncrement.
     enum notifyCodes
        {
+          // A DTMF event was received on this dialog.
           DTMF,
-          TIMEOUT
+          // The timeout was reached for transferring this call back to its parker.
+          PARKER_TIMEOUT,
+          // The timeout was reached for the maximum lifetime of a parked call.
+          MAXIMUM_TIMEOUT,
+          // The current transfer operation has timed out.
+          TRANSFER_TIMEOUT
        };
 
 /* ============================ CREATORS ================================== */
@@ -56,7 +62,9 @@ public:
                     const UtlString& address,
                     const UtlString& playFile,
                     bool bPickup,
-                    OsMsgQ* listenerQ);
+                    OsMsgQ* listenerQ,
+                    const OsTime& lifetime,
+                    const OsTime& blindXferWait);
    ~ParkedCallObject();
 
    // Accessor/modifier functions for these fields.
@@ -71,9 +79,6 @@ public:
    const char* getOriginalCallId();
    void setCurrentCallId(const UtlString& callId);
    const char* getCurrentCallId();
-   
-   void setPickupCallId(const UtlString& callId);
-   const char* getPickupCallId();
    
    const char* getOrbit();
    void getTimeParked(OsTime& parked);
@@ -107,10 +112,16 @@ public:
    void stopEscapeTimer();
 
    // Initiate a blind transfer of this call to mParker.
-   void startTransfer();
+   void startBlindTransfer();
+
+   // Start the transfer deadman timer, and set mTransferInProgress.
+   void markTransfer(const OsTime &timeOut);
 
    // Signal that a transfer attempt for a call has ended.
    void clearTransfer();
+
+   // Determine if a transfer attempt is in progress.
+   UtlBoolean transferInProgress();
 
    // Process a DTMF keycode.
    void keypress(int keycode);
@@ -169,10 +180,6 @@ private:
     
     MpStreamPlayer* mpPlayer;
     UtlString mFile;
-    // The call-Id of the call which is picking up this call, if any.
-    // Needed so that if our attempt to transfer a parked call being retrieved
-    // fails, we can clear the pickup call as well.
-    UtlString mPickupCallId;
     // The orbit number for this call.
     UtlString mOrbit;
     
@@ -188,6 +195,13 @@ private:
     // Members to support the transfer back to parker feature.
     UtlString mParker;          ///< The URI of the user that parked the call.
     OsTimer mTimeoutTimer;      ///< OsTimer to trigger the timeout.
+
+    // Support the maximum lifetime feature.
+    OsTimer mMaximumTimer;      ///< OsTimer to trigger the maximum timeout.
+
+    // Deadman timer for transfer attempts.
+    OsTimer mTransferTimer;     ///< OsTimer to detect failed transfer attempts.
+
     // Support for processing DTMF events.
     OsQueuedEvent mDtmfEvent;
     int mKeycode;               /**< keycode to transfer back, or
@@ -196,6 +210,9 @@ private:
     //  Used to ensure that a transfer is not started if one is already
     //  started.
     UtlBoolean mTransferInProgress;
+
+    // The time to allow for a blind transfer.
+    OsTime mBlindXferWait;
 };
 
 /* ============================ INLINE METHODS ============================ */
@@ -210,6 +227,12 @@ inline void ParkedCallObject::setEstablished()
 inline bool ParkedCallObject::getEstablished()
 {
    return mbEstablished;
+}
+
+// Return TRUE if a transfer back to parker is in progress.
+inline UtlBoolean ParkedCallObject::transferInProgress()
+{
+   return mTransferInProgress;
 }
 
 #endif  // _ParkedCallObject_h_
