@@ -492,7 +492,7 @@ int main(int argc, char* argv[])
 
     // Create the SIP Subscribe Server
     SipSubscriptionMgr subscriptionMgr; // Component for holding the subscription data
-    SipSubscribeServerEventHandler policyHolder; // Component for granding the subscription rights
+    SipSubscribeServerEventHandler policyHolder; // Component for granting the subscription rights
     SipPublishContentMgr publisher; // Component for publishing the event contents
 
     SipSubscribeServer subscribeServer(*userAgent, publisher,
