@@ -17,6 +17,11 @@
   </span><span jwcid="@ErrorMsg"/>
   <div jwcid="@OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
     <form jwcid="@Form" delegate="bean:validator">
+      <ul class="component-links">
+        <li>
+          <span jwcid="@phone/ModelSelector"/>
+        </li>    
+      </ul>    
       <table jwcid="@phone/PhoneTable" selections="bean:selections" source="ognl:phones"/>
       <ul jwcid="@phone/PhoneTableActions" selections="bean:selections" userOnly="ognl:true"/>      
     </form>

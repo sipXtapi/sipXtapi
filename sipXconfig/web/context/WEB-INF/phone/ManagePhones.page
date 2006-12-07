@@ -1,46 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
 <page-specification class="org.sipfoundry.sipxconfig.site.phone.ManagePhones">
-  <!--
-    - P R O P E R T I E S
-  -->
-  <property name="groupId" persist="session" />
-  <property name="queryText" persist="session" />
-  <property name="searchMode" persist="session" initial-value="false" />
-  <property name="phoneModel" />
-  <property name="actionModel" />
-
-  <inject property="phoneModelSource" object="spring:phoneModelSource" />
-
-  <!--
-    - B E A N S
-  -->
-  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate" />
-  <bean name="rawPhoneSelectionModel" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
-    <set name="collection" value="phoneModelSource.models" />
-    <set name="labelExpression" value="literal:label" />
-  </bean>
-  <bean name="phoneSelectionModel" class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator">
-    <set name="model" value="bean:rawPhoneSelectionModel" />
-    <set name="extraLabel" value="message:label.addNewPhone" />
-    <set name="extraOption" value="null" />
-  </bean>
-  <!--
-    - C O M P O N E N T S
-  -->
-  <component id="phoneManagement" type="Form">
-    <binding name="delegate" value="bean:validator" />
-    <binding name="listener" value="listener:formSubmit" />
-  </component>
-  <component id="groupFilter" type="GroupFilter">
-    <binding name="selectedGroupId" value="groupId" />
-    <binding name="groups" value="phoneContext.groups" />
-    <binding name="queryText" value="queryText" />
-    <binding name="searchMode" value="searchMode" />
-  </component>
-  <component id="selectPhoneModel" type="PropertySelection">
-    <binding name="model" value="bean:phoneSelectionModel" />
-    <binding name="value" value="phoneModel" />
-    <binding name="onchange" value="literal:javascript:this.form.submit();" />
-  </component>
 </page-specification>

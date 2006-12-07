@@ -11,13 +11,19 @@
   </div>
   <div jwcid="@QuickHelp" value="message:help.restart">restart help text...</div>
   <span jwcid="@ErrorMsg"/>
-  <form jwcid="phoneManagement">
+  <form jwcid="phoneManagement@Form" delegate="bean:validator">
+    <ul class="component-links">
+      <li>
+        <span jwcid="@phone/ModelSelector"/>
+      </li>    
+    </ul>    
     <ul class="component-submit">
       <li>
-        <span jwcid="groupFilter"/>
-      </li>
-      <li>
-        <span jwcid="selectPhoneModel"/>
+        <span jwcid="@GroupFilter" 
+          selectedGroupId="ognl:groupId" 
+          groups="ognl:phoneContext.groups"
+          queryText="ognl:queryText"
+          searchMode="ognl:searchMode" />
       </li>
     </ul>
     <table jwcid="@phone/PhoneTable" selections="bean:selections" source="ognl:tableModel"/>

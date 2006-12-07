@@ -15,19 +15,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
 import org.sipfoundry.sipxconfig.components.selection.OptGroup;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.search.SearchManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 
@@ -40,12 +41,16 @@ public abstract class ManagePhones extends BasePage implements PageBeginRenderLi
     @Bean
     public abstract SelectMap getSelections();
 
+    @Bean
+    public abstract SipxValidationDelegate getValidator();
+
     @InjectObject(value = "spring:phoneContext")
     public abstract PhoneContext getPhoneContext();
 
     @InjectObject(value = "spring:searchManager")
     public abstract SearchManager getSearchManager();
 
+    @Persist
     public abstract Integer getGroupId();
 
     public abstract void setGroupId(Integer groupId);
@@ -54,11 +59,12 @@ public abstract class ManagePhones extends BasePage implements PageBeginRenderLi
 
     public abstract void setActionModel(IPropertySelectionModel model);
 
+    @Persist
     public abstract String getQueryText();
 
+    @InitialValue("false")
+    @Persist
     public abstract boolean getSearchMode();
-
-    public abstract PhoneModel getPhoneModel();
 
     public IBasicTableModel getTableModel() {
         String queryText = getQueryText();
@@ -73,15 +79,6 @@ public abstract class ManagePhones extends BasePage implements PageBeginRenderLi
      */
     public void pageBeginRender(PageEvent event_) {
         initActionsModel();
-    }
-
-    public void formSubmit(IRequestCycle cycle) {
-        PhoneModel model = getPhoneModel();
-        if (model != null) {
-            NewPhone newPhone = (NewPhone) cycle.getPage(NewPhone.PAGE);
-            newPhone.setPhoneModel(model);
-            cycle.activate(newPhone);
-        }
     }
 
     private void initActionsModel() {
