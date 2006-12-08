@@ -83,6 +83,7 @@ public:
    virtual MpVideoBufPtr decode(const MpRtpBufPtr &pPacket ///< (in) Pointer to a media buffer
                                , bool &packetConsumed ///< (out) Is packet consumed by decoder
                                                       ///< or should be passed to next call to decoder.
+                               , bool forceFlag=false
                                );
      /**<
      *  @return Number of decoded samples.
@@ -116,6 +117,12 @@ protected:
       ENCODED_BUFFER_SIZE=(352*288*3) ///< Initial size of mpFrameBuf.
    };
 
+   enum {
+      PACKET_DROP,
+      PACKET_COLLECT,
+      PACKET_REPEAT
+   };
+
    // Depacketizer variables.
    UCHAR   *mpFrameBuf;
    UCHAR   *mpFrameBufEnd;
@@ -123,6 +130,9 @@ protected:
    int      mDecFrameBufSize;
    int      mNALuOctet;
    int      mFrameFBit;
+   RtpSeq   mPreviousSeqNum;        ///< Sequence number of last received packet
+   RtpTimestamp mPreviousTimeStamp; ///< Timestamp of last received packet
+   bool     mSessionInitialized;    ///< Does we received first RTP packet?
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

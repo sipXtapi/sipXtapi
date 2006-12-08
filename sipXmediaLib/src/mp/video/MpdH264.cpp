@@ -44,6 +44,9 @@ MpdH264::MpdH264(int payloadType, MpBufPool *pVideoBufPool)
 , mFrameFBit(0)
 , mpFrameBuf(NULL)
 , mpFrameBufEnd(NULL)
+, mPreviousSeqNum(0)
+, mPreviousTimeStamp(0)
+, mSessionInitialized(false)
 {
     // must be called before using AVcodec lib
     avcodec_init();
@@ -114,6 +117,9 @@ OsStatus MpdH264::initDecode()
    mNALuOctet = 0;
    mFrameFBit = 0;
    mpFrameBufEnd = mpFrameBuf;
+   mPreviousSeqNum = 0;
+   mPreviousTimeStamp = 0;
+   mSessionInitialized = false;
 
    return OS_SUCCESS;
 }
@@ -144,18 +150,18 @@ OsStatus MpdH264::freeDecode()
 
 // ============================ MANIPULATORS ==============================
 
-MpVideoBufPtr MpdH264::decode(const MpRtpBufPtr &pPacket, bool &packetConsumed)
+MpVideoBufPtr MpdH264::decode(const MpRtpBufPtr &pPacket, bool &packetConsumed, bool forceFlag)
 {
    int      gotPicture;    // Does we got picture from decoder?
    uint8_t *inbuf_ptr;     // Pointer to encoded data
    int      encodedSize;   // Size of encoded data
    int      nalUnitType;
    int      nalRefIdc;
-   int      packetDropFlag;
+   int      packetStatus;
    int      startBit;
    int      endBit;
    int      packetFBit;
-   MpVideoBufPtr pFrame; // Buffer for decoded data
+   MpVideoBufPtr pFrame; // Buffer for decoded data   
 
    assert(mpCodecContext != NULL);
    assert(mpPicture != NULL);
@@ -164,7 +170,7 @@ MpVideoBufPtr MpdH264::decode(const MpRtpBufPtr &pPacket, bool &packetConsumed)
    encodedSize = pPacket->getPayloadSize();
 
    // Initialize internal variables
-   packetDropFlag = FALSE;
+   packetStatus=PACKET_COLLECT;
    startBit = 0;
    endBit = 0;
    packetFBit = 0;
@@ -172,62 +178,83 @@ MpVideoBufPtr MpdH264::decode(const MpRtpBufPtr &pPacket, bool &packetConsumed)
    // By default we consume this packet.
    packetConsumed = true;
 
-   // Packet preprocessor
-   if (mpDecFrameBuf == NULL)
+   // Initialize sequence number counter
+   if (!mSessionInitialized)
    {
-      nalUnitType = inbuf_ptr[0]&H264_NAL_TYPE_MASK;
-      nalRefIdc = inbuf_ptr[0]&H264_NAL_REF_IDC_MASK;
-      packetFBit = inbuf_ptr[0]&H264_FORBIDEN_BIT_MASK;
+      mPreviousSeqNum = pPacket->getRtpSequenceNumber();
+      mSessionInitialized = true;
+   } else
+   // If this is a past (missed) packet - set packetStatus to PACKET_DROP.
+   if (compare(mPreviousSeqNum, pPacket->getRtpSequenceNumber()) > 0) {
+      packetStatus=PACKET_DROP;
+   }
 
-      // Packet analyze
-      if (nalUnitType >= 1 && nalUnitType <= 23)
+   // Packet preprocessor
+   if (packetStatus==PACKET_COLLECT)
+   {
+      if (mpDecFrameBuf == NULL)
       {
-         // Single NAL unit mode
-         startBit=1;
-         endBit=1;
-         inbuf_ptr++;
-         encodedSize--;
-      }
-      else if (nalUnitType == 28)
-      {
-         // Non-interleaved mode - FU-A
-         nalUnitType = inbuf_ptr[1]&H264_NAL_TYPE_MASK;
-         startBit = !!(inbuf_ptr[1]&H264_START_BIT_MASK);
-         endBit = !!(inbuf_ptr[1]&H264_END_BIT_MASK);
-         inbuf_ptr+=2;
-         encodedSize-=2;
+         packetFBit  = inbuf_ptr[0]&H264_FORBIDEN_BIT_MASK;
+         nalRefIdc   = inbuf_ptr[0]&H264_NAL_REF_IDC_MASK;
+         nalUnitType = inbuf_ptr[0]&H264_NAL_TYPE_MASK;
+
+         // Packet analyze
+         if (nalUnitType >= 1 && nalUnitType <= 23)
+         {
+            // Single NAL unit mode
+            startBit=1;
+            endBit=1;
+            inbuf_ptr++;
+            encodedSize--;
+         }
+         else if (nalUnitType == 28)
+         {
+            // Non-interleaved mode - FU-A
+            nalUnitType = inbuf_ptr[1]&H264_NAL_TYPE_MASK;
+            startBit = !!(inbuf_ptr[1]&H264_START_BIT_MASK);
+            endBit = !!(inbuf_ptr[1]&H264_END_BIT_MASK);
+            inbuf_ptr+=2;
+            encodedSize-=2;
+         }
+         else
+         {
+            // Unexpected NALu type
+            osPrintf("MpdH264::decode: Unexpected NALu type %d\n", nalUnitType);
+            packetStatus=PACKET_DROP;
+         }
+
+         // ErrorChecker
+         if (packetStatus==PACKET_COLLECT && mDecFrameBufSize == 0 && !startBit)
+         {
+            // Stream error: not starting packet on zero Frame Buffer
+            osPrintf("MpdH264::decode: Stream error: not starting packet on zero Frame Buffer\n");
+            packetFBit=1;
+            startBit=1;
+         }
+         if (  packetStatus==PACKET_COLLECT && mDecFrameBufSize > 0
+            && (pPacket->getRtpTimestamp() != mPreviousTimeStamp
+               || (nalRefIdc|nalUnitType) != mNALuOctet // When this or next
+               || startBit                      // condition is true, something
+               )                                // very bad happened with RTP stream.
+            )
+         {
+            // Stream error: this is packet of the next frame
+            osPrintf("MpdH264::decode: Stream error: this is packet of the next frame\n");
+            packetFBit=1;
+            endBit=1;
+            packetStatus=PACKET_REPEAT;
+         }
+         if (mPreviousSeqNum+1 != pPacket->getRtpSequenceNumber() && !startBit)
+            packetFBit=1;
       }
       else
       {
-         // Unexpected NALu type
-         osPrintf("MpdH264::decode: Unexpected NALu type %d\n", nalUnitType);
-         packetDropFlag=TRUE;
+         packetStatus=PACKET_REPEAT;
       }
-
-      // ErrorChecker
-      if (mDecFrameBufSize == 0 && !startBit && !packetDropFlag)
-      {
-         // Stream error: not starting packet on zero Frame Buffer
-         osPrintf("MpdH264::decode: Stream error: not starting packet on zero Frame Buffer\n");
-         packetFBit=1;
-         startBit=1;
-      }
-      if (mDecFrameBufSize > 0 && ((nalRefIdc|nalUnitType) != mNALuOctet || startBit) && !packetDropFlag)
-      {
-         // Stream error: this is packet of the next frame
-         osPrintf("MpdH264::decode: Stream error: this is packet of the next frame\n");
-         packetFBit=1;
-         endBit=1;
-         packetConsumed=false;
-      }
-   }
-   else
-   {
-      packetConsumed=false;
    }
 
    // Packet collector
-   if (packetConsumed && !packetDropFlag)
+   if (packetStatus==PACKET_COLLECT)
    {
       if (startBit)
       {
@@ -246,8 +273,10 @@ MpVideoBufPtr MpdH264::decode(const MpRtpBufPtr &pPacket, bool &packetConsumed)
       mpFrameBufEnd+=encodedSize;
 
       mFrameFBit|=packetFBit;
+      mPreviousSeqNum=pPacket->getRtpSequenceNumber();
+      mPreviousTimeStamp=pPacket->getRtpTimestamp();
    }
-   if (endBit)
+   if (endBit || forceFlag)
    {
       mpFrameBuf[3] = (packetFBit ? H264_FORBIDEN_BIT_MASK : 0) | mNALuOctet;
       mpDecFrameBuf=mpFrameBuf;
@@ -308,6 +337,8 @@ MpVideoBufPtr MpdH264::decode(const MpRtpBufPtr &pPacket, bool &packetConsumed)
          }
       }
    }
+
+   packetConsumed = (packetStatus != PACKET_REPEAT);
 
    return pFrame;
 }
