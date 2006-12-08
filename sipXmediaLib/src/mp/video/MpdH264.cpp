@@ -259,8 +259,9 @@ MpVideoBufPtr MpdH264::decode(const MpRtpBufPtr &pPacket, bool &packetConsumed)
    {
       while (mDecFrameBufSize > 0 && !gotPicture)
       {
-         int decodedLen = avcodec_decode_video(mpCodecContext, mpPicture,
-                                             &gotPicture, mpDecFrameBuf, mDecFrameBufSize);
+         int decodedLen = avcodec_decode_video(mpCodecContext,
+                                               mpPicture, &gotPicture,
+                                               mpDecFrameBuf, mDecFrameBufSize);
          if (decodedLen < 0)
          {
             mDecFrameBufSize=0;
@@ -295,11 +296,13 @@ MpVideoBufPtr MpdH264::decode(const MpRtpBufPtr &pPacket, bool &packetConsumed)
       {
          char *dest     = (char*)pFrame->getWritePlanePointer(plane);
          int   destStep = pFrame->getPlaneStep(plane);
+         int   planeWidth  = pFrame->getPlaneWidth(plane);
+         int   planeHeight = pFrame->getPlaneHeight(plane);
          char *src      = (char*)mpPicture->data[plane];
          int   srcStep  = mpPicture->linesize[plane];
-         for (int i=0; i<mpCodecContext->height; i++)
+         for (int i=0; i<planeHeight; i++)
          {
-            memcpy(dest, src, mpCodecContext->width);
+            memcpy(dest, src, planeWidth);
             dest += destStep;
             src += srcStep;
          }
