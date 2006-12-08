@@ -11,15 +11,14 @@
  */
 package org.sipfoundry.sipxconfig.site.permission;
 
-import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
 
-public abstract class EditPermission extends BasePage implements PageBeginRenderListener {
+public abstract class EditPermission extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "EditPermission";
 
     public abstract PermissionManager getPermissionManager();
@@ -31,10 +30,6 @@ public abstract class EditPermission extends BasePage implements PageBeginRender
     public abstract Permission getPermission();
 
     public abstract void setPermission(Permission permission);
-
-    public abstract ICallback getCallback();
-
-    public abstract void setCallback(ICallback callback);
 
     public void pageBeginRender(PageEvent event_) {
         Permission permission = getPermission();
