@@ -13,19 +13,26 @@ package org.sipfoundry.sipxconfig.job;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
 
 public class JobContextImpl implements JobContext {
-    static final int MAX_JOBS = 50;
+    private int m_maxJobs = 50;
+    private CircularFifoBuffer m_jobs;
+    private volatile boolean m_failure;
 
-    private Collection m_jobs = new CircularFifoBuffer(MAX_JOBS);
+    public void init() {
+        m_jobs = new CircularFifoBuffer(m_maxJobs);
+    }
+
+    public void setMaxJobs(int maxJobs) {
+        m_maxJobs = maxJobs;
+    }
 
     private synchronized Job getJob(Serializable id) {
-        if (id instanceof Job) {
+        if (id instanceof Job && m_jobs.contains(id)) {
             return (Job) id;
         }
         return null;
@@ -33,8 +40,22 @@ public class JobContextImpl implements JobContext {
 
     private Serializable addNewJob(Job job) {
         job.setUniqueId();
+        boolean recalculateFailure = m_failure && m_jobs.isFull();
         m_jobs.add(job);
+        if (recalculateFailure) {
+            m_failure = calculateFailure();
+        }
         return job;
+    }
+
+    private boolean calculateFailure() {
+        for (Iterator<Job> i = m_jobs.iterator(); i.hasNext();) {
+            Job job = i.next();
+            if (job.getStatus().equals(JobStatus.FAILED)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public synchronized Serializable schedule(String name) {
@@ -60,13 +81,14 @@ public class JobContextImpl implements JobContext {
         Job job = getJob(jobId);
         if (job != null) {
             job.failure(errorMsg, exception);
+            m_failure = true;
         }
     }
 
     public synchronized int removeCompleted() {
         int counter = 0;
-        for (Iterator i = m_jobs.iterator(); i.hasNext();) {
-            Job job = (Job) i.next();
+        for (Iterator<Job> i = m_jobs.iterator(); i.hasNext();) {
+            Job job = i.next();
             if (job.getStatus().equals(JobStatus.COMPLETED)) {
                 i.remove();
                 counter++;
@@ -77,9 +99,14 @@ public class JobContextImpl implements JobContext {
 
     public synchronized void clear() {
         m_jobs.clear();
+        m_failure = false;
     }
 
-    public synchronized List getJobs() {
-        return new ArrayList(m_jobs);
+    public synchronized List<Job> getJobs() {
+        return new ArrayList<Job>(m_jobs);
+    }
+
+    public boolean isFailure() {
+        return m_failure;
     }
 }

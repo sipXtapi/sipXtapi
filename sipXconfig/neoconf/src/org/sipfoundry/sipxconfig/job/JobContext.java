@@ -27,5 +27,10 @@ public interface JobContext {
 
     void clear();
 
-    List getJobs();
+    List<Job> getJobs();
+
+    /**
+     * Returns true if there is a least one failed job on the list.
+     */
+    boolean isFailure();
 }

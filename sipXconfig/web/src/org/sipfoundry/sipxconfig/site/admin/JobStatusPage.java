@@ -24,6 +24,8 @@ import org.sipfoundry.sipxconfig.job.JobContext;
  * Displays current staus of background jobs
  */
 public abstract class JobStatusPage extends BasePage {
+    public static final Object PAGE = "JobStatusPage";
+
     @InjectObject(value = "spring:jobContext")
     public abstract JobContext getJobContext();
 

@@ -28,10 +28,6 @@
     <binding name="renderBaseTag" value="!useDojo"/>
     <!-- binding name="delegate" value="bean:ajaxDelegate" / -->        
   </component>
-  <component id="wrapped" type="RenderBody"/>
-  <component id="renderNavigation" type="If">
-    <binding name="condition" value="userSession.navigationVisible"/>
-  </component>
   <component id="renderContent" type="Any">
     <!--binding name="id" value="(userSession.navigationVisible)?'content':'_content'"/-->
     <binding name="id" value="'content'"/>

@@ -6,31 +6,33 @@ djConfig = { isDebug: false,
     baseRelativePath: "js/dojo",
     parseWidgets: false,
     preventBackButtonFix: false};
-		</script>
+    </script>
     <script jwcid="@Any" type="text/javascript" src="ognl:baseURL + '/js/dojo/dojo.js'"></script>
   </span>
   <body jwcid="@Body">
-    <div jwcid="renderNavigation">
+    <div jwcid="@If" condition="ognl:userSession.navigationVisible">
       <div id="banner">
-        <div id="banner-links"> <a href="#" jwcid="@PageLink" id="link.home" page="Home">
-          <span key="link.home">Home</span> </a> <a href="#" jwcid="helpLink" id="link.help">
-          <span key="link.help">Online Help</span> </a> <a href="#" jwcid="logoutLink" id="link.logout">
-          <span key="link.logout">Logout</span> </a>
+        <div id="banner-links">
+          <a jwcid="@PageLink" id="link.home" page="Home"><span key="link.home">Home</span></a>
+          <a jwcid="helpLink" id="link.help"><span key="link.help">Online Help</span></a>
+          <a jwcid="logoutLink" id="link.logout"><span key="link.logout">Logout</span></a>
         </div>
         <span class="hide" key="title">sipXconfig</span>
       </div>
-      
-      <div jwcid="@contrib:Choose" id="navigation" element="div">
-        <span jwcid="@contrib:When" condition="ognl:userSession.admin">
+      <div id="navigation">
+        <span jwcid="@If" condition="ognl:userSession.admin">
           <span jwcid="@AdminNavigation">Navigation bar goes here.</span>
         </span>
-        <span jwcid="@contrib:Otherwise">
+        <span jwcid="@Else">
           <span jwcid="@UserPortalNavigation">User portal navigation bar goes here.</span>
         </span>
       </div>
     </div>
     <div jwcid="renderContent">
-      <span jwcid="wrapped">Page content goes here.</span>
+      <span jwcid="@If" condition="ognl:userSession.admin">
+        <span jwcid="@admin/StatusWarning"/>
+      </span>        
+      <span jwcid="@RenderBody">Page content goes here.</span>
     </div>
     <div jwcid="@Footer"></div>
   </body>
