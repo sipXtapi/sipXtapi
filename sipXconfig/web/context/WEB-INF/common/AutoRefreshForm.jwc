@@ -3,6 +3,9 @@
   "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
 <component-specification allow-body="yes" allow-informal-parameters="yes">
 
+  <!-- additional actions to be displayed on the left side of refresh button -->
+  <parameter name="actionBlock" required="no"/>
+
   <!-- P R O P E R T I E S -->
   <property name="interval" initial-value="30" persist="session" />
   <property name="auto" initial-value="true" persist="session" />

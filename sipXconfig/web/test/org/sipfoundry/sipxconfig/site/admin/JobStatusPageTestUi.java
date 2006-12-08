@@ -28,6 +28,9 @@ public class JobStatusPageTestUi extends WebTestCase {
         SiteTestHelper.home(getTester());
     }
 
+    protected void tearDown() throws Exception {
+    }
+
     public void testDisplay() throws Exception {
         clickLink("jobs:populate");
         clickLink("JobStatusPage");
@@ -36,12 +39,13 @@ public class JobStatusPageTestUi extends WebTestCase {
         assertEquals(5, table.getRowCount());
 
         // refresh table
-        clickButton("jobs:refresh");
+        submit("refresh");
+        // clickButton("Refresh");
         table = tester.getDialog().getWebTableBySummaryOrId("jobs:list");
         assertEquals(5, table.getRowCount());
 
         // remove finishedjobs
-        clickButton("jobs:remove");
+        submit("remove");
         table = tester.getDialog().getWebTableBySummaryOrId("jobs:list");
         assertEquals(4, table.getRowCount());
     }
@@ -54,7 +58,7 @@ public class JobStatusPageTestUi extends WebTestCase {
         assertEquals(5, table.getRowCount());
 
         // remove finishedjobs
-        clickButton("jobs:clear");
+        submit("clear");
         table = tester.getDialog().getWebTableBySummaryOrId("jobs:list");
         assertEquals(1, table.getRowCount());
     }

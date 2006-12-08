@@ -11,16 +11,27 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
+import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.bean.EvenOdd;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.services.ExpressionEvaluator;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.job.JobContext;
 
+/**
+ * Displays current staus of background jobs
+ */
 public abstract class JobStatusPage extends BasePage {
+    @InjectObject(value = "spring:jobContext")
     public abstract JobContext getJobContext();
 
+    @InjectObject(value = "service:tapestry.ognl.ExpressionEvaluator")
     public abstract ExpressionEvaluator getExpressionEvaluator();
+
+    @Bean
+    public abstract EvenOdd getRowClass();
 
     public void remove() {
         getJobContext().removeCompleted();
