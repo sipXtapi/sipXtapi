@@ -83,7 +83,8 @@ public:
    virtual MpVideoBufPtr decode(const MpRtpBufPtr &pPacket ///< (in) Pointer to a media buffer
                                , bool &packetConsumed ///< (out) Is packet consumed by decoder
                                                       ///< or should be passed to next call to decoder.
-                               , bool forceFlag=false
+                               , bool forceFlag=false ///< (in) Force frame decoding even
+                                                      ///< if frame is still incomplete.
                                );
      /**<
      *  @return Number of decoded samples.
