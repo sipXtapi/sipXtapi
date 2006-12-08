@@ -31,31 +31,72 @@ dns_cname () { # ( DOMAIN )
   | sed 's/\.$//'
   }
 
-sip_resolves_to () { # ( unresolved, target )
-    # returns true (0) if the unresolved name resolves to the target name by sip rules
-     AliasMatched=1
+dns_a () { # ( DOMAIN )
+  # returns the A record resolution for DOMAIN
+  target=`echo $1 | tr A-Z a-z`
+  dig  -t a +noidentify +nocmd +nocomments +noquestion +nostats +noauthority ${target} \
+  | tr A-Z a-z \
+  | awk "\$1 == \"${target}.\" { print \$NF }" \
+  | sed 's/\.$//'
+  }
 
+
+sip_resolves_to () { # ( unresolved, targetIp )
+    # returns true (0) if the unresolved name resolves to the targetIp address by sip rules
      unresolvedName=$1
-     targetName=$2
+     targetAddr=$2
 
-     if [ "${targetName}" == "${unresolvedName}" ]
-     then
-         AliasMatched=0
-     else
-         tcpSrv=`dns_sipsrv tcp ${unresolvedName}`
-         udpSrv=`dns_sipsrv udp ${unresolvedName}`
-         cName=`dns_cname ${unresolvedName}`
-         for tryName in ${tcpSrv} ${udpSrv} ${cName}
-         do
-           if [ "${targetName}" = "${tryName}" ] 
-           then
-               AliasMatched=0
-               break
-           fi
-         done
+     for ip in `dns_a ${unresolvedName}`
+     do
+       if [ "${ip}" = "${targetAddr}" ]
+       then
+           return 0
+       fi
+     done
 
-     fi
+     for cName in `dns_cname ${unresolvedName}`
+     do
+       for ip in `dns_a ${cName}`
+       do
+         if [ "${ip}" = "${targetAddr}" ]
+         then
+             return 0
+         fi
+       done
+     done
 
-     return $AliasMatched
+     for tcpSrv in `dns_sipsrv tcp ${unresolvedName}`
+     do
+       if [ "${tcpSrv}" = "${targetAddr}" ]
+       then
+           return 0
+       else
+           for ip in `dns_a ${tcpSrv}`
+           do
+             if [ "${ip}" = "${targetAddr}" ]
+             then
+                 return 0
+             fi
+           done
+       fi
+     done
+
+     for udpSrv in `dns_sipsrv udp ${unresolvedName}`
+     do
+       if [ "${udpSrv}" = "${targetAddr}" ]
+       then
+           return 0
+       else
+           for ip in `dns_a ${udpSrv}`
+           do
+             if [ "${ip}" = "${targetAddr}" ]
+             then
+                 return 0
+             fi
+           done
+       fi
+     done
+        
+     return 1
 }
 
