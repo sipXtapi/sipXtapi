@@ -25,8 +25,9 @@
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 // DEFINITIONS
-#define H264_NAL_TYPE_MASK     0x1f  ///< 00011111
-#define H264_NAL_REF_IDC_MASK  0x60  ///< 01100000
+#define H264_FORBIDEN_BIT_MASK 0x80  ///< 10000000 - Forbiden Bit mask
+#define H264_NAL_REF_IDC_MASK  0x60  ///< 01100000 - Reference ID mask
+#define H264_NAL_TYPE_MASK     0x1f  ///< 00011111 - NAL Type mask
 #define H264_FU_A_HEADER_SIZE     2  ///< Size of FU-A header in bytes
 #define H264_TIMESTAMP_FREQ   90000  ///< H.264 RTP Timestamp frequency is 90KHz
                                      ///< according to RFC 3984.
@@ -143,6 +144,7 @@ OsStatus MpeH264::encode(const MpVideoBufPtr &pFrame)
    int     nalUnitType;      ///< NAL Unit Type
    int     nalRefIdc;        ///< NAL Reference Indicator
    UCHAR   packetData[RTP_MTU];     ///< Current packet data
+   int     frameFBit;
 
    assert(mpCodecContext != NULL);
    assert(mpPicture != NULL);
@@ -196,8 +198,9 @@ OsStatus MpeH264::encode(const MpVideoBufPtr &pFrame)
    pEncodedData    += 3;
    encodedDataSize -= 3;
 
-   nalUnitType = pEncodedData[0]&H264_NAL_TYPE_MASK;
+   frameFBit   = pEncodedData[0]&H264_FORBIDEN_BIT_MASK;
    nalRefIdc   = pEncodedData[0]&H264_NAL_REF_IDC_MASK;
+   nalUnitType = pEncodedData[0]&H264_NAL_TYPE_MASK;
 
    // TODO: skip nalTypes 7 and 8?
 
@@ -234,7 +237,7 @@ OsStatus MpeH264::encode(const MpVideoBufPtr &pFrame)
          if (payloadSize==encodedDataSize)
             endBit = 1;
 
-         packetData[0] = nalRefIdc|28; // FU Indicator. 28 - FU-A payload type
+         packetData[0] = frameFBit|nalRefIdc|28; // FU Indicator. 28 - FU-A payload type
          packetData[1] = (startBit<<7)|(endBit<<6)|nalUnitType; // FU Header
 
          memcpy(&packetData[H264_FU_A_HEADER_SIZE], pEncodedData, payloadSize);
