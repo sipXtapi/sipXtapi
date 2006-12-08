@@ -51,7 +51,8 @@ public class User extends BeanWithGroups implements NamedObject {
     // anything, it's just "superadmin" by current convention.
     public static final String SUPERADMIN = "superadmin";
 
-    private static final Pattern PATTERN_NUMERIC = Pattern.compile("\\d+");
+    // "0" cannot be used as valid extension - it's hardcoded in login.vxml 
+    private static final Pattern PATTERN_NUMERIC = Pattern.compile("([1-9]\\d*)|(0\\d+)");
 
     private PermissionManager m_permissionManager;
 
@@ -192,6 +193,8 @@ public class User extends BeanWithGroups implements NamedObject {
      * Get numeric extension for this user. Since we are trying to support many possible options
      * we are going to try user name and then list of aliases. If user has more than a single
      * numeric alias it's not going to work reliably.
+     * 
+     * Note: since "0" is hardcoded in login.vxml it cannot be used as user extension
      * 
      * @return String representing numeric extension for this user
      */

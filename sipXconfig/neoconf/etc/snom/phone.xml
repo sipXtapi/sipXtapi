@@ -511,7 +511,7 @@
     <setting name="offer_gruu" advanced="yes">
       <label>Offer GRUU</label>
       <type refid="on-off" />
-      <value>on</value>
+      <value>off</value>
       <description>
         This setting is used to toggle the support for GRUU (Globally Routable User agent URL's) in SIP.
       </description>
