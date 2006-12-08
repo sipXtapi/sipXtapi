@@ -21,8 +21,10 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 extern void *ghVideo;
+
 // CONSTANTS
-#define CODEC_TYPE_H264 125
+#define CODEC_TYPE_H264 114
+
 // STATIC VARIABLE INITIALIZATIONS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -78,21 +80,6 @@ void MpRemoteVideoTask::step()
          {
             // TODO:: We need loop here!!!!!
 
-//#define FILE_DEBUG
-#ifdef FILE_DEBUG // [
-            {
-               static int packetNum = 0;
-               char fname[1024];
-               snprintf(fname, sizeof(fname), "dbg\\packet %03d %05d.rtp", packetNum, pRtpPacket->getRtpSequenceNumber());
-               FILE *file = fopen(fname, "wb");
-//               char header[] = "P5\n320 360\n255\n";
-//               fwrite(header, 1, sizeof(header), file);
-               fwrite(pRtpPacket->getDataPtr(), 1, pRtpPacket->getPayloadSize(), file);
-               fclose(file);
-               packetNum++;
-            }
-#endif // FILE_DEBUG ]
-
             MpVideoBufPtr pFrame = mpDecoder->decode(pRtpPacket, packetConsumed);
 
             if (packetConsumed)
@@ -136,7 +123,7 @@ int MpRemoteVideoTask::run(void* pArg)
    {
       step();
 #ifdef _WIN32
-       Sleep(10);  // TODO:: Need better synchronization
+       Sleep(30);  // TODO:: Need better synchronization
 #endif
    }
 

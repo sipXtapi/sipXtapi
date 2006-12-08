@@ -22,8 +22,9 @@
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
-
 // CONSTANTS
+#define CODEC_TYPE_H264 114
+
 // STATIC VARIABLE INITIALIZATIONS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -34,7 +35,7 @@ MpCaptureTask::MpCaptureTask(OsMsgQ *pMsgQ, MprToNet *pRtpWriter, MpRemoteVideoT
 : OsTask("MpCaptureTask", NULL)
 , mpMsgQueue(pMsgQ)
 , mpRtpWriter(pRtpWriter)
-, mpEncoder(new MpeH264(125, pRtpWriter))
+, mpEncoder(new MpeH264(CODEC_TYPE_H264, pRtpWriter))
 , mpTimer(pTimer)
 {
    assert(mpMsgQueue != NULL);

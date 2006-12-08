@@ -132,6 +132,7 @@ public:
         SDP_CODEC_SPEEX_5 = 111,   ///< Speex Profile 1
         SDP_CODEC_SPEEX_15 = 112,  ///< Speex Profile 2
         SDP_CODEC_SPEEX_24 = 113,  ///< Speex Profile 3
+        SDP_CODEC_H264 = 114,      ///< H.264 video codec.
         SDP_CODEC_TONES = 128,     ///< AVT/DTMF Tones, RFC 2833
         SDP_CODEC_G729A = 129,
         SDP_CODEC_G7221 = 130,     ///< Siren
@@ -139,8 +140,6 @@ public:
         SDP_CODEC_L16_8K = 132,    ///< Mono PCM 16 bit/sample 8000 samples/sec.
         SDP_CODEC_G729AB = 133,
         SDP_CODEC_G729ACISCO7960 = 134,
-
-        SDP_CODEC_H264 = 135,      ///< H.264 video codec.
 
          // Range for 3rd party add in codec types
         SDP_CODEC_3RD_PARTY_START = 256,
