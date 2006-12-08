@@ -20,23 +20,26 @@
 #include "mp/MpDataBuf.h"
 #include "mp/MpTypes.h"
 
-// DEFINES
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STRUCTS
 // TYPEDEFS
+typedef USHORT RtpSeq;      ///< RTP sequence number
+typedef UINT RtpTimestamp;  ///< RTP timestamp
+typedef UINT RtpSRC;        ///< RTP SSRC or CSRC identificator
 
 /// RTP header as described in RFC 3550.
 struct RtpHeader {
-   UCHAR vpxcc;     ///< Version, Padding, Extension and CSRC Count bits.
-   UCHAR mpt;       ///< Marker and Payload Type bits.
-   USHORT seq;      ///< Sequence Number (Big Endian!)
-   UINT timestamp;  ///< Timestamp (Big Endian!)
-   UINT ssrc;       ///< SSRC (Big Endian, but random)
+   UCHAR vpxcc;             ///< Version, Padding, Extension and CSRC Count bits.
+   UCHAR mpt;               ///< Marker and Payload Type bits.
+   RtpSeq seq;              ///< Sequence Number (Big Endian!)
+   RtpTimestamp timestamp;  ///< Timestamp (Big Endian!)
+   RtpSRC ssrc;             ///< SSRC (Big Endian, but random)
 };
 
+// DEFINES
 #define RTP_V_MASK   0xC0   ///< Mask for Version bit in RtpHeader::vpxcc
 #define RTP_V_SHIFT  6      ///< Shift for Version bit in RtpHeader::vpxcc
 #define RTP_P_MASK   0x20   ///< Mask for Padding bit in RtpHeader::vpxcc
@@ -51,7 +54,36 @@ struct RtpHeader {
 #define RTP_PT_MASK  0x7F   ///< Mask for Payload Type bits in RtpHeader::mpt
 #define RTP_PT_SHIFT 0      ///< Shift for Payload Type bits in RtpHeader::mpt
 
-#define RTP_MAX_CSRCS 16    ///< Maximum number of CSRCs in RTP packet
+#define RTP_MAX_CSRCS       16      ///< Maximum number of CSRCs in RTP packet
+
+#define RTP_MAX_TIMESTAMP  (2^32-1) ///< Maximum posible RTP timestamp
+#define RTP_HALF_TIMESTAMP (2^31)   ///< Half of posible RTP timestamps
+#define RTP_MAX_SEQ        (2^16-1) ///< Maximum posible RTP sequence number
+#define RTP_HALF_SEQ       (2^15)   ///< Half of posible RTP sequence numbers
+
+// INLINE FUNCTIONS
+
+   /// Is one timestamp bigger, equal or lesser then other.
+int compare(RtpTimestamp timestamp1, RtpTimestamp timestamp2);
+   /**<
+   *  This function should be used instead of simple comparison, cause timestamp
+   *  will wrap around RTP_MAX_TIMESTAMP at some time.
+   *  
+   *  @return  0 if timestamp1 == timestamp2
+   *  @return  1 if timestamp1 > timestamp2
+   *  @return -1 if timestamp1 < timestamp2
+   */
+
+   /// Is one sequence number bigger, equal or lesser then other.
+int compare(RtpSeq seq1, RtpSeq seq2);
+   /**<
+   *  This function should be used instead of simple comparison, cause sequence
+   *  number will wrap around RTP_MAX_SEQ at some time.
+   *  
+   *  @return  0 if seq1 == seq2
+   *  @return  1 if seq1 > seq2
+   *  @return -1 if seq1 < seq2
+   */
 
 ///  Buffer for RTP packet data.
 /**
@@ -157,21 +189,21 @@ public:
     /**
     *  @see See getRtpSequenceNumber() for details.
     */
-    void setRtpSequenceNumber(USHORT sequenceNumber)
+    void setRtpSequenceNumber(RtpSeq sequenceNumber)
     { mRtpHeader.seq = htons(sequenceNumber);}
 
     /// Set Timestamp of this packet.
     /**
     *  @see See getRtpTimestamp() for details.
     */
-    void setRtpTimestamp(UINT timestamp)
+    void setRtpTimestamp(RtpTimestamp timestamp)
     { mRtpHeader.timestamp = htonl(timestamp);}
 
     /// Set SSRC of this packet. (Big Endian, but random)
     /**
     *  @see See getRtpSSRC() for details.
     */
-    void setRtpSSRC(UINT ssrc)
+    void setRtpSSRC(RtpSRC ssrc)
     { mRtpHeader.ssrc = ssrc;}
 
 //@}
@@ -190,10 +222,10 @@ public:
     const RtpHeader &getRtpHeader() const {return mRtpHeader;}
 
     /// Get direct access to RtpHeader structure.
-    UINT *getRtpCSRCs() {return mRtpCSRCs;}
+    RtpSRC *getRtpCSRCs() {return mRtpCSRCs;}
 
     /// Get readonly direct access to RtpHeader structure.
-    const UINT *getRtpCSRCs() const {return mRtpCSRCs;}
+    const RtpSRC *getRtpCSRCs() const {return mRtpCSRCs;}
 
     /// Get RTP version of this packet. Should be equal to 2.
     /**
@@ -243,7 +275,7 @@ public:
     *  encrypt, because the
     *  packets may flow through a translator that does."</i>
     */
-    USHORT getRtpSequenceNumber() const {return ntohs(mRtpHeader.seq);}
+    RtpSeq getRtpSequenceNumber() const {return ntohs(mRtpHeader.seq);}
 
     /// Get Timestamp of this packet.
     /**
@@ -256,7 +288,7 @@ public:
     *  synchronization accuracy and for measuring packet arrival jitter
     *  (one tick per video frame is typically not sufficient)."</i>
     */
-    UINT getRtpTimestamp() const {return ntohl(mRtpHeader.timestamp);}
+    RtpTimestamp getRtpTimestamp() const {return ntohl(mRtpHeader.timestamp);}
 
     /// Get SSRC of this packet. (Big Endian, but random)
     /**
@@ -269,7 +301,7 @@ public:
     *  low, all RTP implementations must be prepared to detect and
     *  resolve collisions."</i>
     */
-    UINT getRtpSSRC() const {return mRtpHeader.ssrc;}
+    RtpSRC getRtpSSRC() const {return mRtpHeader.ssrc;}
 
 //@}
 
@@ -320,7 +352,7 @@ protected:
     RtpHeader  mRtpHeader;   ///< Fixed header of RTP packet. It is contained as
                              ///< is and functions to access its components are
                              ///< provided.
-    UINT mRtpCSRCs[RTP_MAX_CSRCS]; ///< CSRCs list of RTP packet.
+    RtpSRC mRtpCSRCs[RTP_MAX_CSRCS]; ///< CSRCs list of RTP packet.
 
     /// This is called in place of constructor.
     void init();
