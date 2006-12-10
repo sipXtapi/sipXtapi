@@ -13,8 +13,7 @@ AM_INIT_AUTOMAKE(foreign)
 SFAC_AUTOMAKE_VERSION([1.6])
 CHECK_AUTOCONF
 
-# TODO, change this when there's source
-AC_CONFIG_SRCDIR([INSTALL])
+AC_CONFIG_SRCDIR([src/sipxcar])
 
 SFAC_INIT_FLAGS
 

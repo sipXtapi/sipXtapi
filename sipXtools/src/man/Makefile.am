@@ -3,6 +3,8 @@ EXTRA_DIST = \
 	$(man_MANS)
 
 man_MANS = \
+	expire-spread.1 \
+	monitor-spread.1 \
 	sipxcar.1 \
 	sipxproc.1 \
 	polycom-config.1 \
@@ -11,7 +13,6 @@ man_MANS = \
 MAN_FILES = $(subst .1,.txt2man,$(man_MANS))
 
 # explicit list otherwise 
-	
 #	$(subst .txt2man,.1,$(MAN_FILES))
 
 #
