@@ -29,6 +29,9 @@ Requires: sipxvxml >= 3.7
 # replication, processmgr cgis 
 Requires: httpd >= 2.0
 
+# sending email - an smtp listener must be running on localhost
+Requires: MTA
+
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
 
