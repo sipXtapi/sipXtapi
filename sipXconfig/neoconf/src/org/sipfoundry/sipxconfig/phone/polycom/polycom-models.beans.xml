@@ -14,6 +14,10 @@
     <property name="label" value="Polycom SoundPoint IP 500/501"/>
     <property name="maxLineCount" value="3"/>
   </bean>
+  <bean id="polycom550" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel">
+    <property name="label" value="Polycom SoundPoint IP 550"/>
+    <property name="maxLineCount" value="4"/>
+  </bean>
   <bean id="polycom600" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel">
     <property name="label" value="Polycom SoundPoint IP 600/601"/>
     <property name="maxLineCount" value="12"/>
