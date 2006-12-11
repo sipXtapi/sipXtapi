@@ -751,6 +751,11 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
 
    //mSipTransactions.lock();
 
+#if 0 // TODO enable only for transaction match debugging - log is confusing otherwise
+   OsSysLog::add(FAC_SIP, PRI_DEBUG
+                 ,"SipUserAgent::send searching for existing transaction"
+                 );
+#endif
    // verify that the transaction does not already exist
    SipTransaction* transaction = mSipTransactions.findTransactionFor(
       message,
@@ -830,6 +835,11 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
             isUaTransaction = FALSE;
 
             // See if there is a parent server proxy transaction
+#if 0 // TODO enable only for transaction match debugging - log is confusing otherwise
+            OsSysLog::add(FAC_SIP, PRI_DEBUG
+                          ,"SipUserAgent::send searching for parent transaction"
+                          );
+#endif
             parentTransaction =
                mSipTransactions.findTransactionFor(message,
                                                    FALSE, // incoming
@@ -1194,8 +1204,7 @@ UtlBoolean SipUserAgent::sendStatelessResponse(SipMessage& rresponse)
     // If the sender of the request indicated support of
     // rport (i.e. received port) send this response back to
     // the same port it came from
-    if(portIsValid(receivedPort) &&
-        receivedSet && receivedPortSet)
+    if(portIsValid(receivedPort) && receivedPortSet)
     {
         sendPort = receivedPort;
     }
@@ -1495,7 +1504,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
                UtlBoolean receivedPortSet;
                message->getLastVia(&natAddress, &dummyPort, &dummyProtocol,
                                    &natPort, &receivedSet, &maddrSet, &receivedPortSet);
-               if(receivedSet && receivedPortSet)
+               if(receivedPortSet)
                {
                   Url newContact;
                   newContact.setHostAddress(natAddress.data());
@@ -1516,7 +1525,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
          // New transaction for incoming request
          else
          {
-            transaction = new SipTransaction(message, FALSE,
+            transaction = new SipTransaction(message, FALSE /* incoming */,
                                              isUaTransaction);
 
             // Add the new transaction to the list
@@ -1835,7 +1844,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
 #endif //TEST_PRINT
             }
 
-            // Process Options requests :TODO: - in the redirect server does this route?
+            // Process Options requests :TODO: - this does not route in the redirect server
             else if(isUaTransaction &&
                     !message->isResponse() &&
                     method.compareTo(SIP_OPTIONS_METHOD) == 0)
