@@ -124,6 +124,7 @@ MailboxManager::MailboxManager() :
     m_deletedFolder("deleted"),
     m_pageRefreshInterval("1"),
     m_logLevel(LOG_LEVEL_ERROR),
+    m_smtpServer("localhost"),
     m_templateFolderInfo (new UtlHashMap()),
     m_maxMessageLength (-1),
     m_minMessageLength (3),
@@ -349,7 +350,6 @@ MailboxManager::parseConfigFile ( const UtlString& configFileName )
                 getConfigValue ( *voicemailNode, "default-domain", m_defaultDomain );
                 getConfigValue ( *voicemailNode, "default-realm", m_defaultRealm );
                 getConfigValue ( *voicemailNode, "config-server-url-secure", m_configServerSecureUrl );
-                getConfigValue ( *voicemailNode, "smtp-server", m_smtpServer);
                 getConfigValue ( *voicemailNode, "email-notification-addr", m_emailNotificationAddr );
                 getConfigValue ( *voicemailNode, "mailstore-root", m_mailstoreRoot );
                 getConfigValue ( *voicemailNode, "mediaserver-root", m_mediaserverRoot );
@@ -4653,14 +4653,7 @@ MailboxManager::getCustomParameter( const UtlString& paramName,
     {
         // handle this later
     }
-    else if( paramName == PARAM_SMTP_SERVER )
-    {
-        if( m_smtpServer.isNull() )
-            rStrValue = "" ;
-        else
-            rStrValue = m_smtpServer ;
-    }
-        else if( paramName == PARAM_VOICEMAIL_INFO_PLAYBACK )
+    else if( paramName == PARAM_VOICEMAIL_INFO_PLAYBACK )
     {
         if( m_voicemailInfoPlayback.isNull() )
             rStrValue = "DISABLE" ;
@@ -5237,11 +5230,6 @@ MailboxManager::sendEmailNotification(  const UtlString& mailboxIdentity,
             UtlString sendAttachments = rwSendAttachments->data();
             UtlBoolean bAttachments = sendAttachments == "yes";
 
-            // Check that the SMTP server has been configured before sending
-            // e-mail.
-            OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                          "MailboxManager::sendEmailNotification: m_smtpServer = '%s'",
-                          m_smtpServer.data());
             if( !m_smtpServer.isNull())
             {
                // send an email (from name, from email, smtp server
@@ -5282,8 +5270,8 @@ MailboxManager::sendEmailNotification(  const UtlString& mailboxIdentity,
             else
             {
                result = OS_SUCCESS;
-               logContent = "Email notification is disabled - check SMTP_SERVER in config.defs file and smtp-server in voicemail.xml.in";
-               writeToLog( "sendEmailNotification" , logContent, PRI_ERR);
+               logContent = "No smtp-server defined - email notices for voicemail disabled";
+               writeToLog( "sendEmailNotification" , logContent, PRI_CRIT);
             }
          }
          delete contactList;

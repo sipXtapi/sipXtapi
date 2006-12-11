@@ -61,8 +61,8 @@
         <!-- Secure fully qualified configserver base URL -->
         <config-server-url-secure>https://${CONFIG_SERVER_ADDR}:8443</config-server-url-secure>
 
-        <!-- smtp server name, used for voicemail notification -->
-        <smtp-server>${SMTP_SERVER}</smtp-server>
+        <!-- smtp server name for voicemail notification 
+             is no longer configurable: must be 'localhost' -->
 
         <!-- Location of the voicemail folders -->
         <mailstore-root>@SIPX_VXMLDATADIR@</mailstore-root>

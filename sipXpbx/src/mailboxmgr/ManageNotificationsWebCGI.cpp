@@ -139,10 +139,7 @@ ManageNotificationsWebCGI::getManageNotificationsUI(UtlString* out)
 
     MailboxManager* pMailboxManager = MailboxManager::getInstance();
 
-    // Check if email notification has been enabled.
-    UtlString smtpServerSet;
-    pMailboxManager->getCustomParameter( PARAM_SMTP_SERVER, smtpServerSet );
-    if( smtpServerSet.length() > 0 )
+    if( TRUE ) // email notification is always enabled now
     {
         // Get the list of contacts
         UtlBoolean contactsFound = FALSE ;

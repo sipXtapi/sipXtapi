@@ -30,7 +30,6 @@ SIPXCHANGE_REALM=`hostname -d`
 MY_FULL_HOSTNAME=`hostname -f`
 MY_HOSTNAME=`hostname -s`
 MY_IP_ADDR=`@bindir@/get_def_addr`
-SMTP_SERVER=
 
 ##### IP <-> PSTN Gateway addresses -- IP addresses (recommended) or host names #####
 GW_DEFAULT_ADDR=

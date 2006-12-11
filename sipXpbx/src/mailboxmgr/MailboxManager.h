@@ -108,7 +108,6 @@
 #define PARAM_MEDIASERVER_ROOT          "mediaserver-root"
 #define PARAM_MEDIASERVER_URL           "mediaserver-url"
 #define PARAM_SECURE_MEDIASERVER_URL    "mediaserver-url-secure"
-#define PARAM_SMTP_SERVER               "smtp-server"
 #define PARAM_VOICEMAIL_INFO_PLAYBACK   "voicemail-info-playback"
 #define PARAM_IVR_PROMPT_URL            "ivr-prompt-url"
 
