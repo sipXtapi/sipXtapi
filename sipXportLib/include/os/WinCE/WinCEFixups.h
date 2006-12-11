@@ -1,6 +1,7 @@
 #ifndef _WINCEFIXUPS_H_ 
 #define _WINCEFIXUPS_H_
 
+
 // 
 // Copyright (C) 2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
