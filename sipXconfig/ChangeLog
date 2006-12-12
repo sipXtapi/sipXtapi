@@ -3,6 +3,41 @@ SIPfoundry Issue Tracker at:
 
         http://track.sipfoundry.org/browse?XCF
 	
+
+Version 3.7.2
+
+** Bug
+    * [XCF-1358] - address book created for Polycom should not add users to speed dial automatically
+    * [XCF-1370] - adding clearone phone does not work
+
+** Improvement
+    * [XCF-1217] - replace restore button on dial plan screen with drop down list of countries
+    * [XCF-1312] - support model localization
+
+** New Feature
+    * [XCF-478] - polycom localization support
+    * [XCF-981] - View/query call detail records (CDRs)
+    * [XCF-1299] - phone directory support
+    * [XCF-1309] - support multiple corporate directories
+    * [XCF-1384] - configure number of times autoattendant would repeat the prompt before giving up
+
+** Task
+    * [XCF-1297] - Config Server changes needed to support redirector plugins
+    * [XCF-1300] - Support outgoing ISN dialing
+
+
+Version 3.7.1
+
+** Bug
+    * [XCF-1338] - Adding a SIP Trunk gateway should not ask for a serial number
+
+** Improvement
+    * [XCF-1308] - Simplify phone API for adding support for new phones models
+
+** New Feature
+    * [XCF-1295] - add configuration of a session border controller or other intermediary as a route for SIP Trunks
+
+
 Version 3.5.6
 
 ** Bug
