@@ -113,6 +113,50 @@
       <description>Optional prefix for ISN numbers.</description>
     </setting>
   </group>
+  <group name="enum">
+    <setting name="SIP_REDIRECT.200-ENUM.BASE_DOMAIN">
+      <profileName>registrar-config.in</profileName>
+      <type>
+        <boolean>
+          <true>
+            <value>e164.arpa</value>
+          </true>
+          <false>
+            <value></value>
+          </false>
+        </boolean>
+      </type>
+    </setting>    
+    <setting name="SIP_REDIRECT.200-ENUM.DIAL_PREFIX">
+      <profileName>registrar-config.in</profileName>
+      <type>
+        <string>
+          <pattern>[0-9*#]+</pattern>
+        </string>
+      </type>
+    </setting>
+    <setting name="SIP_REDIRECT.200-ENUM.ADD_PREFIX">
+      <profileName>registrar-config.in</profileName>
+      <type>
+        <string>
+          <pattern>[0-9*#]+</pattern>
+        </string>
+      </type>
+    </setting>
+    <setting name="SIP_REDIRECT.200-ENUM.PREFIX_PLUS" advanced="yes">
+      <profileName>registrar-config.in</profileName>
+      <type>
+        <boolean>
+          <true>
+            <value>Y</value>
+          </true>
+          <false>
+            <value>N</value>
+          </false>
+        </boolean>
+      </type>
+    </setting>
+  </group>
   <group name="voice-mail">
     <label>Voice Mail</label>
     <setting name="VOICEMAIL_AGE_LIMIT">
