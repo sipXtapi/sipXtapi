@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN"
   "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
-<component-specification class="org.sipfoundry.sipxconfig.site.setting.SettingsNavigation"
-  allow-body="yes" allow-informal-parameters="yes">
+<component-specification class="org.sipfoundry.sipxconfig.site.setting.SettingsNavigation" allow-body="yes"
+  allow-informal-parameters="yes">
   <description>
-    Displays navigation links for settings object. Clicking link allows for editing one group of
-    settings.
+    Displays navigation links for settings object. Clicking link allows for editing one group of settings.
   </description>
 
   <!--
@@ -23,6 +22,7 @@
     - P R O P E R T I E S
   -->
   <property name="currentSetting" />
+  <property name="messageSource" />
 
   <!--
     - B E A N S
@@ -55,6 +55,6 @@
     <binding name="condition" value="!currentSetting.hidden" />
   </component>
   <component id="settingsTabLabel" type="Insert">
-    <binding name="value" value="currentSetting.label" />
+    <binding name="value" value="label" />
   </component>
 </component-specification>
