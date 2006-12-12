@@ -312,7 +312,7 @@ int SipClient::run(void* runArg)
                 numFailures++;
                 readAMessage = FALSE;
 
-                if(numFailures > 8 || !clientSocket->isOk())
+                if(numFailures > 12 || !clientSocket->isOk())
                 {
                     // The socket has gone sour close down the client
                     remoteHostName.remove(0);
