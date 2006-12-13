@@ -30,6 +30,8 @@ class Setup
     @system.unresolved(current).each do |file|
       if resolve(file)
         @system.mark_resolved(file)
+      else
+        @system.mark_unresolved(file)
       end
     end
   end
@@ -99,6 +101,13 @@ class SystemService
   def console(msg)
     # puts msg
     return msg
+  end
+
+  # XCF-1389 - if rpm file couldn't be resolved, at least make the ownership identical so
+  # users doing manual 'mv' command don't mess up permissions doing so
+  def mark_unresolved(file)
+    stat = File.stat(file)
+    File.chown(stat.uid, stat.gid, file + '.rpmnew')
   end
 
   def mark_resolved(file)
