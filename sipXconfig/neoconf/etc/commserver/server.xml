@@ -117,14 +117,7 @@
     <setting name="SIP_REDIRECT.200-ENUM.BASE_DOMAIN">
       <profileName>registrar-config.in</profileName>
       <type>
-        <boolean>
-          <true>
-            <value>e164.arpa</value>
-          </true>
-          <false>
-            <value></value>
-          </false>
-        </boolean>
+        <string/>
       </type>
     </setting>    
     <setting name="SIP_REDIRECT.200-ENUM.DIAL_PREFIX">
@@ -155,6 +148,7 @@
           </false>
         </boolean>
       </type>
+      <value>Y</value>
     </setting>
   </group>
   <group name="voice-mail">
