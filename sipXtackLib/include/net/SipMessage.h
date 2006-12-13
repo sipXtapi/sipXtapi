@@ -832,6 +832,7 @@ public:
                       const char* fromProtocol = NULL,
                       const char* fromUser = NULL,
                       const char* fromLabel = NULL);
+
     void setRawToField(const char* toField);
 
     void setRawFromField(const char* toField);
@@ -1074,7 +1075,7 @@ public:
     UtlBoolean getReferredByField(UtlString& referToField) const;
 
     UtlBoolean getReferredByUrls(UtlString* referrerUrl = NULL,
-                      UtlString* referredToUrl = NULL) const;
+                                 UtlString* referredToUrl = NULL) const;
 
     void setAllowField(const char* referToField);
 
