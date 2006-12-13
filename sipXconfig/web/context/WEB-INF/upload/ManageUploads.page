@@ -25,12 +25,12 @@
     <binding name="listener" value="listener:addUpload"/>
   </component>
   <component id="uploadTable" type="Table">
-    <binding name="columns" value="literal:* Name:name,Active:deployed,Upload:specification.label,Description:description"/>
+    <binding name="columns" value="literal:* name,deployed,upload:specification.label,description"/>
     <binding name="source" value="upload"/>
     <binding name="row" value="currentRow"/>
     <binding name="selections" value="selections"/>
   </component>
-  <component id="NameColumnValue" type="Block"/>
+  <component id="nameColumnValue" type="Block"/>
   <component id="editUploadLink" type="DirectLink">
     <binding name="listener" value="listener:editUpload"/>
     <binding name="parameters" value="currentRow.primaryKey"/>
