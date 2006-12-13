@@ -62,6 +62,7 @@ const char* OsSysLog::sFacilityNames[] =
    "CONFERENCE",
    "ODBC",
    "CDR",
+   "RLS",
    "UNKNOWN",
 } ;
 

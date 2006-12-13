@@ -23,7 +23,7 @@
 // *** READ THIS ***
 //
 // NOTE:  If adding a facility, please:
-//        1) Inserted it before the FAC_MAX_FACILITY.
+//        1) Insert it before the FAC_MAX_FACILITY.
 //        2) Updated OsSysLogFacilties.cpp to include the
 //           string name.
 //        3) Updated the !enum comments below.
@@ -71,6 +71,7 @@ enum tagOsSysLogFacility
    FAC_CONFERENCE,         // Conference bridge
    FAC_ODBC,               // ODBC related
    FAC_CDR,                // CDR generating related
+   FAC_RLS,                // Resource list server
    FAC_MAX_FACILITY        // Last Facility (used to for length)
 
    //
@@ -116,6 +117,12 @@ enum tagOsSysLogFacility
   //!enumcode: FAC_REPLICATION_CGI - replication cgi( replicates databases across components )
   //!enumcode: FAC_PROCESSMGR - os processmanager related
   //!enumcode: FAC_PROCESS - process related
+  //!enumcode: FAC_SIPXTAPI - sipXtapi related
+  //!enumcode: FAC_AUDIO - audio related
+  //!enumcode: FAC_CONFERENCE - Conference bridge
+  //!enumcode: FAC_ODBC - ODBC related
+  //!enumcode: FAC_CDR - CDR generating related
+  //!enumcode: FAC_RLS - Resource list server
 
 // TYPEDEFS
 typedef enum tagOsSysLogFacility OsSysLogFacility ;
