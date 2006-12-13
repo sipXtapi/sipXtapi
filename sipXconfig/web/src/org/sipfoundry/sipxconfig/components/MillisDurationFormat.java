@@ -34,9 +34,10 @@ public class MillisDurationFormat extends Format {
 
     // TODO: move to properties file
     private static final String[] LABELS = {
-        "{0,choice,0#0 days|1#1 day|2<{0} days}", "{0,choice,0#0 hours|1#1 hour|2<{0} hours}",
-        "{0,choice,0#0 minutes|1#1 minute|2<{0} minutes}",
-        "{0,choice,0#0 seconds|1#1 second|2<{0} seconds}"
+        "{0,choice,0#0 days|1#1 day|1<{0} days}", 
+        "{0,choice,0#0 hours|1#1 hour|1<{0} hours}",
+        "{0,choice,0#0 minutes|1#1 minute|1<{0} minutes}",
+        "{0,choice,0#0 seconds|1#1 second|1<{0} seconds}"
     };
 
     private int m_maxField = DAYS;
