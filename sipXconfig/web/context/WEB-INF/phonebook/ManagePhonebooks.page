@@ -10,7 +10,7 @@
     <binding name="delegate" value="bean:validator"/>
   </component>
   <component id="phonebookTable" type="Table">
-    <binding name="columns" value="literal:* Name:name,Description:description"/>
+    <binding name="columns" value="literal:* name,description"/>
     <binding name="source" value="phonebookManager.phonebooks"/>
     <binding name="row" value="currentRow"/>
     <binding name="selections" value="selections"/>

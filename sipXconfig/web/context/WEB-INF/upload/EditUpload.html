@@ -16,7 +16,7 @@
 	         </fieldset>    
             <span jwcid="@If" condition="ognl:! upload.isNew()">
 	            <span jwcid="@If" condition="ognl:upload.deployed">
-	    	        <p><strong>You cannot make changes when files are deployed.</strong></p>
+	    	        <p><span key="warning"><strong>You cannot make changes when files are deployed.</strong></span></p>
 	             </span>
 	             <fieldset jwcid="settingsFieldset"/>
              </span>
