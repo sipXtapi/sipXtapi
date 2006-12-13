@@ -42,6 +42,10 @@ public class MillisDurationFormatTest extends TestCase {
 
         assertEquals("1 minute, 5 seconds", m_format.format(new Long(60000 + 5000)));
 
+        assertEquals("2 minutes, 0 seconds", m_format.format(new Long(2 * 60000)));
+
+        assertEquals("2 minutes, 5 seconds", m_format.format(new Long(2 * 60000 + 5000)));
+        
         assertEquals("3 hours, 0 minutes, 5 seconds", m_format.format(new Long(
                 3 * DateUtils.MILLIS_PER_HOUR + 5050)));
         assertEquals("5 days, 0 hours, 1 minute, 7 seconds", m_format.format(new Long(5
