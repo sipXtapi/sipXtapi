@@ -28,6 +28,7 @@
 #include "net/Url.h"
 #include "registry/SipRedirectServer.h"
 #include "net/SipMessage.h"
+#include "net/HttpBody.h"
 
 // DEFINES
 
@@ -441,7 +442,7 @@ SipRedirectorJoin::lookUpDialog(
       // Not strictly necessary (per the I-D), but it makes the SUBSCRIBE
       // more strictly compliant.
       subscribe.setHeaderValue(SIP_ACCEPT_FIELD,
-                               "application/dialog-info+xml");
+                               DIALOG_EVENT_CONTENT_TYPE);
    
       // Send the SUBSCRIBE.
       mpSipUserAgent->send(subscribe);
