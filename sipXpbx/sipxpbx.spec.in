@@ -30,7 +30,7 @@ Requires: sipxvxml >= 3.6
 Requires: httpd >= 2.0
 
 # sending email - an smtp listener must be running on localhost
-Requires: MTA
+Requires: smtpdaemon
 
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
