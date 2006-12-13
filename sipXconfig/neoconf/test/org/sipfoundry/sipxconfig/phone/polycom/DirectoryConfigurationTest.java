@@ -11,11 +11,12 @@
  */
 package org.sipfoundry.sipxconfig.phone.polycom;
 
-import java.io.CharArrayReader;
-import java.io.CharArrayWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -29,33 +30,61 @@ import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.phone.polycom.DirectoryConfiguration.PolycomPhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
+import org.sipfoundry.sipxconfig.speeddial.Button;
+import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
 public class DirectoryConfigurationTest extends XMLTestCase {
     PolycomPhone m_phone;
     Phonebook m_phonebook;
     PhoneTestDriver m_tester;
-    
+
     protected void setUp() {
         XMLUnit.setIgnoreWhitespace(true);
-        m_phone = new PolycomPhone();        
+        m_phone = new PolycomPhone();
     }
-    
+
     public void testTransformRows() throws Exception {
         IMocksControl phonebookEntryControl = EasyMock.createControl();
         PhonebookEntry phonebookEntry = phonebookEntryControl.createMock(PhonebookEntry.class);
         phonebookEntry.getFirstName();
-        phonebookEntryControl.andReturn("Dora");
+        phonebookEntryControl.andReturn(null);
+        phonebookEntry.getLastName();
+        phonebookEntryControl.andReturn(null);
+        phonebookEntry.getNumber();
+        phonebookEntryControl.andReturn("1234");
         phonebookEntryControl.replay();
-        
-        DirectoryConfiguration dir = new DirectoryConfiguration(null, null);
-        Collection<PolycomPhonebookEntry> collection = dir.transformRows(Collections.singleton(phonebookEntry));
-        assertEquals("Dora", collection.iterator().next().getFirstName());
-        
+
+        DirectoryConfiguration dir = new DirectoryConfiguration(null, null, null);
+        Collection<PolycomPhonebookEntry> collection = new ArrayList<PolycomPhonebookEntry>();
+        dir.transformPhoneBook(Collections.singleton(phonebookEntry), collection);
+        PolycomPhonebookEntry entry = collection.iterator().next();
+        assertEquals("1234", entry.getFirstName());
+        assertNull(entry.getLastName());
+        assertEquals("1234", entry.getContact());
+
         phonebookEntryControl.verify();
     }
-    
+
+    public void testGenerateEmptyDirectory() throws Exception {
+
+        DirectoryConfiguration dir = new DirectoryConfiguration(m_phone, null, null);
+        dir.setVelocityEngine(TestHelper.getVelocityEngine());
+
+        StringWriter out = new StringWriter();
+        dir.generateProfile(m_phone.getDirectoryTemplate(), out);
+
+        InputStream expectedPhoneStream = getClass().getResourceAsStream(
+                "expected-empty-directory.xml");
+        Reader expectedXml = new InputStreamReader(expectedPhoneStream);
+        Reader generatedXml = new StringReader(out.toString());
+
+        Diff phoneDiff = new Diff(expectedXml, generatedXml);
+        assertXMLEqual(phoneDiff, true);
+        expectedPhoneStream.close();
+    }
+
     public void testGenerateDirectory() throws Exception {
-        
+
         IMocksControl phonebookEntryControl = EasyMock.createControl();
         PhonebookEntry phonebookEntry = phonebookEntryControl.createMock(PhonebookEntry.class);
         phonebookEntry.getFirstName();
@@ -67,28 +96,48 @@ public class DirectoryConfigurationTest extends XMLTestCase {
         phonebookEntryControl.replay();
 
         Collection<PhonebookEntry> entries = Collections.singleton(phonebookEntry);
-        DirectoryConfiguration dir = new DirectoryConfiguration(m_phone, entries);
+        DirectoryConfiguration dir = new DirectoryConfiguration(m_phone, entries, null);
         dir.setVelocityEngine(TestHelper.getVelocityEngine());
-        
-        CharArrayWriter out = new CharArrayWriter();
-        dir.generateProfile(m_phone.getDirectoryTemplate(), out);       
-        
-        InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-directory.xml");
-        Reader expectedXml = new InputStreamReader(expectedPhoneStream);            
-        Reader generatedXml = new CharArrayReader(out.toCharArray());
 
-        // helpful debug
-        // System.out.println(new String(out.toCharArray()));
+        StringWriter out = new StringWriter();
+        dir.generateProfile(m_phone.getDirectoryTemplate(), out);
 
-        // also helpful
-        // Writer w = new FileWriter("/tmp/delme");
-        // IOUtils.write(out.toCharArray(), w);
-        // w.close();
+        InputStream expectedPhoneStream = getClass()
+                .getResourceAsStream("expected-directory.xml");
+        Reader expectedXml = new InputStreamReader(expectedPhoneStream);
+        Reader generatedXml = new StringReader(out.toString());
 
         Diff phoneDiff = new Diff(expectedXml, generatedXml);
         assertXMLEqual(phoneDiff, true);
-        expectedPhoneStream.close();        
+        expectedPhoneStream.close();
 
         phonebookEntryControl.verify();
     }
+
+    public void testGenerateSpeedDialDirectory() throws Exception {
+        Button button = new Button();
+        button.setLabel("Dora Explorer");
+        button.setNumber("210");
+
+        SpeedDial speedDial = new SpeedDial();
+        speedDial.setButtons(Collections.singletonList(button));
+
+        DirectoryConfiguration dir = new DirectoryConfiguration(m_phone, null, speedDial);
+        dir.setVelocityEngine(TestHelper.getVelocityEngine());
+
+        StringWriter out = new StringWriter();
+        dir.generateProfile(m_phone.getDirectoryTemplate(), out);
+
+        InputStream expectedPhoneStream = getClass()
+                .getResourceAsStream("expected-speeddial-directory.xml");
+        Reader expectedXml = new InputStreamReader(expectedPhoneStream);
+        Reader generatedXml = new StringReader(out.toString());
+        
+        System.err.println(out.toString());
+
+        Diff phoneDiff = new Diff(expectedXml, generatedXml);
+        assertXMLEqual(phoneDiff, true);
+        expectedPhoneStream.close();
+    }
+
 }

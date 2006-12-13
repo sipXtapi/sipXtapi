@@ -6,7 +6,11 @@
        <ln>$!{row.LastName}</ln>
        <fn>$!{row.FirstName}</fn>
        <ct>${row.Contact}</ct>
+#if(${row.SpeedDial} > 0)       
+       <sd>${row.SpeedDial}</sd>
+#else       
        <sd />
+#end       
        <rt>1</rt>
        <dc />
        <ad>0</ad>

@@ -36,6 +36,7 @@ import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
+import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
 /**
  * Support for Polycom 300, 400, and 500 series phones and model 3000 conference phone
@@ -137,15 +138,14 @@ public class PolycomPhone extends Phone {
         generateProfile(sip, getSipTemplate(), app.getSipFilename());
 
         PhoneConfiguration phone = new PhoneConfiguration(this);
-        generateProfile(phone, getPhoneTemplate(), app.getPhoneFilename());        
+        generateProfile(phone, getPhoneTemplate(), app.getPhoneFilename());
 
         app.deleteStaleDirectories();
 
         Collection<PhonebookEntry> entries = getPhoneContext().getPhonebookEntries(this);
-        if (entries != null && entries.size() > 0) {
-            DirectoryConfiguration dir = new DirectoryConfiguration(this, entries);
-            generateProfile(dir, getDirectoryTemplate(), app.getDirectoryFilename());
-        }
+        SpeedDial speedDial = getPhoneContext().getSpeedDial(this);
+        DirectoryConfiguration dir = new DirectoryConfiguration(this, entries, speedDial);
+        generateProfile(dir, getDirectoryTemplate(), app.getDirectoryFilename());
     }
 
     public void removeProfiles() {
@@ -321,7 +321,7 @@ public class PolycomPhone extends Phone {
         public int getStartDayOfWeek() {
             return isDstEnabled() ? dayOfWeek(getZone().getStartDayOfWeek()) : 0;
         }
-        
+
         static int dayOfWeek(int dayOfWeek) {
             // 1-based
             int dayOfWeekStartingOnMonday = ((dayOfWeek + 1) % 7) + 1;
