@@ -42,6 +42,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipxcar
 %attr(755,root,root) %{_bindir}/polycom-config
 %attr(755,root,root) %{_bindir}/sipdb-dump
+%{_mandir}/man1/expire-spread.1.gz
+%{_mandir}/man1/monitor-spread.1.gz
 %{_mandir}/man1/sipxproc.1.gz
 %{_mandir}/man1/sipxcar.1.gz
 %{_mandir}/man1/polycom-config.1.gz
