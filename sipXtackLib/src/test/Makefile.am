@@ -37,7 +37,9 @@ testsuite_SOURCES = \
     net/SipPublishContentMgrTest.cpp \
     net/SipServerShutdownTest.cpp \
     net/SipSrvLookupTest.cpp \
-    net/SipSubcriptionMgrTest.cpp \
+    net/SipSubscribeServerTest.cpp \
+    net/SipSubscriptionClientTest.cpp \
+    net/SipSubscriptionMgrTest.cpp \
     net/SipUserAgentTest.cpp \
     net/SipProxyMessageTest.cpp \
     net/XmlRpcTest.cpp
