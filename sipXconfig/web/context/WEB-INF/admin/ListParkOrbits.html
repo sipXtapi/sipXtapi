@@ -12,8 +12,8 @@
     </table>
     <ul class="component-submit">
       <li>
-        <input type="submit" jwcid="delete" id="orbits:delete" value="Delete" 
-          onclick="return confirm('Are you sure you want to delete selected call park extension?')"/>
+        <input type="submit" jwcid="delete" id="orbits:delete" />
+        <span jwcid="@common/Confirm" component="component:delete" prompt="message:confirm.delete"/>
       </li>
     </ul>
   </form>                    

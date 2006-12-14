@@ -26,8 +26,8 @@
         <input jwcid="duplicate" type="submit"/>
       </li>
       <li>
-        <input type="submit" jwcid="delete" id="dialplan:delete"
-          onclick="return confirm('Are you sure you want to delete selected rules?')"/>
+        <input type="submit" jwcid="delete" id="dialplan:delete" />
+        <span jwcid="@common/Confirm" component="component:delete" prompt="message:confirm.delete"/>                    
       </li>
       <li>
         <input type="submit" jwcid="moveUp" id="dialplan:move:up"/>

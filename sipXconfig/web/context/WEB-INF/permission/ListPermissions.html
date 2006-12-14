@@ -26,8 +26,9 @@
       </span>
     </table>
     <ul class="component-submit">
-      <li><input type="submit" jwcid="delete" id="permissions:delete"
-          onclick="return confirm('Are you sure you want to delete selected permissions?')" /></li>
+      <li><input jwcid="delete" id="permissions:delete"/>
+        <span jwcid="@common/Confirm" component="component:delete" prompt="message:confirm.delete"/>
+      </li>        
     </ul>
   </form>
 </div>

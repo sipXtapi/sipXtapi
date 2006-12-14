@@ -1,8 +1,3 @@
-<html title="message:title">
-<head>
-    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
-</head>
-<body jwcid="$content$">
 <div jwcid="@Border">
     <h2><span key="title">Hunt Groups</span></h2>        
 	<ul class="component-links">
@@ -20,14 +15,12 @@
 		</table>
 		<ul class="component-submit">
 			<li>
-				<input jwcid="duplicate" id="callgroups:duplicate" type="submit" name="" value="Duplicate"/>
+				<input jwcid="duplicate" id="callgroups:duplicate" type="submit" />
 			</li>
 			<li>
-				<input type="submit" jwcid="delete" id="callgroups:delete" value="Delete" 
-                	onclick="return confirm('Are you sure you want to delete selected call groups?')"/>
+				<input type="submit" jwcid="delete" id="callgroups:delete" />
+                <span jwcid="@common/Confirm" component="component:delete" prompt="message:confirm.delete"/>
 			</li>
 		</ul>
 	</form>                    
 </div>
-</body>    
-</html>

@@ -16,12 +16,16 @@
     </table>
     <ul class="component-submit">
       <li>
-        <input id="upload:delete" jwcid="delete" value="message:button.delete"
-          onclick="return confirm('Are you sure you want to delete selected upload items?')"/>
-        <input id="upload:activate" jwcid="activate" value="message:button.activate"
-          onclick="return confirm('Are you sure you want to activate selected upload items?')"/>
-        <input id="upload:inactivate" jwcid="inactivate" value="message:button.deactivate"
-          onclick="return confirm('Are you sure you want to inactivate selected upload items?')"/>
+        <input id="upload:delete" jwcid="delete" value="message:button.delete"/>
+        <span jwcid="@common/Confirm" component="component:delete" prompt="message:confirm.delete"/>
+      </li>
+      <li>
+        <input id="upload:activate" jwcid="activate" value="message:button.activate"/>
+        <span jwcid="@common/Confirm" component="component:activate" prompt="message:confirm.activate"/>
+      </li>        
+      <li>
+        <input id="upload:inactivate" jwcid="inactivate" value="message:button.inactivate" />
+        <span jwcid="@common/Confirm" component="component:inactivate" prompt="message:confirm.inactivate"/>
       </li>
     </ul>
   </form>
