@@ -366,7 +366,10 @@ initialize_databases () {
         @bindir@/sipxconfig.sh --setup
     fi
     # and the cdr database setup for the proxies and call resolver
-    @bindir@/sipxcallresolver.sh --setup
+    if test -x @bindir@/sipxcallresolver.sh
+    then
+        @bindir@/sipxcallresolver.sh --setup
+    fi
 }
 
 ## High-level configtest function
@@ -576,7 +579,8 @@ do_start() {
             echo -n "$seconds "
             sleep 1
         done
-        [ $seconds == 0 ] && echo_failure || echo_success
+	echo 
+        [ $seconds != 0 ] && echo_success || echo_failure
         echo
         
         sleep 1
