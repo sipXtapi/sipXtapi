@@ -43,7 +43,7 @@
         <web-message-block-size>50</web-message-block-size>
 
         <!-- Voicemail notification emails will be sent from this address. -->
-        <email-notification-addr>postmaster@${SMTP_SERVER}</email-notification-addr>
+        <email-notification-addr>postmaster@${MY_FULL_HOSTNAME}</email-notification-addr>
 
         <!-- Enables/disables playing envelope information before playing the voicemail
             Accepts two values: ENABLE and DISABLE
