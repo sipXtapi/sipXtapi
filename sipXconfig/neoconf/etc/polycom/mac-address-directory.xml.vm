@@ -11,7 +11,7 @@
 #else       
        <sd />
 #end       
-       <rt>1</rt>
+       <rt />
        <dc />
        <ad>0</ad>
        <ar>0</ar>

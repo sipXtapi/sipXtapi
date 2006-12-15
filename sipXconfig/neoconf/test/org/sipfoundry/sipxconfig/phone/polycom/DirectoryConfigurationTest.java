@@ -133,8 +133,6 @@ public class DirectoryConfigurationTest extends XMLTestCase {
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);
         Reader generatedXml = new StringReader(out.toString());
         
-        System.err.println(out.toString());
-
         Diff phoneDiff = new Diff(expectedXml, generatedXml);
         assertXMLEqual(phoneDiff, true);
         expectedPhoneStream.close();
