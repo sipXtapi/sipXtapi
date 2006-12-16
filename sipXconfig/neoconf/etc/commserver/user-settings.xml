@@ -27,9 +27,9 @@
     </string>
   </type>
   <group name="permission">
-    <label>Permissions</label>
+    <label><span key="permission.label">Permissions</span></label>
     <group name="application">
-      <label>General Permission</label>
+      <label><span key="permission.application.label">General Permission</span></label>
       <setting name="superadmin">
         <label>Superadmin Access</label>
         <type refid="enable-disable" />
@@ -48,7 +48,7 @@
       </setting>
     </group>
     <group name="call-handling">
-      <label>Call Permission</label>
+      <label><span key="permission.call-handling.label">Call Permission</span></label>
       <setting name="900Dialing">
         <label>900 Dialing</label>
         <type refid="enable-disable" />
@@ -112,7 +112,7 @@
     </group>
   </group>
   <group name="caller-alias">
-    <label>Caller ID</label>
+    <label><span key="caller-alias.label">Caller ID</span></label>
     <setting name="external-number">
       <label>Caller ID</label>
       <type refid="sip-uri"/>
@@ -122,7 +122,7 @@
       </description>
     </setting>
     <setting name="anonymous-caller-alias">
-      <label>Block Caller ID</label>
+      <label><span key="caller-alias.anonymous-caller-alias.label">Block Caller ID</span></label>
       <type>
         <boolean />
       </type>
