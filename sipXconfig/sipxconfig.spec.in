@@ -117,12 +117,13 @@ rm -rf $RPM_BUILD_ROOT
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}/profile/tftproot
 %config(noreplace) %{phonedir}/profile/tftproot/*
 
-# Install configserver config files, directory only is created by pbx
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755) %{sipxpbxconf}/*
-
 %{sipxpbxdata}
 
 %dir %{_localstatedir}
+
+# Install configserver config files, directory only is created by pbx
+%defattr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755)
+%config(noreplace) %{sipxpbxconf}/*
 
 %{upgrade_archive_dir}/%{this_archive}
 %{upgrade_archive_dir}/%{name}-previous.tgz
