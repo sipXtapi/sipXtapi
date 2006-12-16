@@ -4,39 +4,39 @@
 	</head>
 	<body jwcid="$content$">
 		<div jwcid="@Border">
-			<h2>Auto Attendant</h2>
+			<h2><span key="title">Auto Attendant</span></h2>
 			<div class="help">
 				<dl>
-					<dt>Upload new prompt:</dt>
-					<dd>Uploaded sound files must be 8khz / 16 bit PCM samples, 
+					<dt><span key="helpH1">Upload new prompt:</span></dt>
+					<dd><span key="helpT1">Uploaded sound files must be 8khz / 16 bit PCM samples, 
 						signed, little-endian, 1 channel (mono), .wav header 
-						(implied 128kbps) </dd>
+						(implied 128kbps) </span></dd>
 				</dl>
 				<dl>
-					<dt>Actions</dt>
-					<dd>To allow the attendant user to dial someone's 
+					<dt><span key="helpH2">Actions</span></dt>
+					<dd><span key="helpT2">To allow the attendant user to dial someone's 
 						extension at any time, do not assign an action to the 
 						first digit of the digits in the range of internal extensions. For 
 						example, if your internal extensions all start with 1, 
-						leave 1 blank. </dd>
-					<dt>Operator</dt>
-					<dd>Route call to extension 0</dd>
-					<dt>Dial by name prompt</dt>
-					<dd>The user will be prompted to dial a person's name using the 
-						keypad. </dd>
-					<dt>Repeat Prompt</dt>
-					<dd>Play the initial greeting again</dd>
-					<dt>Voicemail login</dt>
-					<dd>The user will be directed to the voicemail system and prompted 
-						to log in. </dd>
-					<dt>Disconnect</dt>
-					<dd>Play a good-bye message and end the call.</dd>
-					<dt>Auto Attendant</dt>
-					<dd>Go to another auto attendant menu.</dd>
-					<dt>Goto Extension</dt>
-					<dd>Route the call directly to another extension listed in the parameter field.</dd>
-					<dt>Deposit Voicemail</dt>
-					<dd>Transfer the call directly to a voicemail box listed in the parameter field.</dd>
+						leave 1 blank. </span></dd>
+					<dt><span key="helpH3">Operator</span></dt>
+					<dd><span key="helpT3">Route call to extension 0</span></dd>
+					<dt><span key="helpH4">Dial by name prompt</span></dt>
+					<dd><span key="helpT4">The user will be prompted to dial a person's name using the 
+						keypad. </span></dd>
+					<dt><span key="helpH5">Repeat Prompt</span></dt>
+					<dd><span key="helpT5">Play the initial greeting again</span></dd>
+					<dt><span key="helpH6">Voicemail login</span></dt>
+					<dd><span key="helpT6">The user will be directed to the voicemail system and prompted 
+						to log in. </span></dd>
+					<dt><span key="helpH7">Disconnect</span></dt>
+					<dd><span key="helpT7">Play a good-bye message and end the call.</span></dd>
+					<dt><span key="helpH8">Auto Attendant</span></dt>
+					<dd><span key="helpT8">Go to another auto attendant menu.</span></dd>
+					<dt><span key="helpH9">Goto Extension</span></dt>
+					<dd><span key="helpT9">Route the call directly to another extension listed in the parameter field.</span></dd>
+					<dt><span key="helpH10">Deposit Voicemail</span></dt>
+					<dd><span key="helpT10">Transfer the call directly to a voicemail box listed in the parameter field.</span></dd>
 				</dl>
 			</div>
 			<span jwcid="@ErrorMsg"/>
@@ -88,17 +88,17 @@
                 <span jwcid="addMenuItemAction"/>
               </td>
               <td>
-                <input type="submit" id="attendant:addMenuItem" jwcid="addMenuItem" value="Add"/>
+                <input type="submit" id="attendant:addMenuItem" jwcid="addMenuItem" value=button.add/>
               </td>
             </tr>
           </tbody>
         </table>
         <ul class="component-submit">
           <li>
-            <input jwcid="reset" type="submit" id="attendant:reset" value="Reset to Defaults"/>
+            <input jwcid="reset" type="submit" id="attendant:reset" value=button.ResetToDefaults/>
           </li>
           <li>
-            <input jwcid="removeMenuItems" value="Remove" type="submit" id="attendant:removeMenuItems"/>
+            <input jwcid="removeMenuItems" value=button.Remove type="submit" id="attendant:removeMenuItems"/>
           </li>
         </ul>
         <ul jwcid="formActions"/>
