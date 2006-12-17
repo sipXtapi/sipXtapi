@@ -83,8 +83,10 @@
       <value>${MY_FULL_HOSTNAME} ${MY_IP_ADDR}</value>
       <description>Manipulated automatically by sipXconfig Domain Manager</description>
     </setting>
+  </group>
+  <group name="isn">
     <setting name="SIP_REDIRECT.190-ISN.BASE_DOMAIN">
-      <label>ISN dialing</label>
+      <label>ISN Dialing</label>
       <profileName>registrar-config.in</profileName>
       <type>
         <boolean>
