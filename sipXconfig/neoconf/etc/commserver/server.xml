@@ -285,6 +285,7 @@
     </setting>
   </group>
   <group name="Logging">
+   <lable>Logging</label>
     <setting name="SIP_AUTHPROXY_LOG_LEVEL">
       <label>Authorization Proxy Log Level</label>
       <profileName>authproxy-config.in</profileName>
