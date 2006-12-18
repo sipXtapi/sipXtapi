@@ -339,24 +339,39 @@ UtlBoolean SdpBody::getMediaProtocol(int mediaIndex, UtlString* transportProtoco
 UtlBoolean SdpBody::getMediaPayloadType(int mediaIndex, int maxTypes,
                                         int* numTypes, int payloadTypes[]) const
 {
-   UtlString payloadTypeString;
-   int typeCount = 0;
+    UtlString payloadTypeString;
+    int typeCount = 0;
+    int index = 0 ;
 
-   while(typeCount < maxTypes &&
-         getMediaSubfield(mediaIndex, 3 + typeCount,
-                          &payloadTypeString))
-   {
+    while (index < maxTypes &&
+            getMediaSubfield(mediaIndex, 3 + index++, &payloadTypeString))
+    {
+        if(!payloadTypeString.isNull())
+        {
+            // Add the payload type and increment typeCount if not 
+            // already in the list
+            bool bFound = false ;
+            int payload = atoi(payloadTypeString.data()) ;
+            for (int i=0; i<typeCount; i++)
+            {
+                if (payloadTypes[i] == payload)
+                {
+                    bFound = true ;
+                    break ;
+                }
+            }
 
-      if(!payloadTypeString.isNull())
-      {
-         payloadTypes[typeCount] = atoi(payloadTypeString.data());
-         typeCount++;
-      }
-   }
+            if (!bFound)
+            {            
+                payloadTypes[typeCount] = payload ;
+                typeCount++;
+            }
+        }
+    }
 
-   *numTypes = typeCount;
+    *numTypes = typeCount;
 
-   return(typeCount > 0);
+    return(typeCount > 0);
 }
 
 UtlBoolean SdpBody::getMediaSubfield(int mediaIndex, int subfieldIndex, UtlString* subField) const
