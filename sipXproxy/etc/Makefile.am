@@ -12,15 +12,25 @@ cfgfiles_IN = \
 
 EXTRA_DIST = \
     sipproxy.process.xml.in \
-    sipauthproxy.process.xml.in \
+    sipauthproxy.process.xml.in \    
     $(cfgfiles_IN)
+    
+PROCESS_XML_FILES = \
+	$(DESTDIR)$(SIPX_PROCDIR)/sipproxy.process.xml \
+	$(DESTDIR)$(SIPX_PROCDIR)/sipauthproxy.process.xml
+
+if ENABLE_CDR
+EXTRA_DIST += \
+	sipxcallresolver.process.xml.in
+PROCESS_XML_FILES += \
+	$(DESTDIR)$(SIPX_PROCDIR)/sipxcallresolver.process.xml
+endif
 
 CFG_FILES = $(foreach file,$(cfgfiles_IN),$(DESTDIR)/$(sysconfdir)/sipxpbx/$(file))
 install-exec-hook : \
-	$(DESTDIR)$(SIPX_PROCDIR)/sipproxy.process.xml \
-	$(DESTDIR)$(SIPX_PROCDIR)/sipauthproxy.process.xml \
+	$(PROCESS_XML_FILES) \
 	$(CFG_FILES) \
-        upgrade-auth-rules
+		upgrade-auth-rules
 
 $(foreach file,$(cfgfiles_IN),$(DESTDIR)/$(sysconfdir)/sipxpbx/$(file)) : $(DESTDIR)/$(sysconfdir)/sipxpbx/% : %
 	if ! test -f $@; \

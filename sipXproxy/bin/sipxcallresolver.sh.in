@@ -10,8 +10,6 @@
 Action=RUN
 Status=1
 Args=""
-Today=`date`
-
 resolverArgs=""
 
 # Declare script variables in a manner that unit test
@@ -21,7 +19,7 @@ resolverArgs=""
 : ${ConfigDefs:=@SIPX_CONFDIR@/config.defs}
 : ${Configpp:=@bindir@/configpp}
 : ${ConfigFiles:=@SIPX_CONFDIR@/authproxy-config @SIPX_CONFDIR@/proxy-config}
-: ${PidFile:=@SIPX_RUNDIR@/sipxconfig.pid}
+: ${PidFile:=@SIPX_RUNDIR@/sipxcallresolver.pid}
 : ${LibDir:=@SIPX_LIBDIR@}
 : ${Psql:=psql}
 : ${ServiceDir:=/etc/init.d}
@@ -32,6 +30,7 @@ resolverArgs=""
 : ${RunningUser:=@SIPXPBXUSER@}
 : ${PgUser:=postgres}
 : ${PgSchema:=@SIPX_CONFDIR@/cdr/schema.sql}
+: ${RubyCmd:=/usr/bin/ruby}
 : ${DbVersion:=2}
 : ${DbPatchDir:=@SIPX_CONFDIR@/cdr}
 : ${DbPatchLog:=@SIPX_LOGDIR@/sipcdrpatch.log}
@@ -39,6 +38,15 @@ resolverArgs=""
 
 Database=SIPXCDR
 Today=`date`
+
+# Make sure we are running as root during installation setup
+assertRoot() {
+    user=`whoami`
+    if [ "${user}" != "root" ]; then
+      echo "Error: Must be root to run sipxcallresolver.sh script."
+      exit 1
+    fi
+}
 
 # This function determines the correct service name for Postgres.
 postgresService() {
@@ -336,21 +344,6 @@ configCheck() {
    # Don't check configuration of call resolver for distributed machines
    if [ ${Action} = CONFIGTEST ]; then
       resolveOk=1
-      resolveConfig=`cat @SIPX_CONFDIR@/callresolver-config.in | grep SIP_CALLRESOLVER_DAILY_RUN`
-      if ! expr match "$resolveConfig" '.*:\s*[eE][nN][aA][bB][lL][eE]\s*$' >/dev/null; then
-         echo
-         echo "  Warning: call resolver is not configured for daily runs. This"
-         echo "           will prevent the call resolver from automatically"
-         echo "           resolving calls and purging old database records"
-         echo "           on a regular basis. Add the line"
-         echo              
-         echo "              SIP_CALLRESOLVER_DAILY_RUN : ENABLE"
-         echo
-         echo "           to @SIPX_CONFDIR@/callresolver-config.in"
-         echo 
-         resolveOk=0
-         Status=0
-      fi
 
       resolveConfig=`cat @SIPX_CONFDIR@/callresolver-config.in | grep SIP_CALLRESOLVER_PURGE`
       if ! expr match "$resolveConfig" '.*:\s*[eE][nN][aA][bB][lL][eE]\s*$' >/dev/null; then
@@ -444,35 +437,32 @@ databaseVersionCheck() {
     return 0
 }
 
+removeOldCronEntry()
+{
+    # Remove crontab entry for sipxcallresolver if there is one
+    if [ -f @SIPX_SYSCONFDIR@/crontab ]; then
+       if grep sipxcallresolver @SIPX_SYSCONFDIR@/crontab >/dev/null; then 
+          sed -e 's/^.*sipxcallresolver.*$//' @SIPX_SYSCONFDIR@/crontab > @SIPX_SYSCONFDIR@/crontab.tmp
+          mv @SIPX_SYSCONFDIR@/crontab.tmp @SIPX_SYSCONFDIR@/crontab
+       fi
+    fi   
+}
+
 # Called after installation or upgrade by distro's package infrastructure
 # but can be called manually and is harmless if called multiple times.
 onSetup() {
-   if ! databaseCheck Silent
-   then
+    assertRoot
+    removeOldCronEntry
+    if ! databaseCheck Silent
+    then
        @bindir@/pgpatch.sh
        databaseCommand create
-   fi
-   databasePatch
-   
-   # Make a call resolver entry in the crontab file
-   if [ -f @SIPX_SYSCONFDIR@/crontab ]; then
-      if ! grep sipxcallresolver @SIPX_SYSCONFDIR@/crontab >/dev/null; then 
-         echo "05 01 * * * root @bindir@/sipxcallresolver.sh --daily" >> @SIPX_SYSCONFDIR@/crontab
-      fi
-   else
-      echo "05 01 * * * root @bindir@/sipxcallresolver.sh --daily" > @SIPX_SYSCONFDIR@/crontab   
-   fi   
+    fi
+    databasePatch
 }
 
-onUninstall()
-{
-   # Remove crontab entry for sipxcallresolver if there is one
-   if [ -f @SIPX_SYSCONFDIR@/crontab ]; then
-      if grep sipxcallresolver @SIPX_SYSCONFDIR@/crontab >/dev/null; then 
-         sed -e 's/^.*sipxcallresolver.*$//' @SIPX_SYSCONFDIR@/crontab > @SIPX_SYSCONFDIR@/crontab.tmp
-         mv @SIPX_SYSCONFDIR@/crontab.tmp @SIPX_SYSCONFDIR@/crontab
-      fi
-   fi
+onUninstall() { 
+    return
 }
 
 # Start CDR call resolver
@@ -481,8 +471,11 @@ onStartup() {
     if ! databaseVersionCheck; then
        exit 1
     fi
-    databasePatch    
-    ruby ${CallResolverMain} ${resolverArgs}
+    databasePatch
+    
+    echo $$ > ${PidFile}
+    
+    exec ${RubyCmd} ${CallResolverMain} ${resolverArgs}
 }
 
 # simple diagnostics
@@ -517,12 +510,6 @@ then
        @bindir@/configpp --defs "${CONFIG_DEFS}" --in "${i}.in" --out "$i"
     fi
   done
-fi
-
-user=`whoami`
-if [ "${user}" != "root" ]; then
-   echo "Error: Must be root to run sipxcallresolver.sh script."
-   exit 1
 fi
 
 while [ $# -ne 0 ]
@@ -562,19 +549,11 @@ do
         -h|--help)
             Action=HELP
             ;;
-            
+		--start|--end|--redo|--daily|--daemon)
+			resolverArgs="${resolverArgs} ${1} "
+			;;			            
         *)
-            if [ "${1}" = --start ]; then
-              resolverArgs="${resolverArgs} ${1} "
-            elif [ "${1}" = --end ]; then
-              resolverArgs="${resolverArgs} ${1} "
-            elif [ "${1}" = --redo ]; then
-              resolverArgs="${resolverArgs} ${1} "
-            elif [ "${1}" = --daily ]; then
-              resolverArgs="${resolverArgs} ${1} "
-            else
-              resolverArgs="${resolverArgs} \"${1}\" "
-            fi
+            resolverArgs="${resolverArgs} \"${1}\" "
             ;;
     esac           
 
@@ -594,10 +573,6 @@ then
     databaseCommand $Args
 elif [ ${Action} = RUN ] 
 then
-   if [ "${user}" != "root" ]; then
-      echo "Error: Must be root to run call resolver"
-      exit 1
-   fi
    onStartup
 elif [ ${Action} = SETUP ]
 then
@@ -629,8 +604,7 @@ Options include:
   --configtest         Run diagnostics
 
   --setup              Initialize postgresql for communicating with sipxconfig
-                       and create initial database. Will most likely need 
-                       root permissions.
+                       and create initial database. Needs root permissions.
                        
   --uninstall          Uninstall sipxcallresolver changes and settings.
 
@@ -639,8 +613,6 @@ Common Database commands include:
    drop                Drops ${Database} database
 
    create              Create new ${Database} database
-
-   -p                  Full list all available commands
 
 Notable environment variables:
 

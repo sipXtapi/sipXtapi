@@ -26,30 +26,29 @@ def usage
 usage: sipxcallresolver.sh [--start "time" [--end "time"]] [--daily] [--help]
 
   --start "time"  Specifies the start time of the window in which calls are to 
-                  be resolved. The time format is ISO 8601.
+                  be resolved.
   --end "time"    Specifies the end time of the window in which call are to be
-                  resolved. The time format is ISO 8601.
+                  resolved.
   --daily         Indicates that the call resolver is called in "daily" mode:
                   * Create CDRs for calls in the previous 24 hours
                   * Purge CSE and CDR data older than 35 days
                   You can change the purge age by setting the configuration
                   parameter SIP_CALLRESOLVER_PURGE_AGE_CDR (units are days).
                   In daily mode, the "start" and "end" args are not used.
+  --daemon        Makes sipXcondig resolver to stay active after processing initial 
+                  batch of CSE records. New records are processed as they appear.
+                                    
 EOT
   exit 1
 end
 
 
 def main
-  # Parse command-line options
-  #   start: date/time from which to start analyzing call events
-  #   end:   date/time at which to end the analysis (defaults to 1 day later)
-  #   daily: perform daily processing based on the configuration -- resolve
-  #          calls and/or purge old data
   opts = GetoptLong.new(
                         [ "--start", "-s", GetoptLong::OPTIONAL_ARGUMENT ],
   [ "--end",   "-e", GetoptLong::OPTIONAL_ARGUMENT ],
-  [ "--daily", "-d", GetoptLong::NO_ARGUMENT ],
+  [ "--daily", GetoptLong::NO_ARGUMENT ],
+  [ "--daemon", GetoptLong::NO_ARGUMENT ],
   [ "--help",  "-h", GetoptLong::NO_ARGUMENT ]
   )
   
@@ -59,6 +58,7 @@ def main
   purge_flag = false
   purge_time = 0
   daily_flag = false
+  daemon_flag = false
   
   # Extract option values
   # Convert start and end strings to date/time values.
@@ -73,6 +73,9 @@ def main
       
     when "--daily"
       daily_flag = true
+
+    when "--daemon"
+      daemon_flag = true      
       
     else
       usage
@@ -86,7 +89,9 @@ def main
   
   stunnel_connection.open(config)
   
-  if daily_flag
+  if daemon_flag
+    resolver.daemon
+  elsif daily_flag
     resolver.daily_run
   elsif start_time && end_time
     resolver.resolve(start_time, end_time)

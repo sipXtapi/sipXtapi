@@ -36,6 +36,14 @@ class CallResolver
     end
     @writer = CdrWriter.new(@config.cdr_database_url, log)
   end
+
+  # poor man's daemon for now - just repeat daily run every minute
+  def daemon
+    while true
+      daily_run      
+      sleep 60
+    end
+  end
   
   # Run daily processing, including purging and/or call resolution
   def daily_run(purge_flag = false, purge_time = 0)

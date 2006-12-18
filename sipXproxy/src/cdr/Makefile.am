@@ -7,7 +7,7 @@ callresolver_dir=$(datadir)/sipxpbx/lib
 
 clean :
 	builddir=$(srcdir); \
-	cd $(srcdir) && rake clobber
+	cd $(srcdir) && $(rake) clobber
 
 if IS_RPMBUILD
 INSTALL_GEM = install-gem-for-rpm
