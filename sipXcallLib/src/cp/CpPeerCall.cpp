@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -7,6 +10,8 @@
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
+
+// Author: Daniel Petrie dpetrie AT SIPez DOT com
 
 // SYSTEM INCLUDES
 #include "os/OsDefs.h"
@@ -541,7 +546,7 @@ UtlBoolean CpPeerCall::handleTransfereeConnection(OsMsg* pEventMessage)
     ((CpMultiStringMessage*)pEventMessage)->getString3Data(referredBy);
     ((CpMultiStringMessage*)pEventMessage)->getString4Data(originalCallId);
     ((CpMultiStringMessage*)pEventMessage)->getString5Data(originalConnectionAddress);
-    bool bOnHold = (bool) ((CpMultiStringMessage*)pEventMessage)->getInt1Data() ;
+    UtlBoolean bOnHold = ((CpMultiStringMessage*)pEventMessage)->getInt1Data() ;
     RTP_TRANSPORT rtpTransportOptions = (RTP_TRANSPORT) ((CpMultiStringMessage*)pEventMessage)->getInt2Data() ;
 
 #ifdef TEST_PRINT

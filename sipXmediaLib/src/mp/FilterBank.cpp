@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -516,8 +519,8 @@ void FilterBank::DoFilterBank(short mic[], short ldspkr[])
 	int i,flag;
 	static int stage = 0;   // DEBUG!!!!! Feb 1, 2005
 	static int micbuf[40000];
-	long sum;
-	int DCoffset;
+	//long sum;
+	//int DCoffset;
 
 	for (i=0; i<TWOM; i++)
 		ldspkr[i] = 0;

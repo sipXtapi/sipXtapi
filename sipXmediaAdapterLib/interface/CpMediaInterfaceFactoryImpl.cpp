@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -152,9 +155,9 @@ OsStatus CpMediaInterfaceFactoryImpl::releaseRtpPort(const int rtpPort)
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
-bool CpMediaInterfaceFactoryImpl::isPortBusy(int iPort, int checkTimeMS) 
+UtlBoolean CpMediaInterfaceFactoryImpl::isPortBusy(int iPort, int checkTimeMS) 
 {
-    bool bBusy = false ;
+    UtlBoolean bBusy = FALSE ;
 
     if (iPort > 0)
     {
@@ -175,7 +178,7 @@ bool CpMediaInterfaceFactoryImpl::isPortBusy(int iPort, int checkTimeMS)
         {
             if (!pTcpSocket->isOk())
             {
-                bBusy = true;
+                bBusy = TRUE;
             }
             pTcpSocket->close();
             delete pTcpSocket;

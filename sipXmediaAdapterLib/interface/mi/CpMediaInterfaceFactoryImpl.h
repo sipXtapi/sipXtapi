@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -100,7 +103,7 @@ public:
                                                     const char* szTurnUsername,
                                                     const char* szTurnPassword,
                                                     int iTurnKeepAliveSecs,
-                                                    bool bEnableICE
+                                                    UtlBoolean bEnableICE
                                                   ) = 0 ;
 
 
@@ -442,7 +445,7 @@ public:
      * @param iPort Port number to check
      * @param checkTimeMS Number of ms to wait for data.
      */
-    virtual bool isPortBusy(int iPort, int checkTimeMS) ;
+    virtual UtlBoolean isPortBusy(int iPort, int checkTimeMS) ;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:

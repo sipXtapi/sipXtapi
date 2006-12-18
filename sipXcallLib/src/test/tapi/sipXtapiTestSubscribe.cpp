@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -24,20 +27,20 @@ extern SIPX_TRANSPORT ghTransport2;
 
 void sipXtapiTestSuite::testPublishAndSubscribeCallCustom() 
 {
-    return testPublishAndSubscribe(true, true, "testPublishAndSubscribeCallCustom");
+    testPublishAndSubscribe(true, true, "testPublishAndSubscribeCallCustom");
 }
 void sipXtapiTestSuite::testPublishAndSubscribeConfigCustom() 
 {
-    return testPublishAndSubscribe(false, true, "testPublishAndSubscribeConfigCustom");
+    testPublishAndSubscribe(false, true, "testPublishAndSubscribeConfigCustom");
 }
 
 void sipXtapiTestSuite::testPublishAndSubscribeCall() 
 {
-    return testPublishAndSubscribe(true, false, "testPublishAndSubscribeCall");
+    testPublishAndSubscribe(true, false, "testPublishAndSubscribeCall");
 }
 void sipXtapiTestSuite::testPublishAndSubscribeConfig() 
 {
-    return testPublishAndSubscribe(false, false, "testPublishAndSubscribeConfig");
+    testPublishAndSubscribe(false, false, "testPublishAndSubscribeConfig");
 }
 
 void sipXtapiTestSuite::testPublishAndSubscribe(bool bCallContext,

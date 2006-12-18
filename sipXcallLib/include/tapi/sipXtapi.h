@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -110,6 +113,8 @@
 #if defined(_WIN32)
 #  ifdef SIPXTAPI_EXPORTS
 #    define SIPXTAPI_API extern "C" __declspec(dllexport)  /**< Used for Win32 imp lib creation */
+#  elif defined(SIPXTAPI_STATIC)
+#    define SIPXTAPI_API extern "C"  /**< Used for Win32 imp lib creation */
 #  else
 #    define SIPXTAPI_API extern "C" __declspec(dllimport)  /**< Used for Win32 imp lib creation */
 #  endif

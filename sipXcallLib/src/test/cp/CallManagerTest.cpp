@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -127,7 +130,8 @@ public:
 #ifdef _WIN32
         _CrtMemCheckpoint(&MemStateBegin);
 #endif
-        for (int i=0; i<NUM_OF_RUNS; ++i)
+        int i;
+        for (i=0; i<NUM_OF_RUNS; ++i)
         {
             CallManager *pCallManager =
                new CallManager(FALSE,
@@ -171,7 +175,7 @@ public:
             delete pCallManager;
         }
         
-        for (int i=0; i<NUM_OF_RUNS; ++i)
+        for (i=0; i<NUM_OF_RUNS; ++i)
         {
             sipxDestroyMediaFactoryFactory() ;
         }
@@ -252,7 +256,7 @@ public:
 
         }
         
-        for (int i=0; i<NUM_OF_RUNS; ++i)
+        for (i=0; i<NUM_OF_RUNS; ++i)
         {
             sipxDestroyMediaFactoryFactory() ;
         }
@@ -260,7 +264,8 @@ public:
 
     void testLineMgrUATeardown()
     {
-        for (int i=0; i<NUM_OF_RUNS; ++i)
+        int i;
+        for (i=0; i<NUM_OF_RUNS; ++i)
         {
             SipLineMgr*    lineMgr = new SipLineMgr();
             lineMgr->StartLineMgr();
@@ -330,7 +335,7 @@ public:
             delete lineMgr;
         }
         
-        for (int i=0; i<NUM_OF_RUNS; ++i)
+        for (i=0; i<NUM_OF_RUNS; ++i)
         {
             sipxDestroyMediaFactoryFactory() ;
         }
@@ -338,7 +343,8 @@ public:
 
     void testRefreshMgrUATeardown()
     {
-        for (int i=0; i<NUM_OF_RUNS; ++i)
+        int i;
+        for (i=0; i<NUM_OF_RUNS; ++i)
         {
             SipLineMgr*    lineMgr = new SipLineMgr();
             SipRefreshMgr* refreshMgr = new SipRefreshMgr();
@@ -415,7 +421,7 @@ public:
             delete lineMgr;
         }
         
-        for (int i=0; i<NUM_OF_RUNS; ++i)
+        for (i=0; i<NUM_OF_RUNS; ++i)
         {
             sipxDestroyMediaFactoryFactory() ;
         }

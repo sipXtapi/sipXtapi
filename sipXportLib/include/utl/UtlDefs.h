@@ -41,11 +41,6 @@
 
 typedef int UtlBoolean ;
 
-#ifdef WINCE
-    typedef __int64 intll;
-#else
-    typedef long long int intll;
-#endif
 
 /** FORMAT_INTLL is a string containing the format length specifier
  *  for printing an intll with the 'd', 'x', etc. format specifiers.  E.g.:

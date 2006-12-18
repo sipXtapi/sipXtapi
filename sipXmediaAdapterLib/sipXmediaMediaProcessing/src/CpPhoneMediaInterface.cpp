@@ -158,7 +158,7 @@ CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFacto
                                              const char* szTurnUsername,
                                              const char* szTurnPassword,
                                              int iTurnKeepAlivePeriodSecs,
-                                             bool mbEnableICE)
+                                             UtlBoolean mbEnableICE)
     : CpMediaInterface(pFactoryImpl)
 {
    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::CpPhoneMediaInterface creating a new CpMediaInterface %p",
@@ -1820,17 +1820,17 @@ UtlBoolean CpPhoneMediaInterface::canAddParty()
 }
 
 
-bool CpPhoneMediaInterface::isVideoInitialized(int connectionId)
+UtlBoolean CpPhoneMediaInterface::isVideoInitialized(int connectionId)
 {
     return false ;
 }
 
-bool CpPhoneMediaInterface::isAudioInitialized(int connectionId) 
+UtlBoolean CpPhoneMediaInterface::isAudioInitialized(int connectionId) 
 {
     return true ;
 }
 
-bool CpPhoneMediaInterface::isAudioAvailable() 
+UtlBoolean CpPhoneMediaInterface::isAudioAvailable() 
 {
     return true ;
 }
@@ -1849,14 +1849,14 @@ const void* CpPhoneMediaInterface::getVideoWindowDisplay()
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 
-bool CpPhoneMediaInterface::getLocalAddresses(int connectionId,
+UtlBoolean CpPhoneMediaInterface::getLocalAddresses(int connectionId,
                                               UtlString& hostIp,
                                               int& rtpAudioPort,
                                               int& rtcpAudioPort,
                                               int& rtpVideoPort,
                                               int& rtcpVideoPort)
 {
-    bool bRC = false ;
+    UtlBoolean bRC = FALSE ;
     CpPhoneMediaConnection* pMediaConn = getMediaConnection(connectionId);    
 
     hostIp.remove(0) ;
@@ -1874,7 +1874,7 @@ bool CpPhoneMediaInterface::getLocalAddresses(int connectionId,
             rtpAudioPort = pMediaConn->mpRtpAudioSocket->getLocalHostPort();
             if (rtpAudioPort > 0)
             {
-                bRC = true ;
+                bRC = TRUE ;
             }
 
             // Audio rtcp port (optional) 
@@ -1902,14 +1902,14 @@ bool CpPhoneMediaInterface::getLocalAddresses(int connectionId,
     return bRC ;
 }
 
-bool CpPhoneMediaInterface::getNatedAddresses(int connectionId,
-                                              UtlString& hostIp,
-                                              int& rtpAudioPort,
-                                              int& rtcpAudioPort,
-                                              int& rtpVideoPort,
-                                              int& rtcpVideoPort)
+UtlBoolean CpPhoneMediaInterface::getNatedAddresses(int connectionId,
+                                                    UtlString& hostIp,
+                                                    int& rtpAudioPort,
+                                                    int& rtcpAudioPort,
+                                                    int& rtpVideoPort,
+                                                    int& rtcpVideoPort)
 {
-    bool bRC = false ;
+    UtlBoolean bRC = FALSE ;
     UtlString host ;
     int port ;
     CpPhoneMediaConnection* pMediaConn = getMediaConnection(connectionId);
@@ -1932,7 +1932,7 @@ bool CpPhoneMediaInterface::getNatedAddresses(int connectionId,
                     hostIp = host ;
                     rtpAudioPort = port ;
 
-                    bRC = true ;
+                    bRC = FALSE ;
                 }
             
                 // Audio rtcp port (optional) 
@@ -1988,14 +1988,14 @@ bool CpPhoneMediaInterface::getNatedAddresses(int connectionId,
     return bRC ;
 }
 
-bool CpPhoneMediaInterface::getRelayAddresses(int connectionId,
-                                              UtlString& hostIp,
-                                              int& rtpAudioPort,
-                                              int& rtcpAudioPort,
-                                              int& rtpVideoPort,
-                                              int& rtcpVideoPort)
+UtlBoolean CpPhoneMediaInterface::getRelayAddresses(int connectionId,
+                                                    UtlString& hostIp,
+                                                    int& rtpAudioPort,
+                                                    int& rtcpAudioPort,
+                                                    int& rtpVideoPort,
+                                                    int& rtcpVideoPort)
 {
-    bool bRC = false ;
+    UtlBoolean bRC = FALSE ;
     UtlString host ;
     int port ;
     CpPhoneMediaConnection* pMediaConn = getMediaConnection(connectionId);
@@ -2018,7 +2018,7 @@ bool CpPhoneMediaInterface::getRelayAddresses(int connectionId,
                     hostIp = host ;
                     rtpAudioPort = port ;
 
-                    bRC = true ;
+                    bRC = TRUE ;
                 }
             
                 // Audio rtcp port (optional) 
@@ -2095,7 +2095,7 @@ OsStatus CpPhoneMediaInterface::addLocalContacts(int connectionId,
             getLocalAddresses(connectionId, hostIp, rtpAudioPort, 
             rtcpAudioPort, rtpVideoPort, rtcpVideoPort) )
     {
-        bool bDuplicate = false ;
+        UtlBoolean bDuplicate = FALSE ;
         
         // Check for duplicates
         for (int i=0; i<nActualAddresses; i++)
@@ -2106,7 +2106,7 @@ OsStatus CpPhoneMediaInterface::addLocalContacts(int connectionId,
                     (rtpVideoPorts[i] == rtpVideoPort) &&
                     (rtcpVideoPorts[i] == rtcpVideoPort))
             {
-                bDuplicate = true ;
+                bDuplicate = TRUE ;
                 break ;
             }
         }

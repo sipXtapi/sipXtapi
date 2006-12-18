@@ -282,7 +282,7 @@ public:
     * stopRtpReceive.
     */ 
    virtual OsStatus enableRtpReadNotification(int connectionId,
-                                              bool bEnable = true) 
+                                              UtlBoolean bEnable = TRUE) 
        { return OS_NOT_SUPPORTED ;} ;
 
 
@@ -592,12 +592,12 @@ public:
                                          unsigned int& uiReceivingSSRC) 
         { return OS_NOT_SUPPORTED ;} ;
 
-   virtual OsStatus enableAudioTransport(int connectionId, bool bEnable)
+   virtual OsStatus enableAudioTransport(int connectionId, UtlBoolean bEnable)
    {
        return OS_NOT_SUPPORTED; 
    };
 
-   virtual OsStatus enableVideoTransport(int connectionId, bool bEnable)
+   virtual OsStatus enableVideoTransport(int connectionId, UtlBoolean bEnable)
    {
        return OS_NOT_SUPPORTED; 
    };
@@ -663,16 +663,16 @@ public:
    virtual UtlBoolean canAddParty() = 0 ;
 
    //! Query whether the connection has started sending or receiving video
-   virtual bool isVideoInitialized(int connectionId) = 0 ;
+   virtual UtlBoolean isVideoInitialized(int connectionId) = 0 ;
 
    //! Query whether the connection has started sending or receiving audio
-   virtual bool isAudioInitialized(int connectionId) = 0 ;
+   virtual UtlBoolean isAudioInitialized(int connectionId) = 0 ;
 
    //! Query if the audio device is available.
-   virtual bool isAudioAvailable() = 0;
+   virtual UtlBoolean isAudioAvailable() = 0;
 
    //! Query if we are mixing a video conference
-   virtual bool isVideoConferencing() = 0 ;
+   virtual UtlBoolean isVideoConferencing() = 0 ;
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
