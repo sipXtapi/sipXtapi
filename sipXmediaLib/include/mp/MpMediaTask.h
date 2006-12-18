@@ -179,7 +179,7 @@ public:
    OsStatus setWaitTimeout(int msecs);
      /**<
      *  A value of -1 indicates that the task should wait "forever".
-     //
+     *
      *  The new timeout will take effect at the beginning of the next frame
      *  interval. For now, this method always returns OS_SUCCESS.
      */
@@ -188,7 +188,7 @@ public:
    OsStatus startFlowGraph(MpFlowGraphBase& rFlowGraph);
      /**<
      *  A flow graph must be started in order for it to process the media stream.
-     //
+     *
      *  The flow graph state change will take effect at the beginning of the
      *  next frame interval. For now, this method always returns OS_SUCCESS.
      */
@@ -197,7 +197,7 @@ public:
    OsStatus stopFlowGraph(MpFlowGraphBase& rFlowGraph);
      /**<
      *  When a flow graph is stopped it no longer processes the media stream.
-     //
+     *
      *  The flow graph state change will take effect at the beginning of the
      *  next frame interval. For now, this method always returns OS_SUCCESS.
      */
