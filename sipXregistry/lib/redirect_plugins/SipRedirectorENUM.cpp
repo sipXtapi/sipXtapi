@@ -144,7 +144,7 @@ void SipRedirectorENUM::readConfig(OsConfigDb& configDb)
                  "mPrefixPlus is %d", mLogName.data(), mPrefixPlus);
 
    if (configDb.get("E164_PREFIX", mDialPrefix) != OS_SUCCESS ||
-       mDialPrefix.isNull())
+       mE164Prefix.isNull())
    {
       OsSysLog::add(FAC_SIP, PRI_INFO,
                     "%s::readConfig "
@@ -155,7 +155,7 @@ void SipRedirectorENUM::readConfig(OsConfigDb& configDb)
       OsSysLog::add(FAC_SIP, PRI_INFO,
                     "%s::readConfig "
                     "E.164 prefix is '%s'",
-                    mLogName.data(), mDialPrefix.data());
+                    mLogName.data(), mE164Prefix.data());
    }
 }
 
