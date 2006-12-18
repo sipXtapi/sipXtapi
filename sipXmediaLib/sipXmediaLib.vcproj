@@ -4677,9 +4677,6 @@
 					RelativePath=".\src\mp\video\MpCaptureTask.cpp">
 				</File>
 				<File
-					RelativePath=".\src\mp\video\MpDShowCaptureDevice.cpp">
-				</File>
-				<File
 					RelativePath=".\src\mp\video\MpDShowCaptureDeviceManager.cpp">
 				</File>
 				<File
@@ -4687,9 +4684,6 @@
 				</File>
 				<File
 					RelativePath=".\src\mp\video\MpVideoCallFlowGraph.cpp">
-				</File>
-				<File
-					RelativePath=".\src\mp\video\MpVideoResource.cpp">
 				</File>
 			</Filter>
 			<Filter
@@ -4705,9 +4699,6 @@
 					RelativePath=".\include\mp\video\MpCaptureTask.h">
 				</File>
 				<File
-					RelativePath=".\include\mp\video\MpDShowCaptureDevice.h">
-				</File>
-				<File
 					RelativePath=".\include\mp\video\MpDShowCaptureDeviceManager.h">
 				</File>
 				<File
@@ -4716,61 +4707,10 @@
 				<File
 					RelativePath=".\include\mp\video\MpVideoCallFlowGraph.h">
 				</File>
-				<File
-					RelativePath=".\include\mp\video\MpVideoResource.h">
-				</File>
 			</Filter>
 			<Filter
 				Name="DShow"
 				Filter="">
-				<File
-					RelativePath=".\src\mp\video\DShow\CaptureEnumMediaTypes.cpp">
-				</File>
-				<File
-					RelativePath=".\include\mp\video\DShow\CaptureEnumMediaTypes.h">
-				</File>
-				<File
-					RelativePath=".\src\mp\video\DShow\CaptureEnumPins.cpp">
-				</File>
-				<File
-					RelativePath=".\include\mp\video\DShow\CaptureEnumPins.h">
-				</File>
-				<File
-					RelativePath=".\src\mp\video\DShow\CaptureFilter.cpp">
-				</File>
-				<File
-					RelativePath=".\include\mp\video\DShow\CaptureFilter.h">
-				</File>
-				<File
-					RelativePath=".\src\mp\video\DShow\CapturePin.cpp">
-				</File>
-				<File
-					RelativePath=".\include\mp\video\DShow\CapturePin.h">
-				</File>
-				<File
-					RelativePath=".\include\mp\video\DShow\common.h">
-				</File>
-				<File
-					RelativePath=".\src\mp\video\DShow\crossbar.cpp">
-				</File>
-				<File
-					RelativePath=".\include\mp\video\DShow\crossbar.h">
-				</File>
-				<File
-					RelativePath=".\src\mp\video\DShow\GUIDS.cpp">
-				</File>
-				<File
-					RelativePath=".\src\mp\video\DShow\utils.cpp">
-				</File>
-				<File
-					RelativePath=".\include\mp\video\DShow\utils.h">
-				</File>
-				<File
-					RelativePath=".\src\mp\video\DShow\utilsFindDevice.cpp">
-				</File>
-				<File
-					RelativePath=".\include\mp\video\DShow\utilsFindDevice.h">
-				</File>
 			</Filter>
 			<Filter
 				Name="voutGDI"

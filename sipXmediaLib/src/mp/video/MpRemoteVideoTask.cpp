@@ -18,10 +18,6 @@
 #include "mp/MpMisc.h"
 #include "mp/video/MpvoGdi.h"
 
-#include "os/OsTimer.h"
-#include "os/OsEvent.h"
-#include "os/OsCallback.h"
-
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 extern void *ghVideo;
@@ -39,10 +35,6 @@ MpRemoteVideoTask::MpRemoteVideoTask(MprDejitter* pDejitter, void *hwnd)
 : mpDejitter(pDejitter)
 , mpDecoder(new MpdH264(CODEC_TYPE_H264, MpMisc.VideoFramesPool))
 , mpVideoOut(NULL)
-, mTimestamp(0)
-, mTimestampInitialized(false)
-, mpCallback(NULL)
-, mpTimer(NULL)
 {
    if (mpDecoder != NULL)
    {
@@ -51,21 +43,10 @@ MpRemoteVideoTask::MpRemoteVideoTask(MprDejitter* pDejitter, void *hwnd)
 
    mpVideoOut = new MpvoGdi(NULL);
    assert(mpVideoOut != NULL);
-
-
-   // TODO:: move to initialization
-   mpTimer = new OsTimer(getMessageQueue(), VIDEO_TICK);
 }
 
 MpRemoteVideoTask::~MpRemoteVideoTask()
 {
-   // TODO:: move to uninitialization
-   if (mpTimer != NULL)
-   {
-      delete mpTimer;
-      mpTimer = NULL;
-   }
-
    if (mpDecoder != NULL)
    {
       delete mpDecoder;
@@ -88,67 +69,28 @@ void MpRemoteVideoTask::setRemoteVideoWindow(const void *hwnd)
 
 void MpRemoteVideoTask::step()
 {
-   if (mpDejitter != NULL && mpDecoder != NULL)
+   if (mpDejitter != NULL)
    {
-      MpVideoBufPtr pFrame;
+      MpRtpBufPtr pRtpPacket = mpDejitter->pullPacket(CODEC_TYPE_H264);
       bool packetConsumed;
 
-      // If there was no cached packet, pull one from Dejitter.
-      if (!mpRtpPacket.isValid())
+      if (mpDecoder != NULL)
       {
-         mpRtpPacket = mpDejitter->pullPacket(CODEC_TYPE_H264);
-      }
-
-      // We may get no packets from Dejitter. Handle this.
-      if (mpRtpPacket.isValid())
-      {
-
-         // Initialize timestamp, if this this the first packet in RTP session.
-         // Or update it, if we get packet with greater timestamp. If timestamp
-         // is lesser (earlier packet) we pass this packet to decoder, but
-         // does not update timestamp -- this packet will likely be discarded
-         // and we do not mess up with it.
-         if (!mTimestampInitialized || compare(mpRtpPacket->getRtpTimestamp(), mTimestamp)>0)
+         while (pRtpPacket.isValid())
          {
-            mTimestamp = mpRtpPacket->getRtpTimestamp();
-            mTimestampInitialized = true;
-         }
+            // TODO:: We need loop here!!!!!
 
-         while (mpRtpPacket.isValid())
-         {
-            pFrame = mpDecoder->decode(mpRtpPacket, packetConsumed, false);
+            MpVideoBufPtr pFrame = mpDecoder->decode(pRtpPacket, packetConsumed);
 
-            // Pull next packet of this frame from Dejitter if previous packet
-            // was consumed () by decoder.
             if (packetConsumed)
             {
-               mpRtpPacket = mpDejitter->pullPacket(CODEC_TYPE_H264, mTimestamp);
+               pRtpPacket.release();
             }
 
-            // End pulling packets from Dejitter if we got frame from Decoder.
-            if (pFrame.isValid())
+            if ( (pFrame.isValid()) && (mpVideoOut != NULL) )
             {
-               break;
+               mpVideoOut->render(pFrame);
             }
-         }
-
-         // If we pulled all packets, but did not get video frame from decoder,
-         // force decoding - we want draw something on the screen.
-         if (!pFrame.isValid())
-         {
-            // TODO:: decode with force flag here!
-            pFrame = mpDecoder->decode(mpRtpPacket, packetConsumed, true);
-
-            // Free packet if it was consumed (processed) by decoder.
-            if (packetConsumed)
-            {
-               mpRtpPacket.release();
-            }
-         }
-
-         if (pFrame.isValid() && mpVideoOut != NULL)
-         {
-            mpVideoOut->render(pFrame);
          }
       }
    }
@@ -161,9 +103,6 @@ OsStatus MpRemoteVideoTask::stop()
       return OS_SUCCESS;
    else
       return OS_FAILED;
-
-   mTimestamp = 0;
-   mTimestampInitialized = false;
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -178,38 +117,18 @@ void *MpRemoteVideoTask::getRemoteVideoWindow() const
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
-UtlBoolean MpRemoteVideoTask::handleMessage(OsMsg& rMsg)
-{
-
-}
-
-/*
 int MpRemoteVideoTask::run(void* pArg)
 {
-   OsCallback callback((int)this, ReportingAlarm);
-   OsTimer timer(callback);
-   
-   if (timer.periodicEvery(OsTime(100), OsTime(100)) != OS_SUCCESS)
-      return -1;
-
    while (!isShuttingDown())
    {
-      Sleep(100);
+      step();
+#ifdef _WIN32
+       Sleep(30);  // TODO:: Need better synchronization
+#endif
    }
-
-   timer.stop();
-
-   ackShutdown();
 
    return 0;
 }
-
-void MpRemoteVideoTask::ReportingAlarm(const int userData, const int eventData)
-{
-    MpRemoteVideoTask *remoteVideoTask = (MpRemoteVideoTask *) userData;
-    remoteVideoTask->step();
-}
-*/
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 

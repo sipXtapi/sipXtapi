@@ -68,11 +68,7 @@ int MpdSipxPcmu::decode(const MpRtpBufPtr &pPacket,
       return 0;
 
    // Assert that available buffer size is enough for the packet.
-//   assert(payloadSize <= decodedBufferLength);
-   if (payloadSize > decodedBufferLength)
-   {
-      printf("MpdSipxPcmu::decode: WARNING: payloadSize > decodedBufferLength\n");
-   }
+   assert(payloadSize <= decodedBufferLength);
 
    int samples = min(payloadSize, decodedBufferLength);
    G711U_Decoder(samples,

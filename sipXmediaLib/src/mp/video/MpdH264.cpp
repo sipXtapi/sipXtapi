@@ -166,6 +166,9 @@ MpVideoBufPtr MpdH264::decode(const MpRtpBufPtr &pPacket, bool &packetConsumed, 
    assert(mpCodecContext != NULL);
    assert(mpPicture != NULL);
 
+   inbuf_ptr = (uint8_t*)pPacket->getDataPtr();
+   encodedSize = pPacket->getPayloadSize();
+
    // Initialize internal variables
    packetStatus=PACKET_COLLECT;
    startBit = 0;
@@ -174,12 +177,6 @@ MpVideoBufPtr MpdH264::decode(const MpRtpBufPtr &pPacket, bool &packetConsumed, 
 
    // By default we consume this packet.
    packetConsumed = true;
-
-   if (!pPacket.isValid())
-      return MpVideoBufPtr();
-
-   inbuf_ptr = (uint8_t*)pPacket->getDataPtr();
-   encodedSize = pPacket->getPayloadSize();
 
    // Initialize sequence number counter
    if (!mSessionInitialized)

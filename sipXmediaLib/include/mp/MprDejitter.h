@@ -69,7 +69,7 @@ public:
      *  @return OS_LIMIT_REACHED if too many codecs used in incoming RTP packets
      */
 
-     /// Get next RTP packet, or NULL if none is available.
+     /// Get a pointer to the next RTP packet, or NULL if none is available.
    MpRtpBufPtr pullPacket(int payloadType);
      /**<
      *  @note Significant change is that the downstream puller may NOT pull all
@@ -81,8 +81,7 @@ public:
      *  eliminate this buffer because then out-of-order packets would just be
      *  dumped on the ground.
      *
-     *  This buffer does NOT substitute silence packets. That is done in
-     *  MpJitterBuffer called from MprDecode.
+     *  This buffer does NOT substitute silence packets. That is done in MpJitterBuffer called from MprDecode.
      *
      *  If packets arrive out of order, and the newer packet has already been
      *  pulled due to the size of the jitter buffer set by the codec, this
@@ -90,15 +89,6 @@ public:
      *  anyway it is up to the codec to discard the packets it cannot use. This
      *  allows this JB to be a no-op buffer for when the commercial library is
      *  used.
-     */
-
-     /// Get next RTP packet with given timestamp, or NULL if none is available.
-   MpRtpBufPtr pullPacket(int payloadType, UINT timestamp, bool lockTimestamp=true);
-     /**<
-     *  This version of pullPacket() works exactly the same as above version
-     *  of pullPacket() with one exception: if (lockTimestamp == true) it checks 
-     *  every found packet's timestamp. And return NULL if there are no packets
-     *  with timestamp less or equal then passed timestamp.
      */
 
 //@}
