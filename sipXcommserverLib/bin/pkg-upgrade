@@ -97,7 +97,7 @@ class SystemService
   end
 
   def console(msg)
-    # puts msg
+    puts msg if verbose
     return msg
   end
 
@@ -106,7 +106,7 @@ class SystemService
   end
 
   def create_patch(file1, file2)
-    patch = `#{@@diff} --unified #{file1} #{file2}`
+    patch = `#{@@diff} --unified #{file1} #{file2} 2>/dev/null`
     rc = "#{$?}"
     return rc != '2' ? patch : ''
   end
@@ -126,15 +126,17 @@ class SystemService
   end
 
   def apply_patch(file, patch)
-    cmd = console("#{@@patch} --unified --forward \"#{file}\"")
+    stat = File.stat(file)
+    cmd = console("#{@@patch} --unified --forward \"#{file}\" 1>& 2>/dev/null")
     IO.popen(cmd, "w") {|pipe|
       pipe.puts patch
     }
+    File.chown(stat.uid, stat.gid, file)
   end
 
   def extract_file(archive, file)
     extract = Tempfile.new('pkg-upgrade').path
-    `tar --to-stdout -xzf "#{archive}" "#{file}" > #{extract}`
+    `tar --to-stdout -xzf "#{archive}" "#{file}" > #{extract} 2>/dev/null`
     return extract
   end
     
@@ -161,6 +163,10 @@ __EOU__
 end
 
 if __FILE__ == $0
+  # XPB-863 - used to ensure patch command forces config files to
+  # -rw-r--r-- permission bits
+  File.umask(022)
+
   OptSet = [
     ['--previous','-p', GetoptLong::REQUIRED_ARGUMENT],
     ['--current','-c', GetoptLong::REQUIRED_ARGUMENT],
