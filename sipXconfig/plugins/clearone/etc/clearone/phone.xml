@@ -257,6 +257,7 @@
     </setting>
   </group>
   <group name="dialplan">
+    <label>Dialplan</label>
     <profileName>$ignore$</profileName>
     <setting name="DIALTIME">
       <label>Dial time</label>
