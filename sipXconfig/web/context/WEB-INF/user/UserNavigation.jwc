@@ -26,9 +26,6 @@
     <binding name="listener" value="listener:editSettings" />
     <binding name="parameters" value="{user.id, currentSetting.path}" />
   </component>
-  <component id="settingsTabLabel" type="Insert">
-    <binding name="value" value="currentSetting.label" />
-  </component>
   <component id="userLabel" type="Insert">
     <binding name="value" value="user.userName" />
   </component>

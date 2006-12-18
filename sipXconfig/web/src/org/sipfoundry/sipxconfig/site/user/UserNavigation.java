@@ -14,7 +14,6 @@ package org.sipfoundry.sipxconfig.site.user;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InjectObject;
@@ -23,23 +22,16 @@ import org.apache.tapestry.annotations.Parameter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.site.common.NavigationWithSettings;
 import org.sipfoundry.sipxconfig.site.speeddial.SpeedDialPage;
 import org.sipfoundry.sipxconfig.site.user_portal.UserCallForwarding;
 
-public abstract class UserNavigation extends BaseComponent {
+public abstract class UserNavigation extends NavigationWithSettings {
 
     @Parameter(required = true)
     public abstract void setUser(User user);
 
     public abstract User getUser();
-
-    public abstract void setSettings(Setting settings);
-
-    public abstract Setting getSettings();
-
-    public abstract void setCurrentSetting(Setting setting);
-
-    public abstract Setting getCurrentSetting();
 
     @InjectObject(value = "spring:coreContext")
     public abstract CoreContext getCoreContext();
@@ -106,7 +98,9 @@ public abstract class UserNavigation extends BaseComponent {
 
     public void prepareForRender(IRequestCycle cycle) {
         super.prepareForRender(cycle);
-        setSettings(getUser().getSettings());
+        Setting settings = getUser().getSettings();
+        setSettings(settings);
+        setMessageSource(settings.getMessageSource());
     }
 
     public Collection<Setting> getNavigationGroups() {

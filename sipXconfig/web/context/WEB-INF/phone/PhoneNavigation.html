@@ -1,31 +1,20 @@
-<html>
-	<head>
-		<link rel="stylesheet" type="text/css" href="../css/sipxconfig.css"/>
-	</head>
-	<body>
-		<span jwcid="$content$">
-			<span jwcid="phoneLabel"/>
-			<h2>
-				<span jwcid="heading">Page Heading</span>
-			</h2>
-			<div id="settings-nav">
-				<ul>
-					<li>
-						<a jwcid="deviceIdLink"><span key="link.identification">Identification</span></a>
-					</li>
-					<li>
-						<a href="#" jwcid="linesLink"><span key="link.lines">Lines</span></a>
-					</li>
-					<span jwcid="settingsTabs">
-						<li>
-							<a href="#" jwcid="settingsLink">
-								<span jwcid="settingsTabLabel"/>
-							</a>
-						</li>
-					</span>
-				</ul>
-			</div>
-			<span jwcid="@RenderBody"/>
-		</span>
-	</body>
-</html>
+<span jwcid="phoneLabel"/>
+<h2><span jwcid="@Insert" value="heading">Page Heading</span></h2>
+<div id="settings-nav">
+  <ul>
+    <li>
+      <a jwcid="deviceIdLink"><span key="link.identification">Identification</span></a>
+    </li>
+    <li>
+      <a href="#" jwcid="linesLink"><span key="link.lines">Lines</span></a>
+    </li>
+    <span jwcid="settingsTabs">
+      <li>
+        <a jwcid="settingsLink">
+          <span jwcid="@Insert" value="ognl:currentSettingLabel"/>
+        </a>
+      </li>
+    </span>
+  </ul>
+</div>
+<span jwcid="@RenderBody"/>

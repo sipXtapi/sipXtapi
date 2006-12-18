@@ -11,30 +11,22 @@
  */
 package org.sipfoundry.sipxconfig.site.phone;
 
-import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.site.common.NavigationWithSettings;
 
 /**
  * Top portion of pages that show tabs, help box, intro text, etc
  */
-public abstract class PhoneNavigation extends BaseComponent {
+public abstract class PhoneNavigation extends NavigationWithSettings {
 
     /** REQUIRED PARAMETER */
     public abstract void setPhone(Phone phone);
 
     public abstract Phone getPhone();
-
-    public abstract void setSettings(Setting settings);
-
-    public abstract Setting getSettings();
-
-    public abstract void setCurrentSetting(Setting setting);
-
-    public abstract Setting getCurrentSetting();
 
     public abstract PhoneContext getPhoneContext();
 
@@ -68,6 +60,8 @@ public abstract class PhoneNavigation extends BaseComponent {
 
     public void prepareForRender(IRequestCycle cycle) {
         super.prepareForRender(cycle);
-        setSettings(getPhone().getSettings());
+        Setting settings = getPhone().getSettings();
+        setSettings(settings);
+        setMessageSource(settings.getMessageSource());
     }
 }

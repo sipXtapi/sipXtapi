@@ -1,26 +1,15 @@
-<html>
-	<head>
-		<link rel="stylesheet" type="text/css" href="../css/sipxconfig.css"/>
-	</head>
-	<body>
-		<span jwcid="$content$">
-			<span jwcid="lineLabel"/>
-			<h2>
-				<span jwcid="heading">Page Heading</span>
-			</h2>
-			<div id="settings-nav">
-				<ul>
-					<a href="#" jwcid="lineTab" class="tab active">Line</a>
-					<span jwcid="settingsTabs">
-						<li>
-							<a href="#" jwcid="settingsTab">
-								<span jwcid="settingsTabLabel"/>
-							</a>
-						</li>
-					</span>
-				</ul>
-			</div>
-			<span jwcid="@RenderBody"/>
-		</span>
-	</body>
-</html>
+<span jwcid="lineLabel"/>
+<h2><span jwcid="@Insert" value="heading">Page Heading</span></h2>
+<div id="settings-nav">
+  <ul>
+    <a jwcid="lineTab" class="tab active">Line</a>
+    <span jwcid="settingsTabs">
+      <li>
+        <a jwcid="settingsTab">
+          <span jwcid="@Insert" value="ognl:currentSettingLabel"/>
+        </a>
+      </li>
+    </span>
+  </ul>
+</div>
+<span jwcid="@RenderBody"/>

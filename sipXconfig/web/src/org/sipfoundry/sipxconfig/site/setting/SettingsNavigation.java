@@ -11,21 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.site.setting;
 
-import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.setting.Setting;
-import org.springframework.context.MessageSource;
+import org.sipfoundry.sipxconfig.site.common.NavigationWithSettings;
 
-public abstract class SettingsNavigation extends BaseComponent {
-    public abstract Setting getSettings();
-
-    public abstract Setting getCurrentSetting();
-
-    public abstract MessageSource getMessageSource();
-
-    public abstract void setMessageSource(MessageSource messageSource);
-
+public abstract class SettingsNavigation extends NavigationWithSettings {
     public abstract void setTab(String section);
 
     public void activateTab(String section) {
@@ -39,11 +28,5 @@ public abstract class SettingsNavigation extends BaseComponent {
         if (getMessageSource() == null) {
             setMessageSource(getSettings().getMessageSource());
         }
-    }
-
-    public String getLabel() {
-        Setting setting = getCurrentSetting();
-        return TapestryUtils.getModelMessage(this, getMessageSource(), setting.getLabelKey(),
-                setting.getLabel());
     }
 }
