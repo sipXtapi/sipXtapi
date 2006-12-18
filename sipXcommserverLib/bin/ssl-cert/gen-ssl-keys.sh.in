@@ -180,7 +180,7 @@ function getLocality()
     while [ ${countryNameValid} = NO -a ${countryNameAttempts} -lt 3 ]
     do
       askfor countryName            "Country Name (2 letter code)" ""
-      if [ -l "${countryName}" -eq 2 ]
+      if [ "${#countryName}" -eq 2 ]
       then
           countryNameValid=YES
       else
