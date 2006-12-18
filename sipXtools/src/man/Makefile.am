@@ -3,6 +3,7 @@ EXTRA_DIST = \
 	$(man_MANS)
 
 man_MANS = \
+	sipx-stats.1 \
 	expire-spread.1 \
 	monitor-spread.1 \
 	sipxcar.1 \
