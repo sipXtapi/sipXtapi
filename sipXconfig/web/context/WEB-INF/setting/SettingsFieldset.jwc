@@ -40,12 +40,6 @@
     <binding name="requiredEnabled" value="requiredEnabled" />
     <binding name="messageSource" value="messageSource" />
   </component>
-  <component id="groupLabel" type="Insert">
-    <binding name="value" value="currentSetting.label" />
-  </component>
-  <component id="groupDescription" type="Insert">
-    <binding name="value" value="currentSetting.description" />
-  </component>
   <component id="toggleShowAdvanced" type="ToggleLink">
     <binding name="toggle" value="showAdvanced" />
   </component>

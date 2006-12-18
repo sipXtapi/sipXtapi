@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.site.setting;
 
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.springframework.context.MessageSource;
 
@@ -42,12 +43,7 @@ public abstract class SettingsNavigation extends BaseComponent {
 
     public String getLabel() {
         Setting setting = getCurrentSetting();
-        MessageSource modelMessages = getMessageSource();
-        String defaultMessage = setting.getLabel();
-        if (modelMessages != null) {
-            return modelMessages.getMessage(setting.getLabelKey(), null, defaultMessage,
-                    getPage().getLocale());
-        }
-        return defaultMessage;
+        return TapestryUtils.getModelMessage(this, getMessageSource(), setting.getLabelKey(),
+                setting.getLabel());
     }
 }

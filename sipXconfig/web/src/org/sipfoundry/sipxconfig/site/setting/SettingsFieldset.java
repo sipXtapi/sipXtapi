@@ -16,6 +16,7 @@ import java.util.Iterator;
 
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
 import org.sipfoundry.sipxconfig.setting.SettingUtil;
@@ -115,5 +116,17 @@ public abstract class SettingsFieldset extends BaseComponent {
         if (getMessageSource() == null) {
             setMessageSource(getSettings().getMessageSource());
         }
+    }
+
+    public String getDescription() {
+        Setting setting = getCurrentSetting();
+        return TapestryUtils.getModelMessage(this, getMessageSource(), setting
+                .getDescriptionKey(), setting.getDescription());
+    }
+
+    public String getLabel() {
+        Setting setting = getCurrentSetting();
+        return TapestryUtils.getModelMessage(this, getMessageSource(), setting.getLabelKey(),
+                setting.getLabel());
     }
 }

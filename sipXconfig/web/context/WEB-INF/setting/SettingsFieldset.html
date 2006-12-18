@@ -1,29 +1,27 @@
-<span jwcid="$content$">
-	<ul jwcid="ifRenderToggle" element="ul" class="component-links">
-		<li jwcid="toggleShowAdvanced"></li>
-	</ul>
-	<fieldset>
-		<table>
-			<tbody>
-				<span jwcid="settings">
-                    <span jwcid="ifRenderGroupTitle">
-						<tr jwcid="IfGroup" element="tr">
-							<td colspan="2">
-								<h3><label jwcid="groupLabel"/></h3>
-								<span jwcid="groupDescription"/>
-							</td>
-						</tr>
-                    </span>
-					<span jwcid="IfSetting">
-						<span jwcid="ifRenderSetting">
-                            <span jwcid="settingEditor"/>
-                        </span>
-			            <span jwcid="ifRenderPlaceholder">
-    	    		        <span jwcid="placeholder"/>
-			            </span>
-					</span>
-				</span>
-			</tbody>
-		</table>
-	</fieldset>
-</span>
+<ul jwcid="ifRenderToggle" element="ul" class="component-links">
+  <li jwcid="toggleShowAdvanced"></li>
+</ul>
+<fieldset>
+  <table>
+    <tbody>
+      <span jwcid="settings">
+        <span jwcid="ifRenderGroupTitle">
+	       <tr jwcid="IfGroup" element="tr">
+              <td colspan="2">
+                <h3><label jwcid="@Insert" value="ognl:label"/></h3>
+                <span jwcid="@Insert" value="ognl:description"/>
+              </td>
+            </tr>
+        </span>
+        <span jwcid="IfSetting">
+          <span jwcid="ifRenderSetting">
+            <span jwcid="settingEditor"/>
+          </span>
+          <span jwcid="ifRenderPlaceholder">
+            <span jwcid="placeholder"/>
+          </span>
+        </span>
+      </span>
+    </tbody>
+  </table>
+</fieldset>

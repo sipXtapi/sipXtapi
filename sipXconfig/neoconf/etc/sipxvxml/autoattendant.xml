@@ -33,10 +33,6 @@
     </setting>
   </group>
   <group name="onfail">
-    <label>Invalid Response</label>
-    <description>
-      Configure auto attendant behavior when user enters invalid response or no response is received.
-    </description>
     <setting name="reprompt">
       <label>Replay Count</label>
       <type>

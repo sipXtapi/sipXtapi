@@ -32,6 +32,7 @@ import org.apache.tapestry.services.ExpressionEvaluator;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.common.NamedObject;
+import org.springframework.context.MessageSource;
 
 /**
  * Utility method for tapestry pages and components
@@ -222,6 +223,31 @@ public final class TapestryUtils {
         String label = messages.getMessage(fullKey);
 
         return label;
+    }
+
+    /**
+     * Retrieves localizad version of the key.
+     * 
+     * It uses Spring MessageSource and not Hivemind Messages class that are typical in Tapestry.
+     * We are loading resource bundles in neoconf project when parsing the models and I did not
+     * want introduce dependency on Tapestry there. (We of course already have Spring dependency
+     * in neoconf.) Tapestry localization is slightly more flexible becuase it can handle
+     * properties file in various encoding inluding UTF-8. However we stick to Java default
+     * encoding for the moment, using default Java classes should be OK.
+     * 
+     * @param current component - used to retireve page locale
+     * @param message source - if null defaultMessage is returned
+     * @param key message key
+     * @param defaultMessage return id localized version is not found
+     * @return localized message for the key
+     */
+    public static String getModelMessage(IComponent component, MessageSource modelMessages,
+            String key, String defaultMessage) {
+        if (modelMessages != null) {
+            Locale locale = component.getPage().getLocale();
+            return modelMessages.getMessage(key, null, defaultMessage, locale);
+        }
+        return defaultMessage;
     }
 
     /**

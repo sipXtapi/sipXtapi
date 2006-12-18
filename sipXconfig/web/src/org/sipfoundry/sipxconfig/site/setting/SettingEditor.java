@@ -25,6 +25,7 @@ import org.apache.tapestry.form.validator.Min;
 import org.apache.tapestry.form.validator.Pattern;
 import org.apache.tapestry.form.validator.Required;
 import org.sipfoundry.sipxconfig.components.NamedValuesSelectionModel;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
 import org.sipfoundry.sipxconfig.setting.type.IntegerSetting;
@@ -124,12 +125,14 @@ public abstract class SettingEditor extends BaseComponent {
 
     public String getDescription() {
         Setting setting = getSetting();
-        return getModelMessage(setting.getDescriptionKey(), setting.getDescription());
+        return TapestryUtils.getModelMessage(this, getMessageSource(), setting
+                .getDescriptionKey(), setting.getDescription());
     }
 
     public String getLabel() {
         Setting setting = getSetting();
-        return getModelMessage(setting.getLabelKey(), setting.getLabel());
+        return TapestryUtils.getModelMessage(this, getMessageSource(), setting.getLabelKey(),
+                setting.getLabel());
     }
 
     static IPropertySelectionModel enumModelForType(SettingType type) {
@@ -144,27 +147,5 @@ public abstract class SettingEditor extends BaseComponent {
         Object val = getSetting().getValue();
         Object def = getSetting().getDefaultValue();
         return val == null ? def != null : !val.equals(def);
-    }
-
-    /**
-     * Retrieves localizad version of the key.
-     * 
-     * It uses Spring MessageSource and not Hivemind Messages class that are typical in Tapestry.
-     * We are loading resource bundles in neoconf project when parsing the models and I did not
-     * want introduce dependency on Tapestry there. (We of course already have Spring dependency
-     * in neoconf.) Tapestry localization is slightly more flexible becuase it can handle
-     * properties file in various encoding inluding UTF-8. However we stick to Java default
-     * encoding for the moment, using default Java classes should be OK.
-     * 
-     * @param key message key
-     * @param defaultMessage return id localized version is not found
-     * @return localized message for the key
-     */
-    private String getModelMessage(String key, String defaultMessage) {
-        MessageSource modelMessages = getMessageSource();
-        if (modelMessages != null) {
-            return modelMessages.getMessage(key, null, defaultMessage, getPage().getLocale());
-        }
-        return defaultMessage;
     }
 }
