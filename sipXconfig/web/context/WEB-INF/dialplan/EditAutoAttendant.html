@@ -63,13 +63,13 @@
               <td>
                 <span jwcid="selectedRow"/>
               </td>
-              <span jwcid="DialpadColumnValue">
+              <span jwcid="dialpadColumnValue@Block">
                 <span jwcid="menuItemKey"/>
               </span>
-              <span jwcid="ActionColumnValue">
+              <span jwcid="actionColumnValue@Block">
                 <select jwcid="menuItemAction"/>
               </span>
-              <span jwcid="ParameterColumnValue">
+              <span jwcid="parameterColumnValue@Block">
                 <span jwcid="ifExtensionParameter">
                   <input jwcid="extensionParameter" type="text"/>
                 </span>
@@ -88,17 +88,17 @@
                 <span jwcid="addMenuItemAction"/>
               </td>
               <td>
-                <input type="submit" id="attendant:addMenuItem" jwcid="addMenuItem" value=button.add/>
+                <input jwcid="addMenuItem" id="attendant:addMenuItem" value="message:button.add"/>
               </td>
             </tr>
           </tbody>
         </table>
         <ul class="component-submit">
           <li>
-            <input jwcid="reset" type="submit" id="attendant:reset" value=button.ResetToDefaults/>
+            <input jwcid="reset" id="attendant:reset" value="message:button.resetToDefaults"/>
           </li>
           <li>
-            <input jwcid="removeMenuItems" value=button.Remove type="submit" id="attendant:removeMenuItems"/>
+            <input jwcid="removeMenuItems" id="attendant:removeMenuItems" value="message:button.remove" />
           </li>
         </ul>
         <ul jwcid="formActions"/>

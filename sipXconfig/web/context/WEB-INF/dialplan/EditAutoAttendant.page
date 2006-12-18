@@ -74,7 +74,7 @@
   </component>
   <component id="menuItemTableView" type="contrib:TableView">
     <binding name="source" value="menuItems.dialPadKeys"/>
-    <binding name="columns" value="literal:* !Dialpad,!Action:,!Parameter:"/>
+    <binding name="columns" value="literal:* !dialpad,!action:,!parameter:"/>
     <binding name="pageSize" value="literal:-1"/>
   </component>
   <component id="menuItemColumns" type="contrib:TableColumns">
@@ -89,18 +89,15 @@
     <binding name="value" value="selections.selected[menuItems.currentDialPadKey.name]"/>
   </component>
   <!-- Column 2: key dropdown -->
-  <component id="DialpadColumnValue" type="Block"/>
   <component id="menuItemKey" type="PropertySelection">
     <binding name="model" value="bean:dialPadSelectionModel"/>
     <binding name="value" value="menuItems.currentMenuItemDialPadKeyAssignment"/>
   </component>
   <!-- Column 3: action dropdown -->
-  <component id="ActionColumnValue" type="Block"/>
   <component id="menuItemAction" type="Insert">
     <binding name="value" value="getActionName(menuItems.currentMenuItem.action)"/>
   </component>
   <!-- Column 4: optional action parameter -->
-  <component id="ParameterColumnValue" type="Block"/>
   <component id="ifExtensionParameter" type="If">
     <binding name="condition" value="menuItems.currentMenuItem.action.extensionParameter"/>
   </component>
