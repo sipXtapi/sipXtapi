@@ -128,7 +128,7 @@ private:
    OsProtectedEvent* mpEvent;
    int mFramesToRecord;
    Completion mStatus;
-   OsRWMutex mEventMutex;
+   OsMutex  mMutex;
 
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
