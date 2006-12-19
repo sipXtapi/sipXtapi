@@ -15,8 +15,7 @@
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
 #include "os/OsSysLog.h"
-#include "os/OsReadLock.h"
-#include "os/OsWriteLock.h"
+#include "os/OsLock.h"
 #include "os/OsTask.h"
 #include "mp/MpMisc.h"
 #include "mp/MpBuf.h"
@@ -55,7 +54,7 @@ MprRecorder::MprRecorder(const UtlString& rName,
    mpEvent(NULL),
    mFramesToRecord(0),
    mStatus(RECORD_IDLE),
-   mEventMutex(OsMutex::Q_FIFO)
+   mMutex(OsMutex::Q_FIFO)
 {
 }
 
@@ -130,9 +129,12 @@ UtlBoolean MprRecorder::disable(Completion code)
 {
    UtlBoolean res = FALSE;
 
+   // Lock so that the file contents cannot be changed out
+   // from under us while we are updating the file.
+   OsLock lock(mMutex); 
+
    if (mFileDescriptor > -1)
    {
-      OsWriteLock lock(mEventMutex);
       if (mRecFormat == WAV_PCM_16)
       {
          updateWaveHeaderLengths(mFileDescriptor);
@@ -156,7 +158,6 @@ UtlBoolean MprRecorder::disable(Completion code)
    OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::disable setting mpEvent (0x%08x) to NULL", (int)mpEvent);
    
    {
-      OsWriteLock lock(mEventMutex); 
       if (mpEvent != NULL)
       {
          mpEvent = NULL;  // event may be released, do not signal the event any more, 
@@ -215,6 +216,8 @@ UtlBoolean MprRecorder::termDtmf(int currentToneKey)
 void MprRecorder::getRecorderStats(double& nBytes,
                                  double& nSamples, Completion& status)
 {
+   OsLock lock(mMutex); 
+
    nBytes = mTotalBytesWritten;
    nSamples = mTotalSamplesWritten;
    status = mStatus;
@@ -222,6 +225,8 @@ void MprRecorder::getRecorderStats(double& nBytes,
 
 void MprRecorder::getRecorderStats(struct MprRecorderStats* p)
 {
+   OsLock lock(mMutex); 
+
    p->mTotalBytesWritten = mTotalBytesWritten;
    p->mTotalSamplesWritten = mTotalSamplesWritten;
    p->mFinalStatus = mStatus;
@@ -234,12 +239,16 @@ UtlBoolean MprRecorder::updateWaveHeaderLengths(int handle)
 {
     UtlBoolean retCode = FALSE;
 
+    // Lock so that the file contents cannot be changed out
+    // from under us while we are updating the file.
+    OsLock lock(mMutex); 
+
     //find out how many bytes were written so far
     unsigned long length = lseek(handle,0,SEEK_END);
     
-    //no go back to beg
+    //now go back to beginning
     lseek(handle,4,SEEK_SET);
-    
+
     //and update the RIFF length
     unsigned long rifflength = length-8;
     write(handle, (char*)&rifflength,sizeof(length));
@@ -268,6 +277,10 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
    int numSamples = 0;
    MpBufPtr in = NULL;
    Sample* input;
+
+   // Lock so that mFileDescriptor and file contents cannot be changed out
+   // from under us while we are updating the file.
+   OsLock lock(mMutex); 
 
    //try to pass along first input
    if (inBufsSize > 0) 
@@ -351,7 +364,7 @@ void MprRecorder::progressReport(Completion code)
    mStatus = code;
 
    {
-      OsWriteLock lock(mEventMutex); 
+      OsLock lock(mMutex); 
 
       if (NULL != mpEvent) 
       {
@@ -430,10 +443,9 @@ UtlBoolean MprRecorder::handleSetup(int file, int timeMS, int silenceLength, OsP
    unsigned long prevValue = MpBuf_setMVE(MIN_SPEECH_ENERGY_THRESHOLD); // any energy lower than this will be regarded as silence
    OsSysLog::add(FAC_MP, PRI_INFO, "MprRecorder::handleSetup, set MinVoiceEnergy to %d, was %lu\n", MIN_SPEECH_ENERGY_THRESHOLD, prevValue);
 
-   mFileDescriptor = file;
-
    {
-      OsWriteLock lock(mEventMutex); 
+      OsLock lock(mMutex); 
+      mFileDescriptor = file;
       mpEvent = event;   
    }
 
