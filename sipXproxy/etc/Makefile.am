@@ -12,7 +12,8 @@ cfgfiles_IN = \
 
 EXTRA_DIST = \
     sipproxy.process.xml.in \
-    sipauthproxy.process.xml.in \    
+    sipauthproxy.process.xml.in \
+    sipxcallresolver.process.xml.in \
     $(cfgfiles_IN)
     
 PROCESS_XML_FILES = \
@@ -20,8 +21,6 @@ PROCESS_XML_FILES = \
 	$(DESTDIR)$(SIPX_PROCDIR)/sipauthproxy.process.xml
 
 if ENABLE_CDR
-EXTRA_DIST += \
-	sipxcallresolver.process.xml.in
 PROCESS_XML_FILES += \
 	$(DESTDIR)$(SIPX_PROCDIR)/sipxcallresolver.process.xml
 endif
