@@ -11,8 +11,6 @@
 #include "os/OsMsg.h"
 #include "utl/UtlString.h"
 
-
-
 // DEFINES
 #define NAT_MSG_TYPE         (OsMsg::USER_START + 1) /**< Stun Msg type/Id */
 
@@ -24,8 +22,45 @@
 #define ONDS_MARK_FIRST_WRITE    0x00000004
 #define ONDS_MARK_LAST_WRITE     0x00000008
 
+#define MAX_RTP_BYTES 4096
+
+typedef enum
+{
+    UNKNOWN_PACKET,
+    MEDIA_PACKET,
+    STUN_PROBE_PACKET,
+    STUN_DISCOVERY_PACKET,
+    TURN_PACKET,
+    CRLF_KEEPALIVE_PACKET,
+    STUN_KEEPALIVE_PACKET,
+    OTHER_PACKET
+} PacketType ;
+
+/**
+ * Possible roles that a Media connection can have.
+ */
+ typedef enum 
+ {
+   RTP_TRANSPORT_UNKNOWN = 0x00000000,
+   RTP_TRANSPORT_UDP = 0x00000001,
+   RTP_TRANSPORT_TCP = 0x00000002,
+   RTP_TCP_ROLE_ACTIVE = 0x00000004,
+   RTP_TCP_ROLE_PASSIVE = 0x00000008,
+   RTP_TCP_ROLE_ACTPASS = 0x00000010,
+   RTP_TCP_ROLE_CONNECTION = 0x00000020,
+} RTP_TRANSPORT ;
+
+typedef int RtpTransportOptions;
+typedef int RtpTcpRoles;
 
 class OsSocket;
+class OsNotification; 
+
+typedef enum 
+{
+    STUN = 0x02,
+    DATA = 0x03
+} TURN_FRAMING_TYPE;
 
 /**
  * Generic interface representing a media transport object.
@@ -46,6 +81,12 @@ public:
     
     
     virtual OsSocket* getSocket() = 0;
+    
+    /**
+     * Standard write - should be used to invoke the base class's write method
+     */
+    virtual int socketWrite(const char* buffer, int bufferLength,
+                      const char* ipAddress, int port, PacketType packetType=UNKNOWN_PACKET) = 0;    
     
     virtual UtlBoolean getRelayIp(UtlString* ip, int* port) = 0;
     virtual UtlBoolean getMappedIp(UtlString* ip, int* port) = 0;
@@ -170,6 +211,13 @@ public:
      */
     virtual void addAlternateDestination(const char* szAddress, int iPort, int priority) = 0;                           
 
+
+    /**
+     * Set a notification object to be signaled when the first the data 
+     * packet is received from the socket.  Once this is signaled, the 
+     * notification object is discarded.
+     */
+    virtual void setReadNotification(OsNotification* pNotification) = 0 ;
 
 /* ============================ ACCESSORS ================================= */
 

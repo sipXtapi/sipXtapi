@@ -43,6 +43,7 @@ class SipRegInfoBody;        // for RFC 3680
 #define SIP_CALL_CONTROL_EXTENSION "sip-cc"
 #define SIP_SESSION_TIMER_EXTENSION "timer"
 #define SIP_REPLACES_EXTENSION "replaces"
+#define SIP_JOIN_EXTENSION "join"
 
 // SIP Methods
 #define SIP_INVITE_METHOD "INVITE"
@@ -266,7 +267,7 @@ class SipRegInfoBody;        // for RFC 3680
 #define SIP_TRANSPORT_TLS "TLS"
 #define SIP_URL_TYPE "SIP:"
 #define SIPS_URL_TYPE "SIPS:"
-#define SIP_DEFAULT_MAX_FORWARDS 20
+#define SIP_DEFAULT_MAX_FORWARDS 70
 
 // Caller preference request dispostions tokens
 #define SIP_DISPOSITION_QUEUE "QUEUE"
@@ -464,9 +465,11 @@ public:
 
     void setCancelData(const char* fromAddress, const char* toAddress,
                        const char* callId,
-                       int sequenceNumber = 1);
+                       int sequenceNumber = 1,
+                       const char* localContact=NULL);
 
-    void setCancelData(const SipMessage* inviteResponse);
+    void setCancelData(const SipMessage* inviteResponse,
+                       const char* localContact=NULL);
 
     void setInviteData(const char* fromAddress,
                        const char* toAddress,
@@ -643,13 +646,14 @@ public:
                     int rtcpAudiopPorts[],
                     int rtpVideoPorts[],
                     int rtcpVideoPorts[],
+                    RTP_TRANSPORT transportTypes[],
                     int numRtpCodecs,
                     SdpCodec* rtpCodecs[],
                     SdpSrtpParameters* srtpParams,
                     int videoBandwidth,
                     int videoFramerate,
                     SipMessage* pRequest = NULL,
-                    const SIPX_RTP_TRANSPORT rtpTransportOptions = UDP_ONLY);
+                    const RTP_TRANSPORT rtpTransportOptions = RTP_TRANSPORT_UDP);
 
     void setSecurityAttributes(const SIPXTACK_SECURITY_ATTRIBUTES* const pSecurity);
     SIPXTACK_SECURITY_ATTRIBUTES* const getSecurityAttributes() const { return mpSecurity; } 

@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -100,7 +103,7 @@ public:
                                                     const char* szTurnUsername,
                                                     const char* szTurnPassword,
                                                     int iTurnKeepAliveSecs,
-                                                    bool bEnableICE
+                                                    UtlBoolean bEnableICE
                                                   ) = 0 ;
 
 
@@ -182,7 +185,13 @@ public:
         return OS_NOT_SUPPORTED ;
     }
 
-  	 
+    /** 
+     * Set name send as part of RTCP reports.
+     */
+    virtual OsStatus setRTCPName(const char* szName)
+    {
+        return OS_NOT_SUPPORTED ;
+    }
 
     /**
      * Populate the codec factory, return number of rejected codecs
@@ -436,7 +445,7 @@ public:
      * @param iPort Port number to check
      * @param checkTimeMS Number of ms to wait for data.
      */
-    virtual bool isPortBusy(int iPort, int checkTimeMS) ;
+    virtual UtlBoolean isPortBusy(int iPort, int checkTimeMS) ;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:

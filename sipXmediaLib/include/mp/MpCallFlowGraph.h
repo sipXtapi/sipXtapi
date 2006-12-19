@@ -150,7 +150,7 @@ OsStatus playBuffer(char* audioBuf,
                    int type, 
                    UtlBoolean repeat,
                    int toneOptions, 
-                   OsNotification* event = NULL);
+                   OsProtectedEvent* event = NULL);
 OsStatus playFile(const char* audioFileName, UtlBoolean repeat,
                     int toneOptions, OsNotification* completion = NULL);
   //: Start playing audio from a file

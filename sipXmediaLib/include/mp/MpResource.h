@@ -60,6 +60,8 @@ public:
      //:Graph traversal states that are used when running a topological sort 
      //:to order resources within a flow graph.
 
+static const UtlContainableType TYPE;
+
 /* ============================ CREATORS ================================== */
 
    MpResource(const UtlString& rName, int minInputs, int maxInputs,

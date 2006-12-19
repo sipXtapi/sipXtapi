@@ -40,7 +40,7 @@ CSeqManager::~CSeqManager()
     UtlString* pKey;   
 
     // Clean out hashmap    
-    while (pKey = (UtlString*)iterator())
+    while ((pKey = (UtlString*)iterator()))
     {
         UtlVoidPtr* pValue = (UtlVoidPtr*) mHashMap.findValue(pKey) ;
         assert(pValue != NULL) ;
@@ -120,7 +120,7 @@ void CSeqManager::dumpState(UtlString& state)
     UtlVoidPtr* pKey;   
     
     // Clean out hashmap
-    while (pKey = (UtlVoidPtr*)iterator())
+    while ((pKey = (UtlVoidPtr*)iterator()))
     {
         char cTemp[512] ;
         CSEQ_CONTEXT* pContext = (CSEQ_CONTEXT*) pKey->getValue();

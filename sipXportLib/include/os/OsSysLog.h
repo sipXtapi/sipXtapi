@@ -228,6 +228,9 @@ public:
      //!param options - This parameter defines instance specific options.  See
      //       the OsSysLogOptions enum defined above for valid settings.
 
+   static OsStatus shutdown() ;
+     //:Shutdown the OsSysLog task
+
    static OsStatus setOutputFile(const int minFlushPeriod,
                                  const char* logfile);
      //:Set an output file to collect logging results.

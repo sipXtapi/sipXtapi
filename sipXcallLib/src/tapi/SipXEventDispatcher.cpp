@@ -110,7 +110,7 @@ bool SipXEventDispatcher::removeListener(SIPX_EVENT_CALLBACK_PROC  pCallbackProc
     SIPX_EVENT_LISTENER_CONTEXT* pContext = NULL ;
     bool bRC = false ;
 
-    while (pValue = (UtlVoidPtr*) itor())
+    while ((pValue = (UtlVoidPtr*) itor()))
     {
         pContext = (SIPX_EVENT_LISTENER_CONTEXT*) pValue->getValue() ;
         assert(pContext != NULL) ;
@@ -146,7 +146,7 @@ void SipXEventDispatcher::serviceListeners(SIPX_EVENT_CATEGORY category,
     UtlHashMapIterator itor(mListeners) ;
     UtlVoidPtr* pValue ;
     SIPX_EVENT_LISTENER_CONTEXT* pContext = NULL ;
-    while (pValue = (UtlVoidPtr*) itor())
+    while ((pValue = (UtlVoidPtr*) itor()))
     {
         pContext = (SIPX_EVENT_LISTENER_CONTEXT*) pValue->getValue() ;
         assert(pContext != NULL) ;

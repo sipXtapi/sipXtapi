@@ -40,7 +40,6 @@
 #ifdef HAVE_SSL
 #include <os/OsSSLConnectionSocket.h>
 #endif /* HAVE_SSL */
-
 #include <os/OsSysLog.h>
 #include <os/OsTask.h>
 #include <os/OsDefs.h>
@@ -1201,9 +1200,10 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
 
          setSendAddress(remoteHost.data(), remotePort);
 
-         if (bytesRead == 0)
+         if (bytesRead <= 0)
          {
-            return  0 ;
+            delete[] buffer;
+            return bytesRead;
          }
       }
 

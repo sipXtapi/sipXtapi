@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,6 +11,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+// Author: Daniel Petrie dpetrie AT SIPez DOT com
 
 #ifndef _CallManager_h_
 #define _CallManager_h_
@@ -133,7 +137,7 @@ public:
                              const char* locationHeader = NULL,
                              const int bandWidth=AUDIO_CODEC_BW_DEFAULT,
                              SIPX_TRANSPORT_DATA* pTransportData = NULL,
-                             const SIPX_RTP_TRANSPORT rtpTransportOptions = UDP_ONLY) ;
+                             const RTP_TRANSPORT rtpTransportOptions = RTP_TRANSPORT_UDP) ;
 
     virtual PtStatus consult(const char* idleTargetCallId,
         const char* activeOriginalCallId, const char* originalCallControllerAddress,
@@ -240,11 +244,11 @@ public:
     virtual void unhold(const char* callId);
     virtual void dialString(const char* url);
 
-        virtual UtlBoolean disconnectConnection(const char* callId, const char* addressUrl);
+    virtual UtlBoolean disconnectConnection(const char* callId, const char* addressUrl);
 
     virtual void setTransferType(int type);
 
-        virtual void addToneListener(const char* callId, int pListener);
+    virtual void addToneListener(const char* callId, int pListener);
 
     virtual void removeToneListener(const char* callId, int pListener);
 
@@ -307,11 +311,11 @@ public:
                             int iKeepAlivePeriodSecs) ;
 
     
-    virtual bool sendInfo(const char* callId, 
-                          const char* szRemoteAddress,
-                          const char* szContentType,
-                          const size_t nContenLength,
-                          const char*  szContent);
+    virtual UtlBoolean sendInfo(const char* callId, 
+                                const char* szRemoteAddress,
+                                const char* szContentType,
+                                const size_t nContenLength,
+                                const char*  szContent);
    //: Sends an INFO message to the other party(s) on the call
 
 /* ============================ ACCESSORS ================================= */
@@ -531,7 +535,7 @@ private:
                    const char* locationHeader = NULL,
                    const int bandWidth = AUDIO_CODEC_BW_DEFAULT,
                    SIPX_TRANSPORT_DATA* pTransport = NULL,
-                   const SIPX_RTP_TRANSPORT rtpTransportOptions = UDP_ONLY) ;
+                   const RtpTransportOptions rtpTransportOptions = RTP_TRANSPORT_UDP) ;
 
     void doEnableStun(const UtlString& szStunServer, 
                       int              iServerPort,
@@ -557,7 +561,7 @@ private:
      //:Assignment operator (disabled)
 
 #ifdef _WIN32
-    bool IsTroubleShootingModeEnabled();
+    UtlBoolean IsTroubleShootingModeEnabled();
 #endif
 };
 

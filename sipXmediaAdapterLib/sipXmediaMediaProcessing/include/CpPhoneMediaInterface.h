@@ -38,6 +38,7 @@ class MpCallFlowGraph;
 class SdpCodec;
 class OsDatagramSocket;
 class CpPhoneMediaConnection;
+class ISocketEvent ;
 
 //:Class short description which may consist of multiple lines (note the ':')
 // Class detailed description which may extend to multiple lines
@@ -71,7 +72,7 @@ public:
                          const char* szTurnUsername = NULL,
                          const char* szTurnPassword = NULL,
                          int iTurnKeepAlivePeriodSecs = 28,
-                         bool mbEnableICE = false);
+                         UtlBoolean mbEnableICE = FALSE);
      //:Default constructor
 
   protected:
@@ -92,10 +93,9 @@ public:
                                      const char* szLocalAddress,
                                      void* videoWindowHandle, 
                                      void* const pSecurityAttributes = NULL,
-                                     ISocketIdle* pIdleSink = NULL,
+                                     ISocketEvent* pIdleEvent = NULL,
                                      IMediaEventListener* pMediaEventListener = NULL,
-                                     const SIPX_RTP_TRANSPORT rtpTransportOptions = UDP_ONLY,
-                                     const RtpTcpRoles role=ACTPASS);
+                                     const RtpTransportOptions rtpTransportOptions=RTP_TRANSPORT_UDP);
    
    virtual OsStatus getCapabilities(int connectionId, 
                                     UtlString& rtpHostAddress, 
@@ -116,6 +116,7 @@ public:
                                       int rtcpAudioPorts[],
                                       int rtpVideoPorts[],
                                       int rtcpVideoPorts[],
+                                      RTP_TRANSPORT transportTypes[],
                                       int& nActualAddresses,
                                       SdpCodecFactory& supportedCodecs,
                                       SdpSrtpParameters& srtpParameters,
@@ -163,7 +164,7 @@ public:
                               UtlBoolean repeat,
                               UtlBoolean local, 
                               UtlBoolean remote,
-                              OsNotification* event = NULL,
+                              OsProtectedEvent* event = NULL,
                               UtlBoolean mixWithMic = false,
                               int downScaling = 100);
 
@@ -337,36 +338,36 @@ public:
    virtual UtlBoolean isReceivingRtpVideo(int connectionId);
    virtual UtlBoolean isDestinationSet(int connectionId);   
    virtual UtlBoolean canAddParty() ;
-   virtual bool isVideoInitialized(int connectionId) ;
-   virtual bool isAudioInitialized(int connectionId) ;
-   virtual bool isAudioAvailable() ;
-   virtual bool isVideoConferencing() { return false; } ;
+   virtual UtlBoolean isVideoInitialized(int connectionId) ;
+   virtual UtlBoolean isAudioInitialized(int connectionId) ;
+   virtual UtlBoolean isAudioAvailable() ;
+   virtual UtlBoolean isVideoConferencing() { return false; } ;
 
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-    bool getLocalAddresses( int connectionId,
-                            UtlString& hostIp,
-                            int& rtpAudioPort,
-                            int& rtcpAudioPort,
-                            int& rtpVideoPort,
-                            int& rtcpVideoPort) ;
+    UtlBoolean getLocalAddresses( int connectionId,
+                                  UtlString& hostIp,
+                                  int& rtpAudioPort,
+                                  int& rtcpAudioPort,
+                                  int& rtpVideoPort,
+                                  int& rtcpVideoPort) ;
 
-    bool getNatedAddresses( int connectionId,
-                            UtlString& hostIp,
-                            int& rtpAudioPort,
-                            int& rtcpAudioPort,
-                            int& rtpVideoPort,
-                            int& rtcpVideoPort) ;
+    UtlBoolean getNatedAddresses( int connectionId,
+                                  UtlString& hostIp,
+                                  int& rtpAudioPort,
+                                  int& rtcpAudioPort,
+                                  int& rtpVideoPort,
+                                  int& rtcpVideoPort) ;
 
 
-    bool getRelayAddresses( int connectionId,
-                            UtlString& hostIp,
-                            int& rtpAudioPort,
-                            int& rtcpAudioPort,
-                            int& rtpVideoPort,
-                            int& rtcpVideoPort) ;
+    UtlBoolean getRelayAddresses( int connectionId,
+                                  UtlString& hostIp,
+                                  int& rtpAudioPort,
+                                  int& rtcpAudioPort,
+                                  int& rtpVideoPort,
+                                  int& rtcpVideoPort) ;
 
 
     OsStatus addLocalContacts(  int connectionId, 

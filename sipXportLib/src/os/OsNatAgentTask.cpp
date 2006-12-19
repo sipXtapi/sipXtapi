@@ -249,7 +249,7 @@ UtlBoolean OsNatAgentTask::handleStunMessage(NatMsg& rMsg)
                             sendToPort = rMsg.getReceivedPort() ;
                         }
 
-                        sendMessage(&respMsg, pSocket, sendToAddress, sendToPort) ;
+                        sendMessage(&respMsg, pSocket, sendToAddress, sendToPort, STUN_DISCOVERY_PACKET) ;
                     }
                 }
                 break ;
@@ -339,7 +339,7 @@ UtlBoolean OsNatAgentTask::handleTurnMessage(NatMsg& rMsg)
                 msg.getMagicId(&magicId) ;
                 respMsg.setMagicId(magicId) ;
                 respMsg.setError(STUN_ERROR_GLOBAL_CODE, STUN_ERROR_GLOBAL_TEXT) ;
-                sendMessage(&respMsg, pSocket, rMsg.getReceivedIp(), rMsg.getReceivedPort()) ;
+                sendMessage(&respMsg, pSocket, rMsg.getReceivedIp(), rMsg.getReceivedPort(), TURN_PACKET) ;
                 break ;
             case MSG_TURN_ALLOCATE_RESPONSE:
                 {
@@ -382,18 +382,15 @@ UtlBoolean OsNatAgentTask::handleTurnMessage(NatMsg& rMsg)
                 msg.getMagicId(&magicId) ;
                 respMsg.setMagicId(magicId) ;
                 respMsg.setError(STUN_ERROR_GLOBAL_CODE, STUN_ERROR_GLOBAL_TEXT) ;
-                sendMessage(&respMsg, pSocket, rMsg.getReceivedIp(), rMsg.getReceivedPort()) ;
+                sendMessage(&respMsg, pSocket, rMsg.getReceivedIp(), rMsg.getReceivedPort(), TURN_PACKET) ;
                 break ;
             case MSG_TURN_SEND_RESPONSE:
-                printf("MSG_TURN_SEND_RESPONSE\n") ;
                 // Drop send response -- not much we can do right now.
                 break ;
             case MSG_TURN_SEND_ERROR_RESPONSE:
-                printf("MSG_TURN_SEND_ERROR_RESPONSE\n") ;
                 // Drop error response -- not much we can do right now.
                 break ;
             case MSG_TURN_DATA_INDICATION:
-                printf("MSG_TURN_DATA_INDICATION\n") ;
                 // Dropping data indication -- only locking onto a single 
                 // address for now
                 break ;
@@ -611,12 +608,9 @@ UtlBoolean OsNatAgentTask::handleCrLfKeepAlive(NAT_AGENT_CONTEXT* pContext)
 {
     UtlBoolean bRC = false ;
    
-    // This is a bit of a hack -- The IStunSocket keeps track of the last
-    // read/write times.  Instead of creating a 'special' write or some markers
-    // to figure it the packet should update the last written timestamp, I am 
-    // just calling the base class implementation directly.
-    if (pContext->pSocket->getSocket()->write(STR_CRLF, 3, pContext->serverAddress, 
-            pContext->serverPort) == 3)
+    // just calling the socketWrite function, which does not do timestamping
+    if (pContext->pSocket->socketWrite(STR_CRLF, 3, pContext->serverAddress, 
+            pContext->serverPort, CRLF_KEEPALIVE_PACKET) == 3)
     {
         bRC = true ;
     }
@@ -683,6 +677,7 @@ UtlBoolean OsNatAgentTask::sendStunProbe(IStunSocket* pSocket,
             OsSocket::isIp4Address(serverAddress))
     {
         NAT_AGENT_CONTEXT* pContext = new NAT_AGENT_CONTEXT ;
+        //memset(pContext, 0, sizeof(NAT_AGENT_CONTEXT));        
         if (pContext)
         {
             pContext->type = STUN_PROBE ;
@@ -762,6 +757,7 @@ UtlBoolean OsNatAgentTask::enableStun(IStunSocket* pSocket,
             OsSocket::isIp4Address(serverAddress))
     {
         NAT_AGENT_CONTEXT* pContext = new NAT_AGENT_CONTEXT ;
+        //memset(pContext, 0, sizeof(NAT_AGENT_CONTEXT));
         if (pContext)
         {
             pContext->type = STUN_DISCOVERY ;
@@ -861,6 +857,7 @@ UtlBoolean OsNatAgentTask::enableTurn(IStunSocket* pSocket,
 
     {       
         NAT_AGENT_CONTEXT* pContext = new NAT_AGENT_CONTEXT ;
+        //memset(pContext, 0, sizeof(NAT_AGENT_CONTEXT));        
         if (pContext)
         {
             pContext->type = TURN_ALLOCATION ;
@@ -949,7 +946,7 @@ UtlBoolean OsNatAgentTask::primeTurnReception(IStunSocket* pSocket,
 
         msgSend.setData("\r\n", 2) ;          
 
-        bRC = sendMessage(&msgSend, pSocket, pBinding->serverAddress, pBinding->serverPort) ;
+        bRC = sendMessage(&msgSend, pSocket, pBinding->serverAddress, pBinding->serverPort, TURN_PACKET) ;
     }
 
     return bRC ;
@@ -991,7 +988,7 @@ UtlBoolean OsNatAgentTask::setTurnDestination(IStunSocket* pSocket,
             msgSend.setPassword(pBinding->password) ;
         }
 
-        bRC = sendMessage(&msgSend, pSocket, pBinding->serverAddress, pBinding->serverPort) ;
+        bRC = sendMessage(&msgSend, pSocket, pBinding->serverAddress, pBinding->serverPort, TURN_PACKET) ;
     }
 
     return bRC ;
@@ -1036,7 +1033,7 @@ void OsNatAgentTask::disableTurn(IStunSocket* pSocket)
                         msgSend.setPassword(pBinding->password) ;
                     }  
 
-                    sendMessage(&msgSend, pSocket, pBinding->serverAddress, pBinding->serverPort) ;
+                    sendMessage(&msgSend, pSocket, pBinding->serverAddress, pBinding->serverPort, TURN_PACKET) ;
                 }
                 break ;            
             case FAILED:
@@ -1074,6 +1071,7 @@ UtlBoolean OsNatAgentTask::addCrLfKeepAlive(IStunSocket*    pSocket,
                 keepAliveSecs) ;
 
         NAT_AGENT_CONTEXT* pContext = new NAT_AGENT_CONTEXT ;
+        //memset(pContext, 0, sizeof(NAT_AGENT_CONTEXT));        
         if (pContext)
         {
             pContext->type = CRLF_KEEPALIVE ;
@@ -1191,6 +1189,7 @@ UtlBoolean OsNatAgentTask::addStunKeepAlive(IStunSocket*    pSocket,
                 keepAliveSecs) ;     
 
         NAT_AGENT_CONTEXT* pContext = new NAT_AGENT_CONTEXT ;
+        //memset(pContext, 0, sizeof(NAT_AGENT_CONTEXT));        
         if (pContext)
         {
             pContext->type = STUN_KEEPALIVE ;
@@ -1706,7 +1705,8 @@ UtlBoolean OsNatAgentTask::findExternalBinding(const UtlString& destHost,
 UtlBoolean OsNatAgentTask::sendMessage(StunMessage* pMsg, 
                                        IStunSocket* pSocket, 
                                        const UtlString& toAddress, 
-                                       unsigned short toPort)
+                                       unsigned short toPort,
+                                       PacketType packetType)
 {
     UtlBoolean bSuccess = false ;
 
@@ -1725,12 +1725,12 @@ UtlBoolean OsNatAgentTask::sendMessage(StunMessage* pMsg,
                     output.data()) ;
         }
 
-        // This is a bit of a hack -- The IStunSocket keeps track of 
-        // the last read/write times.  Instead of creating a 'special' write 
-        // or some markers to figure it the packet should update the last 
-        // written timestamp, I am just calling the base class implementation 
-        // directly.
-        if (pSocket->getSocket()->write(cEncoded, (int) length, toAddress, toPort) > 0)
+        // The IStunSocket keeps track of 
+        // the last read/write times, but we need to write to the socket
+        // without updating the timestamp.  Added a new function to the
+        // IStunSocket interface that should be implemented as
+        // just a write to the socket, without timestamping.
+        if (pSocket->socketWrite(cEncoded, (int) length, toAddress, toPort, packetType) > 0)
         {
             bSuccess = true ;
         }
@@ -1874,6 +1874,7 @@ UtlBoolean OsNatAgentTask::sendStunRequest(NAT_AGENT_CONTEXT* pBinding)
 {
     UtlBoolean bSuccess = false ;
     StunMessage msgSend ;
+    bool bStunProbe = (pBinding->type == STUN_PROBE);
 
     msgSend.allocTransactionId() ;
     msgSend.setType(MSG_STUN_BIND_REQUEST) ;
@@ -1914,7 +1915,7 @@ UtlBoolean OsNatAgentTask::sendStunRequest(NAT_AGENT_CONTEXT* pBinding)
     msgSend.getTransactionId(&pBinding->transactionId) ;
 
     // Send message
-    if (sendMessage(&msgSend, pBinding->pSocket, pBinding->serverAddress, pBinding->serverPort))
+    if (sendMessage(&msgSend, pBinding->pSocket, pBinding->serverAddress, pBinding->serverPort, STUN_PROBE_PACKET))
     {
         bSuccess = true ;
     }
@@ -1964,7 +1965,7 @@ UtlBoolean OsNatAgentTask::sendTurnRequest(NAT_AGENT_CONTEXT* pBinding)
         msgSend.setPassword(pBinding->password) ;
     }  
     
-    if (sendMessage(&msgSend, pBinding->pSocket, pBinding->serverAddress, pBinding->serverPort))
+    if (sendMessage(&msgSend, pBinding->pSocket, pBinding->serverAddress, pBinding->serverPort, TURN_PACKET))
     {
         bSuccess = true ;
     }

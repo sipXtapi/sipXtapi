@@ -1058,6 +1058,9 @@ void SipUdpServer::sendSipKeepAlive(OsTimer* pTimer)
 
                 pBinding->m_pSipMessage->setRequestData(pBinding->m_method, 
                         to, from, to, callId, rand() % 32768) ;
+
+                // Set User Agent header
+                mSipUserAgent->setUserAgentHeader(*pBinding->m_pSipMessage) ;
             }
             
             // Update Via                           

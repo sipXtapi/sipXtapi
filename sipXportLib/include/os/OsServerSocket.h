@@ -100,6 +100,8 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+   virtual OsConnectionSocket* createConnectionSocket(UtlString localIp, int descriptor);
+
    int socketDescriptor;
    int localHostPort;
    UtlString mLocalIp;

@@ -251,13 +251,13 @@ bool OsConnectionSocket::initialize(const char* serverName, int serverPort, UtlB
       inet_ntoa_pt(*((in_addr*) (server->h_addr)),temp_output_address);
       serverAddr = (in_addr*) (server->h_addr);
       serverSockAddr.sin_family = server->h_addrtype;
-      serverSockAddr.sin_port = htons((serverPort & 0xFFFF));
+      serverSockAddr.sin_port = htons(serverPort & 0xFFFF);
       serverSockAddr.sin_addr.s_addr = (serverAddr->s_addr);
    }
    else
    {
       serverSockAddr.sin_family = AF_INET;
-      serverSockAddr.sin_port = htons((serverPort & 0xFFFF));
+      serverSockAddr.sin_port = htons(serverPort & 0xFFFF);
       serverSockAddr.sin_addr.s_addr = inet_addr(serverName);
    }
    bRet = true;

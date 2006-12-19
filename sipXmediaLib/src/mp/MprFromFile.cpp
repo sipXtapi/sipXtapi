@@ -32,6 +32,7 @@
 #include "mp/mpau.h"
 #include "mp/MpCallFlowGraph.h"
 #include "os/OsSysLog.h"
+#include "os/OsProtectEventMgr.h"
 
 #include <os/fstream>
 
@@ -75,7 +76,7 @@ MprFromFile::~MprFromFile()
 #define INIT_BUFFER_LEN (size_t(FROM_FILE_READ_BUFFER_SIZE * 2 * 10))
 
 OsStatus MprFromFile::playBuffer(const char* audioBuffer, unsigned long bufSize, 
-                                 int type, UtlBoolean repeat, OsNotification* notify)
+                                 int type, UtlBoolean repeat, OsProtectedEvent* notify)
 {
     OsStatus res = OS_INVALID_ARGUMENT;
     UtlString* buffer;
@@ -101,7 +102,18 @@ OsStatus MprFromFile::playBuffer(const char* audioBuffer, unsigned long bufSize,
                      break;
         }
 
-        MpFlowGraphMsg msg(PLAY_FILE, this, notify, buffer,
+        // Tell CpCall that we've copied the data out of the buffer, so it
+        // can continue processing.
+        if (notify && OS_ALREADY_SIGNALED == notify->signal(0))
+        {
+           OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
+           eventMgr->release(notify);
+        }
+
+        // Don't pass the evnet in the PLAY_FILE message.
+        // That means that the file-play process can't pass signals
+        // back.  But we have already released the OsProtectedEvent.
+        MpFlowGraphMsg msg(PLAY_FILE, this, NULL, buffer,
                 repeat ? PLAY_REPEAT : PLAY_ONCE, 0);
         res = postMessage(msg);
     }

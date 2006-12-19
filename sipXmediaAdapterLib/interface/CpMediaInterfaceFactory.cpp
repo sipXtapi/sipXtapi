@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -73,7 +76,7 @@ CpMediaInterface* CpMediaInterfaceFactory::createMediaInterface(const char* publ
                                                                 const char* szTurnUsername,
                                                                 const char* szTurnPassword,
                                                                 int iTurnKeepAlivePeriodSecs,
-                                                                bool bEnableICE) 
+                                                                UtlBoolean bEnableICE) 
 {
     CpMediaInterface* pInterface = NULL ;
 

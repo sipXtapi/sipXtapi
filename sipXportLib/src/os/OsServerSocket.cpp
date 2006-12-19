@@ -230,7 +230,7 @@ OsConnectionSocket* OsServerSocket::accept()
    setsockopt(clientSocket, SOL_SOCKET, SO_DONTROUTE, (char *)&one, sizeof(one)) ;
 #endif
 
-   connectSock = new OsConnectionSocket(mLocalIp,clientSocket);
+   connectSock = createConnectionSocket(mLocalIp, clientSocket);
 
    return(connectSock);
 }
@@ -281,6 +281,10 @@ UtlBoolean OsServerSocket::isOk() const
 
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
+OsConnectionSocket* OsServerSocket::createConnectionSocket(UtlString localIp, int descriptor)
+{
+    return new OsConnectionSocket(localIp, descriptor);
+}
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 

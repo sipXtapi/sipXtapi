@@ -64,13 +64,17 @@ typedef enum SIPXMI_AUDIO_BANDWIDTH_ID
 /**
  * Interface declaration for receiving socket idle notifications.
  */
-class ISocketIdle
+class ISocketEvent
 {
 public:
     virtual void onIdleNotify(IStunSocket* const pSocket,
                           SocketPurpose purpose,
                           const int millisecondsIdle) = 0;
-    virtual ~ISocketIdle() { } ;
+
+    virtual void onReadData(IStunSocket* const pSocket,
+                            SocketPurpose purpose) = 0;
+
+    virtual ~ISocketEvent() { } ;
 };
 
 class IMediaEventEmitter
@@ -170,16 +174,15 @@ public:
     *        connection.
     * @param pSecurityAttributes Pointer to a SIPXVE_SECURITY_ATTRIBUTES
     *        object.  
-    * @param rtpTransportOptions UDP_ONLY, TCP_ONLY, or BOTH
+    * @param rtpTransportOptions RTP_TRANSPORT_UDP, RTP_TRANSPORT_TCP, or BOTH
     */ 
    virtual OsStatus createConnection(int& connectionId,
                                      const char* szLocalAddress,
                                      void* videoWindowHandle, 
                                      void* const pSecurityAttributes = NULL,
-                                     ISocketIdle* pSocketIdleSink = NULL,
+                                     ISocketEvent* pSocketIdleSink = NULL,
                                      IMediaEventListener* pMediaEventListener = NULL,
-                                     const SIPX_RTP_TRANSPORT rtpTransportOptions=UDP_ONLY,
-                                     const RtpTcpRoles role=ACTPASS) = 0 ;
+                                     const RtpTransportOptions rtpTransportOptions=RTP_TRANSPORT_UDP) = 0 ;
    
 
 
@@ -271,6 +274,16 @@ public:
    virtual OsStatus startRtpReceive(int connectionId,
                                     int numCodecs,
                                     SdpCodec* sendCodec[]) = 0;
+
+   /**
+    * Enables read notification through the ISocketEvent listener passed in 
+    * via createConnection.  This should be enabled immediately after calling
+    * startRtpReceive.  It is automatically disabled as part of 
+    * stopRtpReceive.
+    */ 
+   virtual OsStatus enableRtpReadNotification(int connectionId,
+                                              UtlBoolean bEnable = TRUE) 
+       { return OS_NOT_SUPPORTED ;} ;
 
 
    /**
@@ -377,7 +390,7 @@ public:
                                UtlBoolean repeat,
                                UtlBoolean local, 
                                UtlBoolean remote,
-                               OsNotification* event = NULL,
+                               OsProtectedEvent* event = NULL,
                                UtlBoolean mixWithMic = false,
                                int downScaling = 100) = 0 ;
 
@@ -537,6 +550,7 @@ public:
                                       int rtcpAudioPorts[],
                                       int rtpVideoPorts[],
                                       int rtcpVideoPorts[],
+                                      RTP_TRANSPORT transportTypes[],
                                       int& nActualAddresses,
                                       SdpCodecFactory& supportedCodecs,
                                       SdpSrtpParameters& srtpParameters,
@@ -583,12 +597,12 @@ public:
                                          unsigned int& uiReceivingSSRC) 
         { return OS_NOT_SUPPORTED ;} ;
 
-   virtual OsStatus enableAudioTransport(int connectionId, bool bEnable)
+   virtual OsStatus enableAudioTransport(int connectionId, UtlBoolean bEnable)
    {
        return OS_NOT_SUPPORTED; 
    };
 
-   virtual OsStatus enableVideoTransport(int connectionId, bool bEnable)
+   virtual OsStatus enableVideoTransport(int connectionId, UtlBoolean bEnable)
    {
        return OS_NOT_SUPPORTED; 
    };
@@ -654,16 +668,16 @@ public:
    virtual UtlBoolean canAddParty() = 0 ;
 
    //! Query whether the connection has started sending or receiving video
-   virtual bool isVideoInitialized(int connectionId) = 0 ;
+   virtual UtlBoolean isVideoInitialized(int connectionId) = 0 ;
 
    //! Query whether the connection has started sending or receiving audio
-   virtual bool isAudioInitialized(int connectionId) = 0 ;
+   virtual UtlBoolean isAudioInitialized(int connectionId) = 0 ;
 
    //! Query if the audio device is available.
-   virtual bool isAudioAvailable() = 0;
+   virtual UtlBoolean isAudioAvailable() = 0;
 
    //! Query if we are mixing a video conference
-   virtual bool isVideoConferencing() = 0 ;
+   virtual UtlBoolean isVideoConferencing() = 0 ;
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

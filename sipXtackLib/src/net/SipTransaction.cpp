@@ -3416,7 +3416,7 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
     } // TCP
     else if (protocol == OsSocket::CUSTOM)
     {
-        if(numTries < SIP_UDP_RESEND_TIMES)
+        if(!pTransport->bIsReliable && numTries < SIP_UDP_RESEND_TIMES)
         {
             // Try again
             numTries++;

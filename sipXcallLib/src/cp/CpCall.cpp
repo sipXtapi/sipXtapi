@@ -284,7 +284,7 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
                 if(mpMediaInterface)
                 {
                     mpMediaInterface->playAudio(url.data(), repeat,
-                        local, remote);
+                        local, remote, mixWithMic, downScaling) ;
                 }
             }
             break;
@@ -1402,7 +1402,7 @@ void CpCall::postTaoListenerMessage(int responseCode,
                                     int isRemote,
                                     UtlString targetCallId)
 {
-    if (type == CONNECTION_STATE && !PtEvent::isStateTransitionAllowed(eventId, mLocalConnectionState))
+    if (type == CONNECTION_STATE /* && !PtEvent::isStateTransitionAllowed(eventId, mLocalConnectionState) */)
     {
         osPrintf("Connection state change from %d to %d is illegal\n", mLocalConnectionState, eventId);
         return;

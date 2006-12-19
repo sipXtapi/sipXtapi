@@ -236,13 +236,18 @@ int OsSocket::read(char* buffer, int bufferLength)
    flags = MSG_NOSIGNAL;
 #endif
 
-   int error;
    int bytesRead = recv(socketDescriptor, buffer, bufferLength, flags);
-   if (bytesRead < 0)
+#ifdef _WIN32   
+   if ((bytesRead == 0) && (OsSocketGetERRNO() == 0))
    {
-      error = OsSocketGetERRNO();
-      // WIN32: 10038 WSAENOTSOCK not a valid socket descriptor
+       // Under windows, recv returns 0 and the errno is zero if the
+       // socket has been closed down.  We need to close it down for
+       // our bookwork.  We also need to -1 to signal the upper 
+       // layers (what unix returns).
+       close() ;
+       bytesRead = -1 ;
    }
+#endif
 
    return bytesRead;
 }
@@ -439,7 +444,8 @@ UtlBoolean OsSocket::isReadyToReadEx(long waitMilliseconds,UtlBoolean &rSocketEr
         {
             numReady = -1;
             OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                "OsSocket::isReadyToRead poll %d POLLIN: %d POLLPRI: %d POLLERR: %d POLLHUP: %d POLLNVAL: %d\n",
+                          "OsSocket::isReadyToRead polllState.revents = %d: "
+                          "POLLIN: %d POLLPRI: %d POLLERR: %d POLLHUP: %d POLLNVAL: %d\n",
                 pollState.revents, POLLSET(POLLIN), POLLSET(POLLPRI), POLLSET(POLLERR), POLLSET(POLLHUP), POLLSET(POLLNVAL));
         }
         else if(resCode > 0 && POLLSET(POLLIN))

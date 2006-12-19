@@ -425,7 +425,7 @@ int NetInTask::run(void *pNotUsed)
         int     ostc;
 
         while (NetInWait) {
-           OsTask::yield() ;
+            OsTask::yield();
         }
         pBindSocket = new OsServerSocket(1, PORT_DEFAULT, "127.0.0.1");
         mCmdPort = pBindSocket->getLocalHostPort();

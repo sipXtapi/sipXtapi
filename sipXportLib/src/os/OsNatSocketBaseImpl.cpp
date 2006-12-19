@@ -39,9 +39,12 @@
 
 /* ============================ CREATORS ================================== */
 
-OsNatSocketBaseImpl::OsNatSocketBaseImpl()
+OsNatSocketBaseImpl::OsNatSocketBaseImpl() :
+      mReadNotificationLock(OsMutex::Q_FIFO)
 {
     miRecordTimes = ONDS_MARK_NONE ;
+    mpReadNotification = NULL ;
+    
 }
 
 // Constructor
@@ -105,6 +108,13 @@ bool OsNatSocketBaseImpl::getLastWriteTime(OsDateTime& time)
     return bRC ;
 }
 
+void OsNatSocketBaseImpl::setReadNotification(OsNotification* pNotification) 
+{
+    OsLock lock(mReadNotificationLock) ;
+
+    mpReadNotification = pNotification ;
+}
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 void OsNatSocketBaseImpl::markReadTime()
@@ -119,6 +129,20 @@ void OsNatSocketBaseImpl::markReadTime()
         miRecordTimes |= ONDS_MARK_FIRST_READ ;
         mFirstRead = mLastRead ;
     }
+
+    OsLock lock(mReadNotificationLock) ;
+    if (mpReadNotification)
+    {
+        mpReadNotification->signal((int) this) ;
+        mpReadNotification = NULL ;
+    }
+}
+
+OsSocket* OsNatSocketBaseImpl::getSocket()
+{
+    OsSocket* pSocket = dynamic_cast<OsSocket*>(this);
+    assert(pSocket);
+    return pSocket;
 }
 
 void OsNatSocketBaseImpl::markWriteTime()
@@ -242,6 +266,7 @@ bool OsNatSocketBaseImpl::handleSturnData(char*      buffer,
 
     return bHandled ;
 }
+
 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

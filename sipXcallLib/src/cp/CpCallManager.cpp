@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,7 +11,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
- 
+// Author: Daniel Petrie dpetrie AT SIPez DOT com
 
 // SYSTEM INCLUDES
 #include "os/OsDefs.h"
@@ -25,8 +28,6 @@
 #include <os/OsWriteLock.h>
 #include <os/OsProcess.h>
 
-#include "ptapi/PtAddressForwarding.h"
-
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -37,7 +38,7 @@ const int    CpCallManager::CALLMANAGER_MAX_REQUEST_MSGS = 6000;
 const int    CpCallManager::CALLMANAGER_MAX_REQUEST_MSGS = 1000;
 #endif  
 
-intll CpCallManager::mCallNum = 0;
+Int64 CpCallManager::mCallNum = 0;
 OsMutex CpCallManager::mCallNumMutex(OsMutex::Q_FIFO);
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -54,15 +55,12 @@ CpCallManager::CpCallManager(const char* taskName,
 OsServerTask(taskName, NULL, CALLMANAGER_MAX_REQUEST_MSGS),
 mManagerMutex(OsMutex::Q_FIFO),
 mCallListMutex(OsMutex::Q_FIFO),
-mCallIndices(),
-mAddressForwardMutex(OsMutex::Q_FIFO)
+mCallIndices()
 {
-    mpAddressForwards = 0;
     mDoNotDisturbFlag = FALSE;
     mMsgWaitingFlag = FALSE;
     mOfferedTimeOut = 0;
-    mAddressForwardingCnt = 0;
-
+    
    if(callIdPrefix)
    {
        mCallIdPrefix.append(callIdPrefix);
@@ -98,25 +96,11 @@ mAddressForwardMutex(OsMutex::Q_FIFO)
 CpCallManager::CpCallManager(const CpCallManager& rCpCallManager) :
 OsServerTask("badCallManagerCopy"),
 mManagerMutex(OsMutex::Q_FIFO),
-mCallListMutex(OsMutex::Q_FIFO),
-mAddressForwardMutex(OsMutex::Q_FIFO)
-
+mCallListMutex(OsMutex::Q_FIFO)
 {
     mDoNotDisturbFlag = rCpCallManager.mDoNotDisturbFlag;
     mMsgWaitingFlag = rCpCallManager.mMsgWaitingFlag;
     mOfferedTimeOut = rCpCallManager.mOfferedTimeOut;
-
-    mAddressForwardingCnt = rCpCallManager.mAddressForwardingCnt;
-    if (mAddressForwardingCnt > 0)
-    {
-        mpAddressForwards = new PtAddressForwarding[mAddressForwardingCnt];
-        for (int i = 0; i < mAddressForwardingCnt; i++)
-            mpAddressForwards[i] =  rCpCallManager.mpAddressForwards[i];
-    }
-    else
-    {
-        mpAddressForwards = 0;
-    }
 
     mLastMetaEventId = 0;
     mbEnableICE = rCpCallManager.mbEnableICE ; 
@@ -125,12 +109,6 @@ mAddressForwardMutex(OsMutex::Q_FIFO)
 // Destructor
 CpCallManager::~CpCallManager()
 {
-    if (mpAddressForwards)
-    {
-        delete mpAddressForwards;
-        mpAddressForwards = 0;
-        mAddressForwardingCnt = 0;
-    }
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -389,8 +367,6 @@ CpCallManager::operator=(const CpCallManager& rhs)
    if (this == &rhs)            // handle the assignment to self case
       return *this;
 
-    mAddressForwardingCnt = rhs.mAddressForwardingCnt;
-    mpAddressForwards = rhs.mpAddressForwards;
     mDoNotDisturbFlag = rhs.mDoNotDisturbFlag;
     mMsgWaitingFlag = rhs.mMsgWaitingFlag;
     mOfferedTimeOut = rhs.mOfferedTimeOut;
@@ -498,8 +474,8 @@ void CpCallManager::getNewCallId(const char* callIdPrefix, UtlString* callId)
       // Get the start time.
       OsTime current_time;
       OsDateTime::getCurTime(current_time);
-      intll start_time =
-         ((intll) current_time.seconds()) * 1000000 + current_time.usecs();
+      Int64 start_time =
+         ((Int64) current_time.seconds()) * 1000000 + current_time.usecs();
 
       // Get the process ID.
       int process_id;
@@ -573,131 +549,6 @@ void CpCallManager::pushCall(CpCall* call)
 }
 
 
-void CpCallManager::setAddressForwarding(int size, PtAddressForwarding *pForwards)
-{
-    if (size < 1) 
-        return;
-
-    OsWriteLock lock(mAddressForwardMutex);
-    if (mpAddressForwards == 0 && mAddressForwardingCnt == 0)
-    {
-        mpAddressForwards = new PtAddressForwarding[size];
-        mAddressForwardingCnt = size;
-        for (int i = 0; i < size; i++)
-            mpAddressForwards[i] = PtAddressForwarding(pForwards[i]);
-    }
-    else
-    {
-        // Dump the old list
-        delete[] mpAddressForwards ;
-        mpAddressForwards = NULL ;
-        mAddressForwardingCnt = 0 ;
-
-        // Create a new list
-        if (size > 0) {
-            mpAddressForwards = new PtAddressForwarding[size];
-            mAddressForwardingCnt = size;
-            for (int k = 0; k < size; k++)
-                mpAddressForwards[k] = PtAddressForwarding(pForwards[k]);
-        }
-
-    }
-
-    for (int i = 0; i < mAddressForwardingCnt; i++)
-    {
-        int type = pForwards[i].mForwardingType;
-
-        switch (type)
-        {
-        case PtAddressForwarding::FORWARD_ON_BUSY:
-            mLineBusyBehavior = Connection::FORWARD_ON_BUSY;
-            mSipForwardOnBusy = pForwards[i].mDestinationUrl;
-            break;
-        case PtAddressForwarding::FORWARD_ON_NOANSWER:
-            {
-                int timeout = pForwards[i].mNoAnswerTimeout;
-                mLineAvailableBehavior = Connection::FORWARD_ON_NO_ANSWER;
-                mForwardOnNoAnswer = pForwards[i].mDestinationUrl;
-                if (timeout > 0)
-                    mNoAnswerTimeout = timeout;
-                if (mNoAnswerTimeout <= 0)
-                    mNoAnswerTimeout = 24;
-            }
-            break;
-        case PtAddressForwarding::FORWARD_UNCONDITIONALLY:
-            mLineAvailableBehavior = Connection::FORWARD_UNCONDITIONAL;
-            mForwardUnconditional = pForwards[i].mDestinationUrl;
-            break;
-        }
-    }
-}
-
-void CpCallManager::cancelAddressForwarding(int size, PtAddressForwarding *pForwards)
-{
-    mLineBusyBehavior = Connection::BUSY;
-    mSipForwardOnBusy = OsUtil::NULL_OS_STRING;
-    mLineAvailableBehavior = Connection::RING;
-    mForwardOnNoAnswer = OsUtil::NULL_OS_STRING;
-    mForwardUnconditional = OsUtil::NULL_OS_STRING;
-
-    int i;
-    OsWriteLock lock(mAddressForwardMutex);
-    if (pForwards == 0) // cancel all address forwarding
-    {
-        delete[] mpAddressForwards ;
-        mpAddressForwards = NULL ;
-        mAddressForwardingCnt = 0 ;
-    }
-    else
-    {
-        if (mpAddressForwards && mAddressForwardingCnt > 0)
-        {
-            for (i = 0; i < size; i++)
-            {
-                for (int j = 0; j < mAddressForwardingCnt; j++)
-                {
-                    if (*pForwards == (PtAddressForwarding&) mpAddressForwards[j])
-                    {
-                        mAddressForwardingCnt--;
-                        for (int k = j; k < mAddressForwardingCnt; k++)
-                            mpAddressForwards[k] = mpAddressForwards[k + 1];
-                        break;
-                    }
-                }
-            }
-            if (mAddressForwardingCnt <= 0)
-            {
-                delete[] mpAddressForwards;
-                mpAddressForwards = 0;
-                mAddressForwardingCnt = 0;
-            }
-        }
-    }
-
-    for (i = 0; i < mAddressForwardingCnt; i++)
-    {
-        int type = pForwards[i].mForwardingType;
-
-        switch (type)
-        {
-        case PtAddressForwarding::FORWARD_ON_BUSY:
-            mLineBusyBehavior = Connection::FORWARD_ON_BUSY;
-            mSipForwardOnBusy = pForwards[i].mDestinationUrl;
-            break;
-        case PtAddressForwarding::FORWARD_ON_NOANSWER:
-            mLineAvailableBehavior = Connection::FORWARD_ON_NO_ANSWER;
-            mForwardOnNoAnswer = pForwards[i].mDestinationUrl;
-            if (mNoAnswerTimeout <= 0)
-                mNoAnswerTimeout = 24;
-            break;
-        case PtAddressForwarding::FORWARD_UNCONDITIONALLY:
-            mLineAvailableBehavior = Connection::FORWARD_UNCONDITIONAL;
-            mForwardUnconditional = pForwards[i].mDestinationUrl;
-            break;
-        }
-    }
-}
-
 void CpCallManager::setDoNotDisturb(int flag)
 {
     mDoNotDisturbFlag = flag;
@@ -751,6 +602,12 @@ UtlBoolean CpCallManager::getVoiceQualityReportTarget(UtlString& reportSipUrl)
 
     return bRC ;
 }
+
+void CpCallManager::getLocalAddress(UtlString& address) 
+{
+    address = mLocalAddress ;
+}
+
 
 
 /* ============================ INQUIRY =================================== */

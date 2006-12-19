@@ -108,6 +108,8 @@ class Dialog : public UtlContainable
 
    virtual UtlContainableType getContainableType() const;
 
+   static const UtlContainableType TYPE;
+
    virtual unsigned int hash() const;
 
    int compareTo(const UtlContainable *b) const;
@@ -183,8 +185,6 @@ class Dialog : public UtlContainable
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
 
-   static UtlContainableType TYPE ;    /** < Class type used for runtime checking */ 
-   
    // Set the unique identifier member by concatenating the call-id,
    // to-tag, and from-tag.
    void setIdentifier();
