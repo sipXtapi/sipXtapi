@@ -785,7 +785,7 @@ public:
                 if (synchronous) {
                    // Send message and wait.
                    OsEvent event;
-                   OsTimerMsg msg(OsTimerMsg::UPDATE_SYNC, &timer, &event);
+                   OsTimerMsg msg(OsTimerMsg::OS_TIMER_UPDATE_SYNC, &timer, &event);
                    OsStatus res = OsTimerTask::getTimerTask()->postMessage(msg);
                    assert(res == OS_SUCCESS);
                    event.wait();
@@ -793,7 +793,7 @@ public:
                 else
                 {
                    // Send message.
-                   OsTimerMsg msg(OsTimerMsg::UPDATE, &timer, NULL);
+                   OsTimerMsg msg(OsTimerMsg::OS_TIMER_UPDATE, &timer, NULL);
                    OsStatus res = OsTimerTask::getTimerTask()->postMessage(msg);
                    assert(res == OS_SUCCESS);
                 }
