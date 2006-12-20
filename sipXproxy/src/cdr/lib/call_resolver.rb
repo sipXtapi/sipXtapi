@@ -18,8 +18,6 @@ require 'state'
 # The CallResolver analyzes call state events (CSEs) and computes call detail 
 # records (CDRs).  It loads CSEs from a database and writes CDRs back into the
 # same database.
-# :TODO: log the number of calls analyzed and how many succeeded vs. dups or
-#        failures, also termination status
 class CallResolver
   attr_reader :log
   
@@ -40,23 +38,14 @@ class CallResolver
   # poor man's daemon for now - just repeat daily run every minute
   def daemon
     while true
-      daily_run      
+      run_resolver
+      run_purge if @config.purge?
       sleep 60
     end
   end
   
-  # Run daily processing, including purging and/or call resolution
-  def daily_run(purge_flag = false, purge_time = 0)
-    run_resolver
-    run_purge(purge_time) if purge_flag || @config.purge?
-  end
-  
   def run_resolver
-    if !@config.daily_run?
-      log.error("resolve: the --daily_flag is set, but the daily run is disabled in the configuration");
-      return
-    end
-    start_time, end_time = get_daily_start_time
+    start_time, end_time = get_start_end_times
     resolve(start_time, end_time)
   rescue
     # FIXME: check if we can remove it or at least rethrow exception
@@ -68,7 +57,7 @@ class CallResolver
     $!.backtrace.inject{|trace, line| trace + start_line + line})            
   end
   
-  def get_daily_start_time
+  def get_start_end_times
     start_time = @writer.last_cdr_start_time
     if start_time == nil
       start_time = Time.now - SECONDS_IN_A_DAY
@@ -76,11 +65,11 @@ class CallResolver
     return start_time, Time.now
   end
   
-  def run_purge(purge_time)
+  def run_purge(purge_time = nil)
     # Was a purge age explicitly set?
-    if purge_time != 0
-      log.info("Purge override")
+    if purge_time
       start_cse = start_cdr = Time.now() - (SECONDS_IN_A_DAY * purge_time)
+      log.info("Purge override")
     else
       start_cse = @config.purge_start_time_cse
       start_cdr = @config.purge_start_time_cdr

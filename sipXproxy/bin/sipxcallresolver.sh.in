@@ -527,7 +527,7 @@ do
         -h|--help)
             Action=HELP
             ;;
-		--start|--end|--redo|--daily|--daemon)
+		--start|--end|--daemon)
 			resolverArgs="${resolverArgs} ${1} "
 			;;			            
         *)

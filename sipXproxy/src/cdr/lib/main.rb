@@ -47,7 +47,6 @@ def main
   opts = GetoptLong.new(
                         [ "--start", "-s", GetoptLong::OPTIONAL_ARGUMENT ],
   [ "--end",   "-e", GetoptLong::OPTIONAL_ARGUMENT ],
-  [ "--daily", GetoptLong::NO_ARGUMENT ],
   [ "--daemon", GetoptLong::NO_ARGUMENT ],
   [ "--help",  "-h", GetoptLong::NO_ARGUMENT ]
   )
@@ -57,7 +56,6 @@ def main
   end_time = Time.now
   purge_flag = false
   purge_time = 0
-  daily_flag = false
   daemon_flag = false
   
   # Extract option values
@@ -71,9 +69,6 @@ def main
     when "--end"
       end_time = Time.parse(arg)
       
-    when "--daily"
-      daily_flag = true
-
     when "--daemon"
       daemon_flag = true      
       
@@ -91,8 +86,6 @@ def main
   
   if daemon_flag
     resolver.daemon
-  elsif daily_flag
-    resolver.daily_run
   elsif start_time && end_time
     resolver.resolve(start_time, end_time)
   else

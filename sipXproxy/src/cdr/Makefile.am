@@ -36,3 +36,7 @@ install-gem-for-rpm : package-gem
 	echo "Installing call resolver gem"
 	$(INSTALL) -d -m755 $(DESTDIR)$(callresolver_dir)
 	$(INSTALL) pkg/sipxcallresolver*.gem $(DESTDIR)$(callresolver_dir)
+	
+check :
+	builddir=`pwd`; \
+	cd $(srcdir) && $(rake)

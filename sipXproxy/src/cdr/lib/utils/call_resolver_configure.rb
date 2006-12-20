@@ -23,9 +23,6 @@ class CallResolverConfigure
   # If set, then this becomes a prefix to the default config file path
   SIPX_PREFIX = 'SIPX_PREFIX'
   
-  # If the daily run is enabled, then it happens at 4 AM, always
-  DAILY_RUN_TIME = '04:00'
-  
   LOCALHOST = 'localhost'
   
   # How many seconds are there in a day
@@ -122,17 +119,11 @@ class CallResolverConfigure
   #-----------------------------------------------------------------------------
   # Public configuration
   
-  OTHER_PARAMS = [:cdr_database_url, :cse_database_urls, 
-  :daily_start_time, :daily_end_time,
+  OTHER_PARAMS = [:cdr_database_url, :cse_database_urls,
   :host_list, :host_port_list, :log,
   :purge_start_time_cdr, :purge_start_time_cse]
   # Define a reader for each of the other params
   attr_reader(*OTHER_PARAMS)
-  
-  # Return true if daily runs of the call resolver are enabled, false otherwise
-  def daily_run?
-    @config.enabled?(DAILY_RUN, DAILY_RUN_DEFAULT)
-  end
   
   # Return true if High Availability (HA) is enabled, false otherwise
   def ha?
@@ -242,7 +233,6 @@ class CallResolverConfigure
     @host_list, @host_port_list, @ha = get_cse_hosts_config
     @cse_database_urls = get_cse_database_urls_config(@host_port_list)
     
-    @daily_start_time, @daily_end_time = get_daily_start_time_config
     @purge_start_time_cdr = get_purge_start_time_cdr_config
     @purge_start_time_cse = get_purge_start_time_cse_config
   end
@@ -264,37 +254,6 @@ class CallResolverConfigure
       end
     end     
   end
-  
-  # Compute the start time of the daily call resolver run.
-  # It is not configurable: cron job always runs at a fixed time.
-  def get_daily_start_time_config
-    # Always start the time window at the time the resolver runs
-    daily_end_time = Time.parse(DAILY_RUN_TIME)
-    # Convert to time, start same time yesterday
-    daily_start_time = daily_end_time - SECONDS_IN_A_DAY   # 24 hours
-    return daily_start_time, daily_end_time
-  end
-  
-  # Enable/disable the daily run from the configuration.
-  # Return true if purging is enabled, false otherwise.
-  def set_purge_config(config)
-    
-    # Look up the config param
-    @purge = config[PURGE]
-    
-    # Apply the default if the param was not specified
-    @purge ||= PURGE_DEFAULT
-    
-    # Convert to a boolean
-    if @purge.casecmp(Configure::ENABLE) == 0
-      @purge = true
-    elsif @purge.casecmp(Configure::DISABLE) == 0
-      @purge = false
-    else
-      raise(ConfigException, "Unrecognized value \"#{@purge}\" for " +
-            "#{PURGE}.  Must be ENABLE or DISABLE.")
-    end
-  end  
   
   # Compute start time of CDR records to be purged from configuration
   def get_purge_start_time_cdr_config
@@ -367,12 +326,10 @@ class CallResolverConfigure
       value = config[param_name]
       param_value = Integer(value) if value
       if !(min..max).include?(param_value)
-        raise ConfigException, "The value of the configuration parameter #{param_name}, #{param_value}, "+
-          "must be in #{min}..#{max} range."
+        raise ConfigException, "Configuration parameter #{param_name}, #{param_value} must be in #{min}..#{max} range."
       end
     rescue ArgumentError
-      raise ConfigException, "The value of the configuration parameter #{param_name}, #{param_value}, "+
-        "is not an integer"
+      raise ConfigException, "Configuration parameter #{param_name}, #{param_value} must be an integer"
     end
     
     param_value

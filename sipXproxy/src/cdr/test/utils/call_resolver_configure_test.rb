@@ -73,36 +73,23 @@ class CallResolverConfigureTest < Test::Unit::TestCase
     end
   end
   
-  def test_get_daily_run_config
-    # Pass in an empty config, should get the default value of false
-    assert(!@config.daily_run?)
-  end
-  
-  def test_get_daily_start_time_config
-    # Pass in an empty config, should get the default value always since this
-    # parameter is not configurable
-    # fixed to start at 4
-    start, stop = @config.get_daily_start_time_config
-    assert_equal(4, start.hour)
-    assert_equal(4, stop.hour)
-  end
-  
   def test_set_purge_config
     # Pass in an empty config, should get the default value of true
-    assert(@config.send(:set_purge_config, {}))
+    assert(@config.purge?)
     
     # Pass in ENABLE, get true
     # Pass in DISABLE, get false
     # Comparison is case-insensitive
-    assert(@config.send(:set_purge_config,
-                        {CallResolverConfigure::PURGE => 'EnAbLe'}))
-    assert(!@config.send(:set_purge_config,
-                         {CallResolverConfigure::PURGE => 'dIsAbLe'}))
-    
+    c = Configure.new({CallResolverConfigure::PURGE => 'EnAbLe'})
+    assert(CallResolverConfigure.new(c).purge?)
+
+    c = Configure.new({CallResolverConfigure::PURGE => 'dIsAbLe'})
+    assert(!CallResolverConfigure.new(c).purge?)
+
     # Pass in bogus value, get exception
+    c = Configure.new({CallResolverConfigure::PURGE => 'jacket'})
     assert_raise(ConfigException) do
-      @config.send(:set_purge_config,
-                   {CallResolverConfigure::PURGE => 'jacket'})
+      assert(CallResolverConfigure.new(c).purge?)
     end
   end
   

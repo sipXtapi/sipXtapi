@@ -30,6 +30,6 @@ class CallResolverTest < Test::Unit::TestCase
   
   def _test_daily
     resolver = CallResolver.new(@config)
-    resolver.daily_run
+    resolver.run_resolver
   end
 end
