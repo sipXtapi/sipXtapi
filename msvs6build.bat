@@ -15,7 +15,7 @@ if "%1" == "clean" set doClean="/CLEAN"
 
 @msdev /? > nul
 @rem error level: %ERRORLEVEL%
-@if %ERRORLEVEL% GTR 0 vcvars32
+@if %ERRORLEVEL% GTR 0 call vcvars32
 
 cd sipXportLib
 del %releaseType%\sipXportLib%libPrefix%.lib

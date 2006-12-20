@@ -130,7 +130,7 @@ SOURCE=.\src\test\tapi\EventValidator.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\test\tapi\SipSubcriptionTest.cpp
+SOURCE=.\src\test\tapi\SipSubscriptionTest.cpp
 # End Source File
 # Begin Source File
 

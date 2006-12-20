@@ -12,9 +12,6 @@
 // SYSTEM INCLUDES
 #include <string.h>
 #include <ctype.h>
-#ifdef _VXWORKS
-#include <resparse/vxw/hd_string.h>
-#endif
 
 #ifdef __pingtel_on_posix__  //needed by linux
 #include <wctype.h>

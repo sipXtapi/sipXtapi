@@ -933,6 +933,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
         case CP_SEND_SIP_REQUEST:
         case CP_NEW_PASSERTED_ID:
         case CP_SET_MEDIA_PROPERTY:
+        case CP_GET_MEDIA_PROPERTY:
             // Forward the message to the call
             {
                 UtlString callId;
@@ -973,7 +974,8 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                         msgSubType == CP_GET_LOCAL_CONTACTS || 
                         msgSubType == CP_GET_MEDIA_CONNECTION_ID ||
                         msgSubType == CP_GET_CAN_ADD_PARTY ||
-                        msgSubType == CP_SEND_SIP_REQUEST)
+                        msgSubType == CP_SEND_SIP_REQUEST ||
+                        msgSubType == CP_GET_MEDIA_PROPERTY)
                     {
                         // Get the OsProtectedEvent and signal it to go away
                         OsProtectedEvent* eventWithoutCall = (OsProtectedEvent*)
@@ -1615,6 +1617,57 @@ OsStatus CallManager::setCallMediaProperty(const char* callId,
         propertyName,
         propertyValue);
     postMessage(mediaPropertyMessage);
+    return(OS_SUCCESS);  // For now now error checking
+}
+
+OsStatus CallManager::getCallMediaProperty(const char* callId,
+                                           const char* propertyName,
+                                           UtlString& propertyValue)
+{
+    OsStatus returnCode = OS_WAIT_TIMEOUT;
+
+    // Need to attach a UtlString in which to get the property
+    // value back
+    OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
+    UtlString* valueString = new UtlString();
+    OsProtectedEvent* getPropertyEvent = eventMgr->alloc();
+    getPropertyEvent->setIntData((int) valueString);
+    OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
+
+    // Create the message to pass to CpCall
+    CpMultiStringMessage mediaPropertyMessage(CP_GET_MEDIA_PROPERTY,
+        callId,
+        NULL, // no remote address as this is to the general CpMediaInterface
+        propertyName,
+        NULL,
+        NULL,
+        (int) getPropertyEvent);
+    postMessage(mediaPropertyMessage);
+
+    // Need to wait for result or timeout
+    if(getPropertyEvent->wait(0, maxEventTime) == OS_SUCCESS)
+    {
+        propertyValue = *valueString;
+        delete valueString;
+        valueString = NULL;
+        eventMgr->release(getPropertyEvent);
+        returnCode = OS_SUCCESS;
+    }
+    else
+    {
+        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::getCallMediaProperty TIMED OUT callId: %s property: %s",
+            callId, propertyName);
+
+        // If the event has already been signalled, clean up
+        if(getPropertyEvent->signal(0) == OS_ALREADY_SIGNALED)
+        {
+            delete valueString;
+            valueString = NULL;
+            eventMgr->release(getPropertyEvent);
+        }
+        // Else the other side will clean up
+    }
+
     return(OS_SUCCESS);  // For now now error checking
 }
 
@@ -2830,6 +2883,58 @@ OsStatus CallManager::setConnectionMediaProperty(const char* callId,
         propertyName,
         propertyValue);
     postMessage(mediaPropertyMessage);
+    return(OS_SUCCESS);  // For now now error checking
+}
+
+OsStatus CallManager::getConnectionMediaProperty(const char* callId,
+                                                 const char* remoteAddress,
+                                                 const char* propertyName,
+                                                 UtlString& propertyValue)
+{
+    OsStatus returnCode = OS_WAIT_TIMEOUT;
+
+    // Need to attach a UtlString in which to get the property
+    // value back
+    OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
+    UtlString* valueString = new UtlString();
+    OsProtectedEvent* getPropertyEvent = eventMgr->alloc();
+    getPropertyEvent->setIntData((int) valueString);
+    OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
+
+    // Create the message to pass to CpCall
+    CpMultiStringMessage mediaPropertyMessage(CP_GET_MEDIA_PROPERTY,
+        callId,
+        remoteAddress,
+        propertyName,
+        NULL,
+        NULL,
+        (int) getPropertyEvent);
+    postMessage(mediaPropertyMessage);
+
+    // Need to wait for result or timeout
+    if(getPropertyEvent->wait(0, maxEventTime) == OS_SUCCESS)
+    {
+        propertyValue = *valueString;
+        delete valueString;
+        valueString = NULL;
+        eventMgr->release(getPropertyEvent);
+        returnCode = OS_SUCCESS;
+    }
+    else
+    {
+        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::getConnectionMediaProperty TIMED OUT callId: %s remote address: %s property: %s",
+            callId, remoteAddress, propertyName);
+
+        // If the event has already been signalled, clean up
+        if(getPropertyEvent->signal(0) == OS_ALREADY_SIGNALED)
+        {
+            delete valueString;
+            valueString = NULL;
+            eventMgr->release(getPropertyEvent);
+        }
+        // Else the other side will clean up
+    }
+
     return(OS_SUCCESS);  // For now now error checking
 }
 

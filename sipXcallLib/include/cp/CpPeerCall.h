@@ -301,6 +301,9 @@ protected:
     //: Handle processing of a CP_SET_MEDIA_PROPERTY message
     UtlBoolean handleSetMediaProperty(OsMsg* eventMessage);
 
+    //: Handle processing of a CP_GET_MEDIA_PROPERTY message
+    UtlBoolean handleGetMediaProperty(OsMsg* eventMessage);
+
     virtual UtlBoolean getConnectionState(const char* remoteAddress, int& state);
 
     virtual UtlBoolean getTermConnectionState(const char* address,

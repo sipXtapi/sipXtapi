@@ -69,7 +69,7 @@ public:
    virtual UtlBoolean originalCallTransfer(UtlString& transferTargetAddress,
                                            const char* transferControllerAddress,
                                            const char* targetCallId,
-                                           bool       remoteHoldBeforeTransfer = true
+                                           UtlBoolean  remoteHoldBeforeTransfer = TRUE
                                            );
    // Initiate blind transfer on transfer controller connection in
    // the original call.

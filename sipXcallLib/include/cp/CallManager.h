@@ -201,6 +201,19 @@ public:
                                           const char* propertyName,
                                           const char* propertyValue);
 
+    //: Get the media property from the media interface for the given call
+    /*
+     * Retrieve the property value for the propertyName in the media 
+     * interface associated with the call indicated by the given callId.
+     * @param callId - call id string for the conference
+     * @param propertyName - string id for the property to get
+     * @param propertyValue - the retrieved value of the property
+     */
+
+    virtual OsStatus getCallMediaProperty(const char* callId,
+                                          const char* propertyName,
+                                          UtlString& propertyValue);
+
 #ifndef EXCLUDE_STREAMING
     virtual void createPlayer(const char* callid, MpStreamPlaylistPlayer** ppPlayer) ;
     virtual void createPlayer(int type, const char* callid, const char* szStream, int flags, MpStreamPlayer** ppPlayer) ;
@@ -340,13 +353,25 @@ public:
     /*
      * @param callId - call id string for the conference or SIP dialog
      * @param remoteAddress - address on the remote leg of the connection on which to set property
-     * @param propertyName string id for the property to set
-     * @param propertyValue for the new value of the property
+     * @param propertyName - string id for the property to set
+     * @param propertyValue - for the new value of the property
      */
     virtual OsStatus setConnectionMediaProperty(const char* callId,
                                                   const char* remoteAddress,
                                                   const char* propertyName,
                                                   const char* propertyValue);
+
+    //: Get a media property on the media connection for the given call
+    /*
+     * @param callId - call id string for the conference or SIP dialog
+     * @param remoteAddress - address on the remote leg of the connection on which to get property
+     * @param propertyName - string id for the property to get
+     * @param propertyValue - the retrieved value of the property
+     */
+    virtual OsStatus getConnectionMediaProperty(const char* callId,
+                                                const char* remoteAddress,
+                                                const char* propertyName,
+                                                UtlString& propertyValue);
 
     virtual void setMaxCalls(int maxCalls);
     //:Set the maximum number of calls to admit to the system.

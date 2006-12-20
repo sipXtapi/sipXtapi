@@ -338,7 +338,7 @@ UtlBoolean CpPeerCall::handleTransfer(OsMsg* pEventMessage)
         setCallType(CP_TRANSFER_CONTROLLER_ORIGINAL_CALL);
 
         int metaEventId = ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
-        bool remoteHoldBeforeTransfer = ((CpMultiStringMessage*)pEventMessage)->getInt2Data();
+        UtlBoolean remoteHoldBeforeTransfer = ((CpMultiStringMessage*)pEventMessage)->getInt2Data();
         UtlString targetCallId;
         ((CpMultiStringMessage*)pEventMessage)->getString3Data(targetCallId);
         setTargetCallId(targetCallId.data());
@@ -1701,7 +1701,6 @@ UtlBoolean CpPeerCall::handleGetInvite(OsMsg* pEventMessage)
     return TRUE ;
 }
 
-
 // Handles CP_SEND_SIP_REQUEST
 UtlBoolean CpPeerCall::handleSendSipRequest(OsMsg* pEventMessage)
 {
@@ -1788,7 +1787,6 @@ UtlBoolean CpPeerCall::handleSendSipRequest(OsMsg* pEventMessage)
     }
     return(TRUE);
 }
-
 
 // Handles the processing of a CallManager::CP_GET_CALLSTATE 
 // message
@@ -1966,7 +1964,8 @@ UtlBoolean CpPeerCall::handleSetMediaProperty(OsMsg* eventMessage)
         ((CpMultiStringMessage*)eventMessage)->getString4Data(propertyValue);
         if(remoteAddress.isNull())
         {
-            returnCode = mpMediaInterface->setMediaProperty(propertyName, propertyValue);
+            returnCode = mpMediaInterface->setMediaProperty(propertyName, 
+                                                            propertyValue);
         }
         // Else this is a property that is specific to a media interface connection
         else
@@ -1975,11 +1974,91 @@ UtlBoolean CpPeerCall::handleSetMediaProperty(OsMsg* eventMessage)
             Connection* connection = findHandlingConnection(remoteAddress);
             if(connection)
             {
-                returnCode = mpMediaInterface->setMediaProperty(connection->getConnectionId(), 
-                                                                propertyName, 
+                returnCode = mpMediaInterface->setMediaProperty(connection->getConnectionId(),
+                                                                propertyName,
                                                                 propertyValue);
             }
+            else
+            {
+                UtlString callId;
+                ((CpMultiStringMessage*)eventMessage)->getString1Data(callId);
+                OsSysLog::add(FAC_CP, PRI_ERR,
+                    "CpPeerCall::handleSetMediaProperty failed to find conection for callId: %s remote address: %s property: %s",
+                    callId.data(), remoteAddress.data(), propertyName.data());
+            }
         }
+    }
+    return(TRUE);
+}
+
+// Handles processing of a
+// CallManager::CP_GET_MEDIA_PROPERTY
+UtlBoolean CpPeerCall::handleGetMediaProperty(OsMsg* eventMessage)
+{
+    OsStatus returnCode = OS_FAILED;
+    int msgSubType = eventMessage->getMsgSubType();
+    addHistoryEvent(msgSubType, (CpMultiStringMessage*)eventMessage);
+
+    UtlString* propertyValue = NULL;
+    OsProtectedEvent* getPropertyEvent = (OsProtectedEvent*) 
+            ((CpMultiStringMessage*)eventMessage)->getInt1Data();
+    getPropertyEvent->getIntData((int&)propertyValue);
+
+    if(mpMediaInterface && propertyValue)
+    {
+        UtlString remoteAddress;
+        UtlString propertyName;
+        // If this a property that is global to the flowgraph:
+        ((CpMultiStringMessage*)eventMessage)->getString2Data(remoteAddress);
+        ((CpMultiStringMessage*)eventMessage)->getString3Data(propertyName);
+
+        if(propertyValue == NULL)
+        {
+            OsSysLog::add(FAC_CP, PRI_ERR,
+                "CpPeerCall::handleSetMediaProperty NULL propertyValue in event");
+        }
+        else if(remoteAddress.isNull())
+        {
+            returnCode = mpMediaInterface->getMediaProperty(propertyName, 
+                                                            *propertyValue);
+        }
+        // Else this is a property that is specific to a media interface connection
+        else
+        {
+            // Find the SipConnection so we can get the media connection id
+            Connection* connection = findHandlingConnection(remoteAddress);
+            if(connection)
+            {
+                returnCode = mpMediaInterface->getMediaProperty(connection->getConnectionId(), 
+                                                                    propertyName, 
+                                                                    *propertyValue);
+            }
+            else
+            {
+                UtlString callId;
+                ((CpMultiStringMessage*)eventMessage)->getString1Data(callId);
+                OsSysLog::add(FAC_CP, PRI_ERR,
+                    "CpPeerCall::handleSetMediaProperty no connection for callId: %s remote address: %s property: %s",
+                    callId.data(), remoteAddress.data(), propertyName.data());
+            }
+        }
+    }
+
+    // Signal the caller that we are done.
+
+    // If the event has already been signalled, clean up
+    if(OS_ALREADY_SIGNALED == getPropertyEvent->signal(TRUE))
+    {
+        // The other end must have timed out on the wait
+        // Clean up
+        if(propertyValue)
+        {
+            delete propertyValue;
+            propertyValue = NULL;
+        }
+        OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
+        eventMgr->release(getPropertyEvent);
+        getPropertyEvent = NULL;
     }
     return(TRUE);
 }
@@ -2529,6 +2608,10 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
 
     case CallManager::CP_SET_MEDIA_PROPERTY:
         handleSetMediaProperty(&eventMessage);
+        break;
+
+    case CallManager::CP_GET_MEDIA_PROPERTY:
+        handleGetMediaProperty(&eventMessage);
         break;
 
     default:
@@ -3796,6 +3879,7 @@ Connection* CpPeerCall::findQueuedConnection()
 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
+
 UtlBoolean CpPeerCall::checkForTag(const UtlString &address,
                                    UtlString& address_without_tag)
 {

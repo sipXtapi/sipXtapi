@@ -17,9 +17,6 @@
 // SYSTEM INCLUDES
 #include <stdlib.h>
 #include <string.h>
-#ifdef _VXWORKS
-#include <resparse/vxw/hd_string.h>
-#endif
 
 //uncomment next line to track the create and destroy of messages
 //#define TRACK_LIFE
@@ -4146,7 +4143,6 @@ void SipMessage::setServerField(const char* serverField)
 {
    setHeaderValue(SIP_SERVER_FIELD, serverField);
 }
-
 
 void SipMessage::setSessionExpires(int sessionExpiresSeconds)
 {

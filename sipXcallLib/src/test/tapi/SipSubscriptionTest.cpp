@@ -25,6 +25,8 @@
 #include <os/OsTask.h>
 #include <net/Url.h>
 
+//#define TEST_PRINT
+
 #define UNIT_TEST_SIP_PORT 44450
 #define UNIT_TEST_SIP_PORT2 44452
 #define UNIT_TEST_RTP_PORT_START 45000
@@ -224,7 +226,8 @@ class SipSubscriptionTest : public CppUnit::TestCase
         sipxInitialize(&sipxInstance1,
                        UNIT_TEST_SIP_PORT, UNIT_TEST_SIP_PORT, -1,
                        UNIT_TEST_RTP_PORT_START,
-                       UNIT_TEST_MAX_CALL_LEGS);
+                       UNIT_TEST_MAX_CALL_LEGS, DEFAULT_IDENTITY,
+                       "127.0.0.1");
 
         CPPUNIT_ASSERT(sipxInstance1);
 
@@ -232,7 +235,8 @@ class SipSubscriptionTest : public CppUnit::TestCase
         sipxInitialize(&sipxInstance2,
                        UNIT_TEST_SIP_PORT2, UNIT_TEST_SIP_PORT2, -1,
                        UNIT_TEST_RTP_PORT_START2,
-                       UNIT_TEST_MAX_CALL_LEGS);
+                       UNIT_TEST_MAX_CALL_LEGS, DEFAULT_IDENTITY,
+                       "127.0.0.1");
 
         CPPUNIT_ASSERT(sipxInstance2);
 

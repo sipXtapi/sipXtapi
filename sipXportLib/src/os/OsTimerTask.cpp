@@ -1,10 +1,16 @@
-//
-// Copyright (C) 2004, 2005, 2006 Pingtel Corp.
 // 
-//
+// 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004-2006 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+//////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -84,15 +90,15 @@ OsTimerTask::~OsTimerTask()
 {
    // Shut down the task.
    OsEvent event;
-   OsTimerMsg msg(OsTimerMsg::SHUTDOWN, NULL, &event);
-   // Send the SHUTDOWN message.
+   OsTimerMsg msg(OsTimerMsg::OS_TIMER_SHUTDOWN, NULL, &event);
+   // Send the OS_TIMER_SHUTDOWN message.
    OsStatus res = OsTimerTask::getTimerTask()->postMessage(msg);
    assert(res == OS_SUCCESS);
    // Wait for the response.
    event.wait();
    // Since this code is locked by sLock, no (few) messages will have
    // been added to the incoming queue while we were waiting for the
-   // SHUTDOWN message to get through the queue, as getTimerTask would
+   // OS_TIMER_SHUTDOWN message to get through the queue, as getTimerTask would
    // have waited for sLock.
 }
 
@@ -225,11 +231,11 @@ UtlBoolean OsTimerTask::handleMessage(OsMsg& rMsg)
 
    OsTimerMsg& message = dynamic_cast <OsTimerMsg&> (rMsg);
 
-   // Process a SHUTDOWN message, which is special
-   if (message.getMsgSubType() == OsTimerMsg::SHUTDOWN)
+   // Process a OS_TIMER_SHUTDOWN message, which is special
+   if (message.getMsgSubType() == OsTimerMsg::OS_TIMER_SHUTDOWN)
    {
       OsSysLog::add(FAC_KERNEL, PRI_INFO,
-                    "OsTimerTask::handleMessage SHUTDOWN seen, mState = %d",
+                    "OsTimerTask::handleMessage OS_TIMER_SHUTDOWN seen, mState = %d",
                     mState);
       // Verify that there are no other requests in the timer task's queue.
       assert(getMessageQueue()->isEmpty());
@@ -264,7 +270,7 @@ UtlBoolean OsTimerTask::handleMessage(OsMsg& rMsg)
       // Signal the event so our caller knows we're done.
       message.getEventP()->signal(0);
       OsSysLog::add(FAC_KERNEL, PRI_INFO,
-                    "OsTimerTask::handleMessage SHUTDOWN seen, mState = %d",
+                    "OsTimerTask::handleMessage OS_TIMER_SHUTDOWN seen, mState = %d",
                     mState);
       return TRUE;
    }
@@ -322,16 +328,16 @@ UtlBoolean OsTimerTask::handleMessage(OsMsg& rMsg)
 
    switch (message.getMsgSubType())
    {
-   case OsTimerMsg::UPDATE:
+   case OsTimerMsg::OS_TIMER_UPDATE:
       // No further processing is needed.
       break;
 
-   case OsTimerMsg::UPDATE_SYNC:
+   case OsTimerMsg::OS_TIMER_UPDATE_SYNC:
       // If it is an UPDATE_SYNC message, signal the event.
       message.getEventP()->signal(0);
       break;
 
-   case OsTimerMsg::UPDATE_DELETE:
+   case OsTimerMsg::OS_TIMER_UPDATE_DELETE:
       // If it is an UPDATE_DELETE, delete the timer.
 
       // Timer will not be accessed by any other thread, so we

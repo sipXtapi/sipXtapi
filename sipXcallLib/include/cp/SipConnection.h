@@ -94,7 +94,7 @@ public:
        UtlString&  transferTargetAddress,
        const char* transferControllerAddress,
        const char* targetCallId,
-       bool        holdBeforeTransfer = true
+       UtlBoolean  holdBeforeTransfer = TRUE
                                             );
     /**
      * If fromAddress or toAddress are NULL it is assumed to be a blind transfer.

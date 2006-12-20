@@ -223,6 +223,7 @@ typedef enum SIPX_RESULT
  */
 typedef enum TONE_ID
 {
+    ID_TONE_UNDEFINED  = (-1),      /**< Undefined */
     ID_DTMF_0              = '0',   /**< DMTF 0 */
     ID_DTMF_1              = '1',   /**< DMTF 1 */
     ID_DTMF_2              = '2',   /**< DMTF 2 */
@@ -964,7 +965,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallPlayBufferStop(const SIPX_CALL hCall) ;
 
 
 /**
- * Set a media property on the media interface connection associated with the
+ * Set a media property on the media interface or connection associated with the
  * given call.  The property names may be media subsystem specific.  This may
  * be used to set stream specific properties assocated with a call.
  *
@@ -975,11 +976,38 @@ SIPXTAPI_API SIPX_RESULT sipxCallPlayBufferStop(const SIPX_CALL hCall) ;
  * @param hCall Handle to a call (and implied assocated media connection).
  * @param szPropertyName name of the media connection specific property to set.
  * @param szPropertyValue new value to set on the media connection specific property.
+ * @param bSetConnectionProperty if true set the property on the connection 
+ *        otherwise set the property on the interface.
  */
 SIPXTAPI_API SIPX_RESULT sipxCallSetMediaProperty(const SIPX_CALL hCall,
                                                   const char* szPropertyName,
-                                                  const char* szPropertyValue);
+                                                  const char* szPropertyValue,
+                                                  bool bSetConnectionProperty);
 
+/**
+ * Get a media property on the media interface or connection associated with the
+ * given call.  The property names may be media subsystem specific.  This may
+ * be used to get stream specific properties assocated with a call.
+ *
+ * Note: the application should be aware of when the media interface connection
+ * is created.  A media connection is not created until after the call has been
+ * initiated.
+ *
+ * @param hCall Handle to a call (and implied assocated media connection).
+ * @param szPropertyName name of the media interface or connection specific 
+ *        property to get.
+ * @param szPropertyValue the value to get on the media interface or connection
+ *        specific property.
+ * @param maxValueLength maximum size of szPropertyValue buffer, including null 
+ *        termination
+ * @param bGetConnectionProperty if true get the property on the connection 
+ *        otherwise get the property on the interface.
+ */
+SIPXTAPI_API SIPX_RESULT sipxCallGetMediaProperty(const SIPX_CALL hCall,
+                                                  const char* szPropertyName,
+                                                  char* szPropertyValue,
+                                                  const size_t maxValueLength,
+                                                  bool bGetConnectionProperty);
 /**
  * Subscribe for NOTIFY events which may be published by the other end-point of the Call.
  *
@@ -1311,6 +1339,23 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceDestroy(SIPX_CONF hConf) ;
 SIPXTAPI_API SIPX_RESULT sipxConferenceSetMediaProperty(const SIPX_CONF hConf,
                                                         const char* szPropertyName,
                                                         const char* szPropertyValue);
+
+/**
+ * Get a media property on the media interface associated with the given conference.  
+ * The property names may be media subsystem specific.  This may be used to get 
+ * conference/media interface specific properties.  This interface is for media 
+ * interface implementations that support having seperate device, audio, video or other
+ * media properties for each conference or simple 2-way call. 
+ *
+ * @param hConf Handle to a conference (and implied assocated media interface).
+ * @param szPropertyName name of the media interface specific property to set.
+ * @param szPropertyValue retrieved value on the media interface specific property.
+ * @param maxPropertyLength maximum size string that can be held by szPropertyValue
+ */
+SIPXTAPI_API SIPX_RESULT sipxConferenceGetMediaProperty(const SIPX_CONF hConf,
+                                                        const char* szPropertyName,
+                                                        char* szPropertyValue,
+                                                        const size_t maxPropertyLength);
 //@}
 
 /** @name Audio Methods */

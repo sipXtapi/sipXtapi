@@ -37,7 +37,6 @@ extern "C" {
 /* #include <sys/socket.h> used sockLib.h instead --GAT */
 #       include <sockLib.h>
 #       include <resolvLib.h>
-#       include <resparse/vxw/hd_string.h>
 #elif defined(__pingtel_on_posix__)
 #       include <arpa/inet.h>
 #       include <netinet/in.h>
@@ -63,11 +62,12 @@ extern struct __res_state _sip_res;
 #include <string.h>
 
 // Application includes.
-#include "os/OsSocket.h"
-#include "os/OsLock.h"
-#include "net/SipSrvLookup.h"
-#include "os/OsDefs.h"
-#include "os/OsSysLog.h"
+#include <os/OsDefs.h>
+#include <os/OsSocket.h>
+#include <os/OsLock.h>
+#include <net/SipSrvLookup.h>
+
+#include <os/OsSysLog.h>
 #include "resparse/rr.h"
 
 // The space allocated for returns from res_query.

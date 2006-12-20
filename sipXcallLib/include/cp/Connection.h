@@ -220,7 +220,7 @@ public:
    virtual UtlBoolean originalCallTransfer(UtlString& transferTargetAddress,
                                            const char* transferControllerAddress,
                                            const char* targetCallId,
-                                           bool       remoteHoldBeforeTransfer = true
+                                           UtlBoolean       remoteHoldBeforeTransfer = true
                                            ) = 0;
    // Initiate transfer on transfer controller connection in 
    // the original call.
@@ -270,6 +270,8 @@ public:
 									int mask = 0);
 
 	void setLocalAddress(const char* address);
+
+  	void setRemoteAddress(const char* address);
 
     //! Change the local identity for the existing connection
     /*! 
@@ -441,6 +443,7 @@ protected:
 	TaoReference*		mpListenerCnt;
 
 	UtlString mLocalAddress;
+	UtlString mRemoteAddress;
     UtlString mOriginalCallConnectionAddress;
     UtlString mTargetCallConnectionAddress;
     UtlString mTargetCallId;

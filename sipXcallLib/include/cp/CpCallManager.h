@@ -195,7 +195,8 @@ public:
         CP_CONSULT_TRANSFER_ADDRESS,
         CP_SEND_SIP_REQUEST,
         CP_NEW_PASSERTED_ID,
-        CP_SET_MEDIA_PROPERTY
+        CP_SET_MEDIA_PROPERTY,
+        CP_GET_MEDIA_PROPERTY
     };
 
 /*
@@ -415,6 +416,19 @@ public:
                                           const char* propertyName,
                                           const char* propertyValue) = 0;
 
+    //: Get the media property from the media interface for the given call
+    /*
+     * Retrieve the property value for the propertyName in the media 
+     * interface associated with the call indicated by the given callId.
+     * @param callId - call id string for the conference
+     * @param propertyName - string id for the property to get
+     * @param propertyValue - the retrieved value of the property
+     */
+
+    virtual OsStatus getCallMediaProperty(const char* callId,
+                                          const char* propertyName,
+                                          UtlString& propertyValue) = 0;
+
 #ifndef EXCLUDE_STREAMING
     //! Create a MpStreamPlaylistPlayer media player associated with
     /*! the specified call. The media player can subsequently be used
@@ -551,10 +565,21 @@ public:
      * @param propertyValue for the new value of the property
      */
     virtual OsStatus setConnectionMediaProperty(const char* callId,
-                                                  const char* remoteAddress,
-                                                  const char* propertyName,
-                                                  const char* propertyValue) = 0;
+                                                const char* remoteAddress,
+                                                const char* propertyName,
+                                                const char* propertyValue) = 0;
 
+    //: Get a media property on the media connection for the given call
+    /*
+     * @param callId - call id string for the conference or SIP dialog
+     * @param remoteAddress - address on the remote leg of the connection on which to get property
+     * @param propertyName - string id for the property to get
+     * @param propertyValue - the retrieved value of the property
+     */
+    virtual OsStatus getConnectionMediaProperty(const char* callId,
+                                                const char* remoteAddress,
+                                                const char* propertyName,
+                                                UtlString& propertyValue) = 0;
 
     //@}
 

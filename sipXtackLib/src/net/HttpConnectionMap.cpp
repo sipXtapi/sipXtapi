@@ -1,4 +1,7 @@
 // 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
@@ -12,9 +15,6 @@
 // SYSTEM INCLUDES
 #include <string.h>
 #include <ctype.h>
-#ifdef _VXWORKS
-#include <resparse/vxw/hd_string.h>
-#endif
 
 #ifdef __pingtel_on_posix__  //needed by linux
 #include <wctype.h>

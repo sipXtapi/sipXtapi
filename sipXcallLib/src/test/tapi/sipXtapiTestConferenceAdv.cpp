@@ -158,8 +158,6 @@ void sipXtapiTestSuite::testConfHoldIndividual()
 
         // Hold Call 1
         CPPUNIT_ASSERT_EQUAL(sipxCallHold(hCall1), SIPX_RESULT_SUCCESS) ;
-        bRC = validatorCalling.waitForCallEvent(hLine, hCall1, CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE_HELD, true) ;
-        CPPUNIT_ASSERT(bRC) ;
         bRC = validatorCalling.waitForCallEvent(hLine, hCall1, CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_INACTIVE, true) ;
         CPPUNIT_ASSERT(bRC) ;
         bRC = validatorCalling.waitForCallEvent(hLine, hCall1, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_STOP, false) ;
@@ -171,8 +169,6 @@ void sipXtapiTestSuite::testConfHoldIndividual()
 
         // Hold Call 2
         CPPUNIT_ASSERT_EQUAL(sipxCallHold(hCall2), SIPX_RESULT_SUCCESS) ;
-        bRC = validatorCalling.waitForCallEvent(hLine, hCall2, CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE_HELD, true) ;
-        CPPUNIT_ASSERT(bRC) ;
         bRC = validatorCalling.waitForCallEvent(hLine, hCall2, CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_INACTIVE, true) ;
         CPPUNIT_ASSERT(bRC) ;
         bRC = validatorCalling.waitForCallEvent(hLine, hCall2, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_STOP, true) ;

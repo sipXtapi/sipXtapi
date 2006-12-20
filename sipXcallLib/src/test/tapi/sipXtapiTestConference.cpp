@@ -92,6 +92,11 @@ void sipXtapiTestSuite::testConfBasic1()
 #endif
 
         CPPUNIT_ASSERT_EQUAL(sipxConferenceAdd(hConf, hLine, "sip:blah@127.0.0.1:9100", &hCall1), SIPX_RESULT_SUCCESS) ;
+
+        // This should fail as there is no connection yet.  So we cannot set
+        // a property on a connection that does not exist yet.
+        CPPUNIT_ASSERT(sipxCallSetMediaProperty(hCall1, "connectionName", "connect1", true) != SIPX_RESULT_SUCCESS);
+
 #ifdef TEST_PRINT
         UtlString callDumpString;
         sipxConfDataToString(hConf, confDumpString);
@@ -101,7 +106,16 @@ void sipXtapiTestSuite::testConfBasic1()
         printf("testConfBasic1 add first leg call:\n %s\n", callDumpString.data());
 #endif
 
+        char conferencePropertyValue[128];
         CPPUNIT_ASSERT(sipxConferenceSetMediaProperty(hConf, "foo", "bar") == SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT(sipxConferenceGetMediaProperty(hConf, "foo", conferencePropertyValue, 128) == 
+            SIPX_RESULT_SUCCESS);
+        if(strcmp(conferencePropertyValue, "bar") != 0)
+        {
+            printf("conferencePropertyValue: %s expected: %s\n", 
+                conferencePropertyValue, "bar");
+        }
+        CPPUNIT_ASSERT(strcmp(conferencePropertyValue, "bar") == 0);
 
         // Validate Calling Side
         bRC = validatorCalling.waitForCallEvent(hLine, hCall1, CALLSTATE_DIALTONE, CALLSTATE_DIALTONE_CONFERENCE, true) ;
@@ -115,7 +129,23 @@ void sipXtapiTestSuite::testConfBasic1()
         bRC = validatorCalling.waitForCallEvent(hLine, hCall1, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_START, true) ;
         CPPUNIT_ASSERT(bRC) ;
 
-        CPPUNIT_ASSERT(sipxCallSetMediaProperty(hCall1, "connectionName", "connect1") == SIPX_RESULT_SUCCESS);
+        char connectValue[128];
+        CPPUNIT_ASSERT(sipxCallSetMediaProperty(hCall1, "connectionName", "connect1", true) == SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT(sipxCallGetMediaProperty(hCall1, "connectionName", connectValue, 128, true) == SIPX_RESULT_SUCCESS);
+        if(strcmp(connectValue, "connect1") != 0)
+        {
+            printf("connectValue: %s expected: %s\n", connectValue, "connect1");
+        }
+        CPPUNIT_ASSERT(strcmp(connectValue, "connect1") == 0);
+
+        // Get a interface property (not a connection specific property).
+        CPPUNIT_ASSERT(sipxCallGetMediaProperty(hCall1, "foo", connectValue, 128, false) == SIPX_RESULT_SUCCESS);
+        if(strcmp(connectValue, "bar") != 0)
+        {
+            printf("connectValue: %s expected: %s line: %d\n", 
+                connectValue, "bar", __LINE__);
+        }
+        CPPUNIT_ASSERT(strcmp(connectValue, "bar") == 0);
 
         // Validate Called Side
         bRC = validatorCalled1.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_NEWCALL, CALLSTATE_NEW_CALL_NORMAL, true) ;

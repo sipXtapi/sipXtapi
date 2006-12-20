@@ -538,8 +538,6 @@ void sipXtapiTestSuite::testTransferSuccess()
         // Validate Calling Side        
         bRC = validatorSource.waitForCallEvent(hLine, hCallSource, CALLSTATE_TRANSFER, CALLSTATE_TRANSFER_INITIATED, false) ;
         CPPUNIT_ASSERT(bRC) ;
-        bRC = validatorSource.waitForCallEvent(hLine, hCallSource, CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE_HELD, false) ;
-        CPPUNIT_ASSERT(bRC) ;
         bRC = validatorSource.waitForCallEvent(hLine, hCallSource, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_STOP, false) ;
         CPPUNIT_ASSERT(bRC) ;
         bRC = validatorSource.waitForCallEvent(hLine, hCallSource, CALLSTATE_TRANSFER, CALLSTATE_TRANSFER_ACCEPTED, false) ;
@@ -547,8 +545,6 @@ void sipXtapiTestSuite::testTransferSuccess()
         bRC = validatorSource.waitForCallEvent(hLine, hCallSource, CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL, false) ;
         CPPUNIT_ASSERT(bRC) ;
         bRC = validatorSource.waitForCallEvent(hLine, hCallSource, CALLSTATE_TRANSFER, CALLSTATE_TRANSFER_SUCCESS, false) ;
-        CPPUNIT_ASSERT(bRC) ;
-        bRC = validatorSource.waitForCallEvent(hLine, hCallTarget, CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE_HELD, false) ;
         CPPUNIT_ASSERT(bRC) ;
         bRC = validatorSource.waitForCallEvent(hLine, hCallTarget, CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_INACTIVE, false) ;
         CPPUNIT_ASSERT(bRC) ;
@@ -799,8 +795,6 @@ void sipXtapiTestSuite::testTransferConferenceSuccess()
         validatorSource.setMaxLookhead(8) ;
         bRC = validatorSource.waitForCallEvent(hLine, hCallSource, CALLSTATE_TRANSFER, CALLSTATE_TRANSFER_INITIATED, false) ;
         CPPUNIT_ASSERT(bRC) ;
-        bRC = validatorSource.waitForCallEvent(hLine, hCallSource, CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE_HELD, false) ;
-        CPPUNIT_ASSERT(bRC) ;
         bRC = validatorSource.waitForCallEvent(hLine, hCallSource, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_STOP, false) ;
         CPPUNIT_ASSERT(bRC) ;
         bRC = validatorSource.waitForCallEvent(hLine, hCallSource, CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL, false) ;
@@ -810,8 +804,6 @@ void sipXtapiTestSuite::testTransferConferenceSuccess()
         bRC = validatorSource.waitForCallEvent(hLine, hCallSource, CALLSTATE_TRANSFER, CALLSTATE_TRANSFER_SUCCESS, false) ;
         CPPUNIT_ASSERT(bRC) ;
         bRC = validatorSource.waitForCallEvent(hLine, hCallSource, CALLSTATE_DESTROYED, CALLSTATE_DESTROYED_NORMAL, false) ;
-        CPPUNIT_ASSERT(bRC) ;
-        bRC = validatorSource.waitForCallEvent(hLine, hCallTarget, CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE_HELD, false) ;
         CPPUNIT_ASSERT(bRC) ;
         bRC = validatorSource.waitForCallEvent(hLine, hCallTarget, CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_INACTIVE, false) ;
         CPPUNIT_ASSERT(bRC) ;

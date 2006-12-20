@@ -1628,7 +1628,8 @@ SIPXTAPI_API SIPX_RESULT sipxCallPlayBufferStop(const SIPX_CALL hCall)
 
 SIPXTAPI_API SIPX_RESULT sipxCallSetMediaProperty(const SIPX_CALL hCall,
                                                   const char* szPropertyName,
-                                                  const char* szPropertyValue)
+                                                  const char* szPropertyValue,
+                                                  bool bSetConnectionProperty)
 {
     SIPX_RESULT sipXresult = SIPX_RESULT_FAILURE ;
     
@@ -1651,13 +1652,112 @@ SIPXTAPI_API SIPX_RESULT sipxCallSetMediaProperty(const SIPX_CALL hCall,
             SIPX_CALL_DATA *pCallData = sipxCallLookup(hCall, SIPX_LOCK_WRITE);
             if (pCallData)
             {
-                if(pInst->pCallManager->setConnectionMediaProperty(callId,
-                                                                   remoteAddress,
-                                                                   szPropertyName,
-                                                                   szPropertyValue) ==
-                   OS_SUCCESS)
+                if(bSetConnectionProperty && remoteAddress.isNull())
                 {
-                    sipXresult = SIPX_RESULT_SUCCESS;
+                    // There is no remote connection address so we cannot specify
+                    // which connection on which this property is to be set.
+                    // The remote connection address is most likely null as
+                    // the connection is not setup yet.
+                    OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+                        "sipxCallSetMediaProperty hCall=%d remote address NULL\n",
+                        hCall);
+                }
+                else 
+                {
+                    OsStatus setStatus;
+                    if(bSetConnectionProperty)
+                    {
+                        setStatus =
+                            pInst->pCallManager->setConnectionMediaProperty(callId,
+                                                                           remoteAddress,
+                                                                           szPropertyName,
+                                                                           szPropertyValue);
+                    }
+                    else
+                    {
+                        setStatus =
+                            pInst->pCallManager->setCallMediaProperty(callId,
+                                                                      szPropertyName,
+                                                                      szPropertyValue);
+                    }
+
+                    if(setStatus == OS_SUCCESS)
+                    {
+                        sipXresult = SIPX_RESULT_SUCCESS;
+                    }
+                }
+                sipxCallReleaseLock(pCallData, SIPX_LOCK_WRITE);
+            }
+        }
+    }
+    return(sipXresult);
+}
+
+SIPXTAPI_API SIPX_RESULT sipxCallGetMediaProperty(const SIPX_CALL hCall,
+                                                  const char* szPropertyName,
+                                                  char* szPropertyValue,
+                                                  const size_t maxValueLength,
+                                                  bool bGetConnectionProperty)
+{
+    SIPX_RESULT sipXresult = SIPX_RESULT_FAILURE;
+    szPropertyValue[0] = '\0';
+    
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "sipxCallGetMediaProperty hCall=%d szPropertyName=\"%s\" maxValueLength: %d bGetConnectionProperty: %s",
+        hCall,
+        szPropertyName,
+        maxValueLength,
+        bGetConnectionProperty ? "true" : "false");
+
+    if (hCall)
+    {
+        SIPX_INSTANCE_DATA *pInst;
+        UtlString callId;
+        UtlString remoteAddress;
+        UtlString lineId;
+
+        if (sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, &lineId))
+        {
+            SIPX_CALL_DATA *pCallData = sipxCallLookup(hCall, SIPX_LOCK_WRITE);
+            if (pCallData)
+            {
+                UtlString valueString;
+
+                if(bGetConnectionProperty && remoteAddress.isNull())
+                {
+                    // There is no remote connection address so we cannot specify
+                    // which connection on which this property is to be set.
+                    // The remote connection address is most likely null as
+                    // the connection is not setup yet.
+                    OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+                        "sipxCallSetMediaProperty hCall=%d remote address NULL\n",
+                        hCall);
+                }
+                else 
+                {
+                    OsStatus getResult;
+                    if(bGetConnectionProperty)
+                    {
+                        getResult =
+                            pInst->pCallManager->getConnectionMediaProperty(callId,
+                                                                           remoteAddress,
+                                                                           szPropertyName,
+                                                                           valueString);
+                    }
+                    else
+                    {
+                        getResult = 
+                            pInst->pCallManager->getCallMediaProperty(callId,
+                                                                      szPropertyName,
+                                                                      valueString);
+                        
+                    }
+                    if(getResult == OS_SUCCESS)
+                    {
+                        sipXresult = SIPX_RESULT_SUCCESS;
+                        strncpy(szPropertyValue, valueString.data(), maxValueLength - 1);
+                        szPropertyValue[maxValueLength] = '\0';
+                    }
                 }
 
                 sipxCallReleaseLock(pCallData, SIPX_LOCK_WRITE);
@@ -2945,6 +3045,44 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceSetMediaProperty(const SIPX_CONF hConf,
                    OS_SUCCESS)
                 {
                     sipXresult = SIPX_RESULT_SUCCESS;
+                }
+            }
+            sipxConfReleaseLock(pData, SIPX_LOCK_WRITE);
+        }
+    }
+    return(sipXresult);
+}
+
+SIPXTAPI_API SIPX_RESULT sipxConferenceGetMediaProperty(const SIPX_CONF hConf,
+                                                        const char* szPropertyName,
+                                                        char* szPropertyValue,
+                                                        const size_t maxPropertyLength)
+{
+    SIPX_RESULT sipXresult = SIPX_RESULT_FAILURE;
+    szPropertyValue[0] ='\0';
+    
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "sipxConferenceGetMediaProperty hConf=%d szPropertyName=\"%s\" maxPropertyLength=%d",
+        hConf,
+        szPropertyName,
+        maxPropertyLength);
+
+    if (hConf)
+    {
+        SIPX_CONF_DATA* pData = sipxConfLookup(hConf, SIPX_LOCK_WRITE) ;
+        if (pData)
+        {
+            if(pData->strCallId && !pData->strCallId->isNull())
+            {
+                UtlString valueString;
+                if(pData->pInst->pCallManager->getCallMediaProperty(pData->strCallId->data(),
+                                                                 szPropertyName,
+                                                                 valueString) ==
+                   OS_SUCCESS)
+                {
+                    sipXresult = SIPX_RESULT_SUCCESS;
+                    strncpy(szPropertyValue, valueString.data(), maxPropertyLength);
+                    szPropertyValue[maxPropertyLength] = '\0';
                 }
             }
             sipxConfReleaseLock(pData, SIPX_LOCK_WRITE);

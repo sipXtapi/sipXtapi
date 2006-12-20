@@ -1444,7 +1444,7 @@ UtlBoolean SipConnection::doOffHold(UtlBoolean forceReInvite)
 UtlBoolean SipConnection::originalCallTransfer(UtlString& dialString,
                                                const char* transferControllerAddress,
                                                const char* targetCallId,
-                                               bool        holdBeforeTransfer
+                                               UtlBoolean  holdBeforeTransfer
                                                )
 {
     UtlBoolean ret = FALSE;

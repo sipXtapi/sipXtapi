@@ -529,6 +529,10 @@ SOURCE=.\include\os\wnt\getWindowsDNSServers.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\os\HostAdapterAddress.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\os\OsAssert.h
 # End Source File
 # Begin Source File
@@ -757,6 +761,10 @@ SOURCE=.\include\os\OsSocket.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\os\OsSSL.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\os\OsSSLConnectionSocket.h
 # End Source File
 # Begin Source File
@@ -862,6 +870,10 @@ SOURCE=.\include\utl\PluginHooks.h
 # Begin Source File
 
 SOURCE=.\include\utl\PtTest.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\os\qsTypes.h
 # End Source File
 # Begin Source File
 
