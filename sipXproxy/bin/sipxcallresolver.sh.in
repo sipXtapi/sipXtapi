@@ -18,7 +18,7 @@ resolverArgs=""
 : ${AuthoritiesDir:=$SslDir/authorities}
 : ${ConfigDefs:=@SIPX_CONFDIR@/config.defs}
 : ${Configpp:=@bindir@/configpp}
-: ${ConfigFiles:=@SIPX_CONFDIR@/authproxy-config @SIPX_CONFDIR@/proxy-config}
+: ${ConfigFiles:=@SIPX_CONFDIR@/callresolver-config}
 : ${PidFile:=@SIPX_RUNDIR@/sipxcallresolver.pid}
 : ${LibDir:=@SIPX_LIBDIR@}
 : ${Psql:=psql}
@@ -67,8 +67,7 @@ postgresService() {
 }
 
 # Search/replace variables used in config.defs into config files
-runConfigpp() {
-    
+runConfigpp() {    
     # If the "config.defs" file exists and the <name>.in file exists for a
     # configuration file, then run the config preprocessor to generate the
     # fully resolved configuration file.
@@ -133,9 +132,6 @@ databasePatch() {
 
 # Setup database
 databaseCommand() {
-
-    runConfigpp
-
     databaseCheck Silent
     
     case ${1} in
@@ -494,24 +490,6 @@ configtest() {
    fi
 }
 
-CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
-
-CONFIG_FILES="\
-  @SIPX_CONFDIR@/callresolver-config
-  "
-# If the "config.defs" file exists and the <name>.in file exists for a
-# configuration file, then run the config preprocessor to generate the
-# fully resolved configuration file.
-if [ -f "$CONFIG_DEFS" ]
-then
-  for i in $CONFIG_FILES ; do
-    if [ -f "${i}.in" ]
-    then
-       @bindir@/configpp --defs "${CONFIG_DEFS}" --in "${i}.in" --out "$i"
-    fi
-  done
-fi
-
 while [ $# -ne 0 ]
 do
     case ${1} in
@@ -573,7 +551,8 @@ then
     databaseCommand $Args
 elif [ ${Action} = RUN ] 
 then
-   onStartup
+    runConfigpp
+    onStartup
 elif [ ${Action} = SETUP ]
 then
     onSetup
