@@ -313,7 +313,7 @@ public class SiteTestHelper {
         sysProps.setProperty("vxml.scriptsDirectory", systemDirectory + "/aa_vxml");
         sysProps.setProperty("orbitsGenerator.audioDirectory", systemDirectory
                 + "/parkserver/music");
-
+        sysProps.setProperty("acdQueue.audioDirectory", systemDirectory + "/acd/audio");
         TestUtil.saveSysDirProperties(sysProps, args[0]);
     }
 

@@ -133,6 +133,9 @@
     <antcall target="phonebook"/>
     <antcall target="clear-uploads"/>
     <antcall target="speeddial"/>
+	<antcall target="acd"/>
+	<antcall target="acd_agents"/>
+	<antcall target="acd_ext"/>
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="6" -->
   </target>	
@@ -396,6 +399,16 @@
     <sipx-sql>
       alter table phone drop constraint phone_description_key;
     </sipx-sql>
+  </target>
+
+  <target name="acd" unless="acd">
+    <db-patch patch="acd"/>
+  </target>
+  <target name="acd_agents" unless="acd_agents">
+    <db-patch patch="acd_agents"/>
+  </target>
+  <target name="acd_ext" unless="acd_ext">
+    <db-patch patch="acd_ext"/>
   </target>
 
   <!--

@@ -1,6 +1,5 @@
 include $(top_srcdir)/config/subdir.am
 
-
 rake=$(RAKE) builddir="$$builddir"
 GEM_LIB_DIR=$(libdir)/ruby/gems/1.8
 
@@ -14,12 +13,22 @@ else
 INSTALL_GEM = install-gem
 endif
 
-install : $(INSTALL_GEM) $(DESTDIR)$(bindir)/sipxconfig-agent
+install : \
+	$(DESTDIR)$(SIPX_PROCDIR)/sipxconfig-agent.process.xml \
+	$(INSTALL_GEM) \
+	$(DESTDIR)$(bindir)/sipxconfig-agent
+
+uninstall-hook : uninstall-gem
 
 .PHONY: package-gem
 package-gem :
 	builddir=`pwd`; \
 	cd $(srcdir) && $(rake) package && cd $(builddir)
+
+uninstall-gem :
+	GEM_PATH=$(GEM_LIB_DIR) \
+	$(GEM) uninstall \
+	  sipXconfig-agent
 
 # install gems now, this is the final host machine
 .PHONY: install-gem 

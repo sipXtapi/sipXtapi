@@ -1,8 +1,44 @@
+require 'state'
+require 'event/parser'
+require 'event/source'
 require 'server'
 
-def main(port)
-  # create the SOAP server
-  server = StatsServer.new(:Port => port)
+def process(event_source, acd_state)
+  event_source.each do |event| 
+    begin
+      acd_state.accept(event)
+    rescue EventError => error
+      $stderr.puts error
+    end      
+  end
+  return acd_state
+end
+
+def process_file(filename, state)
+  reader = Events::FileReader.new(filename)
+  process_reader(reader, state)
+end
+
+def process_reader(reader, state)
+  parser =  Events::Parser.new
+  source = Events::Source.new(reader, parser)
+  process(source, state)
+end
+
+def main(filename, port)
+  # create a new ACD state object
+  acd_state = States::Acd.new
+  
+  # process events in a separate thread
+  Thread.new do
+    $stderr.puts "parsing: #{filename}"  
+    reader = Events::TailReader.new(filename)
+    process_reader(reader, acd_state)
+    $stderr.puts "finish parsing: #{filename}"  
+  end
+  
+  # create the SOAP server for our ACD state
+  server = StatsServer.new(acd_state, :Port => port)
   trap(:INT) do 
     $stderr.puts "shutting down"
     server.shutdown
@@ -16,6 +52,8 @@ end
 if __FILE__ == $0
   # TODO: at the moment one can pass parameters through environment variables, it may be more convenient to do it through ARGV
   SIPXSTATS_PREFIX = ENV['SIPXSTATS_PREFIX'] || ''
-  SIPXSTATS_SOAP_PORT = ENV['SIPXSTATS_SOAP_PORT'] || 2000  
-  main(SIPXSTATS_SOAP_PORT)  
+  SIPXSTATS_EVENT_FILE = ENV['SIPXSTATS_EVENT_FILE'] || '/var/log/sipxpbx/sipxacd_events.log'
+  SIPXSTATS_SOAP_PORT = ENV['SIPXSTATS_SOAP_PORT'] || 2000
+  
+  main(SIPXSTATS_PREFIX + SIPXSTATS_EVENT_FILE, SIPXSTATS_SOAP_PORT)  
 end

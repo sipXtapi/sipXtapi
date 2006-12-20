@@ -20,6 +20,7 @@ import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.engine.IEngineService;
 import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
@@ -97,6 +98,8 @@ public abstract class TestPage extends BasePage {
 
     public abstract JobContext getJobContext();
 
+    public abstract AcdContext getAcdContext();
+    
     public abstract IndexManager getIndexManager();
 
     public abstract LdapImportManager getLdapImportManager();
@@ -123,6 +126,10 @@ public abstract class TestPage extends BasePage {
     public void resetCallGroupContext() {
         getCallGroupContext().clear();
     }
+    
+    public void resetAcdContext() {
+        getAcdContext().clear();
+    }    
 
     public void resetParkOrbitContext() {
         getParkOrbitContext().clear();

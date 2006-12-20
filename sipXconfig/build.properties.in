@@ -27,6 +27,8 @@ sipxconfig.upload.dir=@SIPX_VARDIR@/upload
 sipxconfig.phonebook.dir=@SIPX_VARDIR@/phonebook
 www.dir=@wwwdir@
 sipxpbx.user=@SIPXPBXUSER@
+acd.history.test.db=SIPXACD_HISTORY_TEST
+acd.history.db.schema=${top.dir}/report/etc/schema.sql
 
 sipxconfig.db.pds=SIPXCONFIG_TEST
 sipxconfig.db.user=postgres

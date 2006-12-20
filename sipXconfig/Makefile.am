@@ -9,6 +9,9 @@ edit = $(LocalizeSipXconfig) \
     -e 's,@WSDL2RUBY\@,@WSDL2RUBY@,g' \
     -e 's,@SIPFOUNDRY_ORG\@,@SIPFOUNDRY_ORG@,g'
 
+if REPORTS
+REPORTS_OPT = report
+endif
 
 SUBDIRS = \
 	. \
@@ -18,12 +21,14 @@ SUBDIRS = \
 	meta \
 	agent \
 	plugins \
-	$(doc_SUBDIRS)
-
+	$(REPORTS_OPT) \
+	$(doc_SUBDIRS) 
 RPMS = \
 	$(RPM) \
 	$(DEST_RPM)/@PACKAGE@-tftp-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm \
-	$(DEST_RPM)/@PACKAGE@-ftp-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
+	$(DEST_RPM)/@PACKAGE@-ftp-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm \
+	$(DEST_RPM)/@PACKAGE@-agent-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm \
+	$(DEST_RPM)/@PACKAGE@-report-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
 
 EXTRA_DIST = \
     config/sipX-config.in \
@@ -44,6 +49,7 @@ EXTRA_DIST = \
     web \
     meta \
     agent \
+    report \
     lib
 
 # BUILT_SOURCES is special autoconf variable to be checked on every make

@@ -172,4 +172,23 @@
     <component-type type="UserSearchResults" specification-path="user/UserSearchResults.jwc"/>
     <component-type type="UserTable" specification-path="user/UserTable.jwc"/>
     <component-type type="WorkingHoursEditor" specification-path="dialplan/WorkingHoursEditor.jwc"/>    
+    <page name="AcdPresenceServer" specification-path="acd/AcdPresenceServer.page"/>
+	<page name="AcdServerPage" specification-path="acd/AcdServerPage.page"/>
+    <page name="AcdSupervisorConsole" specification-path="acd/AcdSupervisorConsole.page"/>
+    <page name="AddAcdAgent" specification-path="acd/AddAcdAgent.page"/>
+    <page name="EditAcdAgent" specification-path="acd/EditAcdAgent.page"/>
+    <page name="EditAcdLine" specification-path="acd/EditAcdLine.page"/>
+    <page name="EditAcdQueue" specification-path="acd/EditAcdQueue.page"/>
+    <page name="ListAcdServers" specification-path="acd/ListAcdServers.page"/>	
+
+    <component-type type="AcdAgentPresencePanel" specification-path="acd/AcdAgentPresencePanel.jwc"/>
+    <component-type type="AcdAgentsPanel" specification-path="acd/AcdAgentsPanel.jwc"/>
+    <component-type type="AcdAgentsStatsPanel" specification-path="acd/AcdAgentsStatsPanel.jwc"/>
+    <component-type type="AcdCallsStatsPanel" specification-path="acd/AcdCallsStatsPanel.jwc"/>
+    <component-type type="AcdLinesPanel" specification-path="acd/AcdLinesPanel.jwc"/>
+    <component-type type="AcdSelectServerPanel" specification-path="acd/AcdSelectServerPanel.jwc"/>
+    <component-type type="AcdServersPanel" specification-path="acd/AcdServersPanel.jwc"/>
+    <component-type type="AcdQueueSelector" specification-path="acd/AcdQueueSelector.jwc"/>
+    <component-type type="AcdQueuesPanel" specification-path="acd/AcdQueuesPanel.jwc"/>
+    <component-type type="AcdQueuesStatsPanel" specification-path="acd/AcdQueuesStatsPanel.jwc"/>
 </application>

@@ -33,6 +33,7 @@ public interface SipxProcessContext {
         public static final Process KEEP_ALIVE = new Process("KeepAlive");
         public static final Process CONFIG_AGENT = new Process("ConfigAgent");
         public static final Process CALL_RESOLVER = new Process("CallResolver");
+        public static final Process ACD_SERVER = new Process("ACDServer");
 
         private Process(String name) {
             super(name);

@@ -33,6 +33,7 @@
     <!-- TEST -->
     <pathelement location="${neoconf.tests.classes}" />
     <pathelement location="${dbunit.jar}" />
+    <pathelement location="${xmlunit.jar}" />
     <pathelement location="${xerces.jar}" />
     <pathelement location="${xmlunit.jar}" />
     

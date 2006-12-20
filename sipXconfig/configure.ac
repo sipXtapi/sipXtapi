@@ -42,8 +42,13 @@ CHECK_ANT
 CHECK_CLOVER
 
 AC_ARG_ENABLE(ruby-bindings,
-  [  --enable-ruby-bindings       Build optional ruby bindings to web services],
-  enable_ruby_binding=yes, )
+  AC_HELP_STRING([--enable-ruby-bindings], [Build optional ruby bindings to web services]),
+  enable_ruby_binding=yes,)
+
+AC_ARG_ENABLE(reports,
+  AC_HELP_STRING([--enable-reports], [Build optional call distribution reporting cron]),
+  enable_reports=yes,)
+AM_CONDITIONAL(REPORTS, test x$enable_reports = xyes)
 
 CHECK_RUBY([1.8.2])
 CHECK_RUBY_MODULE([soap/wsdlDriver])
@@ -66,6 +71,10 @@ AC_CONFIG_FILES([
     meta/Makefile
     doc/Makefile
     agent/Makefile
+    report/Makefile
+    report/etc/Makefile
+    report/bin/Makefile
+    report/src/Makefile
     plugins/Makefile
     plugins/clearone/Makefile
     plugins/hitachi/Makefile

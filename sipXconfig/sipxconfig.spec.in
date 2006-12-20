@@ -71,12 +71,38 @@ Summary: Configures/enables FTP for devices controlled by %{name}
 * turns on xinit.d/vsftpd service on
 * add a user account w/default account for polycom phones
 
+%package agent
+Requires: sipxcommserverlib
+Requires: ruby
+Group: Productivity/Telephony/SIP/Servers
+Vendor: SIPfoundry
+Summary: Analyzes data from sipxpbx and provides SOAP API to information
+
+%description agent
+Provides a SOAP interface to automatic call distribution records. Ideal
+for CTI applications or report aggregating tools like sipxconfig-report
+or real-time analysys like sipxconfig's statistics web console.
+
+%package report
+Requires: ruby
+Group: Productivity/Telephony/SIP/Servers
+Vendor: SIPfoundry
+Summary: Aggregates data from sipxconfig-agent into a database for reporting tools
+Requires: ruby-postgres >= 0.7.1
+
+%description report
+Report peridocically queries sipxconfig-agent regarding automatic call distribution records
+and assembles data into a postgres database SIPXREPORT for reporting tools.
+
+Although this package does not have any other sipx dependencies because it's not required to
+run on the same machine it's default setup it to point to localhost.
+
 %prep
 %setup -q
 
 %build
 
-%configure --enable-rpmbuild @CONFIGURE_OPTIONS@
+%configure --enable-rpmbuild --enable-reports @CONFIGURE_OPTIONS@
 cp config.log %name.configlog
 make
 
@@ -108,7 +134,10 @@ rm -rf $RPM_BUILD_ROOT
 # typically does not RPM's prefix
 
 %doc CONTRIBUTORS INSTALL README NEWS TODO ChangeLog %name.configlog
-%attr(755,root,root) %{_bindir}
+%attr(755,root,root) %{_bindir}/sipxconfig.sh
+%attr(755,root,root) %{_bindir}/sipxconfig-config
+%attr(755,root,root) %{_bindir}/ssl-cert/create-ssl-keystore.sh
+%attr(755,root,root) %{_bindir}/ssl-cert/create-ssl-truststore.sh
 
 # Because of generation of data and profiles
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}
@@ -116,6 +145,37 @@ rm -rf $RPM_BUILD_ROOT
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}/profile/docroot
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}/profile/tftproot
 %config(noreplace) %{phonedir}/profile/tftproot/*
+
+# Install configserver config files, directory only is created by pbx
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/sipxconfig-jetty.xml
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/log4j.properties
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/sipxconfig.properties.in
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/topology.xml.in
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/VM_global_library.vm
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/setting.dtd
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/setting.xsl
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/kphone/*
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/acme/*
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/acmePhone/*
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/acd/*
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/audiocodes/*
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/ciscoAta/*
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/clearone/*
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/ciscoIp/*
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/commserver/*
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/database/*
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/dialplan/*
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/grandstream/*
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/hitachi/*
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/process.d/sipxconfig.process.xml
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/polycom/*
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/snom/*
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/mitel/*
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/sipxvxml/*
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/sipxconference/*
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/sipxpark/*
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/unmanagedPhone/*
+
 
 %{sipxpbxdata}
 
@@ -132,10 +192,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %post
 
-# does not complain if package already exists
-gem install --no-rdoc --local %{sipxconfiglib}/file-tail-*.gem > /dev/null
-gem install --local %{sipxconfiglib}/sipXconfig-agent-*.gem > /dev/null
-
 %define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
 %define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz
 if [ -f %{current_archive} ]; then
@@ -146,12 +202,6 @@ mv %{upgrade_archive_dir}/%{this_archive} %{current_archive}
 pkg-upgrade --previous %{previous_archive} --current %{current_archive}
 
 %preun
-# prevent uninstalling during an upgrade
-#   see http://www-128.ibm.com/developerworks/library/l-rpm3/
-if [ "$1" = "0" ] ; then
-  gem uninstall sipXconfig-agent > /dev/null || true
-fi
-# can't be sure no other programs rely file-tail, so leave it
 
 %postun
 # uninstall lucene index and Jetty scratch dir on every install
@@ -206,4 +256,40 @@ if [ "$1" = "0" ] ; then
     mv %{vsftpd_conf}.sipx-orig %{vsftpd_conf}
     service vsftpd restart
   fi
+fi
+
+%files agent
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_bindir}/sipxconfig-agent
+
+%defattr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755)
+%config(noreplace) %{sipxpbxconf}/process.d/sipxconfig-agent.process.xml
+
+%post agent
+gem install --no-rdoc --local %{sipxconfiglib}/sipXconfig-agent-*.gem >/dev/null 2>&1
+gem install --no-rdoc --local %{sipxconfiglib}/file-tail-*.gem >/dev/null 2>&1
+
+%preun agent
+# prevent uninstalling during an upgrade
+#   see http://www-128.ibm.com/developerworks/library/l-rpm3/
+if [ "$1" = "0" ] ; then
+  gem uninstall sipXconfig-agent >/dev/null 2>&1
+fi
+# not uninstalling file-tail incase it's used elsewhere
+
+%files report
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_bindir}/sipxconfig-report
+%defattr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755)
+%config(noreplace) %{sipxpbxconf}/report/sipxconfig-report-config
+%config(noreplace) %{sipxpbxconf}/report/schema.sql
+
+%post report
+gem install --no-rdoc --local %{sipxconfiglib}/sipXconfig-report-*.gem >/dev/null 2>&1
+
+%preun report
+# prevent uninstalling during an upgrade
+#   see http://www-128.ibm.com/developerworks/library/l-rpm3/
+if [ "$1" = "0" ] ; then
+  gem uninstall sipXconfig-report >/dev/null 2>&1
 fi

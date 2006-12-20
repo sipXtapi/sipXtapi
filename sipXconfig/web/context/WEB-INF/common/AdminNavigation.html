@@ -21,6 +21,14 @@
 	    <li>            
 			<a href="#"><span key="menu.section.admin">Features</span></a>
 	        <ul>           
+                <li jwcid="@If" element="li" condition="ognl: acdContext.enabled">
+				  <a href="#" jwcid="@PageLink" id="menu.acd" page="ListAcdServers"><span key="menu.acd">ACD</span></a>
+				</li>
+				<!-- does not used "presenceServer.enabled" because AcdPresenceServer page requires ACD 
+					to be available as well -->
+                <li jwcid="@If" element="li" condition="ognl: acdContext.enabled">
+				  <a href="#" jwcid="@PageLink" id="menu.acdPresence" page="AcdPresenceServer"><span key="menu.acdPresence">ACD Presence</span></a>
+				</li>
 				<li><a href="#" jwcid="@PageLink" id="menu.attendants" page="ManageAttendants"><span key="menu.attendants">Auto Attendants</span></a></li>
 				<li><a href="#" jwcid="@PageLink" id="menu.intercom" page="Intercom"><span key="menu.intercom">Intercom</span></a></li>
 				<li><a href="#" jwcid="@PageLink" id="menu.huntGroups" page="ListCallGroups"><span key="menu.huntGroups">Hunt Groups</span></a></li>

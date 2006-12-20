@@ -268,19 +268,31 @@
 
   <target name="test-datasets">
     <xmlvalidate description="validate dataset files used in tests">
-      <fileset dir="test" includes="**/*.db.xml">
+      <!-- temporary exclude acd files - will fix them in a separate commit -->
+      <fileset dir="test" includes="**/*.db.xml" excludes="**/acd/**">
       </fileset>
     </xmlvalidate>
   </target>
 
-  <target name="reset-db"
+  <target name="reset-db" depends="reset-acd-report-db"
           description="Resets the test database. Needs to be called before UI and WEB tests.">
     <subant target="unittest-reset">
       <!-- THIS PROPERTY VERY IMPORTANT -->
       <property name="sipxconfig.db.name" value="SIPXCONFIG_TEST" />
       <property name="jdbc-driver.jar" value="${jdbc-driver.jar}" />
       <filelist dir="etc/database" files="database.xml" />
-    </subant>
+    </subant>    
+  </target>
+  
+  <target name="reset-acd-report-db">
+    <property name="acd.history.test.db.url" value="jdbc:postgresql://localhost/${acd.history.test.db}"/>
+    <exec executable="dropdb" outputproperty="eatme">
+      <arg line="-U ${sipxconfig.db.user} ${acd.history.test.db}"/>
+    </exec>    
+    <exec executable="createdb" outputproperty="eatme">
+      <arg line="-U ${sipxconfig.db.user} ${acd.history.test.db}"/>
+    </exec>
+    <pgsql url="${acd.history.test.db.url}" src="${acd.history.db.schema}"/>
   </target>
 
   <!-- Comment out hibernate stuff to avoid causing problems on Windows 
@@ -335,7 +347,7 @@
                output="${agent.bindings.src.dir}"
                noWrapped="true">
       <mapping namespace="urn:StatsService"
-               package="org.sipfoundry.sipxconfig.agent.stats" />
+               package="org.sipfoundry.sipxconfig.acd.stats"/>
     </wsdl2java>
   </target>
 
@@ -352,5 +364,12 @@
     </sipx-javac>
     <jar destfile="${agent-bindings.jar}" basedir="${agent.bindings.dir}" />
   </target>
+
+  <presetdef name="pgsql">
+    <sql driver="org.postgresql.Driver" 
+        userid="${sipxconfig.db.user}" 
+        password="${sipxconfig.db.password}"
+        classpath="${jdbc-driver.jar}"/>
+  </presetdef>
 
 </project>

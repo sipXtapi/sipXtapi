@@ -8,6 +8,8 @@
 		<config>src/org/sipfoundry/sipxconfig/admin/parkorbit/parkorbit.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/phone/phone.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/bulk/csv/csv.beans.xml</config>
+		<config>src/org/sipfoundry/sipxconfig/system.beans.xml</config>
+		<config>src/org/sipfoundry/sipxconfig/acd/acd.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/setting/setting.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/domain/domain.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/admin/intercom/intercom.beans.xml</config>
@@ -37,6 +39,7 @@
 			<allowBeanDefinitionOverriding>false</allowBeanDefinitionOverriding>
 			<incomplete>false</incomplete>
 			<configs>
+				<config>src/org/sipfoundry/sipxconfig/acd/acd.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/admin/callgroup/callgroup.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/admin/commserver/commserver.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/admin/dialplan/dialplan.beans.xml</config>

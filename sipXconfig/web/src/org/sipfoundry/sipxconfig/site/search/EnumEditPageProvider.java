@@ -21,6 +21,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.sipfoundry.sipxconfig.acd.AcdAgent;
+import org.sipfoundry.sipxconfig.acd.AcdLine;
+import org.sipfoundry.sipxconfig.acd.AcdQueue;
+import org.sipfoundry.sipxconfig.acd.AcdServer;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
@@ -94,6 +98,14 @@ public class EnumEditPageProvider implements EditPageProvider {
             "EditAttendantDialRule", RULE_ID
         }, Upload.class, new String[] {
             "EditUpload", "uploadId"
+        }, AcdServer.class, new String[] {
+            "AcdServerPage", "acdServerId"
+        }, AcdQueue.class, new String[] {
+            "EditAcdQueue", "acdQueueId"
+        }, AcdLine.class, new String[] {
+            "EditAcdLine", "acdLineId"
+        }, AcdAgent.class, new String[] {
+            "EditAcdAgent", "acdAgentId"
         }
     };
 
