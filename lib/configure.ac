@@ -39,6 +39,7 @@ AC_ARG_ENABLE(rhe4,
           java_sun=yes
           w3c_libwww=yes
           cppunit=yes
+          ruby=yes
           ruby_postgres=yes
         ])
 
@@ -71,6 +72,11 @@ AC_ARG_ENABLE(pcre,
 	AC_HELP_STRING([--enable-pcre], [Build pcre dependency]),
 	[ pcre=${enableval} ])
 test x$pcre = xyes && AC_CONFIG_SUBDIRS(pcre)
+
+AC_ARG_ENABLE(ruby,
+	AC_HELP_STRING([--enable-ruby], [Build ruby dependency]),
+	[ ruby=${enableval} ])
+test x$ruby = xyes && AC_CONFIG_SUBDIRS(ruby)
 
 AC_ARG_ENABLE(ruby-dbi,
 	AC_HELP_STRING([--enable-ruby-dbi], [Build ruby dbi dependency]),
