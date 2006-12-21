@@ -40,21 +40,27 @@ AM_CONDITIONAL(IS_RPMBUILD, test x$enable_rpmbuild = xyes)
 CHECK_JDK
 CHECK_ANT
 CHECK_CLOVER
-
-AC_ARG_ENABLE(ruby-bindings,
-  AC_HELP_STRING([--enable-ruby-bindings], [Build optional ruby bindings to web services]),
-  enable_ruby_binding=yes,)
+CHECK_RUBY([1.8.2])
+CHECK_RUBY_MODULE([soap/wsdlDriver])
+CHECK_GEM([0.8.11])
+CHECK_RAKE([0.7])
 
 AC_ARG_ENABLE(reports,
   AC_HELP_STRING([--enable-reports], [Build optional call distribution reporting cron]),
   enable_reports=yes,)
 AM_CONDITIONAL(REPORTS, test x$enable_reports = xyes)
 
-CHECK_RUBY([1.8.2])
-CHECK_RUBY_MODULE([soap/wsdlDriver])
-CHECK_GEM([0.8.11])
-CHECK_RAKE([0.7])
-# CHECK_RUBY_GEM([file-tail])
+AC_ARG_ENABLE(agent,
+  AC_HELP_STRING([--enable-agent], [Build optional call distribution api]),
+  enable_agent=yes,)
+AM_CONDITIONAL(AGENT, test x$enable_agent = xyes)
+if test x$enable_agent = xyes ; then
+  CHECK_RUBY_GEM([file-tail])
+fi
+
+AC_ARG_ENABLE(ruby-bindings,
+  AC_HELP_STRING([--enable-ruby-bindings], [Build optional ruby bindings to web services]),
+  enable_ruby_binding=yes,)
 
 AC_SUBST(RUBY_BINDINGS_ENABLED, [])
 if test x$enable_ruby_binding == xyes ; then

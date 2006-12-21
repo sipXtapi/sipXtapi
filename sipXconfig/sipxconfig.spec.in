@@ -102,7 +102,7 @@ run on the same machine it's default setup it to point to localhost.
 
 %build
 
-%configure --enable-rpmbuild --enable-reports @CONFIGURE_OPTIONS@
+%configure --enable-rpmbuild --enable-reports --enable-agent @CONFIGURE_OPTIONS@
 cp config.log %name.configlog
 make
 

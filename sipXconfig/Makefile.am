@@ -9,8 +9,19 @@ edit = $(LocalizeSipXconfig) \
     -e 's,@WSDL2RUBY\@,@WSDL2RUBY@,g' \
     -e 's,@SIPFOUNDRY_ORG\@,@SIPFOUNDRY_ORG@,g'
 
+RPMS = \
+	$(RPM) \
+	$(DEST_RPM)/@PACKAGE@-tftp-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm \
+	$(DEST_RPM)/@PACKAGE@-ftp-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm \
+	$(DEST_RPM)/@PACKAGE@-agent-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm \
+	$(DEST_RPM)/@PACKAGE@-report-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
+
 if REPORTS
 REPORTS_OPT = report
+endif
+
+if AGENT
+AGENT_OPT = agent
 endif
 
 SUBDIRS = \
@@ -19,16 +30,10 @@ SUBDIRS = \
 	neoconf \
 	web \
 	meta \
-	agent \
 	plugins \
 	$(REPORTS_OPT) \
+	$(AGENT_OPT) \
 	$(doc_SUBDIRS) 
-RPMS = \
-	$(RPM) \
-	$(DEST_RPM)/@PACKAGE@-tftp-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm \
-	$(DEST_RPM)/@PACKAGE@-ftp-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm \
-	$(DEST_RPM)/@PACKAGE@-agent-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm \
-	$(DEST_RPM)/@PACKAGE@-report-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
 
 EXTRA_DIST = \
     config/sipX-config.in \
