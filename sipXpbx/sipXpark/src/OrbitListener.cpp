@@ -52,6 +52,7 @@
 
 // STATIC VARIABLE INITIALIZATIONS
 
+
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
@@ -356,7 +357,8 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
 
 
          case PtEvent::MULTICALL_META_TRANSFER_STARTED:
-            // A transfer operation is starting.  Record its pseudo-call Id.
+            // A transfer operation is starting.  Record the call-Id
+            // of the transfer pseudo-call.
             if (localConnection)
             {
                UtlString transferCallId =
