@@ -19,6 +19,7 @@
 #include <net/SipPublishContentMgr.h>
 #include <net/SipMessage.h>
 #include <net/Url.h>
+#include "RlsSubscribe.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -54,7 +55,7 @@ UtlBoolean RlsSubscribe::isAuthorized(const SipMessage& subscribeRequest,
                                       SipMessage& subscribeResponse)
 {
    // SUBSCRIBE is authorized if "eventlist" is supported.
-   return isInSupportedField("eventlist");
+   return subscribeRequest.isInSupportedField("eventlist");
 }
 
 /* ============================ ACCESSORS ================================= */

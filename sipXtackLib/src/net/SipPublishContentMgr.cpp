@@ -71,10 +71,10 @@ private:
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
-PublishCallbackContainer::PublishCallbackContainer()
+PublishCallbackContainer::PublishCallbackContainer() :
+   mpApplicationData(NULL),
+   mpCallback(NULL)
 {
-    mpApplicationData = NULL;
-    mpCallback = NULL;
 }
 PublishCallbackContainer::~PublishCallbackContainer()
 {

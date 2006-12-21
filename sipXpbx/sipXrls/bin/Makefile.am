@@ -1,20 +1,20 @@
 include $(top_srcdir)/config/subdir.am
 
 bin_SCRIPTS = \
-	sipxpark-config
+	sipxrls-config
 
 $(top_builddir)/BUILDSTAMP:
 	${MAKE} -C $(top_builddir) BUILDSTAMP
 
-sipxpark-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAMP
+sipxrls-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAMP
 	BuildStamp="$(shell cat $(top_builddir)/BUILDSTAMP)" \
 	; ${LocalizeSipXconfig} -e "s/@SIPX_BUILDSTAMP\@/$${BuildStamp}/" \
 	    $(top_srcdir)/config/sipX-config.in \
-	  > sipxpark-config
-	chmod +x sipxpark-config
+	  > sipxrls-config
+	chmod +x sipxrls-config
 
 editscripts_IN = \
-    sipxpark.sh.in
+    sipxrls.sh.in
 
 editscripts :
 	@for f in $(editscripts_IN); \

@@ -6,9 +6,9 @@ SUBDIRS = . \
     src \
     bin \
     etc \
+    sipXdialog \
     sipXpark \
     sipXpresence \
-    sipXdialog \
     meta \
     $(doc_SUBDIRS)
 
@@ -24,6 +24,7 @@ EXTRA_DIST = \
     config/sipX-buildstamp.cpp.in \
     config/sipX-buildstamp.h.in \
     config/sipX-config.in \
+    sipXrls \
     sipxpbx.spec
 
 install-exec-hook :

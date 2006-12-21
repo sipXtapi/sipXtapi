@@ -19,8 +19,8 @@ sipxrls_CXXFLAGS = \
 sipxrls_SOURCES =  \
 	../../config/sipxpbx-buildstamp.h \
 	../../config/sipxpbx-buildstamp.cpp \
+	RlsSubscribe.cpp \
 	main.cpp
-#	RlsSubscribe.cpp
 
 noinst_HEADERS =
 

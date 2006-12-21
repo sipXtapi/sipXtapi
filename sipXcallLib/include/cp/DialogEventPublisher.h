@@ -35,9 +35,9 @@ class TaoString;
 
 //! Class for publishing the dialog state change for each call
 /**
- * This class keeps tracking the dialog state changes for each call and generates
- * a dialog event package as described in draft-ietf-sipping-dialog-package-06.txt
- * (An INVITE Initiated Dialog Event Package for SIP) and sends it to a generic
+ * This class tracks the dialog state changes for each call and generates
+ * a dialog event package as described in RFC 4235 (An
+ * INVITE-Initiated Dialog Event Package for SIP) and sends it to a generic
  * RFC 3265 SUBSCRIBE server or NOTIFIER.
  */
 

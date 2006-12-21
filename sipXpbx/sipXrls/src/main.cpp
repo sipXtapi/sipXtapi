@@ -430,31 +430,47 @@ int main(int argc, char* argv[])
    // Component for holding the subscription data
    SipSubscriptionMgr subscriptionMgr; 
    // Component for granting subscription rights
-   SipSubscribeServerEventHandler policyHolder;
+   RlsSubscribe policyHolder;
    // Component for publishing the event contents
    SipPublishContentMgr publisher;
 
+   // Start the SIP Subscribe Server.
    SipSubscribeServer subscribeServer(userAgent, publisher,
                                       subscriptionMgr, policyHolder);
    subscribeServer.enableEventType(DIALOG_EVENT_TYPE);
    subscribeServer.start();
 
-   // Set up subscriptions to the park orbits.
-   SipSubscribeClient* client700 =
-      SipSubscribeClient::buildBasicClient(userAgent);
+   // Set up the SIP Subscribe Client
+   SipDialogMgr dialogManager;
+   SipRefreshManager refreshMgr(userAgent, dialogManager);
+   refreshMgr.start();
+   SipSubscribeClient subscribeClient(userAgent, dialogManager, refreshMgr);
+   subscribeClient.start();  
+
+   // Set up subscriptions to the park orbit.
    UtlString client700_early_handle;
-   client700->addSubscription("sip:700@niagra.pingtel.com",
-                              DIALOG_EVENT_TYPE,
-                              DIALOG_EVENT_CONTENT_TYPE,
-                              outgoingAddress,
-                              "sip:700@niatra.pingtel.com",
-                              outgoingAddress,
-                              RESUBSCRIBE_PERIOD,
-                              NULL,
-                              subscription_state_callback,
-                              notify_event_callback,
-                              client700_early_handle);
-                              
+   UtlBoolean ret;
+   ret = subscribeClient.addSubscription("sip:700@maine.pingtel.com",
+                                         DIALOG_EVENT_TYPE,
+                                         DIALOG_EVENT_CONTENT_TYPE,
+                                         outgoingAddress,
+                                         "sip:700@maine.pingtel.com",
+                                         outgoingAddress,
+                                         RESUBSCRIBE_PERIOD,
+                                         NULL,
+                                         subscription_state_callback,
+                                         notify_event_callback,
+                                         client700_early_handle);
+   if (ret)
+   {
+      OsSysLog::add(LOG_FACILITY, PRI_CRIT,
+                    "addSubscription succeeded");
+   }
+   else
+   {
+      OsSysLog::add(LOG_FACILITY, PRI_CRIT,
+                    "addSubscription failed");
+   }
 
    // Loop forever until signaled to shut down
    while (!gShutdownFlag)
