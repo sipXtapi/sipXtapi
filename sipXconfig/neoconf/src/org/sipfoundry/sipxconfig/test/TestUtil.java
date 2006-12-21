@@ -148,6 +148,7 @@ public final class TestUtil {
         sysProps.setProperty("phoneDefaults.authorizationRealm", realm);
         sysProps.setProperty("phoneDefaults.fullyQualifiedDomainName", "pbx." + domainName);
         sysProps.setProperty("dataSource.jdbcUrl", "jdbc:postgresql://localhost/SIPXCONFIG_TEST");
+        sysProps.setProperty("acdHistoryDataSource.jdbcUrl", "jdbc:postgresql://localhost/SIPXACD_HISTORY_TEST");
         sysProps.setProperty("adminContextImpl.backupDirectory", outputDirectory + "/backup");
         sysProps.setProperty("coreContextImpl.authorizationRealm", realm);
         sysProps.setProperty("orbitsGenerator.audioDirectory", outputDirectory

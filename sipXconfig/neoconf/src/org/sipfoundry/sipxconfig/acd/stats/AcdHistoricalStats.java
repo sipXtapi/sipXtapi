@@ -11,12 +11,17 @@
  */
 package org.sipfoundry.sipxconfig.acd.stats;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 public interface AcdHistoricalStats {
+    
+    public static final String BEAN_NAME = "acdHistoricalStats";
 
-    public List<Map<String, Object>> getAgentSignInActivity(Date start, Date end);
+    public List<String> getReports();
+    
+    public List<String> getReportFields(String reportName);
+
+    public List<Map<String, Object>> getReport(String name);
     
 }

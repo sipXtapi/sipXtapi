@@ -11,23 +11,46 @@
  */
 package org.sipfoundry.sipxconfig.acd.stats;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.jdbc.core.ColumnMapRowMapper;
+import org.springframework.jdbc.core.RowMapperResultReader;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.jdbc.support.rowset.SqlRowSetMetaData;
 
-public class AcdHistoricalStatsImpl extends JdbcDaoSupport implements AcdHistoricalStats {
-    
-    public List<Map<String, Object>> getAgentSignInActivity(Date start, Date end) {
-        List<Map<String, Object>> records = new ArrayList<Map<String, Object>>();
-        Map<String, Object> record = new HashMap<String, Object>();
-        record.put("agent_uri", "john@pingtel.com");
-        record.put("signed_in", new Date());
-        record.put("signed_out", new Date());
-        records.add(record);
-        return records;
+public class AcdHistoricalStatsImpl extends JdbcDaoSupport implements AcdHistoricalStats,
+        BeanFactoryAware {
+    private ListableBeanFactory m_factory;
+
+    public List<String> getReports() {
+        List<String> reports = Arrays.asList(m_factory
+                .getBeanNamesForType(AcdHistoricalReport.class));
+        return reports;
+    }
+
+    public List<String> getReportFields(String reportName) {
+        AcdHistoricalReport report = (AcdHistoricalReport) m_factory.getBean(reportName);
+        SqlRowSet emptySet = getJdbcTemplate().queryForRowSet(report.getQuery() + " limit 0");
+        SqlRowSetMetaData meta = emptySet.getMetaData();
+        List<String> names = Arrays.asList(meta.getColumnNames());
+        return names;
+    }
+
+    public List<Map<String, Object>> getReport(String reportName) {
+        AcdHistoricalReport report = (AcdHistoricalReport) m_factory.getBean(reportName);
+        report.setLimit(0);
+        ColumnMapRowMapper columnMapper = new ColumnMapRowMapper();
+        RowMapperResultReader rowReader = new RowMapperResultReader(columnMapper);
+        return getJdbcTemplate().query(report, rowReader);
+    }
+
+    public void setBeanFactory(BeanFactory beanFactory) {
+        m_factory = (ListableBeanFactory) beanFactory;
     }
 }

@@ -64,10 +64,4 @@
     </property>
   </bean>
   
-  <bean id="acdStatistics" class="org.sipfoundry.sipxconfig.acd.stats.AcdStatisticsImpl" autowire="no" 
-      singleton="false">
-    <property name="acdContext">
-      <ref local="acdContext"/>      
-    </property>
-  </bean>  
 </beans>

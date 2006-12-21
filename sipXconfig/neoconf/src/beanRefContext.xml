@@ -39,6 +39,7 @@
         <!-- from etc/dialplan directory -->
         <value>classpath*:/dialplan/*.dialrules.beans.xml</value>
         <value>classpath*:/org/sipfoundry/sipxconfig/acd/acd.beans.xml</value>				
+        <value>classpath*:/org/sipfoundry/sipxconfig/acd/stats/acdstats.beans.xml</value>				
       </list>
     </constructor-arg>
   </bean>

@@ -274,7 +274,7 @@
     </xmlvalidate>
   </target>
 
-  <target name="reset-db" depends="reset-acd-report-db"
+  <target name="reset-db" depends="reset-acd-history-db"
           description="Resets the test database. Needs to be called before UI and WEB tests.">
     <subant target="unittest-reset">
       <!-- THIS PROPERTY VERY IMPORTANT -->
@@ -284,7 +284,7 @@
     </subant>    
   </target>
   
-  <target name="reset-acd-report-db">
+  <target name="reset-acd-history-db">
     <property name="acd.history.test.db.url" value="jdbc:postgresql://localhost/${acd.history.test.db}"/>
     <exec executable="dropdb" outputproperty="eatme">
       <arg line="-U ${sipxconfig.db.user} ${acd.history.test.db}"/>
@@ -293,6 +293,7 @@
       <arg line="-U ${sipxconfig.db.user} ${acd.history.test.db}"/>
     </exec>
     <pgsql url="${acd.history.test.db.url}" src="${acd.history.db.schema}"/>
+    <pgsql url="${acd.history.test.db.url}" src="test/org/sipfoundry/sipxconfig/acd/stats/history-seed.sql"/>
   </target>
 
   <!-- Comment out hibernate stuff to avoid causing problems on Windows 

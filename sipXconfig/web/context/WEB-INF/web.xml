@@ -48,6 +48,7 @@
       classpath*:/org/sipfoundry/sipxconfig/**/*-models.beans.xml
       classpath*:/dialplan/*.dialrules.beans.xml 
       classpath*:/org/sipfoundry/sipxconfig/acd/acd.beans.xml
+      classpath*:/org/sipfoundry/sipxconfig/acd/stats/acdstats.beans.xml
     </param-value>
   </context-param>
 	
