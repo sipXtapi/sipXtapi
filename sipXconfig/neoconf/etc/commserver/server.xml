@@ -335,17 +335,6 @@
   </group>
   <group name="cdr">
     <label>Call Detail Records (CDRs)</label>
-    <setting name="SIP_CALLRESOLVER_DAILY_RUN">
-      <label>Create CDRs Daily</label>
-      <profileName>callresolver-config.in</profileName>
-      <type refid="enablestate" />
-      <value>DISABLE</value>
-      <description>
-        Schedule the call resolver to create CDRs daily. If you enable this setting, then you
-        should also enable call state event (CSE) logging for the forking proxy and authorization
-        proxy, since CDRs are created from CSEs.
-      </description>
-    </setting>
     <setting name="SIP_PROXY_CALL_STATE_DB">
       <label>Log Forking Proxy Events</label>
       <profileName>proxy-config.in</profileName>
