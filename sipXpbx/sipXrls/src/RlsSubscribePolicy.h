@@ -9,8 +9,8 @@
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef _RlsSubscribe_h_
-#define _RlsSubscribe_h_
+#ifndef _RlsSubscribePolicy_h_
+#define _RlsSubscribePolicy_h_
 
 // SYSTEM INCLUDES
 
@@ -34,7 +34,7 @@ class SipPublishContentMgr;
 /*! In particular, SUBSCRIBEs that do not support 'eventlist' are to be
  *  rejected.
  */
-class RlsSubscribe : public SipSubscribeServerEventHandler
+class RlsSubscribePolicy : public SipSubscribeServerEventHandler
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -42,11 +42,11 @@ public:
 /* ============================ CREATORS ================================== */
 
     //! Default Dialog constructor
-    RlsSubscribe();
+    RlsSubscribePolicy();
 
     //! Destructor
     virtual
-    ~RlsSubscribe();
+    ~RlsSubscribePolicy();
 
 /* ============================ MANIPULATORS ============================== */
 
@@ -70,13 +70,13 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
     //! Copy constructor NOT ALLOWED
-    RlsSubscribe(const RlsSubscribe& rRlsSubscribe);
+    RlsSubscribePolicy(const RlsSubscribePolicy& rRlsSubscribePolicy);
 
     //! Assignment operator NOT ALLOWED
-    RlsSubscribe& operator=(const RlsSubscribe& rhs);
+    RlsSubscribePolicy& operator=(const RlsSubscribePolicy& rhs);
 
 };
 
 /* ============================ INLINE METHODS ============================ */
 
-#endif  // _RlsSubscribe_h_
+#endif  // _RlsSubscribePolicy_h_

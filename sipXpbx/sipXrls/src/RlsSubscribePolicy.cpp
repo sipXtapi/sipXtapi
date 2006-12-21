@@ -19,7 +19,7 @@
 #include <net/SipPublishContentMgr.h>
 #include <net/SipMessage.h>
 #include <net/Url.h>
-#include "RlsSubscribe.h"
+#include "RlsSubscribePolicy.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -31,17 +31,17 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-RlsSubscribe::RlsSubscribe()
+RlsSubscribePolicy::RlsSubscribePolicy()
 {
 }
 
 // Copy constructor NOT IMPLEMENTED
-RlsSubscribe::RlsSubscribe(const RlsSubscribe& rRlsSubscribe)
+RlsSubscribePolicy::RlsSubscribePolicy(const RlsSubscribePolicy& rRlsSubscribePolicy)
 {
 }
 
 // Destructor
-RlsSubscribe::~RlsSubscribe()
+RlsSubscribePolicy::~RlsSubscribePolicy()
 {
     // Iterate through and delete all the dialogs
     // TODO:
@@ -49,10 +49,10 @@ RlsSubscribe::~RlsSubscribe()
 
 /* ============================ MANIPULATORS ============================== */
 
-UtlBoolean RlsSubscribe::isAuthorized(const SipMessage& subscribeRequest,
-                                      const UtlString& resourceId,
-                                      const UtlString& eventTypeKey,
-                                      SipMessage& subscribeResponse)
+UtlBoolean RlsSubscribePolicy::isAuthorized(const SipMessage& subscribeRequest,
+                                            const UtlString& resourceId,
+                                            const UtlString& eventTypeKey,
+                                            SipMessage& subscribeResponse)
 {
    // SUBSCRIBE is authorized if "eventlist" is supported.
    return subscribeRequest.isInSupportedField("eventlist");

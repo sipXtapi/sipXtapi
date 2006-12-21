@@ -28,7 +28,8 @@
 #include <net/SipDialogEvent.h>
 #include <net/SipSubscribeClient.h>
 #include <os/OsSysLog.h>
-#include "RlsSubscribe.h"
+#include "RlsSubscribePolicy.h"
+#include "ResourceList.h"
 
 // DEFINES
 #ifndef SIPX_VERSION
@@ -53,6 +54,7 @@
 #define CONFIG_SETTING_TCP_PORT       "SIP_RLS_TCP_PORT"
 
 #define CONFIG_SETTING_RLS_FILE       "SIP_RLS_FILE_NAME"
+#define CONFIG_SETTING_DOMAIN_NAME    "SIP_RLS_DOMAIN_NAME"
 
 #define LOG_FACILITY                  FAC_RLS
 
@@ -380,14 +382,28 @@ int main(int argc, char* argv[])
       return 1;
    }
 
+   UtlString domainName;
+   if ((configDb.get(CONFIG_SETTING_DOMAIN_NAME, domainName) !=
+        OS_SUCCESS) ||
+       domainName.isNull())
+   {
+      OsSysLog::add(LOG_FACILITY, PRI_CRIT,
+                    "Resource domain name is not configured");
+      return 1;
+   }
+
    // Instantiate the call processing subsystem
    UtlString localAddress;
    OsSocket::getHostIp(&localAddress);
-   // Construct an address to be used in outgoing requests (primarily
-   // INVITEs stimulated by REFERs).
+   // Construct our host-part.
+   UtlString localHostPart;
+   // Construct an address to be used in outgoing requests (primarily SUBSCRIBEs)
    UtlString outgoingAddress;
    {
       char buffer[100];
+      sprintf(buffer, "%s:%d", localAddress.data(),
+              portIsValid(udpPort) ? udpPort : tcpPort);
+      localHostPart = buffer;
       sprintf(buffer, "sip:sipXrls@%s:%d", localAddress.data(),
               portIsValid(udpPort) ? udpPort : tcpPort);
       outgoingAddress = buffer;
@@ -430,12 +446,14 @@ int main(int argc, char* argv[])
    // Component for holding the subscription data
    SipSubscriptionMgr subscriptionMgr; 
    // Component for granting subscription rights
-   RlsSubscribe policyHolder;
-   // Component for publishing the event contents
-   SipPublishContentMgr publisher;
+   RlsSubscribePolicy policyHolder;
+   // Component for publishing the event content
+   // This will contain the event content for every resource list URI
+   // and event type that the RLS services.
+   SipPublishContentMgr eventPublisher;
 
    // Start the SIP Subscribe Server.
-   SipSubscribeServer subscribeServer(userAgent, publisher,
+   SipSubscribeServer subscribeServer(userAgent, eventPublisher,
                                       subscriptionMgr, policyHolder);
    subscribeServer.enableEventType(DIALOG_EVENT_TYPE);
    subscribeServer.start();
@@ -447,17 +465,27 @@ int main(int argc, char* argv[])
    SipSubscribeClient subscribeClient(userAgent, dialogManager, refreshMgr);
    subscribeClient.start();  
 
+   // Set up resource list.
+#define RESOURCE_URI "sip:700@maine.pingtel.com"
+   ResourceList rl("~~rl~1", domainName, localHostPart,
+                   DIALOG_EVENT_TYPE,
+                   eventPublisher);
+   ResourceListResource* rlr = rl.addResource(RESOURCE_URI, "<name>foobar</name>");
+
+   // Wait 60 seconds to allow the Park Server to come up.
+   OsTask::delay(60000);
+
    // Set up subscriptions to the park orbit.
    UtlString client700_early_handle;
    UtlBoolean ret;
-   ret = subscribeClient.addSubscription("sip:700@maine.pingtel.com",
+   ret = subscribeClient.addSubscription(RESOURCE_URI,
                                          DIALOG_EVENT_TYPE,
                                          DIALOG_EVENT_CONTENT_TYPE,
                                          outgoingAddress,
-                                         "sip:700@maine.pingtel.com",
+                                         RESOURCE_URI,
                                          outgoingAddress,
                                          RESUBSCRIBE_PERIOD,
-                                         NULL,
+                                         rlr,
                                          subscription_state_callback,
                                          notify_event_callback,
                                          client700_early_handle);
@@ -505,6 +533,30 @@ void subscription_state_callback(SipSubscribeClient::SubscriptionState newState,
 {
    OsSysLog::add(LOG_FACILITY, PRI_DEBUG,
                  "subscription_state_callback: newState = %d", newState);
+   ResourceListResource* rlr = (ResourceListResource*) applicationData;
+
+   switch (newState)
+   {
+   case SipSubscribeClient::SUBSCRIPTION_UNKNOWN:
+      break;
+   case SipSubscribeClient::SUBSCRIPTION_INITIATED:
+      break;
+   case SipSubscribeClient::SUBSCRIPTION_SETUP:
+   {
+      const char* subscription_state =
+         subscribeResponse->getHeaderValue(0, SIP_SUBSCRIPTION_STATE_FIELD);
+      rlr->addInstancePublish(dialogHandle, "active");
+   }
+      break;
+   case SipSubscribeClient::SUBSCRIPTION_FAILED:
+   case SipSubscribeClient::SUBSCRIPTION_TERMINATED:
+   {
+      const char* subscription_state =
+         subscribeResponse->getHeaderValue(0, SIP_SUBSCRIPTION_STATE_FIELD);
+      rlr->deleteInstancePublish(dialogHandle, "terminated");
+   }
+      break;
+   }
 }
 
 void notify_event_callback(const char* earlyDialogHandle,
