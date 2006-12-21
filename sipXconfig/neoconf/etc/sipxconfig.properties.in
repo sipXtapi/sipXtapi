@@ -26,9 +26,17 @@ upload.destinationDirectory=@sipxconfig.phone.dir@/profile/tftproot
 domainInitializer.initialDomain=${SIPXCHANGE_DOMAIN_NAME}
 phonebookManagerImpl.externalUsersDirectory=@sipxconfig.phonebook.dir@
 
+# The following directives can be used to provide external sources
+#    of call routing information.  If you find yourself using them, it would
+#    be helpful to post a note on sipx-dev@list.sipfoundry.org as to why 
+#    you could not accomplish what you needed using the normal mechanisms.
 # external aliases
 externalAliases.addinsDirectory=@sipxpbx.data.dir@
 externalAliases.aliasAddins=
+# external additions to internal call mapping rules
+mappingRules.externalRulesFileName=
+# external additions to external call fallback rules
+fallbackRules.externalRulesFileName=
 
 # name changes to anything starting w/sysdir need to be reflected in
 # VersionInfo class as well
