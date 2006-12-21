@@ -281,15 +281,8 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
 
             subscriptionSucceeded = TRUE;
 
-            // One time subscribe
-            if(expiration == 0)
-            {
-                isSubscriptionExpired = TRUE;
-            }
-            else
-            {
-                isSubscriptionExpired = FALSE;
-            }
+            // One time subscribe?
+            isSubscriptionExpired = expiration == 0;
         }
         // Expiration too small
         else
@@ -300,7 +293,6 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
                                                 SIP_SUB_TOO_BRIEF_TEXT);
             subscribeResponse.setMinExpiresField(mMinExpiration);
             isSubscriptionExpired = TRUE;
-
         }
 
     }
