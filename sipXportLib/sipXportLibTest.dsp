@@ -228,6 +228,10 @@ SOURCE=.\src\test\os\OsTimerTaskTest.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\test\os\OsTimerTest.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\test\os\OsTimeTest.cpp
 # End Source File
 # End Group
