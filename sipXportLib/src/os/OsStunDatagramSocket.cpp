@@ -45,23 +45,22 @@ OsStunDatagramSocket::OsStunDatagramSocket(int remoteHostPortNum,
                                            int iRefreshPeriodInSec,
                                            int iStunOptions,
                                            OsNotification *pNotification) 
-        : OsDatagramSocket(0, 0, localHostPortNum, localHost)  // make remote hostaddr/port=0, for NOT using udp "connect"
+        : OsDatagramSocket(0, 0, localHostPortNum, localHost)  // make remote hostaddr/port=0, for NOT using udp "connect" 
+        , mKeepAlivePeriod(0)
+        , mCurrentKeepAlivePeriod(0)
+        , mStunServer(szStunServer)
+        , mStunOptions(iStunOptions)
+        , mStunPort(PORT_NONE)
+        , mpTimer(new OsTimer(pStunAgent->getMessageQueue(), (int) this))
+        , mbEnabled(bEnableStun)
+        , mStunRefreshErrors(0)
+        , pStunAgent(OsStunAgentTask::getInstance(this))
+        , mbTransparentStunRead(FALSE)
+        , mDestAddress(mRemoteIpAddress)
+        , miDestPort(remoteHostPort)
+        , mcDestPriority(0)
+        , mpNotification(pNotification)
 {    
-    pStunAgent = OsStunAgentTask::getInstance() ;
-    mStunServer = szStunServer ;
-    mbEnabled = bEnableStun ;
-    mStunPort = PORT_NONE ;
-    mStunRefreshErrors = 0 ;     
-    mKeepAlivePeriod = 0 ;
-    mCurrentKeepAlivePeriod = 0 ;
-    mbTransparentStunRead = FALSE ;
-    mDestAddress = mRemoteIpAddress ;
-    miDestPort = remoteHostPort ;
-    mcDestPriority = 0 ;
-    mpNotification = pNotification ;
-    mStunOptions = iStunOptions ;
-
-    mpTimer = new OsTimer(pStunAgent->getMessageQueue(), (int) this) ;
 
     // If enabled, kick off first stun request
     if (mbEnabled)
@@ -74,7 +73,7 @@ OsStunDatagramSocket::OsStunDatagramSocket(int remoteHostPortNum,
     {
         mKeepAlivePeriod = iRefreshPeriodInSec ;
         setKeepAlivePeriod(iRefreshPeriodInSec) ;
-    }    
+    }
 }
 
 
@@ -83,12 +82,13 @@ OsStunDatagramSocket::~OsStunDatagramSocket()
 {
     enableStun(FALSE) ;    
 
+    mpTimer->stop();
     // Invoking synchronize will wait until any active timer/refresh activies
     // are completed.
-    pStunAgent->removeSocket(this) ;
     pStunAgent->synchronize() ;
-
     delete mpTimer ;
+
+    pStunAgent->removeSocket(this) ;
  }
 
 /* ============================ MANIPULATORS ============================== */
@@ -503,7 +503,6 @@ int OsStunDatagramSocket::readStunPacket(char* buffer, int bufferLength, const O
 
 void OsStunDatagramSocket::addAlternateDestination(const char* szAddress, int iPort, unsigned char cPriority) 
 {
-    OsStunAgentTask* pStunAgent = OsStunAgentTask::getInstance() ;
     if (pStunAgent)
     {
         pStunAgent->sendStunConnectivityRequest(this, szAddress, iPort, cPriority) ;

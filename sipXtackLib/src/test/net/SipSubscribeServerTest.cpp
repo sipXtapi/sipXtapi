@@ -41,6 +41,10 @@ class SipSubscribeServerTest : public CppUnit::TestCase
 
    void subscriptionTest()
    {
+#    ifdef __linux__
+      KNOWN_BUG("SipSubscribeServerTest hangs on linux (skipped)", "XSL-150");
+      CPPUNIT_ASSERT(false);
+#    else
        UtlString hostIp;
        OsSocket::getHostIp(&hostIp);
 
@@ -69,10 +73,10 @@ Voice-Message: 0/0 (0/0)\r\n";
 
        UtlString eventName("message-summary");
        UtlString mwiMimeType("application/simple-message-summary");
-       SipUserAgent* userAgent = new SipUserAgent(UNIT_TEST_SIP_PORT, UNIT_TEST_SIP_PORT, 0, 0, hostIp );
-       userAgent->start();
+       SipUserAgent userAgent(UNIT_TEST_SIP_PORT, UNIT_TEST_SIP_PORT, 0, 0, hostIp );
+       userAgent.start();
        SipSubscribeServer* subServer = 
-           SipSubscribeServer::buildBasicServer(*userAgent, 
+           SipSubscribeServer::buildBasicServer(userAgent, 
                                                 eventName);
        subServer->start();
 
@@ -80,7 +84,7 @@ Voice-Message: 0/0 (0/0)\r\n";
        OsMsgQ incomingClientMsgQueue;
         // Register an interest in SUBSCRIBE responses and NOTIFY requests
         // for this event type
-       userAgent->addMessageObserver(incomingClientMsgQueue,
+       userAgent.addMessageObserver(incomingClientMsgQueue,
                                     SIP_SUBSCRIBE_METHOD,
                                     FALSE, // no requests
                                     TRUE, // reponses
@@ -89,7 +93,7 @@ Voice-Message: 0/0 (0/0)\r\n";
                                     eventName,
                                     NULL,
                                     NULL);
-       userAgent->addMessageObserver(incomingClientMsgQueue,
+       userAgent.addMessageObserver(incomingClientMsgQueue,
                                     SIP_NOTIFY_METHOD,
                                     TRUE, // requests
                                     FALSE, // not reponses
@@ -139,7 +143,7 @@ Voice-Message: 0/0 (0/0)\r\n";
                                                        SIP_PROTOCOL_VERSION);
        mwiSubscribeRequest.setContactField(aor);
 
-       UtlBoolean bRet(userAgent->send(mwiSubscribeRequest));
+       UtlBoolean bRet(userAgent.send(mwiSubscribeRequest));
        CPPUNIT_ASSERT(bRet);
 
        // We should get a 202 response and a NOTIFY request in the queue
@@ -170,7 +174,7 @@ Voice-Message: 0/0 (0/0)\r\n";
            notifyResponse.setResponseData(notifyRequest, 
                                           SIP_OK_CODE,
                                           SIP_OK_TEXT);
-           userAgent->send(notifyResponse);
+           userAgent.send(notifyResponse);
        }
 
        incomingClientMsgQueue.receive(osMessage, messageTimeout);
@@ -195,7 +199,7 @@ Voice-Message: 0/0 (0/0)\r\n";
            notifyResponse.setResponseData(notifyRequest, 
                                           SIP_OK_CODE,
                                           SIP_OK_TEXT);
-           userAgent->send(notifyResponse);
+           userAgent.send(notifyResponse);
        }
 
        CPPUNIT_ASSERT(subscribeResponse);
@@ -258,7 +262,7 @@ Voice-Message: 0/0 (0/0)\r\n";
        secondNotifyResponse.setResponseData(notifyRequest, 
                                       SIP_OK_CODE,
                                       SIP_OK_TEXT);
-       userAgent->send(secondNotifyResponse);
+       userAgent.send(secondNotifyResponse);
 
        const HttpBody* secondNotifyBody = secondNotify->getBody();
        CPPUNIT_ASSERT(secondNotifyBody);
@@ -285,7 +289,7 @@ Voice-Message: 0/0 (0/0)\r\n";
                                                        SIP_PROTOCOL_VERSION);
        oneTimeMwiSubscribeRequest.setContactField(aor);
 
-       userAgent->send(oneTimeMwiSubscribeRequest);
+       userAgent.send(oneTimeMwiSubscribeRequest);
        const SipMessage* oneTimeSubscribeResponse = NULL;
        const SipMessage* oneTimeNotifyRequest = NULL;
 
@@ -312,7 +316,7 @@ Voice-Message: 0/0 (0/0)\r\n";
            notifyResponse.setResponseData(oneTimeNotifyRequest, 
                                           SIP_OK_CODE,
                                           SIP_OK_TEXT);
-           userAgent->send(notifyResponse);
+           userAgent.send(notifyResponse);
        }
 
        // Get the subscribe response or notify request
@@ -338,7 +342,7 @@ Voice-Message: 0/0 (0/0)\r\n";
            notifyResponse.setResponseData(oneTimeNotifyRequest, 
                                           SIP_OK_CODE,
                                           SIP_OK_TEXT);
-           userAgent->send(notifyResponse);
+           userAgent.send(notifyResponse);
        }
 
        // Validate the one time subscribe response and notify request
@@ -381,16 +385,15 @@ Voice-Message: 0/0 (0/0)\r\n";
 
        // Cleanup to prevent access of the queue after it goes out of
        // scope
-       userAgent->removeMessageObserver(incomingClientMsgQueue);
-       userAgent->removeMessageObserver(incomingClientMsgQueue);
+       userAgent.removeMessageObserver(incomingClientMsgQueue);
+       userAgent.removeMessageObserver(incomingClientMsgQueue);
        
 
-       userAgent->shutdown(TRUE);
-       delete userAgent;
-       userAgent = NULL;
+       userAgent.shutdown(TRUE);
        
        delete subServer;
        subServer = NULL;
+#    endif
    }
 
 };

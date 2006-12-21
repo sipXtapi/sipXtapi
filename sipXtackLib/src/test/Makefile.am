@@ -29,18 +29,18 @@ testsuite_SOURCES = \
     net/HttpMessageTest.cpp \
     net/SdpBodyTest.cpp \
     net/SipContactDbTest.cpp \
+    net/SipUserAgentTest.cpp \
+    net/SipServerShutdownTest.cpp \
     net/SipDialogEventTest.cpp \
     net/SipDialogMonitorTest.cpp \
     net/SipDialogTest.cpp \
     net/SipMessageTest.cpp \
     net/SipPresenceEventTest.cpp \
     net/SipPublishContentMgrTest.cpp \
-    net/SipServerShutdownTest.cpp \
     net/SipSrvLookupTest.cpp \
     net/SipSubscribeServerTest.cpp \
     net/SipSubscriptionClientTest.cpp \
     net/SipSubscriptionMgrTest.cpp \
-    net/SipUserAgentTest.cpp \
     net/SipProxyMessageTest.cpp \
     net/XmlRpcTest.cpp
 

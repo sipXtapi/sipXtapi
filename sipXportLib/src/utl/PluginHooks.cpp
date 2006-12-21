@@ -171,7 +171,7 @@ void PluginHooks::readConfig(OsConfigDb& configDb)
    UtlContainable* existingHook;
    
    UtlSortedListIterator nextHook(mConfiguredHooks);
-   while (existingHook = nextHook())
+   while ((existingHook = nextHook()))
    {
       existingHooks.append(mConfiguredHooks.removeReference(existingHook));
    }

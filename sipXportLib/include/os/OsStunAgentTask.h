@@ -57,7 +57,7 @@ private:
     OsStunAgentTask();
 
     /**
-     * Private destuctor, use freeInstance() ;
+     * Private destuctor, use releaseInstance() ;
      */
     virtual ~OsStunAgentTask();
 
@@ -65,11 +65,16 @@ public:
     /**
      * Obtain a singleton instance
      */
-    static OsStunAgentTask* getInstance() ;
+    static OsStunAgentTask* getInstance(OsStunDatagramSocket* socket /**< until socket has been removed
+                                                                      *   the agent task will not be destroyed.
+                                                                      */
+                                        ) ;
 
     /**
      * Release/Free the singleton instance obtained by calling getInstance.
      * This method is included for clean shutdown of the system.
+     * It actually will not destruct the object until all sockets have been
+     * removed using removeSocket.
      */
     static void releaseInstance() ;
 
@@ -149,13 +154,25 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+    static OsMutex sLock ;                  /**< Lock for singleton accessors and release flag */
     static OsStunAgentTask* spInstance ;    /**< Singleton instance */
-    static OsMutex sLock ;                  /**< Lock for singleton accessors */
-    UtlHashMap mResponseMap;                /**< Map of outstanding refresh requests */  
-    UtlHashMap mConnectivityMap ;           /**< Map of outstanding connectivity probes */
+    bool mReleased ;                        /**< Ok to release when all references removed */
+
     OsMutex mMapsLock ;                     /**< Lock for Notify and Connectiviy maps */
+    UtlHashMap mResponseMap;                /**< Map of outstanding refresh requests
+                                             * key is the pSocket: this memory is not owned
+                                             *     by this class, so it is not deleted.
+                                             */  
+    UtlHashMap mConnectivityMap ;           /**< Map of outstanding connectivity probes */
     UtlSList mTimerPool;                    /**< List of free timers available for use */
+    UtlSList mSocketReferences;             /**< sockets that called getInstance */
     
+    /** Keep track of sockets that reference this task */
+    void addSocket(OsStunDatagramSocket* socket);
+
+    /** Internal release routine that prevents premature destruction */
+    void releaseIfNotReferenced();
+
     /** Disabled copy constructor (not supported) */
     OsStunAgentTask(const OsStunAgentTask& rOsStunAgentTask);     
 

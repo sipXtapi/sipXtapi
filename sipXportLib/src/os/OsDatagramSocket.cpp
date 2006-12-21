@@ -78,9 +78,7 @@ OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
                   ,remoteHost, remoteHostPortNum);
 
     int                error = 0;
-    UtlBoolean         isIp = FALSE;
     struct sockaddr_in localAddr;
-    struct hostent*    server = NULL;
 
     // Verify socket layer is initialized.
     if(!socketInit())

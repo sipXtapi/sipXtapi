@@ -18,6 +18,8 @@
 #include <net/SipRefreshMgr.h>
 #include <net/SipTcpServer.h>
 
+#define SIP_SHUTDOWN_ITERATIONS 3
+
 /**
  * Unittest for server shutdown testing
  */
@@ -31,36 +33,34 @@ public:
 
    void testTcpShutdown()
    {
-      SipUserAgent* sipUA = new SipUserAgent( PORT_NONE
-                                             ,PORT_NONE
-                                             ,PORT_NONE
-                                             ,NULL     // default publicAddress
-                                             ,NULL     // default defaultUser
-                                             ,"127.0.0.1"     // default defaultSipAddress
-                                             ,NULL     // default sipProxyServers
-                                             ,NULL     // default sipDirectoryServers
-                                             ,NULL     // default sipRegistryServers
-                                             ,NULL     // default authenticationScheme
-                                             ,NULL     // default authenicateRealm
-                                             ,NULL     // default authenticateDb
-                                             ,NULL     // default authorizeUserIds
-                                             ,NULL     // default authorizePasswords
-                                             ,NULL     // default natPingUrl
-                                             ,0        // default natPingFrequency
-                                             ,"PING"   // natPingMethod
+      SipUserAgent sipUA( PORT_NONE
+                         ,PORT_NONE
+                         ,PORT_NONE
+                         ,NULL     // default publicAddress
+                         ,NULL     // default defaultUser
+                         ,"127.0.0.1"     // default defaultSipAddress
+                         ,NULL     // default sipProxyServers
+                         ,NULL     // default sipDirectoryServers
+                         ,NULL     // default sipRegistryServers
+                         ,NULL     // default authenticationScheme
+                         ,NULL     // default authenicateRealm
+                         ,NULL     // default authenticateDb
+                         ,NULL     // default authorizeUserIds
+                         ,NULL     // default authorizePasswords
+                         ,NULL     // default natPingUrl
+                         ,0        // default natPingFrequency
+                         ,"PING"   // natPingMethod
          );
 
-      for (int i=0; i<10; ++i)
+      for (int i=0; i<SIP_SHUTDOWN_ITERATIONS; ++i)
       {
-         SipTcpServer* pSipTcpServer = new SipTcpServer(5090, sipUA, SIP_TRANSPORT_TCP, 
-                                                       "SipTcpServer-%d", false);
-         pSipTcpServer->startListener();
+         SipTcpServer pSipTcpServer(5090, &sipUA, SIP_TRANSPORT_TCP, 
+                                    "SipTcpServer-%d", false);
+         pSipTcpServer.startListener();
 
          OsTask::delay(1000);
 
-         pSipTcpServer->shutdownListener();
-         delete pSipTcpServer;
-         pSipTcpServer = NULL;
+         pSipTcpServer.shutdownListener();
       }
 
    };
