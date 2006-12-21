@@ -868,7 +868,7 @@ void sipXtapiTestSuite::testInDialogSipRequest()
         CPPUNIT_ASSERT(requestEvent->getMsgSubType() == CpCallManager::CP_SIP_MESSAGE);
 
         // Get the actual request
-        const SipMessage* requestPtr = ((SipMessageEvent&)requestEvent).getMessage();
+        //const SipMessage* requestPtr = ((SipMessageEvent&)requestEvent).getMessage();
 
         // TODO: validate the request transaction info.
 

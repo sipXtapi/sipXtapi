@@ -87,7 +87,7 @@ SIPX_CALL sipxCallLookupHandle(const UtlString& callID, const void* pSrc)
     UtlVoidPtr* pObj = NULL;
     SIPX_CALL hCall = 0 ;
    
-    while (pIndex = dynamic_cast<UtlInt*>( iter() ) )       
+    while ((pIndex = dynamic_cast<UtlInt*>( iter() ) ))
     {
         pObj = dynamic_cast<UtlVoidPtr*>(gpCallHandleMap->findValue(pIndex));
         SIPX_CALL_DATA* pData = NULL ;
@@ -671,7 +671,7 @@ void sipxLineObjectFree(const SIPX_LINE hLine)
             if (pData->pLineAliases)
             {
                 UtlVoidPtr* pValue ;
-                while (pValue = (UtlVoidPtr*) pData->pLineAliases->get())
+                while ((pValue = (UtlVoidPtr*) pData->pLineAliases->get()))
                 {
                     Url* pUri = (Url*) pValue->getValue() ;
                     if (pUri)
@@ -1022,7 +1022,7 @@ SIPX_INSTANCE_DATA* findSessionByCallManager(const void* pCallManager)
    
     UtlVoidPtr* pObj = NULL;
    
-    while (pObj = dynamic_cast<UtlVoidPtr*>(iter()))       
+    while ((pObj = dynamic_cast<UtlVoidPtr*>(iter())))
     {
         SIPX_INSTANCE_DATA* pTest = (SIPX_INSTANCE_DATA*) pObj->getValue() ;
         if ((pTest) && (pTest->pCallManager == pCallManager))
@@ -1138,9 +1138,8 @@ UtlBoolean sipxIsCallInFocus()
    
     UtlInt* pIndex = NULL;
     UtlVoidPtr* pObj = NULL;
-    SIPX_CALL hCall = 0 ;
    
-    while (pIndex = dynamic_cast<UtlInt*>( iter() ) )       
+    while ((pIndex = dynamic_cast<UtlInt*>( iter() ) ))
     {
         pObj = dynamic_cast<UtlVoidPtr*>(gpCallHandleMap->findValue(pIndex));
         SIPX_CALL_DATA* pData = NULL ;
@@ -1734,7 +1733,7 @@ void SipxCallData_toString(const SIPX_CALL_DATA* pCallData, UtlString& serialize
 
         // display
         serializedDump.append("\n\tdisplay=");
-        sprintf(numBuff, "%p", pCallData->display);
+        sprintf(numBuff, "%p", &pCallData->display);
         serializedDump.append(numBuff);
 
         // bRemoveInsteadOfDrop
@@ -1749,7 +1748,8 @@ void SipxCallData_toString(const SIPX_CALL_DATA* pCallData, UtlString& serialize
         }
         else
         {
-            sprintf(numBuff, "%p", pCallData->bRemoveInsteadOfDrop);
+            sprintf(numBuff, "bRemoveInsteadOfDrop=%s",
+                    pCallData->bRemoveInsteadOfDrop ? "TRUE" : "FALSE");
             serializedDump.append(numBuff);
         }
 
@@ -1787,7 +1787,8 @@ void SipxCallData_toString(const SIPX_CALL_DATA* pCallData, UtlString& serialize
         }
         else
         {
-            sprintf(numBuff, "%p", pCallData->bInFocus);
+            sprintf(numBuff, "bInFocus=%p",
+                    pCallData->bInFocus ? "TRUE" : "FALSE" );
             serializedDump.append(numBuff);
         }
 

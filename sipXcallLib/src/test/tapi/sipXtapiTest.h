@@ -35,13 +35,23 @@
 #define STRESS_FACTOR   3       /**< How many times to repeat each test case */
 #define TEST_DELAY      4000    /**< Time to delay between each test */
 
-#define TEST_AUDIO              1
-#define TEST_LINE               1
-#define TEST_CALL               1
-#define TEST_CONF               1
-#define TEST_REG                1
-#define TEST_TRANSFER           1
-#define TEST_CONFIG             1
+#ifdef __linux__ /* XCL-112 */
+#  define TEST_AUDIO              0
+#  define TEST_LINE               0
+#  define TEST_CALL               0
+#  define TEST_CONF               0
+#  define TEST_REG                0
+#  define TEST_TRANSFER           0
+#  define TEST_CONFIG             0
+#else
+#  define TEST_AUDIO              1
+#  define TEST_LINE               1
+#  define TEST_CALL               1
+#  define TEST_CONF               1
+#  define TEST_REG                1
+#  define TEST_TRANSFER           1
+#  define TEST_CONFIG             1
+#endif
 #define TEST_PROBLEMATIC_CASES  0
 
 
@@ -76,7 +86,6 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
     CPPUNIT_TEST(testVolumeAPI) ;
     CPPUNIT_TEST(testAudioSettings);
 #endif /* TEST_AUDIO ] */
-
 #if TEST_LINE /* [ */
     CPPUNIT_TEST(testLineAPI_Add) ;
     CPPUNIT_TEST(testLineAPI_Remove) ;

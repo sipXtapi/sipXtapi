@@ -206,7 +206,7 @@ void sipXtapiTestSuite::checkForLeaks()
     checkForCallLeaks(g_hInst) ;
     checkForCallLeaks(g_hInst2) ;
     checkForCallLeaks(g_hInst3) ;
-    sipxCheckForHandleLeaks() ;
+    CPPUNIT_ASSERT(SIPX_RESULT_FAILURE != sipxCheckForHandleLeaks()) ;
 }
 
 #define MAX_CALL_CHECK  16
