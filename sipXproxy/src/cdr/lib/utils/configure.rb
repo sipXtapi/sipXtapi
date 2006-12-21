@@ -13,8 +13,9 @@
 
 require 'utils/exceptions'
 
-
 class Configure
+  # How many seconds are there in a day
+  SECONDS_PER_DAY = 86400
   
   # Config file syntax
   COMMENT_CHAR = '#'

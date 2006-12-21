@@ -12,6 +12,7 @@ $:.unshift(File.join(File.dirname(__FILE__), "..", ".."))
 require 'test/test_helper'
 require 'parsedate'
 require 'call_resolver'
+require 'utils/configure'
 
 require 'app/models/call_state_event'
 require 'app/models/cdr'
@@ -19,10 +20,6 @@ require 'app/models/cdr'
 
 # :TODO: Make it easy to run all the unit tests, possibly via Rakefile, for build loop.
 class CallResolverPurgeTest < Test::Unit::TestCase
-
-  SECONDS_IN_A_DAY = 86400
-  
-public
 
   def setup  
     init_db
@@ -99,8 +96,8 @@ public
   end
 
   def purge(age_cse, age_cdr)
-    cse_start_time = Time.now - (SECONDS_IN_A_DAY * age_cse)
-    cdr_start_time = Time.now - (SECONDS_IN_A_DAY * age_cdr)
+    cse_start_time = Time.now - (Configure::SECONDS_PER_DAY * age_cse)
+    cdr_start_time = Time.now - (Configure::SECONDS_PER_DAY * age_cdr)
     @resolver.send(:purge, cse_start_time, cdr_start_time)
   end  
   
@@ -109,7 +106,7 @@ public
     # Adjust the time a bit so that all records are slightly older 
     # than 'now - age'
     cse.cseq = 1
-    cse.event_time = Time.now - (SECONDS_IN_A_DAY * days_old) - 50
+    cse.event_time = Time.now - (Configure::SECONDS_PER_DAY * days_old) - 50
     cse.contact = from
     cse.from_url = from + "; tag=f"
     cse.to_url = to    
@@ -131,7 +128,7 @@ public
     # Adjust the time a bit so that all records are slightly older 
     # than 'now - age'    
     cse.cseq = 2
-    cse.event_time = Time.now - (SECONDS_IN_A_DAY * days_old) - 30
+    cse.event_time = Time.now - (Configure::SECONDS_PER_DAY * days_old) - 30
     cse.contact = to
     cse.from_url = from + "; tag=f"
     cse.to_url = to    
@@ -153,7 +150,7 @@ public
     # Adjust the time a bit so that all records are slightly older 
     # than 'now - age'       
     cse.cseq = 3
-    cse.event_time = Time.now - (SECONDS_IN_A_DAY * days_old) - 10
+    cse.event_time = Time.now - (Configure::SECONDS_PER_DAY * days_old) - 10
     cse.contact = from
     cse.from_url = from + "; tag=f"
     cse.to_url = to    

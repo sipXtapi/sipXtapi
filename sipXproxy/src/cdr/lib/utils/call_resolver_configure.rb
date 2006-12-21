@@ -25,9 +25,6 @@ class CallResolverConfigure
   
   LOCALHOST = 'localhost'
   
-  # How many seconds are there in a day
-  SECONDS_IN_A_DAY = 86400
-  
   # Max integer in a Fixnum, on a 32-bit machine
   INT_MAX = 2147483647
   
@@ -120,8 +117,7 @@ class CallResolverConfigure
   # Public configuration
   
   OTHER_PARAMS = [:cdr_database_url, :cse_database_urls,
-  :host_list, :host_port_list, :log,
-  :purge_start_time_cdr, :purge_start_time_cse]
+  :host_list, :host_port_list, :log]
   # Define a reader for each of the other params
   attr_reader(*OTHER_PARAMS)
   
@@ -134,7 +130,18 @@ class CallResolverConfigure
   def purge?
     @config.enabled?(PURGE, PURGE_DEFAULT)
   end
+
+  # Compute start time of CDR records to be purged from configuration
+  def purge_age_cdr
+    return nil unless purge?
+    return parse_int_param(@config, PURGE_AGE_CDR, PURGE_AGE_CDR_DEFAULT, 1)
+  end    
   
+  # Compute start time of CSE records to be purged from configuration
+  def purge_age_cse
+    return nil unless purge?
+    return parse_int_param(@config, PURGE_AGE_CSE, PURGE_AGE_CSE_DEFAULT, 1)
+  end    
   
   # Access the config as an array.  Use this method *only* for plugin config
   # params that are unknown to the call resolver.  All known params should be
@@ -232,9 +239,6 @@ class CallResolverConfigure
     # These two methods must get called in this order
     @host_list, @host_port_list, @ha = get_cse_hosts_config
     @cse_database_urls = get_cse_database_urls_config(@host_port_list)
-    
-    @purge_start_time_cdr = get_purge_start_time_cdr_config
-    @purge_start_time_cse = get_purge_start_time_cse_config
   end
   
   
@@ -253,22 +257,6 @@ class CallResolverConfigure
         DatabaseUrl.new(:port => port)
       end
     end     
-  end
-  
-  # Compute start time of CDR records to be purged from configuration
-  def get_purge_start_time_cdr_config
-    purge_age = parse_int_param(@config, PURGE_AGE_CDR, PURGE_AGE_CDR_DEFAULT, 1)
-    
-    # Set the start time of the purge to be purge_age days ago
-    return Time.now - (SECONDS_IN_A_DAY * purge_age)
-  end    
-  
-  # Compute start time of CSE records to be purged from configuration
-  def get_purge_start_time_cse_config
-    purge_age = parse_int_param(@config, PURGE_AGE_CSE, PURGE_AGE_CSE_DEFAULT, 1)
-    
-    # Set the start time of the purge to be purge_age days ago
-    return Time.now - (SECONDS_IN_A_DAY * purge_age)
   end
   
   # Get distributed CSE hosts from the configuration. 

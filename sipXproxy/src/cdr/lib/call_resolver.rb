@@ -12,6 +12,7 @@ require 'logger'
 require 'call_direction/call_direction_plugin'
 require 'db/cse_reader'
 require 'db/cdr_writer'
+require 'utils/configure'
 require 'state'
 
 
@@ -21,69 +22,26 @@ require 'state'
 class CallResolver
   attr_reader :log
   
-  # How many seconds are there in a day
-  SECONDS_IN_A_DAY = 86400
-  
   def initialize(config)
     @config =  config
     @log = config.log
-    urls = @config.cse_database_urls    
+    urls = @config.cse_database_urls
+    purge_age_cse =  @config.purge_age_cse
     # readers put events in CSE queue
     @readers = urls.collect do | url |
-      CseReader.new(url, log)
+      CseReader.new(url, purge_age_cse, log)
     end
-    @writer = CdrWriter.new(@config.cdr_database_url, log)
-  end
-
-  # poor man's daemon for now - just repeat daily run every minute
-  def daemon
-    while true
-      run_resolver
-      run_purge if @config.purge?
-      sleep 60
-    end
+    install_signal_handler(@readers)    
+    @writer = CdrWriter.new(@config.cdr_database_url, @config.purge_age_cdr, log)
   end
   
   def run_resolver
-    start_time, end_time = get_start_end_times
-    resolve(start_time, end_time)
-  rescue
-    # FIXME: check if we can remove it or at least rethrow exception
-    # Log the error and the stack trace.  The log message has to
-    # go on a single line.  
-    # Embed "\n" for syslogviewer.
-    start_line = "\n        from "    # start each backtrace line with this
-    log.error("Exiting because of error: \"#{$!}\"" + start_line +
-    $!.backtrace.inject{|trace, line| trace + start_line + line})            
-  end
-  
-  def get_start_end_times
-    start_time = @writer.last_cdr_start_time
-    if start_time == nil
-      start_time = Time.now - SECONDS_IN_A_DAY
-    end
-    return start_time, Time.now
-  end
-  
-  def run_purge(purge_time = nil)
-    # Was a purge age explicitly set?
-    if purge_time
-      start_cse = start_cdr = Time.now() - (SECONDS_IN_A_DAY * purge_time)
-      log.info("Purge override")
-    else
-      start_cse = @config.purge_start_time_cse
-      start_cdr = @config.purge_start_time_cdr
-      log.info("Normal purge")
-    end 
-    log.info("Start CSE: : #{start_cse}, Start CDRs: #{start_cdr}")
-    @readers.each{ |r| r.purge(start_cse) }
-    @writer.purge(start_cdr)
+    resolve(@writer.last_cdr_start_time, nil)
   end
   
   # Resolve CSEs to CDRs
   def resolve(start_time, end_time)
     start_run = Time.now
-    log.info("Resolving calls from #{start_time.to_s} to #{end_time.to_s}")
     
     # start everything    
     
@@ -99,6 +57,7 @@ class CallResolver
       State.new( cse_queue, cdr_queue ).run
     }
     
+    # FIXME: enable call direction plugin
     #cdr_queue = start_plugins(cdr_queue)
     
     writer_thread = Thread.new( @writer, cdr_queue ) { | w, q | w.run(q) }    
@@ -114,6 +73,16 @@ class CallResolver
   end
   
   
+  # install handler for INT (2) and TERM (9) signals to cleanly terminate readers threads
+  def install_signal_handler(readers)
+    %w( TERM INT ).each do | s |
+      Signal.trap(s) do
+        log.info("#{s} intercepted. Terminating reader threads.")
+        readers.each { |r| r.stop() }
+      end        
+    end
+  end  
+  
   def start_plugins(raw_queue)
     return raw_queue unless CallDirectionPlugin.call_direction?(@config)    
     processed_queue = Queue.new
@@ -122,6 +91,5 @@ class CallResolver
     Thread.new(cdp) { | plugin | plugin.run }
     
     return cdr_queue
-  end
-  
+  end  
 end

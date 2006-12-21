@@ -11,38 +11,61 @@ require 'dbi'
 
 require 'call_state_event'
 require 'db/dao'
+require 'utils/terminator'
 
 # Obtains CSEs from and puts them into CSE queue
-class CseReader < Dao
-  
-  def initialize(database_url, log = nil)
-    super
+class CseReader < Dao  
+  def initialize(database_url, purge_age,  log = nil)
+    super(database_url, purge_age, log)
+    @last_read_time = nil
+    @stop = Terminator.new(60)    
   end
   
   # Another way of fetching the row
   #        while row = sth.fetch_scroll(DBI::SQL_FETCH_NEXT)
   #          cse_queue << CseReader.cse_from_row(row)
-  #        end  
-  def run(cse_queue, start_time, stop_time)    
+  #        end
+  # If stop time is nil reader will keep on reading the connection forever
+  def run(cse_queue, start_time, stop_time = nil)
     connect do | dbh |
-      sql = CseReader.select_sql(start_time, stop_time)
-      params = [start_time, stop_time].find_all { | i | i }
-      dbh.prepare(sql) do | sth |
-        sth.execute(*params)
-        sth.fetch do |row|
-          cse_queue << CseReader.cse_from_row(row)
+      if stop_time
+        check_purge(dbh)
+        read_cses(dbh, cse_queue, start_time, stop_time)
+      else
+        @last_read_time ||= start_time
+        loop do
+          check_purge(dbh)
+          first = @last_read_time
+          read_cses(dbh, cse_queue, first, nil)
+          break if @stop.wait
         end
-      end
+      end        
     end
   end
   
-  # purge records in CSE table
-  def purge(start_time_cse)
-    connect do | dbh |
-      sql = CseReader.delete_sql(nil, start_time_cse)
-      dbh.prepare(sql) do | sth |
-        sth.execute(start_time_cse)
-      end  
+  def stop
+    @stop.stop
+  end
+  
+  def read_cses(dbh, cse_queue, start_time, stop_time)
+    sql = CseReader.select_sql(start_time, stop_time)
+    params = [start_time, stop_time].find_all { | i | i }
+    # FIXME: converting Timestamp to strings for now, not sure why it's not working without conversion yet
+    params = params.collect{ | i | i.to_s }
+    dbh.prepare(sql) do | sth |
+      sth.execute(*params)
+      sth.fetch do |row|
+        cse = CseReader.cse_from_row(row)
+        @last_read_time = cse.event_time
+        cse_queue << cse
+      end
+    end    
+  end
+  
+  def purge_now(dbh, start_time_cse)
+    sql = CseReader.delete_sql(nil, start_time_cse)
+    dbh.prepare(sql) do | sth |
+      sth.execute(start_time_cse)
     end    
   end
   

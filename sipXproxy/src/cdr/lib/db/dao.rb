@@ -9,6 +9,8 @@
 
 require 'dbi'
 
+require 'utils/configure'
+
 module DBI
   class Timestamp
     include Comparable
@@ -30,13 +32,34 @@ end
 class Dao
   attr_reader :log
   
-  def initialize(database_url, log)
+  def initialize(database_url, purge_age, log)
     @connection = database_url.to_dbi
     @username = database_url.username
+    @purge_age = purge_age
+    @last_purge_time = nil    
     @log = log
   end
   
   def connect(&block)
     DBI.connect(@connection, @username, &block)
-  end  
+  end
+  
+  # purge unconditionally
+  def purge(time)
+    connect do | dbh |
+      purge_now(dbh, time)
+      @last_purge_time = now
+    end    
+  end
+  
+  # purge at least once a day
+  def check_purge(dbh)
+    return unless @purge_age
+    now = Time.now
+    if @last_purge_time.nil? || now - @last_purge_time > Configure::SECONDS_PER_DAY
+      first_entry_time = now - (@purge_age * Configure::SECONDS_PER_DAY)
+      purge_now(dbh, first_entry_time)
+      @last_purge_time = now
+    end
+  end    
 end

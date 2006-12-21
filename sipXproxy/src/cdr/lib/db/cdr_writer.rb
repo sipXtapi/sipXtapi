@@ -14,7 +14,7 @@ require 'db/dao'
 # Writes CDRs to the database
 class CdrWriter < Dao
   
-  def initialize(database_url, log = nil)
+  def initialize(database_url, purge_age, log = nil)
     super
   end
   
@@ -25,6 +25,7 @@ class CdrWriter < Dao
         while cdr = queue.shift
           row = CdrWriter.row_from_cdr(cdr)
           sth.execute(*row)
+          check_purge(dbh)
         end
       end
     end
@@ -40,13 +41,11 @@ class CdrWriter < Dao
     return nil    
   end
   
-  def purge(start_time_cdr)
-    connect do | dbh |
-      sql = CdrWriter.delete_sql
-      dbh.prepare(sql) do | sth |
-        sth.execute(start_time_cdr)
-      end  
-    end    
+  def purge_now(dbh, start_time_cdr)
+    sql = CdrWriter.delete_sql
+    dbh.prepare(sql) do | sth |
+      sth.execute(start_time_cdr)
+    end  
   end
   
   class << self

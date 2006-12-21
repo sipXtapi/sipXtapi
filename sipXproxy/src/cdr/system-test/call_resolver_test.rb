@@ -26,8 +26,6 @@ class CallResolverTest < Test::Unit::TestCase
   TEST_CALL_ID = 'call ID'
   TEST_FROM_TAG = 'f'
   TEST_TO_TAG = 't'
- 
-  SECONDS_IN_A_DAY = 24 * 60 * 60
   
   CALL_ID1 = 'call_id1'
   CALL_ID2 = 'call_id2'
@@ -35,31 +33,31 @@ class CallResolverTest < Test::Unit::TestCase
   
   TEST_DB1 = 'SIPXCSE_TEST1'
   TEST_DB2 = 'SIPXCSE_TEST2'
- 
+  
   LOCALHOST = 'localhost'
- 
-public
-
+  
+  public
+  
   def setup
     super
     
     # Create the CallResolver, giving it the location of the test config file.
     @resolver = CallResolver.new(File.join($SOURCE_DIR, 'data/callresolver-config'))
   end
-
+  
   # Create a test CSE.  Fill in dummy values for fields we don't care about but
   # have to be filled in because of not-null DB constraints
   def create_test_cse(call_id, event_time)
     CallStateEvent.create(:observer => 'observer',
-                          :event_seq => 0,
-                          :event_time => event_time,
-                          :event_type => CallStateEvent::CALL_REQUEST_TYPE,
-                          :cseq => 0,
-                          :call_id => call_id,
-                          :from_url => 'from_url',
-                          :to_url => 'to_url')    
+    :event_seq => 0,
+    :event_time => event_time,
+    :event_type => CallStateEvent::CALL_REQUEST_TYPE,
+    :cseq => 0,
+    :call_id => call_id,
+    :from_url => 'from_url',
+    :to_url => 'to_url')    
   end
-
+  
   def test_merge_events_for_call    
     e1 = CallStateEvent.new(:call_id => CALL_ID1)
     e2 = CallStateEvent.new(:call_id => CALL_ID1)
@@ -78,23 +76,23 @@ public
     call2 = [e3, e4, e5, e6]
     call3 = [e7]
     all_calls = [[call1, call2_part1],           # call arrays for first DB
-                 [call2_part2, call3]]           # call arrays for second DB
+    [call2_part2, call3]]           # call arrays for second DB
     call_map = {}
     @resolver.send(:merge_events_for_call, all_calls, call_map)
     expected_call_map_entries = [call1, call2, call3]
     check_call_map(all_calls, call_map, expected_call_map_entries)
   end
-
+  
   def check_call_map(all_calls, call_map, expected_call_map_entries)
     assert_equal(expected_call_map_entries.size, call_map.size)
     [CALL_ID1, CALL_ID2, CALL_ID3].each_with_index do |call_id, i|
       assert_equal(expected_call_map_entries[i], call_map[call_id])
     end
   end
-
+  
   def new_call_request(event_time, to_tag = nil)
     params = {:event_type => CallStateEvent::CALL_REQUEST_TYPE,
-              :event_time => event_time}
+      :event_time => event_time}
     params[:to_tag] = to_tag if to_tag
     CallStateEvent.new(params)
   end
@@ -157,7 +155,7 @@ public
     assert_nil(cdr.failure_status)
     assert_nil(cdr.failure_reason)
   end
-
+  
   # Helper method for test_finish_cdr.  Check that failure info has been filled
   # in properly.
   def check_failed_call(events, to_tag)
@@ -177,7 +175,7 @@ public
       assert_not_nil(cdr, 'CDR was not created')
     end
   end
-    
+  
   def test_resolve
     Cdr.delete_all
     start_time = Time.parse('1990-01-1T000:00:00.000Z')
@@ -190,8 +188,8 @@ public
     Cdr.delete_all
     start_time = @resolver.get_start_end_times
     # Give it one second difference in case the timing is off a bit
-    assert((Time.now() - (start_time+SECONDS_IN_A_DAY)) <= 1)
-
+    assert((Time.now - (start_time + Configure::SECONDS_PER_DAY)) <= 1)
+    
     start_time = Time.parse('1990-01-1T000:00:00.000Z')
     end_time = Time.parse('2000-12-31T00:00.000Z')
     @resolver.resolve(start_time, end_time)
@@ -200,7 +198,7 @@ public
     start_time = @resolver.get_start_end_times
     assert_equal(start_time, Time.gm(2000,1,1,0,0,0))      
   end
-
+  
   #-----------------------------------------------------------------------------
   # Helper methods
   
@@ -209,7 +207,7 @@ public
     call_id = 'testSimpleSuccess'
     @resolver.send(:load_events_with_call_id, call_id)
   end
- 
+  
   # load and return events for the simple case
   def load_simple_success_events_callee_hangs_up
     call_id = 'testSimpleSuccess_CalleeEnd'

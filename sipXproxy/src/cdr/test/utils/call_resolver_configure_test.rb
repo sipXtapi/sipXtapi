@@ -20,15 +20,10 @@ require 'utils/utils'
 
 class CallResolverConfigureTest < Test::Unit::TestCase
   
-  LOCALHOST = 'localhost'
-  
-  # How many seconds are there in a day
-  SECONDS_IN_A_DAY = 86400
-  
   def setup
     @config = CallResolverConfigure.from_file(CallResolverConfigure::DEFAULT_CONFIG)
   end
-
+  
   def test_from_file
     assert_not_nil(CallResolverConfigure.from_file(nil))
   end  
@@ -82,10 +77,10 @@ class CallResolverConfigureTest < Test::Unit::TestCase
     # Comparison is case-insensitive
     c = Configure.new({CallResolverConfigure::PURGE => 'EnAbLe'})
     assert(CallResolverConfigure.new(c).purge?)
-
+    
     c = Configure.new({CallResolverConfigure::PURGE => 'dIsAbLe'})
     assert(!CallResolverConfigure.new(c).purge?)
-
+    
     # Pass in bogus value, get exception
     c = Configure.new({CallResolverConfigure::PURGE => 'jacket'})
     assert_raise(ConfigException) do
@@ -94,45 +89,27 @@ class CallResolverConfigureTest < Test::Unit::TestCase
   end
   
   def test_get_purge_start_time_cdr_config
-    # Get the default purge time: today's date minus the default age
-    purge_start_time_cdr =
-    Time.now - (SECONDS_IN_A_DAY * CallResolverConfigure::PURGE_AGE_CDR_DEFAULT)
+    assert_equal(@config.purge_age_cdr, CallResolverConfigure::PURGE_AGE_CDR_DEFAULT) 
     
-    # Pass in an empty config, should get the default purge time, allow
-    # for 1 second difference in times
-    assert(@config.get_purge_start_time_cdr_config - purge_start_time_cdr < 1) 
-    
-    purgeAgeStr = '23'
-    purgeAge = purgeAgeStr.to_i
-    
-    # Get today's date minus different age
-    purge_start_time_cdr = Time.now - (SECONDS_IN_A_DAY * purgeAge)
-    
-    # Pass in a value, allow for 1 second difference in times
-    c = Configure.new(CallResolverConfigure::PURGE_AGE_CDR => purgeAgeStr)
+    c = Configure.new(CallResolverConfigure::PURGE_AGE_CDR => '23')
     config = CallResolverConfigure.new(c)
-    assert(config.get_purge_start_time_cdr_config - purge_start_time_cdr < 1)
+    assert(config.purge_age_cdr, 23)
+
+    c = Configure.new(CallResolverConfigure::PURGE_AGE_CDR => '23', CallResolverConfigure::PURGE => 'DISABLE')
+    config = CallResolverConfigure.new(c)
+    assert_nil(config.purge_age_cdr)
   end  
   
   def test_get_purge_start_time_cse_config
-    # Get the default purge time: today's date minus the default age
-    purge_start_time_cse =
-    Time.now - (SECONDS_IN_A_DAY * CallResolverConfigure::PURGE_AGE_CSE_DEFAULT)
+    assert(@config.purge_age_cse,  CallResolverConfigure::PURGE_AGE_CDR_DEFAULT) 
     
-    # Pass in an empty config, should get the default purge time, allow
-    # for 1 second difference in times
-    assert(@config.get_purge_start_time_cse_config - purge_start_time_cse < 1) 
+    c = Configure.new(CallResolverConfigure::PURGE_AGE_CSE => '23')
+    config = CallResolverConfigure.new(c)    
+    assert(config.purge_age_cse, 23)
     
-    purgeAgeStr = '23'
-    purgeAge = purgeAgeStr.to_i
-    
-    # Get today's date minus different age
-    purge_start_time_cse = Time.now - (SECONDS_IN_A_DAY * purgeAge)
-    c = Configure.new(CallResolverConfigure::PURGE_AGE_CSE => purgeAgeStr)
-    config = CallResolverConfigure.new(c)
-    
-    # Pass in a value, allow for 1 second difference in times
-    assert(config.get_purge_start_time_cse_config - purge_start_time_cse < 1)
+    c = Configure.new(CallResolverConfigure::PURGE_AGE_CSE => '23', CallResolverConfigure::PURGE => 'DISABLE')
+    config = CallResolverConfigure.new(c)    
+    assert_nil(config.purge_age_cse)    
   end    
   
   def test_cse_database_urls
@@ -143,7 +120,7 @@ class CallResolverConfigureTest < Test::Unit::TestCase
     urls.each_with_index do |url, i|
       assert_equal(DatabaseUrl::DATABASE_DEFAULT, url.database)
       assert_equal(host_port_list[i], url.port)
-      assert_equal(LOCALHOST, url.host)
+      assert_equal('localhost', url.host)
     end
     
     # If the host port list is empty, then we should get the default URL
@@ -152,7 +129,7 @@ class CallResolverConfigureTest < Test::Unit::TestCase
     url = urls[0]
     assert_equal(DatabaseUrl::DATABASE_DEFAULT, url.database)
     assert_equal(DatabaseUrl::DATABASE_PORT_DEFAULT, url.port)
-    assert_equal(LOCALHOST, url.host)
+    assert_equal('localhost', url.host)
   end
   
   def test_get_cse_hosts_config
@@ -188,7 +165,7 @@ class CallResolverConfigureTest < Test::Unit::TestCase
     assert(ha)
     assert(5433, port_array[0])
     assert(DatabaseUrl::DATABASE_PORT_DEFAULT, port_array[1])
-
+    
     # Pass in other list, localhost, no port
     hostString = 'test.example.com:5433,localhost:6666'
     c = Configure.new(CallResolverConfigure::CSE_HOSTS => hostString)

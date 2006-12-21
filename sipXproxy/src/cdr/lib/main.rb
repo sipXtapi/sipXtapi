@@ -21,7 +21,7 @@ require 'utils/call_resolver_configure'
 require 'utils/stunnel_connection'
 
 
-def usage
+def usage()
   print <<EOT
 usage: sipxcallresolver.sh [--start "time" [--end "time"]] [--daily] [--help]
 
@@ -43,7 +43,7 @@ EOT
 end
 
 
-def main
+def main()
   opts = GetoptLong.new(
                         [ "--start", "-s", GetoptLong::OPTIONAL_ARGUMENT ],
   [ "--end",   "-e", GetoptLong::OPTIONAL_ARGUMENT ],
@@ -54,9 +54,8 @@ def main
   # Init options
   start_time = nil
   end_time = Time.now
-  purge_flag = false
-  purge_time = 0
   daemon_flag = false
+  config = CallResolverConfigure.from_file()
   
   # Extract option values
   # Convert start and end strings to date/time values.
@@ -77,7 +76,6 @@ def main
     end
   end 
   
-  config = CallResolverConfigure.from_file()
   resolver = CallResolver.new(config)
   
   stunnel_connection = StunnelConnection.new(config.log)
@@ -85,12 +83,12 @@ def main
   stunnel_connection.open(config)
   
   if daemon_flag
-    resolver.daemon
+    resolver.run_resolver
   elsif start_time && end_time
     resolver.resolve(start_time, end_time)
   else
     usage
-  end  
+  end
   
 rescue
   config.log.error do
