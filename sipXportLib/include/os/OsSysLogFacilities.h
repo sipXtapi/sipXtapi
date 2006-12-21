@@ -24,9 +24,9 @@
 //
 // NOTE:  If adding a facility, please:
 //        1) Insert it before the FAC_MAX_FACILITY.
-//        2) Updated OsSysLogFacilties.cpp to include the
+//        2) Update OsSysLogFacilties.cpp to include the
 //           string name.
-//        3) Updated the !enum comments below.
+//        3) Update the !enum comments below.
 //
 // *** READ THIS ***
 //
@@ -78,10 +78,10 @@ enum tagOsSysLogFacility
    // *** READ THIS ***
    //
    // NOTE:  If adding a facility, please:
-   //        1) Inserted it before the FAC_MAX_FACILITY.
-   //        2) Updated OsSysLogFacilties.cpp to include the
+   //        1) Insert it before FAC_MAX_FACILITY.
+   //        2) Updatd OsSysLogFacilties.cpp to include the
    //           string name.
-   //        3) Updated the !enum comments below.
+   //        3) Update the !enum comments below.
    //
    // *** READ THIS ***
    //
@@ -114,7 +114,7 @@ enum tagOsSysLogFacility
   //!enumcode: FAC_UPGRADE - Update/Upgrade related
   //!enumcode: FAC_PROCESSCGI - Process Management CGI (process.cgi)
   //!enumcode: FAC_DB - Database related (sipdb)
-  //!enumcode: FAC_REPLICATION_CGI - replication cgi( replicates databases across components )
+  //!enumcode: FAC_REPLICATION_CGI - replication cgi (replicates databases across components)
   //!enumcode: FAC_PROCESSMGR - os processmanager related
   //!enumcode: FAC_PROCESS - process related
   //!enumcode: FAC_SIPXTAPI - sipXtapi related

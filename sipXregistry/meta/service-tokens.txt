@@ -29,3 +29,12 @@ The music-on-hold source.
 	~~mh~
 		The default music-on-hold source.  In the standard
 		configuration, it is sip:moh@(domain):5120.
+
+*** rl
+
+Resource-list URIs.  (See RFC 4662.)
+
+	~~rl~xxx
+		Where "xxx" is an arbitrary string assigned by the
+		Config Server, which generates the configuration for
+		the Resource List Server.
