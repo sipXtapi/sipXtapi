@@ -18,8 +18,11 @@ install-rpm :
 ## The SVN-VERSION file is created to record the version 
 ##  in the distribution tarball; it is not used in a subversion working copy
 ##  (see config/subdir.am).
+## 	 the indirection is needed so that the svn-version script does not
+## 	 try to read from the SVN-VERSION file that its parent shell just opened
 SVN-VERSION: 
-	@abs_top_srcdir@/config/svn-version @abs_top_srcdir@ > SVN-VERSION
+	@abs_top_srcdir@/config/svn-version @abs_top_srcdir@ > SVN-VERSION.new
+	mv SVN-VERSION.new SVN-VERSION
 
 uninstall-rpm :
 	$(SUDO) rpm $(RPM_UNINSTALL_FLAGS) $(shell rpm -qp $(RPMS))
