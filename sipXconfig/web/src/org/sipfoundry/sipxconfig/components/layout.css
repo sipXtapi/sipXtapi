@@ -432,17 +432,12 @@ ul.form-actions li
 	font-weight:bold;
 }
 
-#col1
+div.col
 {
 	float:left;
 	width:25em;
 }
 
-#col2
-{
-	float:left;
-	width:25em;
-}
 
 div.auto_complete {
   width: 350px;

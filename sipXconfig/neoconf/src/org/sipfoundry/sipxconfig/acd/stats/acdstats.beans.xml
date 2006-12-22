@@ -18,26 +18,96 @@
     <property name="dataSource" ref="acdHistoryDataSource" />
   </bean>  
 
-  <!-- We probably do not need to proxy this -->
   <alias alias="acdHistoricalStats" name="acdHistoricalStatsImpl" />
   
-  <bean id="signoutActivityReport" class="org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalReport">
+  <!-- report section 2 -->
+  <bean id="agentAvailablityReport" class="org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalReport">
     <property name="query">
       <value>
-        select agent_uri, sign_in_time, sign_out_time from acd_agent_stat order by sign_in_time
-      </value>
-    </property>
-  </bean>
-  
-  <bean id="agentHandleDuration" class="org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalReport">
-    <property name="query">
-      <value>
-  select agent_uri, sum(terminate_time - pick_up_time) as 
-    total_handle_duration from acd_call_stat 
-    group by agent_uri
-    order by agent_uri
+    select agent_uri, 
+     sign_in_time, 
+     sign_out_time 
+    from acd_agent_stat 
       </value>
     </property>
   </bean>
 
+  <!-- report section 3 -->
+  <bean id="agentActivityReport" class="org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalReport">
+    <property name="query">
+      <value>
+    select a.agent_uri, 
+     sum(a.sign_out_time - a.sign_in_time) as time_signed_in,
+     count(*) as num_calls,
+     sum(c.terminate_time - c.pick_up_time) as handle_duration,        
+     avg(c.terminate_time - c.pick_up_time) as avg_handle_duration,
+     max(c.terminate_time - c.pick_up_time) as max_handle_duration,
+     min(c.terminate_time - c.pick_up_time) as min_handle_duration       
+    from acd_agent_stat as a, acd_call_stat as c
+    where a.agent_uri = c.agent_uri and c.state = 'terminate'
+     group by a.agent_uri
+      </value>
+    </property>
+  </bean>
+
+  <!-- report section 4a -->
+  <bean id="queueOfferedSummary" class="org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalReport">
+    <property name="query">
+      <value>
+    select queue_uri,  
+      count(*) as num_calls,
+      sum(terminate_time - enter_time) as abandon_time,
+      avg(terminate_time - enter_time) as avg_wait_time,
+      max(terminate_time - enter_time) as max_wait_time
+     from acd_call_stat
+     group by queue_uri       
+      </value>
+    </property>
+  </bean>
+
+  <!-- report section 4b -->
+  <bean id="queueAnsweredSummary" class="org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalReport">
+    <property name="query">
+      <value>
+    select queue_uri,  
+      count(*) as num_calls,
+      sum(terminate_time - enter_time) as abandon_time,
+      avg(terminate_time - enter_time) as avg_wait_time,
+      max(terminate_time - enter_time) as max_wait_time
+     from acd_call_stat
+     where state = 'terminate'
+     group by queue_uri       
+      </value>
+    </property>
+  </bean>
+
+  <!-- report section 4c -->
+  <bean id="queueAbandonedSummary" class="org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalReport">
+    <property name="query">
+      <value>
+    select queue_uri,  
+      count(*) as num_calls,
+      sum(terminate_time - enter_time) as abandon_time,
+      avg(terminate_time - enter_time) as avg_wait_time,
+      max(terminate_time - enter_time) as max_wait_time
+     from acd_call_stat
+     where state = 'unanswered'
+     group by queue_uri       
+      </value>
+    </property>
+  </bean>
+
+  <!-- report section 5 -->
+  <bean id="queueAbandonedCalls" class="org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalReport">
+    <property name="query">
+      <value>
+    select queue_uri,  
+      enter_time as start_time, 
+      terminate_time - enter_time as abandon_time
+     from acd_call_stat 
+     where state = 'unanswered' 
+      </value>
+    </property>
+  </bean>
+  
 </beans>

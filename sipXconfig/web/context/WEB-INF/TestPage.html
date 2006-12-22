@@ -1,7 +1,7 @@
 <div jwcid="@Border" restricted="false" loginRequired="false">
   <h2>Web Unit Test Interface</h2>
   <p>Links here are generally driven by unit tests, but you may interact with them manually as well.</p>
-  <div id="col1">
+  <div class="col">
     <h3>Users</h3>
     <ul>
       <li><strong><a jwcid="login" id="login" href="#">Login</a></strong></li>
@@ -49,8 +49,7 @@
       <li><a href="#" jwcid="@PageLink" id="ListBridges" page="ListBridges">Conference Bridges</a></li>
     </ul>
   </div>
-  <div id="col2">
-  
+  <div class="col">  
     <h3>Dial Plans</h3>
     <ul>
       <li><a href="#" jwcid="@PageLink" id="ListGateways" page="ListGateways">List Gateways</a></li>
@@ -95,7 +94,8 @@
       <li><a href="#" jwcid="resetConferenceBridgeContext" id="resetConferenceBridgeContext">Reset conference bridge context</a></li>
       <li><a href="#" jwcid="resetUpload" id="link:resetUpload">Reset Upload</a></li>
     </ul>
-    
+  </div>      
+  <div class="col">    
     <h3>Dataset Generation</h3>
     <ul jwcid="generateLinks">
       <li><a jwcid="generateLink"><span jwcid="generateLinkLabel" /></a></li>

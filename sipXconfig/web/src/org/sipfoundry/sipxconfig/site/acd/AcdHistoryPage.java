@@ -15,15 +15,19 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.contrib.table.model.ITableColumnModel;
 import org.apache.tapestry.contrib.table.model.simple.SimpleTableColumn;
 import org.apache.tapestry.contrib.table.model.simple.SimpleTableColumnModel;
+import org.apache.tapestry.event.PageBeginRenderListener;
+import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalStats;
 
 
-public abstract class AcdHistoryPage extends BasePage {
+public abstract class AcdHistoryPage extends BasePage implements PageBeginRenderListener {
+
     public static final String PAGE = "acd/AcdHistoryPage";
     
     @InjectObject(value = "spring:acdHistoricalStats")
@@ -31,10 +35,25 @@ public abstract class AcdHistoryPage extends BasePage {
 
     public abstract Map<String, Object> getRow();
     
-    public String getReportName() {
-        return "signoutActivityReport";
+    @Persist(value = "session")
+    public abstract String getReportName();
+
+    public abstract void setReportName(String reportName);
+    
+    public abstract Object getAvailableReportsIndexItem();
+    
+    public void showReport(String reportName) {
+        setReportName(reportName);
     }
     
+    public void pageBeginRender(PageEvent event) {
+        String report = getReportName();
+        if (report == null) {
+            report = getAcdHistoricalStats().getReports().get(0);
+            setReportName(report);
+        }
+    }
+
     public List<Map<String, Object>>getRows() {
         return getAcdHistoricalStats().getReport(getReportName());
     }

@@ -30,7 +30,7 @@ public class AcdHistoricalStatsTestDb extends TestCase {
     }
     
     public void testSignoutActivityReport() {
-        List<Map<String, Object>> stats = m_history.getReport("signoutActivityReport");        
+        List<Map<String, Object>> stats = m_history.getReport("agentAvailablityReport");        
         assertEquals(10, stats.size());
         Map<String, Object> record;
         Iterator<Map<String, Object>> i = stats.iterator();
@@ -39,10 +39,18 @@ public class AcdHistoricalStatsTestDb extends TestCase {
     }
 
     public void testSignoutActivityReportColumns() {
-        List<String> columns = m_history.getReportFields("signoutActivityReport");        
+        List<String> columns = m_history.getReportFields("agentAvailablityReport");        
         assertEquals(3, columns.size());
         assertEquals("agent_uri", columns.get(0));
         assertEquals("sign_in_time", columns.get(1));
         assertEquals("sign_out_time", columns.get(2));
+    }
+    
+    public void testForReportSQLErrors() {
+        List<String> reports = m_history.getReports();
+        for (String report : reports) {
+            m_history.getReportFields(report);
+            m_history.getReport(report);
+        }
     }
 }
