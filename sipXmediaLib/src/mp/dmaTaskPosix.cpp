@@ -267,12 +267,9 @@ void dmaShutdown(void)
    }
 }
 
-#ifdef _INCLUDE_AUDIO_SUPPORT /* [ */
-/* This will be defined by the OS-specific section below. */
-static int setupSoundCard(void);
-
 int defaultAudioMicRead(Sample *readBufferSamples, int numSamples)
 {
+#ifdef _INCLUDE_AUDIO_SUPPORT 
    int justRead;
    int recorded = 0;
    while(recorded < N_SAMPLES)
@@ -283,7 +280,45 @@ int defaultAudioMicRead(Sample *readBufferSamples, int numSamples)
       recorded += justRead/sizeof(Sample);
    }
    return(recorded);
+#else
+   memset(readBufferSamples, 0, numSamples) ;
+   return numSamples ;
+#endif
 }
+
+int defaultAudioSpeakerWrite(Sample *writeBufferSamples, int numSamples)
+{
+#ifdef _INCLUDE_AUDIO_SUPPORT 
+   int played = 0;
+   while(played < N_SAMPLES)
+   {
+      int justWritten;
+      justWritten = write(soundCard, &writeBufferSamples[played], BUFLEN - (played * sizeof(Sample)));
+      assert(justWritten > 0);
+      played += justWritten/sizeof(Sample);
+   }
+   return(played);
+#else
+   return numSamples;
+#endif
+}
+
+/* This will be defined by the OS-specific section below. */
+static int setupSoundCard(void);
+
+UtlBoolean defaultAudioDeviceInit()
+{
+#ifdef _INCLUDE_AUDIO_SUPPORT 
+   soundCard = setupSoundCard();
+
+   // Indicate if soundCard was setup successfully
+   return(soundCard >= 0);
+#else
+   return true;
+#endif
+}
+
+#ifdef _INCLUDE_AUDIO_SUPPORT /* [ */
 
 static void * soundCardReader(void * arg)
 {
@@ -342,18 +377,6 @@ static void * soundCardReader(void * arg)
    return NULL;
 }
 
-int defaultAudioSpeakerWrite(Sample *writeBufferSamples, int numSamples)
-{
-   int played = 0;
-   while(played < N_SAMPLES)
-   {
-      int justWritten;
-      justWritten = write(soundCard, &writeBufferSamples[played], BUFLEN - (played * sizeof(Sample)));
-      assert(justWritten > 0);
-      played += justWritten/sizeof(Sample);
-   }
-   return(played);
-}
 
 static void * soundCardWriter(void * arg)
 {
@@ -449,13 +472,6 @@ static void * soundCardWriter(void * arg)
 
 
 
-UtlBoolean defaultAudioDeviceInit()
-{
-   soundCard = setupSoundCard();
-
-   // Indicate if soundCard was setup successfully
-   return(soundCard >= 0);
-}
 
 static void startAudioSupport(void)
 {
