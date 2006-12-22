@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -130,9 +133,9 @@ public:
         CPPUNIT_ASSERT(testContact4.isEqual(&matchContact) == false);
         
         OsContact testContact5("192.168.0.1", 4242, OsSocket::UDP, IP6) ;  
-        CPPUNIT_ASSERT(testContact5.isEqual(&matchContact) == true);
+        CPPUNIT_ASSERT(testContact5.isEqual(&matchContact) == TRUE);
         
-        CPPUNIT_ASSERT(matchContact.isEqual(&matchContact) == true);
+        CPPUNIT_ASSERT(matchContact.isEqual(&matchContact) == TRUE);
     }
     
     

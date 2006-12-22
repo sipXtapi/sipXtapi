@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -109,7 +112,7 @@ private:
    static const MpCodecInfo smCodecInfo;  ///< Static information about the codec
    JB_inst* pJBState;
    unsigned int mNextPullTimerCount;
-   unsigned mWaitTimeInFrames;
+   unsigned int mWaitTimeInFrames;
    int mUnderflowCount;
    int mLastSeqNo;           ///< Keep track of the last sequence number so that
                              ///< we don't take out-of-order packets.

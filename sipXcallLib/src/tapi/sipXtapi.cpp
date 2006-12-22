@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -1602,7 +1605,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallDestroy(SIPX_CALL& hCall)
     {
         int nFilesPlaying = 0;
         bool bTonePlaying = false;
-        bool bRemoveInsteadOfDrop = sipxCallIsRemoveInsteadOfDropSet(hCall);
+        UtlBoolean bRemoveInsteadOfDrop = sipxCallIsRemoveInsteadOfDropSet(hCall);
         SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_WRITE, stackLogger);
 
         if (pData && pData->state != SIPX_INTERNAL_CALLSTATE_DESTROYING)
@@ -4771,8 +4774,8 @@ SIPXTAPI_API SIPX_RESULT sipxAudioGetAGCMode(const SIPX_INST hInst,
             if (pInterface->isAGCEnabled(bCheck) == OS_SUCCESS)
             {
                 pInst->agcSetting.bInitialized = true;
-                pInst->agcSetting.bEnabled = bCheck ;
-                bEnabled = bCheck ;
+                pInst->agcSetting.bEnabled = (bCheck == TRUE);
+                bEnabled = (bCheck == TRUE);
 
                 sr = SIPX_RESULT_SUCCESS;
             }

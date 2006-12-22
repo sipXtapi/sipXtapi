@@ -109,7 +109,7 @@ private:
    static const MpCodecInfo smCodecInfo;  ///< Static information about the codec
    JB_inst* pJBState;
    unsigned int mNextPullTimerCount;
-   unsigned mWaitTimeInFrames;
+   unsigned int mWaitTimeInFrames;
    int mUnderflowCount;
    int mLastSeqNo;           ///< Keep track of the last sequence number so that
                              ///< we don't take out-of-order packets.

@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -167,7 +170,8 @@ void sipXtapiTestSuite::testConfBasic1()
         UtlString displayName;
         callerUrl.getDisplayName(displayName);
         
-        CPPUNIT_ASSERT(0 == strcmp(displayName, "\"Flibble Flabble\""));
+        const char* flibble = "\"Flibble Flabble\"";
+        CPPUNIT_ASSERT(0 == strcmp(displayName, flibble));
 
         // Make sure we don't have any unexpected events
         CPPUNIT_ASSERT(!validatorCalling.validateNoWaitingEvent()) ;
@@ -1524,7 +1528,8 @@ void sipXtapiTestSuite::testConferenceDisplayName()
         UtlString displayName;
         callerUrl.getDisplayName(displayName);
         
-        CPPUNIT_ASSERT(0 == strcmp(displayName, "\"Flibble Flabble\""));
+        const char* flabble = "\"Flibble Flabble\"";
+        CPPUNIT_ASSERT(0 == strcmp(displayName, flabble));
         
         // Make sure we don't have any unexpected events
         CPPUNIT_ASSERT(!validatorCalling.validateNoWaitingEvent()) ;
@@ -1556,7 +1561,8 @@ void sipXtapiTestSuite::testConferenceDisplayName()
         Url callerUrl2(szCallerId);
         callerUrl2.getDisplayName(displayName);
         
-        CPPUNIT_ASSERT(0 == strcmp(displayName, "\"Gooble Gobble\""));
+        const char* gooble = "\"Gooble Gobble\"";
+        CPPUNIT_ASSERT(0 == strcmp(displayName, gooble));
 
         SIPX_CALL hDestroyed = hCall;
         sipxCallDestroy(hCall);

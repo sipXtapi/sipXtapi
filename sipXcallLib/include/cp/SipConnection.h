@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,6 +11,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+// Author: Daniel Petrie dpetrie AT SIPez DOT com
 
 #ifndef _SipConnection_h_
 #define _SipConnection_h_
@@ -73,9 +77,9 @@ public:
     virtual UtlBoolean dequeue(UtlBoolean callInFocus);
     
     virtual UtlBoolean send(SipMessage& message,
-                        OsMsgQ* responseListener = NULL,
+                            OsMsgQ* responseListener = NULL,
                             void* responseListenerData = NULL,
-                            bool bUseSendToTransportType = false);
+                            UtlBoolean bUseSendToTransportType = FALSE);
 
     virtual UtlBoolean dial(const char* dialString,
         const char* callerId,
@@ -230,7 +234,7 @@ protected:
      */ 
     virtual void notify(int code, void *pUserData);
 
-    bool prepareInviteSdpForSend(SipMessage* pMsg, int connectionId, const void* pSecurityAttribute) ;
+    UtlBoolean prepareInviteSdpForSend(SipMessage* pMsg, int connectionId, const void* pSecurityAttribute) ;
 
     void setMediaDestination(const char*    hostAddress, 
                              int            audioRtpPort, 
@@ -306,7 +310,7 @@ protected:
     void processInviteRequestBadRefer(const SipMessage* request, int tag) ;
     void processInviteRequestOffering(const SipMessage* request, 
                                       int               tag,
-                                      bool              doesReplaceCallLegExist,
+                                      UtlBoolean        doesReplaceCallLegExist,
                                       int               replaceCallLegState,
                                       UtlString&        replaceCallId,
                                       UtlString&        replaceToTag,
@@ -328,7 +332,7 @@ private:
     int mRtpTransport;
     int mRtpTcpRole;
 
-    bool mbByeAttempted;
+    UtlBoolean mbByeAttempted;
     SipUserAgent* sipUserAgent;
     UtlString mFromTag;
     UtlString mLocationHeader;

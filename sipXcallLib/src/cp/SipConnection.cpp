@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,7 +11,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-
+// Author: Daniel Petrie dpetrie AT SIPez DOT com
 
 // SYSTEM INCLUDES
 
@@ -791,7 +794,7 @@ UtlBoolean SipConnection::dial(const char* dialString,
             localAddress = pAddress->cIpAddress ;
         }
 
-        bool bAudioAvailable = false;
+        UtlBoolean bAudioAvailable = FALSE;
         if (mpMediaInterface)
         {
             bAudioAvailable = mpMediaInterface->isAudioAvailable();
@@ -2877,7 +2880,7 @@ void SipConnection::processInviteRequestBadRefer(const SipMessage* request, int 
 
 void SipConnection::processInviteRequestOffering(const SipMessage* request, 
                                                  int               tag,
-                                                 bool              doesReplaceCallLegExist,
+                                                 UtlBoolean        doesReplaceCallLegExist,
                                                  int               replaceCallLegState,
                                                  UtlString&        replaceCallId,
                                                  UtlString&        replaceToTag,
@@ -5958,8 +5961,8 @@ void SipConnection::sendVoiceQualityReport(const char* szTargetSipUrl)
             // Generate a shorter call id
             OsTime current_time;
             OsDateTime::getCurTime(current_time);
-            intll start_time =
-                    ((intll) current_time.seconds()) * 1000000 + current_time.usecs();
+            Int64 start_time =
+                    ((Int64) current_time.seconds()) * 1000000 + current_time.usecs();
 
             // Get the process ID.
             int process_id;
@@ -6352,11 +6355,11 @@ UtlBoolean SipConnection::isLocallyInitiatedRemoteHold() const
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
-bool SipConnection::prepareInviteSdpForSend(SipMessage* pMsg, 
+UtlBoolean SipConnection::prepareInviteSdpForSend(SipMessage* pMsg, 
                                             int         connectionId, 
                                             const void* pSecurityAttributes) 
 {  
-    bool bRet = true;
+    UtlBoolean bRet = TRUE;
 
     SdpBody* pBody = (SdpBody*)pMsg->getSdpBody();
     if (RTP_TCP_ROLE_ACTPASS != mRtpTcpRole)
@@ -6389,7 +6392,7 @@ bool SipConnection::prepareInviteSdpForSend(SipMessage* pMsg,
             info.callId = (char*)callId.data();
 
             fireSipXSecurityEvent(&info);
-            bRet = true;
+            bRet = TRUE;
         }
         else
         {
@@ -6398,7 +6401,7 @@ bool SipConnection::prepareInviteSdpForSend(SipMessage* pMsg,
             
             pMsg->getBody()->getBytes(&bodyBytes, &bodyLength);
             pMsg->setContentLength(bodyLength);
-            bRet = false;
+            bRet = FALSE;
         }
     }
     return bRet;
@@ -6411,7 +6414,7 @@ void SipConnection::setMediaDestination(const char*    hostAddress,
                                         int            videoRtcpPort, 
                                         const SdpBody* pRemoteBody) 
 {
-    UtlBoolean bSetDestination = false ;
+    UtlBoolean bSetDestination = FALSE ;
 
     /*
      * Assumption: that ICE is either enabled for both audio and video or not 
@@ -6443,7 +6446,7 @@ void SipConnection::setMediaDestination(const char*    hostAddress,
                     candidatePorts,
                     nCandidates))
             {
-                bSetDestination = true ;
+                bSetDestination = TRUE ;
 
                 int lastId = -1 ;
                 for (int i=0; i<nCandidates; i++)
@@ -6495,7 +6498,7 @@ void SipConnection::setMediaDestination(const char*    hostAddress,
                     candidatePorts,
                     nCandidates))
             {
-                bSetDestination = true ;
+                bSetDestination = TRUE ;
 
                 int lastId = -1 ;
                 for (int i=0; i<nCandidates; i++)
@@ -6724,9 +6727,9 @@ void SipConnection::proceedToRinging(const SipMessage* inviteMessage,
 }
 
 UtlBoolean SipConnection::send(SipMessage& message,
-                    OsMsgQ* responseListener,
+                               OsMsgQ* responseListener,
                                void* responseListenerData,
-                               bool bUseSendToTransportType)
+                               UtlBoolean bUseSendToTransportType)
 {
     SIPX_TRANSPORT_DATA* pTransport = NULL;
 

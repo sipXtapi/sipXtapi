@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -288,7 +291,7 @@ void OsNatDatagramSocket::enableStun(const char* szStunServer, int stunPort, int
     {
         mStunState.bEnabled = true ;
 
-        bool bRC = mpNatAgent->enableStun(this, szStunServer, stunPort, iStunOptions, iKeepAlive) ;
+        UtlBoolean bRC = mpNatAgent->enableStun(this, szStunServer, stunPort, iStunOptions, iKeepAlive) ;
         if (bRC)
         {
             if (bReadFromSocket)
@@ -339,7 +342,7 @@ void OsNatDatagramSocket::enableTurn(const char* szTurnSever,
     {
         mTurnState.bEnabled = true ;
     
-        bool bRC = mpNatAgent->enableTurn(this, szTurnSever, turnPort, iKeepAlive, username, password) ;
+        UtlBoolean bRC = mpNatAgent->enableTurn(this, szTurnSever, turnPort, iKeepAlive, username, password) ;
         if (bRC)
         { 
             if (bReadFromSocket)

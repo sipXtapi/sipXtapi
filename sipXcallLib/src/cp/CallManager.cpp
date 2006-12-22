@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,6 +11,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+// Author: Daniel Petrie dpetrie AT SIPez DOT com
 
 // SYSTEM INCLUDES
 
@@ -1385,13 +1389,13 @@ void CallManager::drop(const char* callId)
     postMessage(callMessage);
 }
 
-bool CallManager::sendInfo(const char*  callId, 
-                           const char*  szRemoteAddress,
-                           const char*  szContentType,
-                           const size_t nContentLength,
-                           const char*  szContent)
+UtlBoolean CallManager::sendInfo(const char*  callId, 
+                                 const char*  szRemoteAddress,
+                                 const char*  szContentType,
+                                 const size_t nContentLength,
+                                 const char*  szContent)
 {
-    bool bRC = false ;
+    UtlBoolean bRC = false ;
     OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
     OsProtectedEvent* pSuccessEvent = eventMgr->alloc();
     OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
@@ -4273,9 +4277,9 @@ void CallManager::doGetFocus(CpCall* call)
 }
 
 #ifdef _WIN32
-bool CallManager::IsTroubleShootingModeEnabled()
+UtlBoolean CallManager::IsTroubleShootingModeEnabled()
 {
-   bool bEnabled = false;
+   UtlBoolean bEnabled = FALSE;
    
    const char *strPathKey        = "SOFTWARE\\Pingtel\\sipxUA";
    const char *strKeyValueName   = "TroubleShootingMode";
@@ -4308,7 +4312,7 @@ bool CallManager::IsTroubleShootingModeEnabled()
       if (err == ERROR_SUCCESS)
       {
          if(dwValue == 1)
-            bEnabled = true;
+            bEnabled = TRUE;
       }
 
       RegCloseKey(hKey);

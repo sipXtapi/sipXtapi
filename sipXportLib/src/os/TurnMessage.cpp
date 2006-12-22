@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2006 Robert J. Andreasen, Jr.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
@@ -393,8 +396,8 @@ bool TurnMessage::isTurnMessage(const char*    pBuf,
             sizeof(STUN_ATTRIBUTE_HEADER) + sizeof(unsigned long)))
     {
         STUN_MESSAGE_HEADER header ;
-        STUN_ATTRIBUTE_HEADER attrHeader ;
-        unsigned long magicCookie ;
+        //STUN_ATTRIBUTE_HEADER attrHeader ;
+        //unsigned long magicCookie ;
         char* pTraverse = (char*) pBuf ;
 
         // Copy header
@@ -528,7 +531,7 @@ bool TurnMessage::parseAttribute(STUN_ATTRIBUTE_HEADER* pHeader, char* pBuf)
                 if (mszTurnData)
                 {
                     bValid = parseRawAttribute(pBuf, pHeader->length, mszTurnData, pHeader->length) ;
-                    mbTurnDataValid = pHeader->length ;
+                    mbTurnDataValid = (pHeader->length > 0);
                     mnTurnData = pHeader->length ;
                     if (!bValid)
                     {

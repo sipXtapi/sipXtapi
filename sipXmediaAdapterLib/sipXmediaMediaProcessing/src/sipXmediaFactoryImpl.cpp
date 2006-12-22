@@ -237,7 +237,7 @@ CpMediaInterface* sipXmediaFactoryImpl::createMediaInterface( const char* public
                                                               const char* szTurnUsername,
                                                               const char* szTurnPassword,
                                                               int iTurnKeepAlivePeriodSecs,
-                                                              bool bEnableICE) 
+                                                              UtlBoolean bEnableICE) 
 
 {
     MpCaptureDeviceBase *pCaptureDevice=NULL;

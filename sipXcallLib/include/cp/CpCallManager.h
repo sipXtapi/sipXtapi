@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,6 +11,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+// Author: Daniel Petrie dpetrie AT SIPez DOT com
 
 #ifndef _CpCallManager_h_
 #define _CpCallManager_h_
@@ -889,7 +893,7 @@ private:
     UtlString mVoiceQualityReportTarget ;
 
     // Every CallManager shares the same call counter for generating Call-IDs.
-    static intll mCallNum;
+    static Int64 mCallNum;
  
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
