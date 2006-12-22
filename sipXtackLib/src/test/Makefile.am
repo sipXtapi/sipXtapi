@@ -14,10 +14,16 @@ TESTDIR=$(if $(patsubst /%,,$(top_srcdir)),$(shell pwd)/$(top_srcdir),$(top_srcd
 # @NAMED_PROGRAM@ to non-null.
 testsuite_CXXFLAGS = \
     -DTESTDIR=\"$(TESTDIR)\" \
+    -I$(SIPXUNITINC) \
+    @CPPUNIT_CFLAGS@ \
     $(if @NAMED_PROGRAM@,-DNAMED_PROGRAM=\"@NAMED_PROGRAM@\")
 
+testsuite_CPPFLAGS = @CPPUNIT_CFLAGS@
+    
 testsuite_LDADD = \
     @SIPXUNIT_LIBS@ \
+    $(CPPUNIT_LIBS) \
+    @SIPXPORT_LIBS@ \
     ../libsipXtack.la
 
 testsuite_SOURCES = \

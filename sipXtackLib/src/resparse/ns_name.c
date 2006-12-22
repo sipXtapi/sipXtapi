@@ -18,7 +18,12 @@
 #ifndef __pingtel_on_posix__
 /*  */
 
-#include <sys/types.h>
+#ifdef WINCE
+#   include <types.h>
+#else
+#   include <sys/types.h>
+#endif
+
 #include <errno.h>
 
 /* Reordered includes and separated into win/vx --GAT */

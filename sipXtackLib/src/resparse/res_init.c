@@ -75,7 +75,12 @@ static char orig_rcsid[] = "From: Id: res_init.c,v 8.7 1996/11/18 09:10:04 vixie
 static char rcsid[] = "";
 #endif /* LIBC_SCCS and not lint */
 
-#include <sys/types.h>
+#ifdef WINCE
+#   include <types.h>
+#else
+#   include <sys/types.h>
+#endif
+
 #include <time.h>
 
 /* Reordered includes and separated into win/vx --GAT */
@@ -86,7 +91,9 @@ static char rcsid[] = "";
 #       include <resparse/wnt/arpa/inet.h>
 #       include <resparse/wnt/arpa/nameser.h>
 #       include <resparse/wnt/resolv/resolv.h>
+#ifndef WINCE
 #       include <process.h>
+#endif
 #       include "resparse/wnt/inet_aton.h"
 #       include "os/wnt/getWindowsDNSServers.h"
 //#     include <iphlpapi.h>
@@ -327,6 +334,7 @@ int res_init_ip(const char* localIp)
                 }
         }
         /* Allow user to override the local domain definition */
+#if !defined(WINCE)
         if (/*issetugid() == 0 && */(cp = getenv("LOCALDOMAIN")) != NULL) {
 		(void)strncpy(_sip_res.defdname, cp, sizeof(_sip_res.defdname) - 1);
 		_sip_res.defdname[sizeof(_sip_res.defdname) - 1] = '\0';
@@ -360,7 +368,7 @@ int res_init_ip(const char* localIp)
                 *cp = '\0';
                 *pp++ = 0;
         }
-
+#endif
 #define MATCH(line, name) \
         (!strncmp(line, name, sizeof(name) - 1) && \
         (line[sizeof(name) - 1] == ' ' || \
@@ -534,8 +542,11 @@ int res_init_ip(const char* localIp)
 
 /*      if (issetugid())
 		_sip_res.options |= RES_NOALIASES;
-        else */if ((cp = getenv("RES_OPTIONS")) != NULL)
+        else */
+#ifndef WINCE
+		if ((cp = getenv("RES_OPTIONS")) != NULL)
                 res_setoptions(cp, "env");
+#endif
 	_sip_res.options |= RES_INIT;
         return (0);
 }

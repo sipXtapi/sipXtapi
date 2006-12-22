@@ -396,8 +396,6 @@ bool TurnMessage::isTurnMessage(const char*    pBuf,
             sizeof(STUN_ATTRIBUTE_HEADER) + sizeof(unsigned long)))
     {
         STUN_MESSAGE_HEADER header ;
-        //STUN_ATTRIBUTE_HEADER attrHeader ;
-        //unsigned long magicCookie ;
         char* pTraverse = (char*) pBuf ;
 
         // Copy header
@@ -427,6 +425,9 @@ bool TurnMessage::isTurnMessage(const char*    pBuf,
 
                     // Validate Magic Cookie
 /*
+			        STUN_ATTRIBUTE_HEADER attrHeader ;
+			        unsigned long magicCookie ;
+
                     pTraverse += sizeof(STUN_MESSAGE_HEADER) ;
                     memcpy(&attrHeader, pTraverse, sizeof(STUN_ATTRIBUTE_HEADER)) ;
                     attrHeader.type = ntohs(attrHeader.type) ;

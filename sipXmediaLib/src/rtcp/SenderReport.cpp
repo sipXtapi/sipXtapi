@@ -12,7 +12,9 @@
 
 // Includes
 #ifdef WIN32
-#include <sys/timeb.h>
+#   ifndef WINCE
+#       include <sys/timeb.h>
+#   endif
 #elif defined(__pingtel_on_posix__)
 #include <sys/types.h>
 #include <netinet/in.h>
@@ -21,6 +23,10 @@
 #endif
 #include "rtcp/SenderReport.h"
 #ifdef INCLUDE_RTCP /* [ */
+
+#ifdef WINCE
+#   include <winsock.h>
+#endif
 
 // Constants
 // Difference between LocalTime and Wall Time:

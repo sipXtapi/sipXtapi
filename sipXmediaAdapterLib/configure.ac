@@ -74,6 +74,7 @@ AC_CONFIG_FILES([
   interface/Makefile
   sipXmediaMediaProcessing/Makefile
   sipXmediaMediaProcessing/src/Makefile
+  sipXmediaMediaProcessing/src/test/Makefile
   sipXmediaMediaProcessing/include/Makefile
 ])
 

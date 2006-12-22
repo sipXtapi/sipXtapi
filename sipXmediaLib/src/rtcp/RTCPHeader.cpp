@@ -17,6 +17,10 @@
 #include <netinet/in.h>
 #endif
 
+#ifdef WINCE
+#   include <winsock.h>
+#endif
+
     // Constants
 const int   PAD_MASK            = 0x20;
 const int   VERSION_MASK        = 0xC0;

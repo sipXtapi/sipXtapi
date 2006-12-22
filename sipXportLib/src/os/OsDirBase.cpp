@@ -126,7 +126,6 @@ OsDirBase::operator=(const OsDirBase& rhs)
     OsStatus ret = OS_INVALID;
 
 #ifndef WINCE
-	//  JEP - TODO - implement this...
     struct stat stats;
     if (stat((char *)mDirName.data(),&stats) == 0)
     {
@@ -150,6 +149,9 @@ OsDirBase::operator=(const OsDirBase& rhs)
         fileinfo.mSize = stats.st_size;
 
     }
+#else
+	//  JEP - TODO - implement this...
+	printf( "JEP - TODO in OsDirBase::getFileInfo( )\n" );
 #endif
 
 

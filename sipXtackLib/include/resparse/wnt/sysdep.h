@@ -94,15 +94,19 @@ do { \
                         * Probably types.h does not include WCHAR */
 
 #include <winsock.h> /* For NT socket */
-#include <sys/timeb.h> /* For _ftime() */
-#include <sys/stat.h>  /* S_IWRITE */
-#include <process.h> /* For _getpid() */
+
+#ifndef WINCE
+#   include <sys/timeb.h> /* For _ftime() */
+#   include <sys/stat.h>  /* S_IWRITE */
+#   include <process.h> /* For _getpid() */
+#   include <io.h>  /* open, write, read */
+#   include <direct.h>     /* chdir() */
+#endif
+
 #include <resparse/wnt/crypt.h>
-#include <io.h>  /* open, write, read */
 #include <signal.h>    /* SIGINT */
 #include <errno.h>
 #include <resparse/wnt/nterrno.h>  /* Additional errors not in errno.h --GAT */
-#include <direct.h>     /* chdir() */
 
 
 #include <resparse/wnt/utilNT.h> /* For function and struct in UNIX but not in NT */

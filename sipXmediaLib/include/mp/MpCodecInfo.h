@@ -35,7 +35,7 @@ public:
 /* ============================ CREATORS ================================== */
 
    MpCodecInfo(SdpCodec::SdpCodecTypes codecType,
-               UtlString    codecVersion,
+               const char*  codecVersion,
                UtlBoolean   usesNetEq,
                unsigned    samplingRate,
                unsigned    numBitsPerSample,

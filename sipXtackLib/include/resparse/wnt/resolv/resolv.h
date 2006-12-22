@@ -61,7 +61,12 @@
 #ifndef _RESOLV_H_
 #define	_RESOLV_H_
 
-#include <sys/types.h>
+#ifdef WINCE
+#   include <types.h>
+#else
+#   include <sys/types.h>
+#endif
+
 #include <stdio.h>
 #include <winsock.h>
 

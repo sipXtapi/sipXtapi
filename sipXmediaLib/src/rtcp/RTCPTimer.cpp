@@ -10,8 +10,8 @@
 
 
     // Includes
-#ifdef _WIN32
-#include <process.h>
+#if defined(_WIN32) && !defined(WINCE)
+#   include <process.h>
 #endif
 
 #include "rtcp/RTCPTimer.h"
@@ -250,7 +250,7 @@ bool CRTCPTimer::Shutdown( void )
 bool CRTCPTimer::CreateTimerThread(void)
 {
 
-    unsigned int iThreadID;
+    unsigned long iThreadID;
 
 
     // Create the thread terminate Event object.  The primary thread
@@ -265,10 +265,11 @@ bool CRTCPTimer::CreateTimerThread(void)
         return (FALSE);
 
     // We need to create a separate thread for managing the message queue
-    m_hTimerThread = (void *)_beginthreadex(
+//    m_hTimerThread = (void *)_beginthreadex(
+    m_hTimerThread = (void *)CreateThread(
                           NULL,             // No Special Security Attributes
                           0,                // Default Stack Size
-                          TimerThreadProc,  // Thread Function
+                          (LPTHREAD_START_ROUTINE) TimerThreadProc,  // Thread Function
                           this,             // Argument to the thread function
                           0,                // Run immediately
                           &iThreadID);      // Thread identifier returned

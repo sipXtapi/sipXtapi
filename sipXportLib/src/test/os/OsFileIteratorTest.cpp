@@ -179,5 +179,8 @@ public:
     }
 };
 
+#ifdef WINCE
+#pragma message( "OsFileIteratorTest disabled undef Win CE" )
+#else
 CPPUNIT_TEST_SUITE_REGISTRATION(OsFileIteratorTest);
-
+#endif

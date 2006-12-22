@@ -1,3 +1,7 @@
+#ifndef _WINCEFIXUPS_H_ 
+#define _WINCEFIXUPS_H_
+
+
 // 
 // Copyright (C) 2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -29,6 +33,18 @@
 
 typedef long intptr_t;
 
+struct _timeb
+{
+	time_t			time;
+	unsigned short	millitm;
+	short			timezone;
+	short			dstflag;
+};
+
+#define stricmp(x, y )						_stricmp( (x), (y) )
+#define strcasecmp _stricmp
+#define strncasecmp _strnicmp
+
 #undef RegQueryValueEx
 #define RegQueryValueEx(x,y,z,a,b,c)		RegQueryValueExB(x,y,z,a,b,c)
 #undef FormatMessage
@@ -58,6 +74,11 @@ typedef long intptr_t;
 
 //#define OutputDebugstringW(x)		OutputDebugStringA(x)
 #define GetProcAddressW(x, y)		GetProcAddressA(x, y)
+
+//  for the file res_query.c
+#define BUFSIZ		2048
+#define	EINVAL		1234
+#define EINTR		1235
 
 struct _finddata_t
 {
@@ -93,12 +114,47 @@ typedef struct _xFILETIME {
 #define O_TRUNC		0x0200
 #define O_EXCL		0x0400
 
+#define O_TEXT		0x4000  /* file mode is text (translated) */
+#define O_BINARY	0x8000  /* file mode is binary (untranslated) */
+
+#define _S_IFMT		0x0001	// mask type
+#define _S_IFDIR	0x0002	// directory
+#define _S_IFCHR	0x0004	// Character special (indicates a device if set)
+#define _S_IFREG	0x0008	// Regular
+#define _S_IREAD	0x0010	// Read permission, owner
+#define _S_IWRITE	0x0020	// Write permission, owner
+#define _S_IEXEC	0x0040	// Execute/serach permission, owner
+
+#define S_IFMT		0x0001	// mask type
+#define S_IFDIR		0x0002	// directory
+#define S_IFCHR		0x0004	// Character special (indicates a device if set)
+#define S_IFREG		0x0008	// Regular
+#define S_IREAD		0x0010	// Read permission, owner
+#define S_IWRITE	0x0020	// Write permission, owner
+#define S_IEXEC		0x0040	// Execute/serach permission, owner
+
+struct stat
+{
+	int	st_atime;
+	int	st_ctime;
+	int	st_dev;
+	int	st_mode;
+	int	st_mtime;
+	int	st_nlink;
+	int	st_rdev;
+	int	st_size;
+};
+
+
+
 #define STARTF_USESTDHANDLES		0x00000100
+
 
 //#define INVALID_HANDLE_VALUE	-1
 #define STD_INPUT_HANDLE		-10
 #define STD_OUTPUT_HANDLE		-11
 #define STD_ERROR_HANDLE		-12
+
 
 //
 //  To avoid the 2000+ warning messages at link time 
@@ -106,307 +162,15 @@ typedef struct _xFILETIME {
 //  So I picked the file PluginHooks.cpp to be my anchor.
 //  The macro PLUGIN_HOOKS is defined only for this file.
 //
-#ifdef PLUGIN_HOOKS
 
-int     errno						= 1;
-char	*_tzname[ 2 ] = {"DST","STD"};
-
-
-BOOL GetVersionExA( LPOSVERSIONINFOA lpVerInfo )
-{
-	return FALSE;
-}
-
-BOOL CreateProcessB( char *pName,
-					   char *pCmdLine,
-					   LPSECURITY_ATTRIBUTES lpsaProcess,
-					   LPSECURITY_ATTRIBUTES lpsaThread,
-					   BOOL fInheritHandles,
-					   DWORD dwCreate,
-					   LPVOID lpvEnv,
-					   char *pCurDir,
-					   LPSTARTUPINFO lpStartUpInfo,
-					   LPPROCESS_INFORMATION lpProcInfo )
-{
-	return NULL;
-}
-
-
-HANDLE CreateSemaphoreB( LPSECURITY_ATTRIBUTES lpSemaphoreAttr, LONG lInitialCount, LONG lMaxCount, char *pName )
-{
-	return NULL;
-}
-
-
-HANDLE CreateMutexB( LPSECURITY_ATTRIBUTES lpMutexAttr, BOOL bInitialOwner, char *pNme )
-{
-	return NULL;
-}
-
-
-HANDLE CreateFileB( const char *pFileName, DWORD dwDesiredAccess, DWORD dwShareMode,
-					LPSECURITY_ATTRIBUTES lpSecAttr, DWORD dwCreationDisp, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile )
-{
-	return NULL;
-}
-
-DWORD FormatMessageB( DWORD dwFlags, void *lpVoid, DWORD dwMessageID, DWORD dwLangID, char *pBuffer, DWORD dwSize, va_list *Args )
-{
-	return 0;
-}
-
-struct tm * __cdecl localtime( const time_t *timer )
-{
-	static struct tm staticTM;
-	return &staticTM;
-}
-
-int time( int iIn )
-{
-	return 0;
-}
-
-int _time( int iIn )
-{
-	return 0;
-}
-
-
-//****************************************************************
-long RegQueryValueExB( HKEY hKey, const char *lpName, DWORD *lpReserved, DWORD *lpType, unsigned char *lpData, DWORD *lpcbData )
-{
-	return 0;
-}
-
-
-//****************************************************************
-long RegOpenKeyExA( HKEY hKey, const char *pSub, DWORD dwOptions, REGSAM samDesired, PHKEY phkResults )
-{
-	return NULL;
-}
-
-
-//****************************************************************
-HINSTANCE LoadLibraryExA( const char *pIn, HANDLE hIn, DWORD dwIn )
-{
-	return NULL;
-}
-
-
-
-//****************************************************************
-HINSTANCE LoadLibraryA( const char *pIn )
-{
-	return NULL;
-}
-
-
-
-//****************************************************************
-HMODULE GetModuleHandleA( const char *pIn )
-{
-	return NULL;
-}
-
-
-//****************************************************************
-void OutputDebugStringB( const char *pC )
-{
-	printf( "OutputDebugStringA( ) NOT IMPLEMENTED\n" );
-	assert( 0 );
-}
-
-
-//****************************************************************
-//void WINAPI OutputDebugStringW( const unsigned short *pC )
-//{
-//	printf( "OutputDebugStringW( ) NOT IMPLEMENTED\n" );
-//	assert( 0 );
-//}
-
-
-//****************************************************************
-int rmdir( const char * dirname )
-{
-	printf( "rmdir( ) NOT IMPLEMENTED\n" );
-	assert( 0 );
-	return -1;
-}
-
-
-//****************************************************************
-char * getcwd( char *buffer, int maxlen )
-{
-	printf( "getcwd( ) NOT IMPLEMENTED\n" );
-	assert( 0 );
-	return NULL;
-}
-
-
-//****************************************************************
-unsigned int GetSystemDirectory( char *cP, unsigned int uSize )
-{
-	printf( "GetSystemDirectory( ) NOT IMPLEMENTED\n" );
-	assert( 0 );
-	return 0;
-}
-
-//****************************************************************
-void GetSystemTimeAsFileTime( LPFILETIME pFT )
-{
-	printf( "GetSystemTimeAsFileTime( ) NOT IMPLEMENTED\n" );
-	assert( 0 );
-}
-
-
-//****************************************************************
-void WINAPI perror( char *pC )
-{
-	//  Just a stub...
-}
-
-
-//****************************************************************
-int SetErrorMode( int iUnused )
-{
-	//  Just a stub...
-	return 0;
-}
-
-
-//****************************************************************
-char * WINAPI strerror( int iErrNo )
-{
-	//  Just a stub...
-	static char cErrMsg[ 100 ] = { 0 };
-
-	if( iErrNo  ||  strlen( cErrMsg ) == 0 )
-		sprintf( cErrMsg, "Unable to lookup error message for error %d\n", iErrNo );
-
-	return cErrMsg;
-}
-
-
-//****************************************************************
-int _chdir( const char *p1 )
-{
-	printf( "_chdir( ) NOT IMPLEMENTED\n" );
-	assert( 0 );
-	return 0;
-}
-
-
-//****************************************************************
-int _mkdir( const char *p1 )
-{
-	printf( "_mkdir( ) NOT IMPLEMENTED\n" );
-	assert( 0 );
-	return 0;
-}
-
-
-//****************************************************************
-int rename( const char *p1, const char *p2 )
-{
-	printf( "rename( ) NOT IMPLEMENTED\n" );
-	assert( 0 );
-	return 0;
-}
-
-
-//****************************************************************
-int remove( const char *p1 )
-{
-	printf( "remove( ) NOT IMPLEMENTED\n" );
-	assert( 0 );
-	return 0;
-}
-
-//#define _O_RDONLY		0x0000
-//#define _O_WRONLY		0x0001
-//#define _O_RDWR		0x0002
-//#define _O_APPEND		0x0008
-//
-//#define _O_CREAT		0x0100
-//#define _O_TRUNC		0x0200
-//#define _O_EXCL		0x0400
-
-
-
-//****************************************************************
-int _open( const char *filename, int oflag )
-{
-	printf( "_open( ) NOT IMPLEMENTED\n" );
-	assert( 0 );
-	return -1;
-}
-
-
-//****************************************************************
-int _close( int fd )
-{
-	printf( "_close( ) NOT IMPLEMENTED\n" );
-	assert( 0 );
-	return -1;
-}
-
-
-//****************************************************************
-
-//typedef __int64 intptr_t;
-
-
-//****************************************************************
-void * _findclose( long hFile )
-{
-	printf( "_findclose( ) NOT IMPLEMENTED\n" );
-	assert( 0 );
-	return NULL;
-}
-
-
-//****************************************************************
-intptr_t _findnext( long hFile, struct _finddata_t *pFD )
-{
-	printf( "_findnext( ) NOT IMPLEMENTED\n" );
-	assert( 0 );
-	return NULL;
-}
-
-
-
-//****************************************************************
-intptr_t _findfirst( const char *pName, struct _finddata_t *pFD )
-{
-	printf( "_findfirst( ) NOT IMPLEMENTED\n" );
-	assert( 0 );
-	return NULL;
-}
-
-
-
-//****************************************************************
-HANDLE GetStdHandle( int nStdHandle )
-{
-	printf( "GetStdHandle( ) NOT IMPLEMENTED\n" );
-	assert( 0 );
-	return INVALID_HANDLE_VALUE;
-}
-
-
-//****************************************************************
-int _putenv( const char *pIn )
-{
-	printf( "_putenv( ) NOT IMPLEMENTED\n" );
-	assert( 0 );
-	return -1;
-}
-
-
-#else
 
 extern char		*_tzname[ 2 ];
-extern int		errno;
+
+#ifdef __cplusplus
+	extern "C" int errno;
+#else
+	extern int errno;
+#endif
 
 long			RegQueryValueExB( HKEY hKey, const char *lpName, DWORD *lpReserved, DWORD *lpType, unsigned char *lpData, DWORD *lpcbData );
 HANDLE			CreateMutexB( LPSECURITY_ATTRIBUTES lpMutexAttr, BOOL bInitialOwner, char *pNme );
@@ -425,11 +189,13 @@ BOOL			CreateProcessB( char *pName,
 					   LPSTARTUPINFO lpStartUpInfo,
 					   LPPROCESS_INFORMATION lpProcInfo );
 
-HINSTANCE		LoadLibraryA( const char *pIn );
+HINSTANCE  LoadLibraryA( LPCSTR pIn );
+WINBASEAPI HMODULE WINAPI    GetModuleHandleA( LPCSTR pIn );
 
 int				rmdir( const char * dirname );
 char			* getcwd( char *buffer, int maxlen );
 unsigned int	GetSystemDirectory( char *cP, unsigned int uSize );
+void			_ftime( struct _timeb *);
 void			GetSystemTimeAsFileTime( LPFILETIME pFT );
 void			OutputDebugStringB( const char *pC );
 //void WINAPI		OutputDebugStringW( char *pC );
@@ -447,7 +213,65 @@ intptr_t		_findnext( long hFile, struct _finddata_t *pFD );
 intptr_t		_findfirst( const char *pName, struct _finddata_t *pFD );
 HANDLE			GetStdHandle( int nStdHandle );
 int				_putenv( const char *pIn );
+int				write( int fd, const void *buffer, unsigned int count );
+int				open( const char *filename, int oflag );
+#pragma warning( disable : 4031 )
+int				open( const char *filename, int oflag, int pmode );
+#pragma warning( default : 4031 )
+int				close( int fd );
+long			lseek( int fd, long offset, int origin );
+int				fstat( int fd, struct stat *buffer );
+int				read( int fd, void *buffer, unsigned int count );
 
-
+#ifdef __cplusplus
+	extern "C" int _getpid();
+#else
+	extern int  _getpid();
 #endif
+
+// Have to build stuff not just from WinBase but also from WinUser.h
+
+BOOL PostThreadMessageA(DWORD idThread, UINT Msg,
+                      WPARAM wParam,
+                      LPARAM lParam);
+int GetMessageA(LPMSG lpMsg,HWND hWnd,unsigned int wMsgFilterMin,unsigned int wMsgFilterMax) ;
+
+
+/* The following functions have to tobe deffed and undefed this is not a mistake */
+
+#undef CreateEventA
+#define CreateEventA CE_CreateEventA
+HANDLE CE_CreateEventA(
+					  LPSECURITY_ATTRIBUTES lpEventAttributes, 
+					  BOOL bManualReset, 
+					  BOOL bInitialState, 
+					  LPTSTR lpName) ;
+
+#undef  RegOpenKeyExA
+#define RegOpenKeyExA CE_RegOpenKeyExA
+long CE_RegOpenKeyExA (	 HKEY hKey,
+						 LPCSTR lpSubKey,
+						 DWORD ulOptions,
+						 REGSAM samDesired,
+						 PHKEY phkResult
+						);
+/* Came from mmsystem.h */
+
+WINMMAPI MMRESULT WINAPI timeSetEvent(UINT uDelay, UINT uResolution,
+    LPTIMECALLBACK fptc, DWORD dwUser, UINT fuEvent);
+
+/* waveform input device capabilities structure */
+typedef struct tagWAVEINCAPS_W {
+    WORD    wMid;                    /* manufacturer ID */
+    WORD    wPid;                    /* product ID */
+    MMVERSION vDriverVersion;        /* version of the driver */
+    WCHAR   szPname[MAXPNAMELEN];    /* product name (NULL terminated string) */
+    DWORD   dwFormats;               /* formats supported */
+    WORD    wChannels;               /* number of channels supported */
+    WORD    wReserved1;              /* structure packing */
+} WAVEINCAPS_W;
+
+
+
+#endif // _WINCEFIXUPS_H_
 

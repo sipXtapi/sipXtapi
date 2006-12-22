@@ -14,7 +14,13 @@
 #define INCLUDE_RESPARSE_TYPES_H
 
 #include <limits.h>
-#include <sys/types.h>
+
+#ifdef WINCE
+#   include <types.h>
+#else
+#   include <sys/types.h>
+#endif
+
 #if defined (_WIN32) /* Use Columbia versions for win32 only --GAT */
 #       include "resparse/wnt/sysdep.h"
 #elif defined (_VXWORKS)

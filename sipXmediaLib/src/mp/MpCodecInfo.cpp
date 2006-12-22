@@ -11,8 +11,8 @@
 #include "mp/MpCodecInfo.h"
 
 MpCodecInfo::MpCodecInfo(SdpCodec::SdpCodecTypes codecType,
-                           UtlString       codecVersion,
-                           UtlBoolean      usesNetEq,
+                           const char*    codecVersion,
+                           UtlBoolean     usesNetEq,
                            unsigned int   samplingRate,
                            unsigned int   numBitsPerSample,
                            unsigned int   numChannels,

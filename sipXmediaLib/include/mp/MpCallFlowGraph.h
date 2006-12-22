@@ -107,6 +107,10 @@ OsStatus Record(int ms,
       const char* endName,      //if NULL, defaults to previous string
       int recorderMask);
 
+OsStatus recordMic(int ms,
+                   int silenceLength,
+                   const char* fileName) ;
+
 OsStatus ezRecord(int ms, 
                    int silenceLength, 
                    const char* fileName, 

@@ -54,6 +54,7 @@ OsTimerTask* OsTimerTask::getTimerTask(void)
       if (spInstance == NULL)
    {
          spInstance = new OsTimerTask();
+		 assert( spInstance );
          // Have to cast spInstance to remove volatile, according to C++
          // rules.
          UtlBoolean isStarted = ((OsTimerTask*) spInstance)->start();
