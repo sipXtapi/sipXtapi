@@ -42,6 +42,11 @@ del %releaseType%\sipXmediaLib%libPrefix%.lib
 msdev sipXmediaLib.dsp /MAKE "sipXmediaLib - Win32 %releaseType%" %doClean%
 cd ..
 
+cd sipXmediaLib
+del %releaseType%\sipXmediaLibTest.exe
+msdev sipXmediaLibTest.dsp /MAKE "sipXmediaLibTest - Win32 %releaseType%" %doClean%
+cd ..
+
 cd sipXmediaAdapterLib
 del %releaseType%\sipXmediaAdapterLib%libPrefix%.lib
 msdev sipXmediaAdapterLib.dsp /MAKE "sipXmediaAdapterLib - Win32 %releaseType%" %doClean%
