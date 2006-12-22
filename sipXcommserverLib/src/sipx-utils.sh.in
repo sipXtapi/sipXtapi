@@ -3,6 +3,10 @@
 ### Utility script functions common to server startup scripts
 ###
 
+sipx_services() {
+    ls -1 @SIPX_PROCDIR@/*.process.xml | xargs -I % basename % .process.xml
+}
+
 sipx_config_value() { # ( CONFIG-FILE, DIRECTIVE )
 #   prints the value of DIRECTIVE from CONFIG-FILE 
 #   list values have any commas removed

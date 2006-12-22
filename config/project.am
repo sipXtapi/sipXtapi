@@ -1,34 +1,29 @@
-RELEASE = @SVN_VERSION@
 
-include config/dist.am
 include config/subdir.am
+include config/dist.am
 
 all: BUILDSTAMP
 
 ## BUILDSTAMP records the subversion revision, date/time, and host of the build
 ##   it also creates the cpp file config/sipX-buildstamp.cpp with the same information.
 .PHONY: BUILDSTAMP
-BUILDSTAMP:
+BUILDSTAMP: 
 	@echo "Generating BUILDSTAMP" 
 	test -d config || mkdir config
-	sipxSvnVersion="$(RELEASE)" ; \
 	sipxBuildTime=`date -u +%Y-%m-%dT%H:%M:%S` ; \
 	sipxBuildHost=`uname -n` ; \
-	SIPX_BUILDSTAMP="$${sipxSvnVersion} $${sipxBuildTime} $${sipxBuildHost}" ; \
+	SIPX_BUILDSTAMP="$${sipxBuildTime} $${sipxBuildHost}" ; \
 	echo "$${SIPX_BUILDSTAMP}" > BUILDSTAMP ; \
 	${LocalizeSipXconfig} \
+		-e "s/@SIPX_VERSION\@/$(SIPX_VERSION)/" \
 		-e "s/@SIPX_BUILDSTAMP\@/$${SIPX_BUILDSTAMP}/" \
 		-e "s/sipx/SipX/" \
 	    $(srcdir)/config/sipX-buildstamp.cpp.in \
 	> config/@PACKAGE@-buildstamp.cpp ; \
 	${LocalizeSipXconfig} \
-		-e "s/@SIPX_BUILDSTAMP\@/$${SIPX_BUILDSTAMP}/" \
 		-e "s/sipx/SipX/" \
 	    $(srcdir)/config/sipX-buildstamp.h.in \
 	> config/@PACKAGE@-buildstamp.h
-
-SVN-VERSION:
-	echo "$(RELEASE)" > SVN-VERSION
 
 # automake doesn't like this inside the conditional
 .PHONY : doc

@@ -4,10 +4,12 @@
 # relevant to some odd platform
 INSTALL=@INSTALL@
 
+SIPX_VERSION:=@VERSION@-$(shell @abs_top_srcdir@/config/svn-version @abs_top_srcdir@)
+
 LocalizeSipXconfig = sed \
 		  -e 's,@PACKAGE\@,@PACKAGE@,g' \
 		  -e 's,@VERSION\@,@VERSION@,g' \
-		  -e 's,@RELEASE\@,$(RELEASE),g' \
+		  -e 's,@SIPX_VERSION\@,$(SIPX_VERSION),g' \
 		  -e 's,@abs_builddir\@,@abs_builddir@,g' \
 		  -e 's,@abs_srcdir\@,@abs_srcdir@,g' \
 		  -e 's,@abs_top_srcdir\@,@abs_top_srcdir@,g' \

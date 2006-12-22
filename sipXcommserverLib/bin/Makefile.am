@@ -4,30 +4,23 @@ SUBDIRS = ssl-cert
 
 INCLUDES = -I$(top_srcdir)/include
 
+LOCAL_SHELLSCRIPTS = \
+	sipx-validate-xml
+
 dist_bin_SCRIPTS = \
    ${PACKAGE}-config \
    configpp \
    pkg-upgrade \
 	sipx-dns \
    get_def_addr \
-   pgpatch.sh
-
-LOCAL_SHELLSCRIPTS = \
-   sipx-validate-xml
+   pgpatch.sh \
+	$(LOCAL_SHELLSCRIPTS)
 
 EXTRA_DIST = $(foreach sipxScript,$(LOCAL_SHELLSCRIPTS),$(sipxScript).in)
 
 noinst_PROGRAMS = \
 	sipxconfigrpc \
-  sipxconfigrpcsrv
-
-install-exec-hook: localize_scripts
-
-.PHONY: localize_scripts
-localize_scripts: $(foreach sipxScript,$(LOCAL_SHELLSCRIPTS),$(DESTDIR)@SIPX_BINDIR@/$(sipxScript))
-
-$(foreach sipxScript,$(LOCAL_SHELLSCRIPTS),$(DESTDIR)@SIPX_BINDIR@/$(sipxScript)) : $(DESTDIR)@SIPX_BINDIR@/% : %
-	$(INSTALL) -D -m 755 $< $@
+	sipxconfigrpcsrv
 
 $(foreach sipxScript,$(LOCAL_SHELLSCRIPTS),$(sipxScript)) : % : $(srcdir)/%.in
 	$(LocalizeSipXconfig) $< > $@

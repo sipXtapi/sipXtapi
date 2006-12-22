@@ -1,12 +1,12 @@
 SUDO = sudo
 
 DIST_SRC=$(DEST_SRC)/$(distdir).tar.gz
-RPM=$(DEST_RPM)/@PACKAGE@-$(VERSION)-$(RELEASE).$(RPM_TARGET_ARCH).rpm 
-DEVEL_RPM=$(DEST_RPM)/@PACKAGE@-devel-$(VERSION)-$(RELEASE).$(RPM_TARGET_ARCH).rpm
-DEBUG_RPM=$(DEST_RPM)/@PACKAGE@-debug-$(VERSION)-$(RELEASE).$(RPM_TARGET_ARCH).rpm
+RPM=$(DEST_RPM)/@PACKAGE@-$(SIPX_VERSION).$(RPM_TARGET_ARCH).rpm 
+DEVEL_RPM=$(DEST_RPM)/@PACKAGE@-devel-$(SIPX_VERSION).$(RPM_TARGET_ARCH).rpm
+DEBUG_RPM=$(DEST_RPM)/@PACKAGE@-debug-$(SIPX_VERSION).$(RPM_TARGET_ARCH).rpm
 
 DEFAULT_RPMS = $(RPM) $(DEVEL_RPM)
-SRPM = $(DEST_SRPM)/@PACKAGE@-$(VERSION)-$(RELEASE).src.rpm
+SRPM = $(DEST_SRPM)/@PACKAGE@-$(SIPX_VERSION).src.rpm
 
 RPM_INSTALL_FLAGS = --upgrade --nodeps --quiet --noscripts --notriggers --verbose --hash --force
 RPM_UNINSTALL_FLAGS = --erase --nodeps --quiet --noscripts --notriggers --verbose
@@ -14,6 +14,12 @@ RPM_UNINSTALL_FLAGS = --erase --nodeps --quiet --noscripts --notriggers --verbos
 .PHONY: install-rpm
 install-rpm :
 	$(SUDO) rpm $(RPM_INSTALL_FLAGS) $(RPMS)
+
+## The SVN-VERSION file is created to record the version 
+##  in the distribution tarball; it is not used in a subversion working copy
+##  (see config/subdir.am).
+SVN-VERSION: 
+	@top_srcdir@/config/svn-version > SVN-VERSION
 
 uninstall-rpm :
 	$(SUDO) rpm $(RPM_UNINSTALL_FLAGS) $(shell rpm -qp $(RPMS))

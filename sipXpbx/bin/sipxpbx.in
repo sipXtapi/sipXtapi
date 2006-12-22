@@ -29,6 +29,7 @@ if [ "$LANG" = "ja" -o "$LANG" = "ja_JP.eucJP" ]; then
 fi
 
 ## Source function library.
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
 # Set up correctly depending on the distribution
 if [ ! -f /etc/redhat-release ]
@@ -95,7 +96,7 @@ fi
 
 # This should somehow be syncronized with what's in 
 # the ProcessDefinitions.xml and Watchdog.xml
-sipx_processes="watchdog "`find @SIPX_PROCDIR@ -name '*.process.xml' -printf '%f ' | sed 's/.process.xml//g'`
+sipx_processes="watchdog "`sipx_services`
 
 # Low-level start function.
 # Unfortunately, $? will never report failure as su will always succeed.

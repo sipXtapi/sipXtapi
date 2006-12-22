@@ -1,13 +1,15 @@
 ## Process this file with automake to produce Makefile.in
+include $(top_srcdir)/config/subdir.am
 
 SUBDIRS = fastdb sipdb . sipdbtest xsdvalid test
 
 INCLUDES = -I$(top_srcdir)/include
 
-libexec_SCRIPTS = sipx-utils.sh
+libexec_SCRIPTS = \
+	sipx-utils.sh
 
 EXTRA_DIST = \
-	$(libexec_SCRIPTS)
+	$(foreach sipxScript,$(libexec_SCRIPTS),$(sipxScript).in)
 
 lib_LTLIBRARIES = libsipXcommserver.la
 
@@ -46,3 +48,8 @@ libsipXcommserver_la_SOURCES = \
     filereader/OrbitFileReader.cpp \
     configrpc/ConfigRPC.cpp \
     odbc/OdbcWrapper.cpp
+
+$(foreach sipxScript,$(libexec_SCRIPTS),$(sipxScript)) : % : $(srcdir)/%.in
+	$(LocalizeSipXconfig) $< > $@
+	chmod +x $@
+
