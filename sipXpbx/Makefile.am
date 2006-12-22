@@ -24,6 +24,7 @@ EXTRA_DIST = \
     config/sipX-buildstamp.cpp.in \
     config/sipX-buildstamp.h.in \
     config/sipX-config.in \
+    config/svn-version \
     sipXrls \
     sipxpbx.spec
 
