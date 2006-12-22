@@ -367,10 +367,10 @@ protected:
     
 
 
-    virtual void OsNatConnectionSocket::handleFramedStream(   char* pData,
-                                                      const int size,
-                                                      const char* receivedIp,
-                                                      const int port);
+    virtual void handleFramedStream(   char* pData,
+                                       const int size,
+                                       const char* receivedIp,
+                                       const int port);
                                                       
     virtual bool handleUnframedBuffer(const TURN_FRAMING_TYPE type,
                                         const char* buff,
