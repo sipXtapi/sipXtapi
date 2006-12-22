@@ -19,7 +19,7 @@ install-rpm :
 ##  in the distribution tarball; it is not used in a subversion working copy
 ##  (see config/subdir.am).
 SVN-VERSION: 
-	@top_srcdir@/config/svn-version > SVN-VERSION
+	@abs_top_srcdir@/config/svn-version @abs_top_srcdir@ > SVN-VERSION
 
 uninstall-rpm :
 	$(SUDO) rpm $(RPM_UNINSTALL_FLAGS) $(shell rpm -qp $(RPMS))
@@ -29,6 +29,8 @@ list-rpm :
 
 .PHONY : rpm
 rpm : dist additional-package-files $(SRPM) $(RPMS)
+
+RELEASE=$(shell @abs_top_srcdir@/config/svn-version @abs_top_srcdir@)
 
 .PHONY: build-rpm
 build-rpm :
