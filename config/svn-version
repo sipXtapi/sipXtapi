@@ -20,6 +20,9 @@ then
 elif test -r ${topdir}/../SVN-VERSION
 then
     cat ${topdir}/../SVN-VERSION
+elif test -r ${topdir}/../../SVN-VERSION
+then
+    cat ${topdir}/../../SVN-VERSION
 else
     echo 0.unknown
 fi
