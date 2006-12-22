@@ -79,5 +79,8 @@ public:
     }
 };
 
+#ifdef WINCE
+#pragma message( "OsProcessTest disabled undef Win CE" )
+#else
 CPPUNIT_TEST_SUITE_REGISTRATION(OsProcessTest);
-
+#endif

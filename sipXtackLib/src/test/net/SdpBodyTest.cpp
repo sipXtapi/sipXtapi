@@ -782,8 +782,8 @@ public:
         rtcpVideoPorts[0] = 0;
         transportTypes[0] = RTP_TRANSPORT_UDP;
         testBody.addCodecsOffer(1, hostAddresses, rtpAudioPorts, rtcpAudioPorts, 
-                                rtpVideoPorts, rtcpVideoPorts, transportTypes;
-                                1, &pAudioCodec, testSrtp, 0, 0) ;
+                                rtpVideoPorts, rtcpVideoPorts, transportTypes,
+                                1, &pAudioCodec, testSrtp, 0, 0, RTP_TRANSPORT_UDP) ;
                                 
                                 
         hostAddresses[0] = "10.1.1.30";
@@ -792,9 +792,9 @@ public:
         rtpVideoPorts[0] = 0;
         rtcpVideoPorts[0] = 0;
         transportTypes[0] = RTP_TRANSPORT_TCP;
-        testBody.addAudioCodecsOffer(1, hostAddresses, rtpAudioPorts, rtcpAudioPorts, 
+        testBody.addCodecsOffer(1, hostAddresses, rtpAudioPorts, rtcpAudioPorts, 
                                 rtpVideoPorts, rtcpVideoPorts, transportTypes,
-                                1, &pAudioCodec, testSrtp, 0, 0) ;
+                                1, &pAudioCodec, testSrtp, 0, 0, RTP_TRANSPORT_TCP) ;
                                 
         hostAddresses[0] = "10.1.1.31";
         rtpAudioPorts[0] = 0;
@@ -802,16 +802,16 @@ public:
         rtpVideoPorts[0] = 8801;
         rtcpVideoPorts[0] = 8802;
         testBody.addCodecsOffer(1, hostAddresses, rtpAudioPorts, rtcpAudioPorts, 
-                                rtpVideoPorts, rtcpVideoPorts, 
-                                1, &pVideoCodec, testSrtp, 0, 0) ;
+                                rtpVideoPorts, rtcpVideoPorts, transportTypes,
+                                1, &pVideoCodec, testSrtp, 0, 0, RTP_TRANSPORT_TCP) ;
         hostAddresses[0] = "10.1.1.32";
         rtpAudioPorts[0] = 8900;
         rtcpAudioPorts[0] = 8999;
         rtpVideoPorts[0] = 0;
         rtcpVideoPorts[0] = 0;
         testBody.addCodecsOffer(1, hostAddresses, rtpAudioPorts, rtcpAudioPorts, 
-                                rtpVideoPorts, rtcpVideoPorts, 
-                                1, &pAppCodec, testSrtp, 0, 0) ;
+                                rtpVideoPorts, rtcpVideoPorts, transportTypes,
+                                1, &pAppCodec, testSrtp, 0, 0, RTP_TRANSPORT_TCP) ;
 
         const char* testBodyExpected = 
             "v=0\r\n"
@@ -824,12 +824,12 @@ public:
             "m=audio 18700 TCP/RTP/AVP 99\r\n"
             "c=IN IP4 10.1.1.30\r\n"
             "a=rtpmap:99 superaudio/8000/1\r\n"
-            "m=video 8801 RTP/AVP 100\r\n"
+            "m=video 8801 TCP/RTP/AVP 100\r\n"
             "c=IN IP4 10.1.1.31\r\n"
             "a=rtcp:8802\r\n"
             "a=rtpmap:100 supervideo/8000/1\r\n"
             "a=fmtp:100 size:QCIF\r\n"
-            "m=audio 8900 RTP/AVP 101\r\n"
+            "m=audio 8900 TCP/RTP/AVP 101\r\n"
             "c=IN IP4 10.1.1.32\r\n" 
             "a=rtcp:8999\r\n"
             "a=rtpmap:101 superapp/8000/1\r\n";

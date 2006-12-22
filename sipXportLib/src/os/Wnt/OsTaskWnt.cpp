@@ -448,19 +448,19 @@ UtlBoolean OsTaskWnt::isSuspended(void)
 // The mDataGuard lock should be held upon entry into this method.
 UtlBoolean OsTaskWnt::doWntCreateTask(void)
 {
-#ifndef WINCE
    //  JEP - TODO - implement this...
    char  idString[15];
    unsigned int threadId;
 
-   mThreadH = (void *)_beginthreadex(
+//   mThreadH = (void *)_beginthreadex(
+   mThreadH = (void *)CreateThread(
                 0,             // don't specify any thread attributes
                 mStackSize,    // stack size (in bytes)
-                threadEntry,   // starting address of the new thread
+                (LPTHREAD_START_ROUTINE) threadEntry,   // starting address of the new thread
                 (void*) this,  // parameter value that will be passed
                                //  to the new thread
                 CREATE_SUSPENDED, // suspend thread until priority is set
-                &threadId);    // thread identifier return value
+                (unsigned long *) &threadId);    // thread identifier return value
 
    mSuspendCnt = 0;
    mThreadId   = threadId;
@@ -482,7 +482,6 @@ UtlBoolean OsTaskWnt::doWntCreateTask(void)
       return TRUE;
    }
    else
-#endif
       return FALSE;
 }
 

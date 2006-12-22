@@ -10,13 +10,15 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
-#include <sys/types.h>
 
-#ifndef _WIN32
+
+#if !defined(_WIN32) && !defined(WINCE)
+#include <sys/types.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <sys/stat.h>
 
 #ifndef _VXWORKS
 #include <resolv.h>
@@ -26,7 +28,7 @@
 
 #include <stdlib.h>
 #include <signal.h>
-#include <sys/stat.h>
+
 
 #include "net/SipSrvLookup.h"
 #include "os/OsSocket.h"

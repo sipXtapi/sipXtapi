@@ -13,7 +13,9 @@
 #include <assert.h>
 #include <stdio.h>
 #if defined(_WIN32)
-#   include <io.h>
+#   ifndef WINCE
+#       include <io.h>
+#   endif
 #elif defined(_VXWORKS)
 #   include <unistd.h>
 #   include <dirent.h>
@@ -25,9 +27,15 @@
 #else
 #   error Unsupported target platform.
 #endif
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+
+#ifdef WINCE
+#   include <types.h>
+#else
+#   include <sys/types.h>
+#   include <sys/stat.h>
+#   include <fcntl.h>
+#endif
+
 #include "os/OsDefs.h"
 #include "os/OsSysLog.h"
 

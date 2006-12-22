@@ -22,7 +22,7 @@
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 // MACROS
-#ifdef WIN32
+#if defined(WIN32) && !defined(WINCE)
 #  define strcasecmp stricmp
 #  define strncasecmp strnicmp
 #endif

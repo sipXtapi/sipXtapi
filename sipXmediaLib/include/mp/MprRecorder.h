@@ -14,11 +14,11 @@
 
 // SYSTEM INCLUDES
 #ifdef _VXWORKS /* [ */
-  #include <ioLib.h>
+#   include <ioLib.h>
 #endif /* _VXWORKS ] */
 
-#ifdef _WIN32 /* [ */
-  #include <io.h>
+#if defined(_WIN32) && !defined(WINCE) /* [ */
+#   include <io.h>
 #endif /* _WIN32 ] */
 
 // APPLICATION INCLUDES

@@ -198,7 +198,8 @@ UtlBoolean OsDatagramSocket::reconnect()
 void OsDatagramSocket::doConnect(int remoteHostPortNum, const char* remoteHost,
                                  UtlBoolean simulateConnect)
 {
-    struct hostent* server;    
+    struct hostent* server; 
+	unsigned long ipAddr;
 #   if defined(_VXWORKS)
     char hostentBuf[512];
 #   endif
@@ -223,8 +224,20 @@ void OsDatagramSocket::doConnect(int remoteHostPortNum, const char* remoteHost,
     if(portIsValid(remoteHostPort) && remoteHost && !simulateConnect)
     {
 #       if defined(_WIN32) || defined(__pingtel_on_posix__)
-        server = gethostbyname(remoteHost);
-#       elif defined(_VXWORKS)
+	    
+		ipAddr = inet_addr(remoteHost);
+		
+		if (ipAddr != INADDR_NONE) 
+		{
+				server = gethostbyaddr((char * )&ipAddr,sizeof(ipAddr),AF_INET);
+		}
+
+		if ( server == NULL ) 
+		{ 
+            server = gethostbyname(remoteHost);
+        }
+
+#		elif defined(_VXWORKS)
             server = resolvGetHostByName((char*) remoteHost,
                                          hostentBuf, sizeof(hostentBuf));
 #       else

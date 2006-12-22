@@ -75,7 +75,12 @@ static char orig_rcsid[] = "From: Id: res_comp.c,v 8.11 1997/05/21 19:31:04 hall
 static char rcsid[] = "";
 #endif /* LIBC_SCCS and not lint */
 
-#include <sys/types.h>
+#ifdef WINCE
+#   include <types.h>
+#else
+#   include <sys/types.h>
+#endif
+
 #include <ctype.h>
 /* Reordered includes and separated into win/vx --GAT */
 #if defined (_WIN32) /* Use Columbia versions for win32 only --GAT */

@@ -84,10 +84,10 @@ OsDateTimeWnt::OsDateTimeWnt(const OsTime& toTime)
    // and last, SYSTEMTIME to OsDateTime
    mYear        = sysTime.wYear;
    mMonth       = sysTime.wMonth - 1; // windows is 1-based
-   mDay         = sysTime.wDay;
-   mHour        = sysTime.wHour;
-   mMinute      = sysTime.wMinute;
-   mSecond      = sysTime.wSecond;
+   mDay         = (unsigned char)sysTime.wDay;
+   mHour        = (unsigned char)sysTime.wHour;
+   mMinute      = (unsigned char)sysTime.wMinute;
+   mSecond      = (unsigned char)sysTime.wSecond;
    mMicrosecond = sysTime.wMilliseconds * MICROSECS_PER_MILLISEC;
 }
 
@@ -186,7 +186,49 @@ OsStatus OsDateTimeWnt::cvtToTimeSinceBoot(OsTime& rTime) const
 // Return the current time as an OsTime value
 void OsDateTimeWnt::getCurTime(OsTime& rTime)
 {
+#if WINCE
+    typedef union 
+    {
+        FILETIME         ft ;
+        unsigned __int64 int64 ;        
+    } g_FILETIME ;
+
+    unsigned __int64 ticks ;
+    unsigned __int64 freq ;
+    static bool       sbInitialized = false ;
+    static g_FILETIME sOsFileTime ;
+    static unsigned __int64 sLastTicks = 0 ;
+    static unsigned __int64 sResetTime = 0 ;
+
+    QueryPerformanceCounter((LARGE_INTEGER*) &ticks) ;
+    QueryPerformanceFrequency((LARGE_INTEGER*) &freq) ;
+
+    if (!sbInitialized || sOsFileTime.int64 > sResetTime)
+    {
+        sbInitialized = true ;
+        GetSystemTimeAsFileTime(&sOsFileTime.ft);
+        sResetTime = -1 ; // sOsFileTime.int64 + (freq - 1) ;
+        sLastTicks = ticks ;
+    }
+    else
+    {
+        unsigned __int64 delta = ticks - sLastTicks ;
+
+        sLastTicks = ticks ;
+        sOsFileTime.int64 = sOsFileTime.int64 + 
+                (((unsigned __int64) 10000000) * (delta / freq)) + 
+                (((unsigned __int64) 10000000) * (delta % freq)) / freq ;    
+        
+        SYSTEMTIME si ;
+        FileTimeToSystemTime(&sOsFileTime.ft, &si) ;
+    }
+
+   OsTime curTime((long)  ((sOsFileTime.int64 - ((unsigned __int64) 116444736000000000)) / ((unsigned __int64) 10000000)), 
+                  (long) ((sOsFileTime.int64 / ((unsigned __int64) 10)) % ((unsigned __int64) 1000000)));
+   rTime = curTime;
+#else
    FILETIME theTime;
+
    GetSystemTimeAsFileTime(&theTime);
 
    // convert to __int64
@@ -204,10 +246,10 @@ void OsDateTimeWnt::getCurTime(OsTime& rTime)
 
    //assert((osTimeSecs >> 32)  == 0);
    //assert((osTimeUsecs >> 32) == 0);
-
    OsTime curTime((long)osTimeSecs, osTimeUsecs);
 
    rTime = curTime;
+#endif
 }
 
 

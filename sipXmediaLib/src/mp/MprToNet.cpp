@@ -24,7 +24,9 @@
 
 #ifdef WIN32 /* [ */
 #include <winsock2.h>
-#include <io.h>
+#   ifndef WINCE
+#       include <io.h>
+#   endif
 #endif /* WIN32 ] */
 
 #ifdef __pingtel_on_posix__ /* [ */

@@ -185,5 +185,8 @@ public:
     }
 };
 
+#ifdef WINCE
+#pragma message( "OsConfigDbTest disabled undef Win CE" )
+#else
 CPPUNIT_TEST_SUITE_REGISTRATION(OsConfigDbTest);
-
+#endif

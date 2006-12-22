@@ -41,7 +41,7 @@ public:
      /// Constructor
    MpCodecInfo(
       SdpCodec::SdpCodecTypes codecType, ///< codec type
-      UtlString   codecVersion,   ///< string identifying the codec version
+      const char* codecVersion,   ///< string identifying the codec version
       UtlBoolean  usesNetEq,      ///< indicats whether the codec uses GIPS NetEq
       unsigned    samplingRate,   ///< sampling rate for the PCM data expected
                                   ///< by the codec

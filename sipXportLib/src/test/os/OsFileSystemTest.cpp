@@ -171,5 +171,8 @@ public:
     }
 };
 
+#ifdef WINCE
+#pragma message( "OsFileSystemTest disabled undef Win CE" )
+#else
 CPPUNIT_TEST_SUITE_REGISTRATION(OsFileSystemTest);
-
+#endif

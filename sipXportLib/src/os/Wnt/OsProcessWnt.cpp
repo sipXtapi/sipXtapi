@@ -456,14 +456,14 @@ OsStatus OsProcessWnt::getUpTime(OsTime &rUpTime)
 
     rUpTime = OsTime::OS_INFINITY;
 
+    HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION,FALSE,mPID);
+
+#ifndef WINCE
     FILETIME creationTime;
     FILETIME exitTime;     // process exit time
     FILETIME kernelTime;   // process kernel-mode time
     FILETIME userTime;      // process user-mode time
 
-    HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION,FALSE,mPID);
-
-#ifndef WINCE
     if (GetProcessTimes(hProcess, &creationTime, &exitTime, &kernelTime, &userTime))
     {
 

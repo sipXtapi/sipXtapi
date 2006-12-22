@@ -14,7 +14,9 @@
 #ifdef _VXWORKS /* [ */
 #include <taskLib.h>
 #elif defined(_WIN32)
-#include <process.h>
+#   ifndef WINCE
+#       include <process.h>
+#   endif
 #elif defined(__pingtel_on_posix__)
 #include "os/OsMsgQ.h"
 #include <pthread.h> /* OS-SPECIFIC!!! (Well, POSIX anyway) Eventually to be
@@ -511,13 +513,14 @@ bool CMsgQueue::CreateThreadEvents()
 ************************************************************************|<>|*/
 bool CMsgQueue::CreateMessageThread()
 {
-    unsigned int iMessageThreadID;
+    unsigned long iMessageThreadID;
 
 //  We need to create a separate thread for managing the message queue
-    m_hMessageThread = (int *)_beginthreadex(
+//    m_hMessageThread = (int *)_beginthreadex(
+    m_hMessageThread = (int *)CreateThread(
                 NULL,                // No Special Security Attributes
                 0,                   // Default Stack Size
-                InitMessageThread,   // Thread Function
+                (LPTHREAD_START_ROUTINE) InitMessageThread,   // Thread Function
                 this,                // Argument to the thread function
                 0 ,                  // Run immediately
                 &iMessageThreadID);  // Thread identifier returned
