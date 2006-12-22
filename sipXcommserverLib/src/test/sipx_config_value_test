@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. ${srcdir}/../sipx-utils.sh || exit 1
+. ../sipx-utils.sh || exit 1
 
 testdata=${srcdir}/sipx_config_value/testdata
 
