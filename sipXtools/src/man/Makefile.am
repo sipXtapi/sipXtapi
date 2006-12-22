@@ -29,5 +29,5 @@ generate-man-files: force-man-file-generation $(srcdir_man_MANS)
 force-man-file-generation :
 	cd $(srcdir); touch $(MAN_FILES)
 
-$(srcdir)/%.1 : $(srcdir)/%.txt2man
-	txt2man $< > $@
+#$(srcdir)/%.1 : $(srcdir)/%.txt2man
+#	txt2man $< > $@
