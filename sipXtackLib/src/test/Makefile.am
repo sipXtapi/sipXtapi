@@ -26,6 +26,7 @@ testsuite_SOURCES = \
     net/NetAttributeTokenizerTest.cpp \
     net/UrlTest.cpp \
     net/NetMd5CodecTest.cpp \
+    net/HttpBodyTest.cpp \
     net/HttpMessageTest.cpp \
     net/SdpBodyTest.cpp \
     net/SipContactDbTest.cpp \
