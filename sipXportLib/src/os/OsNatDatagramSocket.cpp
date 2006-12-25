@@ -114,7 +114,7 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength)
 
     do
     {
-        bNatPacket = FALSE;
+        bNatPacket = FALSE ;
         iRC = OsSocket::read(buffer, bufferLength, &receivedIp, &iReceivedPort) ;
         if (handleSturnData(buffer, iRC, receivedIp, iReceivedPort))
         {

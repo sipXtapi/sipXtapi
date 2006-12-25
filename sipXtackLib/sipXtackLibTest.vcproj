@@ -37,7 +37,7 @@
 				AdditionalDependencies="msvcrtd.lib MSVCPRTd.lib wsock32.lib cppunitd.lib sipXtackLib.lib sipXportLib.lib pcre.lib"
 				OutputFile="$(OutDir)/sipXtackLibTest.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories=".\Debug;..\sipXportLib\debug;&quot;..\sipXbuild\Vendors\Mozilla\wnt\nspr-3.4_dbg\lib&quot;;&quot;..\sipXbuild\Vendors\Mozilla\wnt\nss-3.9_dbg\lib&quot;;&quot;..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1_dbg\lib&quot;;..\CPPUnit\lib"
+				AdditionalLibraryDirectories=".\Debug;..\sipXportLib\debug;..\CPPUnit\lib"
 				IgnoreDefaultLibraryNames="msvcrt.lib;msvcprt.lib;msvcrt"
 				DelayLoadDLLs="nss3.dll;smime3.dll;nspr4.dll;plc4.dll;ssl3.dll"
 				GenerateDebugInformation="TRUE"
@@ -73,7 +73,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories=".\include;.\include\nss;..\sipXportLib\include;..\sipXcallLib\include;..\sipXportLib\src\test;&quot;..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1\include&quot;;&quot;..\sipXbuild\vendors\Mozilla\wnt\nss-3.9\include&quot;;..\CPPUnit\include"
+				AdditionalIncludeDirectories=".\include;.\include\nss;..\sipXportLib\include;..\sipXcallLib\include;..\sipXportLib\src\test;..\CPPUnit\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -87,7 +87,7 @@
 				AdditionalDependencies="msvcrt.lib MSVCPRT.lib wsock32.lib cppunit.lib sipXportLib.lib sipXtackLib.lib pcre.lib"
 				OutputFile="$(OutDir)/sipXtackLibTest.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories=".\Release;..\sipXportLib\release;&quot;..\sipXbuild\Vendors\Mozilla\wnt\nspr-3.4\lib&quot;;&quot;..\sipXbuild\Vendors\Mozilla\wnt\nss-3.9\lib&quot;;&quot;..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1\lib&quot;;..\CPPUnit\lib"
+				AdditionalLibraryDirectories=".\Release;..\sipXportLib\release;..\CPPUnit\lib"
 				IgnoreDefaultLibraryNames="libcpmtd.lib;LIBCMTD.lib;libprt.lib;msvcrtd.lib;msvcprtd.lib"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
