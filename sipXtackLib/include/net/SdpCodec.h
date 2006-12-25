@@ -288,7 +288,9 @@ public:
 
    ///Get the CPU cost for this codec.
    int getCPUCost() const;
-   //!returns SDP_CODEC_CPU_HIGH or SDP_CODEC_CPU_LOW
+   /**<
+   *  @returns SDP_CODEC_CPU_HIGH or SDP_CODEC_CPU_LOW
+   */
 
    ///Get the bandwidth cost for this codec.
    int getBWCost() const;
