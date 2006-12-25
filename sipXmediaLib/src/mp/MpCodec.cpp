@@ -173,7 +173,7 @@ int MpCodec_getVolume()
    
    if (hOut != NULL)
    {
-      waveOutGetVolume(audioOutH, &bothVolume) ;
+      waveOutGetVolume(hOut, &bothVolume) ;
 
       //mask out one
       unsigned short rightChannel = ((unsigned short) bothVolume & 0xFFFF) ;
