@@ -2851,7 +2851,7 @@ void CpPhoneMediaInterface::createRtpSocketPair(UtlString localAddress,
       sRtcp = rtcpSocket->getSocketDescriptor();
 
       optlen = sizeof(int);
-      oRtp = 2000;
+      oRtp = 20000;
       setsockopt(sRtp, SOL_SOCKET, SO_RCVBUF, (char *) (&oRtp), optlen);
       oRtcp = 500;
       setsockopt(sRtcp, SOL_SOCKET, SO_RCVBUF, (char *) (&oRtcp), optlen);

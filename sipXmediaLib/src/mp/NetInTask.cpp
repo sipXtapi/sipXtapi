@@ -98,7 +98,7 @@ static  int numPairs;
 NetInTask* NetInTask::spInstance = 0;
 OsRWMutex     NetInTask::sLock(OsBSem::Q_PRIORITY);
 
-const int NetInTask::DEF_NET_IN_TASK_PRIORITY  = 100; // default task priority
+const int NetInTask::DEF_NET_IN_TASK_PRIORITY  = 0;   // default task priority: HIGHEST
 const int NetInTask::DEF_NET_IN_TASK_OPTIONS   = 0;   // default task options
 #ifdef USING_NET_EQ /* [ */
 const int NetInTask::DEF_NET_IN_TASK_STACKSIZE = 40960;//default task stacksize
