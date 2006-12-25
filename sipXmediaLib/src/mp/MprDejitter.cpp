@@ -130,6 +130,12 @@ OsStatus MprDejitter::pushPacket(const MpRtpBufPtr &pRtp)
 // Get a pointer to the next RTP packet, or NULL if none is available.
 MpRtpBufPtr MprDejitter::pullPacket(int payloadType)
 {
+   return pullPacket(payloadType, 0, false);
+}
+
+// Get next RTP packet with given timestamp, or NULL if none is available.
+MpRtpBufPtr MprDejitter::pullPacket(int payloadType, UINT maxTimestamp, bool lockToTimestamp)
+{
    OsLock locker(mRtpLock);
 
    MpRtpBufPtr found; ///< RTP packet we will return
@@ -156,7 +162,12 @@ MpRtpBufPtr MprDejitter::pullPacket(int payloadType)
          iNextPull = 0;
 
       // If we reach valid packet, move it out of the buffer and break search loop
-      if (mpPackets[codecIndex][iNextPull].isValid()) {
+      if (  mpPackets[codecIndex][iNextPull].isValid()
+         && (!lockToTimestamp
+            || compare(mpPackets[codecIndex][iNextPull]->getRtpTimestamp(), maxTimestamp)<=0
+            )
+         )
+      {
          found.swap(mpPackets[codecIndex][iNextPull]);
          mNumPackets[codecIndex]--;
          break;

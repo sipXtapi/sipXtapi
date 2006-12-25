@@ -14,7 +14,9 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include "os/OsTask.h"
+#include "os/OsServerTask.h"
+#include "os/OsMsg.h"
+#include "mp/MpRtpBuf.h"
 
 // DEFINES
 // MACROS
@@ -27,9 +29,10 @@
 class MprDejitter;
 class MpdH264;
 class MpvoGdi;
+class OsTimer;
 
 /// This thread display video stream, coming from remote party.
-class MpRemoteVideoTask : public OsTask
+class MpRemoteVideoTask : public OsServerTask
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -38,8 +41,10 @@ public:
 ///@name Creators
 //@{
 
+     /// Constructor
    MpRemoteVideoTask(MprDejitter* pDejitter, void *hwnd=NULL);
 
+     /// Destructor
    virtual
    ~MpRemoteVideoTask();
 
@@ -49,11 +54,22 @@ public:
 ///@name Manipulators
 //@{
 
+     /// Set window handle for remote video (Asynchronous).
    void setRemoteVideoWindow(const void *hwnd);
 
-   void step();
+     /// Start processing incoming video stream. (Synchronous)
+   OsStatus startProcessing();
+     /**<
+     *  @returns <b>OS_SUCCESS</b> - Success.
+     *  @returns <b>OS_FAILED</b> - Something gone bad.
+     */
 
-   OsStatus stop();
+     /// Stop processing incoming video stream. (Synchronous)
+   OsStatus stopProcessing();
+     /**<
+     *  @returns <b>OS_SUCCESS</b> - Success.
+     *  @returns <b>OS_FAILED</b> - Something gone bad.
+     */
 
 //@}
 
@@ -61,6 +77,7 @@ public:
 ///@name Accessors
 //@{
 
+     /// Return remote video display handle.
    void *getRemoteVideoWindow() const;
 
 //@}
@@ -74,16 +91,46 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-   
+
+   typedef enum
+   {
+      SET_REMOTE_VIDEO_WINDOW  ///< Message type for setRemoteVideoWindow().
+   } MsgType;
+
    MprDejitter *mpDejitter; ///< We will get RTP packet from this resource.
    MpdH264     *mpDecoder;  ///< Encoder for captured frames.
    MpvoGdi     *mpVideoOut; ///< Video output system.
+   MpRtpBufPtr  mpRtpPacket;///< Storage for not consumed RTP packet between
+                            ///< calls to step().
+   UINT         mTimestamp; ///< Timestamp of previous packet.
+   bool         mStreamInitialized; ///< true, if we already initialized
+                            ///< mTimestamp. I.e. we have received at least one
+                            ///< RTP packet.
+
+   OsTimer     *mpTimer;    ///< Timer for frame ticks.
+
+     /// Handles an incoming message
+   virtual
+   UtlBoolean handleMessage(OsMsg& rMsg);
+     /**<
+     *  If the message is not one that the object is prepared to process,
+     *  the handleMessage() method in the derived class should return FALSE
+     *  which will cause the OsMessageTask::handleMessage() method to be
+     *  invoked on the message.
+     */
+
+     /// Handler for SET_REMOTE_VIDEO_WINDOW message.
+   OsStatus handleSetRemoteVideoWindow(const void *hwnd);
+
+     /// Handler for frame tick message.
+   OsStatus handleFrameTick();
+     /**<
+     *  This handler will be called when timer message arrive. All frame
+     *  processing is done here.
+     */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-
-     /// Main loop of the task.
-   virtual int run(void* pArg);
 
 };
 

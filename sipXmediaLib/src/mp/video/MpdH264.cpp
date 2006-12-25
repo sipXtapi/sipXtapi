@@ -46,7 +46,6 @@ MpdH264::MpdH264(int payloadType, MpBufPool *pVideoBufPool)
 , mpFrameBufEnd(NULL)
 , mPreviousSeqNum(0)
 , mPreviousTimeStamp(0)
-, mSessionInitialized(false)
 {
     // must be called before using AVcodec lib
     avcodec_init();
@@ -119,7 +118,6 @@ OsStatus MpdH264::initDecode()
    mpFrameBufEnd = mpFrameBuf;
    mPreviousSeqNum = 0;
    mPreviousTimeStamp = 0;
-   mSessionInitialized = false;
 
    return OS_SUCCESS;
 }
@@ -150,6 +148,14 @@ OsStatus MpdH264::freeDecode()
 
 // ============================ MANIPULATORS ==============================
 
+OsStatus MpdH264::initStream(const MpRtpBufPtr &pPacket)
+{
+   // Initialize sequence number counter
+   mPreviousSeqNum = pPacket->getRtpSequenceNumber();
+
+   return OS_SUCCESS;
+}
+
 MpVideoBufPtr MpdH264::decode(const MpRtpBufPtr &pPacket, bool &packetConsumed, bool forceFlag)
 {
    int      gotPicture;    // Does we got picture from decoder?
@@ -166,9 +172,6 @@ MpVideoBufPtr MpdH264::decode(const MpRtpBufPtr &pPacket, bool &packetConsumed, 
    assert(mpCodecContext != NULL);
    assert(mpPicture != NULL);
 
-   inbuf_ptr = (uint8_t*)pPacket->getDataPtr();
-   encodedSize = pPacket->getPayloadSize();
-
    // Initialize internal variables
    packetStatus=PACKET_COLLECT;
    startBit = 0;
@@ -178,12 +181,12 @@ MpVideoBufPtr MpdH264::decode(const MpRtpBufPtr &pPacket, bool &packetConsumed, 
    // By default we consume this packet.
    packetConsumed = true;
 
-   // Initialize sequence number counter
-   if (!mSessionInitialized)
-   {
-      mPreviousSeqNum = pPacket->getRtpSequenceNumber();
-      mSessionInitialized = true;
-   } else
+   if (!pPacket.isValid())
+      return MpVideoBufPtr();
+
+   inbuf_ptr = (uint8_t*)pPacket->getDataPtr();
+   encodedSize = pPacket->getPayloadSize();
+
    // If this is a past (missed) packet - set packetStatus to PACKET_DROP.
    if (compare(mPreviousSeqNum, pPacket->getRtpSequenceNumber()) > 0) {
       packetStatus=PACKET_DROP;

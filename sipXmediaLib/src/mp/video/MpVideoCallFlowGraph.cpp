@@ -194,7 +194,7 @@ OsStatus MpVideoCallFlowGraph::startReceiveRtp(SdpCodec* pCodecs[], int numCodec
       mpConnection->prepareStartReceiveRtp(rRtpSocket, rRtcpSocket);
 
       if (  (mpRemoteVideoTask != NULL)
-         && (mpRemoteVideoTask->isStarted() || mpRemoteVideoTask->start()) )
+         && (mpRemoteVideoTask->isStarted() || mpRemoteVideoTask->startProcessing()) )
       {
          mReceiving = true;
          return OS_SUCCESS;
@@ -210,7 +210,7 @@ void MpVideoCallFlowGraph::stopReceiveRtp()
    {
       if (mpRemoteVideoTask != NULL)
       {
-         mpRemoteVideoTask->stop();
+         mpRemoteVideoTask->stopProcessing();
       }
 
       if (mpConnection != NULL)

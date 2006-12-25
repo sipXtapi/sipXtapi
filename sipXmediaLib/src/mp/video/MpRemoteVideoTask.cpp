@@ -18,6 +18,11 @@
 #include "mp/MpMisc.h"
 #include "mp/video/MpvoGdi.h"
 
+#include "os/OsTimer.h"
+#include "os/OsEvent.h"
+#include "os/OsCallback.h"
+#include "os/OsPtrMsg.h"
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 extern void *ghVideo;
@@ -35,6 +40,9 @@ MpRemoteVideoTask::MpRemoteVideoTask(MprDejitter* pDejitter, void *hwnd)
 : mpDejitter(pDejitter)
 , mpDecoder(new MpdH264(CODEC_TYPE_H264, MpMisc.VideoFramesPool))
 , mpVideoOut(NULL)
+, mTimestamp(0)
+, mStreamInitialized(false)
+, mpTimer(NULL)
 {
    if (mpDecoder != NULL)
    {
@@ -64,45 +72,63 @@ MpRemoteVideoTask::~MpRemoteVideoTask()
 
 void MpRemoteVideoTask::setRemoteVideoWindow(const void *hwnd)
 {
-   mpVideoOut->setWindow((HWND)hwnd);
+   OsPtrMsg msg(SET_REMOTE_VIDEO_WINDOW, 0, (void*)hwnd);
+   postMessage(msg);
 }
 
-void MpRemoteVideoTask::step()
+OsStatus MpRemoteVideoTask::startProcessing()
 {
-   if (mpDejitter != NULL)
-   {
-      MpRtpBufPtr pRtpPacket = mpDejitter->pullPacket(CODEC_TYPE_H264);
-      bool packetConsumed;
-
-      if (mpDecoder != NULL)
-      {
-         while (pRtpPacket.isValid())
-         {
-            // TODO:: We need loop here!!!!!
-
-            MpVideoBufPtr pFrame = mpDecoder->decode(pRtpPacket, packetConsumed);
-
-            if (packetConsumed)
-            {
-               pRtpPacket.release();
-            }
-
-            if ( (pFrame.isValid()) && (mpVideoOut != NULL) )
-            {
-               mpVideoOut->render(pFrame);
-            }
-         }
-      }
-   }
-}
-
-OsStatus MpRemoteVideoTask::stop()
-{
-   requestShutdown();
-   if (waitUntilShutDown())
-      return OS_SUCCESS;
-   else
+   // Create frame tick timer
+   mpTimer = new OsTimer(getMessageQueue(), 0);
+   if (mpTimer == NULL)
       return OS_FAILED;
+
+   // Start processing thread
+   if (!start())
+      return OS_SUCCESS;
+
+   if (mpTimer->periodicEvery(OsTime(0), OsTime(100)) != OS_SUCCESS)
+   {
+      printf("MpRemoteVideoTask::startProcessing(): timer start failed!\n");
+      fflush(stdout);
+      stopProcessing();
+      return OS_FAILED;
+   }
+
+   return OS_SUCCESS;
+}
+
+OsStatus MpRemoteVideoTask::stopProcessing()
+{
+   OsStatus ret=OS_SUCCESS;
+
+   // Remove tick timer
+   if (mpTimer != NULL)
+   {
+      // Synchronously stop frame tick timer
+      printf("MpRemoteVideoTask::stopProcessing(): mpTimer=%X\n", mpTimer);
+      fflush(stdout);
+      mpTimer->stop(true);
+      printf("MpRemoteVideoTask::stopProcessing(): stop ok.\n", mpTimer);
+      fflush(stdout);
+
+      // Delete timer
+      delete mpTimer;
+      mpTimer = NULL;
+   }
+
+   // Stop processing thread
+   requestShutdown();
+   if (!waitUntilShutDown())
+   {
+      ret = OS_FAILED;
+   }
+
+   // Reset timestamp
+   mTimestamp = 0;
+   mStreamInitialized = false;
+
+   return ret;
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -117,17 +143,117 @@ void *MpRemoteVideoTask::getRemoteVideoWindow() const
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
-int MpRemoteVideoTask::run(void* pArg)
+UtlBoolean MpRemoteVideoTask::handleMessage(OsMsg& rMsg)
 {
-   while (!isShuttingDown())
+   UtlBoolean handled = false;
+
+   switch (rMsg.getMsgType())
    {
-      step();
-#ifdef _WIN32
-       Sleep(30);  // TODO:: Need better synchronization
-#endif
+      case OsMsg::OS_EVENT:
+         // Time to process next frame
+         {
+            handled = true;
+            handleFrameTick();
+            break;
+         }
+      case MpRemoteVideoTask::SET_REMOTE_VIDEO_WINDOW:
+         // Set remote display video handle
+         {
+            handled = true;
+            const void *hwnd = ((OsPtrMsg*)&rMsg)->getPtr();
+            handleSetRemoteVideoWindow(hwnd);
+            break;
+         }
    }
 
-   return 0;
+   return handled;
+}
+
+OsStatus MpRemoteVideoTask::handleSetRemoteVideoWindow(const void *hwnd)
+{
+   return mpVideoOut->setWindow((HWND)hwnd);
+}
+
+OsStatus MpRemoteVideoTask::handleFrameTick()
+{
+   if (mpDejitter != NULL && mpDecoder != NULL)
+   {
+      MpVideoBufPtr pFrame;
+      bool packetConsumed;
+
+      // If there was no cached packet, pull one from Dejitter.
+      if (!mpRtpPacket.isValid())
+      {
+         mpRtpPacket = mpDejitter->pullPacket(CODEC_TYPE_H264);
+      }
+
+      // We may get no packets from Dejitter. Handle this.
+      if (mpRtpPacket.isValid())
+      {
+
+         // Initialize timestamp and decoder, if this this the first packet
+         // in RTP session.
+         if (!mStreamInitialized)
+         {
+            // Initialize timestamp
+            mTimestamp = mpRtpPacket->getRtpTimestamp();
+
+            // Pass first packet to decoder to initialize its internal stream
+            // state
+            mpDecoder->initStream(mpRtpPacket);
+
+            mStreamInitialized = true;
+         }
+
+         // Update timestamp, if we get packet with greater timestamp. If
+         // timestamp is lesser (earlier packet) we pass this packet to decoder,
+         // but does not update timestamp -- this packet will likely be
+         // discarded and we do not mess up with it.
+         if (compare(mpRtpPacket->getRtpTimestamp(), mTimestamp)>0)
+         {
+            mTimestamp = mpRtpPacket->getRtpTimestamp();
+            mStreamInitialized = true;
+         }
+
+         while (mpRtpPacket.isValid())
+         {
+            pFrame = mpDecoder->decode(mpRtpPacket, packetConsumed, false);
+
+            // Pull next packet of this frame from Dejitter if previous packet
+            // was consumed () by decoder.
+            if (packetConsumed)
+            {
+               mpRtpPacket = mpDejitter->pullPacket(CODEC_TYPE_H264, mTimestamp);
+            }
+
+            // End pulling packets from Dejitter if we got frame from Decoder.
+            if (pFrame.isValid())
+            {
+               break;
+            }
+         }
+
+         // If we pulled all packets, but did not get video frame from decoder,
+         // force decoding - we want draw something on the screen.
+         if (!pFrame.isValid())
+         {
+            pFrame = mpDecoder->decode(mpRtpPacket, packetConsumed, true);
+
+            // Free packet if it was consumed (processed) by decoder.
+            if (packetConsumed)
+            {
+               mpRtpPacket.release();
+            }
+         }
+
+         if (pFrame.isValid() && mpVideoOut != NULL)
+         {
+            mpVideoOut->render(pFrame);
+         }
+      }
+   }
+
+   return OS_SUCCESS;
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
