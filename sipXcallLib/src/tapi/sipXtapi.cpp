@@ -7438,7 +7438,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigUpdatePreviewWindow(const SIPX_INST hInst, co
         "sipxConfigUpdatePreviewWindow hInst=%p, hWnd=%p",
         hInst, hWnd);
         
-#ifdef HAVE_GIPS
+#if defined(_WIN32) && defined(HAVE_GIPS)
     #include <windows.h>
 	PAINTSTRUCT ps;
 	HDC hdc = BeginPaint((HWND)hWnd, &ps);
@@ -7467,7 +7467,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallResizeWindow(const SIPX_CALL hCall, const SIPX_
     UtlString callId ;
     UtlString remoteAddress ;
         
-#ifdef HAVE_GIPS
+#if defined(_WIN32) && defined(HAVE_GIPS)
         #include <windows.h>
 
         if (sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, NULL))
