@@ -42,7 +42,6 @@
 // CONSTANTS
 static const unsigned int MAXFILESIZE = 50000000;
 static const unsigned int MINFILESIZE = 8000;
-static const int NO_WAIT = 0;
 extern int      samplesPerSecond;
 extern int      bitsPerSample;
 extern int      samplesPerFrame;

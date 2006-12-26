@@ -217,7 +217,7 @@ static WAVEHDR* outPrePrep(int n, DWORD bufLen)
    while (MpMisc.pSpkQ && MpMisc.pSpkQ->numMsgs() > MprToSpkr::MAX_SPKR_BUFFERS) {
       OsStatus  res;
       flushes++;
-      res = MpMisc.pSpkQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT);
+      res = MpMisc.pSpkQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT_TIME);
       if (OS_SUCCESS == res) {
          pFlush->releaseMsg();
       } else {
@@ -244,7 +244,7 @@ static WAVEHDR* outPrePrep(int n, DWORD bufLen)
       if (MpMisc.pSpkQ->numMsgs() >= skip)
       {
          skip = 0;
-         if (MpMisc.pSpkQ->receive((OsMsg*&)msg, OsTime::NO_WAIT) == OS_SUCCESS)
+         if (MpMisc.pSpkQ->receive((OsMsg*&)msg, OsTime::NO_WAIT_TIME) == OS_SUCCESS)
          {
             ob = (MpAudioBufPtr)(msg->getBuffer());
             msg->releaseMsg();

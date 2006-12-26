@@ -110,7 +110,7 @@ UtlBoolean MprSpeexEchoCancel::doProcessFrame(MpBufPtr inBufs[],
       if (MpMisc.pEchoQ->numMsgs() > MAX_ECHO_QUEUE) {
 
          // Flush queue
-         while ( (MpMisc.pEchoQ->receive((OsMsg*&) bufferMsg, OsTime::NO_WAIT) == OS_SUCCESS)
+         while ( (MpMisc.pEchoQ->receive((OsMsg*&) bufferMsg, OsTime::NO_WAIT_TIME) == OS_SUCCESS)
                && MpMisc.pEchoQ->numMsgs() > MAX_ECHO_QUEUE)
          {
             bufferMsg->releaseMsg();

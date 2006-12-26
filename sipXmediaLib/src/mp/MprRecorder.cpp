@@ -39,8 +39,6 @@
 #define MIN_SPEECH_ENERGY_THRESHOLD 20000
 #define MAX_SPEECH_ENERGY_THRESHOLD 70000
 
-static const int NO_WAIT = 0;
-
 // STATIC VARIABLE INITIALIZATIONS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */

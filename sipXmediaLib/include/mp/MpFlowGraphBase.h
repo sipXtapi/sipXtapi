@@ -342,7 +342,7 @@ protected:
 
      /// Posts a message to this flow graph.
    OsStatus postMessage(const MpFlowGraphMsg& rMsg,
-                        const OsTime& rTimeout=OsTime::NO_WAIT);
+                        const OsTime& rTimeout=OsTime::NO_WAIT_TIME);
      /**<
      *  Returns the result of the message send operation.
      */

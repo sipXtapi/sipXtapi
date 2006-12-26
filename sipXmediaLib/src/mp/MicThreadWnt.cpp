@@ -254,7 +254,7 @@ bool inPostUnprep(int n, int discard, DWORD bufLen, bool bFree)
                 // if its full, flush one and send
                 OsStatus  res;
                 flushes++;
-                res = MpMisc.pMicQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT);
+                res = MpMisc.pMicQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT_TIME);
                 if (OS_SUCCESS == res) {
                    pFlush->releaseMsg();
                 } else {
@@ -262,7 +262,7 @@ bool inPostUnprep(int n, int discard, DWORD bufLen, bool bFree)
                             " (res=%d)\n", res);
                 }
             }
-            MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT);
+            MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT_TIME);
          }
          if (!pMsg->isMsgReusable())
              delete pMsg;

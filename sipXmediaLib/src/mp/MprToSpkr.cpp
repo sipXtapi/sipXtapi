@@ -54,10 +54,7 @@ int comfortNoise(int Flag) {
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
-
 // CONSTANTS
-static const int NO_WAIT = 0;
-
 // STATIC VARIABLE INITIALIZATIONS
 TOSPEAKERHOOK MprToSpkr::s_fnToSpeakerHook = NULL ;
 
@@ -357,7 +354,7 @@ UtlBoolean MprToSpkr::doProcessFrame(MpBufPtr inBufs[],
         // Flush speaker queue if it is full.
         while (mpSpkQ && MAX_SPKR_BUFFERS < mpSpkQ->numMsgs()) 
         {
-            if (mpSpkQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT) == OS_SUCCESS) 
+            if (mpSpkQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT_TIME) == OS_SUCCESS) 
             {
                 pFlush->releaseMsg();
                 osPrintf( "pSpkQ drained. %d msgs in queue now\n"
@@ -381,7 +378,7 @@ UtlBoolean MprToSpkr::doProcessFrame(MpBufPtr inBufs[],
 
         // Send data to Media Task
         if (  mpSpkQ
-           && (mpSpkQ->send(*pMsg, OsTime::NO_WAIT) == OS_SUCCESS))
+           && (mpSpkQ->send(*pMsg, OsTime::NO_WAIT_TIME) == OS_SUCCESS))
         {
             // Post a copy of this message to the mpEchoQ so that it
             // can be used in AEC calculations.
@@ -393,7 +390,7 @@ UtlBoolean MprToSpkr::doProcessFrame(MpBufPtr inBufs[],
             // Buffer is moved to the message. ob pointer is invalidated.
             AECMsg.ownBuffer(out) ;         
             if (  mpEchoQ->numMsgs() >= mpEchoQ->maxMsgs()
-               || mpEchoQ->send(AECMsg, OsTime::NO_WAIT) != OS_SUCCESS)
+               || mpEchoQ->send(AECMsg, OsTime::NO_WAIT_TIME) != OS_SUCCESS)
             {
 //               osPrintf("pEchoQ->send() failed!\n");
             }

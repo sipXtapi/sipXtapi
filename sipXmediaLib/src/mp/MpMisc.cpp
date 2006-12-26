@@ -1,6 +1,6 @@
-//  
-// Copyright (C) 2005-2006 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -320,9 +320,6 @@ extern "C" {
 extern int showMpMisc(int justAddress);
 extern int setMaxMic(int v);
 extern int setMaxSpkr(int v);
-#ifdef _DEPRECATED_IPSE_
-    extern int setMinRtp(int v);
-#endif
 extern int mpSetLatency(int maxMic, int maxSpkr, int minRtp);
 #ifdef _VXWORKS /* [ */
 extern int LoopBack(int on);
@@ -346,7 +343,7 @@ int LoopBack(int on) {
    MpMisc.doLoopBack = on;
    while (0 < MpMisc.pLoopBackQ->numMsgs()) {
       if (OS_SUCCESS == MpMisc.pLoopBackQ->receive((OsMsg*&) pMsg,
-                                                    OsTime::NO_WAIT)) {
+                                                    OsTime::NO_WAIT_TIME)) {
          pMsg->releaseMsg();
       }
    }
@@ -370,14 +367,8 @@ int showMpMisc(int justAddress)
    Zprintf("&MpMisc = 0x%X\n", (int) &MpMisc, 0,0,0,0,0);
    if (!justAddress) {
       Zprintf(" MicQ=0x%X, SpkQ=0x%X, EchoQ=0x%X, silence=0x%X\n"
-#ifdef _DEPRECATED_IPSE_
-         " micMuteStatus=%d, spkrMuteStatus=%d,",
-#endif
          (int) MpMisc.pMicQ, (int) MpMisc.pSpkQ, (int) MpMisc.pEchoQ,
          (int) MpMisc.mpFgSilence
-#ifdef _DEPRECATED_IPSE_
-         , MpMisc.micMuteStatus, MpMisc.spkrMuteStatus
-#endif
          );
       Zprintf(" \n frameSamples=%d, frameBytes=%d, sampleBytes=%d,",
          MpMisc.frameSamples, MpMisc.frameBytes, MpMisc.sampleBytes, 0,0,0);
@@ -391,13 +382,7 @@ int showMpMisc(int justAddress)
          (int) MpMisc.LogQ, MpMisc.logMsgLimit, MpMisc.logMsgSize, 0);
 #endif /* _VXWORKS ] */
       Zprintf(" Latency: maxMic=%d, maxSpkr=%d"
-#ifdef _DEPRECATED_IPSE_
-              ", minRtp=%d\n",
-#endif
          MpMisc.max_mic_buffers, MpMisc.max_spkr_buffers,
-#ifdef _DEPRECATED_IPSE_
-         MpMisc.min_rtp_packets,
-#endif
          0,0,0);
    }
    return (int) &MpMisc;
@@ -433,30 +418,11 @@ int setMaxSpkr(int v)
     return save;
 }
 
-#ifdef _DEPRECATED_IPSE_
-int setMinRtp(int v)
-{
-    int save = MpMisc.min_rtp_packets;
-
-    if (v >= MprDejitter::MAX_RTP_PACKETS) {
-        int vWas = v;
-        v = MprDejitter::MAX_RTP_PACKETS - 1;
-        osPrintf("\nmin_rtp_packets  MUST BE less than %d... setting to"
-            " %d instead of %d\n",
-            MprDejitter::MAX_RTP_PACKETS, v, vWas);
-    }
-    if (v > 0) MpMisc.min_rtp_packets = v;
-    return save;
-}
-#endif
 
 int mpSetLatency(int maxMic, int maxSpkr, int minRtp)
 {
     setMaxMic(maxMic);
     setMaxSpkr(maxSpkr);
-#ifdef _DEPRECATED_IPSE_
-    setMinRtp(minRtp);
-#endif
     return 0;
 }
 
@@ -742,16 +708,9 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
 
         assert(MprFromMic::MAX_MIC_BUFFERS > 0);
         assert(MprToSpkr::MAX_SPKR_BUFFERS > 0);
-#ifdef _DEPRECATED_IPSE_
-        assert(MprDecode::MIN_RTP_PACKETS > 0);
-#endif
 
         setMaxMic(MprFromMic::MAX_MIC_BUFFERS - 1);
         setMaxSpkr(MprToSpkr::MAX_SPKR_BUFFERS);
-#ifdef _DEPRECATED_IPSE_
-        setMinRtp(MprDecode::MIN_RTP_PACKETS);
-        mpStopSawTooth();
-#endif
 
         return OS_SUCCESS;
 }

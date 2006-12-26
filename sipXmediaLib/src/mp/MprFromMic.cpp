@@ -115,7 +115,7 @@ UtlBoolean MprFromMic::doProcessFrame(MpBufPtr inBufs[],
       // the max_mic_buffers threshold, drain the queue until in range)
       while (mpMicQ && mpMicQ->numMsgs() > MpMisc.max_mic_buffers) 
       {
-         if (mpMicQ->receive((OsMsg*&)pMsg, OsTime::NO_WAIT) == OS_SUCCESS) 
+         if (mpMicQ->receive((OsMsg*&)pMsg, OsTime::NO_WAIT_TIME) == OS_SUCCESS) 
          {
             pMsg->releaseMsg();
                 osPrintf( "mpMicQ drained. %d msgs in queue now\n"
@@ -125,7 +125,7 @@ UtlBoolean MprFromMic::doProcessFrame(MpBufPtr inBufs[],
 
       if (mpMicQ && mpMicQ->numMsgs() > 0)
       {
-         if (mpMicQ->receive((OsMsg*&)pMsg, OsTime::NO_WAIT) == OS_SUCCESS) 
+         if (mpMicQ->receive((OsMsg*&)pMsg, OsTime::NO_WAIT_TIME) == OS_SUCCESS) 
          {
 //                osPrintf( "mpMicQ->receive() succeed, %d msgs in queue\n"
 //                        , mpMicQ->numMsgs());

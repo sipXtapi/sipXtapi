@@ -36,10 +36,7 @@
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
-
 // CONSTANTS
-static const int NO_WAIT = 0;
-
 // STATIC VARIABLE INITIALIZATIONS
    // At 10 ms each, 10 seconds.  We will send an RTP packet to each active
    // destination at least this often, even when muted.
