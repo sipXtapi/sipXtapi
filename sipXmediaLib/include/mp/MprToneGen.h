@@ -61,11 +61,11 @@ implementation.  At least these changes are needed:
     handleSetSamplesPerSec.
 (2) MpResource (the base class) needs to be enhanced so that the base
     virtual function exists to be overridden.
+*/
 
      /// Sets the number of samples expected per second.
    virtual UtlBoolean setSamplesPerSec(int samplesPerSec);
      // Returns FALSE if the specified rate is not supported, TRUE otherwise.
-*/
 #endif
 
      /// @brief Sends a START_TONE message to this resource to begin generating 

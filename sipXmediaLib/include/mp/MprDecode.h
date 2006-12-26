@@ -43,16 +43,6 @@ public:
 
    friend class MpAudioConnection;
 
-#ifdef _DEPRECATED_IPSE_
-   /* This was 3 in the past, which is probably far too pessimistic most of
-    * the time.  1 is probably fine on a LAN or with only a router or two.
-    * Let's leave it at 3 for now...
-    */
-   /* ... that was then, this is now.  VON is coming, squeeze it down! */
-   /* ... VON is coming again, and so is NetEQ.  Make it at least 5, or lose */
-   enum { MIN_RTP_PACKETS = 5};
-#endif
-
 /* ============================ CREATORS ================================== */
 ///@name Creators
 //@{

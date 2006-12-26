@@ -22,12 +22,6 @@ class OsConfigDb;
 #include "mp/MpBufPool.h"
 #include "mp/MpAudioBuf.h"
 
-#ifdef _DEPRECATED_IPSE_
-#ifndef MUTEX_OPS
-#define MUTEX_OPS (SEM_Q_PRIORITY|SEM_DELETE_SAFE|SEM_INVERSION_SAFE)
-#endif
-#endif
-
 #define FRAME_SAMPS  320
 
 #ifndef max

@@ -217,7 +217,7 @@ public:
 //@{
 
     ///  Debug aid for tracking state. See MpMediaTaskTest
-   int MpMediaTask::numHandledMsgErrs();
+   int numHandledMsgErrs();
 
      /// Returns TRUE if debug mode is enabled, FALSE otherwise.
    UtlBoolean getDebugMode(void) const;
