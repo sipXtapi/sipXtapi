@@ -55,9 +55,9 @@ void init_CNG() {
       shpFilterBuf[i] = 0;
 }
 
-void white_noise_generator(MpAudioSample  *shpSamples,
-                              int   iLength,
-                           Word32   ulNoiseLevelAve)
+void white_noise_generator(MpAudioSample *shpSamples,
+                           int            iLength,
+                           Word32         ulNoiseLevelAve)
 {
    int     i;
    short   *shp;
@@ -72,9 +72,9 @@ void white_noise_generator(MpAudioSample  *shpSamples,
    }
 }
 
-void comfort_noise_generator(MpAudioSample  *shpSamples,
-                                int   iLength,
-                             Word32   ulNoiseLevelAve)
+void comfort_noise_generator(MpAudioSample *shpSamples,
+                             int            iLength,
+                             Word32         ulNoiseLevelAve)
 {
    int  i;
    int  j;
@@ -120,9 +120,9 @@ void comfort_noise_generator(MpAudioSample  *shpSamples,
 
 }
 
-void background_noise_level_estimation(Word32&  ulNoiseLevel, 
-                                       MpAudioSample*  shpSamples,          
-                                       int      iLength)
+void background_noise_level_estimation(Word32&        ulNoiseLevel, 
+                                       MpAudioSample* shpSamples,          
+                                       int            iLength)
 {
    int i;
    Word32 ulStrength = 0;

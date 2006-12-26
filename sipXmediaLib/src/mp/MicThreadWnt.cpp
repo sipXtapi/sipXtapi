@@ -214,13 +214,13 @@ bool inPostUnprep(int n, int discard, DWORD bufLen, bool bFree)
          MpBufferMsg* pFlush;
          MpBufferMsg* pMsg;
 
-		 if (ob.isValid())
-		 {
-	         memcpy( ob->getSamples()
+         if (ob.isValid())
+         {
+            memcpy( ob->getSamples()
                    , pWH->lpData
                    , min( pWH->dwBytesRecorded
                         , ob->getSamplesNumber()*sizeof(MpAudioSample)));
-		 }
+         }
 #ifdef INSERT_SAWTOOTH /* [ */
          if (NULL == ob) { /* nothing in Q, or we are disabled */
             ob = MpMisc.RawAudioPool->getBuffer();
@@ -292,8 +292,8 @@ bool inPostUnprep(int n, int discard, DWORD bufLen, bool bFree)
 
 int openMicDevice(bool& bRunning, WAVEHDR*& pWH)
 {
-	int        i, ii;
-	WAVEINCAPS devcaps;
+    int        i, ii;
+    WAVEINCAPS devcaps;
     DWORD      bufLen = ((N_SAMPLES * BITS_PER_SAMPLE) / 8);
     MMRESULT   ret;
     MSG        tMsg;
@@ -309,8 +309,8 @@ int openMicDevice(bool& bRunning, WAVEHDR*& pWH)
     }
 
         
-	int numberOfDevicesOnSystem = waveInGetNumDevs();
-	for(ii=0; ii<numberOfDevicesOnSystem; ii++)
+    int numberOfDevicesOnSystem = waveInGetNumDevs();
+    for(ii=0; ii<numberOfDevicesOnSystem; ii++)
     {
         waveInGetDevCaps(ii, &devcaps, sizeof(devcaps));
         if (strcmp(devcaps.szPname, DmaTask::getMicDevice())==0) 
