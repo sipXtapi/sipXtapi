@@ -303,8 +303,6 @@ int defaultAudioSpeakerWrite(Sample *writeBufferSamples, int numSamples)
 /* This will be defined by the OS-specific section below. */
 static int setupSoundCard(void);
 
-#ifdef _INCLUDE_AUDIO_SUPPORT /* [ */
-
 UtlBoolean defaultAudioDeviceInit()
 {
 #ifdef _INCLUDE_AUDIO_SUPPORT 
@@ -316,6 +314,8 @@ UtlBoolean defaultAudioDeviceInit()
    return true;
 #endif
 }
+
+#ifdef _INCLUDE_AUDIO_SUPPORT /* [ */
 
 static void * soundCardReader(void * arg)
 {
@@ -354,17 +354,18 @@ static void * soundCardReader(void * arg)
       // Pass buffer to message. Buffer will be invalid after this!
       pMsg->ownBuffer(ob);
 
-      if(MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT) != OS_SUCCESS)
+      if(MpMisc.pMicQ && MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT_TIME) != OS_SUCCESS)
       {
          OsStatus  res;
-         res = MpMisc.pMicQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT);
+         res = MpMisc.pMicQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT_TIME);
          if (OS_SUCCESS == res) {
             pFlush->releaseMsg();
          } else {
             osPrintf("DmaTask: queue was full, now empty (5)!"
                " (res=%d)\n", res);
          }
-         if(MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT) != OS_SUCCESS) {
+         if(MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT_TIME) != OS_SUCCESS)
+         {
             osPrintf("pMicQ->send() failed!\n");
          }
       }
@@ -423,7 +424,7 @@ static void * soundCardWriter(void * arg)
          }
       }
 
-      if(MpMisc.pSpkQ && MpMisc.pSpkQ->receive((OsMsg*&) pMsg, OsTime::NO_WAIT) == OS_SUCCESS)
+      if(MpMisc.pSpkQ && MpMisc.pSpkQ->receive((OsMsg*&) pMsg, OsTime::NO_WAIT_TIME) == OS_SUCCESS)
       {
          MpAudioBufPtr ob = pMsg->getBuffer();
          assert(ob != NULL);
@@ -611,7 +612,7 @@ static int setupSoundCard(void)
 
 #include <sys/audio.h>
 
-int setupSoundCard(void)
+static int setupSoundCard(void)
 {
    int res, fd;
    audio_info_t info;
@@ -721,7 +722,6 @@ static OSStatus CoreAudio_io(AudioDeviceID CoreAudio_output_id, const AudioTimeS
    return kAudioHardwareNoError;
 }
 
-
 static int setupSoundCard(void)
 {
    UInt32 parm_size;
@@ -793,8 +793,6 @@ fail_socket:
 fail:
    return -1;
 }
-
-
 
 static int CoreAudio_shutdown(void)
 {

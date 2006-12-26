@@ -22,7 +22,7 @@ MpCodecInfo::MpCodecInfo(SdpCodec::SdpCodecTypes codecType,
                            unsigned       avgPacketBits,
                            unsigned       maxPacketBits,
                            unsigned       numSamplesPerFrame,
-                           unsigned int   preCodecJitterBufferSize,
+                           unsigned       preCodecJitterBufferSize,
                            UtlBoolean     signalingCodec,
                            UtlBoolean     doesVadCng)
  : mCodecType(codecType),
