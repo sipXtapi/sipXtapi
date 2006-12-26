@@ -76,7 +76,7 @@ int MpdSipxGSM::decode(const MpRtpBufPtr &pPacket, unsigned decodedBufferLength,
 
    if (decodedBufferLength < 160)
    {
-      osPrintf("MpdSipxPcmu::decode: Jitter buffer overloaded. Glitch!\n");
+      osPrintf("MpdSipxGSM::decode: Jitter buffer overloaded. Glitch!\n");
       return 0;
    }
 

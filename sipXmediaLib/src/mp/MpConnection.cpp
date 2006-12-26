@@ -17,7 +17,6 @@
 #include "mp/MprToNet.h"
 #include "mp/MprFromNet.h"
 #include "mp/MprDejitter.h"
-//#include "net/SdpCodec.h"
 #include "os/OsLock.h"
 #ifdef INCLUDE_RTCP /* [ */
 #include "rtcp/RtcpConfig.h"

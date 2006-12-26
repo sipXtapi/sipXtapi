@@ -90,7 +90,11 @@ OsStatus MpdSipxSpeex::freeDecode(void)
 int MpdSipxSpeex::decode(const MpRtpBufPtr &pPacket, unsigned decodedBufferLength, MpAudioSample *samplesBuffer)
 {
    // Assert that available buffer size is enough for the packet.
-   assert(mNumSamplesPerFrame <= decodedBufferLength);
+   if (mNumSamplesPerFrame > decodedBufferLength)
+   {
+      osPrintf("MpdSipxSpeex::decode: Jitter buffer overloaded. Glitch!\n");
+      return 0;
+   }
 
    // Prepare data for Speex decoder
    speex_bits_read_from(&mDecbits,(char*)pPacket->getDataPtr(),pPacket->getPayloadSize());

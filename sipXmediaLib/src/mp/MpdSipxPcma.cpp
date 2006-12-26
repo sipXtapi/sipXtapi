@@ -9,7 +9,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#if 1 /* [ */
 #ifndef HAVE_GIPS /* [ */
 
 // APPLICATION INCLUDES
@@ -63,7 +62,13 @@ int MpdSipxPcma::decode(const MpRtpBufPtr &pPacket,
                         MpAudioSample *samplesBuffer) 
 {
    // Assert that available buffer size is enough for the packet.
-   assert(pPacket->getPayloadSize() <= decodedBufferLength);
+   if (pPacket->getPayloadSize() > decodedBufferLength)
+   {
+      osPrintf("MpdSipxPcma::decode: Jitter buffer overloaded. Glitch!\n");
+   }
+
+   if (decodedBufferLength == 0)
+      return 0;
 
    int samples = min(pPacket->getPayloadSize(), decodedBufferLength);
    G711A_Decoder(samples,
@@ -168,4 +173,4 @@ int MpdSipxPcma::decodeIn(const MpRtpBufPtr &pPacket)
 }
 
 #endif /* HAVE_GIPS ] */
-#endif /* ] */
+
