@@ -37,31 +37,39 @@
 // STRUCTS
 // TYPEDEFS
 
-//:Derived class for GIPS PCMA decoder.
+/// Derived class for GIPS PCMA decoder.
 class MpdGIPSPCMA: public MpDecoderBase
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
 /* ============================ CREATORS ================================== */
-   MpdGIPSPCMA(int payloadType);
-     //:Constructor
-     // Returns a new decoder object.
-     //!param: payloadType - (in) RTP payload type associated with this decoder
+///@name Creators
+//@{
 
-   virtual ~MpdGIPSPCMA(void);
-     //:Destructor
+     /// Constructor
+   MpdGIPSPCMA( int payloadType ///< (in) RTP payload type associated with
+                                ///<  this decoder
+              );
 
-   virtual OsStatus initDecode(MpAudioConnection* pConnection);
-     //:Initializes a codec data structure for use as a decoder
-     //!param: pConnection - (in) Pointer to the MpAudioConnection container
-     //!retcode: OS_SUCCESS - Success
-     //!retcode: OS_NO_MEMORY - Memory allocation failure
+     /// Destructor
+   virtual
+   ~MpdGIPSPCMA(void);
 
+     /// Initializes a codec data structure for use as a decoder
+  virtual OsStatus initDecode(MpAudioConnection* pConnection);
+     /**<
+     *  @param pConnection - (in) Pointer to the MpAudioConnection container
+     *  @returns <b>OS_SUCCESS</b> - Success
+     *  @returns <b>OS_NO_MEMORY</b> - Memory allocation failure
+     */
+
+     /// Frees all memory allocated to the decoder by <i>initDecode</i>
    virtual OsStatus freeDecode(void);
-     //:Frees all memory allocated to the decoder by <i>initDecode</i>
-     //!retcode: OS_SUCCESS - Success
-     //!retcode: OS_DELETED - Object has already been deleted
+     /**<
+     *  @returns <b>OS_SUCCESS</b> - Success
+     *  @returns <b>OS_DELETED</b> - Object has already been deleted
+     */
 
 //@}
 
@@ -91,9 +99,11 @@ public:
 ///@name Inquiry
 //@{
 
+//@}
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   static const MpCodecInfo smCodecInfo;  // static information about the codec
+   static const MpCodecInfo smCodecInfo;  ///< static information about the codec
    JB_inst* mpJBState;
 };
 

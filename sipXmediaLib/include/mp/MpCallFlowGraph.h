@@ -464,7 +464,7 @@ private:
 #if defined (SPEEX_ECHO_CANCELATION)
    MprSpeexEchoCancel* mpEchoCancel;
 #elif defined (SIPX_ECHO_CANCELATION) 
-   MprEchoSuppress*   mpEchoCancel;
+   MprEchoSuppress*    mpEchoCancel;
 #endif
    MprMixer*     mpTFsMicMixer;
    MprMixer*     mpTFsBridgeMixer;

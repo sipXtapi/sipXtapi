@@ -76,6 +76,7 @@ private:
 	void HandsetComputeLoudspeakerFade();
 	void HandsetEchoSuppress(icomplex [][HS_M+1],int);
 
+//@}
 
 };
 

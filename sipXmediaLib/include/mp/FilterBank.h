@@ -85,6 +85,8 @@ private:
    void EchoSuppress(icomplex [][M+1], int [], int [], int [], int);
    static void ComplexCoefUpdate(icomplex *, icomplex *, icomplex *, int);
 
+//@}
+
 };
 
 
