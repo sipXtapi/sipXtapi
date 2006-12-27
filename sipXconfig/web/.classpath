@@ -19,7 +19,6 @@
 	<classpathentry sourcepath="LIB_SRC/junit/src.zip" kind="var" path="SIPX_CONFIG/lib/junit-3.8.1.jar"/>
 	<classpathentry sourcepath="/LIB_SRC/log4j/src.zip" kind="var" path="SIPX_CONFIG/lib/log4j-1.2.8.jar"/>
 	<classpathentry sourcepath="LIB_SRC/ognl/ognl-2.6.7-dist.zip" kind="var" path="SIPX_CONFIG/lib/ognl-2.6.7.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/postgresql-8.0.309.jdbc3.jar"/>
 	<classpathentry sourcepath="JRE_SRC" kind="var" path="SIPX_CONFIG/lib/javax.servlet.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/tidy-04aug2000r6.jar"/>
 	<classpathentry sourcepath="LIB_SRC/jwebunit/src.zip" kind="var" path="SIPX_CONFIG/lib/jwebunit-1.2.jar">
@@ -53,6 +52,6 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/js-1.6R2.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/tacos-4.0.0-lib.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-fileupload-1.1.1.jar"/>
-	<classpathentry sourcepath="/LIB_SRC/tapestry/4.0.2/src.zip" kind="var" path="SIPX_CONFIG/lib/tapestry-annotations-4.0.2.jar"/>
+	<classpathentry sourcepath="/LIB_SRC/tapestry/4.0.2/tapestry-4.0.2" kind="var" path="SIPX_CONFIG/lib/tapestry-annotations-4.0.2.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>
