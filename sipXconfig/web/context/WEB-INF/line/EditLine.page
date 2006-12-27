@@ -14,7 +14,7 @@
   <component id="editLineNavigation" type="LineNavigation">
     <binding name="line" value="line"/>
     <binding name="tab" value="literal:EditLine"/>
-    <binding name="heading" value="literal:Line"/>
+    <binding name="heading" value="message:line"/>
   </component>
   <component id="editLineForm" type="Form">
   </component>

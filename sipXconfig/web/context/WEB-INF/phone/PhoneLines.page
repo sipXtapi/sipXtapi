@@ -22,7 +22,7 @@
   <component id="editPhoneNavigation" type="PhoneNavigation">
     <binding name="phone" value="phone"/>
     <binding name="tab" value="literal:PhoneLines"/>
-    <binding name="heading" value="literal:Lines"/>
+    <binding name="heading" value="message:lines"/>
   </component>
   <component id="editLinesForm" type="Form"/>
   <component id="lineTableView" type="Table">
