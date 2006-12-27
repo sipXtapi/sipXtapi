@@ -522,7 +522,7 @@ MpAudioSample MuLawDecode2(unsigned char ulaw)
    unsigned char exponent = (ulaw >> 4) & 0x7;
    unsigned char mantissa = (ulaw & 0xF) + 16;
    unsigned long adjusted = (mantissa << (exponent + 3)) - 128 - 4;
-   Sample   sRet = (Sample) adjusted;
+   MpAudioSample sRet = (MpAudioSample) adjusted;
    return (ulaw & 0x80)? sRet : -sRet;
 }
 
@@ -554,6 +554,6 @@ MpAudioSample ALawDecode2(unsigned char alaw)
    unsigned char exponent = (alaw >> 4) & 0x7;
    unsigned char mantissa = (alaw & 0xF) + (exponent?16:0);
    unsigned long adjusted = (mantissa << (exponent + 4));
-   Sample   sRet = (Sample) adjusted;
+   MpAudioSample sRet = (MpAudioSample) adjusted;
    return (alaw & 0x80)? -sRet : sRet;
 }
