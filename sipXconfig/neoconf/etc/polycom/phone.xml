@@ -1092,8 +1092,7 @@
 		        <integer min="0"/>
 		      </type>
 		      <value>20</value>
-		      <description>If volatile storage is not used, maximum number of speed-dial 
-		        entries</description>      
+		      <description>If volatile storage is not used, maximum size in Kbytes for speed-dial entries.</description>      
 		    </setting>
 		</group>
     <group name="4mb">
@@ -1114,8 +1113,7 @@
 	        <integer min="0"/>
 	      </type>
 	      <value>50</value>
-		      <description>If volatile storage is not used, maximum number of speed-dial 
-		        entries</description>      
+		      <description>If volatile storage is not used, maximum size in Kbytes for speed-dial entries.</description>      
 	    </setting>	      
     </group>
     <group name="volatile">
