@@ -16,25 +16,21 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.hivemind.Messages;
-import org.apache.tapestry.IRender;
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
-import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.contrib.table.model.ITableColumnModel;
-import org.apache.tapestry.contrib.table.model.ITableModelSource;
 import org.apache.tapestry.contrib.table.model.ITableRendererSource;
 import org.apache.tapestry.contrib.table.model.simple.SimpleTableColumn;
 import org.apache.tapestry.contrib.table.model.simple.SimpleTableColumnModel;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
-import org.apache.tapestry.valid.RenderString;
 import org.postgresql.util.PGInterval;
 import org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalStats;
+import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.SqlInterval;
-import org.sipfoundry.sipxconfig.components.MillisDurationFormat;
 import org.sipfoundry.sipxconfig.site.cdr.CdrPage;
+import org.sipfoundry.sipxconfig.site.common.DefaultTableValueRendererSource;
 
 
 public abstract class AcdHistoryPage extends BasePage implements PageBeginRenderListener {
@@ -87,7 +83,7 @@ public abstract class AcdHistoryPage extends BasePage implements PageBeginRender
     }
     
     public ITableColumnModel getColumns() {
-        ITableRendererSource valueRenderer = new MapTableTableRendererSource();
+        ITableRendererSource valueRenderer = new DefaultTableValueRendererSource();
         List<String> names = getAcdHistoricalStats().getReportFields(getReportName());
         MapTableColumn[] columns = new MapTableColumn[names.size()];
         for (int i = 0; i < columns.length; i++) {
@@ -98,33 +94,6 @@ public abstract class AcdHistoryPage extends BasePage implements PageBeginRender
         return new SimpleTableColumnModel(columns);
     }    
 }
-
-/**
- * Influence default display behaviour of data from SQL results
- */
-class MapTableTableRendererSource implements ITableRendererSource {
-    private static final MillisDurationFormat DURATION = new MillisDurationFormat();
-    private ITableRendererSource m_default = SimpleTableColumn.DEFAULT_VALUE_RENDERER_SOURCE;
-    static {
-        DURATION.setMaxField(2);
-    }
-
-    public IRender getRenderer(IRequestCycle objCycle, ITableModelSource objSource, ITableColumn objColumn, 
-            Object objRow) {
-        IRender render;
-        Object value = ((SimpleTableColumn) objColumn).getColumnValue(objRow);
-        if (value instanceof SqlInterval) {
-            long millis = ((SqlInterval) value).getMillisecs();
-            String sInterval = DURATION.format(millis);
-            render = new RenderString(sInterval);
-        } else {
-            render = m_default.getRenderer(objCycle, objSource, objColumn, objRow);
-        }
-        
-        return render;
-    }
-}
-
 
 /**
  *  Get the column header from localized value from key built using what is effectively the 
@@ -142,11 +111,17 @@ class MapTableColumn extends SimpleTableColumn {
     }
     
     public Object getColumnValue(Object objRow) {
-        Object value = ((Map<String, Object>) objRow).get(getColumnName());
-        if (value instanceof PGInterval) {
+        String columnName = getColumnName();
+        Object ovalue = ((Map<String, Object>) objRow).get(columnName);
+        Object value = ovalue;
+        if (ovalue instanceof PGInterval) {
             // at least this is sortable
-            value = new SqlInterval((PGInterval) value);
-        }
+            value = new SqlInterval((PGInterval) ovalue);
+        } else if (columnName.equals("agent_uri") || columnName.equals("queue_uri")) {
+            if (ovalue != null) {
+                value = SipUri.extractUser((String) ovalue);
+            }
+        }            
             
         return value;
     }    
