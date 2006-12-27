@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.acd.stats;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -36,18 +37,25 @@ public class AcdHistoricalStatsImpl extends JdbcDaoSupport implements AcdHistori
 
     public List<String> getReportFields(String reportName) {
         AcdHistoricalReport report = (AcdHistoricalReport) m_factory.getBean(reportName);
-        SqlRowSet emptySet = getJdbcTemplate().queryForRowSet(report.getQuery() + " limit 0");
+        Object[] sqlParameters = new Object[] {
+            new Date(0), 
+            new Date(0)
+        };
+        SqlRowSet emptySet = getJdbcTemplate().queryForRowSet(report.getQuery() + " limit 0", sqlParameters);
         SqlRowSetMetaData meta = emptySet.getMetaData();
         List<String> names = Arrays.asList(meta.getColumnNames());
         return names;
     }
 
-    public List<Map<String, Object>> getReport(String reportName) {
+    public List<Map<String, Object>> getReport(String reportName, Date startTime, Date endTime) {
         AcdHistoricalReport report = (AcdHistoricalReport) m_factory.getBean(reportName);
-        report.setLimit(0);
         ColumnMapRowMapper columnMapper = new ColumnMapRowMapper();
         RowMapperResultReader rowReader = new RowMapperResultReader(columnMapper);
-        return getJdbcTemplate().query(report, rowReader);
+        Object[] sqlParameters = new Object[] {
+            startTime, 
+            endTime
+        };
+        return getJdbcTemplate().query(report.getQuery(), sqlParameters, rowReader);
     }
 
     public void setBeanFactory(BeanFactory beanFactory) {

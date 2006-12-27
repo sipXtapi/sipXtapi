@@ -11,15 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.acd.stats;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
-import org.springframework.jdbc.core.PreparedStatementCreator;
-
-public class AcdHistoricalReport implements PreparedStatementCreator {   
+public class AcdHistoricalReport {   
     private String m_query;
-    private Integer m_limit;
 
     public String getQuery() {
         return m_query;
@@ -27,18 +21,5 @@ public class AcdHistoricalReport implements PreparedStatementCreator {
 
     public void setQuery(String query) {
         m_query = query;
-    }
-    
-    public void setLimit(Integer limit) {
-        m_limit = limit;
-    }
-
-    public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-        String query = getQuery();
-        if (m_limit != null) {
-            query += " limit " + m_limit;
-        }
-        PreparedStatement ps = con.prepareStatement(getQuery());
-        return ps;
     }
 }

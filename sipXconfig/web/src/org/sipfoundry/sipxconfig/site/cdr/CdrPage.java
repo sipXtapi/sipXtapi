@@ -39,18 +39,15 @@ public abstract class CdrPage extends BasePage implements PageBeginRenderListene
         }
 
         if (getStartTime() == null) {
-            // if not set start a day before end time
-            Calendar then = Calendar.getInstance();
-            then.setTime(getEndTime());
-            then.add(Calendar.DAY_OF_MONTH, -1);
-            setStartTime(then.getTime());
+            Date startTime = getDefaultStartTime(getEndTime());
+            setStartTime(startTime);
         }
 
         if (getCdrSearch() == null) {
             setCdrSearch(new CdrSearch());
         }
     }
-
+    
     /**
      * By default set start at next midnight
      */
@@ -60,4 +57,15 @@ public abstract class CdrPage extends BasePage implements PageBeginRenderListene
         Calendar end = DateUtils.truncate(now, Calendar.DAY_OF_MONTH);
         return end.getTime();
     }
+
+    /**
+     *  start a day before end time
+     */
+    public static Date getDefaultStartTime(Date endTime) {
+        Calendar then = Calendar.getInstance();
+        then.setTime(endTime);
+        then.add(Calendar.DAY_OF_MONTH, -1);
+        return then.getTime();
+    }
+
 }

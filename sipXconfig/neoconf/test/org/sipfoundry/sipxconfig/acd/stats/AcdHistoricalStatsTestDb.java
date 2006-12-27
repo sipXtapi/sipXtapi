@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.acd.stats;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +32,7 @@ public class AcdHistoricalStatsTestDb extends TestCase {
     }
     
     public void testSignoutActivityReport() {
-        List<Map<String, Object>> stats = m_history.getReport("agentAvailablityReport");        
+        List<Map<String, Object>> stats = m_history.getReport("agentAvailablityReport", new Date(0), new Date());        
         assertEquals(10, stats.size());
         Map<String, Object> record;
         Iterator<Map<String, Object>> i = stats.iterator();
@@ -50,7 +52,7 @@ public class AcdHistoricalStatsTestDb extends TestCase {
         List<String> reports = m_history.getReports();
         for (String report : reports) {
             m_history.getReportFields(report);
-            m_history.getReport(report);
+            m_history.getReport(report, new Date(0), new Date());
         }
     }
 }

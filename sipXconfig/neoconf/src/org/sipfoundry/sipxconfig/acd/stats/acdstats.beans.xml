@@ -20,22 +20,25 @@
 
   <alias alias="acdHistoricalStats" name="acdHistoricalStatsImpl" />
   
-  <!-- report section 2 -->
+  <!--
+    - If you change these reports, you need to update AcdHistoryPage.properties to reflect 
+    - new column names
+    -->
   <bean id="agentAvailablityReport" class="org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalReport">
     <property name="query">
-      <value>
+      <value><![CDATA[
     select agent_uri, 
      sign_in_time, 
      sign_out_time 
     from acd_agent_stat 
-      </value>
+    where sign_in_time > ? and sign_out_time < ?
+      ]]></value>
     </property>
   </bean>
 
-  <!-- report section 3 -->
   <bean id="agentActivityReport" class="org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalReport">
     <property name="query">
-      <value>
+      <value><![CDATA[
     select a.agent_uri, 
      sum(a.sign_out_time - a.sign_in_time) as time_signed_in,
      count(*) as num_calls,
@@ -44,70 +47,86 @@
      max(c.terminate_time - c.pick_up_time) as max_handle_duration,
      min(c.terminate_time - c.pick_up_time) as min_handle_duration       
     from acd_agent_stat as a, acd_call_stat as c
-    where a.agent_uri = c.agent_uri and c.state = 'terminate'
-     group by a.agent_uri
-      </value>
+    where 
+     a.agent_uri = c.agent_uri and c.state = 'terminate' and
+     c.terminate_time > ? and c.pick_up_time < ? 
+    group by a.agent_uri
+      ]]></value>
     </property>
   </bean>
 
-  <!-- report section 4a -->
   <bean id="queueOfferedSummary" class="org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalReport">
     <property name="query">
-      <value>
+      <value><![CDATA[
     select queue_uri,  
       count(*) as num_calls,
-      sum(terminate_time - enter_time) as abandon_time,
       avg(terminate_time - enter_time) as avg_wait_time,
       max(terminate_time - enter_time) as max_wait_time
      from acd_call_stat
+     where
+      terminate_time > ? and pick_up_time < ? 
      group by queue_uri       
-      </value>
+      ]]></value>
     </property>
   </bean>
 
-  <!-- report section 4b -->
   <bean id="queueAnsweredSummary" class="org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalReport">
     <property name="query">
-      <value>
+      <value><![CDATA[
     select queue_uri,  
       count(*) as num_calls,
-      sum(terminate_time - enter_time) as abandon_time,
       avg(terminate_time - enter_time) as avg_wait_time,
       max(terminate_time - enter_time) as max_wait_time
      from acd_call_stat
-     where state = 'terminate'
+     where state = 'terminate' and
+      terminate_time > ? and pick_up_time < ? 
      group by queue_uri       
-      </value>
+      ]]></value>
     </property>
   </bean>
 
-  <!-- report section 4c -->
   <bean id="queueAbandonedSummary" class="org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalReport">
     <property name="query">
-      <value>
+      <value><![CDATA[
     select queue_uri,  
       count(*) as num_calls,
-      sum(terminate_time - enter_time) as abandon_time,
       avg(terminate_time - enter_time) as avg_wait_time,
       max(terminate_time - enter_time) as max_wait_time
      from acd_call_stat
-     where state = 'unanswered'
+     where state = 'unanswered' and
+      terminate_time > ? and pick_up_time < ? 
      group by queue_uri       
-      </value>
+      ]]></value>
     </property>
   </bean>
 
-  <!-- report section 5 -->
   <bean id="queueAbandonedCalls" class="org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalReport">
     <property name="query">
-      <value>
+      <value><![CDATA[
     select queue_uri,  
-      enter_time as start_time, 
-      terminate_time - enter_time as abandon_time
+      enter_time, 
+      terminate_time - enter_time as abandon_time,
+      from_uri
      from acd_call_stat 
-     where state = 'unanswered' 
-      </value>
+     where state = 'unanswered' and
+      terminate_time > ? and pick_up_time < ? 
+      ]]></value>
     </property>
   </bean>
   
+  <bean id="agentDetailReport" class="org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalReport">
+    <property name="query">
+      <value><![CDATA[
+    select agent_uri,
+      queue_uri,  
+      enter_time, 
+      terminate_time, 
+      terminate_time - enter_time as duration,
+      from_uri
+     from acd_call_stat 
+     where state = 'terminate' and
+      terminate_time > ? and pick_up_time < ? 
+      ]]></value>
+    </property>
+  </bean>
 </beans>
