@@ -342,10 +342,12 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
                                  samplesPerFrame, samplesPerSec);
    res = insertResourceAfter(*(mpRecorders[RECORDER_MIC]), *mpFromMic, 0);
    assert(res == OS_SUCCESS);
+#ifdef HIGH_SAMPLERATE_AUDIO // [
    mpRecorders[RECORDER_MIC32K] = new MprRecorder("RecordMicH",
                                  samplesPerFrame, samplesPerSec);
    res = insertResourceAfter(*(mpRecorders[RECORDER_MIC32K]), *mpFromMic, 1);
    assert(res == OS_SUCCESS);
+#endif // HIGH_SAMPLERATE_AUDIO ]
 #ifdef DOING_ECHO_CANCELATION /* [ */
    mpRecorders[RECORDER_ECHO_OUT] =
       new MprRecorder("RecordEchoOut", samplesPerFrame, samplesPerSec);
@@ -359,17 +361,22 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
                                                     *mpEchoCancel, 1);
    assert(res == OS_SUCCESS);
 
+#ifdef HIGH_SAMPLERATE_AUDIO // [
    mpRecorders[RECORDER_ECHO_IN32] =
       new MprRecorder("RecordEchoIn32", samplesPerFrame, samplesPerSec);
    res = insertResourceAfter(*(mpRecorders[RECORDER_ECHO_IN32]),
                                                     *mpEchoCancel, 2);
    assert(res == OS_SUCCESS);
+#endif // HIGH_SAMPLERATE_AUDIO ]
 #endif /* DOING_ECHO_CANCELATION ] */
+
+#ifndef DISABLE_LOCAL_AUDIO
+#ifdef HIGH_SAMPLERATE_AUDIO // [
    mpRecorders[RECORDER_SPKR32K] = new MprRecorder("RecordSpkrH",
                                  samplesPerFrame, samplesPerSec);
-#ifndef DISABLE_LOCAL_AUDIO
    res = insertResourceAfter(*(mpRecorders[RECORDER_SPKR32K]), *mpToSpkr, 1);
    assert(res == OS_SUCCESS);
+#endif // HIGH_SAMPLERATE_AUDIO ]
 #endif
    ////////////////////////////////////////////////////////////////////
  }
@@ -1028,6 +1035,11 @@ OsStatus MpCallFlowGraph::record(int ms, int silenceLength, const char* micName,
       setupRecorder(RECORDER_SPKR, spkrName,
                     ms, silenceLength, completion, format);
    }
+   if (NULL != echoIn8Name) {
+      setupRecorder(RECORDER_ECHO_IN8, echoIn8Name,
+                    ms, silenceLength, completion, format);
+   }
+#ifdef HIGH_SAMPLERATE_AUDIO // [
    if (NULL != mic32Name) {
       setupRecorder(RECORDER_MIC32K, mic32Name,
                     ms, silenceLength, completion, format);
@@ -1036,14 +1048,11 @@ OsStatus MpCallFlowGraph::record(int ms, int silenceLength, const char* micName,
       setupRecorder(RECORDER_SPKR32K,spkr32Name,
                     ms, silenceLength, completion, format);
    }
-   if (NULL != echoIn8Name) {
-      setupRecorder(RECORDER_ECHO_IN8, echoIn8Name,
-                    ms, silenceLength, completion, format);
-   }
    if (NULL != echoIn32Name) {
       setupRecorder(RECORDER_ECHO_IN32,
                     echoIn32Name, ms, silenceLength, completion, format);
    }
+#endif // HIGH_SAMPLERATE_AUDIO ]
    return startRecording(playName, repeat, toneOptions, completion);
 }
 

@@ -106,12 +106,14 @@ public:
 
    enum RecorderChoice {
       RECORDER_MIC = 0,
-      RECORDER_MIC32K,
       RECORDER_ECHO_OUT,
       RECORDER_SPKR,
-      RECORDER_SPKR32K,
       RECORDER_ECHO_IN8,
+#ifdef HIGH_SAMPLERATE_AUDIO // [
+      RECORDER_MIC32K,
+      RECORDER_SPKR32K,
       RECORDER_ECHO_IN32,
+#endif // HIGH_SAMPLERATE_AUDIO ]
       MAX_RECORDERS = 10
    };
 
