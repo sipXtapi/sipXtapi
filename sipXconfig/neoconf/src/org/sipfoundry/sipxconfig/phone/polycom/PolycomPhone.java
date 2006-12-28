@@ -151,13 +151,15 @@ public class PolycomPhone extends Phone {
     public void removeProfiles() {
         ApplicationConfiguration app = new ApplicationConfiguration(this);
         File cfgFile = new File(getTftpRoot(), app.getAppFilename());
+        File phonebookFile = new File(getTftpRoot(), app.getDirectoryFilename());
         // new to call this function to generate stale directories list
         app.getDirectory();
         // this will remove all old directories
         app.deleteStaleDirectories();
 
         File[] files = {
-            cfgFile
+            cfgFile, 
+            phonebookFile
         };
 
         // and this will remove new ones
