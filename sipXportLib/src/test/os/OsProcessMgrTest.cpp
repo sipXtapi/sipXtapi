@@ -60,7 +60,7 @@ public:
         
         UtlString MyPing1("MyPing1");
         UtlString MyPing2("MyPing2");
-        OsPath startupDir = ".";
+        OsPath startupDir = "";
 
         stat = processManager.startProcess(MyPing1, appName, params, startupDir);
         CPPUNIT_ASSERT_MESSAGE("Started first proccess", stat == OS_SUCCESS);
