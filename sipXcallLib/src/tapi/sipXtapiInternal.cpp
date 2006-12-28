@@ -1709,7 +1709,7 @@ SIPX_RESULT sipxCheckForHandleLeaks()
     gpSessionLock->acquire();
     if (gpSessionList->entries() != 0)
     {
-        printf("\ngSessionList leaks (%d)\n",
+        printf("\ngpSessionList leaks (%d)\n",
                 (int) gpSessionList->entries()) ;
         rc = SIPX_RESULT_FAILURE ;
     }
