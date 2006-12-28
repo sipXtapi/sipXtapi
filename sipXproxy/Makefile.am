@@ -2,7 +2,7 @@
 include config/project.am
 
 RPMS = $(DEFAULT_RPMS) \
-	$(DEST_RPM)/@PACKAGE@-cdr-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
+	$(DEST_RPM)/@PACKAGE@-cdr-$(SIPX_VERSION).$(RPM_TARGET_ARCH).rpm
 
 SUBDIRS = \
 	. \
