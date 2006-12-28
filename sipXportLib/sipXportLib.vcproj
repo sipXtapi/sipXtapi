@@ -1698,6 +1698,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\utl\UtlContainableAtomic.cpp">
+			</File>
+			<File
 				RelativePath="src\utl\UtlContainer.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
