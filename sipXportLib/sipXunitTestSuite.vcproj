@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="sipXmediaLibTest"
-	ProjectGUID="{F84B8F14-AD8A-4E35-9CB8-65B8D0F438B7}"
+	Name="sipXunitTestSuite"
+	ProjectGUID="{DB95F825-45EE-4D62-825D-F337E2210B01}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -14,13 +14,14 @@
 			Name="Debug|Win32"
 			OutputDirectory="Debug"
 			IntermediateDirectory="Debug"
-			ConfigurationType="1"
+			ConfigurationType="4"
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include;src\test;..\sipXportLib\include;..\sipXportLib\src\test;..\sipXtackLib\include;..\sipXmediaLib\include;..\CPPUnit\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				AdditionalIncludeDirectories="src\test;..\CPPUnit\include"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
+				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
@@ -30,14 +31,7 @@
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib winmm.lib cppunitd.lib pcre.lib libspeex.lib gsmd.lib"
-				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="..\CPPUnit\lib;..\Speex\lib;..\libgsm\lib"
-				IgnoreDefaultLibraryNames=""
-				GenerateDebugInformation="TRUE"
-				SubSystem="1"
-				TargetMachine="1"/>
+				Name="VCLibrarianTool"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -52,8 +46,6 @@
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCWebDeploymentTool"/>
 			<Tool
 				Name="VCManagedWrapperGeneratorTool"/>
 			<Tool
@@ -63,31 +55,19 @@
 			Name="Release|Win32"
 			OutputDirectory="Release"
 			IntermediateDirectory="Release"
-			ConfigurationType="1"
+			ConfigurationType="4"
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="include;src\test;..\sipXportLib\include;..\sipXportLib\src\test;..\sipXtackLib\include;..\sipXmediaLib\include;..\CPPUnit\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
-				StringPooling="TRUE"
+				AdditionalIncludeDirectories="src\test;..\CPPUnit\include"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="2"
-				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib winmm.lib cppunit.lib pcre.lib libspeex gsm.lib"
-				LinkIncremental="1"
-				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="..\CPPUnit\lib;..\Speex\lib;..\libgsm\lib"
-				IgnoreDefaultLibraryNames=""
-				GenerateDebugInformation="TRUE"
-				SubSystem="1"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				TargetMachine="1"/>
+				Name="VCLibrarianTool"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -102,8 +82,6 @@
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCWebDeploymentTool"/>
 			<Tool
 				Name="VCManagedWrapperGeneratorTool"/>
 			<Tool
@@ -118,34 +96,19 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath=".\src\test\mp\MpBufTest.cpp">
+				RelativePath=".\src\test\sipxunit\TestMonitor.cpp">
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MpFlowGraphTest.cpp">
+				RelativePath=".\src\test\sipxunit\TestOutputter.cpp">
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MpMediaTaskTest.cpp">
+				RelativePath=".\src\test\sipxunit\TestRunner.cpp">
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MprBridgeTest.cpp">
+				RelativePath=".\src\test\sipxunit\TestUtilities.cpp">
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MpResourceTest.cpp">
-			</File>
-			<File
-				RelativePath=".\src\test\mp\MprFromMicTest.cpp">
-			</File>
-			<File
-				RelativePath=".\src\test\mp\MprMixerTest.cpp">
-			</File>
-			<File
-				RelativePath=".\src\test\mp\MprSplitterTest.cpp">
-			</File>
-			<File
-				RelativePath=".\src\test\mp\MprToSpkrTest.cpp">
-			</File>
-			<File
-				RelativePath=".\src\test\mp\MpTestResource.cpp">
+				RelativePath=".\src\test\sipxunit\unitmain.cpp">
 			</File>
 		</Filter>
 		<Filter
@@ -153,10 +116,16 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
-				RelativePath=".\src\test\mp\MpGenericResourceTest.h">
+				RelativePath=".\src\test\sipxunit\TestMonitor.h">
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MpTestResource.h">
+				RelativePath=".\src\test\sipxunit\TestOutputter.h">
+			</File>
+			<File
+				RelativePath=".\src\test\sipxunit\TestRunner.h">
+			</File>
+			<File
+				RelativePath=".\src\test\sipxunit\TestUtilities.h">
 			</File>
 		</Filter>
 		<Filter

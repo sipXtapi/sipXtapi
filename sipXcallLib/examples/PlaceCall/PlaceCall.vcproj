@@ -38,7 +38,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcrt.lib msvcprt.lib rpcrt4.lib Ws2_32.lib sipXtapi.lib odbc32.lib odbccp32.lib sipXportLib.lib pcre.lib"
+				AdditionalDependencies="Ws2_32.lib sipXtapi.lib pcre.lib sipXportLib.lib"
 				OutputFile="..\bin\PlaceCall.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -97,7 +97,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcrtd.lib msvcprtd.lib rpcrt4.lib Ws2_32.lib sipXtapid.lib odbc32.lib odbccp32.lib sipXportLibD.lib pcre.lib"
+				AdditionalDependencies="Ws2_32.lib sipXtapid.lib pcre.lib sipXportLibD.lib"
 				OutputFile="..\bin\PlaceCall_dbg.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -157,7 +157,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcrtd.lib msvcprtd.lib rpcrt4.lib Ws2_32.lib sipXtapid.lib odbc32.lib odbccp32.lib sipXportLibD.lib pcre.lib sipXtackLibd.lib"
+				AdditionalDependencies="Ws2_32.lib sipXtapid.lib pcre.lib sipXportLibD.lib"
 				OutputFile="..\bin\PlaceCall_dbgNoVideo.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -218,7 +218,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcrt.lib msvcprt.lib rpcrt4.lib Ws2_32.lib sipXtapi.lib odbc32.lib odbccp32.lib sipXportLib.lib pcre.lib"
+				AdditionalDependencies="Ws2_32.lib sipXtapi.lib pcre.lib sipXportLib.lib"
 				OutputFile="..\bin\PlaceCall_NoVideo.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"

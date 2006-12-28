@@ -33,48 +33,60 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXezPhone", "examples\sip
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXtapiTest", "sipXtapiTest.vcproj", "{9021B9D9-54AA-4A84-89EA-1A2B88D7202E}"
 	ProjectSection(ProjectDependencies) = postProject
+		{14631055-9D3F-47E5-B6A7-16BFC0CC8091} = {14631055-9D3F-47E5-B6A7-16BFC0CC8091}
 		{85CAC56D-4E3A-4712-91A5-AE724B11AE25} = {85CAC56D-4E3A-4712-91A5-AE724B11AE25}
+		{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646} = {0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaMediaProcessing", "..\sipXmediaAdapterLib\sipXmediaMediaProcessing\sipXmediaMediaProcessing.vcproj", "{0E229E54-9234-44DC-8B74-8C6BA553D3C5}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXportLib", "..\sipXportLib\sipXportLib_NoSecurity.vcproj", "{14631055-9D3F-47E5-B6A7-16BFC0CC8091}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CheckVMail", "examples\CheckVMail\CheckVMail.vcproj", "{14441867-4291-4174-812E-00C774370C61}"
-	ProjectSection(ProjectDependencies) = postProject
-		{85CAC56D-4E3A-4712-91A5-AE724B11AE25} = {85CAC56D-4E3A-4712-91A5-AE724B11AE25}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaAdapterLibTest", "..\sipXmediaAdapterLib\sipXmediaAdapterLibTest.vcproj", "{4D2F60E7-A4A4-4429-A640-2894F33824CA}"
 	ProjectSection(ProjectDependencies) = postProject
+		{DB95F825-45EE-4D62-825D-F337E2210B01} = {DB95F825-45EE-4D62-825D-F337E2210B01}
 		{0E229E54-9234-44DC-8B74-8C6BA553D3C5} = {0E229E54-9234-44DC-8B74-8C6BA553D3C5}
 		{14631055-9D3F-47E5-B6A7-16BFC0CC8091} = {14631055-9D3F-47E5-B6A7-16BFC0CC8091}
 		{0EC8287A-481E-45DC-8F95-BAD940AE1038} = {0EC8287A-481E-45DC-8F95-BAD940AE1038}
+		{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646} = {0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXportLibTest", "..\sipXportLib\sipXportLibTest.vcproj", "{AB8F7343-BC81-4077-B1A5-37CA389FCA93}"
 	ProjectSection(ProjectDependencies) = postProject
+		{DB95F825-45EE-4D62-825D-F337E2210B01} = {DB95F825-45EE-4D62-825D-F337E2210B01}
 		{14631055-9D3F-47E5-B6A7-16BFC0CC8091} = {14631055-9D3F-47E5-B6A7-16BFC0CC8091}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXtackLibTest", "..\sipXtackLib\sipXtackLibTest.vcproj", "{806B3CE3-4C40-4757-831C-338C6A83D459}"
 	ProjectSection(ProjectDependencies) = postProject
+		{DB95F825-45EE-4D62-825D-F337E2210B01} = {DB95F825-45EE-4D62-825D-F337E2210B01}
 		{14631055-9D3F-47E5-B6A7-16BFC0CC8091} = {14631055-9D3F-47E5-B6A7-16BFC0CC8091}
 		{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646} = {0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaLibTest", "..\sipXmediaLib\sipXmediaLibTest.vcproj", "{824352E4-E744-4256-8382-8D35A6B7576F}"
 	ProjectSection(ProjectDependencies) = postProject
+		{DB95F825-45EE-4D62-825D-F337E2210B01} = {DB95F825-45EE-4D62-825D-F337E2210B01}
 		{14631055-9D3F-47E5-B6A7-16BFC0CC8091} = {14631055-9D3F-47E5-B6A7-16BFC0CC8091}
 		{0EC8287A-481E-45DC-8F95-BAD940AE1038} = {0EC8287A-481E-45DC-8F95-BAD940AE1038}
+		{0EC8287A-481E-45DC-8F95-BAD940AE1038} = {0EC8287A-481E-45DC-8F95-BAD940AE1038}
+		{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646} = {0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}
 		{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646} = {0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXtackLib", "..\sipXtackLib\sipXtackLib_NoSecurity.vcproj", "{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXportLib", "..\sipXportLib\sipXportLib.vcproj", "{14631055-9D3F-47E5-B6A7-16BFC0CC8091}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXunitTestSuite", "..\sipXportLib\sipXunitTestSuite.vcproj", "{DB95F825-45EE-4D62-825D-F337E2210B01}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CheckVMail", "examples\CheckVMail\CheckVMail.vcproj", "{14441867-4291-4174-812E-00C774370C61}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -84,6 +96,8 @@ Global
 		Debug_NoVideo = Debug_NoVideo
 		Release = Release
 		Release_NoVideo = Release_NoVideo
+	EndGlobalSection
+	GlobalSection(ProjectDependencies) = postSolution
 	EndGlobalSection
 	GlobalSection(ProjectConfiguration) = postSolution
 		{14441867-4291-4174-812E-00C774370C61}.Debug.ActiveCfg = Debug|Win32
@@ -142,22 +156,6 @@ Global
 		{0E229E54-9234-44DC-8B74-8C6BA553D3C5}.Release.Build.0 = Release|Win32
 		{0E229E54-9234-44DC-8B74-8C6BA553D3C5}.Release_NoVideo.ActiveCfg = Release_NoVideo|Win32
 		{0E229E54-9234-44DC-8B74-8C6BA553D3C5}.Release_NoVideo.Build.0 = Release_NoVideo|Win32
-		{14631055-9D3F-47E5-B6A7-16BFC0CC8091}.Debug.ActiveCfg = Debug|Win32
-		{14631055-9D3F-47E5-B6A7-16BFC0CC8091}.Debug.Build.0 = Debug|Win32
-		{14631055-9D3F-47E5-B6A7-16BFC0CC8091}.Debug_NoVideo.ActiveCfg = Debug|Win32
-		{14631055-9D3F-47E5-B6A7-16BFC0CC8091}.Debug_NoVideo.Build.0 = Debug|Win32
-		{14631055-9D3F-47E5-B6A7-16BFC0CC8091}.Release.ActiveCfg = Release|Win32
-		{14631055-9D3F-47E5-B6A7-16BFC0CC8091}.Release.Build.0 = Release|Win32
-		{14631055-9D3F-47E5-B6A7-16BFC0CC8091}.Release_NoVideo.ActiveCfg = Release|Win32
-		{14631055-9D3F-47E5-B6A7-16BFC0CC8091}.Release_NoVideo.Build.0 = Release|Win32
-		{14441867-4291-4174-812E-00C774370C61}.Debug.ActiveCfg = Debug|Win32
-		{14441867-4291-4174-812E-00C774370C61}.Debug.Build.0 = Debug|Win32
-		{14441867-4291-4174-812E-00C774370C61}.Debug_NoVideo.ActiveCfg = Debug|Win32
-		{14441867-4291-4174-812E-00C774370C61}.Debug_NoVideo.Build.0 = Debug|Win32
-		{14441867-4291-4174-812E-00C774370C61}.Release.ActiveCfg = Release|Win32
-		{14441867-4291-4174-812E-00C774370C61}.Release.Build.0 = Release|Win32
-		{14441867-4291-4174-812E-00C774370C61}.Release_NoVideo.ActiveCfg = Release|Win32
-		{14441867-4291-4174-812E-00C774370C61}.Release_NoVideo.Build.0 = Release|Win32
 		{4D2F60E7-A4A4-4429-A640-2894F33824CA}.Debug.ActiveCfg = Debug|Win32
 		{4D2F60E7-A4A4-4429-A640-2894F33824CA}.Debug_NoVideo.ActiveCfg = Debug|Win32
 		{4D2F60E7-A4A4-4429-A640-2894F33824CA}.Release.ActiveCfg = Release|Win32
@@ -182,6 +180,26 @@ Global
 		{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}.Release.Build.0 = Release|Win32
 		{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}.Release_NoVideo.ActiveCfg = Release|Win32
 		{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}.Release_NoVideo.Build.0 = Release|Win32
+		{14631055-9D3F-47E5-B6A7-16BFC0CC8091}.Debug.ActiveCfg = Debug|Win32
+		{14631055-9D3F-47E5-B6A7-16BFC0CC8091}.Debug.Build.0 = Debug|Win32
+		{14631055-9D3F-47E5-B6A7-16BFC0CC8091}.Debug_NoVideo.ActiveCfg = Debug|Win32
+		{14631055-9D3F-47E5-B6A7-16BFC0CC8091}.Debug_NoVideo.Build.0 = Debug|Win32
+		{14631055-9D3F-47E5-B6A7-16BFC0CC8091}.Release.ActiveCfg = Release|Win32
+		{14631055-9D3F-47E5-B6A7-16BFC0CC8091}.Release.Build.0 = Release|Win32
+		{14631055-9D3F-47E5-B6A7-16BFC0CC8091}.Release_NoVideo.ActiveCfg = Release|Win32
+		{14631055-9D3F-47E5-B6A7-16BFC0CC8091}.Release_NoVideo.Build.0 = Release|Win32
+		{DB95F825-45EE-4D62-825D-F337E2210B01}.Debug.ActiveCfg = Debug|Win32
+		{DB95F825-45EE-4D62-825D-F337E2210B01}.Debug_NoVideo.ActiveCfg = Debug|Win32
+		{DB95F825-45EE-4D62-825D-F337E2210B01}.Release.ActiveCfg = Release|Win32
+		{DB95F825-45EE-4D62-825D-F337E2210B01}.Release_NoVideo.ActiveCfg = Release|Win32
+		{14441867-4291-4174-812E-00C774370C61}.Debug.ActiveCfg = Debug|Win32
+		{14441867-4291-4174-812E-00C774370C61}.Debug.Build.0 = Debug|Win32
+		{14441867-4291-4174-812E-00C774370C61}.Debug_NoVideo.ActiveCfg = Debug|Win32
+		{14441867-4291-4174-812E-00C774370C61}.Debug_NoVideo.Build.0 = Debug|Win32
+		{14441867-4291-4174-812E-00C774370C61}.Release.ActiveCfg = Release|Win32
+		{14441867-4291-4174-812E-00C774370C61}.Release.Build.0 = Release|Win32
+		{14441867-4291-4174-812E-00C774370C61}.Release_NoVideo.ActiveCfg = Release|Win32
+		{14441867-4291-4174-812E-00C774370C61}.Release_NoVideo.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionItems) = postSolution
 	EndGlobalSection

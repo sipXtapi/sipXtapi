@@ -34,11 +34,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcrtd.lib MSVCPRTd.lib wsock32.lib cppunitd.lib sipXtackLib.lib sipXportLib.lib pcre.lib"
+				AdditionalDependencies="Ws2_32.lib cppunitd.lib pcre.lib"
 				OutputFile="$(OutDir)/sipXtackLibTest.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=".\Debug;..\sipXportLib\debug;..\CPPUnit\lib"
-				IgnoreDefaultLibraryNames="msvcrt.lib;msvcprt.lib;msvcrt"
+				IgnoreDefaultLibraryNames=""
 				DelayLoadDLLs="nss3.dll;smime3.dll;nspr4.dll;plc4.dll;ssl3.dll"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/sipXtackLibTest.pdb"
@@ -84,11 +84,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcrt.lib MSVCPRT.lib wsock32.lib cppunit.lib sipXportLib.lib sipXtackLib.lib pcre.lib"
+				AdditionalDependencies="Ws2_32.lib cppunit.lib pcre.lib"
 				OutputFile="$(OutDir)/sipXtackLibTest.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=".\Release;..\sipXportLib\release;..\CPPUnit\lib"
-				IgnoreDefaultLibraryNames="libcpmtd.lib;LIBCMTD.lib;libprt.lib;msvcrtd.lib;msvcprtd.lib"
+				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -182,24 +182,6 @@
 			</File>
 			<File
 				RelativePath=".\src\test\net\SipUserAgentTest.cpp">
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestMonitor.cpp">
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestOutputter.cpp">
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestRunner.cpp">
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestTemplate.cpp">
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestUtilities.cpp">
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\unitmain.cpp">
 			</File>
 			<File
 				RelativePath=".\src\test\net\UrlTest.cpp">
