@@ -32,4 +32,6 @@ public interface PhonebookManager  {
     public Collection<PhonebookEntry> getRows(Collection<Phonebook> phonebook);
 
     public Collection<PhonebookEntry> getRows(Phonebook phonebook);
+    
+    public void reset();
 }

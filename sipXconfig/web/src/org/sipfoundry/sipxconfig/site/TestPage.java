@@ -37,6 +37,7 @@ import org.sipfoundry.sipxconfig.job.JobContext;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.search.IndexManager;
 import org.sipfoundry.sipxconfig.site.admin.commserver.ReplicationData;
 import org.sipfoundry.sipxconfig.site.admin.commserver.RestartReminder;
@@ -85,6 +86,8 @@ public abstract class TestPage extends BasePage {
     public abstract CallGroupContext getCallGroupContext();
 
     public abstract ParkOrbitContext getParkOrbitContext();
+
+    public abstract PhonebookManager getPhonebookManager();
 
     public abstract UploadManager getUploadManager();
 
@@ -150,6 +153,10 @@ public abstract class TestPage extends BasePage {
         // force rendering any new page after logout or infamous "invalid session" after
         // any links are clicked
         return PAGE;
+    }
+    
+    public void resetPhonebook() {
+        getPhonebookManager().reset();        
     }
 
     public String logout() {

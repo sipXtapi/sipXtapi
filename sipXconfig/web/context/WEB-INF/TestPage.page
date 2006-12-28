@@ -7,6 +7,7 @@
   <inject property="dialPlanContext" object="spring:dialPlanContext"/>
   <inject property="forwardingContext" object="spring:forwardingContext"/>
   <inject property="phoneContext" object="spring:phoneContext"/>
+  <inject property="phonebookManager" object="spring:phonebookManager" />
   <inject property="phoneModelSource" object="spring:phoneModelSource"/>
   <inject property="uploadSpecificationSource" object="spring:uploadSpecificationSource"/>
   <inject property="callGroupContext" object="spring:callGroupContext"/>
@@ -42,6 +43,9 @@
   </component>
   <component id="resetCoreContext" type="DirectLink">
     <binding name="listener" value="listener:resetCoreContext"/>
+  </component>
+  <component id="resetPhonebook" type="DirectLink">
+    <binding name="listener" value="listener:resetPhonebook"/>
   </component>
   <component id="logout" type="DirectLink">
     <binding name="listener" value="listener:logout"/>

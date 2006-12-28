@@ -51,6 +51,10 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         Phonebook phonebook = load(Phonebook.class, id);
         return phonebook;
     }
+    
+    public void deletePhonebook(Phonebook phonebook) {
+        getHibernateTemplate().delete(phonebook);
+    }
 
     public void savePhonebook(Phonebook phonebook) {
         DaoUtils.checkDuplicates(getHibernateTemplate(), Phonebook.class, phonebook, "name", 
@@ -60,7 +64,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     
     class DuplicatePhonebookName extends UserException {
         DuplicatePhonebookName() {
-            super("A phonebook already exitst with that name");
+            super("A phonebook already exists with that name.");
         }
     }
 
@@ -142,6 +146,12 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         return finalList;
     }
     
+    public void reset() {
+        for (Phonebook phonebook : getPhonebooks()) {
+            deletePhonebook(phonebook);
+        }        
+    }
+    
     static class PhoneEntryComparator implements Comparator {
         public int compare(Object arg0, Object arg1) {
             PhonebookEntry a = (PhonebookEntry) arg0;
@@ -202,7 +212,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     }
     
     /**
-     * public for Velocity doesn't reject object
+     * public so Velocity doesn't reject object
      */
     public static class UserPhonebookEntry implements PhonebookEntry {
         private User m_user;

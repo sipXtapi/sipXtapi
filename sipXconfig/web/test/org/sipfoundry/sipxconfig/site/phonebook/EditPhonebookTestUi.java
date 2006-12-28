@@ -26,15 +26,26 @@ public class EditPhonebookTestUi extends WebTestCase {
         super.setUp();
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
+        clickLink("link:phonebookReset");
+        clickLink("link:phonebook");
+        SiteTestHelper.initUploadFields(getDialog().getForm(), "EditPhonebook");        
+    }
+    
+    public void testDisplay() {
+        SiteTestHelper.assertNoException(tester);        
+        assertElementPresent("phonebookForm");
     }
 
-    public void testDisplay() {
-        clickLink("link:phonebook");
+    public void testNewPhonebook() {
+        setFormElement("name", "test-phonebook");
+        clickButton("form:apply");
         SiteTestHelper.assertNoException(tester);
-        assertElementPresent("phonebookForm");
-        // TODO: uncomment these
-        //clickButton("form:apply");
-        //SiteTestHelper.assertNoException(tester);
-        //SiteTestHelper.assertUserError(tester);
+        SiteTestHelper.assertNoUserError(tester);
     }
+
+    public void testFormError() {
+        clickButton("form:apply");
+        SiteTestHelper.assertNoException(tester);
+        SiteTestHelper.assertUserError(tester);
+    }    
 }

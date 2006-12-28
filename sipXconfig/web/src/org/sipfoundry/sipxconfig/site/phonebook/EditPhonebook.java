@@ -21,6 +21,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
@@ -42,6 +43,10 @@ public abstract class EditPhonebook extends PageWithCallback implements PageBegi
     public abstract Integer getPhonebookId();
     
     public void savePhonebook() {
+        if (!TapestryUtils.isValid(this)) {
+            return;
+        }
+        
         Phonebook phonebook = getPhonebook();
 
         String groupsString = getMemberGroupsString();

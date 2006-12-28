@@ -15,7 +15,7 @@
     <binding name="row" value="currentRow"/>
     <binding name="selections" value="selections"/>
   </component>
-  <component id="NameColumnValue" type="Block"/>
+  <component id="nameColumnValue" type="Block"/>
   <component id="editPhonebookLink" type="DirectLink">	  
     <binding name="listener" value="listener:edit"/>
     <binding name="parameters" value="currentRow.primaryKey"/>
