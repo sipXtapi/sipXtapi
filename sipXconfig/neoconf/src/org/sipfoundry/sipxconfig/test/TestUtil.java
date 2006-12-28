@@ -155,6 +155,7 @@ public final class TestUtil {
                 + "/parkserver/music");
         sysProps.setProperty("replicationTrigger.replicateOnStartup", Boolean.toString(false));
         sysProps.setProperty("whacker.enabled", Boolean.toString(false));
+        sysProps.setProperty("acdContextImpl.enabled", Boolean.toString(true));
         sysProps.setProperty("indexTrigger.enabled", Boolean.toString(false));
         sysProps.setProperty("upload.uploadRootDirectory", outputDirectory + "/upload");
         sysProps.setProperty("upload.destinationDirectory", outputDirectory + "/tftproot");
