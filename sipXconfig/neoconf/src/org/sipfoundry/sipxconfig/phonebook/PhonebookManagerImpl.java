@@ -52,6 +52,12 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         return phonebook;
     }
     
+    public void deletePhonebooks(Collection<Integer> ids) {
+        for (Integer id : ids) {
+            deletePhonebook(getPhonebook(id));
+        }
+    }
+    
     public void deletePhonebook(Phonebook phonebook) {
         getHibernateTemplate().delete(phonebook);
     }

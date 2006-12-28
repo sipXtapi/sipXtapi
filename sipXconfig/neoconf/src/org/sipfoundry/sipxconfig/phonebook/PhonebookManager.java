@@ -21,6 +21,8 @@ public interface PhonebookManager  {
     
     public Collection<Phonebook> getPhonebooks();
 
+    public void deletePhonebooks(Collection<Integer> ids);
+
     public Collection<Phonebook> getPhonebooksByUser(User user);
     
     public Phonebook getPhonebook(Integer phonebookId);

@@ -26,4 +26,8 @@
   <component id="addPhonebook" type="DirectLink">
     <binding name="listener" value="listener:addPhonebook"/>	  
   </component>
+  <component id="delete" type="Submit">
+    <binding name="listener" value="listener:deletePhonebooks"/>
+    <binding name="value" value="message:label.delete"/>
+  </component>
 </page-specification>
