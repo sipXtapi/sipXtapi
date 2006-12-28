@@ -5,6 +5,7 @@ SUBDIRS = ssl-cert
 INCLUDES = -I$(top_srcdir)/include
 
 LOCAL_SHELLSCRIPTS = \
+   config-defs \
 	sipx-validate-xml
 
 dist_bin_SCRIPTS = \

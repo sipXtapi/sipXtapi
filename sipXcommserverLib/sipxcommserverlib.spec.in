@@ -82,6 +82,7 @@ rm -rf $RPM_BUILD_ROOT
 %doc CONTRIBUTORS LICENSE INSTALL README NEWS TODO ChangeLog %name.configlog
 %attr(755,root,root) %{_datadir}/doc/sipx/INSTALL.ssl
 %attr(755,root,root) %{_bindir}/configpp
+%attr(755,root,root) %{_bindir}/config-defs
 %attr(755,root,root) %{_bindir}/get_def_addr
 %attr(755,root,root) %{_bindir}/%name-config
 %attr(755,root,root) %{_bindir}/sipdbtest
