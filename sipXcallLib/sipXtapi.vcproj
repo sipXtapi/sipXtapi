@@ -36,7 +36,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib pcre.lib winmm.lib libspeex.lib gsmd.lib"
+				AdditionalDependencies="Ws2_32.lib pcre.lib winmm.lib libspeex.lib gsmd.lib avcodec-51.lib avutil-49.lib"
 				OutputFile="bin\sipXtapid.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -119,7 +119,7 @@ copy include\tapi\sipXtapiEvents.h examples\include\tapi
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib Ws2_32.lib pcre.lib libspeex.lib gsm.lib"
+				AdditionalDependencies="winmm.lib Ws2_32.lib pcre.lib libspeex.lib gsm.lib avcodec-51.lib avutil-49.lib"
 				OutputFile="bin\sipXtapi.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
