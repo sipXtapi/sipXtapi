@@ -49,7 +49,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaLib", "..\sipXmedi
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaMediaProcessing", "..\sipXmediaAdapterLib\sipXmediaMediaProcessing\sipXmediaMediaProcessing.vcproj", "{0E229E54-9234-44DC-8B74-8C6BA553D3C5}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaAdapterLib", "..\sipXmediaAdapterLib\sipXmediaAdapterLib.vcproj", "{0E229E54-9234-44DC-8B74-8C6BA553D3C5}"
 	ProjectSection(ProjectDependencies) = postProject
 		{0EC8287A-481E-45DC-8F95-BAD940AE1038} = {0EC8287A-481E-45DC-8F95-BAD940AE1038}
 	EndProjectSection
