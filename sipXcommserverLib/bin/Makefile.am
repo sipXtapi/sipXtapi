@@ -6,13 +6,16 @@ INCLUDES = -I$(top_srcdir)/include
 
 LOCAL_SHELLSCRIPTS = \
    config-defs \
-	sipx-validate-xml
+   sipx-validate-xml
+
+bin_SCRIPTS = \
+  $(LOCAL_SHELLSCRIPTS)
 
 dist_bin_SCRIPTS = \
    ${PACKAGE}-config \
    configpp \
    pkg-upgrade \
-	sipx-dns \
+   sipx-dns \
    get_def_addr \
    pgpatch.sh 
 
