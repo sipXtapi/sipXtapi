@@ -42,10 +42,6 @@ end
 require 'rubygems'
 require 'rake/gempackagetask'
 
-
-#TODO: simplify layout
-#TODO: provide default_executable property
-
 spec = Gem::Specification.new do |s|
   s.platform = Gem::Platform::RUBY
   s.summary = "sipXconfig-report reporting for sipXpbx"
@@ -54,7 +50,6 @@ spec = Gem::Specification.new do |s|
   s.requirements << 'none'
   s.require_path = 'lib'
   s.files = FileList["lib/**/*"].to_a
-#  s.files << FileList["/**/*"].to_a
   s.test_files = FileList[TEST_FILES].to_a
   s.description = <<EOF
 sipXconfig-report aggregates historical system data into a database for 
@@ -64,6 +59,11 @@ EOF
 end
 
 Rake::GemPackageTask.new(spec) do |pkg|
+
+  # Could not figure out how to add generating client stubs
+  # to package task so I brute force it here.
+  Rake::Task[:client_bindings].invoke
+
   pkg.need_zip = true
   pkg.need_tar = true 
   pkg.package_dir = "#{PKG_DIR}" if defined? PKG_DIR
