@@ -88,11 +88,12 @@ Requires: ruby
 Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
 Summary: Aggregates data from sipxconfig-agent into a database for reporting tools
-Requires: ruby-postgres >= 0.7.1
+Requires: ruby-postgres
+Requires: ruby-dbi
 
 %description report
 Report peridocically queries sipxconfig-agent regarding automatic call distribution records
-and assembles data into a postgres database SIPXREPORT for reporting tools.
+and assembles data into a postgres database SIPXACD_HISTORY for reporting tools.
 
 Although this package does not have any other sipx dependencies because it's not required to
 run on the same machine it's default setup it to point to localhost.
