@@ -3,9 +3,9 @@
   <item_list>
 #foreach($row in $cfg.Rows)
      <item>
-       <ln>$!{row.LastName}</ln>
-       <fn>$!{row.FirstName}</fn>
-       <ct>${row.Contact}</ct>
+       <ln><![CDATA[$!{row.LastName}]]></ln>
+       <fn><![CDATA[$!{row.FirstName}]]></fn>
+       <ct><![CDATA[${row.Contact}]]></ct>
 #if(${row.SpeedDial} > 0)       
        <sd>${row.SpeedDial}</sd>
 #else       
