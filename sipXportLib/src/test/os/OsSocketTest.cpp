@@ -75,6 +75,7 @@ public:
     void testWriteAndAcceptMsg()
     {
         int port = 8021;
+        long socketTimeout = 5000;
         OsServerSocket* server = new OsServerSocket(50, port, mLocalHost);
         printf("binding to %s:%d\n", mLocalHost.data(), port);
         // This test being single threaded stresses some platform specific issues
@@ -101,7 +102,10 @@ public:
             CPPUNIT_ASSERT_MESSAGE("server->isConnectionReady returned false", 0);
         }*/
 
-        CPPUNIT_ASSERT(client->isReadyToWrite(5000));
+        // Now make client connection blocking.
+        // With non-blocking client server-to-client message test will fail
+        // on fast machines (say on Core 2 Duo processors).
+        client->makeBlocking();
 
         // Now make client connection blocking.
         // With non-blocking client server-to-client message test will fail
@@ -113,24 +117,24 @@ public:
 
         const char* msg = "hello\n";
         int len = strlen(msg) + 1; // +1 for NULL
-        int bytesWritten = client->write(msg, len);
+        int bytesWritten = client->write(msg, len, socketTimeout);
         CPPUNIT_ASSERT_EQUAL_MESSAGE("write correct number of bytes", 
                 bytesWritten, len);
 
         char recvBuf[1024];
-        int bytesRead = serverClient->read(recvBuf, sizeof(recvBuf) - 1);
+        int bytesRead = serverClient->read(recvBuf, sizeof(recvBuf) - 1, socketTimeout);
         CPPUNIT_ASSERT_EQUAL_MESSAGE("read correct number of bytes", 
                 len, bytesRead);
         ASSERT_STR_EQUAL_MESSAGE("message same as was sent", msg, recvBuf);
 
         const char *resp = "bye";
         len = strlen(resp) + 1; // +1 for NULL
-        bytesWritten = serverClient->write(resp, len);
+        bytesWritten = serverClient->write(resp, len, socketTimeout);
 
         CPPUNIT_ASSERT_EQUAL_MESSAGE("write correct number of bytes on 2nd msg", 
             len, bytesWritten);
 
-        bytesRead = client->read(recvBuf, sizeof(recvBuf) - 1);
+        bytesRead = client->read(recvBuf, sizeof(recvBuf) - 1, socketTimeout);
         CPPUNIT_ASSERT_EQUAL_MESSAGE("read correct number of bytes on 2nd msg", 
             len, bytesRead);
 
