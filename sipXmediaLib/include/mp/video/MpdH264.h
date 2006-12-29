@@ -79,6 +79,19 @@ public:
 ///@name Manipulators
 //@{
 
+     /// Initialize stream
+   OsStatus MpdH264::initStream(const MpRtpBufPtr &pPacket);
+    /**<
+    *  When arrive first RTP packet in the stream it will be passed to this
+    *  callback function. Then this packet will be then passed to decode()
+    *  function as usual.
+    *  
+    *  @note initStream() implementation should not modify or release passed
+    *        packet.
+    * 
+    *  @return OS_SUCCESS for now.
+    */
+
      /// Decode incoming RTP packet
    virtual MpVideoBufPtr decode(const MpRtpBufPtr &pPacket ///< (in) Pointer to a media buffer
                                , bool &packetConsumed ///< (out) Is packet consumed by decoder
@@ -133,7 +146,6 @@ protected:
    int      mFrameFBit;
    RtpSeq   mPreviousSeqNum;        ///< Sequence number of last received packet
    RtpTimestamp mPreviousTimeStamp; ///< Timestamp of last received packet
-   bool     mSessionInitialized;    ///< Does we received first RTP packet?
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
