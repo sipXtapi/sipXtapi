@@ -2,9 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="sipXmediaMediaProcessing"
+	Name="sipXmediaAdapterLib"
 	ProjectGUID="{0E229E54-9234-44DC-8B74-8C6BA553D3C5}"
-	RootNamespace="sipXmediaMediaProcessing"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -20,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;..\..\sipXportLib\include;..\..\sipXmediaLib\include;..\..\sipXcallLib\include;..\..\sipXtackLib\include;..\..\sipXmediaAdapterLib\interface"
+				AdditionalIncludeDirectories="sipXmediaMediaProcessing;;..\sipXportLib\include;..\sipXmediaLib\include;..\sipXcallLib\include;..\sipXtackLib\include;interface"
 				PreprocessorDefinitions="SIPX_VIDEO;HAVE_GSM;HAVE_SPEEX;WIN32;_DEBUG;_LIB"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -61,7 +60,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories=".;..\..\sipXportLib\include;..\..\sipXmediaLib\include;..\..\sipXcallLib\include;..\..\sipXtackLib\include;..\..\sipXmediaAdapterLib\interface"
+				AdditionalIncludeDirectories="sipXmediaMediaProcessing;;..\sipXportLib\include;..\sipXmediaLib\include;..\sipXcallLib\include;..\sipXtackLib\include;interface"
 				PreprocessorDefinitions="SIPX_VIDEO;HAVE_GSM;HAVE_SPEEX;WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="1"
 				RuntimeTypeInfo="TRUE"
@@ -101,7 +100,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;..\..\sipXportLib\include;..\..\sipXmediaLib\include;..\..\sipXcallLib\include;..\..\sipXtackLib\include;..\..\sipXmediaAdapterLib\interface"
+				AdditionalIncludeDirectories="sipXmediaMediaProcessing;;..\sipXportLib\include;..\sipXmediaLib\include;..\sipXcallLib\include;..\sipXtackLib\include;interface"
 				PreprocessorDefinitions="HAVE_GSM;HAVE_SPEEX;WIN32;_DEBUG;_LIB"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -142,7 +141,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories=".;..\..\sipXportLib\include;..\..\sipXmediaLib\include;..\..\sipXcallLib\include;..\..\sipXtackLib\include;..\..\sipXmediaAdapterLib\interface"
+				AdditionalIncludeDirectories="sipXmediaMediaProcessing;;..\sipXportLib\include;..\sipXmediaLib\include;..\sipXcallLib\include;..\sipXtackLib\include;interface"
 				PreprocessorDefinitions="HAVE_GSM;HAVE_SPEEX;WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="1"
 				RuntimeTypeInfo="TRUE"
@@ -182,19 +181,19 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath="..\interface\CpMediaInterface.cpp">
+				RelativePath="interface\CpMediaInterface.cpp">
 			</File>
 			<File
-				RelativePath="..\interface\CpMediaInterfaceFactory.cpp">
+				RelativePath="interface\CpMediaInterfaceFactory.cpp">
 			</File>
 			<File
-				RelativePath="..\interface\CpMediaInterfaceFactoryImpl.cpp">
+				RelativePath="interface\CpMediaInterfaceFactoryImpl.cpp">
 			</File>
 			<File
-				RelativePath=".\src\CpPhoneMediaInterface.cpp">
+				RelativePath="sipXmediaMediaProcessing\src\CpPhoneMediaInterface.cpp">
 			</File>
 			<File
-				RelativePath=".\src\sipXmediaFactoryImpl.cpp">
+				RelativePath="sipXmediaMediaProcessing\src\sipXmediaFactoryImpl.cpp">
 			</File>
 		</Filter>
 		<Filter
@@ -202,22 +201,22 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
-				RelativePath="..\interface\mi\CpMediaInterface.h">
+				RelativePath="interface\mi\CpMediaInterface.h">
 			</File>
 			<File
-				RelativePath="..\interface\mi\CpMediaInterfaceFactory.h">
+				RelativePath="interface\mi\CpMediaInterfaceFactory.h">
 			</File>
 			<File
-				RelativePath="..\interface\mi\CpMediaInterfaceFactoryFactory.h">
+				RelativePath="interface\mi\CpMediaInterfaceFactoryFactory.h">
 			</File>
 			<File
-				RelativePath="..\interface\mi\CpMediaInterfaceFactoryImpl.h">
+				RelativePath="interface\mi\CpMediaInterfaceFactoryImpl.h">
 			</File>
 			<File
-				RelativePath=".\include\CpPhoneMediaInterface.h">
+				RelativePath="sipXmediaMediaProcessing\include\CpPhoneMediaInterface.h">
 			</File>
 			<File
-				RelativePath=".\include\sipXmediaFactoryImpl.h">
+				RelativePath="sipXmediaMediaProcessing\include\sipXmediaFactoryImpl.h">
 			</File>
 		</Filter>
 		<Filter
@@ -225,9 +224,6 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
 		</Filter>
-		<File
-			RelativePath=".\ReadMe.txt">
-		</File>
 	</Files>
 	<Globals>
 	</Globals>
