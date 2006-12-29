@@ -103,6 +103,11 @@ public:
 
         CPPUNIT_ASSERT(client->isReadyToWrite(5000));
 
+        // Now make client connection blocking.
+        // With non-blocking client server-to-client message test will fail
+        // on fast machines (say on Core 2 Duo processors).
+        client->makeBlocking();
+
         CPPUNIT_ASSERT_MESSAGE("socket server failed to accept connection", 
                                serverClient != NULL);
 
