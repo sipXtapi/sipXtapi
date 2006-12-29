@@ -14,8 +14,8 @@ dist_bin_SCRIPTS = \
    pkg-upgrade \
 	sipx-dns \
    get_def_addr \
-   pgpatch.sh \
-	$(LOCAL_SHELLSCRIPTS)
+   pgpatch.sh 
+
 
 EXTRA_DIST = $(foreach sipxScript,$(LOCAL_SHELLSCRIPTS),$(sipxScript).in)
 
