@@ -116,14 +116,6 @@ do { \
 #define stat _stat
 #endif
 
-#ifndef strcasecmp
-#define strcasecmp _stricmp
-#endif
-
-#ifndef strncasecmp
-#define strncasecmp _strnicmp
-#endif
-
 #ifndef snprintf
 #define snprintf _snprintf
 #endif
