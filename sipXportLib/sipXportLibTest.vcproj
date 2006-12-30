@@ -120,6 +120,12 @@
 				RelativePath=".\src\test\os\OsConfigDbTest.cpp">
 			</File>
 			<File
+				RelativePath=".\src\test\os\OsContactListTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\os\OsContactTest.cpp">
+			</File>
+			<File
 				RelativePath=".\src\test\os\OsDirTest.cpp">
 			</File>
 			<File
@@ -171,6 +177,9 @@
 				RelativePath=".\src\test\os\OsTimerTaskTest.cpp">
 			</File>
 			<File
+				RelativePath=".\src\test\os\OsTimerTest.cpp">
+			</File>
+			<File
 				RelativePath=".\src\test\os\OsTimeTest.cpp">
 			</File>
 			<File
@@ -181,6 +190,9 @@
 			</File>
 			<File
 				RelativePath=".\src\test\utl\UtlChainTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\utl\UtlLinkTest.cpp">
 			</File>
 			<File
 				RelativePath=".\src\test\utl\UtlContainableTestStub.cpp">

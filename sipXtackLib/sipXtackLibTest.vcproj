@@ -181,6 +181,9 @@
 				RelativePath=".\src\test\net\SipSubcriptionClientTest.cpp">
 			</File>
 			<File
+				RelativePath=".\src\test\net\SipSubcriptionMgrTest.cpp">
+			</File>
+			<File
 				RelativePath=".\src\test\net\SipUserAgentTest.cpp">
 			</File>
 			<File
