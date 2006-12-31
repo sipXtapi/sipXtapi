@@ -23,7 +23,7 @@ uninstall-hook : uninstall-gem
 .PHONY: package-gem
 package-gem :
 	builddir=`pwd`; \
-	cd $(srcdir) && $(rake) package
+	cd $(srcdir) && $(rake) package_all
 	cd $(builddir)
 
 uninstall-gem :
