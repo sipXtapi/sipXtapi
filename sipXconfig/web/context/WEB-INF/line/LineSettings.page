@@ -18,7 +18,6 @@
   <component id="editLineNavigation" type="LineNavigation">
     <binding name="line" value="line"/>
     <binding name="tab" value="parentSetting.name"/>
-    <binding name="heading" value="parentSetting.label"/>
   </component>
   <component id="settingDescription" type="Insert">
     <binding name="value" value="parentSetting.description"/>

@@ -16,6 +16,7 @@ import java.util.Collection;
 
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.Parameter;
@@ -26,6 +27,7 @@ import org.sipfoundry.sipxconfig.site.common.NavigationWithSettings;
 import org.sipfoundry.sipxconfig.site.speeddial.SpeedDialPage;
 import org.sipfoundry.sipxconfig.site.user_portal.UserCallForwarding;
 
+@ComponentClass(allowBody = true, allowInformalParameters = false)
 public abstract class UserNavigation extends NavigationWithSettings {
 
     @Parameter(required = true)

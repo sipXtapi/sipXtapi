@@ -1,5 +1,5 @@
-<h2 jwcid="renderHeading" element="h2">
-  <span jwcid="heading">Page Heading</span>
+<h2 jwcid="@If" condition="ognl:tabHeading != null" element="h2">
+  <span jwcid="@Insert" value="ognl:tabHeading">Page Heading</span>
 </h2>
 <div id="settings-nav">
   <ul>

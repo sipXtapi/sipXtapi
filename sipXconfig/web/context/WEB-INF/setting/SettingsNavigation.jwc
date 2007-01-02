@@ -13,17 +13,7 @@
   <parameter name="settings" required="yes">
     <description>Settings edited - a decorated settings objects should be provided.</description>
   </parameter>
-  <parameter name="tab" required="yes">
-    <description>Name of the currently selected tab.</description>
-  </parameter>
-  <parameter name="heading" />
-
-  <!--
-    - P R O P E R T I E S
-  -->
-  <property name="currentSetting" />
-  <property name="messageSource" />
-
+  
   <!--
     - B E A N S
   -->
@@ -34,12 +24,6 @@
   <!--
     - C O M P O N E N T S
   -->
-  <component id="heading" type="Insert">
-    <binding name="value" value="heading" />
-  </component>
-  <component id="renderHeading" type="If">
-    <binding name="condition" value="heading != null" />
-  </component>
   <component id="settingsTabs" type="For">
     <binding name="source" value="settings.values" />
     <binding name="value" value="currentSetting" />
@@ -53,8 +37,5 @@
   </component>
   <component id="renderTab" type="If">
     <binding name="condition" value="!currentSetting.hidden" />
-  </component>
-  <component id="settingsTabLabel" type="Insert">
-    <binding name="value" value="label" />
   </component>
 </component-specification>

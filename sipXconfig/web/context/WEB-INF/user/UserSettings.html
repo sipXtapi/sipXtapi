@@ -1,14 +1,14 @@
-<html>
-<head>
-    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
-</head>
-<body jwcid="$content$">
-	<div jwcid="@Border">
-	        <span jwcid="editUserNavigation">
-	            <span jwcid="settingDescription"/>
-	        </span>
-  	        <span jwcid="settingsForm"/>
-    </div>   
-</body>
-</html>
-
+<div jwcid="@Border">
+  <span jwcid="@UserNavigation" 
+    user="ognl:user" 
+    tab="ognl:parentSetting.name" 
+    heading="ognl:parentSetting.label">
+    <span jwcid="@Insert" value="ognl:parentSetting.description"/>
+  </span>
+  <span jwcid="@SettingsForm"
+    settings="ognl:parentSetting"
+    cancelListener="listener:cancel"
+    okListener="listener:ok"
+    applyListener="listener:apply"
+    validator="bean:validator"/>  
+</div>   

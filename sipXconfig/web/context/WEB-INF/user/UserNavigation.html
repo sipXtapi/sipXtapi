@@ -1,5 +1,5 @@
-<span class="pageLabel" key="label.user">User:</span>&nbsp;<span jwcid="userLabel"/>
-<h2><span jwcid="heading@Insert" value="ognl:heading"/></h2>
+<span class="pageLabel" key="label.user">User:</span>&nbsp;<span jwcid="@Insert" value="ognl:user.userName"/>
+<h2><span jwcid="@Insert" value="ognl:tabHeading"/></h2>
 <div id="settings-nav">
   <ul>
     <li>
@@ -26,9 +26,10 @@
         <span key="link.speedDial">Speed Dial</span>
       </a>
     </li>        
-    <span jwcid="settingsTabs">
+    <span jwcid="@For" source="ognl:navigationGroups" value="ognl:currentSetting">
       <li>
-        <a jwcid="settingsLink">
+        <a jwcid="@DirectLink" listener="listener:editSettings" 
+          parameters="ognl:{user.id, currentSetting.path}">
           <span jwcid="@Insert" value="ognl:currentSettingLabel"/>
         </a>
       </li>

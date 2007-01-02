@@ -8,14 +8,10 @@
   <!--
     - P A R A M E T E R S
   -->
-  <parameter name="phone" required="yes"></parameter>
-  <parameter name="tab" required="yes"></parameter>
-  <parameter name="heading" required="yes"></parameter>
+  <parameter name="phone" required="yes" />
   <!--
     - P R O P E R T I E S
   -->
-  <property name="currentSetting" />
-  <property name="settings" />
   <inject property="phoneContext" object="spring:phoneContext" />
   <!--
     - C O M P O N E N T S
