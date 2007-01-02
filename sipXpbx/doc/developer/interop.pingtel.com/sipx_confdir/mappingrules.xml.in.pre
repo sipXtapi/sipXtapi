@@ -3,6 +3,8 @@
   <hostMatch>
     <hostPattern>${SIPXCHANGE_DOMAIN_NAME}</hostPattern>
     <hostPattern>${MY_IP_ADDR}</hostPattern>
+    <hostPattern>${INTEROP_ALIAS_UDP}</hostPattern>
+    <hostPattern>${INTEROP_ALIAS_TCP}</hostPattern>
 
     <!-- Sample mapping rule for *90 forwarding prefix -->
     <!-- Forwards *90xxx to sip:xxx@example.com -->

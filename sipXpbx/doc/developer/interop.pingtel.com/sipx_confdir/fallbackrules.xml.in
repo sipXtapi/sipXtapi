@@ -3,6 +3,8 @@
   <hostMatch>
     <hostPattern>${SIPXCHANGE_DOMAIN_NAME}</hostPattern>
     <hostPattern>${MY_IP_ADDR}</hostPattern>
+    <hostPattern>${INTEROP_ALIAS_UDP}</hostPattern>
+    <hostPattern>${INTEROP_ALIAS_TCP}</hostPattern>
     <userMatch>
       <!-- operator or any extension 0* goes to AutoAttendant -->
       <userPattern>operator</userPattern>

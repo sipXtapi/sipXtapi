@@ -5,6 +5,8 @@
     <routeFrom>${MY_IP_ADDR}:${PROXY_SERVER_SIP_PORT}</routeFrom>
     <routeFrom>${MY_FULL_HOSTNAME}:${PROXY_SERVER_SIP_PORT}</routeFrom>
     <routeFrom>${MY_HOSTNAME}:${PROXY_SERVER_SIP_PORT}</routeFrom>
+    <routeFrom>${INTEROP_ALIAS_UDP}:${PROXY_SERVER_SIP_PORT}</routeFrom>
+    <routeFrom>${INTEROP_ALIAS_TCP}:${PROXY_SERVER_SIP_PORT}</routeFrom>
 
     <methodMatch>
       <methodPattern>SUBSCRIBE</methodPattern>

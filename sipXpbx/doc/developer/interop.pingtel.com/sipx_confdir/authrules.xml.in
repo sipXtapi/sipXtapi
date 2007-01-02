@@ -5,6 +5,8 @@
     <hostPattern>${MY_FULL_HOSTNAME}</hostPattern>
     <hostPattern>${MY_HOSTNAME}</hostPattern>
     <hostPattern>${MY_IP_ADDR}</hostPattern>
+    <hostPattern>${INTEROP_ALIAS_UDP}</hostPattern>
+    <hostPattern>${INTEROP_ALIAS_TCP}</hostPattern>
 
     <!-- Valid User -->
     <userMatch>
