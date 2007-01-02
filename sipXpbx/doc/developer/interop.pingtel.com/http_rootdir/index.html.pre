@@ -209,7 +209,30 @@ this error.
 </p>
 -->
 
-<h2>Message Waiting Indication (MWI)</h2>
+<hr />
+
+<h2>The Tests</h2>
+
+<ol>
+<li><a href='#MWI'>Message Waiting Indication (MWI)</a></li>
+<li><a href='#xfer'>Transfer</a></li>
+<li><a href='#407'>Authenticated INVITE (407 Proxy Authentication Required)</a></li>
+<li><a href='#403'>Authenticated INVITE (403 Forbidden)</a></li>
+<li><a href='#sfork'>Serial Forking</a></li>
+<li><a href='#pfork'>Parallel Forking</a></li>
+<li><a href='#long'>Long Paths / Large Messages</a></li>
+<li><a href='#merged'>Merged INVITE</a></li>
+<li><a href='#hoplimit'>Hop Limit Exceeded</a></li>
+<li><a href='#pickup'>Call Pick-Up</a></li>
+<li><a href='#park'>Call Park and Retrieve</a></li>
+<li><a href='#dialog'>Dialog Event Package</a></li>
+<li><a href='#ISN'>ISN Dialing</a></li>
+<li><a href='#moh'>Music on Hold</a></li>
+<li><a href='#ENUM'>ENUM Dialing</a></li>
+<li><a href='#JOIN'>Ad-hoc Conferencing</a></li>
+</ol>
+
+<h3><a name='MWI'>1</a>. Message Waiting Indication (MWI)</h3>
 
 <p>
 The 1<span class='group'>gg</span>1 and 1<span
@@ -227,7 +250,7 @@ The voicemail PIN is the same as the SIP registration password for the AOR.
 The voicemail server interprets RFC 2833 DTMF packets.
 </p>
 
-<h2>Transfer</h2>
+<h3><a name='xfer'>2</a>. Transfer</h3>
 
 <p>
 A call to "<code>100@@SIPXCHANGE_DOMAIN_NAME@</code>" will be answered by an
@@ -241,7 +264,7 @@ Replaces), then you should also try that through the proxy using
 another UA.
 </p>
 
-<h2>Authenticated INVITE (407 Proxy Authentication Required)</h2>
+<h3><a name='407'>3</a>. Authenticated INVITE (407 Proxy Authentication Required)</h3>
 
 <p>
 A call to <code>3<span class='group'>gg</span>x</code> (for any x 1-9)
@@ -249,7 +272,7 @@ will be challenged for authentication, and when successfully
 authenticated will ring <code>1<span class='group'>gg</span>x</code>.
 </p>
 
-<h2>Authenticated INVITE (403 Forbidden)</h2>
+<h3><a name='403'>4</a>. Authenticated INVITE (403 Forbidden)</h3>
 
 <p>
 A call to <code>4<span class='group'>gg</span>x</code> (for any x 1-9)
@@ -261,7 +284,7 @@ test whether or not your user interface communicates the reason for
 the call failure.
 </p>
 
-<h2>Serial Forking</h2>
+<h3><a name='sfork'>5</a>. Serial Forking</h3>
 
 <p>
 A call to <code>5<span class='group'>gg</span>0</code>
@@ -275,7 +298,7 @@ that answers, and that all the others correctly clean up the
 canceled requests.
 </p>
 
-<h2>Parallel Forking</h2>
+<h3><a name='pfork'>6</a>. Parallel Forking</h3>
 
 <p>
 A call to <code>6<span class='group'>gg</span>0</code>
@@ -288,7 +311,7 @@ that answers, and that all the others correctly clean up the
 canceled requests.
 </p>
 
-<h2>Long Paths / Large Messages</h2>
+<h3><a name='long'>7</a>. Long Paths / Large Messages</h3>
 
 <p>
 A call to <code>7<span class='group'>gg</span>x</code> (for any x 1-9)
@@ -297,7 +320,7 @@ class='group'>gg</span>x</code> it will have several Vias.  This
 checks your handling of large messages (if UDP, they will be fragmented).
 </p>
 
-<h2>Merged INVITE</h2>
+<h3><a name='merged'>8</a>. Merged INVITE</h3>
 
 <p>
 A call to <code>8<span class='group'>gg</span>x</code> (for any x 1-9)
@@ -309,7 +332,7 @@ the loop detected error is sent and that the call is correctly set up
 when the called phone answers.
 </p>
 
-<h2>Hop Limit Exceeded</h2>
+<h3><a name='hoplimit'>9</a>. Hop Limit Exceeded</h3>
 
 <p>
 Any call to <code>9000</code> will return a 483 Too Many Hops.  As a
@@ -321,7 +344,7 @@ standardization; see
 <a href='http://www.ietf.org/internet-drafts/draft-ietf-sip-hop-limit-diagnostics-03.txt'>draft-ietf-sip-hop-limit-diagnostics-03</a>.
 </p>
 
-<h2>Call Pick-Up</h2>
+<h3><a name='pickup'>10</a>. Call Pick-Up</h3>
 
 <p>
 Any call to <code>*78xxxx</code> will pick up the call ringing on the
@@ -352,7 +375,7 @@ the early-only option, and whether the second UA generates
 dialog event notices with usable endpoint identification.
 </p>
 
-<h2>Call Park and Retrieve</h2>
+<h3><a name='park'>11</a>. Call Park and Retrieve</h3>
 
 <p>
 The extensions <code>5<span class='group'>gg</span>x</code> (for any x
@@ -371,7 +394,7 @@ parked there first is retrieved.
 You can subscribe to the call park extensions to get their dialog events.
 </p>
 
-<h2>Dialog Event Package</h2>
+<h3><a name='dialog'>12</a>. Dialog Event Package</h3>
 
 <p>
 Once a registered UA has generated a dialog event package, this server
@@ -401,7 +424,7 @@ Extension: <input name='extension' size='4' maxlength='4' />
 You can subscribe to the call park extensions to get their dialog events.
 </p>
 
-<h2>ISN Dialing</h2>
+<h3><a name='ISN'>13</a>. ISN Dialing</h3>
 
 <!-- Generated using http://freenum.org/gotISN.cgi -->
 <!--START "GOT ISN?" WEB BADGE -->
@@ -433,14 +456,14 @@ For example:
 </p>
 <dl>
   <dt><code>*1 100*413</code></dt>
-  <dd>This server's auto attendant</dd>
+  <dd>This server's auto-attendant</dd>
   <dt><code>*1 613*262</code></dt>
   <dd>Free World Dialup echo test</dd>
   <dt><code>*1 2425*259</code><dt>
   <dd>Tello echo test</dd>
 </dl>
 
-<h2>Music on Hold</h2>
+<h3><a name='moh'>14</a>. Music on Hold</h3>
 
 <p>
 User agents that provide "music on hold" via the technique of
@@ -449,7 +472,7 @@ can use the URI <code>sip:moh@@SIPXCHANGE_DOMAIN_NAME@:5120</code> as an
 audio source.
 </p>
 
-<h2>ENUM Dialing</h2>
+<h3><a name='ENUM'>15</a>. ENUM Dialing</h3>
 
 <p>
 This server supports ENUM dialing.
@@ -462,7 +485,7 @@ For example:
   <dd>Routes to the ENUM for the E.164 number +1 800 555 1234.</dd>
 </dl>
 
-<h2>Ad-hoc Conferencing</h2>
+<h3><a name='JOIN'>16</a>. Ad-hoc Conferencing</h3>
 
 <p>
 Ad-hoc conferencing is useful in call-control applications.
@@ -499,7 +522,7 @@ dialog event notices with usable endpoint identification.
 
 <hr />
 
-<h3><a name='config'>How this server is configured</a></h3>
+<h2><a name='config'>How this server is configured</a></h2>
 
 <p>
 <a href='sipx-version.cgi'>Display the sipX version running on this server</a>
