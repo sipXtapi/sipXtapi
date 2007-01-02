@@ -34,17 +34,6 @@ then
   AC_CONFIG_SUBDIRS(sipXpbx)
 fi
 
-AC_ARG_ENABLE(conference, 
-  AC_HELP_STRING([--enable-conference], 
-    [experimental conference server, last known not to compile]),
-      conference=yes)
-
-if test x$conference = xyes
-then
-  AC_CONFIG_SUBDIRS(resiprocateLib)
-  AC_CONFIG_SUBDIRS(bbridge)
-fi
-
 AC_ARG_ENABLE(tools,
   AC_HELP_STRING([--disable-tools],
     [sipXpbx tools]),

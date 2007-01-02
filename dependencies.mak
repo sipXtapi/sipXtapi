@@ -55,13 +55,3 @@ sipXvxml : sipXcallLib sipXcommserverLib sipXmediaAdapterLib
 .PHONY: sipXpbx
 sipXpbx : sipXproxy sipXregistry sipXpublisher sipXvxml sipXconfig
 	@echo sipXpbx
-
-.PHONY: bbridge
-bbridge : resiprocateLib sipXmediaAdapterLib
-	@echo bbridge
-
-.PHONY: resiprocateLib
-resiprocateLib : 
-	@echo resiprocateLib
-
-
