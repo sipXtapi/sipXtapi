@@ -42,10 +42,6 @@ end
 require 'rubygems'
 require 'rake/gempackagetask'
 
-# Could not figure out how to add generating client stubs
-# to package task so I created a new package
-task :package_all => [:client_bindings, :package ]
-
 spec = Gem::Specification.new do |s|
   s.platform = Gem::Platform::RUBY
   s.summary = "sipXconfig-report reporting for sipXpbx"
@@ -53,7 +49,11 @@ spec = Gem::Specification.new do |s|
   s.version = '1.0.0'
   s.requirements << 'none'
   s.require_path = 'lib'
+
+  # client_bindings task needs to have completed in a previous
+  # run inorder for this file list to be resolved correctly
   s.files = FileList["lib/**/*"].to_a
+
   s.test_files = FileList[TEST_FILES].to_a
   s.description = <<EOF
 sipXconfig-report aggregates historical system data into a database for 

@@ -21,10 +21,10 @@ install-exec-hook : $(INSTALL_GEM)
 uninstall-hook : uninstall-gem
 
 .PHONY: package-gem
+# see rakefile for details regarding multiple targets
 package-gem :
-	builddir=`pwd`; \
-	cd $(srcdir) && $(rake) package_all
-	cd $(builddir)
+	builddir=`pwd`; cd $(srcdir) && $(rake) client_bindings
+	builddir=`pwd`; cd $(srcdir) && $(rake) package
 
 uninstall-gem :
 	GEM_PATH=$(GEM_LIB_DIR) \
