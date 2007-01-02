@@ -10,6 +10,8 @@ my(%unescape) = ("r", "\r",
                  "\"", "\"",
                  "\\", "\\");
 
+# Read and parse the registrations file.
+
 my($registration_file) = "@SIPX_DATADIR@/sipdb/registration.xml";
 
 # Read and process the registrar log files.
