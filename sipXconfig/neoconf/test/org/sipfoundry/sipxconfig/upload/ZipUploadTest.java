@@ -12,11 +12,15 @@
 package org.sipfoundry.sipxconfig.upload;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
@@ -32,15 +36,26 @@ public class ZipUploadTest extends TestCase {
         m_expandDir.mkdirs();        
     }    
     
-    public void testDeploy() {        
+    public void testDeployUndeploy() throws Exception {
         ZipUpload.deployZipFile(m_expandDir, m_zipFile);
+        File file1 = new File(m_expandDir, "zip-test/subdir/file1.txt");
+        assertTrue(file1.exists());
+        assertTrue(IOUtils.contentEquals(getClass().getResourceAsStream("file1.txt"), 
+                new FileInputStream(file1)));
+        File file3 = new File(m_expandDir, "zip-test/file3.bin");
+        assertTrue(file3.exists());
+        InputStream stream3 = getClass().getResourceAsStream("file3.bin");
+        assertTrue(IOUtils.contentEquals(stream3, new FileInputStream(file3)));
+        ZipUpload.undeployZipFile(m_expandDir, m_zipFile);        
+        assertFalse(file1.exists());
     }
     
-    public void testUndeply() {
-        testDeploy();
-        assertTrue(new File(m_expandDir, "zip-test/subdir/file1.txt").exists());
-        ZipUpload.undeployZipFile(m_expandDir, m_zipFile);        
-        assertFalse(new File(m_expandDir, "zip-test/subdir/file1.txt").exists());
+    public void testFile() throws Exception {
+        File file = File.createTempFile("file3", "bin");
+        FileOutputStream stream = new FileOutputStream(file);
+        for(int i = 100; i < 400; i++) {
+            stream.write(i);
+        }
+        stream.close();        
     }
-
 }
