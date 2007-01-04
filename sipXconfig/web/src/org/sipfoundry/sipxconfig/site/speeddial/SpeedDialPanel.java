@@ -45,6 +45,14 @@ public abstract class SpeedDialPanel extends BaseComponent {
 
     public abstract void setRemoveIndex(int index);
 
+    public abstract int getMoveIndex();
+
+    public abstract void setMoveIndex(int index);
+
+    public abstract int getMoveOffset();
+
+    public abstract void setMoveOffset(int offset);
+
     public int getButtonsSize() {
         return getButtons().size();
     }
@@ -60,6 +68,8 @@ public abstract class SpeedDialPanel extends BaseComponent {
     protected void prepareForRender(IRequestCycle cycle) {
         super.prepareForRender(cycle);
         setRemoveIndex(-1);
+        setMoveIndex(-1);
+        setMoveOffset(0);
         if (!TapestryUtils.isRewinding(cycle, this)) {
             setButtons(getSpeedDial().getButtons());
         }
@@ -83,5 +93,9 @@ public abstract class SpeedDialPanel extends BaseComponent {
         }
         SpeedDial speedDial = getSpeedDial();
         speedDial.replaceButtons(buttons);
+        int moveIndex = getMoveIndex();
+        if (moveIndex >= 0) {
+            speedDial.moveButtons(moveIndex, getMoveOffset());
+        }
     }
 }

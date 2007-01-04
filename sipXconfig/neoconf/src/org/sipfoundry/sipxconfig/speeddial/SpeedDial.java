@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.User;
 
 /**
@@ -44,5 +45,10 @@ public class SpeedDial extends BeanWithId {
     public void replaceButtons(List<Button> buttons) {
         m_buttons.clear();
         m_buttons.addAll(buttons);
+    }
+
+    public void moveButtons(int index, int moveOffset) {
+        List<Button> buttons = getButtons();
+        DataCollectionUtil.move(buttons, index, moveOffset);
     }
 }

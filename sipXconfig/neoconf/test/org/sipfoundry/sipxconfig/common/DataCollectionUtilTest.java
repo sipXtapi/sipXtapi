@@ -153,6 +153,25 @@ public class DataCollectionUtilTest extends TestCase {
             // OK
         }
     }
+    
+    public void testMove() throws Exception {
+        List<Character> list = new ArrayList<Character>();
+        for(char c = 'a'; c < 'd'; c++) {
+            list.add(c);
+        }
+        
+        assertEquals(0, DataCollectionUtil.move(list, 0, -1));
+        assertEquals(0, DataCollectionUtil.move(list, 0, -2));
+        assertEquals(0, DataCollectionUtil.move(list, 1, -1));
+        assertEquals(new Character('b'), list.get(0));
+        assertEquals(new Character('a'), list.get(1));
+        assertEquals(2, DataCollectionUtil.move(list, 0, 3));
+        assertEquals(new Character('b'), list.get(2));
+        assertEquals(2, DataCollectionUtil.move(list, 0, 2));
+        assertEquals(new Character('a'), list.get(2));
+        assertEquals(new Character('b'), list.get(1));
+        assertEquals(new Character('c'), list.get(0));
+    }
 
     static class TestCollectionItem implements DataCollectionItem {
 

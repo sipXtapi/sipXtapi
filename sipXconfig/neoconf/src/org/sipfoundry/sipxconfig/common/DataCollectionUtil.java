@@ -28,7 +28,7 @@ public final class DataCollectionUtil {
 
     public static Collection removeByPrimaryKey(Collection c, Object primaryKey) {
         return removeByPrimaryKey(c, new Object[] {
-            primaryKey 
+            primaryKey
         });
     }
 
@@ -166,5 +166,31 @@ public final class DataCollectionUtil {
             BeanWithId bean = (BeanWithId) i.next();
             to.add(bean.duplicate());
         }
+    }
+
+    /**
+     * Move a single item in the list by specified offset
+     * 
+     * If the move would take the item outside of the valid list range the item is moved to the
+     * beginning or end of the list instead.
+     * 
+     * @param list to be modified by this funtion
+     * @param index of the element to be moved
+     * @param offset by which item will be moved, negative for moving "up"/"towards beginning of
+     *        the list"
+     * @return new index of an item
+     * 
+     */
+    public static int move(List list, int index, int offset) {
+        Object item = list.remove(index);
+        int newIndex = index + offset;
+        if (newIndex < 0) {
+            newIndex = 0;
+        }
+        if (newIndex > list.size()) {
+            newIndex = list.size();
+        }
+        list.add(newIndex, item);
+        return newIndex;
     }
 }
