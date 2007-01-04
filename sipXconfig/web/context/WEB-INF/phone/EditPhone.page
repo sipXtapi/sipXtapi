@@ -1,43 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
 <page-specification class="org.sipfoundry.sipxconfig.site.phone.EditPhone">
-  <!--
-	  - P R O P E R T I E S
-	  -->
-  <property name="phone" />
-  <property name="phoneId"  persist="session"/>
-  <inject property="phoneContext" object="spring:phoneContext"/>
-  <inject property="settingDao" object="spring:settingDao"/>
-  <inject property="profileManager" object="spring:profileManager"/>
-  <!--
-      - B E A N S
-      -->
-  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
-  <!--
-      - C O M P O N E N T S
-      -->
-  <component id="form" type="Form">
-    <binding name="delegate" value="bean:validator"/>
-  </component>
-  <component id="editPhoneNavigation" type="PhoneNavigation">
-    <binding name="phone" value="phone"/>
-    <binding name="tab" value="literal:EditPhone"/>
-    <binding name="heading" value="message:title"/>
-  </component>
-  <component id="editPhoneForm" type="EditPhoneForm">
-    <binding name="phone" value="phone"/>
-    <binding name="validator" value="bean:validator"/>
-  </component>
-  <component id="addLine" type="DirectLink">
-    <binding name="listener" value="listener:addLine"/>
-    <binding name="parameters" value="phone.id"/>
-  </component>
-  <component id="formActions" type="FormActions">
-    <binding name="callback" value="callback"/>
-    <binding name="listener" value="listener:commit"/>
-  </component>
-  <component id="generateProfile" type="Submit">
-    <binding name="value" value="message:button.generateProfile"/>
-    <binding name="listener" value="listener:generateProfile"/>    
-  </component>
 </page-specification>

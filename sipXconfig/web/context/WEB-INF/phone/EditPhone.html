@@ -4,18 +4,31 @@
     <b><span key="label.quickLinks">Quick Links</span></b>
     <ul>
       <li>
-        <a id="AddLine" jwcid="addLine"><span key="add.line">Add Line</span></a>
+        <a id="AddLine" jwcid="addLine@DirectLink"
+          listener="listener:addLine"
+          parameters="ognl:phone.id">
+          <span key="add.line">Add Line</span>
+        </a>
       </li>
     </ul>
   </div>
   <span jwcid="@GroupCloud" groups="ognl:phoneContext.groups"/>
   <h2><span key="navTitle">Edit Phone</span></h2>
-  <span jwcid="editPhoneNavigation"/>
+  <span jwcid="@PhoneNavigation" 
+    phone="ognl:phone"
+    tab="EditPhone"
+    heading="message:title"/>
   <div id="settings-content">
-    <form jwcid="form">
-      <span jwcid="editPhoneForm"/>
-      <span jwcid="formActions">
-      <li><input jwcid="generateProfile" id="generateProfile" /></li>
+    <form jwcid="@Form" delegate="bean:validator">
+      <span jwcid="@EditPhoneForm"
+        phone="ognl:phone"
+        validator="bean:validator"/>
+      <span jwcid="@FormActions" callback="ognl:callback" listener="listener:commit">
+        <li>
+          <input jwcid="generateProfile@Submit" id="generateProfile" 
+            value="message:button.generateProfile"
+            listener="listener:generateProfile"/>    
+        </li>
       </span>
     </form>
   </div>

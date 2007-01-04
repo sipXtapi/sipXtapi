@@ -16,20 +16,28 @@ import java.text.MessageFormat;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.ComponentClass;
+import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
+@ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class PhoneLabel extends BaseComponent {
-
+    @Parameter(required = true)
     public abstract Phone getPhone();
 
     public abstract void setPhone(Phone phone);
 
-    public abstract PhoneContext getPhoneContext();
+    @Parameter(defaultValue = "true")
+    public abstract boolean isRenderSerialNumber();
 
+    @InjectObject(value = "spring:phoneContext")
+    public abstract PhoneContext getPhoneContext();
+    
     public void prepareForRender(IRequestCycle cycle) {
         super.prepareForRender(cycle);
     }

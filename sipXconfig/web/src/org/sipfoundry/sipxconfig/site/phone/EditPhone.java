@@ -16,9 +16,13 @@ import java.util.Collections;
 
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -38,13 +42,22 @@ public abstract class EditPhone extends PageWithCallback implements PageBeginRen
     public abstract void setPhone(Phone phone);
 
     /** REQUIRED PROPERTY */
+    @Persist
     public abstract Integer getPhoneId();
 
     public abstract void setPhoneId(Integer id);
 
+    @InjectObject(value = "spring:phoneContext")
     public abstract PhoneContext getPhoneContext();
+
+    @InjectObject(value = "spring:profileManager")
     public abstract ProfileManager getProfileManager();
+
+    @InjectObject(value = "spring:settingDao")
     public abstract SettingDao getSettingDao();
+
+    @Bean
+    public abstract SipxValidationDelegate getValidator();
 
     public IPage addLine(IRequestCycle cycle, Integer phoneId) {
         AddPhoneUser page = (AddPhoneUser) cycle.getPage(AddPhoneUser.PAGE);
@@ -62,13 +75,13 @@ public abstract class EditPhone extends PageWithCallback implements PageBeginRen
         if (valid) {
             PhoneContext dao = getPhoneContext();
             Phone phone = getPhone();
-            EditGroup.saveGroups(getSettingDao(), phone.getGroups());            
+            EditGroup.saveGroups(getSettingDao(), phone.getGroups());
             dao.storePhone(phone);
         }
 
         return valid;
     }
-    
+
     public void generateProfile() {
         Collection phoneIds = Collections.singleton(getPhone().getId());
         getProfileManager().generateProfilesAndRestart(phoneIds);

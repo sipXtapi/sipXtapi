@@ -1,16 +1,28 @@
-<span jwcid="phoneLabel"/>
+<span jwcid="@PhoneLabel" phone="ognl:phone" />
 <h2><span jwcid="@Insert" value="ognl:tabHeading">Page Heading</span></h2>
 <div id="settings-nav">
   <ul>
     <li>
-      <a jwcid="deviceIdLink"><span key="link.identification">Identification</span></a>
+      <a jwcid="deviceIdLink@DirectLink" 
+        listener="listener:editPhone"
+        parameters="ognl:phone.id">
+        <span key="link.identification">Identification</span>        
+     </a>
     </li>
     <li>
-      <a href="#" jwcid="linesLink"><span key="link.lines">Lines</span></a>
+      <a jwcid="linesLink@DirectLink" 
+        listener="listener:editLines"
+        parameters="ognl:phone.id">
+        <span key="link.lines">Lines</span>
+      </a>
     </li>
-    <span jwcid="settingsTabs">
+    <span jwcid="settingsTabs@For" 
+      source="ognl:settings.values"
+      value="ognl:currentSetting">
       <li>
-        <a jwcid="settingsLink">
+        <a jwcid="settingsLink@DirectLink"
+          listener="listener:editSettings"
+          parameters="ognl:editSettingListenerParameters">
           <span jwcid="@Insert" value="ognl:currentSettingLabel"/>
         </a>
       </li>

@@ -34,10 +34,6 @@
   <component id="searchResults" type="UserSearchResults">
     <binding name="users" value="components.searchForm.users"/>
   </component>
-  <component id="phoneLabel" type="PhoneLabel">
-    <binding name="phone" value="phone"/>
-    <binding name="phoneContext" value="phoneContext"/>
-  </component>
   <component id="returnToEditPhone" type="Hidden">
     <binding name="value" value="returnToEditPhone"/>
   </component>

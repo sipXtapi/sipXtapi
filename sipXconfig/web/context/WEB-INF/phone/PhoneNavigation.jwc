@@ -1,39 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
-<component-specification class="org.sipfoundry.sipxconfig.site.phone.PhoneNavigation" allow-body="yes"
-  allow-informal-parameters="no">
-  <description>
-    <![CDATA[ Navigational tabs, intro text and help box  ]]>
-  </description>
-  <!--
-    - P A R A M E T E R S
-  -->
-  <parameter name="phone" required="yes" />
-  <!--
-    - P R O P E R T I E S
-  -->
-  <inject property="phoneContext" object="spring:phoneContext" />
-  <!--
-    - C O M P O N E N T S
-  -->
-  <component id="deviceIdLink" type="DirectLink">
-    <binding name="listener" value="listener:editPhone" />
-    <binding name="parameters" value="phone.id" />
-  </component>
-  <component id="linesLink" type="DirectLink">
-    <binding name="listener" value="listener:editLines" />
-    <binding name="parameters" value="phone.id" />
-  </component>
-  <component id="settingsTabs" type="For">
-    <binding name="source" value="settings.values" />
-    <binding name="value" value="currentSetting" />
-  </component>
-  <component id="settingsLink" type="DirectLink">
-    <binding name="listener" value="listener:editSettings" />
-    <binding name="parameters" value="editSettingListenerParameters" />
-  </component>
-  <component id="phoneLabel" type="PhoneLabel">
-    <binding name="phone" value="phone" />
-    <binding name="phoneContext" value="phoneContext" />
-  </component>
+<component-specification class="org.sipfoundry.sipxconfig.site.phone.PhoneNavigation">
 </component-specification>

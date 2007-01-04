@@ -13,22 +13,22 @@ package org.sipfoundry.sipxconfig.site.phone;
 
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.ComponentClass;
+import org.apache.tapestry.annotations.Parameter;
 import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.common.NavigationWithSettings;
 
 /**
  * Top portion of pages that show tabs, help box, intro text, etc
  */
+@ComponentClass(allowBody = true, allowInformalParameters = false)
 public abstract class PhoneNavigation extends NavigationWithSettings {
 
-    /** REQUIRED PARAMETER */
+    @Parameter(required = true)
     public abstract void setPhone(Phone phone);
 
     public abstract Phone getPhone();
-
-    public abstract PhoneContext getPhoneContext();
 
     public IPage editPhone(IRequestCycle cycle, Integer phoneId) {
         EditPhone page = (EditPhone) cycle.getPage(EditPhone.PAGE);
