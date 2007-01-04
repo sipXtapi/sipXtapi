@@ -8,7 +8,7 @@ sipXezPhone_CXXFLAGS = \
 
 sipXezPhone_LDADD = \
 	$(top_builddir)/src/libsipXcall.la \
-	@SIPXMEDIA_MP_LIBS@ \
+	@SIPXMEDIAADAPTER_LIBS@ \
 	@WXWIDGETS_LIBS@ \
 	@OBJC_LIBS@
 
