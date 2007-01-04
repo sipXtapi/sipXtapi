@@ -98,7 +98,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
             throw new NameInUseException(dup);
         }
 
-        checkMaxUsers(m_maxUserCount);
+        checkMaxUsers(user, m_maxUserCount);
 
         if (!user.isNew()) {
             String origUserName = (String) getOriginalValue(user, USERNAME_PROP_NAME);
@@ -119,7 +119,12 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
      * 
      * @param maxUserCount -1 or represent infinite number
      */
-    void checkMaxUsers(int maxUserCount) {
+    void checkMaxUsers(User user, int maxUserCount) {
+        // allow edits to the Nth (or beyond) user
+        if (!user.isNew()) {
+            return;
+        }
+
         if (maxUserCount < 0) {
             return;
         }

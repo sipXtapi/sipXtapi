@@ -441,22 +441,28 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     public void testMaxUsers() throws Exception {
         TestHelper.insertFlat("common/SampleUsersSeed.xml");
         try {
-            m_core.checkMaxUsers(-1);
+            m_core.checkMaxUsers(new User(), -1);
         } catch (UserException e) {
             fail();
         }
 
         try {
-            m_core.checkMaxUsers(NUM_USERS + 1);
+            m_core.checkMaxUsers(new User(), NUM_USERS + 1);
         } catch (UserException e) {
             fail();
         }
 
         try {
-            m_core.checkMaxUsers(NUM_USERS);
+            m_core.checkMaxUsers(new User(), NUM_USERS);
             fail();
         } catch (UserException e) {
             assertTrue(true);
+        }
+
+        try {
+            m_core.checkMaxUsers(new ExistingUser(), NUM_USERS);
+        } catch (UserException e) {
+            fail();
         }
     }
 
@@ -480,4 +486,11 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         assertEquals("peon2", peons.get(1).getUserName());
         assertEquals("peon5", peons.get(2).getUserName());
     }
+
+    static class ExistingUser extends User {
+        public boolean isNew() {
+            return false;
+        }
+    }
 }
+
