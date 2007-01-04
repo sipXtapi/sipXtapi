@@ -1,16 +1,9 @@
 <body jwcid="$content$">
   <div jwcid="@Border">
     <span jwcid="editPhoneNavigation">
-      <p><span key="intro">To handle calls for multiple people or identities add lines for those users by clicking on the 
-        <strong>Add Line</strong> link. If your users are not managed by this PBX, click on <strong>Add 
-        External Line</strong>.</span></p>
+      <span jwcid="@QuickHelp" value="message:intro"/>
     </span>
-    <div class="help">
-      <p><span key="help">A common and convenient alternative to adding multiple lines to a phone, is to create a hunt group 
-        that will send calls to a list of users. For example: if Joe in sales is already assigned to the first 
-        line of this phone, instead of adding a second user called "sales" to this phone, create a hunt group 
-        called sales and add Joe to that group.</span></p>
-    </div>
+    <span jwcid="@QuickHelp" value="message:help"/>
     <div id="settings-content">
       <span jwcid="@ErrorMsg"/>
       <form jwcid="editLinesForm">
