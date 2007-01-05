@@ -732,7 +732,7 @@ int SdpCodecFactory::buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecType
                   8000,
                   20000,
                   1,
-                  "a=fmtp:110 mode=3",
+                  "mode=3",
                   SdpCodec::SDP_CODEC_CPU_LOW,
                   SDP_CODEC_BANDWIDTH_LOW);
               addCodec(aCodec);
@@ -749,7 +749,7 @@ int SdpCodecFactory::buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecType
                   8000,
                   20000,
                   1,
-                  "a=fmtp:111 mode=2",
+                  "mode=2",
                   SdpCodec::SDP_CODEC_CPU_LOW,
                   SDP_CODEC_BANDWIDTH_LOW);
               addCodec(aCodec);
@@ -766,7 +766,7 @@ int SdpCodecFactory::buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecType
                   8000,
                   20000,
                   1,
-                  "a=fmtp:112 mode=5",
+                  "mode=5",
                   SdpCodec::SDP_CODEC_CPU_LOW,
                   SDP_CODEC_BANDWIDTH_NORMAL);
               addCodec(aCodec);
@@ -783,7 +783,7 @@ int SdpCodecFactory::buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecType
                   8000,
                   20000,
                   1,
-                  "a=fmtp:113 mode=7",
+                  "mode=7",
                   SdpCodec::SDP_CODEC_CPU_LOW,
                   SDP_CODEC_BANDWIDTH_NORMAL);
               addCodec(aCodec);
