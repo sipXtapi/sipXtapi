@@ -19,9 +19,9 @@ end
 module DBI
   class Timestamp
   
-    # Database doesn't store GMT offset, or at least it's not available from DBI.
-    # Assumes the GMT offset on this machine is same as database machine, (which in turn assumes
-    # the same GMT as whatever wrote into the database, which is indeed this script) 
+    # Database doesn't store timezone, or at least it's not available from DBI package.
+    # Assume the timezone offset of this machine is same as database machine, (which in turn assumes
+    # the same GMT as whatever wrote into the database, which happens to be this script)
     def to_local_datetime
       local = ::Time.local(year, mon, day, hour, min, sec)
       offset_in_days = local.gmt_offset / (24.0 * 60.0 * 60.0)
