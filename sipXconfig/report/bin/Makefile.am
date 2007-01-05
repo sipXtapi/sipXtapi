@@ -8,5 +8,5 @@ edit = $(LocalizeSipXconfig) \
 bin_SCRIPTS = \
 	sipxconfig-report
 
-% : %.in
-	$(edit) $(srcdir)/$< > $@
+sipxconfig-report : sipxconfig-report.in
+	$(edit) $(srcdir)/sipxconfig-report.in > sipxconfig-report

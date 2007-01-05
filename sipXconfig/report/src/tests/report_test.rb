@@ -9,10 +9,18 @@ require 'test/unit'
 
 class FunctionsTest < Test::Unit::TestCase
 
-  def test_time2datetime
+  def test_to_local_datetime_timestamp_contructor_1
+    expected = DateTime.now
     now = DBI::Timestamp.new(Time.now)
-    dt = time2datetime(now.to_time)
-    puts dt
+    actual = now.to_local_datetime
+    assert_equal expected.strftime('%c'), actual.strftime('%c')
+  end
+
+  def test_to_local_datetime_timestamp_contructor_2
+    expected = DateTime.civil(2006, 1, 1, 2, 30, 45)
+    now = DBI::Timestamp.new(2006, 1, 1, 2, 30, 45)
+    actual = now.to_local_datetime
+    assert_equal expected.strftime('%c'), actual.strftime('%c')
   end
 end
 
@@ -23,6 +31,12 @@ class  DaoTest < Test::Unit::TestCase
   def test_insert_sql
     actual = Reports::Dao.insert_sql('bird', ['dove', 'hawk'])    
     assert_equal("INSERT into bird (dove,hawk) VALUES (?,?)", actual)
+  end
+  
+  def test_columns    
+    birds = Reports::Dao.new('bird', DaoTest.connect)
+    assert_equal ['species'], birds.columns
+    DaoTest::disconnect
   end
   
   def DaoTest.connect
@@ -70,19 +84,20 @@ class CallStatDaoTest < Test::Unit::TestCase
     dao.load_window
 
     obj = CallAudit.new("joe")
-    obj.terminate_time = time2datetime(dbi.t.to_time)
+    obj.terminate_time = dbi.t.to_local_datetime
     assert ! dao.valid?(obj)
 
     obj = CallAudit.new("mary")
-    obj.terminate_time = time2datetime(dbi.t.to_time)
+    obj.terminate_time = dbi.t.to_local_datetime
+
     assert ! dao.valid?(obj)
 
     obj = CallAudit.new("joe")
-    obj.terminate_time = time2datetime(dbi.t.to_time + 1)
+    obj.terminate_time = dbi.t.to_local_datetime + 1
     assert dao.valid?(obj)
 
     obj = CallAudit.new("joey")
-    obj.terminate_time = time2datetime(dbi.t.to_time)
+    obj.terminate_time = dbi.t.to_local_datetime
     assert dao.valid?(obj)
     
     DaoTest::disconnect
@@ -114,10 +129,10 @@ end
 class AgentStatDaoTest < Test::Unit::TestCase
   def test_persist
     stats = []
-    now = Time.now
+    now = DateTime.now
     for i in 0...2
       stats << AgentAudit.new("agent_uri#{i}", "queue_uri#{i}", 
-        now, time2datetime(now))
+        now, now)
     end
     dao = Reports::AgentStatDao.new(DaoTest::connect)
     dao.persist(stats)    
@@ -131,19 +146,19 @@ class AgentStatDaoTest < Test::Unit::TestCase
     dao.load_window
 
     obj = AgentAudit.new("joe")
-    obj.sign_out_time = time2datetime(dbi.t.to_time)
+    obj.sign_out_time = dbi.t.to_local_datetime
     assert ! dao.valid?(obj)
 
     obj = AgentAudit.new("mary")
-    obj.sign_out_time = time2datetime(dbi.t.to_time)
+    obj.sign_out_time = dbi.t.to_local_datetime
     assert ! dao.valid?(obj)
 
     obj = AgentAudit.new("joe")
-    obj.sign_out_time = time2datetime(dbi.t.to_time + 1)
+    obj.sign_out_time = dbi.t.to_local_datetime + 1
     assert dao.valid?(obj)
 
     obj = AgentAudit.new("joey")
-    obj.sign_out_time = time2datetime(dbi.t.to_time)
+    obj.sign_out_time = dbi.t.to_local_datetime
     assert dao.valid?(obj)
     
     DaoTest::disconnect

@@ -1,12 +1,14 @@
 require 'dbi'
 
 # defaultDriver.rb references default.rb that thinks its in root path
-CLIENT_BINDINGS = File.join(File.dirname(__FILE__), "agent_client") if ! defined? CLIENT_BINDINGS
+CLIENT_BINDINGS = File.join(File.dirname(__FILE__), "agent_client")
 $:.unshift CLIENT_BINDINGS
 puts "loading client bindings #{CLIENT_BINDINGS}"
 require 'defaultDriver.rb'
 
 def datetime2time(datetime) 
+  # does not consider timezone, but timezone is not stored in database, so
+  # valid, unless timezone of given datetime is not local timezone.
   Time.parse(datetime.strftime("%c"))
 end
 
@@ -14,8 +16,18 @@ def datetime_equal(datetime1, datetime2)
   datetime1.strftime("%c") == datetime2.strftime("%c")
 end
 
-def time2datetime(time)
-  DateTime.parse(time.iso8601)
+module DBI
+  class Timestamp
+  
+    # Database doesn't store GMT offset, or at least it's not available from DBI.
+    # Assumes the GMT offset on this machine is same as database machine, (which in turn assumes
+    # the same GMT as whatever wrote into the database, which is indeed this script) 
+    def to_local_datetime
+      local = ::Time.local(year, mon, day, hour, min, sec)
+      offset_in_days = local.gmt_offset / (24.0 * 60.0 * 60.0)
+      DateTime.civil(year, mon, day, hour, min, sec, offset_in_days)
+    end
+  end
 end
 
 module Reports
@@ -29,13 +41,13 @@ module Reports
       
       dao = CallStatDao.new(@dbi)
       from_time = dao.from_time
-      puts "requesting call stats from #{from_time}"
+      puts "requesting call stats from #{from_time} (class = #{from_time.class.name})"
       stats = service.getCallHistory(from_time)
       dao.persist(stats)
       
       dao = AgentStatDao.new(@dbi)
       from_time = dao.from_time
-      puts "requesting agent stats from #{from_time}"
+      puts "requesting agent stats from #{from_time} (class = #{from_time.class.name})"
       stats = service.getAgentHistory(from_time)
       dao.persist(stats)
     end 
@@ -62,7 +74,7 @@ module Reports
     end
     
     def load_columns
-      statement = @dbi.execute("SELECT * from #{table}")
+      statement = @dbi.execute("SELECT * from #{table} limit 0")
       columns = statement.column_names
       # remove primary key
       columns.delete("#{table}_id")
@@ -140,7 +152,8 @@ module Reports
       # generally 0-1 rows
       @dbi.select_all(@from_time_sql) do |row|
         @ignore_from << row[0]
-        @from_time = time2datetime(row[1].to_time) # all rows should be same
+#        @from_time = time2datetime(row[1].to_time) # all rows should be same
+        @from_time = row[1].to_local_datetime # all rows should be same
       end
     end
     
