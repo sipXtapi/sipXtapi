@@ -57,7 +57,7 @@
     <binding name="description" value="message:description.queueSelection" />
   </component>
   <component id="queueSelection" type="PropertySelection">
-    <binding name="model" value="tapestry.instructUserToSelect(queuesModel)" />
+    <binding name="model" value="tapestry.instructUserToSelect(queuesModel, messages)" />
     <binding name="value" value="overflowQueueId" />
   </component>
 

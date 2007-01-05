@@ -108,7 +108,7 @@
     <binding name="condition" value="menuItems.currentMenuItem.action.attendantParameter"/>
   </component>
   <component id="attendantParameter" type="PropertySelection">
-    <binding name="model" value="tapestry.instructUserToSelect(beans.autoAttendants)"/>
+    <binding name="model" value="tapestry.instructUserToSelect(beans.autoAttendants, messages)"/>
     <binding name="value" value="menuItems.currentMenuItem.parameter"/>
   </component>
   <!-- Last Row : Add Menu Item -->
@@ -120,7 +120,7 @@
     <binding name="value" value="addMenuItemDialPad"/>
   </component>
   <component id="addMenuItemAction" type="PropertySelection">
-    <binding name="model" value="tapestry.instructUserToSelect(beans.localizedMenuItemActions)"/>
+    <binding name="model" value="tapestry.instructUserToSelect(beans.localizedMenuItemActions, messages)"/>
     <binding name="value" value="addMenuItemAction"/>
   </component>
   <component id="addMenuItem" type="Submit">

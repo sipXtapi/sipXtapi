@@ -40,8 +40,7 @@ public abstract class GroupActions extends BaseComponent {
     }
 
     public IPropertySelectionModel decorateModel(IPropertySelectionModel model) {
-        String label = getMessages().getMessage("label.moreActions");
-        return getTapestry().addExtraOption(model, label);
+        return getTapestry().addExtraOption(model, getMessages(), "label.moreActions");
     }
 
     private void triggerAction(IRequestCycle cycle) {

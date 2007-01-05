@@ -16,6 +16,7 @@ import java.util.Collection;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hivemind.ApplicationRuntimeException;
+import org.apache.hivemind.Messages;
 import org.apache.tapestry.IActionListener;
 import org.apache.tapestry.IComponent;
 import org.apache.tapestry.IRequestCycle;
@@ -32,11 +33,11 @@ public class TapestryContext {
     public static final String CONTEXT_BEAN_NAME = "tapestry";
 
     private HivemindContext m_hivemindContext;
-    
+
     public void setHivemindContext(HivemindContext hivemindContext) {
         m_hivemindContext = hivemindContext;
     }
-    
+
     public HivemindContext getHivemindContext() {
         return m_hivemindContext;
     }
@@ -45,17 +46,19 @@ public class TapestryContext {
      * Add a option to the dropdown model with a label to instruct the user to make a selection.
      * If not item is selected, your business object method will be explicitly set to null
      */
-    public IPropertySelectionModel instructUserToSelect(IPropertySelectionModel model) {
-        return addExtraOption(model, "select...");
+    public IPropertySelectionModel instructUserToSelect(IPropertySelectionModel model,
+            Messages messages) {
+        return addExtraOption(model, messages, "prompt.select");
     }
 
     /**
      * Add a option to the dropdown model with a label to instruct the user to make a selection.
      * If not item is selected, your business object method will be explicitly set to null
      */
-    public IPropertySelectionModel addExtraOption(IPropertySelectionModel model, String extraLabel) {
+    public IPropertySelectionModel addExtraOption(IPropertySelectionModel model,
+            Messages messages, String extraKey) {
         ExtraOptionModelDecorator decorated = new ExtraOptionModelDecorator();
-        decorated.setExtraLabel(extraLabel);
+        decorated.setExtraLabel(messages.getMessage(extraKey));
         decorated.setExtraOption(null);
         decorated.setModel(model);
 
@@ -95,33 +98,32 @@ public class TapestryContext {
                 recordUserException(ue);
             }
         }
-        
+
         /**
-         * Starting with Tapestry 4, Listeners wrap exceptions with 
-         * ApplicationRuntimeException.  We have to prepare for many levels
-         * of exceptions as listeners are often wrapped by other listeners
+         * Starting with Tapestry 4, Listeners wrap exceptions with ApplicationRuntimeException.
+         * We have to prepare for many levels of exceptions as listeners are often wrapped by
+         * other listeners
          */
         UserException getUserExceptionCause(ApplicationRuntimeException e) {
             Throwable t = e.getCause();
             if (t instanceof UserException) {
-                return (UserException) t;               
+                return (UserException) t;
             }
             if (t instanceof ApplicationRuntimeException && t != e) {
                 // recurse
                 return getUserExceptionCause((ApplicationRuntimeException) t);
             }
-            return null;            
+            return null;
         }
 
         private void recordUserException(UserException e) {
             m_validator.record(new ValidatorException(e.getMessage()));
         }
     }
-    
+
     /**
-     * Join a list of names objects into a string give a delimitor
-     * Example
-     *  <span jwcid="@Insert" value="ognl:tapestry.joinNamed(items, ', ')"/> 
+     * Join a list of names objects into a string give a delimitor Example <span jwcid="@Insert"
+     * value="ognl:tapestry.joinNamed(items, ', ')"/>
      */
     public String joinNamed(Collection namedItems, String delim) {
         Collection names = CollectionUtils.collect(namedItems, new NamedObject.ToName());

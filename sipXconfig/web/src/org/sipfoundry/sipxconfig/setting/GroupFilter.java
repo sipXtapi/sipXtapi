@@ -67,8 +67,7 @@ public abstract class GroupFilter extends BaseComponent {
 
         AdaptedSelectionModel model = new AdaptedSelectionModel();
         model.setCollection(actions);
-        String label = getMessages().getMessage("label.filter");
-        return getTapestry().addExtraOption(model, label);
+        return getTapestry().addExtraOption(model, getMessages(), "label.filter");
     }
 
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {

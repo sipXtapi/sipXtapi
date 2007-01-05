@@ -18,7 +18,6 @@ import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
-import org.apache.tapestry.annotations.Message;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator;
@@ -52,9 +51,6 @@ public abstract class ModelSelector extends BaseComponent {
     @InjectPage(NewPhone.PAGE)
     public abstract NewPhone getNewPhonePage();
 
-    @Message("label.addNewPhone")
-    public abstract String getAddNewPhoneLabel();
-
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
         super.renderComponent(writer, cycle);
         if (TapestryUtils.isValid(cycle, this) && TapestryUtils.isRewinding(cycle, this)) {
@@ -78,6 +74,6 @@ public abstract class ModelSelector extends BaseComponent {
         model.setCollection(getPhoneModelSource().getModels());
         model.setLabelExpression("label");
 
-        return getTapestryContext().addExtraOption(model, getAddNewPhoneLabel());
+        return getTapestryContext().addExtraOption(model, getMessages(), "label.addNewPhone");
     }
 }

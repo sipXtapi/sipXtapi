@@ -39,8 +39,8 @@ public abstract class CdrFilter extends BaseComponent {
             decoratedModel.setModel(model);
             decoratedModel.setResourcePrefix("filter.");
 
-            String label = getMessages().getMessage("label.filter");
-            setSelectionModel(getTapestry().addExtraOption(decoratedModel, label));
+            setSelectionModel(getTapestry().addExtraOption(decoratedModel, getMessages(),
+                    "label.filter"));
         }
     }
 }

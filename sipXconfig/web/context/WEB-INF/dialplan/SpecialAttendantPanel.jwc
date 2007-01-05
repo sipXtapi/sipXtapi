@@ -26,7 +26,7 @@
   </component>
   <component id="attendantSelection" type="PropertySelection">
     <binding name="value" value="autoAttendant"/>
-    <binding name="model" value="tapestry.instructUserToSelect(beans.autoAttendants)"/>
+    <binding name="model" value="tapestry.instructUserToSelect(beans.autoAttendants, messages)"/>
   </component>
   <component id="formActions" type="FormActions">
     <binding name="listener" value="listener:onApply"/>
