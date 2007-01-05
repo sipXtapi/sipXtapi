@@ -17,6 +17,8 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IComponent;
+import org.apache.tapestry.annotations.ComponentClass;
+import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.form.IFormComponent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.validator.Max;
@@ -34,13 +36,23 @@ import org.sipfoundry.sipxconfig.setting.type.SettingType;
 import org.sipfoundry.sipxconfig.setting.type.StringSetting;
 import org.springframework.context.MessageSource;
 
+@ComponentClass(allowBody = true, allowInformalParameters = true)
 public abstract class SettingEditor extends BaseComponent {
+    @Parameter(required = true)
     public abstract Setting getSetting();
 
     public abstract void setSetting(Setting setting);
 
+    @Parameter(required = true)
     public abstract boolean isRequiredEnabled();
 
+    @Parameter(defaultValue = "true")
+    public abstract boolean isEnabled();
+
+    /**
+     * Spring MessageSource interface based on resource bundle with translations for the model.
+     */
+    @Parameter
     public abstract MessageSource getMessageSource();
 
     /**
@@ -119,8 +131,12 @@ public abstract class SettingEditor extends BaseComponent {
     public String getDefaultValue() {
         Setting setting = getSetting();
         SettingType type = setting.getType();
-        String label = type.getLabel(setting.getDefaultValue());
-        return label;
+        String labelKey = type.getLabel(setting.getDefaultValue());
+        if (type.getName().equals("boolean")) {
+            // FIXME: this os only localized Boolean types for now
+            return TapestryUtils.getMessage(getMessages(), labelKey, labelKey);
+        }
+        return labelKey;
     }
 
     public String getDescription() {

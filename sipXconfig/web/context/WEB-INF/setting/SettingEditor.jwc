@@ -4,15 +4,6 @@
   allow-informal-parameters="no">
   <description>Editor for a single setting</description>
 
-  <parameter name="setting" required="yes" />
-  <parameter name="enabled" required="no" default-value="true" />
-  <parameter name="requiredEnabled" required="yes" />
-  <parameter name="messageSource" required="no">
-    <description>
-      Spring MessageSource interface based on resource bundle with translations for the model.
-    </description>
-  </parameter>
-
   <component id="fieldPanel" type="FieldPanel">
     <binding name="field" value="formComponent" />
     <binding name="label" value="label" />
@@ -28,7 +19,6 @@
     <binding name="validators" value="validatorList" />
     <binding name="disabled" value="! enabled" />
   </component>
-  <component id="integerBlock" type="Block"></component>
   <component id="realField" type="TextField">
     <binding name="id" value="'setting:' + setting.name" />
     <binding name="value" value="setting.typedValue" />
@@ -37,7 +27,6 @@
     <binding name="validators" value="validatorList" />
     <binding name="disabled" value="! enabled" />
   </component>
-  <component id="realBlock" type="Block"></component>
   <component id="stringField" type="TextField">
     <binding name="id" value="'setting:' + setting.name" />
     <binding name="value" value="setting.typedValue" />
@@ -47,20 +36,17 @@
     <binding name="disabled" value="! enabled" />
     <binding name="maxLength" value="setting.type.maxLen" />
   </component>
-  <component id="stringBlock" type="Block"></component>
   <component id="enumField" type="PropertySelection">
     <binding name="id" value="'setting:' + setting.name" />
     <binding name="value" value="setting.value" />
     <binding name="model" value="enumModel" />
     <binding name="disabled" value="! enabled" />
   </component>
-  <component id="enumBlock" type="Block"></component>
   <component id="booleanField" type="Checkbox">
     <binding name="id" value="'setting:' + setting.name" />
     <binding name="value" value="setting.typedValue" />
     <binding name="disabled" value="! enabled" />
   </component>
-  <component id="booleanBlock" type="Block"></component>
   <component id="fileField" type="AssetSelector">
     <binding name="id" value="'setting:' + setting.name" />
     <binding name="asset" value="setting.value" />
@@ -69,9 +55,5 @@
     <binding name="contentType" value="setting.type.contentType" />
     <binding name="submitOnChange" value="false" />
     <binding name="enabled" value="enabled" />
-  </component>
-  <component id="fileBlock" type="Block" />
-  <component id="field" type="RenderBlock">
-    <binding name="block" value="components.get(setting.type.name + 'Block')" />
   </component>
 </component-specification>
