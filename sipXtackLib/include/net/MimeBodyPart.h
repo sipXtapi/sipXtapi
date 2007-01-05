@@ -41,6 +41,16 @@ public:
                 int rawBodyLength = 0);
      //:Default constructor
 
+   //! Construct a MimeBodyPart from an HttpBody and a list of parameters.
+   MimeBodyPart(const HttpBody& httpBody,
+                //< Provides the bytes of the body.
+                const UtlDList& parameters
+                //< Provides the parameters.
+      );
+   /**< Does not attach the MimeBodyPart to a parent, or set the members
+    *   showing its location in the parent.  For that you need attach().
+    */
+
    MimeBodyPart(const MimeBodyPart& rMimeBodyPart);
      //:Copy constructor
 
@@ -53,13 +63,27 @@ public:
    MimeBodyPart& operator=(const MimeBodyPart& rhs);
      //:Assignment operator
 
+   /** Update the members that locate this MimeBodyPart within its parent
+    *  HttpBody.
+    */
+   void attach(HttpBody* parent,
+               int rawPartStart, int rawPartLength,
+               int partStart, int partLength);
+
 /* ============================ ACCESSORS ================================= */
-   virtual int getLength() const;
+
+   // Get the various indexes from the object.
+   int getRawStart() const;
+   int getRawLength() const;
+   int getStart() const;
+   int getLength() const;
 
    virtual void getBytes(const char** bytes, int* length) const;
 
    UtlBoolean getPartHeaderValue(const char* headerName,
                                  UtlString& headerValue) const;
+
+   UtlDList* getParameters();
 
 /* ============================ INQUIRY =================================== */
 
@@ -78,5 +102,30 @@ private:
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+inline int MimeBodyPart::getRawStart() const
+{
+   return mParentBodyRawStartIndex;
+}
+
+inline int MimeBodyPart::getRawLength() const
+{
+   return mRawBodyLength;
+}
+
+inline int MimeBodyPart::getStart() const
+{
+   return mParentBodyStartIndex;
+}
+
+inline int MimeBodyPart::getLength() const
+{
+   return mBodyLength;
+}
+
+inline UtlDList* MimeBodyPart::getParameters()
+{
+   return &mNameValues;
+}
 
 #endif  // _MimeBodyPart_h_

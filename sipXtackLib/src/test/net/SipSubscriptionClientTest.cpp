@@ -64,6 +64,7 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
         smLastClientNotifyReceived = new SipMessage(*notifyRequest);
         smClientNotifyEarlyDialog = earlyDialogHandle;
         smClientNotifyEstablishedDialog = dialogHandle;
+//        fprintf(stderr, "notifyCallback: dialogHandle = '%s'\n", dialogHandle);
     };
 
     // Subscribe effected states
@@ -96,7 +97,7 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
         }
         smClientSubEarlyDialog = earlyDialogHandle;
         smClientSubEstablishedDialog = dialogHandle;
-
+//        fprintf(stderr, "subStateCallback: dialogHandle = '%s'\n", dialogHandle);
     };
 
     UtlBoolean removeMessage(OsMsgQ& messageQueue,

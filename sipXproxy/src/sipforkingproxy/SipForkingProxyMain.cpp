@@ -136,7 +136,7 @@ sigHandler( int sig_num )
     // Unregister interest in the signal to prevent recursive callbacks
     pt_signal( sig_num, SIG_DFL );
 
-    // Minimize the chance that we loose log data
+    // Minimize the chance that we lose log data
     OsSysLog::flush();
     if (SIGTERM == sig_num)
     {

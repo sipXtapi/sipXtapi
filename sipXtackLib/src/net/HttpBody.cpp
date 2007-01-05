@@ -29,10 +29,18 @@
 #include <net/NameValueTokenizer.h>
 #include <net/HttpMessage.h>
 #include <os/OsSysLog.h>
+#include <utl/UtlDList.h>
+#include <utl/UtlDListIterator.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+
+// The number of hex chars to use for boundary strings.
+#define BOUNDARY_STRING_LENGTH 8
+// Mask to extract the low (BOUNDARY_STRING_LENGTH*4) bits of an unsigned int.
+#define BOUNDARY_COUNTER_MASK 0xFFFFFFFF
+
 // STATIC VARIABLE INITIALIZATIONS
 
 unsigned HttpBody::boundaryCounter = 0;
@@ -43,7 +51,7 @@ unsigned HttpBody::boundaryCounter = 0;
 
 // Constructor
 HttpBody::HttpBody(const char* bytes, int length, const char* contentType) :
-    bodyLength(0)
+   bodyLength(0)
 {
    mClassType = HTTP_BODY_CLASS;
    for(int partIndex = 0; partIndex < MAX_HTTP_BODY_PARTS; partIndex++)
@@ -87,7 +95,6 @@ HttpBody::HttpBody(const char* bytes, int length, const char* contentType) :
          }
       }
    }
-
 
    if(bytes && length < 0) length = strlen(bytes);
    if(bytes && length > 0)
@@ -164,8 +171,6 @@ HttpBody::HttpBody(const char* bytes, int length, const char* contentType) :
 HttpBodyMultipart::HttpBodyMultipart(const char* contentType) :
    HttpBody(NULL, -1, contentType)
 {
-   bodyLength = 0;
-
    for (int partIndex = 0; partIndex < MAX_HTTP_BODY_PARTS; partIndex++)
    {
       mpBodyParts[partIndex] = NULL;
@@ -178,11 +183,15 @@ HttpBodyMultipart::HttpBodyMultipart(const char* contentType) :
    mBody.append(mMultipartBoundary);
    mBody.append("--\r\n");
    // Add the boundary parameter to the type.
-   append(";boundary=\"");
+   append(";" MULTIPART_BOUNDARY_PARAMETER "=\"");
    append(mMultipartBoundary);
    append("\"");
-   // No need to check validity, as there is no body content.
- }
+   // No need to check validity of the boundary string, as there is no
+   // body content for it to appear in.
+
+   // Update bodyLength.
+   bodyLength = mBody.length();
+}
 
 // Copy constructor
 HttpBody::HttpBody(const HttpBody& rHttpBody) :
@@ -333,40 +342,139 @@ HttpBody* HttpBody::createBody(const char* bodyBytes,
     return(body);
 }
 
+// Append a multipart body part to an existing multiparty body.
+void HttpBody::appendBodyPart(const HttpBody& body,
+                              const UtlDList& parameters)
+{
+   assert(isMultipart());
+   
+   // Construct a new MimeBodyPart for the new body part.
+   MimeBodyPart* part = new MimeBodyPart(body, parameters);
+
+   // Insert it as the last body part.
+   int index;
+   for (index = 0; index < MAX_HTTP_BODY_PARTS; index++)
+   {
+      if (!mpBodyParts[index])
+      {
+         mpBodyParts[index] = part;
+         break;
+      }
+   }
+   assert(index < MAX_HTTP_BODY_PARTS);
+
+   // Turn the final boundary into an intermediate boundary.
+   mBody.remove(mBody.length() - 4);
+   mBody.append("\r\n");
+
+   // Insert the headers.
+   int rawPartStart = mBody.length();
+   UtlDListIterator iterator(*part->getParameters());
+   NameValuePair* nvp;
+   while ((nvp = (NameValuePair*) iterator()))
+   {
+      mBody.append(nvp->data());
+      mBody.append(": ");
+      mBody.append(nvp->getValue());
+      mBody.append("\r\n");
+   }
+   mBody.append("\r\n");
+
+   // Insert the body.
+   int partStart = mBody.length();
+   const char* bytes;
+   int length;
+   body.getBytes(&bytes, &length);
+   mBody.append(bytes, length);
+   int partEnd = mBody.length();
+
+   // Update bodyLength.
+   bodyLength = mBody.length();
+
+   // Determine if we have to change the boundary string.
+   bool change_boundary_string =
+      mBody.index(mMultipartBoundary, partStart) != UTL_NOT_FOUND;
+
+   // Add the final boundary.
+   mBody.append("\r\n--");
+   mBody.append(mMultipartBoundary);
+   mBody.append("--\r\n");
+
+   // Update the MimeBodyPart to know where it is contained in the HttpBody.
+   part->attach(this,
+                rawPartStart, partEnd - rawPartStart,
+                partStart, partEnd - partStart);
+
+   // If we have to change the boundary string.
+   if (change_boundary_string)
+   {
+      // Find a new boundary string that isn't in the body.
+      do {
+         nextBoundary(mMultipartBoundary);
+      } while (mBody.index(mMultipartBoundary) != UTL_NOT_FOUND);
+
+      // Replace the old boundary string.
+      for (int partIndex = 0; partIndex < MAX_HTTP_BODY_PARTS; partIndex++)
+      {
+         MimeBodyPart* part = mpBodyParts[partIndex];
+         if (part)
+         {
+            // Replace the boundary string just before this part.
+            mBody.replace(part->getRawStart() - (2 + BOUNDARY_STRING_LENGTH),
+                          BOUNDARY_STRING_LENGTH,
+                          mMultipartBoundary.data(),
+                          BOUNDARY_STRING_LENGTH);
+         }
+      }
+
+      // Replace the boundary string in the final boundary.
+      mBody.replace(mBody.length() - (4 + BOUNDARY_STRING_LENGTH),
+                    BOUNDARY_STRING_LENGTH,
+                    mMultipartBoundary.data(),
+                    BOUNDARY_STRING_LENGTH);
+
+      // Replace the boundary string in the Content-Type.
+      size_t loc = this->index(";" MULTIPART_BOUNDARY_PARAMETER "=\"");
+      this->replace(loc + sizeof (";" MULTIPART_BOUNDARY_PARAMETER "=\"") - 1,
+                    BOUNDARY_STRING_LENGTH,
+                    mMultipartBoundary.data(),
+                    BOUNDARY_STRING_LENGTH);
+   }
+}
+
 /* ============================ ACCESSORS ================================= */
+
 int HttpBody::getLength() const
 {
-        return(bodyLength);
+   return bodyLength;
 }
 
 void HttpBody::getBytes(const char** bytes, int* length) const
 {
-        *bytes = mBody.data();
-        *length = bodyLength;
+   *bytes = mBody.data();
+   *length = mBody.length();
 }
 
 void HttpBody::getBytes(UtlString* bytes, int* length) const
 {
-    bytes->remove(0);
-    //bytes->append(mBody);
-    //*length = bodyLength;
-    const char* bytePtr;
-    getBytes(&bytePtr, length);
-    if(*length > 0)
-    {
-        //hint to the string to change the capacity to the new length.
-        //if this fails, we may not have enough ram to complete this operation
-        unsigned int newLength = (*length);
-        if (bytes->capacity(newLength) >= newLength)
-        {
-            bytes->append(bytePtr, *length);
-        }
-        else
-        {
-            OsSysLog::add(FAC_SIP, PRI_ERR,
-                "HttpBody::getBytes allocation failure to reserve %d bytes", newLength);
-        }
-    }
+   bytes->remove(0);
+   const char* bytePtr;
+   getBytes(&bytePtr, length);
+   if (*length > 0)
+   {
+      //hint to the string to change the capacity to the new length.
+      //if this fails, we may not have enough ram to complete this operation
+      unsigned int newLength = (*length);
+      if (bytes->capacity(newLength) >= newLength)
+      {
+         bytes->append(bytePtr, *length);
+      }
+      else
+      {
+         OsSysLog::add(FAC_SIP, PRI_ERR,
+                       "HttpBody::getBytes allocation failure to reserve %d bytes", newLength);
+      }
+   }
 }
 
 const char* HttpBody::getBytes() const
@@ -389,7 +497,9 @@ const char* HttpBody::getContentType() const
    return data();
 }
 
-UtlBoolean HttpBody::getMultipartBytes(int partIndex, const char** bytes, int* length) const
+UtlBoolean HttpBody::getMultipartBytes(int partIndex,
+                                       const char** bytes,
+                                       int* length) const
 {
     UtlBoolean partFound = FALSE;
     if(!mMultipartBoundary.isNull())
@@ -469,9 +579,12 @@ UtlBoolean HttpBody::isMultipart() const
 
 void HttpBody::nextBoundary(UtlString& boundary)
 {
-   boundaryCounter += 0x54637281;
-   char buffer[9];
-   // Need to trim boundary Counter to 32 bits, as "unsigned" may be longer.
-   sprintf(buffer, "%08x", boundaryCounter & 0xFFFFFFFF);
+   boundaryCounter += 0x54637281; // This constant is arbitrary, but it must
+                                  // be odd.
+   char buffer[BOUNDARY_STRING_LENGTH + 1];
+   // Need to trim boundary counter to the needed length, as
+   // "unsigned" may be longer.
+   sprintf(buffer, "%0*x",
+           BOUNDARY_STRING_LENGTH, boundaryCounter & BOUNDARY_COUNTER_MASK);
    boundary = buffer;
 }

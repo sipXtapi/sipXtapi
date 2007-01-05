@@ -71,6 +71,7 @@
 #define HTTP_CONTENT_TRANSFER_ENCODING_FIELD "CONTENT-TRANSFER-ENCODING"
 #define HTTP_CONTENT_LENGTH_FIELD "CONTENT-LENGTH"
 #define HTTP_CONTENT_TYPE_FIELD "CONTENT-TYPE"
+#define HTTP_CONTENT_ID_FIELD "CONTENT-ID"
 #define HTTP_LOCATION_FIELD "LOCATION"
 #define HTTP_PROXY_AUTHENTICATE_FIELD "PROXY-AUTHENTICATE"
 #define HTTP_PROXY_AUTHORIZATION_FIELD "PROXY-AUTHORIZATION"
@@ -158,7 +159,7 @@ typedef UtlBoolean (*GetDataCallbackProc)(char* pData,
  *    -# the response status string is retrieved via getResponseStatusText()
  * \par
  * There are generic getters and setters for the header fields and values
- * However the design philosophy has been to create secialized get and
+ * However the design philosophy has been to create specialized get and
  * set methods for fields that require any special handling or parsing
  * (i.e. things that are more than opaque tokens or strings).  The generic
  * accessor methods are:

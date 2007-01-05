@@ -284,18 +284,15 @@ public:
      *         There is no semantics enforced.  This is an opaque string used 
      *         as part of the key.
      *  \param eventType - SIP event type token
-     *  \param numContentTypes - the number of mime types in the contentTypes
-     *         array.  numContentTypes is -1 and getContent returns FALSE if
-     *         maxContentTypes is not big enough.
      *  \param acceptHeaderValue - the mime types allowed to be returned in 
      *         the content argument.  The first match is the one returned.
-     *         This string has the same syntax/format as the SIP accept header.
+     *         This string has the same syntax/format as the SIP Accept header.
      *  \param content - the content body if a match was found, otherwise NULL.
      *         The content body is a copy that must be freed.
      *  \param isDefaultContent - if there was no content specific to the resourceId
      *         and default content was provided for the given eventTypeKey,
-     *         then isDefaultContent is set to TRUE and numContentTypes and
-     *         content contain values from the eventTypeKey content default.
+     *         then isDefaultContent is set to TRUE and 'content' contains
+     *         values from the eventTypeKey content default.
      */
     virtual UtlBoolean getContent(const char* resourceId,
                                   const char* eventTypeKey,
