@@ -18,6 +18,7 @@ import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.services.ExpressionEvaluator;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.job.Job;
 import org.sipfoundry.sipxconfig.job.JobContext;
 
 /**
@@ -34,6 +35,8 @@ public abstract class JobStatusPage extends BasePage {
 
     @Bean
     public abstract EvenOdd getRowClass();
+
+    public abstract Job getJob();
 
     public void remove() {
         getJobContext().removeCompleted();

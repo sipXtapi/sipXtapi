@@ -3,18 +3,24 @@
   <form jwcid="@AutoRefreshForm" actionBlock="component:actions">
     <table jwcid="@contrib:TableView" id="jobs:list" class="component"
       source="ognl:jobContext.jobs" pageSize="-1"
-      columns="* name,=startColumn,=stopColumn,status:status.name,error:errorMsg">
+      columns="* name,=startColumn,=stopColumn,status,error:errorMsg">
       <thead>
         <tr>
           <span jwcid="@contrib:TableColumns"/>
         </tr>
       </thead>
       <tbody>
-        <span jwcid="@contrib:TableRows" class="ognl:beans.rowClass.next" volatile="ognl:true">
+        <span jwcid="@contrib:TableRows"
+          class="ognl:beans.rowClass.next"
+          row="ognl:job"
+          volatile="ognl:true">
           <span jwcid="@contrib:TableValues"/>
         </span>
       </tbody>
-    </table>      
+      <span jwcid="statusColumnValue@Block">
+        <span jwcid="@Insert" value="ognl:job.status" format="bean:statusFormat"/>          
+      </span>            
+    </table>
     <ul jwcid="actions@Block">
       <li>
         <input id="jobs:remove" jwcid="remove@tacos:AjaxSubmit"
