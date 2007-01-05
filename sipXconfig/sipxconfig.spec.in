@@ -147,47 +147,41 @@ rm -rf $RPM_BUILD_ROOT
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{phonedir}/profile/tftproot
 %config(noreplace) %{phonedir}/profile/tftproot/*
 
-# Install configserver config files, directory only is created by pbx
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/sipxconfig-jetty.xml
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/log4j.properties
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/sipxconfig.properties.in
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/topology.xml.in
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/VM_global_library.vm
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/setting.dtd
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/setting.xsl
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/kphone/*
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/acme/*
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/acmePhone/*
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/acd/*
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/audiocodes/*
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/ciscoAta/*
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/clearone/*
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/ciscoIp/*
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/commserver/*
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/database/*
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/dialplan/*
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/grandstream/*
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/hitachi/*
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/process.d/sipxconfig.process.xml
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/polycom/*
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/snom/*
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/mitel/*
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/sipxvxml/*
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/sipxconference/*
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/sipxpark/*
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/unmanagedPhone/*
-
-
 %{sipxpbxdata}
-
 %dir %{_localstatedir}
+%{upgrade_archive_dir}/%{this_archive}
+%{upgrade_archive_dir}/%{name}-previous.tgz
 
 # Install configserver config files, directory only is created by pbx
 %defattr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755)
-%config(noreplace) %{sipxpbxconf}/*
-
-%{upgrade_archive_dir}/%{this_archive}
-%{upgrade_archive_dir}/%{name}-previous.tgz
+%config(noreplace) %{sipxpbxconf}/sipxconfig-jetty.xml
+%config(noreplace) %{sipxpbxconf}/log4j.properties
+%config(noreplace) %{sipxpbxconf}/sipxconfig.properties.in
+%config(noreplace) %{sipxpbxconf}/topology.xml.in
+%config(noreplace) %{sipxpbxconf}/VM_global_library.vm
+%config(noreplace) %{sipxpbxconf}/setting.dtd
+%config(noreplace) %{sipxpbxconf}/setting.xsl
+%config(noreplace) %{sipxpbxconf}/kphone/*
+%config(noreplace) %{sipxpbxconf}/acme/*
+%config(noreplace) %{sipxpbxconf}/acmePhone/*
+%config(noreplace) %{sipxpbxconf}/acd/*
+%config(noreplace) %{sipxpbxconf}/audiocodes/*
+%config(noreplace) %{sipxpbxconf}/ciscoAta/*
+%config(noreplace) %{sipxpbxconf}/clearone/*
+%config(noreplace) %{sipxpbxconf}/ciscoIp/*
+%config(noreplace) %{sipxpbxconf}/commserver/*
+%config(noreplace) %{sipxpbxconf}/database/*
+%config(noreplace) %{sipxpbxconf}/dialplan/*
+%config(noreplace) %{sipxpbxconf}/grandstream/*
+%config(noreplace) %{sipxpbxconf}/hitachi/*
+%config(noreplace) %{sipxpbxconf}/process.d/sipxconfig.process.xml
+%config(noreplace) %{sipxpbxconf}/polycom/*
+%config(noreplace) %{sipxpbxconf}/snom/*
+%config(noreplace) %{sipxpbxconf}/mitel/*
+%config(noreplace) %{sipxpbxconf}/sipxvxml/*
+%config(noreplace) %{sipxpbxconf}/sipxconference/*
+%config(noreplace) %{sipxpbxconf}/sipxpark/*
+%config(noreplace) %{sipxpbxconf}/unmanagedPhone/*
 
 %pre
 
