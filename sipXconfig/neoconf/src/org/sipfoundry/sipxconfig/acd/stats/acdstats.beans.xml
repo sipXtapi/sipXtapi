@@ -16,6 +16,7 @@
 
   <bean id="acdHistoricalStatsImpl" class="org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalStatsImpl">
     <property name="dataSource" ref="acdHistoryDataSource" />
+    <property name="reportScript" value="${sysdir.bin}/sipxconfig-report"/>
   </bean>  
 
   <alias alias="acdHistoricalStats" name="acdHistoricalStatsImpl" />

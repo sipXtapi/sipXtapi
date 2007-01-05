@@ -2,23 +2,28 @@
   <h2>
     <span key="title">ACD Reports</span>
   </h2>
-  <div id="settings-nav">
-  <ul>
-    <span jwcid="@For" source="ognl:acdHistoricalStats.reports" value="ognl:availableReportsIndexItem" element="li">
-      <a href="#" jwcid="@DirectLink" listener="listener:showReport" parameters="ognl:availableReportsIndexItem">
-        <span jwcid="@Insert" value="ognl:messages.getMessage('label.' + availableReportsIndexItem)"/>
-      </a>
-    </span>
-  </ul>
-  </div>  
-  <div id="settings-content">
-    <h3><span jwcid="@Insert" value="ognl:messages.getMessage('label.' + reportName)"/></h3>        
-    <span jwcid="@cdr/CdrDates" startTime="ognl:startTime" endTime="ognl:endTime"/>
-    <table jwcid="@StatsTable" id="acd:history:list" class="component" 
-      source="ognl:rows"
-      columns="ognl:columns"
-      row="ognl:row"
-      usePager="ognl:true">
-    </table>
-  </div>
+  <span jwcid="@If" condition="ognl:acdHistoricalStats.enabled">
+    <div id="settings-nav">
+    <ul>
+      <span jwcid="@For" source="ognl:acdHistoricalStats.reports" value="ognl:availableReportsIndexItem" element="li">
+        <a href="#" jwcid="@DirectLink" listener="listener:showReport" parameters="ognl:availableReportsIndexItem">
+          <span jwcid="@Insert" value="ognl:messages.getMessage('label.' + availableReportsIndexItem)"/>
+        </a>
+      </span>
+    </ul>
+    </div>  
+    <div id="settings-content">
+      <h3><span jwcid="@Insert" value="ognl:messages.getMessage('label.' + reportName)"/></h3>        
+      <span jwcid="@cdr/CdrDates" startTime="ognl:startTime" endTime="ognl:endTime"/>
+      <table jwcid="@StatsTable" id="acd:history:list" class="component" 
+        source="ognl:rows"
+        columns="ognl:columns"
+        row="ognl:row"
+        usePager="ognl:true">
+      </table>
+    </div>
+  </span>
+  <span jwcid="@Else">
+    <span key="historicialStatsDisabled" class="user-error" raw="true"/>
+  </span>
 </div>

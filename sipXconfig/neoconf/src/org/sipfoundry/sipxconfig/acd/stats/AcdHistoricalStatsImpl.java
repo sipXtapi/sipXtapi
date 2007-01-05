@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.acd.stats;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -28,11 +29,35 @@ import org.springframework.jdbc.support.rowset.SqlRowSetMetaData;
 public class AcdHistoricalStatsImpl extends JdbcDaoSupport implements AcdHistoricalStats,
         BeanFactoryAware {
     private ListableBeanFactory m_factory;
+    private String m_reportScript;
+    private Boolean m_enabled;    
 
     public List<String> getReports() {
         List<String> reports = Arrays.asList(m_factory
                 .getBeanNamesForType(AcdHistoricalReport.class));
         return reports;
+    }
+    
+    /**
+     * Default value is determined is report cron script is installed locally.  You can enable
+     * historic stats and configure it to talk to a remote database.
+     * 
+     * @return 
+     */
+    public boolean isEnabled() {
+        if (m_enabled != null) {
+            return m_enabled.booleanValue();
+        }
+        
+        return isReportsInstalledLocally();
+    }
+    
+    public void setEnabled(boolean enabled) {
+        m_enabled = new Boolean(enabled);
+    }
+    
+    boolean isReportsInstalledLocally() {
+        return getReportScript() != null && new File(getReportScript()).exists();
     }
 
     public List<String> getReportFields(String reportName) {
@@ -60,5 +85,13 @@ public class AcdHistoricalStatsImpl extends JdbcDaoSupport implements AcdHistori
 
     public void setBeanFactory(BeanFactory beanFactory) {
         m_factory = (ListableBeanFactory) beanFactory;
+    }
+
+    public void setReportScript(String reportScript) {
+        m_reportScript = reportScript;
+    }
+
+    public String getReportScript() {
+        return m_reportScript;
     }
 }
