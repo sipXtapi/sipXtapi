@@ -51,7 +51,7 @@ public class ListParkOrbitsTestUi extends ListWebTestCase {
 
     protected Object[] getExpectedTableRow(String[] paramValues) {
         return new Object[] {
-            paramValues[0], "false", paramValues[1], m_tempFile.getName()
+            paramValues[0], "Disabled", paramValues[1], m_tempFile.getName()
         };
     }
 

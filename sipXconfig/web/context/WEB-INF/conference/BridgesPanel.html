@@ -1,4 +1,3 @@
-<span jwcid="$content$">
 <fieldset>
   <ul class="component-links">
     <li>
@@ -11,8 +10,11 @@
     <span jwcid="nameColumnValue">
       <span jwcid="editRowLink">
         <span jwcid="nameText"/>
-      </span>
+      </span>      
     </span>
+    <span jwcid="enabledColumnValue@Block">
+      <span jwcid="@common/EnabledColumn" value="ognl:currentRow.enabled"/>
+    </span>    
   </table>
   <ul class="component-submit">
     <li>
@@ -20,4 +22,3 @@
     </li>
   </ul>
 </fieldset>
-</span>        

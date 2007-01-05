@@ -38,21 +38,21 @@ public class DialPlanEditTestUi extends WebTestCase {
 
     private static final String[][] DEFAULTS = {
         {
-            "Emergency", "false", "Emergency", "Emergency dialing plan"
+            "Emergency", "Disabled", "Emergency", "Emergency dialing plan"
         }, {
-            "International", "false", "Long Distance", "International dialing"
+            "International", "Disabled", "Long Distance", "International dialing"
         }, {
-            "Local", "false", "Long Distance", "Local dialing"
+            "Local", "Disabled", "Long Distance", "Local dialing"
         }, {
-            "Long Distance", "false", "Long Distance", "Long distance dialing plan"
+            "Long Distance", "Disabled", "Long Distance", "Long distance dialing plan"
         }, {
-            "Restricted", "false", "Long Distance", "Restricted dialing"
+            "Restricted", "Disabled", "Long Distance", "Restricted dialing"
         }, {
-            "Toll free", "false", "Long Distance", "Toll free dialing"
+            "Toll free", "Disabled", "Long Distance", "Toll free dialing"
         }, {
-            "AutoAttendant", "true", "Attendant", "Default autoattendant dialing plan"
+            "AutoAttendant", "Enabled", "Attendant", "Default autoattendant dialing plan"
         }, {
-            "Internal", "true", "Internal", "Default internal dialing plan"
+            "Internal", "Enabled", "Internal", "Default internal dialing plan"
         },
     };
 

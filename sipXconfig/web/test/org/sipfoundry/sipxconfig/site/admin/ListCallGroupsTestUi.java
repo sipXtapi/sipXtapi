@@ -44,7 +44,7 @@ public class ListCallGroupsTestUi extends ListWebTestCase {
     protected Object[] getExpectedTableRow(String[] paramValues) {
         Object[] expected = new Object[4];
         expected[0] = paramValues[0];
-        expected[1] = "false";
+        expected[1] = "Disabled";
         expected[2] = paramValues[1];
         expected[3] = paramValues[2];
         return expected;

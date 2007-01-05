@@ -1,4 +1,3 @@
-<span jwcid="$content$">
 <fieldset>
     <legend><span key="section">Conferences</span></legend>
     <ul class="component-links">
@@ -10,6 +9,9 @@
 		<span jwcid="nameColumnValue">
 			<span jwcid="editRowLink"><span jwcid="nameText"/></span>
 		</span>
+        <span jwcid="enabledColumnValue@Block">
+          <span jwcid="@common/EnabledColumn" value="ognl:currentRow.enabled"/>
+        </span>    
 	</table>
     <ul class="component-submit">
         <li>
@@ -17,4 +19,3 @@
         </li>
     </ul>
 </fieldset>
-</span>        

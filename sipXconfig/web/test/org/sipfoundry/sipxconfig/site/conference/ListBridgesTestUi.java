@@ -50,7 +50,7 @@ public class ListBridgesTestUi extends ListWebTestCase {
     }
 
     protected Object[] getExpectedTableRow(String[] paramValues) {
-        return ArrayUtils.add(paramValues, 1, "false");
+        return ArrayUtils.add(paramValues, 1, "Disabled");
     }
     
     public void setUp() {

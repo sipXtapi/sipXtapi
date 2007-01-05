@@ -10,15 +10,28 @@
   <div jwcid="@QuickHelp" value="message:quick.help"/>
   <form jwcid="form" id="dialplan:list:form">
     <ul class="component-links">
-      <li><span jwcid="selectRuleType"/></li>
-      <li><a jwcid="activate" id="dialplan:activate"><span key="link.activate">Activate</span></a></li>
-      <li><a jwcid="revert" id="dialplan:revert"><span key="link.revert">Reset</span></a></li>
+      <li><span jwcid="selectRuleType@SelectRuleType"/></li>
+      <li>
+        <a jwcid="activate@DirectLink" id="dialplan:activate" listener="listener:activate">
+          <span key="link.activate">Activate</span>
+        </a>
+      </li>
+      <li>
+        <a jwcid="revert@DirectLink" id="dialplan:revert" listener="listener:revert">
+          <span key="link.revert">Reset</span>
+        </a>
+      </li>
     </ul>
     <table jwcid="tableView" id="dialplan:list">
-      <span jwcid="nameColumnValue">
-        <span jwcid="editRowLink">
-          <span jwcid="nameText"/>
+      <span jwcid="nameColumnValue@Block">
+        <span jwcid="editRowLink@DirectLink" 
+          listener="listener:edit"
+          parameters="ognl:currentRow.id">
+          <span jwcid="@Insert" value="ognl:currentRow.name"/>
         </span>
+      </span>
+      <span jwcid="enabledColumnValue@Block">
+        <span jwcid="@common/EnabledColumn" value="ognl:currentRow.enabled"/>
       </span>
     </table>
     <ul class="component-submit">
@@ -26,14 +39,14 @@
         <input jwcid="duplicate" type="submit"/>
       </li>
       <li>
-        <input type="submit" jwcid="delete" id="dialplan:delete" />
+        <input jwcid="delete" id="dialplan:delete" />
         <span jwcid="@common/Confirm" component="component:delete" prompt="message:confirm.delete"/>                    
       </li>
       <li>
-        <input type="submit" jwcid="moveUp" id="dialplan:move:up"/>
+        <input jwcid="moveUp" id="dialplan:move:up"/>
       </li>
       <li>
-        <input type="submit" jwcid="moveDown" id="dialplan:move:down"/>
+        <input jwcid="moveDown" id="dialplan:move:down"/>
       </li>
     </ul>
   </form>
