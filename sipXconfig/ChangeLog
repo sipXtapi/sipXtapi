@@ -4,6 +4,34 @@ SIPfoundry Issue Tracker at:
         http://track.sipfoundry.org/browse?XCF
 	
 
+Version 3.7.3
+
+** Bug
+    * [XCF-1391] - initialize method is called twice for Phones
+    * [XCF-1394] - Better error-reporting in external phonebook CSV-file parser.
+    * [XCF-1405] - Current 3.7.0 mainline fails to start up.
+    * [XCF-1406] - Phonebooks cannot be edited or deleted.
+    * [XCF-1408] - group label and group description in setting fieldset does not render localized strings
+    * [XCF-1415] - incorrect help text on 'Devices | Phones | <polycom phone> | Directory Resources' screen
+    * [XCF-1429] - Resolve/fix places where unescaped HTML from localization files shows up
+    * [XCF-1431] - deploying Polycom firmware (.zip file) does not work correctly
+
+** Improvement
+    * [XCF-871] - simplify navigation from users to phones
+    * [XCF-1336] - if there are failed background jobs display status on all sipXconfig pages
+    * [XCF-1389] - all sipX configuration files should be owned by sipx user
+    * [XCF-1395] - When a phonebook gets removed from a phone or user, the previous phonebook XML-file will persist.
+    * [XCF-1422] - Allow reordering of speed dial entries
+    * [XCF-1424] - Show phone model name on new phone page
+
+** New Feature
+    * [XCF-1203] - speed dial support
+    * [XCF-1305] - Support for Polycom Soundpoint 550 (Rainbow)
+    * [XCF-1387] - configuration for ENUM plugin
+    * [XCF-1388] - add phones from the user screen
+    * [XCF-1418] - Auto Call Distribution Historical stats web reports
+
+	
 Version 3.7.2
 
 ** Bug
