@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -29,8 +31,10 @@ import org.apache.tapestry.contrib.table.model.IAdvancedTableColumn;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.contrib.table.model.ognl.ExpressionTableColumn;
 import org.apache.tapestry.services.ExpressionEvaluator;
+import org.apache.tapestry.util.ContentType;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
+import org.apache.tapestry.web.WebResponse;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.springframework.context.MessageSource;
 
@@ -309,5 +313,17 @@ public final class TapestryUtils {
         }
 
         return candidates;
+    }
+    
+    public static PrintWriter getCsvExportWriter(WebResponse response, String filename) throws IOException {
+        response.setHeader("Expires", "0");
+        response.setHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
+        response.setHeader("Pragma", "public");
+        response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
+
+        ContentType csvType = new ContentType("text/comma-separated-values");
+
+        PrintWriter writer = response.getPrintWriter(csvType);
+        return writer;
     }
 }

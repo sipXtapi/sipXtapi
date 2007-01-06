@@ -11,8 +11,11 @@
  */
 package org.sipfoundry.sipxconfig.acd.stats;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public interface AcdHistoricalStats {
@@ -25,4 +28,5 @@ public interface AcdHistoricalStats {
 
     public List<Map<String, Object>> getReport(String name, Date startTime, Date endTime);
     
+    public void dumpReport(Writer writer, List<Map<String, Object>> reportData, Locale locale) throws IOException;
 }

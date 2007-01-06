@@ -20,7 +20,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.services.ExpressionEvaluator;
-import org.apache.tapestry.util.ContentType;
 import org.apache.tapestry.web.WebResponse;
 import org.sipfoundry.sipxconfig.cdr.CdrManager;
 import org.sipfoundry.sipxconfig.cdr.CdrSearch;
@@ -47,18 +46,8 @@ public abstract class CdrStatsPanel extends BaseComponent {
     }
 
     public void export() {
-        WebResponse response = getResponse();
-
-        response.setHeader("Expires", "0");
-        response.setHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
-        response.setHeader("Pragma", "public");
-        response.setHeader("Content-Disposition", "attachment; filename=\"cdrs.csv\"");
-
-        ContentType csvType = new ContentType("text/comma-separated-values");
-
         try {
-            PrintWriter writer = response.getPrintWriter(csvType);
-
+            PrintWriter writer = TapestryUtils.getCsvExportWriter(getResponse(), "cdrs.csv");
             getCdrManager().dumpCdrs(writer, getStartTime(), getEndTime(), getCdrSearch());
             writer.close();
         } catch (IOException e) {

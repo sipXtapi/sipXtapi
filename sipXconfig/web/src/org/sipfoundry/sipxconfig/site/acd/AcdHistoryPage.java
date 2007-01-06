@@ -11,10 +11,14 @@
  */
 package org.sipfoundry.sipxconfig.site.acd;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hivemind.Messages;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
@@ -25,23 +29,30 @@ import org.apache.tapestry.contrib.table.model.simple.SimpleTableColumnModel;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
+import org.apache.tapestry.web.WebResponse;
 import org.postgresql.util.PGInterval;
 import org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalStats;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.SqlInterval;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.cdr.CdrPage;
 import org.sipfoundry.sipxconfig.site.common.DefaultTableValueRendererSource;
 
 
 public abstract class AcdHistoryPage extends BasePage implements PageBeginRenderListener {
-
     public static final String PAGE = "acd/AcdHistoryPage";
+    private static final Log LOG = LogFactory.getLog(AcdHistoryPage.class);    
     
     @InjectObject(value = "spring:acdHistoricalStats")
     public abstract AcdHistoricalStats getAcdHistoricalStats();
+    
+    public abstract int getReportIndex();
 
     public abstract Map<String, Object> getRow();
     
+    @InjectObject(value = "service:tapestry.globals.WebResponse")
+    public abstract WebResponse getResponse();
+
     @Persist
     public abstract String getReportName();
     
@@ -93,6 +104,16 @@ public abstract class AcdHistoryPage extends BasePage implements PageBeginRender
 
         return new SimpleTableColumnModel(columns);
     }    
+
+    public void export() {
+        try {
+            PrintWriter writer = TapestryUtils.getCsvExportWriter(getResponse(), getReportName() + ".csv");
+            getAcdHistoricalStats().dumpReport(writer, getRows(), getPage().getLocale());
+            writer.close();
+        } catch (IOException e) {
+            LOG.error("Error during ACD History report export " + getReportName(), e);
+        }
+    }
 }
 
 /**
