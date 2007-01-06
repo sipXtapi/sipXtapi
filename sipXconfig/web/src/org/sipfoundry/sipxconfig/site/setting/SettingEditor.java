@@ -131,7 +131,12 @@ public abstract class SettingEditor extends BaseComponent {
     public String getDefaultValue() {
         Setting setting = getSetting();
         SettingType type = setting.getType();
-        String labelKey = type.getLabel(setting.getDefaultValue());
+        String defaultValue = setting.getDefaultValue();
+        if (defaultValue == null) {
+            // no need to localize empty default labels
+            return null;
+        }
+        String labelKey = type.getLabel(defaultValue);
         if (type.getName().equals("boolean")) {
             // FIXME: this os only localized Boolean types for now
             return TapestryUtils.getMessage(getMessages(), labelKey, labelKey);
