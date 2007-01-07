@@ -112,7 +112,7 @@ UtlContainableType SdpCandidate::getContainableType() const
 
 unsigned SdpCandidate::hash() const 
 { 
-   return unsigned int(mPriority) ^ unsigned int(mPriority << 32);  // Priority is to be unique per candidate - draft-ieft-mmusic-ice-12
+   return unsigned(mPriority) ^ unsigned(mPriority << 32);  // Priority is to be unique per candidate - draft-ieft-mmusic-ice-12
 }
 
 int SdpCandidate::compareTo(UtlContainable const *rhs) const 
@@ -173,13 +173,17 @@ void SdpCandidate::toString(UtlString& sdpCandidateString) const
    // build extension attributes string
    UtlSListIterator it(mExtensionAttributes);
    SdpCandidateExtensionAttribute* attribute;
-   while(attribute = (SdpCandidateExtensionAttribute*) it())
+   while((attribute = (SdpCandidateExtensionAttribute*) it()))
    {
       extensionAttributesString += attribute->getName() + UtlString("=") + attribute->getValue() + UtlString(", ");
    }
    
-   sprintf(stringBuffer, "SdpCandidate: foundation=\'%s\', id=%d, transport=%s, priority=%I64d, addr=\'%s\', port=%d, type=%s\n\
-              relatedAddr=%s, relatedPort=%d, %sinUse=%d\n",
+#ifdef WIN32
+   sprintf(stringBuffer, "SdpCandidate: foundation=\'%s\', id=%d, transport=%s, priority=%I64d, addr=\'%s\', port=%d, type=%s\n"
+#else
+   sprintf(stringBuffer, "SdpCandidate: foundation=\'%s\', id=%d, transport=%s, priority=%lld, addr=\'%s\', port=%d, type=%s\n"
+#endif
+                         "              relatedAddr=%s, relatedPort=%d, %sinUse=%d\n",
       mFoundation.data(),
       mId,
       SdpCandidateTransportTypeString[mTransport],

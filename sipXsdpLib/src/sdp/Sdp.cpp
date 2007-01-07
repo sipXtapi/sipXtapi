@@ -309,7 +309,7 @@ void Sdp::toString(UtlString& sdpString) const
    {
       UtlSListIterator it(mEmailAddresses);
       UtlString* tempString;
-      while(tempString = (UtlString*) it())
+      while((tempString = (UtlString*) it()))
       {
          emailAddressesString += UtlString("EmailAddress: '") + tempString->data() + UtlString("'\n");
       }
@@ -319,7 +319,7 @@ void Sdp::toString(UtlString& sdpString) const
    {
       UtlSListIterator it(mPhoneNumbers);
       UtlString* tempString;
-      while(tempString = (UtlString*) it())
+      while((tempString = (UtlString*) it()))
       {
          phoneNumbersString += UtlString("PhoneNumber: '") + tempString->data() + UtlString("'\n");
       }
@@ -329,7 +329,7 @@ void Sdp::toString(UtlString& sdpString) const
    {
       UtlSListIterator it(mBandwidths);
       SdpBandwidth* sdpBandwidth;
-      while(sdpBandwidth = (SdpBandwidth*) it())
+      while((sdpBandwidth = (SdpBandwidth*) it()))
       {
          sprintf(stringBuffer, "Bandwidth: type=%s, bandwidth=%d\n", SdpBandwidthTypeString[sdpBandwidth->getType()], sdpBandwidth->getBandwidth());
          bandwidthsString += stringBuffer;
@@ -340,23 +340,27 @@ void Sdp::toString(UtlString& sdpString) const
    {
       UtlSListIterator it(mTimes);
       SdpTime* sdpTime;
-      while(sdpTime = (SdpTime*) it())
+      while((sdpTime = (SdpTime*) it()))
       {
+#ifdef WIN32
          sprintf(stringBuffer, "Time: start=%I64d, stop=%I64d\n", sdpTime->getStartTime(), sdpTime->getStopTime());
+#else
+         sprintf(stringBuffer, "Time: start=%lld, stop=%lld\n", sdpTime->getStartTime(), sdpTime->getStopTime());
+#endif
          timesString += stringBuffer;
 
          // Add repeats
          const UtlSList& repeats = sdpTime->getRepeats();
          UtlSListIterator it2(repeats);
          SdpTime::SdpTimeRepeat *timeRepeat;
-         while(timeRepeat = (SdpTime::SdpTimeRepeat*) it2())
+         while((timeRepeat = (SdpTime::SdpTimeRepeat*) it2()))
          {
             sprintf(stringBuffer, "TimeRepeat: interval=%d, duration=%d", timeRepeat->getRepeatInterval(), timeRepeat->getActiveDuration());
             timesString += stringBuffer;
             const UtlSList& offsetsFromStartTime = timeRepeat->getOffsetsFromStartTime();
             UtlSListIterator it3(offsetsFromStartTime);
             UtlInt *offset;
-            while(offset = (UtlInt*)it3())
+            while((offset = (UtlInt*)it3()))
             {
                sprintf(stringBuffer, ", offset=%d", offset->getValue());
                timesString += stringBuffer;
@@ -370,9 +374,13 @@ void Sdp::toString(UtlString& sdpString) const
    {
       UtlSListIterator it(mTimeZones);
       SdpTimeZone* sdpTimeZone;
-      while(sdpTimeZone = (SdpTimeZone*) it())
+      while((sdpTimeZone = (SdpTimeZone*) it()))
       {
+#ifdef WIN32         
          sprintf(stringBuffer, "TimeZone: adjustment time=%I64d, offset=%I64d\n", sdpTimeZone->getAdjustmentTime(), sdpTimeZone->getOffset());
+#else
+         sprintf(stringBuffer, "TimeZone: adjustment time=%lld, offset=%lld\n", sdpTimeZone->getAdjustmentTime(), sdpTimeZone->getOffset());
+#endif
          timeZonesString += stringBuffer;
       }
    }
@@ -381,7 +389,7 @@ void Sdp::toString(UtlString& sdpString) const
    {
       UtlSListIterator it(mGroups);
       SdpGroup* sdpGroup;
-      while(sdpGroup = (SdpGroup*) it())
+      while((sdpGroup = (SdpGroup*) it()))
       {
          sprintf(stringBuffer, "Group: semantics=%s", SdpGroupSemanticsString[sdpGroup->getSemantics()]);
          groupsString += stringBuffer;
@@ -390,7 +398,7 @@ void Sdp::toString(UtlString& sdpString) const
          const UtlSList& idTags = sdpGroup->getIdentificationTags();
          UtlSListIterator it2(idTags);
          UtlString* tempString;
-         while(tempString = (UtlString*) it2())
+         while((tempString = (UtlString*) it2()))
          {
             groupsString += UtlString(", idTag=") + tempString->data();
          }
@@ -400,10 +408,15 @@ void Sdp::toString(UtlString& sdpString) const
 
    sprintf(stringBuffer,"Sdp:\n\
 SdpVersion: %d\n\
-OrigUserName: \'%s'\n\
-OrigSessionId: %I64d\n\
-OrigSessionVersion: %I64d\n\
-OrigNetType: %s\n\
+OrigUserName: \'%s'\n"
+#ifdef WIN32
+"OrigSessionId: %I64d\n"
+"OrigSessionVersion: %I64d\n"
+#else
+"OrigSessionId: %lld\n"
+"OrigSessionVersion: %lld\n"
+#endif
+"OrigNetType: %s\n\
 OrigAddressType: %s\n\
 OrigUnicastAddr: \'%s\'\n\
 SessionName: \'%s\'\n\
@@ -456,7 +469,7 @@ MaximumPacketRate: %lf\n",
    {
       UtlSListIterator it(mMediaLines);
       SdpMediaLine* sdpMediaLine;
-      while(sdpMediaLine = (SdpMediaLine*) it())
+      while((sdpMediaLine = (SdpMediaLine*) it()))
       {
          sdpMediaLine->toString(mediaLinesString);
          sdpString += UtlString("\n") + mediaLinesString;

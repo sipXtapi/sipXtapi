@@ -11,6 +11,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include <net/SdpBody.h>
 #include <net/NetBase64Codec.h>
 #include <sdp/SdpCodec.h>
 #include <sdp/SdpHelper.h>
@@ -296,3 +297,4 @@ Sdp* SdpHelper::createSdpFromSdpBody(SdpBody& sdpBody)
 /* ============================ FUNCTIONS ================================= */
 
 #endif
+

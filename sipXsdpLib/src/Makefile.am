@@ -35,8 +35,8 @@ libsipXsdp_la_CXXFLAGS = \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
 
 libsipXsdp_la_SOURCES =  \
-    $(top_builddir)/config/sipxportlib-buildstamp.h \
-    $(top_builddir)/config/sipxportlib-buildstamp.cpp \
+    $(top_builddir)/config/sipxsdplib-buildstamp.h \
+    $(top_builddir)/config/sipxsdplib-buildstamp.cpp \
     sdp/Sdp.cpp \
     sdp/SdpMediaLine.cpp \
     sdp/SdpCodec.cpp \

@@ -134,7 +134,7 @@ UtlContainableType SdpCandidatePair::getContainableType() const
 
 unsigned SdpCandidatePair::hash() const 
 { 
-   return unsigned int(mPriority) ^ unsigned int(mPriority << 32);  // Priority is to be unique per candidate - draft-ieft-mmusic-ice-12
+   return unsigned(mPriority) ^ unsigned(mPriority << 32);  // Priority is to be unique per candidate - draft-ieft-mmusic-ice-12
 }
 
 int SdpCandidatePair::compareTo(UtlContainable const *rhs) const 
@@ -176,12 +176,16 @@ void SdpCandidatePair::toString(UtlString& sdpCandidatePairString) const
    mLocalCandidate.toString(localCandidateString);
    mRemoteCandidate.toString(remoteCandidateString);
 
-   sprintf(stringBuffer, "SdpCandidatePair:\n\
-Priority: %I64d\n\
-State: %s\n\
-Offerer: %s\n\
-%s\
-%s",
+   sprintf(stringBuffer, "SdpCandidatePair:\n"
+#ifdef WIN32
+"Priority: %I64d\n"
+#else
+"Priority: %lld\n"
+#endif
+"State: %s\n"
+"Offerer: %s\n"
+"%s"
+"%s",
       mPriority,
       SdpCandidatePairCheckStateString[mCheckState],
       SdpCandidatePairOffererTypeString[mOfferer],
@@ -198,12 +202,14 @@ Offerer: %s\n\
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
+#define sdpMin(a,b) (a < b ? a : a > b ? b : a)
+#define sdpMax(a,b) (a > b ? a : a < b ? b : a)
 void SdpCandidatePair::resetPriority()
 {
    UInt64 offererPriority = mOfferer == OFFERER_LOCAL ? mLocalCandidate.getPriority() : mRemoteCandidate.getPriority();
    UInt64 answererPriority = mOfferer == OFFERER_LOCAL ? mRemoteCandidate.getPriority() : mLocalCandidate.getPriority();
-   mPriority = 2^32*min(offererPriority, answererPriority) + 
-               2*max(offererPriority, answererPriority) + 
+   mPriority = 2^32*sdpMin(offererPriority, answererPriority) + 
+               2*sdpMax(offererPriority, answererPriority) + 
                (offererPriority > answererPriority ? 1 : 0);
 }
 
