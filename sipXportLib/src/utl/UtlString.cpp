@@ -92,6 +92,10 @@ UtlString::UtlString(const UtlString& source, size_t length)
     append(source.mpData, length);
 }
 
+UtlString* UtlString::clone() const
+{
+   return new UtlString(*this);
+}
 
 // Destructor
 UtlString::~UtlString()
@@ -125,12 +129,12 @@ UtlString& UtlString::operator=(const UtlString& str)
 {
     if (this != &str)
     {
-    remove(0);
-    if(str.mCapacity > mCapacity)
-    {
-        capacity(str.mCapacity);
-    }
-    append(str.mpData, str.mSize);
+       remove(0);
+       if(str.mCapacity > mCapacity)
+       {
+          capacity(str.mCapacity);
+       }
+       append(str.mpData, str.mSize);
     }
 
     return *this;
@@ -224,13 +228,13 @@ UtlString& UtlString::append(const char* szStr, size_t N)
         {
             if (mpData)
             {
-            // Copy the N bytes after the existing mSize bytes in the string.
-            memcpy(&mpData[mSize], szStr, N);
-            // Update the size of the string.
-            mSize += N;
-            // Append a final zero byte.
-            mpData[mSize] = '\0';
-        }
+               // Copy the N bytes after the existing mSize bytes in the string.
+               memcpy(&mpData[mSize], szStr, N);
+               // Update the size of the string.
+               mSize += N;
+               // Append a final zero byte.
+               mpData[mSize] = '\0';
+            }
         }
         else
         {
@@ -295,17 +299,17 @@ UtlString& UtlString::insert(size_t position, const char* source, size_t sourceL
 
       if (mpData)
       {
-      memmove(&mpData[position + sourceLength],
-              &mpData[position],
-              mSize - position);
+         memmove(&mpData[position + sourceLength],
+                 &mpData[position],
+                  mSize - position);
 
-      memcpy(&mpData[position],
-             source,
-             sourceLength);
+         memcpy(&mpData[position],
+                 source,
+                 sourceLength);
 
-      mSize+= sourceLength;
-      mpData[mSize] = '\0';
-   }
+         mSize+= sourceLength;
+         mpData[mSize] = '\0';
+      }
    }
 
    // Else do nothing
@@ -1200,10 +1204,10 @@ int UtlString::compareTo(const char* compareStr, CompareCase type) const
                              compareStr ? compareStr : "");
     }
     else
-        {
-      compareFlag = strcasecmp(mpData ? mpData : "",
-                               compareStr ? compareStr : "");
-        }
+    {
+       compareFlag = strcasecmp(mpData ? mpData : "",
+                                compareStr ? compareStr : "");
+    }
 
     return compareFlag;
 }
@@ -1310,3 +1314,4 @@ int strncasecmp( const char *s1, const char *s2, int N )
 
 
 /* ============================ INLINE METHODS ============================ */
+

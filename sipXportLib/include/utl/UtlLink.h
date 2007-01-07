@@ -194,7 +194,7 @@ class UtlChain
     */
 
 
-   /// Insert this link into a list before an existing entry (after NULL == at the head).
+   /// Insert this link into a list after an existing entry (after NULL == at the head).
    void listAfter(UtlChain* list,     ///< the list to insert into
                   UtlChain* existing  /**< the UtlLink for the position in the
                                        *   list to insert after.  NULL means

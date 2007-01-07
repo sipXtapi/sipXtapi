@@ -117,6 +117,7 @@ nobase_include_HEADERS = \
     utl/UtlCrc32.h \
     utl/UtlLink.h \
     utl/UtlContainable.h \
+    utl/UtlCopyableContainable.h \
     utl/UtlContainer.h \
     utl/UtlContainableAtomic.h \
     utl/UtlDateTime.h \
@@ -138,8 +139,10 @@ nobase_include_HEADERS = \
     utl/UtlRscStore.h \
     utl/UtlRscTrace.h \
     utl/UtlSList.h \
+    utl/UtlCopyableSList.h \
     utl/UtlSListIterator.h \
     utl/UtlSortedList.h \
+    utl/UtlCopyableSortedList.h \
     utl/UtlString.h \
     utl/UtlVoidPtr.h \
     utl/UtlTokenizer.h \
