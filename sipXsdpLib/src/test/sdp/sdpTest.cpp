@@ -1,5 +1,13 @@
-// sdp.cpp : Defines the entry point for the console application.
 //
+// Copyright (C) 2007 Plantronics
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2007 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// $$
+///////////////////////////////////////////////////////////////////////////////
+// Author: Scott Godin (sgodin AT SipSpectrum DOT com)
 
 #include <iostream>
 #include <utl/UtlSListIterator.h>
@@ -347,6 +355,7 @@ int main(int argc, char* argv[])
          "c=IN IP4 127.0.0.1\r\n"
          "b=RR:0\r\n"
          "b=RS:0\r\n"
+         "b=CT:10000\r\n"
          "t=4058038202 0\r\n"
          "k=base64:base64key\r\n"
          "a=tool:ResipParserTester\r\n"
@@ -402,7 +411,7 @@ int main(int argc, char* argv[])
          {
             // Ensure string builder does not crash
             convSdp->toString(sdpString);
-            cout << sdpString << endl;
+            cout << "\n\nResip Sdp Helper Test:\n" << sdpString << endl;
 
             // Perform some random assertions
             assert(convSdp->getLocalFoundationId(SdpCandidate::CANDIDATE_TYPE_HOST, "127.0.0.1") == "1");
@@ -410,7 +419,7 @@ int main(int argc, char* argv[])
             assert(convSdp->getSessionName() == "test123");
             assert(convSdp->getEmailAddresses().entries() == 1);
             assert(convSdp->getPhoneNumbers().entries() == 1);
-            assert(convSdp->getBandwidths().entries() == 2);
+            assert(convSdp->getBandwidths().entries() == 3);
             assert(convSdp->getTimes().entries() == 1);
             assert(convSdp->getToolNameAndVersion() == "ResipParserTester");
             assert(convSdp->getMediaLines().entries() == 2);
@@ -513,7 +522,7 @@ int main(int argc, char* argv[])
          {
             // Ensure string builder does not crash
             convSdp->toString(sdpString);
-            cout << sdpString << endl;
+            cout << "\n\nsipX Sdp Helper Test:\n" << sdpString << endl;
 
             // Perform some random assertions
             // Note:  The SdpBody class implementation is far from complete 
@@ -549,16 +558,15 @@ int main(int argc, char* argv[])
             //assert(((SdpMediaLine*)convSdp->getMediaLines().at(0))->getBandwidths().entries() == 0);
             //assert(((SdpMediaLine*)convSdp->getMediaLines().at(1))->getBandwidths().entries() == 2);
             //assert(((SdpMediaLine*)convSdp->getMediaLines().at(0))->getEncryptionKey() == "base64clearkey");
-            //assert(((SdpMediaLine*)convSdp->getMediaLines().at(0))->getDirection() == SdpMediaLine::DIRECTION_TYPE_SENDRECV);
-            //assert(((SdpMediaLine*)convSdp->getMediaLines().at(1))->getDirection() == SdpMediaLine::DIRECTION_TYPE_INACTIVE);
+            assert(((SdpMediaLine*)convSdp->getMediaLines().at(0))->getDirection() == SdpMediaLine::DIRECTION_TYPE_SENDRECV);
+            //assert(((SdpMediaLine*)convSdp->getMediaLines().at(1))->getDirection() == SdpMediaLine::DIRECTION_TYPE_INACTIVE);  // !slg! SdpBody only reads first occurance of a= direction keyword
             //assert(((SdpMediaLine*)convSdp->getMediaLines().at(0))->getPacketTime() == 20);
             //assert(((SdpMediaLine*)convSdp->getMediaLines().at(0))->getTcpConnectionAttribute() == SdpMediaLine::TCP_CONNECTION_ATTRIBUTE_NONE);
-            //assert(((SdpMediaLine*)convSdp->getMediaLines().at(0))->getTcpSetupAttribute() == SdpMediaLine::TCP_SETUP_ATTRIBUTE_ACTIVE);
+            assert(((SdpMediaLine*)convSdp->getMediaLines().at(0))->getTcpSetupAttribute() == SdpMediaLine::TCP_SETUP_ATTRIBUTE_ACTIVE);
             assert(((SdpMediaLine*)convSdp->getMediaLines().at(0))->getCryptos().entries() == 1);
             assert(((SdpMediaLine*)convSdp->getMediaLines().at(1))->getCryptos().entries() == 2);
-            //assert(((SdpMediaLine*)convSdp->getMediaLines().at(0))->getCandidates().entries() == 0);  // Note:  Bug with SdpBody::getCandidateAttribute where there is no way to request candidates for a particular m= line causes this to fail
+            //assert(((SdpMediaLine*)convSdp->getMediaLines().at(0))->getCandidates().entries() == 0);   // !slg! candidate code in SdpBody is for old draft and doesn't work for this test
             //assert(((SdpMediaLine*)convSdp->getMediaLines().at(1))->getCandidates().entries() == 5); 
-            assert(((SdpMediaLine*)convSdp->getMediaLines().at(1))->getCandidates().entries() == 1); // Note:  current implementation of SdpBody::getCandidateAttribute only returns one candidate
             //assert(((SdpMediaLine*)convSdp->getMediaLines().at(1))->getRemoteCandidates().entries() == 3);
             //assert(((SdpMediaLine*)convSdp->getMediaLines().at(1))->getPreConditionCurrentStatus().entries() == 2);
             //assert(((SdpMediaLine*)convSdp->getMediaLines().at(1))->getPreConditionConfirmStatus().entries() == 2);

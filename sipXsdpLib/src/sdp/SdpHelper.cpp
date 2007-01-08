@@ -1,10 +1,13 @@
 //
-// Copyright (C) 2006 Plantronics
+// Copyright (C) 2007 Plantronics
+// Licensed to SIPfoundry under a Contributor Agreement.
 // 
+// Copyright (C) 2007 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
+// Author: Scott Godin (sgodin AT SipSpectrum DOT com)
 
 #ifndef EXCLUDE_SIPX_SDP_HELPER
 
@@ -25,6 +28,7 @@
 // CONSTANTS
 #define MAXIMUM_MEDIA_TYPES 30 // should match values from SdpBody.cpp
 #define MAXIMUM_VIDEO_SIZES 6
+#define MAXIMUM_CANDIDATES 20
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -57,6 +61,13 @@ Sdp* SdpHelper::createSdpFromSdpBody(SdpBody& sdpBody)
 
    // !slg! Note:  the current implementation of SdpBody does not allow access to all of the data in the SDP body
    // in the future codec similar to that present in SdpHelperResip should be implemented
+
+   // Get Bandwidth - !slg! Current SdpBody implementation does not support getting non CT bandwidths or to get medialine specific bandwidths
+   int bandwidth;
+   if(sdpBody.getBandwidthField(bandwidth))
+   {
+      sdp->addBandwidth(Sdp::BANDWIDTH_TYPE_CT, (unsigned int) bandwidth);
+   }
 
    // Iterate through the m= lines
    int i;
@@ -245,6 +256,36 @@ Sdp* SdpHelper::createSdpFromSdpBody(SdpBody& sdpBody)
          }
       }      
 
+      // Set direction, a=sendrecv, a=sendonly, a=recvonly, a=inactive
+      // !slg! Note: SdpBody does not currenlty support reading attributes from a particular media line
+      SdpMediaLine::SdpDirectionType direction = SdpMediaLine::DIRECTION_TYPE_SENDRECV; // default
+      if(sdpBody.findValueInField("a", "sendrecv"))
+      {
+         direction = SdpMediaLine::DIRECTION_TYPE_SENDRECV;
+      }
+      else if(sdpBody.findValueInField("a", "sendonly"))
+      {
+         direction = SdpMediaLine::DIRECTION_TYPE_SENDONLY;
+      }
+      else if(sdpBody.findValueInField("a", "recvonly"))
+      {
+         direction = SdpMediaLine::DIRECTION_TYPE_RECVONLY;
+      }
+      else if(sdpBody.findValueInField("a", "inactive"))
+      {
+         direction = SdpMediaLine::DIRECTION_TYPE_INACTIVE;
+      }
+      mediaLine->setDirection(direction);
+
+      int frameRate;
+      if(sdpBody.getFramerateField(i, frameRate))
+      {
+         mediaLine->setFrameRate((unsigned int)frameRate);
+      }
+
+      // TCP Setup Attribute - !slg! SdpBody currently does not support getting this for a particular media line
+      mediaLine->setTcpSetupAttribute(SdpMediaLine::getTcpSetupAttributeFromString(sdpBody.getRtpTcpRole().data()));
+
       // Get the SRTP Crypto Settings
       SdpSrtpParameters srtpParameters;
       int index=1;
@@ -263,23 +304,34 @@ Sdp* SdpHelper::createSdpFromSdpBody(SdpBody& sdpBody)
       }
 
       // Get Ice Candidate(s) - !slg! note: ice candidate support in SdpBody is old and should be updated - at which time the following code
-      // should also be updated
-      UtlString id;
-      double qvalue;
-      UtlString userFrag;
-      UtlString password;
-      UtlString ip;
-      int port;
-      UtlString candidateIp;
-      int candidatePort;
-#ifdef TODO
-      if(sdpBody.getCandidateAttribute(i, id, qvalue, userFrag, password, ip, port, candidateIp, candidatePort))
+      // should also be updated      
+      int candidateIds[MAXIMUM_CANDIDATES];
+      UtlString transportIds[MAXIMUM_CANDIDATES];
+      UtlString transportTypes[MAXIMUM_CANDIDATES];
+      double qvalues[MAXIMUM_CANDIDATES];
+      UtlString candidateIps[MAXIMUM_CANDIDATES];
+      int candidatePorts[MAXIMUM_CANDIDATES];
+      int numCandidates;
+
+      if(sdpBody.getCandidateAttributes(i, MAXIMUM_CANDIDATES, candidateIds, transportIds, transportTypes, qvalues, candidateIps, candidatePorts, numCandidates))
       {
-         mediaLine->setIceUserFrag(userFrag.data());
-         mediaLine->setIcePassword(password.data());
-         mediaLine->addCandidate(id.data(), 1, SdpCandidate::CANDIDATE_TRANSPORT_TYPE_UDP, (UInt64)qvalue, ip.data(), port, SdpCandidate::CANDIDATE_TYPE_NONE, candidateIp.data(), candidatePort); 
+         UtlString userFrag;  // !slg! Currently no way to retrieve these
+         UtlString password;
+
+         //mediaLine->setIceUserFrag(userFrag.data());
+         //mediaLine->setIcePassword(password.data());
+         int idx;
+         for(idx = 0; idx < numCandidates; idx++)
+         {
+            mediaLine->addCandidate(transportIds[idx].data(), 
+                                    candidateIds[idx], 
+                                    SdpCandidate::getCandidateTransportTypeFromString(transportTypes[idx].data()), 
+                                    (UInt64)qvalues[idx], 
+                                    candidateIps[idx].data(), 
+                                    candidatePorts[idx], 
+                                    SdpCandidate::CANDIDATE_TYPE_NONE); 
+         }
       }
-#endif
 
       // Add the media line to the sdp
       sdp->addMediaLine(mediaLine);

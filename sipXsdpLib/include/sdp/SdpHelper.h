@@ -1,11 +1,13 @@
 //
-// Copyright (C) 2006 Plantronics
+// Copyright (C) 2007 Plantronics
+// Licensed to SIPfoundry under a Contributor Agreement.
 // 
+// Copyright (C) 2007 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
-
+///////////////////////////////////////////////////////////////////////////////
+// Author: Scott Godin (sgodin AT SipSpectrum DOT com)
 
 #ifndef _SdpHelper_h_
 #define _SdpHelper_h_

@@ -1,11 +1,13 @@
 //
-// Copyright (C) 2006 Plantronics
+// Copyright (C) 2007 Plantronics
+// Licensed to SIPfoundry under a Contributor Agreement.
 // 
+// Copyright (C) 2007 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
-
+///////////////////////////////////////////////////////////////////////////////
+// Author: Scott Godin (sgodin AT SipSpectrum DOT com)
 
 // SYSTEM INCLUDES
 
@@ -342,11 +344,7 @@ void Sdp::toString(UtlString& sdpString) const
       SdpTime* sdpTime;
       while((sdpTime = (SdpTime*) it()))
       {
-#ifdef WIN32
-         sprintf(stringBuffer, "Time: start=%I64d, stop=%I64d\n", sdpTime->getStartTime(), sdpTime->getStopTime());
-#else
-         sprintf(stringBuffer, "Time: start=%lld, stop=%lld\n", sdpTime->getStartTime(), sdpTime->getStopTime());
-#endif
+         sprintf(stringBuffer, "Time: start=%" FORMAT_INTLL "d, stop=%" FORMAT_INTLL "d\n", sdpTime->getStartTime(), sdpTime->getStopTime());
          timesString += stringBuffer;
 
          // Add repeats
@@ -376,11 +374,7 @@ void Sdp::toString(UtlString& sdpString) const
       SdpTimeZone* sdpTimeZone;
       while((sdpTimeZone = (SdpTimeZone*) it()))
       {
-#ifdef WIN32         
-         sprintf(stringBuffer, "TimeZone: adjustment time=%I64d, offset=%I64d\n", sdpTimeZone->getAdjustmentTime(), sdpTimeZone->getOffset());
-#else
-         sprintf(stringBuffer, "TimeZone: adjustment time=%lld, offset=%lld\n", sdpTimeZone->getAdjustmentTime(), sdpTimeZone->getOffset());
-#endif
+         sprintf(stringBuffer, "TimeZone: adjustment time=%" FORMAT_INTLL "d, offset=%" FORMAT_INTLL "d\n", sdpTimeZone->getAdjustmentTime(), sdpTimeZone->getOffset());
          timeZonesString += stringBuffer;
       }
    }
@@ -406,37 +400,32 @@ void Sdp::toString(UtlString& sdpString) const
       }
    }
 
-   sprintf(stringBuffer,"Sdp:\n\
-SdpVersion: %d\n\
-OrigUserName: \'%s'\n"
-#ifdef WIN32
-"OrigSessionId: %I64d\n"
-"OrigSessionVersion: %I64d\n"
-#else
-"OrigSessionId: %lld\n"
-"OrigSessionVersion: %lld\n"
-#endif
-"OrigNetType: %s\n\
-OrigAddressType: %s\n\
-OrigUnicastAddr: \'%s\'\n\
-SessionName: \'%s\'\n\
-SessionInformation: \'%s\'\n\
-SessionUri: \'%s\'\n\
-%s\
-%s\
-%s\
-%s\
-%s\
-Category: \'%s\'\n\
-Keywords: \'%s\'\n\
-ToolNameAndVersion: \'%s\'\n\
-ConferenceType: %s\n\
-CharSet: \'%s\'\n\
-IcePassiveOnlyMode: %d\n\
-%s\
-SessionLanguage: \'%s\'\n\
-DescriptionLanguage: \'%s\'\n\
-MaximumPacketRate: %lf\n",
+   sprintf(stringBuffer,"Sdp:\n"
+      "SdpVersion: %d\n"
+      "OrigUserName: \'%s'\n"
+      "OrigSessionId: %" FORMAT_INTLL "d\n"
+      "OrigSessionVersion: %" FORMAT_INTLL "d\n"
+      "OrigNetType: %s\n"
+      "OrigAddressType: %s\n"
+      "OrigUnicastAddr: \'%s\'\n"
+      "SessionName: \'%s\'\n"
+      "SessionInformation: \'%s\'\n"
+      "SessionUri: \'%s\'\n"
+      "%s"
+      "%s"
+      "%s"
+      "%s"
+      "%s"
+      "Category: \'%s\'\n"
+      "Keywords: \'%s\'\n"
+      "ToolNameAndVersion: \'%s\'\n"
+      "ConferenceType: %s\n"
+      "CharSet: \'%s\'\n"
+      "IcePassiveOnlyMode: %d\n"
+      "%s"
+      "SessionLanguage: \'%s\'\n"
+      "DescriptionLanguage: \'%s\'\n"
+      "MaximumPacketRate: %lf\n",
     mSdpVersion, 
     mOriginatorUserName.data(), 
     mOriginatorSessionId, 

@@ -1,16 +1,16 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2007 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
-
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-//#include <net/SdpCodec.h>
 #include <sdp/SdpCodec.h>
 
 // EXTERNAL FUNCTIONS
@@ -91,11 +91,13 @@ SdpCodec::SdpCodec(int payloadFormat,
       {
          setValue(SDP_CODEC_GSM);
          mCPUCost = SDP_CODEC_CPU_HIGH;
+         mBWCost = SDP_CODEC_BANDWIDTH_LOW;
       }
       else if(mMimeSubtype.compareTo("g723") == 0)
       {
          setValue(SDP_CODEC_G723);
          mCPUCost = SDP_CODEC_CPU_HIGH;
+         mBWCost = SDP_CODEC_BANDWIDTH_LOW;
       }
       else if(mMimeSubtype.compareTo("l16") == 0)
       {
@@ -169,6 +171,7 @@ SdpCodec::SdpCodec(int payloadFormat,
       {
          setValue(SDP_CODEC_GIPS_ISAC);
          mCPUCost = SDP_CODEC_CPU_HIGH;
+         mBWCost = SDP_CODEC_BANDWIDTH_VARIABLE;
       }
       else
       {
@@ -237,11 +240,14 @@ SdpCodec::SdpCodec(int payloadFormat,
          case SDP_VIDEO_FORMAT_SQCIF:
             setValue(SDP_CODEC_VP71_SQCIF);
             break;
+         case SDP_VIDEO_FORMAT_QVGA:
+            setValue(SDP_CODEC_VP71_QVGA);
+            break;
          default:
             setValue(SDP_CODEC_VP71_CIF);
             break;
          }
-         mBWCost = SDP_CODEC_BANDWIDTH_HIGH;
+         mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
       }
       else if(mMimeSubtype.compareTo("iyuv") == 0)
       {
@@ -256,10 +262,14 @@ SdpCodec::SdpCodec(int payloadFormat,
          case SDP_VIDEO_FORMAT_SQCIF:
             setValue(SDP_CODEC_IYUV_SQCIF);
             break;
+         case SDP_VIDEO_FORMAT_QVGA:
+            setValue(SDP_CODEC_IYUV_QVGA);
+            break;
          default:
             setValue(SDP_CODEC_IYUV_CIF);
             break;
          }
+         mBWCost = SDP_CODEC_BANDWIDTH_HIGH;
       }
       else if(mMimeSubtype.compareTo("i420") == 0)
       {
@@ -274,10 +284,14 @@ SdpCodec::SdpCodec(int payloadFormat,
          case SDP_VIDEO_FORMAT_SQCIF:
             setValue(SDP_CODEC_I420_SQCIF);
             break;
+         case SDP_VIDEO_FORMAT_QVGA:
+            setValue(SDP_CODEC_I420_QVGA);
+            break;
          default:
             setValue(SDP_CODEC_I420_CIF);
             break;
          }
+         mBWCost = SDP_CODEC_BANDWIDTH_HIGH;
       }
       else if(mMimeSubtype.compareTo("rgb24") == 0)
       {
@@ -292,10 +306,36 @@ SdpCodec::SdpCodec(int payloadFormat,
          case SDP_VIDEO_FORMAT_SQCIF:
             setValue(SDP_CODEC_RGB24_SQCIF);
             break;
+         case SDP_VIDEO_FORMAT_QVGA:
+            setValue(SDP_CODEC_RGB24_QVGA);
+            break;
          default:
             setValue(SDP_CODEC_RGB24_CIF);
             break;
          }
+         mBWCost = SDP_CODEC_BANDWIDTH_HIGH;
+      }
+      else if(mMimeSubtype.compareTo("h263") == 0)
+      {
+         switch(mVideoFormat)
+         {
+         case SDP_VIDEO_FORMAT_CIF:
+            setValue(SDP_CODEC_H263_CIF);
+            break;
+         case SDP_VIDEO_FORMAT_QCIF:
+            setValue(SDP_CODEC_H263_QCIF);
+            break;
+         case SDP_VIDEO_FORMAT_SQCIF:
+            setValue(SDP_CODEC_H263_SQCIF);
+            break;
+         case SDP_VIDEO_FORMAT_QVGA:
+            setValue(SDP_CODEC_H263_QVGA);
+            break;
+         default:
+            setValue(SDP_CODEC_H263_CIF);
+            break;
+         }
+         mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
       }
       else
       {

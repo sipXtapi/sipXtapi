@@ -1,11 +1,13 @@
 //
-// Copyright (C) 2006 Plantronics
+// Copyright (C) 2007 Plantronics
+// Licensed to SIPfoundry under a Contributor Agreement.
 // 
+// Copyright (C) 2007 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
-
+///////////////////////////////////////////////////////////////////////////////
+// Author: Scott Godin (sgodin AT SipSpectrum DOT com)
 
 // SYSTEM INCLUDES
 #include <limits.h>
@@ -177,15 +179,11 @@ void SdpCandidatePair::toString(UtlString& sdpCandidatePairString) const
    mRemoteCandidate.toString(remoteCandidateString);
 
    sprintf(stringBuffer, "SdpCandidatePair:\n"
-#ifdef WIN32
-"Priority: %I64d\n"
-#else
-"Priority: %lld\n"
-#endif
-"State: %s\n"
-"Offerer: %s\n"
-"%s"
-"%s",
+      "Priority: %" FORMAT_INTLL "d\n"
+      "State: %s\n"
+      "Offerer: %s\n"
+      "%s"
+      "%s",
       mPriority,
       SdpCandidatePairCheckStateString[mCheckState],
       SdpCandidatePairOffererTypeString[mOfferer],

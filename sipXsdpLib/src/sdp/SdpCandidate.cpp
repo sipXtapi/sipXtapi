@@ -1,11 +1,13 @@
 //
-// Copyright (C) 2006 Plantronics
+// Copyright (C) 2007 Plantronics
+// Licensed to SIPfoundry under a Contributor Agreement.
 // 
+// Copyright (C) 2007 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
-
+///////////////////////////////////////////////////////////////////////////////
+// Author: Scott Godin (sgodin AT SipSpectrum DOT com)
 
 // SYSTEM INCLUDES
 #include <limits.h>
@@ -178,11 +180,7 @@ void SdpCandidate::toString(UtlString& sdpCandidateString) const
       extensionAttributesString += attribute->getName() + UtlString("=") + attribute->getValue() + UtlString(", ");
    }
    
-#ifdef WIN32
-   sprintf(stringBuffer, "SdpCandidate: foundation=\'%s\', id=%d, transport=%s, priority=%I64d, addr=\'%s\', port=%d, type=%s\n"
-#else
-   sprintf(stringBuffer, "SdpCandidate: foundation=\'%s\', id=%d, transport=%s, priority=%lld, addr=\'%s\', port=%d, type=%s\n"
-#endif
+   sprintf(stringBuffer, "SdpCandidate: foundation=\'%s\', id=%d, transport=%s, priority=%" FORMAT_INTLL "d, addr=\'%s\', port=%d, type=%s\n"
                          "              relatedAddr=%s, relatedPort=%d, %sinUse=%d\n",
       mFoundation.data(),
       mId,

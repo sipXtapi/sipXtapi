@@ -33,7 +33,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib Dnsapi.lib Iphlpapi.lib Winmm.lib &quot;$(ProjectDir)..\..\resip\contrib\openssl\lib\vc\static\libeay32MDd.lib&quot; &quot;$(ProjectDir)..\..\resip\contrib\openssl\lib\vc\static\ssleay32MDd.lib&quot; &quot;$(ProjectDir)..\..\resip\contrib\pcre\Debug\pcre.lib&quot; &quot;$(ProjectDir)..\..\resip\contrib\ares\Debug\ares.lib&quot; &quot;$(ProjectDir)..\..\resip\rutil\Debug\rutil.lib&quot; &quot;$(ProjectDir)..\..\resip\resip\stack\Debug\resiprocate.lib&quot;"
+				AdditionalDependencies="Ws2_32.lib Dnsapi.lib Iphlpapi.lib Winmm.lib &quot;c:\MyProjects\resip\contrib\openssl\lib\vc\static\libeay32MDd.lib&quot; &quot;c:\MyProjects\resip\contrib\openssl\lib\vc\static\ssleay32MDd.lib&quot; &quot;c:\MyProjects\resip\contrib\pcre\Debug\pcre.lib&quot; &quot;c:\MyProjects\resip\contrib\ares\Debug\ares.lib&quot; &quot;c:\MyProjects\resip\rutil\Debug\rutil.lib&quot; &quot;c:\MyProjects\resip\resip\stack\Debug\resiprocate.lib&quot;"
 				OutputFile="$(OutDir)/sipXsdpLibTest.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=".\Debug"

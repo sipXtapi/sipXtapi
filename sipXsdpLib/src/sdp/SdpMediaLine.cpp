@@ -1,11 +1,13 @@
 //
-// Copyright (C) 2006 Plantronics
+// Copyright (C) 2007 Plantronics
+// Licensed to SIPfoundry under a Contributor Agreement.
 // 
+// Copyright (C) 2007 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
-
+///////////////////////////////////////////////////////////////////////////////
+// Author: Scott Godin (sgodin AT SipSpectrum DOT com)
 
 // SYSTEM INCLUDES
 
@@ -280,7 +282,7 @@ void SdpMediaLine::addCandidate(SdpCandidate* candidate)
    // First check m/c line(s)
    UtlSListIterator it(mConnections);
    SdpConnection* sdpConnection;
-   while(sdpConnection = (SdpConnection*) it())
+   while((sdpConnection = (SdpConnection*) it()))
    {
       if(candidate->getPort() == sdpConnection->getPort() &&
          candidate->getConnectionAddress() == sdpConnection->getAddress())  
@@ -296,7 +298,7 @@ void SdpMediaLine::addCandidate(SdpCandidate* candidate)
    {
       UtlSListIterator it(mRtcpConnections);
       SdpConnection* sdpConnection;
-      while(sdpConnection = (SdpConnection*) it())
+      while((sdpConnection = (SdpConnection*) it()))
       {
          if(candidate->getPort() == sdpConnection->getPort() &&
             candidate->getConnectionAddress() == sdpConnection->getAddress())  
@@ -332,7 +334,7 @@ void SdpMediaLine::toString(UtlString& sdpMediaLineString) const
       UtlString tempString;
       UtlSListIterator it(mCodecs);
       SdpCodec* sdpCodec;
-      while(sdpCodec = (SdpCodec*) it())
+      while((sdpCodec = (SdpCodec*) it()))
       {
          sdpCodec->toString(tempString);
          codecsString += tempString;
@@ -344,7 +346,7 @@ void SdpMediaLine::toString(UtlString& sdpMediaLineString) const
       UtlString tempString;
       UtlSListIterator it(mConnections);
       SdpConnection* sdpConnection;
-      while(sdpConnection = (SdpConnection*) it())
+      while((sdpConnection = (SdpConnection*) it()))
       {
          sprintf(stringBuffer, "Connection: netType=%s, addrType=%s, addr=%s, port=%d, ttl=%d\n", 
             Sdp::SdpNetTypeString[sdpConnection->getNetType()], 
@@ -361,7 +363,7 @@ void SdpMediaLine::toString(UtlString& sdpMediaLineString) const
       UtlString tempString;
       UtlSListIterator it(mRtcpConnections);
       SdpConnection* sdpConnection;
-      while(sdpConnection = (SdpConnection*) it())
+      while((sdpConnection = (SdpConnection*) it()))
       {
          sprintf(stringBuffer, "RTCP Connection: netType=%s, addrType=%s, addr=%s, port=%d, ttl=%d\n", 
             Sdp::SdpNetTypeString[sdpConnection->getNetType()], 
@@ -377,7 +379,7 @@ void SdpMediaLine::toString(UtlString& sdpMediaLineString) const
    {
       UtlSListIterator it(mBandwidths);
       Sdp::SdpBandwidth* sdpBandwidth;
-      while(sdpBandwidth = (Sdp::SdpBandwidth*) it())
+      while((sdpBandwidth = (Sdp::SdpBandwidth*) it()))
       {
          sprintf(stringBuffer, "Bandwidth: type=%s, bandwidth=%d\n", Sdp::SdpBandwidthTypeString[sdpBandwidth->getType()], sdpBandwidth->getBandwidth());
          bandwidthsString += stringBuffer;
@@ -388,7 +390,7 @@ void SdpMediaLine::toString(UtlString& sdpMediaLineString) const
    {
       UtlSListIterator it(mCryptos);
       SdpCrypto* sdpCrypto;
-      while(sdpCrypto = (SdpCrypto*) it())
+      while((sdpCrypto = (SdpCrypto*) it()))
       {
          sprintf(stringBuffer, "Crypto: tag=%d, suite=%s", 
             sdpCrypto->getTag(), 
@@ -398,7 +400,7 @@ void SdpMediaLine::toString(UtlString& sdpMediaLineString) const
          const UtlSList& keyParams = sdpCrypto->getCryptoKeyParams();
          UtlSListIterator it2(keyParams);
          SdpCrypto::SdpCryptoKeyParam* keyParam;
-         while(keyParam = (SdpCrypto::SdpCryptoKeyParam*)it2())
+         while((keyParam = (SdpCrypto::SdpCryptoKeyParam*)it2()))
          {
             sprintf(stringBuffer, "\n        Key Param: method=%s, key=%s, srtpLifetime=%d, srtpMkiValue=%d, srtpMkiLength=%d",
                SdpCryptoKeyMethodString[keyParam->getKeyMethod()], 
@@ -432,7 +434,7 @@ void SdpMediaLine::toString(UtlString& sdpMediaLineString) const
          const UtlSList& params = sdpCrypto->getGenericSessionParams();
          UtlSListIterator it3(params);
          UtlString* tempString;
-         while(tempString = (UtlString*) it3())
+         while((tempString = (UtlString*) it3()))
          {
             cryptosString += UtlString("\n        sessParam=") + tempString->data();
          }
@@ -444,7 +446,7 @@ void SdpMediaLine::toString(UtlString& sdpMediaLineString) const
    {
       UtlSListIterator it(mPreConditionCurrentStatus);
       SdpPreCondition* sdpPreCondition;
-      while(sdpPreCondition = (SdpPreCondition*) it())
+      while((sdpPreCondition = (SdpPreCondition*) it()))
       {
          sprintf(stringBuffer, "PreConditionCurrentStatus: type=%s, status=%s, direction=%s\n", 
             SdpPreConditionTypeString[sdpPreCondition->getType()], 
@@ -458,7 +460,7 @@ void SdpMediaLine::toString(UtlString& sdpMediaLineString) const
    {
       UtlSListIterator it(mPreConditionConfirmStatus);
       SdpPreCondition* sdpPreCondition;
-      while(sdpPreCondition = (SdpPreCondition*) it())
+      while((sdpPreCondition = (SdpPreCondition*) it()))
       {
          sprintf(stringBuffer, "PreConditionConfirmStatus: type=%s, status=%s, direction=%s\n", 
             SdpPreConditionTypeString[sdpPreCondition->getType()], 
@@ -472,7 +474,7 @@ void SdpMediaLine::toString(UtlString& sdpMediaLineString) const
    {
       UtlSListIterator it(mPreConditionDesiredStatus);
       SdpPreConditionDesiredStatus* sdpPreConditionDesiredStatus;
-      while(sdpPreConditionDesiredStatus = (SdpPreConditionDesiredStatus*) it())
+      while((sdpPreConditionDesiredStatus = (SdpPreConditionDesiredStatus*) it()))
       {
          sprintf(stringBuffer, "PreConditionDesiredStatus: type=%s, strength=%s, status=%s, direction=%s\n", 
             SdpPreConditionTypeString[sdpPreConditionDesiredStatus->getType()], 
@@ -488,7 +490,7 @@ void SdpMediaLine::toString(UtlString& sdpMediaLineString) const
       UtlString tempString;
       UtlSortedListIterator it(mCandidates);
       SdpCandidate* sdpCandidate;
-      while(sdpCandidate = (SdpCandidate*) it())
+      while((sdpCandidate = (SdpCandidate*) it()))
       {
          sdpCandidate->toString(tempString);
          candidatesString += tempString;
@@ -499,7 +501,7 @@ void SdpMediaLine::toString(UtlString& sdpMediaLineString) const
    {
       UtlSListIterator it(mRemoteCandidates);
       SdpRemoteCandidate* sdpRemoteCandidate;
-      while(sdpRemoteCandidate = (SdpRemoteCandidate*) it())
+      while((sdpRemoteCandidate = (SdpRemoteCandidate*) it()))
       {
          sprintf(stringBuffer, "Remote Candidate: componentId=%d, addr=%s, port=%d\n", 
             sdpRemoteCandidate->getComponentId(), 
@@ -514,47 +516,48 @@ void SdpMediaLine::toString(UtlString& sdpMediaLineString) const
       UtlString tempString;
       UtlSortedListIterator it(mCandidatePairs);
       SdpCandidatePair* sdpCandidatePair;
-      while(sdpCandidatePair = (SdpCandidatePair*) it())
+      while((sdpCandidatePair = (SdpCandidatePair*) it()))
       {
          sdpCandidatePair->toString(tempString);
          candidatePairsString += tempString;
       }
    }
 
-   sprintf(stringBuffer, "MediaLine:\n\
-Type: %s\n\
-TransportProtocol: %s\n\
-%s\
-Title: \'%s'\n\
-%s\
-%s\
-%s\
-Encryption Key: method=%s, data=\'%s\'\n\
-Direction: %s\n\
-PacketTime: %d\n\
-MaxPacketTime: %d\n\
-Orientation: %s\n\
-DescriptionLanguage: \'%s'\n\
-Language: \'%s'\n\
-FrameRate: %d\n\
-Quality: %d\n\
-TcpSetupAttrib: %s\n\
-TcpConnectionAttrib: %s\n\
-%s\
-FingerPrint: type=%s, \'%s'\n\
-KeyManagement: type=%s, \'%s'\n\
-%s\
-%s\
-%s\
-MaximumPacketRate: %lf\n\
-Label: \'%s'\n\
-IdentificationTag: \'%s'\n\
-IceUserFrag: \'%s'\n\
-IcePassword: \'%s'\n\
-%s\
-IceSupported: %d\n\
-%s\
-%s",
+   sprintf(stringBuffer, 
+      "MediaLine:\n"
+      "Type: %s\n"
+      "TransportProtocol: %s\n"
+      "%s"
+      "Title: \'%s'\n"
+      "%s"
+      "%s"
+      "%s"
+      "Encryption Key: method=%s, data=\'%s\'\n"
+      "Direction: %s\n"
+      "PacketTime: %d\n"
+      "MaxPacketTime: %d\n"
+      "Orientation: %s\n"
+      "DescriptionLanguage: \'%s'\n"
+      "Language: \'%s'\n"
+      "FrameRate: %d\n"
+      "Quality: %d\n"
+      "TcpSetupAttrib: %s\n"
+      "TcpConnectionAttrib: %s\n"
+      "%s"
+      "FingerPrint: type=%s, \'%s'\n"
+      "KeyManagement: type=%s, \'%s'\n"
+      "%s"
+      "%s"
+      "%s"
+      "MaximumPacketRate: %lf\n"
+      "Label: \'%s'\n"
+      "IdentificationTag: \'%s'\n"
+      "IceUserFrag: \'%s'\n"
+      "IcePassword: \'%s'\n"
+      "%s"
+      "IceSupported: %d\n"
+      "%s"
+      "%s",
    SdpMediaTypeString[mMediaType],
    SdpTransportProtocolTypeString[mTransportProtocolType],
    codecsString.data(),
