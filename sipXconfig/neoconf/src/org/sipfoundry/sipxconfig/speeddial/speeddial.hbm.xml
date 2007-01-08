@@ -16,6 +16,7 @@
       <composite-element class="Button">
         <property name="label" />
         <property name="number" />
+        <property name="blf" />
       </composite-element>
     </list>
   </class>

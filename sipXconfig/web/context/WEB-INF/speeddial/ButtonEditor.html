@@ -1,30 +1,34 @@
 <tr>
   <td>
     <span jwcid="label@TextField" 
-      value="ognl:button.label" 
+      value="prop:button.label" 
       validators="validators:required" />
   </td>
   <td>
     <span jwcid="number@TextField" 
-      value="ognl:button.number"
+      value="prop:button.number"
       validators="spring-validators:validPhoneOrAor,required" />
+  </td>
+  <td>
+    <span jwcid="blf@Checkbox" 
+      value="prop:button.blf" />
   </td>
   <td>    
     <a jwcid="linkDelete@LinkSubmit"
-      selected="ognl:removeIndex"
-      tag="ognl:index">
+      selected="prop:removeIndex"
+      tag="prop:index">
       <span key="button.delete">Delete</span>
     </a>
   </td>
   <td>    
-    <span jwcid="@If" condition="ognl:renderUp">
+    <span jwcid="@If" condition="prop:renderUp">
       <a jwcid="@LinkSubmit" listener="listener:up">
         <span key="link.up">Up</span>
       </a>
     </span>
   </td>
   <td>    
-    <span jwcid="@If" condition="ognl:renderDown">
+    <span jwcid="@If" condition="prop:renderDown">
       <a jwcid="@LinkSubmit" listener="listener:down">
         <span key="link.down">Down</span>
       </a>

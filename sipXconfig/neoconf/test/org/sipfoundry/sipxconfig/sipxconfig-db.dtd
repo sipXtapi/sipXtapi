@@ -511,6 +511,7 @@
     label CDATA #IMPLIED
     number CDATA #IMPLIED
     position CDATA #REQUIRED
+    blf CDATA #REQUIRED
 >
 
 <!ELEMENT supervisor EMPTY>

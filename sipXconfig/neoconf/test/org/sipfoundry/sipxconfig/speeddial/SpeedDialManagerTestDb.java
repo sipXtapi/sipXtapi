@@ -36,6 +36,8 @@ public class SpeedDialManagerTestDb extends SipxDatabaseTestCase {
         assertNotNull(speedDial);
         assertEquals(3, speedDial.getButtons().size());
         assertEquals("222", speedDial.getButtons().get(2).getNumber());
+        assertFalse(speedDial.getButtons().get(0).isBlf());
+        assertTrue(speedDial.getButtons().get(1).isBlf());
     }
 
     public void testGetNewSpeedDialForUser() throws Exception {
@@ -56,6 +58,7 @@ public class SpeedDialManagerTestDb extends SipxDatabaseTestCase {
             Button b = new Button();
             b.setLabel("testSave");
             b.setNumber(String.valueOf(i));
+            b.setBlf(i % 2 == 0);
             speedDial.getButtons().add(b);
         }
 
