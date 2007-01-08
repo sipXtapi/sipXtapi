@@ -48,7 +48,7 @@ public:
      */
     virtual ~UtlInt();
 
-    UtlInt* clone() const;
+    UtlCopyableContainable* clone() const;
 
 /* ============================ OPERATORS ============================== */
 

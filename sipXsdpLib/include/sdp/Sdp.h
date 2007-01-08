@@ -81,7 +81,7 @@ public:
       UtlContainableType getContainableType() const { static char type[] = "SdpBandwidth"; return type;}
       unsigned hash() const { return directHash(); }
       int compareTo(UtlContainable const *) const { return 0; } // not implemented
-      SdpBandwidth* clone() const { return new SdpBandwidth(*this); }
+      UtlCopyableContainable* clone() const { return new SdpBandwidth(*this); }
 
       // Accessors
       void setType(SdpBandwidthType type) { mType = type; }
@@ -111,7 +111,7 @@ public:
          UtlContainableType getContainableType() const { static char type[] = "SdpTimeRepeat"; return type;}
          unsigned hash() const { return directHash(); }
          int compareTo(UtlContainable const *) const { return 0; } // not implemented
-         SdpTimeRepeat* clone() const { return new SdpTimeRepeat(*this); }
+         UtlCopyableContainable* clone() const { return new SdpTimeRepeat(*this); }
 
          // Accessors
          void setRepeatInterval(unsigned int repeatInterval) { mRepeatInterval = repeatInterval; }
@@ -137,7 +137,7 @@ public:
       UtlContainableType getContainableType() const { static char type[] = "SdpTime"; return type;}
       unsigned hash() const { return directHash(); }
       int compareTo(UtlContainable const *) const { return 0; } // not implemented
-      SdpTime* clone() const { return new SdpTime(*this); }
+      UtlCopyableContainable* clone() const { return new SdpTime(*this); }
 
       // Accessors
       void setStartTime(UInt64 startTime) { mStartTime = startTime; }
@@ -166,7 +166,7 @@ public:
       UtlContainableType getContainableType() const { static char type[] = "SdpTimeZone"; return type;}
       unsigned hash() const { return directHash(); }
       int compareTo(UtlContainable const *) const { return 0; } // not implemented
-      SdpTimeZone* clone() const { return new SdpTimeZone(*this); }
+      UtlCopyableContainable* clone() const { return new SdpTimeZone(*this); }
 
       // Accessors
       void setAdjustmentTime(int adjustmentTime) { mAdjustmentTime = adjustmentTime; }
@@ -210,7 +210,7 @@ public:
       UtlContainableType getContainableType() const { static char type[] = "SdpGroup"; return type;}
       unsigned hash() const { return directHash(); }
       int compareTo(UtlContainable const *) const { return 0; } // not implemented
-      SdpGroup* clone() const { return new SdpGroup(*this); }
+      UtlCopyableContainable* clone() const { return new SdpGroup(*this); }
 
       // Accessors
       void setSemantics(SdpGroupSemantics semantics) { mSemantics = semantics; }
@@ -238,7 +238,7 @@ public:
       UtlContainableType getContainableType() const { static char type[] = "SdpFoundationId"; return type;}
       unsigned hash() const { return mBaseAddress.hash() ^ mStunAddress.hash() ^ mCandidateType; }
       int compareTo(UtlContainable const *) const;
-      SdpFoundation* clone() const { return new SdpFoundation(*this); }
+      UtlCopyableContainable* clone() const { return new SdpFoundation(*this); }
 
    private:
       SdpCandidate::SdpCandidateType mCandidateType;

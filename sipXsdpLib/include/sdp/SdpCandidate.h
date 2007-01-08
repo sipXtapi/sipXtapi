@@ -73,7 +73,7 @@ public:
       UtlContainableType getContainableType() const { static char type[] = "SdpCrypto"; return type;}
       unsigned hash() const { return directHash(); }
       int compareTo(UtlContainable const *) const { return 0; } // not implemented
-      SdpCandidateExtensionAttribute* clone() const { return new SdpCandidateExtensionAttribute(*this); }
+      UtlCopyableContainable* clone() const { return new SdpCandidateExtensionAttribute(*this); }
 
       // Accessors
       void setName(const char * name) { mName = name; }
@@ -137,7 +137,7 @@ public:
    virtual unsigned hash() const;
    virtual int compareTo(UtlContainable const *) const;
    static const UtlContainableType TYPE;    ///< Class type used for runtime checking 
-   SdpCandidate* clone() const { return new SdpCandidate(*this); }
+   UtlCopyableContainable* clone() const { return new SdpCandidate(*this); }
 
    void toString(UtlString& sdpCandidateString) const;
 

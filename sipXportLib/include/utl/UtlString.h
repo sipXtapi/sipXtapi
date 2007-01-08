@@ -121,7 +121,7 @@ public:
      */
 
     /// Clone method for UtlCopyableContainable requirements
-    UtlString* clone() const;
+    UtlCopyableContainable* clone() const;
 
 ///@}
 // ================================================================

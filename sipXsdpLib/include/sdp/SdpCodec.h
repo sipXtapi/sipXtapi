@@ -206,7 +206,7 @@ public:
    SdpCodec& operator=(const SdpCodec& rhs);
      //:Assignment operator
 
-   SdpCodec* clone() const { return new SdpCodec(*this); }
+   UtlCopyableContainable* clone() const { return new SdpCodec(*this); }
 
 /* ============================ ACCESSORS ================================= */
 

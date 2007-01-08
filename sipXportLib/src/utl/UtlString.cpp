@@ -92,7 +92,7 @@ UtlString::UtlString(const UtlString& source, size_t length)
     append(source.mpData, length);
 }
 
-UtlString* UtlString::clone() const
+UtlCopyableContainable* UtlString::clone() const
 {
    return new UtlString(*this);
 }

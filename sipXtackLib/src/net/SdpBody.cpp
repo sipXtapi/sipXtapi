@@ -623,9 +623,9 @@ UtlBoolean SdpBody::getSrtpCryptoField(int mediaIndex,
                 {
                     params.cipherType = AES_CM_128_HMAC_SHA1_80;
                 }
-                else if (cryptoSuite.compareTo("AES_CM_128_HAMC_SHA1_32") == 0)
+                else if (cryptoSuite.compareTo("AES_CM_128_HMAC_SHA1_32") == 0)
                 {
-                    params.cipherType = AES_CM_128_HAMC_SHA1_32;
+                    params.cipherType = AES_CM_128_HMAC_SHA1_32;
                 }
                 else if (cryptoSuite.compareTo("F8_128_HMAC_SHA1_80") == 0)
                 {
@@ -2088,8 +2088,8 @@ void SdpBody::addSrtpCryptoField(SdpSrtpParameters& params)
     case AES_CM_128_HMAC_SHA1_80:
         fieldValue.append("AES_CM_128_HMAC_SHA1_80 ");
         break;
-    case AES_CM_128_HAMC_SHA1_32:
-        fieldValue.append("AES_CM_128_HAMC_SHA1_32 ");
+    case AES_CM_128_HMAC_SHA1_32:
+        fieldValue.append("AES_CM_128_HMAC_SHA1_32 ");
         break;
     case F8_128_HMAC_SHA1_80:
         fieldValue.append("F8_128_HMAC_SHA1_80 ");

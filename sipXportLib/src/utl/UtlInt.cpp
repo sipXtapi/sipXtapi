@@ -42,7 +42,7 @@ UtlInt::~UtlInt()
 {
 }
 
-UtlInt* UtlInt::clone() const
+UtlCopyableContainable* UtlInt::clone() const
 {
    return new UtlInt(*this); 
 }

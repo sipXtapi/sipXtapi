@@ -85,7 +85,7 @@ public:
       UtlContainableType getContainableType() const { static char type[] = "SdpConnection"; return type;}
       unsigned hash() const { return directHash(); }
       int compareTo(UtlContainable const *) const { return 0; } // not implemented
-      SdpConnection* clone() const { return new SdpConnection(*this); }
+      UtlCopyableContainable* clone() const { return new SdpConnection(*this); }
 
       // Accessors
       void setNetType(Sdp::SdpNetType netType) { mNetType = netType; }
@@ -197,7 +197,7 @@ public:
          UtlContainableType getContainableType() const { static char type[] = "SdpCryptoKeyParam"; return type;}
          unsigned hash() const { return directHash(); }
          int compareTo(UtlContainable const *) const { return 0; } // not implemented
-         SdpCryptoKeyParam* clone() const { return new SdpCryptoKeyParam(*this); }
+         UtlCopyableContainable* clone() const { return new SdpCryptoKeyParam(*this); }
 
          void setKeyMethod(SdpCryptoKeyMethod keyMethod) { mKeyMethod = keyMethod; }
          SdpCryptoKeyMethod getKeyMethod() const { return mKeyMethod; }
@@ -232,7 +232,7 @@ public:
       unsigned hash() const { return directHash(); }
       int compareTo(UtlContainable const *) const { return 0; } // not implemented
       SdpCrypto& operator=(const SdpCrypto& rhs);
-      SdpCrypto* clone() const { return new SdpCrypto(*this); }
+      UtlCopyableContainable* clone() const { return new SdpCrypto(*this); }
 
       // Accessors
       void setTag(unsigned int tag) { mTag = tag; }
@@ -356,7 +356,7 @@ public:
       UtlContainableType getContainableType() const { static char type[] = "SdpPreCondition"; return type;}
       unsigned hash() const { return directHash(); }
       int compareTo(UtlContainable const *) const { return 0; } // not implemented
-      SdpPreCondition* clone() const { return new SdpPreCondition(*this); }
+      UtlCopyableContainable* clone() const { return new SdpPreCondition(*this); }
 
       // Accessors
       void setType(SdpPreConditionType type) { mType = type; }
@@ -384,7 +384,7 @@ public:
 
       // Containable requirements
       UtlContainableType getContainableType() const { static char type[] = "SdpPreConditionDesiredStatus"; return type;}
-      SdpPreConditionDesiredStatus* clone() const { return new SdpPreConditionDesiredStatus(*this); }
+      UtlCopyableContainable* clone() const { return new SdpPreConditionDesiredStatus(*this); }
 
       // Accessors
       void setStrength(SdpPreConditionStrengthType strength) { mStrength = strength; }
@@ -406,7 +406,7 @@ public:
       UtlContainableType getContainableType() const { static char type[] = "SdpRemoteCandidate"; return type;}
       unsigned hash() const { return directHash(); }
       int compareTo(UtlContainable const *) const { return 0; } // not implemented
-      SdpRemoteCandidate* clone() const { return new SdpRemoteCandidate(*this); }
+      UtlCopyableContainable* clone() const { return new SdpRemoteCandidate(*this); }
 
       // Accessors
       void setComponentId(unsigned int componentId) { mComponentId = componentId; }
@@ -437,7 +437,7 @@ public:
    ~SdpMediaLine();
      //:Destructor
 
-   SdpMediaLine* clone() const { return new SdpMediaLine(*this); }
+   UtlCopyableContainable* clone() const { return new SdpMediaLine(*this); }
 
 /* ============================ MANIPULATORS ============================== */
 

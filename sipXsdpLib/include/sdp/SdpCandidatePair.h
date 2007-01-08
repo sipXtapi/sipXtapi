@@ -84,7 +84,7 @@ public:
    virtual unsigned hash() const;
    virtual int compareTo(UtlContainable const *) const;
    static const UtlContainableType TYPE;    ///< Class type used for runtime checking 
-   SdpCandidatePair* clone() const { return new SdpCandidatePair(*this); }
+   UtlCopyableContainable* clone() const { return new SdpCandidatePair(*this); }
 
    void toString(UtlString& sdpCandidateString) const;
 
