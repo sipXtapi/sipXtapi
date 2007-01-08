@@ -26,12 +26,12 @@ AC_ARG_ENABLE(server,
 if test x$server = xyes
 then
   AC_CONFIG_SUBDIRS(sipXcommserverLib)
+  AC_CONFIG_SUBDIRS(sipXpbx)
   AC_CONFIG_SUBDIRS(sipXproxy)
   AC_CONFIG_SUBDIRS(sipXpublisher)
   AC_CONFIG_SUBDIRS(sipXregistry)
   AC_CONFIG_SUBDIRS(sipXvxml)
   AC_CONFIG_SUBDIRS(sipXconfig)
-  AC_CONFIG_SUBDIRS(sipXpbx)
 fi
 
 AC_ARG_ENABLE(tools,

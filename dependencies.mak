@@ -32,26 +32,27 @@ sipXcallLib : sipXmediaAdapterLib
 sipXcommserverLib : sipXtackLib
 	@echo sipXcommserverLib
 
+.PHONY: sipXpbx
+sipXpbx : sipXcommserverLib
+	@echo sipXpbx
+
 .PHONY: sipXpublisher
-sipXpublisher : sipXcommserverLib
+sipXpublisher : sipXpbx
 	@echo sipXpublisher
 
 .PHONY: sipXregistry
-sipXregistry : sipXcommserverLib
+sipXregistry : sipXpbx
 	@echo sipXregistry
 
 .PHONY: sipXproxy
-sipXproxy : sipXcommserverLib
+sipXproxy : sipXpbx
 	@echo sipXproxy
 
 .PHONY: sipXconfig
-sipXconfig : sipXtackLib
+sipXconfig : sipXpbx
 	@echo sipXconfig
 
 .PHONY: sipXvxml
-sipXvxml : sipXcallLib sipXcommserverLib sipXmediaAdapterLib
+sipXvxml : sipXcallLib sipXpbx sipXmediaAdapterLib
 	@echo sipXvxml
 
-.PHONY: sipXpbx
-sipXpbx : sipXproxy sipXregistry sipXpublisher sipXvxml sipXconfig
-	@echo sipXpbx
