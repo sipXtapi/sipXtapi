@@ -362,7 +362,7 @@ initialize_databases () {
     ##   (which are run as user @SIPXPBXUSER@)
 
     # check to see if we need to do the initial database setup for sipxconfig
-    if test "${CONFIG_SERVER_DISABLED}" != "TRUE"
+    if test -x @bindir@/sipxconfig.sh
     then
         @bindir@/sipxconfig.sh --setup
     fi
@@ -562,8 +562,11 @@ do_start() {
 
         # Ensure that sipXvxml is owned by root and
         # that the UID permission bit is set.
-        chown root @bindir@/sipXvxml
-        chmod 4755 @bindir@/sipXvxml
+	if test -x @bindir@/sipXvxml
+        then
+          chown root @bindir@/sipXvxml
+          chmod 4755 @bindir@/sipXvxml
+        fi
 
         # Start up the watchdog
         # Start the watchdog with SIPX_LOGDIR as the working directory,
