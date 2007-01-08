@@ -241,7 +241,7 @@ public class SnomPhone extends Phone {
 
         @SettingEntry(path = "sip/user_moh")
         public String getUserMoh() {
-            return m_defaults.getSipxServer().getMusicOnHoldUri();
+            return m_defaults.getSipxServer().getMusicOnHoldUri(m_defaults.getDomainName());
         }
     }
 

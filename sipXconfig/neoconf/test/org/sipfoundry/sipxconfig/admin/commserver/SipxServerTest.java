@@ -83,8 +83,8 @@ public class SipxServerTest extends TestCase {
     }
 
     public void testGetMusicOnHoldUri() {
-        m_server.setMohUser("moh");
-        assertEquals("sip:moh@10.2.3.4:5120", m_server.getMusicOnHoldUri());
+        m_server.setMohUser("~~mh~");
+        assertEquals("sip:~~mh~@example.org", m_server.getMusicOnHoldUri("example.org"));
     }
 
     public void testSetRegistrarDomainAliases() {

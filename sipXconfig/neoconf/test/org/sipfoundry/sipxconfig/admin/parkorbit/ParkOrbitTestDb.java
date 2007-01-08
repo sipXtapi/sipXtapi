@@ -19,6 +19,8 @@ import java.util.List;
 import org.dbunit.dataset.ITable;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
+import org.sipfoundry.sipxconfig.admin.dialplan.MohRule;
 import org.springframework.context.ApplicationContext;
 
 public class ParkOrbitTestDb extends SipxDatabaseTestCase {
@@ -110,6 +112,12 @@ public class ParkOrbitTestDb extends SipxDatabaseTestCase {
         assertTrue(m_context.getBeanIdsOfObjectsWithAlias("501").size() == 1);
         assertTrue(m_context.getBeanIdsOfObjectsWithAlias("502").size() == 1);
         assertTrue(m_context.getBeanIdsOfObjectsWithAlias("911").size() == 0);
+    }
+    
+    public void testDialingRulesProvider() {
+        List<DialingRule> rules = m_context.getDialingRules();
+        assertEquals(1, rules.size());
+        assertTrue(rules.get(0) instanceof MohRule);
     }
 
 }

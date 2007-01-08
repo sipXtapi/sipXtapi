@@ -8,7 +8,18 @@
     <hostPattern>${MY_IP_ADDR}</hostPattern>
 
     <userMatch>
-			<!--Operator-->
+      <!--Music on Hold-->
+      <description>Forward music on hold calls to Park Server</description>	
+      <userPattern>~~mh~</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>&lt;sip:moh@${ORBIT_SERVER_SIP_SRV_OR_HOSTPORT}&gt;</url>
+        </transform>
+      </permissionMatch>
+	</userMatch>
+	
+    <userMatch>
+      <!--Operator-->
       <userPattern>100</userPattern>
       <userPattern>operator</userPattern>
       <userPattern>0</userPattern>

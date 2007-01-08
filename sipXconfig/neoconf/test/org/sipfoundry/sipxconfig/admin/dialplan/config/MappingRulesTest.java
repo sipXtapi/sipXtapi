@@ -34,6 +34,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.MappingRule;
+import org.sipfoundry.sipxconfig.admin.dialplan.MohRule;
 import org.sipfoundry.sipxconfig.permission.Permission;
 
 /**
@@ -231,6 +232,7 @@ public class MappingRulesTest extends XMLTestCase {
         int extension = 3;
         List rules = new ArrayList();
         AutoAttendant aa = AutoAttendant.createOperator(AutoAttendant.OPERATOR_ID);
+        rules.add(new MohRule());
         rules.add(new MappingRule.Operator(aa, "100", new String[] {
             "operator", "0"
         }));
@@ -251,6 +253,8 @@ public class MappingRulesTest extends XMLTestCase {
         generator.generate(plan, null);
 
         String generatedXml = generator.getFileContent(ConfigFileType.MAPPING_RULES);
+        
+        System.err.println(generatedXml);
 
         InputStream referenceXmlStream = MappingRulesTest.class
                 .getResourceAsStream("mappingrules.test.xml");

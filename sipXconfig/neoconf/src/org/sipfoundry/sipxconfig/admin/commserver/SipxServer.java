@@ -37,9 +37,6 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
     private static final String PRESENCE_SERVER_LOCATION = "presence/SIP_PRESENCE_DOMAIN_NAME";
     private static final String PRESENCE_API_PORT = "presence/SIP_PRESENCE_HTTP_PORT";
 
-    // alternative way of getting park server address
-    private static final String PARK_ADDRESS = "park/SIP_REGISTRAR_PARK_SERVER";
-
     private String m_configDirectory;
     private ConfigFileStorage m_storage;
     private SipxReplicationContext m_sipxReplicationContext;
@@ -141,9 +138,8 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
         return SipUri.format(getPresenceServerLocation(), getPresenceServerPort());
     }
 
-    public String getMusicOnHoldUri() {
-        String parkAddress = (String) getSettingTypedValue(PARK_ADDRESS);
-        return SipUri.format(m_mohUser, parkAddress, false);
+    public String getMusicOnHoldUri(String domainName) {
+        return SipUri.format(m_mohUser, domainName, false);
     }
 
     public void setRegistrarDomainAliases(Collection<String> aliases) {

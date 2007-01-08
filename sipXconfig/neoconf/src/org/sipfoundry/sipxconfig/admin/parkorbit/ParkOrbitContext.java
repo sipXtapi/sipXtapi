@@ -14,9 +14,10 @@ package org.sipfoundry.sipxconfig.admin.parkorbit;
 import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
 
-public interface ParkOrbitContext extends AliasOwner, AliasProvider {
+public interface ParkOrbitContext extends AliasOwner, AliasProvider, DialingRuleProvider {
     public static final String CONTEXT_BEAN_NAME = "parkOrbitContext";
 
     ParkOrbit loadParkOrbit(Integer id);
