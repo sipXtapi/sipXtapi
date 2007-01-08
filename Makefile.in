@@ -18,3 +18,8 @@ uninstall-rpm:
 
 %:
 	$(MAKE) recurse TARGETS="$@"
+
+.PHONY: repo
+repo:
+	cd @DEST_RPM@ && createrepo -g @TOP_ABS_SRCDIR@/meta/comps.xml .
+

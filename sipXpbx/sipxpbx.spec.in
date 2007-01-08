@@ -20,11 +20,6 @@ Requires: chkconfig
 
 Requires: sipxcalllib >= 3.7
 Requires: sipxcommserverlib >= 3.7
-Requires: sipxconfig >= 3.7
-Requires: sipxproxy >= 3.7
-Requires: sipxpublisher >= 3.7
-Requires: sipxregistry >= 3.7
-Requires: sipxvxml >= 3.7
 
 # replication, processmgr cgis 
 Requires: httpd >= 2.0

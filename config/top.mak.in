@@ -27,12 +27,6 @@ recurse:
 list:
 	@echo $(PROJECTS_ORDERED)
 
-.PHONY: repo
-repo: @TOP_SRCDIR@/config/local.repo.in
-	cd @DEST_RPM@ && createrepo .
-	sed -e 's,@DEST_RPM\@,@DEST_RPM@,g' \
-	$< > local.repo
-
 .PHONY: $(PROJECTS)
 $(foreach project,$(PROJECTS),$(project)) : %:
 	$(MAKE) -C $@ 

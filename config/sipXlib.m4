@@ -482,6 +482,7 @@ AC_DEFUN([CHECK_RESIPROCATE],
 AC_DEFUN([SFAC_SRCDIR_EXPAND], 
 [
     abs_srcdir=`cd $srcdir && pwd`
+    AC_SUBST(TOP_ABS_SRCDIR, $abs_srcdir)
     AC_SUBST(TOP_SRCDIR, $srcdir)
 ])
 

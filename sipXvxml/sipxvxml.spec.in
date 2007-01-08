@@ -17,6 +17,7 @@ Requires: sipxmedialib >= 3.7
 Requires: sipxmediaadapterlib >= 3.7
 Requires: sipxtacklib >= 3.7
 Requires: sipxportlib >= 3.7
+Requires: sipxpbx >= 3.7
 
 Requires: @LIBWWW_RPM@ >= 5.4.0
 
