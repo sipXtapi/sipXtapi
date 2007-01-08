@@ -55,6 +55,26 @@ public abstract class SettingEditor extends BaseComponent {
     @Parameter
     public abstract MessageSource getMessageSource();
 
+    public boolean isDisabled() {
+        return !isEnabled();
+    }
+
+    /**
+     * @return id of the widget that is used to edit setting value, it's different than the ID of
+     *         the SettingEditorComponent
+     */
+    public String getWidgetId() {
+        return "setting:" + getSetting().getName();
+    }
+
+    /**
+     * @return block that contains HTML for the widget used to edit setting value
+     */
+    public IComponent getWidgetBlock() {
+        String blockName = getSetting().getType().getName() + "Block";
+        return getComponent(blockName);
+    }
+
     /**
      * This is to support new Tapestry4 types of validators
      * 
