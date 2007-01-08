@@ -42,6 +42,7 @@
 #define MIME_SUBTYPE_IYUV "IYUV"
 #define MIME_SUBTYPE_I420 "I420"
 #define MIME_SUBTYPE_RGB24 "RGB24"
+#define MIME_SUBTYPE_H263 "H263"
 
 // Bandwidth requirements for SDP Codecs
 #define SDP_CODEC_BANDWIDTH_VARIABLE 0
@@ -53,6 +54,7 @@
 #define SDP_VIDEO_FORMAT_SQCIF       0x0001
 #define SDP_VIDEO_FORMAT_QCIF        0x0002
 #define SDP_VIDEO_FORMAT_CIF         0x0004
+#define SDP_VIDEO_FORMAT_QVGA        0x0008
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -117,6 +119,7 @@ public:
         SDP_CODEC_L16_STEREO = 10, // PCM 16 bit/sample 44100 samples/sec.
         SDP_CODEC_L16_MONO = 11, // PCM 16 bit/sample 44100 samples/sec.
         SDP_CODEC_G729 = 18, // G.729, with or without Annexes A or B
+        SDP_CODEC_H263 = 34,
         SDP_CODEC_MAXIMUM_STATIC_CODEC = 95,
         SDP_CODEC_TONES = 128, // AVT/DTMF Tones, RFC 2833
         SDP_CODEC_G729A = 129,
@@ -138,15 +141,23 @@ public:
         SDP_CODEC_VP71_CIF = 264,
         SDP_CODEC_VP71_QCIF = 265,
         SDP_CODEC_VP71_SQCIF = 266,
-        SDP_CODEC_IYUV_CIF = 267,
-        SDP_CODEC_IYUV_QCIF = 268,
-        SDP_CODEC_IYUV_SQCIF = 269,
-        SDP_CODEC_I420_CIF = 270,
-        SDP_CODEC_I420_QCIF = 271,
-        SDP_CODEC_I420_SQCIF = 272,
-        SDP_CODEC_RGB24_CIF = 273,
-        SDP_CODEC_RGB24_QCIF = 274,
-        SDP_CODEC_RGB24_SQCIF = 275,
+        SDP_CODEC_VP71_QVGA = 267,
+        SDP_CODEC_IYUV_CIF = 268,
+        SDP_CODEC_IYUV_QCIF = 269,
+        SDP_CODEC_IYUV_SQCIF = 270,
+        SDP_CODEC_IYUV_QVGA = 271,
+        SDP_CODEC_I420_CIF = 272,
+        SDP_CODEC_I420_QCIF = 273,
+        SDP_CODEC_I420_SQCIF = 274,
+        SDP_CODEC_I420_QVGA = 275,
+        SDP_CODEC_RGB24_CIF = 276,
+        SDP_CODEC_RGB24_QCIF = 277,
+        SDP_CODEC_RGB24_SQCIF = 278,
+        SDP_CODEC_RGB24_QVGA = 279,
+        SDP_CODEC_H263_CIF = 280,
+        SDP_CODEC_H263_QCIF = 281,
+        SDP_CODEC_H263_SQCIF = 282,
+        SDP_CODEC_H263_QVGA = 283,
         SDP_CODEC_3RD_PARTY_END = 511
     };
 
@@ -261,6 +272,18 @@ public:
    void setVideoFmtp(const int videoFmtp);
    //:Set the video format bitmap
 
+   void getVideoFmtpString(UtlString& fmtpString) const;
+   //: Get the video format string
+
+   void setVideoFmtpString(int videoFmtp);
+   //: Set the video format string
+
+   void clearVideoFmtpString();
+   //: Clears the format string
+
+   void setPacketSize(const int packetSize);
+   //:Set the packet size
+
 /* ============================ INQUIRY =================================== */
 
    UtlBoolean isSameDefinition(SdpCodec& codec) const;
@@ -277,6 +300,7 @@ private:
     int mCodecPayloadFormat; // The id which appears in SDP & RTP
     UtlString mMimeType; // audio, video, etc.
     UtlString mMimeSubtype; // a=rtpmap mime subtype value
+    UtlString mVideoFmtpString; // video format string
     int mSampleRate; // samples per second
     int mPacketLength; // micro seconds
     int mNumChannels;

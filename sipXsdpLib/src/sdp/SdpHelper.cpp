@@ -11,10 +11,10 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include <net/SdpBody.h>
 #include <net/NetBase64Codec.h>
 #include <sdp/SdpCodec.h>
 #include <sdp/SdpHelper.h>
+#include <net/SdpBody.h>
 #include <sdp/Sdp.h>
 #include <sdp/SdpMediaLine.h>
 #include <sdp/SdpCandidate.h>
@@ -23,7 +23,8 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-#define MAXIMUM_MEDIA_TYPES 20
+#define MAXIMUM_MEDIA_TYPES 30 // should match values from SdpBody.cpp
+#define MAXIMUM_VIDEO_SIZES 6
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -201,8 +202,10 @@ Sdp* SdpHelper::createSdpFromSdpBody(SdpBody& sdpBody)
                }
             }
 
-            int videoFmtp; 
-            sdpBody.getPayloadFormat(payloadTypes[typeIndex], payloadFormat, videoFmtp);
+            int videoFmtp;
+            int numVideoSizes = MAXIMUM_VIDEO_SIZES;
+            int videoSizes[MAXIMUM_VIDEO_SIZES];
+            sdpBody.getPayloadFormat(payloadTypes[typeIndex], payloadFormat, videoFmtp, numVideoSizes, videoSizes);
 
             SdpCodec* codec = new SdpCodec(payloadTypes[typeIndex], 
                                            mediaType.data(), 
@@ -253,8 +256,8 @@ Sdp* SdpHelper::createSdpFromSdpBody(SdpBody& sdpBody)
          UtlString encodedKey;  // Note:  Key returned from SdpBody is Base64 decoded, but Sdp container expects encoded key
          NetBase64Codec::encode(sizeof(srtpParameters.masterKey)-1, (const char*)srtpParameters.masterKey, encodedKey);
          sdpCrypto->addCryptoKeyParam(SdpMediaLine::CRYPTO_KEY_METHOD_INLINE, encodedKey.data()); 
-         sdpCrypto->setEncryptedSrtp((srtpParameters.securityLevel & ENCRYPTION) != 0);
-         sdpCrypto->setAuthenticatedSrtp((srtpParameters.securityLevel & AUTHENTICATION) != 0);
+         sdpCrypto->setEncryptedSrtp((srtpParameters.securityLevel & SRTP_ENCRYPTION) != 0);
+         sdpCrypto->setAuthenticatedSrtp((srtpParameters.securityLevel & SRTP_AUTHENTICATION) != 0);
          mediaLine->addCryptoSettings(sdpCrypto); 
          index++;
       }
@@ -269,12 +272,14 @@ Sdp* SdpHelper::createSdpFromSdpBody(SdpBody& sdpBody)
       int port;
       UtlString candidateIp;
       int candidatePort;
+#ifdef TODO
       if(sdpBody.getCandidateAttribute(i, id, qvalue, userFrag, password, ip, port, candidateIp, candidatePort))
       {
          mediaLine->setIceUserFrag(userFrag.data());
          mediaLine->setIcePassword(password.data());
          mediaLine->addCandidate(id.data(), 1, SdpCandidate::CANDIDATE_TRANSPORT_TYPE_UDP, (UInt64)qvalue, ip.data(), port, SdpCandidate::CANDIDATE_TYPE_NONE, candidateIp.data(), candidatePort); 
       }
+#endif
 
       // Add the media line to the sdp
       sdp->addMediaLine(mediaLine);
