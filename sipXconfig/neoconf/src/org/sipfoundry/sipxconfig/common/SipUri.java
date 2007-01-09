@@ -24,6 +24,8 @@ public final class SipUri {
     private static final Pattern EXTRACT_USER_RE = Pattern.compile("\\s*<?(?:sip:)?(.+?)@.+");
     private static final Pattern EXTRACT_FULL_USER_RE = Pattern
             .compile("(?:\"(.*)\")?\\s*<?(?:sip:)?(.+?)@.+");
+    private static final Pattern SIP_URI_RE = Pattern
+            .compile("(?:\".*\")?\\s*<?(?:sip:)?.+?@.+>?");
 
     private SipUri() {
         // utility class
@@ -141,6 +143,11 @@ public final class SipUri {
         return fullName + " - " + userId;
     }
 
+    public static boolean matches(String uri) {
+        Matcher matcher = SIP_URI_RE.matcher(uri);
+        return matcher.matches();
+    }
+
     public static String format(String name, String domain, Map< ? , ? > urlParams) {
         StringBuilder paramsBuffer = new StringBuilder();
         for (Map.Entry< ? , ? > entry : urlParams.entrySet()) {
@@ -155,4 +162,5 @@ public final class SipUri {
 
         return String.format("<sip:%s@%s%s>", name, domain, paramsBuffer);
     }
+
 }

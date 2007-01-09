@@ -6,7 +6,7 @@
     <resource uri="sip:102@example.org">
       <name>beta</name>
     </resource>
-    <resource uri="sip:104@example.org">
+    <resource uri="sip:104@sipfoundry.org">
       <name>gamma</name>
     </resource>
   </list>

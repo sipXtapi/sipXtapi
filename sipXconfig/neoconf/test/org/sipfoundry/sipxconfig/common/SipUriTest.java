@@ -20,13 +20,15 @@ import org.apache.commons.lang.StringUtils;
 
 public class SipUriTest extends TestCase {
     public void testFormatFullUri() {
-        String uri = SipUri.formatIgnoreDefaultPort("First Last", "username", "example.com", 5060);
+        String uri = SipUri
+                .formatIgnoreDefaultPort("First Last", "username", "example.com", 5060);
         assertEquals("\"First Last\"<sip:username@example.com>", uri);
 
-        String uri2 = SipUri.formatIgnoreDefaultPort("First Last", "username", "example.com", 5070);
+        String uri2 = SipUri.formatIgnoreDefaultPort("First Last", "username", "example.com",
+                5070);
         assertEquals("\"First Last\"<sip:username@example.com:5070>", uri2);
     }
-    
+
     public void testParsePort() {
         assertEquals(5060, SipUri.parsePort("5060", 5070));
         assertEquals(5070, SipUri.parsePort("5070", 5060));
@@ -49,9 +51,9 @@ public class SipUriTest extends TestCase {
         user.setFirstName("First");
         uri = SipUri.format(user, "mycomp.com");
 
-        assertEquals("\"First Last\"<sip:username@mycomp.com>", uri.toString());        
+        assertEquals("\"First Last\"<sip:username@mycomp.com>", uri.toString());
     }
-    
+
     public void testFormatDisplayNameUserNameDomainName() {
         String uri = SipUri.format("Adam Słodowy", "adam", "zróbtosam.com");
         assertEquals("\"Adam Słodowy\"<sip:adam@zróbtosam.com>", uri);
@@ -89,7 +91,7 @@ public class SipUriTest extends TestCase {
         assertEquals("name", SipUri.extractUser("name@sipfoundry.org"));
         assertEquals("name", SipUri.extractUser("name@sipfoundry@.org"));
     }
-    
+
     public void testExtractUserFromFullUser() {
         assertNull(SipUri.extractUser("name"));
         assertEquals("name", SipUri.extractUser("\"Joe \"<sip:name@sipfoundry.org>"));
@@ -103,11 +105,21 @@ public class SipUriTest extends TestCase {
         assertEquals("name", SipUri.extractFullUser("   <sip:name@sipfoundry.org>"));
         assertEquals("name", SipUri.extractFullUser("name@sipfoundry.org"));
         assertEquals("name", SipUri.extractFullUser("name@sipfoundry@.org"));
-        
-        assertEquals("first last - name", SipUri.extractFullUser("\"first last\"<sip:name@sipfoundry.org>"));        
-        assertEquals("Alice Smith - 180", SipUri.extractFullUser("\"Alice Smith\" <sip:180@example.com> "));        
+
+        assertEquals("first last - name", SipUri
+                .extractFullUser("\"first last\"<sip:name@sipfoundry.org>"));
+        assertEquals("Alice Smith - 180", SipUri
+                .extractFullUser("\"Alice Smith\" <sip:180@example.com> "));
     }
-    
+
+    public void testMatches() {
+        assertTrue(SipUri.matches("\"Joe Macy\"<sip:name@sipfoundry.org>"));
+        assertTrue(SipUri.matches("<sip:name@sipfoundry.org>"));
+        assertTrue(SipUri.matches("sip:name@sipfoundry.org"));
+        assertTrue(SipUri.matches("name@sipfoundry.org"));
+        assertFalse(SipUri.matches("sip:namesipfoundry.org"));
+        assertFalse(SipUri.matches("1234"));
+    }
 
     public void testUrlParams() {
         Map urlParams = new TreeMap();

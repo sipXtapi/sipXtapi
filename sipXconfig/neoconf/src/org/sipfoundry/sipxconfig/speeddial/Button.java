@@ -66,11 +66,12 @@ public class Button implements Serializable {
      * Creates a URI from button "number". If number already has a form of SIP URI it's value is
      * return. If not domain is appended to number to create a SIP URI.
      * 
-     * @param domainName
-     * @return
+     * @param domainName to be appended to URI id it's not a full URI
      */
     public String getUri(String domainName) {
-        // FIXME: implement properly...
+        if (SipUri.matches(m_number)) {
+            return SipUri.normalize(m_number);
+        }
         return SipUri.format(m_number, domainName, false);
     }
 }

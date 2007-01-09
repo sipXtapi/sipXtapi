@@ -32,7 +32,7 @@ public class ResourceListsTest extends XMLTestCase {
         }, {
             "beta", "102", "true"
         }, {
-            "gamma", "104", "true"
+            "gamma", "104@sipfoundry.org", "true"
         }
     };
 
