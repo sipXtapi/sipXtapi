@@ -11,9 +11,11 @@
  */
 package org.sipfoundry.sipxconfig.speeddial;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
@@ -70,9 +72,16 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport<SpeedDial> imp
     /**
      * Generates a new Resource List XML file for RLS (Resource List Server)
      */
-    private void activateResourceList() {
+    public void activateResourceList() {
         m_resourceLists.generate(this);
         m_replicationContext.replicate(m_resourceLists);
+    }
+
+    public List<DialingRule> getDialingRules() {
+        DialingRule[] rules = new DialingRule[] {
+            new RlsRule()
+        };
+        return Arrays.asList(rules);
     }
 
     public void setCoreContext(CoreContext coreContext) {

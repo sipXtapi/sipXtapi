@@ -21,6 +21,7 @@ import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
+import org.sipfoundry.sipxconfig.speeddial.SpeedDialManager;
 import org.springframework.context.ApplicationContext;
 
 public class ReplicationTriggerTestDb extends SipxDatabaseTestCase {
@@ -33,12 +34,16 @@ public class ReplicationTriggerTestDb extends SipxDatabaseTestCase {
     private IMocksControl m_parkOrbitsContextCtrl;
     private ParkOrbitContext m_parkOrbitsContext;
     private ParkOrbitContext m_oldParkOrbitContext;
+    private IMocksControl m_speedDialManagerControl;
+    private SpeedDialManager m_speedDialManager;
+    private SpeedDialManager m_oldSpeedDialManager;
 
     protected void setUp() throws Exception {
         ApplicationContext app = TestHelper.getApplicationContext();
         m_trigger = (ReplicationTrigger) app.getBean("replicationTrigger");
         m_oldParkOrbitContext = m_trigger.getParkOrbitContext();
         m_oldReplicationContext = m_trigger.getReplicationContext();
+        m_oldSpeedDialManager = m_trigger.getSpeedDialManager();
 
         TestHelper.cleanInsert("ClearDb.xml");
 
@@ -48,14 +53,20 @@ public class ReplicationTriggerTestDb extends SipxDatabaseTestCase {
         m_parkOrbitsContextCtrl = EasyMock.createControl();
         m_parkOrbitsContext = m_parkOrbitsContextCtrl.createMock(ParkOrbitContext.class);
 
+        m_speedDialManagerControl = EasyMock.createControl();
+        m_speedDialManager = m_speedDialManagerControl.createMock(SpeedDialManager.class);
+
         m_dao = (SettingDao) app.getBean("settingDao");
     }
 
     protected void tearDown() {
         m_trigger.setReplicationContext(m_oldReplicationContext);
         m_trigger.setParkOrbitContext(m_oldParkOrbitContext);
+        m_trigger.setSpeedDialManager(m_oldSpeedDialManager);
+
         m_parkOrbitsContextCtrl.verify();
         m_replicationContextCtrl.verify();
+        m_speedDialManagerControl.verify();
     }
 
     /**
@@ -66,6 +77,7 @@ public class ReplicationTriggerTestDb extends SipxDatabaseTestCase {
         m_replicationContext.generate(DataSet.PERMISSION);
         m_replicationContextCtrl.replay();
         m_parkOrbitsContextCtrl.replay();
+        m_speedDialManagerControl.replay();
     }
 
     /**
@@ -77,6 +89,8 @@ public class ReplicationTriggerTestDb extends SipxDatabaseTestCase {
         m_replicationContextCtrl.replay();
         m_parkOrbitsContext.activateParkOrbits();
         m_parkOrbitsContextCtrl.replay();
+        m_speedDialManager.activateResourceList();
+        m_speedDialManagerControl.replay();
     }
 
     /**
@@ -85,6 +99,7 @@ public class ReplicationTriggerTestDb extends SipxDatabaseTestCase {
     private void expectNoCalls() {
         m_replicationContextCtrl.replay();
         m_parkOrbitsContextCtrl.replay();
+        m_speedDialManagerControl.replay();
     }
 
     /**
@@ -113,6 +128,7 @@ public class ReplicationTriggerTestDb extends SipxDatabaseTestCase {
     public void testReplicateOnStartup() throws Exception {
         m_trigger.setReplicationContext(m_replicationContext);
         m_trigger.setParkOrbitContext(m_parkOrbitsContext);
+        m_trigger.setSpeedDialManager(m_speedDialManager);
         m_trigger.setReplicateOnStartup(true);
         expectOneCallToGenerateAll();
         m_trigger.onApplicationEvent(new ApplicationInitializedEvent(new Object()));

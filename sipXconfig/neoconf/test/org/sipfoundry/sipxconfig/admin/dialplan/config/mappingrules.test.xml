@@ -9,15 +9,26 @@
 
     <userMatch>
       <!--Music on Hold-->
-      <description>Forward music on hold calls to Park Server</description>	
+      <description>Forward music on hold calls to Park Server</description>
       <userPattern>~~mh~</userPattern>
       <permissionMatch>
         <transform>
           <url>&lt;sip:moh@${ORBIT_SERVER_SIP_SRV_OR_HOSTPORT}&gt;</url>
         </transform>
       </permissionMatch>
-	</userMatch>
-	
+    </userMatch>
+
+    <userMatch>
+      <!--RLS-->
+      <description>Forward resource list subscriptions to RLS</description>
+      <userPattern>~~rl~.</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>&lt;sip:{digits}@${RLS_ADDR}:${RLS_SIP_PORT}&gt;</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
     <userMatch>
       <!--Operator-->
       <userPattern>100</userPattern>
@@ -25,7 +36,9 @@
       <userPattern>0</userPattern>
       <permissionMatch>
         <transform>
-          <url>&lt;sip:{digits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dautoattendant%26name%3Doperator&gt;</url>
+          <url>
+            &lt;sip:{digits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dautoattendant%26name%3Doperator&gt;
+          </url>
         </transform>
       </permissionMatch>
     </userMatch>
@@ -35,7 +48,9 @@
       <userPattern>101</userPattern>
       <permissionMatch>
         <transform>
-          <url>&lt;sip:{digits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dretrieve&gt;</url>
+          <url>
+            &lt;sip:{digits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dretrieve&gt;
+          </url>
         </transform>
       </permissionMatch>
     </userMatch>
@@ -45,7 +60,9 @@
       <userPattern>2xxx</userPattern>
       <permissionMatch>
         <transform>
-          <url>&lt;sip:{vdigits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{vdigits-escaped}&gt;</url>
+          <url>
+            &lt;sip:{vdigits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{vdigits-escaped}&gt;
+          </url>
         </transform>
       </permissionMatch>
     </userMatch>
@@ -56,7 +73,9 @@
       <permissionMatch>
         <permission>Voicemail</permission>
         <transform>
-          <url>&lt;sip:{digits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{digits-escaped}&gt;;q=0.1</url>
+          <url>
+            &lt;sip:{digits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{digits-escaped}&gt;;q=0.1
+          </url>
         </transform>
       </permissionMatch>
     </userMatch>

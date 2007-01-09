@@ -19,6 +19,7 @@ import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.speeddial.SpeedDialManager;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
@@ -29,6 +30,8 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
 
     private ParkOrbitContext m_parkOrbitContext;
 
+    private SpeedDialManager m_speedDialManager;
+
     private boolean m_replicateOnStartup = true;
 
     public void setReplicationContext(SipxReplicationContext replicationContext) {
@@ -37,6 +40,10 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
 
     public void setParkOrbitContext(ParkOrbitContext parkOrbitContext) {
         m_parkOrbitContext = parkOrbitContext;
+    }
+
+    public void setSpeedDialManager(SpeedDialManager speedDialManager) {
+        m_speedDialManager = speedDialManager;
     }
 
     public boolean isReplicateOnStartup() {
@@ -64,6 +71,7 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
             LOG.info("Replicating all data sets after application has initialized");
             m_replicationContext.generateAll();
             m_parkOrbitContext.activateParkOrbits();
+            m_speedDialManager.activateResourceList();
         }
     }
 
@@ -86,5 +94,9 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
 
     ParkOrbitContext getParkOrbitContext() {
         return m_parkOrbitContext;
+    }
+    
+    SpeedDialManager getSpeedDialManager() {
+        return m_speedDialManager;
     }
 }

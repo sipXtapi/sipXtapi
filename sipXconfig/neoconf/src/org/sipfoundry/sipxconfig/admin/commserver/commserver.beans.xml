@@ -94,6 +94,7 @@
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationTrigger">
     <property name="replicationContext" ref="sipxReplicationContext" />
     <property name="parkOrbitContext" ref="parkOrbitContext" />
+    <property name="speedDialManager" ref="speedDialManager" />
   </bean>
 
   <bean id="registrationContext"

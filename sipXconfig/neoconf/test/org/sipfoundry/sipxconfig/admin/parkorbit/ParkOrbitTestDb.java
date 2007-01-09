@@ -20,7 +20,6 @@ import org.dbunit.dataset.ITable;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.MohRule;
 import org.springframework.context.ApplicationContext;
 
 public class ParkOrbitTestDb extends SipxDatabaseTestCase {
