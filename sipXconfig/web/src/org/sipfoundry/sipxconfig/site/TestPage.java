@@ -11,10 +11,13 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
@@ -46,8 +49,10 @@ import org.sipfoundry.sipxconfig.site.phone.NewPhone;
 import org.sipfoundry.sipxconfig.site.search.EnumEditPageProvider;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 import org.sipfoundry.sipxconfig.site.upload.EditUpload;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.sipfoundry.sipxconfig.upload.UploadManager;
 import org.sipfoundry.sipxconfig.upload.UploadSpecification;
+import org.sipfoundry.sipxconfig.vm.VoicemailManager;
 
 /**
  * TestPage page
@@ -112,6 +117,8 @@ public abstract class TestPage extends BasePage {
     public abstract UserSession getUserSession();
 
     public abstract IEngineService getRestartService();
+    
+    public abstract VoicemailManager getVoicemailManager();
 
     public void resetCallForwarding() {
         getForwardingContext().clear();
@@ -329,5 +336,30 @@ public abstract class TestPage extends BasePage {
         ReplicationData page = (ReplicationData) cycle.getPage(ReplicationData.PAGE);
         page.setDataSetName(setName);
         return page;
+    }
+    
+    public void resetVoicemail() {
+        VoicemailManager mgr = getVoicemailManager();        
+        File existing = new File(mgr.getMailstoreDirectory());
+        try {
+            FileUtils.cleanDirectory(existing);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not clean existing sample voicemail store " + existing.getAbsolutePath());
+        }
+
+        Class manageVmTestUiClass;
+        try {
+            manageVmTestUiClass = Class.forName("org.sipfoundry.sipxconfig.site.vm.ManageVoicemailTestUi");
+        } catch (ClassNotFoundException e1) {
+            throw new RuntimeException("Cannot access ui test directory via test class resource");
+        }
+        File original = new File(TestUtil.getTestSourceDirectory(manageVmTestUiClass) + "/mailstore");
+        try {
+            FileUtils.copyDirectory(original, existing);        
+        } catch (IOException e) {
+            String msg = String.format("Could not reset sample voicemail store from original '%s' to '%s'",
+                    original.getAbsolutePath(), existing.getAbsolutePath());
+            throw new RuntimeException(msg);
+        }
     }
 }

@@ -161,6 +161,13 @@ public final class TestUtil {
         sysProps.setProperty("upload.uploadRootDirectory", outputDirectory + "/upload");
         sysProps.setProperty("upload.destinationDirectory", outputDirectory + "/tftproot");
         sysProps.setProperty("phonebookManagerImpl.externalUsersDirectory", outputDirectory + "/phonebook");
+        File vmDir = new File(outputDirectory + "/mailstore");
+        if (!vmDir.exists()) {
+            if (!vmDir.mkdirs()) {
+                throw new RuntimeException("Could not create voicemail store " + vmDir.getAbsolutePath());
+            }
+        }
+        sysProps.setProperty("voicemailManagerImpl.mailstoreDirectory", vmDir.getAbsolutePath());
     }       
 
     public static void saveSysDirProperties(Properties sysProps, String classpathDirectory) {

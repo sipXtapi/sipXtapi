@@ -1,0 +1,18 @@
+<div jwcid="@Border" restricted="false">
+  <h1>
+    <span key="title.manageVoicemail"/>
+  </h1>
+  <span jwcid="@ErrorMsg"/>
+  <form jwcid="@Form" id="voicemail:form" delegate="bean:validator">
+    <table jwcid="@Table" id="voicemail:list" class="component" 
+      source="prop:voicemails"
+      selections="prop:selections"
+      columns="* voicemail:basename,play"
+      converter="prop:converter"
+      row="prop:voicemail">
+      <span jwcid="playColumnValue@Block">
+        <img jwcid="@Image" image="asset:playVoicemailAsset" alt="play"/>
+      </span>
+    </table>
+  </form>
+</div>

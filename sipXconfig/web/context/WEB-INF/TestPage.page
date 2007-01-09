@@ -21,6 +21,7 @@
   <inject property="indexManager" object="spring:indexManager"/>
   <inject property="uploadManager" object="spring:uploadManager"/>
   <inject property="ldapImportManager" object="spring:ldapImportManager"/>
+  <inject property="voicemailManager" object="spring:voicemailManager"/>
 
   <inject property="restartService" object="engine-service:restart"/>
   <inject property="applicationLifecycle" object="service:sipxconfig.ApplicationLifecycle"/>
@@ -62,6 +63,9 @@
   </component>
   <component id="resetUpload" type="DirectLink">
     <binding name="listener" value="listener:resetUploadManager"/>
+  </component>
+  <component id="resetVoicemail" type="DirectLink">
+    <binding name="listener" value="listener:resetVoicemail"/>
   </component>
   <component id="newUserGroup" type="DirectLink">
     <binding name="listener" value="listener:newGroup"/>

@@ -57,3 +57,4 @@ acdServer.port=${ACD_SERVER_PROVISIONING_PORT}
 acdServer.agentPort=${CONFIG_SERVER_AGENT_PORT}
 acdQueue.audioDirectory=@sipxconfig.phone.dir@/acd/audio
 presenceServer.enabled=true
+voicemailManagerImpl.mailstoreDirectory=@sipxvxml.data.dir@/mailstore
