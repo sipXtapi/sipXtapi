@@ -27,6 +27,7 @@ public final class ConfigFileType extends Enum {
     public static final ConfigFileType CONFERENCES = new ConfigFileType("conferences.xml");
     public static final ConfigFileType ATTENDANT_SCHEDULE = new ConfigFileType("attendant_schedule.xml");
     public static final ConfigFileType ORGANIZATION_PREFS = new ConfigFileType("organizationprefs.xml");
+    public static final ConfigFileType RESOURCE_LISTS = new ConfigFileType("resource-lists.xml");
 
     private ConfigFileType(String name) {
         super(name);

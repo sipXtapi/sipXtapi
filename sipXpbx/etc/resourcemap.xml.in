@@ -42,6 +42,9 @@
        <filemap identifier="orbits.xml" 
                 location="@SIPX_CONFDIR@/orbits.xml" />
 
+       <filemap identifier="resource-lists.xml" 
+                location="@SIPX_CONFDIR@/resource-lists.xml" />
+
        <filemap identifier="e911rules.xml"
                 location="@SIPX_CONFDIR@/e911rules.xml" />
                 

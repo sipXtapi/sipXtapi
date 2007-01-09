@@ -3,6 +3,10 @@
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
 
+  <bean id="resourceListGenerator" class="org.sipfoundry.sipxconfig.speeddial.ResourceLists">
+    <property name="coreContext" ref="coreContext" />
+  </bean>
+
   <bean id="speedDialManager" class="org.springframework.aop.framework.ProxyFactoryBean"
     parent="abstractDao">
     <property name="proxyInterfaces">
@@ -16,6 +20,10 @@
   <bean id="speedDialManagerImpl" class="org.sipfoundry.sipxconfig.speeddial.SpeedDialManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="coreContext" ref="coreContext" />
+    <property name="replicationContext" ref="sipxReplicationContext" />
+    <property name="resourceLists">
+      <ref local="resourceListGenerator" />
+    </property>
   </bean>
 
   <bean id="speedDialManagerUserDelete" factory-bean="speedDialManagerImpl"

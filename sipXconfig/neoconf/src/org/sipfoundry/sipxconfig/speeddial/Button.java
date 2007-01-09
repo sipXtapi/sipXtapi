@@ -15,6 +15,7 @@ import java.io.Serializable;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.sipfoundry.sipxconfig.common.SipUri;
 
 public class Button implements Serializable {
     private String m_label;
@@ -59,5 +60,17 @@ public class Button implements Serializable {
         Button rhs = (Button) obj;
         return new EqualsBuilder().append(m_label, rhs.m_label).append(m_number, rhs.m_number)
                 .isEquals();
+    }
+
+    /**
+     * Creates a URI from button "number". If number already has a form of SIP URI it's value is
+     * return. If not domain is appended to number to create a SIP URI.
+     * 
+     * @param domainName
+     * @return
+     */
+    public String getUri(String domainName) {
+        // FIXME: implement properly...
+        return SipUri.format(m_number, domainName, false);
     }
 }
