@@ -27,6 +27,7 @@ nobase_include_HEADERS =  \
     mp/MpArrayBuf.h \
     mp/MpAudioAbstract.h \
     mp/MpAudioBuf.h \
+    mp/MpAudioConnection.h \
     mp/MpAudioFileDecompress.h \
     mp/MpAudioFileOpen.h \
     mp/MpAudioFileUtils.h \
