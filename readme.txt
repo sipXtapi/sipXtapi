@@ -44,7 +44,7 @@ make;make install
 
 2) Test using PlaceCall
 
-cd examples/PlaceCall/src
+cd examples/PlaceCall
 make
 ./PlaceCall <IP>
 
@@ -115,7 +115,7 @@ make;make install
 
 3) Test using PlaceCall
 
-cd examples/PlaceCall/src
+cd examples/PlaceCall
 make
 ./PlaceCall <IP>
 
