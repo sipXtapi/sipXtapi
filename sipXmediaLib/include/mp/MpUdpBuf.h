@@ -16,6 +16,10 @@
 #  include <netinet/in.h>
 #endif // __pigntel_on_posix__ ]
 
+#ifdef WINCE
+#  include <winsock.h>
+#endif
+
 // APPLICATION INCLUDES
 #include "mp/MpDataBuf.h"
 
