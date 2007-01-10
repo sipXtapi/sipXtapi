@@ -32,6 +32,33 @@ using namespace resip;
 
 using namespace std;
 
+#if defined(WINCE)
+int main( int argc, char* argv[] );
+
+// wWinMain is not defined in winbase.h.
+//extern "C" int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nShowCmd);
+//****************************************************************
+int
+WINAPI
+WinMain(
+		HINSTANCE hInstance,
+		HINSTANCE hPrevInstance,
+		LPWSTR lpCmdLine,
+		int nShowCmd
+	   )
+{
+	printf( "entering WinMain( ) - lpCmdLine is *%s*\n", lpCmdLine );
+	wchar_t	*pW			= NULL;
+	int		iRet		= 1;
+
+
+	iRet = main( 0, NULL );
+
+	printf( "  main( ) returned %d\n", iRet );
+	return iRet;
+}
+
+#endif
 int main(int argc, char* argv[])
 {
    {  // Test get/set interfaces

@@ -491,17 +491,17 @@ public:
    void addPreConditionCurrentStatus(SdpPreConditionType type, SdpPreConditionStatusType status, SdpPreConditionDirectionType direction) 
         { addPreConditionCurrentStatus(new SdpPreCondition(type, status, direction)); }
    void addPreConditionCurrentStatus(SdpPreCondition* preCondition) { mPreConditionCurrentStatus.insert(preCondition); }
-   void clearPreConditionCurrentStatus() { return mPreConditionCurrentStatus.destroyAll(); }
+   void clearPreConditionCurrentStatus() { mPreConditionCurrentStatus.destroyAll(); }
 
    void addPreConditionConfirmStatus(SdpPreConditionType type, SdpPreConditionStatusType status, SdpPreConditionDirectionType direction) 
         { addPreConditionConfirmStatus(new SdpPreCondition(type, status, direction)); }
    void addPreConditionConfirmStatus(SdpPreCondition* preCondition) { mPreConditionConfirmStatus.insert(preCondition); }
-   void clearPreConditionConfirmStatus() { return mPreConditionConfirmStatus.destroyAll(); }
+   void clearPreConditionConfirmStatus() { mPreConditionConfirmStatus.destroyAll(); }
 
    void addPreConditionDesiredStatus(SdpPreConditionType type, SdpPreConditionStrengthType strength, SdpPreConditionStatusType status, SdpPreConditionDirectionType direction) 
         { addPreConditionDesiredStatus(new SdpPreConditionDesiredStatus(type, strength, status, direction)); }
    void addPreConditionDesiredStatus(SdpPreConditionDesiredStatus* preConditionDesiredStatus) { mPreConditionDesiredStatus.insert(preConditionDesiredStatus); }
-   void clearPreConditionDesiredStatus() { return mPreConditionDesiredStatus.destroyAll(); }
+   void clearPreConditionDesiredStatus() { mPreConditionDesiredStatus.destroyAll(); }
 
    void setMaximumPacketRate(double maximumPacketRate) { mMaximumPacketRate = maximumPacketRate; }
    void setLabel(const char * label) { mLabel = label; }
