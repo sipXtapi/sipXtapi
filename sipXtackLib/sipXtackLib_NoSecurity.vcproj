@@ -23,7 +23,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXcallLib\include"
+				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXcallLib\include"
 				PreprocessorDefinitions="NDEBUG;WIN32;_LIB;SIP_STACK_VERSION=\&quot;1.3.0\&quot;;SIPX_CONFDIR=\&quot;.\&quot;;SIPX_LOGDIR=\&quot;.\&quot;;_WINDOWS"
 				StringPooling="FALSE"
 				ExceptionHandling="TRUE"
@@ -73,7 +73,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXcallLib\include"
+				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXcallLib\include"
 				PreprocessorDefinitions="_DEBUG;WIN32;_LIB;SIP_STACK_VERSION=\&quot;1.3.0\&quot;;SIPX_CONFDIR=\&quot;.\&quot;;SIPX_LOGDIR=\&quot;.\&quot;;_WINDOWS"
 				StringPooling="FALSE"
 				ExceptionHandling="TRUE"
@@ -690,27 +690,6 @@
 			</File>
 			<File
 				RelativePath="src\net\SdpBody.cpp">
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="src\net\SdpCodec.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -1723,9 +1702,6 @@
 			</File>
 			<File
 				RelativePath="include\net\SdpBody.h">
-			</File>
-			<File
-				RelativePath="include\net\SdpCodec.h">
 			</File>
 			<File
 				RelativePath="include\net\SdpCodecFactory.h">
