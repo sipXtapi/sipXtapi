@@ -69,6 +69,7 @@
     <pathelement path="${xmlrpc.jar}"/>
     <pathelement path="${antlr.jar}"/>
     <pathelement path="${lucene.jar}"/>
+    <pathelement path="${xstream.jar}" />
     <!-- SOAP -->
     <pathelement path="${jaxrpc.jar}"/>
     <pathelement path="${javamail.jar}"/>

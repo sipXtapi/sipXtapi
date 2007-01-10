@@ -16,13 +16,18 @@ import java.util.List;
 
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.annotations.Asset;
+import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.components.IPrimaryKeyConverter;
+import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.services.ExpressionEvaluator;
 import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.components.MillisDurationFormat;
 import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 import org.sipfoundry.sipxconfig.vm.Voicemail;
 import org.sipfoundry.sipxconfig.vm.VoicemailManager;
@@ -34,31 +39,42 @@ public abstract class ManageVoicemail extends UserBasePage {
 
     @InjectObject(value = "spring:voicemailManager")
     public abstract VoicemailManager getVoicemailManager();
-    
+
     public abstract String getFolder();
-    
-    @InitialValue("new org.sipfoundry.sipxconfig.components.SelectMap()")    
+
+    @InitialValue("new org.sipfoundry.sipxconfig.components.SelectMap()")
     public abstract SelectMap getSelections();
-    
+
     public abstract void setSelections(SelectMap selections);
-    
+
     public abstract Voicemail getVoicemail();
+
     public abstract void setVoicemail(Voicemail voicemail);
-    
+
     public abstract List<Voicemail> getVoicemails();
+
     public abstract void setVoicemails(List<Voicemail> vm);
+
+    @InjectObject(value = "service:tapestry.ognl.ExpressionEvaluator")
+    public abstract ExpressionEvaluator getExpressionEvaluator();
+
+    public abstract void setConverter(IPrimaryKeyConverter converter);
     
-    public IPrimaryKeyConverter getConverter() {
-        return new VoicemailSqueezer(getVoicemailManager());
+    @Bean(initializer = "maxField=2")
+    public abstract MillisDurationFormat getDurationFormat();
+
+    public ITableColumn getTimestampColumn() {
+        return TapestryUtils.createDateColumn("timestamp", getMessages(),
+                getExpressionEvaluator(), getLocale());
     }
-    
+
     public void pageBeginRender(PageEvent event) {
         super.pageBeginRender(event);
         SelectMap selections = getSelections();
         if (selections == null) {
             setSelections(new SelectMap());
         }
-        
+
         List<Voicemail> vm = getVoicemails();
         if (vm == null) {
             try {
@@ -69,6 +85,7 @@ public abstract class ManageVoicemail extends UserBasePage {
             }
             setVoicemails(vm);
         }
-    }    
-
+        
+        setConverter(new VoicemailSqueezer(getVoicemailManager()));
+    }
 }

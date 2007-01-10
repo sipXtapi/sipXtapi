@@ -61,5 +61,6 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/saaj.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/wsdl4j-1.5.1.jar"/>
 	<classpathentry kind="lib" path="etc"/>
+	<classpathentry sourcepath="/LIB_SRC/xstream/1.2.1/src.zip" kind="var" path="SIPX_CONFIG/lib/xstream-1.2.1.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

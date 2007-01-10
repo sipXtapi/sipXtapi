@@ -7,9 +7,15 @@
     <table jwcid="@Table" id="voicemail:list" class="component" 
       source="prop:voicemails"
       selections="prop:selections"
-      columns="* voicemail:basename,play"
+      columns="* subject,from,=timestampColumn,duration,play"
       converter="prop:converter"
       row="prop:voicemail">
+      <span jwcid="fromColumnValue@Block">
+        <span jwcid="@Any" title="prop:voicemail.from"><span jwcid="@Insert" value="prop:voicemail.fromBrief"/></span>
+      </span>
+      <span jwcid="durationColumnValue@Block">
+        <span jwcid="@Insert" value="prop:voicemail.durationMillis" format="prop:durationFormat"/>
+      </span>
       <span jwcid="playColumnValue@Block">
         <img jwcid="@Image" image="asset:playVoicemailAsset" alt="play"/>
       </span>

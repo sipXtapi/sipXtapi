@@ -27,6 +27,7 @@
     <pathelement location="${commons-io.jar}" />
     <pathelement location="${xmlrpc.jar}" />
     <pathelement location="${acegi-security.jar}" />
+    <pathelement location="${xstream.jar}" />
     <path refid="axis.path" />
     <pathelement location="${agent-bindings.jar}" />
   </path>
@@ -155,6 +156,7 @@
       <fileset file="${antlr.jar}" />
       <fileset file="${lucene.jar}" />
       <fileset file="${agent-bindings.jar}" />
+      <fileset file="${xstream.jar}" />
     </copy>
 
     <mkdir dir="${dest.dir}${sipxconfig.phone.dir}/profile/docroot" />
