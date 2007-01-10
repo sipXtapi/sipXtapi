@@ -29,7 +29,6 @@
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
 				RuntimeTypeInfo="TRUE"
-				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"/>
 			<Tool

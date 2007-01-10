@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2006 Robert J. Andreasen, Jr.
 // Licensed to SIPfoundry under a Contributor Agreement.
