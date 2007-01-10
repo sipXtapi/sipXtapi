@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -72,14 +75,14 @@ OsStatus MpeGIPSiLBC::encode(const short* pAudioSamples,
                               const int bytesLeft,
                               int& rSizeInBytes,
                               UtlBoolean& sendNow,
-                              MpBufSpeech& rAudioCategory)
+                              MpAudioBuf::SpeechType& rAudioCategory)
 {
    int res = 0;
    short size = 0;
 
    assert(ILBC_SAMPLES_PER_FRAME == numSamples);
 
-   memcpy(mBuf+mNumSamples, pAudioSamples, numSamples*sizeof(Sample));
+   memcpy(mBuf+mNumSamples, pAudioSamples, numSamples*sizeof(MpAudioSample));
    mNumSamples += numSamples;
 
    if ((ILBC_SAMPLES_PER_FRAME * ILBC_FRAMES_PER_PACKET) == mNumSamples) {

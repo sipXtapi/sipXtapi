@@ -401,7 +401,7 @@ In a shell type:
   fink update-all
 
 In a shell type:
-  fink install glib2-dev pkgconfig libtool pcre openssl097-dev ant
+  fink install pkgconfig libtool pcre openssl097-dev ant
 
 In a shell type:
   fink install svn-client-ssl

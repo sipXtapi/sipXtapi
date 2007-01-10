@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -15,9 +18,8 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-//?#include "mp/MpFlowGraphMsg.h"
-#include "mp/MpResource.h"
-#include "mp/MpConnection.h"
+#include "mp/MpAudioResource.h"
+#include "mp/MpAudioConnection.h"
 
 // DEFINES
 // MACROS
@@ -28,36 +30,68 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-//:The conference bridge resource.
-
-class MprBridge : public MpResource
+/**
+*  @brief The conference bridge resource.
+*
+*  Local input and output should be connected to the first input and output
+*  ports. Remote connections will be binded to the second input/output ports,
+*  third input/output ports, and so on.
+*
+*  <H3>Enabled behaviour</H3>
+*  Mix together local and remote inputs onto outputs, with the requirement that
+*  no output receive its own input.
+*
+*  <H3>Disabled behaviour</H3>
+*  Mix all remote inputs onto local speaker, and copy our local microphone to
+*  all remote outputs.
+*/
+class MprBridge : public MpAudioResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
 
+     /// Default constructor
    MprBridge(const UtlString& rName, int samplesPerFrame, int samplesPerSec);
-     //:Default constructor
 
+     /// Destructor
    virtual
    ~MprBridge();
-     //:Destructor
+
+//@}
 
 /* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
 
+     /// Attach MpAudioConnection to an available port.
    int connectPort(MpConnectionID connID);
-     //:Attach MpConnection to an available port.
 
+     /// Disconnect MpAudioConnection from its port.
    OsStatus disconnectPort(MpConnectionID connID);
-     //:disconnect MpConnection from its port.
+
+//@}
 
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+
+    UtlBoolean doMix(MpAudioBufPtr inBufs[], int inBufsSize,
+                     MpAudioBufPtr &out, int samplesPerFrame) const;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -65,27 +99,29 @@ private:
    enum { MAX_BRIDGE_PORTS = 10 };
 
    MpConnectionID mpConnectionIDs[MAX_BRIDGE_PORTS];
-   OsBSem         mPortLock;
+                              ///< IDs of remote connections, binded to this
+                              ///< bridge.
+   OsBSem         mPortLock;  ///< Mutex for ports access synchronization
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
-                                    MpBufPtr outBufs[],
-                                    int inBufsSize,
-                                    int outBufsSize,
-                                    UtlBoolean isEnabled,
-                                    int samplesPerFrame=80,
-                                    int samplesPerSecond=8000);
+                                     MpBufPtr outBufs[],
+                                     int inBufsSize,
+                                     int outBufsSize,
+                                     UtlBoolean isEnabled,
+                                     int samplesPerFrame=80,
+                                     int samplesPerSecond=8000);
 
-   MprBridge(const MprBridge& rMprBridge);
-     //:Copy constructor (not implemented for this class)
-
-   MprBridge& operator=(const MprBridge& rhs);
-     //:Assignment operator (not implemented for this class)
-
+     /// Find and return the index to an unused port pair
    int findFreePort(void);
-     //:Find and return the index to an unused port pair
 
+     /// Check whether this port is connected to both input and output
    UtlBoolean isPortActive(int portIdx) const;
-     //:Check whether this port is connected to both input and output
+
+     /// Copy constructor (not implemented for this class)
+   MprBridge(const MprBridge& rMprBridge);
+
+     /// Assignment operator (not implemented for this class)
+   MprBridge& operator=(const MprBridge& rhs);
 
 };
 

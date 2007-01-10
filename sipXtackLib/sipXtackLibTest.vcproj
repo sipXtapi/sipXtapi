@@ -20,7 +20,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".\include;.\include\nss;..\sipXportLib\include;..\sipXportLib\src\test;&quot;..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1_dbg\include&quot;;&quot;..\sipXbuild\vendors\Mozilla\wnt\nss-3.9_dbg\include&quot;"
+				AdditionalIncludeDirectories=".\include;.\include\nss;..\sipXportLib\include;..\sipXcallLib\include;..\sipXportLib\src\test;&quot;..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1_dbg\include&quot;;&quot;..\sipXbuild\vendors\Mozilla\wnt\nss-3.9_dbg\include&quot;;..\CPPUnit\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -34,11 +34,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcrtd.lib MSVCPRTd.lib wsock32.lib cppunitd.lib sipXtackLib.lib sipXportLib.lib libpcre.a"
+				AdditionalDependencies="Ws2_32.lib cppunitd.lib pcre.lib"
 				OutputFile="$(OutDir)/sipXtackLibTest.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories=".\Debug;..\sipXportLib\debug;..\sipXbuild\Vendors\Mozilla\wnt\nspr-3.4_dbg\lib;..\sipXbuild\Vendors\Mozilla\wnt\nss-3.9_dbg\lib;..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1_dbg\lib"
-				IgnoreDefaultLibraryNames="msvcrt.lib;msvcprt.lib;msvcrt"
+				AdditionalLibraryDirectories=".\Debug;..\sipXportLib\debug;..\CPPUnit\lib"
+				IgnoreDefaultLibraryNames=""
 				DelayLoadDLLs="nss3.dll;smime3.dll;nspr4.dll;plc4.dll;ssl3.dll"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/sipXtackLibTest.pdb"
@@ -73,7 +73,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories=".\include;.\include\nss;..\sipXportLib\include;..\sipXportLib\src\test;..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1\include,..\sipXbuild\vendors\Mozilla\wnt\nss-3.9\include"
+				AdditionalIncludeDirectories=".\include;.\include\nss;..\sipXportLib\include;..\sipXcallLib\include;..\sipXportLib\src\test;..\CPPUnit\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -84,11 +84,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcrt.lib MSVCPRT.lib wsock32.lib cppunit.lib sipXportLib.lib sipXtackLib.lib libpcre.a"
+				AdditionalDependencies="Ws2_32.lib cppunit.lib pcre.lib"
 				OutputFile="$(OutDir)/sipXtackLibTest.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories=".\Release;..\sipXportLib\release;..\sipXbuild\Vendors\Mozilla\wnt\nspr-3.4\lib;..\sipXbuild\Vendors\Mozilla\wnt\nss-3.9\lib;..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1\lib"
-				IgnoreDefaultLibraryNames="libcpmtd.lib;LIBCMTD.lib;libprt.lib;msvcrtd.lib;msvcprtd.lib"
+				AdditionalLibraryDirectories=".\Release;..\sipXportLib\release;..\CPPUnit\lib"
+				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -181,25 +181,10 @@
 				RelativePath=".\src\test\net\SipSubcriptionClientTest.cpp">
 			</File>
 			<File
+				RelativePath=".\src\test\net\SipSubcriptionMgrTest.cpp">
+			</File>
+			<File
 				RelativePath=".\src\test\net\SipUserAgentTest.cpp">
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestMonitor.cpp">
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestOutputter.cpp">
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestRunner.cpp">
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestTemplate.cpp">
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestUtilities.cpp">
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\unitmain.cpp">
 			</File>
 			<File
 				RelativePath=".\src\test\net\UrlTest.cpp">

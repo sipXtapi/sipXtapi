@@ -2988,7 +2988,7 @@ void SipConnection::processInviteRequestOffering(const SipMessage* request,
         // Bob 11/16/01: The following setState was added to close a race between
         // the answer (above) and hangup (below).  The application layer is notified
         // of state changed on on the replies to these messages.  These can lead to
-        // dropped transfer if the BYE reponse is received before INVITE response.
+        // dropped transfer if the BYE response is received before INVITE response.
         setState(CONNECTION_ESTABLISHED, CONNECTION_REMOTE, CONNECTION_CAUSE_TRANSFER);
         
         // Drop the leg to be replaced

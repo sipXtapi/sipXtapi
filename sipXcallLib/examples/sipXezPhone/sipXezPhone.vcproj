@@ -28,10 +28,6 @@
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdwx.h"
-				PrecompiledHeaderFile=".\Debug/sipXezPhone.pch"
-				AssemblerListingLocation=".\Debug/"
-				ObjectFile=".\Debug/"
-				ProgramDataBaseFileName=".\Debug/"
 				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
@@ -41,7 +37,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcrtd.lib msvcprtd.lib rpcrt4.lib Ws2_32.lib comctl32.lib sipXtapid.lib sipXportLibd.lib libpcre.a winmm.lib wxmsw26_core.lib wxmsw26_adv.lib wxbase26.lib"
+				AdditionalDependencies="msvcrtd.lib msvcprtd.lib rpcrt4.lib Ws2_32.lib comctl32.lib sipXtapid.lib sipXportLibD.lib pcre.lib winmm.lib wxmsw26_core.lib wxmsw26_adv.lib wxbase26.lib"
 				OutputFile="debug\sipXezPhone.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -103,10 +99,6 @@ xcopy  res Debug\res /I /Y /S
 				EnableFunctionLevelLinking="TRUE"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderFile=".\Release/sipXezPhone.pch"
-				AssemblerListingLocation=".\Release/"
-				ObjectFile=".\Release/"
-				ProgramDataBaseFileName=".\Release/"
 				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
@@ -115,7 +107,7 @@ xcopy  res Debug\res /I /Y /S
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcrt.lib msvcprt.lib rpcrt4.lib Ws2_32.lib comctl32.lib sipXtapi.lib sipXportLib.lib libpcre.a winmm.lib wxmsw26_core.lib wxmsw26_adv.lib wxbase26.lib"
+				AdditionalDependencies="msvcrt.lib msvcprt.lib rpcrt4.lib Ws2_32.lib comctl32.lib sipXtapi.lib sipXportLib.lib pcre.lib winmm.lib wxmsw26_core.lib wxmsw26_adv.lib wxbase26.lib"
 				OutputFile="release\sipXezPhone.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"

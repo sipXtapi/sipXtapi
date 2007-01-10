@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -848,7 +851,7 @@ public:
             {"XYZ123", "INSERT", 100, "XYZ123"},        // Insert past end
             {"XYZ123", "INSERT", -3, "XYZ123"},         // Insret before start
             {"XYZ123", NULL, 3, "XYZ123"},              // Bogus source pointer
-            {"XYZ123", "INSERT", 3, "XYZINSERT123"},    // Insert in middle
+            {"XYZ123", "INSERT", 3, "XYZINSERT123"}     // Insert in middle
         } ;
 
         for (int i=0; i<INSERT_TEST_DATA_LENGTH; i++)

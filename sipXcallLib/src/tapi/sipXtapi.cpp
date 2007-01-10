@@ -736,7 +736,7 @@ SIPXTAPI_API SIPX_RESULT sipxUnInitialize(SIPX_INST hInst,
             // Did we previously allocate an audio codecs array and store it in our codec settings?
             if (pInst->audioCodecSetting.bInitialized)
             {
-                // Free up the previuosly allocated codecs and the array
+                // Free up the previously allocated codecs and the array
                 for (codecIndex = 0; codecIndex < pInst->audioCodecSetting.numCodecs; codecIndex++)
                 {
                     if (pInst->audioCodecSetting.sdpCodecArray[codecIndex])
@@ -6659,7 +6659,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoBandwidth(const SIPX_INST hInst,
         {
             pInst->pCodecFactory->getCodecs(pInst->videoCodecSetting.numCodecs,
                                             pInst->videoCodecSetting.sdpCodecArray,
-                                                        "video");
+                                            "video");
             pInst->videoCodecSetting.bInitialized = true;
         }
         // Check if bandwidth is legal, do not allow variable bandwidth
@@ -6919,18 +6919,18 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoCodecByName(const SIPX_INST hInst,
         CpMediaInterfaceFactoryImpl* pInterface = 
                 pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation();
 
-        pInst->videoCodecSetting.pPreferences = szCodecName;
+        *pInst->videoCodecSetting.pPreferences = szCodecName;
 
         if (pInterface)
         {
-            if (pInst->videoCodecSetting.sPreferences->length() != 0)
+            if (pInst->videoCodecSetting.pPreferences->length() != 0)
             {
                 // Did we previously allocate a codecs array and store it in our settings?
                 if (pInst->videoCodecSetting.bInitialized)
                 {
                     int codecIndex;
 
-                    // Free up the previuosly allocated codecs and the array
+                    // Free up the previously allocated codecs and the array
                     for (codecIndex = 0; codecIndex < pInst->videoCodecSetting.numCodecs; codecIndex++)
                     {
                         if (pInst->videoCodecSetting.sdpCodecArray[codecIndex])
@@ -6943,8 +6943,8 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoCodecByName(const SIPX_INST hInst,
                     pInst->videoCodecSetting.sdpCodecArray = NULL;
                 }
                 pInterface->buildCodecFactory(pInst->pCodecFactory, 
-                                              pInst->audioCodecSetting.pPreferences,
-                                              pInst->videoCodecSetting.pPreferences,
+                                              *pInst->audioCodecSetting.pPreferences,
+                                              *pInst->videoCodecSetting.pPreferences,
                                               -1, // Allow all formats
                                               &iRejected);
 
@@ -7002,7 +7002,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigResetVideoCodecs(const SIPX_INST hInst)
             {
                 int codecIndex;
 
-                // Free up the previuosly allocated codecs and the array
+                // Free up the previously allocated codecs and the array
                 for (codecIndex = 0; codecIndex < pInst->videoCodecSetting.numCodecs; codecIndex++)
                 {
                     if (pInst->videoCodecSetting.sdpCodecArray[codecIndex])
@@ -7438,7 +7438,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigUpdatePreviewWindow(const SIPX_INST hInst, co
         "sipxConfigUpdatePreviewWindow hInst=%p, hWnd=%p",
         hInst, hWnd);
         
-#ifdef _WIN32
+#if defined(_WIN32) && defined(HAVE_GIPS)
     #include <windows.h>
 	PAINTSTRUCT ps;
 	HDC hdc = BeginPaint((HWND)hWnd, &ps);
@@ -7467,7 +7467,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallResizeWindow(const SIPX_CALL hCall, const SIPX_
     UtlString callId ;
     UtlString remoteAddress ;
         
-#ifdef _WIN32
+#if defined(_WIN32) && defined(HAVE_GIPS)
         #include <windows.h>
 
         if (sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, NULL))

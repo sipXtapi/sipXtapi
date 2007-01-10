@@ -1165,7 +1165,7 @@ UtlBoolean OsSocket::isIp4Address(const char* address)
     //       ^====== dot2
     //    ^========= dot1
 
-    const char* dot1 = strchr((char*) address, '.');
+    const char* dot1 = strchr(address, '.');
     UtlBoolean isIp4 = FALSE;
     if(dot1)
     {

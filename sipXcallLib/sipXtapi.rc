@@ -5,6 +5,7 @@
 //
 // Generated from the TEXTINCLUDE 2 resource.
 //
+#include "afxres.h"
 #include "include\tapi\sipXtapi.h"
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
@@ -31,6 +32,7 @@ END
 
 2 TEXTINCLUDE 
 BEGIN
+    "#include ""afxres.h""\r\n"
     "#include ""include\\tapi\\sipXtapi.h""\0"
 END
 

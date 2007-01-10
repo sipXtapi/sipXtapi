@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2006 Robert J. Andreasen, Jr.
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -93,7 +96,7 @@
 typedef enum TURN_TRANSPORT_TYPE
 {
     TURN_TRANSPORT_UDP,
-    TURN_TRANSPORT_TCP,
+    TURN_TRANSPORT_TCP
 } TURN_TRANSPORT_TYPE ;
 
 // FORWARD DECLARATIONS

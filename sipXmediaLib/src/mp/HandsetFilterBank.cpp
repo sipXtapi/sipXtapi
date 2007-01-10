@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -335,7 +338,7 @@ void HandsetFilterBankFinalReport(int total_simulations)
 
 /* ********************************************************************* */
 
-void HandsetFilterBank::DoHandsetFilterBank(short fbecmic[], short mic[], short ldspkr[])
+void HandsetFilterBank::DoHandsetFilterBank(short *fbecmic, short *mic, short *ldspkr)
 {
 
 #include "mp/HandsetFilterbankWindows.h"
@@ -819,9 +822,9 @@ void HandsetFilterBank::DoHandsetFilterBank(short fbecmic[], short mic[], short 
 
 // Window, overlap and add for HS_NUM_FRAMES_PER_10MS subframes. Then DFT each of the subframes.
 void HandsetFilterBank::MultiFrameHandsetFilterBankAnalysis(icomplex outFFTArray[][HS_M+1],
-                                                            int Input[],
-                                                            int AnalysisDL[],
-                                                            int AnalysisWindow[],
+                                                            int *Input,
+                                                            int *AnalysisDL,
+                                                            int *AnalysisWindow,
                                                             int iMicOrSpkrFlag)
 {
    int i;

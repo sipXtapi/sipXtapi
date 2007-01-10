@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -15,7 +18,6 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-// #include "mp/MpBuf.h"
 
 // DEFINES
 // MACROS
@@ -27,48 +29,62 @@
 
 // FORWARD DECLARATIONS
 
-//:class for managing dejitter/decode of incoming RTP.
+/// Class for managing dejitter/decode of incoming RTP.
 class MpSipxDecoder
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
 
+     /// Constructor
    MpSipxDecoder(void);
-     //:Constructor
-     // Returns a new decoder object.
-     ////!param: ARGs - (in? out?) What?
 
+     /// Destructor
    virtual
    ~MpSipxDecoder(void);
-     //:Destructor
+
+//@}
 
 /* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
+
+//@}
 
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+
+     /// Copy constructor
    MpSipxDecoder(const MpSipxDecoder& rMpSipxDecoder);
-     //:Copy constructor
 
+     /// Assignment operator
    MpSipxDecoder& operator=(const MpSipxDecoder& rhs);
-     //:Assignment operator
 
-   //int mPayloadType;
 };
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern int G711A_Decoder(int N, JB_uchar* S, Sample* D);
-extern int G711U_Decoder(int N, JB_uchar* S, Sample* D);
+extern int G711A_Decoder(int N, const JB_uchar* S, MpAudioSample* D);
+extern int G711U_Decoder(int N, const JB_uchar* S, MpAudioSample* D);
 
 #ifdef __cplusplus
 }

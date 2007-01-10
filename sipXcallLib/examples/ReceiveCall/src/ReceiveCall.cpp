@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -44,7 +47,6 @@ static SIPX_VIDEO_DISPLAY gPreviewDisplay;
 static bool  bVideo = false;
 
 #endif
-static bool  bVideo = false;
 bool bUseCustomTransportReliable = false;
 bool bUseCustomTransportUnreliable = false;
 SIPX_TRANSPORT ghTransport = SIPX_TRANSPORT_NULL;
@@ -96,7 +98,9 @@ void usage(const char* szExecutable)
     printf("   -x proxy (outbound proxy)\n");
     printf("   -S stun server\n") ;
     printf("   -v show sipXtapi version\n");
+#ifdef VIDEO
     printf("   -V receive video calls.\n");
+#endif
     printf("   -E use bogus custom external transport, reliable (transport=tribble)\n");
     printf("   -e use bogus custom external transport, unreliable (transport=flibble)\n");
 
@@ -286,10 +290,12 @@ bool parseArgs(int argc,
             printf("%s\n", szBuffer);
             exit(0);
         }
+#ifdef VIDEO
         else if (strcmp(argv[i], "-V") == 0)
         {
             bVideo = true;
         }
+#endif
         else if (strcmp(argv[i], "-E") == 0)
         {
             bUseCustomTransportReliable = true;            
@@ -556,7 +562,7 @@ int local_main(int argc, char* argv[])
             initLoopback() ;
         }
 
-        // initialize sipx TAPI-like API
+        // Initialize sipX TAPI-like API
         sipxConfigSetLogLevel(LOG_LEVEL_DEBUG) ;
         sipxConfigSetLogFile("ReceiveCall.log");
         if (sipxInitialize(&hInst, iSipPort, iSipPort, 5061, iRtpPort, 16, szIdentity) == SIPX_RESULT_SUCCESS)

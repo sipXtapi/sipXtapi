@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -72,7 +75,7 @@ const char* OsSysLog::sPriorityNames[] =
    "ERR",
    "CRIT",
    "ALERT",
-   "EMERG",
+   "EMERG"
 };
 
 // LOCAL FUNCTIONS
@@ -464,7 +467,7 @@ OsSysLog::initSysLog(const OsSysLogFacility facility,
       { "ERR",     PRI_ERR},
       { "CRIT",    PRI_CRIT},
       { "ALERT",   PRI_ALERT},
-      { "EMERG",   PRI_EMERG},
+      { "EMERG",   PRI_EMERG}
    };
 
    logLevel.toUpper();

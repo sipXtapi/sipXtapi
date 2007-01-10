@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -37,7 +40,8 @@ class StreamFileDataSource : public StreamDataSource
 public:
 
 /* ============================ CREATORS ================================== */
-
+///@name Creators
+//@{
    StreamFileDataSource(Url url, int iFlags);
      //:Default constructor
 
@@ -46,8 +50,11 @@ public:
    ~StreamFileDataSource();
      //:Destructor
 
-/* ============================ MANIPULATORS ============================== */
+//@}
 
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
    virtual OsStatus open() ;
      //:Opens the data source
 
@@ -77,7 +84,11 @@ public:
      //
      //!param iLocation - The desired seek location
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
    virtual OsStatus getLength(int& iLength) ;
      //:Gets the length of the stream (if available)
@@ -89,7 +100,13 @@ public:
      //:Renders a string describing this data source.  
      // This is often used for debugging purposes.
 
+//@}
+
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

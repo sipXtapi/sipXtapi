@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -269,6 +272,25 @@ SdpCodec::SdpCodecTypes SdpCodecFactory::getCodecType(const char* pCodecName)
    else
     if (strcmp(compareString,"ISAC") == 0)
         retType = SdpCodec::SDP_CODEC_GIPS_ISAC;
+#ifdef HAVE_SPEEX // [
+   else 
+      if (strcmp(compareString,"SPEEX") == 0)
+         retType = SdpCodec::SDP_CODEC_SPEEX;
+   else 
+      if (strcmp(compareString,"SPEEX_5") == 0)
+         retType = SdpCodec::SDP_CODEC_SPEEX_5;
+   else 
+      if (strcmp(compareString,"SPEEX_15") == 0)
+         retType = SdpCodec::SDP_CODEC_SPEEX_15;
+   else 
+      if (strcmp(compareString,"SPEEX_24") == 0)
+         retType = SdpCodec::SDP_CODEC_SPEEX_24;
+#endif // HAVE_SPEEX ]
+#ifdef HAVE_GSM // [
+   else 
+      if (strcmp(compareString,"GSM") == 0)
+         retType = SdpCodec::SDP_CODEC_GSM;
+#endif // HAVE_GSM ]
    else
     if (strcmp(compareString,"VP71-CIF") == 0)
         retType = SdpCodec::SDP_CODEC_VP71_CIF;
@@ -634,7 +656,7 @@ int SdpCodecFactory::buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecType
             aCodec.getEncodingName(codecEncodingName);
          }
          break;
-
+#ifdef HAVE_GSM // [
       case SdpCodec::SDP_CODEC_GSM:
          {
             SdpCodec aCodec(SdpCodec::SDP_CODEC_GSM,
@@ -652,7 +674,7 @@ int SdpCodecFactory::buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecType
             aCodec.getEncodingName(codecEncodingName);
          }
          break;
-
+#endif // HAVE_GSM ]
       case SdpCodec::SDP_CODEC_G723:
          {
             SdpCodec aCodec(SdpCodec::SDP_CODEC_G723,
@@ -689,6 +711,79 @@ int SdpCodecFactory::buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecType
             // osPrintf("Codec is SDP_CODEC_GIPS_IPCMWB ");
          }
          break;
+
+#ifdef HAVE_SPEEX // [
+
+      case SdpCodec::SDP_CODEC_SPEEX:
+          {
+              SdpCodec aCodec(SdpCodec::SDP_CODEC_SPEEX,
+                  SdpCodec::SDP_CODEC_SPEEX,
+                  MIME_TYPE_AUDIO,
+                  MIME_SUBTYPE_SPEEX,
+                  8000,
+                  20000,
+                  1,
+                  "mode=3",
+                  SdpCodec::SDP_CODEC_CPU_LOW,
+                  SDP_CODEC_BANDWIDTH_LOW);
+              addCodec(aCodec);
+              aCodec.getMediaType(codecMediaType);
+              aCodec.getEncodingName(codecEncodingName);
+          }
+        break;
+        case SdpCodec::SDP_CODEC_SPEEX_5:
+          {
+              SdpCodec aCodec(SdpCodec::SDP_CODEC_SPEEX_5,
+                  SdpCodec::SDP_CODEC_SPEEX_5,
+                  MIME_TYPE_AUDIO,
+                  MIME_SUBTYPE_SPEEX,
+                  8000,
+                  20000,
+                  1,
+                  "mode=2",
+                  SdpCodec::SDP_CODEC_CPU_LOW,
+                  SDP_CODEC_BANDWIDTH_LOW);
+              addCodec(aCodec);
+              aCodec.getMediaType(codecMediaType);
+              aCodec.getEncodingName(codecEncodingName);
+          }
+        break;
+        case SdpCodec::SDP_CODEC_SPEEX_15:
+          {
+              SdpCodec aCodec(SdpCodec::SDP_CODEC_SPEEX_15,
+                  SdpCodec::SDP_CODEC_SPEEX_15,
+                  MIME_TYPE_AUDIO,
+                  MIME_SUBTYPE_SPEEX,
+                  8000,
+                  20000,
+                  1,
+                  "mode=5",
+                  SdpCodec::SDP_CODEC_CPU_LOW,
+                  SDP_CODEC_BANDWIDTH_NORMAL);
+              addCodec(aCodec);
+              aCodec.getMediaType(codecMediaType);
+              aCodec.getEncodingName(codecEncodingName);
+          }
+        break;
+        case SdpCodec::SDP_CODEC_SPEEX_24:
+          {
+              SdpCodec aCodec(SdpCodec::SDP_CODEC_SPEEX_24,
+                  SdpCodec::SDP_CODEC_SPEEX_24,
+                  MIME_TYPE_AUDIO,
+                  MIME_SUBTYPE_SPEEX,
+                  8000,
+                  20000,
+                  1,
+                  "mode=7",
+                  SdpCodec::SDP_CODEC_CPU_LOW,
+                  SDP_CODEC_BANDWIDTH_NORMAL);
+              addCodec(aCodec);
+              aCodec.getMediaType(codecMediaType);
+              aCodec.getEncodingName(codecEncodingName);
+          }
+        break;
+
+#endif // HAVE_SPEEX ]
 
       case SdpCodec::SDP_CODEC_VP71_CIF:
          {

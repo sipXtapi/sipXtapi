@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -33,7 +36,7 @@ typedef enum                  // Format Decoder Event
    DecodingUnderrunEvent,     // Supply cannot meet demand
    DecodingThrottledEvent,    // Being throttled in frame generation
    DecodingCompletedEvent,    // Completed decoding
-   DecodingErrorEvent        // Error while decoding
+   DecodingErrorEvent         // Error while decoding
 
 } StreamDecoderEvent;
 
@@ -50,15 +53,19 @@ class StreamFormatDecoder
 public:
 
 /* ============================ CREATORS ================================== */
-
+///@name Creators
+//@{
    StreamFormatDecoder(StreamDataSource* pDataSource);
      //:Constructs a decoder given a data source
 
    virtual ~StreamFormatDecoder();
      //:Destructor
 
-/* ============================ MANIPULATORS ============================== */
+//@}
 
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
    virtual OsStatus init() = 0 ;
      //:Initializes the decoder
 
@@ -78,7 +85,11 @@ public:
    void setListener(StreamDecoderListener* pListener);
      //:Sets a listener to receive StreamDecoderEvents.
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
    virtual OsStatus toString(UtlString& string) = 0 ;
      //:Renders a string describing this decoder.  
@@ -87,7 +98,11 @@ public:
    StreamDataSource* getDataSource() ;
      //:Gets the the data source for this decoder
 
+//@}
+
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
 
    virtual UtlBoolean isDecoding() = 0 ;
      //:Gets the decoding status.  TRUE indicates decoding activity, false
@@ -105,6 +120,8 @@ public:
 static const char* getEventString(StreamDecoderEvent event);
 #endif /* MP_STREAM_DEBUG ] */
 
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

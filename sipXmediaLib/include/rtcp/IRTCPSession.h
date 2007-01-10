@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -25,10 +28,10 @@ interface IGetSrcDescription;
 interface IGetByeInfo;
 
 //  Enumerated Types
-enum MIXER_MODE_ET {
+typedef enum {
     MIXER_DISABLED = 0,
     MIXER_ENABLED  = 1
-};
+}  MIXER_MODE_ET;
 
 /**
  *

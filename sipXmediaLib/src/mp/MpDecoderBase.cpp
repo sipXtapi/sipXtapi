@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -10,11 +13,10 @@
 
 #include <assert.h>
 #include "mp/MpDecoderBase.h"
-#include "mp/MpConnection.h"
-     // Constructor
-     // Returns a new decoder object.
-     // param: payloadType - (in) RTP payload type associated with this decoder
 
+// Constructor
+// Returns a new decoder object.
+// param: payloadType - (in) RTP payload type associated with this decoder
 MpDecoderBase::MpDecoderBase(int payloadType, const MpCodecInfo* pInfo) :
    mpCodecInfo(pInfo),
    mPayloadType(payloadType)
@@ -29,24 +31,18 @@ MpDecoderBase::~MpDecoderBase()
 
 /* ============================ MANIPULATORS ============================== */
 
-int MpDecoderBase::decodeIn(MpBufPtr pPacket)
+int MpDecoderBase::decodeIn(const MpRtpBufPtr &pPacket)
 {
-   return MpBuf_getContentLen(pPacket);
-}
-
-int MpDecoderBase::decode(JB_uchar *encoded, int inSamples, Sample *decoded)
-{
-	return 0;  // Base really can't do any decoding
+   return pPacket->getPayloadSize();
 }
 
 int MpDecoderBase::reportBufferLength(int iAvePackets)
 {
-	// When implemented, this method allows a codec to take action based on the length of
-	// the jitter buffer since last asked
 	return 0;
 }
 
-void MpDecoderBase::FrameIncrement(void){
+void MpDecoderBase::frameIncrement()
+{
 	return;
 }
 

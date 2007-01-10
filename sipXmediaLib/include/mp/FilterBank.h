@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -51,7 +54,8 @@ public:
 
 
 /* ============================ CREATORS ================================== */
-
+///@name Creators
+//@{
    FilterBank();
      //:Constructor
 
@@ -80,9 +84,11 @@ private:
    void FilterBankInit();
    void FilterBankReinit();
 
-   static void TwoFrameFilterBankAnalysis(icomplex [][M+1], int *, int *, int *, int);
+   static void TwoFrameFilterBankAnalysis(icomplex [][M+1], int [], int [], int [], int);
    void EchoSuppress(icomplex [][M+1], int [], int [], int [], int);
    static void ComplexCoefUpdate(icomplex *, icomplex *, icomplex *, int);
+
+//@}
 
 };
 

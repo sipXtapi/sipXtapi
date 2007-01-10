@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -23,16 +26,12 @@
 
 // APPLICATION INCLUDES
 #include "os/OsSocket.h"
-#include "mp/MpFlowGraphMsg.h"
-#include "mp/MpResource.h"
 #include "mp/NetInTask.h"
-#include "mp/MprFromNet.h"
 #ifdef INCLUDE_RTCP /* [ */
 #include "rtcp/ISetSenderStatistics.h"
 #endif /* INCLUDE_RTCP ] */
 
 // DEFINES
-#define NETWORK_MTU 1500
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -40,17 +39,21 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
+class MprFromNet;
 
-//:The "To Network" media processing resource
-class MprToNet : public MpResource
+/**
+*  @brief The RTP writer
+*/
+class MprToNet
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   enum { RESERVED_RTP_PACKET_HEADER_BYTES = 76};
-             // 76 =    4 for encryption prefix +
-             //        12 for basic packet header +
-             //      15*4 for CSRC list
+   enum { RESERVED_RTP_PACKET_HEADER_BYTES = 76
+             ///< 76 =    4 for encryption prefix +<br>
+             ///<        12 for basic packet header +<br>
+             ///<      15*4 for CSRC list
+   };
 
 #ifdef ENABLE_PACKET_HACKING /* [ */
    static int sDebug1;
@@ -61,37 +64,46 @@ public:
 #endif /* ENABLE_PACKET_HACKING ] */
 
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
 
-   MprToNet(const UtlString& rName, int samplesPerFrame, int samplesPerSec);
-     //:Constructor
+     /// Constructor
+   MprToNet();
 
+     /// Destructor
    virtual
    ~MprToNet();
-     //:Destructor
+
+//@}
 
 /* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
 
+      /// Set the outbound RTP and RTCP sockets.
    OsStatus setSockets(OsSocket& rRtpSocket, OsSocket& rRtcpSocket);
-     //:Sends a SET_SOCKETS message to this resource to set the outbound
-     //:RTP and RTCP sockets.
-     // Returns the result of attempting to queue the message to this
-     // resource.
+     /**<
+     *  @returns Always OS_SUCCESS for now.
+     */
 
+     /// Clear the outbound RTP and RTCP sockets.
    OsStatus resetSockets();
-     //:Sends a RESET_SOCKETS message to this resource to stop sending
-     //:RTP and RTCP sockets.
-     // returns OS_SUCCESS, unless unable to queue message.
+     /**<
+     *  @returns Always OS_SUCCESS for now.
+     */
 
+     /// Connect us to our corresponding FromNet, for RTCP stats.
    OsStatus setRtpPal(MprFromNet* pal);
-   // Connect us to our corresponding FromNet, for RTCP stats.
-
-   OsStatus sendRtcpPacket(void); // Time to send an RTCP message
 
    int writeRtp(int payloadType, UtlBoolean markerState,
       unsigned char* payloadData, int payloadOctets, unsigned int timestamp,
       void* csrcList);
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
 // These accessors were added by DMG to allow a Connection to access and modify
 // rtp and rtcp stream information
@@ -99,26 +111,27 @@ public:
 #ifdef INCLUDE_RTCP /* [ */
    void   setRTPAccumulator(ISetSenderStatistics *piRTPAccumulator);
 #endif /* INCLUDE_RTCP ] */
+//@}
+
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   enum AddlMsgTypes
-   {
-      SET_SOCKETS = MpFlowGraphMsg::RESOURCE_SPECIFIC_START,
-      RESET_SOCKETS
-   };
 
-#ifdef DEBUG /* [ */
-   unsigned int mRtpSampleCounter;
-#endif /* DEBUG ] */
    MprFromNet*  mpFromNetPal;
    int          mRtcpPackets;
    int          mRtcpFrameCount;
    int          mRtcpFrameLimit;
+#ifdef DEBUG /* [ */
+   unsigned int mRtpSampleCounter;
+#endif /* DEBUG ] */
 
    // RTP State
    unsigned int mTimestampDelta;
@@ -130,32 +143,19 @@ private:
    int          mNumRtcpWriteErrors;
 
 #ifdef ENABLE_PACKET_HACKING /* [ */
-   void adjustRtpPacket(struct rtpHeader* p);
+   void adjustRtpPacket(struct RtpHeader* p);
 #endif /* ENABLE_PACKET_HACKING ] */
 
 #ifdef INCLUDE_RTCP /* [ */
-// Allow outbound RTP stream to accumulate RTP packet statistics
+   /// Allow outbound RTP stream to accumulate RTP packet statistics
    ISetSenderStatistics *mpiRTPAccumulator;
 #endif /* INCLUDE_RTCP ] */
 
-   virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
-                                    MpBufPtr outBufs[],
-                                    int inBufsSize,
-                                    int outBufsSize,
-                                    UtlBoolean isEnabled,
-                                    int samplesPerFrame=80,
-                                    int samplesPerSecond=8000);
-
-   virtual UtlBoolean handleMessage(MpFlowGraphMsg& rMsg);
-     //:Handle messages for this resource.
-
+     /// Copy constructor (not implemented for this class)
    MprToNet(const MprToNet& rMprToNet);
-     //:Copy constructor (not implemented for this class)
 
+     /// Assignment operator (not implemented for this class)
    MprToNet& operator=(const MprToNet& rhs);
-     //:Assignment operator (not implemented for this class)
-
-   void sentRtcpPacket(void);
 
 };
 

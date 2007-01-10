@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -2206,7 +2209,7 @@ void OsNatAgentTask::dumpContext(UtlString* pResults, NAT_AGENT_CONTEXT* pBindin
         "SENDING_ERROR",
         "RESENDING",
         "RESENDING_ERROR",
-        "FAILED",
+        "FAILED"
     } ;
 
     char cBuf[2048] ;

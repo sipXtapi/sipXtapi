@@ -29,7 +29,7 @@ make;make install
 
 cd ../sipXmediaAdapterLib
 autoreconf -fi
-./configure --prefix=/tmp/stage --enable-local-audio
+./configure --prefix=/tmp/stage
 make;make install
 
 cd ../sipXcallLib
@@ -91,7 +91,7 @@ make;make install
 
 cd ../sipXmediaAdapterLib
 autoreconf -fi
-./configure --prefix=/tmp/stage --enable-local-audio
+./configure --prefix=/tmp/stage
 make;make install
 
 NOTE: for sipXmediaLib and sipXmediaAdapterLib to build you need the CoreAudio header files normally located in:

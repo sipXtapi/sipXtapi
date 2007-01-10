@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -1709,7 +1712,7 @@ SIPX_RESULT sipxCheckForHandleLeaks()
     gpSessionLock->acquire();
     if (gpSessionList->entries() != 0)
     {
-        printf("\ngSessionList leaks (%d)\n",
+        printf("\ngpSessionList leaks (%d)\n",
                 (int) gpSessionList->entries()) ;
         rc = SIPX_RESULT_FAILURE ;
     }
@@ -1853,7 +1856,7 @@ SIPXTAPI_API SIPX_RESULT sipxDestroyLocalAudioConnection(const SIPX_INST hInst)
 }
 
 
-#ifdef _WIN32
+#if defined(_WIN32) && defined(HAVE_GIPS)
 SIPXTAPI_API GIPSAECTuningWizard* sipxConfigGetVoiceEngineAudioWizard()
 {
     GIPSAECTuningWizard& wizard = GetGIPSAECTuningWizard();
@@ -1862,7 +1865,7 @@ SIPXTAPI_API GIPSAECTuningWizard* sipxConfigGetVoiceEngineAudioWizard()
 }
 #endif
 
-#ifdef VIDEO
+#if defined(VIDEO) && defined(HAVE_GIPS)
 SIPXTAPI_API GipsVideoEnginePlatform* sipxConfigGetVideoEnginePtr(const SIPX_INST hInst)
 {
     GipsVideoEnginePlatform* ptr = NULL;

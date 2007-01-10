@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -13,6 +16,7 @@
 
 #include "mp/DSP_type.h"
 #include "mp/MpBuf.h"
+#include "mp/MpTypes.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,16 +30,16 @@ extern "C" {
 // -----------------------------------------------------
 extern void init_CNG();
 
-extern void white_noise_generator(Sample  *shpSamples,
+extern void white_noise_generator(MpAudioSample  *shpSamples,
                                   int     iLength,
                                   Word32  ulNoiseLevelAve);
 
-extern void comfort_noise_generator(Sample  *shpSamples,
+extern void comfort_noise_generator(MpAudioSample  *shpSamples,
                                     int     iLength,
                                     Word32  ulNoiseLevelAve);
 
 extern void background_noise_level_estimation(Word32& shNoiseLevel,
-                                              Sample* shpSamples,
+                                              MpAudioSample* shpSamples,
                                               int     iLength);
 
 //////////////////////////////////////////////////////////////////////////////

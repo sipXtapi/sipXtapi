@@ -40,19 +40,24 @@ libsipXmedia_la_SOURCES =  \
     mp/FilterBank.cpp \
     mp/HandsetFilterBank.cpp \
     mp/mpau.cpp \
+    mp/MpArrayBuf.cpp \
     mp/MpAudioAbstract.cpp \
+    mp/MpAudioBuf.cpp \
     mp/MpAudioFileDecompress.cpp \
     mp/MpAudioFileOpen.cpp \
     mp/MpAudioFileUtils.cpp \
+    mp/MpAudioResource.cpp \
     mp/MpAudioUtils.cpp \
     mp/MpAudioWaveFileRead.cpp \
     mp/MpBuf.cpp \
+    mp/MpBufPool.cpp \
     mp/MpBufferMsg.cpp \
     mp/MpCallFlowGraph.cpp \
     mp/MpCodec.cpp \
     mp/MpCodecFactory.cpp \
     mp/MpCodecInfo.cpp \
     mp/MpConnection.cpp \
+    mp/MpDataBuf.cpp \
     mp/MpDecoderBase.cpp \
     mp/MpdGIPSG729ab.cpp \
     mp/MpdGIPSiLBC.cpp \
@@ -64,6 +69,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MpdPtAVT.cpp \
     mp/MpdSipxPcma.cpp \
     mp/MpdSipxPcmu.cpp \
+    mp/MpdSipxSpeex.cpp \
     mp/MpeGIPSG729ab.cpp \
     mp/MpeGIPSiLBC.cpp \
     mp/MpeGIPSiPCMA.cpp \
@@ -73,6 +79,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MpeGIPSPCMU.cpp \
     mp/MpeSipxPcma.cpp \
     mp/MpeSipxPcmu.cpp \
+    mp/MpeSipxSpeex.cpp \
     mp/MpEncoderBase.cpp \
     mp/MpePtAVT.cpp \
     mp/MpFlowGraphBase.cpp \
@@ -89,15 +96,18 @@ libsipXmedia_la_SOURCES =  \
     mp/MprDejitter.cpp \
     mp/MprEchoSuppress.cpp \
     mp/MprEncode.cpp \
-	mp/MpRawAudioBuffer.cpp \
     mp/MpResource.cpp \
     mp/MpResourceSortAlg.cpp \
+    mp/MpRtpBuf.cpp \
+    mp/MpUdpBuf.cpp \
     mp/MprFromFile.cpp \
     mp/MprFromMic.cpp \
     mp/MprFromNet.cpp \
     mp/MprFromStream.cpp \
     mp/MprMixer.cpp \
     mp/MprRecorder.cpp \
+    mp/MprSpeexEchoCancel.cpp \
+    mp/MprSpeexPreprocess.cpp \
     mp/MprSplitter.cpp \
     mp/MprToneGen.cpp \
     mp/MprToNet.cpp \

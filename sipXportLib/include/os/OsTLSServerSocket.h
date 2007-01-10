@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -38,7 +41,7 @@ enum TlsInitCodes
     TLS_INIT_DATABASE_FAILURE,
     TLS_INIT_BAD_PASSWORD,
     TLS_INIT_TCP_IMPORT_FAILURE,
-    TLS_INIT_NSS_FAILURE,
+    TLS_INIT_NSS_FAILURE
 };
 
 class OsTLSServerSocket : public OsServerSocket

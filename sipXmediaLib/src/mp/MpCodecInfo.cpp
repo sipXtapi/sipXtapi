@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -13,18 +16,18 @@
 MpCodecInfo::MpCodecInfo(SdpCodec::SdpCodecTypes codecType,
                            const char*    codecVersion,
                            UtlBoolean     usesNetEq,
-                           unsigned int   samplingRate,
-                           unsigned int   numBitsPerSample,
-                           unsigned int   numChannels,
-                           unsigned int   interleaveBlockSize,
-                           unsigned int   bitRate,
-                           unsigned int   minPacketBits,
-                           unsigned int   avgPacketBits,
-                           unsigned int   maxPacketBits,
-                           unsigned int   numSamplesPerFrame,
-                           unsigned int   preCodecJitterBufferSize,
-                           UtlBoolean      signalingCodec,
-                           UtlBoolean      doesVadCng)
+                           unsigned       samplingRate,
+                           unsigned       numBitsPerSample,
+                           unsigned       numChannels,
+                           unsigned       interleaveBlockSize,
+                           unsigned       bitRate,
+                           unsigned       minPacketBits,
+                           unsigned       avgPacketBits,
+                           unsigned       maxPacketBits,
+                           unsigned       numSamplesPerFrame,
+                           unsigned       preCodecJitterBufferSize,
+                           UtlBoolean     signalingCodec,
+                           UtlBoolean     doesVadCng)
  : mCodecType(codecType),
    mCodecVersion(codecVersion),
    mUsesNetEq(usesNetEq),
@@ -40,7 +43,6 @@ MpCodecInfo::MpCodecInfo(SdpCodec::SdpCodecTypes codecType,
    mPreCodecJitterBufferSize(preCodecJitterBufferSize),
    mIsSignalingCodec(signalingCodec),
    mDoesVadCng(doesVadCng)
-   
 {
 }
 
@@ -61,7 +63,6 @@ MpCodecInfo::MpCodecInfo(const MpCodecInfo& rMpCodecInfo)
    mMaxPacketBits=rMpCodecInfo.mMaxPacketBits;
    mPreCodecJitterBufferSize=rMpCodecInfo.mPreCodecJitterBufferSize;
    mDoesVadCng=rMpCodecInfo.mDoesVadCng;
-   
 }
 
 MpCodecInfo::~MpCodecInfo(){}
@@ -150,6 +151,7 @@ unsigned MpCodecInfo::getPreCodecJitterBufferSize(void) const
 //Returns the maximum number of bits in an encoded frame
    return(mPreCodecJitterBufferSize);
 }
+
 /* ============================ INQUIRY =================================== */
 
 UtlBoolean MpCodecInfo::usesNetEq(void) const

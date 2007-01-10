@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -12,7 +15,7 @@
 
 #include "assert.h"
 // APPLICATION INCLUDES
-#include "mp/MpConnection.h"
+#include "mp/MpAudioConnection.h"
 #include "mp/MpdGIPSiPCMWB.h"
 #include "mp/GIPS/GIPS_API.h"
 const MpCodecInfo MpdGIPSiPCMWB::smCodecInfo(
@@ -30,7 +33,7 @@ MpdGIPSiPCMWB::~MpdGIPSiPCMWB()
    freeDecode();
 }
 
-OsStatus MpdGIPSiPCMWB::initDecode(MpConnection* pConnection)
+OsStatus MpdGIPSiPCMWB::initDecode(MpAudioConnection* pConnection)
 {
 #ifdef NOT_YET /* [ */
    int res = 0;

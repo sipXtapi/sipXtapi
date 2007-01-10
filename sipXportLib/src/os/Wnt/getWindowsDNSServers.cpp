@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -475,8 +478,6 @@ bool getContactAdapterName(char* szAdapter, const char* szIp, bool trueName)
                                 
         if (ERROR_SUCCESS == dwResult)
         {
-            char szAddr[32];
-            
             rc = true;
             PIP_ADAPTER_INFO pNextInfoRecord = pIpAdapterInfo;
             unsigned int adapterId = 0;
@@ -485,14 +486,12 @@ bool getContactAdapterName(char* szAdapter, const char* szIp, bool trueName)
             while (pNextInfoRecord && !bFound)
             {
                 sprintf(szAdapterId, "eth%u", adapterId);
-                PIP_ADDRESS_STRING pNextAddress = &(pNextInfoRecord->IpAddressList.IpAddress);
+                PIP_ADDR_STRING pNextAddress = &(pNextInfoRecord->IpAddressList);
                 while (pNextAddress)
                 {
-                    strcpy(szAddr, pNextAddress->String);
-                    if (strcmp(szAddr, szIp) == 0 || strcmp(szIp, "0.0.0.0") == 0)// if the target
-                                                                             // matches this address
-                                                                             // or if the target
-                                                                             // is any
+                    const char *szAddr = pNextAddress->IpAddress.String;
+                    // if the target matches this address or if the target is any
+                    if (strcmp(szAddr, szIp) == 0 || strcmp(szIp, "0.0.0.0") == 0)
                     {
                         if (trueName)
                         {
@@ -505,14 +504,7 @@ bool getContactAdapterName(char* szAdapter, const char* szIp, bool trueName)
                         bFound = true;
                         break;
                     }                                            
-                    if (pNextInfoRecord->IpAddressList.Next)
-                    {
-                        pNextAddress = &(pNextInfoRecord->IpAddressList.Next->IpAddress);
-                    }
-                    else
-                    {
-                        pNextAddress = NULL;
-                    }
+                    pNextAddress = pNextAddress->Next;
                 }
                 adapterId++;
                 pNextInfoRecord = pNextInfoRecord->Next;
@@ -542,9 +534,6 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[], int &num
                                 
         if (ERROR_SUCCESS == dwResult)
         {
-            char szAddr[16];
-            
-            memset((void*)szAddr, 0, sizeof(szAddr));
             int maxAddresses = numAddresses;
             rc = true;
             numAddresses = 0;
@@ -556,35 +545,20 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[], int &num
             while (pNextInfoRecord && (numAddresses<maxAddresses))
             {
                 sprintf(szAdapterId, "eth%u", adapterId);
-                PIP_ADDRESS_STRING pNextAddress = &(pNextInfoRecord->IpAddressList.IpAddress);
-                while (pNextAddress)
+                PIP_ADDR_STRING pNextAddress = &pNextInfoRecord->IpAddressList;
+                while (pNextAddress && (numAddresses<maxAddresses))
                 {
-                    strcpy(szAddr, pNextAddress->String);
+                    const char *szAddr = pNextAddress->IpAddress.String;
                     // ignore the loopback address
-                    if (	strcmp(szAddr, "127.0.0.1") == 0 || strcmp(szAddr, "0.0.0.0") == 0 ||
-							strncmp("169.154", szAddr, 7) == 0 || strncmp("0.", szAddr, 2) == 0)
+                    if (  strncmp(szAddr, "127.0.0.1", 9) != 0
+                       && strncmp(szAddr, "169.154", 7) != 0
+                       && strncmp(szAddr, "0.", 2) != 0
+                       )
                     {
-                        if (pNextInfoRecord->IpAddressList.Next)
-                        {
-                            pNextAddress = &(pNextInfoRecord->IpAddressList.Next->IpAddress);
-                        }
-                        else
-                        {
-                            pNextAddress = NULL;
-                        }
-                        continue;
+                        localHostAddresses[numAddresses] = new HostAdapterAddress(szAdapterId, szAddr);
+                        numAddresses++;
                     }
-                                    
-                    localHostAddresses[numAddresses] = new HostAdapterAddress(szAdapterId, szAddr);
-                    numAddresses++;
-                    if (pNextInfoRecord->IpAddressList.Next)
-                    {
-                        pNextAddress = &(pNextInfoRecord->IpAddressList.Next->IpAddress);
-                    }
-                    else
-                    {
-                        pNextAddress = NULL;
-                    }
+                    pNextAddress = pNextAddress->Next;
                 }
                 adapterId++;
                 pNextInfoRecord = pNextInfoRecord->Next;
@@ -592,9 +566,9 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[], int &num
         }
         free((void*)pIpAdapterInfo);
     }                
-#else
+ #else
     rc = false;
-#endif    
+ #endif    
     return rc;
 }
 

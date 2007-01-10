@@ -512,7 +512,7 @@ void FilterBankFinalReport(int total_simulations)
 /* ********************************************************************* */
 
 #if 1    // DEBUG!!!!!! feb 1, 2005  
-void FilterBank::DoFilterBank(short mic[], short ldspkr[])
+void FilterBank::DoFilterBank(short *mic, short *ldspkr)
 {
 #define MIC_GAIN_SHIFT 3
 
@@ -1674,9 +1674,9 @@ void FilterBank::TwoFrameFilterBankAnalysis(
 #else    // #else for VX1_PC0
 
 void TwoFrameFilterBankAnalysis(icomplex outFFTArray[][M+1],
-           int Input[],
-           int AnalysisDL[],
-           int AnalysisWindow[])
+           int *Input,
+           int *AnalysisDL,
+           int *AnalysisWindow)
 #endif      // #endif for VX1_PC0
 
 {

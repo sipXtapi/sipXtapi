@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -13,6 +16,7 @@
 
 // APPLICATION INCLUDES
 #include "mp/MpBuf.h"
+#include "mp/MpMisc.h"
 #include "mp/MpTestResource.h"
 
 // EXTERNAL FUNCTIONS
@@ -20,9 +24,6 @@
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 static const int RESOURCE_MSG_TYPE = MpFlowGraphMsg::RESOURCE_SPECIFIC_START;
-
-// MpTestResource is a descendant of the MpResource class that we use for
-// testing.
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -32,38 +33,34 @@ static const int RESOURCE_MSG_TYPE = MpFlowGraphMsg::RESOURCE_SPECIFIC_START;
 
 /* ============================ ACCESSORS ================================= */
 
-   int numFramesProcessed(void);
-     //:Returns the count of the number of frames processed by this resource.
-
-   int numMsgsProcessed(void);
-     //:Returns the count of the number of messages successfully processed by 
-     //:this resource.
-
 /* ============================ INQUIRY =================================== */
 
-   MpBufPtr getInputBuffer(int inPortIdx);
-     //:Returns the input buffer for "inPortIdx" (or NULL if none available).
-
 // Constructor
-MpTestResource::MpTestResource(const UtlString& rName, int minInputs,
-                               int maxInputs, int minOutputs,
-                               int maxOutputs, int samplesPerFrame,
-                               int samplesPerSec)
-:  MpResource(rName, minInputs, maxInputs, minOutputs, maxOutputs,
-              samplesPerFrame, samplesPerSec),
+MpTestResource::MpTestResource(const UtlString& rName
+                              , int minInputs, int maxInputs
+                              , int minOutputs, int maxOutputs
+                              , int samplesPerFrame, int samplesPerSec
+                              )
+:  MpAudioResource(rName, minInputs, maxInputs, minOutputs, maxOutputs,
+                   samplesPerFrame, samplesPerSec),
    mGenOutBufMask(0),
    mProcessInBufMask(0),
    mProcessedCnt(0),
    mMsgCnt(0),
-   mLastMsg(0) //mLastMsg(NULL)
+   mLastMsg(0)
 {
-   // all of the work is done by the initializers
+   mLastDoProcessArgs.inBufs = new MpBufPtr[mMaxInputs];
+   mLastDoProcessArgs.outBufs = new MpBufPtr[mMaxOutputs];
 }
 
 // Destructor
 MpTestResource::~MpTestResource()
 {
-   // no work required
+   if (mLastDoProcessArgs.inBufs != NULL)
+      delete[] mLastDoProcessArgs.inBufs;
+
+   if (mLastDoProcessArgs.outBufs != NULL)
+      delete[] mLastDoProcessArgs.outBufs;
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -119,41 +116,29 @@ int MpTestResource::numMsgsProcessed(void)
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
-// Allocate a new buffer.
-MpBufPtr MpTestResource::allocBuffer(void)
-{
-   return MpBuf_getBuf(MpMisc.UcbPool, 0, 0, MP_FMT_UNKNOWN);
-}
-
-// Free the buffer
-void MpTestResource::freeBuffer(MpBufPtr pBuffer)
-{
-   if (pBuffer != NULL)
-      MpBuf_delRef(pBuffer);
-}
-
 // Processes the next frame interval's worth of media.
 UtlBoolean MpTestResource::doProcessFrame(MpBufPtr inBufs[],
-                                         MpBufPtr outBufs[],
-                                         int inBufsSize, int outBufsSize,
-                                         UtlBoolean isEnabled,
-                                         int samplesPerFrame,
-                                         int samplesPerSecond)
+                                          MpBufPtr outBufs[],
+                                          int inBufsSize,
+                                          int outBufsSize,
+                                          UtlBoolean isEnabled,
+                                          int samplesPerFrame,
+                                          int samplesPerSecond)
 {
-   int i;
-
+   // keep a copy of the input buffers
+   for (int i=0; i<mMaxInputs; i++) {
+      mLastDoProcessArgs.inBufs[i]     = inBufs[i];
+   }
    // keep a copy of the arguments passed to this method
-   mLastDoProcessArgs.inBufs           = inBufs;
-   mLastDoProcessArgs.outBufs          = outBufs;
    mLastDoProcessArgs.inBufsSize       = inBufsSize;
    mLastDoProcessArgs.outBufsSize      = outBufsSize;
    mLastDoProcessArgs.isEnabled        = isEnabled;
    mLastDoProcessArgs.samplesPerFrame  = samplesPerFrame;
    mLastDoProcessArgs.samplesPerSecond = samplesPerSecond;
 
-   for (i=0; i < outBufsSize; i++)
+   for (int i=0; i < outBufsSize; i++)
    {
-      outBufs[i] = NULL;
+      outBufs[i].release();
       if (isOutputConnected(i))
       {
          if ((mProcessInBufMask & (1 << i)) &&
@@ -162,33 +147,42 @@ UtlBoolean MpTestResource::doProcessFrame(MpBufPtr inBufs[],
             // if the corresponding bit in the mProcessInBufMask is set for
             // the input port then pass the input buffer straight thru
             outBufs[i] = inBufs[i];
-            inBufs[i] = NULL;
+            inBufs[i].release();
          }
 
-         if ((mGenOutBufMask & (1 << i)) &&
-             (outBufs[i] == NULL))
+         if ( isEnabled &&
+             (mGenOutBufMask & (1 << i)) &&
+             (!outBufs[i].isValid()))
          {
             // if the output buffer is presently NULL and the corresponding
             // bit in the mGenOutBufMask is set then allocate a new buffer
             // for the output port
-            outBufs[i] = (MpBufPtr) allocBuffer();
+            assert(MpMisc.RawAudioPool != NULL);
+            MpAudioBufPtr pBuf = MpMisc.RawAudioPool->getBuffer();
+            memset(pBuf->getSamples(), 0,
+                   pBuf->getSamplesNumber()*sizeof(MpAudioSample));
+            outBufs[i] = pBuf;
          }
       }
    }
 
-   for (i=0; i < inBufsSize; i++)
+   for (int i=0; i < inBufsSize; i++)
    {
       // if the corresponding bit in the mProcessInBufMask is set and we
       // haven't processed the input buffer then free it.
       if ((mProcessInBufMask & (1 << i)) &&
-          (inBufs[i] != NULL))
+          (inBufs[i].isValid()))
       {
-         freeBuffer(inBufs[i]);
-         inBufs[i] = NULL;
+         inBufs[i].release();
       }
    }
 
    mProcessedCnt++;
+
+   // keep a copy of the generated buffers
+   for (int i=0; i<mMaxOutputs; i++) {
+      mLastDoProcessArgs.outBufs[i]    = outBufs[i];
+   }
 
    return TRUE;
 }
@@ -202,7 +196,7 @@ UtlBoolean MpTestResource::handleMessage(MpFlowGraphMsg& rMsg)
    if (rMsg.getMsg() == RESOURCE_MSG_TYPE)
       return TRUE;
    else
-      return MpResource::handleMessage(rMsg);
+      return MpAudioResource::handleMessage(rMsg);
 }
 
 /* ============================ FUNCTIONS ================================= */

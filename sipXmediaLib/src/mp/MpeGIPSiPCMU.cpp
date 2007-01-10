@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -67,7 +70,7 @@ OsStatus MpeGIPSiPCMU::encode(const short* pAudioSamples,
                               const int bytesLeft,
                               int& rSizeInBytes,
                               UtlBoolean& sendNow,
-                              MpBufSpeech& rAudioCategory)
+                              MpAudioBuf::SpeechType& rAudioCategory)
 {
    int res = 0;
    short size = 0;

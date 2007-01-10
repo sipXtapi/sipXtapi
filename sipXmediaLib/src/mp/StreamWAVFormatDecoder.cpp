@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -191,8 +194,8 @@ StreamWAVFormatDecoder::operator=(const StreamWAVFormatDecoder& rhs)
 int StreamWAVFormatDecoder::run(void* pArgs)
 {
    int iSamplesInOutBuffer = 0;
-   Sample        partialFrame[80] ;
-   int   nSamplesPartialFrame = 0;   
+   MpAudioSample partialFrame[80] ;
+   int nSamplesPartialFrame = 0;   
    int numOutSamples = 0;
    int iDataLength ;
 
@@ -208,7 +211,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
       {
          //we really want 80 SAMPLES not 80 bytes
          unsigned char  InBuffer[NUM_SAMPLES*2] ;
-         Sample OutBuffer[4000] ;  //make room for lots of decompression
+         MpAudioSample OutBuffer[4000] ;  //make room for lots of decompression
          
          memset(&OutBuffer,0,sizeof(OutBuffer));
          iSamplesInOutBuffer = 0;
@@ -250,7 +253,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
             }
             else
             {
-                syslog(FAC_STREAMING, PRI_ERR, "StreamWAVFormatDecoder::run Unsupport bit per sample rate!");
+                syslog(FAC_STREAMING, PRI_ERR, "StreamWAVFormatDecoder::run Unsupport bit per MpAudioSample rate!");
             }
 
             iDataLength -= iRead;
@@ -276,7 +279,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
 
                 //we now should have a buffer filled with Samples, not bytes
                 
-                int numBytes = numOutSamples * sizeof(Sample);
+                int numBytes = numOutSamples * sizeof(MpAudioSample);
                 
                 //next we check if the sound file is stereo...at this point in our lives
                 //we only want to support mono
@@ -285,15 +288,15 @@ int StreamWAVFormatDecoder::run(void* pArgs)
                 {
                     numBytes = mergeChannels((char *)OutBuffer, numBytes, mFormatChunk.nChannels);
                     
-                    //now calculate how many sample we have
-                    numOutSamples = numBytes/sizeof(Sample);
+                    //now calculate how many MpAudioSample we have
+                    numOutSamples = numBytes/sizeof(MpAudioSample);
                 }
                 
                 //in the next fucntion we must pass bytes, NOT samples as second param
                 numBytes = reSample((char *)OutBuffer, numBytes, mFormatChunk.nSamplesPerSec, DESIRED_SAMPLE_RATE);
                 
-                //now calculate how many sample we have
-                numOutSamples = numBytes/sizeof(Sample);
+                //now calculate how many MpAudioSample we have
+                numOutSamples = numBytes/sizeof(MpAudioSample);
                 
                 //this next part will buffer the samples if under 80 samples
                 if (numOutSamples > 0)
@@ -314,7 +317,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
                              else
                              {
                                 nSamplesPartialFrame = iToCopy ;
-                                memcpy(partialFrame, (const unsigned short *)OutBuffer+iCount,iToCopy*sizeof(Sample)) ;
+                                memcpy(partialFrame, (const unsigned short *)OutBuffer+iCount,iToCopy*sizeof(MpAudioSample)) ;
                              }
                           }
                           else
@@ -322,7 +325,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
                              if (iToCopy > (80-nSamplesPartialFrame))
                                 iToCopy = 80-nSamplesPartialFrame ;
 
-                             memcpy(&partialFrame[nSamplesPartialFrame],(const unsigned short *)OutBuffer+iCount, iToCopy*sizeof(Sample)) ;
+                             memcpy(&partialFrame[nSamplesPartialFrame],(const unsigned short *)OutBuffer+iCount, iToCopy*sizeof(MpAudioSample)) ;
                              nSamplesPartialFrame += iToCopy ;
 
                              if (nSamplesPartialFrame == 80)

@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 // $Id$
 //
 // Copyright (C) 2006 Pingtel Corp.
@@ -27,7 +30,7 @@ typedef enum
     OS_NAT_KEEPALIVE_SIP_PING,
     OS_NAT_KEEPALIVE_SIP_OPTIONS,
 
-    OS_NAT_KEEPALIVE_INVALID = -1,
+    OS_NAT_KEEPALIVE_INVALID = -1
 
 } OS_NAT_KEEPALIVE_TYPE ;
 

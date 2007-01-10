@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -26,16 +29,10 @@
 // EXTERNAL VARIABLES
 
 // CONSTANTS
-static const int NO_WAIT = 0;
 const int MprToneGen::MIN_SAMPLE_RATE = 8000;
 const int MprToneGen::MAX_SAMPLE_RATE = 48000;
 
 // STATIC VARIABLE INITIALIZATIONS
-// Note: Both of the following variables are used only in this module.  They
-//       are declared static and do not appear in the interface (.h) file for
-//       the module.
-static UtlBoolean sNeedsStaticInit = TRUE;
-static char      sCallProgressTonesLocale[3] = { 0, 0, 0 };
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -43,27 +40,13 @@ static char      sCallProgressTonesLocale[3] = { 0, 0, 0 };
 
 // Constructor
 MprToneGen::MprToneGen(const UtlString& rName,
-                              int samplesPerFrame, int samplesPerSec,
-                              const char* locale)
-:  MpResource(rName, 0, 1, 1, 1, samplesPerFrame, samplesPerSec),
+                       int samplesPerFrame,
+                       int samplesPerSec,
+                       const char* locale)
+:  MpAudioResource(rName, 0, 1, 1, 1, samplesPerFrame, samplesPerSec),
    mpToneGenState(NULL)
 {
-   // If we haven't yet initialized our static variables, do so now
-   if (sNeedsStaticInit)
-   {
-      if (locale != NULL)
-      {
-         // get the call progress tones locale setting
-         // (represented using an ISO-3166 two letter country code)
-         strncpy(sCallProgressTonesLocale, locale, 2);
-         sCallProgressTonesLocale[2] = '\0';
-      }
-
-      sNeedsStaticInit = FALSE;
-   }
-
-   mpToneGenState = MpToneGen_MpToneGen(samplesPerSec,
-                                        sCallProgressTonesLocale);
+   mpToneGenState = MpToneGen_MpToneGen(samplesPerSec, locale);
 }
 
 // Destructor
@@ -75,12 +58,13 @@ MprToneGen::~MprToneGen()
 /* ============================ MANIPULATORS ============================== */
 
 #ifdef LATER
-Later (soon) this will be incorporated, but this is not quite the right
+/* Later (soon) this will be incorporated, but this is not quite the right
 implementation.  At least these changes are needed:
 (1) this should be an overriding virtual function, named
     handleSetSamplesPerSec.
 (2) MpResource (the base class) needs to be enhanced so that the base
     virtual function exists to be overridden.
+*/
 // Sets the number of samples expected per second.
 // Returns FALSE if the specified rate is not supported, TRUE otherwise.
 UtlBoolean MprToneGen::setSamplesPerSec(int samplesPerSec)
@@ -130,53 +114,73 @@ OsStatus MprToneGen::stopTone(void)
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 UtlBoolean MprToneGen::doProcessFrame(MpBufPtr inBufs[],
-                                    MpBufPtr outBufs[],
-                                    int inBufsSize,
-                                    int outBufsSize,
-                                    UtlBoolean isEnabled,
-                                    int samplesPerFrame,
-                                    int samplesPerSecond)
+                                      MpBufPtr outBufs[],
+                                      int inBufsSize,
+                                      int outBufsSize,
+                                      UtlBoolean isEnabled,
+                                      int samplesPerFrame,
+                                      int samplesPerSecond)
 {
-   MpBufPtr out = NULL;
-   Sample *outbuf;
+   MpAudioBufPtr out;
+   MpAudioSample *outbuf;
    int count;
    OsStatus ret;
 
-   if (0 == outBufsSize) return FALSE;
-   *outBufs = NULL;
-   if (0 == samplesPerFrame) return FALSE;
+   // We have one output
+   if (outBufsSize != 1)
+       return FALSE;
+
+   // Don't waste the time if output is not connected
+   if (!isOutputConnected(0))
+       return TRUE;
+
+   // Avoid division by zero
+   if (samplesPerFrame == 0)
+       return FALSE;
+
    if (isEnabled) {
-      out = MpBuf_getBuf(MpMisc.UcbPool, samplesPerFrame, 0, MP_FMT_T12);
-      assert(NULL != out);
-      count = min(samplesPerFrame, MpBuf_getNumSamples(out));
-      MpBuf_setNumSamples(out, count);
-      outbuf = MpBuf_getSamples(out);
+      // Get new buffer
+      out = MpMisc.RawAudioPool->getBuffer();
+      if (!out.isValid())
+         return FALSE;
+      out->setSamplesNumber(samplesPerFrame);
+      count = out->getSamplesNumber();
+
+      // Generate new portion of tone
+      outbuf = out->getSamples();
       ret = MpToneGen_getNextBuff(mpToneGenState, outbuf, count);
+
+      // See what we get...
       switch (ret) {
       case OS_WAIT_TIMEOUT: /* one-shot tone completed */
          ((MpCallFlowGraph*)getFlowGraph())->stopTone();
-         MpBuf_setSpeech(out, MP_SPEECH_TONE);
+         out->setSpeechType(MpAudioBuf::MP_SPEECH_TONE);
          break;
+
       case OS_NO_MORE_DATA: /* silent */
-         MpBuf_delRef(out);
-         out = NULL;      // Will replace with silence before returning...
+         out.release();
          break;
+
       case OS_SUCCESS:
       default:
-         MpBuf_setSpeech(out, MP_SPEECH_TONE);
+         out->setSpeechType(MpAudioBuf::MP_SPEECH_TONE);
          break;
       }
    } else {
-      if (0 < inBufsSize) out = *inBufs;
-      *inBufs = NULL;
+      // If disabled just push input buffer downstream
+      if (inBufsSize > 0)
+          out = inBufs[0];
    }
 
-   if (NULL == out) {
-      out = MpBuf_getFgSilence();
-   }
-   *outBufs = out;
+   // Comment out this: Be honest, we failed.
+//   if (!out.isValid()) {
+//      out = MpMisc.mpFgSilence;
+//   }
+
+   // Set output
+   outBufs[0] = out;
    
-   return (NULL != mpToneGenState);
+   return (mpToneGenState != NULL);
 }
 
 // Handle messages for this resource.
@@ -196,7 +200,7 @@ UtlBoolean MprToneGen::handleMessage(MpFlowGraphMsg& rMsg)
       disable();
       break;
    default:
-      return MpResource::handleMessage(rMsg);
+      return MpAudioResource::handleMessage(rMsg);
       break;
    }
    return TRUE;

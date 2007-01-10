@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -257,7 +260,7 @@ void DspResampling::stats()
 #endif /* DETECT_OVERFLOW ] */
 
 #if /*!defined(_WIN32) &&*/ !defined(__pingtel_on_posix__) /* [ */
-void DspResampling::up(Sample *dest, Sample *data, int lGain, int iSpkrPhoneFlag)
+void DspResampling::up(MpAudioSample *dest, MpAudioSample *data, int lGain, int iSpkrPhoneFlag)
 {
    int       i;
    int       j;
@@ -383,7 +386,7 @@ void DspResampling::up(Sample *dest, Sample *data, int lGain, int iSpkrPhoneFlag
       sizeof(int)*(mSubBandLength-1));
 }
 
-void DspResampling::down(Sample* output, Sample* input, int UseLeft)
+void DspResampling::down(MpAudioSample* output, MpAudioSample* input, int UseLeft)
 {
    //Low-pass filtering and decimation.
    int       i;
@@ -485,7 +488,7 @@ void DspResampling::down(Sample* output, Sample* input, int UseLeft)
       sizeof(int)*(mFilterLen-1));
 }
 
-void DspResampling::upfrom16k(Sample *dest, Sample *data, int lGain, int iSpkrPhoneFlag)
+void DspResampling::upfrom16k(MpAudioSample *dest, MpAudioSample *data, int lGain, int iSpkrPhoneFlag)
 {
    int       i;
 		
@@ -498,7 +501,7 @@ void DspResampling::upfrom16k(Sample *dest, Sample *data, int lGain, int iSpkrPh
    	}
 }
 
-void DspResampling::downto16k(Sample* output, Sample* input, int UseLeft)
+void DspResampling::downto16k(MpAudioSample* output, MpAudioSample* input, int UseLeft)
 {
    //Low-pass filtering and decimation.
    int       i;

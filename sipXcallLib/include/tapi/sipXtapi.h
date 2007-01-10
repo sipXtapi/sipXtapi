@@ -32,15 +32,12 @@
 #include <stddef.h>       // size_t
 
 // SYSTEM INCLUDES
-#ifdef _WIN32
+#ifdef DIRECT_SHOW_RENDER
 #include <windows.h>
 #include <Unknwn.h>
 #    if !defined __strmif_h__
 #        include <strmif.h>
 #    endif 
-#endif
-#if !defined (_WIN32) || !defined (VIDEO)
-    struct IBaseFilter;
 #endif
 
 // APPLICATION INCLUDES
@@ -71,7 +68,7 @@
 #define CODEC_G711_PCMA         "257"   /**< ID for PCMA vocodec*/
 #define CODEC_DTMF_RFC2833      "128"   /**< ID for RFC2833 DMTF (out of band DTMF codec) */
 
-#define GAIN_MIN                1       /**< Min acceptable gain value */
+#define GAIN_MIN                0       /**< Min acceptable gain value. This gain will mute mic. */
 #define GAIN_MAX                100     /**< Max acceptable gain value */
 #define GAIN_DEFAULT            70      /**< Nominal gain value */
 
@@ -150,8 +147,8 @@ typedef enum SPEAKER_TYPE
  * Bandwidth requirements for supported codecs:
  *
  * <pre>
- * High:     IPCMWB  ~ 80 kbps                        
- * Normal    G711U   64 kpbs                          
+ * High:     IPCMWB  ~ 80 kbps
+ * Normal:   G711U   64 kpbs
  *           G711A   64 kbps, 20 ms frame size
  *           PCMU    64 kbps
  *           PCMA    64 kbps
@@ -491,7 +488,7 @@ typedef enum
 
     CONTACT_AUTO = -1,  /**< Automatic contact selection; used for API 
                              parameters */
-    CONTACT_ALL = -2,
+    CONTACT_ALL = -2
 } SIPX_CONTACT_TYPE ;
 
 typedef enum
@@ -499,7 +496,7 @@ typedef enum
     TRANSPORT_UDP = 1,  /**< Indicator for a UDP socket type. */
     TRANSPORT_TCP = 0,  /**< Indicator for a TCP socket type. */ 
     TRANSPORT_TLS = 3,  /**< Indicator for a TLS socket type. */
-    TRANSPORT_CUSTOM = 4,
+    TRANSPORT_CUSTOM = 4
 } SIPX_TRANSPORT_TYPE;
 
 /**
@@ -537,7 +534,7 @@ struct SIPX_VIDEO_DISPLAY
     {
         if (type == DIRECT_SHOW_FILTER)
         {
-#ifdef      _WIN32
+#ifdef DIRECT_SHOW_RENDER
             if (handle) ((IUnknown*)handle)->Release();
 #endif              
         }
@@ -560,7 +557,9 @@ struct SIPX_VIDEO_DISPLAY
     union
     {
 		SIPX_WINDOW_HANDLE handle;	/**< Window handle if type SIPX_WINDOW_HANDLE_TYPE */
+#ifdef DIRECT_SHOW_RENDER
 		IBaseFilter* filter;		/**< Direct Show filter if type is DIRECT_SHOW_FILTER */
+#endif
     };
 private:
     void copy(const SIPX_VIDEO_DISPLAY& ref)
@@ -570,7 +569,7 @@ private:
         handle = ref.handle;
         if (type == DIRECT_SHOW_FILTER)
         {
-#ifdef      _WIN32
+#ifdef DIRECT_SHOW_RENDER
             // we should addRef here.
             if (handle) ((IBaseFilter*)handle)->AddRef();
 #endif            
@@ -1877,7 +1876,9 @@ SIPXTAPI_API SIPX_RESULT sipxCallTransfer(const SIPX_CALL hSourceCall,
  * Updates the Video window with a new frame buffer.  Should be called
  * when the window receives a PAINT message.
  *
- * @param hInst Instance pointer obtained by sipxInitialize
+ * @param hCall Handle to a call.  Call handles are obtained either by 
+ *        invoking sipxCallCreate or passed to your application through
+ *        a listener interface.
  * @param hWnd Window handle of the video preview window.
  */
 SIPXTAPI_API SIPX_RESULT sipxCallUpdateVideoWindow(const SIPX_CALL hCall, const SIPX_WINDOW_HANDLE hWnd);
@@ -3262,7 +3263,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetAudioCodec(const SIPX_INST hInst,
  * VIDEO_CODEC_BW_HIGH    bitrate 400 kbps, framerate is what it was set to
  *                        with sipxConfigSetVideoParameters or 30 if not set.
  *
- * This method will return SIPX_RESULT_SUCCESS if able to set the audio codec
+ * This method will return SIPX_RESULT_SUCCESS if able to set the video codec
  * preferences.  SIPX_RESULT_FAILURE is returned if the preference is not set.
  * 
  * @param hInst Instance pointer obtained by sipxInitialize

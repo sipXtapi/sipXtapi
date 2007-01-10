@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -31,66 +34,101 @@ class MprRecorder;
 // STRUCTS
 // TYPEDEFS
 
-//:Derived class for Pingtel AVT/Tone decoder.
+/// Derived class for Pingtel AVT/Tone decoder.
 class MpdPtAVT: public MpDecoderBase
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
+
+     /// Constructor
    MpdPtAVT(int payloadType);
-     //:Constructor
-     // Returns a new decoder object.
-     //!param: payloadType - (in) RTP payload type associated with this decoder
+     /**<
+     *  @param payloadType - (in) RTP payload type associated with this decoder
+     */
 
+     /// Destructor
    virtual ~MpdPtAVT(void);
-     //:Destructor
 
-   virtual OsStatus initDecode(MpConnection* pConnection);
-     //:Initializes a codec data structure for use as a decoder
-     //!param: pConnection - (in) Pointer to the MpConnection container
-     //!retcode: OS_SUCCESS - Success
-     //!retcode: OS_NO_MEMORY - Memory allocation failure
+     /// Initializes a codec data structure for use as a decoder
+   virtual OsStatus initDecode(MpAudioConnection* pConnection);
+     /**<
+     *  @param pConnection - (in) Pointer to the MpAudioConnection container
+     *  @returns <b>OS_SUCCESS</b> - Success
+     *  @returns <b>OS_NO_MEMORY</b> - Memory allocation failure
+     */
 
+     /// Frees all memory allocated to the decoder by <i>initDecode</i>
    virtual OsStatus freeDecode(void);
-     //:Frees all memory allocated to the decoder by <i>initDecode</i>
-     //!retcode: OS_SUCCESS - Success
-     //!retcode: OS_DELETED - Object has already been deleted
+     /**<
+     *  @returns <b>OS_SUCCESS</b> - Success
+     *  @returns <b>OS_DELETED</b> - Object has already been deleted
+     */
+
+//@}
 
 /* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
 
-   virtual int decodeIn(MpBufPtr pPacket);
-     //:Receive a packet of RTP data
-     //!param: pPacket - (in) Pointer to a media buffer
-     //!retcode: length of packet to hand to jitter buffer, 0 means don't.
+     /// Receive a packet of RTP data
+   virtual int decodeIn(const MpRtpBufPtr &pPacket ///< (in) Pointer to a media buffer
+                       );
+     /**<
+     *  @returns length of packet to hand to jitter buffer, 0 means don't.
+     */
+
+     /// Decode incoming RTP packet.
+   virtual int decode(const MpRtpBufPtr &pPacket, ///< (in) Pointer to a media buffer
+                      unsigned decodedBufferLength, ///< (in) Length of the samplesBuffer (in samples)
+                      MpAudioSample *samplesBuffer ///< (out) Buffer for decoded samples
+                     );
+     /**<
+     *  @note This function do nothing. All real work is done in decodeIn().
+     */
+
+//@}
 
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-   virtual UtlBoolean handleSetDtmfNotify(OsNotification* n);
      //:Handle the FLOWGRAPH_SET_DTMF_NOTIFY message.
-     // Returns TRUE
+   virtual UtlBoolean handleSetDtmfNotify(OsNotification* n);
+     /**<
+     *  @returns <b>TRUE</b>
+     */
 
    virtual UtlBoolean setDtmfTerm(MprRecorder* pRecorder);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   static const MpCodecInfo smCodecInfo;  // static information about the codec
+   static const MpCodecInfo smCodecInfo; ///< static information about the codec
    JB_inst* mpJBState;
 
-   int mCurrentToneKey;       // The key ID
-   unsigned int mPrevToneSignature;    // The timestamp for last KEYUP event
-   unsigned int mCurrentToneSignature; // The starting timestamp
-   unsigned int mToneDuration;         // last reported duration
-   OsNotification* mpNotify;  // Object to signal on key-down/key-up events
+   int mCurrentToneKey;                ///< The key ID
+   unsigned int mPrevToneSignature;    ///< The timestamp for last KEYUP event
+   unsigned int mCurrentToneSignature; ///< The starting timestamp
+   unsigned int mToneDuration;         ///< last reported duration
+   OsNotification* mpNotify;     ///< Object to signal on key-down/key-up events
    MprRecorder* mpRecorder;
 
-   void signalKeyDown(MpBufPtr pPacket);
-   void signalKeyUp(MpBufPtr pPacket);
+   void signalKeyDown(const MpRtpBufPtr &pPacket);
+   void signalKeyUp(const MpRtpBufPtr &pPacket);
 };
 
 #endif  // _MpdPtAVT_h_

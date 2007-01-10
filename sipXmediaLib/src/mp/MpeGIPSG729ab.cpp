@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -111,7 +114,7 @@ OsStatus MpeGIPSG729ab::encode(const short* pAudioSamples,
                              const int bytesLeft,
                              int& rSizeInBytes,
                              UtlBoolean& sendNow,
-                             MpBufSpeech& rAudioCategory)
+                             MpAudioBuf::SpeechType& rAudioCategory)
 #ifdef READY_FOR_ANNEX_B /* [ */
 {
    short Serial[82];

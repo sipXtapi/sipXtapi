@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -33,50 +36,78 @@
 // STRUCTS
 // TYPEDEFS
 
-//:Derived class for G.729 decoder.
+/// Derived class for G.729 decoder.
 class MpdGIPSG729ab: public MpDecoderBase
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
 /* ============================ CREATORS ================================== */
-   MpdGIPSG729ab(int payloadType);
-     //:Constructor
-     // Returns a new decoder object.
-     //!param: payloadType - (in) RTP payload type associated with this decoder
+///@name Creators
+//@{
 
-   virtual ~MpdGIPSG729ab(void);
-     //:Destructor
+     /// Constructor
+   MpdGIPSG729ab( int payloadType ///< (in) RTP payload type associated with
+                                  ///<  this decoder
+                );
 
-   virtual OsStatus initDecode(MpConnection* pConnection);
-     //:Initializes a codec data structure for use as a decoder
-     //!param: pConnection - (in) Pointer to the MpConnection container
-     //!retcode: OS_SUCCESS - Success
-     //!retcode: OS_NO_MEMORY - Memory allocation failure
+     /// Destructor
+   virtual
+   ~MpdGIPSG729ab(void);
 
+     /// Initializes a codec data structure for use as a decoder
+  virtual OsStatus initDecode(MpAudioConnection* pConnection);
+     /**<
+     *  @param pConnection - (in) Pointer to the MpAudioConnection container
+     *  @returns <b>OS_SUCCESS</b> - Success
+     *  @returns <b>OS_NO_MEMORY</b> - Memory allocation failure
+     */
+
+     /// Frees all memory allocated to the decoder by <i>initDecode</i>
    virtual OsStatus freeDecode(void);
-     //:Frees all memory allocated to the decoder by <i>initDecode</i>
-     //!retcode: OS_SUCCESS - Success
-     //!retcode: OS_DELETED - Object has already been deleted
+     /**<
+     *  @returns <b>OS_SUCCESS</b> - Success
+     *  @returns <b>OS_DELETED</b> - Object has already been deleted
+     */
+
+//@}
 
 /* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
 
-   virtual int decodeIn(MpBufPtr pPacket);
-     //:Receive a packet of RTP data
-     //!param: pPacket - (in) Pointer to a media buffer
-     //!retcode: length of packet to hand to jitter buffer, 0 means don't.
+     /// Receive a packet of RTP data
+   virtual int decodeIn(const MpRtpBufPtr &pPacket ///< (in) Pointer to a media buffer
+                       );
+     /**<
+     *  @note This method can be called more than one time per frame interval.
+     *
+     *  @returns >0 - length of packet to hand to jitter buffer.
+     *  @returns 0  - decoder don't want more packets.
+     *  @returns -1 - discard packet (e.g. out of order packet).
+     */
 
    virtual OsStatus createDecoder(void);
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
    virtual IppsG729DecoderStruct* getDecoder(void);
 
+//@}
+
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   static const MpCodecInfo smCodecInfo;  // static information about the codec
+   static const MpCodecInfo smCodecInfo;  ///< static information about the codec
    JB_inst* mpJBState;
    IppsG729DecoderStruct* mpDecoderState;
 };

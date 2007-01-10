@@ -38,7 +38,7 @@ class MpCallFlowGraph;
 class SdpCodec;
 class OsDatagramSocket;
 class CpPhoneMediaConnection;
-class ISocketEvent ;
+class ISocketEvent;
 
 //:Class short description which may consist of multiple lines (note the ':')
 // Class detailed description which may extend to multiple lines
@@ -72,7 +72,7 @@ public:
                          const char* szTurnUsername = NULL,
                          const char* szTurnPassword = NULL,
                          int iTurnKeepAlivePeriodSecs = 28,
-                         UtlBoolean mbEnableICE = FALSE);
+                         UtlBoolean bEnableICE = FALSE);
      //:Default constructor
 
   protected:
@@ -399,6 +399,20 @@ protected:
 
     void applyAlternateDestinations(int connectionId) ;
 
+      /// Create socket pair for RTP/RTCP streams.
+    void createRtpSocketPair(UtlString localAddress,
+                             SIPX_CONTACT_TYPE contactType,
+                             OsNatDatagramSocket* &rtpSocket,
+                             OsNatDatagramSocket* &rtcpSocket);
+      /**<
+      *  For RTP/RTCP port pair will be set next free port pair.
+      *  
+      *  @param localAddress - (in) address to bind to (for multihomed hosts).
+      *  @param contactType - (in) contact type (see SIPX_CONTACT_TYPE).
+      *  @param rtpSocket - (out) created socket for RTP stream.
+      *  @param rtcpSocket - (out) created socket for RTCP stream.
+      */
+
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -406,9 +420,9 @@ private:
     CpPhoneMediaConnection* removeMediaConnection(int connectionId);
     OsStatus doDeleteConnection(CpPhoneMediaConnection* mediaConnection);
 
-   UtlString mRtpReceiveHostAddress; // Advertized as place to send RTP/RTCP
-   UtlString mLocalAddress; // On which ports are bound
-   MpCallFlowGraph* mpFlowGraph;
+   UtlString mRtpReceiveHostAddress; ///< Advertised as place to send RTP/RTCP
+   UtlString mLocalAddress;          ///< Address on which ports are bound
+   MpCallFlowGraph* mpFlowGraph;     ///< Flowgraph for audio part of call
    UtlBoolean mRingToneFromFile;
    SdpCodecFactory mSupportedCodecs;
    UtlDList mMediaConnections;
@@ -423,7 +437,6 @@ private:
    UtlString mTurnPassword ;
    UtlBoolean mbEnableICE ;
    UtlHashMap mInterfaceProperties;
-
 
    // Disabled copy constructor
    CpPhoneMediaInterface(const CpPhoneMediaInterface& rCpPhoneMediaInterface);

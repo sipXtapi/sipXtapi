@@ -204,7 +204,7 @@ public:
         CP_REFIRE_MEDIA_EVENT,
         CP_LIMIT_CODEC_PREFERENCES,
         CP_SILENT_REMOTE_HOLD,
-        CP_GET_USERAGENT,
+        CP_GET_USERAGENT
     };
 
 /*

@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -11,7 +14,7 @@
 #ifdef HAVE_GIPS /* [ */
 
 // APPLICATION INCLUDES
-#include "mp/MpConnection.h"
+#include "mp/MpAudioConnection.h"
 #include "mp/MpdGIPSPCMU.h"
 #include "mp/GIPS/GIPS_API.h"
 #include "mp/MprDejitter.h"
@@ -37,7 +40,7 @@ MpdGIPSPCMU::~MpdGIPSPCMU()
    freeDecode();
 }
 
-OsStatus MpdGIPSPCMU::initDecode(MpConnection* pConnection)
+OsStatus MpdGIPSPCMU::initDecode(MpAudioConnection* pConnection)
 {
    //Get NetEq pointer
    mpJBState = pConnection->getJBinst();
@@ -76,7 +79,7 @@ static int invalidLen(int l, unsigned char* p)
    return (160 == l) ? 0 : (l % 80);
 }
 
-int MpdGIPSPCMU::decodeIn(MpBufPtr pPacket)
+int MpdGIPSPCMU::decodeIn(const MpBufPtr pPacket)
 {
    int thisLen;
    unsigned char* pHeader;

@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -27,14 +30,14 @@
 // FORWARD DECLARATIONS
 class MpResource;
 
-//:Message object used to communicate with the media processing task
+/// Message object used to communicate with the media processing task
 class MpFlowGraphMsg : public OsMsg
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   // Phone set message types
-   enum MpFlowGraphMsgType
+   /// Phone set message types
+   typedef enum
    {
       FLOWGRAPH_ADD_LINK,
       FLOWGRAPH_ADD_RESOURCE,
@@ -68,82 +71,104 @@ public:
 
       FLOWGRAPH_SET_DTMF_NOTIFY,
 
-      RESOURCE_SPECIFIC_START = 100     // start of resource-specific messages
-   };
+      RESOURCE_SPECIFIC_START = 100     ///< start of resource-specific messages
+   } MpFlowGraphMsgType;
 
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
 
+     /// Constructor
    MpFlowGraphMsg(int msg, MpResource* pMsgDest=NULL,
                   void* pPtr1=NULL, void* pPtr2=NULL,
                   int int1=-1, int int2=-1);
-     //:Constructor
 
+     /// Copy constructor
    MpFlowGraphMsg(const MpFlowGraphMsg& rMpFlowGraphMsg);
-     //:Copy constructor
 
+     /// Create a copy of this msg object (which may be of a derived type)
    virtual OsMsg* createCopy(void) const;
-     //:Create a copy of this msg object (which may be of a derived type)
 
+     /// Destructor
    virtual
    ~MpFlowGraphMsg();
-     //:Destructor
+
+//@}
 
 /* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
 
+     /// Assignment operator
    MpFlowGraphMsg& operator=(const MpFlowGraphMsg& rhs);
-     //:Assignment operator
 
+     /// Set destination object of the message.
    void setMsgDest(MpResource* pMsgDest);
-     //:Sets the intended recipient for this message.  Setting the message 
-     //:destination to NULL indicates that the message is intended for the 
-     //:flow graph itself.
+     /**<
+     *  Sets the intended recipient for this message.  Setting the message 
+     *  destination to NULL indicates that the message is intended for the 
+     *  flow graph itself.
+     */
 
+     /// Sets pointer 1 (void*) of the media flow graph message
    void setPtr1(void* p);
-     //:Sets pointer 1 (void*) of the media flow graph message
 
+     /// Sets pointer 2 (void*) of the media flow graph message
    void setPtr2(void* p);
-     //:Sets pointer 2 (void*) of the media flow graph message
 
+     /// Sets integer 1 of the media flow graph message
    void setInt1(int i);
-     //:Sets integer 1 of the media flow graph message
 
+     /// Sets integer 2 of the media flow graph message
    void setInt2(int i);
-     //:Sets integer 2 of the media flow graph message
+
+//@}
 
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
+     /// Returns the type of the media flow graph message
    int getMsg(void) const;
-     //:Returns the type of the media flow graph message
 
+     /// Get destination object of the message.
    MpResource* getMsgDest(void) const;
-     //:Returns the MpResource object that is the intended recipient for this 
-     //:message.  A NULL return indicates that the message is intended for 
-     //:the flow graph itself.
+     /**<
+     *  Returns the MpResource object that is the intended recipient for this 
+     *  message.  A NULL return indicates that the message is intended for 
+     *  the flow graph itself.
+     */
 
+     /// Return pointer 1 (void*) of the media flow graph message
    void* getPtr1(void) const;
-     //:Return pointer 1 (void*) of the media flow graph message
 
+     /// Return pointer 2 (void*) of the media flow graph message
    void* getPtr2(void) const;
-     //:Return pointer 2 (void*) of the media flow graph message
 
+     /// Return integer 1 of the media flow graph message
    int getInt1(void) const;
-     //:Return integer 1 of the media flow graph message
 
+     /// Return integer 2 of the media flow graph message
    int getInt2(void) const;
-     //:Return integer 2 of the media flow graph message
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   MpResource* mpMsgDest; // Intended recipient for this message
-   void*       mpPtr1;    // Message pointer 1
-   void*       mpPtr2;    // Message pointer 2
-   int         mInt1;     // Message integer 1
-   int         mInt2;     // Message integer 2
+   MpResource* mpMsgDest; ///< Intended recipient for this message
+   void*       mpPtr1;    ///< Pointer to data 1
+   void*       mpPtr2;    ///< Pointer to data 2
+   int         mInt1;     ///< Integer data 1
+   int         mInt2;     ///< Integer data 2
 
 };
 

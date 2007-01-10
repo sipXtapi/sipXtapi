@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -15,9 +18,9 @@
 //#include <stdio.h>
 
 // APPLICATION INCLUDES
-#include "mp/dtmflib.h"
+//#include "mp/dtmflib.h"
 #include "mp/MpFlowGraphMsg.h"
-#include "mp/MpResource.h"
+#include "mp/MpAudioResource.h"
 #include "os/OsProtectEvent.h"
 
 // DEFINES
@@ -29,22 +32,26 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-//:The "audio from file" media processing resource
-class MprFromFile : public MpResource
+/**
+*  @brief The "Audio from file" media processing resource
+*/
+class MprFromFile : public MpAudioResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
 
-   MprFromFile(const UtlString& rName, int samplesPerFrame, int samplesPerSec);
      //:Constructor
+   MprFromFile(const UtlString& rName, int samplesPerFrame, int samplesPerSec);
 
+     //:Destructor
    virtual
    ~MprFromFile();
-     //:Destructor
 
-   enum Completion // $$$ These need more thought and clarification...
+   typedef enum /// $$$ These need more thought and clarification...
    {
       PLAY_FINISHED,
       PLAY_STOPPED,
@@ -52,69 +59,92 @@ public:
       READ_ERROR,
       PLAY_IDLE,
       INVALID_SETUP
-   };
+   } Completion;
+
+//@}
 
 /* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
 
-    //Plays buffer
-    // type can be one of following:  (need a OsSoundType)
-    // 0 = RAW
-    // 1 = muLaw
+     /// Play sound from buffer w/repeat option
     OsStatus playBuffer(const char* audioBuffer, unsigned long bufSize, 
-                                 int type, UtlBoolean repeat, OsProtectedEvent* notify);
-     //: play sound from buffer w/ repeat option
-     // TODO:
-     //! param: repeat - TRUE/FALSE after the fromFile reaches the end of the
-     //  file, go back to the beginning and continue to play.  Note this
-     //  assumes that the file was opened for read.
-     // Returns the result of attempting to queue the message to this
-     // resource and/or opening the named file.
+                        int type, UtlBoolean repeat, OsProtectedEvent* notify);
+     /**<
+     *  @param type - can be one of following:  (need a OsSoundType)<br>
+     *  0 = RAW<br>
+     *  1 = muLaw
+     *
+     *  @param repeat - TRUE/FALSE after the fromFile reaches the end of
+     *   the file, go back to the beginning and continue to play.  Note this
+     *   assumes that the file was opened for read.
+     *
+     *  @returns the result of attempting to queue the message to this
+     *  resource and/or opening the named file.
+     */
 
 
+     /// Play from file w/file name and repeat option
    OsStatus playFile(const char* fileName, UtlBoolean repeat,
-      OsNotification* event = NULL);
-     //: play from file w/ file name and repeat option
-     // Opens file and calls <I>playFile</I> method taking FILE*
-     // Note: if this resource is deleted before <I>stopFile</I> is called, it
-     // will close the file.
-     //! param: pFile - name of file from which to read raw audio data in exact
-     //  format of the flowgraph (sample size, rate & number of channels).
-     //! param: repeat - TRUE/FALSE after the fromFile reaches the end of the
-     //  file, go back to the beginning and continue to play.  Note this
-     //  assumes that the file was opened for read.
-     // Returns the result of attempting to queue the message to this
-     // resource and/or opening the named file.
+                     OsNotification* event = NULL);
+     /**<
+     *  Note: if this resource is deleted before <I>stopFile</I> is called, it
+     *  will close the file.
+     *
+     *  @param fileName - name of file from which to read raw audio data in
+     *   exact format of the flowgraph (sample size, rate & number of channels).
+     *
+     *  @param repeat - TRUE/FALSE after the fromFile reaches the end of
+     *   the file, go back to the beginning and continue to play.  Note this
+     *   assumes that the file was opened for read.
+     *
+     *  @returns the result of attempting to queue the message to this
+     *  resource and/or opening the named file.
+     */
 
+     /// Stop playing from file
    OsStatus stopFile(void);
-     //: stop playing from file
-     // Sends a STOP_FILE message to this resource to stop playing audio
-     // from file
-     // Returns the result of attempting to queue the message to this
-     // resource.
+     /**<
+     *  Sends a STOP_FILE message to this resource to stop playing audio
+     *  from file
+     *
+     *  @returns the result of attempting to queue the message to this
+     *  resource.
+     */
 
    virtual UtlBoolean enable(void);
    virtual UtlBoolean disable(void);
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   enum AddlMsgTypes
+   typedef enum
    {
       PLAY_FILE = MpFlowGraphMsg::RESOURCE_SPECIFIC_START,
       STOP_FILE
-   };
+   } AddlMsgTypes;
 
-   enum MessageAttributes
+   typedef enum
    {
        PLAY_ONCE,
        PLAY_REPEAT
-   };
+   } MessageAttributes;
 
    UtlString* mpFileBuffer;
    int mFileBufferIndex;
@@ -131,14 +161,15 @@ private:
 
    virtual UtlBoolean handleSetup(MpFlowGraphMsg& rMsg);
    virtual UtlBoolean handleStop(void);
+
+     /// Handle messages for this resource.
    virtual UtlBoolean handleMessage(MpFlowGraphMsg& rMsg);
-     //:Handle messages for this resource.
 
+     /// Copy constructor (not implemented for this class)
    MprFromFile(const MprFromFile& rMprFromFile);
-     //:Copy constructor (not implemented for this class)
 
+     /// Assignment operator (not implemented for this class)
    MprFromFile& operator=(const MprFromFile& rhs);
-     //:Assignment operator (not implemented for this class)
 
 };
 

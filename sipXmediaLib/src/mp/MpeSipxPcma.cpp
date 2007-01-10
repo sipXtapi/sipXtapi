@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -48,14 +51,14 @@ OsStatus MpeSipxPcma::encode(const short* pAudioSamples,
                              const int bytesLeft,
                              int& rSizeInBytes,
                              UtlBoolean& sendNow,
-                             MpBufSpeech& rAudioCategory)
+                             MpAudioBuf::SpeechType& rAudioCategory)
 {
    JB_ret res;
    JB_size size;
 
    res = G711A_Encoder(numSamples, (short*) pAudioSamples, pCodeBuf, &size);
    rSizeInBytes = size;
-   rAudioCategory = MP_SPEECH_UNKNOWN;
+   rAudioCategory = MpAudioBuf::MP_SPEECH_UNKNOWN;
    sendNow = FALSE;
    rSamplesConsumed = numSamples;
 

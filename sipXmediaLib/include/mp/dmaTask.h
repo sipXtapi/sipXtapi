@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -53,17 +56,20 @@ typedef void (*MuteListenerFuncPtr)(bool);
 // FORWARD DECLARATIONS
 extern OsStatus dmaStartup(int samplesPerFrame);/* initialize the DMA driver */
 extern void dmaShutdown(void);                  /* release the DMA driver */
+#ifdef _WIN32
+extern void dmaSignalMicDeviceChange(void);     /* Signal a device change to the Mic Thread */
+#endif
 
 extern int unMuteSpkr(void);
 extern int muteSpkr(void);
 extern int unMuteMic(void);
 extern int muteMic(void);
 
-enum MpDmaMicChoice {
+typedef enum {
     MP_MIC_SELECT_NEITHER,
     MP_MIC_SELECT_HANDSET,
     MP_MIC_SELECT_BASE
-};
+} MpDmaMicChoice;
 
 extern OsStatus MpDma_selectMic(MpDmaMicChoice choice);
 extern MpDmaMicChoice MpDma_getMicMode(void);
@@ -83,7 +89,8 @@ class DmaTask : public OsTask
 public:
 
 /* ============================ CREATORS ================================== */
-
+///@name Creators
+//@{
    static DmaTask* getDmaTask(int samplesPerFrame = 80);
      //:Return a pointer to the DMA task, creating it if necessary
 
@@ -95,7 +102,11 @@ public:
    virtual int run(void* pArg);
 
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
     static bool setRingerEnabled(bool enabled)
     {

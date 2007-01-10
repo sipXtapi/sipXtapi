@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -23,12 +26,11 @@ private:
    int m_CompressionType;
    AbstractDecompressor *_decoder;
 public:
-   enum AuDecompressionType
-   {
+   typedef enum {
       DeG711MuLaw = 1,
       DePcm8Unsigned,
       DePcm16MsbSigned
-   };
+   } AuDecompressionType;
 
    MpAuRead(istream & s, int raw = 0);
 
@@ -46,9 +48,9 @@ public:
    size_t getBytesSize();
 
 private:
-   bool _headerRead; // true if header has already been read
-   int _headerChannels; // channels from header
-   int _headerRate; // sampling rate from header
+   bool _headerRead;    ///< true if header has already been read
+   int _headerChannels; ///< channels from header
+   int _headerRate;     ///< sampling rate from header
    void ReadHeader(void);
 protected:
    void minMaxSamplingRate(long *min, long *max, long *preferred) {

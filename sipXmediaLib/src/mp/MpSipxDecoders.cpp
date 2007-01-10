@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -18,15 +21,10 @@
 #include "mp/MpSipxDecoders.h"
 
 #define LOCAL static
-#undef LOCAL
-#define LOCAL
+//#undef LOCAL
+//#define LOCAL
 
 /* ============================ CREATORS ================================== */
-
-class MpJbG711a : public MpSipxDecoder
-{
-};
-
 
 /* ============================ MANIPULATORS ============================== */
 
@@ -54,18 +52,13 @@ LOCAL short hzm_ULaw2linear(unsigned char u)
         return L;
 }
 
-LOCAL int ULawToLinear(Sample *Dest, unsigned char *Source, int samples)
+LOCAL int ULawToLinear(MpAudioSample *Dest, const unsigned char *Source, int samples)
 {
         int i;
-        unsigned char  *src;
-        short *dst;
-
-        src = Source;
-        dst = (short *) Dest;
 
         for (i=0; i<samples; i++) {
-            *dst = hzm_ULaw2linear(*src);
-            dst++; src++;
+            *Dest = hzm_ULaw2linear(*Source);
+            Dest++; Source++;
         }
         return samples;
 }
@@ -98,16 +91,13 @@ LOCAL int ALaw2Linear(unsigned char a_val)
         return ((a_val & SIGN_BIT) ? t : -t);
 }
 
-LOCAL int ALawToLinear(Sample *Dest, unsigned char *src, int samples)
+LOCAL int ALawToLinear(MpAudioSample *Dest, const unsigned char *src, int samples)
 {
         int i;
-        short *dst;
-
-        dst = (short *) Dest;
 
         for (i=0; i<samples; i++) {
-            *dst = ALaw2Linear(*src);
-            dst++; src++;
+            *Dest = ALaw2Linear(*src);
+            Dest++; src++;
         }
         return samples;
 }
@@ -127,16 +117,16 @@ LOCAL int search(int val, short *table, int size)
 }
 
 JB_ret G711A_Decoder(JB_size noOfSamples,
-                     JB_uchar* codBuff,
-                     Sample* outBuff)
+                     const JB_uchar* codBuff,
+                     MpAudioSample* outBuff)
 {
    ALawToLinear(outBuff, codBuff, noOfSamples);
    return 0;
 }
 
 JB_ret G711U_Decoder(JB_size noOfSamples,
-                     JB_uchar* codBuff,
-                     Sample* outBuff)
+                     const JB_uchar* codBuff,
+                     MpAudioSample* outBuff)
 {
    ULawToLinear(outBuff, codBuff, noOfSamples);
    return 0;
@@ -192,7 +182,7 @@ LOCAL unsigned char Linear2ALaw(
         }
 }
 
-LOCAL int LinearToALaw(unsigned char *Dest, Sample *src, int samples)
+LOCAL int LinearToALaw(unsigned char *Dest, MpAudioSample *src, int samples)
 {
         int i;
 
@@ -204,7 +194,7 @@ LOCAL int LinearToALaw(unsigned char *Dest, Sample *src, int samples)
 }
 
 JB_ret G711A_Encoder(JB_size noOfSamples,
-                     Sample* inBuff,
+                     MpAudioSample* inBuff,
                      JB_uchar* codBuff,
                      JB_size *size_in_bytes)
 {
@@ -245,7 +235,7 @@ LOCAL unsigned char hzm_Linear2ULaw(int L)
    return ((seg | ((0x3C00 & L) >> 10)) ^ signmask);
 }
 
-LOCAL int LinearToULaw(unsigned char *Dest, Sample *src, int samples)
+LOCAL int LinearToULaw(unsigned char *Dest, MpAudioSample *src, int samples)
 {
    int i;
 
@@ -257,7 +247,7 @@ LOCAL int LinearToULaw(unsigned char *Dest, Sample *src, int samples)
 }
 
 JB_ret G711U_Encoder(JB_size noOfSamples,
-                     Sample* inBuff,
+                     MpAudioSample* inBuff,
                      JB_uchar* codBuff,
                      JB_size *size_in_bytes)
 {

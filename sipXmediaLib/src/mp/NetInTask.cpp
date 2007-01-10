@@ -1,6 +1,6 @@
-//
-// Copyright (C) 2005-2006 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -19,10 +19,8 @@
 
 // SYSTEM INCLUDES
 
-#include "os/OsDefs.h"
 #include <assert.h>
 #include <string.h>
-#include "os/OsTask.h"
 #ifdef _VXWORKS /* [ */
 #include <selectLib.h>
 #include <iosLib.h>
@@ -52,6 +50,7 @@
 #include "os/OsConnectionSocket.h"
 #include "os/OsEvent.h"
 #include "mp/NetInTask.h"
+#include "mp/MpUdpBuf.h"
 #include "mp/MprFromNet.h"
 #include "mp/MpBufferMsg.h"
 #include "mp/dmaTask.h"
@@ -99,7 +98,7 @@ static  int numPairs;
 NetInTask* NetInTask::spInstance = 0;
 OsRWMutex     NetInTask::sLock(OsBSem::Q_PRIORITY);
 
-const int NetInTask::DEF_NET_IN_TASK_PRIORITY  = 100; // default task priority
+const int NetInTask::DEF_NET_IN_TASK_PRIORITY  = 0;   // default task priority: HIGHEST
 const int NetInTask::DEF_NET_IN_TASK_OPTIONS   = 0;   // default task options
 #ifdef USING_NET_EQ /* [ */
 const int NetInTask::DEF_NET_IN_TASK_STACKSIZE = 40960;//default task stacksize
@@ -231,25 +230,17 @@ OsConnectionSocket* NetInTask::getReadSocket()
 
 /************************************************************************/
 
-static OsStatus get1Msg(OsSocket* pRxpSkt, MprFromNet* fwdTo, int rtpOrRtcp,
+static OsStatus get1Msg(OsSocket* pRxpSkt, MprFromNet* fwdTo, bool isRtcp,
     int ostc)
 {
-        MpBufPtr ib;
-        char junk[MAX_RTP_BYTES];
-        int ret, nRead;
-        struct rtpHeader *rp;
+        MpUdpBufPtr ib;
+        int nRead;
         struct in_addr fromIP;
         int      fromPort;
 
 static  int numFlushed = 0;
 static  int flushedLimit = 125;
 
-        rp = (struct rtpHeader *) &junk[0];
-        if (MpBufferMsg::AUD_RTP_RECV == rtpOrRtcp) {
-           ib = MpBuf_getBuf(MpMisc.RtpPool, 0, 0, MP_FMT_RTPPKT);
-        } else {
-           ib = MpBuf_getBuf(MpMisc.RtcpPool, 0, 0, MP_FMT_RTCPPKT);
-        }
         if (numFlushed >= flushedLimit) {
             Zprintf("get1Msg: flushed %d packets! (after %d DMA frames).\n",
                numFlushed, showFrameCount(1), 0,0,0,0);
@@ -260,25 +251,31 @@ static  int flushedLimit = 125;
                 flushedLimit = 125;
             }
         }
-        if (NULL != ib) {
-            nRead = ret = pRxpSkt->read(junk, MAX_RTP_BYTES, &fromIP, &fromPort);
-            MpBuf_setOsTC(ib, ostc);
-            if (ret > 0) 
-            {               
-                if (ret > MpBuf_getByteLen(ib)) {
-                    ret = MpBuf_getByteLen(ib);
-                    if (MpBufferMsg::AUD_RTP_RECV == rtpOrRtcp) {
-                        junk[0] &= ~0x20; /* must turn off Pad flag */
-                    }
-                }
-                memcpy((char *) MpBuf_getStorage(ib), junk, ret);
-                MpBuf_setNumSamples(ib, ret);
-                MpBuf_setContentLen(ib, ret);
-                fwdTo->pushPacket(ib, rtpOrRtcp, &fromIP, fromPort);
+
+        // Get new buffer for incoming packet
+        ib = MpMisc.UdpPool->getBuffer();
+
+        if (ib.isValid()) {
+            // Read packet data.
+            // Note: nRead could not be greater then buffer size.
+            nRead = pRxpSkt->read(ib->getWriteDataPtr(), ib->getMaximumPacketSize()
+                                 , &fromIP, &fromPort);
+            // Set size of received data
+            ib->setPacketSize(nRead);
+
+            // Set IP address and port of this packet
+            ib->setIP(fromIP);
+            ib->setUdpPort(fromPort);
+
+            // Set time we receive this packet.
+            ib->setTimecode(ostc);
+
+            if (nRead > 0) 
+            {
+                fwdTo->pushPacket(ib, isRtcp);
             } 
             else 
             {
-                MpBuf_delRef(ib);
                 if (!pRxpSkt->isOk())
                 {
                     Zprintf(" *** get1Msg: read(%d) returned %d, errno=%d=0x%X)\n",
@@ -287,7 +284,9 @@ static  int flushedLimit = 125;
                 }                                
             }
         } else {
-            nRead = pRxpSkt->read(junk, sizeof(junk));
+            // Flush packet if could not get buffer for it.
+            char buffer[UDP_MTU];
+            nRead = pRxpSkt->read(buffer, UDP_MTU, &fromIP, &fromPort);
             if (numFlushed++ < 10) {
                 Zprintf("get1Msg: flushing a packet! (%d, %d, %d)"
                     " (after %d DMA frames).\n",
@@ -631,7 +630,7 @@ int NetInTask::run(void *pNotUsed)
                 if ((NULL != ppr->pRtpSocket) &&
                   (FD_ISSET(ppr->pRtpSocket->getSocketDescriptor(), fds))) {
                     stat = get1Msg(ppr->pRtpSocket, ppr->fwdTo,
-                       MpBufferMsg::AUD_RTP_RECV, ostc);
+                       false, ostc);
                     if (OS_SUCCESS != stat) {
                         Zprintf(" *** NetInTask: removing RTP#%d pSkt=0x%x due"
                             " to read error.\n", ppr-pairs,
@@ -646,7 +645,7 @@ int NetInTask::run(void *pNotUsed)
                 if ((NULL != ppr->pRtcpSocket) &&
                   (FD_ISSET(ppr->pRtcpSocket->getSocketDescriptor(), fds))) {
                     stat = get1Msg(ppr->pRtcpSocket, ppr->fwdTo,
-                       MpBufferMsg::AUD_RTCP_RECV, ostc);
+                       true, ostc);
                     if (OS_SUCCESS != stat) {
                         Zprintf(" *** NetInTask: removing RTCP#%d pSkt=0x%x due"
                             " to read error.\n", ppr-pairs,
@@ -884,11 +883,6 @@ static  UINT last_timer = 0x12345678;
 #endif /* _WIN32 || __pingtel_on_posix__ ] */
 }
 
-struct rtcpSession {
-        int dir;
-        OsSocket* socket;
-};
-
 #define RTP_DIR_NEW 4
 
 rtpHandle StartRtpSession(OsSocket* socket, int direction, char type)
@@ -918,58 +912,7 @@ rtpHandle StartRtpSession(OsSocket* socket, int direction, char type)
         return ret;
 }
 
-rtcpHandle StartRtcpSession(int direction)
-{
-        struct rtcpSession *ret;
-        USHORT rseq;
-
-        rseq = 0xFFFF & rand_timer32();
-
-        ret = (struct rtcpSession *) malloc(sizeof(struct rtcpSession));
-        if (ret) {
-                ret->dir = direction | RTP_DIR_NEW;
-                ret->socket = NULL;
-        }
-        return ret;
-}
-
-OsStatus setRtpType(rtpHandle h, int type)
-{
-        h->mpt = ((0<<7) | (type & 0x7f));
-        return OS_SUCCESS;
-}
-
-OsStatus setRtpSocket(rtpHandle h, OsSocket* socket)
-{
-        h->socket = socket;
-        return OS_SUCCESS;
-}
-
-OsSocket* getRtpSocket(rtpHandle h)
-{
-        return h->socket;
-}
-
-OsStatus setRtcpSocket(rtcpHandle h, OsSocket* socket)
-{
-        h->socket = socket;
-        return OS_SUCCESS;
-}
-
-OsSocket* getRtcpSocket(rtcpHandle h)
-{
-        return h->socket;
-}
-
 void FinishRtpSession(rtpHandle h)
-{
-        if (NULL != h) {
-            h->socket = NULL;
-            free(h);
-        }
-}
-
-void FinishRtcpSession(rtcpHandle h)
 {
         if (NULL != h) {
             h->socket = NULL;

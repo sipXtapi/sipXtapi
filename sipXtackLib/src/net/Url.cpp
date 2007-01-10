@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -114,7 +117,7 @@ const char* SchemeName[ Url::NUM_SUPPORTED_URL_SCHEMES ] =
    "https",
    "ftp",
    "file",
-   "mailto",
+   "mailto"
 };
 
 // UsernameAndPassword

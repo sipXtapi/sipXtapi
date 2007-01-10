@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -56,7 +59,6 @@ static int lastOut;
 #endif /* OHISTORY ] */
 HWAVEOUT audioOutH;         // Referenced in MpCodec (vol)
 HWAVEOUT audioOutCallH;     // Referenced in MpCodec (vol)
-
 
 /* ============================ FUNCTIONS ================================= */
 
@@ -170,55 +172,15 @@ static int openAudioOut(int desiredDeviceId, HWAVEOUT *pAudioOutH,int nChannels,
    }
 }
 
-
-static MpBufPtr conceal(MpBufPtr prev, int concealed)
-{
-#ifdef XXX_DEBUG_WINDOZE /* [ */
-   MpBufPtr ret;
-   Sample* src;
-   Sample* dst;
-   int len;
-   int halfLen;
-   int i;
-
-   if (NULL == prev) {
-      ret = MpBuf_getFgSilence();
-      return ret;
-   }
-   len = MpBuf_getNumSamples(prev);
-   ret = MpBuf_getBuf(MpBuf_getPool(prev), len, 0, MpBuf_getFormat(prev));
-   src = MpBuf_getSamples(prev);
-   dst = MpBuf_getSamples(ret);
-   halfLen = (len + 1) >> 1;
-   for (i=0; i<halfLen; i++) {
-      dst[i] = src[len - i];
-   }
-   for (i=halfLen; i<len; i++) {
-      dst[i] = src[i];
-   }
-   if (concealed > 2) {
-      for (i=0; i<len; i++) {
-         dst[i] = dst[i] >> 1; // attenuate
-      }
-   }
-   return ret;
-#else /* DEBUG_WINDOZE ] [ */
-   return MpBuf_getFgSilence();
-#endif /* DEBUG_WINDOZE ] */
-}
-
-
 static WAVEHDR* outPrePrep(int n, DWORD bufLen)
 {
    WAVEHDR* pWH;
    int doAlloc = (hOutHdr[n] == NULL);
    MpBufferMsg* msg;
    MpBufferMsg* pFlush;
-   MpBufPtr     ob;
+   MpAudioBufPtr ob;
 
    static int oPP = 0;
-   static MpBufPtr prev = NULL; // prev is for future concealment use
-   static int concealed = 0; 
 
    static int flushes = 0;
    static int skip = 0;
@@ -252,12 +214,11 @@ static WAVEHDR* outPrePrep(int n, DWORD bufLen)
       osPrintf("outPrePrep(): %d playbacks, %d flushes\n", oPP, flushes);
    }
 #endif /* DEBUG_WINDOZE ] */
-   while (MpMisc.pSpkQ && MprToSpkr::MAX_SPKR_BUFFERS < MpMisc.pSpkQ->numMsgs()) {
+   while (MpMisc.pSpkQ && MpMisc.pSpkQ->numMsgs() > MprToSpkr::MAX_SPKR_BUFFERS) {
       OsStatus  res;
       flushes++;
       res = MpMisc.pSpkQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT_TIME);
       if (OS_SUCCESS == res) {
-         MpBuf_delRef(pFlush->getTag());
          pFlush->releaseMsg();
       } else {
          osPrintf("DmaTask: queue was full, now empty (4)!"
@@ -269,29 +230,33 @@ static WAVEHDR* outPrePrep(int n, DWORD bufLen)
       }
    }
 
-   if (MpMisc.pSpkQ && (skip == 0) && (MprToSpkr::MIN_SPKR_BUFFERS > MpMisc.pSpkQ->numMsgs())) {
-      skip = MprToSpkr::SKIP_SPKR_BUFFERS;
-      assert(MprToSpkr::MAX_SPKR_BUFFERS >= skip);
+   if (MpMisc.pSpkQ) {
+      if (  (skip == 0)
+         && (MpMisc.pSpkQ->numMsgs() < MprToSpkr::MIN_SPKR_BUFFERS))
+      {
+         skip = MprToSpkr::SKIP_SPKR_BUFFERS;
+         assert(MprToSpkr::MAX_SPKR_BUFFERS >= skip);
 #ifdef DEBUG_WINDOZE /* [ */
-      osPrintf("Skip(%d,%d)\n", skip, oPP);
+         osPrintf("Skip(%d,%d)\n", skip, oPP);
 #endif /* DEBUG_WINDOZE ] */
-   }
-
-   ob = NULL;
-   if (0 == skip) {
-      if (MpMisc.pSpkQ && OS_SUCCESS == MpMisc.pSpkQ->receive((OsMsg*&)msg, OsTime::NO_WAIT_TIME)) {
-         ob = msg->getTag();
-         msg->releaseMsg();
       }
-   } else {
-      if (MpMisc.pSpkQ && MpMisc.pSpkQ->numMsgs() >= skip) skip = 0;
+
+      if (MpMisc.pSpkQ->numMsgs() >= skip)
+      {
+         skip = 0;
+         if (MpMisc.pSpkQ->receive((OsMsg*&)msg, OsTime::NO_WAIT_TIME) == OS_SUCCESS)
+         {
+            ob = (MpAudioBufPtr)(msg->getBuffer());
+            msg->releaseMsg();
+         }
+//         osPrintf("pSpkQ message received\n");
+      } else {
+//         osPrintf("pSpkQ message skipped\n");
+      }
    }
 
-   if (NULL == ob) {
-      ob = conceal(prev, concealed);
-      concealed++;
-   } else {
-      concealed = 0;
+   if (!ob.isValid()) {
+      ob = MpMisc.mpFgSilence;
    }
 
    if (doAlloc) {
@@ -311,9 +276,7 @@ static WAVEHDR* outPrePrep(int n, DWORD bufLen)
    pWH->dwLoops = 0;
    pWH->lpNext = 0;
    pWH->reserved = 0;
-   memcpy(pWH->lpData, MpBuf_getSamples(ob), bufLen);
-   MpBuf_delRef(prev);
-   prev = ob;
+   memcpy(pWH->lpData, ob->getSamples(), bufLen);
    return pWH;
 }
 
@@ -535,6 +498,7 @@ unsigned int __stdcall SpkrThread(LPVOID Unused)
     OsStatus res;
     static bool bRunning = false ;
     HWAVEOUT hOut = NULL;
+    UINT    timerId=0;
 
     // Verify that only 1 instance of the MicThread is running
     if (bRunning) 
@@ -575,7 +539,7 @@ unsigned int __stdcall SpkrThread(LPVOID Unused)
     {
         // NOT using a sound card
         // Set up a 10ms timer to call back to this routine
-        timeSetEvent(10, 0, TimerCallbackProc, GetCurrentThreadId(), TIME_PERIODIC);
+        timerId = timeSetEvent(10, 0, TimerCallbackProc, GetCurrentThreadId(), TIME_PERIODIC);
     }
 
     played = 0;   
@@ -606,15 +570,58 @@ unsigned int __stdcall SpkrThread(LPVOID Unused)
                 res = MpMediaTask::signalFrameStart();
                 switch (res) 
                 {
-                    case OS_SUCCESS:
+                   case OS_SUCCESS:
                         frameCount++;
                         break;
-                    case OS_LIMIT_REACHED:
-                    case OS_WAIT_TIMEOUT:
-                    case OS_ALREADY_SIGNALED:
-                    default:
-                        // Should bump missed frame statistic
-                        break;
+#ifdef DEBUG_WINDOZE /* [ */
+                   case OS_LIMIT_REACHED:
+                      // Should bump missed frame statistic
+                      osPrintf(" Frame %d: OS_LIMIT_REACHED\n", frameCount);
+                      break;
+                   case OS_WAIT_TIMEOUT:
+                      // Should bump missed frame statistic
+                      osPrintf(" Frame %d: OS_WAIT_TIMEOUT\n", frameCount);
+                      break;
+                   case OS_ALREADY_SIGNALED:
+                      // Should bump missed frame statistic
+                      osPrintf(" Frame %d: OS_ALREADY_SIGNALED\n", frameCount);
+                      break;
+                   default:
+                      osPrintf("Frame %d, signalFrameStart() returned %d\n",
+                               frameCount, res);
+                      break;
+#else /* DEBUG_WINDOZE ] [ */
+                   case OS_LIMIT_REACHED:
+                   case OS_WAIT_TIMEOUT:
+                   case OS_ALREADY_SIGNALED:
+                   default:
+                      // Should bump missed frame statistic
+                      break;
+#endif /* DEBUG_WINDOZE ] */
+                }
+                // Check for a changed speaker device
+                if (DmaTask::isOutputDeviceChanged())
+                {                    
+                    DmaTask::clearOutputDeviceChanged() ;
+                    closeSpeakerDevices() ;
+                    if (audioOutH)
+                    {
+                        waveOutReset(audioOutH);
+                    }
+                    if (audioOutCallH)
+                    {
+                        waveOutReset(audioOutCallH);
+                    }
+                    //Sleep(100);
+                    // Kill the hearbeat timer if it exists
+                    if (timerId>0)
+                        timeKillEvent(timerId);
+                    if (openSpeakerDevices(pWH, hOut))
+                    {
+                        // Open failed - so start the heartbeat timer
+                        timerId = timeSetEvent(10, 0, TimerCallbackProc, GetCurrentThreadId(), TIME_PERIODIC);                    
+                    }
+                    continue ;                    
                 }
                 break ;
             case WOM_DONE:
@@ -647,7 +654,9 @@ unsigned int __stdcall SpkrThread(LPVOID Unused)
                     closeSpeakerDevices() ;
                     if (openSpeakerDevices(pWH, hOut))
                     {
-                        timeSetEvent(10, 0, TimerCallbackProc, GetCurrentThreadId(), TIME_PERIODIC);                    
+                        if (timerId>0)
+                            timeKillEvent(timerId);
+                        timerId = timeSetEvent(10, 0, TimerCallbackProc, GetCurrentThreadId(), TIME_PERIODIC);                    
                     }
                     continue ;                    
                 }
@@ -681,10 +690,11 @@ unsigned int __stdcall SpkrThread(LPVOID Unused)
 
                 switch (res) 
                 {
+#ifdef DEBUG_WINDOZE /* [ */
                 case OS_SUCCESS:
                     frameCount++;
+                    osPrintf(" Frame %d: OS_SUCCESSFUL\n", frameCount);
                     break;
-#ifdef DEBUG_WINDOZE /* [ */
                 case OS_LIMIT_REACHED:
                     // Should bump missed frame statistic
                     osPrintf(" Frame %d: OS_LIMIT_REACHED\n", frameCount);
@@ -702,6 +712,9 @@ unsigned int __stdcall SpkrThread(LPVOID Unused)
                             frameCount, res);
                     break;
 #else /* DEBUG_WINDOZE ] [ */
+                case OS_SUCCESS:
+                    frameCount++;
+                    break;
                 case OS_LIMIT_REACHED:
                 case OS_WAIT_TIMEOUT:
                 case OS_ALREADY_SIGNALED:
@@ -730,6 +743,10 @@ unsigned int __stdcall SpkrThread(LPVOID Unused)
         // record our last ringer state
         sLastRingerEnabled = DmaTask::isRingerEnabled();
     }
+
+    // Stop heartbeat timer if it exist
+    if (timerId>0)
+        timeKillEvent(timerId);
 
     closeSpeakerDevices() ;
 

@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -550,7 +553,7 @@ typedef enum
  */
 typedef enum
 {
-    KEEPALIVE_CAUSE_NORMAL,
+    KEEPALIVE_CAUSE_NORMAL
 } SIPX_KEEPALIVE_CAUSE ;
 
 

@@ -1,3 +1,13 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// $$
+///////////////////////////////////////////////////////////////////////////////
+
 #ifndef SYSDEP_H
 #define SYSDEP_H
 
@@ -114,14 +124,6 @@ do { \
 
 #ifndef stat
 #define stat _stat
-#endif
-
-#ifndef strcasecmp
-#define strcasecmp _stricmp
-#endif
-
-#ifndef strncasecmp
-#define strncasecmp _strnicmp
 #endif
 
 #ifndef snprintf

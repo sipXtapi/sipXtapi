@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -28,9 +31,22 @@
 class OsNotification;
 
 // DEFINES
+#define IP_HEADER_SIZE  20    ///< Size of IP packet header
+#define UDP_HEADER_SIZE 8     ///< Size of UDP packet header
+#define ETHERNET_MTU    1500  ///< Maximum Transmission Unit for Ethernet frame
+#define UDP_MTU  (ETHERNET_MTU - IP_HEADER_SIZE - UDP_HEADER_SIZE)
+                              ///< Maximum Transmission Unit for UDP packet.
+#define RTP_MTU  (UDP_MTU-12) ///< Maximum Transmission Unit for RTP packet.
+#define RTCP_MTU (UDP_MTU-12)
+
 #define CODEC_TYPE_PCMU 0
+#define CODEC_TYPE_GSM  3
 #define CODEC_TYPE_PCMA 8
 #define CODEC_TYPE_L16  11
+#define CODEC_TYPE_SPEEX    110
+#define CODEC_TYPE_SPEEX_5  111
+#define CODEC_TYPE_SPEEX_15 112
+#define CODEC_TYPE_SPEEX_24 113
 
 #define RTP_DIR_IN  1
 #define RTP_DIR_OUT 2
@@ -50,17 +66,9 @@ class OsConnectionSocket;
 class OsServerSocket;
 class OsSocket;
 
-struct rtpHeader {
-        UCHAR vpxcc;
-        UCHAR mpt;
-        USHORT seq;      /* Big Endian! */
-        UINT timestamp;  /* Big Endian! */
-        UINT ssrc;       /* Big Endian, but random */
-};
-
 struct rtpSession {
-        UCHAR vpxcc; /* Usually: ((2<<6) | (0<<5) | (0<<4) | 0) */
-        UCHAR mpt;   /* Usually: ((0<<7) | 0) */
+        UCHAR vpxcc; ///< Usually: ((2<<6) | (0<<5) | (0<<4) | 0)
+        UCHAR mpt;   ///< Usually: ((0<<7) | 0)
         USHORT seq;
         UINT timestamp;
         UINT ssrc;
@@ -85,21 +93,13 @@ typedef struct __MprRtcpStats* MprRtcpStatsPtr;
 #endif /* INCLUDE_RTCP ] */
 
 typedef struct rtpSession *rtpHandle;
-typedef struct rtcpSession *rtcpHandle;
 
 // FORWARD DECLARATIONS
 class MprFromNet;
 
 extern UINT rand_timer32(void);
 extern rtpHandle StartRtpSession(OsSocket* socket, int direction, char type);
-extern OsStatus setRtpType(rtpHandle h, int codecType);
-extern OsStatus setRtpSocket(rtpHandle h, OsSocket* socket);
-extern OsSocket* getRtpSocket(rtpHandle h);
 extern void FinishRtpSession(rtpHandle h);
-extern rtcpHandle StartRtcpSession(int direction);
-extern OsStatus setRtcpSocket(rtcpHandle h, OsSocket* socket);
-extern OsSocket* getRtcpSocket(rtcpHandle h);
-extern void FinishRtcpSession(rtcpHandle h);
 
 extern OsStatus startNetInTask();
 extern OsStatus shutdownNetInTask();
@@ -113,18 +113,20 @@ class NetInTask : public OsTask
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   static const int DEF_NET_IN_TASK_PRIORITY;      // default task priority
-   static const int DEF_NET_IN_TASK_OPTIONS;       // default task options
-   static const int DEF_NET_IN_TASK_STACKSIZE;     // default task stacksize
+   static const int DEF_NET_IN_TASK_PRIORITY;      ///< default task priority
+   static const int DEF_NET_IN_TASK_OPTIONS;       ///< default task options
+   static const int DEF_NET_IN_TASK_STACKSIZE;     ///< default task stacksize
 
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
 
+     /// Return a pointer to the NetIn task, creating it if necessary
    static NetInTask* getNetInTask();
-     //:Return a pointer to the NetIn task, creating it if necessary
 
+     /// Destructor
    virtual
    ~NetInTask();
-     //:Destructor
 
    int getWriteFD();
    
@@ -132,42 +134,52 @@ public:
    void shutdownSockets();   
 
 /* ============================ MANIPULATORS ============================== */
-         virtual int run(void* pArg);
+///@name Manipulators
+//@{
+
+   virtual int run(void* pArg);
+
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
    OsConnectionSocket* getWriteSocket(void);
    OsConnectionSocket* getReadSocket(void);
    void openWriteFD(void);
    static OsRWMutex& getLockObj() { return sLock; }
 
+//@}
+
 /* ============================ INQUIRY =================================== */
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
+     /// Default constructor
    NetInTask(
-      int prio    = DEF_NET_IN_TASK_PRIORITY,      // default task priority
-      int options = DEF_NET_IN_TASK_OPTIONS,       // default task options
-      int stack   = DEF_NET_IN_TASK_STACKSIZE);    // default task stacksize
-     //:Default constructor
+      int prio    = DEF_NET_IN_TASK_PRIORITY,      ///< default task priority
+      int options = DEF_NET_IN_TASK_OPTIONS,       ///< default task options
+      int stack   = DEF_NET_IN_TASK_STACKSIZE);    ///< default task stacksize
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
    // Static data members used to enforce Singleton behavior
-   static NetInTask* spInstance;    // pointer to the single instance of
-                                    //  the MpNetInTask class
-   static OsRWMutex     sLock;         // semaphore used to ensure that there
-                                    //  is only one instance of this class
+   static NetInTask* spInstance;    ///< pointer to the single instance of
+                                    ///<  the MpNetInTask class
+   static OsRWMutex     sLock;      ///< semaphore used to ensure that there
+                                    ///<  is only one instance of this class
 
    OsConnectionSocket* mpWriteSocket;
    OsConnectionSocket* mpReadSocket;
-   int               mCmdPort;      // internal socket port number
+   int               mCmdPort;      ///< internal socket port number
 
+     /// Copy constructor (not implemented for this task)
    NetInTask(const NetInTask& rNetInTask);
-     //:Copy constructor (not implemented for this task)
 
+     /// Assignment operator (not implemented for this task)
    NetInTask& operator=(const NetInTask& rhs);
-     //:Assignment operator (not implemented for this task)
 
 };
 

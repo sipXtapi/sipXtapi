@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -547,7 +550,7 @@ public:
            "2.1.4.0:8002,100,0.002,1,TCP\n" 
            "2.1.4.0:8003,10,0.093,1,UDP\n"
            "2.1.4.0:8004,1,0.225,1,TCP\n"
-           "" },
+           "" }
 
       };
          

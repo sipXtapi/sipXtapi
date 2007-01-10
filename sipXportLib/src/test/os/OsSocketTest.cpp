@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -101,6 +104,11 @@ public:
         {
             CPPUNIT_ASSERT_MESSAGE("server->isConnectionReady returned false", 0);
         }*/
+
+        // Now make client connection blocking.
+        // With non-blocking client server-to-client message test will fail
+        // on fast machines (say on Core 2 Duo processors).
+        client->makeBlocking();
 
         // Now make client connection blocking.
         // With non-blocking client server-to-client message test will fail

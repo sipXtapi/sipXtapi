@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -22,6 +25,8 @@
 #include "mp/MpFlowGraphMsg.h"
 #include "mp/MpResourceSortAlg.h"
 #include "mp/MpMediaTask.h"
+
+#include "mp/MpMisc.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -88,7 +93,7 @@ MpFlowGraphBase::~MpFlowGraphBase()
 // Returns OS_UNSPECIFIED if the addLink attempt failed for some other
 // reason.
 OsStatus MpFlowGraphBase::addLink(MpResource& rFrom, int outPortIdx,
-                              MpResource& rTo,   int inPortIdx)
+                                  MpResource& rTo,   int inPortIdx)
 {
    OsWriteLock    lock(mRWMutex);
 
@@ -548,31 +553,31 @@ void MpFlowGraphBase::flowGraphInfo(MpFlowGraphBase* pFlowGraph)
       }
    }
    if (NULL == pFlowGraph) {
-      printf("No flowGraph to display!\n");
+      osPrintf("No flowGraph to display!\n");
       return;
    }
-   printf("\nFlow graph information for %p\n", pFlowGraph);
-   printf("  State:                    %s\n",
+   osPrintf("\nFlow graph information for %p\n", pFlowGraph);
+   osPrintf("  State:                    %s\n",
              pFlowGraph->isStarted() ? "STARTED" : "STOPPED");
 
-   printf("  Processed Frame Count:    %d\n",
+   osPrintf("  Processed Frame Count:    %d\n",
              pFlowGraph->numFramesProcessed());
 
-   printf("  Samples Per Frame:        %d\n",
+   osPrintf("  Samples Per Frame:        %d\n",
              pFlowGraph->getSamplesPerFrame());
 
-   printf("  Samples Per Second:       %d\n",
+   osPrintf("  Samples Per Second:       %d\n",
              pFlowGraph->getSamplesPerSec());
 
    pResource = pFlowGraph->mpResourceInProcess;
    if (pResource == NULL)
-      printf("  Resource Being Processed: NULL\n");
+      osPrintf("  Resource Being Processed: NULL\n");
    else
-      printf("  Resource Being Processed: %p\n", pResource);
+      osPrintf("  Resource Being Processed: %p\n", pResource);
 
-   printf("\n  Resource Information\n");
-   printf("    Resources:   %d\n", pFlowGraph->numResources());
-   printf("    Links: %d\n", pFlowGraph->numLinks());
+   osPrintf("\n  Resource Information\n");
+   osPrintf("    Resources:   %d\n", pFlowGraph->numResources());
+   osPrintf("    Links: %d\n", pFlowGraph->numLinks());
    for (i=0; i < pFlowGraph->mResourceCnt; i++)
    {
       pResource = pFlowGraph->mUnsorted[i];

@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -49,10 +52,10 @@ OsMsgPool::OsMsgPool(const char* name,
    mpName = new UtlString((NULL == name) ? "Unknown" : name);
 
    mInitialCount = (initialCount > 1) ? initialCount : 10;
-   mSoftLimit = (initialCount > softLimit) ? initialCount : softLimit;
-   mHardLimit = (softLimit > hardLimit) ? softLimit : hardLimit;
+   mSoftLimit = (mInitialCount > softLimit) ? mInitialCount : softLimit;
+   mHardLimit = (mSoftLimit > hardLimit) ? mSoftLimit : hardLimit;
 
-   if (mHardLimit > initialCount) {
+   if (mHardLimit > mInitialCount) {
       assert(mIncrement>0);
       mIncrement = (mIncrement>0) ? mIncrement : 1;
    }

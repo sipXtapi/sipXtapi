@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -65,7 +68,7 @@ GIPS_Word16 G729FIX_GIPS_decode(G729_decinst_t *G729dec_inst,
 // APPLICATION INCLUDES
 #include "mp/MpdGIPSG729ab.h"
 #include "mp/MprDejitter.h"
-#include "mp/MpConnection.h"
+#include "mp/MpAudioConnection.h"
 #include "mp/GIPS/G729Interface.h"
 #include "mp/GIPS/GIPS_API.h"
 
@@ -112,7 +115,7 @@ MpdGIPSG729ab::~MpdGIPSG729ab()
    freeDecode();
 }
 
-OsStatus MpdGIPSG729ab::initDecode(MpConnection* pConnection)
+OsStatus MpdGIPSG729ab::initDecode(MpAudioConnection* pConnection)
 {
    int res;
 
@@ -159,7 +162,7 @@ OsStatus MpdGIPSG729ab::createDecoder()
    return OS_SUCCESS;
 }
 
-int MpdGIPSG729ab::decodeIn(MpBufPtr pPacket)
+int MpdGIPSG729ab::decodeIn(const MpBufPtr pPacket)
 {
    int thisLen;
 

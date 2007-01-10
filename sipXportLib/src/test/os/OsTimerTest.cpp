@@ -277,7 +277,7 @@ public:
               OSTIMETOLERANCE },
             { "Test one shot after when time is an integer > 1", 3, 0, OSTIMETOLERANCE },
             { "Test one shot after when time is greater than 0 but less than 1", 0, 252,
-              OSTIMETOLERANCE },
+              OSTIMETOLERANCE }
         } ;
  
         testCount = sizeof(testData)/ sizeof(testData[0]) ; 

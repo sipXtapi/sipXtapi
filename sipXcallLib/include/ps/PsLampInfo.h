@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -39,7 +42,7 @@ public:
       FLASH          = 0x02,     // slow on and off
       FLUTTER        = 0x04,     // fast on and off
       BROKEN_FLUTTER = 0x08,     // superposition of flash and flutter
-      WINK           = 0x10,
+      WINK           = 0x10
    };
 
 /* ============================ CREATORS ================================== */

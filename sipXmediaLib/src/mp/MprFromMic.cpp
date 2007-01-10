@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -33,7 +36,6 @@
 #endif
 
 // APPLICATION INCLUDES
-#include "mp/MpMisc.h"
 #include "mp/MpBuf.h"
 #include "mp/MprFromMic.h"
 #include "mp/MpBufferMsg.h"
@@ -56,15 +58,15 @@ MICDATAHOOK MprFromMic::s_fnMicDataHook = 0 ;
 
 // Constructor
 MprFromMic::MprFromMic(const UtlString& rName,
-                           int samplesPerFrame, int samplesPerSec)
-#ifdef  FLOWGRAPH_DOES_RESAMPLING /* [ */
-:  MpResource(rName, 0, 0, 2, 2, samplesPerFrame, samplesPerSec),
-#else /* FLOWGRAPH_DOES_RESAMPLING ] [ */
-:  MpResource(rName, 0, 0, 1, 2, samplesPerFrame, samplesPerSec),
-#endif /* FLOWGRAPH_DOES_RESAMPLING ] */
-   mpDspResamp(0),
-   mNumEmpties(0),
-   mNumFrames(0)
+                       int samplesPerFrame,
+                       int samplesPerSec,
+                       OsMsgQ *pMicQ)
+: MpAudioResource(rName, 0, 1, 1, 1, samplesPerFrame, samplesPerSec)
+, mpMicQ(pMicQ)
+, mNumFrames(0)
+#ifndef REAL_SILENCE_DETECTION
+, MinVoiceEnergy(0)
+#endif
 {
    Init_highpass_filter800();
 }
@@ -86,156 +88,147 @@ MprFromMic::~MprFromMic()
 
 
 UtlBoolean MprFromMic::doProcessFrame(MpBufPtr inBufs[],
-                                     MpBufPtr outBufs[],
-                                     int inBufsSize,
-                                     int outBufsSize,
-                                     UtlBoolean isEnabled,
-                                     int samplesPerFrame,
-                                     int samplesPerSecond)
+                                      MpBufPtr outBufs[],
+                                      int inBufsSize,
+                                      int outBufsSize,
+                                      UtlBoolean isEnabled,
+                                      int samplesPerFrame,
+                                      int samplesPerSecond)
 {
-	MpBufPtr        out = NULL ;
-	MpBufferMsg*    pMsg;
+   MpAudioBufPtr   out;
+   MpBufferMsg*    pMsg;
 
-	if (0 == outBufsSize) 
-	{
-		return FALSE;
-	}
-	
+   // We need one output buffer
+   if (outBufsSize != 1) 
+      return FALSE;
 
-	// Clear the the number of empty frames every 512 frames
-	mNumFrames++;
-	if (0 == (mNumFrames & 0x1ff)) 
-	{
-		mNumEmpties = 0;
-	}
+   // Don't waste the time if output is not connected
+   if (!isOutputConnected(0))
+       return TRUE;
 
-	if (isEnabled) 
-	{
-		// If the microphone queue (holds unprocessed mic data) has more then
-		// the max_mic_buffers threshold, drain the queue until in range)
-		OsMsgQ* pMicOutQ;
-		pMicOutQ = MpMisc.pMicQ;
-		while (pMicOutQ && MpMisc.max_mic_buffers < pMicOutQ->numMsgs()) 
-		{
-	        if (OS_SUCCESS == pMicOutQ->receive((OsMsg*&) pMsg,
-					OsTime::NO_WAIT_TIME)) 
-			{
-				MpBuf_delRef(pMsg->getTag());
-				MpBuf_delRef(pMsg->getTag(1));
-				pMsg->releaseMsg();
-			}
-		}
+   // One more frame processed
+   mNumFrames++;
 
-		if (pMicOutQ && pMicOutQ->numMsgs() <= 0)
-		{
-//			osPrintf("MprFromMic: No data available (total frames=%d, starved frames=%d)\n", 
-//					mNumFrames, mNumEmpties);
-		}
-		else
-		{
-			if (pMicOutQ && OS_SUCCESS == pMicOutQ->receive((OsMsg*&) pMsg, 
-					OsTime::NO_WAIT_TIME)) 
-			{
-				out = pMsg->getTag();
-				pMsg->releaseMsg();
-				
-				if (NULL != out) 
-				{
-#ifdef REAL_SILENCE_DETECTION /* [ */
-					Sample* shpTmpFrame;
-					MpBufPtr tpBuf;
-					int n;
-#endif /* REAL_SILENCE_DETECTION ] */
+   if (isEnabled) 
+   {
+      // If the microphone queue (holds unprocessed mic data) has more then
+      // the max_mic_buffers threshold, drain the queue until in range)
+      while (mpMicQ && mpMicQ->numMsgs() > MpMisc.max_mic_buffers) 
+      {
+         if (mpMicQ->receive((OsMsg*&)pMsg, OsTime::NO_WAIT_TIME) == OS_SUCCESS) 
+         {
+            pMsg->releaseMsg();
+                osPrintf( "mpMicQ drained. %d msgs in queue now\n"
+                        , mpMicQ->numMsgs());
+         }
+      }
 
-					switch(MpBuf_getSpeech(out)) 
-					{
-						case MP_SPEECH_TONE:
-							break;
-						case MP_SPEECH_MUTED:
-							MpBuf_setSpeech(out, MP_SPEECH_SILENT);
-							break;
-						default:
-#ifdef REAL_SILENCE_DETECTION /* [ */
-							Sample *shpSamples;
-							n = MpBuf_getNumSamples(out);
-							shpSamples = MpBuf_getSamples(out);
-
-							tpBuf = MpBuf_getBuf(MpMisc.UcbPool, n, 0, MP_FMT_T12);
-							assert(NULL != tpBuf);
-							shpTmpFrame = MpBuf_getSamples(tpBuf);
-							highpass_filter800(shpSamples, shpTmpFrame, n);
-
-							if(0 == speech_detected(shpTmpFrame,n)) 
-							{
-								MpBuf_setSpeech(out, MP_SPEECH_SILENT);
-							}
-							else 
-							{
-								MpBuf_setSpeech(out, MP_SPEECH_ACTIVE);
-							}
-							MpBuf_delRef(tpBuf);
-#else /* REAL_SILENCE_DETECTION ] [ */
-							// 24 April 2001 (HZM)  I am disabling this because it takes
-							// too long to recognize the beginning of a talk spurt, and
-							// causes the bridge mixer to drop the start of each word.																
-							MpBuf_isActiveAudio(out);
-#endif /* REAL_SILENCE_DETECTION ] */
-							break;
-					}
-				}
-			}
-		} 
+      if (mpMicQ && mpMicQ->numMsgs() > 0)
+      {
+         if (mpMicQ->receive((OsMsg*&)pMsg, OsTime::NO_WAIT_TIME) == OS_SUCCESS) 
+         {
+//                osPrintf( "mpMicQ->receive() succeed, %d msgs in queue\n"
+//                        , mpMicQ->numMsgs());
+            out = pMsg->getBuffer();
+            pMsg->releaseMsg();
+         }
+      }
+      else
+      {
+//         osPrintf("MprFromMic: No data available (total frames=%d)\n", 
+//               mNumFrames);
+      }
 
 #ifdef INSERT_SAWTOOTH /* [ */
-		if (NULL == out)
-		{
-			out = MpBuf_getBuf(MpMisc.UcbPool, MpMisc.frameSamples, 0, MP_FMT_T12);
-		}
-		MpBuf_insertSawTooth(out);
-		MpBuf_setSpeech(out, MP_SPEECH_ACTIVE);
+      if (!out.isValid())
+      {
+         out = MpMisc.RawAudioPool->getBuffer();
+            if (!out.isValid())
+               return FALSE;
+         out->setSamplesNumber(MpMisc.frameSamples);
+      }
+      MpBuf_insertSawTooth(out);
+      out->setSpeechType(MpAudioBuf::MP_SPEECH_ACTIVE);
 #endif /* INSERT_SAWTOOTH ] */
 
-		if (s_fnMicDataHook)
-		{
-			// 
-			// Allow an external identity to source microphone data.  Ideally,
+      if (s_fnMicDataHook)
+      {
+         // 
+         // Allow an external identity to source microphone data.  Ideally,
             // this should probably become a different resource, but abstracting
             // a new CallFlowGraph is a lot of work.
             //
 
-			if (NULL == out) 
-			{
-				out = MpBuf_getBuf(MpMisc.UcbPool, MpMisc.frameSamples, 0, MP_FMT_T12);
-			}
-			
-			if (NULL != out) 
-			{
-	            int n = 0;
-				Sample* s = NULL;
+         if (!out.isValid())
+         {
+            out = MpMisc.RawAudioPool->getBuffer();
+                if (!out.isValid())
+                   return FALSE;
+            out->setSamplesNumber(MpMisc.frameSamples);
+         }
+         
+         if (out.isValid()) 
+         {
+               int n = 0;
+            MpAudioSample* s = NULL;
 
-				s = MpBuf_getSamples(out);
-				n = MpBuf_getNumSamples(out);
-				
-				s_fnMicDataHook(n, s) ;
+            s = out->getSamples();
+            n = out->getSamplesNumber();
+            
+            s_fnMicDataHook(n, s) ;
 
-				MpBuf_setSpeech(out, MP_SPEECH_UNKNOWN);
-				MpBuf_isActiveAudio(out);
-			}
-		}
+            out->setSpeechType(MpAudioBuf::MP_SPEECH_UNKNOWN);
+         }
+      }
 
-		if (NULL == out)
-		{
-			out = MpBuf_getFgSilence();
-		}
-	}
+      if (out.isValid())
+      {
+         switch(out->getSpeechType()) 
+         {
+            case MpAudioBuf::MP_SPEECH_TONE:
+               break;
+            case MpAudioBuf::MP_SPEECH_MUTED:
+               out->setSpeechType(MpAudioBuf::MP_SPEECH_SILENT);
+               break;
+            default:
+               {
+                  MpAudioSample* shpTmpFrame;
+                  MpAudioBufPtr tpBuf;
 
-	*outBufs = out;
+                  MpAudioSample *shpSamples;
+                  int n = out->getSamplesNumber();
+                  shpSamples = out->getSamples();
 
-	return TRUE;
+                  tpBuf = MpMisc.RawAudioPool->getBuffer();
+                  if (!out.isValid())
+                     return FALSE;
+                  tpBuf->setSamplesNumber(n);
+                  assert(tpBuf.isValid());
+                  shpTmpFrame = tpBuf->getSamples();
+                  highpass_filter800(shpSamples, shpTmpFrame, n);
+
+                  out->setSpeechType(speech_detected(shpTmpFrame,n));
+               }
+               break;
+         }
+      }
+    }
+    else
+    {
+        out = inBufs[0];
+    }
+
+   outBufs[0] = out;
+
+   return TRUE;
 }
 
-
 /* ============================ FUNCTIONS ================================= */
+
+// 24 April 2001 (HZM)  I am disabling this because it takes
+// too long to recognize the beginning of a talk spurt, and
+// causes the bridge mixer to drop the start of each word.                                 
+#ifdef REAL_SILENCE_DETECTION /* [ */
 
 static const short         shLambda = 32765;        // 0.9999 in Q15
 static const short         shLambdaC =    3;        // 0.0001 in Q15
@@ -247,7 +240,7 @@ static const short         shLambdaSf = 32702;      // 0.998 in Q15
 static const short         shLambdaCSf =   67;      // 0.002 in Q15
 
 int FromMicThresh = 3;
-short MprFromMic::speech_detected(Sample* shpSample, int iLength)
+MpAudioBuf::SpeechType MprFromMic::speech_detected(MpAudioSample* shpSample, int iLength)
 {
    int i;
    static Word64S  llLTPower = 8000L;
@@ -306,12 +299,37 @@ short MprFromMic::speech_detected(Sample* shpSample, int iLength)
    }
    if(iSpeechHangOver) {
       iSpeechHangOver--;
-      return (1);
+      return MpAudioBuf::MP_SPEECH_ACTIVE;
    }
    else  {
-      return (0);     // speech detected
+      return MpAudioBuf::MP_SPEECH_SILENT;     // speech detected
    }
 }
+
+#else /* REAL_SILENCE_DETECTION ] [ */
+
+MpAudioBuf::SpeechType MprFromMic::speech_detected( MpAudioSample* shpSample
+                                                  , int iLength)
+{
+   int i;
+   MpAudioSample prev;
+   unsigned long energy = 0;
+   unsigned long t;
+
+   i = 0;
+   while (i < iLength) {
+      i++;
+      prev = *shpSample++;
+      t = (prev - *shpSample) >> 1;
+      energy += t * t;
+      if (energy >= MinVoiceEnergy)
+          return MpAudioBuf::MP_SPEECH_ACTIVE;
+   }
+
+   return MpAudioBuf::MP_SPEECH_SILENT;
+}
+
+#endif /* REAL_SILENCE_DETECTION ] */
 
 static const int             HP800_N = 10;
 static const int             HP800_N_HALF = HP800_N/2 + 1;
@@ -368,26 +386,3 @@ void MprFromMic::highpass_filter800(
    }
    return;
 }
-
-#ifdef HF_ANALYSIS
-   static unsigned long ulStrength = 1000L;
-   static unsigned long ulStrength1 = 1000L;
-   HF_HF(src, (samples<<3), &ulStrength, &ulStrength1);
-
-   int kkk = ulStrength1/ulStrength;
-#if 0
-   if (ulStrength > 3000L && ulStrength < 6000L) {
-      if(kkk < 16) osPrintf("NE ");
-   }
-#endif
-   if (ulStrength >= 6000L && ulStrength < 9000L) {
-      if(kkk < 12) osPrintf("NE1 ");
-   }
-   else if (ulStrength >= 9000L) {
-      if( kkk < 9) osPrintf("NE2 ");
-   }
-   if(iShowHFFlag > 0) {
-      osPrintf("%6d %6d %4d\n", ulStrength,ulStrength1,samples);
-      iShowHFFlag--;
-   }
-#endif /* HF_ANALYSIS */

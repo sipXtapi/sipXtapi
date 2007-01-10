@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -36,8 +39,6 @@
 #define MIN_SPEECH_ENERGY_THRESHOLD 20000
 #define MAX_SPEECH_ENERGY_THRESHOLD 70000
 
-static const int NO_WAIT = 0;
-
 // STATIC VARIABLE INITIALIZATIONS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -47,7 +48,7 @@ static const int NO_WAIT = 0;
 // Constructor
 MprRecorder::MprRecorder(const UtlString& rName,
                              int samplesPerFrame, int samplesPerSec)
-:  MpResource(rName, 1, 1, 0, 1, samplesPerFrame, samplesPerSec),
+:  MpAudioResource(rName, 1, 1, 0, 1, samplesPerFrame, samplesPerSec),
    mTermKey(-1),
    mFileDescriptor(-1),
    mTotalBytesWritten(0),
@@ -161,7 +162,7 @@ UtlBoolean MprRecorder::disable(Completion code)
       OsWriteLock lock(mEventMutex); 
       if (mpEvent != NULL)
       {
-         mpEvent = NULL;  // event may be released, do not signal the event any more, 
+         mpEvent = NULL;  // event may be released, do not signal the event any more
       }
 
       if (mFileDescriptor > -1) 
@@ -215,7 +216,7 @@ UtlBoolean MprRecorder::termDtmf(int currentToneKey)
 /* ============================ ACCESSORS ================================= */
 
 void MprRecorder::getRecorderStats(double& nBytes,
-                                 double& nSamples, Completion& status)
+                                   double& nSamples, Completion& status)
 {
    nBytes = mTotalBytesWritten;
    nSamples = mTotalSamplesWritten;
@@ -268,20 +269,15 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
 {
    int numBytes = 0;
    int numSamples = 0;
-   MpBufPtr in = NULL;
-   Sample* input;
+   MpAudioBufPtr in;
+   MpAudioSample* input;
 
-   //try to pass along first input
+   // try to pass along first input
    if (inBufsSize > 0) 
-   {
-      in = *inBufs;
-   }
+      in.swap(inBufs[0]);
 
    if (numOutputs() > 0) 
-   {
-      if (inBufsSize > 0) *inBufs = NULL;
-      *outBufs = in;
-   }
+      outBufs[0] = in;
 
    if (!isEnabled) {
       return TRUE;
@@ -302,36 +298,33 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
 
    // maximum record time reached or final silence timeout.
    if ((0 >= mFramesToRecord--) || (mSilenceLength <= mConsecutiveInactive)) {
-      // Get previous MinVoiceEnergy for debug printouts, and reset it to MIN_SPEECH_ENERGY_THRESHOLD.
-      unsigned long prevValue = MpBuf_setMVE(MIN_SPEECH_ENERGY_THRESHOLD); 
 
       OsSysLog::add(FAC_MP, PRI_INFO,
          "MprRecorder::doProcessFrame to disable recording because"
          " mFramesToRecord=%d, mStatus=%d mSilenceLength=%d,"
-         " mConsecutiveInactive=%d, MinVoiceEnergy=%lu", mFramesToRecord,
-         mStatus, mSilenceLength, mConsecutiveInactive, prevValue);
+         " mConsecutiveInactive=%d", mFramesToRecord,
+         mStatus, mSilenceLength, mConsecutiveInactive);
       disable(RECORD_FINISHED);
    } else {
 
-      int bytesWritten = 0;
-
       //now write the buffer out
 
-      if (NULL == in) {
-         in = MpBuf_getFgSilence();
-      } else {
-        MpBuf_addRef(in);
+      int bytesWritten = 0;
+
+      // Write silence if no input
+      if (!in.isValid()) {
+         in = MpMisc.mpFgSilence;
       }
 
-      if (MpBuf_isActiveAudio(in)) {
+      if (in->isActiveAudio()) {
         mConsecutiveInactive = 0;
       } else {
         mConsecutiveInactive++;
       }
 
-      input = MpBuf_getSamples(in);
-      numSamples = MpBuf_getNumSamples(in);
-      numBytes = numSamples * sizeof(Sample);
+      input = in->getSamples();
+      numSamples = in->getSamplesNumber();
+      numBytes = numSamples * sizeof(MpAudioSample);
       if (mFileDescriptor > -1)
         bytesWritten = write(mFileDescriptor, (char *)input, numBytes);
    
@@ -341,7 +334,6 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
          mTotalBytesWritten += numBytes;
          mTotalSamplesWritten += samplesPerFrame;
       }
-      MpBuf_delRef(in);
    }
    return TRUE;
 }
@@ -429,8 +421,7 @@ UtlBoolean MprRecorder::handleSetup(int file, int timeMS, int silenceLength, OsP
       mSilenceLength = 5000 / iMsPerFrame; /*5 seconds */
    }
 
-   unsigned long prevValue = MpBuf_setMVE(MIN_SPEECH_ENERGY_THRESHOLD); // any energy lower than this will be regarded as silence
-   OsSysLog::add(FAC_MP, PRI_INFO, "MprRecorder::handleSetup, set MinVoiceEnergy to %d, was %lu\n", MIN_SPEECH_ENERGY_THRESHOLD, prevValue);
+   OsSysLog::add(FAC_MP, PRI_INFO, "MprRecorder::handleSetup\n");
 
    mFileDescriptor = file;
 
@@ -486,7 +477,7 @@ UtlBoolean MprRecorder::handleMessage(MpFlowGraphMsg& rMsg)
       return handleStop();
       break;
    }
-   return MpResource::handleMessage(rMsg);
+   return MpAudioResource::handleMessage(rMsg);
 }
 
 /* ============================ FUNCTIONS ================================= */

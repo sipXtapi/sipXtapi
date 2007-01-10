@@ -1,16 +1,16 @@
-// 
-// 
-// Copyright (C) 2005-2006 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
 
 
 // SYSTEM INCLUDES
@@ -54,47 +54,27 @@ int comfortNoise(int Flag) {
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
-
 // CONSTANTS
-static const int NO_WAIT = 0;
-
 // STATIC VARIABLE INITIALIZATIONS
 TOSPEAKERHOOK MprToSpkr::s_fnToSpeakerHook = NULL ;
 
 static const int DEF_INIT_VOL = 363188;
 static const int DEF_VOL_STEP = 27500; // approx. 2dB
 
-int MprToSpkr::slInitAtten = 32768;
 int MprToSpkr::slInitVol   = DEF_INIT_VOL;
 int MprToSpkr::slVolStep   = DEF_VOL_STEP;
-
-#define DEFAULT_RAMP_STEPS 256
-#ifndef TUNING_AUDIO_POP_DELAY /* [ */
-const
-#endif /* TUNING_AUDIO_POP_DELAY ] */
-   int MprToSpkr::sNRampSteps = DEFAULT_RAMP_STEPS;
-
-#ifdef TUNING_AUDIO_POP_DELAY /* [ */
-extern "C" {extern int RampSteps(int num);};
-
-int RampSteps(int num) {
-   return MprToSpkr::setRampSteps(num);
-}
-#endif /* TUNING_AUDIO_POP_DELAY ] */
 
 #ifdef DETECT_SPKR_OVERFLOW /* [ */
 int MprToSpkr::smStatsReports = 0;
 #endif /* DETECT_SPKR_OVERFLOW ] */
 
 #ifdef REIMPLEMENT_CLARISIS_EQ /* [ */
-#if defined(_WIN32) || defined(__pingtel_on_posix__) /* [ */
 int MprToSpkr::smClarisisHandsetSpeakerEq[EqFilterLen_ix] =  {
       0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 74,
       231, -6883, 32767, -6883, 231, 74
    };
-#endif /* WIN32 ] */
 #endif /* REIMPLEMENT_CLARISIS_EQ ] */
 
 
@@ -104,49 +84,42 @@ int MprToSpkr::smClarisisHandsetSpeakerEq[EqFilterLen_ix] =  {
 
 // Constructor
 MprToSpkr::MprToSpkr(const UtlString& rName,
-                           int samplesPerFrame, int samplesPerSec)
-:  MpResource(rName, 1, 1, 0, 2, samplesPerFrame, samplesPerSec),
-   mCurAttenDb(ATTEN_LOUDEST),
-   mMaxAttenDb(ATTEN_LOUDEST),
-   mulNoiseLevel(1000L),
+                     int samplesPerFrame,
+                     int samplesPerSec,
+                     OsMsgQ *pSpkQ,
+                     OsMsgQ *pEchoQ)
+:  MpAudioResource(rName, 1, 1, 0, 1, samplesPerFrame, samplesPerSec)
+,  mpSpkQ(pSpkQ)
+,  mpEchoQ(pEchoQ)
+,  mulNoiseLevel(1000L)
 #ifdef DETECT_SPKR_OVERFLOW /* [ */
-   mOverflowsIn(0),
-   mUnderflowsIn(0),
-   mOverflowsOut(0),
-   mUnderflowsOut(0),
-   mTotalSamples(0),
-   mMaxIn(0),
-   mMinIn(0),
-   mMaxOut(0),
-   mMinOut(0),
+,  mOverflowsIn(0)
+,  mUnderflowsIn(0)
+,  mOverflowsOut(0)
+,  mUnderflowsOut(0)
+,  mTotalSamples(0)
+,  mMaxIn(0)
+,  mMinIn(0)
+,  mMaxOut(0)
+,  mMinOut(0)
 #endif /* DETECT_SPKR_OVERFLOW ] */
 
 #ifdef REIMPLEMENT_CLARISIS_EQ /* [ */
-#if defined(_WIN32) || defined(__pingtel_on_posix__) /* [ */
-   mpEqSave_ix(NULL),
-   mpCurEq_ix(NULL),
-   mLastSpkr_ix(0),
-#endif /* WIN32 ] */
+,  mpEqSave_ix(NULL)
+,  mpCurEq_ix(NULL)
+,  mLastSpkr_ix(0)
 #endif /* REIMPLEMENT_CLARISIS_EQ ] */
-
-   mCurRampStep(0),
-   mCurVolumeFactor(0),
-   mOldVolumeFactor(0),
-   mTargetVolumeFactor(0),
-   mLastVolume(-1)
 {
    int i;
 
    init_CNG();
 
 #ifdef REIMPLEMENT_CLARISIS_EQ /* [ */
-#if defined(_WIN32) || defined(__pingtel_on_posix__) /* [ */
    mpCurEq_ix = &MprToSpkr::smClarisisHandsetSpeakerEq[0];
    mLastSpkr_ix = CODEC_DISABLE_SPKR;
 
    mpEqSave_ix = new int[samplesPerFrame + EqFilterLen_ix - 1];
    memset(mpEqSave_ix, 0, (samplesPerFrame + EqFilterLen_ix - 1) * sizeof(int));
-#endif /* WIN32 ] */
 #endif /* REIMPLEMENT_CLARISIS_EQ ] */
 
    /*** Speaker volume control ***/
@@ -179,13 +152,6 @@ int MprToSpkr::spkrStats()
    return smStatsReports++; // trigger another report and reset
 }
 #endif /* DETECT_SPKR_OVERFLOW ] */
-
-void MprToSpkr::setAttenuation(int finalDb, int framesPerStep)
-{
-   assert((finalDb <= 0) && (finalDb >= ATTEN_QUIETEST));
-   mMaxAttenDb = finalDb;
-
-}
 
 
 /* ============================ ACCESSORS ================================= */
@@ -244,8 +210,7 @@ void MprToSpkr::initVolTable()
 
 
 #ifdef REIMPLEMENT_CLARISIS_EQ /* [ */
-#if defined(_WIN32) || defined(__pingtel_on_posix__) /* [ */
-void MprToSpkr::SpeakerEqualization_ix(Sample* shpSamples, int iLength)
+void MprToSpkr::SpeakerEqualization_ix(MpAudioSample* shpSamples, int iLength)
 {
 
    int         ShiftGain_ix = 13;
@@ -254,7 +219,7 @@ void MprToSpkr::SpeakerEqualization_ix(Sample* shpSamples, int iLength)
    int         iSample;
    int*        ip = mpEqSave_ix;
    const int*  pCurCoeff;
-   Sample*     sp = shpSamples;
+   MpAudioSample*     sp = shpSamples;
 
    const int* pCoeffSet = &MprToSpkr::smClarisisHandsetSpeakerEq[0];
 
@@ -284,211 +249,174 @@ void MprToSpkr::SpeakerEqualization_ix(Sample* shpSamples, int iLength)
       shpSamples[i] = iSample;
    }
 }
-#endif /* WIN32 ] */
 #endif /* REIMPLEMENT_CLARISIS_EQ ] */
 
 UtlBoolean MprToSpkr::doProcessFrame(MpBufPtr inBufs[],
-                                    MpBufPtr outBufs[],
-                                    int inBufsSize,
-                                    int outBufsSize,
-                                    UtlBoolean isEnabled,
-                                    int samplesPerFrame,
-                                    int samplesPerSecond)
+                                     MpBufPtr outBufs[],
+                                     int inBufsSize,
+                                     int outBufsSize,
+                                     UtlBoolean isEnabled,
+                                     int samplesPerFrame,
+                                     int samplesPerSecond)
 {
-	MpBufferMsg* pMsg;
-	MpBufferMsg* pFlush;
-	OsMsgPool*   spkrPool;
-	MpBufPtr     ob;
-	MpBufPtr     out;
-	Sample*      shpSamples;
-	int          iLength;
+    MpBufferMsg*   pMsg;
+    MpBufferMsg*   pFlush;
+    OsMsgPool*     spkrPool;
+    MpAudioBufPtr  out;
+    MpAudioSample* shpSamples;
+    int            iLength;
 
-	if (0 == inBufsSize) 
-	{      
-		return FALSE;
-	}
+    // We have only one input
+    if (inBufsSize != 1)
+    {      
+        return FALSE;
+    }
 
 #ifdef DETECT_SPKR_OVERFLOW /* [ */
-	if (mReport < smStatsReports) 
-	{
-		mReport = smStatsReports;
-		stats();
-	}
+    if (mReport < smStatsReports) 
+    {
+        mReport = smStatsReports;
+        stats();
+    }
 #endif /* DETECT_SPKR_OVERFLOW ] */
 
-	out = *inBufs;
-	if ((NULL != out) && isEnabled) 
-	{
-		shpSamples = MpBuf_getSamples(out);
-		iLength = MpBuf_getNumSamples(out);
+    // Do processing if enabled and if data is avaliable
+    if (isEnabled && inBufs[0].isValid()) 
+    {
 
-		if (s_fnToSpeakerHook)
-		{
-			/* 
-			 * Allow an external identity to consume speaker data.  Ideally,
-			 * this should probably become a different resource, but 
-			 * abstracting a new CallFlowGraph is a lot of work.
-			 */
+        // Own input buffer
+        out = inBufs[0];
+        inBufs[0].release();
 
-			s_fnToSpeakerHook(iLength, shpSamples) ;
-		}
+        shpSamples = out->getSamples();
+        iLength = out->getSamplesNumber();
 
-		/////////////////////////////////////////////////
+        /////////////////////////////////////////////////
         // samples ready for EQ processing //////////////
         /////////////////////////////////////////////////
 
 #ifdef REIMPLEMENT_CLARISIS_EQ /* [ */
-#if defined(_WIN32) || defined(__pingtel_on_posix__) /* [ */
-
-		SpeakerEqualization_ix(shpSamples, iLength);
-
-#endif /* WIN32 ] */
+        SpeakerEqualization_ix(shpSamples, iLength);
 #endif /* REIMPLEMENT_CLARISIS_EQ ] */
 
-		if(iTrainingNoiseFlag > 0) 
-		{
-			/* generate white noise to test the performance if AEC only.
+        if(iTrainingNoiseFlag > 0) 
+        {
+            /* generate white noise to test the performance if AEC only.
              * This is for parameter tweaking only. The original speaker
              * signal will be dropped.
              */
-			MpBuf_delRef(out);
-			out = MpBuf_getBuf(MpMisc.UcbPool, samplesPerFrame, 0, MP_FMT_T12);
-			assert(NULL != out);
-			shpSamples = MpBuf_getSamples(out);
+            out->setSamplesNumber(samplesPerFrame);
+            iLength = out->getSamplesNumber();
             white_noise_generator(shpSamples, iLength, iTrainingNoiseFlag);
-		}
-        else 
-		{
-			if(out == MpMisc.comfortNoise) 
-			{
-				MpBuf_delRef(out);
-				out = MpBuf_getBuf(MpMisc.UcbPool, samplesPerFrame, 0, 
-						MP_FMT_T12);
-				assert(NULL != out);
-				shpSamples = MpBuf_getSamples(out);
-				if(iComfortNoiseFlag > 0) 
-				{
-					comfort_noise_generator(shpSamples, samplesPerFrame,
-							mulNoiseLevel);
-				}
-				else 
-				{
-					memset((char *)shpSamples, 0 , iLength*2);                     
-				}
-			}
-            else 
-			{
-				background_noise_level_estimation(mulNoiseLevel, shpSamples, 
-						iLength);
-			}
-		}
-
-#ifdef FLOWGRAPH_DOES_RESAMPLING /* [ */
-		ob = MpBuf_getBuf(MpMisc.DMAPool, 640, 0, MP_FMT_T12);
-        assert(NULL != ob);
-        Sample* dest = MpBuf_getSamples(ob);
-
-		mpDspResamp->up(dest, shpSamples, MpCodec_isBaseSpeakerOn());
-
-		MpBuf_delRef(out);
-        if (isOutputConnected(1)) 
-		{
-			MpBufPtr ob2 = MpBuf_getBuf(MpMisc.DMAPool, 640, 0, MP_FMT_T12);
-            assert(NULL != ob2);
-            short* dest2 = MpBuf_getSamples(ob2);
-            memcpy(dest2, dest, MpBuf_getByteLen(ob));
-            outBufs[1] = ob2;
-		}
-#else /* FLOWGRAPH_DOES_RESAMPLING ] [ */
-		ob = out;
-#endif /* FLOWGRAPH_DOES_RESAMPLING ] */
-
-        while (MpMisc.pSpkQ && MpMisc.max_spkr_buffers < MpMisc.pSpkQ->numMsgs()) 
-		{
-			OsStatus  res;
-            res = MpMisc.pSpkQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT_TIME);
-            if (OS_SUCCESS == res) 
-			{
-				MpBuf_delRef(pFlush->getTag());
-				MpBuf_delRef(pFlush->getTag(1));
-				pFlush->releaseMsg();
-            } 
-			else 
-			{
-				osPrintf("MprToSpkr: queue was full, now empty (res=%d)\n", 
-						res);
+        }
+        else
+        {
+            if(out->getSpeechType() == MpAudioBuf::MP_SPEECH_COMFORT_NOISE) 
+            {
+                out->setSamplesNumber(samplesPerFrame);
+                iLength = out->getSamplesNumber();
+                if(iComfortNoiseFlag > 0) 
+                {
+                    comfort_noise_generator(shpSamples, iLength, mulNoiseLevel);
+                }
+                else 
+                {
+                    memset((char *)shpSamples, 0 , iLength*2);                     
+                }
             }
-		}
+            else 
+            {
+                background_noise_level_estimation(mulNoiseLevel, shpSamples, 
+                        iLength);
+            }
+        }
 
-		if (isOutputConnected(0)) 
-		{
-			outBufs[0] = ob;
-            MpBuf_addRef(ob);
-		}
+        if (s_fnToSpeakerHook)
+        {
+            /* 
+            * Allow an external identity to consume speaker data.  Ideally,
+            * this should probably become a different resource, but 
+            * abstracting a new CallFlowGraph is a lot of work.
+            */
 
-		MpBuf_setAtten(ob, 0);
+            s_fnToSpeakerHook(iLength, shpSamples) ;
+        }
 
-		spkrPool = MpMediaTask::getMediaTask(0)->getBufferMsgPool();
+        // TODO:: I don't know why we set attenuation to 0 here. BTW, it used only in the MprEchoSuppress().
+        out->setAttenDb(0);
+
+        // Push data to the output, if connected.
+        if (isOutputConnected(0))
+        {
+            outBufs[0] = out;
+        }
+
+        // Flush speaker queue if it is full.
+        while (mpSpkQ && MAX_SPKR_BUFFERS < mpSpkQ->numMsgs()) 
+        {
+            if (mpSpkQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT_TIME) == OS_SUCCESS) 
+            {
+                pFlush->releaseMsg();
+                osPrintf( "pSpkQ drained. %d msgs in queue now\n"
+                        , mpSpkQ->numMsgs());
+            } 
+        }
+
+        // Prepare msg to be sent to Media Task
+        spkrPool = MpMediaTask::getMediaTask(0)->getBufferMsgPool();
         assert(NULL != spkrPool);
         pMsg = spkrPool ? (MpBufferMsg*) spkrPool->findFreeMsg() : NULL;
         if (NULL == pMsg) 
-		{
-			pMsg = new MpBufferMsg(MpBufferMsg::AUD_PLAY, __LINE__);
-		} 
-		else 
-		{
-			pMsg->setTag(NULL);
-            pMsg->setTag(NULL, 1);
-            pMsg->setTag(NULL, 2);
-            pMsg->setTag(NULL, 3);
-		}
+        {
+            pMsg = new MpBufferMsg(MpBufferMsg::AUD_PLAY);
+        } 
 
         pMsg->setMsgSubType(MpBufferMsg::AUD_PLAY);
-        pMsg->setTag(ob);
-        pMsg->setBuf(MpBuf_getSamples(ob));
-        pMsg->setLen(MpBuf_getNumSamples(ob));
 
+        // Copy buffer to the message
+        pMsg->setBuffer(out);
 
-        if (MpMisc.pSpkQ && OS_SUCCESS == MpMisc.pSpkQ->send(*pMsg, OsTime::NO_WAIT_TIME)) 
-		{
-			*inBufs = NULL;
+        // Send data to Media Task
+        if (  mpSpkQ
+           && (mpSpkQ->send(*pMsg, OsTime::NO_WAIT_TIME) == OS_SUCCESS))
+        {
+            // Post a copy of this message to the mpEchoQ so that it
+            // can be used in AEC calculations.
+            MpBufferMsg AECMsg(MpBufferMsg::ACK_EOSTREAM);
 
-		 // Post a copy of this message to the MpMisc.pEchoQ so that it
-		 // can be used in AEC calculations.
-		 MpBufferMsg* pAECMsg = new MpBufferMsg(MpBufferMsg::ACK_EOSTREAM) ;
-
-		 // TODO: We should pre-allocate a bunch of messages for 
-		 //       this purpose (see DmaMsgPool as an example).
-		 
-		 MpBuf_addRef(ob) ;
-		 pAECMsg->setTag(ob) ;		 
-		 if (MpMisc.pEchoQ->numMsgs() >= MpMisc.pEchoQ->maxMsgs() ||  MpMisc.pEchoQ->send(*pAECMsg, OsTime::NO_WAIT_TIME) != OS_SUCCESS)
-		 {
-			 pAECMsg->releaseMsg() ;
-			 MpBuf_delRef(ob) ;
-		 }
-
-		} 
-		else 
-		{
-			if (pMsg->isMsgReusable()) 
-			{
-				pMsg->releaseMsg();
-			}
-            MpBuf_delRef(ob);
-		}
+            // TODO: We should pre-allocate a bunch of messages for 
+            //       this purpose (see DmaMsgPool as an example).
+             
+            // Buffer is moved to the message. ob pointer is invalidated.
+            AECMsg.ownBuffer(out) ;         
+            if (  mpEchoQ->numMsgs() >= mpEchoQ->maxMsgs()
+               || mpEchoQ->send(AECMsg, OsTime::NO_WAIT_TIME) != OS_SUCCESS)
+            {
+//               osPrintf("pEchoQ->send() failed!\n");
+            }
+        } 
+        else
+        {
+            osPrintf("pSpkQ->send() failed!\n");
+            if (pMsg->isMsgReusable()) 
+            {
+                pMsg->releaseMsg();
+            }
+        }
         
-		if (!pMsg->isMsgReusable()) 
-		{
-			delete pMsg;
-		}
-	} 
-	else 
-	{
-		mCurAttenDb = mMaxAttenDb;
-		mCurRampStep = mCurVolumeFactor = mOldVolumeFactor = 0;
-		mTotalRampFactor = mTargetVolumeFactor = mLastVolume = 0;
-	}
+        if (!pMsg->isMsgReusable()) 
+        {
+            delete pMsg;
+        }
+    }
+    else 
+    {
+        // Push data to the output, if connected.
+        if (isOutputConnected(0))
+        {
+            outBufs[0] = inBufs[0];
+        }
+    }
 
    return TRUE;
 }

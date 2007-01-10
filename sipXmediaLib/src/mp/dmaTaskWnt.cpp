@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -21,7 +24,6 @@
 
 // APPLICATION INCLUDES
 #include "mp/dmaTask.h"
-#include "mp/MpBufferMsg.h"
 #include "mp/MpBuf.h"
 #include "mp/MpMisc.h"
 #include "mp/MprToSpkr.h"
@@ -266,4 +268,10 @@ void dmaShutdown()
     WaitForSingleObject(hMicThread, INFINITE);
     PostThreadMessage(dwSpkrThreadID, WOM_CLOSE, 0, 0L);
     WaitForSingleObject(hSpkrThread, INFINITE);
+}
+
+void dmaSignalMicDeviceChange()
+{
+    // We do simple signal WIM_DATA without data
+    PostThreadMessage(dwMicThreadID, WIM_DATA, 0, 0L);
 }

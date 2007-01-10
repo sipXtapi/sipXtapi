@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -77,7 +80,8 @@ class DspResampling
 public:
 
 /* ============================ CREATORS ================================== */
-
+///@name Creators
+//@{
    DspResampling(int iResamplingFold, int iLowRateSamples, int iUpSamplingFlag);
      //:Constructor
 
@@ -85,12 +89,15 @@ public:
    ~DspResampling();
      //:Destructor
 
-/* ============================ MANIPULATORS ============================== */
+//@}
 
-   void up(Sample* shpOut, Sample* shpIn, int lGain, int iSpeakerFlag);
-   void down(Sample* shpOut, Sample* shpIn, int UseLeft);
-void upfrom16k(Sample *dest, Sample *data, int lGain, int iSpkrPhoneFlag);
-void downto16k(Sample* output, Sample* input, int UseLeft);
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
+   void up(MpAudioSample* shpOut, MpAudioSample* shpIn, int lGain, int iSpeakerFlag);
+   void down(MpAudioSample* shpOut, MpAudioSample* shpIn, int UseLeft);
+void upfrom16k(MpAudioSample *dest, MpAudioSample *data, int lGain, int iSpkrPhoneFlag);
+void downto16k(MpAudioSample* output, MpAudioSample* input, int UseLeft);
    static int setLimits(int limit);
 
 #define GIPS_FRAME_LENGTH 80
@@ -102,9 +109,19 @@ void downto16k(Sample* output, Sample* input, int UseLeft);
    static int setFilter(int which);
 #endif /* COMPARE_FILTERS ] */
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

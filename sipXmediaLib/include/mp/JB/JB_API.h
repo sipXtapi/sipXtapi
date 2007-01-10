@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 #ifndef _JB_API_H_
 #define _JB_API_H_
 
@@ -12,35 +15,34 @@
 
 #include "mp/JB/jb_typedefs.h"
 #include "mp/MpTypes.h"
+#include "mp/MpRtpBuf.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 JB_EXTERN JB_ret JB_initCodepoint(JB_inst *JB_inst,
-                              const JB_char *codec,
-                              JB_size sampleRate, 
-                              JB_code codepoint);
+                                  const JB_char *codec,
+                                  JB_size sampleRate, 
+                                  JB_code codepoint);
  
 
 JB_EXTERN JB_ret JB_RecIn(JB_inst *JB_inst, 
-                      JB_uchar* RTPpacket, 
-                      JB_size RTPlength, 
-                      JB_ulong timeStamp);
+                          MpRtpBufPtr &rtpPacket);
 
 JB_EXTERN JB_ret JB_RecOut(JB_inst *JB_inst,
-                      Sample *voiceSamples,
-                      JB_size *length);
+                           MpAudioSample *voiceSamples,
+                           JB_size *length);
 
 JB_EXTERN JB_ret G711A_Encoder(JB_size noOfSamples,
-                         Sample* inBuff,
-                         JB_uchar* codBuff, 
-                         JB_size *size_in_bytes);
+                               MpAudioSample* inBuff,
+                               JB_uchar* codBuff, 
+                               JB_size *size_in_bytes);
 
 JB_EXTERN JB_ret G711U_Encoder(JB_size noOfSamples,
-                         Sample* inBuff,
-                         JB_uchar* codBuff, 
-                         JB_size *size_in_bytes);
+                               MpAudioSample* inBuff,
+                               JB_uchar* codBuff, 
+                               JB_size *size_in_bytes);
 
 JB_EXTERN JB_ret JB_create(JB_inst **JB_inst);
 JB_EXTERN JB_ret JB_init(JB_inst *JB_inst, JB_size fs);

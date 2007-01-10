@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -27,7 +30,8 @@ public:
 
 
 /* ============================ CREATORS ================================== */
-
+///@name Creators
+//@{
    HandsetFilterBank();
      //:Constructor
 
@@ -75,6 +79,7 @@ private:
 	void HandsetComputeLoudspeakerFade();
 	void HandsetEchoSuppress(icomplex [][HS_M+1],int);
 
+//@}
 
 };
 

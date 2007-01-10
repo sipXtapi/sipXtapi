@@ -4,16 +4,15 @@
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
 
 #include "rtcp/RtcpConfig.h"
-
-#ifndef __pingtel_on_posix__
-// #define DOING_ECHO_SUPPRESSION
-#endif
 
 // #define DISABLE_LOCAL_AUDIO
 
@@ -38,7 +37,7 @@
 #include "os/OsProtectEventMgr.h"
 #include "os/OsProtectEvent.h"
 #include "os/OsFS.h"
-#include "mp/MpConnection.h"
+#include "mp/MpAudioConnection.h"
 #include "mp/MpCallFlowGraph.h"
 #include "mp/MpMediaTask.h"
 #include "mp/MpStreamMsg.h"
@@ -47,11 +46,13 @@
 #include "mp/MprFromFile.h"
 #include "mp/MprFromMic.h"
 
-
-#ifdef DOING_ECHO_SUPPRESSION /* [ */
+#if defined (SPEEX_ECHO_CANCELATION)
+#include "mp/MprSpeexEchoCancel.h"
+#elif defined (SIPX_ECHO_CANCELATION)
 #include "mp/MprEchoSuppress.h"
-#endif /* DOING_ECHO_SUPPRESSION ] */
+#endif
 
+#include "mp/MprSpeexPreProcess.h"
 #include "mp/MprMixer.h"
 #include "mp/MprSplitter.h"
 #include "mp/MprToSpkr.h"
@@ -82,7 +83,20 @@ const int MpCallFlowGraph::DEF_SAMPLES_PER_SEC   = 32000;
 
 // STATIC VARIABLE INITIALIZATIONS
 UtlBoolean MpCallFlowGraph::sbSendInBandDTMF = true ;
+
+#ifdef DOING_ECHO_CANCELATION  // [
+UtlBoolean MpCallFlowGraph::sbEnableAEC = true ;
+#else // DOING_ECHO_CANCELATION ][
 UtlBoolean MpCallFlowGraph::sbEnableAEC = false ;
+#endif // DOING_ECHO_CANCELATION ]
+
+#ifdef HAVE_SPEEX // [
+UtlBoolean MpCallFlowGraph::sbEnableAGC = false ;
+UtlBoolean MpCallFlowGraph::sbEnableNoiseReduction = false ;
+#else // HAVE_SPEEX ][
+UtlBoolean MpCallFlowGraph::sbEnableAGC = false ;
+UtlBoolean MpCallFlowGraph::sbEnableNoiseReduction = false ;
+#endif // HAVE_SPEEX ]
 
 #define INSERT_RECORDERS // splices recorders into flowgraph
 // #undef INSERT_RECORDERS 
@@ -132,42 +146,53 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
                                  samplesPerFrame, samplesPerSec);
    mpFromStream       = new MprFromStream("FromStream",
                                  samplesPerFrame, samplesPerSec);
-#ifndef DISABLE_LOCAL_AUDIO
+#ifndef DISABLE_LOCAL_AUDIO // [
    mpFromMic          = new MprFromMic("FromMic",
+                                 samplesPerFrame, samplesPerSec, MpMisc.pMicQ);
+#if defined (SPEEX_ECHO_CANCELATION)
+   mpEchoCancel       = new MprSpeexEchoCancel("SpeexEchoCancel",
                                  samplesPerFrame, samplesPerSec);
-#ifdef DOING_ECHO_SUPPRESSION /* [ */
-   mpEchoSuppress     = new MprEchoSuppress("EchoSuppress",
+#elif defined (SIPX_ECHO_CANCELATION)
+   mpEchoCancel       = new MprEchoSuppress("SipxEchoCancel",
                                  samplesPerFrame, samplesPerSec);
-#endif /* DOING_ECHO_SUPPRESSION ] */
 #endif
+#ifdef HAVE_SPEEX // [
+   mpSpeexPreProcess  = new MprSpeexPreprocess("SpeexPreProcess",
+                                 samplesPerFrame, samplesPerSec);
+#endif // HAVE_SPEEX ]
+#endif // DISABLE_LOCAL_AUDIO ]
    mpTFsMicMixer      = new MprMixer("TFsMicMixer", 2,
                                  samplesPerFrame, samplesPerSec);
    mpTFsBridgeMixer   = new MprMixer("TFsBridgeMixer", 2,
                                  samplesPerFrame, samplesPerSec);
    mpToneFileSplitter = new MprSplitter("ToneFileSplitter", 2,
                                  samplesPerFrame, samplesPerSec);
-#ifndef DISABLE_LOCAL_AUDIO
+#ifndef DISABLE_LOCAL_AUDIO // [
    mpToSpkr           = new MprToSpkr("ToSpkr",
-                                 samplesPerFrame, samplesPerSec);
-#endif
+                                 samplesPerFrame, samplesPerSec,
+                                 MpMisc.pSpkQ, MpMisc.pEchoQ);
+#endif // DISABLE_LOCAL_AUDIO ]
    mpToneGen          = new MprToneGen("ToneGen",
                                  samplesPerFrame, samplesPerSec, 
                                  locale);
 #ifndef DISABLE_LOCAL_AUDIO
-#ifdef DOING_ECHO_SUPPRESSION /* [ */
-   mpEchoSuppress->setSpkrPal(mpToSpkr);
-#endif /* DOING_ECHO_SUPPRESSION ] */
+#ifdef SIPX_ECHO_CANCELATION /* [ */
+   mpEchoCancel->setSpkrPal(mpToSpkr);
+#endif /* SIPX_ECHO_CANCELATION ] */
 #endif
 
    res = addResource(*mpBridge);            assert(res == OS_SUCCESS);
    res = addResource(*mpFromStream);        assert(res == OS_SUCCESS);
    res = addResource(*mpFromFile);          assert(res == OS_SUCCESS);
-#ifndef DISABLE_LOCAL_AUDIO
+#ifndef DISABLE_LOCAL_AUDIO // [
    res = addResource(*mpFromMic);           assert(res == OS_SUCCESS);
-#ifdef DOING_ECHO_SUPPRESSION /* [ */
-   res = addResource(*mpEchoSuppress);      assert(res == OS_SUCCESS);
-#endif /* DOING_ECHO_SUPPRESSION ] */
-#endif
+#ifdef DOING_ECHO_CANCELATION // [
+   res = addResource(*mpEchoCancel);        assert(res == OS_SUCCESS);
+#endif // DOING_ECHO_CANCELATION ]
+#ifdef HAVE_SPEEX // [
+   res = addResource(*mpSpeexPreProcess);   assert(res == OS_SUCCESS);
+#endif // HAVE_SPEEX ]
+#endif // DISABLE_LOCAL_AUDIO ]
    res = addResource(*mpTFsMicMixer);       assert(res == OS_SUCCESS);
    res = addResource(*mpTFsBridgeMixer);    assert(res == OS_SUCCESS);
    res = addResource(*mpToneFileSplitter);  assert(res == OS_SUCCESS);
@@ -181,24 +206,34 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
 
 
 #ifndef DISABLE_LOCAL_AUDIO
-#ifdef DOING_ECHO_SUPPRESSION /* [ */
-   // connect FromMic -> EchoSuppress -> TFsMicMixer -> Bridge
-   res = addLink(*mpFromMic, 0, *mpEchoSuppress, 0);
-   assert(res == OS_SUCCESS);
-#ifdef  FLOWGRAPH_DOES_RESAMPLING /* [ */ 
-   res = addLink(*mpFromMic, 1, *mpEchoSuppress, 1);
-   assert(res == OS_SUCCESS);
-#endif /* FLOWGRAPH_DOES_RESAMPLING ] */
+   // connect FromMic -> (EchoCancel) -> (PreProcessor) -> TFsMicMixer
 
-   res = addLink(*mpEchoSuppress, 0, *mpTFsMicMixer, 1);
+   MpResource *pLastResource; // Last resource in the chain
+   pLastResource = mpFromMic;
+
+#ifdef DOING_ECHO_CANCELATION /* [ */
+   res = addLink(*pLastResource, 0, *mpEchoCancel, 0);
    assert(res == OS_SUCCESS);
-#else /* DOING_ECHO_SUPPRESSION ] [ */
-   // connect FromMic -> TFsMicMixer -> Bridge
-   res = addLink(*mpFromMic, 0, *mpTFsMicMixer, 1);
+   pLastResource = mpEchoCancel;
+#endif /* DOING_ECHO_CANCELATION ] */
+
+#ifdef HAVE_SPEEX // [
+   res = addLink(*pLastResource, 0, *mpSpeexPreProcess, 0);
    assert(res == OS_SUCCESS);
-#endif /* DOING_ECHO_SUPPRESSION ] */
+
+#ifdef DOING_ECHO_CANCELATION /* [ */
+   res = addLink(*pLastResource, 1, *mpSpeexPreProcess, 1);
+   assert(res == OS_SUCCESS);
+#endif /* DOING_ECHO_CANCELATION ] */
+
+   pLastResource = mpSpeexPreProcess;
+#endif // HAVE_SPEEX ]
+
+   res = addLink(*pLastResource, 0, *mpTFsMicMixer, 1);
+   assert(res == OS_SUCCESS);
 #endif
 
+   // connect TFsMicMixer -> Bridge
    res = addLink(*mpTFsMicMixer, 0, *mpBridge, 0);
    assert(res == OS_SUCCESS);
 
@@ -247,14 +282,17 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
    // disable the from file
    boolRes = mpFromFile->disable();     assert(boolRes);
 
-#ifndef DISABLE_LOCAL_AUDIO
-   // disable the FromMic, EchoSup, and ToSpkr -- we cannot have focus yet...
+#ifndef DISABLE_LOCAL_AUDIO // [
+   // disable the FromMic, EchoCancel, PreProcess and ToSpkr -- we cannot have focus yet...
    boolRes = mpFromMic->disable();                assert(boolRes);
-#ifdef DOING_ECHO_SUPPRESSION /* [ */
-   boolRes = mpEchoSuppress->disable();           assert(boolRes);
-#endif /* DOING_ECHO_SUPPRESSION ] */
+#ifdef DOING_ECHO_CANCELATION // [
+   boolRes = mpEchoCancel->disable();             assert(boolRes);
+#endif // DOING_ECHO_CANCELATION ]
+#ifdef HAVE_SPEEX // [
+   boolRes = mpSpeexPreProcess->disable();        assert(boolRes);
+#endif // HAVE_SPEEX ]
    boolRes = mpToSpkr->disable();                 assert(boolRes);
-#endif
+#endif // DISABLE_LOCAL_AUDIO ]
 
    // The next group of settings turns the mixers into 2-to-1 multiplexors.
    // When disabled, mixers default to passing input 0 to output, and with
@@ -304,34 +342,41 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
                                  samplesPerFrame, samplesPerSec);
    res = insertResourceAfter(*(mpRecorders[RECORDER_MIC]), *mpFromMic, 0);
    assert(res == OS_SUCCESS);
+#ifdef HIGH_SAMPLERATE_AUDIO // [
    mpRecorders[RECORDER_MIC32K] = new MprRecorder("RecordMicH",
                                  samplesPerFrame, samplesPerSec);
    res = insertResourceAfter(*(mpRecorders[RECORDER_MIC32K]), *mpFromMic, 1);
    assert(res == OS_SUCCESS);
-#ifdef DOING_ECHO_SUPPRESSION /* [ */
+#endif // HIGH_SAMPLERATE_AUDIO ]
+#ifdef DOING_ECHO_CANCELATION /* [ */
    mpRecorders[RECORDER_ECHO_OUT] =
       new MprRecorder("RecordEchoOut", samplesPerFrame, samplesPerSec);
    res = insertResourceAfter(*(mpRecorders[RECORDER_ECHO_OUT]),
-                                                    *mpEchoSuppress, 0);
+                                                    *mpEchoCancel, 0);
    assert(res == OS_SUCCESS);
 
    mpRecorders[RECORDER_ECHO_IN8] =
       new MprRecorder("RecordEchoIn8", samplesPerFrame, samplesPerSec);
    res = insertResourceAfter(*(mpRecorders[RECORDER_ECHO_IN8]),
-                                                    *mpEchoSuppress, 1);
+                                                    *mpEchoCancel, 1);
    assert(res == OS_SUCCESS);
 
+#ifdef HIGH_SAMPLERATE_AUDIO // [
    mpRecorders[RECORDER_ECHO_IN32] =
       new MprRecorder("RecordEchoIn32", samplesPerFrame, samplesPerSec);
    res = insertResourceAfter(*(mpRecorders[RECORDER_ECHO_IN32]),
-                                                    *mpEchoSuppress, 2);
+                                                    *mpEchoCancel, 2);
    assert(res == OS_SUCCESS);
-#endif /* DOING_ECHO_SUPPRESSION ] */
+#endif // HIGH_SAMPLERATE_AUDIO ]
+#endif /* DOING_ECHO_CANCELATION ] */
+
+#ifndef DISABLE_LOCAL_AUDIO
+#ifdef HIGH_SAMPLERATE_AUDIO // [
    mpRecorders[RECORDER_SPKR32K] = new MprRecorder("RecordSpkrH",
                                  samplesPerFrame, samplesPerSec);
-#ifndef DISABLE_LOCAL_AUDIO
    res = insertResourceAfter(*(mpRecorders[RECORDER_SPKR32K]), *mpToSpkr, 1);
    assert(res == OS_SUCCESS);
+#endif // HIGH_SAMPLERATE_AUDIO ]
 #endif
    ////////////////////////////////////////////////////////////////////
  }
@@ -362,18 +407,18 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
       (int) mpBridge, (int) mpConnections[0], (int) mpFromFile, 
       (int) mpFromMic, (int) mpTFsMicMixer, (int) mpTFsBridgeMixer);
 
-#ifdef DOING_ECHO_SUPPRESSION /* [ */
+#ifdef DOING_ECHO_CANCELATION /* [ */
    Zprintf("mpTFsMicMixer=0x%X, " "mpTFsBridgeMixer=0x%X\n"
       "mpToneFileSplitter=0x%X, " "mpToSpkr=0x%X, " "mpToneGen=0x%X\n"
-      "mpEchoSuppress=0x%X\n",
+      "mpEchoCancel=0x%X\n",
       (int) mpTFsMicMixer, (int) mpTFsBridgeMixer, (int) mpToneFileSplitter,
-      (int) mpToSpkr, (int) mpToneGen, (int) mpEchoSuppress);
-#else /* DOING_ECHO_SUPPRESSION ] [ */
+      (int) mpToSpkr, (int) mpToneGen, (int) mpEchoCancel);
+#else /* DOING_ECHO_CANCELATION ] [ */
    Zprintf("mpTFsMicMixer=0x%X, " "mpTFsBridgeMixer=0x%X\n"
       "mpToneFileSplitter=0x%X, " "mpToSpkr=0x%X, " "mpToneGen=0x%X\n",
       (int) mpTFsMicMixer, (int) mpTFsBridgeMixer, (int) mpToneFileSplitter,
       (int) mpToSpkr, (int) mpToneGen, 0);
-#endif /* DOING_ECHO_SUPPRESSION ] */
+#endif /* DOING_ECHO_CANCELATION ] */
 }
 
 // Destructor
@@ -417,9 +462,12 @@ MpCallFlowGraph::~MpCallFlowGraph()
    res = removeLink(*mpBridge, 0);           assert(res == OS_SUCCESS);
 #ifndef DISABLE_LOCAL_AUDIO
    res = removeLink(*mpFromMic, 0);          assert(res == OS_SUCCESS);
-#ifdef DOING_ECHO_SUPPRESSION /* [ */
-   res = removeLink(*mpEchoSuppress, 0);     assert(res == OS_SUCCESS);
-#endif /* DOING_ECHO_SUPPRESSION ] */
+#ifdef DOING_ECHO_CANCELATION // [
+   res = removeLink(*mpEchoCancel, 0);       assert(res == OS_SUCCESS);
+#endif // DOING_ECHO_CANCELATION ]
+#ifdef HAVE_SPEEX // [
+   res = removeLink(*mpSpeexPreProcess, 0);  assert(res == OS_SUCCESS);
+#endif // HAVE_SPEEX ]
 #endif
    res = removeLink(*mpTFsMicMixer, 0);      assert(res == OS_SUCCESS);
 #ifndef DISABLE_LOCAL_AUDIO
@@ -439,11 +487,11 @@ MpCallFlowGraph::~MpCallFlowGraph()
 #endif
    mpFromMic = 0;
 
-#ifdef DOING_ECHO_SUPPRESSION /* [ */
-   res = removeResource(*mpEchoSuppress);
+#ifdef DOING_ECHO_CANCELATION /* [ */
+   res = removeResource(*mpEchoCancel);
    assert(res == OS_SUCCESS);
-   delete mpEchoSuppress;
-#endif /* DOING_ECHO_SUPPRESSION ] */
+   delete mpEchoCancel;
+#endif /* DOING_ECHO_CANCELATION ] */
 
    res = removeResource(*mpTFsMicMixer);
    assert(res == OS_SUCCESS);
@@ -518,23 +566,29 @@ MpCallFlowGraph::~MpCallFlowGraph()
 OsStatus MpCallFlowGraph::gainFocus(void)
 {
    UtlBoolean    boolRes;
-#ifndef DISABLE_LOCAL_AUDIO
+#ifndef DISABLE_LOCAL_AUDIO // ]
 
-#ifdef DOING_ECHO_SUPPRESSION /* [ */
-   // enable the FromMic, EchoSup, and ToSpkr -- we have focus
+   // enable the FromMic, (EchoCancel), (PreProcessor), and ToSpkr -- we have focus
    boolRes = mpFromMic->enable();       assert(boolRes);
+
+#ifdef DOING_ECHO_CANCELATION // [
    if (sbEnableAEC)
    {
-      boolRes = mpEchoSuppress->enable();  assert(boolRes);
+      boolRes = mpEchoCancel->enable(); assert(boolRes);
    }
-   boolRes = mpToSpkr->enable();        assert(boolRes);
-#else /* DOING_ECHO_SUPPRESSION ] [ */
-   // enable the FromMic and ToSpkr -- we have focus
-   boolRes = mpFromMic->enable();       assert(boolRes);
-   boolRes = mpToSpkr->enable();        assert(boolRes);
-#endif /* DOING_ECHO_SUPPRESSION ] */
+#endif // DOING_ECHO_CANCELATION ]
 
-#endif
+#ifdef HAVE_SPEEX // [
+   if (sbEnableAGC || sbEnableNoiseReduction || sbEnableAEC) {
+     boolRes = mpSpeexPreProcess->enable(); assert(boolRes);
+     mpSpeexPreProcess->setAGC(sbEnableAGC);
+     mpSpeexPreProcess->setNoiseReduction(sbEnableNoiseReduction);
+   }
+#endif // HAVE_SPEEX ]
+
+   boolRes = mpToSpkr->enable();        assert(boolRes);
+
+#endif // DISABLE_LOCAL_AUDIO
 
    // Re-enable the tone as it is now being heard
    if(mToneGenDefocused)
@@ -543,15 +597,15 @@ OsStatus MpCallFlowGraph::gainFocus(void)
       mToneGenDefocused = FALSE;
    }
 
-#ifdef DOING_ECHO_SUPPRESSION /* [ */
+#ifdef DOING_ECHO_CANCELATION // [
    if (!mpTFsMicMixer->isEnabled())  
    {
 #ifndef DISABLE_LOCAL_AUDIO
-      boolRes = mpEchoSuppress->disable();
+      boolRes = mpEchoCancel->disable();
       assert(boolRes);
 #endif
    }
-#endif /* DOING_ECHO_SUPPRESSION ] */
+#endif // DOING_ECHO_CANCELATION ]
 
    Nprintf("MpBFG::gainFocus(0x%X)\n", (int) this, 0,0,0,0,0);
    return OS_SUCCESS;
@@ -563,21 +617,21 @@ OsStatus MpCallFlowGraph::loseFocus(void)
 {
    UtlBoolean    boolRes;
 
-#ifndef DISABLE_LOCAL_AUDIO
+#ifndef DISABLE_LOCAL_AUDIO // [
 
-#ifdef DOING_ECHO_SUPPRESSION /* [ */
-   // disable the FromMic, EchoSuppress and ToSpkr --
-   //                                    we no longer have the focus.
-#else /* DOING_ECHO_SUPPRESSION ] [ */
-   // disable the FromMic and ToSpkr -- we no longer have the focus.
-#endif /* DOING_ECHO_SUPPRESSION ] */
+   // disable the FromMic, (EchoCancel), (PreProcessor) and ToSpkr --
+   // we no longer have the focus.
+
    boolRes = mpFromMic->disable();       assert(boolRes);
-#ifdef DOING_ECHO_SUPPRESSION /* [ */
-   boolRes = mpEchoSuppress->disable();  assert(boolRes);
-#endif /* DOING_ECHO_SUPPRESSION ] */
+#ifdef DOING_ECHO_CANCELATION // [
+   boolRes = mpEchoCancel->disable();    assert(boolRes);
+#endif // DOING_ECHO_CANCELATION ]
+#ifdef HAVE_SPEEX // [
+   boolRes = mpSpeexPreProcess->disable(); assert(boolRes);
+#endif // HAVE_SPEEX ]
    boolRes = mpToSpkr->disable();        assert(boolRes);
 
-#endif
+#endif //DISABLE_LOCAL_AUDIO ]
 
    // If the tone gen is not needed while we are out of focus disable it
    // as it is using resources while it is not being heard.
@@ -981,6 +1035,11 @@ OsStatus MpCallFlowGraph::record(int ms, int silenceLength, const char* micName,
       setupRecorder(RECORDER_SPKR, spkrName,
                     ms, silenceLength, completion, format);
    }
+   if (NULL != echoIn8Name) {
+      setupRecorder(RECORDER_ECHO_IN8, echoIn8Name,
+                    ms, silenceLength, completion, format);
+   }
+#ifdef HIGH_SAMPLERATE_AUDIO // [
    if (NULL != mic32Name) {
       setupRecorder(RECORDER_MIC32K, mic32Name,
                     ms, silenceLength, completion, format);
@@ -989,21 +1048,16 @@ OsStatus MpCallFlowGraph::record(int ms, int silenceLength, const char* micName,
       setupRecorder(RECORDER_SPKR32K,spkr32Name,
                     ms, silenceLength, completion, format);
    }
-   if (NULL != echoIn8Name) {
-      setupRecorder(RECORDER_ECHO_IN8, echoIn8Name,
-                    ms, silenceLength, completion, format);
-   }
    if (NULL != echoIn32Name) {
       setupRecorder(RECORDER_ECHO_IN32,
                     echoIn32Name, ms, silenceLength, completion, format);
    }
+#endif // HIGH_SAMPLERATE_AUDIO ]
    return startRecording(playName, repeat, toneOptions, completion);
 }
 
 OsStatus MpCallFlowGraph::startRecording(const char* audioFileName,
                   UtlBoolean repeat, int toneOptions, OsNotification* event)
-                     
-
 {
    OsStatus  res = OS_SUCCESS;
    MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_START_RECORD, NULL,
@@ -1027,7 +1081,6 @@ UtlBoolean MpCallFlowGraph::setupRecorder(RecorderChoice which,
                   const char* audioFileName, int timeMS, 
                   int silenceLength, OsNotification* event,
                   MprRecorder::RecordFileFormat format)
-
 {
    int file = -1;
    OsStatus  res = OS_INVALID_ARGUMENT;
@@ -1113,12 +1166,12 @@ MpConnectionID MpCallFlowGraph::createConnection()
    int            bridgePort;
    MpResource*    pBridgeSink;
    MpResource*    pBridgeSource;
-   MpConnection*  pConnection;
+   MpAudioConnection*  pConnection;
 
    mConnTableLock.acquire();
    for (i=1; i<MAX_CONNECTIONS; i++) {
       if (NULL == mpConnections[i]) {
-         mpConnections[i] = (MpConnection*) -1;
+         mpConnections[i] = (MpAudioConnection*) -1;
          found = i;
          i = MAX_CONNECTIONS;
       }
@@ -1129,7 +1182,7 @@ MpConnectionID MpCallFlowGraph::createConnection()
       return -1;
    }
    
-   mpConnections[found] = new MpConnection(this, found,
+   mpConnections[found] = new MpAudioConnection(found, this,
                  getSamplesPerFrame(), getSamplesPerSec());
 
    pConnection = mpConnections[found];
@@ -1170,7 +1223,7 @@ OsStatus MpCallFlowGraph::deleteConnection(MpConnectionID connID)
    assert((0 < connID) && (connID < MAX_CONNECTIONS));
 
    if ((NULL == mpConnections[connID]) || 
-      (((MpConnection*) -1) == mpConnections[connID]))
+      (((MpAudioConnection*) -1) == mpConnections[connID]))
          return OS_INVALID_ARGUMENT;
 
    MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_REMOVE_CONNECTION, NULL,
@@ -1192,7 +1245,7 @@ OsStatus MpCallFlowGraph::deleteConnection(MpConnectionID connID)
       return OS_UNSPECIFIED;
 }
 
-void MpCallFlowGraph::setPremiumSound(MpConnection::PremiumSoundOptions op)
+void MpCallFlowGraph::setPremiumSound(MpAudioConnection::PremiumSoundOptions op)
 {
    OsStatus  res;
    MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_SET_PREMIUM_SOUND,
@@ -1216,7 +1269,7 @@ void MpCallFlowGraph::disablePremiumSound(void)
    }
 #endif /* DEBUG_GIPS_PREMIUM_SOUND ] */
 #endif /* _VXWORKS ] */
-   setPremiumSound(MpConnection::DisablePremiumSound);
+   setPremiumSound(MpAudioConnection::DisablePremiumSound);
 }
 
 void MpCallFlowGraph::enablePremiumSound(void)
@@ -1231,7 +1284,7 @@ void MpCallFlowGraph::enablePremiumSound(void)
    }
 #endif /* DEBUG_GIPS_PREMIUM_SOUND ] */
 #endif /* _VXWORKS ] */
-   setPremiumSound(MpConnection::EnablePremiumSound);
+   setPremiumSound(MpAudioConnection::EnablePremiumSound);
 }
 
 // Start sending RTP and RTCP packets.
@@ -1239,11 +1292,10 @@ void MpCallFlowGraph::startSendRtp(OsSocket& rRtpSocket,
                                     OsSocket& rRtcpSocket,
                                     MpConnectionID connID,
                                     SdpCodec* pPrimaryCodec,
-                                    SdpCodec* pDtmfCodec,
-                                    SdpCodec* pSecondaryCodec)
+                                    SdpCodec* pDtmfCodec)
 {
    mpConnections[connID]->startSendRtp(rRtpSocket, rRtcpSocket,
-      pPrimaryCodec, pDtmfCodec, pSecondaryCodec);
+      pPrimaryCodec, pDtmfCodec);
 }
 
 // (old style call...)
@@ -1252,7 +1304,7 @@ void MpCallFlowGraph::startSendRtp(SdpCodec& rPrimaryCodec,
                                     OsSocket& rRtcpSocket,
                                     MpConnectionID connID)
 {
-   startSendRtp(rRtpSocket, rRtcpSocket, connID, &rPrimaryCodec, NULL, NULL);
+   startSendRtp(rRtpSocket, rRtcpSocket, connID, &rPrimaryCodec, NULL);
 }
 
 // Stop sending RTP and RTCP packets.
@@ -1318,15 +1370,61 @@ UtlBoolean MpCallFlowGraph::setInbandDTMF(UtlBoolean bEnable)
    return bSave ;
 }
 
-
-// Enables/Disable Acoustic Echo Cancellation
-UtlBoolean MpCallFlowGraph::setEnableAEC(UtlBoolean bEnable)
+// Set Echo Cancelation Mode.
+UtlBoolean MpCallFlowGraph::setAECMode(FLOWGRAPH_AEC_MODE mode)
 {
-   UtlBoolean bSave = sbEnableAEC;
-   sbEnableAEC = bEnable;
-   return bSave ;
+   // Selecting an unsupporetd mode will return false, but no error.
+   // Not sure if this is the correct behavior.
+   UtlBoolean bReturn = false;
+   switch (mode) {
+
+   case FLOWGRAPH_AEC_CANCEL:
+   case FLOWGRAPH_AEC_CANCEL_AUTO:
+#ifdef DOING_ECHO_CANCELATION // [
+      sbEnableAEC = true;
+      bReturn = true;
+#endif // DOING_ECHO_CANCELATION ]
+      break;
+
+   case FLOWGRAPH_AEC_SUPPRESS:
+#ifdef SIPX_ECHO_CANCELATION // [
+      sbEnableAEC = true;
+      bReturn = true;
+#endif // SIPX_ECHO_CANCELATION ]
+      break;
+
+   case FLOWGRAPH_AEC_DISABLED:
+      sbEnableAEC = false;
+      bReturn = true;
+      break;
+   }
+
+   // Should post a message to make changes effective, but we are static and
+   // don't have an instance.
+   return bReturn;
 }
-  
+
+UtlBoolean MpCallFlowGraph::setAGC(UtlBoolean bEnable)
+{
+   UtlBoolean bReturn = FALSE;
+#ifdef HAVE_SPEEX // [
+   sbEnableAGC = bEnable;
+   bReturn = true;
+#endif // HAVE_SPEEX ]
+   return bReturn;
+}
+
+UtlBoolean MpCallFlowGraph::setAudioNoiseReduction(UtlBoolean bEnable)
+{
+   UtlBoolean bReturn = FALSE;
+#ifdef HAVE_SPEEX // [
+   sbEnableNoiseReduction = bEnable;
+   bReturn = true;
+#endif // HAVE_SPEEX ]
+   return bReturn;
+}
+
+ 
 #ifdef INCLUDE_RTCP /* [ */
 
 /* ======================== CALLBACK METHODS ============================= */
@@ -1495,7 +1593,7 @@ UtlBoolean MpCallFlowGraph::writeWAVHeader(int handle)
     char tmpbuf[80];
     short bitsPerSample = 16;
 
-    short sampleSize = sizeof(Sample); 
+    short sampleSize = sizeof(MpAudioSample); 
     short compressionCode = 1; //PCM
     short numChannels = 1; 
     unsigned long samplesPerSecond = 8000;
@@ -1643,7 +1741,7 @@ UtlBoolean MpCallFlowGraph::handleMessage(OsMsg& rMsg)
 UtlBoolean MpCallFlowGraph::handleRemoveConnection(MpFlowGraphMsg& rMsg)
 {
    MpConnectionID connID = rMsg.getInt1();
-   MpConnection* pConnection;
+   MpAudioConnection* pConnection;
    UtlBoolean    res;
 
    mpBridge->disconnectPort(connID);
@@ -1652,37 +1750,15 @@ UtlBoolean MpCallFlowGraph::handleRemoveConnection(MpFlowGraphMsg& rMsg)
    mpConnections[connID] = NULL;
    mConnTableLock.release();
 
-   if ((NULL == pConnection) || (((MpConnection*) -1) == pConnection))
+   if ((NULL == pConnection) || (((MpAudioConnection*) -1) == pConnection))
       return TRUE;
 
-   // remove the links between the resources
-   res = handleRemoveLink((MpResource*) pConnection->mpEncode, 0);
-   assert(res);
-   res = handleRemoveLink((MpResource*) pConnection->mpFromNet, 0);
-   assert(res);
-   res = handleRemoveLink((MpResource*) pConnection->mpDejitter, 0);
+   // now remove synchronous resources from flow graph
+   res = handleRemoveResource(pConnection->mpDecode);
    assert(res);
 
-   // now remove (and destroy) the resources
-   res = handleRemoveResource((MpResource*) pConnection->mpDecode);
+   res = handleRemoveResource(pConnection->mpEncode);
    assert(res);
-   delete pConnection->mpDecode;
-
-   res = handleRemoveResource((MpResource*) pConnection->mpDejitter);
-   assert(res);
-   delete pConnection->mpDejitter;
-
-   res = handleRemoveResource((MpResource*) pConnection->mpEncode);
-   assert(res);
-   delete pConnection->mpEncode;
-
-   res = handleRemoveResource((MpResource*) pConnection->mpFromNet);
-   assert(res);
-   delete pConnection->mpFromNet;
-
-   res = handleRemoveResource((MpResource*) pConnection->mpToNet);
-   assert(res);
-   delete pConnection->mpToNet;
    
    delete pConnection;
    return TRUE;
@@ -1704,9 +1780,9 @@ UtlBoolean MpCallFlowGraph::handleStartPlay(MpFlowGraphMsg& rMsg)
       // shutting off the other audio input
       boolRes = mpTFsMicMixer->disable();   assert(boolRes);
    }
-#ifdef DOING_ECHO_SUPPRESSION /* [ */
-   boolRes = mpEchoSuppress->disable();  assert(boolRes);
-#endif /* DOING_ECHO_SUPPRESSION ] */
+#ifdef DOING_ECHO_CANCELATION /* [ */
+   boolRes = mpEchoCancel->disable();  assert(boolRes);
+#endif /* DOING_ECHO_CANCELATION ] */
    return TRUE;
 }
 
@@ -1739,9 +1815,9 @@ UtlBoolean MpCallFlowGraph::handleStartTone(MpFlowGraphMsg& rMsg)
          boolRes = mpTFsMicMixer->setWeight(0, 1);      assert(boolRes);
       }
    }
-#ifdef DOING_ECHO_SUPPRESSION /* [ */
-   boolRes = mpEchoSuppress->disable();  assert(boolRes);
-#endif /* DOING_ECHO_SUPPRESSION ] */
+#ifdef DOING_ECHO_CANCELATION /* [ */
+   boolRes = mpEchoCancel->disable();  assert(boolRes);
+#endif /* DOING_ECHO_CANCELATION ] */
    return TRUE;
 }
 
@@ -1763,11 +1839,11 @@ UtlBoolean MpCallFlowGraph::handleStopToneOrPlay()
 {
    UtlBoolean boolRes;
 
-#ifdef DOING_ECHO_SUPPRESSION /* [ */
+#ifdef DOING_ECHO_CANCELATION /* [ */
    MpMediaTask* pMediaTask;
 
    pMediaTask = MpMediaTask::getMediaTask(0);
-#endif /* DOING_ECHO_SUPPRESSION ] */
+#endif /* DOING_ECHO_CANCELATION ] */
 
    // Shut off the tone generator input to the Mixer resources
    boolRes = mpTFsBridgeMixer->enable();     assert(boolRes);
@@ -1780,12 +1856,12 @@ UtlBoolean MpCallFlowGraph::handleStopToneOrPlay()
    {
       boolRes = mpTFsMicMixer->setWeight(1, 1); assert(boolRes);
    }
-#ifdef DOING_ECHO_SUPPRESSION /* [ */
+#ifdef DOING_ECHO_CANCELATION /* [ */
    if (sbEnableAEC && (this == pMediaTask->getFocus()))
    {
-      boolRes = mpEchoSuppress->enable();  assert(boolRes);
+      boolRes = mpEchoCancel->enable();  assert(boolRes);
    }
-#endif /* DOING_ECHO_SUPPRESSION ] */
+#endif /* DOING_ECHO_CANCELATION ] */
    return TRUE;
 }
 
@@ -1823,11 +1899,11 @@ UtlBoolean MpCallFlowGraph::handleSynchronize(MpFlowGraphMsg& rMsg)
 UtlBoolean MpCallFlowGraph::handleSetPremiumSound(MpFlowGraphMsg& rMsg)
 {
    UtlBoolean save = mPremiumSoundEnabled;
-   MpConnection::PremiumSoundOptions op =
-                        (MpConnection::PremiumSoundOptions) rMsg.getInt1();
+   MpAudioConnection::PremiumSoundOptions op =
+                        (MpAudioConnection::PremiumSoundOptions) rMsg.getInt1();
    int i;
 
-   mPremiumSoundEnabled = (op == MpConnection::EnablePremiumSound);
+   mPremiumSoundEnabled = (op == MpAudioConnection::EnablePremiumSound);
    if (save != mPremiumSoundEnabled) {
 /*
       osPrintf("MpCallFlowGraph(%p): Premium sound %sABLED\n",

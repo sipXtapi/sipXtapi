@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -55,9 +58,9 @@ void init_CNG() {
       shpFilterBuf[i] = 0;
 }
 
-void white_noise_generator(Sample  *shpSamples,
-                              int   iLength,
-                           Word32   ulNoiseLevelAve)
+void white_noise_generator(MpAudioSample *shpSamples,
+                           int            iLength,
+                           Word32         ulNoiseLevelAve)
 {
    int     i;
    short   *shp;
@@ -72,9 +75,9 @@ void white_noise_generator(Sample  *shpSamples,
    }
 }
 
-void comfort_noise_generator(Sample  *shpSamples,
-                                int   iLength,
-                             Word32   ulNoiseLevelAve)
+void comfort_noise_generator(MpAudioSample *shpSamples,
+                             int            iLength,
+                             Word32         ulNoiseLevelAve)
 {
    int  i;
    int  j;
@@ -120,9 +123,9 @@ void comfort_noise_generator(Sample  *shpSamples,
 
 }
 
-void background_noise_level_estimation(Word32&  ulNoiseLevel, 
-                                       Sample*  shpSamples,          
-                                       int      iLength)
+void background_noise_level_estimation(Word32&        ulNoiseLevel, 
+                                       MpAudioSample* shpSamples,          
+                                       int            iLength)
 {
    int i;
    Word32 ulStrength = 0;
@@ -332,10 +335,10 @@ int testDotProd1()
    sum = (sum >> 32);
    hi = sum & 0xffffffff;
 
-   printf("0x%08X%08X\n", hi, lo);
+   osPrintf("0x%08X%08X\n", hi, lo);
    dspCopy32Sto16S(ints, outs, 10);
-   printf("%d, %d, %d, %d, %d,", outs[0], outs[1], outs[2], outs[3], outs[4]);
-   printf("%d, %d, %d, %d, %d\n", outs[5], outs[6], outs[7], outs[8], outs[9]);
+   osPrintf("%d, %d, %d, %d, %d,", outs[0], outs[1], outs[2], outs[3], outs[4]);
+   osPrintf("%d, %d, %d, %d, %d\n", outs[5], outs[6], outs[7], outs[8], outs[9]);
 }
 #endif /* TESTING ] */
 
@@ -364,18 +367,18 @@ int testDotProd2()
    sum = (sum >> 32);
    hi = sum & 0xffffffff;
 
-   printf("16x32: 0x%08X%08X\n", hi, lo);
+   osPrintf("16x32: 0x%08X%08X\n", hi, lo);
 
    sum = dspDotProd32x32(ints, int2, 10, &ret1);
    lo = sum & 0xffffffff;
    sum = (sum >> 32);
    hi = sum & 0xffffffff;
 
-   printf("32x32: 0x%08X%08X\n", hi, lo);
+   osPrintf("32x32: 0x%08X%08X\n", hi, lo);
 
    dspCopy32Sto16S(ints, outs, 10);
-   printf("%d, %d, %d, %d, %d,", outs[0], outs[1], outs[2], outs[3], outs[4]);
-   printf("%d, %d, %d, %d, %d\n", outs[5], outs[6], outs[7], outs[8], outs[9]);
+   osPrintf("%d, %d, %d, %d, %d,", outs[0], outs[1], outs[2], outs[3], outs[4]);
+   osPrintf("%d, %d, %d, %d, %d\n", outs[5], outs[6], outs[7], outs[8], outs[9]);
    return 0;
 }
 
@@ -417,7 +420,7 @@ int testDotProd3(int times, int count)
    sum = (sum >> 32);
    hi = sum & 0xffffffff;
 
-   printf("C++: 0x%08X%08X, in %d ticks\n", hi, lo, after-before);
+   osPrintf("C++: 0x%08X%08X, in %d ticks\n", hi, lo, after-before);
 
    before = *pOsTC;
    for (i=0; i<times; i++) {
@@ -428,7 +431,7 @@ int testDotProd3(int times, int count)
    sum = (sum >> 32);
    hi = sum & 0xffffffff;
 
-   printf("ASM: 0x%08X%08X, in %d ticks\n", hi, lo, after-before);
+   osPrintf("ASM: 0x%08X%08X, in %d ticks\n", hi, lo, after-before);
 
    free(shorts);
    free(int2);

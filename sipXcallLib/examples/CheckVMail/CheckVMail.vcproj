@@ -23,30 +23,23 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\..\include,..\..\..\sipXportLib\include"
+				AdditionalIncludeDirectories="..\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
 				RuntimeTypeInfo="TRUE"
-				UsePrecompiledHeader="2"
-				PrecompiledHeaderFile=".\Release/CheckVMail.pch"
-				AssemblerListingLocation=".\Release/"
-				ObjectFile=".\Release/"
-				ProgramDataBaseFileName=".\Release/"
 				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
-				CompileAs="0"/>
+				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="sipXtapi.lib odbc32.lib odbccp32.lib"
-				OutputFile=".\Release/CheckVMail.exe"
+				AdditionalDependencies="sipXtapi.lib"
+				OutputFile="..\bin\CheckVMail.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="..\..\sipxTapi\Release\"
-				ProgramDatabaseFile=".\Release/CheckVMail.pdb"
+				AdditionalLibraryDirectories="..\lib"
 				SubSystem="1"
 				TargetMachine="1"/>
 			<Tool
@@ -91,26 +84,20 @@
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderFile=".\Debug/CheckVMail.pch"
-				AssemblerListingLocation=".\Debug/"
-				ObjectFile=".\Debug/"
-				ProgramDataBaseFileName=".\Debug/"
 				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
-				DebugInformationFormat="4"
-				CompileAs="0"/>
+				DebugInformationFormat="3"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="sipXtapid.lib odbc32.lib odbccp32.lib"
-				OutputFile=".\Debug/CheckVMail.exe"
+				AdditionalDependencies="sipXtapid.lib"
+				OutputFile="..\bin\CheckVMail_Debug.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\lib"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\Debug/CheckVMail.pdb"
 				SubSystem="1"
 				TargetMachine="1"/>
 			<Tool

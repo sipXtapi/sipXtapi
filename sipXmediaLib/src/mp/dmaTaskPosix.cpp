@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -16,7 +19,6 @@
  * and not be interrupted in the future by any timers dmaStartup() might set
  * up), and begin calling MpMediaTask::signalFrameStart() every 10 ms.
 */
-
 
 /* Only for Linux. Needs root priveleges. */
 //#define _REALTIME_LINUX_AUDIO_THREADS
@@ -231,8 +233,6 @@ static void * mediaSignaller(void * arg)
 OsStatus dmaStartup(int samplesPerFrame)
 {
    int res;
-   pthread_t thread;
-   
 
    dmaOnline = 1;
 
@@ -324,17 +324,19 @@ static void * soundCardReader(void * arg)
 {
    MpBufferMsg* pMsg;
    MpBufferMsg* pFlush;
-   MpBufPtr ob;
-   Sample* buffer;
+   MpAudioSample* buffer;
    int recorded;
 
    osPrintf(" **********START MIC!**********\n");
 
    while(dmaOnline)
    {
-      ob = MpBuf_getBuf(MpMisc.UcbPool, N_SAMPLES, 0, MP_FMT_T12);
-      assert(ob != NULL);
-      buffer = MpBuf_getSamples(ob);
+      MpAudioBufPtr ob;
+
+      ob = MpMisc.RawAudioPool->getBuffer();
+      assert(ob.isValid());
+      assert(ob->setSamplesNumber(N_SAMPLES));
+      buffer = ob->getSamples();
       recorded = 0;
       sem_wait(&read_sem);
       assert(sMpAudioMicReadFuncPtr);
@@ -342,7 +344,7 @@ static void * soundCardReader(void * arg)
       sem_post(&write_sem);
 
       if (DmaTask::isMuteEnabled())
-         memset(buffer, 0, sizeof(Sample) * N_SAMPLES); /* clear it out */
+         memset(buffer, 0, sizeof(MpAudioSample) * N_SAMPLES); /* clear it out */
 
       assert(recorded == N_SAMPLES);
 
@@ -351,32 +353,32 @@ static void * soundCardReader(void * arg)
          pMsg = new MpBufferMsg(MpBufferMsg::AUD_RECORDED);
 
       pMsg->setMsgSubType(MpBufferMsg::AUD_RECORDED);
-      pMsg->setTag(ob);
-      pMsg->setBuf(MpBuf_getSamples(ob));
-      pMsg->setLen(MpBuf_getNumSamples(ob));
+      
+      // Pass buffer to message. Buffer will be invalid after this!
+      pMsg->ownBuffer(ob);
 
       if(MpMisc.pMicQ && MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT_TIME) != OS_SUCCESS)
       {
          OsStatus  res;
          res = MpMisc.pMicQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT_TIME);
          if (OS_SUCCESS == res) {
-            MpBuf_delRef(pFlush->getTag());
             pFlush->releaseMsg();
          } else {
             osPrintf("DmaTask: queue was full, now empty (5)!"
                " (res=%d)\n", res);
          }
          if(MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT_TIME) != OS_SUCCESS)
-            MpBuf_delRef(ob);
+         {
+            osPrintf("pMicQ->send() failed!\n");
+         }
       }
       if(!pMsg->isMsgReusable())
          delete pMsg;
    }
 
-   osPrintf(" ***********STOP!**********\n");
+   osPrintf(" ***********STOP MIC!**********\n");
    return NULL;
 }
-
 
 static void * soundCardWriter(void * arg)
 {
@@ -392,8 +394,7 @@ static void * soundCardWriter(void * arg)
    while(dmaOnline)
    {
       MpBufferMsg* pMsg;
-      MpBufPtr ob;
-      Sample last_buffer[N_SAMPLES] = {0};
+      MpAudioSample last_buffer[N_SAMPLES] = {0};
 
       /* write to the card */
 
@@ -428,12 +429,12 @@ static void * soundCardWriter(void * arg)
 
       if(MpMisc.pSpkQ && MpMisc.pSpkQ->receive((OsMsg*&) pMsg, OsTime::NO_WAIT_TIME) == OS_SUCCESS)
       {
-         ob = (MpBufPtr) pMsg->getTag();
+         MpAudioBufPtr ob = pMsg->getBuffer();
          assert(ob != NULL);
          if(playFrame)
          {
             int played = 0;
-            Sample* buffer = MpBuf_getSamples(ob);
+            MpAudioSample* buffer = ob->getSamples();
             
             /* copy the buffer for skip protection */
             memcpy(&last_buffer[N_SAMPLES / 2], &buffer[N_SAMPLES / 2], BUFLEN / 2);
@@ -447,7 +448,6 @@ static void * soundCardWriter(void * arg)
          else
             osPrintf("soundCardWriter dropping sound packet\n");
 
-         MpBuf_delRef(ob);
          pMsg->releaseMsg();
       }
       else if(playFrame)
@@ -466,12 +466,9 @@ static void * soundCardWriter(void * arg)
       }
    }
 
-   osPrintf(" ***********STOP!**********\n");
+   osPrintf(" ***********STOP SPKR!**********\n"); 
    return NULL;
 }
-
-
-
 
 static void startAudioSupport(void)
 {
@@ -527,6 +524,9 @@ static void stopAudioSupport(void)
       close(soundCard);
       soundCard = -1;
    }
+
+   if (DmaMsgPool != NULL)
+      delete DmaMsgPool;
 }
 
 

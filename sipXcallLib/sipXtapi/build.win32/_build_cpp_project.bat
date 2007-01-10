@@ -27,8 +27,18 @@ devenv %PROJECT_NAME%.sln /build debug
 ECHO ??? Build result: %ERRORLEVEL%
 IF NOT "%ERRORLEVEL%"=="0" GOTO ERROR_EXIT
 
+devenv %PROJECT_NAME%.sln /clean debug_NoVideo
+devenv %PROJECT_NAME%.sln /build debug_NoVideo
+ECHO ??? Build result: %ERRORLEVEL%
+IF NOT "%ERRORLEVEL%"=="0" GOTO ERROR_EXIT
+
 devenv %PROJECT_NAME%.sln /clean release
 devenv %PROJECT_NAME%.sln /build release
+ECHO ??? Build result: %ERRORLEVEL%
+IF NOT "%ERRORLEVEL%"=="0" GOTO ERROR_EXIT
+
+devenv %PROJECT_NAME%.sln /clean release_NoVideo
+devenv %PROJECT_NAME%.sln /build release_NoVideo
 ECHO ??? Build result: %ERRORLEVEL%
 IF NOT "%ERRORLEVEL%"=="0" GOTO ERROR_EXIT
 
@@ -46,3 +56,4 @@ EXIT /B 1
 :DONE
 popd.
 EXIT /B 0
+	

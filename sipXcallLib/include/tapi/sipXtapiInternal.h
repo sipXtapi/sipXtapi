@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -229,7 +232,7 @@ typedef enum CONF_HOLD_STATE
 {
     CONF_STATE_UNHELD = 0,
     CONF_STATE_BRIDGING_HOLD,
-    CONF_STATE_NON_BRIDGING_HOLD,
+    CONF_STATE_NON_BRIDGING_HOLD
 } CONF_HOLD_STATE;
 
 typedef struct

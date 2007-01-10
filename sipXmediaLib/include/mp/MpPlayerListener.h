@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -34,9 +37,13 @@ class MpPlayerListener
 public:
 
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
+//@}
 
 /* ============================ MANIPULATORS ============================== */
-
+///@name Manipulators
+//@{
    virtual void playerRealized(MpPlayerEvent& event) = 0 ;
      //: The player has been realized
 
@@ -55,9 +62,19 @@ public:
    virtual void playerFailed(MpPlayerEvent& event) = 0 ;
      //: The player has failed
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

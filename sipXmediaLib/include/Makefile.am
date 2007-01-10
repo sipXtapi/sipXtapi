@@ -24,21 +24,25 @@ nobase_include_HEADERS =  \
     mp/JB/JB_API.h \
     mp/JB/jb_typedefs.h \
     mp/mpau.h \
+    mp/MpArrayBuf.h \
     mp/MpAudioAbstract.h \
+    mp/MpAudioBuf.h \
     mp/MpAudioFileDecompress.h \
     mp/MpAudioFileOpen.h \
     mp/MpAudioFileUtils.h \
+    mp/MpAudioResource.h \
     mp/MpAudioUtils.h \
     mp/MpAudioWaveFileRead.h \
     mp/MpBuf.h \
+    mp/MpBufPool.h \
     mp/MpBufferMsg.h \
     mp/MpCallFlowGraph.h \
     mp/MpCodec.h \
     mp/MpCodecFactory.h \
     mp/MpCodecInfo.h \
     mp/MpConnection.h \
+    mp/MpDataBuf.h \
     mp/MpDecoderBase.h \
-    mp/MpDefs.h \
     mp/MpdGIPSG729ab.h \
     mp/MpdGIPSiLBC.h \
     mp/MpdGIPSiPCMA.h \
@@ -49,6 +53,7 @@ nobase_include_HEADERS =  \
     mp/MpdPtAVT.h \
     mp/MpdSipxPcma.h \
     mp/MpdSipxPcmu.h \
+    mp/MpdSipxSpeex.h \
     mp/MpeGIPSG729ab.h \
     mp/MpeGIPSiLBC.h \
     mp/MpeGIPSiPCMA.h \
@@ -58,6 +63,7 @@ nobase_include_HEADERS =  \
     mp/MpeGIPSPCMU.h \
     mp/MpeSipxPcma.h \
     mp/MpeSipxPcmu.h \
+    mp/MpeSipxSpeex.h \
     mp/MpEncoderBase.h \
     mp/MpePtAVT.h \
     mp/MpFlowGraphBase.h \
@@ -70,7 +76,8 @@ nobase_include_HEADERS =  \
     mp/MpPlayerEvent.h \
     mp/MpPlayerListener.h \
     mp/MpQueuePlayerListener.h \
-    mp/MpRawAudioBuffer.h \
+    mp/MpRtpBuf.h \
+    mp/MpUdpBuf.h \
     mp/MprBridge.h \
     mp/MprDecode.h \
     mp/MprDejitter.h \
@@ -84,6 +91,8 @@ nobase_include_HEADERS =  \
     mp/MprFromStream.h \
     mp/MprMixer.h \
     mp/MprRecorder.h \
+    mp/MprSpeexEchoCancel.h \
+    mp/MprSpeexPreprocess.h \
     mp/MprSplitter.h \
     mp/MprToneGen.h \
     mp/MprToNet.h \
