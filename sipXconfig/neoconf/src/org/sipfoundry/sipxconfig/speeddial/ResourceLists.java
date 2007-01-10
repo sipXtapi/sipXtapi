@@ -48,7 +48,7 @@ public class ResourceLists extends XmlFile {
                     continue;
                 }
                 if (list == null) {
-                    list = createListForUser(lists, user);
+                    list = createListForUser(lists, speedDial);
                 }
                 createResourceForUser(list, button);
             }
@@ -66,11 +66,10 @@ public class ResourceLists extends XmlFile {
         parent.addElement("name").setText(name);
     }
 
-    private Element createListForUser(Element lists, User user) {
+    private Element createListForUser(Element lists, SpeedDial speedDial) {
         Element list = lists.addElement("list");
-        String resourceListId = "~~rl~" + user.getId();
-        list.addAttribute("user", resourceListId);
-        addNameElement(list, user.getUserName());
+        list.addAttribute("user", speedDial.getResourceListId());
+        addNameElement(list, speedDial.getResourceListName());
         return list;
     }
 

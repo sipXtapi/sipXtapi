@@ -26,16 +26,12 @@ import org.dom4j.DocumentException;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
-import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.device.DeviceDefaults;
-import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
-import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
 /**
@@ -46,11 +42,11 @@ public class PolycomPhone extends Phone {
     public static final String CALL = "call";
     static final String REGISTRATION_PATH = "reg/server/1/address";
     static final String REGISTRATION_PORT_PATH = "reg/server/1/port";
-    private static final String CONTACT_MODE = "contact";
-    private static final String DISPLAY_NAME_PATH = "reg/displayName";
-    private static final String PASSWORD_PATH = "reg/auth.password";
-    private static final String USER_ID_PATH = "reg/address";
-    private static final String AUTHORIZATION_ID_PATH = "reg/auth.userId";
+    static final String CONTACT_MODE = "contact";
+    static final String DISPLAY_NAME_PATH = "reg/displayName";
+    static final String PASSWORD_PATH = "reg/auth.password";
+    static final String USER_ID_PATH = "reg/address";
+    static final String AUTHORIZATION_ID_PATH = "reg/auth.userId";
     private String m_phoneConfigDir = "polycom/mac-address.d";
     private String m_phoneTemplate = m_phoneConfigDir + "/phone.cfg.vm";
     private String m_sipTemplate = m_phoneConfigDir + "/sip-%s.cfg.vm";
@@ -83,8 +79,9 @@ public class PolycomPhone extends Phone {
 
     @Override
     public void initialize() {
+        SpeedDial speedDial = getPhoneContext().getSpeedDial(this);
         PolycomPhoneDefaults phoneDefaults = new PolycomPhoneDefaults(getPhoneContext()
-                .getPhoneDefaults());
+                .getPhoneDefaults(), speedDial);
         addDefaultBeanSettingHandler(phoneDefaults);
 
         PolycomIntercomDefaults intercomDefaults = new PolycomIntercomDefaults(this);
@@ -227,223 +224,6 @@ public class PolycomPhone extends Phone {
         lineInfo.setRegistrationServer(line.getSettingValue(REGISTRATION_PATH));
         lineInfo.setRegistrationServerPort(line.getSettingValue(REGISTRATION_PORT_PATH));
         return lineInfo;
-    }
-
-    // XCF-668 Removed setting outbound proxy defaults
-    // So by default, polycom phones will attempt to send sip traffic to server
-    // it's registered with. Setting an outbound proxy to domain would be redundant
-    // therefore unnec. and could potentially cause issues.
-    public static class PolycomPhoneDefaults {
-        private DeviceDefaults m_defaults;
-
-        PolycomPhoneDefaults(DeviceDefaults defaults) {
-            m_defaults = defaults;
-        }
-
-        private DeviceTimeZone getZone() {
-            return m_defaults.getTimeZone();
-        }
-
-        @SettingEntry(path = "tcpIpApp.sntp/gmtOffset")
-        public long getGmtOffset() {
-            return getZone().getOffset();
-        }
-
-        @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.enable")
-        public boolean isDstEnabled() {
-            return getZone().getDstOffset() != 0;
-        }
-
-        @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.fixedDayEnable")
-        public boolean isFixedDayEnabled() {
-            return isDstEnabled() && getZone().getStartDay() > 0;
-        }
-
-        @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.start.date")
-        public int getStartDay() {
-            if (!isDstEnabled()) {
-                return 0;
-            }
-            if (isFixedDayEnabled()) {
-                return getZone().getStartDay();
-            }
-            if (getZone().getStartWeek() == DeviceTimeZone.DST_LASTWEEK) {
-                return 1;
-            }
-
-            return getZone().getStartWeek();
-        }
-
-        @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.start.dayOfWeek.lastInMonth")
-        public boolean isStartLastInMonth() {
-            if (!isDstEnabled()) {
-                return false;
-            }
-            if (isFixedDayEnabled()) {
-                return true;
-            }
-            if (getZone().getStartWeek() == DeviceTimeZone.DST_LASTWEEK) {
-                return true;
-            }
-
-            return false;
-        }
-
-        @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.date")
-        public int getStopDate() {
-            if (!isDstEnabled()) {
-                return 0;
-            }
-            if (isFixedDayEnabled()) {
-                return getZone().getStopDay();
-            }
-            if (getZone().getStopWeek() == DeviceTimeZone.DST_LASTWEEK) {
-                return 1;
-            }
-
-            return getZone().getStopWeek();
-        }
-
-        @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.dayOfWeek.lastInMonth")
-        public boolean isStopDayOfWeekLastInMonth() {
-            if (!isDstEnabled()) {
-                return false;
-            }
-            if (isFixedDayEnabled()) {
-                return false;
-            }
-            if (getZone().getStopWeek() == DeviceTimeZone.DST_LASTWEEK) {
-                return true;
-            }
-
-            return false;
-        }
-
-        @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.start.dayOfWeek")
-        public int getStartDayOfWeek() {
-            return isDstEnabled() ? dayOfWeek(getZone().getStartDayOfWeek()) : 0;
-        }
-
-        static int dayOfWeek(int dayOfWeek) {
-            // 1-based
-            int dayOfWeekStartingOnMonday = ((dayOfWeek + 1) % 7) + 1;
-            return dayOfWeekStartingOnMonday;
-        }
-
-        @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.start.month")
-        public int getStartMonth() {
-            return isDstEnabled() ? getZone().getStartMonth() : 0;
-        }
-
-        @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.start.time")
-        public int getStartTime() {
-            return isDstEnabled() ? getZone().getStartMonth() / 3600 : 0;
-        }
-
-        @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.dayOfWeek")
-        public int getStopDayOfWeek() {
-            return isDstEnabled() ? dayOfWeek(getZone().getStopDayOfWeek()) : 0;
-        }
-
-        @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.month")
-        public int getStopMonth() {
-            return isDstEnabled() ? getZone().getStopMonth() : 0;
-        }
-
-        @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.time")
-        public int getStopTime() {
-            return isDstEnabled() ? getZone().getStopTime() / 3600 : 0;
-        }
-
-        @SettingEntry(path = "voIpProt/server/1/address")
-        public String getRegistrationServer() {
-            return m_defaults.getDomainName();
-        }
-    }
-
-    public static class PolycomLineDefaults {
-
-        private DeviceDefaults m_defaults;
-        private Line m_line;
-
-        PolycomLineDefaults(DeviceDefaults defaults, Line line) {
-            m_defaults = defaults;
-            m_line = line;
-        }
-
-        @SettingEntry(path = "msg.mwi/subscribe")
-        public String getMwiSubscribe() {
-            String uri = null;
-            User u = m_line.getUser();
-            if (u != null) {
-                uri = u.getUserName() + '@' + m_defaults.getDomainName();
-            }
-
-            return uri;
-        }
-
-        @SettingEntry(path = "msg.mwi/callBack")
-        public String getCallBack() {
-            String uri = null;
-            User u = m_line.getUser();
-            if (u != null) {
-                uri = m_defaults.getVoiceMail() + '@' + m_defaults.getDomainName();
-            }
-
-            return uri;
-        }
-
-        @SettingEntry(path = "msg.mwi/callBackMode")
-        public String getCallBackMode() {
-            String mode = "disabled";
-            User u = m_line.getUser();
-            if (u != null) {
-                mode = CONTACT_MODE;
-            }
-
-            return mode;
-        }
-
-        @SettingEntry(path = AUTHORIZATION_ID_PATH)
-        public String getAuthorizationId() {
-            return getAddress();
-        }
-
-        @SettingEntry(path = USER_ID_PATH)
-        public String getAddress() {
-            User u = m_line.getUser();
-            if (u != null) {
-                return u.getUserName();
-            }
-            return null;
-        }
-
-        @SettingEntry(path = PASSWORD_PATH)
-        public String getAuthorizationPassword() {
-            User u = m_line.getUser();
-            if (u != null) {
-                return u.getSipPassword();
-            }
-            return null;
-        }
-
-        @SettingEntry(path = DISPLAY_NAME_PATH)
-        public String getDisplayName() {
-            User u = m_line.getUser();
-            if (u != null) {
-                return u.getDisplayName();
-            }
-            return null;
-        }
-
-        @SettingEntry(path = REGISTRATION_PATH)
-        public String getRegistrationServer() {
-            User u = m_line.getUser();
-            if (u != null) {
-                return m_line.getPhoneContext().getPhoneDefaults().getDomainName();
-            }
-            return null;
-        }
     }
 
     public void restart() {

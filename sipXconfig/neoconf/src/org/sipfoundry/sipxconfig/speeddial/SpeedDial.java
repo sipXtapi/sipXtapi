@@ -51,4 +51,24 @@ public class SpeedDial extends BeanWithId {
         List<Button> buttons = getButtons();
         DataCollectionUtil.move(buttons, index, moveOffset);
     }
+
+    public String getResourceListId() {
+        return "~~rl~" + getUser().getId();
+    }
+
+    public String getResourceListName() {
+        return getUser().getUserName();
+    }
+
+    /**
+     * If at least one button supports BLF we need to register this list as BLF
+     */
+    public boolean isBlf() {
+        for (Button button : getButtons()) {
+            if (button.isBlf()) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

@@ -100,7 +100,7 @@ public class PolycomPhoneTest extends TestCase {
     }
     
     public void testDayOfWeek() {
-        assertEquals(2, PolycomPhone.PolycomPhoneDefaults.dayOfWeek(0));
-        assertEquals(1, PolycomPhone.PolycomPhoneDefaults.dayOfWeek(6));
+        assertEquals(2, PolycomPhoneDefaults.dayOfWeek(0));
+        assertEquals(1, PolycomPhoneDefaults.dayOfWeek(6));
     }
 }

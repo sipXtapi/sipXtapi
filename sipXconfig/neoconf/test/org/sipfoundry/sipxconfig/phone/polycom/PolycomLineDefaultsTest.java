@@ -17,7 +17,6 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.phone.Line;
-import org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone.PolycomLineDefaults;
 
 public class PolycomLineDefaultsTest extends TestCase {
     private PolycomLineDefaults m_defaults;
