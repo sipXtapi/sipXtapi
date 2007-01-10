@@ -70,8 +70,8 @@
 // be made on this to make it dynamic.
 
 typedef UtlBoolean (*MpAudioDeviceInitFunc) (void);
-typedef int (*MpAudioSpeakerWriteFunc) (Sample *writeBufferSamples, int numSamples);
-typedef int (*MpAudioMicReadFunc) (Sample *readBufferSamples, int numSamples);
+typedef int (*MpAudioSpeakerWriteFunc) (MpAudioSample *writeBufferSamples, int numSamples);
+typedef int (*MpAudioMicReadFunc) (MpAudioSample *readBufferSamples, int numSamples);
 
 extern UtlBoolean defaultAudioDeviceInit();
 #ifdef MP_AUDIO_DEVICE_INIT_FUNC
@@ -81,17 +81,17 @@ MpAudioDeviceInitFunc sMpAudioDeviceInitFuncPtr = MP_AUDIO_DEVICE_INIT_FUNC;
 MpAudioDeviceInitFunc sMpAudioDeviceInitFuncPtr = defaultAudioDeviceInit;
 #endif
 
-extern int defaultAudioSpeakerWrite(Sample *writeBufferSamples, int numSamples);
+extern int defaultAudioSpeakerWrite(MpAudioSample *writeBufferSamples, int numSamples);
 #ifdef MP_AUDIO_SPEAKER_WRITE_FUNC
-extern int MP_AUDIO_SPEAKER_WRITE_FUNC (Sample *writeBufferSamples, int numSamples);
+extern int MP_AUDIO_SPEAKER_WRITE_FUNC (MpAudioSample *writeBufferSamples, int numSamples);
 MpAudioSpeakerWriteFunc sMpAudioSpeakerWriteFuncPtr = MP_AUDIO_SPEAKER_WRITE_FUNC;
 #else
 MpAudioSpeakerWriteFunc sMpAudioSpeakerWriteFuncPtr = defaultAudioSpeakerWrite;
 #endif
 
-extern int defaultAudioMicRead(Sample *readBufferSamples, int numSamples);
+extern int defaultAudioMicRead(MpAudioSample *readBufferSamples, int numSamples);
 #ifdef MP_AUDIO_MIC_READ_FUNC
-extern int MP_AUDIO_MIC_READ_FUNC (Sample *readBufferSamples, int numSamples);
+extern int MP_AUDIO_MIC_READ_FUNC (MpAudioSample *readBufferSamples, int numSamples);
 MpAudioMicReadFunc sMpAudioMicReadFuncPtr = MP_AUDIO_MIC_READ_FUNC;
 #else
 MpAudioMicReadFunc sMpAudioMicReadFuncPtr = defaultAudioMicRead;
@@ -267,17 +267,17 @@ void dmaShutdown(void)
    }
 }
 
-int defaultAudioMicRead(Sample *readBufferSamples, int numSamples)
+int defaultAudioMicRead(MpAudioSample *readBufferSamples, int numSamples)
 {
 #ifdef _INCLUDE_AUDIO_SUPPORT 
    int justRead;
    int recorded = 0;
    while(recorded < N_SAMPLES)
    {
-      justRead = read(soundCard, &readBufferSamples[recorded], BUFLEN - (recorded * sizeof(Sample)));
+      justRead = read(soundCard, &readBufferSamples[recorded], BUFLEN - (recorded * sizeof(MpAudioSample)));
 
       assert(justRead > 0);
-      recorded += justRead/sizeof(Sample);
+      recorded += justRead/sizeof(MpAudioSample);
    }
    return(recorded);
 #else
@@ -286,16 +286,16 @@ int defaultAudioMicRead(Sample *readBufferSamples, int numSamples)
 #endif
 }
 
-int defaultAudioSpeakerWrite(Sample *writeBufferSamples, int numSamples)
+int defaultAudioSpeakerWrite(MpAudioSample *writeBufferSamples, int numSamples)
 {
 #ifdef _INCLUDE_AUDIO_SUPPORT 
    int played = 0;
    while(played < N_SAMPLES)
    {
       int justWritten;
-      justWritten = write(soundCard, &writeBufferSamples[played], BUFLEN - (played * sizeof(Sample)));
+      justWritten = write(soundCard, &writeBufferSamples[played], BUFLEN - (played * sizeof(MpAudioSample)));
       assert(justWritten > 0);
-      played += justWritten/sizeof(Sample);
+      played += justWritten/sizeof(MpAudioSample);
    }
    return(played);
 #else
