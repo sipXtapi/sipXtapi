@@ -110,6 +110,9 @@ public class SipUriTest extends TestCase {
                 .extractFullUser("\"first last\"<sip:name@sipfoundry.org>"));
         assertEquals("Alice Smith - 180", SipUri
                 .extractFullUser("\"Alice Smith\" <sip:180@example.com> "));
+        
+        assertEquals("Douglas+Hubler - 201", SipUri
+                .extractFullUser("\"Douglas+Hubler\"<sip:201@nuthatch.pingtel.com>;tag%3D53585A61-338ED896"));        
     }
 
     public void testMatches() {

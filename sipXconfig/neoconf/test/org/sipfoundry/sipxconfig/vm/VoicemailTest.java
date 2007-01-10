@@ -14,6 +14,9 @@ package org.sipfoundry.sipxconfig.vm;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -33,8 +36,9 @@ public class VoicemailTest extends TestCase {
         assertNotNull(md);
     }
     
-    public void testGetDate() {
-        Date date = MessageDescriptor.parseTimestamp("Tue, 9-Jan-2007 02:33:00 PM EST");
+    public void testGetDate() throws ParseException {
+        DateFormat formatter = new SimpleDateFormat(MessageDescriptor.TIMESTAMP_FORMAT);
+        Date date = formatter.parse("Tue, 9-Jan-2007 02:33:00 PM EST");
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("EST"), Locale.ENGLISH);
         cal.setTime(date);
         cal.toString();
@@ -45,5 +49,6 @@ public class VoicemailTest extends TestCase {
         File mailstore = new File(TestUtil.getTestSourceDirectory(getClass()));
         Voicemail vm = new Voicemail(mailstore, "200", "inbox", "00000001-00");
         assertEquals("Voice Message 00000002", vm.getSubject());        
+        assertEquals("\"Douglas+Hubler\"<sip:201@nuthatch.pingtel.com>;tag%3D53585A61-338ED896", vm.getFrom());        
     }
 }

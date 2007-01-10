@@ -17,7 +17,6 @@ import java.util.List;
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.Bean;
-import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
@@ -40,16 +39,10 @@ public abstract class ManageVoicemail extends UserBasePage {
     @InjectObject(value = "spring:voicemailManager")
     public abstract VoicemailManager getVoicemailManager();
 
-    public abstract String getFolder();
-
-    @InitialValue("new org.sipfoundry.sipxconfig.components.SelectMap()")
     public abstract SelectMap getSelections();
-
     public abstract void setSelections(SelectMap selections);
 
     public abstract Voicemail getVoicemail();
-
-    public abstract void setVoicemail(Voicemail voicemail);
 
     public abstract List<Voicemail> getVoicemails();
 
@@ -70,6 +63,7 @@ public abstract class ManageVoicemail extends UserBasePage {
 
     public void pageBeginRender(PageEvent event) {
         super.pageBeginRender(event);
+        
         SelectMap selections = getSelections();
         if (selections == null) {
             setSelections(new SelectMap());

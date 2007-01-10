@@ -9,7 +9,8 @@
       selections="prop:selections"
       columns="* subject,from,=timestampColumn,duration,play"
       converter="prop:converter"
-      row="prop:voicemail">
+      row="prop:voicemail"
+      usePager="ognl:true">
       <span jwcid="fromColumnValue@Block">
         <span jwcid="@Any" title="prop:voicemail.from"><span jwcid="@Insert" value="prop:voicemail.fromBrief"/></span>
       </span>

@@ -15,14 +15,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.Annotations;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.converters.basic.DateConverter;
 import com.thoughtworks.xstream.io.xml.Dom4JDriver;
 import com.thoughtworks.xstream.mapper.MapperWrapper;
 
@@ -65,7 +64,7 @@ public class Voicemail implements Comparable, PrimaryKeySource {
     public Date getTimestamp() {
         return getDescriptor().getTimestamp();
     }
-    
+
     static class MessageDescriptorFormatException extends RuntimeException {
         MessageDescriptorFormatException(String message, ParseException cause) {
             super(message, cause);
@@ -96,6 +95,7 @@ public class Voicemail implements Comparable, PrimaryKeySource {
             }
         };
         Annotations.configureAliases(xstream, MessageDescriptor.class);
+        xstream.registerConverter(new DateConverter(MessageDescriptor.TIMESTAMP_FORMAT, new String[0]));
         MessageDescriptor md = (MessageDescriptor) xstream.fromXML(in);
         return md;
     }
@@ -109,7 +109,7 @@ public class Voicemail implements Comparable, PrimaryKeySource {
     }
 
     public String getFromBrief() {
-        return SipUri.extractUser(getFrom().replace('+', ' '));
+        return SipUri.extractFullUser(getFrom().replace('+', ' '));
     }
 
     public int compareTo(Object o) {
@@ -127,48 +127,43 @@ public class Voicemail implements Comparable, PrimaryKeySource {
         String[] ids = primaryKey.toString().split(String.valueOf(SEPARATOR));
         return ids;
     }
-    
+
     @XStreamAlias("messagedescriptor")
     static class MessageDescriptor {
-        private static final DateFormat TIMESTAMP_FORMAT = new SimpleDateFormat(
-                "EEE, d-MMM-yyyy hh:mm:ss aaa z");
-
-        private String m_timestamp;
+        static final String TIMESTAMP_FORMAT = "EEE, d-MMM-yyyy hh:mm:ss aaa z";
+        private Date m_timestamp;
         private int m_durationsecs;
         private String m_subject;
         private String m_from;
         private String m_priority;
-        private String m_id;
-        
-        static Date parseTimestamp(String timestamp) {
-            try {
-                return TIMESTAMP_FORMAT.parse(timestamp);
-            } catch (ParseException e) {            
-                String message = String.format("timestamp %s cannot be parsed ", timestamp);
-                throw new MessageDescriptorFormatException(message, e);
-            }        
-        }
+        private String m_id;        
 
         public int getDurationsecs() {
             return m_durationsecs;
         }
+
         public String getFrom() {
             return m_from;
         }
+
         public String getId() {
             return m_id;
         }
+
         public String getPriority() {
             return m_priority;
         }
+
         public String getSubject() {
             return m_subject;
         }
+
         public void setSubject(String subject) {
             m_subject = subject;
         }
+
         public Date getTimestamp() {
-            return parseTimestamp(m_timestamp);
+            return m_timestamp;
         }
     }
 }
