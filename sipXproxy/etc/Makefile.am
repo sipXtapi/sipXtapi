@@ -15,7 +15,7 @@ EXTRA_DIST = \
     sipauthproxy.process.xml.in \
     sipxcallresolver.process.xml.in \
     $(cfgfiles_IN)
-    
+
 PROCESS_XML_FILES = \
 	$(DESTDIR)$(SIPX_PROCDIR)/sipproxy.process.xml \
 	$(DESTDIR)$(SIPX_PROCDIR)/sipauthproxy.process.xml
@@ -29,7 +29,8 @@ CFG_FILES = $(foreach file,$(cfgfiles_IN),$(DESTDIR)/$(sysconfdir)/sipxpbx/$(fil
 install-exec-hook : \
 	$(PROCESS_XML_FILES) \
 	$(CFG_FILES) \
-		upgrade-auth-rules
+	upgrade-auth-rules \
+	upgrade-forwarding-rules
 
 $(foreach file,$(cfgfiles_IN),$(DESTDIR)/$(sysconfdir)/sipxpbx/$(file)) : $(DESTDIR)/$(sysconfdir)/sipxpbx/% : %
 	if ! test -f $@; \
@@ -49,4 +50,11 @@ upgrade-auth-rules:
 	perl -pi \
 	-e 's|<mappings>|<mappings xmlns="http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00">|' \
 	$(DESTDIR)$(sysconfdir)/sipxpbx/authrules.xml.in
+
+.PHONY: upgrade-forwarding-rules
+upgrade-forwarding-rules:
+	echo "        Checking/updating schema for $(sysconfdir)/sipxpbx/forwardingrules.xml.in"
+	perl -pi \
+	-e 's|<routes>|<routes xmlns="http://www.sipfoundry.org/sipX/schema/xml/forwardingrules-00-00">|' \
+	$(DESTDIR)$(sysconfdir)/sipxpbx/forwardingrules.xml.in
 

@@ -95,6 +95,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipauthproxy
 %attr(755,root,root) %{_bindir}/%name-config
 %attr(755,root,root) %{_bindir}/sipxha-distrib.sh
+%attr(755,root,root) %{_datadir}/sipx/schema/forwardingrules.xsd
 
 # The configuration directory needs to be writeable because
 # config files are generated from templates via config.defs
