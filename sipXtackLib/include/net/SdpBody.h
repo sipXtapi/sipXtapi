@@ -34,7 +34,7 @@
 
 // Crypto suites
 #define AES_CM_128_HMAC_SHA1_80   1
-#define AES_CM_128_HAMC_SHA1_32   2
+#define AES_CM_128_HMAC_SHA1_32   2
 #define F8_128_HMAC_SHA1_80       3
 // Protection level
 #define SRTP_ENCRYPTION           0x0001

@@ -22,9 +22,6 @@
 //after that, every 10 calls
 //#define FORCE_SOCKET_ERRORS
 
-#include "utl/UtlRscTrace.h"
-
-#include "os/HostAdapterAddress.h"
 #if defined(_WIN32)
 #   include <winsock2.h>
 #elif defined(_VXWORKS)
@@ -67,6 +64,8 @@
 // APPLICATION INCLUDES
 #include <os/OsSocket.h>
 #include <os/OsSysLog.h>
+#include <utl/UtlRscTrace.h>
+#include <os/HostAdapterAddress.h>
 
 // EXTERNAL FUNCTIONS
 #ifdef _VXWORKS

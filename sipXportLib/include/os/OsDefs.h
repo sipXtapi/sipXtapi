@@ -44,11 +44,19 @@
 // str(n)icmp, but on older ones, they are not.)
 #ifdef WIN32
     #ifdef WINCE
-        #define strcasecmp _stricmp
-        #define strncasecmp _strnicmp
+        #ifndef strcasecmp
+           #define strcasecmp _stricmp
+        #endif
+        #ifndef strncasecmp
+           #define strncasecmp _strnicmp
+        #endif
     #else
-        #define strcasecmp stricmp
-        #define strncasecmp strnicmp
+        #ifndef strcasecmp
+           #define strcasecmp stricmp
+        #endif
+        #ifndef strncasecmp
+           #define strncasecmp strnicmp
+        #endif
     #endif
 #endif
 

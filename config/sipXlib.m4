@@ -214,6 +214,54 @@ AC_DEFUN([SFAC_LIB_STACK],
 
 ]) # SFAC_LIB_STACK
 
+## sipXsdpLib
+#
+# If not found, the configure is aborted.  Otherwise, variables are defined
+# for both the INC and LIB paths AND the paths are added to the CFLAGS,
+# CXXFLAGS, LDFLAGS, and LIBS.
+AC_DEFUN([SFAC_LIB_SDP],
+[
+    AC_REQUIRE([SFAC_LIB_PORT])
+    AC_REQUIRE([SFAC_LIB_STACK])
+
+    SFAC_ARG_WITH_INCLUDE([sdp/Sdp.h],
+            [sipxsdpinc],
+            [ --with-sipxsdpinc=<dir> sdp include path ],
+            [sipXsdpLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_ERROR('sdp/Sdp.h' not found)
+    fi
+    SIPXSDPINC=$foundpath
+    AC_SUBST(SIPXSDPINC)
+
+    if test "$SIPXSDPINC" != "$SIPXPORTINC"
+    then
+        CFLAGS="-I$SIPXSDPINC $CFLAGS"
+        CXXFLAGS="-I$SIPXSDPINC $CXXFLAGS"
+    fi
+
+    SFAC_ARG_WITH_LIB([libsipXsdp.la],
+            [sipxsdplib],
+            [ --with-sipxsdplib=<dir> sdp library path ],
+            [sipXsdpLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_ERROR('libsipXsdp.la' not found)
+    fi
+
+    SIPXSDPLIB=$foundpath
+
+    AC_SUBST(SIPXSDP_LIBS,["$SIPXSDPLIB/libsipXsdp.la"])
+    AC_SUBST(SIPXSDP_STATIC_LIBS,["$SIPXSDPLIB/libsipXsdp.a"])
+    AC_SUBST(SIPXSDP_LDFLAGS,["-L$SIPXSDPLIB"])
+
+]) # SFAC_LIB_SDP
+
 
 ## sipXmediaLib 
 # SFAC_LIB_MEDIA attempts to find the sf media library and include

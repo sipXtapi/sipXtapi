@@ -17,7 +17,7 @@
 
 // APPLICATION INCLUDES
 #include "utl/UtlDefs.h"
-#include "utl/UtlContainable.h"
+#include "utl/UtlCopyableContainable.h"
 
 // DEFINES
 #define DEFAULT_UTLSTRING_CAPACITY 100 ///< initial capacity unless overridden by the constructor
@@ -54,7 +54,7 @@ extern int strncasecmp( const char *s1, const char *s2, int N );
  *
  * @nosubgrouping
  */
-class UtlString : public UtlContainable
+class UtlString : public UtlCopyableContainable
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -119,6 +119,9 @@ public:
      * this object.  If length is greater than the length of source
      * this becomes a copy of source with the same data and length.
      */
+
+    /// Clone method for UtlCopyableContainable requirements
+    UtlCopyableContainable* clone() const;
 
 ///@}
 // ================================================================
