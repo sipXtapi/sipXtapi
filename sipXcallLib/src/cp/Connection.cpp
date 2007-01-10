@@ -18,7 +18,7 @@
 #include <mi/CpMediaInterface.h>
 #include <cp/CpMultiStringMessage.h>
 #include <cp/CpCall.h>
-#include <net/SdpCodec.h>
+#include <sdp/SdpCodec.h>
 #include <net/SipSession.h>
 #include <os/OsLock.h>
 #include <os/OsMsg.h>

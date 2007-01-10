@@ -22,7 +22,7 @@
 #include "os/OsConfigDb.h"
 #include "include/sipXmediaFactoryImpl.h"
 #include "include/CpPhoneMediaInterface.h"
-#include "net/SdpCodec.h"
+#include "sdp/SdpCodec.h"
 #include "mp/MpMediaTask.h"
 #include "mp/MpMisc.h"
 #include "mp/MpCodec.h"

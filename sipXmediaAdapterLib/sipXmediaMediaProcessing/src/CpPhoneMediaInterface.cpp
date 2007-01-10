@@ -31,7 +31,7 @@
 #include <mp/MpStreamQueuePlayer.h>
 #include <mp/dtmflib.h>
 
-#include <net/SdpCodec.h>
+#include <sdp/SdpCodec.h>
 
 #if defined(_VXWORKS)
 #   include <socket.h>
