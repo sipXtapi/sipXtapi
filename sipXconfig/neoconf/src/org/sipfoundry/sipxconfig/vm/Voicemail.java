@@ -95,7 +95,12 @@ public class Voicemail implements Comparable, PrimaryKeySource {
             }
         };
         Annotations.configureAliases(xstream, MessageDescriptor.class);
+        
+        // NOTE: xtream's dateformatter uses fixed ENGLISH Locale, which
+        // turns out is ok because mediaserver writes out timestamp in a fixed
+        // format independent of OS locale.
         xstream.registerConverter(new DateConverter(MessageDescriptor.TIMESTAMP_FORMAT, new String[0]));
+        
         MessageDescriptor md = (MessageDescriptor) xstream.fromXML(in);
         return md;
     }

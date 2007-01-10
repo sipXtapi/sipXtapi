@@ -19,6 +19,13 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class VoicemailManagerTest extends TestCase {
+    private VoicemailManagerImpl m_mgr;
+    
+    protected void setUp() {
+        m_mgr = new VoicemailManagerImpl();        
+        String thisDir = TestUtil.getTestSourceDirectory(getClass());
+        m_mgr.setMailstoreDirectory(thisDir);        
+    }
 
     public void testGetVoicemailWhenInvalid() {        
         VoicemailManagerImpl mgr = new VoicemailManagerImpl();
@@ -40,19 +47,12 @@ public class VoicemailManagerTest extends TestCase {
     }
     
     public void testGetVoicemailWhenEmpty() {        
-        VoicemailManagerImpl mgr = new VoicemailManagerImpl();
-        String thisDir = TestUtil.getTestSourceDirectory(getClass());
-        mgr.setMailstoreDirectory(thisDir);
-        
-        assertEquals(0, mgr.getVoicemail("200", "inbox-bogus").size());
-        assertEquals(0, mgr.getVoicemail("200-bogus", "inbox").size());
+        assertEquals(0, m_mgr.getVoicemail("200", "inbox-bogus").size());
+        assertEquals(0, m_mgr.getVoicemail("200-bogus", "inbox").size());
     }
 
-    public void testGetVoicemail() {
-        VoicemailManagerImpl mgr = new VoicemailManagerImpl();        
-        String thisDir = TestUtil.getTestSourceDirectory(getClass());
-        mgr.setMailstoreDirectory(thisDir);
-        List<Voicemail> vm = mgr.getVoicemail("200", "inbox");
+    public void testGetInboxVoicemail() {
+        List<Voicemail> vm = m_mgr.getVoicemail("200", "inbox");
         assertEquals(1, vm.size());
         assertEquals("00000001-00", vm.get(0).getBasename());
         assertTrue(vm.get(0).getMediaFile().exists());
@@ -62,5 +62,16 @@ public class VoicemailManagerTest extends TestCase {
         assertEquals("bird", VoicemailManagerImpl.basename("bird.wav"));
         assertEquals("bird", VoicemailManagerImpl.basename("bird"));
         assertEquals("bird.species", VoicemailManagerImpl.basename("bird.species.txt"));
+    }
+    
+    public void testGetFolders() {
+        List<String> folderIds = m_mgr.getFolderIds("200");
+        assertEquals(3, folderIds.size());
+    }
+    
+    public void testGetDeletedVoicemail() {
+        List<Voicemail> deleted = m_mgr.getVoicemail("200", "deleted");
+        assertEquals(1, deleted.size());
+        assertEquals("00000002-00", deleted.get(0).getBasename());
     }
 }

@@ -25,7 +25,7 @@ public class VoicemailManagerImpl implements VoicemailManager {
     private static final FilenameFilter WAV_FILES = new SuffixFileFilter(".wav");
     private File m_mailstoreDirectory;
    
-    public List<String> getFolders() {
+    public List<String> getFolderIds(String userId) {
         return Arrays.asList(new String[] {"inbox", "deleted", "saved"});
     }
 

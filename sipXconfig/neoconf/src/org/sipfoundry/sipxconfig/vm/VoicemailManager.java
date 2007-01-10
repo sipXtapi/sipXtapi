@@ -15,7 +15,7 @@ import java.util.List;
 
 public interface VoicemailManager {
     
-    public List<String> getFolders();
+    public List<String> getFolderIds(String userid);
 
     public List<Voicemail> getVoicemail(String userid, String folder);
     
