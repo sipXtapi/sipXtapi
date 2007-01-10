@@ -23,7 +23,7 @@
 #include "mp/MpAudioResource.h"
 #include "mp/MprDejitter.h"
 #include "mp/MpFlowGraphMsg.h"
-#include "net/SdpCodec.h"
+#include "sdp/SdpCodec.h"
 
 // DEFINES
 // MACROS

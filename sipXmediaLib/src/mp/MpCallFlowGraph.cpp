@@ -33,7 +33,7 @@
 #include "os/OsDefs.h"
 #include "os/OsWriteLock.h"
 #include "os/OsEvent.h"
-#include "net/SdpCodec.h"
+#include "sdp/SdpCodec.h"
 #include "os/OsProtectEventMgr.h"
 #include "os/OsProtectEvent.h"
 #include "os/OsFS.h"

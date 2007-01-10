@@ -20,6 +20,7 @@
 #include "mp/JB/JB_API.h"
 #include "mp/MprDejitter.h"
 #include "mp/MpSipxDecoders.h"
+#include "mp/MpMisc.h"
 
 const MpCodecInfo MpdSipxPcma::smCodecInfo(
          SdpCodec::SDP_CODEC_PCMA, JB_API_VERSION, true,

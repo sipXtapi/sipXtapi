@@ -16,7 +16,7 @@
 #define _MpCodecInfo_h_
 
 // SYSTEM INCLUDES
-#include "net/SdpCodec.h"
+#include "sdp/SdpCodec.h"
 
 // APPLICATION INCLUDES
 

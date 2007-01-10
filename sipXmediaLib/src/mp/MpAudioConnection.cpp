@@ -25,7 +25,7 @@
 #include "mp/MprDejitter.h"
 #include "mp/MprDecode.h"
 #include "mp/JB/JB_API.h"
-#include "net/SdpCodec.h"
+#include "sdp/SdpCodec.h"
 #include "os/OsLock.h"
 #include "os/OsTask.h"
 

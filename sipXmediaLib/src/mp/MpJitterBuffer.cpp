@@ -20,6 +20,7 @@
 #include "mp/JB/JB_API.h"
 #include "mp/MpJitterBuffer.h"
 #include "mp/MpDecoderBase.h"
+#include "mp/MpMisc.h"
 
 static int debugCount = 0;
 
