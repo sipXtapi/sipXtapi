@@ -36,6 +36,7 @@ libsipXtack_la_CXXFLAGS = \
 
 libsipXtack_la_LIBADD = \
 	@SIPXPORT_LIBS@ \
+        @SIPXSDP_LIBS@ \
 	@SSL_LIBS@ \
 	-lresolv -lstdc++
 
@@ -68,7 +69,6 @@ libsipXtack_la_SOURCES =  \
     net/ProvisioningAttrList.cpp \
     net/ProvisioningClass.cpp \
     net/SdpBody.cpp \
-    net/SdpCodec.cpp \
     net/SdpCodecFactory.cpp \
     net/SipClient.cpp \
     net/SipContactDb.cpp \

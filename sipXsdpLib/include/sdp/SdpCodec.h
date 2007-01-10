@@ -200,6 +200,14 @@ public:
             const int videoFormat = SDP_VIDEO_FORMAT_QCIF,
             const int videoFmtp = 0);
 
+   SdpCodec(int payloadFormat,
+            const char* mimeType,
+            const char* mimeSubType,
+            int sampleRate,
+            int preferredPacketLength,
+            int numChannels,
+            const char* formatSpecificData);
+
      ///Copy constructor
    SdpCodec(const SdpCodec& rSdpCodec);
 
@@ -337,17 +345,17 @@ private:
 
 //    enum SdpCodecTypes mCodecType; ///< Internal id
     int mCodecPayloadFormat;       ///< The id which appears in SDP & RTP
-    UtlString mFormatSpecificData; ///< a=fmtp parameter
     UtlString mMimeType;           ///< audio, video, etc.
     UtlString mMimeSubtype;        ///< a=rtpmap mime subtype value
-    UtlString mVideoFmtpString;    ///< video format string
     int mSampleRate;               ///< samples per second
-    int mNumChannels;
     int mPacketLength;             ///< micro seconds
+    int mNumChannels;
+    UtlString mFormatSpecificData; ///< a=fmtp parameter
     int mCPUCost;                  ///< relative cost of a SDP codec
     int mBWCost;
     int mVideoFormat;
     int mVideoFmtp;
+    UtlString mVideoFmtpString;    ///< video format string
 
 };
 

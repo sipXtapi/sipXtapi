@@ -203,8 +203,8 @@ SdpMediaLine::SdpMediaLine() :
    mTcpSetupAttribute(SdpMediaLine::TCP_SETUP_ATTRIBUTE_NONE),
    mTcpConnectionAttribute(SdpMediaLine::TCP_CONNECTION_ATTRIBUTE_NONE),
    mFingerPrintHashFunction(SdpMediaLine::FINGERPRINT_HASH_FUNC_NONE),
-   mMaximumPacketRate(0),
    mKeyManagementProtocol(SdpMediaLine::KEYMANAGEMENT_PROTOCOL_NONE),
+   mMaximumPacketRate(0),
    mRtpCandidatePresent(false),
    mRtcpCandidatePresent(false)
 {

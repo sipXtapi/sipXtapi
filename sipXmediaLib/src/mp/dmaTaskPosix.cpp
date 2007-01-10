@@ -87,7 +87,7 @@ extern int MP_AUDIO_SPEAKER_WRITE_FUNC (Sample *writeBufferSamples, int numSampl
 MpAudioSpeakerWriteFunc sMpAudioSpeakerWriteFuncPtr = MP_AUDIO_SPEAKER_WRITE_FUNC;
 #else
 MpAudioSpeakerWriteFunc sMpAudioSpeakerWriteFuncPtr = defaultAudioSpeakerWrite;
-#endif;
+#endif
 
 extern int defaultAudioMicRead(Sample *readBufferSamples, int numSamples);
 #ifdef MP_AUDIO_MIC_READ_FUNC

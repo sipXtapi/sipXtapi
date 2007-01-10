@@ -18,7 +18,7 @@
 
 #include <utl/UtlSListIterator.h>
 #include <utl/UtlTokenizer.h>
-#include <net/SdpCodec.h>
+#include <sdp/SdpCodec.h>
 #include <net/SdpBody.h>
 #include <net/NameValuePair.h>
 #include <net/NameValueTokenizer.h>
@@ -307,7 +307,7 @@ UtlBoolean SdpBody::getMediaRtcpPort(int mediaIndex, int* port) const
         NameValuePair* nv = positionFieldInstance(mediaIndex, &iterator, "m");
         if(nv)
         {
-            while (nv = findFieldNameBefore(&iterator, "a", "m"))
+            while ((nv = findFieldNameBefore(&iterator, "a", "m")))
             {
                 //printf("->%s:%s\n", nv->data(), nv->getValue()) ;
 
@@ -401,7 +401,7 @@ UtlBoolean SdpBody::getPayloadRtpMap(int payloadType,
                                      int& numChannels) const
 {
    // an "a" record look something like:
-   // "a=rtpmap: <payloadType> <mimeSubtype/sampleRate[/numChannels]"
+   // "a=rtpmap:<payloadType> <mimeSubtype/sampleRate[/numChannels]"
 
    // Loop through all of the "a" records
    UtlBoolean foundRtpMap = FALSE;
@@ -468,7 +468,7 @@ UtlBoolean SdpBody::getPayloadFormat(int payloadType,
                                      int videoSizes[]) const
 {
    // an "a" record look something like:
-   // "a=rtpmap: <payloadType> <mimeSubtype/sampleRate[/numChannels]"
+   // "a=fmtp:<payloadType> <fmtpdata>"
 
    // Loop through all of the "a" records
    UtlBoolean foundPayloadFmtp = FALSE;
@@ -492,7 +492,7 @@ UtlBoolean SdpBody::getPayloadFormat(int payloadType,
    {
       value =  nv->getValue();
 
-      // Verify this is an rtpmap "a" record
+      // Verify this is an fmtp "a" record
       NameValueTokenizer::getSubField(value, 0,
                                       " \t:/", // seperators
                                       &aFieldType);
@@ -503,27 +503,40 @@ UtlBoolean SdpBody::getPayloadFormat(int payloadType,
                                          &payloadString);
          if(atoi(payloadString.data()) == payloadType)
          {
+            const char *fmtpSubField;
+            int subFieldLen;
+            // If this is the fmtp for the requested payload type
+            foundField = NameValueTokenizer::getSubField(value, -1, 2, 
+                                                         " \t:",  // seperators
+                                                         fmtpSubField,
+                                                         subFieldLen,
+                                                         0);
+            if(foundField) 
+            {
+               fmtp = fmtpSubField;
+            }
+
             foundPayloadFmtp = TRUE;
             // Get modifier
             NameValueTokenizer::getSubField(value, 2,
                                                     " \t:=", // seperators
                                                     &modifierString);
-            // If this is the rtpmap for the requested payload type
+            // Get value
             foundField = NameValueTokenizer::getSubField(value, 3,
                                                     " \t:=", // seperators
-                                                    &fmtp);
+                                                    &temp);
 
 
             valueFmtp = 0;
             index = 3;
             if (modifierString.compareTo("mode") == 0)
             {
-                valueFmtp  = atoi(fmtp.data());
+                valueFmtp  = atoi(temp.data());
             }
             else if (modifierString.compareTo("imagesize") == 0)
             {
                 // Checking size information for imagesize modifier
-                valueFmtp = atoi(fmtp.data());
+                valueFmtp = atoi(temp.data());
                 switch (valueFmtp)
                 {
                 case 0: 
@@ -587,7 +600,6 @@ UtlBoolean SdpBody::getSrtpCryptoField(int mediaIndex,
     UtlSListIterator iterator(*sdpFields);
     NameValuePair* nv = positionFieldInstance(mediaIndex, &iterator, "m");
     const char* value;
-    UtlString aFieldMatch("a");
     UtlString indexString;
     UtlString cryptoSuite;
     UtlString temp;
@@ -595,7 +607,7 @@ UtlBoolean SdpBody::getSrtpCryptoField(int mediaIndex,
     char srtpKey[SRTP_KEY_LENGTH+1];
 
     size = sdpFields->entries();
-    while((nv = (NameValuePair*) iterator.findNext(&aFieldMatch)) != NULL)
+    while ((nv = findFieldNameBefore(&iterator, "a", "m")))
     {
         value =  nv->getValue();
 
@@ -670,9 +682,8 @@ UtlBoolean SdpBody::getSrtpCryptoField(int mediaIndex,
                         }
                     }
                 }
-
+                break;
             }
-            break;
         }
     }
     return foundCrypto;
@@ -724,7 +735,6 @@ UtlBoolean SdpBody::getBandwidthField(int& bandwidth) const
    UtlString aFieldMatch("b");
    UtlString aFieldModifier;
    UtlString temp;
-   int iTemp = 0;
 
    // Indicate no "b" field was sent with 0
    bandwidth  = 0;
@@ -744,6 +754,7 @@ UtlBoolean SdpBody::getBandwidthField(int& bandwidth) const
                                             &temp);
 
             bandwidth = atoi(temp.data());
+            bFound = TRUE;
       }
    }
    return bFound;
@@ -1674,6 +1685,8 @@ void SdpBody::addCodecParameters(int numRtpCodecs,
                     case SdpCodec::SDP_CODEC_H263_QCIF:
                         formatParameters = "imagesize 0";
                         break;
+                    default:
+                        break;
                     }
                 }
             }
@@ -2195,7 +2208,7 @@ UtlBoolean SdpBody::getCandidateAttribute(int mediaIndex,
     nv = positionFieldInstance(mediaIndex, &iterator, "m");
     if(nv)
     {
-        while (nv = findFieldNameBefore(&iterator, aFieldMatch, "m"))
+        while ((nv = findFieldNameBefore(&iterator, aFieldMatch, "m")))
         {
             value =  nv->getValue();
             
@@ -2213,7 +2226,6 @@ UtlBoolean SdpBody::getCandidateAttribute(int mediaIndex,
                         UtlString tmpQvalue ;                        
                         UtlString tmpCandidatePort ;
 
-                        // candidate:id qValue userFrag password Ip port candidateIp candidatePort         
                         if (    tokenizer.next(tmpCandidateId, " \t")  &&
                                 tokenizer.next(rTransportId, " \t") &&
                                 tokenizer.next(rTransportType, " \t") &&
@@ -2253,6 +2265,21 @@ UtlBoolean SdpBody::getCandidateAttributes(const char* szMimeType,
                                            int&        nActualAddresses) const 
 {
     int mediaIndex = findMediaType(szMimeType, 0) ;
+    return getCandidateAttributes(mediaIndex, nMaxAddresses, candidateIds,
+                                  transportIds, transportTypes, qvalues,
+                                  candidateIps, candidatePorts, nActualAddresses);
+}
+
+UtlBoolean SdpBody::getCandidateAttributes(int         mediaIndex,
+                                           int         nMaxAddresses,
+                                           int         candidateIds[],
+                                           UtlString   transportIds[],
+                                           UtlString   transportTypes[],
+                                           double      qvalues[], 
+                                           UtlString   candidateIps[], 
+                                           int         candidatePorts[],
+                                           int&        nActualAddresses) const 
+{
     nActualAddresses = 0 ;
 
     while (nActualAddresses < nMaxAddresses)
@@ -2587,7 +2614,7 @@ UtlBoolean SdpBody::findValueInField(const char* pField, const char* pvalue) con
 {
    UtlSListIterator iterator(*sdpFields);
    NameValuePair* nv = positionFieldInstance(0, &iterator, "m");
-   UtlString aFieldMatch("a");
+   UtlString aFieldMatch(pField);
 
    while((nv = (NameValuePair*) iterator.findNext(&aFieldMatch)) != NULL)
    {

@@ -20,7 +20,7 @@
 #include <os/OsBSem.h>
 #include <os/OsRWMutex.h>
 
-#include <net/SdpCodec.h>
+#include <sdp/SdpCodec.h>
 
 // DEFINES
 // MACROS

@@ -25,7 +25,7 @@
 
 #include <net/HttpBody.h>
 #include <net/NameValuePair.h>
-#include <net/SdpCodec.h>
+#include <sdp/SdpCodec.h>
 
 // DEFINES
 #define SDP_AUDIO_MEDIA_TYPE "audio"
@@ -480,6 +480,16 @@ class SdpBody : public HttpBody
 
 
    UtlBoolean getCandidateAttributes(const char* szMimeType,
+                                     int         nMaxAddresses,                                     
+                                     int         candidateIds[],
+                                     UtlString   transportIds[],
+                                     UtlString   transportTypes[],
+                                     double      qvalues[], 
+                                     UtlString   candidateIps[], 
+                                     int         candidatePorts[],
+                                     int&        nActualAddresses) const ;
+
+   UtlBoolean getCandidateAttributes(int         mediaIndex,
                                      int         nMaxAddresses,                                     
                                      int         candidateIds[],
                                      UtlString   transportIds[],
