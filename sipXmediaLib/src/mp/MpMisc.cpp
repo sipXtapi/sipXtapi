@@ -359,7 +359,7 @@ int showMpMisc(int justAddress)
    if (!justAddress) {
       Zprintf(" MicQ=0x%X, SpkQ=0x%X, EchoQ=0x%X, silence=0x%X\n"
          (int) MpMisc.pMicQ, (int) MpMisc.pSpkQ, (int) MpMisc.pEchoQ,
-         (int) MpMisc.mpFgSilence, 0, 0);
+         (int) MpMisc.mpFgSilence, 0, 0, 0);
       Zprintf(" \n frameSamples=%d, frameBytes=%d, sampleBytes=%d,",
          MpMisc.frameSamples, MpMisc.frameBytes, MpMisc.sampleBytes, 0,0,0);
       Zprintf(" rtpMaxBytes=%d\n RawAudioPool=0x%X, RtpPool=0x%X, RtcpPool=0x%X\n",
@@ -373,7 +373,7 @@ int showMpMisc(int justAddress)
 #endif /* _VXWORKS ] */
       Zprintf(" Latency: maxMic=%d, maxSpkr=%d"
          MpMisc.max_mic_buffers, MpMisc.max_spkr_buffers,
-         0,0,0,0);
+         0,0,0,0,0);
    }
    return (int) &MpMisc;
 }

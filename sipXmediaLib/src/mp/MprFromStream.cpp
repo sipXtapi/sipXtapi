@@ -14,6 +14,7 @@
 
 // SYSTEM INCLUDES
 #include <assert.h>
+#include <os/fstream>
 #include <stdio.h>
 
 #ifdef __pingtel_on_posix__
@@ -34,7 +35,6 @@
 
 #include "mp/MpStreamFeeder.h"
 
-#include <os/fstream>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

@@ -107,7 +107,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MprMixer.cpp \
     mp/MprRecorder.cpp \
     mp/MprSpeexEchoCancel.cpp \
-    mp/MprSpeexPreprocess.cpp \
+    mp/MprSpeexPreProcess.cpp \
     mp/MprSplitter.cpp \
     mp/MprToneGen.cpp \
     mp/MprToNet.cpp \

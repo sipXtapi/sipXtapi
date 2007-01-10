@@ -34,6 +34,7 @@
 #include "mp/MpBuf.h"
 #include "mp/MpConnection.h"
 #include "mp/MprDejitter.h"
+#include "mp/MpMisc.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

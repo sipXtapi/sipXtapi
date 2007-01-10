@@ -14,6 +14,7 @@
 
 // SYSTEM INCLUDES
 #include <assert.h>
+#include <os/fstream>
 #include <stdio.h>
 
 #ifdef __pingtel_on_posix__
@@ -23,6 +24,7 @@
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
 #include "os/OsEvent.h"
+#include "mp/MpTypes.h"
 #include "mp/MpBuf.h"
 #include "mp/MprFromFile.h"
 #include "mp/MpAudioAbstract.h"
@@ -34,7 +36,6 @@
 #include "os/OsSysLog.h"
 #include "os/OsProtectEventMgr.h"
 
-#include <os/fstream>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

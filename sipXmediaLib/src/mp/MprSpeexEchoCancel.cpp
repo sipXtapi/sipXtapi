@@ -166,3 +166,4 @@ UtlBoolean MprSpeexEchoCancel::doProcessFrame(MpBufPtr inBufs[],
 /* ============================ FUNCTIONS ================================= */
 
 #endif // HAVE_SPEEX ]
+
