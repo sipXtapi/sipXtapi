@@ -23,7 +23,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="include,include\nss,..\sipXportLib\include,..\sipXportLib\include\glib,..\sipXcallLib\include,..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1\include,..\sipXbuild\vendors\Mozilla\wnt\nss-3.9\include"
+				AdditionalIncludeDirectories="include;include\nss;..\sipXportLib\include;..\sipXportLib\include\glib;..\sipXsdpLib\include;..\sipXcallLib\include;&quot;..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1\include&quot;;&quot;..\sipXbuild\vendors\Mozilla\wnt\nss-3.9\include&quot;"
 				PreprocessorDefinitions="NDEBUG;WIN32;_LIB;SIP_STACK_VERSION=\&quot;1.3.0\&quot;;SIPX_CONFDIR=\&quot;.\&quot;;SIPX_LOGDIR=\&quot;.\&quot;_WINDOWS"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -75,7 +75,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include,include\nss,..\sipXportLib\include,..\sipXportLib\include\glib,..\sipXcallLib\include,..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1_dbg\include,..\sipXbuild\vendors\Mozilla\wnt\nss-3.9_dbg\include"
+				AdditionalIncludeDirectories="include;include\nss;..\sipXportLib\include;..\sipXportLib\include\glib;..\sipXsdpLib\include;..\sipXcallLib\include;&quot;..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1_dbg\include&quot;;&quot;..\sipXbuild\vendors\Mozilla\wnt\nss-3.9_dbg\include&quot;"
 				PreprocessorDefinitions="_DEBUG;WIN32;_LIB;SIP_STACK_VERSION=\&quot;1.3.0\&quot;;SIPX_CONFDIR=\&quot;.\&quot;;SIPX_LOGDIR=\&quot;.\&quot;_WINDOWS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -691,27 +691,6 @@
 			</File>
 			<File
 				RelativePath="src\net\SdpBody.cpp">
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="src\net\SdpCodec.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -1730,9 +1709,6 @@
 			</File>
 			<File
 				RelativePath="include\net\SdpBody.h">
-			</File>
-			<File
-				RelativePath="include\net\SdpCodec.h">
 			</File>
 			<File
 				RelativePath="include\net\SdpCodecFactory.h">

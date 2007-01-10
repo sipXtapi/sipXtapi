@@ -17,6 +17,11 @@ autoreconf -fi
 ./configure --prefix=/tmp/stage
 make;make install
 
+cd sipXsdpLib
+autoreconf -fi
+./configure --prefix=/tmp/stage
+make;make install
+
 cd ../sipXtackLib
 autoreconf -fi
 ./configure --prefix=/tmp/stage --disable-sipviewer
@@ -75,6 +80,11 @@ Written by Tom Tromey <tromey@redhat.com>.
 2) Build the various components
 
 cd sipXportLib
+autoreconf -fi
+./configure --prefix=/tmp/stage
+make;make install
+
+cd sipXsdpLib
 autoreconf -fi
 ./configure --prefix=/tmp/stage
 make;make install
