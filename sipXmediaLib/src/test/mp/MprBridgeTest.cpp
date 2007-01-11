@@ -54,6 +54,7 @@ public:
        MprBridge*        pBridge    = NULL;
        MpBufPtr          pBuf;
        OsStatus          res;
+       int               i;
 
        pBridge = new MprBridge("MprBridge",
                                TEST_SAMPLES_PER_FRAME, TEST_SAMPLES_PER_SEC);
@@ -70,7 +71,7 @@ public:
        CPPUNIT_ASSERT(res == OS_SUCCESS);
 
        // We did not generated any buffers on remote parts
-       for (int i=1; i<pBridge->maxOutputs(); i++)
+       for (i=1; i<pBridge->maxOutputs(); i++)
           CPPUNIT_ASSERT(!mpSinkResource->mLastDoProcessArgs.inBufs[i].isValid());
 
        // Mixer does not generate data on the local output, cause it can't find
@@ -88,7 +89,7 @@ public:
        // Local microphone data (input 0) should be copied to all remote parts
        // (outputs 1..MAX_BRIDGE_PORTS)
        pBuf = mpSourceResource->mLastDoProcessArgs.outBufs[0];
-       for (int i=1; i<pBridge->maxOutputs(); i++)
+       for (i=1; i<pBridge->maxOutputs(); i++)
           CPPUNIT_ASSERT(mpSinkResource->mLastDoProcessArgs.inBufs[i] == pBuf);
 
        // Mixer generate data on the local output, cause it try to do mixing.

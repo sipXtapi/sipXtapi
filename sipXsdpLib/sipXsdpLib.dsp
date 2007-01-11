@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="sipXmediaAdapterLib" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="sipXsdpLib" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Static Library" 0x0104
 
-CFG=sipXmediaAdapterLib - Win32 Debug
+CFG=sipXsdpLib - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "sipXmediaAdapterLib.mak".
+!MESSAGE NMAKE /f "sipXsdpLib.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "sipXmediaAdapterLib.mak" CFG="sipXmediaAdapterLib - Win32 Debug"
+!MESSAGE NMAKE /f "sipXsdpLib.mak" CFG="sipXsdpLib - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "sipXmediaAdapterLib - Win32 Release" (based on "Win32 (x86) Static Library")
-!MESSAGE "sipXmediaAdapterLib - Win32 Debug" (based on "Win32 (x86) Static Library")
+!MESSAGE "sipXsdpLib - Win32 Release" (based on "Win32 (x86) Static Library")
+!MESSAGE "sipXsdpLib - Win32 Debug" (based on "Win32 (x86) Static Library")
 !MESSAGE 
 
 # Begin Project
@@ -28,7 +28,7 @@ CFG=sipXmediaAdapterLib - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "sipXmediaAdapterLib - Win32 Release"
+!IF  "$(CFG)" == "sipXsdpLib - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -41,7 +41,7 @@ RSC=rc.exe
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GR /GX /O1 /I "include" /I "..\sipXportLib\include" /I "..\sipXtackLib\include" /I "..\sipXsdpLib\include" /I "sipXmediaMediaProcessing" /I "interface" /I "..\sipXmediaLib\include" /D "NDEBUG" /D "_LIB" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I "include" /I "..\sipXportLib\include" /I "..\sipXtackLib\include" /D "NDEBUG" /D "_LIB" /D SIP_STACK_VERSION=\"2.5.2\" /D SIPX_CONFDIR=\".\" /D SIPX_LOGDIR=\".\" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /YX /FD /c
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -51,7 +51,7 @@ LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo
 
-!ELSEIF  "$(CFG)" == "sipXmediaAdapterLib - Win32 Debug"
+!ELSEIF  "$(CFG)" == "sipXsdpLib - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -64,7 +64,7 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "include" /I "..\sipXportLib\include" /I "..\sipXtackLib\include" /I "..\sipXsdpLib\include" /I "sipXmediaMediaProcessing" /I "interface" /I "..\sipXmediaLib\include" /D "_DEBUG" /D "_LIB" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "include" /I "..\sipXportLib\include" /I "..\sipXtackLib\include" /D "_DEBUG" /D "_LIB" /D SIP_STACK_VERSION=\"2.5.2\" /D SIPX_CONFDIR=\".\" /D SIPX_LOGDIR=\".\" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /FR /YX /FD /GZ /c
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -72,36 +72,44 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo /out:"Debug\sipXmediaAdapterLibd.lib"
+# ADD LIB32 /nologo /out:"Debug\sipXsdpLibd.lib"
 
 !ENDIF 
 
 # Begin Target
 
-# Name "sipXmediaAdapterLib - Win32 Release"
-# Name "sipXmediaAdapterLib - Win32 Debug"
+# Name "sipXsdpLib - Win32 Release"
+# Name "sipXsdpLib - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\interface\CpMediaInterface.cpp
+SOURCE=.\src\sdp\Sdp.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\interface\CpMediaInterfaceFactory.cpp
+SOURCE=.\src\sdp\SdpCandidate.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\interface\CpMediaInterfaceFactoryImpl.cpp
+SOURCE=.\src\sdp\SdpCandidatePair.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\sipXmediaMediaProcessing\src\CpPhoneMediaInterface.cpp
+SOURCE=.\src\sdp\SdpCodec.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\sipXmediaMediaProcessing\src\sipXmediaFactoryImpl.cpp
+SOURCE=.\src\sdp\SdpHelper.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\sdp\SdpHelperResip.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\sdp\SdpMediaLine.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -109,27 +117,31 @@ SOURCE=.\sipXmediaMediaProcessing\src\sipXmediaFactoryImpl.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\interface\mi\CpMediaInterface.h
+SOURCE=.\include\sdp\Sdp.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\interface\mi\CpMediaInterfaceFactory.h
+SOURCE=.\include\sdp\SdpCandidate.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\interface\mi\CpMediaInterfaceFactoryFactory.h
+SOURCE=.\include\sdp\SdpCandidatePair.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\interface\mi\CpMediaInterfaceFactoryImpl.h
+SOURCE=.\include\sdp\SdpCodec.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\sipXmediaMediaProcessing\include\CpPhoneMediaInterface.h
+SOURCE=.\include\sdp\SdpHelper.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\sipXmediaMediaProcessing\include\sipXmediaFactoryImpl.h
+SOURCE=.\include\sdp\SdpHelperResip.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\sdp\SdpMediaLine.h
 # End Source File
 # End Group
 # End Target

@@ -361,7 +361,7 @@ int main(int argc, char* argv[])
       // Ensure string builder does not crash
       UtlString sdpString;
       sdp.toString(sdpString);
-      cout << sdpString << endl;
+      printf("%s\n", sdpString.data());
 
       // Test FoundationId interface
       assert(sdp.getLocalFoundationId(SdpCandidate::CANDIDATE_TYPE_HOST, "127.0.0.1") == "1");
@@ -437,8 +437,9 @@ int main(int argc, char* argv[])
          if(convSdp)
          {
             // Ensure string builder does not crash
+            printf("\n\nResip Sdp Helper Test:\n");
             convSdp->toString(sdpString);
-            cout << "\n\nResip Sdp Helper Test:\n" << sdpString << endl;
+            printf("%s\n", sdpString.data());
 
             // Perform some random assertions
             assert(convSdp->getLocalFoundationId(SdpCandidate::CANDIDATE_TYPE_HOST, "127.0.0.1") == "1");
@@ -490,7 +491,7 @@ int main(int argc, char* argv[])
 
             // Ensure string builder does not crash
             copySdp.toString(sdpString);
-            cout << sdpString << endl;
+            printf("%s\n", sdpString.data());
 
             // Perform some random assertions on copy
             assert(copySdp.getLocalFoundationId(SdpCandidate::CANDIDATE_TYPE_HOST, "127.0.0.2") == "2");
@@ -548,8 +549,9 @@ int main(int argc, char* argv[])
          if(convSdp)
          {
             // Ensure string builder does not crash
+            printf("\n\nsipX Sdp Helper Test:\n");
             convSdp->toString(sdpString);
-            cout << "\n\nsipX Sdp Helper Test:\n" << sdpString << endl;
+            printf("%s\n", sdpString.data());
 
             // Perform some random assertions
             // Note:  The SdpBody class implementation is far from complete 
