@@ -27,6 +27,16 @@ del %releaseType%\sipXportLibTest.exe
 msdev sipXportLibTest.dsp /MAKE "sipXportLibTest - Win32 %releaseType%" %doClean%
 cd ..
 
+cd sipXsdpLib
+del %releaseType%\sipXsdpLib%libPrefix%.lib
+msdev sipXsdpLib.dsp /MAKE "sipXsdpLib - Win32 %releaseType%" %doClean%
+cd ..
+
+cd sipXsdpLib
+del %releaseType%\sipXsdpLibTest.exe
+msdev sipXsdpLibTest.dsp /MAKE "sipXsdpLibTest - Win32 %releaseType%" %doClean%
+cd ..
+
 cd sipXtackLib
 del %releaseType%\sipXtackLib%libPrefix%.lib
 msdev sipXtackLib.dsp /MAKE "sipXtackLib - Win32 %releaseType%" %doClean%
