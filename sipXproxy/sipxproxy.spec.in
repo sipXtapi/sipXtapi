@@ -37,6 +37,7 @@ services.
 Requires: %name >= %version
 Requires: ruby
 Requires: ruby-libs
+Requires: ruby-dbi
 Requires: ruby-postgres >= 0.7.1
 Requires: sipxcommserverlib >= %version
 Group:    Productivity/Telephony/SIP/Servers

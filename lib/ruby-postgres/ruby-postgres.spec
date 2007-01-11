@@ -18,6 +18,7 @@ License: GPL
 Group: Development/Ruby
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Requires: ruby >= 1.8
+Requires: ruby(abi)
 BuildRequires: ruby ruby-devel postgresql-devel
 
 %description
@@ -47,3 +48,7 @@ rm -rf %buildroot
 %changelog
 * Mon Oct 11 2004 Omar Kilani <omar@tinysofa.org> 0.7.1-1ts
 - Initial tinysofa package.
+
+* Wed Jan 11 2007 Damian Krzeminski <damian@pingtel.com> 0.7.1-1ts
+- Added dependency on ruby(abi) since ruby-libs package available on RHEL does no provide this by default
+
