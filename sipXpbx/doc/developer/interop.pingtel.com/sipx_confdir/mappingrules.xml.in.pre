@@ -1,10 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <mappings xmlns="http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00">
+
+  <!-- Mapping rule to implement the TCP and UDP SRV aliases. -->
+  <hostMatch>
+    <hostPattern>${INTEROP_ALIAS_UDP}</hostPattern>
+    <hostPattern>${INTEROP_ALIAS_TCP}</hostPattern>
+    <userMatch>
+      <userPattern>.</userPattern>
+      <permissionMatch>
+        <transform>
+          <host>${SIPXCHANGE_DOMAIN_NAME}</host>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+  </hostMatch>
+
   <hostMatch>
     <hostPattern>${SIPXCHANGE_DOMAIN_NAME}</hostPattern>
     <hostPattern>${MY_IP_ADDR}</hostPattern>
-    <hostPattern>${INTEROP_ALIAS_UDP}</hostPattern>
-    <hostPattern>${INTEROP_ALIAS_TCP}</hostPattern>
 
     <!-- Sample mapping rule for *90 forwarding prefix -->
     <!-- Forwards *90xxx to sip:xxx@example.com -->
