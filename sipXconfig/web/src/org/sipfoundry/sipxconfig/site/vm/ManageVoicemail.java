@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.site.vm;
 
+import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,13 +31,16 @@ import org.apache.tapestry.services.ExpressionEvaluator;
 import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.MillisDurationFormat;
+import org.sipfoundry.sipxconfig.components.RowInfo;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
 import org.sipfoundry.sipxconfig.components.selection.OptGroup;
+import org.sipfoundry.sipxconfig.components.selection.OptionAdapter;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 import org.sipfoundry.sipxconfig.vm.Voicemail;
 import org.sipfoundry.sipxconfig.vm.VoicemailManager;
+import org.sipfoundry.sipxconfig.vm.VoicemailSource;
 
 public abstract class ManageVoicemail extends UserBasePage {
 
@@ -44,6 +49,9 @@ public abstract class ManageVoicemail extends UserBasePage {
 
     @InjectObject(value = "spring:voicemailManager")
     public abstract VoicemailManager getVoicemailManager();
+    
+    public abstract VoicemailSource getVoicemailSource();
+    public abstract void setVoicemailSource(VoicemailSource source);
 
     public abstract SelectMap getSelections();
     public abstract void setSelections(SelectMap selections);
@@ -62,10 +70,13 @@ public abstract class ManageVoicemail extends UserBasePage {
     @Bean(initializer = "maxField=2")
     public abstract MillisDurationFormat getDurationFormat();
     
+    public abstract VoicemailRowInfo getRowInfo();
+    public abstract void setRowInfo(VoicemailRowInfo rowInfo);
+    
     public abstract List<String> getFolderIds();
     public abstract void setFolderIds(List<String> folderIds);
     
-    @Persist(value = "client")
+    @Persist(value = "session")
     public abstract String getFolderId();
     public abstract void setFolderId(String folderId);
     
@@ -74,13 +85,23 @@ public abstract class ManageVoicemail extends UserBasePage {
         actions.add(new OptGroup(getMessages().getMessage("label.moveTo")));
         for (String folderId : getFolderIds()) {
             if (!folderId.equals(getFolderId())) {
-                actions.add(new MoveVoicemailAction(getFolderLabel(folderId), folderId));
+                OptionAdapter action = new MoveVoicemailAction(getVoicemailSource(), 
+                        getFolderLabel(folderId), folderId); 
+                actions.add(action);
             }
         }
         
         AdaptedSelectionModel model = new AdaptedSelectionModel();
         model.setCollection(actions);
         return model;
+    }
+    
+    public void delete() {
+        Collection<Serializable> allSelected =  getSelections().getAllSelected();
+        for (Serializable id : allSelected) {
+            Voicemail vm = getVoicemailSource().getVoicemail(id);
+            vm.delete();
+        }        
     }
     
     public String getFolderLabel() {
@@ -122,6 +143,28 @@ public abstract class ManageVoicemail extends UserBasePage {
         }
         setVoicemails(vm);
         
-        setConverter(new VoicemailSqueezer(getVoicemailManager()));
+        VoicemailSource source = getVoicemailSource();
+        if (source == null) {            
+            source = new VoicemailSource(new File(getVoicemailManager().getMailstoreDirectory()));
+            setVoicemailSource(source);
+            setRowInfo(new VoicemailRowInfo(source));
+            setConverter(new VoicemailSqueezer(source));
+        }
+    }
+    
+    public static class VoicemailRowInfo implements RowInfo<Voicemail> {
+        private VoicemailSource m_source;
+        
+        VoicemailRowInfo(VoicemailSource source) {
+            m_source = source;
+        }
+
+        public Object getSelectId(Voicemail row) {
+            return m_source.getVoicemailId(row);
+        }
+
+        public boolean isSelectable(Voicemail row) {
+            return true;
+        }        
     }
 }

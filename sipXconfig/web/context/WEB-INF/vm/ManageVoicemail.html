@@ -2,13 +2,13 @@
   <h1>
     <span key="title.manageVoicemail"/> -
     <span jwcid="@Insert" value="prop:folderLabel"/> </h1>
-  <form jwcid="@Form" id="voicemail:form" delegate="bean:validator">
-    <span jwcid="@TabNavigation" tabNames="prop:folderIds" selectedTab="prop:folderId" submit="ognl:true"/>
-    <div id="settings-content">
-      <span jwcid="@ErrorMsg"/>
+  <span jwcid="@TabNavigation" tabNames="prop:folderIds" selectedTab="prop:folderId"/>
+  <div id="settings-content">
+    <span jwcid="@ErrorMsg"/>
+    <form jwcid="@Form" id="voicemail:form" delegate="bean:validator">
       <table jwcid="@Table" id="voicemail:list" class="component" source="prop:voicemails" selections="prop:selections"
         columns="* subject,from,=timestampColumn,duration,play" converter="prop:converter" row="prop:voicemail"
-        usePager="ognl:true">
+        usePager="ognl:true" rowInfo="prop:rowInfo">
         <span jwcid="fromColumnValue@Block">
           <span jwcid="@Any" title="prop:voicemail.from">
             <span jwcid="@Insert" value="prop:voicemail.fromBrief"/>
@@ -26,10 +26,11 @@
           <span jwcid="@GroupActions" actionModel="prop:actionModel" selectedIds="prop:selections.allSelected"/>
         </li>
         <li jwcid="@If" condition="ognl:folderId.equals('deleted')" element="li">
-          <input id="delete:voicemail" jwcid="deleteVoicemail@Submit" listener="listener:deleteVoicemails" value="message:button.delete"/>
-          <span jwcid="@common/Confirm" component="component:deleteVoicemail" prompt="message:confirm.delete"/>          
+          <input id="delete:voicemail" jwcid="deleteVoicemail@Submit" listener="listener:delete"
+            value="message:button.delete"/>
+          <span jwcid="@common/Confirm" component="component:deleteVoicemail" prompt="message:confirm.delete"/>
         </li>
-      </ul>      
-    </div>
-  </form>
+      </ul>
+    </form>
+  </div>
 </div>

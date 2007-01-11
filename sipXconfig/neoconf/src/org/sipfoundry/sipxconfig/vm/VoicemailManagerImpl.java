@@ -28,7 +28,7 @@ public class VoicemailManagerImpl implements VoicemailManager {
     public List<String> getFolderIds(String userId) {
         return Arrays.asList(new String[] {"inbox", "deleted", "saved"});
     }
-
+    
     public List<Voicemail> getVoicemail(String userid, String folder) {
         checkMailstoreDirectory();
         File vmdir = new File(new File(m_mailstoreDirectory, userid), folder);

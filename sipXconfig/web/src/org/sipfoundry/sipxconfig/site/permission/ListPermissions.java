@@ -64,6 +64,9 @@ public abstract class ListPermissions extends BasePage {
         public boolean isSelectable(Permission row) {
             return !row.isBuiltIn();
         }
-
+        
+        public Object getSelectId(Permission row) {
+            return row.getPrimaryKey();
+        }
     }
 }

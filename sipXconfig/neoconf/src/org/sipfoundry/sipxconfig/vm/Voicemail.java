@@ -25,19 +25,18 @@ import com.thoughtworks.xstream.converters.basic.DateConverter;
 import com.thoughtworks.xstream.io.xml.Dom4JDriver;
 import com.thoughtworks.xstream.mapper.MapperWrapper;
 
-import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.XstreamFieldMapper;
 
-public class Voicemail implements Comparable, PrimaryKeySource {
-    public static final char SEPARATOR = '/';
+public class Voicemail implements Comparable {
     private String m_basename;
     private MessageDescriptor m_descriptor;
     private File m_mailbox;
-
+    private File m_userDirectory; 
+   
     public Voicemail(File mailstoreDirectory, String userId, String folderId, String basename) {
-        File userDir = new File(mailstoreDirectory, userId);
-        m_mailbox = new File(userDir, folderId);
+        m_userDirectory = new File(mailstoreDirectory, userId);
+        m_mailbox = new File(m_userDirectory, folderId);
         m_basename = basename;
     }
 
@@ -51,6 +50,26 @@ public class Voicemail implements Comparable, PrimaryKeySource {
 
     public String getBasename() {
         return m_basename;
+    }
+    
+    public void move(String destinationFolderId) {
+        File destination = new File(m_userDirectory, destinationFolderId);
+        for (File f : getAllFiles()) {
+            f.renameTo(new File(destination, f.getName()));
+        }        
+    }
+    
+    public void delete() {
+        for (File f : getAllFiles()) {
+            f.delete();
+        }
+    }
+    
+    public File[] getAllFiles() {
+        return new File[] {
+            getMediaFile(),
+            getDescriptorFile()
+        };
     }
 
     public File getMediaFile() {
@@ -122,15 +141,6 @@ public class Voicemail implements Comparable, PrimaryKeySource {
             return -1;
         }
         return m_basename.compareTo(((Voicemail) o).getBasename());
-    }
-
-    public Object getPrimaryKey() {
-        return getUserId() + SEPARATOR + getFolderId() + SEPARATOR + getBasename();
-    }
-
-    public static String[] decodePrimaryKey(Object primaryKey) {
-        String[] ids = primaryKey.toString().split(String.valueOf(SEPARATOR));
-        return ids;
     }
 
     @XStreamAlias("messagedescriptor")

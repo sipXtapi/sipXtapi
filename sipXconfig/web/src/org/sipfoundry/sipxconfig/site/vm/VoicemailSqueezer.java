@@ -11,26 +11,25 @@
  */
 package org.sipfoundry.sipxconfig.site.vm;
 
-import java.io.File;
+import java.io.Serializable;
 
 import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.sipfoundry.sipxconfig.vm.Voicemail;
-import org.sipfoundry.sipxconfig.vm.VoicemailManager;
+import org.sipfoundry.sipxconfig.vm.VoicemailSource;
 
 public class VoicemailSqueezer implements IPrimaryKeyConverter {
-    private VoicemailManager m_manager;
-    public VoicemailSqueezer(VoicemailManager manager) {
-        m_manager = manager;
+    private VoicemailSource m_source;
+    public VoicemailSqueezer(VoicemailSource source) {
+        m_source = source;
     }
 
     public Object getPrimaryKey(Object arg0) {
         Voicemail vm = (Voicemail) arg0;
-        return vm.getPrimaryKey();
+        return m_source.getVoicemailId(vm);
     }
 
     public Object getValue(Object arg0) {
-        String[] ids = Voicemail.decodePrimaryKey(arg0);
-        Voicemail vm = new Voicemail(new File(m_manager.getMailstoreDirectory()), ids[0], ids[1], ids[2]);
+        Voicemail vm = m_source.getVoicemail((Serializable) arg0); 
         return vm;
     }
 }

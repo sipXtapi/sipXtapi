@@ -11,14 +11,15 @@
   <parameter name="columns" required="yes" />
   <parameter name="converter" required="no" />
   <parameter name="initialSortColumn" required="no" />
-  <parameter name="row" required="no" />
-  <parameter name="rowInfo" required="no" />
+  <parameter name="row" required="no"/>
+  <parameter name="rowInfo" required="no" default-value="bean:defaultRowInfo" />
   <parameter name="selections" required="yes" />
   <parameter name="usePager" required="no" default-value="false" />
   <inject property="tableVariables" object="spring:tableVariables" />
 
   <!-- B E A N S -->
   <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render" />
+  <bean name="defaultRowInfo" class="org.sipfoundry.sipxconfig.site.common.SimpleRowInfo" lifecycle="page" />
 
   <!-- C O M P O N E N T S  -->
   <component id="tableElement" type="Any" inherit-informal-parameters="yes">
@@ -44,10 +45,11 @@
   </component>
   <component id="tableValues" type="contrib:TableValues" />
   <component id="renderSelectedRow" type="If">
-    <binding name="condition" value="rowInfo == null || rowInfo.isSelectable(tableRow)" />
+     <!-- otherwise it renders an empty cell, but a cell none-the-less -->
+    <binding name="condition" value="rowInfo.isSelectable(tableRow)" />
   </component>
   <component id="selectedRow" type="contrib:ControlledCheckbox">
-    <binding name="value" value="selections.selected[tableRow.primaryKey]" />
+    <binding name="value" value="selections.selected[rowInfo.getSelectId(tableRow)]" />
   </component>
   <component id="tablePagesCell" type="Any">
     <!-- need an extra column for a footer -->
