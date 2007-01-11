@@ -401,6 +401,11 @@ parked there first is retrieved.
 </p>
 
 <p>
+This test checks that the parked UA handles in-dialog REFERs and the
+retrieving UA handles INVITE with Replaces.
+</p>
+
+<p>
 You can subscribe to the call park extensions to get their dialog events.
 </p>
 
