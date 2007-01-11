@@ -364,7 +364,7 @@ BSC32=bscmake.exe
 # PROP Target_Dir ""
 CPP=cl.exe
 # ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "_LIB" /YX /Gs8192 /GF /c
-# ADD CPP /nologo /W3 /GR /Zi /Od /I "include" /I "sipXmediaMediaProcessing" /I "interface" /I "../sipXtackLib/include" /I "../sipXportLib/include" /I "../sipXportLib/include/os/wince" /I "../sipXmediaLib/include" /FI"WinCEFixups.h" /D "DEBUG" /D "_i386_" /D "_X86_" /D "x86" /D "PCRE_STATIC" /D "WINCE" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "_MBCS" /D "_LIB" /D "_STLP_USE_STATIC_LIB" /FR /Gs8192 /GF /c
+# ADD CPP /nologo /W3 /GR /Zi /Od /I "include" /I "sipXmediaMediaProcessing" /I "interface" /I "../sipXtackLib/include" /I "../sipXportLib/include" /I "../sipXportLib/include/os/wince" /I "../sipXmediaLib/include" /FI"WinCEFixups.h" /D "DEBUG" /D "_i386_" /D "_X86_" /D "x86" /D "PCRE_STATIC" /D "WINCE" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "_MBCS" /D "_LIB" /D "_STLP_VERBOSE_AUTO_LINK" /D "_STLP_USE_STATIC_LIB" /FR /Gs8192 /GF /c
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo
@@ -416,7 +416,7 @@ BSC32=bscmake.exe
 # PROP Target_Dir ""
 CPP=clarm.exe
 # ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D _WIN32_WCE=$(CEVersion) /D "ARM" /D "_ARM_" /D "$(CePlatform)" /D "ARMV4I" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /YX /QRarch4T /QRinterwork-return /M$(CECrtMTDebug) /c
-# ADD CPP /nologo /W3 /GR /Zi /Od /I "include" /I "sipXmediaMediaProcessing" /I "interface" /I "../sipXsdpLib/include" /I "../sipXtackLib/include" /I "../sipXportLib/include" /I "../sipXportLib/include/os/wince" /I "../sipXmediaLib/include" /FI"WinCEFixups.h" /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4I" /D "PCRE_STATIC" /D "WINCE" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "_MBCS" /D "_LIB" /D "_STLP_USE_STATIC_LIB" /FR"emulatorDbg/" /QRarch4T /QRinterwork-return /M$(CECrtMTDebug) /c
+# ADD CPP /nologo /W3 /GR /Zi /Od /I "include" /I "sipXmediaMediaProcessing" /I "interface" /I "../sipXsdpLib/include" /I "../sipXtackLib/include" /I "../sipXportLib/include" /I "../sipXportLib/include/os/wince" /I "../sipXmediaLib/include" /FI"WinCEFixups.h" /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4I" /D "PCRE_STATIC" /D "WINCE" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "_MBCS" /D "_LIB" /D "_STLP_VERBOSE_AUTO_LINK" /D "_STLP_USE_STATIC_LIB" /FR"emulatorDbg/" /QRarch4T /QRinterwork-return /M$(CECrtMTDebug) /c
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo
