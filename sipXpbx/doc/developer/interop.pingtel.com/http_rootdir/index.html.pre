@@ -130,15 +130,15 @@ number you have chosen is in use, check the
 User values that use that group number.   Each group consists of 9
 addresses that you can register:
 <pre>
-    1<span class='group'>gg</span>1@@SIPXCHANGE_DOMAIN_NAME@
-    1<span class='group'>gg</span>2@@SIPXCHANGE_DOMAIN_NAME@
-    1<span class='group'>gg</span>3@@SIPXCHANGE_DOMAIN_NAME@
-    1<span class='group'>gg</span>4@@SIPXCHANGE_DOMAIN_NAME@
-    1<span class='group'>gg</span>5@@SIPXCHANGE_DOMAIN_NAME@
-    1<span class='group'>gg</span>6@@SIPXCHANGE_DOMAIN_NAME@
-    1<span class='group'>gg</span>7@@SIPXCHANGE_DOMAIN_NAME@
-    1<span class='group'>gg</span>8@@SIPXCHANGE_DOMAIN_NAME@
-    1<span class='group'>gg</span>9@@SIPXCHANGE_DOMAIN_NAME@
+    sip:1<span class='group'>gg</span>1@@SIPXCHANGE_DOMAIN_NAME@
+    sip:1<span class='group'>gg</span>2@@SIPXCHANGE_DOMAIN_NAME@
+    sip:1<span class='group'>gg</span>3@@SIPXCHANGE_DOMAIN_NAME@
+    sip:1<span class='group'>gg</span>4@@SIPXCHANGE_DOMAIN_NAME@
+    sip:1<span class='group'>gg</span>5@@SIPXCHANGE_DOMAIN_NAME@
+    sip:1<span class='group'>gg</span>6@@SIPXCHANGE_DOMAIN_NAME@
+    sip:1<span class='group'>gg</span>7@@SIPXCHANGE_DOMAIN_NAME@
+    sip:1<span class='group'>gg</span>8@@SIPXCHANGE_DOMAIN_NAME@
+    sip:1<span class='group'>gg</span>9@@SIPXCHANGE_DOMAIN_NAME@
 </pre>
 
 <!-- REMOVED TEMPORARILY until we are sure that TCP is working right.
@@ -159,7 +159,7 @@ The credentials for the test addresses are:
 </p>
 <dl>
   <dt>Address Of Record</dt>
-  <dd><code>1<span class='group'>gg</span>n@@SIPXCHANGE_DOMAIN_NAME@</code>
+  <dd><code>sip:1<span class='group'>gg</span>n@@SIPXCHANGE_DOMAIN_NAME@</code>
     <br />(for n= 1..9)
   </dd>
   <dt>User Name<dt>
@@ -209,6 +209,15 @@ this error.
 </p>
 -->
 
+<h2>Confirming Basic Functionality</h2>
+
+<p>
+A call to "<code>sip:100@@SIPXCHANGE_DOMAIN_NAME@</code>" will be answered by an
+auto-attendant.
+Any SIP UA can call a registered UA by calling its AOR,
+"<code>sip:1<span class='group'>gg</span>n@@SIPXCHANGE_DOMAIN_NAME@</code>".
+</p>
+
 <hr />
 
 <h2>The Tests</h2>
@@ -235,8 +244,8 @@ this error.
 <h3><a name='MWI'>1</a>. Message Waiting Indication (MWI)</h3>
 
 <p>
-The 1<span class='group'>gg</span>1 and 1<span
-class='group'>gg</span>2 each has a voicemail box; they may SUBSCRIBE
+The addresses 1<span class='group'>gg</span>1 and 1<span
+class='group'>gg</span>2 each have a voicemail box; they may SUBSCRIBE
 for the <code>message-summary</code> event package.  You can call the
 voicemail box directly by calling user
 <code>2<span class='group'>gg</span>1</code> or <code>2<span class='group'>gg</span>2</code>.
@@ -253,7 +262,7 @@ The voicemail server interprets RFC 2833 DTMF packets.
 <h3><a name='xfer'>2</a>. Transfer</h3>
 
 <p>
-A call to "<code>100@@SIPXCHANGE_DOMAIN_NAME@</code>" will be answered by an
+A call to "<code>sip:100@@SIPXCHANGE_DOMAIN_NAME@</code>" will be answered by an
 auto-attendant - when you enter a registered extension at the prompt,
 the auto-attendant will blind-transfer your call (REFER without Replaces).
 </p>
@@ -277,7 +286,8 @@ authenticated will ring <code>1<span class='group'>gg</span>x</code>.
 <p>
 A call to <code>4<span class='group'>gg</span>x</code> (for any x 1-9)
 will be challenged for authentication, but even when authenticated
-only an extension ending in 7, 8, or 9 is allowed to complete the call
+only a caller with an extension ending in 7, 8, or 9 is allowed to
+complete the call
 (which will ring <code>1<span class='group'>gg</span>x</code>).  Any
 other caller will get a 403 Forbidden response.  This allows you to
 test whether or not your user interface communicates the reason for
