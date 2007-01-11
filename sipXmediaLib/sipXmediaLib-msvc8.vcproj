@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include,..\sipXportLib\include,..\sipXportLib\include\glib,..\sipXtackLib\include,..\gips\include"
+				AdditionalIncludeDirectories="include,..\sipXportLib\include,..\sipXportLib\include\glib,..\sipXsdpLib\include,..\sipXtackLib\include,..\gips\include"
 				PreprocessorDefinitions="_DEBUG;WIN32;_LIB;DISABLE_MEM_POOLS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -117,7 +117,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="include,..\sipXportLib\include,..\sipXportLib\include\glib,..\sipXtackLib\include,..\gips\include"
+				AdditionalIncludeDirectories="include,..\sipXportLib\include,..\sipXportLib\include\glib,..\sipXsdpLib\include,..\sipXtackLib\include,..\gips\include"
 				PreprocessorDefinitions="NDEBUG;WIN32;_LIB;DISABLE_MEM_POOLS;"
 				StringPooling="true"
 				RuntimeLibrary="2"

@@ -42,7 +42,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="1"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="include,..\sipXportLib\include,..\sipXtackLib\include,sipXmediaMediaProcessing,interface,..\sipXmediaLib\include"
+				AdditionalIncludeDirectories="include,..\sipXportLib\include,..\sipXsdpLib\include,..\sipXtackLib\include,sipXmediaMediaProcessing,interface,..\sipXmediaLib\include"
 				PreprocessorDefinitions="NDEBUG;_LIB;WIN32;SIPXTAPI_STATIC"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -117,7 +117,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include,..\sipXportLib\include,..\sipXtackLib\include,sipXmediaMediaProcessing,interface,..\sipXmediaLib\include"
+				AdditionalIncludeDirectories="include,..\sipXportLib\include,..\sipXsdpLib\include,..\sipXtackLib\include,sipXmediaMediaProcessing,interface,..\sipXmediaLib\include"
 				PreprocessorDefinitions="_DEBUG;_LIB;WIN32;SIPXTAPI_STATIC"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"

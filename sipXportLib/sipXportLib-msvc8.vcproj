@@ -2151,6 +2151,14 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\utl\UtlCopyableSList.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\utl\UtlCopyableSortedList.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\utl\UtlCrc32.cpp"
 				>
 			</File>
@@ -3205,6 +3213,18 @@
 			</File>
 			<File
 				RelativePath="include\utl\UtlContainer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\utl\UtlCopyableContainable.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\utl\UtlCopyableSList.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\utl\UtlCopyableSortedList.h"
 				>
 			</File>
 			<File
