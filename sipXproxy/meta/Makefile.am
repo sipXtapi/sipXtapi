@@ -5,11 +5,13 @@ include $(top_srcdir)/config/subdir.am
 # installation target
 SIPX30_CONFIG = @PACKAGE@-3.0.tgz
 PREVIOUS_CONFIG = $(DESTDIR)@SIPX_UPGRADEDIR@/@PACKAGE@-previous.tgz
-EXTRA_DIST = \
-	$(SIPX30_CONFIG)
 
 schemas = \
 	forwardingrules.xsd
+
+EXTRA_DIST = \
+	$(SIPX30_CONFIG) \
+	$(schemas)
 
 install-data-hook : install-schema $(PREVIOUS_CONFIG)
 
