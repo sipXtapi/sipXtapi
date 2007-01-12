@@ -17,12 +17,10 @@ import java.io.InputStream;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.io.IOUtils;
 import org.easymock.EasyMock;
 import org.easymock.IArgumentMatcher;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.phone.SipService;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class GrandstreamPhoneTest extends TestCase {
 
@@ -37,17 +35,6 @@ public class GrandstreamPhoneTest extends TestCase {
         phone = new GrandstreamPhone();
         phone.setModel(model);
         tester = PhoneTestDriver.supplyTestData(phone);
-    }
-
-    public void testGenerateTextProfiles() throws Exception {
-        phone.setTextFormatEnabled(true);
-        ByteArrayOutputStream profile = new ByteArrayOutputStream();
-        GrandstreamProfileWriter pwtr = new GrandstreamProfileWriter(phone);
-        pwtr.write(profile);
-        String expected = IOUtils.toString(this.getClass().getResourceAsStream(
-                "expected-gsbt.cfg"));
-        String actual = TestUtil.cleanEndOfLines(profile.toString());
-        assertEquals(expected, actual);
     }
 
     public void testGenerateBinaryProfiles() throws Exception {

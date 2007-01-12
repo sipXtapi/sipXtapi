@@ -7,14 +7,14 @@
     &types;
     <group name="port">
 		<label>Registration</label>
-		<setting name="P271-P401-P501-P601" if="gsPhoneGx*">
+		<setting name="P271-P401-P501-P601" if="gsPhoneGx.*">
 			<label>Account Active</label>
 			<type>
 				<boolean/>
 			</type>
-			<value>1</value>
+      <value>0</value>
 		</setting>
-		<setting name="P270-P417-P517-P617" if="gsPhoneGx*">
+		<setting name="P270-P417-P517-P617" if="gsPhoneGx.*">
 			<label>Account Name</label>
 			<type>
 				<string/>
@@ -156,7 +156,7 @@
 			</type>
 			<value>0</value>
 		</setting>
-		<setting name="P32-P412-P512-P612" if="gsPhoneGx*">
+		<setting name="P32-P412-P512-P612" if="gsPhoneGx.*">
 			<label>Register Expiration</label>
 			<type>
 				<integer min="0" max="65535"/>
@@ -722,7 +722,7 @@
 			</type>
 			<value/>
 		</setting>
-		<setting name="P260-P434-P534-P634" if="gsPhoneGx*">
+		<setting name="P260-P434-P534-P634" if="gsPhoneGx.*">
 			<label>Session Expiration</label>
 			<type>
 				<integer/>
@@ -730,7 +730,7 @@
 			<value>180</value>
 			<description>sec</description>
 		</setting>
-		<setting name="P261-P427-P527-P627" if="gsPhoneGx*">
+		<setting name="P261-P427-P527-P627" if="gsPhoneGx.*">
 			<label>Min-SE</label>
 			<type>
 				<integer min="90"/>
@@ -738,7 +738,7 @@
 			<value>90</value>
 			<description>sec, minimum = 90 sec</description>
 		</setting>
-		<setting name="P262-P428-P528-P628" if="gsPhoneGx*">
+		<setting name="P262-P428-P528-P628" if="gsPhoneGx.*">
 			<label>Caller Request Timer</label>
 			<type>
 				<boolean/>
@@ -746,7 +746,7 @@
 			<value>0</value>
 			<description>Request for timer when making outbound calls.</description>
 		</setting>
-		<setting name="P263-P429-P529-P629" if="gsPhoneGx*">
+		<setting name="P263-P429-P529-P629" if="gsPhoneGx.*">
 			<label>Callee Request Timer</label>
 			<type>
 				<boolean/>
@@ -754,7 +754,7 @@
 			<value>0</value>
 			<description>When caller supports timer but did not request one.</description>
 		</setting>
-		<setting name="P264-P430-P530-P630" if="gsPhoneGx*">
+		<setting name="P264-P430-P530-P630" if="gsPhoneGx.*">
 			<label>Force Timer</label>
 			<type>
 				<boolean/>
@@ -762,7 +762,7 @@
 			<value>0</value>
 			<description>User timer even when remote party does not support.</description>
 		</setting>
-		<setting name="P266-P432-P532-P632" if="gsPhoneGx*">
+		<setting name="P266-P432-P532-P632" if="gsPhoneGx.*">
 			<label>UAC Specify Refresher</label>
 			<type>
 				<enum>
@@ -782,7 +782,7 @@
 			</type>
 			<value>0</value>
 		</setting>
-		<setting name="P267-P433-P533-P633" if="gsPhoneGx*">
+		<setting name="P267-P433-P533-P633" if="gsPhoneGx.*">
 			<label>UAS Specify Refresher</label>
 			<type>
 				<enum>
@@ -799,7 +799,7 @@
 			<value>1</value>
 			<description>When UAC did not specify refresher tag.</description>
 		</setting>
-		<setting name="P265-P431-P531-P631" if="gsPhoneGx*">
+		<setting name="P265-P431-P531-P631" if="gsPhoneGx.*">
 			<label>Force INVITE</label>
 			<type>
 				<boolean/>
@@ -807,7 +807,7 @@
 			<value>0</value>
 			<description>Always refresh with INVITE instead of UPDATE.</description>
 		</setting>
-		<setting name="P272-P435-P535-P635" if="gsPhoneGx*">
+		<setting name="P272-P435-P535-P635" if="gsPhoneGx.*">
 			<label>Enable 100rel</label>
 			<type>
 				<boolean/>

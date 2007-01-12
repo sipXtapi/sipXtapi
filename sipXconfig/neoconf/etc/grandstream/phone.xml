@@ -79,7 +79,7 @@
             </type>
             <value>0</value>
         </setting>
-        <setting name="P122" if="gsPhoneGx*">
+        <setting name="P122" if="gsPhoneGx.*">
             <label>Time Display Format</label>
             <type>
                 <enum>
@@ -93,7 +93,7 @@
             </type>
             <value>0</value>
         </setting>
-        <setting name="P123" if="gsPhoneGx*">
+        <setting name="P123" if="gsPhoneGx.*">
             <label>Display Clock</label>
             <type>
                 <boolean/>

@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.phone.Line;
@@ -44,6 +45,7 @@ public class GrandstreamPhone extends Phone {
     private static final String DISPLAY_NAME_PATH = "port/P3-P407-P507-P607";
     private static final String HT_DISPLAY_NAME_PATH = "port/P3-P703";
     private static final String REGISTRATION_SERVER_PATH = "port/P47-P402-P502-P602";
+    private static final String LINE_ACTIVE_PATH = "port/P271-P401-P501-P601";
     // unclear what 2nd copy is
     private static final String REGISTRATION_SERVER2_PATH = "port/P48-P403-P503-P603";
     private static final String HT_REGISTRATION_SERVER_PATH = "port/P47-P747";
@@ -243,6 +245,12 @@ public class GrandstreamPhone extends Phone {
         @SettingEntry(path = VOICEMAIL_PATH)
         public String getVoicemail() {
             return m_phone.getPhoneContext().getPhoneDefaults().getVoiceMail();
+        }
+        
+        @SettingEntry(path = LINE_ACTIVE_PATH)
+        public boolean isLineActive() {
+            boolean active = !StringUtils.isBlank(getUserId());
+            return active;
         }
     }
 
