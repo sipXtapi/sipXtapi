@@ -250,7 +250,7 @@ AC_DEFUN([CHECK_ANT],
 #
 AC_DEFUN([CHECK_SSL],
 [   AC_ARG_WITH(openssl,
-                [--with-openssl=PATH to openssl source directory],
+                [  --with-openssl=PATH      to openssl source directory],
                 [openssl_path=$withval],
                 [openssl_path="/usr/local /usr/local/ssl /usr/ssl /usr/pkg /usr / /sw/lib"]
                 )
@@ -766,28 +766,28 @@ AC_DEFUN([CHECK_PCRE],
 [   AC_MSG_CHECKING([for pcre >= 4.5])
     # Process the --with-pcre argument which gives the pcre base directory.
     AC_ARG_WITH(pcre,
-                [--with-pcre=PATH path to pcre install directory],
+                [  --with-pcre=PATH         path to pcre install directory],
                 )
     homeval=$withval
-    # Have to unset withval so we can tell if --with-pcre_includedir was
+    # Have to unset withval so we can tell if --with-pcre-includedir was
     # specified, as AC_ARG_WITH will not unset withval if the option is not
     # there!
     withval=
 
-    # Process the --with-pcre_includedir argument which gives the pcre include
+    # Process the --with-pcre-includedir argument which gives the pcre include
     # directory.
-    AC_ARG_WITH(pcre_includedir,
-                [--with-pcre_includedir=PATH path to pcre include directory (containing pcre.h)],
+    AC_ARG_WITH(pcre-includedir,
+                [  --with-pcre-includedir=PATH path to pcre include directory (containing pcre.h)],
                 )
     # If withval is set, use that.  If not and homeval is set, use
     # $homeval/include.  If neither, use null.
     includeval=${withval:-${homeval:+$homeval/include}}
     withval=
 
-    # Process the --with-pcre_libdir argument which gives the pcre library
+    # Process the --with-pcre-libdir argument which gives the pcre library
     # directory.
-    AC_ARG_WITH(pcre_libdir,
-                [--with-pcre_libdir=PATH path to pcre lib directory (containing libpcre.{so,a})],
+    AC_ARG_WITH(pcre-libdir,
+                [  --with-pcre-libdir=PATH  path to pcre lib directory (containing libpcre.{so,a})],
                 )
     libval=${withval:-${homeval:+$homeval/lib}}
 
