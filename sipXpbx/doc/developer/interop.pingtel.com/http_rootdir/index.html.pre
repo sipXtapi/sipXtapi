@@ -239,6 +239,7 @@ Any SIP UA can call a registered UA by calling its AOR,
 <li><a href='#moh'>Music on Hold</a></li>
 <li><a href='#ENUM'>ENUM Dialing</a></li>
 <li><a href='#JOIN'>Ad-hoc Conferencing</a></li>
+<li><a href='#SRV'>DNS SRV Record Processing</a></li>
 </ol>
 
 <h3><a name='MWI'>1</a>. Message Waiting Indication (MWI)</h3>
@@ -426,8 +427,8 @@ procedure (the called UA) is the UA whose dialog event package you
 would like to examine.
 Then enter its extension number in the box below and click on the
 link.
-Violations of the guidelines are marked in the analysis in
-<font color='red'>red</font>.
+Violations of the guidelines are marked in
+<font color='red'>red</font> in the analysis.
 </p>
 
 <form action='dialog-event.cgi' method='GET'>
@@ -533,6 +534,18 @@ registered to the test server.
 This test checks that the first UA correctly handles INVITE with Join,
 and whether the second UA generates
 dialog event notices with usable endpoint identification.
+</p>
+
+<h3><a name='SRV'>17</a>. DNS SRV Record Processing</h3>
+
+<p>
+This server also supports the SIP domains
+<code>@INTEROP_ALIAS_UDP@</code> and <code>@INTEROP_ALIAS_TCP@</code>.
+These domain names do not have DNS A records, rather they are
+configured with DNS SRV records for the UDP and TCP protocols,
+respectively.  A UA should support DNS SRV records and both the UDP
+and TCP protocols, so it should be able to use either of these domain
+names in place of <code>@SIPXCHANGE_DOMAIN_NAME@</code> in all of the tests.
 </p>
 
 <hr />
