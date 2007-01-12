@@ -10,6 +10,10 @@
     <property name="label" value="Grandstream GXP2000"/>
     <property name="maxLineCount" value="4"/>
   </bean>
+  <bean id="gsPhoneGxv3000" class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamModel">
+    <property name="label" value="Grandstream GXV3000"/>
+    <property name="maxLineCount" value="3"/>
+  </bean>
   <bean id="gsHt286" class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamModel">
     <property name="label" value="Grandstream HandyTone 286"/>
     <property name="maxLineCount" value="1"/>
