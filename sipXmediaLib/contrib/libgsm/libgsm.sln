@@ -1,0 +1,23 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libgsm", "libgsm.vcproj", "{993B6878-2EA7-49E0-AC6E-28C68592724B}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug_Static = Debug_Static
+		Release_Static = Release_Static
+	EndGlobalSection
+	GlobalSection(ProjectDependencies) = postSolution
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{993B6878-2EA7-49E0-AC6E-28C68592724B}.Debug_Static.ActiveCfg = Debug_Static|Win32
+		{993B6878-2EA7-49E0-AC6E-28C68592724B}.Debug_Static.Build.0 = Debug_Static|Win32
+		{993B6878-2EA7-49E0-AC6E-28C68592724B}.Release_Static.ActiveCfg = Release_Static|Win32
+		{993B6878-2EA7-49E0-AC6E-28C68592724B}.Release_Static.Build.0 = Release_Static|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

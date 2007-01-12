@@ -37,7 +37,7 @@
 				AdditionalDependencies="Ws2_32.lib winmm.lib cppunit.lib pcre.lib"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="..\CPPUnit\lib;..\Speex\lib;..\libgsm\lib"
+				AdditionalLibraryDirectories="..\CPPUnit\lib"
 				IgnoreDefaultLibraryNames=""
 				SubSystem="1"
 				TargetMachine="1"/>
@@ -93,7 +93,7 @@
 				AdditionalDependencies="Ws2_32.lib winmm.lib cppunitd.lib pcre.lib"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="..\CPPUnit\lib;..\Speex\lib;..\libgsm\lib"
+				AdditionalLibraryDirectories="..\CPPUnit\lib"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="TRUE"
 				GenerateMapFile="TRUE"
