@@ -42,4 +42,9 @@
   <bean id="grandstream" class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamPhone"
     singleton="false" parent="abstractPhone">
   </bean>
+  <bean id="gsPhoneFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
+    <property name="beanId" value="zipUpload"/>
+    <property name="modelFilePath" value="grandstream/upload.xml"/>
+    <property name="label" value="Grandstream" />
+  </bean>    
 </beans>
