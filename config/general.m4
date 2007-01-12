@@ -842,6 +842,96 @@ AC_DEFUN([CHECK_PCRE],
 ])dnl
 
 
+# ============ G S M ==================
+AC_DEFUN([CHECK_GSM],
+[   AC_MSG_CHECKING([for libgsm >= 1.0.10])
+    # Unset withval, as AC_ARG_WITH does not unset it
+    withval=
+    # Process the --with-gsm argument which gives the libgsm base directory.
+    AC_ARG_WITH(gsm,
+                [  --with-gsm=PATH         path to libgsm install directory],
+                )
+    homeval=$withval
+    # Have to unset withval so we can tell if --with-gsm-includedir was
+    # specified, as AC_ARG_WITH will not unset withval if the option is not
+    # there!
+    withval=
+
+    # Process the --with-gsm-includedir argument which gives the libgsm include
+    # directory.
+    AC_ARG_WITH(gsm-includedir,
+                [  --with-gsm-includedir=PATH path to libgsm include directory (containing gsm.h)],
+                )
+    # If withval is set, use that.  If not and homeval is set, use
+    # $homeval/include.  If neither, use null.
+    includeval=${withval:-${homeval:+$homeval/inc}}
+    withval=
+
+    # Process the --with-gsm-libdir argument which gives the libgsm library
+    # directory.
+    AC_ARG_WITH(gsm-libdir,
+                [  --with-gsm-libdir=PATH  path to libgsm lib directory (containing libgsm.{so,a})],
+                )
+    libval=${withval:-${homeval:+$homeval/lib}}
+
+    # Check for gsm.h in the specified include directory if any, and a number
+    # of other likely places.
+    for dir in $includeval /usr/local/include /usr/local/include /usr/local/gsm/inc /usr/include /usr/include/gsm /sw/include; do
+        if test -f "$dir/gsm.h"; then
+            found_gsm_include="yes";
+            includeval=$dir
+            break;
+        fi
+    done
+
+    # Check for libgsm.{so,a} in the specified lib directory if any, and a
+    # number of other likely places.
+    for dir in $libval /usr/local/lib /usr/local/gsm/lib /usr/lib /sw/lib; do
+        if test -f "$dir/libgsm.so" -o -f "$dir/libgsm.a"; then
+            found_gsm_lib="yes";
+            libval=$dir
+            break;
+        fi
+    done
+
+    # Test that we've been able to find both directories, and set the various
+    # makefile variables.
+    if test x_$found_gsm_include != x_yes; then
+        AC_MSG_ERROR(Cannot find gsm.h - looked in $includeval)
+    else
+        if test x_$found_gsm_lib != x_yes; then
+            AC_MSG_ERROR(Cannot find libgsm.so or libgsm.a libraries - looked in $libval)
+        else
+            ## Test for version
+            gsm_major_version=`grep "GSM_MAJOR" $includeval/gsm.h | \
+                   sed 's/^#define[ \t]\+GSM_MAJOR[ \t]\+\([0-9]\+\)/\1/'`
+            gsm_minor_version=`grep "GSM_MINOR" $includeval/gsm.h | \
+                   sed 's/^#define[ \t]\+GSM_MINOR[ \t]\+\([0-9]\+\)/\1/'`
+            gsm_patchlevel_version=`grep "GSM_PATCHLEVEL" $includeval/gsm.h | \
+                   sed 's/^#define[ \t]\+GSM_PATCHLEVEL[ \t]\+\([0-9]\+\)/\1/'`
+
+            gsm_ver="$gsm_major_version.$gsm_minor_version.$gsm_patchlevel_version"
+            AX_COMPARE_VERSION([$gsm_ver],[ge],[1.0.10])
+
+            if test "x_$ax_compare_version" = "x_false"; then
+               AC_MSG_ERROR(Found libgsm version $gsm_ver)
+            else
+               AC_MSG_RESULT($gsm_ver is ok)
+            fi
+            AC_MSG_RESULT($includeval and $libval)
+
+            GSM_CFLAGS="-I$includeval"
+            GSM_CXXFLAGS="-I$includeval"
+            AC_SUBST(GSM_CFLAGS)
+            AC_SUBST(GSM_CXXFLAGS)
+
+            AC_SUBST(GSM_LIBS, "-lgsm" )
+            AC_SUBST(GSM_LDFLAGS, "-L$libval")
+        fi
+    fi
+])dnl
+
+
 # ============ D O X Y G E N ==================
 # Originaly from CppUnit BB_ENABLE_DOXYGEN
 
