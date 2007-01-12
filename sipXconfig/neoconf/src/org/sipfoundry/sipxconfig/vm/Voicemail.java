@@ -71,13 +71,17 @@ public class Voicemail implements Comparable {
             getDescriptorFile()
         };
     }
+    
+    public File getMailboxDirectory() {
+        return m_mailbox;
+    }
 
     public File getMediaFile() {
-        return new File(m_mailbox, m_basename + ".wav");
+        return new File(getMailboxDirectory(), getBasename() + ".wav");
     }
 
     public File getDescriptorFile() {
-        return new File(m_mailbox, m_basename + ".xml");
+        return new File(getMailboxDirectory(), getBasename() + ".xml");
     }
 
     public Date getTimestamp() {

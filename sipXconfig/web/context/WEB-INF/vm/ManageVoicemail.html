@@ -18,7 +18,9 @@
           <span jwcid="@Insert" value="prop:voicemail.durationMillis" format="prop:durationFormat"/>
         </span>
         <span jwcid="playColumnValue@Block">
-          <img jwcid="@Image" image="asset:playVoicemailAsset" alt="play"/>
+          <a jwcid="@DownloadLink" fileName="prop:voicemail.mediaFile.name" dirName="prop:voicemail.mailboxDirectory.absolutePath">
+            <img jwcid="@Image" image="asset:playVoicemailAsset" alt="play"/>
+          </a>
         </span>
       </table>
       <ul class="component-submit">
