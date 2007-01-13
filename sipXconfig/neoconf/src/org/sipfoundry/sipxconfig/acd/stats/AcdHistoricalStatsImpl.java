@@ -35,7 +35,7 @@ public class AcdHistoricalStatsImpl extends JdbcDaoSupport implements AcdHistori
         BeanFactoryAware {
     private ListableBeanFactory m_factory;
     private String m_reportScript;
-    private Boolean m_enabled;    
+    private Boolean m_enabled;
     private String m_exportDatePattern = "EEE, d MMM yyyy HH:mm:ss Z";
 
     public List<String> getReports() {
@@ -43,51 +43,51 @@ public class AcdHistoricalStatsImpl extends JdbcDaoSupport implements AcdHistori
                 .getBeanNamesForType(AcdHistoricalReport.class));
         return reports;
     }
-    
-    public void dumpReport(Writer writer, List<Map<String, Object>> reportData, Locale locale) throws IOException {
+
+    public void dumpReport(Writer writer, List<Map<String, Object>> reportData, Locale locale)
+        throws IOException {
 
         // nothing ACD specific here, could be reused
         // not a requirement to use locale, but it was easy and I thought it would be nice touch
-        
+
         if (reportData.size() == 0) {
             return;
         }
-        
+
         // column names
         CsvWriter csv = new CsvWriter(writer);
         Map<String, Object> row0 = reportData.get(0);
         csv.write(row0.keySet().toArray(new String[0]), false);
-    
+
         // rows
         for (Map<String, Object> record : reportData) {
             Object[] recordData = record.values().toArray();
             String[] recordDataStrings = new String[recordData.length];
             for (int i = 0; i < recordData.length; i++) {
-                recordDataStrings[i] = LocaleConvertUtils.convert(recordData[i], locale, m_exportDatePattern);
+                recordDataStrings[i] = LocaleConvertUtils.convert(recordData[i], locale,
+                        m_exportDatePattern);
             }
-            
-            csv.write(recordDataStrings, false);                
+
+            csv.write(recordDataStrings, false);
         }
     }
-    
+
     /**
-     * Default value is determined is report cron script is installed locally.  You can enable
+     * Default value is determined is report cron script is installed locally. You can enable
      * historic stats and configure it to talk to a remote database.
-     * 
-     * @return 
      */
     public boolean isEnabled() {
         if (m_enabled != null) {
-            return m_enabled.booleanValue();
+            return m_enabled;
         }
-        
+
         return isReportsInstalledLocally();
     }
-    
+
     public void setEnabled(boolean enabled) {
         m_enabled = new Boolean(enabled);
     }
-    
+
     boolean isReportsInstalledLocally() {
         return getReportScript() != null && new File(getReportScript()).exists();
     }
@@ -95,10 +95,10 @@ public class AcdHistoricalStatsImpl extends JdbcDaoSupport implements AcdHistori
     public List<String> getReportFields(String reportName) {
         AcdHistoricalReport report = (AcdHistoricalReport) m_factory.getBean(reportName);
         Object[] sqlParameters = new Object[] {
-            new Date(0), 
-            new Date(0)
+            new Date(0), new Date(0)
         };
-        SqlRowSet emptySet = getJdbcTemplate().queryForRowSet(report.getQuery() + " limit 0", sqlParameters);
+        SqlRowSet emptySet = getJdbcTemplate().queryForRowSet(report.getQuery() + " limit 0",
+                sqlParameters);
         SqlRowSetMetaData meta = emptySet.getMetaData();
         List<String> names = Arrays.asList(meta.getColumnNames());
         return names;
@@ -109,8 +109,7 @@ public class AcdHistoricalStatsImpl extends JdbcDaoSupport implements AcdHistori
         ColumnMapRowMapper columnMapper = new ColumnMapRowMapper();
         RowMapperResultReader rowReader = new RowMapperResultReader(columnMapper);
         Object[] sqlParameters = new Object[] {
-            startTime, 
-            endTime
+            startTime, endTime
         };
         return getJdbcTemplate().query(report.getQuery(), sqlParameters, rowReader);
     }
