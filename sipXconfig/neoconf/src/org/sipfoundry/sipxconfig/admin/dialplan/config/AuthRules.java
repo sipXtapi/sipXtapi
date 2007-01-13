@@ -21,7 +21,7 @@ import org.dom4j.Element;
 import org.dom4j.QName;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
-import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 /**
  * Authorization rule generator.
@@ -112,7 +112,7 @@ public class AuthRules extends RulesXmlFile {
         Element userMatch = hostMatch.addElement(USER_MATCH);
         userMatch.addElement(USER_PATTERN).setText(".");
         Element permissionMatch = userMatch.addElement(PERMISSION_MATCH);
-        permissionMatch.addElement(PERMISSION).setText(Permission.NO_ACCESS.getName());
+        permissionMatch.addElement(PERMISSION).setText(PermissionName.NO_ACCESS.getName());
     }
 
     public void end() {

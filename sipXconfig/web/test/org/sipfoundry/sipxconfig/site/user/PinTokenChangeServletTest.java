@@ -17,16 +17,16 @@ import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class PinTokenChangeServletTest extends TestCase {
 
-    PinTokenChangeServlet m_servlet;
+    private PinTokenChangeServlet m_servlet;
 
-    User m_user;
+    private User m_user;
 
     protected void setUp() {
         m_servlet = new PinTokenChangeServlet();
@@ -89,7 +89,7 @@ public class PinTokenChangeServletTest extends TestCase {
     public void testNotProviledgedToChangePin() {
         Group g = new Group();
         m_user.addGroup(g);
-        Permission.TUI_CHANGE_PIN.setEnabled(g, false);
+        PermissionName.TUI_CHANGE_PIN.setEnabled(g, false);
 
         IMocksControl coreContextCtrl = EasyMock.createControl();
         CoreContext coreContext = coreContextCtrl.createMock(CoreContext.class);

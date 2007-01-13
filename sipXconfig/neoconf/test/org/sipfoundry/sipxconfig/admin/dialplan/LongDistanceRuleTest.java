@@ -20,7 +20,7 @@ import junit.framework.TestCase;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
-import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 /**
  * LongDistanceRuleTest
@@ -106,12 +106,11 @@ public class LongDistanceRuleTest extends TestCase {
         DialingRule rule = getGenerationRule(m_rule);
         List<String> permissions = rule.getPermissionNames();
         assertEquals(1, permissions.size());
-        assertEquals(Permission.LONG_DISTANCE_DIALING, Permission.Type.CALL.create(permissions
-                .get(0)));
+        assertEquals(PermissionName.LONG_DISTANCE_DIALING.getName(), permissions.get(0));
     }
 
     public void testNoPermissionRequired() {
-        m_rule.setPermission(Permission.INTERNATIONAL_DIALING);
+        m_rule.setPermissionName(PermissionName.INTERNATIONAL_DIALING.getName());
         DialingRule rule = getGenerationRule(m_rule);
         assertEquals(1, rule.getPermissionNames().size());
         m_rule.setPermission(null);
@@ -230,7 +229,7 @@ public class LongDistanceRuleTest extends TestCase {
             assertTrue(patterns[3].endsWith("xxxx"));
             List<String> permissions = r.getPermissionNames();
             assertEquals(1, permissions.size());
-            assertEquals(Permission.LONG_DISTANCE_DIALING.getName(), permissions.get(0));
+            assertEquals(PermissionName.LONG_DISTANCE_DIALING.getName(), permissions.get(0));
             Transform[] transforms = r.getTransforms();
             assertEquals(1, transforms.length);
             FullTransform transform = (FullTransform) transforms[0];
@@ -240,9 +239,9 @@ public class LongDistanceRuleTest extends TestCase {
     }
 
     public void testTollFreeDialing() {
-        m_rule.setPermission(Permission.TOLL_FREE_DIALING);
+        m_rule.setPermissionName(PermissionName.TOLL_FREE_DIALING.getName());
         DialingRule generationRule = getGenerationRule(m_rule);
         List<String> permissions = generationRule.getPermissionNames();
-        assertSame(Permission.TOLL_FREE_DIALING.getName(), permissions.get(0));
+        assertEquals(PermissionName.TOLL_FREE_DIALING.getName(), permissions.get(0));
     }
 }

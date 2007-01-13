@@ -37,8 +37,8 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testGetPermission() throws Exception {
-        Permission permission = m_manager.getPermission(Permission.VOICEMAIL.getName());
-        assertEquals(Permission.VOICEMAIL, permission);
+        Permission permission = m_manager.getPermission(PermissionName.VOICEMAIL.getName());
+        assertEquals(PermissionName.VOICEMAIL.getName(), permission.getName());
 
         TestHelper.insertFlat("permission/permission.db.xml");
 

@@ -19,6 +19,7 @@ import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 public class AuthenticationDaoImplTest extends TestCase {
     private static final String USER_NAME = "Hjelje";
@@ -34,7 +35,7 @@ public class AuthenticationDaoImplTest extends TestCase {
         m_authenticationDaoImpl = new AuthenticationDaoImpl();
         m_authenticationDaoImpl.setCoreContext(m_coreContext);
         s_user = new User() {
-            public boolean hasPermission(Permission permission) {
+            public boolean hasPermission(PermissionName permission) {
                 return true;
             }
         };

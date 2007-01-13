@@ -27,6 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -51,7 +52,7 @@ public class User extends BeanWithGroups implements NamedObject {
     // anything, it's just "superadmin" by current convention.
     public static final String SUPERADMIN = "superadmin";
 
-    // "0" cannot be used as valid extension - it's hardcoded in login.vxml 
+    // "0" cannot be used as valid extension - it's hardcoded in login.vxml
     private static final Pattern PATTERN_NUMERIC = Pattern.compile("([1-9]\\d*)|(0\\d+)");
 
     private PermissionManager m_permissionManager;
@@ -271,18 +272,17 @@ public class User extends BeanWithGroups implements NamedObject {
     /**
      * Check if a user has a specific permission
      */
-    public boolean hasPermission(Permission permission) {
-        Setting setting = getSettings().getSetting(permission.getSettingPath());
+    public boolean hasPermission(PermissionName permissionName) {
+        Setting setting = getSettings().getSetting(permissionName.getPath());
         if (setting == null) {
-            throw new IllegalArgumentException("Setting " + permission.getName()
+            throw new IllegalArgumentException("Setting " + permissionName.getName()
                     + " does not exist in user setting model");
         }
-        boolean enabled = Permission.isEnabled(setting.getValue());
-        return enabled;
+        return Permission.isEnabled(setting.getValue());
     }
 
     public boolean isAdmin() {
-        return hasPermission(Permission.SUPERADMIN);
+        return hasPermission(PermissionName.SUPERADMIN);
     }
 
     public boolean isSupervisor() {

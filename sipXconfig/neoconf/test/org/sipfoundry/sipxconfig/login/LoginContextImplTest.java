@@ -18,8 +18,8 @@ import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.Group;
 
 public class LoginContextImplTest extends TestCase {
@@ -40,7 +40,7 @@ public class LoginContextImplTest extends TestCase {
         Group admin = new Group();
         m_user.addGroup(admin);
 
-        Permission.SUPERADMIN.setEnabled(admin, true);
+        PermissionName.SUPERADMIN.setEnabled(admin, true);
 
         IMocksControl control = EasyMock.createNiceControl();
         CoreContext coreContext = control.createMock(CoreContext.class);

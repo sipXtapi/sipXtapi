@@ -24,6 +24,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 /**
  * CustomDialingRuleTest
@@ -163,8 +164,12 @@ public class CustomDialingRuleTest extends TestCase {
     }
 
     public void testSetPermissionNames() throws Exception {
+        PermissionManagerImpl pm = new PermissionManagerImpl();
+        pm.setModelFilesContext(TestHelper.getModelFilesContext());
+
         Permission[] permissions = {
-            Permission.VOICEMAIL, Permission.LONG_DISTANCE_DIALING
+            pm.getPermissionByName(PermissionName.VOICEMAIL.getName()),
+            pm.getPermissionByName(PermissionName.LONG_DISTANCE_DIALING.getName())
         };
 
         String names[] = {
@@ -180,14 +185,12 @@ public class CustomDialingRuleTest extends TestCase {
             // ok
         }
 
-        PermissionManagerImpl pm = new PermissionManagerImpl();
-        pm.setModelFilesContext(TestHelper.getModelFilesContext());
         rule.setPermissionManager(pm);
 
         rule.setPermissions(Arrays.asList(permissions));
         List<Permission> perms = rule.getPermissions();
         assertEquals(names.length, perms.size());
-        assertTrue(perms.contains(Permission.VOICEMAIL));
-        assertTrue(perms.contains(Permission.LONG_DISTANCE_DIALING));
+        assertTrue(perms.contains(permissions[0]));
+        assertTrue(perms.contains(permissions[1]));
     }
 }

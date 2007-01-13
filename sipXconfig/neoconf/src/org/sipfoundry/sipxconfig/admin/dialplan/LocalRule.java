@@ -19,7 +19,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
-import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 /**
  * LongDistanceRule
@@ -33,7 +33,7 @@ public class LocalRule extends DialingRule {
     }
 
     public List<String> getPermissionNames() {
-        List perms = Collections.singletonList(Permission.LOCAL_DIALING.getName());
+        List perms = Collections.singletonList(PermissionName.LOCAL_DIALING.getName());
         return perms;
     }
 

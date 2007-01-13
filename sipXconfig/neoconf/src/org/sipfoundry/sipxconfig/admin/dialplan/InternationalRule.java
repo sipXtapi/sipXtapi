@@ -18,7 +18,7 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
-import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 /**
  * LongDistanceRule
@@ -38,7 +38,7 @@ public class InternationalRule extends DialingRule {
     }
 
     public List<String> getPermissionNames() {
-        return Collections.singletonList(Permission.INTERNATIONAL_DIALING.getName());
+        return Collections.singletonList(PermissionName.INTERNATIONAL_DIALING.getName());
     }
 
     public Transform[] getTransforms() {

@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -31,21 +31,22 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * Use PinTokenChangeServlet to test. If you want to test from commandline, use
  * 
  * <pre>
- *    curl --data &quot;testuser;oldpintoken;newpintoken&quot; http://localhost:9999/sipxconfig/api/change-pintoken
+ *        curl --data &quot;testuser;oldpintoken;newpintoken&quot; http://localhost:9999/sipxconfig/api/change-pintoken
  * </pre>
  */
 public class PinTokenChangeServlet extends HttpServlet {
-    
+
     private static final int EXPECTED_TOKEN_COUNT = 3;
 
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
         throws javax.servlet.ServletException, java.io.IOException {
-        
+
         String body = IOUtils.toString(req.getInputStream(), "UTF-8");
         try {
             ApplicationContext app = WebApplicationContextUtils
                     .getRequiredWebApplicationContext(getServletContext());
             CoreContext core = (CoreContext) app.getBean(CoreContext.CONTEXT_BEAN_NAME);
+
             changePin(core, body);
             resp.setContentType("application/text");
         } catch (ChangePinException e) {
@@ -78,11 +79,12 @@ public class PinTokenChangeServlet extends HttpServlet {
         if (!oldpin.equals(user.getPintoken())) {
             throw new ChangePinException(errMsg);
         }
-        
-        if (!user.hasPermission(Permission.TUI_CHANGE_PIN)) {
-            throw new ChangePinException("User does not have permission to change PIN value from this API");            
+
+        if (!user.hasPermission(PermissionName.TUI_CHANGE_PIN)) {
+            throw new ChangePinException(
+                    "User does not have permission to change PIN value from this API");
         }
-        
+
         user.setPintoken(newpin);
         core.saveUser(user);
     }

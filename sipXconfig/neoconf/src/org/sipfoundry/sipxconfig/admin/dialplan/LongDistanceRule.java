@@ -17,6 +17,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 /**
  * LongDistanceRule
@@ -28,7 +29,7 @@ public class LongDistanceRule extends DialingRule {
     private boolean m_longDistancePrefixOptional;
     private String m_areaCodes = StringUtils.EMPTY;
     private int m_externalLen;
-    private String m_permissionName = Permission.LONG_DISTANCE_DIALING.getName();
+    private String m_permissionName = PermissionName.LONG_DISTANCE_DIALING.getName();
 
     public String[] getPatterns() {
         throw new UnsupportedOperationException("getPatterns not supported for LongDistance rule");

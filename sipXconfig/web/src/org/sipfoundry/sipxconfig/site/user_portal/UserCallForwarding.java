@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
@@ -22,16 +23,16 @@ import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.forwarding.Ring;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 /**
  * UserCallForwarding
  */
-public abstract class UserCallForwarding extends UserBasePage implements
-        PageBeginRenderListener {
+public abstract class UserCallForwarding extends UserBasePage implements PageBeginRenderListener {
     public static final String PAGE = "UserCallForwarding";
     private static final String ACTION_ADD = "add";
 
+    @InjectObject(value = "spring:forwardingContext")
     public abstract ForwardingContext getForwardingContext();
 
     public abstract String getAction();
@@ -40,11 +41,11 @@ public abstract class UserCallForwarding extends UserBasePage implements
 
     public abstract void setRings(List rings);
 
-    public void pageBeginRender(PageEvent event) {        
+    public void pageBeginRender(PageEvent event) {
         if (getRings() != null) {
             return;
         }
-        
+
         super.pageBeginRender(event);
 
         List rings = createDetachedRingList(getCallSequence());
@@ -108,6 +109,6 @@ public abstract class UserCallForwarding extends UserBasePage implements
     }
 
     public boolean getHasVoiceMail() {
-        return getUser().hasPermission(Permission.VOICEMAIL);
+        return getUser().hasPermission(PermissionName.VOICEMAIL);
     }
 }

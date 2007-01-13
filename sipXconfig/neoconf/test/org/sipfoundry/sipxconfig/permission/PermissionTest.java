@@ -11,20 +11,27 @@
  */
 package org.sipfoundry.sipxconfig.permission;
 
+import junit.framework.TestCase;
+
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
 
-import junit.framework.TestCase;
-
 public class PermissionTest extends TestCase {
+    private Permission m_permission;
+
+    public void setUp() {
+        m_permission = new Permission();
+        m_permission.setType(Permission.Type.CALL);
+        m_permission.setId(15);
+    }
+
     public void testGetSettingPath() {
-        Permission x = Permission.Type.CALL.create("x");
-        assertEquals("permission/call-handling/x", x.getSettingPath());
+        assertEquals("permission/call-handling/perm_15", m_permission.getSettingPath());
     }
 
     public void testGetSetting() {
-        Setting setting = Permission.VOICEMAIL.getSetting();
-        assertEquals(Permission.VOICEMAIL.getName(), setting.getName());
+        Setting setting = m_permission.getSetting();
+        assertEquals(m_permission.getName(), setting.getName());
         assertTrue(setting.getType() instanceof BooleanSetting);
 
         Permission permission = new Permission();
@@ -34,16 +41,11 @@ public class PermissionTest extends TestCase {
     }
 
     public void testGetPrimaryKey() throws Exception {
-        Permission permission = new Permission();
-        Object key = permission.getPrimaryKey();
-        assertEquals(-1, key);
-        assertEquals("Voicemail", Permission.VOICEMAIL.getPrimaryKey());
+        assertEquals(15, m_permission.getPrimaryKey());
     }
 
-    public void testEquals() {
-        Permission p1 = new Permission();
-        assertFalse(p1.equals(Permission.VOICEMAIL));
-        Permission p2 = new Permission(Permission.Type.CALL, Permission.VOICEMAIL.getName());
-        assertTrue(p2.equals(Permission.VOICEMAIL));
+    public void testLabelDescription() {
+        assertEquals(m_permission.getLabel(), m_permission.getLabel(null));
+        assertEquals(m_permission.getDescription(), m_permission.getDescription(null));
     }
 }

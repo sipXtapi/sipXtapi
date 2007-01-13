@@ -23,7 +23,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
-import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 /**
  * MappingRule
@@ -149,7 +149,7 @@ public class MappingRule extends DialingRule {
         }
 
         public List<String> getPermissionNames() {
-            return Collections.singletonList(Permission.VOICEMAIL.getName());
+            return Collections.singletonList(PermissionName.VOICEMAIL.getName());
         }
     }
 

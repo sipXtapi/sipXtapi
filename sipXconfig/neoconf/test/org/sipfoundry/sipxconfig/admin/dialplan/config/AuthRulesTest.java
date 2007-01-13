@@ -25,7 +25,7 @@ import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
-import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 public class AuthRulesTest extends XMLTestCase {
     private static final int GATEWAYS_LEN = 5;
@@ -64,7 +64,7 @@ public class AuthRulesTest extends XMLTestCase {
         });
         rule.getPermissionNames();
         control.andReturn(Arrays.asList(new String[] {
-            Permission.VOICEMAIL.getName()
+            PermissionName.VOICEMAIL.getName()
         }));
         rule.getGateways();
         control.andReturn(gateways);
@@ -122,7 +122,7 @@ public class AuthRulesTest extends XMLTestCase {
         }
         rule.getPermissionNames();
         control.andReturn(Arrays.asList(new String[] {
-            Permission.VOICEMAIL.getName()
+            PermissionName.VOICEMAIL.getName()
         }));
         control.replay();
 

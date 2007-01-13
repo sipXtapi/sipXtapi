@@ -19,7 +19,7 @@ import junit.framework.TestCase;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
-import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 /**
  * InternationalRuleTest
@@ -62,6 +62,6 @@ public class InternationalRuleTest extends TestCase {
     public void testGetPermissionNames() {
         List permissions = m_rule.getPermissionNames();
         assertEquals(1, permissions.size());
-        assertEquals(Permission.INTERNATIONAL_DIALING.getName(), permissions.get(0));
+        assertEquals(PermissionName.INTERNATIONAL_DIALING.getName(), permissions.get(0));
     }
 }

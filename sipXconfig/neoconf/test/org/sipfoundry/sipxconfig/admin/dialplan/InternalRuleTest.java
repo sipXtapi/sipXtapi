@@ -20,7 +20,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.MappingRule.Operator;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
-import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 /**
  * InternalRuleTest
@@ -70,7 +70,7 @@ public class InternalRuleTest extends TestCase {
 
         assertEquals(TEST_DESCRIPTION, vf.getDescription());
         assertEquals(".", vf.getPatterns()[0]);
-        assertEquals(Permission.VOICEMAIL.getName(), vf.getPermissionNames().get(0));
+        assertEquals(PermissionName.VOICEMAIL.getName(), vf.getPermissionNames().get(0));
         UrlTransform tvf = (UrlTransform) vf.getTransforms()[0];
         assertEquals(VOICEMAIL_FALLBACK_URL, tvf.getUrl());
     }

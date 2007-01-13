@@ -21,8 +21,8 @@ import junit.framework.TestCase;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
-import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -156,10 +156,10 @@ public class UserTest extends TestCase {
         Group group = new Group();
         user.addGroup(group);
 
-        String path = Permission.SUPERADMIN.getSettingPath();
+        String path = PermissionName.SUPERADMIN.getPath();
         Setting superAdmin = user.getSettings().getSetting(path);
         assertNotNull(superAdmin);
-        assertFalse(user.hasPermission(Permission.SUPERADMIN));
+        assertFalse(user.hasPermission(PermissionName.SUPERADMIN));
     }
 
     public void testGetExtension() throws Exception {

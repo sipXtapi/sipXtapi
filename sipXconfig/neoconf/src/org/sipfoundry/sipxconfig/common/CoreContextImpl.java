@@ -28,7 +28,7 @@ import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.beans.factory.BeanFactory;
@@ -379,8 +379,8 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
             adminGroup.setResource(User.GROUP_RESOURCE_ID);
             adminGroup.setDescription("Users with superadmin privileges");
         }
-        Permission.SUPERADMIN.setEnabled(adminGroup, true);
-        Permission.TUI_CHANGE_PIN.setEnabled(adminGroup, false);
+        PermissionName.SUPERADMIN.setEnabled(adminGroup, true);
+        PermissionName.TUI_CHANGE_PIN.setEnabled(adminGroup, false);
 
         m_settingDao.saveGroup(adminGroup);
 

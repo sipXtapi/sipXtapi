@@ -23,8 +23,8 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.Group;
 
 public class PermissionsTest extends XMLTestCase {
@@ -59,10 +59,10 @@ public class PermissionsTest extends XMLTestCase {
         user.setPermissionManager(pm);
         
         Group g = new Group();
-        Permission.INTERNATIONAL_DIALING.setEnabled(g, false);
-        Permission.LONG_DISTANCE_DIALING.setEnabled(g, false);
-        Permission.TOLL_FREE_DIALING.setEnabled(g, false);
-        Permission.LOCAL_DIALING.setEnabled(g, true);
+        PermissionName.INTERNATIONAL_DIALING.setEnabled(g, false);
+        PermissionName.LONG_DISTANCE_DIALING.setEnabled(g, false);
+        PermissionName.TOLL_FREE_DIALING.setEnabled(g, false);
+        PermissionName.LOCAL_DIALING.setEnabled(g, true);
         
 
         user.addGroup(g);

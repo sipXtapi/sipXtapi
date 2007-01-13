@@ -35,7 +35,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.MappingRule;
 import org.sipfoundry.sipxconfig.admin.parkorbit.MohRule;
-import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.speeddial.RlsRule;
 
 /**
@@ -177,7 +177,7 @@ public class MappingRulesTest extends XMLTestCase {
         control.andReturn(true);
         rule.getPermissionNames();
         control.andReturn(Arrays.asList(new String[] {
-            Permission.VOICEMAIL.getName()
+            PermissionName.VOICEMAIL.getName()
         }));
         rule.getTransforms();
         control.andReturn(new Transform[] {
@@ -255,7 +255,7 @@ public class MappingRulesTest extends XMLTestCase {
         generator.generate(plan, null);
 
         String generatedXml = generator.getFileContent(ConfigFileType.MAPPING_RULES);
-        
+
         InputStream referenceXmlStream = MappingRulesTest.class
                 .getResourceAsStream("mappingrules.test.xml");
 

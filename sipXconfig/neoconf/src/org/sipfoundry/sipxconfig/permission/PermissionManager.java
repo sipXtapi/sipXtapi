@@ -17,7 +17,6 @@ import org.sipfoundry.sipxconfig.common.DataObjectSource;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public interface PermissionManager extends DataObjectSource<Permission> {
-
     public static final String CONTEXT_BEAN_NAME = "permissionManager";
 
     Permission getPermission(Object id);

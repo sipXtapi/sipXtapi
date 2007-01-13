@@ -21,7 +21,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
-import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -92,7 +92,7 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         for (Iterator i = sequences.iterator(); i.hasNext();) {
             CallSequence sequence = (CallSequence) i.next();
             User user = sequence.getUser();
-            if (user.hasPermission(Permission.FORWARD_CALLS_EXTERNAL)) {
+            if (user.hasPermission(PermissionName.FORWARD_CALLS_EXTERNAL)) {
                 aliases.addAll(sequence.generateAuthExceptions());
             }
         }
@@ -121,7 +121,7 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     public UserDeleteListener createUserDeleteListener() {
         return new OnUserDelete();
     }
-    
+
     public void clear() {
         Collection sequences = loadAllCallSequences();
         for (Iterator i = sequences.iterator(); i.hasNext();) {

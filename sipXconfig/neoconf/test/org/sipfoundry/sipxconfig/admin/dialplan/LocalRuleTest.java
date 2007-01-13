@@ -19,7 +19,7 @@ import junit.framework.TestCase;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
-import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 /**
  * LocalRuleTest
@@ -56,7 +56,7 @@ public class LocalRuleTest extends TestCase {
     public void testGetPermissionNames() {
         List<String> permissions = m_rule.getPermissionNames();
         assertEquals(1, permissions.size());
-        assertEquals(Permission.LOCAL_DIALING.getName(), permissions.get(0));
+        assertEquals(PermissionName.LOCAL_DIALING.getName(), permissions.get(0));
     }
     
     public void testGetTranformedPatters() throws Exception {

@@ -29,6 +29,7 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
         PermissionManager {
 
     private ModelFilesContext m_modelFilesContext;
+
     private SipxReplicationContext m_replicationContext;
 
     public void addCallPermission(Permission permission) {
@@ -42,7 +43,7 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
 
     public void removeCallPermissions(Collection<Integer> permissionIds) {
         removeAll(Permission.class, permissionIds);
-        m_replicationContext.generate(DataSet.PERMISSION);        
+        m_replicationContext.generate(DataSet.PERMISSION);
     }
 
     public Permission getPermission(Object id) {
@@ -93,7 +94,7 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
         Map<String, Permission> permissions = new TreeMap<String, Permission>();
         Setting callHandlingGroup = userSettingsModel.getSetting(Permission.CALL_PERMISSION_PATH);
         for (Setting setting : callHandlingGroup.getValues()) {
-            permissions.put(setting.getName(), new Permission(setting));
+            permissions.put(setting.getName(), new SettingPermission(setting));
         }
         return permissions;
     }
@@ -121,11 +122,11 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
     private Setting loadSettings() {
         return m_modelFilesContext.loadModelFile("commserver/user-settings.xml");
     }
-    
+
     public void setReplicationContext(SipxReplicationContext replicationContext) {
         m_replicationContext = replicationContext;
     }
-    
+
     public void setModelFilesContext(ModelFilesContext modelFilesContext) {
         m_modelFilesContext = modelFilesContext;
     }
