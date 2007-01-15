@@ -4,8 +4,10 @@
 	Version="7.10"
 	Name="sipXmediaLib"
 	ProjectGUID="{0EC8287A-481E-45DC-8F95-BAD940AE1038}"
-	SccProjectName="Perforce Project"
-	SccLocalPath=".">
+	SccProjectName=""
+	SccAuxPath=""
+	SccLocalPath=""
+	SccProvider="">
 	<Platforms>
 		<Platform
 			Name="Win32"/>

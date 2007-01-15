@@ -4,8 +4,10 @@
 	Version="7.10"
 	Name="sipXportLib"
 	ProjectGUID="{14631055-9D3F-47E5-B6A7-16BFC0CC8091}"
-	SccProjectName="Perforce Project"
-	SccLocalPath=".">
+	SccProjectName=""
+	SccAuxPath=""
+	SccLocalPath=""
+	SccProvider="">
 	<Platforms>
 		<Platform
 			Name="Win32"/>

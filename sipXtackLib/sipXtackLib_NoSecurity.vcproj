@@ -4,8 +4,10 @@
 	Version="7.10"
 	Name="sipXtackLib"
 	ProjectGUID="{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}"
-	SccProjectName="Perforce Project"
-	SccLocalPath=".">
+	SccProjectName=""
+	SccAuxPath=""
+	SccLocalPath=""
+	SccProvider="">
 	<Platforms>
 		<Platform
 			Name="Win32"/>
@@ -729,6 +731,9 @@
 						BasicRuntimeChecks="3"
 						BrowseInformation="1"/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\net\SdpHelper.cpp">
 			</File>
 			<File
 				RelativePath="src\net\SipClient.cpp">
@@ -1705,6 +1710,9 @@
 			</File>
 			<File
 				RelativePath="include\net\SdpCodecFactory.h">
+			</File>
+			<File
+				RelativePath=".\include\net\SdpHelper.h">
 			</File>
 			<File
 				RelativePath="include\net\SipClient.h">

@@ -101,10 +101,6 @@ SOURCE=.\src\sdp\SdpCodec.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\sdp\SdpHelper.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\src\sdp\SdpHelperResip.cpp
 # End Source File
 # Begin Source File
@@ -130,10 +126,6 @@ SOURCE=.\include\sdp\SdpCandidatePair.h
 # Begin Source File
 
 SOURCE=.\include\sdp\SdpCodec.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\sdp\SdpHelper.h
 # End Source File
 # Begin Source File
 

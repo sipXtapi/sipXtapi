@@ -732,6 +732,27 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="src\net\SdpHelper.cpp">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+						BrowseInformation="1"/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="src\net\SipClient.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -1712,6 +1733,9 @@
 			</File>
 			<File
 				RelativePath="include\net\SdpCodecFactory.h">
+			</File>
+			<File
+				RelativePath="include\net\SdpHelper.h">
 			</File>
 			<File
 				RelativePath="include\net\SipClient.h">

@@ -225,6 +225,10 @@ SOURCE=.\src\net\SdpCodecFactory.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\net\SdpHelper.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\net\SipClient.cpp
 # End Source File
 # Begin Source File
@@ -589,7 +593,7 @@ SOURCE=.\include\net\SdpBody.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\net\SdpCodec.h
+SOURCE=.\include\net\SdpHelper.h
 # End Source File
 # Begin Source File
 

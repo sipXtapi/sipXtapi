@@ -927,6 +927,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\net\SdpHelper.cpp"
+				>
+			</File>
+			<File
 				RelativePath="src\net\SipClient.cpp"
 				>
 				<FileConfiguration
@@ -2153,6 +2157,10 @@
 			</File>
 			<File
 				RelativePath="include\net\SdpCodecFactory.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\net\SdpHelper.h"
 				>
 			</File>
 			<File
