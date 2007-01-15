@@ -175,6 +175,7 @@ AC_DEFUN([SFAC_LIB_PORT],
 AC_DEFUN([SFAC_LIB_STACK],
 [
     AC_REQUIRE([SFAC_LIB_PORT])
+    AC_REQUIRE([SFAC_LIB_SDP])
 
     SFAC_ARG_WITH_INCLUDE([net/SipUserAgent.h],
             [sipxtackinc],
