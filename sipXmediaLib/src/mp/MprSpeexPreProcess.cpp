@@ -20,7 +20,7 @@
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
 #include "mp/MpBuf.h"
-#include "mp/MprSpeexPreprocess.h"
+#include "mp/MprSpeexPreProcess.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
