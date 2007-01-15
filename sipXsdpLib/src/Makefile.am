@@ -41,8 +41,7 @@ libsipXsdp_la_SOURCES =  \
     sdp/SdpMediaLine.cpp \
     sdp/SdpCodec.cpp \
     sdp/SdpCandidate.cpp \
-    sdp/SdpCandidatePair.cpp \
-    sdp/SdpHelper.cpp 
+    sdp/SdpCandidatePair.cpp
 
 EXTRA_DIST= \
     sdp/SdpHelperResip.cpp

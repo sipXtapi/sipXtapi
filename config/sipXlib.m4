@@ -222,7 +222,6 @@ AC_DEFUN([SFAC_LIB_STACK],
 AC_DEFUN([SFAC_LIB_SDP],
 [
     AC_REQUIRE([SFAC_LIB_PORT])
-    AC_REQUIRE([SFAC_LIB_STACK])
 
     SFAC_ARG_WITH_INCLUDE([sdp/Sdp.h],
             [sipxsdpinc],
