@@ -843,8 +843,8 @@ AC_DEFUN([CHECK_PCRE],
 
 
 # ============ G S M ==================
-AC_DEFUN([CHECK_GSM],
-[   AC_MSG_CHECKING([for libgsm >= 1.0.10])
+AC_DEFUN([AM_PATH_GSM],
+[
     # Unset withval, as AC_ARG_WITH does not unset it
     withval=
     # Process the --with-gsm argument which gives the libgsm base directory.
@@ -876,7 +876,7 @@ AC_DEFUN([CHECK_GSM],
 
     # Check for gsm.h in the specified include directory if any, and a number
     # of other likely places.
-    for dir in $includeval /usr/local/include /usr/local/include /usr/local/gsm/inc /usr/include /usr/include/gsm /sw/include; do
+    for dir in $includeval /usr/local/include /usr/local/gsm/inc /usr/include /usr/include/gsm /sw/include; do
         if test -f "$dir/gsm.h"; then
             found_gsm_include="yes";
             includeval=$dir
@@ -896,39 +896,81 @@ AC_DEFUN([CHECK_GSM],
 
     # Test that we've been able to find both directories, and set the various
     # makefile variables.
-    if test x_$found_gsm_include != x_yes; then
-        AC_MSG_ERROR(Cannot find gsm.h - looked in $includeval)
+    if test x_$found_gsm_include != x_yes -o x_$found_gsm_lib != x_yes; then
+        AC_MSG_RESULT(not found)
     else
-        if test x_$found_gsm_lib != x_yes; then
-            AC_MSG_ERROR(Cannot find libgsm.so or libgsm.a libraries - looked in $libval)
+        ## Test for version
+        gsm_major_version=`grep "GSM_MAJOR" $includeval/gsm.h | \
+               sed 's/^#define[ \t]\+GSM_MAJOR[ \t]\+\([0-9]\+\)/\1/'`
+        gsm_minor_version=`grep "GSM_MINOR" $includeval/gsm.h | \
+               sed 's/^#define[ \t]\+GSM_MINOR[ \t]\+\([0-9]\+\)/\1/'`
+        gsm_patchlevel_version=`grep "GSM_PATCHLEVEL" $includeval/gsm.h | \
+               sed 's/^#define[ \t]\+GSM_PATCHLEVEL[ \t]\+\([0-9]\+\)/\1/'`
+
+        gsm_ver="$gsm_major_version.$gsm_minor_version.$gsm_patchlevel_version"
+        AX_COMPARE_VERSION([$gsm_ver],[ge],[1.0.10])
+
+        if test "x_$ax_compare_version" = "x_false"; then
+            AC_MSG_RESULT(too old (found version $gsm_ver))
         else
-            ## Test for version
-            gsm_major_version=`grep "GSM_MAJOR" $includeval/gsm.h | \
-                   sed 's/^#define[ \t]\+GSM_MAJOR[ \t]\+\([0-9]\+\)/\1/'`
-            gsm_minor_version=`grep "GSM_MINOR" $includeval/gsm.h | \
-                   sed 's/^#define[ \t]\+GSM_MINOR[ \t]\+\([0-9]\+\)/\1/'`
-            gsm_patchlevel_version=`grep "GSM_PATCHLEVEL" $includeval/gsm.h | \
-                   sed 's/^#define[ \t]\+GSM_PATCHLEVEL[ \t]\+\([0-9]\+\)/\1/'`
+            AC_MSG_RESULT($gsm_ver is ok)
 
-            gsm_ver="$gsm_major_version.$gsm_minor_version.$gsm_patchlevel_version"
-            AX_COMPARE_VERSION([$gsm_ver],[ge],[1.0.10])
-
-            if test "x_$ax_compare_version" = "x_false"; then
-               AC_MSG_ERROR(Found libgsm version $gsm_ver)
-            else
-               AC_MSG_RESULT($gsm_ver is ok)
-            fi
-            AC_MSG_RESULT($includeval and $libval)
+	    # Enable this when we begin using config.h
+            #AC_DEFINE(HAVE_GSM, [1], [Defined if libgsm is present])
+	    CFLAGS+=" -DHAVE_GSM"
+	    CXXFLAGS+=" -DHAVE_GSM"
 
             GSM_CFLAGS="-I$includeval"
             GSM_CXXFLAGS="-I$includeval"
-            AC_SUBST(GSM_CFLAGS)
-            AC_SUBST(GSM_CXXFLAGS)
-
-            AC_SUBST(GSM_LIBS, "-lgsm" )
-            AC_SUBST(GSM_LDFLAGS, "-L$libval")
+            GSM_LIBS="-lgsm"
+            GSM_LDFLAGS="-L$libval"
         fi
     fi
+
+    AC_SUBST(GSM_CFLAGS)
+    AC_SUBST(GSM_CXXFLAGS)
+    AC_SUBST(GSM_LIBS)
+    AC_SUBST(GSM_LDFLAGS)
+])dnl
+
+AC_DEFUN(CHECK_GSM,
+[
+    AC_MSG_CHECKING([for libgsm >= 1.0.10])
+
+    AC_ARG_ENABLE(codec-gsm,
+    [  --enable-codec-gsm      Enable support for GSM codec],
+    [ case "${enableval}" in
+      yes) AM_PATH_GSM ;;
+      no) AC_MSG_RESULT(disabled) ;;
+      *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-gsm) ;;
+    esac],[AM_PATH_GSM])
+])dnl
+
+
+# ============ S P E E X ==================
+AC_DEFUN([AM_PATH_SPEEX],
+[
+    PKG_CHECK_MODULES([SPEEX],
+                      [speex >= 1.1.0], 
+		      CFLAGS+=" -DHAVE_SPEEX" ; CXXFLAGS+=" -DHAVE_SPEEX",
+		      AC_MSG_RESULT(failed))
+    # SPEEX_CFLAGS and SPEEX_LIBS variables should are set in previous
+    # PKG_CHECK_MODULES() call.
+    AC_SUBST(SPEEX_CFLAGS)
+    AC_SUBST(SPEEX_LIBS)
+])dnl
+
+AC_DEFUN(CHECK_SPEEX,
+[
+    AC_MSG_CHECKING([for libspeex >= 1.2.0])
+
+    AC_ARG_ENABLE(codec-speex,
+    [  --enable-codec-speex    Enable support for SPEEX codec],
+    [ case "${enableval}" in
+      yes) AM_PATH_SPEEX ;;
+      no) AC_MSG_RESULT(disabled) ;;
+      *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-speex) ;;
+    esac],[AM_PATH_SPEEX])
 ])dnl
 
 
