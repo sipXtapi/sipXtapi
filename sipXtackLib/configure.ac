@@ -59,10 +59,8 @@ CHECK_SPEEX
 # Look for SSL libraries
 CHECK_SSL
 
-# sipX dependancies
-
+# sipX dependencies
 SFAC_LIB_PORT
-
 SFAC_LIB_SDP
 
 SFAC_FEATURE_SIP_TLS
