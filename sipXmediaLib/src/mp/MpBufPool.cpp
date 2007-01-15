@@ -22,6 +22,16 @@
 #  define MPBUF_CLEAR_EXIT_CHECK
 #endif // MPBUF_DEBUG || _DEBUG ]
 
+/// Round 'val' to be multiply of 'align'.
+#define MP_ALIGN(val, align) ((((val)+((align)-1))/(align))*(align)) 
+
+/// @brief Block size will be aligned to this value. Other bound will be aligned
+//  to it later.
+/**
+ * Align block size to 4 bytes to avoid problems on ARM.
+ */
+#define MP_ALIGN_SIZE 4
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -62,9 +72,9 @@ private:
 /* ============================ CREATORS ================================== */
 
 MpBufPool::MpBufPool(unsigned blockSize, unsigned numBlocks)
-: mBlockSize(blockSize)
+: mBlockSize(MP_ALIGN(blockSize,MP_ALIGN_SIZE))
 , mNumBlocks(numBlocks)
-, mPoolBytes(blockSize*numBlocks)
+, mPoolBytes(mBlockSize*mNumBlocks)
 , mpPoolData(new char[mPoolBytes])
 , mpFreeList(NULL)
 , mMutex(OsMutex::Q_PRIORITY)
