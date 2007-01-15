@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.tapestry.IAsset;
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
@@ -43,6 +44,7 @@ import org.sipfoundry.sipxconfig.vm.VoicemailManager;
 import org.sipfoundry.sipxconfig.vm.VoicemailSource;
 
 public abstract class ManageVoicemail extends UserBasePage {
+    public static final String PAGE = "vm/ManageVoicemail";
 
     @Asset("/images/voicemail-play.png")
     public abstract IAsset getPlayVoicemailAsset();
@@ -111,6 +113,13 @@ public abstract class ManageVoicemail extends UserBasePage {
     String getFolderLabel(String folderId) {
         return getMessages().getMessage("tab." + folderId);
     }
+    
+    public IPage edit(String voicemailId) {
+        EditVoicemail page = (EditVoicemail) getRequestCycle().getPage(EditVoicemail.PAGE);
+        page.setReturnPage(PAGE);
+        page.setVoicemailId(voicemailId);
+        return page;        
+    }
 
     public ITableColumn getTimestampColumn() {
         return TapestryUtils.createDateColumn("timestamp", getMessages(),
@@ -131,6 +140,10 @@ public abstract class ManageVoicemail extends UserBasePage {
         if (getFolderIds() == null) {
             folderIds = getVoicemailManager().getFolderIds(userId);
             setFolderIds(folderIds);
+        }
+        
+        String folderId = getFolderId();
+        if (folderId == null || !folderIds.contains(folderId)) {
             setFolderId(folderIds.get(0));
         }
 

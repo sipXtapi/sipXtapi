@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.vm;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,6 +28,7 @@ import java.util.TimeZone;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.sipfoundry.sipxconfig.vm.Voicemail.MessageDescriptor;
@@ -34,9 +37,9 @@ public class VoicemailTest extends TestCase {
 
     public void testReadMessageDescriptor() throws IOException {
         InputStream in = getClass().getResourceAsStream("200/inbox/00000001-00.xml");
-        Voicemail mv = new Voicemail(new File("."), "creeper", "inbox", "00000001-00");
-        MessageDescriptor md = mv.readMessageDescriptor(in);
+        MessageDescriptor md = Voicemail.readMessageDescriptor(in);
         assertNotNull(md);
+        assertEquals("Voice Message 00000002", md.getSubject());
     }
     
     public void testGetDate() throws ParseException {
@@ -86,5 +89,33 @@ public class VoicemailTest extends TestCase {
 
         // nice, not critical
         FileUtils.deleteDirectory(mailstore);        
+    }
+    
+    public void testWriteDescriptor() throws IOException {
+        ByteArrayOutputStream original = new ByteArrayOutputStream();
+        InputStream in = getClass().getResourceAsStream("200/inbox/00000001-00.xml");
+        IOUtils.copy(in, original);
+        InputStream inMemory = new ByteArrayInputStream(original.toByteArray());
+        MessageDescriptor md = Voicemail.readMessageDescriptor(inMemory);
+        md.setSubject("testWriteDescriptor");
+        ByteArrayOutputStream actual = new ByteArrayOutputStream();
+        Voicemail.writeMessageDescriptor(md, actual);
+        
+        ByteArrayOutputStream expected = new ByteArrayOutputStream();
+        InputStream inExpected = getClass().getResourceAsStream("write-expected.xml");
+        IOUtils.copy(inExpected, expected);
+        
+        assertEquals(new String(expected.toByteArray()), new String(actual.toByteArray()));
+    }
+    
+    public void testSave() throws IOException {
+        File mailstore = createTestMailStore();
+        Voicemail vm = new Voicemail(mailstore, "200", "inbox", "00000001-00");
+        assertEquals("Voice Message 00000002", vm.getSubject());
+        vm.setSubject("new subject");
+        vm.save();
+        
+        Voicemail saved = new Voicemail(mailstore, "200", "inbox", "00000001-00");
+        assertEquals("new subject", saved.getSubject());
     }
 }

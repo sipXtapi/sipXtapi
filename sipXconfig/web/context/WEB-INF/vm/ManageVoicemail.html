@@ -9,6 +9,11 @@
       <table jwcid="@Table" id="voicemail:list" class="component" source="prop:voicemails" selections="prop:selections"
         columns="* subject,from,=timestampColumn,duration,play" converter="prop:converter" row="prop:voicemail"
         usePager="ognl:true" rowInfo="prop:rowInfo">
+        <span jwcid="subjectColumnValue@Block">
+          <a jwcid="@DirectLink" listener="listener:edit" parameters="ognl:voicemailSource.getVoicemailId(voicemail)">
+            <span jwcid="@Insert" value="prop:voicemail.subject"/>
+          </a>
+        </span>
         <span jwcid="fromColumnValue@Block">
           <span jwcid="@Any" title="prop:voicemail.from">
             <span jwcid="@Insert" value="prop:voicemail.fromBrief"/>

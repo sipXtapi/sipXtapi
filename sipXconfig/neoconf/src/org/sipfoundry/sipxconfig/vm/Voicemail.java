@@ -13,8 +13,10 @@ package org.sipfoundry.sipxconfig.vm;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.ParseException;
 import java.util.Date;
 
@@ -22,9 +24,10 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.Annotations;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.converters.basic.DateConverter;
-import com.thoughtworks.xstream.io.xml.Dom4JDriver;
+import com.thoughtworks.xstream.io.xml.DomDriver;
 import com.thoughtworks.xstream.mapper.MapperWrapper;
 
+import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.XstreamFieldMapper;
 
@@ -100,19 +103,40 @@ public class Voicemail implements Comparable {
 
     MessageDescriptor getDescriptor() {
         if (m_descriptor == null) {
+            FileInputStream descriptorFile = null;
             try {
-                FileInputStream descriptorFile = new FileInputStream(getDescriptorFile());
+                descriptorFile = new FileInputStream(getDescriptorFile());
                 m_descriptor = readMessageDescriptor(descriptorFile);
             } catch (IOException e) {
                 throw new RuntimeException(e);
+            } finally {
+                IOUtils.closeQuietly(descriptorFile);
             }
         }
 
         return m_descriptor;
     }
 
-    MessageDescriptor readMessageDescriptor(InputStream in) throws IOException {
-        XStream xstream = new XStream(new Dom4JDriver()) {
+    static MessageDescriptor readMessageDescriptor(InputStream in) throws IOException {
+        XStream xstream = getXmlSerializer();
+        MessageDescriptor md = (MessageDescriptor) xstream.fromXML(in);
+        return md;
+    }
+    
+    
+    /**
+     * Element order is not preserved!!!
+     */
+    static void writeMessageDescriptor(MessageDescriptor md, OutputStream out) throws IOException {
+        XStream xstream = getXmlSerializer();
+        // See http://xstream.codehaus.org/faq.html#XML   
+        // Section  "Why does XStream not write XML in UTF-8?"
+        out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n".getBytes());             
+        xstream.toXML(md, out);
+    }
+
+    static XStream getXmlSerializer() {
+        XStream xstream = new XStream(new DomDriver()) {
             protected MapperWrapper wrapMapper(MapperWrapper next) {
                 return new XstreamFieldMapper(next);
             }
@@ -124,12 +148,15 @@ public class Voicemail implements Comparable {
         // format independent of OS locale.
         xstream.registerConverter(new DateConverter(MessageDescriptor.TIMESTAMP_FORMAT, new String[0]));
         
-        MessageDescriptor md = (MessageDescriptor) xstream.fromXML(in);
-        return md;
+        return xstream;
     }
 
     public String getSubject() {
         return getDescriptor().getSubject();
+    }
+    
+    public void setSubject(String subject) {
+        getDescriptor().setSubject(subject);
     }
 
     public String getFrom() {
@@ -145,6 +172,18 @@ public class Voicemail implements Comparable {
             return -1;
         }
         return m_basename.compareTo(((Voicemail) o).getBasename());
+    }
+    
+    public void save() {
+        FileOutputStream out = null;
+        try {
+            out = new FileOutputStream(getDescriptorFile());
+            writeMessageDescriptor(getDescriptor(), out);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            IOUtils.closeQuietly(out);
+        }
     }
 
     @XStreamAlias("messagedescriptor")
