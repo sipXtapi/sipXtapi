@@ -52,6 +52,7 @@ nobase_include_HEADERS =  \
     mp/MpdGIPSPCMA.h \
     mp/MpdGIPSPCMU.h \
     mp/MpdPtAVT.h \
+    mp/MpdSipxGSM.h \
     mp/MpdSipxPcma.h \
     mp/MpdSipxPcmu.h \
     mp/MpdSipxSpeex.h \
@@ -62,6 +63,7 @@ nobase_include_HEADERS =  \
     mp/MpeGIPSiPCMWB.h \
     mp/MpeGIPSPCMA.h \
     mp/MpeGIPSPCMU.h \
+    mp/MpeSipxGSM.h \
     mp/MpeSipxPcma.h \
     mp/MpeSipxPcmu.h \
     mp/MpeSipxSpeex.h \

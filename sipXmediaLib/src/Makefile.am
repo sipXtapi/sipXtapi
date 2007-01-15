@@ -78,6 +78,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MpdGIPSPCMA.cpp \
     mp/MpdGIPSPCMU.cpp \
     mp/MpdPtAVT.cpp \
+    mp/MpdSipxGSM.cpp \
     mp/MpdSipxPcma.cpp \
     mp/MpdSipxPcmu.cpp \
     mp/MpdSipxSpeex.cpp \
@@ -88,6 +89,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MpeGIPSiPCMWB.cpp \
     mp/MpeGIPSPCMA.cpp \
     mp/MpeGIPSPCMU.cpp \
+    mp/MpeSipxGSM.cpp \
     mp/MpeSipxPcma.cpp \
     mp/MpeSipxPcmu.cpp \
     mp/MpeSipxSpeex.cpp \
