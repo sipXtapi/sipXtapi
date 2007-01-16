@@ -13,6 +13,8 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -36,8 +38,13 @@ public abstract class EditDialRule extends BasePage implements PageBeginRenderLi
     public static final String EMERGENCY = "EditEmergencyDialRule";
     public static final String INTERNATIONAL = "EditInternationalDialRule";
 
+    @InjectObject(value = "spring:dialPlanContext")
     public abstract DialPlanContext getDialPlanContext();
+    
+    @InjectObject(value = "spring:permissionManager")
+    public abstract PermissionManager getPermissionManager();
 
+    @Persist
     public abstract Integer getRuleId();
 
     public abstract void setRuleId(Integer ruleId);
@@ -50,11 +57,10 @@ public abstract class EditDialRule extends BasePage implements PageBeginRenderLi
 
     public abstract void setCallback(ICallback callback);
 
+    @Persist(value = "client")
     public abstract DialingRuleType getRuleType();
 
     public abstract void setRuleType(DialingRuleType dialingType);
-
-    public abstract PermissionManager getPermissionManager();
 
     public void pageBeginRender(PageEvent event_) {
         DialingRule rule = getRule();

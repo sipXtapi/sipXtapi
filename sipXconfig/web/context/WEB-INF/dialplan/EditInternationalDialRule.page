@@ -4,15 +4,6 @@
       "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
 <page-specification class="org.sipfoundry.sipxconfig.site.dialplan.EditLocalDialRule">
   <!--
-    - P R O P E R T I E S
-  -->
-  <inject property="dialPlanContext" object="spring:dialPlanContext" />
-  <inject property="permissionManager" object="spring:permissionManager" />
-
-  <property name="ruleId" persist="session" />
-  <property name="ruleType" persist="client" />
-  <property name="rule" />
-  <!--
     - C O M P O N E N T S
   -->
   <component id="dialRuleCommon" type="DialRuleCommon">

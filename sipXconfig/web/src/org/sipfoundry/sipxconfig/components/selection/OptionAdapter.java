@@ -11,10 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.components.selection;
 
-public interface OptionAdapter {
-    Object getValue(Object option, int index);
+public interface OptionAdapter<T> {
+    Object getValue(T option, int index);
 
-    String getLabel(Object option, int index);
+    String getLabel(T option, int index);
 
-    String squeezeOption(Object option, int index);
+    String squeezeOption(T option, int index);
 }

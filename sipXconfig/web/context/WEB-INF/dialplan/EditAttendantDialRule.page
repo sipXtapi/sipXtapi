@@ -4,13 +4,7 @@
   <!--
     - P R O P E R T I E S
   -->
-  <inject property="dialPlanContext" object="spring:dialPlanContext" />
-  <inject property="permissionManager" object="spring:permissionManager" />
   <inject property="tapestry" object="spring:tapestry" />
-
-  <property name="ruleId" persist="session" />
-  <property name="ruleType" persist="client" />
-  <property name="rule" />
 
   <property name="workingHours" />
   <!--

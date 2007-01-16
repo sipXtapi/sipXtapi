@@ -6,13 +6,6 @@
   <!--
     - P R O P E R T I E S
   -->
-  <inject property="dialPlanContext" object="spring:dialPlanContext" />
-  <inject property="permissionManager" object="spring:permissionManager" />
-
-  <property name="ruleId" persist="session" />
-  <property name="ruleType" persist="client" />
-  <property name="rule" />
-
   <property name="showAdvanced" persist="session" initial-value="false" />
   <!--
     - B E A N S
@@ -22,19 +15,23 @@
     <set name="min" value="literal:5" />
     <set name="max" value="literal:15" />
   </bean>
-  <bean name="externalLenModel"
-    class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator" lifecycle="page">
+  <bean name="externalLenModel" class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator"
+    lifecycle="page">
     <set name="model" value="bean:digitsOnlyModel" />
     <set name="extraLabel" value="message:label.anyDigits" />
   </bean>
 
-  <bean name="barePermissionTypeModel"
-    class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel" lifecycle="request">
-    <set name="collection" value="permissionManager.callPermissions" />
-    <set name="labelExpression" value="literal:label" />
+  <bean name="permissionAdapter" class="org.sipfoundry.sipxconfig.site.permission.PermissionOptionAdapter"
+    lifecycle="request">
+    <set name="locale" value="locale" />
   </bean>
-  <bean name="permissionTypeModel"
-    class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator" lifecycle="request">
+  <bean name="barePermissionTypeModel"
+    class="org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel" lifecycle="request">
+    <set name="collection" value="permissionManager.callPermissions" />
+    <set name="adapter" value="bean:permissionAdapter" />
+  </bean>
+  <bean name="permissionTypeModel" class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator"
+    lifecycle="request">
     <set name="model" value="bean:barePermissionTypeModel" />
     <set name="extraLabel" value="message:label.noPermission" />
   </bean>
