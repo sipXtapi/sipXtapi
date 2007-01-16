@@ -141,9 +141,9 @@ UtlBoolean MprSpeexEchoCancel::doProcessFrame(MpBufPtr inBufs[],
 
             // Do echo cancelation
             speex_echo_cancel(mpEchoState,
-                              inputBuffer->getSamples(),
-                              echoRefBuffer->getSamples(),
-                              outBuffer->getSamples(),
+                              (spx_int16_t*)inputBuffer->getSamples(),
+                              (spx_int16_t*)echoRefBuffer->getSamples(),
+                              (spx_int16_t*)outBuffer->getSamples(),
                               pEchoResidue);
          } else {
             //The sample count didn't match so we can't echo cancel.  Pass the frame.

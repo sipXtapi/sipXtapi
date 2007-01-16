@@ -13,6 +13,13 @@
 
 #ifdef HAVE_SPEEX /* [ */
 
+
+// WIN32: Add libspeex to linker input.
+#ifdef WIN32 // [
+#   pragma comment(lib, "libspeex.lib")
+#endif // WIN32 ]
+
+
 #define TEST_PRINT
 #include "assert.h"
 // APPLICATION INCLUDES
