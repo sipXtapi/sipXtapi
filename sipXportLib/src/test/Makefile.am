@@ -35,6 +35,7 @@ testsuite_SOURCES = \
     utl/UtlContainableTestStub.h \
     utl/UtlVoidPtr.cpp \
     utl/UtlInt.cpp \
+    utl/UtlLongLongInt.cpp \
     utl/UtlStringTest.cpp \
     utl/UtlStringTest.h \
     utl/UtlStringTest_ConstructiveManipulators.cpp \
@@ -59,6 +60,7 @@ testsuite_SOURCES = \
     os/OsNameDbTest.cpp \
     os/OsCallbackTest.cpp \
     os/OsTimerTaskTest.cpp \
+    os/OsTimerTest.cpp \
     os/OsTimeTest.cpp \
     os/OsEventTest.cpp \
     os/OsLockTest.cpp \
@@ -75,6 +77,8 @@ testsuite_SOURCES = \
     os/OsProcessIteratorTest.cpp \
     os/OsProcessTest.cpp \
     os/OsProcessMgrTest.cpp \
+    os/StunMessageTest.cpp \
+    os/TurnMessageTest.cpp \
     utl/TestPlugin.h \
     utl/PluginHooksTest.cpp \
     os/OsContactListTest.cpp  \
