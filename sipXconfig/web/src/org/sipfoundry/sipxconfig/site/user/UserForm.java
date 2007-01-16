@@ -18,6 +18,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hivemind.util.PropertyUtils;
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.IComponent;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEndRenderListener;
@@ -29,14 +30,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 
-public abstract class UserForm extends BaseComponent implements PageEndRenderListener {
-    // Display this dummy PIN value (masked) to indicate that a PIN exists.
-    // We can't use a real PIN.  We don't know the real PIN and if we did,
-    // we shouldn't show it.
-    // Pick an obscure PIN to avoid colliding with real user PINs.  (I tried using a
-    // non-printable PIN "\1\1\1\1\1\1\1\1" but Tapestry silently discards the string!)
-    private static final String DUMMY_PIN = "`p1n6P0\361g";
-    
+public abstract class UserForm extends BaseComponent implements PageEndRenderListener, EditPinComponent {
     public abstract CoreContext getCoreContext();
     public abstract SettingDao getSettingDao();
     public abstract ExtensionPoolContext getExtensionPoolContext();
@@ -66,7 +60,7 @@ public abstract class UserForm extends BaseComponent implements PageEndRenderLis
                 setAliasesString(user.getAliasesString());
             }
 
-            initializePin();
+            initializePin(getComponent("pin"), this, getUser());
 
             if (getGroupsString() == null) {
                 setGroupsString(user.getGroupsNames());
@@ -90,7 +84,7 @@ public abstract class UserForm extends BaseComponent implements PageEndRenderLis
             }
             
             // Update the user's PIN and aliases
-            updatePin();
+            updatePin(this, getUser(), getCoreContext().getAuthorizationRealm());
 
             String groupsString = getGroupsString();
             if (groupsString != null) {
@@ -148,27 +142,30 @@ public abstract class UserForm extends BaseComponent implements PageEndRenderLis
         return result;
     }
         
-    // For an existing user with a non-empty PIN, init the displayed PIN
-    // to be the dummy PIN to make it clear that the PIN is not empty.
-    private void initializePin() {
-        if (!getUser().isNew() && getPin() == null) {
-            setPin(DUMMY_PIN);
+    /**
+     * For an existing user with a non-empty PIN, init the displayed PIN
+     * to be the dummy PIN to make it clear that the PIN is not empty.
+     */
+    public static void initializePin(IComponent confirmPassword, EditPinComponent editPin, User user) {
+        if (!user.isNew() && editPin.getPin() == null) {
+            editPin.setPin(DUMMY_PIN);
             
             // Reset the confirm PIN field as well.  Ugly to reach into the component
             // like this, but I haven't figured out a better way.
-            PropertyUtils.write(getComponent("pin"), "confirmPassword", DUMMY_PIN);
+            PropertyUtils.write(confirmPassword, "confirmPassword", DUMMY_PIN);
         }
     }
     
-    // Update the user's PIN
-    private void updatePin() {
-        if (!(getPin() == null) && !getPin().equals(DUMMY_PIN)) {
-            CoreContext core = getCoreContext();
-            getUser().setPin(getPin(), core.getAuthorizationRealm());
+    /*
+     *  Update the user's PIN
+     */
+    public static void updatePin(EditPinComponent editPin, User user, String authorizationRealm) {
+        if (!(editPin.getPin() == null) && !editPin.getPin().equals(DUMMY_PIN)) {
+            user.setPin(editPin.getPin(), authorizationRealm);
             
             // Having updated the user, scrub the PIN field for security
-            setPin(null);
-        }
+            editPin.setPin(null);
+        }        
     }
 
     private void recordError(String messageId, String arg) {

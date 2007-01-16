@@ -1,5 +1,10 @@
 <ul id="nav">
   <li>
+    <a href="#" jwcid="@PageLink" id="menu.myInformation" page="user_portal/EditMyInformation">
+      <span key="menu.myInformation"/>
+    </a>
+  </li>
+  <li>
     <a href="#" jwcid="@PageLink" id="menu.voicemail" page="vm/ManageVoicemail">
       <span key="menu.manageVoicemail"/>
     </a>
@@ -12,11 +17,6 @@
   <li>
     <a href="#" jwcid="@PageLink" id="menu.speedDial" page="speeddial/SpeedDialPage">
       <span key="menu.speedDial">Speed Dial</span>
-    </a>
-  </li>
-  <li>
-    <a href="#" jwcid="@PageLink" id="menu.changePin" page="ChangePin">
-      <span key="menu.changePin">Change PIN</span>
     </a>
   </li>
   <li jwcid="@If" element="li" condition="ognl: presenceServer.enabled">
