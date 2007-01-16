@@ -4,7 +4,7 @@
 ###
 
 sipx_services() {
-    ls -1 @SIPX_PROCDIR@/*.process.xml | xargs -I % basename % .process.xml
+    ls -1 @SIPX_PROCDIR@/*.process.xml | xargs --replace=% basename % .process.xml
 }
 
 sipx_config_value() { # ( CONFIG-FILE, DIRECTIVE )
