@@ -10,6 +10,14 @@
 
 #ifdef HAVE_GSM /* [ */
 
+// WIN32: Add libgsm to linker input.
+#ifdef WIN32 // [
+#   ifdef _DEBUG // [
+#      pragma comment(lib, "gsmd.lib")
+#   else // _DEBUG ][
+#      pragma comment(lib, "gsm.lib")
+#   endif // _DEBUG ]
+#endif // WIN32 ]
 
 // APPLICATION INCLUDES
 #include "mp/MpdSipxGSM.h"
