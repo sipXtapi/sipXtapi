@@ -52,7 +52,7 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/js-1.6R2.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/tacos-4.0.0-lib.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-fileupload-1.1.1.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/tapestry-annotations-4.0.2.jar" sourcepath="/LIB_SRC/tapestry/4.0.2/tapestry-4.0.2"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/tapestry-annotations-4.0.2.jar" sourcepath="/LIB_SRC/tapestry/4.0.2/src.zip"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/postgresql-8.2-504.jdbc3.jar" sourcepath="/LIB_SRC/pgsql/8.2/src.zip"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/tapestry-prop-1.0.0-3.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>

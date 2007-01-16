@@ -15,9 +15,14 @@ import java.util.Collection;
 
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.Lifecycle;
 import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.RowInfo;
+import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
 
@@ -25,9 +30,21 @@ public abstract class ListPermissions extends BasePage {
 
     public static final String PAGE = "ListPermissions";
 
+    @InjectObject(value = "spring:permissionManager")
     public abstract PermissionManager getPermissionManager();
 
+    @Bean
+    public abstract SelectMap getSelections();
+
+    @Bean
+    public abstract SipxValidationDelegate getValidator();
+
+    @Bean(lifecycle = Lifecycle.PAGE)
+    public abstract PermissionRowInfo getRowInfo();
+
     public abstract Collection getRowsToDelete();
+
+    public abstract Permission getCurrentRow();
 
     public IPage add(IRequestCycle cycle) {
         EditPermission editPage = (EditPermission) cycle.getPage(EditPermission.PAGE);
@@ -57,6 +74,15 @@ public abstract class ListPermissions extends BasePage {
         }
     }
 
+
+    public String getCurrentLabel() {
+        return getCurrentRow().getLabel(getLocale());
+    }
+
+    public Collection getAllSelected() {
+        return getSelections().getAllSelected();
+    }
+    
     /**
      * Only custom permissions are selectable.
      */
@@ -64,7 +90,7 @@ public abstract class ListPermissions extends BasePage {
         public boolean isSelectable(Permission row) {
             return !row.isBuiltIn();
         }
-        
+
         public Object getSelectId(Permission row) {
             return row.getPrimaryKey();
         }

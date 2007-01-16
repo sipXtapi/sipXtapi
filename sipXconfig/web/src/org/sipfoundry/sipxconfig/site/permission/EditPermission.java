@@ -11,9 +11,13 @@
  */
 package org.sipfoundry.sipxconfig.site.permission;
 
+import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
@@ -21,8 +25,13 @@ import org.sipfoundry.sipxconfig.permission.PermissionManager;
 public abstract class EditPermission extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "EditPermission";
 
+    @InjectObject(value = "spring:permissionManager")
     public abstract PermissionManager getPermissionManager();
 
+    @Bean
+    public abstract SipxValidationDelegate getValidator();
+
+    @Persist
     public abstract Object getPermissionId();
 
     public abstract void setPermissionId(Object id);
@@ -63,5 +72,21 @@ public abstract class EditPermission extends PageWithCallback implements PageBeg
             pm.addCallPermission(permission);
             setPermissionId(permission.getPrimaryKey());
         }
+    }
+
+    public String getLabel() {
+        return getPermission().getLabel(getLocale());
+    }
+
+    public void setLabel(String label) {
+        getPermission().setLabel(label);
+    }
+
+    public String getDescription() {
+        return getPermission().getDescription(getLocale());
+    }
+
+    public void setDescription(String description) {
+        getPermission().setDescription(description);
     }
 }
