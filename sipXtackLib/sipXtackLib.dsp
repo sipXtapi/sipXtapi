@@ -41,7 +41,7 @@ RSC=rc.exe
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I "include" /I "..\sipXportLib\include" /I "..\sipXsdpLib\include" /I "..\sipXcallLib\include" /D SIP_STACK_VERSION=\"2.5.2\" /D SIPX_CONFDIR=\".\" /D SIPX_LOGDIR=\".\" /D "HAVE_GSM" /D "NDEBUG" /D "_LIB" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I "include" /I "..\sipXportLib\include" /I "..\sipXsdpLib\include" /I "..\sipXcallLib\include" /D SIP_STACK_VERSION=\"2.5.2\" /D SIPX_CONFDIR=\".\" /D SIPX_LOGDIR=\".\" /D "HAVE_SPEEX" /D "HAVE_GSM" /D "NDEBUG" /D "_LIB" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /YX /FD /c
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -64,7 +64,7 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "include" /I "..\sipXportLib\include" /I "..\sipXsdpLib\include" /I "..\sipXcallLib\include" /D "HAVE_GSM" /D "_DEBUG" /D "_LIB" /D SIP_STACK_VERSION=\"2.5.2\" /D SIPX_CONFDIR=\".\" /D SIPX_LOGDIR=\".\" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /FR /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "include" /I "..\sipXportLib\include" /I "..\sipXsdpLib\include" /I "..\sipXcallLib\include" /D SIP_STACK_VERSION=\"2.5.2\" /D SIPX_CONFDIR=\".\" /D SIPX_LOGDIR=\".\" /D "HAVE_SPEEX" /D "HAVE_GSM" /D "_DEBUG" /D "_LIB" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /FR /YX /FD /GZ /c
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
