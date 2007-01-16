@@ -55,7 +55,7 @@ AC_CHECK_FUNCS([clock_gettime getcwd gethostbyname gethostname gettimeofday inet
 CHECK_CPPUNIT
 
 # sipX dependencies
-SFAC_LIB_MEDIA
+SFAC_LIB_MEDIA_PROCESSING
 
 SFAC_FEATURE_SIP_TLS
 

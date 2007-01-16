@@ -288,7 +288,7 @@ AC_DEFUN([SFAC_LIB_MEDIA],
     SIPXMEDIAINC=$foundpath
     AC_SUBST(SIPXMEDIAINC)
 
-    if test "$SIPXMEDIAINC" != "$SIPXPORTINC"
+    if test "$SIPXMEDIAINC" != "$SIPXTACKINC"
     then
         CFLAGS="-I$SIPXMEDIAINC $CFLAGS"
         CXXFLAGS="-I$SIPXMEDIAINC $CXXFLAGS"
@@ -310,6 +310,55 @@ AC_DEFUN([SFAC_LIB_MEDIA],
     AC_SUBST(SIPXMEDIA_STATIC_LIBS, ["$SIPXMEDIALIB/libsipXmedia.a"])
     AC_SUBST(SIPXMEDIA_LDFLAGS, ["-L$SIPXMEDIALIB"])
 ]) # SFAC_LIB_MEDIA
+
+
+## sipXmediaProcessingLib 
+# SFAC_LIB_MEDIA_PROCESSING attempts to find the sf media processing library and include
+# files by looking in /usr/[lib|include], /usr/local/[lib|include], and
+# relative paths.
+#
+# If not found, the configure is aborted.  Otherwise, variables are defined
+# for both the INC and LIB paths AND the paths are added to the CFLAGS, 
+# CXXFLAGS, LDFLAGS, and LIBS.
+AC_DEFUN([SFAC_LIB_MEDIA_PROCESSING],
+[
+    AC_REQUIRE([SFAC_LIB_MEDIA])
+
+    SFAC_ARG_WITH_INCLUDE([mi/CpMediaInterface.h],
+            [sipxmediainterfaceinc],
+            [ --with-sipxmediainterfaceinc=<dir> media interface library include path ],
+            [sipXmediaAdapterLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_ERROR('mi/CpMediaInterface.h' not found)
+    fi
+    SIPXMEDIAINTERFACEINC=$foundpath
+    AC_SUBST(SIPXMEDIAINTERFACEINC)
+
+    if test "$SIPXMEDIAINTERFACEINC" != "$SIPXMEDIAINC"
+    then
+        CFLAGS="-I$SIPXMEDIAINTERFACEINC $CFLAGS"
+        CXXFLAGS="-I$SIPXMEDIAINTERFACEINC $CXXFLAGS"
+    fi
+    
+    SFAC_ARG_WITH_LIB([libsipXmediaProcessing.la],
+            [sipxmediaprocessinglib],
+            [ --with-sipxmediaprocessinglib=<dir> media library path ],
+            [sipXmediaAdapterLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_ERROR('libsipXmediaProcessing.la' not found)
+    fi
+    SIPXMEDIAMPLIB=$foundpath
+
+    AC_SUBST(SIPXMEDIA_MP_LIBS, ["$SIPXMEDIAMPLIB/libsipXmediaProcessing.la"])
+    AC_SUBST(SIPXMEDIA_MP_STATIC_LIBS, ["$SIPXMEDIAMPLIB/libsipXmediaProcessing.a"])
+    AC_SUBST(SIPXMEDIA_MP_LDFLAGS, ["-L$SIPXMEDIAMPLIB"])
+]) # SFAC_LIB_MEDIA_PROCESSING
 
 
 ## Optionally compile in the GIPS library in the media subsystem
@@ -360,9 +409,6 @@ AC_DEFUN([CHECK_GIPSNEQ],
    AC_SUBST(GIPSINC)
    AC_SUBST(GIPS_NEQ_OBJS)
    AC_SUBST(GIPS_CPPFLAGS)
-
-   AC_SUBST(SIPXMEDIA_MP_LIBS, ["$SIPXMEDIALIB/libsipXmediaProcessing.la"])
-   AC_SUBST(SIPXMEDIA_MP_STATIC_LIBS, ["$SIPXMEDIALIB/libsipXmediaProcessing.a"])
 ]) # CHECK_GIPSNEQ
 
 
@@ -487,7 +533,7 @@ AC_DEFUN([CHECK_VIDEO],
 # CXXFLAGS, LDFLAGS, and LIBS.
 AC_DEFUN([SFAC_LIB_CALL],
 [
-    AC_REQUIRE([SFAC_LIB_MEDIA])
+    AC_REQUIRE([SFAC_LIB_MEDIA_PROCESSING])
 
     SFAC_ARG_WITH_INCLUDE([cp/CallManager.h],
             [sipxcallinc],
@@ -590,7 +636,7 @@ AC_DEFUN([SFAC_ARG_WITH_INCLUDE],
     AC_ARG_WITH( [$2],
         [ [$3] ],
         [ include_path=$withval ],
-        [ include_path="$includedir $prefix/include /usr/include /usr/local/include [$abs_srcdir]/../[$4]/include [$abs_srcdir]/../[$4]/src/test" ]
+        [ include_path="$includedir $prefix/include /usr/include /usr/local/include [$abs_srcdir]/../[$4]/interface [$abs_srcdir]/../[$4]/include [$abs_srcdir]/../[$4]/src/test" ]
     )
 
     for dir in $include_path ; do
