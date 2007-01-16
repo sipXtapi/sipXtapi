@@ -27,7 +27,8 @@ public class ManageVoicemailTestUi extends WebTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());        
-        SiteTestHelper.home(getTester());        
+        SiteTestHelper.home(getTester());    
+        SiteTestHelper.setScriptingEnabled(true);
         clickLink("resetVoicemail");              
         clickLink("loginFirstTestUser");              
         clickLink("ManageVoicemail");              
@@ -37,4 +38,27 @@ public class ManageVoicemailTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);        
         SiteTestHelper.assertNoUserError(tester);        
     }    
+    
+    public void testNavigation() throws Exception {
+        assertTextPresent("Voice Message 00000002");
+        clickLink("link:deleted");
+        assertTextPresent("Voice Message 00000001");
+    }
+    
+    public void testMove() throws Exception {
+        assertTextPresent("Voice Message 00000002");
+        checkCheckbox("checkbox");
+        getDialog().setFormParameter("actionSelection", "org.sipfoundry.sipxconfig.site.vm.MoveVoicemailActiondeleted");
+        assertTextNotPresent("Voice Message 00000002");
+        clickLink("link:deleted");
+        assertTextPresent("Voice Message 00000001");
+        assertTextPresent("Voice Message 00000002");
+    }
+    
+    public void testEdit() throws Exception {
+        clickLinkWithText("Voice Message 00000002");
+        assertElementPresent("voicemail:edit");
+    }   
 }
+
+
