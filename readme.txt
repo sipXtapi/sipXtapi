@@ -16,31 +16,37 @@ cd sipXportLib
 autoreconf -fi
 ./configure --prefix=/tmp/stage
 make;make install
+cd ..
 
 cd sipXsdpLib
 autoreconf -fi
 ./configure --prefix=/tmp/stage
 make;make install
+cd ..
 
-cd ../sipXtackLib
+cd sipXtackLib
 autoreconf -fi
 ./configure --prefix=/tmp/stage --disable-sipviewer
 make;make install
+cd ..
 
-cd ../sipXmediaLib
+cd sipXmediaLib
 autoreconf -fi
 ./configure --prefix=/tmp/stage --enable-local-audio
 make;make install
+cd ..
 
-cd ../sipXmediaAdapterLib
+cd sipXmediaAdapterLib
 autoreconf -fi
 ./configure --prefix=/tmp/stage
 make;make install
+cd ..
 
-cd ../sipXcallLib
+cd sipXcallLib
 autoreconf -fi
 ./configure --prefix=/tmp/stage
 make;make install
+cd ..
 
 2) Test using PlaceCall
 
