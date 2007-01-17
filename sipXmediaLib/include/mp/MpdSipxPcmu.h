@@ -114,7 +114,7 @@ private:
    unsigned int mNextPullTimerCount;
    unsigned int mWaitTimeInFrames;
    int mUnderflowCount;
-   int mLastSeqNo;           ///< Keep track of the last sequence number so that
+   RtpSeq mLastSeqNo;        ///< Keep track of the last sequence number so that
                              ///< we don't take out-of-order packets.
    bool mClockDrift;         ///< True, if clock drift detected.
    int mLastReportSize;

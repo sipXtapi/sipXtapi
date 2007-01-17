@@ -160,8 +160,8 @@ int MpdSipxPcmu::decodeIn(const MpRtpBufPtr &pPacket)
       // A packet is available within the allotted time span
       mUnderflowCount=0;
       // Process the frame if enough time has passed
-      int iSeqNo = pPacket->getRtpSequenceNumber();
-      if (iSeqNo < mLastSeqNo)
+      RtpSeq iSeqNo = pPacket->getRtpSequenceNumber();
+      if (compare(iSeqNo, mLastSeqNo) < 0)
       {
          // Out of Order Discard
          return -1;  // Discard the packet, it is out of order
