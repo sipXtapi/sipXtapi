@@ -964,13 +964,19 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                                              instance_id->data());
                                contactUri.setFieldParameter("+sip.instance",
                                                             *instance_id);
-                               // Prepend "sip:" to the GRUU, since it is stored
-                               // in the database in identity form.
-                               UtlString temp("sip:");
-                               temp.append(
-                                  *(dynamic_cast<UtlString*>
-                                    (record.findValue(&gruuKey))));
-                               contactUri.setFieldParameter("gruu", temp);
+
+                               UtlString* gruu =
+                                  dynamic_cast<UtlString*> (record.findValue(&gruuKey));
+                               // Only add the "gruu" parameter if the GRUU is
+                               // non-null.
+                               if (!gruu->isNull())
+                               {
+                                  // Prepend "sip:" to the GRUU, since it is stored
+                                  // in the database in identity form.
+                                  UtlString temp("sip:");
+                                  temp.append(*gruu);
+                                  contactUri.setFieldParameter("gruu", temp);
+                               }
                             }
 
                             finalResponse.setContactField(contactUri.toString(),i);
