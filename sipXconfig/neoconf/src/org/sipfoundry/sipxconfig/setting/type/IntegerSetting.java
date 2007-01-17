@@ -14,7 +14,7 @@ package org.sipfoundry.sipxconfig.setting.type;
 import org.apache.commons.beanutils.Converter;
 import org.apache.commons.beanutils.converters.IntegerConverter;
 
-public class IntegerSetting implements SettingType {
+public class IntegerSetting extends AbstractSettingType {
     /**
      * Converter should allow for null value: return null by default instead of throwing exception
      */
@@ -23,7 +23,7 @@ public class IntegerSetting implements SettingType {
     private int m_min;
 
     private int m_max = Integer.MAX_VALUE;
-    
+
     private boolean m_required;
 
     public int getMax() {
@@ -67,5 +67,5 @@ public class IntegerSetting implements SettingType {
 
     public String getLabel(Object value) {
         return convertToStringValue(value);
-    }    
+    }
 }

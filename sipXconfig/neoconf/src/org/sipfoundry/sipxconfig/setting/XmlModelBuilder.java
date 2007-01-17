@@ -199,6 +199,7 @@ public class XmlModelBuilder implements ModelBuilder {
             if (m_id != null) {
                 Setting rootSetting = (Setting) getDigester().peek();
                 SettingType type = rootSetting.getType();
+                type.setId(m_id);
                 m_types.put(m_id, type);
             }
         }
@@ -299,6 +300,7 @@ public class XmlModelBuilder implements ModelBuilder {
 
         public void addRuleInstances(Digester digester) {
             digester.addObjectCreate(getPattern(), EnumSetting.class);
+            digester.addSetProperties(getPattern());
             String option = getPattern() + "/option";
             digester.addCallMethod(option, "addEnum", 2);
             digester.addCallParam(option + EL_VALUE, 0);

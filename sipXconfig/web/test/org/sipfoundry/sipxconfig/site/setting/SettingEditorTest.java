@@ -31,7 +31,7 @@ import org.sipfoundry.sipxconfig.setting.type.SettingType;
 import org.sipfoundry.sipxconfig.setting.type.StringSetting;
 
 public class SettingEditorTest extends TestCase {
-    
+
     private SettingEditor m_editor;
 
     protected void setUp() throws Exception {
@@ -42,8 +42,8 @@ public class SettingEditorTest extends TestCase {
         IntegerSetting type = new IntegerSetting();
         List validators = SettingEditor.validatorListForType(type, true);
         assertEquals(2, validators.size());
-        assertTrue(validators.get(0) instanceof Min);        
-        assertTrue(validators.get(1) instanceof Max);        
+        assertTrue(validators.get(0) instanceof Min);
+        assertTrue(validators.get(1) instanceof Max);
     }
 
     public void testValidatorForString() {
@@ -52,8 +52,8 @@ public class SettingEditorTest extends TestCase {
         type.setRequired(true);
         List validators = SettingEditor.validatorListForType(type, true);
         assertEquals(2, validators.size());
-        assertTrue(validators.get(0) instanceof Required);        
-        assertTrue(validators.get(1) instanceof MaxLength);        
+        assertTrue(validators.get(0) instanceof Required);
+        assertTrue(validators.get(1) instanceof MaxLength);
     }
 
     public void testValidatorForStringRequiredDisabled() {
@@ -62,7 +62,7 @@ public class SettingEditorTest extends TestCase {
         type.setRequired(true);
         List validators = SettingEditor.validatorListForType(type, false);
         assertEquals(1, validators.size());
-        assertTrue(validators.get(0) instanceof MaxLength);        
+        assertTrue(validators.get(0) instanceof MaxLength);
     }
 
     public void testValidatorForPattern() {
@@ -72,9 +72,9 @@ public class SettingEditorTest extends TestCase {
         type.setPattern("kuku");
         List validators = SettingEditor.validatorListForType(type, true);
         assertEquals(3, validators.size());
-        assertTrue(validators.get(0) instanceof Required);        
-        assertTrue(validators.get(1) instanceof MaxLength);        
-        assertTrue(validators.get(2) instanceof Pattern);        
+        assertTrue(validators.get(0) instanceof Required);
+        assertTrue(validators.get(1) instanceof MaxLength);
+        assertTrue(validators.get(2) instanceof Pattern);
     }
 
     public void testEnumModelForType() {
@@ -97,44 +97,38 @@ public class SettingEditorTest extends TestCase {
         assertEquals(V2L[2][1], model.getLabel(2));
     }
 
-    public void testEnumModelForInvalidType() {
-        IPropertySelectionModel model = SettingEditor.enumModelForType(new StringSetting());
-        assertNull(model);
-    }
-
-    
     public void testGetDefaultValue() {
         SettingType type = new IntegerSetting();
-        
+
         IMocksControl settingCtrl = EasyMock.createControl();
         Setting setting = settingCtrl.createMock(Setting.class);
         setting.getDefaultValue();
         settingCtrl.andReturn("bongo");
         setting.getType();
-        settingCtrl.andReturn(type);        
+        settingCtrl.andReturn(type);
         settingCtrl.replay();
-        
+
         m_editor.setSetting(setting);
-        
+
         assertEquals("bongo", m_editor.getDefaultValue());
 
         settingCtrl.verify();
     }
-    
+
     public void testGetDefaultValueForString() {
         StringSetting type = new StringSetting();
         type.setPassword(false);
-        
+
         IMocksControl settingCtrl = EasyMock.createControl();
         Setting setting = settingCtrl.createMock(Setting.class);
         setting.getDefaultValue();
         settingCtrl.andReturn("bongo");
         setting.getType();
-        settingCtrl.andReturn(type);        
+        settingCtrl.andReturn(type);
         settingCtrl.replay();
-        
+
         m_editor.setSetting(setting);
-        
+
         assertEquals("bongo", m_editor.getDefaultValue());
 
         settingCtrl.verify();

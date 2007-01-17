@@ -32,4 +32,6 @@ public interface SettingType {
      * not always the same, for example boolean or list types 
      */
     String getLabel(Object value);
+
+    void setId(String id);
 }

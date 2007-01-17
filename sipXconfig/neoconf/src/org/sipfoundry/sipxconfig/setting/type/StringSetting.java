@@ -11,8 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.setting.type;
 
-
-public class StringSetting implements SettingType {
+public class StringSetting extends AbstractSettingType {
     public static final StringSetting DEFAULT = new StringSetting();
 
     private static final int DEFAULT_MAX_LEN = 256;
@@ -74,5 +73,5 @@ public class StringSetting implements SettingType {
             return null;
         }
         return convertToStringValue(value);
-    }    
+    }
 }

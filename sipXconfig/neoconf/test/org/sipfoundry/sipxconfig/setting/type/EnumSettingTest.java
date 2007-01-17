@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.setting.type;
 
+import org.sipfoundry.sipxconfig.setting.SettingImpl;
+
 import junit.framework.TestCase;
 
 public class EnumSettingTest extends TestCase {
@@ -48,5 +50,17 @@ public class EnumSettingTest extends TestCase {
         assertEquals("two", m_stringEnum.convertToStringValue("two"));
         assertNull(m_stringEnum.convertToStringValue("five"));
         assertNull(m_stringEnum.convertToStringValue(null));        
+    }
+    
+    public void testGet() {
+        SettingImpl setting = new SettingImpl();
+        setting.setName("abc");
+        assertEquals("abc.label.xyz", m_stringEnum.getLabelKey(setting, "xyz"));
+        
+        m_stringEnum.setId("enum3");
+        assertEquals("type.enum3.xyz", m_stringEnum.getLabelKey(setting, "xyz"));
+        
+        m_stringEnum.setLabelKeyPrefix("enum3.labels");
+        assertEquals("enum3.labels.xyz", m_stringEnum.getLabelKey(setting, "xyz"));
     }
 }

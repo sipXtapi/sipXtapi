@@ -11,11 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.setting.type;
 
-
 /**
  * Special type of setting used for upload-able file.
  */
-public class FileSetting implements SettingType {
+public class FileSetting extends AbstractSettingType {
     private boolean m_required;
     private boolean m_variable;
 
@@ -32,11 +31,11 @@ public class FileSetting implements SettingType {
     public void setRequired(boolean required) {
         m_required = required;
     }
-    
+
     public boolean isVariable() {
         return m_variable;
     }
-    
+
     public void setVariable(boolean variable) {
         m_variable = variable;
     }
@@ -64,15 +63,15 @@ public class FileSetting implements SettingType {
     public Object convertToTypedValue(Object value) {
         return value;
     }
-    
+
     public String convertToStringValue(Object value) {
         if (value == null) {
             return null;
         }
         return value.toString();
-    }    
+    }
 
     public String getLabel(Object value) {
         return convertToStringValue(value);
-    }    
+    }
 }

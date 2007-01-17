@@ -11,11 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.setting.type;
 
-
 /**
  * Setting is true or false, If you need true, false and not specified, use EnumSetting.
  */
-public class BooleanSetting implements SettingType {
+public class BooleanSetting extends AbstractSettingType {
     private String m_trueValue = "1";
 
     private String m_falseValue = "0";
@@ -62,12 +61,12 @@ public class BooleanSetting implements SettingType {
     public String getLabel(Object value) {
         return getResourceLabel(value);
     }
-    
+
     String getResourceLabel(Object value) {
         Boolean b = (Boolean) convertToTypedValue(value);
         if (b == null) {
             return null;
         }
         return b ? "true.value" : "false.value";
-    }    
+    }
 }

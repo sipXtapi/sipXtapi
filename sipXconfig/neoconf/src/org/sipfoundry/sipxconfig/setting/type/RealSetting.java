@@ -16,7 +16,7 @@ import java.awt.geom.Arc2D.Double;
 import org.apache.commons.beanutils.Converter;
 import org.apache.commons.beanutils.converters.DoubleConverter;
 
-public class RealSetting implements SettingType {
+public class RealSetting extends AbstractSettingType {
     private static final Converter CONVERTER = new DoubleConverter(null);
 
     private float m_min;
@@ -66,5 +66,5 @@ public class RealSetting implements SettingType {
 
     public String getLabel(Object value) {
         return convertToStringValue(value);
-    }    
+    }
 }

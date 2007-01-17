@@ -40,51 +40,39 @@
 <type id="ringer-pattern">
   <enum>
     <option>
-      <label>Silent Ring</label>
       <value>1</value>
     </option>
     <option>
-      <label>Low Trill</label>
       <value>2</value>
     </option>
     <option>
-      <label>Low Double Trill</label>
       <value>3</value>
     </option>
     <option>
-      <label>Medium Trill</label>
       <value>4</value>
     </option>
     <option>
-      <label>Medium Double Trill</label>
       <value>5</value>
     </option>
     <option>
-      <label>High Trill</label>
       <value>6</value>
     </option>
     <option>
-      <label>High Double Trill</label>
       <value>7</value>
     </option>
     <option>
-      <label>Highest Trill</label>
       <value>8</value>
     </option>
     <option>
-      <label>Highest Double Trill</label>
       <value>9</value>
     </option>
     <option>
-      <label>Beeble</label>
       <value>10</value>
     </option>
     <option>
-      <label>Triplet</label>
       <value>11</value>
     </option>
     <option>
-      <label>Ringback-style</label>
       <value>12</value>
     </option>
   </enum>

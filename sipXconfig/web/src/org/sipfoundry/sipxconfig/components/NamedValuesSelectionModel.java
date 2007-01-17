@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -22,23 +21,36 @@ import org.apache.tapestry.form.IPropertySelectionModel;
  */
 public class NamedValuesSelectionModel implements IPropertySelectionModel {
 
-    private final Object[] m_options;
-    private final String[] m_labels;
+    private Object[] m_options;
+    private String[] m_labels;
 
     /**
      * @map if instance of commons LinkedMap, use it directly, otherwise copy into a order-aware
      *      map
      */
-    public NamedValuesSelectionModel(Map map) {
+    public NamedValuesSelectionModel(Map< ? , String> map) {
         final int size = map.size();
         m_options = new Object[size];
         m_labels = new String[size];
-        Iterator entries = map.entrySet().iterator();
-        for (int i = 0; i < size; i++) {
-            Map.Entry entry = (Entry) entries.next();
+        int i = 0;
+        for (Entry< ? , String> entry : map.entrySet()) {
             m_options[i] = entry.getKey();
-            m_labels[i] = (String) entry.getValue();
+            m_labels[i] = entry.getValue();
+            i++;
         }
+    }
+
+    public NamedValuesSelectionModel(Object[] options, String[] labels) {
+        m_options = options;
+        m_labels = labels;
+    }
+
+    public void setOptions(Object[] options) {
+        m_options = options;
+    }
+
+    public void setLabels(String[] labels) {
+        m_labels = labels;
     }
 
     public int getOptionCount() {

@@ -13,6 +13,8 @@ package org.sipfoundry.sipxconfig.site.setting;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.BaseComponent;
@@ -144,8 +146,17 @@ public abstract class SettingEditor extends BaseComponent {
     }
 
     public IPropertySelectionModel getEnumModel() {
-        SettingType type = getSetting().getType();
-        return enumModelForType(type);
+        Setting setting = getSetting();
+        SettingType type = setting.getType();
+        if (!(type instanceof EnumSetting)) {
+            return null;
+        }
+        EnumSetting enumType = (EnumSetting) type;
+        MessageSource messageSource = getMessageSource();
+        if (messageSource != null) {
+            return localizedModelForType(setting, enumType, messageSource, getPage().getLocale());
+        }
+        return enumModelForType(enumType);
     }
 
     public String getDefaultValue() {
@@ -176,12 +187,27 @@ public abstract class SettingEditor extends BaseComponent {
                 setting.getLabel());
     }
 
-    static IPropertySelectionModel enumModelForType(SettingType type) {
-        if (!(type instanceof EnumSetting)) {
-            return null;
+    static IPropertySelectionModel enumModelForType(EnumSetting enumType) {
+        Map<String, String> enums = enumType.getEnums();
+        return new NamedValuesSelectionModel(enums);
+    }
+
+    static IPropertySelectionModel localizedModelForType(Setting setting, EnumSetting enumType,
+            MessageSource messageSource, Locale locale) {
+        Map<String, String> enums = enumType.getEnums();
+        int size = enums.size();
+        String[] options = new String[size];
+        String[] labels = new String[size];
+
+        int i = 0;
+        for (Map.Entry<String, String> entry : enums.entrySet()) {
+            String key = entry.getKey();
+            options[i] = key;
+            String code = enumType.getLabelKey(setting, key);
+            labels[i] = messageSource.getMessage(code, null, entry.getValue(), locale);
+            i++;
         }
-        EnumSetting enumType = (EnumSetting) type;
-        return new NamedValuesSelectionModel(enumType.getEnums());
+        return new NamedValuesSelectionModel(options, labels);
     }
 
     public boolean isModified() {
