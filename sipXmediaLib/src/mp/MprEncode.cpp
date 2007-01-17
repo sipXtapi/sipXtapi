@@ -71,6 +71,8 @@ MprEncode::MprEncode(const UtlString& rName,
    mTotalTime(0),
    mNewTone(0),
 
+   mCurrentTimestamp(0),
+
    mpToNet(NULL)
 {
    mPacket1PayloadUsed = 0;
@@ -529,24 +531,25 @@ UtlBoolean MprEncode::doProcessFrame(MpBufPtr inBufs[],
                                      int samplesPerSecond)
 {
    MpBufPtr in;
-   unsigned int startTs;
 
    mConsecutiveUnsentFrames1++;
 
-   if (0 == inBufsSize) return FALSE;
+   if (inBufsSize == 0)
+      return FALSE;
 
-   if (!isEnabled) return TRUE;
+   if (!isEnabled)
+      return TRUE;
 
    in = inBufs[0];
 
-   startTs = (showFrameCount(1) * samplesPerFrame);
+   mCurrentTimestamp += samplesPerFrame;
 
    if (NULL != mpPrimaryCodec) {
-      doPrimaryCodec(in, startTs);
+      doPrimaryCodec(in, mCurrentTimestamp);
    }
 
    if (NULL != mpDtmfCodec) {
-      doDtmfCodec(startTs, samplesPerFrame, samplesPerSecond);
+      doDtmfCodec(mCurrentTimestamp, samplesPerFrame, samplesPerSecond);
    }
 
    // mLastTimestamp = startTs;  // Unused?
