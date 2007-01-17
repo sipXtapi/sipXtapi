@@ -29,7 +29,7 @@ SIPXCHANGE_REALM=`hostname -d`
 ##### Information about this server #####
 MY_FULL_HOSTNAME=`hostname -f`
 MY_HOSTNAME=`hostname -s`
-MY_IP_ADDR=`@bindir@/get_def_addr`
+MY_IP_ADDR=`@SIPX_BINDIR@/get_def_addr`
 
 ##### IP <-> PSTN Gateway addresses -- IP addresses (recommended) or host names #####
 GW_DEFAULT_ADDR=
@@ -116,6 +116,5 @@ EXTENSION_LENGTH=3
 VOICEMAIL_AGE_LIMIT=7
 
 ##### Installation directories ######
-BIN_DIR=@bindir@
-VAR_DIR=@localstatedir@
+BIN_DIR=@SIPX_BINDIR@
 SIPX_CONFDIR=@SIPX_CONFDIR@

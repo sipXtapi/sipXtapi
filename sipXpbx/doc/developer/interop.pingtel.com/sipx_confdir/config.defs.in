@@ -122,5 +122,4 @@ VOICEMAIL_AGE_LIMIT=1
 
 ##### Installation directories ######
 BIN_DIR=@SIPX_BINDIR@
-VAR_DIR=/var
 SIPX_CONFDIR=@SIPX_CONFDIR@
