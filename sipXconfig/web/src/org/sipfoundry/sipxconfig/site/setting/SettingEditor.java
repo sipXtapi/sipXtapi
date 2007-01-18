@@ -28,9 +28,11 @@ import org.apache.tapestry.form.validator.MaxLength;
 import org.apache.tapestry.form.validator.Min;
 import org.apache.tapestry.form.validator.Pattern;
 import org.apache.tapestry.form.validator.Required;
+import org.apache.tapestry.form.validator.Validator;
 import org.sipfoundry.sipxconfig.components.NamedValuesSelectionModel;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
 import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
 import org.sipfoundry.sipxconfig.setting.type.IntegerSetting;
 import org.sipfoundry.sipxconfig.setting.type.RealSetting;
@@ -88,7 +90,7 @@ public abstract class SettingEditor extends BaseComponent {
     }
 
     static List validatorListForType(SettingType type, boolean isRequiredEnabled) {
-        List validators = new ArrayList();
+        List<Validator> validators = new ArrayList<Validator>();
         if (type.isRequired() && isRequiredEnabled) {
             validators.add(new Required());
         }
@@ -159,6 +161,12 @@ public abstract class SettingEditor extends BaseComponent {
         return enumModelForType(enumType);
     }
 
+    /**
+     * Retrieve default value for current setting.
+     * 
+     * This is less than ideal implementation since Enum and Boolean types are treated very
+     * differently from all other types.
+     */
     public String getDefaultValue() {
         Setting setting = getSetting();
         SettingType type = setting.getType();
@@ -167,12 +175,20 @@ public abstract class SettingEditor extends BaseComponent {
             // no need to localize empty default labels
             return null;
         }
-        String labelKey = type.getLabel(defaultValue);
-        if (type.getName().equals("boolean")) {
-            // FIXME: this os only localized Boolean types for now
-            return TapestryUtils.getMessage(getMessages(), labelKey, labelKey);
+        String defaultValueLabel = type.getLabel(defaultValue);
+        if (type instanceof EnumSetting) {
+            MessageSource messageSource = getMessageSource();
+            if (messageSource != null) {
+                EnumSetting enumType = (EnumSetting) type;
+                String code = enumType.getLabelKey(setting, defaultValue);
+                Locale locale = getPage().getLocale();
+                return messageSource.getMessage(code, null, defaultValueLabel, locale);
+            }
+
+        } else if (type instanceof BooleanSetting) {
+            return TapestryUtils.getMessage(getMessages(), defaultValueLabel, defaultValueLabel);
         }
-        return labelKey;
+        return defaultValueLabel;
     }
 
     public String getDescription() {
