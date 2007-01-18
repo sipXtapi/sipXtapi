@@ -52,7 +52,7 @@ import org.sipfoundry.sipxconfig.site.upload.EditUpload;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.sipfoundry.sipxconfig.upload.UploadManager;
 import org.sipfoundry.sipxconfig.upload.UploadSpecification;
-import org.sipfoundry.sipxconfig.vm.VoicemailManager;
+import org.sipfoundry.sipxconfig.vm.MailboxManager;
 
 /**
  * TestPage page
@@ -118,7 +118,7 @@ public abstract class TestPage extends BasePage {
 
     public abstract IEngineService getRestartService();
     
-    public abstract VoicemailManager getVoicemailManager();
+    public abstract MailboxManager getMailboxManager();
 
     public void resetCallForwarding() {
         getForwardingContext().clear();
@@ -339,7 +339,7 @@ public abstract class TestPage extends BasePage {
     }
     
     public void resetVoicemail() {
-        VoicemailManager mgr = getVoicemailManager();        
+        MailboxManager mgr = getMailboxManager();        
         File existing = new File(mgr.getMailstoreDirectory());
         try {
             FileUtils.cleanDirectory(existing);

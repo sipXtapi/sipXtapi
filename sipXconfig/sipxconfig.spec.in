@@ -183,6 +183,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/sipxconference/*
 %config(noreplace) %{sipxpbxconf}/sipxpark/*
 %config(noreplace) %{sipxpbxconf}/unmanagedPhone/*
+%config(noreplace) %{sipxpbxconf}/mailbox/*
 
 %pre
 

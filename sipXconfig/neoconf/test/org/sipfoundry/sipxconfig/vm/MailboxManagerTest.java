@@ -18,17 +18,17 @@ import junit.framework.TestCase;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
-public class VoicemailManagerTest extends TestCase {
-    private VoicemailManagerImpl m_mgr;
+public class MailboxManagerTest extends TestCase {
+    private MailboxManagerImpl m_mgr;
     
     protected void setUp() {
-        m_mgr = new VoicemailManagerImpl();        
+        m_mgr = new MailboxManagerImpl();        
         String thisDir = TestUtil.getTestSourceDirectory(getClass());
         m_mgr.setMailstoreDirectory(thisDir);        
     }
 
     public void testGetVoicemailWhenInvalid() {        
-        VoicemailManagerImpl mgr = new VoicemailManagerImpl();
+        MailboxManagerImpl mgr = new MailboxManagerImpl();
         try {
             mgr.getVoicemail("200", "inbox").size();
             fail();
@@ -59,9 +59,9 @@ public class VoicemailManagerTest extends TestCase {
     }
     
     public void testBasename() {
-        assertEquals("bird", VoicemailManagerImpl.basename("bird.wav"));
-        assertEquals("bird", VoicemailManagerImpl.basename("bird"));
-        assertEquals("bird.species", VoicemailManagerImpl.basename("bird.species.txt"));
+        assertEquals("bird", MailboxManagerImpl.basename("bird.wav"));
+        assertEquals("bird", MailboxManagerImpl.basename("bird"));
+        assertEquals("bird.species", MailboxManagerImpl.basename("bird.species.txt"));
     }
     
     public void testGetFolders() {

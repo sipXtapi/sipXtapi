@@ -16,7 +16,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.user.EditPinComponent;
 import org.sipfoundry.sipxconfig.site.user.UserForm;
-import org.sipfoundry.sipxconfig.vm.VoicemailPreferences;
+import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
 
 public abstract class EditMyInformation extends UserBasePage implements EditPinComponent {
@@ -24,7 +24,7 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
     public abstract String getPin();
     
     @Bean
-    public abstract VoicemailPreferences getVoicemailPreferences();
+    public abstract MailboxPreferences getMailboxPreferences();
     
     public void save() {
         if (!getValidator().getHasErrors()) {

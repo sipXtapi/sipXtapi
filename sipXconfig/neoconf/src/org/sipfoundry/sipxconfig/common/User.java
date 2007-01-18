@@ -66,6 +66,8 @@ public class User extends BeanWithGroups implements NamedObject {
     private String m_lastName;
 
     private String m_userName;
+    
+    private String m_emailAddress;
 
     private Set<String> m_aliases = new LinkedHashSet<String>(0);
 
@@ -317,5 +319,13 @@ public class User extends BeanWithGroups implements NamedObject {
 
     public void setPermissionManager(PermissionManager permissionManager) {
         m_permissionManager = permissionManager;
+    }
+
+    public String getEmailAddress() {
+        return m_emailAddress;
+    }
+
+    public void setEmailAddress(String emailAddress) {
+        m_emailAddress = emailAddress;
     }
 }

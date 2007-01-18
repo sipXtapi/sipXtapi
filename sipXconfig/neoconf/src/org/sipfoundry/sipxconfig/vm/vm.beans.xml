@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
 	"http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
+<beans> 
+  <bean id="mailboxManagerImpl" class="org.sipfoundry.sipxconfig.vm.MailboxManagerImpl">
+    <property name="mailboxPreferencesReader" ref="mailboxPreferencesReader"/>
+    <property name="mailboxPreferencesWriter" ref="mailboxPreferencesWriter"/>
+  </bean>
+  <alias alias="mailboxManager" name="mailboxManagerImpl" />
   
-  <bean id="voicemailManagerImpl" class="org.sipfoundry.sipxconfig.vm.VoicemailManagerImpl"/>
-
-  <alias alias="voicemailManager" name="voicemailManagerImpl" />
+  <bean id="mailboxPreferencesReader" class="org.sipfoundry.sipxconfig.vm.MailboxPreferencesReader"/>  
+  <bean id="mailboxPreferencesWriter" class="org.sipfoundry.sipxconfig.vm.MailboxPreferencesWriter"/>
   
 </beans>

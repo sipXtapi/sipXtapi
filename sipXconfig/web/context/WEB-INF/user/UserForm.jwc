@@ -19,7 +19,7 @@
   <!-- space-delimited list of aliases -->
   <property name="aliasesString"/>
   <property name="groupsString"/>
-  <bean name="voicemailPreferences" class="org.sipfoundry.sipxconfig.vm.VoicemailPreferences"/>
+  <bean name="mailboxPreferences" class="org.sipfoundry.sipxconfig.vm.MailboxPreferences"/>
   <!--
   - C O M P O N E N T S
   -->
@@ -54,7 +54,7 @@
     <binding name="label" value="message:label.emailAddress"/>
   </component>
   <component id="emailAddress" type="TextField">
-    <binding name="value" value="beans.voicemailPreferences.emailAddress"/>
+    <binding name="value" value="beans.mailboxPreferences.emailAddress"/>
     <binding name="displayName" value="message:label.emailAddress"/>
     <binding name="validators" value="validators:email"/>
   </component>
@@ -63,7 +63,7 @@
     <binding name="label" value="message:label.activeGreeting"/>
   </component>
   <component id="activeGreeting" type="TextField">
-    <binding name="value" value="beans.voicemailPreferences.activeGreeting"/>
+    <binding name="value" value="beans.mailboxPreferences.activeGreeting"/>
     <binding name="displayName" value="message:label.activeGretting"/>
   </component> 
    <component id="pin" type="ConfirmPassword">

@@ -167,7 +167,7 @@ public final class TestUtil {
                 throw new RuntimeException("Could not create voicemail store " + vmDir.getAbsolutePath());
             }
         }
-        sysProps.setProperty("voicemailManagerImpl.mailstoreDirectory", vmDir.getAbsolutePath());
+        sysProps.setProperty("mailboxManagerImpl.mailstoreDirectory", vmDir.getAbsolutePath());
     }       
 
     public static void saveSysDirProperties(Properties sysProps, String classpathDirectory) {

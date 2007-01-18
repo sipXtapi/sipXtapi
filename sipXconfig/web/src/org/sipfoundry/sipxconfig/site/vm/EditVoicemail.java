@@ -17,8 +17,8 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
+import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.Voicemail;
-import org.sipfoundry.sipxconfig.vm.VoicemailManager;
 import org.sipfoundry.sipxconfig.vm.VoicemailSource;
 
 public abstract class EditVoicemail extends UserBasePage {
@@ -32,8 +32,8 @@ public abstract class EditVoicemail extends UserBasePage {
     public abstract Voicemail getVoicemail();
     public abstract void setVoicemail(Voicemail voicemail);
     
-    @InjectObject(value = "spring:voicemailManager")
-    public abstract VoicemailManager getVoicemailManager();
+    @InjectObject(value = "spring:mailboxManager")
+    public abstract MailboxManager getMailboxManager();
     
     public abstract VoicemailSource getVoicemailSource();
     public abstract void setVoicemailSource(VoicemailSource source);
@@ -49,7 +49,7 @@ public abstract class EditVoicemail extends UserBasePage {
                 
         VoicemailSource source = getVoicemailSource();
         if (source == null) {            
-            source = new VoicemailSource(new File(getVoicemailManager().getMailstoreDirectory()));
+            source = new VoicemailSource(new File(getMailboxManager().getMailstoreDirectory()));
             setVoicemailSource(source);
         }        
         

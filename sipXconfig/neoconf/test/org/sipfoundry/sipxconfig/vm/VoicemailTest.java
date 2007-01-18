@@ -78,7 +78,7 @@ public class VoicemailTest extends TestCase {
     
     public void testDelete() throws IOException {
         File mailstore = createTestMailStore();
-        VoicemailManagerImpl mgr = new VoicemailManagerImpl();
+        MailboxManagerImpl mgr = new MailboxManagerImpl();
         mgr.setMailstoreDirectory(mailstore.getAbsolutePath());
         List<Voicemail> vm = mgr.getVoicemail("200", "inbox"); 
         assertEquals(1, vm.size());

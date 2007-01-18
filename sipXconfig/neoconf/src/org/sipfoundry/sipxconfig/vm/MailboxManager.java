@@ -13,11 +13,17 @@ package org.sipfoundry.sipxconfig.vm;
 
 import java.util.List;
 
-public interface VoicemailManager {
+public interface MailboxManager {
     
     public List<String> getFolderIds(String userid);
 
     public List<Voicemail> getVoicemail(String userid, String folder);
     
     public String getMailstoreDirectory();
+
+    public Mailbox getMailbox(String userId);
+    
+    public void saveMailboxPreferences(Mailbox mailbox, MailboxPreferences preferences);
+    
+    public MailboxPreferences loadMailboxPreferences(Mailbox mailbox);
 }

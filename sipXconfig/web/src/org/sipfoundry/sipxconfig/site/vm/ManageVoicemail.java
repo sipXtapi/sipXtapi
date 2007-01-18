@@ -39,8 +39,8 @@ import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
 import org.sipfoundry.sipxconfig.components.selection.OptGroup;
 import org.sipfoundry.sipxconfig.components.selection.OptionAdapter;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
+import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.Voicemail;
-import org.sipfoundry.sipxconfig.vm.VoicemailManager;
 import org.sipfoundry.sipxconfig.vm.VoicemailSource;
 
 public abstract class ManageVoicemail extends UserBasePage {
@@ -49,8 +49,8 @@ public abstract class ManageVoicemail extends UserBasePage {
     @Asset("/images/voicemail-play.png")
     public abstract IAsset getPlayVoicemailAsset();
 
-    @InjectObject(value = "spring:voicemailManager")
-    public abstract VoicemailManager getVoicemailManager();
+    @InjectObject(value = "spring:mailboxManager")
+    public abstract MailboxManager getMailboxManager();
     
     public abstract VoicemailSource getVoicemailSource();
     public abstract void setVoicemailSource(VoicemailSource source);
@@ -138,7 +138,7 @@ public abstract class ManageVoicemail extends UserBasePage {
         
         List<String> folderIds = getFolderIds(); 
         if (getFolderIds() == null) {
-            folderIds = getVoicemailManager().getFolderIds(userId);
+            folderIds = getMailboxManager().getFolderIds(userId);
             setFolderIds(folderIds);
         }
         
@@ -149,7 +149,7 @@ public abstract class ManageVoicemail extends UserBasePage {
 
         List<Voicemail> vm;
         try {
-            vm = getVoicemailManager().getVoicemail(userId, getFolderId());
+            vm = getMailboxManager().getVoicemail(userId, getFolderId());
         } catch (UserException e) {
             getValidator().record(new ValidatorException(e.getMessage()));
             vm = Collections.emptyList();
@@ -158,7 +158,7 @@ public abstract class ManageVoicemail extends UserBasePage {
         
         VoicemailSource source = getVoicemailSource();
         if (source == null) {            
-            source = new VoicemailSource(new File(getVoicemailManager().getMailstoreDirectory()));
+            source = new VoicemailSource(new File(getMailboxManager().getMailstoreDirectory()));
             setVoicemailSource(source);
             setRowInfo(new VoicemailRowInfo(source));
             setConverter(new VoicemailSqueezer(source));

@@ -21,7 +21,7 @@
   <inject property="indexManager" object="spring:indexManager"/>
   <inject property="uploadManager" object="spring:uploadManager"/>
   <inject property="ldapImportManager" object="spring:ldapImportManager"/>
-  <inject property="voicemailManager" object="spring:voicemailManager"/>
+  <inject property="mailboxManager" object="spring:mailboxManager"/>
 
   <inject property="restartService" object="engine-service:restart"/>
   <inject property="applicationLifecycle" object="service:sipxconfig.ApplicationLifecycle"/>
