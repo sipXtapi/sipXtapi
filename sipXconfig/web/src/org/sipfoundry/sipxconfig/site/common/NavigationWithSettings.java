@@ -44,8 +44,7 @@ public abstract class NavigationWithSettings extends BaseComponent {
 
     public String getCurrentSettingLabel() {
         Setting setting = getCurrentSetting();
-        return TapestryUtils.getModelMessage(this, getMessageSource(), setting.getLabelKey(),
-                setting.getLabel());
+        return TapestryUtils.getSettingLabel(this, setting);
     }
 
     /**
@@ -57,8 +56,7 @@ public abstract class NavigationWithSettings extends BaseComponent {
         if (heading != null) {
             return heading;
         }
-        Setting setting = getSettings().getSetting(getTab());        
-        return TapestryUtils.getModelMessage(this, getMessageSource(), setting.getLabelKey(),
-                setting.getLabel());
+        Setting setting = getSettings().getSetting(getTab());
+        return TapestryUtils.getSettingLabel(this, setting);
     }
 }

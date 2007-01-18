@@ -193,14 +193,12 @@ public abstract class SettingEditor extends BaseComponent {
 
     public String getDescription() {
         Setting setting = getSetting();
-        return TapestryUtils.getModelMessage(this, getMessageSource(), setting
-                .getDescriptionKey(), setting.getDescription());
+        return TapestryUtils.getSettingDescription(this, setting);
     }
 
     public String getLabel() {
         Setting setting = getSetting();
-        return TapestryUtils.getModelMessage(this, getMessageSource(), setting.getLabelKey(),
-                setting.getLabel());
+        return TapestryUtils.getSettingLabel(this, setting);
     }
 
     static IPropertySelectionModel enumModelForType(EnumSetting enumType) {

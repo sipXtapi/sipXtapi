@@ -120,13 +120,11 @@ public abstract class SettingsFieldset extends BaseComponent {
 
     public String getDescription() {
         Setting setting = getCurrentSetting();
-        return TapestryUtils.getModelMessage(this, getMessageSource(), setting
-                .getDescriptionKey(), setting.getDescription());
+        return TapestryUtils.getSettingDescription(this, setting);
     }
 
     public String getLabel() {
         Setting setting = getCurrentSetting();
-        return TapestryUtils.getModelMessage(this, getMessageSource(), setting.getLabelKey(),
-                setting.getLabel());
+        return TapestryUtils.getSettingLabel(this, setting);
     }
 }

@@ -51,10 +51,11 @@ public class ServerSettingsTestUi extends WebTestCase {
 
         for (Iterator i = sections.iterator(); i.hasNext();) {
             Setting section = (Setting) i.next();
+            String linkId = "link:" + section.getName();
             if (section.isHidden()) {
-                assertLinkNotPresent(section.getLabel());
+                assertLinkNotPresent(linkId);
             } else {
-                clickLinkWithText(section.getLabel());
+                clickLink(linkId);
                 SiteTestHelper.assertNoException(tester);
                 SiteTestHelper.assertNoUserError(tester);
             }
