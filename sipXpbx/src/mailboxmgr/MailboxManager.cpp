@@ -202,10 +202,13 @@ MailboxManager::createMailbox ( const UtlString& mailboxIdentity )
                   mailboxIdentity.data(), mailboxPath.data(), result);
     if( result == OS_SUCCESS )
     {
-        result = OsFileSystem::createDir( mailboxPath );
-        OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
+        if ( !OsFileSystem::exists( mailboxPath ) )
+	{
+          result = OsFileSystem::createDir( mailboxPath );
+          OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                       "MailboxManager::createMailbox: createDir('%s') = %d",
                       mailboxPath.data(), result);
+        }
 
         if ( result == OS_SUCCESS )
         {
@@ -1806,15 +1809,16 @@ MailboxManager::validateMailbox (
                     // Make sure we have a userid
                     if ( !mailboxId.isNull() )
                     {
-                        UtlString mailboxDirName =
+                        UtlString inboxDirName =
                             m_mailstoreRoot + OsPathBase::separator +
                             MAILBOX_DIR + OsPathBase::separator +
-                            mailboxId;
+                            mailboxId + OsPathBase::separator + 
+			    m_inboxFolder;
                         OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                                      "MailboxManager::validateMailbox: mailboxDirName = '%s'",
-                                      mailboxDirName.data());
+                                      "MailboxManager::validateMailbox: inboxDirName = '%s'",
+                                      inboxDirName.data());
 
-                        OsDir mailboxDir ( mailboxDirName.data() );
+                        OsDir inboxDir ( inboxDirName.data() );
 
                         // return the validated identity to the caller
                         mailboxUrl.getIdentity( rMailboxIdentity );
@@ -1822,7 +1826,7 @@ MailboxManager::validateMailbox (
                         // If the mailbox does not exist, create it
                         // from scratch using the folder names
                         // defined in m_templateFolderNames
-                        if ( !mailboxDir.exists() )
+                        if ( !inboxDir.exists() )
                         {
                             result = createMailbox( rMailboxIdentity );
                             OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
