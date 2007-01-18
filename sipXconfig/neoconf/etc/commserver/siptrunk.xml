@@ -5,13 +5,6 @@
 
 <model>
   <group name="trunk">
-    <label>SIP Trunk</label>
-    <setting name="route">
-      <label>Route</label>
-      <description>
-        Address of Session Border Controller, firewall or proxy that will process calls directed
-        to this gateway.
-      </description>
-    </setting>
+    <setting name="route" />
   </group>
 </model>

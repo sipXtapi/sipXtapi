@@ -1,15 +1,12 @@
 <type id="reg-server-index">
   <enum>
     <option>
-      <label>--disabled--</label>
       <value />
     </option>
     <option>
-      <label>Primary Registration Server</label>
       <value>1</value>
     </option>
     <option>
-      <label>Secondary Registration Server</label>
       <value>2</value>
     </option>
   </enum>
@@ -80,59 +77,45 @@
 <type id="call_progress_pattern">
   <enum>
     <option>
-      <label>dial tone</label>
       <value>1</value>
     </option>
     <option>
-      <label>busy tone</label>
       <value>2</value>
     </option>
     <option>
-      <label>ring back tone</label>
       <value>3</value>
     </option>
     <option>
-      <label>reorder tone</label>
       <value>4</value>
     </option>
     <option>
-      <label>stuttered dial tone</label>
       <value>5</value>
     </option>
     <option>
-      <label>call waiting tone</label>
       <value>6</value>
     </option>
     <option>
-      <label>alternate call waiting tone (distinctive)</label>
       <value>7</value>
     </option>
     <option>
-      <label>confirmation tone</label>
       <value>8</value>
     </option>
     <option>
-      <label>howler tone (off-hook warning)</label>
       <value>9</value>
     </option>
     <option>
-      <label>record warning</label>
       <value>10</value>
     </option>
     <option>
-      <label>message waiting tone</label>
       <value>11</value>
     </option>
     <option>
-      <label>alerting</label>
       <value>12</value>
     </option>
     <option>
-      <label>intercom announcement tone</label>
       <value>13</value>
     </option>
     <option>
-      <label>barge-in tone</label>
       <value>14</value>
     </option>
   </enum>
@@ -140,101 +123,79 @@
 <type id="dayOfWeek">
   <enum>
     <option>
-      <label>-- N/A --</label>
       <value>0</value>
-    </option>    
+    </option>
     <option>
-      <label>Monday</label>
       <value>1</value>
-    </option>  
+    </option>
     <option>
-      <label>Tuesday</label>
       <value>2</value>
-    </option>  
+    </option>
     <option>
-      <label>Wednesday</label>
       <value>3</value>
-    </option>  
+    </option>
     <option>
-      <label>Thursday</label>
       <value>4</value>
-    </option>  
+    </option>
     <option>
-      <label>Friday</label>
       <value>5</value>
-    </option>  
+    </option>
     <option>
-      <label>Saturday</label>
       <value>6</value>
-    </option>  
+    </option>
     <option>
-      <label>Sunday</label>
       <value>7</value>
-    </option>  
+    </option>
   </enum>
 </type>
 <type id="monthOfYear">
   <enum>
     <option>
-      <label>-- N/A --</label>
       <value>0</value>
-    </option>    
+    </option>
     <option>
-      <label>January</label>
       <value>1</value>
-    </option>    
+    </option>
     <option>
-      <label>February</label>
       <value>2</value>
-    </option>    
+    </option>
     <option>
-      <label>March</label>
       <value>3</value>
-    </option>    
+    </option>
     <option>
-      <label>April</label>
       <value>4</value>
-    </option>    
+    </option>
     <option>
-      <label>May</label>
       <value>5</value>
-    </option>    
+    </option>
     <option>
-      <label>June</label>
       <value>6</value>
-    </option>    
+    </option>
     <option>
-      <label>July</label>
       <value>7</value>
-    </option>    
+    </option>
     <option>
-      <label>August</label>
       <value>8</value>
-    </option>    
+    </option>
     <option>
-      <label>September</label>
       <value>9</value>
-    </option>    
+    </option>
     <option>
-      <label>October</label>
       <value>10</value>
-    </option>    
+    </option>
     <option>
-      <label>November</label>
       <value>11</value>
-    </option>    
+    </option>
     <option>
-      <label>December</label>
       <value>12</value>
-    </option>    
+    </option>
   </enum>
 </type>
 <type id="codecPref">
   <enum>
     <option>
-       <label>do not use</label>
-       <value/>
-    </option>  
+      <value />
+    </option>
     <option>
       <value>1</value>
     </option>

@@ -50,19 +50,10 @@
     <integer required="yes" min="1024" max="65534" />
   </type>
   <group name="domain">
-    <label>SIP Parameters</label>
     <setting name="SIPXCHANGE_DOMAIN_NAME" hidden="yes">
-      <label>Domain name</label>
       <profileName>config.defs</profileName>
       <type />
       <value />
-      <description>
-        Domain responsible for handling SIP. Enter the fully qualified host name if DNS SRV is
-        *not* configured to send all SIP traffic to the SIP proxy on this machine. This controls
-        how SIP addresses are built and used through the system for example sip:user@old-value
-        becomes sip:user@new-value. Changing this value can have various side effects depending on
-        how your system is setup.
-      </description>
     </setting>
     <setting name="SIP_PROXY_DEFAULT_SERIAL_EXPIRES" advanced="yes">
       <profileName>proxy-config.in</profileName>
@@ -81,12 +72,10 @@
     <setting name="SIP_REGISTRAR_DOMAIN_ALIASES" hidden="yes">
       <profileName>registrar-config.in</profileName>
       <value>${MY_FULL_HOSTNAME} ${MY_IP_ADDR}</value>
-      <description>Manipulated automatically by sipXconfig Domain Manager</description>
     </setting>
   </group>
   <group name="isn">
     <setting name="SIP_REDIRECT.190-ISN.BASE_DOMAIN">
-      <label>ISN Dialing</label>
       <profileName>registrar-config.in</profileName>
       <type>
         <boolean>
@@ -94,34 +83,28 @@
             <value>freenum.org</value>
           </true>
           <false>
-            <value></value>
+            <value />
           </false>
         </boolean>
       </type>
-      <value></value>
-      <description>
-        Enable ISN (ITAD Subscriber Numbers) dialing to provide support for domain-based,
-        "Internet-style" number. To reach subscriber 1234 in ITAD 256 you can dial 1234*256.
-      </description>
+      <value />
     </setting>
     <setting name="SIP_REDIRECT.190-ISN.PREFIX" advanced="yes">
-      <label>ISN prefix</label>
       <profileName>registrar-config.in</profileName>
       <type>
         <string>
           <pattern>[0-9*#]+</pattern>
         </string>
       </type>
-      <description>Optional prefix for ISN numbers.</description>
     </setting>
   </group>
   <group name="enum">
     <setting name="SIP_REDIRECT.200-ENUM.BASE_DOMAIN">
       <profileName>registrar-config.in</profileName>
       <type>
-        <string/>
+        <string />
       </type>
-    </setting>    
+    </setting>
     <setting name="SIP_REDIRECT.200-ENUM.DIAL_PREFIX">
       <profileName>registrar-config.in</profileName>
       <type>
@@ -154,63 +137,38 @@
     </setting>
   </group>
   <group name="voice-mail">
-    <label>Voice Mail</label>
     <setting name="VOICEMAIL_AGE_LIMIT">
-      <label>VoiceMail expiration</label>
       <profileName>config.defs</profileName>
       <type>
         <integer min="1" max="365" required="yes" />
       </type>
       <value>7</value>
-      <description>Number of days voice mail messages will be kept on the system.</description>
     </setting>
     <setting name="EXTENSION_LENGTH">
-      <label>Maximum internal extension length</label>
       <profileName>config.defs</profileName>
       <type>
-        <integer min="1" max="99"></integer>
+        <integer min="1" max="99" />
       </type>
       <value>3</value>
-      <description>
-        Longest internal extension in the system dialing plan. When user is prompted by
-        autoattendant to enter extension this value is used to determine if entire extension has
-        been entered.
-      </description>
     </setting>
     <setting name="SMTP_SERVER" hidden="yes">
-      <label>SMTP server</label>
       <profileName>config.defs</profileName>
-      <type></type>
-      <value></value>
-      <description>
-        IP address or DNS name of SMTP server used for Voice Mail notification
-      </description>
+      <type />
+      <value />
     </setting>
   </group>
   <group name="call-pick-up">
-    <label>Call Pickup</label>
     <setting name="SIP_REDIRECT.180-PICKUP.GLOBAL_CALL_PICKUP_CODE">
-      <label>Global call pickup code</label>
       <profileName>registrar-config.in</profileName>
       <type refid="feature-code" />
       <value>*78*</value>
-      <description>
-        Code to dial to pick up a ringing call on any phone. Set it to empty to disable global
-        call pickup.
-      </description>
     </setting>
     <setting name="SIP_REDIRECT.180-PICKUP.DIRECTED_CALL_PICKUP_CODE">
-      <label>Directed call pickup code</label>
       <profileName>registrar-config.in</profileName>
       <type refid="feature-code" />
       <value>*78</value>
-      <description>
-        Code to dial to pick up a ringing call on a specific phone. To pick up extension 123, dial
-        this code followed by 123.
-      </description>
     </setting>
     <setting name="SIP_REDIRECT.180-PICKUP.CALL_RETRIEVE_CODE">
-      <label>Call park retrieve code</label>
       <profileName>registrar-config.in</profileName>
       <type>
         <string required="yes">
@@ -218,204 +176,131 @@
         </string>
       </type>
       <value>*4</value>
-      <description>
-        Code to dial to retrieve a parked call. Dial this code followed by a call park extension
-        to pick up a parked call.
-      </description>
     </setting>
     <setting name="SIP_REDIRECT.180-PICKUP.CALL_PICKUP_WAIT" advanced="yes">
-      <label>Call pickup timeout</label>
       <profileName>registrar-config.in</profileName>
       <type>
         <real min="1" max="30" required="yes" />
       </type>
       <value>2</value>
-      <description>
-        Number of seconds that the original call will ring after the pickup code is dialed.
-      </description>
     </setting>
   </group>
   <group name="presence">
-    <label>Presence Server</label>
     <setting name="SIP_PRESENCE_SIGN_IN_CODE">
-      <label>Presence sign in</label>
       <profileName>sipxpresence-config.in</profileName>
       <type refid="feature-code" />
       <value>*88</value>
-      <description>Code to dial to sign in to the presence monitor.</description>
     </setting>
     <setting name="SIP_PRESENCE_SIGN_OUT_CODE">
-      <label>Presence sign out</label>
       <profileName>sipxpresence-config.in</profileName>
       <type refid="feature-code" />
       <value>*86</value>
-      <description>Code to dial to sign out from the presence monitor.</description>
     </setting>
     <setting name="PRESENCE_SERVER_SIP_PORT" advanced="yes">
-      <label>SIP port</label>
       <profileName>config.defs</profileName>
       <type refid="port-number" />
       <value>5130</value>
-      <description>The IP port on which the presence server listens to SIP messages.</description>
     </setting>
     <setting name="PRESENCE_SERVER_HTTP_PORT" advanced="yes">
-      <label>Http port</label>
       <profileName>config.defs</profileName>
       <type refid="port-number" />
       <value>8111</value>
-      <description>
-        The http port that the special agent workstation will bind to for sending Xml-Rpc sign-in
-        and sign-out request, for example: 8111
-      </description>
     </setting>
     <setting name="SIP_PRESENCE_DOMAIN_NAME" hidden="yes">
-      <label>Presence server location</label>
       <!-- treat as read-only: we are taking this from sipxpresence-config and not from sipxpresence-config.in -->
       <profileName>sipxpresence-config</profileName>
-      <value></value>
-      <description>
-        Presence server location. Used when generating presence server aliases.
-      </description>
+      <value />
     </setting>
     <setting name="SIP_PRESENCE_HTTP_PORT" advanced="yes">
-      <label>Presence server location</label>
       <!-- treat as read-only: we are taking this from sipxpresence-config and not from sipxpresence-config.in -->
       <profileName>sipxpresence-config</profileName>
       <type refid="port-number" />
       <value>8111</value>
-      <description>Presence server XML-RPC API port.</description>
     </setting>
   </group>
   <group name="Logging">
-   <label>Logging</label>
     <setting name="SIP_AUTHPROXY_LOG_LEVEL">
-      <label>Authorization Proxy Log Level</label>
       <profileName>authproxy-config.in</profileName>
       <type refid="loglevel" />
       <value>NOTICE</value>
-      <description>Authorization and permission handling.</description>
     </setting>
     <setting name="SIP_PROXY_LOG_LEVEL">
-      <label>Proxy Log Level</label>
       <profileName>proxy-config.in</profileName>
       <type refid="loglevel" />
       <value>NOTICE</value>
-      <description>Dispatching of SIP traffic.</description>
     </setting>
     <setting name="SIP_REGISTRAR_LOG_LEVEL">
-      <label>Registrar Log Level</label>
       <profileName>registrar-config.in</profileName>
       <type refid="loglevel" />
       <value>NOTICE</value>
-      <description>Handling of phones registering for calls.</description>
     </setting>
     <setting name="SIP_PARK_LOG_LEVEL">
-      <label>Park Server Log Level</label>
       <profileName>sipxpark-config.in</profileName>
       <type refid="loglevel" />
       <value>NOTICE</value>
-      <description>Handling of calls getting parked and picked up.</description>
     </setting>
     <setting name="SIP_STATUS_LOG_LEVEL">
-      <label>Status Server Log Level</label>
       <profileName>status-config.in</profileName>
       <type refid="loglevel" />
       <value>NOTICE</value>
-      <description>
-        Handling of SUBSCRIBE/NOTIFY messages for voicemail notification control (MWI)
-      </description>
     </setting>
     <setting name="SIP_PRESENCE_LOG_LEVEL">
-      <label>Presence Server Log Level</label>
       <profileName>sipxpresence-config.in</profileName>
       <type refid="loglevel" />
       <value>NOTICE</value>
-      <description>Monitoring presence events.</description>
     </setting>
   </group>
   <group name="cdr">
-    <label>Call Detail Records (CDRs)</label>
     <setting name="SIP_PROXY_CALL_STATE_DB">
-      <label>Log Forking Proxy Events</label>
       <profileName>proxy-config.in</profileName>
       <type refid="enablestate" />
       <value>DISABLE</value>
-      <description>Log forking proxy CSEs to the CDR database.</description>
     </setting>
     <setting name="SIP_AUTHPROXY_CALL_STATE_DB">
-      <label>Log Authorization Proxy Events</label>
       <profileName>authproxy-config.in</profileName>
       <type refid="enablestate" />
       <value>DISABLE</value>
-      <description>Log authorization proxy CSEs to the CDR database.</description>
     </setting>
     <setting name="SIP_CALLRESOLVER_PURGE">
-      <label>Purge the CDR Database Daily</label>
       <profileName>callresolver-config.in</profileName>
       <type refid="enablestate" />
       <value>ENABLE</value>
-      <description>
-        Schedule a daily purge of the CDR database. Purge both CSEs and CDRs.
-      </description>
     </setting>
     <setting name="SIP_CALLRESOLVER_PURGE_AGE_CDR">
-      <label>Purge Age for CDRs</label>
       <profileName>callresolver-config.in</profileName>
       <type>
-        <integer min="1" max="365"></integer>
+        <integer min="1" max="365" />
       </type>
       <value>35</value>
-      <description>
-        If daily purging is enabled, then remove CDRs older than this (in days).
-      </description>
     </setting>
     <setting name="SIP_CALLRESOLVER_PURGE_AGE_CSE" advanced="yes">
-      <label>Purge Age for CSEs</label>
       <profileName>callresolver-config.in</profileName>
       <type>
-        <integer min="1" max="365"></integer>
+        <integer min="1" max="365" />
       </type>
       <value>7</value>
-      <description>
-        If daily purging is enabled, then remove CSEs older than this (in days).
-      </description>
     </setting>
     <setting name="SIP_CALLRESOLVER_LOG_LEVEL">
-      <label>Call Resolver Log Level</label>
       <profileName>callresolver-config.in</profileName>
       <type refid="loglevel" />
       <value>NOTICE</value>
-      <description>
-        Log level for the call resolver. The call resolver is the program that creates CDRs.
-      </description>
     </setting>
     <setting name="SIP_CALLRESOLVER_CALL_DIRECTION" advanced="yes">
-      <label>Call Direction</label>
       <profileName>callresolver-config.in</profileName>
       <type refid="enablestate" />
       <value>DISABLE</value>
-      <description>
-        Compute call direction. Call direction labels calls as incoming, outgoing, or
-        intra-network based on whether the call came from a PSTN gateway, went to a PSTN gateway,
-        or neither, respectively.
-      </description>
     </setting>
   </group>
   <group name="park" hidden="yes">
-    <description>read only group to retrieve sipXpark parameters</description>
     <setting name="SIP_PARK_DOMAIN_NAME">
       <profileName>sipxpark-config</profileName>
     </setting>
     <setting name="SIP_PARK_UDP_PORT">
       <profileName>sipxpark-config</profileName>
-      <type refid="port-number"></type>
+      <type refid="port-number" />
     </setting>
     <setting name="SIP_REGISTRAR_PARK_SERVER">
       <profileName>registrar-config</profileName>
-      <description>
-        The address of the park server as seen by registrar. It would be better if we read this
-        value form park server configuration but park server does not know it's own location.
-      </description>
     </setting>
   </group>
 </model>

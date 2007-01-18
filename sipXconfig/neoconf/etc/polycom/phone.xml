@@ -6,262 +6,163 @@
 <model>
   &types;
   <group name="lcl">
-    <label>Date/Time</label>
     <group name="time">
-      <label>Time Format</label>
       <setting name="24HourClock">
-        <label>24 Hour format</label>
         <type>
           <boolean />
         </type>
         <value>0</value>
-        <description>If checked time is in the 24h format, otherwise 12h AM/PM format.</description>
       </setting>
     </group>
     <group name="datetime">
-      <label>Date Format</label>
       <setting name="date.format">
-        <label>Format</label>
         <type>
           <string />
         </type>
         <value>D,Md</value>
-        <description>
-          Controls format of date string. D = day of week d = day M = month Up to two comma's may be included.
-          e.g. D,dM = Thursday, 3 July Md,D = July 3, Thursday The field may contain 0, 1 or 2 comma's which
-          can occur only between characters and only one at a time i.e. 'D,,dM' is illegal.
-        </description>
       </setting>
       <setting name="date.longFormat">
         <type>
           <boolean />
         </type>
         <value>1</value>
-        <description>
-          If checked, display the day and month in long format (Friday/November), otherwise, use abbreviations
-          (Fri/Nov).
-        </description>
       </setting>
       <setting name="date.dateTop">
         <type>
           <boolean />
         </type>
         <value>1</value>
-        <description>If checked, display date above time else display time above date.</description>
       </setting>
     </group>
   </group>
   <group name="up">
-    <label>User Preferences</label>
     <setting name="headsetMode">
       <type>
         <boolean />
       </type>
       <value>0</value>
-      <description>
-        If checked, the headset will be selected as the preferred transducer after its first use until the
-        headset key is pressed again; otherwise, handsfree will be selected preferentially over the headset.
-      </description>
     </setting>
     <setting name="useDirectoryNames">
       <type>
         <boolean />
       </type>
       <value>0</value>
-      <description>
-        If checked, the name fields of directory entries which match incoming calls will be used for caller
-        identification display and in the call lists instead of the name provided via network signaling.
-      </description>
     </setting>
     <setting name="oneTouchVoiceMail">
       <type>
         <boolean />
       </type>
       <value>0</value>
-      <description>
-        If checked, the voicemail summary display is bypassed and voicemail is dialed directly (if
-        configured).
-      </description>
     </setting>
     <setting name="welcomeSoundEnabled">
       <type>
         <boolean />
       </type>
       <value>1</value>
-      <description>If checked, play welcome sound effect after a reboot.</description>
     </setting>
     <setting name="welcomeSoundOnWarmBootEnabled">
       <type>
         <boolean />
       </type>
       <value>0</value>
-      <description>
-        If checked, play welcome sound effect on warm as well as cold boots, otherwise only a cold boot will
-        trigger the welcome sound effect.
-      </description>
     </setting>
     <setting name="localClockEnabled">
       <type>
         <boolean />
       </type>
       <value>1</value>
-      <description>If checked, display the date and time on the idle display</description>
     </setting>
   </group>
   <group name="tone.dtmf">
-    <label>DTMF</label>
     <setting name="level">
       <type>
         <integer min="-33" max="3" />
       </type>
       <value>-15</value>
-      <description>
-        Level of the high frequency component of the DTMF digit measured in dBm0; the low frequency tone will
-        be two dB lower.
-      </description>
     </setting>
     <setting name="onTime">
       <type>
         <integer min="1" />
       </type>
       <value>50</value>
-      <description>
-        When a sequence of DTMF tones is played out automatically, this is the length of time in milliseconds
-        the tones will be generated for; this is also the minimum time the tone will be played for when
-        dialing manually (even if key press is shorter).
-      </description>
     </setting>
     <setting name="offTime">
       <type>
         <integer min="1" />
       </type>
       <value>50</value>
-      <description>
-        When a sequence of DTMF tones is played out automatically, this is the length of time in milliseconds
-        the phone will pause between digits; this is also the minimum inter-digit time when dialing manually.
-      </description>
     </setting>
     <setting name="chassis.masking">
       <type>
         <boolean />
       </type>
       <value>0</value>
-      <description>
-        If checked, DTMF tones will be substituted with a non-DTMF pacifier tone when dialing in hands-free
-        mode. This prevents DTMF digits being broadcast to other surrounding telephony devices or being
-        inadvertently transmitted in-band due to local acoustic echo. Note: tone.dtmf.chassis.masking should
-        only be enabled when tone.dtmf.viaRtp is disabled.
-      </description>
     </setting>
     <setting name="stim.pac.offHookOnly">
       <type>
         <boolean />
       </type>
       <value>0</value>
-      <description>Not currently used.</description>
     </setting>
     <setting name="viaRtp">
       <type>
         <boolean />
       </type>
       <value>1</value>
-      <description>
-        If checked, encode DTMF in the active RTP stream, otherwise, DTMF may be encoded within the signaling
-        protocol only when the protocol offers the option. Note: tone.dtmf.chassis.masking should be enabled
-        when tone.dtmf.viaRtp is disabled.
-      </description>
     </setting>
     <setting name="rfc2833Control">
       <type>
         <boolean />
       </type>
       <value>1</value>
-      <description>
-        If checked, the phone will indicate a preference for encoding DTMF via RFC 2833 format in its Session
-        Description Protocol (SDP) offers by showing support for the phone-event payload type; this does not
-        affect SDP answers, these will always honor the DTMF format present in the offer since the phone has
-        native support for RFC 2833.
-      </description>
     </setting>
     <setting name="rfc2833Payload">
       <type>
-        <integer min="96" max="127"></integer>
+        <integer min="96" max="127" />
       </type>
       <value>101</value>
-      <description>
-        The phone-event payload encoding in the dynamic range to be used in SDP offers.
-      </description>
     </setting>
   </group>
   <group name="se">
-    <label>Sound Effects</label>
-    <description>
-      SoundPoint(R) IP uses both synthesized (based on the chord-sets described earlier) and sampled audio
-      sound effects. Sound effects are defined by patterns: rudimentary sequences of chord-sets, silence
-      periods, and wave files.
-    </description>
     <setting name="stutterOnVoiceMail">
       <type>
         <boolean />
       </type>
       <value>1</value>
-      <description>
-        If checked, stuttered dial tone is used in place of normal dial tone to indicate that one or more
-        messages (voice-mail) are waiting at the message center.
-      </description>
     </setting>
     <setting name="appLocalEnabled">
       <type>
         <boolean />
       </type>
       <value>1</value>
-      <description>
-        If checked, local user interface sound effects such as confirmation/error tones, will be enabled.
-      </description>
     </setting>
     <group name="patterns">
-      <label>Call Tone Pattern</label>
       <group name="MESSAGE_WAITING">
-        <label>Message Waiting</label>
         <setting name="type">
           <type refid="tone-pattern" />
           <value>silence</value>
-          <description>Sound effect</description>
         </setting>
       </group>
     </group>
     <group name="ringType" advanced="yes">
-      <label>Ring Types</label>
       <profileName>rt</profileName>
       <group name="RING_ANSWER">
-        <label>Ring and answer</label>
         <profileName>4</profileName>
-        <description>
-          Configuration details for "first ring then answer automatically" type of ring. It is used mostly in
-          intercom feature.
-        </description>
         <setting name="timeout">
-          <label>Ring time</label>
           <type>
             <integer />
           </type>
           <value>2000</value>
         </setting>
         <setting name="ringer">
-          <label>Ringer</label>
           <type refid="ringer-pattern" />
           <value>2</value>
         </setting>
         <setting name="callWait">
-          <label>Call waiting</label>
           <type refid="call_progress_pattern" />
           <value>6</value>
-          <description>
-            Pattern used to notify about incoming call when another call is in progress
-          </description>
         </setting>
         <setting name="mod" hidden="yes">
-          <label>Modification allowed</label>
           <type>
             <boolean />
           </type>
@@ -271,39 +172,21 @@
     </group>
   </group>
   <group name="voice">
-    <label>Voice/Codecs</label>
     <group name="codecPref">
-      <label>Codec Preference Order</label>
       <setting name="G711Mu">
         <type refid="codecPref" />
         <value>1</value>
-        <description>
-          Specifies the codec preference. 1=highest 3=lowest Null=do not use Give each codec a unique
-          priority, this will dictate the order used in SDP negotiations. Note: If less than two codecs are
-          specified, SoundPoint(R) IP will automatically use G711Mu and G711A with default parameters.
-        </description>
       </setting>
       <setting name="G711A">
         <type refid="codecPref" />
         <value>2</value>
-        <description>
-          Specifies the codec preference. 1=highest 3=lowest Null=do not use Give each codec a unique
-          priority, this will dictate the order used in SDP negotiations. Note: If less than two codecs are
-          specified, SoundPoint(R) IP will automatically use G711Mu and G711A with default parameters.
-        </description>
       </setting>
       <setting name="G729AB">
         <type refid="codecPref" />
         <value>3</value>
-        <description>
-          Specifies the codec preference. 1=highest 3=lowest Null=do not use Give each codec a unique
-          priority, this will dictate the order used in SDP negotiations. Note: If less than two codecs are
-          specified, SoundPoint(R) IP will automatically use G711Mu and G711A with default parameters.
-        </description>
       </setting>
       <setting name="IP_300.G711Mu" copy-of="G711Mu">
         <value>1</value>
-        <description>Control for IP 300s only, other codec preferences are ignored</description>
       </setting>
       <setting name="IP_300.G711A" copy-of="G711A">
         <value>2</value>
@@ -313,22 +196,16 @@
       </setting>
       <setting name="IP_4000.G711Mu" copy-of="G711Mu">
         <value>1</value>
-        <description>Control for IP 4000s only, other codec preferences are ignored</description>
       </setting>
       <setting name="IP_4000.G711A" copy-of="G711A">
         <value>2</value>
       </setting>
       <setting name="IP_4000.G729AB" copy-of="G729AB">
         <value />
-        <description>
-          4000 does support G729 but default is to not make it an option consistent w/default configuration
-          templates from Polycom
-        </description>
       </setting>
       <setting name="IP_650.G722">
         <type refid="codecPref" />
         <value>1</value>
-        <description>Control for IP 650s only, other codec preferences are ignored</description>
       </setting>
       <setting name="IP_650.G711Mu" copy-of="G711Mu">
         <value>2</value>
@@ -342,17 +219,12 @@
     </group>
     <group name="audioProfile">
       <group name="G711Mu">
-        <label>G711Mu</label>
         <setting name="payloadSize">
           <type>
             <!-- 10, 20, 30, ...80 -->
             <integer min="10" max="80" />
           </type>
           <value>20</value>
-          <description>
-            Preferred Tx payload size in milliseconds to be provided in SDP offers and used in the absence of
-            ptime negotiations. This is also the range of supported Rx payload sizes.
-          </description>
         </setting>
         <setting name="jitterBufferMin">
           <!-- 40, 50, 60, ... (multiple of 10) -->
@@ -360,13 +232,6 @@
             <integer min="40" />
           </type>
           <value>40</value>
-          <description>
-            The smallest jitter buffer depth (in milliseconds) that must be achieved before play out begins
-            for the first time. Once this depth has been achieved initially, the depth may fall below this
-            point and play out will still continue. This parameter should be set to the smallest possible
-            value which is at least two packet payloads, and larger than the expected short term average
-            jitter.
-          </description>
         </setting>
         <setting name="jitterBufferShrink">
           <!--10, 20, 30, ... (multiple of 10) -->
@@ -374,38 +239,23 @@
             <integer min="10" />
           </type>
           <value>500</value>
-          <description>
-            The absolute minimum duration time (in milliseconds) of RTP packet Rx with no packet loss between
-            jitter buffer size shrinks. Use smaller values (1000 ms) to minimize the delay on known good
-            networks. Use larger values to minimize packet loss on networks with large jitter (3000 ms).
-          </description>
         </setting>
         <setting name="jitterBufferMax">
           <!--  greater than jitterBufferMin, multiple of 10, less than or =500 for IP 500 and IP 600, less than or =
             160 for IP 300 -->
           <type>
-            <integer min="10" max="500"></integer>
+            <integer min="10" max="500" />
           </type>
           <value>160</value>
-          <description>
-            The largest jitter buffer depth to be supported (in milliseconds). Jitter above this size will
-            always cause lost packets. This parameter should be set to the smallest possible value that will
-            support the expected network jitter
-          </description>
         </setting>
       </group>
       <group name="G711A">
-        <label>G711A</label>
         <setting name="payloadSize">
           <type>
             <!-- 10, 20, 30, ...80 -->
             <integer min="10" max="80" />
           </type>
           <value>20</value>
-          <description>
-            Preferred Tx payload size in milliseconds to be provided in SDP offers and used in the absence of
-            ptime negotiations. This is also the range of supported Rx payload sizes.
-          </description>
         </setting>
         <setting name="jitterBufferMin">
           <!-- 40, 50, 60, ... (multiple of 10) -->
@@ -413,13 +263,6 @@
             <integer min="40" />
           </type>
           <value>40</value>
-          <description>
-            The smallest jitter buffer depth (in milliseconds) that must be achieved before play out begins
-            for the first time. Once this depth has been achieved initially, the depth may fall below this
-            point and play out will still continue. This parameter should be set to the smallest possible
-            value which is at least two packet payloads, and larger than the expected short term average
-            jitter.
-          </description>
         </setting>
         <setting name="jitterBufferShrink">
           <type>
@@ -427,38 +270,23 @@
             <integer min="10" />
           </type>
           <value>500</value>
-          <description>
-            The absolute minimum duration time (in milliseconds) of RTP packet Rx with no packet loss between
-            jitter buffer size shrinks. Use smaller values (1000 ms) to minimize the delay on known good
-            networks. Use larger values to minimize packet loss on networks with large jitter (3000 ms).
-          </description>
         </setting>
         <setting name="jitterBufferMax">
           <!--  greater than jitterBufferMin, multiple of 10, less than or =500 for IP 500 and IP 600, less than or =
             160 for IP 300 -->
           <type>
-            <integer min="10" max="500"></integer>
+            <integer min="10" max="500" />
           </type>
           <value>160</value>
-          <description>
-            The largest jitter buffer depth to be supported (in milliseconds). Jitter above this size will
-            always cause lost packets. This parameter should be set to the smallest possible value that will
-            support the expected network jitter
-          </description>
         </setting>
       </group>
       <group name="G729AB">
-        <label>G729AB</label>
         <setting name="payloadSize">
           <type>
             <!-- 10, 20, 30, ...80 -->
             <integer min="10" max="80" />
           </type>
           <value>20</value>
-          <description>
-            Preferred Tx payload size in milliseconds to be provided in SDP offers and used in the absence of
-            ptime negotiations. This is also the range of supported Rx payload sizes.
-          </description>
         </setting>
         <setting name="jitterBufferMin">
           <!-- 40, 50, 60, ... (multiple of 10) -->
@@ -466,13 +294,6 @@
             <integer min="40" />
           </type>
           <value>40</value>
-          <description>
-            The smallest jitter buffer depth (in milliseconds) that must be achieved before play out begins
-            for the first time. Once this depth has been achieved initially, the depth may fall below this
-            point and play out will still continue. This parameter should be set to the smallest possible
-            value which is at least two packet payloads, and larger than the expected short term average
-            jitter.
-          </description>
         </setting>
         <setting name="jitterBufferShrink">
           <type>
@@ -480,38 +301,23 @@
             <integer min="10" />
           </type>
           <value>500</value>
-          <description>
-            The absolute minimum duration time (in milliseconds) of RTP packet Rx with no packet loss between
-            jitter buffer size shrinks. Use smaller values (1000 ms) to minimize the delay on known good
-            networks. Use larger values to minimize packet loss on networks with large jitter (3000 ms).
-          </description>
         </setting>
         <setting name="jitterBufferMax">
           <!--  greater than jitterBufferMin, multiple of 10, less than or =500 for IP 500 and IP 600, less than or =
             160 for IP 300 -->
           <type>
-            <integer min="10" max="500"></integer>
+            <integer min="10" max="500" />
           </type>
           <value>160</value>
-          <description>
-            The largest jitter buffer depth to be supported (in milliseconds). Jitter above this size will
-            always cause lost packets. This parameter should be set to the smallest possible value that will
-            support the expected network jitter
-          </description>
         </setting>
       </group>
       <group name="G722">
-        <label>G722</label>
         <setting name="payloadSize">
           <type>
             <!-- 10, 20, 30, ...80 -->
             <integer min="10" max="80" />
           </type>
           <value>20</value>
-          <description>
-            Preferred Tx payload size in milliseconds to be provided in SDP offers and used in the absence of
-            ptime negotiations. This is also the range of supported Rx payload sizes.
-          </description>
         </setting>
         <setting name="jitterBufferMin">
           <!-- 40, 50, 60, ... (multiple of 10) -->
@@ -519,13 +325,6 @@
             <integer min="40" />
           </type>
           <value>40</value>
-          <description>
-            The smallest jitter buffer depth (in milliseconds) that must be achieved before play out begins
-            for the first time. Once this depth has been achieved initially, the depth may fall below this
-            point and play out will still continue. This parameter should be set to the smallest possible
-            value which is at least two packet payloads, and larger than the expected short term average
-            jitter.
-          </description>
         </setting>
         <setting name="jitterBufferShrink">
           <!--10, 20, 30, ... (multiple of 10) -->
@@ -533,38 +332,23 @@
             <integer min="10" />
           </type>
           <value>500</value>
-          <description>
-            The absolute minimum duration time (in milliseconds) of RTP packet Rx with no packet loss between
-            jitter buffer size shrinks. Use smaller values (1000 ms) to minimize the delay on known good
-            networks. Use larger values to minimize packet loss on networks with large jitter (3000 ms).
-          </description>
         </setting>
         <setting name="jitterBufferMax">
           <!--  greater than jitterBufferMin, multiple of 10, less than or =500 for IP 500 and IP 600, less than or =
             160 for IP 300 -->
           <type>
-            <integer min="10" max="500"></integer>
+            <integer min="10" max="500" />
           </type>
           <value>160</value>
-          <description>
-            The largest jitter buffer depth to be supported (in milliseconds). Jitter above this size will
-            always cause lost packets. This parameter should be set to the smallest possible value that will
-            support the expected network jitter
-          </description>
         </setting>
       </group>
       <group name="Lin16">
-        <label>Lin16</label>
         <setting name="payloadSize">
           <type>
             <!-- 10, 20, 30, ...80 -->
             <integer min="10" max="80" />
           </type>
           <value>10</value>
-          <description>
-            Preferred Tx payload size in milliseconds to be provided in SDP offers and used in the absence of
-            ptime negotiations. This is also the range of supported Rx payload sizes.
-          </description>
         </setting>
         <setting name="jitterBufferMin">
           <!-- 40, 50, 60, ... (multiple of 10) -->
@@ -572,13 +356,6 @@
             <integer min="20" />
           </type>
           <value>20</value>
-          <description>
-            The smallest jitter buffer depth (in milliseconds) that must be achieved before play out begins
-            for the first time. Once this depth has been achieved initially, the depth may fall below this
-            point and play out will still continue. This parameter should be set to the smallest possible
-            value which is at least two packet payloads, and larger than the expected short term average
-            jitter.
-          </description>
         </setting>
         <setting name="jitterBufferShrink">
           <type>
@@ -586,24 +363,14 @@
             <integer min="10" />
           </type>
           <value>500</value>
-          <description>
-            The absolute minimum duration time (in milliseconds) of RTP packet Rx with no packet loss between
-            jitter buffer size shrinks. Use smaller values (1000 ms) to minimize the delay on known good
-            networks. Use larger values to minimize packet loss on networks with large jitter (3000 ms).
-          </description>
         </setting>
         <setting name="jitterBufferMax">
           <!--  greater than jitterBufferMin, multiple of 10, less than or =500 for IP 500 and IP 600, less than or =
             160 for IP 300 -->
           <type>
-            <integer min="10" max="500"></integer>
+            <integer min="10" max="500" />
           </type>
           <value>100</value>
-          <description>
-            The largest jitter buffer depth to be supported (in milliseconds). Jitter above this size will
-            always cause lost packets. This parameter should be set to the smallest possible value that will
-            support the expected network jitter
-          </description>
         </setting>
         <setting name="frequency" advanced="yes">
           <type>
@@ -620,219 +387,144 @@
       </group>
     </group>
     <group name="volume">
-      <label>Volume Persistence</label>
-      <description>
-        The user's selection of the receive volume during a call can be remembered between calls. This can be
-        configured per termination (handset, headset and handsfree/chassis). In some countries regulations
-        exist which dictate that receive volume should be reset to nominal at the start of each call on
-        handset and headset.
-      </description>
       <setting name="persist.handset">
         <type>
           <boolean />
         </type>
         <value>0</value>
-        <description>
-          If checked, the receive volume will be remembered between calls. If set to 0, the receive volume
-          will be reset to nominal at the start of each call.
-        </description>
       </setting>
       <setting name="persist.headset">
         <type>
           <boolean />
         </type>
         <value>0</value>
-        <description>
-          If checked, the receive volume will be remembered between calls. If set to 0, the receive volume
-          will be reset to nominal at the start of each call.
-        </description>
       </setting>
       <setting name="persist.handsfree">
         <type>
           <boolean />
         </type>
         <value>1</value>
-        <description>
-          If checked, the receive volume will be remembered between calls. If set to 0, the receive volume
-          will be reset to nominal at the start of each call.
-        </description>
       </setting>
     </group>
     <group name="vad">
-      <label>Voice Activity Detection</label>
-      <description>
-        These settings control the performance of the voice activity detection (silence suppression) feature
-      </description>
       <setting name="vadEnable">
         <type>
           <boolean />
         </type>
         <value>0</value>
-        <description>If checked, enable VAD.</description>
       </setting>
       <setting name="vadThresh">
         <type>
           <integer min="0" max="30" />
         </type>
         <value>15</value>
-        <description>
-          The threshold for determining what is active voice and what is background noise in dB. This does not
-          apply to G.729AB codec operation which has its own built-in VAD function.
-        </description>
       </setting>
     </group>
   </group>
   <group name="qos">
-    <label>Quality of Service</label>
     <group name="ethernet">
       <setting name="rtp.user_priority">
         <type>
           <integer min="0" max="7" />
         </type>
         <value>5</value>
-        <description>User-priority used for RTP packets.</description>
       </setting>
       <setting name="callControl.user_priority">
         <type>
           <integer min="0" max="7" />
         </type>
         <value>5</value>
-        <description>User-priority used for call control packets.</description>
       </setting>
       <setting name="other.user_priority">
         <type>
           <integer min="0" max="7" />
         </type>
         <value>2</value>
-        <description>User-priority used for packets that do not have a per-protocol setting.</description>
       </setting>
     </group>
     <group name="ip.rtp">
-      <label>RTP</label>
       <setting name="min_delay">
         <type>
           <boolean />
         </type>
         <value>1</value>
-        <description>
-          If checked, set min-delay bit in the IP TOS field of the IP header, or else don't set it.
-        </description>
       </setting>
       <setting name="max_throughput">
         <type>
           <boolean />
         </type>
         <value>1</value>
-        <description>
-          If checked, set max-throughput bit in the IP TOS field of the IP header, or else don't set it.
-        </description>
       </setting>
       <setting name="max_reliability">
         <type>
           <boolean />
         </type>
         <value>0</value>
-        <description>
-          If checked, set max-reliability bit in the IP TOS field of the IP header, or else don't set it.
-        </description>
       </setting>
       <setting name="min_cost">
         <type>
           <boolean />
         </type>
         <value>0</value>
-        <description>
-          If checked, set min-cost bit in the IP TOS field of the IP header, or else don't set it.
-        </description>
       </setting>
       <setting name="precedence">
         <type>
           <integer min="0" max="7" />
         </type>
         <value>5</value>
-        <description>
-          If checked, set precedence bits in the IP TOS field of the IP header, or else don't set them.
-        </description>
       </setting>
     </group>
     <group name="ip.callControl">
-      <label>Call Control</label>
       <setting name="min_delay">
         <type>
           <boolean />
         </type>
         <value>1</value>
-        <description>
-          If checked, set min-delay bit in the IP TOS field of the IP header, or else don't set it.
-        </description>
       </setting>
       <setting name="max_throughput">
         <type>
           <boolean />
         </type>
         <value>0</value>
-        <description>
-          If checked, set max-throughput bit in the IP TOS field of the IP header, or else don't set it.
-        </description>
       </setting>
       <setting name="max_reliability">
         <type>
           <boolean />
         </type>
         <value>0</value>
-        <description>
-          If checked, set max-reliability bit in the IP TOS field of the IP header, or else don't set it.
-        </description>
       </setting>
       <setting name="min_cost">
         <type>
           <boolean />
         </type>
         <value>0</value>
-        <description>
-          If checked, set min-cost bit in the IP TOS field of the IP header, or else don't set it.
-        </description>
       </setting>
       <setting name="precedence">
         <type>
           <integer min="0" max="7" />
         </type>
         <value>5</value>
-        <description>
-          If checked, set precedence bits in the IP TOS field of the IP header, or else don't set them.
-        </description>
       </setting>
     </group>
   </group>
   <group name="tcpIpApp.sntp">
-    <label>SNTP</label>
-    <description>
-      The following table describes the parameters used to set up time synchronization and daylight savings
-      time. The defaults shown will enable daylight savings time for North America. Daylight savings defaults
-    </description>
     <setting name="resyncPeriod">
       <type>
         <integer min="1" />
       </type>
       <value>86400</value>
-      <description>Time in seconds between SNTP re-syncs.</description>
     </setting>
     <setting name="address">
       <type>
         <!-- a valid host name or IP address -->
       </type>
       <value>pool.ntp.org</value>
-      <description>Address of the SNTP server.</description>
     </setting>
     <setting name="address.overrideDHCP">
-      <label>Ignore SNTP address from DHCP</label>
       <type>
         <boolean />
       </type>
       <value>0</value>
-      <description>
-        Use the SNTP server address configured on the phone instead of an address found via DHCP
-      </description>
     </setting>
     <setting name="gmtOffset">
       <!-- 43200 == 12h -->
@@ -840,133 +532,96 @@
         <integer min="-43200" max="43200" />
       </type>
       <value>-18000</value>
-      <description>
-        Offset in seconds of the local time zone from GMT. Note: 3600 seconds per hour
-      </description>
     </setting>
     <setting name="gmtOffset.overrideDHCP">
-      <label>Offset from DHCP</label>
       <type>
         <boolean />
       </type>
       <value>0</value>
-      <description>Obtain GMT Offset from DHCP</description>
     </setting>
     <setting name="daylightSavings.enable">
       <type>
         <boolean />
       </type>
       <value>1</value>
-      <description>If checked, apply daylight savings rules to displayed time.</description>
     </setting>
     <setting name="daylightSavings.fixedDayEnable">
       <type>
         <boolean />
       </type>
       <value>0</value>
-      <description>
-        If checked, 'April 1st' is used, otherwise 'the first Sunday in April' is used.
-      </description>
     </setting>
     <setting name="daylightSavings.start.month">
       <type refid="monthOfYear" />
       <value>4</value>
-      <description>Month to start DST.</description>
     </setting>
     <setting name="daylightSavings.start.date">
       <type>
         <integer min="0" max="31" />
       </type>
       <value>1</value>
-      <description>Day of the month to start DST.</description>
     </setting>
     <setting name="daylightSavings.start.time">
       <type>
         <integer min="0" max="23" />
       </type>
       <value>2</value>
-      <description>Time of day to start DST, in 24 hour clock. 2=2 am, 14=2 pm</description>
     </setting>
     <setting name="daylightSavings.start.dayOfWeek">
       <type refid="dayOfWeek" />
       <value>1</value>
-      <description>Day of week to apply DST.</description>
     </setting>
     <setting name="daylightSavings.start.dayOfWeek.lastInMonth">
       <type>
         <boolean />
       </type>
       <value>0</value>
-      <description>
-        If checked and fixedDayEnable=0, start DST on the last day of the week (specified by dayOfWeek) in the
-        month, rather than the first in the month.
-      </description>
     </setting>
     <setting name="daylightSavings.stop.month">
       <type refid="monthOfYear" />
       <value>10</value>
-      <description>Month to stop DST.</description>
     </setting>
     <setting name="daylightSavings.stop.date">
       <type>
         <integer min="0" max="31" />
       </type>
       <value>1</value>
-      <description>Day of the month to stop DST.</description>
     </setting>
     <setting name="daylightSavings.stop.time">
       <type>
         <integer min="0" max="23" />
       </type>
       <value>2</value>
-      <description>Time of day to stop DST, in 24 hour clock. 2= 2 am, 14=2 pm</description>
     </setting>
     <setting name="daylightSavings.stop.dayOfWeek">
       <type refid="dayOfWeek" />
       <value>1</value>
-      <description>Day of week to stop DST.</description>
     </setting>
     <setting name="daylightSavings.stop.dayOfWeek.lastInMonth">
       <type>
         <boolean />
       </type>
       <value>1</value>
-      <description>
-        If checked and fixedDayEnable=0, stop DST on the last day of the week (specified by dayOfWeek) in the
-        month, rather than the first in the month.
-      </description>
     </setting>
   </group>
   <group name="tcpIpApp.port.rtp">
-    <label>RTP</label>
     <setting name="filterByIp">
       <type>
         <boolean />
       </type>
       <value>1</value>
-      <description>
-        If checked, reject RTP packets arriving from (sent from) a non-negotiated (via SDP) IP address.
-      </description>
     </setting>
     <setting name="filterByPort">
       <type>
         <boolean />
       </type>
       <value>0</value>
-      <description>
-        If checked, reject RTP packets arriving from (sent from) a non-negotiated (via SDP) port.
-      </description>
     </setting>
     <setting name="forceSend">
       <type>
         <integer min="1024" max="65534" />
       </type>
       <value />
-      <description>
-        When not empty, send all RTP packets to, and expect all RTP packets to arrive on, the specified port.
-        Note: both tcpIpApp.port.rtp.filterByIp and tcpIpApp.port.rtp.filterByPort must be enabled for this to
-        work.
-      </description>
     </setting>
     <setting name="mediaPortRangeStart">
       <!-- even values only -->
@@ -974,54 +629,37 @@
         <integer min="1024" max="65534" />
       </type>
       <value />
-      <description>
-        If empty, the value 2222 will be used for the first allocated RTP port, otherwise, the specified port
-        will be used. Subsequent ports will be allocated from a pool starting with the specified port plus two
-        up to a value of (start-port + 46), after which the port number will wrap back to the starting value.
-      </description>
     </setting>
   </group>
   <group name="httpd">
-    <label>Web Server</label>
     <setting name="enabled">
       <type>
         <boolean />
       </type>
       <value>1</value>
-      <description>If checked, the HTTP server will be enabled.</description>
     </setting>
     <group name="cfg">
-      <label>Configuration</label>
       <setting name="enabled">
         <type>
           <boolean />
         </type>
         <value>1</value>
-        <description>If checked, the HTTP server configuration interface will be enabled.</description>
       </setting>
       <setting name="port">
         <type>
           <integer min="1" max="65535" />
         </type>
         <value>80</value>
-        <description>
-          Port is 80 for HTTP servers. Care should be taken when choosing an alternate port.
-        </description>
       </setting>
     </group>
   </group>
   <group name="call">
-    <label>Call Handling</label>
     <!-- PhoneConfiguration -->
     <setting name="donotdisturb.perReg">
-      <label>Do Not Disturb</label>
       <type>
         <boolean />
       </type>
       <value>0</value>
-      <description>
-        If checked, the DND feature will allow selection of DND on a per-registration basis.
-      </description>
     </setting>
     <!-- AppConfiguration until end of group -->
     <setting name="rejectBusyOnDnd">
@@ -1029,57 +667,36 @@
         <boolean />
       </type>
       <value>1</value>
-      <description>
-        If checked, reject all incoming calls with the reason 'busy' if do-not-disturb is enabled.
-      </description>
     </setting>
     <setting name="enableOnNotRegistered">
       <type>
         <boolean />
       </type>
       <value>1</value>
-      <description>
-        If checked, calls will be allowed when the phone is not successfully registered, otherwise, calls will
-        not be permitted without a valid registration.
-      </description>
     </setting>
     <setting name="offeringTimeOut">
       <type>
         <integer min="0" />
       </type>
       <value>60</value>
-      <description>
-        Time in seconds to allow an incoming call to ring before dropping the call, 0=infinite.
-      </description>
     </setting>
     <setting name="ringBackTimeOut">
       <type>
         <integer min="0" />
       </type>
       <value>60</value>
-      <description>
-        Time in seconds to allow an outgoing call to remain in the ringback state before dropping the call,
-        0=infinite.
-      </description>
     </setting>
     <setting name="lastCallReturnString">
       <type>
         <string maxLen="32" />
       </type>
       <value>*69</value>
-      <description>
-        The string sent to the server when the user selects the 'last call return' action.
-      </description>
     </setting>
     <setting name="callsPerLineKey" unless="polycom600">
-      <label>Calls Per Line Key</label>
       <type>
         <integer min="1" max="8" />
       </type>
       <value>8</value>
-      <description>
-        The number of calls or conferences which may be active or on hold per line key on the phone.
-      </description>
     </setting>
     <setting name="callsPerLineKey_600" if="polycom600" copy-of="callsPerLineKey">
       <profileName>callsPerLineKey</profileName>
@@ -1089,251 +706,169 @@
       <value>24</value>
     </setting>
     <group name="shared">
-      <label>Shared Lines</label>
       <setting name="disableDivert">
         <type>
           <boolean />
         </type>
         <value>1</value>
-        <description>If checked, disable diversion feature for shared lines.</description>
       </setting>
       <setting name="seizeFailReorder">
         <type>
           <boolean />
         </type>
         <value>1</value>
-        <description>If checked, play reorder tone locally on shared line seize failure.</description>
       </setting>
       <setting name="oneTouchResume">
         <type>
           <boolean />
         </type>
         <value>0</value>
-        <description>
-          If checked, when a shared line has a call on hold the remote user can press that line and resume the
-          call. If more than one call is on hold on the line then the first one will be selected and resumed
-          automatically. If set to 0, pressing the shared line will bring up a list of the calls on that line
-          and the user can select which call the next action should be applied to. The call diversion, no
-          answer feature will take precedence over this feature if enabled.
-        </description>
       </setting>
       <setting name="exposeAutoHolds" unless="1.6">
         <type>
           <boolean />
         </type>
         <value />
-        <description>
-          If checked, when a shared line is starting a conference or setting up a transfer, a re-invite will
-          be sent to the server. When unchedked no re-INVITE will be sent to the server.
-        </description>
       </setting>
     </group>
   </group>
   <group name="call.hold.localReminder">
-    <label>Hold Reminder</label>
     <setting name="enabled">
       <type>
         <boolean />
       </type>
       <value>0</value>
-      <description>
-        If checked, periodically notify the local user that calls have been on hold for an extended period of
-        time.
-      </description>
     </setting>
     <setting name="period">
       <type>
         <integer />
       </type>
       <value>60</value>
-      <description>Time in seconds between subsequent reminders.</description>
     </setting>
     <setting name="startDelay">
       <type>
         <integer />
       </type>
       <value>90</value>
-      <description>Time in seconds to wait before the initial reminder.</description>
     </setting>
   </group>
   <group name="directory">
-    <label>Directory Resources</label>
     <group name="2mb">
-      <label>2MB Systems</label>
-      <description>Attribute applies to platforms with 2 Mbytes of flash memory.</description>
       <setting name="dir.local.volatile.2meg">
-        <label>Directory in Volatile Memory</label>
         <type>
           <boolean />
         </type>
         <value>0</value>
-        <description>
-          Use volatile storage for phone-resident copy of the directory to allow for larger size.
-        </description>
       </setting>
       <setting name="dir.local.nonVolatile.maxSize.2meg">
-        <label>Non Volatile Entries</label>
         <type>
           <integer min="0" />
         </type>
         <value>20</value>
-        <description>
-          If volatile storage is not used, maximum size in Kbytes for speed-dial entries.
-        </description>
       </setting>
     </group>
     <group name="4mb">
-      <label>4MB Systems</label>
-      <description>Attribute applies to platforms with 4 Mbytes of flash memory.</description>
       <setting name="dir.local.volatile.4meg">
-        <label>Directory in Volatile Memory</label>
         <type>
           <boolean />
         </type>
         <value>0</value>
-        <description>
-          Use volatile storage for phone-resident copy of the directory to allow for larger size.
-        </description>
       </setting>
       <setting name="dir.local.nonVolatile.maxSize.4meg">
-        <label>Non Volatile Entries</label>
         <type>
           <integer min="0" />
         </type>
         <value>50</value>
-        <description>
-          If volatile storage is not used, maximum size in Kbytes for speed-dial entries.
-        </description>
       </setting>
     </group>
     <group name="volatile">
-      <label>Volatile Memory</label>
-      <description>Applies only if you've enabled volatile memory on on your 2MB or 4MB system.</description>
       <setting name="dir.local.volatile.maxSize">
-        <label>Max Size KBytes</label>
         <type>
           <integer min="0" max="100" />
         </type>
         <value>100</value>
-        <description>
-          Maximum size in Kbytes of volatile storage that the directory will be permitted to consume.
-        </description>
       </setting>
     </group>
   </group>
   <group name="presence" unless="1.6">
     <setting name="pres.reg">
-      <label>Registration Server</label>
       <type>
         <string />
       </type>
       <value />
-      <description>Where to register presence information other than SIP registration server.</description>
     </setting>
   </group>
   <group name="key">
-    <label>Keys</label>
     <setting name="scrolling.timeout">
       <type>
         <integer min="1" />
       </type>
       <value>1</value>
-      <description>
-        The time-out after which a key that is enabled for scrolling will go into scrolling mode until the key
-        is released. Keys enabled for scrolling are menu navigation keys (left, right, up, down arrows),
-        volume keys, and some context-specific soft keys. The value is an integer multiple of 500 milliseconds
-        (1=500ms).
-      </description>
     </setting>
   </group>
   <group name="log">
-    <label>Basic Logging</label>
     <group name="sip">
-      <label>SIP Logging</label>
       <setting name="level.change.sip">
         <type>
           <integer min="0" max="5" />
         </type>
         <value>4</value>
-        <description>
-          This attribute controls the logging detail level for the SIP component. These are the input filters
-          for the internal memory-based log system.
-        </description>
       </setting>
     </group>
     <group name="render">
-      <label>Log Rendering</label>
       <setting name="level">
         <type>
           <integer min="0" max="6" />
         </type>
         <value>1</value>
-        <description>
-          Specifies the lowest class of event that will be rendered to the log files. This is the output
-          filter from the internal memory-based log system.
-        </description>
       </setting>
       <setting name="type">
         <type>
           <integer min="0" max="2" />
         </type>
         <value>2</value>
-        <description>See above table for timestamp type.</description>
       </setting>
       <setting name="realtime">
         <type>
           <boolean />
         </type>
         <value>1</value>
-        <description>Set to 1. Do not change.</description>
       </setting>
       <setting name="stdout">
         <type>
           <boolean />
         </type>
         <value>1</value>
-        <description>Set to 1. Do not change.</description>
       </setting>
       <setting name="file">
         <type>
           <boolean />
         </type>
         <value>1</value>
-        <description>Set to 1. Do not change.</description>
       </setting>
       <setting name="file.size">
         <type>
           <integer min="1" />
         </type>
         <value>16</value>
-        <description>
-          Maximum local application log file size in Kbytes. When this size is exceeded, the file is uploaded
-          to the boot server and the local copy is erased.
-        </description>
       </setting>
       <setting name="file.upload.period">
         <type>
           <integer min="1" />
         </type>
         <value>172800</value>
-        <description>
-          Time in seconds between log file uploads to the boot server. Note: The log file will not be uploaded
-          if no new events have been logged since the last upload.
-        </description>
       </setting>
       <setting name="file.upload.append">
         <type>
           <boolean />
         </type>
         <value>1</value>
-        <description>If checked, use append mode when uploading log files to server.</description>
       </setting>
       <setting name="file.upload.append.sizeLimit">
         <type>
           <integer min="1" />
         </type>
         <value>512</value>
-        <description>Maximum log file size on boot server in Kbytes.</description>
       </setting>
       <setting name="file.upload.append.limitMode">
         <type>
@@ -1347,70 +882,52 @@
           </enum>
         </type>
         <value>delete</value>
-        <description>
-          Behavior when server log file has reached its limit. delete=delete file and start over, stop=stop
-          appending to file.
-        </description>
       </setting>
     </group>
   </group>
   <group name="sec">
-    <label>Security</label>
-    <description>These settings affect security aspects of SoundPoint(R) IP.</description>
     <setting name="tagSerialNo">
       <type>
         <boolean />
       </type>
       <value>0</value>
-      <description>
-        If checked, the phone may advertise its serial number (Ethernet address) via protocol signaling.
-      </description>
     </setting>
     <group name="pwd.length">
-      <label>Password Length</label>
       <setting name="admin">
         <type>
           <integer min="0" max="32" />
         </type>
         <value>1</value>
-        <description>
-          Password changes will need to be at least this long. Use 0 to allow null passwords.
-        </description>
       </setting>
       <setting name="user">
         <type>
           <integer min="0" max="32" />
         </type>
         <value>2</value>
-        <description>
-          Password changes will need to be at least this long. Use 0 to allow null passwords.
-        </description>
       </setting>
     </group>
     <group name="srtp" advanced="yes" unless="1.6">
-      <label>SRTP</label>
       <setting name="offer">
         <type>
-          <string></string>
+          <string />
         </type>
         <value />
       </setting>
       <setting name="require">
         <type>
-          <string></string>
+          <string />
         </type>
         <value />
       </setting>
       <setting name="lifetime">
         <type>
-          <string></string>
+          <string />
         </type>
         <value />
       </setting>
     </group>
   </group>
   <group name="request.delay">
-    <label>Request</label>
     <setting name="type">
       <type>
         <enum>
@@ -1421,21 +938,14 @@
             <value>call</value>
           </option>
           <option>
-            <label>no strategy</label>
             <value />
           </option>
         </enum>
       </type>
       <value>call</value>
-      <description>
-        Defines the strategy to adopt before a request gets executed. If set to 'audio', a request can be
-        executed as soon as there is no active audio on the phone, independently of any call state. If set to
-        'call', a request can be executed as soon as there are no calls in any state on the phone.
-      </description>
     </setting>
   </group>
   <group name="feature">
-    <label>Features</label>
     <setting name="presence">
       <type>
         <boolean />
@@ -1455,7 +965,6 @@
       <value>1</value>
     </setting>
     <setting name="calllist">
-      <label>Call List</label>
       <type>
         <boolean />
       </type>
@@ -1468,47 +977,34 @@
       <value>1</value>
     </setting>
     <setting name="calllist-received">
-      <label>Call List Received</label>
       <type>
         <boolean />
       </type>
       <value>1</value>
-      <description>Call List must also be enabled</description>
     </setting>
     <setting name="calllist-placed">
-      <label>Call List Placed</label>
       <type>
         <boolean />
       </type>
       <value>1</value>
-      <description>Call List must also be enabled</description>
     </setting>
     <setting name="calllist-missed">
-      <label>Call List Missed</label>
       <type>
         <boolean />
       </type>
       <value>1</value>
-      <description>Call List must also be enabled</description>
     </setting>
     <setting name="url-dialing">
       <type>
         <boolean />
       </type>
       <value>1</value>
-      <description>
-        Disable this to prevent unknown callers from being identified on the display by an IP address.
-      </description>
     </setting>
     <setting name="cpt-settings" if="1.6">
-      <label>Call Progress Tones Setting</label>
       <type>
         <boolean />
       </type>
       <value>0</value>
-      <description>
-        Call progress tones can be selected can be selected by the phone user using the settings menu.
-      </description>
     </setting>
     <setting name="call-park">
       <type>
@@ -1549,21 +1045,11 @@
     </setting>
   </group>
   <group name="mb">
-    <label>MicroBrowser</label>
-    <description>
-      These settings control the home page and proxy to be used by the MicroBrowser when it is selected to
-      provide services and also when it is used as part of the Idle Display. They also control size limits and
-      the Idle Display refresh rate.
-    </description>
     <setting name="proxy">
       <type>
         <!-- Null or domain name or IP address in the format address:port -->
       </type>
       <value />
-      <description>
-        Address of the desired HTTP proxy to be used by the MicroBrowser. If blank, normal unproxied HTTP is
-        used by the MicroBrowser.
-      </description>
     </setting>
     <group name="idleDisplay">
       <setting name="home">
@@ -1571,12 +1057,6 @@
           <!-- Null, or any fully formed valid HTTP URL. Length up to 255 characters.-->
         </type>
         <value />
-        <description>
-          URL used for MicroBrowser idle display home-page. Example: http://www.example.com/
-          xhtml/frontpage.cgi?page=home. If empty, there will be no microbrowser idle display feature. Note
-          that the MicroBrowser idle display will displace the idle display indicator. See Indicators
-          settings.
-        </description>
       </setting>
       <setting name="refresh">
         <type>
@@ -1584,13 +1064,6 @@
           <integer />
         </type>
         <value>0</value>
-        <description>
-          The period in seconds between refreshes of the idle display MicroBrowser's content. 0 = the idle
-          display MicroBrowser is not refreshed. Minimum refresh period = 5 seconds (values from 1 to 4 will
-          be ignored, and 5 will be used instead) Notes: If an HTTP Refresh header is detected, it will be
-          respected, even if this parameter is set to 0. The use of this parameter in combination with the
-          Refresh HTTP header may cause the idle display to refresh at unexpected times.
-        </description>
       </setting>
     </group>
     <group name="main">
@@ -1599,10 +1072,6 @@
           <!-- Any fully formed valid HTTP URL. Length up to 255 characters.-->
         </type>
         <value />
-        <description>
-          URL used for MicroBrowser home-page. If blank, the browser will notify the user that a blank
-          home-page was used. Example: http://www.example.com/ xhtml/frontpage.cgi?page=home.
-        </description>
       </setting>
     </group>
     <group name="limits">
@@ -1611,112 +1080,64 @@
           <integer />
         </type>
         <value />
-        <description>
-          Limits the number of tags which the XML parser will handle. This limits the amount of memory used by
-          complicated pages. The Services browser and the Idle Display each use memory defined by this limit.
-          A maximum total of 500 (256 each) is recommended. Increasing this value may have a detrimental
-          effect on performance of the phone.
-        </description>
       </setting>
       <setting name="cache">
         <type>
           <integer />
         </type>
         <value />
-        <description>
-          Limits the total size of objects downloaded for each page (both XHTML and images). Once this limit
-          is reached, no more images are downloaded until the next page is requested. Units = kBytes.
-          Increasing this value may have a detrimental effect on performance of the phone.
-        </description>
       </setting>
     </group>
   </group>
   <group name="voIpProt">
-    <label>SIP Servers</label>
     <!-- server.1 and server.3 not defined, these are adaquately
       handled at line level -->
     <group name="SIP.outboundProxy">
-      <label>Outbound Proxy</label>
       <setting name="address">
-        <label>Server</label>
         <type>
           <!-- dotted-decimal IP address or host name -->
         </type>
         <value />
-        <description>
-          IP address or host name and port of a SIP server to which the phone shall send all requests for
-          making calls.
-        </description>
       </setting>
       <setting name="port">
         <type>
           <integer min="1" max="65535" />
         </type>
         <value>5060</value>
-        <description></description>
       </setting>
       <setting name="transport">
         <type refid="transport" />
         <value>DNSnaptr</value>
-        <description>
-          DNSnaptr, TCPpreferred or UDPonly. If empty or DNSnaptr and if Address is a hostname and Port is 0
-          or empty, do NAPTR then SRV look-ups to try to discover the transport, ports and servers, as per RFC
-          3263. If Address is an IP address, or a port is given, then UDP is used. If set to TCPpreferred: TCP
-          is the preferred transport, UDP is used if TCP fails. If set to UDPonly: Only UDP will be used.
-        </description>
       </setting>
     </group>
   </group>
   <group name="voIpProt.SIP">
-    <label>SIP</label>
-
     <group name="local">
-      <label>Port</label>
       <setting name="port">
-        <label>Local Port</label>
         <type>
           <integer min="0" max="65535" />
         </type>
         <value />
-        <description>
-          Local port for sending and receiving SIP signaling packets. If set to 0 or Null, 5060 is used for
-          the local port but it is not advertised in the SIP signaling. If set to some other value, that value
-          is used for the local port and it is advertised in the SIP signaling.
-        </description>
       </setting>
     </group>
-
     <group name="protocol">
       <setting name="useRFC2543hold">
         <type>
           <boolean />
         </type>
         <value>0</value>
-        <description>
-          If checked, use the obsolete c=0.0.0.0 RFC2543 technique, otherwise, use SDP media direction
-          attributes (such as a=sendonly) per RFC 3264 when initiating hold. In either case, the phone
-          processes incoming hold signaling in either format.
-        </description>
       </setting>
       <setting name="lcs" if="1.6">
         <type>
           <boolean />
         </type>
         <value>0</value>
-        <description>
-          If checked, the proprietary 'epid' parameter is added to the From field of all requests to support
-          Windows Live Communications Server.
-        </description>
       </setting>
       <setting name="sendCompactHdrs">
         <type>
           <boolean />
         </type>
         <value>0</value>
-        <description>
-          If set to 0, SIP header names generated by the phone use the long form, for example 'From'. If set
-          to 1, SIP header names generated by the phone use the short form, for example 'f'.
-        </description>
       </setting>
       <!-- This is obsolete in 2.0 -->
       <setting name="WM50">
@@ -1724,126 +1145,76 @@
           <boolean />
         </type>
         <value>0</value>
-        <description>Windows Messaging 5.0 Compatability</description>
       </setting>
       <setting name="ms-forking" unless="1.6">
         <type>
           <boolean />
         </type>
-        <description>
-          This parameter is only effective when an LCS server is being used. When checked, it is expected that
-          the server will use aggregation to determine which end-point should receive an INVITE when multiple
-          end-points share the same user credentials. The phone will also show support for ms-forking in its
-          register request header and the phone will reject all INVITE messages which are for Instant messages
-          to prevent the phone from instantly accepting instant message INVITEs which may be more suitable for
-          a WM or OC endpoint instead.
-        </description>
       </setting>
       <setting name="keepalive.sessionTimers">
         <type>
           <boolean />
         </type>
         <value>0</value>
-        <description></description>
       </setting>
       <setting name="requestURI.E164.addGlobalPrefix">
         <type>
           <string />
         </type>
         <value />
-        <description></description>
       </setting>
       <setting name="allowTransferOnProceeding">
         <type>
           <boolean />
         </type>
         <value>1</value>
-        <description>
-          If checked, A transfer can be completed during the proceeding state of a consultation call.
-        </description>
       </setting>
     </group>
     <group name="alertInfo">
-      <label>Alert Information</label>
-      <description>
-        Match incoming call's alert information to a particular ring response. NOTE: Currently only 1 alert
-        type is supported
-      </description>
       <group name="1">
-        <label>Alert Info Details</label>
         <setting name="value">
           <type>
             <!-- string to compare against the value of Alert-Info headers in INVITE requests -->
             <string />
           </type>
           <value />
-          <description>
-            Alert-Info fields from INVITE requests will be compared against with this value and if a match is
-            found, the behavior described in the corresponding ring class will be applied.
-          </description>
         </setting>
         <setting name="class">
           <type>
             <integer min="1" />
           </type>
           <value />
-          <description>"Ring class number" that identifies a configured ring type</description>
         </setting>
       </group>
     </group>
     <group name="requestValidation">
-      <label>Request Validation</label>
-      <description>
-        To guard against unauthorized callers or telephony events. NOTE: Currently only 1 event type is
-        supported
-      </description>
       <group name="1">
-        <label>Event Type to Validate</label>
         <setting name="request">
           <type>
             <string />
           </type>
           <value />
-          <description>
-            One of: 'INVITE', 'ACK', 'BYE', 'REGISTER', 'CANCEL', 'OPTIONS', 'INFO', 'MESSAGE', 'SUBSCRIBE',
-            'NOTIFY', 'REFER', 'PRACK', or 'UPDATE'. Sets the name of the method for which validation will be
-            applied. WARNING: Intensive request validation may have a negative performance impact due to the
-            additional signaling required in some cases, therefore, use it judiciously.
-          </description>
         </setting>
         <setting name="method">
           <type>
             <string />
           </type>
           <value />
-          <description>
-            Null or one of: 'source', 'digest' or 'both'/'all'. If Null, no validation is done. Otherwise this
-            sets the type of validation performed for the request: source: ensure request is received from an
-            IP address of a server belonging to the set of target registration servers; digest: challenge
-            requests with digest authentication using the local credentials for the associated registration
-            (line); both or all: apply both of the above methods
-          </description>
         </setting>
         <setting name="request.1.event">
           <type>
             <string />
           </type>
           <value />
-          <description>
-            Determines which events specified with the Event header should be validated; only applicable when
-            request is set to 'SUBSCRIBE' or 'NOTIFY'. If set to Null, all events will be validated.
-          </description>
         </setting>
       </group>
     </group>
     <group name="digest">
-      <description>Credentials for incoming requests, if request validation is enabled.</description>
       <setting name="realm">
         <type>
           <string />
         </type>
         <value>PolycomSPIP</value>
-        <description>Determines string used for Realm.</description>
       </setting>
     </group>
     <group name="specialEvent">
@@ -1852,10 +1223,6 @@
           <boolean />
         </type>
         <value>1</value>
-        <description>
-          If checked, process a 200 OK response for a line-seize event SUBSCRIBE as though a line-seize NOTIFY
-          with Subscription State: active header had been received, this speeds up processing.
-        </description>
       </setting>
       <setting name="checkSync.alwaysReboot">
         <type>
@@ -1866,11 +1233,6 @@
           - remotely on demand
         -->
         <value>1</value>
-        <description>
-          If checked, always reboot when a NOTIFY message is received from the server with event equal to
-          check-sync. If set to 0, only reboot if any of the files listed in [mac].cfg have changed on the FTP
-          server when a NOTIFY message is received from the server with event equal to check-sync.
-        </description>
       </setting>
     </group>
     <group name="conference">
@@ -1879,11 +1241,6 @@
           <string maxLen="128" />
         </type>
         <value />
-        <description>
-          If Null, conferences are set up on the phone locally. If set to some value, conferences are set up
-          by the server using the conferencing agent specified by this address. The acceptable values depend
-          on the conferencing server implementation policy.
-        </description>
       </setting>
     </group>
     <group name="dialog" unless="1.6">
@@ -1892,22 +1249,12 @@
           <boolean />
         </type>
         <value />
-        <description>
-          If checked, and the phone is put on hold the dialog shows the SDP in dialog. If unchecked, no SDP is
-          sent and param {pname="+sip.rendering" pval="no"} is sent in dialog. NOTE: Default value for
-          firmware 1.6.5 was checked.
-        </description>
       </setting>
       <setting name="usePvalue" advanced="yes">
         <type>
           <boolean />
         </type>
         <value />
-        <description>
-          Unchecked value means phone uses “pval” field name in Dialog. This obeys the
-          draft-ietf-sipping-dialog-package-06.txt draft. Some implementations require a field name of
-          “pvalue”. This will be used when this is checked.
-        </description>
       </setting>
     </group>
     <group name="connectionReuse">
@@ -1916,182 +1263,122 @@
           <boolean />
         </type>
         <value />
-        <description>If checked, use the connection reuse draft which introduces "alias".</description>
       </setting>
     </group>
   </group>
   <group name="voIpProt.server.dhcp">
-    <label>SIP Settings in DHCP</label>
-    <description>Obtain SIP server IP address information from DHCP</description>
     <setting name="available">
-      <label>Enabled</label>
       <type>
         <boolean />
       </type>
       <value>0</value>
-      <description>Check with the DHCP server for SIP server IP address</description>
     </setting>
     <setting name="option">
-      <label>Option</label>
       <type>
         <integer min="128" max="255" />
       </type>
       <value />
-      <description>
-        If Enabled, the Option to request from the DHCP server if Allowable range is 128 to 255. There is no
-        default value for this parameter, it must be filled in with a valid value.
-      </description>
     </setting>
     <setting name="type">
-      <label>Type</label>
       <type>
         <enum>
           <option>
-            <label>IP Address</label>
             <value>0</value>
           </option>
           <option>
-            <label>String</label>
             <value>1</value>
           </option>
         </enum>
       </type>
       <value />
-      <description>
-        If Enabled, type to request from the DHCP server. There is no default value for this parameter, it
-        must be filled in with a valid value.
-      </description>
     </setting>
     <setting name="maxIpAddress">
       <type />
       <value />
-      <description>Unknown</description>
     </setting>
   </group>
   <!-- SIMILIAR SECTION EXISTS IN line.xml to control dialplans per line -->
   <group name="dialplan">
-    <label>Dial Plan</label>
-    <description>
-      Dialplan for all lines on this phone. Each line may be configured independenty, see that lines settings.
-    </description>
     <setting name="impossibleMatchHandling">
-      <label>Impossible Match Handling</label>
       <type>
         <enum>
           <option>
-            <label>send immediately</label>
             <value>0</value>
           </option>
           <option>
-            <label>give reorder tone</label>
             <value>1</value>
           </option>
           <option>
-            <label>allow user to dispatch</label>
             <value>2</value>
           </option>
         </enum>
       </type>
       <value>2</value>
-      <description>
-        If 'send immediately', the digits entered up to and including the point where an impossible match
-        occurred are sent to the server immediately. If 'give reorder tone', give reorder audible tone. If
-        'allow user to dispatch', allow user to accumulate digits and dispatch call manually with the Send
-        soft key.
-      </description>
     </setting>
     <setting name="removeEndOfDial">
       <type>
         <boolean />
       </type>
       <value>1</value>
-      <description>If checked, strip trailing # digit from digits sent out.</description>
     </setting>
     <group name="digitmap">
-      <label>Digit Map</label>
       <setting name="digitmap">
         <!--string compatible with the digit map feature of MGCP described in 2.1.5 of RFC 3435. String
           is limited to 512 bytes and 20 segments; a comma is also allowed; when reached in the digit map, a comma will
           turn dial tone back on.-->
         <value>
-          <![CDATA[[2-9]11|0T|100|101|011xxx.T|9011xxx.T|1[2-9]xxxxxxxxx|91[2-9]xxxxxxxxx|9[2-9]xxxxxx|*xx|[8]xxx|[2-7]xx]]>
+          [2-9]11|0T|100|101|011xxx.T|9011xxx.T|1[2-9]xxxxxxxxx|91[2-9]xxxxxxxxx|9[2-9]xxxxxx|*xx|[8]xxx|[2-7]xx
         </value>
-        <description>
-          When this attribute is present, number-only dialing during the setup phase of new calls will be
-          compared against the patterns therein and if a match is found, the call will be initiated
-          automatically eliminating the need to press Send.
-        </description>
       </setting>
       <setting name="digitmap.timeOut">
-        <label>Time out</label>
         <type>
           <integer min="1" />
         </type>
         <value>3</value>
-        <description>Timeout in seconds for 'T' feature of digitmap.</description>
       </setting>
       <group name="routing.1">
-        <label>Emergency Routing</label>
         <setting name="address">
           <type>
             <!-- dotted-decimal IP address or host name -->
           </type>
           <value />
-          <description>
-            IP address or host name and port of a SIP server that will be used for routing emergency calls.
-          </description>
         </setting>
         <setting name="port">
           <type>
             <integer min="1" max="65535" />
           </type>
           <value>5060</value>
-          <description></description>
         </setting>
         <setting name="emergency.1.value">
-          <label>Emergency Numbers</label>
           <type>
             <!--Comma separated list of entries or single entry representing a SIP URL or a combination of
               SIP URLs.-->
           </type>
           <value>911</value>
-          <description>
-            This determines the URLs that should be watched for. When one of these defined URLs is detected as
-            having been dialed by the user, the call will automatically be directed to the defined emergency
-            server.
-          </description>
         </setting>
       </group>
     </group>
   </group>
   <group name="localization">
-    <label>Localization</label>
     <setting name="language">
-      <label>Language</label>
       <type>
         <enum>
           <option>
-            <label>Chinese China</label>
             <value>1</value>
           </option>
           <option>
-            <label>Danish Denmark</label>
             <value>2</value>
           </option>
           <option>
-            <label>Dutch Netherlands</label>
             <value>3</value>
           </option>
           <option>
-            <label>English Canada</label>
             <value>4</value>
           </option>
           <option>
-            <label>English United Kingdom</label>
             <value>5</value>
           </option>
           <option>
-            <label>US English</label>
             <value />
           </option>
           <!--
@@ -2099,148 +1386,90 @@
             - polycom has an undocumented difference
           -->
           <option>
-            <label>Frech France</label>
             <value>7</value>
           </option>
           <option>
-            <label>German Germany</label>
             <value>8</value>
           </option>
           <option>
-            <label>Italian Italy</label>
             <value>9</value>
           </option>
           <option>
-            <label>Japanese Japan</label>
             <value>10</value>
           </option>
           <option>
-            <label>Korean Korea</label>
             <value>11</value>
           </option>
           <option>
-            <label>Norwegian Norway</label>
             <value>12</value>
           </option>
           <option>
-            <label>Portuguese Portugal</label>
             <value>13</value>
           </option>
           <option>
-            <label>Russian Russia</label>
             <value>14</value>
           </option>
           <option>
-            <label>Spanish Spain</label>
             <value>15</value>
           </option>
           <option>
-            <label>Swedish Sweden</label>
             <value>16</value>
           </option>
         </enum>
       </type>
       <value />
-      <description>
-        Select the default language the phone interface. Setting is harmless but ignored by Polycom 301s and
-        only 601/650s can show Asian Languages. YOU MUST HAVE UPLOADED FIRMWARE TO SUPPORT DIFFERENT
-        LANGUAGES. Navigate to Device/Files in administration console.
-      </description>
     </setting>
   </group>
   <group name="msg">
-    <label>Messaging</label>
-    <description>
-      SoundPoint(R) IP supports message-waiting indication on a per-registration basis.
-    </description>
     <setting name="bypassInstantMessage">
       <type>
         <boolean />
       </type>
       <value>0</value>
-      <description>
-        If checked, the display offering a choice of 'Message Center' and 'Instant Messages' will be bypassed
-        when pressing the Messages key, the phone will act as if 'Message Center' was chosen. See 3.6.1
-        Voicemail Integration on page 49. Instant Messages will still be accessible from the Main Menu.
-      </description>
     </setting>
   </group>
   <group name="nat">
-    <label>NAT</label>
-    <description>
-      These parameters define port and IP address changes used in NAT traversal. The port changes will change
-      the port used by the phone, while the IP entry simply changes the IP advertised in the SIP signaling.
-      This allows the use of simple NAT devices that can redirect traffic, but do not allow for port mapping.
-      For example, port 5432 on the NAT device can be sent to port 5432 on an internal device, but not port
-      1234.
-    </description>
     <setting name="ip">
       <type>
         <ipaddr />
       </type>
       <value />
-      <description>
-        IP address to advertise within SIP signaling, should match the external IP address used by the NAT
-        device.
-      </description>
     </setting>
     <setting name="signalPort">
       <type>
         <integer min="1024" max="65536" />
       </type>
       <value />
-      <description>
-        If non-Null, this port will be used by the phone for SIP signaling, overriding the value set for RTP
-        Settings
-      </description>
     </setting>
     <setting name="mediaPortStart">
       <type>
         <integer min="1024" max="65536" />
       </type>
       <value />
-      <description>
-        If non-Null, this attribute will be used to set the initially allocated RTP port, overriding the value
-        set in RTP Settings.
-      </description>
     </setting>
   </group>
   <group name="attendant" unless="1.6">
-    <label>BLF</label>
     <setting name="uri">
-      <label>Subscription URL</label>
       <type>
         <string />
       </type>
       <value />
-      <description>
-        URL that publishes BLF events you wish to receive. It will generally be encoded with the user names or
-        list names you wish to monitor.
-      </description>
     </setting>
     <setting name="reg">
-      <label>Subscription Server</label>
       <type refid="reg-server-index" />
       <value />
-      <description>Server that accepts BLF SIP SUBSCRIBE events</description>
     </setting>
   </group>
   <group name="roaming_buddies" unless="1.6">
-    <label>Roaming Buddies</label>
     <setting name="reg">
-      <label>Subscription Server</label>
       <type refid="reg-server-index" />
       <value />
-      <description>Server that accepts Roaming Buddies SIP SUBSCRIBE events</description>
     </setting>
   </group>
   <group name="roaming_privacy" unless="1.6">
-    <label>Roaming Privacy</label>
     <setting name="reg">
-      <label>Subscription Server</label>
       <type refid="reg-server-index" />
       <value />
-      <description>Server that accepts Roaming Privacy SIP SUBSCRIBE events</description>
     </setting>
   </group>
 </model>

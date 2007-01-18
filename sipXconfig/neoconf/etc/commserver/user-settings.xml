@@ -27,107 +27,68 @@
     </string>
   </type>
   <group name="permission">
-    <label>Permissions</label>
     <group name="application">
-      <label>General Permission</label>
       <setting name="superadmin">
-        <label>Superadmin Access</label>
         <type refid="enable-disable" />
         <value>DISABLE</value>
-        <description>User can log into administration interface.</description>
       </setting>
       <setting name="tui-change-pin">
-        <label>Change PIN from IVR</label>
         <type refid="enable-disable" />
         <value>ENABLE</value>
-        <description>
-          User can change PIN value from Voicemail system. PIN is used to log into voicemail
-          system and web interface. PIN does not affect the password phones use to authenticate
-          with registration server.
-        </description>
       </setting>
     </group>
     <group name="call-handling">
-      <label>Call Permission</label>
       <setting name="900Dialing">
-        <label>900 Dialing</label>
         <type refid="enable-disable" />
         <value>DISABLE</value>
-        <description>User can dial 900 numbers</description>
       </setting>
       <setting name="AutoAttendant">
-        <label>Attendant Directory</label>
         <type refid="enable-disable" />
         <value>DISABLE</value>
-        <description>List user in Auto Attendant</description>
       </setting>
       <setting name="InternationalDialing">
-        <label>International Dialing</label>
         <type refid="enable-disable" />
         <value>ENABLE</value>
-        <description>User can dial international numbers</description>
       </setting>
       <setting name="LocalDialing">
-        <label>Local Dialing</label>
         <type refid="enable-disable" />
         <value>ENABLE</value>
-        <description>User can dial local numbers</description>
       </setting>
       <setting name="LongDistanceDialing">
-        <label>Long Distance Dialing</label>
         <type refid="enable-disable" />
         <value>ENABLE</value>
-        <description>User can dial long distance numbers</description>
       </setting>
       <setting name="Mobile">
-        <label>Mobile Dialing</label>
         <type refid="enable-disable" />
         <value>ENABLE</value>
-        <description>User can dial mobile numbers</description>
       </setting>
       <setting name="TollFree">
-        <label>Toll Free</label>
         <type refid="enable-disable" />
         <value>ENABLE</value>
-        <description>User can dial toll free numbers</description>
       </setting>
       <setting name="Voicemail">
-        <label>Voice Mail</label>
         <type refid="enable-disable" />
         <value>ENABLE</value>
-        <description>User has voicemail inbox</description>
       </setting>
       <setting name="ForwardCallsExternal">
-        <label>Forward Calls External</label>
         <type refid="enable-disable" />
         <value>DISABLE</value>
-        <description>User can forward calls to external numbers</description>
       </setting>
       <setting name="RecordSystemPrompts">
-        <label>Record System Prompts</label>
         <type refid="enable-disable" />
         <value>DISABLE</value>
-        <description>User can record system prompts</description>
       </setting>
     </group>
   </group>
   <group name="caller-alias">
-    <label>Caller ID</label>
     <setting name="external-number">
-      <label>Caller ID</label>
-      <type refid="sip-uri"/>
-      <description>
-        Externally visible user Caller ID. If it is not specified gateway will create caller ID
-        based on caller extension and gateway parameters.
-      </description>
+      <type refid="sip-uri" />
     </setting>
     <setting name="anonymous-caller-alias">
-      <label>Block Caller ID</label>
       <type>
         <boolean />
       </type>
       <value>0</value>
-      <description>Block Caller ID for external calls.</description>
     </setting>
   </group>
 </model>

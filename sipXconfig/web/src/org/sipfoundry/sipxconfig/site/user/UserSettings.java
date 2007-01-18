@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.site.user;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
@@ -20,6 +21,7 @@ import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public abstract class UserSettings extends BasePage implements PageBeginRenderListener {
@@ -37,8 +39,8 @@ public abstract class UserSettings extends BasePage implements PageBeginRenderLi
 
     @Persist
     public abstract String getParentSettingName();
-    
-    public abstract void setParentSettingName(String settingName);    
+
+    public abstract void setParentSettingName(String settingName);
 
     /** REQUIRED PAGE PARAMETER */
     public abstract Setting getParentSetting();
@@ -47,7 +49,7 @@ public abstract class UserSettings extends BasePage implements PageBeginRenderLi
 
     @InjectObject(value = "spring:coreContext")
     public abstract CoreContext getCoreContext();
-    
+
     @Bean
     public abstract SipxValidationDelegate getValidator();
 
@@ -76,5 +78,17 @@ public abstract class UserSettings extends BasePage implements PageBeginRenderLi
 
     public String cancel() {
         return ManageUsers.PAGE;
+    }
+
+    public String getParentSettingLabel() {
+        Setting setting = getParentSetting();
+        return TapestryUtils.getModelMessage(this, setting.getMessageSource(), setting
+                .getLabelKey(), StringUtils.EMPTY);
+    }
+
+    public String getParentSettingDescription() {
+        Setting setting = getParentSetting();
+        return TapestryUtils.getModelMessage(this, setting.getMessageSource(), setting
+                .getDescriptionKey(), StringUtils.EMPTY);
     }
 }

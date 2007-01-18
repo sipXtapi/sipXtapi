@@ -1,80 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
 <page-specification class="org.sipfoundry.sipxconfig.site.phone.EditPhoneDefaults">
-  <description>add a description</description>
-  <!--
-	  - P R O P E R T I E S
-	  -->
-  <!-- Persistent -->
-  <property name="phoneModel" persist="session" />
-  <property name="editFormSettingName" persist="session" />
-  <property name="resourceId" persist="session" />
-  <property name="groupId"  persist="session"/>
-  <!-- Transient -->
-  <inject property="settingDao" object="spring:settingDao"/>
-  <inject property="phoneContext" object="spring:phoneContext"/>
-  <property name="currentNavigationSetting" />
-  <property name="currentEditFormSetting" />
-  <property name="phone" />
-  <property name="group" />
-  <property name="editFormSetting" />
-  <property name="editFormSettings" />
-  <property name="deviceVersion" persist="client"/>
-  <!-- B E A N S -->
-  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate" />
   <bean name="versions" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
-    <set name="array" value="phoneModel.versions"/>
-    <set name="labelExpression" value="literal:versionId"/>
+    <set name="array" value="phoneModel.versions" />
+    <set name="labelExpression" value="literal:versionId" />
   </bean>
-  <!--
-     - C O M P O N E N T S
-     -->
-  <component id="settingsHeading" type="Insert">
-    <binding name="value" value="editFormSetting.label"/>
-  </component>
-  <component id="phoneDefaultsNavigationDescription" type="Insert">
-    <binding name="value" value="editFormSetting.description"/>
-  </component>
-  <component id="phoneSettingsLabel" type="Insert">
-    <binding name="value" value="currentNavigationSetting.label"/>
-  </component>
-  <component id="phoneSettings" type="For">
-    <binding name="source" value="phoneNavigationSettings"/>
-    <binding name="value" value="currentNavigationSetting"/>
-  </component>
-  <component id="lineSettings" type="For">
-    <binding name="source" value="lineNavigationSettings"/>
-    <binding name="value" value="currentNavigationSetting"/>
-  </component>
-  <component id="phoneSettingsLink" type="DirectLink">
-    <binding name="listener" value="listener:editPhoneSettings"/>
-	<binding name="parameters" value="currentNavigationSetting.name"/>
-  </component>
-  <component id="lineSettingsLabel" copy-of="phoneSettingsLabel">
-  </component>
-  <component id="lineSettingsLink" type="DirectLink">
-    <binding name="listener" value="listener:editLineSettings"/>
-	<binding name="parameters" value="currentNavigationSetting.name"/>
-  </component>
-  <!-- Edit form -->
-  <component id="selectVersion" type="PropertySelection">
-    <binding name="model" value="bean:versions"/>
-    <binding name="value" value="deviceVersion"/>
-    <binding name="displayName" value="literal:Firmware Version"/>
-    <binding name="onchange" value="literal:javascript:this.form.submit();"/>
-  </component>
-  <component id="settingsForm" type="SettingsForm">
-    <binding name="validator" value="bean:validator"/>
-    <binding name="applyListener" value="listener:apply"/>
-    <binding name="okListener" value="listener:ok"/>
-    <binding name="cancelListener" value="listener:cancel"/>
-    <binding name="settings" value="editFormSetting"/>
-    <binding name="requiredEnabled" value="false"/>
-  </component>
-  <component id="groupLabel" type="GroupLabel">
-    <binding name="group" value="group"/>
-  </component>
-  <component id="modelLabel" type="Insert">
-    <binding name="value" value="phone.model.label"/>
-  </component>
 </page-specification>

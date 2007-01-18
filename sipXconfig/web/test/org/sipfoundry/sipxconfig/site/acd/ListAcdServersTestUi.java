@@ -48,6 +48,6 @@ public class ListAcdServersTestUi extends ListWebTestCase {
 
     public void testPresenceServerLink() throws Exception {
         clickLink("link:presence");
-        assertTextPresent("Presence sign in");
+        assertElementPresent("setting:SIP_PRESENCE_SIGN_IN_CODE");
     }
 }

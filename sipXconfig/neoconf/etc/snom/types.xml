@@ -1,124 +1,105 @@
 <type id="on-off">
-	<boolean>
-		<true>
-			<value>on</value>
-		</true>
-		<false>
-			<value>off</value>
-		</false>
-	</boolean>
+  <boolean>
+    <true>
+      <value>on</value>
+    </true>
+    <false>
+      <value>off</value>
+    </false>
+  </boolean>
 </type>
 <type id="codec">
-	<enum>
-		<option>
-			<label>G.711u</label>
-			<value>0</value>
-		</option>
-		<option>
-			<label>G.726-32</label>
-			<value>2</value>
-		</option>
-		<option>
-			<label>GSM FR</label>
-			<value>3</value>
-		</option>
-		<option>
-			<label>G.723.1</label>
-			<value>4</value>
-		</option>
-		<option>
-			<label>G.711a</label>
-			<value>8</value>
-		</option>
-		<option>
-			<label>G.722</label>
-			<value>9</value>
-		</option>
-		<option>
-			<label>G.729A</label>
-			<value>18</value>
-		</option>
-	</enum>
+  <enum>
+    <option>
+      <value>0</value>
+    </option>
+    <option>
+      <value>2</value>
+    </option>
+    <option>
+      <value>3</value>
+    </option>
+    <option>
+      <value>4</value>
+    </option>
+    <option>
+      <value>8</value>
+    </option>
+    <option>
+      <value>9</value>
+    </option>
+    <option>
+      <value>18</value>
+    </option>
+  </enum>
 </type>
 <type id="ringer">
-	<enum>
-		<option>
-			<value>Ringer1</value>
-		</option>
-		<option>
-			<value>Ringer2</value>
-		</option>
-		<option>
-			<value>Ringer3</value>
-		</option>
-		<option>
-			<value>Ringer4</value>
-		</option>
-		<option>
-			<value>Ringer5</value>
-		</option>
-		<option>
-			<value>Ringer6</value>
-		</option>
-		<option>
-			<value>Ringer7</value>
-		</option>
-		<option>
-			<value>Custom</value>
-		</option>
-		<option>
-			<value>Silent</value>
-		</option>
-	</enum>
+  <enum>
+    <option>
+      <value>Ringer1</value>
+    </option>
+    <option>
+      <value>Ringer2</value>
+    </option>
+    <option>
+      <value>Ringer3</value>
+    </option>
+    <option>
+      <value>Ringer4</value>
+    </option>
+    <option>
+      <value>Ringer5</value>
+    </option>
+    <option>
+      <value>Ringer6</value>
+    </option>
+    <option>
+      <value>Ringer7</value>
+    </option>
+    <option>
+      <value>Custom</value>
+    </option>
+    <option>
+      <value>Silent</value>
+    </option>
+  </enum>
 </type>
 <type id="fkey">
   <enum>
     <option>
-      <label>Line</label>
       <value>line</value>
     </option>
     <option>
-      <label>Extension/Destination</label>
       <value>dest</value>
     </option>
     <option>
-      <label>Intercom</label>
       <value>icom</value>
     </option>
     <option>
-      <label>Park Orbit</label>
       <value>orbit</value>
     </option>
     <option>
-      <label>Voice Recorder</label>
       <value>recorder</value>
     </option>
     <option>
-      <label>DRMF</label>
       <value>dtmf</value>
     </option>
     <option>
-      <label>Shared Line</label>
       <value>mult</value>
     </option>
     <option>
-      <label>Push2Talk</label>
       <value>p2t</value>
     </option>
     <option>
-      <label>Action URL</label>
       <value>url</value>
     </option>
     <option>
-      <label>Key Event</label>
       <value>keyevent</value>
     </option>
     <option>
-      <label>Speed Dial</label>
       <value>speed</value>
     </option>
     <option>
-      <label>None</label>
       <value>none</value>
     </option>
   </enum>
@@ -138,37 +119,28 @@
       <value>4</value>
     </option>
     <option>
-      <label>5 (Snom 320/360)</label>
       <value>5</value>
     </option>
     <option>
-      <label>6 (Snom 320/360)</label>    
       <value>6</value>
     </option>
     <option>
-      <label>7 (Snom 320/360)</label>
       <value>7</value>
     </option>
     <option>
-      <label>8 (Snom 320/360)</label>    
       <value>8</value>
     </option>
     <option>
-      <label>9 (Snom 320/360)</label>    
       <value>9</value>
     </option>
     <option>
-      <label>10 (Snom 320/360)</label>    
       <value>10</value>
     </option>
     <option>
-      <label>11 (Snom 320/360)</label>    
       <value>11</value>
     </option>
     <option>
-      <label>12 (Snom 320/360)</label>    
       <value>12</value>
     </option>
   </enum>
 </type>
-

@@ -36,6 +36,7 @@ import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
 import org.apache.tapestry.web.WebResponse;
 import org.sipfoundry.sipxconfig.common.NamedObject;
+import org.sipfoundry.sipxconfig.setting.Setting;
 import org.springframework.context.MessageSource;
 
 /**
@@ -254,6 +255,16 @@ public final class TapestryUtils {
         return defaultMessage;
     }
 
+    public static String getSettingLabel(IComponent component, Setting setting) {
+        return getModelMessage(component, setting.getMessageSource(), setting.getLabelKey(),
+                setting.getLabel());
+    }
+
+    public static String getSettingDescription(IComponent component, Setting setting) {
+        return getModelMessage(component, setting.getMessageSource(),
+                setting.getDescriptionKey(), setting.getDescription());
+    }
+
     /**
      * Creates column model that can be used to display dates
      * 
@@ -314,12 +325,14 @@ public final class TapestryUtils {
 
         return candidates;
     }
-    
-    public static PrintWriter getCsvExportWriter(WebResponse response, String filename) throws IOException {
+
+    public static PrintWriter getCsvExportWriter(WebResponse response, String filename)
+        throws IOException {
         response.setHeader("Expires", "0");
         response.setHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
         response.setHeader("Pragma", "public");
-        response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
+        response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"",
+                filename));
 
         ContentType csvType = new ContentType("text/comma-separated-values");
 

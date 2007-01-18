@@ -4,52 +4,43 @@
     "http://www.sipfoundry.org/sipXconfig/dtd/setting_1_0.dtd">
 <model>
   <group name="acd-line">
-    <setting name='uri' hidden="yes">
+    <setting name="uri" hidden="yes">
       <type>
-        <string required="yes"/>
+        <string required="yes" />
       </type>
-      <value></value>
-      <description>The AOR for this line. This attribute is also the index attribute for this object class.</description>
+      <value />
     </setting>
-    <setting name='name' hidden="yes">
+    <setting name="name" hidden="yes">
       <type>
-        <string required="yes"/>
+        <string required="yes" />
       </type>
-      <value/>
-      <description>A short descriptive name for this line. Used primarily for display purposes. For example</description>
+      <value />
     </setting>
-    <setting name='extension' hidden="yes">
-			<label>Extension</label>
+    <setting name="extension" hidden="yes">
       <type>
-				<string required="yes">
-					<pattern>[0-9#\*]*</pattern>
-				</string>				
-			</type>
-      <value/>
-      <description>The numerical extension, which is used within the PBX domain as an alias to address this line. This would either be for the purpose of transferring a call to or retrieving a call from.</description>
+        <string required="yes">
+          <pattern>[0-9#\*]*</pattern>
+        </string>
+      </type>
+      <value />
     </setting>
-    <setting name='trunk-mode'>
-			<label>Trunk mode</label>
+    <setting name="trunk-mode">
       <type>
-				<boolean/>
-			</type>
+        <boolean />
+      </type>
       <value>1</value>
-      <description>If set, this line will operate as a trunk, allowing multiple simultaneous sessions. Otherwise, only a single session at a time will be allowed.</description>
     </setting>
-    <setting name='publish-line-presence' hidden="yes">
-			<label>Publish line presence</label>
+    <setting name="publish-line-presence" hidden="yes">
       <type>
-				<boolean/>
-			</type>
+        <boolean />
+      </type>
       <value>0</value>
-      <description>If set, line presence information will be made available for this line.</description>
     </setting>
-    <setting name='acd-queue' hidden="yes">
+    <setting name="acd-queue" hidden="yes">
       <type>
-				<string required="yes"/>
-			</type>
-      <value></value>
-      <description>The ACD Queue that this line is assigned to. Calls arriving on this line will be handled by the ACD Queue specified here.  The ACD Queue is identified via its acd-queue identifier.</description>
+        <string required="yes" />
+      </type>
+      <value />
     </setting>
   </group>
 </model>

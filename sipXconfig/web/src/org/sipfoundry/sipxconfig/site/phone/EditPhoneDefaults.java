@@ -16,9 +16,12 @@ import java.util.Iterator;
 
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -39,10 +42,17 @@ public abstract class EditPhoneDefaults extends BasePage implements PageBeginRen
 
     private static final int LINE_SETTITNGS = 1;
 
+    @InjectObject(value = "spring:settingDao")
+    public abstract SettingDao getSettingDao();
+
+    @InjectObject(value = "spring:phoneContext")
+    public abstract PhoneContext getPhoneContext();
+
     public abstract void setPhone(Phone phone);
 
     public abstract Phone getPhone();
 
+    @Persist
     public abstract PhoneModel getPhoneModel();
 
     public abstract void setPhoneModel(PhoneModel model);
@@ -51,28 +61,30 @@ public abstract class EditPhoneDefaults extends BasePage implements PageBeginRen
 
     public abstract void setGroup(Group group);
 
+    @Persist
     public abstract Integer getGroupId();
 
     public abstract void setGroupId(Integer id);
 
-    public abstract SettingDao getSettingDao();
-
-    public abstract PhoneContext getPhoneContext();
-
     public abstract Setting getCurrentNavigationSetting();
+
+    public abstract Setting getEditFormSetting();
 
     public abstract void setEditFormSetting(Setting setting);
 
     public abstract void setEditFormSettings(Collection settings);
 
+    @Persist
     public abstract String getEditFormSettingName();
 
     public abstract void setEditFormSettingName(String name);
 
+    @Persist
     public abstract void setResourceId(int resource);
 
     public abstract int getResourceId();
 
+    @Persist(value = "client")
     public abstract void setDeviceVersion(DeviceVersion version);
 
     public abstract DeviceVersion getDeviceVersion();
@@ -139,7 +151,7 @@ public abstract class EditPhoneDefaults extends BasePage implements PageBeginRen
         Line line = phone.createLine();
         phone.addLine(line);
         setPhone(phone);
-        
+
         DeviceVersion deviceVersion = getDeviceVersion();
         if (deviceVersion == null) {
             setDeviceVersion(phone.getDeviceVersion());
@@ -181,4 +193,17 @@ public abstract class EditPhoneDefaults extends BasePage implements PageBeginRen
 
         setEditFormSettings(SettingUtil.filter(SettingFilter.ALL, subset));
     }
+
+    public String getEditFormSettingLabel() {
+        return TapestryUtils.getSettingLabel(this, getEditFormSetting());
+    }
+
+    public String getEditFormSettingDescription() {
+        return TapestryUtils.getSettingDescription(this, getEditFormSetting());
+    }
+
+    public String getCurrentNavigationSettingLabel() {
+        return TapestryUtils.getSettingLabel(this, getCurrentNavigationSetting());
+    }
+
 }

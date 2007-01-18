@@ -1,12 +1,12 @@
 <div jwcid="@Border">
   <span jwcid="@UserNavigation" 
-    user="ognl:user" 
-    tab="ognl:parentSetting.name" 
-    heading="ognl:parentSetting.label">
-    <span jwcid="@Insert" value="ognl:parentSetting.description"/>
+    user="prop:user" 
+    tab="prop:parentSetting.name" 
+    heading="prop:parentSettingLabel">
+    <span jwcid="@Insert" value="prop:parentSettingDescription"/>
   </span>
   <span jwcid="@SettingsForm"
-    settings="ognl:parentSetting"
+    settings="prop:parentSetting"
     cancelListener="listener:cancel"
     okListener="listener:ok"
     applyListener="listener:apply"

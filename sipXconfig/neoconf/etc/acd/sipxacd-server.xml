@@ -6,15 +6,12 @@
   <type id="server-status">
     <enum>
       <option>
-        <label>Active</label>
         <value>1</value>
       </option>
       <option>
-        <label>Standby</label>
         <value>2</value>
       </option>
       <option>
-        <label>Down</label>
         <value>3</value>
       </option>
     </enum>
@@ -48,93 +45,69 @@
     </enum>
   </type>
   <type id="port-number">
-    <integer required="yes" min="1024" max="65534"/>
+    <integer required="yes" min="1024" max="65534" />
   </type>
   <type id="optional-port-number">
-    <integer min="1024" max="65534"/>
+    <integer min="1024" max="65534" />
   </type>
   <group name="acd-server">
     <setting name="server-name" hidden="yes">
       <!-- index -->
       <type required="yes">
-        <string required="yes"/>
+        <string required="yes" />
       </type>
       <value>sipxacd</value>
-      <description>The name for this server.</description>
     </setting>
     <setting name="log-dir" advanced="yes">
-      <label>Logging directory</label>
-      <value></value>
-      <description>This is the path to where the log file for this server application will reside. The default,
-        if this attribute is not defined, is the current working directory of the server
-        application.</description>
+      <value />
     </setting>
     <setting name="log-level">
-      <label>Logging level</label>
-      <type refid="loglevel"/>
+      <type refid="loglevel" />
       <value>NOTICE</value>
-      <description>The logging level for the servers log / trace facility.</description>
     </setting>
     <setting name="log-to-console" advanced="yes">
-      <label>Log to console</label>
       <type>
-        <boolean/>
+        <boolean />
       </type>
       <value>0</value>
-      <description>If set, logging / trace information will also be directed to the console as well as to a file.
-        The default is not set.</description>
     </setting>
     <setting name="udp-port" advanced="yes">
-      <label>UDP port</label>
-      <type refid="port-number"/>
+      <type refid="port-number" />
       <value>5150</value>
-      <description>The UDP port that this server will bind to.</description>
     </setting>
     <setting name="tcp-port" advanced="yes">
-      <label>TCP port</label>
-      <type refid="port-number"/>
+      <type refid="port-number" />
       <value>5150</value>
-      <description>The TCP port that this server will bind to.</description>
     </setting>
     <setting name="rtp-port" advanced="yes">
-      <label>RTP port</label>
-      <type refid="port-number"/>
+      <type refid="port-number" />
       <value>10000</value>
-      <description>The starting RTP port that this server will bind to.</description>
     </setting>
     <setting name="tls-port" advanced="yes">
-      <label>TLS port</label>
-      <type refid="port-number"/>
+      <type refid="port-number" />
       <value>5151</value>
-      <description>The TLS port that this server will bind to.</description>
     </setting>
     <setting name="presence-monitor-port" advanced="yes">
-      <label>Presence monitor port</label>
-      <type refid="port-number"/>
+      <type refid="port-number" />
       <value>5152</value>
-      <description>The port that the ACD Agent Presence Monitor will bind to.</description>
     </setting>
     <setting name="presence-server-uri" hidden="yes">
-      <value></value>
-      <description>The URI to the Presence Server which provides sign-in / sign-out services for ACD Agents.</description>
+      <value />
     </setting>
     <setting name="administrative-state" hidden="yes">
-      <type refid="server-status"/>
+      <type refid="server-status" />
       <value>3</value>
-      <description>The desired Administrative State of this server. Note: In order to transition between
-        ACTIVE and STANDBY states, it is necessary to follow with a restart action.</description>
     </setting>
     <setting name="operational-state" hidden="yes">
-      <type refid="server-status"/>
+      <type refid="server-status" />
       <!-- access RO -->
       <value>3</value>
-      <description>This is the actual Operational State of the server.</description>
     </setting>
     <setting name="domain" hidden="yes">
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
+      <value />
     </setting>
   </group>
 </model>

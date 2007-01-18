@@ -1,34 +1,54 @@
-<html>
-  <body jwcid="$content$">
-    <div jwcid="@Border">
-      <p>
-        <span jwcid="groupLabel"/></p>
-      <p><strong>Model:</strong>
-        <span jwcid="modelLabel"/></p>
-      <form jwcid="@Form">
-      <p jwcid="@If" condition="ognl:phoneModel.versions.length > 0" element="p">
-        <strong>Firmware Version:</strong>
-        <span jwcid="selectVersion"/></p>
-      </form>
-      <h2>
-        <span jwcid="settingsHeading"/></h2>
-      <div id="settings-nav"> <b>Phones</b>
-        <br/>
-        <ul>
-          <span jwcid="phoneSettings" element="li"> <a href="#" jwcid="phoneSettingsLink">
-            <span jwcid="phoneSettingsLabel"/> </a>
-          </span>
-        </ul> <b>Lines</b>
-        <br/>
-        <ul>
-          <span jwcid="lineSettings" element="li"> <a href="#" jwcid="lineSettingsLink">
-            <span jwcid="lineSettingsLabel"/> </a>
-          </span>
-        </ul>
-      </div>
-      <p>
-        <span jwcid="phoneDefaultsNavigationDescription"/></p>
-      <span jwcid="settingsForm"/>
-    </div>
-  </body>
-</html>
+<div jwcid="@Border">
+  <p><span jwcid="@GroupLabel" group="prop:group"/></p>
+  <p>
+    <strong><span key="label.model">Model</span>:</strong>&nbsp;
+    <span jwcid="@Insert" value="prop:phone.model.label"/>
+  </p>
+  <form jwcid="@Form">
+    <p jwcid="@If" condition="ognl:phoneModel.versions.length > 0" element="p">
+      <strong><span key="label.firmware">Firmware Version</span>:</strong>&nbsp;
+      <span jwcid="selectVersion@PropertySelection"
+        model="bean:versions"
+        value="prop:deviceVersion"
+        displayName="message:label.firmware"
+        onchange="literal:javascript:this.form.submit();" />
+    </p>
+  </form>
+  <h2><span jwcid="@Insert" value="prop:editFormSettingLabel"/></h2>
+  <div id="settings-nav"> 
+    <strong><span key="label.phones">Phones</span></strong>
+    <br/>
+    <ul>
+      <li jwcid="@For" element="li"
+        source="prop:phoneNavigationSettings" 
+        value="prop:currentNavigationSetting">
+        <a jwcid="@DirectLink"
+          listener="listener:editPhoneSettings"
+          parameters="prop:currentNavigationSetting.name">
+          <span jwcid="@Insert" value="prop:currentNavigationSettingLabel"/>
+        </a>
+      </li>
+    </ul> 
+    <strong><span key="label.lines">Lines</span></strong>
+    <br/>
+    <ul>
+      <li jwcid="@For" element="li"
+        source="prop:lineNavigationSettings" 
+        value="prop:currentNavigationSetting">
+        <a jwcid="@DirectLink"
+          listener="listener:editLineSettings"
+          parameters="prop:currentNavigationSetting.name">
+          <span jwcid="@Insert" value="prop:currentNavigationSettingLabel"/>
+        </a>
+      </li>
+    </ul>
+  </div>
+  <p><span jwcid="@Insert" value="prop:editFormSettingDescription"/></p>
+  <span jwcid="@SettingsForm"
+    validator="bean:validator"
+    applyListener="listener:apply"
+    okListener="listener:ok"
+    cancelListener="listener:cancel"
+    settings="prop:editFormSetting"
+    requiredEnabled="ognl:false" />
+</div>

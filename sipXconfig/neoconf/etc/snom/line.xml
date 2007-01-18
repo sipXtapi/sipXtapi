@@ -6,149 +6,111 @@
 <model>
   &types;
   <group name="line">
-    <label>Registration</label>
     <setting name="user_active">
-      <label>Line active</label>
-      <type refid="on-off"/>
+      <type refid="on-off" />
       <value>on</value>
-      <description>Active (registered) line or not.</description>
     </setting>
     <setting name="user_realname">
-      <label>Displayname</label>
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
-      <description>Caller ID and Display value.</description>
+      <value />
     </setting>
     <setting name="user_name">
-      <label>Account</label>
       <type>
-        <string required="yes"/>
+        <string required="yes" />
       </type>
-      <value/>
-      <description>Number or name which is used for registration.</description>
+      <value />
     </setting>
     <setting name="user_host">
-      <label>Registrar</label>
       <type>
-        <string required="yes"/>
+        <string required="yes" />
       </type>
-      <value/>
-      <description>FQDN name of the domain or registrar.</description>
+      <value />
     </setting>
     <setting name="user_pname">
-      <label>Authentication Username</label>
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
-      <description>Username for the authentication if it differs from username.</description>
+      <value />
     </setting>
     <setting name="user_pass">
-      <label>Password</label>
       <type>
-        <string required="yes"/>
+        <string required="yes" />
       </type>
-      <value/>
-      <description>Password for authentication against the server.</description>
+      <value />
     </setting>
     <setting name="user_hash">
-      <label>User MD5 hash</label>
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
-      <description>Hash used instead of password to auth against the server.</description>
+      <value />
     </setting>
     <setting name="user_idle_text">
-      <label>Display Text for the Screen</label>
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
-      <description>Instead of registration information like user_name or user_host etc, show this text on the idle screen</description>
+      <value />
     </setting>
     <setting name="user_mailbox">
-      <label>Mailbox</label>
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
-      <description>Number to internal voice mail system.</description>
+      <value />
     </setting>
     <setting name="user_ringer">
-      <label>Ringtone</label>
-      <type refid="ringer"/>
+      <type refid="ringer" />
       <value>Ringer1</value>
-      <description>The ring tone to be used if a call comes to that specific line</description>
     </setting>
     <setting name="user_custom">
-      <label>Custom Melody URL</label>
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
-      <description>If the corresponding user_ringer is set to custom, the phone plays the WAV file this URL ispointing to if the incoming call can be mapped to this SIP line</description>
+      <value />
     </setting>
     <setting name="user_xml_screen_url" if="360">
-      <label>User XML Idle Screen URL</label>
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
-      <description>This can be used on a snom360 phone to change the appearance of the idle screen based on the current active outgoing identity. </description>
+      <value />
     </setting>
     <setting name="ring_after_delay">
-      <label>Ring After Delay</label>
       <type>
-        <integer/>
+        <integer />
       </type>
-      <value/>
-      <description>On an incoming call, the ringer sound can be delayed by this setting. The value is given in seconds. If not set, or set to 0, the ringer will start playing immediately</description>
+      <value />
     </setting>
-    <setting name="record_missed_calls">  
-      <label>Record Missed Calls</label>
-      <type refid="on-off"/>
+    <setting name="record_missed_calls">
+      <type refid="on-off" />
       <value>on</value>
-      <description>If you do not want this specific line to monitor missed calls, set this to "off".</description>
-    </setting> 
+    </setting>
   </group>
   <group name="sip">
-    <label>SIP</label>
     <setting name="user_outbound">
-      <label>Outbound Proxy</label>
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
+      <value />
     </setting>
     <setting name="user_moh" advanced="yes">
-      <label>Music on hold server</label>
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
-      <description>SIP Address of music on hold server for that specific line. The music is automatically played if this line is on hold.</description>
+      <value />
     </setting>
     <setting name="user_alert_info">
-      <label>Alert Info URL</label>
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
-      <description>The given URL is send with a call invitation to the called party. The called party may play back this WAV file. Obviously the called party must be able to retrieve the URL from its lcoation to make this feature work.</description>
+      <value />
     </setting>
     <setting name="user_pic">
-      <label>User picture URL</label>
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
-      <description>The given URL is send with a call invitation to the called party. The called party may show this image at the phone's web interface main page, if the flash movie mode is enabled, see with_flash. Obviously the called party must be able to retrieve the URL from its location to make this feature work.</description>
+      <value />
     </setting>
     <setting name="user_expiry">
-      <label>Proposed Expiry</label>
       <type>
         <enum>
           <option>
@@ -174,23 +136,18 @@
       <value>86400</value>
     </setting>
     <setting name="user_dp_str">
-      <label>Dial-Plan String</label>
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
-      <description>Dialplan for this specific line</description>
+      <value />
     </setting>
     <setting name="user_dp_exp">
-      <label>User Dialplan Expression for ENUM</label>
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
-      <description>Part of the dialplan in order to set up ENUM support. "ENUM 49 30" means the phone resides in the contry code 49 and area code 30 and is setup to use ENUM lookup.</description>
+      <value />
     </setting>
     <setting name="user_q">
-      <label>Q-Value</label>
       <type>
         <enum>
           <option>
@@ -229,34 +186,26 @@
         </enum>
       </type>
       <value>1.0</value>
-      <description>The probability for line x. The probability is used by some proxies to call the registered phones one by one (sequential and parallel forking proxy)</description>
     </setting>
     <setting name="user_expiry">
-      <label>Proposed Expiry</label>
       <type>
         <enum>
           <option>
-            <label>1 day</label>
             <value>86400</value>
           </option>
           <option>
-            <label>8 hours</label>
             <value>28800</value>
           </option>
           <option>
-            <label>2 hours</label>
             <value>7200</value>
           </option>
           <option>
-            <label>1 hour</label>
             <value>3600</value>
           </option>
           <option>
-            <label>10 mins</label>
             <value>600</value>
           </option>
           <option>
-            <label>1 min</label>
             <value>60</value>
           </option>
         </enum>
@@ -264,163 +213,119 @@
       <value>3600</value>
     </setting>
     <setting name="user_auto_connect">
-      <label>Auto Answer</label>
-      <type refid="on-off"/>
+      <type refid="on-off" />
       <value>off</value>
     </setting>
     <setting name="user_descr_contact">
-      <label>Long SIP-Contact (RFC3840)</label>
-      <type refid="on-off"/>
+      <type refid="on-off" />
       <value>on</value>
     </setting>
     <setting name="user_sipusername_as_line">
-      <label>Support Broken Registrar</label>
-      <type refid="on-off"/>
+      <type refid="on-off" />
       <value>off</value>
-      <description>Enable support for broken registrar with "on". That means that incoming INVITE's from your provider do not contain the Contact URI which was previously registered by your phone as its Contact. Thus the phone can not safely identify the target line of the incoming call. If you compare the URI in the first line of the incoming INVITE and the URI in the Contact of the REGISTER, which the phone sends to the registrar of your provider they will presumably differ. If that happens, the registrar is called to be broken.</description>
     </setting>
     <setting name="user_descr_contact">
-      <label>Long SIP Contact</label>
-      <type refid="on-off"/>
+      <type refid="on-off" />
       <value>on</value>
-      <description>Enable long SIP-Contact (RFC3840) with "on"</description>
     </setting>
     <setting name="user_proxy_require">
-      <label>User Proxy Require</label>
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
-      <description>Use the given value as Proxy-Require header</description>
+      <value />
     </setting>
     <setting name="user_dtmf_info">
-      <label>DTMF via SIP INFOo</label>
-      <type refid="on-off"/>
+      <type refid="on-off" />
       <value>off</value>
-      <description>Enable the phone to provide DRMF codes via SIP INFO messages</description>
     </setting>
     <setting name="user_send_local_name">
-      <label>Send display name on INVITE</label>
-      <type refid="on-off"/>
+      <type refid="on-off" />
       <value>off</value>
-      <description>When responding to an INVITE with SIP 180/200 messages, the phone will add the display name of the corresponding identity in the response packet</description>
     </setting>
     <setting name="user_shared_line">
-      <label>User Shared Line</label>
-      <type refid="on-off"/>
+      <type refid="on-off" />
       <value>off</value>
-      <description>Use this line as a shared line </description>
     </setting>
   </group>
   <group name="nat">
-    <label>NAT</label>
     <setting name="user_ice">
-      <label>Offer ICE</label>
-      <type refid="on-off"/>
+      <type refid="on-off" />
       <value>off</value>
     </setting>
     <setting name="stun_server">
-      <label>STUN server (IP-addr:port)</label>
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
+      <value />
     </setting>
     <setting name="stun_binding_interval">
-      <label>STUN interval (seconds)</label>
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
+      <value />
     </setting>
     <setting name="keepalive_interval">
-      <label>Keepalive interval (seconds)</label>
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
+      <value />
     </setting>
     <setting name="symmetrical_rtp">
-      <label>Symmetrical RTP</label>
-      <type refid="on-off"/>
+      <type refid="on-off" />
       <value>off</value>
-      <description>Use symmetrical ports for RTP</description>
     </setting>
   </group>
   <group name="rtp">
-    <label>RTP</label>
     <setting name="codec1_name">
-      <label>Codec 1</label>
-      <type refid="codec"/>
+      <type refid="codec" />
       <value>0</value>
-      <description>First Selected Codec</description>
     </setting>
     <setting name="codec2_name">
-      <label>Codec 2</label>
-      <type refid="codec"/>
+      <type refid="codec" />
       <value>8</value>
-      <description>Second Selected Codec</description>
     </setting>
     <setting name="codec3_name">
-      <label>Codec 3</label>
-      <type refid="codec"/>
+      <type refid="codec" />
       <value>9</value>
-      <description>Third Selected Codec</description>
     </setting>
     <setting name="codec4_name">
-      <label>Codec 4</label>
-      <type refid="codec"/>
+      <type refid="codec" />
       <value>2</value>
-      <description>Fourth Selected Codec</description>
     </setting>
     <setting name="codec5_name">
-      <label>Codec 5</label>
-      <type refid="codec"/>
+      <type refid="codec" />
       <value>3</value>
-      <description>Fifth Selected Codec</description>
     </setting>
     <setting name="codec6_name">
-      <label>Codec 6</label>
-      <type refid="codec"/>
+      <type refid="codec" />
       <value>18</value>
-      <description>Sixt Selected Codec</description>
     </setting>
     <setting name="codec7_name">
-      <label>Codec 7</label>
-      <type refid="codec"/>
+      <type refid="codec" />
       <value>4</value>
-      <description>Seventh Selected Codec</description>
     </setting>
     <setting name="codec_size">
-      <label>Packet Size</label>
       <type>
         <enum>
           <option>
-            <label>20ms</label>
             <value>20</value>
           </option>
           <option>
-            <label>30ms</label>
             <value>30</value>
           </option>
           <option>
-            <label>40ms</label>
             <value>40</value>
           </option>
           <option>
-            <label>60ms</label>
             <value>60</value>
           </option>
         </enum>
       </type>
       <value>20</value>
-      <description>Codec packet size in miliseconds</description>
     </setting>
     <setting name="user_srtp">
-      <label>RTP Encryption</label>
-      <type refid="on-off"/>
+      <type refid="on-off" />
       <value>off</value>
-      <description>Use SRTP for audio connections</description>
     </setting>
   </group>
 </model>

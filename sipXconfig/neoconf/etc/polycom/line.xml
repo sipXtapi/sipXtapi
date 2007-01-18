@@ -6,484 +6,344 @@
 <model>
   &types;
   <group name="reg">
-    <label>Registration</label>
     <setting name="displayName" advanced="yes">
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
-      <description>Display name used for local user interface as well as SIP 
-        signaling.</description>
+      <value />
     </setting>
     <setting name="address" advanced="yes">
-      <label>User Address</label>
-      <type></type>
-      <value/>
-      <description>user (e.g. '1002'), the implied domain will be the registration 
-        server.</description>
+      <type />
+      <value />
     </setting>
     <setting name="label">
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
-      <description>Text label to appear on the display adjacent to the associated line key. If 
-        omitted, the label will be derived from the user part of 'Registration 
-        Server'</description>
+      <value />
     </setting>
     <setting name="type">
-      <type></type>
+      <type />
       <value>private</value>
-      <description>private OR shared. If set to private, use standard call signaling. If set to 
-        shared, augment call signaling with call state subscriptions and notifications and use 
-        access control for outgoing calls. </description>
     </setting>
     <setting name="thirdPartyName">
-      <type></type>
-      <value/>
-      <description>This field must match the Address value of the other registration which 
-        makes up the bridged line. </description>
+      <type />
+      <value />
     </setting>
     <setting name="auth.userId" advanced="yes">
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
-      <description>User ID to be used for authentication challenges for this registration. If 
-        non-empty, will override the 'Reg User' parameter entered into the Authentication 
-        submenu off of the Settings menu on the phone.</description>
+      <value />
     </setting>
     <setting name="auth.password" advanced="yes">
       <type>
-        <string password="yes"/>
+        <string password="yes" />
       </type>
-      <value/>
-      <description>Password to be used for authentication challenges for this registration. If 
-        non-empty, will override the 'Reg Password' parameter entered into the Authentication 
-        submenu off of the Settings menu on the phone. </description>
+      <value />
     </setting>
     <setting name="ringType">
-      <type><integer min="1" max="22"/></type>
+      <type>
+        <integer min="1" max="22" />
+      </type>
       <value>2</value>
-      <description>The ring type for each registration can be configured. Note: ring type number
-        1 is silent ring. </description>
     </setting>
     <setting name="lineKeys">
-      <type><integer min="1" max="6"/></type>
-      <value></value>
-      <description>The number of line keys on the phone to be associated with registration. 
-      Only set to maximum number of lines. If not specified, value is 1</description>
+      <type>
+        <integer min="1" max="6" />
+      </type>
+      <value />
     </setting>
     <setting name="callsPerLineKey">
-      <type><integer min="1" max="6"/></type>
-      <value/>
-      <description>The number of calls or conferences which may be active or on hold per
-      line key for a specific registration on the phone.</description>
+      <type>
+        <integer min="1" max="6" />
+      </type>
+      <value />
     </setting>
     <setting name="lcs" unless="1.6">
       <type>
-        <string/>
+        <string />
       </type>
-      <description>Microsoft 2005 LCS server</description>
     </setting>
     <setting name="outboundProxy.address" unless="1.6">
-      <label>Outbound Proxy</label>
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
-      <description>Only required if both the following conditions are true. First, 
-        you want to direct all outgoing SIP traffic to a server other than 
-        the address you specified for the registration server.  Second, you want the outbound 
-        proxy only for this line. All other lines will continue to send traffic to 
-        the registrar.  NOTE: If you want to set the outbound proxy for all 
-        lines, goto to the phone settings for "Sip Server"</description>
+      <value />
     </setting>
     <setting name="outboundProxy.port" unless="1.6">
-      <label>Outbound Proxy Port</label>
       <type>
-        <integer min="0" max="65535"/>
+        <integer min="0" max="65535" />
       </type>
-      <value/>
+      <value />
     </setting>
     <setting name="outboundProxy.transport" unless="1.6">
-      <label>Outbound Proxy Transport</label>
-      <type refid="transport"/>
+      <type refid="transport" />
       <value>DNSnaptr</value>
     </setting>
     <group name="server">
-      <label>Registration server</label>
       <group name="1">
-        <label>Primary registration server</label>
         <setting name="address">
           <profileName>server.1.address</profileName>
           <type>
             <!-- dotted-decimal IP address or host name -->
           </type>
-          <value/>
-          <description>Primary Registration Server. IP address or host name of a SIP server 
-            that accepts registrations.</description>
+          <value />
         </setting>
         <setting name="port">
           <profileName>server.1.port</profileName>
-          <type></type>
-          <value/>
-          <description>0, empty, 1 to 65535</description>
+          <type />
+          <value />
         </setting>
         <setting name="transport">
           <profileName>server.1.transport</profileName>
-          <type refid="transport"/>
+          <type refid="transport" />
           <value>DNSnaptr</value>
-          <description>DNSnaptr, TCPpreferred or UDPonly. If empty or DNSnaptr and if Address 
-            is a hostname and Port is 0 or empty, do NAPTR then SRV look-ups to try to discover 
-            the transport, ports and servers, as per RFC 3263. If Address is an IP address, or 
-            a port is given, then UDP is used. If set to TCPpreferred: TCP is the preferred 
-            transport, UDP is used if TCP fails. If set to UDPonly: Only UDP will be 
-            used.</description>
         </setting>
         <setting name="expires">
           <profileName>server.1.expires</profileName>
-          <type></type>
-          <value/>
-          <description>positive integer</description>
+          <type />
+          <value />
         </setting>
         <setting name="expires.overlap" unless="1.6">
-          <label>Re-registration interval</label>
           <profileName>server.1.expires.overlap</profileName>
-          <type><integer min="5" max="65535"/></type>
+          <type>
+            <integer min="5" max="65535" />
+          </type>
           <value>60</value>
-          <description>positive integer between 5 and 65535.</description>
         </setting>
         <setting name="register">
           <profileName>server.1.register</profileName>
-          <type></type>
-          <value/>
-          <description>0, 1 enable registration</description>
+          <type />
+          <value />
         </setting>
         <setting name="retryTimeOut">
           <profileName>server.1.retryTimeOut</profileName>
           <type>
-            <integer/>
+            <integer />
           </type>
-          <value/>
-          <description></description>
+          <value />
         </setting>
         <setting name="retryMaxCount">
           <profileName>server.1.retryMaxCount</profileName>
           <type>
-            <integer/>
+            <integer />
           </type>
-          <value/>
-          <description></description>
+          <value />
         </setting>
         <setting name="expires.lineSeize">
           <profileName>server.1.expires.lineSeize</profileName>
           <type>
-            <integer min="1"/>
+            <integer min="1" />
           </type>
-          <value/>
-          <description></description>
+          <value />
         </setting>
       </group>
       <group name="2">
-        <label>Secondary Registration Server</label>
         <setting name="address">
           <profileName>server.2.address</profileName>
           <type>
             <!-- dotted-decimal IP address or host name -->
           </type>
-          <value/>
-          <description>Secondary Registration Server. IP address or host name of a SIP server 
-            that accepts registrations.</description>
+          <value />
         </setting>
         <setting name="port">
           <profileName>server.2.port</profileName>
           <type>
-            <integer min="0" max="65535"/>
+            <integer min="0" max="65535" />
           </type>
-          <value/>
-          <description>0, empty, 1 to 65535</description>
+          <value />
         </setting>
         <setting name="transport">
           <profileName>server.2.transport</profileName>
-          <type refid="transport"/>
+          <type refid="transport" />
           <value>DNSnaptr</value>
-          <description>DNSnaptr, TCPpreferred or UDPonly. If empty or DNSnaptr and if Address 
-            is a hostname and Port is 0 or empty, do NAPTR then SRV look-ups to try to discover 
-            the transport, ports and servers, as per RFC 3263. If Address is an IP address, or 
-            a port is given, then UDP is used. If set to TCPpreferred: TCP is the preferred 
-            transport, UDP is used if TCP fails. If set to UDPonly: Only UDP will be 
-            used.</description>
         </setting>
         <setting name="expires">
           <profileName>server.2.expires</profileName>
           <type>
-            <integer min="1"/>
+            <integer min="1" />
           </type>
-          <value/>
-          <description></description>
+          <value />
         </setting>
         <setting name="expires.overlap" unless="1.6">
-          <label>Re-registration interval</label>
           <profileName>server.2.expires.overlap</profileName>
-          <type><integer min="5" max="65535"/></type>
+          <type>
+            <integer min="5" max="65535" />
+          </type>
           <value>60</value>
-          <description>positive integer between 5 and 65535.</description>
         </setting>
         <setting name="register">
           <profileName>server.2.register</profileName>
-          <type></type>
-          <value/>
-          <description>0, 1 enable registration</description>
+          <type />
+          <value />
         </setting>
         <setting name="retryTimeOut">
           <profileName>server.2.retryTimeOut</profileName>
-          <type></type>
-          <value/>
-          <description>empty or non-negative integer</description>
+          <type />
+          <value />
         </setting>
         <setting name="retryMaxCount">
           <profileName>server.2.retryMaxCount</profileName>
-          <type></type>
-          <value/>
-          <description>empty or non-negative integer</description>
+          <type />
+          <value />
         </setting>
         <setting name="expires.lineSeize">
           <profileName>server.2.expires.lineSeize</profileName>
-          <type></type>
-          <value/>
-          <description>positive integer</description>
+          <type />
+          <value />
         </setting>
       </group>
     </group>
   </group>
   <group name="call">
-    <label>Call Handling</label>
     <group name="autoOffHook">
-      <label>Auto Off Hook/Ring Down</label>
-      <description>Phone will automatically dial this contact immediately upon lifting handset 
-        (or similiar operation with headset). This is useful for lobby phones or as a 
-        integration technique when interfacing with legacy PBXes that manage call 
-        state.</description>
       <setting name="enabled">
         <type>
-          <boolean/>
+          <boolean />
         </type>
         <value>0</value>
-        <description>If set to 1, a call will be automatically placed to the contact specified 
-          upon going off hook on this registration. </description>
       </setting>
       <setting name="contact">
-        <value/>
-        <description>ASCII encoded string containing digits (the user part of a SIP URL) or a 
-          string that constitutes a valid SIP URL (6416 or 6416@domain.com)</description>
+        <value />
       </setting>
     </group>
     <group name="serverMissedCall">
-      <label>Missed Calls</label>
       <setting name="enabled">
         <type>
-          <boolean/>
+          <boolean />
         </type>
         <value>0</value>
-        <description>If set to 0, all missed-call events will increment the counter If set to 
-          1, only missed-call events sent by the server will increment the 
-          counter.</description>
       </setting>
     </group>
   </group>
   <group name="divert">
-    <label>Diversion</label>
-    <description>SoundPoint(R) IP contains a flexible call forward/diversion feature for this 
-      line. In all cases, a call will only be diverted if a non-empty contact has been 
-      configured. </description>
     <setting name="contact">
       <type>
         <!-- ASCII encoded string containing digits (the user part of a SIP URL) or a string that constitutes a valid
-	        SIP URL (6416 or 6416@domain.com)-->
+          SIP URL (6416 or 6416@domain.com)-->
       </type>
-      <value/>
-      <description>The forward-to contact used for all automatic call diversion features unless 
-        overridden by a specific contact of a per-call diversion feature. </description>
+      <value />
     </setting>
     <setting name="autoOnSpecificCaller">
       <type>
-        <boolean/>
+        <boolean />
       </type>
       <value>1</value>
-      <description>If set to 1, calls may be diverted using the Auto Divert feature of the 
-        directory. This is a global flag. </description>
     </setting>
     <setting name="sharedDisabled">
       <type>
-        <boolean/>
+        <boolean />
       </type>
       <value>1</value>
-      <description>If set to 1, all diversion features on this line will be disabled if the 
-        line is configured as shared. </description>
     </setting>
     <group name="fwd">
-      <label>Forwarding</label>
       <setting name="enabled">
         <type>
-          <boolean/>
+          <boolean />
         </type>
         <value>0</value>
-        <description>If set to 1, the user will be able to enable universal call forwarding via 
-          the soft key menu. </description>
       </setting>
     </group>
     <group name="busy">
-      <label>On Busy</label>
       <setting name="enabled">
         <type>
-          <boolean/>
+          <boolean />
         </type>
         <value>1</value>
-        <description>If set to 1, calls will be forwarded on busy to the contact specified 
-          below.</description>
       </setting>
       <setting name="contact">
-        <type></type>
-        <value/>
-        <description>Forward-to contact for calls forwarded due to busy status, if empty, 
-          Contact will be used. ASCII encoded string containing digits (the user part of a SIP 
-          URL) or a string that constitutes a valid SIP URL (6416 or 6416@domain.com) 
-          </description>
+        <type />
+        <value />
       </setting>
     </group>
     <group name="noanswer">
-      <label>On No Answer</label>
       <setting name="enabled">
         <type>
-          <boolean/>
+          <boolean />
         </type>
         <value>1</value>
-        <description>If set to 1, calls will be forwarded on no answer to the contact 
-          specified. </description>
       </setting>
       <setting name="timeout">
         <type>
-          <integer min="1"/>
+          <integer min="1" />
         </type>
         <value>60</value>
-        <description>Time in seconds to allow altering before initiating the 
-          diversion.</description>
       </setting>
       <setting name="contact">
-        <type></type>
-        <value/>
-        <description>Forward-to contact used for calls forwarded due to no answer, if empty, 
-          Contact will be used. ASCII encoded string containing digits (the user part of a SIP 
-          URL) or a string that constitutes a valid SIP URL (6416 or 6416@domain.com) 
-          </description>
+        <type />
+        <value />
       </setting>
     </group>
     <group name="dnd">
-      <label>On Do Not Disturb</label>
       <setting name="enabled">
         <type>
-          <boolean/>
+          <boolean />
         </type>
         <value>0</value>
-        <description>If set to 1, calls will be forwarded on DND to the contact specified 
-          below. </description>
       </setting>
       <setting name="contact">
-        <type></type>
-        <value/>
-        <description>Forward-to contact used for calls forwarded due to DND status, if empty 
-          Contact will be used. ASCII encoded string containing digits (the user part of a SIP 
-          URL) or a string that constitutes a valid SIP URL (6416 or 6416@domain.com) 
-          </description>
+        <type />
+        <value />
       </setting>
     </group>
   </group>
   <!-- SIMILIAR SECTION EXISTS IN phone.xml to control dialplans for entire phone -->
   <group name="line-dialplan">
-    <label>Dial Plan</label>
     <setting name="impossibleMatchHandling">
       <type>
-        <integer min="0" max="2"></integer>
+        <integer min="0" max="2" />
       </type>
       <value>0</value>
-      <description>When present, and if no digitmap setting are set, this attribute overrides 
-        the global dial plan in Dial Plan settings.</description>
     </setting>
     <setting name="removeEndOfDial">
       <type>
-        <boolean/>
+        <boolean />
       </type>
       <value>1</value>
-      <description>When present, and if no digitmap setting are set, this attribute overrides 
-        the global dial plan in Dial Plan settings.</description>
     </setting>
     <group name="digitmap">
-      <label>Digit Map</label>
       <setting name="digitmap">
         <type>
           <!-- string compatible with the digit map feature of MGCP described in 2.1.5 of RFC 3435; string is
-	          
-	          
-	          
-	          limited to 512 bytes and 20 segments; a comma is also allowed; when reached in the digit map, a comma will
-	          turn dial tone back on. -->
+            limited to 512 bytes and 20 segments; a comma is also allowed; when reached in the digit map, a comma will
+            turn dial tone back on. -->
         </type>
-        <value/>
-        <description>When present, this attribute overrides the global dial plan defined 
-          Phone's Dial Plan settings</description>
+        <value />
       </setting>
       <setting name="digitmap.timeOut">
-        <label>Time out</label>
         <type>
-          <integer min="1"/>
+          <integer min="1" />
         </type>
-        <value/>
-        <description>When present, this attribute overrides the global dial plan defined 
-          Phone's Dial Plan settings</description>
+        <value />
       </setting>
       <group name="routing.1">
-        <label>Emergency Gateway</label>
         <setting name="address">
           <type>
             <!-- dotted-decimal IP address or host name -->
           </type>
-          <value/>
-          <description>IP address or host name and port of a SIP server that will be used for 
-            routing calls.</description>
+          <value />
         </setting>
         <setting name="port">
           <type>
-            <integer min="1" max="65535"/>
+            <integer min="1" max="65535" />
           </type>
-          <value/>
-          <description></description>
+          <value />
         </setting>
         <setting name="emergency.1.value">
-          <label>Emergency Numbers</label>
           <type>
             <!-- Comma separated list of entries or single entry representing a or a combination of SIP
-	            URL. -->
+              URL. -->
           </type>
-          <value/>
-          <description>This represents the URLs that should be watched for emergency routing. 
-            When one of these defined URL is detected as being dialed by the user, the call 
-            will be automatically directed to the defined emergency server. </description>
+          <value />
         </setting>
       </group>
     </group>
   </group>
   <group name="msg.mwi">
-    <label>Messaging</label>
-    <description>SoundPoint(R) IP supports message-waiting indication on a per-registration 
-      basis. </description>
     <setting name="subscribe">
-      <type>
-      </type>
-      <value/>
-      <description>If non-empty, the phone will send a SUBSCRIBE request to this contact after 
-        boot-up. ASCII encoded string containing digits (the user part of a SIP URL) or a 
-        string that constitutes a valid SIP URL (6416 or 6416@domain.com)</description>
+      <type />
+      <value />
     </setting>
     <setting name="callBackMode">
       <type>
@@ -500,20 +360,13 @@
         </enum>
       </type>
       <value>disabled</value>
-      <description>contact, registration or disabled, If set to 'contact', a call will be 
-        placed to the contact specified in the callback attribute when the user invokes message 
-        retrieval. If set to 'registration', a call will be placed using this registration to 
-        the contact registered (the phone will call itself). If set to 'disabled', message 
-        retrieval is disabled. </description>
     </setting>
     <setting name="callBack">
       <type>
         <!--ASCII encoded string containing digits (the user part of a SIP URL) or a string that
-	        constitutes a valid SIP URL (6416 or 6416@domain.com)-->
+          constitutes a valid SIP URL (6416 or 6416@domain.com)-->
       </type>
-      <value/>
-      <description>Contact to call when retrieving messages for this registration. 
-        </description>
+      <value />
     </setting>
   </group>
 </model>

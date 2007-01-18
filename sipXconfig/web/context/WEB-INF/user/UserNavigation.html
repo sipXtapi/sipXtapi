@@ -28,7 +28,8 @@
     </li>        
     <span jwcid="@For" source="ognl:navigationGroups" value="ognl:currentSetting">
       <li>
-        <a jwcid="@DirectLink" listener="listener:editSettings" 
+        <a jwcid="@DirectLink" listener="listener:editSettings"
+          id="prop:currentSetting.labelKey"
           parameters="ognl:{user.id, currentSetting.path}">
           <span jwcid="@Insert" value="ognl:currentSettingLabel"/>
         </a>
