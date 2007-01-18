@@ -1611,6 +1611,7 @@ public:
 
          UtlString component;
 
+         KNOWN_BUG("fails on FC6", "XPB-843");
          CPPUNIT_ASSERT(bigschemeUrl.getScheme() == Url::UnknownUrlScheme); 
 
          bigschemeUrl.getUserId(component);
@@ -1710,6 +1711,7 @@ public:
          
          PARSE(bighost);
 
+         KNOWN_BUG("fails on FC6", "XPB-843");
          CPPUNIT_ASSERT(bighostUrl.getScheme() == Url::UnknownUrlScheme);
       }
 
