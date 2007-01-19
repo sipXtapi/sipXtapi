@@ -189,6 +189,13 @@ form.with-sections legend
 	color: #3399FF;
 }
 
+.not-available
+{
+        border-style:dashed; 
+        border-width:1px; 
+        border-color:#777777;
+}
+
 .enabled
 {
 	color: #007733;

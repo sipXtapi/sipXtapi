@@ -5,6 +5,7 @@
   <description>UserForm shows/edits a User</description>
   
   <parameter name="user" required="yes"/>
+  <parameter name="mailboxPreferences" required="yes"/>
   <parameter name="alwaysShowSipPassword" default-value="false"/>
   
   <!--
@@ -49,23 +50,9 @@
     <binding name="validators" value="spring-validators:validSipUserId,required"/>
     <binding name="displayName" value="message:label.userId"/>
   </component>
-  <component id="emailAddressPanel" type="FieldPanel">
-    <binding name="field" value="components.emailAddress"/>
-    <binding name="label" value="message:label.emailAddress"/>
+  <component id="mailboxPreferences" type="vm/MailboxPreferencesForm">
+    <binding name="preferences" value="mailboxPreferences"/>
   </component>
-  <component id="emailAddress" type="TextField">
-    <binding name="value" value="beans.mailboxPreferences.emailAddress"/>
-    <binding name="displayName" value="message:label.emailAddress"/>
-    <binding name="validators" value="validators:email"/>
-  </component>
-  <component id="activeGreetingPanel" type="FieldPanel">
-    <binding name="field" value="components.activeGreeting"/>
-    <binding name="label" value="message:label.activeGreeting"/>
-  </component>
-  <component id="activeGreeting" type="TextField">
-    <binding name="value" value="beans.mailboxPreferences.activeGreeting"/>
-    <binding name="displayName" value="message:label.activeGretting"/>
-  </component> 
    <component id="pin" type="ConfirmPassword">
     <binding name="password" value="pin"/>
     <binding name="passwordDisplayName" value="message:label.pin"/>

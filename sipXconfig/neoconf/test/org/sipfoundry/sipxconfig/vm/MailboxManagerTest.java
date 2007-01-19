@@ -15,6 +15,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
@@ -22,9 +23,15 @@ public class MailboxManagerTest extends TestCase {
     private MailboxManagerImpl m_mgr;
     
     protected void setUp() {
-        m_mgr = new MailboxManagerImpl();        
+        m_mgr = new MailboxManagerImpl();
         String thisDir = TestUtil.getTestSourceDirectory(getClass());
         m_mgr.setMailstoreDirectory(thisDir);        
+    }
+    
+    public void testEnabled() {
+        assertTrue(m_mgr.isEnabled());
+        m_mgr.setMailstoreDirectory("bogus-mogus");
+        assertFalse(m_mgr.isEnabled());
     }
 
     public void testGetVoicemailWhenInvalid() {        
@@ -73,5 +80,29 @@ public class MailboxManagerTest extends TestCase {
         List<Voicemail> deleted = m_mgr.getVoicemail("200", "deleted");
         assertEquals(1, deleted.size());
         assertEquals("00000002-00", deleted.get(0).getBasename());
+    }
+    
+    public void testLoadPreferencesWhenEmpty() {
+        Mailbox mailbox = m_mgr.getMailbox("300");
+        MailboxPreferences preferences = m_mgr.loadMailboxPreferences(mailbox);
+        assertNotNull(preferences);
+    }
+    
+    public void testSavePreferencesWhenEmpty() {
+        m_mgr.setMailstoreDirectory(TestHelper.getTestDirectory());
+        MailboxPreferencesWriter writer = new MailboxPreferencesWriter();
+        writer.setVelocityEngine(TestHelper.getVelocityEngine());
+        m_mgr.setMailboxPreferencesWriter(writer);
+        Mailbox mailbox = m_mgr.getMailbox("save-prefs-" + System.currentTimeMillis());
+        m_mgr.saveMailboxPreferences(mailbox, new MailboxPreferences());
+    }
+
+    public void testSavePreferencesWhenNullPreferences() {
+        m_mgr.setMailstoreDirectory(TestHelper.getTestDirectory());
+        MailboxPreferencesWriter writer = new MailboxPreferencesWriter();
+        writer.setVelocityEngine(TestHelper.getVelocityEngine());
+        m_mgr.setMailboxPreferencesWriter(writer);
+        Mailbox mailbox = m_mgr.getMailbox("save-prefs-" + System.currentTimeMillis());
+        m_mgr.saveMailboxPreferences(mailbox, null);
     }
 }

@@ -25,6 +25,9 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.site.admin.ExtensionPoolsPage;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
+import org.sipfoundry.sipxconfig.vm.Mailbox;
+import org.sipfoundry.sipxconfig.vm.MailboxManager;
+import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
 public abstract class NewUser extends PageWithCallback implements PageBeginRenderListener {
 
@@ -42,6 +45,8 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
 
     public abstract String getButtonPressed();
     
+    public abstract MailboxManager getMailboxManager();
+    
     public IPage onCommit(IRequestCycle cycle) {
         if (!TapestryUtils.isValid(this)) {
             return null;
@@ -51,6 +56,12 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
         User user = getUser();
         EditGroup.saveGroups(getSettingDao(), user.getGroups());
         core.saveUser(user);
+        
+        MailboxManager mmgr = getMailboxManager();
+        if (mmgr.isEnabled()) {
+            Mailbox mailbox = mmgr.getMailbox(user.getUserName());
+            mmgr.saveMailboxPreferences(mailbox, (MailboxPreferences) getBeans().getBean("mailboxPreferences"));
+        }
 
         // On saving the user, transfer control to edituser page.
         if (FormActions.APPLY.equals(getButtonPressed())) {

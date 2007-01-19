@@ -15,6 +15,8 @@ import java.util.List;
 
 public interface MailboxManager {
     
+    public boolean isEnabled();
+    
     public List<String> getFolderIds(String userid);
 
     public List<Voicemail> getVoicemail(String userid, String folder);

@@ -32,6 +32,10 @@ public class MailboxManagerImpl implements MailboxManager {
     private File m_mailstoreDirectory;
     private MailboxPreferencesReader m_mailboxPreferencesReader;
     private MailboxPreferencesWriter m_mailboxPreferencesWriter;
+    
+    public boolean isEnabled() {
+        return m_mailstoreDirectory.exists();
+    }
    
     public List<String> getFolderIds(String userId) {
         return Arrays.asList(new String[] {"inbox", "deleted", "saved"});
@@ -99,10 +103,14 @@ public class MailboxManagerImpl implements MailboxManager {
     public void saveMailboxPreferences(Mailbox mailbox, MailboxPreferences preferences) {
         Writer iowriter = null;
         try {
-            iowriter = new FileWriter(mailbox.getVoicemailPreferencesFile());
+            File prefsFile = mailbox.getVoicemailPreferencesFile();
+            if (!prefsFile.getParentFile().exists()) {
+                prefsFile.getParentFile().mkdirs();
+            }
+            iowriter = new FileWriter(prefsFile);
             m_mailboxPreferencesWriter.writeObject(preferences, iowriter);
         } catch (IOException e) {
-            throw new MailstoreMisconfigured("Cannot write to mailbox preferences file", e);
+            throw new MailstoreMisconfigured("Cannot write to mailbox preferences file " + e.getLocalizedMessage());
         } finally {
             IOUtils.closeQuietly(iowriter);
         }
@@ -110,11 +118,18 @@ public class MailboxManagerImpl implements MailboxManager {
     
     public MailboxPreferences loadMailboxPreferences(Mailbox mailbox) {
         Reader ioreader = null;
+        MailboxPreferences prefs = null;
         try {
-            ioreader = new FileReader(mailbox.getVoicemailPreferencesFile());
-            return m_mailboxPreferencesReader.readObject(ioreader);
+            File prefsFile = mailbox.getVoicemailPreferencesFile();
+            if (prefsFile.exists()) {
+                ioreader = new FileReader(prefsFile);
+                prefs = m_mailboxPreferencesReader.readObject(ioreader); 
+            } else {
+                prefs = new MailboxPreferences();
+            }        
+            return prefs;
         } catch (IOException e) {
-            throw new MailstoreMisconfigured("Cannot read from mailbox preferences file", e);
+            throw new MailstoreMisconfigured("Cannot read from mailbox preferences file " + e.getLocalizedMessage());
         } finally {
             IOUtils.closeQuietly(ioreader);
         }        

@@ -68,8 +68,8 @@ public class VoicemailTest extends TestCase {
         FileUtils.deleteDirectory(mailstore);
     }
     
-    File createTestMailStore() throws IOException {
-        File mailstore = new File(TestUtil.getTestSourceDirectory(getClass()));
+    static File createTestMailStore() throws IOException {
+        File mailstore = new File(TestUtil.getTestSourceDirectory(VoicemailTest.class));
         File testMailstore = new File(TestHelper.getTestDirectory() + '/' + System.currentTimeMillis());
         testMailstore.mkdirs();
         FileUtils.copyDirectory(new File(mailstore, "200"), new File(testMailstore, "200"));        

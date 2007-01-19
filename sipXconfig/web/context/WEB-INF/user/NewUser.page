@@ -8,12 +8,14 @@
   <property name="user" />
   <inject property="settingDao" object="spring:settingDao"/>
   <inject property="coreContext" object="spring:coreContext"/>
+  <inject property="mailboxManager" object="spring:mailboxManager"/>
   <property name="stay" />
   <property name="buttonPressed" />
   <!--
       - B E A N S 
       -->
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+  <bean name="mailboxPreferences" class="org.sipfoundry.sipxconfig.vm.MailboxPreferences"/>
   <!--
       - C O M P O N E N T S
       -->
@@ -25,6 +27,7 @@
   </component>
   <component id="userForm" type="UserForm">
     <binding name="user" value="user"/>
+    <binding name="mailboxPreferences" value="bean:mailboxPreferences"/>
     <binding name="alwaysShowSipPassword" value="true"/>
   </component>
   <component id="formActions" type="FormActions">

@@ -7,12 +7,15 @@
   <property name="user" />
   <inject property="coreContext" object="spring:coreContext"/>
   <inject property="settingDao" object="spring:settingDao"/>
+  <inject property="mailboxManager" object="spring:mailboxManager"/>
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+  <bean name="mailboxPreferences" class="org.sipfoundry.sipxconfig.vm.MailboxPreferences"/>
   <component id="form" type="Form">
     <binding name="delegate" value="bean:validator"/>
   </component>
   <component id="userForm" type="UserForm">
     <binding name="user" value="user"/>
+    <binding name="mailboxPreferences" value="mailboxPreferences"/>
   </component>
   <component id="formActions" type="FormActions">
     <binding name="callback" value="callback"/>

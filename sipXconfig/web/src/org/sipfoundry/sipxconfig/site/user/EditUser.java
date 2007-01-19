@@ -20,6 +20,9 @@ import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
+import org.sipfoundry.sipxconfig.vm.Mailbox;
+import org.sipfoundry.sipxconfig.vm.MailboxManager;
+import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
 public abstract class EditUser extends PageWithCallback implements PageBeginRenderListener {
 
@@ -36,12 +39,23 @@ public abstract class EditUser extends PageWithCallback implements PageBeginRend
     public abstract User getUser();
 
     public abstract void setUser(User user);
+    
+    public abstract MailboxManager getMailboxManager();
+    public abstract MailboxPreferences getMailboxPreferences();
+    public abstract void setMailboxPreferences(MailboxPreferences preferences);
 
     public void commit() {
-        if (TapestryUtils.isValid(this)) {
-            User user = getUser();
-            EditGroup.saveGroups(getSettingDao(), user.getGroups());
-            getCoreContext().saveUser(user);
+        if (!TapestryUtils.isValid(this)) {
+            return;
+        }
+        User user = getUser();
+        EditGroup.saveGroups(getSettingDao(), user.getGroups());
+        getCoreContext().saveUser(user);
+        
+        MailboxManager mmgr = getMailboxManager();
+        if (mmgr.isEnabled()) {
+            Mailbox mailbox = mmgr.getMailbox(user.getUserName());
+            mmgr.saveMailboxPreferences(mailbox, getMailboxPreferences());
         }
     }
 
@@ -51,6 +65,14 @@ public abstract class EditUser extends PageWithCallback implements PageBeginRend
             user = getCoreContext().loadUser(getUserId());
             setUser(user);
         }
+        
+        MailboxPreferences preferences = getMailboxPreferences();
+        MailboxManager mmgr = getMailboxManager();
+        if (preferences == null && mmgr.isEnabled()) {
+            Mailbox mailbox = mmgr.getMailbox(user.getUserName());
+            preferences = mmgr.loadMailboxPreferences(mailbox);
+            setMailboxPreferences(preferences);
+        }        
 
         // If no callback has been given, then navigate back to Manage Users on OK/Cancel
         if (getCallback() == null) {

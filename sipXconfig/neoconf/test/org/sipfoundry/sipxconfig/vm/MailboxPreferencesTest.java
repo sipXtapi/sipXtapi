@@ -53,4 +53,10 @@ public class MailboxPreferencesTest extends TestCase {
         IOUtils.closeQuietly(expectedIn);
         assertEquals(expected.toString(), actual.toString());
     }
+
+    public void testReadInitialPreferences() {
+        InputStream in = getClass().getResourceAsStream("initial-mailboxprefs.xml");
+        m_reader.readObject(new InputStreamReader(in));        
+        IOUtils.closeQuietly(in);              
+    }
 }

@@ -39,6 +39,6 @@ public class Mailbox {
     }
     
     public File getVoicemailPreferencesFile() {
-        return new File(getMailstoreDirectory(), getUserId());        
+        return new File(getMailstoreDirectory(), getUserId() + "/mailboxprefs.xml");        
     }
 }

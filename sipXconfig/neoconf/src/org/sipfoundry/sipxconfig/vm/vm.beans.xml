@@ -3,12 +3,18 @@
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans> 
   <bean id="mailboxManagerImpl" class="org.sipfoundry.sipxconfig.vm.MailboxManagerImpl">
-    <property name="mailboxPreferencesReader" ref="mailboxPreferencesReader"/>
-    <property name="mailboxPreferencesWriter" ref="mailboxPreferencesWriter"/>
+    <property name="mailboxPreferencesReader">
+      <ref local="mailboxPreferencesReader"/>
+    </property>
+    <property name="mailboxPreferencesWriter">
+      <ref local="mailboxPreferencesWriter"/>
+    </property>
   </bean>
   <alias alias="mailboxManager" name="mailboxManagerImpl" />
   
   <bean id="mailboxPreferencesReader" class="org.sipfoundry.sipxconfig.vm.MailboxPreferencesReader"/>  
-  <bean id="mailboxPreferencesWriter" class="org.sipfoundry.sipxconfig.vm.MailboxPreferencesWriter"/>
+  <bean id="mailboxPreferencesWriter" class="org.sipfoundry.sipxconfig.vm.MailboxPreferencesWriter">
+    <property name="velocityEngine" ref="velocityEngine"/>
+  </bean>
   
 </beans>

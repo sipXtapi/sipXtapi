@@ -40,7 +40,7 @@ public abstract class UserForm extends BaseComponent implements PageEndRenderLis
     
     public abstract String getPin();
     public abstract void setPin(String pin);
-    
+        
     public abstract String getAliasesString();
     public abstract void setAliasesString(String aliasesString);
     

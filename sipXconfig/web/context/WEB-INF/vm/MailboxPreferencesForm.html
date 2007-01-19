@@ -1,0 +1,23 @@
+<span jwcid="$content$">
+  <span jwcid="@If" condition="prop:mailboxManager.enabled">
+    <tr jwcid="@FieldPanel" for="user:emailAddress" field="component:emailAddress" label="message:label.emailAddress">
+      <input jwcid="emailAddress@TextField" id="user:emailAddress" value="prop:preferences.emailAddress" validators="validators:email"/>
+    </tr>
+    <tr jwcid="@FieldPanel" for="user:activeGreeting" field="component:activeGreeting" label="message:label.activeGreeting">
+      <input jwcid="activeGreeting@TextField" id="user:activeGreeting"  value="prop:preferences.activeGreeting"/>
+    </tr>
+  </span>
+  <span jwcid="@Else">
+    <tr>
+      <td colspan="3">
+        <div style="not-available">
+          <span><span key="message.voicemailDisabled"/></span>
+          <ul>
+            <li><span key="label.emailAddress"/></li>
+            <li><span key="label.activeGreeting"/></li>
+          </ul>
+        </div>
+      </td>  
+    </tr>
+  </span>
+</span>
