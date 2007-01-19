@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <prefs>
-    <activegreeting>$!preferences.ActiveGreeting</activegreeting>
+    <activegreeting>$!preferences.ActiveGreeting.Id</activegreeting>
     <notification>
         <contact type="email" attachments="$yesNo.encode($preferences.AttachVoicemailToEmail)">$!preferences.EmailAddress</contact>
     </notification>

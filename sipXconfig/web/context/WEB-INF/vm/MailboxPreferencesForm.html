@@ -6,7 +6,8 @@
     </tr>
     <tr jwcid="@FieldPanel" for="user:activeGreeting" field="component:activeGreeting" label="message:label.activeGreeting"
         description="message:description.activeGreeting">
-      <input jwcid="activeGreeting@TextField" id="user:activeGreeting"  value="prop:preferences.activeGreeting"/>
+      <select jwcid="activeGreeting@PropertySelection" id="user:activeGreeting" value="prop:preferences.activeGreeting"
+        model="prop:activeGreetingModel"/>
     </tr>
     <tr jwcid="@FieldPanel" for="user:attachVoicemailToEmail" field="component:attachVoicemailToEmail" label="message:label.attachVoicemailToEmail"
         description="message:description.attachVoicemailToEmail">

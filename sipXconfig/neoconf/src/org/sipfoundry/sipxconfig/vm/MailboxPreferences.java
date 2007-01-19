@@ -24,15 +24,41 @@ package org.sipfoundry.sipxconfig.vm;
  * </pre>
  */
 public class MailboxPreferences {
-    private String m_activeGreeting = "none";
+    private ActiveGreeting m_activeGreeting = ActiveGreeting.NONE;
     private String m_emailAddress;
     private boolean m_attachVoicemailToEmail;
     
-    public String getActiveGreeting() {
+    public enum ActiveGreeting {
+        NONE("none"), 
+        STANDARD("standard"), 
+        OUT_OF_OFFICE("outofoffice"), 
+        EXTENDED_ABSENCE("extendedabsence");
+        
+        private String m_id;
+        
+        ActiveGreeting(String id) {
+            m_id = id;
+        }
+        
+        public String getId() {
+            return m_id;
+        }
+        
+        public static ActiveGreeting valueOfById(String id) {
+            for (ActiveGreeting greeting : ActiveGreeting.values()) {
+                if (greeting.getId().equals(id)) {
+                    return greeting;
+                }
+            }
+            throw new IllegalArgumentException("id not recognized " + id);
+        }
+    }
+    
+    public ActiveGreeting getActiveGreeting() {
         return m_activeGreeting;
     }
     
-    public void setActiveGreeting(String activeGreeting) {
+    public void setActiveGreeting(ActiveGreeting activeGreeting) {
         m_activeGreeting = activeGreeting;
     }
     

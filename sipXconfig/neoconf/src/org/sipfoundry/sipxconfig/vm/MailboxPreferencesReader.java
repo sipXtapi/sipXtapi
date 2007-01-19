@@ -20,7 +20,9 @@ public class MailboxPreferencesReader extends XmlReaderImpl<MailboxPreferences> 
     public MailboxPreferences readObject(Document doc) {
         MailboxPreferences prefs = new MailboxPreferences();
         Node root = doc.getRootElement();
-        prefs.setActiveGreeting(root.valueOf("activegreeting"));
+        String greetingId = root.valueOf("activegreeting");
+        MailboxPreferences.ActiveGreeting greeting = MailboxPreferences.ActiveGreeting.valueOfById(greetingId); 
+        prefs.setActiveGreeting(greeting);
         prefs.setEmailAddress(root.valueOf("notification/contact/text()"));
         String sAttachVm = root.valueOf("notification/contact/@attachments");
         prefs.setAttachVoicemailToEmail("yes".equals(sAttachVm));

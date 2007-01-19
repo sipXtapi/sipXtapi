@@ -25,6 +25,15 @@ public class LocalizedOptionModelDecorator implements IPropertySelectionModel {
     private String m_prefix;
     
     private IPropertySelectionModel m_model;
+    
+    public LocalizedOptionModelDecorator() {        
+    }
+    
+    public LocalizedOptionModelDecorator(IPropertySelectionModel model, Messages messages, String prefix) {
+        setModel(model);
+        setMessages(messages);
+        setResourcePrefix(prefix);
+    }
         
     public void setResourcePrefix(String prefix) {
         m_prefix = prefix;
