@@ -3036,8 +3036,10 @@ void SipConnection::processReferRequest(const SipMessage* request)
 
     UtlString referTo;
     UtlString referredBy;
+    Url  requestToUrl;
     request->getReferredByField(referredBy);
     request->getReferToField(referTo);
+    request->getToUrl(requestToUrl);
 
     //reject Refers to non sip URLs
     Url referToUrl(referTo);
@@ -3115,6 +3117,16 @@ void SipConnection::processReferRequest(const SipMessage* request)
             PtEvent::META_CALL_TRANSFERRING, 2, metaEventCallIds);
         mpCall->setTargetCallId(targetCallId.data());
         mpCall->setCallType(CpCall::CP_TRANSFEREE_ORIGINAL_CALL);
+
+        // Set the OutboundLine (From Field) to match the original
+        // call, so it looks like this new call comes from the same
+        // caller as the REFER request To Field
+
+        // Clear all non-URL parameters
+        requestToUrl.removeHeaderParameters();
+        requestToUrl.removeFieldParameters();
+	mpCallManager->setOutboundLineForCall(targetCallId, 
+           requestToUrl.toString()) ;
 
         // Send a message to the target call to create the
         // connection and send the INVITE
