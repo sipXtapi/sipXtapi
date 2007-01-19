@@ -35,6 +35,7 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
     private static final int SIP_PASSWORD_LEN = 8;
 
     public abstract CoreContext getCoreContext();
+
     public abstract SettingDao getSettingDao();
 
     public abstract User getUser();
@@ -44,7 +45,7 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
     public abstract boolean isStay();
 
     public abstract String getButtonPressed();
-    
+
     public abstract MailboxManager getMailboxManager();
     
     public IPage onCommit(IRequestCycle cycle) {
@@ -69,14 +70,14 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
             edit.setUserId(user.getId());
             return edit;
         }
-        
+
         return null;
     }
-    
+
     public IPage extensionPools(IRequestCycle cycle) {
         ExtensionPoolsPage poolsPage = (ExtensionPoolsPage) cycle
                 .getPage(ExtensionPoolsPage.PAGE);
-        poolsPage.setReturnPage(PAGE);
+        poolsPage.setReturnPage(this);
         return poolsPage;
     }
 

@@ -153,4 +153,13 @@ public class NewUserTestUi extends WebTestCase {
         clickButton("form:apply");
         assertFormElementEquals("groups", "a b c");
     }
+    
+    public void testExtensionPoolLink() {
+        clickLink("ManageUsers");
+        clickLink("AddUser");
+        clickLink("link:extensionPool");
+        SiteTestHelper.assertNoUserError(tester);
+        clickButton("form:ok");
+        SiteTestHelper.assertNoUserError(tester);
+    }
 }
