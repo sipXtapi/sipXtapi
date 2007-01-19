@@ -15,10 +15,14 @@ import java.util.Collection;
 
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
+import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
 /**
  * List all the gateways, allow adding and deleting gateways
@@ -26,8 +30,14 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
 public abstract class EditFlexibleDialPlan extends BasePage {
     public static final String PAGE = "EditFlexibleDialPlan";
 
-    // virtual properties
+    @InjectObject(value = "spring:dialPlanContext")
     public abstract DialPlanContext getDialPlanContext();
+
+    @Bean
+    public abstract SelectMap getSelections();
+
+    @Bean
+    public abstract SipxValidationDelegate getValidator();
 
     public abstract void setCurrentRow(DialingRule plan);
 
@@ -98,5 +108,9 @@ public abstract class EditFlexibleDialPlan extends BasePage {
         if (null != selectedRows) {
             getDialPlanContext().duplicateRules(selectedRows);
         }
+    }
+
+    public Collection getAllSelected() {
+        return getSelections().getAllSelected();
     }
 }

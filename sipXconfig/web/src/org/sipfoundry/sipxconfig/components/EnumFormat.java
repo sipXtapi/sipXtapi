@@ -40,10 +40,12 @@ public class EnumFormat extends Format {
 
     public StringBuffer format(Object obj, StringBuffer toAppendTo, FieldPosition pos_) {
         Enum value = (Enum) obj;
+        String name = value.getName();
         if (m_messages == null) {
-            toAppendTo.append(value.getName());
+            toAppendTo.append(name);
         } else {
-            String key = m_prefix + m_prefixSeparator + value.getName();
+            String nameKey = name.replaceAll(" ", "_");
+            String key = m_prefix + m_prefixSeparator + nameKey;
             toAppendTo.append(m_messages.getMessage(key));
         }
         return toAppendTo;

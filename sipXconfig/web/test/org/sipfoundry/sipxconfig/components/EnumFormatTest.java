@@ -24,9 +24,10 @@ public class EnumFormatTest extends TestCase {
         EnumFormat format = new EnumFormat();
         assertEquals("bongo", format.format(FakeEnum.BONGO));
         assertEquals("kuku", format.format(FakeEnum.KUKU));
+        assertEquals("kuku bongo",  format.format(FakeEnum.SPACE));
     }
 
-    public void testLolizedFormat() throws Exception {
+    public void testLocizedFormat() throws Exception {
         IMocksControl messagesCtrl = EasyMock.createControl();
         Messages messages = messagesCtrl.createMock(Messages.class);
         messages.getMessage("fake.bongo");
@@ -43,10 +44,26 @@ public class EnumFormatTest extends TestCase {
         assertEquals("localized kuku", format.format(FakeEnum.KUKU));
         messagesCtrl.verify();
     }
+    
+    public void testSpaceInEnumName() throws Exception {
+        IMocksControl messagesCtrl = EasyMock.createControl();
+        Messages messages = messagesCtrl.createMock(Messages.class);
+        messages.getMessage("fake.kuku_bongo");
+        messagesCtrl.andReturn("localized space");
+        messagesCtrl.replay();
+
+        EnumFormat format = new EnumFormat();
+        format.setMessages(messages);
+        format.setPrefix("fake");
+
+        assertEquals("localized space", format.format(FakeEnum.SPACE));
+        messagesCtrl.verify();        
+    }
 
     static class FakeEnum extends Enum {
         public static final FakeEnum BONGO = new FakeEnum("bongo");
         public static final FakeEnum KUKU = new FakeEnum("kuku");
+        public static final FakeEnum SPACE = new FakeEnum("kuku bongo");
 
         private FakeEnum(String name) {
             super(name);
