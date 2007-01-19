@@ -1,20 +1,30 @@
 <span jwcid="$content$">
   <span jwcid="@If" condition="prop:mailboxManager.enabled">
-    <tr jwcid="@FieldPanel" for="user:emailAddress" field="component:emailAddress" label="message:label.emailAddress">
+    <tr jwcid="@FieldPanel" for="user:emailAddress" field="component:emailAddress" label="message:label.emailAddress"
+        description="message:description.emailAddress">
       <input jwcid="emailAddress@TextField" id="user:emailAddress" value="prop:preferences.emailAddress" validators="validators:email"/>
     </tr>
-    <tr jwcid="@FieldPanel" for="user:activeGreeting" field="component:activeGreeting" label="message:label.activeGreeting">
+    <tr jwcid="@FieldPanel" for="user:activeGreeting" field="component:activeGreeting" label="message:label.activeGreeting"
+        description="message:description.activeGreeting">
       <input jwcid="activeGreeting@TextField" id="user:activeGreeting"  value="prop:preferences.activeGreeting"/>
+    </tr>
+    <tr jwcid="@FieldPanel" for="user:attachVoicemailToEmail" field="component:attachVoicemailToEmail" label="message:label.attachVoicemailToEmail"
+        description="message:description.attachVoicemailToEmail">
+      <checkbox jwcid="attachVoicemailToEmail@Checkbox" id="user:attachVoicemailToEmail" value="prop:preferences.attachVoicemailToEmail"/>
     </tr>
   </span>
   <span jwcid="@Else">
     <tr>
       <td colspan="3">
-        <div style="not-available">
+        <div class="not-available" id="mailbox:disabled">
           <span><span key="message.voicemailDisabled"/></span>
           <ul>
-            <li><span key="label.emailAddress"/></li>
-            <li><span key="label.activeGreeting"/></li>
+            <li><label class="settingLabel"><span key="label.emailAddress"/></label> - 
+              <span class="settingDescription"><span key="description.emailAddress"/></span></li>
+            <li><label class="settingLabel"><span key="label.activeGreeting"/></label> - 
+              <span class="settingDescription"><span key="description.activeGreeting"/></span></li>
+            <li><label class="settingLabel"><span key="label.attachVoicemailToEmail"/></label> - 
+              <span class="settingDescription"><span key="description.attachVoicemailToEmail"/></span></li>
           </ul>
         </div>
       </td>  

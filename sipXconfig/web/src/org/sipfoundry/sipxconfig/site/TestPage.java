@@ -338,9 +338,22 @@ public abstract class TestPage extends BasePage {
         return page;
     }
     
+    public void disableVoicemail() {
+        MailboxManager mgr = getMailboxManager();        
+        File existing = new File(mgr.getMailstoreDirectory());
+        try {
+            FileUtils.deleteDirectory(existing);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not delete mailstore " + existing.getAbsolutePath(), e);
+        }
+    }
+    
     public void resetVoicemail() {
         MailboxManager mgr = getMailboxManager();        
         File existing = new File(mgr.getMailstoreDirectory());
+        if (!existing.exists()) {
+            existing.mkdir();
+        }
         try {
             FileUtils.cleanDirectory(existing);
         } catch (IOException e) {

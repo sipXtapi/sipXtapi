@@ -67,6 +67,9 @@
   <component id="resetVoicemail" type="DirectLink">
     <binding name="listener" value="listener:resetVoicemail"/>
   </component>
+  <component id="disableVoicemail" type="DirectLink">
+    <binding name="listener" value="listener:disableVoicemail"/>
+  </component>
   <component id="newUserGroup" type="DirectLink">
     <binding name="listener" value="listener:newGroup"/>
     <binding name="parameters" value="literal:user"/>

@@ -40,10 +40,6 @@ public class MailboxPreferences {
         return m_attachVoicemailToEmail;
     }
     
-    public String getIIsAttachVoicemailToEmailYesNo() {
-        return isAttachVoicemailToEmail() ? "yes" : "no";
-    }
-    
     public void setAttachVoicemailToEmail(boolean attachVoicemailToEmail) {
         m_attachVoicemailToEmail = attachVoicemailToEmail;
     }
