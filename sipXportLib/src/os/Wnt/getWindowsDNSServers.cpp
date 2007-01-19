@@ -218,7 +218,7 @@ static int getIPHelperDNSEntries(char DNSServers[][MAXIPLEN], int max, const cha
                 getContactAdapterName(szAdapter, szLocalIp, true);
 
                 // convert to a wide character string                
-                mbstowcs(szwAdapter, szAdapter, sizeof(szwAdapter));
+                mbstowcs(szwAdapter, szAdapter, sizeof(szAdapter));
                 
                 char szAdapterName[MAX_ADAPTER_NAME_LENGTH + 4];
                 for (int i = 0; i < pInfo->NumAdapters; i++)
