@@ -120,4 +120,15 @@
     <binding name="displayName" value="message:label.aliases" />
   </component>
 
+  <component id="emailPanel" type="FieldPanel">
+    <binding name="field" value="components.emailAddress" />
+    <binding name="label" value="message:label.email" />
+  </component>
+  <component id="email" type="TextField">
+    <binding name="value" value="mailboxPreferences.emailAddress" />
+    <binding name="size" value="50" />
+    <binding name="disabled" value="true" />
+    <binding name="displayName" value="message:label.email" />
+  </component>
+
 </page-specification>

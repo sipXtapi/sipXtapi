@@ -55,7 +55,7 @@
     <binding name="objectClassesSelectionModel" value="objectClassesSelectionModel" />
     <binding name="attributesSelectionModel" value="attributesSelectionModel" />
     <binding name="attributesOptionalSelectionModel"
-      value="tapestry.addExtraOption(attributesSelectionModel, '')" />
+      value="tapestry.addExtraOption(attributesSelectionModel, messages, '')" />
   </component>
   <component id="applyAttrMap" type="Submit">
     <binding name="value" value="message:label.continue" />

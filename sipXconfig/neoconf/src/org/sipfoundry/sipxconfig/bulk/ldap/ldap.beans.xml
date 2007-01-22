@@ -40,6 +40,7 @@
   <bean id="ldapRowInserter" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapRowInserter"
     parent="rowInserter" singleton="false">
     <property name="coreContext" ref="coreContext" />
+    <property name="mailboxManager" ref="mailboxManager" />
     <property name="preserveMissingUsers" value="false" />
   </bean>
 

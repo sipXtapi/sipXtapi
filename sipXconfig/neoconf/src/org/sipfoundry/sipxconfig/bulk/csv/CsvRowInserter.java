@@ -89,11 +89,12 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
     }
     
     MailboxPreferences mailboxPreferencesFromRow(String[] row) {
-        if (!m_mailboxManager.isEnabled()) {
+        String emailAddress = Index.EMAIL.get(row);
+        if (!m_mailboxManager.isEnabled() || StringUtils.isBlank(emailAddress)) {
             return null;
         }
         MailboxPreferences mboxPrefs = new MailboxPreferences();
-        mboxPrefs.setEmailAddress(Index.EMAIL.get(row));
+        mboxPrefs.setEmailAddress(emailAddress);
         return mboxPrefs;
     }
 

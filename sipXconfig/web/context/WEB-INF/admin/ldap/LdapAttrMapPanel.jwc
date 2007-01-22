@@ -87,6 +87,17 @@
     <binding name="model" value="attributesOptionalSelectionModel" />
     <binding name="displayName" value="message:label.alias" />
   </component>
+  
+  <component id="emailPanel" type="FieldPanel">
+    <binding name="field" value="components.email" />
+    <binding name="label" value="message:label.email" />
+    <binding name="description" value="message:description.alias" />
+  </component>
+  <component id="email" type="PropertySelection">
+    <binding name="value" value="attrMap.attribute['emailAddress']" />
+    <binding name="model" value="attributesOptionalSelectionModel" />
+    <binding name="displayName" value="message:label.email" />
+  </component>
 
   <component id="userGroupPanel" type="FieldPanel">
     <binding name="field" value="components.userGroup" />

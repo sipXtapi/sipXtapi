@@ -28,6 +28,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
 public abstract class LdapImportPreview extends BasePage implements PageBeginRenderListener {
 
@@ -40,6 +41,8 @@ public abstract class LdapImportPreview extends BasePage implements PageBeginRen
     public abstract User getUser();
 
     public abstract void setGroupsString(String groups);
+    
+    public abstract void setMailboxPreferences(MailboxPreferences preferences);
 
     public abstract int getIndex();
 
@@ -82,7 +85,7 @@ public abstract class LdapImportPreview extends BasePage implements PageBeginRen
             if (file != null) {
                 file.delete();
             }
-            file = File.createTempFile("ldap", "csv");
+            file = File.createTempFile("ldap", ".csv");
             // FIXME: it really should be deleted by the time session terminates
             file.deleteOnExit();
             FileWriter writer = new FileWriter(file);
@@ -112,6 +115,7 @@ public abstract class LdapImportPreview extends BasePage implements PageBeginRen
         Collection<String> groupNames = preview.getGroupNames();
         String groupsString = StringUtils.join(groupNames.iterator(), " ");
         setGroupsString(groupsString);
+        setMailboxPreferences(preview.getMailboxPreferences());
 
         validator.recordSuccess(getMessages().getMessage("msg.success"));
     }

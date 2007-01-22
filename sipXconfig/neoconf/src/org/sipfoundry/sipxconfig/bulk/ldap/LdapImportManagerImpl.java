@@ -18,6 +18,7 @@ import java.util.List;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
@@ -29,6 +30,7 @@ import org.sipfoundry.sipxconfig.bulk.csv.CsvWriter;
 import org.sipfoundry.sipxconfig.bulk.csv.Index;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapImportManager {
@@ -63,16 +65,24 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
             NamingEnumeration<SearchResult> result = search(m_previewSize);
             while (result.hasMore()) {
                 SearchResult searchResult = result.next();
-                User user = new User();
-                m_rowInserter.setUserProperties(user, searchResult.getAttributes());
-                List<String> groupNames = new ArrayList<String>(m_rowInserter
-                        .getGroupNames(searchResult));
-                example.add(new UserPreview(user, groupNames));
+                UserPreview preview = getUserPreview(searchResult);
+                example.add(preview);
             }
             return example;
         } catch (NamingException e) {
             throw new UserException(e.getMessage());
         }
+    }
+    
+    private UserPreview getUserPreview(SearchResult searchResult) throws NamingException {
+        User user = new User();
+        Attributes attrs = searchResult.getAttributes();
+        m_rowInserter.setUserProperties(user, attrs);
+        List<String> groupNames = new ArrayList<String>(m_rowInserter
+                .getGroupNames(searchResult));
+        MailboxPreferences preferences = m_rowInserter.getMailboxPreferences(attrs);
+        UserPreview preview = new UserPreview(user, groupNames, preferences);                
+        return preview; 
     }
 
     public void dumpExample(Writer out) {
@@ -84,17 +94,15 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
             NamingEnumeration<SearchResult> result = search(0);
             while (result.hasMore()) {
                 SearchResult searchResult = result.next();
-                User user = new User();
-                m_rowInserter.setUserProperties(user, searchResult.getAttributes());
-                List<String> groupNames = new ArrayList<String>(m_rowInserter
-                        .getGroupNames(searchResult));
-                String groupNamesString = StringUtils.join(groupNames.iterator(), ", ");
+                UserPreview preview = getUserPreview(searchResult);
+                String groupNamesString = StringUtils.join(preview.getGroupNames().iterator(), ", ");
                 String[] row = new String[allNames.length];
-                Index.USERNAME.set(row, user.getUserName());
-                Index.FIRST_NAME.set(row, user.getFirstName());
-                Index.LAST_NAME.set(row, user.getLastName());
-                Index.ALIAS.set(row, user.getAliasesString());
-                Index.SIP_PASSWORD.set(row, user.getSipPassword());
+                Index.USERNAME.set(row, preview.getUser().getUserName());
+                Index.FIRST_NAME.set(row, preview.getUser().getFirstName());
+                Index.LAST_NAME.set(row, preview.getUser().getLastName());
+                Index.ALIAS.set(row, preview.getUser().getAliasesString());
+                Index.SIP_PASSWORD.set(row, preview.getUser().getSipPassword());
+                Index.EMAIL.set(row, preview.getMailboxPreferences().getEmailAddress());
                 Index.USER_GROUP.set(row, groupNamesString);                
                 
                 writer.write(row, true);

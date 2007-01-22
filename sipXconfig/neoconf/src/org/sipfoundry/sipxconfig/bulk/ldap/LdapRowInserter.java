@@ -33,6 +33,9 @@ import org.sipfoundry.sipxconfig.bulk.csv.Index;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.vm.Mailbox;
+import org.sipfoundry.sipxconfig.vm.MailboxManager;
+import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
 /**
  * Specialized version of row inserter for inserting users from LDAP searches LdapRowinserter
@@ -42,6 +45,8 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
     private AttrMap m_attrMap;
 
     private CoreContext m_coreContext;
+    
+    private MailboxManager m_mailboxManager;
 
     private Set<String> m_existingUserNames;
 
@@ -100,6 +105,12 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
                 user.addGroup(userGroup);
             }
             m_coreContext.saveUser(user);
+            
+            MailboxPreferences mboxPrefs = getMailboxPreferences(attrs);
+            if (mboxPrefs != null) {
+                Mailbox mailbox = m_mailboxManager.getMailbox(user.getUserName());               
+                m_mailboxManager.saveMailboxPreferences(mailbox, mboxPrefs);
+            }
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
@@ -129,6 +140,17 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
         if (aliases != null) {
             user.copyAliases(aliases);
         }
+    }
+    
+    MailboxPreferences getMailboxPreferences(Attributes attrs) throws NamingException {
+        String emailAddress = getValue(attrs, Index.EMAIL);
+        if (!m_mailboxManager.isEnabled() || StringUtils.isBlank(emailAddress)) {
+            return null;
+        }
+        
+        MailboxPreferences mboxPrefs = new MailboxPreferences();
+        mboxPrefs.setEmailAddress(emailAddress);
+        return mboxPrefs;
     }
 
     Collection<String> getGroupNames(SearchResult sr) throws NamingException {
@@ -259,5 +281,9 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
 
     public void setPreserveMissingUsers(boolean removeMissingUsers) {
         m_preserveMissingUsers = removeMissingUsers;
+    }
+
+    public void setMailboxManager(MailboxManager mailboxManager) {
+        m_mailboxManager = mailboxManager;
     }
 }
