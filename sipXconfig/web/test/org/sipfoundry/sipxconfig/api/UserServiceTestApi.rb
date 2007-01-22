@@ -18,15 +18,14 @@ class UserServiceTestApi < ApiTestCase
   end
   
   def test_createUser	    
-    expected = User.new('lipton', '1234')
+    expected = User.new('lipton', '1234')    
     addUser = AddUser.new(expected)
     expected.groups = [ 'group1' ]
     @user_service.addUser(addUser)
     
     findUser = FindUser.new(UserSearch.new())
     findUser.search.byUserName = expected.userName
-    users = @user_service.findUser(findUser).users
-    
+    users = @user_service.findUser(findUser).users    
     assert_equal(1, users.length)
     assert_equal(expected.userName, users[0].userName)		
   end
@@ -131,5 +130,18 @@ class UserServiceTestApi < ApiTestCase
     assert_equal('Agent', users[1].lastName)
     assert_equal('Secret', users[2].firstName)
     assert_equal('Agent', users[2].lastName)
+  end
+  
+  def test_add_email
+    expected = User.new('jo-jo', '1234')
+    expected.emailAddress = 'jo-jo@example.com'
+    addUser = AddUser.new(expected)
+    @user_service.addUser(addUser)
+
+    findUser = FindUser.new(UserSearch.new())
+    findUser.search.byUserName = expected.userName
+    users = @user_service.findUser(findUser).users
+    assert_equal(1, users.length)
+    assert_equal(expected.emailAddress, users[0].emailAddress)
   end
 end

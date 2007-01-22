@@ -79,4 +79,13 @@ public class ApiBeanUtilTest extends TestCase {
         assertEquals("c", fricks[1].getName());
         assertEquals(null, fricks[1].getAddress());                
     }
+    
+    public void testFindProperty() {
+        Property[] props = new Property[] { 
+                new Property("feathers", "purple"),
+                new Property("beak", "2 inches")
+        };
+        assertSame(props[1], ApiBeanUtil.findProperty(props, "beak"));
+        assertNull(ApiBeanUtil.findProperty(props, "tail"));
+    }
 }

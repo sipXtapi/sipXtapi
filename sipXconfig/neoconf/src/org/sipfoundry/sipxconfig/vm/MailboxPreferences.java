@@ -24,6 +24,7 @@ package org.sipfoundry.sipxconfig.vm;
  * </pre>
  */
 public class MailboxPreferences {
+    public static final String EMAIL_PROP = "emailAddress";
     private ActiveGreeting m_activeGreeting = ActiveGreeting.NONE;
     private String m_emailAddress;
     private boolean m_attachVoicemailToEmail;

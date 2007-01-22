@@ -479,6 +479,9 @@
     <property name="webservice-unit-test-command"
       value="-I${ruby.include.path} ${ruby.flags} ${ruby.webservice-unit-test.src.dir}"/>
     <exec executable="${ruby}" failonerror="true">
+      <arg line="${webservice-unit-test-command}/UserServiceTestApi.rb"/>
+    </exec>
+    <exec executable="${ruby}" failonerror="true">
       <arg line="${webservice-unit-test-command}/CallGroupServiceTestApi.rb"/>
     </exec>
     <exec executable="${ruby}" failonerror="true">
@@ -489,9 +492,6 @@
     </exec>
     <exec executable="${ruby}" failonerror="true">
       <arg line="${webservice-unit-test-command}/PhoneServiceTestApi.rb"/>
-    </exec>
-    <exec executable="${ruby}" failonerror="true">
-      <arg line="${webservice-unit-test-command}/UserServiceTestApi.rb"/>
     </exec>
     <exec executable="${ruby}" failonerror="true">
       <arg line="${webservice-unit-test-command}/SystemServiceTestApi.rb"/>

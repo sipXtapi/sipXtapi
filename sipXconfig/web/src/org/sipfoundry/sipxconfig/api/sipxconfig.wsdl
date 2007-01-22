@@ -103,6 +103,7 @@
           <xsd:element name="firstName" type="xsd:string" nillable="true" maxOccurs="1"/>
           <xsd:element name="sipPassword" type="xsd:string" nillable="true" maxOccurs="1"/>
           <xsd:element name="aliases" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+          <xsd:element name="emailAddress" type="xsd:string" nillable="true" maxOccurs="1"/>
           <xsd:element name="groups" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
       </xsd:complexType>

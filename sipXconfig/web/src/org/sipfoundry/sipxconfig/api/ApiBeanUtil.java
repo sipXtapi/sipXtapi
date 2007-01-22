@@ -52,6 +52,18 @@ public final class ApiBeanUtil {
         return props;
     }
     
+    /**
+     * @return null if not found
+     */
+    public static Property findProperty(Property[] properties, String name) {
+        for (Property property : properties) {
+            if (property.getProperty().equals(name)) {
+                return property;
+            }
+        }
+        return null;
+    }
+    
     public static Object[] newArray(Class elementClass, int size) {
         Object[] to = (Object[]) Array.newInstance(elementClass, size);
         for (int i = 0; i < size; i++) {

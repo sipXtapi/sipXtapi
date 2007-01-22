@@ -30,6 +30,7 @@
 
 <bean id="UserService" class="org.sipfoundry.sipxconfig.api.UserServiceImpl">
 	<property name="coreContext" ref="coreContext"/>
+	<property name="mailboxManager" ref="mailboxManager"/>
 	<property name="userBuilder" ref="userBuilder"/>
 	<property name="settingDao" ref="settingDao"/>
 </bean>

@@ -16,12 +16,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
+import org.sipfoundry.sipxconfig.vm.Mailbox;
+import org.sipfoundry.sipxconfig.vm.MailboxManager;
+import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
 public class UserServiceImpl implements UserService {
     
@@ -41,6 +45,8 @@ public class UserServiceImpl implements UserService {
     
     private UserBuilder m_userBuilder;
     
+    private MailboxManager m_mailboxManager;
+    
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
@@ -53,6 +59,10 @@ public class UserServiceImpl implements UserService {
         m_userBuilder = userTranslator;
     }
     
+    public void setMailboxManager(MailboxManager mailboxManager) {
+        m_mailboxManager = mailboxManager;
+    }
+
     public void addUser(AddUser addUser) throws RemoteException {
         org.sipfoundry.sipxconfig.common.User myUser = new org.sipfoundry.sipxconfig.common.User();
         User apiUser = addUser.getUser();        
@@ -61,6 +71,17 @@ public class UserServiceImpl implements UserService {
         for (int i = 0; groups != null && i < groups.length; i++) {
             Group g = m_settingDao.getGroupCreateIfNotFound(GROUP_RESOURCE_ID, groups[i]);
             myUser.addGroup(g);
+        }
+        String emailAddress = apiUser.getEmailAddress();
+        if (!StringUtils.isBlank(emailAddress)) {
+            if (!m_mailboxManager.isEnabled()) {
+                throw new IllegalArgumentException("Voicemail is not configured on this system");
+            }
+            
+            MailboxPreferences mailboxPreferences = new MailboxPreferences();
+            Mailbox mailbox = m_mailboxManager.getMailbox(myUser.getUserName());
+            mailboxPreferences.setEmailAddress(emailAddress);
+            m_mailboxManager.saveMailboxPreferences(mailbox, mailboxPreferences);
         }
         myUser.setPin(addUser.getPin(), m_coreContext.getAuthorizationRealm());
         m_coreContext.saveUser(myUser);
@@ -71,9 +92,22 @@ public class UserServiceImpl implements UserService {
         UserSearch search = (findUser == null ? null : findUser.getSearch());
         org.sipfoundry.sipxconfig.common.User[] users = search(search);
         User[] arrayOfUsers = (User[]) ApiBeanUtil.toApiArray(m_userBuilder, users, User.class);
+        loadEmailAddresses(arrayOfUsers);
+        
         response.setUsers(arrayOfUsers);
         
         return response;
+    }
+    
+    void loadEmailAddresses(User[] users) {
+        if (!m_mailboxManager.isEnabled()) {
+            return;
+        }
+        for (User user : users) {
+            Mailbox mailbox = m_mailboxManager.getMailbox(user.getUserName());
+            MailboxPreferences preferences = m_mailboxManager.loadMailboxPreferences(mailbox);
+            user.setEmailAddress(preferences.getEmailAddress());
+        }
     }
 
     org.sipfoundry.sipxconfig.common.User[] search(UserSearch search) {
@@ -117,6 +151,13 @@ public class UserServiceImpl implements UserService {
                 Set properties  = ApiBeanUtil.getSpecifiedProperties(manageUser.getEdit());
                 ApiBeanUtil.setProperties(apiUser, manageUser.getEdit());
                 m_userBuilder.toMyObject(myUsers[i], apiUser, properties);
+                Property emailProperty = ApiBeanUtil.findProperty(manageUser.getEdit(), MailboxPreferences.EMAIL_PROP);
+                if (emailProperty != null) {
+                    Mailbox mailbox = m_mailboxManager.getMailbox(myUsers[i].getUserName());                    
+                    MailboxPreferences preferences = m_mailboxManager.loadMailboxPreferences(mailbox);
+                    preferences.setEmailAddress(emailProperty.getValue());
+                    m_mailboxManager.saveMailboxPreferences(mailbox, preferences);
+                }
             }
 
             if (manageUser.getAddGroup() != null) {                

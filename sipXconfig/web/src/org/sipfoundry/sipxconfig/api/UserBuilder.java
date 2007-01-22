@@ -19,13 +19,14 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
+import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
 public class UserBuilder extends SimpleBeanBuilder {
     private static final String ALIASES_PROP = org.sipfoundry.sipxconfig.common.User.ALIASES_PROP;
     private static final String GROUPS_PROP = BeanWithGroups.GROUPS_PROP;
 
     private static final String[] IGNORE_LIST = {
-        ALIASES_PROP, GROUPS_PROP
+        ALIASES_PROP, GROUPS_PROP, MailboxPreferences.EMAIL_PROP
     };
 
     public UserBuilder() {
