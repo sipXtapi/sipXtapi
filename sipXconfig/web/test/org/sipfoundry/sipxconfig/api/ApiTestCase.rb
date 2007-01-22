@@ -20,8 +20,7 @@ class ApiTestCase < Test::Unit::TestCase
     
     # doesn't exist yet, so create it
     service_url = SERVICE_ROOT + service_class.name
-    #@services[service_class] = service = service_class.new(service_url)
-    service = service_class.new(service_url)
+    @services[service_class] = service = service_class.new(service_url)
     
     # when debugging, dump service messages to stdout
 	service.wiredump_dev = STDOUT if $DEBUG
