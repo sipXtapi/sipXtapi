@@ -23,6 +23,8 @@ import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phone.TestPhone;
 import org.sipfoundry.sipxconfig.phone.TestPhoneModel;
+import org.sipfoundry.sipxconfig.vm.MailboxManager;
+import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
 public class CsvRowInserterTest extends TestCase {
     public void testUserFromRow() {
@@ -73,11 +75,11 @@ public class CsvRowInserterTest extends TestCase {
     public void testCheckRowData() {
         CsvRowInserter impl = new CsvRowInserter();
         String[] row = {
-            "kuku", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
+            "kuku", "", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
         };
         assertTrue(impl.checkRowData(row));
         String[] rowShort = {
-            "kuku", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone"
+            "kuku", "", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone"
         };
         assertFalse(impl.checkRowData(rowShort));
         row[Index.USERNAME.getValue()] = "";
@@ -90,7 +92,7 @@ public class CsvRowInserterTest extends TestCase {
 
     public void testPhoneFromRowUpdate() {
         final String[] phoneRow = new String[] {
-            "", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
+            "", "", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
         };
 
         Integer phoneId = new Integer(5);
@@ -121,7 +123,7 @@ public class CsvRowInserterTest extends TestCase {
 
     public void testPhoneFromRowNew() {
         final String[] phoneRow1 = new String[] {
-            "", "", "", "", "", "", "", "001122334455", "testPhoneModel", "yellow phone",
+            "", "", "", "", "", "", "", "", "001122334455", "testPhoneModel", "yellow phone",
             "phone in John room"
         };
         
@@ -161,7 +163,7 @@ public class CsvRowInserterTest extends TestCase {
 
     public void testPhoneFromRowSpaces() {
         final String[] phoneRow1 = new String[] {
-            "", "", "", "", "", "", "", "001122334455", "testPhoneModel", "yellow phone",
+            "", "", "", "", "", "", "", "", "001122334455", "testPhoneModel", "yellow phone",
             "phone in John room"
         };
 
@@ -197,5 +199,30 @@ public class CsvRowInserterTest extends TestCase {
 
         phoneModelSourceControl.verify();
         phoneContextCtrl.verify();
+    }
+    
+    public void testMailboxPreferencesFromRow() {
+        IMocksControl mailboxManagerControl =  EasyMock.createStrictControl();
+        MailboxManager mailboxManager = mailboxManagerControl.createMock(MailboxManager.class);
+        mailboxManager.isEnabled();
+        mailboxManagerControl.andReturn(true);
+        mailboxManager.isEnabled();
+        mailboxManagerControl.andReturn(false);
+        mailboxManagerControl.replay();
+        
+        String[] userRow = new String[] {
+                "kuku", "", "", "", "", "", "jlennon@example.com"
+            };
+        
+        
+        CsvRowInserter impl = new CsvRowInserter();
+        impl.setMailboxManager(mailboxManager);
+        MailboxPreferences preferences = impl.mailboxPreferencesFromRow(userRow);
+        assertEquals("jlennon@example.com", preferences.getEmailAddress());
+
+        MailboxPreferences preferencesDisabled = impl.mailboxPreferencesFromRow(userRow);
+        assertNull(preferencesDisabled);
+        
+        mailboxManagerControl.verify();
     }
 }

@@ -102,8 +102,8 @@ public class CsvParserImplTest extends TestCase {
             Object item = rows.get(i);
             assertTrue("row has to be a String array", item instanceof String[]);
             String[] row = (String[]) item;
-            assertEquals(11, row.length);
-            assertEquals(DESCRIPTIONS[i], row[10]);
+            assertEquals(12, row.length);
+            assertEquals(DESCRIPTIONS[i], row[11]);
             assertEquals(NAMES[i], row[3]);
         }
     }

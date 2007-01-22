@@ -9,6 +9,7 @@
     <property name="coreContext" ref="coreContext" />
     <property name="phoneContext" ref="phoneContext" />
     <property name="phoneModelSource" ref="phoneModelSource"/>
+    <property name="mailboxManager" ref="mailboxManager"/>
   </bean>
 
   <bean id="bulkManagerImpl" class="org.sipfoundry.sipxconfig.bulk.csv.BulkManagerImpl">

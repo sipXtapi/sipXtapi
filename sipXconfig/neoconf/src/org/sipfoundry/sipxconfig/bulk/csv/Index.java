@@ -24,12 +24,12 @@ import org.apache.commons.beanutils.BeanUtils;
 public enum Index {
     // user fields
     USERNAME("userName", 0), PIN("pin", 1), SIP_PASSWORD("sipPassword", 2), FIRST_NAME(
-            "firstName", 3), LAST_NAME("lastName", 4), ALIAS("aliasesString", 5), USER_GROUP(
-            "userGroupName", 6),
+            "firstName", 3), LAST_NAME("lastName", 4), ALIAS("aliasesString", 5), 
+            EMAIL("emailAddress", 6), USER_GROUP("userGroupName", 7), 
 
     // phone fields
-    SERIAL_NUMBER("serialNumber", 7), MODEL_ID("modelId", 8), PHONE_GROUP(
-            "phoneGroupName", 9), PHONE_DESCRIPTION("description", 10);
+    SERIAL_NUMBER("serialNumber", 8), MODEL_ID("modelId", 9), PHONE_GROUP(
+            "phoneGroupName", 10), PHONE_DESCRIPTION("description", 11);
 
     private final String m_name;
     private final int m_value;

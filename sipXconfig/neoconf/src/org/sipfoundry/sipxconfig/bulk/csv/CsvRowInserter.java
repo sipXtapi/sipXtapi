@@ -24,6 +24,9 @@ import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.vm.Mailbox;
+import org.sipfoundry.sipxconfig.vm.MailboxManager;
+import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
 public class CsvRowInserter extends RowInserter<String[]> implements Closure {
     private CoreContext m_coreContext;
@@ -31,6 +34,12 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
     private PhoneContext m_phoneContext;
     
     private ModelSource<PhoneModel> m_modelSource;
+    
+    private MailboxManager m_mailboxManager;
+
+    public void setMailboxManager(MailboxManager mailboxManager) {
+        m_mailboxManager = mailboxManager;
+    }
 
     public void setPhoneModelSource(ModelSource<PhoneModel> modelSource) {
         m_modelSource = modelSource;
@@ -73,7 +82,19 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
         if (StringUtils.isNotBlank(userGroupName)) {
             userGroup = m_coreContext.getGroupByName(userGroupName, true);
         }
-        insertData(user, userGroup, phone, phoneGroup);
+        
+        MailboxPreferences mboxPrefs = mailboxPreferencesFromRow(row);            
+        
+        insertData(user, userGroup, phone, phoneGroup, mboxPrefs);
+    }
+    
+    MailboxPreferences mailboxPreferencesFromRow(String[] row) {
+        if (!m_mailboxManager.isEnabled()) {
+            return null;
+        }
+        MailboxPreferences mboxPrefs = new MailboxPreferences();
+        mboxPrefs.setEmailAddress(Index.EMAIL.get(row));
+        return mboxPrefs;
     }
 
     /**
@@ -138,7 +159,7 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
      * @param phone phone to add or update
      * @param phoneGroup phone group to which phone will be added
      */
-    private void insertData(User user, Group userGroup, Phone phone, Group phoneGroup) {
+    private void insertData(User user, Group userGroup, Phone phone, Group phoneGroup, MailboxPreferences mboxPrefs) {
         if (userGroup != null) {
             user.addGroup(userGroup);
         }
@@ -153,6 +174,11 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
         phone.addLine(line);
 
         m_phoneContext.storePhone(phone);
+        
+        if (mboxPrefs != null) {
+            Mailbox mailbox = m_mailboxManager.getMailbox(user.getUserName());
+            m_mailboxManager.saveMailboxPreferences(mailbox, mboxPrefs);
+        }
     }
 
     protected String dataToString(String[] row) {
