@@ -1,5 +1,5 @@
 Name:           ruby-abi
-Version:        1.8.4
+Version:        1.8
 Release:        1%{?dist}
 Summary:        Ruby compatibility package
 
@@ -10,7 +10,7 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildArch:      noarch
 BuildRequires:  ruby ruby-devel
-Requires:       ruby = %version
+Requires:       ruby
 Provides:       ruby(abi) = 1.8
 
 %description
