@@ -491,7 +491,8 @@ audio source.
 <h3><a name='ENUM'>15</a>. ENUM Dialing</h3>
 
 <p>
-This server supports ENUM dialing.
+This server supports ENUM dialing using the "official" public enum
+tree <code>e164.arpa</code>.
 To contact an ENUM destination from this server, the user-part of the URI
 should be <code>*2</code> followed by the ENUM dial string.
 For example:
@@ -499,7 +500,13 @@ For example:
 <dl>
   <dt><code>*2 1 800 555 1234</code>
   <dd>Routes to the ENUM for the E.164 number +1 800 555 1234.</dd>
+  <dt><code>*2 43 720 0101011</code>
+  <dd>Routes to the ENUM test number +43 720 0101011.</dd>
 </dl>
+<p>
+Additional ENUM test numbers can be found at
+<a href="http://www.enum-test.at/index_en.html"><code>http://www.enum-test.at/index_en.html</code></a>.
+</p>
 
 <h3><a name='JOIN'>16</a>. Ad-hoc Conferencing</h3>
 
