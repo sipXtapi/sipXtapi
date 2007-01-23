@@ -148,7 +148,9 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
             return null;
         }
         
-        MailboxPreferences mboxPrefs = new MailboxPreferences();
+        String userId = getValue(attrs, Index.USERNAME);
+        Mailbox mailbox = m_mailboxManager.getMailbox(userId);
+        MailboxPreferences mboxPrefs = m_mailboxManager.loadMailboxPreferences(mailbox);
         mboxPrefs.setEmailAddress(emailAddress);
         return mboxPrefs;
     }

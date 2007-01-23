@@ -84,6 +84,8 @@ public class MailboxManagerTest extends TestCase {
     
     public void testLoadPreferencesWhenEmpty() {
         Mailbox mailbox = m_mgr.getMailbox("300");
+        MailboxPreferencesReader reader = new MailboxPreferencesReader();
+        m_mgr.setMailboxPreferencesReader(reader);
         MailboxPreferences preferences = m_mgr.loadMailboxPreferences(mailbox);
         assertNotNull(preferences);
     }

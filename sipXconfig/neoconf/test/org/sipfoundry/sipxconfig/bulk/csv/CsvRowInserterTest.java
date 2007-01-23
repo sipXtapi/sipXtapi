@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.bulk.csv;
 
+import java.io.File;
+
 import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
@@ -23,6 +25,7 @@ import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phone.TestPhone;
 import org.sipfoundry.sipxconfig.phone.TestPhoneModel;
+import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
@@ -202,10 +205,16 @@ public class CsvRowInserterTest extends TestCase {
     }
     
     public void testMailboxPreferencesFromRow() {
+        Mailbox mailbox = new Mailbox(new File("."), "kuku");
+        MailboxPreferences exepected = new MailboxPreferences(); 
         IMocksControl mailboxManagerControl =  EasyMock.createStrictControl();
         MailboxManager mailboxManager = mailboxManagerControl.createMock(MailboxManager.class);
         mailboxManager.isEnabled();
         mailboxManagerControl.andReturn(true);
+        mailboxManager.getMailbox("kuku");
+        mailboxManagerControl.andReturn(mailbox);
+        mailboxManager.loadMailboxPreferences(mailbox);
+        mailboxManagerControl.andReturn(exepected);
         mailboxManager.isEnabled();
         mailboxManagerControl.andReturn(false);
         mailboxManagerControl.replay();
@@ -217,8 +226,9 @@ public class CsvRowInserterTest extends TestCase {
         
         CsvRowInserter impl = new CsvRowInserter();
         impl.setMailboxManager(mailboxManager);
-        MailboxPreferences preferences = impl.mailboxPreferencesFromRow(userRow);
-        assertEquals("jlennon@example.com", preferences.getEmailAddress());
+        MailboxPreferences actual = impl.mailboxPreferencesFromRow(userRow);
+        assertEquals("jlennon@example.com", actual.getEmailAddress());
+        assertSame(exepected, actual);
 
         MailboxPreferences preferencesDisabled = impl.mailboxPreferencesFromRow(userRow);
         assertNull(preferencesDisabled);

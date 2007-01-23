@@ -11,10 +11,15 @@
  */
 package org.sipfoundry.sipxconfig.vm;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Writer;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.sipfoundry.sipxconfig.vm.MailboxManagerImpl.MailstoreMisconfigured;
 
 /**
  * Helper class for reading/writing XML
@@ -22,6 +27,26 @@ import org.apache.velocity.app.VelocityEngine;
 public abstract class XmlWriterImpl<T> {  
     private String m_template;    
     private VelocityEngine m_velocityEngine;
+
+    /**
+     * Convience method. This will
+     *  - create parent directory if it doesn't exist
+     *  - wrap io exception in MailstoreMisconfigured exception
+     */
+    public void writeObject(T object, File file) {
+        Writer iowriter = null;
+        try {
+            if (!file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
+            iowriter = new FileWriter(file);
+            writeObject(object, iowriter);
+        } catch (IOException e) {
+            throw new MailstoreMisconfigured("Cannot write to file ", e);
+        } finally {
+            IOUtils.closeQuietly(iowriter);
+        }
+    }
 
     public String getTemplate() {
         return m_template;

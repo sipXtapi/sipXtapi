@@ -24,8 +24,8 @@ import org.sipfoundry.sipxconfig.TestHelper;
 
 public class MailboxPreferencesTest extends TestCase {
     
-    private XmlReaderImpl<MailboxPreferences> m_reader;
-    private XmlWriterImpl<MailboxPreferences> m_writer;
+    private MailboxPreferencesReader m_reader;
+    private MailboxPreferencesWriter m_writer;
     
     protected void setUp() {
         m_reader = new MailboxPreferencesReader();
