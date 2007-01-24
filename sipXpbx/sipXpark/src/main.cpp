@@ -505,7 +505,7 @@ int main(int argc, char* argv[])
     callManager.addTaoListener(&dialogEvents);
     dialogEvents.start();
 
-    // Startup the call processing system
+    // Start up the call processing system
     callManager.start();
    
     // Loop forever until signaled to shut down

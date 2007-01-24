@@ -31,6 +31,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class ResourceListResource;
+class ResourceListResourceInstance;
 
 
 /**
@@ -54,6 +55,8 @@ class ResourceList : public UtlContainableAtomic
                 const UtlString& hostPart,
                 /// The event-type to handle.
                 const char* eventType,
+                /// The content-type to handle.
+                const char* contentType,
                 /// The SipPublishContentMgr for sending event notices.
                 SipPublishContentMgr& eventPublisher);
 
@@ -70,6 +73,14 @@ class ResourceList : public UtlContainableAtomic
    //! Get the event type for the resource list.
    // Return value is valid as long as the ResourceList exists.
    const char* getEventType() const;
+
+   //! Get the content type for the resource list.
+   // Return value is valid as long as the ResourceList exists.
+   const char* getContentType() const;
+
+   //! Get the SIP domain name for the resource list.
+   // Return value is valid as long as the ResourceList exists.
+   const char* getDomainName() const;
 
    //! Get the resource name URI for the resource list.
    // Return value is valid as long as the ResourceList exists.
@@ -95,8 +106,12 @@ class ResourceList : public UtlContainableAtomic
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:
 
+   //! SIP domain name.
+   UtlString mDomainName;
    //! Event type.
    UtlString mEventType;
+   //! Content type.
+   UtlString mContentType;
    //! Resource name, the URI of the resource list showing the sipX domain
    UtlString mResourceName;
    //! Resource URI, the URI of the SUBSCRIBE as it reaches us.
@@ -129,6 +144,18 @@ class ResourceList : public UtlContainableAtomic
 inline const char* ResourceList::getEventType() const
 {
    return mEventType.data();
+}
+
+//! Get the content type for the resource list.
+inline const char* ResourceList::getContentType() const
+{
+   return mContentType.data();
+}
+
+//! Get the SIP domain name for the resource list.
+inline const char* ResourceList::getDomainName() const
+{
+   return mDomainName.data();
 }
 
 //! Get the resource name URI for the resource list.
@@ -183,15 +210,22 @@ class ResourceListResource : public UtlContainableAtomic
 
    /// Delete an instance from the resource and publish appropriate notices.
    void deleteInstancePublish(const char* instanceName,
-                              const char* subscriptionState);
+                              const char* subscriptionState,
+                              const char* resourceSubscriptionState);
 
    /// Delete an instance from the resource.
    void deleteInstance(const char* instanceName,
                        const char* subscriptionState);
 
    /// A notice has arrived for an instance.  Publish it.
-   void updateInstancePublish(const UtlString& instanceName,
-                              const UtlString& content);
+   //  Also sets the subscription state to "active".
+   void updateInstancePublish(const char* instanceName,
+                              const char* bytes,
+                              int length);
+
+   /// Find the contained instance with a particular name.
+   //  Returns NULL if not found.
+   ResourceListResourceInstance* findInstance(const char* instanceName);
 
    /**
     * Get the ContainableType for a UtlContainable-derived class.
@@ -240,6 +274,7 @@ inline ResourceList* ResourceListResource::getResourceList() const
 class ResourceListResourceInstance : public UtlContainableAtomic
 {
    friend class ResourceList;
+   friend class ResourceListResource;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
   public:
@@ -274,6 +309,11 @@ class ResourceListResourceInstance : public UtlContainableAtomic
    UtlString mInstanceName;
    //! The subscription state.
    UtlString mSubscriptionState;
+
+   //! The current content for the resource.
+   UtlString mContent;
+   //! Whether content is present for the resource.
+   UtlBoolean mContentPresent;
 
    //! Disabled copy constructor
    ResourceListResourceInstance(const ResourceListResourceInstance& rResourceListResourceInstance);
