@@ -33,6 +33,7 @@ class CallResolver
     end
     install_signal_handler(@readers)    
     @writer = CdrWriter.new(@config.cdr_database_url, @config.purge_age_cdr, log)
+    @state = nil
   end
   
   def run_resolver
@@ -52,9 +53,11 @@ class CallResolver
       Thread.new(reader, cse_queue) { |r, q| r.run(q, start_time, end_time) }
     end
     
-    Thread.new( cse_queue, cdr_queue ) { | inq, outq | 
-      # state copies from CSE queue to CDR queue
-      State.new( cse_queue, cdr_queue ).run
+    # state copies from CSE queue to CDR queue
+    @state = State.new( cse_queue, cdr_queue )
+    
+    Thread.new( @state ) { | state | 
+      state.run
     }
     
     # FIXME: enable call direction plugin
@@ -80,6 +83,9 @@ class CallResolver
         log.info("#{s} intercepted. Terminating reader threads.")
         readers.each { |r| r.stop() }
       end        
+    end
+    Signal.trap("USR1") do
+      log.debug(@state.to_s)
     end
   end  
   

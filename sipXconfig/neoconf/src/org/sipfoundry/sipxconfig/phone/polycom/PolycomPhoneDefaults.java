@@ -153,7 +153,7 @@ public class PolycomPhoneDefaults {
     @SettingEntry(path = "attendant/uri")
     public String getAttendantUri() {
         if (m_speedDial != null && m_speedDial.isBlf()) {
-            return SipUri.format(m_speedDial.getResourceListId(), m_defaults.getDomainName(),
+            return SipUri.format(m_speedDial.getResourceListId(true), m_defaults.getDomainName(),
                     false);
         }
         return null;

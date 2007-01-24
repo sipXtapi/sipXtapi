@@ -52,8 +52,19 @@ public class SpeedDial extends BeanWithId {
         DataCollectionUtil.move(buttons, index, moveOffset);
     }
 
-    public String getResourceListId() {
-        return "~~rl~" + getUser().getId();
+    /**
+     * Returns the URL of the resource list coresponfing to this speed dial.
+     * 
+     * @param consolidated needs to be set to true for phones that are not RFC compliant and
+     *        expect "consolidated" view of resource list (see XCF-1453)
+     */
+    public String getResourceListId(boolean consolidated) {
+        StringBuilder listId = new StringBuilder("~~rl~");
+        listId.append(getUser().getId());
+        if (consolidated) {
+            listId.append('c');
+        }
+        return listId.toString();
     }
 
     public String getResourceListName() {

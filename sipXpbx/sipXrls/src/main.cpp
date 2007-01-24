@@ -469,6 +469,7 @@ int main(int argc, char* argv[])
 #define RESOURCE_URI "sip:700@maine.pingtel.com"
    ResourceList rl("~~rl~1", domainName, localHostPart,
                    DIALOG_EVENT_TYPE,
+                   DIALOG_EVENT_CONTENT_TYPE,
                    eventPublisher);
    ResourceListResource* rlr = rl.addResource(RESOURCE_URI, "<name>foobar</name>");
 
@@ -532,7 +533,16 @@ void subscription_state_callback(SipSubscribeClient::SubscriptionState newState,
                                  const SipMessage* subscribeResponse)
 {
    OsSysLog::add(LOG_FACILITY, PRI_DEBUG,
-                 "subscription_state_callback: newState = %d", newState);
+                 "subscription_state_callback newState = %d, applicationData = %p, dialogHandle = '%s'",
+                 newState, applicationData, dialogHandle);
+#if 0
+   UtlString b;
+   int l;
+   subscribeResponse->getBytes(&b, &l);
+   OsSysLog::add(LOG_FACILITY, PRI_DEBUG,
+                 "subscription_state_callback subscribeResponse = '%s'",
+                 b.data());
+#endif // 0
    ResourceListResource* rlr = (ResourceListResource*) applicationData;
 
    switch (newState)
@@ -542,18 +552,34 @@ void subscription_state_callback(SipSubscribeClient::SubscriptionState newState,
    case SipSubscribeClient::SUBSCRIPTION_INITIATED:
       break;
    case SipSubscribeClient::SUBSCRIPTION_SETUP:
+      // We should be able to add an instance here (with subscription
+      // state "pending", as we have no content yet).  But
+      // subscription handles are not returned consistently (see XSL-146).
+      // So we don't add the instance here, but rather when the first NOTIFY
+      // comes in and the matching instance can't be found.
+#if 0
    {
-      const char* subscription_state =
-         subscribeResponse->getHeaderValue(0, SIP_SUBSCRIPTION_STATE_FIELD);
-      rlr->addInstancePublish(dialogHandle, "active");
+      // Beware that this callback may be due to a NOTIFY that was
+      // received before the response to the SUBSCRIBE, so the information
+      // from the response (responseCode, subscribeResponse) may not be
+      // available.
+      OsSysLog::add(LOG_FACILITY, PRI_DEBUG,
+                    "subscription_state_callback SUBSCRIPTION_SETUP rlr = %p",
+                    rlr);
+      // Put the subscription into pending state, as we have no
+      // content for it yet.
+      rlr->addInstancePublish(dialogHandle, "pending");
    }
+#endif // 0
       break;
    case SipSubscribeClient::SUBSCRIPTION_FAILED:
    case SipSubscribeClient::SUBSCRIPTION_TERMINATED:
    {
+      // Get the subscription state, from which we can extract the
+      // reason for termination.
       const char* subscription_state =
          subscribeResponse->getHeaderValue(0, SIP_SUBSCRIPTION_STATE_FIELD);
-      rlr->deleteInstancePublish(dialogHandle, "terminated");
+      rlr->deleteInstancePublish(dialogHandle, "terminated", subscription_state);
    }
       break;
    }
@@ -564,11 +590,21 @@ void notify_event_callback(const char* earlyDialogHandle,
                            void* applicationData,
                            const SipMessage* notifyRequest)
 {
-   UtlString b;
-   int l;
-   notifyRequest->getBytes(&b, &l);
-   OsSysLog::add(LOG_FACILITY, PRI_DEBUG,
-                 "notify_event_callback: notify = '%s'", b.data());
+   if (OsSysLog::willLog(LOG_FACILITY, PRI_DEBUG))
+   {
+      UtlString b;
+      int l;
+      notifyRequest->getBytes(&b, &l);
+      OsSysLog::add(LOG_FACILITY, PRI_DEBUG,
+                    "notify_event_callback applicationData = %p, dialogHandle = '%s', notify = '%s'",
+                    applicationData, dialogHandle, b.data());
+   }
+   ResourceListResource* rlr = (ResourceListResource*) applicationData;
+
+   const char* content_bytes;
+   int content_length;
+   notifyRequest->getBody()->getBytes(&content_bytes, &content_length);
+   rlr->updateInstancePublish(dialogHandle, content_bytes, content_length);
 }
 
 // Stub to avoid pulling in ps library
