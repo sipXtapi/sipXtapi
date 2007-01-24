@@ -42,6 +42,7 @@ class CdrWriter < Dao
   end
   
   def purge_now(dbh, start_time_cdr)
+    log.debug("Purging CDRs older than #{start_time_cdr}")  
     sql = CdrWriter.delete_sql
     dbh.prepare(sql) do | sth |
       sth.execute(start_time_cdr)
@@ -61,7 +62,7 @@ class CdrWriter < Dao
     end        
     
     def delete_sql
-      "DELETE FROM cdrs WHERE ? < start_time"
+      "DELETE FROM cdrs WHERE start_time < ?"
     end
     
     def last_cdr_sql

@@ -18,7 +18,7 @@ class CseReader < Dao
   def initialize(database_url, purge_age,  log = nil)
     super(database_url, purge_age, log)
     @last_read_time = nil
-    @stop = Terminator.new(60)    
+    @stop = Terminator.new(60)
   end
   
   # Another way of fetching the row
@@ -36,8 +36,11 @@ class CseReader < Dao
         loop do
           check_purge(dbh)
           first = @last_read_time
+          log.debug("Read CSEs from #{first}")
           read_cses(dbh, cse_queue, first, nil)
+          log.debug("Going to sleep.")
           break if @stop.wait
+          log.debug("Waking up.")
         end
       end        
     end
@@ -63,6 +66,7 @@ class CseReader < Dao
   end
   
   def purge_now(dbh, start_time_cse)
+    log.debug("Purging CSEs older than #{start_time_cse}")
     sql = CseReader.delete_sql(nil, start_time_cse)
     dbh.prepare(sql) do | sth |
       sth.execute(start_time_cse)

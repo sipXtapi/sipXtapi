@@ -62,7 +62,11 @@ class State
   end
   
   def dump_state
-    p "Generation #{@generation}, Retired: #{@retired_calls.size}, Failed: #{@failed_calls.size}, Waiting: #{@cdrs.size}"
+    p to_s
+  end
+  
+  def to_s
+    "Generation #{@generation}, Retired: #{@retired_calls.size}, Failed: #{@failed_calls.size}, Waiting: #{@cdrs.size}"
   end
   
   # Analyze CSE, add CDR to queue if completed
