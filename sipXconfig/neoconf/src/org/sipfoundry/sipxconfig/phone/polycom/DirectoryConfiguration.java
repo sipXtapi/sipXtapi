@@ -57,6 +57,9 @@ public class DirectoryConfiguration extends VelocityProfileGenerator {
         return polycomEntries;
     }
 
+    /**
+     * Not all buttons will get into Polycom directory: size might be actually larger than
+     */
     private int getSize() {
         int size = 0;
         if (m_entries != null) {
@@ -71,6 +74,10 @@ public class DirectoryConfiguration extends VelocityProfileGenerator {
     void transformSpeedDial(List<Button> buttons, Collection<PolycomPhonebookEntry> polycomEntries) {
         for (int i = 0; i < buttons.size(); i++) {
             Button button = buttons.get(i);
+            if (button.isBlf()) {
+                // on Polycom phone BLF entries are handled by RLS server - not by directory
+                continue;
+            }
             // speed dial entries start with 1 (1..9999)
             polycomEntries.add(new PolycomPhonebookEntry(button, i + 1));
         }

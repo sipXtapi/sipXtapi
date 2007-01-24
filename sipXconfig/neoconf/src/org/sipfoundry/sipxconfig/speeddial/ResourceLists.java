@@ -68,7 +68,7 @@ public class ResourceLists extends XmlFile {
 
     private Element createListForUser(Element lists, SpeedDial speedDial) {
         Element list = lists.addElement("list");
-        list.addAttribute("user", speedDial.getResourceListId());
+        list.addAttribute("user", speedDial.getResourceListId(false));
         addNameElement(list, speedDial.getResourceListName());
         return list;
     }
