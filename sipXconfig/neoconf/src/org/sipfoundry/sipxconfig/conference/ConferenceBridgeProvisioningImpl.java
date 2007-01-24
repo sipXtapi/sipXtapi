@@ -29,26 +29,37 @@ import org.sipfoundry.sipxconfig.setting.SettingFilter;
 import org.sipfoundry.sipxconfig.setting.SettingUtil;
 import org.sipfoundry.sipxconfig.setting.SettingValue2;
 import org.sipfoundry.sipxconfig.setting.SettingValueImpl;
-import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcProxyFactoryBean;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcClientInterceptor;
+import org.apache.xmlrpc.XmlRpcClient;
+import org.apache.xmlrpc.XmlRpcClientRequest;
+import org.apache.xmlrpc.XmlRpcException;
+import org.springframework.aop.framework.ProxyFactory;
+
 
 public class ConferenceBridgeProvisioningImpl extends HibernateDaoSupport implements
         ConferenceBridgeProvisioning {
     private SipxReplicationContext m_sipxReplicationContext;
 
+    public interface FreeSWITCHFunctions {
+        void freeswitch_api(String funcion, String params);
+    }
+    
     public void deploy(Serializable bridgeId) {
         try {
+
             Bridge bridge = (Bridge) getHibernateTemplate().load(Bridge.class, bridgeId);
             // get settings for bridge and all conferences
+   
+            XmlRpcClientInterceptor interceptor = new XmlRpcClientInterceptor();
+            interceptor.setServiceInterface(FreeSWITCHFunctions.class);
+            interceptor.setServiceUrl(bridge.getServiceUri());
+            interceptor.afterPropertiesSet();
 
-            XmlRpcProxyFactoryBean factory = new XmlRpcProxyFactoryBean();
-            factory.setServiceInterface(ConfigDbParameter.class);
-            factory.setServiceUrl(bridge.getServiceUri());
-            factory.afterPropertiesSet();
-            ConfigDbParameter configDb = (ConfigDbParameter) factory.getObject();
-            ConfigDbSettingAdaptor adaptor = new ConfigDbSettingAdaptor();
-            adaptor.setConfigDbParameter(configDb);
-            deploy(bridge, adaptor);
+            FreeSWITCHFunctions proxy = (FreeSWITCHFunctions) ProxyFactory.getProxy(FreeSWITCHFunctions.class,
+                    interceptor);
+
+            proxy.freeswitch_api("reloadxml","");
             generateAdmissionData();
             m_sipxReplicationContext.generate(DataSet.ALIAS);
         } catch (MalformedURLException e) {
@@ -78,20 +89,19 @@ public class ConferenceBridgeProvisioningImpl extends HibernateDaoSupport implem
         adaptor.set("bbridge.conf", allSettings);
         getHibernateTemplate().saveOrUpdateAll(conferences);
     }
-
+ 	
     public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
-        m_sipxReplicationContext = sipxReplicationContext;
+    	m_sipxReplicationContext = sipxReplicationContext;
     }
 
     public static class BostonBridgeFilter implements SettingFilter {
-        private static final String PREFIX = "BOSTON_BRIDGE";
-
+    	private static final String PREFIX = "fs-conf";
         public boolean acceptSetting(Setting root_, Setting setting) {
             String profileName = setting.getProfileName();
             return profileName.startsWith(PREFIX);
-        }
+    	}
     }
-
+    	
     public static class ConferenceProfileName implements ProfileNameHandler {
         private static final char SEPARATOR = '.';
         private final String m_conferenceName;

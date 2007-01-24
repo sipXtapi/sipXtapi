@@ -32,7 +32,9 @@ public class Bridge extends BeanWithSettings implements NamedObject {
     public static final String CONFERENCES_PROP = "conferences";
     public static final String SERVICE_URI_PROP = "serviceUri";
     
-    public static final String SIP_DOMAIN = "bridge-bridge/BOSTON_BRIDGE_SIP_DOMAIN";
+    public static final String SIP_DOMAIN = "fs-conf-bridge/sip-domain";
+
+    public static final String SIP_PORT = "fs-conf-bridge/sip-port";
 
     private boolean m_enabled;
 
@@ -49,7 +51,7 @@ public class Bridge extends BeanWithSettings implements NamedObject {
     private int m_port;
 
     private String m_host;
-
+    
     /** location - host:port of the admission server */
     private String m_admissionServer;
         
@@ -84,7 +86,15 @@ public class Bridge extends BeanWithSettings implements NamedObject {
     public void setPort(int port) {
         m_port = port;
     }
-    
+
+    public String getSipDomain() {
+        return getSettingValue(SIP_DOMAIN);
+    }
+
+    public int getSipPort() {
+        return Integer.parseInt(getSettingValue(SIP_PORT));
+    }
+
     @Override
     protected Setting loadSettings() {
         return getModelFilesContext().loadModelFile("sipxconference/bridge.xml");
@@ -176,6 +186,7 @@ public class Bridge extends BeanWithSettings implements NamedObject {
         Object[] params = new Object[] {
             m_host, Integer.toString(m_port)
         };
-        return MessageFormat.format("https://{0}:{1}/RPC2", params);
+        return MessageFormat.format("http://{0}:{1}/RPC2", params);
     }
+    
 }

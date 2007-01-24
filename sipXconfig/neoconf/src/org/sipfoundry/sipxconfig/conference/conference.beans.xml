@@ -9,15 +9,12 @@
     <property name="audioDirectory" value="${sysdir.phone}/conference"/>
     <!-- default value - overridden in sipxconfig.properties -->
     <property name="host" value="localhost"/>
-    <property name="port" value="8201"/>
-    <!-- default value - overridden in sipxconfig.properties -->
-    <property name="admissionServer" value="localhost:5100"/>
+    <property name="port" value="8080"/>
   </bean>
 
   <bean name="conferenceConference" class="org.sipfoundry.sipxconfig.conference.Conference"
     singleton="false" parent="beanWithSettings">
     <!-- default value - overridden in sipxconfig.properties -->
-    <property name="admissionScriptServer" value="localhost:8091"/>
   </bean>
   
   <bean id="conferenceBridgeContextImpl"

@@ -13,12 +13,15 @@ package org.sipfoundry.sipxconfig.conference;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.List;
 
 import org.apache.commons.collections.Closure;
 import org.apache.commons.collections.CollectionUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
+import org.dom4j.io.OutputFormat;
+import org.dom4j.io.XMLWriter;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 
@@ -31,11 +34,12 @@ public class ConferenceAdmission extends XmlFile {
     public Document getDocument() {
         return m_document;
     }
-
+    
     public void generate(List conferences) {
         m_document = FACTORY.createDocument();
-        Element parent = m_document.addElement("conferences");
-        CollectionUtils.forAllDo(conferences, new BuildConferenceElem(parent));
+        Element context = m_document.addElement("context");
+        context.addAttribute("name","default");
+        CollectionUtils.forAllDo(conferences, new BuildConferenceElem(context));
     }
 
     private static class BuildConferenceElem implements Closure {
@@ -50,15 +54,15 @@ public class ConferenceAdmission extends XmlFile {
             if (!conference.isEnabled()) {
                 return;
             }
-            Element confElem = m_parent.addElement("conference");
-            confElem.addElement("id").setText(conference.getName());
-            confElem.addElement("extension").setText(conference.getExtension());
-            confElem.addElement("value").setText(conference.getRemoteAdmitSecret());
-            confElem.addElement("organizer-access-code").setText(
-                    conference.getOrganizerAccessCode());
-            confElem.addElement("participant-access-code").setText(
-                    conference.getParticipantAccessCode());
-            confElem.addElement("conference-uri").setText(conference.getUri());
+            Element extension = m_parent.addElement("extension");
+            extension.addAttribute("name",conference.getExtension());
+            Element condition = extension.addElement("condition");
+            condition.addAttribute("field","destination_number");
+            condition.addAttribute("expression","^"+conference.getName()+"$");
+            Element action = condition.addElement("application");
+            action.addAttribute("application","conference");
+            action.addAttribute("data",conference.getName()+"+["+
+            		conference.getParticipantAccessCode()+"]");
         }
     }
 
@@ -70,6 +74,20 @@ public class ConferenceAdmission extends XmlFile {
     public void writeToFile() throws IOException {
         File parent = new File(m_configDirectory);
         writeToFile(parent, getType().getName());
+    }
+	
+    public void write(Writer writer) throws IOException {
+    	final class HeaderlessXML extends OutputFormat {
+    	  	  public boolean getOmitXMLGeneration() {
+    	  		  return true;
+    	  	  }
+    	  }
+        Document document = getDocument();
+        OutputFormat format = new HeaderlessXML();
+        format.setNewlines(true);
+        format.setIndent(true);
+        XMLWriter xmlWriter = new XMLWriter(writer, format);
+        xmlWriter.write(document);
     }
 
     public void setConfigDirectory(String configDirectory) {

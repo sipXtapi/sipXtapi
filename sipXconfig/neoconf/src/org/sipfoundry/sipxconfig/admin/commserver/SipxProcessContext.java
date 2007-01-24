@@ -34,6 +34,7 @@ public interface SipxProcessContext {
         public static final Process CONFIG_AGENT = new Process("ConfigAgent");
         public static final Process CALL_RESOLVER = new Process("CallResolver");
         public static final Process ACD_SERVER = new Process("ACDServer");
+        public static final Process FREESWITCH_SERVER = new Process("FreeSWITCH");
 
         private Process(String name) {
             super(name);

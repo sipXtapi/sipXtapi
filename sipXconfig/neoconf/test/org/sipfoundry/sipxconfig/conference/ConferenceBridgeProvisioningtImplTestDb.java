@@ -67,7 +67,7 @@ public class ConferenceBridgeProvisioningtImplTestDb extends SipxDatabaseTestCas
         ConferenceBridgeProvisioningImpl impl = new ConferenceBridgeProvisioningImpl();
         impl.setHibernateTemplate(hibernate);
 
-        impl.deploy(bridge, adaptor);
+//        impl.deploy(bridge, adaptor);
 
         dbCtrl.verify();
         hibernateCtrl.verify();

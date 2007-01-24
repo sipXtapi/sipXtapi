@@ -49,21 +49,12 @@
     <file variable="yes"/>
   </type>
   
-  <group name="bridge-bridge">
-    <setting name="BOSTON_BRIDGE_LOG_LEVEL" advanced="yes">
-      <label>Bridge log level</label>
+  <group name="fs-conf-bridge">
+    <setting name="log-level" advanced="yes">
       <type refid="loglevel"/>
-      <value>NOTICE</value>
-      <description>Maximum log severity level to be recorded.</description>
+      <value>DEBUG</value>
     </setting>
-    <setting name="BOSTON_BRIDGE_RESIP_LOG_LEVEL" advanced="yes">
-      <label>Stack log level</label>
-      <type refid="loglevel"/>
-      <value>NOTICE</value>
-      <description>Maximum resiprocte stack log severity level to be recorded.</description>
-    </setting>
-    <setting name="BOSTON_BRIDGE_LOG_CONSOLE" advanced="yes">
-      <label>Log to console</label>
+    <setting name="sip-log-level" advanced="yes">
       <type>
         <boolean>
           <true>
@@ -75,98 +66,81 @@
         </boolean>
       </type>
       <value>DISABLED</value>
-      <description>If set log output will also be sent to the standard output.</description>
     </setting>
-    <setting name="BOSTON_BRIDGE_LOG_DIR" hidden="yes">
-      <value></value>
-      <description>Directory path name for the log file.</description>
-    </setting>
-    <setting name="BOSTON_BRIDGE_TCP_PORT" advanced="yes">
-      <label>TCP port</label>
-      <type refid="port-number"/>
-      <value>5060</value>
-    </setting>
-    <setting name="BOSTON_BRIDGE_UDP_PORT" advanced="yes">
-      <label>UDP port</label>
-      <type refid="port-number"/>
-      <value>5060</value>
-    </setting>
-    <setting name="BOSTON_BRIDGE_TLS_PORT" advanced="yes">
-      <label>TLS port</label>
-      <type refid="port-number"/>
-      <value>5061</value>
-    </setting>
-    <setting name="BOSTON_BRIDGE_RTP_START" advanced="yes">
-      <label>Minimum RTP port</label>
-      <type refid="port-number"/>
-      <value>15000</value>
-      <description>Minimum RTP port number to be used for RTP streams.</description>
-    </setting>
-    <setting name="BOSTON_BRIDGE_RTP_END" advanced="yes">
-      <label>Maximum RTP port</label>
-      <type refid="port-number"/>
-      <value>20000</value>
-      <description>Maximum RTP port number to be used for RTP streams.</description>
-    </setting>
-    <setting name="BOSTON_BRIDGE_PROXY" advanced="yes">
-      <label>SIP Outbound Proxy</label>
-      <value/>
-      <description>An 'outbound proxy' that should be used as the first hop in any request originated from the
-        bridge.</description>
-    </setting>
-    <setting name="BOSTON_BRIDGE_MAX_LEGS">
-      <label>Maximum legs</label>
+	<setting name="max-legs">
       <type>
         <integer required="yes"/>
       </type>
       <value>0</value>
-      <description>The maximum number of call legs to be allowed by this bridge. If a call request is received
-        when there are this many legs already active, a 486 Busy Here is returned with a Warning header indicating
-        that there are too many users on the bridge. 0 means unlimited.</description>
     </setting>
-    <setting name="BOSTON_BRIDGE_ENTER_SOUND">
-      <label>Enter sound</label>
-      <type refid="upload-music"/>
-      <value>join.wav</value>
-      <description>The audio file to be played when a new call joins the conference.</description>
+    <setting name="sip-port" advanced="yes">
+      <type refid="port-number"/>
+      <value>15060</value>
     </setting>
-    <setting name="BOSTON_BRIDGE_EXIT_SOUND">
-      <label>Exit sound</label>
-      <type refid="upload-music"/>
-      <value>exit.wav</value>
-      <description>The audio file to be played when a call leaves the conference.</description>
-    </setting>
-    <setting name="BOSTON_BRIDGE_HOLD_MUSIC">
-      <label>Background music</label>
-      <type refid="upload-music"/>
-      <description> The audio file to be played when a call leg has been created but is not (for any reason)
-        receiving the bridged conference audio (such as prior to the start of the conference). </description>
-    </setting>
-    <setting name="BOSTON_BRIDGE_SIP_DOMAIN" advanced="yes">
-      <label>SIP domain</label>
+    <setting name="sip-domain">
       <value></value>
-      <description>The host[:port] of the SIP URI for the registry to be used for the bridge. Unless overridden
-        by other configuration, the host part of this value is used as the host part of the AOR for each
-        conference.</description>
     </setting>
-    <setting name="BOSTON_BRIDGE_SIP_ALIASES" hidden="yes">
+    <setting name="sip-proxy" advanced="yes">
+      <value/>
+    </setting>
+    <setting name="sip-aliases" hidden="yes">
       <value></value>
-      <description> A comma separated list of host and/or host:port values that the bridge should accept as
-        references to itself (in addition to the BOSTON_BRIDGE_SIP_DOMAIN value) </description>
     </setting>
-    <setting name="BOSTON_BRIDGE_COMMAND_MUTE">
-      <label>Mute code</label>
-      <type refid="feature-code"/>
-      <value>*33</value>
-      <description> The DTMF sequence to be entered by a conference participant to toggle the 'mute' of input
-        from thier own call leg.</description>
-    </setting>
-    <setting name="BOSTON_BRIDGE_COMMAND_END">
-      <label>End code</label>
-      <type refid="feature-code"/>
-      <value>*88</value>
-      <description> The DTMF sequence to be entered by a conference organizer to end a conference
-        (disconnecting all participants).</description>
-    </setting>
+	<group name="dtmf-commands" >
+	    <setting name="mute" advanced="yes">
+	      <type refid="feature-code"/>
+	      <value>0</value>
+	    </setting>
+	    <setting name="deaf-mute" advanced="yes">
+	      <type refid="feature-code"/>
+	      <value>*</value>
+	    </setting>
+		<group name="energy">
+		    <setting name="up" advanced="yes">
+		      <type refid="feature-code"/>
+		      <value>9</value>
+		    </setting>
+		    <setting name="reset" advanced="yes">
+		      <type refid="feature-code"/>
+		      <value>8</value>
+		    </setting>
+		    <setting name="down" advanced="yes">
+		      <type refid="feature-code"/>
+		      <value>7</value>
+		    </setting>
+		</group>
+		<group name="volume-listen">
+		    <setting name="up" advanced="yes">
+		      <type refid="feature-code"/>
+		      <value>6</value>
+		    </setting>
+		    <setting name="reset" advanced="yes">
+		      <type refid="feature-code"/>
+		      <value>5</value>
+		    </setting>
+		    <setting name="down" advanced="yes">
+		      <type refid="feature-code"/>
+		      <value>4</value>
+		    </setting>
+		</group>
+		<group name="volume-talk">
+		    <setting name="up" advanced="yes">
+		      <type refid="feature-code"/>
+		      <value>3</value>
+		    </setting>
+		    <setting name="reset" advanced="yes">
+		      <type refid="feature-code"/>
+		      <value>2</value>
+		    </setting>
+		    <setting name="down" advanced="yes">
+		      <type refid="feature-code"/>
+		      <value>1</value>
+		    </setting>
+		</group>
+	    <setting name="hungup" advanced="yes">
+	      <type refid="feature-code"/>
+	      <value>#</value>
+	    </setting>
+	</group>
   </group>
 </model>

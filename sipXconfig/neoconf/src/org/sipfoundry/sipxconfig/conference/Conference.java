@@ -42,13 +42,10 @@ public class Conference extends BeanWithSettings implements NamedObject {
     public static final int SECRET_LEN = 9;
 
     // settings names
-    public static final String ORGANIZER_CODE = "bridge-conference/organizer-code";
-    public static final String PARTICIPANT_CODE = "bridge-conference/participant-code";
-    public static final String REMOTE_ADMIT_SECRET = "bridge-conference/BOSTON_BRIDGE_CONFERENCE.REMOTE_ADMIT.SECRET";
-    public static final String AOR_RECORD = "bridge-conference/BOSTON_BRIDGE_CONFERENCE.AOR";
-
-    private static final String ADMISSION_SCRIPT_URL = "https://{0}/cgi-bin/cbadmission/cbadmission.cgi"
-            + "?action=conferencebridge&confid={1}&name=cbadmission";
+    public static final String ORGANIZER_CODE = "fs-conf-conference/organizer-code";
+    public static final String PARTICIPANT_CODE = "fs-conf-conference/participant-code";
+    public static final String REMOTE_ADMIT_SECRET = "fs-conf-conference/remote-admin-secret";
+    public static final String AOR_RECORD = "fs-conf-conference/AOR";
 
     private boolean m_enabled;
 
@@ -59,9 +56,6 @@ public class Conference extends BeanWithSettings implements NamedObject {
     private String m_extension;
 
     private Bridge m_bridge;
-
-    /** location - host:port of the conference scripts that admission server needs to retrieve */
-    private String m_admissionScriptServer;
 
     private ConferenceAorDefaults m_defaults;
 
@@ -146,14 +140,10 @@ public class Conference extends BeanWithSettings implements NamedObject {
         return getSettingValue(AOR_RECORD);
     }
 
-    public void setAdmissionScriptServer(String admissionScriptServer) {
-        m_admissionScriptServer = admissionScriptServer;
-    }
-
     @Override
     public void setSettingValue(String path, String value) {
         if (AOR_RECORD.equals(path)) {
-            throw new UnsupportedOperationException("cannot change AOR");
+            throw new UnsupportedOperationException("cannot change AOR_RECORD");
         }
         super.setSettingValue(path, value);
     }
@@ -180,8 +170,9 @@ public class Conference extends BeanWithSettings implements NamedObject {
         @SettingEntry(path = AOR_RECORD)
         public String getAorRecord() {
             String user = m_conference.getName();
-            String host = m_conference.getBridge().getHost();
-            return SipUri.format(user, host, false);
+            String host = m_conference.getBridge().getSipDomain();
+            int port = m_conference.getBridge().getSipPort();
+            return SipUri.format(user, host, port);
         }
 
         @SettingEntry(path = PARTICIPANT_CODE)
@@ -244,25 +235,15 @@ public class Conference extends BeanWithSettings implements NamedObject {
             AliasMapping extensionAlias = new AliasMapping(extensionUri, identityUri);
             aliases.add(extensionAlias);
         }
-        aliases.add(createAdmissionAlias(domainName));
+        aliases.add(createFreeSwitchAlias(domainName));
         return aliases;
     }
 
-    private AliasMapping createAdmissionAlias(String domainName) {
-        try {
-            Object[] params = {
-                m_admissionScriptServer, m_name
-            };
-            String admissionScriptUrl = MessageFormat.format(ADMISSION_SCRIPT_URL, params);
-            admissionScriptUrl = URLEncoder.encode(admissionScriptUrl, "UTF-8");
-            Map urlParams = new HashMap();
-            urlParams.put("play", admissionScriptUrl);
-            String admission = SipUri.format(m_name, getBridge().getAdmissionServer(), urlParams);
-            String identity = AliasMapping.createUri(m_name, domainName);
-
-            return new AliasMapping(identity, admission);
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
+    private AliasMapping createFreeSwitchAlias(String domainName) {
+    	String freeswitchUri = getUri();
+        String identity = AliasMapping.createUri(m_name, domainName);
+        return new AliasMapping(identity, freeswitchUri);
     }
+
+        
 }
