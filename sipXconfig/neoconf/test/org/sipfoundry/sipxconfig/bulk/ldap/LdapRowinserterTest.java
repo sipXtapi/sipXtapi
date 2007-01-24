@@ -18,5 +18,4 @@ public class LdapRowinserterTest extends TestCase {
     public void testInsert() throws Exception {
         // FIXME: placeholder
     }
-    
 }

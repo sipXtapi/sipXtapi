@@ -49,7 +49,7 @@
                 location="@SIPX_CONFDIR@/e911rules.xml" />
                 
        <filemap identifier="conferences.xml"
-                location="@SIPX_CONFDIR@/conferences.xml" />
+                location="/usr/local/freeswitch/conf/default_context.xml" />
                 
        <filemap identifier="organizationprefs.xml"
                 location="@SIPX_VXMLDATADIR@/organizationprefs.xml" />                

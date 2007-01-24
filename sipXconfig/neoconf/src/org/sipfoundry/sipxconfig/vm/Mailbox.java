@@ -25,6 +25,10 @@ public class Mailbox {
     public File getMailstoreDirectory() {
         return m_mailstoreDirectory;
     }
+    
+    public File getDistributionListsFile() {
+        return new File(getMailstoreDirectory(), getUserId() + "/distribution.xml");
+    }
 
     public void setMailstoreDirectory(File mailstoreDirectory) {
         m_mailstoreDirectory = mailstoreDirectory;

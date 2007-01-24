@@ -12,18 +12,13 @@
 package org.sipfoundry.sipxconfig.vm;
 
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.sipfoundry.sipxconfig.common.UserException;
 
@@ -32,12 +27,30 @@ public class MailboxManagerImpl implements MailboxManager {
     private File m_mailstoreDirectory;
     private MailboxPreferencesReader m_mailboxPreferencesReader;
     private MailboxPreferencesWriter m_mailboxPreferencesWriter;
+    private DistributionListsReader m_distributionListsReader;
+    private DistributionListsWriter m_distributionListsWriter;
     
     public boolean isEnabled() {
         return m_mailstoreDirectory.exists();
     }
+    
+    public DistributionList[] loadDistributionLists(Mailbox mailbox) {
+        File file = mailbox.getDistributionListsFile();
+        DistributionList[] lists = m_distributionListsReader.readObject(file);
+        if (lists == null) {
+            lists = new DistributionList[0];
+        }
+        return lists;
+    }
+
+    public void saveDistributionLists(Mailbox mailbox, DistributionList[] lists) {
+        File file = mailbox.getDistributionListsFile();
+        m_distributionListsWriter.writeObject(lists, file);
+    }
    
     public List<String> getFolderIds(String userId) {
+        // to support custom folders, return these names and any additional
+        // directories here
         return Arrays.asList(new String[] {"inbox", "deleted", "saved"});
     }
     
@@ -101,38 +114,17 @@ public class MailboxManagerImpl implements MailboxManager {
     }
     
     public void saveMailboxPreferences(Mailbox mailbox, MailboxPreferences preferences) {
-        Writer iowriter = null;
-        try {
-            File prefsFile = mailbox.getVoicemailPreferencesFile();
-            if (!prefsFile.getParentFile().exists()) {
-                prefsFile.getParentFile().mkdirs();
-            }
-            iowriter = new FileWriter(prefsFile);
-            m_mailboxPreferencesWriter.writeObject(preferences, iowriter);
-        } catch (IOException e) {
-            throw new MailstoreMisconfigured("Cannot write to mailbox preferences file " + e.getLocalizedMessage());
-        } finally {
-            IOUtils.closeQuietly(iowriter);
-        }
+        File file = mailbox.getVoicemailPreferencesFile();
+        m_mailboxPreferencesWriter.writeObject(preferences, file);
     }
     
     public MailboxPreferences loadMailboxPreferences(Mailbox mailbox) {
-        Reader ioreader = null;
-        MailboxPreferences prefs = null;
-        try {
-            File prefsFile = mailbox.getVoicemailPreferencesFile();
-            if (prefsFile.exists()) {
-                ioreader = new FileReader(prefsFile);
-                prefs = m_mailboxPreferencesReader.readObject(ioreader); 
-            } else {
-                prefs = new MailboxPreferences();
-            }        
-            return prefs;
-        } catch (IOException e) {
-            throw new MailstoreMisconfigured("Cannot read from mailbox preferences file " + e.getLocalizedMessage());
-        } finally {
-            IOUtils.closeQuietly(ioreader);
-        }        
+        File prefsFile = mailbox.getVoicemailPreferencesFile();
+        MailboxPreferences preferences = m_mailboxPreferencesReader.readObject(prefsFile);
+        if (preferences == null) {
+            preferences = new MailboxPreferences();
+        }
+        return preferences;
     }
     
     public static class YesNo {

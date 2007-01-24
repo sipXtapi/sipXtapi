@@ -172,7 +172,7 @@ public class Conference extends BeanWithSettings implements NamedObject {
             String user = m_conference.getName();
             String host = m_conference.getBridge().getSipDomain();
             int port = m_conference.getBridge().getSipPort();
-            return SipUri.format(user, host, port);
+            return SipUri.format((user == null) ? "" : user, host, port);
         }
 
         @SettingEntry(path = PARTICIPANT_CODE)

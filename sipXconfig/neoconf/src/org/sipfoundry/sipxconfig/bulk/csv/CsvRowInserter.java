@@ -93,7 +93,9 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
         if (!m_mailboxManager.isEnabled() || StringUtils.isBlank(emailAddress)) {
             return null;
         }
-        MailboxPreferences mboxPrefs = new MailboxPreferences();
+        String userId = Index.USERNAME.get(row);
+        Mailbox mailbox = m_mailboxManager.getMailbox(userId);
+        MailboxPreferences mboxPrefs = m_mailboxManager.loadMailboxPreferences(mailbox);
         mboxPrefs.setEmailAddress(emailAddress);
         return mboxPrefs;
     }

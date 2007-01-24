@@ -54,15 +54,15 @@ public class ConferenceAdmission extends XmlFile {
             if (!conference.isEnabled()) {
                 return;
             }
-            Element extension = m_parent.addElement("extension");
-            extension.addAttribute("name",conference.getExtension());
-            Element condition = extension.addElement("condition");
-            condition.addAttribute("field","destination_number");
-            condition.addAttribute("expression","^"+conference.getName()+"$");
-            Element action = condition.addElement("application");
-            action.addAttribute("application","conference");
-            action.addAttribute("data",conference.getName()+"+["+
-            		conference.getParticipantAccessCode()+"]");
+            m_parent.addElement("extension")
+              .addAttribute("name",conference.getExtension())
+              .addElement("condition")
+                .addAttribute("field","destination_number")
+                .addAttribute("expression","^"+conference.getName()+"$")
+                .addElement("action")
+                   .addAttribute("application","conference")
+                   .addAttribute("data",conference.getName()+"+["+
+            		  conference.getParticipantAccessCode()+"]");
         }
     }
 

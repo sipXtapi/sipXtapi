@@ -1,6 +1,6 @@
 RUBY_LIBSRC = $(LIBSRC)/ruby
 
-RUBY_VER = 1.8.4
+RUBY_VER = 1.8
 
 ABI_RPM = \
 	$(DEST_RPM)/ruby-abi-$(RUBY_VER)-1.noarch.rpm
