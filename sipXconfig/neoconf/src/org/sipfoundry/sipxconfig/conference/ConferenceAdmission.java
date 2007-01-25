@@ -77,15 +77,11 @@ public class ConferenceAdmission extends XmlFile {
     }
 	
     public void write(Writer writer) throws IOException {
-    	final class HeaderlessXML extends OutputFormat {
-    	  	  public boolean getOmitXMLGeneration() {
-    	  		  return true;
-    	  	  }
-    	  }
         Document document = getDocument();
-        OutputFormat format = new HeaderlessXML();
+        OutputFormat format = new OutputFormat();
         format.setNewlines(true);
         format.setIndent(true);
+        format.setSuppressDeclaration(true);
         XMLWriter xmlWriter = new XMLWriter(writer, format);
         xmlWriter.write(document);
     }
