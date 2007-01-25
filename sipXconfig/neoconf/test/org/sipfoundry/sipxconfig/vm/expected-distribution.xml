@@ -2,10 +2,10 @@
 <distributions>
   <list>
     <index>1</index>
-      <destination>300</destination>
-      <destination>900</destination>
-    </list>
+    <destination>300</destination>
+    <destination>900</destination>
+  </list>
   <list>
     <index>3</index>
-    </list>
+  </list>
 </distributions>

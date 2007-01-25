@@ -19,6 +19,7 @@ import java.io.StringWriter;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
+import static org.apache.commons.lang.StringUtils.join;
 import org.sipfoundry.sipxconfig.TestHelper;
 
 public class DistributionListsTest extends TestCase {
@@ -36,18 +37,16 @@ public class DistributionListsTest extends TestCase {
         InputStream in = getClass().getResourceAsStream("200/distribution.xml");
         DistributionList[] lists = m_reader.readObject(new InputStreamReader(in));
         IOUtils.closeQuietly(in);      
-        assertEquals(2, lists.length);
+        assertEquals(10, lists.length);
+        assertEquals(join(new String[] {"200", "202"}, ' '), join(lists[1].getExtensions(), ' '));
+        assertNull(lists[0].getExtensions());
     }    
     
     public void testWritePreferences() throws IOException {
-        DistributionList[] lists = new DistributionList[] {
-                new DistributionList(),
-                new DistributionList()
-        };
+        DistributionList[] lists = DistributionList.createBlankList();
         StringWriter actual = new StringWriter();
-        lists[0].setPosition(1);
-        lists[0].setExtensions(new String[] {"300", "900"});
-        lists[1].setPosition(3);
+        lists[1].setExtensions(new String[] {"300", "900"});
+        lists[3].setExtensions(new String[0]);
         m_writer.writeObject(lists, actual);
         StringWriter expected = new StringWriter();
         InputStream expectedIn = getClass().getResourceAsStream("expected-distribution.xml");

@@ -299,7 +299,7 @@ public final class TapestryUtils {
             targetGroup = null;
             prefix = currentValue;
         } else {
-            String[] groups = currentValue.split("\\s+");
+            String[] groups = splitBySpace(currentValue);
             int ignore = groups.length - 1;
             targetGroup = groups[ignore].toLowerCase();
             StringBuffer sb = new StringBuffer();
@@ -338,5 +338,21 @@ public final class TapestryUtils {
 
         PrintWriter writer = response.getPrintWriter(csvType);
         return writer;
+    }
+    
+    public static String joinBySpace(String[] array) {
+        String s = null;
+        if (array != null) {
+            s = StringUtils.join(array, ' ');
+        }
+        return s;        
+    }
+    
+    public static String[] splitBySpace(String s) {
+        String[] array = null;
+        if (s != null) {
+            array = s.split("\\s+");
+        }  
+        return array;
     }
 }

@@ -31,14 +31,14 @@ public class MailboxManagerImpl implements MailboxManager {
     private DistributionListsWriter m_distributionListsWriter;
     
     public boolean isEnabled() {
-        return m_mailstoreDirectory.exists();
+        return m_mailstoreDirectory != null && m_mailstoreDirectory.exists();
     }
     
     public DistributionList[] loadDistributionLists(Mailbox mailbox) {
         File file = mailbox.getDistributionListsFile();
         DistributionList[] lists = m_distributionListsReader.readObject(file);
         if (lists == null) {
-            lists = new DistributionList[0];
+            lists = DistributionList.createBlankList();
         }
         return lists;
     }
@@ -133,19 +133,19 @@ public class MailboxManagerImpl implements MailboxManager {
         }        
     }
 
-    public MailboxPreferencesReader getMailboxPreferencesReader() {
-        return m_mailboxPreferencesReader;
-    }
-
     public void setMailboxPreferencesReader(MailboxPreferencesReader mailboxReader) {
         m_mailboxPreferencesReader = mailboxReader;
     }
 
-    public MailboxPreferencesWriter getMailboxPreferencesWriter() {
-        return m_mailboxPreferencesWriter;
-    }
-
     public void setMailboxPreferencesWriter(MailboxPreferencesWriter mailboxWriter) {
         m_mailboxPreferencesWriter = mailboxWriter;
+    }
+
+    public void setDistributionListsReader(DistributionListsReader distributionListsReader) {
+        m_distributionListsReader = distributionListsReader;
+    }
+
+    public void setDistributionListsWriter(DistributionListsWriter distributionListsWriter) {
+        m_distributionListsWriter = distributionListsWriter;
     }
 }

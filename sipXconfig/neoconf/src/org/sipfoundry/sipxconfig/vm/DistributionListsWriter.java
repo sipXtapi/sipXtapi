@@ -20,7 +20,7 @@ public class DistributionListsWriter extends XmlWriterImpl<DistributionList[]> {
     }
     
     @Override
-    protected void addContext(VelocityContext context, DistributionList[] object) {
-        context.put("lists", object);
+    protected void addContext(VelocityContext context, DistributionList[] lists) {
+        context.put("lists", lists);
     }
 }

@@ -11,27 +11,25 @@
  */
 package org.sipfoundry.sipxconfig.vm;
 
-public class DistributionList implements Comparable {
-    private int m_position = 1;
-    private String[] m_extensions = new String[0];
+
+public class DistributionList {
+    // 0-9, not # or *
+    private static final int MAX_SIZE = 10;
+    private String[] m_extensions;
+    
+    public static DistributionList[] createBlankList() {
+        DistributionList[] lists = new DistributionList[MAX_SIZE];
+        for (int i = 0; i < lists.length; i++) {
+            lists[i] = new DistributionList();
+        }        
+        return lists;
+    }
     
     public String[] getExtensions() {
         return m_extensions;
     }
+    
     public void setExtensions(String[] extensions) {
         m_extensions = extensions;
-    }
-    public int getPosition() {
-        return m_position;
-    }
-    public void setPosition(int position) {
-        m_position = position;
-    }
-    public int compareTo(Object o) {
-        if (o == null || !(o instanceof DistributionList)) {
-            return 1;
-        }
-
-        return getPosition() - ((DistributionList) o).getPosition();
     }
 }

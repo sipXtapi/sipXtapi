@@ -1,12 +1,12 @@
 <ul id="nav">
   <li>
-    <a href="#" jwcid="@PageLink" id="menu.myInformation" page="user_portal/EditMyInformation">
-      <span key="menu.myInformation"/>
+    <a href="#" jwcid="@PageLink" id="menu.voicemail" page="vm/ManageVoicemail">
+      <span key="menu.manageVoicemail"/>
     </a>
   </li>
   <li>
-    <a href="#" jwcid="@PageLink" id="menu.voicemail" page="vm/ManageVoicemail">
-      <span key="menu.manageVoicemail"/>
+    <a href="#" jwcid="@PageLink" id="menu.myInformation" page="user_portal/EditMyInformation">
+      <span key="menu.myInformation"/>
     </a>
   </li>
   <li>
@@ -27,6 +27,11 @@
   <li jwcid="@If" element="li" condition="ognl: userSession.supervisor">
     <a href="#" jwcid="@PageLink" id="menu.acdSupervisisorConsole" page="AcdSupervisorConsole">
       <span key="menu.acdSupervisisorConsole">ACD Supervision</span>
+    </a>
+  </li>
+  <li>
+    <a href="#" jwcid="@PageLink" id="menu.distributionLists" page="vm/EditDistributionLists">
+      <span key="menu.distributionLists"/>
     </a>
   </li>
 </ul>
