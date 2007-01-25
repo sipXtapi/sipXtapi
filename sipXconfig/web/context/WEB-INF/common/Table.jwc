@@ -13,7 +13,7 @@
   <parameter name="initialSortColumn" required="no" />
   <parameter name="row" required="no"/>
   <parameter name="rowInfo" required="no" default-value="bean:defaultRowInfo" />
-  <parameter name="selections" required="no" />
+  <parameter name="selections" required="yes" />
   <parameter name="usePager" required="no" default-value="false" />
   <inject property="tableVariables" object="spring:tableVariables" />
 
