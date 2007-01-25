@@ -123,10 +123,20 @@
   </target>
 	
   <target name="version4" description="upgrade from version 3" unless="version5">
+    <!-- NOTE: patches post 3.6 release -->	
   	<antcall target="afterhour"/>
+  	<antcall target="unmanaged-to-acme"/>
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="5" -->
   </target>	
+
+  <!-- see XCF-1466 -->
+  <target name="unmanaged-to-acme" unless="unmanaged-to-acme">
+    <sipx-sql>
+      update phone set bean_id = 'acmePhone' where bean_id = 'unmanagedPhone';
+    </sipx-sql>
+    <mark-patch-applied patch="unmanaged-to-acme"/>
+  </target>	  
 
   <target name="afterhour" unless="afterhour">
     <!-- add default afterhour attendant -->
