@@ -219,7 +219,7 @@ int MpVideoBuf::getFFMpegColorspace(MpVideoBuf::ColorSpace colorspace)
    return 0;
 }
 
-OsStatus MpVideoBuf::convertColorSpace(MpVideoBuf::ColorSpace colorspace, char *pBuffer, int bufSize)
+OsStatus MpVideoBuf::convertToColorSpace(MpVideoBuf::ColorSpace colorspace, char *pBuffer, int bufSize)
 {
    OsStatus retcode = OS_FAILED;
    int srcPixFmt;
@@ -256,6 +256,50 @@ OsStatus MpVideoBuf::convertColorSpace(MpVideoBuf::ColorSpace colorspace, char *
       if (img_convert(&dstPicture, dstPixFmt,
                       &srcPicture, srcPixFmt,
                       width, height) >= 0)
+      {
+         retcode =  OS_SUCCESS;
+      }
+   }
+
+   return retcode;
+}
+
+OsStatus MpVideoBuf::convertFromColorSpace(MpVideoBuf::ColorSpace colorspace, char *pBuffer, int bufSize)
+{
+   OsStatus retcode = OS_FAILED;
+   int srcPixFmt;
+   int dstPixFmt;
+   unsigned width;
+   unsigned height;
+
+   width = getFrameWidth();
+   height = getFrameHeight();
+   srcPixFmt = getFFMpegColorspace(colorspace);
+   dstPixFmt = getFFMpegColorspace(mColorspace);
+
+   if (  avpicture_get_size(srcPixFmt, width, height) > bufSize
+      || avpicture_get_size(dstPixFmt, width, height) > mpData->getMaxDataSize())
+   {
+      return OS_FAILED;
+   }
+
+   // If colorspaces are equal we could simply copy frame data to output buffer.
+   if (mColorspace == colorspace)
+   {
+      memcpy(getWriteDataPtr(), pBuffer, avpicture_get_size(srcPixFmt, width, height));
+      retcode =  OS_SUCCESS;
+   }
+   else
+   {
+      AVPicture srcPicture;
+      AVPicture dstPicture;
+
+      // Setup srcPicture and dstPicture internal pointers
+      avpicture_fill(&srcPicture, (uint8_t*)pBuffer, srcPixFmt, width, height);
+      avpicture_fill(&dstPicture, (uint8_t*)getWriteDataPtr(), dstPixFmt, width, height);
+
+      // Do convert
+      if (img_convert(&dstPicture, dstPixFmt, &srcPicture, srcPixFmt, width, height) >= 0)
       {
          retcode =  OS_SUCCESS;
       }

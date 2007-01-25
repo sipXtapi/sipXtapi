@@ -68,24 +68,24 @@ OsStatus MpvoGdi::render(MpVideoBufPtr pFrame)
    switch (p_header->biBitCount)
    {
    case 32:
-      pFrame->convertColorSpace(MpVideoBuf::MP_COLORSPACE_BGR32,
-                                (char*)pDibBuffer,
-                                p_header->biWidth*p_header->biHeight*32/8);
+      pFrame->convertToColorSpace(MpVideoBuf::MP_COLORSPACE_BGR32,
+                                  (char*)pDibBuffer,
+                                  p_header->biWidth*p_header->biHeight*32/8);
       break;
    case 24:
-      pFrame->convertColorSpace(MpVideoBuf::MP_COLORSPACE_BGR24,
-                                (char*)pDibBuffer,
-                                p_header->biWidth*p_header->biHeight*24/8);
+      pFrame->convertToColorSpace(MpVideoBuf::MP_COLORSPACE_BGR24,
+                                  (char*)pDibBuffer,
+                                  p_header->biWidth*p_header->biHeight*24/8);
       break;
    case 16:
-      pFrame->convertColorSpace(MpVideoBuf::MP_COLORSPACE_BGR565,
-                                (char*)pDibBuffer,
-                                p_header->biWidth*p_header->biHeight*16/8);
+      pFrame->convertToColorSpace(MpVideoBuf::MP_COLORSPACE_BGR565,
+                                  (char*)pDibBuffer,
+                                  p_header->biWidth*p_header->biHeight*16/8);
       break;
    case 15:
-      pFrame->convertColorSpace(MpVideoBuf::MP_COLORSPACE_BGR555,
-                                (char*)pDibBuffer,
-                                p_header->biWidth*p_header->biHeight*16/8);
+      pFrame->convertToColorSpace(MpVideoBuf::MP_COLORSPACE_BGR555,
+                                  (char*)pDibBuffer,
+                                  p_header->biWidth*p_header->biHeight*16/8);
       break;
    default:
       osPrintf( "screen depth %i not supported", p_header->biBitCount );

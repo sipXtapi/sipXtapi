@@ -153,12 +153,23 @@ public:
    int getFFMpegColorspace(MpVideoBuf::ColorSpace colorspace);
 
      /// Convert this frame to other colorspace
-   OsStatus convertColorSpace(MpVideoBuf::ColorSpace colorspace, char *pBuffer, int bufSize);
+   OsStatus convertToColorSpace(MpVideoBuf::ColorSpace colorspace, char *pBuffer, int bufSize);
    /**<
-   *  convertColorSpace convert this frame to provided buffer.
+   *  convertToColorSpace convert this frame to provided buffer. Width and height
+   *  are taken from this frame.
    *  
    *  @param colorspace - (in) Colorspace to convert to.
    *  @param pBuffer - (in) Buffer for converted data.
+   *  @param bufSize - (in) Size of buffer pointed by pBuffer.
+   */
+
+     /// Convert from other colorspace to this frame
+   OsStatus convertFromColorSpace(MpVideoBuf::ColorSpace colorspace, char *pBuffer, int bufSize);
+   /**<
+   *  convertFromColorSpace convert from provided buffer to this frame.
+   *  
+   *  @param colorspace - (in) Colorspace to convert from.
+   *  @param pBuffer - (in) Buffer with data in "colorspace" format.
    *  @param bufSize - (in) Size of buffer pointed by pBuffer.
    */
 
