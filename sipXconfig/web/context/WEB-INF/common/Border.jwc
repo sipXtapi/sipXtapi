@@ -37,7 +37,7 @@
     <binding name="listener" value="listener:logout"/>
   </component>
   <component id="helpLink" type="GenericLink">
-    <binding name="href" value="ognl:messages.format('link.helpUrl', versionInfo.versionIds)"/>
+    <binding name="href" value="prop:helpLink"/>
     <binding name="target" value="literal:sipxconfig-help"/>
   </component>
   <!--
