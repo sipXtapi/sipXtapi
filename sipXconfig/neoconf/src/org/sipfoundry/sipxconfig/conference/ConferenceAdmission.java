@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.conference;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Writer;
 import java.util.List;
 
 import org.apache.commons.collections.Closure;
@@ -21,7 +20,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
-import org.dom4j.io.XMLWriter;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 
@@ -76,14 +74,11 @@ public class ConferenceAdmission extends XmlFile {
         writeToFile(parent, getType().getName());
     }
 	
-    public void write(Writer writer) throws IOException {
-        Document document = getDocument();
-        OutputFormat format = new OutputFormat();
-        format.setNewlines(true);
-        format.setIndent(true);
+    @Override
+    public OutputFormat createFormat() {
+        OutputFormat format = super.createFormat();
         format.setSuppressDeclaration(true);
-        XMLWriter xmlWriter = new XMLWriter(writer, format);
-        xmlWriter.write(document);
+        return format;
     }
 
     public void setConfigDirectory(String configDirectory) {
