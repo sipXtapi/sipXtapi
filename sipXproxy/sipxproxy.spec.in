@@ -36,6 +36,7 @@ services.
 %package cdr
 Requires: %name >= %version
 Requires: ruby
+Requires: ruby-gems
 Requires: ruby-libs
 Requires: ruby-dbi
 Requires: ruby-postgres >= 0.7.1

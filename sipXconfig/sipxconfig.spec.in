@@ -24,9 +24,9 @@ Source: %name-%version.tar.gz
 Requires: sipxtacklib >= 3.7
 Requires: sipxcommserverlib >= 3.7
 Requires: sipxpbx >= 3.7
-Requires: postgresql-server >= 7.3
+Requires: postgresql-server
 Requires: ruby
-Requires: ruby-gems >= 0.8.11
+Requires: ruby-gems
 
 # known incompatabilities w/gcj, unclear how to enforce. can be issue
 # when gcj gets to 1.5, until them sun and ibm jvms ok
@@ -75,6 +75,7 @@ Summary: Configures/enables FTP for devices controlled by %{name}
 %package agent
 Requires: sipxcommserverlib
 Requires: ruby
+Requires: ruby-gems
 Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
 Summary: Analyzes data from sipxpbx and provides SOAP API to information
@@ -89,6 +90,7 @@ Requires: ruby
 Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
 Summary: Aggregates data from sipxconfig-agent into a database for reporting tools
+Requires: ruby-gems
 Requires: ruby-postgres
 Requires: ruby-dbi
 
@@ -263,14 +265,14 @@ fi
 %config(noreplace) %{sipxpbxconf}/process.d/sipxconfig-agent.process.xml
 
 %post agent
-gem install --no-rdoc --local %{sipxconfiglib}/sipXconfig-agent-*.gem >/dev/null 2>&1
-gem install --no-rdoc --local %{sipxconfiglib}/file-tail-*.gem >/dev/null 2>&1
+gem install --no-rdoc --local %{sipxconfiglib}/sipXconfig-agent-*.gem >/dev/null
+gem install --no-rdoc --local %{sipxconfiglib}/file-tail-*.gem >/dev/null
 
 %preun agent
 # prevent uninstalling during an upgrade
 #   see http://www-128.ibm.com/developerworks/library/l-rpm3/
 if [ "$1" = "0" ] ; then
-  gem uninstall sipXconfig-agent >/dev/null 2>&1
+  gem uninstall sipXconfig-agent >/dev/null 
 fi
 # not uninstalling file-tail incase it's used elsewhere
 
@@ -282,11 +284,11 @@ fi
 %config(noreplace) %{sipxpbxconf}/report/schema.sql
 
 %post report
-gem install --no-rdoc --local %{sipxconfiglib}/sipXconfig-report-*.gem >/dev/null 2>&1
+gem install --no-rdoc --local %{sipxconfiglib}/sipXconfig-report-*.gem >/dev/null
 
 %preun report
 # prevent uninstalling during an upgrade
 #   see http://www-128.ibm.com/developerworks/library/l-rpm3/
 if [ "$1" = "0" ] ; then
-  gem uninstall sipXconfig-report >/dev/null 2>&1
+  gem uninstall sipXconfig-report >/dev/null
 fi
