@@ -35,7 +35,6 @@ remote_receive() {
   tar -vx
 
   # recursive run to install cert normally on remote
-echo "Running recursively $0 "
   $0 $1
 
   popd
@@ -53,13 +52,11 @@ do
     case ${1} in
         -r|--remote)
 	    Action=REMOTE_SEND
-            break
             ;;
 
         ## Internal command
         --remote-receive)
 	    Action=REMOTE_RECEIVE
-            break
             ;;
         ##
         ## handle an unknown switch
