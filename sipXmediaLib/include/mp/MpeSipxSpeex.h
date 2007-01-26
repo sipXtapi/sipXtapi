@@ -34,9 +34,20 @@ public:
 //@{
 
      /// Constructor
-   MpeSipxSpeex(int payloadType);
+   MpeSipxSpeex(int payloadType, int mode=3);
      /**<
      *  @param payloadType - (in) RTP payload type associated with this encoder
+     *  @param mode - (in) Speex encoder mode: 
+     *                     <pre>
+     *                     mMode = 2 - 5,950 bps (Will use preprocess to make voice clearer)
+     *                     mMode = 3 - 8,000 bps (default)
+     *                     mMode = 4 - 11,000 bps
+     *                     mMode = 5 - 15,000 bps
+     *                     mMode = 6 - 18,200 bps
+     *                     mMode = 7 - 24,600 bps
+     *                     </pre>
+     *                     If not supported mode will be passed, default mode
+     *                     will be used.
      */
 
      /// Destructor

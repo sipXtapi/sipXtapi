@@ -47,11 +47,11 @@ const MpCodecInfo MpeSipxSpeex::smCodecInfo(
          160);                         // numSamplesPerFrame
 
 
-MpeSipxSpeex::MpeSipxSpeex(int payloadType)
+MpeSipxSpeex::MpeSipxSpeex(int payloadType, int mode)
 : MpEncoderBase(payloadType, &smCodecInfo)
 , mpEncoderState(NULL)
 , mSampleRate(8000)        // Sample rate of 8000Hz. We'll stick with NB for now.
-, mMode(0)
+, mMode(mode)
 , mDoVad(0)
 , mDoDtx(0)
 , mDoVbr(0)
@@ -61,29 +61,24 @@ MpeSipxSpeex::MpeSipxSpeex(int payloadType)
 , mDoDenoise(0)
 , mDoAgc(0)
 {
-   switch(payloadType)
+   switch(mMode)
    {
-   case CODEC_TYPE_SPEEX:
-      mMode = 3; // 8,000 bps
-      break;
-
-   case CODEC_TYPE_SPEEX_5:
-      mMode = 2; // 5,950 bps
-
+   case 2:
       // Use preprocess so the voice is as clear as possible,
       // because the bitrate is very low.
       mDoPreprocess = true; 
       break;
 
-   case CODEC_TYPE_SPEEX_15:
-      mMode = 5; // 15,000 bps
-      break;
-
-   case CODEC_TYPE_SPEEX_24:
-      mMode = 7; // 24,600 bps
+   case 3:
+   case 4:
+   case 5:
+   case 6:
+   case 7:
+      // Nothing to do.. it's ok.
       break;
 
    default:
+      // If not supported mode selected, use default
       mMode = 3;  // 8,000 bps
    }
 
