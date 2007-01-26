@@ -42,7 +42,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
     }
 
     public List<Cdr> getCdrs(Date from, Date to, CdrSearch search) {
-        CdrsStatementCreator psc = new CdrsStatementCreator(from, to, search);
+        CdrsStatementCreator psc = new CdrsStatementCreator(from, to, search, 10000, 0);
         CdrsResultReader resultReader = new CdrsResultReader();
         return getJdbcTemplate().query(psc, resultReader);
     }
@@ -62,27 +62,44 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
     }
 
     static class CdrsStatementCreator implements PreparedStatementCreator {
-        // FIXME: support LIMIT and offset " LIMIT 25 OFFSET 0";
         private static final String SELECT = "SELECT * FROM cdrs WHERE (? <= start_time) AND (start_time <= ?)";
         private static final String ORDER_BY = " ORDER BY start_time";
+        private static final String LIMIT = " LIMIT ? OFFSET ?";
 
         private Timestamp m_from;
         private Timestamp m_to;
         private CdrSearch m_search;
+        private int m_limit;
+        private int m_offset;
 
         public CdrsStatementCreator(Date from, Date to, CdrSearch search) {
+            this(from, to, search, 0, 0);
+        }
+
+        public CdrsStatementCreator(Date from, Date to, CdrSearch search, int limit, int offset) {
             long fromMillis = from != null ? from.getTime() : 0;
             m_from = new Timestamp(fromMillis);
             long toMillis = to != null ? to.getTime() : System.currentTimeMillis();
             m_to = new Timestamp(toMillis);
             m_search = search;
+            m_limit = limit;
+            m_offset = offset;
         }
 
         public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-            String searchSql = m_search.getSql();
-            PreparedStatement ps = con.prepareStatement(SELECT + searchSql + ORDER_BY);
+            StringBuilder sql = new StringBuilder(SELECT);
+            sql.append(m_search.getSql());
+            sql.append(ORDER_BY);
+            if (m_limit > 0) {
+                sql.append(LIMIT);
+            }
+            PreparedStatement ps = con.prepareStatement(sql.toString());
             ps.setTimestamp(1, m_from);
             ps.setTimestamp(2, m_to);
+            if (m_limit > 0) {
+                ps.setInt(3, m_limit);
+                ps.setInt(4, m_offset);
+            }
             return ps;
         }
     }

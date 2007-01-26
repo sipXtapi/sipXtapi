@@ -15,20 +15,24 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.apache.commons.lang.time.DateUtils;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.cdr.CdrSearch;
 
 public abstract class CdrPage extends BasePage implements PageBeginRenderListener {
+    @Persist
     public abstract Date getStartTime();
 
     public abstract void setStartTime(Date startTime);
 
+    @Persist
     public abstract Date getEndTime();
 
     public abstract void setEndTime(Date endTime);
 
+    @Persist
     public abstract CdrSearch getCdrSearch();
 
     public abstract void setCdrSearch(CdrSearch cdrSearch);

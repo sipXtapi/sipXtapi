@@ -1,5 +1,10 @@
 <div jwcid="@Border" useDojo="true">
   <h2><span key="title">Call Monitoring</span></h2>
-  <span jwcid="cdrDates" />
-  <span jwcid="cdrStatsPanel" />
+  <span jwcid="@cdr/CdrDates" 
+    startTime="prop:startTime" 
+    endTime="prop:endTime" />
+  <span jwcid="@cdr/CdrStatsPanel" 
+    startTime="prop:startTime"
+    endTime="prop:endTime"
+    cdrSearch="prop:cdrSearch"/>
 </div>
