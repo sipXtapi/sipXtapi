@@ -13,6 +13,8 @@ mod_cplusplus=yes
 xerces_c=yes
 ruby_gems=yes
 ruby_dbi=yes
+soap4r=yes
+http_access=yes
 
 AC_ARG_ENABLE(fc4,
 	AC_HELP_STRING([--enable-fc4], [Enable dependencies for Fedora Core 4]),
@@ -42,6 +44,16 @@ AC_ARG_ENABLE(rhe4,
           ruby=yes
           ruby_postgres=yes
         ])
+
+AC_ARG_ENABLE(soap4r,
+	AC_HELP_STRING([--enable-soap4r], [Build soap4r dependency]),
+	[ soap4r=${enableval} ])
+test x$soap4r = xyes && AC_CONFIG_SUBDIRS(soap4r)
+
+AC_ARG_ENABLE(http-access,
+	AC_HELP_STRING([--enable-http-access], [Build http-access dependency]),
+	[ http_access=${enableval} ])
+test x$http_access = xyes && AC_CONFIG_SUBDIRS(http-access)
 
 AC_ARG_ENABLE(cgicc,
 	AC_HELP_STRING([--enable-cgicc], [Build cgicc dependency]),
