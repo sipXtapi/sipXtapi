@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2006 SIPez LLC.
+// Copyright (C) 2005-2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -7,9 +7,6 @@
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-//  
-// Copyright (C) 2006 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -79,10 +76,10 @@
 // STATIC VARIABLE INITIALIZATIONS
 int sipXmediaFactoryImpl::miInstanceCount=0;
 
-static CpMediaInterfaceFactory* spFactory = NULL;
-static int siInstanceCount=0;
+CpMediaInterfaceFactory* spFactory = NULL;
+int siInstanceCount=0;
 
-extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigDb)
+extern "C" CpMediaInterfaceFactory* cpDefaultMediaFactoryFactory(OsConfigDb* pConfigDb)
 {
     // TODO: Add locking
 
@@ -97,6 +94,13 @@ extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigD
     assert(siInstanceCount < 11) ;
     return spFactory;
 }
+
+#ifndef DISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY
+extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigDb)
+{
+    return(cpDefaultMediaFactoryFactory(pConfigDb));
+}
+#endif
 
 extern "C" void sipxDestroyMediaFactoryFactory()
 {

@@ -344,8 +344,8 @@ protected:
    OsRWMutex        mRWMutex;      // reader/writer lock for synchronization
 
      /// Posts a message to this flow graph.
-   OsStatus postMessage(const MpFlowGraphMsg& rMsg,
-                        const OsTime& rTimeout=OsTime::NO_WAIT_TIME);
+   virtual OsStatus postMessage(const MpFlowGraphMsg& rMsg,
+                                const OsTime& rTimeout=OsTime::NO_WAIT_TIME);
      /**<
      *  Returns the result of the message send operation.
      */
