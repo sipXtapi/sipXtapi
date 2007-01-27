@@ -1,0 +1,56 @@
+diff -uN conf/modules.conf conf_new/modules.conf
+--- modules.conf	1970-01-01 01:00:00.000000000 +0100
++++ modules.conf	2007-01-27 18:38:44.000000000 +0100
+@@ -0,0 +1,52 @@
++loggers/mod_console
++loggers/mod_syslog
++applications/mod_bridgecall
++applications/mod_commands
++applications/mod_conference
++applications/mod_dptools
++applications/mod_echo
++applications/mod_enum
++#applications/mod_ivrtest
++#applications/mod_park
++applications/mod_playback
++#applications/mod_rss
++#applications/mod_skel
++#asr_tts/mod_cepstral
++#codecs/mod_amr
++codecs/mod_g711
++codecs/mod_g722
++#codecs/mod_g723_1
++#codecs/mod_g726
++#codecs/mod_g729
++codecs/mod_gsm
++codecs/mod_ilbc
++codecs/mod_l16
++#codecs/mod_lpc10
++codecs/mod_speex
++#dialplans/mod_dialplan_directory
++dialplans/mod_dialplan_xml
++#directories/mod_ldap
++endpoints/mod_dingaling
++endpoints/mod_iax
++endpoints/mod_portaudio
++endpoints/mod_sofia
++#endpoints/mod_wanpipe
++endpoints/mod_woomera
++#event_handlers/mod_cdr
++#event_handlers/mod_event_multicast
++event_handlers/mod_event_socket
++#event_handlers/mod_event_test
++#event_handlers/mod_xmpp_event
++#event_handlers/mod_zeroconf
++formats/mod_native_file
++formats/mod_sndfile
++#languages/mod_perl
++languages/mod_spidermonkey
++languages/mod_spidermonkey_teletone
++languages/mod_spidermonkey_core_db
++#languages/mod_spidermonkey_odbc
++#languages/mod_spidermonkey_etpan
++timers/mod_softtimer
++xml_int/mod_xml_rpc
++#xml_int/mod_xml_curl
++say/mod_say_en
