@@ -371,6 +371,11 @@ initialize_databases () {
     then
         @bindir@/sipxcallresolver.sh --setup
     fi
+    # and the report database setup for acd call history (not real-time stats)
+    if test -x @bindir@/sipxconfig-report
+    then
+        @bindir@/sipxconfig-report --createdb
+    fi
 }
 
 ## High-level configtest function

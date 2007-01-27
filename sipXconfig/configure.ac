@@ -49,6 +49,9 @@ AC_ARG_ENABLE(reports,
   AC_HELP_STRING([--enable-reports], [Build optional call distribution reporting cron]),
   enable_reports=yes,)
 AM_CONDITIONAL(REPORTS, test x$enable_reports = xyes)
+if test x$enable_reports = xyes ; then
+  CHECK_CRON
+fi
 
 AC_ARG_ENABLE(agent,
   AC_HELP_STRING([--enable-agent], [Build optional call distribution api]),
@@ -68,6 +71,7 @@ if test x$enable_ruby_binding == xyes ; then
   SFAC_SRCDIR_EXPAND
   AC_PATH_PROG([WSDL2RUBY], wsd2lruby.rb, $abs_srcdir/web/meta/wsdl2ruby.rb)
 fi
+
 
 AC_CONFIG_FILES([
     Makefile

@@ -1475,3 +1475,18 @@ AC_DEFUN([REQUIRE_RPM],
   fi
   AC_MSG_RESULT(yes)
 ])
+
+
+# ============ REQUIRED RPM PKG ==============
+AC_DEFUN([CHECK_CRON],
+[
+  AC_MSG_CHECKING([cron.d])
+  if test x$CRON_D == x ; then
+    CRON_D=/etc/cron.d
+  fi
+  if ! test -d $CRON_D; then
+    AC_MSG_ERROR([Required directory $CRON_D missing])
+  fi
+  AC_SUBST(CRON_D)
+  AC_MSG_RESULT(yes)
+])

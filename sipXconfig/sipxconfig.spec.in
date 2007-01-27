@@ -76,6 +76,8 @@ Summary: Configures/enables FTP for devices controlled by %{name}
 Requires: sipxcommserverlib
 Requires: ruby
 Requires: ruby-gems
+# irb is for file-tail gem
+Requires: irb
 Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
 Summary: Analyzes data from sipxpbx and provides SOAP API to information
@@ -93,6 +95,7 @@ Summary: Aggregates data from sipxconfig-agent into a database for reporting too
 Requires: ruby-gems
 Requires: ruby-postgres
 Requires: ruby-dbi
+Requires: soap4r
 
 %description report
 Report peridocically queries sipxconfig-agent regarding automatic call distribution records
@@ -282,9 +285,13 @@ fi
 %defattr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755)
 %config(noreplace) %{sipxpbxconf}/report/sipxconfig-report-config
 %config(noreplace) %{sipxpbxconf}/report/schema.sql
+%config(noreplace) /etc/cron.d/sipxconfig-report-crontab
 
 %post report
 gem install --no-rdoc --local %{sipxconfiglib}/sipXconfig-report-*.gem >/dev/null
+if ! grep @SIPXPBXUSER@ /etc/cron.d/cron.allow; then
+  echo @SIPXPBXUSER@ >> /etc/cron.d/cron.allow
+fi
 
 %preun report
 # prevent uninstalling during an upgrade
