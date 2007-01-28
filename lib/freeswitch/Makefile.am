@@ -1,7 +1,7 @@
 FS_VER = 1.0
 FS_REL = snap4sipx
-#FS_URL=http://files.freeswitch.org
-FS_URL=http://10.2.0.4/
+FS_URL=http://files.freeswitch.org
+#FS_URL=http://10.2.0.4/
 
 SRC = $(LIBSRC)/freeswitch-snapshot.tar.gz
 RPMS = $(DEST_RPM)/freeswitch-$(FS_VER)-$(FS_REL).@RPM_TARGET_ARCH@.rpm 
