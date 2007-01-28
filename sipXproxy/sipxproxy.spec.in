@@ -142,7 +142,6 @@ pkg-upgrade --previous %{previous_archive} --current %{current_archive}
 %attr(755,root,root) %{_bindir}/sipxcallresolver.sh
 
 %post cdr
-sipxcallresolver.sh --setup
 
 gem install --no-rdoc --local %{sipxcallresolverdir}/sipxcallresolver-*.gem >/dev/null 2>&1
 if [ -f %{_sysconfdir}/cron.daily/callresolver_run ]; then
