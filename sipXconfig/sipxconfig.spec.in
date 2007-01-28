@@ -281,15 +281,17 @@ fi
 
 %files report
 %defattr(644,root,root,755)
+%config(noreplace) /etc/cron.d/sipxconfig-report-crontab
+
 %attr(755,root,root) %{_bindir}/sipxconfig-report
+
 %defattr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755)
 %config(noreplace) %{sipxpbxconf}/report/sipxconfig-report-config
 %config(noreplace) %{sipxpbxconf}/report/schema.sql
-%config(noreplace) /etc/cron.d/sipxconfig-report-crontab
 
 %post report
 gem install --no-rdoc --local %{sipxconfiglib}/sipXconfig-report-*.gem >/dev/null
-if ! grep @SIPXPBXUSER@ /etc/cron.d/cron.allow; then
+if ( ! test -f /etc/cron.d/cron.allow ) || ( ! grep '^@SIPXPBXUSER@$' /etc/cron.d/cron.allow ); then
   echo @SIPXPBXUSER@ >> /etc/cron.d/cron.allow
 fi
 

@@ -3,7 +3,6 @@ require 'dbi'
 # defaultDriver.rb references default.rb that thinks its in root path
 CLIENT_BINDINGS = File.join(File.dirname(__FILE__), "agent_client")
 $:.unshift CLIENT_BINDINGS
-puts "loading client bindings #{CLIENT_BINDINGS}"
 require 'defaultDriver.rb'
 
 def datetime2time(datetime) 
