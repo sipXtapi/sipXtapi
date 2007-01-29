@@ -129,7 +129,7 @@ private:
    int   mTotalTime;    ///< # samples tone was active, set when tone stops
    int   mNewTone;      ///< set when tone starts
 
-   unsigned int   mLastTimestamp;
+   unsigned int   mCurrentTimestamp;
 
    MprToNet* mpToNet;
 
