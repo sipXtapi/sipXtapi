@@ -250,7 +250,7 @@ AC_DEFUN([CHECK_ANT],
 #
 AC_DEFUN([CHECK_SSL],
 [   AC_ARG_WITH(openssl,
-                [--with-openssl=PATH to openssl source directory],
+                [  --with-openssl=PATH      to openssl source directory],
                 [openssl_path=$withval],
                 [openssl_path="/usr/local /usr/local/ssl /usr/ssl /usr/pkg /usr / /sw/lib"]
                 )
@@ -766,28 +766,28 @@ AC_DEFUN([CHECK_PCRE],
 [   AC_MSG_CHECKING([for pcre >= 4.5])
     # Process the --with-pcre argument which gives the pcre base directory.
     AC_ARG_WITH(pcre,
-                [--with-pcre=PATH path to pcre install directory],
+                [  --with-pcre=PATH         path to pcre install directory],
                 )
     homeval=$withval
-    # Have to unset withval so we can tell if --with-pcre_includedir was
+    # Have to unset withval so we can tell if --with-pcre-includedir was
     # specified, as AC_ARG_WITH will not unset withval if the option is not
     # there!
     withval=
 
-    # Process the --with-pcre_includedir argument which gives the pcre include
+    # Process the --with-pcre-includedir argument which gives the pcre include
     # directory.
-    AC_ARG_WITH(pcre_includedir,
-                [--with-pcre_includedir=PATH path to pcre include directory (containing pcre.h)],
+    AC_ARG_WITH(pcre-includedir,
+                [  --with-pcre-includedir=PATH path to pcre include directory (containing pcre.h)],
                 )
     # If withval is set, use that.  If not and homeval is set, use
     # $homeval/include.  If neither, use null.
     includeval=${withval:-${homeval:+$homeval/include}}
     withval=
 
-    # Process the --with-pcre_libdir argument which gives the pcre library
+    # Process the --with-pcre-libdir argument which gives the pcre library
     # directory.
-    AC_ARG_WITH(pcre_libdir,
-                [--with-pcre_libdir=PATH path to pcre lib directory (containing libpcre.{so,a})],
+    AC_ARG_WITH(pcre-libdir,
+                [  --with-pcre-libdir=PATH  path to pcre lib directory (containing libpcre.{so,a})],
                 )
     libval=${withval:-${homeval:+$homeval/lib}}
 
@@ -839,6 +839,138 @@ AC_DEFUN([CHECK_PCRE],
             AC_SUBST(PCRE_LDFLAGS, "-L$libval")
         fi
     fi
+])dnl
+
+
+# ============ G S M ==================
+AC_DEFUN([AM_PATH_GSM],
+[
+    # Unset withval, as AC_ARG_WITH does not unset it
+    withval=
+    # Process the --with-gsm argument which gives the libgsm base directory.
+    AC_ARG_WITH(gsm,
+                [  --with-gsm=PATH         path to libgsm install directory],
+                )
+    homeval=$withval
+    # Have to unset withval so we can tell if --with-gsm-includedir was
+    # specified, as AC_ARG_WITH will not unset withval if the option is not
+    # there!
+    withval=
+
+    # Process the --with-gsm-includedir argument which gives the libgsm include
+    # directory.
+    AC_ARG_WITH(gsm-includedir,
+                [  --with-gsm-includedir=PATH path to libgsm include directory (containing gsm.h)],
+                )
+    # If withval is set, use that.  If not and homeval is set, use
+    # $homeval/include.  If neither, use null.
+    includeval=${withval:-${homeval:+$homeval/inc}}
+    withval=
+
+    # Process the --with-gsm-libdir argument which gives the libgsm library
+    # directory.
+    AC_ARG_WITH(gsm-libdir,
+                [  --with-gsm-libdir=PATH  path to libgsm lib directory (containing libgsm.{so,a})],
+                )
+    libval=${withval:-${homeval:+$homeval/lib}}
+
+    # Check for gsm.h in the specified include directory if any, and a number
+    # of other likely places.
+    for dir in $includeval /usr/local/include /usr/local/gsm/inc /usr/include /usr/include/gsm /sw/include; do
+        if test -f "$dir/gsm.h"; then
+            found_gsm_include="yes";
+            includeval=$dir
+            break;
+        fi
+    done
+
+    # Check for libgsm.{so,a} in the specified lib directory if any, and a
+    # number of other likely places.
+    for dir in $libval /usr/local/lib /usr/local/gsm/lib /usr/lib /sw/lib; do
+        if test -f "$dir/libgsm.so" -o -f "$dir/libgsm.a"; then
+            found_gsm_lib="yes";
+            libval=$dir
+            break;
+        fi
+    done
+
+    # Test that we've been able to find both directories, and set the various
+    # makefile variables.
+    if test x_$found_gsm_include != x_yes -o x_$found_gsm_lib != x_yes; then
+        AC_MSG_RESULT(not found)
+    else
+        ## Test for version
+        gsm_major_version=`grep "GSM_MAJOR" $includeval/gsm.h | \
+               sed 's/^#define[ \t]\+GSM_MAJOR[ \t]\+\([0-9]\+\)/\1/'`
+        gsm_minor_version=`grep "GSM_MINOR" $includeval/gsm.h | \
+               sed 's/^#define[ \t]\+GSM_MINOR[ \t]\+\([0-9]\+\)/\1/'`
+        gsm_patchlevel_version=`grep "GSM_PATCHLEVEL" $includeval/gsm.h | \
+               sed 's/^#define[ \t]\+GSM_PATCHLEVEL[ \t]\+\([0-9]\+\)/\1/'`
+
+        gsm_ver="$gsm_major_version.$gsm_minor_version.$gsm_patchlevel_version"
+        AX_COMPARE_VERSION([$gsm_ver],[ge],[1.0.10])
+
+        if test "x_$ax_compare_version" = "x_false"; then
+            AC_MSG_RESULT(too old (found version $gsm_ver))
+        else
+            AC_MSG_RESULT($gsm_ver is ok)
+
+	    # Enable this when we begin using config.h
+            #AC_DEFINE(HAVE_GSM, [1], [Defined if libgsm is present])
+	    CFLAGS+=" -DHAVE_GSM"
+	    CXXFLAGS+=" -DHAVE_GSM"
+
+            GSM_CFLAGS="-I$includeval"
+            GSM_CXXFLAGS="-I$includeval"
+            GSM_LIBS="-lgsm"
+            GSM_LDFLAGS="-L$libval"
+        fi
+    fi
+
+    AC_SUBST(GSM_CFLAGS)
+    AC_SUBST(GSM_CXXFLAGS)
+    AC_SUBST(GSM_LIBS)
+    AC_SUBST(GSM_LDFLAGS)
+])dnl
+
+AC_DEFUN(CHECK_GSM,
+[
+    AC_MSG_CHECKING([for libgsm >= 1.0.10])
+
+    AC_ARG_ENABLE(codec-gsm,
+    [  --enable-codec-gsm      Enable support for GSM codec],
+    [ case "${enableval}" in
+      yes) AM_PATH_GSM ;;
+      no) AC_MSG_RESULT(disabled) ;;
+      *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-gsm) ;;
+    esac],[AM_PATH_GSM])
+])dnl
+
+
+# ============ S P E E X ==================
+AC_DEFUN([AM_PATH_SPEEX],
+[
+    PKG_CHECK_MODULES([SPEEX],
+                      [speex >= 1.1.0], 
+		      CFLAGS+=" -DHAVE_SPEEX" ; CXXFLAGS+=" -DHAVE_SPEEX",
+		      AC_MSG_RESULT(failed))
+    # SPEEX_CFLAGS and SPEEX_LIBS variables should are set in previous
+    # PKG_CHECK_MODULES() call.
+    AC_SUBST(SPEEX_CFLAGS)
+    AC_SUBST(SPEEX_LIBS)
+])dnl
+
+AC_DEFUN(CHECK_SPEEX,
+[
+    AC_MSG_CHECKING([for libspeex >= 1.2.0])
+
+    AC_ARG_ENABLE(codec-speex,
+    [  --enable-codec-speex    Enable support for SPEEX codec],
+    [ case "${enableval}" in
+      yes) AM_PATH_SPEEX ;;
+      no) AC_MSG_RESULT(disabled) ;;
+      *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-speex) ;;
+    esac],[AM_PATH_SPEEX])
 ])dnl
 
 

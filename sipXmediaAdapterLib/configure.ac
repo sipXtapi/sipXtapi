@@ -9,6 +9,9 @@ AM_INIT_AUTOMAKE(foreign)
 SFAC_AUTOMAKE_VERSION([1.6])
 CHECK_AUTOCONF
 
+# Configure pkg-config
+PKG_PROG_PKG_CONFIG
+
 AC_CONFIG_SRCDIR([sipXmediaMediaProcessing/src/sipXmediaFactoryImpl.cpp])
 AM_CONFIG_HEADER([config.h])
 AC_PROG_LIBTOOL
@@ -50,11 +53,17 @@ AC_FUNC_STAT
 AC_FUNC_STRFTIME
 AC_CHECK_FUNCS([clock_gettime getcwd gethostbyname gethostname gettimeofday inet_ntoa localtime_r memchr memset mkdir putenv rmdir select setenv socket strchr strdup strerror strrchr strstr strtol strtoul tzset])
 
+# Look for CPPUnit libraries
 CHECK_CPPUNIT
+
+# Look for GSM and Speex codecs
+CHECK_GSM
+CHECK_SPEEX
 
 CHECK_PCRE
 CHECK_SSL
 
+# sipX dependencies
 SFAC_INIT_FLAGS
 SFAC_LIB_MEDIA
 

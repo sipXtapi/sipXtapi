@@ -9,6 +9,9 @@ AM_INIT_AUTOMAKE(foreign)
 SFAC_AUTOMAKE_VERSION([1.6])
 CHECK_AUTOCONF
 
+# Configure pkg-config
+PKG_PROG_PKG_CONFIG
+
 AC_CONFIG_SRCDIR([src/mp/MpCallFlowGraph.cpp])
 AM_CONFIG_HEADER([config.h])
 AC_PROG_LIBTOOL
@@ -48,14 +51,20 @@ AC_FUNC_STAT
 AC_FUNC_STRFTIME
 AC_CHECK_FUNCS([clock_gettime getcwd gethostbyname gethostname gettimeofday inet_ntoa localtime_r memchr memset mkdir putenv rmdir select setenv socket strchr strdup strerror strrchr strstr strtol strtoul tzset])
 
+# Look for CPPUnit libraries
 CHECK_CPPUNIT
 
+# Look for GSM and Speex codecs
+CHECK_GSM
+CHECK_SPEEX
+
+# sipX dependencies
 SFAC_LIB_STACK
 
 SFAC_FEATURE_SIP_TLS
 
 # Enable local audio support (microphone / speaker)
-AC_ARG_ENABLE(local_audio,
+AC_ARG_ENABLE(local-audio,
 [  --enable-local-audio    Enable local audio (speaker and microphone)],
 [ case "${enableval}" in
   yes) enable_local_audio=true ;;

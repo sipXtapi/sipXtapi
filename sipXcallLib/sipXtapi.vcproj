@@ -36,11 +36,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib pcre.lib winmm.lib libspeex.lib gsmd.lib avcodec-51.lib avutil-49.lib"
+				AdditionalDependencies="Ws2_32.lib pcre.lib winmm.lib avcodec-51.lib avutil-49.lib"
 				OutputFile="bin\sipXtapid.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="lib;..\sipXportLib\Debug;..\sipXtackLib\Debug;..\sipXmediaAdapterLib\sipXmediaMediaProcessing\Debug;..\sipXmediaLib\Debug;..\sipXcallLib\Debug;..\Speex\lib;..\sipXmediaLib\lib;..\FFmpeg\lib;..\libgsm\lib"
+				AdditionalLibraryDirectories="lib;..\FFmpeg\lib"
 				IgnoreDefaultLibraryNames=""
 				ModuleDefinitionFile=""
 				DelayLoadDLLs=""
@@ -119,11 +119,11 @@ copy include\tapi\sipXtapiEvents.h examples\include\tapi
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib Ws2_32.lib pcre.lib libspeex.lib gsm.lib avcodec-51.lib avutil-49.lib"
+				AdditionalDependencies="winmm.lib Ws2_32.lib pcre.lib avcodec-51.lib avutil-49.lib"
 				OutputFile="bin\sipXtapi.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="lib;..\sipXportLib\Release;..\sipXtackLib\Release;..\sipXmediaAdapterLib\sipXmediaMediaProcessing\Release;..\sipXmediaLib\Release;..\sipXcallLib\Release;..\Speex\lib;..\sipXmediaLib\lib;..\FFmpeg\lib;..\libgsm\lib"
+				AdditionalLibraryDirectories="lib;..\FFmpeg\lib"
 				IgnoreDefaultLibraryNames=""
 				ModuleDefinitionFile=""
 				GenerateDebugInformation="FALSE"
@@ -203,11 +203,11 @@ copy include\tapi\sipXtapiEvents.h examples\include\tapi
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib Ws2_32.lib pcre.lib libspeex.lib gsm.lib"
+				AdditionalDependencies="winmm.lib Ws2_32.lib pcre.lib"
 				OutputFile="bin\sipXtapi.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="lib;..\sipXportLib\Release;..\sipXtackLib\Release;..\sipXmediaAdapterLib\sipXmediaMediaProcessing\Release_NoVideo;..\sipXmediaLib\Release_NoVideo;..\sipXcallLib\Release;..\Speex\lib;..\libgsm\lib"
+				AdditionalLibraryDirectories="lib"
 				IgnoreDefaultLibraryNames=""
 				ModuleDefinitionFile=""
 				GenerateDebugInformation="FALSE"
@@ -284,11 +284,11 @@ copy include\tapi\sipXtapiEvents.h examples\include\tapi
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib pcre.lib winmm.lib libspeex.lib gsmd.lib"
+				AdditionalDependencies="Ws2_32.lib pcre.lib winmm.lib"
 				OutputFile="bin\sipXtapid.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="lib;..\sipXportLib\Debug;..\sipXtackLib\Debug;..\sipXmediaAdapterLib\sipXmediaMediaProcessing\Debug_NoVideo;..\sipXmediaLib\Debug_NoVideo;..\sipXcallLib\Debug;..\Speex\lib;..\libgsm\lib"
+				AdditionalLibraryDirectories="lib"
 				IgnoreDefaultLibraryNames=""
 				ModuleDefinitionFile=""
 				DelayLoadDLLs=""

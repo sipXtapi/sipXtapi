@@ -11,6 +11,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ReceiveCall", "examples\Rec
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaLib", "..\sipXmediaLib\sipXmediaLib.vcproj", "{0EC8287A-481E-45DC-8F95-BAD940AE1038}"
 	ProjectSection(ProjectDependencies) = postProject
+		{993B6878-2EA7-49E0-AC6E-28C68592724B} = {993B6878-2EA7-49E0-AC6E-28C68592724B}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXcallLib", "sipXcallLib.vcproj", "{0EADF7C3-7D48-45BF-A00D-ECB94DC912EA}"
@@ -49,6 +50,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaAdapterLibTest", "
 		{0E229E54-9234-44DC-8B74-8C6BA553D3C5} = {0E229E54-9234-44DC-8B74-8C6BA553D3C5}
 		{14631055-9D3F-47E5-B6A7-16BFC0CC8091} = {14631055-9D3F-47E5-B6A7-16BFC0CC8091}
 		{0EC8287A-481E-45DC-8F95-BAD940AE1038} = {0EC8287A-481E-45DC-8F95-BAD940AE1038}
+		{E1D81EA9-4AC3-4CF5-B600-090FD822B1F6} = {E1D81EA9-4AC3-4CF5-B600-090FD822B1F6}
 		{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646} = {0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}
 	EndProjectSection
 EndProject
@@ -72,6 +74,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaLibTest", "..\sipX
 		{14631055-9D3F-47E5-B6A7-16BFC0CC8091} = {14631055-9D3F-47E5-B6A7-16BFC0CC8091}
 		{0EC8287A-481E-45DC-8F95-BAD940AE1038} = {0EC8287A-481E-45DC-8F95-BAD940AE1038}
 		{0EC8287A-481E-45DC-8F95-BAD940AE1038} = {0EC8287A-481E-45DC-8F95-BAD940AE1038}
+		{E1D81EA9-4AC3-4CF5-B600-090FD822B1F6} = {E1D81EA9-4AC3-4CF5-B600-090FD822B1F6}
 		{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646} = {0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}
 		{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646} = {0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}
 	EndProjectSection
@@ -102,31 +105,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXsdpLibTest", "..\sipXsd
 		{E1D81EA9-4AC3-4CF5-B600-090FD822B1F6} = {E1D81EA9-4AC3-4CF5-B600-090FD822B1F6}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libgsm", "..\sipXmediaLib\contrib\libgsm\libgsm.vcproj", "{993B6878-2EA7-49E0-AC6E-28C68592724B}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
-	GlobalSection(SourceCodeControl) = preSolution
-		SccNumberOfProjects = 5
-		SccProjectUniqueName0 = ..\\sipXmediaLib\\sipXmediaLib.vcproj
-		SccProjectName0 = Perforce\u0020Project
-		SccLocalPath0 = ..\\sipXmediaLib
-		SccProvider0 = MSSCCI:Microsoft\u0020Visual\u0020SourceSafe
-		SccProjectUniqueName1 = sipXcallLib.vcproj
-		SccProjectName1 = Perforce\u0020Project
-		SccLocalPath1 = .
-		SccProvider1 = MSSCCI:Microsoft\u0020Visual\u0020SourceSafe
-		SccProjectUniqueName2 = ..\\sipXmediaAdapterLib\\sipXmediaAdapterLibTest.vcproj
-		SccProjectName2 = Perforce\u0020Project
-		SccLocalPath2 = ..
-		SccProvider2 = MSSCCI:Microsoft\u0020Visual\u0020SourceSafe
-		SccProjectFilePathRelativizedFromConnection2 = sipXmediaAdapterLib\\
-		SccProjectUniqueName3 = ..\\sipXtackLib\\sipXtackLib_NoSecurity.vcproj
-		SccProjectName3 = Perforce\u0020Project
-		SccLocalPath3 = ..\\sipXtackLib
-		SccProvider3 = MSSCCI:Microsoft\u0020Visual\u0020SourceSafe
-		SccProjectUniqueName4 = ..\\sipXportLib\\sipXportLib.vcproj
-		SccProjectName4 = Perforce\u0020Project
-		SccLocalPath4 = ..\\sipXportLib
-		SccProvider4 = MSSCCI:Microsoft\u0020Visual\u0020SourceSafe
-	EndGlobalSection
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
 		Debug_NoVideo = Debug_NoVideo
@@ -326,6 +309,18 @@ Global
 		{AB8F7343-BC81-4077-B1A5-37CA389FCA94}.SSL-Debug.Build.0 = Debug|Win32
 		{AB8F7343-BC81-4077-B1A5-37CA389FCA94}.SSL-Release.ActiveCfg = Release|Win32
 		{AB8F7343-BC81-4077-B1A5-37CA389FCA94}.SSL-Release.Build.0 = Release|Win32
+		{993B6878-2EA7-49E0-AC6E-28C68592724B}.Debug.ActiveCfg = Debug_Static|Win32
+		{993B6878-2EA7-49E0-AC6E-28C68592724B}.Debug.Build.0 = Debug_Static|Win32
+		{993B6878-2EA7-49E0-AC6E-28C68592724B}.Debug_NoVideo.ActiveCfg = Debug_Static|Win32
+		{993B6878-2EA7-49E0-AC6E-28C68592724B}.Debug_NoVideo.Build.0 = Debug_Static|Win32
+		{993B6878-2EA7-49E0-AC6E-28C68592724B}.Release.ActiveCfg = Release_Static|Win32
+		{993B6878-2EA7-49E0-AC6E-28C68592724B}.Release.Build.0 = Release_Static|Win32
+		{993B6878-2EA7-49E0-AC6E-28C68592724B}.Release_NoVideo.ActiveCfg = Release_Static|Win32
+		{993B6878-2EA7-49E0-AC6E-28C68592724B}.Release_NoVideo.Build.0 = Release_Static|Win32
+		{993B6878-2EA7-49E0-AC6E-28C68592724B}.SSL-Debug.ActiveCfg = Release_Static|Win32
+		{993B6878-2EA7-49E0-AC6E-28C68592724B}.SSL-Debug.Build.0 = Release_Static|Win32
+		{993B6878-2EA7-49E0-AC6E-28C68592724B}.SSL-Release.ActiveCfg = Release_Static|Win32
+		{993B6878-2EA7-49E0-AC6E-28C68592724B}.SSL-Release.Build.0 = Release_Static|Win32
 	EndGlobalSection
 	GlobalSection(SolutionItems) = postSolution
 	EndGlobalSection

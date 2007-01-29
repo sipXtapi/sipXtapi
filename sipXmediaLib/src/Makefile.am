@@ -17,17 +17,27 @@ version_Revision=0
 #       increment if any interfaces have been added
 version_Age=0
 
-libsipXmedia_la_LDFLAGS = -version-info ${version_Current}:${version_Revision}:${version_Age}
+libsipXmedia_la_LDFLAGS = \
+	-version-info ${version_Current}:${version_Revision}:${version_Age} \
+	@GSM_LDFLAGS@
 
 if ENABLE_LOCAL_AUDIO
 LOCAL_AUDIO_CXXFLAGS = -D_INCLUDE_AUDIO_SUPPORT
 endif
 
 libsipXmedia_la_CXXFLAGS = \
-	-D_REALTIME_LINUX_AUDIO_THREADS $(LOCAL_AUDIO_CXXFLAGS)
+	-D_REALTIME_LINUX_AUDIO_THREADS \
+	$(LOCAL_AUDIO_CXXFLAGS) \
+	@GSM_CXXFLAGS@ \
+	@SPEEX_CFLAGS@
 
 libsipXmedia_la_LIBADD = \
-	@SIPXTACK_LIBS@ @SIPXPORT_LIBS@ @CA_LIBS@ -lstdc++
+	@SIPXTACK_LIBS@ \
+	@SIPXPORT_LIBS@ \
+	@CA_LIBS@ \
+	@GSM_LIBS@ \
+	@SPEEX_LIBS@ \
+	-lstdc++
 
 libsipXmedia_la_SOURCES =  \
     ../config/sipxmedialib-buildstamp.h \
@@ -68,6 +78,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MpdGIPSPCMA.cpp \
     mp/MpdGIPSPCMU.cpp \
     mp/MpdPtAVT.cpp \
+    mp/MpdSipxGSM.cpp \
     mp/MpdSipxPcma.cpp \
     mp/MpdSipxPcmu.cpp \
     mp/MpdSipxSpeex.cpp \
@@ -78,6 +89,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MpeGIPSiPCMWB.cpp \
     mp/MpeGIPSPCMA.cpp \
     mp/MpeGIPSPCMU.cpp \
+    mp/MpeSipxGSM.cpp \
     mp/MpeSipxPcma.cpp \
     mp/MpeSipxPcmu.cpp \
     mp/MpeSipxSpeex.cpp \
