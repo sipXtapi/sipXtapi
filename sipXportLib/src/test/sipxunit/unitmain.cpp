@@ -65,6 +65,17 @@ int cpptest_main( void )
 #if defined(WINCE)
 int main( int argc, char* argv[] );
 
+#if defined(WINCE6)
+int wmain(int argc, wchar_t* argv[])
+{
+	printf( "entering wmain( )\n" );
+	int		iRet		= 1;
+	iRet = main( 0, NULL );
+
+	printf( "  main( ) returned %d\n", iRet );
+	return iRet;
+}
+#endif
 // wWinMain is not defined in winbase.h.
 //extern "C" int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nShowCmd);
 //****************************************************************

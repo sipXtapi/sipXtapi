@@ -84,10 +84,12 @@ static char rcsid[] = "";
 #else
 #   include <sys/types.h>
 #endif
+#ifndef WINCE6 /* no errno.h under WinCE 6.0 */
+#include <errno.h>
+#endif 
 
 #include <stdio.h>
 #include "resparse/types.h" /* added to pick up NFDBITS and fd_mask --GAT */
-#include <errno.h>
 #include <time.h>
 
 /* Reordered includes and separated into win/vx --GAT */

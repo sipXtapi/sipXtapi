@@ -30,7 +30,9 @@
 #endif 
 
 #include <stdlib.h>
+#ifndef WINCE6
 #include <signal.h>
+#endif
 
 
 #include "net/SipSrvLookup.h"

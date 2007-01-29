@@ -114,8 +114,10 @@ do { \
 #endif
 
 #include <resparse/wnt/crypt.h>
+#ifndef WINCE6  /* WinCE 6 doesn't have signal.h or errno.h */
 #include <signal.h>    /* SIGINT */
 #include <errno.h>
+#endif
 #include <resparse/wnt/nterrno.h>  /* Additional errors not in errno.h --GAT */
 
 

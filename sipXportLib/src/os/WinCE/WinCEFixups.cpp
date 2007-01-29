@@ -1,3 +1,5 @@
+#ifdef WINCE
+
 #include <utl/UtlHashMap.h>  // for mapping file HANDLEs to "file descriptors"
 #include <utl/UtlInt.h>
 #include <utl/UtlVoidPtr.h>
@@ -23,7 +25,8 @@ int destroyFD(int fd)
 int findUnusedFD()
 {
 	int found = 1;
-	for(int possFD = 3; // skip 0 since it's an error val of hashmap, 1 stdout, 2 stderr
+	int possFD;
+	for(possFD = 3; // skip 0 since it's an error val of hashmap, 1 stdout, 2 stderr
 	    sFDtoHandleMap.contains(&UtlInt(possFD));
 		possFD++) {}
 
@@ -297,9 +300,22 @@ DWORD FormatMessageB( DWORD dwFlags, void *lpVoid, DWORD dwMessageID, DWORD dwLa
 //****************************************************************
 struct tm * __cdecl localtime( const time_t *timer )
 {
-	printf( "localtime( ) NOT IMPLEMENTED\n" );
-	static struct tm staticTMlocalTime;
-	return &staticTMlocalTime;
+	static struct tm staticTMlocaltime;
+
+	SYSTEMTIME lt ;
+	GetLocalTime(&lt) ;
+
+	staticTMlocaltime.tm_sec = lt.wSecond;
+	staticTMlocaltime.tm_min = lt.wMinute;
+	staticTMlocaltime.tm_hour = lt.wHour;
+	staticTMlocaltime.tm_mday = lt.wDay;
+	staticTMlocaltime.tm_mon = lt.wMonth - 1;
+	staticTMlocaltime.tm_year = lt.wYear - 1900;
+	staticTMlocaltime.tm_wday = lt.wDayOfWeek;
+	staticTMlocaltime.tm_yday = 1;			// Not implemented
+	staticTMlocaltime.tm_isdst = 0;		// Not implemented 
+
+	return &staticTMlocaltime;
 }
 
 
@@ -375,7 +391,7 @@ time_t __cdecl time( time_t *ptt )
 	//  convert SYSTEMTIME to FILETIME
 	fRet = SystemTimeToFileTime( &st, &ft );
 	//  convert FILETIME to UnixTime
-	iRet = FileTimeToUnixTime( &ft );
+	iRet = (int)FileTimeToUnixTime( &ft );
 //	printf( "time( ) is about to return %d\n", iRet );
 	if( ptt )
 		*ptt = iRet;
@@ -405,7 +421,7 @@ void _ftime( struct _timeb *pTb )
 	{
 		Sleep( 0 );		//  give up the remainder of our current timeslice so we (hopefully)
 						//	won't get interrupted between the next two function calls.
-		iSavedTime = time( NULL );
+		iSavedTime = (int)time( NULL );
 		iSavedTicks = GetTickCount( );
 	}
 
@@ -441,14 +457,6 @@ void _ftime( struct _timeb *pTb )
 //	pTb->time = FileTimeToUnixTime( &ft, &iMilli );
 //	pTb->millitm = iMilli;
 ////	printf( "_ftime( ) is about to return %d - - -  millitm is %d\n", pTb->time, pTb->millitm );
-}
-
-
-//****************************************************************
-size_t __cdecl strftime( char *strDest, size_t maxSize, const char *pformat, const struct tm *timeptr )
-{
-	printf( "strftime( ) NOT IMPLEMENTED\n" );
-	return 0;
 }
 
 
@@ -886,3 +894,40 @@ extern int  _getpid();
 	return 1;
 }
 
+
+
+/////////////
+// mktime()
+int month_to_day[12] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
+time_t mktime(struct tm *t)
+{
+        short  month, year;
+        time_t result;
+
+        month = t->tm_mon;
+        year = t->tm_year + month / 12 + 1900;
+        month %= 12;
+        if (month < 0)
+        {
+                year -= 1;
+                month += 12;
+        }
+        result = (year - 1970) * 365 + (year - 1969) / 4 + month_to_day[month];
+        result = (year - 1970) * 365 + month_to_day[month];
+        if (month <= 1)
+                year -= 1;
+        result += (year - 1968) / 4;
+        result -= (year - 1900) / 100;
+        result += (year - 1600) / 400;
+        result += t->tm_mday;
+        result -= 1;
+        result *= 24;
+        result += t->tm_hour;
+        result *= 60;
+        result += t->tm_min;
+        result *= 60;
+        result += t->tm_sec;
+        return(result);
+}
+
+#endif // WINCE
