@@ -20,8 +20,8 @@ if "%1" == "clean" set doClean="/CLEAN"
 @rem reason, VMware execution of a guest command via their api doesn't seem
 @rem to allow access to HKCU properly ("default" user probably)
 set DEPD=c:\build\sipx-depends
-set INCLUDE=%DEPD%\cppunit-1.10.2\include;%DEPD%\pcre\include;%DEPD%\openssl\inc32;%INCLUDE%
-set LIB=%DEPD%\cppunit-1.10.2\lib;%DEPD%\pcre\lib;%DEPD%\openssl\out32.dbg;%LIB%
+set INCLUDE=%DEPD%\cppunit-1.10.2\include;%DEPD%\pcre\include;%DEPD%\openssl\inc32;%DEPD%\libspeex\include;%INCLUDE%
+set LIB=%DEPD%\cppunit-1.10.2\lib;%DEPD%\pcre\lib;%DEPD%\openssl\out32.dbg;%DEPD%\libgsm\lib;%DEPD%\libspeex\lib;%LIB%
 
 cd sipXportLib
 del %releaseType%\sipXportLib%libPrefix%.lib
