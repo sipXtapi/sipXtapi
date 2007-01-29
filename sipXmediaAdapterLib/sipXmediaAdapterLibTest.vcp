@@ -1338,6 +1338,7 @@ DEP_CPP_CPPHO=\
 	"..\sipXportLib\include\utl\UtlDefs.h"\
 	"..\sipXportLib\include\utl\UtlDList.h"\
 	"..\sipXportLib\include\utl\UtlHashMap.h"\
+	"..\sipXportLib\include\utl\UtlInt.h"\
 	"..\sipXportLib\include\utl\UtlIterator.h"\
 	"..\sipXportLib\include\utl\UtlLink.h"\
 	"..\sipXportLib\include\utl\UtlList.h"\
@@ -1345,6 +1346,7 @@ DEP_CPP_CPPHO=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlSListIterator.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
+	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
 	"..\sipXtackLib\include\net\HttpBody.h"\
 	"..\sipXtackLib\include\net\NameValuePair.h"\
 	"..\sipXtackLib\include\net\SdpBody.h"\
