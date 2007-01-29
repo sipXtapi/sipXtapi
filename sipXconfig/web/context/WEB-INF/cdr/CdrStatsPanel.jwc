@@ -1,56 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
 
-<component-specification allow-body="no" allow-informal-parameters="no">
-  <description>Table that displays CDRs</description>
-
-  <!-- P A R A M E T E R S -->
-  <parameter name="startTime" />
-  <parameter name="endTime" />
-  <parameter name="cdrSearch" />
-
-  <!-- P R O P E R T I E S -->
-  <inject property="cdrManager" object="spring:cdrManager" />
-  <inject property="expressionEvaluator" object="service:tapestry.ognl.ExpressionEvaluator" />
-  <inject property="response" object="service:tapestry.globals.WebResponse" />
-
-  <property name="row" />
-
-  <!--  B E A N S -->
-  <bean name="durationFormat" class="org.sipfoundry.sipxconfig.components.MillisDurationFormat"
-    lifecycle="page">
-    <!-- 0 - day, 1 - hour, 2 - minute etc. -->
-    <set name="maxField" value="2" />
-  </bean>
+<component-specification>
   <bean name="terminationFormat" class="org.sipfoundry.sipxconfig.components.NewEnumFormat"
     lifecycle="page">
     <set name="messages" value="messages" />
     <set name="prefix" value="literal:state" />
   </bean>
-
-  <!-- C O M P O N E N T S -->
-  <component id="filter" type="cdr/CdrFilter">
-    <binding name="cdrSearch" value="cdrSearch" />
-  </component>
-
-  <component id="tableView" type="StatsTable">
-    <binding name="source" value="cdrManager.getCdrs(startTime, endTime, cdrSearch)" />
-    <binding name="columns" value="literal:caller, callee, =startTimeColumn, duration, termination" />
-    <binding name="row" value="row" />
-    <binding name="usePager" value="true" />
-  </component>
-
-  <component id="duration" type="Insert">
-    <binding name="value" value="row.duration" />
-    <binding name="format" value="bean:durationFormat" />
-  </component>
-  <component id="termination" type="Insert">
-    <binding name="value" value="row.termination" />
-    <binding name="format" value="bean:terminationFormat" />
-  </component>
-
-  <component id="export" type="ExportLink">
-    <binding name="listener" value="listener:export" />
-  </component>
-
 </component-specification>

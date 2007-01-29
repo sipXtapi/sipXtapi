@@ -20,7 +20,7 @@ BuildRoot: %{_tmppath}/%name-%version-root
 # should match sipXlib.m4:SIPX_UPGRADEDIR
 %define upgrade_archive_dir %{_localstatedir}/sipxdata/upgrade
 %define this_archive %{name}-%{version}-%{release}.tgz
-%define sipxcallresolverdir %{_datadir}/sipxpbx/lib
+%define sipxpbxvarlib %{_var}/lib/sipxpbx
 
 %description
 Two RFC 3261 compliant SIP proxies:
@@ -36,6 +36,7 @@ services.
 %package cdr
 Requires: %name >= %version
 Requires: ruby
+Requires: ruby-gems
 Requires: ruby-libs
 Requires: ruby-dbi
 Requires: ruby-postgres >= 0.7.1
@@ -137,13 +138,12 @@ pkg-upgrade --previous %{previous_archive} --current %{current_archive}
 %config %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/cdr/*
 
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/cdr
-%attr(755,root,root) %{sipxcallresolverdir}/sipxcallresolver-2.0.0.gem
+%attr(755,root,root) %{sipxpbxvarlib}/sipxcallresolver-2.0.0.gem
 %attr(755,root,root) %{_bindir}/sipxcallresolver.sh
 
 %post cdr
-sipxcallresolver.sh --setup
 
-gem install --no-rdoc --local %{sipxcallresolverdir}/sipxcallresolver-*.gem >/dev/null 2>&1
+gem install --no-rdoc --local %{sipxpbxvarlib}/sipxcallresolver-*.gem >/dev/null 2>&1
 if [ -f %{_sysconfdir}/cron.daily/callresolver_run ]; then
   rm -f %{_sysconfdir}/cron.daily/callresolver_run
 fi

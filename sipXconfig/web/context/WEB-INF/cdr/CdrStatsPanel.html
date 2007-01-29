@@ -1,22 +1,28 @@
-<span jwcid="$content$">
-  <ul class="component-links">
-    <li>
-	  <a jwcid="export" id="cdr:export" href="#">
-        <span key="link.export">Export</span>
-      </a>
-    </li>
-  </ul>  
-  <form jwcid="@AutoRefreshForm">
-    <ul class="component-submit">
-	  <li><span jwcid="filter"/></li>
-    </ul>
-    <table jwcid="tableView" id="cdr:stats:list" class="component">
-      <span jwcid="terminationColumnValue@Block">
-        <span jwcid="termination"/>
-      </span>
-      <span jwcid="durationColumnValue@Block">
-        <span jwcid="duration"/>
-      </span>
-    </table>
-  </form>
-</span>
+<ul class="component-links">
+  <li>
+  <a jwcid="export@ExportLink" id="cdr:export" listener="listener:export">
+      <span key="link.export">Export</span>
+    </a>
+  </li>
+</ul>  
+<form jwcid="@AutoRefreshForm">  
+  <ul class="component-submit">
+  <li><span jwcid="@cdr/CdrFilter" cdrSearch="prop:cdrSearch"/></li>
+  </ul>
+  <table jwcid="@StatsTable" id="cdr:stats:list" class="component"
+    source="prop:cdrs"
+    columns="caller, callee, =startTimeColumn, duration, termination"
+    row="prop:row"
+    usePager="true">
+    <span jwcid="terminationColumnValue@Block">
+      <span jwcid="@Insert" 
+        value="prop:row.termination" 
+        format="bean:terminationFormat" />
+    </span>
+    <span jwcid="durationColumnValue@Block">
+      <span jwcid="@Insert"
+        value="prop:row.duration"
+        format="bean:durationFormat" />
+    </span>
+  </table>
+</form>

@@ -28,4 +28,9 @@ public interface MailboxManager {
     public void saveMailboxPreferences(Mailbox mailbox, MailboxPreferences preferences);
     
     public MailboxPreferences loadMailboxPreferences(Mailbox mailbox);
+
+    public void saveDistributionLists(Mailbox mailbox, DistributionList[] lists);
+    
+    public DistributionList[] loadDistributionLists(Mailbox mailbox);
+
 }

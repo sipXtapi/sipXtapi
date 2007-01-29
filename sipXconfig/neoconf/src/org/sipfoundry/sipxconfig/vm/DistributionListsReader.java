@@ -23,7 +23,7 @@ public class DistributionListsReader extends XmlReaderImpl<DistributionList[]> {
     public DistributionList[] readObject(Document doc) {
         Node root = doc.getRootElement();
         List<Element> nodeLists = root.selectNodes("//distributions/list");
-        DistributionList[] lists = new DistributionList[nodeLists.size()];
+        DistributionList[] lists = DistributionList.createBlankList();
         for (int i = 0; i < nodeLists.size(); i++) {
             Node listNode = nodeLists.get(i);
             DistributionList list = new DistributionList(); 
@@ -34,7 +34,7 @@ public class DistributionListsReader extends XmlReaderImpl<DistributionList[]> {
             }
             list.setExtensions(extensions);
             int position = Integer.parseInt(listNode.valueOf("index/text()"));
-            list.setPosition(position);
+            lists[position] = list;
         }
         
         return lists;

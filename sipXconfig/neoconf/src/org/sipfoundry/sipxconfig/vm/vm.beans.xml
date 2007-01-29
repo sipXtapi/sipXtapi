@@ -4,17 +4,22 @@
 <beans> 
   <bean id="mailboxManagerImpl" class="org.sipfoundry.sipxconfig.vm.MailboxManagerImpl">
     <property name="mailboxPreferencesReader">
-      <ref local="mailboxPreferencesReader"/>
+  <bean class="org.sipfoundry.sipxconfig.vm.MailboxPreferencesReader"/>  
     </property>
     <property name="mailboxPreferencesWriter">
-      <ref local="mailboxPreferencesWriter"/>
+  <bean class="org.sipfoundry.sipxconfig.vm.MailboxPreferencesWriter">
+    <property name="velocityEngine" ref="velocityEngine"/>
+  </bean>
+    </property>
+    <property name="distributionListsReader">
+       <bean class="org.sipfoundry.sipxconfig.vm.DistributionListsReader"/>  
+    </property>
+    <property name="distributionListsWriter">
+  <bean class="org.sipfoundry.sipxconfig.vm.DistributionListsWriter">
+    <property name="velocityEngine" ref="velocityEngine"/>
+  </bean>
     </property>
   </bean>
   <alias alias="mailboxManager" name="mailboxManagerImpl" />
-  
-  <bean id="mailboxPreferencesReader" class="org.sipfoundry.sipxconfig.vm.MailboxPreferencesReader"/>  
-  <bean id="mailboxPreferencesWriter" class="org.sipfoundry.sipxconfig.vm.MailboxPreferencesWriter">
-    <property name="velocityEngine" ref="velocityEngine"/>
-  </bean>
   
 </beans>

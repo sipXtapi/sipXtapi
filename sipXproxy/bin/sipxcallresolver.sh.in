@@ -6,7 +6,6 @@
 # Copyright (C) 2006 Pingtel Corp.
 # Licensed to SIPfoundry under a Contributor Agreement.
 
-
 Action=RUN
 Status=1
 Args=""
@@ -31,19 +30,22 @@ resolverArgs=""
 : ${PgUser:=postgres}
 : ${PgSchema:=@SIPX_CONFDIR@/cdr/schema.sql}
 : ${RubyCmd:=/usr/bin/ruby}
-: ${DbVersion:=2}
+: ${DbVersion:=3}
 : ${DbPatchDir:=@SIPX_CONFDIR@/cdr}
 : ${DbPatchLog:=@SIPX_LOGDIR@/sipcdrpatch.log}
+: ${CallResolverLog:=@SIPX_LOGDIR@/sipcallresolver.log}
 : ${CallResolverMain:=@GEM_LIB_DIR@/sipxcallresolver-2.0.0/lib/main.rb}
 
 Database=SIPXCDR
 Today=`date`
 
+PsqlCmd="${Psql} -q -t -A -U ${PgUser} -d ${Database}"
+
 # Make sure we are running as root during installation setup
 assertRoot() {
     user=`whoami`
     if [ "${user}" != "root" ]; then
-      echo "Error: Must be root to run sipxcallresolver.sh script."
+      echo_error "Error: Must be root to run sipxcallresolver.sh script."
       exit 1
     fi
 }
@@ -58,7 +60,7 @@ postgresService() {
     
     if [ -f /etc/init.d/rhdb ]
     then
-	    # Red Hat Enterprise uses the name rhdb.
+        # Red Hat Enterprise uses the name rhdb.
         echo -e rhdb
     fi
     
@@ -89,43 +91,36 @@ runConfigpp() {
 # section in sipxproxy.spec.in
 #
 # Define an upgrade path - put the file name (without extension .sql) in one or 
-# more of the upgrade lists below. If we currently have database version 3 then
-# add the file to UpgradePatches1 (upgrading a version 1 database) and UpgradePatches2
-# (upgrading a version 2 database).
+# more of the upgrade lists below.
 
-UpgradePatches1="refer_uri"
+# special patch that upgrades DB version to the latest version - only use once
+VersionPatch="upgrade_version"
+
+UpgradePatches3=""
+UpgradePatches2="view_cdrs $UpgradePatches3 $VersionPatch"
+UpgradePatches1="refer_uri $UpgradePatches2"
 
 # Apply database patches
 databasePatch() {
-    versionString=`${Psql} -U ${PgUser} -d ${Database} -c "select max(version) from version_history"`
-    version=`echo $versionString | cut -d ' ' -f 3`
-    case ${version} in
-        1)
-            UpgradePatches=$UpgradePatches1
-            ;;
-            
-        *)
-            UpgradePatches="view_cdrs"
-            ;;
-    esac
-    if [ -f ${DbPatchLog} ]; then
-        echo "${Today}" >> ${DbPatchLog}
-    else
-        echo "${Today}" > ${DbPatchLog}
-    fi       
-    echo "Patch list: ${UpgradePatches}" >> ${DbPatchLog}
+    version=`${PsqlCmd} -c "select max(version) from version_history"`
+    UpgradePatches=$(eval "echo \$$(echo UpgradePatches${version})")
     if [ -n "${UpgradePatches}" ]; then
+	    echo "${Today}" >> ${DbPatchLog}
+		echo "Patch list: ${UpgradePatches}" >> ${DbPatchLog}
         for patch in $UpgradePatches; do
-            if [ -f ${DbPatchDir}/${patch}.sql ]; then
+            if [ ${patch} = ${VersionPatch} ]; then
+                echo "Upgrading DB schema version to ${DbVersion}" >> ${DbPatchLog}
+            	${PsqlCmd} -c "insert into version_history values ('${DbVersion}', '${Today}')" >>${DbPatchLog} 2>&1            	
+            elif [ -f ${DbPatchDir}/${patch}.sql ]; then
                 # Apply patch only if not found in the patch list
-                if ! ${Psql} -U ${PgUser} -d ${Database} -c "select name from patch where name = '${patch}'" | grep ${patch} >>${DbPatchLog} 2>&1; then
+                if ! ${PsqlCmd} -c "select name from patch where name = '${patch}'" | grep ${patch} >>${DbPatchLog} 2>&1; then
                    echo "Applying patch ${DbPatchDir}/${patch}.sql" >> ${DbPatchLog}
-                   ${Psql} -U ${PgUser} -d ${Database} -f ${DbPatchDir}/${patch}.sql >>${DbPatchLog} 2>&1
-                   ${Psql} -U ${PgUser} -d ${Database} -c "insert into patch values ('${patch}')" >/dev/null 2>&1
-                fi
+                   ${PsqlCmd} -f ${DbPatchDir}/${patch}.sql >>${DbPatchLog} 2>&1
+                   ${PsqlCmd} -c "insert into patch values ('${patch}')" >>${DbPatchLog} 2>&1
+                fi            
             else
-                echo "Error: Database patch file ${patch}.sql not found."
-            fi
+                echo "Error: Database patch file ${patch}.sql not found." >> ${DbPatchLog}
+            fi            
         done
    fi
 }
@@ -137,22 +132,13 @@ databaseCommand() {
     case ${1} in
        create)
          createdb -U ${PgUser} --encoding=UNICODE ${Database} >/dev/null
-         ${Psql} -U ${PgUser} -d ${Database} -f ${PgSchema} >/dev/null 2>&1
+         ${PsqlCmd} -f ${PgSchema} >/dev/null 2>&1
        ;;
        
        drop)
          dropdb -U ${PgUser} --encoding=UNICODE ${Database} >/dev/null 2>&1
        ;;
    esac
-}
-
-runningUserCheck() {
-  CurrentUser=`id -un`
-  if [ "$CurrentUser" != "$RunningUser" ]; then
-    echo "Only user @sipxpbx.user@ can run this command." 1>&2
-    return 1
-  fi
-  return 0
 }
 
 # Check if call resolver is configured for HA
@@ -183,62 +169,59 @@ HAcheck() {
 #  2. running but not setup to communicate w/java or ${Psql} command
 #  3. Database is not created
 databaseCheck() {
-   if ! ${Psql} -l -U postgres | grep "${Database}" >/dev/null 2>&1
-   then
-      procs=`ps -C postmaster`
-      if ! expr match "$procs" '.*postmaster.*' >/dev/null; then
-         if [ "$1" != "Silent" ]; then
-            echo "  failed"
-            echo
-            echo "  Error: PostgreSQL is not running."
-            echo
-         fi
-      else
-         # Check postgres configuration
-         Service=`postgresService`
-         if test -z $PGDATA; then
-            # Debian/Gentoo
-            if test -d /var/lib/postgresql/data; then
-               PGDATA=/var/lib/postgresql/data
-            else
-               # Redhat
-               PGDATA=/var/lib/pgsql/data
-            fi
-         fi          
-         # Check for conf file
-         if [ -f $PGDATA/pg_hba.conf ]; then
-            if ! grep '^local *all *all *trust.*' $PGDATA/pg_hba.conf >/dev/null; then
-               if [ "$1" != "Silent" ]; then            
-                  echo
-                  echo "  Error: $PGDATA/pg_hba.conf is not set up for local connections."
-                  echo "         Run the sipxcallresolver.sh script with the --setup"
-                  echo "         parameter:"
-                  echo "                     sipxcallresolver.sh --setup"
-                  echo
-               fi  
-            else
-               #  Check if psql command works at all
-               if ${Psql} -l -U postgres >/dev/null 2>&1; then
-                  if [ "$1" != "Silent" ]; then               
-                     echo
-                     echo "  Error: The SIPXCDR database does not exist. Run the sipxcallresolver.sh"
-                     echo "         script with the --setup parameter:"
-                     echo "                     sipxcallresolver.sh --setup"
-                     echo                  
-                  fi
-               else
-                  echo 
-                  echo "  Unknown database error."
-                  echo
-               fi
-            fi
-         fi
+   if ${Psql} -l -U postgres | grep "${Database}" >/dev/null 2>&1; then
+      return 0
+   fi	
+   #  Check if psql command works at all
+   if ${Psql} -l -U postgres >/dev/null 2>&1; then
+      if [ "$1" != "Silent" ]; then
+         cat <<ERROR
+
+Error: The SIPXCDR database does not exist.
+Login as root and run the sipxcallresolver.sh script with the --setup parameter.
+   $0 --setup
+
+ERROR
       fi
       return 1
-   else
-      return 0
+   fi   
+   procs=`ps -C postmaster`
+   if ! expr match "$procs" '.*postmaster.*' >/dev/null; then
+      if [ "$1" != "Silent" ]; then
+         echo "  Error: PostgreSQL is not running."
+      fi
+      return 1
    fi
+   # Check postgres configuration
+   Service=`postgresService`
+   if test -z "$PGDATA"; then
+      # Debian/Gentoo
+      if test -d /var/lib/postgresql/data; then
+         PGDATA=/var/lib/postgresql/data
+      else
+         # Redhat
+         PGDATA=/var/lib/pgsql/data
+      fi
+   fi          
+   # Check for conf file
+   if [ -f $PGDATA/pg_hba.conf ]; then
+      if ! grep '^local *all *all *trust.*' $PGDATA/pg_hba.conf >/dev/null; then
+         if [ "$1" != "Silent" ]; then            
+         cat <<ERROR
+
+Error: $PGDATA/pg_hba.conf is not set up for local connections.
+Login as root and run the sipxcallresolver.sh script with the --setup parameter.
+   $0 --setup
+            
+ERROR
+         fi  
+      else
+         echo "Error:  Unknown database error."
+      fi
+   fi
+   return 1
 }
+
 
 # Check if there are multiple proxy processes running at the same time.
 # This can be a scenario for logging failures.
@@ -249,11 +232,12 @@ proxyCheck() {
    if expr match "$procs" '.*sipproxy.*' >/dev/null; then
       # At least one sipproxy is running, check for another one
       if expr match "$procs" '.*sipproxy.*sipproxy.*' >/dev/null; then
-         echo " failed"
-         echo
-         echo "  Found at least two sipproxy processes. This is a potential"
-         echo "  cause of CSE logging failures!"
-         echo
+         cat <<ERROR
+ failed.         
+Found at least two sipproxy processes. 
+This is a potential cause of CSE logging failures!
+
+ERROR
          ps -C sipproxy
          echo
          ok=1
@@ -269,11 +253,12 @@ proxyCheck() {
    if expr match "$procs" '.*sipauthproxy.*' >/dev/null; then
       # At least one sipauthproxy is running, check for another one
       if expr match "$procs" '.*sipauthproxy.*sipauthproxy.*' >/dev/null; then
-         echo "failed"
-         echo
-         echo "  Found at least two sipauthproxy processes. This is a potential"
-         echo "  cause of CSE logging failures! "
-         echo
+         cat <<ERROR
+ failed.
+Found at least two sipauthproxy processes.
+This is a potential cause of CSE logging failures!
+         
+ERROR
          ps -C sipauthproxy
          echo
          ok=1
@@ -287,52 +272,46 @@ proxyCheck() {
 }
 
 configCheck() {
-   Status=1
-   db_check=1
+   Status=0
    
    if ! proxyCheck; then
-     Status=0
+     Status=1
    fi
  
-   if [ $db_check = 1 ]; then
-     echo "Checking database..."
-     if ! databaseCheck; then
-        Status=0
-     else
-        if databaseVersionCheck; then
-           echo "  ok"
-        fi
-     fi
-   else
-      echo "Machine is configured for HA without a database on localhost - skip database check"
+   if ! databaseCheck; then
+      Status=1
    fi
-
+ 
    echo "Checking configuration..."   
    proxyConfig=`cat @SIPX_CONFDIR@/proxy-config.in | grep SIP_PROXY_CALL_STATE_DB`
    if ! expr match "$proxyConfig" '.*:\s*[eE][nN][aA][bB][lL][eE]\s*$' >/dev/null; then
-      echo
-      echo "  Error: proxy is not configured to log call state events to a database."
-      echo "         Add the line"
-      echo 
-      echo "             SIP_PROXY_CALL_STATE_DB : ENABLE"
-      echo
-      echo "         to @SIPX_CONFDIR@/proxy-config.in"
-      echo
-      Status=0
+      cat <<ERROR
+
+Error: proxy is not configured to log call state events to a database.
+Add the line:
+
+   SIP_PROXY_CALL_STATE_DB : ENABLE
+   
+to @SIPX_CONFDIR@/proxy-config.in
+
+ERROR
+      Status=1
    else
       echo "  proxy configured for logging"
    fi
    authConfig=`cat @SIPX_CONFDIR@/authproxy-config.in | grep SIP_AUTHPROXY_CALL_STATE_DB`
    if ! expr match "$authConfig" '.*:\s*[eE][nN][aA][bB][lL][eE]\s*$' >/dev/null; then
-      echo
-      echo "  Error: authproxy is not configured to log call state events to a database."
-      echo "         Add the line"
-      echo 
-      echo "             SIP_AUTHPROXY_CALL_STATE_DB : ENABLE"
-      echo
-      echo "         to @SIPX_CONFDIR@/authproxy-config.in"
-      echo
-      Status=0
+      cat <<ERROR
+
+Error: authproxy is not configured to log call state events to a database.
+Add the line:
+
+   SIP_AUTHPROXY_CALL_STATE_DB : ENABLE
+   
+to @SIPX_CONFDIR@/authproxy-config.in
+
+ERROR
+      Status=1
    else
       echo "  authproxy configured for logging"
    fi
@@ -343,45 +322,50 @@ configCheck() {
 
       resolveConfig=`cat @SIPX_CONFDIR@/callresolver-config.in | grep SIP_CALLRESOLVER_PURGE`
       if ! expr match "$resolveConfig" '.*:\s*[eE][nN][aA][bB][lL][eE]\s*$' >/dev/null; then
-         echo
-         echo "  Warning: call resolver is not configured for purging old records."
-         echo "           This will prevent the call resolver from automatically"
-         echo "           purging old database records on a regular basis. Add"
-         echo "           the line"
-         echo              
-         echo "              SIP_CALLRESOLVER_PURGE  : ENABLE"
-         echo
-         echo "           to @SIPX_CONFDIR@/callresolver-config.in"
-         echo
+      cat <<ERROR
+
+Warning: callresolver is not configured for purging old records.
+This will prevent the call resolver from automatically purging old database 
+records on a regular basis. 
+Add the line:
+
+   SIP_CALLRESOLVER_PURGE  : ENABLE
+
+to @SIPX_CONFDIR@/callresolver-config.in
+
+ERROR
          resolveOk=0
-         Status=0
+         Status=1
       fi
       
       # In HA setup test for the CA field entry
       if HAcheck; then
          resolveConfig=`cat @SIPX_CONFDIR@/callresolver-config.in | grep SIP_CALLRESOLVER_CSE_CA`
          if [ -z resolvConfig ]; then
-            echo
-            echo " Error: In a HA setup the SIP_CALLRESOLVER_CSE_CA parameter must"
-            echo "        be set. Add the line"
-            echo              
-            echo "              SIP_CALLRESOLVER_CSE_CA  : <name of CA file>"
-            echo
-            echo "           to @SIPX_CONFDIR@/callresolver-config.in"
+            cat <<ERROR
+
+Error: In a HA setup the SIP_CALLRESOLVER_CSE_CA parameter must be set.
+Add the line:
+  
+   SIP_CALLRESOLVER_CSE_CA  : <name of CA file>
+   
+to @SIPX_CONFDIR@/callresolver-config.in
+
+ERROR
             resolveOk=0
-            Status=0
+            Status=1
          else
             cfile=`expr match "$resolveConfig" '.*:\s*\(.*\)\s*$'`
             if [ ! -f @SIPX_CONFDIR@/ssl/authorities/${cfile} ]; then 
-               echo
-               echo "Error: The value for SIP_CALLRESOLVER_CSE_CA is:"
-               echo "              ${cfile}"
-               echo
-               echo "        A file of that name does not exist in"
-               echo "        @SIPX_CONFDIR@/ssl/authorities"
-               echo
+		       cat <<ERROR
+
+Error: The value for SIP_CALLRESOLVER_CSE_CA is: ${cfile}
+
+A file of that name does not exist in: @SIPX_CONFDIR@/ssl/authorities
+		       
+ERROR
                resolveOk=0
-               Status=0      
+               Status=1
             fi
          fi
       fi
@@ -393,14 +377,23 @@ configCheck() {
       echo -n "${CallResolverMain}..."
       if [ -f ${CallResolverMain} ]; then
          echo " ok"
-      else
-         echo
-         echo "  Error: ${CallResolverMain} not found."
-         echo
-         Status=0
+      else 
+         cat <<ERROR
+
+  Error: ${CallResolverMain} not found.
+
+ERROR
+         Status=1
       fi   
    fi
+   # Print out a success message if everything is OK, to give the user some feedback.
+   # If there is an error then the test will yield an error message.
+   if [ $Status = 0 ]
+   then
+       echo "The config test succeeded."
+   fi   
 }
+
 
 # Check the database version.  If it is wrong, then exit, because it's dangerous to
 # run call resolver on top of the wrong database version.
@@ -415,18 +408,21 @@ databaseVersionCheck() {
     then
        if [ "$dbver" == 0 ]
        then
-          echo
-          echo "  Error: bad ${Database} database version. This database was"
-          echo "  created by a prerelease version of sipxcallresolver. You should"
-          echo "  drop and recreate the database via"
-          echo "       \"sipxcallresolver.sh --database drop create\"."
-          echo
+          cat <<ERROR
+
+Error: bad ${Database} database version. 
+You should drop and recreate the database:
+  $0 --database drop create
+
+ERROR
        else
-          echo 
-          echo "  Error: bad ${Database} database version.  Expected version $DbVersion,"
-          echo "  got version $dbver. This database was created or modified by a different"
-          echo "  version of sipxcallresolver."
-          echo
+         cat <<ERROR
+
+Error: bad ${Database} database version.  
+Expected version $DbVersion, got version $dbver. 
+This database was created or modified by a different version of sipxcallresolver.
+
+ERROR
         fi
         return 1
     fi
@@ -444,17 +440,28 @@ removeOldCronEntry()
     fi   
 }
 
+# In version 3.6 sipxcallresover was run as root.
+# After upgrade we need to make sure that log files are writeable by sipx user
+fixFileAccess()
+{
+    if [ -f $1 ]; then
+        chmod a+w $1   
+    fi
+}
+
+
 # Called after installation or upgrade by distro's package infrastructure
 # but can be called manually and is harmless if called multiple times.
 onSetup() {
     assertRoot
     removeOldCronEntry
+    fixFileAccess ${DbPatchLog}
+    fixFileAccess ${CallResolverLog}
     if ! databaseCheck Silent
     then
        @bindir@/pgpatch.sh
        databaseCommand create
     fi
-    databasePatch
 }
 
 onUninstall() { 
@@ -464,30 +471,14 @@ onUninstall() {
 # Start CDR call resolver
 onStartup() { 
     # Check database version - don't run if it's wrong
+    databasePatch
     if ! databaseVersionCheck; then
        exit 1
     fi
-    databasePatch
     
     echo $$ > ${PidFile}
     
     exec ${RubyCmd} ${CallResolverMain} ${resolverArgs}
-}
-
-# simple diagnostics
-configtest() {
-   configCheck
-
-   # Print out a success message if everything is OK, to give the user some feedback.
-   # If there is an error then the test will yield an error message.
-   if [ $Status = 1 ]
-   then
-      echo "The config test succeeded."
-      echo
-   else
-      echo "The config test found problems."
-      echo
-   fi
 }
 
 while [ $# -ne 0 ]
@@ -538,35 +529,27 @@ do
     shift # always consume 1
 done
 
-if [ ${Action} = CONFIGTEST ]
-then
-    configtest
+if [ ${Action} = CONFIGTEST ]; then
+    configCheck
     exit $Status
-elif [ ${Action} = DISTRIBTEST ]
-then
-    configtest
+elif [ ${Action} = DISTRIBTEST ]; then
+    configCheck
     exit $Status
-elif [ ${Action} = DATABASE ] 
-then
+elif [ ${Action} = DATABASE ]; then
     databaseCommand $Args
-elif [ ${Action} = RUN ] 
-then
+elif [ ${Action} = RUN ]; then
     runConfigpp
     onStartup
-elif [ ${Action} = SETUP ]
-then
+elif [ ${Action} = SETUP ]; then
     onSetup
-elif [ ${Action} = UNINSTALL ]
-then
+elif [ ${Action} = UNINSTALL ]; then
     onUninstall
-elif [ ${Action} = PATCH ]
-then
+elif [ ${Action} = PATCH ]; then
     databasePatch
-elif [ ${Action} = HELP ]
-then
+else
 
 cat <<USAGE
-Usage: sipxcdr.sh [-d|--database commands ...]
+Usage: $0 [-d|--database commands ...]
                   [-c|--configtest]
                   [-s|--setup]
                   [-h|--help]
@@ -575,7 +558,9 @@ Set up CDR database and processing for sipXpbx.
 
 Options include:
 
-  none                 Starts CDR call resolver
+  none                 Process a single batch of call events and exit.
+  
+  --daemon			   Daemonize call resolver - it remains running and keeps processing incoming call events.
 
   --database commands  Runs an operation on the database. Database commands 
                        are detailed below 

@@ -93,9 +93,6 @@ public abstract class Border extends BaseComponent implements PageValidateListen
 
     public String getHelpLink() {
         String help = getSkin().getHelpLink();
-        if (help == null) {
-            help = getMessages().getMessage("link.helpUrl");
-        }
         String url = MessageFormat.format(help, (Object[]) getVersionInfo().getVersionIds());
         return url;
     }

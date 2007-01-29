@@ -3,7 +3,6 @@ include $(top_srcdir)/config/subdir.am
 
 rake=$(RAKE) builddir="$$builddir"
 GEM_LIB_DIR=$(libdir)/ruby/gems/1.8
-callresolver_dir=$(datadir)/sipxpbx/lib
 
 clean :
 	builddir=$(srcdir); \
@@ -34,9 +33,9 @@ install-gem : package-gem
 .PHONY: install-gem-for-rpm
 install-gem-for-rpm : package-gem
 	echo "Installing call resolver gem"
-	$(INSTALL) -d -m755 $(DESTDIR)$(callresolver_dir)
-	$(INSTALL) pkg/sipxcallresolver*.gem $(DESTDIR)$(callresolver_dir)
-	
+	$(INSTALL) -d -m755 $(DESTDIR)@SIPX_VARLIB@
+	$(INSTALL) pkg/sipxcallresolver*.gem $(DESTDIR)@SIPX_VARLIB@
+
 check :
 	builddir=`pwd`; \
 	cd $(srcdir) && $(rake)

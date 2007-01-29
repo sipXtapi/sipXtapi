@@ -42,6 +42,18 @@ EOT
   exit 1
 end
 
+# ruby-postgress RPM installs postgres.so in /usr/lib/site_ruby/1.8/i386-linux 
+# however on CentOS ruby 'sitearchdir' is /usr/lib/site_ruby/1.8/i386-linux-gnu
+# this function tries to load postgres from both places
+def load_postgres_driver()
+  require 'postgres'
+rescue LoadError
+  require 'rbconfig'
+  sad = Config::CONFIG['sitearchdir']
+  postgres_dir = sad.chomp('-gnu')
+  $:.unshift(postgres_dir)
+  require 'postgres'
+end
 
 def main()
   opts = GetoptLong.new(
@@ -56,6 +68,7 @@ def main()
   end_time = Time.now
   daemon_flag = false
   config = CallResolverConfigure.from_file()
+  load_postgres_driver()
   
   # Extract option values
   # Convert start and end strings to date/time values.

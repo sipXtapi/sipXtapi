@@ -185,4 +185,16 @@ public class TapestryUtilsTest extends TestCase {
         public void setName(String name_) {
         }
     }
+    
+    public void testSetExtensionsString() {
+        String[] array = TapestryUtils.splitBySpace("100    200");
+        assertEquals(2, array.length);
+        assertEquals("100", array[0]);
+        assertEquals("200", array[1]);
+    }
+    
+    public void testGetExtensionsString() {
+        String s = TapestryUtils.joinBySpace(new String[] {"100 200"});
+        assertEquals("100 200", s);
+    }    
 }

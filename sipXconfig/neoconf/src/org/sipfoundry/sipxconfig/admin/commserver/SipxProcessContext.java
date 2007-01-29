@@ -35,6 +35,7 @@ public interface SipxProcessContext {
         public static final Process CALL_RESOLVER = new Process("CallResolver");
         public static final Process ACD_SERVER = new Process("ACDServer");
         public static final Process FREESWITCH_SERVER = new Process("FreeSWITCH");
+        public static final Process RL_SERVER = new Process("ResourceListServer");
 
         private Process(String name) {
             super(name);

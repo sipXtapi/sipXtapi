@@ -26,8 +26,9 @@ create table version_history(
  * CHANGE VERSION HERE ----------------------------> X <------------------
  *
  * For the initial sipX release with Call Resolver, the database version is 2.
+ * Version 3: view_cdrs patch
  */
-insert into version_history (version, applied) values (2, now());
+insert into version_history (version, applied) values (3, now());
 
 create table patch(
   name varchar(32) not null primary key
@@ -149,26 +150,16 @@ alter table cdrs add constraint cdrs_call_id_unique unique (call_id);
  * billing.  Dialog info is only used to link the CDR back to raw CSE data,
  * or for CDR post-processing.
  */
-
 create view view_cdrs as
   select id, caller_aor, callee_aor,
          start_time, connect_time, end_time,
          end_time - connect_time as duration,
-         termination, failure_status, failure_reason
+         termination, failure_status, failure_reason,
+         call_direction
   from cdrs;
-
-
----------------------------------- Plugins ----------------------------------
-
-/*
- * Call Direction
- */
 
 /*
  * "Call direction" is an application-level plugin. 
- * The purist approach would be to put call direction in its own table, separate 
- * from the cdrs table, but that would be overkill just for a single char(1) column.
- * So this column is in the cdrs table, see above.
  *
  * Call direction is encoded in char(1) as follows: 
  *
@@ -176,17 +167,4 @@ create view view_cdrs as
  *   Outgoing (O): for calls that go out to a PSTN gateway
  *   Intranetwork (A): for calls that are pure SIP and don't go through a gateway
  */
-
-/*
- * Define "view_cdrs_with_call_direction" to be a superset of "view_cdrs" defined 
- * above, with the addition of the call_direction column.
- */
-
-create view view_cdrs_with_call_direction as
-  select id, caller_aor, callee_aor,
-         start_time, connect_time, end_time,
-         end_time - connect_time as duration,
-         termination, failure_status, failure_reason,
-         call_direction
-  from cdrs;
 

@@ -223,7 +223,7 @@ Any SIP UA can call a registered UA by calling its AOR,
 <h2>The Tests</h2>
 
 <ol>
-<li><a href='#MWI'>Message Waiting Indication (MWI)</a></li>
+<li><a href='#MWI'>DTMF Generation and Message Waiting Indication (MWI)</a></li>
 <li><a href='#xfer'>Transfer</a></li>
 <li><a href='#407'>Authenticated INVITE (407 Proxy Authentication Required)</a></li>
 <li><a href='#403'>Authenticated INVITE (403 Forbidden)</a></li>
@@ -242,7 +242,7 @@ Any SIP UA can call a registered UA by calling its AOR,
 <li><a href='#SRV'>DNS SRV Record Processing</a></li>
 </ol>
 
-<h3><a name='MWI'>1</a>. Message Waiting Indication (MWI)</h3>
+<h3><a name='MWI'>1</a>. DTMF Generation and Message Waiting Indication (MWI)</h3>
 
 <p>
 The addresses 1<span class='group'>gg</span>1 and 1<span
@@ -553,6 +553,13 @@ configured with DNS SRV records for the UDP and TCP protocols,
 respectively.  A UA should support DNS SRV records and both the UDP
 and TCP protocols, so it should be able to use either of these domain
 names in place of <code>@SIPXCHANGE_DOMAIN_NAME@</code> in all of the tests.
+</p>
+
+<p>
+(Note that the SIP domains 
+<code>@INTEROP_ALIAS_UDP@</code> and <code>@INTEROP_ALIAS_TCP@</code>
+are implemented via sipX's domain aliasing feature, so they are usable
+for call routing but not for registering AORs.)
 </p>
 
 <hr />
