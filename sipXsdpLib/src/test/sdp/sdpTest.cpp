@@ -16,10 +16,10 @@
 #include <sdp/Sdp.h>
 #include <sdp/SdpMediaLine.h>
 #include <sdp/SdpHelperResip.h>
-#include <sdp/SdpHelper.h>
 
 #ifndef EXCLUDE_SIPX_SDP_HELPER
 #include <net/SdpBody.h>
+#include <net/SdpHelper.h>
 #endif
 
 #ifdef BUILD_RESIP_SDP_HELPER

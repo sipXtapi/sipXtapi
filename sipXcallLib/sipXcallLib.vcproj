@@ -4,8 +4,10 @@
 	Version="7.10"
 	Name="sipXcallLib"
 	ProjectGUID="{0EADF7C3-7D48-45BF-A00D-ECB94DC912EA}"
-	SccProjectName="Perforce Project"
-	SccLocalPath=".">
+	SccProjectName=""
+	SccAuxPath=""
+	SccLocalPath=""
+	SccProvider="">
 	<Platforms>
 		<Platform
 			Name="Win32"/>

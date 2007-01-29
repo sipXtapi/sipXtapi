@@ -6,9 +6,19 @@ Windows Build Hints
 
 Please see the instructions in the INSTALL doc in sipXportLib for all the required 3rd party dependencies.  Next, open sipXtapi.sln project within the sipXcallLib project.  This project will build sipXtapi, PlaceCall, ReceiveCall, and sipXezPhone.  You may need to copy the "sipXtapi[d].dll" into your working directory before you can run PlaceCall or ReceiveCall.  sipXezphone has a post-process build setup that copies those DLLs for you.
 
+For step-by-step guide read thi page:
+http://sipx-wiki.calivia.com/index.php/SipXtapi_and_sipXezPhone_Build_Environment_for_Windows
+
 Linux Build Hints
 =================
-The Linux build has been tested on Fedora Core 5 and gentoo.  Automake and autoconf should do the trick for you.  If you find any missing components, you will need to install those.  See the INSTALL doc in sipXportLib for more info on these dependences.  Under FC5, I needed to yum pcre-devel and cppunit-devel.
+The Linux build has been tested on Fedora Core 6 and Ubuntu 6.10 (Edgy).  Automake and autoconf should do the trick for you.  If you find any missing components, you will need to install those.  See the INSTALL doc in sipXportLib for more info on these dependences.
+
+Under FC6, I needed to yum pcre-devel and cppunit-devel.
+Under Ubunutu, I need to 'apt-get install libpcre3-dev libcppunit-dev'.
+
+In order to build with GSM and Speex codec support you will need to install libgsm (version >= 1.0.10) and libspeex (version >= 1.1) development libraries.  Their presence will be detected during 'configure' stage automatically.  If do NOT want include GSM or Speex support even if appropriate libraries are present, use "--disable-codec-gsm" and "--disable-codec-speex" switch when configuring sipXtackLib, sipXmediaLib and sipXmediaAdapterLib.
+
+Under Ubunutu, I need to 'apt-get install libspeex-dev libgsm1-dev' to install libgsm and libspeex.
 
 1) Build 
 
@@ -16,31 +26,37 @@ cd sipXportLib
 autoreconf -fi
 ./configure --prefix=/tmp/stage
 make;make install
+cd ..
 
 cd sipXsdpLib
 autoreconf -fi
 ./configure --prefix=/tmp/stage
 make;make install
+cd ..
 
-cd ../sipXtackLib
+cd sipXtackLib
 autoreconf -fi
-./configure --prefix=/tmp/stage --disable-sipviewer
+./configure --prefix=/tmp/stage --disable-sipviewer [--disable-codec-gsm] [--disable-codec-speex]
 make;make install
+cd ..
 
-cd ../sipXmediaLib
+cd sipXmediaLib
 autoreconf -fi
-./configure --prefix=/tmp/stage --enable-local-audio
+./configure --prefix=/tmp/stage --enable-local-audio [--disable-codec-gsm] [--disable-codec-speex]
 make;make install
+cd ..
 
-cd ../sipXmediaAdapterLib
+cd sipXmediaAdapterLib
+autoreconf -fi
+./configure --prefix=/tmp/stage [--disable-codec-gsm] [--disable-codec-speex]
+make;make install
+cd ..
+
+cd sipXcallLib
 autoreconf -fi
 ./configure --prefix=/tmp/stage
 make;make install
-
-cd ../sipXcallLib
-autoreconf -fi
-./configure --prefix=/tmp/stage
-make;make install
+cd ..
 
 2) Test using PlaceCall
 

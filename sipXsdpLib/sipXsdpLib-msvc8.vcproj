@@ -344,10 +344,6 @@
 				>
 			</File>
 			<File
-				RelativePath="src\sdp\SdpHelper.cpp"
-				>
-			</File>
-			<File
 				RelativePath="src\sdp\SdpHelperResip.cpp"
 				>
 			</File>
@@ -374,10 +370,6 @@
 			</File>
 			<File
 				RelativePath="include\sdp\SdpCodec.h"
-				>
-			</File>
-			<File
-				RelativePath="include\sdp\SdpHelper.h"
 				>
 			</File>
 			<File

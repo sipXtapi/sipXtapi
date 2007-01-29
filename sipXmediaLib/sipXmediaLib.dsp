@@ -41,7 +41,7 @@ RSC=rc.exe
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GR /GX /O1 /I "include" /I "..\sipXportLib\include" /I "..\sipXsdpLib\include" /I "..\sipXtackLib\include" /D "NDEBUG" /D "_LIB" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GR /GX /O1 /I "include" /I "..\sipXportLib\include" /I "..\sipXsdpLib\include" /I "..\sipXtackLib\include" /I "contrib\libgsm\inc" /I "contrib\libspeex\include" /D "HAVE_SPEEX" /D "HAVE_GSM" /D "NDEBUG" /D "_LIB" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /YX /FD /c
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -64,7 +64,7 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "include" /I "..\sipXportLib\include" /I "..\sipXsdpLib\include" /I "..\sipXtackLib\include" /D "_DEBUG" /D "_LIB" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "include" /I "..\sipXportLib\include" /I "..\sipXsdpLib\include" /I "..\sipXtackLib\include" /I "contrib\libgsm\inc" /I "contrib\libspeex\include" /D "HAVE_SPEEX" /D "HAVE_GSM" /D "_DEBUG" /D "_LIB" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /YX /FD /GZ /c
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -857,11 +857,19 @@ SOURCE=.\include\mp\MpdPtAVT.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MpdSipxGSM.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MpdSipxPcma.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\include\mp\MpdSipxPcmu.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpdSipxSpeex.h
 # End Source File
 # Begin Source File
 
@@ -901,11 +909,19 @@ SOURCE=.\include\mp\MpePtAVT.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MpeSipxGSM.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MpeSipxPcma.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\include\mp\MpeSipxPcmu.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpeSipxSpeex.h
 # End Source File
 # Begin Source File
 
@@ -998,6 +1014,10 @@ SOURCE=.\include\mp\MprMixer.h
 # Begin Source File
 
 SOURCE=.\include\mp\MprRecorder.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprSpeexEchoCancel.h
 # End Source File
 # Begin Source File
 

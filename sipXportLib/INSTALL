@@ -157,31 +157,6 @@ After compiling or installing STLport, cppunit, and pcre, update your EVC4 envir
     * Build.
 
 
-WinCE (EVC4): Building from Source Code
-=======================================
-After compiling or installing STLport, cppunit, and pcre, update your EVC4 environment.
-* Open up EVC4
-    * go to Tools->Options...->Directories
-        * Select the platform you want to build
-        * Select "Include files"
-            * Add path to STLport include directory.
-            * Add path to PCRE include directory.
-            * Add path to CPPUnit include directory.
-            * Move these new entries to top (included before all others), 
-              with STLport first.
-        * Select "Library Files"
-            * Add path to STLport library.
-            * Add path to PCRE library.
-            * Add path to CPPUnit library.
-            * Move these new entries to the top (linked before all others),
-              with STLport first.
-        * Click "Ok".
-    * Open project sipXportLib.vcp
-    * Choose your target.  
-      Currently emulator and ARMV4I have project settings set properly.
-    * Build.
-
-
 ================================================================================
 
 Generic installation instructions from FSF included for convienence:

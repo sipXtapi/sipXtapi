@@ -22,7 +22,7 @@ version_Age=0
 libsipXcall_la_LDFLAGS = -version-info ${version_Current}:${version_Revision}:${version_Age}
 
 libsipXcall_la_LIBADD = \
-	@SIPXMEDIA_LIBS@ @SIPXTACK_LIBS@ @SIPXPORT_LIBS@ -lstdc++
+	@SIPXMEDIA_MP_LIBS@ -lstdc++
 
 libsipXcall_la_CXXFLAGS = \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \

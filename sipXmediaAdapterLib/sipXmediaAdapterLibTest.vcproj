@@ -4,8 +4,10 @@
 	Version="7.10"
 	Name="sipXmediaAdapterLibTest"
 	ProjectGUID="{4D2F60E7-A4A4-4429-A640-2894F33824CA}"
-	SccProjectName="Perforce Project"
-	SccLocalPath="..">
+	SccProjectName=""
+	SccAuxPath=""
+	SccLocalPath=""
+	SccProvider="">
 	<Platforms>
 		<Platform
 			Name="Win32"/>
@@ -21,7 +23,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\sipXportLib\src\test;..\sipXportLib\include;..\sipXcallLib\include;..\sipXportLib\include\glib;interface;include;..\sipXtackLib\include;..\CPPUnit\include"
+				AdditionalIncludeDirectories="..\sipXportLib\src\test;..\sipXportLib\include;..\sipXcallLib\include;..\sipXportLib\include\glib;interface;include;..\sipXtackLib\include;..\sipXsdpLib\include;..\CPPUnit\include"
 				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -37,7 +39,7 @@
 				AdditionalDependencies="Ws2_32.lib winmm.lib cppunit.lib pcre.lib libspeex gsm.lib"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="..\CPPUnit\lib"
+				AdditionalLibraryDirectories="..\CPPUnit\lib;..\sipXmediaLib\contrib\libspeex\lib"
 				IgnoreDefaultLibraryNames=""
 				SubSystem="1"
 				TargetMachine="1"/>
@@ -77,7 +79,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\sipXportLib\src\test;..\sipXportLib\include;..\sipXcallLib\include;..\sipXportLib\include\glib;interface;include;..\sipXtackLib\include;..\CPPUnit\include"
+				AdditionalIncludeDirectories="..\sipXportLib\src\test;..\sipXportLib\include;..\sipXcallLib\include;..\sipXportLib\include\glib;interface;include;..\sipXtackLib\include;..\sipXsdpLib\include;..\CPPUnit\include"
 				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -93,7 +95,7 @@
 				AdditionalDependencies="Ws2_32.lib winmm.lib cppunitd.lib pcre.lib libspeex.lib gsmd.lib"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="..\CPPUnit\lib"
+				AdditionalLibraryDirectories="..\CPPUnit\lib;..\sipXmediaLib\contrib\libspeex\lib"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="TRUE"
 				GenerateMapFile="TRUE"

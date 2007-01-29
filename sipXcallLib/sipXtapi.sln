@@ -37,6 +37,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXtapiTest", "sipXtapiTes
 	ProjectSection(ProjectDependencies) = postProject
 		{14631055-9D3F-47E5-B6A7-16BFC0CC8091} = {14631055-9D3F-47E5-B6A7-16BFC0CC8091}
 		{85CAC56D-4E3A-4712-91A5-AE724B11AE25} = {85CAC56D-4E3A-4712-91A5-AE724B11AE25}
+		{E1D81EA9-4AC3-4CF5-B600-090FD822B1F6} = {E1D81EA9-4AC3-4CF5-B600-090FD822B1F6}
 		{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646} = {0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}
 	EndProjectSection
 EndProject
@@ -103,6 +104,7 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXsdpLibTest", "..\sipXsdpLib\sipXsdpLibTest.vcproj", "{AB8F7343-BC81-4077-B1A5-37CA389FCA94}"
 	ProjectSection(ProjectDependencies) = postProject
 		{E1D81EA9-4AC3-4CF5-B600-090FD822B1F6} = {E1D81EA9-4AC3-4CF5-B600-090FD822B1F6}
+		{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646} = {0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libgsm", "..\sipXmediaLib\contrib\libgsm\libgsm.vcproj", "{993B6878-2EA7-49E0-AC6E-28C68592724B}"
@@ -117,8 +119,6 @@ Global
 		Release_NoVideo = Release_NoVideo
 		SSL-Debug = SSL-Debug
 		SSL-Release = SSL-Release
-	EndGlobalSection
-	GlobalSection(ProjectDependencies) = postSolution
 	EndGlobalSection
 	GlobalSection(ProjectConfiguration) = postSolution
 		{14441867-4291-4174-812E-00C774370C61}.Debug.ActiveCfg = Debug|Win32

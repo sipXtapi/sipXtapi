@@ -16,7 +16,7 @@
 // APPLICATION INCLUDES
 #include <net/NetBase64Codec.h>
 #include <sdp/SdpCodec.h>
-#include <sdp/SdpHelper.h>
+#include <net/SdpHelper.h>
 #include <net/SdpBody.h>
 #include <sdp/Sdp.h>
 #include <sdp/SdpMediaLine.h>
