@@ -300,13 +300,13 @@ OsStatus MpCodecFactory::createEncoder(SdpCodec::SdpCodecTypes internalCodecId,
       rpEncoder = new MpeSipxSpeex(payloadType);
       break;
    case (SdpCodec::SDP_CODEC_SPEEX_5):
-      rpEncoder = new MpeSipxSpeex(payloadType);
+      rpEncoder = new MpeSipxSpeex(payloadType, 2);
       break;
     case (SdpCodec::SDP_CODEC_SPEEX_15):
-      rpEncoder = new MpeSipxSpeex(payloadType);
+      rpEncoder = new MpeSipxSpeex(payloadType, 5);
       break;
     case (SdpCodec::SDP_CODEC_SPEEX_24):
-      rpEncoder = new MpeSipxSpeex(payloadType);
+      rpEncoder = new MpeSipxSpeex(payloadType, 7);
       break;
 #endif // HAVE_SPEEX ]
 
