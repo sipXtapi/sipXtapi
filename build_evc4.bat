@@ -32,9 +32,19 @@ del %releaseDir%\sipXportLibTest.exe 2>nul
 evc sipXportLibTest.vcp /MAKE "sipXportLibTest - Win32 (WCE %TARGETCPU%) %releaseType%" %doClean%
 cd ..
 
+cd sipXsdpLib
+del %releaseDir%\sipXsdpLib%libPrefix%.lib 2>nul
+evc sipXsdpLib.vcp /MAKE "sipXsdpLib - Win32 (WCE %TARGETCPU%) %releaseType%" %doClean%
+cd ..
+
 cd sipXtackLib
 del %releaseDir%\sipXtackLib%libPrefix%.lib 2>nul
 evc sipXtackLib.vcp /MAKE "sipXtackLib - Win32 (WCE %TARGETCPU%) %releaseType%" %doClean%
+cd ..
+
+cd sipXsdpLib
+del %releaseDir%\sipXsdpLibTest.exe 2>nul
+evc sipXsdpLibTest.vcp /MAKE "sipXsdpLibTest - Win32 (WCE %TARGETCPU%) %releaseType%" %doClean%
 cd ..
 
 cd sipXtackLib
@@ -45,6 +55,11 @@ cd ..
 cd sipXmediaLib
 del %releaseDir%\sipXmediaLib%libPrefix%.lib 2>nul
 evc sipXmediaLib.vcp /MAKE "sipXmediaLib - Win32 (WCE %TARGETCPU%) %releaseType%" %doClean%
+cd ..
+
+cd sipXmediaLib
+del %releaseDir%\sipXmediaLibTest%libPrefix%.lib 2>nul
+evc sipXmediaLibTest.vcp /MAKE "sipXmediaLibTest - Win32 (WCE %TARGETCPU%) %releaseType%" %doClean%
 cd ..
 
 cd sipXmediaAdapterLib

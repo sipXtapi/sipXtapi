@@ -87,6 +87,7 @@ public:
    void testAudioBuffersWriteData()
    {
       // Allocate two audio buffers and write data to them.
+      unsigned i;
 
       MpAudioSample *pSamples;
 
@@ -96,7 +97,7 @@ public:
 
       // Fill buffer 1
       pSamples = buf1->getSamples();
-      for (unsigned i=0; i<buf1->getSamplesNumber(); i++ ) {
+      for (i=0; i<buf1->getSamplesNumber(); i++ ) {
          pSamples[i] = (MpAudioSample)0xFACE;
       }
 
@@ -106,19 +107,19 @@ public:
 
       // Fill buffer 2
       pSamples = buf2->getSamples();
-      for (unsigned i=0; i<buf2->getSamplesNumber(); i++ ) {
+      for (i=0; i<buf2->getSamplesNumber(); i++ ) {
          pSamples[i] = (MpAudioSample)0xCAFE;
       }
 
       // Check buffer 1
       pSamples = buf1->getSamples();
-      for (unsigned i=0; i<buf1->getSamplesNumber(); i++ ) {
+      for (i=0; i<buf1->getSamplesNumber(); i++ ) {
          CPPUNIT_ASSERT(pSamples[i] == (MpAudioSample)0xFACE);
       }
 
       // Check buffer 2
       pSamples = buf2->getSamples();
-      for (unsigned i=0; i<buf2->getSamplesNumber(); i++ ) {
+      for (i=0; i<buf2->getSamplesNumber(); i++ ) {
          CPPUNIT_ASSERT(pSamples[i] == (MpAudioSample)0xCAFE);
       }
    }
@@ -186,6 +187,7 @@ public:
    void testCloning()
    {
       // Allocate audio buffer and make its clone.
+      unsigned i;
 
       MpAudioSample *pSamples;
       MpAudioBufPtr buf1;
@@ -203,7 +205,7 @@ public:
 
       // Fill buffer 1
       pSamples = buf1->getSamples();
-      for (unsigned i=0; i<buf1->getSamplesNumber(); i++ ) {
+      for (i=0; i<buf1->getSamplesNumber(); i++ ) {
          pSamples[i] = (MpAudioSample)0xFACE;
       }
 
@@ -219,7 +221,7 @@ public:
 
       // Check buffer 2: its data should be equal to the original data
       pSamples = buf2->getSamples();
-      for (unsigned i=0; i<buf2->getSamplesNumber(); i++ ) {
+      for (i=0; i<buf2->getSamplesNumber(); i++ ) {
          CPPUNIT_ASSERT(pSamples[i] == (MpAudioSample)0xFACE);
       }
    }

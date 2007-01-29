@@ -25,16 +25,13 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-
-   static const int JbPayloadMapSize = 128;
-   static const int JbQueueSize = (9 * (2 * 80)); // 9 packets, 20 mS each
-                                                  // or 3 packets 60 mS each.
+static const int JbPayloadMapSize = 128;
+static const int JbQueueSize = (9 * (2 * 80)); // 9 packets, 20 mS each
+                                               // or 3 packets 60 mS each.
 
 // STRUCTS
 // TYPEDEFS
-
 // FORWARD DECLARATIONS
-
 class MpDecoderBase;
 
 /// Class for managing dejitter/decode of incoming RTP.
@@ -118,7 +115,6 @@ private:
      /// Assignment operator
    MpJitterBuffer& operator=(const MpJitterBuffer& rhs);
 
-   int JbPacketsAvail;
    int JbQCount;
    int JbQIn;
    int JbQOut;

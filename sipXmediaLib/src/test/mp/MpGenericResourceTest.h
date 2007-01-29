@@ -95,6 +95,7 @@ protected:
    void setupFramework(MpResource *pTestResource)
    {
       OsStatus          res;
+      int i;
       int inputsCount;  // Number of inputs of test resource
       int outputsCount; // Number of outputs of test resource
 
@@ -132,11 +133,11 @@ protected:
       mpSinkResource->setGenOutBufMask(0x0);
 
       // 4. Link sourceResource -> testResource -> sinkResource
-      for (int i=0; i<inputsCount; i++) {
+      for (i=0; i<inputsCount; i++) {
          res = mpFlowGraph->addLink(*mpSourceResource, i, *pTestResource, i);
          CPPUNIT_ASSERT(res == OS_SUCCESS);
       }
-      for (int i=0; i<outputsCount; i++) {
+      for (i=0; i<outputsCount; i++) {
          res = mpFlowGraph->addLink(*pTestResource, i, *mpSinkResource, i);
          CPPUNIT_ASSERT(res == OS_SUCCESS);
       }

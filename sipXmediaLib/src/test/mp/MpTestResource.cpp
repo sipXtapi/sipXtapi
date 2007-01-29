@@ -125,8 +125,9 @@ UtlBoolean MpTestResource::doProcessFrame(MpBufPtr inBufs[],
                                           int samplesPerFrame,
                                           int samplesPerSecond)
 {
+   int i=0;
    // keep a copy of the input buffers
-   for (int i=0; i<mMaxInputs; i++) {
+   for (i=0; i<mMaxInputs; i++) {
       mLastDoProcessArgs.inBufs[i]     = inBufs[i];
    }
    // keep a copy of the arguments passed to this method
@@ -136,7 +137,7 @@ UtlBoolean MpTestResource::doProcessFrame(MpBufPtr inBufs[],
    mLastDoProcessArgs.samplesPerFrame  = samplesPerFrame;
    mLastDoProcessArgs.samplesPerSecond = samplesPerSecond;
 
-   for (int i=0; i < outBufsSize; i++)
+   for (i=0; i < outBufsSize; i++)
    {
       outBufs[i].release();
       if (isOutputConnected(i))
@@ -166,7 +167,7 @@ UtlBoolean MpTestResource::doProcessFrame(MpBufPtr inBufs[],
       }
    }
 
-   for (int i=0; i < inBufsSize; i++)
+   for (i=0; i < inBufsSize; i++)
    {
       // if the corresponding bit in the mProcessInBufMask is set and we
       // haven't processed the input buffer then free it.
@@ -180,7 +181,7 @@ UtlBoolean MpTestResource::doProcessFrame(MpBufPtr inBufs[],
    mProcessedCnt++;
 
    // keep a copy of the generated buffers
-   for (int i=0; i<mMaxOutputs; i++) {
+   for (i=0; i<mMaxOutputs; i++) {
       mLastDoProcessArgs.outBufs[i]    = outBufs[i];
    }
 

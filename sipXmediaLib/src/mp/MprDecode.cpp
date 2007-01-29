@@ -188,7 +188,7 @@ MprDejitter* MprDecode::getMyDejitter(void)
    return mpMyDJ;
 }
 
-#ifdef DEBUG /* [ */
+#ifdef SIPX_DEBUG /* [ */
 static void showRtpPacket(MpRtpBufPtr rtp)
 {
    struct RtpHeader &rh = rtp->getRtpHeader();
@@ -310,7 +310,7 @@ static int iFramesSinceLastReport=0;
       int bufLength=samplesPerFrame;
       int res;
       res = JB_RecOut(pJBState, pSamples, &bufLength);
-      assert(bufLength == out->getSamplesNumber());
+      assert(bufLength == (int)out->getSamplesNumber());
       out->setSpeechType(MpAudioBuf::MP_SPEECH_UNKNOWN);
    }
 
