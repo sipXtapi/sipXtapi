@@ -132,7 +132,7 @@ private:
    int mDoVad;              ///< Set to 1 to enable voice activity detection
    int mDoDtx;              ///< Set to 1 to enable discontinuous transmission
    int mDoVbr;              ///< Set to 1 to enable variable bitrate mode
-   MpAudioSample mpBuffer[160]; ///< Buffer used to store input samples
+   spx_int16_t mpBuffer[160]; ///< Buffer used to store input samples
    int mBufferLoad;          ///< How much data there is in the byffer
    bool mDoPreprocess;         ///< Should we do preprocess or not
    SpeexPreprocessState *mpPreprocessState; ///< Preprocessor state

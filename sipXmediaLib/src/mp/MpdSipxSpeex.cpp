@@ -103,7 +103,7 @@ int MpdSipxSpeex::decode(const MpRtpBufPtr &pPacket, unsigned decodedBufferLengt
    speex_bits_read_from(&mDecbits,(char*)pPacket->getDataPtr(),pPacket->getPayloadSize());
 
    // Decode frame
-   speex_decode_int(mpDecoderState,&mDecbits,samplesBuffer);   
+   speex_decode_int(mpDecoderState,&mDecbits,(spx_int16_t*)samplesBuffer);   
 
    return mNumSamplesPerFrame;
 }
