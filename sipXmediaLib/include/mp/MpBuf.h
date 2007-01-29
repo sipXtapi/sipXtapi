@@ -400,3 +400,4 @@ private:
       {assert(mpBuffer!=NULL); return (classname*)mpBuffer;};
 
 #endif // _INCLUDED_MPBUF_H  ]
+

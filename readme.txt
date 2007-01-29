@@ -17,6 +17,11 @@ autoreconf -fi
 ./configure --prefix=/tmp/stage
 make;make install
 
+cd sipXsdpLib
+autoreconf -fi
+./configure --prefix=/tmp/stage
+make;make install
+
 cd ../sipXtackLib
 autoreconf -fi
 ./configure --prefix=/tmp/stage --disable-sipviewer
@@ -39,7 +44,7 @@ make;make install
 
 2) Test using PlaceCall
 
-cd examples/PlaceCall/src
+cd examples/PlaceCall
 make
 ./PlaceCall <IP>
 
@@ -79,6 +84,11 @@ autoreconf -fi
 ./configure --prefix=/tmp/stage
 make;make install
 
+cd sipXsdpLib
+autoreconf -fi
+./configure --prefix=/tmp/stage
+make;make install
+
 cd ../sipXtackLib
 autoreconf -fi
 ./configure --prefix=/tmp/stage --disable-sipviewer
@@ -105,7 +115,7 @@ make;make install
 
 3) Test using PlaceCall
 
-cd examples/PlaceCall/src
+cd examples/PlaceCall
 make
 ./PlaceCall <IP>
 

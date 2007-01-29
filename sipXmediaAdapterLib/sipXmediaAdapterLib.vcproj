@@ -19,8 +19,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="sipXmediaMediaProcessing;..\sipXportLib\include;..\sipXmediaLib\include;..\sipXcallLib\include;..\sipXtackLib\include;interface"
-				PreprocessorDefinitions="SIPX_VIDEO;HAVE_GSM;HAVE_SPEEX;WIN32;_DEBUG;_LIB"
+				AdditionalIncludeDirectories="sipXmediaMediaProcessing;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXmediaLib\include;..\sipXcallLib\include;..\sipXtackLib\include;interface"
+				PreprocessorDefinitions="SIPX_VIDEO;WIN32;_DEBUG;_LIB"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -60,8 +60,8 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="sipXmediaMediaProcessing;..\sipXportLib\include;..\sipXmediaLib\include;..\sipXcallLib\include;..\sipXtackLib\include;interface"
-				PreprocessorDefinitions="SIPX_VIDEO;HAVE_GSM;HAVE_SPEEX;WIN32;NDEBUG;_LIB"
+				AdditionalIncludeDirectories="sipXmediaMediaProcessing;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXmediaLib\include;..\sipXcallLib\include;..\sipXtackLib\include;interface"
+				PreprocessorDefinitions="SIPX_VIDEO;WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="1"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="0"
@@ -100,8 +100,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="sipXmediaMediaProcessing;;..\sipXportLib\include;..\sipXmediaLib\include;..\sipXcallLib\include;..\sipXtackLib\include;interface"
-				PreprocessorDefinitions="HAVE_GSM;HAVE_SPEEX;WIN32;_DEBUG;_LIB"
+				AdditionalIncludeDirectories="sipXmediaMediaProcessing;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXmediaLib\include;..\sipXcallLib\include;..\sipXtackLib\include;interface"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -141,8 +141,8 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="sipXmediaMediaProcessing;;..\sipXportLib\include;..\sipXmediaLib\include;..\sipXcallLib\include;..\sipXtackLib\include;interface"
-				PreprocessorDefinitions="HAVE_GSM;HAVE_SPEEX;WIN32;NDEBUG;_LIB"
+				AdditionalIncludeDirectories="sipXmediaMediaProcessing;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXmediaLib\include;..\sipXcallLib\include;..\sipXtackLib\include;interface"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="1"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="0"

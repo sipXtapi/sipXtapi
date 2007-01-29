@@ -27,6 +27,7 @@ nobase_include_HEADERS =  \
     mp/MpArrayBuf.h \
     mp/MpAudioAbstract.h \
     mp/MpAudioBuf.h \
+    mp/MpAudioConnection.h \
     mp/MpAudioFileDecompress.h \
     mp/MpAudioFileOpen.h \
     mp/MpAudioFileUtils.h \
@@ -92,7 +93,7 @@ nobase_include_HEADERS =  \
     mp/MprMixer.h \
     mp/MprRecorder.h \
     mp/MprSpeexEchoCancel.h \
-    mp/MprSpeexPreprocess.h \
+    mp/MprSpeexPreProcess.h \
     mp/MprSplitter.h \
     mp/MprToneGen.h \
     mp/MprToNet.h \

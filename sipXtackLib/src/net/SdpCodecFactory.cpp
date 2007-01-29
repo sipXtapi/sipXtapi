@@ -33,7 +33,7 @@
 #include <os/OsWriteLock.h>
 #include <os/OsReadLock.h>
 #include <net/SdpCodecFactory.h>
-#include <net/SdpCodec.h>
+#include <sdp/SdpCodec.h>
 #include <net/NameValueTokenizer.h>
 
 #define VERBOSE_CODEC_FACTORY

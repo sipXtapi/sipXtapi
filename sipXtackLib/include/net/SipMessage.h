@@ -25,7 +25,7 @@
 #include <os/OsSocket.h>
 #include <net/HttpMessage.h>
 #include <net/SdpBody.h>
-#include <net/SdpCodec.h>
+#include <sdp/SdpCodec.h>
 #include <net/Url.h>
 #include <net/SmimeBody.h>
 #include <tapi/sipXtapi.h>

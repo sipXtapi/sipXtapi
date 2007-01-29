@@ -498,6 +498,7 @@ private:
     OsStackTraceLogger& operator=(const OsStackTraceLogger& ref)
     {
         // should never get here
+        return *this;  // avoid compiler warning
     }
     
     UtlString mMethodName;

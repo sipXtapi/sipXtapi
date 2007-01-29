@@ -21,7 +21,7 @@
 
 // APPLICATION INCLUDES
 #include "mp/MpAudioResource.h"
-#include "net/SdpCodec.h"
+#include "sdp/SdpCodec.h"
 #include "mp/MpFlowGraphMsg.h"
 #include "mp/MprToNet.h"
 

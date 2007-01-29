@@ -43,6 +43,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MpArrayBuf.cpp \
     mp/MpAudioAbstract.cpp \
     mp/MpAudioBuf.cpp \
+    mp/MpAudioConnection.cpp \
     mp/MpAudioFileDecompress.cpp \
     mp/MpAudioFileOpen.cpp \
     mp/MpAudioFileUtils.cpp \
@@ -107,7 +108,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MprMixer.cpp \
     mp/MprRecorder.cpp \
     mp/MprSpeexEchoCancel.cpp \
-    mp/MprSpeexPreprocess.cpp \
+    mp/MprSpeexPreProcess.cpp \
     mp/MprSplitter.cpp \
     mp/MprToneGen.cpp \
     mp/MprToNet.cpp \

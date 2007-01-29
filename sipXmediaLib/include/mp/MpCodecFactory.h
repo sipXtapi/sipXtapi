@@ -20,7 +20,7 @@
 // APPLICATION INCLUDES
 #include "os/OsStatus.h"
 #include "os/OsBSem.h"
-#include "net/SdpCodec.h"
+#include "sdp/SdpCodec.h"
 #include "mp/MpEncoderBase.h"
 #include "mp/MpDecoderBase.h"
 

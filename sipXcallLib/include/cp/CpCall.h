@@ -20,7 +20,7 @@
 #include <os/OsRWMutex.h>
 #include "os/OsUtil.h"
 #include "os/OsLockingList.h"
-#include <net/SdpCodec.h>
+#include <sdp/SdpCodec.h>
 #include <ptapi/PtEvent.h>
 #include <ptapi/PtConnection.h>
 #include <ptapi/PtTerminalConnection.h>

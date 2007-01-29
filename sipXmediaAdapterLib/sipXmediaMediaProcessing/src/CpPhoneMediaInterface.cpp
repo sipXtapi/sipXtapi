@@ -35,7 +35,7 @@
 #include <mp/video/MpVideoCallFlowGraph.h>
 #endif // SIPX_VIDEO ]
 
-#include <net/SdpCodec.h>
+#include <sdp/SdpCodec.h>
 
 #if defined(_VXWORKS)
 #   include <socket.h>
