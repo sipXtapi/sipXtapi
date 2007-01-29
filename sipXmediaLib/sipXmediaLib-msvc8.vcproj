@@ -5661,6 +5661,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MpTopologyGraph.cpp"
+				>
+			</File>
+			<File
 				RelativePath="src\rtcp\MsgQueue.cpp"
 				>
 				<FileConfiguration
@@ -7870,6 +7874,10 @@
 			</File>
 			<File
 				RelativePath="include\mp\MpStreamQueuePlayer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\mp\MpTopologyGraph.h"
 				>
 			</File>
 			<File

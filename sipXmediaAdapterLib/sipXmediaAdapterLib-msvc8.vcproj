@@ -755,6 +755,14 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\sipXmediaMediaProcessing\src\CpTopologyGraphFactoryImpl.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\sipXmediaMediaProcessing\src\CpTopologyGraphInterface.cpp"
+				>
+			</File>
+			<File
 				RelativePath="sipXmediaMediaProcessing\src\sipXmediaFactoryImpl.cpp"
 				>
 				<FileConfiguration
@@ -835,6 +843,14 @@
 			</File>
 			<File
 				RelativePath="sipXmediaMediaProcessing\include\CpPhoneMediaInterface.h"
+				>
+			</File>
+			<File
+				RelativePath=".\sipXmediaMediaProcessing\include\CpTopologyGraphFactoryImpl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\sipXmediaMediaProcessing\include\CpTopologyGraphInterface.h"
 				>
 			</File>
 			<File
