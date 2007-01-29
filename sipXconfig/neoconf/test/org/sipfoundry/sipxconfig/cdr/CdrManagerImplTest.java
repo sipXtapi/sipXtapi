@@ -35,6 +35,13 @@ public class CdrManagerImplTest extends SipxDatabaseTestCase {
         List<Cdr> cdrs = cdrManager.getCdrs(null, null, new CdrSearch());
         assertTrue(cdrs.size() > 0);
     }
+
+    public void _testGetCdrsCount() {
+        ApplicationContext app = TestHelper.getApplicationContext();
+        CdrManager cdrManager = (CdrManager) app.getBean(CdrManager.CONTEXT_BEAN_NAME);
+        int size = cdrManager.getCdrCount(null, null, new CdrSearch());
+        assertTrue(size > 0);
+    }
     
     public void _testDumpCdrs() throws Exception {
         ApplicationContext app = TestHelper.getApplicationContext();

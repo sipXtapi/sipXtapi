@@ -24,31 +24,38 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.bulk.csv.CsvWriter;
 import org.sipfoundry.sipxconfig.cdr.Cdr.Termination;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.ResultReader;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.SingleColumnRowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
-    private static final String CALLEE_AOR = "callee_aor";
-    private static final String TERMINATION = "termination";
-    private static final String FAILURE_STATUS = "failure_status";
-    private static final String END_TIME = "end_time";
-    private static final String CONNECT_TIME = "connect_time";
-    private static final String START_TIME = "start_time";
-    private static final String CALLER_AOR = "caller_aor";
+    static final String CALLEE_AOR = "callee_aor";
+    static final String TERMINATION = "termination";
+    static final String FAILURE_STATUS = "failure_status";
+    static final String END_TIME = "end_time";
+    static final String CONNECT_TIME = "connect_time";
+    static final String START_TIME = "start_time";
+    static final String CALLER_AOR = "caller_aor";
 
     public List<Cdr> getCdrs(Date from, Date to) {
         return getCdrs(from, to, new CdrSearch());
     }
 
     public List<Cdr> getCdrs(Date from, Date to, CdrSearch search) {
-        CdrsStatementCreator psc = new CdrsStatementCreator(from, to, search, 10000, 0);
+        return getCdrs(from, to, search, 0, 0);
+    }
+
+    public List<Cdr> getCdrs(Date from, Date to, CdrSearch search, int limit, int offset) {
+        CdrsStatementCreator psc = new SelectAll(from, to, search, limit, offset);
         CdrsResultReader resultReader = new CdrsResultReader();
         return getJdbcTemplate().query(psc, resultReader);
     }
 
     public void dumpCdrs(Writer writer, Date from, Date to, CdrSearch search) throws IOException {
-        CdrsStatementCreator psc = new CdrsStatementCreator(from, to, search);
+        CdrsStatementCreator psc = new SelectAll(from, to, search);
         CdrsCsvWriter resultReader = new CdrsCsvWriter(writer);
         try {
             getJdbcTemplate().query(psc, resultReader);
@@ -61,9 +68,15 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
         }
     }
 
-    static class CdrsStatementCreator implements PreparedStatementCreator {
-        private static final String SELECT = "SELECT * FROM cdrs WHERE (? <= start_time) AND (start_time <= ?)";
-        private static final String ORDER_BY = " ORDER BY start_time";
+    public int getCdrCount(Date from, Date to, CdrSearch search) {
+        CdrsStatementCreator psc = new SelectCount(from, to, search);
+        RowMapper rowMapper = new SingleColumnRowMapper(Integer.class);
+        List results = getJdbcTemplate().query(psc, rowMapper);
+        return (Integer) DataAccessUtils.requiredUniqueResult(results);
+    }
+
+    abstract static class CdrsStatementCreator implements PreparedStatementCreator {
+        private static final String FROM = " FROM cdrs WHERE (? <= start_time) AND (start_time <= ?)";
         private static final String LIMIT = " LIMIT ? OFFSET ?";
 
         private Timestamp m_from;
@@ -87,9 +100,10 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
         }
 
         public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-            StringBuilder sql = new StringBuilder(SELECT);
-            sql.append(m_search.getSql());
-            sql.append(ORDER_BY);
+            StringBuilder sql = new StringBuilder(getSelectSql());
+            sql.append(FROM);
+            m_search.appendGetSql(sql);
+            appendOrderBySql(sql);
             if (m_limit > 0) {
                 sql.append(LIMIT);
             }
@@ -101,6 +115,44 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
                 ps.setInt(4, m_offset);
             }
             return ps;
+        }
+
+        public abstract String getSelectSql();
+
+        protected void appendOrderBySql(StringBuilder sql) {
+            m_search.appendOrderBySql(sql);
+        }
+    }
+
+    static class SelectAll extends CdrsStatementCreator {
+        public SelectAll(Date from, Date to, CdrSearch search, int limit, int offset) {
+            super(from, to, search, limit, offset);
+        }
+
+        public SelectAll(Date from, Date to, CdrSearch search) {
+            super(from, to, search);
+        }
+
+        @Override
+        public String getSelectSql() {
+            return "SELECT *";
+        }
+    }
+
+    static class SelectCount extends CdrsStatementCreator {
+
+        public SelectCount(Date from, Date to, CdrSearch search) {
+            super(from, to, search);
+        }
+
+        @Override
+        public String getSelectSql() {
+            return "SELECT COUNT(id)";
+        }
+
+        @Override
+        protected void appendOrderBySql(StringBuilder sql) {
+            // no ordering when selecting COUNT
         }
     }
 

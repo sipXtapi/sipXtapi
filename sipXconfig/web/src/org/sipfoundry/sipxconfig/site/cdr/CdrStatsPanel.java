@@ -14,7 +14,6 @@ package org.sipfoundry.sipxconfig.site.cdr;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
-import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -59,8 +58,12 @@ public abstract class CdrStatsPanel extends BaseComponent {
 
     public abstract Cdr getRow();
 
-    public List<Cdr> getCdrs() {
-        return getCdrManager().getCdrs(getStartTime(), getEndTime(), getCdrSearch());
+    public CdrTableModel getCdrTableModel() {
+        CdrTableModel tableModel = new CdrTableModel(getCdrManager());
+        tableModel.setFrom(getStartTime());
+        tableModel.setTo(getEndTime());
+        tableModel.setCdrSearch(getCdrSearch());
+        return tableModel;
     }
 
     public ITableColumn getStartTimeColumn() {

@@ -11,15 +11,30 @@
  */
 package org.sipfoundry.sipxconfig.cdr;
 
-import org.apache.commons.lang.StringUtils;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CdrSearch {
+    public static final Map<String, String> ORDER_TO_COLUMN;
+
+    static {
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("caller", CdrManagerImpl.CALLER_AOR);
+        map.put("callee", CdrManagerImpl.CALLEE_AOR);
+        map.put("startTime", CdrManagerImpl.START_TIME);
+        map.put("duration", CdrManagerImpl.END_TIME + " - " + CdrManagerImpl.CONNECT_TIME);
+        map.put("termination", CdrManagerImpl.TERMINATION);
+        ORDER_TO_COLUMN = map;
+    }
+
     public enum Mode {
         NONE, CALLER, CALLEE, ANY
     }
 
     private Mode m_mode = Mode.NONE;
     private String m_term;
+    private String m_order;
+    private boolean m_ascending = true;
 
     public void setMode(Mode mode) {
         m_mode = mode;
@@ -37,29 +52,58 @@ public class CdrSearch {
         return m_term;
     }
 
+    public void setOrder(String order, boolean ascending) {
+        m_order = order;
+        m_ascending = ascending;
+    }
+
     public String getColumnsStr() {
         switch (m_mode) {
         case CALLER:
-            return "caller_aor";
+            return CdrManagerImpl.CALLER_AOR;
         case CALLEE:
-            return "callee_aor";
+            return CdrManagerImpl.CALLEE_AOR;
         case ANY:
-            return "callee_aor || caller_aor";
+            return CdrManagerImpl.CALLER_AOR + " || " + CdrManagerImpl.CALLEE_AOR;
         default:
             return null;
         }
     }
 
-    public String getSql() {
+    public boolean appendGetSql(StringBuilder sql) {
         String columnsStr = getColumnsStr();
         if (columnsStr == null) {
-            return StringUtils.EMPTY;
+            return false;
         }
 
-        return " AND (" + columnsStr + " LIKE '%" + m_term + "%')";
+        sql.append(" AND (");
+        sql.append(columnsStr);
+        sql.append(" LIKE '%");
+        sql.append(m_term);
+        sql.append("%')");
+        return true;
+    }
+
+    public boolean appendOrderBySql(StringBuilder sql) {
+        String column = orderToColumn();
+        if (column == null) {
+            return false;
+        }
+        sql.append(" ORDER BY ");
+        sql.append(column);
+        sql.append(' ');
+        sql.append(m_ascending ? "ASC" : "DESC");
+        return true;
     }
 
     public boolean isSearch() {
         return m_mode != Mode.NONE;
+    }
+
+    private String orderToColumn() {
+        if (m_order == null) {
+            return CdrManagerImpl.START_TIME;
+        }
+        return ORDER_TO_COLUMN.get(m_order);
     }
 }
