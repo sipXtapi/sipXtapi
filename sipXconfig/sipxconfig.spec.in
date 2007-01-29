@@ -13,6 +13,7 @@ Url:      http://www.sipfoundry.org/
 %define sipxpbxrun %{_localstatedir}/run/sipxpbx
 %define sipxpbxconf %{_sysconfdir}/sipxpbx
 %define sipxpbxdata %{_datadir}/sipxpbx
+%define sipxpbxvarlib %{_var}/lib/sipxpbx
 %define sipxconfiglib %{_datadir}/sipxpbx/lib
 %define tftproot /tftpboot
 
@@ -262,14 +263,17 @@ fi
 
 %files agent
 %defattr(644,root,root,755)
+%{sipxpbxvarlib}/sipXconfig-agent-*.gem
+%{sipxpbxvarlib}/file-tail-*.gem
+
 %attr(755,root,root) %{_bindir}/sipxconfig-agent
 
 %defattr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755)
 %config(noreplace) %{sipxpbxconf}/process.d/sipxconfig-agent.process.xml
 
 %post agent
-gem install --no-rdoc --local %{sipxconfiglib}/sipXconfig-agent-*.gem >/dev/null
-gem install --no-rdoc --local %{sipxconfiglib}/file-tail-*.gem >/dev/null
+gem install --no-rdoc --local %{sipxpbxvarlib}/sipXconfig-agent-*.gem >/dev/null
+gem install --no-rdoc --local %{sipxpbxvarlib}/file-tail-*.gem >/dev/null
 
 %preun agent
 # prevent uninstalling during an upgrade
@@ -281,6 +285,7 @@ fi
 
 %files report
 %defattr(644,root,root,755)
+%{sipxpbxvarlib}/sipXconfig-report-*.gem
 %config(noreplace) /etc/cron.d/sipxconfig-report-crontab
 
 %attr(755,root,root) %{_bindir}/sipxconfig-report
@@ -290,7 +295,7 @@ fi
 %config(noreplace) %{sipxpbxconf}/report/schema.sql
 
 %post report
-gem install --no-rdoc --local %{sipxconfiglib}/sipXconfig-report-*.gem >/dev/null
+gem install --no-rdoc --local %{sipxpbxvarlib}/sipXconfig-report-*.gem >/dev/null
 if ( ! test -f /etc/cron.d/cron.allow ) || ( ! grep '^@SIPXPBXUSER@$' /etc/cron.d/cron.allow ); then
   echo @SIPXPBXUSER@ >> /etc/cron.d/cron.allow
 fi

@@ -42,9 +42,9 @@ install-gem : package-gem
 # later
 .PHONY: install-gem-for-rpm
 install-gem-for-rpm : package-gem
-	$(mkdir_p) $(DESTDIR)@SIPXCONFIG_LIBDIR@
-	$(INSTALL) pkg/sipXconfig-agent-*.gem $(DESTDIR)@SIPXCONFIG_LIBDIR@
-	$(INSTALL) $(srcdir)/meta/file-tail-*.gem $(DESTDIR)@SIPXCONFIG_LIBDIR@
+	$(mkdir_p) $(DESTDIR)@SIPX_VARLIB@
+	$(INSTALL) pkg/sipXconfig-agent-*.gem $(DESTDIR)@SIPX_VARLIB@
+	$(INSTALL) $(srcdir)/meta/file-tail-*.gem $(DESTDIR)@SIPX_VARLIB@
 
 check :
 	cd $(srcdir) && $(rake)
