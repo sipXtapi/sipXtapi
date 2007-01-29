@@ -101,10 +101,10 @@ OsStatus MprDejitter::pushPacket(const MpRtpBufPtr &pRtp)
       // Check for packets already in the buffer. Overwrite them if 
       // the just-arriving packet is newer than the existing packet
       // Don't overwrite if the just-arriving packet is older
-      int iBufSeqNo = mpPackets[codecIndex][index]->getRtpSequenceNumber();
-      int iNewSeqNo = pRtp->getRtpSequenceNumber();
+      RtpSeq iBufSeqNo = mpPackets[codecIndex][index]->getRtpSequenceNumber();
+      RtpSeq iNewSeqNo = pRtp->getRtpSequenceNumber();
 
-      if (iNewSeqNo > iBufSeqNo) 
+      if (compare(iNewSeqNo, iBufSeqNo) > 0) 
       {
          // Insert the new packet over the old packet
          mNumDiscarded[codecIndex]++;
