@@ -453,6 +453,10 @@ SOURCE=.\src\mp\MpStreamQueuePlayer.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpTopologyGraph.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MpUdpBuf.cpp
 # End Source File
 # Begin Source File
@@ -1066,6 +1070,10 @@ SOURCE=.\include\mp\MpStreamPlaylistPlayer.h
 # Begin Source File
 
 SOURCE=.\include\mp\MpStreamQueuePlayer.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpTopologyGraph.h
 # End Source File
 # Begin Source File
 
