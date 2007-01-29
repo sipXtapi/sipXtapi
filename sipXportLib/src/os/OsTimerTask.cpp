@@ -112,9 +112,7 @@ OsTimerTask::~OsTimerTask()
 // Default constructor (called only indirectly via getTimerTask())
 OsTimerTask::OsTimerTask(void)
 :  OsServerTask("OsTimer-%d", NULL, TIMER_MAX_REQUEST_MSGS
-#ifdef __pingtel_on_posix__
                 , 5 // high priority so that we get reasonable clock heartbeats for media
-#endif
                ),
    mTimerQueue(0)
 {
