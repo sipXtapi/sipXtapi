@@ -64,7 +64,7 @@ public class CdrSearch {
         case CALLEE:
             return CdrManagerImpl.CALLEE_AOR;
         case ANY:
-            return CdrManagerImpl.CALLER_AOR + " || " + CdrManagerImpl.CALLEE_AOR;
+            return CdrManagerImpl.CALLEE_AOR + " || " + CdrManagerImpl.CALLER_AOR;
         default:
             return null;
         }
