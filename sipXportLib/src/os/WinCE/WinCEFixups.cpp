@@ -930,4 +930,166 @@ time_t mktime(struct tm *t)
         return(result);
 }
 
+#ifdef WINCE6
+// Wince6 has the function prototype for GetFileAttributesA, but no definition,
+// so we'll define one here.
+DWORD
+WINAPI
+GetFileAttributesA(
+    LPCSTR lpFileName
+    )
+{
+	wchar_t	wBuf[ MAX_PATH + 1 ];
+	wchar_t	*pW			= NULL;
+	int		iRet		= 1;
+	if( lpFileName )
+	{
+		iRet = MultiByteToWideChar( CP_ACP, 0, lpFileName, strlen( lpFileName ), 
+                                    wBuf, MAX_PATH );
+		wBuf[ iRet ] = 0;
+//	printf( "  after MultiByteToWideChar( ) - it returned %d\n", iRet );
+//	printf( "  wBuf is *%S*\n", wBuf );
+		pW = wBuf;
+	}
+	if( iRet )
+	{
+		return GetFileAttributesW( pW );
+	}
+	else
+		return NULL;
+}
+
+
+// Wince6 has the function prototype for FindNextFileA, but no definition,
+// so we'll define one here.
+BOOL
+WINAPI
+FindNextFileA(
+    HANDLE hFindFile,
+    LPWIN32_FIND_DATAA lpFindFileData
+    )
+{
+    _WIN32_FIND_DATAW ffDataW;
+   	WCHAR* pW  = NULL;
+    int    iRet = 1;
+    if( lpFindFileData->cFileName )
+    {
+        iRet = MultiByteToWideChar(CP_ACP, 0, lpFindFileData->cFileName, 
+                                   strlen( lpFindFileData->cFileName ), 
+                                   ffDataW.cFileName, MAX_PATH );
+        ffDataW.cFileName[ iRet ] = 0;
+//  printf( "  after MultiByteToWideChar( ) - it returned %d\n", iRet );
+//  printf( "  ffDataW.cFileName is *%S*\n", ffDataW.cFileName );
+        pW = ffDataW.cFileName;
+    }
+    if( iRet )
+    {
+        // Ok, filename was converted fine, now we copy over the other info from A struct to W struct.
+        ffDataW.dwFileAttributes = lpFindFileData->dwFileAttributes;
+        ffDataW.ftCreationTime = lpFindFileData->ftCreationTime;
+        ffDataW.ftLastAccessTime = lpFindFileData->ftLastAccessTime;
+        ffDataW.ftLastWriteTime = lpFindFileData->ftLastWriteTime;
+        ffDataW.nFileSizeHigh = lpFindFileData->nFileSizeHigh;
+        ffDataW.nFileSizeLow = lpFindFileData->nFileSizeLow;
+        ffDataW.dwOID = NULL;
+
+        BOOL bRet;
+        bRet = FindNextFileW(hFindFile, &ffDataW);
+
+        // We have to convert over the new wide string in ffDataW to the A struct.
+        int iWtoMBRet = 0;
+        iWtoMBRet = WideCharToMultiByte(CP_ACP, 0, 
+                                        ffDataW.cFileName, wcslen(ffDataW.cFileName),
+                                        lpFindFileData->cFileName, MAX_PATH, NULL, NULL);
+        if(iWtoMBRet == 0)
+        {
+            printf("Couldn't convert resulting filename "
+                   "of FindNextFileW to multibyte! Returning 0.");
+        }
+        
+        // Now we copy over the data from the W struct to the A struct.
+        lpFindFileData->dwFileAttributes = ffDataW.dwFileAttributes;
+        lpFindFileData->ftCreationTime = ffDataW.ftCreationTime;
+        lpFindFileData->ftLastAccessTime = ffDataW.ftLastAccessTime;
+        lpFindFileData->ftLastWriteTime = ffDataW.ftLastWriteTime;
+        lpFindFileData->nFileSizeHigh = ffDataW.nFileSizeHigh;
+        lpFindFileData->nFileSizeLow = ffDataW.nFileSizeLow;
+        lpFindFileData->dwReserved0 = 0;
+        lpFindFileData->dwReserved1 = 0;
+        lpFindFileData->cAlternateFileName[0] = 0; // no alternate filename
+
+        printf( "FindNextFileA( *%S* ) returned %d\n", pW, bRet );
+        return bRet;
+    }
+    else
+    {
+        printf( "FindNextFileA( *%S* ) returned NULL\n", pW );
+        return 0;
+    }
+    return 0;
+}
+
+
+// Wince6 has the function prototype for FindFirstFileA, but no definition,
+// so we'll define one here.
+HANDLE
+WINAPI
+FindFirstFileA(
+    LPCSTR lpFileName,
+    LPWIN32_FIND_DATAA lpFindFileData
+    )
+{
+    WCHAR fnW[MAX_PATH+1];
+    _WIN32_FIND_DATAW ffDataW;
+   	WCHAR* pW  = NULL;
+    int    iRet = 1;
+    if( lpFileName )
+    {
+        iRet = MultiByteToWideChar(CP_ACP, 0, lpFileName, 
+                                   strlen( lpFileName ), 
+                                   fnW, MAX_PATH );
+        fnW[ iRet ] = 0;
+//  printf( "  after MultiByteToWideChar( ) - it returned %d\n", iRet );
+//  printf( "  fnW is *%S*\n", fnW );
+        pW = fnW;
+    }
+    if( iRet )
+    {
+        HANDLE hRet;
+        hRet = FindFirstFileW(fnW, &ffDataW);
+
+        // We have to convert over the new wide string in ffDataW to the A struct.
+        int iWtoMBRet = 0;
+        iWtoMBRet = WideCharToMultiByte(CP_ACP, 0, 
+                                        ffDataW.cFileName, wcslen(ffDataW.cFileName),
+                                        lpFindFileData->cFileName, MAX_PATH, NULL, NULL);
+        if(iWtoMBRet == 0)
+        {
+            printf("Couldn't convert resulting filename "
+                   "of FindFirstFileW to multibyte! Returning NULL.");
+        }
+        
+        // Now we copy over the data from the W struct to the A struct.
+        lpFindFileData->dwFileAttributes = ffDataW.dwFileAttributes;
+        lpFindFileData->ftCreationTime = ffDataW.ftCreationTime;
+        lpFindFileData->ftLastAccessTime = ffDataW.ftLastAccessTime;
+        lpFindFileData->ftLastWriteTime = ffDataW.ftLastWriteTime;
+        lpFindFileData->nFileSizeHigh = ffDataW.nFileSizeHigh;
+        lpFindFileData->nFileSizeLow = ffDataW.nFileSizeLow;
+        lpFindFileData->dwReserved0 = 0;
+        lpFindFileData->dwReserved1 = 0;
+        lpFindFileData->cAlternateFileName[0] = 0; // no alternate filename
+
+        printf( "FindFirstFileA( *%S* ) returned %d\n", pW, hRet );
+        return hRet;
+    }
+    else
+    {
+        printf( "FindFirstFileA( *%S* ) returned NULL\n", pW );
+        return NULL;
+    }
+    return NULL;
+}
+#endif
+
 #endif // WINCE

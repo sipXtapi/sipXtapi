@@ -163,7 +163,7 @@
 				DelayLoadDLLs=""
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/sipXtackLibTest.pdb"
-				SubSystem="1"
+				SubSystem="9"
 				TargetMachine="0"
 			/>
 			<Tool
