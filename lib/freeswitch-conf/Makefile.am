@@ -1,5 +1,5 @@
 FSCONF_VER = 1.0
-FSCONF_REL = 1
+FSCONF_REL = 2
 
 SRC = sipxconfig-freeswitch.tar.gz
 RPMS = $(DEST_RPM)/sipxconfig-freeswitch-$(FSCONF_VER)-$(FSCONF_REL).@RPM_TARGET_ARCH@.rpm 
@@ -7,10 +7,8 @@ RPMS = $(DEST_RPM)/sipxconfig-freeswitch-$(FSCONF_VER)-$(FSCONF_REL).@RPM_TARGET
 all : $(RPMS)
 
 $(SRC) :
-	mkdir `basename $(SRC) .tar.gz`
-	cp -rp files/* `basename $(SRC) .tar.gz`
-	tar cvzf $(SRC) `basename $(SRC) .tar.gz`
-	rm -rf `basename $(SRC) .tar.gz`
+	tar cvzf $(SRC) `cat files.list | sed 's/^\//sipxconfig-freeswitch\//'`
+	cp files.list @RPMBUILD_TOPDIR@/SOURCES/sipxconfig-freeswitch-files.list
 
 .PHONY: build-rpms
 build-rpms: $(SRC) sipXfreeswitch.spec

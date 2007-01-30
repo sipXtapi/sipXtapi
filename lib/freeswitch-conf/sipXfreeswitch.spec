@@ -1,6 +1,6 @@
 Name:     sipxconfig-freeswitch
 Version:  1.0
-Release:  1
+Release:  2
 
 Summary:  sipX conferencing solution based on FreeSWITCH
 License:  LGPL
@@ -29,8 +29,7 @@ cp -rp * $RPM_BUILD_ROOT
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%files
-/
+%files -f %_topdir/SOURCES/%name-files.list
 
 %post                                                                      
 cat  /etc/sipxpbx/resourcemap.xml | sed -e 's/etc\/sipxpbx\/conferences.xml/usr\/local\/freeswitch\/conf\/default_context.xml/' > /var/tmp/tmp_resmap.xml

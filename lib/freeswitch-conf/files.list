@@ -1,0 +1,8 @@
+/usr/bin/freeswitch.sh
+/usr/local/freeswitch/conf/freeswitch.xml.in
+/usr/local/freeswitch/conf/modules.conf.xml.in
+/usr/local/freeswitch/conf/sofia.conf.xml.in
+/usr/local/freeswitch/conf/xml_rpc.conf.xml.in
+/usr/local/freeswitch/conf/conference.conf.xml.in
+/etc/sipxpbx/freeswitch_config.defs
+/etc/sipxpbx/process.d/freeswitch.process.xml

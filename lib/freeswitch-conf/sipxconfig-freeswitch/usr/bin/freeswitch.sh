@@ -36,7 +36,8 @@ CONFIG_FILES="\
   /usr/local/freeswitch/conf/freeswitch.xml \
   /usr/local/freeswitch/conf/sofia.conf.xml \
   /usr/local/freeswitch/conf/xml_rpc.conf.xml \
-  /usr/local/freeswitch/conf/modules.conf.xml 
+  /usr/local/freeswitch/conf/modules.conf.xml \
+  /usr/local/freeswitch/conf/conference.conf.xml
   "
 # If the "config.defs" file exists and the <name>.in file exists for a
 # configuration file, then run the config preprocessor to generate the
