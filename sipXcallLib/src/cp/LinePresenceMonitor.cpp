@@ -295,6 +295,10 @@ void LinePresenceMonitor::handleNotifyMessage(const SipMessage* notifyMessage)
    fromUrl.getUserId(contact);
 
    contact += mPresenceServer;
+   // Make the contact be a proper URI by prepending "sip:".
+   // This matches what the presence server sends.
+   contact.prepend("sip:");
+
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "LinePresenceMonitor::handleNotifyMessage receiving a notify message from %s",

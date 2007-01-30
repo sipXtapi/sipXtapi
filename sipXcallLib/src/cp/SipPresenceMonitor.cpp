@@ -554,6 +554,8 @@ bool SipPresenceMonitor::setStatus(const Url& aor, const Status value)
    UtlString contact;
    aor.getUserId(contact);
    contact += mHostAndPort;
+   // Make the contact be a proper URI by prepending "sip:".
+   contact.prepend("sip:");
    
    // Create a presence event package and store it in the publisher
    SipPresenceEvent* sipPresenceEvent = new SipPresenceEvent(contact);
@@ -588,6 +590,8 @@ void SipPresenceMonitor::getState(const Url& aor, UtlString& status)
    UtlString contact;
    aor.getUserId(contact);
    contact += mHostAndPort;
+   // Make the contact be a proper URI by prepending "sip:".
+   contact.prepend("sip:");
 
    UtlContainable* foundValue;
    foundValue = mPresenceEventList.findValue(&contact);
