@@ -21,7 +21,6 @@ import java.util.List;
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.Asset;
-import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.components.IPrimaryKeyConverter;
@@ -31,7 +30,6 @@ import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.services.ExpressionEvaluator;
 import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.components.MillisDurationFormat;
 import org.sipfoundry.sipxconfig.components.RowInfo;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -68,9 +66,6 @@ public abstract class ManageVoicemail extends UserBasePage {
     public abstract ExpressionEvaluator getExpressionEvaluator();
 
     public abstract void setConverter(IPrimaryKeyConverter converter);
-    
-    @Bean(initializer = "maxField=2")
-    public abstract MillisDurationFormat getDurationFormat();
     
     public abstract VoicemailRowInfo getRowInfo();
     public abstract void setRowInfo(VoicemailRowInfo rowInfo);

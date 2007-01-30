@@ -18,7 +18,6 @@ import java.util.Date;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.BaseComponent;
-import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
@@ -28,7 +27,6 @@ import org.apache.tapestry.web.WebResponse;
 import org.sipfoundry.sipxconfig.cdr.Cdr;
 import org.sipfoundry.sipxconfig.cdr.CdrManager;
 import org.sipfoundry.sipxconfig.cdr.CdrSearch;
-import org.sipfoundry.sipxconfig.components.MillisDurationFormat;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
@@ -52,9 +50,6 @@ public abstract class CdrStatsPanel extends BaseComponent {
 
     @Parameter
     public abstract CdrSearch getCdrSearch();
-
-    @Bean(initializer = "maxField=2, showZero=true")
-    public abstract MillisDurationFormat getDurationFormat();
 
     public abstract Cdr getRow();
 
