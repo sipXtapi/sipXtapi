@@ -67,7 +67,7 @@
     <binding prefix="spring-validators" service-id="SpringValidatorsBindingFactory" />
   </contribution>
 
-  <!-- register download service -->
+  <!-- download service -->
   <contribution configuration-id="tapestry.services.FactoryServices">
     <service name="download" object="service:Download" />
   </contribution>
@@ -81,17 +81,10 @@
     </invoke-factory>
   </service-point>
 
-  <!-- register export service -->
+  <!-- export service -->
   <contribution configuration-id="tapestry.services.FactoryServices">
     <service name="export" object="service:Export" />
   </contribution>
-  <service-point interface="org.apache.tapestry.services.ResponseRenderer" id="EmptyResponseRenderer">
-    Empty response renderer - used for Services that do not need to render pages.
-    <invoke-factory>
-      <construct class="components.service.EmptyResponseRenderer" />
-    </invoke-factory>
-  </service-point>
-
   <service-point interface="org.apache.tapestry.engine.IEngineService" id="Export">
     Export service - it's a version of direct service. Listeners are responsible for writing directly to
     WebResponse.
@@ -102,6 +95,14 @@
         <set-object property="linkFactory" value="infrastructure:linkFactory" />
         <set-object property="requestCycle" value="infrastructure:requestCycle" />
       </construct>
+    </invoke-factory>
+  </service-point>
+  
+  
+  <service-point interface="org.apache.tapestry.services.ResponseRenderer" id="EmptyResponseRenderer">
+    Empty response renderer - used for Services that do not need to render pages.
+    <invoke-factory>
+      <construct class="components.service.EmptyResponseRenderer" />
     </invoke-factory>
   </service-point>
 
@@ -142,4 +143,6 @@
   <contribution configuration-id="tapestry.InfrastructureOverrides">
     <property name="exceptionPresenter" object="service:ExceptionPresenter" />
   </contribution>
+
+
 </module>

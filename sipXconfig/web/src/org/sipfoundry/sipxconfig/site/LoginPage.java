@@ -17,19 +17,21 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.PageRedirectException;
+import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.login.LoginContext;
 import org.sipfoundry.sipxconfig.site.user.FirstUser;
 
-public abstract class LoginPage extends BasePage implements PageBeginRenderListener {
+public abstract class LoginPage extends PageWithCallback implements PageBeginRenderListener {
 
     public static final String PAGE = "LoginPage";
 
@@ -68,7 +70,7 @@ public abstract class LoginPage extends BasePage implements PageBeginRenderListe
         }
     }
 
-    public String login() {
+    public String login(IRequestCycle cycle) {
         // always clean password property - use local variable in this function
         String password = getPassword();
         setPassword(null);
@@ -89,11 +91,19 @@ public abstract class LoginPage extends BasePage implements PageBeginRenderListe
         UserSession userSession = getUserSession();
         userSession.login(user.getId(), context.isAdmin(user), user.isSupervisor());
 
+        // see border component for setting callback
+        ICallback callback = getCallback();
+        if (callback != null) {
+            callback.performCallback(cycle);
+            setCallback(null);
+            return null;
+        }
+        
         // Ignore any callback and go to the home page. If the user was redirected to the login
         // page because the session timed out, then after logging in we will have lost all session
         // data. Trying to execute a callback under these circumstances is hazardous -- see
         // XCF-590.
-        return Home.PAGE;
+        return Home.PAGE;        
     }
 
     public String getVoicemailHref() {

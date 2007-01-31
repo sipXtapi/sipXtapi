@@ -19,7 +19,9 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.tapestry.IAsset;
+import org.apache.tapestry.IExternalPage;
 import org.apache.tapestry.IPage;
+import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
@@ -41,9 +43,10 @@ import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.Voicemail;
 import org.sipfoundry.sipxconfig.vm.VoicemailSource;
 
-public abstract class ManageVoicemail extends UserBasePage {
+public abstract class ManageVoicemail extends UserBasePage implements IExternalPage {
+    
     public static final String PAGE = "vm/ManageVoicemail";
-
+    
     @Asset("/images/voicemail-play.png")
     public abstract IAsset getPlayVoicemailAsset();
 
@@ -77,6 +80,19 @@ public abstract class ManageVoicemail extends UserBasePage {
     public abstract String getFolderId();
     public abstract void setFolderId(String folderId);
     
+    public void activateExternalPage(Object[] parameters, IRequestCycle cycle) {        
+        String folderId;
+        if (parameters == null || parameters.length == 0) {
+            // FIXME: Should default to inbox, not first folder.  fix this when you enumerate
+            // folders.
+            folderId = "inbox";
+        } else {
+            folderId = parameters[0].toString();
+        }
+        
+        setFolderId(folderId);
+    }
+
     public IPropertySelectionModel getActionModel() {
         Collection actions = new ArrayList();
         actions.add(new OptGroup(getMessages().getMessage("label.moveTo")));
