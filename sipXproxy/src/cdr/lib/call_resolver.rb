@@ -12,6 +12,7 @@ require 'logger'
 require 'call_direction/call_direction_plugin'
 require 'db/cse_reader'
 require 'db/cdr_writer'
+require 'soap/server'
 require 'utils/configure'
 require 'state'
 
@@ -60,7 +61,14 @@ class CallResolver
       state.run
     }
     
-    # FIXME: enable call direction plugin
+    # create the SOAP server
+    @server = Cdr::SOAP::Server.new(@state, @config)
+  
+    Thread.new( @server ) { | server | 
+      server.start      
+    }
+    
+    #FIXME: enable call direction plugin
     #cdr_queue = start_plugins(cdr_queue)
     
     writer_thread = Thread.new( @writer, cdr_queue ) { | w, q | w.run(q) }    
@@ -72,6 +80,9 @@ class CallResolver
     
     # wait for writer before exiting
     writer_thread.join
+    
+    @server.shutdown
+    
     log.info("resolve: Done. Analysis took #{Time.now - start_run} seconds.")
   end
   

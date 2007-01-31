@@ -1,0 +1,68 @@
+#
+# Copyright (C) 2007 SIPfoundry Inc.
+# Licensed by SIPfoundry under the LGPL license.
+# 
+# Copyright (C) 2007 Pingtel Corp.
+# Licensed to SIPfoundry under a Contributor Agreement.
+#
+##############################################################################
+
+require 'soap/rpc/standaloneServer'
+require 'soap/mapping'
+
+module CdrResolver
+  
+  module SOAP
+    
+    SERVICE_NAMESPACE = 'urn:CdrService'
+    
+    class ActiveCall; include ::SOAP::Marshallable
+      @@schema_ns = SERVICE_NAMESPACE
+      @@schema_type = 'ActiveCall'
+      
+      attr_accessor :from, :to, :duration, :start_time
+      
+      def initialize(cdr, now)
+        @from = cdr.caller_aor
+        @to = cdr.callee_aor
+        @start_time = cdr.start_time
+        @duration = now - start_time.to_i
+      end    
+    end
+    
+    # marshall-able version of the standard Array
+    class Array < ::Array; include ::SOAP::Marshallable
+      @@schema_ns = SERVICE_NAMESPACE  
+    end
+    
+    class CdrService
+      def initialize(state)
+        @state = state
+      end
+          
+      def getActiveCalls
+        active_calls = Array.new
+        now = Time.now.to_i
+        @state.active_cdrs.each do | cdr |
+          active_calls << ActiveCall.new(cdr, now)
+        end
+        return active_calls
+      end      
+    end
+    
+    class Server < ::SOAP::RPC::StandaloneServer
+      def initialize(state, config)
+        @cdrService = CdrService.new(state)
+        
+        super('sipXproxyCdr', SERVICE_NAMESPACE, config.agent_address, config.agent_port)
+      end
+      
+      def on_init
+        #@log.level = Logger::Severity::DEBUG
+        add_method(@cdrService, 'getActiveCalls')
+      end  
+    end
+    
+  end
+  
+end
