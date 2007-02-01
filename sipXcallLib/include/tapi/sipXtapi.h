@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2007 Robert J. Andreasen, Jr.
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
 // Copyright (C) 2005-2006 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
@@ -43,6 +46,12 @@
 // APPLICATION INCLUDES
 
 // DEFINES
+
+/**
+ * The SIPX_CALLING_CONVENTION define controls the default calling convention.
+ * define "SIPX_USE_STDCALL" to use the __stdcall calling convention under
+ * MSVC.
+ */
 #ifdef SIPX_USE_STDCALL
 #define SIPX_CALLING_CONVENTION __stdcall
 #else
@@ -157,6 +166,7 @@ typedef enum SPEAKER_TYPE
  *           GSM     13 kbps, 20 ms frame size
  *           G729    8 Kbps, 10ms frame size
  * Variable: ISAC    variable bitrate
+ *           SPEEX   variable bitrate
  * </pre>
  */
 typedef enum SIPX_AUDIO_BANDWIDTH_ID
@@ -491,12 +501,17 @@ typedef enum
     CONTACT_ALL = -2
 } SIPX_CONTACT_TYPE ;
 
+/**
+ * SIPX_TRANSPORT_TYPE defines various protocols use for signaling 
+ * transport.  The SIPX_TRANSPORT_TYPE is return in contact 
+ * addresses.
+ */
 typedef enum
 {
     TRANSPORT_UDP = 1,  /**< Indicator for a UDP socket type. */
     TRANSPORT_TCP = 0,  /**< Indicator for a TCP socket type. */ 
     TRANSPORT_TLS = 3,  /**< Indicator for a TLS socket type. */
-    TRANSPORT_CUSTOM = 4
+    TRANSPORT_CUSTOM = 4 /**< Indicator for a custom external transport. */
 } SIPX_TRANSPORT_TYPE;
 
 /**
@@ -717,22 +732,21 @@ typedef struct
     bool bIsEncrypted;               /**< SRTP enabled */
 } SIPX_CODEC_INFO;
 
+
 /**
- * Possible roles that a Media connection can have.
+ * Possible roles that a Media connection can have.  TCP is currently
+ * defined, but not fully implemented.  Use at your own risk.
  */
  typedef enum SIPX_RTP_TRANSPORT
 {
-   SIPX_RTP_TRANSPORT_UNKNOWN = 0x00000000,
-   SIPX_RTP_TRANSPORT_UDP = 0x00000001,
-   SIPX_RTP_TRANSPORT_TCP = 0x00000002,
-   SIPX_RTP_TCP_ROLE_ACTIVE = 0x00000004,
-   SIPX_RTP_TCP_ROLE_PASSIVE = 0x00000008,
-   SIPX_RTP_TCP_ROLE_ACTPASS = 0x00000010,
+   SIPX_RTP_TRANSPORT_UNKNOWN   = 0x00000000,
+   SIPX_RTP_TRANSPORT_UDP       = 0x00000001,
+   SIPX_RTP_TRANSPORT_TCP       = 0x00000002,
+   SIPX_RTP_TCP_ROLE_ACTIVE     = 0x00000004,
+   SIPX_RTP_TCP_ROLE_PASSIVE    = 0x00000008,
+   SIPX_RTP_TCP_ROLE_ACTPASS    = 0x00000010,
    SIPX_RTP_TCP_ROLE_CONNECTION = 0x00000020,
 };
-
-typedef int SipxtapiRtpTransportOptions;
-typedef int SipxtapiRtpTcpRoles;
 
 /**
  * This structure gets passed into sipxCallConnect, sipxCallAccept, and
@@ -3281,6 +3295,9 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoBandwidth(const SIPX_INST hInst,
  * @param hInst Instance pointer obtained by sipxInitialize
  * @param arrSzCaptureDevices Array of character arrays to be populated
  *        by this function call.
+ * @param nDeviceStringLength Length of buffer in arrSzCaptureDevice array.
+ * @param nArrayLength Number of strings (of length nDeviceStringLength) in
+ *        the arrSzCaptureDevice array.
  */
 SIPXTAPI_API SIPX_RESULT sipxConfigGetVideoCaptureDevices(const SIPX_INST hInst,
                                                           char **arrSzCaptureDevices,
@@ -3294,12 +3311,12 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetVideoCaptureDevices(const SIPX_INST hInst,
  * @param hInst Instance pointer obtained by sipxInitialize
  * @param szCaptureDevice Character array to be populated by this function 
  *        call. 
- * @param Max length of szCaptureDevice buffer.
+ * @param nLength Max length of szCaptureDevice buffer.
  *
  */
 SIPXTAPI_API SIPX_RESULT sipxConfigGetVideoCaptureDevice(const SIPX_INST hInst,
                                                          char* szCaptureDevice,
-                                                          int nLength);
+                                                         int nLength);
                                                           
 /**
  * Sets the video capture device.
@@ -3577,6 +3594,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigEnableRtpOverTcp(const SIPX_INST hInst,
 /**
  * Sets the display object for the "video preview".
  *
+ * @param hInst Instance pointer obtained by sipxInitialize
  * @param pDisplay Pointer to a video preview display object.
  */
 SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoPreviewDisplay(const SIPX_INST hInst, 
@@ -3616,7 +3634,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoParameters(const SIPX_INST hInst,
  * Sets the video bitrate
  *
  * @param hInst Instance pointer obtained by sipxInitialize
- * @param bitRate Bit rate parameter 
+ * @param bitRate Bit rate parameter
  */
 SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoBitrate(const SIPX_INST hInst, 
                                                    const int bitRate);
@@ -3625,7 +3643,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoBitrate(const SIPX_INST hInst,
  * Sets the video framerate
  *
  * @param hInst Instance pointer obtained by sipxInitialize
- * @param bitRate Bit rate parameter 
+ * @param frameRate Frame rate parameter 
  */
 SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoFramerate(const SIPX_INST hInst, 
                                                      const int frameRate);
@@ -3696,8 +3714,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigUnsubscribe(const SIPX_SUB hSub);
  * Associates an external transport mechanism for SIP signalling with 
  * the given instance.  
  *
- * @param phInst A pointer to a hInst that must be various other
- *        sipx routines. 
+ * @param hInst An instance handle obtained from sipxInitialize. 
  * @param hTransport Reference to a SIPX_TRANSPORT handle.  This function will
  *        assign a value to the referenced handle.
  * @param bIsReliable If false, indicates that SIPxua should retry external transport
@@ -3709,7 +3726,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigUnsubscribe(const SIPX_SUB hSub);
  *        For example, passing in a szTransport of "flibble" will cause the 
  *        transport tag to be added to the URI like so:  
  *        "sip:mickey\@example.com;transport=flibble"
- * @param szLocalIp IP address which is the source address for the write.
+ * @param szLocalIP IP address which is the source address for the write.
  * @param iLocalPort Port value from which the data will be sent.
  * @param writeProc Function pointer to the callback for writing data
  *        using the transport mechanism.
@@ -3757,9 +3774,9 @@ SIPXTAPI_API SIPX_RESULT sipxConfigExternalTransportRouteByUser(const SIPX_TRANS
  *
  * @param hTransport Handle to the external transport object.  Obtained via a call
  *        to sipxConfigExternalTransportAdd 
- * @param szSourceIp IP address which was the source of the data which was read.
+ * @param szSourceIP IP address which was the source of the data which was read.
  * @param iSourcePort Port value from which the data was sent.
- * @param szLocalIp Local IP address on which the data was received.
+ * @param szLocalIP Local IP address on which the data was received.
  * @param iLocalPort Local port value on which the data was received.
  * @param pData Pointer to the data which was received, which should point to a single
  *        and complete SIP message.
@@ -3783,7 +3800,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigExternalTransportHandleMessage(const SIPX_TRA
  * indiciation.  Likewise, changes will not take effect for existing calls.
  *
  * @param hInst An instance handle obtained from sipxInitialize. 
- * @param szTargetSipUrl Target SIP URL for the voice quality reports.  A 
+ * @param szServer Target SIP URL for the voice quality reports.  A 
  *        value of NULL will disable voice quality reports.
  */
 SIPXTAPI_API SIPX_RESULT sipxConfigSetVoiceQualityServer(const SIPX_INST hInst,
