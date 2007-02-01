@@ -61,9 +61,6 @@ class CallResolverConfigure
   CSE_HOSTS = 'SIP_CALLRESOLVER_CSE_HOSTS'
   CSE_HOSTS_DEFAULT = "#{LOCALHOST}:#{DatabaseUrl::DATABASE_PORT_DEFAULT}"
   
-  AGENT_PORT = 'SIP_CALLRESOLVER_AGENT_PORT'  
-  AGENT_ADDRESS = 'SIP_CALLRESOLVER_AGENT_ADDR'
-  
   # Specify this string as the config_file to get a completely default config 
   DEFAULT_CONFIG = 'default_config'
   
@@ -146,13 +143,12 @@ class CallResolverConfigure
     return parse_int_param(@config, PURGE_AGE_CSE, PURGE_AGE_CSE_DEFAULT, 1)
   end
   
-  
   def agent_port
-    @config[AGENT_PORT]
+    @config.fetch('SIP_CALLRESOLVER_AGENT_PORT', 8130)
   end
   
   def agent_address
-    @config[AGENT_ADDRESS]  
+    @config.fetch('SIP_CALLRESOLVER_AGENT_ADDR', '0.0.0.0')
   end
   
   # Access the config as an array.  Use this method *only* for plugin config

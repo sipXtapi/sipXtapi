@@ -80,6 +80,7 @@
     <pathelement path="${activation.jar}"/>
     <pathelement path="${axis-schema.jar}"/>
     <pathelement path="${agent-bindings.jar}"/>
+    <pathelement path="${cdr-bindings.jar}"/>
   </path>
 
   <path id="base.path">

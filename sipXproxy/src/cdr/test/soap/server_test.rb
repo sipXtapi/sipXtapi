@@ -10,6 +10,7 @@
 require 'test/unit'
 require 'thread'
 require 'soap/rpc/driver'
+require 'dbi'
 
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..', 'lib'))
 
@@ -18,12 +19,12 @@ require 'soap/server'
 
 class SoapServerTest < Test::Unit::TestCase
   
-  Config = Struct.new(:agent_address, :agent_port)
+  Config = Struct.new(:agent_address, :agent_port, :log)
   
   State = Struct.new(:active_cdrs)
   
   def start_server(state)
-    @server = CdrResolver::SOAP::Server.new(state, Config.new('0.0.0.0', 2001))
+    @server = CdrResolver::SOAP::Server.new(state, Config.new('0.0.0.0', 2001, nil))
     Thread.new(@server) { |s|  s.start }
   end
   
@@ -46,7 +47,7 @@ class SoapServerTest < Test::Unit::TestCase
   
   def testGetActiveCallsOne
     cdr1 = Cdr.new('test')
-    cdr1.start_time = Time.now
+    cdr1.start_time = DBI::Timestamp.new(Time.now)
     cdr1.caller_aor = 'from@example.org'
     cdr1.callee_aor = 'to@example.org'
     
@@ -64,7 +65,7 @@ class SoapServerTest < Test::Unit::TestCase
     cdrs = []
      (0..4).each { |i|
       cdr = Cdr.new("test#{i}")
-      cdr.start_time = Time.now
+      cdr.start_time = DBI::Timestamp.new(Time.now)
       cdr.caller_aor = "from#{i}@example.org"
       cdr.callee_aor = "to#{i}@example.org"
       cdrs << cdr

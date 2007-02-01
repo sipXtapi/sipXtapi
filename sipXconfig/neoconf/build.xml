@@ -30,6 +30,7 @@
     <pathelement location="${xstream.jar}" />
     <path refid="axis.path" />
     <pathelement location="${agent-bindings.jar}" />
+    <pathelement location="${cdr-bindings.jar}" />
   </path>
 
   <!-- 
@@ -94,18 +95,13 @@
       <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir" />
       <replacefilter token="@sipxpbx.log.dir@" property="sipxpbx.log.dir" />
       <replacefilter token="@sipxpbx.data.dir@" property="sipxpbx.data.dir" />
-      <replacefilter token="@sipxconfig.upload.dir@"
-                     property="sipxconfig.upload.dir" />		
-      <replacefilter token="@sipxconfig.phonebook.dir@"
-                     property="sipxconfig.phonebook.dir" />
-      <replacefilter token="@sipxconfig.phone.dir@"
-                     property="sipxconfig.phone.dir" />
+      <replacefilter token="@sipxconfig.upload.dir@" property="sipxconfig.upload.dir" />
+      <replacefilter token="@sipxconfig.phonebook.dir@" property="sipxconfig.phonebook.dir" />
+      <replacefilter token="@sipxconfig.phone.dir@" property="sipxconfig.phone.dir" />
       <replacefilter token="@sipxpbx.tmp.dir@" property="sipxpbx.tmp.dir" />
       <replacefilter token="@sipxvxml.data.dir@" property="sipxvxml.data.dir" />
-      <replacefilter token="@sipxpark.audio.dir@"
-                     property="sipxpark.audio.dir" />
-      <replacefilter token="@sipxpbx.backup.dir@"
-                     property="sipxpbx.backup.dir" />
+      <replacefilter token="@sipxpark.audio.dir@" property="sipxpark.audio.dir" />
+      <replacefilter token="@sipxpbx.backup.dir@" property="sipxpbx.backup.dir" />
       <replacefilter token="@sipxpbx.user@" property="sipxpbx.user" />
       <replacefilter token="@www.dir@" property="www.dir" />
     </replace>
@@ -156,6 +152,7 @@
       <fileset file="${antlr.jar}" />
       <fileset file="${lucene.jar}" />
       <fileset file="${agent-bindings.jar}" />
+      <fileset file="${cdr-bindings.jar}" />
       <fileset file="${xstream.jar}" />
     </copy>
 
@@ -164,21 +161,17 @@
     <mkdir dir="${dest.dir}${sipxconfig.phonebook.dir}" />
     <mkdir dir="${dest.dir}${sipxpbx.log.dir}" />
 
-    <copy todir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot"
-          file="etc/ciscoIp/syncinfo.xml" />
-    <copy todir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot"
-          file="etc/ciscoAta/sipx7912.logo" />
+    <copy todir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot" file="etc/ciscoIp/syncinfo.xml" />
+    <copy todir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot" file="etc/ciscoAta/sipx7912.logo" />
 
   </target>
 
 
   <!-- D E F A U L T -->
-  <target name="default" depends="agent.bindings,jar" />
+  <target name="default" depends="agent.bindings,cdr.bindings,jar" />
 
   <!-- J A R -->
-  <target name="jar"
-          depends="compile,manifest"
-          description="assemble sipxconfig jar library">
+  <target name="jar" depends="compile,manifest" description="assemble sipxconfig jar library">
     <sipx-jar file="${sipxconfig.jar}">
       <fileset dir="${classes.dir}" />
       <fileset dir="${src.dir}">
@@ -199,11 +192,7 @@
           depends="compile.test, reset-db, test-datasets"
           description="run junit tests that interact with database">
 
-    <junit fork="yes"
-           forkmode="perBatch"
-           haltonfailure="no"
-           printsummary="on"
-           failureproperty="junit.failed">
+    <junit fork="yes" forkmode="perBatch" haltonfailure="no" printsummary="on" failureproperty="junit.failed">
       <classpath refid="test.path" />
       <formatter type="plain" />
       <formatter type="xml" />
@@ -221,11 +210,7 @@
           depends="compile.test, reset-db"
           description="run junit tests that run performance tests">
 
-    <junit fork="yes"
-           forkmode="perBatch"
-           haltonfailure="no"
-           printsummary="on"
-           failureproperty="junit.failed">
+    <junit fork="yes" forkmode="perBatch" haltonfailure="no" printsummary="on" failureproperty="junit.failed">
       <classpath refid="test.path" />
       <formatter type="plain" />
       <formatter type="xml" />
@@ -263,8 +248,7 @@
       </fileset>
       <fileset dir="etc/sipxconference" includes="**/*.xml">
       </fileset>
-      <dtd publicid="-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
-           location="etc/setting.dtd" />
+      <dtd publicid="-//SIPFoundry//sipXconfig//Model specification 2.0//EN" location="etc/setting.dtd" />
     </xmlvalidate>
   </target>
 
@@ -276,33 +260,33 @@
     </xmlvalidate>
   </target>
 
-  <target name="reset-db" depends="reset-acd-history-db"
+  <target name="reset-db"
+          depends="reset-acd-history-db"
           description="Resets the test database. Needs to be called before UI and WEB tests.">
     <subant target="unittest-reset">
       <!-- THIS PROPERTY VERY IMPORTANT -->
       <property name="sipxconfig.db.name" value="SIPXCONFIG_TEST" />
       <property name="jdbc-driver.jar" value="${jdbc-driver.jar}" />
       <filelist dir="etc/database" files="database.xml" />
-    </subant>    
+    </subant>
   </target>
-  
+
   <target name="reset-acd-history-db">
-    <property name="acd.history.test.db.url" value="jdbc:postgresql://localhost/${acd.history.test.db}"/>
+    <property name="acd.history.test.db.url" value="jdbc:postgresql://localhost/${acd.history.test.db}" />
     <exec executable="dropdb" outputproperty="eatme">
-      <arg line="-U ${sipxconfig.db.user} ${acd.history.test.db}"/>
-    </exec>    
-    <exec executable="createdb" outputproperty="eatme">
-      <arg line="-U ${sipxconfig.db.user} ${acd.history.test.db}"/>
+      <arg line="-U ${sipxconfig.db.user} ${acd.history.test.db}" />
     </exec>
-    <pgsql url="${acd.history.test.db.url}" src="${acd.history.db.schema}"/>
-    <pgsql url="${acd.history.test.db.url}" src="test/org/sipfoundry/sipxconfig/acd/stats/history-seed.sql"/>
+    <exec executable="createdb" outputproperty="eatme">
+      <arg line="-U ${sipxconfig.db.user} ${acd.history.test.db}" />
+    </exec>
+    <pgsql url="${acd.history.test.db.url}" src="${acd.history.db.schema}" />
+    <pgsql url="${acd.history.test.db.url}" src="test/org/sipfoundry/sipxconfig/acd/stats/history-seed.sql" />
   </target>
 
   <!-- Comment out hibernate stuff to avoid causing problems on Windows 
     -->
 
-  <taskdef name="hibernatetool"
-           classname="org.hibernate.tool.ant.HibernateToolTask">
+  <taskdef name="hibernatetool" classname="org.hibernate.tool.ant.HibernateToolTask">
     <classpath>
       <pathelement location="${top.dir}/lib/hibernate-3.1.3.jar" />
       <pathelement location="${top.dir}/lib/hibernate-tools.jar" />
@@ -319,7 +303,7 @@
       <configuration propertyFile="${top.dir}/meta/hibernate.properties">
         <fileset dir="${src.dir}" id="id">
           <include name="**/common.hbm.xml" />
-          <include name="**/setting.hbm.xml" />		
+          <include name="**/setting.hbm.xml" />
           <include name="**/speeddial.hbm.xml" />
         </fileset>
       </configuration>
@@ -334,32 +318,24 @@
   <target name="dataset-db"
           description="Generates the sipconfig-db.dtd which is used to validate datasets"
           depends="compile.test, reset-db">
-    <java classname="org.sipfoundry.sipxconfig.GenerateDatabaseDtd"
-          classpathref="test.path"
-          fork="on">
+    <java classname="org.sipfoundry.sipxconfig.GenerateDatabaseDtd" classpathref="test.path" fork="on">
       <arg value="${test.classes.dir}" />
     </java>
-    <echo level="info"
-          message="Please remember to commit new sipxconfig-db.dtd file" />
+    <echo level="info" message="Please remember to commit new sipxconfig-db.dtd file" />
   </target>
 
   <target name="generate.agent.bindings">
     <delete dir="${agent.bindings.src.dir}" />
     <mkdir dir="${agent.bindings.src.dir}" />
-    <wsdl2java url="${agent.wsdl}"
-               output="${agent.bindings.src.dir}"
-               noWrapped="true">
-      <mapping namespace="urn:StatsService"
-               package="org.sipfoundry.sipxconfig.acd.stats"/>
+    <wsdl2java url="${agent.wsdl}" output="${agent.bindings.src.dir}" noWrapped="true">
+      <mapping namespace="urn:StatsService" package="org.sipfoundry.sipxconfig.acd.stats" />
     </wsdl2java>
   </target>
 
   <target name="agent.bindings" depends="generate.agent.bindings">
     <delete dir="${agent.bindings.dir}" />
     <mkdir dir="${agent.bindings.dir}" />
-    <sipx-javac srcdir="${agent.bindings.src.dir}"
-                destdir="${agent.bindings.dir}"
-                classpathref="base.path">
+    <sipx-javac srcdir="${agent.bindings.src.dir}" destdir="${agent.bindings.dir}" classpathref="base.path">
       <classpath>
         <pathelement path="${classes.dir}" />
         <path refid="axis.path" />
@@ -368,11 +344,32 @@
     <jar destfile="${agent-bindings.jar}" basedir="${agent.bindings.dir}" />
   </target>
 
+  <target name="generate.cdr.bindings">
+    <delete dir="${cdr.bindings.src.dir}" />
+    <mkdir dir="${cdr.bindings.src.dir}" />
+    <wsdl2java url="${cdr.wsdl}" output="${cdr.bindings.src.dir}" noWrapped="true">
+      <mapping namespace="urn:CdrService" package="org.sipfoundry.sipxconfig.cdr" />
+    </wsdl2java>
+  </target>
+
+  <target name="cdr.bindings" depends="generate.cdr.bindings">
+    <delete dir="${cdr.bindings.dir}" />
+    <mkdir dir="${cdr.bindings.dir}" />
+    <sipx-javac srcdir="${cdr.bindings.src.dir}" destdir="${cdr.bindings.dir}" classpathref="base.path">
+      <classpath>
+        <pathelement path="${classes.dir}" />
+        <path refid="axis.path" />
+      </classpath>
+    </sipx-javac>
+    <jar destfile="${cdr-bindings.jar}" basedir="${cdr.bindings.dir}" />
+  </target>
+
+
   <presetdef name="pgsql">
-    <sql driver="org.postgresql.Driver" 
-        userid="${sipxconfig.db.user}" 
-        password="${sipxconfig.db.password}"
-        classpath="${jdbc-driver.jar}"/>
+    <sql driver="org.postgresql.Driver"
+         userid="${sipxconfig.db.user}"
+         password="${sipxconfig.db.password}"
+         classpath="${jdbc-driver.jar}" />
   </presetdef>
 
 </project>

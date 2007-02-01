@@ -62,7 +62,7 @@ class CallResolver
     }
     
     # create the SOAP server
-    @server = Cdr::SOAP::Server.new(@state, @config)
+    @server = CdrResolver::SOAP::Server.new(@state, @config)
   
     Thread.new( @server ) { | server | 
       server.start      

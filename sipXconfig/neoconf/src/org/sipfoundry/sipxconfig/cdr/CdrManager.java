@@ -29,6 +29,7 @@ public interface CdrManager {
      */
     List<Cdr> getCdrs(Date from, Date to, CdrSearch search);
     List<Cdr> getCdrs(Date from, Date to, CdrSearch search, int limit, int offset);
+        
     
     /**
      * @param from date of first CDR retrieved, pass null for oldest
@@ -47,4 +48,10 @@ public interface CdrManager {
      * @param search specification - enumeration representing columns and string to search for
      */
     void dumpCdrs(Writer writer, Date from, Date to, CdrSearch search) throws IOException;
+    
+    
+    /**
+     * Returns the list of active calls as CDRs
+     */
+    List<Cdr> getActiveCalls();
 }

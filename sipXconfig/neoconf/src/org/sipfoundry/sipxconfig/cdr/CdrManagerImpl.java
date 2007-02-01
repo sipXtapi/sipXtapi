@@ -13,6 +13,9 @@ package org.sipfoundry.sipxconfig.cdr;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.rmi.RemoteException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -22,6 +25,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.xml.rpc.ServiceException;
+
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.bulk.csv.CsvWriter;
 import org.sipfoundry.sipxconfig.cdr.Cdr.Termination;
 import org.springframework.dao.support.DataAccessUtils;
@@ -39,6 +45,9 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
     static final String CONNECT_TIME = "connect_time";
     static final String START_TIME = "start_time";
     static final String CALLER_AOR = "caller_aor";
+
+    private String m_cdrAgentHost;
+    private int m_cdrAgentPort;
 
     public List<Cdr> getCdrs(Date from, Date to) {
         return getCdrs(from, to, new CdrSearch());
@@ -73,6 +82,43 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
         RowMapper rowMapper = new SingleColumnRowMapper(Integer.class);
         List results = getJdbcTemplate().query(psc, rowMapper);
         return (Integer) DataAccessUtils.requiredUniqueResult(results);
+    }
+
+    public List<Cdr> getActiveCalls() {
+        try {
+            CdrService cdrService = getCdrService();
+            ActiveCall[] activeCalls = cdrService.getActiveCalls();
+            List<Cdr> cdrs = new ArrayList<Cdr>(activeCalls.length);
+            for (ActiveCall call : activeCalls) {
+                Cdr cdr = new Cdr();
+                cdr.setCallerAor(call.getFrom());
+                cdr.setCalleeAor(call.getTo());
+                cdr.setStartTime(call.getStart_time().getTime());
+                cdrs.add(cdr);
+            }
+            return cdrs;
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public CdrService getCdrService() {
+        try {
+            URL url = new URL("http", m_cdrAgentHost, m_cdrAgentPort, StringUtils.EMPTY);
+            return new CdrImplServiceLocator().getCdrService(url);
+        } catch (ServiceException e) {
+            throw new RuntimeException(e);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setCdrAgentHost(String cdrAgentHost) {
+        m_cdrAgentHost = cdrAgentHost;
+    }
+
+    public void setCdrAgentPort(int cdrAgentPort) {
+        m_cdrAgentPort = cdrAgentPort;
     }
 
     abstract static class CdrsStatementCreator implements PreparedStatementCreator {

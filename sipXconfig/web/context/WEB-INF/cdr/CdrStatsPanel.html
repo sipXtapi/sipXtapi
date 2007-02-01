@@ -7,22 +7,7 @@
 </ul>  
 <form jwcid="@AutoRefreshForm">  
   <ul class="component-submit">
-  <li><span jwcid="@cdr/CdrFilter" cdrSearch="prop:cdrSearch"/></li>
+    <li><span jwcid="@cdr/CdrFilter" cdrSearch="prop:cdrSearch"/></li>
   </ul>
-  <table jwcid="@StatsTable" id="cdr:stats:list" class="component"
-    source="prop:cdrTableModel"
-    columns="caller, callee, =startTimeColumn, duration, termination"
-    row="prop:row"
-    usePager="true">
-    <span jwcid="terminationColumnValue@Block">
-      <span jwcid="@Insert" 
-        value="prop:row.termination" 
-        format="bean:terminationFormat" />
-    </span>
-    <span jwcid="durationColumnValue@Block">
-      <span jwcid="@Insert"
-        value="prop:row.duration"
-        format="bean:durationFormat" />
-    </span>
-  </table>
+  <table jwcid="@cdr/CdrTable" source="prop:cdrTableModel"/>
 </form>

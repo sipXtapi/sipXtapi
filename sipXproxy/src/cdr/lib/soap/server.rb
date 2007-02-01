@@ -25,8 +25,8 @@ module CdrResolver
       def initialize(cdr, now)
         @from = cdr.caller_aor
         @to = cdr.callee_aor
-        @start_time = cdr.start_time
-        @duration = now - start_time.to_i
+        @start_time = cdr.start_time.to_time
+        @duration = now - @start_time.to_i
       end    
     end
     
@@ -35,9 +35,10 @@ module CdrResolver
       @@schema_ns = SERVICE_NAMESPACE  
     end
     
-    class CdrService
-      def initialize(state)
+    class CdrService      
+      def initialize(state, log = nil)
         @state = state
+        @log = log
       end
           
       def getActiveCalls
@@ -46,13 +47,14 @@ module CdrResolver
         @state.active_cdrs.each do | cdr |
           active_calls << ActiveCall.new(cdr, now)
         end
+        @log.debug("getActiveCalls #{active_calls.size}") if @log
         return active_calls
       end      
     end
     
     class Server < ::SOAP::RPC::StandaloneServer
       def initialize(state, config)
-        @cdrService = CdrService.new(state)
+        @cdrService = CdrService.new(state, config.log)
         
         super('sipXproxyCdr', SERVICE_NAMESPACE, config.agent_address, config.agent_port)
       end

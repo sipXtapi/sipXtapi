@@ -21,10 +21,7 @@ import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
-import org.apache.tapestry.contrib.table.model.ITableColumn;
-import org.apache.tapestry.services.ExpressionEvaluator;
 import org.apache.tapestry.web.WebResponse;
-import org.sipfoundry.sipxconfig.cdr.Cdr;
 import org.sipfoundry.sipxconfig.cdr.CdrManager;
 import org.sipfoundry.sipxconfig.cdr.CdrSearch;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -35,9 +32,6 @@ public abstract class CdrStatsPanel extends BaseComponent {
 
     @InjectObject(value = "spring:cdrManager")
     public abstract CdrManager getCdrManager();
-
-    @InjectObject(value = "service:tapestry.ognl.ExpressionEvaluator")
-    public abstract ExpressionEvaluator getExpressionEvaluator();
 
     @InjectObject(value = "service:tapestry.globals.WebResponse")
     public abstract WebResponse getResponse();
@@ -51,19 +45,12 @@ public abstract class CdrStatsPanel extends BaseComponent {
     @Parameter
     public abstract CdrSearch getCdrSearch();
 
-    public abstract Cdr getRow();
-
     public CdrTableModel getCdrTableModel() {
         CdrTableModel tableModel = new CdrTableModel(getCdrManager());
         tableModel.setFrom(getStartTime());
         tableModel.setTo(getEndTime());
         tableModel.setCdrSearch(getCdrSearch());
         return tableModel;
-    }
-
-    public ITableColumn getStartTimeColumn() {
-        return TapestryUtils.createDateColumn("startTime", getMessages(),
-                getExpressionEvaluator(), getPage().getLocale());
     }
 
     public void export() {

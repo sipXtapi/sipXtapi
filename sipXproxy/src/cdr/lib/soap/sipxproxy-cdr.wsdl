@@ -31,14 +31,14 @@
   </message>
   <message name="getActiveCallsRequest"></message>
 
-  <portType name="cdrPort">
+  <portType name="CdrService">
     <operation name="getActiveCalls">
       <input message="tns:getActiveCallsRequest"></input>
       <output message="tns:getActiveCallsResponse"></output>
     </operation>
   </portType>
 
-  <binding name="cdrSOAP" type="tns:cdrPort">
+  <binding name="CdrBinding" type="tns:CdrService">
     <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http" />
 
     <operation name="getActiveCalls">
@@ -54,9 +54,9 @@
     </operation>
   </binding>
 
-  <service name="CdrService">
+  <service name="CdrImplService">
     <documentation>Realtime statistics of on-going calls as monitored by CDR resolver.</documentation>
-    <port name="cdrPort" binding="tns:cdrSOAP">
+    <port name="CdrService" binding="tns:CdrBinding">
       <soap:address location="http://localhost:2010/" />
     </port>
   </service>
