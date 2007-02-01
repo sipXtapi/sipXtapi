@@ -15,7 +15,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
- * @mainpage sipXtapi SDK Overview
+ * @mainpage SDK Overview
  * 
  * @htmlinclude sipXtapi-overview.html
  */ 
