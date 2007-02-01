@@ -90,10 +90,11 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
             ActiveCall[] activeCalls = cdrService.getActiveCalls();
             List<Cdr> cdrs = new ArrayList<Cdr>(activeCalls.length);
             for (ActiveCall call : activeCalls) {
-                Cdr cdr = new Cdr();
+                ActiveCallCdr cdr = new ActiveCallCdr();
                 cdr.setCallerAor(call.getFrom());
                 cdr.setCalleeAor(call.getTo());
                 cdr.setStartTime(call.getStart_time().getTime());
+                cdr.setDuration(call.getDuration());
                 cdrs.add(cdr);
             }
             return cdrs;

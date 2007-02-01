@@ -26,7 +26,8 @@ module CdrResolver
         @from = cdr.caller_aor
         @to = cdr.callee_aor
         @start_time = cdr.start_time.to_time
-        @duration = now - @start_time.to_i
+        # convert time difference to milliseconds
+        @duration = ((now - @start_time) * 1000).ceil
       end    
     end
     
@@ -43,7 +44,7 @@ module CdrResolver
           
       def getActiveCalls
         active_calls = Array.new
-        now = Time.now.to_i
+        now = Time.now
         @state.active_cdrs.each do | cdr |
           active_calls << ActiveCall.new(cdr, now)
         end
