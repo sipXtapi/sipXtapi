@@ -39,7 +39,7 @@ public abstract class CdrPage extends BasePage implements PageBeginRenderListene
     public abstract void setCdrSearch(CdrSearch cdrSearch);
     
     @Persist
-    @InitialValue(value = "literal:historic")
+    @InitialValue(value = "literal:active")
     public abstract String getTab();    
 
     public void pageBeginRender(PageEvent event_) {

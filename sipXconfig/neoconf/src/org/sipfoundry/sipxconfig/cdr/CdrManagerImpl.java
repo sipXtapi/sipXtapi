@@ -30,6 +30,7 @@ import javax.xml.rpc.ServiceException;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.bulk.csv.CsvWriter;
 import org.sipfoundry.sipxconfig.cdr.Cdr.Termination;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.ResultReader;
@@ -99,7 +100,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
             }
             return cdrs;
         } catch (RemoteException e) {
-            throw new RuntimeException(e);
+            throw new UserException(e);
         }
     }
 
@@ -108,9 +109,9 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
             URL url = new URL("http", m_cdrAgentHost, m_cdrAgentPort, StringUtils.EMPTY);
             return new CdrImplServiceLocator().getCdrService(url);
         } catch (ServiceException e) {
-            throw new RuntimeException(e);
+            throw new UserException(e);
         } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
+            throw new UserException(e);
         }
     }
 
