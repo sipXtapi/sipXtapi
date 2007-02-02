@@ -14,8 +14,12 @@ package org.sipfoundry.sipxconfig.components;
 import junit.framework.TestCase;
 
 import org.apache.tapestry.IPage;
+import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.PageRedirectException;
+import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.engine.IEngineService;
+import org.apache.tapestry.event.PageEvent;
+import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.CoreContextImpl;
 import org.sipfoundry.sipxconfig.site.ApplicationLifecycle;
@@ -25,9 +29,10 @@ import org.sipfoundry.sipxconfig.site.UserSession;
 public class BorderTest extends TestCase {
 
     public void testLogin() {
+        IPage dummyPage = EasyMock.createNiceControl().createMock(IPage.class);
         Border restricted = new MockBorder(true, true, new UserSession());
         try {
-            restricted.pageValidate(null);
+            restricted.pageValidate(new PageEvent(dummyPage, null));
             fail("should redirect");
         } catch (PageRedirectException e) {
             assertEquals("LoginPage", e.getTargetPageName());
@@ -121,11 +126,15 @@ public class BorderTest extends TestCase {
             return m_userSession;
         }
         
+        public ICallback getLoginCallback() {
+            return null;
+        }
+        
         public ApplicationLifecycle getApplicationLifecycle() {
             return new ApplicationLifecycleImpl();
         }
 
-        protected void redirectToLogin(IPage page) {
+        protected void redirectToLogin(IPage page, IRequestCycle cycle) {
             throw new PageRedirectException("LoginPage");
         }
         

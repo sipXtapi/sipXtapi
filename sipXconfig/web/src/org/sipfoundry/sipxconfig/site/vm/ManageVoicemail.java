@@ -18,20 +18,24 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.IAsset;
+import org.apache.tapestry.IExternalPage;
 import org.apache.tapestry.IPage;
+import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.PageRedirectException;
 import org.apache.tapestry.annotations.Asset;
-import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
+import org.apache.tapestry.engine.IEngineService;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.services.ExpressionEvaluator;
 import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.components.MillisDurationFormat;
 import org.sipfoundry.sipxconfig.components.RowInfo;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -43,8 +47,11 @@ import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.Voicemail;
 import org.sipfoundry.sipxconfig.vm.VoicemailSource;
 
-public abstract class ManageVoicemail extends UserBasePage {
+public abstract class ManageVoicemail extends UserBasePage implements IExternalPage {
+    
     public static final String PAGE = "vm/ManageVoicemail";
+        
+    private static final Log LOG = LogFactory.getLog(ManageVoicemail.class);
 
     @Asset("/images/voicemail-play.png")
     public abstract IAsset getPlayVoicemailAsset();
@@ -69,9 +76,6 @@ public abstract class ManageVoicemail extends UserBasePage {
 
     public abstract void setConverter(IPrimaryKeyConverter converter);
     
-    @Bean(initializer = "maxField=2")
-    public abstract MillisDurationFormat getDurationFormat();
-    
     public abstract VoicemailRowInfo getRowInfo();
     public abstract void setRowInfo(VoicemailRowInfo rowInfo);
     
@@ -82,6 +86,19 @@ public abstract class ManageVoicemail extends UserBasePage {
     public abstract String getFolderId();
     public abstract void setFolderId(String folderId);
     
+    @InjectObject(value = "engine-service:download")
+    public abstract IEngineService getDownloadService();
+    
+    public abstract MailboxOperation getMailboxOperation();
+    public abstract void setMailboxOperation(MailboxOperation operation); 
+
+    public void activateExternalPage(Object[] parameters, IRequestCycle cycle) {
+        String sparam = parameters[0].toString();
+        MailboxOperation operation = MailboxOperation.createMailboxOperationFromServletPath(sparam);        
+        setFolderId(operation.getFolderId());
+        setMailboxOperation(operation);
+    }
+
     public IPropertySelectionModel getActionModel() {
         Collection actions = new ArrayList();
         actions.add(new OptGroup(getMessages().getMessage("label.moveTo")));
@@ -129,6 +146,20 @@ public abstract class ManageVoicemail extends UserBasePage {
     public void pageBeginRender(PageEvent event) {
         super.pageBeginRender(event);
         
+        // this needs to be first as it may alter data gathered from subsequent steps in this method
+        MailboxOperation operation = getMailboxOperation();        
+        if (operation != null) {
+            String expectedUserId = getUser().getUserName();
+            if (!expectedUserId.equals(operation.getUserId())) {
+                String msg = String.format("Unauthorized access attempted to mailbox for user %s from user %s", 
+                        operation.getUserId(), expectedUserId); 
+                LOG.warn(msg);
+                throw new PageRedirectException(msg);
+            }            
+            setMailboxOperation(null);
+            operation.operate(this);
+        }        
+        
         SelectMap selections = getSelections();
         if (selections == null) {
             setSelections(new SelectMap());
@@ -162,7 +193,7 @@ public abstract class ManageVoicemail extends UserBasePage {
             setVoicemailSource(source);
             setRowInfo(new VoicemailRowInfo(source));
             setConverter(new VoicemailSqueezer(source));
-        }
+        }        
     }
     
     public static class VoicemailRowInfo implements RowInfo<Voicemail> {

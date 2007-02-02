@@ -23,6 +23,11 @@ import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
+import com.meterware.httpunit.HttpUnitOptions;
+import com.meterware.httpunit.WebForm;
+import com.meterware.httpunit.WebResponse;
+
 import net.sourceforge.jwebunit.HttpUnitDialog;
 import net.sourceforge.jwebunit.WebTester;
 
@@ -32,11 +37,6 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
-
-import com.meterware.httpunit.HttpUnitOptions;
-import com.meterware.httpunit.WebForm;
-import com.meterware.httpunit.WebResponse;
 
 public class SiteTestHelper {
 
@@ -97,25 +97,6 @@ public class SiteTestHelper {
         // to get webunit to catch up.
         tester.beginAt(TEST_PAGE_URL);
         assertNoException(tester);
-    }
-
-    /**
-     * Login - form-based login for our pages.
-     * 
-     */
-    public static void login(WebTester tester, String username, String password) {
-        try {
-            if (tester.getDialog().hasForm("login:form")) {
-                WebForm form = tester.getDialog().getForm();
-                form.setParameter("userName", username);
-                form.setParameter("password", password);
-                form.submit();
-            }
-        } catch (IOException e) {
-            throw new AssertionError(e);
-        } catch (SAXException e) {
-            throw new AssertionError(e);
-        }
     }
 
     /**

@@ -33,4 +33,10 @@ public class UserExceptionTest extends TestCase {
         Exception ex = new UserException("k{1}u{0}ku", new Integer(3), "bingo");
         assertEquals("kbingou3ku", ex.getMessage());
     }
+    
+    public void testUserExceptionWithCause() {
+        RuntimeException exception = new RuntimeException("bongo");
+        Exception ex = new UserException(exception);
+        assertEquals("bongo", ex.getMessage());
+    }    
 }

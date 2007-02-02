@@ -141,17 +141,25 @@ class CallResolverConfigure
   def purge_age_cse
     return nil unless purge?
     return parse_int_param(@config, PURGE_AGE_CSE, PURGE_AGE_CSE_DEFAULT, 1)
-  end    
+  end
+  
+  def agent_port
+    @config.fetch('SIP_CALLRESOLVER_AGENT_PORT', 8130)
+  end
+  
+  def agent_address
+    @config.fetch('SIP_CALLRESOLVER_AGENT_ADDR', '0.0.0.0')
+  end
   
   # Access the config as an array.  Use this method *only* for plugin config
   # params that are unknown to the call resolver.  All known params should be
   # retrieved using the above accessors.
   def [](param)
-    config[param]
+    @config[param]
   end
   
   def enabled?(param, default = nil)
-    config.enabled?(param, default)
+    @config.enabled?(param, default)
   end
   
   # Set up logging.  Return the Logger.

@@ -37,6 +37,9 @@ class Configure
     return @map[param_name]
   end
   
+  def fetch(param_name, default)
+    return @map.fetch(param_name, default)
+  end  
   
   def enabled?(param_name, default = nil)
     value = @map.fetch(param_name, default)

@@ -57,3 +57,8 @@ agent.bindings.src.dir=${top.build.dir}/neoconf/dist/agent-bindings-src
 agent.bindings.dir=${top.build.dir}/neoconf/dist/agent-bindings-classes
 agent-bindings.jar=${top.build.dir}/neoconf/dist/agent-bindings.jar
 
+cdr.wsdl=${top.dir}/meta/sipxcallresolver.wsdl
+cdr.bindings.src.dir=${top.build.dir}/neoconf/dist/cdr-bindings-src
+cdr.bindings.dir=${top.build.dir}/neoconf/dist/cdr-bindings-classes
+cdr-bindings.jar=${top.build.dir}/neoconf/dist/cdr-bindings.jar
+

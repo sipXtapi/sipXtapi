@@ -55,6 +55,10 @@ class State
     end
   end
   
+  def active_cdrs
+    @cdrs.values
+  end
+  
   def dump_waiting
     @cdrs.each do | cdr |
       p cdr.to_s
