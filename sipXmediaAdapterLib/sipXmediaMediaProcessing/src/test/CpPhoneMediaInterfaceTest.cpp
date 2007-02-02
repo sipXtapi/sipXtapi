@@ -1,15 +1,14 @@
 // 
-// 
-// Copyright (C) 2005, 2006 SIPez LLC
+// Copyright (C) 2005-2007 SIPez LLC
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2005, 2006 SIPfoundry Inc.
+// Copyright (C) 2005-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
 // $$
 //////////////////////////////////////////////////////////////////////////////
-// Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
+// Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -31,6 +30,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
     CPPUNIT_TEST_SUITE(CpPhoneMediaInterfaceTest);
     CPPUNIT_TEST(testProperties);
     CPPUNIT_TEST(testTones);
+    CPPUNIT_TEST(testTwoTones);
     CPPUNIT_TEST(testRecordPlayback);
     CPPUNIT_TEST_SUITE_END();
 
@@ -347,11 +347,275 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         OsTask::delay(1000) ;
 
         mediaInterface->deleteConnection(connectionId) ;
+
+        // TODO: delete interface
+
         OsTask::delay(500) ;
         delete codecFactory ;
-    }
+    };
+
+    void testTwoTones()
+    {
+        // This test creates three flographs.  It streams RTP with tones
+        // from the 2nd and 3rd to be received and mixed in the first flowgraph
+        // So we test RTP and we test that we can generate 2 different tones in
+        // to different flowgraphs to ensure that the tonegen has no global
+        // interactions or dependencies.
+        CPPUNIT_ASSERT(mpMediaFactory);
+
+        SdpCodecFactory* codecFactory = new SdpCodecFactory();
+        CPPUNIT_ASSERT(codecFactory);
+        int numCodecs;
+        SdpCodec** codecArray = NULL;
+        codecFactory->getCodecs(numCodecs, codecArray);
+        printf("CpPhoneMediaInterfaceTest::testProperties numCodec: %d\n", numCodecs);
+
+        UtlString localRtpInterfaceAddress("127.0.0.1");
+        OsSocket::getHostIp(&localRtpInterfaceAddress);
+        UtlString locale;
+        int tosOptions = 0;
+        UtlString stunServerAddress;
+        int stunOptions = 0;
+        int stunKeepAlivePeriodSecs = 25;
+        UtlString turnServerAddress;
+        int turnPort = 0 ;
+        UtlString turnUser;
+        UtlString turnPassword;
+        int turnKeepAlivePeriodSecs = 25;
+        bool enableIce = false ;
+
+        // Create a flowgraph (sink) to recieve and mix 2 sources
+        CpMediaInterface* mixedInterface = 
+            mpMediaFactory->createMediaInterface(NULL, // public mapped RTP IP address
+                                                 localRtpInterfaceAddress, 
+                                                 numCodecs, 
+                                                 codecArray, 
+                                                 locale,
+                                                 tosOptions,
+                                                 stunServerAddress, 
+                                                 stunOptions, 
+                                                 stunKeepAlivePeriodSecs,
+                                                 turnServerAddress,
+                                                 turnPort,
+                                                 turnUser,
+                                                 turnPassword,
+                                                 turnKeepAlivePeriodSecs,
+                                                 enableIce);
+
+        // Create connections for mixed(sink) flowgraph
+        int mixedConnection1Id = -1;
+        CPPUNIT_ASSERT(mixedInterface->createConnection(mixedConnection1Id, NULL, NULL) == OS_SUCCESS);
+        CPPUNIT_ASSERT(mixedConnection1Id > 0);
+        int mixedConnection2Id = -1;
+        CPPUNIT_ASSERT(mixedInterface->createConnection(mixedConnection2Id, NULL, NULL) == OS_SUCCESS);
+        CPPUNIT_ASSERT(mixedConnection2Id > 0);
+        
+        // Get the address of the connections so we can send RTP to them
+        // capabilities of first connection on mixed(sink) flowgraph
+        const int maxAddresses = 1;
+        UtlString rtpHostAddresses1[maxAddresses];
+        int rtpAudioPorts1[maxAddresses];
+        int rtcpAudioPorts1[maxAddresses];
+        int rtpVideoPorts1[maxAddresses];
+        int rtcpVideoPorts1[maxAddresses];
+        RTP_TRANSPORT transportTypes1[maxAddresses];
+        int numActualAddresses1;
+        SdpCodecFactory supportedCodecs1;
+        SdpSrtpParameters srtpParameters1;
+        int bandWidth1 = 0;
+        int videoBandwidth1;
+        int videoFramerate1;
+        CPPUNIT_ASSERT_EQUAL(
+            mixedInterface->getCapabilitiesEx(mixedConnection1Id, 
+                                             maxAddresses,
+                                             rtpHostAddresses1, 
+                                             rtpAudioPorts1,
+                                             rtcpAudioPorts1,
+                                             rtpVideoPorts1,
+                                             rtcpVideoPorts1,
+                                             transportTypes1,
+                                             numActualAddresses1,
+                                             supportedCodecs1,
+                                             srtpParameters1,
+                                             bandWidth1,
+                                             videoBandwidth1,
+                                             videoFramerate1), 
+
+             OS_SUCCESS);
+
+        // capabilities of second connection on mixed(sink) flowgraph
+        UtlString rtpHostAddresses2[maxAddresses];
+        int rtpAudioPorts2[maxAddresses];
+        int rtcpAudioPorts2[maxAddresses];
+        int rtpVideoPorts2[maxAddresses];
+        int rtcpVideoPorts2[maxAddresses];
+        RTP_TRANSPORT transportTypes2[maxAddresses];
+        int numActualAddresses2;
+        SdpCodecFactory supportedCodecs2;
+        SdpSrtpParameters srtpParameters2;
+        int bandWidth2 = 0;
+        int videoBandwidth2;
+        int videoFramerate2;
+        CPPUNIT_ASSERT_EQUAL(
+            mixedInterface->getCapabilitiesEx(mixedConnection2Id, 
+                                             maxAddresses,
+                                             rtpHostAddresses2, 
+                                             rtpAudioPorts2,
+                                             rtcpAudioPorts2,
+                                             rtpVideoPorts2,
+                                             rtcpVideoPorts2,
+                                             transportTypes2,
+                                             numActualAddresses2,
+                                             supportedCodecs2,
+                                             srtpParameters2,
+                                             bandWidth2,
+                                             videoBandwidth2,
+                                             videoFramerate2), 
+
+             OS_SUCCESS);
+
+        // Prep the sink connections to receive RTP
+        int numCodecsFactory1;
+        SdpCodec** codecArray1 = NULL;
+        supportedCodecs1.getCodecs(numCodecsFactory1, codecArray1);
+        CPPUNIT_ASSERT_EQUAL(
+            mixedInterface->startRtpReceive(mixedConnection1Id,
+                                            numCodecsFactory1,
+                                            codecArray1),
+            OS_SUCCESS);
+
+        int numCodecsFactory2;
+        SdpCodec** codecArray2 = NULL;
+        supportedCodecs2.getCodecs(numCodecsFactory2, codecArray2);
+        CPPUNIT_ASSERT_EQUAL(
+            mixedInterface->startRtpReceive(mixedConnection2Id,
+                                            numCodecsFactory2,
+                                            codecArray2),
+            OS_SUCCESS);
+
+        // Second flowgraph to be one of two sources
+        CpMediaInterface* source1Interface = 
+            mpMediaFactory->createMediaInterface(NULL, // public mapped RTP IP address
+                                                 localRtpInterfaceAddress, 
+                                                 numCodecs, 
+                                                 codecArray, 
+                                                 locale,
+                                                 tosOptions,
+                                                 stunServerAddress, 
+                                                 stunOptions, 
+                                                 stunKeepAlivePeriodSecs,
+                                                 turnServerAddress,
+                                                 turnPort,
+                                                 turnUser,
+                                                 turnPassword,
+                                                 turnKeepAlivePeriodSecs,
+                                                 enableIce);
+
+        // Create connection for source 1 flowgraph
+        int source1ConnectionId = -1;
+        CPPUNIT_ASSERT(source1Interface->createConnection(source1ConnectionId, NULL, NULL) == OS_SUCCESS);
+        CPPUNIT_ASSERT(source1ConnectionId > 0);
+
+        // Set the destination for sending RTP from source 1 to connection 1 on
+        // the mix flowgraph
+        printf("rtpHostAddresses1: \"%s\"\nrtpAudioPorts1: %d\nrtcpAudioPorts1: %d\nrtpVideoPorts1: %d\nrtcpVideoPorts1: %d\n",
+            rtpHostAddresses1->data(), 
+            *rtpAudioPorts1,
+            *rtcpAudioPorts1,
+            *rtpVideoPorts1,
+            *rtcpVideoPorts1);
+
+        //CPPUNIT_ASSERT_EQUAL(
+            source1Interface->setConnectionDestination(source1ConnectionId,
+                                                       rtpHostAddresses1->data(), 
+                                                       *rtpAudioPorts1,
+                                                       *rtcpAudioPorts1,
+                                                       *rtpVideoPorts1,
+                                                       *rtcpVideoPorts1);
+            //OS_SUCCESS);
+
+        // Start sending RTP from source 1 to the mix flowgraph
+        CPPUNIT_ASSERT_EQUAL(
+            source1Interface->startRtpSend(source1ConnectionId, 
+                                           numCodecsFactory1,
+                                           codecArray1),
+            OS_SUCCESS);
+
+
+        // Second flowgraph to be one of two sources
+        CpMediaInterface* source2Interface = 
+            mpMediaFactory->createMediaInterface(NULL, // public mapped RTP IP address
+                                                 localRtpInterfaceAddress, 
+                                                 numCodecs, 
+                                                 codecArray, 
+                                                 locale,
+                                                 tosOptions,
+                                                 stunServerAddress, 
+                                                 stunOptions, 
+                                                 stunKeepAlivePeriodSecs,
+                                                 turnServerAddress,
+                                                 turnPort,
+                                                 turnUser,
+                                                 turnPassword,
+                                                 turnKeepAlivePeriodSecs,
+                                                 enableIce);
+
+        // Create connection for source 2 flowgraph
+        int source2ConnectionId = -1;
+        CPPUNIT_ASSERT(source2Interface->createConnection(source2ConnectionId, NULL, NULL) == OS_SUCCESS);
+        CPPUNIT_ASSERT(source2ConnectionId > 0);
+
+        // Set the destination for sending RTP from source 2 to connection 2 on
+        // the mix flowgraph
+        CPPUNIT_ASSERT_EQUAL(
+            source2Interface->setConnectionDestination(source2ConnectionId,
+                                                       *rtpHostAddresses2, 
+                                                       *rtpAudioPorts2,
+                                                       *rtcpAudioPorts2,
+                                                       *rtpVideoPorts2,
+                                                       *rtcpVideoPorts2),
+            OS_SUCCESS);
+
+        // Start sending RTP from source 2 to the mix flowgraph
+        CPPUNIT_ASSERT_EQUAL(
+            source2Interface->startRtpSend(source2ConnectionId, 
+                                           numCodecsFactory2,
+                                           codecArray2),
+            OS_SUCCESS);
+
+        // Want to hear what is on the mixed flowgraph
+        mixedInterface->giveFocus();
+
+        printf("generate tones in source 1\n");
+        source1Interface->startTone(1, true, true);
+
+        OsTask::delay(1000);
+        printf("generate tones in source 2 as well\n");
+        source2Interface->startTone(2, true, true);
+
+        OsTask::delay(1000);
+        printf("stop tones in source 1\n");
+        source1Interface->stopTone();
+
+
+        OsTask::delay(1000);
+        printf("stop tone in source 2\n");
+        source2Interface->stopTone();
+
+        OsTask::delay(1000);
+        printf("two tones done\n");        
+
+        // Delete connections
+        mixedInterface->deleteConnection(mixedConnection1Id);
+        mixedInterface->deleteConnection(mixedConnection2Id);
+        source1Interface->deleteConnection(source1ConnectionId);
+        source2Interface->deleteConnection(source2ConnectionId);
+
+        // TODO: delete interfaces
+
+        OsTask::delay(500) ;
+        delete codecFactory ;
+    };
 };
-
-
 
 CPPUNIT_TEST_SUITE_REGISTRATION(CpPhoneMediaInterfaceTest);
