@@ -211,4 +211,9 @@ class CallResolverConfigureTest < Test::Unit::TestCase
     assert_equal('0.0.0.0', @config.agent_address)
     assert_equal(8130, @config.agent_port)
   end  
+  
+  def test_cse_polling_interval
+    assert_equal(10, @config.cse_polling_interval)
+  end  
+  
 end

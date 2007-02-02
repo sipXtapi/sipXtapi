@@ -14,11 +14,12 @@ require 'db/dao'
 require 'utils/terminator'
 
 # Obtains CSEs from and puts them into CSE queue
-class CseReader < Dao  
-  def initialize(database_url, purge_age,  log = nil)
+class CseReader < Dao
+
+  def initialize(database_url, purge_age, polling_interval, log = nil)
     super(database_url, purge_age, log)
     @last_read_time = nil
-    @stop = Terminator.new(60)
+    @stop = Terminator.new(polling_interval)
   end
   
   # Another way of fetching the row

@@ -151,6 +151,11 @@ class CallResolverConfigure
     @config.fetch('SIP_CALLRESOLVER_AGENT_ADDR', '0.0.0.0')
   end
   
+  # number of seconds between attempts to read new CSEs from database
+  def cse_polling_interval
+    @config.fetch('SIP_CALLRESOLVER_CSE_POLLING_INTERVAL', 10)
+  end
+  
   # Access the config as an array.  Use this method *only* for plugin config
   # params that are unknown to the call resolver.  All known params should be
   # retrieved using the above accessors.
