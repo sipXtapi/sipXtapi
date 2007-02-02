@@ -45,4 +45,8 @@ public class Mailbox {
     public File getVoicemailPreferencesFile() {
         return new File(getMailstoreDirectory(), getUserId() + "/mailboxprefs.xml");        
     }
+    
+    public Voicemail getVoicemail(String folderId, String messageId) {
+        return new Voicemail(m_mailstoreDirectory, m_userId, folderId, messageId);
+    }
 }

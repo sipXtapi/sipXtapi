@@ -77,19 +77,12 @@ public class ManageVoicemailTestUi extends WebTestCase {
         login(TestPage.TEST_USER_USERNAME, TestPage.TEST_USER_PIN);
         assertElementNotPresent("voicemail:edit");
     }
-    
-    private void login(String username, String password) {
-        assertElementPresent("login:form");
-        setFormElement("userName", username);
-        setFormElement("password", password);
-        clickButton("login:submit");        
-    }
 
     public void testExternalServiceShouldRedirect() throws Exception {
         SiteTestHelper.home(getTester());    
         clickLink("seedTestUser");
-        clickLink("Logout");
-        clickLink("InboxExternalLink");
+        clickLink("Logout");        
+        gotoPage(String.format("mailbox/%s/inbox", TestPage.TEST_USER_USERNAME));
         login(TestPage.TEST_USER_USERNAME, TestPage.TEST_USER_PIN);
         assertElementPresent("voicemail:list");
     }
@@ -98,10 +91,31 @@ public class ManageVoicemailTestUi extends WebTestCase {
         SiteTestHelper.home(getTester());    
         clickLink("seedTestUser");
         clickLink("Logout");
-        clickLink("InboxExternalLink");
+        gotoPage(String.format("mailbox/%s/inbox", TestPage.TEST_USER_USERNAME));
         login(TestPage.TEST_USER_USERNAME, "Bogus");
         login(TestPage.TEST_USER_USERNAME, TestPage.TEST_USER_PIN);
         assertElementPresent("voicemail:list");
+    }
+    
+    public void testPlayFriendlyUrl() throws Exception {
+        gotoManageVoicemail();
+        gotoPage(String.format("mailbox/%s/inbox/00000002-00", TestPage.TEST_USER_USERNAME));
+        assertEquals("audio/x-wav", getDialog().getResponse().getContentType());                
+    }
+    
+    public void testDeleteFriendlyUrl() throws Exception {
+        gotoManageVoicemail();
+        assertTextPresent("00000002-00");
+        gotoPage(String.format("mailbox/%s/inbox/00000002-00/delete", TestPage.TEST_USER_USERNAME));
+        assertTextNotPresent("00000002-00");
+    }
+
+    
+    private void login(String username, String password) {
+        assertElementPresent("login:form");
+        setFormElement("userName", username);
+        setFormElement("password", password);
+        clickButton("login:submit");        
     }
 }
 

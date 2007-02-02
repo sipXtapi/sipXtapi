@@ -1,4 +1,3 @@
-<?xml version="1.0"?>
 <module id="sipxconfig" version="1.0.0" package="org.sipfoundry.sipxconfig">
 
   <!-- sipXconfig user session object -->
@@ -140,9 +139,14 @@
       </construct>
     </invoke-factory>
   </service-point>
+
   <contribution configuration-id="tapestry.InfrastructureOverrides">
     <property name="exceptionPresenter" object="service:ExceptionPresenter" />
   </contribution>
 
-
+  <contribution configuration-id="tapestry.url.ServiceEncoders">
+    <encoder id="mailbox" before="external" object="instance:site.vm.MailboxPageEncoder,url=/mailbox"/>
+    <page-service-encoder id="external" extension="external" service="external"/>  
+  </contribution>
+  
 </module>
