@@ -1,3 +1,5 @@
+RUBY_AUX_RPMS_URL = http://people.redhat.com/dlutter/yum
+
 PGSQL_LIBSRC = $(LIBSRC)/ruby-postgres
 
 VER = 0.7.1

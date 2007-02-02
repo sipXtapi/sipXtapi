@@ -31,7 +31,7 @@ public class DefaultTableValueRendererSourceTest extends TestCase {
         DefaultTableValueRendererSource renderer = new DefaultTableValueRendererSource();
         PGInterval pg = new PGInterval();
         pg.setMinutes(1);
-        RenderString render = (RenderString) renderer.getRender(new SqlInterval(pg), null);
+        RenderString render = (RenderString) renderer.getRender(new SqlInterval(pg), Locale.ENGLISH);
         // assumes Millis is not localized
         assertEquals("1 minute, 0 seconds", render.getString());
     }

@@ -205,5 +205,10 @@ class CallResolverConfigureTest < Test::Unit::TestCase
     assert_raise(ConfigException) do
       @config.send(:parse_int_param, config, 'PARAM')
     end
+  end
+  
+  def test_get_agent
+    assert_equal('0.0.0.0', @config.agent_address)
+    assert_equal(8130, @config.agent_port)
   end  
 end

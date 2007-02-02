@@ -37,7 +37,7 @@ public class SipServiceImpl implements SipService {
     
     private static final long RANDOM_MAX = Long.MAX_VALUE;
     
-    private static Log s_log = LogFactory.getLog(SipServiceImpl.class);
+    private static final Log LOG = LogFactory.getLog(SipServiceImpl.class);
 
     /** Example:  Tue, 15 Nov 1994 08:12:31 GMT */
     private SimpleDateFormat m_dateFormat;
@@ -115,7 +115,7 @@ public class SipServiceImpl implements SipService {
     public void send(byte[] sipBytes) throws IOException {
         // not particular reason it's UDP other than we do not
         // expect a response so this seems more appropriate.
-        s_log.info(new String(sipBytes));
+        LOG.info(new String(sipBytes));
         DatagramSocket socket = new DatagramSocket();
         InetAddress toAddress = InetAddress.getByName(m_proxyHost);
         DatagramPacket packet = new DatagramPacket(sipBytes, 0, sipBytes.length, 

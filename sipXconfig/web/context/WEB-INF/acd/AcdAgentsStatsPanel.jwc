@@ -21,6 +21,7 @@
     lifecycle="page">
     <!-- 0 - day, 1 - hour, 2 - minute etc. -->
     <set name="maxField" value="2" />
+    <set name="locale" value="prop:page.locale"/>
   </bean>
   <bean name="stateFormat" class="org.sipfoundry.sipxconfig.components.EnumFormat"
     lifecycle="page">

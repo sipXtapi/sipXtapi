@@ -15,6 +15,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.apache.commons.lang.time.DateUtils;
+import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
@@ -36,6 +37,10 @@ public abstract class CdrPage extends BasePage implements PageBeginRenderListene
     public abstract CdrSearch getCdrSearch();
 
     public abstract void setCdrSearch(CdrSearch cdrSearch);
+    
+    @Persist
+    @InitialValue(value = "literal:active")
+    public abstract String getTab();    
 
     public void pageBeginRender(PageEvent event_) {
         if (getEndTime() == null) {
@@ -71,5 +76,4 @@ public abstract class CdrPage extends BasePage implements PageBeginRenderListene
         then.add(Calendar.DAY_OF_MONTH, -1);
         return then.getTime();
     }
-
 }

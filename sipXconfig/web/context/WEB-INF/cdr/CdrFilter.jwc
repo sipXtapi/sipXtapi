@@ -25,9 +25,6 @@
   <component id="queryText" type="TextField">
     <binding name="value" value="cdrSearch.term" />
   </component>
-  <component id="searchButton" type="Submit">
-    <binding name="value" value="message:button.search" />
-  </component>
   <component id="renderQuery" type="If">
     <binding name="condition" value="cdrSearch.search" />
   </component>

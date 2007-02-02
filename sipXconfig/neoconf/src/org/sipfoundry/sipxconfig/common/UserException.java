@@ -22,18 +22,28 @@ import org.apache.commons.lang.StringUtils;
  * handle it gracefully.
  */
 public class UserException extends RuntimeException {
-    private String m_message = StringUtils.EMPTY;
+    private String m_message;
     private Object[] m_params = ArrayUtils.EMPTY_OBJECT_ARRAY;
 
     public UserException() {
     }
 
-    public UserException(String message, Object ... params) {
+    public UserException(Throwable cause) {
+        super(cause);
+    }
+
+    public UserException(String message, Object... params) {
         m_message = message;
         m_params = params;
     }
 
     public String getMessage() {
-        return MessageFormat.format(m_message, m_params);
+        if (m_message != null) {
+            return MessageFormat.format(m_message, m_params);
+        }
+        if (getCause() != null) {
+            return getCause().getLocalizedMessage();
+        }
+        return StringUtils.EMPTY;
     }
 }
