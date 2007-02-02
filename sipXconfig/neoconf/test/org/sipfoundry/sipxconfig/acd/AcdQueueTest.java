@@ -56,9 +56,12 @@ public class AcdQueueTest extends TestCase {
     public void testPrepareSettings() {
         IMocksControl mc = EasyMock.createControl();
         CoreContext coreContext = mc.createMock(CoreContext.class);
-        coreContext.getDomainName();
-        mc.andReturn("mydomain.org").times(2);
         mc.replay();
+
+        AcdServer server = new AcdServer();
+        server.setHost("host.mydomain.org");
+
+        m_queue.setAcdServer(server);
 
         m_queue.setCoreContext(coreContext);
         m_queue.setName("testqueue");
@@ -66,7 +69,7 @@ public class AcdQueueTest extends TestCase {
 
         m_queue.initialize();
         assertEquals("queue description", m_queue.getSettingValue(AcdQueue.QUEUE_NAME));
-        assertEquals("sip:testqueue@mydomain.org", m_queue.getSettingValue(AcdQueue.URI));
+        assertEquals("sip:testqueue@host.mydomain.org", m_queue.getSettingValue(AcdQueue.URI));
 
         assertEquals("", m_queue.getSettingValue(AcdQueue.AGENT_LIST));
         assertEquals("", m_queue.getSettingValue(AcdQueue.OVERFLOW_QUEUE));
@@ -77,24 +80,27 @@ public class AcdQueueTest extends TestCase {
     public void testPrepareSettingsWithOverflowQueue() {
         IMocksControl mc = EasyMock.createControl();
         CoreContext coreContext = mc.createMock(CoreContext.class);
-        coreContext.getDomainName();
-        mc.andReturn("mydomain.org").atLeastOnce();
         mc.replay();
 
+        AcdServer server = new AcdServer();
+        server.setHost("host.mydomain.org");
+
+        m_queue.setAcdServer(server);
         m_queue.setCoreContext(coreContext);
         m_queue.setName("testqueue");
         m_queue.setDescription("queue description");
 
         AcdQueue overflowQueue = (AcdQueue) TestHelper.getApplicationContext()
                 .getBean("acdQueue");
+        overflowQueue.setAcdServer(server);
         overflowQueue.setCoreContext(coreContext);
         overflowQueue.setName("overflow");
         m_queue.setOverflowQueue(overflowQueue);
 
         m_queue.initialize();
         assertEquals("queue description", m_queue.getSettingValue(AcdQueue.QUEUE_NAME));
-        assertEquals("sip:testqueue@mydomain.org", m_queue.getSettingValue(AcdQueue.URI));
-        assertEquals("sip:overflow@mydomain.org", m_queue
+        assertEquals("sip:testqueue@host.mydomain.org", m_queue.getSettingValue(AcdQueue.URI));
+        assertEquals("sip:overflow@host.mydomain.org", m_queue
                 .getSettingValue(AcdQueue.OVERFLOW_QUEUE));
 
         assertEquals("", m_queue.getSettingValue(AcdQueue.AGENT_LIST));
@@ -183,6 +189,11 @@ public class AcdQueueTest extends TestCase {
         agent2.setUniqueId();
         agent2.setUser(user2);
         agent2.setCoreContext(coreContext);
+
+        AcdServer server = new AcdServer();
+        server.setHost("host.mydomain.org");
+
+        m_queue.setAcdServer(server);
         m_queue.insertAgent(agent2);
 
         m_queue.setCoreContext(coreContext);
@@ -191,7 +202,7 @@ public class AcdQueueTest extends TestCase {
 
         m_queue.initialize();
         assertEquals("queue description", m_queue.getSettingValue(AcdQueue.QUEUE_NAME));
-        assertEquals("sip:testqueue@mydomain.org", m_queue.getSettingValue(AcdQueue.URI));
+        assertEquals("sip:testqueue@host.mydomain.org", m_queue.getSettingValue(AcdQueue.URI));
 
         assertEquals("sip:testuser1@mydomain.org,sip:testuser2@mydomain.org", m_queue
                 .getSettingValue(AcdQueue.AGENT_LIST));

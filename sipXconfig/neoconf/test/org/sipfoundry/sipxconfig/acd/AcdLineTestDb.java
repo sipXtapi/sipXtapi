@@ -19,9 +19,12 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 public class AcdLineTestDb extends TestCase {
 
     private AcdLine m_line;
+    private AcdServer m_server;
 
     protected void setUp() throws Exception {
+        m_server = (AcdServer) TestHelper.getApplicationContext().getBean("acdServer");        
         m_line = (AcdLine) TestHelper.getApplicationContext().getBean("acdLine");
+        m_line.setAcdServer(m_server);
     }
 
     public void testSetSettings() throws Exception {

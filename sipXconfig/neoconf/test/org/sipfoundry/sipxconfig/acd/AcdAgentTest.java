@@ -62,15 +62,19 @@ public class AcdAgentTest extends TestCase {
         user.setUserName("testuser");
         m_agent.setUser(user);
 
+        AcdServer server = new AcdServer();
+        server.setHost("host.mydomain.org");
+                
         AcdQueue queue = new AcdQueue();
         queue.setCoreContext(coreContext);
         queue.setName("testqueue");
         queue.insertAgent(m_agent);
+        queue.setAcdServer(server);
 
         m_agent.initialize();
         assertEquals("testuser", m_agent.getSettingValue(AcdAgent.NAME));
         assertEquals("sip:testuser@mydomain.org", m_agent.getSettingValue(AcdAgent.URI));
-        assertEquals("sip:testqueue@mydomain.org", m_agent.getSettingValue(AcdAgent.QUEUE_LIST));
+        assertEquals("sip:testqueue@host.mydomain.org", m_agent.getSettingValue(AcdAgent.QUEUE_LIST));
 
         user.setFirstName("aaa");
         user.setLastName("bbb");
@@ -82,8 +86,6 @@ public class AcdAgentTest extends TestCase {
     public void testSettingsForMultipleQueues() {
         IMocksControl mc = EasyMock.createControl();
         CoreContext coreContext = mc.createMock(CoreContext.class);
-        coreContext.getDomainName();
-        mc.andReturn("mydomain.org").atLeastOnce();
         mc.replay();
 
         m_agent.setCoreContext(coreContext);
@@ -92,20 +94,25 @@ public class AcdAgentTest extends TestCase {
         user.setUserName("testuser");
         m_agent.setUser(user);
 
+        AcdServer server = new AcdServer();
+        server.setHost("host.mydomain.org");
+                        
         AcdQueue queue1 = new AcdQueue();
         queue1.setUniqueId();
         queue1.setCoreContext(coreContext);
         queue1.setName("testqueue1");
         queue1.insertAgent(m_agent);
+        queue1.setAcdServer(server);
 
         AcdQueue queue2 = new AcdQueue();
         queue2.setUniqueId();
         queue2.setCoreContext(coreContext);
         queue2.setName("testqueue2");
         queue2.insertAgent(m_agent);
+        queue2.setAcdServer(server);
 
         m_agent.initialize();
-        assertEquals("sip:testqueue1@mydomain.org,sip:testqueue2@mydomain.org", m_agent
+        assertEquals("sip:testqueue1@host.mydomain.org,sip:testqueue2@host.mydomain.org", m_agent
                 .getSettingValue(AcdAgent.QUEUE_LIST));
 
         mc.verify();
