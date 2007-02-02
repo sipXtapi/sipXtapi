@@ -21,6 +21,10 @@ OpenSSL 0.9.7.c - Security Library
   Note: autoconf 2.58 has a bug which does causes it not to work with
   sipX.  Verion 2.59 works as well.
 
+*pkgconfig 0.20 - for use with Autoconf
+  http://pkgconfig.freedesktop.org/
+  *ONLY if building from subversion
+
 libtool 1.4.3
   http://www.gnu.org/software/libtool/
   On RedHat Enterprise 3 "up2date libtool libtool-libs"
@@ -32,6 +36,12 @@ Doxygen - Source Code Documentation System
   http://www.doxygen.org
   tested with 1.3.5
   On RedHat Enterprise 3 "up2date doxygen"
+
+
+Prerequisite installation on Fedora Core 4
+------------------------------------------
+yum should get every thing you need:
+yum install cppunit cppunit-devel autoconf automake pkgconfig pcre-devel openssl openssl-devel libtool doxygen subversion gcc-c++
 
 
 PCRE Installation Instructions
