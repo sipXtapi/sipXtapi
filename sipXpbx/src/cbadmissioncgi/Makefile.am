@@ -22,7 +22,6 @@ cbadmission_cgi_SOURCES = \
 	ConferenceBridgeCGI.cpp \
 	LoginCGI.cpp \
 	TransferCGI.cpp \
-	../mailboxmgr/VXMLHelper.cpp \
 	$(top_builddir)/config/sipxpbx-buildstamp.h \
 	$(top_builddir)/config/sipxpbx-buildstamp.cpp
 

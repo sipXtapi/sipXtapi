@@ -16,7 +16,7 @@
 //#include <...>
 
 // APPLICATION INCLUDES
-#include "mailboxmgr/CGICommand.h"
+#include "mailboxmgr/VXMLCGICommand.h"
 
 // DEFINES
 // MACROS
@@ -35,7 +35,7 @@
  * @author Harippriya M Sivapatham
  * @version 1.0
  */
-class SetActiveSystemPromptCGI : public CGICommand
+class SetActiveSystemPromptCGI : public VXMLCGICommand
 {
 public:
     /**

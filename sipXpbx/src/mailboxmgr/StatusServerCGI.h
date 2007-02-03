@@ -17,7 +17,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
-#include "mailboxmgr/CGICommand.h"
+#include "mailboxmgr/VXMLCGICommand.h"
 
 // DEFINES
 // MACROS
@@ -36,7 +36,7 @@
  * @author John P. Coffey
  * @version 1.0
  */
-class StatusServerCGI : public CGICommand
+class StatusServerCGI : public VXMLCGICommand
 {
 public:
     StatusServerCGI( const UtlString& mailboxIdentity );

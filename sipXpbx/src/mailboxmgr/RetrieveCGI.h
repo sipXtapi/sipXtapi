@@ -17,7 +17,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
-#include "mailboxmgr/CGICommand.h"
+#include "mailboxmgr/VXMLCGICommand.h"
 
 // DEFINES
 // MACROS
@@ -28,7 +28,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-class RetrieveCGI : public CGICommand
+class RetrieveCGI : public VXMLCGICommand
 {
 public:
     /**

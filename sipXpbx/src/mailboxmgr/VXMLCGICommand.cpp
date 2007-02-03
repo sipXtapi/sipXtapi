@@ -11,7 +11,7 @@
 
 // APPLICATION INCLUDES
 #include "mailboxmgr/VXMLDefs.h"
-#include "mailboxmgr/VXMLHelper.h"
+#include "mailboxmgr/VXMLCGICommand.h"
 
 // DEFINES
 // MACROS
@@ -24,24 +24,24 @@
 
 /* ============================ CREATORS ================================== */
 
-VXMLHelper::VXMLHelper() 
+VXMLCGICommand::VXMLCGICommand() 
 {
   m_lang = NULL;
 }
 
-UtlString VXMLHelper::getLangAttr() 
+UtlString VXMLCGICommand::getLangAttr() 
 {
   if (m_lang && m_lang != "") 
     return " xml:lang=\"" + m_lang + "\"";
   return ""; 
 }
 
-void VXMLHelper::setLang(UtlString lang) 
+void VXMLCGICommand::setLang(UtlString lang) 
 { 
   m_lang = lang; 
 }
 
-UtlString VXMLHelper::getVXMLHeader(UtlString application)
+UtlString VXMLCGICommand::getVXMLHeader(UtlString application)
 {
   UtlString vxmlhdr;
   if (application != NULL) {

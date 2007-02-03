@@ -16,7 +16,7 @@
 //#include <...>
 
 // APPLICATION INCLUDES
-#include "mailboxmgr/CGICommand.h"
+#include "mailboxmgr/VXMLCGICommand.h"
 
 // DEFINES
 // MACROS
@@ -33,7 +33,7 @@
  * @author John P. Coffey
  * @version 1.0
  */
-class ValidateMailboxCGIHelper : public CGICommand
+class ValidateMailboxCGIHelper : public VXMLCGICommand
 {
 public:
     /**

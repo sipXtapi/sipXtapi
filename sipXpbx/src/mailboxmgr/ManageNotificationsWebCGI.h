@@ -17,7 +17,7 @@
 
 // APPLICATION INCLUDES
 #include "utl/UtlString.h"
-#include "mailboxmgr/CGICommand.h"
+#include "mailboxmgr/VXMLCGICommand.h"
 
 // DEFINES
 // MACROS
@@ -35,7 +35,7 @@ class UtlHashMap;
  * @author Harippriya M Sivapatham
  * @version 1.0
  */
-class ManageNotificationsWebCGI : public CGICommand
+class ManageNotificationsWebCGI : public VXMLCGICommand
 {
 public:
     /**

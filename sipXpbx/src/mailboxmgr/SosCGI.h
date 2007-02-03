@@ -18,7 +18,7 @@
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
 #include "net/Url.h"
-#include "mailboxmgr/CGICommand.h"
+#include "mailboxmgr/VXMLCGICommand.h"
 
 // DEFINES
 // MACROS
@@ -29,7 +29,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-class SosCGI : public CGICommand
+class SosCGI : public VXMLCGICommand
 {
 public:
     /**

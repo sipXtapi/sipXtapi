@@ -18,7 +18,7 @@
 // APPLICATION INCLUDES
 #include "utl/UtlDefs.h"
 #include "utl/UtlString.h"
-#include "mailboxmgr/CGICommand.h"
+#include "mailboxmgr/VXMLCGICommand.h"
 
 // DEFINES
 // MACROS
@@ -29,7 +29,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-class SpecialAAMenuCGI : public CGICommand
+class SpecialAAMenuCGI : public VXMLCGICommand
 {
 public:
     /**

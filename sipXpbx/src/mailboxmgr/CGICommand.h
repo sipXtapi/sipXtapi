@@ -17,7 +17,6 @@
 
 // APPLICATION INCLUDES
 #include "os/OsStatus.h"
-#include "mailboxmgr/VXMLHelper.h"
 
 // DEFINES
 // MACROS
@@ -35,7 +34,7 @@ class UtlString;
  * @author John P. Coffey
  * @version 1.0
  */
-class CGICommand: public VXMLHelper
+class CGICommand
 {
 
 public:

@@ -17,7 +17,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
-#include "mailboxmgr/CGICommand.h"
+#include "mailboxmgr/VXMLCGICommand.h"
 
 // DEFINES
 // MACROS
@@ -36,7 +36,7 @@
  * @author Harippriya
  * @version 1.0
  */
-class RecycleDeletedMsgsCGI : public CGICommand
+class RecycleDeletedMsgsCGI : public VXMLCGICommand
 {
 public:
     /**

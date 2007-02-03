@@ -16,6 +16,7 @@
 #include "os/OsDefs.h"
 #include "os/OsStatus.h"
 #include "utl/UtlString.h"
+#include "CGICommand.h"
 
 // DEFINES
 // MACROS
@@ -29,7 +30,7 @@
 // FORWARD DECLARATIONS
 
 /**
- *  VXMLHelper
+ *  VXMLCGICommand
  *
  *  Provides methods for constructing VXML document header with language attribute
  *
@@ -37,7 +38,7 @@
  *  @version 1.0
  */
 
-class VXMLHelper
+class VXMLCGICommand: public CGICommand
 {
 private:
     UtlString m_lang;
@@ -52,12 +53,12 @@ public:
     /**
      * Ctor
      */
-    VXMLHelper();
+    VXMLCGICommand();
 
     /**
      * Destructor
      */
-    virtual ~VXMLHelper() {};
+    virtual ~VXMLCGICommand() {};
 
     /** Sets language of VXML document
      *

@@ -18,7 +18,7 @@
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
 #include "net/Url.h"
-#include "mailboxmgr/CGICommand.h"
+#include "mailboxmgr/VXMLCGICommand.h"
 
 // DEFINES
 // MACROS
@@ -39,7 +39,7 @@
  *  @author Harippriya M Sivapatham
  *  @version 1.0
  */
-class DepositCGI : public CGICommand
+class DepositCGI : public VXMLCGICommand
 {
 public:
     /**

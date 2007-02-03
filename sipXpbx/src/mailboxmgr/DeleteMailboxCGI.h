@@ -34,7 +34,7 @@
  * @author John P. Coffey
  * @version 1.0
  */
-class DeleteMailboxCGI : public CGICommand
+class DeleteMailboxCGI : public VXMLCGICommand
 {
 public:
     /**
