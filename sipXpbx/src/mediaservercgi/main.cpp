@@ -1157,6 +1157,11 @@ main(int argc, char* argv[])
             if ( cmd != NULL )
             {
                 UtlString outStr;
+                const char* sName = gValues->valueOf ( "lang" );
+                if ( sName ) {
+                  cmd->setLang( sName );
+                }
+                
                 if ( cmd->execute(&outStr) == OS_SUCCESS )
                 {
                     OsSysLog::add(

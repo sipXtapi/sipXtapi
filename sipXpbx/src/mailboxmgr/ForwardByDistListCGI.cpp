@@ -70,7 +70,7 @@ ForwardByDistListCGI::execute(UtlString* out)
 {
    OsStatus result = OS_SUCCESS;
    bool atLeastOneSucceed = false;
-   UtlString dynamicVxml (VXML_BODY_BEGIN);
+   UtlString dynamicVxml = getVXMLHeader();
 
    MailboxManager* pMailboxManager = MailboxManager::getInstance();
 

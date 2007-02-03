@@ -48,7 +48,7 @@ OsStatus
 DialByNameCGI::execute( UtlString* out )
 {
     OsStatus result = OS_SUCCESS;
-    UtlString vxmlOutput( VXML_BODY_BEGIN );
+    UtlString vxmlOutput = getVXMLHeader();
     UtlString urlSeparator ( URL_SEPARATOR );
 
     UtlString ivrPromptUrl;

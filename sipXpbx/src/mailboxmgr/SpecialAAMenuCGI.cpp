@@ -53,7 +53,7 @@ SpecialAAMenuCGI::execute(UtlString* out)
         result = pMailboxManager->setSystemOverallAAMenu(false);
     }    
 
-    UtlString dynamicVxml (VXML_BODY_BEGIN);
+    UtlString dynamicVxml = getVXMLHeader();
 
     if( result == OS_SUCCESS )
     {
