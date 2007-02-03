@@ -32,12 +32,9 @@ VXMLHelper::VXMLHelper()
 UtlString VXMLHelper::getLangAttr() 
 {
   if (m_lang && m_lang != "") 
-    return "xml:lang=\"" + m_lang + "\" ";
+    return " xml:lang=\"" + m_lang + "\"";
   return ""; 
 }
-
-VXMLHelper::~VXMLHelper()
-{}
 
 void VXMLHelper::setLang(UtlString lang) 
 { 

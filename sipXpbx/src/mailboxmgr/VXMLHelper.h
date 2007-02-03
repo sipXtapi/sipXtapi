@@ -55,9 +55,9 @@ public:
     VXMLHelper();
 
     /**
-     * Virtual Destructor
+     * Destructor
      */
-    virtual ~VXMLHelper();
+    virtual ~VXMLHelper() {};
 
     /** Sets language of VXML document
      *
