@@ -64,6 +64,7 @@
 #include "HTReqMan.h"
 
 #include "os/OsSysLog.h"
+#include "../VXI/PropertyList.hpp"
 
 #ifdef WIN32
 /* Suppress/disable warnings */
@@ -154,7 +155,10 @@ SBinetHttpStream::Get(SBinetURL*       url,
 
   OsSysLog::add(FAC_HTTP, PRI_DEBUG, "SBinetHttpStream::Get(4) url = '%ls'",
                 url->GetAbsolute());
-  if(OsGetData(anchor, url) != TRUE){
+                
+  const VXIString* language =
+      (const VXIString*)VXIMapGetProperty( properties, PropertyList::AcceptedLang );
+  if(OsGetData(anchor, url, language) != TRUE){
 //  if(HTLoadAnchor((HTAnchor*)anchor, m_request) != YES){
     HTChunk_delete(m_chunk);
     m_chunk =  NULL;
@@ -168,7 +172,8 @@ SBinetHttpStream::Get(SBinetURL*       url,
  */
 UtlBoolean
 SBinetHttpStream::OsGetData(HTAnchor* anchor, 
-                             SBinetURL* url)
+                             SBinetURL* url,
+                             const VXIString* language_pref)
 {
    UtlBoolean retval = TRUE;
 
@@ -188,12 +193,24 @@ SBinetHttpStream::OsGetData(HTAnchor* anchor,
          strContentType[ix] = contentType[ix];
       strContentType[contentType.length()] = 0;
    }
+   
 
    UtlString tobeEscaped("@");
    HttpMessage::escapeChars(absolute_url, tobeEscaped);
    OsSysLog::add(FAC_HTTP, PRI_DEBUG,
                  "SBinetHttpStream::OsGetData absolute_url.data() = '%s'",
                  absolute_url.data());
+
+
+   // Strip the file extension to allow for Apache MultiView magic
+   if ((language_pref != NULL) && (absolute_url.first('?') == UTL_NOT_FOUND)) {
+      size_t urlExtensionDot = absolute_url.last('.');
+      if (urlExtensionDot != UTL_NOT_FOUND) {
+         absolute_url.remove(urlExtensionDot);
+      }
+   }
+
+
    // The URL is in request-URI format.
    Url newUrl(absolute_url.data(), TRUE);
    UtlString s = newUrl.toString();
@@ -222,6 +239,18 @@ SBinetHttpStream::OsGetData(HTAnchor* anchor,
    HttpMessage *pRequest = new HttpMessage();
    pRequest->setFirstHeaderLine( HTTP_GET_METHOD, uriString, HTTP_PROTOCOL_VERSION );
    pRequest->addHeaderField( "Accept", "*/*"); 
+   if (language_pref != NULL) {
+     UtlString lang = "";
+     const VXIchar *wLang = VXIStringCStr(language_pref);
+     size_t len = ::wcslen( wLang );
+     for (size_t i = 0; i < len; i++)
+       lang += (char) wLang[i];
+     pRequest->addHeaderField( "Accept-Language", lang);
+     OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+                 "SBinetHttpStream::OsGetData Accept-Language: '%s'",
+                 lang.data());
+   }
+   
 //   pRequest->addHeaderField("Connection", "Keep-Alive");
 //   pRequest->addHeaderField("Host", server.data()); 
    pRequest->setUserAgentField("Pingtel Mediaserver 1.0.0"); 

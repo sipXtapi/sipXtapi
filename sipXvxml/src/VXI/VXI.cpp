@@ -944,7 +944,18 @@ void VXI::AttemptDocumentLoad(const vxistring & uri,
   if (docProperties.GetValue() == NULL) 
     throw VXIException::OutOfMemory();
 
-  // (2) Fetch the document
+
+  // (2) Fetch the document hinting current language as accepted language
+  if (exe) {
+    const VXIchar *lang = exe->properties.GetProperty(PropertyList::Language);
+    if (lang != NULL) {
+      VXIValue *accept_lang = reinterpret_cast<VXIValue *>(VXIStringCreate(lang));
+      if (accept_lang == NULL) throw VXIException::OutOfMemory();
+      VXIMapSetProperty(docProperties.GetValue(), PropertyList::AcceptedLang, accept_lang);
+      log->StartDiagnostic(0) << L"VXI::AttemptDocumentLoad - accept-language = '" << accept_lang << "'";
+      log->EndDiagnostic();
+    }
+  }
   int result = parser->FetchDocument(uri.c_str(), uriProperties, inet,
                                      *log, doc, docProperties, isDefaults);
 

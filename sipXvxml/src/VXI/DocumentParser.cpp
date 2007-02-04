@@ -474,7 +474,9 @@ int DocumentParser::FetchDocument(const VXIchar * url,
       if (str == NULL) throw VXIException::OutOfMemory();
       VXIMapSetProperty(docProperties.GetValue(), PropertyList::Language,
                         reinterpret_cast<VXIValue *>(str));
-    }
+      log.StartDiagnostic(0) << L"DocumentParser::FetchDocument - new document language = '" << VXIStringCStr(str) << "'";
+      log.EndDiagnostic();
+    } 
   }
 
   log.LogDiagnostic(2, L"DocumentParser::FetchDocument - success");
