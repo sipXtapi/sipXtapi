@@ -377,7 +377,7 @@ DocumentRoot "@wwwdir@/doc"
 # http://httpd.apache.org/docs-2.0/mod/core.html#options
 # for more information.
 #
-    Options Indexes FollowSymLinks
+    Options Indexes FollowSymLinks MultiViews
 
 #
 # AllowOverride controls what directives may be placed in .htaccess files.
@@ -742,7 +742,7 @@ IndexIgnore .??* *~ *# HEADER* README* RCS CVS *,v *,t
 # * being a certain language than marking it with the wrong
 # * language!
 #
-# DefaultLanguage nl
+DefaultLanguage en
 #
 # Note 1: The suffix does not have to be the same as the language
 # keyword --- those with documents in Polish (whose net-standard
@@ -785,7 +785,7 @@ AddLanguage ltz .ltz
 AddLanguage nl .nl
 AddLanguage nn .nn
 AddLanguage no .no
-AddLanguage pl .po
+AddLanguage pl .pl
 AddLanguage pt .pt
 AddLanguage pt-BR .pt-br
 AddLanguage ru .ru
@@ -807,7 +807,7 @@ LanguagePriority en ca cs da de el eo es et fr he hr it ja ko ltz nl nn no pl pt
 # MULTIPLE CHOICES (Prefer) [in case of a tie] or NOT ACCEPTABLE (Fallback)
 # [in case no accepted languages matched the available variants]
 #
-ForceLanguagePriority Prefer Fallback
+ForceLanguagePriority Fallback
 
 #
 # Specify a default charset for all pages sent out. This is
