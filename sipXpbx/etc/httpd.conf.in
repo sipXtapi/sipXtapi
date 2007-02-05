@@ -742,7 +742,7 @@ IndexIgnore .??* *~ *# HEADER* README* RCS CVS *,v *,t
 # * being a certain language than marking it with the wrong
 # * language!
 #
-DefaultLanguage en
+# DefaultLanguage nl
 #
 # Note 1: The suffix does not have to be the same as the language
 # keyword --- those with documents in Polish (whose net-standard
@@ -766,32 +766,32 @@ DefaultLanguage en
 # Brazilian Portuguese (pt-BR) - Russian (ru) - Swedish (sv)
 # Simplified Chinese (zh-CN) - Spanish (es) - Traditional Chinese (zh-TW)
 #
-AddLanguage ca .ca
-AddLanguage cs .cz .cs
-AddLanguage da .dk
-AddLanguage de .de
-AddLanguage el .el
-AddLanguage en .en
-AddLanguage eo .eo
-AddLanguage es .es
-AddLanguage et .et
-AddLanguage fr .fr
-AddLanguage he .he
-AddLanguage hr .hr
-AddLanguage it .it
-AddLanguage ja .ja
-AddLanguage ko .ko
-AddLanguage ltz .ltz
-AddLanguage nl .nl
-AddLanguage nn .nn
-AddLanguage no .no
-AddLanguage pl .pl
-AddLanguage pt .pt
-AddLanguage pt-BR .pt-br
-AddLanguage ru .ru
-AddLanguage sv .sv
-AddLanguage zh-CN .zh-cn
-AddLanguage zh-TW .zh-tw
+#AddLanguage ca .ca
+#AddLanguage cs .cz .cs
+#AddLanguage da .dk
+#AddLanguage de .de
+#AddLanguage el .el
+#AddLanguage en .en
+#AddLanguage eo .eo
+#AddLanguage es .es
+#AddLanguage et .et
+#AddLanguage fr .fr
+#AddLanguage he .he
+#AddLanguage hr .hr
+#AddLanguage it .it
+#AddLanguage ja .ja
+#AddLanguage ko .ko
+#AddLanguage ltz .ltz
+#AddLanguage nl .nl
+#AddLanguage nn .nn
+#AddLanguage no .no
+#AddLanguage pl .pl
+#AddLanguage pt .pt
+#AddLanguage pt-BR .pt-br
+#AddLanguage ru .ru
+#AddLanguage sv .sv
+#AddLanguage zh-CN .zh-cn
+#AddLanguage zh-TW .zh-tw
 
 #
 # LanguagePriority allows you to give precedence to some languages
@@ -800,14 +800,14 @@ AddLanguage zh-TW .zh-tw
 # Just list the languages in decreasing order of preference. We have
 # more or less alphabetized them here. You probably want to change this.
 #
-LanguagePriority en ca cs da de el eo es et fr he hr it ja ko ltz nl nn no pl pt pt-BR ru sv zh-CN zh-TW
+#LanguagePriority en ca cs da de el eo es et fr he hr it ja ko ltz nl nn no pl pt pt-BR ru sv zh-CN zh-TW
 
 #
 # ForceLanguagePriority allows you to serve a result page rather than
 # MULTIPLE CHOICES (Prefer) [in case of a tie] or NOT ACCEPTABLE (Fallback)
 # [in case no accepted languages matched the available variants]
 #
-ForceLanguagePriority Fallback
+#ForceLanguagePriority Prefer Fallback
 
 #
 # Specify a default charset for all pages sent out. This is
@@ -1087,4 +1087,29 @@ BrowserMatch "^gnome-vfs" redirect-carefully
 Include @SIPX_CONFDIR@/httpd-sipxchange-common.conf
 Include @SIPX_CONFDIR@/httpd-sipxchange-configserver.conf
 
+######
+#
+# Special rules for fetching localized files based upon either one of :
+#
+# 1) Accept-Language: tag-subtag -> prefer-language = tag-subtag
+# 2) /language/rfc1766:tag-subtag/url.extension -> url, prefer-language = tag-subtag
+# 3) url?prefer-language=tag-subtag -> url, prefer-language = tag-subtag
+
+AddLanguage en .en
+AddLanguage pl-male   .pl-male
+AddLanguage pl-female .pl-female
+
+DefaultLanguage en
+LanguagePriority en
+ForceLanguagePriority Prefer Fallback
+
+RewriteEngine on
+RewriteLog @SIPX_LOGDIR@/httpd_rewrite_log
+RewriteLogLevel 9
+
+RewriteCond  %{QUERY_STRING} ^prefer-language=(.*)$  [nc]
+RewriteRule  ^(.*)\..+?$  $1?   [L,env=prefer-language:%1]
+
+RewriteCond  %{REQUEST_URI} ^/language/([a-zA-Z0-9\-]+)(/.*)\..+?$  [nc]
+RewriteRule  ^ %2 [L,env=prefer-language:%1]
 
