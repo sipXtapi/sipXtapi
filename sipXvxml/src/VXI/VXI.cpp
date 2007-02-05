@@ -1,4 +1,4 @@
-/****************License************************************************
+  /****************License************************************************
  *
  * Copyright 2000-2001.  SpeechWorks International, Inc.    
  *
@@ -949,10 +949,10 @@ void VXI::AttemptDocumentLoad(const vxistring & uri,
   if (exe) {
     const VXIchar *lang = exe->properties.GetProperty(PropertyList::Language);
     if (lang != NULL) {
-      VXIValue *accept_lang = reinterpret_cast<VXIValue *>(VXIStringCreate(lang));
+      VXIString *accept_lang = VXIStringCreate(lang);
       if (accept_lang == NULL) throw VXIException::OutOfMemory();
-      VXIMapSetProperty(docProperties.GetValue(), PropertyList::AcceptedLang, accept_lang);
-      log->StartDiagnostic(0) << L"VXI::AttemptDocumentLoad - accept-language = '" << accept_lang << "'";
+      VXIMapSetProperty(uriProperties.GetValue(), PropertyList::AcceptedLang, reinterpret_cast<VXIValue *>(accept_lang));
+      log->StartDiagnostic(0) << L"VXI::AttemptDocumentLoad - (" << uri << L") accept-language = '" << VXIStringCStr(accept_lang) << L"'";
       log->EndDiagnostic();
     }
   }

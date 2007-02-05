@@ -153,11 +153,13 @@ SBinetHttpStream::Get(SBinetURL*       url,
   HTStream * target = SBHTStream(m_request, &m_chunk, MAX_CHUNK_SIZE);
   HTRequest_setOutputStream(m_request, target);
 
-  OsSysLog::add(FAC_HTTP, PRI_DEBUG, "SBinetHttpStream::Get(4) url = '%ls'",
-                url->GetAbsolute());
                 
   const VXIString* language =
       (const VXIString*)VXIMapGetProperty( properties, PropertyList::AcceptedLang );
+      
+  OsSysLog::add(FAC_HTTP, PRI_DEBUG, "SBinetHttpStream::Get(4) url = '%ls', accept-language = '%ls'",
+                url->GetAbsolute(), (language != NULL) ? VXIStringCStr(language) : L"(NULL)");
+                
   if(OsGetData(anchor, url, language) != TRUE){
 //  if(HTLoadAnchor((HTAnchor*)anchor, m_request) != YES){
     HTChunk_delete(m_chunk);
@@ -201,7 +203,6 @@ SBinetHttpStream::OsGetData(HTAnchor* anchor,
                  "SBinetHttpStream::OsGetData absolute_url.data() = '%s'",
                  absolute_url.data());
 
-
    // Strip the file extension to allow for Apache MultiView magic
    if ((language_pref != NULL) && (absolute_url.first('?') == UTL_NOT_FOUND)) {
       size_t urlExtensionDot = absolute_url.last('.');
@@ -215,8 +216,8 @@ SBinetHttpStream::OsGetData(HTAnchor* anchor,
    Url newUrl(absolute_url.data(), TRUE);
    UtlString s = newUrl.toString();
    OsSysLog::add(FAC_HTTP, PRI_DEBUG,
-                 "SBinetHttpStream::OsGetData newUrl.toString() = '%s'",
-                 s.data());
+                 "SBinetHttpStream::OsGetData newUrl.toString() = '%s', accept-language = '%ls'",
+                 s.data(), (language_pref != NULL) ? VXIStringCStr(language_pref) : L"(null)");
 
    // get the url path up to the ? separator 
    // (indicated via the TRUE parameter)
@@ -246,9 +247,6 @@ SBinetHttpStream::OsGetData(HTAnchor* anchor,
      for (size_t i = 0; i < len; i++)
        lang += (char) wLang[i];
      pRequest->addHeaderField( "Accept-Language", lang);
-     OsSysLog::add(FAC_HTTP, PRI_DEBUG,
-                 "SBinetHttpStream::OsGetData Accept-Language: '%s'",
-                 lang.data());
    }
    
 //   pRequest->addHeaderField("Connection", "Keep-Alive");
