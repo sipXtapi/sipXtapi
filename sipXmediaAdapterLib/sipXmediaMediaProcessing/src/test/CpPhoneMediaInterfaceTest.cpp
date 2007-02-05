@@ -144,6 +144,10 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         CPPUNIT_ASSERT(getPropertyValue.isNull());
 
         mediaInterface->deleteConnection(connectionId) ;
+
+        // delete interface
+        mediaInterface->release(); 
+
         // delete mpMediaFactory ;
         delete codecFactory ;
     }
@@ -270,7 +274,10 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         OsTask::delay(500) ;
 
         mediaInterface->deleteConnection(connectionId) ;
+
         delete codecFactory ;
+        // delete interface
+        mediaInterface->release(); 
     }
 
     void testTones()
@@ -348,7 +355,8 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         mediaInterface->deleteConnection(connectionId) ;
 
-        // TODO: delete interface
+        // delete interface
+        mediaInterface->release(); 
 
         OsTask::delay(500) ;
         delete codecFactory ;
@@ -611,7 +619,10 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         source1Interface->deleteConnection(source1ConnectionId);
         source2Interface->deleteConnection(source2ConnectionId);
 
-        // TODO: delete interfaces
+        // delete interfaces
+        mixedInterface->release();
+        source1Interface->release();
+        source2Interface->release();
 
         OsTask::delay(500) ;
         delete codecFactory ;

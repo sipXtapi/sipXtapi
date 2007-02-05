@@ -397,6 +397,10 @@ SOURCE=.\src\mp\MprMixer.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MprNull.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MprRecorder.cpp
 # End Source File
 # Begin Source File
@@ -1014,6 +1018,10 @@ SOURCE=.\include\mp\MprFromStream.h
 # Begin Source File
 
 SOURCE=.\include\mp\MprMixer.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprNull.h
 # End Source File
 # Begin Source File
 
