@@ -1108,8 +1108,8 @@ RewriteLog @SIPX_LOGDIR@/httpd_rewrite_log
 RewriteLogLevel 9
 
 RewriteCond  %{QUERY_STRING} ^prefer-language=(.*)$  [nc]
-RewriteRule  ^(.*)\..+?$  $1?   [L,env=prefer-language:%1]
+RewriteRule  ^(.*)\..+?$  $1?   [L,PT,env=prefer-language:%1]
 
 RewriteCond  %{REQUEST_URI} ^/language/([a-zA-Z0-9\-]+)(/.*)\..+?$  [nc]
-RewriteRule  ^ %2 [L,env=prefer-language:%1]
+RewriteRule  ^ %2 [L,PT,env=prefer-language:%1]
 
