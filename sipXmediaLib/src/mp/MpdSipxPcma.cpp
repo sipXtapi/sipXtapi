@@ -145,6 +145,7 @@ int MpdSipxPcma::decodeIn(const MpRtpBufPtr &pPacket)
       return pPacket->getPayloadSize();
    }
 
+   // Do not use compare() here, because it is arithmetic compare.
    if (rtpTimestamp > mNextPullTimerCount)
    {
       delta = rtpTimestamp - mNextPullTimerCount;
@@ -169,7 +170,7 @@ int MpdSipxPcma::decodeIn(const MpRtpBufPtr &pPacket)
       return 0;
    }
 
-   if (rtpTimestamp <= mNextPullTimerCount) {
+   if (compare(rtpTimestamp, mNextPullTimerCount) <= 0) {
       // A packet is available within the allotted time span
       mUnderflowCount=0;
       // Process the frame if enough time has passed
