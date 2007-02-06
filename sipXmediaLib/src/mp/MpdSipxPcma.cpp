@@ -29,9 +29,10 @@ const MpCodecInfo MpdSipxPcma::smCodecInfo(
 MpdSipxPcma::MpdSipxPcma(int payloadType)
 : MpDecoderBase(payloadType, &smCodecInfo),
   mNextPullTimerCount(0),
-  mWaitTimeInFrames(6),  // This is the jitter buffer size. 6 = 60ms 
+  mWaitTimeInFrames(6),  // This is the jitter buffer size. 6 = 120ms 
   mUnderflowCount(0),
-  mLastSeqNo(-1),
+  mLastSeqNo(0),
+  mIsFirstFrame(false),
   mClockDrift(false),
   mLastReportSize(-1)
 {
@@ -52,6 +53,13 @@ OsStatus MpdSipxPcma::initDecode(MpAudioConnection* pConnection)
 
    // Set the payload number for JB
    JB_initCodepoint(pJBState, "PCMA", 8000, getPayloadType());
+
+   mNextPullTimerCount = 0;
+   mUnderflowCount = 0;
+   mLastSeqNo = 0;
+   mIsFirstFrame = false;
+   mClockDrift = false;
+   mLastReportSize = -1;
 
    return OS_SUCCESS;
 }
@@ -120,16 +128,21 @@ void MpdSipxPcma::frameIncrement()
 
 int MpdSipxPcma::decodeIn(const MpRtpBufPtr &pPacket)
 {
-   unsigned int rtpTimestamp = pPacket->getRtpTimestamp();
-   unsigned int delta = 0; // Contain the difference between the current pull
+   RtpTimestamp rtpTimestamp = pPacket->getRtpTimestamp();
+   RtpTimestamp delta = 0; // Contain the difference between the current pull
                            // pointer and the rtpTimestamp. Use the delta because
                            // rtpTimestamp and mNextPullTimerCount are unsigned,
                            // so a straight subtraction will fail.
 
    // If this is our first packet
-   if (mLastSeqNo == -1)
+   if (mIsFirstFrame)
    {
+      mIsFirstFrame = false;
       mNextPullTimerCount = rtpTimestamp + (160*(mWaitTimeInFrames*2));
+      mLastSeqNo = pPacket->getRtpSequenceNumber();
+
+      // Always accept the first packet
+      return pPacket->getPayloadSize();
    }
 
    if (rtpTimestamp > mNextPullTimerCount)
