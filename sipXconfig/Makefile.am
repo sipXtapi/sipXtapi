@@ -1,3 +1,5 @@
+include $(top_srcdir)/ant-targets.am
+
 include config/project.am
 
 # Append to global search/replace with _very_ project specific search/replaces
