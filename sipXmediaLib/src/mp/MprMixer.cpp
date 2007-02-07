@@ -115,8 +115,7 @@ UtlBoolean MprMixer::doProcessFrame(MpBufPtr inBufs[],
    if (!isEnabled || (inBufsSize == 0)) {
       // Disabled, return first input
 
-      outBufs[0] = inBufs[0];
-      inBufs[0].release();
+      outBufs[0].swap(inBufs[0]);
       return TRUE;
    }
 
@@ -132,8 +131,7 @@ UtlBoolean MprMixer::doProcessFrame(MpBufPtr inBufs[],
       {
          if (mWeights[i] != 0)
          {
-            outBufs[0] = inBufs[i];
-            inBufs[i].release();
+            outBufs[0].swap(inBufs[i]);
             return TRUE;
          }
       }
@@ -145,6 +143,7 @@ UtlBoolean MprMixer::doProcessFrame(MpBufPtr inBufs[],
    if (!out.isValid())
       return FALSE;
    out->setSamplesNumber(samplesPerFrame);
+   out->setSpeechType(MpAudioBuf::MP_SPEECH_UNKNOWN);
 
    // Fill buffer with silence
    outstart = out->getSamples();
@@ -173,7 +172,7 @@ UtlBoolean MprMixer::doProcessFrame(MpBufPtr inBufs[],
    }
 
    // push it downstream
-   outBufs[0] = out;
+   outBufs[0].swap(out);
 
    return TRUE;
 }
