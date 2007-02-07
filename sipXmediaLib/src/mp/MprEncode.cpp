@@ -442,8 +442,6 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
                               NULL);
             mMarkNext1 = FALSE;
             mConsecutiveUnsentFrames1 = 0;
-
-            printf("packet sent\n");
          } else {
             mMarkNext1 = TRUE;
          }

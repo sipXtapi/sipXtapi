@@ -109,7 +109,7 @@ UtlBoolean MprBridge::doMix(MpAudioBufPtr inBufs[], int inBufsSize,
        out = inBufs[lastActive];
     }
     else if (inputs > 1) {
-        // Compute a logariphmic scale factor to renormalize (approximately)
+        // Compute a logarithmic scale factor to renormalize (approximately)
         int scale = 0;
         while (inputs > 1) {
             scale++;
