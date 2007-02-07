@@ -21,32 +21,22 @@ require 'utils/utils'
 class CallResolverConfigureTest < Test::Unit::TestCase
   
   def setup
-    @config = CallResolverConfigure.from_file(CallResolverConfigure::DEFAULT_CONFIG)
+    @config = CallResolverConfigure.default
   end
   
   def test_from_file
-    assert_not_nil(CallResolverConfigure.from_file(nil))
+    assert_not_nil(CallResolverConfigure.from_file())
   end  
   
   def test_get_log_dir_config
-    ENV[CallResolverConfigure::SIPX_PREFIX] = nil
-    
-    # Pass in an empty config, should get the default log dir value
     assert_not_nil(@config.log)
-    assert_equal(CallResolverConfigure::LOG_DIR_CONFIG_DEFAULT, @config.get_log_dir_config)
-    
-    # Set $SIPX_PREFIX and try again, this time the prefix should be added
-    prefix = '/test_prefix_ignore_this_error_message'
-    ENV[CallResolverConfigure::SIPX_PREFIX] = prefix
-    assert_equal(File.join(prefix, CallResolverConfigure::LOG_DIR_CONFIG_DEFAULT),    
-    @config.get_log_dir_config)
-    
-    
     log_dir = 'No\phone\I\just\want\to\be\alone\today'
-    c = Configure.new(CallResolverConfigure::LOG_DIR_CONFIG => log_dir)
+
+    assert_equal(STDOUT, @config.get_log_device(log_dir))
+       
     
-    # Configure the dir
-    assert_equal(log_dir, CallResolverConfigure.new(c).get_log_dir_config)
+    c = Configure.new(CallResolverConfigure::LOG_DIR_CONFIG => log_dir)
+    assert_equal(STDOUT, @config.get_log_device(log_dir))
   end
   
   def test_set_log_level_config
@@ -94,7 +84,7 @@ class CallResolverConfigureTest < Test::Unit::TestCase
     c = Configure.new(CallResolverConfigure::PURGE_AGE_CDR => '23')
     config = CallResolverConfigure.new(c)
     assert(config.purge_age_cdr, 23)
-
+    
     c = Configure.new(CallResolverConfigure::PURGE_AGE_CDR => '23', CallResolverConfigure::PURGE => 'DISABLE')
     config = CallResolverConfigure.new(c)
     assert_nil(config.purge_age_cdr)

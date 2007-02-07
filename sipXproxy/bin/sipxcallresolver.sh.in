@@ -9,15 +9,16 @@
 Action=RUN
 Status=1
 Args=""
-resolverArgs=""
+
 
 # Declare script variables in a manner that unit test
 # (or end user I suppose) can override
-: ${SslDir:=@SIPX_CONFDIR@/ssl}
-: ${AuthoritiesDir:=$SslDir/authorities}
-: ${ConfigDefs:=@SIPX_CONFDIR@/config.defs}
+: ${ConfDir:=@SIPX_CONFDIR@}
+: ${SslDir:=${ConfDir}/ssl}
+: ${AuthoritiesDir:=${SslDir}/authorities}
+: ${ConfigDefs:=${ConfDir}/config.defs}
 : ${Configpp:=@bindir@/configpp}
-: ${ConfigFiles:=@SIPX_CONFDIR@/callresolver-config}
+: ${ConfigFiles:=${ConfDir}/callresolver-config}
 : ${PidFile:=@SIPX_RUNDIR@/sipxcallresolver.pid}
 : ${LibDir:=@SIPX_LIBDIR@}
 : ${Psql:=psql}
@@ -28,14 +29,15 @@ resolverArgs=""
 : ${TmpDir:=@SIPX_TMPDIR@}
 : ${RunningUser:=@SIPXPBXUSER@}
 : ${PgUser:=postgres}
-: ${PgSchema:=@SIPX_CONFDIR@/cdr/schema.sql}
+: ${PgSchema:=${ConfDir}/cdr/schema.sql}
 : ${RubyCmd:=/usr/bin/ruby}
 : ${DbVersion:=3}
-: ${DbPatchDir:=@SIPX_CONFDIR@/cdr}
-: ${DbPatchLog:=@SIPX_LOGDIR@/sipcdrpatch.log}
-: ${CallResolverLog:=@SIPX_LOGDIR@/sipcallresolver.log}
+: ${DbPatchDir:=${ConfDir}/cdr}
+: ${DbPatchLog:=${LogDir}/sipcdrpatch.log}
+: ${CallResolverLog:=${LogDir}/sipcallresolver.log}
 : ${CallResolverMain:=@GEM_LIB_DIR@/sipxcallresolver-2.0.0/lib/main.rb}
 
+resolverArgs="--confdir ${ConfDir} --logdir ${LogDir}"
 Database=SIPXCDR
 Today=`date`
 
