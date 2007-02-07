@@ -50,12 +50,12 @@ end
 
 def main()
   opts = GetoptLong.new(
-                        [ "--start", "-s", GetoptLong::OPTIONAL_ARGUMENT ],
-  [ "--end",   "-e", GetoptLong::OPTIONAL_ARGUMENT ],
+                        [ "--start", "-s", GetoptLong::REQUIRED_ARGUMENT ],
+  [ "--end",   "-e", GetoptLong::REQUIRED_ARGUMENT ],
   [ "--daemon", GetoptLong::NO_ARGUMENT ],
   [ "--help",  "-h", GetoptLong::NO_ARGUMENT ],
-  [ "--confdir", GetoptLong::OPTIONAL_ARGUMENT ],
-  [ "--logdir", GetoptLong::OPTIONAL_ARGUMENT ]
+  [ "--confdir", GetoptLong::REQUIRED_ARGUMENT ],
+  [ "--logdir", GetoptLong::REQUIRED_ARGUMENT ]
   )
   
   # Init options
