@@ -108,7 +108,6 @@ private:
    MpEncoderBase* mpPrimaryCodec;
    unsigned char* mpPacket1Payload; ///< packet buffer for primary RTP stream
    int   mPacket1PayloadBytes;
-   int   mPacket1PayloadUsed;
    unsigned int mStartTimestamp1;
    UtlBoolean mActiveAudio1;
    UtlBoolean mMarkNext1;
@@ -120,7 +119,6 @@ private:
    MpEncoderBase* mpDtmfCodec;
    unsigned char* mpPacket2Payload; ///< packet buffer for DTMF event RTP stream
    int   mPacket2PayloadBytes;      ///< 4
-   int   mPacket2PayloadUsed;       ///< not really needed
    unsigned int   mStartTimestamp2; ///< sample time when tone starts
    unsigned int   mLastDtmfSendTimestamp;
    int   mDtmfSampleInterval;       ///< # samples between AVT packets

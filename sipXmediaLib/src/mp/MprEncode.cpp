@@ -75,7 +75,6 @@ MprEncode::MprEncode(const UtlString& rName,
 
    mpToNet(NULL)
 {
-   mPacket1PayloadUsed = 0;
 }
 
 // Destructor
@@ -255,7 +254,6 @@ void MprEncode::handleSelectCodecs(MpFlowGraphMsg& rMsg)
       mpPrimaryCodec = pNewEncoder;
       mDoesVad1 = (pNewEncoder->getInfo())->doesVadCng();
       allocPacketBuffer(*mpPrimaryCodec, mpPacket1Payload, mPacket1PayloadBytes);
-      mPacket1PayloadUsed = 0;
    }
 
    if (NULL != pDtmf) {
@@ -267,7 +265,6 @@ void MprEncode::handleSelectCodecs(MpFlowGraphMsg& rMsg)
       pNewEncoder->initEncode();
       mpDtmfCodec = pNewEncoder;
       allocPacketBuffer(*mpDtmfCodec, mpPacket2Payload, mPacket2PayloadBytes);
-      mPacket2PayloadUsed = 0;
    }
 
    // delete any SdpCodec objects that we did not keep pointers to.
@@ -368,10 +365,11 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
    int numSamplesIn;
    int numSamplesOut;
    MpAudioSample* pSamplesIn;
+   int payloadBytesUsed;
    int payloadBytesLeft;
    unsigned char* pDest;
    int bytesAdded; //$$$
-   MpAudioBuf::SpeechType content = MpAudioBuf::MP_SPEECH_UNKNOWN;
+   MpAudioBuf::SpeechType content;
    OsStatus ret;
    UtlBoolean sendNow;
 
@@ -381,32 +379,37 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
    if (!in.isValid())
       return;
 
+   // Initialize variables
    numSamplesIn = in->getSamplesNumber();
    pSamplesIn = in->getSamples();
+   content = in->getSpeechType();
+   payloadBytesUsed = 0;
 
-   while (numSamplesIn > 0) {
-
-      if (mPacket1PayloadUsed == 0) {
+   while (numSamplesIn > 0)
+   {
+      if (payloadBytesUsed == 0)
+      {
          mStartTimestamp1 = startTs;
          mActiveAudio1 = mDoesVad1;
       }
 
-      if (!mActiveAudio1) {
+      if (!mActiveAudio1)
+      {
          mActiveAudio1 = in->isActiveAudio();
       }
 
-      payloadBytesLeft = mPacket1PayloadBytes - mPacket1PayloadUsed;
+      payloadBytesLeft = mPacket1PayloadBytes - payloadBytesUsed;
       // maxSamplesOut = payloadBytesLeft / bytesPerSample;
 
       // n = (numSamplesIn > maxSamplesOut) ? maxSamplesOut : numSamplesIn;
-      pDest = mpPacket1Payload + mPacket1PayloadUsed;
+      pDest = mpPacket1Payload + payloadBytesUsed;
 
       bytesAdded = 0;
       ret = mpPrimaryCodec->encode(pSamplesIn, numSamplesIn, numSamplesOut,
                         pDest, payloadBytesLeft, bytesAdded,
                         sendNow, content);
-      mPacket1PayloadUsed += bytesAdded;
-      assert (mPacket1PayloadBytes >= mPacket1PayloadUsed);
+      payloadBytesUsed += bytesAdded;
+      assert (mPacket1PayloadBytes >= payloadBytesUsed);
 
       // In case the encoder does silence suppression (e.g. G.729 Annex B)
       mMarkNext1 = mMarkNext1 | (0 == bytesAdded);
@@ -415,12 +418,15 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
       numSamplesIn -= numSamplesOut;
       startTs += numSamplesOut;
 
-      if (content == MpAudioBuf::MP_SPEECH_ACTIVE) {
+      if (content == MpAudioBuf::MP_SPEECH_ACTIVE)
+      {
          mActiveAudio1 = TRUE;
       }
 
-      if (sendNow || (mPacket1PayloadBytes == mPacket1PayloadUsed)) {
-         if (mActiveAudio1) {
+      if (sendNow || (mPacket1PayloadBytes == payloadBytesUsed))
+      {
+         if (mActiveAudio1)
+         {
             mConsecutiveInactive1 = 0;
          } else {
             mConsecutiveInactive1++;
@@ -431,15 +437,17 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
             mpToNet->writeRtp(mpPrimaryCodec->getPayloadType(),
                               mMarkNext1,
                               mpPacket1Payload,
-                              mPacket1PayloadUsed,
+                              payloadBytesUsed,
                               mStartTimestamp1,
                               NULL);
             mMarkNext1 = FALSE;
             mConsecutiveUnsentFrames1 = 0;
+
+            printf("packet sent\n");
          } else {
             mMarkNext1 = TRUE;
          }
-         mPacket1PayloadUsed = 0;
+         payloadBytesUsed = 0;
       }
    }
 }
