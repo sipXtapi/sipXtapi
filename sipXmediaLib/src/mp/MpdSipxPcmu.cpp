@@ -32,7 +32,7 @@ MpdSipxPcmu::MpdSipxPcmu(int payloadType)
   mWaitTimeInFrames(6),  // This is the jitter buffer size. 6 = 120ms 
   mUnderflowCount(0),
   mLastSeqNo(0),
-  mIsFirstFrame(false),
+  mIsFirstFrame(true),
   mClockDrift(false),
   mLastReportSize(-1)
 {
@@ -57,7 +57,7 @@ OsStatus MpdSipxPcmu::initDecode(MpAudioConnection* pConnection)
    mNextPullTimerCount = 0;
    mUnderflowCount = 0;
    mLastSeqNo = 0;
-   mIsFirstFrame = false;
+   mIsFirstFrame = true;
    mClockDrift = false;
    mLastReportSize = -1;
 
