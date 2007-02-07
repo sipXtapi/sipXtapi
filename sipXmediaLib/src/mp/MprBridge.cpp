@@ -91,17 +91,30 @@ OsStatus MprBridge::disconnectPort(const MpConnectionID connID)
 UtlBoolean MprBridge::doMix(MpAudioBufPtr inBufs[], int inBufsSize,
                             MpAudioBufPtr &out, int samplesPerFrame) const
 {
-    // First, count how many contributing inputs
-    int inputs = 0;
-    int lastActive = -1;
-    for (int inIdx=0; inIdx < inBufsSize; inIdx++) {
-        if (  isPortActive(inIdx)
-           && inBufs[inIdx].isValid()
-           && inBufs[inIdx]->isActiveAudio())
-        {
-                inputs++;
-                lastActive = inIdx;
-        }
+    int inputs;
+    int lastActive;
+
+    // If there is only one input we could skip all processing and copy it
+    // to output. Special case for single input is needed because other case
+    // make decision make its choice depending on voice activity, which lead
+    // to unwanted silence insertion. Someday this function will get smarter...
+    if (inBufsSize == 1)
+    {
+       inputs = 1;
+       lastActive = 0;
+    } else {
+       // Count active contributing inputs
+       inputs = 0;
+       lastActive = -1;
+       for (int inIdx=0; inIdx < inBufsSize; inIdx++) {
+          if (  isPortActive(inIdx)
+             && inBufs[inIdx].isValid()
+             && inBufs[inIdx]->isActiveAudio())
+          {
+             inputs++;
+             lastActive = inIdx;
+          }
+       }
     }
 
     if (inputs == 1) {
