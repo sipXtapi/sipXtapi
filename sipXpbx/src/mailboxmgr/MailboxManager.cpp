@@ -2107,8 +2107,7 @@ MailboxManager::getMessageBlock(
                     "MailboxManager::getMessageBlock: set up the lock file %s",
                     mailboxLock.data());
       OsFileLinux lockFile(mailboxLock);
-      lockFile.open(OsFileBase::CREATE);
-      lockFile.filelock(OsFileBase::FSLOCK_WAIT);
+      lockFile.open(OsFileBase::CREATE | OsFileBase::FSLOCK_WAIT);
 #endif
 
       OsPath path(folderPath);
@@ -2360,7 +2359,6 @@ MailboxManager::getMessageBlock(
       OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                     "MailboxManager::getMessageBlock: unlock the lock file %s",
                     mailboxLock.data());
-      lockFile.fileunlock();
       lockFile.close();
 #endif
    }
@@ -2520,8 +2518,7 @@ MailboxManager::getMessageBlockHandles (
                       "MailboxManager::getMessageBlockHandles: set up the lock file %s",
                       mailboxLock.data());
         OsFileLinux lockFile(mailboxLock);
-        lockFile.open(OsFileBase::CREATE);
-        lockFile.filelock(OsFileBase::FSLOCK_WAIT);
+        lockFile.open(OsFileBase::CREATE | OsFileBase::FSLOCK_WAIT);
 #endif
 
         OsPath path( folderPath );
@@ -2612,7 +2609,6 @@ MailboxManager::getMessageBlockHandles (
         OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                       "MailboxManager::getMessageBlockHandles: unlock the lock file %s",
                       mailboxLock.data());
-        lockFile.fileunlock();
         lockFile.close();
 #endif
     }
@@ -2649,8 +2645,7 @@ MailboxManager::updateMessageStates(
                     "MailboxManager::updateMessageStates: set up the lock file %s",
                     mailboxLock.data());
       OsFileLinux lockFile(mailboxLock);
-      lockFile.open(OsFileBase::CREATE);
-      lockFile.filelock(OsFileBase::FSLOCK_WAIT);
+      lockFile.open(OsFileBase::CREATE | OsFileBase::FSLOCK_WAIT);
 #endif
 
       OsPath path(mailboxPath);
@@ -2776,7 +2771,6 @@ MailboxManager::updateMessageStates(
       OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                     "MailboxManager::updateMessageStates: unlock the lock file %s",
                     mailboxLock.data());
-      lockFile.fileunlock();
       lockFile.close();
 #endif
    }
@@ -2819,8 +2813,7 @@ MailboxManager::moveMessages(
                           "MailboxManager::moveMessages: set up the lock file %s",
                           mailboxLock.data());
             OsFileLinux lockFile(mailboxLock);
-            lockFile.open(OsFileBase::CREATE);
-            lockFile.filelock(OsFileBase::FSLOCK_WAIT);
+            lockFile.open(OsFileBase::CREATE | OsFileBase::FSLOCK_WAIT);
 #endif
 
             OsPath path(fromFolderPath);
@@ -2894,7 +2887,6 @@ MailboxManager::moveMessages(
             OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                           "MailboxManager::moveMessages: unlock the lock file %s",
                           mailboxLock.data());
-            lockFile.fileunlock();
             lockFile.close();
 #endif
         }
@@ -2938,8 +2930,7 @@ MailboxManager::recycleDeletedMessages( const UtlString& mailbox,
                       "MailboxManager::recycleDeletedMessages: set up the lock file %s",
                       mailboxLock.data());
         OsFileLinux lockFile(mailboxLock);
-        lockFile.open(OsFileBase::CREATE);
-        lockFile.filelock(OsFileBase::FSLOCK_WAIT);
+        lockFile.open(OsFileBase::CREATE | OsFileBase::FSLOCK_WAIT);
 #endif
 
         OsPath path(mailboxPath);
@@ -2993,7 +2984,6 @@ MailboxManager::recycleDeletedMessages( const UtlString& mailbox,
         OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                       "MailboxManager::recycleDeletedMessages: unlock the lock file %s",
                       mailboxLock.data());
-        lockFile.fileunlock();
         lockFile.close();
 #endif
     }

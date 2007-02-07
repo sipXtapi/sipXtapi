@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2005 SIPez LLC.
+// Copyright (C) 2005, 2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004 SIPfoundry Inc.
@@ -46,12 +46,11 @@ const int OsFileBase::READ_WRITE = 4;
 const int OsFileBase::CREATE = 8;
 const int OsFileBase::TRUNCATE = 16;
 const int OsFileBase::APPEND = 32;
-const int OsFileBase::FSLOCK_READ = 64;
-const int OsFileBase::FSLOCK_WRITE = 128;
-const int OsFileBase::FSLOCK_WAIT  = 256;
+const int OsFileBase::FSLOCK = 64;
+const int OsFileBase::FSLOCK_WAIT = 128;
 */
 
-//OsConfigDb stores filename+pid, and "RL" (readlock) or "WL" (writelock)
+//OsConfigDb stores filename -> "W" for locked files
 OsConfigDb *OsFileBase::mpFileLocks = NULL;
 
 // Guard to protect Open getting call by multiple threads
@@ -65,7 +64,6 @@ OsBSem sOpenLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
 OsFileBase::OsFileBase(const OsPathBase& filename)
    : fileMutex(OsMutex::Q_FIFO),
      mOsFileHandle(NULL),
-     mLocalLockThreadId(INVALID_PID),
      mFilename(filename)
 {
    OsLock lock(fileMutex);
@@ -90,8 +88,8 @@ OsFileBase::OsFileBase(const OsFileBase& rOsFileBase)
     OsPathBase path;
     rOsFileBase.getFileName(path);
     mFilename = path;
+    mMode = rOsFileBase.mMode;
     mOsFileHandle = rOsFileBase.mOsFileHandle;
-    mLocalLockThreadId = rOsFileBase.mLocalLockThreadId;
 #ifdef DEBUG_FS
    OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::OsFileBase EXIT threadid=%d\n", nTaskId);
 #endif
@@ -154,6 +152,7 @@ long OsFileBase::openAndWrite(const char* filename, const UtlString& fileContent
        OS_SUCCESS == fileToWrite.write(fileContentsToWrite.data(),
        fileContentsToWrite.length(), bytesWritten))
     {
+       totalBytesWritten = bytesWritten;
     }
     else
     {
@@ -199,7 +198,7 @@ OsStatus OsFileBase::fileunlock()
     return retval;
 }
 
-OsStatus OsFileBase::filelock(const int mode)
+OsStatus OsFileBase::filelock(const bool wait)
 {
 #ifdef DEBUG_FS
    int nTaskId = 0;
@@ -221,22 +220,23 @@ OsStatus OsFileBase::filelock(const int mode)
 OsStatus OsFileBase::open(const int mode)
 {
 #ifdef DEBUG_FS
-   int nTaskId = 0;
-   OsTask* pTask = OsTask::getCurrentTask();
-   if (pTask) pTask->id(nTaskId);
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::open ENTER threadid=%d, filename=%s\n", nTaskId, mFilename.data());
+    int nTaskId = 0;
+    OsTask* pTask = OsTask::getCurrentTask();
+    if (pTask) pTask->id(nTaskId);
+    OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::open ENTER threadid=%d, filename=%s\n", nTaskId, mFilename.data());
 #endif
+
+    if ((mode & READ_ONLY) && ((mode & FSLOCK) || (mode & FSLOCK_WAIT)))
+        return OS_FILE_READONLY;
+
     //get a lock for the open call
-         sOpenLock.acquire();
+    sOpenLock.acquire();
 
     OsStatus stat = OS_INVALID;
     const char* fmode = "";
 
     if (mode & CREATE)
-    {
         fmode = "wb+";
-    }
-
     if (mode & READ_ONLY)
         fmode = "rb";
     if (mode & WRITE_ONLY)
@@ -248,80 +248,67 @@ OsStatus OsFileBase::open(const int mode)
     if (mode & TRUNCATE)
         fmode = "wb";
 
-
     mOsFileHandle = fopen(mFilename.data(),fmode);
+    mMode = mode;
 
 #ifndef _VXWORKS     // 6/27/03 - Bob - Disabling locking under vxworks - crashes
     //success
-    if (mOsFileHandle)
+    if (mOsFileHandle && ((mode & FSLOCK) || (mode & FSLOCK_WAIT)))
     {
 #ifdef DEBUG_FS
         OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::open fopen returned mOsFileHandle=0x%08x, fd=%d, threadid=%d, filename=%s\n", mOsFileHandle, fileno(mOsFileHandle), nTaskId, mFilename.data());
 #endif
         //first test to see if we have a local file lock on that file
-        //get the thread id for local locking
-        mLocalLockThreadId = OsProcess::getCurrentPID();
-        char* pLockName = new char[mFilename.length() + 20];
-        sprintf(pLockName, "%s%d", mFilename.data(), mLocalLockThreadId);
+        char* pLockName = new char[mFilename.length() + 1];
+        sprintf(pLockName, "%s", mFilename.data());
 
         UtlString rValue;
         if (getFileLocks()->get(pLockName,rValue) == OS_SUCCESS)
         {
-            //if we want read and someone else is already reading then it's ok
-            if (rValue == "RL" && (mode & READ_ONLY))
-                stat = OS_SUCCESS;
-            else
-            if (rValue == "WL" && (mode & FSLOCK_WAIT))
+            if (mode & FSLOCK_WAIT)
             {
-
                 //we need to wait until the lock is freed
-                UtlBoolean lockFree = FALSE;
-                do
+                for (;;)
                 {
                     OsTask::delay(OsFileLockTimeout);
                     if (getFileLocks()->get(pLockName,rValue) != OS_SUCCESS)
-                    {
-                        lockFree = TRUE;
-                        stat = OS_SUCCESS;
-                    }
-                } while (lockFree == FALSE);
+                        break;
+                }
+                stat = OS_SUCCESS;
             }
             else
             {
-                fclose(mOsFileHandle);
+                ::fclose(mOsFileHandle);
                 mOsFileHandle = NULL;
-                mLocalLockThreadId = INVALID_PID;
                 stat = OS_FILE_ACCESS_DENIED;
             }
         }
         else
         {
-            rValue = "RL";
-            if (mode & FSLOCK_WRITE)
-                    rValue = "WL";
+            rValue = "W";
             getFileLocks()->set(pLockName,rValue);
             stat = OS_SUCCESS;
         }
 
-        //if the lock is ok at this point, we need to get a cross process lock
+        //if the lock is ok at this point, we need to get a cross-process lock
         if (stat == OS_SUCCESS)
         {
-
-            stat = filelock(mode); //returns success if no file sharing specified
+            stat = filelock((mode & FSLOCK_WAIT) ? true : false);
             if (stat != OS_SUCCESS)
             {
                 ::fclose(mOsFileHandle);
                 mOsFileHandle = NULL;
-                mLocalLockThreadId = INVALID_PID;
                 stat = OS_FILE_ACCESS_DENIED;
 
                 //remove local process locks
                 getFileLocks()->remove(pLockName);
-
             }
         }
         delete[] pLockName;
-
+    }
+    else if (mOsFileHandle)
+    {
+        stat = OS_SUCCESS;
     }
     else
     {
@@ -333,20 +320,17 @@ OsStatus OsFileBase::open(const int mode)
                                 break;
             case ENOENT     :   stat = OS_FILE_NOT_FOUND;
                                 break;
-
         }
     }
 #else
     if (mOsFileHandle)
-    {
         stat = OS_SUCCESS;
-    }
 #endif
 
-         sOpenLock.release();
+    sOpenLock.release();
 
 #ifdef DEBUG_FS
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::open EXIT threadid=%d\n", nTaskId);
+    OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::open EXIT threadid=%d\n", nTaskId);
 #endif
 
     return stat;
@@ -764,14 +748,18 @@ UtlBoolean OsFileBase::close()
     if (mOsFileHandle)
     {
 #ifndef _VXWORKS     // 6/27/03 - Bob - Disabling locking under vxworks - crashes
-        // get the thread ID for local locking
-        char* pLockName = new char[mFilename.length() + 20];
-        sprintf(pLockName, "%s%d", mFilename.data(), mLocalLockThreadId);
+        if ((mMode & FSLOCK) || (mMode & FSLOCK_WAIT))
+        {
+            char* pLockName = new char[mFilename.length() + 1];
+            sprintf(pLockName, "%s", mFilename.data());
 
-        // remove any local process locks
-        getFileLocks()->remove(pLockName);
-        mLocalLockThreadId = INVALID_PID;
-        delete[] pLockName;
+            // remove any local process locks
+            getFileLocks()->remove(pLockName);
+            delete[] pLockName;
+
+            // remove any cross-process locks
+            fileunlock();
+        }
 #endif
 
         if (::fclose(mOsFileHandle) != 0)
@@ -781,10 +769,6 @@ UtlBoolean OsFileBase::close()
         }
         mOsFileHandle = 0;
     }
-
-    //remove any process locks
-    fileunlock();
-
 
 #ifdef DEBUG_FS
    OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::close EXIT threadid=%d\n", nTaskId);

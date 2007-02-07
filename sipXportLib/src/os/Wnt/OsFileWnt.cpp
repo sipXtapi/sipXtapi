@@ -71,9 +71,9 @@ OsStatus OsFileWnt::fileunlock()
 }
 
 
-OsStatus OsFileWnt::filelock(const int mode)
+OsStatus OsFileWnt::filelock(const bool wait)
 {
-    OsStatus retval = OS_SUCCESS;
+    OsStatus retval = OS_FAILED;
 
     return retval;
 }
