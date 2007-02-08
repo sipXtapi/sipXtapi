@@ -114,7 +114,8 @@ private:
    int   mConsecutiveInactive1;
    int   mConsecutiveActive1;
    int   mConsecutiveUnsentFrames1;
-   UtlBoolean mDoesVad1;
+   UtlBoolean mDoesVad1;    ///< Does codec its own VAD?
+   UtlBoolean mDisableDTX;  ///< Disable internal DTX.
 
    MpEncoderBase* mpDtmfCodec;
    unsigned char* mpPacket2Payload; ///< packet buffer for DTMF event RTP stream

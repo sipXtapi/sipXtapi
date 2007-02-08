@@ -51,7 +51,7 @@
 
 // Constructor
 MprEncode::MprEncode(const UtlString& rName,
-                           int samplesPerFrame, int samplesPerSec)
+                     int samplesPerFrame, int samplesPerSec)
 :  MpAudioResource(rName, 1, 1, 0, 0, samplesPerFrame, samplesPerSec),
    mpPrimaryCodec(NULL),
    mpPacket1Payload(NULL),
@@ -61,6 +61,8 @@ MprEncode::MprEncode(const UtlString& rName,
    mConsecutiveInactive1(0),
    mConsecutiveActive1(0),
    mConsecutiveUnsentFrames1(0),
+   mDoesVad1(FALSE),
+   mDisableDTX(TRUE),
 
    mpDtmfCodec(NULL),
    mpPacket2Payload(NULL),
@@ -390,7 +392,7 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
       if (payloadBytesUsed == 0)
       {
          mStartTimestamp1 = startTs;
-         mActiveAudio1 = mDoesVad1;
+         mActiveAudio1 = mDoesVad1 || mDisableDTX;
       }
 
       if (!mActiveAudio1)
