@@ -90,6 +90,13 @@ public class Voicemail implements Comparable {
     public Date getTimestamp() {
         return getDescriptor().getTimestamp();
     }
+    
+    /**
+     * TODO This needs to replace basename
+     */
+    public String getRealBasename() {
+        return getBasename().substring(0, getBasename().indexOf('-'));
+    }
 
     static class MessageDescriptorFormatException extends RuntimeException {
         MessageDescriptorFormatException(String message, ParseException cause) {

@@ -86,8 +86,8 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
     public abstract String getFolderId();
     public abstract void setFolderId(String folderId);
     
-    @InjectObject(value = "engine-service:download")
-    public abstract IEngineService getDownloadService();
+    @InjectObject(value = "engine-service:" + PlayVoicemailService.SERVICE_NAME)
+    public abstract IEngineService getPlayVoicemailService();
     
     public abstract MailboxOperation getMailboxOperation();
     public abstract void setMailboxOperation(MailboxOperation operation); 
@@ -141,6 +141,13 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
     public ITableColumn getTimestampColumn() {
         return TapestryUtils.createDateColumn("timestamp", getMessages(),
                 getExpressionEvaluator(), getLocale());
+    }
+    
+    public PlayVoicemailService.Info getPlayVoicemailInfo() {
+        Voicemail voicemail = getVoicemail();
+        PlayVoicemailService.Info info = new PlayVoicemailService.Info(voicemail.getFolderId(), 
+                voicemail.getBasename());
+        return info;
     }
 
     public void pageBeginRender(PageEvent event) {

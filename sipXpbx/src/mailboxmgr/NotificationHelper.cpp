@@ -50,7 +50,7 @@ OsStatus
 NotificationHelper::send (
     const UtlString& rMailboxIdentity,
     const UtlString& rSMTPServer,
-    const Url&      mediaserverUrl,
+    const Url&      mailboxServiceUrl,
     const UtlString& rContact,
     const UtlString& rFrom,
     const UtlString& rReplyTo,
@@ -115,46 +115,20 @@ NotificationHelper::send (
     UtlString subject = "New Voicemail from " + strFrom ;
 
     UtlString rawMessageId = wavFileName(0, wavFileName.first('-'));
+    UtlString userId = rMailboxIdentity(0, rMailboxIdentity.first('@'));
 
     UtlString plainBodyText, htmlBodyText;
 
     MailMessage message ( "Voicemail Notification Service", rReplyTo, rSMTPServer );
 
-    // Now formulate a new deleteMessage URL
-    Url deleteVoicemailUrl = mediaserverUrl;
-    deleteVoicemailUrl.removeParameters();
-    deleteVoicemailUrl.setPath ("/cgi-bin/voicemail/mediaserver.cgi");
-    deleteVoicemailUrl.setHeaderParameter("action", "movemsg");
-    deleteVoicemailUrl.setHeaderParameter("fromweb", "yes");
-    deleteVoicemailUrl.setHeaderParameter("fromfolder", "inbox");
-    deleteVoicemailUrl.setHeaderParameter("tofolder", "deleted");
-    deleteVoicemailUrl.setHeaderParameter(rawMessageId, "yes");
-    deleteVoicemailUrl.setHeaderParameter("maintainstatus", "yes");
-    deleteVoicemailUrl.setHeaderParameter("mailbox", rMailboxIdentity);
+    UtlString baseMailboxLink = mailboxServiceUrl.toString();
+    baseMailboxLink.append("/").append(userId).append("/inbox");
 
-    // Now formulate a new show mailbox URL
-    Url showMailboxUrl = mediaserverUrl;
-    showMailboxUrl.removeParameters();
-    showMailboxUrl.setPath ("/cgi-bin/voicemail/mediaserver.cgi");
-    showMailboxUrl.setHeaderParameter("action", "playmsg");
-    showMailboxUrl.setHeaderParameter("category", "inbox");
-    showMailboxUrl.setHeaderParameter("nextblockhandle", "-1");
-    showMailboxUrl.setHeaderParameter("from", "web");
-    showMailboxUrl.setHeaderParameter("fromweb", "yes");
-
-    // Now formulate the play message URL. This will update the MWI status too.
-    Url playVoicemailUrl = mediaserverUrl;
-    playVoicemailUrl.removeParameters();
-    playVoicemailUrl.setPath ("/cgi-bin/voicemail/mediaserver.cgi");
-    playVoicemailUrl.setHeaderParameter("action", "updatestatus");
-    playVoicemailUrl.setHeaderParameter("category", "inbox");
-    playVoicemailUrl.setHeaderParameter("messageidlist", wavFileName );
-    playVoicemailUrl.setHeaderParameter("fromweb", "yes");
-    playVoicemailUrl.setHeaderParameter("emaillink", "yes");
-
-    UtlString playMessageLink        = playVoicemailUrl.toString();
-    UtlString deleteMessageLink      = deleteVoicemailUrl.toString();
-    UtlString showMailboxLink        = showMailboxUrl.toString();
+    UtlString playMessageLink = baseMailboxLink;
+    playMessageLink.append("/").append(rawMessageId).append("-00");
+    UtlString deleteMessageLink = baseMailboxLink;
+    deleteMessageLink.append("/").append(rawMessageId).append("-00/delete");
+    UtlString showMailboxLink = baseMailboxLink;
 
     plainBodyText += "On " + rDate + ", " + strFrom + " left new voicemail. Duration " +
         durationText + "\n";

@@ -58,6 +58,11 @@ public class VoicemailTest extends TestCase {
         assertEquals("\"Douglas+Hubler\"<sip:201@nuthatch.pingtel.com>;tag%3D53585A61-338ED896", vm.getFrom());        
     }
     
+    public void testRealbasename() {
+        Voicemail vm = new Voicemail(new File("."), "200", "inbox", "00000001-00");
+        assertEquals("00000001", vm.getRealBasename());        
+    }
+    
     public void testMove() throws IOException {
         File mailstore = createTestMailStore();
         Voicemail vmOrig = new Voicemail(mailstore, "200", "inbox", "00000001-00");

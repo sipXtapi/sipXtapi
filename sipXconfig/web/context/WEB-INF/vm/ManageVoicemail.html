@@ -23,7 +23,7 @@
           <span jwcid="@Insert" value="prop:voicemail.durationMillis" format="bean:durationFormat"/>
         </span>
         <span jwcid="playColumnValue@Block">
-          <a jwcid="@DownloadLink" fileName="prop:voicemail.mediaFile.name" dirName="prop:voicemail.mailboxDirectory.absolutePath">
+          <a jwcid="@ServiceLink" service="literal:playvoicemail" parameters="prop:playVoicemailInfo">
             <img jwcid="@Image" image="asset:playVoicemailAsset" alt="play"/>
           </a>
         </span>

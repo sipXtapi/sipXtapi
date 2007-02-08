@@ -14,17 +14,26 @@ package org.sipfoundry.sipxconfig.vm;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.UserException;
 
 public class MailboxManagerImpl implements MailboxManager {    
     private static final FilenameFilter WAV_FILES = new SuffixFileFilter(".wav");
+    private static final Log LOG = LogFactory.getLog(MailboxManagerImpl.class);
     private File m_mailstoreDirectory;
+    private String m_mediaServerCgiUrl;
     private MailboxPreferencesReader m_mailboxPreferencesReader;
     private MailboxPreferencesWriter m_mailboxPreferencesWriter;
     private DistributionListsReader m_distributionListsReader;
@@ -67,6 +76,37 @@ public class MailboxManagerImpl implements MailboxManager {
             vms.add(new Voicemail(m_mailstoreDirectory, userid, folder, basename));
         }
         return vms;
+    }
+    
+    /** 
+     * asyncronously(?) tell mediaserver cgi to mark voicemail as heard by using these
+     * parameters
+     *    action = updatestatus
+     *    mailbox = userid
+     *    category = inbox
+     *    messageidlist = space delimited message ids
+     */
+    public void markRead(Mailbox mailbox, Voicemail voicemail) {
+        String errMsg = "Cannot contact media server to update message as 'read'";
+        if (StringUtils.isBlank(m_mediaServerCgiUrl)) {
+            return;
+        }
+        String sUpdate = String.format("%s?action=updatestatus&mailbox=%s&category=inbox&messageidlist=%s",
+                m_mediaServerCgiUrl, mailbox.getUserId(), voicemail.getRealBasename());
+        InputStream updateResponse = null;
+        try {
+            LOG.info(sUpdate);
+            updateResponse = new URL(sUpdate).openStream();
+            IOUtils.readLines(updateResponse);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(errMsg, e);
+        } catch (IOException e) {
+            // not a fatal exception either. (unfort,. likely if mediaserver cert. isn't valid 
+            // for multitude of reasons including reverse DNS not resolving)
+            LOG.warn(errMsg, e);
+        } finally {
+            IOUtils.closeQuietly(updateResponse);
+        }        
     }
     
     /**
@@ -147,5 +187,9 @@ public class MailboxManagerImpl implements MailboxManager {
 
     public void setDistributionListsWriter(DistributionListsWriter distributionListsWriter) {
         m_distributionListsWriter = distributionListsWriter;
+    }
+
+    public void setMediaServerCgiUrl(String mediaServerCgiUrl) {
+        m_mediaServerCgiUrl = mediaServerCgiUrl;
     }
 }
