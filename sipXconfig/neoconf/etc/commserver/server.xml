@@ -249,17 +249,17 @@
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>
+    <setting name="SIP_CALLRESOLVER_LOG_LEVEL">
+      <profileName>callresolver-config.in</profileName>
+      <type refid="loglevel" />
+      <value>NOTICE</value>
+    </setting>
   </group>
   <group name="cdr">
-    <setting name="SIP_PROXY_CALL_STATE_DB">
-      <profileName>proxy-config.in</profileName>
+    <setting name="CALLRESOLVER_CALL_STATE_DB">
+      <profileName>config.defs</profileName>
       <type refid="enablestate" />
-      <value>DISABLE</value>
-    </setting>
-    <setting name="SIP_AUTHPROXY_CALL_STATE_DB">
-      <profileName>authproxy-config.in</profileName>
-      <type refid="enablestate" />
-      <value>DISABLE</value>
+      <value>ENABLE</value>
     </setting>
     <setting name="SIP_CALLRESOLVER_PURGE">
       <profileName>callresolver-config.in</profileName>
@@ -279,11 +279,6 @@
         <integer min="1" max="365" />
       </type>
       <value>7</value>
-    </setting>
-    <setting name="SIP_CALLRESOLVER_LOG_LEVEL">
-      <profileName>callresolver-config.in</profileName>
-      <type refid="loglevel" />
-      <value>NOTICE</value>
     </setting>
     <setting name="SIP_CALLRESOLVER_CALL_DIRECTION" advanced="yes">
       <profileName>callresolver-config.in</profileName>
