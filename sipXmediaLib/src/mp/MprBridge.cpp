@@ -91,42 +91,53 @@ OsStatus MprBridge::disconnectPort(const MpConnectionID connID)
 UtlBoolean MprBridge::doMix(MpAudioBufPtr inBufs[], int inBufsSize,
                             MpAudioBufPtr &out, int samplesPerFrame) const
 {
-    int inputs;
-    int lastActive;
+    int inputsConnected;  // Number of connected ports
+    int inputsValid;      // Number of ports with available data
+    int inputsActive;     // Number of ports with active speech
+    int lastConnected;    // Port number of last connected port
+    int lastValid;        // Port number of last port with available data
+    int lastActive;       // Port number of last port with active speech
+
+    // Count contributing inputs
+    inputsConnected = 0;
+    inputsValid = 0;
+    inputsActive = 0;
+    lastConnected = -1;
+    lastValid = -1;
+    lastActive = -1;
+    for (int inIdx=0; inIdx < inBufsSize; inIdx++) {
+       if (isPortActive(inIdx))
+       {
+          inputsConnected++;
+          lastConnected = inIdx;
+          if (inBufs[inIdx].isValid())
+          {
+             inputsValid++;
+             lastValid = inIdx;
+             if (inBufs[inIdx]->isActiveAudio())
+             {
+                inputsActive++;
+                lastActive = inIdx;
+             }
+          }
+       }
+    }
 
     // If there is only one input we could skip all processing and copy it
     // to output. Special case for single input is needed because other case
     // make decision make its choice depending on voice activity, which lead
     // to unwanted silence insertion. Someday this function will get smarter...
-    if (inBufsSize == 1)
-    {
-       inputs = 1;
-       lastActive = 0;
-    } else {
-       // Count active contributing inputs
-       inputs = 0;
-       lastActive = -1;
-       for (int inIdx=0; inIdx < inBufsSize; inIdx++) {
-          if (  isPortActive(inIdx)
-             && inBufs[inIdx].isValid()
-             && inBufs[inIdx]->isActiveAudio())
-          {
-             inputs++;
-             lastActive = inIdx;
-          }
-       }
-    }
-
-    if (inputs == 1) {
+    if (inputsValid == 1) {
+       out = inBufs[lastValid];
+    } else if (inputsActive == 1) {
        // If only one active input then just return it
        out = inBufs[lastActive];
-    }
-    else if (inputs > 1) {
+    } else if (inputsActive > 1) {
         // Compute a logarithmic scale factor to renormalize (approximately)
         int scale = 0;
-        while (inputs > 1) {
+        while (inputsActive > 1) {
             scale++;
-            inputs = inputs >> 1;
+            inputsActive = inputsActive >> 1;
         }
 
         // Get new buffer for mixed output
