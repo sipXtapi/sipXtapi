@@ -65,16 +65,7 @@
   <property name="project.dir" value="."/>
   <import file="subant-targets.xml"/>
 
-  <target name="install" depends="remove-jars,subant-targets.install"/>
-
-  <target name="remove-jars" description="Remove all jars from lib dir">
-    <delete failonerror="false">
-      <fileset dir="${dest.dir}${sipxpbx.data.dir}/lib">
-        <include name="*.jar"/>
-        <include name="*.war"/>
-      </fileset>
-    </delete>
-  </target>
+  <target name="install" depends="subant-targets.install"/>
 
   <!-- J A V A D O C S -->
   <target name="api">
