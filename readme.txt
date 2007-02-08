@@ -66,6 +66,17 @@ make
 
 PlaceCall and ReceiveCall are known to build/work with this source tree.
 sipXezPhone *should* work, but hasn't been tested with the latest source.
+--
+
+Makefile.gnu
+There is also a makefile in the root of sipXtapi used by an automated build
+system that does all steps necessary to build libraries and tests from a
+freshly checked out sandbox from the subversion repository.  While not built
+with normal users in mind, it can be used by them.  Find more information in
+the makefile itself.
+
+
+
 
 MacOs Build Hints
 =================
