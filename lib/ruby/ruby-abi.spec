@@ -1,5 +1,5 @@
 Name:           ruby-abi
-Version:        1.8
+Version:        1.8.4
 Release:        1%{?dist}
 Summary:        Ruby compatibility package
 
@@ -11,7 +11,7 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:      noarch
 BuildRequires:  ruby ruby-devel
 Requires:       ruby
-Provides:       ruby(abi) = 1.8
+Provides:       ruby(abi) = 1.8.4
 
 %description
 Provides ruby(abi), which is included in new Fedora Core ruby packages, but not in the ruby package for RHEL4
