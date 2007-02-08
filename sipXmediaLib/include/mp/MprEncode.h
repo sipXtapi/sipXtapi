@@ -74,6 +74,12 @@ public:
      /// Send "stop tone" DTMF RTP packet.
    OsStatus stopTone(void);
 
+     /// Enable or disable internal DTX.
+   OsStatus enableDTX(UtlBoolean dtx);
+     /**<
+     *  @note Codec still may use its DTX features.
+     */
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -98,7 +104,8 @@ private:
       SELECT_CODECS = MpFlowGraphMsg::RESOURCE_SPECIFIC_START,
       DESELECT_CODECS,
       START_TONE,
-      STOP_TONE
+      STOP_TONE,
+      ENABLE_DTX
    } AddlMsgTypes;
 
    enum {
@@ -165,6 +172,9 @@ private:
 
      /// Handle message to send "begin tone" DTMF RTP packet.
    void handleStartTone(int toneId);
+
+     /// Handle message to enable or disable internal DTX.
+   void handleEnableDTX(UtlBoolean dtx);
 
      /// Handle message to send "stop tone" DTMF RTP packet.
    void handleStopTone(void);

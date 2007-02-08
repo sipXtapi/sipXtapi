@@ -120,6 +120,12 @@ OsStatus MprEncode::stopTone(void)
    return postMessage(msg);
 }
 
+OsStatus MprEncode::enableDTX(UtlBoolean dtx)
+{
+   MpFlowGraphMsg msg(ENABLE_DTX, this, NULL, NULL, dtx, 0);
+   return postMessage(msg);
+}
+
 /* ============================ ACCESSORS ================================= */
 
 /* ============================ INQUIRY =================================== */
@@ -295,6 +301,11 @@ void MprEncode::handleStopTone(void)
    }
 }
 
+void MprEncode::handleEnableDTX(UtlBoolean dtx)
+{
+   mDisableDTX = !dtx;
+}
+
 // Handle messages for this resource.
 UtlBoolean MprEncode::handleMessage(MpFlowGraphMsg& rMsg)
 {
@@ -310,6 +321,9 @@ UtlBoolean MprEncode::handleMessage(MpFlowGraphMsg& rMsg)
       return TRUE;
    } else if (rMsg.getMsg() == STOP_TONE) {
       handleStopTone();
+      return TRUE;
+   } else if (rMsg.getMsg() == ENABLE_DTX) {
+      handleEnableDTX(rMsg.getInt1());
       return TRUE;
    }
    else
