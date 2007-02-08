@@ -47,12 +47,12 @@ public:
 ///@name Creators
 //@{
 
+     // Constructor
    MprEncode(const UtlString& rName, int samplesPerFrame, int samplesPerSec);
-     //:Constructor
 
+     // Destructor
    virtual
    ~MprEncode();
-     //:Destructor
 
 //@}
 
@@ -65,12 +65,13 @@ public:
 
    OsStatus deselectCodecs(void);
 
-   OsStatus setNetFrameSize(int samples);
-
+     /// Set ToNet resource which will send generated RTP packets.
    void setMyToNet(MprToNet* myToNet);
 
+     /// Send "begin tone" DTMF RTP packet.
    OsStatus startTone(int toneId);
 
+     /// Send "stop tone" DTMF RTP packet.
    OsStatus stopTone(void);
 
 //@}
@@ -100,8 +101,10 @@ private:
       STOP_TONE
    } AddlMsgTypes;
 
-   enum {TONE_STOP_PACKETS = 3}; // MUST BE > 0
-   enum {HANGOVER_PACKETS = 25}; // At 20 ms each, 500 ms.
+   enum {
+      TONE_STOP_PACKETS = 3, ///< MUST BE > 0
+      HANGOVER_PACKETS = 25  ///< At 20 ms each, 500 ms.
+   };
 
    static const int RTP_KEEP_ALIVE_FRAME_INTERVAL;
 
@@ -110,7 +113,7 @@ private:
    int   mPacket1PayloadBytes;
    unsigned int mStartTimestamp1;
    UtlBoolean mActiveAudio1;
-   UtlBoolean mMarkNext1;
+   UtlBoolean mMarkNext1;           ///< Set Mark bit on next RTP packet
    int   mConsecutiveInactive1;
    int   mConsecutiveActive1;
    int   mConsecutiveUnsentFrames1;
@@ -130,15 +133,16 @@ private:
 
    unsigned int   mCurrentTimestamp;
 
-   MprToNet* mpToNet;
+   MprToNet* mpToNet;  ///< Pointer to ToNet resource, which will send generated
+                       ///< RTP packets.
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
-                                    MpBufPtr outBufs[],
-                                    int inBufsSize,
-                                    int outBufsSize,
-                                    UtlBoolean isEnabled,
-                                    int samplesPerFrame=80,
-                                    int samplesPerSecond=8000);
+                                     MpBufPtr outBufs[],
+                                     int inBufsSize,
+                                     int outBufsSize,
+                                     UtlBoolean isEnabled,
+                                     int samplesPerFrame=80,
+                                     int samplesPerSecond=8000);
 
      /// Handle messages for this resource.
    virtual UtlBoolean handleMessage(MpFlowGraphMsg& rMsg);
@@ -147,6 +151,7 @@ private:
      /// MpEncoderBase::getMaxPacketBits().
    int payloadByteLength(MpEncoderBase& rEncoder);
 
+     /// Allocate memory for RTP packet.
    OsStatus allocPacketBuffer(MpEncoderBase& rEncoder,
                               unsigned char*& rpPacketPayload,
                               int& rPacketPayloadBytes);
@@ -155,14 +160,19 @@ private:
 
    void handleDeselectCodecs(void);
 
+     /// Translate our tone ID into RFC2833 values.
    int lookupTone(int toneId);
 
+     /// Handle message to send "begin tone" DTMF RTP packet.
    void handleStartTone(int toneId);
 
+     /// Handle message to send "stop tone" DTMF RTP packet.
    void handleStopTone(void);
 
+     /// Encode audio buffer and send it.
    void doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs);
 
+     /// Encode and send DTMF tone.
    void doDtmfCodec(unsigned int startTs, int sPFrame, int sPSec);
 
      /// Copy constructor (not implemented for this class)
