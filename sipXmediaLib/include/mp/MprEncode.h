@@ -116,12 +116,12 @@ private:
    static const int RTP_KEEP_ALIVE_FRAME_INTERVAL;
 
    MpEncoderBase* mpPrimaryCodec;
-   unsigned char* mpPacket1Payload; ///< packet buffer for primary RTP stream
-   int   mPacket1PayloadBytes;
+   unsigned char* mpPacket1Payload; ///< Packet buffer for primary RTP stream
+   int   mPacket1PayloadBytes;      ///< Size of mpPacket1Payload buffer
    unsigned int mStartTimestamp1;
-   UtlBoolean mActiveAudio1;
+   UtlBoolean mActiveAudio1;        ///< Does current RTP packet contain active voice?
    UtlBoolean mMarkNext1;           ///< Set Mark bit on next RTP packet
-   int   mConsecutiveInactive1;
+   int   mConsecutiveInactive1;     ///< Number of RTP packets with active voice data
    int   mConsecutiveActive1;
    int   mConsecutiveUnsentFrames1;
    UtlBoolean mDoesVad1;    ///< Does codec its own VAD?
