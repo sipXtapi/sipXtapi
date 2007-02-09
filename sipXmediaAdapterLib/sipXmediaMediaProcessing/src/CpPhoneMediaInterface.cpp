@@ -1892,7 +1892,7 @@ UtlBoolean CpPhoneMediaInterface::getNatedAddresses(int connectionId,
                     hostIp = host ;
                     rtpAudioPort = port ;
 
-                    bRC = FALSE ;
+                    bRC = TRUE ;
                 }
             
                 // Audio rtcp port (optional) 
