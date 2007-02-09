@@ -14,8 +14,8 @@
 #include <assert.h>
 
 // APPLICATION INCLUDES
-#include "mp/MpBuf.h"
-#include "mp/MprNull.h"
+#include <mp/MpBuf.h>
+#include <mp/MprNull.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

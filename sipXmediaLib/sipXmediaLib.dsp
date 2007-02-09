@@ -325,6 +325,10 @@ SOURCE=.\src\mp\mpG711.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpInputDeviceManager.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MpJitterBuffer.cpp
 # End Source File
 # Begin Source File
@@ -941,6 +945,14 @@ SOURCE=.\include\mp\MpFlowGraphMsg.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MpInputDeviceDriver.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpInputDeviceManager.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MpJitterBuffer.h
 # End Source File
 # Begin Source File
@@ -1002,6 +1014,10 @@ SOURCE=.\include\mp\MpResourceSortAlg.h
 # Begin Source File
 
 SOURCE=.\include\mp\MprFromFile.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprFromInputDevice.h
 # End Source File
 # Begin Source File
 
