@@ -55,6 +55,10 @@ public class Voicemail implements Comparable {
         return m_basename;
     }
     
+    public boolean isHeard() {
+        return !(new File(getMailboxDirectory(), getBasename() + ".sta").exists());
+    }
+    
     public void move(String destinationFolderId) {
         File destination = new File(m_userDirectory, destinationFolderId);
         for (File f : getAllFiles()) {

@@ -152,14 +152,19 @@ table.component tfoot tr td
 	border-color: #FFFFCC;
 }
 
-tr.even
+tr.even, tr.even-unheard
 {
 	background: #eee;
 }
 
-tr.odd
+tr.odd, tr.odd-unheard
 {
 	background: #fff;
+}
+
+tr.odd-unheard, tr.even-unheard
+{
+        font-weight: bold;
 }
 
 div.help

@@ -28,6 +28,7 @@ import org.apache.tapestry.PageRedirectException;
 import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
+import org.apache.tapestry.bean.EvenOdd;
 import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.engine.IEngineService;
@@ -90,7 +91,28 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
     public abstract IEngineService getPlayVoicemailService();
     
     public abstract MailboxOperation getMailboxOperation();
-    public abstract void setMailboxOperation(MailboxOperation operation); 
+    public abstract void setMailboxOperation(MailboxOperation operation);
+    
+    public Object getRowClass() {
+        return new HeardEvenOdd(this);
+    }
+    
+    public class HeardEvenOdd extends EvenOdd {
+        private ManageVoicemail m_page;
+        
+        public HeardEvenOdd(ManageVoicemail page) {
+            m_page = page;
+        }
+
+        @Override
+        public String getNext() {
+            String style = super.getNext();
+            if (!m_page.getVoicemail().isHeard()) {
+                style = style + "-unheard";
+            }
+            return style;
+        }        
+    }
 
     public void activateExternalPage(Object[] parameters, IRequestCycle cycle) {
         String sparam = parameters[0].toString();
