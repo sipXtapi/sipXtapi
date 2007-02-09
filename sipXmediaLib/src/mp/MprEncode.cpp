@@ -401,7 +401,6 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
    numSamplesIn = in->getSamplesNumber();
    pSamplesIn = in->getSamples();
    content = MpAudioBuf::MP_SPEECH_UNKNOWN;
-   mPayloadBytesUsed = 0;
 
    while (numSamplesIn > 0)
    {
