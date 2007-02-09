@@ -240,7 +240,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="../../../bin/speex.dll"
+				OutputFile="../../../bin/libspeex.dll"
 				ModuleDefinitionFile="libspeex.def"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
