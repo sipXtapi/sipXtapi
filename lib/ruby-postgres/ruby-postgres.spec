@@ -18,7 +18,7 @@ License: GPL
 Group: Development/Ruby
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Requires: ruby >= 1.8
-Requires: ruby(abi)
+Requires: ruby(abi) >= 1.8
 BuildRequires: ruby ruby-devel postgresql-devel
 
 %description
