@@ -118,6 +118,8 @@ private:
    MpEncoderBase* mpPrimaryCodec;
    unsigned char* mpPacket1Payload; ///< Packet buffer for primary RTP stream
    int   mPacket1PayloadBytes;      ///< Size of mpPacket1Payload buffer
+   int   mPayloadBytesUsed;         ///< Number of bytes in mpPacket1Payload,
+                                    ///<  already filled with encoded data
    unsigned int mStartTimestamp1;
    UtlBoolean mActiveAudio1;        ///< Does current RTP packet contain active voice?
    UtlBoolean mMarkNext1;           ///< Set Mark bit on next RTP packet
