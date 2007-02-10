@@ -27,18 +27,19 @@
 class MpInputDeviceManager;
 
 /**
-*  @brief Container for device specific input driver
+*  @brief Container for device specific input driver.
+*
 *  The MpInputDeviceDriver is the abstract container for the implementation
 *  of input media drivers.  An instance of MpInputDeviceDriver is created for
 *  every physical and logical input device (e.g. microphone).  A driver is
 *  instantiated and then added to the MpInputDeviceManager.  The driver must
 *  be enabled via the MpInputDeviceManager before it yields input frames.
 *
-*  The MpInputDeviceDriver obtains frames of audio and  
+*  The MpInputDeviceDriver obtains frames of audio from hardware and  
 *  provides them to the MpInputDeviceManager which makes the frames available to 
 *  MprFromInputDevice resources in flowgraphs.  The MpInputDeviceDriver may be 
 *  an OsTask which runs and gets frames for the OS and hardware specific device
-*  or MpInputDeviceDriver may be driven via call backs from the OS/hardware
+*  or MpInputDeviceDriver may be driven via callbacks from the OS/hardware
 *  input device driver.  This is an implementation choice.
 */
 class MpInputDeviceDriver
@@ -51,14 +52,14 @@ public:
 //@{
 
      /// Default constructor
-    /*
+   MpInputDeviceDriver(const UtlString& name,
+                       MpInputDeviceManager& deviceManager);
+     /**<
      *  @param name - unique device driver name (e.g. "/dev/dsp", 
-               "YAMAHA AC-XG WDM Audio", etc.)
+     *         "YAMAHA AC-XG WDM Audio", etc.)
      *  @param deviceManager - MpInputDeviceManager this device is to
      *         push frames to via pushFrame method
      */
-   MpInputDeviceDriver(const UtlString& name,
-                       MpInputDeviceManager& deviceManager);
 
      /// Destructor
    virtual
@@ -69,29 +70,35 @@ public:
 /* ============================ MANIPULATORS ============================== */
 ///@name Manipulators
 //@{
-   /// Initialize device driver and state
-    /*  This method enables the device driver.
-     *  NOTE: this SHOULD NOT be used to mute/unmute a device. Disabling and
-     *  enabling a device results in state and buffer queues being cleared.
-     *  @param samplesPerFrame - the number of samples in a frame of media
-     *  @param samplesPerSec - sample rate for media frame in samples per second
-     *  @param currentFrameTime - time in milliseconds for begining of frame
-     *         relative to the MpInputDeviceManager reference time
-     *  @param deviceId - device Id used to identify this input device to 
-     *         MpInputDeviceManager
-     */
+
+      /// Initialize device driver and state
     virtual OsStatus enableDevice(int samplesPerFrame, 
                                   int samplesPerSec,
                                   int currentFrameTime,
                                   int deviceId) = 0;
+      /**<
+      *  This method enables the device driver.
+      *
+      *  @NOTE this SHOULD NOT be used to mute/unmute a device. Disabling and
+      *  enabling a device results in state and buffer queues being cleared.
+      *
+      *  @param samplesPerFrame - the number of samples in a frame of media
+      *  @param samplesPerSec - sample rate for media frame in samples per second
+      *  @param currentFrameTime - time in milliseconds for beginning of frame
+      *         relative to the MpInputDeviceManager reference time
+      *  @param deviceId - device Id used to identify this input device to 
+      *         MpInputDeviceManager
+      */
 
-    /// Uninitialize device driver
-    /*  This method disables the device driver and should release any
-     * platform device resources so that the device might be used else where.
-     *  NOTE: this SHOULD NOT be used to mute/unmute a device. Disabling and
-     *  enabling a device results in state and buffer queues being cleared.
-     */
+      /// Uninitialize device driver
     virtual OsStatus disableDevice() = 0;
+      /**<
+      *  This method disables the device driver and should release any
+      *  platform device resources so that the device might be used else where.
+      *
+      *  @NOTE this SHOULD NOT be used to mute/unmute a device. Disabling and
+      *        enabling a device results in state and buffer queues being cleared.
+      */
 
 //@}
 
@@ -105,9 +112,7 @@ public:
 ///@name Inquiry
 //@{
 
-    /// Inquire if this driver is enabled
-    /*
-     */
+      /// Inquire if this driver is enabled
     virtual UtlBoolean isEnabled(){return(mIsEnabled);};
 
 //@}
@@ -122,10 +127,10 @@ private:
     MpInputDeviceManager* mpInputDeviceManager;
     UtlBoolean mIsEnabled;
 
-    /// Copy constructor (not implemented for this class)
+      /// Copy constructor (not implemented for this class)
     MpInputDeviceDriver(const MpInputDeviceDriver& rMpInputDeviceDriver);
 
-    /// Assignment operator (not implemented for this class)
+      /// Assignment operator (not implemented for this class)
     MpInputDeviceDriver& operator=(const MpInputDeviceDriver& rhs);
 };
 

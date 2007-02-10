@@ -29,7 +29,8 @@
 class MpInputDeviceManager;
 
 /**
-*  @brief Resource in which input media from source outside the flowgraph is introduced.
+*  @brief Resource in which input media from source outside the flowgraph
+*         is introduced.
 *
 *  The MprFromInputDevice get frames of media from its MpInputDeviceManager.
 *  The MpInputDeviceManager provides some simple buffering of frames from 
@@ -47,14 +48,14 @@ public:
 ///@name Creators
 //@{
 
-    /// Default constructor
+      /// Default constructor
     MprFromInputDevice(const UtlString& rName, 
                        int samplesPerFrame, 
                        int samplesPerSec,
                        MpInputDeviceManager& deviceManager,
                        int deviceId);
 
-    /// Destructor
+      /// Destructor
     virtual
     ~MprFromInputDevice();
 
@@ -101,19 +102,17 @@ private:
        // Milliseconds per frame:
        int frameTimeInterval = samplesPerFrame * 1000 / samplesPerSecond;
 
-       MpBufPtr buffer;
-       // Inline for discussion and review purposes only
-       if(!mFrameTimeInitialized)
+       if (!mFrameTimeInitialized)
        {
-
            // Start with a frame behind.  Possible need smarter
            // decision for starting.
            mPreviousFrameTime = mpInputDeviceManager->getCurrentFrameTime();
            mPreviousFrameTime -= (2 * frameTimeInterval);
        }
 
-
        mPreviousFrameTime += frameTimeInterval;
+
+       MpBufPtr buffer;
        int numFramesNotPlayed;
        int numFramedBufferedBehind;
        OsStatus getResult =
@@ -124,9 +123,9 @@ private:
                                           numFramedBufferedBehind);
 
            
-       if(!mFrameTimeInitialized)
+       if (!mFrameTimeInitialized)
        {
-           if(getResult == OS_SUCCESS)
+           if (getResult == OS_SUCCESS)
            {
                mFrameTimeInitialized = TRUE;
            }
@@ -153,10 +152,10 @@ private:
     int mPreviousFrameTime;
     int mDeviceId;
 
-    /// Copy constructor (not implemented for this class)
+      /// Copy constructor (not implemented for this class)
     MprFromInputDevice(const MprFromInputDevice& rMprFromInputDevice);
 
-    /// Assignment operator (not implemented for this class)
+      /// Assignment operator (not implemented for this class)
     MprFromInputDevice& operator=(const MprFromInputDevice& rhs);
 
 };

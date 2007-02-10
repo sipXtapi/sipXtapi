@@ -21,32 +21,29 @@
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
-
 // CONSTANTS
-
 // STATIC VARIABLE INITIALIZATIONS
-
 // PRIVATE CLASSES
 /**
 *  @brief Private class container for input device buffer and related info
-* 
-*/class MpInputDeviceFrameData
+*/
+class MpInputDeviceFrameData
 {
 public:
     MpBufPtr mFrameBuffer;
     int mFrameTime;
     OsTime mFrameReceivedTime;
 
-    /// Copy constructor (not implemented for this class)
+private:
+      /// Copy constructor (not implemented for this class)
     MpInputDeviceFrameData(const MpInputDeviceFrameData& rMpInputDeviceFrameData);
 
-    /// Assignment operator (not implemented for this class)
+      /// Assignment operator (not implemented for this class)
     MpInputDeviceFrameData& operator=(const MpInputDeviceFrameData& rhs);
 };
 
 /**
 *  @brief Private class container for MpInputDeviceDriver pointer and window of buffers
-* 
 */
 class MpAudioInputConnection : public UtlInt
 {
@@ -92,6 +89,7 @@ public:
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
 //@{
+
     MpInputDeviceDriver* getDeviceDriver() const;
 
 //@}
@@ -107,33 +105,33 @@ private:
     MpInputDeviceFrameData** mppFrameBufferArray;
     MpInputDeviceDriver* mpInputDeviceDriver;
 
-    /// Copy constructor (not implemented for this class)
+      /// Copy constructor (not implemented for this class)
     MpAudioInputConnection(const MpAudioInputConnection& rMpAudioInputConnection);
 
-    /// Assignment operator (not implemented for this class)
+      /// Assignment operator (not implemented for this class)
     MpAudioInputConnection& operator=(const MpAudioInputConnection& rhs);
 };
 
 
+//               MpInputDeviceManager implementation
+
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
-
-// MpInputDeviceManager implementation
 /* ============================ CREATORS ================================== */
 
 // Constructor
 MpInputDeviceManager::MpInputDeviceManager(int defaultSamplesPerFrame, 
                                            int defaultSamplesPerSec,
-                                           int defaultNumBufferedFrames) :
-mRwMutex(OsRWMutex::Q_PRIORITY)
+                                           int defaultNumBufferedFrames)
+: mRwMutex(OsRWMutex::Q_PRIORITY)
+, mLastDeviceId(0);
+, mDefaultSamplesPerFrame(defaultSamplesPerFrame)
+, mDefaultSamplesPerSecond(defaultSamplesPerSec)
+, mDefaultNumBufferedFrames(defaultNumBufferedFrames)
 {
     assert(defaultSamplesPerFrame > 0);
     assert(defaultSamplesPerSec > 0);
     assert(defaultNumBufferedFrames > 0);
-    mDefaultSamplesPerFrame = defaultSamplesPerFrame;
-    mDefaultSamplesPerSecond = defaultSamplesPerSec;
-    mDefaultNumBufferedFrames = defaultNumBufferedFrames;
-    mLastDeviceId = 0;
 }
 
 // Destructor
