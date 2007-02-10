@@ -28,9 +28,9 @@
 // FORWARD DECLARATIONS
 
 /**
-*  @brief The "Null" media processing resource is ground or /dev/null equivlent
+*  @brief The "Null" media processing resource is ground or /dev/null equivalent.
 *
-*  This resource releases all input buffers and outputs null buffers
+*  This resource releases all input buffers and outputs null buffers.
 */
 class MprNull : public MpAudioResource
 {
