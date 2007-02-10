@@ -124,7 +124,7 @@ MpInputDeviceManager::MpInputDeviceManager(int defaultSamplesPerFrame,
                                            int defaultSamplesPerSec,
                                            int defaultNumBufferedFrames)
 : mRwMutex(OsRWMutex::Q_PRIORITY)
-, mLastDeviceId(0);
+, mLastDeviceId(0)
 , mDefaultSamplesPerFrame(defaultSamplesPerFrame)
 , mDefaultSamplesPerSecond(defaultSamplesPerSec)
 , mDefaultNumBufferedFrames(defaultNumBufferedFrames)
