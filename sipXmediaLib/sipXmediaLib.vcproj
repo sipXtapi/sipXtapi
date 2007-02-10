@@ -2767,6 +2767,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MprNull.cpp">
+			</File>
+			<File
 				RelativePath="src\mp\MprRecorder.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -4517,6 +4520,9 @@
 			</File>
 			<File
 				RelativePath="include\mp\MprMixer.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MprNull.h">
 			</File>
 			<File
 				RelativePath="include\mp\MprRecorder.h">
