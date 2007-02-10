@@ -42,7 +42,7 @@
 /// The "Speex Echo Canceler" media processing resource.
 /**
 *  It takes mic data from the first input, speaker data from the pEchoQ message
-*  queue and produce echo canceled audio data onthe first output. On the second
+*  queue and produce echo canceled audio data on the first output. On the second
 *  output there are echo residue power spectrum data, which may be used to 
 *  remove echo residue by Speex preprocessor (MprSpeexPreprocess).
 *  MprSpeexPreprocess expect echo reside data on its second input.
