@@ -121,11 +121,13 @@ extern OsStatus MpCodec_getLCDBrightnessRange(
                       int& high,        ///< highest value
                       int& nominal);    ///< low <= nominal <= high
 
+extern int MpCodec_getInputMixerId(void);
 extern int MpCodec_getGain(void);
 extern int MpCodec_getVolume(void);
 extern int MpCodec_getSidetone(void);
 extern int MpCodec_getLCDBrightness(void);
 extern int MpCodec_getLCDContrast(void);
+extern OsStatus MpCodec_setInputMixerId(unsigned int newmixerid);
 extern OsStatus MpCodec_setGain(int newgain);
 extern OsStatus MpCodec_setVolume(int newvolume);
 extern OsStatus MpCodec_setSidetone(int level);
