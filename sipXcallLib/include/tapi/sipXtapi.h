@@ -922,7 +922,9 @@ typedef enum
  * SUPPRESS, CANCEL, and CANCEL_AUTO.
  *
  * NOTE: This functionally is only supported when sipXtapi is bundled with
- * VoiceEngine from Global IP Sound.
+ * VoiceEngine from Global IP Sound or Speex library.
+ * 
+ * NOTE: SIPX_AEC_SUPPRESS is not available if Speex library used.
  */
 typedef enum SIPX_AEC_MODE
 {
@@ -958,7 +960,11 @@ typedef enum SIPX_AEC_MODE
  * LOW level.
  *
  * NOTE: This functionally is only supported when sipXtapi is bundled with
- * VoiceEngine from Global IP Sound.
+ * VoiceEngine from Global IP Sound or Speex library.
+ * 
+ * NOTE: When Speex library is used there is no difference between
+ *       SIPX_NOISE_REDUCTION_LOW, SIPX_NOISE_REDUCTION_MEDIUM and
+ *       SIPX_NOISE_REDUCTION_HIGH.
  */
 typedef enum SIPX_NOISE_REDUCTION_MODE
 {
@@ -2452,7 +2458,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioGetVolume(const SIPX_INST hInst,
  * for both existing and new calls.
  *
  * Note: This API is only supported when bundled with VoiceEngine from 
- * Global IP Sound.
+ * Global IP Sound or Speex library.
  *
  * @param hInst Instance pointer obtained by sipxInitialize.
  * @param mode AEC mode.
@@ -2466,10 +2472,13 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetAECMode(const SIPX_INST hInst,
 /**
  * Get the mode of Acoustic Echo Cancellation (AEC).
  *
- * Note: This API is only supported when bundled with GIPS VoiceEngine.
+ * Note: This API is only supported when bundled with VoiceEngine from 
+ * Global IP Sound or Speex library.
  *
  * @param hInst Instance pointer obtained by sipxInitialize.
  * @param mode AEC mode.
+ *
+ * @see SIPX_AEC_MODE
  */
 SIPXTAPI_API SIPX_RESULT sipxAudioGetAECMode(const SIPX_INST hInst,
                                              SIPX_AEC_MODE&  mode) ;
@@ -2478,7 +2487,8 @@ SIPXTAPI_API SIPX_RESULT sipxAudioGetAECMode(const SIPX_INST hInst,
 /**
  * Enable/Disable Automatic Gain Control (AGC).  By default, AGC is disabled.
  *
- * Note: This API is only supported when bundled with GIPS VoiceEngine.
+ * Note: This API is only supported when bundled with VoiceEngine from 
+ * Global IP Sound or Speex library.
  *
  * @param hInst Instance pointer obtained by sipxInitialize.
  * @param bEnable true to enable AGC or false to disable
@@ -2488,7 +2498,8 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetAGCMode(const SIPX_INST hInst,
 
 /**
  * Get the enable/disable state of Automatic Gain Control (AGC).
- * Note: This API is only supported when bundled with GIPS VoiceEngine.
+ * Note: This API is only supported when bundled with VoiceEngine from 
+ * Global IP Sound or Speex library.
  *
  * @param hInst Instance pointer obtained by sipxInitialize.
  * @param bEnabled true if AGC is enabled; otherwise false.
@@ -2503,7 +2514,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioGetAGCMode(const SIPX_INST hInst,
  * will modify the policy for both existing and new calls.
  *
  * Note: This API is only supported when bundled with VoiceEngine from 
- * Global IP Sound.
+ * Global IP Sound or Speex library.
  *
  * @param hInst Instance pointer obtained by sipxInitialize.
  * @param mode noise reduction mode.
@@ -2517,10 +2528,13 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetNoiseReductionMode(const SIPX_INST hInst,
 /**
  * Get the mode/policy for Noise Reduction (NR).
  *
- * Note: This API is only supported when bundled with GIPS VoiceEngine.
+ * Note: This API is only supported when bundled with VoiceEngine from 
+ * Global IP Sound or Speex library.
  *
  * @param hInst Instance pointer obtained by sipxInitialize.
  * @param mode noise reduction mode.
+ *
+ * @see SIPX_NOISE_REDUCTION_MODE
  */
 SIPXTAPI_API SIPX_RESULT sipxAudioGetNoiseReductionMode(const SIPX_INST hInst,
                                                         SIPX_NOISE_REDUCTION_MODE& mode) ;
