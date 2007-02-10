@@ -28,10 +28,11 @@
 
 // Constructor
 MprNull::MprNull(const UtlString& rName, 
-                         int maxInOutputs,
-                         int samplesPerFrame, 
-                         int samplesPerSec)
-:  MpAudioResource(rName, 1, maxInOutputs, 1, maxInOutputs, samplesPerFrame, samplesPerSec)
+                 int maxInOutputs,
+                 int samplesPerFrame, 
+                 int samplesPerSec)
+:  MpAudioResource(rName, 1, maxInOutputs, 1, maxInOutputs,
+                   samplesPerFrame, samplesPerSec)
 {
 }
 
@@ -58,13 +59,13 @@ UtlBoolean MprNull::doProcessFrame(MpBufPtr inBufs[],
                                    int samplesPerFrame,
                                    int samplesPerSecond)
 {
-    int inIndex;
-    for(inIndex = 0; inIndex < inBufsSize; inIndex++)
-    {
-        inBufs[inIndex].release();
-    }
+   int inIndex;
+   for (inIndex = 0; inIndex < inBufsSize; inIndex++)
+   {
+      inBufs[inIndex].release();
+   }
 
-    return(TRUE);
+   return TRUE;
 }
 
 /* ============================ FUNCTIONS ================================= */
