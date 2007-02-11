@@ -154,10 +154,14 @@ public class Voicemail implements Comparable {
         };
         Annotations.configureAliases(xstream, MessageDescriptor.class);
         
+        
+        String[] acceptableTimeFormat = new String[] {
+            MessageDescriptor.TIMESTAMP_FORMAT_NO_ZONE
+        };
         // NOTE: xtream's dateformatter uses fixed ENGLISH Locale, which
         // turns out is ok because mediaserver writes out timestamp in a fixed
         // format independent of OS locale.
-        xstream.registerConverter(new DateConverter(MessageDescriptor.TIMESTAMP_FORMAT, new String[0]));
+        xstream.registerConverter(new DateConverter(MessageDescriptor.TIMESTAMP_FORMAT, acceptableTimeFormat));
         
         return xstream;
     }
@@ -200,6 +204,8 @@ public class Voicemail implements Comparable {
     @XStreamAlias("messagedescriptor")
     static class MessageDescriptor {
         static final String TIMESTAMP_FORMAT = "EEE, d-MMM-yyyy hh:mm:ss aaa z";
+        // see XCF-1519
+        static final String TIMESTAMP_FORMAT_NO_ZONE = "EEE, d-MMM-yyyy hh:mm:ss aaa";
         private Date m_timestamp;
         private int m_durationsecs;
         private String m_subject;

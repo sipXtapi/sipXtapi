@@ -51,6 +51,15 @@ public class VoicemailTest extends TestCase {
         assertEquals(14, cal.get(Calendar.HOUR_OF_DAY));
     }
     
+    /**
+     * XCF-1519
+     */
+    public void testGetDateWithNoTimezone() throws ParseException {
+        DateFormat formatter = new SimpleDateFormat(MessageDescriptor.TIMESTAMP_FORMAT_NO_ZONE);
+        formatter.setLenient(true);
+        formatter.parse("Sun, 11-Feb-2007 04:07:31 AM");        
+    }
+    
     public void testLoadDescriptor() {
         File mailstore = new File(TestUtil.getTestSourceDirectory(getClass()));
         Voicemail vm = new Voicemail(mailstore, "200", "inbox", "00000001-00");
