@@ -818,6 +818,27 @@ VXIpromptResult OSBpromptQueue(VXIpromptInterface* vxip,
                audiourl = Url(str);
             }
          }
+         
+         if (accept_lang != NULL) {
+           const VXIchar *wlang = VXIStringCStr(accept_lang);
+           if ( wlang && (len = wcslen(wlang)) > 0 ) {
+             char *lang = new char[len + 1];
+             if (lang) {
+               for ( i = 0; i < len; i++ ) {
+                  lang[i] = wlang[i];
+               }
+               lang[len] = 0;
+               UtlString s(audiourl.toString());
+               s.append("?prefer-language=");
+               s.append(lang);
+               //audiourl.setHeaderParameter("prefer-language", lang);
+               audiourl = s;
+               delete[] lang;
+               lang = NULL;  
+             }
+           }
+         }
+         
          OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                        "OSBpromptQueue: audiourl = '%s'",
                        audiourl.toString().data());
@@ -838,25 +859,6 @@ VXIpromptResult OSBpromptQueue(VXIpromptInterface* vxip,
             }
             else
             {
-               if (accept_lang != NULL) {
-	         const VXIchar *wlang = VXIStringCStr(accept_lang);
-                 if ( wlang && (len = wcslen(wlang)) > 0 ) {
-                   char *lang = new char[len + 1];
-                   if (lang) {
-                     for ( i = 0; i < len; i++ ) {
-                        lang[i] = wlang[i];
-                     }
-                     lang[len] = 0;
-                     UtlString s(audiourl.toString());
-                     s.append("?prefer-language=");
-                     s.append(lang);
-//                     audiourl.setHeaderParameter("prefer-language", lang);
-                     audiourl = s;
-                     delete[] lang;
-                     lang = NULL;  
-                   }
-                 }
-               }
                impl->pPlayer->add(
                   audiourl,
                   STREAM_SOUND_REMOTE |
