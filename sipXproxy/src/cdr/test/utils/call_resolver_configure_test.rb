@@ -104,12 +104,12 @@ class CallResolverConfigureTest < Test::Unit::TestCase
   
   def test_cse_database_urls
     # Create URLs given the host port list
-    host_port_list = [1, 2, 3]
-    urls = @config.get_cse_database_urls_config(host_port_list)
+    cse_hosts = [CseHost.new("a", 1), CseHost.new("a", 2), CseHost.new("a", 3)]
+    urls = @config.get_cse_database_urls_config(cse_hosts)
     assert_equal(3, urls.size)
     urls.each_with_index do |url, i|
       assert_equal(DatabaseUrl::DATABASE_DEFAULT, url.database)
-      assert_equal(host_port_list[i], url.port)
+      assert_equal(cse_hosts[i].port, url.port)
       assert_equal('localhost', url.host)
     end
     
@@ -124,11 +124,10 @@ class CallResolverConfigureTest < Test::Unit::TestCase
   
   def test_get_cse_hosts_config
     # Get the default entry - array with length 1 and default port
-    host_array, port_array, ha = @config.get_cse_hosts_config
+    cse_hosts, ha = @config.get_cse_hosts_config
     
-    assert_equal(1, port_array.length)
-    assert_equal(1, host_array.length)
-    assert(port_array[0] == DatabaseUrl::DATABASE_PORT_DEFAULT)
+    assert_equal(1, cse_hosts.length)
+    assert_equal(DatabaseUrl::DATABASE_PORT_DEFAULT, cse_hosts[0].port)
     assert(!ha)
     
     # Pass in other list, no localhost
@@ -136,37 +135,37 @@ class CallResolverConfigureTest < Test::Unit::TestCase
     c = Configure.new(CallResolverConfigure::CSE_HOSTS => hostString)
     config = CallResolverConfigure.new(c)
     
-    host_array, port_array, ha = config.get_cse_hosts_config
+    cse_hosts, ha = config.get_cse_hosts_config
     
-    assert_equal(2, port_array.length)
+    assert_equal(2, cse_hosts.length)
     assert(ha)
-    assert(5433, port_array[0])
-    assert('test.example.com:5433', host_array[0])
-    assert(5434, port_array[1])      
+    assert(5433, cse_hosts[0].port)
+    assert('test.example.com', cse_hosts[0].host)
+    assert(5434, cse_hosts[1].port)
     
     # Pass in other list, localhost, no port
     hostString = 'test.example.com:5433,localhost'
     c = Configure.new(CallResolverConfigure::CSE_HOSTS => hostString)
     config = CallResolverConfigure.new(c)
     
-    host_array, port_array, ha = config.get_cse_hosts_config
+    cse_hosts, ha = config.get_cse_hosts_config
     
-    assert_equal(2, port_array.length)
+    assert_equal(2, cse_hosts.length)
     assert(ha)
-    assert(5433, port_array[0])
-    assert(DatabaseUrl::DATABASE_PORT_DEFAULT, port_array[1])
+    assert(5433, cse_hosts[0].port)
+    assert(DatabaseUrl::DATABASE_PORT_DEFAULT, cse_hosts[1].port)
     
     # Pass in other list, localhost, no port
     hostString = 'test.example.com:5433,localhost:6666'
     c = Configure.new(CallResolverConfigure::CSE_HOSTS => hostString)
     config = CallResolverConfigure.new(c)
     
-    host_array, port_array, ha = config.get_cse_hosts_config
+    cse_hosts, ha = config.get_cse_hosts_config
     
-    assert_equal(2, port_array.length)
+    assert_equal(2, cse_hosts.length)
     assert(ha)
-    assert(5433, port_array[0])
-    assert(6666, port_array[1])
+    assert(5433, cse_hosts[0].port)
+    assert(6666, cse_hosts[1].port)
   end
   
   def test_parse_int_param
@@ -205,5 +204,10 @@ class CallResolverConfigureTest < Test::Unit::TestCase
   def test_cse_polling_interval
     assert_equal(10, @config.cse_polling_interval)
   end  
-  
+
+  def test_dirs
+    assert_equal('/etc/sipxpbx', @config.confdir)
+    assert_equal('/etc/sipxpbx/ssl', @config.ssldir)
+    assert_equal('/var/log/sipxpbx', @config.logdir)
+  end  
 end

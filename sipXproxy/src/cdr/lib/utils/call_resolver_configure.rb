@@ -15,6 +15,9 @@ require 'utils/exceptions'
 require 'utils/sipx_logger'
 
 
+class CseHost < Struct.new(:host, :port, :local)
+end
+
 class CallResolverConfigure
   
   # Default config file path
@@ -66,7 +69,7 @@ class CallResolverConfigure
         Configure.new()
       end
       
-      CallResolverConfigure.new(configure, logdir)
+      CallResolverConfigure.new(configure, confdir, logdir)
     end
     
     def default
@@ -75,10 +78,12 @@ class CallResolverConfigure
     end
   end
   
-  attr_reader :cdr_database_url, :cse_database_urls, :host_list, :host_port_list, :log
+  attr_reader :cdr_database_url, :cse_database_urls, :cse_hosts, :log, :confdir, :logdir
   
-  def initialize(config, logdir = DEFAULT_LOG_DIR)  
+  def initialize(config, confdir = DEFAULT_CONF_DIR, logdir = DEFAULT_LOG_DIR)  
     @config = config
+    @confdir = confdir
+    @logdir = logdir
     
     # Read logging config and initialize logging.  Do this before initializing
     # the rest of the config so we can use logging there.
@@ -92,8 +97,8 @@ class CallResolverConfigure
     @cdr_database_url = DatabaseUrl.new
     
     # These two methods must get called in this order
-    @host_list, @host_port_list, @ha = get_cse_hosts_config
-    @cse_database_urls = get_cse_database_urls_config(@host_port_list)
+    @cse_hosts, @ha = get_cse_hosts_config
+    @cse_database_urls = get_cse_database_urls_config(@cse_hosts)
   end
   
   # Return true if High Availability (HA) is enabled, false otherwise
@@ -129,6 +134,23 @@ class CallResolverConfigure
   # number of seconds between attempts to read new CSEs from database
   def cse_polling_interval
     @config.fetch('SIP_CALLRESOLVER_CSE_POLLING_INTERVAL', 10)
+  end
+  
+  def stunnel_debug
+    @config.fetch('SIP_CALLRESOLVER_STUNNEL_DEBUG', 5)
+  end
+  
+  # name of the CA used to communicate with remote CSE DB
+  def cse_ca
+    @config['SIP_CALLRESOLVER_CSE_CA']
+  end
+  
+  def cse_connect_port
+    @config.fetch('SIP_CALLRESOLVER_STUNNEL_PORT', 9300)
+  end
+  
+  def ssldir
+    File.join(confdir, 'ssl')    
   end
   
   # Access the config as an array.  Use this method *only* for plugin config
@@ -201,54 +223,40 @@ class CallResolverConfigure
     } 
   end
   
-  #-----------------------------------------------------------------------------
-  
-  def finish_config    
-  end
-  
-  
   # Return an array of CSE database URLs.  With an HA configuration, there are
   # multiple CSE databases.  Note that usually one of these URLs is identical
   # to the CDR database URL, since a standard master server runs both the
   # proxies and the call resolver, which share the SIPXCDR database.
-  def get_cse_database_urls_config(host_port_list)
-    if host_port_list.empty?
-      [ cdr_database_url ] 
-    else      
-      # Build the list of CSE DB URLs.  From Call Resolver's point of view,
-      # each URL is 'localhost:<port>'.  Stunnel takes care of forwarding the
-      # local port to the database on a remote host.
-      host_port_list.collect do |port|
-        DatabaseUrl.new(:port => port)
-      end
-    end     
+  def get_cse_database_urls_config(cse_hosts)
+    return [ @cdr_database_url ] if cse_hosts.empty?
+    # Build the list of CSE DB URLs.  From Call Resolver's point of view,
+    # each URL is 'localhost:<port>'.
+    # Stunnel takes care of forwarding the local port to the database on a remote host.
+    cse_hosts.collect do |cse_host|
+      DatabaseUrl.new(:port => cse_host.port)
+    end
   end
   
   # Get distributed CSE hosts from the configuration. 
   # 
-  # Return two arrays host_list, host_port_list
+  # Return list of CSE host information
   # 
   # Call resolver connects to each of these ports on 'localhost' via the
   # magic of stunnel, so it doesn't ever use the hostnames.
   def get_cse_hosts_config
-    host_list = @config[CSE_HOSTS] || CSE_HOSTS_DEFAULT
-    
-    host_port_list = []
     ha = false
-    # Split host list into separate host:port names, then build two
-    # arrays of URLs and ports.
-    host_array = host_list.split(',')
-    host_array.each do |host_string|
+    cse_hosts = []
+    cse_hosts_config = @config[CSE_HOSTS] || CSE_HOSTS_DEFAULT    
+    cse_hosts_config.split(',').each do |host_string|
       host, port = host_string.split(':')
-      # Strip leading and trailing whitespace
       host.strip!
-      # Test if port was specified      
+      local = host == LOCALHOST
+      ha = true unless local
       if port
-        # Strip whitespace from port
         port.strip!        
       else
-        # Supply default port for localhost
-        if host == LOCALHOST
+        if local
+          # Supply default port for localhost
           port = DatabaseUrl::DATABASE_PORT_DEFAULT
         else
           raise ConfigException, "No port specified for host '#{host}'. " +
@@ -256,18 +264,13 @@ class CallResolverConfigure
         end
       end
       host_port = port.to_i
-      if host_port == 0
-        raise ConfigException, "Port for #{host} is invalid."
-      end
-      host_port_list << host_port
-      log.debug("set_cse_hosts_config: host name #{host}, host port: #{port}")
+      raise ConfigException, "Port for #{host} is invalid." if host_port == 0
+      cse_hosts << CseHost.new(host, host_port, host == LOCALHOST)
+      log.debug("cse_hosts: host name #{host}, host port: #{port}")
       # If at least one of the hosts != 'localhost' we are HA enabled
-      if host != 'localhost' && !ha
-        ha = true
-        log.debug("get_cse_host: Found host other than localhost - enable HA")
-      end
     end
-    return host_array, host_port_list, ha
+    log.debug("Found host other than localhost - enable HA") if ha
+    return cse_hosts, ha
   end  
   
   # Read the named param from the config.  Convert it to an integer and return

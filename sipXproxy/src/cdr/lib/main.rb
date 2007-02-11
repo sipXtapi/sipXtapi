@@ -95,9 +95,9 @@ def main()
     
   resolver = CallResolver.new(config)
   
-  stunnel_connection = StunnelConnection.new(config.log)
+  stunnel_connection = StunnelConnection.new(config)
   
-  stunnel_connection.open(config)
+  stunnel_connection.open()
   
   if daemon_flag
     resolver.run_resolver
