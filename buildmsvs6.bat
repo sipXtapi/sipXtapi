@@ -8,6 +8,7 @@
 
 @set doClean=
 if "%1" == "clean" set doClean="/CLEAN"
+if "%1" == "check" goto run_unittests
 @set releaseType=Debug
 @set libPrefix=d
 @echo set releaseType=Release
@@ -115,5 +116,38 @@ del Debug\sipXauthproxy.exe
 msdev sipXauthproxy.dsp /USEENV /MAKE "sipXauthproxy - Win32 Debug" %doClean%
 cd ..
 
+goto end
+
+:run_unittests
+REM Here we run the unit tests
+set DEPD=C:\build\sipXdepends
+set PATH=c:\Program Files\GnuWin32;%DEPD%\cppunit-1.10.2\lib;%DEPD%\pcre\bin;%DEPD%\openssl\out32.dbg;%DEPD%\libgsm\lib;%DEPD%\libspeex\lib;%PATH%
+
+set NAME_PREFIX=test-test-
+@if not "%1" == "" set NAME_PREFIX=%1
+echo logging in %NAME_PREFIX% files
+svn info | grep Revision
+
+sipXportLib\Debug\sipXportLibTest.exe 2> %NAME_PREFIX%port.err.txt > %NAME_PREFIX%port.txt
+@grep "OK (" %NAME_PREFIX%port.txt
+@grep "Run:" %NAME_PREFIX%port.txt
+sipXtackLib\Debug\sipXtackLibTest.exe 2> %NAME_PREFIX%stack.err.txt > %NAME_PREFIX%stack.txt
+@grep "OK (" %NAME_PREFIX%stack.txt
+@grep "Run:" %NAME_PREFIX%stack.txt
+sipXmediaLib\Debug\sipXmediaLibTest.exe 2> %NAME_PREFIX%media.err.txt > %NAME_PREFIX%media.txt
+@grep "OK (" %NAME_PREFIX%media.txt
+@grep "Run:" %NAME_PREFIX%media.txt
+sipXmediaAdapterLib\Debug\sipXmediaAdapterLibTest.exe 2> %NAME_PREFIX%adapter.err.txt > %NAME_PREFIX%adapter.txt
+@grep "OK (" %NAME_PREFIX%adapter.txt
+@grep "Run:" %NAME_PREFIX%adapter.txt
+sipXcallLib\Debug\sipXcallLibTest.exe 2> %NAME_PREFIX%call.err.txt > %NAME_PREFIX%call.txt
+@grep "OK (" %NAME_PREFIX%call.txt
+@grep "Run:" %NAME_PREFIX%call.txt
+sipXcallLib\sipXtapi\Debug\sipXtapiTest.exe 2> %NAME_PREFIX%tapi.err.txt > %NAME_PREFIX%tapi.txt
+@grep "OK (" %NAME_PREFIX%tapi.err.txt
+@grep "Run:" %NAME_PREFIX%tapi.err.txt
+            
+
 :end
-pwd
+REM Print the current directory
+cd

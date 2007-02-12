@@ -144,6 +144,14 @@ Next, select the "libraries" path and add the following:
 
 WinCE (EVC4): Building from Source Code
 =======================================
+Make sure you have the following installed:
+	Microsoft eMbedded C++ 4.2 (eVC4) (this is a free download)
+	eVC4 Service Pack 4
+	* hotfix to fix "Datatype Misalignment" first chance exception when
+	  running things that use sipXmediaLib.
+	  Knowledge Base article: KB909973
+	  Fix: http://www.microsoft.com/downloads/details.aspx?FamilyID=a22ef691-f4f1-4d95-b1f7-8fb283e274d7
+
 After compiling or installing STLport, cppunit, and pcre, update your EVC4 environment.
 * Open up EVC4
     * go to Tools->Options...->Directories
