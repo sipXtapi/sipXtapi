@@ -46,4 +46,33 @@
      <packagereq type="mandatory">sipxtools</packagereq>
    </packagelist>
   </group>
+  <group>
+   <id>sipxpbx-development</id>
+   <uservisible>true</uservisible>
+   <name>sipXpbx Development</name>
+   <description>All the dependencies for building sipXpbx</description>
+   <packagelist>
+     <packagereq type="mandatory">mod_cplusplus</packagereq>
+     <packagereq type="mandatory">cgicc-devel</packagereq>
+     <packagereq type="mandatory">xerces-c-devel</packagereq>
+     <packagereq type="mandatory">pcre-devel</packagereq>
+     <packagereq type="mandatory">w3c-libwww-devel</packagereq>
+     <packagereq type="mandatory">expat-devel</packagereq>
+     <packagereq type="mandatory">unixODBC-devel</packagereq>
+     <packagereq type="mandatory">java-sun</packagereq>
+     <packagereq type="mandatory">java-1.5.0-sun-devel</packagereq>
+     <packagereq type="mandatory">java-1.5.0-sun-jdbc</packagereq>
+     <packagereq type="mandatory">jakarta-commons-beanutils</packagereq>
+     <packagereq type="mandatory">jakarta-commons-collections</packagereq>
+     <packagereq type="mandatory">ant-commons-logging</packagereq>
+     <packagereq type="mandatory">ant-junit</packagereq>
+     <packagereq type="mandatory">ant-trax ant-nodeps</packagereq>
+     <packagereq type="mandatory">ruby-gems</packagereq>
+     <packagereq type="mandatory">ruby-gems-rake</packagereq>
+     <packagereq type="mandatory">ruby-postgres</packagereq>
+     <packagereq type="mandatory">mod_ssl</packagereq>
+     <packagereq type="mandatory">postgresql-server</packagereq>
+     <packagereq type="mandatory">cppunit-devel</packagereq>
+   </packagelist>
+  </group>
 </comps>
