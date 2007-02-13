@@ -14,10 +14,10 @@ package org.sipfoundry.sipxconfig.phone.lg_nortel;
 import java.io.File;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 public class LgNortelPhone extends Phone {
     public static final String BEAN_ID = "lg-nortel";
@@ -37,16 +37,17 @@ public class LgNortelPhone extends Phone {
 
     @Override
     public void initializeLine(Line line) {
-        LgNortelLineDefaults defaults = new LgNortelLineDefaults(line, getPhoneContext()
-                .getPhoneDefaults());
+        LineInfo lineInfo = LgNortelLineDefaults.getLineInfo(
+                getPhoneContext().getPhoneDefaults(), line);
+        LgNortelLineDefaults defaults = new LgNortelLineDefaults(lineInfo);
         line.addDefaultBeanSettingHandler(defaults);
     }
 
     @Override
     public void initialize() {
-        PhoneContext phoneContext = getPhoneContext();
-        LgNortelPhoneDefaults defaults = new LgNortelPhoneDefaults(phoneContext
-                .getPhoneDefaults());
+        DeviceDefaults phoneDefaults = getPhoneContext().getPhoneDefaults();
+        int lines = getLines().size();
+        LgNortelPhoneDefaults defaults = new LgNortelPhoneDefaults(phoneDefaults, lines);
         addDefaultBeanSettingHandler(defaults);
     }
 
@@ -64,7 +65,9 @@ public class LgNortelPhone extends Phone {
 
     @Override
     protected LineInfo getLineInfo(Line line) {
-        return LgNortelLineDefaults.getLineInfo(this, line);
+        LineInfo lineInfo = LgNortelLineDefaults.getLineInfo(
+                getPhoneContext().getPhoneDefaults(), line);
+        return lineInfo;
     }
 
     @Override

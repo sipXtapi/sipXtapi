@@ -16,19 +16,18 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import org.apache.commons.lang.time.DateUtils;
 
 public class DeviceTimeZone {
 
     public static final String DST_US = "US";
 
     public static final String DST_EU = "EU";
-    
+
     public static final int DST_LASTWEEK = 8;
 
-    private static final int MSEC = 1000;
+    private static final int SECONDS_PER_HOUR = 3600;
 
-    private static final int HOURSEC = 3600;
-    
     private static final int DST_STARTDAY = 0;
 
     private static final int DST_STARTDAYOFWEEK = 1;
@@ -63,12 +62,14 @@ public class DeviceTimeZone {
 
     private TimeZone m_tz;
 
-    private int[] m_dstparam = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    
+    private int[] m_dstparam = new int[] {
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    };
+
     public DeviceTimeZone() {
         this(null);
     }
-    
+
     public DeviceTimeZone(String timezone) {
         if (timezone == null) {
             m_tz = TimeZone.getDefault();
@@ -77,18 +78,19 @@ public class DeviceTimeZone {
         }
         String tzn = m_tz.getID();
 
-        // Until there is a setting for DST rule, it must be guessed here based on the timezone name
+        // Until there is a setting for DST rule, it must be guessed here based on the timezone
+        // name
         //
-        // XCF-977 - Doing string compares on ID is not predicable!  On my gentoo system, I get
-        // US/Eastern but on a FC4 machine I get America/New_York.  Both running java1.5.0.06
-        // We'll wait for XCF-874 to address this properly.  Until then, do not break whatever
-        // seems to work for some systems in Europe, but default everyone else to US.  Otherwise
+        // XCF-977 - Doing string compares on ID is not predicable! On my gentoo system, I get
+        // US/Eastern but on a FC4 machine I get America/New_York. Both running java1.5.0.06
+        // We'll wait for XCF-874 to address this properly. Until then, do not break whatever
+        // seems to work for some systems in Europe, but default everyone else to US. Otherwise
         // the default of zero is not very helpful
         if (tzn.matches("^Europe/.*")) {
             setDstRule(DST_EU);
         } else {
             setDstRule(DST_US);
-        }        
+        }
     }
 
     public void setDstRule(String dstname) {
@@ -101,12 +103,13 @@ public class DeviceTimeZone {
             if (m_dstrule.equals(DST_US)) {
                 m_dstparam[DST_STARTDAY] = 0;
                 m_dstparam[DST_STARTDAYOFWEEK] = DST_SUNDAY;
-                m_dstparam[DST_STARTTIME] = 2 * HOURSEC;
+                m_dstparam[DST_STARTTIME] = 2 * SECONDS_PER_HOUR;
                 m_dstparam[DST_STOPDAY] = 0;
                 m_dstparam[DST_STOPDAYOFWEEK] = DST_SUNDAY;
-                m_dstparam[DST_STOPTIME] = 2 * HOURSEC;
+                m_dstparam[DST_STOPTIME] = 2 * SECONDS_PER_HOUR;
 
-                // according to http://webexhibits.org/daylightsaving/b.html US DST rule changes in 2007
+                // according to http://webexhibits.org/daylightsaving/b.html US DST rule changes
+                // in 2007
                 // this code will break current phone unit tests in 2007
 
                 if (Calendar.getInstance().get(Calendar.YEAR) > 2006) {
@@ -128,18 +131,20 @@ public class DeviceTimeZone {
                 m_dstparam[DST_STARTDAY] = 0;
                 m_dstparam[DST_STARTDAYOFWEEK] = DST_SUNDAY;
                 m_dstparam[DST_STARTMONTH] = DST_MARCH;
-                m_dstparam[DST_STARTTIME] = HOURSEC + getOffset();
+                m_dstparam[DST_STARTTIME] = SECONDS_PER_HOUR + getOffset();
                 m_dstparam[DST_STARTWEEK] = DST_LASTWEEK;
                 m_dstparam[DST_STOPDAY] = 0;
                 m_dstparam[DST_STOPDAYOFWEEK] = DST_SUNDAY;
                 m_dstparam[DST_STOPMONTH] = DST_OCTOBER;
-                m_dstparam[DST_STOPTIME] = HOURSEC + getOffset() + getDstOffset();
+                m_dstparam[DST_STOPTIME] = SECONDS_PER_HOUR + getOffset() + getDstOffset();
                 m_dstparam[DST_STOPWEEK] = DST_LASTWEEK;
                 return;
             }
         }
-        
-        m_dstparam = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+        m_dstparam = new int[] {
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+        };
     }
 
     public boolean getDstActive() {
@@ -148,13 +153,16 @@ public class DeviceTimeZone {
     }
 
     public int getOffset() {
-        return m_tz.getRawOffset() / MSEC;
+        return m_tz.getRawOffset() / (int) DateUtils.MILLIS_PER_SECOND;
 
     }
 
-    public int getDstOffset() {
-        return m_tz.getDSTSavings() / MSEC;
+    public int getOffsetInHours() {
+        return m_tz.getRawOffset() / (int) DateUtils.MILLIS_PER_HOUR;
+    }
 
+    public int getDstOffset() {
+        return m_tz.getDSTSavings() / (int) DateUtils.MILLIS_PER_SECOND;
     }
 
     public int getOffsetWithDst() {
@@ -187,6 +195,10 @@ public class DeviceTimeZone {
         return m_dstparam[DST_STARTTIME];
     }
 
+    public int getStartTimeInHours() {
+        return m_dstparam[DST_STARTTIME] / SECONDS_PER_HOUR;
+    }
+
     public int getStartWeek() {
         return m_dstparam[DST_STARTWEEK];
     }
@@ -205,6 +217,10 @@ public class DeviceTimeZone {
 
     public int getStopTime() {
         return m_dstparam[DST_STOPTIME];
+    }
+
+    public int getStopTimeInHours() {
+        return m_dstparam[DST_STARTTIME] / SECONDS_PER_HOUR;
     }
 
     public int getStopWeek() {

@@ -37,7 +37,7 @@ public class LgNortelPhoneTest extends TestCase {
     }
 
     //FIXME: disable temporary during development
-    public void _testGenerateTypicalProfile() throws Exception {
+    public void testGenerateTypicalProfile() throws Exception {
         LgNortelPhone phone = new LgNortelPhone(new LgNortelModel());
 
         // call this to inject dummy data
@@ -56,9 +56,10 @@ public class LgNortelPhoneTest extends TestCase {
         String expectedLines[] = StringUtils.split(expected, "\n");
         String actualLines[] = StringUtils.split(actual, "\n");
 
-        assertEquals(expectedLines.length, actualLines.length);
-        for (int i = 0; i < actualLines.length; i++) {
+        int len = Math.min(actualLines.length, expectedLines.length);
+        for (int i = 0; i < len; i++) {
             assertEquals(expectedLines[i], actualLines[i]);
         }
+        assertEquals(expectedLines.length, actualLines.length);
     }
 }

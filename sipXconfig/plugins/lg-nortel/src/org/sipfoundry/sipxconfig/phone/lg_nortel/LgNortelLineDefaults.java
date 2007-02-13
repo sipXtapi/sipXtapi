@@ -15,33 +15,61 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
+import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class LgNortelLineDefaults {
 
-    private Line m_line;
-    private DeviceDefaults m_defaults;
+    private LineInfo m_lineInfo;
 
-    public LgNortelLineDefaults(Line line, DeviceDefaults defaults) {
-        m_line = line;
-        m_defaults = defaults;
+    public LgNortelLineDefaults(LineInfo lineInfo) {
+        m_lineInfo = lineInfo;
     }
 
+    @SettingEntry(path = "VOIP/proxy_address")
+    public String getProxyAddress() {
+        return m_lineInfo.getRegistrationServer();
+    }
+
+    @SettingEntry(path = "VOIP/proxy_port")
+    public String getProxyPort() {
+        return m_lineInfo.getRegistrationServerPort();
+    }
+
+    @SettingEntry(path = "VOIP/name")
     public String getUserName() {
-        m_line.getDisplayLabel();
-        User user = m_line.getUser();
-        if (user == null) {
-            return null;
-        }
-        return user.getUserName();
+        return m_lineInfo.getUserId();
     }
 
-    public static LineInfo getLineInfo(LgNortelPhone phone, Line line) {
-        // TODO Auto-generated method stub
-        return null;
+    @SettingEntry(path = "VOIP/displayname")
+    public String getDisplayname() {
+        return m_lineInfo.getDisplayName();
+    }
+
+    @SettingEntry(path = "VOIP/authname")
+    public String getAuthName() {
+        return m_lineInfo.getUserId();
+    }
+
+    @SettingEntry(path = "VOIP/password")
+    public String getPassword() {
+        return m_lineInfo.getPassword();
+    }
+
+    public static LineInfo getLineInfo(DeviceDefaults defaults, Line line) {
+        User user = line.getUser();
+        LineInfo lineInfo = new LineInfo();
+        if (user != null) {
+            lineInfo.setDisplayName(user.getDisplayName());
+            lineInfo.setPassword(user.getSipPassword());
+            lineInfo.setUserId(user.getUserName());
+            lineInfo.setExtension(user.getExtension(true));
+        }
+        lineInfo.setRegistrationServer(defaults.getDomainName());
+        lineInfo.setRegistrationServerPort(defaults.getProxyServerSipPort());
+        return lineInfo;
     }
 
     public static void setLineInfo(LgNortelPhone phone, Line line, LineInfo lineInfo) {
         // TODO Auto-generated method stub
-
     }
 }

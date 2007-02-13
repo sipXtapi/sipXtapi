@@ -179,11 +179,7 @@
       <type refid="port-number" />
       <value>5060</value>
     </setting>
-    <setting name='SIP_service_domain'>
-      <!--domain for SIP service
-      -->
-      <value></value>
-    </setting>
+    <setting name='SIP_service_domain' advanced="yes"></setting>
     <setting name='rtp_port' advanced="yes">
       <type refid="port-number" />
       <value>23000</value>
@@ -240,13 +236,15 @@
       <value></value>
     </setting>
     <setting name='max_line_num' hidden="yes">
-      <value></value>
+      <type>
+        <integer />
+      </type>
     </setting>
   </group>
   <group name='DSP'>
     <setting name='ringer_off'>
       <type refid="on-off" />
-      <value>on</value>
+      <value>off</value>
     </setting>
     <setting name='VAD'>
       <type refid="on-off" />
@@ -438,17 +436,17 @@
       <type refid="ena-dis" />
       <value>disable</value>
     </setting>
-    <setting name='call_wait'>
+    <setting name='call_waiting'>
       <type refid="ena-dis" />
       <value>enable</value>
     </setting>
     <setting name='call_waiting_tone'>
       <type refid="ena-dis" />
-      <value>disable</value>
+      <value>enable</value>
     </setting>
     <setting name='call_hold_ringback'>
       <type refid="ena-dis" />
-      <value>disable</value>
+      <value>enable</value>
     </setting>
     <setting name='msg_waiting_tone'>
       <type refid="ena-dis" />
@@ -538,33 +536,55 @@
     </setting>
     <setting name='lock_outgoing_call'>
       <type>
-        <enum>
-          <option>
-            <label>unlock</label>
-            <value>0</value>
-          </option>
-          <option>
-            <label>lock</label>
+        <boolean>
+          <true>
             <value>1</value>
-          </option>
-        </enum>
+          </true>
+          <false>
+            <value>0</value>
+          </false>
+        </boolean>
       </type>
       <value>0</value>
     </setting>
     <setting name='use_speed_number'>
-      <!--Allow/deny use of Speed Number dialing, 0=deny, 1=allow (default: allow)
-      -->
-      <value></value>
+      <type>
+        <boolean>
+          <true>
+            <value>1</value>
+          </true>
+          <false>
+            <value>0</value>
+          </false>
+        </boolean>
+      </type>
+      <value>1</value>
     </setting>
     <setting name='web_server'>
-      <!--Enable/disable access to Web Admin, 1=enable 0=disable (default: enable)
-      -->
-      <value></value>
+      <type>
+        <boolean>
+          <true>
+            <value>1</value>
+          </true>
+          <false>
+            <value>0</value>
+          </false>
+        </boolean>
+      </type>
+      <value>1</value>
     </setting>
     <setting name='telnet_server'>
-      <!--Allow/deny access to the telnet server, 0=deny, 1=allow (default: allow)
-      -->
-      <value></value>
+      <type>
+        <boolean>
+          <true>
+            <value>1</value>
+          </true>
+          <false>
+            <value>0</value>
+          </false>
+        </boolean>
+      </type>
+      <value>1</value>
     </setting>
     <setting name='call-park'>
       <profileName>function call-park</profileName>
@@ -681,7 +701,9 @@
     </setting>
   </group>
   <group name='NETTIME'>
-    <setting name='sntp_server_address'></setting>
+    <setting name='sntp_server_address'>
+      <value>pool.ntp.org</value>
+    </setting>
     <setting name='interval'>
       <type>
         <integer min="0" max="120" />
