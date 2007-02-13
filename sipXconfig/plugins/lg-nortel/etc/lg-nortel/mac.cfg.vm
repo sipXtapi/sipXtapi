@@ -1,0 +1,6 @@
+#foreach ($group in $phone.Settings.Values)
+[${group.ProfileName}]
+#foreach ($setting in $group.Values)
+${setting.ProfileName} $!{setting.Value}
+#end
+#end
