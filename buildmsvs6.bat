@@ -120,32 +120,32 @@ goto end
 
 :run_unittests
 REM Here we run the unit tests
-set DEPD=C:\build\sipXdepends
-set PATH=c:\Program Files\GnuWin32;%DEPD%\cppunit-1.10.2\lib;%DEPD%\pcre\bin;%DEPD%\openssl\out32.dbg;%DEPD%\libgsm\lib;%DEPD%\libspeex\lib;%PATH%
+@echo off
+set DEPD=C:\build\sipx-depends
+set PATH=c:\Program Files\GnuWin32\bin;%DEPD%\cppunit-1.10.2\lib;%DEPD%\pcre\bin;%DEPD%\openssl\out32.dbg;%DEPD%\libgsm\lib;%DEPD%\libspeex\lib;%PATH%
 
 set NAME_PREFIX=test-test-
-@if not "%1" == "" set NAME_PREFIX=%1
+if not "%1" == "" set NAME_PREFIX=%1
 echo logging in %NAME_PREFIX% files
 svn info | grep Revision
 
 sipXportLib\Debug\sipXportLibTest.exe 2> %NAME_PREFIX%port.err.txt > %NAME_PREFIX%port.txt
-@grep "OK (" %NAME_PREFIX%port.txt
-@grep "Run:" %NAME_PREFIX%port.txt
+sed -e "/^\(OK (\|Run:\)/!d;s/^/sipXportLib - /" %NAME_PREFIX%port.txt
+
 sipXtackLib\Debug\sipXtackLibTest.exe 2> %NAME_PREFIX%stack.err.txt > %NAME_PREFIX%stack.txt
-@grep "OK (" %NAME_PREFIX%stack.txt
-@grep "Run:" %NAME_PREFIX%stack.txt
+sed -e "/^\(OK (\|Run:\)/!d;s/^/sipXtackLib - /" %NAME_PREFIX%stack.txt
+
 sipXmediaLib\Debug\sipXmediaLibTest.exe 2> %NAME_PREFIX%media.err.txt > %NAME_PREFIX%media.txt
-@grep "OK (" %NAME_PREFIX%media.txt
-@grep "Run:" %NAME_PREFIX%media.txt
+sed -e "/^\(OK (\|Run:\)/!d;s/^/sipXmediaLib - /" %NAME_PREFIX%media.txt
+
 sipXmediaAdapterLib\Debug\sipXmediaAdapterLibTest.exe 2> %NAME_PREFIX%adapter.err.txt > %NAME_PREFIX%adapter.txt
-@grep "OK (" %NAME_PREFIX%adapter.txt
-@grep "Run:" %NAME_PREFIX%adapter.txt
+sed -e "/^\(OK (\|Run:\)/!d;s/^/sipXmediaAdapterLib - /" %NAME_PREFIX%adapter.txt
+
 sipXcallLib\Debug\sipXcallLibTest.exe 2> %NAME_PREFIX%call.err.txt > %NAME_PREFIX%call.txt
-@grep "OK (" %NAME_PREFIX%call.txt
-@grep "Run:" %NAME_PREFIX%call.txt
+sed -e "/^\(OK (\|Run:\)/!d;s/^/sipXcallLib - /" %NAME_PREFIX%call.txt
+
 sipXcallLib\sipXtapi\Debug\sipXtapiTest.exe 2> %NAME_PREFIX%tapi.err.txt > %NAME_PREFIX%tapi.txt
-@grep "OK (" %NAME_PREFIX%tapi.err.txt
-@grep "Run:" %NAME_PREFIX%tapi.err.txt
+sed -e "/^\(OK (\|Run:\)/!d;s/^/sipXtapi - /" %NAME_PREFIX%tapi.txt
             
 
 :end
