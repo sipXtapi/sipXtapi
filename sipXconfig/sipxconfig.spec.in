@@ -181,6 +181,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/dialplan/*
 %config(noreplace) %{sipxpbxconf}/grandstream/*
 %config(noreplace) %{sipxpbxconf}/hitachi/*
+%config(noreplace) %{sipxpbxconf}/lg-nortel/*
 %config(noreplace) %{sipxpbxconf}/process.d/sipxconfig.process.xml
 %config(noreplace) %{sipxpbxconf}/polycom/*
 %config(noreplace) %{sipxpbxconf}/snom/*
