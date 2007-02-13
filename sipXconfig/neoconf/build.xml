@@ -77,7 +77,7 @@
   <property name="classpath" refid="base.path" />
 
   <!-- INSTALL -->
-  <target name="install" depends="remove-jars,jar">
+  <target name="install" depends="jar">
     <mkdir dir="${dest.dir}${sipxpbx.conf.dir}" />
     <copy todir="${dest.dir}${sipxpbx.conf.dir}">
       <fileset dir="etc">
@@ -164,15 +164,6 @@
     <copy todir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot" file="etc/ciscoIp/syncinfo.xml" />
     <copy todir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot" file="etc/ciscoAta/sipx7912.logo" />
 
-  </target>
-
-  <target name="remove-jars" description="Remove all jars from lib dir">
-    <delete failonerror="false">
-      <fileset dir="${dest.dir}${sipxpbx.data.dir}/lib">
-        <include name="*.jar"/>
-        <include name="*.war"/>
-      </fileset>
-    </delete>
   </target>
 
   <!-- D E F A U L T -->
