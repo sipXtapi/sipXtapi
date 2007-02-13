@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <!-- Per-phone Configuration File -->
-<!--  $Revision: 1.67 $  $Date: 2005/03/11 17:05:46 $ -->
+<!--  Revision: 1.67 Date: 2005/03/11 17:05:46  -->
 <phone1>
   <reg 
 #foreach ($line in ${lines})
