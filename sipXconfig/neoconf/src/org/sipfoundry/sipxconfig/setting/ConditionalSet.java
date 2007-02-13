@@ -72,12 +72,14 @@ public class ConditionalSet extends SettingSet implements ConditionalSetting {
             }
         }
 
-        public void visitSettingGroup(Setting set) {
+        public boolean visitSettingGroup(Setting set) {
             ConditionalSet conditional = (ConditionalSet) set;
-            if (isTrue(conditional.getIf(), conditional.getUnless(), set)) {
+            boolean isTrue = isTrue(conditional.getIf(), conditional.getUnless(), set);
+            if (isTrue) {
                 Setting copy = conditional.shallowCopy();
                 addCopy(copy);
             }
+            return isTrue;
         }
 
         private void addCopy(Setting copy) {
