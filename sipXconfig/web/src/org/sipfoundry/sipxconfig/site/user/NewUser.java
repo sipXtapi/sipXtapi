@@ -61,7 +61,7 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
         MailboxManager mmgr = getMailboxManager();
         if (mmgr.isEnabled()) {
             Mailbox mailbox = mmgr.getMailbox(user.getUserName());
-            mmgr.saveMailboxPreferences(mailbox, (MailboxPreferences) getBeans().getBean("mailboxPreferences"));
+            mmgr.saveMailboxPreferences(mailbox, getMailboxPreferences());
         }
 
         // On saving the user, transfer control to edituser page.
@@ -72,6 +72,10 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
         }
 
         return null;
+    }
+    
+    private MailboxPreferences getMailboxPreferences() {
+        return (MailboxPreferences) getBeans().getBean("mailboxPreferences");
     }
 
     public IPage extensionPools(IRequestCycle cycle) {
@@ -95,7 +99,12 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
 
         public void performCallback(IRequestCycle cycle) {
             if (isStay() && FormActions.OK.equals(getButtonPressed())) {
+                // Explicitly null out information that should not be used for multiple users, 
+                // otherwise keep form values as is theory that creating users in bulk will want
+                // all the same settings by default
                 setUser(null);
+                // XCF-1523
+                getMailboxPreferences().setEmailAddress(null);
                 cycle.activate(PAGE);
             } else if (m_delegate != null) {
                 m_delegate.performCallback(cycle);
