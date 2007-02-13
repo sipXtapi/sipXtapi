@@ -15,6 +15,8 @@ libsipXunit_la_SOURCES =  \
     TestMonitor.h \
     TestOutputter.cpp \
     TestOutputter.h \
+	 TestOsSysLogListener.cpp \
+	 TestOsSysLogListener.h \
     TestTemplate.cpp
 
 libsipXunit_la_LIBADD = \
