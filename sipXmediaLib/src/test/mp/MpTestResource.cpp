@@ -45,9 +45,9 @@ MpTestResource::MpTestResource(const UtlString& rName
                    samplesPerFrame, samplesPerSec),
    mGenOutBufMask(0),
    mProcessInBufMask(0),
+   mLastMsg(0),
    mProcessedCnt(0),
-   mMsgCnt(0),
-   mLastMsg(0)
+   mMsgCnt(0)
 {
    mLastDoProcessArgs.inBufs = new MpBufPtr[mMaxInputs];
    mLastDoProcessArgs.outBufs = new MpBufPtr[mMaxOutputs];
