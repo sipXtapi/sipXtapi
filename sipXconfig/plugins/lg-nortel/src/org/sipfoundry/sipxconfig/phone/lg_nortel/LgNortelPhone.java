@@ -37,9 +37,8 @@ public class LgNortelPhone extends Phone {
 
     @Override
     public void initializeLine(Line line) {
-        LineInfo lineInfo = LgNortelLineDefaults.getLineInfo(
-                getPhoneContext().getPhoneDefaults(), line);
-        LgNortelLineDefaults defaults = new LgNortelLineDefaults(lineInfo);
+        DeviceDefaults phoneDefaults = getPhoneContext().getPhoneDefaults();
+        LgNortelLineDefaults defaults = new LgNortelLineDefaults(phoneDefaults, line);
         line.addDefaultBeanSettingHandler(defaults);
     }
 
@@ -65,13 +64,12 @@ public class LgNortelPhone extends Phone {
 
     @Override
     protected LineInfo getLineInfo(Line line) {
-        LineInfo lineInfo = LgNortelLineDefaults.getLineInfo(
-                getPhoneContext().getPhoneDefaults(), line);
+        LineInfo lineInfo = LgNortelLineDefaults.getLineInfo(line);
         return lineInfo;
     }
 
     @Override
     protected void setLineInfo(Line line, LineInfo lineInfo) {
-        LgNortelLineDefaults.setLineInfo(this, line, lineInfo);
+        LgNortelLineDefaults.setLineInfo(line, lineInfo);
     }
 }

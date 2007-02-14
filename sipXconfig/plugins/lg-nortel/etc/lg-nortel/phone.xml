@@ -143,25 +143,25 @@
     <setting name='tos' advanced="yes">
       <value>0</value>
     </setting>
-    <setting name='pc_802_priority'>
+    <setting name='pc_802_priority' advanced="yes">
       <type>
         <integer min="0" max="7" />
       </type>
       <value>0</value>
     </setting>
-    <setting name='phone_802_priority'>
+    <setting name='phone_802_priority' advanced="yes">
       <type>
         <integer min="0" max="7" />
       </type>
       <value>0</value>
     </setting>
-    <setting name='pc_vlan_id'>
+    <setting name='pc_vlan_id' advanced="yes">
       <type>
         <integer min="0" max="4094" />
       </type>
       <value>0</value>
     </setting>
-    <setting name='phone_vlan_id'>
+    <setting name='phone_vlan_id' advanced="yes">
       <type>
         <integer min="0" max="4094" />
       </type>
@@ -170,12 +170,12 @@
   </group>
   <group name='VOIP'>
     <setting name='outbound_proxy_server'></setting>
-    <setting name='outbound_proxy_port'>
+    <setting name='outbound_proxy_port' advanced="yes">
       <type refid="port-number" />
       <value>5060</value>
     </setting>
-    <setting name='backup_proxy_server'></setting>
-    <setting name='backup_proxy_port'>
+    <setting name='backup_proxy_server' advanced="yes"></setting>
+    <setting name='backup_proxy_port' advanced="yes">
       <type refid="port-number" />
       <value>5060</value>
     </setting>

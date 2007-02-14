@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.phone.lg_nortel;
 
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import junit.framework.TestCase;
@@ -21,6 +22,9 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.phone.Line;
+import org.sipfoundry.sipxconfig.phone.LineInfo;
+import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
@@ -37,6 +41,24 @@ public class LgNortelPhoneTest extends TestCase {
         phone.setTftpRoot("abc");
         assertEquals("abc/0011AABB4455", phone.getPhoneFilename());
     }
+    
+    public void testExternalLine() {
+        LgNortelModel lgNortelModel = new LgNortelModel();
+        Phone phone = new LgNortelPhone(lgNortelModel);
+
+        PhoneTestDriver.supplyTestData(phone, new ArrayList<User>());        
+        LineInfo li = new LineInfo();
+        li.setDisplayName("First Last");
+        li.setUserId("flast");
+        li.setRegistrationServer("example.org");
+        li.setPassword("12345");
+        
+        Line line = phone.createLine();
+        phone.addLine(line);
+        line.setLineInfo(li);
+
+        assertEquals("\"First Last\"<sip:flast@example.org>",  line.getUri());        
+    }
 
     public void testGenerateTypicalProfile() throws Exception {
         LgNortelModel lgNortelModel = new LgNortelModel();
@@ -52,6 +74,7 @@ public class LgNortelPhoneTest extends TestCase {
         User u2 = new User();
         u2.setUserName("buser");
         u2.setSipPassword("abcdef");
+        u2.addAlias("432");
 
         // call this to inject dummy data
         PhoneTestDriver.supplyTestData(phone, Arrays.asList(new User[] {

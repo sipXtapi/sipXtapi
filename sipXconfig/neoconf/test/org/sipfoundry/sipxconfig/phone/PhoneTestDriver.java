@@ -110,8 +110,11 @@ public class PhoneTestDriver {
 
         sipControl = EasyMock.createStrictControl();
         sip = sipControl.createMock(SipService.class);
-        String uri = users.get(0).getUri("sipfoundry.org");
-        sip.sendCheckSync(uri, "sipfoundry.org", "5555");
+        
+        if(users.size() > 0) {
+            String uri = users.get(0).getUri("sipfoundry.org");
+            sip.sendCheckSync(uri, "sipfoundry.org", "5555");
+        }
         sipControl.replay();
         _phone.setSipService(sip);
 

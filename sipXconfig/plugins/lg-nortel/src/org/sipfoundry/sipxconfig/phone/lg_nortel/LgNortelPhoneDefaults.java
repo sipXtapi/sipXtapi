@@ -15,6 +15,12 @@ import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
+/**
+ * Default parameters for LgNortelPhone
+ * 
+ * The following parameters: outbound_proxy_server, outbound_proxy_port, SIP_service_domain are
+ * intentionally *not* set here. Phones use per-line parameters to find proxy and set SIP domain.
+ */
 public class LgNortelPhoneDefaults {
 
     private DeviceDefaults m_defaults;
@@ -29,28 +35,14 @@ public class LgNortelPhoneDefaults {
         return m_defaults.getTimeZone();
     }
 
-    @SettingEntry(path = "VOIP/outbound_proxy_server")
-    public String getProxyServerAddr() {
-        return m_defaults.getProxyServerAddr();
-    }
-
-    @SettingEntry(path = "VOIP/outbound_proxy_port")
-    public String getProxyServerPort() {
-        return m_defaults.getProxyServerSipPort();
-    }
-
-    @SettingEntry(path = "VOIP/SIP_service_domain")
-    public String getSipServiceDomain() {
-        return m_defaults.getDomainName();
-    }
-
     @SettingEntry(path = "VOIP/max_line_num")
     public int getMaxLineNum() {
         return m_lines;
     }
-    
+
     @SettingEntry(path = "VOIP/timezone")
     public int getTimezone() {
+        // FIXME: need to translate into LG/Nortel timezone ID
         return getZone().getOffsetInHours();
     }
 

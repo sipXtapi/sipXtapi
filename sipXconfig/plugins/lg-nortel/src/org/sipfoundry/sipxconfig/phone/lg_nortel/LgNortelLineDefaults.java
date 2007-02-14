@@ -19,57 +19,90 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class LgNortelLineDefaults {
 
-    private LineInfo m_lineInfo;
+    private static final String VOIP_PROXY_PORT = "VOIP/proxy_port";
+    private static final String VOIP_PROXY_ADDRESS = "VOIP/proxy_address";
+    private static final String VOIP_AUTHNAME = "VOIP/authname";
+    private static final String VOIP_PASSWORD = "VOIP/password";
+    private static final String VOIP_NAME = "VOIP/name";
+    private static final String VOIP_DISPLAYNAME = "VOIP/displayname";
 
-    public LgNortelLineDefaults(LineInfo lineInfo) {
-        m_lineInfo = lineInfo;
+    private Line m_line;
+    private DeviceDefaults m_defaults;
+
+    public LgNortelLineDefaults(DeviceDefaults defaults, Line line) {
+        m_line = line;
+        m_defaults = defaults;
     }
 
-    @SettingEntry(path = "VOIP/proxy_address")
+    @SettingEntry(path = VOIP_PROXY_ADDRESS)
     public String getProxyAddress() {
-        return m_lineInfo.getRegistrationServer();
+
+        return m_defaults.getDomainName();
     }
 
-    @SettingEntry(path = "VOIP/proxy_port")
+    @SettingEntry(path = VOIP_PROXY_PORT)
     public String getProxyPort() {
-        return m_lineInfo.getRegistrationServerPort();
+        return m_defaults.getProxyServerSipPort();
     }
 
-    @SettingEntry(path = "VOIP/name")
+    @SettingEntry(paths = { VOIP_NAME, VOIP_AUTHNAME })
     public String getUserName() {
-        return m_lineInfo.getUserId();
-    }
-
-    @SettingEntry(path = "VOIP/displayname")
-    public String getDisplayname() {
-        return m_lineInfo.getDisplayName();
-    }
-
-    @SettingEntry(path = "VOIP/authname")
-    public String getAuthName() {
-        return m_lineInfo.getUserId();
-    }
-
-    @SettingEntry(path = "VOIP/password")
-    public String getPassword() {
-        return m_lineInfo.getPassword();
-    }
-
-    public static LineInfo getLineInfo(DeviceDefaults defaults, Line line) {
-        User user = line.getUser();
-        LineInfo lineInfo = new LineInfo();
-        if (user != null) {
-            lineInfo.setDisplayName(user.getDisplayName());
-            lineInfo.setPassword(user.getSipPassword());
-            lineInfo.setUserId(user.getUserName());
-            lineInfo.setExtension(user.getExtension(true));
+        User user = m_line.getUser();
+        if (user == null) {
+            return null;
         }
-        lineInfo.setRegistrationServer(defaults.getDomainName());
-        lineInfo.setRegistrationServerPort(defaults.getProxyServerSipPort());
+
+        return user.getUserName();
+    }
+
+    @SettingEntry(path = VOIP_DISPLAYNAME)
+    public String getDisplayname() {
+        User user = m_line.getUser();
+        if (user == null) {
+            return null;
+        }
+
+        return user.getDisplayName();
+    }
+
+    @SettingEntry(path = VOIP_PASSWORD)
+    public String getPassword() {
+        User user = m_line.getUser();
+        if (user == null) {
+            return null;
+        }
+
+        return user.getSipPassword();
+    }
+
+    @SettingEntry(path = "VOIP/extension")
+    public String getExtension() {
+        User user = m_line.getUser();
+        if (user == null) {
+            return null;
+        }
+
+        return user.getExtension(false);
+    }
+    
+    public static LineInfo getLineInfo(Line line) {
+        LineInfo lineInfo = new LineInfo();
+        lineInfo.setUserId(line.getSettingValue(VOIP_NAME));
+        lineInfo.setDisplayName(line.getSettingValue(VOIP_DISPLAYNAME));
+        lineInfo.setPassword(line.getSettingValue(VOIP_PASSWORD));
+        lineInfo.setRegistrationServer(line.getSettingValue(VOIP_PROXY_ADDRESS));
+        lineInfo.setRegistrationServerPort(line.getSettingValue(VOIP_PROXY_PORT));
         return lineInfo;
     }
 
-    public static void setLineInfo(LgNortelPhone phone, Line line, LineInfo lineInfo) {
-        // TODO Auto-generated method stub
+    public static void setLineInfo(Line line, LineInfo lineInfo) {
+        line.setSettingValue(VOIP_DISPLAYNAME, lineInfo.getDisplayName());
+        line.setSettingValue(VOIP_NAME, lineInfo.getUserId());
+        line.setSettingValue(VOIP_PASSWORD, lineInfo.getPassword());
+
+        line.setSettingValue(VOIP_AUTHNAME, lineInfo.getUserId());
+
+        line.setSettingValue(VOIP_PROXY_ADDRESS, lineInfo.getRegistrationServer());
+        line.setSettingValue(VOIP_PROXY_PORT, lineInfo.getRegistrationServerPort());
     }
 }
