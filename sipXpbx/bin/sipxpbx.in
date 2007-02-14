@@ -1,4 +1,4 @@
-#!/bin/sh
+!/bin/sh
 #
 # chkconfig: 35 90 10
 # description: This script starts up the sipXpbx processes.  
@@ -222,6 +222,10 @@ stopCheck() {
 configtest() { # process-name  process-wd  process-command 
     proc_name=$1; shift
     proc_cmd=@bindir@/${proc_name}.sh
+    if [ ! -x $proc_cmd ] 
+    then
+      proc_cmd=@bindir@/${proc_name}
+    fi
 
     # Unset environment manually for same reason as stated in start() function
     unset BASH_ENV
