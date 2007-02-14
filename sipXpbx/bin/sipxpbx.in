@@ -1,4 +1,4 @@
-!/bin/sh
+#!/bin/sh
 #
 # chkconfig: 35 90 10
 # description: This script starts up the sipXpbx processes.  
@@ -97,6 +97,18 @@ fi
 # This should somehow be syncronized with what's in 
 # the ProcessDefinitions.xml and Watchdog.xml
 sipx_processes="watchdog "`sipx_services`
+
+# Find the name of the process, use process_name.sh if found 
+# and executable otherwise use process_name
+process_command() {
+  proc_cmd="@bindir@/${1}"
+  proc_cmd_sh="${proc_cmd}.sh"
+  if [ -x "${proc_cmd_sh}" ]; then
+    echo -n "${proc_cmd_sh}"
+    return
+  fi
+  echo -n "${proc_cmd}"
+}
 
 # Low-level start function.
 # Unfortunately, $? will never report failure as su will always succeed.
@@ -221,11 +233,8 @@ stopCheck() {
 # Low-level configtest function.
 configtest() { # process-name  process-wd  process-command 
     proc_name=$1; shift
-    proc_cmd=@bindir@/${proc_name}.sh
-    if [ ! -x $proc_cmd ] 
-    then
-      proc_cmd=@bindir@/${proc_name}
-    fi
+    #proc_cmd=@bindir@/${proc_name}.sh
+    proc_cmd=`process_command ${proc_name}`
 
     # Unset environment manually for same reason as stated in start() function
     unset BASH_ENV
