@@ -21,7 +21,7 @@ grep '^[a-z,A-Z]' @SIPX_CONFDIR@/config.defs > $TEMP_IN
   --in $TEMP_IN \
   --out $TEMP_OUT
 
-cat $TEMP_OUT | sed -e 's/=["'']*/="/' -e 's/["'']*$/"/' -e 's/="$/=""/'
+cat $TEMP_OUT | sed -e 's/=["'']*/="/' -e 's/["'']*$/"/' -e 's/="$/=""/' -e '/^[^A-Za-z0-9]/d'
 rm ${TEMP_OUT}
 rm ${TEMP_IN}
 
