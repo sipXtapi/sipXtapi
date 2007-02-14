@@ -133,7 +133,7 @@ class CallResolverConfigure
   
   # number of seconds between attempts to read new CSEs from database
   def cse_polling_interval
-    @config.fetch('SIP_CALLRESOLVER_CSE_POLLING_INTERVAL', 10)
+    parse_int_param(@config, 'SIP_CALLRESOLVER_CSE_POLLING_INTERVAL', 10, 1)
   end
   
   def stunnel_debug

@@ -203,6 +203,9 @@ class CallResolverConfigureTest < Test::Unit::TestCase
   
   def test_cse_polling_interval
     assert_equal(10, @config.cse_polling_interval)
+    c = Configure.new('SIP_CALLRESOLVER_CSE_POLLING_INTERVAL' => '12')
+    config = CallResolverConfigure.new(c)
+    assert_equal(12, config.cse_polling_interval)
   end  
 
   def test_dirs
