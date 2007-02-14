@@ -244,7 +244,7 @@ AC_DEFUN([CHECK_ANT],
        AC_MSG_ERROR([Cannot find ant program. Try setting ANT_HOME environment variable or use 'configure ANT=<path to ant executable>])
    fi
 
-  AC_SUBST(ANT_FLAGS, "-e -Dtop.build.dir=`pwd` -f ${srcdir}/build.xml")
+  AC_SUBST(ANT_FLAGS, '-e -Dtop.build.dir=$(shell cd $(top_builddir) && pwd) -f $(srcdir)/build.xml')
   AC_SUBST(ANT_CMD, "JAVA_HOME=${JAVA_HOME} ${ANT}")
 ])
 
