@@ -19,4 +19,9 @@
   <bean id="lg-nortel" class="org.sipfoundry.sipxconfig.phone.lg_nortel.LgNortelPhone"
     singleton="false" parent="abstractPhone">
   </bean>
+  <bean id="lg-nortelFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
+    <property name="beanId" value="zipUpload"/>
+    <property name="modelFilePath" value="lg-nortel/upload.xml"/>
+    <property name="label" value="LG-Nortel LIP-68xx" />
+  </bean>      
 </beans>
