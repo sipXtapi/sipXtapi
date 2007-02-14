@@ -53,7 +53,7 @@ public class LgNortelPhone extends Phone {
 
     @Override
     public String getPhoneFilename() {
-        return new File(getTftpRoot(), formatName("%s.cfg")).getPath();
+        return new File(getTftpRoot(), formatName("%s")).getPath();
     }
 
     private String formatName(String format) {

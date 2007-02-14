@@ -23,8 +23,8 @@ ${s.ProfileName} $!{s.Value}
 #emit_groups_by_name(['LAN', 'NETTIME'])
 #emit_groups_by_name(['VOIP'])
 #foreach ($line in $phone.lines)
-#foreach ($group in $line.Settings.Values)
 #set($line_id = $velocityCount)
+#foreach ($group in $line.Settings.Values)
 #foreach ($setting in $group.Values)
 line${line_id}_${setting.ProfileName} $!{setting.Value}
 #end

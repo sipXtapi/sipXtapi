@@ -13,12 +13,14 @@ package org.sipfoundry.sipxconfig.phone.lg_nortel;
 
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.util.Arrays;
 
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
@@ -33,15 +35,28 @@ public class LgNortelPhoneTest extends TestCase {
         LgNortelPhone phone = new LgNortelPhone();
         phone.setSerialNumber("0011aabb4455");
         phone.setTftpRoot("abc");
-        assertEquals("abc/0011AABB4455.cfg", phone.getPhoneFilename());
+        assertEquals("abc/0011AABB4455", phone.getPhoneFilename());
     }
 
-    //FIXME: disable temporary during development
     public void testGenerateTypicalProfile() throws Exception {
-        LgNortelPhone phone = new LgNortelPhone(new LgNortelModel());
+        LgNortelModel lgNortelModel = new LgNortelModel();
+        lgNortelModel.setMaxLineCount(4); // we are testing 2 lines
+        LgNortelPhone phone = new LgNortelPhone(lgNortelModel);
+
+        User u1 = new User();
+        u1.setUserName("juser");
+        u1.setFirstName("Joe");
+        u1.setLastName("User");
+        u1.setSipPassword("1234");
+
+        User u2 = new User();
+        u2.setUserName("buser");
+        u2.setSipPassword("abcdef");
 
         // call this to inject dummy data
-        PhoneTestDriver.supplyTestData(phone);
+        PhoneTestDriver.supplyTestData(phone, Arrays.asList(new User[] {
+            u1, u2
+        }));
 
         StringWriter actualWriter = new StringWriter();
         phone.generateProfile(phone.getPhoneTemplate(), actualWriter);
@@ -51,7 +66,6 @@ public class LgNortelPhoneTest extends TestCase {
         expectedProfile.close();
 
         String actual = actualWriter.toString();
-        System.err.println(actual);
 
         String expectedLines[] = StringUtils.split(expected, "\n");
         String actualLines[] = StringUtils.split(actual, "\n");
