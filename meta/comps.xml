@@ -67,7 +67,6 @@
      <packagereq type="mandatory">createrepo</packagereq>
      <packagereq type="mandatory">zip</packagereq>
      <packagereq type="mandatory">subversion</packagereq>
-     <packagereq type="mandatory">mod_cplusplus</packagereq>
      <packagereq type="mandatory">cgicc-devel</packagereq>
      <packagereq type="mandatory">xerces-c-devel</packagereq>
      <packagereq type="mandatory">pcre-devel</packagereq>
