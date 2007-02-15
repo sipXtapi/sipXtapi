@@ -14,12 +14,13 @@
     <routeFrom>${MY_HOSTNAME}:${PROXY_SERVER_SIP_PORT}</routeFrom>
 
     <methodMatch>
-      <methodPattern>SUBSCRIBE</methodPattern>
-
       <description>
         Message waiting indication subscriptions go to the status server.
         All other SUBSCRIBE requests go to the SIP registry service.
       </description>
+
+      <methodPattern>SUBSCRIBE</methodPattern>
+
       <fieldMatch fieldName="Event">
         <fieldPattern>message-summary.*</fieldPattern>
         <routeTo>&lt;${STATUS_SERVER_SIP_SRV_OR_HOSTPORT};transport=tcp&gt;</routeTo>
