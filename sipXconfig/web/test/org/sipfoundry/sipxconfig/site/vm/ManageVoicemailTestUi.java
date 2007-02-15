@@ -99,15 +99,15 @@ public class ManageVoicemailTestUi extends WebTestCase {
     
     public void testPlayFriendlyUrl() throws Exception {
         gotoManageVoicemail();
-        gotoPage(String.format("mailbox/%s/inbox/00000002-00", TestPage.TEST_USER_USERNAME));
+        gotoPage(String.format("mailbox/%s/inbox/00000002", TestPage.TEST_USER_USERNAME));
         assertEquals("audio/x-wav", getDialog().getResponse().getContentType());                
     }
     
     public void testDeleteFriendlyUrl() throws Exception {
         gotoManageVoicemail();
-        assertTextPresent("00000002-00");
-        gotoPage(String.format("mailbox/%s/inbox/00000002-00/delete", TestPage.TEST_USER_USERNAME));
-        assertTextNotPresent("00000002-00");
+        assertTextPresent("00000002");
+        gotoPage(String.format("mailbox/%s/inbox/00000002/delete", TestPage.TEST_USER_USERNAME));
+        assertTextNotPresent("00000002");
     }
 
     

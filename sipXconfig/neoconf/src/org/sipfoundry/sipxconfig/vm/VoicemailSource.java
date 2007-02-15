@@ -27,7 +27,7 @@ public class VoicemailSource {
     }
     
     public Serializable getVoicemailId(Voicemail vm) {
-        return vm.getUserId() + '/' + vm.getFolderId() + '/' + vm.getBasename();        
+        return vm.getUserId() + '/' + vm.getFolderId() + '/' + vm.getMessageId();        
     }
 
     public static String[] decodeVoicemailId(Object primaryKey) {

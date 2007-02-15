@@ -30,7 +30,8 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.UserException;
 
 public class MailboxManagerImpl implements MailboxManager {    
-    private static final FilenameFilter WAV_FILES = new SuffixFileFilter(".wav");
+    private static final String MESSAGE_SUFFIX = "-00.xml";
+    private static final FilenameFilter MESSAGE_FILES = new SuffixFileFilter(MESSAGE_SUFFIX);
     private static final Log LOG = LogFactory.getLog(MailboxManagerImpl.class);
     private File m_mailstoreDirectory;
     private String m_mediaServerCgiUrl;
@@ -66,7 +67,7 @@ public class MailboxManagerImpl implements MailboxManager {
     public List<Voicemail> getVoicemail(String userid, String folder) {
         checkMailstoreDirectory();
         File vmdir = new File(new File(m_mailstoreDirectory, userid), folder);
-        String[] wavs = vmdir.list(WAV_FILES);
+        String[] wavs = vmdir.list(MESSAGE_FILES);
         if (wavs == null) {
             return Collections.emptyList();
         }
@@ -92,7 +93,7 @@ public class MailboxManagerImpl implements MailboxManager {
             return;
         }
         String sUpdate = String.format("%s?action=updatestatus&mailbox=%s&category=inbox&messageidlist=%s",
-                m_mediaServerCgiUrl, mailbox.getUserId(), voicemail.getRealBasename());
+                m_mediaServerCgiUrl, mailbox.getUserId(), voicemail.getMessageId());
         InputStream updateResponse = null;
         try {
             LOG.info(sUpdate);
@@ -137,8 +138,8 @@ public class MailboxManagerImpl implements MailboxManager {
      * extract file name w/o ext.
      */
     static String basename(String filename) {
-        int dot = filename.lastIndexOf('.');
-        return dot >= 0 ? filename.substring(0, dot) : filename; 
+        int suffix = filename.lastIndexOf(MESSAGE_SUFFIX);
+        return suffix >= 0 ? filename.substring(0, suffix) : filename; 
     }
 
     public String getMailstoreDirectory() {

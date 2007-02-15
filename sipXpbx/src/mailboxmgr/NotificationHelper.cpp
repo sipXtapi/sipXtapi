@@ -125,9 +125,9 @@ NotificationHelper::send (
     baseMailboxLink.append("/").append(userId).append("/inbox");
 
     UtlString playMessageLink = baseMailboxLink;
-    playMessageLink.append("/").append(rawMessageId).append("-00");
+    playMessageLink.append("/").append(rawMessageId);
     UtlString deleteMessageLink = baseMailboxLink;
-    deleteMessageLink.append("/").append(rawMessageId).append("-00/delete");
+    deleteMessageLink.append("/").append(rawMessageId).append("/delete");
     UtlString showMailboxLink = baseMailboxLink;
 
     plainBodyText += "On " + rDate + ", " + strFrom + " left new voicemail. Duration " +

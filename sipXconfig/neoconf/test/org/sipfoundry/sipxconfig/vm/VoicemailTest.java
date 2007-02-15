@@ -34,7 +34,9 @@ import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.sipfoundry.sipxconfig.vm.Voicemail.MessageDescriptor;
 
 public class VoicemailTest extends TestCase {
-
+    
+    private static final File READONLY_MAILSTORE = new File(TestUtil.getTestSourceDirectory(VoicemailTest.class));
+    
     public void testReadMessageDescriptor() throws IOException {
         InputStream in = getClass().getResourceAsStream("200/inbox/00000001-00.xml");
         MessageDescriptor md = Voicemail.readMessageDescriptor(in);
@@ -61,33 +63,39 @@ public class VoicemailTest extends TestCase {
     }
     
     public void testLoadDescriptor() {
-        File mailstore = new File(TestUtil.getTestSourceDirectory(getClass()));
-        Voicemail vm = new Voicemail(mailstore, "200", "inbox", "00000001-00");
-        assertEquals("Voice Message 00000002", vm.getSubject());        
-        assertEquals("\"Douglas+Hubler\"<sip:201@nuthatch.pingtel.com>;tag%3D53585A61-338ED896", vm.getFrom());        
+        Voicemail vm = new Voicemail(READONLY_MAILSTORE, "200", "inbox", "00000001");
+        MessageDescriptor desc = vm.getDescriptor();
+        assertEquals("Voice Message 00000002", desc.getSubject());        
+        assertEquals("\"Douglas+Hubler\"<sip:201@nuthatch.pingtel.com>;tag%3D53585A61-338ED896", desc.getFrom());        
     }
     
     public void testRealbasename() {
-        Voicemail vm = new Voicemail(new File("."), "200", "inbox", "00000001-00");
-        assertEquals("00000001", vm.getRealBasename());        
+        Voicemail vm = new Voicemail(new File("."), "200", "inbox", "00000001");
+        assertEquals("00000001", vm.getMessageId());        
     }
     
     public void testMove() throws IOException {
         File mailstore = createTestMailStore();
-        Voicemail vmOrig = new Voicemail(mailstore, "200", "inbox", "00000001-00");
+        Voicemail vmOrig = new Voicemail(mailstore, "200", "inbox", "00000001");
         vmOrig.move("deleted");
-        Voicemail vmNew = new Voicemail(mailstore, "200", "deleted", "00000001-00");
-        assertEquals("Voice Message 00000002", vmNew.getSubject());
+        Voicemail vmNew = new Voicemail(mailstore, "200", "deleted", "00000001");
+        assertEquals("Voice Message 00000002", vmNew.getDescriptor().getSubject());
         // nice, not critical
         FileUtils.deleteDirectory(mailstore);
     }
     
     static File createTestMailStore() throws IOException {
-        File mailstore = new File(TestUtil.getTestSourceDirectory(VoicemailTest.class));
         File testMailstore = new File(TestHelper.getTestDirectory() + '/' + System.currentTimeMillis());
         testMailstore.mkdirs();
-        FileUtils.copyDirectory(new File(mailstore, "200"), new File(testMailstore, "200"));        
+        FileUtils.copyDirectory(new File(READONLY_MAILSTORE, "200"), new File(testMailstore, "200"));        
         return testMailstore;
+    }
+    
+    public void testAllFiles() throws IOException {
+        File mailstore = createTestMailStore();
+        Voicemail vm = new Voicemail(mailstore, "200", "inbox", "00000001");
+        File[] files = vm.getAllFiles();
+        assertEquals(2, files.length);        
     }
     
     public void testDelete() throws IOException {
@@ -95,11 +103,11 @@ public class VoicemailTest extends TestCase {
         MailboxManagerImpl mgr = new MailboxManagerImpl();
         mgr.setMailstoreDirectory(mailstore.getAbsolutePath());
         List<Voicemail> vm = mgr.getVoicemail("200", "inbox"); 
-        assertEquals(1, vm.size());
+        assertEquals(2, vm.size());
 
         vm.get(0).delete();
 
-        assertEquals(0, mgr.getVoicemail("200", "inbox").size());
+        assertEquals(1, mgr.getVoicemail("200", "inbox").size());
 
         // nice, not critical
         FileUtils.deleteDirectory(mailstore);        
@@ -124,12 +132,28 @@ public class VoicemailTest extends TestCase {
     
     public void testSave() throws IOException {
         File mailstore = createTestMailStore();
-        Voicemail vm = new Voicemail(mailstore, "200", "inbox", "00000001-00");
-        assertEquals("Voice Message 00000002", vm.getSubject());
+        Voicemail vm = new Voicemail(mailstore, "200", "inbox", "00000001");
+        assertEquals("Voice Message 00000002", vm.getDescriptor().getSubject());
         vm.setSubject("new subject");
         vm.save();
         
-        Voicemail saved = new Voicemail(mailstore, "200", "inbox", "00000001-00");
-        assertEquals("new subject", saved.getSubject());
+        Voicemail saved = new Voicemail(mailstore, "200", "inbox", "00000001");
+        assertEquals("new subject", saved.getDescriptor().getSubject());
+    }
+    
+    public void testIsHeard() throws IOException {
+        Voicemail vm1 = new Voicemail(READONLY_MAILSTORE, "200", "inbox", "00000001");
+        assertTrue(vm1.isHeard());
+        
+        Voicemail vm2 = new Voicemail(READONLY_MAILSTORE, "200", "inbox", "00000018");
+        assertFalse(vm2.isHeard());
+    }
+    
+    public void testForwardedVoicemail() throws IOException {
+        Voicemail vm = new Voicemail(READONLY_MAILSTORE, "200", "inbox", "00000018");
+        assertTrue(vm.isForwarded());
+        assertEquals("00000018-FW.wav", vm.getMediaFile().getName());
+        assertFalse(vm.hasForwardComment());
+        assertEquals(6, vm.getForwardedDescriptor().getDurationsecs());
     }
 }

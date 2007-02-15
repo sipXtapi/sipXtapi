@@ -39,6 +39,7 @@ import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.RowInfo;
 import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
 import org.sipfoundry.sipxconfig.components.selection.OptGroup;
@@ -60,6 +61,9 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
     @InjectObject(value = "spring:mailboxManager")
     public abstract MailboxManager getMailboxManager();
     
+    @InjectObject(value = "spring:tapestry")
+    public abstract TapestryContext getTapestry();
+
     public abstract VoicemailSource getVoicemailSource();
     public abstract void setVoicemailSource(VoicemailSource source);
 
@@ -161,14 +165,14 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
     }
 
     public ITableColumn getTimestampColumn() {
-        return TapestryUtils.createDateColumn("timestamp", getMessages(),
+        return TapestryUtils.createDateColumn("descriptor.timestamp", getMessages(),
                 getExpressionEvaluator(), getLocale());
     }
     
     public PlayVoicemailService.Info getPlayVoicemailInfo() {
         Voicemail voicemail = getVoicemail();
         PlayVoicemailService.Info info = new PlayVoicemailService.Info(voicemail.getFolderId(), 
-                voicemail.getBasename());
+                voicemail.getMessageId());
         return info;
     }
 
