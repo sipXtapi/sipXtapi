@@ -13,7 +13,6 @@ Source:   %name-%version.tar.gz
 
 Requires: expat >= 1.95
 Requires: httpd >= 2.0.46
-Requires: mod_cplusplus >= 1.2
 Requires: cgicc >= 3.2.2
 Requires: mod_ssl
 Requires: chkconfig
@@ -29,8 +28,6 @@ Requires: smtpdaemon
 
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
-
-%define apache2_mod @APACHE2_MOD@
 
 # should match sipXlib.m4:SIPX_UPGRADEDIR
 %define upgrade_archive_dir %{_localstatedir}/sipxdata/upgrade
@@ -103,8 +100,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/restore-configs.sh
 %attr(755,root,root) %{_bindir}/restore-mailstore.sh
 
-%attr(755,root,root) %{apache2_mod}/libmod_sipxauth.so
-
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxpbx
 %attr(755,root,root) %{_sysconfdir}/cron.daily/sipx-chkspace
 %attr(755,root,root) %{_sysconfdir}/cron.daily/voicemail_clean
@@ -129,9 +124,6 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/mime.types
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/httpd-sipxchange-common-ssl.conf.in
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/httpd-sipxchange-common.conf.in
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/httpd-sipxchange-mediaserver-ssl.conf.in
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/httpd-sipxchange-mediaserver.conf.in
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/httpd-sipxchange-configserver.conf.in
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/httpd.conf
 
 %config(noreplace) %attr(644,root,root) %{_sysconfdir}/logrotate.d/sipxchange

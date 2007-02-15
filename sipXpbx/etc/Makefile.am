@@ -17,10 +17,7 @@ pbxconf_files = \
 wwwconf_files = \
     httpd.conf \
     httpd-sipxchange-common-ssl.conf.in \
-    httpd-sipxchange-common.conf.in \
-    httpd-sipxchange-configserver.conf.in \
-    httpd-sipxchange-mediaserver.conf.in \
-    httpd-sipxchange-mediaserver-ssl.conf.in
+    httpd-sipxchange-common.conf.in
 
 EXTRA_DIST = \
 	$(pkgconf_DATA) \

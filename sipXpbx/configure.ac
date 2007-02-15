@@ -11,7 +11,7 @@ SFAC_SIPX_INSTALL_PREFIX
 AM_INIT_AUTOMAKE(foreign)
 SFAC_AUTOMAKE_VERSION([1.6])
 
-AC_CONFIG_SRCDIR([src/mod_sipxauth/SIPXAuthHandler.cpp])
+AC_CONFIG_SRCDIR([src/mailboxmgr/MailboxManager.cpp])
 AM_CONFIG_HEADER([config.h])
 AC_PROG_LIBTOOL
 
@@ -29,7 +29,6 @@ AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
 # Checks for library functions.
 
 CHECK_APACHE2
-CHECK_MODCPLUSPLUS
 CHECK_SELINUX
 CHECK_CGICC
 
@@ -54,7 +53,6 @@ AC_CONFIG_FILES([src/emailnotifier/Makefile])
 AC_CONFIG_FILES([src/mailboxmgr/Makefile])
 AC_CONFIG_FILES([src/mediaservercgi/Makefile])
 AC_CONFIG_FILES([src/cbadmissioncgi/Makefile])
-AC_CONFIG_FILES([src/mod_sipxauth/Makefile])
 AC_CONFIG_FILES([src/processcgi/Makefile])
 AC_CONFIG_FILES([src/replicationcgi/Makefile])
 AC_CONFIG_FILES([src/sipxcgi/Makefile])
