@@ -72,4 +72,10 @@ public class LgNortelPhone extends Phone {
     protected void setLineInfo(Line line, LineInfo lineInfo) {
         LgNortelLineDefaults.setLineInfo(line, lineInfo);
     }
+    
+    @Override
+    public void restart() {
+        sendCheckSyncToFirstLine();
+    }
+
 }

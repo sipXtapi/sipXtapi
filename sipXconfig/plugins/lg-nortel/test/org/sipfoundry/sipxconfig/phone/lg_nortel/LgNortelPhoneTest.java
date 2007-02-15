@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
+import org.sipfoundry.sipxconfig.phone.RestartException;
 
 public class LgNortelPhoneTest extends TestCase {
     public void _testFactoryRegistered() {
@@ -41,23 +42,46 @@ public class LgNortelPhoneTest extends TestCase {
         phone.setTftpRoot("abc");
         assertEquals("abc/0011AABB4455", phone.getPhoneFilename());
     }
-    
+
     public void testExternalLine() {
         LgNortelModel lgNortelModel = new LgNortelModel();
         Phone phone = new LgNortelPhone(lgNortelModel);
 
-        PhoneTestDriver.supplyTestData(phone, new ArrayList<User>());        
+        PhoneTestDriver.supplyTestData(phone, new ArrayList<User>());
         LineInfo li = new LineInfo();
         li.setDisplayName("First Last");
         li.setUserId("flast");
         li.setRegistrationServer("example.org");
         li.setPassword("12345");
-        
+
         Line line = phone.createLine();
         phone.addLine(line);
         line.setLineInfo(li);
 
-        assertEquals("\"First Last\"<sip:flast@example.org>",  line.getUri());        
+        assertEquals("\"First Last\"<sip:flast@example.org>", line.getUri());
+    }
+
+    public void testRestart() {
+        LgNortelModel lgNortelModel = new LgNortelModel();
+        Phone phone = new LgNortelPhone(lgNortelModel);
+
+        PhoneTestDriver testDriver = PhoneTestDriver.supplyTestData(phone);
+        phone.restart();
+
+        testDriver.sipControl.verify();
+    }
+
+    public void testRestartNoLine() {
+        LgNortelModel lgNortelModel = new LgNortelModel();
+        Phone phone = new LgNortelPhone(lgNortelModel);
+
+        PhoneTestDriver.supplyTestData(phone, new ArrayList<User>());
+        try {
+            phone.restart();
+            fail();
+        } catch (RestartException re) {
+            assertTrue(true);
+        }
     }
 
     public void testGenerateTypicalProfile() throws Exception {
