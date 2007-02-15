@@ -52,6 +52,21 @@
    <name>sipXpbx Development</name>
    <description>All the dependencies for building sipXpbx</description>
    <packagelist>
+     <packagereq type="mandatory">httpd-devel</packagereq>
+     <packagereq type="mandatory">openssl-devel</packagereq>
+     <packagereq type="mandatory">jpackage-utils</packagereq>
+     <packagereq type="mandatory">which</packagereq>
+     <packagereq type="mandatory">unzip</packagereq>
+     <packagereq type="mandatory">gcc</packagereq>
+     <packagereq type="mandatory">gcc-c++</packagereq>
+     <packagereq type="mandatory">autoconf</packagereq>
+     <packagereq type="mandatory">automake</packagereq>
+     <packagereq type="mandatory">libtool</packagereq>
+     <packagereq type="mandatory">doxygen</packagereq>
+     <packagereq type="mandatory">rpm-build</packagereq>
+     <packagereq type="mandatory">createrepo</packagereq>
+     <packagereq type="mandatory">zip</packagereq>
+     <packagereq type="mandatory">subversion</packagereq>
      <packagereq type="mandatory">mod_cplusplus</packagereq>
      <packagereq type="mandatory">cgicc-devel</packagereq>
      <packagereq type="mandatory">xerces-c-devel</packagereq>
