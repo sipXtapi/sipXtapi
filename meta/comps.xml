@@ -81,7 +81,8 @@
      <packagereq type="mandatory">jakarta-commons-collections</packagereq>
      <packagereq type="mandatory">ant-commons-logging</packagereq>
      <packagereq type="mandatory">ant-junit</packagereq>
-     <packagereq type="mandatory">ant-trax ant-nodeps</packagereq>
+     <packagereq type="mandatory">ant-trax</packagereq>
+     <packagereq type="mandatory">ant-nodeps</packagereq>
      <packagereq type="mandatory">ruby-gems</packagereq>
      <packagereq type="mandatory">ruby-gems-rake</packagereq>
      <packagereq type="mandatory">ruby-postgres</packagereq>
