@@ -71,6 +71,7 @@ public class MailboxManagerImpl implements MailboxManager {
         if (wavs == null) {
             return Collections.emptyList();
         }
+        Arrays.sort(wavs);
         List<Voicemail> vms = new ArrayList(wavs.length);
         for (String wav : wavs) {
             String basename = basename(wav);
