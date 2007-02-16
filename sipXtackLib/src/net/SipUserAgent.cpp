@@ -3183,7 +3183,6 @@ void SipUserAgent::setForking(UtlBoolean enabled)
 void SipUserAgent::prepareContact(SipMessage& message,
                                   const char* szTargetUdpAddress, 
                                   const int*  piTargetUdpPort)
-
 {
     // Add a default contact if none is present
     //   AND To all requests -- except REGISTERs (server mode?)
@@ -3203,7 +3202,7 @@ void SipUserAgent::prepareContact(SipMessage& message,
             contactIp = sipIpAddress ;
 
         // TODO:: We need to figure out what the protocol SHOULD be if not 
-        // already pspecified.  For example, if we are sending via TCP 
+        // already specified.  For example, if we are sending via TCP 
         // we should use a TCP contact -- the application layer and override
         // if desired by passing a contact.
 
@@ -3589,9 +3588,9 @@ void SipUserAgent::stopMessageLog()
 
 void SipUserAgent::clearMessageLog()
 {
-        OsWriteLock Writelock(mMessageLogWMutex);
-        OsReadLock Readlock(mMessageLogRMutex);
-        mMessageLog.remove(0);
+    OsWriteLock Writelock(mMessageLogWMutex);
+    OsReadLock Readlock(mMessageLogRMutex);
+    mMessageLog.remove(0);
 }
 
 void SipUserAgent::logMessage(const char* message, int messageLength)
@@ -3602,17 +3601,17 @@ void SipUserAgent::logMessage(const char* message, int messageLength)
         osPrintf("SIP LOGGING ENABLED\n");
 #endif
        {// lock scope
-                        OsWriteLock Writelock(mMessageLogWMutex);
-                        // Do not allow the log go grow beyond the maximum
-                        if(mMaxMessageLogSize > 0 &&
-                                ((((int)mMessageLog.length()) + messageLength) > mMaxMessageLogSize))
-                        {
-                                mMessageLog.remove(0,
-                                        mMessageLog.length() + messageLength - mMaxMessageLogSize);
-                        }
+           OsWriteLock Writelock(mMessageLogWMutex);
+           // Do not allow the log go grow beyond the maximum
+           if(mMaxMessageLogSize > 0 &&
+              ((((int)mMessageLog.length()) + messageLength) > mMaxMessageLogSize))
+           {
+               mMessageLog.remove(0,
+                     mMessageLog.length() + messageLength - mMaxMessageLogSize);
+           }
 
-                        mMessageLog.append(message, messageLength);
-                }//lock scope
+           mMessageLog.append(message, messageLength);
+       }//lock scope
     }
 #ifdef TEST_PRINT
     else osPrintf("SIP LOGGING DISABLED\n");
