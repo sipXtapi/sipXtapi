@@ -34,6 +34,12 @@ Doxygen - Source Code Documentation System
   On RedHat Enterprise 3 "up2date doxygen"
 
 
+Prerequisite installation on Fedora Core 4
+------------------------------------------
+yum should get every thing you need:
+yum install cppunit cppunit-devel autoconf automake pcre-devel openssl openssl-devel libtool doxygen subversion gcc-c++
+
+
 PCRE Installation Instructions
 ==============================
 
@@ -43,11 +49,6 @@ Red Hat Linux
 The pcre-3.9-10 and pcre-devel-3.9-10 RPMs from the Red Hat 9
 distribution will work.
 
-
-Fedora Core 4
--------------
-yum should get every thing you need:
-yum install cppunit.i386 cppunit-devel.i386 autoconf.noarch automake.noarch pcre-devel.i386 openssl.i386 openssl-devel.i386 libtool.i386 doxygen.i386 subversion.i386 gcc-c++.i386
 
 Windows
 -------

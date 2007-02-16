@@ -16,7 +16,6 @@ import java.io.Serializable;
 import org.apache.tapestry.engine.IEngineService;
 import org.apache.tapestry.engine.ILink;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.components.DownloadLink;
 import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.Voicemail;
 
@@ -104,14 +103,16 @@ public abstract class MailboxOperation implements Serializable {
         
         public void operate(ManageVoicemail page) {
             // this works perfectly, but tells client to redirect. if service encoder
-            // directed tapestry to the download service (or derivative) then we could
+            // directed tapestry to the playvm service (or derivative) then we could
             // serve the file w/o redirect.  I didn't want to couple MailboxOperation with
-            // MailboxPageEncoder, but it certainly could be done.            
-            IEngineService downloadService = page.getDownloadService();
+            // MailboxPageEncoder, but it certainly could be done.
+            IEngineService playService = page.getPlayVoicemailService();
             Mailbox mb = page.getMailboxManager().getMailbox(getUserId());
             Voicemail vm = mb.getVoicemail(getFolderId(), getMessageId());
-            DownloadLink.Info info = new DownloadLink.Info(vm.getMediaFile().getPath(), "audio/x-wav"); 
-            ILink link = downloadService.getLink(false, info);
+            Object[] linkParams = new Object[] {
+                new PlayVoicemailService.Info(vm.getFolderId(), vm.getMessageId())
+            };
+            ILink link = playService.getLink(false, linkParams);
             page.getRequestCycle().sendRedirect(link.getURL());                        
         }
     }

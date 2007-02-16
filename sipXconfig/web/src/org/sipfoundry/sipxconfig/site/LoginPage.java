@@ -11,12 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.PageRedirectException;
 import org.apache.tapestry.callback.ICallback;
@@ -34,8 +30,6 @@ import org.sipfoundry.sipxconfig.site.user.FirstUser;
 public abstract class LoginPage extends PageWithCallback implements PageBeginRenderListener {
 
     public static final String PAGE = "LoginPage";
-
-    private static final Log LOG = LogFactory.getLog(LoginPage.class);
 
     public abstract CoreContext getCoreContext();
 
@@ -104,18 +98,5 @@ public abstract class LoginPage extends PageWithCallback implements PageBeginRen
         // data. Trying to execute a callback under these circumstances is hazardous -- see
         // XCF-590.
         return Home.PAGE;        
-    }
-
-    public String getVoicemailHref() {
-        String root = "/";
-        String home = getRequestCycle().getAbsoluteURL(root);
-        try {
-            URL url = new URL(home);
-            URL voicemail = new URL(url.getProtocol(), url.getHost(), 8091, root);
-            return voicemail.toString();
-        } catch (MalformedURLException e) {
-            LOG.error(e);
-            return home;
-        }
     }
 }

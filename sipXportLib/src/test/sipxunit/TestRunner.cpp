@@ -15,14 +15,21 @@
 #include <sipxunit/TestOutputter.h>
 #include <sipxunit/TestMonitor.h>
 
+#include <sipxunit/TestOsSysLogListener.h>
+
 TestRunner::TestRunner()
     : CppUnit::TestRunner()
 {
     m_monitor = new TestMonitor();
     m_outputter = new TestOutputter(m_monitor);
     m_result = new CppUnit::TestResult();
-    
+
+    m_logger = new TestOsSysLogListener();
+
     m_result->addListener(m_monitor);
+
+    // To disable the use of OsSysLog during unit tests, comment out the following line
+    m_result->addListener(m_logger);
 }
 
 
@@ -31,6 +38,7 @@ TestRunner::~TestRunner()
     delete m_result;
     delete m_outputter;
     delete m_monitor;
+    delete m_logger;
 }
 
 bool TestRunner::run()

@@ -432,6 +432,12 @@ ul.form-actions li
 	font-weight:bold;
 }
 
+.fwd-voicemail
+{
+  font-style: italic;
+  margin-left: 2em;
+}
+
 div.col
 {
 	float:left;

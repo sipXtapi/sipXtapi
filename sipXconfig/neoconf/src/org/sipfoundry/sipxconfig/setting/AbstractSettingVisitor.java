@@ -17,7 +17,7 @@ public abstract class AbstractSettingVisitor implements SettingVisitor {
         // do nothing
     }
 
-    public void visitSettingGroup(Setting group_) {
-        // do nothing
+    public boolean visitSettingGroup(Setting group_) {
+        return true;
     }
 }

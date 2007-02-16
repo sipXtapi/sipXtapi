@@ -1,6 +1,6 @@
 <?xml version="1.0" standalone="yes"?>
 <!-- SIP Application Configuration File -->
-<!-- $Revision: 1.130.2.17 $  $Date: 2006/04/07 22:21:30 $ -->
+<!-- Revision: 1.130.2.17   Date: 2006/04/07 22:21:30 -->
 <sip>	
 	<voIpProt>
 		<local 

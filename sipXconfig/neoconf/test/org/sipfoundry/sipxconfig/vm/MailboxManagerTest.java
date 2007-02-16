@@ -60,15 +60,14 @@ public class MailboxManagerTest extends TestCase {
 
     public void testGetInboxVoicemail() {
         List<Voicemail> vm = m_mgr.getVoicemail("200", "inbox");
-        assertEquals(1, vm.size());
-        assertEquals("00000001-00", vm.get(0).getBasename());
+        assertEquals(2, vm.size());
+        assertEquals("00000001", vm.get(0).getMessageId());
         assertTrue(vm.get(0).getMediaFile().exists());
     }
     
     public void testBasename() {
-        assertEquals("bird", MailboxManagerImpl.basename("bird.wav"));
+        assertEquals("bird", MailboxManagerImpl.basename("bird-00.xml"));
         assertEquals("bird", MailboxManagerImpl.basename("bird"));
-        assertEquals("bird.species", MailboxManagerImpl.basename("bird.species.txt"));
     }
     
     public void testGetFolders() {
@@ -79,7 +78,7 @@ public class MailboxManagerTest extends TestCase {
     public void testGetDeletedVoicemail() {
         List<Voicemail> deleted = m_mgr.getVoicemail("200", "deleted");
         assertEquals(1, deleted.size());
-        assertEquals("00000002-00", deleted.get(0).getBasename());
+        assertEquals("00000002", deleted.get(0).getMessageId());
     }
     
     public void testLoadPreferencesWhenEmpty() {

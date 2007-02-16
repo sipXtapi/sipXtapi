@@ -61,6 +61,9 @@
         <!-- Secure fully qualified configserver base URL -->
         <config-server-url-secure>https://${CONFIG_SERVER_ADDR}:8443</config-server-url-secure>
 
+        <!-- Secure fully qualified configserver mailbox URL -->
+        <email-mailbox-url>https://${CONFIG_SERVER_HOST}:8443/sipxconfig/mailbox</email-mailbox-url>
+
         <!-- smtp server name for voicemail notification 
              is no longer configurable: must be 'localhost' -->
 

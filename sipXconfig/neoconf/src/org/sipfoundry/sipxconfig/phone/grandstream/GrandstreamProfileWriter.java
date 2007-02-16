@@ -56,7 +56,8 @@ public class GrandstreamProfileWriter implements SettingVisitor {
         writeProfileEntry(setting.getProfileName(), setting.getValue());
     }
 
-    public void visitSettingGroup(Setting group) {
+    public boolean visitSettingGroup(Setting group) {
+        return true;
     }        
 
     String nonNull(String value) {

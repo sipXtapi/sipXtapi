@@ -417,7 +417,7 @@ Once a registered UA has generated a dialog event package, this server
 can retrieve a copy from its logs and display an analysis of the
 dialog event package against some of the criteria in the
 Internet-Draft
-<a href="http://tools.ietf.org/wg/sip/draft-worley-sip-dialog-02.txt"><code>draft-worley-sip-dialog-02</code></a>,
+<a href="http://tools.ietf.org/wg/sip/draft-worley-sip-dialog-03.txt"><code>draft-worley-sip-dialog-03</code></a>,
 "Guidelines for Implementing the Dialog Event Package in User Agents".
 </p>
 

@@ -35,6 +35,9 @@ SUBDIRS = \
 	$(AGENT_OPT) \
 	$(doc_SUBDIRS) 
 
+install-exec-hook :
+	$(ANT_CMD) $(ANT_FLAGS) remove-jars
+
 EXTRA_DIST = \
     config/sipX-config.in \
     config/sipX-buildstamp.cpp.in \

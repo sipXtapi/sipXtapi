@@ -61,9 +61,10 @@ public class SettingSet extends AbstractSetting implements Cloneable, Serializab
     }
 
     public void acceptVisitor(SettingVisitor visitor) {
-        visitor.visitSettingGroup(this);
-        for (Setting setting : m_children.values()) {
-            setting.acceptVisitor(visitor);
+        if (visitor.visitSettingGroup(this)) {
+            for (Setting setting : m_children.values()) {
+                setting.acceptVisitor(visitor);
+            }
         }
     }
 

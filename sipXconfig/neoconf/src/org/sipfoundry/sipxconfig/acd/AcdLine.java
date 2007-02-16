@@ -88,23 +88,31 @@ public class AcdLine extends AcdComponent {
         return oldQueue;
     }
 
+    @Override
+    public String calculateUri() {
+        String domainName = getAcdServer().getHost();
+        return SipUri.format(getName(), domainName, false);
+    }
+
     public static class AcdLineDefaults {
         private AcdLine m_line;
+
         AcdLineDefaults(AcdLine line) {
             m_line = line;
         }
-        
+
         @SettingEntry(path = URI)
         public String getUri() {
             return m_line.calculateUri();
         }
-        
+
         @SettingEntry(path = LINE_NAME)
         public String getName() {
-            String name = (String) ObjectUtils.defaultIfNull(m_line.getDescription(), m_line.getName());
+            String name = (String) ObjectUtils.defaultIfNull(m_line.getDescription(), m_line
+                    .getName());
             return name;
         }
-        
+
         @SettingEntry(path = ACD_QUEUE)
         public String getQueueUri() {
             String queueUri = StringUtils.EMPTY;
@@ -113,7 +121,7 @@ public class AcdLine extends AcdComponent {
             }
             return queueUri;
         }
-        
+
         @SettingEntry(path = EXTENSION)
         public String getExtension() {
             return m_line.getExtension();

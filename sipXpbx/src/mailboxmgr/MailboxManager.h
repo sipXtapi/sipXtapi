@@ -1107,6 +1107,7 @@ private:
     UtlString m_smtpServer;
     UtlString m_emailNotificationAddr;
     UtlString m_configServerSecureUrl;
+    UtlString m_mailboxUrl;
 
     // Variable to hold the value of <voicemail-info-playback> element
     UtlString m_voicemailInfoPlayback;

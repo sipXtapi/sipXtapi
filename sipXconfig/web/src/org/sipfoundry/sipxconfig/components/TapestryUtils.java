@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.components;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -41,9 +42,6 @@ import org.springframework.context.MessageSource;
 
 /**
  * Utility method for tapestry pages and components
- * 
- * DEVELOPERS NOTE: Static utility methods have their place but consider adding methods to
- * TapestryContext to avoid too many static methods and the limitations they incur
  */
 public final class TapestryUtils {
     /**
@@ -278,8 +276,12 @@ public final class TapestryUtils {
         String columnTitle = messages.getMessage(columnName);
         IAdvancedTableColumn column = new ExpressionTableColumn(columnName, columnTitle,
                 columnName, true, expressionEvaluator);
-        column.setValueRendererSource(new DateTableRendererSource(locale));
+        column.setValueRendererSource(new DateTableRendererSource(getDateFormat(locale)));
         return column;
+    }
+    
+    public static DateFormat getDateFormat(Locale locale) {
+        return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
     }
 
     /**

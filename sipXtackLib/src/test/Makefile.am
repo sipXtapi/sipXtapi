@@ -25,6 +25,7 @@ testsuite_SOURCES = \
     net/NameValuePairTest.cpp \
     net/NetAttributeTokenizerTest.cpp \
     net/UrlTest.cpp \
+    net/NetBase64CodecTest.cpp \
     net/NetMd5CodecTest.cpp \
     net/HttpBodyTest.cpp \
     net/HttpMessageTest.cpp \

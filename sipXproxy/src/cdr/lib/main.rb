@@ -23,21 +23,14 @@ require 'utils/stunnel_connection'
 
 def usage()
   print <<EOT
-usage: sipxcallresolver.sh [--start "time" [--end "time"]] [--daily] [--help]
+usage: sipxcallresolver.sh (--start "time" [--end "time"]|--daemon) [--help]
 
   --start "time"  Specifies the start time of the window in which calls are to 
                   be resolved.
   --end "time"    Specifies the end time of the window in which call are to be
                   resolved.
-  --daily         Indicates that the call resolver is called in "daily" mode:
-                  * Create CDRs for calls in the previous 24 hours
-                  * Purge CSE and CDR data older than 35 days
-                  You can change the purge age by setting the configuration
-                  parameter SIP_CALLRESOLVER_PURGE_AGE_CDR (units are days).
-                  In daily mode, the "start" and "end" args are not used.
   --daemon        Makes sipXcondig resolver to stay active after processing initial 
                   batch of CSE records. New records are processed as they appear.
-                                    
 EOT
   exit 1
 end
@@ -57,18 +50,20 @@ end
 
 def main()
   opts = GetoptLong.new(
-                        [ "--start", "-s", GetoptLong::OPTIONAL_ARGUMENT ],
-  [ "--end",   "-e", GetoptLong::OPTIONAL_ARGUMENT ],
+                        [ "--start", "-s", GetoptLong::REQUIRED_ARGUMENT ],
+  [ "--end",   "-e", GetoptLong::REQUIRED_ARGUMENT ],
   [ "--daemon", GetoptLong::NO_ARGUMENT ],
-  [ "--help",  "-h", GetoptLong::NO_ARGUMENT ]
+  [ "--help",  "-h", GetoptLong::NO_ARGUMENT ],
+  [ "--confdir", GetoptLong::REQUIRED_ARGUMENT ],
+  [ "--logdir", GetoptLong::REQUIRED_ARGUMENT ]
   )
   
   # Init options
   start_time = nil
   end_time = Time.now
   daemon_flag = false
-  config = CallResolverConfigure.from_file()
-  load_postgres_driver()
+  confdir =  CallResolverConfigure::DEFAULT_CONF_DIR
+  logdir = CallResolverConfigure::DEFAULT_LOG_DIR
   
   # Extract option values
   # Convert start and end strings to date/time values.
@@ -82,18 +77,27 @@ def main()
       end_time = Time.parse(arg)
       
     when "--daemon"
-      daemon_flag = true      
+      daemon_flag = true
       
+    when "--confdir"
+      confdir = arg
+      
+    when "--logdir"
+      logdir = arg
+            
     else
       usage
     end
   end 
   
+  config = CallResolverConfigure.from_file(confdir, logdir)
+  load_postgres_driver()
+    
   resolver = CallResolver.new(config)
   
-  stunnel_connection = StunnelConnection.new(config.log)
+  stunnel_connection = StunnelConnection.new(config)
   
-  stunnel_connection.open(config)
+  stunnel_connection.open()
   
   if daemon_flag
     resolver.run_resolver

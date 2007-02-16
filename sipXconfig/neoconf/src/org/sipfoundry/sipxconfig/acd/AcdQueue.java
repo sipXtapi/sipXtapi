@@ -22,6 +22,7 @@ import java.util.Set;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
+import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
@@ -145,6 +146,12 @@ public class AcdQueue extends AcdComponent {
 
     public void addLine(AcdLine line) {
         getLines().add(line);
+    }
+
+    @Override
+    public String calculateUri() {
+        String domainName = getAcdServer().getHost();
+        return SipUri.format(getName(), domainName, false);
     }
 
     private String[] getAgentUris() {

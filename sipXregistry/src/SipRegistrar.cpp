@@ -378,6 +378,13 @@ SipRegistrar::~SipRegistrar()
        mRegistrarPersist = NULL;
     }
 
+    if ( mSipUserAgent )
+    {
+       mSipUserAgent->shutdown();
+       delete mSipUserAgent ;
+       mSipUserAgent = NULL ;
+    }
+
     mValidDomains.destroyAll();
 
     // release the registration database instance

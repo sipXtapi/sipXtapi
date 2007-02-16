@@ -146,8 +146,9 @@ public class XmlRpcSettings {
             }
         }
 
-        public void visitSettingGroup(Setting group) {
+        public boolean visitSettingGroup(Setting group) {
             setObjectClass(m_parameters, group.getProfileName());
+            return true;
         }
     }
 
@@ -166,8 +167,8 @@ public class XmlRpcSettings {
             }
         }
 
-        public void visitSettingGroup(Setting group_) {
-            // nothing to do
+        public boolean visitSettingGroup(Setting group_) {
+            return true;
         }
     }
 }

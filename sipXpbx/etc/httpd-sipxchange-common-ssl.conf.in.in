@@ -42,8 +42,7 @@ SetEnvIf User-Agent ".*Mozilla*" \\
 
     # The following is (mostly) copied from ssl.conf.
     # See that file for comments.
-
-    Include @SIPX_CONFDIR@/httpd-sipxchange-mediaserver-ssl.conf
+    Alias /mailboxes/ "@SIPX_VXMLDATADIR@/"
 
     ErrorLog @SIPX_LOGDIR@/httpd_error_log
     TransferLog @SIPX_LOGDIR@/httpd_access_log

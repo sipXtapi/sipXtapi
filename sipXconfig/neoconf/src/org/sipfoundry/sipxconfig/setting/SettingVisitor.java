@@ -16,6 +16,9 @@ public interface SettingVisitor {
     
     public void visitSetting(Setting setting);
     
-    public void visitSettingGroup(Setting group);
+    /**
+     * @return false if you do not want to visit children
+     */
+    public boolean visitSettingGroup(Setting group);
 
 }

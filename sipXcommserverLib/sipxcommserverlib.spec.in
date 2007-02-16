@@ -11,6 +11,7 @@ Url: http://www.sipfoundry.org/sipXcommserverLib
 
 Source: %name-%version.tar.gz
 
+Requires: rpm
 Requires: xerces-c >= 2.6.0
 Requires: sipxportlib >= 3.7
 Requires: sipxtacklib >= 3.7

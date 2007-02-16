@@ -18,6 +18,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.security.CodeSource;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Properties;
 
 /**
@@ -30,12 +34,29 @@ public final class TestUtil {
 
     private static final String FORWARD_SLASH = "/";
 
+    private static final DateFormat ENGLISH_DATE = DateFormat.getDateTimeInstance(
+            DateFormat.SHORT, DateFormat.SHORT, Locale.ENGLISH);
+    
     private TestUtil() {
         // empty - to prevent instantiation
     }
 
     public static final boolean isWindows() {
         return File.separatorChar == '\\';
+    }
+
+    
+    /**
+     * If you want to use a date in a unit test that eventually 
+     * @param usDate
+     * @return
+     */
+    public static final Date localizeDateTime(String usDate) {
+        try {
+            return ENGLISH_DATE.parse(usDate);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -80,10 +101,10 @@ public final class TestUtil {
      * but when you need a filename use this. Example:
      * 
      * <pre>
-     *           
-     *            # Test file in same directory as JUnit test source file 
-     *            String testFile = TestUtil.getTestSourceDirectory(getClass()) + &quot;/test-file&quot;;
      *            
+     *             # Test file in same directory as JUnit test source file 
+     *             String testFile = TestUtil.getTestSourceDirectory(getClass()) + &quot;/test-file&quot;;
+     *             
      * </pre>
      */
     public static String getTestSourceDirectory(Class testClass) {
@@ -148,7 +169,8 @@ public final class TestUtil {
         sysProps.setProperty("phoneDefaults.authorizationRealm", realm);
         sysProps.setProperty("phoneDefaults.fullyQualifiedDomainName", "pbx." + domainName);
         sysProps.setProperty("dataSource.jdbcUrl", "jdbc:postgresql://localhost/SIPXCONFIG_TEST");
-        sysProps.setProperty("acdHistoryDataSource.jdbcUrl", "jdbc:postgresql://localhost/SIPXACD_HISTORY_TEST");
+        sysProps.setProperty("acdHistoryDataSource.jdbcUrl",
+                "jdbc:postgresql://localhost/SIPXACD_HISTORY_TEST");
         sysProps.setProperty("acdHistoricalStatsImpl.enabled", Boolean.toString(true));
         sysProps.setProperty("adminContextImpl.backupDirectory", outputDirectory + "/backup");
         sysProps.setProperty("coreContextImpl.authorizationRealm", realm);
@@ -160,15 +182,17 @@ public final class TestUtil {
         sysProps.setProperty("indexTrigger.enabled", Boolean.toString(false));
         sysProps.setProperty("upload.uploadRootDirectory", outputDirectory + "/upload");
         sysProps.setProperty("upload.destinationDirectory", outputDirectory + "/tftproot");
-        sysProps.setProperty("phonebookManagerImpl.externalUsersDirectory", outputDirectory + "/phonebook");
+        sysProps.setProperty("phonebookManagerImpl.externalUsersDirectory", outputDirectory
+                + "/phonebook");
         File vmDir = new File(outputDirectory + "/mailstore");
         if (!vmDir.exists()) {
             if (!vmDir.mkdirs()) {
-                throw new RuntimeException("Could not create voicemail store " + vmDir.getAbsolutePath());
+                throw new RuntimeException("Could not create voicemail store "
+                        + vmDir.getAbsolutePath());
             }
         }
         sysProps.setProperty("mailboxManagerImpl.mailstoreDirectory", vmDir.getAbsolutePath());
-    }       
+    }
 
     public static void saveSysDirProperties(Properties sysProps, String classpathDirectory) {
 
@@ -184,5 +208,5 @@ public final class TestUtil {
         } catch (IOException e) {
             throw new RuntimeException("could not store system dir properties", e);
         }
-    }    
+    }
 }

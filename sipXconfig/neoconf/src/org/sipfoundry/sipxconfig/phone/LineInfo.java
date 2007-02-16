@@ -23,6 +23,9 @@ public class LineInfo {
     private String m_voiceMail;
     private String m_displayName;
     
+    /** optional - some phones like numeric extensions */
+    private String m_extension;
+    
     public String getDisplayName() {
         return m_displayName;
     }
@@ -59,4 +62,12 @@ public class LineInfo {
     public void setRegistrationServerPort(String registrationServerPort) {
         m_registrationServerPort = registrationServerPort;
     }    
+    
+    public String getExtension() {
+        return m_extension;
+    }
+    
+    public void setExtension(String extension) {
+        m_extension = extension;
+    }
 }
