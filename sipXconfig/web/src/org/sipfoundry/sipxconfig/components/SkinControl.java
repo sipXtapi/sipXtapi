@@ -25,7 +25,8 @@ public class SkinControl {
     private static final String ASSET_COLORS = "colors.css";
     private static final String ASSET_LAYOUT = "layout.css";
     private TapestryContext m_tapestryContext;
-    private String m_helpLink = "http://www.sipfoundry.org/sipXconfig/doc/help/{0}.{1}.html";    
+    // overrideable in skin
+    private String m_helpLink = "http://www.sipfoundry.org/doc/sipxhelp/{0}.{1}.html";    
     private String m_copyright;
     private String m_productName;
     private Map<String, String> m_assets = new HashMap();
