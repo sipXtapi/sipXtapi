@@ -3,7 +3,7 @@
 # benign edit
 
 AC_PREREQ(2.57)
-AC_INIT(sipXconfig, 3.6.0, sipx-dev@list.sipfoundry.org)
+AC_INIT(sipXconfig, 3.6.1, sipx-dev@list.sipfoundry.org)
 
 
 AC_CONFIG_AUX_DIR(config)
