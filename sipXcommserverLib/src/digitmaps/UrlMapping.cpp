@@ -44,14 +44,17 @@ UrlMapping::UrlMapping() :
     mPrevHostMatchNode(NULL),
     mPrevUserMatchNode(NULL),
     mPrevPermMatchNode(NULL),
-    mParseFirstTime(false)
+    mParseFirstTime(false),
+    mDoc(NULL)
 {
 }
 
 // Destructor
 UrlMapping::~UrlMapping()
 {
-
+   if (mDoc != NULL) {
+      delete mDoc ;
+   }
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -64,6 +67,9 @@ UrlMapping::loadMappings(const UtlString& configFileName,
 {
     OsStatus currentStatus = OS_SUCCESS;
 
+    if (mDoc != NULL) {
+       delete mDoc ;
+    }
     mDoc = new TiXmlDocument(configFileName.data());
     if (mDoc->LoadFile())
     {
@@ -105,6 +111,9 @@ UrlMapping::loadMappingsString(const UtlString& contents,
 {
     OsStatus currentStatus = OS_SUCCESS;
 
+    if (mDoc != NULL) {
+       delete mDoc ;
+    }
     mDoc = new TiXmlDocument();
     if (mDoc->Parse(contents.data()))
     {
@@ -922,6 +931,8 @@ void UrlMapping::replaceSymbols(const UtlString &string,
             urlparam.append("=");
             urlparam.append(pValues[i]);
         }
+        delete []pValues ;
+        delete []pNames;
     }
 
     // get header parameters
@@ -946,6 +957,8 @@ void UrlMapping::replaceSymbols(const UtlString &string,
             headerparam.append("=");
             headerparam.append(pValues[i]);
         }
+        delete []pValues ;
+        delete []pNames;
     }
 
     replaceAll( tempString, modifiedString , XML_SYMBOL_USER , user );

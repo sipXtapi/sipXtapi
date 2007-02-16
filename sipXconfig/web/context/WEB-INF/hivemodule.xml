@@ -80,6 +80,22 @@
     </invoke-factory>
   </service-point>
 
+  <!-- play voicemail service -->
+  <contribution configuration-id="tapestry.services.FactoryServices">
+    <service name="playvoicemail" object="service:PlayVoicemail" />
+  </contribution>
+  <service-point interface="org.apache.tapestry.engine.IEngineService" id="PlayVoicemail">
+    <invoke-factory model="threaded">
+      <construct class="site.vm.PlayVoicemailService">
+        <set-object property="response" value="service:tapestry.globals.WebResponse" />
+        <set-object property="linkFactory" value="infrastructure:linkFactory" />
+        <set-object property="stateManager" value="infrastructure:applicationStateManager" />
+        <set-object property="coreContext" value="spring:coreContext" />
+        <set-object property="mailboxManager" value="spring:mailboxManager" />
+      </construct>
+    </invoke-factory>
+  </service-point>
+
   <!-- export service -->
   <contribution configuration-id="tapestry.services.FactoryServices">
     <service name="export" object="service:Export" />

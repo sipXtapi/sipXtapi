@@ -1,4 +1,0 @@
-# This file is included inside the scope of <VirtualHost *:8091>
-
-# This is available on port 8090 if there is no SSL, otherwise it is here
-Alias /mailboxes/ "@SIPX_VXMLDATADIR@/"

@@ -12,11 +12,16 @@
 package org.sipfoundry.sipxconfig.site.vm;
 
 
+import java.text.DateFormat;
+import java.util.Locale;
+
 import junit.framework.Test;
 import net.sourceforge.jwebunit.WebTestCase;
 
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import org.sipfoundry.sipxconfig.site.TestPage;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 
 public class ManageVoicemailTestUi extends WebTestCase {
@@ -56,11 +61,15 @@ public class ManageVoicemailTestUi extends WebTestCase {
         gotoManageVoicemail();
         assertTextPresent("Voice Message 00000002");
         checkCheckbox("checkbox");
-        getDialog().setFormParameter("actionSelection", "org.sipfoundry.sipxconfig.site.vm.MoveVoicemailActiondeleted");
+        actionSelection(MoveVoicemailAction.class, "deleted");
         assertTextNotPresent("Voice Message 00000002");
         clickLink("link:deleted");
         assertTextPresent("Voice Message 00000001");
         assertTextPresent("Voice Message 00000002");
+    }
+    
+    private void actionSelection(Class groupAction, String action) {
+        getDialog().setFormParameter("actionSelection", groupAction.getName() + action);        
     }
     
     public void testEdit() throws Exception {
@@ -97,17 +106,35 @@ public class ManageVoicemailTestUi extends WebTestCase {
         assertElementPresent("voicemail:list");
     }
     
+    public void testForwardedMessages() throws Exception {
+        DateFormat fmt = TapestryUtils.getDateFormat(Locale.getDefault());
+        gotoManageVoicemail();
+        String[][] forwardedMessage = {{
+            "Fwd:Voice Message 00000014 \n Voice Message 00000014", 
+            "200 \n Yellowthroat Warbler - 200", 
+            fmt.format(TestUtil.localizeDateTime("2/9/07 6:03 PM EST")) + "\n " 
+              + fmt.format(TestUtil.localizeDateTime("2/9/07 3:40 PM EST")), 
+            "6 seconds",
+            ""
+        }};
+        assertTableRowsEqual("voicemail:list", 3, forwardedMessage);
+        checkCheckbox("checkbox_0");
+        actionSelection(MoveVoicemailAction.class, "saved");
+        clickLink("link:saved");
+        assertTableRowsEqual("voicemail:list", 2, forwardedMessage);
+    }
+    
     public void testPlayFriendlyUrl() throws Exception {
         gotoManageVoicemail();
-        gotoPage(String.format("mailbox/%s/inbox/00000002-00", TestPage.TEST_USER_USERNAME));
+        gotoPage(String.format("mailbox/%s/inbox/00000002", TestPage.TEST_USER_USERNAME));
         assertEquals("audio/x-wav", getDialog().getResponse().getContentType());                
     }
     
     public void testDeleteFriendlyUrl() throws Exception {
         gotoManageVoicemail();
-        assertTextPresent("00000002-00");
-        gotoPage(String.format("mailbox/%s/inbox/00000002-00/delete", TestPage.TEST_USER_USERNAME));
-        assertTextNotPresent("00000002-00");
+        assertTextPresent("00000002");
+        gotoPage(String.format("mailbox/%s/inbox/00000002/delete", TestPage.TEST_USER_USERNAME));
+        assertTextNotPresent("00000002");
     }
 
     

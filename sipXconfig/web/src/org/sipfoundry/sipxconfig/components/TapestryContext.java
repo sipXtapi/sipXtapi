@@ -11,7 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
+import java.text.DateFormat;
 import java.util.Collection;
+import java.util.Locale;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -128,5 +130,13 @@ public class TapestryContext {
     public String joinNamed(Collection namedItems, String delim) {
         Collection names = CollectionUtils.collect(namedItems, new NamedObject.ToName());
         return StringUtils.join(names.iterator(), delim);
+    }
+    
+    /**
+     * Example:
+     *  <span jwcid="@Insert" value="someDate" format="tapestry.date(locale)"/>
+     */
+    public DateFormat date(Locale locale) {
+        return TapestryUtils.getDateFormat(locale);
     }
 }

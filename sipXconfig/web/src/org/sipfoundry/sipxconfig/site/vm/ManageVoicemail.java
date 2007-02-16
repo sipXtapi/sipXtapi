@@ -28,6 +28,7 @@ import org.apache.tapestry.PageRedirectException;
 import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
+import org.apache.tapestry.bean.EvenOdd;
 import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.engine.IEngineService;
@@ -38,6 +39,7 @@ import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.RowInfo;
 import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
 import org.sipfoundry.sipxconfig.components.selection.OptGroup;
@@ -59,6 +61,9 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
     @InjectObject(value = "spring:mailboxManager")
     public abstract MailboxManager getMailboxManager();
     
+    @InjectObject(value = "spring:tapestry")
+    public abstract TapestryContext getTapestry();
+
     public abstract VoicemailSource getVoicemailSource();
     public abstract void setVoicemailSource(VoicemailSource source);
 
@@ -86,11 +91,32 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
     public abstract String getFolderId();
     public abstract void setFolderId(String folderId);
     
-    @InjectObject(value = "engine-service:download")
-    public abstract IEngineService getDownloadService();
+    @InjectObject(value = "engine-service:" + PlayVoicemailService.SERVICE_NAME)
+    public abstract IEngineService getPlayVoicemailService();
     
     public abstract MailboxOperation getMailboxOperation();
-    public abstract void setMailboxOperation(MailboxOperation operation); 
+    public abstract void setMailboxOperation(MailboxOperation operation);
+    
+    public Object getRowClass() {
+        return new HeardEvenOdd(this);
+    }
+    
+    public class HeardEvenOdd extends EvenOdd {
+        private ManageVoicemail m_page;
+        
+        public HeardEvenOdd(ManageVoicemail page) {
+            m_page = page;
+        }
+
+        @Override
+        public String getNext() {
+            String style = super.getNext();
+            if (!m_page.getVoicemail().isHeard()) {
+                style = style + "-unheard";
+            }
+            return style;
+        }        
+    }
 
     public void activateExternalPage(Object[] parameters, IRequestCycle cycle) {
         String sparam = parameters[0].toString();
@@ -139,8 +165,15 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
     }
 
     public ITableColumn getTimestampColumn() {
-        return TapestryUtils.createDateColumn("timestamp", getMessages(),
+        return TapestryUtils.createDateColumn("descriptor.timestamp", getMessages(),
                 getExpressionEvaluator(), getLocale());
+    }
+    
+    public PlayVoicemailService.Info getPlayVoicemailInfo() {
+        Voicemail voicemail = getVoicemail();
+        PlayVoicemailService.Info info = new PlayVoicemailService.Info(voicemail.getFolderId(), 
+                voicemail.getMessageId());
+        return info;
     }
 
     public void pageBeginRender(PageEvent event) {

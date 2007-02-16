@@ -132,7 +132,7 @@ EOF
 
 cat "$PARM_IN" >> $SCRIPT
 
-echo "EOF" >> $SCRIPT
+echo -e "\nEOF" >> $SCRIPT
 
 chmod 755 $SCRIPT
 

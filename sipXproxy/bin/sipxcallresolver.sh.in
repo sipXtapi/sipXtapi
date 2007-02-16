@@ -9,15 +9,16 @@
 Action=RUN
 Status=1
 Args=""
-resolverArgs=""
+
 
 # Declare script variables in a manner that unit test
 # (or end user I suppose) can override
-: ${SslDir:=@SIPX_CONFDIR@/ssl}
-: ${AuthoritiesDir:=$SslDir/authorities}
-: ${ConfigDefs:=@SIPX_CONFDIR@/config.defs}
+: ${ConfDir:=@SIPX_CONFDIR@}
+: ${SslDir:=${ConfDir}/ssl}
+: ${AuthoritiesDir:=${SslDir}/authorities}
+: ${ConfigDefs:=${ConfDir}/config.defs}
 : ${Configpp:=@bindir@/configpp}
-: ${ConfigFiles:=@SIPX_CONFDIR@/callresolver-config}
+: ${ConfigFiles:=${ConfDir}/callresolver-config}
 : ${PidFile:=@SIPX_RUNDIR@/sipxcallresolver.pid}
 : ${LibDir:=@SIPX_LIBDIR@}
 : ${Psql:=psql}
@@ -28,18 +29,19 @@ resolverArgs=""
 : ${TmpDir:=@SIPX_TMPDIR@}
 : ${RunningUser:=@SIPXPBXUSER@}
 : ${PgUser:=postgres}
-: ${PgSchema:=@SIPX_CONFDIR@/cdr/schema.sql}
+: ${PgSchema:=${ConfDir}/cdr/schema.sql}
 : ${RubyCmd:=/usr/bin/ruby}
 : ${DbVersion:=3}
-: ${DbPatchDir:=@SIPX_CONFDIR@/cdr}
-: ${DbPatchLog:=@SIPX_LOGDIR@/sipcdrpatch.log}
-: ${CallResolverLog:=@SIPX_LOGDIR@/sipcallresolver.log}
+: ${DbPatchDir:=${ConfDir}/cdr}
+: ${DbPatchLog:=${LogDir}/sipcdrpatch.log}
+: ${CallResolverLog:=${LogDir}/sipcallresolver.log}
 : ${CallResolverMain:=@GEM_LIB_DIR@/sipxcallresolver-2.0.0/lib/main.rb}
 
+resolverArgs="--confdir ${ConfDir} --logdir ${LogDir}"
 Database=SIPXCDR
 Today=`date`
 
-PsqlCmd="${Psql} -q -t -A -U ${PgUser} -d ${Database}"
+PsqlCmd="${Psql} --quiet --tuples-only --no-align --username ${PgUser} --dbname ${Database}"
 
 # Make sure we are running as root during installation setup
 assertRoot() {
@@ -131,12 +133,12 @@ databaseCommand() {
     
     case ${1} in
        create)
-         createdb -U ${PgUser} --encoding=UNICODE ${Database} >/dev/null
-         ${PsqlCmd} -f ${PgSchema} >/dev/null 2>&1
+         createdb --quiet -U ${PgUser} --encoding=UNICODE ${Database}
+         ${PsqlCmd} -f ${PgSchema}
        ;;
        
        drop)
-         dropdb -U ${PgUser} --encoding=UNICODE ${Database} >/dev/null 2>&1
+         dropdb --quiet -U ${PgUser} ${Database}
        ;;
    esac
 }
@@ -283,37 +285,21 @@ configCheck() {
    fi
  
    echo "Checking configuration..."   
-   proxyConfig=`cat @SIPX_CONFDIR@/proxy-config.in | grep SIP_PROXY_CALL_STATE_DB`
-   if ! expr match "$proxyConfig" '.*:\s*[eE][nN][aA][bB][lL][eE]\s*$' >/dev/null; then
+   proxyConfig=`cat @SIPX_CONFDIR@/config.defs | grep CALLRESOLVER_CALL_STATE_DB`
+   if ! expr match "$proxyConfig" '.*=\s*[eE][nN][aA][bB][lL][eE]\s*$' >/dev/null; then
       cat <<ERROR
 
 Error: proxy is not configured to log call state events to a database.
 Add the line:
 
-   SIP_PROXY_CALL_STATE_DB : ENABLE
+   CALLRESOLVER_CALL_STATE_DB : ENABLE
    
-to @SIPX_CONFDIR@/proxy-config.in
+to @SIPX_CONFDIR@/config.defs
 
 ERROR
       Status=1
    else
       echo "  proxy configured for logging"
-   fi
-   authConfig=`cat @SIPX_CONFDIR@/authproxy-config.in | grep SIP_AUTHPROXY_CALL_STATE_DB`
-   if ! expr match "$authConfig" '.*:\s*[eE][nN][aA][bB][lL][eE]\s*$' >/dev/null; then
-      cat <<ERROR
-
-Error: authproxy is not configured to log call state events to a database.
-Add the line:
-
-   SIP_AUTHPROXY_CALL_STATE_DB : ENABLE
-   
-to @SIPX_CONFDIR@/authproxy-config.in
-
-ERROR
-      Status=1
-   else
-      echo "  authproxy configured for logging"
    fi
    
    # Don't check configuration of call resolver for distributed machines

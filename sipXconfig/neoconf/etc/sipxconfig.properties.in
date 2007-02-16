@@ -61,6 +61,7 @@ acdServer.agentPort=${CONFIG_SERVER_AGENT_PORT}
 acdQueue.audioDirectory=@sipxconfig.phone.dir@/acd/audio
 presenceServer.enabled=true
 mailboxManagerImpl.mailstoreDirectory=@sipxvxml.data.dir@/mailstore
+mailboxManagerImpl.mediaServerCgiUrl=https://${VOICEMAIL_SERVER_HOSTNAME}:${VOICEMAIL_SERVER_HTTPS_PORT}/cgi-bin/voicemail/mediaserver.cgi
 cdrManagerImpl.cdrAgentHost=${CALLRESOLVER_AGENT_ADDR}
 cdrManagerImpl.cdrAgentPort=${CALLRESOLVER_AGENT_PORT}
 

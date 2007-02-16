@@ -439,6 +439,11 @@ Common Database commands include:
                        patches to the database schema.  This will only 
                        upgrade if nec.
 
+   reset-superadmin    Clear the password of the superadmin user.
+                       This lets you log in if you've forgotten the superadmin
+                       password.  But for security, you should immediately log
+                       in and set superadmin's password.
+
    -p                  Full list all available commands
 
 Notable environment variables:

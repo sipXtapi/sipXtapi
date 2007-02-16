@@ -68,22 +68,24 @@ public class AcdLineTest extends TestCase {
     public void testPrepareSettings() {
         IMocksControl mc = EasyMock.createControl();
         CoreContext coreContext = mc.createMock(CoreContext.class);
-        coreContext.getDomainName();
-        mc.andReturn("mydomain.org").atLeastOnce();
         mc.replay();
 
+        AcdServer server = new AcdServer();
+        server.setHost("host.mydomain.org");
+        m_line.setAcdServer(server);
         m_line.setCoreContext(coreContext);
         m_line.setName("myline");
 
         AcdQueue queue = new AcdQueue();
+        queue.setAcdServer(server);
         queue.setName("testqueue");
         queue.setCoreContext(coreContext);
         m_line.associateQueue(queue);
 
         m_line.initialize();
         assertEquals("myline", m_line.getSettingValue(AcdLine.LINE_NAME));
-        assertEquals("sip:myline@mydomain.org", m_line.getSettingValue(AcdLine.URI));
-        assertEquals("sip:testqueue@mydomain.org", m_line.getSettingValue(AcdLine.ACD_QUEUE));
+        assertEquals("sip:myline@host.mydomain.org", m_line.getSettingValue(AcdLine.URI));
+        assertEquals("sip:testqueue@host.mydomain.org", m_line.getSettingValue(AcdLine.ACD_QUEUE));
 
         mc.verify();
     }

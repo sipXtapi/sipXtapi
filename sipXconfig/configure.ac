@@ -3,7 +3,7 @@
 # benign edit
 
 AC_PREREQ(2.57)
-AC_INIT(sipXconfig, 3.7.3, sipx-dev@list.sipfoundry.org)
+AC_INIT(sipXconfig, 3.7.4, sipx-dev@list.sipfoundry.org)
 
 
 AC_CONFIG_AUX_DIR(config)
@@ -72,7 +72,6 @@ if test x$enable_ruby_binding == xyes ; then
   AC_PATH_PROG([WSDL2RUBY], wsd2lruby.rb, $abs_srcdir/web/meta/wsdl2ruby.rb)
 fi
 
-
 AC_CONFIG_FILES([
     Makefile
     bin/Makefile
@@ -88,6 +87,7 @@ AC_CONFIG_FILES([
     plugins/Makefile
     plugins/clearone/Makefile
     plugins/hitachi/Makefile
+    plugins/lg-nortel/Makefile
     plugins/mitel/Makefile
 ])
 

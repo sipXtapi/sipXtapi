@@ -130,8 +130,9 @@ public final class SettingUtil {
             }
         }
 
-        public void visitSettingGroup(Setting settingGroup) {
+        public boolean visitSettingGroup(Setting settingGroup) {
             visitSetting(settingGroup);
+            return true;
         }
     }
 

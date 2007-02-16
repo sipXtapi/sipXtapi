@@ -1,3 +1,5 @@
+/* suppress warnings */
+SET client_min_messages TO 'error';
 
 create table acd_agent_stat (
   acd_agent_stat_id serial8 not null primary key,

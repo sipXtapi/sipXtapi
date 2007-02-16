@@ -171,23 +171,35 @@ HTML:{
     # The dialog attributes.
 
     my($call_id) = $dialog->[0]->{'call-id'};
-    print &p(&strong('Guideline 5(1):') . " Attribute 'call-id' " .
+    print &p(&strong('Guideline 5:') . " Attribute 'call-id' " .
 	     ($call_id ne '' ? "present" : &red("absent")) . '.'),
 	"\n";
 
     my($local_tag) = $dialog->[0]->{'local-tag'};
-    print &p(&strong('Guideline 5(2):') . " Attribute 'local-tag' " .
+    print &p(&strong('Guideline 5:') . " Attribute 'local-tag' " .
 	     ($local_tag ne '' ? "present" : &red("absent")) . '.'),
 	"\n";
 
     my($remote_tag) = $dialog->[0]->{'remote-tag'};
-    print &p(&strong('Guideline 5(3):') . " Attribute 'remote-tag' " .
+    print &p(&strong('Guideline 5:') . " Attribute 'remote-tag' " .
 	     ($remote_tag ne '' ? "present" : &red("absent")) . '.'),
 	"\n";
 
     my($direction) = $dialog->[0]->{'direction'};
-    print &p(&strong('Guideline 5(4):') . " Attribute 'direction' " .
+    print &p(&strong('Guideline 5:') . " Attribute 'direction' " .
 	     ($direction ne '' ? "present" : &red("absent")) . '.'),
+	"\n";
+
+    # The <duration> element.
+    my($duration);
+    for ($i = 1; $i <= $#$dialog; $i += 2) {
+	if ($dialog->[$i] eq 'duration') {
+	    $duration = &text($dialog->[$i+1]);
+	    last;
+	}
+    }
+    print &p(&strong('Guideline 5:') . " Duration element " .
+	     ($duration =~ /^\d+$/ ? "present" : &red("absent")) . '.'),
 	"\n";
 
     # The local and remote URIs.
@@ -201,20 +213,20 @@ HTML:{
 	}
     }
 
-    print &p(&strong('Guideline 6(1):') . " Local identity " .
+    print &p(&strong('Guideline 6B/6D:') . " Local identity " .
 	     ($local_identity ne '' ? "present" : &red("absent")) . '.'),
 	"\n";
     if ($local_identity ne '') {
 	my($i) = &strip($local_identity);
 	my($j) = "sip:$extension\@$sip_domain";
-	print &p(&strong('Guideline 6(2):') . " Local identity '" .
+	print &p(&strong('Guideline 6B/6D:') . " Local identity '" .
 		 &code(&escapeHTML($i)) . "' " .
 		 ($i eq $j ? "matches" : &red("does not match")) .
 		 " AOR '" . &code(&escapeHTML($j)) . "'."),
 		 "\n";
     }
 
-    print &p(&strong('Guideline 6(3):') . " Local target " .
+    print &p(&strong('Guideline 6C/6E:') . " Local target " .
 	     ($local_target ne '' ? "present" : &red("absent")) . '.'),
 	"\n";
     if ($local_target ne '') {
@@ -225,7 +237,7 @@ HTML:{
 	    my($i) = &strip($local_target);
 	    # Copy any sip:/sips: prefix from $i to $gruu.
 	    $gruu = $1 . $gruu if $i =~ /^(sips?:)/;
-	    print &p(&strong('Guideline 6(4):') . " Local target '" .
+	    print &p(&strong('Guideline 6C/6E:') . " Local target '" .
 		     &code(&escapeHTML($i)) . "' " .
 		     ($i eq $gruu ? "is" : &red("is not")) .
 		     " the UA's GRUU '" . &code(&escapeHTML($gruu)) . "'."),
@@ -235,7 +247,7 @@ HTML:{
 	    # That is, one with an IP address as its host.
 	    my($i) = &strip($local_target);
 	    my($c) = $i =~ /^sip:((.*)\@)?[0-9.]+(:\d+)?$/;
-	    print &p(&strong('Guideline 6(4):') . " Local target '" .
+	    print &p(&strong('Guideline 6C/6E:') . " Local target '" .
 		     &code($i) . "' " .
 		     ($c ? "is" : &red("is not")) .
 		     " an IP address."),
@@ -243,20 +255,20 @@ HTML:{
 	}
     }
 
-    print &p(&strong('Guideline 6(5):') . " Remote identity " .
+    print &p(&strong('Guideline 6B/6D:') . " Remote identity " .
 	     ($remote_identity ne '' ? "present" : &red("absent")) . '.'),
 	"\n";
     if ($remote_identity ne '') {
 	my($i) = &strip($remote_identity);
 	my($c) = $i =~ /^sip:\d+\@$sip_domain$/;
-	print &p(&strong('Guideline 6(6):') . " Remote identity '" .
+	print &p(&strong('Guideline 6B/6D:') . " Remote identity '" .
 		 &code(&escapeHTML($i)) . "' " .
 		 ($c ? "is" : &red("is not")) .
 		 " an AOR in " . &code($sip_domain) . "."),
 		 "\n";
     }
 
-    print &p(&strong('Guideline 6(7):') . " Remote target " .
+    print &p(&strong('Guideline 6C/6E:') . " Remote target " .
 	     ($remote_target ne '' ? "present" : &red("absent")) . '.'),
 	"\n";
     if ($remote_target ne '') {
@@ -264,7 +276,7 @@ HTML:{
 	my($c) = $i =~ /^sips?:((.*)\@)?[0-9.]+(:\d+)?$/;
 	my($g) = ($i =~ /^sips?:\d+\@$sip_domain;opaque=/ ||
 		  $i =~ /^sips?:gruu~/);
-	print &p(&strong('Guideline 6(8):') . " Remote target '" . &code($i) .
+	print &p(&strong('Guideline 6C/6E:') . " Remote target '" . &code($i) .
 		 "' " .
 		 ($c ? "is an IP address" :
 		  $g ? "is a GRUU in " . &code($sip_domain) :

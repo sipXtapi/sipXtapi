@@ -242,6 +242,7 @@ public class CiscoAtaProfileWriter implements SettingVisitor {
         }
     }
 
-    public void visitSettingGroup(Setting group) {
+    public boolean visitSettingGroup(Setting group) {
+        return true;
     }
 }

@@ -3,6 +3,38 @@ SIPfoundry Issue Tracker at:
 
         http://track.sipfoundry.org/browse?XCF
 	
+Version 3.7.4
+
+** Bug
+    * [XCF-1409] - built-in permissions shown in English only on Permission screen and DialPlan screen
+    * [XCF-1430] - sipxconfig-agent SOAP API doesn't appear to honor request for data in a certain time window
+    * [XCF-1438] - wrong park server URI in SNOM profile
+    * [XCF-1443] - Grandstream GXV3000 and GXP2000 attempting to register anonymous lines
+    * [XCF-1452] - Getting exception while setting the extension pool.
+    * [XCF-1459] - Clicking on the "Add User" link of the Users page caused exception.
+    * [XCF-1467] - sipxconfig-agent gem not getting installed after fresh installation
+    * [XCF-1471] - supressing uncertifed gateway filter needs updating, mode ids changed
+    * [XCF-1482] - User edit page has pin and confirm pin with different values
+    * [XCF-1488] - In new VM UI, there is no Default System Greeting option in Active greeting dropdown menu
+
+** Improvement
+    * [XCF-688] - When creating a new user the admin should be able to define a default email address for voicemail delivery
+    * [XCF-1066] - Rewrite voicemail ui and integrate back into user portal
+    * [XCF-1218] - improve Enabled column in all tables
+    * [XCF-1325] - Improvements for sipXconfig Localization
+    * [XCF-1423] - ACD Calls export link
+    * [XCF-1428] - Only show ACD Call web ui when sipxconfig-report RPM is installed
+    * [XCF-1434] - Install one server component without having to install entire PBX
+    * [XCF-1436] - Install SSL certificates on remote server from CLI
+    * [XCF-1458] - Updates to support Polycom BLF feature
+
+** New Feature
+    * [XCF-1288] - Configure BLF for Polycom phones
+    * [XCF-1390] - display list of in-progress calls
+    * [XCF-1407] - localize enumeration labels specified in model XML files
+    * [XCF-1417] - Config Server create boilerplace mappingrules.xml section to route resource list URIs to the RLS
+    * [XCF-1442] - Add support for GXV3000 Grandstream phone
+    * [XCF-1445] - Support firmware upload for grandstream phones
 
 Version 3.7.3
 

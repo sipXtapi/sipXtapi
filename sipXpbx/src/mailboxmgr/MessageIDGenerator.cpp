@@ -77,7 +77,7 @@ MessageIDGenerator::getNextMessageID ( UtlString& rMessageName ) const
                       m_dataFileName.data());
         // the file exists however it still may be corrupt
         OsFile messageIDFile ( m_dataFileName );
-        result = messageIDFile.open( OsFile::READ_WRITE | OsFile::FSLOCK_WRITE );
+        result = messageIDFile.open( OsFile::READ_WRITE | OsFile::FSLOCK_WAIT );
         if (result == OS_SUCCESS)
         {
             // use the file system locking

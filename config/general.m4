@@ -227,6 +227,7 @@ AC_DEFUN([CHECK_JNI],
 AC_DEFUN([CHECK_ANT],
 [
    AC_REQUIRE([AC_EXEEXT])
+   AC_REQUIRE([CHECK_JDK])
    AC_ARG_VAR(ANT, [Ant program])
 
    test -z $ANT_HOME || ANT_HOME_BIN=$ANT_HOME/bin
@@ -242,6 +243,9 @@ AC_DEFUN([CHECK_ANT],
    if test x_$found_ant != x_yes; then
        AC_MSG_ERROR([Cannot find ant program. Try setting ANT_HOME environment variable or use 'configure ANT=<path to ant executable>])
    fi
+
+  AC_SUBST(ANT_FLAGS, '-e -Dtop.build.dir=$(shell cd $(top_builddir) && pwd) -f $(srcdir)/build.xml')
+  AC_SUBST(ANT_CMD, "JAVA_HOME=${JAVA_HOME} ${ANT}")
 ])
 
 
@@ -670,31 +674,6 @@ AC_DEFUN([CHECK_APACHE2],
    else
        AC_MSG_ERROR('build/config_vars.mk' not found; tried: $apache2_home_search_path)
    fi
-])dnl
-
-# ============ M O D   C P L U S P L U S ==================
-AC_DEFUN([CHECK_MODCPLUSPLUS],
-[
-    AC_MSG_CHECKING([for mod_cplusplus])
-    AC_ARG_WITH(mod_cplusplus,
-                [--with-mod_cplusplus=PATH to mod_cplusplus source directory],
-                [mod_cplusplus_path=$withval],
-                [mod_cplusplus_path="/usr/local/apache2/include /usr/local/include /usr/include /usr/include/httpd /usr/include/apache2"],
-                )
-    for mod_cplusplusdir in $mod_cplusplus_path ; do
-            if test -f "$mod_cplusplusdir/mod_cplusplus.h";
-        then
-            found_mod_cplusplus="yes";
-            break;
-        fi
-    done
-
-    if test x_$found_mod_cplusplus != x_yes;
-    then
-        AC_MSG_ERROR(['mod_cplusplus.h' not found; tried $mod_cplusplus_path])
-    else
-        AC_MSG_RESULT($mod_cplusplusdir)
-    fi
 ])dnl
 
 # ==================== C G I C C  =========================

@@ -15,7 +15,6 @@ SUBDIRS= \
     replicationcgi \
     cbadmissioncgi \
     watchdog \
-    mod_sipxauth \
     emailnotifier \
     wwwcontent \
     test 

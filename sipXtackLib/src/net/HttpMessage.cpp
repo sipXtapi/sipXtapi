@@ -2016,53 +2016,54 @@ void HttpMessage::setHeaderValue(const char* name, const char* newValue, int ind
 
 UtlBoolean HttpMessage::removeHeader(const char* name, int index)
 {
-    mHeaderCacheClean = FALSE;
-        UtlBoolean foundHeader = FALSE;
-        UtlDListIterator iterator((UtlDList&)mNameValues);
-        NameValuePair* headerFieldName = NULL;
-        NameValuePair* headerField = NULL;
-        int fieldIndex = 0;
+   mHeaderCacheClean = FALSE;
+   UtlBoolean foundHeader = FALSE;
+   UtlDListIterator iterator((UtlDList&)mNameValues);
+   NameValuePair* headerFieldName = NULL;
+   NameValuePair* headerField = NULL;
+   int fieldIndex = 0;
 
-        if(name)
-        {
-                headerFieldName = new NameValuePair(name);
-        headerFieldName->toUpper();
-        }
+   if(name)
+   {
+      headerFieldName = new NameValuePair(name);
+      headerFieldName->toUpper();
+   }
 
-        // For each name value:
-        while(fieldIndex <= index)
-        {
-                // Go to the next header field
-                if(name)
-                {
-                        headerField = (NameValuePair*) iterator.findNext(headerFieldName);
-                }
-                else
-                {
-                        headerField = (NameValuePair*) iterator();
-                }
-
-
-                if(!headerField)
-                {
-                        break;
-                }
-                fieldIndex++;
-        }
+   // For each name value:
+   while(fieldIndex <= index)
+   {
+      // Go to the next header field
+      if(name)
+      {
+         headerField = (NameValuePair*) iterator.findNext(headerFieldName);
+      }
+      else
+      {
+         headerField = (NameValuePair*) iterator();
+      }
 
 
-        if(headerFieldName)
-        {
-                delete headerFieldName;
-                headerFieldName = NULL;
-        }
-        if(headerField)
-        {
-                mNameValues.destroy(headerField);
-                foundHeader = TRUE;
-        }
+      if(!headerField)
+      {
+         break;
+      }
+      fieldIndex++;
+   }
 
-        return(foundHeader);
+
+   if(headerFieldName)
+   {
+      delete headerFieldName;
+      headerFieldName = NULL;
+   }
+   if(headerField)
+   {
+      mNameValues.removeReference(headerField);
+      delete headerField;
+      foundHeader = TRUE;
+   }
+
+   return(foundHeader);
 }
 
 void HttpMessage::addHeaderField(const char* name, const char* value)

@@ -40,10 +40,10 @@ public class IniFileWriter implements SettingVisitor {
         m_writer.println(MessageFormat.format(SETTING, params));
     }
 
-    public void visitSettingGroup(Setting group) {
+    public boolean visitSettingGroup(Setting group) {
         // skip root - empty name
         if (StringUtils.isEmpty(group.getName())) {
-            return;
+            return true;
         }
         Object[] params = new String[] {
             group.getProfileName(), m_groupNameSuffix
@@ -55,6 +55,7 @@ public class IniFileWriter implements SettingVisitor {
         }
         m_writer.println(MessageFormat.format(GROUP, params));
         m_writer.println();
+        return true;
     }
 
     public void setGroupNameSuffix(String groupNameSuffix) {

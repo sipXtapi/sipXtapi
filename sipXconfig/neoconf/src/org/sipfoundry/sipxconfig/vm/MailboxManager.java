@@ -33,4 +33,6 @@ public interface MailboxManager {
     
     public DistributionList[] loadDistributionLists(Mailbox mailbox);
 
+    public void markRead(Mailbox mailbox, Voicemail voicemail);
+    
 }

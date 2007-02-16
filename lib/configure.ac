@@ -9,7 +9,6 @@ SFAC_SRCDIR_EXPAND
 
 # default, fc5
 cgicc=yes
-mod_cplusplus=yes
 xerces_c=yes
 ruby_gems=yes
 ruby_dbi=yes
@@ -74,11 +73,6 @@ AC_ARG_ENABLE(java-sun,
 	AC_HELP_STRING([--enable-java-sun], [Build Sun Java SDK dependency]),
 	[ java_sun=${enableval} ])
 test x$java_sun = xyes && AC_CONFIG_SUBDIRS(java-sun)
-
-AC_ARG_ENABLE(mod_cplusplus,
-	AC_HELP_STRING([--enable-mod_cplusplus], [Build mod_cplusplus dependency]),
-	[ mod_cplusplus=${enableval} ])
-test x$mod_cplusplus = xyes && AC_CONFIG_SUBDIRS(mod_cplusplus)
 
 AC_ARG_ENABLE(pcre,
 	AC_HELP_STRING([--enable-pcre], [Build pcre dependency]),

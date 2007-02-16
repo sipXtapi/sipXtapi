@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.components;
 
 import java.text.DateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IRender;
@@ -27,8 +26,8 @@ import org.apache.tapestry.valid.RenderString;
 public final class DateTableRendererSource implements ITableRendererSource {
     private DateFormat m_format;
 
-    public DateTableRendererSource(Locale locale) {
-        m_format = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
+    public DateTableRendererSource(DateFormat format) {
+        m_format = format;
     }
 
     public IRender getRenderer(IRequestCycle objCycle_, ITableModelSource objSource_,

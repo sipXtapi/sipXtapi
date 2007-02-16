@@ -67,7 +67,8 @@ public class Permissions extends DataSetGenerator {
             }
         }
 
-        public void visitSettingGroup(Setting group_) {
+        public boolean visitSettingGroup(Setting group_) {
+            return true;
         }
     }
 

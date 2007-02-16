@@ -13,6 +13,7 @@
   <parameter name="initialSortColumn" required="no" />
   <parameter name="row" required="no"/>
   <parameter name="rowInfo" required="no" default-value="bean:defaultRowInfo" />
+  <parameter name="rowClass" required="no" default-value="bean:rowClass" />
   <parameter name="selections" required="yes" />
   <parameter name="usePager" required="no" default-value="false" />
   <inject property="tableVariables" object="spring:tableVariables" />
@@ -40,7 +41,7 @@
   <component id="tableColumns" type="contrib:TableColumns" />
   <component id="tableRows" type="contrib:TableRows">
     <inherited-binding name="row" parameter-name="row" />
-    <binding name="class" value="beans.rowClass.next" />
+    <binding name="class" value="rowClass.next" />
     <inherited-binding name="converter" parameter-name="converter" />
   </component>
   <component id="tableValues" type="contrib:TableValues" />
