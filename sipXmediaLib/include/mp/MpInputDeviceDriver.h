@@ -14,6 +14,7 @@
 #define _MpInputDeviceDriver_h_
 
 // SYSTEM INCLUDES
+#include <utl/UtlString.h>
 
 // APPLICATION INCLUDES
 // DEFINES
@@ -41,8 +42,14 @@ class MpInputDeviceManager;
 *  an OsTask which runs and gets frames for the OS and hardware specific device
 *  or MpInputDeviceDriver may be driven via callbacks from the OS/hardware
 *  input device driver.  This is an implementation choice.
+*
+*  MpInputDeviceDriver has a text name which is defined upon construction.
+*  This name will typically be the same as the OS defined name for the
+*  input device.  The name of the MpInputDeviceDriver is accessed via the
+*  data() method inherited from UtlString.  This allows MpInputDeviceDriver
+*  to be contained and accessed by name.
 */
-class MpInputDeviceDriver
+class MpInputDeviceDriver : public UtlString
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:

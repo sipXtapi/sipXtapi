@@ -52,7 +52,7 @@ public:
     MprFromInputDevice(const UtlString& rName, 
                        int samplesPerFrame, 
                        int samplesPerSec,
-                       MpInputDeviceManager& deviceManager,
+                       MpInputDeviceManager* deviceManager,
                        int deviceId);
 
       /// Destructor

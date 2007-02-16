@@ -206,8 +206,8 @@ public:
 
       /// Method for obtaining the buffer for a given frame and device ID
     OsStatus getFrame(int deviceId,
-                      MpBufPtr& buffer,
                       int frameTime,
+                      MpBufPtr buffer,
                       int& numFramesBefore,
                       int& numFramesAfter);
       /**<
