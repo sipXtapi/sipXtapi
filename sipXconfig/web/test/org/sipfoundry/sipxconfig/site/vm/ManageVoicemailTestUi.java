@@ -112,7 +112,8 @@ public class ManageVoicemailTestUi extends WebTestCase {
         String[][] forwardedMessage = {{
             "Fwd:Voice Message 00000014 \n Voice Message 00000014", 
             "200 \n Yellowthroat Warbler - 200", 
-            fmt.format(TestUtil.localizeDateTime("2/9/07 6:03 PM EST")) + "\n " + fmt.format(TestUtil.localizeDateTime("2/9/07 3:40 PM EST")), 
+            fmt.format(TestUtil.localizeDateTime("2/9/07 6:03 PM EST")) + "\n " 
+              + fmt.format(TestUtil.localizeDateTime("2/9/07 3:40 PM EST")), 
             "6 seconds",
             ""
         }};
