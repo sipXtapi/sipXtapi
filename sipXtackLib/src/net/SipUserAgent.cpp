@@ -3215,7 +3215,7 @@ void SipUserAgent::prepareContact(SipMessage& message,
     }
 
     // Update contact if we know anything about the target and our NAT binding
-    if (message.getContactUri(0, &contact))
+    if (message.getContactField(0, contact))
     {
         Url       urlContact(contact) ;        
         UtlString contactIp ;
