@@ -60,10 +60,10 @@ struct RtpHeader {
 
 #define RTP_MAX_CSRCS       16      ///< Maximum number of CSRCs in RTP packet
 
-#define RTP_MAX_TIMESTAMP  (2^32-1) ///< Maximum posible RTP timestamp
-#define RTP_HALF_TIMESTAMP (2^31)   ///< Half of posible RTP timestamps
-#define RTP_MAX_SEQ        (2^16-1) ///< Maximum posible RTP sequence number
-#define RTP_HALF_SEQ       (2^15)   ///< Half of posible RTP sequence numbers
+#define RTP_MAX_TIMESTAMP  (4294967295) ///< Maximum posible RTP timestamp (2^32-1)
+#define RTP_HALF_TIMESTAMP (2147483648) ///< Half of posible RTP timestamps (2^31)
+#define RTP_MAX_SEQ        (65535)      ///< Maximum posible RTP sequence number (2^16-1)
+#define RTP_HALF_SEQ       (32768)      ///< Half of posible RTP sequence numbers (2^15)
 
 // INLINE FUNCTIONS
 
