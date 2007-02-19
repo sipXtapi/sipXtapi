@@ -76,10 +76,10 @@ public:
 ///@name Manipulators
 //@{
 
-    OsStatus pushFrame(MpBufPtr* bufferPtr, 
+    OsStatus pushFrame(MpBufPtr& bufferPtr, 
                       int frameTime);
 
-    OsStatus getFrame(MpBufPtr* bufferPtr,
+    OsStatus getFrame(MpBufPtr& bufferPtr,
                       int frameTime,
                       int numFramesBefore,
                       int numFramesAfter); 

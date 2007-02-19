@@ -207,7 +207,7 @@ public:
       /// Method for obtaining the buffer for a given frame and device ID
     OsStatus getFrame(int deviceId,
                       int frameTime,
-                      MpBufPtr buffer,
+                      MpBufPtr& buffer,
                       int& numFramesBefore,
                       int& numFramesAfter);
       /**<
@@ -215,10 +215,10 @@ public:
       *
       *  @param deviceId - (in) device id to identify from which device a frame
       *         is to be retrieved.
-      *  @param buffer - (out) frame of media to be retrieved (copied for
-      *         callers context).
       *  @param frameTime - (in) time in milliseconds for beginning of frame
       *         relative to the MpInputDeviceManager reference time.
+      *  @param buffer - (out) frame of media to be retrieved (copied for
+      *         callers context).
       *  @param numFramesBefore - (out) number of frames buffered which are
       *         newer than the frame for the requested time.
       *  @param numFramesAfter - (out) number of frames buffered which are older
