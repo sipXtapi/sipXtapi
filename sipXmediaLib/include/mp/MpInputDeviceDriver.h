@@ -14,6 +14,8 @@
 #define _MpInputDeviceDriver_h_
 
 // SYSTEM INCLUDES
+#include <utl/UtlDefs.h>
+#include <os/OsStatus.h>
 #include <utl/UtlString.h>
 
 // APPLICATION INCLUDES
@@ -60,25 +62,28 @@ public:
 ///@name Creators
 //@{
 
-     /// Default constructor
-   MpInputDeviceDriver(const UtlString& name,
-                       MpInputDeviceManager& deviceManager);
-     /**<
-     *  @param name - unique device driver name (e.g. "/dev/dsp", 
-     *         "YAMAHA AC-XG WDM Audio", etc.)
-     *  @param deviceManager - MpInputDeviceManager this device is to
-     *         push frames to via pushFrame method
-     */
+      /// Default constructor
+    MpInputDeviceDriver(const UtlString& name,
+                        MpInputDeviceManager& deviceManager);
+      /**<
+      *  @param name - unique device driver name (e.g. "/dev/dsp", 
+      *         "YAMAHA AC-XG WDM Audio", etc.)
+      *  @param deviceManager - MpInputDeviceManager this device is to
+      *         push frames to via pushFrame method
+      */
 
-     /// Destructor
-   virtual
-   ~MpInputDeviceDriver();
+      /// Destructor
+    virtual
+    ~MpInputDeviceDriver() {};
 
 //@}
 
 /* ============================ MANIPULATORS ============================== */
 ///@name Manipulators
 //@{
+
+    virtual OsStatus setDeviceId(int deviceId);
+    virtual OsStatus clearDeviceId();
 
       /// Initialize device driver and state
     virtual OsStatus enableDevice(unsigned samplesPerFrame, 
@@ -134,13 +139,13 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-
-/* //////////////////////////// PRIVATE /////////////////////////////////// */
-private:
-
     MpInputDeviceManager* mpInputDeviceManager;
     UtlBoolean mIsEnabled;
     MpInputDeviceHandle mDeviceId;
+    
+
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
+private:
 
       /// Copy constructor (not implemented for this class)
     MpInputDeviceDriver(const MpInputDeviceDriver& rMpInputDeviceDriver);
