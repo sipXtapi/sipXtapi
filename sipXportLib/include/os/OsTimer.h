@@ -28,6 +28,13 @@
 
 
 // DEFINES
+
+// Macro to check that 'x' is an OsTimer* by testing its
+// getContainableType value.  This is to catch misuses of the OsTimer
+// methods.
+#define CHECK_VALIDITY(x) \
+            assert((x)->getContainableType() == OsTimer::TYPE)
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

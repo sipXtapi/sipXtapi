@@ -186,6 +186,19 @@ int OsTimerTask::run(void* pArg)
          timer->mTimerQueueLink = 0;
          fireTimer(timer);
       }
+
+      if (OsSysLog::willLog(FAC_KERNEL, PRI_WARNING))
+      {
+         // Check to see if timer firing took too long.
+         OsTimer::Time after = OsTimer::now();
+         OsTimer::Time t = OsTimer::subtractTimes(after, now);
+         if (t >= 1000000 /* 1 second */)
+         {
+            OsSysLog::add(FAC_KERNEL, PRI_WARNING,
+                          "OsTimerTask::run firing took %lld usecs, queue length = %d",
+                          t, getMessageQueue()->numMsgs());
+         }
+      }
    }
    while (!doShutdown);
 
@@ -258,6 +271,9 @@ UtlBoolean OsTimerTask::handleMessage(OsMsg& rMsg)
    }
 
    OsTimer* timer = message.getTimerP();
+#ifndef NDEBUG
+   CHECK_VALIDITY(timer);
+#endif
    unsigned int applicationState;
    OsTimer::Time expiresAt;
    UtlBoolean periodic;
@@ -388,6 +404,20 @@ void OsTimerTask::insertTimer(OsTimer* timer)
    OsTimer** previous_ptr;
    OsTimer* current;
    assert(timer->mTimerQueueLink == 0);
+   // Check to see if the firing time is in the past.
+   // This is not an error, but is unusual and probably indicates a backlog
+   // in processing.
+   if (OsSysLog::willLog(FAC_KERNEL, PRI_WARNING))
+   {
+      // Check to see if timer firing took too long.
+      OsTimer::Time now = OsTimer::now();
+      if (OsTimer::compareTimes(timer->mQueuedExpiresAt, now) < 0)
+      {
+         OsSysLog::add(FAC_KERNEL, PRI_WARNING,
+                       "OsTimerTask::insertTimer timer to fire %lld in the past",
+                       OsTimer::subtractTimes(now, timer->mQueuedExpiresAt));
+      }
+   }
 
    // Scan through the timer queue, looking for the right place to
    // insert the timer.
