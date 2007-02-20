@@ -62,9 +62,9 @@
 
 // Constructor
 OsSSLConnectionSocket::OsSSLConnectionSocket(int connectedSocketDescriptor, long timeoutInSecs) :
-    OsConnectionSocket(NULL, connectedSocketDescriptor),
-    mSSL(NULL),
-    mPeerIdentity(NOT_IDENTIFIED)    
+   OsConnectionSocket(NULL, connectedSocketDescriptor),
+   mSSL(NULL),
+   mPeerIdentity(NOT_IDENTIFIED)
 {
    if (mIsConnected)
    {
@@ -83,10 +83,11 @@ OsSSLConnectionSocket::OsSSLConnectionSocket(int connectedSocketDescriptor, long
 }
 
 OsSSLConnectionSocket::OsSSLConnectionSocket(SSL *s, int connectedSocketDescriptor) :
-    OsConnectionSocket(NULL, connectedSocketDescriptor)
+   OsConnectionSocket(NULL, connectedSocketDescriptor),
+   mSSL(s),
+   mPeerIdentity(NOT_IDENTIFIED)
 {
     mbExternalSSLSocket = TRUE;
-    mSSL = s;
     socketDescriptor = connectedSocketDescriptor;
     OsSysLog::add(FAC_KERNEL, PRI_DEBUG, 
                   "OsSSLConnectionSocket::_(SSL %p, socket %d)", s, connectedSocketDescriptor);
@@ -95,8 +96,9 @@ OsSSLConnectionSocket::OsSSLConnectionSocket(SSL *s, int connectedSocketDescript
 // Constructor
 OsSSLConnectionSocket::OsSSLConnectionSocket(int serverPort, const char* serverName,
                                              long timeoutInSecs) :
-    OsConnectionSocket(serverPort,serverName),
-    mSSL(NULL)
+   OsConnectionSocket(serverPort,serverName),
+   mSSL(NULL),
+   mPeerIdentity(NOT_IDENTIFIED)
 {
     mbExternalSSLSocket = FALSE;
     if (mIsConnected)
