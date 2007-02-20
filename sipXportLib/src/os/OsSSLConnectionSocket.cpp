@@ -42,6 +42,7 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
+#include "utl/UtlSListIterator.h"
 #include "os/OsSSL.h"
 #include "os/OsSSLConnectionSocket.h"
 #include "os/OsUtil.h"
@@ -62,7 +63,8 @@
 // Constructor
 OsSSLConnectionSocket::OsSSLConnectionSocket(int connectedSocketDescriptor, long timeoutInSecs) :
     OsConnectionSocket(NULL, connectedSocketDescriptor),
-    mSSL(NULL)
+    mSSL(NULL),
+    mPeerIdentity(NOT_IDENTIFIED)    
 {
    if (mIsConnected)
    {
@@ -115,20 +117,12 @@ OsSSLConnectionSocket::~OsSSLConnectionSocket()
                  "OsSSLConnectionSocket::~"
                  );
    remoteHostName = OsUtil::NULL_OS_STRING;
+   mAltNames.destroyAll();
    close();
 }
 
 /* ============================ MANIPULATORS ============================== */
 
-// Assignment operator
-OsSSLConnectionSocket&
-OsSSLConnectionSocket::operator=(const OsSSLConnectionSocket& rhs)
-{
-   if (this == &rhs)            // handle the assignment to self case
-      return *this;
-
-   return *this;
-}
 
 UtlBoolean OsSSLConnectionSocket::reconnect()
 {
@@ -264,7 +258,7 @@ OsSocket::IpProtocolSocketType OsSSLConnectionSocket::getIpProtocol() const
 /// Is this connection encrypted using TLS/SSL?
 bool OsSSLConnectionSocket::isEncrypted() const
 {
-   return false;
+   return true;
 }
 
    
@@ -273,12 +267,57 @@ bool OsSSLConnectionSocket::peerIdentity( UtlSList* altNames
                                          ,UtlString* commonName
                                          ) const
 {
+   if (NOT_IDENTIFIED == mPeerIdentity)
+   {
+      // examine cert to get identity and cache the results
+      mPeerIdentity = OsSSL::peerIdentity( mSSL, &mAltNames, &mCommonName )
+         ? TRUSTED : UNTRUSTED;
+      if ( TRUSTED == mPeerIdentity )
+      {
+         OsSysLog::add(FAC_SIP, PRI_INFO,
+                       "OsSSLConnectionSocket::peerIdentity %p OsSSL returned trusted",
+                       this);
+      }
+      else
+      {
+         OsSysLog::add(FAC_SIP, PRI_WARNING,
+                       "OsSSLConnectionSocket::peerIdentity %p OsSSL returned NOT trusted",
+                       this);
+      }      
+   }
+   
    /*
     * - true if the connection is TLS/SSL and the peer has presented
     *        a certificate signed by a trusted certificate authority
     * - false if not
     */
-   return OsSSL::peerIdentity( mSSL, altNames, commonName );
+   if (commonName)
+   {
+      commonName->remove(0);
+   }
+   if (altNames)
+   {
+      altNames->destroyAll();
+   }
+
+   if (TRUSTED == mPeerIdentity)
+   {
+      if (commonName)
+      {
+         *commonName = mCommonName;
+      }
+      if (altNames)
+      {
+         UtlString* altName;
+         UtlSListIterator names(mAltNames);
+         while ( (altName = dynamic_cast<UtlString*>(names())) )
+         {
+            altNames->insert(new UtlString(*altName));
+         }
+      }
+   }
+      
+   return TRUSTED == mPeerIdentity;
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -305,8 +344,6 @@ void OsSSLConnectionSocket::SSLInitSocket(int socket, long timeoutInSecs)
              OsSSL::logConnectParams(FAC_KERNEL, PRI_DEBUG,
                                      "OsSSLConnectionSocket",
                                      mSSL);
-
-             // TODO: Validate certificate here? or in callback?
           }
           else
           {

@@ -321,19 +321,19 @@ void OsSSL::logConnectParams(const OsSysLogFacility facility, ///< callers facil
 
       OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                     "%s SSL Connection:\n"
-                    "   cipher:  '%s'\n"
                     "   status:  %s\n"
                     "   peer:    '%s'\n"
                     "   alt URI: '%s'\n"
                     "   alt DNS: '%s'\n"
+                    "   cipher:  '%s'\n"
                     "   issuer:  '%s'",
                     callerMsg,
                     validity == X509_V_OK ? "Verified" : "NOT VERIFIED",
                     subjectStr ? subjectStr : "",
                     subjectAltNameURI ? subjectAltNameURI->data() : "",
                     subjectAltNameDNS ? subjectAltNameDNS->data() : "",
-                    issuerStr  ? issuerStr  : "",
-                    cipher     ? cipher     : ""
+                    cipher     ? cipher     : "",
+                    issuerStr  ? issuerStr  : ""
                     );
 
       // Release the various dynamic things

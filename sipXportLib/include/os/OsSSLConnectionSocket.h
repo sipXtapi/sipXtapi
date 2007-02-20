@@ -17,6 +17,8 @@
 //#include <...>
 
 // APPLICATION INCLUDES                      
+#include <utl/UtlSList.h>
+#include <utl/UtlString.h>
 #include <os/OsConnectionSocket.h>
 
 #include <openssl/crypto.h>
@@ -139,6 +141,16 @@ protected:
 private:
    SSL*     mSSL;
 
+   // cached copies of peer information - parsing the cert is expensive
+   mutable enum 
+   {
+      NOT_IDENTIFIED,
+      TRUSTED,
+      UNTRUSTED
+   }         mPeerIdentity;
+   mutable UtlSList  mAltNames;
+   mutable UtlString mCommonName;
+
    UtlBoolean mbExternalSSLSocket;
      //:Should this object clean up SSL when shutdown.
      //:It shouldn't if SSL is managed by a parent class
@@ -151,8 +163,7 @@ private:
      //:Disable default constructor
 
    OsSSLConnectionSocket& operator=(const OsSSLConnectionSocket& rhs);
-     //:Assignment operator
-
+     //:Disable Assignment operator
 };
 
 /* ============================ INLINE METHODS ============================ */
