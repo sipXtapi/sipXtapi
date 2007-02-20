@@ -16,7 +16,7 @@
 #include "utl/UtlString.h"
 
 /**
- * RegEx impelments Perl-compatible regular expressions
+ * RegEx implements Perl-compatible regular expressions
  *
  * A simple and small C++ wrapper for PCRE.
  * PCRE (or libprce) is the Perl Compatible Regular Expression library.
