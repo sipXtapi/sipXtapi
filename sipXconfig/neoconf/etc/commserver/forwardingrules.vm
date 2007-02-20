@@ -25,6 +25,12 @@
         <routeTo>&lt;${dollar}{STATUS_SERVER_SIP_SRV_OR_HOSTPORT};transport=tcp&gt;</routeTo>
       </fieldMatch>
 
+      <!-- "reg" event subscriptions. -->
+      <fieldMatch fieldName="Event">
+        <fieldPattern>reg</fieldPattern>
+        <routeTo>&lt;${dollar}{REGISTRAR_REG_EVENT_SIP_SRV_OR_HOSTPORT};transport=tcp&gt;</routeTo>
+      </fieldMatch>
+
       <!-- All other SUBSCRIBE requests go to the SIP registry service -->
       <routeTo>&lt;${dollar}{REGISTRAR_SERVER_SIP_SRV_OR_HOSTPORT}&gt;</routeTo>
 
