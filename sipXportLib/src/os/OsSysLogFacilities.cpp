@@ -65,6 +65,7 @@ const char* OsSysLog::sFacilityNames[] =
    "CONFERENCE",
    "ODBC",
    "CDR",
+   "RLS",
    "VOICEENGINE",
    "VIDEOENGINE",
    "APP",
