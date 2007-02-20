@@ -650,8 +650,7 @@ typedef struct
                                          supplied on MEDIA_REMOTE_SILENT 
                                          events. */
     SIPX_TONE_ID        toneId;	    /**< DTMF tone received from remote party;
-                                         only supplied on MEDIA_REMOTE_DTMF_START
-                                         and MEDIA_REMOTE_DTMF_STOP events).
+                                         only supplied on MEDIA_REMOTE_DTMF event).
                                          Note: Only out-of-band DTMF is supported
                                          (not in-band DTMF or dialtone detection, 
                                          etc.)*/
