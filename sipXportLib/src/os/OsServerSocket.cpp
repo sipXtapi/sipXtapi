@@ -120,6 +120,8 @@ OsServerSocket::OsServerSocket(int connectionQueueSize,
    }
 #       endif
 
+
+   memset(&localAddr, 0, sizeof(localAddr));
    localAddr.sin_family = AF_INET;
 
    // Bind to a specific server port if given, or let the system pick
