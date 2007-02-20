@@ -358,6 +358,10 @@ UtlBoolean OsTimerTask::handleMessage(OsMsg& rMsg)
       // the timer task.
       delete timer;
       break;
+
+   default:
+      // Catch invalid values.
+      assert(FALSE);
    }
 
    return TRUE;
