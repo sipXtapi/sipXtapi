@@ -18,6 +18,7 @@ import java.util.List;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxServerTest;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
@@ -71,6 +72,7 @@ public class PhoneTestDriver {
         defaults.setProxyServerAddr("outbound.sipfoundry.org");
         defaults.setProxyServerSipPort("5555");
         defaults.setAuthorizationRealm("realm.sipfoundry.org");
+        defaults.setSipxServer(SipxServerTest.setUpSipxServer());
 
         phoneContextControl = EasyMock.createNiceControl();
         phoneContext = phoneContextControl.createMock(PhoneContext.class);
@@ -110,8 +112,8 @@ public class PhoneTestDriver {
 
         sipControl = EasyMock.createStrictControl();
         sip = sipControl.createMock(SipService.class);
-        
-        if(users.size() > 0) {
+
+        if (users.size() > 0) {
             String uri = users.get(0).getUri("sipfoundry.org");
             sip.sendCheckSync(uri, "sipfoundry.org", "5555");
         }
@@ -119,5 +121,4 @@ public class PhoneTestDriver {
         _phone.setSipService(sip);
 
     }
-
 }

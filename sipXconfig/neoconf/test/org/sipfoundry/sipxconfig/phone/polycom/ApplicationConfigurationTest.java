@@ -31,7 +31,7 @@ public class ApplicationConfigurationTest extends XMLTestCase {
     
     PolycomPhone phone;
     
-    protected void setUp() {
+    protected void setUp() throws Exception {
         XMLUnit.setIgnoreWhitespace(true);
         phone = new PolycomPhone();
         phone.getModel().setMaxLineCount(6);

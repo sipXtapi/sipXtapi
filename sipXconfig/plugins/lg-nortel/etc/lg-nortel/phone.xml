@@ -180,6 +180,8 @@
       <value>5060</value>
     </setting>
     <setting name='SIP_service_domain' advanced="yes"></setting>
+    <setting name="moh_url" advanced="yes">      
+    </setting>
     <setting name='rtp_port' advanced="yes">
       <type refid="port-number" />
       <value>23000</value>

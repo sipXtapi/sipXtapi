@@ -36,7 +36,7 @@ public final class TestUtil {
 
     private static final DateFormat ENGLISH_DATE = DateFormat.getDateTimeInstance(
             DateFormat.SHORT, DateFormat.SHORT, Locale.ENGLISH);
-    
+
     private TestUtil() {
         // empty - to prevent instantiation
     }
@@ -45,11 +45,11 @@ public final class TestUtil {
         return File.separatorChar == '\\';
     }
 
-    
     /**
-     * If you want to use a date in a unit test that eventually 
-     * @param usDate
-     * @return
+     * If you want to use a date in a unit test that eventually
+     * 
+     * @param usDate typical US date representation
+     * @return local date
      */
     public static final Date localizeDateTime(String usDate) {
         try {
@@ -101,10 +101,10 @@ public final class TestUtil {
      * but when you need a filename use this. Example:
      * 
      * <pre>
-     *            
-     *             # Test file in same directory as JUnit test source file 
-     *             String testFile = TestUtil.getTestSourceDirectory(getClass()) + &quot;/test-file&quot;;
-     *             
+     *              
+     *               # Test file in same directory as JUnit test source file 
+     *               String testFile = TestUtil.getTestSourceDirectory(getClass()) + &quot;/test-file&quot;;
+     *               
      * </pre>
      */
     public static String getTestSourceDirectory(Class testClass) {

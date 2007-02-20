@@ -132,4 +132,10 @@ public class SipUriTest extends TestCase {
         assertEquals("<sip:name@domain.com;a-key=aa;b-key;c-key=cc>", SipUri.format("name",
                 "domain.com", urlParams));
     }
+
+    public void testStripSipPrefix() {
+        assertEquals("name@sipfoundry.org", SipUri.stripSipPrefix("sip:name@sipfoundry.org"));        
+        assertEquals("name@sipfoundry.org", SipUri.stripSipPrefix("name@sipfoundry.org"));        
+        assertNull(SipUri.stripSipPrefix(null));        
+    }
 }

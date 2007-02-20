@@ -33,7 +33,7 @@ public class SipConfigurationTest extends XMLTestCase {
 
     PhoneTestDriver tester;
 
-    protected void setUp() {
+    protected void setUp() throws Exception {
         XMLUnit.setIgnoreWhitespace(true);
         PolycomModel model = new PolycomModel();
         model.setMaxLineCount(6);

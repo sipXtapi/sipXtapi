@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.phone.lg_nortel;
 
+import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
@@ -38,6 +39,12 @@ public class LgNortelPhoneDefaults {
     @SettingEntry(path = "VOIP/max_line_num")
     public int getMaxLineNum() {
         return m_lines;
+    }
+
+    @SettingEntry(path = "VOIP/moh_url")
+    public String getMohUrl() {
+        String mohUri = m_defaults.getSipxServer().getMusicOnHoldUri(m_defaults.getDomainName());
+        return SipUri.stripSipPrefix(mohUri);
     }
 
     @SettingEntry(path = "VOIP/timezone")

@@ -20,7 +20,10 @@ import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 
 public class ForwardingRulesTest extends XMLTestCase {
-
+    protected void setUp() throws Exception {
+        XmlUnitHelper.setNamespaceAware(false);
+    }
+    
     public void testGenerate() throws Exception {
         IMocksControl control = EasyMock.createNiceControl();
         IDialingRule rule = control.createMock(IDialingRule.class);
@@ -39,7 +42,7 @@ public class ForwardingRulesTest extends XMLTestCase {
 
         Document document = rules.getDocument();
         String domDoc = XmlUnitHelper.asString(document);
-
+        
         assertXpathEvaluatesTo("gander", "/routes/route/routeFrom[5]", domDoc);
 
         control.verify();

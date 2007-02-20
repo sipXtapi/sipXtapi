@@ -43,7 +43,7 @@ public class LgNortelPhoneTest extends TestCase {
         assertEquals("abc/0011AABB4455", phone.getPhoneFilename());
     }
 
-    public void testExternalLine() {
+    public void testExternalLine() throws Exception {
         LgNortelModel lgNortelModel = new LgNortelModel();
         Phone phone = new LgNortelPhone(lgNortelModel);
 
@@ -61,7 +61,7 @@ public class LgNortelPhoneTest extends TestCase {
         assertEquals("\"First Last\"<sip:flast@example.org>", line.getUri());
     }
 
-    public void testRestart() {
+    public void testRestart() throws Exception {
         LgNortelModel lgNortelModel = new LgNortelModel();
         Phone phone = new LgNortelPhone(lgNortelModel);
 
@@ -71,7 +71,7 @@ public class LgNortelPhoneTest extends TestCase {
         testDriver.sipControl.verify();
     }
 
-    public void testRestartNoLine() {
+    public void testRestartNoLine() throws Exception {
         LgNortelModel lgNortelModel = new LgNortelModel();
         Phone phone = new LgNortelPhone(lgNortelModel);
 
