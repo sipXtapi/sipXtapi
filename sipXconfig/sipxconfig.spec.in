@@ -96,7 +96,6 @@ Summary: Aggregates data from sipxconfig-agent into a database for reporting too
 Requires: ruby-gems
 Requires: ruby-postgres
 Requires: ruby-dbi
-Requires: soap4r
 
 %description report
 Report peridocically queries sipxconfig-agent regarding automatic call distribution records

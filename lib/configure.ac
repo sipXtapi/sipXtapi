@@ -11,8 +11,6 @@ SFAC_SRCDIR_EXPAND
 cgicc=yes
 ruby_gems=yes
 ruby_dbi=yes
-soap4r=yes
-http_access=yes
 
 AC_ARG_ENABLE(suse10,
         AC_HELP_STRING([--enable-suse10], [Enable dependencies for openSUSE 10.2]),
