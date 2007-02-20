@@ -97,7 +97,10 @@ class OsSSL
                         const char* callerMsg,  ///< Identifies caller and what failed
                         int errCode             ///< error returned from ssl routine
                         );
-   
+ 
+   /// Debug: print out list of ciphers enabled
+   void dumpCipherList();
+
 /* ============================ INQUIRY =================================== */
 
 

@@ -1,12 +1,15 @@
-//
-// Copyright (C) 2004-2006 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// 
+// Copyright (C) 2005-2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
-//
+// 
+// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004-2007 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
-///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -117,7 +120,7 @@ OsTimer::~OsTimer()
    // Send a message to the timer task if we need to.
    if (sendMessage) {
       OsEvent event;
-      OsTimerMsg msg(OsTimerMsg::UPDATE_SYNC, this, &event);
+      OsTimerMsg msg(OsTimerMsg::OS_TIMER_UPDATE_SYNC, this, &event);
       OsStatus res = OsTimerTask::getTimerTask()->postMessage(msg);
       assert(res == OS_SUCCESS);
       event.wait();
@@ -148,7 +151,7 @@ void OsTimer::deleteAsync(OsTimer* timer)
 
       // Check if the timer needs to be stopped.
       if (isStarted(mApplicationState))
-{
+      {
          mApplicationState++;
       }
 
@@ -157,7 +160,7 @@ void OsTimer::deleteAsync(OsTimer* timer)
    }
 
    // Send the message.
-   OsTimerMsg msg(OsTimerMsg::UPDATE_DELETE, this, NULL);
+   OsTimerMsg msg(OsTimerMsg::OS_TIMER_UPDATE_DELETE, this, NULL);
    OsStatus res = OsTimerTask::getTimerTask()->postMessage(msg);
    assert(res == OS_SUCCESS);
 }
@@ -224,15 +227,15 @@ OsStatus OsTimer::stop(UtlBoolean synchronous)
       {
          result = OS_FAILED;
       }
-}
+   }
 
    // If we need to, send an UPDATE message to the timer task.
    if (sendMessage)
-{
+   {
       if (synchronous) {
          // Send message and wait.
          OsEvent event;
-         OsTimerMsg msg(OsTimerMsg::UPDATE_SYNC, this, &event);
+         OsTimerMsg msg(OsTimerMsg::OS_TIMER_UPDATE_SYNC, this, &event);
          OsStatus res = OsTimerTask::getTimerTask()->postMessage(msg);
          assert(res == OS_SUCCESS);
          event.wait();
@@ -240,7 +243,7 @@ OsStatus OsTimer::stop(UtlBoolean synchronous)
       else
       {
          // Send message.
-         OsTimerMsg msg(OsTimerMsg::UPDATE, this, NULL);
+         OsTimerMsg msg(OsTimerMsg::OS_TIMER_UPDATE, this, NULL);
          OsStatus res = OsTimerTask::getTimerTask()->postMessage(msg);
          assert(res == OS_SUCCESS);
       }
@@ -327,7 +330,7 @@ OsStatus OsTimer::startTimer(Time start,
    UtlBoolean sendMessage = FALSE;
 
    // Update members.
-{
+   {
       OsLock lock(mBSem);
 #ifndef NDEBUG
       assert(!mDeleting);
@@ -335,34 +338,34 @@ OsStatus OsTimer::startTimer(Time start,
 
       // Determine whether the call is successful.
       if (isStopped(mApplicationState))
-{
+      {
          // Update state to started.
          mApplicationState++;
          result = OS_SUCCESS;
          if (mOutstandingMessages == 0)
-{
+         {
             // We will send a message.
             sendMessage = TRUE;
             mOutstandingMessages++;
-}
+         }
          // Set time values.
          mExpiresAt = start;
          mPeriodic = periodic;
          mPeriod = period;
-}
+      }
       else
-{
+      {
          result = OS_FAILED;
-}
-}
+      }
+   }
 
    // If we need to, send an UPDATE message to the timer task.
    if (sendMessage)
-{
-      OsTimerMsg msg(OsTimerMsg::UPDATE, this, NULL);
+   {
+      OsTimerMsg msg(OsTimerMsg::OS_TIMER_UPDATE, this, NULL);
       OsStatus res = OsTimerTask::getTimerTask()->postMessage(msg);
       assert(res == OS_SUCCESS);
-}
+   }
 
    return result;
 }
