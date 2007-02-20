@@ -55,7 +55,7 @@ OsStatus OsTLS::Initialize(const char* szCertDir)
 {
     // TODO - must implement locking
     OsStatus rc = OS_FAILED;
-    static bInitialized = false;
+    static bool bInitialized = false;
     if (!bInitialized)
     {
         PR_Init( PR_SYSTEM_THREAD, PR_PRIORITY_NORMAL, 1);
