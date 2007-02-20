@@ -104,6 +104,7 @@
 class OsTimer : public UtlContainable
 {
    friend class OsTimerTask;
+   friend class OsTimerTest;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:

@@ -337,14 +337,16 @@ UtlBoolean OsTimerTask::handleMessage(OsMsg& rMsg)
 
       // Timer will not be accessed by any other thread, so we
       // can access it without locking.
+#ifndef NDEBUG
       // Deletion in progress.
       assert(timer->mDeleting);
+#endif
       // Timer should be stopped already.
       assert(OsTimer::isStopped(timer->mApplicationState));
       // No outstanding messages.
       assert(timer->mOutstandingMessages == 0);
-      // Set mDeleting to FALSE to the destructor won't fail.
 #ifndef NDEBUG
+      // Set mDeleting to FALSE to the destructor won't fail.
       timer->mDeleting = FALSE;
 #endif
 
@@ -358,7 +360,13 @@ UtlBoolean OsTimerTask::handleMessage(OsMsg& rMsg)
    return TRUE;
 }
 
-// Handle the expiration of a timer.
+/** Fire a timer because it has expired.
+ *  Calls the if notification routine, if the timer hasn't been stopped
+ *  already.
+ *  If the timer is periodic and hasn't been stopped, reinserts it into
+ *  the queue.
+ *  Advances the timer's state if it is one-shot or has been stopped.
+ */
 void OsTimerTask::fireTimer(OsTimer* timer)
    {
    UtlBoolean report;
@@ -371,13 +379,20 @@ void OsTimerTask::fireTimer(OsTimer* timer)
       // timer has been stopped since we were informed that it started.
       report = timer->mTaskState == timer->mApplicationState;
 
-      // If this firing should be reported, and this is a one-shot
-      // timer, stop the timer:
-      // advance both mTaskState and mApplicationState
-      if (report && !timer->mQueuedPeriodic)
+      if (!report)
       {
-         timer->mTaskState =
-            timer->mApplicationState = timer->mApplicationState + 1;
+         // If this firing is after the timer has been stopped by
+         // the application, advance mTaskState to a stopped state
+         // to recognize that the timer has been removed from the
+         // timer queue.
+         timer->mTaskState++;
+      }
+      else if (report && !timer->mQueuedPeriodic)
+      {
+         // If this firing should be reported, and this is a one-shot
+         // timer, stop the timer:
+         // advance both mTaskState and mApplicationState
+         timer->mTaskState = timer->mApplicationState = timer->mTaskState + 1;
       }
    }
 
@@ -452,7 +467,27 @@ void OsTimerTask::removeTimer(OsTimer* timer)
    }
 
    // Remove the timer, if we found it.
+   if (!current)
+   {
+      OsSysLog::add(FAC_KERNEL, PRI_EMERG,
+                    "OsTimerTask::removeTimer timer not found in queue");
+      // mDeleting is not used if NDEBUG is defined, but we always initialize
+      // it to FALSE in the constructors anyway.
+      OsSysLog::add(FAC_KERNEL, PRI_EMERG,
+                    "OsTimerTask::removeTimer timer = %p, mApplicationState = %d, mTaskState = %d, mDeleting = %d, mPeriodic = %d, mTimerQueueLink = %p",
+                    timer, timer->mApplicationState, timer->mTaskState, timer->mDeleting,
+                    timer->mPeriodic, timer->mTimerQueueLink);
+      OsTimer* p;
+      for (p = mTimerQueue; p; p = p->mTimerQueueLink)
+      {
+         OsSysLog::add(FAC_KERNEL, PRI_EMERG,
+                       "OsTimerTask::removeTimer in queue %p", p);
+      }
+      OsSysLog::add(FAC_KERNEL, PRI_EMERG,
+                    "OsTimerTask::removeTimer end of queue");
+   }
    assert(current);
+
    *previous_ptr = timer->mTimerQueueLink;
    // Clear the timer's mTimerQueueLink to indicate it is not in the
    // timer queue.

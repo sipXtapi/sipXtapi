@@ -86,7 +86,13 @@ private:
    virtual UtlBoolean handleMessage(OsMsg& rMsg);
    ///< Return TRUE if the request was handled, otherwise FALSE.
 
-   /// Fire a timer because it has expired.
+   /** Fire a timer because it has expired.
+    *  Calls the if notification routine, if the timer hasn't been stopped
+    *  already.
+    *  If the timer is periodic and hasn't been stopped, reinserts it into
+    *  the queue.
+    *  Advances the timer's state if it is one-shot or has been stopped.
+    */
    virtual void fireTimer(OsTimer* timer);
 
    /// Pointer to the single instance of the OsTimerTask class.
