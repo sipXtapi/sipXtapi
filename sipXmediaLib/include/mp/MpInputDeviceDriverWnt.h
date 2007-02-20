@@ -10,8 +10,8 @@
 
 // Author: Keith Kyzivat <kkyzivat AT SIPez DOT com>
 
-#ifndef _MpWntInputDeviceDriver_h_
-#define _MpWntInputDeviceDriver_h_
+#ifndef _MpInputDeviceDriverWnt_h_
+#define _MpInputDeviceDriverWnt_h_
 
 // SYSTEM INCLUDES
 
@@ -74,9 +74,9 @@ public:
 //@{
 
       /// Initialize device driver and state
-    OsStatus enableDevice(int samplesPerFrame, 
-                          int samplesPerSec,
-                          int currentFrameTime);
+    OsStatus enableDevice(unsigned samplesPerFrame, 
+                          unsigned samplesPerSec,
+                          unsigned currentFrameTime);
       /**<
       *  This method enables the device driver.
       *
@@ -123,10 +123,11 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+      /// The underlying windows Device ID (not the logical Mp device ID)
     int mWntDeviceId;
 
 
-    /// Copy constructor (not implemented for this class)
+      /// Copy constructor (not implemented for this class)
     MpInputDeviceDriverWnt(const MpInputDeviceDriver& rMpInputDeviceDriver);
 
       /// Assignment operator (not implemented for this class)
@@ -135,4 +136,4 @@ private:
 
 /* ============================ INLINE METHODS ============================ */
 
-#endif  // _MpWntInputDeviceDriver_h_
+#endif  // _MpInputDeviceDriverWnt_h_

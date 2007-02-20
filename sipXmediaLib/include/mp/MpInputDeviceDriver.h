@@ -81,10 +81,6 @@ public:
 /* ============================ MANIPULATORS ============================== */
 ///@name Manipulators
 //@{
-
-    virtual OsStatus setDeviceId(int deviceId);
-    virtual OsStatus clearDeviceId();
-
       /// Initialize device driver and state
     virtual OsStatus enableDevice(unsigned samplesPerFrame, 
                                   unsigned samplesPerSec,
@@ -112,8 +108,10 @@ public:
       */
 
       /// Set device ID associated with this device in parent input device manager.
-    void setDeviceId(MpInputDeviceHandle deviceId)
-    { mDeviceId = deviceId; }
+    OsStatus setDeviceId(MpInputDeviceHandle deviceId);
+
+      /// Clear the device ID associated with this device.
+    OsStatus clearDeviceId();
 
 //@}
 
@@ -139,9 +137,14 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-    MpInputDeviceManager* mpInputDeviceManager;
-    UtlBoolean mIsEnabled;
-    MpInputDeviceHandle mDeviceId;
+    MpInputDeviceManager* mpInputDeviceManager;  /// The object that manages 
+      ///< this device driver.
+    UtlBoolean mIsEnabled;  /// Whether this device driver is enabled or not.
+    MpInputDeviceHandle mDeviceId;  /// The logical device ID that identifies 
+      ///< this device, as supplied by the InputDeviceManager.
+    unsigned mSamplesPerFrame;  /// TODO: Fill in mSamplesPerFrame description
+    unsigned mSamplesPerSec;  /// TODO: Fill in mSamplesPerSec description
+    unsigned mCurrentFrameTime;  /// TODO: Fill in mCurrentFrameTime description
     
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
