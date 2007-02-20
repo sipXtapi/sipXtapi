@@ -31,7 +31,7 @@ class MpInputDeviceFrameData
 {
 public:
     MpBufPtr mFrameBuffer;
-    int mFrameTime;
+    MpFrameTime mFrameTime;
     OsTime mFrameReceivedTime;
 
 private:
@@ -55,10 +55,10 @@ public:
 //@{
 
      /// Default constructor
-   MpAudioInputConnection(int deviceId,
+   MpAudioInputConnection(MpInputDeviceHandle deviceId,
                           MpInputDeviceDriver& deviceDriver,
-                          int numFramesBuffered) :
-   UtlInt(deviceId)
+                          unsigned numFramesBuffered)
+   : UtlInt(deviceId)
    {
        mpInputDeviceDriver = &deviceDriver;
 
@@ -77,12 +77,12 @@ public:
 //@{
 
     OsStatus pushFrame(MpBufPtr& bufferPtr, 
-                      int frameTime);
+                       MpFrameTime frameTime);
 
     OsStatus getFrame(MpBufPtr& bufferPtr,
-                      int frameTime,
-                      int numFramesBefore,
-                      int numFramesAfter); 
+                      MpFrameTime frameTime,
+                      unsigned numFramesBefore,
+                      unsigned numFramesAfter); 
 
 //@}
 
@@ -120,9 +120,9 @@ private:
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MpInputDeviceManager::MpInputDeviceManager(int defaultSamplesPerFrame, 
-                                           int defaultSamplesPerSec,
-                                           int defaultNumBufferedFrames)
+MpInputDeviceManager::MpInputDeviceManager(unsigned defaultSamplesPerFrame, 
+                                           unsigned defaultSamplesPerSec,
+                                           unsigned defaultNumBufferedFrames)
 : mRwMutex(OsRWMutex::Q_PRIORITY)
 , mLastDeviceId(0)
 , mDefaultSamplesPerFrame(defaultSamplesPerFrame)

@@ -19,6 +19,7 @@
 #include <os/OsRWMutex.h>
 #include <utl/UtlHashMap.h>
 #include <utl/UtlHashBag.h>
+#include "mp/MpTypes.h"
 
 // DEFINES
 // MACROS
@@ -80,9 +81,9 @@ public:
 //@{
 
       /// Default constructor
-    MpInputDeviceManager(int defaultSamplesPerFrame, 
-                         int defaultSamplesPerSec,
-                         int defaultNumBufferedFrames);
+    MpInputDeviceManager(unsigned defaultSamplesPerFrame, 
+                         unsigned defaultSamplesPerSec,
+                         unsigned defaultNumBufferedFrames);
       /**<
       *  @param defaultSamplesPerFrame - (in) the default number of samples in
       *         a frame of media to be used when enabling devices.
@@ -110,7 +111,7 @@ public:
 //@{
 
       /// Add a new input device for use
-    int addDevice(MpInputDeviceDriver& newDevice);
+    MpInputDeviceHandle addDevice(MpInputDeviceDriver& newDevice);
       /**<
       *  Returns device ID which is unique within this device manager.
       *  This method locks the device manager for exclusive use.
@@ -119,7 +120,7 @@ public:
       */
 
       /// Remove an existing input device
-    MpInputDeviceDriver* removeDevice(int deviceId);
+    MpInputDeviceDriver* removeDevice(MpInputDeviceHandle deviceId);
       /**<
       *  This method locks the device manager for exclusive use.
       *
@@ -127,7 +128,7 @@ public:
       */
 
       /// Helper to enable device driver
-    OsStatus enableDevice(int deviceId);
+    OsStatus enableDevice(MpInputDeviceHandle deviceId);
       /**<
       *  This method enables the device driver indicated by the device id.
       *
@@ -138,7 +139,7 @@ public:
       */
 
       /// Helper to disable device driver
-    OsStatus disableDevice(int deviceId);
+    OsStatus disableDevice(MpInputDeviceHandle deviceId);
       /**<
       *  This method disables the device driver indicated by the device id.
       *
@@ -155,13 +156,13 @@ public:
 //@{
 
       /// Get the device driver name for the given device ID
-    UtlString& getDeviceName(int deviceId) const;
+    UtlString& getDeviceName(MpInputDeviceHandle deviceId) const;
       /**<
       *  Multi-thread safe.
       */
 
       /// Get the device id for the given device driver name
-    int getDeviceId(const char* deviceName) const;
+    MpInputDeviceHandle getDeviceId(const char* deviceName) const;
       /**<
       *  The MpInputDeviceManager maintains a device ID to device name
       *  mapping.  All device IDs and device names are unique within the
@@ -171,7 +172,7 @@ public:
       */
 
       /// Get current frame timestamp
-    int getCurrentFrameTime() const;
+    MpFrameTime getCurrentFrameTime() const;
       /**<
       *  The timestamp is in milliseconds from the initial reference point
       *  in time for this device manager
@@ -183,10 +184,10 @@ public:
 
 
       /// Method for MpInputDeviceDriver to push a frame of media for a given time
-    OsStatus pushFrame(int deviceId,
-                       int numSamples,
-                       short samples,
-                       int frameTime);
+    OsStatus pushFrame(MpInputDeviceHandle deviceId,
+                       unsigned numSamples,
+                       MpAudioSample *samples,
+                       MpFrameTime frameTime);
       /**<
       *  This method is used to push a frame to the MpInputDeviceManager to be
       *  buffered for a short window of time during which consumers such as
@@ -205,11 +206,11 @@ public:
       */
 
       /// Method for obtaining the buffer for a given frame and device ID
-    OsStatus getFrame(int deviceId,
-                      int frameTime,
+    OsStatus getFrame(MpInputDeviceHandle deviceId,
+                      unsigned frameTime,
                       MpBufPtr& buffer,
-                      int& numFramesBefore,
-                      int& numFramesAfter);
+                      unsigned& numFramesBefore,
+                      unsigned& numFramesAfter);
       /**<
       *  This method is typically invoked by MprFromInputDevice resources.
       *
@@ -249,10 +250,10 @@ protected:
 private:
 
     OsRWMutex mRwMutex;
-    int mLastDeviceId;
-    int mDefaultSamplesPerFrame;
-    int mDefaultSamplesPerSecond;
-    int mDefaultNumBufferedFrames;
+    MpInputDeviceHandle mLastDeviceId;
+    unsigned mDefaultSamplesPerFrame;
+    unsigned mDefaultSamplesPerSecond;
+    unsigned mDefaultNumBufferedFrames;
     UtlHashMap mConnectionsByDeviceName;
     UtlHashBag mConnectionsByDeviceId;
 

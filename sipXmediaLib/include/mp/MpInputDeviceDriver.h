@@ -17,6 +17,8 @@
 #include <utl/UtlString.h>
 
 // APPLICATION INCLUDES
+#include "mp/MpTypes.h"
+
 // DEFINES
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -79,10 +81,9 @@ public:
 //@{
 
       /// Initialize device driver and state
-    virtual OsStatus enableDevice(int samplesPerFrame, 
-                                  int samplesPerSec,
-                                  int currentFrameTime,
-                                  int deviceId) = 0;
+    virtual OsStatus enableDevice(unsigned samplesPerFrame, 
+                                  unsigned samplesPerSec,
+                                  unsigned currentFrameTime) = 0;
       /**<
       *  This method enables the device driver.
       *
@@ -93,8 +94,6 @@ public:
       *  @param samplesPerSec - sample rate for media frame in samples per second
       *  @param currentFrameTime - time in milliseconds for beginning of frame
       *         relative to the MpInputDeviceManager reference time
-      *  @param deviceId - device Id used to identify this input device to 
-      *         MpInputDeviceManager
       */
 
       /// Uninitialize device driver
@@ -107,11 +106,19 @@ public:
       *        enabling a device results in state and buffer queues being cleared.
       */
 
+      /// Set device ID associated with this device in parent input device manager.
+    void setDeviceId(MpInputDeviceHandle deviceId)
+    { mDeviceId = deviceId; }
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
 //@{
+
+      /// Get device ID associated with this device in parent input device manager.
+    MpInputDeviceHandle getDeviceId() const
+    { return mDeviceId; }
 
 //@}
 
@@ -133,6 +140,7 @@ private:
 
     MpInputDeviceManager* mpInputDeviceManager;
     UtlBoolean mIsEnabled;
+    MpInputDeviceHandle mDeviceId;
 
       /// Copy constructor (not implemented for this class)
     MpInputDeviceDriver(const MpInputDeviceDriver& rMpInputDeviceDriver);
