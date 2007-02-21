@@ -26,15 +26,25 @@ create table version_history(
 /**
  * CHANGE VERSION HERE ----------------------------> X <------------------
  *
+ * To add new patch:
+ *  - create a new SQL file i.e. patch.sql
+ *  - modify UpgradePatchesN variable in sipcallresolver.sh to install new patch
+ *
+ * To roll in patches into schema:
+ *  - add SQL corresponding to the patch in this file
+ *  - update version number inserted in version_history table below
+ *  - update DbVersion variable in sipcallresolver.sh
+ *  - do *not* delete patch file
+ *
  * For the initial sipX release with Call Resolver, the database version is 2.
  * Version 3: view_cdrs patch
+ * Version 4: index CSE and CDR tables on timestamp
  */
-insert into version_history (version, applied) values (3, now());
+insert into version_history (version, applied) values (4, now());
 
 create table patch(
   name varchar(32) not null primary key
 );
-
 
 ---------------------------------- CSE Tables ----------------------------------
 
@@ -76,6 +86,7 @@ create table call_state_events (
    request_uri     text     /* URI from the request header */
 );
 
+create index call_state_events_event_time on call_state_events (event_time);
 
 /*
  * The observer_state_events table holds events relating to the event observer
@@ -141,6 +152,7 @@ create table cdrs (
 create index cdrs_call_id_index on cdrs (call_id);
 alter table cdrs add constraint cdrs_call_id_unique unique (call_id);
 
+create index cdrs_start_time_idx on cdrs (start_time);
 
 ---------------------------------- Views ----------------------------------
 
