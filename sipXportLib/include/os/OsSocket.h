@@ -22,6 +22,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
+#include "utl/UtlContainableAtomic.h"
 #include "utl/UtlString.h"
 #include "os/OsBSem.h"
 
@@ -74,12 +75,18 @@ extern "C" unsigned long osSocketGetDefaultBindAddress();
 // generic message transport with minimal knowledge of the underlying
 // protocol.
 
-class OsSocket
+class OsSocket : public UtlContainableAtomic
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
    static UtlBoolean socketInitialized;
+
+   /// Determine whether or not the values in a containable are comparable.
+   virtual UtlContainableType getContainableType() const;
+   /**<
+    * This returns a unique type for UtlString
+    */
 
    typedef enum 
    {
@@ -303,6 +310,7 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+   static const UtlContainableType TYPE;    ///< Class type used for runtime checking 
    static OsBSem mInitializeSem;
    int socketDescriptor;
 

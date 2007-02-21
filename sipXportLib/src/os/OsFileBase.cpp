@@ -533,7 +533,7 @@ OsStatus OsFileBase::rename(const OsPathBase& rNewFilename)
 
             // Try the move again
             int err2 = ::rename(mFilename.data(),rNewFilename.data());
-            if (err != -1)
+            if (err2 != -1)
             {
                 ret = OS_SUCCESS;
             }
