@@ -131,6 +131,10 @@ SOURCE=..\sipXportLib\src\test\sipxunit\TestMonitor.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\sipXportLib\src\test\sipxunit\TestOsSysLogListener.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\sipXportLib\src\test\sipxunit\TestOutputter.cpp
 # End Source File
 # Begin Source File
@@ -160,6 +164,10 @@ SOURCE=.\src\test\mp\MpTestResource.h
 # Begin Source File
 
 SOURCE=..\sipXportLib\src\test\sipxunit\TestMonitor.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\sipXportLib\src\test\sipxunit\TestOsSysLogListener.h
 # End Source File
 # Begin Source File
 

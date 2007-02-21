@@ -91,15 +91,15 @@ SOURCE=.\src\test\sipxunit\TestMonitor.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\test\sipxunit\TestOsSysLogListener.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\test\sipxunit\TestOutputter.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\src\test\sipxunit\TestRunner.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\test\sipxunit\TestRunner.h
 # End Source File
 # Begin Source File
 
@@ -119,7 +119,15 @@ SOURCE=.\src\test\sipxunit\TestMonitor.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\test\sipxunit\TestOsSysLogListener.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\test\sipxunit\TestOutputter.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\test\sipxunit\TestRunner.h
 # End Source File
 # Begin Source File
 
