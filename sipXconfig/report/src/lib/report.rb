@@ -5,26 +5,17 @@ CLIENT_BINDINGS = File.join(File.dirname(__FILE__), "agent_client")
 $:.unshift CLIENT_BINDINGS
 require 'defaultDriver.rb'
 
-def datetime2time(datetime) 
-  # does not consider timezone, but timezone is not stored in database, so
-  # valid, unless timezone of given datetime is not local timezone.
-  Time.parse(datetime.strftime("%c"))
-end
-
-def datetime_equal(datetime1, datetime2)
-  datetime1.strftime("%c") == datetime2.strftime("%c")
+def datetime_to_utc_time(datetime) 
+  # DBI module does not consider timezone to convert to UTC
+  Time.parse(datetime.new_offset.strftime("%c"))
 end
 
 module DBI
   class Timestamp
   
-    # Database doesn't store timezone, or at least it's not available from DBI package.
-    # Assume the timezone offset of this machine is same as database machine, (which in turn assumes
-    # the same GMT as whatever wrote into the database, which happens to be this script)
-    def to_local_datetime
-      local = ::Time.local(year, mon, day, hour, min, sec)
-      offset_in_days = local.gmt_offset / (24.0 * 60.0 * 60.0)
-      DateTime.civil(year, mon, day, hour, min, sec, offset_in_days)
+    # DBI module does not consider timezone to convert to UTC
+    def to_utc_datetime
+      DateTime.civil(year, mon, day, hour, min, sec, 0)
     end
   end
 end
@@ -101,7 +92,7 @@ module Reports
         # after reading code in DBI, DateTime turn into DBI::Date 
         # because DateTime extends Date and not Time.
         when ::DateTime 
-          return datetime2time(value)
+          return datetime_to_utc_time(value)
       end
       return value
     end
@@ -151,8 +142,7 @@ module Reports
       # generally 0-1 rows
       @dbi.select_all(@from_time_sql) do |row|
         @ignore_from << row[0]
-#        @from_time = time2datetime(row[1].to_time) # all rows should be same
-        @from_time = row[1].to_local_datetime # all rows should be same
+        @from_time = row[1].to_utc_datetime # all rows should be same
       end
     end
     
@@ -178,7 +168,7 @@ FROM_SQL
     end
     
     def valid?(obj)
-      if datetime_equal(@from_time, obj.terminate_time)
+      if @from_time.eql?(obj.terminate_time)
         if @ignore_from.include? obj.from
           return false
         end
@@ -201,7 +191,7 @@ FROM_SQL
     end
 
     def valid?(obj)
-      if datetime_equal(@from_time, obj.sign_out_time)
+      if @from_time.eql?(obj.sign_out_time)
         if @ignore_from.include? obj.agent_uri
           return false
         end
