@@ -132,9 +132,6 @@ public:
        OsPath entry;
        int trial;
 
-       KNOWN_BUG("Fails randomly on build server and fails everytime, the first time its run on a new machine", 
-           "XPL-191");
-
        //
        for ( trial = 0; trial < NumTrials; trial++ )
        {
