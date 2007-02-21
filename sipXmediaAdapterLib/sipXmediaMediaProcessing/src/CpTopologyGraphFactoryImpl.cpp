@@ -13,6 +13,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include <mp/MpInputDeviceManager.h>
 #include <include/CpTopologyGraphFactoryImpl.h>
 #include <mi/CpMediaInterfaceFactory.h>
 #include <include/CpTopologyGraphInterface.h>
@@ -56,6 +57,10 @@ sipXmediaFactoryImpl(pConfigDb)
     mpInitialResourceTopology = NULL;
     mpResourceFactory = NULL;
     mpConnectionResourceTopology = NULL;
+    mpInputDeviceManager = 
+        new MpInputDeviceManager(80, // samples per frame
+                                 8000, // samples per second
+                                 4); // number of buffered frames saved
 }
 
 
@@ -131,6 +136,11 @@ void CpTopologyGraphFactoryImpl::setConnectionResourceTopology(MpResourceTopolog
 MpResourceTopology* CpTopologyGraphFactoryImpl::getConnectionResourceTopology() const
 {
     return(mpConnectionResourceTopology);
+}
+
+MpInputDeviceManager* CpTopologyGraphFactoryImpl::getInputDeviceManager() const
+{
+    return(mpInputDeviceManager);
 }
 
 /* ============================ INQUIRY =================================== */

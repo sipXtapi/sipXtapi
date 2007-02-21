@@ -82,12 +82,12 @@ public:
 
       /// Default constructor
     MpInputDeviceManager(unsigned defaultSamplesPerFrame, 
-                         unsigned defaultSamplesPerSec,
+                         unsigned defaultSamplesPerSecond,
                          unsigned defaultNumBufferedFrames);
       /**<
       *  @param defaultSamplesPerFrame - (in) the default number of samples in
       *         a frame of media to be used when enabling devices.
-      *  @param defaultSamplesPerSec - (in) default sample rate for media frame
+      *  @param defaultSamplesPerSecond - (in) default sample rate for media frame
       *         in samples per second to be used when enabling devices.
       *  @param defaultNumBufferedFrames - (in) default number of frames to
       *         buffer for a device before releasing the frame.  Consumers of
@@ -156,7 +156,7 @@ public:
 //@{
 
       /// Get the device driver name for the given device ID
-    UtlString& getDeviceName(MpInputDeviceHandle deviceId) const;
+    OsStatus getDeviceName(int deviceId, UtlString& deviceName) const;
       /**<
       *  Multi-thread safe.
       */
@@ -207,7 +207,7 @@ public:
 
       /// Method for obtaining the buffer for a given frame and device ID
     OsStatus getFrame(MpInputDeviceHandle deviceId,
-                      unsigned frameTime,
+                      MpFrameTime frameTime,
                       MpBufPtr& buffer,
                       unsigned& numFramesBefore,
                       unsigned& numFramesAfter);
@@ -256,6 +256,7 @@ private:
     unsigned mDefaultNumBufferedFrames;
     UtlHashMap mConnectionsByDeviceName;
     UtlHashBag mConnectionsByDeviceId;
+    OsTime mTimeZero;
 
      /// Copy constructor (not implemented for this class)
    MpInputDeviceManager(const MpInputDeviceManager& rMpInputDeviceManager);

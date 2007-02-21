@@ -84,7 +84,7 @@ public:
       /// Initialize device driver and state
     virtual OsStatus enableDevice(unsigned samplesPerFrame, 
                                   unsigned samplesPerSec,
-                                  unsigned currentFrameTime) = 0;
+                                  MpFrameTime currentFrameTime) = 0;
       /**<
       *  This method enables the device driver.
       *
@@ -107,22 +107,20 @@ public:
       *        enabling a device results in state and buffer queues being cleared.
       */
 
-      /// Set device ID associated with this device in parent input device manager.
-    OsStatus setDeviceId(MpInputDeviceHandle deviceId);
-
-      /// Clear the device ID associated with this device.
-    OsStatus clearDeviceId();
-
 //@}
 
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
 //@{
 
-      /// Get device ID associated with this device in parent input device manager.
-    MpInputDeviceHandle getDeviceId() const
-    { return mDeviceId; }
+    /// Get device ID associated with this device in parent input device manager.
+    virtual MpInputDeviceHandle getDeviceId() const { return mDeviceId; }
 
+    /// Set device ID associated with this device in parent input device manager.
+    virtual OsStatus setDeviceId(MpInputDeviceHandle deviceId) {assert(deviceId > 0); mDeviceId = deviceId; return(OS_SUCCESS);};
+
+    /// Clear the device ID associated with this device.
+    virtual OsStatus clearDeviceId(){ mDeviceId = -1;};
 //@}
 
 /* ============================ INQUIRY =================================== */

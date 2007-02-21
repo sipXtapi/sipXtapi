@@ -385,6 +385,10 @@ SOURCE=.\src\mp\MprFromFile.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MprFromInputDevice.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MprFromMic.cpp
 # End Source File
 # Begin Source File

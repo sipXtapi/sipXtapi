@@ -27,6 +27,7 @@
 // FORWARD DECLARATIONS
 class MpResourceTopology;
 class MpResourceFactory;
+class MpInputDeviceManager;
 
 /** Subsystem manager and creator of CpTopologyGraphInterfaces specialization of CpMediaInterface
  *
@@ -102,6 +103,8 @@ public:
      */
     virtual MpResourceTopology* getConnectionResourceTopology() const;
 
+    MpInputDeviceManager* getInputDeviceManager() const;
+
     // For now inherit all of the accessors methods from parent
     // Eventially they will all need to be replaced with specific 
     // implementations
@@ -117,6 +120,7 @@ private:
     MpResourceTopology* mpInitialResourceTopology;
     MpResourceFactory* mpResourceFactory;
     MpResourceTopology* mpConnectionResourceTopology;
+    MpInputDeviceManager* mpInputDeviceManager;
 
 };
 

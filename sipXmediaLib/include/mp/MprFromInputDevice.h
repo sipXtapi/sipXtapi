@@ -92,60 +92,7 @@ private:
                                       int outBufsSize,
                                       UtlBoolean isEnabled,
                                       int samplesPerFrame=80,
-                                      int samplesPerSecond=8000)
-    {
-       // Inline for review purposes.  Missing logic to react to frequent
-       // starvation.
-       UtlBoolean bufferOutput = FALSE;
-       assert(mpInputDeviceManager);
-
-       // Milliseconds per frame:
-       int frameTimeInterval = samplesPerFrame * 1000 / samplesPerSecond;
-
-       if (!mFrameTimeInitialized)
-       {
-           // Start with a frame behind.  Possible need smarter
-           // decision for starting.
-           mPreviousFrameTime = mpInputDeviceManager->getCurrentFrameTime();
-           mPreviousFrameTime -= (2 * frameTimeInterval);
-       }
-
-       mPreviousFrameTime += frameTimeInterval;
-
-       MpBufPtr buffer;
-       int numFramesNotPlayed;
-       int numFramedBufferedBehind;
-       OsStatus getResult =
-           mpInputDeviceManager->getFrame(mDeviceId,
-                                          buffer,
-                                          mPreviousFrameTime,
-                                          numFramesNotPlayed,
-                                          numFramedBufferedBehind);
-
-           
-       if (!mFrameTimeInitialized)
-       {
-           if (getResult == OS_SUCCESS)
-           {
-               mFrameTimeInitialized = TRUE;
-           }
-
-           if(numFramesNotPlayed > 1)
-           {
-               // TODO: now is a good time to adjust and get a newer
-               // frame
-               // could increment mPreviousFrameTime and getFrame again
-           }
-       }
-
-       if(buffer.isValid())
-       {
-           outBufs[0] = buffer;
-           bufferOutput = TRUE;
-       }
-
-       return(bufferOutput);
-    };
+                                      int samplesPerSecond=8000);
 
     MpInputDeviceManager* mpInputDeviceManager;
     UtlBoolean mFrameTimeInitialized;
