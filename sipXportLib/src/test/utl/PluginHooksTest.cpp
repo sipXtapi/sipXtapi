@@ -20,6 +20,11 @@
 using namespace std ; 
 
 #define PLUGIN_LIB_DIR TEST_DIR "/testplugin/.libs/"
+#ifdef __MACH__
+#  define PLUGIN_EXT ".dylib"
+#else
+#  define PLUGIN_EXT ".so"
+#endif
 
 class PluginHooksTest : public CppUnit::TestCase
 {
@@ -38,7 +43,7 @@ public:
       {
          OsConfigDb configuration;
 
-         configuration.set("NOHOOKS_NOTPASSED_HOOK_LIBRARY.Error", PLUGIN_LIB_DIR "libfoo.so");
+         configuration.set("NOHOOKS_NOTPASSED_HOOK_LIBRARY.Error", PLUGIN_LIB_DIR "libfoo" PLUGIN_EXT);
          configuration.set("NOHOOKS_OTHERPARAM", "DummyValue");
 
          // there are no hooks configured for this prefix
@@ -60,12 +65,12 @@ public:
       {
          OsConfigDb configuration;
 
-         configuration.set("ONEHOOK_NOTPASSED_HOOK_LIBRARY.Error", PLUGIN_LIB_DIR "libfoo.so");
+         configuration.set("ONEHOOK_NOTPASSED_HOOK_LIBRARY.Error", PLUGIN_LIB_DIR "libfoo" PLUGIN_EXT);
          configuration.set("ONEHOOK_OTHERPARAM", "DummyValue");
 
          // configure one hook, with no parameters
          configuration.set("ONEHOOK_TEST_HOOK_LIBRARY.Only",
-                           PLUGIN_LIB_DIR "libtestpluginA.so");
+                           PLUGIN_LIB_DIR "libtestpluginA" PLUGIN_EXT);
 
          PluginHooks testPlugins("getTestPlugin", "ONEHOOK_TEST");
          testPlugins.readConfig(configuration);
@@ -97,12 +102,12 @@ public:
       {
          OsConfigDb configuration;
 
-         configuration.set("READCONFIG_NOTPASSED_HOOK_LIBRARY.Error", PLUGIN_LIB_DIR "libfoo.so");
+         configuration.set("READCONFIG_NOTPASSED_HOOK_LIBRARY.Error", PLUGIN_LIB_DIR "libfoo" PLUGIN_EXT);
          configuration.set("READCONFIG_OTHERPARAM", "DummyValue");
 
          // configure a hook
          configuration.set("READCONFIG_TEST_HOOK_LIBRARY.Only",
-                           PLUGIN_LIB_DIR "libtestpluginA.so");
+                           PLUGIN_LIB_DIR "libtestpluginA" PLUGIN_EXT);
          // with two configuration values
          configuration.set("READCONFIG_TEST.Only.VALUE1", "FirstValue");
          configuration.set("READCONFIG_TEST.Only.VALUE2", "SecondValue");
@@ -144,16 +149,16 @@ public:
       {
          OsConfigDb configuration;
 
-         configuration.set("TWO_INST_NOTPASSED_HOOK_LIBRARY.Error", PLUGIN_LIB_DIR "libfoo.so");
+         configuration.set("TWO_INST_NOTPASSED_HOOK_LIBRARY.Error", PLUGIN_LIB_DIR "libfoo" PLUGIN_EXT);
          configuration.set("TWO_INST_OTHERPARAM", "DummyValue");
 
          // configure two instances of the same hook library, with different parameters
          configuration.set("TWO_INST_TEST_HOOK_LIBRARY.First",
-                           PLUGIN_LIB_DIR "libtestpluginA.so");
+                           PLUGIN_LIB_DIR "libtestpluginA" PLUGIN_EXT);
          configuration.set("TWO_INST_TEST.First.VALUE", "FirstValue");
 
          configuration.set("TWO_INST_TEST_HOOK_LIBRARY.Second",
-                           PLUGIN_LIB_DIR "libtestpluginA.so");
+                           PLUGIN_LIB_DIR "libtestpluginA" PLUGIN_EXT);
          configuration.set("TWO_INST_TEST.Second.VALUE", "SecondValue");
 
          // load up the hooks
@@ -201,18 +206,18 @@ public:
       {
          OsConfigDb configuration;
 
-         configuration.set("TWO_TYPE_NOTPASSED_HOOK_LIBRARY.Error", PLUGIN_LIB_DIR "libfoo.so");
+         configuration.set("TWO_TYPE_NOTPASSED_HOOK_LIBRARY.Error", PLUGIN_LIB_DIR "libfoo" PLUGIN_EXT);
          configuration.set("TWO_TYPE_OTHERPARAM", "DummyValue");
 
          // Configure two different hook types - each in its own library
          //   (we cheat - it's the same source, modified by configuration
          //    switches; see comments in ../testplugin/TestPlugin.cpp)
          configuration.set("TWO_TYPE1_HOOK_LIBRARY.First",
-                           PLUGIN_LIB_DIR "libtestpluginA.so");
+                           PLUGIN_LIB_DIR "libtestpluginA" PLUGIN_EXT);
          configuration.set("TWO_TYPE1.First.VALUE", "FirstValue");
 
          configuration.set("TWO_TYPE2_HOOK_LIBRARY.Second",
-                           PLUGIN_LIB_DIR "libtestpluginB.so");
+                           PLUGIN_LIB_DIR "libtestpluginB" PLUGIN_EXT);
          configuration.set("TWO_TYPE2.Second.VALUE", "SecondValue");
 
          // load the first hook type
@@ -277,11 +282,11 @@ public:
             OsConfigDb configuration;
 
             configuration.set("RECONFIG_TEST_HOOK_LIBRARY.First",
-                              PLUGIN_LIB_DIR "libtestpluginA.so");
+                              PLUGIN_LIB_DIR "libtestpluginA" PLUGIN_EXT);
             configuration.set("RECONFIG_TEST.First.VALUE", "FirstValue");
 
             configuration.set("RECONFIG_TEST_HOOK_LIBRARY.Second",
-                              PLUGIN_LIB_DIR "libtestpluginA.so");
+                              PLUGIN_LIB_DIR "libtestpluginA" PLUGIN_EXT);
             configuration.set("RECONFIG_TEST.Second.VALUE", "SecondValue");
 
             // load them up
@@ -319,7 +324,7 @@ public:
             // and changes the configuration value for the Second instance
             OsConfigDb configuration;
             configuration.set("RECONFIG_TEST_HOOK_LIBRARY.Second",
-                              PLUGIN_LIB_DIR "libtestpluginA.so");
+                              PLUGIN_LIB_DIR "libtestpluginA" PLUGIN_EXT);
             configuration.set("RECONFIG_TEST.Second.VALUE", "NewValue");
 
             // reconfigure the plugins
