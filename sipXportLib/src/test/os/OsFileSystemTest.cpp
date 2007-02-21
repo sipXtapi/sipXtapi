@@ -96,9 +96,6 @@ public:
 
     void testGetInfo()
     {
-        KNOWN_BUG("Fails randomly on build server and fails everytime, the first time, its run on a new machine", 
-            "XPL-191");
-
         OsStatus stat;
         OsPath testDir = mRootPath + OsPath::separator + "testGetInfo";
 

@@ -38,6 +38,10 @@ void OsTestUtilities::removeTestDir(OsPath &root)
     if (OsFileSystem::exists(root))
     {
         stat = OsFileSystem::remove(root, TRUE, TRUE);
+ 
+         KNOWN_BUG("Fails randomly on build server and fails everytime, the first time its run on a new machine", 
+           "XPL-191");
+        
         CPPUNIT_ASSERT_MESSAGE("teardown root test dir", stat == OS_SUCCESS);
     }
 }
