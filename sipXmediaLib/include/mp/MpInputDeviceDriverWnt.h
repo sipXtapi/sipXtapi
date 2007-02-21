@@ -123,8 +123,9 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-      /// The underlying windows Device ID (not the logical Mp device ID)
-    int mWntDeviceId;
+
+    int mWntDeviceId; ///< The underlying windows Device ID (not the logical
+                      ///< Mp device ID)
 
 
       /// Copy constructor (not implemented for this class)

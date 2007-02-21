@@ -137,14 +137,14 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-    MpInputDeviceManager* mpInputDeviceManager;  /// The object that manages 
-      ///< this device driver.
-    UtlBoolean mIsEnabled;  /// Whether this device driver is enabled or not.
-    MpInputDeviceHandle mDeviceId;  /// The logical device ID that identifies 
-      ///< this device, as supplied by the InputDeviceManager.
-    unsigned mSamplesPerFrame;  /// TODO: Fill in mSamplesPerFrame description
-    unsigned mSamplesPerSec;  /// TODO: Fill in mSamplesPerSec description
-    unsigned mCurrentFrameTime;  /// TODO: Fill in mCurrentFrameTime description
+    MpInputDeviceManager* mpInputDeviceManager;  ///< The object that manages 
+                    ///< this device driver.
+    UtlBoolean mIsEnabled;         ///< Whether this device driver is enabled or not.
+    MpInputDeviceHandle mDeviceId; ///< The logical device ID that identifies 
+                    ///< this device, as supplied by the InputDeviceManager.
+    unsigned mSamplesPerFrame;     ///< TODO: Fill in mSamplesPerFrame description
+    unsigned mSamplesPerSec;       ///< TODO: Fill in mSamplesPerSec description
+    unsigned mCurrentFrameTime;    ///< TODO: Fill in mCurrentFrameTime description
     
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

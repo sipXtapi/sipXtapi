@@ -25,11 +25,10 @@
 
 /* ============================ CREATORS ================================== */
 // Default constructor
-MpInputDeviceDriverWnt::MpInputDeviceDriverWnt(
-        const UtlString& name, 
-        MpInputDeviceManager& deviceManager)
-    : MpInputDeviceDriver(name, deviceManager)
-    , mWntDeviceId(-1)
+MpInputDeviceDriverWnt::MpInputDeviceDriverWnt(const UtlString& name, 
+                                               MpInputDeviceManager& deviceManager)
+: MpInputDeviceDriver(name, deviceManager)
+, mWntDeviceId(-1)
 {
     WAVEINCAPS devCaps;
     // Grab the number of input devices that are available.

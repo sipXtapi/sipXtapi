@@ -29,13 +29,13 @@
 // Default constructor
 MpInputDeviceDriver::MpInputDeviceDriver(const UtlString& name, 
                                          MpInputDeviceManager& deviceManager)
-    : UtlString(name)
-    , mpInputDeviceManager(&deviceManager)
-    , mIsEnabled(false)
-    , mSamplesPerFrame(0)
-    , mSamplesPerSec(0)
-    , mCurrentFrameTime(0)
-    , mDeviceId(-1)
+: UtlString(name)
+, mpInputDeviceManager(&deviceManager)
+, mIsEnabled(false)
+, mSamplesPerFrame(0)
+, mSamplesPerSec(0)
+, mCurrentFrameTime(0)
+, mDeviceId(-1)
 {
 }
 
