@@ -36,10 +36,19 @@ services.
 %package cdr
 Requires: %name >= %version
 Requires: ruby
+Requires: ruby-dbi
+
+%if %{_vendor} == redhat
 Requires: ruby-gems
 Requires: ruby-libs
-Requires: ruby-dbi
 Requires: ruby-postgres >= 0.7.1
+%endif
+
+%if %{_vendor} == suse
+Requires: rubygems
+Requires: rubygem-ruby-postgres >= 0.7.1
+%endif
+
 Requires: sipxcommserverlib >= %version
 Group:    Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry

@@ -9,7 +9,6 @@ SFAC_SRCDIR_EXPAND
 
 # default, fc5
 cgicc=yes
-ruby_gems=yes
 ruby_dbi=yes
 soap4r=yes
 http_access=yes
@@ -24,6 +23,7 @@ AC_ARG_ENABLE(fc4,
 	AC_HELP_STRING([--enable-fc4], [Enable dependencies for Fedora Core 4]),
 	[ 
           java_sun=yes
+          ruby_gems=yes
           ruby_postgres=yes
           xerces_c=yes
         ])
@@ -33,6 +33,7 @@ AC_ARG_ENABLE(fc5,
 	[ 
           java_sun=yes
           xerces_c=yes
+          ruby_gems=yes
         ])
 
 AC_ARG_ENABLE(fc6,
@@ -40,6 +41,7 @@ AC_ARG_ENABLE(fc6,
 	[ 
           java_sun=yes
           xerces_c=yes
+          ruby_gems=yes
         ])
 
 AC_ARG_ENABLE(rhe4,
@@ -50,6 +52,7 @@ AC_ARG_ENABLE(rhe4,
           xerces_c=yes
           cppunit=yes
           ruby=yes
+          ruby_gems=yes
           ruby_postgres=yes
         ])
 

@@ -50,7 +50,13 @@ SOAP, postgresql and other JEE technologies to get the job done.
 
 # For phones that use TFTP to server profiles
 %package tftp
+%if %{_vendor} == redhat
 Requires: tftp-server
+%endif
+%if %{_vendor} == suse
+Requires: tftp
+%endif
+
 Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
 Summary: Configures/enables TFTP for devices controlled by %{name}
@@ -77,8 +83,12 @@ Summary: Configures/enables FTP for devices controlled by %{name}
 Requires: sipxcommserverlib
 Requires: ruby
 Requires: ruby-gems
+
+%if %{_vendor} == redhat
 # irb is for file-tail gem
 Requires: irb
+%endif
+
 Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
 Summary: Analyzes data from sipxpbx and provides SOAP API to information

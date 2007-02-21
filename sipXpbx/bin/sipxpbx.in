@@ -16,6 +16,14 @@
 # Copyright (C) 2004 Pingtel Corp.
 # Licensed to SIPfoundry under a Contributor Agreement.
 #
+### BEGIN INIT INFO
+# Provides:       sipxpbx
+# Required-Start: $network $remote_fs
+# Required-Stop:
+# Default-Start:  3 5
+# Default-Stop:
+# Description:    Start the sipXpbx IP PBX application servers
+### END INIT INFO
 
 # This is an interactive program; we need the current locale.
 [ -f /etc/profile.d/lang.sh ] && . /etc/profile.d/lang.sh
@@ -32,8 +40,32 @@ fi
 . @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
 # Set up correctly depending on the distribution
-if [ ! -f /etc/redhat-release ]
+if [ -f /etc/redhat-release ]
 then
+  # Redhat 
+  . /etc/init.d/functions
+
+  HTTP_DAEMON_START="daemon @APACHE2_HTTPD@"
+
+elif [ -f /etc/SuSE-release ]
+then
+  # SuSE
+  . /etc/rc.status
+
+  echo_success() 
+  {
+      rc_reset
+      rc_status -v
+  }
+  echo_failure() 
+  {
+      rc_failed
+      rc_status -v
+  }
+
+  HTTP_DAEMON_START="start-stop-daemon --start --exec @APACHE2_HTTPD@ --"
+
+else
   # Non-Redhat (Gentoo, Debian, and perhaps others)
   echo_success() 
   {
@@ -46,12 +78,6 @@ then
   . /etc/init.d/functions.sh
 
   HTTP_DAEMON_START="start-stop-daemon --start --exec @APACHE2_HTTPD@ --"
-
-else
-  # Redhat 
-  . /etc/init.d/functions
-
-  HTTP_DAEMON_START="daemon @APACHE2_HTTPD@"
   
 fi
 
