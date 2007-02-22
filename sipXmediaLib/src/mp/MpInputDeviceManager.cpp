@@ -33,9 +33,12 @@
 class MpInputDeviceFrameData
 {
 public:
-    MpInputDeviceFrameData(){mFrameTime = 0;};
+    MpInputDeviceFrameData()
+    : mFrameTime(0)
+    {};
 
-    virtual ~MpInputDeviceFrameData(){};
+    virtual ~MpInputDeviceFrameData()
+    {};
 
     MpAudioBufPtr mFrameBuffer;
     MpFrameTime mFrameTime;
@@ -68,25 +71,25 @@ public:
                           unsigned int samplesPerFrame,
                           unsigned int samplesPerSecond)
    : UtlInt(deviceId)
+   , mLastPushedFrame(numFramesBuffered - 1)
+   , mNumFramesBuffered(numFramesBuffered)
+   , mppFrameBufferArray(NULL)
+   , mpInputDeviceDriver(&deviceDriver)
+   , mSamplesPerFrame(samplesPerFrame)
+   , mSamplesPerSecond(samplesPerSecond)
    {
        assert(numFramesBuffered > 0);
        assert(samplesPerFrame > 0);
        assert(samplesPerSecond > 0);
-       mpInputDeviceDriver = &deviceDriver;
-       mSamplesPerFrame = samplesPerFrame;
-       mSamplesPerSecond = samplesPerSecond;
 
-       mLastPushedFrame = numFramesBuffered - 1;
-       mppFrameBufferArray = NULL;
-       mppFrameBufferArray = new MpInputDeviceFrameData[numFramesBuffered];
-       mNumFramesBuffered = numFramesBuffered;
+       mppFrameBufferArray = new MpInputDeviceFrameData[mNumFramesBuffered];
    };
 
      /// Destructor
    virtual
    ~MpAudioInputConnection()
    {
-       if(mppFrameBufferArray)
+       if (mppFrameBufferArray)
        {
            delete[] mppFrameBufferArray;
            mppFrameBufferArray = NULL;
@@ -121,14 +124,14 @@ public:
         thisFrameData->mFrameTime = frameTime;
 
         // Make sure we have someplace we can stuff the data
-        if(!thisFrameData->mFrameBuffer.isValid())
+        if (!thisFrameData->mFrameBuffer.isValid())
         {
             thisFrameData->mFrameBuffer = 
                 MpMisc.RawAudioPool->getBuffer();
         }
 
         // Stuff the data in a buffer
-        if(thisFrameData->mFrameBuffer.isValid())
+        if (thisFrameData->mFrameBuffer.isValid())
         {
             memcpy(thisFrameData->mFrameBuffer->getSamples(), samples, numSamples);
             thisFrameData->mFrameBuffer->setSamplesNumber(numSamples);
@@ -151,7 +154,7 @@ public:
         OsStatus result = OS_INVALID_STATE;
         // Need to look for the frame even if the device is disabled
         // as it may already be queued up
-        if(mpInputDeviceDriver && mpInputDeviceDriver->isEnabled())
+        if (mpInputDeviceDriver && mpInputDeviceDriver->isEnabled())
         {
             result = OS_NOT_FOUND;
         }
@@ -165,12 +168,12 @@ public:
         // given frame time.  The frame time is for the begining of a frame.
         // So we provide the frame that begins at or less than the requested
         // time, but not more than one frame period older.
-        for(unsigned int frameIndex = 0; frameIndex < mNumFramesBuffered; frameIndex++)
+        for (unsigned int frameIndex = 0; frameIndex < mNumFramesBuffered; frameIndex++)
         {
             MpInputDeviceFrameData* frameData = 
                 &mppFrameBufferArray[(lastFrame + frameIndex) % mNumFramesBuffered];
 
-            if(frameData->mFrameTime <= frameTime &&
+            if (frameData->mFrameTime <= frameTime &&
                 frameData->mFrameTime + framePeriod > frameTime)
             {
                 // We have a frame of media for the requested time
