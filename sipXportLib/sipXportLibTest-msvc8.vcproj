@@ -599,6 +599,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\test\sipxunit\TestOsSysLogListener.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\test\sipxunit\TestOutputter.cpp"
 				>
 			</File>
@@ -746,6 +750,10 @@
 			</File>
 			<File
 				RelativePath=".\src\test\os\StunMessageTest.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\test\sipxunit\TestOsSysLogListener.h"
 				>
 			</File>
 			<File

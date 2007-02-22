@@ -19,7 +19,10 @@
 #include <os/OsTestUtilities.h>
 
 #include <stdlib.h>
+
+#ifndef WINCE6
 #include <errno.h>
+#endif
 
 /**
  * Test Description

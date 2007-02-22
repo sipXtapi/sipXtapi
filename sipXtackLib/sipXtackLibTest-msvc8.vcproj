@@ -606,6 +606,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\sipXportLib\src\test\sipxunit\TestOsSysLogListener.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\sipXportLib\src\test\sipxunit\TestOutputter.cpp"
 				>
 			</File>
@@ -641,6 +645,10 @@
 			>
 			<File
 				RelativePath=".\stdafx.h"
+				>
+			</File>
+			<File
+				RelativePath="..\sipXportLib\src\test\sipxunit\TestOsSysLogListener.h"
 				>
 			</File>
 		</Filter>
