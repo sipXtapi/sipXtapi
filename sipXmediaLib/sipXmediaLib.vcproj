@@ -2622,6 +2622,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MprFromInputDevice.cpp">
+			</File>
+			<File
 				RelativePath="src\mp\MprFromMic.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
