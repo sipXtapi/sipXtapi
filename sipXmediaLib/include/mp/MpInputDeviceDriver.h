@@ -107,20 +107,23 @@ public:
       *        enabling a device results in state and buffer queues being cleared.
       */
 
+      /// Set device ID associated with this device in parent input device manager.
+    virtual OsStatus setDeviceId(MpInputDeviceHandle deviceId)
+    { assert(deviceId > 0); mDeviceId = deviceId; return(OS_SUCCESS); };
+
+      /// Clear the device ID associated with this device.
+    virtual OsStatus clearDeviceId()
+    { mDeviceId = -1; };
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
 //@{
 
-    /// Get device ID associated with this device in parent input device manager.
+      /// Get device ID associated with this device in parent input device manager.
     virtual MpInputDeviceHandle getDeviceId() const { return mDeviceId; }
 
-    /// Set device ID associated with this device in parent input device manager.
-    virtual OsStatus setDeviceId(MpInputDeviceHandle deviceId) {assert(deviceId > 0); mDeviceId = deviceId; return(OS_SUCCESS);};
-
-    /// Clear the device ID associated with this device.
-    virtual OsStatus clearDeviceId(){ mDeviceId = -1;};
 //@}
 
 /* ============================ INQUIRY =================================== */
