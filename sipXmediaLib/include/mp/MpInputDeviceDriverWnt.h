@@ -19,6 +19,8 @@
 #include "mp/MpInputDeviceDriver.h"
 
 // DEFINES
+#define DEFAULT_N_INPUT_BUFS 32
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -55,7 +57,8 @@ public:
 
      /// Default constructor
    MpInputDeviceDriverWnt(const UtlString& name,
-                          MpInputDeviceManager& deviceManager);
+                          MpInputDeviceManager& deviceManager,
+                          unsigned nInputBuffers = DEFAULT_N_INPUT_BUFS);
      /**<
      *  @param name - unique device driver name (e.g. "/dev/dsp", 
      *         "YAMAHA AC-XG WDM Audio", etc.)
@@ -124,8 +127,15 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-    int mWntDeviceId; ///< The underlying windows Device ID (not the logical
-                      ///< Mp device ID)
+    int mWntDeviceId;   ///< The underlying windows Device ID (not the logical
+                        ///< Mp device ID)
+    HWAVEIN mDevHandle; ///< The Microsoft handle for this audio input device
+    unsigned mNumInBuffers;   ///< The number of buffers to supply to windows
+                              ///< for audio processing.
+    unsigned mWaveBufSize;    ///< The size, in bytes, of mpWaveBuffer 
+                              ///< after allocation.
+    WAVEHDR[] mpWaveHeaders;  ///< Array of nNumInBuffers wave headers.
+    LPSTR[] mpWaveBuffers;    ///< Array of nNumInBuffers wave buffers.
 
 
       /// Copy constructor (not implemented for this class)
@@ -133,6 +143,9 @@ private:
 
       /// Assignment operator (not implemented for this class)
     MpInputDeviceDriverWnt& operator=(const MpInputDeviceDriver& rhs);
+
+      /// Zero out a wave header, so it is ready to be filled in by windows.
+    WAVEHDR* initWaveHeader(int n);
 };
 
 /* ============================ INLINE METHODS ============================ */
