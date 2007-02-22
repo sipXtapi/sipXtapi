@@ -67,12 +67,12 @@ public:
      /// Default constructor
    MpAudioInputConnection(MpInputDeviceHandle deviceId,
                           MpInputDeviceDriver& deviceDriver,
-                          unsigned int numFramesBuffered,
+                          unsigned int frameBufferLength,
                           unsigned int samplesPerFrame,
                           unsigned int samplesPerSecond)
    : UtlInt(deviceId)
    , mLastPushedFrame(numFramesBuffered - 1)
-   , mNumFramesBuffered(numFramesBuffered)
+   , mFrameBufferLength(frameBufferLength)
    , mppFrameBufferArray(NULL)
    , mpInputDeviceDriver(&deviceDriver)
    , mSamplesPerFrame(samplesPerFrame)
@@ -82,7 +82,7 @@ public:
        assert(samplesPerFrame > 0);
        assert(samplesPerSecond > 0);
 
-       mppFrameBufferArray = new MpInputDeviceFrameData[mNumFramesBuffered];
+       mppFrameBufferArray = new MpInputDeviceFrameData[mFrameBufferLength];
    };
 
      /// Destructor
@@ -114,7 +114,7 @@ public:
         assert(numSamples == mSamplesPerFrame);
 
         // Circular buffer of frames
-        int thisFrameIndex = (++mLastPushedFrame) % mNumFramesBuffered;
+        int thisFrameIndex = (++mLastPushedFrame) % mFrameBufferLength;
         MpInputDeviceFrameData* thisFrameData = &mppFrameBufferArray[thisFrameIndex];
 
         // Current time to review device driver jitter
@@ -159,7 +159,7 @@ public:
             result = OS_NOT_FOUND;
         }
 
-        unsigned int lastFrame = mLastPushedFrame % mNumFramesBuffered;
+        unsigned int lastFrame = mLastPushedFrame % mFrameBufferLength;
         numFramesBefore = 0;
         numFramesAfter = 0;
         int framePeriod = 1000 * mSamplesPerFrame / mSamplesPerSecond;
@@ -168,17 +168,17 @@ public:
         // given frame time.  The frame time is for the begining of a frame.
         // So we provide the frame that begins at or less than the requested
         // time, but not more than one frame period older.
-        for (unsigned int frameIndex = 0; frameIndex < mNumFramesBuffered; frameIndex++)
+        for (unsigned int frameIndex = 0; frameIndex < mFrameBufferLength; frameIndex++)
         {
             MpInputDeviceFrameData* frameData = 
-                &mppFrameBufferArray[(lastFrame + frameIndex) % mNumFramesBuffered];
+                &mppFrameBufferArray[(lastFrame + frameIndex) % mFrameBufferLength];
 
             if (frameData->mFrameTime <= frameTime &&
                 frameData->mFrameTime + framePeriod > frameTime)
             {
                 // We have a frame of media for the requested time
                 numFramesBefore = frameIndex;
-                numFramesAfter = mNumFramesBuffered - 1 - frameIndex;
+                numFramesAfter = mFrameBufferLength - 1 - frameIndex;
 
                 // We always make a copy of the frame as we are typically
                 // crossing task boundries here.
@@ -208,12 +208,12 @@ public:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-    unsigned int mLastPushedFrame;
-    unsigned int mNumFramesBuffered;
+    unsigned int mLastPushedFrame;      ///< Index of last pushed frame in mppFrameBufferArray.
+    unsigned int mFrameBufferLength;    ///< Length of mppFrameBufferArray.
     MpInputDeviceFrameData* mppFrameBufferArray;
     MpInputDeviceDriver* mpInputDeviceDriver;
-    unsigned int mSamplesPerFrame;
-    unsigned int mSamplesPerSecond;
+    unsigned int mSamplesPerFrame;      ///< Number of audio samples in one frame.
+    unsigned int mSamplesPerSecond;     ///< Number of audio samples in one second.
 
       /// Copy constructor (not implemented for this class)
     MpAudioInputConnection(const MpAudioInputConnection& rMpAudioInputConnection);
