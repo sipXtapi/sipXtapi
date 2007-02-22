@@ -108,12 +108,10 @@ public:
       */
 
       /// Set device ID associated with this device in parent input device manager.
-    virtual OsStatus setDeviceId(MpInputDeviceHandle deviceId)
-    { assert(deviceId > 0); mDeviceId = deviceId; return(OS_SUCCESS); };
+    virtual OsStatus setDeviceId(MpInputDeviceHandle deviceId);
 
       /// Clear the device ID associated with this device.
-    virtual OsStatus clearDeviceId()
-    { mDeviceId = -1; };
+    virtual OsStatus clearDeviceId();
 
 //@}
 

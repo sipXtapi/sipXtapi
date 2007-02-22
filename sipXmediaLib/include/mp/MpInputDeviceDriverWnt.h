@@ -20,6 +20,7 @@
 
 // DEFINES
 #define DEFAULT_N_INPUT_BUFS 32
+#define NUM_SAMPLES 80
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -134,8 +135,8 @@ private:
                               ///< for audio processing.
     unsigned mWaveBufSize;    ///< The size, in bytes, of mpWaveBuffer 
                               ///< after allocation.
-    WAVEHDR[] mpWaveHeaders;  ///< Array of nNumInBuffers wave headers.
-    LPSTR[] mpWaveBuffers;    ///< Array of nNumInBuffers wave buffers.
+    WAVEHDR* mpWaveHeaders;   ///< Array of nNumInBuffers wave headers.
+    LPSTR* mpWaveBuffers;     ///< Array of nNumInBuffers wave buffers.
 
 
       /// Copy constructor (not implemented for this class)

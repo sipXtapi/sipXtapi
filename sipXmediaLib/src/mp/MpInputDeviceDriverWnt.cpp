@@ -39,11 +39,11 @@ MpInputDeviceDriverWnt::MpInputDeviceDriverWnt(const UtlString& name,
 {
     WAVEINCAPS devCaps;
     // Grab the number of input devices that are available.
-    int nInputDevs = waveInGetNumDevs();
+    UINT nInputDevs = waveInGetNumDevs();
 
     // Search through the input devices looking for the input device specified.
     MMRESULT wavResult = MMSYSERR_NOERROR;
-    int i;
+    unsigned i;
     for (i = 0; i < nInputDevs; i++)
     {
         MMRESULT res = waveInGetDevCaps(i, &devCaps, sizeof(devCaps));
@@ -59,12 +59,11 @@ MpInputDeviceDriverWnt::MpInputDeviceDriverWnt(const UtlString& name,
 
     // calculate the buffer length we're going to use.
     // number of samples per frame * sample size in bytes
-    mWaveBufSize = N_SAMPLES * sizeof(MpAudioSample); 
+    mWaveBufSize = NUM_SAMPLES * sizeof(MpAudioSample); 
 
     // Allocate the wave headers and buffers for use with windows audio routines.
     mpWaveHeaders = new WAVEHDR[mNumInBuffers];
     mpWaveBuffers = new LPSTR[mNumInBuffers];
-    int i;
     for (i = 0; i < mNumInBuffers; i++)
     {
         mpWaveBuffers[i] = new char[mWaveBufSize];
@@ -75,8 +74,8 @@ MpInputDeviceDriverWnt::MpInputDeviceDriverWnt(const UtlString& name,
 MpInputDeviceDriverWnt::~MpInputDeviceDriverWnt() 
 {
     // Delete the sample buffers..
-    int i;
-    for (i=0; i < mNumInBuffers; i++)
+    unsigned i;
+    for (i = 0; i < mNumInBuffers; i++)
     {
         delete[] mpWaveBuffers[i];
         mpWaveBuffers[i] = NULL;
@@ -159,7 +158,7 @@ OsStatus MpInputDeviceDriverWnt::enableDevice(unsigned samplesPerFrame,
     // Setup the buffers so windows can stuff them full of audio
     // when it becomes available from this audio input device.
     WAVEHDR* pWaveHdr = NULL;
-    int i;
+    unsigned i;
     for (i=0; i < mNumInBuffers; i++) 
     {
         pWaveHdr = initWaveHeader(i);
@@ -196,11 +195,10 @@ OsStatus MpInputDeviceDriverWnt::disableDevice()
     
     // TODO: Do stuff to disable device.
     MMRESULT   res;
-    int        i ;
 
     // Cleanup
     if (mDevHandle == NULL)
-        return;
+        return OS_INVALID_STATE;
 
     res = waveInReset(mDevHandle);
     if (res != MMSYSERR_NOERROR)
@@ -212,8 +210,9 @@ OsStatus MpInputDeviceDriverWnt::disableDevice()
     {
         showWaveError("waveInStop", res, -1, __LINE__);
     }
-    Sleep(500) ;
+    Sleep(500);
 
+    unsigned i;
     for (i=0; i < mNumInBuffers; i++) 
     {
         res = waveInUnprepareHeader(mDevHandle, &mpWaveHeaders[i], sizeof(WAVEHDR));
@@ -222,7 +221,7 @@ OsStatus MpInputDeviceDriverWnt::disableDevice()
             showWaveError("waveInUnprepareHeader", res, i, __LINE__);
         }
     }
-    Sleep(500) ;
+    Sleep(500);
 
     res = waveInClose(mDevHandle);
     if (res != MMSYSERR_NOERROR)
@@ -253,9 +252,9 @@ OsStatus MpInputDeviceDriverWnt::disableDevice()
 
 WAVEHDR* MpInputDeviceDriverWnt::initWaveHeader(int n)
 {
-    assert((n > 0) && (n < mNumInBuffers));
+    assert((n > 0) && (n < (int)mNumInBuffers));
     assert(mpWaveHeaders != NULL);
-    assert((mpWaveBuffers != NULL) && (mpWaveBuffers[n] != NULL))
+    assert((mpWaveBuffers != NULL) && (mpWaveBuffers[n] != NULL));
     WAVEHDR& wave_hdr(mpWaveHeaders[n]);
     LPSTR&   wave_data(mpWaveBuffers[n]);
 

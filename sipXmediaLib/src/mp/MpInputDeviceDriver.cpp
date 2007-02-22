@@ -60,6 +60,8 @@ OsStatus MpInputDeviceDriver::disableDevice()
 
 OsStatus MpInputDeviceDriver::setDeviceId(MpInputDeviceHandle deviceId) 
 { 
+    assert(deviceId > 0);
+
     OsStatus status = OS_BUSY;
     if (!isEnabled())
     {
@@ -74,7 +76,7 @@ OsStatus MpInputDeviceDriver::clearDeviceId()
     OsStatus status = OS_BUSY;
     if (!isEnabled())
     {
-        mDeviceId = 0;
+        mDeviceId = -1;
         status = OS_SUCCESS;
     }
     return status;
