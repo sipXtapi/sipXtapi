@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.components;
+package org.sipfoundry.sipxconfig.site.common;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -18,19 +18,30 @@ import java.util.Locale;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.ComponentClass;
+import org.apache.tapestry.annotations.Parameter;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
+/*
+ * Date and time picker
+ */
+@ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class DateTimeEditor extends BaseComponent {
     private static final int[] TIME_FIELDS = {
         Calendar.HOUR_OF_DAY, Calendar.MINUTE, Calendar.SECOND
     };
 
-    public abstract Date getTime();
-
-    public abstract void setTime(Date time);
-
+    @Parameter(required = true)
     public abstract Date getDatetime();
 
     public abstract void setDatetime(Date datetime);
+
+    @Parameter(required = true)
+    public abstract String getLabel();
+
+    public abstract Date getTime();
+
+    public abstract void setTime(Date time);
 
     public abstract Date getDate();
 

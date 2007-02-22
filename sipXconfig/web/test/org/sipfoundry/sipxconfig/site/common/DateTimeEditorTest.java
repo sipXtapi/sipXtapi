@@ -9,12 +9,14 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.components;
+package org.sipfoundry.sipxconfig.site.common;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+
+import org.sipfoundry.sipxconfig.site.common.DateTimeEditor;
 
 import junit.framework.TestCase;
 
