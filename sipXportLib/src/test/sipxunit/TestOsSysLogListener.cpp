@@ -16,6 +16,7 @@
 #include "TestOsSysLogListener.h"
 #include <cppunit/Test.h>
 #include "os/OsSysLog.h"
+#include "os/OsFileSystem.h"
 
 /// constructor
 TestOsSysLogListener::TestOsSysLogListener()
@@ -37,7 +38,7 @@ void TestOsSysLogListener::startTest( CPPUNIT_NS::Test *test )
 
    std::string testLogFile = testName + ".log";
 
-   unlink(testLogFile.c_str());
+   OsFileSystem::remove(testLogFile.c_str());
 
    OsSysLog::setOutputFile(0,testLogFile.c_str());
 }  
