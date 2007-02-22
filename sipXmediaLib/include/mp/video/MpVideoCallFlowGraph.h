@@ -16,7 +16,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include "utl/UtlString.h"
-#include "net/SdpCodec.h"
+#include "sdp/SdpCodec.h"
 #include "os/OsSocket.h"
 
 // Include RTCP if supported
