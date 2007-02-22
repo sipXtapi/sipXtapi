@@ -289,7 +289,7 @@ MpInputDeviceDriver* MpInputDeviceManager::removeDevice(MpInputDeviceHandle devi
         (MpAudioInputConnection*) mConnectionsByDeviceId.find(&deviceKey);
     MpInputDeviceDriver* deviceDriver = NULL;
 
-    if(connectionFound)
+    if (connectionFound)
     {
         // Remove from the id indexed container
         mConnectionsByDeviceId.remove(connectionFound);
@@ -303,7 +303,7 @@ MpInputDeviceDriver* MpInputDeviceManager::removeDevice(MpInputDeviceHandle devi
 
         // Remove from the name indexed hash
         mConnectionsByDeviceName.remove(deviceDriver);
-        if(deviceIdInt)
+        if (deviceIdInt)
         {
             delete deviceIdInt;
             deviceIdInt = NULL;
@@ -327,11 +327,11 @@ OsStatus MpInputDeviceManager::enableDevice(MpInputDeviceHandle deviceId)
         (MpAudioInputConnection*) mConnectionsByDeviceId.find(&deviceKey);
     MpInputDeviceDriver* deviceDriver = NULL;
 
-    if(connectionFound)
+    if (connectionFound)
     {
         deviceDriver = connectionFound->getDeviceDriver();
         assert(deviceDriver);
-        if(deviceDriver)
+        if (deviceDriver)
         {
             status = 
                 deviceDriver->enableDevice(mDefaultSamplesPerFrame, 
@@ -353,11 +353,11 @@ OsStatus MpInputDeviceManager::disableDevice(MpInputDeviceHandle deviceId)
         (MpAudioInputConnection*) mConnectionsByDeviceId.find(&deviceKey);
     MpInputDeviceDriver* deviceDriver = NULL;
 
-    if(connectionFound)
+    if (connectionFound)
     {
         deviceDriver = connectionFound->getDeviceDriver();
         assert(deviceDriver);
-        if(deviceDriver)
+        if (deviceDriver)
         {
             status = 
                 deviceDriver->disableDevice();
@@ -380,11 +380,11 @@ OsStatus MpInputDeviceManager::getDeviceName(MpInputDeviceHandle deviceId,
         (MpAudioInputConnection*) mConnectionsByDeviceId.find(&deviceKey);
     MpInputDeviceDriver* deviceDriver = NULL;
 
-    if(connectionFound)
+    if (connectionFound)
     {
         deviceDriver = connectionFound->getDeviceDriver();
         assert(deviceDriver);
-        if(deviceDriver)
+        if (deviceDriver)
         {
             status = OS_SUCCESS;
             deviceName = *deviceDriver;
@@ -431,9 +431,8 @@ OsStatus MpInputDeviceManager::pushFrame(MpInputDeviceHandle deviceId,
     UtlInt deviceKey(deviceId);
     connectionFound =
         (MpAudioInputConnection*) mConnectionsByDeviceId.find(&deviceKey);
-    MpInputDeviceDriver* deviceDriver = NULL;
 
-    if(connectionFound)
+    if (connectionFound)
     {
         status = 
             connectionFound->pushFrame(numSamples, samples, frameTime);
@@ -456,9 +455,8 @@ OsStatus MpInputDeviceManager::getFrame(MpInputDeviceHandle deviceId,
     UtlInt deviceKey(deviceId);
     connectionFound =
         (MpAudioInputConnection*) mConnectionsByDeviceId.find(&deviceKey);
-    MpInputDeviceDriver* deviceDriver = NULL;
 
-    if(connectionFound)
+    if (connectionFound)
     {
         status = 
             connectionFound->getFrame(frameTime,

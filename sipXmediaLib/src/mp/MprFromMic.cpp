@@ -155,21 +155,21 @@ UtlBoolean MprFromMic::doProcessFrame(MpBufPtr inBufs[],
       {
          // 
          // Allow an external identity to source microphone data.  Ideally,
-            // this should probably become a different resource, but abstracting
-            // a new CallFlowGraph is a lot of work.
-            //
+         // this should probably become a different resource, but abstracting
+         // a new CallFlowGraph is a lot of work.
+         //
 
          if (!out.isValid())
          {
             out = MpMisc.RawAudioPool->getBuffer();
-                if (!out.isValid())
-                   return FALSE;
+            if (!out.isValid())
+               return FALSE;
             out->setSamplesNumber(MpMisc.frameSamples);
          }
          
          if (out.isValid()) 
          {
-               int n = 0;
+            int n = 0;
             MpAudioSample* s = NULL;
 
             s = out->getSamples();
