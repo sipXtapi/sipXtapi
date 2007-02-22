@@ -114,8 +114,8 @@ OsStatus MpInputDeviceDriverWnt::enableDevice(unsigned samplesPerFrame,
     wavFormat.cbSize = 0;
 
     MMRESULT res = waveInOpen(&mDevHandle, mWntDeviceId,
-                              &wavFormat, (DWORD)waveInCallback,
-                              this, CALLBACK_FUNCTION);
+                              &wavFormat, (DWORD_PTR)waveInCallbackStatic,
+                              (DWORD_PTR)this, CALLBACK_FUNCTION);
     if(res != MMSYSERR_NOERROR)
     {
         // If waveInOpen failed, print out the error info,
@@ -245,6 +245,28 @@ OsStatus MpInputDeviceDriverWnt::disableDevice()
     return status;
 }
 
+void MpInputDeviceDriverWnt::processAudioInput(HWAVEIN hwi,
+                                               UINT uMsg,
+                                               DWORD_PTR dwParam1,
+                                               DWORD_PTR dwParam2)
+{
+    osPrintf("Received audio input data.\n");
+}
+
+void CALLBACK 
+MpInputDeviceDriverWnt::waveInCallbackStatic(HWAVEIN hwi,
+                                             UINT uMsg, 
+                                             DWORD_PTR dwInstance,
+                                             DWORD_PTR dwParam1, 
+                                             DWORD_PTR dwParam2)
+{
+    assert(dwInstance != NULL);
+    MpInputDeviceDriverWnt* iddWntPtr = (MpInputDeviceDriverWnt*)dwInstance;
+    iddWntPtr->processAudioInput(hwi, uMsg, dwParam1, dwParam2);
+}
+
+
+
 /* ============================ ACCESSORS ================================= */
 /* ============================ INQUIRY =================================== */
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -256,7 +278,7 @@ WAVEHDR* MpInputDeviceDriverWnt::initWaveHeader(int n)
     assert(mpWaveHeaders != NULL);
     assert((mpWaveBuffers != NULL) && (mpWaveBuffers[n] != NULL));
     WAVEHDR& wave_hdr(mpWaveHeaders[n]);
-    LPSTR&   wave_data(mpWaveBuffers[n]);
+    LPSTR    wave_data(mpWaveBuffers[n]);
 
     // zero out the wave buffer.
     memset(wave_data, 0, mWaveBufSize);
@@ -270,6 +292,8 @@ WAVEHDR* MpInputDeviceDriverWnt::initWaveHeader(int n)
     wave_hdr.dwLoops = 0;
     wave_hdr.lpNext = NULL;
     wave_hdr.reserved = 0;
+
+    return &wave_hdr;
 }
 
 // Copy constructor (not implemented for this class)

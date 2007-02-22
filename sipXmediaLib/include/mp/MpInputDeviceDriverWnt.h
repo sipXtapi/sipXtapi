@@ -105,7 +105,30 @@ public:
       *        enabling a device results in state and buffer queues being cleared.
       */
 
+      /// Processes incoming audio data.
+    void processAudioInput(HWAVEIN hwi, 
+                           UINT uMsg, 
+                           DWORD_PTR dwParam1,
+                           DWORD_PTR dwParam2);
+      /**<
+      *  This method, called by the static callback function 
+      *  waveInCallbackStatic, processes audio input data from the windows
+      *  waveform audio functions, passing the results to the input manager.
+      */
+
 //@}
+
+      /// Callback function for receiving data from windows audio.
+    static void CALLBACK waveInCallbackStatic(HWAVEIN hwi,
+                                              UINT uMsg,
+                                              DWORD_PTR dwInstance,
+                                              DWORD_PTR dwParam1,
+                                              DWORD_PTR dwParam2);
+      /**<
+      *  This static method is called by the windows waveform audio functions
+      *  passing incoming audio data to be processed.
+      *  This function then passes the results on to processAudioInput()
+      */
 
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
