@@ -63,9 +63,9 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="Ws2_32.lib Dnsapi.lib Iphlpapi.lib Winmm.lib pcre.lib"
-				OutputFile="$(OutDir)/sipXsdpLibTest.exe"
+				OutputFile="$(OutDir)\sipXsdpLibTest.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories=".\Debug"
+				AdditionalLibraryDirectories="&quot;$(OutDir)\&quot;;&quot;..\sipXportLib\$(PlatformName)\$(ConfigurationName)&quot;"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/sipXsdpLibTest.pdb"
 				SubSystem="1"

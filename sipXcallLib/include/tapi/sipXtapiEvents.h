@@ -1,8 +1,11 @@
-//
-// Copyright (C) 2006 SIPez LLC. 
+//  
+// Copyright (C) 2007 Robert J. Andreasen, Jr.
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2006-2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -17,25 +20,23 @@
  * sipXtapi event declarations
  *
  * The sipXtapiEvents.h header file defines all of the events fired as part of
- * receiving inbound calls and placing outbound calls.  Each event notification
- * is comprised of a major event and a minor event.  The major event identifies
- * a significant state transition (e.g. from connected to disconnected.  The minor
- * event identifies the reason for the change (cause code).
+ * sipXtapi.  Event categories include call state events, line state events,
+ * SIP info events, SIP subscription events, configuration events, security
+ * events, media events, and keepalive events.
  *
- * Below you will find state diagrams that show the typical event transitions
- * for both outbound and inbound calls.
+ * Each event notification is comprised of a event type and a cause code.
+ * The event type identifies a state transition (e.g. from call connected to
+ * call disconnected.  The cause identifies the reason for the change (e.g.
+ * someone hung up).
  *
- * @image html callevents_inbound.gif
- *
- * Figure 1: Event flows for an inbound call (received call)
- *
- * @image html callevents_outbound.gif
- *
- * Figure 2: Event flows for an outbound call (placed call)
+ * @see sipxEventListenerAdd
+ * @see sipxEventListenerRemove
+ * @see SIPX_EVENT_CALLBACK_PROC
+ * @see SIPX_EVENT_CATEGORY
  */
+
 #ifndef _SIPXTAPIEVENT_H
 #define _SIPXTAPIEVENT_H
-
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
@@ -47,13 +48,6 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // FORWARD DECLARATIONS
-
-#ifdef SIPX_USE_STDCALL
-#define SIPX_CALLING_CONVENTION __stdcall
-#else
-#define SIPX_CALLING_CONVENTION
-#endif 
-
 
 /**
  * Enum with all of the possible event types.
@@ -108,8 +102,11 @@ typedef enum SIPX_EVENT_CATEGORY
                                          
 } SIPX_EVENT_CATEGORY;
 
+/**
+ * VALID_SIPX_EVENT_CATEGORY utility macro to validate if an event category
+ * is valid (within expected range).
+ */
 #define VALID_SIPX_EVENT_CATEGORY(x) (((x) >= EVENT_CATEGORY_CALLSTATE) && ((x) <= EVENT_CATEGORY_KEEPALIVE))
-
 
 /**
  * Signature for event callback/observer.  Application developers should
@@ -152,6 +149,17 @@ typedef bool (SIPX_CALLING_CONVENTION *SIPX_EVENT_CALLBACK_PROC)(SIPX_EVENT_CATE
 /**
  * Major call state events identify significant changes in the state of a 
  * call.
+ *
+ * Below you will find state diagrams that show the typical event transitions
+ * for both outbound and inbound calls.
+ *
+ * @image html callevents_inbound.gif
+ *
+ * Figure 1: Event flows for an inbound call (received call)
+ *
+ * @image html callevents_outbound.gif
+ *
+ * Figure 2: Event flows for an outbound call (placed call)
  */
 typedef enum SIPX_CALLSTATE_EVENT
 {
@@ -315,6 +323,8 @@ typedef enum SIPX_CALLSTATE_CAUSE
 
 /**
  * Enumeration of possible linestate Events.
+ *
+ * @image html lineevents.gif
  */
  typedef enum SIPX_LINESTATE_EVENT
 {
@@ -640,8 +650,7 @@ typedef struct
                                          supplied on MEDIA_REMOTE_SILENT 
                                          events. */
     SIPX_TONE_ID        toneId;	    /**< DTMF tone received from remote party;
-                                         only supplied on MEDIA_REMOTE_DTMF_START
-                                         and MEDIA_REMOTE_DTMF_STOP events).
+                                         only supplied on MEDIA_REMOTE_DTMF event).
                                          Note: Only out-of-band DTMF is supported
                                          (not in-band DTMF or dialtone detection, 
                                          etc.)*/
@@ -906,7 +915,7 @@ SIPXTAPI_API SIPX_RESULT sipxDuplicateEvent(SIPX_EVENT_CATEGORY category,
  * API on pointers received as part of the sipXtapi call back.
  *
  * @param category Category type supplied by the sipXtapi event callback.
- * @param pEventSource Copy of event data supplied by sipxDuplicateEvent.
+ * @param pEventCopy Copy of event data supplied by sipxDuplicateEvent.
  */
 SIPXTAPI_API SIPX_RESULT sipxFreeDuplicatedEvent(SIPX_EVENT_CATEGORY category, 
                                                  void*               pEventCopy) ;

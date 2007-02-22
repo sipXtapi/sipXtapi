@@ -80,8 +80,9 @@ static char rcsid[] = "";
 #else
 #   include <sys/types.h>
 #endif
-
+#ifndef WINCE6 /* no errno.h under WinCE 6.0 */
 #include <errno.h>
+#endif
 
 /* Reordered includes and separated into win/vx --GAT */
 #if defined(_WIN32)

@@ -28,10 +28,15 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
+/// UtlVoidPtr is a UtlContainable wrapper for a void ptr.
 /**
- * UtlVoidPtr is a UtlContainable wrapper for a void ptr.  Ideally, 
- * derived objects should be defined instead of "cheating" by using a  
- * UtlVoidPtr wrapper. 
+ * This class has serious potential to create memory leaks and type casting
+ * errors.  Please consider just making the class you want to put into a
+ * container a UtlContainable - it just requires implementing a couple of
+ * methods, and can often be done by just inheriting from one of the existing
+ * UtlContainable classes.  In the simplest case, you can use UtlContainableAtomic;
+ * it requires only that you define a new UtlContainableType constant and the
+ * method to read it.
  */
 class UtlVoidPtr : public UtlContainable
 {

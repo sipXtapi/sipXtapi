@@ -16,8 +16,15 @@
 
 #define DEF_HSVOLMAX 54
 #define DEF_HSVOLSTEP 2
+/// default value for input mixer = -1 -> not detected yet
+#define DEF_INPUTMIXER -1
 static int hsVolMax = DEF_HSVOLMAX;
 static int hsVolStep = DEF_HSVOLSTEP;
+
+/**
+*  ID of the mixer containing microphone line
+*/
+static int sInputMixerId = DEF_INPUTMIXER;
 
 /**
 *  @file MpCodec.cpp
@@ -41,6 +48,78 @@ static int hsVolStep = DEF_HSVOLSTEP;
 extern "C" void setHandsetMuteState(UtlBoolean state);
 static int s_iGainLevel = 5 ;
 
+/**
+*  Gets the ID of the mixer containing microphone line.
+*  
+*  @return ID of mixer
+*
+*  @see MpCodec_setInputMixerId
+*  @see MpCodec_initInputMixerId
+*/
+int MpCodec_getInputMixerId(void)
+{
+   return sInputMixerId;
+}
+
+/**
+*  Sets the ID of the mixer containing microphone line. For systems
+*  with multiple mixer devices or multiple sound cards we need to
+*  know the ID of the right mixer device so that we set gain on
+*  the right one.
+*  
+*  @param newMixerId ID of the mixer containing microphone line
+*  @return result of setting mixer ID
+*
+*  @see MpCodec_initInputMixerId
+*/
+OsStatus MpCodec_setInputMixerId(unsigned int newMixerId)
+{
+   unsigned int devices = mixerGetNumDevs();
+
+   // to prevent setting invalid mixer id
+   if (newMixerId < devices)
+   {
+      sInputMixerId = newMixerId;
+      return OS_SUCCESS;
+   }
+   else return OS_INVALID_ARGUMENT;
+}
+
+/**
+*  Finds ID of a mixer of the first wave input device present in
+*  system. A sound card can have separate mixer for output devices
+*  and another one for input devices. If we have multiple sound cards
+*  then we will have multiple output and input devices with several
+*  mixers. This function is executed only if we haven't opened a
+*  wave input device as a fail-safe. First input device in the system
+*  is used to detect the mixer ID. Here we don't know yet which wave input
+*  device will be used so we have to make this simplification. Once
+*  wave input device is opened, we detect the mixer Id associated with it
+*  elsewhere. This ID is only used for setting gain.
+*  
+*  @return result of detection of mixer ID
+*
+*  @see detectInputMixerId
+*  @see openAudioIn
+*/
+OsStatus MpCodec_initInputMixerId(void)
+{
+   OsStatus ret = OS_UNSPECIFIED;
+   MMRESULT mmresult;
+   int uDeviceID = 0;
+   unsigned int uMxId;
+
+   // Mixer ID is also detected in MicThreadWnt.cpp, this one doesn't need
+   // wave input handle, but assumes we use wave input device 0
+   mmresult = mixerGetID((HMIXEROBJ)uDeviceID, &uMxId, MIXER_OBJECTF_WAVEIN);
+
+   if (mmresult == MMSYSERR_NOERROR)
+   {
+      ret = MpCodec_setInputMixerId(uMxId);
+   }
+   
+   return ret;
+}
 
 OsStatus MpCodec_setGain(int level)
 {
@@ -48,9 +127,19 @@ OsStatus MpCodec_setGain(int level)
    OsStatus ret = OS_UNSPECIFIED;
    MMRESULT mmresult;
 
+   // mixer id is not yet available, try to detect it by assuming we use
+   // wave input device 0
+   if (sInputMixerId == -1)
+   {
+      if (MpCodec_initInputMixerId() != OS_SUCCESS)
+      {
+         return ret;
+      }
+   }
+
    // Open the mixer device
    HMIXER hmx;
-   mmresult = mixerOpen(&hmx, 0, 0, 0, MIXER_OBJECTF_MIXER );
+   mmresult = mixerOpen(&hmx, sInputMixerId, 0, 0, MIXER_OBJECTF_MIXER );
 
    if (MMSYSERR_NOERROR == mmresult)
    {
@@ -108,11 +197,12 @@ OsStatus MpCodec_setGain(int level)
            {
               free(pmxctrl);
            }
-           mixerClose(hmx);
 
-           DmaTask::setMuteEnabled(s_iGainLevel <= 1); // if Mic level is 1 or less, mute
+           // mute if Mic level is less then 1
+           DmaTask::setMuteEnabled(s_iGainLevel <= 1);
            ret = OS_SUCCESS;
        }
+       mixerClose(hmx);
    }
 
    return ret;

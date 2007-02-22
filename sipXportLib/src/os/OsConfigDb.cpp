@@ -621,7 +621,7 @@ int OsConfigDb::getPort(const char* szKey) const
               {
                  port = PORT_NONE;
                  OsSysLog::add(FAC_KERNEL, PRI_CRIT,
-                               "Invalid port number value '%s' for config variable '%s' in file '%'.",
+                               "Invalid port number value '%s' for config variable '%s' in file '%s'.",
                                value.data(), szKey, mIdentityLabel.data());
               }
            }

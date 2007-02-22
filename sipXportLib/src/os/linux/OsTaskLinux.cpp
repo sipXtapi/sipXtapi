@@ -646,6 +646,20 @@ void * OsTaskLinux::taskEntry(void* arg)
       }
    }
 
+   // Wait until our init in doLinuxCreateTask() is finished.
+   //
+   // The actual thread is created and started with pthread_create(), then
+   // doLinuxCreateTask() enters the thread in the name database and
+   // sets mState=STARTED. However, if OsTaskLinux::taskEntry() runs before
+   // this initialization completes, callers might think (among other things)
+   // that the thread is not started.
+   int waitTime = 0;
+   while (!pTask->isStarted())
+   {
+       delay(waitTime);
+       waitTime += 10;
+   }
+
    // Run the code the task is supposed to run, namely the run()
    // method of its class.
 

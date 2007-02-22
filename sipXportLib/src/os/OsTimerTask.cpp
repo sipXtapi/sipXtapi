@@ -1,12 +1,15 @@
-//
-// Copyright (C) 2004-2006 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// 
+// Copyright (C) 2005-2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
-//
+// 
+// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004-2007 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
-///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -87,15 +90,15 @@ OsTimerTask::~OsTimerTask()
 {
    // Shut down the task.
    OsEvent event;
-   OsTimerMsg msg(OsTimerMsg::SHUTDOWN, NULL, &event);
-   // Send the SHUTDOWN message.
+   OsTimerMsg msg(OsTimerMsg::OS_TIMER_SHUTDOWN, NULL, &event);
+   // Send the OS_TIMER_SHUTDOWN message.
    OsStatus res = OsTimerTask::getTimerTask()->postMessage(msg);
    assert(res == OS_SUCCESS);
    // Wait for the response.
    event.wait();
    // Since this code is locked by sLock, no (few) messages will have
    // been added to the incoming queue while we were waiting for the
-   // SHUTDOWN message to get through the queue, as getTimerTask would
+   // OS_TIMER_SHUTDOWN message to get through the queue, as getTimerTask would
    // have waited for sLock.
 }
 
@@ -186,6 +189,19 @@ int OsTimerTask::run(void* pArg)
          timer->mTimerQueueLink = 0;
          fireTimer(timer);
       }
+
+      if (OsSysLog::willLog(FAC_KERNEL, PRI_WARNING))
+      {
+         // Check to see if timer firing took too long.
+         OsTimer::Time after = OsTimer::now();
+         OsTimer::Time t = OsTimer::subtractTimes(after, now);
+         if (t >= 1000000 /* 1 second */)
+         {
+            OsSysLog::add(FAC_KERNEL, PRI_WARNING,
+                          "OsTimerTask::run firing took %lld usecs, queue length = %d",
+                          t, getMessageQueue()->numMsgs());
+         }
+      }
    }
    while (!doShutdown);
 
@@ -213,11 +229,11 @@ UtlBoolean OsTimerTask::handleMessage(OsMsg& rMsg)
 
    OsTimerMsg& message = dynamic_cast <OsTimerMsg&> (rMsg);
 
-   // Process a SHUTDOWN message, which is special
-   if (message.getMsgSubType() == OsTimerMsg::SHUTDOWN)
+   // Process a OS_TIMER_SHUTDOWN message, which is special
+   if (message.getMsgSubType() == OsTimerMsg::OS_TIMER_SHUTDOWN)
    {
       OsSysLog::add(FAC_KERNEL, PRI_INFO,
-                    "OsTimerTask::handleMessage SHUTDOWN seen, mState = %d",
+                    "OsTimerTask::handleMessage OS_TIMER_SHUTDOWN seen, mState = %d",
                     mState);
       // Verify that there are no other requests in the timer task's queue.
       assert(getMessageQueue()->isEmpty());
@@ -252,12 +268,15 @@ UtlBoolean OsTimerTask::handleMessage(OsMsg& rMsg)
       // Signal the event so our caller knows we're done.
       message.getEventP()->signal(0);
       OsSysLog::add(FAC_KERNEL, PRI_INFO,
-                    "OsTimerTask::handleMessage SHUTDOWN seen, mState = %d",
+                    "OsTimerTask::handleMessage OS_TIMER_SHUTDOWN seen, mState = %d",
                     mState);
       return TRUE;
    }
 
    OsTimer* timer = message.getTimerP();
+#ifndef NDEBUG
+   CHECK_VALIDITY(timer);
+#endif
    unsigned int applicationState;
    OsTimer::Time expiresAt;
    UtlBoolean periodic;
@@ -307,28 +326,30 @@ UtlBoolean OsTimerTask::handleMessage(OsMsg& rMsg)
 
    switch (message.getMsgSubType())
    {
-   case OsTimerMsg::UPDATE:
+   case OsTimerMsg::OS_TIMER_UPDATE:
       // No further processing is needed.
       break;
 
-   case OsTimerMsg::UPDATE_SYNC:
+   case OsTimerMsg::OS_TIMER_UPDATE_SYNC:
       // If it is an UPDATE_SYNC message, signal the event.
       message.getEventP()->signal(0);
       break;
 
-   case OsTimerMsg::UPDATE_DELETE:
+   case OsTimerMsg::OS_TIMER_UPDATE_DELETE:
       // If it is an UPDATE_DELETE, delete the timer.
 
       // Timer will not be accessed by any other thread, so we
       // can access it without locking.
+#ifndef NDEBUG
       // Deletion in progress.
       assert(timer->mDeleting);
+#endif
       // Timer should be stopped already.
       assert(OsTimer::isStopped(timer->mApplicationState));
       // No outstanding messages.
       assert(timer->mOutstandingMessages == 0);
-      // Set mDeleting to FALSE to the destructor won't fail.
 #ifndef NDEBUG
+      // Set mDeleting to FALSE to the destructor won't fail.
       timer->mDeleting = FALSE;
 #endif
 
@@ -337,12 +358,22 @@ UtlBoolean OsTimerTask::handleMessage(OsMsg& rMsg)
       // the timer task.
       delete timer;
       break;
+
+   default:
+      // Catch invalid values.
+      assert(FALSE);
    }
 
    return TRUE;
 }
 
-// Handle the expiration of a timer.
+/** Fire a timer because it has expired.
+ *  Calls the if notification routine, if the timer hasn't been stopped
+ *  already.
+ *  If the timer is periodic and hasn't been stopped, reinserts it into
+ *  the queue.
+ *  Advances the timer's state if it is one-shot or has been stopped.
+ */
 void OsTimerTask::fireTimer(OsTimer* timer)
    {
    UtlBoolean report;
@@ -355,13 +386,20 @@ void OsTimerTask::fireTimer(OsTimer* timer)
       // timer has been stopped since we were informed that it started.
       report = timer->mTaskState == timer->mApplicationState;
 
-      // If this firing should be reported, and this is a one-shot
-      // timer, stop the timer:
-      // advance both mTaskState and mApplicationState
-      if (report && !timer->mQueuedPeriodic)
+      if (!report)
       {
-         timer->mTaskState =
-            timer->mApplicationState = timer->mApplicationState + 1;
+         // If this firing is after the timer has been stopped by
+         // the application, advance mTaskState to a stopped state
+         // to recognize that the timer has been removed from the
+         // timer queue.
+         timer->mTaskState++;
+      }
+      else if (report && !timer->mQueuedPeriodic)
+      {
+         // If this firing should be reported, and this is a one-shot
+         // timer, stop the timer:
+         // advance both mTaskState and mApplicationState
+         timer->mTaskState = timer->mApplicationState = timer->mTaskState + 1;
       }
    }
 
@@ -388,6 +426,20 @@ void OsTimerTask::insertTimer(OsTimer* timer)
    OsTimer** previous_ptr;
    OsTimer* current;
    assert(timer->mTimerQueueLink == 0);
+   // Check to see if the firing time is in the past.
+   // This is not an error, but is unusual and probably indicates a backlog
+   // in processing.
+   if (OsSysLog::willLog(FAC_KERNEL, PRI_WARNING))
+   {
+      // Check to see if timer firing took too long.
+      OsTimer::Time now = OsTimer::now();
+      if (OsTimer::compareTimes(timer->mQueuedExpiresAt, now) < 0)
+      {
+         OsSysLog::add(FAC_KERNEL, PRI_WARNING,
+                       "OsTimerTask::insertTimer timer to fire %lld in the past",
+                       OsTimer::subtractTimes(now, timer->mQueuedExpiresAt));
+      }
+   }
 
    // Scan through the timer queue, looking for the right place to
    // insert the timer.
@@ -422,7 +474,27 @@ void OsTimerTask::removeTimer(OsTimer* timer)
    }
 
    // Remove the timer, if we found it.
+   if (!current)
+   {
+      OsSysLog::add(FAC_KERNEL, PRI_EMERG,
+                    "OsTimerTask::removeTimer timer not found in queue");
+      // mDeleting is not used if NDEBUG is defined, but we always initialize
+      // it to FALSE in the constructors anyway.
+      OsSysLog::add(FAC_KERNEL, PRI_EMERG,
+                    "OsTimerTask::removeTimer timer = %p, mApplicationState = %d, mTaskState = %d, mDeleting = %d, mPeriodic = %d, mTimerQueueLink = %p",
+                    timer, timer->mApplicationState, timer->mTaskState, timer->mDeleting,
+                    timer->mPeriodic, timer->mTimerQueueLink);
+      OsTimer* p;
+      for (p = mTimerQueue; p; p = p->mTimerQueueLink)
+      {
+         OsSysLog::add(FAC_KERNEL, PRI_EMERG,
+                       "OsTimerTask::removeTimer in queue %p", p);
+      }
+      OsSysLog::add(FAC_KERNEL, PRI_EMERG,
+                    "OsTimerTask::removeTimer end of queue");
+   }
    assert(current);
+
    *previous_ptr = timer->mTimerQueueLink;
    // Clear the timer's mTimerQueueLink to indicate it is not in the
    // timer queue.

@@ -104,43 +104,37 @@ RegEx::RegEx(const RegEx& regex)
       memcpy(re, regex.re, regex.re_size);
       re_size = regex.re_size;
          
+      pe = NULL;
+      study_size = 0;
+      allocated_study = false;
       if (regex.pe) // should always be true, because constructor allocates it
       {
          // allocate memory for the extra study information and recursion limit
          pe = (pcre_extra*)pcre_malloc(sizeof(pcre_extra));
          if (pe)
          {
-            void* copied_study_data = pcre_malloc(regex.study_size);
-            if (copied_study_data)
+            // copy the extra information
+            memcpy(pe, regex.pe, sizeof(pcre_extra)) ;
+
+            // copy any study information
+            if (regex.study_size > 0)
             {
-               // copy the extra and study information
-               memcpy(pe, regex.pe, sizeof(pcre_extra)) ;
-               pe->study_data = copied_study_data;
-               memcpy(pe->study_data, regex.pe->study_data, regex.study_size) ;
-               study_size = regex.study_size;
-               allocated_study = true;
+               void* copied_study_data = pcre_malloc(regex.study_size);
+
+               if (copied_study_data)
+               {
+                  pe->study_data = copied_study_data;
+                  memcpy(pe->study_data, regex.pe->study_data, regex.study_size) ;
+                  study_size = regex.study_size;
+                  allocated_study = true;
+               }
             }
-            else
-            {
-               // failed to allocate the study data - not optimal, but we can continue
-               study_size = 0;
-               allocated_study = false;
-            }
-         }
-         else
-         {
-            // failed to allocate extra data - not good, but try to continue
-            study_size = 0;
-            allocated_study = false;
          }
       }
       else
       {
          // no extra or study data to copy
          // this should not happen because we always want the recursion limit
-         pe = NULL;
-         study_size = 0;
-         allocated_study = false;
       }
       substrcount = regex.substrcount;
       ovector = new int[3*substrcount];

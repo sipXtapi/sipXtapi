@@ -3924,23 +3924,26 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceHold(const SIPX_CONF hConf, bool bBridgin
         if (pData)
         {
             sr = SIPX_RESULT_INVALID_STATE; 
-            if (bBridging)
+            if (pData->strCallId)
             {
-                if (pData->confHoldState != CONF_STATE_BRIDGING_HOLD)
-                {
-                pData->pInst->pCallManager->holdLocalTerminalConnection(pData->strCallId->data());
-                pData->confHoldState = CONF_STATE_BRIDGING_HOLD;
-                    sr = SIPX_RESULT_SUCCESS;
-                }
-            }
-            else
-            {
-                if (pData->confHoldState != CONF_STATE_NON_BRIDGING_HOLD)
-                {
-                pData->pInst->pCallManager->holdAllTerminalConnections(pData->strCallId->data());
-                pData->confHoldState = CONF_STATE_NON_BRIDGING_HOLD;
-                    sr = SIPX_RESULT_SUCCESS;
-                }
+               if (bBridging)
+               {
+                  if (pData->confHoldState != CONF_STATE_BRIDGING_HOLD)
+                  {
+                     pData->pInst->pCallManager->holdLocalTerminalConnection(pData->strCallId->data());
+                     pData->confHoldState = CONF_STATE_BRIDGING_HOLD;
+                     sr = SIPX_RESULT_SUCCESS;
+                  }
+               }
+               else
+               {
+                  if (pData->confHoldState != CONF_STATE_NON_BRIDGING_HOLD)
+                  {
+                     pData->pInst->pCallManager->holdAllTerminalConnections(pData->strCallId->data());
+                     pData->confHoldState = CONF_STATE_NON_BRIDGING_HOLD;
+                     sr = SIPX_RESULT_SUCCESS;
+                  }
+               }
             }
             sipxConfReleaseLock(pData, SIPX_LOCK_WRITE, stackLogger) ;
         }

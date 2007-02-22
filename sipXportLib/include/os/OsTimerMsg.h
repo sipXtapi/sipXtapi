@@ -1,12 +1,15 @@
-//
-// Copyright (C) 2004-2006 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// 
+// Copyright (C) 2005-2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
-//
+// 
+// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004-2007 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
-///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _OsTimerMsg_h_
@@ -38,14 +41,14 @@ public:
 
    enum MsgSubType
    {
-      UPDATE,                   ///< update the status of the timer
-      UPDATE_SYNC,              /**< update the status of the timer and signal
+      OS_TIMER_UPDATE,          ///< update the status of the timer
+      OS_TIMER_UPDATE_SYNC,     /**< update the status of the timer and signal
                                  *   an event object
                                  */
-      UPDATE_DELETE,            /**< update the status of the timer and
+      OS_TIMER_UPDATE_DELETE,   /**< update the status of the timer and
                                  *   delete it
                                  */
-      SHUTDOWN                  ///< shut down the timer task */
+      OS_TIMER_SHUTDOWN         ///< shut down the timer task */
    };
 
 /* ============================ CREATORS ================================== */

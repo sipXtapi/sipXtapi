@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -222,7 +222,7 @@ public:
      */
 
      /// Processes the next frame interval's worth of media for the flow graph.
-   OsStatus processNextFrame(void);
+   virtual OsStatus processNextFrame(void);
      /**<
      *  @returns <b>OS_SUCCESS</b> - for now, this method always returns success
      */

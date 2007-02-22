@@ -77,12 +77,40 @@ void CALLBACK micOutCallBackProc(HANDLE h, UINT wMsg, DWORD dwInstance, DWORD dw
    }
 }
 
+/**
+*  Detects ID of a mixer that can set gain on the wave input device
+*  identified by supplied handle. A sound card can have separate mixer
+*  for output devices and input devices. If we have multiple sound cards
+*  then we will have multiple wave input and wave output devices with several
+*  mixers possibly separate input and output mixers. Thus we need to detect
+*  the right mixer ID in order to set gain of the right microphone later.
+*  
+*  @param pAudioInH handle of the open wave input device
+*  @return result of detection of mixer ID
+*
+*  @see detectInputMixerId
+*  @see openAudioIn
+*/
+OsStatus detectInputMixerId(HWAVEIN *pAudioInH)
+{
+   MMRESULT mmresult;
+   unsigned int uMxId;
+
+   mmresult = mixerGetID((HMIXEROBJ)(*pAudioInH), &uMxId, MIXER_OBJECTF_HWAVEIN);
+
+   if (mmresult == MMSYSERR_NOERROR)
+   {
+      return MpCodec_setInputMixerId(uMxId);
+   }
+   else return OS_UNSPECIFIED;
+}
 
 int openAudioIn(HWAVEIN *pAudioInH,
                 int nChannels, int nSamplesPerSec, int nBitsPerSample)
 {
    WAVEFORMATEX fmt;
    MMRESULT     res;
+   OsStatus osstatus = OS_UNSPECIFIED;
 
    *pAudioInH = NULL;
    
@@ -113,9 +141,20 @@ int openAudioIn(HWAVEIN *pAudioInH,
       (DWORD) micOutCallBackProc,// callback entry
       GetCurrentThreadId(),   // instance data
       CALLBACK_FUNCTION);     // callback function specified
+
+      if (res == MMSYSERR_NOERROR)
+      {
+         // when no error then detect input mixer id
+         osstatus = detectInputMixerId(pAudioInH);
+      }
+   }
+   else
+   {
+      // when no error then detect input mixer id
+      osstatus = detectInputMixerId(pAudioInH);
    }
 
-   if (res != MMSYSERR_NOERROR)
+   if (osstatus != OS_SUCCESS)
    {
       showWaveError("waveInOpen", res, -1, __LINE__);
       waveInClose(*pAudioInH);

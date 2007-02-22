@@ -321,19 +321,19 @@ void OsSSL::logConnectParams(const OsSysLogFacility facility, ///< callers facil
 
       OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                     "%s SSL Connection:\n"
-                    "   cipher:  '%s'\n"
                     "   status:  %s\n"
                     "   peer:    '%s'\n"
                     "   alt URI: '%s'\n"
                     "   alt DNS: '%s'\n"
+                    "   cipher:  '%s'\n"
                     "   issuer:  '%s'",
                     callerMsg,
                     validity == X509_V_OK ? "Verified" : "NOT VERIFIED",
                     subjectStr ? subjectStr : "",
                     subjectAltNameURI ? subjectAltNameURI->data() : "",
                     subjectAltNameDNS ? subjectAltNameDNS->data() : "",
-                    issuerStr  ? issuerStr  : "",
-                    cipher     ? cipher     : ""
+                    cipher     ? cipher     : "",
+                    issuerStr  ? issuerStr  : ""
                     );
 
       // Release the various dynamic things
@@ -497,6 +497,38 @@ void OsSSL::logError(const OsSysLogFacility facility,
                  "%s:\n   SSL error: %d '%s'",
                  callerMsg, errCode, sslErrorString
                  );
+}
+
+void OsSSL::dumpCipherList()
+{
+    char humanReadableName[1024];
+    SSL_CIPHER *cipher = NULL;
+    int cipherCount = 0;
+    const char* tokenName = NULL;
+
+    while(cipherCount  <  sk_SSL_CIPHER_num(mCTX->cipher_list))
+    {
+    
+        // Get a cipher from the context
+        cipher = sk_SSL_CIPHER_value(mCTX->cipher_list, cipherCount);
+
+        if(cipher)
+        {
+            // Get the cypher name
+            SSL_CIPHER_description(cipher, 
+                                   humanReadableName, 
+                                   sizeof(humanReadableName));
+
+            // get the cypher name token
+            tokenName = SSL_CIPHER_get_name(cipher);
+
+            printf("Openssl cypher: %d %s %s\n",
+                cipherCount, tokenName, humanReadableName);
+
+        }
+        cipherCount++;
+    }
+
 }
 
 /********************************************************************************/

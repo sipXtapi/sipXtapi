@@ -39,7 +39,7 @@
 				AdditionalDependencies="Ws2_32.lib winmm.lib cppunit.lib pcre.lib libspeex gsm.lib"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="..\CPPUnit\lib;..\sipXmediaLib\contrib\libspeex\lib"
+				AdditionalLibraryDirectories="..\CPPUnit\lib;..\sipXmediaLib\contrib\libgsm\lib;..\sipXmediaLib\contrib\libspeex\lib"
 				IgnoreDefaultLibraryNames=""
 				SubSystem="1"
 				TargetMachine="1"/>
@@ -95,7 +95,7 @@
 				AdditionalDependencies="Ws2_32.lib winmm.lib cppunitd.lib pcre.lib libspeex.lib gsmd.lib"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="..\CPPUnit\lib;..\sipXmediaLib\contrib\libspeex\lib"
+				AdditionalLibraryDirectories="..\CPPUnit\lib;..\sipXmediaLib\contrib\libgsm\lib;..\sipXmediaLib\contrib\libspeex\lib"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="TRUE"
 				GenerateMapFile="TRUE"

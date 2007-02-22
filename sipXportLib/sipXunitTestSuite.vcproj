@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="src\test;..\CPPUnit\include"
+				AdditionalIncludeDirectories="src\test;..\CPPUnit\include;include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -59,7 +59,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="src\test;..\CPPUnit\include"
+				AdditionalIncludeDirectories="src\test;..\CPPUnit\include;include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="2"
 				WarningLevel="3"
@@ -99,6 +99,9 @@
 				RelativePath=".\src\test\sipxunit\TestMonitor.cpp">
 			</File>
 			<File
+				RelativePath=".\src\test\sipxunit\TestOsSysLogListener.cpp">
+			</File>
+			<File
 				RelativePath=".\src\test\sipxunit\TestOutputter.cpp">
 			</File>
 			<File
@@ -117,6 +120,9 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
 				RelativePath=".\src\test\sipxunit\TestMonitor.h">
+			</File>
+			<File
+				RelativePath=".\src\test\sipxunit\TestOsSysLogListener.h">
 			</File>
 			<File
 				RelativePath=".\src\test\sipxunit\TestOutputter.h">

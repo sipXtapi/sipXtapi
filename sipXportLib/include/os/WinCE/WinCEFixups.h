@@ -20,6 +20,9 @@
 #include <winbase.h>
 #include <assert.h>
 #include <time.h>
+#ifdef WINCE6
+#include <crtdefs.h>
+#endif
 
 //  The assert( ) macro explicitly uses OutputDebugstringW( ), which explicitly overrides our _MBCS compiler flag.
 //  Therefore, we need to explicitly fix this...
@@ -30,8 +33,9 @@
 #define ASSERT_AT(exp,file,line) (void)( (exp) || (ASSERT_PRINT(exp,file,line), DebugBreak(), 0 ) )
 #define assert(exp) ASSERT_AT(exp,__FILE__,__LINE__)
 
-
+#ifndef WINCE6
 typedef long intptr_t;
+#endif
 
 struct _timeb
 {
@@ -68,17 +72,17 @@ struct _timeb
 #define memicmp(x, y, z)			_memicmp(x, y, z)
 #define putenv(x)					_putenv(x)
 
-#define	EACCES						1
-#define EMFILE						2
-#define ENOENT						3
+#define	EACCES						13  // Orig 1
+#define EMFILE						24  // Orig 2
+#define ENOENT						2   // Orig 3		
 
 //#define OutputDebugstringW(x)		OutputDebugStringA(x)
 #define GetProcAddressW(x, y)		GetProcAddressA(x, y)
 
 //  for the file res_query.c
 #define BUFSIZ		2048
-#define	EINVAL		1234
-#define EINTR		1235
+#define	EINVAL		22 // Orig 1234
+#define EINTR		4  // Orig 1235
 
 struct _finddata_t
 {
@@ -271,7 +275,11 @@ typedef struct tagWAVEINCAPS_W {
     WORD    wReserved1;              /* structure packing */
 } WAVEINCAPS_W;
 
-
+size_t strftime(char * const s, const size_t maxsize, const char * const format, const struct tm * const t);
+time_t mktime(struct tm *t);
+struct tm * __cdecl gmtime( const time_t *timer );
+struct tm * __cdecl localtime( const time_t *timer );
+time_t __cdecl time( time_t *ptt );
 
 #endif // _WINCEFIXUPS_H_
 

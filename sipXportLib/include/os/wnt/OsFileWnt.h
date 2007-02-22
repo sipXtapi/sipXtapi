@@ -49,16 +49,16 @@ public:
 /* ============================ MANIPULATORS ============================== */
 
    OsStatus fileunlock();
-     //: Unlocks the file for across process access
+     //: Cross-process unlocks this file.
+     //: Notes: This method should only be called by OsFileBase::close()!
 
 
-   OsStatus filelock(const int mode);
-     //: Locks the specified OPEN file using the specified  mode (one of the FSLOCK_ modes)
+   OsStatus filelock(const bool wait);
+     //: Cross-process locks this file, optionally waiting for the lock.
      //: Returns:
      //:        OS_SUCCESS if successful
      //:        OS_FAILED if unsuccessful
-     //: Notes: Use FSLOCK_READ only on read or read/write files
-     //:        Use FSLOCK_WRITE only only files you can write to.
+     //: Notes: This method should only be called by OsFileBase::open()!
    
 
    OsStatus setLength(unsigned long newLength);

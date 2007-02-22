@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPfoundry Inc.
+// Copyright (C) 2006-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // $$
@@ -76,6 +76,10 @@ public:
     OsStatus addResources(MpResourceTopology& incrementalTopology,
                           MpResourceFactory* resourceFactory,
                           int resourceInstanceId);
+
+
+    // extended for diagnostic reasons
+    virtual OsStatus processNextFrame(void);
 
 /* ============================ ACCESSORS ================================= */
 

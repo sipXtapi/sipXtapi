@@ -85,6 +85,8 @@ extern "C" int enetIsLinkActive(void);
 
 // EXTERNAL VARIABLES
 // CONSTANTS
+const UtlContainableType OsSocket::TYPE = "OsSocket";
+
 // STATIC VARIABLE INITIALIZATIONS
 UtlBoolean OsSocket::socketInitialized = FALSE;
 UtlString  OsSocket::m_DomainName = "";
@@ -1280,6 +1282,11 @@ UtlBoolean OsSocket::isFramed(IpProtocolSocketType type)
    }
 
    return r;
+}
+
+UtlContainableType OsSocket::getContainableType() const
+{
+   return OsSocket::TYPE;
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

@@ -141,7 +141,6 @@ public:
        MprToSpkr*        pToSpkr    = NULL;
        OsMsgQ*           pSpkQ      = NULL;
        OsMsgQ*           pEchoQ     = NULL;
-       MpBufferMsg*      pMsg       = NULL;
        MpAudioBufPtr     pBuf;
        OsStatus          res;
 

@@ -111,11 +111,13 @@ public:
 private:
    static const MpCodecInfo smCodecInfo;  ///< Static information about the codec
    JB_inst* pJBState;
-   unsigned int mNextPullTimerCount;
-   unsigned int mWaitTimeInFrames;
+   RtpTimestamp mNextPullTimerCount; ///< Timestamp of frame we expect next.
+   unsigned int mWaitTimeInFrames; ///< Size of jitter buffer. Frames will be
+                                   ///< delayed for mWaitTimeInFrames*20ms.
    int mUnderflowCount;
    RtpSeq mLastSeqNo;        ///< Keep track of the last sequence number so that
                              ///< we don't take out-of-order packets.
+   bool mIsFirstFrame;       ///< True, if no frames decoded.
    bool mClockDrift;         ///< True, if clock drift detected.
    int mLastReportSize;
 };

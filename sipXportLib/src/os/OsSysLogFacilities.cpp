@@ -25,7 +25,7 @@
 // STATIC VARIABLE INITIALIZATIONS
 
 // sFacilityName provides string based representations of the various 
-// facilities within the system.
+// facilities within the system.  Indexed by enum tagOsSysLogFacility values.
 const char* OsSysLog::sFacilityNames[] =
 {
    "PERF",
@@ -65,6 +65,7 @@ const char* OsSysLog::sFacilityNames[] =
    "CONFERENCE",
    "ODBC",
    "CDR",
+   "RLS",
    "VOICEENGINE",
    "VIDEOENGINE",
    "APP",

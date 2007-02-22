@@ -2101,6 +2101,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MpInputDeviceManager.cpp">
+			</File>
+			<File
 				RelativePath="src\mp\MpJitterBuffer.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -2619,6 +2622,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MprFromInputDevice.cpp">
+			</File>
+			<File
 				RelativePath="src\mp\MprFromMic.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -2765,6 +2771,9 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\mp\MprNull.cpp">
 			</File>
 			<File
 				RelativePath="src\mp\MprRecorder.cpp">
@@ -3181,6 +3190,9 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpTopologyGraph.cpp">
 			</File>
 			<File
 				RelativePath=".\src\mp\MpUdpBuf.cpp">
@@ -4462,6 +4474,12 @@
 				RelativePath="include\mp\MpFlowGraphMsg.h">
 			</File>
 			<File
+				RelativePath=".\include\mp\MpInputDeviceDriver.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpInputDeviceManager.h">
+			</File>
+			<File
 				RelativePath="include\mp\MpJitterBuffer.h">
 			</File>
 			<File
@@ -4510,6 +4528,9 @@
 				RelativePath="include\mp\MprFromFile.h">
 			</File>
 			<File
+				RelativePath=".\include\mp\MprFromInputDevice.h">
+			</File>
+			<File
 				RelativePath="include\mp\MprFromMic.h">
 			</File>
 			<File
@@ -4520,6 +4541,9 @@
 			</File>
 			<File
 				RelativePath="include\mp\MprMixer.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MprNull.h">
 			</File>
 			<File
 				RelativePath="include\mp\MprRecorder.h">
@@ -4562,6 +4586,9 @@
 			</File>
 			<File
 				RelativePath="include\mp\MpStreamQueuePlayer.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpTopologyGraph.h">
 			</File>
 			<File
 				RelativePath="include\mp\MpTypes.h">

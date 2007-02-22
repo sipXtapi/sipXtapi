@@ -325,6 +325,10 @@ SOURCE=.\src\mp\mpG711.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpInputDeviceManager.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MpJitterBuffer.cpp
 # End Source File
 # Begin Source File
@@ -381,6 +385,10 @@ SOURCE=.\src\mp\MprFromFile.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MprFromInputDevice.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MprFromMic.cpp
 # End Source File
 # Begin Source File
@@ -394,6 +402,10 @@ SOURCE=.\src\mp\MprFromStream.cpp
 # Begin Source File
 
 SOURCE=.\src\mp\MprMixer.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MprNull.cpp
 # End Source File
 # Begin Source File
 
@@ -937,6 +949,14 @@ SOURCE=.\include\mp\MpFlowGraphMsg.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MpInputDeviceDriver.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpInputDeviceManager.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MpJitterBuffer.h
 # End Source File
 # Begin Source File
@@ -1001,6 +1021,10 @@ SOURCE=.\include\mp\MprFromFile.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MprFromInputDevice.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MprFromMic.h
 # End Source File
 # Begin Source File
@@ -1014,6 +1038,10 @@ SOURCE=.\include\mp\MprFromStream.h
 # Begin Source File
 
 SOURCE=.\include\mp\MprMixer.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprNull.h
 # End Source File
 # Begin Source File
 

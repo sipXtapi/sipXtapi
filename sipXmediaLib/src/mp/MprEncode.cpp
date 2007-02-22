@@ -51,16 +51,19 @@
 
 // Constructor
 MprEncode::MprEncode(const UtlString& rName,
-                           int samplesPerFrame, int samplesPerSec)
+                     int samplesPerFrame, int samplesPerSec)
 :  MpAudioResource(rName, 1, 1, 0, 0, samplesPerFrame, samplesPerSec),
    mpPrimaryCodec(NULL),
    mpPacket1Payload(NULL),
    mPacket1PayloadBytes(0),
+   mPayloadBytesUsed(0),
    mActiveAudio1(FALSE),
    mMarkNext1(FALSE),
    mConsecutiveInactive1(0),
    mConsecutiveActive1(0),
    mConsecutiveUnsentFrames1(0),
+   mDoesVad1(FALSE),
+   mDisableDTX(TRUE),
 
    mpDtmfCodec(NULL),
    mpPacket2Payload(NULL),
@@ -75,7 +78,6 @@ MprEncode::MprEncode(const UtlString& rName,
 
    mpToNet(NULL)
 {
-   mPacket1PayloadUsed = 0;
 }
 
 // Destructor
@@ -116,6 +118,12 @@ OsStatus MprEncode::startTone(int toneId)
 OsStatus MprEncode::stopTone(void)
 {
    MpFlowGraphMsg msg(STOP_TONE, this, NULL, NULL, 0, 0);
+   return postMessage(msg);
+}
+
+OsStatus MprEncode::enableDTX(UtlBoolean dtx)
+{
+   MpFlowGraphMsg msg(ENABLE_DTX, this, NULL, NULL, dtx, 0);
    return postMessage(msg);
 }
 
@@ -191,6 +199,7 @@ void MprEncode::handleDeselectCodecs(void)
          delete[] mpPacket1Payload;
          mpPacket1Payload = NULL;
          mPacket1PayloadBytes = 0;
+         mPayloadBytesUsed = 0;
       }
    }
    if (NULL != mpDtmfCodec) {
@@ -255,7 +264,7 @@ void MprEncode::handleSelectCodecs(MpFlowGraphMsg& rMsg)
       mpPrimaryCodec = pNewEncoder;
       mDoesVad1 = (pNewEncoder->getInfo())->doesVadCng();
       allocPacketBuffer(*mpPrimaryCodec, mpPacket1Payload, mPacket1PayloadBytes);
-      mPacket1PayloadUsed = 0;
+      mPayloadBytesUsed = 0;
    }
 
    if (NULL != pDtmf) {
@@ -267,7 +276,6 @@ void MprEncode::handleSelectCodecs(MpFlowGraphMsg& rMsg)
       pNewEncoder->initEncode();
       mpDtmfCodec = pNewEncoder;
       allocPacketBuffer(*mpDtmfCodec, mpPacket2Payload, mPacket2PayloadBytes);
-      mPacket2PayloadUsed = 0;
    }
 
    // delete any SdpCodec objects that we did not keep pointers to.
@@ -296,6 +304,11 @@ void MprEncode::handleStopTone(void)
    }
 }
 
+void MprEncode::handleEnableDTX(UtlBoolean dtx)
+{
+   mDisableDTX = !dtx;
+}
+
 // Handle messages for this resource.
 UtlBoolean MprEncode::handleMessage(MpFlowGraphMsg& rMsg)
 {
@@ -311,6 +324,9 @@ UtlBoolean MprEncode::handleMessage(MpFlowGraphMsg& rMsg)
       return TRUE;
    } else if (rMsg.getMsg() == STOP_TONE) {
       handleStopTone();
+      return TRUE;
+   } else if (rMsg.getMsg() == ENABLE_DTX) {
+      handleEnableDTX(rMsg.getInt1());
       return TRUE;
    }
    else
@@ -371,7 +387,7 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
    int payloadBytesLeft;
    unsigned char* pDest;
    int bytesAdded; //$$$
-   MpAudioBuf::SpeechType content = MpAudioBuf::MP_SPEECH_UNKNOWN;
+   MpAudioBuf::SpeechType content;
    OsStatus ret;
    UtlBoolean sendNow;
 
@@ -381,32 +397,36 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
    if (!in.isValid())
       return;
 
+   // Initialize variables
    numSamplesIn = in->getSamplesNumber();
    pSamplesIn = in->getSamples();
+   content = MpAudioBuf::MP_SPEECH_UNKNOWN;
 
-   while (numSamplesIn > 0) {
-
-      if (mPacket1PayloadUsed == 0) {
+   while (numSamplesIn > 0)
+   {
+      if (mPayloadBytesUsed == 0)
+      {
          mStartTimestamp1 = startTs;
-         mActiveAudio1 = mDoesVad1;
+         mActiveAudio1 = mDoesVad1 || mDisableDTX;
       }
 
-      if (!mActiveAudio1) {
+      if (!mActiveAudio1)
+      {
          mActiveAudio1 = in->isActiveAudio();
       }
 
-      payloadBytesLeft = mPacket1PayloadBytes - mPacket1PayloadUsed;
+      payloadBytesLeft = mPacket1PayloadBytes - mPayloadBytesUsed;
       // maxSamplesOut = payloadBytesLeft / bytesPerSample;
 
       // n = (numSamplesIn > maxSamplesOut) ? maxSamplesOut : numSamplesIn;
-      pDest = mpPacket1Payload + mPacket1PayloadUsed;
+      pDest = mpPacket1Payload + mPayloadBytesUsed;
 
       bytesAdded = 0;
       ret = mpPrimaryCodec->encode(pSamplesIn, numSamplesIn, numSamplesOut,
                         pDest, payloadBytesLeft, bytesAdded,
                         sendNow, content);
-      mPacket1PayloadUsed += bytesAdded;
-      assert (mPacket1PayloadBytes >= mPacket1PayloadUsed);
+      mPayloadBytesUsed += bytesAdded;
+      assert (mPacket1PayloadBytes >= mPayloadBytesUsed);
 
       // In case the encoder does silence suppression (e.g. G.729 Annex B)
       mMarkNext1 = mMarkNext1 | (0 == bytesAdded);
@@ -415,12 +435,15 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
       numSamplesIn -= numSamplesOut;
       startTs += numSamplesOut;
 
-      if (content == MpAudioBuf::MP_SPEECH_ACTIVE) {
+      if (content == MpAudioBuf::MP_SPEECH_ACTIVE)
+      {
          mActiveAudio1 = TRUE;
       }
 
-      if (sendNow || (mPacket1PayloadBytes == mPacket1PayloadUsed)) {
-         if (mActiveAudio1) {
+      if (sendNow || (mPacket1PayloadBytes == mPayloadBytesUsed))
+      {
+         if (mActiveAudio1)
+         {
             mConsecutiveInactive1 = 0;
          } else {
             mConsecutiveInactive1++;
@@ -431,7 +454,7 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
             mpToNet->writeRtp(mpPrimaryCodec->getPayloadType(),
                               mMarkNext1,
                               mpPacket1Payload,
-                              mPacket1PayloadUsed,
+                              mPayloadBytesUsed,
                               mStartTimestamp1,
                               NULL);
             mMarkNext1 = FALSE;
@@ -439,7 +462,7 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
          } else {
             mMarkNext1 = TRUE;
          }
-         mPacket1PayloadUsed = 0;
+         mPayloadBytesUsed = 0;
       }
    }
 }

@@ -1,11 +1,13 @@
 
-INCLUDES = -I$(top_srcdir)/src/test
+INCLUDES = \
+	-I$(top_srcdir)/src/test \
+	-I$(top_srcdir)/include
 
 lib_LTLIBRARIES = libsipXunit.la
 
 libsipXunit_la_LDFLAGS = -static # no version info for static libs
 libsipXunit_la_CFLAGS = @CPPUNIT_CFLAGS@
-libsipXunit_la_CPPFLAGS = @CPPUNIT_CFLAGS@ 
+libsipXunit_la_CPPFLAGS = @CPPUNIT_CFLAGS@
 
 libsipXunit_la_SOURCES =  \
     unitmain.cpp \
@@ -16,6 +18,8 @@ libsipXunit_la_SOURCES =  \
     TestMonitor.h \
     TestOutputter.cpp \
     TestOutputter.h \
+    TestOsSysLogListener.cpp \
+    TestOsSysLogListener.h \
     TestTemplate.cpp
 
 libsipXunit_la_LIBADD = \

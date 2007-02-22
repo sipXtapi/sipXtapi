@@ -5940,11 +5940,9 @@ DEP_CPP_MPAUDIO=\
 	"..\sipXportLib\include\utl\UtlIterator.h"\
 	"..\sipXportLib\include\utl\UtlLink.h"\
 	"..\sipXportLib\include\utl\UtlList.h"\
-	"..\sipXportLib\include\utl\UtlRegex.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	"..\sipXtackLib\include\net\Url.h"\
 	".\include\mp\GIPS\GIPS_API.h"\
 	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\JB_API.h"\
@@ -6053,7 +6051,6 @@ DEP_CPP_MPAUDIO=\
 	{$(INCLUDE)}"config\stl_watcom.h"\
 	{$(INCLUDE)}"config\stl_wince.h"\
 	{$(INCLUDE)}"config\stlcomp.h"\
-	{$(INCLUDE)}"pcre.h"\
 	{$(INCLUDE)}"pthread.h"\
 	{$(INCLUDE)}"stl\_abbrevs.h"\
 	{$(INCLUDE)}"stl\_config.h"\
@@ -11642,10 +11639,79 @@ NODEP_CPP_MPCODEC=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Debug"
 
 DEP_CPP_MPCODEC=\
+	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
+	"..\sipXportLib\include\os\linux\OsDateTimeLinux.h"\
+	"..\sipXportLib\include\os\linux\OsLinuxDefs.h"\
+	"..\sipXportLib\include\os\linux\pt_csem.h"\
+	"..\sipXportLib\include\os\OsBSem.h"\
+	"..\sipXportLib\include\os\OsDateTime.h"\
+	"..\sipXportLib\include\os\OsDefs.h"\
+	"..\sipXportLib\include\os\OsStatus.h"\
+	"..\sipXportLib\include\os\OsSyncBase.h"\
+	"..\sipXportLib\include\os\OsTime.h"\
+	"..\sipXportLib\include\os\qsTypes.h"\
+	"..\sipXportLib\include\os\wnt\OsBSemWnt.h"\
+	"..\sipXportLib\include\os\wnt\OsDateTimeWnt.h"\
+	"..\sipXportLib\include\utl\UtlContainable.h"\
+	"..\sipXportLib\include\utl\UtlContainer.h"\
+	"..\sipXportLib\include\utl\UtlCopyableContainable.h"\
+	"..\sipXportLib\include\utl\UtlDefs.h"\
+	"..\sipXportLib\include\utl\UtlInt.h"\
+	"..\sipXportLib\include\utl\UtlIterator.h"\
+	"..\sipXportLib\include\utl\UtlLink.h"\
+	"..\sipXportLib\include\utl\UtlList.h"\
+	"..\sipXportLib\include\utl\UtlSList.h"\
+	"..\sipXportLib\include\utl\UtlString.h"\
+	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
 	".\include\mp\MpCodecInfo.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
 	
 NODEP_CPP_MPCODEC=\
-	".\include\mp\sdp\SdpCodec.h"\
+	"..\..\..\..\usr\include\pthread.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsDateTimeVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Release"
@@ -17984,10 +18050,13 @@ NODEP_CPP_MPEGI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Debug"
 
 DEP_CPP_MPEGI=\
+	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsDateTimeLinux.h"\
 	"..\sipXportLib\include\os\linux\OsLinuxDefs.h"\
 	"..\sipXportLib\include\os\linux\OsMutexLinux.h"\
+	"..\sipXportLib\include\os\linux\pt_csem.h"\
 	"..\sipXportLib\include\os\linux\pt_mutex.h"\
+	"..\sipXportLib\include\os\OsBSem.h"\
 	"..\sipXportLib\include\os\OsDateTime.h"\
 	"..\sipXportLib\include\os\OsDefs.h"\
 	"..\sipXportLib\include\os\OsMutex.h"\
@@ -17995,9 +18064,20 @@ DEP_CPP_MPEGI=\
 	"..\sipXportLib\include\os\OsSyncBase.h"\
 	"..\sipXportLib\include\os\OsTime.h"\
 	"..\sipXportLib\include\os\qsTypes.h"\
+	"..\sipXportLib\include\os\wnt\OsBSemWnt.h"\
 	"..\sipXportLib\include\os\wnt\OsDateTimeWnt.h"\
 	"..\sipXportLib\include\os\wnt\OsMutexWnt.h"\
+	"..\sipXportLib\include\utl\UtlContainable.h"\
+	"..\sipXportLib\include\utl\UtlContainer.h"\
+	"..\sipXportLib\include\utl\UtlCopyableContainable.h"\
 	"..\sipXportLib\include\utl\UtlDefs.h"\
+	"..\sipXportLib\include\utl\UtlInt.h"\
+	"..\sipXportLib\include\utl\UtlIterator.h"\
+	"..\sipXportLib\include\utl\UtlLink.h"\
+	"..\sipXportLib\include\utl\UtlList.h"\
+	"..\sipXportLib\include\utl\UtlSList.h"\
+	"..\sipXportLib\include\utl\UtlString.h"\
+	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
 	".\include\mp\MpBuf.h"\
@@ -18052,13 +18132,13 @@ DEP_CPP_MPEGI=\
 	
 NODEP_CPP_MPEGI=\
 	"..\..\..\..\usr\include\pthread.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsDateTimeVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	".\include\mp\mp\iG729\_ippdefs.h"\
 	".\include\mp\mp\iG729\_p729.h"\
 	".\include\mp\mp\iG729\ippdefs.h"\
-	".\include\mp\sdp\SdpCodec.h"\
 	".\include\mp\vxWorks.h"\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
@@ -18350,10 +18430,13 @@ NODEP_CPP_MPEGIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Debug"
 
 DEP_CPP_MPEGIP=\
+	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsDateTimeLinux.h"\
 	"..\sipXportLib\include\os\linux\OsLinuxDefs.h"\
 	"..\sipXportLib\include\os\linux\OsMutexLinux.h"\
+	"..\sipXportLib\include\os\linux\pt_csem.h"\
 	"..\sipXportLib\include\os\linux\pt_mutex.h"\
+	"..\sipXportLib\include\os\OsBSem.h"\
 	"..\sipXportLib\include\os\OsDateTime.h"\
 	"..\sipXportLib\include\os\OsDefs.h"\
 	"..\sipXportLib\include\os\OsMutex.h"\
@@ -18361,9 +18444,20 @@ DEP_CPP_MPEGIP=\
 	"..\sipXportLib\include\os\OsSyncBase.h"\
 	"..\sipXportLib\include\os\OsTime.h"\
 	"..\sipXportLib\include\os\qsTypes.h"\
+	"..\sipXportLib\include\os\wnt\OsBSemWnt.h"\
 	"..\sipXportLib\include\os\wnt\OsDateTimeWnt.h"\
 	"..\sipXportLib\include\os\wnt\OsMutexWnt.h"\
+	"..\sipXportLib\include\utl\UtlContainable.h"\
+	"..\sipXportLib\include\utl\UtlContainer.h"\
+	"..\sipXportLib\include\utl\UtlCopyableContainable.h"\
 	"..\sipXportLib\include\utl\UtlDefs.h"\
+	"..\sipXportLib\include\utl\UtlInt.h"\
+	"..\sipXportLib\include\utl\UtlIterator.h"\
+	"..\sipXportLib\include\utl\UtlLink.h"\
+	"..\sipXportLib\include\utl\UtlList.h"\
+	"..\sipXportLib\include\utl\UtlSList.h"\
+	"..\sipXportLib\include\utl\UtlString.h"\
+	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
 	".\include\mp\GIPS\GIPS_API.h"\
 	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
@@ -18420,12 +18514,12 @@ DEP_CPP_MPEGIP=\
 	
 NODEP_CPP_MPEGIP=\
 	"..\..\..\..\usr\include\pthread.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsDateTimeVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
 	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
-	".\include\mp\sdp\SdpCodec.h"\
 	".\include\mp\vxWorks.h"\
 	
 
@@ -18694,10 +18788,13 @@ NODEP_CPP_MPEGIPS=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Debug"
 
 DEP_CPP_MPEGIPS=\
+	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsDateTimeLinux.h"\
 	"..\sipXportLib\include\os\linux\OsLinuxDefs.h"\
 	"..\sipXportLib\include\os\linux\OsMutexLinux.h"\
+	"..\sipXportLib\include\os\linux\pt_csem.h"\
 	"..\sipXportLib\include\os\linux\pt_mutex.h"\
+	"..\sipXportLib\include\os\OsBSem.h"\
 	"..\sipXportLib\include\os\OsDateTime.h"\
 	"..\sipXportLib\include\os\OsDefs.h"\
 	"..\sipXportLib\include\os\OsMutex.h"\
@@ -18705,9 +18802,20 @@ DEP_CPP_MPEGIPS=\
 	"..\sipXportLib\include\os\OsSyncBase.h"\
 	"..\sipXportLib\include\os\OsTime.h"\
 	"..\sipXportLib\include\os\qsTypes.h"\
+	"..\sipXportLib\include\os\wnt\OsBSemWnt.h"\
 	"..\sipXportLib\include\os\wnt\OsDateTimeWnt.h"\
 	"..\sipXportLib\include\os\wnt\OsMutexWnt.h"\
+	"..\sipXportLib\include\utl\UtlContainable.h"\
+	"..\sipXportLib\include\utl\UtlContainer.h"\
+	"..\sipXportLib\include\utl\UtlCopyableContainable.h"\
 	"..\sipXportLib\include\utl\UtlDefs.h"\
+	"..\sipXportLib\include\utl\UtlInt.h"\
+	"..\sipXportLib\include\utl\UtlIterator.h"\
+	"..\sipXportLib\include\utl\UtlLink.h"\
+	"..\sipXportLib\include\utl\UtlList.h"\
+	"..\sipXportLib\include\utl\UtlSList.h"\
+	"..\sipXportLib\include\utl\UtlString.h"\
+	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
 	".\include\mp\GIPS\GIPS_API.h"\
 	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
@@ -18764,12 +18872,12 @@ DEP_CPP_MPEGIPS=\
 	
 NODEP_CPP_MPEGIPS=\
 	"..\..\..\..\usr\include\pthread.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsDateTimeVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
 	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
-	".\include\mp\sdp\SdpCodec.h"\
 	".\include\mp\vxWorks.h"\
 	
 
@@ -19038,10 +19146,13 @@ NODEP_CPP_MPEGIPSI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Debug"
 
 DEP_CPP_MPEGIPSI=\
+	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsDateTimeLinux.h"\
 	"..\sipXportLib\include\os\linux\OsLinuxDefs.h"\
 	"..\sipXportLib\include\os\linux\OsMutexLinux.h"\
+	"..\sipXportLib\include\os\linux\pt_csem.h"\
 	"..\sipXportLib\include\os\linux\pt_mutex.h"\
+	"..\sipXportLib\include\os\OsBSem.h"\
 	"..\sipXportLib\include\os\OsDateTime.h"\
 	"..\sipXportLib\include\os\OsDefs.h"\
 	"..\sipXportLib\include\os\OsMutex.h"\
@@ -19049,9 +19160,20 @@ DEP_CPP_MPEGIPSI=\
 	"..\sipXportLib\include\os\OsSyncBase.h"\
 	"..\sipXportLib\include\os\OsTime.h"\
 	"..\sipXportLib\include\os\qsTypes.h"\
+	"..\sipXportLib\include\os\wnt\OsBSemWnt.h"\
 	"..\sipXportLib\include\os\wnt\OsDateTimeWnt.h"\
 	"..\sipXportLib\include\os\wnt\OsMutexWnt.h"\
+	"..\sipXportLib\include\utl\UtlContainable.h"\
+	"..\sipXportLib\include\utl\UtlContainer.h"\
+	"..\sipXportLib\include\utl\UtlCopyableContainable.h"\
 	"..\sipXportLib\include\utl\UtlDefs.h"\
+	"..\sipXportLib\include\utl\UtlInt.h"\
+	"..\sipXportLib\include\utl\UtlIterator.h"\
+	"..\sipXportLib\include\utl\UtlLink.h"\
+	"..\sipXportLib\include\utl\UtlList.h"\
+	"..\sipXportLib\include\utl\UtlSList.h"\
+	"..\sipXportLib\include\utl\UtlString.h"\
+	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
 	".\include\mp\GIPS\GIPS_API.h"\
 	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
@@ -19108,12 +19230,12 @@ DEP_CPP_MPEGIPSI=\
 	
 NODEP_CPP_MPEGIPSI=\
 	"..\..\..\..\usr\include\pthread.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsDateTimeVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
 	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
-	".\include\mp\sdp\SdpCodec.h"\
 	".\include\mp\vxWorks.h"\
 	
 
@@ -19382,10 +19504,13 @@ NODEP_CPP_MPEGIPSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Debug"
 
 DEP_CPP_MPEGIPSIP=\
+	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsDateTimeLinux.h"\
 	"..\sipXportLib\include\os\linux\OsLinuxDefs.h"\
 	"..\sipXportLib\include\os\linux\OsMutexLinux.h"\
+	"..\sipXportLib\include\os\linux\pt_csem.h"\
 	"..\sipXportLib\include\os\linux\pt_mutex.h"\
+	"..\sipXportLib\include\os\OsBSem.h"\
 	"..\sipXportLib\include\os\OsDateTime.h"\
 	"..\sipXportLib\include\os\OsDefs.h"\
 	"..\sipXportLib\include\os\OsMutex.h"\
@@ -19393,9 +19518,20 @@ DEP_CPP_MPEGIPSIP=\
 	"..\sipXportLib\include\os\OsSyncBase.h"\
 	"..\sipXportLib\include\os\OsTime.h"\
 	"..\sipXportLib\include\os\qsTypes.h"\
+	"..\sipXportLib\include\os\wnt\OsBSemWnt.h"\
 	"..\sipXportLib\include\os\wnt\OsDateTimeWnt.h"\
 	"..\sipXportLib\include\os\wnt\OsMutexWnt.h"\
+	"..\sipXportLib\include\utl\UtlContainable.h"\
+	"..\sipXportLib\include\utl\UtlContainer.h"\
+	"..\sipXportLib\include\utl\UtlCopyableContainable.h"\
 	"..\sipXportLib\include\utl\UtlDefs.h"\
+	"..\sipXportLib\include\utl\UtlInt.h"\
+	"..\sipXportLib\include\utl\UtlIterator.h"\
+	"..\sipXportLib\include\utl\UtlLink.h"\
+	"..\sipXportLib\include\utl\UtlList.h"\
+	"..\sipXportLib\include\utl\UtlSList.h"\
+	"..\sipXportLib\include\utl\UtlString.h"\
+	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
 	".\include\mp\GIPS\GIPS_API.h"\
 	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
@@ -19452,12 +19588,12 @@ DEP_CPP_MPEGIPSIP=\
 	
 NODEP_CPP_MPEGIPSIP=\
 	"..\..\..\..\usr\include\pthread.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsDateTimeVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
 	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
-	".\include\mp\sdp\SdpCodec.h"\
 	".\include\mp\vxWorks.h"\
 	
 
@@ -19724,10 +19860,13 @@ NODEP_CPP_MPEGIPSP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Debug"
 
 DEP_CPP_MPEGIPSP=\
+	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsDateTimeLinux.h"\
 	"..\sipXportLib\include\os\linux\OsLinuxDefs.h"\
 	"..\sipXportLib\include\os\linux\OsMutexLinux.h"\
+	"..\sipXportLib\include\os\linux\pt_csem.h"\
 	"..\sipXportLib\include\os\linux\pt_mutex.h"\
+	"..\sipXportLib\include\os\OsBSem.h"\
 	"..\sipXportLib\include\os\OsDateTime.h"\
 	"..\sipXportLib\include\os\OsDefs.h"\
 	"..\sipXportLib\include\os\OsMutex.h"\
@@ -19735,9 +19874,20 @@ DEP_CPP_MPEGIPSP=\
 	"..\sipXportLib\include\os\OsSyncBase.h"\
 	"..\sipXportLib\include\os\OsTime.h"\
 	"..\sipXportLib\include\os\qsTypes.h"\
+	"..\sipXportLib\include\os\wnt\OsBSemWnt.h"\
 	"..\sipXportLib\include\os\wnt\OsDateTimeWnt.h"\
 	"..\sipXportLib\include\os\wnt\OsMutexWnt.h"\
+	"..\sipXportLib\include\utl\UtlContainable.h"\
+	"..\sipXportLib\include\utl\UtlContainer.h"\
+	"..\sipXportLib\include\utl\UtlCopyableContainable.h"\
 	"..\sipXportLib\include\utl\UtlDefs.h"\
+	"..\sipXportLib\include\utl\UtlInt.h"\
+	"..\sipXportLib\include\utl\UtlIterator.h"\
+	"..\sipXportLib\include\utl\UtlLink.h"\
+	"..\sipXportLib\include\utl\UtlList.h"\
+	"..\sipXportLib\include\utl\UtlSList.h"\
+	"..\sipXportLib\include\utl\UtlString.h"\
+	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
 	".\include\mp\GIPS\GIPS_API.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
@@ -19793,11 +19943,11 @@ DEP_CPP_MPEGIPSP=\
 	
 NODEP_CPP_MPEGIPSP=\
 	"..\..\..\..\usr\include\pthread.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsDateTimeVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\sdp\SdpCodec.h"\
 	".\include\mp\vxWorks.h"\
 	
 
@@ -20064,10 +20214,13 @@ NODEP_CPP_MPEGIPSPC=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Debug"
 
 DEP_CPP_MPEGIPSPC=\
+	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsDateTimeLinux.h"\
 	"..\sipXportLib\include\os\linux\OsLinuxDefs.h"\
 	"..\sipXportLib\include\os\linux\OsMutexLinux.h"\
+	"..\sipXportLib\include\os\linux\pt_csem.h"\
 	"..\sipXportLib\include\os\linux\pt_mutex.h"\
+	"..\sipXportLib\include\os\OsBSem.h"\
 	"..\sipXportLib\include\os\OsDateTime.h"\
 	"..\sipXportLib\include\os\OsDefs.h"\
 	"..\sipXportLib\include\os\OsMutex.h"\
@@ -20075,9 +20228,20 @@ DEP_CPP_MPEGIPSPC=\
 	"..\sipXportLib\include\os\OsSyncBase.h"\
 	"..\sipXportLib\include\os\OsTime.h"\
 	"..\sipXportLib\include\os\qsTypes.h"\
+	"..\sipXportLib\include\os\wnt\OsBSemWnt.h"\
 	"..\sipXportLib\include\os\wnt\OsDateTimeWnt.h"\
 	"..\sipXportLib\include\os\wnt\OsMutexWnt.h"\
+	"..\sipXportLib\include\utl\UtlContainable.h"\
+	"..\sipXportLib\include\utl\UtlContainer.h"\
+	"..\sipXportLib\include\utl\UtlCopyableContainable.h"\
 	"..\sipXportLib\include\utl\UtlDefs.h"\
+	"..\sipXportLib\include\utl\UtlInt.h"\
+	"..\sipXportLib\include\utl\UtlIterator.h"\
+	"..\sipXportLib\include\utl\UtlLink.h"\
+	"..\sipXportLib\include\utl\UtlList.h"\
+	"..\sipXportLib\include\utl\UtlSList.h"\
+	"..\sipXportLib\include\utl\UtlString.h"\
+	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
 	".\include\mp\GIPS\GIPS_API.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
@@ -20133,11 +20297,11 @@ DEP_CPP_MPEGIPSPC=\
 	
 NODEP_CPP_MPEGIPSPC=\
 	"..\..\..\..\usr\include\pthread.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsDateTimeVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\sdp\SdpCodec.h"\
 	".\include\mp\vxWorks.h"\
 	
 
@@ -20389,10 +20553,13 @@ NODEP_CPP_MPENC=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Debug"
 
 DEP_CPP_MPENC=\
+	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsDateTimeLinux.h"\
 	"..\sipXportLib\include\os\linux\OsLinuxDefs.h"\
 	"..\sipXportLib\include\os\linux\OsMutexLinux.h"\
+	"..\sipXportLib\include\os\linux\pt_csem.h"\
 	"..\sipXportLib\include\os\linux\pt_mutex.h"\
+	"..\sipXportLib\include\os\OsBSem.h"\
 	"..\sipXportLib\include\os\OsDateTime.h"\
 	"..\sipXportLib\include\os\OsDefs.h"\
 	"..\sipXportLib\include\os\OsMutex.h"\
@@ -20400,9 +20567,20 @@ DEP_CPP_MPENC=\
 	"..\sipXportLib\include\os\OsSyncBase.h"\
 	"..\sipXportLib\include\os\OsTime.h"\
 	"..\sipXportLib\include\os\qsTypes.h"\
+	"..\sipXportLib\include\os\wnt\OsBSemWnt.h"\
 	"..\sipXportLib\include\os\wnt\OsDateTimeWnt.h"\
 	"..\sipXportLib\include\os\wnt\OsMutexWnt.h"\
+	"..\sipXportLib\include\utl\UtlContainable.h"\
+	"..\sipXportLib\include\utl\UtlContainer.h"\
+	"..\sipXportLib\include\utl\UtlCopyableContainable.h"\
 	"..\sipXportLib\include\utl\UtlDefs.h"\
+	"..\sipXportLib\include\utl\UtlInt.h"\
+	"..\sipXportLib\include\utl\UtlIterator.h"\
+	"..\sipXportLib\include\utl\UtlLink.h"\
+	"..\sipXportLib\include\utl\UtlList.h"\
+	"..\sipXportLib\include\utl\UtlSList.h"\
+	"..\sipXportLib\include\utl\UtlString.h"\
+	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
 	".\include\mp\MpBuf.h"\
@@ -20456,10 +20634,10 @@ DEP_CPP_MPENC=\
 	
 NODEP_CPP_MPENC=\
 	"..\..\..\..\usr\include\pthread.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsDateTimeVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\sdp\SdpCodec.h"\
 	".\include\mp\vxWorks.h"\
 	
 
@@ -20702,10 +20880,13 @@ NODEP_CPP_MPEPT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Debug"
 
 DEP_CPP_MPEPT=\
+	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsDateTimeLinux.h"\
 	"..\sipXportLib\include\os\linux\OsLinuxDefs.h"\
 	"..\sipXportLib\include\os\linux\OsMutexLinux.h"\
+	"..\sipXportLib\include\os\linux\pt_csem.h"\
 	"..\sipXportLib\include\os\linux\pt_mutex.h"\
+	"..\sipXportLib\include\os\OsBSem.h"\
 	"..\sipXportLib\include\os\OsDateTime.h"\
 	"..\sipXportLib\include\os\OsDefs.h"\
 	"..\sipXportLib\include\os\OsMutex.h"\
@@ -20713,9 +20894,20 @@ DEP_CPP_MPEPT=\
 	"..\sipXportLib\include\os\OsSyncBase.h"\
 	"..\sipXportLib\include\os\OsTime.h"\
 	"..\sipXportLib\include\os\qsTypes.h"\
+	"..\sipXportLib\include\os\wnt\OsBSemWnt.h"\
 	"..\sipXportLib\include\os\wnt\OsDateTimeWnt.h"\
 	"..\sipXportLib\include\os\wnt\OsMutexWnt.h"\
+	"..\sipXportLib\include\utl\UtlContainable.h"\
+	"..\sipXportLib\include\utl\UtlContainer.h"\
+	"..\sipXportLib\include\utl\UtlCopyableContainable.h"\
 	"..\sipXportLib\include\utl\UtlDefs.h"\
+	"..\sipXportLib\include\utl\UtlInt.h"\
+	"..\sipXportLib\include\utl\UtlIterator.h"\
+	"..\sipXportLib\include\utl\UtlLink.h"\
+	"..\sipXportLib\include\utl\UtlList.h"\
+	"..\sipXportLib\include\utl\UtlSList.h"\
+	"..\sipXportLib\include\utl\UtlString.h"\
+	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
 	".\include\mp\MpBuf.h"\
@@ -20770,10 +20962,10 @@ DEP_CPP_MPEPT=\
 	
 NODEP_CPP_MPEPT=\
 	"..\..\..\..\usr\include\pthread.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsDateTimeVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\sdp\SdpCodec.h"\
 	".\include\mp\vxWorks.h"\
 	
 
@@ -23322,11 +23514,9 @@ DEP_CPP_MPMED=\
 	"..\sipXportLib\include\utl\UtlIterator.h"\
 	"..\sipXportLib\include\utl\UtlLink.h"\
 	"..\sipXportLib\include\utl\UtlList.h"\
-	"..\sipXportLib\include\utl\UtlRegex.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	"..\sipXtackLib\include\net\Url.h"\
 	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
@@ -23432,7 +23622,6 @@ DEP_CPP_MPMED=\
 	{$(INCLUDE)}"config\stl_watcom.h"\
 	{$(INCLUDE)}"config\stl_wince.h"\
 	{$(INCLUDE)}"config\stlcomp.h"\
-	{$(INCLUDE)}"pcre.h"\
 	{$(INCLUDE)}"pthread.h"\
 	{$(INCLUDE)}"stl\_abbrevs.h"\
 	{$(INCLUDE)}"stl\_config.h"\
@@ -29445,10 +29634,8 @@ DEP_CPP_MPRFR=\
 	"..\sipXportLib\include\utl\UtlIterator.h"\
 	"..\sipXportLib\include\utl\UtlLink.h"\
 	"..\sipXportLib\include\utl\UtlList.h"\
-	"..\sipXportLib\include\utl\UtlRegex.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	"..\sipXtackLib\include\net\Url.h"\
 	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
@@ -29552,7 +29739,6 @@ DEP_CPP_MPRFR=\
 	{$(INCLUDE)}"config\stl_watcom.h"\
 	{$(INCLUDE)}"config\stl_wince.h"\
 	{$(INCLUDE)}"config\stlcomp.h"\
-	{$(INCLUDE)}"pcre.h"\
 	{$(INCLUDE)}"pthread.h"\
 	{$(INCLUDE)}"stl\_abbrevs.h"\
 	{$(INCLUDE)}"stl\_config.h"\
@@ -33217,11 +33403,9 @@ DEP_CPP_MPRTO=\
 	"..\sipXportLib\include\utl\UtlIterator.h"\
 	"..\sipXportLib\include\utl\UtlLink.h"\
 	"..\sipXportLib\include\utl\UtlList.h"\
-	"..\sipXportLib\include\utl\UtlRegex.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlSortedList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	"..\sipXtackLib\include\net\Url.h"\
 	".\include\mp\dtmflib.h"\
 	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\jb_typedefs.h"\
@@ -33320,7 +33504,6 @@ DEP_CPP_MPRTO=\
 	{$(INCLUDE)}"config\stl_watcom.h"\
 	{$(INCLUDE)}"config\stl_wince.h"\
 	{$(INCLUDE)}"config\stlcomp.h"\
-	{$(INCLUDE)}"pcre.h"\
 	{$(INCLUDE)}"pthread.h"\
 	{$(INCLUDE)}"stl\_abbrevs.h"\
 	{$(INCLUDE)}"stl\_config.h"\
@@ -37497,6 +37680,252 @@ NODEP_CPP_MPSTREAMQ=\
 	".\src\mp\os\OsQueuedEvent.h"\
 	".\src\mp\os\OsWriteLock.h"\
 	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpTopologyGraph.cpp
+
+!IF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Release"
+
+!ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Debug"
+
+!ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Release"
+
+!ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Debug"
+
+!ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Release"
+
+!ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Debug"
+
+!ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Release"
+
+!ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Debug"
+
+!ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Release"
+
+!ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Debug"
+
+!ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Release"
+
+!ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Debug"
+
+DEP_CPP_MPTOP=\
+	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
+	"..\sipXportLib\include\os\linux\OsCSemLinux.h"\
+	"..\sipXportLib\include\os\linux\OsDateTimeLinux.h"\
+	"..\sipXportLib\include\os\linux\OsLinuxDefs.h"\
+	"..\sipXportLib\include\os\linux\OsMutexLinux.h"\
+	"..\sipXportLib\include\os\linux\pt_csem.h"\
+	"..\sipXportLib\include\os\linux\pt_mutex.h"\
+	"..\sipXportLib\include\os\OsBSem.h"\
+	"..\sipXportLib\include\os\OsCSem.h"\
+	"..\sipXportLib\include\os\OsDateTime.h"\
+	"..\sipXportLib\include\os\OsDefs.h"\
+	"..\sipXportLib\include\os\OsEvent.h"\
+	"..\sipXportLib\include\os\OsMsg.h"\
+	"..\sipXportLib\include\os\OsMsgQ.h"\
+	"..\sipXportLib\include\os\OsMutex.h"\
+	"..\sipXportLib\include\os\OsNotification.h"\
+	"..\sipXportLib\include\os\OsProtectEvent.h"\
+	"..\sipXportLib\include\os\OsRWMutex.h"\
+	"..\sipXportLib\include\os\OsStatus.h"\
+	"..\sipXportLib\include\os\OsSyncBase.h"\
+	"..\sipXportLib\include\os\OsTime.h"\
+	"..\sipXportLib\include\os\qsTypes.h"\
+	"..\sipXportLib\include\os\shared\OsMsgQShared.h"\
+	"..\sipXportLib\include\os\wnt\OsBSemWnt.h"\
+	"..\sipXportLib\include\os\wnt\OsCSemWnt.h"\
+	"..\sipXportLib\include\os\wnt\OsDateTimeWnt.h"\
+	"..\sipXportLib\include\os\wnt\OsMutexWnt.h"\
+	"..\sipXportLib\include\utl\UtlBool.h"\
+	"..\sipXportLib\include\utl\UtlContainable.h"\
+	"..\sipXportLib\include\utl\UtlContainer.h"\
+	"..\sipXportLib\include\utl\UtlCopyableContainable.h"\
+	"..\sipXportLib\include\utl\UtlDefs.h"\
+	"..\sipXportLib\include\utl\UtlDList.h"\
+	"..\sipXportLib\include\utl\UtlHashMap.h"\
+	"..\sipXportLib\include\utl\UtlIterator.h"\
+	"..\sipXportLib\include\utl\UtlLink.h"\
+	"..\sipXportLib\include\utl\UtlList.h"\
+	"..\sipXportLib\include\utl\UtlSList.h"\
+	"..\sipXportLib\include\utl\UtlString.h"\
+	".\include\mp\GIPS\gips_typedefs.h"\
+	".\include\mp\JB\jb_typedefs.h"\
+	".\include\mp\MpArrayBuf.h"\
+	".\include\mp\MpAudioBuf.h"\
+	".\include\mp\MpAudioConnection.h"\
+	".\include\mp\MpAudioResource.h"\
+	".\include\mp\MpBuf.h"\
+	".\include\mp\MpBufPool.h"\
+	".\include\mp\MpCodec.h"\
+	".\include\mp\MpConnection.h"\
+	".\include\mp\MpDataBuf.h"\
+	".\include\mp\MpFlowGraphBase.h"\
+	".\include\mp\MpFlowGraphMsg.h"\
+	".\include\mp\MpMisc.h"\
+	".\include\mp\MprBridge.h"\
+	".\include\mp\MpResource.h"\
+	".\include\mp\MprFromFile.h"\
+	".\include\mp\MprFromMic.h"\
+	".\include\mp\MprToSpkr.h"\
+	".\include\mp\MpTopologyGraph.h"\
+	".\include\mp\MpTypes.h"\
+	".\include\rtcp\RtcpConfig.h"\
+	
+NODEP_CPP_MPTOP=\
+	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsCSemVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsDateTimeVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsMsgQVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
+	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
+	".\include\mp\vxWorks.h"\
+	
+
+!ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Release"
+
+!ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Debug"
+
+DEP_CPP_MPTOP=\
+	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
+	"..\sipXportLib\include\os\linux\OsCSemLinux.h"\
+	"..\sipXportLib\include\os\linux\OsDateTimeLinux.h"\
+	"..\sipXportLib\include\os\linux\OsLinuxDefs.h"\
+	"..\sipXportLib\include\os\linux\OsMutexLinux.h"\
+	"..\sipXportLib\include\os\linux\pt_csem.h"\
+	"..\sipXportLib\include\os\linux\pt_mutex.h"\
+	"..\sipXportLib\include\os\OsBSem.h"\
+	"..\sipXportLib\include\os\OsCSem.h"\
+	"..\sipXportLib\include\os\OsDateTime.h"\
+	"..\sipXportLib\include\os\OsDefs.h"\
+	"..\sipXportLib\include\os\OsEvent.h"\
+	"..\sipXportLib\include\os\OsMsg.h"\
+	"..\sipXportLib\include\os\OsMsgQ.h"\
+	"..\sipXportLib\include\os\OsMutex.h"\
+	"..\sipXportLib\include\os\OsNotification.h"\
+	"..\sipXportLib\include\os\OsProtectEvent.h"\
+	"..\sipXportLib\include\os\OsRWMutex.h"\
+	"..\sipXportLib\include\os\OsStatus.h"\
+	"..\sipXportLib\include\os\OsSyncBase.h"\
+	"..\sipXportLib\include\os\OsTime.h"\
+	"..\sipXportLib\include\os\qsTypes.h"\
+	"..\sipXportLib\include\os\shared\OsMsgQShared.h"\
+	"..\sipXportLib\include\os\wnt\OsBSemWnt.h"\
+	"..\sipXportLib\include\os\wnt\OsCSemWnt.h"\
+	"..\sipXportLib\include\os\wnt\OsDateTimeWnt.h"\
+	"..\sipXportLib\include\os\wnt\OsMutexWnt.h"\
+	"..\sipXportLib\include\utl\UtlBool.h"\
+	"..\sipXportLib\include\utl\UtlContainable.h"\
+	"..\sipXportLib\include\utl\UtlContainer.h"\
+	"..\sipXportLib\include\utl\UtlCopyableContainable.h"\
+	"..\sipXportLib\include\utl\UtlDefs.h"\
+	"..\sipXportLib\include\utl\UtlDList.h"\
+	"..\sipXportLib\include\utl\UtlHashMap.h"\
+	"..\sipXportLib\include\utl\UtlIterator.h"\
+	"..\sipXportLib\include\utl\UtlLink.h"\
+	"..\sipXportLib\include\utl\UtlList.h"\
+	"..\sipXportLib\include\utl\UtlSList.h"\
+	"..\sipXportLib\include\utl\UtlString.h"\
+	".\include\mp\GIPS\gips_typedefs.h"\
+	".\include\mp\JB\jb_typedefs.h"\
+	".\include\mp\MpArrayBuf.h"\
+	".\include\mp\MpAudioBuf.h"\
+	".\include\mp\MpAudioConnection.h"\
+	".\include\mp\MpAudioResource.h"\
+	".\include\mp\MpBuf.h"\
+	".\include\mp\MpBufPool.h"\
+	".\include\mp\MpCodec.h"\
+	".\include\mp\MpConnection.h"\
+	".\include\mp\MpDataBuf.h"\
+	".\include\mp\MpFlowGraphBase.h"\
+	".\include\mp\MpFlowGraphMsg.h"\
+	".\include\mp\MpMisc.h"\
+	".\include\mp\MprBridge.h"\
+	".\include\mp\MpResource.h"\
+	".\include\mp\MprFromFile.h"\
+	".\include\mp\MprFromMic.h"\
+	".\include\mp\MprToSpkr.h"\
+	".\include\mp\MpTopologyGraph.h"\
+	".\include\mp\MpTypes.h"\
+	".\include\rtcp\RtcpConfig.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	
+NODEP_CPP_MPTOP=\
+	"..\..\..\..\usr\include\pthread.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsCSemVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsDateTimeVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsMsgQVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
+	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
+	".\include\mp\vxWorks.h"\
+	
+
+!ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Release"
+
+!ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Debug"
+
+!ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Release"
+
+!ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Debug"
+
+!ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Release"
+
+!ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Debug"
+
+!ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Release"
+
+!ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Debug"
+
+!ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Release"
+
+!ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Debug"
 
 !ENDIF 
 
@@ -47719,6 +48148,10 @@ SOURCE=.\include\mp\MpStreamPlaylistPlayer.h
 # Begin Source File
 
 SOURCE=.\include\mp\MpStreamQueuePlayer.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpTopologyGraph.h
 # End Source File
 # Begin Source File
 

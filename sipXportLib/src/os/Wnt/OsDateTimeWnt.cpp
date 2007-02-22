@@ -148,7 +148,7 @@ OsStatus OsDateTimeWnt::cvtToTimeSinceBoot(OsTime& rTime) const
    // get the system boot time as a 64-bit integer recording the number of
    //  100-nanosecond intervals since January 1, 1601
    GetSystemTimeAsFileTime(&bootFileTime);          // get as FILETIME
-   bootTime_i64 = (bootFileTime.dwHighDateTime << 32) +
+   bootTime_i64 = (((__int64)bootFileTime.dwHighDateTime) << 32) +
                   bootFileTime.dwLowDateTime;       // convert to __int64
 
    // convert this OsDateTime object to a 64-bit integer
@@ -164,7 +164,7 @@ OsStatus OsDateTimeWnt::cvtToTimeSinceBoot(OsTime& rTime) const
    ntRes = SystemTimeToFileTime(&thisSysTime, &thisFileTime);
    assert(ntRes == TRUE);
 
-   thisTime_i64 = (thisFileTime.dwHighDateTime << 32) +
+   thisTime_i64 = (((__int64)thisFileTime.dwHighDateTime) << 32) +
                   thisFileTime.dwLowDateTime;       // convert to __int64
 
    // compute (thisFileTime - bootFileTime) and convert to an OsTime value

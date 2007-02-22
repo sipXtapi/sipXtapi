@@ -1438,7 +1438,10 @@ void sipxConfFree(const SIPX_CONF hConf)
             assert(pData->pInst->nConferences >= 0) ;
             pData->pInst->pLock->release() ;
 
-            callId = *pData->strCallId ;
+            if (pData->strCallId)
+            {
+                callId = *pData->strCallId;
+            }
             pInst = pData->pInst ;
 
             OsRWMutex* pMutex = pData->pMutex;

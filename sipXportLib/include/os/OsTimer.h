@@ -18,16 +18,24 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "os/OsDefs.h"
-#include "os/OsMsgQ.h"
-#include "os/OsDateTime.h"
-#include "os/OsNotification.h"
-#include "os/OsStatus.h"
-#include "os/OsTime.h"
-#include "utl/UtlContainable.h"
+#include <os/OsDefs.h>
+#include <os/OsMsgQ.h>
+#include <os/OsDateTime.h>
+#include <os/OsNotification.h>
+#include <os/OsStatus.h>
+#include <os/OsTime.h>
+#include <utl/UtlContainable.h>
+#include <os/OsBSem.h>
 
 
 // DEFINES
+
+// Macro to check that 'x' is an OsTimer* by testing its
+// getContainableType value.  This is to catch misuses of the OsTimer
+// methods.
+#define CHECK_VALIDITY(x) \
+            assert((x)->getContainableType() == OsTimer::TYPE)
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -97,6 +105,7 @@
 class OsTimer : public UtlContainable
 {
    friend class OsTimerTask;
+   friend class OsTimerTest;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:

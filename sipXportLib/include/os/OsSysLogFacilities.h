@@ -25,10 +25,10 @@
 // *** READ THIS ***
 //
 // NOTE:  If adding a facility, please:
-//        1) Inserted it before the FAC_MAX_FACILITY.
-//        2) Updated OsSysLogFacilties.cpp to include the
+//        1) Insert it before the FAC_MAX_FACILITY.
+//        2) Update OsSysLogFacilties.cpp to include the
 //           string name.
-//        3) Updated the !enum comments below.
+//        3) Update the !enum comments below.
 //
 // *** READ THIS ***
 //
@@ -73,6 +73,7 @@ enum tagOsSysLogFacility
    FAC_CONFERENCE,         // Conference bridge
    FAC_ODBC,               // ODBC related
    FAC_CDR,                // CDR generating related
+   FAC_RLS,                // Resource list server
    FAC_VOICEENGINE,        // GIPS VoiceEngine-specific logging
    FAC_VIDEOENGINE,        // GIPS VideoEngine-specific logging
    FAC_APP,                // Generic application facility
@@ -83,10 +84,10 @@ enum tagOsSysLogFacility
    // *** READ THIS ***
    //
    // NOTE:  If adding a facility, please:
-   //        1) Inserted it before the FAC_MAX_FACILITY.
-   //        2) Updated OsSysLogFacilties.cpp to include the
+   //        1) Insert it before the FAC_MAX_FACILITY.
+   //        2) Update OsSysLogFacilties.cpp to include the
    //           string name.
-   //        3) Updated the !enum comments below.
+   //        3) Update the !enum comments below.
    //
    // *** READ THIS ***
    //
@@ -122,11 +123,16 @@ enum tagOsSysLogFacility
   //!enumcode: FAC_REPLICATION_CGI - replication cgi( replicates databases across components )
   //!enumcode: FAC_PROCESSMGR - os processmanager related
   //!enumcode: FAC_PROCESS - process related
+  //!enumcode: FAC_SIPXTAPI - sipXtapi related
+  //!enumcode: FAC_AUDIO - audio related
+  //!enumcode: FAC_CONFERENCE - Conference bridge
+  //!enumcode: FAC_ODBC - ODBC related
+  //!enumcode: FAC_CDR - CDR generating related
+  //!enumcode: FAC_RLS - Resource list server
   //!enumcode: FAC_VOICEENGINE - GIPS VoiceEngine related
   //!enumcode: FAC_VIDEOENGINE - GIPS VideoEngine related
   //!enumcode: FAC_APP - Generic application messages
   //!enumcode: FAC_SIP_CUSTOM - custom transport message (in/out)
-
 
 // TYPEDEFS
 typedef enum tagOsSysLogFacility OsSysLogFacility ;

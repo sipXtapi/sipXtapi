@@ -13,6 +13,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 */
 
+/* NOTE THIS FILE MUST BE INCLUDABLE IN C CODE as well as C++ */
+/* USE C Style comments */
 
 #ifndef _OsDefs_h_
 #define _OsDefs_h_
@@ -38,10 +40,10 @@
 #define snprintf _snprintf
 #endif
 
-// Handle the case-insensitive string comparison functions, by making the Posix names
-// strcasecmp and strncasecmp available on all platforms.
-// (On newer Windows environments, str(n)casecmp are built-in, along with the older
-// str(n)icmp, but on older ones, they are not.)
+/* Handle the case-insensitive string comparison functions, by making the Posix names
+ * strcasecmp and strncasecmp available on all platforms.
+ * (On newer Windows environments, str(n)casecmp are built-in, along with the older
+ * str(n)icmp, but on older ones, they are not.) */
 #ifdef WIN32
     #ifdef WINCE
         #ifndef strcasecmp
@@ -69,6 +71,32 @@
 extern "C" {
 #endif
 
+#if defined (_VXWORKS)  /*  Only needed for VxWorks --GAT */
+
+int strcasecmp(const char *, const char *);
+char * strdup (const char *);
+
+/* These function names are for code compatibility with Windows. --GAT */
+#ifndef strcmpi
+#define strcmpi strcasecmp
+#endif
+#ifndef stricmp
+#define stricmp strcasecmp
+#endif
+#ifndef _stricmp
+#define _stricmp strcasecmp
+#endif
+
+#endif /* _VXWORKS */
+
+extern unsigned int pspGetLocalMemLocalAddr(void);
+extern unsigned int pspGetLocalMemSize(void);
+
+#define SysLowerMemoryLimit   (pspGetLocalMemLocalAddr())
+#define SysUpperMemoryLimit   (pspGetLocalMemLocalAddr() + pspGetLocalMemSize() - 4)
+
+
+extern int hSipLogId;
 void enableConsoleOutput(int bEnable) ;
 void osPrintf(const char* format , ...)
 #ifdef __GNUC__
