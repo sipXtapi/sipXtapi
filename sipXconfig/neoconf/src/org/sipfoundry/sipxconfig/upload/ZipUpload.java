@@ -22,12 +22,15 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.type.FileSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 
 public class ZipUpload extends Upload {
+    private static final Log LOG = LogFactory.getLog(ZipUpload.class);
 
     @Override
     public void deploy() {
@@ -71,11 +74,15 @@ public class ZipUpload extends Upload {
      * Uses zip file list and list of files to be deleted
      */
     static void undeployZipFile(File expandedDirectory, File zipFile) {
+        if (!zipFile.canRead()) {
+            LOG.warn("Undeploying missing or unreadable file: " + zipFile.getPath());
+            return;
+        }
         try {
             ZipFile zip = new ZipFile(zipFile);
-            Enumeration entries = zip.entries();
+            Enumeration< ? extends ZipEntry> entries = zip.entries();
             while (entries.hasMoreElements()) {
-                ZipEntry entry = (ZipEntry) entries.nextElement();
+                ZipEntry entry = entries.nextElement();
                 if (entry.isDirectory()) {
                     // do not clean up directory, no guarantee we created them
                     continue;
