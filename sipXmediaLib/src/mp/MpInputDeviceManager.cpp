@@ -71,16 +71,16 @@ public:
                           unsigned int samplesPerFrame,
                           unsigned int samplesPerSecond)
    : UtlInt(deviceId)
-   , mLastPushedFrame(numFramesBuffered - 1)
+   , mLastPushedFrame(frameBufferLength - 1)
    , mFrameBufferLength(frameBufferLength)
    , mppFrameBufferArray(NULL)
    , mpInputDeviceDriver(&deviceDriver)
    , mSamplesPerFrame(samplesPerFrame)
    , mSamplesPerSecond(samplesPerSecond)
    {
-       assert(numFramesBuffered > 0);
-       assert(samplesPerFrame > 0);
-       assert(samplesPerSecond > 0);
+       assert(mFrameBufferLength > 0);
+       assert(mSamplesPerFrame > 0);
+       assert(mSamplesPerSecond > 0);
 
        mppFrameBufferArray = new MpInputDeviceFrameData[mFrameBufferLength];
    };
