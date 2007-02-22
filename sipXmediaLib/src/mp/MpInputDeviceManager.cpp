@@ -143,7 +143,7 @@ public:
             assert(0);
         }
 
-        return(result);
+        return result;
     };
 
     OsStatus getFrame(MpFrameTime frameTime,
@@ -152,6 +152,7 @@ public:
                       unsigned& numFramesAfter)
     {
         OsStatus result = OS_INVALID_STATE;
+
         // Need to look for the frame even if the device is disabled
         // as it may already be queued up
         if (mpInputDeviceDriver && mpInputDeviceDriver->isEnabled())
@@ -165,7 +166,7 @@ public:
         int framePeriod = 1000 * mSamplesPerFrame / mSamplesPerSecond;
 
         // When requesting a frame we provide the frame that overlaps the
-        // given frame time.  The frame time is for the begining of a frame.
+        // given frame time.  The frame time is for the beginning of a frame.
         // So we provide the frame that begins at or less than the requested
         // time, but not more than one frame period older.
         for (unsigned int frameIndex = 0; frameIndex < mFrameBufferLength; frameIndex++)
@@ -181,13 +182,14 @@ public:
                 numFramesAfter = mFrameBufferLength - 1 - frameIndex;
 
                 // We always make a copy of the frame as we are typically
-                // crossing task boundries here.
+                // crossing task boundaries here.
                 buffer = frameData->mFrameBuffer.clone();
                 result = OS_SUCCESS;
                 break;
             }
         }
-        return(result);
+
+        return result;
     }; 
 
 //@}
@@ -257,7 +259,7 @@ int MpInputDeviceManager::addDevice(MpInputDeviceDriver& newDevice)
     OsWriteLock lock(mRwMutex);
 
     MpInputDeviceHandle newDeviceId = ++mLastDeviceId;
-    // Tell the device what id to use when pusing frames to this
+    // Tell the device what id to use when pushing frames to this
     newDevice.setDeviceId(newDeviceId);
 
     // Create a connection to contain the device and its buffered frames
@@ -277,7 +279,7 @@ int MpInputDeviceManager::addDevice(MpInputDeviceDriver& newDevice)
     return(newDeviceId);
 }
 
-MpInputDeviceDriver* MpInputDeviceManager::removeDevice(int deviceId)
+MpInputDeviceDriver* MpInputDeviceManager::removeDevice(MpInputDeviceHandle deviceId)
 {
     OsWriteLock lock(mRwMutex);
 
@@ -314,7 +316,7 @@ MpInputDeviceDriver* MpInputDeviceManager::removeDevice(int deviceId)
     return(deviceDriver);
 }
 
-OsStatus MpInputDeviceManager::enableDevice(int deviceId)
+OsStatus MpInputDeviceManager::enableDevice(MpInputDeviceHandle deviceId)
 {
     OsStatus status = OS_NOT_FOUND;
     OsWriteLock lock(mRwMutex);
@@ -340,7 +342,7 @@ OsStatus MpInputDeviceManager::enableDevice(int deviceId)
     return(status);
 }
 
-OsStatus MpInputDeviceManager::disableDevice(int deviceId)
+OsStatus MpInputDeviceManager::disableDevice(MpInputDeviceHandle deviceId)
 {
     OsStatus status = OS_NOT_FOUND;
     OsWriteLock lock(mRwMutex);
@@ -365,7 +367,8 @@ OsStatus MpInputDeviceManager::disableDevice(int deviceId)
 }
 /* ============================ ACCESSORS ================================= */
 
-OsStatus MpInputDeviceManager::getDeviceName(int deviceId, UtlString& deviceName) const
+OsStatus MpInputDeviceManager::getDeviceName(MpInputDeviceHandle deviceId,
+                                             UtlString& deviceName) const
 {
     OsStatus status = OS_NOT_FOUND;
 
@@ -390,7 +393,7 @@ OsStatus MpInputDeviceManager::getDeviceName(int deviceId, UtlString& deviceName
     return(status);
 }
 
-int MpInputDeviceManager::getDeviceId(const char* deviceName) const
+MpInputDeviceHandle MpInputDeviceManager::getDeviceId(const char* deviceName) const
 {
     OsStatus status = OS_NOT_FOUND;
 
@@ -404,7 +407,7 @@ int MpInputDeviceManager::getDeviceId(const char* deviceName) const
     return(deviceId ? deviceId->getValue() : -1);
 }
 
-unsigned int MpInputDeviceManager::getCurrentFrameTime() const
+MpFrameTime MpInputDeviceManager::getCurrentFrameTime() const
 {
     OsTime now;
     OsDateTime::getCurTimeSinceBoot(now);
