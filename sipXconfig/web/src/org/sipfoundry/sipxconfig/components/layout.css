@@ -422,11 +422,8 @@ ul.form-actions li
 	display:none;
 }
 
-.user-error
-{
-	font-weight:bold;
-}
-
+.user-error, 
+.user-warning,
 .user-success
 {
 	font-weight:bold;

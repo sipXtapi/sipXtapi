@@ -189,6 +189,11 @@ form.with-sections legend
 	color: #CC3333;
 }
 
+.user-warning
+{
+	color: #BB44FF;
+}
+
 .user-success
 {
 	color: #3399FF;
