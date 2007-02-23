@@ -14,23 +14,22 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.ListEditMap;
 import org.apache.tapestry.form.PropertySelection;
-import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting;
 import org.sipfoundry.sipxconfig.admin.dialplan.RoutingException;
+import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 /**
  * EditEmergencyRouting
  */
-public abstract class EditEmergencyRouting extends BasePage implements PageBeginRenderListener {
+public abstract class EditEmergencyRouting extends PageWithCallback implements PageBeginRenderListener {
 
     public static final String PAGE = "EditEmergencyRouting";
 
@@ -45,10 +44,6 @@ public abstract class EditEmergencyRouting extends BasePage implements PageBegin
     public abstract void setExceptionsMap(ListEditMap map);
 
     public abstract void setExceptionItem(RoutingException exception);
-
-    public abstract ICallback getCallback();
-
-    public abstract void setCallback(ICallback callback);
 
     public void pageBeginRender(PageEvent event_) {
         EmergencyRouting emergencyRouting = getEmergencyRouting();
