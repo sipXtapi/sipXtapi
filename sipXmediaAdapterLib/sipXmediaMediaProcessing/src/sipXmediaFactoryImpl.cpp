@@ -583,31 +583,31 @@ OsStatus sipXmediaFactoryImpl::getCodecNameByType(SdpCodec::SdpCodecTypes type, 
     switch (type)
     {
     case SdpCodec::SDP_CODEC_TONES:
-        codecName = GIPS_CODEC_ID_TELEPHONE;
+        codecName = SIPX_CODEC_ID_TELEPHONE;
         break;
     case SdpCodec::SDP_CODEC_G729A:
-        codecName = GIPS_CODEC_ID_G729;
+        codecName = SIPX_CODEC_ID_G729;
         break;
     case SdpCodec::SDP_CODEC_GIPS_PCMA:
-        codecName = GIPS_CODEC_ID_PCMA;
+        codecName = SIPX_CODEC_ID_PCMA;
         break;
     case SdpCodec::SDP_CODEC_GIPS_PCMU:
-        codecName = GIPS_CODEC_ID_PCMU;
+        codecName = SIPX_CODEC_ID_PCMU;
         break;
     case SdpCodec::SDP_CODEC_GIPS_IPCMA:
-        codecName = GIPS_CODEC_ID_EG711A;
+        codecName = SIPX_CODEC_ID_EG711A;
         break;
     case SdpCodec::SDP_CODEC_GIPS_IPCMU:
-        codecName = GIPS_CODEC_ID_EG711U;
+        codecName = SIPX_CODEC_ID_EG711U;
         break;
     case SdpCodec::SDP_CODEC_GIPS_IPCMWB:
-        codecName = GIPS_CODEC_ID_IPCMWB;
+        codecName = SIPX_CODEC_ID_IPCMWB;
         break;
     case SdpCodec::SDP_CODEC_GIPS_ILBC:
-        codecName = GIPS_CODEC_ID_ILBC;
+        codecName = SIPX_CODEC_ID_ILBC;
         break;
     case SdpCodec::SDP_CODEC_GIPS_ISAC:
-        codecName = GIPS_CODEC_ID_ISAC;
+        codecName = SIPX_CODEC_ID_ISAC;
         break;
     case SdpCodec::SDP_CODEC_SPEEX:
         codecName = SIPX_CODEC_ID_SPEEX;
