@@ -84,6 +84,7 @@
      <packagereq type="mandatory">ant-nodeps</packagereq>
      <packagereq type="mandatory">ruby-gems</packagereq>
      <packagereq type="mandatory">ruby-gems-rake</packagereq>
+     <packagereq type="mandatory">ruby-dbi</packagereq>
      <packagereq type="mandatory">ruby-postgres</packagereq>
      <packagereq type="mandatory">mod_ssl</packagereq>
      <packagereq type="mandatory">postgresql-server</packagereq>
