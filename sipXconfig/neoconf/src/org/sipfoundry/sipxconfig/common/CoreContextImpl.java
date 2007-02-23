@@ -394,6 +394,9 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
             } else {
                 admin.setPin(pin, getAuthorizationRealm());
             }
+        } else {
+            // if superadmin user already exists make sure it has superadmin permission
+            admin.setPermission(PermissionName.SUPERADMIN, true);
         }
 
         admin.addGroup(adminGroup);
