@@ -64,8 +64,8 @@ public class Voicemail implements Comparable {
     private MessageDescriptor m_descriptor;
     private MessageDescriptor m_forwardedDescriptor;
     private File m_mailbox;
-    private File m_userDirectory;          
-   
+    private File m_userDirectory;
+
     public Voicemail(File mailstoreDirectory, String userId, String folderId, String messageId) {
         m_userDirectory = new File(mailstoreDirectory, userId);
         m_mailbox = new File(m_userDirectory, folderId);
@@ -83,24 +83,24 @@ public class Voicemail implements Comparable {
     public String getMessageId() {
         return m_messageId;
     }
-    
+
     public boolean isHeard() {
         return !(new File(getMailboxDirectory(), getMessageId() + "-00.sta").exists());
     }
-    
+
     public void move(String destinationFolderId) {
         File destination = new File(m_userDirectory, destinationFolderId);
         for (File f : getAllFiles()) {
             f.renameTo(new File(destination, f.getName()));
-        }        
+        }
     }
-    
+
     public void delete() {
         for (File f : getAllFiles()) {
             f.delete();
         }
     }
-    
+
     public File getMailboxDirectory() {
         return m_mailbox;
     }
@@ -112,19 +112,19 @@ public class Voicemail implements Comparable {
         }
         return f;
     }
-    
+
     public boolean hasForwardComment() {
         return isForwarded() && getPotentialMediaOrCommentMediaFile().length() > 0;
     }
-    
+
     public File getForwardedMediaFileWithoutComment() {
-        return new File(getMailboxDirectory(), getMessageId() + "-01.wav");                
+        return new File(getMailboxDirectory(), getMessageId() + "-01.wav");
     }
-        
+
     public boolean isForwarded() {
         return getForwardedMediaFile().exists();
     }
-    
+
     public MessageDescriptor getDescriptor() {
         if (m_descriptor == null) {
             m_descriptor = readMessageDescriptor(getDescriptorFile());
@@ -132,17 +132,17 @@ public class Voicemail implements Comparable {
 
         return m_descriptor;
     }
-    
+
     public MessageDescriptor getForwardedDescriptor() {
         if (m_forwardedDescriptor == null) {
             m_forwardedDescriptor = readMessageDescriptor(getForwardedDescriptorFile());
         }
 
-        return m_forwardedDescriptor;        
+        return m_forwardedDescriptor;
     }
-    
+
     public String getSubject() {
-        return getDescriptor().getSubject();        
+        return getDescriptor().getSubject();
     }
 
     public void setSubject(String subject) {
@@ -155,7 +155,7 @@ public class Voicemail implements Comparable {
         }
         return getMessageId().compareTo(((Voicemail) o).getMessageId());
     }
-    
+
     public void save() {
         FileOutputStream out = null;
         try {
@@ -172,20 +172,20 @@ public class Voicemail implements Comparable {
         File[] files = getMailboxDirectory().listFiles(new FileFilterByMessageId(getMessageId()));
         return files;
     }
-    
+
     /**
      * File acts as either message file or comment file
      */
     protected File getPotentialMediaOrCommentMediaFile() {
-        return new File(getMailboxDirectory(), getMessageId() + "-00.wav");                
+        return new File(getMailboxDirectory(), getMessageId() + "-00.wav");
     }
 
     protected File getForwardedDescriptorFile() {
         return new File(getMailboxDirectory(), getMessageId() + "-01.xml");
     }
-    
+
     protected File getForwardedMediaFile() {
-        return new File(getMailboxDirectory(), getMessageId() + "-FW.wav");        
+        return new File(getMailboxDirectory(), getMessageId() + "-FW.wav");
     }
 
     protected File getDescriptorFile() {
@@ -197,7 +197,7 @@ public class Voicemail implements Comparable {
             super(message, cause);
         }
     }
-    
+
     protected static MessageDescriptor readMessageDescriptor(File file) {
         FileInputStream descriptorFile = null;
         try {
@@ -207,23 +207,24 @@ public class Voicemail implements Comparable {
             throw new RuntimeException(e);
         } finally {
             IOUtils.closeQuietly(descriptorFile);
-        }        
+        }
     }
 
     protected static MessageDescriptor readMessageDescriptor(InputStream in) throws IOException {
         XStream xstream = getXmlSerializer();
         MessageDescriptor md = (MessageDescriptor) xstream.fromXML(in);
         return md;
-    }    
-    
+    }
+
     /**
      * Element order is not preserved!!!
      */
-    protected static void writeMessageDescriptor(MessageDescriptor md, OutputStream out) throws IOException {
+    protected static void writeMessageDescriptor(MessageDescriptor md, OutputStream out)
+        throws IOException {
         XStream xstream = getXmlSerializer();
         // See http://xstream.codehaus.org/faq.html#XML   
         // Section  "Why does XStream not write XML in UTF-8?"
-        out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n".getBytes());             
+        out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n".getBytes());
         xstream.toXML(md, out);
     }
 
@@ -234,16 +235,16 @@ public class Voicemail implements Comparable {
             }
         };
         Annotations.configureAliases(xstream, MessageDescriptor.class);
-        
-        
+
         String[] acceptableTimeFormat = new String[] {
             MessageDescriptor.TIMESTAMP_FORMAT_NO_ZONE
         };
         // NOTE: xtream's dateformatter uses fixed ENGLISH Locale, which
         // turns out is ok because mediaserver writes out timestamp in a fixed
         // format independent of OS locale.
-        xstream.registerConverter(new DateConverter(MessageDescriptor.TIMESTAMP_FORMAT, acceptableTimeFormat));
-        
+        xstream.registerConverter(new DateConverter(MessageDescriptor.TIMESTAMP_FORMAT,
+                acceptableTimeFormat));
+
         return xstream;
     }
 
@@ -257,12 +258,12 @@ public class Voicemail implements Comparable {
         private String m_subject;
         private String m_from;
         private String m_priority;
-        private String m_id;        
+        private String m_id;
 
         public int getDurationsecs() {
             return m_durationsecs;
         }
-        
+
         public int getDurationMillis() {
             return getDurationsecs() * 1000;
         }
@@ -298,11 +299,13 @@ public class Voicemail implements Comparable {
 
     protected static class FileFilterByMessageId implements FilenameFilter {
         private String m_messageIdPrefix;
+
         FileFilterByMessageId(String messageId) {
             m_messageIdPrefix = messageId + "-";
         }
+
         public boolean accept(File dir, String name) {
             return name.startsWith(m_messageIdPrefix);
-        }        
-    };    
+        }
+    }
 }
