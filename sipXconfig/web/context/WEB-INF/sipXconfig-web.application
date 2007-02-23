@@ -152,7 +152,6 @@
     <component-type type="RingEditor" specification-path="user_portal/RingEditor.jwc"/>
     <component-type type="RoutingExceptionEditor" specification-path="dialplan/RoutingExceptionEditor.jwc"/>
     <component-type type="ScheduleEditor" specification-path="common/ScheduleEditor.jwc"/>
-    <component-type type="SearchPanel" specification-path="search/SearchPanel.jwc"/>
     <component-type type="SelectRuleType" specification-path="dialplan/SelectRuleType.jwc"/>
     <component-type type="SettingEditor" specification-path="setting/SettingEditor.jwc"/>
     <component-type type="SettingsFieldset" specification-path="setting/SettingsFieldset.jwc"/>
