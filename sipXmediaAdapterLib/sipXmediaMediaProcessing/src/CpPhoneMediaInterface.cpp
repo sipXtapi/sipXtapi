@@ -262,6 +262,9 @@ CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFacto
 #ifdef HAVE_GSM // [
                           "GSM "
 #endif // HAVE_GSM ]
+#ifdef HAVE_ILBC // [
+                          "ILBC "
+#endif // HAVE_ILBC ]
                           "PCMU PCMA TELEPHONE-EVENT";
        OsSysLog::add(FAC_CP, PRI_WARNING, "CpPhoneMediaInterface::CpPhoneMediaInterface hard-coded codec factory %s ...",
                      codecs.data());

@@ -66,7 +66,15 @@
 #define GSM_AUDIO_CODECS_NUM 0
 #endif /* HAVE_GSM ] */
 
-#define TOTAL_AUDIO_CODECS_NUM (GSM_AUDIO_CODECS_BEGIN + GSM_AUDIO_CODECS_NUM)
+#define ILBC_AUDIO_CODECS_BEGIN  (GSM_AUDIO_CODECS_BEGIN+GSM_AUDIO_CODECS_NUM)
+#ifdef HAVE_ILBC /* [ */
+#define ILBC_AUDIO_CODECS_NUM 1
+#else /* HAVE_ILBC ] [ */
+#define ILBC_AUDIO_CODECS_NUM 0
+#endif /* HAVE_ILBC ] */
+ 
+
+#define TOTAL_AUDIO_CODECS_NUM (ILBC_AUDIO_CODECS_BEGIN + ILBC_AUDIO_CODECS_NUM)
 
 // Video codecs  number calculation:
 
@@ -341,6 +349,10 @@ OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory,
     codecs[GSM_AUDIO_CODECS_BEGIN+0] = SdpCodec::SDP_CODEC_GSM;
 #endif /* HAVE_GSM ] */
 
+#ifdef HAVE_ILBC /* [ */
+    codecs[ILBC_AUDIO_CODECS_BEGIN+0] = SdpCodec::SDP_CODEC_ILBC;
+#endif /* HAVE_ILBC ] */
+
     if (pFactory)
     {
         pFactory->clearCodecs();
@@ -537,6 +549,11 @@ OsStatus sipXmediaFactoryImpl::getCodec(int iCodec, UtlString& codec, int &bandW
     case GSM_AUDIO_CODECS_BEGIN+0: codec = (const char*) SdpCodec::SDP_CODEC_GSM;
         break;
 #endif /* HAVE_GSM ] */
+
+#ifdef HAVE_ILBC /* [ */
+    case ILBC_AUDIO_CODECS_BEGIN+0: codec = (const char*) SdpCodec::SDP_CODEC_ILBC;
+        break;
+#endif /* HAVE_ILBC ] */
 
     default: rc = OS_FAILED;
     }

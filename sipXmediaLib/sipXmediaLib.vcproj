@@ -1500,6 +1500,9 @@
 				RelativePath=".\src\mp\MpdSipxGSM.cpp">
 			</File>
 			<File
+				RelativePath=".\src\mp\MpdSipxILBC.cpp">
+			</File>
+			<File
 				RelativePath="src\mp\MpdSipxPcma.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -1911,6 +1914,9 @@
 			</File>
 			<File
 				RelativePath=".\src\mp\MpeSipxGSM.cpp">
+			</File>
+			<File
+				RelativePath=".\src\mp\MpeSipxILBC.cpp">
 			</File>
 			<File
 				RelativePath="src\mp\MpeSipxPcma.cpp">
@@ -4417,6 +4423,9 @@
 				RelativePath=".\include\mp\MpdSipxGSM.h">
 			</File>
 			<File
+				RelativePath=".\include\mp\MpdSipxILBC.h">
+			</File>
+			<File
 				RelativePath="include\mp\MpdSipxPcma.h">
 			</File>
 			<File
@@ -4454,6 +4463,9 @@
 			</File>
 			<File
 				RelativePath=".\include\mp\MpeSipxGSM.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpeSipxILBC.h">
 			</File>
 			<File
 				RelativePath="include\mp\MpeSipxPcma.h">

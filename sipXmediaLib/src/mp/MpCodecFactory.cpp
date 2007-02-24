@@ -85,6 +85,11 @@
 #include "mp/MpeSipxGSM.h"
 #endif // HAVE_GSM ]
 
+#ifdef HAVE_ILBC // [
+#include "mp/MpdSipxILBC.h"
+#include "mp/MpeSipxILBC.h"
+#endif // HAVE_ILBC ]
+
 MpCodecFactory* MpCodecFactory::spInstance = NULL;
 OsBSem MpCodecFactory::sLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
 
@@ -103,7 +108,7 @@ MpCodecFactory* MpCodecFactory::getMpCodecFactory(void)
       // created
       sLock.acquire();
       if (spInstance == NULL)
-	 spInstance = new MpCodecFactory();
+         spInstance = new MpCodecFactory();
       sLock.release();
    }
    return spInstance;
@@ -212,6 +217,12 @@ OsStatus MpCodecFactory::createDecoder(SdpCodec::SdpCodecTypes internalCodecId,
       break;
 #endif // HAVE_GSM ]
 
+#ifdef HAVE_ILBC // [
+   case (SdpCodec::SDP_CODEC_ILBC):
+      rpDecoder = new MpdSipxILBC(payloadType);
+      break;
+#endif // HAVE_ILBC ]
+
    default:
       OsSysLog::add(FAC_MP, PRI_WARNING, 
                     "MpCodecFactory::createDecoder unknown codec type "
@@ -315,6 +326,12 @@ OsStatus MpCodecFactory::createEncoder(SdpCodec::SdpCodecTypes internalCodecId,
       rpEncoder = new MpeSipxGSM(payloadType);
       break;
 #endif // HAVE_GSM ]
+
+#ifdef HAVE_ILBC // [
+   case (SdpCodec::SDP_CODEC_ILBC):
+      rpEncoder = new MpeSipxILBC(payloadType);
+      break;
+#endif // HAVE_ILBC ]
 
    default:
       OsSysLog::add(FAC_MP, PRI_WARNING, 
