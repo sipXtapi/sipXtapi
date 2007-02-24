@@ -155,7 +155,7 @@ OsStatus MpCodecFactory::createDecoder(SdpCodec::SdpCodecTypes internalCodecId,
       break;
 
 #ifdef WIN32 /* [ */
-   case (SdpCodec::SDP_CODEC_GIPS_ILBC):
+   case (SdpCodec::SDP_CODEC_ILBC):
       rpDecoder = new MpdGIPSiLBC(payloadType);
       break;
 #endif /* WIN32 ] */
@@ -266,7 +266,7 @@ OsStatus MpCodecFactory::createEncoder(SdpCodec::SdpCodecTypes internalCodecId,
       break;
 
 #ifdef WIN32 /* [ */
-   case (SdpCodec::SDP_CODEC_GIPS_ILBC):
+   case (SdpCodec::SDP_CODEC_ILBC):
       rpEncoder = new MpeGIPSiLBC(payloadType);
       break;
 #endif /* WIN32 ] */

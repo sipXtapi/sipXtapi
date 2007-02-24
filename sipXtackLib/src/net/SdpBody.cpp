@@ -1194,7 +1194,7 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
             commonCodec = TRUE;
             int frameSize = 0;
 
-            if (matchingCodec->getCodecType() == SdpCodec::SDP_CODEC_GIPS_ILBC)
+            if (matchingCodec->getCodecType() == SdpCodec::SDP_CODEC_ILBC)
             {
                 getPayloadFormat(audioPayloadTypes[typeIndex], fmtp, frameSize, 
                                  numVideoSizes, videoSizes);
@@ -1690,7 +1690,7 @@ void SdpBody::addCodecParameters(int numRtpCodecs,
                     }
                 }
             }
-            if (codec->getCodecType() == SdpCodec::SDP_CODEC_GIPS_ILBC)
+            if (codec->getCodecType() == SdpCodec::SDP_CODEC_ILBC)
             {
                 sprintf(valueBuf, "mode=%d", codec->getPacketLength()/1000);
                 formatParameters = valueBuf;

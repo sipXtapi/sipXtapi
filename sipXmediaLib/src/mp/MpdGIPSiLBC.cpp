@@ -24,7 +24,7 @@
 #include "mp/MprDejitter.h"
 
 const MpCodecInfo MpdGIPSiLBC::smCodecInfo(
-         SdpCodec::SDP_CODEC_GIPS_ILBC, GIPS_API_VERSION, true,
+         SdpCodec::SDP_CODEC_ILBC, GIPS_API_VERSION, true,
          8000, 0, 1, 240,
          13334, 50*8, 50*8, 50*8, 240);
 

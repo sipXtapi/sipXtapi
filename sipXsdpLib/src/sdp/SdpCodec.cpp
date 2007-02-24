@@ -163,7 +163,7 @@ SdpCodec::SdpCodec(int payloadFormat,
       }
       else if(mMimeSubtype.compareTo("ilbc") == 0)
       {
-         setValue(SDP_CODEC_GIPS_ILBC);
+         setValue(SDP_CODEC_ILBC);
          mCPUCost = SDP_CODEC_CPU_HIGH;
          mBWCost = SDP_CODEC_BANDWIDTH_LOW;
       }

@@ -265,7 +265,7 @@ SdpCodec::SdpCodecTypes SdpCodecFactory::getCodecType(const char* pCodecName)
         retType = SdpCodec::SDP_CODEC_G729ACISCO7960;
     else
     if (strcmp(compareString,"ILBC") == 0)
-        retType = SdpCodec::SDP_CODEC_GIPS_ILBC;
+        retType = SdpCodec::SDP_CODEC_ILBC;
     else
     if (strcmp(compareString,"GSM") == 0)
         retType = SdpCodec::SDP_CODEC_GSM;
@@ -620,9 +620,9 @@ int SdpCodecFactory::buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecType
          }
          break;
 
-      case SdpCodec::SDP_CODEC_GIPS_ILBC:
+      case SdpCodec::SDP_CODEC_ILBC:
          {
-            SdpCodec aCodec(SdpCodec::SDP_CODEC_GIPS_ILBC,
+            SdpCodec aCodec(SdpCodec::SDP_CODEC_ILBC,
                             SdpCodec::SDP_CODEC_UNKNOWN,
                             MIME_TYPE_AUDIO,
                             MIME_SUBTYPE_ILBC,
@@ -635,7 +635,7 @@ int SdpCodecFactory::buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecType
             addCodec(aCodec);
             aCodec.getMediaType(codecMediaType);
             aCodec.getEncodingName(codecEncodingName);
-            // osPrintf("Codec is SDP_CODEC_GIPS_ILBC ");
+            // osPrintf("Codec is SDP_CODEC_ILBC ");
          }
          break;
 

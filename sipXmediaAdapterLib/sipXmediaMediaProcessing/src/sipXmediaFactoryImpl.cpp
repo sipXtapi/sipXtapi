@@ -603,7 +603,7 @@ OsStatus sipXmediaFactoryImpl::getCodecNameByType(SdpCodec::SdpCodecTypes type, 
     case SdpCodec::SDP_CODEC_GIPS_IPCMWB:
         codecName = SIPX_CODEC_ID_IPCMWB;
         break;
-    case SdpCodec::SDP_CODEC_GIPS_ILBC:
+    case SdpCodec::SDP_CODEC_ILBC:
         codecName = SIPX_CODEC_ID_ILBC;
         break;
     case SdpCodec::SDP_CODEC_GIPS_ISAC:
