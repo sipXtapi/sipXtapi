@@ -2386,6 +2386,22 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
    //osPrintf("SipUserAgent: handling message\n");
    int msgType = eventMessage.getMsgType();
    int msgSubType = eventMessage.getMsgSubType();
+   // Print message if input queue to SipUserAgent exceeds 100.
+   if (getMessageQueue()->numMsgs() > 100)
+   {
+      SipMessageEvent* sipEvent;
+
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipUserAgent::handleMessage msgType = %d, msgSubType = %d, msgEventType = %d, "
+                    "queue length = %d",
+                    msgType, msgSubType, 
+                    // Only extract msgEventType if msgType and msgSubType are right.
+                    msgType == OsMsg::OS_EVENT && msgSubType == OsEventMsg::NOTIFY ?
+                    (((OsEventMsg&)eventMessage).getUserData((int&)sipEvent),
+                     sipEvent ? sipEvent->getMessageStatus() : -98) :
+                    -99 /* dummy value */,
+                    getMessageQueue()->numMsgs());
+   }
 
    if(msgType == OsMsg::PHONE_APP)
    {
