@@ -35,7 +35,10 @@ public final class TestUtil {
     private static final String FORWARD_SLASH = "/";
 
     private static final DateFormat ENGLISH_DATE = DateFormat.getDateTimeInstance(
-            DateFormat.SHORT, DateFormat.SHORT, Locale.ENGLISH);
+            DateFormat.SHORT, DateFormat.FULL, Locale.ENGLISH);
+    static {
+        ENGLISH_DATE.setLenient(true);
+    }
 
     private TestUtil() {
         // empty - to prevent instantiation
