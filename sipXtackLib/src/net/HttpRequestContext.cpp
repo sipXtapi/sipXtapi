@@ -14,6 +14,7 @@
 
 // APPLICATION INCLUDES
 #include <utl/UtlSListIterator.h>
+#include <os/OsSysLog.h>
 #include <os/OsServerSocket.h>
 #include <net/HttpRequestContext.h>
 #include <net/HttpMessage.h>
@@ -85,13 +86,10 @@ HttpRequestContext::HttpRequestContext(const char* requestMethod,
    {
       mConnectionEncrypted = connection->isEncrypted();
       mPeerCertTrusted = connection->peerIdentity(&mPeerIdentities);
-#     ifdef TEST_DEBUG
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "HttpRequestContext::_( connection=%p ) %s",
                     connection, mPeerCertTrusted ? "Cert Trusted" : "Cert Not Trusted"
                     );
-#     endif
-
    }
 }
 
