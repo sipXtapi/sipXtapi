@@ -2570,12 +2570,12 @@ void SipMessage::getToField(UtlString* field) const
 
    if(value)
    {
-        *field = value;
+      *field = value;
    }
-    else
-    {
-        field->remove(0);
-    }
+   else
+   {
+      field->remove(0);
+   }
 }
 
 void SipMessage::getToUrl(Url& toUrl) const
