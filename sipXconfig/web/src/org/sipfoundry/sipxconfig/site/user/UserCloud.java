@@ -48,7 +48,7 @@ public abstract class UserCloud extends BaseComponent {
         if (getUsers() == null) {
             CoreContext coreContext = getCoreContext();
             // TODO: replace by loading lightweight user substitute
-            List<User> users = coreContext.loadUsersByPage(null, null, 1, 25, "userName",
+            List<User> users = coreContext.loadUsersByPage(null, null, 0, 25, "userName",
                     true);
             setUsers(users);
             setCount(coreContext.getUsersCount());
