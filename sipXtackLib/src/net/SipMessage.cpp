@@ -2249,6 +2249,48 @@ void SipMessage::setViaFromRequest(const SipMessage* request)
    }
 }
 
+void SipMessage::setReceivedViaParams(const UtlString& fromIpAddress,
+                                      int              fromPort
+                                      )
+{
+   UtlString lastAddress;
+   UtlString lastProtocol;
+   int lastPort;
+
+   int receivedPort;
+
+   UtlBoolean receivedSet;
+   UtlBoolean maddrSet;
+   UtlBoolean receivedPortSet;
+
+   // Check that the via is set to the address from whence
+   // this message came
+   getLastVia(&lastAddress, &lastPort, &lastProtocol,
+              &receivedPort, &receivedSet, &maddrSet, &receivedPortSet);
+
+   // The via address is different from that of the sockets
+   if(lastAddress.compareTo(fromIpAddress) != 0)
+   {
+      // Add a receive from tag
+      setLastViaTag(fromIpAddress.data());
+   }
+
+   // If the rport tag is present the sender wants to
+   // know what port this message was received from
+   int tempLastPort = lastPort;
+   if (!portIsValid(lastPort))
+   {
+      tempLastPort = 5060;
+   }
+
+   if (receivedPortSet)
+   {
+      char portString[20];
+      sprintf(portString, "%d", fromPort);
+      setLastViaTag(portString, "rport");
+   }
+}
+
 void SipMessage::setCallIdField(const char* callId)
 {
     setHeaderValue(SIP_CALLID_FIELD, callId);
@@ -2904,7 +2946,7 @@ UtlBoolean SipMessage::getResponseSendAddress(UtlString& address,
     // If the sender of the request indicated support of
     // rport (i.e. received port) send this response back to
     // the same port it came from
-    if(receivedSet && receivedPortSet && portIsValid(receivedPort))
+    if(receivedPortSet && portIsValid(receivedPort))
     {
         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipMessage::getResponseSendAddress response to receivedPort %s:%d not %d\n",
             address.data(), receivedPort, port);

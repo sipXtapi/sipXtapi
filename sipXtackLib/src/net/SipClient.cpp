@@ -392,36 +392,18 @@ int SipClient::run(void* runArg)
                     // If this is a request
                     if(!message->isResponse())
                     {
-                        int receivedPort;
-                        UtlBoolean receivedSet;
-                        UtlBoolean maddrSet;
-                        UtlBoolean receivedPortSet;
-                        // Check that the via is set to the address from whence
-                        // this message came
-                        message->getLastVia(&lastAddress, &lastPort, &lastProtocol,
-                            &receivedPort, &receivedSet, &maddrSet, &receivedPortSet);
+                       int receivedPort;
+                       UtlBoolean receivedSet;
+                       UtlBoolean maddrSet;
+                       UtlBoolean receivedPortSet;
 
-                        // The via address is different from that of the sockets
-                        if(strcmp(lastAddress.data(), fromIpAddress.data()) != 0)
-                        {
-                            // Add a receive from tag
-                            message->setLastViaTag(fromIpAddress.data());
-                        }
+                       // fill in 'received' and 'rport' in top via if needed.
+                       message->setReceivedViaParams(fromIpAddress, fromPort);
 
-                        // If the rport tag is present the sender wants to
-                        // know what port this message was received from
-                        int tempLastPort = lastPort;
-                        if (!portIsValid(lastPort))
-                        {
-                           tempLastPort = 5060;
-                        }
-
-                        if (receivedPortSet)
-                        {
-                            char portString[20];
-                            sprintf(portString, "%d", fromPort);
-                            message->setLastViaTag(portString, "rport");
-                        }
+                       // get the addresses from the topmost via.
+                       message->getLastVia(&lastAddress, &lastPort, &lastProtocol,
+                                           &receivedPort, &receivedSet, &maddrSet,
+                                           &receivedPortSet);
 
                         if (   (   mSocketType == OsSocket::TCP
                                 || mSocketType == OsSocket::SSL_SOCKET

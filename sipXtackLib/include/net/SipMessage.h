@@ -793,6 +793,11 @@ public:
 
     void setViaFromRequest(const SipMessage* request);
 
+    /// fills in parameters in topmost via based on actual received information.
+    void setReceivedViaParams(const UtlString& fromIpAddress, ///< actual sender ip
+                              int              fromPort       ///< actual sender port
+                              );
+
     void addVia(const char* domainName,
                 int port,
                 const char* protocol,
