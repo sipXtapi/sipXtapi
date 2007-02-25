@@ -1,0 +1,16 @@
+<div class="cloud">
+  <span jwcid="@Insert" value="prop:title"/>
+  <br/>
+  <span jwcid="@For" source="prop:users" value="prop:user">
+    <a jwcid="@DirectLink" listener="listener:edit" parameters="prop:user.id">
+      <span jwcid="@Insert" value="prop:user.userName"/>, 
+    </a>
+  </span>
+  <a jwcid="@PageLink" page="ManageUsers">
+    <span key="more.etc">more...</span>
+  </a>
+  <br/>
+  <a jwcid="@DirectLink" listener="listener:add">
+    <span key="add">Add User</span>
+  </a>
+</div>

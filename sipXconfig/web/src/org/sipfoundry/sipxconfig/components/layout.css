@@ -435,6 +435,15 @@ ul.form-actions li
   margin-left: 2em;
 }
 
+.cloud
+{
+    padding: 1em;
+    width: 40%;
+    float: left;
+    margin-botton: 2em;
+    margin-right: 2em;
+}
+
 div.col
 {
 	float:left;
