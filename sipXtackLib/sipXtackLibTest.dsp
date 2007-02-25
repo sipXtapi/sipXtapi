@@ -155,15 +155,15 @@ SOURCE=.\src\test\net\SipSrvLookupTest.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\test\net\SipSubcribeServerTest.cpp
+SOURCE=.\src\test\net\SipSubscribeServerTest.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\test\net\SipSubcriptionClientTest.cpp
+SOURCE=.\src\test\net\SipSubscriptionClientTest.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\test\net\SipSubcriptionMgrTest.cpp
+SOURCE=.\src\test\net\SipSubscriptionMgrTest.cpp
 # End Source File
 # Begin Source File
 

@@ -11121,7 +11121,7 @@ NODEP_CPP_SIPSR=\
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\test\net\SipSubcribeServerTest.cpp
+SOURCE=.\src\test\net\SipSubscribeServerTest.cpp
 
 !IF  "$(CFG)" == "sipXtackLibTest - Win32 (WCE MIPSII_FP) Release"
 
@@ -11847,7 +11847,7 @@ NODEP_CPP_SIPSU=\
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\test\net\SipSubcriptionClientTest.cpp
+SOURCE=.\src\test\net\SipSubscriptionClientTest.cpp
 
 !IF  "$(CFG)" == "sipXtackLibTest - Win32 (WCE MIPSII_FP) Release"
 
@@ -12575,7 +12575,7 @@ NODEP_CPP_SIPSUB=\
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\test\net\SipSubcriptionMgrTest.cpp
+SOURCE=.\src\test\net\SipSubscriptionMgrTest.cpp
 
 !IF  "$(CFG)" == "sipXtackLibTest - Win32 (WCE MIPSII_FP) Release"
 

@@ -590,12 +590,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\test\net\SipSubcribeServerTest.cpp"
+				RelativePath=".\src\test\net\SipSubscribeServerTest.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\test\net\SipSubcriptionClientTest.cpp"
+				RelativePath=".\src\test\net\SipSubscriptionClientTest.cpp"
 				>
+			</File>
+			<File
+				RelativePath=".\src\test\net\SipSubscriptionMgrTest.cpp">
 			</File>
 			<File
 				RelativePath=".\src\test\net\SipUserAgentTest.cpp"
