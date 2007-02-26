@@ -122,7 +122,6 @@ static char rcsid[] = "";
 #   include <net/uio.h>
 #   include <ioLib.h>
 #   include <sockLib.h>
-#   include "resparse/vxw/hd_string.h" /* Added string functions not in VxWorks --GAT */
 #   include <signal.h> /* for sigaction --GAT */
 #endif
 
@@ -133,6 +132,7 @@ static char rcsid[] = "";
 
 #include "resparse/bzero.h"
 #include "resparse/res_config.h"
+#include <os/OsDefs.h>
 extern struct __res_state _sip_res ;
 /*defined in OsSocket*/
 unsigned long osSocketGetDefaultBindAddress();

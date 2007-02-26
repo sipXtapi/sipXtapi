@@ -105,7 +105,6 @@ static char rcsid[] = "";
 /* lresolv.h is a subset of resparse/wnt/resolv/resolv.h               */
 #   include <resolv/resolv.h>
 #   include <resparse/vxw/resolv/lresolv.h>
-#   include "resparse/vxw/hd_string.h" /* Added string functions not in VxWorks --GAT */
 #endif
 #include <ctype.h>
 #include <stdio.h>
@@ -113,6 +112,7 @@ static char rcsid[] = "";
 #include <string.h>
 #include "resparse/types.h"
 #include "resparse/res_config.h"
+#include <os/OsDefs.h>
 
 extern struct __res_state _sip_res ;
 /* following unnecessary, in errno.h (VxWorks) or nterrno.h (win32) --GAT */

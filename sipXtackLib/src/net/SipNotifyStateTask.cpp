@@ -1,12 +1,17 @@
-//
-// Copyright (C) 2004-2006 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// 
+// Copyright (C) 2005-2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
-//
+// 
+// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004-2006 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
-///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+// Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -27,10 +32,6 @@
 #include "os/OsEventMsg.h"
 #include "os/OsSysLog.h"
 #include "os/OsDefs.h"
-
-#ifdef _VXWORKS
-#include "resparse/vxw/hd_string.h"
-#endif
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
