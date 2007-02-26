@@ -9,6 +9,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Author: Scott Godin (sgodin AT SipSpectrum DOT com)
 
+#ifdef OLD_SDPLIB_UTESTS
+
 #include <iostream>
 #include <utl/UtlSListIterator.h>
 
@@ -609,3 +611,4 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
+#endif // OLD_SDPLIB_UTESTS
