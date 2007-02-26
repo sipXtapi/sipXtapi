@@ -66,7 +66,6 @@ public class ChangePinTestUi extends WebTestCase {
     // because the PIN might be empty due to a database reset.
     public void testEmptyCurrentPin() throws Exception {
         changePin("", NEW_PIN);
-        dumpResponse(System.err);
         assertTextPresent(MSG_WRONG_PIN);
         SiteTestHelper.assertNoException(tester);
     }

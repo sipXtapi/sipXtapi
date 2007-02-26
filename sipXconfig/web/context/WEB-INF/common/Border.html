@@ -1,5 +1,5 @@
 <html jwcid="shell">
-  <span jwcid="@If" condition="ognl:useDojo">
+  <span jwcid="@If" condition="prop:useDojo">
     <script type="text/javascript">    
 djConfig = { isDebug: false,
     disableFlashStorage: true,
@@ -10,7 +10,7 @@ djConfig = { isDebug: false,
     <script jwcid="@Any" type="text/javascript" src="ognl:baseURL + '/js/dojo/dojo.js'"></script>
   </span>
   <body jwcid="@Body">
-    <div jwcid="@If" condition="ognl:userSession.navigationVisible">
+    <div jwcid="@If" condition="prop:userSession.navigationVisible">
       <div id="banner">
         <div id="banner-links">
           <a jwcid="@PageLink" id="link.home" page="Home"><span key="link.home">Home</span></a>
@@ -20,7 +20,7 @@ djConfig = { isDebug: false,
         <span class="hide" key="title">sipXconfig</span>
       </div>
       <div id="navigation">
-        <span jwcid="@If" condition="ognl:userSession.admin">
+        <span jwcid="@If" condition="prop:userSession.admin">
           <span jwcid="@AdminNavigation">Navigation bar goes here.</span>
         </span>
         <span jwcid="@Else">
@@ -28,8 +28,8 @@ djConfig = { isDebug: false,
         </span>
       </div>
     </div>
-    <div jwcid="renderContent">
-      <span jwcid="@If" condition="ognl:userSession.admin">
+    <div id="content">
+      <span jwcid="@If" condition="prop:userSession.admin">
         <span jwcid="@admin/StatusWarning"/>
       </span>        
       <span jwcid="@RenderBody">Page content goes here.</span>

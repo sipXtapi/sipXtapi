@@ -23,15 +23,10 @@
    -->
 
   <component id="shell" type="Shell">
-    <binding name="stylesheets" value="skin.stylesheetAssets"/>
+    <binding name="stylesheets" value="prop:skin.stylesheetAssets"/>
     <binding name="title" value="message:title"/>
     <binding name="renderBaseTag" value="!useDojo"/>
     <!-- binding name="delegate" value="bean:ajaxDelegate" / -->        
-  </component>
-  <component id="renderContent" type="Any">
-    <!--binding name="id" value="(userSession.navigationVisible)?'content':'_content'"/-->
-    <binding name="id" value="'content'"/>
-    <binding name="element" value="'div'"/>
   </component>
   <component id="logoutLink" type="DirectLink">
     <binding name="listener" value="listener:logout"/>

@@ -60,7 +60,6 @@ public class BorderTestUi extends WebTestCase {
     
     public void testHelp() {
         clickLink("toggleNavigation");
-        tester.dumpResponse();
         assertLinkPresent("link.help");
     }
 }

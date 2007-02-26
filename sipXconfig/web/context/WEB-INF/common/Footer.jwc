@@ -13,10 +13,10 @@
   </component>
 
   <component id="copyright" type="InsertText">
-    <binding name="value" value="productCopyright" />
+    <binding name="value" value="prop:productCopyright" />
   </component>
 
   <component id="name" type="InsertText">
-    <binding name="value" value="productName" />
+    <binding name="value" value="prop:productName" />
   </component>
 </component-specification>
