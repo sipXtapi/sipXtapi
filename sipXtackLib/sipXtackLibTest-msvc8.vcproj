@@ -47,8 +47,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".\include;.\include\nss;..\sipXportLib\include;..\sipXportLib\src\test;&quot;..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1_dbg\include&quot;;&quot;..\sipXbuild\vendors\Mozilla\wnt\nss-3.9_dbg\include&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				AdditionalIncludeDirectories="&quot;C:\Documents and Settings\SIPez-user\My Documents\Visual Studio 2005\Projects\sipXtapi\sipXsdpLib\include&quot;;.\include;.\include\nss;..\sipXportLib\include;..\sipXportLib\src\test;&quot;..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1_dbg\include&quot;;&quot;..\sipXbuild\vendors\Mozilla\wnt\nss-3.9_dbg\include&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -546,6 +546,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\test\SdpHelperTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\test\net\SipContactDbTest.cpp"
 				>
 			</File>
@@ -598,7 +602,8 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\test\net\SipSubscriptionMgrTest.cpp">
+				RelativePath=".\src\test\net\SipSubscriptionMgrTest.cpp"
+				>
 			</File>
 			<File
 				RelativePath=".\src\test\net\SipUserAgentTest.cpp"

@@ -49,7 +49,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="include,include\glib,..\..\sipXportLib\include,..\..\sipXcallLib\include;..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1_dbg\include,..\sipXbuild\vendors\Mozilla\wnt\nss-3.9_dbg\include"
-				PreprocessorDefinitions="_DEBUG;WIN32;_LIB;DISABLE_MEM_POOLS"
+				PreprocessorDefinitions="_DEBUG;WIN32;_LIB;DISABLE_MEM_POOLS;_CRT_SECURE_NO_DEPRECATE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="true"

@@ -232,7 +232,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\sipXportLib\src\test,..\sipXportLib\include,..\sipXportLib\include\glib,interface,include,..\sipXtackLib\include"
-				PreprocessorDefinitions="_DEBUG;DONT_USE_LONG_LONG;WIN32;_CONSOLE;DISABLE_MEM_POOLS"
+				PreprocessorDefinitions="_DEBUG;DONT_USE_LONG_LONG;WIN32;_CONSOLE;DISABLE_MEM_POOLS;_CRT_SECURE_NO_DEPRECATE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"

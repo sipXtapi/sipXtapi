@@ -296,7 +296,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="include,..\sipXportLib\include,..\sipXsdpLib\include,..\sipXtackLib\include,sipXmediaMediaProcessing,interface,..\sipXmediaLib\include"
-				PreprocessorDefinitions="_DEBUG;_LIB;WIN32;SIPXTAPI_STATIC"
+				PreprocessorDefinitions="_DEBUG;_LIB;WIN32;SIPXTAPI_STATIC;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"

@@ -40,8 +40,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include;..\sipXsdpLib\include;..\sipXtackLib\include;..\sipXportLib\include;..\..\resip\"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				AdditionalIncludeDirectories="include;..\sipXsdpLib\include;&quot;C:\Documents and Settings\SIPez-user\My Documents\Visual Studio 2005\Projects\sipXtapi\sipXportLib\src\test&quot;;..\sipXportLib\include"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -62,7 +62,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib Dnsapi.lib Iphlpapi.lib Winmm.lib pcre.lib"
+				AdditionalDependencies="Ws2_32.lib Dnsapi.lib Iphlpapi.lib Winmm.lib pcre.lib cppunitd.lib"
 				OutputFile="$(OutDir)\sipXsdpLibTest.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(OutDir)\&quot;;&quot;..\sipXportLib\$(PlatformName)\$(ConfigurationName)&quot;"
@@ -183,7 +183,31 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A300}"
 			>
 			<File
-				RelativePath=".\src\test\sdp\sdpTest.cpp"
+				RelativePath=".\src\test\sdp\SdpSetGetTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\sipXportLib\src\test\sipxunit\TestMonitor.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\sipXportLib\src\test\sipxunit\TestOsSysLogListener.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\sipXportLib\src\test\sipxunit\TestOutputter.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\sipXportLib\src\test\sipxunit\TestRunner.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\sipXportLib\src\test\sipxunit\TestUtilities.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\sipXportLib\src\test\sipxunit\unitmain.cpp"
 				>
 			</File>
 		</Filter>
@@ -192,6 +216,26 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFA}"
 			>
+			<File
+				RelativePath="..\sipXportLib\src\test\sipxunit\TestMonitor.h"
+				>
+			</File>
+			<File
+				RelativePath="..\sipXportLib\src\test\sipxunit\TestOsSysLogListener.h"
+				>
+			</File>
+			<File
+				RelativePath="..\sipXportLib\src\test\sipxunit\TestOutputter.h"
+				>
+			</File>
+			<File
+				RelativePath="..\sipXportLib\src\test\sipxunit\TestRunner.h"
+				>
+			</File>
+			<File
+				RelativePath="..\sipXportLib\src\test\sipxunit\TestUtilities.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
