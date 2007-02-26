@@ -12,6 +12,7 @@
   <property name="index" persist="session" />
   <property name="example" persist="session" />
   <property name="file" persist="session"/>
+  <property name="mailboxPreferences" initial-value="new org.sipfoundry.sipxconfig.vm.MailboxPreferences()"/>
 
   <!--
     - B E A N S
@@ -121,7 +122,7 @@
   </component>
 
   <component id="emailPanel" type="FieldPanel">
-    <binding name="field" value="components.emailAddress" />
+    <binding name="field" value="components.email" />
     <binding name="label" value="message:label.email" />
   </component>
   <component id="email" type="TextField">
