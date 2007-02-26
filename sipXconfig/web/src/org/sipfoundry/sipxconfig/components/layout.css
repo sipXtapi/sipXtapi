@@ -431,17 +431,27 @@ ul.form-actions li
 
 .fwd-voicemail
 {
-  font-style: italic;
-  margin-left: 2em;
+	font-style: italic;
+	margin-left: 2em;
 }
 
 .cloud
 {
-    padding: 1em;
-    width: 40%;
-    float: left;
-    margin-botton: 2em;
-    margin-right: 2em;
+	padding: .5em 1em;
+	width: 40%;
+	float: left;
+	margin-bottom: 1em;
+	margin-right: 1em;
+}
+
+table.cloud thead 
+{
+	text-align: left;
+}
+
+table.cloud tbody tr td
+{
+  padding: 0.5em 0;
 }
 
 div.col
@@ -449,7 +459,6 @@ div.col
 	float:left;
 	width:25em;
 }
-
 
 div.auto_complete {
   width: 350px;

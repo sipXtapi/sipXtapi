@@ -1,6 +1,12 @@
-<div class="cloud">
+<span jwcid="header@Block">
   <span jwcid="@Insert" value="prop:title"/>
-  <br/>
+</span>
+<span jwcid="footer@Block">
+  <span jwcid="@Form">
+    <span jwcid="@phone/ModelSelector"/>
+  </span>
+</span>
+<span jwcid="@common/Cloud" header="component:header" footer="component:footer">
   <span jwcid="@For" source="prop:phones" value="prop:phone">
     <a jwcid="@DirectLink" listener="listener:edit" parameters="prop:phone.id">
       <span jwcid="@Insert" value="prop:phone.serialNumber"/>, 
@@ -9,8 +15,4 @@
   <a jwcid="@PageLink" page="ManagePhones">
     <span key="more.etc">more...</span>
   </a>
-  <br/>
-  <span jwcid="@Form">
-    <span jwcid="@phone/ModelSelector"/>
-  </span>
-</div>
+</span>
