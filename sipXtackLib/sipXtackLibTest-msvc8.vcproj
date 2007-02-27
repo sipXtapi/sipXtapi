@@ -47,7 +47,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;C:\Documents and Settings\SIPez-user\My Documents\Visual Studio 2005\Projects\sipXtapi\sipXsdpLib\include&quot;;.\include;.\include\nss;..\sipXportLib\include;..\sipXportLib\src\test;&quot;..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1_dbg\include&quot;;&quot;..\sipXbuild\vendors\Mozilla\wnt\nss-3.9_dbg\include&quot;"
+				AdditionalIncludeDirectories="&quot;C:\Documents and Settings\SIPez-user\My Documents\Visual Studio 2005\Projects\sipXtapi\sipXsdpLib\include&quot;;.\include;.\include\nss;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXportLib\src\test;&quot;..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1_dbg\include&quot;;&quot;..\sipXbuild\vendors\Mozilla\wnt\nss-3.9_dbg\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -623,10 +623,6 @@
 			</File>
 			<File
 				RelativePath="..\sipXportLib\src\test\sipxunit\TestRunner.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestTemplate.cpp"
 				>
 			</File>
 			<File
