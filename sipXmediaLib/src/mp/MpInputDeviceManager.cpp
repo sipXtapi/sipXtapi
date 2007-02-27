@@ -19,7 +19,7 @@
 #include <mp/MpInputDeviceManager.h>
 #include <mp/MpInputDeviceDriver.h>
 #include <mp/MpBuf.h>
-#include <mp/MpMisc.h>
+#include <mp/MpAudioBuf.h>
 #include <utl/UtlInt.h>
 
 // EXTERNAL FUNCTIONS
@@ -69,11 +69,13 @@ public:
                           MpInputDeviceDriver& deviceDriver,
                           unsigned int frameBufferLength,
                           unsigned int samplesPerFrame,
-                          unsigned int samplesPerSecond)
+                          unsigned int samplesPerSecond,
+                          MpBufPool& bufferPool)
    : UtlInt(deviceId)
    , mLastPushedFrame(frameBufferLength - 1)
    , mFrameBufferLength(frameBufferLength)
    , mppFrameBufferArray(NULL)
+   , mpBufferPool(&bufferPool)
    , mpInputDeviceDriver(&deviceDriver)
    , mSamplesPerFrame(samplesPerFrame)
    , mSamplesPerSecond(samplesPerSecond)
@@ -81,7 +83,7 @@ public:
        assert(mFrameBufferLength > 0);
        assert(mSamplesPerFrame > 0);
        assert(mSamplesPerSecond > 0);
-
+               
        mppFrameBufferArray = new MpInputDeviceFrameData[mFrameBufferLength];
    };
 
@@ -127,7 +129,7 @@ public:
         if (!thisFrameData->mFrameBuffer.isValid())
         {
             thisFrameData->mFrameBuffer = 
-                MpMisc.RawAudioPool->getBuffer();
+                mpBufferPool->getBuffer();
         }
 
         // Stuff the data in a buffer
@@ -216,6 +218,7 @@ private:
     MpInputDeviceDriver* mpInputDeviceDriver;
     unsigned int mSamplesPerFrame;      ///< Number of audio samples in one frame.
     unsigned int mSamplesPerSecond;     ///< Number of audio samples in one second.
+    MpBufPool* mpBufferPool;
 
       /// Copy constructor (not implemented for this class)
     MpAudioInputConnection(const MpAudioInputConnection& rMpAudioInputConnection);
@@ -234,12 +237,14 @@ private:
 // Constructor
 MpInputDeviceManager::MpInputDeviceManager(unsigned defaultSamplesPerFrame, 
                                            unsigned defaultSamplesPerSec,
-                                           unsigned defaultNumBufferedFrames)
+                                           unsigned defaultNumBufferedFrames,
+                                           MpBufPool& bufferPool)
 : mRwMutex(OsRWMutex::Q_PRIORITY)
 , mLastDeviceId(0)
 , mDefaultSamplesPerFrame(defaultSamplesPerFrame)
 , mDefaultSamplesPerSecond(defaultSamplesPerSec)
 , mDefaultNumBufferedFrames(defaultNumBufferedFrames)
+, mpBufferPool(&bufferPool)
 {
     assert(defaultSamplesPerFrame > 0);
     assert(defaultSamplesPerSec > 0);
@@ -268,7 +273,8 @@ int MpInputDeviceManager::addDevice(MpInputDeviceDriver& newDevice)
                                    newDevice, 
                                    mDefaultNumBufferedFrames,
                                    mDefaultSamplesPerFrame,
-                                   mDefaultSamplesPerSecond);
+                                   mDefaultSamplesPerSecond,
+                                   *mpBufferPool);
 
     // Map by device name string
     mConnectionsByDeviceName.insertKeyAndValue(&newDevice, new UtlInt(newDeviceId));

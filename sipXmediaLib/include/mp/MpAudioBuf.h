@@ -77,6 +77,18 @@ public:
     /// Set time code for this frame
     void setTimecode(unsigned timecode) {mTimecode=timecode;}
 
+    /// compare two frames of audio to see if they are the same or similar
+    /** 
+    *  @param tolerance - the allowed difference between the cooresponding
+    *         samples in the two frames which are considered to still be
+    *         the same.
+    *  @returns 0, positive or negative value.  Zero means the samples
+    *           are similar within the tolerance.
+    */
+    static int compareSamples(const MpAudioBuf& frame1, 
+                              const MpAudioBuf& frame2, 
+                              unsigned int tolerance = 0);
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -87,7 +99,7 @@ public:
     SpeechType getSpeechType() const {return mSpeechType;};
 
     /// Get pointer to audio data.
-    MpAudioSample *getSamples() {return (MpAudioSample*)getDataPtr();}
+    MpAudioSample *getSamples() const {return (MpAudioSample*)getDataPtr();}
 
     /// Get current number of samples in audio data.
     unsigned getSamplesNumber() const {return mpData->getDataSize()/sizeof(MpAudioSample);}
@@ -165,6 +177,35 @@ public:
 ///@name Manipulators
 //@{
 
+    /// compare two frames of audio to see if they are the same or similar
+    /** 
+    *  @param tolerance - the allowed difference between the cooresponding
+    *         samples in the two frames which are considered to still be
+    *         the same.
+    *  @returns 0, positive or negative value.  Zero means the samples
+    *           are similar within the tolerance.
+    */
+    int compareSamples(const MpAudioBufPtr& frame2, 
+                       unsigned int tolerance = 0) const
+    {
+        int compareValue = 0;
+        if(!isValid())
+        {
+            compareValue = -1;
+        }
+        else if(!frame2.isValid())
+        {
+            compareValue = 1;
+        }
+        else
+        {
+            compareValue = // Need to down caste before dereferencing to avoid implicit construction of MpAudioBuf from MpBuf
+                MpAudioBuf::compareSamples(*((MpAudioBuf*)mpBuffer), 
+                                           *((MpAudioBuf*)frame2.mpBuffer), 
+                                           tolerance);
+        }
+        return(compareValue);
+    };
 
 //@}
 

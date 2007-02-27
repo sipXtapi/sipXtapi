@@ -44,6 +44,51 @@ bool MpAudioBuf::isActiveAudio() const
     };
 }
 
+int MpAudioBuf::compareSamples(const MpAudioBuf& frame1, 
+                               const MpAudioBuf& frame2, 
+                               unsigned int tolerance)
+{
+
+    int difference = 0;
+    int samplesInFrame1 = frame1.getSamplesNumber();
+    int samplesInFrame2 = frame2.getSamplesNumber();
+
+    if(samplesInFrame1 > samplesInFrame2)
+    {
+        difference = 1;
+    }
+
+    else if(samplesInFrame1 < samplesInFrame2)
+    {
+        difference = -1;
+    }
+
+    else
+    {
+        MpAudioSample* samples1 = frame1.getSamples();
+        MpAudioSample* samples2 = frame2.getSamples();
+
+        int sampleDiff;
+        for(int sampleIndex = 0; sampleIndex < samplesInFrame1; sampleIndex++)
+        {
+            sampleDiff = *samples1 - *samples2;
+            if(sampleDiff > 0 && sampleDiff - tolerance < 0)
+            {
+                difference = 1;
+                break;
+            }
+            else if(sampleDiff < 0 && sampleDiff + tolerance > 0)
+            {
+                difference = -1;
+                break;
+            }
+            samples1++;
+            samples2++;
+        }
+    }
+
+    return(difference);
+}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 

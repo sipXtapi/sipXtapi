@@ -413,6 +413,10 @@ SOURCE=.\src\mp\MprRecorder.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MprSineWaveGeneratorDeviceDriver.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MprSpeexEchoCancel.cpp
 # End Source File
 # Begin Source File
@@ -1074,6 +1078,10 @@ SOURCE=.\include\mp\MprToSpkr.h
 # Begin Source File
 
 SOURCE=.\include\mp\MpRtpBuf.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpSineWaveGeneratorDeviceDriver.h
 # End Source File
 # Begin Source File
 

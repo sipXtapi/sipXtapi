@@ -14,6 +14,7 @@
 
 // APPLICATION INCLUDES
 #include <mp/MpInputDeviceManager.h>
+#include <mp/MpMisc.h>
 #include <include/CpTopologyGraphFactoryImpl.h>
 #include <mi/CpMediaInterfaceFactory.h>
 #include <include/CpTopologyGraphInterface.h>
@@ -57,10 +58,13 @@ sipXmediaFactoryImpl(pConfigDb)
     mpInitialResourceTopology = NULL;
     mpResourceFactory = NULL;
     mpConnectionResourceTopology = NULL;
+
+    assert(MpMisc.RawAudioPool);
     mpInputDeviceManager = 
         new MpInputDeviceManager(80, // samples per frame
                                  8000, // samples per second
-                                 4); // number of buffered frames saved
+                                 4, // number of buffered frames saved
+                                 *MpMisc.RawAudioPool);
 }
 
 

@@ -64,7 +64,11 @@ public:
 
       /// Default constructor
     MpInputDeviceDriver(const UtlString& name,
-                        MpInputDeviceManager& deviceManager);
+        MpInputDeviceManager& deviceManager) :
+    UtlString(name)
+    {
+        mpInputDeviceManager = &deviceManager;
+    };
       /**<
       *  @param name - unique device driver name (e.g. "/dev/dsp", 
       *         "YAMAHA AC-XG WDM Audio", etc.)
@@ -108,10 +112,18 @@ public:
       */
 
       /// Set device ID associated with this device in parent input device manager.
-    virtual OsStatus setDeviceId(MpInputDeviceHandle deviceId);
+    virtual OsStatus setDeviceId(MpInputDeviceHandle deviceId)
+    {
+        mDeviceId = deviceId;
+        return(OS_SUCCESS);
+    }
 
       /// Clear the device ID associated with this device.
-    virtual OsStatus clearDeviceId();
+    virtual OsStatus clearDeviceId()
+    { 
+        mDeviceId = -1; 
+        return(OS_SUCCESS);
+    };
 
 //@}
 

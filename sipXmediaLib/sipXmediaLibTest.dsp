@@ -87,11 +87,19 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\src\test\mp\MpAudioBufTest.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\test\mp\MpBufTest.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\src\test\mp\MpFlowGraphTest.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\test\mp\MpInputDeviceManagerTest.cpp
 # End Source File
 # Begin Source File
 

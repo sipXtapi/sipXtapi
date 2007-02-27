@@ -32,6 +32,7 @@
 class MpInputDeviceDriver;
 class UtlString;
 class MpBufPtr;
+class MpBufPool;
 
 /**
 *  @brief Container of input devices for input drivers and resources.
@@ -83,7 +84,8 @@ public:
       /// Default constructor
     MpInputDeviceManager(unsigned defaultSamplesPerFrame, 
                          unsigned defaultSamplesPerSecond,
-                         unsigned defaultNumBufferedFrames);
+                         unsigned defaultNumBufferedFrames,
+                         MpBufPool& bufferPool);
       /**<
       *  @param defaultSamplesPerFrame - (in) the default number of samples in
       *         a frame of media to be used when enabling devices.
@@ -93,6 +95,8 @@ public:
       *         buffer for a device before releasing the frame.  Consumers of
       *         frames (callers of getFrame) have the window of time to retrieve
       *         any of the frames buffered.
+      *  @param bufferPool - pool from which buffers are obtained for media
+      *         data space
       */
 
       /// Destructor
@@ -254,6 +258,7 @@ private:
     unsigned mDefaultSamplesPerFrame;
     unsigned mDefaultSamplesPerSecond;
     unsigned mDefaultNumBufferedFrames;
+    MpBufPool* mpBufferPool;
     UtlHashMap mConnectionsByDeviceName;
     UtlHashBag mConnectionsByDeviceId;
     OsTime mTimeZero;
