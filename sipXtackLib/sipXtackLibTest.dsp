@@ -111,6 +111,10 @@ SOURCE=.\src\test\net\SdpBodyTest.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\test\SdpHelperTest.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\test\net\SipContactDbTest.cpp
 # End Source File
 # Begin Source File

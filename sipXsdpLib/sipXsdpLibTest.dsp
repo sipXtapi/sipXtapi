@@ -87,12 +87,56 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\src\test\sdp\sdpTest.cpp
+SOURCE=.\src\test\sdp\SdpSetGetTest.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\sipXportLib\src\test\sipxunit\TestMonitor.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\sipXportLib\src\test\sipxunit\TestOsSysLogListener.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\sipXportLib\src\test\sipxunit\TestOutputter.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\sipXportLib\src\test\sipxunit\TestRunner.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\sipXportLib\src\test\sipxunit\TestUtilities.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\sipXportLib\src\test\sipxunit\unitmain.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=..\sipXportLib\src\test\sipxunit\TestMonitor.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\sipXportLib\src\test\sipxunit\TestOsSysLogListener.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\sipXportLib\src\test\sipxunit\TestOutputter.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\sipXportLib\src\test\sipxunit\TestRunner.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\sipXportLib\src\test\sipxunit\TestUtilities.h
+# End Source File
 # End Group
 # Begin Group "Resource Files"
 
