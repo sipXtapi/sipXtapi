@@ -89,6 +89,7 @@
      <packagereq type="mandatory">mod_ssl</packagereq>
      <packagereq type="mandatory">postgresql-server</packagereq>
      <packagereq type="mandatory">cppunit-devel</packagereq>
+     <packagereq type="mandatory">asciidoc</packagereq>
    </packagelist>
   </group>
 </comps>

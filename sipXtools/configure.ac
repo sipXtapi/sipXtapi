@@ -16,6 +16,7 @@ CHECK_AUTOCONF
 AC_CONFIG_SRCDIR([src/sipxcar])
 
 SFAC_INIT_FLAGS
+CHECK_GENERATE_MANPAGES
 
 # Mysterious requirement to have a DOC var
 AM_CONDITIONAL(DOC, test true = false)
