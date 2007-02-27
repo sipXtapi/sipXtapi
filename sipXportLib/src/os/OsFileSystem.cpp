@@ -118,7 +118,11 @@ OsStatus OsFileSystem::remove(const OsPath& path, UtlBoolean bRecursive, UtlBool
     OsStatus retval = OS_INVALID;
     OsFileInfo info;
     OsPath testpath = path;
-    getFileInfo(testpath,info);
+    OsStatus stat = getFileInfo(testpath,info);
+    if(stat == OS_INVALID)
+    {
+        return OS_INVALID;
+    }
 
     if (info.isDir())
     {
