@@ -23,29 +23,53 @@ TestOsSysLogListener::TestOsSysLogListener()
 {
 };
 
-void TestOsSysLogListener::startTest( CPPUNIT_NS::Test *test ) 
-{ 
-   std::string testName = test->getName();
+UtlString TestOsSysLogListener::getLogFilename(UtlString testName)
+{
+   std::string tn(testName.data());
    
    size_t colon_pos = 0;
-   while (std::string::npos != (colon_pos = testName.find(":", colon_pos)))
+   while (std::string::npos != (colon_pos = tn.find(":", colon_pos)))
    {
-      testName.replace(colon_pos, 1, "_");
+      tn.replace(colon_pos, 1, "_");
    }
+   UtlString fn(tn.c_str());
+   fn.append(".log");
+   return fn;
+}
+
+void TestOsSysLogListener::startTest( CPPUNIT_NS::Test *test ) 
+{ 
+   UtlString testLogFile = getLogFilename(test->getName().c_str());
    
    OsSysLog::initialize(0,"UnitTest");
    OsSysLog::setLoggingPriority(PRI_DEBUG);
 
-   std::string testLogFile = testName + ".log";
-
-   OsFileSystem::remove(testLogFile.c_str());
-
-   OsSysLog::setOutputFile(0,testLogFile.c_str());
+   OsFileSystem::remove(testLogFile, FALSE, TRUE);
+   OsSysLog::setOutputFile(0,testLogFile);
 }  
 
 void TestOsSysLogListener::endTest( CPPUNIT_NS::Test *test ) 
 { 
    OsSysLog::flush();
+
+   // Remove the log file if it is an empty one.
+   UtlString testLogFile = getLogFilename(test->getName().c_str());
+   OsPath testLogFilePath(testLogFile);
+   OsFileInfo tLogFInfo;
+   OsStatus stat = OsFileSystem::getFileInfo(testLogFilePath, tLogFInfo);
+   if(stat == OS_SUCCESS)
+   { 
+      unsigned long logSz = 0;
+      stat = tLogFInfo.getSize(logSz);
+      if(stat == OS_SUCCESS && (logSz == 0))
+      {
+         stat = OsFileSystem::remove(testLogFile, FALSE, TRUE);
+         if(stat != OS_SUCCESS)
+         {
+            printf("Failed to remove file %s\n", testLogFile.data());
+         }
+      }
+   }
 }  
 
 /// destructor
