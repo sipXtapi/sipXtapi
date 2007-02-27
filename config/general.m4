@@ -1486,9 +1486,9 @@ AC_DEFUN([CHECK_GENERATE_MANPAGES],
     missing_dependency=yes
   fi
 
-  AC_ARG_VAR(DOCBOOK_2_MAN_XSL, [XSL Stylesheet to convert docbook to man page. kdelibs])
+  AC_ARG_VAR(DOCBOOK_2_MAN_XSL, [XSL Stylesheet to convert docbook to man page. (hint: docbook-style-xsl package)])
   if test x$DOCBOOK_2_MAN_XSL == x; then
-    DOCBOOK_2_MAN_XSL=/usr/share/apps/ksgmltools2/docbook/xsl/manpages/docbook.xsl
+    DOCBOOK_2_MAN_XSL=/usr/share/sgml/docbook/xsl-stylesheets/manpages/docbook.xsl
   fi
 
   AC_MSG_CHECKING(for $DOCBOOK_2_MAN_XSL)

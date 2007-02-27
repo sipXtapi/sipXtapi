@@ -62,11 +62,11 @@
      <packagereq type="mandatory">autoconf</packagereq>
      <packagereq type="mandatory">automake</packagereq>
      <packagereq type="mandatory">libtool</packagereq>
-     <packagereq type="mandatory">doxygen</packagereq>
-     <packagereq type="mandatory">rpm-build</packagereq>
-     <packagereq type="mandatory">createrepo</packagereq>
+     <packagereq type="optional">doxygen</packagereq>
+     <packagereq type="optional">rpm-build</packagereq>
+     <packagereq type="optional">createrepo</packagereq>
      <packagereq type="mandatory">zip</packagereq>
-     <packagereq type="mandatory">subversion</packagereq>
+     <packagereq type="optional">subversion</packagereq>
      <packagereq type="mandatory">cgicc-devel</packagereq>
      <packagereq type="mandatory">xerces-c-devel</packagereq>
      <packagereq type="mandatory">pcre-devel</packagereq>
@@ -89,7 +89,8 @@
      <packagereq type="mandatory">mod_ssl</packagereq>
      <packagereq type="mandatory">postgresql-server</packagereq>
      <packagereq type="mandatory">cppunit-devel</packagereq>
-     <packagereq type="mandatory">asciidoc</packagereq>
+     <packagereq type="optional">asciidoc</packagereq>
+     <packagereq type="optional">docbook-style-xsl</packagereq>
    </packagelist>
   </group>
 </comps>
