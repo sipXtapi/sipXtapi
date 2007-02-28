@@ -16,6 +16,7 @@
     <property name="tftpRoot">
       <value>${sysdir.phone}/profile/tftproot</value>
     </property>
+    <property name="profileGenerator" ref="profileGenerator"/>
     <property name="gatewayModelSource" ref="nakedGatewayModelSource"/>
   </bean>
 

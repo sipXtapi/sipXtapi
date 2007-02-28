@@ -7,4 +7,9 @@
     <property name="domainManager" ref="domainManager" />
     <property name="sipxServer" ref="sipxServer" />
   </bean>
+
+
+  <bean id="profileGenerator" class="org.sipfoundry.sipxconfig.device.VelocityProfileGenerator">
+    <property name="velocityEngine" ref="velocityEngine" />
+  </bean>
 </beans>

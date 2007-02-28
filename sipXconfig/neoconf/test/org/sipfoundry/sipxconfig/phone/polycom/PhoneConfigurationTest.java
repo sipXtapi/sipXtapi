@@ -21,6 +21,8 @@ import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.device.ProfileGenerator;
+import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
 /**
@@ -28,13 +30,18 @@ import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
  */
 public class PhoneConfigurationTest extends XMLTestCase {
     
-    PolycomPhone phone;
+    private PolycomPhone phone;
+    private ProfileGenerator m_pg;
     
     protected void setUp() throws Exception {
         XMLUnit.setIgnoreWhitespace(true);
         phone = new PolycomPhone();
         phone.getModel().setMaxLineCount(6);
-        PhoneTestDriver.supplyTestData(phone);        
+        PhoneTestDriver.supplyTestData(phone);
+        
+        VelocityProfileGenerator pg = new VelocityProfileGenerator();
+        pg.setVelocityEngine(TestHelper.getVelocityEngine());
+        m_pg = pg;        
     }
 
     public void testGenerateProfileVersion16() throws Exception {
@@ -48,9 +55,8 @@ public class PhoneConfigurationTest extends XMLTestCase {
     
     private void assertExpectedProfile(String expected) throws Exception {
         PhoneConfiguration cfg = new PhoneConfiguration(phone);
-        cfg.setVelocityEngine(TestHelper.getVelocityEngine());
         CharArrayWriter out = new CharArrayWriter();
-        cfg.generateProfile(phone.getPhoneTemplate(), out);
+        m_pg.generate(cfg, phone.getPhoneTemplate(), out);
 
         // helpful debug
         //System.out.println(new String(out.toCharArray()));

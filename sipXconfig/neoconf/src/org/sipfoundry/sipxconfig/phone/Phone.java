@@ -12,8 +12,6 @@
 package org.sipfoundry.sipxconfig.phone;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,14 +19,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.device.ModelSource;
-import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
+import org.sipfoundry.sipxconfig.device.ProfileContext;
+import org.sipfoundry.sipxconfig.device.ProfileGenerator;
+import org.sipfoundry.sipxconfig.device.ProfileUtils;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -53,7 +51,7 @@ public abstract class Phone extends BeanWithGroups {
 
     private String m_tftpRoot;
 
-    private VelocityEngine m_velocityEngine;
+    private ProfileGenerator m_profileGenerator;
 
     private SipService m_sip;
 
@@ -138,12 +136,12 @@ public abstract class Phone extends BeanWithGroups {
         m_tftpRoot = tftpRoot;
     }
 
-    public VelocityEngine getVelocityEngine() {
-        return m_velocityEngine;
+    public void setProfileGenerator(ProfileGenerator profileGenerator) {
+        m_profileGenerator = profileGenerator;
     }
 
-    public void setVelocityEngine(VelocityEngine velocityEngine) {
-        m_velocityEngine = velocityEngine;
+    public ProfileGenerator getProfileGenerator() {
+        return m_profileGenerator;
     }
 
     protected Setting loadSettings() {
@@ -195,6 +193,10 @@ public abstract class Phone extends BeanWithGroups {
         return null;
     }
 
+    /**
+     * Default implementation - generates a single profile file based in provided file name and
+     * phone template
+     */
     public void generateProfiles() {
         String profileFileName = getPhoneFilename();
         String phoneTemplate = getPhoneTemplate();
@@ -202,21 +204,13 @@ public abstract class Phone extends BeanWithGroups {
     }
 
     protected void generateFile(String profileFileName, String phoneTemplate) {
-        if (profileFileName == null) {
-            return;
-        }
+        ProfileContext context = new ProfileContext(this);
+        m_profileGenerator.generate(context, phoneTemplate, profileFileName);
+    }
 
-        Writer wtr = null;
-        try {
-            File file = new File(profileFileName);
-            VelocityProfileGenerator.makeParentDirectory(file);
-            wtr = new FileWriter(file);
-            generateProfile(phoneTemplate, wtr);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            IOUtils.closeQuietly(wtr);
-        }
+    public void generateProfile(String phoneTemplate, Writer out) {
+        ProfileContext context = new ProfileContext(this);
+        m_profileGenerator.generate(context, phoneTemplate, out);
     }
 
     public Line findByUsername(String username) {
@@ -252,7 +246,7 @@ public abstract class Phone extends BeanWithGroups {
         if (profileFileName == null) {
             return;
         }
-        VelocityProfileGenerator.removeProfileFiles(new File[] {
+        ProfileUtils.removeProfileFiles(new File[] {
             new File(profileFileName)
         });
     }
@@ -263,19 +257,6 @@ public abstract class Phone extends BeanWithGroups {
 
     public void setPhoneTemplate(String phoneTemplate) {
         m_phoneTemplate = phoneTemplate;
-    }
-
-    public void generateProfile(String phoneTemplate, Writer out) {
-        if (phoneTemplate == null) {
-            return;
-        }
-        VelocityProfileGenerator generator = new VelocityProfileGenerator(this);
-        generateProfile(generator, phoneTemplate, out);
-    }
-
-    protected void generateProfile(VelocityProfileGenerator generator, String template, Writer out) {
-        generator.setVelocityEngine(getVelocityEngine());
-        generator.generateProfile(template, out);
     }
 
     /**

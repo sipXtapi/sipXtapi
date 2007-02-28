@@ -18,7 +18,8 @@ import java.io.Writer;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
-import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
+import org.sipfoundry.sipxconfig.device.ProfileContext;
+import org.sipfoundry.sipxconfig.device.ProfileUtils;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
@@ -31,7 +32,7 @@ public class AcmeGateway extends Gateway {
         m_defaults = defaults;
         initialize();
     }
-    
+
     @Override
     protected Setting loadSettings() {
         return getModelFilesContext().loadModelFile("acme-gateway.xml", "acme");
@@ -41,24 +42,24 @@ public class AcmeGateway extends Gateway {
     public void initialize() {
         addDefaultBeanSettingHandler(new AcmeDefaults(m_defaults));
     }
-    
+
     public static class AcmeDefaults {
         private DeviceDefaults m_defaults;
+
         AcmeDefaults(DeviceDefaults defaults) {
             m_defaults = defaults;
         }
-        
+
         @SettingEntry(path = "basic/proxyAddress")
         public String getProxyAddress() {
             return m_defaults.getProxyServerAddr();
         }
-        
+
     }
 
     public void generateProfile(String template, Writer out) {
-        VelocityProfileGenerator profile = new VelocityProfileGenerator(this);
-        profile.setVelocityEngine(getVelocityEngine());
-        profile.generateProfile(template, out);
+        ProfileContext context = new ProfileContext(this);
+        getProfileGenerator().generate(context, template, out);
     }
 
     private String getTemplate() {
@@ -68,7 +69,8 @@ public class AcmeGateway extends Gateway {
     private String getProfileFilename() {
         return getSerialNumber() + ".ini";
     }
-    
+
+    @Override
     public void generateProfiles() {
         String profileFileName = getProfileFilename();
         String template = getTemplate();
@@ -79,7 +81,7 @@ public class AcmeGateway extends Gateway {
         Writer wtr = null;
         try {
             File file = new File(profileFileName);
-            VelocityProfileGenerator.makeParentDirectory(file);
+            ProfileUtils.makeParentDirectory(file);
             wtr = new FileWriter(file);
             generateProfile(template, wtr);
         } catch (IOException e) {
@@ -89,12 +91,13 @@ public class AcmeGateway extends Gateway {
         }
     }
 
+    @Override
     public void removeProfiles() {
         String profileFileName = getProfileFilename();
         if (profileFileName == null) {
             return;
         }
-        VelocityProfileGenerator.removeProfileFiles(new File[] {
+        ProfileUtils.removeProfileFiles(new File[] {
             new File(profileFileName)
         });
     }

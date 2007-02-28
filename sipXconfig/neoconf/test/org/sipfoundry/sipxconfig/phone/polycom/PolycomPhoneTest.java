@@ -26,6 +26,7 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.phone.RestartException;
+import org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone.FormatFilter;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class PolycomPhoneTest extends TestCase {
@@ -44,7 +45,7 @@ public class PolycomPhoneTest extends TestCase {
     }
 
     public void testGenerateProfiles() throws Exception {
-        m_phone.setVelocityEngine(TestHelper.getVelocityEngine());
+        m_phone.setProfileGenerator(TestHelper.getProfileGenerator());
         ApplicationConfiguration cfg = new ApplicationConfiguration(m_phone);
         m_phone.generateProfiles();
 
@@ -93,7 +94,8 @@ public class PolycomPhoneTest extends TestCase {
         InputStream in = getClass().getResourceAsStream("unformatted.xml");
         Reader rdr = new InputStreamReader(in);
         Writer wtr = new StringWriter();
-        PolycomPhone.format(rdr, wtr);
+        FormatFilter format = new PolycomPhone.FormatFilter();
+        format.copy(rdr, wtr);
         Reader expected = new InputStreamReader(getClass().getResourceAsStream("formatted.xml"));
         Reader actual = new StringReader(wtr.toString());
         IOUtils.contentEquals(expected, actual);

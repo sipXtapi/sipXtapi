@@ -12,10 +12,10 @@
 package org.sipfoundry.sipxconfig.gateway;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.device.ModelSource;
+import org.sipfoundry.sipxconfig.device.ProfileGenerator;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -45,7 +45,7 @@ public class Gateway extends BeanWithSettings implements NamedObject {
 
     private DeviceVersion m_version;
 
-    private VelocityEngine m_velocityEngine;
+    private ProfileGenerator m_profileGenerator;
 
     private GatewayCallerAliasInfo m_callerAliasInfo = new GatewayCallerAliasInfo();
 
@@ -116,12 +116,12 @@ public class Gateway extends BeanWithSettings implements NamedObject {
         m_tftpRoot = tftpRoot;
     }
 
-    public VelocityEngine getVelocityEngine() {
-        return m_velocityEngine;
+    public void setProfileGenerator(ProfileGenerator profileGenerator) {
+        m_profileGenerator = profileGenerator;
     }
-
-    public void setVelocityEngine(VelocityEngine velocityEngine) {
-        m_velocityEngine = velocityEngine;
+    
+    protected ProfileGenerator getProfileGenerator() {
+        return m_profileGenerator;
     }
 
     public String getBeanId() {

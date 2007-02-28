@@ -100,7 +100,7 @@ public class PhoneTestDriver {
         _phone.setTftpRoot(TestHelper.getTestDirectory());
         _phone.setSerialNumber(serialNumber);
         _phone.setPhoneContext(phoneContext);
-        _phone.setVelocityEngine(TestHelper.getVelocityEngine());
+        _phone.setProfileGenerator(TestHelper.getProfileGenerator());
 
         for (User user : users) {
             Line line = _phone.createLine();

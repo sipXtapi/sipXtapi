@@ -35,6 +35,8 @@ import org.dbunit.dataset.xml.XmlDataSet;
 import org.dbunit.operation.DatabaseOperation;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
+import org.sipfoundry.sipxconfig.device.ProfileGenerator;
+import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.setting.ModelBuilder;
@@ -160,6 +162,13 @@ public final class TestHelper {
             throw new RuntimeException(e);
         }
     }
+    
+    public static ProfileGenerator getProfileGenerator() {
+        VelocityProfileGenerator profileGenerator = new VelocityProfileGenerator();
+        profileGenerator.setVelocityEngine(getVelocityEngine());
+        return profileGenerator;
+    }
+    
 
     public static String getTestDirectory() {
         return TestUtil.getTestOutputDirectory("neoconf");

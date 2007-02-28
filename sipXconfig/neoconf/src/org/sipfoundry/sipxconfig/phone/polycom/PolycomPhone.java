@@ -12,22 +12,20 @@
 package org.sipfoundry.sipxconfig.phone.polycom;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Collection;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
-import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
+import org.sipfoundry.sipxconfig.device.ProfileFilter;
+import org.sipfoundry.sipxconfig.device.ProfileUtils;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -128,21 +126,29 @@ public class PolycomPhone extends Phone {
     }
 
     public void generateProfiles() {
+        FormatFilter format = new FormatFilter();
+
+        String parentDir = getTftpRoot();
         ApplicationConfiguration app = new ApplicationConfiguration(this);
-        generateProfile(app, getApplicationTemplate(), app.getAppFilename());
 
+        String appFilename = FilenameUtils.concat(parentDir, app.getAppFilename());
+        getProfileGenerator().generate(app, getApplicationTemplate(), format, appFilename);
+
+        String sipFilename = FilenameUtils.concat(parentDir, app.getSipFilename());
         SipConfiguration sip = new SipConfiguration(this);
-        generateProfile(sip, getSipTemplate(), app.getSipFilename());
+        getProfileGenerator().generate(sip, getSipTemplate(), format, sipFilename);
 
+        String phoneFilename = FilenameUtils.concat(parentDir, app.getPhoneFilename());
         PhoneConfiguration phone = new PhoneConfiguration(this);
-        generateProfile(phone, getPhoneTemplate(), app.getPhoneFilename());
+        getProfileGenerator().generate(phone, getPhoneTemplate(), format, phoneFilename);
 
         app.deleteStaleDirectories();
 
+        String dirFilename = FilenameUtils.concat(parentDir, app.getDirectoryFilename());
         Collection<PhonebookEntry> entries = getPhoneContext().getPhonebookEntries(this);
         SpeedDial speedDial = getPhoneContext().getSpeedDial(this);
-        DirectoryConfiguration dir = new DirectoryConfiguration(this, entries, speedDial);
-        generateProfile(dir, getDirectoryTemplate(), app.getDirectoryFilename());
+        DirectoryConfiguration dir = new DirectoryConfiguration(entries, speedDial);
+        getProfileGenerator().generate(dir, getDirectoryTemplate(), format, dirFilename);
     }
 
     public void removeProfiles() {
@@ -155,50 +161,29 @@ public class PolycomPhone extends Phone {
         app.deleteStaleDirectories();
 
         File[] files = {
-            cfgFile, 
-            phonebookFile
+            cfgFile, phonebookFile
         };
 
         // and this will remove new ones
-        VelocityProfileGenerator.removeProfileFiles(files);
-    }
-
-    private void generateProfile(VelocityProfileGenerator cfg, String template, String outputFile) {
-        FileWriter out = null;
-        try {
-            File f = new File(getTftpRoot(), outputFile);
-            VelocityProfileGenerator.makeParentDirectory(f);
-            Writer unformatted = new StringWriter();
-            generateProfile(cfg, template, unformatted);
-            out = new FileWriter(f);
-            format(new StringReader(unformatted.toString()), out);
-        } catch (IOException ioe) {
-            throw new RuntimeException("Could not generate profile " + outputFile
-                    + " from template " + template, ioe);
-        } finally {
-            if (out != null) {
-                IOUtils.closeQuietly(out);
-            }
-        }
+        ProfileUtils.removeProfileFiles(files);
     }
 
     /**
      * Polycom 430 1.6.5 would not read files w/being formatted first. Unclear why.
      */
-    static void format(Reader in, Writer wtr) {
-        SAXReader xmlReader = new SAXReader();
-        Document doc;
-        try {
-            doc = xmlReader.read(in);
-        } catch (DocumentException e1) {
-            throw new RuntimeException(e1);
-        }
-        OutputFormat pretty = OutputFormat.createPrettyPrint();
-        XMLWriter xml = new XMLWriter(wtr, pretty);
-        try {
+    static class FormatFilter implements ProfileFilter {
+
+        public void copy(Reader in, Writer out) throws IOException {
+            SAXReader xmlReader = new SAXReader();
+            Document doc;
+            try {
+                doc = xmlReader.read(in);
+            } catch (DocumentException e1) {
+                throw new RuntimeException(e1);
+            }
+            OutputFormat pretty = OutputFormat.createPrettyPrint();
+            XMLWriter xml = new XMLWriter(out, pretty);
             xml.write(doc);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 

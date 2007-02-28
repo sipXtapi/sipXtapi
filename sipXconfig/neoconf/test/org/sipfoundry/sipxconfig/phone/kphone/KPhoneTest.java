@@ -42,7 +42,7 @@ public class KPhoneTest extends TestCase {
 
     public void testGenerateEmptyProfile() throws Exception {
         KPhone phone = new KPhone();
-        phone.setVelocityEngine(TestHelper.getVelocityEngine());
+        phone.setProfileGenerator(TestHelper.getProfileGenerator());
         phone.setModelFilesContext(TestHelper.getModelFilesContext());
 
         // All phones in system have a unique id, this will be important for
