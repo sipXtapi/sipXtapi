@@ -231,7 +231,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\sipXportLib\src\test,..\sipXportLib\include,..\sipXportLib\include\glib,interface,include,..\sipXtackLib\include"
+				AdditionalIncludeDirectories="..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;..\sipXmediaLib\include;..\sipXportLib\include\glib;..\sipXportLib\src\test;interface;include"
 				PreprocessorDefinitions="_DEBUG;DONT_USE_LONG_LONG;WIN32;_CONSOLE;DISABLE_MEM_POOLS;_CRT_SECURE_NO_DEPRECATE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -258,7 +258,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\sipXportLib\Debug\sipXportLib.lib ..\sipXtackLib\Debug\sipXtackLib.lib ..\sipXmediaLib\Debug\sipXmediaLib.lib .\Debug\sipXmediaAdapterLib.lib cppunitd.lib wsock32.lib pcre.lib winmm.lib"
+				AdditionalDependencies="..\sipXportLib\Debug\sipXportLib.lib ..\sipXsdpLib\Debug\sipXsdpLib.lib ..\sipXtackLib\Debug\sipXtackLib.lib ..\sipXmediaLib\Debug\sipXmediaLib.lib .\Debug\sipXmediaAdapterLib.lib cppunitd.lib wsock32.lib pcre.lib winmm.lib"
 				OutputFile=".\Debug/sipXmediaAdapterLibTest.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"

@@ -1237,6 +1237,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MpArrayBuf.cpp"
+				>
+			</File>
+			<File
 				RelativePath="src\mp\mpau.cpp"
 				>
 				<FileConfiguration
@@ -1365,6 +1369,14 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpAudioBuf.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpAudioConnection.cpp"
+				>
 			</File>
 			<File
 				RelativePath="src\mp\MpAudioFileDecompress.cpp"
@@ -1560,6 +1572,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpAudioResource.cpp"
+				>
 			</File>
 			<File
 				RelativePath="src\mp\MpAudioUtils.cpp"
@@ -1820,6 +1836,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpBufPool.cpp"
+				>
 			</File>
 			<File
 				RelativePath="src\mp\MpCallFlowGraph.cpp"
@@ -2145,6 +2165,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpDataBuf.cpp"
+				>
 			</File>
 			<File
 				RelativePath="src\mp\MpDecoderBase.cpp"
@@ -2732,6 +2756,14 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MpdSipxGSM.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpdSipxILBC.cpp"
+				>
+			</File>
+			<File
 				RelativePath="src\mp\MpdSipxPcma.cpp"
 				>
 				<FileConfiguration
@@ -2860,6 +2892,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpdSipxSpeex.cpp"
+				>
 			</File>
 			<File
 				RelativePath="src\mp\MpeGIPSG729ab.cpp"
@@ -3447,6 +3483,14 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MpeSipxGSM.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpeSipxILBC.cpp"
+				>
+			</File>
+			<File
 				RelativePath="src\mp\MpeSipxPcma.cpp"
 				>
 				<FileConfiguration
@@ -3575,6 +3619,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpeSipxSpeex.cpp"
+				>
 			</File>
 			<File
 				RelativePath="src\mp\MpFlowGraphBase.cpp"
@@ -3770,6 +3818,14 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpInputDeviceDriverWnt.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpInputDeviceManager.cpp"
+				>
 			</File>
 			<File
 				RelativePath="src\mp\MpJitterBuffer.cpp"
@@ -4686,6 +4742,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MprFromInputDevice.cpp"
+				>
+			</File>
+			<File
 				RelativePath="src\mp\MprFromMic.cpp"
 				>
 				<FileConfiguration
@@ -4946,6 +5006,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MprNull.cpp"
+				>
+			</File>
+			<File
 				RelativePath="src\mp\MprRecorder.cpp"
 				>
 				<FileConfiguration
@@ -5009,6 +5073,18 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\mp\MprSineWaveGeneratorDeviceDriver.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\mp\MprSpeexEchoCancel.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\mp\MprSpeexPreProcess.cpp"
+				>
 			</File>
 			<File
 				RelativePath="src\mp\MprSplitter.cpp"
@@ -5269,6 +5345,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpRtpBuf.cpp"
+				>
 			</File>
 			<File
 				RelativePath="src\mp\MpSipxDecoders.cpp"
@@ -5662,6 +5742,10 @@
 			</File>
 			<File
 				RelativePath=".\src\mp\MpTopologyGraph.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpUdpBuf.cpp"
 				>
 			</File>
 			<File
@@ -7593,11 +7677,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\mp\MpArrayBuf.h"
+				>
+			</File>
+			<File
 				RelativePath="include\mp\mpau.h"
 				>
 			</File>
 			<File
 				RelativePath="include\mp\MpAudioAbstract.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\mp\MpAudioBuf.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\mp\MpAudioConnection.h"
 				>
 			</File>
 			<File
@@ -7610,6 +7706,10 @@
 			</File>
 			<File
 				RelativePath="include\mp\MpAudioFileUtils.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\mp\MpAudioResource.h"
 				>
 			</File>
 			<File
@@ -7626,6 +7726,10 @@
 			</File>
 			<File
 				RelativePath="include\mp\MpBufferMsg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\mp\MpBufPool.h"
 				>
 			</File>
 			<File
@@ -7646,6 +7750,10 @@
 			</File>
 			<File
 				RelativePath="include\mp\MpConnection.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\mp\MpDataBuf.h"
 				>
 			</File>
 			<File
@@ -7689,11 +7797,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\mp\MpdSipxGSM.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\mp\MpdSipxILBC.h"
+				>
+			</File>
+			<File
 				RelativePath="include\mp\MpdSipxPcma.h"
 				>
 			</File>
 			<File
 				RelativePath="include\mp\MpdSipxPcmu.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\mp\MpdSipxSpeex.h"
 				>
 			</File>
 			<File
@@ -7733,6 +7853,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\mp\MpeSipxGSM.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\mp\MpeSipxILBC.h"
+				>
+			</File>
+			<File
 				RelativePath="include\mp\MpeSipxPcma.h"
 				>
 			</File>
@@ -7741,11 +7869,27 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\mp\MpeSipxSpeex.h"
+				>
+			</File>
+			<File
 				RelativePath="include\mp\MpFlowGraphBase.h"
 				>
 			</File>
 			<File
 				RelativePath="include\mp\MpFlowGraphMsg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\mp\MpInputDeviceDriver.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\mp\MpInputDeviceDriverWnt.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\mp\MpInputDeviceManager.h"
 				>
 			</File>
 			<File
@@ -7817,6 +7961,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\mp\MprFromInputDevice.h"
+				>
+			</File>
+			<File
 				RelativePath="include\mp\MprFromMic.h"
 				>
 			</File>
@@ -7833,7 +7981,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\mp\MprNull.h"
+				>
+			</File>
+			<File
 				RelativePath="include\mp\MprRecorder.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\mp\MprSpeexEchoCancel.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\mp\MprSpeexPreProcess.h"
 				>
 			</File>
 			<File
@@ -7850,6 +8010,14 @@
 			</File>
 			<File
 				RelativePath="include\mp\MprToSpkr.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\mp\MpRtpBuf.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\mp\MpSineWaveGeneratorDeviceDriver.h"
 				>
 			</File>
 			<File
@@ -7882,6 +8050,10 @@
 			</File>
 			<File
 				RelativePath="include\mp\MpTypes.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\mp\MpUdpBuf.h"
 				>
 			</File>
 			<File
