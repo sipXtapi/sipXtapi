@@ -104,6 +104,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXsdpLib", "..\sipXsdpLib
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXsdpLibTest", "..\sipXsdpLib\sipXsdpLibTest.vcproj", "{AB8F7343-BC81-4077-B1A5-37CA389FCA94}"
 	ProjectSection(ProjectDependencies) = postProject
+		{DB95F825-45EE-4D62-825D-F337E2210B01} = {DB95F825-45EE-4D62-825D-F337E2210B01}
 		{E1D81EA9-4AC3-4CF5-B600-090FD822B1F6} = {E1D81EA9-4AC3-4CF5-B600-090FD822B1F6}
 		{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646} = {0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}
 	EndProjectSection
@@ -120,6 +121,8 @@ Global
 		Release_NoVideo = Release_NoVideo
 		SSL-Debug = SSL-Debug
 		SSL-Release = SSL-Release
+	EndGlobalSection
+	GlobalSection(ProjectDependencies) = postSolution
 	EndGlobalSection
 	GlobalSection(ProjectConfiguration) = postSolution
 		{14441867-4291-4174-812E-00C774370C61}.Debug.ActiveCfg = Debug|Win32

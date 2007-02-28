@@ -142,6 +142,9 @@
 				RelativePath=".\src\test\net\SdpBodyTest.cpp">
 			</File>
 			<File
+				RelativePath=".\src\test\SdpHelperTest.cpp">
+			</File>
+			<File
 				RelativePath=".\src\test\net\SipContactDbTest.cpp">
 			</File>
 			<File
