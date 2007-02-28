@@ -325,6 +325,10 @@ SOURCE=.\src\mp\mpG711.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpInputDeviceDriver.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MpInputDeviceManager.cpp
 # End Source File
 # Begin Source File

@@ -19,7 +19,7 @@
 #include <mp/MpInputDeviceManager.h>
 #include <mp/MpSineWaveGeneratorDeviceDriver.h>
 
-#define BUFFER_SIZE   100
+#define TEST_SAMPLES_PER_FRAME_SIZE   80
 #define BUFFER_NUM    50
 
 /**
@@ -37,7 +37,8 @@ public:
     void setUp()
     {
         // Create pool for data buffers
-        mpPool = new MpBufPool(BUFFER_SIZE, BUFFER_NUM);
+        mpPool = new MpBufPool(TEST_SAMPLES_PER_FRAME_SIZE * sizeof(MpAudioSample)
+                             + MpArrayBuf::getHeaderSize(), BUFFER_NUM);
         CPPUNIT_ASSERT(mpPool != NULL);
 
         // Create pool for buffer headers
@@ -78,15 +79,16 @@ public:
         // This driver should be running with no clock skew.
         unsigned int sineMagnatude = 32000;
         unsigned int sinePeriod = 4 * framePeriodMilliseconds; // 4 frames
-        MpSineWaveGeneratorDeviceDriver sineWaveDevice("sineWave",
-                                                       inputDevicemanager,
-                                                       sineMagnatude,
-                                                       sinePeriod,
-                                                       0); // no clock squew
+        MpSineWaveGeneratorDeviceDriver* sineWaveDevice = 
+            new MpSineWaveGeneratorDeviceDriver("sineWave",
+                                                inputDevicemanager,
+                                                sineMagnatude,
+                                                sinePeriod,
+                                                0); // no clock squew
 
         // Add the device
         int sineWaveDeviceId = 
-            inputDevicemanager.addDevice(sineWaveDevice);
+            inputDevicemanager.addDevice(*sineWaveDevice);
         CPPUNIT_ASSERT(sineWaveDeviceId > 0);
 
         // Should fail as it is not enabled yet
@@ -112,17 +114,22 @@ public:
         OsDateTime::getCurTimeSinceBoot(end);
 
         // Stop generating the sine wave ASAP
-        /*CPPUNIT_ASSERT*/(inputDevicemanager.disableDevice(sineWaveDeviceId) !=
+        CPPUNIT_ASSERT(inputDevicemanager.disableDevice(sineWaveDeviceId) !=
                        OS_SUCCESS);
 
         int lapseTime = framePeriodMilliseconds * 1000 * numBufferedFrames;
         OsTime delta = end - start;
         int actualLapseTime = delta.seconds() * 1000000 + delta.usecs();
-        printf("actual time: %d scheduled: %d (milli seconds)\n",
-            actualLapseTime, lapseTime);
-        // disable during debuging CPPUNIT_ASSERT(abs(actualLapseTime - lapseTime) < 3000);
+        printf("actual time: %d scheduled: %d (milli seconds) abs: %d\n",
+            actualLapseTime, lapseTime, abs(actualLapseTime - lapseTime));
+        CPPUNIT_ASSERT(abs(actualLapseTime - lapseTime) < 2000 * numBufferedFrames);
 
         printf("finished good clock\n");
+        CPPUNIT_ASSERT_EQUAL(inputDevicemanager.removeDevice(sineWaveDeviceId), 
+                             (MpInputDeviceDriver*)sineWaveDevice);
+        delete sineWaveDevice;
+        sineWaveDevice = NULL;
+
 
         // Create another driver which runs too slow
 

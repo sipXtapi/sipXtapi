@@ -39,6 +39,14 @@ MpInputDeviceDriver::MpInputDeviceDriver(const UtlString& name,
 {
 }
 
+MpInputDeviceDriver::~MpInputDeviceDriver()
+{
+    assert(!isEnabled());
+    disableDevice();
+    clearDeviceId();
+    mpInputDeviceManager = NULL;
+}
+
 /* ============================ MANIPULATORS ============================== */
 OsStatus MpInputDeviceDriver::enableDevice(unsigned samplesPerFrame, 
                                            unsigned samplesPerSec, 
@@ -56,6 +64,14 @@ OsStatus MpInputDeviceDriver::disableDevice()
     mSamplesPerSec = 0;
     mCurrentFrameTime = 0;
     return OS_SUCCESS;
+}
+
+
+/* ============================ ACCESSORS ================================= */
+
+MpInputDeviceHandle MpInputDeviceDriver::getDeviceId() const 
+{
+    return(mDeviceId); 
 }
 
 OsStatus MpInputDeviceDriver::setDeviceId(MpInputDeviceHandle deviceId) 
@@ -82,7 +98,12 @@ OsStatus MpInputDeviceDriver::clearDeviceId()
     return status;
 }
 
-/* ============================ ACCESSORS ================================= */
 /* ============================ INQUIRY =================================== */
+
+UtlBoolean MpInputDeviceDriver::isEnabled()
+{
+    return(mIsEnabled);
+};
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

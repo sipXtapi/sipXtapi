@@ -16,6 +16,7 @@
 // APPLICATION INCLUDES
 #include <os/OsWriteLock.h>
 #include <os/OsDateTime.h>
+#include <os/OsSysLog.h>
 #include <mp/MpInputDeviceManager.h>
 #include <mp/MpInputDeviceDriver.h>
 #include <mp/MpBuf.h>
@@ -91,11 +92,15 @@ public:
    virtual
    ~MpAudioInputConnection()
    {
+       OsSysLog::add(FAC_MP, PRI_ERR,"~MpInputDeviceManager start dev: %p id: %d\n",
+                     mpInputDeviceDriver, getValue());
+
        if (mppFrameBufferArray)
        {
            delete[] mppFrameBufferArray;
            mppFrameBufferArray = NULL;
        }
+       OsSysLog::add(FAC_MP, PRI_ERR,"~MpInputDeviceManager end\n");
    }
 
 //@}
@@ -131,6 +136,8 @@ public:
             thisFrameData->mFrameBuffer = 
                 mpBufferPool->getBuffer();
         }
+
+        assert(thisFrameData->mFrameBuffer->getSamplesNumber() >= numSamples);
 
         // Stuff the data in a buffer
         if (thisFrameData->mFrameBuffer.isValid())
@@ -265,6 +272,7 @@ int MpInputDeviceManager::addDevice(MpInputDeviceDriver& newDevice)
 
     MpInputDeviceHandle newDeviceId = ++mLastDeviceId;
     // Tell the device what id to use when pushing frames to this
+
     newDevice.setDeviceId(newDeviceId);
 
     // Create a connection to contain the device and its buffered frames
@@ -277,7 +285,9 @@ int MpInputDeviceManager::addDevice(MpInputDeviceDriver& newDevice)
                                    *mpBufferPool);
 
     // Map by device name string
-    mConnectionsByDeviceName.insertKeyAndValue(&newDevice, new UtlInt(newDeviceId));
+    UtlInt* idValue = new UtlInt(newDeviceId);
+    OsSysLog::add(FAC_MP, PRI_ERR,"MpInputDeviceManager::addDevice dev: %p value: %p id: %d\n", newDevice, idValue, newDeviceId);
+    mConnectionsByDeviceName.insertKeyAndValue(&newDevice, idValue);
 
     // Map by device ID
     mConnectionsByDeviceId.insert(connection);
@@ -305,12 +315,13 @@ MpInputDeviceDriver* MpInputDeviceManager::removeDevice(MpInputDeviceHandle devi
 
         // Get the int value mapped in the hash so we can clean up
         UtlInt* deviceIdInt =
-            (UtlInt*) mConnectionsByDeviceName.find(deviceDriver);
+            (UtlInt*) mConnectionsByDeviceName.findValue(deviceDriver);
 
         // Remove from the name indexed hash
         mConnectionsByDeviceName.remove(deviceDriver);
         if (deviceIdInt)
         {
+            OsSysLog::add(FAC_MP, PRI_ERR,"MpInputDeviceManager::addDevice dev: %p int: %p id: %d\n", deviceDriver, deviceIdInt, deviceIdInt->getValue());
             delete deviceIdInt;
             deviceIdInt = NULL;
         }

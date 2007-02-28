@@ -64,11 +64,7 @@ public:
 
       /// Default constructor
     MpInputDeviceDriver(const UtlString& name,
-        MpInputDeviceManager& deviceManager) :
-    UtlString(name)
-    {
-        mpInputDeviceManager = &deviceManager;
-    };
+        MpInputDeviceManager& deviceManager);
       /**<
       *  @param name - unique device driver name (e.g. "/dev/dsp", 
       *         "YAMAHA AC-XG WDM Audio", etc.)
@@ -78,7 +74,7 @@ public:
 
       /// Destructor
     virtual
-    ~MpInputDeviceDriver() {};
+    ~MpInputDeviceDriver();
 
 //@}
 
@@ -111,20 +107,6 @@ public:
       *        enabling a device results in state and buffer queues being cleared.
       */
 
-      /// Set device ID associated with this device in parent input device manager.
-    virtual OsStatus setDeviceId(MpInputDeviceHandle deviceId)
-    {
-        mDeviceId = deviceId;
-        return(OS_SUCCESS);
-    }
-
-      /// Clear the device ID associated with this device.
-    virtual OsStatus clearDeviceId()
-    { 
-        mDeviceId = -1; 
-        return(OS_SUCCESS);
-    };
-
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -132,7 +114,13 @@ public:
 //@{
 
       /// Get device ID associated with this device in parent input device manager.
-    virtual MpInputDeviceHandle getDeviceId() const { return mDeviceId; }
+    virtual MpInputDeviceHandle getDeviceId() const;
+
+      /// Set device ID associated with this device in parent input device manager.
+    virtual OsStatus setDeviceId(MpInputDeviceHandle deviceId);
+
+      /// Clear the device ID associated with this device.
+    virtual OsStatus clearDeviceId();
 
 //@}
 
@@ -141,7 +129,7 @@ public:
 //@{
 
       /// Inquire if this driver is enabled
-    virtual UtlBoolean isEnabled(){return(mIsEnabled);};
+    virtual UtlBoolean isEnabled();
 
 //@}
 

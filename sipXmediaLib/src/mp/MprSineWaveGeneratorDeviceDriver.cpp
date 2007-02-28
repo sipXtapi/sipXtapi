@@ -38,6 +38,7 @@ public:
                               int underOverRunTime,
                               MpInputDeviceHandle deviceId,
                               MpInputDeviceManager& inputDeviceManager) :
+    OsServerTask("MpSineWaveGeneratorServer-%d"),
     mTimer(getMessageQueue(), 0)
     {
         mNextFrameTime = startFrameTime;
@@ -53,10 +54,7 @@ public:
 
     virtual ~MpSineWaveGeneratorServer()
     {
-        if(isStarted())
-        {
-            requestShutdown();
-        }
+        OsSysLog::add(FAC_MP, PRI_ERR,"~MpSineWaveGeneratorServer start\n");
 
         // Do not continue until the task is safely shutdown
         waitUntilShutDown();
@@ -67,10 +65,12 @@ public:
             delete mpFrameData;
             mpFrameData = NULL;
         }
+        OsSysLog::add(FAC_MP, PRI_ERR,"~MpSineWaveGeneratorServer end\n");
     };
 
     virtual UtlBoolean start(void)
     {
+        OsSysLog::add(FAC_MP, PRI_ERR,"MpSineWaveGeneratorServer::start start\n");
         // start the task
         UtlBoolean result = OsServerTask::start();
 
@@ -83,20 +83,24 @@ public:
         // Start re-occuring timer which causes handleMessage to be called
         // periodically
         mTimer.periodicEvery(noDelay, framePeriod);
+        OsSysLog::add(FAC_MP, PRI_ERR,"MpSineWaveGeneratorServer::start end\n");
         return(result);
     };
 
     virtual void requestShutdown(void)
     {
+        OsSysLog::add(FAC_MP, PRI_ERR,"MpSineWaveGeneratorServer::requestShutdown start\n");
         // Stop the timer first so it stops queuing messages
         mTimer.stop();
 
         // Then stop the server task
         OsServerTask::requestShutdown();
+        OsSysLog::add(FAC_MP, PRI_ERR,"MpSineWaveGeneratorServer::requestShutdown end\n");
     };
 
     UtlBoolean handleMessage(OsMsg& rMsg)
     {
+        OsSysLog::add(FAC_MP, PRI_ERR,"MpSineWaveGeneratorServer::handleMessage start\n");
         // Build a frame of signal and push it to the device manager
         assert(mpFrameData);
 
@@ -117,6 +121,7 @@ public:
                                         mNextFrameTime);
         mNextFrameTime += mSamplesPerFrame * 1000 / mSamplesPerSecond;
 
+        OsSysLog::add(FAC_MP, PRI_ERR,"MpSineWaveGeneratorServer::handleMessage end\n");
         return(TRUE);
     }
 
@@ -155,10 +160,12 @@ MpInputDeviceDriver(name, deviceManager)
 // Destructor
 MpSineWaveGeneratorDeviceDriver::~MpSineWaveGeneratorDeviceDriver()
 {
+    OsSysLog::add(FAC_MP, PRI_ERR,"~MpSineWaveGeneratorDeviceDriver start\n");
     if(mpReaderTask)
     {
         assert(disableDevice() == OS_SUCCESS);
     }
+    OsSysLog::add(FAC_MP, PRI_ERR,"~MpSineWaveGeneratorDeviceDriver end\n");
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -167,6 +174,7 @@ OsStatus MpSineWaveGeneratorDeviceDriver::enableDevice(unsigned samplesPerFrame,
                                                       unsigned samplesPerSec,
                                                       MpFrameTime currentFrameTime)
 {
+    OsSysLog::add(FAC_MP, PRI_ERR,"MpSineWaveGeneratorDeviceDriver::enableDevice start\n");
     OsStatus result = OS_INVALID;
     assert(mpReaderTask == NULL);
 
@@ -185,11 +193,13 @@ OsStatus MpSineWaveGeneratorDeviceDriver::enableDevice(unsigned samplesPerFrame,
             result = OS_SUCCESS;
         }
     }
+    OsSysLog::add(FAC_MP, PRI_ERR,"MpSineWaveGeneratorDeviceDriver::enableDevice end\n");
     return(result);
 }
 
 OsStatus MpSineWaveGeneratorDeviceDriver::disableDevice()
 {
+    OsSysLog::add(FAC_MP, PRI_ERR,"MpSineWaveGeneratorDeviceDriver::disableDevice start\n");
     OsStatus result = OS_TASK_NOT_STARTED;
     //assert(mpReaderTask);
 
@@ -199,6 +209,7 @@ OsStatus MpSineWaveGeneratorDeviceDriver::disableDevice()
         delete mpReaderTask;
         mpReaderTask = NULL;
     }
+    OsSysLog::add(FAC_MP, PRI_ERR,"MpSineWaveGeneratorDeviceDriver::disableDevice end\n");
     return(result);
 }
 
