@@ -33,7 +33,8 @@ public:
     {
         // Create pool for data buffers
         mpPool = 
-            new MpBufPool((AUDIOBUF_TEST_SAMPLES_PER_FRAME * sizeof(MpAudioSample)), 
+            new MpBufPool((AUDIOBUF_TEST_SAMPLES_PER_FRAME * sizeof(MpAudioSample))
+                             + MpArrayBuf::getHeaderSize(), 
                           BUFFER_NUM);
         CPPUNIT_ASSERT(mpPool != NULL);
 
