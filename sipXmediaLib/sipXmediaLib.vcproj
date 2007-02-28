@@ -2819,7 +2819,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\mp\MprSineWaveGeneratorDeviceDriver.cpp">
+				RelativePath=".\src\mp\MpSineWaveGeneratorDeviceDriver.cpp">
 			</File>
 			<File
 				RelativePath=".\src\mp\MprSpeexEchoCancel.cpp">
