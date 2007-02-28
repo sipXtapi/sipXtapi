@@ -2819,6 +2819,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MprSineWaveGeneratorDeviceDriver.cpp">
+			</File>
+			<File
 				RelativePath=".\src\mp\MprSpeexEchoCancel.cpp">
 			</File>
 			<File
@@ -4577,6 +4580,9 @@
 			</File>
 			<File
 				RelativePath=".\include\mp\MpRtpBuf.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpSineWaveGeneratorDeviceDriver.h">
 			</File>
 			<File
 				RelativePath="include\mp\MpSipxDecoders.h">
