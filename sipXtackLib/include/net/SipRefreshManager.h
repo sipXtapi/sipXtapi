@@ -38,7 +38,7 @@ class OsTimer;
 
 //! Class for refreshing SIP subscriptions and registrations
 /*! This is currently verified for SUBSCRIPTIONS ONLY.
- *  This class is intended to depricate the SipRefreshMgr class.
+ *  This class is intended to deprecate the SipRefreshMgr class.
  *
  * \par 
  */
