@@ -468,10 +468,6 @@ void SipRefreshManager::stopAllRefreshes()
     {
         // Unsubscribe or unregister
         stopRefresh(*dialogKey);
-
-        // Remove the refresh state from the list
-        mRefreshes.removeReference(dialogKey);
-        
     }
     unlock();
 
