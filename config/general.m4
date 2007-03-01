@@ -1473,3 +1473,33 @@ AC_DEFUN([REQUIRE_RPM],
   fi
   AC_MSG_RESULT(yes)
 ])
+
+
+AC_DEFUN([CHECK_GENERATE_MANPAGES],
+[
+  AC_MSG_CHECKING([asciidoc])
+  AC_PATH_PROG([ASCIIDOC], asciidoc)
+  if test x$ASCIIDOC == x; then
+    AC_MSG_WARN([asciidoc not found, cannot generate man pages])
+    missing_dependency=yes
+  fi
+    
+  AC_PATH_PROG([XSLTPROC], xsltproc)
+  if test x$XSLTPROC == x; then
+    AC_MSG_WARN([xsltproc not found, cannot generate man pages])
+    missing_dependency=yes
+  fi
+
+  AC_ARG_VAR(DOCBOOK_2_MAN_XSL, [XSL Stylesheet to convert docbook to man page. (hint: docbook-style-xsl package)])
+  if test x$DOCBOOK_2_MAN_XSL == x; then
+    DOCBOOK_2_MAN_XSL=/usr/share/sgml/docbook/xsl-stylesheets/manpages/docbook.xsl
+  fi
+
+  AC_MSG_CHECKING(for $DOCBOOK_2_MAN_XSL)
+  if ! test -f $DOCBOOK_2_MAN_XSL; then
+    AC_MSG_WARN([docbook manpage xsl stylesheet not found, cannot generate man pages])
+    missing_dependency=yes
+  fi
+
+  AM_CONDITIONAL(GENERATE_MANPAGES, test x$missing_dependency != xyes)
+])
