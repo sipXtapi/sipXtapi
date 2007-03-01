@@ -181,11 +181,10 @@ class SipRefreshManagerTest : public CppUnit::TestCase
         UtlString requestDump;
         mwiSubscribeRequest.getBytes(&requestDump, &len);
 
-
-        SipUserAgent* userAgent = new SipUserAgent(UNIT_TEST_SIP_PORT, UNIT_TEST_SIP_PORT);
-        userAgent->start();
+        SipUserAgent userAgent(UNIT_TEST_SIP_PORT, UNIT_TEST_SIP_PORT);
+        userAgent.start();
         int transactionTimeoutPeriod = 
-            userAgent->getSipStateTransactionTimeout() / 1000;
+            userAgent.getSipStateTransactionTimeout() / 1000;
         int errorRefreshPeriod = (int)(expPeriod * 0.1);
         int normalRefreshPeriod = (int)(expPeriod * 0.55);
         if(errorRefreshPeriod < transactionTimeoutPeriod)
@@ -198,18 +197,18 @@ class SipRefreshManagerTest : public CppUnit::TestCase
         }
 
         // Set up the refresh manager
-        SipDialogMgr* clientDialogMgr = new SipDialogMgr;
-        SipRefreshManager* refreshMgr = new SipRefreshManager(*userAgent, *clientDialogMgr);
-        refreshMgr->start();
+        SipDialogMgr clientDialogMgr;
+        SipRefreshManager refreshMgr(userAgent, clientDialogMgr);
+        refreshMgr.start();
 
         //CPPUNIT_ASSERT(TRUE);
         //ASSERT_STR_EQUAL("a", "a");
 
         // Create a crude Subscription server/observer
-        OsMsgQ* incomingServerMsgQueue = new OsMsgQ;
+        OsMsgQ incomingServerMsgQueue;
         // Register an interest in SUBSCRIBE requests 
         // for this event type
-        userAgent->addMessageObserver(*incomingServerMsgQueue,
+        userAgent.addMessageObserver(incomingServerMsgQueue,
                                     SIP_SUBSCRIBE_METHOD,
                                     TRUE, // requests
                                     FALSE, // no reponses
@@ -222,17 +221,17 @@ class SipRefreshManagerTest : public CppUnit::TestCase
         // Send a request
         UtlString earlyDialogHandle;
         long start = OsDateTime::getSecsSinceEpoch();
-        CPPUNIT_ASSERT(refreshMgr->initiateRefresh(mwiSubscribeRequest,
+        CPPUNIT_ASSERT(refreshMgr.initiateRefresh(mwiSubscribeRequest,
                                                     this,
                                                     subStateCallback,
                                                     earlyDialogHandle));
 
         // Wait for the request and send a response
         SipMessage* initialRequest = NULL;
-        CPPUNIT_ASSERT(respond(*incomingServerMsgQueue, 
+        CPPUNIT_ASSERT(respond(incomingServerMsgQueue, 
                         202, // response code
                         "Got request and accepted",
-                        *userAgent,
+                        userAgent,
                         5000, // milliseconds to wait for request
                         initialRequest));
 
@@ -274,10 +273,10 @@ class SipRefreshManagerTest : public CppUnit::TestCase
         // Wait for the refresh
         printf("waiting for refresh in %d seconds\n", normalRefreshPeriod);
         SipMessage* firstRefresh;
-        CPPUNIT_ASSERT(respond(*incomingServerMsgQueue, 
+        CPPUNIT_ASSERT(respond(incomingServerMsgQueue, 
                         203, // response code
                         "Got request and accepted",
-                        *userAgent,
+                        userAgent,
                         expPeriod * 1000, // milliseconds to wait for request
                         firstRefresh));
         long firstRefreshAt = OsDateTime::getSecsSinceEpoch();
@@ -321,7 +320,7 @@ class SipRefreshManagerTest : public CppUnit::TestCase
         // still stands
         SipMessage* secondRefresh = NULL;
         printf("waiting for refresh in %d seconds\n", normalRefreshPeriod);
-        CPPUNIT_ASSERT(removeMessage(*incomingServerMsgQueue,
+        CPPUNIT_ASSERT(removeMessage(incomingServerMsgQueue,
                                      expPeriod * 1000, // milliseconds to wait for request
                                      (const SipMessage *&)secondRefresh));
 
@@ -358,7 +357,7 @@ class SipRefreshManagerTest : public CppUnit::TestCase
         long startDupRemoval = OsDateTime::getSecsSinceEpoch();
         for(int duplicateRequestCount = 0; duplicateRequestCount < 3; duplicateRequestCount++)
         {
-            removeMessage(*incomingServerMsgQueue,
+            removeMessage(incomingServerMsgQueue,
                                  50, // milliseconds to wait for request
                                  (const SipMessage *&)dupSecondRefresh);
             if(dupSecondRefresh)
@@ -377,10 +376,10 @@ class SipRefreshManagerTest : public CppUnit::TestCase
         // failed
         printf("waiting for refresh in %d seconds\n", errorRefreshPeriod);
         SipMessage* thirdRefresh = NULL;
-        CPPUNIT_ASSERT(respond(*incomingServerMsgQueue, 
+        CPPUNIT_ASSERT(respond(incomingServerMsgQueue, 
                                 204, // response code
                                 "Got request and accepted",
-                                *userAgent,
+                                userAgent,
                                 expPeriod * 1000, // milliseconds to wait for request
                                 thirdRefresh));
         long thirdRefreshAt = OsDateTime::getSecsSinceEpoch();
@@ -413,8 +412,8 @@ class SipRefreshManagerTest : public CppUnit::TestCase
         CPPUNIT_ASSERT(smExpiration + 5 >= secondExpiration + normalRefreshPeriod);
         CPPUNIT_ASSERT(smLastResponseCode == 204);
 
-        userAgent->removeMessageObserver(*incomingServerMsgQueue);
-        refreshMgr->requestShutdown();
+        userAgent.removeMessageObserver(incomingServerMsgQueue);
+        refreshMgr.requestShutdown();
 
     }
 

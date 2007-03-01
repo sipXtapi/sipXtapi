@@ -165,19 +165,19 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
         to.append(hostPort);
         to.append('>');
         contact.append(hostPort);
-        SipUserAgent* userAgent = new SipUserAgent(UNIT_TEST_SIP_PORT, UNIT_TEST_SIP_PORT);
-        userAgent->start();
+        SipUserAgent userAgent(UNIT_TEST_SIP_PORT, UNIT_TEST_SIP_PORT);
+        userAgent.start();
 
         // Set up the subscribe client
-        SipDialogMgr* clientDialogMgr = new SipDialogMgr();
-        SipRefreshManager* refreshMgr = new SipRefreshManager(*userAgent, *clientDialogMgr);
-        refreshMgr->start();
-        SipSubscribeClient* subClient = new SipSubscribeClient(*userAgent, *clientDialogMgr, *refreshMgr);
-        subClient->start();
+        SipDialogMgr clientDialogMgr;
+        SipRefreshManager refreshMgr(userAgent, clientDialogMgr);
+        refreshMgr.start();
+        SipSubscribeClient subClient(userAgent, clientDialogMgr, refreshMgr);
+        subClient.start();
 
         // Set up the subscribe server
         SipSubscribeServer* subServer = 
-           SipSubscribeServer::buildBasicServer(*userAgent, 
+           SipSubscribeServer::buildBasicServer(userAgent, 
                                                 eventType);
         SipSubscriptionMgr* subMgr = subServer->getSubscriptionMgr(eventType);
         SipDialogMgr* serverDialogMgr = subMgr->getDialogMgr();
@@ -187,7 +187,7 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
 
         subServer->start();
         // Enable the handler for the MWI server
-        subServer->enableEventType(eventType, userAgent);
+        subServer->enableEventType(eventType, &userAgent);
 
         //CPPUNIT_ASSERT(TRUE);
         //ASSERT_STR_EQUAL("a", "a");
@@ -196,7 +196,7 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
         OsMsgQ incomingServerMsgQueue;
         // Register an interest in SUBSCRIBE requests 
         // for this event type
-        userAgent->addMessageObserver(incomingServerMsgQueue,
+        userAgent.addMessageObserver(incomingServerMsgQueue,
                                     SIP_SUBSCRIBE_METHOD,
                                     TRUE, // requests
                                     FALSE, // no reponses
@@ -207,7 +207,7 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
                                     NULL);
 
         OsMsgQ incomingClientMsgQueue;
-        userAgent->addMessageObserver(incomingClientMsgQueue,
+        userAgent.addMessageObserver(incomingClientMsgQueue,
                                     SIP_SUBSCRIBE_METHOD,
                                     FALSE, // no requests
                                     TRUE, // reponses
@@ -239,7 +239,7 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
 
         // Create a subscribe request, send it and keep it refreshed
         UtlString earlyDialogHandle;
-        CPPUNIT_ASSERT(subClient->addSubscription(resourceId,
+        CPPUNIT_ASSERT(subClient.addSubscription(resourceId,
                                                   eventType,
                                                   NULL,
                                                   from,
@@ -289,7 +289,7 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
        CPPUNIT_ASSERT(clientSideSubResponse);
 
        //UtlString clientStateString;
-       //subClient->dumpStates(clientStateString);
+       //subClient.dumpStates(clientStateString);
        //printf("client states:\n%s\n", clientStateString.data());
 
 
@@ -318,7 +318,7 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
         CPPUNIT_ASSERT(firstSubCseq == 1);
         CPPUNIT_ASSERT(firstNotifyCseq == 0);
 
-        //subClient->dumpStates(clientStateString);
+        //subClient.dumpStates(clientStateString);
         //printf("client states:\n%s\n", clientStateString.data());
 
         //UtlString dialogMgrDumpString;
@@ -372,7 +372,7 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
             }
         }
 
-        //subClient->dumpStates(clientStateString);
+        //subClient.dumpStates(clientStateString);
         //printf("client states:\n%s\n", clientStateString.data());
 
         //clientDialogMgr.toString(dialogMgrDumpString);
@@ -415,12 +415,17 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
         CPPUNIT_ASSERT(firstNotifyCseq < secondNotifyCseq);
 */
         // Unregister the queues so we stop receiving messages on them
-        userAgent->removeMessageObserver(incomingServerMsgQueue);
-        userAgent->removeMessageObserver(incomingClientMsgQueue);
+        userAgent.removeMessageObserver(incomingServerMsgQueue);
+        userAgent.removeMessageObserver(incomingClientMsgQueue);
 
-        refreshMgr->requestShutdown();
-        subClient->requestShutdown();
+        subClient.requestShutdown();
+        refreshMgr.requestShutdown();
 
+        userAgent.shutdown(TRUE);
+
+        OsTask::delay(1000);   // 1 second to let other threads clean up
+
+        delete subServer;
     }
 
 
