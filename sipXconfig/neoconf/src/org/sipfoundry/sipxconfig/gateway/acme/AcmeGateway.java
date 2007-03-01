@@ -12,11 +12,7 @@
 package org.sipfoundry.sipxconfig.gateway.acme;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
 
-import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.device.ProfileUtils;
@@ -57,11 +53,6 @@ public class AcmeGateway extends Gateway {
 
     }
 
-    public void generateProfile(String template, Writer out) {
-        ProfileContext context = new ProfileContext(this);
-        getProfileGenerator().generate(context, template, out);
-    }
-
     private String getTemplate() {
         return "acme/acme-gateway.vm";
     }
@@ -74,21 +65,8 @@ public class AcmeGateway extends Gateway {
     public void generateProfiles() {
         String profileFileName = getProfileFilename();
         String template = getTemplate();
-        if (profileFileName == null || template == null) {
-            return;
-        }
-
-        Writer wtr = null;
-        try {
-            File file = new File(profileFileName);
-            ProfileUtils.makeParentDirectory(file);
-            wtr = new FileWriter(file);
-            generateProfile(template, wtr);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            IOUtils.closeQuietly(wtr);
-        }
+        ProfileContext context = new ProfileContext(this);
+        getProfileGenerator().generate(context, template, profileFileName);
     }
 
     @Override
