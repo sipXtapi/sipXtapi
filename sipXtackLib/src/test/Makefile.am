@@ -35,6 +35,7 @@ testsuite_SOURCES = \
     net/SdpBodyTest.cpp \
     net/SipContactDbTest.cpp \
     net/SipDialogEventTest.cpp \
+    net/SipDialogMonitorTest.cpp \
     net/SipDialogTest.cpp \
     net/SipMessageTest.cpp \
     net/SipPresenceEventTest.cpp \
