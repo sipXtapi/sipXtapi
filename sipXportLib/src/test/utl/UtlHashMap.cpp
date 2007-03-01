@@ -52,6 +52,7 @@ class UtlHashMapTests : public CppUnit::TestCase
     CPPUNIT_TEST(testClearAndDestroy) ; 
     CPPUNIT_TEST(testCopyInto) ;
     CPPUNIT_TEST(testRemoveCollision) ;
+    CPPUNIT_TEST(testOneThousandInserts) ;
     CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -882,6 +883,34 @@ public:
          CPPUNIT_ASSERT( ! map.contains(&int2) );
          CPPUNIT_ASSERT( ! map.contains(&int3) );
          CPPUNIT_ASSERT( ! map.contains(&int16) );
+      }
+      
+   void testOneThousandInserts()
+      {
+         // Test case used to validate fix to issue XPL-169 
+         const int COUNT = 1000;
+         const char stringPrefix[] = "Apofur81Kb";
+         UtlHashMap map;
+         char tmpString[20];
+			
+         for( int i = 0; i < COUNT; i++)
+         {
+            sprintf(tmpString, "%s%d", stringPrefix, i);
+            UtlString *stringToInsert = new UtlString();
+            *stringToInsert = tmpString;
+
+            CPPUNIT_ASSERT( ! map.contains( stringToInsert ) );
+            map.insert( stringToInsert );
+            CPPUNIT_ASSERT_EQUAL( i+1, (int)map.entries() );
+
+            for( unsigned int j = 0; j < map.entries(); j++ )
+            {
+               // verify that all entries are indeed in the map
+               sprintf( tmpString, "%s%d", stringPrefix, j );
+               UtlString stringTolookUp( tmpString );
+               CPPUNIT_ASSERT_MESSAGE( tmpString, map.contains( &stringTolookUp ) );
+            }
+         }
       }
 };
 
