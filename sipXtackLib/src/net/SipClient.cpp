@@ -67,7 +67,7 @@ SipClient::SipClient(OsSocket* socket) :
    mRemoteViaPort(PORT_NONE),
    mRemoteReceivedPort(PORT_NONE),
    mSocketLock(OsBSem::Q_FIFO, OsBSem::FULL),
-   mFirstResendTimeoutMs(SIP_DEFAULT_RTT * 4), // for first transcation time out
+   mFirstResendTimeoutMs(SIP_DEFAULT_RTT * 4), // for first transaction time out
    mInUseForWrite(0),
    mWaitingList(NULL),
    mbSharedSocket(FALSE)
@@ -115,7 +115,7 @@ SipClient::~SipClient()
         // cause the run method to exit.
 #ifdef TEST_PRINT
         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::~SipClient 0%x socket 0%x closing %s socket",
-            this, clientSocket, ipProtocolString(mSocketType));
+           this, clientSocket, OsSocket::ipProtocolString(mSocketType));
 
         osPrintf("SipClient::~SipClient closing socket\n");
 #endif
@@ -144,6 +144,7 @@ SipClient::~SipClient()
         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::~SipClient 0%x socket 0%x deleting socket",
             this, clientSocket);
 #endif
+
         if (!mbSharedSocket)
         {
             delete clientSocket;
@@ -238,7 +239,7 @@ int SipClient::run(void* runArg)
 #ifdef LOG_TIME
                 eventTimes.addEvent("locking");
 #endif
-                // Lock to prevent multitreaded read or write
+                // Lock to prevent multi-treaded read or write
                 mSocketLock.acquire();
 
 #ifdef LOG_TIME
