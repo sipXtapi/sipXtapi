@@ -24,6 +24,7 @@ testsuite_LDADD = \
     @SIPXUNIT_LIBS@ \
     $(CPPUNIT_LIBS) \
     @SIPXPORT_LIBS@ \
+    @SIPXSDP_LIBS@ \
     ../libsipXtack.la
 
 testsuite_SOURCES = \
