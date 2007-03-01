@@ -58,15 +58,9 @@ public class MailboxManagerImpl implements MailboxManager {
         m_distributionListsWriter.writeObject(lists, file);
     }
    
-    public List<String> getFolderIds(String userId) {
-        // to support custom folders, return these names and any additional
-        // directories here
-        return Arrays.asList(new String[] {"inbox", "deleted", "saved"});
-    }
-    
-    public List<Voicemail> getVoicemail(String userid, String folder) {
+    public List<Voicemail> getVoicemail(Mailbox mbox, String folder) {
         checkMailstoreDirectory();
-        File vmdir = new File(new File(m_mailstoreDirectory, userid), folder);
+        File vmdir = new File(mbox.getUserDirectory(), folder);
         String[] wavs = vmdir.list(MESSAGE_FILES);
         if (wavs == null) {
             return Collections.emptyList();
@@ -75,7 +69,7 @@ public class MailboxManagerImpl implements MailboxManager {
         List<Voicemail> vms = new ArrayList(wavs.length);
         for (String wav : wavs) {
             String basename = basename(wav);
-            vms.add(new Voicemail(m_mailstoreDirectory, userid, folder, basename));
+            vms.add(new Voicemail(m_mailstoreDirectory, mbox.getUserId(), folder, basename));
         }
         return vms;
     }
@@ -89,12 +83,42 @@ public class MailboxManagerImpl implements MailboxManager {
      *    messageidlist = space delimited message ids
      */
     public void markRead(Mailbox mailbox, Voicemail voicemail) {
-        String errMsg = "Cannot contact media server to update message as 'read'";
+        String request = String.format("action=updatestatus&mailbox=%s&category=inbox&messageidlist=%s",
+                mailbox.getUserId(), voicemail.getMessageId());
+        mediaserverCgiRequest(request);
+    }
+    
+    public void move(Mailbox mailbox, Voicemail voicemail, String destinationFolderId) {
+        File destination = new File(mailbox.getUserDirectory(), destinationFolderId);
+        for (File f : voicemail.getAllFiles()) {
+            f.renameTo(new File(destination, f.getName()));
+        }
+        
+        updateInboxStatus(mailbox);
+    }
+
+
+    public void delete(Mailbox mailbox, Voicemail voicemail) {
+        for (File f : voicemail.getAllFiles()) {
+            f.delete();
+        }
+
+        updateInboxStatus(mailbox);
+    }
+    
+    public void updateInboxStatus(Mailbox mailbox) {
+        // reversed engineered this string from using sipx 3.6 system 
+        String request = String.format("action=updatestatus&from=gateway&category=inbox&"
+                + "mailbox=%s&messageidlist=-2", mailbox.getUserId());
+        mediaserverCgiRequest(request);
+    }
+    
+    public void mediaserverCgiRequest(String cgiRequest) {
+        String errMsg = "Cannot contact media server to update voicemail status";
         if (StringUtils.isBlank(m_mediaServerCgiUrl)) {
             return;
         }
-        String sUpdate = String.format("%s?action=updatestatus&mailbox=%s&category=inbox&messageidlist=%s",
-                m_mediaServerCgiUrl, mailbox.getUserId(), voicemail.getMessageId());
+        String sUpdate = m_mediaServerCgiUrl + '?' + cgiRequest;
         InputStream updateResponse = null;
         try {
             LOG.info(sUpdate);
@@ -110,7 +134,7 @@ public class MailboxManagerImpl implements MailboxManager {
             IOUtils.closeQuietly(updateResponse);
         }        
     }
-    
+
     /**
      * Because in HA systems, admin may change mailstore directory, validate it
      */

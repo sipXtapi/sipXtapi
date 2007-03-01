@@ -82,6 +82,7 @@
  * Used in updateMessageStates() method.
  */
 #define UPDATE_ALL_MSG_STATES           "-1"
+#define REFRESH_ALL_MSG_STATES           "-2"
 #define MESSAGE_DELIMITER               " "
 #define DEFAULT_MESSAGE_SUBJECT         "Voice Message"
 

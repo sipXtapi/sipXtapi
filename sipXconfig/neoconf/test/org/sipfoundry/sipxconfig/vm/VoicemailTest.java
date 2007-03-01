@@ -76,9 +76,12 @@ public class VoicemailTest extends TestCase {
     
     public void testMove() throws IOException {
         File mailstore = createTestMailStore();
-        Voicemail vmOrig = new Voicemail(mailstore, "200", "inbox", "00000001");
-        vmOrig.move("deleted");
-        Voicemail vmNew = new Voicemail(mailstore, "200", "deleted", "00000001");
+        MailboxManagerImpl mgr = new MailboxManagerImpl();
+        mgr.setMailstoreDirectory(mailstore.getAbsolutePath());
+        Mailbox mbox = mgr.getMailbox("200");
+        Voicemail vmOrig = mbox.getVoicemail("inbox", "00000001");
+        mgr.move(mbox, vmOrig, "deleted");
+        Voicemail vmNew = mbox.getVoicemail("deleted", "00000001");
         assertEquals("Voice Message 00000002", vmNew.getDescriptor().getSubject());
         // nice, not critical
         FileUtils.deleteDirectory(mailstore);
@@ -102,12 +105,13 @@ public class VoicemailTest extends TestCase {
         File mailstore = createTestMailStore();
         MailboxManagerImpl mgr = new MailboxManagerImpl();
         mgr.setMailstoreDirectory(mailstore.getAbsolutePath());
-        List<Voicemail> vm = mgr.getVoicemail("200", "inbox"); 
+        Mailbox mbox = mgr.getMailbox("200");
+        List<Voicemail> vm = mgr.getVoicemail(mbox, "inbox"); 
         assertEquals(2, vm.size());
 
-        vm.get(0).delete();
+        mgr.delete(mbox, vm.get(0));
 
-        assertEquals(1, mgr.getVoicemail("200", "inbox").size());
+        assertEquals(1, mgr.getVoicemail(mbox, "inbox").size());
 
         // nice, not critical
         FileUtils.deleteDirectory(mailstore);        

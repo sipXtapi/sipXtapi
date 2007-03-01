@@ -88,19 +88,6 @@ public class Voicemail implements Comparable {
         return !(new File(getMailboxDirectory(), getMessageId() + "-00.sta").exists());
     }
 
-    public void move(String destinationFolderId) {
-        File destination = new File(m_userDirectory, destinationFolderId);
-        for (File f : getAllFiles()) {
-            f.renameTo(new File(destination, f.getName()));
-        }
-    }
-
-    public void delete() {
-        for (File f : getAllFiles()) {
-            f.delete();
-        }
-    }
-
     public File getMailboxDirectory() {
         return m_mailbox;
     }

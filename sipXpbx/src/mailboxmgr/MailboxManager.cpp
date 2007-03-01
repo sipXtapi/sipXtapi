@@ -2655,7 +2655,12 @@ MailboxManager::updateMessageStates(
       int msgCount = 0;
       int errorCount = 0;
 
-      if (messageids == UPDATE_ALL_MSG_STATES)
+      if (messageids == REFRESH_ALL_MSG_STATES)
+      {
+	 // Refresh message states, trigger NOTIFY
+         msgCount = 1;         
+      } 
+      else if (messageids == UPDATE_ALL_MSG_STATES)
       {
          // messageids == "-1" means to update all messages to "heard" status.
          // Delete all .sta files.

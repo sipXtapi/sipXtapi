@@ -12,6 +12,8 @@
 package org.sipfoundry.sipxconfig.vm;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 
 public class Mailbox {
     private File m_mailstoreDirectory;
@@ -22,12 +24,22 @@ public class Mailbox {
         m_userId = userId;
     }
 
+    public List<String> getFolderIds() {
+        // to support custom folders, return these names and any additional
+        // directories here
+        return Arrays.asList(new String[] {"inbox", "deleted", "saved"});
+    }
+    
     public File getMailstoreDirectory() {
         return m_mailstoreDirectory;
     }
     
+    public File getUserDirectory() {
+        return new File(getMailstoreDirectory(), getUserId());
+    }
+    
     public File getDistributionListsFile() {
-        return new File(getMailstoreDirectory(), getUserId() + "/distribution.xml");
+        return new File(getUserDirectory(), "distribution.xml");
     }
 
     public void setMailstoreDirectory(File mailstoreDirectory) {
@@ -43,7 +55,7 @@ public class Mailbox {
     }
     
     public File getVoicemailPreferencesFile() {
-        return new File(getMailstoreDirectory(), getUserId() + "/mailboxprefs.xml");        
+        return new File(getUserDirectory(), "mailboxprefs.xml");        
     }
     
     public Voicemail getVoicemail(String folderId, String messageId) {
