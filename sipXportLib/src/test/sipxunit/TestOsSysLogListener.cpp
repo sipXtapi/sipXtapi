@@ -57,14 +57,14 @@ void TestOsSysLogListener::endTest( CPPUNIT_NS::Test *test )
    OsPath testLogFilePath(testLogFile);
    OsFileInfo tLogFInfo;
    OsStatus stat = OsFileSystem::getFileInfo(testLogFilePath, tLogFInfo);
-   if(stat == OS_SUCCESS)
+   if (stat == OS_SUCCESS)
    { 
       unsigned long logSz = 0;
       stat = tLogFInfo.getSize(logSz);
-      if(stat == OS_SUCCESS && (logSz == 0))
+      if (stat == OS_SUCCESS && (logSz == 0))
       {
          stat = OsFileSystem::remove(testLogFile, FALSE, TRUE);
-         if(stat != OS_SUCCESS)
+         if (stat != OS_SUCCESS)
          {
             printf("Failed to remove file %s\n", testLogFile.data());
          }

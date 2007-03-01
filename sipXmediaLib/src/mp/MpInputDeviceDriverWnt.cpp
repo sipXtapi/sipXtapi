@@ -36,6 +36,7 @@ MpInputDeviceDriverWnt::MpInputDeviceDriverWnt(const UtlString& name,
 , mWntDeviceId(-1)
 , mDevHandle(NULL)
 , mNumInBuffers(nInputBuffers)
+, mIsOpen(FALSE)
 {
     WAVEINCAPS devCaps;
     // Grab the number of input devices that are available.
@@ -73,6 +74,11 @@ MpInputDeviceDriverWnt::MpInputDeviceDriverWnt(const UtlString& name,
 // Destructor
 MpInputDeviceDriverWnt::~MpInputDeviceDriverWnt() 
 {
+    // If we happen to still be enabled at this point, disable the device.
+    assert(!isEnabled());
+    if (isEnabled())
+        disableDevice();
+
     // Delete the sample buffers..
     unsigned i;
     for (i = 0; i < mNumInBuffers; i++)
@@ -89,19 +95,21 @@ OsStatus MpInputDeviceDriverWnt::enableDevice(unsigned samplesPerFrame,
                                               unsigned samplesPerSec, 
                                               unsigned currentFrameTime)
 {
+    OsStatus status = OS_SUCCESS;
+
     // If the device is not valid, let the user know it's bad.
     if (!isDeviceValid())
         return OS_INVALID_STATE;  // perhaps new OsState of OS_RESOURCE_INVALID?
 
-    OsStatus status = 
-        MpInputDeviceDriver::enableDevice(samplesPerFrame, samplesPerSec, 
-                                          currentFrameTime);
+    if (isEnabled())
+        return OS_FAILED;
 
-    // If enableDevice failed, return indicating failure.
-    if(status != OS_SUCCESS)
-        return status;
+    // Set some wave header stat information.
+    mSamplesPerFrame = samplesPerFrame;
+    mSamplesPerSec = samplesPerSec;
+    mCurrentFrameTime = currentFrameTime;
 
-    // TODO: Do stuff to enable device.
+    // Do stuff to enable device.
     int nChannels = 1;
     WAVEFORMATEX wavFormat;
     wavFormat.wFormatTag = WAVE_FORMAT_PCM;
@@ -116,7 +124,7 @@ OsStatus MpInputDeviceDriverWnt::enableDevice(unsigned samplesPerFrame,
     MMRESULT res = waveInOpen(&mDevHandle, mWntDeviceId,
                               &wavFormat, (DWORD_PTR)waveInCallbackStatic,
                               (DWORD_PTR)this, CALLBACK_FUNCTION);
-    if(res != MMSYSERR_NOERROR)
+    if (res != MMSYSERR_NOERROR)
     {
         // If waveInOpen failed, print out the error info,
         // invalidate the handle, and the device driver itself,
@@ -125,30 +133,6 @@ OsStatus MpInputDeviceDriverWnt::enableDevice(unsigned samplesPerFrame,
         waveInClose(mDevHandle);
         mDevHandle = NULL; // Open didn't work, reset device handle to NULL
         mWntDeviceId = -1; // Make device invalid.
-
-        // and return OS_FAILED.
-        return status;
-    }
-
-    
-    BOOL bSuccess;
-    MSG msg;
-    do
-    {
-        bSuccess = GetMessage(&msg, NULL, 0, 0);
-    } while (bSuccess && (msg.message != WIM_OPEN));
-
-
-    res = waveInStart(mDevHandle);
-    if (res != MMSYSERR_NOERROR)
-    {
-        // If waveInStart failed, print out the error info,
-        // invalidate the handle and the device driver itself,
-        status = OS_FAILED;
-        showWaveError("waveInStart", res, -1, __LINE__);
-        waveInClose(mDevHandle);
-        mDevHandle = NULL;
-        mWntDeviceId = -1;
 
         // and return OS_FAILED.
         return status;
@@ -186,19 +170,51 @@ OsStatus MpInputDeviceDriverWnt::enableDevice(unsigned samplesPerFrame,
             return status;
         }
     }
+
+    
+    res = waveInStart(mDevHandle);
+    if (res != MMSYSERR_NOERROR)
+    {
+        // If waveInStart failed, print out the error info,
+        // invalidate the handle and the device driver itself,
+        status = OS_FAILED;
+        showWaveError("waveInStart", res, -1, __LINE__);
+        waveInClose(mDevHandle);
+        mDevHandle = NULL;
+        mWntDeviceId = -1;
+
+        // and return OS_FAILED.
+        return status;
+    }
+
+    // If enableDevice failed, return indicating failure.
+    if (status == OS_SUCCESS)
+    {
+        mIsEnabled = TRUE;
+    }
+
     return status;
 }
 
 OsStatus MpInputDeviceDriverWnt::disableDevice()
 {
     OsStatus status = OS_SUCCESS;
-    
-    // TODO: Do stuff to disable device.
     MMRESULT   res;
+    
+    if (!isDeviceValid() || !isEnabled())
+    {
+        return OS_FAILED;
+    }
+
+    // Indicate we are no longer enabled -- Do this first,
+    // since we'll be partially disabled from here on out.
+    mIsEnabled = FALSE;
 
     // Cleanup
     if (mDevHandle == NULL)
+    {
         return OS_INVALID_STATE;
+    }
 
     res = waveInReset(mDevHandle);
     if (res != MMSYSERR_NOERROR)
@@ -229,19 +245,14 @@ OsStatus MpInputDeviceDriverWnt::disableDevice()
         showWaveError("waveInClose", res, -1, __LINE__);
     }
 
-    MSG  tMsg;
-    BOOL msgOk;
-    do 
-    {
-        msgOk = GetMessage(&tMsg, NULL, 0, 0) ;
-    } while (msgOk && (tMsg.message != WIM_CLOSE)) ;
-
-
     // set the device handle to NULL, since it no longer is valid.
     mDevHandle = NULL;
 
-    if (status == OS_SUCCESS)
-        status = MpInputDeviceDriver::disableDevice();
+    // Clear out all the wave header information.
+    mSamplesPerFrame = 0;
+    mSamplesPerSec = 0;
+    mCurrentFrameTime = 0;
+
     return status;
 }
 
@@ -250,7 +261,25 @@ void MpInputDeviceDriverWnt::processAudioInput(HWAVEIN hwi,
                                                DWORD_PTR dwParam1,
                                                DWORD_PTR dwParam2)
 {
-    osPrintf("Received audio input data.\n");
+    if (!mIsOpen)
+    {
+        assert(uMsg == WIM_OPEN);
+        if(uMsg == WIM_OPEN)
+        {
+            printf("received WIM_OPEN\n");
+            mIsOpen = TRUE;
+        }
+    }
+    if (uMsg == WIM_DATA)
+    {
+        assert(mIsOpen);
+        printf("received WIM_DATA\n");
+    }
+    else if (uMsg == WIM_CLOSE)
+    {
+        printf("received WIM_CLOSE\n");
+        mIsOpen = FALSE;
+    }
 }
 
 void CALLBACK 
@@ -274,7 +303,7 @@ MpInputDeviceDriverWnt::waveInCallbackStatic(HWAVEIN hwi,
 
 WAVEHDR* MpInputDeviceDriverWnt::initWaveHeader(int n)
 {
-    assert((n > 0) && (n < (int)mNumInBuffers));
+    assert((n >= 0) && (n < (int)mNumInBuffers));
     assert(mpWaveHeaders != NULL);
     assert((mpWaveBuffers != NULL) && (mpWaveBuffers[n] != NULL));
     WAVEHDR& wave_hdr(mpWaveHeaders[n]);

@@ -42,30 +42,11 @@ MpInputDeviceDriver::MpInputDeviceDriver(const UtlString& name,
 MpInputDeviceDriver::~MpInputDeviceDriver()
 {
     assert(!isEnabled());
-    disableDevice();
     clearDeviceId();
     mpInputDeviceManager = NULL;
 }
 
 /* ============================ MANIPULATORS ============================== */
-OsStatus MpInputDeviceDriver::enableDevice(unsigned samplesPerFrame, 
-                                           unsigned samplesPerSec, 
-                                           unsigned currentFrameTime)
-{
-    mSamplesPerFrame = samplesPerFrame;
-    mSamplesPerSec = samplesPerSec;
-    mCurrentFrameTime = currentFrameTime;
-    return OS_SUCCESS;
-}
-
-OsStatus MpInputDeviceDriver::disableDevice()
-{
-    mSamplesPerFrame = 0;
-    mSamplesPerSec = 0;
-    mCurrentFrameTime = 0;
-    return OS_SUCCESS;
-}
-
 
 /* ============================ ACCESSORS ================================= */
 

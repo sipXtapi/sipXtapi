@@ -141,7 +141,7 @@ public:
 //@{
 
       /// Inquire if the windows device is valid
-    virtual UtlBoolean isDeviceValid() { return (mWntDeviceId > 0); };
+    virtual UtlBoolean isDeviceValid() { return (mWntDeviceId >= 0); };
 //@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -160,6 +160,7 @@ private:
                               ///< after allocation.
     WAVEHDR* mpWaveHeaders;   ///< Array of nNumInBuffers wave headers.
     LPSTR* mpWaveBuffers;     ///< Array of nNumInBuffers wave buffers.
+    UtlBoolean mIsOpen;       ///< Boolean indicating waveInOpen() completed.
 
 
       /// Copy constructor (not implemented for this class)
