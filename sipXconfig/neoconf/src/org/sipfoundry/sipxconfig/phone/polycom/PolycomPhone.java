@@ -372,7 +372,16 @@ public class PolycomPhone extends Phone {
             m_defaults = defaults;
             m_line = line;
         }
-
+            
+        @SettingEntry(paths = { "reg/server/1/transport", "reg/server/2/transport" })
+        public String transport() {
+            DeviceVersion ver = m_line.getPhone().getDeviceVersion();
+            if (ver != null && "1.6".equals(ver.getVersionId())) {
+                return "UDPonly";
+            }    
+            return "DNSnaptr";
+        }
+         
         @SettingEntry(path = "msg.mwi/subscribe")
         public String getMwiSubscribe() {
             String uri = null;
