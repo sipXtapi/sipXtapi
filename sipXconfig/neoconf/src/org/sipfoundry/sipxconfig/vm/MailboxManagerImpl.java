@@ -75,7 +75,7 @@ public class MailboxManagerImpl implements MailboxManager {
     }
     
     /** 
-     * asyncronously(?) tell mediaserver cgi to mark voicemail as heard by using these
+     * tell mediaserver cgi to mark voicemail as heard by using these
      * parameters
      *    action = updatestatus
      *    mailbox = userid
@@ -83,8 +83,9 @@ public class MailboxManagerImpl implements MailboxManager {
      *    messageidlist = space delimited message ids
      */
     public void markRead(Mailbox mailbox, Voicemail voicemail) {
-        String request = String.format("action=updatestatus&mailbox=%s&category=inbox&messageidlist=%s",
-                mailbox.getUserId(), voicemail.getMessageId());
+        String request = String.format("action=updatestatus&mailbox=%s&category=%s&messageidlist=%s",
+                mailbox.getUserId(), voicemail.getFolderId(), voicemail.getMessageId());
+        // triggers NOTIFY (iff folder is inbox, bug in mediaserver?)
         mediaserverCgiRequest(request);
     }
     
@@ -94,7 +95,7 @@ public class MailboxManagerImpl implements MailboxManager {
             f.renameTo(new File(destination, f.getName()));
         }
         
-        updateInboxStatus(mailbox);
+        triggerSipNotify(mailbox);
     }
 
 
@@ -103,11 +104,11 @@ public class MailboxManagerImpl implements MailboxManager {
             f.delete();
         }
 
-        updateInboxStatus(mailbox);
+        triggerSipNotify(mailbox);
     }
     
-    public void updateInboxStatus(Mailbox mailbox) {
-        // reversed engineered this string from using sipx 3.6 system 
+    private void triggerSipNotify(Mailbox mailbox) {
+        // reversed engineered this string from using sipx 3.6 system.
         String request = String.format("action=updatestatus&from=gateway&category=inbox&"
                 + "mailbox=%s&messageidlist=-2", mailbox.getUserId());
         mediaserverCgiRequest(request);

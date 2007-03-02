@@ -11,10 +11,13 @@
  */
 package org.sipfoundry.sipxconfig.vm;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.io.FileUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.test.TestUtil;
@@ -22,10 +25,19 @@ import org.sipfoundry.sipxconfig.test.TestUtil;
 public class MailboxManagerTest extends TestCase {
     private MailboxManagerImpl m_mgr;
     
+    public static final File READONLY_MAILSTORE = new File(TestUtil.getTestSourceDirectory(MailboxManagerTest.class));
+    
     protected void setUp() {
         m_mgr = new MailboxManagerImpl();
         String thisDir = TestUtil.getTestSourceDirectory(getClass());
         m_mgr.setMailstoreDirectory(thisDir);        
+    }
+    
+    public static File createTestMailStore() throws IOException {
+        File testMailstore = new File(TestHelper.getTestDirectory() + '/' + System.currentTimeMillis());
+        testMailstore.mkdirs();
+        FileUtils.copyDirectory(new File(READONLY_MAILSTORE, "200"), new File(testMailstore, "200"));        
+        return testMailstore;
     }
     
     public void testEnabled() {
