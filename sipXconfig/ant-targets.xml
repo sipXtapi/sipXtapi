@@ -238,6 +238,7 @@
   <path id="test.path">
     <pathelement location="${test.src.dir}"/>
     <pathelement location="${src.dir}"/>
+    <pathelement location="${log4j.jar}"/>
     <pathelement location="etc"/>
     <pathelement location="${clover.jar}"/> 
     <path refid="base.path"/>
@@ -263,7 +264,7 @@
         </fileset>
       </batchtest>
     </junit>        
-    <fail if="junit.failed"/>   
+    <fail if="junit.failed"/>
   </target>
 
   <!--
@@ -296,6 +297,8 @@
            todir="${junit.results.dir}"/>
 
     </junitreport>
+
+
   </target>
 
   <!--
