@@ -30,7 +30,7 @@ public class PolycomLineDefaults {
     @SettingEntry(paths = { "reg/server/1/transport", "reg/server/2/transport" })
     public String transport() {
         DeviceVersion ver = m_line.getPhone().getDeviceVersion();
-        if (ver != null && "1.6".equals(ver.getVersionId())) {
+        if (ver == PolycomModel.VER_1_6) {
             return "UDPonly";
         }    
         return "DNSnaptr";
