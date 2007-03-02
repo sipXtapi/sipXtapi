@@ -40,8 +40,7 @@ public class MitelPhone extends Phone {
 
     @Override
     public void initialize() {
-        MitelPhoneDefaults defaults = new MitelPhoneDefaults(getPhoneContext()
-                .getPhoneDefaults());
+        MitelPhoneDefaults defaults = new MitelPhoneDefaults(getPhoneContext().getPhoneDefaults());
         addDefaultBeanSettingHandler(defaults);
     }
 
@@ -54,7 +53,7 @@ public class MitelPhone extends Phone {
     @Override
     public String getPhoneFilename() {
         String serialNumber = getSerialNumber();
-        return getTftpRoot() + "/mn_" + serialNumber + ".txt";
+        return "mn_" + serialNumber + ".txt";
     }
 
     @Override

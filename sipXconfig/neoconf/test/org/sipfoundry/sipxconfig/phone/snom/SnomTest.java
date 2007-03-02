@@ -2,33 +2,38 @@ package org.sipfoundry.sipxconfig.phone.snom;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.io.IOUtils;
+import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
 public class SnomTest extends TestCase {
 
-    private Phone m_phone;
+    public void testGenerateProfiles() throws Exception {
+        SnomPhone phone = new SnomPhone();
+        SnomModel model = new SnomModel();
+        model.setLabel("Snom 360");
+        
+        phone.setModel(model);
+        PhoneTestDriver.supplyTestData(phone);
+        
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        
+        phone.generateProfiles();
+        String expected = IOUtils.toString(this.getClass()
+                .getResourceAsStream("expected-360.cfg"));
 
-    protected void setUp() {
-        m_phone = new SnomPhone();
-        PhoneTestDriver.supplyTestData(m_phone);
+        System.err.println(location.toString());
+        
+        assertEquals(expected, location.toString());
     }
-
-  // Disabled until new sample config is ready
-  //  public void testGenerateProfiles() throws Exception {
-  //      StringWriter profile = new StringWriter();
-  //      m_phone.generateProfile(profile);
-  //      String expected = IOUtils.toString(this.getClass()
-  //              .getResourceAsStream("expected-360.cfg"));
-  //      assertEquals(expected, profile.toString());
-  //  }
 
     public void testGetProfileName() {
         Phone phone = new SnomPhone();
-        phone.setWebDirectory("web");
         // it can be called without serial number
-        //assertEquals("web/snom360.htm", phone.getPhoneFilename());
+        assertEquals("snom.htm", phone.getPhoneFilename());
         phone.setSerialNumber("abc123");
-        assertEquals("web/ABC123.htm", phone.getPhoneFilename());
+        assertEquals("ABC123.htm", phone.getPhoneFilename());
     }
 }

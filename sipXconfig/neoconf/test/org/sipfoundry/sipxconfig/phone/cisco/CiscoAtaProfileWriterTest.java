@@ -23,7 +23,8 @@ public class CiscoAtaProfileWriterTest extends TestCase {
     
     public void testWriteEntry() {
         StringWriter wtr = new StringWriter();
-        CiscoAtaProfileWriter pwtr = new CiscoAtaProfileWriter(wtr);
+        CiscoAtaProfileWriter pwtr = new CiscoAtaProfileWriter();
+        pwtr.setWriter(wtr);
         pwtr.writeEntry("bird", "crow");
         assertEquals("bird:crow" + LF, wtr.toString());
     }
@@ -37,7 +38,8 @@ public class CiscoAtaProfileWriterTest extends TestCase {
         birds.addSetting(bird0);
         
         StringWriter wtr = new StringWriter();
-        CiscoAtaProfileWriter pwtr = new CiscoAtaProfileWriter(wtr);
+        CiscoAtaProfileWriter pwtr = new CiscoAtaProfileWriter();
+        pwtr.setWriter(wtr);
         birds.acceptVisitor(pwtr);
         
         assertEquals("Bird:0x100" + LF, wtr.toString());

@@ -16,27 +16,30 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
+import org.sipfoundry.sipxconfig.phone.Phone;
 
 /**
  * Velocity model for generating [MAC ADDRESS].cfg, pointer to all other config files. See page 11
  * of Administration guide for more information
  */
 public class ApplicationConfiguration extends ProfileContext {
-    private List m_staleDirectories = new ArrayList();
+    private List<String> m_staleDirectories = new ArrayList<String>();
 
     private String m_directory;
 
-    private PolycomPhone m_phone;
+    private String m_serialNumber;
 
-    public ApplicationConfiguration(PolycomPhone phone) {
+    private String m_parentDir;
+
+    public ApplicationConfiguration(Phone phone, String parentDir) {
         super(phone);
-        m_phone = phone;
+        m_serialNumber = phone.getSerialNumber();
+        m_parentDir = parentDir;
     }
 
     public String getSipBinaryFilename() {
@@ -44,21 +47,24 @@ public class ApplicationConfiguration extends ProfileContext {
     }
 
     public String getAppFilename() {
-        return m_phone.getSerialNumber() + ".cfg";
+        return m_serialNumber + ".cfg";
     }
 
+    /**
+     * Lazily retrieves the next available directory name
+     */
     String getDirectory() {
-        if (m_directory == null) {
-            String tftpRoot = m_phone.getTftpRoot();
-            String endpointDir = m_phone.getSerialNumber();
-            m_staleDirectories.clear();
-            m_directory = getNextDirectorySequence(tftpRoot, endpointDir, m_staleDirectories);
+        if (m_directory != null) {
+            return m_directory;
         }
 
+        String endpointDir = m_serialNumber;
+        m_staleDirectories.clear();
+        m_directory = getNextDirectorySequence(m_parentDir, endpointDir, m_staleDirectories);
         return m_directory;
     }
 
-    static String getNextDirectorySequence(String root, String uniqueBase, List stale) {
+    static String getNextDirectorySequence(String root, String uniqueBase, List<String> stale) {
         File rootDir = new File(root);
         NextDirectoryScanner nextSequence = new NextDirectoryScanner(uniqueBase);
         String[] matches = rootDir.list(nextSequence);
@@ -123,15 +129,14 @@ public class ApplicationConfiguration extends ProfileContext {
     public String getDirectoryFilename() {
         // do not put this in getDirectory() because w/FTP it's not nec. anymore.
         // getDirectory() and respective code should removed
-        return m_phone.getSerialNumber() + "-directory.xml";
+        return m_serialNumber + "-directory.xml";
     }
 
     public void deleteStaleDirectories() {
         try {
-            File tftpRoot = new File(m_phone.getTftpRoot());
-            Iterator i = m_staleDirectories.iterator();
-            while (i.hasNext()) {
-                File stale = new File(tftpRoot, (String) i.next());
+            File tftpRoot = new File(m_parentDir);
+            for (String dir : m_staleDirectories) {
+                File stale = new File(tftpRoot, dir);
                 FileUtils.deleteDirectory(stale);
             }
         } catch (IOException e) {

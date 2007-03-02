@@ -11,8 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.phone.lg_nortel;
 
-import java.io.File;
-
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.phone.Line;
@@ -52,14 +50,7 @@ public class LgNortelPhone extends Phone {
 
     @Override
     public String getPhoneFilename() {
-        return new File(getTftpRoot(), formatName("%s")).getPath();
-    }
-
-    private String formatName(String format) {
-        // HACK: in some cases this function is called before serial number is assigned, it needs
-        // to work with 'null' serial number
-        String serialNumber = StringUtils.defaultString(getSerialNumber()).toUpperCase();
-        return String.format(format, serialNumber);
+        return StringUtils.defaultString(getSerialNumber()).toUpperCase();
     }
 
     @Override

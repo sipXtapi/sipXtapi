@@ -11,13 +11,11 @@
  */
 package org.sipfoundry.sipxconfig.phone.polycom;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Collection;
 
-import org.apache.commons.io.FilenameUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.io.OutputFormat;
@@ -25,7 +23,6 @@ import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.device.ProfileFilter;
-import org.sipfoundry.sipxconfig.device.ProfileUtils;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -45,12 +42,15 @@ public class PolycomPhone extends Phone {
     static final String PASSWORD_PATH = "reg/auth.password";
     static final String USER_ID_PATH = "reg/address";
     static final String AUTHORIZATION_ID_PATH = "reg/auth.userId";
+
     private String m_phoneConfigDir = "polycom/mac-address.d";
     private String m_phoneTemplate = m_phoneConfigDir + "/phone.cfg.vm";
     private String m_sipTemplate = m_phoneConfigDir + "/sip-%s.cfg.vm";
     private String m_coreTemplate = m_phoneConfigDir + "/ipmid.cfg.vm";
     private String m_directoryTemplate = "polycom/mac-address-directory.xml.vm";
     private String m_applicationTemplate = "polycom/mac-address.cfg.vm";
+
+    private String m_tftpRoot;
 
     public PolycomPhone() {
         super(new PolycomModel());
@@ -59,6 +59,11 @@ public class PolycomPhone extends Phone {
 
     private void init() {
         setDeviceVersion(PolycomModel.VER_2_0);
+    }
+
+    // HACK: that should not be necessary but current implementation wants to scan TFTP directory
+    public void setTftpRoot(String tftpRoot) {
+        m_tftpRoot = tftpRoot;
     }
 
     public String getDefaultVersionId() {
@@ -128,44 +133,35 @@ public class PolycomPhone extends Phone {
     public void generateProfiles() {
         FormatFilter format = new FormatFilter();
 
-        String parentDir = getTftpRoot();
-        ApplicationConfiguration app = new ApplicationConfiguration(this);
+        ApplicationConfiguration app = new ApplicationConfiguration(this, m_tftpRoot);
 
-        String appFilename = FilenameUtils.concat(parentDir, app.getAppFilename());
-        getProfileGenerator().generate(app, getApplicationTemplate(), format, appFilename);
+        getProfileGenerator().generate(app, getApplicationTemplate(), format,
+                app.getAppFilename());
 
-        String sipFilename = FilenameUtils.concat(parentDir, app.getSipFilename());
         SipConfiguration sip = new SipConfiguration(this);
-        getProfileGenerator().generate(sip, getSipTemplate(), format, sipFilename);
+        getProfileGenerator().generate(sip, getSipTemplate(), format, app.getSipFilename());
 
-        String phoneFilename = FilenameUtils.concat(parentDir, app.getPhoneFilename());
         PhoneConfiguration phone = new PhoneConfiguration(this);
-        getProfileGenerator().generate(phone, getPhoneTemplate(), format, phoneFilename);
+        getProfileGenerator().generate(phone, getPhoneTemplate(), format, app.getPhoneFilename());
 
         app.deleteStaleDirectories();
 
-        String dirFilename = FilenameUtils.concat(parentDir, app.getDirectoryFilename());
         Collection<PhonebookEntry> entries = getPhoneContext().getPhonebookEntries(this);
         SpeedDial speedDial = getPhoneContext().getSpeedDial(this);
         DirectoryConfiguration dir = new DirectoryConfiguration(entries, speedDial);
-        getProfileGenerator().generate(dir, getDirectoryTemplate(), format, dirFilename);
+        getProfileGenerator().generate(dir, getDirectoryTemplate(), format,
+                app.getDirectoryFilename());
     }
 
     public void removeProfiles() {
-        ApplicationConfiguration app = new ApplicationConfiguration(this);
-        File cfgFile = new File(getTftpRoot(), app.getAppFilename());
-        File phonebookFile = new File(getTftpRoot(), app.getDirectoryFilename());
+        ApplicationConfiguration app = new ApplicationConfiguration(this, m_tftpRoot);
         // new to call this function to generate stale directories list
         app.getDirectory();
         // this will remove all old directories
         app.deleteStaleDirectories();
 
-        File[] files = {
-            cfgFile, phonebookFile
-        };
-
-        // and this will remove new ones
-        ProfileUtils.removeProfileFiles(files);
+        getProfileGenerator().remove(app.getAppFilename());
+        getProfileGenerator().remove(app.getDirectoryFilename());
     }
 
     /**
@@ -173,7 +169,7 @@ public class PolycomPhone extends Phone {
      */
     static class FormatFilter implements ProfileFilter {
 
-        public void copy(Reader in, Writer out) throws IOException {
+        public void copy(InputStream in, OutputStream out) throws IOException {
             SAXReader xmlReader = new SAXReader();
             Document doc;
             try {

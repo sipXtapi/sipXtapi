@@ -11,26 +11,19 @@
  */
 package org.sipfoundry.sipxconfig.device;
 
-import java.io.File;
-import java.io.FileWriter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
+import java.io.OutputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
 public abstract class AbstractProfileGenerator implements ProfileGenerator {
+    private ProfileLocation m_profileLocation;
 
-    public void generate(ProfileContext context, String templateFileName, Writer out) {
-        if (templateFileName == null) {
-            return;
-        }
-        try {
-            generateProfile(context, templateFileName, out);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public void setProfileLocation(ProfileLocation profileLocation) {
+        m_profileLocation = profileLocation;
     }
 
     public void generate(ProfileContext context, String templateFileName, String outputFileName) {
@@ -43,17 +36,15 @@ public abstract class AbstractProfileGenerator implements ProfileGenerator {
             return;
         }
 
-        Writer wtr = null;
+        OutputStream wtr = m_profileLocation.getOutput(outputFileName);
         try {
-            File file = new File(outputFileName);
-            ProfileUtils.makeParentDirectory(file);
-            wtr = new FileWriter(file);
             if (filter == null) {
                 generateProfile(context, templateFileName, wtr);
             } else {
-                Writer unformatted = new StringWriter();
+                ByteArrayOutputStream unformatted = new ByteArrayOutputStream();
                 generateProfile(context, templateFileName, unformatted);
-                filter.copy(new StringReader(unformatted.toString()), wtr);
+                unformatted.close();
+                filter.copy(new ByteArrayInputStream(unformatted.toByteArray()), wtr);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -62,6 +53,12 @@ public abstract class AbstractProfileGenerator implements ProfileGenerator {
         }
     }
 
+    public void remove(String outputFileName) {
+        if (StringUtils.isNotEmpty(outputFileName)) {
+            m_profileLocation.removeProfile(outputFileName);
+        }
+    }
+
     protected abstract void generateProfile(ProfileContext context, String templateFileName,
-            Writer out) throws IOException;
+            OutputStream out) throws IOException;
 }

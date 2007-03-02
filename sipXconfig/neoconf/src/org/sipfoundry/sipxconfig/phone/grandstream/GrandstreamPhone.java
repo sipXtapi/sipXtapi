@@ -150,7 +150,7 @@ public class GrandstreamPhone extends Phone {
 
     public String getPhoneFilename() {
         String phoneFilename = getSerialNumber();
-        return getTftpRoot() + "/cfg" + phoneFilename.toLowerCase();
+        return "cfg" + phoneFilename.toLowerCase();
     }
 
     public void setDefaultIfExists(Setting sroot, String param, String value) {
@@ -166,11 +166,8 @@ public class GrandstreamPhone extends Phone {
             m_defaults = defaults;
         }
 
-        @SettingEntry(
-            paths = {
-                "upgrade/__TFTPServer-213", "upgrade/__TFTPServerOld-41", "upgrade/P192",
-                "upgrade/P237"
-                })
+        @SettingEntry(paths = { "upgrade/__TFTPServer-213", "upgrade/__TFTPServerOld-41", "upgrade/P192",
+                "upgrade/P237" })
         public String getTftpServer() {
             return m_defaults.getTftpServer();
         }
@@ -191,10 +188,7 @@ public class GrandstreamPhone extends Phone {
             m_line = line;
         }
 
-        @SettingEntry(
-            paths = {
-                USERID_PATH, HT_USERID_PATH, AUTHID_PATH, HT_AUTHID_PATH
-                })
+        @SettingEntry(paths = { USERID_PATH, HT_USERID_PATH, AUTHID_PATH, HT_AUTHID_PATH })
         public String getUserId() {
             String userId = null;
             User u = m_line.getUser();
@@ -205,10 +199,7 @@ public class GrandstreamPhone extends Phone {
             return userId;
         }
 
-        @SettingEntry(
-            paths = {
-                PASSWORD_PATH, HT_PASSWORD_PATH
-                })
+        @SettingEntry(paths = { PASSWORD_PATH, HT_PASSWORD_PATH })
         public String getPassword() {
             String password = null;
             User u = m_line.getUser();
@@ -219,10 +210,7 @@ public class GrandstreamPhone extends Phone {
             return password;
         }
 
-        @SettingEntry(
-            paths = {
-                DISPLAY_NAME_PATH, HT_DISPLAY_NAME_PATH
-                })
+        @SettingEntry(paths = { DISPLAY_NAME_PATH, HT_DISPLAY_NAME_PATH })
         public String getDisplayName() {
             String displayName = null;
             User u = m_line.getUser();
@@ -233,11 +221,8 @@ public class GrandstreamPhone extends Phone {
             return displayName;
         }
 
-        @SettingEntry(
-            paths = {
-                REGISTRATION_SERVER_PATH, REGISTRATION_SERVER2_PATH, HT_REGISTRATION_SERVER_PATH,
-                HT_REGISTRATION_SERVER2_PATH
-                })
+        @SettingEntry(paths = { REGISTRATION_SERVER_PATH, REGISTRATION_SERVER2_PATH, 
+                HT_REGISTRATION_SERVER_PATH, HT_REGISTRATION_SERVER2_PATH })
         public String getRegistationServer() {
             return m_phone.getPhoneContext().getPhoneDefaults().getDomainName();
         }
@@ -246,7 +231,7 @@ public class GrandstreamPhone extends Phone {
         public String getVoicemail() {
             return m_phone.getPhoneContext().getPhoneDefaults().getVoiceMail();
         }
-        
+
         @SettingEntry(path = LINE_ACTIVE_PATH)
         public boolean isLineActive() {
             boolean active = !StringUtils.isBlank(getUserId());

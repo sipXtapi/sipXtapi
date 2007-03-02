@@ -12,7 +12,6 @@
 package org.sipfoundry.sipxconfig.phone.lg_nortel;
 
 import java.io.InputStream;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -22,6 +21,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -39,8 +39,7 @@ public class LgNortelPhoneTest extends TestCase {
     public void testGetFileName() throws Exception {
         LgNortelPhone phone = new LgNortelPhone();
         phone.setSerialNumber("0011aabb4455");
-        phone.setTftpRoot("abc");
-        assertEquals("abc/0011AABB4455", phone.getPhoneFilename());
+        assertEquals("0011AABB4455", phone.getPhoneFilename());
     }
 
     public void testExternalLine() throws Exception {
@@ -88,6 +87,8 @@ public class LgNortelPhoneTest extends TestCase {
         LgNortelModel lgNortelModel = new LgNortelModel();
         lgNortelModel.setMaxLineCount(4); // we are testing 2 lines
         LgNortelPhone phone = new LgNortelPhone(lgNortelModel);
+        
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
 
         User u1 = new User();
         u1.setUserName("juser");
@@ -105,14 +106,13 @@ public class LgNortelPhoneTest extends TestCase {
             u1, u2
         }));
 
-        StringWriter actualWriter = new StringWriter();
-        phone.generateProfile(phone.getPhoneTemplate(), actualWriter);
+        phone.generateProfiles();
         InputStream expectedProfile = getClass().getResourceAsStream("mac.cfg");
         assertNotNull(expectedProfile);
         String expected = IOUtils.toString(expectedProfile);
         expectedProfile.close();
 
-        String actual = actualWriter.toString();
+        String actual = location.toString();
 
         String expectedLines[] = StringUtils.split(expected, "\n");
         String actualLines[] = StringUtils.split(actual, "\n");

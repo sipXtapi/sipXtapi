@@ -70,18 +70,7 @@
     parent="beanWithSettings" abstract="true">
     <property name="phoneModelSource" ref="nakedPhoneModelSource" />
     <property name="phoneContext" ref="phoneContext" />
-    <property name="webDirectory">
-      <!-- 
-        - this is directory for a preferred place for serving 
-        - phone configuration profiles for http access
-        -    http://host:8090/phone/profile/docroot/, 
-      -->
-      <value>${sysdir.phone}/profile/docroot</value>
-    </property>
-    <property name="tftpRoot">
-      <value>${sysdir.phone}/profile/tftproot</value>
-    </property>
-    <property name="profileGenerator" ref="profileGenerator" />
+    <property name="profileGenerator" ref="tftpProfileGenerator" />
     <property name="sipService" ref="sip" />
   </bean>
 

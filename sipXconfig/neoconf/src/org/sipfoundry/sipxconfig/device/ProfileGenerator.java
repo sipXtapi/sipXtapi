@@ -11,12 +11,11 @@
  */
 package org.sipfoundry.sipxconfig.device;
 
-import java.io.Writer;
 
 public interface ProfileGenerator {
-    void generate(ProfileContext context, String templateFileName, Writer out);
-
     void generate(ProfileContext context, String templateFileName, String outputFileName);
 
     void generate(ProfileContext context, String templateFileName, ProfileFilter filter, String outputFileName);
+    
+    void remove(String outputFileName);
 }

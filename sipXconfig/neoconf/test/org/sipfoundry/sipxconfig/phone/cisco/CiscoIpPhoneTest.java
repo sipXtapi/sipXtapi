@@ -11,11 +11,11 @@
  */
 package org.sipfoundry.sipxconfig.phone.cisco;
 
-import java.io.StringWriter;
-
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
+import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
 public class CiscoIpPhoneTest extends TestCase {
@@ -37,10 +37,10 @@ public class CiscoIpPhoneTest extends TestCase {
     }
 
     public void testGenerate7960Profiles() throws Exception {
-        StringWriter profile = new StringWriter();
-        m_phone.generateProfile(m_phone.getPhoneTemplate(), profile);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_phone);
+        m_phone.generateProfiles();
         String expected = IOUtils.toString(this.getClass().getResourceAsStream(
                 "expected-7960.cfg"));
-        assertEquals(expected, profile.toString());
+        assertEquals(expected, location.toString());
     }
 }

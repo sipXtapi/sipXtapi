@@ -12,11 +12,15 @@
 package org.sipfoundry.sipxconfig.phone.cisco;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.device.AbstractProfileGenerator;
+import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -24,7 +28,7 @@ import org.sipfoundry.sipxconfig.setting.SettingFilter;
 import org.sipfoundry.sipxconfig.setting.SettingUtil;
 import org.sipfoundry.sipxconfig.setting.SettingVisitor;
 
-public class CiscoAtaProfileWriter implements SettingVisitor {
+public class CiscoAtaProfileWriter extends AbstractProfileGenerator implements SettingVisitor {
     private static final char LF = 0x0a;
     private static final String UPGRADE_SETTING_GROUP = "_upgrade";
     private static final String ZERO = "0";
@@ -34,17 +38,13 @@ public class CiscoAtaProfileWriter implements SettingVisitor {
     private String m_profileNameSuffix = StringUtils.EMPTY;
     private int m_lineIndex;
 
-    public CiscoAtaProfileWriter(Writer wtr) {
-        m_wtr = wtr;
+    /**
+     * Test use only
+     */
+    void setWriter(Writer writer) {
+        m_wtr = writer;
     }
-
-    public void write(CiscoAtaPhone phone) {
-        writePhone(phone);
-        for (Line l : phone.getProfileLines()) {
-            writeLine(l);
-        }
-    }
-
+    
     void writePhone(CiscoAtaPhone phone) {
         writeHeader();
         m_profileNameSuffix = StringUtils.EMPTY;
@@ -55,7 +55,7 @@ public class CiscoAtaProfileWriter implements SettingVisitor {
         writeLogoUpgradeConfig(phone);
         writeCountyDialTones(phone);
     }
-    
+
     void writeHeader() {
         try {
             m_wtr.append("#txt");
@@ -143,7 +143,7 @@ public class CiscoAtaProfileWriter implements SettingVisitor {
         String profileName = setting.getProfileName();
         if (Bitmap.isBitmask(profileName)) {
             writeBitMask(setting);
-        // bitfields written has partof bitmask
+            // bitfields written has partof bitmask
         } else if (!Bitmap.isBitField(profileName) && !isVirtual(setting)) {
             writeSetting(setting);
         }
@@ -230,7 +230,7 @@ public class CiscoAtaProfileWriter implements SettingVisitor {
             long shiftedValue = value << shift;
 
             // NOTE Because this is a OR, applying a value only works once and
-            // original value would have to start out zero in respective bits 
+            // original value would have to start out zero in respective bits
             m_bitmask = m_bitmask | shiftedValue;
         }
 
@@ -244,5 +244,16 @@ public class CiscoAtaProfileWriter implements SettingVisitor {
 
     public boolean visitSettingGroup(Setting group) {
         return true;
+    }
+
+    protected void generateProfile(ProfileContext context, String templateFileName, OutputStream out)
+        throws IOException {
+        m_wtr = new OutputStreamWriter(out);
+        CiscoAtaPhone phone = (CiscoAtaPhone) context.getDevice();
+        writePhone(phone);
+        for (Line l : phone.getProfileLines()) {
+            writeLine(l);
+        }
+        m_wtr.flush();
     }
 }

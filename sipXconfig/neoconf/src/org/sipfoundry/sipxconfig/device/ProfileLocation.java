@@ -11,10 +11,14 @@
  */
 package org.sipfoundry.sipxconfig.device;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 
-public interface ProfileFilter {
-    void copy(InputStream in, OutputStream out) throws IOException;
+/**
+ * Genereric location for profiles. Provides a writer that should be closed once the generation is
+ * done.
+ */
+public interface ProfileLocation {
+    OutputStream getOutput(String profileName);
+
+    void removeProfile(String profileName);
 }

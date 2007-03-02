@@ -97,10 +97,8 @@ public class PhoneTestDriver {
         mfContext.setModelBuilder(new XmlModelBuilder(sysdir));
         _phone.setModelFilesContext(mfContext);
 
-        _phone.setTftpRoot(TestHelper.getTestDirectory());
         _phone.setSerialNumber(serialNumber);
         _phone.setPhoneContext(phoneContext);
-        _phone.setProfileGenerator(TestHelper.getProfileGenerator());
 
         for (User user : users) {
             Line line = _phone.createLine();

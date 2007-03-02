@@ -14,8 +14,6 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,6 +24,7 @@ import org.custommonkey.xmlunit.XMLUnit;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.device.ProfileGenerator;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.phone.polycom.DirectoryConfiguration.PolycomPhonebookEntry;
@@ -36,13 +35,16 @@ import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 public class DirectoryConfigurationTest extends XMLTestCase {
     private PolycomPhone m_phone;
     private ProfileGenerator m_pg;
+    private MemoryProfileLocation m_location;
 
     protected void setUp() {
         XMLUnit.setIgnoreWhitespace(true);
         m_phone = new PolycomPhone();
 
+        m_location = new MemoryProfileLocation();
         VelocityProfileGenerator pg = new VelocityProfileGenerator();
         pg.setVelocityEngine(TestHelper.getVelocityEngine());
+        pg.setProfileLocation(m_location);
         m_pg = pg;
     }
 
@@ -72,13 +74,12 @@ public class DirectoryConfigurationTest extends XMLTestCase {
 
         DirectoryConfiguration dir = new DirectoryConfiguration(null, null);
 
-        StringWriter out = new StringWriter();
-        m_pg.generate(dir, m_phone.getDirectoryTemplate(), out);
+        m_pg.generate(dir, m_phone.getDirectoryTemplate(), "profile");
 
         InputStream expectedPhoneStream = getClass().getResourceAsStream(
                 "expected-empty-directory.xml");
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);
-        Reader generatedXml = new StringReader(out.toString());
+        Reader generatedXml = m_location.getReader();
 
         Diff phoneDiff = new Diff(expectedXml, generatedXml);
         assertXMLEqual(phoneDiff, true);
@@ -100,13 +101,12 @@ public class DirectoryConfigurationTest extends XMLTestCase {
         Collection<PhonebookEntry> entries = Collections.singleton(phonebookEntry);
         DirectoryConfiguration dir = new DirectoryConfiguration(entries, null);
 
-        StringWriter out = new StringWriter();
-        m_pg.generate(dir, m_phone.getDirectoryTemplate(), out);
+        m_pg.generate(dir, m_phone.getDirectoryTemplate(), "profile");
 
         InputStream expectedPhoneStream = getClass()
                 .getResourceAsStream("expected-directory.xml");
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);
-        Reader generatedXml = new StringReader(out.toString());
+        Reader generatedXml = m_location.getReader();
 
         Diff phoneDiff = new Diff(expectedXml, generatedXml);
         assertXMLEqual(phoneDiff, true);
@@ -125,17 +125,15 @@ public class DirectoryConfigurationTest extends XMLTestCase {
 
         DirectoryConfiguration dir = new DirectoryConfiguration(null, speedDial);
 
-        StringWriter out = new StringWriter();
-        m_pg.generate(dir, m_phone.getDirectoryTemplate(), out);
+        m_pg.generate(dir, m_phone.getDirectoryTemplate(), "profile");
 
         InputStream expectedPhoneStream = getClass().getResourceAsStream(
                 "expected-speeddial-directory.xml");
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);
-        Reader generatedXml = new StringReader(out.toString());
+        Reader generatedXml = m_location.getReader();
 
         Diff phoneDiff = new Diff(expectedXml, generatedXml);
         assertXMLEqual(phoneDiff, true);
         expectedPhoneStream.close();
     }
-
 }

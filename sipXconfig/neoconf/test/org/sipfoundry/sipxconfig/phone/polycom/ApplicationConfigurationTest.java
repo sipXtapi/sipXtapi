@@ -11,12 +11,11 @@
  */
 package org.sipfoundry.sipxconfig.phone.polycom;
 
-import java.io.CharArrayReader;
-import java.io.CharArrayWriter;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +23,7 @@ import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.device.ProfileGenerator;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
@@ -32,6 +32,7 @@ public class ApplicationConfigurationTest extends XMLTestCase {
 
     private PolycomPhone phone;
     private ProfileGenerator m_pg;
+    private MemoryProfileLocation m_location;
 
     protected void setUp() throws Exception {
         XMLUnit.setIgnoreWhitespace(true);
@@ -39,27 +40,29 @@ public class ApplicationConfigurationTest extends XMLTestCase {
         phone.getModel().setMaxLineCount(6);
         PhoneTestDriver.supplyTestData(phone);
 
+        m_location = new MemoryProfileLocation();
+
         VelocityProfileGenerator pg = new VelocityProfileGenerator();
         pg.setVelocityEngine(TestHelper.getVelocityEngine());
+        pg.setProfileLocation(m_location);
         m_pg = pg;
+
     }
 
     public void testGenerateProfile() throws Exception {
-        // no files get created here, but must be empty
-        phone.setTftpRoot(TestHelper.getTestDirectory() + "/testGenerateProfile");
+        String root = TestHelper.getTestDirectory() + "/testPolycom";
 
-        ApplicationConfiguration app = new ApplicationConfiguration(phone);
+        ApplicationConfiguration app = new ApplicationConfiguration(phone, root);
 
-        CharArrayWriter out = new CharArrayWriter();
-        m_pg.generate(app, phone.getApplicationTemplate(), out);
+        m_pg.generate(app, phone.getApplicationTemplate(), "profile");
 
         InputStream expectedPhoneStream = getClass().getResourceAsStream(
                 "expected-macaddress.cfg");
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);
-        Reader generatedXml = new CharArrayReader(out.toCharArray());
+        Reader generatedXml = new StringReader(m_location.toString());
 
         // helpful debug
-        System.out.println(out.toCharArray());
+        // System.out.println(out.toCharArray());
 
         Diff phoneDiff = new Diff(expectedXml, generatedXml);
         assertXMLEqual(phoneDiff, true);
@@ -99,14 +102,13 @@ public class ApplicationConfigurationTest extends XMLTestCase {
     public void testDeleteStale() throws Exception {
         String root = TestHelper.getTestDirectory() + "/testDeleteStale";
         File rootDir = new File(root);
-        phone.setTftpRoot(root);
 
-        ApplicationConfiguration app0001 = new ApplicationConfiguration(phone);
+        ApplicationConfiguration app0001 = new ApplicationConfiguration(phone, root);
         assertEquals("0004f200e06b.0001", app0001.getDirectory());
         File f = new File(rootDir, app0001.getDirectory());
         f.mkdirs();
 
-        ApplicationConfiguration app0002 = new ApplicationConfiguration(phone);
+        ApplicationConfiguration app0002 = new ApplicationConfiguration(phone, root);
         assertEquals("0004f200e06b.0002", app0002.getDirectory());
 
         assertEquals(1, rootDir.list().length);

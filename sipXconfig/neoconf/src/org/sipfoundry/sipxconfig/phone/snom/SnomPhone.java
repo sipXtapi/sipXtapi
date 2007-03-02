@@ -61,8 +61,7 @@ public class SnomPhone extends Phone {
 
     @Override
     public void initializeLine(Line line) {
-        SnomLineDefaults defaults = new SnomLineDefaults(getPhoneContext().getPhoneDefaults(),
-                line);
+        SnomLineDefaults defaults = new SnomLineDefaults(getPhoneContext().getPhoneDefaults(), line);
         line.addDefaultBeanSettingHandler(defaults);
     }
 
@@ -87,12 +86,11 @@ public class SnomPhone extends Phone {
     }
 
     public String getPhoneFilename() {
-        return getWebDirectory() + "/" + getProfileName();
-    }
-
-    String getProfileName() {
         String serialNumber = getSerialNumber();
-        StringBuffer buffer = new StringBuffer(serialNumber.toUpperCase());
+        if (StringUtils.isEmpty(serialNumber)) {
+            return "snom.htm";
+        }
+        StringBuilder buffer = new StringBuilder(serialNumber.toUpperCase());
         buffer.append(".htm");
         return buffer.toString();
     }
@@ -133,7 +131,7 @@ public class SnomPhone extends Phone {
 
         @SettingEntry(path = CONFIG_URL)
         public String getConfigUrl() {
-            String configUrl = m_defaults.getProfileRootUrl() + '/' + m_phone.getProfileName();
+            String configUrl = m_defaults.getProfileRootUrl() + '/' + m_phone.getPhoneFilename();
             return configUrl;
         }
 
@@ -155,11 +153,11 @@ public class SnomPhone extends Phone {
                 return null;
             }
 
-            String dst = String.format("%d %02d.%02d.%02d %02d:00:00 %02d.%02d.%02d %02d:00:00",
-                    zone.getDstOffset(), zone.getStartMonth(), Math.min(zone.getStartWeek(), 5),
-                    (zone.getStartDayOfWeek() + 5) % 7 + 1, zone.getStartTime() / 3600, zone
-                            .getStopMonth(), Math.min(zone.getStopWeek(), 5), (zone
-                            .getStopDayOfWeek() + 5) % 7 + 1, zone.getStopTime() / 3600);
+            String dst = String.format("%d %02d.%02d.%02d %02d:00:00 %02d.%02d.%02d %02d:00:00", zone
+                    .getDstOffset(), zone.getStartMonth(), Math.min(zone.getStartWeek(), 5), (zone
+                    .getStartDayOfWeek() + 5) % 7 + 1, zone.getStartTime() / 3600, zone.getStopMonth(), Math
+                    .min(zone.getStopWeek(), 5), (zone.getStopDayOfWeek() + 5) % 7 + 1,
+                    zone.getStopTime() / 3600);
             return dst;
         }
     }

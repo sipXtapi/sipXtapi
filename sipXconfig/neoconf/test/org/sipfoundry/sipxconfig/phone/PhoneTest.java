@@ -13,18 +13,19 @@ package org.sipfoundry.sipxconfig.phone;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Writer;
+import java.io.OutputStream;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.io.IOUtils;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.AbstractProfileGenerator;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.device.FileSystemProfileLocation;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
-import org.sipfoundry.sipxconfig.device.ProfileGenerator;
 import org.sipfoundry.sipxconfig.phone.acme.AcmePhone;
 
 public class PhoneTest extends TestCase {
@@ -39,12 +40,18 @@ public class PhoneTest extends TestCase {
     }
 
     public void testGenerateAndRemoveProfiles() {
-        final ProfileGenerator generator = new AbstractProfileGenerator() {
+        final AbstractProfileGenerator generator = new AbstractProfileGenerator() {
             protected void generateProfile(ProfileContext context, String templateFileName,
-                    Writer out) throws IOException {
-                out.write("profile");
+                     OutputStream out) throws IOException {
+                IOUtils.write("profile", out);
             }
         };
+        
+        String root = TestHelper.getTestDirectory() + "/phone";
+        FileSystemProfileLocation location = new FileSystemProfileLocation();
+        location.setParentDir(root);
+        
+        generator.setProfileLocation(location);
 
         Phone phone = new TestPhone() {
             private String m_name;

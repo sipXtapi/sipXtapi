@@ -11,19 +11,15 @@
  */
 package org.sipfoundry.sipxconfig.phone.polycom;
 
-import java.io.CharArrayReader;
-import java.io.CharArrayWriter;
-import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.Writer;
 
-import org.apache.commons.io.IOUtils;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.device.ProfileGenerator;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
@@ -37,6 +33,8 @@ public class SipConfigurationTest extends XMLTestCase {
 
     private ProfileGenerator m_pg;
 
+    private MemoryProfileLocation m_location;
+
     protected void setUp() throws Exception {
         XMLUnit.setIgnoreWhitespace(true);
         PolycomModel model = new PolycomModel();
@@ -46,8 +44,10 @@ public class SipConfigurationTest extends XMLTestCase {
         phone.setModel(model);
         tester = PhoneTestDriver.supplyTestData(phone);
 
+        m_location = new MemoryProfileLocation();
         VelocityProfileGenerator pg = new VelocityProfileGenerator();
         pg.setVelocityEngine(TestHelper.getVelocityEngine());
+        pg.setProfileLocation(m_location);
         m_pg = pg;
     }
 
@@ -75,20 +75,19 @@ public class SipConfigurationTest extends XMLTestCase {
 
         ProfileContext cfg = new SipConfiguration(phone);
 
-        CharArrayWriter out = new CharArrayWriter();
-        m_pg.generate(cfg, phone.getSipTemplate(), out);
+        m_pg.generate(cfg, phone.getSipTemplate(), "profile");
 
         InputStream expectedPhoneStream = getClass().getResourceAsStream(expected);
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);
-        Reader generatedXml = new CharArrayReader(out.toCharArray());
+        Reader generatedXml = m_location.getReader();
 
         // helpful debug
         // System.out.println(new String(out.toCharArray()));
 
         // also helpful
-        Writer w = new FileWriter("/tmp/delme");
-        IOUtils.write(out.toCharArray(), w);
-        w.close();
+        // Writer w = new FileWriter("/tmp/delme");
+        // IOUtils.write(out.toCharArray(), w);
+        // w.close();
 
         Diff phoneDiff = new Diff(expectedXml, generatedXml);
         assertXMLEqual(phoneDiff, true);
