@@ -15,6 +15,7 @@ import java.io.StringWriter;
 
 import junit.framework.TestCase;
 
+import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.setting.SettingImpl;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
 
@@ -44,5 +45,35 @@ public class CiscoAtaProfileWriterTest extends TestCase {
         
         assertEquals("Bird:0x100" + LF, wtr.toString());
     }
+    
+    public void testWriteProxy() {
+        LineInfo info = new LineInfo();
+        info.setRegistrationServer("example.org");
+        info.setRegistrationServerPort("5060");
 
+        CiscoAtaProfileWriter pwtr = new CiscoAtaProfileWriter();
+        
+        StringWriter wtr = new StringWriter();
+        pwtr.setWriter(wtr);        
+        pwtr.writeProxy(info, true);
+        assertEquals("Proxy:example.org" + LF, wtr.toString());
+
+        wtr = new StringWriter();
+        pwtr.setWriter(wtr);        
+        pwtr.writeProxy(info, false);
+        assertEquals("Proxy:example.org:5060" + LF, wtr.toString());
+        
+
+        info.setRegistrationServerPort("5062");
+        wtr = new StringWriter();
+        pwtr.setWriter(wtr);        
+        pwtr.writeProxy(info, true);
+        assertEquals("Proxy:example.org:5062" + LF, wtr.toString());
+
+        info.setRegistrationServerPort("5062");
+        wtr = new StringWriter();
+        pwtr.setWriter(wtr);        
+        pwtr.writeProxy(info, false);
+        assertEquals("Proxy:example.org:5062" + LF, wtr.toString());
+    }
 }

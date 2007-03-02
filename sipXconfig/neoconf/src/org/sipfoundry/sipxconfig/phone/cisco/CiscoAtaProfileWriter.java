@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -34,6 +33,8 @@ public class CiscoAtaProfileWriter extends AbstractProfileGenerator implements S
     private static final String ZERO = "0";
     private static final String IMAGE_ID = "imageid";
     private static final String NONE = "none";
+    private static final String DEFAULT_PROXY_PORT = "5060";
+
     private Writer m_wtr;
     private String m_profileNameSuffix = StringUtils.EMPTY;
     private int m_lineIndex;
@@ -44,13 +45,16 @@ public class CiscoAtaProfileWriter extends AbstractProfileGenerator implements S
     void setWriter(Writer writer) {
         m_wtr = writer;
     }
-    
+
     void writePhone(CiscoAtaPhone phone) {
         writeHeader();
         m_profileNameSuffix = StringUtils.EMPTY;
         Setting settings = phone.getSettings();
         settings.acceptVisitor(this);
-        writeProxyConfig(phone);
+        List<Line> lines = phone.getLines();
+        if (!lines.isEmpty()) {
+            writeProxy(lines.get(0).getLineInfo(), phone.getCiscoModel().isAta());
+        }
         writeSoftwareUpgradeConfig(phone);
         writeLogoUpgradeConfig(phone);
         writeCountyDialTones(phone);
@@ -79,24 +83,28 @@ public class CiscoAtaProfileWriter extends AbstractProfileGenerator implements S
         String tonePath = "_tone." + countryCode + '.' + countryModelId;
         Setting tones = country.getSetting(tonePath);
         if (tones != null) {
-            Iterator i = tones.getValues().iterator();
-            while (i.hasNext()) {
-                Setting toneSetting = (Setting) i.next();
+            for (Setting toneSetting : tones.getValues()) {
                 writeSetting(toneSetting);
             }
         }
     }
 
-    void writeProxyConfig(CiscoAtaPhone phone) {
-        List lines = phone.getLines();
-        if (lines.size() == 0) {
-            return;
+    /**
+     * Generates proxy entry in configuration file
+     * 
+     * See: http://track.sipfoundry.org/browse/XCF-985
+     * 
+     * @param info line info used to retrieve registration port and server
+     * @param isAta true for ATA, false for the phone?
+     */
+    void writeProxy(LineInfo info, boolean isAta) {
+        String registrationServerPort = info.getRegistrationServerPort();
+        if (DEFAULT_PROXY_PORT.equals(registrationServerPort) && isAta) {
+            writeEntry("Proxy", info.getRegistrationServer());
+        } else {
+            String entry = info.getRegistrationServer() + ':' + registrationServerPort;
+            writeEntry("Proxy", entry);
         }
-
-        Line line = (Line) lines.get(0);
-        LineInfo info = line.getLineInfo();
-        String entry = info.getRegistrationServer() + ':' + info.getRegistrationServerPort();
-        writeEntry("Proxy", entry);
     }
 
     public void writeSoftwareUpgradeConfig(CiscoAtaPhone phone) {
@@ -166,9 +174,7 @@ public class CiscoAtaProfileWriter extends AbstractProfileGenerator implements S
 
     void writeBitMask(Setting setting) {
         Bitmap bitMask = new Bitmap(setting);
-        Iterator i = SettingUtil.filter(bitMask, setting.getParent()).iterator();
-        while (i.hasNext()) {
-            Setting bitFieldSetting = (Setting) i.next();
+        for (Setting bitFieldSetting : SettingUtil.filter(bitMask, setting.getParent())) {
             bitMask.setBitField(bitFieldSetting);
         }
         writeEntry(bitMask.getProfileName(), bitMask.getProfileValue());
@@ -247,8 +253,8 @@ public class CiscoAtaProfileWriter extends AbstractProfileGenerator implements S
     }
 
     protected void generateProfile(ProfileContext context, String templateFileName, OutputStream out)
-        throws IOException {
-        m_wtr = new OutputStreamWriter(out);
+            throws IOException {
+        m_wtr = new OutputStreamWriter(out, "US-ASCII");
         CiscoAtaPhone phone = (CiscoAtaPhone) context.getDevice();
         writePhone(phone);
         for (Line l : phone.getProfileLines()) {
