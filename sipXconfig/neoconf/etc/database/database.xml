@@ -124,6 +124,7 @@
 	
   <!-- bumped up ver only to keep 3.6 from running incompat. 3.7 db versions -->
   <target name="version4" description="upgrade from version 3" unless="version5">
+    <antcall target="unmanaged-to-acme"/>
     <antcall target="afterhour"/>
     <sipx-version version="5"/>
   </target>	
@@ -169,6 +170,13 @@
 
   <target name="model-refactoring" unless="model-refactoring">
     <db-patch patch="model-refactoring"/>
+  </target>
+
+  <target name="unmanaged-to-acme" unless="unmanaged-to-acme">
+    <sipx-sql>
+      update phone set bean_id = 'acmePhone' where bean_id = 'unmanagedPhone';
+    </sipx-sql>
+    <mark-patch-applied patch="unmanaged-to-acme"/>
   </target>
 
   <target name="afterhour" unless="afterhour">

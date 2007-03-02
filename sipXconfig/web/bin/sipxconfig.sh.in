@@ -30,6 +30,22 @@ Args=""
 : ${TmpDir:=@sipxpbx.tmp.dir@}
 : ${RunningUser:=@sipxpbx.user@}
 
+TEST_WRITE_ACCESS="\
+  @sipxpbx.conf.dir@/config.defs \
+  @sipxpbx.conf.dir@/proxy-config.in \
+  @sipxpbx.conf.dir@/registrar-config.in \
+  @sipxpbx.conf.dir@/sipxpresence-config.in \
+  @sipxpbx.conf.dir@/authproxy-config.in \
+  @sipxpbx.conf.dir@/sipxpark-config.in \
+  @sipxpbx.conf.dir@/status-config.in \
+  @sipxpbx.conf.dir@/callresolver-config.in \
+  @sipxpbx.conf.dir@/sipxdialog-config.in \
+  @sipxpbx.conf.dir@/status-plugin.xml.in \
+  @sipxpbx.conf.dir@/authrules.xml.in \
+  @sipxpbx.conf.dir@/fallbackrules.xml.in \
+  @sipxpbx.conf.dir@/mappingrules.xml.in \
+  @sipxpbx.conf.dir@/forwardingrules.xml.in"
+
 Database=SIPXCONFIG
 RequiredDatabaseVersion=5
 IndexDir=${TmpDir}/index
@@ -136,14 +152,14 @@ databaseCommand() {
         -f ${DatabaseProject} \
         $@`
     if [ $? != "0" ]; then
-       echo "$CmdOut" | grep -v '^Unable to locate tools.jar' > /dev/stderr
+       echo "$CmdOut" | grep -v '^Unable to locate tools.jar' >&2
     fi       
 }
 
 runningUserCheck() {
   CurrentUser=`id -un`
   if [ "$CurrentUser" != "$RunningUser" ]; then
-    echo "Only user @sipxpbx.user@ can run this command." 1>&2
+    echo "Only user $RunningUser can run this command." 1>&2
     return 1
   fi
   return 0
@@ -352,6 +368,15 @@ EOF
     fi
     @bin.dir@/sipx-validate-xml @sipxpbx.conf.dir@/topology.xml.in
     Status=$(($Status+$?))
+
+    for f in $TEST_WRITE_ACCESS; do
+      if [ -f $f ]; then
+        if [ ! -w $f ]; then
+          echo "WARNING: user $RunningUser requires write access to file $f." >&2
+          Status=1
+        fi
+      fi
+    done
 
     # Print out a success message if everything is OK, to give the user some feedback.
     # If there is an error then the test will yield an error message.
