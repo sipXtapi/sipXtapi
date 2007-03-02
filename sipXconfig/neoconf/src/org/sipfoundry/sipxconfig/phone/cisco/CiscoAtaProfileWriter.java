@@ -99,12 +99,13 @@ public class CiscoAtaProfileWriter extends AbstractProfileGenerator implements S
      */
     void writeProxy(LineInfo info, boolean isAta) {
         String registrationServerPort = info.getRegistrationServerPort();
+        String entry = null;
         if (DEFAULT_PROXY_PORT.equals(registrationServerPort) && isAta) {
-            writeEntry("Proxy", info.getRegistrationServer());
+            entry = info.getRegistrationServer();
         } else {
-            String entry = info.getRegistrationServer() + ':' + registrationServerPort;
-            writeEntry("Proxy", entry);
+            entry = info.getRegistrationServer() + ':' + registrationServerPort;
         }
+        writeEntry("Proxy", entry);
     }
 
     public void writeSoftwareUpgradeConfig(CiscoAtaPhone phone) {
@@ -253,7 +254,7 @@ public class CiscoAtaProfileWriter extends AbstractProfileGenerator implements S
     }
 
     protected void generateProfile(ProfileContext context, String templateFileName, OutputStream out)
-            throws IOException {
+        throws IOException {
         m_wtr = new OutputStreamWriter(out, "US-ASCII");
         CiscoAtaPhone phone = (CiscoAtaPhone) context.getDevice();
         writePhone(phone);
