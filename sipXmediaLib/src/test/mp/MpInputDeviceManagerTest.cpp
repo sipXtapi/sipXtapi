@@ -28,7 +28,7 @@
 class MpInputDeviceManagerTest : public CppUnit::TestCase
 {
     CPPUNIT_TEST_SUITE(MpInputDeviceManagerTest);
-    CPPUNIT_TEST(testSineInput);
+    //CPPUNIT_TEST(testSineInput);
     CPPUNIT_TEST_SUITE_END();
 
 
