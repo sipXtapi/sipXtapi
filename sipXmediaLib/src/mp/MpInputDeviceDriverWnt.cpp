@@ -16,6 +16,7 @@
 
 // APPLICATION INCLUDES
 #include "mp/MpInputDeviceDriverWnt.h"
+#include "mp/MpInputDeviceManager.h"
 
 // EXTERNAL FUNCTIONS
 extern void showWaveError(char *syscall, int e, int N, int line) ;  // dmaTaskWnt.cpp
@@ -36,6 +37,7 @@ MpInputDeviceDriverWnt::MpInputDeviceDriverWnt(const UtlString& name,
 , mWntDeviceId(-1)
 , mDevHandle(NULL)
 , mNumInBuffers(nInputBuffers)
+, mWaveBufSize(0)  // Unknown until enableDevice()
 , mIsOpen(FALSE)
 {
     WAVEINCAPS devCaps;
@@ -58,17 +60,13 @@ MpInputDeviceDriverWnt::MpInputDeviceDriverWnt(const UtlString& name,
         }
     }
 
-    // calculate the buffer length we're going to use.
-    // number of samples per frame * sample size in bytes
-    mWaveBufSize = NUM_SAMPLES * sizeof(MpAudioSample); 
-
-    // Allocate the wave headers and buffers for use with windows audio routines.
+    // Allocate the wave headers and buffer pointers for use with 
+    // windows audio routines.  
+    //(This does *not* include allocation of the buffers themselves -
+    // that is handled in enableDevice, as we don't know the 
+    // buffer size (#samplesPerFrame) until then.
     mpWaveHeaders = new WAVEHDR[mNumInBuffers];
     mpWaveBuffers = new LPSTR[mNumInBuffers];
-    for (i = 0; i < mNumInBuffers; i++)
-    {
-        mpWaveBuffers[i] = new char[mWaveBufSize];
-    }
 }
 
 // Destructor
@@ -77,16 +75,24 @@ MpInputDeviceDriverWnt::~MpInputDeviceDriverWnt()
     // If we happen to still be enabled at this point, disable the device.
     assert(!isEnabled());
     if (isEnabled())
+    {
         disableDevice();
+    }
 
-    // Delete the sample buffers..
+    // Delete the sample headers and sample buffer pointers..
+    // (This only deletes 
     unsigned i;
     for (i = 0; i < mNumInBuffers; i++)
     {
-        delete[] mpWaveBuffers[i];
-        mpWaveBuffers[i] = NULL;
+        assert(mpWaveBuffers[i] == NULL);
+        if (mpWaveBuffers[i] != NULL)
+        {
+            delete[] mpWaveBuffers[i];
+            mpWaveBuffers[i] = NULL;
+        }
     }
     delete[] mpWaveBuffers;
+    delete[] mpWaveHeaders;
 }
 
 
@@ -99,10 +105,14 @@ OsStatus MpInputDeviceDriverWnt::enableDevice(unsigned samplesPerFrame,
 
     // If the device is not valid, let the user know it's bad.
     if (!isDeviceValid())
+    {
         return OS_INVALID_STATE;  // perhaps new OsState of OS_RESOURCE_INVALID?
+    }
 
     if (isEnabled())
+    {
         return OS_FAILED;
+    }
 
     // Set some wave header stat information.
     mSamplesPerFrame = samplesPerFrame;
@@ -121,6 +131,9 @@ OsStatus MpInputDeviceDriverWnt::enableDevice(unsigned samplesPerFrame,
     wavFormat.wBitsPerSample = sizeof(MpAudioSample) * 8;
     wavFormat.cbSize = 0;
 
+    // Tell windows to open the input audio device.  This doesn't
+    // tell it to send the data to our callback yet, just to get it ready
+    // to do so..
     MMRESULT res = waveInOpen(&mDevHandle, mWntDeviceId,
                               &wavFormat, (DWORD_PTR)waveInCallbackStatic,
                               (DWORD_PTR)this, CALLBACK_FUNCTION);
@@ -139,10 +152,21 @@ OsStatus MpInputDeviceDriverWnt::enableDevice(unsigned samplesPerFrame,
     }
 
 
+    // Allocate the buffers we are going to use to receive audio data from
+    // the windows audio input callback.
+    // Calculate the buffer length we're going to use. 
+    // number of samples per frame * sample size in bytes
+    mWaveBufSize = mSamplesPerFrame * sizeof(MpAudioSample); 
+    unsigned i;
+    for (i = 0; i < mNumInBuffers; i++)
+    {
+        mpWaveBuffers[i] = new char[mWaveBufSize];
+    }
+
+
     // Setup the buffers so windows can stuff them full of audio
     // when it becomes available from this audio input device.
     WAVEHDR* pWaveHdr = NULL;
-    unsigned i;
     for (i=0; i < mNumInBuffers; i++) 
     {
         pWaveHdr = initWaveHeader(i);
@@ -171,7 +195,7 @@ OsStatus MpInputDeviceDriverWnt::enableDevice(unsigned samplesPerFrame,
         }
     }
 
-    
+    // Tell windows to start sending audio data to the callback.
     res = waveInStart(mDevHandle);
     if (res != MMSYSERR_NOERROR)
     {
@@ -216,17 +240,21 @@ OsStatus MpInputDeviceDriverWnt::disableDevice()
         return OS_INVALID_STATE;
     }
 
+    // Reset performs a stop, resets the buffers, and marks them
+    // for being sent to the callback.
+    // The remaining data in the windows buffers *IS* sent to the callback,
+    // So be sure to watch for it and drop it on the floor.
     res = waveInReset(mDevHandle);
     if (res != MMSYSERR_NOERROR)
     {
         showWaveError("waveInReset", res, -1, __LINE__);
-    }    
-    res = waveInStop(mDevHandle);
+    } 
+
+    res = waveInClose(mDevHandle);
     if (res != MMSYSERR_NOERROR)
     {
-        showWaveError("waveInStop", res, -1, __LINE__);
+        showWaveError("waveInClose", res, -1, __LINE__);
     }
-    Sleep(500);
 
     unsigned i;
     for (i=0; i < mNumInBuffers; i++) 
@@ -237,12 +265,12 @@ OsStatus MpInputDeviceDriverWnt::disableDevice()
             showWaveError("waveInUnprepareHeader", res, i, __LINE__);
         }
     }
-    Sleep(500);
 
-    res = waveInClose(mDevHandle);
-    if (res != MMSYSERR_NOERROR)
+    // Delete the buffers that were allocated in enableDevice()
+    for (i = 0; i < mNumInBuffers; i++)
     {
-        showWaveError("waveInClose", res, -1, __LINE__);
+        delete[] mpWaveBuffers[i];
+        mpWaveBuffers[i] = NULL;
     }
 
     // set the device handle to NULL, since it no longer is valid.
@@ -264,7 +292,7 @@ void MpInputDeviceDriverWnt::processAudioInput(HWAVEIN hwi,
     if (!mIsOpen)
     {
         assert(uMsg == WIM_OPEN);
-        if(uMsg == WIM_OPEN)
+        if (uMsg == WIM_OPEN)
         {
             printf("received WIM_OPEN\n");
             mIsOpen = TRUE;
@@ -272,8 +300,20 @@ void MpInputDeviceDriverWnt::processAudioInput(HWAVEIN hwi,
     }
     if (uMsg == WIM_DATA)
     {
+        //printf("received WIM_DATA\n");
         assert(mIsOpen);
-        printf("received WIM_DATA\n");
+        WAVEHDR* pWaveHdr = (WAVEHDR*)dwParam1;
+        assert(pWaveHdr->dwBufferLength 
+               == (mSamplesPerFrame*sizeof(MpAudioSample)));
+        assert(pWaveHdr->lpData != NULL);
+
+        mpInputDeviceManager->pushFrame(mDeviceId,
+                                        mSamplesPerFrame,
+                                        (MpAudioSample*)pWaveHdr->lpData,
+                                        mCurrentFrameTime);
+        // Ok, we have received and pushed a frame to the manager,
+        // Now we advance the frame time.
+        mCurrentFrameTime++;
     }
     else if (uMsg == WIM_CLOSE)
     {

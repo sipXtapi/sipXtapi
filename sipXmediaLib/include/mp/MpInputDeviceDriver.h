@@ -122,6 +122,20 @@ public:
       /// Clear the device ID associated with this device.
     virtual OsStatus clearDeviceId();
 
+      /// Calculate the # of milliseconds that a frame occupies in time.
+    inline MpFrameTime getFramePeriod()
+    {
+        return getFramePeriod(mSamplesPerFrame, mSamplesPerSec);
+    }
+
+      /// Calculate the # of milliseconds that a frame occupies in time. 
+      /// (Static function)
+    static inline MpFrameTime getFramePeriod(unsigned samplesPerFrame,
+                                             unsigned samplesPerSec)
+    {
+        return (1000*samplesPerFrame)/samplesPerSec;
+    }
+
 //@}
 
 /* ============================ INQUIRY =================================== */
@@ -143,7 +157,7 @@ protected:
                     ///< this device, as supplied by the InputDeviceManager.
     unsigned mSamplesPerFrame;     ///< TODO: Fill in mSamplesPerFrame description
     unsigned mSamplesPerSec;       ///< TODO: Fill in mSamplesPerSec description
-    unsigned mCurrentFrameTime;    ///< TODO: Fill in mCurrentFrameTime description
+    MpFrameTime mCurrentFrameTime; ///< TODO: Fill in mCurrentFrameTime description
     
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

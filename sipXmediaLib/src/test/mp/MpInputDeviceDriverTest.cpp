@@ -17,15 +17,15 @@
 #include <mp/MpAudioBuf.h>
 #include <mp/MpInputDeviceManager.h>
 #include <mp/MpInputDeviceDriverWnt.h>
+#include <os/OsTask.h>
 
 #define MIDDT_SAMPLES_PER_FRAME 80
-#define MIDDT_NBUFS 5
+#define MIDDT_NBUFS 20
 
 class MpInputDeviceDriverWntTest : public CppUnit::TestCase
 {
     CPPUNIT_TEST_SUITE(MpInputDeviceDriverWntTest);
     CPPUNIT_TEST(testSetup);
-    //CPPUNIT_TEST(testEnableDevice);
     CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -53,7 +53,7 @@ public:
         MpAudioBuf::smpDefaultPool = mpHeadersPool;
         MpDataBuf::smpDefaultPool = mpHeadersPool;
 
-        mNumBufferedFrames = 20;
+        mNumBufferedFrames = 5;
         mSamplesPerSecond = 8000;
         mFramePeriodMSecs = MIDDT_SAMPLES_PER_FRAME * 1000 / mSamplesPerSecond;
     }
@@ -67,8 +67,10 @@ public:
         WAVEINCAPS devCaps;
         MMRESULT res = waveInGetDevCaps(0, &devCaps, sizeof(devCaps));
         CPPUNIT_ASSERT(res == MMSYSERR_NOERROR);
-        if(res == MMSYSERR_NOERROR)
+        if (res == MMSYSERR_NOERROR)
+        {
             devName = UtlString(devCaps.szPname, MAXPNAMELEN);
+        }
 #endif
         return devName;
     }
@@ -83,12 +85,12 @@ public:
                                       mNumBufferedFrames, 
                                       *mpBufPool);
 
-        MpInputDeviceDriver* iDrv = NULL;
+        MpInputDeviceDriver* pInDevDriver = NULL;
 #ifdef WIN32
         MpInputDeviceDriverWnt iDevDriverWnt(getDefaultWaveInDevice(), inDevMgr);
-        iDrv = &iDevDriverWnt;
+        pInDevDriver = &iDevDriverWnt;
 #endif
-        if(iDrv != NULL)
+        if (pInDevDriver != NULL)
         {
 #ifdef WIN32
             // Verify that we are pointing at an actual windows device.
@@ -96,9 +98,9 @@ public:
 #endif
 
             // Since we've only just created this device, it shouldn't be enabled.
-            CPPUNIT_ASSERT(!iDrv->isEnabled());
+            CPPUNIT_ASSERT(!pInDevDriver->isEnabled());
             // And shouldn't have a valid device handle/ID.
-            CPPUNIT_ASSERT(iDrv->getDeviceId() < 0);
+            CPPUNIT_ASSERT(pInDevDriver->getDeviceId() < 0);
 
             // Try to enable the device when it isn't added to a manager..
             // SHOULDN'T DO THIS - Only the manager should be able to do this..
@@ -106,7 +108,7 @@ public:
             //CPPUNIT_ASSERT(iDrv->enableDevice(10,10,10) != OS_SUCCESS);
 
             // Add the device to an input manager.
-            MpInputDeviceHandle iDrvHnd = inDevMgr.addDevice(*iDrv);
+            MpInputDeviceHandle iDrvHnd = inDevMgr.addDevice(*pInDevDriver);
 
             // Verify it has a valid handle/ID.
             CPPUNIT_ASSERT(iDrvHnd > 0);
@@ -115,37 +117,18 @@ public:
             // Also note that one should be disabling/enabling via the manager..
             // I'm just verifying that disabling the device itself when it isn't
             // set up doesn't kill things.
-            CPPUNIT_ASSERT(iDrv->disableDevice() != OS_SUCCESS);
+            CPPUNIT_ASSERT(pInDevDriver->disableDevice() != OS_SUCCESS);
 
             // Now enable it via the manager -- this should succeed.
             CPPUNIT_ASSERT(inDevMgr.enableDevice(iDrvHnd) == OS_SUCCESS);
 
+            // Sleep for a while
+            unsigned nSecsToRecord = 10;
+            OsTask::delay(nSecsToRecord*1000);
+
             // Ok, now disable it via the manager -- this time it should succeed.
             CPPUNIT_ASSERT(inDevMgr.disableDevice(iDrvHnd) == OS_SUCCESS);
-        }
-    }
-
-    void testEnableDevice()
-    {
-        MpInputDeviceManager inDevMgr(MIDDT_SAMPLES_PER_FRAME, 
-            mSamplesPerSecond,
-            mNumBufferedFrames, 
-            *mpBufPool);
-
-        MpInputDeviceDriver* iDrv = NULL;
-#ifdef WIN32
-        MpInputDeviceDriverWnt iDevDriverWnt(getDefaultWaveInDevice(), inDevMgr);
-        iDrv = &iDevDriverWnt;
-#endif
-        if(iDrv != NULL)
-        {
-            OsStatus stat;
-            stat = iDrv->enableDevice(10,10,10);
-            CPPUNIT_ASSERT(stat != OS_SUCCESS);
-            MpInputDeviceHandle iDevDriverWntHnd = inDevMgr.addDevice(*iDrv);
-            stat = inDevMgr.enableDevice(iDevDriverWntHnd);
-            CPPUNIT_ASSERT(stat == OS_SUCCESS);
-        }
+        }  // if pInDevDriver != NULL
     }
 
     void tearDown()
