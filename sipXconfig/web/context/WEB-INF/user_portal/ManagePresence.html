@@ -18,16 +18,17 @@
           <span jwcid="@Else">
 	          <span jwcid="@If" condition="ognl:! signedIn">
 	            <p class="message"><span key="signed.out">You are currently signed out.</span></p>
-		          <input jwcid="signIn" id="sign-in" type="submit" value="Sign In"/>
+		          <input jwcid="signIn" id="sign-in" type="submit" value="message:button.SignIn"/>
 	          </span>
 	          <span jwcid="@Else">
 	            <p><strong><span key="signed.in">You are currently signed in.</span></strong></p>
-		          <input jwcid="signOut" id="sign-out" type="submit" value="Sign Out"/>
+		          <input jwcid="signOut" id="sign-out" type="submit" value="message:button.SignOut"/>
 	          </span>
-	          <input jwcid="refresh" id="refresh" type="submit" value="Refresh"/>
+	          <input jwcid="refresh" id="refresh" type="submit" value="message:button.refresh"/>
 	          </span>
         </form>
       </div>
     </div>
   </body>
 </html>
+
