@@ -13,7 +13,7 @@
       <div id="settings-content">
         <form jwcid="form" id="presence:form">
           <span jwcid="@If" condition="ognl:! presenceServer.enabled">
-            <p class="user-error"><span key="error">Presence server support is not enabled on your system.</span></p>
+            <p class="user-error" id="presence-disabled"><span key="error">Presence server support is not enabled on your system.</span></p>
           </span>
           <span jwcid="@Else">
 	          <span jwcid="@If" condition="ognl:! signedIn">

@@ -36,6 +36,6 @@ public class ManagePresenceTestUi extends WebTestCase {
         
         // not enabled by in unit test env.
         // system test should run tests
-        assertTextPresent("Presence server support is not enabled on your system.");
+        assertElementPresent("presence-disabled");
     }
 }
