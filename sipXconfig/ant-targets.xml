@@ -264,7 +264,17 @@
         </fileset>
       </batchtest>
     </junit>        
+    <antcall target="failure-report"/>
     <fail if="junit.failed"/>
+  </target>
+
+  <!-- do not put test-report in depends attribute or it runs everytime -->
+  <target name="failure-report" if="junit.failed">
+    <antcall target="test-report"/>
+    <style style="${top.dir}/meta/failure-report.xsl" in="${junit.results.dir}/TESTS-TestSuites.xml" out="${junit.results.dir}/failures.txt"/>
+    <concat>
+      <filelist dir="${junit.results.dir}" files="failures.txt"/>
+    </concat>
   </target>
 
   <!--
