@@ -23,7 +23,7 @@
 
   <component id="tabs" type="TabNavigation">
     <binding name="tabNames"
-      value="{'config', 'lines', 'queues', 'agentsStats', 'callsStats', 'queuesStats'}" />
+      value="{'config', 'queues', 'lines', 'agentsStats', 'callsStats', 'queuesStats'}" />
     <binding name="selectedTab" value="tab" />
   </component>
 
