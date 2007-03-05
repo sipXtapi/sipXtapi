@@ -160,12 +160,12 @@ UtlBoolean MprMixer::doProcessFrame(MpBufPtr inBufs[],
          int n = min(in->getSamplesNumber(), samplesPerFrame);
          if (wgt == 1)
          {
-            for (i=0; i<n; i++)
+            for (int j=0; j<n; j++)
                 *output++ += (*input++) / mScale;
          }
          else
          {
-            for (i=0; i<n; i++)
+            for (int j=0; j<n; j++)
                 *output++ += (*input++ * wgt) / mScale;
          }
       }
