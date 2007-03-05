@@ -19,7 +19,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.PropertyResourceConfigurer;
 import org.springframework.core.io.ClassPathResource;
 
-public class SkinProperties extends PropertyResourceConfigurer {
+public class SkinProperties extends PropertyResourceConfigurer {   
 
     @Override
     protected void processProperties(ConfigurableListableBeanFactory beanFactory, Properties props) {

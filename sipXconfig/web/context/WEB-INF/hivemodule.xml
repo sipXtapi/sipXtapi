@@ -18,6 +18,8 @@
       </construct>
     </invoke-factory>
   </service-point>
+  
+  
 
   <!-- Upload Size=20MB for no particular reason. Polycom firmware was 11MB -->
   <implementation service-id="tapestry.multipart.ServletMultipartDecoder">
@@ -156,13 +158,24 @@
     </invoke-factory>
   </service-point>
 
-  <contribution configuration-id="tapestry.InfrastructureOverrides">
-    <property name="exceptionPresenter" object="service:ExceptionPresenter" />
-  </contribution>
+  <!-- Skin resource string control -->
+  <service-point id="SkinMessagesSource" interface="org.apache.tapestry.services.ComponentMessagesSource">
+    <invoke-factory>
+      <construct class="org.sipfoundry.sipxconfig.site.skin.SkinMessagesSource">
+        <set-object property="systemMessagesSource" value="service:tapestry.ComponentMessagesSource"/>
+        <set-object property="skin" value="spring:skin"/>
+      </construct>
+    </invoke-factory>
+  </service-point>
 
   <contribution configuration-id="tapestry.url.ServiceEncoders">
     <encoder id="mailbox" before="external" object="instance:site.vm.MailboxPageEncoder,url=/mailbox"/>
     <page-service-encoder id="external" extension="external" service="external"/>  
   </contribution>
-  
+    
+  <contribution configuration-id="tapestry.InfrastructureOverrides">
+    <property name="exceptionPresenter" object="service:ExceptionPresenter" />
+    <property name="componentMessagesSource" object="service:SkinMessagesSource" />
+  </contribution>
+
 </module>

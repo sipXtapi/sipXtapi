@@ -1,22 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN"
   "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
-<component-specification class="org.sipfoundry.sipxconfig.components.Footer" allow-body="yes"
+<component-specification class="org.apache.tapestry.BaseComponent" allow-body="yes"
   allow-informal-parameters="yes">
 
   <inject property="skin" object="spring:skin" />
-
+  
   <bean name="version" class="org.sipfoundry.sipxconfig.common.VersionInfo" lifecycle="page" />
 
   <component id="version" type="InsertText">
     <binding name="value" value="beans.version.versionString" />
-  </component>
-
-  <component id="copyright" type="InsertText">
-    <binding name="value" value="prop:productCopyright" />
-  </component>
-
-  <component id="name" type="InsertText">
-    <binding name="value" value="prop:productName" />
   </component>
 </component-specification>

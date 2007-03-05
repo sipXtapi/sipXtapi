@@ -11,8 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
-import java.text.MessageFormat;
-
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IExternalPage;
 import org.apache.tapestry.IPage;
@@ -115,9 +113,12 @@ public abstract class Border extends BaseComponent implements PageValidateListen
         return m_version;
     }
 
-    public String getHelpLink() {
-        String help = getSkin().getHelpLink();
-        String url = MessageFormat.format(help, (Object[]) getVersionInfo().getVersionIds());
-        return url;
-    }
+//    public String getPageTitle() {
+//        StringBuilder s = new StringBuilder(getSkin().getProductName());
+//        String pageTitle = getPage().getMessages().getMessage("title");
+//        if (!StringUtils.isEmpty(pageTitle)) {
+//            s.append(" - ").append(pageTitle);
+//        }
+//        return s.toString();
+//    }
 }
