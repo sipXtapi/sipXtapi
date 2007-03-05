@@ -2,8 +2,8 @@
 <directory>
   <item_list>
      <item>
-       <ln>Explorer</ln>
-       <fn>Dora</fn>
+       <ln><![CDATA[Explorer]]></ln>
+       <fn><![CDATA[Dora]]></fn>
        <ct>210</ct>
        <sd />
        <rt />
