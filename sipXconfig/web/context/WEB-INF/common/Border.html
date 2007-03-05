@@ -12,12 +12,12 @@ djConfig = { isDebug: false,
   <body jwcid="@Body">
     <div jwcid="@If" condition="prop:userSession.navigationVisible">
       <div id="banner">
+      	<div id="banner-title"><span jwcid="@Insert" raw="true" value="message:banner.title"/></div>
         <div id="banner-links">
           <a jwcid="@PageLink" id="link.home" page="Home"><span key="link.home">Home</span></a>
           <a jwcid="helpLink" id="link.help"><span key="link.help">Online Help</span></a>
           <a jwcid="logoutLink" id="link.logout"><span key="link.logout">Logout</span></a>
         </div>
-        <span class="hide" key="title">sipXconfig</span>
       </div>
       <div id="navigation">
         <span jwcid="@If" condition="prop:userSession.admin">
