@@ -99,6 +99,7 @@ public:
       *         data space
       */
 
+
       /// Destructor
     virtual
     ~MpInputDeviceManager();
@@ -123,6 +124,7 @@ public:
       *  Multi-thread safe.
       */
 
+
       /// Remove an existing input device
     MpInputDeviceDriver* removeDevice(MpInputDeviceHandle deviceId);
       /**<
@@ -130,6 +132,7 @@ public:
       *
       *  Multi-thread safe.
       */
+
 
       /// Helper to enable device driver
     OsStatus enableDevice(MpInputDeviceHandle deviceId);
@@ -142,6 +145,7 @@ public:
       *  Multi-thread safe.
       */
 
+
       /// Helper to disable device driver
     OsStatus disableDevice(MpInputDeviceHandle deviceId);
       /**<
@@ -149,39 +153,6 @@ public:
       *
       *  @NOTE This SHOULD NOT be used to mute/unmute a device. Disabling and
       *        enabling a device results in state and buffer queues being cleared.
-      *
-      *  Multi-thread safe.
-      */
-
-//@}
-
-/* ============================ ACCESSORS ================================= */
-///@name Accessors
-//@{
-
-      /// Get the device driver name for the given device ID
-    OsStatus getDeviceName(int deviceId, UtlString& deviceName) const;
-      /**<
-      *  Multi-thread safe.
-      */
-
-      /// Get the device id for the given device driver name
-    MpInputDeviceHandle getDeviceId(const char* deviceName) const;
-      /**<
-      *  The MpInputDeviceManager maintains a device ID to device name
-      *  mapping.  All device IDs and device names are unique within the
-      *  scope of this MpInputDeviceManager.
-      *
-      *  Multi-thread safe.
-      */
-
-      /// Get current frame timestamp
-    MpFrameTime getCurrentFrameTime() const;
-      /**<
-      *  The timestamp is in milliseconds from the initial reference point
-      *  in time for this device manager
-      *
-      *  @NOTE This number will wrap roughly every 11.5 days.
       *
       *  Multi-thread safe.
       */
@@ -209,6 +180,7 @@ public:
       *  Multi-thread safe.
       */
 
+
       /// Method for obtaining the buffer for a given frame and device ID
     OsStatus getFrame(MpInputDeviceHandle deviceId,
                       MpFrameTime frameTime,
@@ -234,6 +206,41 @@ public:
       *                            available yet and the device is not enabled.
       *  @returns OS_NOT_FOUND if the frame for the requested time is not
       *                        available yet.
+      *
+      *  Multi-thread safe.
+      */
+
+//@}
+
+/* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+      /// Get the device driver name for the given device ID
+    OsStatus getDeviceName(int deviceId, UtlString& deviceName) const;
+      /**<
+      *  Multi-thread safe.
+      */
+
+
+    /// Get the device id for the given device driver name
+    MpInputDeviceHandle getDeviceId(const char* deviceName) const;
+      /**<
+      *  The MpInputDeviceManager maintains a device ID to device name
+      *  mapping.  All device IDs and device names are unique within the
+      *  scope of this MpInputDeviceManager.
+      *
+      *  Multi-thread safe.
+      */
+
+
+      /// Get current frame timestamp
+    MpFrameTime getCurrentFrameTime() const;
+      /**<
+      *  The timestamp is in milliseconds from the initial reference point
+      *  in time for this device manager
+      *
+      *  @NOTE This number will wrap roughly every 11.5 days.
       *
       *  Multi-thread safe.
       */

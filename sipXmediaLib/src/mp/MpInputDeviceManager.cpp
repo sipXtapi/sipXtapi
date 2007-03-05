@@ -88,6 +88,7 @@ public:
        mppFrameBufferArray = new MpInputDeviceFrameData[mFrameBufferLength];
    };
 
+
      /// Destructor
    virtual
    ~MpAudioInputConnection()
@@ -154,6 +155,7 @@ public:
 
         return result;
     };
+
 
     OsStatus getFrame(MpFrameTime frameTime,
                       MpBufPtr& buffer,
@@ -260,6 +262,7 @@ MpInputDeviceManager::MpInputDeviceManager(unsigned defaultSamplesPerFrame,
     OsDateTime::getCurTimeSinceBoot(mTimeZero);
 }
 
+
 // Destructor
 MpInputDeviceManager::~MpInputDeviceManager()
 {
@@ -294,6 +297,7 @@ int MpInputDeviceManager::addDevice(MpInputDeviceDriver& newDevice)
 
     return(newDeviceId);
 }
+
 
 MpInputDeviceDriver* MpInputDeviceManager::removeDevice(MpInputDeviceHandle deviceId)
 {
@@ -333,6 +337,7 @@ MpInputDeviceDriver* MpInputDeviceManager::removeDevice(MpInputDeviceHandle devi
     return(deviceDriver);
 }
 
+
 OsStatus MpInputDeviceManager::enableDevice(MpInputDeviceHandle deviceId)
 {
     OsStatus status = OS_NOT_FOUND;
@@ -359,6 +364,7 @@ OsStatus MpInputDeviceManager::enableDevice(MpInputDeviceHandle deviceId)
     return(status);
 }
 
+
 OsStatus MpInputDeviceManager::disableDevice(MpInputDeviceHandle deviceId)
 {
     OsStatus status = OS_NOT_FOUND;
@@ -382,6 +388,59 @@ OsStatus MpInputDeviceManager::disableDevice(MpInputDeviceHandle deviceId)
     }
     return(status);
 }
+
+
+OsStatus MpInputDeviceManager::pushFrame(MpInputDeviceHandle deviceId,
+                                         unsigned numSamples,
+                                         MpAudioSample* samples,
+                                         MpFrameTime frameTime)
+{
+    OsStatus status = OS_NOT_FOUND;
+
+    OsWriteLock lock((OsRWMutex&)mRwMutex);
+
+    MpAudioInputConnection* connectionFound = NULL;
+    UtlInt deviceKey(deviceId);
+    connectionFound =
+        (MpAudioInputConnection*) mConnectionsByDeviceId.find(&deviceKey);
+
+    if (connectionFound)
+    {
+        status = 
+            connectionFound->pushFrame(numSamples, samples, frameTime);
+    }
+
+    return(status);
+}
+
+
+OsStatus MpInputDeviceManager::getFrame(MpInputDeviceHandle deviceId,
+                                        MpFrameTime frameTime,
+                                        MpBufPtr& buffer,
+                                        unsigned& numFramesBefore,
+                                        unsigned& numFramesAfter)
+{
+    OsStatus status = OS_INVALID_ARGUMENT;
+
+    OsWriteLock lock((OsRWMutex&)mRwMutex);
+
+    MpAudioInputConnection* connectionFound = NULL;
+    UtlInt deviceKey(deviceId);
+    connectionFound =
+        (MpAudioInputConnection*) mConnectionsByDeviceId.find(&deviceKey);
+
+    if (connectionFound)
+    {
+        status = 
+            connectionFound->getFrame(frameTime,
+            buffer,
+            numFramesBefore,
+            numFramesAfter);
+    }
+
+    return(status);
+}
+
 /* ============================ ACCESSORS ================================= */
 
 OsStatus MpInputDeviceManager::getDeviceName(MpInputDeviceHandle deviceId,
@@ -410,6 +469,7 @@ OsStatus MpInputDeviceManager::getDeviceName(MpInputDeviceHandle deviceId,
     return(status);
 }
 
+
 MpInputDeviceHandle MpInputDeviceManager::getDeviceId(const char* deviceName) const
 {
     OsStatus status = OS_NOT_FOUND;
@@ -424,6 +484,7 @@ MpInputDeviceHandle MpInputDeviceManager::getDeviceId(const char* deviceName) co
     return(deviceId ? deviceId->getValue() : -1);
 }
 
+
 MpFrameTime MpInputDeviceManager::getCurrentFrameTime() const
 {
     OsTime now;
@@ -433,56 +494,6 @@ MpFrameTime MpInputDeviceManager::getCurrentFrameTime() const
 
 
     return(now.seconds() * 1000 + now.usecs() / 1000);
-}
-
-OsStatus MpInputDeviceManager::pushFrame(MpInputDeviceHandle deviceId,
-                                         unsigned numSamples,
-                                         MpAudioSample* samples,
-                                         MpFrameTime frameTime)
-{
-    OsStatus status = OS_NOT_FOUND;
-
-    OsWriteLock lock((OsRWMutex&)mRwMutex);
-
-    MpAudioInputConnection* connectionFound = NULL;
-    UtlInt deviceKey(deviceId);
-    connectionFound =
-        (MpAudioInputConnection*) mConnectionsByDeviceId.find(&deviceKey);
-
-    if (connectionFound)
-    {
-        status = 
-            connectionFound->pushFrame(numSamples, samples, frameTime);
-    }
-
-    return(status);
-}
-
-OsStatus MpInputDeviceManager::getFrame(MpInputDeviceHandle deviceId,
-                                        MpFrameTime frameTime,
-                                        MpBufPtr& buffer,
-                                        unsigned& numFramesBefore,
-                                        unsigned& numFramesAfter)
-{
-    OsStatus status = OS_INVALID_ARGUMENT;
-
-    OsWriteLock lock((OsRWMutex&)mRwMutex);
-
-    MpAudioInputConnection* connectionFound = NULL;
-    UtlInt deviceKey(deviceId);
-    connectionFound =
-        (MpAudioInputConnection*) mConnectionsByDeviceId.find(&deviceKey);
-
-    if (connectionFound)
-    {
-        status = 
-            connectionFound->getFrame(frameTime,
-                                      buffer,
-                                      numFramesBefore,
-                                      numFramesAfter);
-    }
-
-    return(status);
 }
 
 /* ============================ INQUIRY =================================== */
