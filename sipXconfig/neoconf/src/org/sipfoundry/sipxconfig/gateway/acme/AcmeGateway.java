@@ -11,23 +11,12 @@
  */
 package org.sipfoundry.sipxconfig.gateway.acme;
 
-import java.io.File;
-
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
-import org.sipfoundry.sipxconfig.device.ProfileContext;
-import org.sipfoundry.sipxconfig.device.ProfileUtils;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class AcmeGateway extends Gateway {
-
-    private DeviceDefaults m_defaults;
-
-    public void setDefaults(DeviceDefaults defaults) {
-        m_defaults = defaults;
-        initialize();
-    }
 
     @Override
     protected Setting loadSettings() {
@@ -36,7 +25,7 @@ public class AcmeGateway extends Gateway {
 
     @Override
     public void initialize() {
-        addDefaultBeanSettingHandler(new AcmeDefaults(m_defaults));
+        addDefaultBeanSettingHandler(new AcmeDefaults(getDefaults()));
     }
 
     public static class AcmeDefaults {
@@ -53,30 +42,13 @@ public class AcmeGateway extends Gateway {
 
     }
 
-    private String getTemplate() {
+    @Override
+    protected String getProfileTemplate() {
         return "acme/acme-gateway.vm";
     }
 
-    private String getProfileFilename() {
+    @Override
+    protected String getProfileFilename() {
         return getSerialNumber() + ".ini";
-    }
-
-    @Override
-    public void generateProfiles() {
-        String profileFileName = getProfileFilename();
-        String template = getTemplate();
-        ProfileContext context = new ProfileContext(this);
-        getProfileGenerator().generate(context, template, profileFileName);
-    }
-
-    @Override
-    public void removeProfiles() {
-        String profileFileName = getProfileFilename();
-        if (profileFileName == null) {
-            return;
-        }
-        ProfileUtils.removeProfileFiles(new File[] {
-            new File(profileFileName)
-        });
     }
 }

@@ -1492,7 +1492,7 @@
       </type>
       <value>0</value>
     </setting>
-    <setting name='RoutemodeTel2IP'>
+    <setting name='RouteModeTel2IP'>
       <label>Routing/Manipulation Order for Tel2IP Calls</label>
       <type>
         <enum>
@@ -1857,16 +1857,6 @@
     <setting name='FXOCoeffFileUrl' advanced='yes'>
       <label>URL for Auto-Update Analog FXO Coefficients File</label>
       <description>URL for Auto-update Analog coefficients file</description>
-    </setting>
-    <setting name='EnableLANWatchDog' hidden="yes">
-      <value>1</value>
-      <description></description>
-    </setting>
-    <setting name='IdlePCMPattern' hidden="yes">
-      <value>85</value>
-    </setting>
-    <setting name='LogoWidth' hidden="yes">
-      <value>339</value>
     </setting>
   </group>
 </model>

@@ -35,11 +35,11 @@ import org.dbunit.dataset.xml.XmlDataSet;
 import org.dbunit.operation.DatabaseOperation;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
+import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.setting.ModelBuilder;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContextImpl;
@@ -174,15 +174,15 @@ public final class TestHelper {
      * Sets velocity profile generator that generates profile to memory and can be used during
      * testing.
      * 
-     * @param phone
+     * @param device
      */
-    public static MemoryProfileLocation setVelocityProfileGenerator(Phone phone) {
+    public static MemoryProfileLocation setVelocityProfileGenerator(Device device) {
         MemoryProfileLocation location = new MemoryProfileLocation();
         VelocityProfileGenerator profileGenerator = new VelocityProfileGenerator();
         profileGenerator.setVelocityEngine(getVelocityEngine());
-        profileGenerator.setProfileLocation(location);        
-        phone.setProfileGenerator(profileGenerator);        
-        
+        profileGenerator.setProfileLocation(location);
+        device.setProfileGenerator(profileGenerator);
+
         return location;
     }
 
@@ -240,8 +240,7 @@ public final class TestHelper {
         return new FlatXmlDataSet(datasetStream, false);
     }
 
-    public static ReplacementDataSet loadReplaceableDataSetFlat(String fileResource)
-            throws Exception {
+    public static ReplacementDataSet loadReplaceableDataSetFlat(String fileResource) throws Exception {
         IDataSet ds = loadDataSetFlat(fileResource);
         ReplacementDataSet relaceable = new ReplacementDataSet(ds);
         relaceable.addReplacementObject("[null]", null);

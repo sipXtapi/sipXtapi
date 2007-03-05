@@ -229,7 +229,7 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
     public void testGetGatewaySettings() throws Exception {
         TestHelper.cleanInsertFlat("gateway/seed_gateway.db.xml");
         Gateway gateway = m_context.getGateway(1001);
-        assertNotNull(gateway.getTftpRoot());
+        assertNotNull(gateway.getProfileGenerator());
     }
 
 }

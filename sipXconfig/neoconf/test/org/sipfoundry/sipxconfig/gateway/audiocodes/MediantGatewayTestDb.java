@@ -11,10 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
-import java.io.File;
-import java.io.StringWriter;
-import java.io.Writer;
-
 import junit.framework.TestCase;
 
 import org.easymock.classextension.EasyMock;
@@ -22,6 +18,7 @@ import org.easymock.classextension.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.device.BeanFactoryModelSource;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.gateway.GatewayModel;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
@@ -34,33 +31,19 @@ public class MediantGatewayTestDb extends TestCase {
         BeanFactoryModelSource<GatewayModel> modelSource = (BeanFactoryModelSource<GatewayModel>) TestHelper
                 .getApplicationContext().getBean("nakedGatewayModelSource");
         m_model = (AudioCodesModel) modelSource.getModel("audiocodesMP1X4_4_FXO");
-        m_gateway = (MediantGateway) TestHelper.getApplicationContext().getBean(
-                m_model.getBeanId());
+        m_gateway = (MediantGateway) TestHelper.getApplicationContext().getBean(m_model.getBeanId());
         m_gateway.setModelId(m_model.getModelId());
-    }
-
-    /**
-     * Every test case must have 1 test
-     */
-    public void testOnlyExistsBecauseAllOtherTestsDisabled() {
     }
 
     public void testGenerateProfiles() throws Exception {
         assertSame(m_model, m_gateway.getModel());
 
-        Writer writer = new StringWriter();
-        m_gateway.generateProfiles(writer);
-
-        // cursory check for now
-        assertTrue(writer.toString().indexOf("MAXDIGITS") >= 0);
-    }
-
-    public void testGenerateAndRemoveProfiles() throws Exception {
-        File file = m_gateway.getIniFile();
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_gateway);
         m_gateway.generateProfiles();
-        assertTrue(file.exists());
-        m_gateway.removeProfiles();
-        assertFalse(file.exists());
+
+        System.err.println(location.toString());
+        // cursory check for now
+        assertTrue(location.toString().indexOf("MaxDigits") >= 0);
     }
 
     public void testPrepareSettings() throws Exception {
@@ -77,18 +60,18 @@ public class MediantGatewayTestDb extends TestCase {
 
         m_gateway.setDefaults(defaults);
 
-        assertEquals("10.1.2.3", m_gateway.getSettingValue("SIP_Params/PROXYIP"));
-        assertEquals("mysipdomain.com", m_gateway.getSettingValue("SIP_Params/PROXYNAME"));
+        assertEquals("10.1.2.3", m_gateway.getSettingValue("SIP/ProxyIP"));
+        assertEquals("mysipdomain.com", m_gateway.getSettingValue("SIP/ProxyName"));
 
         defaultsCtrl.verify();
     }
 
     public void testGetSettings() throws Exception {
         Setting settings = m_gateway.getSettings();
-        assertEquals("15", settings.getSetting("SIP_Params/MAXDIGITS").getValue());
+        assertEquals("13", settings.getSetting("Voice/MaxDigits").getValue());
         assertTrue(settings instanceof SettingSet);
         SettingSet root = (SettingSet) settings;
-        SettingSet currentSettingSet = (SettingSet) root.getSetting("SIP_Params");
-        assertEquals("15", currentSettingSet.getSetting("MAXDIGITS").getValue());
+        SettingSet currentSettingSet = (SettingSet) root.getSetting("Voice");
+        assertEquals("13", currentSettingSet.getSetting("MaxDigits").getValue());
     }
 }

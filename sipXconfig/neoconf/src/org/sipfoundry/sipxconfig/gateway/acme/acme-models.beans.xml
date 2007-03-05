@@ -10,6 +10,5 @@
 
   <bean id="gwAcme" class="org.sipfoundry.sipxconfig.gateway.acme.AcmeGateway" singleton="false"
     parent="gwGeneric">
-    <property name="defaults" ref="phoneDefaults" />
   </bean>
 </beans>

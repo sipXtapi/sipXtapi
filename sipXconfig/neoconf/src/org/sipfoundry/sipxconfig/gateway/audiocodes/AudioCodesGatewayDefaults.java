@@ -27,12 +27,12 @@ public class AudioCodesGatewayDefaults implements SettingValueHandler {
         m_defaults = defaults;
     }
 
-    @SettingEntry(path = "SIP_Params/SIPGATEWAYNAME")
+    @SettingEntry(path = "SIP/SIPGATEWAYNAME")
     public String getGatewayName() {
         return m_gateway.getDefaults().getDomainName();
     }
 
-    @SettingEntry(path = "SIP_Params/SIPDESTINATIONPORT")
+    @SettingEntry(path = "SIP/SIPDESTINATIONPORT")
     public String getDestinationPort() {
         return m_gateway.getDefaults().getProxyServerSipPort();
     }

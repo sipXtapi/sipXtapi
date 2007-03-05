@@ -20,6 +20,7 @@ import java.util.Set;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
@@ -30,7 +31,7 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 /**
  * Base class for managed phone subclasses
  */
-public abstract class Phone extends BeanWithGroups {
+public abstract class Phone extends BeanWithGroups implements Device {
     // public because of checkstyle
     public static final String PHONE_CONSTANT = "phone";
 

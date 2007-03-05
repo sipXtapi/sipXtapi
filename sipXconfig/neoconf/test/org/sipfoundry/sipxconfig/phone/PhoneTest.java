@@ -11,21 +11,13 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-
 import junit.framework.TestCase;
 
-import org.apache.commons.io.IOUtils;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.device.AbstractProfileGenerator;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
-import org.sipfoundry.sipxconfig.device.FileSystemProfileLocation;
-import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.phone.acme.AcmePhone;
 
 public class PhoneTest extends TestCase {
@@ -37,49 +29,6 @@ public class PhoneTest extends TestCase {
         assertEquals("aabbccddeeff", Phone.cleanSerialNumber("AABBCCDDEEFF"));
         assertEquals("totallybogus", Phone.cleanSerialNumber("totallybogus"));
         assertNull(Phone.cleanSerialNumber(null));
-    }
-
-    public void testGenerateAndRemoveProfiles() {
-        final AbstractProfileGenerator generator = new AbstractProfileGenerator() {
-            protected void generateProfile(ProfileContext context, String templateFileName,
-                     OutputStream out) throws IOException {
-                IOUtils.write("profile", out);
-            }
-        };
-        
-        String root = TestHelper.getTestDirectory() + "/phone";
-        FileSystemProfileLocation location = new FileSystemProfileLocation();
-        location.setParentDir(root);
-        
-        generator.setProfileLocation(location);
-
-        Phone phone = new TestPhone() {
-            private String m_name;
-
-            public String getPhoneFilename() {
-                if (m_name != null) {
-                    return m_name;
-                }
-                try {
-                    File f = File.createTempFile("phone", "cfg");
-                    f.delete();
-                    m_name = f.getPath();
-                    return m_name;
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        };
-
-        phone.setProfileGenerator(generator);
-
-        String phoneFilename = phone.getPhoneFilename();
-        System.err.println(phoneFilename);
-        File profile = new File(phoneFilename);
-        phone.generateProfiles();
-        assertTrue(profile.exists());
-        phone.removeProfiles();
-        assertFalse(profile.exists());
     }
 
     public void testFindByUsername() {

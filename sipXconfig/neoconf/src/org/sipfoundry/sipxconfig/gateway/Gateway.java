@@ -11,10 +11,17 @@
  */
 package org.sipfoundry.sipxconfig.gateway;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.NamedObject;
+import org.sipfoundry.sipxconfig.device.Device;
+import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.device.DeviceDescriptor;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.device.ModelSource;
+import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.device.ProfileGenerator;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -22,7 +29,7 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 /**
  * Gateway
  */
-public class Gateway extends BeanWithSettings implements NamedObject {
+public class Gateway extends BeanWithSettings implements NamedObject, Device {
     private String m_name;
 
     private String m_address;
@@ -37,8 +44,6 @@ public class Gateway extends BeanWithSettings implements NamedObject {
 
     private String m_serialNumber;
 
-    private String m_tftpRoot;
-
     private GatewayModel m_model;
 
     private ModelSource<GatewayModel> m_modelSource;
@@ -48,6 +53,8 @@ public class Gateway extends BeanWithSettings implements NamedObject {
     private ProfileGenerator m_profileGenerator;
 
     private GatewayCallerAliasInfo m_callerAliasInfo = new GatewayCallerAliasInfo();
+
+    private DeviceDefaults m_defaults;
 
     public Gateway() {
     }
@@ -60,12 +67,32 @@ public class Gateway extends BeanWithSettings implements NamedObject {
     public void initialize() {
     }
 
+    /**
+     * Default implementation generates a single profile file if profile file name and profile
+     * template are provided
+     * 
+     */
     public void generateProfiles() {
-        // do nothing for generic gateways - we do not generate profile for it
+        String profileFileName = getProfileFilename();
+        String profileTemplate = getProfileTemplate();
+        ProfileContext context = createContext();
+        m_profileGenerator.generate(context, profileTemplate, profileFileName);
+    }
+
+    protected ProfileContext createContext() {
+        return new ProfileContext(this);
     }
 
     public void removeProfiles() {
-        // do nothing for generic gateways - we do not generate profile for it
+        getProfileGenerator().remove(getProfileFilename());
+    }
+
+    protected String getProfileTemplate() {
+        return null;
+    }
+
+    protected String getProfileFilename() {
+        return null;
     }
 
     public DeviceVersion getDeviceVersion() {
@@ -108,18 +135,10 @@ public class Gateway extends BeanWithSettings implements NamedObject {
         m_serialNumber = serialNumber;
     }
 
-    public String getTftpRoot() {
-        return m_tftpRoot;
-    }
-
-    public void setTftpRoot(String tftpRoot) {
-        m_tftpRoot = tftpRoot;
-    }
-
     public void setProfileGenerator(ProfileGenerator profileGenerator) {
         m_profileGenerator = profileGenerator;
     }
-    
+
     protected ProfileGenerator getProfileGenerator() {
         return m_profileGenerator;
     }
@@ -206,5 +225,23 @@ public class Gateway extends BeanWithSettings implements NamedObject {
 
     public void setGatewayModelSource(ModelSource<GatewayModel> modelSource) {
         m_modelSource = modelSource;
+    }
+
+    protected Set getModelDefinitions() {
+        Set definitions = new HashSet();
+        DeviceDescriptor model = getModel();
+        definitions.add(model.getModelId());
+        if (getDeviceVersion() != null) {
+            definitions.add(getDeviceVersion().getVersionId());
+        }
+        return definitions;
+    }
+
+    public void setDefaults(DeviceDefaults defaults) {
+        m_defaults = defaults;
+    }
+
+    public DeviceDefaults getDefaults() {
+        return m_defaults;
     }
 }
