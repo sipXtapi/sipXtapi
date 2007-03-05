@@ -245,6 +245,32 @@ public:
       *  Multi-thread safe.
       */
 
+
+      /// Method for obtaining the time derivatives for sequential frames 
+      /// as relates to reference time.
+    OsStatus getTimeDerivatives(MpInputDeviceHandle deviceId,
+                                unsigned& nDerivatives,
+                                int*& derivativeBuf) const;
+      /**<
+      *  Calculates the derivative: 
+      *  <tt>(t2-t1)/(reference frame period) for sequential t1,t2</tt>
+      *  for each set of times buffered, starting from the most recent
+      *  in the buffer.
+      *
+      *  @param deviceId - (in) device to get statistics for.
+      *  @param nDerivatives - (in/out) number of derivatives to attempt to obtain.
+      *  @param derivativeBuf - (out) an allocated buffer of at least size 
+      *         \cnDerivatives which will be filled with the derivatives.
+      *
+      *  @returns \cnDerivatives contains the number of derivatives calculated 
+      *           and returned.  If there are less than \cnDerivatives frames 
+      *           buffered, then the number of derivatives calculated and 
+      *           returned is the number of frames buffered.
+      *  @returns OS_INVALID_ARGUMENT if the device id does not exist.
+      * 
+      *  Multi-thread safe.
+      */
+
 //@}
 
 /* ============================ INQUIRY =================================== */

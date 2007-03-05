@@ -18,13 +18,14 @@
 #include <mp/MpInputDeviceManager.h>
 #include <mp/MpInputDeviceDriverWnt.h>
 #include <os/OsTask.h>
+#include <utl/UtlString.h>
 
 #define MIDDT_SAMPLES_PER_FRAME 80
 #define MIDDT_NBUFS 20
 
-class MpInputDeviceDriverWntTest : public CppUnit::TestCase
+class MpInputDeviceDriverTest : public CppUnit::TestCase
 {
-    CPPUNIT_TEST_SUITE(MpInputDeviceDriverWntTest);
+    CPPUNIT_TEST_SUITE(MpInputDeviceDriverTest);
     CPPUNIT_TEST(testSetup);
     CPPUNIT_TEST_SUITE_END();
 
@@ -122,9 +123,44 @@ public:
             // Now enable it via the manager -- this should succeed.
             CPPUNIT_ASSERT(inDevMgr.enableDevice(iDrvHnd) == OS_SUCCESS);
 
-            // Sleep for a while
-            unsigned nSecsToRecord = 10;
-            OsTask::delay(nSecsToRecord*1000);
+            int* derivs = new int[mNumBufferedFrames-1];
+            unsigned nMSecsToRecord = 200;
+            int nMSPerBuffer = mNumBufferedFrames * mFramePeriodMSecs;
+            unsigned i;
+            for(i = 0; 
+                i < nMSecsToRecord; 
+                i = i+nMSPerBuffer)
+            {
+                // Sleep till when the input buffer should be full
+                OsTask::delay(nMSPerBuffer);
+
+                // Grab time derivative statistics..
+                unsigned nDerivs = mNumBufferedFrames;
+                CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                                     inDevMgr.getTimeDerivatives(iDrvHnd, 
+                                                                 nDerivs, 
+                                                                 derivs));
+
+                // Prepare the derivative line to print.
+#               define NUMSTRSZ 32
+                char startTStr[NUMSTRSZ];
+                snprintf(startTStr, NUMSTRSZ, "%d", i);
+                char endTStr[NUMSTRSZ];
+                snprintf(endTStr, NUMSTRSZ, "%d", i+nMSPerBuffer);
+                char tmpBuf[NUMSTRSZ];
+                UtlString derivStr = 
+                    UtlString("derivs(") + startTStr + ", " + endTStr + "): ";
+
+                unsigned j;
+                for(j = 0; j < nDerivs; j++)
+                {
+                    snprintf(tmpBuf, NUMSTRSZ, "%d", derivs[j]);
+                    derivStr += tmpBuf;
+                    if(j < nDerivs-1) // While there's still one more, put a comma
+                        derivStr += ", ";
+                }
+                printf("%s\n", derivStr.data());
+            }
 
             // Ok, now disable it via the manager -- this time it should succeed.
             CPPUNIT_ASSERT(inDevMgr.disableDevice(iDrvHnd) == OS_SUCCESS);
@@ -144,5 +180,5 @@ public:
     }
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION(MpInputDeviceDriverWntTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(MpInputDeviceDriverTest);
 

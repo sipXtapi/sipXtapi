@@ -15,6 +15,7 @@
 
 // APPLICATION INCLUDES
 #include <os/OsWriteLock.h>
+#include <os/OsReadLock.h>
 #include <os/OsDateTime.h>
 #include <os/OsSysLog.h>
 #include <mp/MpInputDeviceManager.h>
@@ -210,6 +211,49 @@ public:
 //@{
 
     MpInputDeviceDriver* getDeviceDriver() const{return(mpInputDeviceDriver);};
+
+
+    unsigned getTimeDerivatives(unsigned nDerivatives, 
+                                int*& derivativeBuf)
+    {
+        unsigned nActualDerivs = 0;
+        
+        int referenceFramePeriod = 1000 * mSamplesPerFrame / mSamplesPerSecond;
+        unsigned int lastFrame = mLastPushedFrame % mFrameBufferLength;
+
+        unsigned int t2FrameIdx;
+        for(t2FrameIdx = 0; 
+            (t2FrameIdx < mFrameBufferLength) && (nActualDerivs < nDerivatives); 
+            t2FrameIdx++)
+        {
+            // in indexes here, higher is older, since we're subtracting before
+            // modding to get the actual buffer array index.
+            unsigned int t1FrameIdx = t2FrameIdx+1;
+
+            MpInputDeviceFrameData* t2FrameData = 
+                &mppFrameBufferArray[(lastFrame - t2FrameIdx) 
+                                     % mFrameBufferLength];
+            MpInputDeviceFrameData* t1FrameData = 
+                &mppFrameBufferArray[(lastFrame - t1FrameIdx) 
+                                     % mFrameBufferLength];
+
+            // The first time we find an invalid buffer, break out of the loop.
+            // This takes care of the case when only a small amount of data has
+            // been pushed to the buffer.
+            if(!t2FrameData->mFrameBuffer.isValid() ||
+                !t1FrameData->mFrameBuffer.isValid())
+            {
+                break;
+            }
+
+            int curDeriv = (t2FrameData->mFrameTime - t1FrameData->mFrameTime)
+                           / referenceFramePeriod;
+            derivativeBuf[t2FrameIdx] = curDeriv;
+            nActualDerivs++;
+        }
+
+        return nActualDerivs;
+    }
 
 //@}
 
@@ -448,7 +492,7 @@ OsStatus MpInputDeviceManager::getDeviceName(MpInputDeviceHandle deviceId,
 {
     OsStatus status = OS_NOT_FOUND;
 
-    OsWriteLock lock((OsRWMutex&)mRwMutex);
+    OsReadLock lock((OsRWMutex&)mRwMutex);
 
     MpAudioInputConnection* connectionFound = NULL;
     UtlInt deviceKey(deviceId);
@@ -494,6 +538,29 @@ MpFrameTime MpInputDeviceManager::getCurrentFrameTime() const
 
 
     return(now.seconds() * 1000 + now.usecs() / 1000);
+}
+
+OsStatus MpInputDeviceManager::getTimeDerivatives(MpInputDeviceHandle deviceId,
+                                                  unsigned& nDerivatives,
+                                                  int*& derivativeBuf) const
+{
+    OsStatus stat = OS_INVALID_ARGUMENT;
+    unsigned nActualDerivs = 0;
+    OsReadLock lock((OsRWMutex&)mRwMutex);
+
+    MpAudioInputConnection* connectionFound = NULL;
+    UtlInt deviceKey(deviceId);
+    connectionFound =
+        (MpAudioInputConnection*) mConnectionsByDeviceId.find(&deviceKey);
+
+    if (connectionFound)
+    {
+        stat = OS_SUCCESS;
+        nActualDerivs = connectionFound->getTimeDerivatives(nDerivatives, 
+                                                            derivativeBuf);
+    }
+    nDerivatives = nActualDerivs;
+    return(stat);
 }
 
 /* ============================ INQUIRY =================================== */
