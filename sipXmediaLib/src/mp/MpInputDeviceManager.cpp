@@ -81,6 +81,7 @@ public:
    , mpInputDeviceDriver(&deviceDriver)
    , mSamplesPerFrame(samplesPerFrame)
    , mSamplesPerSecond(samplesPerSecond)
+   , mFrameBuffersUsed(0)
    {
        assert(mFrameBufferLength > 0);
        assert(mSamplesPerFrame > 0);
@@ -118,12 +119,23 @@ public:
         OsStatus result = OS_FAILED;
         assert(samples);
 
+        printf("pushFrame frameTime: %d\n", frameTime);
         // TODO: could support reframing here.  For now
         // the driver must do the correct framing.
         assert(numSamples == mSamplesPerFrame);
 
         // Circular buffer of frames
-        int thisFrameIndex = (++mLastPushedFrame) % mFrameBufferLength;
+        int thisFrameIndex;
+        if(mFrameBuffersUsed)
+        {
+            thisFrameIndex = (++mLastPushedFrame) % mFrameBufferLength;
+        }
+        else
+        {
+            thisFrameIndex = 0;
+            mLastPushedFrame = 0;
+        }
+            
         MpInputDeviceFrameData* thisFrameData = &mppFrameBufferArray[thisFrameIndex];
 
         // Current time to review device driver jitter
@@ -137,6 +149,11 @@ public:
         {
             thisFrameData->mFrameBuffer = 
                 mpBufferPool->getBuffer();
+            mFrameBuffersUsed++;
+            if(mFrameBuffersUsed > mFrameBufferLength)
+            {
+                mFrameBuffersUsed = mFrameBufferLength;
+            }
         }
 
         assert(thisFrameData->mFrameBuffer->getSamplesNumber() >= numSamples);
@@ -171,8 +188,13 @@ public:
         {
             result = OS_NOT_FOUND;
         }
+        else
+        {
+            printf("getFrame invalid device: %d\n", getValue());
+        }
 
-        unsigned int lastFrame = mLastPushedFrame % mFrameBufferLength;
+        unsigned int lastFrame = mLastPushedFrame;
+        printf("getFrame lastFrame: %d mFrameBuffersUsed: %d\n", lastFrame, mFrameBuffersUsed);
         numFramesBefore = 0;
         numFramesAfter = 0;
         int framePeriod = 1000 * mSamplesPerFrame / mSamplesPerSecond;
@@ -181,17 +203,20 @@ public:
         // given frame time.  The frame time is for the beginning of a frame.
         // So we provide the frame that begins at or less than the requested
         // time, but not more than one frame period older.
-        for (unsigned int frameIndex = 0; frameIndex < mFrameBufferLength; frameIndex++)
+        for (unsigned int frameIndex = 0; frameIndex < mFrameBuffersUsed; frameIndex++)
         {
+            // Walk backwards from the last inserted frame
             MpInputDeviceFrameData* frameData = 
-                &mppFrameBufferArray[(lastFrame + frameIndex) % mFrameBufferLength];
+                &mppFrameBufferArray[(lastFrame - frameIndex) % mFrameBufferLength];
 
-            if (frameData->mFrameTime <= frameTime &&
+            // The frame whose time range covers the requested time
+            if (frameData->mFrameBuffer.isValid() &&
+                frameData->mFrameTime <= frameTime &&
                 frameData->mFrameTime + framePeriod > frameTime)
             {
                 // We have a frame of media for the requested time
                 numFramesBefore = frameIndex;
-                numFramesAfter = mFrameBufferLength - 1 - frameIndex;
+                numFramesAfter = mFrameBuffersUsed - 1 - frameIndex;
 
                 // We always make a copy of the frame as we are typically
                 // crossing task boundaries here.
@@ -201,7 +226,11 @@ public:
             }
         }
 
-        return result;
+        if(result == OS_SUCCESS)
+        {
+            printf("getFrame got frame: %d\n", frameIndex);
+        }
+        return(result);
     }; 
 
 //@}
@@ -268,6 +297,7 @@ public:
 private:
     unsigned int mLastPushedFrame;      ///< Index of last pushed frame in mppFrameBufferArray.
     unsigned int mFrameBufferLength;    ///< Length of mppFrameBufferArray.
+    unsigned int mFrameBuffersUsed;    ///< actual number of buffers with data in them
     MpInputDeviceFrameData* mppFrameBufferArray;
     MpInputDeviceDriver* mpInputDeviceDriver;
     unsigned int mSamplesPerFrame;      ///< Number of audio samples in one frame.
@@ -560,11 +590,40 @@ OsStatus MpInputDeviceManager::getTimeDerivatives(MpInputDeviceHandle deviceId,
         nActualDerivs = connectionFound->getTimeDerivatives(nDerivatives, 
                                                             derivativeBuf);
     }
+    else
+    {
+        printf("MpInputDeviceManager::pushFrame device(%d) not found\n", deviceId);
+    }
     nDerivatives = nActualDerivs;
     return(stat);
 }
 
 /* ============================ INQUIRY =================================== */
+
+UtlBoolean MpInputDeviceManager::isDeviceEnabled(MpInputDeviceHandle deviceId)
+{
+    OsStatus status = OS_NOT_FOUND;
+    UtlBoolean enabledState = FALSE;
+    OsReadLock lock(mRwMutex);
+
+    MpAudioInputConnection* connectionFound = NULL;
+    UtlInt deviceKey(deviceId);
+    connectionFound =
+        (MpAudioInputConnection*) mConnectionsByDeviceId.find(&deviceKey);
+    MpInputDeviceDriver* deviceDriver = NULL;
+
+    if (connectionFound)
+    {
+        deviceDriver = connectionFound->getDeviceDriver();
+        assert(deviceDriver);
+        if (deviceDriver)
+        {
+            enabledState = 
+                deviceDriver->isEnabled();
+        }
+    }
+    return(enabledState);
+}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 

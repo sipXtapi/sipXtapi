@@ -277,6 +277,9 @@ public:
 ///@name Inquiry
 //@{
 
+    /// Inquire if device is enabled (e.g. generating input).
+    UtlBoolean isDeviceEnabled(MpInputDeviceHandle deviceId);
+
 //@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

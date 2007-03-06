@@ -946,6 +946,53 @@ UtlBoolean SdpBody::getMediaAddress(int mediaIndex, UtlString* address) const
    return(!address->isNull());
 }
 
+UtlBoolean SdpBody::getPtime(int mediaIndex, int& pTime) const
+{
+    UtlBoolean foundPtime = FALSE;
+    UtlSListIterator iterator(*sdpFields);
+    NameValuePair* nv;
+    pTime = 0;
+    const char* value = NULL;
+
+    // Try to find a specific address for the given media set
+    nv = positionFieldInstance(mediaIndex, &iterator, "m");
+    if(nv)
+    {
+        UtlString aParameterName;
+        UtlString pTimeValueString;
+        while((nv = findFieldNameBefore(&iterator, "a", "m")))
+        {
+            value = nv->getValue();
+            if(value)
+            {
+                // Get the a line parameter name
+                NameValueTokenizer::getSubField(value, 0,
+                                      " \t:/", // seperators
+                                      &aParameterName);
+                // See if this is a ptime parameter
+                if(aParameterName.compareTo("ptime") == 0)
+                {
+                     // get the ptime value
+                    NameValueTokenizer::getSubField(value, 1,
+                                                    " \t:/", // seperators, 
+                                                    &pTimeValueString);
+                    if(!pTimeValueString.isNull())
+                    {
+                        pTime = atoi(pTimeValueString);
+                        // should only be one ptime per media set (m line)
+                        // Ignore all but the first one.
+                        if(pTime > 0)
+                        {
+                            foundPtime = TRUE;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return(foundPtime);
+}
 
 void SdpBody::getBestAudioCodecs(int numRtpCodecs, SdpCodec rtpCodecs[],
                                  UtlString* rtpAddress, int* rtpPort,
@@ -1171,6 +1218,35 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
    numCodecsInCommon = 0;
    memset((void*)videoSizes, 0, sizeof(videoSizes));
 
+   // TODO: properly support media sets
+   // This is a bit of a mess.  We have completely blurred over the
+   // concept of separate m lines other than the mime type separation
+   // of audio and video.  There may be different properties for the
+   // same codecs which may appear in more than one media section
+   // (m line)
+
+   // So for example the ptime property is specific to a media
+   // set (m line).  At this point we no longer know which codec
+   // comes from which media set.  So for now we search through the
+   // audio media sets until we find a ptime and assume the ptime
+   // applies to all audio codecs.  ptime mostly only make sense for
+   // audio
+   int mediaSetIndex = 0;
+   int defaultPtime = 0;
+   UtlString mediaType;
+   while(getMediaType(mediaSetIndex, &mediaType))
+   {
+       if(mediaType.compareTo(MIME_TYPE_AUDIO) == 0)
+       {
+           if(getPtime(mediaSetIndex, defaultPtime) &&
+               defaultPtime > 0)
+           {
+               break;
+           }
+       }
+       mediaSetIndex++;
+   }
+
    for(typeIndex = 0; typeIndex < audioPayloadIdCount; typeIndex++)
    {
       // Until the real SdpCodec is needed we assume all of
@@ -1212,6 +1288,11 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                     commonCodec = FALSE;
                 }
             }
+            else if(defaultPtime > 0)
+            {
+                frameSize = defaultPtime;
+            }
+
             // Create a copy of the SDP codec and set
             // the payload type for it
             if (commonCodec)
@@ -1643,6 +1724,8 @@ void SdpBody::addCodecParameters(int numRtpCodecs,
    UtlString prevMimeSubType = "none";
    UtlString formatTemp;
    UtlString formatString;
+   int pTime = 0;
+   int codecPtime = 0;
 
    for(int codecIndex = 0;
        codecIndex < MAXIMUM_MEDIA_TYPES && codecIndex < numRtpCodecs;
@@ -1661,6 +1744,17 @@ void SdpBody::addCodecParameters(int numRtpCodecs,
             numChannels = codec->getNumChannels();
             codec->getSdpFmtpField(formatParameters);
             payloadType = codec->getCodecPayloadFormat();
+
+            // Not sure what the right heuristic is for determining the
+            // correct ptime.  ptime is a media (m line) parameters.  As such
+            // it is a global property to all codecs for a single media
+            // (m line) section.  For now lets try using the largest one as
+            // SDP does not support different ptime for each codec.
+            codecPtime = (codec->getPacketLength()) / 1000; // converted to milliseconds
+            if(codecPtime > pTime)
+            {
+                pTime = codecPtime;
+            }
 
             // Build an rtpmap
             addRtpmap(payloadType, mimeSubtype.data(),
@@ -1711,6 +1805,13 @@ void SdpBody::addCodecParameters(int numRtpCodecs,
             }
          }
       }
+   }
+
+   // ptime only really make sense for audio
+   if(pTime > 0 &&
+      strcmp(szMimeType, SDP_AUDIO_MEDIA_TYPE) == 0 )
+   {
+       addPtime(pTime);
    }
 }
 
@@ -2150,6 +2251,19 @@ void SdpBody::addFormatParameters(int payloadType,
 
    // Add the "a" field
    addValue("a", fieldValue.data());
+}
+
+void SdpBody::addPtime(int pTime)
+{
+    // Build "a" field for ptime"
+    // a=ptime: <milliseconds>
+    UtlString fieldValue("ptime:");
+    char buffer[100];
+    sprintf(buffer, "%d", pTime);
+    fieldValue.append(buffer);
+
+    // Add the "a" field
+    addValue("a", fieldValue);
 }
 
 void SdpBody::addCandidateAttribute(int         candidateId, 

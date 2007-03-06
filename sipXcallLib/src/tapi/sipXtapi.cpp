@@ -1999,37 +1999,29 @@ SIPXTAPI_API SIPX_RESULT sipxCallStartTone(const SIPX_CALL hCall,
     {
         if (sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, NULL))
         {
-#ifndef VOICE_ENGINE
-            if (!pInst->toneStates.tonePlaying)
-#endif
+            SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_WRITE, stackLogger);
+            
+            if (pData)
             {
-                SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_WRITE, stackLogger);
+               /*  we no longer need to do this, we are not allowing call teardown while a tone is playing
+
+                gpCallHandleMap->addHandleRef(hCall);  // Add a handle reference, so that
+                                                    // if the call ends before
+                                                    // the tone is stopped,
+                                                    // there is still a valid call handle
+                                                    // to use with stopTone
+               */                                                        
+                pData->bTonePlaying = true;
+                sipxCallReleaseLock(pData, SIPX_LOCK_WRITE, stackLogger);
                 
-                if (pData)
+                pInst->pCallManager->toneChannelStart(callId, remoteAddress, xlateId, bLocal, bRemote) ;
+                sr = SIPX_RESULT_SUCCESS ;
+
+                if (!pInst->toneStates.bInitialized)
                 {
-                   /*  we no longer need to do this, we are not allowing call teardown while a tone is playing
-
-                    gpCallHandleMap->addHandleRef(hCall);  // Add a handle reference, so that
-                                                        // if the call ends before
-                                                        // the tone is stopped,
-                                                        // there is still a valid call handle
-                                                        // to use with stopTone
-                   */                                                        
-                    pData->bTonePlaying = true;
-                    sipxCallReleaseLock(pData, SIPX_LOCK_WRITE, stackLogger);
-                    
-                    pInst->pCallManager->toneChannelStart(callId, remoteAddress, xlateId, bLocal, bRemote) ;
-                    sr = SIPX_RESULT_SUCCESS ;
-
-                    if (!pInst->toneStates.bInitialized)
-                    {
-                        pInst->toneStates.bInitialized = true;
-                    }
-#ifndef VOICE_ENGINE
-                    pInst->toneStates.tonePlaying = true;
-#endif          
-                }     
-            }
+                    pInst->toneStates.bInitialized = true;
+                }
+            }     
         }
     }
     return sr ;
@@ -2055,20 +2047,13 @@ SIPXTAPI_API SIPX_RESULT sipxCallStopTone(const SIPX_CALL hCall)
         pData =  sipxCallLookup(hCall, SIPX_LOCK_WRITE, stackLogger);
         if (pData && pData->bTonePlaying && pInst->toneStates.bInitialized )
         {
-#ifndef VOICE_ENGINE
-         if (pInst->toneStates.tonePlaying)
-        {
-#endif         
+      
             pInst->pCallManager->toneChannelStop(callId, remoteAddress) ;
             /*  we no longer need to do this, we are not allowing call teardown while a file is playing
             sipxCallObjectFree(hCall);
             */        
             sr = SIPX_RESULT_SUCCESS ;
-            pInst->toneStates.tonePlaying = false;
             pData->bTonePlaying = false;
-#ifndef VOICE_ENGINE
-         }
-#endif         
         }
     }
     

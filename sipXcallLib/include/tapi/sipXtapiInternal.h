@@ -118,7 +118,7 @@ typedef struct VIDEO_CODEC_PREFERENCES
 typedef struct TONE_STATES
 {
     bool             bInitialized;
-    bool             tonePlaying;
+//    bool             tonePlaying;
 } TONE_STATES;
 
 typedef struct SIPX_INSTANCE_DATA

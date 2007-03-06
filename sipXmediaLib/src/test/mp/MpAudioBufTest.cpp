@@ -109,7 +109,7 @@ public:
         CPPUNIT_ASSERT_EQUAL(frame1.compareSamples(frame2, 3), 0);
 
         // Difference less than tolerance (the same)
-        /*CPPUNIT_ASSERT_EQUAL*/(frame1.compareSamples(frame2, 5), 0);
+        CPPUNIT_ASSERT_EQUAL(frame1.compareSamples(frame2, 5), 0);
     }
 
 

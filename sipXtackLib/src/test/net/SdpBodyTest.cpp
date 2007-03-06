@@ -38,6 +38,7 @@ class SdpBodyTest : public CppUnit::TestCase
     CPPUNIT_TEST(testRtcpPortParsing);
     // CPPUNIT_TEST(testCryptoParsing);
     CPPUNIT_TEST(testVideoCodecSelection);
+    CPPUNIT_TEST(testPtime);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -55,6 +56,7 @@ public:
             "t=2873397496 2873404696\r\n"
             "a=recvonly\r\n"
             "m=audio 49170 RTP/AVP 0\r\n"
+            "a=ptime: 30\r\n"
             "m=audio 59170 TCP/RTP/AVP 0\r\n"
             "m=video 51372 RTP/AVP 31\r\n"
             "m=video 61372 TCP/RTP/AVP 31\r\n"
@@ -103,6 +105,7 @@ public:
             "a=recvonly\r\n"
             "m=audio 49170 RTP/AVP 0\r\n"
             "m=audio 59170 TCP/RTP/AVP 0\r\n"
+            "a=ptime:22\r\n"
             "m=video 51372 RTP/AVP 31\r\n"
             "m=video 61372 TCP/RTP/AVP 31\r\n"
             "m=application 32416 udp wb\r\n"
@@ -114,7 +117,7 @@ public:
         /* Why are there not accessors for version or other standard fields !?! */
 
         int fields = body.SdpBody::getFieldCount();
-        CPPUNIT_ASSERT(fields == 15);
+        CPPUNIT_ASSERT(fields == 16);
 
         UtlString name;
         UtlString value;
@@ -164,22 +167,26 @@ public:
         ASSERT_STR_EQUAL(value.data(), "audio 59170 TCP/RTP/AVP 0");
 
         CPPUNIT_ASSERT(body.getValue(11, &name, &value));
-        ASSERT_STR_EQUAL(name.data(), "m");
-        ASSERT_STR_EQUAL(value.data(), "video 51372 RTP/AVP 31");
+        ASSERT_STR_EQUAL(name.data(), "a");
+        ASSERT_STR_EQUAL(value.data(), "ptime:22");
 
         CPPUNIT_ASSERT(body.getValue(12, &name, &value));
         ASSERT_STR_EQUAL(name.data(), "m");
-        ASSERT_STR_EQUAL(value.data(), "video 61372 TCP/RTP/AVP 31");
+        ASSERT_STR_EQUAL(value.data(), "video 51372 RTP/AVP 31");
 
         CPPUNIT_ASSERT(body.getValue(13, &name, &value));
         ASSERT_STR_EQUAL(name.data(), "m");
-        ASSERT_STR_EQUAL(value.data(), "application 32416 udp wb");
+        ASSERT_STR_EQUAL(value.data(), "video 61372 TCP/RTP/AVP 31");
 
         CPPUNIT_ASSERT(body.getValue(14, &name, &value));
+        ASSERT_STR_EQUAL(name.data(), "m");
+        ASSERT_STR_EQUAL(value.data(), "application 32416 udp wb");
+
+        CPPUNIT_ASSERT(body.getValue(15, &name, &value));
         ASSERT_STR_EQUAL(name.data(), "a");
         ASSERT_STR_EQUAL(value.data(), "orient:portrait");
 
-        CPPUNIT_ASSERT(!body.getValue(15, &name, &value));
+        CPPUNIT_ASSERT(!body.getValue(16, &name, &value));
         CPPUNIT_ASSERT(name.isNull());
         CPPUNIT_ASSERT(value.isNull());
 
@@ -601,6 +608,7 @@ public:
             "c=IN IP4 192.168.1.102\r\n"
             "t=0 0\r\n"
             "m=audio 8778 RTP/AVP 0 8 96\r\n"
+            "a=ptime: 33\r\n"
             "a=rtpmap:0 pcmu/8000/1\r\n"
             "a=rtpmap:8 pcma/8000/1\r\n"
             "a=rtpmap:96 telephone-event/8000/1\r\n" 
@@ -614,6 +622,7 @@ public:
             "a=candidate:0 tid1 TCP 0.4 10.1.1.104 9999\r\n"
             "a=candidate:1 tid2 TCP 0.5 10.1.1.104 10000\r\n"
             "a=candidate:2 tid3 TCP 0.6 10.1.1.105 9999\r\n" 
+            "a=ptime:22\r\n"
             "m=video 1234 RTP/AVP 0 8 96\r\n"
             "a=rtpmap:0 pcmu/8000/1\r\n"
             "a=rtpmap:8 pcma/8000/1\r\n"
@@ -813,6 +822,9 @@ public:
                                 rtpVideoPorts, rtcpVideoPorts, transportTypes,
                                 1, &pAppCodec, testSrtp, 0, 0, RTP_TRANSPORT_TCP) ;
 
+        // TODO: there is a bug in addCodecsOffer.  The last m line (the one
+        // generated for pAppCodec) should be of app media type.  In the SDB
+        // string below the last m line is of audio media type.
         const char* testBodyExpected = 
             "v=0\r\n"
             "o=sipX 5 5 IN IP4 127.0.0.1\r\n"
@@ -821,9 +833,11 @@ public:
             "t=0 0\r\n"
             "m=audio 8700 RTP/AVP 99\r\n"
             "a=rtpmap:99 superaudio/8000/1\r\n"
+            "a=ptime:20\r\n"
             "m=audio 18700 TCP/RTP/AVP 99\r\n"
             "c=IN IP4 10.1.1.30\r\n"
             "a=rtpmap:99 superaudio/8000/1\r\n"
+            "a=ptime:20\r\n"
             "m=video 8801 TCP/RTP/AVP 100\r\n"
             "c=IN IP4 10.1.1.31\r\n"
             "a=rtcp:8802\r\n"
@@ -944,7 +958,174 @@ public:
 
         CPPUNIT_ASSERT(codecsInCommon[0]->getVideoFormat() == SDP_VIDEO_FORMAT_QCIF);
         CPPUNIT_ASSERT(codecsInCommon[1]->getVideoFormat() == SDP_VIDEO_FORMAT_SQCIF);
-    }
+    };
+
+    void testPtime()
+    {
+        // Body with no ptime
+        const char* noPtimeBodyString =
+                "v=0\r\n"
+                "o=sipX 5 5 IN IP4 127.0.0.1\r\n"
+                "s=foo\r\n"
+                "c=IN IP4 10.1.1.30\r\n"
+                "t=0 0\r\n"
+                "m=audio 8700 RTP/AVP 99\r\n"
+                "a=rtpmap:99 superaudio/8000/1\r\n"
+                "m=video 8801 RTP/AVP 100\r\n"
+                "a=rtpmap:100 vp71/9000/1\r\n"
+                "a=fmtp:100 size:QCIF/SQCIF\r\n"
+                "c=IN IP4 10.1.1.31\r\n";
+        SdpBody noPtimeSdpBody(noPtimeBodyString);
+
+        int ptimeValue = -1;
+        // ptime for first m line
+        CPPUNIT_ASSERT(!noPtimeSdpBody.getPtime(0, ptimeValue));
+        CPPUNIT_ASSERT_EQUAL(0, ptimeValue);
+
+        ptimeValue = -1;
+        // ptime for second m line
+        CPPUNIT_ASSERT(!noPtimeSdpBody.getPtime(1, ptimeValue));
+        CPPUNIT_ASSERT_EQUAL(0, ptimeValue);
+
+        ptimeValue = -1;
+        // ptime for third m line (m line does not exist)
+        CPPUNIT_ASSERT(!noPtimeSdpBody.getPtime(2, ptimeValue));
+        CPPUNIT_ASSERT_EQUAL(0, ptimeValue);
+
+        const char* sloppyPtimeBodyString =
+                "v=0\r\n"
+                "o=sipX 5 5 IN IP4 127.0.0.1\r\n"
+                "s=foo\r\n"
+                "c=IN IP4 10.1.1.30\r\n"
+                "t=0 0\r\n"
+                "m=audio 8700 RTP/AVP 96 97\r\n"
+                "a=ptime : 11\r\n"
+                "a=rtpmap:96 pcmu/8000/1\r\n"
+                "a=rtpmap:97 pcma/8000/1\r\n"
+                "a=ptime:12\r\n"   // second ptime for media set should be ignored
+                "m=audio 8710 RTP/AVP 98 99\r\n"
+                "a=rtpmap:98 superaudio/8000/1\r\n"
+                "a= ptime: 22 \r\n"
+                "a=rtpmap:99 superduperaudio/8000/1\r\n"
+                "m=video 8801 RTP/AVP 100\r\n"
+                "a=rtpmap:100 vp71/9000/1\r\n"
+                "a=ptime:33\r\n"
+                "a=fmtp:100 size:QCIF/SQCIF\r\n"
+                "c=IN IP4 10.1.1.31\r\n";
+        SdpBody sloppyPtimeSdpBody(sloppyPtimeBodyString);
+    
+        // ptime for first m line
+        ptimeValue = -1;
+        CPPUNIT_ASSERT(sloppyPtimeSdpBody.getPtime(0, ptimeValue));
+        CPPUNIT_ASSERT_EQUAL(11, ptimeValue);
+    
+        // ptime for second m line
+        ptimeValue = -1;
+        CPPUNIT_ASSERT(sloppyPtimeSdpBody.getPtime(1, ptimeValue));
+        CPPUNIT_ASSERT_EQUAL(22, ptimeValue);
+
+        // ptime for third m line
+        // Video does not usually have a ptime, by syntactically this should work
+        ptimeValue = -1;
+        CPPUNIT_ASSERT(sloppyPtimeSdpBody.getPtime(2, ptimeValue));
+        CPPUNIT_ASSERT_EQUAL(33, ptimeValue);
+
+
+        SdpCodecFactory sdpFactory;
+        SdpCodec* pPcmuCodec = new SdpCodec(SdpCodec::SDP_CODEC_PCMU, 
+                                            SdpCodec::SDP_CODEC_UNKNOWN, 
+                                            MIME_TYPE_AUDIO, 
+                                            MIME_SUBTYPE_PCMU,
+                                            8000, 
+                                            20000); // ptime
+        sdpFactory.addCodec(*pPcmuCodec);
+
+        SdpCodec* pPcmaCodec = new SdpCodec(SdpCodec::SDP_CODEC_PCMA, 
+                                            SdpCodec::SDP_CODEC_UNKNOWN, 
+                                            MIME_TYPE_AUDIO, 
+                                            MIME_SUBTYPE_PCMA,
+                                            8000, 
+                                            20000); // ptime
+        sdpFactory.addCodec(*pPcmaCodec);
+
+        SdpCodec* pSuperCodec = new SdpCodec((SdpCodec::SdpCodecTypes)333, 
+                                            SdpCodec::SDP_CODEC_UNKNOWN, 
+                                            MIME_TYPE_AUDIO, 
+                                            "superaudio",
+                                            8000, 
+                                            20000); // ptime
+        sdpFactory.addCodec(*pSuperCodec);
+
+        SdpCodec* pSuperDuperCodec = new SdpCodec((SdpCodec::SdpCodecTypes)334, 
+                                            SdpCodec::SDP_CODEC_UNKNOWN, 
+                                            MIME_TYPE_AUDIO, 
+                                            "superduperaudio",
+                                            8000, 
+                                            20000); // ptime
+        sdpFactory.addCodec(*pSuperDuperCodec);
+
+        SdpCodec* pQvgaCodec = new SdpCodec(SdpCodec::SDP_CODEC_VP71_QVGA, 
+                                            SdpCodec::SDP_CODEC_UNKNOWN, 
+                                            MIME_TYPE_VIDEO, 
+                                            "vp71", // MIME subtype
+                                            9000, 
+                                            20000, 
+                                            1, 
+                                            "", 
+                                            0, 
+                                            2, 
+                                            SDP_VIDEO_FORMAT_QCIF);
+        sdpFactory.addCodec(*pQvgaCodec);
+        CPPUNIT_ASSERT_EQUAL(5, sdpFactory.getCodecCount());
+
+        SdpCodec* codecArray[5];
+        int numCodecsInCommon = 0;
+        int videoRtpPort = -1;
+        // This is insanely stupid.  I need to get the payload types from
+        // the body so that I can get the codecs which contain the payloads
+        int audioPayloads[4] = {96, 97, 98, 99};
+        int videoPayloads[1] = {100};
+        sloppyPtimeSdpBody.getCodecsInCommon(4, 1, audioPayloads, videoPayloads,
+            videoRtpPort, sdpFactory, numCodecsInCommon, codecArray);
+        CPPUNIT_ASSERT_EQUAL(5, numCodecsInCommon);
+
+        int codecIndex;
+        int payloadId;
+        for(codecIndex = 0; codecIndex < numCodecsInCommon; codecIndex++)
+        {
+            payloadId = codecArray[codecIndex]->getCodecPayloadFormat();
+            switch(payloadId)
+            {
+            case 98:
+            case 99:
+                // Because of the broken nature of how media sets are treated
+                // in the SdpBody (codecs are considered global accross all
+                // media sets), the first ptime in the first media set becomes
+                // global accross all media sets
+                //CPPUNIT_ASSERT_EQUAL(codecArray[codecIndex]->getPacketLength(),
+                //                     22000);
+                //break;
+
+            case 96:
+            case 97:
+                CPPUNIT_ASSERT_EQUAL(11000,
+                                     codecArray[codecIndex]->getPacketLength());
+                break;
+
+            case 100:
+                // currently video ptime is ignored in SdpBody
+                // Should be 33000
+                CPPUNIT_ASSERT_EQUAL(20000, 
+                                     codecArray[codecIndex]->getPacketLength());
+                break;
+
+            default:
+                CPPUNIT_ASSERT_EQUAL(-2, payloadId);
+                break;
+            }
+
+        }
+    };
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SdpBodyTest);

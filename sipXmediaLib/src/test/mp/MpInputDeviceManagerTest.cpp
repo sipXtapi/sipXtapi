@@ -22,6 +22,95 @@
 #define TEST_SAMPLES_PER_FRAME_SIZE   80
 #define BUFFER_NUM    50
 
+class MpInputDeviceManagerTestReader : public OsTask
+{
+public:
+    MpInputDeviceManagerTestReader(int numBufferedFrames,
+                                   int framePeriodMilliseconds,
+                                   MpAudioBufPtr* storedSignal,
+                                   int deviceId,
+                                   MpInputDeviceManager& inputDeviceManager) :
+      OsTask("MpInputDeviceManagerTestReader-%d", NULL, 1 /* HIGHEST PRIORITY is 0*/),
+      mNumBufferedFrames(numBufferedFrames),
+      mFramePeriodMilliseconds(framePeriodMilliseconds),
+      mpStoredSignal(storedSignal),
+      mDeviceId(deviceId),
+      mpInputDeviceManager(&inputDeviceManager),
+      mRunDone(FALSE)
+    {
+          CPPUNIT_ASSERT(storedSignal);
+    };
+
+    ~MpInputDeviceManagerTestReader()
+    {
+    }
+
+    int run(void* pArg)
+    {
+        MpFrameTime frameTime = mpInputDeviceManager->getCurrentFrameTime();
+        OsSysLog::add(FAC_AUDIO, PRI_ERR, "Start frame time: %u\n", frameTime);
+        int frameIndex;
+        unsigned numFramesBefore;
+        unsigned numFramesAfter;
+        OsTime start;
+        OsTime end;
+        OsDateTime::getCurTimeSinceBoot(start);
+        OsStatus result;
+        // Give device a chance to push first
+        delay(10);
+        for(frameIndex = 0; frameIndex < mNumBufferedFrames; frameIndex++)
+        {
+            OsSysLog::add(FAC_AUDIO, PRI_ERR, "delay: %d\n", mFramePeriodMilliseconds);
+
+
+            /*CPPUNIT_ASSERT_EQUAL(*/
+            result = 
+                mpInputDeviceManager->getFrame(mDeviceId,
+                                            frameTime,
+                                            mpStoredSignal[frameIndex],
+                                            numFramesBefore,
+                                            numFramesAfter),
+                //OS_SUCCESS);
+
+            OsSysLog::add(FAC_AUDIO, PRI_ERR, "got frameTime: %u numFramesBefore: %d numFramesAfter: %d result: %d\n", 
+                           frameTime,
+                           numFramesBefore, 
+                           numFramesAfter,
+                           result);
+            
+            delay(mFramePeriodMilliseconds);
+
+            if(result == OS_SUCCESS)
+            {
+                frameTime += mFramePeriodMilliseconds;
+            }
+            else
+            {
+                printf("BAAAAD driver: %d frame not available\n", mDeviceId);
+            }
+        }
+        OsDateTime::getCurTimeSinceBoot(end);
+        int lapseTime = mFramePeriodMilliseconds * 1000 * mNumBufferedFrames;
+        OsTime delta = end - start;
+        int actualLapseTime = delta.seconds() * 1000000 + delta.usecs();
+        printf("actual time: %d scheduled: %d (milli seconds) abs: %d\n",
+            actualLapseTime, lapseTime, abs(actualLapseTime - lapseTime));
+        //CPPUNIT_ASSERT(abs(actualLapseTime - lapseTime) < 2000 * mNumBufferedFrames);
+        mRunDone = TRUE;
+        return(1);
+    }
+
+    UtlBoolean mRunDone;
+
+private:
+    int mNumBufferedFrames;
+    int mFramePeriodMilliseconds;
+    MpAudioBufPtr* mpStoredSignal;
+    int mDeviceId;
+    MpInputDeviceManager* mpInputDeviceManager;
+
+};
+
 /**
  * Unittest for MpAudioBuf
  */
@@ -70,7 +159,7 @@ public:
         unsigned int framePeriodMilliseconds = samplesPerFrame * 1000 / samplesPerSecond;
 
         // Create a input device manager
-        MpInputDeviceManager inputDevicemanager(samplesPerFrame, 
+        MpInputDeviceManager inputDeviceManager(samplesPerFrame, 
                                                 samplesPerSecond,
                                                 numBufferedFrames,
                                                 *mpPool);
@@ -81,51 +170,56 @@ public:
         unsigned int sinePeriod = 4 * framePeriodMilliseconds; // 4 frames
         MpSineWaveGeneratorDeviceDriver* sineWaveDevice = 
             new MpSineWaveGeneratorDeviceDriver("sineWave",
-                                                inputDevicemanager,
+                                                inputDeviceManager,
                                                 sineMagnatude,
                                                 sinePeriod,
                                                 0); // no clock squew
+        CPPUNIT_ASSERT(!sineWaveDevice->isEnabled());
 
         // Add the device
         int sineWaveDeviceId = 
-            inputDevicemanager.addDevice(*sineWaveDevice);
+            inputDeviceManager.addDevice(*sineWaveDevice);
         CPPUNIT_ASSERT(sineWaveDeviceId > 0);
 
+        // Create a task to read frames from manager
+        MpAudioBufPtr*  storedSignal = new MpAudioBufPtr[numBufferedFrames];
+        MpInputDeviceManagerTestReader readerTask(numBufferedFrames,
+                                                  framePeriodMilliseconds,
+                                                  storedSignal,
+                                                  sineWaveDeviceId,
+                                                  inputDeviceManager);
+
         // Should fail as it is not enabled yet
-        CPPUNIT_ASSERT(inputDevicemanager.disableDevice(sineWaveDeviceId) !=
+        CPPUNIT_ASSERT(inputDeviceManager.disableDevice(sineWaveDeviceId) !=
                        OS_SUCCESS);
 
         // Enable the device
-        CPPUNIT_ASSERT_EQUAL(inputDevicemanager.enableDevice(sineWaveDeviceId),
-                             OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             inputDeviceManager.enableDevice(sineWaveDeviceId),
+                             );
+        CPPUNIT_ASSERT(inputDeviceManager.isDeviceEnabled(sineWaveDeviceId));
 
-        // Read a bunch of frames
-        MpAudioBufPtr*  storedSignal = new MpAudioBufPtr[numBufferedFrames];
-        OsTime start;
-        OsTime end;
-        OsDateTime::getCurTimeSinceBoot(start);
-        int frameIndex;
-        for(frameIndex = 0; frameIndex < numBufferedFrames; frameIndex++)
-        {
-            printf("delay: %d\n", framePeriodMilliseconds);
+        OsTask::delay(1); // give the device thread a chance to get started
 
-            OsTask::delay(framePeriodMilliseconds);
-        }
-        OsDateTime::getCurTimeSinceBoot(end);
+        // Start the task to read frames
+        readerTask.start();
+
+        // wait for frames to be read with slop time
+        int readerTaskWait = framePeriodMilliseconds * 1.5 * numBufferedFrames;
+        printf("waiting: %d for reader to finish\n", readerTaskWait);
+        OsTask::delay(readerTaskWait);
+        printf("done waiting for reader\n");
+
+        CPPUNIT_ASSERT(readerTask.mRunDone);
+        CPPUNIT_ASSERT(readerTask.isShutDown());
 
         // Stop generating the sine wave ASAP
-        CPPUNIT_ASSERT(inputDevicemanager.disableDevice(sineWaveDeviceId) !=
+        CPPUNIT_ASSERT(inputDeviceManager.disableDevice(sineWaveDeviceId) !=
                        OS_SUCCESS);
 
-        int lapseTime = framePeriodMilliseconds * 1000 * numBufferedFrames;
-        OsTime delta = end - start;
-        int actualLapseTime = delta.seconds() * 1000000 + delta.usecs();
-        printf("actual time: %d scheduled: %d (milli seconds) abs: %d\n",
-            actualLapseTime, lapseTime, abs(actualLapseTime - lapseTime));
-        CPPUNIT_ASSERT(abs(actualLapseTime - lapseTime) < 2000 * numBufferedFrames);
 
         printf("finished good clock\n");
-        CPPUNIT_ASSERT_EQUAL(inputDevicemanager.removeDevice(sineWaveDeviceId), 
+        CPPUNIT_ASSERT_EQUAL(inputDeviceManager.removeDevice(sineWaveDeviceId), 
                              (MpInputDeviceDriver*)sineWaveDevice);
         delete sineWaveDevice;
         sineWaveDevice = NULL;

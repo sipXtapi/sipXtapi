@@ -284,6 +284,8 @@ class SdpBody : public HttpBody
                             const char* formatParameters
                             );
 
+   /// Add a "a" field for the given ptime value in milliseconds
+   void addPtime(int pTime);
 
     /**
      * Set the candidate attribute per draft-ietf-mmusic-ice-05
@@ -375,6 +377,9 @@ class SdpBody : public HttpBody
                                   int* numTypes,  ///< number of entries returned in payloadTypes
                                   int payloadTypes[] ///< array of integer payload types
                                   ) const;
+
+   /// Get the ptime field for the given media set
+   UtlBoolean getPtime(int mediaInded, int& ptime) const;
 
    /// Media field accessor utility.
    UtlBoolean getMediaSubfield(int mediaIndex,

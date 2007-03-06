@@ -31,7 +31,7 @@ MpInputDeviceDriver::MpInputDeviceDriver(const UtlString& name,
                                          MpInputDeviceManager& deviceManager)
 : UtlString(name)
 , mpInputDeviceManager(&deviceManager)
-, mIsEnabled(false)
+, mIsEnabled(FALSE)
 , mSamplesPerFrame(0)
 , mSamplesPerSec(0)
 , mCurrentFrameTime(0)
@@ -77,6 +77,14 @@ OsStatus MpInputDeviceDriver::clearDeviceId()
         status = OS_SUCCESS;
     }
     return status;
+}
+
+// I have no clue why this is necessary.  disableDevice is
+// pure virutal and should not be implemented, but MSVS6 is bitching
+// about it being undefined.
+OsStatus MpInputDeviceDriver::disableDevice()
+{
+    return(OS_SUCCESS);
 }
 
 /* ============================ INQUIRY =================================== */

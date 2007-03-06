@@ -27,6 +27,9 @@
 #   define M_PI 3.14159265358979323846
 #endif
 
+// 0 is the Highest priority
+#define SINE_WAVE_DEVICE_PRIORITY 0
+
 // STATIC VARIABLE INITIALIZATIONS
 // PRIVATE CLASSES
 class MpSineWaveGeneratorServer : public OsServerTask
@@ -38,7 +41,7 @@ public:
                               int underOverRunTime,
                               MpInputDeviceHandle deviceId,
                               MpInputDeviceManager& inputDeviceManager) :
-    OsServerTask("MpSineWaveGeneratorServer-%d"),
+    OsServerTask("MpSineWaveGeneratorServer-%d", NULL, DEF_MAX_MSGS, SINE_WAVE_DEVICE_PRIORITY),
     mTimer(getMessageQueue(), 0)
     {
         mNextFrameTime = startFrameTime;
@@ -100,7 +103,7 @@ public:
 
     UtlBoolean handleMessage(OsMsg& rMsg)
     {
-        OsSysLog::add(FAC_MP, PRI_ERR,"MpSineWaveGeneratorServer::handleMessage start\n");
+        OsSysLog::add(FAC_MP, PRI_ERR,"MpSineWaveGeneratorServer::handleMessage start time=%u\n", mNextFrameTime);
         // Build a frame of signal and push it to the device manager
         assert(mpFrameData);
 
@@ -191,6 +194,8 @@ OsStatus MpSineWaveGeneratorDeviceDriver::enableDevice(unsigned samplesPerFrame,
         if(mpReaderTask->start())
         {
             result = OS_SUCCESS;
+            mIsEnabled = TRUE;
+
         }
     }
     OsSysLog::add(FAC_MP, PRI_ERR,"MpSineWaveGeneratorDeviceDriver::enableDevice end\n");
@@ -208,6 +213,8 @@ OsStatus MpSineWaveGeneratorDeviceDriver::disableDevice()
         mpReaderTask->requestShutdown();
         delete mpReaderTask;
         mpReaderTask = NULL;
+        result = OS_SUCCESS;
+        mIsEnabled = FALSE;
     }
     OsSysLog::add(FAC_MP, PRI_ERR,"MpSineWaveGeneratorDeviceDriver::disableDevice end\n");
     return(result);
