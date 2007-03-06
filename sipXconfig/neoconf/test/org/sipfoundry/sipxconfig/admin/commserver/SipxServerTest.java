@@ -30,23 +30,23 @@ public class SipxServerTest extends TestCase {
     private SipxServer m_server;
 
     protected void setUp() throws Exception {
-        m_server = new SipxServer();
-        m_server.setConfigDirectory(TestHelper.getTestDirectory());
-        InputStream configDefs = getClass().getResourceAsStream("config.defs");
+        m_server = setUpSipxServer();
+        InputStream configDefs = SipxServerTest.class.getResourceAsStream("config.defs");
         TestHelper
                 .copyStreamToDirectory(configDefs, TestHelper.getTestDirectory(), "config.defs");
-        InputStream sipxpresence = getClass().getResourceAsStream("sipxpresence-config.test.in");
+        InputStream sipxpresence = SipxServerTest.class
+                .getResourceAsStream("sipxpresence-config.test.in");
         TestHelper.copyStreamToDirectory(sipxpresence, TestHelper.getTestDirectory(),
                 "sipxpresence-config.in");
-        InputStream registrar = getClass().getResourceAsStream("registrar-config.test.in");
+        InputStream registrar = SipxServerTest.class
+                .getResourceAsStream("registrar-config.test.in");
         TestHelper.copyStreamToDirectory(registrar, TestHelper.getTestDirectory(),
                 "registrar-config");
         // we read server location from sipxpresence-config
-        sipxpresence = getClass().getResourceAsStream("sipxpresence-config.test.in");
+        sipxpresence = SipxServerTest.class.getResourceAsStream("sipxpresence-config.test.in");
         TestHelper.copyStreamToDirectory(sipxpresence, TestHelper.getTestDirectory(),
                 "sipxpresence-config");
-        m_server.setModelFilesContext(TestHelper.getModelFilesContext());
-        registrar = getClass().getResourceAsStream("registrar-config.test.in");
+        registrar = SipxServerTest.class.getResourceAsStream("registrar-config.test.in");
         TestHelper.copyStreamToDirectory(registrar, TestHelper.getTestDirectory(),
                 "registrar-config.in");
     }
@@ -97,5 +97,14 @@ public class SipxServerTest extends TestCase {
         m_server.setRegistrarDomainAliases(null);
         assertEquals("${MY_FULL_HOSTNAME} ${MY_IP_ADDR}", m_server
                 .getSettingValue("domain/SIP_REGISTRAR_DOMAIN_ALIASES"));
+    }
+
+    public static SipxServer setUpSipxServer() {
+        SipxServer server = new SipxServer();
+        server.setConfigDirectory(TestHelper.getTestDirectory());
+
+        server.setModelFilesContext(TestHelper.getModelFilesContext());
+        server.setMohUser("~~mh~");
+        return server;
     }
 }

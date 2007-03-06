@@ -11,8 +11,12 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
+import org.apache.tapestry.annotations.InjectState;
 import org.apache.tapestry.html.BasePage;
 
 public abstract class Home extends BasePage {
     public static final String PAGE = "Home";
+
+    @InjectState(value = "userSession")
+    public abstract UserSession getUserSession();
 }

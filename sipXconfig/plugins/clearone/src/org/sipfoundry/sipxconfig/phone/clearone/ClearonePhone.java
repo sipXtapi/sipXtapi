@@ -11,8 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.phone.clearone;
 
-import java.io.File;
-
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
@@ -68,14 +66,20 @@ public class ClearonePhone extends Phone {
         // generate some other files
         generateFile(getDialplanFileName(), getDialplanTemplate());
     }
+    
+    @Override
+    public void removeProfiles() {
+        super.removeProfiles();
+        getProfileGenerator().remove(getDialplanFileName());
+    }
 
     @Override
     public String getPhoneFilename() {
-        return new File(getTftpRoot(), formatName(CONFIG_FILE)).getPath();
+        return formatName(CONFIG_FILE);
     }
 
     public String getDialplanFileName() {
-        return new File(getTftpRoot(), formatName(DIALPLAN_FILE)).getPath();
+        return formatName(DIALPLAN_FILE);
     }
 
     private String formatName(String format) {

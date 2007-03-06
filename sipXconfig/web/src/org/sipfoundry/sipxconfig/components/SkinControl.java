@@ -12,62 +12,35 @@
 package org.sipfoundry.sipxconfig.components;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.asset.AssetFactory;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 
 /**
  * UI control such as stylesheet assets to change skin
  */
-public class SkinControl {
+public class SkinControl implements BeanFactoryAware {
     public static final String CONTEXT_BEAN_NAME = "skin";
     private static final String ASSET_COLORS = "colors.css";
     private static final String ASSET_LAYOUT = "layout.css";
     private TapestryContext m_tapestryContext;
     // overrideable in skin
-    private String m_helpLink = "http://www.sipfoundry.org/doc/sipxhelp/{0}.{1}.html";    
-    private String m_copyright;
-    private String m_productName;
     private Map<String, String> m_assets = new HashMap();
+    private String m_messageSourceBeanId;
+    private MessageSource m_messageSource;
+    private BeanFactory m_beanFactory;
 
     public SkinControl() {
         // default skin resources
         m_assets.put("logo.png", "org/sipfoundry/sipxconfig/components/sipxconfig-logo.png");
         m_assets.put(ASSET_LAYOUT, "org/sipfoundry/sipxconfig/components/layout.css");
         m_assets.put(ASSET_COLORS, "org/sipfoundry/sipxconfig/components/colors.css");
-    }
-
-    /**
-     * Link to online help. Can include 2 placeholders for app major and minor version numbers
-     * example http://example.com/help-{0}-{1}.html will become "http://example.com/help-9-0.html
-     * for version 9.0 of sipX
-     */
-    public String getHelpLink() {
-        return m_helpLink;
-    }
-
-    public void setHelpLink(String helpLink) {
-        m_helpLink = helpLink;
-    }
-
-    /**
-     * Copyright displayed in sipXconfig footer. If not configured default sipFoundry copyright is displayed.
-     */
-    public String getCopyright() {
-        return m_copyright;
-    }
-
-    public void setCopyright(String copyright) {
-        m_copyright = copyright;
-    }
-        
-    public String getProductName() {
-        return m_productName;
-    }
-
-    public void setProductName(String productName) {
-        m_productName = productName;
     }
 
     public IAsset[] getStylesheetAssets() {
@@ -100,5 +73,32 @@ public class SkinControl {
 
     public void setTapestryContext(TapestryContext tapestryContext) {
         m_tapestryContext = tapestryContext;
+    }
+    
+    /**
+     * To override any resource string
+     */
+    public void setMessageSourceBeanId(String messageSourceBeanId) {
+        m_messageSourceBeanId = messageSourceBeanId;
+    }
+    
+    public String getLocalizeString(String component, String key, Locale locale, String defaultString) {
+        if (m_messageSourceBeanId == null) {
+            return defaultString;
+        }
+
+        if (m_messageSource == null) {
+            m_messageSource = (MessageSource) m_beanFactory.getBean(m_messageSourceBeanId);
+        }
+        try {
+            // pass null for message args, tapestry will use MessageFormat later.
+            return m_messageSource.getMessage(key, null, locale);
+        } catch (NoSuchMessageException extremelyLikely) {            
+            return defaultString;
+        }
+    }
+
+    public void setBeanFactory(BeanFactory beanFactory) {
+        m_beanFactory = beanFactory;
     }
 }

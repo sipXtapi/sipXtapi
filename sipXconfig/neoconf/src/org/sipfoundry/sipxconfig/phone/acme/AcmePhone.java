@@ -29,23 +29,29 @@ public class AcmePhone extends Phone {
     private static final String PASSWORD_SETTING = "credential/password";
     private static final String REGISTRATION_SERVER_SETTING = "server/registrationServer";
     private static final String REGISTRATION_SERVER_PORT_SETTING = "server/registrationServerPort";
-    
+
     public AcmePhone() {
         super(new PhoneModel(BEAN_ID, BEAN_ID + "Standard"));
         setPhoneTemplate(BEAN_ID + "/config.vm");
     }
-    
+
     @Override
     public void initializeLine(Line line) {
         line.addDefaultBeanSettingHandler(new AcmeLineDefaults(line));
     }
 
+    @Override
+    public String getPhoneFilename() {
+        return getSerialNumber() + ".config";
+    }
+
     public static class AcmeLineDefaults {
-        private Line m_line;        
+        private Line m_line;
+
         AcmeLineDefaults(Line line) {
             m_line = line;
         }
-        
+
         @SettingEntry(path = USER_ID_SETTING)
         public String getUserName() {
             String userName = null;
@@ -53,9 +59,9 @@ public class AcmePhone extends Phone {
             if (user != null) {
                 userName = user.getUserName();
             }
-            return userName;            
+            return userName;
         }
-        
+
         @SettingEntry(path = DISPLAY_NAME_SETTING)
         public String getDisplayName() {
             String displayName = null;
@@ -63,9 +69,9 @@ public class AcmePhone extends Phone {
             if (user != null) {
                 displayName = user.getDisplayName();
             }
-            return displayName;            
+            return displayName;
         }
-        
+
         @SettingEntry(path = PASSWORD_SETTING)
         public String getPassword() {
             String password = null;
@@ -75,17 +81,17 @@ public class AcmePhone extends Phone {
             }
             return password;
         }
-     
+
         @SettingEntry(path = REGISTRATION_SERVER_SETTING)
         public String getRegistrationServer() {
             DeviceDefaults defaults = m_line.getPhoneContext().getPhoneDefaults();
             return defaults.getDomainName();
-        }        
+        }
     }
-    
+
     /**
-     * Each subclass must decide how as much of this generic line information translates
-     * into its own setting model.
+     * Each subclass must decide how as much of this generic line information translates into its
+     * own setting model.
      */
     @Override
     protected void setLineInfo(Line line, LineInfo info) {
@@ -95,7 +101,7 @@ public class AcmePhone extends Phone {
         line.setSettingValue(REGISTRATION_SERVER_SETTING, info.getRegistrationServer());
         line.setSettingValue(REGISTRATION_SERVER_PORT_SETTING, info.getRegistrationServerPort());
     }
-    
+
     /**
      * Each subclass must decide how as much of this generic line information can be contructed
      * from its own setting model.
@@ -109,5 +115,5 @@ public class AcmePhone extends Phone {
         info.setRegistrationServer(line.getSettingValue(REGISTRATION_SERVER_SETTING));
         info.setRegistrationServerPort(line.getSettingValue(REGISTRATION_SERVER_PORT_SETTING));
         return info;
-    }    
+    }
 }

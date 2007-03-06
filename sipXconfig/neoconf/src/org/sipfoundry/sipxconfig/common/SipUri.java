@@ -163,4 +163,13 @@ public final class SipUri {
         return String.format("<sip:%s@%s%s>", name, domain, paramsBuffer);
     }
 
+    public static String stripSipPrefix(String sipUri) {
+        if (sipUri == null) {
+            return null;
+        }
+        if (sipUri.startsWith(SIP_PREFIX)) {
+            return sipUri.substring(SIP_PREFIX.length());
+        }
+        return sipUri;
+    }
 }

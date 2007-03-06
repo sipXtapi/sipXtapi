@@ -14,12 +14,12 @@
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate" />
 
   <!-- C O M P O N E N T S -->
-  <component id="startTime" type="DateTimeEditor">
+  <component id="startTime" type="common/DateTimeEditor">
     <binding name="datetime" value="startTime" />
     <binding name="label" value="message:startTime" />
   </component>
 
-  <component id="endTime" type="DateTimeEditor">
+  <component id="endTime" type="common/DateTimeEditor">
     <binding name="datetime" value="endTime" />
     <binding name="label" value="message:endTime" />
   </component>

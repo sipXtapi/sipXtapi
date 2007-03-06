@@ -11,7 +11,7 @@
   </span><span jwcid="@ErrorMsg"/>
   <div jwcid="@OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
     <!--  form jwcid="@tacos:AjaxForm" delegate="bean:validator" -->
-    <form jwcid="@Form" delegate="bean:validator">
+    <form jwcid="speedDialForm@Form" delegate="bean:validator">
       <fieldset jwcid="@speeddial/SpeedDialPanel" speedDial="ognl:speedDial"/>
       <fieldset jwcid="@FormActions" listener="listener:onApply" callback="ognl:callback"/>
     </form>

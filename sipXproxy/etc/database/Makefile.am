@@ -5,7 +5,8 @@ include $(top_srcdir)/config/subdir.am
 sql_files = \
     schema.sql \
     refer_uri.sql \
-    view_cdrs.sql
+    view_cdrs.sql \
+    index_on_time.sql
 
 EXTRA_DIST = \
     $(sql_files)

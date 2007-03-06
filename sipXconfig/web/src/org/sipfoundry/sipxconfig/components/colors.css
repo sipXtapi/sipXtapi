@@ -184,9 +184,18 @@ form.with-sections legend
 	background: #F0E68C;
 }
 
+.cloud
+{
+}
+
 .user-error
 {
 	color: #CC3333;
+}
+
+.user-warning
+{
+	color: #BB44FF;
 }
 
 .user-success

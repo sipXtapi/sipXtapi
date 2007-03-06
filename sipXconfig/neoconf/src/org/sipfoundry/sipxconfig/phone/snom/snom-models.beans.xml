@@ -16,5 +16,6 @@
   </bean>
   <bean id="snom" class="org.sipfoundry.sipxconfig.phone.snom.SnomPhone" singleton="false"
     parent="abstractPhone">
+    <property name="profileGenerator" ref="httpProfileGenerator"/>
   </bean>
 </beans>

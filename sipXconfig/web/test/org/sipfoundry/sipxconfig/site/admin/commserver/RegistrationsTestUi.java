@@ -33,7 +33,6 @@ public class RegistrationsTestUi extends WebTestCase {
 
     public void testDisplay() {
         SiteTestHelper.assertNoException(tester);
-        dumpResponse(System.err);
         setWorkingForm("buttonsForm");
         assertButtonPresent("registrations:refresh");
         assertElementPresent("registrations:page");

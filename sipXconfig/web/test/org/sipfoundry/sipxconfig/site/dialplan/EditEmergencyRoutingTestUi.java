@@ -51,7 +51,6 @@ public class EditEmergencyRoutingTestUi extends WebTestCase {
         clickLink("erouting:addException");
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
-        tester.dumpResponse();
         setFormElement(SiteTestHelper.getIndexedId("externalNumber", 0), "33");
         setFormElement(SiteTestHelper.getIndexedId("externalNumber", 1), "911");
         setFormElement("callers", "11, 22");

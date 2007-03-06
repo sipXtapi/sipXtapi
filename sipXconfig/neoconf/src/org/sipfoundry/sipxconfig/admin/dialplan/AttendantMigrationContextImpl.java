@@ -17,6 +17,7 @@ import java.sql.Statement;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.classic.Session;
@@ -82,8 +83,10 @@ public class AttendantMigrationContextImpl extends SipxHibernateDaoSupport imple
         rule.setName(RULE_NAME_PREFIX + autoAttendant.getName());
         rule.setEnabled(true);
         rule.setExtension(extension);
-        String newAliases = aliases.replaceAll(",\\s*", " ");        
-        rule.setAttendantAliases(newAliases);
+        if (!StringUtils.isBlank(aliases)) {
+            String newAliases = aliases.replaceAll(",\\s*", " ");
+            rule.setAttendantAliases(newAliases);
+        }
         ScheduledAttendant sa = new ScheduledAttendant();
         sa.setAttendant(autoAttendant);
         sa.setEnabled(true);

@@ -12,6 +12,7 @@ LOCAL_SHELLSCRIPTS = \
 EXTRA_DIST = $(foreach sipxScript,$(LOCAL_SHELLSCRIPTS),$(sipxScript).in)
 
 dist_bin_SCRIPTS = \
+	regtimes \
 	sipx-stats \
 	sipxcar \
 	sipxproc \

@@ -54,7 +54,7 @@ public class CiscoIpPhone extends CiscoPhone {
 
     public String getPhoneFilename() {
         String phoneFilename = getSerialNumber();
-        return getTftpRoot() + "/SIP" + phoneFilename.toUpperCase() + ".cnf";
+        return "SIP" + phoneFilename.toUpperCase() + ".cnf";
     }
 
     @Override

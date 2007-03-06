@@ -116,7 +116,6 @@
 	<component-type type="CancelButton" specification-path="common/CancelButton.jwc"/>
     <component-type type="ConferencesPanel" specification-path="conference/ConferencesPanel.jwc"/>
     <component-type type="ConfirmPassword" specification-path="user/ConfirmPassword.jwc"/>
-    <component-type type="DateTimeEditor" specification-path="common/DateTimeEditor.jwc"/>
     <component-type type="DialRuleCommon" specification-path="dialplan/DialRuleCommon.jwc"/>
     <component-type type="DownloadLink" specification-path="common/DownloadLink.jwc"/>
     <component-type type="EditPhoneForm" specification-path="phone/EditPhoneForm.jwc"/>
@@ -153,7 +152,6 @@
     <component-type type="RingEditor" specification-path="user_portal/RingEditor.jwc"/>
     <component-type type="RoutingExceptionEditor" specification-path="dialplan/RoutingExceptionEditor.jwc"/>
     <component-type type="ScheduleEditor" specification-path="common/ScheduleEditor.jwc"/>
-    <component-type type="SearchPanel" specification-path="search/SearchPanel.jwc"/>
     <component-type type="SelectRuleType" specification-path="dialplan/SelectRuleType.jwc"/>
     <component-type type="SettingEditor" specification-path="setting/SettingEditor.jwc"/>
     <component-type type="SettingsFieldset" specification-path="setting/SettingsFieldset.jwc"/>

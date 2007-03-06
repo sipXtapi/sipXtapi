@@ -69,27 +69,11 @@
   <bean id="abstractPhone" class="org.sipfoundry.sipxconfig.phone.Phone" singleton="false"
     parent="beanWithSettings" abstract="true">
     <property name="phoneModelSource" ref="nakedPhoneModelSource" />
-    <property name="phoneContext">
-      <ref bean="phoneContext" />
-    </property>
-    <property name="webDirectory">
-      <!-- 
-        - this is directory for a preferred place for serving 
-        - phone configuration profiles for http access
-        -    http://host:8090/phone/profile/docroot/, 
-      -->
-      <value>${sysdir.phone}/profile/docroot</value>
-    </property>
-    <property name="tftpRoot">
-      <value>${sysdir.phone}/profile/tftproot</value>
-    </property>
-    <property name="velocityEngine">
-      <ref bean="velocityEngine" />
-    </property>
-    <property name="sipService">
-      <ref bean="sip" />
-    </property>
+    <property name="phoneContext" ref="phoneContext" />
+    <property name="profileGenerator" ref="tftpProfileGenerator" />
+    <property name="sipService" ref="sip" />
   </bean>
+
   <bean id="sip" class="org.sipfoundry.sipxconfig.phone.SipServiceImpl" />
   <bean id="line" class="org.sipfoundry.sipxconfig.phone.Line" singleton="false" parent="beanWithSettings" />
 </beans>

@@ -12,11 +12,14 @@
 package org.sipfoundry.sipxconfig.phone.cisco;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.device.AbstractProfileGenerator;
+import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -24,25 +27,23 @@ import org.sipfoundry.sipxconfig.setting.SettingFilter;
 import org.sipfoundry.sipxconfig.setting.SettingUtil;
 import org.sipfoundry.sipxconfig.setting.SettingVisitor;
 
-public class CiscoAtaProfileWriter implements SettingVisitor {
+public class CiscoAtaProfileWriter extends AbstractProfileGenerator implements SettingVisitor {
     private static final char LF = 0x0a;
     private static final String UPGRADE_SETTING_GROUP = "_upgrade";
     private static final String ZERO = "0";
     private static final String IMAGE_ID = "imageid";
     private static final String NONE = "none";
+    private static final String DEFAULT_PROXY_PORT = "5060";
+
     private Writer m_wtr;
     private String m_profileNameSuffix = StringUtils.EMPTY;
     private int m_lineIndex;
 
-    public CiscoAtaProfileWriter(Writer wtr) {
-        m_wtr = wtr;
-    }
-
-    public void write(CiscoAtaPhone phone) {
-        writePhone(phone);
-        for (Line l : phone.getProfileLines()) {
-            writeLine(l);
-        }
+    /**
+     * Test use only
+     */
+    void setWriter(Writer writer) {
+        m_wtr = writer;
     }
 
     void writePhone(CiscoAtaPhone phone) {
@@ -50,12 +51,15 @@ public class CiscoAtaProfileWriter implements SettingVisitor {
         m_profileNameSuffix = StringUtils.EMPTY;
         Setting settings = phone.getSettings();
         settings.acceptVisitor(this);
-        writeProxyConfig(phone);
+        List<Line> lines = phone.getLines();
+        if (!lines.isEmpty()) {
+            writeProxy(lines.get(0).getLineInfo(), phone.getCiscoModel().isAta());
+        }
         writeSoftwareUpgradeConfig(phone);
         writeLogoUpgradeConfig(phone);
         writeCountyDialTones(phone);
     }
-    
+
     void writeHeader() {
         try {
             m_wtr.append("#txt");
@@ -79,23 +83,28 @@ public class CiscoAtaProfileWriter implements SettingVisitor {
         String tonePath = "_tone." + countryCode + '.' + countryModelId;
         Setting tones = country.getSetting(tonePath);
         if (tones != null) {
-            Iterator i = tones.getValues().iterator();
-            while (i.hasNext()) {
-                Setting toneSetting = (Setting) i.next();
+            for (Setting toneSetting : tones.getValues()) {
                 writeSetting(toneSetting);
             }
         }
     }
 
-    void writeProxyConfig(CiscoAtaPhone phone) {
-        List lines = phone.getLines();
-        if (lines.size() == 0) {
-            return;
+    /**
+     * Generates proxy entry in configuration file
+     * 
+     * See: http://track.sipfoundry.org/browse/XCF-985
+     * 
+     * @param info line info used to retrieve registration port and server
+     * @param isAta true for ATA, false for the phone?
+     */
+    void writeProxy(LineInfo info, boolean isAta) {
+        String registrationServerPort = info.getRegistrationServerPort();
+        String entry = null;
+        if (DEFAULT_PROXY_PORT.equals(registrationServerPort) && isAta) {
+            entry = info.getRegistrationServer();
+        } else {
+            entry = info.getRegistrationServer() + ':' + registrationServerPort;
         }
-
-        Line line = (Line) lines.get(0);
-        LineInfo info = line.getLineInfo();
-        String entry = info.getRegistrationServer() + ':' + info.getRegistrationServerPort();
         writeEntry("Proxy", entry);
     }
 
@@ -143,7 +152,7 @@ public class CiscoAtaProfileWriter implements SettingVisitor {
         String profileName = setting.getProfileName();
         if (Bitmap.isBitmask(profileName)) {
             writeBitMask(setting);
-        // bitfields written has partof bitmask
+            // bitfields written has partof bitmask
         } else if (!Bitmap.isBitField(profileName) && !isVirtual(setting)) {
             writeSetting(setting);
         }
@@ -166,9 +175,7 @@ public class CiscoAtaProfileWriter implements SettingVisitor {
 
     void writeBitMask(Setting setting) {
         Bitmap bitMask = new Bitmap(setting);
-        Iterator i = SettingUtil.filter(bitMask, setting.getParent()).iterator();
-        while (i.hasNext()) {
-            Setting bitFieldSetting = (Setting) i.next();
+        for (Setting bitFieldSetting : SettingUtil.filter(bitMask, setting.getParent())) {
             bitMask.setBitField(bitFieldSetting);
         }
         writeEntry(bitMask.getProfileName(), bitMask.getProfileValue());
@@ -230,7 +237,7 @@ public class CiscoAtaProfileWriter implements SettingVisitor {
             long shiftedValue = value << shift;
 
             // NOTE Because this is a OR, applying a value only works once and
-            // original value would have to start out zero in respective bits 
+            // original value would have to start out zero in respective bits
             m_bitmask = m_bitmask | shiftedValue;
         }
 
@@ -244,5 +251,16 @@ public class CiscoAtaProfileWriter implements SettingVisitor {
 
     public boolean visitSettingGroup(Setting group) {
         return true;
+    }
+
+    protected void generateProfile(ProfileContext context, String templateFileName, OutputStream out)
+        throws IOException {
+        m_wtr = new OutputStreamWriter(out, "US-ASCII");
+        CiscoAtaPhone phone = (CiscoAtaPhone) context.getDevice();
+        writePhone(phone);
+        for (Line l : phone.getProfileLines()) {
+            writeLine(l);
+        }
+        m_wtr.flush();
     }
 }

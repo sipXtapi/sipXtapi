@@ -12,7 +12,12 @@ Url: http://www.sipfoundry.org/sipXcommserverLib
 Source: %name-%version.tar.gz
 
 Requires: rpm
+%if %{_vendor} == suse
+Requires: Xerces-c >= 2.6.0
+%endif
+%if %{_vendor} == redhat
 Requires: xerces-c >= 2.6.0
+%endif
 Requires: sipxportlib >= 3.7
 Requires: sipxtacklib >= 3.7
 Requires: unixODBC >= 2.2
@@ -34,7 +39,12 @@ project.
 # Install header files
 %package devel
 Requires: %name
+%if %{_vendor} == suse
+Requires: Xerces-c-devel >= 2.6.0
+%endif
+%if %{_vendor} == redhat
 Requires: xerces-c-devel >= 2.6.0
+%endif
 Requires: sipxportlib-devel >= 3.7
 Requires: sipxtacklib-devel >= 3.7
 Requires: unixODBC-devel >= 2.2

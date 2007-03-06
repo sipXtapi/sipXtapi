@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.57)
-AC_INIT(sipXtools, 1.0.0, sipx-dev@list.sipfoundry.org)
+AC_INIT(sipXtools, 3.7.0, sipx-dev@list.sipfoundry.org)
 
 AC_CONFIG_AUX_DIR(config)
 m4_include([config/general.m4])
@@ -16,6 +16,7 @@ CHECK_AUTOCONF
 AC_CONFIG_SRCDIR([src/sipxcar])
 
 SFAC_INIT_FLAGS
+CHECK_GENERATE_MANPAGES
 
 # Mysterious requirement to have a DOC var
 AM_CONDITIONAL(DOC, test true = false)

@@ -17,6 +17,7 @@ import org.apache.tapestry.engine.IEngineService;
 import org.apache.tapestry.engine.ILink;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.vm.Mailbox;
+import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.Voicemail;
 
 
@@ -90,9 +91,10 @@ public abstract class MailboxOperation implements Serializable {
         }
 
         public void operate(ManageVoicemail page) {
-            Mailbox mb = page.getMailboxManager().getMailbox(getUserId());
+            MailboxManager mgr = page.getMailboxManager(); 
+            Mailbox mb = mgr.getMailbox(getUserId());
             Voicemail vm = mb.getVoicemail(getFolderId(), getMessageId());
-            vm.move(m_destinationFolderId);
+            mgr.move(mb, vm, m_destinationFolderId);
         }        
     }
     

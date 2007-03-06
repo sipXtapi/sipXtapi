@@ -16,49 +16,55 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
-import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
+import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.phone.Phone;
 
 /**
- * Velocity model for generating [MAC ADDRESS].cfg, pointer to all other 
- * config files.  See page 11 of Administration guide for more information
+ * Velocity model for generating [MAC ADDRESS].cfg, pointer to all other config files. See page 11
+ * of Administration guide for more information
  */
-public class ApplicationConfiguration extends VelocityProfileGenerator {
-    
-    private List m_staleDirectories = new ArrayList();
-    
+public class ApplicationConfiguration extends ProfileContext {
+    private List<String> m_staleDirectories = new ArrayList<String>();
+
     private String m_directory;
-    
-    public ApplicationConfiguration(PolycomPhone phone) {
+
+    private String m_serialNumber;
+
+    private String m_parentDir;
+
+    public ApplicationConfiguration(Phone phone, String parentDir) {
         super(phone);
+        m_serialNumber = phone.getSerialNumber();
+        m_parentDir = parentDir;
     }
-    
+
     public String getSipBinaryFilename() {
         return "sip.ld";
     }
-    
+
     public String getAppFilename() {
-        return ((Phone) getDevice()).getSerialNumber() + ".cfg";
+        return m_serialNumber + ".cfg";
     }
-    
+
+    /**
+     * Lazily retrieves the next available directory name
+     */
     String getDirectory() {
-        if (m_directory == null) {
-            PolycomPhone polycomPhone = (PolycomPhone) getDevice();
-            String tftpRoot = polycomPhone.getTftpRoot();
-            String endpointDir = polycomPhone.getSerialNumber();           
-            m_staleDirectories.clear();
-            m_directory = getNextDirectorySequence(tftpRoot, endpointDir, m_staleDirectories);
+        if (m_directory != null) {
+            return m_directory;
         }
-        
+
+        String endpointDir = m_serialNumber;
+        m_staleDirectories.clear();
+        m_directory = getNextDirectorySequence(m_parentDir, endpointDir, m_staleDirectories);
         return m_directory;
-    }    
-        
-    static String getNextDirectorySequence(String root, String uniqueBase, List stale) {
+    }
+
+    static String getNextDirectorySequence(String root, String uniqueBase, List<String> stale) {
         File rootDir = new File(root);
         NextDirectoryScanner nextSequence = new NextDirectoryScanner(uniqueBase);
         String[] matches = rootDir.list(nextSequence);
@@ -66,25 +72,25 @@ public class ApplicationConfiguration extends VelocityProfileGenerator {
             // mark these for deletion
             stale.addAll(Arrays.asList(matches));
         }
-        
+
         int seq = nextSequence.getNextSequence();
 
         String padding = "0000";
         String suffix = padding + Integer.toString(seq);
-        
+
         // performs a natural modulo at seq = 1000
         int truncateHead = suffix.length() - padding.length();
         return uniqueBase + "." + suffix.substring(truncateHead);
     }
-    
+
     static class NextDirectoryScanner implements FilenameFilter {
-        
-        private Pattern m_basePattern;        
-        
+
+        private Pattern m_basePattern;
+
         private int m_maxSequence;
-        
+
         public NextDirectoryScanner(String base) {
-            m_basePattern = Pattern.compile(base + "\\.\\d*");            
+            m_basePattern = Pattern.compile(base + "\\.\\d*");
         }
 
         public boolean accept(File root_, String name) {
@@ -94,7 +100,7 @@ public class ApplicationConfiguration extends VelocityProfileGenerator {
                 String suffix = name.substring(dot + 1);
                 try {
                     int sequence = Integer.parseInt(suffix);
-                    m_maxSequence = Math.max(m_maxSequence, sequence); 
+                    m_maxSequence = Math.max(m_maxSequence, sequence);
                 } catch (NumberFormatException notARecognizedSuffix) {
                     // should have been caught by regexp
                     notARecognizedSuffix.printStackTrace();
@@ -102,12 +108,12 @@ public class ApplicationConfiguration extends VelocityProfileGenerator {
             }
             return match;
         }
-        
+
         int getNextSequence() {
             return m_maxSequence + 1;
         }
     }
-        
+
     public String getCoreFilename() {
         return getDirectory() + "/ipmid.cfg";
     }
@@ -115,24 +121,22 @@ public class ApplicationConfiguration extends VelocityProfileGenerator {
     public String getSipFilename() {
         return getDirectory() + "/sip.cfg";
     }
-    
+
     public String getPhoneFilename() {
-        return getDirectory() + "/phone.cfg";        
+        return getDirectory() + "/phone.cfg";
     }
-    
+
     public String getDirectoryFilename() {
-        // do not put this in getDirectory() because w/FTP it's not nec. anymore. 
-        // getDirectory() and respective code should removed 
-        return ((PolycomPhone) getDevice()).getSerialNumber() + "-directory.xml";
+        // do not put this in getDirectory() because w/FTP it's not nec. anymore.
+        // getDirectory() and respective code should removed
+        return m_serialNumber + "-directory.xml";
     }
-    
+
     public void deleteStaleDirectories() {
         try {
-            PolycomPhone polycomPhone = (PolycomPhone) getDevice();
-            File tftpRoot = new File(polycomPhone.getTftpRoot());
-            Iterator i = m_staleDirectories.iterator();
-            while (i.hasNext()) {
-                File stale = new File(tftpRoot, (String) i.next());
+            File tftpRoot = new File(m_parentDir);
+            for (String dir : m_staleDirectories) {
+                File stale = new File(tftpRoot, dir);
                 FileUtils.deleteDirectory(stale);
             }
         } catch (IOException e) {

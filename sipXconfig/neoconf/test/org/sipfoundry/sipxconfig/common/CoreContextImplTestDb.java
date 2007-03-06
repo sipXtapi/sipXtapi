@@ -21,6 +21,7 @@ import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.context.ApplicationContext;
@@ -29,12 +30,12 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
 
     private static final int NUM_USERS = 10;
 
-    private CoreContextImpl m_core;
+    private CoreContext m_core;
     private SettingDao m_settingDao;
 
     protected void setUp() throws Exception {
         ApplicationContext app = TestHelper.getApplicationContext();
-        m_core = (CoreContextImpl) app.getBean(CoreContextImpl.CONTEXT_BEAN_NAME);
+        m_core = (CoreContext) app.getBean(CoreContext.CONTEXT_BEAN_NAME);
         m_settingDao = (SettingDao) app.getBean(SettingDao.CONTEXT_NAME);
         TestHelper.cleanInsert("ClearDb.xml");
     }
@@ -308,26 +309,15 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
                 .getTable("group_storage"));
         Assertion.assertEquals(expectedRds.getTable("setting_value"), actualDs
                 .getTable("setting_value"));
-    }
 
-    public void testCheckForDuplicateString() {
-        // An empty collection should have no duplicates
-        List strings = new ArrayList();
-        assertNull(m_core.checkForDuplicateString(strings));
+        // make sure that it works even if superadmin has its rights revoked
+        admin.setPermission(PermissionName.SUPERADMIN, false);
+        m_core.saveUser(admin);
+        assertFalse(admin.isAdmin());
+        m_core.createAdminGroupAndInitialUserTask();
 
-        // Still no duplicates
-        strings.add(new String("a"));
-        strings.add(new String("b"));
-        strings.add(new String("c"));
-        assertNull(m_core.checkForDuplicateString(strings));
-
-        // Now we have a duplicate
-        strings.add(new String("b"));
-        assertEquals("b", m_core.checkForDuplicateString(strings));
-
-        // Try multiple duplicates (result is indeterminate but non-null)
-        strings.add(new String("c"));
-        assertNotNull(m_core.checkForDuplicateString(strings));
+        admin = m_core.loadUserByUserName(User.SUPERADMIN);
+        assertTrue(admin.isAdmin());
     }
 
     public void testCountUsers() throws Exception {
@@ -438,34 +428,6 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         assertTrue(m_core.getBeanIdsOfObjectsWithAlias("jessica").size() == 0); // a first name
     }
 
-    public void testMaxUsers() throws Exception {
-        TestHelper.insertFlat("common/SampleUsersSeed.xml");
-        try {
-            m_core.checkMaxUsers(new User(), -1);
-        } catch (UserException e) {
-            fail();
-        }
-
-        try {
-            m_core.checkMaxUsers(new User(), NUM_USERS + 1);
-        } catch (UserException e) {
-            fail();
-        }
-
-        try {
-            m_core.checkMaxUsers(new User(), NUM_USERS);
-            fail();
-        } catch (UserException e) {
-            assertTrue(true);
-        }
-
-        try {
-            m_core.checkMaxUsers(new ExistingUser(), NUM_USERS);
-        } catch (UserException e) {
-            fail();
-        }
-    }
-
     public void testGetGroupSupervisors() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/GroupSupervisorSeed.db.xml");
@@ -486,11 +448,4 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         assertEquals("peon2", peons.get(1).getUserName());
         assertEquals("peon5", peons.get(2).getUserName());
     }
-
-    static class ExistingUser extends User {
-        public boolean isNew() {
-            return false;
-        }
-    }
 }
-

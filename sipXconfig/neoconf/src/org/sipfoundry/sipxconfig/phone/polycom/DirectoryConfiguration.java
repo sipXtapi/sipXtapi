@@ -16,29 +16,21 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.velocity.VelocityContext;
-import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
+import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
-import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
-public class DirectoryConfiguration extends VelocityProfileGenerator {
+public class DirectoryConfiguration extends ProfileContext {
     private Collection<PhonebookEntry> m_entries;
     private List<Button> m_buttons;
 
-    public DirectoryConfiguration(BeanWithSettings phone, Collection<PhonebookEntry> entries,
-            SpeedDial speedDial) {
-        super(phone);
+    public DirectoryConfiguration(Collection<PhonebookEntry> entries, SpeedDial speedDial) {
+        super(null);
         m_entries = entries;
         if (speedDial != null) {
             m_buttons = speedDial.getButtons();
         }
-    }
-
-    @Override
-    protected void addContext(VelocityContext context) {
-        super.addContext(context);
     }
 
     public Collection<PolycomPhonebookEntry> getRows() {

@@ -7,6 +7,9 @@
     <span key="title">Call Forwarding</span>
   </h2>
   <span jwcid="errors"></span>
+  <span jwcid="@If" condition="prop:renderForwardWarning">
+    <span class="user-warning" jwcid="@Insert" value="prop:forwardWarning"/>
+  </span>
   <div jwcid="@OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
     <form jwcid="form">
       <ul class="component-links">

@@ -315,6 +315,7 @@
         </fileset>
       </batchtest>
     </junit>
+    <antcall target="failure-report"/>
     <fail if="junit.failed"/>
   </target>
   
