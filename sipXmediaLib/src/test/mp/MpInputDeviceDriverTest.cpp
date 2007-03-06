@@ -135,7 +135,7 @@ public:
                 OsTask::delay(nMSPerBuffer);
 
                 // Grab time derivative statistics..
-                unsigned nDerivs = mNumBufferedFrames;
+                unsigned nDerivs = mNumBufferedFrames-1;
                 CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                                      inDevMgr.getTimeDerivatives(iDrvHnd, 
                                                                  nDerivs, 

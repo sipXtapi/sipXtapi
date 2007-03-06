@@ -313,7 +313,7 @@ void MpInputDeviceDriverWnt::processAudioInput(HWAVEIN hwi,
                                         mCurrentFrameTime);
         // Ok, we have received and pushed a frame to the manager,
         // Now we advance the frame time.
-        mCurrentFrameTime++;
+        mCurrentFrameTime += (mSamplesPerFrame*1000)/mSamplesPerSec;
     }
     else if (uMsg == WIM_CLOSE)
     {

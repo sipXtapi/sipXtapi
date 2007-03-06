@@ -231,10 +231,10 @@ public:
             unsigned int t1FrameIdx = t2FrameIdx+1;
 
             MpInputDeviceFrameData* t2FrameData = 
-                &mppFrameBufferArray[(lastFrame - t2FrameIdx) 
+                &mppFrameBufferArray[(mFrameBufferLength + lastFrame - t2FrameIdx) 
                                      % mFrameBufferLength];
             MpInputDeviceFrameData* t1FrameData = 
-                &mppFrameBufferArray[(lastFrame - t1FrameIdx) 
+                &mppFrameBufferArray[(mFrameBufferLength + lastFrame - t1FrameIdx) 
                                      % mFrameBufferLength];
 
             // The first time we find an invalid buffer, break out of the loop.
@@ -246,8 +246,9 @@ public:
                 break;
             }
 
-            int curDeriv = (t2FrameData->mFrameTime - t1FrameData->mFrameTime)
-                           / referenceFramePeriod;
+            long t2OsMsecs = t2FrameData->mFrameReceivedTime.cvtToMsecs();
+            long t1OsMsecs = t1FrameData->mFrameReceivedTime.cvtToMsecs();
+            int curDeriv = (t2OsMsecs - t1OsMsecs) / referenceFramePeriod;
             derivativeBuf[t2FrameIdx] = curDeriv;
             nActualDerivs++;
         }
