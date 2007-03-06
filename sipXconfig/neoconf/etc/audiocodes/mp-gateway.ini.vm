@@ -39,7 +39,16 @@ ${s.ProfileName}=$!{s.Value}
 ;generated from template by sipXconfig
 ;------------------------------
 
-#emit_groups_by_name(['SIP', 'Network', 'Telephony', 'Voice', 'Call_Routing'])
+#emit_groups_by_name(['SIP', 'Network'])
+
+#set($trunks = $gateway.Settings.getSetting('Trunks'))
+[Trunks]
+#foreach ($tg_index in [1..4])
+#set($tg = $trunks.getSetting("TRUNKGROUP_$tg_index"))
+TRUNKGROUP_$tg_index=#emit_csv($tg ['ChannelRange', 'StartPhoneNumber', 'HuntGroupNumber'])
+#end
+
+#emit_groups_by_name(['Telephony', 'Voice', 'Call_Routing'])
 
 [Digit_Manipulation]
 #set($dm = $gateway.Settings.getSetting('Digit_Manipulation'))
