@@ -23,7 +23,7 @@ import org.sipfoundry.sipxconfig.setting.BeanWithSettingTest.BirdWithSettings;
 public class SettingModelImplTest extends TestCase {
 
     public void testAddHandler() throws Exception {
-        SettingValue2 ten = new SettingValueImpl("10");
+        SettingValue ten = new SettingValueImpl("10");
         InputStream in = getClass().getResourceAsStream("birds.xml");
         Setting birds = TestHelper.loadSettings(in);
         Setting peewee = birds.getSetting("flycatcher/peewee");

@@ -18,7 +18,7 @@ import java.util.Collections;
  * Abstract setting with model (as in model/view/controller model)
  */
 public class SettingImpl extends AbstractSetting implements Setting, Cloneable {
-    private SettingModel2 m_model;
+    private SettingModel m_model;
 
     /**
      * bean access only, must set name before valid object
@@ -36,7 +36,7 @@ public class SettingImpl extends AbstractSetting implements Setting, Cloneable {
         if (m_model == null) {
             return profileName;
         }
-        SettingValue2 modelProfileName = m_model.getProfileName(this);
+        SettingValue modelProfileName = m_model.getProfileName(this);
         if (modelProfileName == null) {
             return profileName;
         }
@@ -46,7 +46,7 @@ public class SettingImpl extends AbstractSetting implements Setting, Cloneable {
     @Override
     public String getValue() {
         if (m_model != null) {
-            SettingValue2 value = m_model.getSettingValue(this);
+            SettingValue value = m_model.getSettingValue(this);
             if (value != null) {
                 return value.getValue();
             }
@@ -65,7 +65,7 @@ public class SettingImpl extends AbstractSetting implements Setting, Cloneable {
 
     public String getDefaultValue() {
         if (m_model != null) {
-            SettingValue2 value = m_model.getDefaultSettingValue(this);
+            SettingValue value = m_model.getDefaultSettingValue(this);
             if (value != null) {
                 return value.getValue();
             }
@@ -77,11 +77,11 @@ public class SettingImpl extends AbstractSetting implements Setting, Cloneable {
         return Collections.emptyList();
     }
 
-    public void setModel(SettingModel2 model) {
+    public void setModel(SettingModel model) {
         m_model = model;
     }
 
-    public SettingModel2 getModel() {
+    public SettingModel getModel() {
         return m_model;
     }
 }

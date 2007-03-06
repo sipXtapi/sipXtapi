@@ -16,7 +16,7 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.setting.SettingImpl;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
-import org.sipfoundry.sipxconfig.setting.SettingValue2;
+import org.sipfoundry.sipxconfig.setting.SettingValue;
 import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
@@ -61,7 +61,7 @@ public class ClearonePhoneSpeedDialTest extends TestCase {
     public void testGetSettingValue() {
         m_setting.setName("name");
 
-        SettingValue2 value = m_speedDial.getSettingValue(m_setting);
+        SettingValue value = m_speedDial.getSettingValue(m_setting);
         assertNull(value);
 
         m_setting.setName("speed_dial_0");

@@ -52,7 +52,7 @@ public class BeanValueStorage implements SettingValueHandler {
         }
     }
 
-    public SettingValue2 getSettingValue(Setting setting) {
+    public SettingValue getSettingValue(Setting setting) {
         String path = setting.getPath();
         Method m = m_methods.get(path);
         if (m == null) {

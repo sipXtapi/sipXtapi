@@ -23,7 +23,7 @@ import org.springframework.context.MessageSource;
 public abstract class AbstractSetting implements Setting, NamedObject {
     private static final char KEY_SEPARATOR = '.';
 
-    private static final SettingValue2 NULL = new SettingValueImpl(null);
+    private static final SettingValue NULL = new SettingValueImpl(null);
 
     private String m_label;
     private SettingType m_type = StringSetting.DEFAULT;
@@ -33,7 +33,7 @@ public abstract class AbstractSetting implements Setting, NamedObject {
     private Setting m_parent;
     private boolean m_advanced;
     private boolean m_hidden;
-    private SettingValue2 m_value = NULL;
+    private SettingValue m_value = NULL;
 
     public AbstractSetting() {
         super();

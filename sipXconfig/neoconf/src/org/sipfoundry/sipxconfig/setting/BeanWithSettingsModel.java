@@ -14,7 +14,7 @@ package org.sipfoundry.sipxconfig.setting;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BeanWithSettingsModel implements SettingModel2 {
+public class BeanWithSettingsModel implements SettingModel {
     private List<SettingValueHandler> m_defaultHandlers = new ArrayList<SettingValueHandler>();
     private SettingValueHandler m_defaultsHandler = new MulticastSettingValueHandler(
             m_defaultHandlers);
@@ -47,8 +47,8 @@ public class BeanWithSettingsModel implements SettingModel2 {
         return m_defaultsHandler;
     }
 
-    public SettingValue2 getSettingValue(Setting setting) {
-        SettingValue2 value = null;
+    public SettingValue getSettingValue(Setting setting) {
+        SettingValue value = null;
         Storage vs = getBeanWithSettings().getValueStorage();
         if (vs != null) {
             value = vs.getSettingValue(setting);
@@ -61,13 +61,13 @@ public class BeanWithSettingsModel implements SettingModel2 {
         return value;
     }
 
-    public SettingValue2 getDefaultSettingValue(Setting setting) {
+    public SettingValue getDefaultSettingValue(Setting setting) {
         // just do not consult the bean, that is the default
         return getDefault(setting);
     }
 
-    protected SettingValue2 getDefault(Setting setting) {
-        SettingValue2 value = getDefaultsHandler().getSettingValue(setting);
+    protected SettingValue getDefault(Setting setting) {
+        SettingValue value = getDefaultsHandler().getSettingValue(setting);
         return value;
     }
 
@@ -75,9 +75,9 @@ public class BeanWithSettingsModel implements SettingModel2 {
      * not pretty, but need to populate setting model into every setting instance
      */
     static class SetModelReference extends AbstractSettingVisitor {
-        private SettingModel2 m_model;
+        private SettingModel m_model;
 
-        public SetModelReference(SettingModel2 model) {
+        public SetModelReference(SettingModel model) {
             m_model = model;
         }
 
@@ -88,13 +88,13 @@ public class BeanWithSettingsModel implements SettingModel2 {
     }
 
     public void setSettingValue(Setting setting, String sValue) {
-        SettingValue2 defaultValue = new SettingValueImpl(setting.getDefaultValue());
-        SettingValue2 value = new SettingValueImpl(sValue);
+        SettingValue defaultValue = new SettingValueImpl(setting.getDefaultValue());
+        SettingValue value = new SettingValueImpl(sValue);
         Storage vs = m_bean.getInitializeValueStorage();
         vs.setSettingValue(setting, value, defaultValue);
     }
 
-    public SettingValue2 getProfileName(Setting setting) {
+    public SettingValue getProfileName(Setting setting) {
         if (m_defaultProfileNameHandler != null) {
             return m_defaultProfileNameHandler.getProfileName(setting);
         }

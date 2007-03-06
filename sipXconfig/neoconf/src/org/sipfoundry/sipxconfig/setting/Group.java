@@ -113,7 +113,7 @@ public class Group extends ValueStorage implements Comparable, DataCollectionIte
         
         // settings have model constructed with baseSettings
         Setting settings = beanSettings.copy();
-        SettingModel2 model = new GroupSettingModel(this, baseSettings);
+        SettingModel model = new GroupSettingModel(this, baseSettings);
         settings.acceptVisitor(new BeanWithSettingsModel.SetModelReference(model));
         return settings;
     }
@@ -121,7 +121,7 @@ public class Group extends ValueStorage implements Comparable, DataCollectionIte
     /**
      * Delegate all functions with the exception of setSettingValue to base settings.
      */
-    static class GroupSettingModel implements SettingModel2 {
+    static class GroupSettingModel implements SettingModel {
         private Group m_group;
         private Setting m_baseSetting;
 
@@ -135,20 +135,20 @@ public class Group extends ValueStorage implements Comparable, DataCollectionIte
                     getDefaultSettingValue(setting));
         }
 
-        public SettingValue2 getSettingValue(Setting setting) {
-            SettingValue2 value = m_group.getSettingValue(setting);
+        public SettingValue getSettingValue(Setting setting) {
+            SettingValue value = m_group.getSettingValue(setting);
             if (value != null) {
                 return value;
             }
             return getDefaultSettingValue(setting);
         }
 
-        public SettingValue2 getDefaultSettingValue(Setting setting) {
+        public SettingValue getDefaultSettingValue(Setting setting) {
             Setting baseSetting = m_baseSetting.getSetting(setting.getPath());
             return new SettingValueImpl(baseSetting.getDefaultValue());
         }
 
-        public SettingValue2 getProfileName(Setting setting) {
+        public SettingValue getProfileName(Setting setting) {
             Setting baseSetting = m_baseSetting.getSetting(setting.getPath());
             return new SettingValueImpl(baseSetting.getProfileName());
         }
