@@ -1000,38 +1000,44 @@
   </group>
   <group name='Call_Routing'>
     <label>Call Routing</label>
-    <setting name='PREFIX.number'>
-      <label>Dialed Number Prefix for Tel2IP Routing</label>
-      <description>Destination (Dialed) Number Prefix to match</description>
-    </setting>
-    <setting name='PREFIX.ip_address'>
-      <label>Destination IP Address for Tel2IP Routing</label>
-      <description>IP address of the host, which the gateway will send this call to</description>
-    </setting>
-    <setting name='PREFIX.ANIPrefix'>
-      <label>Calling Number Prefix for Tel2IP Routing</label>
-      <description>
-        Calling Party Number (ANI) of gateway&apos;s port. Used for identity-based call routing.
-      </description>
-    </setting>
-    <setting name='PSTNPrefix.number'>
-      <label>Called Number Prefix for IP2Tel Routing</label>
-      <description>Destination (Dialed) Number Prefix to match</description>
-    </setting>
-    <setting name='PSTNPrefix.huntgroup_id'>
-      <label>Destination Hunt Group ID (optional)</label>
-      <description>Huntgroup ID to which the call will be routed to</description>
-    </setting>
-    <setting name='PSTNPrefix.CallingPartyNumberPrefix'>
-      <label>Calling Number Prefix for IP2Tel Routing</label>
-      <description>
-        Calling Party Number (ANI) prefix in the incomng SIP call. Used for identity-based call routing.
-      </description>
-    </setting>
-    <setting name='PSTNPrefix.CallingPartyIPaddress'>
-      <label>Calling Party IP Address</label>
-      <description>IP address of the host sending the SIP call.</description>
-    </setting>
+    <group name="PREFIX">
+      <label>Telephone to IP Routing</label>
+      <setting name='number'>
+        <label>Dialed Number Prefix</label>
+        <description>Destination (Dialed) Number Prefix to match</description>
+      </setting>
+      <setting name='ip_address'>
+        <label>Destination IP Address</label>
+        <description>IP address of the host, which the gateway will send this call to</description>
+      </setting>
+      <setting name='ANIPrefix'>
+        <label>Calling Number Prefix</label>
+        <description>
+          Calling Party Number (ANI) of gateway&apos;s port. Used for identity-based call routing.
+        </description>
+      </setting>
+    </group>
+    <group name="PSTNPrefix">
+      <label>IP to Telephone Routing</label>
+      <setting name='number'>
+        <label>Called Number Prefix</label>
+        <description>Destination (Dialed) Number Prefix to match</description>
+      </setting>
+      <setting name='huntgroup_id'>
+        <label>Destination Hunt Group ID (optional)</label>
+        <description>Huntgroup ID to which the call will be routed to</description>
+      </setting>
+      <setting name='CallingPartyNumberPrefix'>
+        <label>Calling Number Prefix</label>
+        <description>
+          Calling Party Number (ANI) prefix in the incomng SIP call. Used for identity-based call routing.
+        </description>
+      </setting>
+      <setting name='CallingPartyIPaddress'>
+        <label>Calling Party IP Address</label>
+        <description>IP address of the host sending the SIP call.</description>
+      </setting>
+    </group>
   </group>
   <group name='Digit_Manipulation'>
     <label>Digit Manipulation</label>

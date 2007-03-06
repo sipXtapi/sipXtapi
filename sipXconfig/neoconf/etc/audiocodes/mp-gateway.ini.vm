@@ -48,7 +48,14 @@ ${s.ProfileName}=$!{s.Value}
 TRUNKGROUP_$tg_index=#emit_csv($tg ['ChannelRange', 'StartPhoneNumber', 'HuntGroupNumber'])
 #end
 
-#emit_groups_by_name(['Telephony', 'Voice', 'Call_Routing'])
+#emit_groups_by_name(['Telephony', 'Voice'])
+
+[Call_Routing]
+#set($cr = $gateway.Settings.getSetting('Call_Routing'))
+#set($prefix = $cr.getSetting('PREFIX'))
+PREFIX=#emit_csv($prefix ['number', 'ip_address', 'ANIPrefix'])
+#set($pstn_prefix = $cr.getSetting('PSTNPrefix'))
+PSTNPrefix=#emit_csv($pstn_prefix ['number', 'huntgroup_id', 'CallingPartyNumberPrefix', 'CallingPartyIPaddress'])
 
 [Digit_Manipulation]
 #set($dm = $gateway.Settings.getSetting('Digit_Manipulation'))
