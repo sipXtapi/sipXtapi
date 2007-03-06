@@ -8,6 +8,7 @@ MAN_PAGES = \
 	sipx-stats.1 \
 	expire-spread.1 \
 	monitor-spread.1 \
+	regtimes.1 \
 	sipxcar.1 \
 	sipxproc.1 \
 	polycom-config.1 \
