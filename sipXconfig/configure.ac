@@ -78,7 +78,6 @@ AC_CONFIG_FILES([
     neoconf/Makefile
     web/Makefile
     meta/Makefile
-    doc/Makefile
     agent/Makefile
     report/Makefile
     report/etc/Makefile

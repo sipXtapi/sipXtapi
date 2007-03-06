@@ -67,19 +67,6 @@
 
   <target name="install" depends="remove-jars,subant-targets.install"/>
 
-  <!-- J A V A D O C S -->
-  <target name="api">
-    <subant target="doc">
-      <property name="top.build.dir" value="${top.build.dir}"/>
-      <!-- only have to list build.xml one-level deep because doc
-        - target will recursive 
-        -->
-      <filelist dir="${top.dir}" files="
-        neoconf/build.xml
-        web/build.xml"/>
-    </subant>
-  </target>
-
   <target name="remove-jars" description="Remove all jars from lib dir">
     <delete failonerror="false">
       <fileset dir="${dest.dir}${sipxpbx.data.dir}/lib">
