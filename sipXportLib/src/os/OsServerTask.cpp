@@ -108,10 +108,13 @@ OsStatus OsServerTask::postMessage(const OsMsg& rMsg, const OsTime& rTimeout,
 // to the incoming message queue to unblock the task.
 void OsServerTask::requestShutdown(void)
 {
+   OsStatus res;
+
    OsMsg msg(OsMsg::OS_SHUTDOWN, 0);
 
    OsTask::requestShutdown();
-   postMessage(msg);
+   res = postMessage(msg);
+   assert(res = OS_SUCCESS);
 }
 
 /* ============================ ACCESSORS ================================= */
