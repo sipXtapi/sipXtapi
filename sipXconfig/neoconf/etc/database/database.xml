@@ -124,12 +124,12 @@
 	
   <!-- bumped up ver only to keep 3.6 from running incompat. 3.7 db versions -->
   <target name="version4" description="upgrade from version 3" unless="version5">
-    <antcall target="unmanaged-to-acme"/>
-    <antcall target="afterhour"/>
     <sipx-version version="5"/>
   </target>	
 
   <target name="version5" description="upgrade from version 4" unless="version6">
+    <antcall target="afterhour"/>
+    <antcall target="unmanaged-to-acme"/>
     <antcall target="model-refactoring"/>
     <antcall target="phonebook"/>
     <antcall target="clear-uploads"/>
