@@ -233,17 +233,35 @@ private:
    OsRWMutex mDeleteGuard; // RWMutex guard to prevent unwanted task deletion
    int       mSuspendCnt;  // Counts the nesting level of suspend() calls
 
+   pthread_mutex_t mStartupSyncMutex;  // Mutex, used with next two conditional
+                       // variables to synchronize thread startup.
+   pthread_cond_t  mTaskInitializedEvent; // Conditional variable, signaling
+                       // that this OsTask object initialization is completed
+                       // and thread could go on.
+   pthread_cond_t  mTaskStartedEvent; // Conditional variable, signaling
+                       // that thread is started and doLinuxCreateTask() could
+                       // return to caller.
+
+   enum {
+      OS_TASK_THREAD_STARTUP_TIMEOUT=5 // Time to wait for thread startup
+                                             // (in seconds).
+   };
+
    // saved initialization information (used for task restarts)
    int       mOptions;
    int       mPriority;
    int       mStackSize;
 
    UtlBoolean doLinuxCreateTask(const char* pTaskName);
-     //:Do the real work associated with creating a new VxWorks task
+     //:Do the real work associated with creating a new Linux task.
      // The mDataGuard lock should be held upon entry into this method.
+     //
+     // This method is blocking. It finishes only when thread is really
+     // started up. This is needed to avoid bad racing conditions. E.g.
+     // when thread may be stopped before really started, causing deadlock.
 
    void doLinuxTerminateTask(UtlBoolean doForce);
-     //:Do the real work associated with terminating a VxWorks task
+     //:Do the real work associated with terminating a Linux task.
      // The mDataGuard lock should be held upon entry into this method.
 
    /**
