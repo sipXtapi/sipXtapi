@@ -602,4 +602,3 @@ insert into initialization_task (name) values ('default-phone-group');
 insert into initialization_task (name) values ('add_default_user_group');
 insert into initialization_task (name) values ('operator');
 insert into initialization_task (name) values ('initialize-domain');
-insert into initialization_task (name) values ('afterhour');
