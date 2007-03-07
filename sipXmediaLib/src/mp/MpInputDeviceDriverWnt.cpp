@@ -80,7 +80,6 @@ MpInputDeviceDriverWnt::~MpInputDeviceDriverWnt()
     }
 
     // Delete the sample headers and sample buffer pointers..
-    // (This only deletes 
     unsigned i;
     for (i = 0; i < mNumInBuffers; i++)
     {
@@ -250,12 +249,9 @@ OsStatus MpInputDeviceDriverWnt::disableDevice()
         showWaveError("waveInReset", res, -1, __LINE__);
     } 
 
-    res = waveInClose(mDevHandle);
-    if (res != MMSYSERR_NOERROR)
-    {
-        showWaveError("waveInClose", res, -1, __LINE__);
-    }
-
+    // Must unprepare the headers after a reset, but before the device is closed
+    // (if this is done after waveInClose, mDevHandle will be invalid and 
+    // MMSYSERR_INVALHANDLE will be returned.
     unsigned i;
     for (i=0; i < mNumInBuffers; i++) 
     {
@@ -264,6 +260,12 @@ OsStatus MpInputDeviceDriverWnt::disableDevice()
         {
             showWaveError("waveInUnprepareHeader", res, i, __LINE__);
         }
+    }
+
+    res = waveInClose(mDevHandle);
+    if (res != MMSYSERR_NOERROR)
+    {
+        showWaveError("waveInClose", res, -1, __LINE__);
     }
 
     // Delete the buffers that were allocated in enableDevice()

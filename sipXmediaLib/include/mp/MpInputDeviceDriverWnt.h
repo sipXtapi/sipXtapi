@@ -56,7 +56,7 @@ public:
 ///@name Creators
 //@{
 
-     /// Default constructor
+     /// @brief Default constructor
    MpInputDeviceDriverWnt(const UtlString& name,
                           MpInputDeviceManager& deviceManager,
                           unsigned nInputBuffers = DEFAULT_N_INPUT_BUFS);
@@ -67,7 +67,7 @@ public:
      *         push frames to via pushFrame method
      */
 
-     /// Destructor
+     /// @brief Destructor
    virtual
    ~MpInputDeviceDriverWnt();
 
@@ -77,7 +77,7 @@ public:
 ///@name Manipulators
 //@{
 
-      /// Initialize device driver and state
+      /// @brief Initialize device driver and state
     OsStatus enableDevice(unsigned samplesPerFrame, 
                           unsigned samplesPerSec,
                           unsigned currentFrameTime);
@@ -95,7 +95,7 @@ public:
       *         MpInputDeviceManager for pushFrame calls.
       */
 
-      /// Uninitialize device driver
+      /// @brief Uninitialize device driver
     OsStatus disableDevice();
       /**<
       *  This method disables the device driver and should release any
@@ -105,7 +105,7 @@ public:
       *        enabling a device results in state and buffer queues being cleared.
       */
 
-      /// Processes incoming audio data.
+      /// @brief Processes incoming audio data.
     void processAudioInput(HWAVEIN hwi, 
                            UINT uMsg, 
                            DWORD_PTR dwParam1,
@@ -118,7 +118,7 @@ public:
 
 //@}
 
-      /// Callback function for receiving data from windows audio.
+      /// @brief Callback function for receiving data from windows audio.
     static void CALLBACK waveInCallbackStatic(HWAVEIN hwi,
                                               UINT uMsg,
                                               DWORD_PTR dwInstance,
@@ -140,7 +140,7 @@ public:
 ///@name Inquiry
 //@{
 
-      /// Inquire if the windows device is valid
+      /// @brief Inquire if the windows device is valid
     virtual UtlBoolean isDeviceValid() { return (mWntDeviceId >= 0); };
 //@}
 
@@ -163,14 +163,20 @@ private:
     UtlBoolean mIsOpen;       ///< Boolean indicating waveInOpen() completed.
 
 
-      /// Copy constructor (not implemented for this class)
+      /// @brief Copy constructor (not implemented for this class)
     MpInputDeviceDriverWnt(const MpInputDeviceDriver& rMpInputDeviceDriver);
 
-      /// Assignment operator (not implemented for this class)
+      /// @brief Assignment operator (not implemented for this class)
     MpInputDeviceDriverWnt& operator=(const MpInputDeviceDriver& rhs);
 
-      /// Zero out a wave header, so it is ready to be filled in by windows.
+      /// @brief Zero out a wave header, so it is ready to be filled in by windows.
     WAVEHDR* initWaveHeader(int n);
+      /**<
+      *  Initialize all the values in the wave header indicated by <tt>n</tt>.
+      *  @param n - The index into <tt>mpWaveHeaders</tt> indicating 
+      *             which wave header to initialize.
+      *  @returns a pointer to the wave header that was initialized.
+      */
 };
 
 /* ============================ INLINE METHODS ============================ */

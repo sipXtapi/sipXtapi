@@ -18,6 +18,7 @@
 #include <os/OsReadLock.h>
 #include <os/OsDateTime.h>
 #include <os/OsSysLog.h>
+#include <os/OsTask.h>
 #include <mp/MpInputDeviceManager.h>
 #include <mp/MpInputDeviceDriver.h>
 #include <mp/MpBuf.h>
@@ -76,12 +77,13 @@ public:
    : UtlInt(deviceId)
    , mLastPushedFrame(frameBufferLength - 1)
    , mFrameBufferLength(frameBufferLength)
+   , mFrameBuffersUsed(0)
    , mppFrameBufferArray(NULL)
-   , mpBufferPool(&bufferPool)
    , mpInputDeviceDriver(&deviceDriver)
    , mSamplesPerFrame(samplesPerFrame)
    , mSamplesPerSecond(samplesPerSecond)
-   , mFrameBuffersUsed(0)
+   , mpBufferPool(&bufferPool)
+   , mInUse(FALSE)
    {
        assert(mFrameBufferLength > 0);
        assert(mSamplesPerFrame > 0);
@@ -203,7 +205,8 @@ public:
         // given frame time.  The frame time is for the beginning of a frame.
         // So we provide the frame that begins at or less than the requested
         // time, but not more than one frame period older.
-        for (unsigned int frameIndex = 0; frameIndex < mFrameBuffersUsed; frameIndex++)
+        unsigned int frameIndex;
+        for (frameIndex = 0; frameIndex < mFrameBuffersUsed; frameIndex++)
         {
             // Walk backwards from the last inserted frame
             MpInputDeviceFrameData* frameData = 
@@ -248,11 +251,11 @@ public:
         unsigned nActualDerivs = 0;
         
         int referenceFramePeriod = 1000 * mSamplesPerFrame / mSamplesPerSecond;
-        unsigned int lastFrame = mLastPushedFrame % mFrameBufferLength;
+        unsigned int lastFrame = mLastPushedFrame;
 
         unsigned int t2FrameIdx;
         for(t2FrameIdx = 0; 
-            (t2FrameIdx < mFrameBufferLength) && (nActualDerivs < nDerivatives); 
+            (t2FrameIdx < mFrameBuffersUsed) && (nActualDerivs < nDerivatives); 
             t2FrameIdx++)
         {
             // in indexes here, higher is older, since we're subtracting before
@@ -260,10 +263,10 @@ public:
             unsigned int t1FrameIdx = t2FrameIdx+1;
 
             MpInputDeviceFrameData* t2FrameData = 
-                &mppFrameBufferArray[(mFrameBufferLength + lastFrame - t2FrameIdx) 
+                &mppFrameBufferArray[(lastFrame - t2FrameIdx) 
                                      % mFrameBufferLength];
             MpInputDeviceFrameData* t1FrameData = 
-                &mppFrameBufferArray[(mFrameBufferLength + lastFrame - t1FrameIdx) 
+                &mppFrameBufferArray[(lastFrame - t1FrameIdx) 
                                      % mFrameBufferLength];
 
             // The first time we find an invalid buffer, break out of the loop.
@@ -285,6 +288,10 @@ public:
         return nActualDerivs;
     }
 
+    inline void setInUse() { mInUse = TRUE; }
+    inline void clearInUse() { mInUse = FALSE; }
+    inline UtlBoolean isInUse() { return mInUse; }
+
 //@}
 
 /* ============================ INQUIRY =================================== */
@@ -295,14 +302,15 @@ public:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-    unsigned int mLastPushedFrame;      ///< Index of last pushed frame in mppFrameBufferArray.
-    unsigned int mFrameBufferLength;    ///< Length of mppFrameBufferArray.
-    unsigned int mFrameBuffersUsed;    ///< actual number of buffers with data in them
+    unsigned int mLastPushedFrame;    ///< Index of last pushed frame in mppFrameBufferArray.
+    unsigned int mFrameBufferLength;  ///< Length of mppFrameBufferArray.
+    unsigned int mFrameBuffersUsed;   ///< actual number of buffers with data in them
     MpInputDeviceFrameData* mppFrameBufferArray;
     MpInputDeviceDriver* mpInputDeviceDriver;
-    unsigned int mSamplesPerFrame;      ///< Number of audio samples in one frame.
-    unsigned int mSamplesPerSecond;     ///< Number of audio samples in one second.
-    MpBufPool* mpBufferPool;
+    unsigned int mSamplesPerFrame;    ///< Number of audio samples in one frame.
+    unsigned int mSamplesPerSecond;   ///< Number of audio samples in one second.
+    MpBufPool* mpBufferPool;          
+    UtlBoolean mInUse;                ///< Use indicator to synchronize disable and remove.
 
       /// Copy constructor (not implemented for this class)
     MpAudioInputConnection(const MpAudioInputConnection& rMpAudioInputConnection);
@@ -376,16 +384,37 @@ int MpInputDeviceManager::addDevice(MpInputDeviceDriver& newDevice)
 
 MpInputDeviceDriver* MpInputDeviceManager::removeDevice(MpInputDeviceHandle deviceId)
 {
-    OsWriteLock lock(mRwMutex);
+    // We need the manager lock while we're indicating the connection is in use.
+    mRwMutex.acquireWrite();
 
     MpAudioInputConnection* connectionFound = NULL;
     UtlInt deviceKey(deviceId);
-    connectionFound =
-        (MpAudioInputConnection*) mConnectionsByDeviceId.find(&deviceKey);
     MpInputDeviceDriver* deviceDriver = NULL;
 
-    if (connectionFound)
+    int checkInUseTries = 10;
+    for(; checkInUseTries > 0; checkInUseTries--)
     {
+        connectionFound =
+            (MpAudioInputConnection*) mConnectionsByDeviceId.find(&deviceKey);
+        if(connectionFound && connectionFound->isInUse())
+        {
+            // If the device is in use, release the manager lock,
+            // wait a small bit, and get the lock again to give the manager a
+            // chance to finish what it was doing  with the connection.
+            mRwMutex.releaseWrite();
+            OsTask::delay(1);
+            mRwMutex.acquireWrite();
+        }
+        else if(connectionFound)
+        {
+            break;
+        }
+    }
+
+    if(connectionFound && !connectionFound->isInUse())
+    {
+        connectionFound->setInUse();
+
         // Remove from the id indexed container
         mConnectionsByDeviceId.remove(connectionFound);
 
@@ -409,6 +438,13 @@ MpInputDeviceDriver* MpInputDeviceManager::removeDevice(MpInputDeviceHandle devi
         connectionFound = NULL;
     }
 
+    // Note: we specifically keep the manager lock for the entire duration 
+    //       of removal (with exception of waiting while it's in use).
+    mRwMutex.releaseWrite();
+
+    // deviceDriver of NULL is returned if:
+    //    * The connection is not found.
+    //    * The connection is found, but the connection was already in use.
     return(deviceDriver);
 }
 
@@ -442,16 +478,57 @@ OsStatus MpInputDeviceManager::enableDevice(MpInputDeviceHandle deviceId)
 
 OsStatus MpInputDeviceManager::disableDevice(MpInputDeviceHandle deviceId)
 {
-    OsStatus status = OS_NOT_FOUND;
-    OsWriteLock lock(mRwMutex);
+    // We need the manager lock while we're indicating the connection is in use.
+    mRwMutex.acquireWrite();
 
+    OsStatus status = OS_NOT_FOUND;
+    // We haven't determined if it's ok to disable the device yet.
+    UtlBoolean okToDisable = FALSE;  
     MpAudioInputConnection* connectionFound = NULL;
     UtlInt deviceKey(deviceId);
-    connectionFound =
-        (MpAudioInputConnection*) mConnectionsByDeviceId.find(&deviceKey);
     MpInputDeviceDriver* deviceDriver = NULL;
 
-    if (connectionFound)
+    int checkInUseTries = 10;
+    int i;
+    for(i = 0; i < checkInUseTries; i--)
+    {
+        connectionFound =
+            (MpAudioInputConnection*) mConnectionsByDeviceId.find(&deviceKey);
+        if(connectionFound && connectionFound->isInUse())
+        {
+            // If the device is in use, release the manager lock,
+            // wait a small bit, and get the lock again to give the manager a
+            // chance to finish what it was doing  with the connection.
+            mRwMutex.releaseWrite();
+            OsTask::delay(1);
+            mRwMutex.acquireWrite();
+        }
+        else if(connectionFound)
+        {
+            break;
+        }
+    }
+    if(connectionFound)
+    {
+        if(connectionFound->isInUse())
+        {
+            // If the connection is in use by someone else,
+            // then we indicate that the connection is busy.
+            status = OS_BUSY;
+        }
+        else
+        {
+            // It's ok to disable now,
+            // Set the connection in use.
+            okToDisable = TRUE;
+            connectionFound->setInUse();
+        }
+    }
+
+    // Now we release the mutex and go on to actually disable the device.
+    mRwMutex.releaseWrite();
+
+    if (okToDisable)
     {
         deviceDriver = connectionFound->getDeviceDriver();
         assert(deviceDriver);
@@ -460,7 +537,12 @@ OsStatus MpInputDeviceManager::disableDevice(MpInputDeviceHandle deviceId)
             status = 
                 deviceDriver->disableDevice();
         }
+
+        mRwMutex.acquireWrite();
+        connectionFound->clearInUse();
+        mRwMutex.releaseWrite();
     }
+
     return(status);
 }
 

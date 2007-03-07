@@ -81,7 +81,7 @@ public:
 ///@name Creators
 //@{
 
-      /// Default constructor
+      /// @brief Default constructor
     MpInputDeviceManager(unsigned defaultSamplesPerFrame, 
                          unsigned defaultSamplesPerSecond,
                          unsigned defaultNumBufferedFrames,
@@ -100,7 +100,7 @@ public:
       */
 
 
-      /// Destructor
+      /// @brief Destructor
     virtual
     ~MpInputDeviceManager();
       /**<
@@ -115,30 +115,41 @@ public:
 ///@name Manipulators
 //@{
 
-      /// Add a new input device for use
+      /// @brief Add a new input device for use
     MpInputDeviceHandle addDevice(MpInputDeviceDriver& newDevice);
       /**<
       *  Returns device ID which is unique within this device manager.
       *  This method locks the device manager for exclusive use.
       *
+      *  @param newDevice - A new input device to add to this manager.
+      *                     The device should <b>only</b> be added to one manager.
+      *  @returns A handle to reference the device by in other manager calls.
+      *
       *  Multi-thread safe.
       */
 
 
-      /// Remove an existing input device
+      /// @brief Remove an existing input device
     MpInputDeviceDriver* removeDevice(MpInputDeviceHandle deviceId);
       /**<
       *  This method locks the device manager for exclusive use.
       *
+      *  @param deviceId - The device to disable.
+      *  @returns A pointer to the input device driver that was removed.
+      *  @returns NULL if the device could not be found or device is busy.
+      *
       *  Multi-thread safe.
       */
 
 
-      /// Helper to enable device driver
+      /// @brief Helper to enable device driver
     OsStatus enableDevice(MpInputDeviceHandle deviceId);
       /**<
       *  This method enables the device driver indicated by the device id.
       *
+      *  @param deviceId - The device to enable.
+      *  @returns OS_NOT_FOUND if the device could not be found.
+      *  
       *  @NOTE This SHOULD NOT be used to mute/unmute a device. Disabling and
       *        enabling a device results in state and buffer queues being cleared.
       *
@@ -146,11 +157,15 @@ public:
       */
 
 
-      /// Helper to disable device driver
+      /// @brief Helper to disable device driver
     OsStatus disableDevice(MpInputDeviceHandle deviceId);
       /**<
       *  This method disables the device driver indicated by the device id.
       *
+      *  @param deviceId - The device to disable.
+      *  @returns OS_NOT_FOUND if the device could not be found.
+      *  @returns OS_BUSY if the device is currently being removed or disabled.
+      *
       *  @NOTE This SHOULD NOT be used to mute/unmute a device. Disabling and
       *        enabling a device results in state and buffer queues being cleared.
       *
@@ -158,7 +173,7 @@ public:
       */
 
 
-      /// Method for MpInputDeviceDriver to push a frame of media for a given time
+      /// @brief Method for MpInputDeviceDriver to push a frame of media for a given time
     OsStatus pushFrame(MpInputDeviceHandle deviceId,
                        unsigned numSamples,
                        MpAudioSample *samples,
@@ -176,18 +191,20 @@ public:
       *  @param samples - (in) the actual media for the frame.
       *  @param frameTime - (in) time in milliseconds for beginning of frame
       *         relative to the MpInputDeviceManager reference time.
+      *  @returns OS_NOT_FOUND if the device could not be found.
       *
       *  Multi-thread safe.
       */
 
 
-      /// Method for obtaining the buffer for a given frame and device ID
+      /// @brief Method for obtaining the buffer for a given frame and device ID
     OsStatus getFrame(MpInputDeviceHandle deviceId,
                       MpFrameTime frameTime,
                       MpBufPtr& buffer,
                       unsigned& numFramesBefore,
                       unsigned& numFramesAfter);
       /**<
+      *  Method for obtaining the buffer for a given frame and device ID
       *  This method is typically invoked by MprFromInputDevice resources.
       *
       *  @param deviceId - (in) device id to identify from which device a frame
@@ -216,25 +233,36 @@ public:
 ///@name Accessors
 //@{
 
-      /// Get the device driver name for the given device ID
+      /// @brief Get the device driver name for the given device ID
     OsStatus getDeviceName(int deviceId, UtlString& deviceName) const;
       /**<
+      *  Get the name for the given deviceId.
+      *
+      *  @param deviceId - The device to fetch the name of.
+      *  @param deviceName - [OUT] a UtlString that will hold the deviceName
+      *  @returns OS_SUCCESS and <tt>deviceName</tt> filled with the
+      *           name of the device.
+      *  @returns OS_NOT_FOUND if the device could not be found.
+      *
       *  Multi-thread safe.
       */
 
 
-    /// Get the device id for the given device driver name
+    /// @brief Get the device id for the given device driver name
     MpInputDeviceHandle getDeviceId(const char* deviceName) const;
       /**<
       *  The MpInputDeviceManager maintains a device ID to device name
       *  mapping.  All device IDs and device names are unique within the
       *  scope of this MpInputDeviceManager.
       *
+      *  @param deviceName - The name of a device to get the ID of.
+      *  @returns A handle to reference the device by in other manager calls.
+      *
       *  Multi-thread safe.
       */
 
 
-      /// Get current frame timestamp
+      /// @brief Get current frame timestamp
     MpFrameTime getCurrentFrameTime() const;
       /**<
       *  The timestamp is in milliseconds from the initial reference point
@@ -246,8 +274,8 @@ public:
       */
 
 
-      /// Method for obtaining the time derivatives for sequential frames 
-      /// as relates to reference time.
+      /// @brief Method for obtaining the time derivatives for sequential frames 
+      /// @brief as relates to reference time.
     OsStatus getTimeDerivatives(MpInputDeviceHandle deviceId,
                                 unsigned& nDerivatives,
                                 int*& derivativeBuf) const;
@@ -277,8 +305,13 @@ public:
 ///@name Inquiry
 //@{
 
-    /// Inquire if device is enabled (e.g. generating input).
+      /// @brief Inquire if device is enabled (e.g. generating input).
     UtlBoolean isDeviceEnabled(MpInputDeviceHandle deviceId);
+      /**<
+      *  Inquire if device is enabled (e.g. generating input).
+      *
+      *  @param deviceId - The device to determine enabled status of.
+      */
 
 //@}
 
