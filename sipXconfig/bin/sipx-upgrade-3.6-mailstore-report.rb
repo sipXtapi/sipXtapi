@@ -13,14 +13,14 @@ require 'rexml/document'
 class MailstoreReport
 
   def report(mailstore, output)
-    output.puts "following emails will not be preserved after first user edit:"
+    output.puts "following emails will not be preserved after first user edit:"    
     Find.find(mailstore) do |path|
       if File.basename(path) == 'mailboxprefs.xml'
         File.open(path) do |prefs_stream|
           doc = REXML::Document.new(prefs_stream)
           contacts = doc.get_elements('//notification/contact')
           if (contacts)
-            for i in 1..(contacts.length - 1)
+            for i in 1..( contacts.length - 1 )
               email = contacts[i].text
               output.puts "mailbox #{path}, email #{email}"
             end          
@@ -33,5 +33,5 @@ end
 
 if __FILE__ == $0
   mailstore = ARGV.empty? ? "@SIPX_VXMLDATADIR@/mailstore" : ARGV[0]
-  MailstoreReport.new().migrate(mailstore, STDOUT)
+  MailstoreReport.new().report(mailstore, STDOUT)
 end

@@ -23,7 +23,7 @@ $(top_builddir)/BUILDSTAMP:
 	${MAKE} -C $(top_builddir) BUILDSTAMP
 
 $(ruby_scripts) : $(ruby_scripts_src)
-	${LocalizeSipXconfig} $< > $@
+	${LocalizeSipXconfig} $(srcdir)/`basename $@`.rb > $@
 
 ${PACKAGE}-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAMP
 	BuildStamp="$(shell cat $(top_builddir)/BUILDSTAMP)" \
