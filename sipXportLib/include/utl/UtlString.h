@@ -424,9 +424,9 @@ public:
      */
 
     /// Insert a null terminated string
-        UtlString& insert(size_t position,   ///< postion to insert src C string
-                          const char* src    ///< null terminated string to insert
-                          );
+    UtlString& insert(size_t position,   ///< postion to insert src C string
+                      const char* src    ///< null terminated string to insert
+                      );
      /**<
       * If an invalid position is specified, nothing is performed.
       */

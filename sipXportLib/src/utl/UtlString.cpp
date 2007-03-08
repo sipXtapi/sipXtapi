@@ -594,7 +594,7 @@ void UtlString::toUpper()
 // use capacity(size_t).
 void UtlString::resize(size_t N)
 {
-    // CHECK: is this what it is suppoesed to do???
+    // CHECK: is this what it is supposed to do???
     if(N > mSize)
     {
         if (mCapacity <= N)
