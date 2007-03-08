@@ -542,6 +542,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\test\net\NetBase64CodecTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\test\net\NetMd5CodecTest.cpp"
 				>
 			</File>

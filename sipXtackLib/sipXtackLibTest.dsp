@@ -107,6 +107,10 @@ SOURCE=.\src\test\net\NetAttributeTokenizerTest.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\test\net\NetBase64CodecTest.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\test\net\NetMd5CodecTest.cpp
 # End Source File
 # Begin Source File

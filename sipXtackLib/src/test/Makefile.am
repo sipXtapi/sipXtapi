@@ -33,6 +33,7 @@ testsuite_SOURCES = \
     net/NameValuePairInsensitiveTest.cpp \
     net/NameValuePairTest.cpp \
     net/NetAttributeTokenizerTest.cpp \
+    net/NetBase64CodecTest.cpp \
     net/NetMd5CodecTest.cpp \
     net/SdpBodyTest.cpp \
     net/SipContactDbTest.cpp \
