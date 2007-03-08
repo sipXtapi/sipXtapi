@@ -3814,12 +3814,12 @@ UtlBoolean SipUserAgent::isReady()
 UtlBoolean SipUserAgent::waitUntilReady()
 {
     // Lazy hack, should be a semaphore or event
-        int count = 0;
+    int count = 0;
     while(!isReady() && count < 5)
     {
         delay(500);
-                count++;
-                }
+        count++;
+    }
 
     return isReady() ;
 }
