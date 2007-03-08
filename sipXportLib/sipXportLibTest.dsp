@@ -228,6 +228,10 @@ SOURCE=.\src\test\os\OsSemTest.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\test\os\OsServerTaskTest.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\test\os\OsSocketTest.cpp
 # End Source File
 # Begin Source File

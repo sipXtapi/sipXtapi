@@ -168,6 +168,9 @@
 				RelativePath=".\src\test\os\OsSemTest.cpp">
 			</File>
 			<File
+				RelativePath=".\src\test\os\OsServerTaskTest.cpp">
+			</File>
+			<File
 				RelativePath=".\src\test\os\OsSocketTest.cpp">
 			</File>
 			<File

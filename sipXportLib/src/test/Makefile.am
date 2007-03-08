@@ -46,6 +46,7 @@ testsuite_SOURCES = \
     os/OsProcessMgrTest.cpp \
     os/OsProcessTest.cpp \
     os/OsSemTest.cpp \
+    os/OsServerTaskTest.cpp \
     os/OsSocketTest.cpp \
     os/OsTestUtilities.cpp \
     os/OsTestUtilities.h \
