@@ -25,6 +25,7 @@ class HttpMessageTest : public CppUnit::TestCase
     CPPUNIT_TEST_SUITE(HttpMessageTest);
     CPPUNIT_TEST(testCreator);
     CPPUNIT_TEST(testMessage);
+    CPPUNIT_TEST(testHeader);
     CPPUNIT_TEST(testSdp);
     CPPUNIT_TEST(testMd5Digest);
     CPPUNIT_TEST_SUITE_END();
@@ -111,7 +112,7 @@ public:
         ASSERT_STR_EQUAL_MESSAGE("incorrect field value", v2,
             valueRef);
 
-                msg->addHeaderField(n2, v2a);
+        msg->addHeaderField(n2, v2a);
         fieldCount = msg->getCountHeaderFields();
         CPPUNIT_ASSERT_EQUAL_MESSAGE("field count should be 3", 3,
                 fieldCount);
@@ -165,6 +166,207 @@ public:
         // AS DESIGNED: body delete is handled by delete msg
         // delete httpBody;
     }
+
+
+    /**
+     * Test header
+     */
+    void testHeader()
+    {
+        const char* name1 = "yyy";
+        const char* value1 = "yyy-value";
+        const char* valueRef = NULL;
+        const char* name2 = "yyy1";
+        const char* value2 = "yyy-value1";
+        const char* value2a = "yyy-value2";
+        const char* value2b = "yyy-value3";
+
+	UtlBoolean  rc;
+
+        HttpMessage *msg;
+
+        msg = new HttpMessage();
+
+        // H E A D E R
+        int fieldCount = msg->getCountHeaderFields();
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("field count should be zero",
+                0, fieldCount);
+
+        // add header field name1
+        msg->addHeaderField(name1, value1);
+
+        // get overall header field count 
+        fieldCount = msg->getCountHeaderFields();
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("field count should be zero", 1,
+                fieldCount);
+
+        // get header field count for name1
+        fieldCount = msg->getCountHeaderFields(name1);
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("field count should be zero", 1,
+                fieldCount);
+
+        // get header field by index
+        valueRef = msg->getHeaderValue(0);
+        CPPUNIT_ASSERT_MESSAGE("NULL field value", valueRef != NULL);
+        ASSERT_STR_EQUAL_MESSAGE("incorrect field value", value1,
+                valueRef);
+
+        // get header field by index and name
+        valueRef = msg->getHeaderValue(0, name1);
+        CPPUNIT_ASSERT_MESSAGE("NULL field value", valueRef != NULL);
+        ASSERT_STR_EQUAL_MESSAGE("incorrect field value", value1,
+                valueRef);
+
+        // add header field name2
+        msg->addHeaderField(name2, value2);
+
+        // get header field by name and index
+        valueRef = msg->getHeaderValue(0, name2);
+        CPPUNIT_ASSERT_MESSAGE("NULL field value", valueRef != NULL);
+        ASSERT_STR_EQUAL_MESSAGE("incorrect field value", value2,
+            valueRef);
+
+        // add second header field name2
+        msg->addHeaderField(name2, value2);
+
+        // get header field by name and index
+        valueRef = msg->getHeaderValue(0, name2);
+        CPPUNIT_ASSERT_MESSAGE("NULL field value", valueRef != NULL);
+        ASSERT_STR_EQUAL_MESSAGE("incorrect field value", value2,
+            valueRef);
+
+        // set second header field name2
+        msg->setHeaderValue(name2, value2b, 1);
+
+        // get header field by name and index
+        valueRef = msg->getHeaderValue(0, name2);
+        CPPUNIT_ASSERT_MESSAGE("NULL field value", valueRef != NULL);
+        ASSERT_STR_EQUAL_MESSAGE("incorrect field value", value2,
+            valueRef);
+
+        // insert header field name2 as a second header with name2 
+        msg->insertHeaderField(name2, value2a, 2);
+
+        // get header field by name and index
+        valueRef = msg->getHeaderValue(0, name2);
+        CPPUNIT_ASSERT_MESSAGE("NULL field value", valueRef != NULL);
+        ASSERT_STR_EQUAL_MESSAGE("incorrect field value", value2,
+            valueRef);
+
+        // get overall header field count 
+        fieldCount = msg->getCountHeaderFields();
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("field count should be 4", 4,
+                fieldCount);
+
+        // get name1 header field count 
+        fieldCount = msg->getCountHeaderFields(name1);
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("field count should be 1", 1,
+                fieldCount);
+
+        // get name2 header field count 
+        fieldCount = msg->getCountHeaderFields(name2);
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("field count should be 3", 3,
+                fieldCount);
+
+        // get header field by name and index
+        valueRef = msg->getHeaderValue(0, name2);
+        CPPUNIT_ASSERT_MESSAGE("NULL field value", valueRef != NULL);
+        ASSERT_STR_EQUAL_MESSAGE("incorrect field value", value2,
+            valueRef);
+
+        // get header field by name and index
+        valueRef = msg->getHeaderValue(1, name2);
+        CPPUNIT_ASSERT_MESSAGE("NULL field value", valueRef != NULL);
+        ASSERT_STR_EQUAL_MESSAGE("incorrect field value", value2a,
+            valueRef);
+
+        // get header field by index
+        valueRef = msg->getHeaderValue(3);
+        CPPUNIT_ASSERT_MESSAGE("NULL field value", valueRef != NULL);
+        ASSERT_STR_EQUAL_MESSAGE("incorrect field value", value2b,
+            valueRef);
+
+        // remove non-existing header field
+        rc = msg->removeHeader("non-exist", 36);
+        CPPUNIT_ASSERT_MESSAGE("incorrect return code", rc == FALSE);
+
+        // get overall header field count 
+        fieldCount = msg->getCountHeaderFields();
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("field count should be 4", 4,
+                fieldCount);
+
+        // remove header field name1
+        rc = msg->removeHeader(name1, 0);
+        CPPUNIT_ASSERT_MESSAGE("incorrect return code", rc == TRUE);
+
+        // get header field by index
+        valueRef = msg->getHeaderValue(0);
+        CPPUNIT_ASSERT_MESSAGE("NULL field value", valueRef != NULL);
+        ASSERT_STR_EQUAL_MESSAGE("incorrect field value", value2,
+            valueRef);
+
+        // get name1 header field count 
+        fieldCount = msg->getCountHeaderFields(name1);
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("field count should be 0", 0,
+                fieldCount);
+
+        // remove second header field name2
+        rc = msg->removeHeader(name2, 1);
+        CPPUNIT_ASSERT_MESSAGE("incorrect return code", rc == TRUE);
+
+        // get overall header field count 
+        fieldCount = msg->getCountHeaderFields();
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("field count should be 2", 2,
+                fieldCount);
+
+        // get name2 header field count 
+        fieldCount = msg->getCountHeaderFields(name2);
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("field count should be 2", 2,
+                fieldCount);
+
+        // get header field by index
+        valueRef = msg->getHeaderValue(0);
+        CPPUNIT_ASSERT_MESSAGE("NULL field value", valueRef != NULL);
+        ASSERT_STR_EQUAL_MESSAGE("incorrect field value", value2,
+            valueRef);
+
+        // get header field by name and index
+        valueRef = msg->getHeaderValue(1, name2);
+        CPPUNIT_ASSERT_MESSAGE("NULL field value", valueRef != NULL);
+        ASSERT_STR_EQUAL_MESSAGE("incorrect field value", value2b,
+            valueRef);
+
+        // get non-exist header field by name and index
+        valueRef = msg->getHeaderValue(2, name2);
+        CPPUNIT_ASSERT_MESSAGE("non-NULL field value", valueRef == NULL);
+
+        // remove header field name2
+        rc = msg->removeHeader(name2, 1);
+        CPPUNIT_ASSERT_MESSAGE("incorrect return code", rc == TRUE);
+
+        // get overall header field count 
+        fieldCount = msg->getCountHeaderFields();
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("field count should be 1", 1,
+                fieldCount);
+
+        // get header field by index
+        valueRef = msg->getHeaderValue(0);
+        CPPUNIT_ASSERT_MESSAGE("NULL field value", valueRef != NULL);
+        ASSERT_STR_EQUAL_MESSAGE("incorrect field value", value2,
+            valueRef);
+
+        // remove header field name2
+        rc = msg->removeHeader(name2, 0);
+        CPPUNIT_ASSERT_MESSAGE("incorrect return code", rc == TRUE);
+
+        // get overall header field count 
+        fieldCount = msg->getCountHeaderFields();
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("field count should be 0", 0,
+                fieldCount);
+
+        delete msg;
+    }
+
 
     void testSdp()
     {
