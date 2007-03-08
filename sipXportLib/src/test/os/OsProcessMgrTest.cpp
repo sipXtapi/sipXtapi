@@ -68,7 +68,6 @@ public:
         stat = processManager.startProcess(MyPing1, appName, params, startupDir);
         CPPUNIT_ASSERT_MESSAGE("Started first proccess", stat == OS_SUCCESS);
 
-        KNOWN_BUG("Unknown failure", "XPL-12");
         CPPUNIT_ASSERT_EQUAL_MESSAGE("Alias state", PROCESS_STARTED, 
             processManager.getAliasState(MyPing1));
         

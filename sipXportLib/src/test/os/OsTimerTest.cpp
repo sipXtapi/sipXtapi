@@ -365,8 +365,6 @@ public:
                 1, 250
                 )); 
 
-//       KNOWN_BUG("oneshotAfter not very precise for fractional times!", "XPL-39");
-
         CPPUNIT_ASSERT_MESSAGE("Verify that the timer is fired accurately",
                 diffUSecs >= expectedWaitUSecs - MsecsToUsecs(OSTIMETOLERANCE) &&
                 diffUSecs <= expectedWaitUSecs + MsecsToUsecs(OSTIMETOLERANCE));

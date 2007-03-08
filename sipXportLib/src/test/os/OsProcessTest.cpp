@@ -60,7 +60,6 @@ public:
         //std::cout << "Launching process: " << appName.data() << std::endl;
         stat = process.launch(appName,params,startupDir);
         CPPUNIT_ASSERT_MESSAGE("Launched application", stat == OS_SUCCESS);
-        KNOWN_BUG("Unknown failure", "XPL-12");
         CPPUNIT_ASSERT_MESSAGE("Application running", process.isRunning());
         
         int priority;
