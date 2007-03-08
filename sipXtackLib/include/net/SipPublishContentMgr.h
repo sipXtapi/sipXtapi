@@ -389,7 +389,7 @@ class SipPublishContentMgrDefaultConstructor : public UtlContainableAtomic
 {
   public:
 
-   /** Generate the content for a recource and event.
+   /** Generate the content for a resource and event.
     *  Called when getContent is called for a resourceId/eventTypeKey
     *  that has no published content.  generateDefaultContent may set
     *  content for that combination, or it can do nothing, which

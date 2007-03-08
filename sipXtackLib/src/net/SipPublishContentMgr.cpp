@@ -70,10 +70,10 @@ private:
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
-PublishCallbackContainer::PublishCallbackContainer()
+PublishCallbackContainer::PublishCallbackContainer() :
+   mpApplicationData(NULL),
+   mpCallback(NULL)
 {
-    mpApplicationData = NULL;
-    mpCallback = NULL;
 }
 PublishCallbackContainer::~PublishCallbackContainer()
 {
@@ -187,7 +187,7 @@ void SipPublishContentMgr::publish(const char* resourceId,
             "SipPublishContentMgr::publish eventContent[%d]->getBytes() = %p",
                       index, eventContent[index]->getBytes());
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
-            "SipPublishContentMgr::publish eventContent[%d] = %s",
+            "SipPublishContentMgr::publish eventContent[%d] = '%s'",
                       index, eventContent[index]->getBytes());
         container->mEventContent.append(eventContent[index]);
         }
