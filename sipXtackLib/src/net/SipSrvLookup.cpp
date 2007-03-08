@@ -681,6 +681,7 @@ void lookup_A(server_t*& list,
             // An A record has been found.
             // Assemble the needed information and add it to the server list.
             struct sockaddr_in sin;
+            memset(&sin, 0, sizeof(sin));
             sin.sin_addr = response->answer[i]->rdata.address;
             sin.sin_family = AF_INET;
             sin.sin_port = htons(port);
@@ -701,6 +702,7 @@ void lookup_A(server_t*& list,
             // An A record has been found.
             // Assemble the needed information and add it to the server list.
             struct sockaddr_in sin;
+            memset(&sin, 0, sizeof(sin));
             sin.sin_addr = response->additional[i]->rdata.address;
             sin.sin_family = AF_INET;
             sin.sin_port = htons(port);
