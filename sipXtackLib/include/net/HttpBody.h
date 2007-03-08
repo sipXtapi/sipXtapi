@@ -29,6 +29,7 @@
 #define CONTENT_SMIME_PKCS7 "application/pkcs7-mime"
 #define CONTENT_TYPE_PIDF "application/pidf+xml"
 #define CONTENT_TYPE_MULTIPART "multipart/"
+#define CONTENT_TYPE_MULTIPART_RELATED "multipart/related"
 #define DIALOG_EVENT_CONTENT_TYPE "application/dialog-info+xml"
 
 #define MULTIPART_BOUNDARY_PARAMETER "boundary"
@@ -74,6 +75,10 @@ public:
             const char* contentType = NULL);
    //: Construct an HttpBody from a bunch of bytes
 
+   HttpBody(const char* contentType);
+   //: Construct a multipart HttpBody with zero parts.
+   // contentType should have no "boundary" parameter.
+
    HttpBody(const HttpBody& rHttpBody);
      //:Copy constructor
 
@@ -97,7 +102,7 @@ public:
 
    //! Append a multipart body part to an existing multiparty body.
    void appendBodyPart(const HttpBody& body,
-                       UtlDList parameters);
+                       const UtlDList& parameters);
 
 /* ============================ ACCESSORS ================================= */
 
@@ -112,7 +117,8 @@ public:
    virtual const char* getBytes() const;
 
    UtlBoolean getMultipartBytes(int partIndex, 
-       const char** bytes, int* length) const;
+                                const char** bytes,
+                                int* length) const;
 
    const MimeBodyPart* getMultipart(int partIndex) const;
 
@@ -134,6 +140,7 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+
    int bodyLength;
    UtlString mBody;
    UtlString  mMultipartBoundary;

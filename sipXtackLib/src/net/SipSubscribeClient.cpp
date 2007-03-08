@@ -568,7 +568,7 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
 
         case SipRefreshManager::REFRESH_REQUEST_SUCCEEDED:
             { // Variable scope
-                // Either the subscription dialog went from early established,
+                // Either the subscription dialog went from early to established,
                 // or a second dailog was created from the early dialog.  Hense
                 // there may be more than one established dialog
                 // Determine which case we have:
@@ -837,7 +837,6 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
             }
         }
         unlock();
-
     }
 
     // NOTIFY does not match a dialog
@@ -959,4 +958,3 @@ void SipSubscribeClient::getNextFromTag(const char* resourceId,
 }
 
 /* ============================ FUNCTIONS ================================= */
-
