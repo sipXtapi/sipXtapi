@@ -417,17 +417,6 @@ OsStatus OsTaskWnt::id(int& rId)
    return retVal;
 }
 
-// Check if the task is ready to run
-// Return TRUE is the task is ready, otherwise FALSE.
-// Under Windows NT, this method returns the opposite of isSuspended()
-UtlBoolean OsTaskWnt::isReady(void)
-{
-   if (!isStarted())
-      return FALSE;
-
-   return(!isSuspended());
-}
-
 // Check if the task is suspended.
 // Return TRUE is the task is suspended, otherwise FALSE.
 UtlBoolean OsTaskWnt::isSuspended(void)

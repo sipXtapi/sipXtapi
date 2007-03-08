@@ -124,6 +124,15 @@ OsStatus OsTaskBase::delay(const int milliSecs)
 
 /* ============================ INQUIRY =================================== */
 
+// Return TRUE is the task is started and not suspended, otherwise FALSE.
+UtlBoolean OsTaskBase::isReady(void)
+{
+   if (!isStarted())
+      return FALSE;
+
+   return !isSuspended();
+}
+
 // Return TRUE if a task shutdown has been requested and acknowledged
 UtlBoolean OsTaskBase::isShutDown(void)
 {

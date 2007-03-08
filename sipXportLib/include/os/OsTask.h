@@ -258,9 +258,9 @@ public:
    virtual OsStatus id(int& rId) = 0;
      //:Get the task ID for this task
 
-   virtual UtlBoolean isReady(void) = 0;
-     //:Check if the task is ready to run
-     // Return TRUE is the task is ready, otherwise FALSE.
+   virtual UtlBoolean isReady(void);
+     //:Check if the task is running
+     // Return TRUE is the task is started and not suspended, otherwise FALSE.
 
    virtual UtlBoolean isShutDown(void);
      //:Return TRUE if a task shutdown has been requested and acknowledged
