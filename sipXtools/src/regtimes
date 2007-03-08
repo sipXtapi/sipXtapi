@@ -1,8 +1,24 @@
 #!/usr/bin/perl
 
-use Getopt::Long;
-use DateTime::Format::ISO8601;
-use DateTime::Duration;
+$RequireMsg = <<REQUIREMENTS;
+
+  You must install the missing Perl package(s) to use this script.
+  As far as I know, these are not available as rpms.  You can install
+  them using 'cpan'.
+    For the DateTime::Format::ISO8601 package, you may need to 
+  force the installation because there is a problem in the unit tests.
+
+  >> cpan
+    force install DateTime::Format::ISO8601
+REQUIREMENTS
+
+eval <<REQUIREMENTS || die "$@\n\n$RequireMsg\n";
+
+require Getopt::Long;
+require DateTime::Format::ISO8601;
+require DateTime::Duration;
+
+REQUIREMENTS
 
 $Usage = <<USAGE;
 
