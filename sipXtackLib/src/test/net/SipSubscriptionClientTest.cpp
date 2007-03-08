@@ -346,6 +346,7 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
             }
         }
         printf("v\n");
+        fflush(stdout);
         SipMessage* secondSubResponse = NULL;
         SipMessage* secondNotifyRequest = NULL;
 
@@ -364,6 +365,7 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
                 smLastClientNotifyReceived = NULL;
             }
             printf(".");
+            fflush(stdout);
             waitIterations++;
             if(waitIterations >= secondMessageWait)
             {
