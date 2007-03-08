@@ -195,23 +195,25 @@ bool NetBase64Codec::decode(int encodedDataSize, const char encodedData[],
 }
 
 // Decode from one UtlString into another
-bool NetBase64Codec::decode(const UtlString encodedData, /* sizeis data.length(),
+bool NetBase64Codec::decode(const UtlString encodedData, /* size is encodedData.length(),
                                                           * not null terminated */
                             UtlString& data        // output: the decoded data
                             )
 {
-   data.remove(0);
-
    bool valid = isValid(encodedData);
    if (valid)
    {
       size_t sizeNeeded = decodedSize(encodedData.length(), encodedData.data());
-      {
-         char decodeBuffer[sizeNeeded+1];
-         int size;
-         decode(encodedData.length(), encodedData.data(), size, decodeBuffer);
-         data.append(decodeBuffer, size);
-      }
+      int size;
+
+      // Resize output string to get space for decoded data.
+      data.resize(sizeNeeded);
+
+      // Do decode
+      decode(encodedData.length(), encodedData.data(), size, (char*)data.data());
+
+      // Resize output string to value, returned by decode().
+      data.resize(size);
    }
    return valid;
 }
