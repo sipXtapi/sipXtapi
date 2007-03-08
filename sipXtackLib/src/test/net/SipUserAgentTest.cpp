@@ -100,7 +100,15 @@ public:
    void testShutdownBlocking()
    {
       int myPID = OsProcess::getCurrentPID();
-      int startingThreads = getNumThreads(myPID);
+      int startingThreads;
+
+      // Stop TimerTask and NatAgentTask before counting threads.
+      // Some tests do not bother stopping them, so they may come started.
+      OsTimerTask::destroyTimerTask();
+      OsNatAgentTask::releaseInstance();
+
+      // Count number of threads now.
+      startingThreads = getNumThreads(myPID);
 
       // Simple invite message from siptest/src/siptest/invite.txt
       const char* SimpleMessage = 
@@ -159,6 +167,8 @@ public:
             CPPUNIT_ASSERT(sipUA.isShutdownDone());
          }
 
+         // Stop TimerTask and NatAgentTask again before counting threads.
+         // They were started while testing.
          OsTimerTask::destroyTimerTask();
          OsNatAgentTask::releaseInstance();
 
@@ -168,7 +178,6 @@ public:
          // calls, we have to wait before we know they will be cleared.
          OsTask::delay(1000);   // 1 second
          int numThreads = getNumThreads(myPID);
-         KNOWN_BUG("threads not shutting down", "XSL-152");
          CPPUNIT_ASSERT_EQUAL(startingThreads,numThreads);
       }
    };
@@ -176,7 +185,15 @@ public:
    void testShutdownNonBlocking()
    {
       int myPID = OsProcess::getCurrentPID();
-      int startingThreads = getNumThreads(myPID);
+      int startingThreads;
+
+      // Stop TimerTask and NatAgentTask before counting threads.
+      // Some tests do not bother stopping them, so they may come started.
+      OsTimerTask::destroyTimerTask();
+      OsNatAgentTask::releaseInstance();
+
+      // Count number of threads now.
+      startingThreads = getNumThreads(myPID);
 
       // Simple invite message from siptest/src/siptest/invite.txt
       const char* SimpleMessage = 
@@ -238,6 +255,8 @@ public:
             CPPUNIT_ASSERT(sipUA.isShutdownDone());
          }
 
+         // Stop TimerTask and NatAgentTask again before counting threads.
+         // They were started while testing.
          OsTimerTask::destroyTimerTask();
          OsNatAgentTask::releaseInstance();
 
