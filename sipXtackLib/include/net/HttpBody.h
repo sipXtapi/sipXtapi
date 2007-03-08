@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2005 SIPez LLC.
+// Copyright (C) 2005-2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// Copyright (C) 2004 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -21,7 +21,7 @@
 
 // APPLICATION INCLUDES
 #include <utl/UtlString.h>
-
+#include <utl/UtlDList.h>
 
 // DEFINES
 #define CONTENT_TYPE_TEXT_PLAIN "text/plain"
@@ -52,6 +52,8 @@ class MimeBodyPart;
  */
 class HttpBody : public UtlString
 {
+   friend class HttpBodyMultipart;
+
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
@@ -68,7 +70,7 @@ public:
 /* ============================ CREATORS ================================== */
 
    HttpBody(const char* bytes = NULL, 
-            int length = -1, 
+            int length = -1,
             const char* contentType = NULL);
    //: Construct an HttpBody from a bunch of bytes
 
@@ -93,11 +95,15 @@ public:
                                const char* contentType,
                                const char* contentEncoding);
 
+   //! Append a multipart body part to an existing multiparty body.
+   void appendBodyPart(const HttpBody& body,
+                       UtlDList parameters);
+
 /* ============================ ACCESSORS ================================= */
 
    virtual int getLength() const;
 
-   // Note: for conveniece bytes is null terminated
+   // Note: for convenience, bytes is null terminated
    // However depending upon the content type, the body may
    // contain more than one null character.
    // *bytes != NULL, even if *length == 0.
@@ -114,7 +120,13 @@ public:
 
    BodyClassTypes getClassType() const;
 
-   const char*  getContentType() const;
+   //! Get the multipart boundary string.
+   // Valid while HttpBody exists and is not modified.
+   const char* getMultipartBoundary() const;
+
+   //! Get the content type string.
+   // Valid while HttpBody exists and is not modified.
+   const char* getContentType() const;
 
 /* ============================ INQUIRY =================================== */
 
@@ -132,7 +144,24 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
+   // The counter for generating boundary values.
+   static unsigned boundaryCounter;
+   // Generate the next boundary value.
+   static void nextBoundary(UtlString& boundary);
 };
+
+
+// Carrier class to provide a constructor that would otherwise conflict
+// with an existing constructor for HttpBody.
+class HttpBodyMultipart : public HttpBody
+{
+  public:
+
+   HttpBodyMultipart(const char* contentType);
+   //: Construct a multipart HttpBody with zero parts.
+   // contentType should have no "boundary" parameter.
+};
+
 
 /* ============================ INLINE METHODS ============================ */
 

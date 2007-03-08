@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -38,7 +38,9 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   MimeBodyPart(const HttpBody* parent = NULL, int parentBodyStartIndex = 0, int rawBodyLength = 0);
+   MimeBodyPart(const HttpBody* parent = NULL,
+                int parentBodyStartIndex = 0,
+                int rawBodyLength = 0);
      //:Default constructor
 
    MimeBodyPart(const MimeBodyPart& rMimeBodyPart);
@@ -58,7 +60,8 @@ public:
 
    virtual void getBytes(const char** bytes, int* length) const;
 
-   UtlBoolean getPartHeaderValue(const char* headerName, UtlString& headerValue) const;
+   UtlBoolean getPartHeaderValue(const char* headerName,
+                                 UtlString& headerValue) const;
 
 /* ============================ INQUIRY =================================== */
 

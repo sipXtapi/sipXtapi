@@ -28,6 +28,7 @@ testsuite_LDADD = \
     ../libsipXtack.la
 
 testsuite_SOURCES = \
+    net/HttpBodyTest.cpp \
     net/HttpMessageTest.cpp \
     net/NameValuePairInsensitiveTest.cpp \
     net/NameValuePairTest.cpp \

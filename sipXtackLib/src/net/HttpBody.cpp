@@ -1,15 +1,16 @@
-//
-// Copyright (C) 2005 SIPez LLC.
+// 
+// Copyright (C) 2005-2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// Copyright (C) 2004 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// 
+// Copyright (C) 2004 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
 // Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
 
@@ -34,6 +35,8 @@
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 
+unsigned HttpBody::boundaryCounter = 0;
+
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
@@ -45,144 +48,156 @@ HttpBody::HttpBody(const char* bytes, int length, const char* contentType) :
    mClassType = HTTP_BODY_CLASS;
    for(int partIndex = 0; partIndex < MAX_HTTP_BODY_PARTS; partIndex++)
    {
-       mpBodyParts[partIndex] = NULL;
+      mpBodyParts[partIndex] = NULL;
    }
    mBodyPartCount = 0;
 
-        if (contentType)
-        {
-                append(contentType);
-        NameValueTokenizer::frontBackTrim(this, " \t");
-        //osPrintf("Content type: \"%s\"\n", mBodyContentType.data());
-        int boundaryIndex = index(MULTIPART_BOUNDARY_PARAMETER,
-            0, UtlString::ignoreCase);
-
-        if(boundaryIndex >=0 &&
-            index(CONTENT_TYPE_MULTIPART,
-            0, UtlString::ignoreCase) == 0)
-        {
-            boundaryIndex += strlen(MULTIPART_BOUNDARY_PARAMETER);
-            //osPrintf("Boundary start:=>%s\n",
-            //    (mBodyContentType.data())[boundaryIndex]);
-
-            // Allow white space before =
-            int fieldLength = this->length();
-            while(boundaryIndex < fieldLength &&
-                (data()[boundaryIndex] == ' ' ||
-                data()[boundaryIndex] == '\t'))
-                boundaryIndex++;
-
-            if(data()[boundaryIndex] == '=')
-            {
-                mMultipartBoundary.append(&data()[boundaryIndex + 1]);
-                NameValueTokenizer::frontTrim(&mMultipartBoundary, " \t");
-                int whiteSpaceIndex = mMultipartBoundary.first(' ');
-                if(whiteSpaceIndex > 0) mMultipartBoundary.remove(whiteSpaceIndex);
-                whiteSpaceIndex = mMultipartBoundary.first('\t');
-                if(whiteSpaceIndex > 0) mMultipartBoundary.remove(whiteSpaceIndex);
-                //osPrintf("HttpBody: boundary=\"%s\"\n", mMultipartBoundary.data());
-            }
-        }
-    }
-
-
-    if(bytes && length < 0) length = strlen(bytes);
-    if(bytes && length > 0)
-    {
-        if (mBody.append(bytes, length).length() > 0) //append was successful
-        {
-            bodyLength = length;
-
-            if(isMultipart())
-            {
-                for(int partIndex = 0; partIndex < MAX_HTTP_BODY_PARTS; partIndex++)
-                {
-                    //UtlString contentType;
-                    //UtlString name;
-                    //UtlString value;
-                    const char* partBytes;
-                    const char* parentBodyBytes;
-                    int partLength;
-                    int parentBodyLength;
-                    getBytes(&parentBodyBytes, &parentBodyLength);
-                    getMultipartBytes(partIndex, &partBytes, &partLength);
-                    //osPrintf("Body part 1 length: %d\n", firstPart.length());
-                    //osPrintf("++++ Multipart Body #1 ++++\n%s\n++++ End Multipart #1 ++++\n",
-                    //    firstPart.data());
-                    if(partLength <= 0) break;
-
-                    // Parse throught the header to the MIME part
-                    // The first blank line is the begining of the part body
-                    /*NameValueTokenizer parser(partBytes, partLength);
-                    do
-                    {
-                        parser.getNextPair(HTTP_NAME_VALUE_DELIMITER,
-                                            &name, & value);
-                        if(name.compareTo(HTTP_CONTENT_TYPE_FIELD) == 0)
-                        {
-                            contentType = name;
-                        }
-                    }
-                    while(!name.isNull());*/
-
-                    // This is a bit of a temporary kludge
-                    //Prepend a HTTP header to make it look like a HTTP message
-                    //partBytes.insert(0, "GET / HTTP/1.0\n");
-                    //HttpMessage firstPartMessage(partBytes.data(), partBytes.length());
-                    //const HttpBody* partFileBody = firstPartMessage.getBody();
-                    //int bytesLeft = parser.getProcessedIndex() - partLength;
-
-                                if (partLength > 0)
-                                {
-                                        mpBodyParts[partIndex] = new MimeBodyPart(this, partBytes - parentBodyBytes,
-                                                                partLength);
-                                        // Save the number of body parts.
-                                        mBodyPartCount = partIndex + 1;
-                                }
-                                else
-                                        mpBodyParts[partIndex] = NULL;
-                }
-            }
-        }
-        // Append failed
-        else
-        {
-            bodyLength = mBody.length();
-        }
-    }
-    // No content
-    else
-    {
-        bodyLength = 0;
-    }
-}
-
-// Copy constructor
-HttpBody::HttpBody(const HttpBody& rHttpBody)
-{
-    mClassType = HTTP_BODY_CLASS;
-
-        mBody = rHttpBody.mBody;
-
-        bodyLength = rHttpBody.bodyLength;
-
-    // Set the content type
-    append(rHttpBody);
-
-    mMultipartBoundary = rHttpBody.mMultipartBoundary;
-
-    mBodyPartCount = rHttpBody.mBodyPartCount;
-   for(int partIndex = 0; partIndex < MAX_HTTP_BODY_PARTS; partIndex++)
+   if (contentType)
    {
-           if (rHttpBody.mpBodyParts[partIndex])
-        {
-                        mpBodyParts[partIndex] = new MimeBodyPart(*(rHttpBody.mpBodyParts[partIndex]));
-        }
-           else
-        {
-                   mpBodyParts[partIndex] = NULL;
+      append(contentType);
+      NameValueTokenizer::frontBackTrim(this, " \t");
+      //osPrintf("Content type: \"%s\"\n", mBodyContentType.data());
+      int boundaryIndex = index(MULTIPART_BOUNDARY_PARAMETER,
+                                0, UtlString::ignoreCase);
+
+      if(boundaryIndex >=0 &&
+         index(CONTENT_TYPE_MULTIPART,
+               0, UtlString::ignoreCase) == 0)
+      {
+         boundaryIndex += strlen(MULTIPART_BOUNDARY_PARAMETER);
+         //osPrintf("Boundary start:=>%s\n",
+         //    (mBodyContentType.data())[boundaryIndex]);
+
+         // Allow white space before =
+         int fieldLength = this->length();
+         while(boundaryIndex < fieldLength &&
+               (data()[boundaryIndex] == ' ' ||
+                data()[boundaryIndex] == '\t'))
+            boundaryIndex++;
+
+         if(data()[boundaryIndex] == '=')
+         {
+            mMultipartBoundary.append(&data()[boundaryIndex + 1]);
+            NameValueTokenizer::frontTrim(&mMultipartBoundary, " \t");
+            int whiteSpaceIndex = mMultipartBoundary.first(' ');
+            if(whiteSpaceIndex > 0) mMultipartBoundary.remove(whiteSpaceIndex);
+            whiteSpaceIndex = mMultipartBoundary.first('\t');
+            if(whiteSpaceIndex > 0) mMultipartBoundary.remove(whiteSpaceIndex);
+            //osPrintf("HttpBody: boundary=\"%s\"\n", mMultipartBoundary.data());
+         }
+      }
+   }
+
+
+   if(bytes && length < 0) length = strlen(bytes);
+   if(bytes && length > 0)
+   {
+      if (mBody.append(bytes, length).length() > 0) //append was successful
+      {
+         bodyLength = length;
+
+         if(isMultipart())
+         {
+            for(int partIndex = 0; partIndex < MAX_HTTP_BODY_PARTS; partIndex++)
+            {
+               //UtlString contentType;
+               //UtlString name;
+               //UtlString value;
+               const char* partBytes;
+               const char* parentBodyBytes;
+               int partLength;
+               int parentBodyLength;
+               getBytes(&parentBodyBytes, &parentBodyLength);
+               getMultipartBytes(partIndex, &partBytes, &partLength);
+               //osPrintf("Body part 1 length: %d\n", firstPart.length());
+               //osPrintf("++++ Multipart Body #1 ++++\n%s\n++++ End Multipart #1 ++++\n",
+               //    firstPart.data());
+               if(partLength <= 0) break;
+
+               // Parse throught the header to the MIME part
+               // The first blank line is the begining of the part body
+               /*NameValueTokenizer parser(partBytes, partLength);
+                 do
+                 {
+                 parser.getNextPair(HTTP_NAME_VALUE_DELIMITER,
+                 &name, & value);
+                 if(name.compareTo(HTTP_CONTENT_TYPE_FIELD) == 0)
+                 {
+                 contentType = name;
+                 }
+                 }
+                 while(!name.isNull());*/
+
+               // This is a bit of a temporary kludge
+               //Prepend a HTTP header to make it look like a HTTP message
+               //partBytes.insert(0, "GET / HTTP/1.0\n");
+               //HttpMessage firstPartMessage(partBytes.data(), partBytes.length());
+               //const HttpBody* partFileBody = firstPartMessage.getBody();
+               //int bytesLeft = parser.getProcessedIndex() - partLength;
+
+               if (partLength > 0)
+               {
+                  mpBodyParts[partIndex] = new MimeBodyPart(this, partBytes - parentBodyBytes,
+                                                            partLength);
+                  // Save the number of body parts.
+                  mBodyPartCount = partIndex + 1;
+               }
+               else
+                  mpBodyParts[partIndex] = NULL;
+            }
+         }
+         // Append failed
+         else
+         {
+            bodyLength = mBody.length();
+         }
+      }
+      // No content
+      else
+      {
+         bodyLength = 0;
+      }
    }
 }
+
+// Construct a multipart HttpBody with zero parts.
+HttpBodyMultipart::HttpBodyMultipart(const char* contentType) :
+   HttpBody(NULL, -1, contentType)
+{
+   bodyLength = 0;
+
+   for (int partIndex = 0; partIndex < MAX_HTTP_BODY_PARTS; partIndex++)
+   {
+      mpBodyParts[partIndex] = NULL;
+   }
+
+   // Create the boundary.
+   nextBoundary(mMultipartBoundary);
+   // Write it into the body.
+   mBody = "--";
+   mBody.append(mMultipartBoundary);
+   mBody.append("--\r\n");
+   // Add the boundary parameter to the type.
+   append(";boundary=\"");
+   append(mMultipartBoundary);
+   append("\"");
+   // No need to check validity, as there is no body content.
+ }
+
+// Copy constructor
+HttpBody::HttpBody(const HttpBody& rHttpBody) :
+   UtlString(rHttpBody),
+   bodyLength(rHttpBody.bodyLength),
+   mBody(rHttpBody.mBody),
+   mMultipartBoundary(rHttpBody.mMultipartBoundary)
+{
+   for (int partIndex = 0; partIndex < MAX_HTTP_BODY_PARTS; partIndex++)
+   {
+      mpBodyParts[partIndex] =
+         rHttpBody.mpBodyParts[partIndex] ?
+         new MimeBodyPart(*(rHttpBody.mpBodyParts[partIndex])) :
+         NULL;
+   }
 }
 
 // Destructor
@@ -237,7 +252,7 @@ HttpBody* HttpBody::copyBody(const HttpBody& sourceBody)
     // as the class type may not line up with the content type
     HttpBody* body = NULL;
     BodyClassTypes classType = sourceBody.getClassType();
-    
+
     switch(classType)
     {
     case SDP_BODY_CLASS:
@@ -332,9 +347,9 @@ void HttpBody::getBytes(const char** bytes, int* length) const
 
 void HttpBody::getBytes(UtlString* bytes, int* length) const
 {
-        bytes->remove(0);
-        //bytes->append(mBody);
-        //*length = bodyLength;
+    bytes->remove(0);
+    //bytes->append(mBody);
+    //*length = bodyLength;
     const char* bytePtr;
     getBytes(&bytePtr, length);
     if(*length > 0)
@@ -345,7 +360,7 @@ void HttpBody::getBytes(UtlString* bytes, int* length) const
         if (bytes->capacity(newLength) >= newLength)
         {
             bytes->append(bytePtr, *length);
-    }
+        }
         else
         {
             OsSysLog::add(FAC_SIP, PRI_ERR,
@@ -364,9 +379,14 @@ HttpBody::BodyClassTypes HttpBody::getClassType() const
     return(mClassType);
 }
 
+const char* HttpBody::getMultipartBoundary() const
+{
+   return mMultipartBoundary.data();
+}
+
 const char* HttpBody::getContentType() const
 {
-        return(data());
+   return data();
 }
 
 UtlBoolean HttpBody::getMultipartBytes(int partIndex, const char** bytes, int* length) const
@@ -446,3 +466,12 @@ UtlBoolean HttpBody::isMultipart() const
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
+
+void HttpBody::nextBoundary(UtlString& boundary)
+{
+   boundaryCounter += 0x54637281;
+   char buffer[9];
+   // Need to trim boundary Counter to 32 bits, as "unsigned" may be longer.
+   sprintf(buffer, "%08x", boundaryCounter & 0xFFFFFFFF);
+   boundary = buffer;
+}
