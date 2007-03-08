@@ -15,7 +15,7 @@ class MailstoreReport
   def report(mailstore, output)
     output.puts "following emails will not be preserved after first user edit:"
     Find.find(mailstore) do |path|
-      if File.basename(path) =~ /mailboxprefs.xml/
+      if File.basename(path) == 'mailboxprefs.xml'
         File.open(path) do |prefs_stream|
           doc = REXML::Document.new(prefs_stream)
           contacts = doc.get_elements('//notification/contact')
