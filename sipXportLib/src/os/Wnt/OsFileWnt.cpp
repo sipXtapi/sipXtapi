@@ -13,8 +13,6 @@
 
 
 // SYSTEM INCLUDES
-#include <sys/utime.h>
-
 // APPLICATION INCLUDES
 #include "os/Wnt/OsFileSystemWnt.h"
 #include "os/Wnt/OsFileWnt.h"
@@ -101,10 +99,10 @@ OsStatus OsFileWnt::getFileInfo(OsFileInfoBase& fileinfo) const
         else
             fileinfo.mbIsReadOnly = TRUE;
 
-        OsTime createTime(stats.st_ctime,0);
+        OsTime createTime((const long)(stats.st_ctime),0);
         fileinfo.mCreateTime = createTime;
 
-        OsTime modifiedTime(stats.st_mtime,0);
+        OsTime modifiedTime((const long)(stats.st_mtime),0);
         fileinfo.mModifiedTime = modifiedTime;
         
         fileinfo.mSize = stats.st_size;
@@ -120,8 +118,24 @@ OsStatus OsFileWnt::touch()
 
     if (exists() == OS_SUCCESS)
     {
-        if (_utime(mFilename,NULL) == 0)
+        FILETIME ft;
+        SYSTEMTIME st;
+        BOOL fileTimeOk;
+
+        // Grab the windows file handle for use in
+        // windows file system calls.
+        HANDLE fileHnd;
+        fileHnd = CreateFile(mFilename, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, 
+                             NULL, OPEN_EXISTING, 0, NULL);
+
+        GetSystemTime(&st);               // gets current time
+        SystemTimeToFileTime(&st, &ft);   // converts to file time format
+        fileTimeOk = SetFileTime(fileHnd, // sets last-write time for file
+            (LPFILETIME) NULL, (LPFILETIME) NULL, &ft);
+        if (fileTimeOk)
+        {
             stat = OS_SUCCESS;
+        }
     }
     else
     {
