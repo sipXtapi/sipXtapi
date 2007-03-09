@@ -1318,8 +1318,8 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
    }
 
       /*
-    * AMBIGUITY - there is a potential ambiguity when parsing real URLs.
-    *
+       * AMBIGUITY - there is a potential ambiguity when parsing real URLs.
+       *
        * Consider the url 'foo:333' - it could be:
        *       scheme 'foo' host '333' ('333' is a valid local host name - bad idea, but legal)
        *   or  host   'foo' port '333' (and scheme 'sip' is implied)
@@ -1491,7 +1491,7 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
    case SipsUrlScheme:
    {
       // it may have url parameters of the form ";" param "=" value ...
-      //                iff it meets the right conditions:
+      //                if it meets the right conditions:
       if (   isAddrSpec                          // in addr-spec, any param is a url param
           || afterAngleBrackets != UTL_NOT_FOUND // inside angle brackets there may be a url param
           ) 

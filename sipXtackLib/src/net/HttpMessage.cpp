@@ -546,7 +546,7 @@ OsStatus HttpMessage::get(Url& httpUrl,
    UtlString uriString;
    httpUrl.getPath(uriString, TRUE); // Put CGI variable in PATH as this is GET
 
-   // Construnct a request
+   // Construct a request
    HttpMessage request;
    request.setRequestFirstHeaderLine(HTTP_GET_METHOD,
                                      uriString,
