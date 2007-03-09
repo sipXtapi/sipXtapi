@@ -210,8 +210,8 @@ OsPathBase::OsPathBase(const char *pathname)
     massage();
 }
 // Make one from a UtlStringchar string
-OsPathBase::OsPathBase(const UtlString &pathname) :
-UtlString(pathname)
+OsPathBase::OsPathBase(const UtlString &pathname)
+: UtlString(pathname)
 {
     massage();
 }

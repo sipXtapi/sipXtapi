@@ -71,7 +71,7 @@ public:
       //:+= operator
 
     static void setSeparator(UtlString &rSeparator);
-      //: Returns the path separator for this object
+      //: Set path separator for this platform
     
     void Split(); 
     //: breaks path into its parts
@@ -94,7 +94,7 @@ public:
       //: found to be valid. Returns the full path in rFullPath.
 
     static UtlString getSeparator();
-      //: Returns the path separator for this object
+      //: Returns the path separator for this platform
 
 /* ============================ INQUIRY =================================== */
 

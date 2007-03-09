@@ -111,7 +111,7 @@ public:
 
    virtual OsStatus write(const void* pBuf, unsigned long bufLen, unsigned long& rBytesWritten);
      //: Write X bytes to file
-     //: Rturns:
+     //: Returns:
      //:        OS_SUCCESS if successful
      //:        OS_FILE_DISKFULL if (you guessed it) disk full.  :)
      //:        OS_localFileLocks
@@ -185,25 +185,26 @@ public:
 
 /* ============================ INQUIRY =================================== */
 
-    UtlBoolean isReadonly() const;
-    //: Returns TRUE if file is readonly
+   UtlBoolean isReadonly() const;
+     //: Returns TRUE if file is readonly
 
 
-    UtlBoolean exists() ;
-    //: Returns TRUE if file object filename exists
+   UtlBoolean exists() ;
+     //: Returns TRUE if file object filename exists
 
 
-    virtual OsStatus getFileInfo(OsFileInfoBase& rFileinfo) const = 0;
-    //: Returns all the relevant info on this file
+   virtual OsStatus getFileInfo(OsFileInfoBase& rFileinfo) const = 0;
+     //: Returns all the relevant info on this file
 
-    UtlBoolean isEOF();
-    //: Returns TRUE if stream is past end of file
+   UtlBoolean isEOF();
+     //: Returns TRUE if stream is past end of file
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+
    OsMutex fileMutex;
-   //: Block other methods like close
-   //  while we are busy reading,writing and close.
+     //: Block other methods like close
+     //  while we are busy reading,writing and close.
 
    OsFileBase(const OsFileBase& rOsFile);
      //:Copy constructor
