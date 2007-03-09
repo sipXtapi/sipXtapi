@@ -103,17 +103,16 @@ OsStatus OsFileWnt::getFileInfo(OsFileInfoBase& fileinfo) const
         OsTime createTime(stats.st_ctime,0);
         fileinfo.mCreateTime = createTime;
 
-        OsTime modifiedTime(stats.st_ctime,0);
-        fileinfo.mCreateTime = modifiedTime;
+        OsTime modifiedTime(stats.st_mtime,0);
+        fileinfo.mModifiedTime = modifiedTime;
         
         fileinfo.mSize = stats.st_size;
     }
 #endif
 
-
     return ret;
-
 }
+
 /* ============================ ACCESSORS ================================= */
 
 
