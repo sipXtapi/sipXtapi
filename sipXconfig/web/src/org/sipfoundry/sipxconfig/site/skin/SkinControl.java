@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.components;
+package org.sipfoundry.sipxconfig.site.skin;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -17,6 +17,7 @@ import java.util.Map;
 
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.asset.AssetFactory;
+import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.context.MessageSource;
@@ -37,10 +38,11 @@ public class SkinControl implements BeanFactoryAware {
     private BeanFactory m_beanFactory;
 
     public SkinControl() {
+        String pkg = getClass().getPackage().getName().replace('.', '/');
         // default skin resources
-        m_assets.put("logo.png", "org/sipfoundry/sipxconfig/components/sipxconfig-logo.png");
-        m_assets.put(ASSET_LAYOUT, "org/sipfoundry/sipxconfig/components/layout.css");
-        m_assets.put(ASSET_COLORS, "org/sipfoundry/sipxconfig/components/colors.css");
+        m_assets.put("logo.png", pkg + "/sipxconfig-logo.png");
+        m_assets.put(ASSET_LAYOUT, pkg + "/layout.css");
+        m_assets.put(ASSET_COLORS, pkg + "/colors.css");
     }
 
     public IAsset[] getStylesheetAssets() {

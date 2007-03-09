@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.components;
+package org.sipfoundry.sipxconfig.site.skin;
 
 import java.util.HashMap;
 import java.util.Map;

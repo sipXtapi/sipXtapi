@@ -3,7 +3,7 @@
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
   <bean id="skinProperties"
-    class="org.sipfoundry.sipxconfig.components.SkinProperties">
+    class="org.sipfoundry.sipxconfig.site.skin.SkinProperties">
     <property name="locationPath" value="skin.properties"/>
   </bean>  
 </beans>

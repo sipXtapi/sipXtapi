@@ -17,7 +17,6 @@ import org.apache.hivemind.Messages;
 import org.apache.hivemind.impl.AbstractMessages;
 import org.apache.tapestry.IComponent;
 import org.apache.tapestry.services.ComponentMessagesSource;
-import org.sipfoundry.sipxconfig.components.SkinControl;
 
 /**
  * Skins can load their own resource strings depending on client locale of web browser

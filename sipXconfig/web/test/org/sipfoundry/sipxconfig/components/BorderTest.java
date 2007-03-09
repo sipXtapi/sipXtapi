@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.common.CoreContextImpl;
 import org.sipfoundry.sipxconfig.site.ApplicationLifecycle;
 import org.sipfoundry.sipxconfig.site.ApplicationLifecycleImpl;
 import org.sipfoundry.sipxconfig.site.UserSession;
+import org.sipfoundry.sipxconfig.site.skin.SkinControl;
 
 public class BorderTest extends TestCase {
 

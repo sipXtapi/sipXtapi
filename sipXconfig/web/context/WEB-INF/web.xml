@@ -108,7 +108,7 @@
 
   <servlet>
     <servlet-name>skin</servlet-name>
-    <servlet-class>org.sipfoundry.sipxconfig.components.SkinServlet</servlet-class>
+    <servlet-class>org.sipfoundry.sipxconfig.site.skin.SkinServlet</servlet-class>
   </servlet>	
 
   <!-- START AXIS -->
