@@ -15,12 +15,16 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 import org.sipfoundry.sipxconfig.setting.type.StringSetting;
 import org.springframework.context.MessageSource;
 
 public abstract class AbstractSetting implements Setting, NamedObject {
+    public static final Log LOG = LogFactory.getLog(AbstractSetting.class);
+
     private static final char KEY_SEPARATOR = '.';
 
     private static final SettingValue NULL = new SettingValueImpl(null);
@@ -34,6 +38,8 @@ public abstract class AbstractSetting implements Setting, NamedObject {
     private boolean m_advanced;
     private boolean m_hidden;
     private SettingValue m_value = NULL;
+
+    private int m_index = -1;
 
     public AbstractSetting() {
         super();
@@ -69,21 +75,6 @@ public abstract class AbstractSetting implements Setting, NamedObject {
 
     public String getProfilePath() {
         return getPath(PATH_DELIM, true);
-    }
-
-    /**
-     * Correct Examples getSetting("a/b/c");
-     * 
-     * Incorrect Examples: getSetting("../a/b");
-     * 
-     * @throws IllegalArgumentException Cannot get settings from another setting, only groups
-     */
-    public Setting getSetting(String name) {
-        if (StringUtils.isEmpty(name)) {
-            return this;
-        }
-        throw new IllegalArgumentException(
-                "Cannot get settings from another setting, only groups");
     }
 
     public void acceptVisitor(SettingVisitor visitor) {
@@ -144,12 +135,12 @@ public abstract class AbstractSetting implements Setting, NamedObject {
         m_hidden = hidden;
     }
 
-    /**
-     * @throws IllegalArgumentException Cannot put settings into another setting, only groups
-     */
-    public Setting addSetting(Setting setting_) {
-        throw new IllegalArgumentException(
-                "Cannot put settings into another setting, only groups");
+    public int getIndex() {
+        return m_index;
+    }
+
+    public void setIndex(int index) {
+        m_index = index;
     }
 
     public SettingType getType() {
@@ -186,13 +177,22 @@ public abstract class AbstractSetting implements Setting, NamedObject {
      */
     private String getPath(char separator, boolean useProfile) {
         List<String> names = new LinkedList<String>();
-        String name = useProfile ? getProfileName() : getName();
-        names.add(0, name);
+        names.add(0, getPathItem(useProfile));
         for (Setting p = getParent(); p != null && p.getParent() != null; p = p.getParent()) {
-            String item = useProfile ? p.getProfileName() : p.getName();
-            names.add(0, item);
+            names.add(0, p.getPathItem(useProfile));
         }
         return StringUtils.join(names.iterator(), separator);
+    }
+
+    public String getPathItem(boolean useProfile) {
+        if (useProfile) {
+            return getProfileName();
+        }
+        int index = getIndex();
+        if (index >= 0) {
+            return String.format("%s[%d]", getName(), index);
+        }
+        return getName();
     }
 
     public String getDescriptionKey() {
@@ -212,4 +212,49 @@ public abstract class AbstractSetting implements Setting, NamedObject {
         }
         return null;
     }
+
+    /**
+     * Find setting coresponding to the path.
+     * 
+     * Please note that setting == setting.getPath("") to support path round-tripping
+     * 
+     * <code>
+     *  String s = root.getSetting("x").getParent().getPath(); 
+     *  Setting root = root.getSetting(s);
+     * </code>
+     * 
+     * @param path relative to this setting
+     * @return found setting or nothing
+     * 
+     */
+    public Setting getSetting(String path) {
+        if (StringUtils.isEmpty(path)) {
+            return this;
+        }
+
+        String prefix = path;
+        String remainder = null;
+
+        int splitPos = path.indexOf(Setting.PATH_DELIM);
+        if (splitPos > 0) {
+            prefix = path.substring(0, splitPos);
+            // strip '/'
+            remainder = path.substring(splitPos + 1);
+        }
+        Setting child = findChild(prefix);
+        if (child == null) {
+            // TODO: should we throw an exception here?
+            LOG.warn("Cannot find setting: " + path + " in " + this.getPath());
+            return null;
+        }
+
+        if (remainder == null) {
+            // nothing more to do
+            return child;
+        }
+
+        return child.getSetting(remainder);
+    }
+
+    protected abstract Setting findChild(String name);
 }

@@ -14,11 +14,7 @@ package org.sipfoundry.sipxconfig.setting;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.context.MessageSource;
 
 /**
@@ -27,9 +23,7 @@ import org.springframework.context.MessageSource;
  */
 public class SettingSet extends AbstractSetting implements Cloneable, Serializable {
 
-    public static final Log LOG = LogFactory.getLog(SettingSet.class);
-
-    private LinkedHashMap<String, Setting> m_children = new LinkedHashMap<String, Setting>();
+    private SettingMap m_children = new SettingMap();
 
     private MessageSource m_messageSource;
 
@@ -56,15 +50,13 @@ public class SettingSet extends AbstractSetting implements Cloneable, Serializab
 
     protected Setting shallowCopy() {
         SettingSet copy = (SettingSet) super.copy();
-        copy.m_children = new LinkedHashMap<String, Setting>();
+        copy.m_children = new SettingMap();
         return copy;
     }
 
     public void acceptVisitor(SettingVisitor visitor) {
         if (visitor.visitSettingGroup(this)) {
-            for (Setting setting : m_children.values()) {
-                setting.acceptVisitor(visitor);
-            }
+            m_children.acceptVisitor(visitor);
         }
     }
 
@@ -73,48 +65,12 @@ public class SettingSet extends AbstractSetting implements Cloneable, Serializab
      */
     public Setting addSetting(Setting setting) {
         setting.setParent(this);
-
-        Setting existingChild = m_children.put(setting.getName(), setting);
-        if (existingChild != null) {
-            Collection<Setting> grandChildren = existingChild.getValues();
-            for (Setting grandChild : grandChildren) {
-                setting.addSetting(grandChild);
-            }
-        }
-
-        return setting;
+        return m_children.addSetting(setting);
     }
 
-    public Setting getSetting(String name) {
-        if (StringUtils.isEmpty(name)) {
-            // empty string returns the setting itself
-            // why?
-            // to support path round-tripping
-            // String s = root.getSetting("x").getParent().getPath();
-            // Setting root = root.getSetting(s);
-            return this;
-        }
-
-        String prefix = name;
-        String remainder = null;
-        int slash = name.indexOf(Setting.PATH_DELIM);
-        if (slash > 0) {
-            prefix = name.substring(0, slash);
-            remainder = name.substring(slash + 1);
-        }
-        Setting child = m_children.get(prefix);
-        if (child == null) {
-            // TODO: should we throw an exception here?
-            LOG.warn("Cannot find setting: " + name + " in " + this.getPath());
-            return null;
-        }
-
-        if (remainder == null) {
-            // nothing more to do
-            return child;
-        }
-
-        return child.getSetting(remainder);
+    protected Setting findChild(String name) {
+        Setting child = m_children.get(name);
+        return child;
     }
 
     public Collection<Setting> getValues() {

@@ -17,7 +17,7 @@ import java.util.Collections;
 /**
  * Abstract setting with model (as in model/view/controller model)
  */
-public class SettingImpl extends AbstractSetting implements Setting, Cloneable {
+public class SettingImpl extends AbstractSetting implements Cloneable {
     private SettingModel m_model;
 
     /**
@@ -83,5 +83,13 @@ public class SettingImpl extends AbstractSetting implements Setting, Cloneable {
 
     public SettingModel getModel() {
         return m_model;
+    }
+
+    public Setting addSetting(Setting setting_) {
+        throw new UnsupportedOperationException("Cannot put settings into another setting, only groups");
+    }
+
+    protected Setting findChild(String name_) {
+        throw new UnsupportedOperationException("Cannot get settings from another setting, only groups");
     }
 }

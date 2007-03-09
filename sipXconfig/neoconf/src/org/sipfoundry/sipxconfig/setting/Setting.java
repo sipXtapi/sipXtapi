@@ -20,74 +20,77 @@ import org.springframework.context.MessageSource;
  * Base class for all items describing and using setting.
  */
 public interface Setting extends Cloneable {
+    char PATH_DELIM = '/';
 
-    // public static final String NULL_VALUE = StringUtils.EMPTY;
+    Setting getParent();
 
-    public static final char PATH_DELIM = '/';
+    void setParent(Setting parent);
 
-    public Setting getParent();
+    String getPath();
 
-    public void setParent(Setting parent);
+    Setting addSetting(Setting setting);
 
-    public String getPath();
-
-    public Setting addSetting(Setting setting);
-
-    public Setting getSetting(String name);
+    Setting getSetting(String name);
 
     @Deprecated
-    public String getLabel();
+    String getLabel();
 
-    public String getLabelKey();
+    String getLabelKey();
 
-    public String getName();
+    String getName();
 
-    public void setName(String name);
+    void setName(String name);
 
-    public String getProfileName();
+    String getProfileName();
 
     /**
      * Full profile path of the setting - including profile names of all parents and profile name
      * of this setting
      */
-    public String getProfilePath();
+    String getProfilePath();
 
     /**
      * what would value be if it wasn't set., most implementation this is your the value from the
      * setting you decorate. NOTE: no setter because this is a "computed" value based on chain of
      * decorated setting values.
      */
-    public String getDefaultValue();
+    String getDefaultValue();
 
-    public String getValue();
+    String getValue();
 
     /**
      * @return the value of this setting coerced to the proper type
      */
-    public Object getTypedValue();
+    Object getTypedValue();
 
-    public void setTypedValue(Object value);
+    void setTypedValue(Object value);
 
-    public void setValue(String value);
+    void setValue(String value);
 
-    public SettingType getType();
+    SettingType getType();
 
-    public void setType(SettingType type);
+    void setType(SettingType type);
+
+    int getIndex();
+
+    void setIndex(int i);
 
     @Deprecated
-    public String getDescription();
+    String getDescription();
 
-    public String getDescriptionKey();
+    String getDescriptionKey();
 
-    public Collection<Setting> getValues();
+    Collection<Setting> getValues();
 
-    public void acceptVisitor(SettingVisitor visitor);
+    void acceptVisitor(SettingVisitor visitor);
 
-    public boolean isAdvanced();
+    boolean isAdvanced();
 
-    public boolean isHidden();
+    boolean isHidden();
 
-    public Setting copy();
+    Setting copy();
 
-    public MessageSource getMessageSource();
+    MessageSource getMessageSource();
+
+    String getPathItem(boolean useProfile);
 }

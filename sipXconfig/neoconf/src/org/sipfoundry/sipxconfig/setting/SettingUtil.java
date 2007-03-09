@@ -49,34 +49,6 @@ public final class SettingUtil {
     }
 
     /**
-     * When you do not have access to the root node, but you know a setting is a child to another,
-     * you can retrieve that child
-     * 
-     * <pre>
-     *           Example:
-     *             root path:     /
-     *             setting path:  /a/b
-     *             fullPath:      /a/b/c/d
-     *             
-     *             return node for /a/b/c/d
-     * </pre>
-     * 
-     * @param setting a setting somewhere in the path of fullPath
-     * @param fullPath
-     * @return child for full path
-     */
-    // public static Setting getSettingFromNode(Setting setting, String fullPath) {
-    // String prefix = setting.getPath() + Setting.PATH_DELIM;
-    // if (!fullPath.startsWith(prefix)) {
-    // return null;
-    // }
-    //        
-    // String path = fullPath.substring(prefix.length());
-    // Setting child = setting.getSetting(path);
-    //        
-    // return child;
-    // }
-    /**
      * If a setting set is advanced, then all it's children can be considered advanced. USE CASE :
      * XCF-751
      * 
@@ -97,19 +69,6 @@ public final class SettingUtil {
 
     public static boolean isLeaf(Setting setting) {
         return setting.getValues().isEmpty();
-    }
-
-    public static final String subpath(String path, int start) {
-        if (path == null) {
-            return null;
-        }
-
-        int pos = 0;
-        for (int i = 0; i < start && pos >= 0; i++, pos++) {
-            pos = path.indexOf(Setting.PATH_DELIM, pos);
-        }
-
-        return pos >= 0 ? path.substring(pos) : path;
     }
 
     static class FilterRunner implements SettingVisitor {

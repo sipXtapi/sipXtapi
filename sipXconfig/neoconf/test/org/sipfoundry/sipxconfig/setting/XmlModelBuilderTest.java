@@ -79,12 +79,15 @@ public class XmlModelBuilderTest extends TestCase {
         assertEquals(3, moves.size());
         assertTrue(moves.contains("diagonal one to take another piece"));
 
-        SettingSet cards = (SettingSet) games.getSetting("cards");
-        assertEquals(2, cards.getValues().size());
+        Setting cards = games.getSetting("cards");
+        assertTrue(cards instanceof SettingSet);
+        assertEquals(1, cards.getValues().size());
 
-        SettingSet suits = (SettingSet) cards.getSetting("suit");
-        assertEquals(4, suits.getValues().size());
-        SettingSet card = (SettingSet) cards.getSetting("card");
+        Setting suite = cards.getSetting("deck/suit[0]");
+        assertNotNull(suite);
+        Setting card = cards.getSetting("deck/card[3]");
+        assertEquals(3, card.getIndex());
+        assertEquals("cards/deck/card[3]", card.getPath());
         assertEquals(13, card.getValues().size());
     }
 
