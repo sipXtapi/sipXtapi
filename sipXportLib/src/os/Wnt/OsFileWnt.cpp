@@ -13,6 +13,7 @@
 
 
 // SYSTEM INCLUDES
+#include <sys/utime.h>
 
 // APPLICATION INCLUDES
 #include "os/Wnt/OsFileSystemWnt.h"
@@ -111,6 +112,24 @@ OsStatus OsFileWnt::getFileInfo(OsFileInfoBase& fileinfo) const
 #endif
 
     return ret;
+}
+
+OsStatus OsFileWnt::touch()
+{
+    OsStatus stat = OS_INVALID;
+
+    if (exists() == OS_SUCCESS)
+    {
+        if (_utime(mFilename,NULL) == 0)
+            stat = OS_SUCCESS;
+    }
+    else
+    {
+        stat = open(CREATE);
+        close();
+    }
+
+    return stat;
 }
 
 /* ============================ ACCESSORS ================================= */

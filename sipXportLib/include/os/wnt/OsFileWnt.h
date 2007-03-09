@@ -67,7 +67,9 @@ public:
      //: Shrinking or Growing the file as needed.
 
 
- 
+   OsStatus touch();
+     //: Updates the date and time on the file.  Creates if needed.
+
 
 /* ============================ ACCESSORS ================================= */
 

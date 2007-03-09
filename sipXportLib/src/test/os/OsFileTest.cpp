@@ -17,6 +17,7 @@
 
 #include <os/OsFS.h>
 #include <os/OsTestUtilities.h>
+#include <os/OsTask.h>
 
 #include <stdlib.h>
 
@@ -35,6 +36,7 @@ class OsFileTest : public CppUnit::TestCase
     CPPUNIT_TEST(testReadWriteBuffer);
     CPPUNIT_TEST(testCopyFile);
     CPPUNIT_TEST(testReadOnly);
+    CPPUNIT_TEST(testTouch);
 #ifndef _WIN32
     CPPUNIT_TEST(testFileLocking);
 #endif
@@ -183,6 +185,30 @@ public:
         stat = testFile.setReadOnly(FALSE);
         CPPUNIT_ASSERT_MESSAGE("No error setting read only", stat == OS_SUCCESS);
         CPPUNIT_ASSERT_MESSAGE("Not Read only", !testFile.isReadonly());
+    }
+
+    void testTouch()
+    {
+        OsFileInfoBase info;
+        OsTime time1, time2;
+        OsPath testFile = mRootPath + OsPath::separator + "testTouch";
+        OsFile file(testFile);
+
+        // Create the file
+        file.touch();
+
+        // Get the modification time and sleep for a few seconds
+        file.getFileInfo(info);
+        info.getModifiedTime(time1);
+        OsTask::delay(3000);
+
+        // Touch the file and get the modification time again
+        file.touch();
+        file.getFileInfo(info);
+        info.getModifiedTime(time2);
+
+        // The modification times must differ by the sleep amount
+        CPPUNIT_ASSERT_MESSAGE("The time is the same", time1.seconds() != time2.seconds());
     }
 
     /**
