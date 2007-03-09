@@ -1326,6 +1326,12 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                new SdpCodec(*matchingCodec);
             codecsInCommonArray[numCodecsInCommon]->setCodecPayloadFormat(audioPayloadTypes[typeIndex]);
 
+            // Set the preferred frame size if ptime was set
+            if (defaultPtime > 0)
+            {
+               codecsInCommonArray[numCodecsInCommon]->setPacketSize(defaultPtime*1000);
+            }
+
             numCodecsInCommon++;
          }
       }
