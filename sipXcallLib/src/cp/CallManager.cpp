@@ -307,11 +307,6 @@ CallManager::~CallManager()
     }
 
     waitUntilShutDown();   
-    if(sipUserAgent)
-    {
-        delete sipUserAgent;
-        sipUserAgent = NULL;
-    }
 
     if (mMaxNumListeners > 0)  // check if listener exists.
     {

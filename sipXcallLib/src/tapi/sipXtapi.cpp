@@ -694,13 +694,13 @@ SIPXTAPI_API SIPX_RESULT sipxUnInitialize(SIPX_INST hInst,
             
             // First: Shutdown user agent to avoid processing during teardown
             pInst->pSipUserAgent->shutdown(TRUE) ;
+            pInst->pSipUserAgent->requestShutdown();
 
             // get rid of pointer to the line manager in the refresh manager
             pInst->pRefreshManager->setLineMgr(NULL);
             pInst->pLineManager->requestShutdown();
             pInst->pCallManager->requestShutdown();
             pInst->pRefreshManager->requestShutdown();
-            pInst->pSipUserAgent->requestShutdown();
             pInst->pSubscribeClient->requestShutdown();
             pInst->pSubscribeServer->requestShutdown();
             pInst->pSipRefreshManager->requestShutdown();
@@ -716,8 +716,9 @@ SIPXTAPI_API SIPX_RESULT sipxUnInitialize(SIPX_INST hInst,
             delete pInst->pRefreshManager ;
             delete pInst->pSipRefreshManager ;
             delete pInst->pDialogManager ;
+            delete pInst->pSipUserAgent;
             delete pInst->pLineManager;            
-            delete pInst->pCallManager; // Deletes SipUserAgent
+            delete pInst->pCallManager;
             delete pInst->pCodecFactory;            
 
             sipxDestroyMediaFactoryFactory() ;
