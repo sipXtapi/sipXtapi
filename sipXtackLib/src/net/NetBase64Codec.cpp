@@ -5,6 +5,9 @@
 // Copyright (C) 2004 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
+// Copyright (C) 2007 SIPez, LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // $$
 ////////////////////////////////////////////////////////////////////////
 
@@ -195,8 +198,8 @@ bool NetBase64Codec::decode(int encodedDataSize, const char encodedData[],
 }
 
 // Decode from one UtlString into another
-bool NetBase64Codec::decode(const UtlString encodedData, /* size is encodedData.length(),
-                                                          * not null terminated */
+bool NetBase64Codec::decode(const UtlString& encodedData, /* size is encodedData.length(),
+                                                           * not null terminated */
                             UtlString& data        // output: the decoded data
                             )
 {

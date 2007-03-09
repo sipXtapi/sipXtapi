@@ -36,7 +36,7 @@ class TestOsSysLogListener : public CPPUNIT_NS::TestListener
    /// Destructor.
    virtual ~TestOsSysLogListener();
 
-   virtual UtlString getLogFilename(UtlString testName);
+   static UtlString getLogFilename(const UtlString& testName);
 
    virtual void startTest( CPPUNIT_NS::Test *test );
 

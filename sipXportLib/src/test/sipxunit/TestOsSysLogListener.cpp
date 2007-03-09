@@ -5,6 +5,9 @@
 // Copyright (C) 2007 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
+// Copyright (C) 2007 SIPez, LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 //////////////////////////////////////////////////////////////////////////////
 
 #include <string>
@@ -23,18 +26,11 @@ TestOsSysLogListener::TestOsSysLogListener()
 {
 };
 
-UtlString TestOsSysLogListener::getLogFilename(UtlString testName)
+UtlString TestOsSysLogListener::getLogFilename(const UtlString& testName)
 {
-   std::string tn(testName.data());
-
-   size_t colon_pos = 0;
-   while (std::string::npos != (colon_pos = tn.find(":", colon_pos)))
-   {
-      tn.replace(colon_pos, 1, "_");
-   }
-   UtlString fn(tn.c_str());
-   fn.append(".log");
-   return fn;
+    UtlString tn(testName);
+    tn.replace(':','_').append(".log");
+    return tn;
 }
 
 void TestOsSysLogListener::startTest(CPPUNIT_NS::Test* test)
