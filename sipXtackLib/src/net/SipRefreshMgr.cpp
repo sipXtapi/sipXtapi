@@ -62,8 +62,7 @@ SipRefreshMgr::SipRefreshMgr():
     mIsStarted(FALSE),
     mObserverMutex(OsRWMutex::Q_FIFO),
     mUAReadyMutex(OsRWMutex::Q_FIFO),
-    mMyUserAgent(NULL),
-    mpTimer(NULL)
+    mMyUserAgent(NULL)
 {
 }
 
@@ -83,6 +82,17 @@ SipRefreshMgr::~SipRefreshMgr()
         mMessageObservers.remove(pObserver) ;
         delete pObserver ;
     }
+
+    // delete all unfired timers and their SipMessages
+    UtlHashBagIterator timerIterator(mTimerBag) ;
+    while (OsTimer* pTimer = (OsTimer*) timerIterator())
+    {
+       SipMessage *pMessage = (SipMessage *)pTimer->getUserData();
+       // get rid of them
+       delete pMessage;
+       delete pTimer;
+    }
+    mTimerBag.removeAll();
 }
 
 /*===================================================================*/
@@ -800,7 +810,7 @@ SipRefreshMgr::rescheduleRequest(
         SipMessage* timerRegisterMessage = new SipMessage(*request);
 
         OsTimer* timer = new OsTimer(&mIncomingQ, (int)timerRegisterMessage);
-        mpTimer = timer;
+        mTimerBag.insert(timer);
 
         int maxSipTransactionTimeSecs = 
             (mMyUserAgent->getSipStateTransactionTimeout()/1000);
@@ -1443,6 +1453,8 @@ SipRefreshMgr::handleMessage( OsMsg& eventMessage )
 
         if ( timer )
         {
+            // remove timer from mTimerBag
+            mTimerBag.removeReference(timer);
             delete timer;
             timer = NULL;
         }
