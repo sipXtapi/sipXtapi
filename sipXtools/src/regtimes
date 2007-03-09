@@ -1,24 +1,27 @@
 #!/usr/bin/perl
 
-$RequireMsg = <<REQUIREMENTS;
+BEGIN
+{
 
-  You must install the missing Perl package(s) to use this script.
-  As far as I know, these are not available as rpms.  You can install
-  them using 'cpan'.
-    For the DateTime::Format::ISO8601 package, you may need to 
-  force the installation because there is a problem in the unit tests.
+    $RequireMsg = <<REQUIREMENTS;
 
-  >> cpan
-    force install DateTime::Format::ISO8601
+    You must install the missing Perl package(s) to use this script.
+        As far as I know, these are not available as rpms.  You can install
+        them using 'cpan'.
+        For the DateTime::Format::ISO8601 package, you may need to 
+        force the installation because there is a problem in the unit tests.
+
+        >> cpan
+        force install DateTime::Format::ISO8601
 REQUIREMENTS
 
-eval <<REQUIREMENTS || die "$@\n\n$RequireMsg\n";
-
-require Getopt::Long;
-require DateTime::Format::ISO8601;
-require DateTime::Duration;
-
-REQUIREMENTS
+    @modules = qw(Getopt::Long DateTime::Format::ISO8601 DateTime::Duration );
+    for $pm ( @modules )
+    {
+        eval "require $pm;" || die "Failed to load $pm\n$@\n$RequireMsg\n";
+        $pm->import();
+    }
+}
 
 $Usage = <<USAGE;
 
@@ -151,6 +154,8 @@ foreach $cid ( sort { $AOR{$a} cmp $AOR{$b} } keys %Registrations )
     $- = 0;
     undef $previous;
     $refreshes = 0;
+    &clearLast;
+
     foreach $cseqVal ( sort { $a <=> $b } @{$Cseqs{$cid}} )
     {
         $_ = $cid.$cseqVal;
@@ -184,10 +189,12 @@ foreach $cid ( sort { $AOR{$a} cmp $AOR{$b} } keys %Registrations )
                 }
                 else
                 { 
-                    &showRefreshes 
-                        if $Summary && $refreshes;
+                    &showRefreshes( $refreshes-1 )
+                        if $Summary && $refreshes-1;
                     $saveDelta = $delta;
                     $saveCseq  = $cseq;
+
+                    &showLast;
 
                     $delta = &dt($Granted{$previous});
                     $event = 'expired';
@@ -241,16 +248,23 @@ foreach $cid ( sort { $AOR{$a} cmp $AOR{$b} } keys %Registrations )
                 $prevcseq = $cseq;
             }
         }
-    }
-    &showRefreshes 
-        if ( $Summary && $event eq 'refresh' && $refreshes );
 
-    $lastexp = $Time{$previous} + $Granted{$previous};
+        &saveLast;
+    }
+    &showRefreshes( $refreshes-1 )
+        if ( $Summary && $event eq 'refresh' && ($refreshes-1) );
+
+    $lastexp = $Time{$previous} + $Granted{$previous}
+        if defined $Granted{$previous};
+
     if ( defined $previous && $LastTime > $lastexp )
     {
+        &showLast if ($Summary && defined $savedLastEvent && $savedLastEvent eq 'refresh');
+
         $time = $lastexp;
         $event = 'expired';
         $duration = '';
+        $cseq = '';
         write;
     }
 }
@@ -260,18 +274,68 @@ sub showRefreshes
     my ($savedEvent) = $event;
     my ($savedDuration) = $duration;
     my ($savedDelta) = $delta;
+    my ($savedTime) = $time;
     my ($savedCseq) = $cseq;
 
-    $event = "$refreshes refreshes";
-    $duration = '';
-    $delta = '';
-    $cseq = '';
-    write;
+    my ($times) = shift;
+    if ($times)
+    {
+        $event = "$times refreshes";
+        $duration = '';
+        $delta = '';
+        $cseq = '';
+        $time = '';
+        write;
+    }
 
     $event = $savedEvent;
     $duration = $savedDuration;
     $delta = $savedDelta;
     $cseq = $savedCseq;
+    $time = $savedTime;
+}
+
+sub clearLast
+{
+    undef $savedLastEvent;
+    undef $savedLastDuration;
+    undef $savedLastDelta;
+    undef $savedLastTime;
+    undef $savedLastCseq;
+}
+
+sub saveLast
+{
+    $savedLastEvent    = $event;
+    $savedLastDuration = $duration;
+    $savedLastDelta    = $delta;
+    $savedLastTime     = $time;
+    $savedLastCseq     = $cseq;
+}
+
+sub showLast
+{
+    my ($savedEvent)    = $event;
+    my ($savedDuration) = $duration;
+    my ($savedDelta)    = $delta;
+    my ($savedTime)     = $time;
+    my ($savedCseq)     = $cseq;
+
+    if (defined $savedLastCseq)
+    {
+        $event    = $savedLastEvent;
+        $duration = $savedLastDuration;
+        $delta    = $savedLastDelta;
+        $time     = $savedLastTime;
+        $cseq     = $savedLastCseq;
+        write;
+
+        $savedLastEvent    = $event;
+        $savedLastDuration = $duration;
+        $savedLastDelta    = $delta;
+        $savedLastTime     = $time;
+        $savedLastCseq     = $cseq;
+    }
 }
 
 format SUMMARY_TOP =
