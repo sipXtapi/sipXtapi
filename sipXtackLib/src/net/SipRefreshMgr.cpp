@@ -1034,8 +1034,9 @@ SipRefreshMgr::processOKResponse(
                 fireSipXLineEvent(url, lineId.data(), LINESTATE_UNREGISTERED, LINESTATE_UNREGISTERED_NORMAL);
 
         } 
-        else if ( responseRefreshPeriod > 0 )
+        else
         {
+            // copying from response (this is why we set the To Field
             if ( !toTag.isNull() )
             {
                 request->setToFieldTag(toTag);
@@ -1047,23 +1048,26 @@ SipRefreshMgr::processOKResponse(
             url.getIdentity(lineId);            
             lineId = "sip:" + lineId; 
 
-                // extract the Message body and pass to apps
-                const char *bodyBytes = NULL;
-                int   nBodySize = 0;
-                const HttpBody *body = response->getBody();
-                if (body)
-                {
-                   body->getBytes( &bodyBytes, &nBodySize );
-                }
+            // extract the Message body and pass to apps
+            const char *bodyBytes = NULL;
+            int   nBodySize = 0;
+            const HttpBody *body = response->getBody();
+            if (body)
+            {
+               body->getBytes( &bodyBytes, &nBodySize );
+            }
 
-                fireSipXLineEvent(url, lineId.data(), LINESTATE_REGISTERED, LINESTATE_REGISTERED_NORMAL, bodyBytes );
+            fireSipXLineEvent(url, lineId.data(), LINESTATE_REGISTERED, LINESTATE_REGISTERED_NORMAL, bodyBytes );
 
-            rescheduleRequest(request, responseRefreshPeriod, SIP_REGISTER_METHOD);
-        }
-        else // could not find expires in 200 ok response , reschedule after default time
-        {   // copying from response (this is why we set the To Field
-            request->setToFieldTag(toTag);
-            rescheduleAfterTime(request);
+            if (responseRefreshPeriod > 0)
+            {
+               rescheduleRequest(request, responseRefreshPeriod, SIP_REGISTER_METHOD);
+            }
+            else
+            {
+               // could not find expires in 200 ok response , reschedule after default time
+               rescheduleAfterTime(request);
+            }
         }
     } else // subscribe
     {
