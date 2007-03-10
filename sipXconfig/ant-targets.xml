@@ -6,7 +6,7 @@
   -
   - NOTES:
   -
-  -  Attempts to define targets w/standard target names, but not authorative
+  -  Attempts to define targets w/standard target names, but no authorative
   -    standard was used.
   -->
 <project xmlns:ivy="antlib:fr.jayasoft.ivy.ant" name="ant-targets" default="default">
@@ -160,6 +160,12 @@
     <delete dir="${dist.dir}"/>
     <delete dir="${clover.dir}"/>
     <delete dir="${style.dir}"/>
+  </target>
+
+
+  <!-- D I S T C L E A N -->
+  <target name="distclean" depends="clean"
+      description="remove class, distribution and test directories (same as clean)">
   </target>
 
 

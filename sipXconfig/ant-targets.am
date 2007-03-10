@@ -17,6 +17,9 @@ all-ant :
 clean :
 	$(ANT_CMD) $(ANT_FLAGS) clean
 
+distclean :
+	$(ANT_CMD) $(ANT_FLAGS) distclean
+
 .PHONY: doc
 doc :
 	$(ANT_CMD) $(ANT_FLAGS) doc
