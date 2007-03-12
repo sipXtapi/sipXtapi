@@ -627,9 +627,9 @@ int SdpCodecFactory::buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecType
                             MIME_TYPE_AUDIO,
                             MIME_SUBTYPE_ILBC,
                             8000,
-                            20000,
+                            30000,
                             1,
-                            "mode=20",
+                            "",
                             SdpCodec::SDP_CODEC_CPU_HIGH,
                             SDP_CODEC_BANDWIDTH_LOW);
             addCodec(aCodec);

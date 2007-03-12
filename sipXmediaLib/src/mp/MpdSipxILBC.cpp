@@ -29,12 +29,12 @@ const MpCodecInfo MpdSipxILBC::smCodecInfo(
     8000,                       // samplingRate
     8,                          // numBitsPerSample (not used)
     1,                          // numChannels
-    160,                        // interleaveBlockSize
-    15200,                      // bitRate
-    NO_OF_BYTES_20MS * 8,       // minPacketBits
-    NO_OF_BYTES_20MS * 8,       // avgPacketBits
-    NO_OF_BYTES_20MS * 8,       // maxPacketBits
-    160,                        // numSamplesPerFrame
+    240,                        // interleaveBlockSize
+    13334,                      // bitRate
+    NO_OF_BYTES_30MS * 8,       // minPacketBits
+    NO_OF_BYTES_30MS * 8,       // avgPacketBits
+    NO_OF_BYTES_30MS * 8,       // maxPacketBits
+    240,                        // numSamplesPerFrame
     6);                         // preCodecJitterBufferSize (should be adjusted)
 
 
@@ -60,7 +60,7 @@ OsStatus MpdSipxILBC::initDecode(MpAudioConnection* pConnection)
    {
       mpState = new iLBC_Dec_Inst_t();
       memset(mpState, 0, sizeof(*mpState));
-      ::initDecode(mpState, 20, 1);
+      ::initDecode(mpState, 30, 1);
    }
    return OS_SUCCESS;
 }
@@ -76,30 +76,33 @@ int MpdSipxILBC::decode(const MpRtpBufPtr &pPacket,
                         unsigned decodedBufferLength,
                         MpAudioSample *samplesBuffer)
 {
-   if (decodedBufferLength < 160)
+   // Check if available buffer size is enough for the packet.
+   if (decodedBufferLength < 240)
    {
       osPrintf("MpdSipxILBC::decode: Jitter buffer overloaded. Glitch!\n");
       return 0;
    }
 
    // Decode incoming packet to temp buffer. If no packet - do PLC.
-   float buffer[160];
+   float buffer[240];
    if (pPacket.isValid())
    {
-      // Assert that available buffer size is enough for the packet.
-      if (NO_OF_BYTES_20MS != pPacket->getPayloadSize())
-         return 0;
+      if (NO_OF_BYTES_30MS != pPacket->getPayloadSize())
+      {
+         osPrintf("MpdSipxILBC::decode: Payload size: %d!\n", pPacket->getPayloadSize());
+	     return 0;
+      }
 
       // Packet data available. Decode it.
       iLBC_decode(buffer, (unsigned char*)pPacket->getDataPtr(), mpState, 1);
    }
    else
    {
-      // Packet data does not available. Do PLC.
+      // Packet data is not available. Do PLC.
       iLBC_decode(buffer, NULL, mpState, 0);
    }
-
-   for (int i = 0; i < 160; ++i)
+   
+   for (int i = 0; i < 240; ++i)
    {
       float tmp = buffer[i];
       if (tmp > SHRT_MAX)
@@ -110,7 +113,7 @@ int MpdSipxILBC::decode(const MpRtpBufPtr &pPacket,
       samplesBuffer[i] = MpAudioSample(tmp + 0.5f);
    }
 
-   return 160;
+   return 240;
 }
 
 #endif // HAVE_ILBC ]

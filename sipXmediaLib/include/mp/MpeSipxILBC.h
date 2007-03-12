@@ -107,7 +107,7 @@ protected:
 private:
    static const MpCodecInfo smCodecInfo; ///< Static information about the codec
 
-   MpAudioSample mpBuffer[160]; ///< Buffer used to store input samples
+   MpAudioSample mpBuffer[240]; ///< Buffer used to store input samples
    int mBufferLoad;             ///< How much data there is in the byffer
    iLBC_Enc_Inst_t_* mpState;   ///< Internal iLBC decoder state.
 };
