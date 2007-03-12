@@ -32,7 +32,7 @@ class SipRedirectorSubscribe : public RedirectPlugin
 {
 public:
 
-   SipRedirectorSubscribe();
+   explicit SipRedirectorSubscribe(const UtlString& instanceName);
 
    ~SipRedirectorSubscribe();
 

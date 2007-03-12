@@ -36,7 +36,7 @@ class SipRedirectorAliasDB : public RedirectPlugin
 {
   public:
 
-   SipRedirectorAliasDB(const UtlString& instanceName);
+   explicit SipRedirectorAliasDB(const UtlString& instanceName);
 
    ~SipRedirectorAliasDB();
 

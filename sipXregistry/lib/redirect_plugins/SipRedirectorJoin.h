@@ -48,7 +48,7 @@ class SipRedirectorJoin : public RedirectPlugin
 {
   public:
 
-   SipRedirectorJoin(const UtlString& instanceName);
+   explicit SipRedirectorJoin(const UtlString& instanceName);
 
    ~SipRedirectorJoin();
 

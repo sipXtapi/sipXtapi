@@ -66,7 +66,7 @@ class SipRedirectorPickUp : public RedirectPlugin
 {
   public:
 
-   SipRedirectorPickUp(const UtlString& instanceName);
+   explicit SipRedirectorPickUp(const UtlString& instanceName);
 
    ~SipRedirectorPickUp();
 

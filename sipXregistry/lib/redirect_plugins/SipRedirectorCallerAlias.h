@@ -31,7 +31,7 @@ class SipRedirectorCallerAlias : public RedirectPlugin
 {
 public:
 
-   SipRedirectorCallerAlias(const UtlString& instanceName);
+   explicit SipRedirectorCallerAlias(const UtlString& instanceName);
 
    ~SipRedirectorCallerAlias();
 

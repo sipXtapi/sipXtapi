@@ -47,7 +47,7 @@ class SipRedirectorMPT : public RedirectPlugin
 {
   public:
 
-   SipRedirectorMPT(const UtlString& instanceName);
+   explicit SipRedirectorMPT(const UtlString& instanceName);
 
    ~SipRedirectorMPT();
 
