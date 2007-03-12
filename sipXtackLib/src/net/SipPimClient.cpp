@@ -37,8 +37,9 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-SipPimClient::SipPimClient(SipUserAgent& userAgent, 
-                           Url& presentityAor)
+SipPimClient::SipPimClient(SipUserAgent& userAgent, Url& presentityAor):
+mpTextHandlerFunction(NULL),
+mpTextHandlerUserData(NULL)
 {
     mCallIdIndex = 0;
 
@@ -58,7 +59,8 @@ SipPimClient::SipPimClient(SipUserAgent& userAgent,
 }
 
 // Copy constructor
-SipPimClient::SipPimClient(const SipPimClient& rSipPimClient)
+SipPimClient::SipPimClient(const SipPimClient& rSipPimClient):
+mpTextHandlerFunction(NULL)
 {
 }
 
@@ -103,7 +105,7 @@ SipPimClient::operator=(const SipPimClient& rhs)
 
 //! Send a pager style instant message to the given destination
 UtlBoolean SipPimClient::sendPagerMessage(Url& destinationAor, 
-                                          const char* messageText,
+                                          const char* messageText, const char* subject,
                                           int& responseCode,
                                           UtlString& responseCodeText)
 {
@@ -131,6 +133,10 @@ UtlBoolean SipPimClient::sendPagerMessage(Url& destinationAor,
                          1, // sequenceNumber
                          NULL); // contactUrl
 
+
+        if (NULL != subject && 0 != strlen(subject))
+            messageRequest.setHeaderValue("Subject", subject);
+
         // Attache the body
         messageRequest.setBody(textBody);
         messageRequest.setContentType(CONTENT_TYPE_TEXT_PLAIN);
@@ -150,41 +156,38 @@ UtlBoolean SipPimClient::sendPagerMessage(Url& destinationAor,
         // If we do not wait forever, we need to be sure to wait the
         // the maximum transaction timeout period so that the qMessage
         // exists when the SipUserAgent queues the response.
-        responseQueue.receive(qMessage);
-
-
-        // If we got a response, get the response status code and text
-        if(qMessage)
+        do 
         {
-            int msgType = qMessage->getMsgType();
-            int msgSubType = qMessage->getMsgSubType();
+            responseQueue.receive(qMessage);
 
-            // SIP message
-            if(msgType == OsMsg::PHONE_APP &&
-               msgSubType == SipMessage::NET_SIP_MESSAGE)
+            // If we got a response, get the response status code and text
+            if(qMessage)
             {
-                const SipMessage* messageResponse = 
-                    ((SipMessageEvent*)qMessage)->getMessage();
+                int msgType = qMessage->getMsgType();
+                int msgSubType = qMessage->getMsgSubType();
 
-                if(messageResponse && messageResponse->isResponse())
+                // SIP message
+                if(msgType == OsMsg::PHONE_APP && msgSubType == SipMessage::NET_SIP_MESSAGE)
                 {
-                    responseCode = messageResponse->getResponseStatusCode();
-                    messageResponse->getResponseStatusText(&responseCodeText);
+                    const SipMessage* messageResponse = ((SipMessageEvent*)qMessage)->getMessage();
+
+                    if(messageResponse && messageResponse->isResponse())
+                    {
+                        responseCode = messageResponse->getResponseStatusCode();
+                        messageResponse->getResponseStatusText(&responseCodeText);
+                    }
                 }
             }
-        }
+        } while (responseCode == 407);
     }
 
     return(returnCode);
 }
 
-void SipPimClient::setIncomingImTextHandler(
-                           void (*textHandler)(const UtlString& fromAddress,
-                                 const char* textMessage,
-                                 int textLength,
-                                 const SipMessage& messageRequest))
+void SipPimClient::setIncomingImTextHandler(MessageCallback textHandler, void* userData)
 {
     mpTextHandlerFunction = textHandler;
+    mpTextHandlerUserData = userData;
 }
 
 
@@ -230,6 +233,10 @@ UtlBoolean SipPimClient::handleMessage(OsMsg& eventMessage)
                 UtlString fromField;
                 sipMessage->getFromField(&fromField);
 
+                const char* subj = sipMessage->getHeaderValue(0, "Subject");
+                if (NULL == subj)
+                    subj = "";
+
                 // Send back a 200 response
                 SipMessage response;
                 response.setResponseData(sipMessage, SIP_OK_CODE, SIP_OK_TEXT);
@@ -237,8 +244,7 @@ UtlBoolean SipPimClient::handleMessage(OsMsg& eventMessage)
                 responseSent = TRUE;
 
                 // Invoke the call back with the info
-                mpTextHandlerFunction(fromField, bodyBytes, bodyLength, 
-                    *sipMessage);
+                mpTextHandlerFunction(mpTextHandlerUserData, fromField, bodyBytes, bodyLength, subj, *sipMessage);
 
             }
 #ifdef SMIME
