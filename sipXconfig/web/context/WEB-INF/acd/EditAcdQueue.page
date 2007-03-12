@@ -28,7 +28,7 @@
       value="tab == 'agentsStats' || tab == 'callsStats'" />
   </component>
   
-  <component id="tabs" type="TabNavigation">
+  <component id="tabs" type="common/TabNavigation">
     <binding name="tabNames" value="{'config', 'agents', 'agentsStats', 'callsStats'}" />
     <binding name="selectedTab" value="tab" />
   </component>

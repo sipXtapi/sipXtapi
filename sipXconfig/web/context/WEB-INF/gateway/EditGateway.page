@@ -14,8 +14,8 @@
 
   <property name="currentSettingSetName" persist="session" />
   <property name="currentSettingSet" />
-
-  <property name="tab" persist="client" initial-value="literal:config" />
+  <property name="currentTab" />
+  <property name="activeTab" persist="session" initial-value="literal:config"/>
 
   <!--
     - B E A N S
@@ -37,22 +37,8 @@
     <binding name="callback" value="callback" />
   </component>
 
-  <component id="renderTabs" type="If">
-    <binding name="condition" value="!gateway.isNew()" />
-  </component>
-
-  <component id="tabs" type="TabNavigation">
-    <binding name="tabNames" value="{ 'config', 'dialplan', 'gcai' }" />
-    <binding name="selectedTab" value="tab" />
-  </component>
   <component id="tabContent" type="RenderBlock">
-    <binding name="block" value="components.get(tab + 'Block')" />
-  </component>
-
-  <component id="settings" type="SettingsNavigation">
-    <binding name="heading" value="message:section.settings" />
-    <binding name="settings" value="gateway.settings" />
-    <binding name="tab" value="currentSettingSetName" />
+    <binding name="block" value="components.get(activeTab + 'Block')" />
   </component>
   <component id="settingDescription" type="Insert">
     <binding name="value" value="currentSettingSet.description" />

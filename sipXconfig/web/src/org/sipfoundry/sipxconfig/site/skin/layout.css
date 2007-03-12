@@ -68,7 +68,7 @@ legend
 	font-size:120%;
 }
 
-ul.tabArea
+ul.tabArea, ul.sideTabs
 {
 	list-style:none;
 	padding:2px;
@@ -82,9 +82,17 @@ ul.tabArea li
 	padding:0 .3em 0 0;
 }
 
+ul.sideTabs li 
+{
+	white-space:nowrap;
+	margin:0;
+	padding:0 .3em 0 0;
+}
+
 li.tab.active a:link,li.tab.active a:hover,li.tab.active a:visited
 {
 	text-decoration:none;
+	font-weight: bold;
 }
 
 #lastmodified

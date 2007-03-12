@@ -22,6 +22,7 @@ import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.gateway.GatewayModel;
+import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
 
 /**
@@ -51,10 +52,18 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
     public abstract GatewayContext getGatewayContext();
 
     public abstract String getCurrentSettingSetName();
+    
+    public abstract void setCurrentSettingSetName(String settingName);
 
     public abstract void setCurrentSettingSet(SettingSet currentSettingSet);
 
     public abstract SettingSet getCurrentSettingSet();
+    
+    public abstract void setActiveTab(String tab);
+    
+    public abstract String getActiveTab();
+    
+    public abstract void setActiveSetting(String setting);    
 
     public void pageBeginRender(PageEvent event_) {
         Gateway gateway = getGateway();
@@ -69,28 +78,35 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
             gateway = gatewayContext.newGateway(getGatewayModel());
         }
         setGateway(gateway);
-        setSettingProperties(gateway);
-
+        setSettingProperties(getCurrentSettingSetName());
+    }
+    
+    public void editNonSettings(String tabId) {
+        setCurrentSettingSetName(null);
+        setActiveTab(tabId);        
+    }
+    
+    public void editSettings(Integer gatewayId, String settingPath) {
+        setActiveTab("settings");
+        setGatewayId(gatewayId);
+        setGateway(getGatewayContext().getGateway(gatewayId));
+        setSettingProperties(settingPath);        
     }
 
-    private void setSettingProperties(Gateway gateway) {
-        if (getCurrentSettingSet() != null) {
-            // it's already set
-            return;
-        }
-        SettingSet root = (SettingSet) gateway.getSettings();
-        if (root == null) {
-            // no settings for this gateway
-            return;
-        }
-        String currentSettingSetName = getCurrentSettingSetName();
-        SettingSet currentSettingSet;
-        if (StringUtils.isBlank(currentSettingSetName)) {
-            currentSettingSet = (SettingSet) root.getDefaultSetting(SettingSet.class);
-        } else {
-            currentSettingSet = (SettingSet) root.getSetting(currentSettingSetName);
+    private void setSettingProperties(String settingPath) {
+        SettingSet currentSettingSet = null;
+        String currentSettingSetName = null;
+        Setting settings = getGateway().getSettings();
+        // because setting path is persistant in session, guard against
+        // path not rellevant to this gateways setting set
+        if (settings != null && !StringUtils.isBlank(settingPath)) {
+            currentSettingSet = (SettingSet) settings.getSetting(settingPath);
+            if (currentSettingSet != null) {
+                currentSettingSetName = currentSettingSet.getName();
+            }
         }
         setCurrentSettingSet(currentSettingSet);
+        setCurrentSettingSetName(currentSettingSetName);
     }
 
     public void saveGateway() {

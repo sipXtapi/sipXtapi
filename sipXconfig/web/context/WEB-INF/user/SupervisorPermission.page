@@ -33,8 +33,6 @@
     <binding name="listener" value="listener:commit"/>
   </component>
   <component id="editUserNavigation" type="UserNavigation">
-    <binding name="user" value="user"/>
-    <binding name="tab" value="SupervisorPermission"/>
-    <binding name="heading" value="message:supervisorPermission"/>
+    <binding name="bean" value="prop:user"/>
   </component>
 </page-specification>

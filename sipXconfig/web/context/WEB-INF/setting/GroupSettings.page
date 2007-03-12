@@ -20,9 +20,11 @@
   <!--
     - C O M P O N E N T S
   -->
-  <component id="settingsNavigation" type="SettingsNavigation">
-    <binding name="settings" value="settings" />
-    <binding name="tab" value="parentSettingName" />
+  <component id="settingsNavigation" type="setting/SettingsNavigation">
+    <binding name="bean" value="prop:bean" />  
+    <binding name="source" value="prop:settings.values" />
+    <binding name="activeSetting" value="prop:parentSetting"/>
+    <binding name="editSettingsListener" value="listener:editGroupSettings" />
   </component>
   <component id="settingsForm" type="SettingsForm">
     <binding name="settings" value="parentSetting" />

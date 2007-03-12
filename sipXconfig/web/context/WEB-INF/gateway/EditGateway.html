@@ -1,22 +1,27 @@
 <div jwcid="@Border">
   <h2><span key="title">Gateway Details</span></h2>
   <span jwcid="@Insert" value="ognl:gateway.model.label"/>
-  <span jwcid="renderTabs">
-    <span jwcid="tabs"/>
-  </span>      
+  <span jwcid="@If" condition="ognl:!gateway.isNew()">
+      <span jwcid="@setting/SettingsNavigation" bean="prop:gateway" 
+          editSettingsListener="listener:editSettings" activeSetting="prop:currentSettingSet">
+        <span jwcid="@For" source="ognl:{'config', 'gcai', 'dialplan'}" value="prop:currentTab">
+            <span jwcid="@common/Tab" isActive="ognl:currentTab.equals(activeTab)">
+              <a jwcid="@DirectLink" listener="listener:editNonSettings" parameters="prop:currentTab"><span jwcid="@Insert" value="ognl:messages.getMessage('tab.' + currentTab)"/></a>
+            </span>
+        </span>
+      </span>
+  </span>
   <div id="settings-content">
     <form jwcid="@Form" delegate="ognl:beans.validator" id="gateway">
+    
       <div jwcid="configBlock@Block">
-        <fieldset jwcid="gatewayForm"/>
-        <span jwcid="renderSettings">
-          <span jwcid="settings"/>
-          <span jwcid="settingDescription"/>
-          <fieldset jwcid="settingsFieldset"/>
-        </span>
+        <fieldset jwcid="gatewayForm"/>               
       </div>
+    
       <div jwcid="gcaiBlock@Block">
         <fieldset jwcid="gcaiPanel"/>
       </div>
+    
       <div jwcid="dialplanBlock@Block">
         <fieldset>
           <table>
@@ -28,6 +33,12 @@
           </table>
         </fieldset>
       </div>
+      
+      <div jwcid="settingsBlock@Block">
+          <span jwcid="settingDescription"/>
+          <fieldset jwcid="settingsFieldset"/>
+      </div>
+                  
       <span jwcid="@ErrorMsg"/>
       <span jwcid="tabContent"/>
       <ul jwcid="formActions"/>

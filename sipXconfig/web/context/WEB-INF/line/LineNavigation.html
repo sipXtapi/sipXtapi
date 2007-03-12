@@ -1,15 +1,11 @@
-<span jwcid="lineLabel"/>
-<h2><span jwcid="@Insert" value="ognl:tabHeading">Page Heading</span></h2>
-<div id="settings-nav">
-  <ul>
-    <a jwcid="lineTab" class="tab active">Line</a>
-    <span jwcid="settingsTabs">
-      <li>
-        <a jwcid="settingsTab">
-          <span jwcid="@Insert" value="ognl:currentSettingLabel"/>
-        </a>
-      </li>
-    </span>
-  </ul>
-</div>
+<span jwcid="@LineLabel" line="prop:bean" />
+<span jwcid="@setting/SettingsNavigation" bean="prop:bean" activeSetting="prop:activeSetting" editSettingsListener="listener:editSettings">
+  <span jwcid="@common/Tab" isActive="prop:identificationTabActive">
+   	  <a id="lineTab" jwcid="@DirectLink" 
+		listener="listener:editLine"
+		parameters="prop:bean.id">
+        <span key="link.line">Line</span>
+      </a>
+  </span>
+</span>
 <span jwcid="@RenderBody"/>

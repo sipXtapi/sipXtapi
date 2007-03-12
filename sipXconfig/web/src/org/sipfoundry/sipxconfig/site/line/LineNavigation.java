@@ -12,47 +12,32 @@
 package org.sipfoundry.sipxconfig.site.line;
 
 import org.apache.tapestry.IPage;
-import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.InjectPage;
 import org.sipfoundry.sipxconfig.phone.Line;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.site.common.NavigationWithSettings;
+import org.sipfoundry.sipxconfig.site.common.BeanNavigation;
 
-public abstract class LineNavigation extends NavigationWithSettings {
+public abstract class LineNavigation extends BeanNavigation<Line> {
 
-    /** REQUIRED PARAMETER */
-    public abstract void setLine(Line line);
+    @InjectPage(value = LineSettings.PAGE)
+    public abstract LineSettings getLineSettingsPage();
 
-    public abstract Line getLine();
+    @InjectPage(value = EditLine.PAGE)
+    public abstract EditLine getEditLinePage();
 
-    public abstract PhoneContext getPhoneContext();
-
-    public void prepareForRender(IRequestCycle cycle) {
-        super.prepareForRender(cycle);
-        Setting settings = getLine().getSettings();
-        setSettings(settings);
-        setMessageSource(settings.getMessageSource());
+    public boolean isIdentificationTabActive() {
+        return EditLine.PAGE.equals(getPage().getPageName());
     }
 
-    public IPage editLine(IRequestCycle cycle, Integer lineId) {
-        EditLine page = (EditLine) cycle.getPage(EditLine.PAGE);
+    public IPage editLine(Integer lineId) {
+        EditLine page = getEditLinePage();
         page.setLineId(lineId);
         return page;
     }
 
-    public IPage editSettings(IRequestCycle cycle, Integer lineId, String section) {
-        LineSettings page = (LineSettings) cycle.getPage(LineSettings.PAGE);
+    public IPage editSettings(Integer lineId, String section) {
+        LineSettings page = getLineSettingsPage();
         page.setLineId(lineId);
         page.setParentSettingName(section);
         return page;
-    }
-
-    /**
-     * Used for contructing parameters for EditSettings DirectLink
-     */
-    public Object[] getEditSettingListenerParameters() {
-        return new Object[] {
-            getLine().getId(), getCurrentSetting().getName()
-        };
     }
 }

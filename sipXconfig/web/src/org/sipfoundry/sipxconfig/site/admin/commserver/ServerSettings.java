@@ -38,6 +38,10 @@ public abstract class ServerSettings extends BasePage implements PageBeginRender
         Setting parent = root.getSetting(getParentSettingName());
         setParentSetting(parent);
     }
+        
+    public void editSettings(Integer serverId, String settingPath) {
+        setParentSettingName(settingPath);
+    }
 
     public IPage apply(IRequestCycle cycle) {
         getServer().applySettings();

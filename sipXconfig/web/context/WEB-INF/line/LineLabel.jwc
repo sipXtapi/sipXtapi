@@ -6,9 +6,7 @@
   <!--
       - P A R A M E T E R S
       -->
-  <parameter name="line"  required="yes" >
-  </parameter>
-  <parameter name="phoneContext"  required="yes" />
+  <parameter name="line" required="yes"/>
   <!--
       - C O M P O N E N T S
       -->

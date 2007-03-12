@@ -1,8 +1,5 @@
 <div jwcid="@Border">
-  <span jwcid="@UserNavigation" 
-    user="prop:user" 
-    tab="prop:parentSetting.name" 
-    heading="prop:parentSettingLabel">
+  <span jwcid="@UserNavigation" bean="prop:user" activeSetting="prop:parentSetting">
     <span jwcid="@Insert" value="prop:parentSettingDescription"/>
   </span>
   <span jwcid="@SettingsForm"

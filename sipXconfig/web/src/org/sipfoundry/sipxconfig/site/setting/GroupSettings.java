@@ -66,6 +66,10 @@ public abstract class GroupSettings extends BasePage implements PageBeginRenderL
         setGroupId(groupId);
         setReturnPage(returnPage);
     }
+    
+    public void editGroupSettings(Integer beanId, String settingName) {
+        setParentSettingName(settingName);        
+    }
 
     public void pageBeginRender(PageEvent event_) {
         Group group = getGroup();

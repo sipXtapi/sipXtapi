@@ -57,6 +57,8 @@ public abstract class PhoneLines extends BasePage implements PageBeginRenderList
 
     public abstract PhoneContext getPhoneContext();
 
+    public abstract String getActiveTab();
+
     public void pageBeginRender(PageEvent event_) {
         PhoneContext context = getPhoneContext();
         Phone phone = context.loadPhone(getPhoneId());

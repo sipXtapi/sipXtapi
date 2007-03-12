@@ -15,8 +15,8 @@
     - C O M P O N E N T S
     -->
   <component id="editPhoneNavigation" type="PhoneNavigation">
-    <binding name="phone" value="phone"/>
-    <binding name="tab" value="parentSetting.name"/>
+    <binding name="bean" value="prop:phone"/>
+    <binding name="activeSetting" value="parentSetting"/>    
   </component>
   <component id="settingDescription" type="Insert">
     <binding name="value" value="parentSetting.description"/>

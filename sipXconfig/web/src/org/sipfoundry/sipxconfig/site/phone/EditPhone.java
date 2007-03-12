@@ -55,6 +55,8 @@ public abstract class EditPhone extends PageWithCallback implements PageBeginRen
 
     @InjectObject(value = "spring:settingDao")
     public abstract SettingDao getSettingDao();
+        
+    public abstract String getActiveTab();
 
     @Bean
     public abstract SipxValidationDelegate getValidator();

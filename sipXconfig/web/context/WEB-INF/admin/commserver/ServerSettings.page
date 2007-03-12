@@ -16,10 +16,10 @@
   
   <!-- C O M P O N E N T S -->
   
-  <component id="settingsNavigation" type="SettingsNavigation">
-    <binding name="settings" value="server.settings"/>
-    <binding name="tab" value="parentSettingName"/>
-    <binding name="heading" value="message:title"/>
+  <component id="settingsNavigation" type="setting/SettingsNavigation">
+    <binding name="bean" value="server"/>
+    <binding name="activeSetting" value="parentSetting"/>
+    <binding name="editSettingsListener" value="listener:editSettings"/>
   </component>
   <component id="settingDescription" type="Insert">
     <binding name="value" value="parentSetting.description"/>

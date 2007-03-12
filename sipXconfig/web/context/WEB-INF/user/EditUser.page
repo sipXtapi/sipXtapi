@@ -22,8 +22,6 @@
     <binding name="listener" value="listener:commit"/>
   </component>
   <component id="editUserNavigation" type="UserNavigation">
-    <binding name="user" value="user"/>
-    <binding name="tab" value="EditUser"/>
-    <binding name="heading" value="message:title"/>
+    <binding name="bean" value="user"/>
   </component>
 </page-specification>
