@@ -7,12 +7,9 @@
 <xsl:variable name="bad" select="sum((@errors|@failures))"/>
 <xsl:if test="$bad > 0">
 testcase: <xsl:value-of select="@name"/>
-error(s):
+--------------------------------------------------------------------------------
 <xsl:apply-templates select="testcase"/>
-stdout:
-<xsl:value-of select="system-out/text()"/>
-stderr:
-<xsl:value-of select="system-err/text()"/>
+
 </xsl:if>
 </xsl:template>
 
