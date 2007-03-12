@@ -10,10 +10,10 @@
 			Name="Win32"
 		/>
 		<Platform
-			Name="sipx_CE60_emulator (ARMV4I)"
+			Name="Pocket PC 2003 (ARMV4)"
 		/>
 		<Platform
-			Name="Pocket PC 2003 (ARMV4)"
+			Name="sipx_CE60_emulator (ARMV4I)"
 		/>
 	</Platforms>
 	<ToolFiles>
@@ -92,89 +92,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Debug|sipx_CE60_emulator (ARMV4I)"
-			OutputDirectory="sipx_CE60_emulator (ARMV4I)\$(ConfigurationName)"
-			IntermediateDirectory="sipx_CE60_emulator (ARMV4I)\$(ConfigurationName)"
-			ConfigurationType="4"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TargetEnvironment="1"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				ExecutionBucket="7"
-				Optimization="0"
-				AdditionalIncludeDirectories="include,..\sipXportLib\include,..\sipXportLib\include\glib,..\sipXtackLib\include,..\gips\include"
-				PreprocessorDefinitions="_DEBUG;WIN32;_LIB;DISABLE_MEM_POOLS"
-				RuntimeLibrary="3"
-				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="0"
-				PrecompiledHeaderFile=".\Debug/sipXmediaLib.pch"
-				AssemblerListingLocation=".\Debug/"
-				ObjectFile=".\Debug/"
-				ProgramDataBaseFileName=".\Debug/"
-				WarningLevel="3"
-				SuppressStartupBanner="true"
-				CompileAs="0"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLibrarianTool"
-				OutputFile=".\Debug\sipXmediaLib.lib"
-				SuppressStartupBanner="true"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCCodeSignTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-			<DeploymentTool
-				ForceDirty="-1"
-				RemoteDirectory=""
-				RegisterOutput="0"
-				AdditionalFiles=""
-			/>
-			<DebuggerTool
 			/>
 		</Configuration>
 		<Configuration
@@ -340,9 +257,9 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Release|sipx_CE60_emulator (ARMV4I)"
-			OutputDirectory="sipx_CE60_emulator (ARMV4I)\$(ConfigurationName)"
-			IntermediateDirectory="sipx_CE60_emulator (ARMV4I)\$(ConfigurationName)"
+			Name="Release|Pocket PC 2003 (ARMV4)"
+			OutputDirectory="Pocket PC 2003 (ARMV4)\$(ConfigurationName)"
+			IntermediateDirectory="Pocket PC 2003 (ARMV4)\$(ConfigurationName)"
 			ConfigurationType="4"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
@@ -427,9 +344,92 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Release|Pocket PC 2003 (ARMV4)"
-			OutputDirectory="Pocket PC 2003 (ARMV4)\$(ConfigurationName)"
-			IntermediateDirectory="Pocket PC 2003 (ARMV4)\$(ConfigurationName)"
+			Name="Debug|sipx_CE60_emulator (ARMV4I)"
+			OutputDirectory="sipx_CE60_emulator (ARMV4I)\$(ConfigurationName)"
+			IntermediateDirectory="sipx_CE60_emulator (ARMV4I)\$(ConfigurationName)"
+			ConfigurationType="4"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="1"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				ExecutionBucket="7"
+				Optimization="0"
+				AdditionalIncludeDirectories="include,..\sipXportLib\include,..\sipXportLib\include\glib,..\sipXtackLib\include,..\gips\include"
+				PreprocessorDefinitions="_DEBUG;WIN32;_LIB;DISABLE_MEM_POOLS"
+				RuntimeLibrary="3"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderFile=".\Debug/sipXmediaLib.pch"
+				AssemblerListingLocation=".\Debug/"
+				ObjectFile=".\Debug/"
+				ProgramDataBaseFileName=".\Debug/"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+				CompileAs="0"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile=".\Debug\sipXmediaLib.lib"
+				SuppressStartupBanner="true"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCCodeSignTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+			<DeploymentTool
+				ForceDirty="-1"
+				RemoteDirectory=""
+				RegisterOutput="0"
+				AdditionalFiles=""
+			/>
+			<DebuggerTool
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|sipx_CE60_emulator (ARMV4I)"
+			OutputDirectory="sipx_CE60_emulator (ARMV4I)\$(ConfigurationName)"
+			IntermediateDirectory="sipx_CE60_emulator (ARMV4I)\$(ConfigurationName)"
 			ConfigurationType="4"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
@@ -536,16 +536,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -566,7 +556,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -576,7 +566,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -601,16 +601,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -631,7 +621,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -641,7 +631,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -666,16 +666,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -696,7 +686,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -706,7 +696,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -731,16 +731,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -761,7 +751,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -771,7 +761,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -796,16 +796,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -826,7 +816,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -836,7 +826,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -861,16 +861,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -891,7 +881,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -901,7 +891,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -926,16 +926,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -956,7 +946,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -966,7 +956,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -991,16 +991,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -1021,7 +1011,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1031,7 +1021,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1056,16 +1056,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -1086,7 +1076,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1096,7 +1086,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1121,16 +1121,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -1151,7 +1141,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1161,7 +1151,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1186,16 +1186,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -1216,7 +1206,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1226,7 +1216,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1255,16 +1255,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -1285,7 +1275,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1295,7 +1285,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1320,16 +1320,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -1350,7 +1340,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1360,7 +1350,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1393,16 +1393,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -1423,7 +1413,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1433,7 +1423,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1458,16 +1458,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -1488,7 +1478,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1498,7 +1488,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1523,16 +1523,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -1553,7 +1543,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1563,7 +1553,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1592,16 +1592,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -1622,7 +1612,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1632,7 +1622,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1657,16 +1657,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -1687,7 +1677,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1697,7 +1687,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1722,16 +1722,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -1752,7 +1742,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1762,7 +1752,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1787,16 +1787,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -1817,7 +1807,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1827,7 +1817,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1856,16 +1856,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -1886,7 +1876,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1896,7 +1886,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1921,16 +1921,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -1951,7 +1941,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1961,7 +1951,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1986,16 +1986,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -2016,7 +2006,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2026,7 +2016,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2051,16 +2051,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -2081,7 +2071,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2091,7 +2081,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2116,16 +2116,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -2146,7 +2136,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2156,7 +2146,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2185,16 +2185,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -2215,7 +2205,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2225,7 +2215,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2250,16 +2250,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -2280,7 +2270,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2290,7 +2280,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2315,16 +2315,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -2345,7 +2335,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2355,7 +2345,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2380,16 +2380,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -2410,7 +2400,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2420,7 +2410,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2445,16 +2445,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -2475,7 +2465,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2485,7 +2475,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2510,16 +2510,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -2540,7 +2530,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2550,7 +2540,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2575,16 +2575,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -2605,7 +2595,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2615,7 +2605,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2640,16 +2640,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -2670,7 +2660,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2680,7 +2670,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2705,16 +2705,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -2735,7 +2725,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2745,7 +2735,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2778,16 +2778,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -2808,7 +2798,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2818,7 +2808,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2843,16 +2843,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -2873,7 +2863,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2883,7 +2873,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2912,16 +2912,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -2942,7 +2932,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2952,7 +2942,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2977,16 +2977,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -3007,7 +2997,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3017,7 +3007,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3042,16 +3042,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -3072,7 +3062,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3082,7 +3072,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3107,16 +3107,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -3137,7 +3127,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3147,7 +3137,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3172,16 +3172,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -3202,7 +3192,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3212,7 +3202,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3237,16 +3237,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -3267,7 +3257,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3277,7 +3267,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3302,16 +3302,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -3332,7 +3322,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3342,7 +3332,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3367,16 +3367,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -3397,7 +3387,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3407,7 +3397,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3432,16 +3432,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -3462,7 +3452,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3472,7 +3462,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3505,16 +3505,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -3535,7 +3525,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3545,7 +3535,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3570,16 +3570,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -3600,7 +3590,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3610,7 +3600,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3639,16 +3639,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -3669,7 +3659,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3679,7 +3669,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3704,16 +3704,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -3734,7 +3724,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3744,7 +3734,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3769,16 +3769,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -3799,7 +3789,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3809,7 +3799,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3842,16 +3842,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -3872,7 +3862,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3882,7 +3872,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3907,16 +3907,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -3937,7 +3927,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3947,7 +3937,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3972,16 +3972,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -4002,7 +3992,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4012,7 +4002,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4037,16 +4037,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -4067,7 +4057,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4077,7 +4067,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4102,16 +4102,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -4132,7 +4122,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4142,7 +4132,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4167,16 +4167,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -4197,7 +4187,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4207,7 +4197,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4236,16 +4236,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -4266,7 +4256,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4276,7 +4266,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4301,16 +4301,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -4331,7 +4321,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4341,7 +4331,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4366,16 +4366,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -4396,7 +4386,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4406,7 +4396,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4431,16 +4431,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -4461,7 +4451,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4471,7 +4461,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4496,16 +4496,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -4526,7 +4516,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4536,7 +4526,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4561,16 +4561,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -4591,7 +4581,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4601,7 +4591,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4626,16 +4626,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -4656,7 +4646,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4666,7 +4656,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4691,16 +4691,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -4721,7 +4711,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4731,7 +4721,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4760,16 +4760,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -4790,7 +4780,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4800,7 +4790,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4825,16 +4825,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -4855,7 +4845,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4865,7 +4855,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4890,16 +4890,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -4920,7 +4910,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4930,7 +4920,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4955,16 +4955,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -4985,7 +4975,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4995,7 +4985,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5024,16 +5024,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -5054,16 +5044,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -5073,10 +5053,26 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\src\mp\MprSineWaveGeneratorDeviceDriver.cpp"
-				>
+				<FileConfiguration
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\src\mp\MprSpeexEchoCancel.cpp"
@@ -5101,16 +5097,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -5131,7 +5117,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5141,7 +5127,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5166,16 +5162,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -5196,7 +5182,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5206,7 +5192,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5231,16 +5227,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -5261,7 +5247,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5271,7 +5257,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5296,16 +5292,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -5326,7 +5312,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5336,7 +5322,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5348,6 +5344,10 @@
 			</File>
 			<File
 				RelativePath=".\src\mp\MpRtpBuf.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpSineWaveGeneratorDeviceDriver.cpp"
 				>
 			</File>
 			<File
@@ -5365,16 +5365,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -5395,7 +5385,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5405,7 +5395,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5430,16 +5430,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -5460,7 +5450,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5470,7 +5460,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5495,16 +5495,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -5525,7 +5515,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5535,7 +5525,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5560,16 +5560,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -5590,7 +5580,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5600,7 +5590,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5625,16 +5625,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -5655,7 +5645,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5665,7 +5655,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5690,16 +5690,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -5720,7 +5710,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5730,7 +5720,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5763,16 +5763,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -5793,7 +5783,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5803,7 +5793,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5828,16 +5828,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -5858,7 +5848,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5868,7 +5858,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5893,16 +5893,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -5923,7 +5913,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5933,7 +5923,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5958,16 +5958,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -5988,7 +5978,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5998,7 +5988,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6023,16 +6023,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -6053,7 +6043,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6063,7 +6053,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6088,16 +6088,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -6118,7 +6108,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6128,7 +6118,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6153,16 +6153,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -6183,7 +6173,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6193,7 +6183,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6218,16 +6218,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -6248,7 +6238,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6258,7 +6248,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6283,16 +6283,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -6313,7 +6303,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6323,7 +6313,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6348,16 +6348,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -6378,7 +6368,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6388,7 +6378,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6413,16 +6413,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -6443,7 +6433,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6453,7 +6443,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6478,16 +6478,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -6508,7 +6498,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6518,7 +6508,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6543,16 +6543,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -6573,7 +6563,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6583,7 +6573,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6608,16 +6608,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -6638,7 +6628,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6648,7 +6638,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6673,16 +6673,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -6703,7 +6693,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6713,7 +6703,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6738,16 +6738,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -6768,7 +6758,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6778,7 +6768,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6803,16 +6803,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -6833,7 +6823,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6843,7 +6833,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6868,16 +6868,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -6898,7 +6888,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6908,7 +6898,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6933,16 +6933,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -6963,7 +6953,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6973,7 +6963,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6998,16 +6998,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -7028,7 +7018,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7038,7 +7028,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7063,16 +7063,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -7093,7 +7083,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7103,7 +7093,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7128,16 +7128,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -7158,7 +7148,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7168,7 +7158,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7193,16 +7193,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -7223,7 +7213,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7233,7 +7223,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7258,16 +7258,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -7288,7 +7278,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7298,7 +7288,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7323,16 +7323,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -7353,7 +7343,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7363,7 +7353,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7388,16 +7388,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -7418,7 +7408,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7428,7 +7418,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7453,16 +7453,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
@@ -7483,7 +7473,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
+					Name="Release|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7493,7 +7483,17 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
+					Name="Debug|sipx_CE60_emulator (ARMV4I)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|sipx_CE60_emulator (ARMV4I)"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
