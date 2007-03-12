@@ -6,6 +6,7 @@ man_MANS = $(MAN_PAGES_OPT)
 
 MAN_PAGES = \
 	sipx-stats.1 \
+	sipx-readroute.1 \
 	expire-spread.1 \
 	monitor-spread.1 \
 	regtimes.1 \

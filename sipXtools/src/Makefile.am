@@ -14,6 +14,7 @@ EXTRA_DIST = $(foreach sipxScript,$(LOCAL_SHELLSCRIPTS),$(sipxScript).in)
 dist_bin_SCRIPTS = \
 	regtimes \
 	sipx-stats \
+	sipx-readroute \
 	sipxcar \
 	sipxproc \
 	sipdb-dump \
