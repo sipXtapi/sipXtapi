@@ -44,7 +44,7 @@
     <binding name="translator" value="translator:number"/>
     <binding name="validators" value="validators:required,min=1024,max=65534"/>
   </component>
-  <component id="settingsFieldset" type="SettingsFieldset">
+  <component id="settingsFieldset" type="setting/SettingsFieldset">
     <binding name="settings" value="bridge.settings"/>
     <binding name="renderGroupTitle" value="false"/>
   </component>

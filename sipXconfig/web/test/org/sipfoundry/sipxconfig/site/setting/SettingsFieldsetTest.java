@@ -46,16 +46,17 @@ public class SettingsFieldsetTest extends TestCase {
         setting.isAdvanced();
         control.andReturn(false);
         control.replay();
-        
+
         m_fieldset.getSettings().addSetting(setting);
 
         m_fieldset.setShowAdvanced(true);
-        assertTrue(m_fieldset.renderSetting(setting));
-        assertTrue(m_fieldset.renderSetting(setting));
+        m_fieldset.setCurrentSetting(setting);
+        assertTrue(m_fieldset.getRenderSetting());
+        assertTrue(m_fieldset.getRenderSetting());
 
         m_fieldset.setShowAdvanced(false);
-        assertFalse(m_fieldset.renderSetting(setting));
-        assertTrue(m_fieldset.renderSetting(setting));
+        assertFalse(m_fieldset.getRenderSetting());
+        assertTrue(m_fieldset.getRenderSetting());
 
         control.verify();
     }
@@ -67,11 +68,12 @@ public class SettingsFieldsetTest extends TestCase {
         control.andReturn(true).times(2);
         control.replay();
 
+        m_fieldset.setCurrentSetting(setting);
         m_fieldset.setShowAdvanced(true);
-        assertFalse(m_fieldset.renderSetting(setting));
+        assertFalse(m_fieldset.getRenderSetting());
 
         m_fieldset.setShowAdvanced(false);
-        assertFalse(m_fieldset.renderSetting(setting));
+        assertFalse(m_fieldset.getRenderSetting());
 
         control.verify();
     }
@@ -88,18 +90,19 @@ public class SettingsFieldsetTest extends TestCase {
         control.replay();
 
         m_fieldset.getSettings().addSetting(setting);
-
+        m_fieldset.setCurrentSetting(setting);
+        
         m_fieldset.setShowAdvanced(true);
-        assertFalse(m_fieldset.renderSettingPlaceholder(setting));
+        assertFalse(m_fieldset.getRenderSettingPlaceholder());
 
         m_fieldset.setShowAdvanced(false);
-        assertTrue(m_fieldset.renderSettingPlaceholder(setting));
+        assertTrue(m_fieldset.getRenderSettingPlaceholder());
 
         m_fieldset.setShowAdvanced(true);
-        assertFalse(m_fieldset.renderSettingPlaceholder(setting));
+        assertFalse(m_fieldset.getRenderSettingPlaceholder());
 
         m_fieldset.setShowAdvanced(false);
-        assertFalse(m_fieldset.renderSettingPlaceholder(setting));
+        assertFalse(m_fieldset.getRenderSettingPlaceholder());
 
         control.verify();
     }

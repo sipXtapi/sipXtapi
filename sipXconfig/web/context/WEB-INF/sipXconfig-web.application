@@ -154,7 +154,6 @@
     <component-type type="ScheduleEditor" specification-path="common/ScheduleEditor.jwc"/>
     <component-type type="SelectRuleType" specification-path="dialplan/SelectRuleType.jwc"/>
     <component-type type="SettingEditor" specification-path="setting/SettingEditor.jwc"/>
-    <component-type type="SettingsFieldset" specification-path="setting/SettingsFieldset.jwc"/>
     <component-type type="SettingsForm" specification-path="setting/SettingsForm.jwc"/>
     <component-type type="SettingsNavigation" specification-path="setting/SettingsNavigation.jwc"/>
     <component-type type="SpecialAttendantPanel" specification-path="dialplan/SpecialAttendantPanel.jwc"/>
