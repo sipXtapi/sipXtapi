@@ -25,6 +25,7 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+int CpMediaInterface::sInvalidConnectionId = -1;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -56,7 +57,17 @@ OsStatus CpMediaInterface::setSrtpParams(SdpSrtpParameters& srtpParameters)
 
 /* ============================ ACCESSORS ================================= */
 
+int CpMediaInterface::getInvalidConnectionId()
+{
+    return(sInvalidConnectionId);
+}
+
 /* ============================ INQUIRY =================================== */
+
+UtlBoolean CpMediaInterface::isConnectionIdValid(int connectionId)
+{
+    return(connectionId > sInvalidConnectionId);
+}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 

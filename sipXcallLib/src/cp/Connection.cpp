@@ -57,7 +57,7 @@ Connection::Connection(CpCallManager* callMgr,
                        const char* forwardUnconditionalUrl,
                        int busyBehavior, const char* forwardOnBusyUrl,
                        int forwardOnNoAnswerSeconds) 
-   : mConnectionId(-1)
+   : mConnectionId(CpMediaInterface::getInvalidConnectionId())
    , callIdMutex(OsMutex::Q_FIFO)
    , mDeleteAfter(OsTime::OS_INFINITY)
 {
@@ -88,29 +88,28 @@ Connection::Connection(CpCallManager* callMgr,
     mForwardOnNoAnswerSeconds = forwardOnNoAnswerSeconds;
 
     mRemoteIsCallee = FALSE;
-	mRemoteRequestedHold = FALSE;
+    mRemoteRequestedHold = FALSE;
     remoteRtpPort = PORT_NONE;
     remoteRtcpPort = PORT_NONE;
-	remoteVideoRtpPort = PORT_NONE;
-	remoteVideoRtcpPort = PORT_NONE;
+    remoteVideoRtpPort = PORT_NONE;
+    remoteVideoRtcpPort = PORT_NONE;
     sendCodec = -1;
     receiveCodec = -1;
     mLocalConnectionState = CONNECTION_IDLE;
     mRemoteConnectionState = CONNECTION_IDLE;
     mConnectionStateCause = CONNECTION_CAUSE_NORMAL;
     mTerminalConnState = PtTerminalConnection::IDLE;
-	mHoldState = TERMCONNECTION_NONE;
-	mResponseCode = 0;	
+    mHoldState = TERMCONNECTION_NONE;
+    mResponseCode = 0;	
     mResponseText.remove(0);
 
     mpCallManager = callMgr;
     mpCall = call;
     mpMediaInterface = mediaInterface;
-    mConnectionId = -10;
     //mpCallUiContext = callUiContext;
 
-	mpListenerCnt = new TaoReference();
-	mpListeners = new TaoObjectMap();
+    mpListenerCnt = new TaoReference();
+    mpListeners = new TaoObjectMap();
 
     m_eLastMajor = (SIPX_CALLSTATE_EVENT) -1 ;
     m_eLastMinor = (SIPX_CALLSTATE_CAUSE) -1 ;
@@ -178,7 +177,8 @@ Connection::~Connection()
 
 void Connection::prepareForSplit() 
 {
-    if ((mpMediaInterface) && (mConnectionId != -1))
+    if ((mpMediaInterface) &&
+        mpMediaInterface->isConnectionIdValid(mConnectionId))
     {
         mpMediaInterface->removeToneListener(mConnectionId);
         mpMediaInterface->deleteConnection(mConnectionId) ;		
@@ -186,7 +186,7 @@ void Connection::prepareForSplit()
 
     mpCall = NULL ;
     mpMediaInterface = NULL ;
-    mConnectionId = -1 ;
+    mConnectionId = CpMediaInterface::getInvalidConnectionId();
 }
 
 

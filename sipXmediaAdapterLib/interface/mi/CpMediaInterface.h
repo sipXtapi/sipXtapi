@@ -183,8 +183,6 @@ public:
                                      ISocketEvent* pSocketIdleSink = NULL,
                                      IMediaEventListener* pMediaEventListener = NULL,
                                      const RtpTransportOptions rtpTransportOptions=RTP_TRANSPORT_UDP) = 0 ;
-   
-
 
    virtual OsStatus setSrtpParams(SdpSrtpParameters& srtpParameters);
 
@@ -496,6 +494,9 @@ public:
    //! Set connection framerate on the fly
    virtual OsStatus setConnectionFramerate(int connectionId, int framerate) = 0;
 
+    /// Provide an invalid connectionId
+   static int getInvalidConnectionId();
+
    //! For internal use only
    virtual void setPremiumSound(UtlBoolean enabled) = 0;
 
@@ -644,6 +645,9 @@ public:
 
 /* ============================ INQUIRY =================================== */
 
+    /// Query if connectionId is valid
+   virtual UtlBoolean isConnectionIdValid(int connectionId);
+
    //! Query whether the specified media connection is enabled for 
    //! sending RTP.
    virtual UtlBoolean isSendingRtpAudio(int connectionId) = 0 ;
@@ -693,6 +697,7 @@ private:
    //! Copy constructor disabled
    CpMediaInterface(const CpMediaInterface& rCpMediaInterface);
 
+   static int sInvalidConnectionId; ///< Number of connection, assigned to invalid connection.
 };
 
 /* ============================ INLINE METHODS ============================ */

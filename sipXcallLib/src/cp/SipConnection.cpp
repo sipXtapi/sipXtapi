@@ -2351,7 +2351,7 @@ UtlBoolean SipConnection::doHangUp(const char* dialString,
             mpMediaInterface->removeToneListener(mConnectionId);
             mpMediaInterface->deleteConnection(mConnectionId);
             mpMediaInterface = NULL ;
-            mConnectionId = -1; 
+            mConnectionId = CpMediaInterface::getInvalidConnectionId(); 
         }
     }
 
@@ -3376,7 +3376,8 @@ void SipConnection::processInviteRequest(const SipMessage* request)
     /* 
      * Allocate media resources
      */
-    if (mConnectionId < 0 && mpMediaInterface != NULL)
+    if (mpMediaInterface->isConnectionIdValid(mConnectionId) &&
+        mpMediaInterface != NULL)
     {
         // Create a new connection in the flow graph
         // look at pSdpBody and determine rtpTransportOptions
