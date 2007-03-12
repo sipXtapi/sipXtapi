@@ -18,7 +18,7 @@ import org.apache.tapestry.annotations.Parameter;
 @ComponentClass(allowBody = true, allowInformalParameters = false)
 public abstract class TabControl extends BaseComponent {
     
-    @Parameter(defaultValue = "literal:sideTabs")
+    @Parameter(defaultValue = "literal:htabs")
     public abstract String getStyle();
     
 }

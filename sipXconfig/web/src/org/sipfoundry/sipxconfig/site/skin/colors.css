@@ -52,13 +52,6 @@ li.tab a:visited
 	color: #00f;
 }
 
-li.tab.active a:link,
-li.tab.active a:hover,
-li.tab.active a:visited
-{
-	color: #000;
-}
-
 #banner
 {
 	color: #fff;

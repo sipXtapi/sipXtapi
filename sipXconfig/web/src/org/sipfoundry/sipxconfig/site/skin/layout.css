@@ -68,31 +68,41 @@ legend
 	font-size:120%;
 }
 
-ul.tabArea, ul.sideTabs
+ul.htabs, ul.vtabs
 {
 	list-style:none;
 	padding:2px;
+	white-space:nowrap;
+	margin:0;
+	padding:0 .3em 0 0;
 }
 
-ul.tabArea li
+ul.vtabs li
 {
-	white-space:nowrap;
 	display:inline;
-	margin:0;
-	padding:0 .3em 0 0;
 }
 
-ul.sideTabs li 
-{
-	white-space:nowrap;
-	margin:0;
-	padding:0 .3em 0 0;
+div.tab {
+	background-color: #ffc; /*background color of content*/
+	padding: .3em 1ex;
 }
 
-li.tab.active a:link,li.tab.active a:hover,li.tab.active a:visited
+div.tab.active {
+	border: 1px solid #666; /*border color*/
+	padding: .2em .5ex;
+}
+
+div.shadow, div.tab.active
 {
-	text-decoration:none;
-	font-weight: bold;
+  position: relative;
+  bottom: 2px;
+  right: 2px;
+}
+
+div.shadow
+{
+  background: #666;
+  color: inherit;
 }
 
 #lastmodified
