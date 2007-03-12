@@ -177,7 +177,7 @@ UtlBoolean CpGhostConnection::renegotiateCodecs()
     return(FALSE);
 }
 
-UtlBoolean CpGhostConnection::silentRemoteHold() 
+UtlBoolean CpGhostConnection::silentRemoteHold()
 {
     unimplemented("CpGhostConnection::silentRemoteHold");
     return(FALSE);

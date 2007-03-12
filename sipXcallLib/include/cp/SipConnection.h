@@ -1,7 +1,7 @@
 //
 // Copyright (C) 2005-2006 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -75,7 +75,7 @@ public:
     /* ============================ MANIPULATORS ============================== */
 
     virtual UtlBoolean dequeue(UtlBoolean callInFocus);
-    
+
     virtual UtlBoolean send(SipMessage& message,
                             OsMsgQ* responseListener = NULL,
                             void* responseListenerData = NULL,
@@ -158,7 +158,7 @@ public:
     void setContactType(SIPX_CONTACT_TYPE eType, Url* pToUrl = NULL) ;
     void setContactId(SIPX_CONTACT_ID contactId) { mContactId = contactId; }
 
-	void setExternalTransport(SIPX_TRANSPORT_DATA* pTransport) { if (pTransport) { mTransport = *pTransport; }}
+    void setExternalTransport(SIPX_TRANSPORT_DATA* pTransport) { if (pTransport) { mTransport = *pTransport; }}
 
     // ISocketEvent::onIdleNotify method
     void onIdleNotify(IStunSocket* const pSocket,
@@ -217,13 +217,13 @@ public:
 
     /**
      * Removes a listener of this observable.
-     */ 
+     */
     virtual void removeObserver(UtlObserver* observer);
-    
 
-private:    
+
+private:
     UtlSList mObservers;
-    
+
 
     /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -231,24 +231,24 @@ protected:
     /**
      * The observable calls this to notify its
      * observers of a change.
-     */ 
+     */
     virtual void notify(int code, void *pUserData);
 
     UtlBoolean prepareInviteSdpForSend(SipMessage* pMsg, int connectionId, const void* pSecurityAttribute) ;
 
-    void setMediaDestination(const char*    hostAddress, 
-                             int            audioRtpPort, 
-                             int            audioRtcpPort, 
-                             int            videoRtpPort, 
-                             int            videoRtcpPort, 
+    void setMediaDestination(const char*    hostAddress,
+                             int            audioRtpPort,
+                             int            audioRtcpPort,
+                             int            videoRtpPort,
+                             int            videoRtcpPort,
                              const SdpBody* pRemoteBody) ;
 
     SIPX_CONTACT_TYPE selectCompatibleContactType(const SipMessage& request) ;
     //: Select a compatible contact given the URI
 
-    void updateContact(Url*              pContactUrl, 
-                       SIPX_CONTACT_TYPE eType, 
-                       Url*              pToUrl = NULL, 
+    void updateContact(Url*              pContactUrl,
+                       SIPX_CONTACT_TYPE eType,
+                       Url*              pToUrl = NULL,
                        UtlString*        pRemoteHostOrIp = NULL,
                        int*              pRemotePort = NULL) ;
 
@@ -288,7 +288,7 @@ protected:
     // SIP Response handlers
     UtlBoolean processResponse(const SipMessage* response,
         UtlBoolean callInFocus, UtlBoolean onHook);
-    void processInviteResponse(const SipMessage* request);    
+    void processInviteResponse(const SipMessage* request);
     void processReferResponse(const SipMessage* request);
     void processOptionsResponse(const SipMessage* request);
     void processByeResponse(const SipMessage* request);
@@ -308,7 +308,7 @@ protected:
     void processInviteRequestBadTransaction(const SipMessage* request, int tag) ;
     void processInviteRequestLoop(const SipMessage* request, int tag) ;
     void processInviteRequestBadRefer(const SipMessage* request, int tag) ;
-    void processInviteRequestOffering(const SipMessage* request, 
+    void processInviteRequestOffering(const SipMessage* request,
                                       int               tag,
                                       UtlBoolean        doesReplaceCallLegExist,
                                       int               replaceCallLegState,
@@ -380,8 +380,8 @@ private:
         UtlString& remoteAddress,
         int& remotePort,
         int& remoteRtcpPort,
-		int& remoteVideoRtpPort,
-		int& remoteVideoRtcpPort,
+        int& remoteVideoRtpPort,
+        int& remoteVideoRtcpPort,
         SdpSrtpParameters& localSrtpParams,
         SdpSrtpParameters& matchingSrtpParams,
         int localBandwidth,

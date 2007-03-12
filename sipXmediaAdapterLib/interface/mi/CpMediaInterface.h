@@ -52,7 +52,7 @@ typedef enum SIPXMI_AUDIO_BANDWIDTH_ID
     AUDIO_MICODEC_BW_NORMAL,       /**< ID for codecs with normal bandwidth requirements */
     AUDIO_MICODEC_BW_HIGH,         /**< ID for codecs with high bandwidth requirements */
 
-    AUDIO_MICODEC_BW_CUSTOM,		 /**< Possible return value for sipxConfigGetAudioCodecPreferences.
+    AUDIO_MICODEC_BW_CUSTOM,       /**< Possible return value for sipxConfigGetAudioCodecPreferences.
                                       This ID indicates the available list of codecs was
                                       overriden by a sipxConfigSetAudioCodecByName call. */
     AUDIO_MICODEC_BW_DEFAULT       /**< Value used to signify the default bandwidth level 
