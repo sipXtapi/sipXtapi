@@ -124,7 +124,8 @@ public:
         OsStatus result = OS_FAILED;
         assert(samples);
 
-        printf("pushFrame frameTime: %d\n", frameTime);
+        //printf("pushFrame frameTime: %d\n", frameTime);
+
         // TODO: could support reframing here.  For now
         // the driver must do the correct framing.
         assert(numSamples == mSamplesPerFrame);
@@ -166,7 +167,7 @@ public:
         // Stuff the data in a buffer
         if (thisFrameData->mFrameBuffer.isValid())
         {
-            memcpy(thisFrameData->mFrameBuffer->getSamples(), samples, numSamples);
+            memcpy(thisFrameData->mFrameBuffer->getSamples(), samples, numSamples * sizeof(MpAudioSample));
             thisFrameData->mFrameBuffer->setSamplesNumber(numSamples);
             thisFrameData->mFrameBuffer->setSpeechType(MpAudioBuf::MP_SPEECH_UNKNOWN);
             result = OS_SUCCESS;
@@ -199,7 +200,7 @@ public:
         }
 
         unsigned int lastFrame = mLastPushedFrame;
-        printf("getFrame lastFrame: %d mFrameBuffersUsed: %d\n", lastFrame, mFrameBuffersUsed);
+        //printf("getFrame lastFrame: %d mFrameBuffersUsed: %d\n", lastFrame, mFrameBuffersUsed);
         numFramesBefore = 0;
         numFramesAfter = 0;
         int framePeriod = 1000 * mSamplesPerFrame / mSamplesPerSecond;
@@ -232,10 +233,10 @@ public:
             }
         }
 
-        if(result == OS_SUCCESS)
+        /*if(result == OS_SUCCESS)
         {
             printf("getFrame got frame: %d\n", frameIndex);
-        }
+        }*/
         return(result);
     }; 
 
