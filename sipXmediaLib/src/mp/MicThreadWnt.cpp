@@ -29,6 +29,10 @@
 #include "os/OsMsgPool.h"
 #include "os/OsDefs.h"
 
+#ifdef RTL_ENABLED
+#   include <rtl_macro.h>
+#endif
+
 // DEFINES
 // EXTERNAL FUNCTIONS
 extern void showWaveError(char *syscall, int e, int N, int line) ;  // dmaTaskWnt.cpp
@@ -198,6 +202,9 @@ WAVEHDR* inPrePrep(int n, DWORD bufLen)
 
 bool inPostUnprep(int n, int discard, DWORD bufLen, bool bFree)
 {
+#ifdef RTL_ENABLED
+   RTL_EVENT("MicThreadWnt.outPrePrep", 0);
+#endif
    bool retVal = false;  //assume we didn't succeed for now
 
    WAVEHDR* pWH;
@@ -325,6 +332,10 @@ bool inPostUnprep(int n, int discard, DWORD bufLen, bool bFree)
          hInBuf[n] = NULL;
       }
    }
+
+#ifdef RTL_ENABLED
+   RTL_EVENT("MicThreadWnt.outPrePrep", 1);
+#endif
 
    return retVal;
 }

@@ -28,6 +28,10 @@
 #include "mp/MpMediaTask.h"
 #include "os/OsDefs.h"
 
+#ifdef RTL_ENABLED
+#   include <rtl_macro.h>
+#endif
+
 // DEFINES
 #undef OHISTORY
 #define OHISTORY (2 * (N_OUT_BUFFERS))
@@ -174,6 +178,10 @@ static int openAudioOut(int desiredDeviceId, HWAVEOUT *pAudioOutH,int nChannels,
 
 static WAVEHDR* outPrePrep(int n, DWORD bufLen)
 {
+#ifdef RTL_ENABLED
+   RTL_EVENT("SpeakerThreadWnt.outPrePrep", 1);
+#endif
+
    WAVEHDR* pWH;
    int doAlloc = (hOutHdr[n] == NULL);
    MpBufferMsg* msg;
@@ -277,6 +285,10 @@ static WAVEHDR* outPrePrep(int n, DWORD bufLen)
    pWH->lpNext = 0;
    pWH->reserved = 0;
    memcpy(pWH->lpData, ob->getSamples(), bufLen);
+
+#ifdef RTL_ENABLED
+   RTL_EVENT("SpeakerThreadWnt.outPrePrep", 0);
+#endif
    return pWH;
 }
 

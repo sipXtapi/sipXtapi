@@ -23,6 +23,13 @@
 #  include "record_prompt.h"
 #endif
 
+#ifdef RTL_ENABLED
+#  include <rtl_macro.h>
+   RTL_DECLARE
+#else
+#  define RTL_EVENT
+#endif
+
 // Unittest for CpPhoneMediaInterface
 
 class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
@@ -154,6 +161,9 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
     void testRecordPlayback()
     {
+#ifdef RTL_ENABLED
+        RTL_START(4500000);
+#endif
         CPPUNIT_ASSERT(mpMediaFactory);
 
         SdpCodecFactory* codecFactory = new SdpCodecFactory();
@@ -273,6 +283,10 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         printf("Play all done\n");
         OsTask::delay(500) ;
 
+#ifdef RTL_ENABLED
+        RTL_WRITE("testRecordPlayback.rtl");
+        RTL_STOP;
+#endif
         mediaInterface->deleteConnection(connectionId) ;
 
         delete codecFactory ;
@@ -282,6 +296,9 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
     void testTones()
     {
+#ifdef RTL_ENABLED
+        RTL_START(1600000);
+#endif
         CPPUNIT_ASSERT(mpMediaFactory);
 
         SdpCodecFactory* codecFactory = new SdpCodecFactory();
@@ -329,30 +346,47 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         mediaInterface->giveFocus() ;
 
-        printf("first tone set\n");        
+        RTL_EVENT("Tone set", 0);
+        printf("first tone set\n");
+        RTL_EVENT("Tone set", 1);
         mediaInterface->startTone(6, true, false) ;OsTask::delay(250) ;mediaInterface->stopTone() ;OsTask::delay(250) ;
+        RTL_EVENT("Tone set", 2);
         mediaInterface->startTone(8, true, false) ;OsTask::delay(250) ;mediaInterface->stopTone() ;OsTask::delay(250) ;
+        RTL_EVENT("Tone set", 3);
         mediaInterface->startTone(4, true, false) ;OsTask::delay(250) ;mediaInterface->stopTone() ;OsTask::delay(250) ;
+        RTL_EVENT("Tone set", 0);
         printf("second tone set\n");        
         OsTask::delay(500) ;
+        RTL_EVENT("Tone set", 1);
         mediaInterface->startTone(6, true, false) ;OsTask::delay(250) ;mediaInterface->stopTone() ;OsTask::delay(250) ;
+        RTL_EVENT("Tone set", 2);
         mediaInterface->startTone(8, true, false) ;OsTask::delay(250) ;mediaInterface->stopTone() ;OsTask::delay(250) ;
+        RTL_EVENT("Tone set", 3);
         mediaInterface->startTone(4, true, false) ;OsTask::delay(250) ;mediaInterface->stopTone() ;OsTask::delay(250) ;
+        RTL_EVENT("Tone set", 0);
         printf("third tone set\n");        
         OsTask::delay(500) ;
+        RTL_EVENT("Tone set", 1);
         mediaInterface->startTone(9, true, false) ;OsTask::delay(250) ;mediaInterface->stopTone() ;OsTask::delay(250) ;
         mediaInterface->startTone(5, true, false) ;OsTask::delay(250) ;mediaInterface->stopTone() ;OsTask::delay(250) ;
         mediaInterface->startTone(5, true, false) ;OsTask::delay(250) ;mediaInterface->stopTone() ;OsTask::delay(250) ;
         mediaInterface->startTone(4, true, false) ;OsTask::delay(250) ;mediaInterface->stopTone() ;OsTask::delay(250) ;
+        RTL_EVENT("Tone set", 0);
         printf("fourth tone set\n");        
         OsTask::delay(500) ;
+        RTL_EVENT("Tone set", 1);
         mediaInterface->startTone(9, true, false) ;OsTask::delay(250) ;mediaInterface->stopTone() ;OsTask::delay(250) ;
         mediaInterface->startTone(5, true, false) ;OsTask::delay(250) ;mediaInterface->stopTone() ;OsTask::delay(250) ;
         mediaInterface->startTone(5, true, false) ;OsTask::delay(250) ;mediaInterface->stopTone() ;OsTask::delay(250) ;
         mediaInterface->startTone(4, true, false) ;OsTask::delay(250) ;mediaInterface->stopTone() ;OsTask::delay(250) ;
+        RTL_EVENT("Tone set", 0);
         printf("tone set done\n");        
         OsTask::delay(1000) ;
 
+#ifdef RTL_ENABLED
+        RTL_WRITE("testTones.rtl");
+        RTL_STOP;
+#endif
         mediaInterface->deleteConnection(connectionId) ;
 
         // delete interface
@@ -364,6 +398,9 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
     void testTwoTones()
     {
+#ifdef RTL_ENABLED
+        RTL_START(2400000);
+#endif
         // This test creates three flographs.  It streams RTP with tones
         // from the 2nd and 3rd to be received and mixed in the first flowgraph
         // So we test RTP and we test that we can generate 2 different tones in
@@ -584,6 +621,10 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
                                                        *rtcpVideoPorts2),
             OS_SUCCESS);
 
+#ifdef RTL_ENABLED
+        RTL_EVENT("Tone count", 0);
+#endif
+
         // Start sending RTP from source 2 to the mix flowgraph
         CPPUNIT_ASSERT_EQUAL(
             source2Interface->startRtpSend(source2ConnectionId, 
@@ -594,19 +635,32 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         // Want to hear what is on the mixed flowgraph
         mixedInterface->giveFocus();
 
+#ifdef RTL_ENABLED
+        RTL_EVENT("Tone count", 1);
+#endif
+
         printf("generate tones in source 1\n");
         source1Interface->startTone(1, true, true);
 
         OsTask::delay(1000);
+#ifdef RTL_ENABLED
+        RTL_EVENT("Tone count", 2);
+#endif
         printf("generate tones in source 2 as well\n");
         source2Interface->startTone(2, true, true);
 
         OsTask::delay(1000);
+#ifdef RTL_ENABLED
+        RTL_EVENT("Tone count", 1);
+#endif
         printf("stop tones in source 1\n");
         source1Interface->stopTone();
 
 
         OsTask::delay(1000);
+#ifdef RTL_ENABLED
+        RTL_EVENT("Tone count", 0);
+#endif
         printf("stop tone in source 2\n");
         source2Interface->stopTone();
 
@@ -625,6 +679,11 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         source2Interface->release();
 
         OsTask::delay(500) ;
+
+#ifdef RTL_ENABLED
+        RTL_WRITE("testTwoTones.rtl");
+        RTL_STOP;
+#endif
         delete codecFactory ;
     };
 };

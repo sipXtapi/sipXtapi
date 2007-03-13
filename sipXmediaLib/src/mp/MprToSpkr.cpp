@@ -42,6 +42,10 @@
 #include "mp/dsplib.h"
 #include "mp/MpMediaTask.h"
 
+#ifdef RTL_ENABLED
+#   include <rtl_macro.h>
+#endif
+
 int iTrainingNoiseFlag = 0;
 static int iComfortNoiseFlag = 1;
 /*
@@ -350,6 +354,10 @@ UtlBoolean MprToSpkr::doProcessFrame(MpBufPtr inBufs[],
         {
             outBufs[0] = out;
         }
+
+#ifdef RTL_ENABLED
+   RTL_EVENT("ToSpeaker queue", mpSpkQ->numMsgs());
+#endif
 
         // Flush speaker queue if it is full.
         while (mpSpkQ && MAX_SPKR_BUFFERS < mpSpkQ->numMsgs()) 

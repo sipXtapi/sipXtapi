@@ -24,6 +24,9 @@
 #include <mp/MpBuf.h>
 #include <mp/MpAudioBuf.h>
 #include <utl/UtlInt.h>
+#ifdef RTL_ENABLED
+#   include <rtl_macro.h>
+#endif
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -553,6 +556,9 @@ OsStatus MpInputDeviceManager::pushFrame(MpInputDeviceHandle deviceId,
                                          MpFrameTime frameTime)
 {
     OsStatus status = OS_NOT_FOUND;
+#ifdef RTL_ENABLED
+    RTL_EVENT("MpInputDeviceManager.pushFrame", deviceId);
+#endif
 
     OsWriteLock lock((OsRWMutex&)mRwMutex);
 
@@ -567,6 +573,9 @@ OsStatus MpInputDeviceManager::pushFrame(MpInputDeviceHandle deviceId,
             connectionFound->pushFrame(numSamples, samples, frameTime);
     }
 
+#ifdef RTL_ENABLED
+    RTL_EVENT("MpInputDeviceManager.pushFrame", 0);
+#endif
     return(status);
 }
 
@@ -578,6 +587,9 @@ OsStatus MpInputDeviceManager::getFrame(MpInputDeviceHandle deviceId,
                                         unsigned& numFramesAfter)
 {
     OsStatus status = OS_INVALID_ARGUMENT;
+#ifdef RTL_ENABLED
+    RTL_EVENT("MpInputDeviceManager.getFrame", deviceId);
+#endif
 
     OsWriteLock lock((OsRWMutex&)mRwMutex);
 
@@ -595,6 +607,9 @@ OsStatus MpInputDeviceManager::getFrame(MpInputDeviceHandle deviceId,
             numFramesAfter);
     }
 
+#ifdef RTL_ENABLED
+    RTL_EVENT("MpInputDeviceManager.getFrame", 0);
+#endif
     return(status);
 }
 

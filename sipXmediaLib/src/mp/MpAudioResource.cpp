@@ -22,6 +22,9 @@
 #include "mp/MpFlowGraphBase.h"
 #include "mp/MpFlowGraphMsg.h"
 #include "mp/MpAudioResource.h"
+#ifdef RTL_ENABLED
+#   include <rtl_macro.h>
+#endif
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -60,6 +63,10 @@ UtlBoolean MpAudioResource::processFrame(void)
 {
    int       i;
    UtlBoolean res;
+
+#ifdef RTL_ENABLED
+        RTL_BLOCK(mName);
+#endif
 
 #ifdef WATCH_FRAME_PROCESSING /* [ */
    char      z[500];

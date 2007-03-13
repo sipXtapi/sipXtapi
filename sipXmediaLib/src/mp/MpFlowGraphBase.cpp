@@ -28,6 +28,10 @@
 
 #include "mp/MpMisc.h"
 
+#ifdef RTL_ENABLED
+#   include <rtl_macro.h>
+#endif
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -361,7 +365,11 @@ OsStatus MpFlowGraphBase::loseFocus(void)
 // For now, this method always returns success.
 OsStatus MpFlowGraphBase::processNextFrame(void)
 {
-   UtlBoolean boolRes;
+#ifdef RTL_ENABLED
+    RTL_BLOCK("MpFlowGraphBase.processNextFrame");
+#endif
+    
+    UtlBoolean boolRes;
    int       i;
    OsStatus  res;
 
@@ -1209,6 +1217,10 @@ OsStatus MpFlowGraphBase::postMessage(const MpFlowGraphMsg& rMsg,
 // For now, this method always returns OS_SUCCESS.
 OsStatus MpFlowGraphBase::processMessages(void)
 {
+#ifdef RTL_ENABLED
+    RTL_BLOCK("MpFlowGraphBase.processMessages");
+#endif
+
    OsWriteLock     lock(mRWMutex);
 
    UtlBoolean       done;

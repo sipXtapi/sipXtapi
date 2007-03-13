@@ -19,6 +19,9 @@
 #include <mp/MpSineWaveGeneratorDeviceDriver.h>
 #include <os/OsServerTask.h>
 #include <os/OsTimer.h>
+#ifdef RTL_ENABLED
+#   include <rtl_macro.h>
+#endif
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -103,6 +106,9 @@ public:
 
     UtlBoolean handleMessage(OsMsg& rMsg)
     {
+#ifdef RTL_ENABLED
+        RTL_BLOCK("MpSineWaveGeneratorServer.handleMessage");
+#endif
         OsSysLog::add(FAC_MP, PRI_ERR,"MpSineWaveGeneratorServer::handleMessage start time=%u\n", mNextFrameTime);
         // Build a frame of signal and push it to the device manager
         assert(mpFrameData);

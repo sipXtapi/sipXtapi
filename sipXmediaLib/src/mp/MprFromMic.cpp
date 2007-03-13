@@ -42,6 +42,9 @@
 #include "mp/dmaTask.h"
 #include "mp/DSP_type.h"
 
+#ifdef RTL_ENABLED
+#   include <rtl_macro.h>
+#endif
 
 // function prototype
 // EXTERNAL FUNCTIONS
@@ -109,11 +112,15 @@ UtlBoolean MprFromMic::doProcessFrame(MpBufPtr inBufs[],
    // One more frame processed
    mNumFrames++;
 
+#ifdef RTL_ENABLED
+   RTL_EVENT("FromMic queue", mpMicQ->numMsgs());
+#endif
+
    if (isEnabled) 
    {
       // If the microphone queue (holds unprocessed mic data) has more then
       // the max_mic_buffers threshold, drain the queue until in range)
-      while (mpMicQ && mpMicQ->numMsgs() > MpMisc.max_mic_buffers) 
+      while (mpMicQ->numMsgs() > MpMisc.max_mic_buffers) 
       {
          if (mpMicQ->receive((OsMsg*&)pMsg, OsTime::NO_WAIT_TIME) == OS_SUCCESS) 
          {

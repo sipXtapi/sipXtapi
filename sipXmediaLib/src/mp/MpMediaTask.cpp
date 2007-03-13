@@ -30,6 +30,10 @@
 #include "mp/MpCodecFactory.h"
 #include "mp/MpCodec.h"
 
+#ifdef RTL_ENABLED
+#   include <rtl_macro.h>
+#endif
+
 // Include sys/time.h if _PROFILE is set.
 // This #include has to be after the #include of mp/MpMediaTask.h, because
 // that is where we normally set _PROFILE.
@@ -857,6 +861,9 @@ UtlBoolean MpMediaTask::handleWaitForSignal(MpMediaTaskMsg* pMsg)
    // Call processNextFrame() for each of the "started" flow graphs
    for (i=0; i < mManagedCnt; i++)
    {
+#ifdef RTL_ENABLED
+    RTL_EVENT("MpMediaTask.handleWaitForSignal", i+1);
+#endif
       pFlowGraph = mManagedFGs[i];
       if (pFlowGraph->isStarted())
       {
@@ -865,6 +872,9 @@ UtlBoolean MpMediaTask::handleWaitForSignal(MpMediaTaskMsg* pMsg)
       }
    }
 
+#ifdef RTL_ENABLED
+    RTL_EVENT("MpMediaTask.handleWaitForSignal", 0);
+#endif
 #ifdef _PROFILE /* [ */
    {
       timeval t;
