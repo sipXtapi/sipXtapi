@@ -230,8 +230,9 @@ public:
         RTL_WRITE("testSineInput1.rtl");
 #endif
         // Stop generating the sine wave ASAP
-        CPPUNIT_ASSERT(inputDeviceManager.disableDevice(sineWaveDeviceId) !=
-                       OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             inputDeviceManager.disableDevice(sineWaveDeviceId));
+
 #ifdef RTL_ENABLED
         RTL_WRITE("testSineInput2.rtl");
         RTL_STOP;
