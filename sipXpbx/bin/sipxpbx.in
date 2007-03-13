@@ -587,10 +587,10 @@ do_start() {
 
         ### Clean up various temporary files and locks.
 
-        # Clean up IMDB and all its dependent files.
-        @bindir@/autodel @SIPXPBXUSER@
+        # Remove the semaphores/memory segments associated with the imdb files
+        @bindir@/ipcclean.pl --remove @SIPX_TMPDIR@/imdb.*
 
-        # Remove the named semaphores.
+        # Clean up IMDB and all its dependent files.
         rm -f @SIPX_TMPDIR@/imdb.*
 
         # Remove the watchdog's temporary files.
