@@ -32,7 +32,6 @@ AC_ARG_ENABLE(fc5,
 	AC_HELP_STRING([--enable-fc5], [Enable dependencies for Fedora Core 5]),
 	[ 
           java_sun=yes
-          ruby_gems=yes
           cgicc=yes
           ruby_dbi=yes
         ])
@@ -41,7 +40,6 @@ AC_ARG_ENABLE(fc6,
 	AC_HELP_STRING([--enable-fc6], [Enable dependencies for Fedora Core 6]),
 	[ 
           java_sun=yes
-          ruby_gems=yes
           cgicc=yes
           ruby_dbi=yes
         ])
@@ -107,10 +105,10 @@ AC_ARG_ENABLE(ruby-dbi,
 	[ ruby_dbi=${enableval} ])
 test x$ruby_dbi = xyes && AC_CONFIG_SUBDIRS(ruby-dbi)
 
-AC_ARG_ENABLE(ruby-gems,
-	AC_HELP_STRING([--enable-ruby-gems], [Build ruby gems dependency]),
+AC_ARG_ENABLE(rubygems,
+	AC_HELP_STRING([--enable-rubygems], [Build ruby gems dependency]),
 	[ ruby_gems=${enableval} ])
-test x$ruby_gems = xyes && AC_CONFIG_SUBDIRS(ruby-gems)
+test x$ruby_gems = xyes && AC_CONFIG_SUBDIRS(rubygems)
 
 AC_ARG_ENABLE(ruby-postgres,
 	AC_HELP_STRING([--enable-ruby-postgres], [Build ruby postgres dependency]),

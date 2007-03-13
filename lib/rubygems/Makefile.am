@@ -3,11 +3,11 @@
 # distros and will disappear when lasted distro stops building them
 RUBY_GEM_RPM_URL = http://www.sipfoundry.org/pub/sipX/3.6/FC/5/RPM
 
-GEMS_LIBSRC=$(LIBSRC)/ruby-gems
+GEMS_LIBSRC=$(LIBSRC)/rubygems
 VER = 0.8.11
 REL = 2
 
-RPM = ruby-gems-$(VER)-$(REL).noarch.rpm
+RPM = rubygems-$(VER)-$(REL).noarch.rpm
 
 all : $(DEST_RPM)/$(RPM)
 
