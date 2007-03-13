@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
@@ -44,7 +45,6 @@ import org.sipfoundry.sipxconfig.setting.ModelBuilder;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContextImpl;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingSet;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.springframework.beans.factory.access.BeanFactoryLocator;
@@ -131,15 +131,10 @@ public final class TestHelper {
         return settings;
     }
 
-    public static Setting loadSettings(InputStream in) {
+    public static Setting loadSettings(Class klass, String resource) {
         ModelBuilder builder = new XmlModelBuilder("etc");
-        SettingSet root;
-        try {
-            root = builder.buildModel(in);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return root;
+        File in = getResourceAsFile(klass, resource);
+        return builder.buildModel(in);
     }
 
     public static String getClasspathDirectory() {
@@ -310,5 +305,17 @@ public final class TestHelper {
         IOUtils.copy(from, to);
         IOUtils.closeQuietly(to);
         IOUtils.closeQuietly(from);
+    }
+
+    /**
+     * Retrieves the file corresponding to the class resource
+     * 
+     * @param klass
+     * @param resource resource name relative to class
+     * @return file that can be opened and used to read resource
+     */
+    public static File getResourceAsFile(Class klass, String resource) {
+        URL url = klass.getResource(resource);
+        return new File(url.getFile());
     }
 }

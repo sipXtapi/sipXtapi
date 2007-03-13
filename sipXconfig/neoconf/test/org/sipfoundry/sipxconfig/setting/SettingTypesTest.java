@@ -11,12 +11,13 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
-import java.io.InputStream;
+import java.io.File;
 import java.util.Iterator;
 import java.util.Map;
 
 import junit.framework.TestCase;
 
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
 import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
 import org.sipfoundry.sipxconfig.setting.type.FileSetting;
@@ -31,7 +32,7 @@ public class SettingTypesTest extends TestCase {
 
     protected void setUp() throws Exception {
         ModelBuilder builder = new XmlModelBuilder("etc");
-        InputStream in = getClass().getResourceAsStream("setting-types.xml");
+        File in = TestHelper.getResourceAsFile(getClass(), "setting-types.xml");
         SettingSet root = builder.buildModel(in);
         group = root.getSetting("group");
     }

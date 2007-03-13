@@ -60,7 +60,7 @@ public class XmlModelBuilder implements ModelBuilder {
         FileInputStream is = null;
         try {
             is = new FileInputStream(modelFile);
-            SettingSet model = buildModel(is, null, modelFile.getParentFile());
+            SettingSet model = buildModel(is, modelFile.getParentFile());
             ModelMessageSource messageSource = new ModelMessageSource(modelFile);
             model.setMessageSource(messageSource);
             return model;
@@ -72,15 +72,7 @@ public class XmlModelBuilder implements ModelBuilder {
         }
     }
 
-    public SettingSet buildModel(InputStream is) throws IOException {
-        return buildModel(is, null, null);
-    }
-
-    public SettingSet buildModel(InputStream is, Setting parent) throws IOException {
-        return buildModel(is, parent, null);
-    }
-
-    public SettingSet buildModel(InputStream is, Setting parent, File baseSystemId) throws IOException {
+    private SettingSet buildModel(InputStream is, File baseSystemId) throws IOException {
         Digester digester = new Digester();
 
         // setting classloader ensures classes are searched for in this classloader
@@ -89,11 +81,7 @@ public class XmlModelBuilder implements ModelBuilder {
         digester.setValidating(false);
         EntityResolver entityResolver = new ModelEntityResolver(m_configDirectory, baseSystemId);
         digester.setEntityResolver(entityResolver);
-        if (parent != null) {
-            digester.push(parent.copy());
-        } else {
-            digester.push(new ConditionalSet());
-        }
+        digester.push(new ConditionalSet());
         addSettingTypes(digester, "model/type/");
 
         CollectionRuleSet collectionRule = new CollectionRuleSet();
@@ -234,7 +222,7 @@ public class XmlModelBuilder implements ModelBuilder {
     static class SettingTypeRule extends RuleSetBase {
         /** shared among all type rules */
         private static final SettingTypeIdRule SETTING_TYPE_ID_RULE = new SettingTypeIdRule();
-        
+
         private final String m_pattern;
 
         public SettingTypeRule(String pattern) {

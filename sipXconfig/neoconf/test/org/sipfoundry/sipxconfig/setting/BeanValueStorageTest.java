@@ -12,7 +12,6 @@
 package org.sipfoundry.sipxconfig.setting;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import junit.framework.TestCase;
 
@@ -26,8 +25,7 @@ public class BeanValueStorageTest extends TestCase {
     protected void setUp() throws IOException {
         BeanValueStorageTestBean bean = new BeanValueStorageTestBean();
         m_vs = new BeanValueStorage(bean);
-        InputStream in = getClass().getResourceAsStream("birds.xml");
-        m_birds = TestHelper.loadSettings(in);
+        m_birds = TestHelper.loadSettings(getClass(), "birds.xml");
     }
 
     public void testGetSettingValue() {

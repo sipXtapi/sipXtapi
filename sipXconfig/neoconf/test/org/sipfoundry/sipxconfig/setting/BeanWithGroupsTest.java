@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
-import java.io.InputStream;
 import java.util.Arrays;
 
 import junit.framework.TestCase;
@@ -27,8 +26,7 @@ public class BeanWithGroupsTest extends TestCase {
 
     static class BirdWithGroups extends BeanWithGroups {
         protected Setting loadSettings() {
-            InputStream in = getClass().getResourceAsStream("birds.xml");
-            return TestHelper.loadSettings(in);
+            return TestHelper.loadSettings(BeanWithGroupsTest.class, "birds.xml");
         }
     }
 
@@ -76,12 +74,12 @@ public class BeanWithGroupsTest extends TestCase {
         // if you set value on the bean groups do not matter
         m_bean.setSettingValue("towhee/rufous-sided", "4");
         assertEquals("4", m_bean.getSettingValue("towhee/rufous-sided"));
-        
+
         m_bean.addGroup(g2);
         assertEquals("4", m_bean.getSettingValue("towhee/rufous-sided"));
-        
+
         // and groups setting value does not change
-        Setting settingTrs = m_bean.getSettings().getSetting("towhee/rufous-sided");        
+        Setting settingTrs = m_bean.getSettings().getSetting("towhee/rufous-sided");
         assertEquals("16", g1.getSettingValue(settingTrs).getValue());
     }
 

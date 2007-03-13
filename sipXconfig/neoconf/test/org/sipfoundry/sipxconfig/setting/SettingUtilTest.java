@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
-import java.io.InputStream;
 import java.util.Collection;
 
 import junit.framework.TestCase;
@@ -57,7 +56,6 @@ public class SettingUtilTest extends TestCase {
     }
 
     Setting loadSettings(String resource) {
-        InputStream in = getClass().getResourceAsStream(resource);
-        return TestHelper.loadSettings(in);
+        return TestHelper.loadSettings(getClass(), resource);
     }
 }

@@ -12,14 +12,7 @@
 package org.sipfoundry.sipxconfig.setting;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 
 public interface ModelBuilder {
-
     public abstract SettingSet buildModel(File modelFile);
-
-    public abstract SettingSet buildModel(InputStream is, Setting parent) throws IOException;
-
-    public abstract SettingSet buildModel(InputStream is) throws IOException;    
 }
