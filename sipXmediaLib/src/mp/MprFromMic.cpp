@@ -120,7 +120,7 @@ UtlBoolean MprFromMic::doProcessFrame(MpBufPtr inBufs[],
    {
       // If the microphone queue (holds unprocessed mic data) has more then
       // the max_mic_buffers threshold, drain the queue until in range)
-      while (mpMicQ->numMsgs() > MpMisc.max_mic_buffers) 
+      while (mpMicQ && mpMicQ->numMsgs() > MpMisc.max_mic_buffers) 
       {
          if (mpMicQ->receive((OsMsg*&)pMsg, OsTime::NO_WAIT_TIME) == OS_SUCCESS) 
          {
