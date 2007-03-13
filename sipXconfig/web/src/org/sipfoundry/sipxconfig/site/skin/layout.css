@@ -83,12 +83,13 @@ ul.vtabs li
 }
 
 div.tab {
-	background-color: #ffc; /*background color of content*/
+	background-color: #ffc;
 	padding: .3em 1ex;
 }
 
 div.tab.active {
-	border: 1px solid #666; /*border color*/
+	background-color: #fff;
+	border: 1px solid #666;
 	padding: .2em .5ex;
 }
 
