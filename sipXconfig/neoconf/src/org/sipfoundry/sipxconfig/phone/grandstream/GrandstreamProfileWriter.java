@@ -18,10 +18,10 @@ import java.util.Collection;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.phone.Line;
+import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingVisitor;
 
-public class GrandstreamProfileWriter implements SettingVisitor {
+public class GrandstreamProfileWriter extends AbstractSettingVisitor {
     protected static final char LF = 0x0a;
     private OutputStream m_wtr;
     private GrandstreamPhone m_phone;
@@ -55,10 +55,6 @@ public class GrandstreamProfileWriter implements SettingVisitor {
     public void visitSetting(Setting setting) {
         writeProfileEntry(setting.getProfileName(), setting.getValue());
     }
-
-    public boolean visitSettingGroup(Setting group) {
-        return true;
-    }        
 
     String nonNull(String value) {
         return value == null ? StringUtils.EMPTY : value;

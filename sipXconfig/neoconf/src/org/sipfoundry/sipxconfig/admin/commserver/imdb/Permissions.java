@@ -18,8 +18,8 @@ import org.dom4j.Element;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingVisitor;
 
 public class Permissions extends DataSetGenerator {
 
@@ -45,7 +45,7 @@ public class Permissions extends DataSetGenerator {
         permissions.acceptVisitor(writer);
     }
 
-    class PermissionWriter implements SettingVisitor {
+    class PermissionWriter extends AbstractSettingVisitor {
 
         private User m_user;
 
@@ -65,10 +65,6 @@ public class Permissions extends DataSetGenerator {
                 item.addElement("identity").setText(m_user.getUri(m_domain));
                 item.addElement("permission").setText(setting.getName());
             }
-        }
-
-        public boolean visitSettingGroup(Setting group_) {
-            return true;
         }
     }
 

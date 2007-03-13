@@ -3,7 +3,7 @@
 <!ENTITY % flag "(yes|no)">
 
 <!ELEMENT description (#PCDATA)>
-<!ELEMENT group (label?,profileName?,description?,(setting|group)*)>
+<!ELEMENT group (label?,profileName?,description?,(setting|group|collection)*)>
 <!ATTLIST group 
   name NMTOKEN #REQUIRED
   advanced %flag; "no"
@@ -21,7 +21,13 @@
   hidden %flag; "no"
   if CDATA #IMPLIED
   unless CDATA #IMPLIED
-  copy-of NMTOKEN #IMPLIED>  
+  copy-of NMTOKEN #IMPLIED>
+<!ELEMENT collection (label?,setting*)>
+<!ATTLIST collection 
+  name NMTOKEN #REQUIRED
+  size CDATA #REQUIRED
+  advanced %flag; "no"
+  hidden %flag; "no">
 
 <!ELEMENT value (#PCDATA)>
 

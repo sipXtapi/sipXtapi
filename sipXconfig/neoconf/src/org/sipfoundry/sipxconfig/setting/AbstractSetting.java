@@ -70,11 +70,11 @@ public abstract class AbstractSetting implements Setting, NamedObject {
     }
 
     public String getPath() {
-        return getPath(PATH_DELIM, false);
+        return getPath(PATH_DELIM, false, true);
     }
 
     public String getProfilePath() {
-        return getPath(PATH_DELIM, true);
+        return getPath(PATH_DELIM, true, false);
     }
 
     public void acceptVisitor(SettingVisitor visitor) {
@@ -175,32 +175,30 @@ public abstract class AbstractSetting implements Setting, NamedObject {
      * @param useProfile if true build path from profile names
      * @return path created by joining components with a separator
      */
-    private String getPath(char separator, boolean useProfile) {
+    private String getPath(char separator, boolean useProfile, boolean useIndex) {
         List<String> names = new LinkedList<String>();
-        names.add(0, getPathItem(useProfile));
+        names.add(0, getPathItem(useProfile, useIndex));
         for (Setting p = getParent(); p != null && p.getParent() != null; p = p.getParent()) {
-            names.add(0, p.getPathItem(useProfile));
+            names.add(0, p.getPathItem(useProfile, useIndex));
         }
         return StringUtils.join(names.iterator(), separator);
     }
 
-    public String getPathItem(boolean useProfile) {
-        if (useProfile) {
-            return getProfileName();
-        }
+    public String getPathItem(boolean useProfile, boolean useIndex) {
+        String name = useProfile ? getProfileName() : getName();
         int index = getIndex();
-        if (index >= 0) {
-            return String.format("%s[%d]", getName(), index);
+        if (!useIndex || index < 0) {
+            return name;
         }
-        return getName();
+        return String.format("%s[%d]", name, index);
     }
 
     public String getDescriptionKey() {
-        return getPath(KEY_SEPARATOR, false) + ".description";
+        return getPath(KEY_SEPARATOR, false, false) + ".description";
     }
 
     public String getLabelKey() {
-        return getPath(KEY_SEPARATOR, false) + ".label";
+        return getPath(KEY_SEPARATOR, false, false) + ".label";
     }
 
     public MessageSource getMessageSource() {

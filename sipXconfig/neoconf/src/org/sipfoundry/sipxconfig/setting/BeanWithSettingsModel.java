@@ -16,8 +16,7 @@ import java.util.List;
 
 public class BeanWithSettingsModel implements SettingModel {
     private List<SettingValueHandler> m_defaultHandlers = new ArrayList<SettingValueHandler>();
-    private SettingValueHandler m_defaultsHandler = new MulticastSettingValueHandler(
-            m_defaultHandlers);
+    private SettingValueHandler m_defaultsHandler = new MulticastSettingValueHandler(m_defaultHandlers);
     private ProfileNameHandler m_defaultProfileNameHandler;
     private BeanWithSettings m_bean;
 
@@ -82,8 +81,11 @@ public class BeanWithSettingsModel implements SettingModel {
         }
 
         public void visitSetting(Setting setting) {
-            SettingImpl impl = SettingUtil.getSettingImpl(setting);
-            impl.setModel(m_model);
+            // FIXME: downcast should not be necessary
+            if (setting instanceof SettingImpl) {
+                SettingImpl impl = (SettingImpl) setting;
+                impl.setModel(m_model);
+            }
         }
     }
 

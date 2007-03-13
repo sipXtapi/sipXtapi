@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.site.setting;
 
+import java.util.Collection;
+
 import junit.framework.TestCase;
 
 import org.apache.tapestry.test.Creator;
@@ -19,6 +21,7 @@ import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingImpl;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
+import org.sipfoundry.sipxconfig.site.setting.SettingsFieldset.SettingsIron;
 
 public class SettingsFieldsetTest extends TestCase {
 
@@ -35,12 +38,6 @@ public class SettingsFieldsetTest extends TestCase {
         Setting setting = control.createMock(Setting.class);
         setting.getParent();
         control.andReturn(null).atLeastOnce();
-        setting.isHidden();
-        control.andReturn(false);
-        setting.isAdvanced();
-        control.andReturn(true);
-        setting.isAdvanced();
-        control.andReturn(false);
         setting.isAdvanced();
         control.andReturn(true);
         setting.isAdvanced();
@@ -62,49 +59,30 @@ public class SettingsFieldsetTest extends TestCase {
     }
 
     public void testRenderHidden() throws Exception {
-        IMocksControl control = EasyMock.createControl();
-        Setting setting = control.createMock(Setting.class);
-        setting.isHidden();
-        control.andReturn(true).times(2);
-        control.replay();
+        SettingSet set = new SettingSet();
+        SettingImpl toggle = new SettingImpl("toggle");
 
-        m_fieldset.setCurrentSetting(setting);
-        m_fieldset.setShowAdvanced(true);
-        assertFalse(m_fieldset.getRenderSetting());
-
-        m_fieldset.setShowAdvanced(false);
-        assertFalse(m_fieldset.getRenderSetting());
-
-        control.verify();
-    }
-
-    public void testRenderSettingPlaceholder() throws Exception {
-        IMocksControl control = EasyMock.createNiceControl();
-        Setting setting = control.createMock(Setting.class);
-        setting.getParent();
-        control.andReturn(null).atLeastOnce();
-        setting.isAdvanced();
-        control.andReturn(true).times(2);
-        setting.isAdvanced();
-        control.andReturn(false).times(2);
-        control.replay();
-
-        m_fieldset.getSettings().addSetting(setting);
-        m_fieldset.setCurrentSetting(setting);
+        set.addSetting(new SettingImpl("a"));
+        set.addSetting(toggle);
+        set.addSetting(new SettingImpl("c"));
         
-        m_fieldset.setShowAdvanced(true);
-        assertFalse(m_fieldset.getRenderSettingPlaceholder());
-
-        m_fieldset.setShowAdvanced(false);
-        assertTrue(m_fieldset.getRenderSettingPlaceholder());
-
-        m_fieldset.setShowAdvanced(true);
-        assertFalse(m_fieldset.getRenderSettingPlaceholder());
-
-        m_fieldset.setShowAdvanced(false);
-        assertFalse(m_fieldset.getRenderSettingPlaceholder());
-
-        control.verify();
+        toggle.setHidden(true);        
+        m_fieldset.setSettings(set);
+        m_fieldset.prepareForRender(null);
+        
+        Collection<Setting> flat = m_fieldset.getFlattenedSettings();
+        assertEquals(3, flat.size());
+        assertFalse(flat.contains(toggle));
+        assertTrue(flat.contains(set));
+        
+        toggle.setHidden(false);        
+        m_fieldset.setFlattenedSettings(null);
+        m_fieldset.prepareForRender(null);
+        
+        flat = m_fieldset.getFlattenedSettings();
+        assertEquals(4, flat.size());
+        assertTrue(flat.contains(toggle));
+        assertTrue(flat.contains(set));        
     }
 
     public void testRenderToggle() throws Exception {
@@ -116,10 +94,13 @@ public class SettingsFieldsetTest extends TestCase {
         set.addSetting(toggle);
         set.addSetting(new SettingImpl("c"));
 
-        m_fieldset.setSettings(set);
+        SettingsIron iron = new SettingsFieldset.SettingsIron();
+        set.acceptVisitor(iron);
+        assertFalse(iron.isAdvanced());
 
-        assertFalse(m_fieldset.getHasAdvancedSettings());
         toggle.setAdvanced(true);
-        assertTrue(m_fieldset.getHasAdvancedSettings());
+        iron = new SettingsFieldset.SettingsIron();
+        set.acceptVisitor(iron);
+        assertTrue(iron.isAdvanced());
     }
 }

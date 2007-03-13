@@ -705,7 +705,7 @@
   </group>
   <group name="Trunks">
     <label>Trunk Groups</label>
-    <group name="TRUNKGROUP_1">
+    <collection name="TRUNKGROUP" size="4">
       <label>Trunk Group #1</label>
       <setting name='ChannelRange'>
         <label>Ports Range</label>
@@ -733,16 +733,7 @@
         <value>0</value>
         <description>Hunt group number, optional</description>
       </setting>
-    </group>
-    <group name="TRUNKGROUP_2" copy-of="TRUNKGROUP_1">
-      <label>Trunk Group #2</label>
-    </group>
-    <group name="TRUNKGROUP_3" copy-of="TRUNKGROUP_1">
-      <label>Trunk Group #3</label>
-    </group>
-    <group name="TRUNKGROUP_4" copy-of="TRUNKGROUP_1">
-      <label>Trunk Group #4</label>
-    </group>
+    </collection>
   </group>
   <group name='Telephony'>
     <label>Telephony Interface Parameters</label>

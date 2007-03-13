@@ -25,19 +25,19 @@ public final class SettingUtil {
      * collections back into this runner.
      * 
      * <pre>
-     *           Example:
-     *             class MyClass {
-     *           
-     *                  private static final SettingFilter MY_SETTING = new SettingFilter() {
-     *                      public boolean acceptSetting(Setting root_, Setting setting) {
-     *                          return setting.getName().equals(&quot;mysetting&quot;);
-     *                      }
-     *                  };
-     *                  
-     *                 public Collection getMySettings(Setting settings) {
-     *                       return SettingUtil.filter(MY_SETTINGS, settings);
-     *                 }
-     *             }
+     *             Example:
+     *               class MyClass {
+     *             
+     *                    private static final SettingFilter MY_SETTING = new SettingFilter() {
+     *                        public boolean acceptSetting(Setting root_, Setting setting) {
+     *                            return setting.getName().equals(&quot;mysetting&quot;);
+     *                        }
+     *                    };
+     *                    
+     *                   public Collection getMySettings(Setting settings) {
+     *                         return SettingUtil.filter(MY_SETTINGS, settings);
+     *                   }
+     *               }
      * </pre>
      */
     public static Collection<Setting> filter(SettingFilter filter, Setting root) {
@@ -57,14 +57,15 @@ public final class SettingUtil {
      * @return true if any node is advanced including node itself
      */
     public static boolean isAdvancedIncludingParents(Setting node, Setting setting) {
-        Setting s = setting;
-        while (s != null && s != node) {
+        for (Setting s = setting; s != null; s = s.getParent()) {
             if (s.isAdvanced()) {
                 return true;
             }
-            s = s.getParent();
+            if (s == node) {
+                break;
+            }
         }
-        return node.isAdvanced();
+        return false;
     }
 
     public static boolean isLeaf(Setting setting) {
@@ -89,21 +90,14 @@ public final class SettingUtil {
             }
         }
 
-        public boolean visitSettingGroup(Setting settingGroup) {
+        public boolean visitSettingGroup(SettingSet settingGroup) {
             visitSetting(settingGroup);
             return true;
         }
-    }
 
-    /**
-     * HACK UNTIL DECORATORS ARE REMOVED
-     */
-    public static SettingImpl getSettingImpl(Setting s) {
-        if (s instanceof SettingImpl) {
-            return (SettingImpl) s;
+        public boolean visitSettingArray(SettingArray array) {
+            visitSetting(array);
+            return true;
         }
-
-        throw new RuntimeException("Unknown Setting Type " + s.getClass().getName());
     }
-
 }

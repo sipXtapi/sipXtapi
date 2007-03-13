@@ -92,5 +92,5 @@ public interface Setting extends Cloneable {
 
     MessageSource getMessageSource();
 
-    String getPathItem(boolean useProfile);
+    String getPathItem(boolean useProfile, boolean useIndex);
 }

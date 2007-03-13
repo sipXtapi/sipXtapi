@@ -38,6 +38,20 @@ public class SettingArray extends AbstractSetting {
         }
     }
 
+    public int getSize() {
+        if (m_elements == null) {
+            return 0;
+        }
+        return m_elements.length;
+    }
+
+    /**
+     * @return names of the settings that compose
+     */
+    public String[] getSettingNames() {
+        return m_elements[0].keySet().toArray(new String[0]);
+    }
+
     public String getDefaultValue() {
         throw new UnsupportedOperationException();
     }
@@ -65,8 +79,10 @@ public class SettingArray extends AbstractSetting {
      */
     @Override
     public void acceptVisitor(SettingVisitor visitor) {
-        for (SettingMap setting : m_elements) {
-            setting.acceptVisitor(visitor);
+        if (visitor.visitSettingArray(this)) {
+            for (SettingMap setting : m_elements) {
+                setting.acceptVisitor(visitor);
+            }
         }
     }
 
@@ -79,6 +95,10 @@ public class SettingArray extends AbstractSetting {
         String childName = matcher.group(1);
         int childIndex = Integer.parseInt(matcher.group(2));
 
-        return m_elements[childIndex].get(childName);
+        return getSetting(childIndex, childName);
+    }
+
+    public Setting getSetting(int index, String column) {
+        return m_elements[index].get(column);
     }
 }

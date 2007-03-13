@@ -58,7 +58,7 @@ public class SettingSetTest extends TestCase {
         settingVisitor.visitSettingGroup(m_set);
         settingVisitorControl.andReturn(true);
         settingVisitor.visitSetting(m_settings[0]);
-        settingVisitor.visitSettingGroup(m_settings[1]);
+        settingVisitor.visitSettingGroup((SettingSet) m_settings[1]);
         settingVisitorControl.andReturn(true);
 
         settingVisitor.visitSettingGroup(m_settingA);

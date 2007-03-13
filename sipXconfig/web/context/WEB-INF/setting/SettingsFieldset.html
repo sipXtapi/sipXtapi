@@ -1,4 +1,4 @@
-<ul jwcid="@If" condition="prop:hasAdvancedSettings" element="ul" class="component-links">
+<ul jwcid="@If" condition="prop:renderAdvancedToggle" element="ul" class="component-links">
   <li jwcid="@ToggleLink" toggle="prop:showAdvanced"/>
 </ul>
 <fieldset>
@@ -25,15 +25,24 @@
 </div>
 <div jwcid="settingBlock@Block">
   <span jwcid="@If" condition="prop:renderSetting">
-    <span jwcid="@SettingEditor"
+    <span jwcid="@setting/SettingEditor"
       setting="prop:currentSetting"
       enabled="prop:enabled"
       requiredEnabled="prop:requiredEnabled"
       messageSource="prop:messageSource" />
   </span>
-  <span jwcid="@If" condition="prop:renderSettingPlaceholder">
+  <span jwcid="@Else">
     <span jwcid="@Hidden" value="prop:currentSetting.value"/>
   </span>
 </div>
 <div jwcid="arrayBlock@Block">
+  <tr>
+    <td colspan="2">
+      <span jwcid="@setting/SettingsGrid"
+        setting="prop:currentSetting"
+        enabled="prop:enabled"
+        requiredEnabled="prop:requiredEnabled"
+        messageSource="prop:messageSource" />
+    </td>
+  </tr>
 </div>

@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.site.setting;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.tapestry.BaseComponent;
@@ -22,9 +23,9 @@ import org.apache.tapestry.annotations.Persist;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingArray;
-import org.sipfoundry.sipxconfig.setting.SettingFilter;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
 import org.sipfoundry.sipxconfig.setting.SettingUtil;
+import org.sipfoundry.sipxconfig.setting.SettingVisitor;
 import org.springframework.context.MessageSource;
 
 /**
@@ -48,9 +49,9 @@ public abstract class SettingsFieldset extends BaseComponent {
     @Parameter(defaultValue = "true")
     public abstract void setRequiredEnabled(boolean enabled);
 
-    public Collection<Setting> getFlattenedSettings() {
-        return SettingUtil.filter(SettingFilter.ALL, getSettings());
-    }
+    public abstract Collection<Setting> getFlattenedSettings();
+
+    public abstract void setFlattenedSettings(Collection<Setting> flat);
 
     @Persist(value = "session")
     public abstract boolean getShowAdvanced();
@@ -65,6 +66,8 @@ public abstract class SettingsFieldset extends BaseComponent {
 
     public abstract void setMessageSource(MessageSource setting);
 
+    public abstract void setRenderAdvancedToggle(boolean advanced);
+
     public IComponent getCurrentBlock() {
         String blockName = "settingBlock";
         Setting currentSetting = getCurrentSetting();
@@ -74,21 +77,6 @@ public abstract class SettingsFieldset extends BaseComponent {
             blockName = "arrayBlock";
         }
         return getComponent(blockName);
-    }
-
-    /**
-     * Collects ids of avanced settings to be used to refresh only those when toggle advanced link
-     * is clicked
-     * 
-     * @return collection of decorated settings ids
-     */
-    public boolean getHasAdvancedSettings() {
-        for (Setting setting : getFlattenedSettings()) {
-            if (setting.isAdvanced()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -104,7 +92,6 @@ public abstract class SettingsFieldset extends BaseComponent {
             // group title rendering not allowed
             return false;
         }
-
         return showSetting(setting);
     }
 
@@ -120,29 +107,10 @@ public abstract class SettingsFieldset extends BaseComponent {
     }
 
     boolean showSetting(Setting setting) {
-        if (setting.isHidden()) {
-            // do not render hidden seetings
-            return false;
+        if (getShowAdvanced()) {
+            return true;
         }
-        boolean isAdvanced = SettingUtil.isAdvancedIncludingParents(getSettings(), setting);
-        return !isAdvanced || getShowAdvanced();
-    }
-
-    /**
-     * Returns true for advanced settings that are not rendered. Instead we render a placeholder
-     * that keeps setting value in case it was modified.
-     * 
-     * @param setting
-     * @return true if setting is not rendered (is advanced and advanced settings are not shown)
-     */
-    public boolean getRenderSettingPlaceholder() {
-        Setting setting = getCurrentSetting();
-        if (setting.isHidden()) {
-            // do not render hidden seetings
-            return false;
-        }
-        boolean isAdvanced = SettingUtil.isAdvancedIncludingParents(getSettings(), setting);
-        return isAdvanced && !getShowAdvanced();
+        return !SettingUtil.isAdvancedIncludingParents(getSettings(), setting);
     }
 
     protected void prepareForRender(IRequestCycle cycle) {
@@ -151,6 +119,13 @@ public abstract class SettingsFieldset extends BaseComponent {
         // compute it every time
         if (getMessageSource() == null) {
             setMessageSource(getSettings().getMessageSource());
+        }
+        // compute flattened settings
+        if (getFlattenedSettings() == null) {
+            SettingsIron iron = new SettingsIron();
+            getSettings().acceptVisitor(iron);
+            setFlattenedSettings(iron.getFlat());
+            setRenderAdvancedToggle(iron.isAdvanced());
         }
     }
 
@@ -162,5 +137,45 @@ public abstract class SettingsFieldset extends BaseComponent {
     public String getLabel() {
         Setting setting = getCurrentSetting();
         return TapestryUtils.getSettingLabel(this, setting);
+    }
+
+    /**
+     * Strips hidden settings, checks for advanced flag. Please note that it's not a good idea to
+     * strip advanced settings here. We need to render advanced settings as hidden components on
+     * the page if user modifies them and then switches between 'advanced' and 'normal' views.
+     */
+    static class SettingsIron implements SettingVisitor {
+        private Collection<Setting> m_flat = new ArrayList<Setting>();
+        private boolean m_isAdvanced;
+
+        public Collection<Setting> getFlat() {
+            return m_flat;
+        }
+
+        public boolean isAdvanced() {
+            return m_isAdvanced;
+        }
+
+        public void visitSetting(Setting setting) {
+            if (setting.isHidden()) {
+                return;
+            }
+            m_isAdvanced = m_isAdvanced || setting.isAdvanced();
+            m_flat.add(setting);
+        }
+
+        public boolean visitSettingArray(SettingArray array) {
+            visitSetting(array);
+            // do not flatten array members
+            return false;
+        }
+
+        public boolean visitSettingGroup(SettingSet group) {
+            if (group.isHidden()) {
+                return false;
+            }
+            visitSetting(group);
+            return true;
+        }
     }
 }

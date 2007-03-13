@@ -51,14 +51,14 @@ public class SettingArrayTest extends TestCase {
     public void testAcceptVisitor() {
         final StringBuffer names = new StringBuffer();
 
-        SettingVisitor dummyVisitor = new SettingVisitor() {
+        SettingVisitor dummyVisitor = new AbstractSettingVisitor() {
             private Formatter m_formatter = new Formatter(names);
 
             public void visitSetting(Setting setting) {
                 m_formatter.format("/%s", setting.getName());
             }
 
-            public boolean visitSettingGroup(Setting group) {
+            public boolean visitSettingGroup(SettingSet group) {
                 if (group.getIndex() >= 0) {
                     m_formatter.format("/%s[%d]", group.getName(), group.getIndex());
                 } else {
