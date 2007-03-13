@@ -72,7 +72,7 @@ int MpAudioBuf::compareSamples(const MpAudioBuf& frame1,
         for(int sampleIndex = 0; sampleIndex < samplesInFrame1; sampleIndex++)
         {
             sampleDiff = *samples1 - *samples2;
-            if((sampleDiff > 0) && ((sampleDiff - tolerance) > 0))
+            if((sampleDiff > 0) && (sampleDiff > (int)tolerance))
             {
                 difference = 1;
                 break;
