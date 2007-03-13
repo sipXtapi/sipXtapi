@@ -21,6 +21,14 @@ public class Button implements Serializable {
     private String m_label;
     private String m_number;
     private boolean m_blf;
+    
+    public Button() {        
+    }
+
+    public Button(String label, String number) {
+        setNumber(number);
+        setLabel(label);
+    }
 
     public String getLabel() {
         return m_label;

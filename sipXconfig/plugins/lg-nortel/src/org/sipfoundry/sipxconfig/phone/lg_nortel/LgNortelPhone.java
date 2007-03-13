@@ -11,11 +11,17 @@
  */
 package org.sipfoundry.sipxconfig.phone.lg_nortel;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
 public class LgNortelPhone extends Phone {
     public static final String BEAN_ID = "lg-nortel";
@@ -47,6 +53,39 @@ public class LgNortelPhone extends Phone {
         LgNortelPhoneDefaults defaults = new LgNortelPhoneDefaults(phoneDefaults, lines);
         addDefaultBeanSettingHandler(defaults);
     }
+    
+    @Override
+    public void generateProfiles() {
+        SpeedDial speedDial = getPhoneContext().getSpeedDial(this);
+        ProfileContext context = new LgNortelProfileContext(this, speedDial);
+        getProfileGenerator().generate(context, getPhoneTemplate(), null, getPhoneFilename());        
+    }    
+    
+    static class LgNortelProfileContext extends ProfileContext {
+        private SpeedDial m_speeddial;
+        LgNortelProfileContext(LgNortelPhone phone, SpeedDial speeddial) {
+            super(phone);
+            m_speeddial = speeddial;
+        }
+
+        public Map<String, Object> getContext() {
+            Map<String, Object> context = super.getContext();
+            Collection buttons = Collections.EMPTY_LIST;
+            if (m_speeddial != null) {
+                buttons = m_speeddial.getButtons();
+            }
+            context.put("speeddials", buttons);
+
+            int speeddialOffset = 0;
+            Collection lines = ((Phone) getDevice()).getLines();
+            if (lines != null) {
+                speeddialOffset = lines.size();
+            }
+            context.put("speeddial_offset", speeddialOffset);            
+            
+            return context;
+        }        
+    }
 
     @Override
     public String getPhoneFilename() {
@@ -68,5 +107,4 @@ public class LgNortelPhone extends Phone {
     public void restart() {
         sendCheckSyncToFirstLine();
     }
-
 }

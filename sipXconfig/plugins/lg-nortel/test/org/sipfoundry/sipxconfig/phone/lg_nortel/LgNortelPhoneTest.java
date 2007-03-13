@@ -19,6 +19,8 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
@@ -28,6 +30,8 @@ import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.phone.RestartException;
+import org.sipfoundry.sipxconfig.speeddial.Button;
+import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
 public class LgNortelPhoneTest extends TestCase {
     public void _testFactoryRegistered() {
@@ -122,5 +126,63 @@ public class LgNortelPhoneTest extends TestCase {
             assertEquals(expectedLines[i], actualLines[i]);
         }
         assertEquals(expectedLines.length, actualLines.length);
+    }
+    
+    public void testSpeeddial() throws Exception {
+        Button[] buttons = new Button[] {
+            new Button("Yogi", "yogi@example.com"),
+            new Button("Daffy Duck", "213")                
+        };
+        SpeedDial sp = new SpeedDial();
+        sp.setButtons(Arrays.asList(buttons));
+        
+        LgNortelModel lgNortelModel = new LgNortelModel();
+        Phone phone = new LgNortelPhone(lgNortelModel);
+        IMocksControl phoneContextControl = EasyMock.createNiceControl();
+        PhoneContext phoneContext = phoneContextControl.createMock(PhoneContext.class);
+        PhoneTestDriver.supplyVitalTestData(phoneContextControl, phoneContext, phone);
+
+        phoneContext.getSpeedDial(phone);
+        phoneContextControl.andReturn(sp).anyTimes();
+        
+        phoneContextControl.replay();
+
+        {
+            MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+            phone.generateProfiles();
+            String actual = location.toString();      
+            String actualLines[] = StringUtils.split(actual, "\n");
+            int i = find(actualLines, "[PROG]");
+            assertTrue(i >= 0);
+            assertEquals("add 1 1 yogi@example.com", actualLines[i + 1]);
+            assertEquals("add 2 1 213", actualLines[i + 2]);
+        }
+
+        Line line = phone.createLine();
+        User user = new User();
+        user.setUserName("juser");
+        line.setUser(user);
+        phone.addLine(line);
+        {
+            MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+            phone.generateProfiles();
+            String actual = location.toString();    
+            String actualLines[] = StringUtils.split(actual, "\n");
+            int i = find(actualLines, "[PROG]");
+            assertTrue(i >= 0);
+            assertEquals("add 2 1 yogi@example.com", actualLines[i + 1]);
+            assertEquals("add 3 1 213", actualLines[i + 2]);
+        }
+
+        phoneContextControl.verify();
+    }
+    
+    private int find(String[] lines, String match) {
+        for (int i = 0; i < lines.length; i++) {
+            if (match.equals(lines[i])) {
+                return i;
+            }
+        }
+        return -1;
     }
 }
