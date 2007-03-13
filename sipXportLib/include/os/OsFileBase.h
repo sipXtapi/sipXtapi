@@ -85,6 +85,11 @@ public:
    //! Opens and write the given UtlString to the named file 
    static long openAndWrite(const char* filename, const UtlString& fileContentsToWrite);
 
+   //! Opens and write the given data to the named file 
+   static long openAndWrite(const char* filename, 
+                            const char* fileContentsToWrite,
+                            unsigned int contentLength);
+
    virtual OsStatus open(const int mode = READ_WRITE);
      //: Opens the specified file using the specified mode
      //: Returns:

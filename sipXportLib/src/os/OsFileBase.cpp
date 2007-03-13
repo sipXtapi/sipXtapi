@@ -145,13 +145,20 @@ long OsFileBase::openAndRead(const char* filename, UtlString& fileContentsRead)
 
 long OsFileBase::openAndWrite(const char* filename, const UtlString& fileContentsToWrite)
 {
+    return(openAndWrite(filename, fileContentsToWrite.data(), fileContentsToWrite.length()));
+}
+
+long OsFileBase::openAndWrite(const char* filename, 
+                              const char* fileContentsToWrite,
+                              unsigned int contentLength)
+{
     OsFile fileToWrite(filename);
 
     long totalBytesWritten = -1;
     unsigned long bytesWritten = 0;
     if(OS_SUCCESS == fileToWrite.open(WRITE_ONLY) &&
-       OS_SUCCESS == fileToWrite.write(fileContentsToWrite.data(),
-       fileContentsToWrite.length(), bytesWritten))
+       OS_SUCCESS == fileToWrite.write(fileContentsToWrite,
+       contentLength, bytesWritten))
     {
        totalBytesWritten = bytesWritten;
     }
