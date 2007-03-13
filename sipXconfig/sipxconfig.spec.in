@@ -27,7 +27,12 @@ Requires: sipxcommserverlib >= 3.7
 Requires: sipxpbx >= 3.7
 Requires: postgresql-server
 Requires: ruby
+%if %{_vendor} == redhat
 Requires: ruby-gems
+%endif
+%if %{_vendor} == suse
+Requires: rubygems
+%endif
 
 # known incompatabilities w/gcj, unclear how to enforce. can be issue
 # when gcj gets to 1.5, until them sun and ibm jvms ok
@@ -82,7 +87,12 @@ Summary: Configures/enables FTP for devices controlled by %{name}
 %package agent
 Requires: sipxcommserverlib
 Requires: ruby
+%if %{_vendor} == redhat
 Requires: ruby-gems
+%endif
+%if %{_vendor} == suse
+Requires: rubygems
+%endif
 
 %if %{_vendor} == redhat
 # irb is for file-tail gem
@@ -103,8 +113,16 @@ Requires: ruby
 Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
 Summary: Aggregates data from sipxconfig-agent into a database for reporting tools
+
+%if %{_vendor} == redhat
 Requires: ruby-gems
 Requires: ruby-postgres
+%endif
+%if %{_vendor} == suse
+Requires: rubygems
+Requires: rubygem-ruby-postgres
+%endif
+
 Requires: ruby-dbi
 
 %description report
