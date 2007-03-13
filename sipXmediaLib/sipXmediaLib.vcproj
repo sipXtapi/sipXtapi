@@ -2107,6 +2107,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MpInputDeviceDriver.cpp">
+			</File>
+			<File
 				RelativePath=".\src\mp\MpInputDeviceManager.cpp">
 			</File>
 			<File
@@ -2819,9 +2822,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpSineWaveGeneratorDeviceDriver.cpp">
-			</File>
-			<File
 				RelativePath=".\src\mp\MprSpeexEchoCancel.cpp">
 			</File>
 			<File
@@ -2977,6 +2977,9 @@
 			</File>
 			<File
 				RelativePath=".\src\mp\MpRtpBuf.cpp">
+			</File>
+			<File
+				RelativePath=".\src\mp\MpSineWaveGeneratorDeviceDriver.cpp">
 			</File>
 			<File
 				RelativePath="src\mp\MpSipxDecoders.cpp">
