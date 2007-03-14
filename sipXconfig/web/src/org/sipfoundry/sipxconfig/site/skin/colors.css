@@ -44,13 +44,25 @@ legend
 	color: #f60;
 }
 
-
-li.tab a:link,
-li.tab a:hover,
-li.tab a:visited
+div.tab.active a:link,
+div.tab.active a:hover,
+div.tab.active a:visited
 {
-	color: #00f;
+	color: #000;
+        font-weight: 700;
+        text-decoration: none;
 }
+
+div.tab 
+{
+	background-color: #ffc;
+}
+
+div.tab.active 
+{
+	background-color: #fff;
+}
+
 
 #banner
 {
