@@ -33,12 +33,10 @@ import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
 public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreContext,
-        ApplicationListener, DaoEventListener, BeanFactoryAware {
+        DaoEventListener, BeanFactoryAware {
 
     public static final String CONTEXT_BEAN_NAME = "coreContextImpl";
     private static final String USER_GROUP_RESOURCE_ID = "user";
@@ -343,15 +341,6 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     public void clear() {
         Collection c = getHibernateTemplate().find(QUERY_USER);
         getHibernateTemplate().deleteAll(c);
-    }
-
-    public void onApplicationEvent(ApplicationEvent event) {
-        if (event instanceof InitializationTask) {
-            InitializationTask task = (InitializationTask) event;
-            if (task.getTask().equals("admin-group-and-user")) {
-                createAdminGroupAndInitialUserTask();
-            }
-        }
     }
 
     /**
