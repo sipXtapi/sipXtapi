@@ -278,7 +278,7 @@ public:
       /// @brief as relates to reference time.
     OsStatus getTimeDerivatives(MpInputDeviceHandle deviceId,
                                 unsigned& nDerivatives,
-                                int*& derivativeBuf) const;
+                                double*& derivativeBuf) const;
       /**<
       *  Calculates the derivative: 
       *  <tt>(t2-t1)/(reference frame period) for sequential t1,t2</tt>

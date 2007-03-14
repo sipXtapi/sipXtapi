@@ -25,159 +25,201 @@
 
 class MpInputDeviceDriverTest : public CppUnit::TestCase
 {
-    CPPUNIT_TEST_SUITE(MpInputDeviceDriverTest);
-    CPPUNIT_TEST(testSetup);
-    CPPUNIT_TEST_SUITE_END();
+   CPPUNIT_TEST_SUITE(MpInputDeviceDriverTest);
+   CPPUNIT_TEST(testSetup);
+   CPPUNIT_TEST_SUITE_END();
 
 private:
-    MpBufPool* mpBufPool;
-    MpBufPool* mpHeadersPool;
+   MpBufPool* mpBufPool;
+   MpBufPool* mpHeadersPool;
 
-    int mNumBufferedFrames;
-    unsigned int mSamplesPerSecond;
-    unsigned int mFramePeriodMSecs;
+   int mNumBufferedFrames;
+   unsigned int mSamplesPerSecond;
+   unsigned int mFramePeriodMSecs;
 
 public:
-    void setUp()
-    {
-        mpBufPool = 
-            new MpBufPool(MIDDT_SAMPLES_PER_FRAME * sizeof(MpAudioSample)
-                          + MpArrayBuf::getHeaderSize(), 
-                          MIDDT_NBUFS);
-        CPPUNIT_ASSERT(mpBufPool != NULL);
+   void setUp()
+   {
+      mpBufPool = 
+         new MpBufPool(MIDDT_SAMPLES_PER_FRAME * sizeof(MpAudioSample)
+                       + MpArrayBuf::getHeaderSize(), 
+                       MIDDT_NBUFS);
+      CPPUNIT_ASSERT(mpBufPool != NULL);
 
-        // Create pool for buffer headers
-        mpHeadersPool = new MpBufPool(sizeof(MpAudioBuf), MIDDT_NBUFS);
-        CPPUNIT_ASSERT(mpHeadersPool != NULL);
+      // Create pool for buffer headers
+      mpHeadersPool = new MpBufPool(sizeof(MpAudioBuf), MIDDT_NBUFS);
+      CPPUNIT_ASSERT(mpHeadersPool != NULL);
 
-        // Set mpHeadersPool as default pool for audio and data pools.
-        MpAudioBuf::smpDefaultPool = mpHeadersPool;
-        MpDataBuf::smpDefaultPool = mpHeadersPool;
+      // Set mpHeadersPool as default pool for audio and data pools.
+      MpAudioBuf::smpDefaultPool = mpHeadersPool;
+      MpDataBuf::smpDefaultPool = mpHeadersPool;
 
-        mNumBufferedFrames = 5;
-        mSamplesPerSecond = 8000;
-        mFramePeriodMSecs = MIDDT_SAMPLES_PER_FRAME * 1000 / mSamplesPerSecond;
+      mNumBufferedFrames = 5;
+      mSamplesPerSecond = 8000;
+      mFramePeriodMSecs = MIDDT_SAMPLES_PER_FRAME * 1000 / mSamplesPerSecond;
+   }
+
+   UtlString getDefaultWaveInDevice()
+   {
+      UtlString devName("");
+#ifdef WIN32
+      UINT nInputDevs = waveInGetNumDevs();
+      CPPUNIT_ASSERT(nInputDevs > 0);
+      WAVEINCAPS devCaps;
+      MMRESULT res = waveInGetDevCaps(0, &devCaps, sizeof(devCaps));
+      CPPUNIT_ASSERT(res == MMSYSERR_NOERROR);
+      if (res == MMSYSERR_NOERROR)
+      {
+         devName = UtlString(devCaps.szPname, MAXPNAMELEN);
+      }
+#endif
+      return devName;
     }
 
-    UtlString getDefaultWaveInDevice()
-    {
-        UtlString devName("");
+
+
+
+   void testSetup()
+   {
+      MpInputDeviceManager inDevMgr(MIDDT_SAMPLES_PER_FRAME, 
+                                    mSamplesPerSecond,
+                                    mNumBufferedFrames, 
+                                    *mpBufPool);
+
+      MpInputDeviceDriver* pInDevDriver = NULL;
 #ifdef WIN32
-        UINT nInputDevs = waveInGetNumDevs();
-        CPPUNIT_ASSERT(nInputDevs > 0);
-        WAVEINCAPS devCaps;
-        MMRESULT res = waveInGetDevCaps(0, &devCaps, sizeof(devCaps));
-        CPPUNIT_ASSERT(res == MMSYSERR_NOERROR);
-        if (res == MMSYSERR_NOERROR)
-        {
-            devName = UtlString(devCaps.szPname, MAXPNAMELEN);
-        }
+      MpInputDeviceDriverWnt iDevDriverWnt(getDefaultWaveInDevice(), inDevMgr);
+      pInDevDriver = &iDevDriverWnt;
 #endif
-        return devName;
-    }
-
-
-
-
-    void testSetup()
-    {
-        MpInputDeviceManager inDevMgr(MIDDT_SAMPLES_PER_FRAME, 
-                                      mSamplesPerSecond,
-                                      mNumBufferedFrames, 
-                                      *mpBufPool);
-
-        MpInputDeviceDriver* pInDevDriver = NULL;
+      if (pInDevDriver != NULL)
+      {
 #ifdef WIN32
-        MpInputDeviceDriverWnt iDevDriverWnt(getDefaultWaveInDevice(), inDevMgr);
-        pInDevDriver = &iDevDriverWnt;
-#endif
-        if (pInDevDriver != NULL)
-        {
-#ifdef WIN32
-            // Verify that we are pointing at an actual windows device.
-            CPPUNIT_ASSERT(iDevDriverWnt.isDeviceValid());
+         // Verify that we are pointing at an actual windows device.
+         CPPUNIT_ASSERT(iDevDriverWnt.isDeviceValid());
 #endif
 
-            // Since we've only just created this device, it shouldn't be enabled.
-            CPPUNIT_ASSERT(!pInDevDriver->isEnabled());
-            // And shouldn't have a valid device handle/ID.
-            CPPUNIT_ASSERT(pInDevDriver->getDeviceId() < 0);
+         // Since we've only just created this device, it shouldn't be enabled.
+         CPPUNIT_ASSERT(!pInDevDriver->isEnabled());
+         // And shouldn't have a valid device handle/ID.
+         CPPUNIT_ASSERT(pInDevDriver->getDeviceId() < 0);
 
-            // Try to enable the device when it isn't added to a manager..
-            // SHOULDN'T DO THIS - Only the manager should be able to do this..
-            // perhaps enabling should be protected, and manager be friended?
-            //CPPUNIT_ASSERT(iDrv->enableDevice(10,10,10) != OS_SUCCESS);
+         // Try to enable the device when it isn't added to a manager..
+         // SHOULDN'T DO THIS - Only the manager should be able to do this..
+         // perhaps enabling should be protected, and manager be friended?
+         //CPPUNIT_ASSERT(iDrv->enableDevice(10,10,10) != OS_SUCCESS);
 
-            // Add the device to an input manager.
-            MpInputDeviceHandle iDrvHnd = inDevMgr.addDevice(*pInDevDriver);
+         // Add the device to an input manager.
+         MpInputDeviceHandle iDrvHnd = inDevMgr.addDevice(*pInDevDriver);
 
-            // Verify it has a valid handle/ID.
-            CPPUNIT_ASSERT(iDrvHnd > 0);
+         // Verify it has a valid handle/ID.
+         CPPUNIT_ASSERT(iDrvHnd > 0);
 
-            // Try to disable it -- this should fail, since it isn't enabled yet.
-            // Also note that one should be disabling/enabling via the manager..
-            // I'm just verifying that disabling the device itself when it isn't
-            // set up doesn't kill things.
-            CPPUNIT_ASSERT(pInDevDriver->disableDevice() != OS_SUCCESS);
+         // Try to disable it -- this should fail, since it isn't enabled yet.
+         // Also note that one should be disabling/enabling via the manager..
+         // I'm just verifying that disabling the device itself when it isn't
+         // set up doesn't kill things.
+         CPPUNIT_ASSERT(pInDevDriver->disableDevice() != OS_SUCCESS);
 
-            // Now enable it via the manager -- this should succeed.
-            CPPUNIT_ASSERT(inDevMgr.enableDevice(iDrvHnd) == OS_SUCCESS);
+         // Now enable it via the manager -- this should succeed.
+         CPPUNIT_ASSERT(inDevMgr.enableDevice(iDrvHnd) == OS_SUCCESS);
 
-            int* derivs = new int[mNumBufferedFrames-1];
-            unsigned nMSecsToRecord = 200;
-            int nMSPerBuffer = mNumBufferedFrames * mFramePeriodMSecs;
-            unsigned i;
-            for(i = 0; 
-                i < nMSecsToRecord; 
-                i = i+nMSPerBuffer)
+         unsigned nMSecsToRecord = 1000;
+
+         UtlString derivPlotStr;
+         derivPlotStr.capacity((nMSecsToRecord/mFramePeriodMSecs) << 2);
+         UtlString derivWAvgStr;
+
+         int nMSPerBuffer = mNumBufferedFrames * mFramePeriodMSecs;
+         double* derivs = new double[(mNumBufferedFrames-1)*(nMSecsToRecord/nMSPerBuffer)];
+         unsigned i;
+         for(i=0;i<(mNumBufferedFrames-1)*(nMSecsToRecord/nMSPerBuffer);i++)
+            derivs[i] = -1;
+
+         unsigned derivBufPos;
+         unsigned derivBufSz = 0;
+         unsigned nDerivsPerBuf = mNumBufferedFrames-1;
+         for(i = 0, derivBufPos = 0;
+             i < nMSecsToRecord; 
+             i = i+nMSPerBuffer, derivBufPos += nDerivsPerBuf)
+         {
+            // Reset nDerivsPerBuf, as getting time derivs could have changed it.
+            nDerivsPerBuf = mNumBufferedFrames-1;
+            
+            // Sleep till when the input buffer should be full
+            OsTask::delay(nMSPerBuffer);
+
+            // Grab time derivative statistics..
+            double* curDerivFramePtr = (double*)(derivs + derivBufPos);
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                                 inDevMgr.getTimeDerivatives(iDrvHnd, 
+                                                             nDerivsPerBuf, 
+                                                             curDerivFramePtr));
+            derivBufSz += nDerivsPerBuf;
+         }
+
+         // Define weighted average accumulator and period.
+         double derivWeightedAverage = 0;
+         int derivWAvgPeriod = 5;
+
+         // Now that we have all the derivatives, 
+         // make a string out of em..
+         for(i = 0; i < derivBufSz; i++)
+         {
+            // Prepare the derivative line to print.
+#           define NUMSTRSZ 32
+            char tmpBuf[NUMSTRSZ];
+
+            // Add derivative to our big-long string that can be used for plotting.
+            snprintf(tmpBuf, NUMSTRSZ, "%.2f", derivs[i]);
+            derivPlotStr.append(tmpBuf);
+            if(i < derivBufSz-1) // While there's still one more, put a comma
+               derivPlotStr.append(", ");
+
+            if ((i != 0) && (i % derivWAvgPeriod) == 0)
             {
-                // Sleep till when the input buffer should be full
-                OsTask::delay(nMSPerBuffer);
+               // Now that we have derivWAvgPeriod samples,
+               // calculate and assign the actual weighted average.
+               derivWeightedAverage = derivWeightedAverage / derivWAvgPeriod;
 
-                // Grab time derivative statistics..
-                unsigned nDerivs = mNumBufferedFrames-1;
-                CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                                     inDevMgr.getTimeDerivatives(iDrvHnd, 
-                                                                 nDerivs, 
-                                                                 derivs));
+               // Now append this to our weighted average string.
+               snprintf(tmpBuf, NUMSTRSZ, "%.2f", derivWeightedAverage);
+               derivWAvgStr.append(tmpBuf);
+               derivWAvgStr.append(", ");
 
-                // Prepare the derivative line to print.
-#               define NUMSTRSZ 32
-                char startTStr[NUMSTRSZ];
-                snprintf(startTStr, NUMSTRSZ, "%d", i);
-                char endTStr[NUMSTRSZ];
-                snprintf(endTStr, NUMSTRSZ, "%d", i+nMSPerBuffer);
-                char tmpBuf[NUMSTRSZ];
-                UtlString derivStr = 
-                    UtlString("derivs(") + startTStr + ", " + endTStr + "): ";
-
-                unsigned j;
-                for(j = 0; j < nDerivs; j++)
-                {
-                    snprintf(tmpBuf, NUMSTRSZ, "%d", derivs[j]);
-                    derivStr += tmpBuf;
-                    if(j < nDerivs-1) // While there's still one more, put a comma
-                        derivStr += ", ";
-                }
-                printf("%s\n", derivStr.data());
+               // reset the weighted average collector.
+               derivWeightedAverage = 0;
             }
 
-            // Ok, now disable it via the manager -- this time it should succeed.
-            CPPUNIT_ASSERT(inDevMgr.disableDevice(iDrvHnd) == OS_SUCCESS);
-        }  // if pInDevDriver != NULL
-    }
+            derivWeightedAverage += derivs[i];
 
-    void tearDown()
-    {
-        if (mpBufPool != NULL)
-        {
-            delete mpBufPool;
-        }
-        if (mpHeadersPool != NULL)
-        {
-            delete mpHeadersPool;
-        }
-    }
+            try { CPPUNIT_ASSERT(derivs[i] <= 4); }
+            catch (CppUnit::Exception& e)
+            {
+               inDevMgr.disableDevice(iDrvHnd);
+               throw(e);
+            }
+         }
+
+         // Ok, now disable it via the manager -- this time it should succeed.
+         CPPUNIT_ASSERT(inDevMgr.disableDevice(iDrvHnd) == OS_SUCCESS);
+
+         // Now print out our derivative results.
+         printf(" derivatives: %s\n", derivPlotStr.data());
+         printf("weighted avg: %s\n", derivWAvgStr.data());
+      }  // if pInDevDriver != NULL
+   }
+
+   void tearDown()
+   {
+      if (mpBufPool != NULL)
+      {
+         delete mpBufPool;
+      }
+      if (mpHeadersPool != NULL)
+      {
+         delete mpHeadersPool;
+      }
+   }
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(MpInputDeviceDriverTest);

@@ -250,7 +250,7 @@ public:
 
 
     unsigned getTimeDerivatives(unsigned nDerivatives, 
-                                int*& derivativeBuf)
+                                double*& derivativeBuf)
     {
         unsigned nActualDerivs = 0;
         
@@ -284,7 +284,7 @@ public:
 
             long t2OsMsecs = t2FrameData->mFrameReceivedTime.cvtToMsecs();
             long t1OsMsecs = t1FrameData->mFrameReceivedTime.cvtToMsecs();
-            int curDeriv = (t2OsMsecs - t1OsMsecs) / referenceFramePeriod;
+            double curDeriv = (double)(t2OsMsecs - t1OsMsecs) / referenceFramePeriod;
             derivativeBuf[t2FrameIdx] = curDeriv;
             nActualDerivs++;
         }
@@ -671,7 +671,7 @@ MpFrameTime MpInputDeviceManager::getCurrentFrameTime() const
 
 OsStatus MpInputDeviceManager::getTimeDerivatives(MpInputDeviceHandle deviceId,
                                                   unsigned& nDerivatives,
-                                                  int*& derivativeBuf) const
+                                                  double*& derivativeBuf) const
 {
     OsStatus stat = OS_INVALID_ARGUMENT;
     unsigned nActualDerivs = 0;
