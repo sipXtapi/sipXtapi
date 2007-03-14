@@ -58,6 +58,6 @@ public class ModelBuilderCacheInterceptor implements MethodInterceptor {
      */
     protected String getCacheKey(Object[] arguments) {
         File file = (File) arguments[0];
-        return file.getAbsolutePath();
+        return file.getPath();
     }
 }
