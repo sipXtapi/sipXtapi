@@ -153,7 +153,6 @@ div.shadow
 {
 	margin: 0;
 	padding: 0;
-    z-index: 500;
 }
 
 #navigation li {
@@ -163,6 +162,8 @@ div.shadow
 	text-align:center;
 	margin: 0;
 	padding: 0;
+	/* IE explorer only - working around Z-index bug */
+    _z-index: 500;
 }
 
 #navigation li ul {
@@ -182,6 +183,7 @@ div.shadow
 #navigation li:hover ul,
 #navigation li.over ul { 
 	display: block; 
+    z-index: 500;
 }
 
 #navigation a {
