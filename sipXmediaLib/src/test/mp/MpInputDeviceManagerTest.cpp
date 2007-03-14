@@ -217,7 +217,7 @@ public:
                                                 inputDeviceManager,
                                                 sineMagnatude,
                                                 sinePeriod,
-                                                0); // no clock squew
+                                                0); // no clock skew
         CPPUNIT_ASSERT(!sineWaveDevice->isEnabled());
 
         // Add the device

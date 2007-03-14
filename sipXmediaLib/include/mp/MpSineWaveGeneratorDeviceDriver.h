@@ -69,7 +69,7 @@ public:
       *         than CPU clock by the given number of microseconds.  This
       *         is the amount of time sooner (negative) or later (positive)
       *         that a frame of samples is produced.  The mUnderOverRunTime
-      *         is effectively zero if its magantude is not greater than the
+      *         is effectively zero if its magnitude is not greater than the
       *         OsTimer granularity or accuracy.
       */
 
