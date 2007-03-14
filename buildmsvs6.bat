@@ -149,7 +149,7 @@ sed -e "/^\(OK (\|Run:\)/!d;s/^/sipXmediaAdapterLib - /" %NAME_PREFIX%adapter.tx
 sipXcallLib\Debug\sipXcallLibTest.exe 2> %NAME_PREFIX%call.err.txt > %NAME_PREFIX%call.txt
 sed -e "/^\(OK (\|Run:\)/!d;s/^/sipXcallLib - /" %NAME_PREFIX%call.txt
 
-sipXcallLib\sipXtapi\Debug\sipXtapiTest.exe 2> %NAME_PREFIX%tapi.err.txt > %NAME_PREFIX%tapi.txt
+sipXcallLib\Debug\sipXtapiTest.exe 2> %NAME_PREFIX%tapi.err.txt > %NAME_PREFIX%tapi.txt
 sed -e "/^\(OK (\|Run:\)/!d;s/^/sipXtapi - /" %NAME_PREFIX%tapi.txt
             
 
