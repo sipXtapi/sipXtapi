@@ -19,11 +19,8 @@ public class ModelFilesContextImpl implements ModelFilesContext {
 
     private ModelBuilder m_modelBuilder;
 
-    // AOP NOTE: methods matching loadModelFile are cacheable    
     public Setting loadModelFile(String basename) {
-        File modelFile = getModelFile(basename, null);
-        SettingSet model = m_modelBuilder.buildModel(modelFile);
-        return model.copy();
+        return loadModelFile(basename, null);
     }
 
     /**
@@ -34,11 +31,10 @@ public class ModelFilesContextImpl implements ModelFilesContext {
      * 
      * @return new copy of the settings model
      */
-    // AOP NOTE: methods matching loadModelFile are cacheable    
     public Setting loadModelFile(String basename, String manufacturer) {
         File modelFile = getModelFile(basename, manufacturer);
-        Setting model = m_modelBuilder.buildModel(modelFile);
-        return model;
+        SettingSet model = m_modelBuilder.buildModel(modelFile);
+        return model.copy();
     }
 
     /**
@@ -46,30 +42,27 @@ public class ModelFilesContextImpl implements ModelFilesContext {
      * contained in this set. Example: if Set = { "Hi" } then settings/groups with if="Hi" will be
      * included settings/groups with unless="Hi" will not be included
      */
-    // AOP NOTE: methods matching loadModelFile are cacheable, this intentionally is not    
     public Setting loadDynamicModelFile(String basename, String manufacturer, Set defines) {
         return loadDynamicModelFile(basename, manufacturer, new SimpleDefinitionsEvaluator(defines));
     }
 
-    // AOP NOTE: methods matching loadModelFile are cacheable, this intentionally is not    
-    public Setting loadDynamicModelFile(String basename, String manufacturer, SettingExpressionEvaluator evalutor) {
-        Setting model = null;
+    public Setting loadDynamicModelFile(String basename, String manufacturer,
+            SettingExpressionEvaluator evalutor) {
         Setting master = loadModelFile(basename, manufacturer);
-        if (master != null) {
-            ConditionalSet conditional = (ConditionalSet) master;
-            model = conditional.evaluate(evalutor);
+        if (master == null) {
+            return null;
         }
+        ConditionalSet conditional = (ConditionalSet) master;
+        Setting model = conditional.evaluate(evalutor);
+        // no need to create an extra copy of the model, evaluator is already doing it
         return model;
     }
 
-    File getModelDirectory(String manufacturer) {
-        File modelDir;
+    private File getModelDirectory(String manufacturer) {
         if (manufacturer == null) {
-            modelDir = new File(m_configDirectory);
-        } else {
-            modelDir = new File(m_configDirectory, manufacturer);
+            return new File(m_configDirectory);
         }
-        return modelDir;
+        return new File(m_configDirectory, manufacturer);
     }
 
     /**

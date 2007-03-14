@@ -14,17 +14,11 @@
     </property>
   </bean>
 
-  <bean id="copyModelInterceptor" class="org.sipfoundry.sipxconfig.setting.CopyFromCacheInterceptor">
-    <property name="cacheInterceptor">
+  <bean id="loadModelCacheAdvisor" class="org.springframework.aop.support.DefaultPointcutAdvisor">
+    <property name="advice">
       <bean class="org.sipfoundry.sipxconfig.setting.ModelBuilderCacheInterceptor">
         <property name="cache" ref="methodCache" />
       </bean>
-    </property>
-  </bean>
-
-  <bean id="loadModelCacheAdvisor" class="org.springframework.aop.support.DefaultPointcutAdvisor">
-    <property name="advice">
-      <ref local="copyModelInterceptor" />
     </property>
   </bean>
 

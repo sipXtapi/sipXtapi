@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
-import java.io.File;
 import java.util.Set;
 
 public interface ModelFilesContext {
@@ -22,6 +21,4 @@ public interface ModelFilesContext {
     public Setting loadDynamicModelFile(String basename, String manufacturer, Set defines);
     
     public Setting loadDynamicModelFile(String basename, String manufacturer, SettingExpressionEvaluator evalutor);
-
-    public File getModelFile(String basename, String manufacturer);
 }
